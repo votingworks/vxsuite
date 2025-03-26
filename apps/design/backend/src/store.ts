@@ -1049,58 +1049,44 @@ export class Store {
   }
 
   async createParty(electionId: ElectionId, party: Party): Promise<void> {
-    const { election } = await this.getElection(electionId);
-    await this.updateElection(electionId, {
-      ...election,
-      parties: [...election.parties, party],
-    });
+    await this.db.withClient((client) =>
+      insertParty(client, electionId, party)
+    );
   }
 
   async updateParty(electionId: ElectionId, party: Party): Promise<void> {
-    const { election } = await this.getElection(electionId);
-    assert(
-      election.parties.some((p) => p.id === party.id),
-      'Party not found'
+    const { rowCount } = await this.db.withClient((client) =>
+      client.query(
+        `
+          update parties
+          set
+            name = $1,
+            full_name = $2,
+            abbrev = $3
+          where id = $4 and election_id = $5
+        `,
+        party.name,
+        party.fullName,
+        party.abbrev,
+        party.id,
+        electionId
+      )
     );
-    const updatedParties = election.parties.map((p) =>
-      p.id === party.id ? party : p
-    );
-    await this.updateElection(electionId, {
-      ...election,
-      parties: updatedParties,
-    });
+    assert(rowCount === 1, 'Party not found');
   }
 
   async deleteParty(electionId: ElectionId, partyId: string): Promise<void> {
-    const { election } = await this.getElection(electionId);
-    assert(
-      election.parties.some((p) => p.id === partyId),
-      'Party not found'
+    const { rowCount } = await this.db.withClient((client) =>
+      client.query(
+        `
+          delete from parties
+          where id = $1 and election_id = $2
+        `,
+        partyId,
+        electionId
+      )
     );
-    const updatedParties = election.parties.filter((p) => p.id !== partyId);
-    // When deleting a party, we need to remove it from any
-    // contests/candidates that reference it
-    const updatedContests = election.contests.map((contest) => {
-      if (contest.type === 'candidate') {
-        return {
-          ...contest,
-          partyId: contest.partyId === partyId ? undefined : contest.partyId,
-          candidates: contest.candidates.map((candidate) => {
-            const partyIds = candidate.partyIds?.filter((id) => id !== partyId);
-            return {
-              ...candidate,
-              partyIds: partyIds && partyIds.length > 0 ? partyIds : undefined,
-            };
-          }),
-        };
-      }
-      return contest;
-    });
-    await this.updateElection(electionId, {
-      ...election,
-      parties: updatedParties,
-      contests: updatedContests,
-    });
+    assert(rowCount === 1, 'Party not found');
   }
 
   async listContests(electionId: ElectionId): Promise<readonly AnyContest[]> {
