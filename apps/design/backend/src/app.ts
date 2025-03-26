@@ -76,7 +76,7 @@ import {
   authEnabled,
 } from './globals';
 import { createBallotPropsForTemplate, defaultBallotTemplate } from './ballots';
-import { getPdfFileName, regenerateElectionIds } from './utils';
+import { generateId, getPdfFileName, regenerateElectionIds } from './utils';
 import {
   ElectionFeaturesConfig,
   getElectionFeaturesConfig,
@@ -138,7 +138,7 @@ export function convertVxfPrecincts(election: Election): SplittablePrecinct[] {
     return {
       ...precinct,
       splits: ballotStyles.map((ballotStyle, index) => ({
-        id: `${precinct.id}-split-${index + 1}`,
+        id: generateId(),
         name: `${precinct.name} - Split ${index + 1}`,
         districtIds: ballotStyle.districts,
       })),
