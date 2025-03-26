@@ -76,7 +76,7 @@ import {
   authEnabled,
 } from './globals';
 import { createBallotPropsForTemplate, defaultBallotTemplate } from './ballots';
-import { getPdfFileName } from './utils';
+import { getPdfFileName, regenerateElectionIds } from './utils';
 import {
   ElectionFeaturesConfig,
   getElectionFeaturesConfig,
@@ -246,17 +246,27 @@ function buildApi({ auth, workspace, translator }: AppContext) {
 
       const parseResult = safeParseElection(input.electionData);
       if (parseResult.isErr()) return parseResult;
-      let election = parseResult.ok();
-      const precincts = convertVxfPrecincts(election);
-      election = {
-        ...election,
+      const sourceElection = parseResult.ok();
+      const sourcePrecincts = convertVxfPrecincts(sourceElection);
+      const { districts, precincts, parties, contests } = regenerateElectionIds(
+        sourceElection,
+        sourcePrecincts
+      );
+      const election: Election = {
+        ...sourceElection,
         id: input.newId,
+        districts,
+        precincts: precincts.map((p) => ({
+          id: p.id,
+          name: p.name,
+        })),
+        parties,
+        contests,
         // Remove any existing ballot styles/grid layouts so we can generate our own
         ballotStyles: [],
-        precincts,
         gridLayouts: undefined,
         // Fill in a blank seal if none is provided
-        seal: election.seal ?? '',
+        seal: sourceElection.seal ?? '',
       };
       await store.createElection(
         input.orgId,
@@ -298,8 +308,13 @@ function buildApi({ auth, workspace, translator }: AppContext) {
         destOrgId: string;
       }>
     ): Promise<ElectionId> {
-      const { election, ballotTemplateId, orgId, precincts, systemSettings } =
-        await store.getElection(input.srcId);
+      const {
+        election: sourceElection,
+        ballotTemplateId,
+        precincts: sourcePrecincts,
+        orgId,
+        systemSettings,
+      } = await store.getElection(input.srcId);
 
       if (!auth.hasAccess(input.user, orgId)) {
         throw new grout.GroutError('Access denied', {
@@ -312,12 +327,23 @@ function buildApi({ auth, workspace, translator }: AppContext) {
         });
       }
 
+      const { districts, precincts, parties, contests } = regenerateElectionIds(
+        sourceElection,
+        sourcePrecincts
+      );
       await store.createElection(
         input.destOrgId,
         {
-          ...election,
+          ...sourceElection,
           id: input.destId,
-          title: `(Copy) ${election.title}`,
+          title: `(Copy) ${sourceElection.title}`,
+          districts,
+          precincts: precincts.map((p) => ({
+            id: p.id,
+            name: p.name,
+          })),
+          parties,
+          contests,
         },
         precincts,
         ballotTemplateId,
