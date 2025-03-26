@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ok, throwIllegalValue } from '@votingworks/basics';
+import { throwIllegalValue } from '@votingworks/basics';
 import { Button, Loading, Modal, P } from '@votingworks/ui';
 import { getDeviceStatuses, exportVoterActivity } from './api';
 

@@ -18,7 +18,7 @@ import {
 import { Link, useRouteMatch } from 'react-router-dom';
 import styled from 'styled-components';
 import type { PrinterStatus } from '@votingworks/types';
-import { type NetworkStatus } from '@votingworks/pollbook-backend';
+import type { NetworkStatus } from '@votingworks/pollbook-backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import type { BatteryInfo } from '@votingworks/backend';
 import { format } from '@votingworks/utils';
