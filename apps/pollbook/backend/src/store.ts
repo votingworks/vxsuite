@@ -1,7 +1,6 @@
 import { Client as DbClient } from '@votingworks/db';
 // import { Iso8601Timestamp } from '@votingworks/types';
 import { join } from 'node:path';
-import { v4 as uuid } from 'uuid';
 import { BaseLogger } from '@votingworks/logging';
 import {
   assert,
