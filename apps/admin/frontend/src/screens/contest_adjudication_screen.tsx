@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import {
@@ -15,6 +15,8 @@ import {
   LinkButton,
   Loading,
   Icons,
+  H2,
+  H1,
 } from '@votingworks/ui';
 import { assert, find, throwIllegalValue } from '@votingworks/basics';
 import { useParams } from 'react-router-dom';
@@ -45,132 +47,86 @@ import { NavigationScreen } from '../components/navigation_screen';
 import { CandidateButton } from '../components/candidate_button';
 import { normalizeWriteInName } from '../utils/write_ins';
 
+const DEFAULT_PADDING = '0.75rem';
+const ADJUDICATION_PANEL_WIDTH = '23.5rem';
+
 const BallotPanel = styled.div`
   background: black;
   flex: 1;
 `;
 
-const Row = styled.div`
-  display: flex;
-  padding: 0.75rem;
-  justify-content: space-between;
-  align-items: center;
-`;
-
 const AdjudicationPanel = styled.div`
   display: flex;
   flex-direction: column;
-  width: 23.5rem;
-  height: 100vh;
-  margin: 0;
   border-left: 4px solid black;
-  max-height: 100%;
+  height: 100vh;
+  width: ${ADJUDICATION_PANEL_WIDTH};
 `;
 
 const AdjudicationPanelOverlay = styled.div`
   position: absolute;
   top: 0;
   right: 0;
-  width: 23.5rem;
   height: 100vh;
-  background: rgba(0, 0, 0, 50%);
-  backdrop-filter: blur(1px);
+  width: ${ADJUDICATION_PANEL_WIDTH};
   z-index: 15;
-  pointer-events: auto;
+  backdrop-filter: blur(1px);
+  background: rgba(0, 0, 0, 50%);
 `;
 
-const StyledSpan = styled.span`
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: ${(p) => p.theme.colors.onBackgroundMuted};
-  flex-wrap: no-wrap;
-`;
-
-const OvervoteLabel = styled.span`
-  font-size: 1rem;
-  font-weight: 500;
-  color: ${(p) => p.theme.colors.inverseBackground};
-  margin-right: 0.5rem;
-`;
-
-const AdjudicationPanelHeaderRow = styled(Row)`
-  background: ${(p) => p.theme.colors.inverseBackground};
-  color: ${(p) => p.theme.colors.onInverse};
-  z-index: 10;
-  align-items: center;
-  height: 4rem;
-
-  h1 {
-    margin: 0;
-    font-size: 1.125rem;
-    font-weight: 800;
-  }
-
-  button {
-    padding: 0.5rem 1rem;
-  }
-`;
-
-const DigitalBallot = styled.div`
+const AdjudicationBallot = styled.div`
   display: flex;
   flex-direction: column;
   background: ${(p) => p.theme.colors.background};
   height: calc(100% - 4rem);
-  max-height: 100%;
 `;
 
-const DigitalBallotInfoRow = styled(Row)`
-  background: ${(p) => p.theme.colors.containerHigh};
+const BaseRow = styled.div`
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: start;
+  padding: ${DEFAULT_PADDING};
+`;
+
+const AdjudicationPanelHeader = styled(BaseRow)`
+  background: ${(p) => p.theme.colors.inverseBackground};
+  color: ${(p) => p.theme.colors.onInverse};
+  height: 4rem;
+
+  button {
+    font-weight: 600;
+  }
+`;
+
+const AdjudicationBallotVoteCount = styled(BaseRow)`
+  background: ${(p) => p.theme.colors.containerHigh};
   border-bottom: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
     ${(p) => p.theme.colors.outline};
+  justify-content: space-between;
 `;
 
-const DigitalBallotMetadataRow = styled(Row)`
+const AdjudicationBallotFooter = styled(BaseRow)`
+  flex-direction: column;
+  justify-content: start;
+  align-items: stretch;
+  gap: 0.5rem;
   background: ${(p) => p.theme.colors.container};
-  justify-content: space-between;
-  height: 1.5rem;
-  z-index: 10;
-  width: 100%;
-  margin-top: auto;
-  padding-bottom: 0.25rem;
   border-top: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
     ${(p) => p.theme.colors.outline};
+  width: 100%;
 `;
 
-const DigitalBallotFooterRow = styled(Row)`
-  width: 100%;
-  z-index: 10;
-  flex-direction: column;
-  background: ${(p) => p.theme.colors.container};
-  justify-content: start;
-  padding-top: 0.5rem;
+const AdjudicationBallotMetadata = styled(BaseRow)`
+  padding: 0;
+`;
+
+const AdjudicationBallotNavigation = styled(BaseRow)`
   gap: 0.5rem;
+  padding: 0;
 
   button {
     flex-wrap: nowrap;
   }
-`;
-
-const StyledH3 = styled.h3`
-  font-size: 1.25rem;
-  font-weight: 800;
-  margin: 0;
-  margin-bottom: 0.5rem;
-`;
-
-const StyledH4 = styled.h4`
-  color: ${(p) => p.theme.colors.onInverse};
-  font-size: 0.875rem;
-  margin: 0;
-  margin-bottom: 0.125rem;
-`;
-
-const StyledP = styled.p`
-  font-size: 1rem;
-  font-weight: 700;
-  margin: 0;
 `;
 
 const CandidateButtonList = styled.div`
@@ -178,19 +134,50 @@ const CandidateButtonList = styled.div`
   flex-direction: column;
   align-items: stretch;
   gap: 0.5rem;
-  overflow-y: scroll;
-  position: relative;
-  flex-grow: 1;
-  min-height: 0;
-  padding: 0.75rem;
-  margin-right: 0.25rem; /* space between scrollbar and container */
   background: ${(p) => p.theme.colors.background};
+  flex-grow: 1;
+  overflow-y: scroll;
+  padding: ${DEFAULT_PADDING};
 `;
 
 const CandidateButtonCaption = styled.span`
   font-size: 0.75rem;
   color: ${(p) => p.theme.colors.neutral};
   margin: 0.25rem 0 0.25rem 0.125rem;
+`;
+
+const ContestTitleDiv = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+`;
+
+const StyledH1 = styled(H1)`
+  font-size: 1.125rem;
+  margin: 0;
+`;
+
+const StyledH2 = styled(H2)`
+  font-size: 0.875rem;
+  margin: 0;
+`;
+
+const MediumText = styled.p`
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+`;
+
+const SmallText = styled.span`
+  color: ${(p) => p.theme.colors.onBackgroundMuted};
+  font-size: 0.875rem;
+  font-weight: 500;
+`;
+
+const Label = styled.span`
+  color: ${(p) => p.theme.colors.inverseBackground};
+  font-size: 1rem;
+  font-weight: 500;
 `;
 
 function formCandidateButtonCaption(originalVote: boolean, newVote: boolean) {
@@ -259,6 +246,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
   // Current cvr, write-in, and queue management
 
   const numBallots = writeInCvrQueueQuery.data?.length;
+  const onLastBallot = scrollIndex ? scrollIndex + 1 === numBallots : false;
   const voteAdjudications = cvrContestVoteAdjudicationsQuery.data;
 
   // CVR write-in data and images
@@ -593,7 +581,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
     <Screen>
       <Main flexRow>
         <BallotPanel>
-          {isFocusedWriteInHmpb ? (
+          {isFocusedWriteInHmpb && (
             <BallotZoomImageViewer
               key={currentCvrId} // Reset zoom state for each write-in
               imageUrl={firstWriteInImage.imageUrl}
@@ -605,80 +593,41 @@ export function ContestAdjudicationScreen(): JSX.Element {
                   : firstWriteInImage.contestCoordinates
               }
             />
-          ) : isFocusedWriteInBmd ? (
+          )}
+          {isFocusedWriteInBmd && (
             <BallotStaticImageViewer
               key={currentCvrId}
               imageUrl={firstWriteInImage.imageUrl}
             />
-          ) : null}
-          {/* <StickyFooter>
-            <Button
-              icon={true ? 'ZoomOut' : 'ZoomIn'}
-              onPress={() => !true}
-              // color="neutral"
-              // fill="tinted"
-            >
-              Zoom {true ? 'Out' : 'In'}
-            </Button>
-          </StickyFooter> */}
+          )}
         </BallotPanel>
-        {focusedOptionId && <AdjudicationPanelOverlay />}
         <AdjudicationPanel>
-          <AdjudicationPanelHeaderRow>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <StyledH4 as="h2">
-                {getContestDistrictName(election, contest)}
-              </StyledH4>
-              <StyledH3 as="h1">
-                {contest.title.replace('Reprsentatives', 'Representatives')}
-              </StyledH3>
-            </div>
-            {/* <H4
-              as="h1"
-              style={{
-                fontSize: '1.125rem',
-                fontWeight: 500,
-              }}
-            >
-              Ballot Adjudication{' '}
-            </H4> */}
+          {focusedOptionId && <AdjudicationPanelOverlay />}
+          <AdjudicationPanelHeader>
+            <ContestTitleDiv>
+              <StyledH2>{getContestDistrictName(election, contest)}</StyledH2>
+              <StyledH1>{contest.title}</StyledH1>
+            </ContestTitleDiv>
             <LinkButton
-              icon="X"
-              variant="inverseNeutral"
               fill="outlined"
+              icon="X"
               to={routerPaths.writeIns}
-              style={{ justifySelf: 'end', fontWeight: '600' }}
+              variant="inverseNeutral"
             >
               Close
             </LinkButton>
-          </AdjudicationPanelHeaderRow>
-          <DigitalBallot>
-            {/* <DigitalBallotHeaderRow>
-              <StyledH4 as="h2">
-                {getContestDistrictName(election, contest)}
-              </StyledH4>
-              <StyledH3 as="h1">
-                {contest.title.replace('Reprsentatives', 'Representatives')}
-              </StyledH3>
-            </DigitalBallotHeaderRow> */}
-            <DigitalBallotInfoRow style={{ position: 'relative' }}>
-              <StyledP style={{ alignSelf: 'end', display: 'flex' }} as="h2">
+          </AdjudicationPanelHeader>
+          <AdjudicationBallot>
+            <AdjudicationBallotVoteCount>
+              <MediumText>
                 Votes cast: {voteCount} of {seatCount}
-              </StyledP>
+              </MediumText>
               {isOvervote && (
-                <React.Fragment>
-                  <Icons.Disabled
-                    color="danger"
-                    style={{
-                      justifySelf: 'flex-end',
-                      marginLeft: 'auto',
-                      marginRight: '0.25rem',
-                    }}
-                  />
-                  <OvervoteLabel>Overvote</OvervoteLabel>
-                </React.Fragment>
+                <Label>
+                  <Icons.Disabled color="danger" /> Overvote
+                </Label>
               )}
-            </DigitalBallotInfoRow>
+            </AdjudicationBallotVoteCount>
             {shouldResetState ? (
               <CandidateButtonList style={{ justifyContent: 'center' }}>
                 <Icons.Loading />
@@ -720,6 +669,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                   const originalVote =
                     originalVotes?.includes(optionId) || false;
                   const voteChanged = voteState[optionId] !== originalVote;
+
                   if (isSelected || isUnmarkedPendingWriteIn) {
                     return (
                       <WriteInAdjudicationButton
@@ -850,74 +800,65 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 })}
               </CandidateButtonList>
             )}
-            <DigitalBallotMetadataRow>
-              <StyledSpan>
-                {scrollIndex + 1} of {numBallots}
-              </StyledSpan>
-              <StyledSpan>
-                Ballot ID: {currentCvrId?.substring(0, 4)}
-              </StyledSpan>
-            </DigitalBallotMetadataRow>
-            <DigitalBallotFooterRow>
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  width: '100%',
-                  gap: '0.5rem',
-                }}
-              >
+            <AdjudicationBallotFooter>
+              <AdjudicationBallotMetadata>
+                <SmallText>
+                  {scrollIndex + 1} of {numBallots}
+                </SmallText>
+                <SmallText>
+                  Ballot ID: {currentCvrId?.substring(0, 4)}
+                </SmallText>
+              </AdjudicationBallotMetadata>
+              <AdjudicationBallotNavigation>
                 <Button
                   disabled={scrollIndex === 0}
+                  icon="Previous"
                   onPress={() => {
                     setScrollIndex(scrollIndex - 1);
                     setShouldResetState(true);
                   }}
-                  icon="Previous"
-                  fill="outlined"
-                  style={{ height: '2.5rem', width: '5.5rem' }}
+                  style={{ width: '5.5rem' }}
                 >
                   Back
                 </Button>
                 <Button
-                  style={{ height: '2.5rem', width: '5.5rem' }}
+                  disabled={onLastBallot}
                   onPress={() => {
                     setScrollIndex(scrollIndex + 1);
                     setShouldResetState(true);
                   }}
                   rightIcon="Next"
-                  disabled={scrollIndex + 1 === numBallots}
+                  style={{ width: '5.5rem' }}
                 >
                   Skip
                 </Button>
-                {scrollIndex + 1 === numBallots ? (
+                {onLastBallot ? (
                   <LinkButton
-                    variant="primary"
-                    to={routerPaths.writeIns}
-                    icon="Done"
                     disabled={!allWriteInsAdjudicated}
+                    icon="Done"
                     style={{ flexGrow: '1' }}
+                    to={routerPaths.writeIns}
+                    variant="primary"
                   >
                     Finish
                   </LinkButton>
                 ) : (
                   <Button
+                    disabled={!allWriteInsAdjudicated}
+                    icon="Done"
                     onPress={() => {
                       setScrollIndex(scrollIndex + 1);
                       setShouldResetState(true);
                     }}
-                    icon="Done"
-                    variant="primary"
-                    disabled={!allWriteInsAdjudicated}
                     style={{ flexGrow: '1' }}
+                    variant="primary"
                   >
                     Save & Next
                   </Button>
                 )}
-              </div>
-            </DigitalBallotFooterRow>
-          </DigitalBallot>
+              </AdjudicationBallotNavigation>
+            </AdjudicationBallotFooter>
+          </AdjudicationBallot>
         </AdjudicationPanel>
       </Main>
     </Screen>

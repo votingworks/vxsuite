@@ -1,7 +1,13 @@
-import { useState } from 'react';
-import { useTheme } from 'styled-components';
+import React, { useState } from 'react';
+import styled, { useTheme } from 'styled-components';
 import { CheckboxButton, Icons, SearchSelect } from '@votingworks/ui';
 import { Candidate } from '@votingworks/types';
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+`;
 
 export function WriteInAdjudicationButton({
   isSelected,
@@ -53,7 +59,7 @@ export function WriteInAdjudicationButton({
         value: val.id,
       }));
 
-  const options = officialCandidateOptions.concat(writeInCandidateOptions);
+  const options = writeInCandidateOptions.concat(officialCandidateOptions);
 
   // 'add current value' entry if not an existing option
   if (curVal && !options.find((item) => item.label === curVal)) {
@@ -70,53 +76,42 @@ export function WriteInAdjudicationButton({
   }
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        position: 'relative',
-        zIndex: isFocused ? 20 : 2,
-        width: '100%',
-      }}
-    >
+    <Container style={{ zIndex: isFocused ? 20 : 0 }}>
       <CheckboxButton
+        label="Write-in"
         isChecked={isSelected}
         onChange={toggleVote}
         style={{ borderRadius: '0.5rem 0.5rem 0 0' }}
-        label="Write-in"
       />
       <SearchSelect
         key={`${cvrId}-${value}-${isSelected}`}
+        isMulti={false}
         onChange={(val) => {
           onChange(val);
           setCurVal('');
         }}
-        isMulti={false}
-        options={options}
         placeholder={
           !isFocused && (
-            <span>
+            <React.Fragment>
               <Icons.Warning
                 color="warning"
                 style={{ marginRight: '0.5rem' }}
               />
               {isSelected ? 'Adjudicate' : 'Unmarked'} Write-in
-            </span>
+            </React.Fragment>
           )
         }
-        style={{
-          width: '100%',
-          borderRadius: '0 0 0.5rem 0.5rem',
-          backgroundColor: value ? undefined : theme.colors.warningContainer,
-          backdropFilter: 'blur(5px)',
-          background: 'rgba(0, 0, 0, 0.1)',
-        }}
         onBlur={onInputBlur}
         onFocus={onInputFocus}
         onInputChange={onKeyPress}
+        options={options}
+        style={{
+          borderRadius: '0 0 0.5rem 0.5rem',
+          backgroundColor: value ? undefined : theme.colors.warningContainer,
+        }}
         value={value}
       />
       {caption}
-    </div>
+    </Container>
   );
 }
