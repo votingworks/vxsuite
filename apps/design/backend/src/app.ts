@@ -58,6 +58,7 @@ import {
   BallotOrderInfo,
   BallotOrderInfoSchema,
   BallotStyle,
+  ElectionListing,
   Org,
   User,
   UsState,
@@ -172,24 +173,6 @@ const UpdateElectionInfoInputSchema = z.object({
   seal: z.string(),
   languageCodes: z.array(LanguageCodeSchema),
 });
-
-export type ElectionStatus =
-  | 'notStarted'
-  | 'inProgress'
-  | 'ballotsFinalized'
-  | 'orderSubmitted';
-
-export interface ElectionListing {
-  orgId: string;
-  orgName: string;
-  electionId: ElectionId;
-  title: string;
-  date: DateWithoutTime;
-  type: ElectionType;
-  jurisdiction: string;
-  state: string;
-  status: ElectionStatus;
-}
 
 function electionStatus(electionRecord: ElectionRecord): ElectionStatus {
   if (electionRecord.election.contests.length === 0) {
