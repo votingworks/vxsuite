@@ -26,7 +26,7 @@ test(`Icon renders with color`, () => {
     danger: theme.colors.dangerAccent,
     inverse: theme.colors.onInverse,
     inversePrimary: theme.colors.inversePrimary,
-    inverseWarning: theme.colors.warningAccent,
+    inverseWarning: 'rgb(255 163 84)', // TODO #6167: Update to not use a hardcoded color, only used by VxPollbook
   };
 
   for (const [color, expectedColor] of Object.entries(expectedColors)) {

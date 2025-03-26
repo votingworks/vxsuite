@@ -99,7 +99,6 @@ async function parseCommandLineArgs(
         `Must specify election-definition for election manager and poll worker cards\n\n${helpMessage}`
       );
     }
-    // TODO-POLLBOOK-MERGE: Should this go back to the previous implementation?
     const readElectionResult = safeParseJson(
       (await readFile(parsedArgs.electionDefinition, { maxSize: 1024 * 1024 }))
         .unsafeUnwrap()
@@ -110,7 +109,6 @@ async function parseCommandLineArgs(
         `${parsedArgs.electionDefinition} isn't a valid election definition`
       );
     }
-    // TODO-POLLBOOK-MERGE: We should probably parse the election here and fallback to this? Do we need this?
     const election = readElectionResult.ok() as { id: string; date: string };
     electionKey = {
       id: election.id as ElectionId,
