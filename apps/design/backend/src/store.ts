@@ -29,6 +29,7 @@ import {
   BallotOrderInfoSchema,
   BallotStyle,
   convertToVxfBallotStyle,
+  ElectionListing,
 } from './types';
 import { generateBallotStyles } from './ballot_styles';
 import { Db } from './db/db';

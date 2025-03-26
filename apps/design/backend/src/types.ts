@@ -7,7 +7,10 @@ import {
   BallotStyleGroupId,
   LanguageCode,
   PrecinctOrSplitId,
+  ElectionType,
+  ElectionId,
 } from '@votingworks/types';
+import { DateWithoutTime } from '@votingworks/basics';
 
 // We also create a new type for a ballot style, that can reference precincts and
 // splits. We generate ballot styles on demand, so it won't be stored in the db.
@@ -109,4 +112,22 @@ export interface Org {
   displayName: string;
   id: string;
   name: string;
+}
+
+export type ElectionStatus =
+  | 'notStarted'
+  | 'inProgress'
+  | 'ballotsFinalized'
+  | 'orderSubmitted';
+
+export interface ElectionListing {
+  orgId: string;
+  orgName: string;
+  electionId: ElectionId;
+  title: string;
+  date: DateWithoutTime;
+  type: ElectionType;
+  jurisdiction: string;
+  state: string;
+  status: ElectionStatus;
 }

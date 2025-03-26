@@ -80,16 +80,18 @@ import {
   unzipElectionPackageAndBallots,
 } from '../test/helpers';
 import { FULL_TEST_DECK_TALLY_REPORT_FILE_NAME } from './test_decks';
-import { BallotOrderInfo, User, convertToVxfBallotStyle } from './types';
+import {
+  BallotOrderInfo,
+  BallotStyle,
+  ElectionListing,
+  ElectionStatus,
+  User,
+  convertToVxfBallotStyle,
+} from './types';
 import { generateBallotStyles } from './ballot_styles';
 import { BackgroundTaskMetadata } from './store';
 import { renderBallotStyleReadinessReport } from './ballot_style_reports';
-import {
-  BALLOT_STYLE_READINESS_REPORT_FILE_NAME,
-  ElectionInfo,
-  ElectionListing,
-  ElectionStatus,
-} from './app';
+import { BALLOT_STYLE_READINESS_REPORT_FILE_NAME, ElectionInfo } from './app';
 import { join } from 'node:path';
 import { electionFeatureConfigs, userFeatureConfigs } from './features';
 import { sliOrgId } from './globals';
