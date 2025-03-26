@@ -134,11 +134,18 @@ export const testVxfElection: Election = {
       languages: ['en'],
     },
     {
-      id: '3_en_es-US' as BallotStyleId,
+      id: '3_en' as BallotStyleId,
       groupId: '3' as BallotStyleGroupId,
       precincts: ['precinct-2'],
       districts: ['district-1' as DistrictId, 'district-2' as DistrictId],
-      languages: ['en', 'es-US'],
+      languages: ['en'],
+    },
+    {
+      id: '3_es-US' as BallotStyleId,
+      groupId: '3' as BallotStyleGroupId,
+      precincts: ['precinct-2'],
+      districts: ['district-1' as DistrictId, 'district-2' as DistrictId],
+      languages: ['es-US'],
     },
   ],
   ballotLayout: {
@@ -229,7 +236,78 @@ export const testVxfElection: Election = {
       ],
     },
     {
-      ballotStyleId: '3_en_es-US' as BallotStyleId,
+      ballotStyleId: '3_en' as BallotStyleId,
+      optionBoundsFromTargetMark: {
+        bottom: 1,
+        left: 1,
+        right: 9,
+        top: 1,
+      },
+      gridPositions: [
+        {
+          type: 'option',
+          sheetNumber: 1,
+          side: 'front',
+          contestId: 'contest-1',
+          column: 2,
+          row: 12,
+          optionId: 'candidate-1',
+        },
+        {
+          type: 'option',
+          sheetNumber: 1,
+          side: 'front',
+          contestId: 'contest-1',
+          column: 2,
+          row: 14,
+          optionId: 'candidate-2',
+        },
+        {
+          type: 'write-in',
+          sheetNumber: 1,
+          side: 'front',
+          contestId: 'contest-1',
+          column: 2,
+          row: 16,
+          writeInIndex: 0,
+          writeInArea: {
+            x: 2.5,
+            y: 15,
+            width: 3,
+            height: 1,
+          },
+        },
+        {
+          type: 'option',
+          sheetNumber: 1,
+          side: 'front',
+          contestId: 'contest-2',
+          column: 2,
+          row: 21,
+          optionId: 'contest-2-option-yes',
+        },
+        {
+          type: 'option',
+          sheetNumber: 1,
+          side: 'front',
+          contestId: 'contest-2',
+          column: 2,
+          row: 22,
+          optionId: 'contest-2-option-no',
+        },
+        {
+          type: 'option',
+          sheetNumber: 1,
+          side: 'front',
+          contestId: 'contest-3',
+          column: 12,
+          row: 12,
+          optionId: 'candidate-3',
+        },
+      ],
+    },
+    {
+      ballotStyleId: '3_es-US' as BallotStyleId,
       optionBoundsFromTargetMark: {
         bottom: 1,
         left: 1,
@@ -306,7 +384,8 @@ export const testVxfElection: Election = {
       ballotStyleId: {
         '1_en': '1_en',
         '2_en': '2_en',
-        '3_en_es-US': '3_en_es-US',
+        '3_en': '3_en',
+        '3_es-US': '3_es-US',
       },
       candidateName: {
         'candidate-1': 'Sherlock Holmes',
@@ -891,10 +970,167 @@ export const testCdfBallotDefinition: BallotDefinition = {
             {
               '@type': 'BallotDefinition.ExternalIdentifier',
               Type: IdentifierType.StateLevel,
-              Value: '3_en_es-US',
+              Value: '3_en',
             },
           ],
-          Language: ['en', 'es-US'],
+          Language: ['en'],
+        },
+        {
+          '@type': 'BallotDefinition.BallotStyle',
+          GpUnitIds: ['precinct-2'],
+          OrderedContent: [
+            {
+              '@type': 'BallotDefinition.OrderedContest',
+              ContestId: 'contest-1',
+              Physical: [
+                {
+                  '@type': 'BallotDefinition.PhysicalContest',
+                  BallotFormatId: 'ballot-format',
+                  PhysicalContestOption: [
+                    {
+                      '@type': 'BallotDefinition.PhysicalContestOption',
+                      ContestOptionId: 'contest-1-option-candidate-1',
+                      OptionPosition: [
+                        {
+                          '@type': 'BallotDefinition.OptionPosition',
+                          Sheet: 1,
+                          Side: BallotSideType.Front,
+                          X: 2,
+                          Y: 12,
+                          H: 0,
+                          W: 0,
+                          NumberVotes: 1,
+                        },
+                      ],
+                    },
+                    {
+                      '@type': 'BallotDefinition.PhysicalContestOption',
+                      ContestOptionId: 'contest-1-option-candidate-2',
+                      OptionPosition: [
+                        {
+                          '@type': 'BallotDefinition.OptionPosition',
+                          Sheet: 1,
+                          Side: BallotSideType.Front,
+                          X: 2,
+                          Y: 14,
+                          H: 0,
+                          W: 0,
+                          NumberVotes: 1,
+                        },
+                      ],
+                    },
+                    {
+                      '@type': 'BallotDefinition.PhysicalContestOption',
+                      ContestOptionId: 'contest-1-option-write-in-0',
+                      OptionPosition: [
+                        {
+                          '@type': 'BallotDefinition.OptionPosition',
+                          Sheet: 1,
+                          Side: BallotSideType.Front,
+                          X: 2,
+                          Y: 16,
+                          H: 0,
+                          W: 0,
+                          NumberVotes: 1,
+                        },
+                      ],
+                      WriteInPosition: [
+                        {
+                          '@type': 'BallotDefinition.WriteInPosition',
+                          Sheet: 1,
+                          Side: BallotSideType.Front,
+                          H: 1,
+                          W: 3,
+                          X: 2.5,
+                          Y: 15,
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              '@type': 'BallotDefinition.OrderedContest',
+              ContestId: 'contest-2',
+              Physical: [
+                {
+                  '@type': 'BallotDefinition.PhysicalContest',
+                  BallotFormatId: 'ballot-format',
+                  PhysicalContestOption: [
+                    {
+                      '@type': 'BallotDefinition.PhysicalContestOption',
+                      ContestOptionId: 'contest-2-option-yes',
+                      OptionPosition: [
+                        {
+                          '@type': 'BallotDefinition.OptionPosition',
+                          Sheet: 1,
+                          Side: BallotSideType.Front,
+                          X: 2,
+                          Y: 21,
+                          H: 0,
+                          W: 0,
+                          NumberVotes: 1,
+                        },
+                      ],
+                    },
+                    {
+                      '@type': 'BallotDefinition.PhysicalContestOption',
+                      ContestOptionId: 'contest-2-option-no',
+                      OptionPosition: [
+                        {
+                          '@type': 'BallotDefinition.OptionPosition',
+                          Sheet: 1,
+                          Side: BallotSideType.Front,
+                          X: 2,
+                          Y: 22,
+                          H: 0,
+                          W: 0,
+                          NumberVotes: 1,
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              '@type': 'BallotDefinition.OrderedContest',
+              ContestId: 'contest-3',
+              Physical: [
+                {
+                  '@type': 'BallotDefinition.PhysicalContest',
+                  BallotFormatId: 'ballot-format',
+                  PhysicalContestOption: [
+                    {
+                      '@type': 'BallotDefinition.PhysicalContestOption',
+                      ContestOptionId: 'contest-3-option-candidate-3',
+                      OptionPosition: [
+                        {
+                          '@type': 'BallotDefinition.OptionPosition',
+                          Sheet: 1,
+                          Side: BallotSideType.Front,
+                          X: 12,
+                          Y: 12,
+                          H: 0,
+                          W: 0,
+                          NumberVotes: 1,
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+          ExternalIdentifier: [
+            {
+              '@type': 'BallotDefinition.ExternalIdentifier',
+              Type: IdentifierType.StateLevel,
+              Value: '3_es-US',
+            },
+          ],
+          Language: ['es-US'],
         },
       ],
     },
