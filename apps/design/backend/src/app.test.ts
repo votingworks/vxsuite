@@ -83,6 +83,7 @@ import { FULL_TEST_DECK_TALLY_REPORT_FILE_NAME } from './test_decks';
 import {
   BallotOrderInfo,
   BallotStyle,
+  ElectionInfo,
   ElectionListing,
   ElectionStatus,
   User,
@@ -91,7 +92,7 @@ import {
 import { generateBallotStyles } from './ballot_styles';
 import { BackgroundTaskMetadata } from './store';
 import { renderBallotStyleReadinessReport } from './ballot_style_reports';
-import { BALLOT_STYLE_READINESS_REPORT_FILE_NAME, ElectionInfo } from './app';
+import { BALLOT_STYLE_READINESS_REPORT_FILE_NAME } from './app';
 import { join } from 'node:path';
 import { electionFeatureConfigs, userFeatureConfigs } from './features';
 import { sliOrgId } from './globals';
@@ -315,11 +316,17 @@ test('create/list/delete elections', async () => {
       districtId: election2Districts[0].id,
       ...(contest.type === 'candidate'
         ? {
-            candidates: contest.candidates.map((candidate) => ({
-              ...candidate,
-              id: expectNotEqualTo(candidate.id),
-              partyIds: candidate.partyIds?.map(updatedPartyId),
-            })),
+            candidates: contest.candidates.map((candidate) =>
+              expect.objectContaining({
+                ...candidate,
+                id: expectNotEqualTo(candidate.id),
+                partyIds: candidate.partyIds?.map(updatedPartyId),
+                firstName: expect.any(String),
+                // TODO upgrade vitest to use expect.toBeOneOf
+                // middleName: expect.toBeOneOf([expect.any(String), undefined]),
+                lastName: expect.any(String),
+              })
+            ),
           }
         : {
             yesOption: {
@@ -891,6 +898,11 @@ test('CRUD contests', async () => {
       id: unsafeParse(ElectionIdSchema, 'election-1'),
     })
   ).unsafeUnwrap();
+  // Turn off candidate rotation
+  await apiClient.setBallotTemplate({
+    electionId,
+    ballotTemplateId: 'VxDefaultBallot',
+  });
 
   // No contests initially
   expect(await apiClient.listContests({ electionId })).toEqual([]);
@@ -918,12 +930,18 @@ test('CRUD contests', async () => {
     candidates: [
       {
         id: 'candidate-1',
-        name: 'Candidate 1',
+        firstName: 'Candidate',
+        middleName: 'M',
+        lastName: 'One',
+        name: 'Candidate M One',
         partyIds: [party1.id],
       },
       {
         id: 'candidate-2',
-        name: 'Candidate 2',
+        firstName: 'Candidate',
+        middleName: 'M',
+        lastName: 'Two',
+        name: 'Candidate M Two',
       },
     ],
   };
@@ -963,7 +981,10 @@ test('CRUD contests', async () => {
       ...contest1.candidates,
       {
         id: 'candidate-3',
-        name: 'Candidate 3',
+        firstName: 'Candidate',
+        middleName: 'M',
+        lastName: 'Three',
+        name: 'Candidate M Three',
       },
     ],
   };
@@ -1044,6 +1065,12 @@ test('creating/updating contests with candidate rotation', async () => {
     })
   ).unsafeUnwrap();
   const election = electionFamousNames2021Fixtures.readElection();
+  for (const party of election.parties) {
+    await apiClient.createParty({ electionId, newParty: party });
+  }
+  for (const district of election.districts) {
+    await apiClient.createDistrict({ electionId, newDistrict: district });
+  }
   let fixtureContest = election.contests.find(
     (c): c is CandidateContest =>
       c.type === 'candidate' && c.candidates.length > 2
@@ -1055,6 +1082,13 @@ test('creating/updating contests with candidate rotation', async () => {
   "Louis Armstrong",
 ]
 `);
+  fixtureContest = {
+    ...fixtureContest,
+    candidates: fixtureContest.candidates.map((c) => {
+      const [firstName, lastName] = c.name.split(' ');
+      return { ...c, firstName, lastName };
+    }),
+  };
 
   // No rotation should occur for the default ballot template
   await apiClient.setBallotTemplate({
@@ -1337,7 +1371,6 @@ test('cloneElection', async () => {
   });
 
   const srcElectionId = 'election-1' as ElectionId;
-
   const nonDefaultSystemSettings: SystemSettings = {
     ...DEFAULT_SYSTEM_SETTINGS,
     auth: {
@@ -1750,6 +1783,10 @@ test('Election package and ballots export', async () => {
     })),
     parties: await apiClient.listParties({ electionId }),
     contests: await apiClient.listContests({ electionId }),
+    county: {
+      ...electionWithLegalPaper.county,
+      id: `${electionId}-county`,
+    },
 
     additionalHashInput: {
       precinctSplitSeals: expect.any(Object),
@@ -2010,7 +2047,6 @@ test('Export test decks', async () => {
     expect(await file.async('text')).toContain('%PDF');
   }
   expect(renderAllBallotsAndCreateElectionDefinition).toHaveBeenCalledTimes(1);
-  const expectedBallotStyles = ballotStyles.map(convertToVxfBallotStyle);
   const expectedBallotProps = ballotStyles.flatMap((ballotStyle) =>
     ballotStyle.precinctsOrSplits.map(({ precinctId }) => ({
       election: expect.objectContaining({ id: electionId }),
