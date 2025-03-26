@@ -26,6 +26,21 @@ function* getShortMonthNames(): Generator<string> {
 }
 export const MONTHS_SHORT = [...getShortMonthNames()];
 
+function* getLongMonthNames(): Generator<string> {
+  const monthShortNameFormatter = new Intl.DateTimeFormat(undefined, {
+    month: 'long',
+  });
+  const year = new Date().getFullYear();
+  for (
+    let month = 0;
+    new Date(year, month, 1).getFullYear() === year;
+    month += 1
+  ) {
+    yield monthShortNameFormatter.format(new Date(year, month, 1));
+  }
+}
+export const MONTHS_LONG = [...getLongMonthNames()];
+
 export function formatTimeZoneName(date: DateTime): string {
   return find(
     new Intl.DateTimeFormat(undefined, {

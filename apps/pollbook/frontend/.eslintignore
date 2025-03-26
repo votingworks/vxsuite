@@ -1,0 +1,10 @@
+/build
+/coverage
+/prodserver
+/src/**/*.js
+/config
+/scripts
+*.d.ts
+*.config.js
+*.config.ts
+/public

@@ -84,7 +84,9 @@ const jurisdiction = TEST_JURISDICTION;
 const otherJurisdiction = `${TEST_JURISDICTION}-2`;
 const electionKey = constructElectionKey(readElectionGeneral());
 const otherElectionKey = constructElectionKey(readElectionTwoPartyPrimary());
-const defaultConfig: DippedSmartCardAuthConfig = {};
+const defaultConfig: DippedSmartCardAuthConfig = {
+  allowedUserRoles: ['vendor', 'system_administrator', 'election_manager'],
+};
 const defaultMachineState: DippedSmartCardAuthMachineState = {
   electionKey,
   jurisdiction,
@@ -316,18 +318,43 @@ test.each<{
       sessionExpiresAt: expect.any(Date),
     },
   },
+  {
+    description: 'poll_worker',
+    cardDetails: {
+      user: pollWorkerUser,
+      hasPin: true,
+    },
+    expectedLoggedInAuthStatus: {
+      status: 'logged_in',
+      user: pollWorkerUser,
+      sessionExpiresAt: expect.any(Date),
+    },
+  },
 ])(
   'Login and logout - $description',
   async ({ cardDetails, expectedLoggedInAuthStatus }) => {
     const auth = new DippedSmartCardAuth({
       card: mockCard,
-      config: defaultConfig,
+      config: {
+        ...defaultConfig,
+        allowedUserRoles: [
+          'vendor',
+          'system_administrator',
+          'election_manager',
+          'poll_worker',
+        ],
+      },
       logger: mockLogger,
     });
     const { user } = cardDetails;
 
     mockCardStatus({ status: 'ready', cardDetails });
-    expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    expect(
+      await auth.getAuthStatus({
+        ...defaultMachineState,
+        arePollWorkerCardPinsEnabled: true,
+      })
+    ).toEqual({
       status: 'checking_pin',
       user,
     });
@@ -726,6 +753,48 @@ test.each<{
     ],
   },
   {
+    description: 'user role not allowed - different config',
+    config: {
+      allowedUserRoles: ['election_manager'],
+    },
+    machineState: defaultMachineState,
+    cardDetails: {
+      user: vendorUser,
+    },
+    expectedAuthStatus: {
+      status: 'logged_out',
+      reason: 'user_role_not_allowed',
+      cardJurisdiction: jurisdiction,
+      cardUserRole: 'vendor',
+      machineJurisdiction: jurisdiction,
+    },
+    expectedLog: [
+      LogEventId.AuthLogin,
+      'vendor',
+      {
+        disposition: LogDispositionStandardTypes.Failure,
+        message: 'User failed login.',
+        reason: 'user_role_not_allowed',
+      },
+    ],
+  },
+  {
+    description: 'poll_worker user-role allowed if specified',
+    config: {
+      allowedUserRoles: ['poll_worker'],
+    },
+    machineState: defaultMachineState,
+    cardDetails: {
+      user: pollWorkerUser,
+      hasPin: false,
+    },
+    expectedAuthStatus: {
+      status: 'remove_card',
+      user: pollWorkerUser,
+      sessionExpiresAt: expect.any(Date),
+    },
+  },
+  {
     description: 'unconfigured machine',
     config: defaultConfig,
     machineState: { ...defaultMachineState, electionKey: undefined },
@@ -766,7 +835,55 @@ test.each<{
     },
   },
   {
+    description: 'unconfigured machine, vendor can access',
+    config: defaultConfig,
+    machineState: { ...defaultMachineState, electionKey: undefined },
+    cardDetails: {
+      user: vendorUser,
+    },
+    expectedAuthStatus: {
+      status: 'checking_pin',
+      user: vendorUser,
+    },
+  },
+  {
+    description: 'unconfigured machine, system administrator can access',
+    config: defaultConfig,
+    machineState: { ...defaultMachineState, electionKey: undefined },
+    cardDetails: {
+      user: systemAdministratorUser,
+    },
+    expectedAuthStatus: {
+      status: 'checking_pin',
+      user: systemAdministratorUser,
+    },
+  },
+  {
     description: 'mismatched election key',
+    config: defaultConfig,
+    machineState: defaultMachineState,
+    cardDetails: {
+      user: { ...electionManagerUser, electionKey: otherElectionKey },
+    },
+    expectedAuthStatus: {
+      status: 'logged_out',
+      reason: 'wrong_election',
+      cardJurisdiction: jurisdiction,
+      cardUserRole: 'election_manager',
+      machineJurisdiction: jurisdiction,
+    },
+    expectedLog: [
+      LogEventId.AuthLogin,
+      'election_manager',
+      {
+        disposition: LogDispositionStandardTypes.Failure,
+        message: 'User failed login.',
+        reason: 'wrong_election',
+      },
+    ],
+  },
+  {
+    description: 'pollworker card ',
     config: defaultConfig,
     machineState: defaultMachineState,
     cardDetails: {

@@ -43,12 +43,13 @@ export function safeParse<T>(
  * the JSON.
  */
 export function safeParseJson(text: string): Result<unknown, SyntaxError>;
+
 /**
  * Parse JSON and then validate the result with `parser`.
  */
 export function safeParseJson<T>(
   text: string,
-  parser: z.ZodType<T>
+  parser: z.ZodType<T, z.ZodTypeDef, unknown>
 ): Result<T, z.ZodError | SyntaxError>;
 export function safeParseJson<T>(
   text: string,

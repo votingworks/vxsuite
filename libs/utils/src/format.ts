@@ -71,11 +71,42 @@ export function localeLongDate(
   }).format(time);
 }
 
+export function localeNumericDateAndTime(
+  time?: number | Date,
+  locale: string = DEFAULT_LOCALE
+): string {
+  return new Intl.DateTimeFormat(locale, {
+    month: 'numeric',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+  }).format(time);
+}
+
+export function localeTime(time?: number | Date): string {
+  return new Intl.DateTimeFormat(DEFAULT_LOCALE, {
+    hour: 'numeric',
+    minute: 'numeric',
+  }).format(time);
+}
+
 export function localeDate(time?: number | Date): string {
   return new Intl.DateTimeFormat(DEFAULT_LOCALE, {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
+  }).format(time);
+}
+
+export function clockDateAndTime(time?: number | Date): string {
+  return new Intl.DateTimeFormat(DEFAULT_LOCALE, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
   }).format(time);
 }
 

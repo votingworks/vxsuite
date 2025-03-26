@@ -79,8 +79,8 @@ function cardStatusToProgrammableCard(
             : user,
       };
     }
-    /* istanbul ignore next: Compile-time check for completeness */
     default: {
+      /* istanbul ignore next: Compile-time check for completeness - @preserve */
       throwIllegalValue(cardStatus, 'status');
     }
   }
@@ -204,9 +204,10 @@ async function logAuthEventIfNecessary(
       return;
     }
 
-    /* istanbul ignore next: Compile-time check for completeness */
-    default:
+    default: {
+      /* istanbul ignore next: Compile-time check for completeness - @preserve */
       throwIllegalValue(previousAuthStatus, 'status');
+    }
   }
 }
 
@@ -411,8 +412,8 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
         });
         return undefined;
       }
-      /* istanbul ignore next: Compile-time check for completeness */
       default: {
+        /* istanbul ignore next: Compile-time check for completeness - @preserve */
         throwIllegalValue(input, 'userRole');
       }
     }
@@ -500,12 +501,15 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
                   assert(
                     user.role === 'vendor' ||
                       user.role === 'system_administrator' ||
-                      user.role === 'election_manager'
+                      user.role === 'election_manager' ||
+                      user.role === 'poll_worker'
                   );
                   const skipPinEntry = isFeatureFlagEnabled(
                     BooleanEnvironmentVariableName.SKIP_PIN_ENTRY
                   );
-                  return skipPinEntry
+                  return skipPinEntry ||
+                    (user.role === 'poll_worker' &&
+                      !machineState.arePollWorkerCardPinsEnabled)
                     ? {
                         status: 'remove_card',
                         user,
@@ -528,8 +532,8 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
                   machineJurisdiction: machineState.jurisdiction,
                 };
               }
-              /* istanbul ignore next: Compile-time check for completeness */
               default: {
+                /* istanbul ignore next: Compile-time check for completeness - @preserve */
                 return throwIllegalValue(action.cardStatus, 'status');
               }
             }
@@ -563,8 +567,11 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
                 case 'election_manager': {
                   return { status: 'logged_in', user, sessionExpiresAt };
                 }
-                /* istanbul ignore next: Compile-time check for completeness */
+                case 'poll_worker': {
+                  return { status: 'logged_in', user, sessionExpiresAt };
+                }
                 default: {
+                  /* istanbul ignore next: Compile-time check for completeness - @preserve */
                   throwIllegalValue(user, 'role');
                 }
               }
@@ -586,8 +593,8 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
             return currentAuthStatus;
           }
 
-          /* istanbul ignore next: Compile-time check for completeness */
           default: {
+            /* istanbul ignore next: Compile-time check for completeness - @preserve */
             return throwIllegalValue(currentAuthStatus, 'status');
           }
         }
@@ -625,8 +632,8 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
               },
             };
           }
-          /* istanbul ignore next: Compile-time check for completeness */
           default: {
+            /* istanbul ignore next: Compile-time check for completeness - @preserve */
             return throwIllegalValue(action.checkPinResponse, 'response');
           }
         }
@@ -649,8 +656,8 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
         };
       }
 
-      /* istanbul ignore next: Compile-time check for completeness */
       default: {
+        /* istanbul ignore next: Compile-time check for completeness - @preserve */
         throwIllegalValue(action, 'type');
       }
     }
@@ -674,23 +681,25 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
       return err('wrong_jurisdiction');
     }
 
-    if (
-      !['vendor', 'system_administrator', 'election_manager'].includes(
-        user.role
-      )
-    ) {
+    if (!this.config.allowedUserRoles.includes(user.role)) {
       return err('user_role_not_allowed');
     }
 
-    if (user.role === 'election_manager') {
-      if (!machineState.electionKey) {
-        return this.config.allowElectionManagersToAccessUnconfiguredMachines
-          ? ok()
-          : err('machine_not_configured');
-      }
-      if (!deepEqual(user.electionKey, machineState.electionKey)) {
-        return err('wrong_election');
-      }
+    if (
+      !machineState.electionKey &&
+      ['election_manager', 'poll_worker'].includes(user.role)
+    ) {
+      return user.role === 'election_manager' &&
+        this.config.allowElectionManagersToAccessUnconfiguredMachines
+        ? ok()
+        : err('machine_not_configured');
+    }
+
+    if (
+      (user.role === 'election_manager' || user.role === 'poll_worker') &&
+      !deepEqual(user.electionKey, machineState.electionKey)
+    ) {
+      return err('wrong_election');
     }
 
     return ok();

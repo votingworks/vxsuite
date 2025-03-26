@@ -26,7 +26,13 @@ const BatteryPercentText = styled(Font)`
   line-height: 0.9;
 `;
 
-function getBatteryIcon(batteryInfo: BatteryInfoType): JSX.Element {
+export function getBatteryIcon(
+  batteryInfo?: BatteryInfoType,
+  inverse = false
+): JSX.Element {
+  if (!batteryInfo) {
+    return <Icons.BatteryFull color={inverse ? 'inverse' : undefined} />;
+  }
   assert(
     batteryInfo.level >= 0 && batteryInfo.level <= 1,
     'Invalid battery level'
@@ -34,7 +40,7 @@ function getBatteryIcon(batteryInfo: BatteryInfoType): JSX.Element {
   const quarters = Math.round(batteryInfo.level * 4);
   const showDanger = quarters <= 1 && batteryInfo.discharging;
   const iconProps: IconProps = {
-    color: showDanger ? 'danger' : undefined,
+    color: inverse ? 'inverse' : showDanger ? 'danger' : undefined,
     style: { fontSize: '1.2em' },
   };
 

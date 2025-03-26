@@ -97,9 +97,14 @@ const LogoContainer = styled.div`
 `;
 
 // From logo-circle-white-on-purple.svg
-function LogoCircleWhiteOnPurple() {
+export function LogoCircleWhiteOnPurple({
+  style,
+}: {
+  style?: React.CSSProperties;
+}): JSX.Element {
   return (
     <svg
+      style={style}
       width="100"
       height="100"
       viewBox="0 0 100 100"

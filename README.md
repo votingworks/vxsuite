@@ -14,6 +14,8 @@ Includes software for:
 - [VxScan](./apps/scan/frontend) — A precinct scanner for casting of ballots
   (marked by hand or by BMD)
 - [VxDesign](./apps/design/frontend) — An application for designing ballots
+- [VxPollbook](./apps/pollbook/frontend) — A pollbook application for checking
+  in voters
 
 VxAdmin and VxCentralScan comprise the "central system." VxMark and VxScan
 comprise the "precinct system."

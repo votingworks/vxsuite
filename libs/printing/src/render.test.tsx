@@ -15,6 +15,7 @@ import { parsePdf } from '@votingworks/image-utils';
 import { writeFileSync } from 'node:fs';
 import { chromium } from 'playwright';
 import { err, iter } from '@votingworks/basics';
+import styled from 'styled-components';
 import { PAPER_DIMENSIONS, RenderSpec, renderToPdf } from './render';
 import { OPTIONAL_EXECUTABLE_PATH_OVERRIDE } from './chromium';
 
@@ -217,6 +218,46 @@ test('renders with custom margins', async () => {
 
   await expect(outputPath).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'no-margins',
+  });
+});
+
+const StyledTestHeader = styled.div`
+  box-sizing: border-box;
+  width: 11in; /* Letter paper width */
+  display: flex;
+  justify-content: space-between;
+  padding: 0 0.25in; /* Match page margins */
+
+  font-size: 14px;
+  h1 {
+    margin: 0;
+    line-height: 1.2;
+    font-size: 1.25em;
+  }
+`;
+
+test('readers header when specified', async () => {
+  const outputPath = tmpNameSync();
+  (
+    await renderToPdf({
+      document: <div>body</div>,
+      headerTemplate: (
+        <StyledTestHeader>
+          <h1>header</h1>
+        </StyledTestHeader>
+      ),
+      outputPath,
+      marginDimensions: {
+        top: 0.7, // Leave space for header
+        right: 0.25,
+        bottom: 0.25,
+        left: 0.25,
+      },
+    })
+  ).unsafeUnwrap();
+
+  await expect(outputPath).toMatchPdfSnapshot({
+    customSnapshotIdentifier: 'header',
   });
 });
 

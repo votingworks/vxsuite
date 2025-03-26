@@ -1,0 +1,352 @@
+import React from 'react';
+// import type { Api, BallotMode } from '@votingworks/design-backend';
+import * as grout from '@votingworks/grout';
+import {
+  QueryClient,
+  QueryKey,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
+import type { Api, VoterSearchParams } from '@votingworks/pollbook-backend';
+import { deepEqual } from '@votingworks/basics';
+import { AUTH_STATUS_POLLING_INTERVAL_MS } from '@votingworks/ui';
+
+export type ApiClient = grout.Client<Api>;
+
+export function createApiClient(): ApiClient {
+  return grout.createClient<Api>({ baseUrl: '/api' });
+}
+
+export const ApiClientContext = React.createContext<ApiClient | undefined>(
+  undefined
+);
+
+export function useApiClient(): ApiClient {
+  const apiClient = React.useContext(ApiClientContext);
+  if (!apiClient) {
+    throw new Error('ApiClientContext.Provider not found');
+  }
+  return apiClient;
+}
+
+export function createQueryClient(): QueryClient {
+  return new QueryClient({
+    defaultOptions: {
+      queries: {
+        networkMode: 'always',
+        refetchOnWindowFocus: false,
+        // In test, we only want to refetch when we explicitly invalidate. In
+        // dev/prod, it's fine to refetch more aggressively.
+        refetchOnMount: process.env.NODE_ENV !== 'test',
+        useErrorBoundary: true,
+      },
+      mutations: {
+        networkMode: 'always',
+        useErrorBoundary: true,
+      },
+    },
+  });
+}
+
+export const getMachineConfig = {
+  queryKey(): QueryKey {
+    return ['getMachineConfig'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getMachineConfig());
+  },
+} as const;
+
+export const getAuthStatus = {
+  queryKeyPrefix: 'getAuthStatus',
+  queryKey(): QueryKey {
+    return [this.queryKeyPrefix];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getAuthStatus(), {
+      refetchInterval: AUTH_STATUS_POLLING_INTERVAL_MS,
+      structuralSharing(oldData, newData) {
+        if (!oldData) {
+          return newData;
+        }
+
+        // Prevent infinite re-renders of the app tree:
+        const isUnchanged = deepEqual(oldData, newData);
+        return isUnchanged ? oldData : newData;
+      },
+    });
+  },
+} as const;
+
+export const checkPin = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.checkPin, {
+      async onSuccess() {
+        // Because we poll auth status with high frequency, this invalidation isn't strictly
+        // necessary
+        await queryClient.invalidateQueries(getAuthStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const logOut = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.logOut, {
+      async onSuccess() {
+        // Because we poll auth status with high frequency, this invalidation isn't strictly
+        // necessary
+        await queryClient.invalidateQueries(getAuthStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const updateSessionExpiry = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.updateSessionExpiry, {
+      async onSuccess() {
+        // Because we poll auth status with high frequency, this invalidation isn't strictly
+        // necessary
+        await queryClient.invalidateQueries(getAuthStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const getDeviceStatuses = {
+  queryKey(): QueryKey {
+    return ['getDeviceStatuses'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getDeviceStatuses(), {
+      refetchInterval: 1000,
+    });
+  },
+} as const;
+
+export const getElection = {
+  queryKey(): QueryKey {
+    return ['getElection'];
+  },
+  useQuery(options: { refetchInterval?: number } = {}) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getElection(), options);
+  },
+} as const;
+
+export const getIsAbsenteeMode = {
+  queryKey(): QueryKey {
+    return ['getIsAbsenteeMode'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getIsAbsenteeMode());
+  },
+} as const;
+
+export const searchVoters = {
+  queryKey(searchParams?: VoterSearchParams): QueryKey {
+    return searchParams ? ['searchVoters', searchParams] : ['searchVoters'];
+  },
+  useQuery(searchParams: VoterSearchParams) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(searchParams), () =>
+      apiClient.searchVoters({ searchParams })
+    );
+  },
+} as const;
+
+export const getVoter = {
+  queryKey(voterId?: string): QueryKey {
+    return voterId ? ['getVoter', voterId] : ['getVoter'];
+  },
+  useQuery(voterId: string) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(voterId), () =>
+      apiClient.getVoter({ voterId })
+    );
+  },
+} as const;
+
+async function invalidateVoterQueries(queryClient: QueryClient) {
+  await queryClient.invalidateQueries(getVoter.queryKey());
+  await queryClient.resetQueries(searchVoters.queryKey());
+}
+
+export const getCheckInCounts = {
+  queryKey(): QueryKey {
+    return ['getCheckInCounts'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getCheckInCounts(), {
+      refetchInterval: 1000,
+    });
+  },
+} as const;
+
+export const getSummaryStatistics = {
+  queryKey(): QueryKey {
+    return ['getSummaryStatistics'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getSummaryStatistics(), {
+      refetchInterval: 1000,
+    });
+  },
+} as const;
+
+export const getThroughputStatistics = {
+  queryKey(input?: { throughputInterval: number }): QueryKey {
+    return input
+      ? ['getThroughputStatistics', input]
+      : ['getThroughputStatistics'];
+  },
+  useQuery(input: { throughputInterval: number }) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(input),
+      () => apiClient.getThroughputStatistics(input),
+      {
+        refetchInterval: 1000,
+      }
+    );
+  },
+} as const;
+
+async function invalidateCheckInQueries(queryClient: QueryClient) {
+  await queryClient.invalidateQueries(getCheckInCounts.queryKey());
+  await queryClient.invalidateQueries(getSummaryStatistics.queryKey());
+  await queryClient.invalidateQueries(getThroughputStatistics.queryKey());
+}
+
+export const getValidStreetInfo = {
+  queryKey(): QueryKey {
+    return ['getValidStreetInfo'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getValidStreetInfo());
+  },
+} as const;
+
+export const checkInVoter = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.checkInVoter, {
+      async onSuccess() {
+        await invalidateVoterQueries(queryClient);
+        await invalidateCheckInQueries(queryClient);
+      },
+    });
+  },
+} as const;
+
+export const undoVoterCheckIn = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.undoVoterCheckIn, {
+      async onSuccess() {
+        await invalidateVoterQueries(queryClient);
+        await invalidateCheckInQueries(queryClient);
+      },
+    });
+  },
+} as const;
+
+export const resetNetwork = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.resetNetwork, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getDeviceStatuses.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const changeVoterAddress = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.changeVoterAddress, {
+      async onSuccess() {
+        await invalidateVoterQueries(queryClient);
+      },
+    });
+  },
+} as const;
+
+export const changeVoterName = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.changeVoterName, {
+      async onSuccess() {
+        await invalidateVoterQueries(queryClient);
+      },
+    });
+  },
+} as const;
+
+export const registerVoter = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.registerVoter, {
+      async onSuccess() {
+        await invalidateVoterQueries(queryClient);
+      },
+    });
+  },
+} as const;
+
+export const unconfigure = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.unconfigure, {
+      async onSuccess() {
+        // If we configure with a different election, any data in the cache will
+        // correspond to the previous election, so we don't just invalidate, but
+        // reset all queries to clear their cached data, since invalidated
+        // queries may still return stale data while refetching.
+        await queryClient.resetQueries();
+      },
+    });
+  },
+} as const;
+
+export const setIsAbsenteeMode = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setIsAbsenteeMode, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getIsAbsenteeMode.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const exportVoterActivity = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.exportVoterActivity);
+  },
+} as const;

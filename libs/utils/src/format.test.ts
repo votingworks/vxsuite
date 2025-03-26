@@ -28,6 +28,12 @@ test('formats locale long date and time properly', () => {
   ).toEqual('Tuesday, April 14, 2020 at 1:15:09 AM AKDT');
 });
 
+test('formats locale numeric date and time', () => {
+  expect(
+    format.localeNumericDateAndTime(new Date(2020, 3, 14, 1, 15, 9, 26))
+  ).toEqual('4/14/2020, 1:15:09 AM');
+});
+
 test('formats locale short date and time properly', () => {
   expect(
     format.localeShortDateAndTime(new Date(2020, 3, 14, 1, 15, 9, 26))
@@ -58,6 +64,18 @@ test('formats locale long date properly', () => {
 test('formats locale date properly', () => {
   expect(format.localeDate(new Date(2020, 3, 14, 1, 15, 9, 26))).toEqual(
     'Apr 14, 2020'
+  );
+});
+
+test('formats locale time properly', () => {
+  expect(format.localeTime(new Date(2020, 3, 14, 1, 15, 9, 26))).toEqual(
+    '1:15 AM'
+  );
+});
+
+test('formats clock date and time properly', () => {
+  expect(format.clockDateAndTime(new Date(2020, 3, 14, 1, 15, 9, 26))).toEqual(
+    'Tue, Apr 14, 1:15 AM'
   );
 });
 
