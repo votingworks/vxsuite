@@ -1,5 +1,10 @@
 import { IteratorPlus, Result, assert, iter, ok } from '@votingworks/basics';
-import { ImageData, pdfToImages } from '@votingworks/image-utils';
+import {
+  createImageData,
+  getImageChannelCount,
+  ImageData,
+  pdfToImages,
+} from '@votingworks/image-utils';
 import { BITS_PER_BYTE } from '@votingworks/message-coder';
 import { readFileSync } from 'node:fs';
 import { Buffer } from 'node:buffer';
@@ -28,6 +33,9 @@ const IMAGE_DATA_BYTES_PER_PIXEL = 4;
 const LETTER_WIDTH_INCHES = 8.5;
 const PRINTING_DPI = 200;
 
+/**
+ * Chunks an image assuming it is 8.5" wide (i.e. 1700px).
+ */
 function* trimAndChunkImageData(imageData: ImageData): Generator<ImageData> {
   assert(imageData.width === LETTER_WIDTH_INCHES * PRINTING_DPI);
 
@@ -315,11 +323,75 @@ export async function printPageBitImage(
 }
 
 /**
+ * Prints an image assuming it is 8.5" wide (i.e. 1700px).
+ */
+async function printImageDataInternal(
+  driver: FujitsuThermalPrinterDriverInterface,
+  imageData: ImageData
+): Promise<Result<void, RawPrinterStatus>> {
+  return await printPageBitImage(
+    driver,
+    iter(trimAndChunkImageData(imageData))
+      .map((chunk) => imageDataToBinaryBitmap(chunk, {}))
+      .map(bitmapToBitImage)
+      .map(compressBitImage)
+  );
+}
+
+/**
+ * Prints an image assuming it is less than or equal to 8.5" wide (i.e. 1700px).
+ */
+export async function printImageData(
+  driver: FujitsuThermalPrinterDriverInterface,
+  imageData: ImageData
+): Promise<Result<void, RawPrinterStatus>> {
+  assert(
+    imageData.width <= LETTER_WIDTH_INCHES * PRINTING_DPI,
+    `Image width exceeds maximum allowed: ${imageData.width} > ${
+      LETTER_WIDTH_INCHES * PRINTING_DPI
+    }`
+  );
+
+  let paddedImageData: ImageData;
+  if (imageData.width === LETTER_WIDTH_INCHES * PRINTING_DPI) {
+    paddedImageData = imageData;
+  } else {
+    paddedImageData = createImageData(
+      LETTER_WIDTH_INCHES * PRINTING_DPI,
+      imageData.height
+    );
+
+    // fill with white
+    paddedImageData.data.fill(255);
+
+    // copy the image data one row at a time
+    const channelCount = getImageChannelCount(paddedImageData);
+    let src = 0;
+    let dst = 0;
+    for (let y = 0; y < imageData.height; y += 1) {
+      paddedImageData.data.set(
+        imageData.data.subarray(src, src + imageData.width * channelCount),
+        dst
+      );
+      src += imageData.width * channelCount;
+      dst += paddedImageData.width * channelCount;
+    }
+  }
+
+  debug(
+    `printing image with dimensions: ${imageData.width} x ${imageData.height}`
+  );
+  const printPageResult = await printImageDataInternal(driver, paddedImageData);
+  await driver.setReplyParameter(IDLE_REPLY_PARAMETER);
+  return printPageResult;
+}
+
+/**
  * The PDF data is at a standard 72 DPI, which we scale up for 200 DPI printer.
  */
 const PDF_SCALE = 200 / 72;
 
-export async function print(
+export async function printPdf(
   driver: FujitsuThermalPrinterDriverInterface,
   pdfData: Uint8Array
 ): Promise<Result<void, RawPrinterStatus>> {
@@ -329,13 +401,7 @@ export async function print(
   for await (const { page, pageNumber, pageCount } of pdfImages) {
     debug(`printing page ${pageNumber} of ${pageCount}...`);
     debug(`page dimensions: ${page.width} x ${page.height}`);
-    const printPageResult = await printPageBitImage(
-      driver,
-      iter(trimAndChunkImageData(page))
-        .map((imageData) => imageDataToBinaryBitmap(imageData, {}))
-        .map(bitmapToBitImage)
-        .map(compressBitImage)
-    );
+    const printPageResult = await printImageDataInternal(driver, page);
     if (printPageResult.isErr()) {
       await driver.setReplyParameter(IDLE_REPLY_PARAMETER);
       return printPageResult;
@@ -351,7 +417,7 @@ export async function printFixture(
   driver: FujitsuThermalPrinterDriver
 ): Promise<void> {
   const pdfData: Uint8Array = readFileSync(pdfFixturePath);
-  const printResult = await print(driver, pdfData);
+  const printResult = await printPdf(driver, pdfData);
   if (printResult.isErr()) {
     debug(`print failed on status: ${JSON.stringify(printResult.err())}`);
   }

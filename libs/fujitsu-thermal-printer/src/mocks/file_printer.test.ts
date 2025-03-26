@@ -58,7 +58,7 @@ test('fails printing if not initial idle', async () => {
     state: 'no-paper',
   });
 
-  await expect(filePrinter.print(Buffer.from('test'))).rejects.toThrow();
+  await expect(filePrinter.printPdf(Buffer.from('test'))).rejects.toThrow();
   expect(logger.log).toBeCalledTimes(2);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.PrinterPrintRequest,
@@ -83,10 +83,10 @@ test('successful printing', async () => {
   });
   const filePrinterHandler = getMockFileFujitsuPrinterHandler();
 
-  const print1Promise = filePrinter.print(Buffer.from('print-1'));
+  const print1Promise = filePrinter.printPdf(Buffer.from('print-1'));
   expect(await print1Promise).toEqual(ok());
 
-  const print2Promise = filePrinter.print(Buffer.from('print-2'));
+  const print2Promise = filePrinter.printPdf(Buffer.from('print-2'));
   expect(await print2Promise).toEqual(ok());
 
   expect(filePrinterHandler.getDataPath()).toEqual(
@@ -125,7 +125,7 @@ test('failed print', async () => {
   });
   const filePrinterHandler = getMockFileFujitsuPrinterHandler();
 
-  const print1Promise = filePrinter.print(Buffer.from('print-1'));
+  const print1Promise = filePrinter.printPdf(Buffer.from('print-1'));
   filePrinterHandler.setStatus({
     state: 'no-paper',
   });

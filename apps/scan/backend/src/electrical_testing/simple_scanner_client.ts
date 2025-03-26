@@ -30,7 +30,7 @@ export function createSimpleScannerClient(): SimpleScannerClient {
 
     async disconnect() {
       assert(client, 'Scanner client is not connected');
-      (await client.disconnect()).unsafeUnwrap();
+      (await client.exit()).unsafeUnwrap();
       client = undefined;
     },
 

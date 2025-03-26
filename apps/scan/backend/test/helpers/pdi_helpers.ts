@@ -128,20 +128,22 @@ export async function simulateScan(
   });
 }
 
+export interface AppContext {
+  apiClient: grout.Client<Api>;
+  app: Application;
+  mockAuth: Mocked<InsertedSmartCardAuthApi>;
+  mockScanner: MockPdiScannerClient;
+  workspace: Workspace;
+  mockUsbDrive: MockUsbDrive;
+  mockPrinterHandler: MemoryPrinterHandler;
+  mockFujitsuPrinterHandler: MemoryFujitsuPrinterHandler;
+  logger: Logger;
+  server: Server;
+  clock: SimulatedClock;
+}
+
 export async function withApp(
-  fn: (context: {
-    apiClient: grout.Client<Api>;
-    app: Application;
-    mockAuth: InsertedSmartCardAuthApi;
-    mockScanner: MockPdiScannerClient;
-    workspace: Workspace;
-    mockUsbDrive: MockUsbDrive;
-    mockPrinterHandler: MemoryPrinterHandler;
-    mockFujitsuPrinterHandler: MemoryFujitsuPrinterHandler;
-    logger: Logger;
-    server: Server;
-    clock: SimulatedClock;
-  }) => Promise<void>
+  fn: (context: AppContext) => Promise<void>
 ): Promise<void> {
   const mockAuth = buildMockInsertedSmartCardAuth(vi.fn);
   const workspace = createWorkspace(

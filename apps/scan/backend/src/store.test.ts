@@ -1,10 +1,14 @@
-import { expect, test, vi } from 'vitest';
 import {
   AcceptedSheet,
+  doesUsbDriveRequireCastVoteRecordSync,
   RejectedSheet,
   Sheet,
-  doesUsbDriveRequireCastVoteRecordSync,
 } from '@votingworks/backend';
+import {
+  electionGridLayoutNewHampshireTestBallotFixtures,
+  electionTwoPartyPrimaryFixtures,
+} from '@votingworks/fixtures';
+import { mockBaseLogger } from '@votingworks/logging';
 import {
   AdjudicationReason,
   BallotMetadata,
@@ -19,20 +23,17 @@ import {
   TEST_JURISDICTION,
   YesNoContest,
 } from '@votingworks/types';
+import { createMockUsbDrive } from '@votingworks/usb-drive';
 import {
   ALL_PRECINCTS_SELECTION,
   getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
+import { sha256 } from 'js-sha256';
+import { DateTime } from 'luxon';
 import * as tmp from 'tmp';
 import { v4 as uuid } from 'uuid';
-import {
-  electionGridLayoutNewHampshireTestBallotFixtures,
-  electionTwoPartyPrimaryFixtures,
-} from '@votingworks/fixtures';
-import { sha256 } from 'js-sha256';
-import { createMockUsbDrive } from '@votingworks/usb-drive';
-import { mockBaseLogger } from '@votingworks/logging';
+import { expect, test, vi } from 'vitest';
 import { zeroRect } from '../test/fixtures/zero_rect';
 import { Store } from './store';
 
@@ -113,7 +114,7 @@ function sortSheets(sheets: Sheet[]): Sheet[] {
 }
 
 test('get/set election', () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
 
   expect(store.getElectionRecord()).toBeUndefined();
   expect(store.hasElection()).toBeFalsy();
@@ -137,7 +138,7 @@ test('get/set election', () => {
 });
 
 test('get/set system settings', () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
 
   expect(store.getSystemSettings()).toBeUndefined();
   const systemSettings = safeParseSystemSettings(
@@ -149,7 +150,7 @@ test('get/set system settings', () => {
 });
 
 test('get/set test mode', () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
 
   // Before setting an election
   expect(store.getTestMode()).toEqual(true);
@@ -174,7 +175,7 @@ test('get/set test mode', () => {
 });
 
 test('get/set is sounds muted mode', () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
 
   // Before setting an election
   expect(store.getIsSoundMuted()).toEqual(false);
@@ -199,7 +200,7 @@ test('get/set is sounds muted mode', () => {
 });
 
 test('get/set is double feed detection disabled mode', () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
 
   // Before setting an election
   expect(store.getIsDoubleFeedDetectionDisabled()).toEqual(false);
@@ -224,7 +225,7 @@ test('get/set is double feed detection disabled mode', () => {
 });
 
 test('get/set isContinuousExportEnabled', () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
 
   // Before setting an election
   expect(store.getIsContinuousExportEnabled()).toEqual(true);
@@ -255,7 +256,7 @@ test('get/set isContinuousExportEnabled', () => {
 });
 
 test('get/set precinct selection', () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
 
   // Before setting an election
   expect(store.getPrecinctSelection()).toEqual(undefined);
@@ -283,7 +284,7 @@ test('get/set precinct selection', () => {
 });
 
 test('get/set polls state', () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
 
   // Before setting an election
   expect(store.getPollsState()).toEqual('polls_closed_initial');
@@ -350,7 +351,7 @@ test('batch cleanup works correctly', () => {
 });
 
 test('getBatches', () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
 
   // Create a batch and add a sheet to it
   const batchId = store.addBatch();
@@ -416,7 +417,7 @@ test('adjudication', () => {
     (contest): contest is YesNoContest => contest.type === 'yesno'
   );
 
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
   store.setElectionAndJurisdiction({
     electionData:
       electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
@@ -519,7 +520,7 @@ test('adjudication', () => {
 });
 
 test('iterating over sheets', () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
   store.setElectionAndJurisdiction({
     electionData:
       electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
@@ -612,7 +613,7 @@ test('iterating over sheets', () => {
 });
 
 test('getSheet', () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
 
   const batchId = store.addBatch();
   const sheetId = uuid();
@@ -706,7 +707,7 @@ test('resetElectionSession', async () => {
 });
 
 test('getBallotsCounted', () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
 
   expect(store.getBallotsCounted()).toEqual(0);
 
@@ -779,7 +780,7 @@ test('getBallotsCounted', () => {
 });
 
 test('getExportDirectoryName and setExportDirectoryName', () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
 
   const exportDirectoryName1 = 'TEST__machine_SCAN-0001__2023-08-16_17-02-24';
   const exportDirectoryName2 = 'TEST__machine_SCAN-0001__2023-08-16_23-10-01';
@@ -800,7 +801,7 @@ test(
   'getPendingContinuousExportOperations, addPendingContinuousExportOperation, ' +
     'deletePendingContinuousExportOperation, and deleteAllPendingContinuousExportOperations',
   () => {
-    const store = Store.memoryStore();
+    const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
 
     expect(store.getPendingContinuousExportOperations()).toEqual([]);
 
@@ -856,7 +857,7 @@ test(
 );
 
 test('forEachSheetPendingContinuousExport', () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
 
   const batchId = store.addBatch();
 
@@ -911,7 +912,7 @@ test('forEachSheetPendingContinuousExport', () => {
 });
 
 test('getCastVoteRecordRootHash, updateCastVoteRecordHashes, and clearCastVoteRecordHashes', () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
 
   // Just test that the store has been wired properly. Rely on libs/auth tests for more detailed
   // coverage of hashing logic.
@@ -928,7 +929,7 @@ test('getCastVoteRecordRootHash, updateCastVoteRecordHashes, and clearCastVoteRe
 });
 
 test('getElectricalTestingStatusMessages and setElectricalTestingStatusMessage', () => {
-  const store = Store.memoryStore();
+  const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
 
   expect(store.getElectricalTestingStatusMessages()).toEqual([]);
 
@@ -937,7 +938,7 @@ test('getElectricalTestingStatusMessages and setElectricalTestingStatusMessage',
     {
       component: 'card',
       statusMessage: 'Success',
-      updatedAt: expect.any(String),
+      updatedAt: expect.any(DateTime),
     },
   ]);
 
@@ -946,12 +947,12 @@ test('getElectricalTestingStatusMessages and setElectricalTestingStatusMessage',
     {
       component: 'card',
       statusMessage: 'Success',
-      updatedAt: expect.any(String),
+      updatedAt: expect.any(DateTime),
     },
     {
       component: 'usbDrive',
       statusMessage: 'Success',
-      updatedAt: expect.any(String),
+      updatedAt: expect.any(DateTime),
     },
   ]);
 
@@ -960,12 +961,12 @@ test('getElectricalTestingStatusMessages and setElectricalTestingStatusMessage',
     {
       component: 'card',
       statusMessage: 'Error: No card',
-      updatedAt: expect.any(String),
+      updatedAt: expect.any(DateTime),
     },
     {
       component: 'usbDrive',
       statusMessage: 'Success',
-      updatedAt: expect.any(String),
+      updatedAt: expect.any(DateTime),
     },
   ]);
 });

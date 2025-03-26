@@ -151,5 +151,5 @@ export async function printReportSection({
       marginDimensions: ADJUSTED_MARGIN_DIMENSIONS,
     })
   ).unsafeUnwrap();
-  return printer.print(data);
+  return printer.printPdf(data);
 }

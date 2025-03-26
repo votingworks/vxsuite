@@ -26,6 +26,7 @@ import { createWorkspace, Workspace } from './util/workspace';
 import { getUserRole } from './util/auth';
 import { getPrinter } from './printing/printer';
 import { createSimpleScannerClient } from './electrical_testing/simple_scanner_client';
+import { TaskController } from './electrical_testing/task_controller';
 
 export type { Api } from './app';
 export type { ElectricalTestingApi } from './electrical_testing/app';
@@ -83,7 +84,10 @@ async function main(): Promise<number> {
   ) {
     startElectricalTestingServer({
       auth,
-      controller: new AbortController(),
+      cardTask: TaskController.started<string>(),
+      usbDriveTask: TaskController.started<string>(),
+      printerTask: TaskController.started<string>(),
+      scannerTask: TaskController.started<string>(),
       logger,
       printer,
       scannerClient: createSimpleScannerClient(),

@@ -1,4 +1,5 @@
 import { Result } from '@votingworks/basics';
+import { type ImageData } from '@votingworks/image-utils';
 
 export type ErrorType =
   | 'hardware'
@@ -28,5 +29,6 @@ export type PrintResult = Result<void, PrinterStatus>;
 
 export interface FujitsuThermalPrinterInterface {
   getStatus(): Promise<PrinterStatus>;
-  print(data: Uint8Array): Promise<PrintResult>;
+  printPdf(data: Uint8Array): Promise<PrintResult>;
+  printImageData(imageData: ImageData): Promise<PrintResult>;
 }
