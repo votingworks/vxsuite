@@ -119,20 +119,6 @@ export interface BackgroundTaskMetadata {
   url?: string;
 }
 
-function validatePrecinctDistrictIds(
-  precinct: SplittablePrecinct,
-  districts: readonly District[]
-) {
-  const districtIds = new Set(districts.map((d) => d.id));
-  const precinctDistrictIds = hasSplits(precinct)
-    ? precinct.splits.flatMap((split) => split.districtIds)
-    : precinct.districtIds;
-  assert(
-    precinctDistrictIds.every((id) => districtIds.has(id)),
-    'Precinct contains invalid district IDs'
-  );
-}
-
 async function insertDistrict(
   client: Client,
   electionId: ElectionId,
@@ -1000,55 +986,56 @@ export class Store {
     electionId: ElectionId,
     precinct: SplittablePrecinct
   ): Promise<void> {
-    const { election, precincts } = await this.getElection(electionId);
-    validatePrecinctDistrictIds(precinct, election.districts);
-    await this.updatePrecincts(electionId, [...precincts, precinct]);
+    await this.db.withClient((client) =>
+      client.withTransaction(async () => {
+        await insertPrecinct(client, electionId, precinct);
+        return true;
+      })
+    );
   }
 
   async updatePrecinct(
     electionId: ElectionId,
     precinct: SplittablePrecinct
   ): Promise<void> {
-    const { election, precincts } = await this.getElection(electionId);
-    assert(
-      precincts.some((p) => p.id === precinct.id),
-      'Precinct not found'
+    await this.db.withClient((client) =>
+      client.withTransaction(async () => {
+        // It's safe to delete and re-insert the precinct because:
+        // 1. The IDs of precincts/splits are stable
+        // 2. Precincts/splits are leaf nodes. There are no other tables with
+        // foreign keys that reference precincts/splits, so we don't need to
+        // worry about ON DELETE triggers.
+        const { rowCount } = await client.query(
+          `
+            delete from precincts
+            where id = $1 and election_id = $2
+            returning created_at as "createdAt"
+          `,
+          precinct.id,
+          electionId
+        );
+        assert(rowCount === 1, 'Precinct not found');
+        await insertPrecinct(client, electionId, precinct);
+        return true;
+      })
     );
-    validatePrecinctDistrictIds(precinct, election.districts);
-    const updatedPrecincts = precincts.map((p) =>
-      p.id === precinct.id ? precinct : p
-    );
-    await this.updatePrecincts(electionId, updatedPrecincts);
   }
 
   async deletePrecinct(
     electionId: ElectionId,
     precinctId: PrecinctId
   ): Promise<void> {
-    const { precincts } = await this.getElection(electionId);
-    assert(
-      precincts.some((p) => p.id === precinctId),
-      'Precinct not found'
-    );
-    const updatedPrecincts = precincts.filter((p) => p.id !== precinctId);
-    await this.updatePrecincts(electionId, updatedPrecincts);
-  }
-
-  private async updatePrecincts(
-    electionId: ElectionId,
-    precincts: SplittablePrecinct[]
-  ): Promise<void> {
-    await this.db.withClient((client) =>
+    const { rowCount } = await this.db.withClient((client) =>
       client.query(
         `
-          update elections
-          set precinct_data = $1
-          where id = $2
+          delete from precincts
+          where id = $1 and election_id = $2
         `,
-        JSON.stringify(precincts),
+        precinctId,
         electionId
       )
     );
+    assert(rowCount === 1, 'Precinct not found');
   }
 
   async listBallotStyles(electionId: ElectionId): Promise<BallotStyle[]> {
