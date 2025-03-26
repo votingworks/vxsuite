@@ -8,8 +8,6 @@ import Select, {
 import { useTheme } from 'styled-components';
 import { Button } from './button';
 
-// TODO-POLLBOOK-MERGE - menu portal target added
-
 function DropdownIndicator(
   props: DropdownIndicatorProps<unknown, true>
 ): JSX.Element {

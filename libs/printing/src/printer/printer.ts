@@ -44,7 +44,6 @@ export function detectPrinter(logger: BaseLogger): Printer {
           Date.now() - printerDevice.lastPrint <
           POST_PRINT_DISCONNECT_ALLOWANCE;
         const printerDetected = connectedUris.includes(printerDevice.uri);
-        // TODO-POLLBOOK-MERGE: Only check for the just printed flag on the pollbook printer
 
         // check if the printer was disconnected
         if (!justPrinted && !printerDetected) {

@@ -34,8 +34,6 @@ import {
 import { computeCardLockoutEndTime } from './lockout';
 import { computeSessionEndTime } from './sessions';
 
-// TODO-POLLBOOK-MERGE: Need to make this NOT allow pollworker for admin/central but still allow for pollbook (current state: kept pollbook code)
-
 type CheckPinResponseExtended =
   | CheckPinResponse
   | { response: 'error'; error: unknown };

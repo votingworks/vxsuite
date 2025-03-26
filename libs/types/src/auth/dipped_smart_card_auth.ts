@@ -6,8 +6,6 @@ import {
   VendorUser,
 } from './auth';
 
-// TODO-POLLBOOK-MERGE need to make sure pollworkers are not allowed on vxadmin/central
-
 export interface LoggedOut {
   readonly status: 'logged_out';
   readonly reason:

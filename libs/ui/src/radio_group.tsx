@@ -6,8 +6,6 @@ import { isTouchscreen } from '@votingworks/types';
 import { Button, ButtonProps } from './button';
 import { useCurrentTheme } from './hooks/use_current_theme';
 
-// TODO-POLLBOOK-MERGE - not backwords compatible design tweaks made, need to review use cases in pollbook and vxsuite
-
 /** Option value type for the RadioGroup component. */
 type RadioGroupValue = string | number;
 

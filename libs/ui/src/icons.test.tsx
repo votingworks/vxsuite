@@ -26,7 +26,7 @@ test(`Icon renders with color`, () => {
     danger: theme.colors.dangerAccent,
     inverse: theme.colors.onInverse,
     inversePrimary: theme.colors.inversePrimary,
-    inverseWarning: 'rgb(255 163 84)', // TODO-POLLBOOK-MERGE
+    inverseWarning: theme.colors.warningAccent,
   };
 
   for (const [color, expectedColor] of Object.entries(expectedColors)) {

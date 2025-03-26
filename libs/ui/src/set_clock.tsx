@@ -21,8 +21,6 @@ import { Card } from './card';
 import { ScreenInfo, useScreenInfo } from './hooks/use_screen_info';
 import { useSystemCallApi } from './system_call_api';
 
-// TODO-POLLBOOK-MERGE need to test
-
 const InputGroup = styled.div`
   display: inline-flex;
   flex-direction: row;
