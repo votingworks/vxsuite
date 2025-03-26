@@ -201,6 +201,30 @@ function buildApi({ auth, workspace, translator }: AppContext) {
         sourceElection,
         sourcePrecincts
       );
+      // Split candidate names into first, middle, and last names, if they are
+      // not already split
+      const contestsWithSplitCandidateNames = contests.map((contest) => {
+        if (contest.type !== 'candidate') return contest;
+        return {
+          ...contest,
+          candidates: contest.candidates.map((candidate) => {
+            if (
+              candidate.firstName !== undefined &&
+              candidate.middleName !== undefined &&
+              candidate.lastName !== undefined
+            ) {
+              return candidate;
+            }
+            const [firstPart, ...middleParts] = candidate.name.split(' ');
+            return {
+              ...candidate,
+              firstName: firstPart ?? '',
+              lastName: middleParts.pop() ?? '',
+              middleName: middleParts.join(' '),
+            };
+          }),
+        };
+      });
       const election: Election = {
         ...sourceElection,
         id: input.newId,
@@ -210,7 +234,7 @@ function buildApi({ auth, workspace, translator }: AppContext) {
           name: p.name,
         })),
         parties,
-        contests,
+        contests: contestsWithSplitCandidateNames,
         // Remove any existing ballot styles/grid layouts so we can generate our own
         ballotStyles: [],
         gridLayouts: undefined,
