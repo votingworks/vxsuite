@@ -390,8 +390,8 @@ export function SetClockButton({
     setIsSettingClock(true);
     try {
       await setClockMutation.mutateAsync({
-        isoDatetime: assertDefined(date.toISO()),
-        ianaZone: assertDefined(date.zoneName),
+        isoDatetime: date.toISO(),
+        ianaZone: date.zoneName,
       });
       setIsModalOpen(false);
     } finally {
