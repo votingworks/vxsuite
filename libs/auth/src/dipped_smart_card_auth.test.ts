@@ -835,6 +835,30 @@ test.each<{
     },
   },
   {
+    description: 'unconfigured machine, vendor can access',
+    config: defaultConfig,
+    machineState: { ...defaultMachineState, electionKey: undefined },
+    cardDetails: {
+      user: vendorUser,
+    },
+    expectedAuthStatus: {
+      status: 'checking_pin',
+      user: vendorUser,
+    },
+  },
+  {
+    description: 'unconfigured machine, system administrator can access',
+    config: defaultConfig,
+    machineState: { ...defaultMachineState, electionKey: undefined },
+    cardDetails: {
+      user: systemAdministratorUser,
+    },
+    expectedAuthStatus: {
+      status: 'checking_pin',
+      user: systemAdministratorUser,
+    },
+  },
+  {
     description: 'mismatched election key',
     config: defaultConfig,
     machineState: defaultMachineState,

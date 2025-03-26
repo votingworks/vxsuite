@@ -687,7 +687,10 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
       return err('user_role_not_allowed');
     }
 
-    if (!machineState.electionKey) {
+    if (
+      !machineState.electionKey &&
+      ['election_manager', 'poll_worker'].includes(user.role)
+    ) {
       return user.role === 'election_manager' &&
         this.config.allowElectionManagersToAccessUnconfiguredMachines
         ? ok()
