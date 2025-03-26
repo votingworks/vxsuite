@@ -45,7 +45,7 @@ export function formatTimeZoneName(date: DateTime): string {
   return find(
     new Intl.DateTimeFormat(undefined, {
       timeZoneName: 'long',
-      timeZone: date.zoneName ?? undefined,
+      timeZone: date.zoneName,
     }).formatToParts(date.toJSDate()),
     (part) => part.type === 'timeZoneName'
   ).value;
@@ -56,7 +56,7 @@ export function formatFullDateTimeZone(
   { includeTimezone = false, includeWeekday = true } = {}
 ): string | undefined {
   return new Intl.DateTimeFormat(undefined, {
-    timeZone: date.zoneName ?? undefined,
+    timeZone: date.zoneName,
     weekday: includeWeekday ? 'short' : undefined,
     month: 'short',
     day: 'numeric',
@@ -87,7 +87,7 @@ export function formatShortDate(date: DateTime, timeZone?: string): string {
 
 export function formatTime(date: DateTime): string {
   return new Intl.DateTimeFormat(undefined, {
-    timeZone: date.zoneName ?? undefined,
+    timeZone: date.zoneName,
     hour: 'numeric',
     minute: 'numeric',
   }).format(date.toJSDate());

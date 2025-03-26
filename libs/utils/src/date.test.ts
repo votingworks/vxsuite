@@ -8,6 +8,7 @@ import {
   formatTimeZoneName,
   getDaysInMonth,
   utcTimestamp,
+  MONTHS_LONG,
 } from './date';
 
 test('formatTimeZoneName', () => {
@@ -107,6 +108,12 @@ test('getDaysInMonth', () => {
   const februaryDays = getDaysInMonth(2021, 2);
   expect(februaryDays).toHaveLength(28);
   expect(februaryDays[0]).toEqual(DateTime.fromISO('2021-02-01'));
+});
+
+test('getLongMonthNames', () => {
+  expect(MONTHS_LONG).toHaveLength(12);
+  expect(MONTHS_LONG[0]).toEqual('January');
+  expect(MONTHS_LONG[11]).toEqual('December');
 });
 
 test('utcTimestamp', () => {

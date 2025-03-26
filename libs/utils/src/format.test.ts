@@ -67,6 +67,18 @@ test('formats locale date properly', () => {
   );
 });
 
+test('formats locale time properly', () => {
+  expect(format.localeTime(new Date(2020, 3, 14, 1, 15, 9, 26))).toEqual(
+    '1:15 AM'
+  );
+});
+
+test('formats clock date and time properly', () => {
+  expect(format.clockDateAndTime(new Date(2020, 3, 14, 1, 15, 9, 26))).toEqual(
+    'Tue, Apr 14, 1:15 AM'
+  );
+});
+
 test('formats percentages properly', () => {
   expect(format.percent(0)).toEqual('0%');
   expect(format.percent(1)).toEqual('100%');
