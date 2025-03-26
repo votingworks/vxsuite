@@ -53,7 +53,7 @@ import {
 import { translateBallotStrings } from '@votingworks/backend';
 import { readFileSync } from 'node:fs';
 import { z } from 'zod';
-import { BackgroundTaskMetadata, ElectionRecord } from './store';
+import { BackgroundTaskMetadata } from './store';
 import {
   BallotOrderInfo,
   BallotOrderInfoSchema,
@@ -174,44 +174,22 @@ const UpdateElectionInfoInputSchema = z.object({
   languageCodes: z.array(LanguageCodeSchema),
 });
 
-function electionStatus(electionRecord: ElectionRecord): ElectionStatus {
-  if (electionRecord.election.contests.length === 0) {
-    return 'notStarted';
-  }
-  if (!electionRecord.ballotsFinalizedAt) {
-    return 'inProgress';
-  }
-  if (Object.values(electionRecord.ballotOrderInfo).length === 0) {
-    return 'ballotsFinalized';
-  }
-  return 'orderSubmitted';
-}
-
 function buildApi({ auth, workspace, translator }: AppContext) {
   const { store } = workspace;
 
   return grout.createApi({
     async listElections(input: WithUserInfo): Promise<ElectionListing[]> {
       const { user } = input;
-      const electionRecords = await store.listElections({
+      const elections = await store.listElections({
         orgId: user.orgId === votingWorksOrgId() ? undefined : user.orgId,
       });
       const orgs = await auth.allOrgs();
-      return electionRecords.map((record): ElectionListing => {
-        const { election, orgId } = record;
-        return {
-          orgId,
-          orgName:
-            orgs.find((org) => org.id === orgId)?.displayName ?? record.orgId,
-          electionId: election.id,
-          title: election.title,
-          date: election.date,
-          type: election.type,
-          jurisdiction: election.county.name,
-          state: election.state,
-          status: electionStatus(record),
-        };
-      });
+      return elections.map((election) => ({
+        ...election,
+        orgName:
+          orgs.find((org) => org.id === election.orgId)?.displayName ??
+          election.orgId,
+      }));
     },
 
     async loadElection(
