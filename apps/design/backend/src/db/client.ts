@@ -15,6 +15,7 @@ export type Bindable =
   | number
   | bigint
   | Buffer
+  | Date
   | null
   | undefined;
 

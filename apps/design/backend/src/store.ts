@@ -3,6 +3,7 @@ import {
   Optional,
   assert,
   assertDefined,
+  sleep,
   throwIllegalValue,
   typedAs,
 } from '@votingworks/basics';
@@ -121,58 +122,69 @@ export interface BackgroundTaskMetadata {
 async function insertDistrict(
   client: Client,
   electionId: ElectionId,
-  district: District
+  district: District,
+  createdAt: Date
 ) {
   await client.query(
     `
       insert into districts (
         id,
         election_id,
-        name
+        name,
+        created_at
       )
-      values ($1, $2, $3)
+      values ($1, $2, $3, $4)
     `,
     district.id,
     electionId,
-    district.name
+    district.name,
+    createdAt
   );
 }
 
 async function insertPrecinct(
   client: Client,
   electionId: ElectionId,
-  precinct: SplittablePrecinct
+  precinct: SplittablePrecinct,
+  createdAt: Date
 ) {
   await client.query(
     `
       insert into precincts (
         id,
         election_id,
-        name
+        name,
+        created_at
       )
-      values ($1, $2, $3)
+      values ($1, $2, $3, $4)
     `,
     precinct.id,
     electionId,
-    precinct.name
+    precinct.name,
+    createdAt
   );
   if (hasSplits(precinct)) {
-    for (const split of precinct.splits) {
+    for (const [i, split] of precinct.splits.entries()) {
       const { id: splitId, name, districtIds, ...nhOptions } = split;
+      // To make sure each split has a unique created_at timestamp so we can
+      // sort by it, we increment the starting created_at timestamp for each split
+      const splitCreatedAt = new Date(createdAt.valueOf() + i);
       await client.query(
         `
           insert into precinct_splits (
             id,
             precinct_id,
             name,
-            nh_options
+            nh_options,
+            created_at
           )
-          values ($1, $2, $3, $4)
+          values ($1, $2, $3, $4, $5)
         `,
         splitId,
         precinct.id,
         name,
-        JSON.stringify(nhOptions)
+        JSON.stringify(nhOptions),
+        splitCreatedAt
       );
       for (const districtId of districtIds) {
         await client.query(
@@ -208,7 +220,8 @@ async function insertPrecinct(
 async function insertParty(
   client: Client,
   electionId: ElectionId,
-  party: Party
+  party: Party,
+  createdAt: Date
 ) {
   await client.query(
     `
@@ -217,15 +230,17 @@ async function insertParty(
         election_id,
         name,
         full_name,
-        abbrev
+        abbrev,
+        created_at
       )
-      values ($1, $2, $3, $4, $5)
+      values ($1, $2, $3, $4, $5, $6)
     `,
     party.id,
     electionId,
     party.name,
     party.fullName,
-    party.abbrev
+    party.abbrev,
+    createdAt
   );
 }
 
@@ -233,6 +248,7 @@ async function insertContest(
   client: Client,
   electionId: ElectionId,
   contest: AnyContest,
+  createdAt: Date,
   ballotOrder?: number
 ) {
   // eslint-disable-next-line no-param-reassign
@@ -260,9 +276,10 @@ async function insertContest(
             allow_write_ins,
             party_id,
             term_description,
+            created_at,
             ballot_order
           )
-          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
         `,
         contest.id,
         electionId,
@@ -273,9 +290,13 @@ async function insertContest(
         contest.allowWriteIns,
         contest.partyId,
         contest.termDescription,
+        createdAt,
         ballotOrder
       );
-      for (const candidate of contest.candidates) {
+      for (const [i, candidate] of contest.candidates.entries()) {
+        // In order to make sure each candidate has a unique created_at timestamp
+        // so we can sort by it, we increment the starting created_at timestamp
+        const candidateCreatedAt = new Date(createdAt.valueOf() + i);
         await client.query(
           `
             insert into candidates (
@@ -283,15 +304,17 @@ async function insertContest(
               contest_id,
               first_name,
               middle_name,
-              last_name
+              last_name,
+              created_at
             )
-            values ($1, $2, $3, $4, $5)
+            values ($1, $2, $3, $4, $5, $6)
           `,
           candidate.id,
           contest.id,
           candidate.firstName,
           candidate.middleName,
-          candidate.lastName
+          candidate.lastName,
+          candidateCreatedAt
         );
         for (const partyId of candidate.partyIds ?? []) {
           await client.query(
@@ -324,9 +347,10 @@ async function insertContest(
             yes_option_label,
             no_option_id,
             no_option_label,
+            created_at,
             ballot_order
           )
-          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
         `,
         contest.id,
         electionId,
@@ -338,6 +362,7 @@ async function insertContest(
         contest.yesOption.label,
         contest.noOption.id,
         contest.noOption.label,
+        createdAt,
         ballotOrder
       );
       break;
@@ -476,6 +501,7 @@ export class Store {
               name
             from districts
             where election_id = $1
+            order by created_at
           `,
           electionId
         )
@@ -487,16 +513,12 @@ export class Store {
             select
               id,
               name,
-              array_remove(array_agg(district_id), NULL) as "districtIds"
+              array_remove(array_agg(district_id ORDER BY district_id), NULL) as "districtIds"
             from precincts
-            left join (
-              select district_id, precinct_id from districts_precincts
-              join districts on districts_precincts.district_id = districts.id
-              order by districts.created_at
-            ) as ordered_districts
-            on precincts.id = ordered_districts.precinct_id
+            left join districts_precincts on districts_precincts.precinct_id = precincts.id
             where election_id = $1
             group by precincts.id
+            order by precincts.created_at
           `,
           electionId
         )
@@ -513,17 +535,13 @@ export class Store {
               precinct_id as "precinctId",
               precinct_splits.name,
               nh_options as "nhOptions",
-              array_remove(array_agg(district_id), NULL) as "districtIds"
+              array_remove(array_agg(district_id ORDER BY district_id), NULL) as "districtIds"
             from precinct_splits
             join precincts on precinct_splits.precinct_id = precincts.id
-            left join (
-              select district_id, precinct_split_id from districts_precinct_splits
-              join districts on districts_precinct_splits.district_id = districts.id
-              order by districts.created_at
-            ) as ordered_districts
-            on precinct_splits.id = ordered_districts.precinct_split_id
+            left join districts_precinct_splits on districts_precinct_splits.precinct_split_id = precinct_splits.id
             where precincts.election_id = $1
             group by precinct_splits.id
+            order by precinct_splits.created_at
           `,
           electionId
         )
@@ -558,6 +576,7 @@ export class Store {
               abbrev
             from parties
             where election_id = $1
+            order by created_at
           `,
           electionId
         )
@@ -610,17 +629,13 @@ export class Store {
               first_name as "firstName",
               middle_name as "middleName",
               last_name as "lastName",
-              array_remove(array_agg(ordered_parties.party_id), NULL) as "partyIds"
+              array_remove(array_agg(candidates_parties.party_id ORDER BY candidates_parties.party_id), NULL) as "partyIds"
             from candidates
             join contests on candidates.contest_id = contests.id
-            left join (
-              select candidate_id, party_id from candidates_parties
-              join parties on candidates_parties.party_id = parties.id
-              order by parties.created_at
-            ) as ordered_parties
-            on candidates.id = ordered_parties.candidate_id
+            left join candidates_parties on candidates_parties.candidate_id = candidates.id
             where contests.election_id = $1
             group by candidates.id
+            order by candidates.created_at
           `,
           electionId
         )
@@ -809,17 +824,24 @@ export class Store {
           JSON.stringify(systemSettings),
           JSON.stringify({})
         );
+        // When loading elections, we want to maintain the original order of
+        // districts, precincts, parties, and contests. We sort by created_at on
+        // read, so we need to ensure that each created_at timestamp is unique.
         for (const district of election.districts) {
-          await insertDistrict(client, election.id, district);
+          await sleep(1); // Ensure that each created_at timestamp is unique
+          await insertDistrict(client, election.id, district, new Date());
         }
         for (const precinct of precincts) {
-          await insertPrecinct(client, election.id, precinct);
+          await sleep(1); // Ensure that each created_at timestamp is unique
+          await insertPrecinct(client, election.id, precinct, new Date());
         }
         for (const party of election.parties) {
-          await insertParty(client, election.id, party);
+          await sleep(1); // Ensure that each created_at timestamp is unique
+          await insertParty(client, election.id, party, new Date());
         }
         for (const contest of election.contests) {
-          await insertContest(client, election.id, contest);
+          await sleep(1); // Ensure that each created_at timestamp is unique
+          await insertContest(client, election.id, contest, new Date());
         }
         return true;
       })
@@ -934,7 +956,7 @@ export class Store {
   ): Promise<void> {
     await this.db.withClient((client) =>
       client.withTransaction(async () => {
-        await insertDistrict(client, electionId, district);
+        await insertDistrict(client, electionId, district, new Date());
         return true;
       })
     );
@@ -987,7 +1009,7 @@ export class Store {
   ): Promise<void> {
     await this.db.withClient((client) =>
       client.withTransaction(async () => {
-        await insertPrecinct(client, electionId, precinct);
+        await insertPrecinct(client, electionId, precinct, new Date());
         return true;
       })
     );
@@ -1004,7 +1026,7 @@ export class Store {
         // 2. Precincts/splits are leaf nodes. There are no other tables with
         // foreign keys that reference precincts/splits, so we don't need to
         // worry about ON DELETE triggers.
-        const { rowCount } = await client.query(
+        const { rowCount, rows } = await client.query(
           `
             delete from precincts
             where id = $1 and election_id = $2
@@ -1014,7 +1036,8 @@ export class Store {
           electionId
         );
         assert(rowCount === 1, 'Precinct not found');
-        await insertPrecinct(client, electionId, precinct);
+        const createdAt = rows[0].createdAt as Date;
+        await insertPrecinct(client, electionId, precinct, createdAt);
         return true;
       })
     );
@@ -1049,7 +1072,7 @@ export class Store {
 
   async createParty(electionId: ElectionId, party: Party): Promise<void> {
     await this.db.withClient((client) =>
-      insertParty(client, electionId, party)
+      insertParty(client, electionId, party, new Date())
     );
   }
 
@@ -1098,7 +1121,7 @@ export class Store {
     contest: AnyContest
   ): Promise<void> {
     await this.db.withClient((client) =>
-      insertContest(client, electionId, contest)
+      insertContest(client, electionId, contest, new Date())
     );
   }
 
@@ -1117,14 +1140,25 @@ export class Store {
           `
             delete from contests
             where id = $1 and election_id = $2
-            returning ballot_order as "ballotOrder"
+            returning
+              created_at as "createdAt",
+              ballot_order as "ballotOrder"
           `,
           contest.id,
           electionId
         );
-        const ballotOrder = rows[0].ballotOrder as number;
+        const { createdAt, ballotOrder } = rows[0] as {
+          createdAt: Date;
+          ballotOrder: number;
+        };
         assert(rowCount === 1, 'Contest not found');
-        await insertContest(client, electionId, contest, ballotOrder);
+        await insertContest(
+          client,
+          electionId,
+          contest,
+          createdAt,
+          ballotOrder
+        );
         return true;
       })
     );
