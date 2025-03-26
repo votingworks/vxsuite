@@ -184,7 +184,9 @@ export class Store {
     return new Store(new Db(logger));
   }
 
-  async listElections(input: { orgId?: string }): Promise<ElectionRecord[]> {
+  async listElections(input: {
+    orgId?: string;
+  }): Promise<Array<Omit<ElectionListing, 'orgName'>>> {
     let whereClause = '';
     const params: Bindable[] = [];
 
@@ -200,40 +202,54 @@ export class Store {
             await client.query(
               `
               select
-                id,
-                org_id as "orgId",
-                election_data as "electionData",
-                system_settings_data as "systemSettingsData",
-                ballot_order_info_data as "ballotOrderInfoData",
-                precinct_data as "precinctData",
-                ballot_template_id as "ballotTemplateId",
-                ballots_finalized_at as "ballotsFinalizedAt",
-                created_at as "createdAt",
-                ballot_language_codes as "ballotLanguageCodes"
+                elections.id as "electionId",
+                elections.org_id as "orgId",
+                elections.type,
+                elections.title,
+                elections.date,
+                elections.jurisdiction,
+                elections.state,
+                elections.ballots_finalized_at as "ballotsFinalizedAt",
+                elections.ballot_order_info_data as "ballotOrderInfoData",
+                count(contests.id)::int as "contestCount"
               from elections
+              left join contests on elections.id = contests.election_id
               ${whereClause}
-              order by created_at desc
-            `,
+              group by elections.id
+              order by elections.created_at desc
+              `,
               ...params
             )
-          ).rows as Array<{
-            id: string;
-            orgId: string;
-            electionData: string;
-            systemSettingsData: string;
-            ballotOrderInfoData: string;
-            precinctData: string;
-            ballotTemplateId: BallotTemplateId;
-            ballotsFinalizedAt: Date | null;
-            createdAt: Date;
-            ballotLanguageCodes: LanguageCode[];
-          }>
+          ).rows as Array<
+            Omit<ElectionListing, 'orgName' | 'status'> & {
+              date: Date;
+              ballotsFinalizedAt: Date | null;
+              ballotOrderInfoData: string;
+              contestCount: number;
+            }
+          >
       )
-    ).map((row) =>
-      hydrateElection({
-        ...row,
-      })
-    );
+    ).map((row) => ({
+      electionId: row.electionId,
+      orgId: row.orgId,
+      type: row.type,
+      title: row.title,
+      date: new DateWithoutTime(row.date.toISOString().split('T')[0]),
+      jurisdiction: row.jurisdiction,
+      state: row.state,
+      status: (() => {
+        if (row.contestCount === 0) {
+          return 'notStarted';
+        }
+        if (!row.ballotsFinalizedAt) {
+          return 'inProgress';
+        }
+        if (row.ballotOrderInfoData === '{}') {
+          return 'ballotsFinalized';
+        }
+        return 'orderSubmitted';
+      })(),
+    }));
   }
 
   async getElection(electionId: ElectionId): Promise<ElectionRecord> {
