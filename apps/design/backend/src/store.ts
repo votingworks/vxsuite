@@ -826,23 +826,6 @@ export class Store {
     );
   }
 
-  async updateElection(
-    electionId: ElectionId,
-    election: Election
-  ): Promise<void> {
-    await this.db.withClient((client) =>
-      client.query(
-        `
-          update elections
-          set election_data = $1
-          where id = $2
-        `,
-        JSON.stringify(election),
-        electionId
-      )
-    );
-  }
-
   async getSystemSettings(electionId: ElectionId): Promise<SystemSettings> {
     const { systemSettingsData } = (
       await this.db.withClient((client) =>
@@ -1211,14 +1194,18 @@ export class Store {
     electionId: ElectionId,
     paperSize: HmpbBallotPaperSize
   ): Promise<void> {
-    const { election } = await this.getElection(electionId);
-    await this.updateElection(electionId, {
-      ...election,
-      ballotLayout: {
-        ...election.ballotLayout,
+    const { rowCount } = await this.db.withClient((client) =>
+      client.query(
+        `
+          update elections
+          set ballot_paper_size = $1
+          where id = $2
+        `,
         paperSize,
-      },
-    });
+        electionId
+      )
+    );
+    assert(rowCount === 1, 'Election not found');
   }
 
   async deleteElection(electionId: ElectionId): Promise<void> {
