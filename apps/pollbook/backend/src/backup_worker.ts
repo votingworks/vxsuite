@@ -15,6 +15,7 @@ import {
   VoterChecklist,
   VoterChecklistHeader,
 } from './voter_checklist';
+import { Store } from './store';
 
 const BACKUP_INTERVAL = 1_000 * 60; // 1 minute
 
@@ -67,32 +68,21 @@ async function* splitIntoBalancedChunks<T>(
   }
 }
 
-async function exportBackupVoterChecklist(
-  workspace: Workspace,
-  usbDrive: UsbDrive
-): Promise<void> {
-  let usbDriveStatus = await usbDrive.status();
-  if (usbDriveStatus.status !== 'mounted') {
-    console.log('No USB drive mounted, skipping backup');
-    return;
-  }
-  if (!workspace.store.getElection()) {
-    console.log('Machine not configured, skipping backup');
-    return;
-  }
-  console.log('Exporting backup voter checklist');
-  console.time('Exported backup voter checklist');
-  const exportTime = new Date();
-  const election = assertDefined(workspace.store.getElection());
-  const voterGroups = workspace.store.groupVotersAlphabeticallyByLastName();
-  const totalCheckIns = workspace.store.getCheckInCount();
-  const lastReceiptNumber = workspace.store.getLastReceiptNumber();
+export async function getBackupPaperChecklistPdfs(
+  store: Store,
+  exportTime: Date = new Date()
+): Promise<Buffer[]> {
+  const election = assertDefined(store.getElection());
+  const voterGroups = store.groupVotersAlphabeticallyByLastName();
+  const totalCheckIns = store.getCheckInCount();
+  const lastReceiptNumber = store.getLastReceiptNumber();
   const marginDimensions: MarginDimensions = {
     top: 0.7, // Leave space for header
     right: 0.25,
     bottom: 0.25,
     left: 0.25,
   };
+  console.log('85');
   const groupPdfs = iter(voterGroups)
     .async()
     .map(async (voterGroup) => {
@@ -116,7 +106,7 @@ async function exportBackupVoterChecklist(
       ).unsafeUnwrap();
     });
 
-  const voterCountByParty = workspace.store
+  const voterCountByParty = store
     .getAllVoters()
     .filter((voter) => !voter.registrationEvent)
     .reduce(
@@ -163,12 +153,31 @@ async function exportBackupVoterChecklist(
       return concatenatePdfs(chunkPdfs);
     })
     .toArray();
+  return pdfs;
+}
+
+async function exportBackupVoterChecklist(
+  workspace: Workspace,
+  usbDrive: UsbDrive
+): Promise<void> {
+  let usbDriveStatus = await usbDrive.status();
+  if (usbDriveStatus.status !== 'mounted') {
+    console.log('No USB drive mounted, skipping backup');
+    return;
+  }
+  if (!workspace.store.getElection()) {
+    console.log('Machine not configured, skipping backup');
+    return;
+  }
+  console.log('Exporting backup voter checklist');
+  console.time('Exported backup voter checklist');
 
   usbDriveStatus = await usbDrive.status();
   if (usbDriveStatus.status !== 'mounted') {
     console.log('No USB drive mounted, skipping export');
     return;
   }
+  const pdfs = await getBackupPaperChecklistPdfs(workspace.store);
 
   const exporter = new Exporter({
     allowedExportPatterns: ['**'], // TODO restrict allowed export paths

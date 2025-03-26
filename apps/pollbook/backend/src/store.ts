@@ -111,7 +111,7 @@ export class Store {
   /**
    * Builds and returns a new store whose data is kept in memory.
    */
-  static memoryStore(machineId: string): Store {
+  static memoryStore(machineId: string = 'test-machine'): Store {
     return new Store(DbClient.memoryClient(SchemaPath), machineId);
   }
 
