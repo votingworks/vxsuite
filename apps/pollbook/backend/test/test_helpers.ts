@@ -1,14 +1,15 @@
 import { DateWithoutTime } from '@votingworks/basics';
 import { ElectionId } from '@votingworks/types';
-import { HlcTimestamp } from './hybrid_logical_clock';
-import { Store } from './store';
+import { HlcTimestamp } from '../src/hybrid_logical_clock';
+import { Store } from '../src/store';
 import {
   Voter,
   VoterCheckInEvent,
   EventType,
   PollbookEventBase,
   Election,
-} from './types';
+  ValidStreetInfo,
+} from '../src/types';
 
 export function createVoter(
   voterId: string,
@@ -21,30 +22,30 @@ export function createVoter(
     lastName,
     middleName: '',
     suffix: '',
-    streetNumber: '',
+    streetNumber: '123',
     addressSuffix: '',
     houseFractionNumber: '',
-    streetName: '',
-    state: '',
+    streetName: 'Main St',
+    state: 'NH',
     apartmentUnitNumber: '',
-    addressLine2: '',
+    addressLine2: 'line 2',
     addressLine3: '',
     postalCityTown: '',
-    postalZip5: '',
-    zip4: '',
-    mailingStreetNumber: '',
-    mailingSuffix: '',
+    postalZip5: '12345',
+    zip4: '6789',
+    mailingStreetNumber: '123',
+    mailingSuffix: 'APT A',
     mailingHouseFractionNumber: '',
-    mailingStreetName: '',
+    mailingStreetName: 'Main St',
     mailingApartmentUnitNumber: '',
     mailingAddressLine2: '',
     mailingAddressLine3: '',
-    mailingCityTown: '',
-    mailingState: '',
-    mailingZip5: '',
-    mailingZip4: '',
+    mailingCityTown: 'Somewhere',
+    mailingState: 'NH',
+    mailingZip5: '12345',
+    mailingZip4: '6789',
     party: 'UND',
-    district: '',
+    district: 'District',
   };
 }
 export function createVoterCheckInEvent(
@@ -106,4 +107,27 @@ export function getTestElection(): Election {
     seal: 'test-seal-contents',
   };
   return testElection;
+}
+
+export function setupTestElectionAndVoters(store: Store): void {
+  const testElection = getTestElection();
+  const testVoters = [
+    createVoter('abigail', 'Abigail', 'Adams'),
+    createVoter('bob', 'Bob', 'Smith'),
+    createVoter('charlie', 'Charlie', 'Brown'),
+    createVoter('sue', 'Sue', 'Jones'),
+  ];
+  const testStreetInfo: ValidStreetInfo[] = [
+    {
+      streetName: 'Main',
+      side: 'even',
+      lowRange: 2,
+      highRange: 100,
+      postalCity: 'Somewhere',
+      zip5: '12345',
+      zip4: '6789',
+      district: 'Somewhere',
+    },
+  ];
+  store.setElectionAndVoters(testElection, testStreetInfo, testVoters);
 }

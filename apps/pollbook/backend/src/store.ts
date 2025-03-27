@@ -111,7 +111,7 @@ export class Store {
   /**
    * Builds and returns a new store whose data is kept in memory.
    */
-  static memoryStore(machineId: string): Store {
+  static memoryStore(machineId: string = 'test-machine'): Store {
     return new Store(DbClient.memoryClient(SchemaPath), machineId);
   }
 
@@ -500,25 +500,33 @@ export class Store {
     );
   }
 
-  groupVotersAlphabeticallyByLastName(): VoterGroup[] {
+  groupVotersAlphabeticallyByLastName(): Map<string, VoterGroup> {
     const voters = this.getVoters();
     assert(voters);
     const sortedVoters = sortedByVoterName(Object.values(voters), {
       useOriginalName: true,
     });
-    const groupedVoters = groupBy(sortedVoters, (v) =>
-      v.lastName[0].toUpperCase()
-    ).map(([, voterGroup]) => voterGroup);
+    const groupedVoters = Object.fromEntries(
+      groupBy(sortedVoters, (v) => v.lastName[0].toUpperCase()).map(
+        ([key, voterGroup]) => [key, voterGroup]
+      )
+    );
 
-    return Object.values(groupedVoters).map((votersForLetter) => {
-      const existingVoters = votersForLetter.filter(
-        (v) => v.registrationEvent === undefined
-      );
-      const newRegistrations = votersForLetter.filter(
-        (v) => v.registrationEvent !== undefined
-      );
-      return { existingVoters, newRegistrations };
-    });
+    const allLetters = Array.from({ length: 26 }, (_, i) =>
+      String.fromCharCode(65 + i)
+    );
+    return new Map(
+      allLetters.map((letter) => {
+        const votersForLetter = groupedVoters[letter] || [];
+        const existingVoters = votersForLetter.filter(
+          (v) => v.registrationEvent === undefined
+        );
+        const newRegistrations = votersForLetter.filter(
+          (v) => v.registrationEvent !== undefined
+        );
+        return [letter, { existingVoters, newRegistrations }];
+      })
+    );
   }
 
   getAllVoters(): Voter[] {

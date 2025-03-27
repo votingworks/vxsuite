@@ -55,17 +55,16 @@ const StyledVoterChecklistHeader = styled.div`
 export function VoterChecklistHeader({
   totalCheckIns,
   lastReceiptNumber,
-  voterGroup,
   exportTime,
   election,
+  letter,
 }: {
   totalCheckIns: number;
   lastReceiptNumber: number;
-  voterGroup: VoterGroup;
   exportTime: Date;
   election: Election;
+  letter: string;
 }): JSX.Element {
-  const letter = voterGroup.existingVoters[0].lastName[0].toLocaleUpperCase();
   return (
     <StyledVoterChecklistHeader>
       <div>
@@ -203,6 +202,9 @@ export function VoterChecklistTable({
 }: {
   voters: Voter[];
 }): JSX.Element {
+  if (voters.length === 0) {
+    return <div />;
+  }
   return (
     <VoterTable>
       <thead>

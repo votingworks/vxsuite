@@ -405,6 +405,8 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: apps/pollbook/backend/reports/
+      - store_artifacts:
+          path: apps/pollbook/backend/src/__image_snapshots__/__diff_output__/
 
   # @votingworks/pollbook-frontend
   test-apps-pollbook-frontend:
