@@ -1,5 +1,9 @@
-import { DippedSmartCardAuthMachineState } from '@votingworks/auth';
+import {
+  DippedSmartCardAuthApi,
+  DippedSmartCardAuthMachineState,
+} from '@votingworks/auth';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
+import { LoggingUserRole } from '@votingworks/logging';
 import { Workspace } from './types';
 
 export function constructAuthMachineState(
@@ -13,4 +17,21 @@ export function constructAuthMachineState(
       date: election.date,
     },
   };
+}
+
+/**
+ * Get the current logging user role.
+ */
+export async function getUserRole(
+  auth: DippedSmartCardAuthApi,
+  workspace: Workspace
+): Promise<LoggingUserRole> {
+  const authStatus = await auth.getAuthStatus(
+    constructAuthMachineState(workspace)
+  );
+  if (authStatus.status === 'logged_in') {
+    return authStatus.user.role;
+  }
+  /* istanbul ignore next - trivial fallback case @preserve */
+  return 'unknown';
 }
