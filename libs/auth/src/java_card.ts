@@ -1,6 +1,9 @@
-import { Buffer } from 'node:buffer';
-import * as fs from 'node:fs/promises';
 import { sha256 } from 'js-sha256';
+import { Buffer } from 'node:buffer';
+import { existsSync } from 'node:fs';
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
+import readline from 'node:readline/promises';
 import { v4 as uuid } from 'uuid';
 import {
   assert,
@@ -330,6 +333,7 @@ export class JavaCard implements Card {
     if (user.role === 'vendor') {
       assert(this.cardProgrammingConfig.configType === 'vx');
       const { vxPrivateKey } = this.cardProgrammingConfig;
+      assert(vxPrivateKey.source === 'file');
 
       // Store card identity cert
       const cardIdentityCert = await createCert({
@@ -854,24 +858,61 @@ export class JavaCard implements Card {
    * Creates and stores the card's VotingWorks-issued cert. Used by the initial card configuration
    * script.
    */
-  async createAndStoreCardVxCert(): Promise<void> {
+  async createAndStoreCardVxCert(remoteCertParams?: {
+    randomId: string;
+    workingDirectory: string;
+  }): Promise<void> {
     assert(this.cardProgrammingConfig !== undefined);
     assert(this.cardProgrammingConfig.configType === 'vx');
     await this.selectApplet();
 
-    const publicKey = await this.generateAsymmetricKeyPair(
-      CARD_VX_CERT.PRIVATE_KEY_ID
-    );
-    const cardVxCert = await createCert({
-      certKeyInput: {
-        type: 'public',
-        key: { source: 'inline', content: publicKey.toString('utf-8') },
-      },
-      certSubject: constructCardCertSubjectWithoutJurisdictionAndCardType(),
-      expiryInDays: CERT_EXPIRY_IN_DAYS.CARD_VX_CERT,
-      signingCertAuthorityCertPath: this.vxCertAuthorityCertPath,
-      signingPrivateKey: this.cardProgrammingConfig.vxPrivateKey,
-    });
-    await this.storeCert(CARD_VX_CERT.OBJECT_ID, cardVxCert);
+    const certPublicKey = (
+      await this.generateAsymmetricKeyPair(CARD_VX_CERT.PRIVATE_KEY_ID)
+    ).toString('utf-8');
+
+    let cert: Buffer;
+    if (this.cardProgrammingConfig.vxPrivateKey.source === 'remote') {
+      assert(remoteCertParams !== undefined);
+      const { randomId, workingDirectory } = remoteCertParams;
+      const certPublicKeyPath = path.join(
+        workingDirectory,
+        `public-key-${randomId}.pem`
+      );
+      const certPath = path.join(workingDirectory, `cert-${randomId}.pem`);
+
+      await fs.writeFile(certPublicKeyPath, certPublicKey);
+
+      const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+      });
+      await rl.question(`A card-specific public key has been written to ${certPublicKeyPath}.
+Share this file with someone who has the appropriate signing key.
+They will return to you a ${path.basename(certPath)} file.
+Place that file in ${workingDirectory} and press enter. `);
+      while (!existsSync(certPath)) {
+        await rl.question(
+          `No ${certPath} file found. Make sure that it exists and press enter to try again. `
+        );
+      }
+      rl.close();
+
+      cert = await fs.readFile(certPath);
+      await fs.rm(certPublicKeyPath);
+      await fs.rm(certPath);
+    } else {
+      cert = await createCert({
+        certKeyInput: {
+          type: 'public',
+          key: { source: 'inline', content: certPublicKey },
+        },
+        certSubject: constructCardCertSubjectWithoutJurisdictionAndCardType(),
+        expiryInDays: CERT_EXPIRY_IN_DAYS.CARD_VX_CERT,
+        signingCertAuthorityCertPath: this.vxCertAuthorityCertPath,
+        signingPrivateKey: this.cardProgrammingConfig.vxPrivateKey,
+      });
+    }
+
+    await this.storeCert(CARD_VX_CERT.OBJECT_ID, cert);
   }
 }
