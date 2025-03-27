@@ -153,7 +153,7 @@ exports.up = async (pgm) => {
     no_option_id: { type: 'text' },
     no_option_label: { type: 'text' },
 
-    ballot_order: { type: 'integer', notNull: true },
+    ballot_order: { type: 'serial', unique: true },
     created_at: 'created_at',
   });
   pgm.createTable('candidates', {

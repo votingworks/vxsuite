@@ -253,17 +253,6 @@ async function insertContest(
   ballotOrder?: number
 ) {
   await assertWithinTransaction(client);
-  // eslint-disable-next-line no-param-reassign
-  ballotOrder ??= (
-    await client.query(
-      `
-        select coalesce(max(ballot_order), 0) + 1 as "nextBallotOrder"
-        from contests
-        where election_id = $1
-      `,
-      electionId
-    )
-  ).rows[0].nextBallotOrder as number;
   switch (contest.type) {
     case 'candidate': {
       await client.query(
@@ -280,7 +269,9 @@ async function insertContest(
             term_description,
             ballot_order
           )
-          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, ${
+            ballotOrder ? '$10' : 'DEFAULT'
+          })
         `,
         contest.id,
         electionId,
@@ -291,7 +282,7 @@ async function insertContest(
         contest.allowWriteIns,
         contest.partyId,
         contest.termDescription,
-        ballotOrder
+        ...(ballotOrder ? [ballotOrder] : [])
       );
       for (const candidate of contest.candidates) {
         await client.query(
@@ -344,7 +335,9 @@ async function insertContest(
             no_option_label,
             ballot_order
           )
-          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, ${
+            ballotOrder ? '$11' : 'DEFAULT'
+          })
         `,
         contest.id,
         electionId,
@@ -356,7 +349,7 @@ async function insertContest(
         contest.yesOption.label,
         contest.noOption.id,
         contest.noOption.label,
-        ballotOrder
+        ...(ballotOrder ? [ballotOrder] : [])
       );
       break;
     }
@@ -1120,18 +1113,16 @@ export class Store {
         // 2. Contests/candidates are leaf nodes. There are no other tables with
         // foreign keys that reference contests/candidates, so we don't need to
         // worry about ON DELETE triggers.
-        const { rowCount, rows } = await client.query(
+        const { rowCount } = await client.query(
           `
             delete from contests
             where id = $1 and election_id = $2
-            returning ballot_order as "ballotOrder"
           `,
           contest.id,
           electionId
         );
-        const { ballotOrder } = rows[0] as { ballotOrder: number };
         assert(rowCount === 1, 'Contest not found');
-        await insertContest(client, electionId, contest, ballotOrder);
+        await insertContest(client, electionId, contest);
         return true;
       })
     );
@@ -1153,14 +1144,13 @@ export class Store {
           contestIds.length === existingContestIds.length,
           'Invalid contest IDs'
         );
-        for (const [index, contestId] of contestIds.entries()) {
+        for (const contestId of contestIds) {
           const { rowCount } = await client.query(
             `
             update contests
-            set ballot_order = $1
-            where id = $2 and election_id = $3
+            set ballot_order = DEFAULT
+            where id = $1 and election_id = $2
           `,
-            index,
             contestId,
             electionId
           );
