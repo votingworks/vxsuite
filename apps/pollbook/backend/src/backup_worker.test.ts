@@ -16,6 +16,10 @@ test('can export paper backup checklist', async () => {
     voterId: 'abigail',
     identificationMethod: { type: 'default' },
   });
+  store.recordVoterCheckIn({
+    voterId: 'bob',
+    identificationMethod: { type: 'outOfStateLicense', state: 'CA' },
+  });
   const pdfs = await getBackupPaperChecklistPdfs(store, new Date('2024-01-01'));
   // The backup should be split into two files.
   expect(pdfs.length).toEqual(2);
