@@ -506,12 +506,11 @@ export class Store {
     const sortedVoters = sortedByVoterName(Object.values(voters), {
       useOriginalName: true,
     });
-    const groupedVoters = groupBy(sortedVoters, (v) =>
-      v.lastName[0].toUpperCase()
-    ).reduce<Record<string, Voter[]>>((acc, [key, voterGroup]) => {
-      acc[key] = voterGroup;
-      return acc;
-    }, {});
+    const groupedVoters = Object.fromEntries(
+      groupBy(sortedVoters, (v) => v.lastName[0].toUpperCase()).map(
+        ([key, voterGroup]) => [key, voterGroup]
+      )
+    );
 
     const allLetters = Array.from({ length: 26 }, (_, i) =>
       String.fromCharCode(65 + i)
