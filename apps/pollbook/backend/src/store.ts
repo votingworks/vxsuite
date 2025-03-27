@@ -500,7 +500,7 @@ export class Store {
     );
   }
 
-  groupVotersAlphabeticallyByLastName(): VoterGroup[] {
+  groupVotersAlphabeticallyByLastName(): Map<string, VoterGroup> {
     const voters = this.getVoters();
     assert(voters);
     const sortedVoters = sortedByVoterName(Object.values(voters), {
@@ -508,17 +508,26 @@ export class Store {
     });
     const groupedVoters = groupBy(sortedVoters, (v) =>
       v.lastName[0].toUpperCase()
-    ).map(([, voterGroup]) => voterGroup);
+    ).reduce<Record<string, Voter[]>>((acc, [key, voterGroup]) => {
+      acc[key] = voterGroup;
+      return acc;
+    }, {});
 
-    return Object.values(groupedVoters).map((votersForLetter) => {
-      const existingVoters = votersForLetter.filter(
-        (v) => v.registrationEvent === undefined
-      );
-      const newRegistrations = votersForLetter.filter(
-        (v) => v.registrationEvent !== undefined
-      );
-      return { existingVoters, newRegistrations };
-    });
+    const allLetters = Array.from({ length: 26 }, (_, i) =>
+      String.fromCharCode(65 + i)
+    );
+    return new Map(
+      allLetters.map((letter) => {
+        const votersForLetter = groupedVoters[letter] || [];
+        const existingVoters = votersForLetter.filter(
+          (v) => v.registrationEvent === undefined
+        );
+        const newRegistrations = votersForLetter.filter(
+          (v) => v.registrationEvent !== undefined
+        );
+        return [letter, { existingVoters, newRegistrations }];
+      })
+    );
   }
 
   getAllVoters(): Voter[] {

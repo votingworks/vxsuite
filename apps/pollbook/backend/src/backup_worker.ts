@@ -82,16 +82,15 @@ export async function getBackupPaperChecklistPdfs(
     bottom: 0.25,
     left: 0.25,
   };
-  console.log('85');
   const groupPdfs = iter(voterGroups)
     .async()
-    .map(async (voterGroup) => {
+    .map(async ([letter, voterGroup]) => {
       const headerElement = React.createElement(VoterChecklistHeader, {
         totalCheckIns,
         lastReceiptNumber,
-        voterGroup,
         exportTime,
         election,
+        letter,
       });
       const tableElement = React.createElement(VoterChecklist, {
         voterGroup,
@@ -137,12 +136,13 @@ export async function getBackupPaperChecklistPdfs(
   // For now, split into two PDFs so users can parallelize printing. We want the
   // PDFs to be roughly equal in size.
   const numPdfChunks = 2;
-  const groupVoterCounts = voterGroups.map(
-    (group) => group.existingVoters.length
+  const groupVoterCounts = iter(voterGroups).map(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    ([_, group]) => group.existingVoters.length
   );
   const chunks = splitIntoBalancedChunks(
     groupPdfs,
-    groupVoterCounts,
+    groupVoterCounts.toArray(),
     numPdfChunks
   );
   const pdfs = await iter(chunks)
