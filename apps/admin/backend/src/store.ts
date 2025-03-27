@@ -1917,7 +1917,7 @@ export class Store {
       `
       select
         contest_id as contestId,
-        count(id) as totalTally,
+        count(distinct cvr_id) as totalTally,
         count(distinct case when 
           (coalesce(official_candidate_id, 0) = 0 and 
           coalesce(write_in_candidate_id, 0) = 0 and 

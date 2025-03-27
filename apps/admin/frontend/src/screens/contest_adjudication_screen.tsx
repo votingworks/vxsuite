@@ -196,7 +196,7 @@ function renderCandidateButtonCaption(
       return (
         <CandidateButtonCaption>
           Adjudicated <Font weight="semiBold">Unmarked Write-in </Font> as
-          <Font weight="semiBold"> Invalid</Font>
+          <Font weight="semiBold"> Unmarked</Font>
         </CandidateButtonCaption>
       );
     }
@@ -301,7 +301,6 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const selectedCandidateIds = Object.entries(voteState)
     .filter(([, hasVote]) => hasVote)
     .map(([optionId]) => writeInState[optionId] ?? optionId);
-  console.log(selectedCandidateIds, 'SELECTED ARE');
 
   const seatCount = contest.seats;
   const voteCount = Object.values(voteState).filter(Boolean).length;
@@ -519,9 +518,11 @@ export function ContestAdjudicationScreen(): JSX.Element {
       }
 
       const newWriteInState: Record<string, string> = {};
+      let areAllWriteInsAdjudicated = true;
       for (const writeIn of writeIns) {
         const { optionId } = writeIn;
         if (writeIn.status === 'pending') {
+          areAllWriteInsAdjudicated = false;
           newWriteInState[optionId] = '';
           continue;
         }
@@ -556,17 +557,15 @@ export function ContestAdjudicationScreen(): JSX.Element {
         }
       }
 
+      setIsStateStale(false);
+      setFocusedOptionId('');
       setVoteState(newVoteState);
       setWriteInState(newWriteInState);
-      setFocusedOptionId('');
-      setIsStateStale(false);
-
-      if (!allWriteInsAdjudicated) {
+      if (!areAllWriteInsAdjudicated) {
         setShouldAutoscrollUser(true);
       }
     }
   }, [
-    allWriteInsAdjudicated,
     cvrVoteInfoQuery.isSuccess,
     cvrVoteInfoQuery.isStale,
     cvrContestWriteInsQuery.isSuccess,
