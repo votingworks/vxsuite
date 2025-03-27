@@ -105,6 +105,10 @@ function expectNotEqualTo(str: string) {
   return expect.not.stringMatching(new RegExp(`^${str}$`));
 }
 
+function compareName(a: { name: string }, b: { name: string }) {
+  return a.name.localeCompare(b.name);
+}
+
 const vxUser: User = { orgId: 'votingworks' };
 const nonVxUser: User = { orgId: '123' };
 
@@ -283,7 +287,7 @@ test('create/list/delete elections', async () => {
     electionId: electionId2,
   });
   expect(election2Precincts).toEqual(
-    election2.precincts.map((precinct) => ({
+    election2.precincts.toSorted(compareName).map((precinct) => ({
       id: expectNotEqualTo(precinct.id),
       name: precinct.name,
       districtIds: [election2Districts[0].id],
@@ -293,7 +297,7 @@ test('create/list/delete elections', async () => {
     electionId: electionId2,
   });
   expect(election2Parties).toEqual(
-    election2.parties.map((party) => ({
+    election2.parties.toSorted(compareName).map((party) => ({
       ...party,
       id: expectNotEqualTo(party.id),
     }))
@@ -497,9 +501,10 @@ test('CRUD districts', async () => {
     electionId,
     updatedDistrict: updatedDistrict1,
   });
+  // Expect districts to be reordered alphabetically due to name change
   expect(await apiClient.listDistricts({ electionId })).toEqual([
-    updatedDistrict1,
     district2,
+    updatedDistrict1,
   ]);
 
   // Delete a district
@@ -808,9 +813,10 @@ test('CRUD parties', async () => {
     fullName: 'Updated Party 1 Full Name',
   };
   await apiClient.updateParty({ electionId, updatedParty: updatedParty1 });
+  // Expect parties to be reordered alphabetically due to name change
   expect(await apiClient.listParties({ electionId })).toEqual([
-    updatedParty1,
     party2,
+    updatedParty1,
   ]);
 
   // Delete a party

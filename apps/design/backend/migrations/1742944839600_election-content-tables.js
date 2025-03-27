@@ -167,6 +167,7 @@ exports.up = async (pgm) => {
     first_name: { type: 'text' },
     middle_name: { type: 'text' },
     last_name: { type: 'text' },
+    ballot_order: { type: 'serial', unique: true },
     created_at: 'created_at',
   });
   pgm.createTable(
