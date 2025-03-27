@@ -119,6 +119,22 @@ export interface BackgroundTaskMetadata {
   url?: string;
 }
 
+/**
+ * Ensures that the given function is called within a transaction by querying
+ * the database (only in non-production environments). Useful for any helper
+ * function that groups multiple database operations together.
+ */
+async function assertWithinTransaction(client: Client): Promise<void> {
+  if (process.env.NODE_ENV !== 'production') {
+    const { isInTransaction } = (
+      await client.query(
+        'select now() != statement_timestamp() as "isInTransaction"'
+      )
+    ).rows[0];
+    assert(isInTransaction, 'Expected to be within a transaction');
+  }
+}
+
 async function insertDistrict(
   client: Client,
   electionId: ElectionId,
@@ -148,6 +164,7 @@ async function insertPrecinct(
   precinct: SplittablePrecinct,
   createdAt: Date
 ) {
+  await assertWithinTransaction(client);
   await client.query(
     `
       insert into precincts (
@@ -251,6 +268,7 @@ async function insertContest(
   createdAt: Date,
   ballotOrder?: number
 ) {
+  await assertWithinTransaction(client);
   // eslint-disable-next-line no-param-reassign
   ballotOrder ??= (
     await client.query(
@@ -955,10 +973,7 @@ export class Store {
     district: District
   ): Promise<void> {
     await this.db.withClient((client) =>
-      client.withTransaction(async () => {
-        await insertDistrict(client, electionId, district, new Date());
-        return true;
-      })
+      insertDistrict(client, electionId, district, new Date())
     );
   }
 
@@ -1121,7 +1136,10 @@ export class Store {
     contest: AnyContest
   ): Promise<void> {
     await this.db.withClient((client) =>
-      insertContest(client, electionId, contest, new Date())
+      client.withTransaction(async () => {
+        await insertContest(client, electionId, contest, new Date());
+        return true;
+      })
     );
   }
 
