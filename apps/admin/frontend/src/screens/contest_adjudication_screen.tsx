@@ -50,6 +50,8 @@ import { normalizeWriteInName } from '../utils/write_ins';
 
 const DEFAULT_PADDING = '0.75rem';
 const ADJUDICATION_PANEL_WIDTH = '23.5rem';
+const MAX_TITLE_LENGTH = 25;
+const MAX_DISTRICT_LENGTH = 30;
 
 const BallotPanel = styled.div`
   background: black;
@@ -92,10 +94,12 @@ const BaseRow = styled.div`
 const AdjudicationPanelHeader = styled(BaseRow)`
   background: ${(p) => p.theme.colors.inverseBackground};
   color: ${(p) => p.theme.colors.onInverse};
+  align-items: start;
   height: 4rem;
 
   button {
     font-weight: 600;
+    flex-wrap: nowrap;
   }
 `;
 
@@ -321,6 +325,15 @@ export function ContestAdjudicationScreen(): JSX.Element {
     ...officialCandidates.map((c) => normalizeWriteInName(c.name)),
     ...(writeInCandidates?.map((c) => normalizeWriteInName(c.name)) || []),
   ];
+
+  let districtString = getContestDistrictName(election, contest).repeat(3);
+  if (districtString.length > MAX_DISTRICT_LENGTH) {
+    districtString = `${districtString.substring(0, MAX_DISTRICT_LENGTH)  }...`;
+  }
+  let contestString = contest.title.repeat(100);
+  if (contestString.length > MAX_TITLE_LENGTH) {
+    contestString = `${contestString.substring(0, MAX_TITLE_LENGTH)  }...`;
+  }
 
   // Adjudication controls
   function setVote(id: string, isVote: boolean) {
@@ -692,8 +705,8 @@ export function ContestAdjudicationScreen(): JSX.Element {
           {focusedOptionId && <AdjudicationPanelOverlay />}
           <AdjudicationPanelHeader>
             <ContestTitleDiv>
-              <StyledH2>{getContestDistrictName(election, contest)}</StyledH2>
-              <StyledH1>{contest.title}</StyledH1>
+              <StyledH2>{districtString}</StyledH2>
+              <StyledH1>{contestString}</StyledH1>
             </ContestTitleDiv>
             <LinkButton
               fill="outlined"
