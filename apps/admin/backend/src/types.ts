@@ -160,6 +160,7 @@ interface WriteInRecordBase {
   readonly cvrId: Id;
   readonly electionId: Id;
   readonly isUnmarked?: boolean;
+  readonly isManuallyCreated?: boolean;
 }
 
 /**
@@ -343,6 +344,7 @@ export type WriteInImageView = HmpbWriteInImageView | BmdWriteInImageView;
 export interface HmpbWriteInImageView {
   readonly writeInId: Id;
   readonly cvrId: Id;
+  readonly optionId: Id;
   readonly imageUrl: string;
   readonly ballotCoordinates: Rect;
   readonly contestCoordinates: Rect;
@@ -355,6 +357,7 @@ export interface HmpbWriteInImageView {
 export interface BmdWriteInImageView {
   readonly writeInId: Id;
   readonly cvrId: Id;
+  readonly optionId: Id;
   readonly imageUrl: string;
   readonly machineMarkedText: string;
 }
