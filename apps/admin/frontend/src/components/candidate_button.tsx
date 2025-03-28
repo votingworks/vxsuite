@@ -4,23 +4,26 @@ import React from 'react';
 
 export function CandidateButton({
   candidate,
+  caption,
+  disabled = false,
   isSelected,
   onSelect,
   onDeselect,
-  caption,
-  disabled = false,
 }: {
   candidate: Pick<Candidate, 'id' | 'name'>;
+  caption?: React.ReactNode;
+  disabled?: boolean;
   isSelected: boolean;
   onSelect: () => void;
   onDeselect: () => void;
-  caption?: React.ReactNode;
-  disabled?: boolean;
 }): React.ReactNode {
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
       <CheckboxButton
+        disabled={disabled}
+        isChecked={isSelected}
         key={candidate.id}
+        label={candidate.name}
         onChange={() => {
           if (!isSelected) {
             onSelect();
@@ -28,9 +31,6 @@ export function CandidateButton({
             onDeselect();
           }
         }}
-        disabled={disabled}
-        label={candidate.name}
-        isChecked={isSelected}
       />
       {caption}
     </div>

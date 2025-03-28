@@ -10,29 +10,29 @@ const Container = styled.div`
 `;
 
 export function WriteInAdjudicationButton({
+  caption,
   isSelected,
-  value,
-  officialCandidates,
-  writeInCandidates,
+  isFocused,
+  hasInvalidEntry,
   onChange,
   onInputFocus,
   onInputBlur,
   toggleVote,
-  isFocused,
-  caption,
-  hasInvalidEntry,
+  value,
+  officialCandidates,
+  writeInCandidates,
 }: {
+  caption?: React.ReactNode;
+  isFocused: boolean;
   isSelected: boolean;
+  hasInvalidEntry: boolean;
+  onChange: (value?: string) => void;
+  onInputBlur: () => void;
+  onInputFocus: () => void;
+  toggleVote: () => void;
   value: string;
   officialCandidates: Candidate[];
   writeInCandidates: Candidate[];
-  onChange: (value?: string) => void;
-  onInputFocus: () => void;
-  onInputBlur: () => void;
-  toggleVote: () => void;
-  isFocused: boolean;
-  caption?: React.ReactNode;
-  hasInvalidEntry: boolean;
 }): JSX.Element {
   const theme = useTheme();
   const [inputValue, setInputValue] = useState('');
@@ -65,12 +65,12 @@ export function WriteInAdjudicationButton({
   }
 
   // If value has been entered and it is a new entry, add it the dropdown
-  if (value && !options.find((option) => option.value === value)) {
+  if (value && !options.find((option) => option.label === value)) {
     options.push({ label: value, value });
   }
 
   if (!inputValue) {
-    options.push({ label: 'Not a mark', value: 'invalid' });
+    options.unshift({ label: 'Not a mark', value: 'invalid' });
   }
 
   return (
