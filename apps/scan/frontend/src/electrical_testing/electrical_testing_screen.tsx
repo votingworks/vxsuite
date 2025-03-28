@@ -15,6 +15,7 @@ import { useInterval } from 'use-interval';
 import { useSound } from '../utils/use_sound';
 import {
   getElectricalTestingStatuses,
+  getLatestScannedSheet,
   getTestTaskStatuses,
   setCardReaderLoopRunning,
   setPrinterLoopRunning,
@@ -22,6 +23,7 @@ import {
   setUsbDriveLoopRunning,
   systemCallApi,
 } from './api';
+import { SheetImagesModal } from './sheet_images_modal';
 
 type ElectricalTestingComponent = keyof ReturnType<
   ElectricalTestingApi['getElectricalTestingStatuses']
@@ -129,6 +131,7 @@ function StatusCard({
         width: '600px',
         height: '235px',
         overflow: 'hidden',
+        position: 'relative',
       }}
     >
       <Row style={{ height: '100%', alignItems: 'stretch' }}>
@@ -175,6 +178,8 @@ export function ElectricalTestingScreen(): JSX.Element {
   const setUsbDriveLoopRunningMutation = setUsbDriveLoopRunning.useMutation();
   const setPrinterLoopRunningMutation = setPrinterLoopRunning.useMutation();
   const setScannerLoopRunningMutation = setScannerLoopRunning.useMutation();
+  const getLatestScannedSheetQuery = getLatestScannedSheet.useQuery();
+  const [isShowingLatestSheet, setIsShowingLatestSheet] = useState(false);
 
   const [isSoundEnabled, setIsSoundEnabled] = useState(true);
   const playSound = useSound('success');
@@ -269,7 +274,35 @@ export function ElectricalTestingScreen(): JSX.Element {
                     <Icons.File /> Scanner
                   </React.Fragment>
                 }
-                statusMessage={scannerStatus?.statusMessage ?? 'Unknown'}
+                body={
+                  <React.Fragment>
+                    <Caption
+                      style={{
+                        flexGrow: 1,
+                        overflowWrap: 'anywhere',
+                        maxHeight: '2rem',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      <Small>{scannerStatus?.statusMessage ?? 'Unknown'}</Small>
+                    </Caption>
+                    {getLatestScannedSheetQuery.data && (
+                      <Button
+                        onPress={() => {
+                          setIsShowingLatestSheet(true);
+                        }}
+                        style={{
+                          position: 'absolute',
+                          right: '0',
+                          bottom: '0',
+                          transform: 'scale(0.3) translate(100%, 100%)',
+                        }}
+                      >
+                        View Latest Sheet
+                      </Button>
+                    )}
+                  </React.Fragment>
+                }
                 updatedAt={scannerStatus?.updatedAt}
                 taskStatus={scannerStatus?.taskStatus}
                 onToggleRunning={toggleScannerTaskRunning}
@@ -347,6 +380,12 @@ export function ElectricalTestingScreen(): JSX.Element {
             </SmallButton>
           </Row>
         </Column>
+        {isShowingLatestSheet && getLatestScannedSheetQuery.data && (
+          <SheetImagesModal
+            paths={getLatestScannedSheetQuery.data}
+            onClose={() => setIsShowingLatestSheet(false)}
+          />
+        )}
       </Main>
     </Screen>
   );
