@@ -95,6 +95,7 @@ create table write_ins (
   official_candidate_id text,
   write_in_candidate_id varchar(36),
   is_invalid boolean not null default false,
+  is_manually_created boolean not null default false,
   adjudicated_at timestamp,
   created_at timestamp not null default current_timestamp,
   machine_marked_text text,
