@@ -1,5 +1,5 @@
 import { createSystemCallApi } from '@votingworks/backend';
-import { iter, Optional } from '@votingworks/basics';
+import { iter } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import { SheetOf } from '@votingworks/types';
 import express, { Application } from 'express';
@@ -124,7 +124,7 @@ function buildApi({
       }
 
       const id = latestElectricalTestingImageName.replace(
-        /-(front|back)\.(jpe?g|png)/,
+        /-(front|back)\.(jpe?g|png)$/,
         ''
       );
       const frontAndBackNames = allScannedImageNames.filter((name) =>
