@@ -94,9 +94,9 @@ export async function getCvrContestWriteInImageViews({
   cvrId: Id;
   contestId: Id;
 }): Promise<WriteInImageView[]> {
-  const writeInDetails = store.getCvrContestWriteInIds({ cvrId, contestId });
+  const writeInIds = store.getCvrContestWriteInIds({ cvrId, contestId });
   const imageViews = [];
-  for (const writeInId of writeInDetails) {
+  for (const writeInId of writeInIds) {
     const imageView = await getWriteInImageView({ store, writeInId });
     imageViews.push(imageView);
   }

@@ -405,17 +405,17 @@ export const getWriteInImageView = {
   },
 } as const;
 
-type GetCvrContestWriteInsInput = QueryInput<'getCvrContestWriteIns'>;
-export const getCvrContestWriteIns = {
-  queryKey(input?: GetCvrContestWriteInsInput): QueryKey {
-    return input ? ['getCvrContestWriteIns', input] : ['getCvrContestWriteIns'];
+type getWriteInsInput = QueryInput<'getWriteIns'>;
+export const getWriteIns = {
+  queryKey(input?: getWriteInsInput): QueryKey {
+    return input ? ['getWriteIns', input] : ['getWriteIns'];
   },
-  useQuery(input: GetCvrContestWriteInsInput, enabled = true) {
+  useQuery(input: getWriteInsInput, enabled = true) {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(input),
       () =>
-        apiClient.getCvrContestWriteIns({
+        apiClient.getWriteIns({
           cvrId: input.cvrId,
           contestId: input.contestId,
         }),
@@ -447,7 +447,7 @@ export const getCvrWriteInImageViews = {
 } as const;
 
 type GetCastVoteRecordVoteInfoInput = QueryInput<'getCastVoteRecordVoteInfo'>;
-export const GetCastVoteRecordVoteInfo = {
+export const getCastVoteRecordVoteInfo = {
   queryKey(input?: GetCastVoteRecordVoteInfoInput): QueryKey {
     return input
       ? ['getCastVoteRecordVoteInfo', input.cvrId]
@@ -694,7 +694,7 @@ function invalidateWriteInQueries(queryClient: QueryClient) {
     queryClient.invalidateQueries(
       getWriteInAdjudicationCvrQueueMetadata.queryKey()
     ),
-    queryClient.invalidateQueries(getCvrContestWriteIns.queryKey()),
+    queryClient.invalidateQueries(getWriteIns.queryKey()),
   ];
 
   return Promise.all(invalidations);
@@ -774,11 +774,11 @@ export const clearCastVoteRecordFiles = {
   },
 } as const;
 
-export const addWriteIn = {
+export const addWriteInRecord = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.addWriteIn, {
+    return useMutation(apiClient.addWriteInRecord, {
       async onSuccess() {
         await invalidateWriteInQueries(queryClient);
       },

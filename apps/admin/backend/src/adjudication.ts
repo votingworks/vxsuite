@@ -26,6 +26,7 @@ export function adjudicateVote(
   });
 
   const contestVotes = votes[voteAdjudication.contestId];
+
   const scannedIsVote = contestVotes
     ? contestVotes.includes(voteAdjudication.optionId)
     : /* istanbul ignore next - @preserve */
@@ -35,6 +36,7 @@ export function adjudicateVote(
   if (voteAdjudication.isVote === scannedIsVote) {
     return;
   }
+
   store.createVoteAdjudication(voteAdjudication);
 }
 
@@ -152,7 +154,7 @@ export async function adjudicateWriteIn(
       );
       break;
     case 'invalid':
-      // For manually created write-in records that are invalid, just delete them
+      // Delete invalid manually created write-in records
       if (initialWriteInRecord.isManuallyCreated) {
         store.deleteManualWriteInRecord({ ...initialWriteInRecord });
       } else {

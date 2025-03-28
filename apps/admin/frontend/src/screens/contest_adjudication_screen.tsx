@@ -23,18 +23,18 @@ import type { WriteInRecord } from '@votingworks/admin-backend';
 import { useHistory, useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import {
-  getWriteInAdjudicationCvrQueue,
-  getCvrWriteInImageViews,
-  getFirstPendingWriteInCvrId,
-  GetCastVoteRecordVoteInfo,
-  useApiClient,
-  adjudicateWriteIn,
-  getCvrContestWriteIns,
-  getWriteInCandidates,
-  addWriteIn,
+  addWriteInRecord,
   addWriteInCandidate,
   adjudicateVote,
+  adjudicateWriteIn,
+  getCastVoteRecordVoteInfo,
+  getCvrWriteInImageViews,
+  getFirstPendingWriteInCvrId,
+  getWriteIns,
+  getWriteInAdjudicationCvrQueue,
+  getWriteInCandidates,
   getVoteAdjudications,
+  useApiClient,
 } from '../api';
 import { AppContext } from '../contexts/app_context';
 import { ContestAdjudicationScreenParams } from '../config/types';
@@ -54,8 +54,6 @@ import {
 
 const DEFAULT_PADDING = '0.75rem';
 const ADJUDICATION_PANEL_WIDTH = '23.5rem';
-const MAX_TITLE_LENGTH = 22;
-const MAX_DISTRICT_LENGTH = 30;
 
 const BallotPanel = styled.div`
   background: black;
@@ -85,7 +83,7 @@ const AdjudicationBallot = styled.div`
   display: flex;
   flex-direction: column;
   background: ${(p) => p.theme.colors.background};
-  height: calc(100% - 4rem);
+  height: 100%;
 `;
 
 const BaseRow = styled.div`
@@ -95,11 +93,10 @@ const BaseRow = styled.div`
   padding: ${DEFAULT_PADDING};
 `;
 
-const AdjudicationPanelHeader = styled(BaseRow)`
+const AdjudicationBallotHeader = styled(BaseRow)`
   background: ${(p) => p.theme.colors.inverseBackground};
   color: ${(p) => p.theme.colors.onInverse};
   align-items: start;
-  height: 4rem;
 
   button {
     font-weight: 600;
@@ -248,11 +245,11 @@ export function ContestAdjudicationScreen(): JSX.Element {
     : undefined;
 
   // Queries and mutations
-  const cvrVoteInfoQuery = GetCastVoteRecordVoteInfo.useQuery(
+  const cvrVoteInfoQuery = getCastVoteRecordVoteInfo.useQuery(
     { cvrId: currentCvrId || '' }, // add contestId
     !!currentCvrId // only run query when there is a valid CvrId
   );
-  const cvrContestWriteInsQuery = getCvrContestWriteIns.useQuery(
+  const cvrContestWriteInsQuery = getWriteIns.useQuery(
     { cvrId: currentCvrId ?? 'no-op', contestId },
     !!currentCvrId
   );
@@ -268,7 +265,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
     !!currentCvrId
   );
 
-  const addWriteInMutation = addWriteIn.useMutation();
+  const addWriteInRecordMutation = addWriteInRecord.useMutation();
   const addWriteInCandidateMutation = addWriteInCandidate.useMutation();
   const adjudicateWriteInMutation = adjudicateWriteIn.useMutation();
   const adjudicateVoteMutation = adjudicateVote.useMutation();
@@ -394,15 +391,6 @@ export function ContestAdjudicationScreen(): JSX.Element {
     return undefined;
   }
 
-  let districtString = getContestDistrictName(election, contest).repeat(3);
-  if (districtString.length > MAX_DISTRICT_LENGTH) {
-    districtString = `${districtString.substring(0, MAX_DISTRICT_LENGTH)}...`;
-  }
-  let contestString = contest.title.repeat(100);
-  if (contestString.length > MAX_TITLE_LENGTH) {
-    contestString = `${contestString.substring(0, MAX_TITLE_LENGTH)}...`;
-  }
-
   // Adjudication controls
   function setVote(id: string, isVote: boolean) {
     setVoteState((prev) => ({
@@ -418,13 +406,13 @@ export function ContestAdjudicationScreen(): JSX.Element {
     }));
   }
 
-  async function addWriteInRecord(optionId: string): Promise<string> {
-    // Don't add new write in record if one already exists
+  async function createWriteInRecord(optionId: string): Promise<string> {
+    // Don't create new write in record if one already exists
     assert(writeIns !== undefined);
     const existingRecord = writeIns.find((item) => item.optionId === optionId);
     if (existingRecord) return existingRecord.id;
     assert(currentCvrId !== undefined);
-    const id = await addWriteInMutation.mutateAsync({
+    const id = await addWriteInRecordMutation.mutateAsync({
       contestId,
       optionId,
       cvrId: currentCvrId,
@@ -442,7 +430,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
     assert(writeIns !== undefined);
     let writeInId = writeIns.find((item) => item.optionId === optionId)?.id;
     if (!writeInId) {
-      writeInId = await addWriteInRecord(optionId);
+      writeInId = await createWriteInRecord(optionId);
     }
     adjudicateWriteInMutation.mutate({
       writeInId,
@@ -458,7 +446,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
     assert(writeIns !== undefined);
     let writeInId = writeIns.find((item) => item.optionId === optionId)?.id;
     if (!writeInId) {
-      writeInId = await addWriteInRecord(optionId);
+      writeInId = await createWriteInRecord(optionId);
     }
     adjudicateWriteInMutation.mutate({
       writeInId,
@@ -479,8 +467,6 @@ export function ContestAdjudicationScreen(): JSX.Element {
     ) {
       return;
     }
-
-    console.log('REACHED');
 
     try {
       const writeInCandidate = await addWriteInCandidateMutation.mutateAsync({
@@ -748,17 +734,15 @@ export function ContestAdjudicationScreen(): JSX.Element {
     );
   }
 
-  console.log(writeInState);
-
   return (
     <Screen>
       <Main flexRow>
         <BallotPanel>
           {isFocusedWriteInHmpb && (
             <BallotZoomImageViewer
+              ballotBounds={firstWriteInImage.ballotCoordinates}
               key={currentCvrId} // Reset zoom state for each write-in
               imageUrl={firstWriteInImage.imageUrl}
-              ballotBounds={firstWriteInImage.ballotCoordinates}
               zoomedInBounds={
                 focusedWriteInImage &&
                 'writeInCoordinates' in focusedWriteInImage
@@ -776,21 +760,21 @@ export function ContestAdjudicationScreen(): JSX.Element {
         </BallotPanel>
         <AdjudicationPanel>
           {focusedOptionId && <AdjudicationPanelOverlay />}
-          <AdjudicationPanelHeader>
-            <ContestTitleDiv>
-              <StyledH2>{districtString}</StyledH2>
-              <StyledH1>{contestString}</StyledH1>
-            </ContestTitleDiv>
-            <LinkButton
-              fill="outlined"
-              icon="X"
-              to={routerPaths.writeIns}
-              variant="inverseNeutral"
-            >
-              Close
-            </LinkButton>
-          </AdjudicationPanelHeader>
           <AdjudicationBallot>
+            <AdjudicationBallotHeader>
+              <ContestTitleDiv>
+                <StyledH2>{getContestDistrictName(election, contest)}</StyledH2>
+                <StyledH1>{contest.title}</StyledH1>
+              </ContestTitleDiv>
+              <LinkButton
+                fill="outlined"
+                icon="X"
+                to={routerPaths.writeIns}
+                variant="inverseNeutral"
+              >
+                Close
+              </LinkButton>
+            </AdjudicationBallotHeader>
             <AdjudicationBallotVoteCount>
               <MediumText>
                 Votes cast: {voteCount} of {seatCount}

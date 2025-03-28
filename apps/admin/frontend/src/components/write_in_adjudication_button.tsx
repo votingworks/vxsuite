@@ -34,36 +34,30 @@ export function WriteInAdjudicationButton({
   caption?: React.ReactNode;
   hasInvalidEntry: boolean;
 }): JSX.Element {
-  const [inputValue, setInputValue] = useState('');
   const theme = useTheme();
+  const [inputValue, setInputValue] = useState('');
+  const inputValueLowerCase = inputValue.toLowerCase();
 
   function onKeyPress(val?: string) {
     return setInputValue(val || '');
   }
 
-  const officialCandidateOptions = inputValue
-    ? officialCandidates
-        .filter((val) =>
-          val.name.toLowerCase().includes(inputValue.toLowerCase())
-        )
-        .map((val) => ({ label: val.name, value: val.id }))
-    : officialCandidates.map((val) => ({
-        label: val.name,
-        value: val.id,
-      }));
-
-  const writeInCandidateOptions = inputValue
-    ? writeInCandidates
-        .filter((val) =>
-          val.name.toLowerCase().includes(inputValue.toLowerCase())
-        )
-        .map((val) => ({ label: val.name, value: val.id }))
-    : writeInCandidates.map((val) => ({
-        label: val.name,
-        value: val.id,
-      }));
-
-  const options = writeInCandidateOptions.concat(officialCandidateOptions);
+  const filteredCandidateOptions = inputValue
+    ? officialCandidates.filter((val) =>
+        val.name.toLowerCase().includes(inputValueLowerCase)
+      )
+    : officialCandidates;
+  const filteredWriteInCandidateOptions = inputValue
+    ? writeInCandidates.filter((val) =>
+        val.name.toLowerCase().includes(inputValueLowerCase)
+      )
+    : writeInCandidates;
+  const options = filteredWriteInCandidateOptions
+    .concat(filteredCandidateOptions)
+    .map((val) => ({
+      label: val.name,
+      value: val.id,
+    }));
 
   // 'Add: ${inputValue}' entry if there is no exact match
   if (inputValue && !options.find((item) => item.label === inputValue)) {
@@ -98,9 +92,10 @@ export function WriteInAdjudicationButton({
           onChange(val);
         }}
         value={value}
-        isMulti={false}
         placeholder={
-          !isFocused ? (
+          isFocused ? (
+            'Search or add...'
+          ) : (
             <React.Fragment>
               <Icons.Warning
                 color="warning"
@@ -108,13 +103,11 @@ export function WriteInAdjudicationButton({
               />
               {isSelected ? 'Adjudicate' : 'Unmarked'} Write-in
             </React.Fragment>
-          ) : (
-            'Search or add...'
           )
         }
         style={{
-          borderRadius: '0 0 0.5rem 0.5rem',
           backgroundColor: value ? undefined : theme.colors.warningContainer,
+          borderRadius: '0 0 0.5rem 0.5rem',
         }}
       />
       {caption}

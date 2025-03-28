@@ -622,38 +622,6 @@ function buildApi({
       });
     },
 
-    getWriteInAdjudicationCvrQueue(
-      input: {
-        contestId?: ContestId;
-      } = {}
-    ): Id[] {
-      return store.getWriteInAdjudicationCvrQueue({
-        electionId: loadCurrentElectionIdOrThrow(workspace),
-        ...input,
-      });
-    },
-
-    getWriteInAdjudicationCvrQueueMetadata(
-      input: {
-        contestId?: ContestId;
-        status?: WriteInAdjudicationStatus;
-      } = {}
-    ): WriteInAdjudicationQueueMetadata[] {
-      return store.getWriteInAdjudicationCvrQueueMetadata({
-        electionId: loadCurrentElectionIdOrThrow(workspace),
-        ...input,
-      });
-    },
-
-    getFirstPendingWriteInCvrId(input: { contestId: ContestId }): Id | null {
-      return (
-        store.getFirstPendingWriteInCvrId({
-          electionId: loadCurrentElectionIdOrThrow(workspace),
-          ...input,
-        }) ?? null
-      );
-    },
-
     getFirstPendingWriteInId(input: { contestId: ContestId }): Id | null {
       return (
         store.getFirstPendingWriteInId({
@@ -706,6 +674,15 @@ function buildApi({
       });
     },
 
+    getWriteInAdjudicationContext(input: {
+      writeInId: string;
+    }): WriteInAdjudicationContext {
+      return getWriteInAdjudicationContext({
+        store: workspace.store,
+        writeInId: input.writeInId,
+      });
+    },
+
     getWriteInCandidates(
       input: {
         contestId?: ContestId;
@@ -745,7 +722,7 @@ function buildApi({
       });
     },
 
-    addWriteIn(input: {
+    addWriteInRecord(input: {
       contestId: ContestId;
       optionId: Id;
       cvrId: Id;
@@ -765,9 +742,40 @@ function buildApi({
       });
     },
 
-    getCvrContestWriteIns(input: {
-      cvrId: string;
-      contestId: string;
+    getWriteInAdjudicationCvrQueue(
+      input: {
+        contestId?: ContestId;
+      } = {}
+    ): Id[] {
+      return store.getWriteInAdjudicationCvrQueue({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        ...input,
+      });
+    },
+
+    getWriteInAdjudicationCvrQueueMetadata(
+      input: {
+        contestId?: ContestId;
+      } = {}
+    ): WriteInAdjudicationQueueMetadata[] {
+      return store.getWriteInAdjudicationCvrQueueMetadata({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        ...input,
+      });
+    },
+
+    getFirstPendingWriteInCvrId(input: { contestId: ContestId }): Id | null {
+      return (
+        store.getFirstPendingWriteInCvrId({
+          electionId: loadCurrentElectionIdOrThrow(workspace),
+          ...input,
+        }) ?? null
+      );
+    },
+
+    getWriteIns(input: {
+      cvrId?: string;
+      contestId?: string;
     }): WriteInRecord[] {
       return store.getWriteInRecords({
         electionId: loadCurrentElectionIdOrThrow(workspace),
@@ -784,15 +792,6 @@ function buildApi({
         store: workspace.store,
         cvrId: input.cvrId,
         contestId: input.contestId,
-      });
-    },
-
-    getWriteInAdjudicationContext(input: {
-      writeInId: string;
-    }): WriteInAdjudicationContext {
-      return getWriteInAdjudicationContext({
-        store: workspace.store,
-        writeInId: input.writeInId,
       });
     },
 
