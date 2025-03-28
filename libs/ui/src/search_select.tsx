@@ -6,20 +6,27 @@ import Select, {
   StylesConfig,
 } from 'react-select';
 import { useTheme } from 'styled-components';
+import React from 'react';
 import { Button } from './button';
 
 function DropdownIndicator(
   props: DropdownIndicatorProps<unknown, true>
 ): JSX.Element {
+  const { selectProps } = props;
   return (
     <components.DropdownIndicator {...props}>
       <Button
         fill="transparent"
         icon="CaretDown"
-        // The react-select DropdownIndicator component has its own click
-        // handler. It seems to work fine with the button inside it, so we just
-        // put a dummy handler on the button itself.
-        onPress={() => {}}
+        onPress={() => {
+          if (selectProps.menuIsOpen) {
+            selectProps.onMenuClose?.();
+            selectProps.onBlur?.();
+          } else {
+            selectProps.onMenuOpen?.();
+            selectProps.onFocus?.();
+          }
+        }}
         style={{
           padding: '0.25rem',
           // Turn off inset shadow on press (:active) for touchscreen themes
@@ -69,9 +76,12 @@ interface SearchSelectBaseProps<T = string> {
   options: Array<SelectOption<T>>;
   'aria-label'?: string;
   style?: React.CSSProperties;
-  placeholder?: string;
+  placeholder?: React.ReactNode | string;
   disabled?: boolean;
   required?: boolean;
+  onInputChange?: (value?: T) => void;
+  onBlur?: () => void;
+  onFocus?: () => void;
 }
 
 export interface SearchSelectMultiProps<T = string>
@@ -109,7 +119,10 @@ export function SearchSelect<T = string>({
   isSearchable,
   options,
   value,
+  onBlur,
   onChange,
+  onFocus,
+  onInputChange,
   'aria-label': ariaLabel,
   disabled,
   placeholder,
@@ -135,12 +148,15 @@ export function SearchSelect<T = string>({
           ? findOption(options, value)
           : null
       }
+      onBlur={onBlur}
       onChange={
         isMulti
           ? (selectedOptions: Array<SelectOption<T>>) =>
               onChange(selectedOptions.map((o) => o.value))
           : (selectedOption: SelectOption<T>) => onChange(selectedOption.value)
       }
+      onFocus={onFocus}
+      onInputChange={onInputChange}
       placeholder={placeholder ?? null}
       required={required}
       aria-label={ariaLabel}
@@ -149,6 +165,7 @@ export function SearchSelect<T = string>({
       className="search-select"
       maxMenuHeight="50vh"
       menuPortalTarget={menuPortalTarget}
+      menuPlacement="auto"
       styles={typedAs<StylesConfig>({
         container: (baseStyles) => ({
           ...baseStyles,
@@ -161,8 +178,10 @@ export function SearchSelect<T = string>({
           ...baseStyles,
           border: `${theme.colors.outline} solid ${theme.sizes.bordersRem.thin}rem`,
           borderStyle: state.isDisabled ? 'dashed' : 'solid',
-          borderRadius,
-          backgroundColor: state.isDisabled
+          borderRadius: style?.borderRadius ?? borderRadius,
+          backgroundColor: style?.backgroundColor
+            ? style?.backgroundColor
+            : state.isDisabled
             ? theme.colors.container
             : state.isFocused
             ? theme.colors.background
@@ -200,6 +219,10 @@ export function SearchSelect<T = string>({
           ...baseStyles,
           padding: `0.25rem 0.25rem 0.25rem 0.5rem`,
         }),
+        menuPortal: (base) => ({
+          ...base,
+          zIndex: 10,
+        }),
         menu: (baseStyles) => ({
           ...baseStyles,
           border: `${theme.sizes.bordersRem.thin}rem solid ${theme.colors.outline}`,
@@ -234,6 +257,8 @@ export function SearchSelect<T = string>({
           ':last-of-type': { borderBottom: 'none' },
           // Ensure empty option still has height
           minHeight: '2.5rem',
+          // Fix slight vertical shift when menu is rendered in a portal (missing inherited line-height)
+          lineHeight: menuPortalTarget ? theme.sizes.lineHeight : undefined,
         }),
         noOptionsMessage: (baseStyles) => ({
           ...baseStyles,
