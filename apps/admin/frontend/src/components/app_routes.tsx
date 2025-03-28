@@ -40,6 +40,7 @@ import { PrecinctBallotCountReport } from '../screens/reporting/precinct_ballot_
 import { VotingMethodBallotCountReport } from '../screens/reporting/voting_method_ballot_count_report_screen';
 import { FullElectionTallyReportScreen } from '../screens/reporting/full_election_tally_report_screen';
 import { DiagnosticsScreen } from '../screens/diagnostics_screen';
+import { ContestAdjudicationScreen } from '../screens/contest_adjudication_screen';
 
 export function AppRoutes(): JSX.Element | null {
   const { electionDefinition, auth } = useContext(AppContext);
@@ -147,6 +148,16 @@ export function AppRoutes(): JSX.Element | null {
           path={routerPaths.writeInsAdjudication({ contestId: ':contestId' })}
         >
           <WriteInsAdjudicationScreen />
+        </Route>
+      )}
+      {isFeatureFlagEnabled(
+        BooleanEnvironmentVariableName.WRITE_IN_ADJUDICATION
+      ) && (
+        <Route
+          exact
+          path={routerPaths.contestAdjudication({ contestId: ':contestId' })}
+        >
+          <ContestAdjudicationScreen />
         </Route>
       )}
       <Route
