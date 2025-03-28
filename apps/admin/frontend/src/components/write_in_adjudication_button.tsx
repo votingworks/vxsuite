@@ -18,9 +18,9 @@ export function WriteInAdjudicationButton({
   onInputFocus,
   onInputBlur,
   toggleVote,
-  cvrId,
   isFocused,
   caption,
+  hasInvalidEntry,
 }: {
   isSelected: boolean;
   value: string;
@@ -30,29 +30,33 @@ export function WriteInAdjudicationButton({
   onInputFocus: () => void;
   onInputBlur: () => void;
   toggleVote: () => void;
-  cvrId: string;
   isFocused: boolean;
   caption?: React.ReactNode;
+  hasInvalidEntry: boolean;
 }): JSX.Element {
-  const [curVal, setCurVal] = useState('');
+  const [inputValue, setInputValue] = useState('');
   const theme = useTheme();
 
   function onKeyPress(val?: string) {
-    return setCurVal(val || '');
+    return setInputValue(val || '');
   }
 
-  const officialCandidateOptions = curVal
+  const officialCandidateOptions = inputValue
     ? officialCandidates
-        .filter((val) => val.name.toLowerCase().includes(curVal.toLowerCase()))
+        .filter((val) =>
+          val.name.toLowerCase().includes(inputValue.toLowerCase())
+        )
         .map((val) => ({ label: val.name, value: val.id }))
     : officialCandidates.map((val) => ({
         label: val.name,
         value: val.id,
       }));
 
-  const writeInCandidateOptions = curVal
+  const writeInCandidateOptions = inputValue
     ? writeInCandidates
-        .filter((val) => val.name.toLowerCase().includes(curVal.toLowerCase()))
+        .filter((val) =>
+          val.name.toLowerCase().includes(inputValue.toLowerCase())
+        )
         .map((val) => ({ label: val.name, value: val.id }))
     : writeInCandidates.map((val) => ({
         label: val.name,
@@ -61,37 +65,42 @@ export function WriteInAdjudicationButton({
 
   const options = writeInCandidateOptions.concat(officialCandidateOptions);
 
-  // 'add current value' entry if not an existing option
-  if (curVal && !options.find((item) => item.label === curVal)) {
-    options.push({ label: `Add: ${curVal}`, value: curVal });
+  // 'Add: ${inputValue}' entry if there is no exact match
+  if (inputValue && !options.find((item) => item.label === inputValue)) {
+    options.push({ label: `Add: ${inputValue}`, value: inputValue });
   }
 
-  // Show selected option, which will be filtered out from options
-  if (value && !curVal && !options.find((option) => option.value === value)) {
+  // If value has been entered and it is a new entry, add it the dropdown
+  if (value && !options.find((option) => option.value === value)) {
     options.push({ label: value, value });
   }
 
-  if (!curVal) {
+  if (!inputValue) {
     options.push({ label: 'Not a mark', value: 'invalid' });
   }
 
   return (
     <Container style={{ zIndex: isFocused ? 20 : 0 }}>
       <CheckboxButton
-        label="Write-in"
         isChecked={isSelected}
+        label="Write-in"
         onChange={toggleVote}
         style={{ borderRadius: '0.5rem 0.5rem 0 0' }}
       />
       <SearchSelect
-        key={`${cvrId}-${value}-${isSelected}`}
-        isMulti={false}
+        key={`${hasInvalidEntry}`}
+        options={options}
+        onBlur={onInputBlur}
+        onFocus={onInputFocus}
+        onInputChange={onKeyPress}
         onChange={(val) => {
+          setInputValue('');
           onChange(val);
-          setCurVal('');
         }}
+        value={value}
+        isMulti={false}
         placeholder={
-          !isFocused && (
+          !isFocused ? (
             <React.Fragment>
               <Icons.Warning
                 color="warning"
@@ -99,17 +108,14 @@ export function WriteInAdjudicationButton({
               />
               {isSelected ? 'Adjudicate' : 'Unmarked'} Write-in
             </React.Fragment>
+          ) : (
+            'Search or add...'
           )
         }
-        onBlur={onInputBlur}
-        onFocus={onInputFocus}
-        onInputChange={onKeyPress}
-        options={options}
         style={{
           borderRadius: '0 0 0.5rem 0.5rem',
           backgroundColor: value ? undefined : theme.colors.warningContainer,
         }}
-        value={value}
       />
       {caption}
     </Container>

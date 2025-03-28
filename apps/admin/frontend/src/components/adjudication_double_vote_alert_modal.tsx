@@ -7,6 +7,7 @@ export interface DoubleVoteAlert {
     | 'adjudicated-write-in-candidate'
     | 'adjudicated-official-candidate';
   name: string;
+  optionId?: string;
 }
 
 export function DoubleVoteAlertModal({
@@ -29,7 +30,7 @@ export function DoubleVoteAlertModal({
             <br />
             If the ballot contest does indeed contain a double vote, you can
             invalidate the write-in by selecting{' '}
-            <Font weight="bold">Mark write-in as undervote</Font>.
+            <Font weight="bold">Mark as invalid</Font>.
           </P>
         );
       case 'adjudicated-official-candidate':
@@ -44,7 +45,7 @@ export function DoubleVoteAlertModal({
             <br />
             If the ballot contest does indeed contain a double vote, you can
             invalidate the write-in by selecting{' '}
-            <Font weight="bold">Mark write-in as undervote</Font>.
+            <Font weight="bold">Mark as invalid</Font>.
           </P>
         );
       default: {

@@ -47,10 +47,14 @@ import { WriteInAdjudicationButton } from '../components/write_in_adjudication_b
 import { NavigationScreen } from '../components/navigation_screen';
 import { CandidateButton } from '../components/candidate_button';
 import { normalizeWriteInName } from '../utils/write_ins';
+import {
+  DoubleVoteAlert,
+  DoubleVoteAlertModal,
+} from '../components/adjudication_double_vote_alert_modal';
 
 const DEFAULT_PADDING = '0.75rem';
 const ADJUDICATION_PANEL_WIDTH = '23.5rem';
-const MAX_TITLE_LENGTH = 25;
+const MAX_TITLE_LENGTH = 22;
 const MAX_DISTRICT_LENGTH = 30;
 
 const BallotPanel = styled.div`
@@ -293,10 +297,11 @@ export function ContestAdjudicationScreen(): JSX.Element {
 
   const [voteState, setVoteState] = useState<Record<string, boolean>>({}); // voteState: candidateId | writeInOptionId to boolean hasVote
   const [writeInState, setWriteInState] = useState<
-    Record<string, string | 'invalid' | ''> // optionId to name OR 'invalid' OR '' (pending adjudication)
+    Record<string, string | 'invalid' | ''> // optionId to newName or existingId OR 'invalid' OR '' (pending adjudication)
   >({});
   const [isStateStale, setIsStateStale] = useState(true);
   const voteStateInitialized = Object.keys(voteState).length > 0;
+  const [doubleVoteAlert, setDoubleVoteAlert] = useState<DoubleVoteAlert>();
 
   const officialCandidates = contest.candidates.filter((c) => !c.isWriteIn);
   const officialCandidateIds = officialCandidates.map((item) => item.id);
@@ -320,19 +325,82 @@ export function ContestAdjudicationScreen(): JSX.Element {
   })();
   const allWriteInsAdjudicated = numPendingWriteIns === 0;
 
-  const disallowedWriteInCandidateNames = [
-    '',
-    ...officialCandidates.map((c) => normalizeWriteInName(c.name)),
-    ...(writeInCandidates?.map((c) => normalizeWriteInName(c.name)) || []),
-  ];
+  const officialCandidateNormalizedNames = officialCandidates.map((c) =>
+    normalizeWriteInName(c.name)
+  );
+
+  const writeInCandidateNormalizedNames =
+    writeInCandidates?.map((c) => normalizeWriteInName(c.name)) || [];
+
+  function checkForDoubleVote(
+    name: string,
+    optionId: string
+  ): DoubleVoteAlert | undefined {
+    const normalizedName = normalizeWriteInName(name);
+    const officialC = officialCandidates.find(
+      (c) => normalizeWriteInName(c.name) === normalizedName
+    );
+
+    if (officialC && voteState[officialC.id]) {
+      return {
+        type: 'marked-official-candidate',
+        name,
+        optionId,
+      };
+    }
+
+    for (let i = 0; i < seatCount; i += 1) {
+      const writeInOptionId = `write-in-${i}`;
+      if (optionId === writeInOptionId) continue;
+      const hasVote = voteState[writeInOptionId];
+      if (!hasVote) continue;
+
+      const writeInVal = writeInState[writeInOptionId];
+      const officialCandidate = officialCandidates.find(
+        (c) => c.id === writeInVal
+      );
+      if (
+        officialCandidate &&
+        normalizeWriteInName(officialCandidate.name) === normalizedName
+      ) {
+        return {
+          type: 'adjudicated-official-candidate',
+          name,
+          optionId,
+        };
+      }
+      const writeInCandidate = writeInCandidates?.find(
+        (c) => c.id === writeInVal
+      );
+      if (
+        writeInCandidate &&
+        normalizeWriteInName(writeInCandidate.name) === normalizedName
+      ) return {
+          type: 'adjudicated-write-in-candidate',
+          name,
+          optionId,
+        };
+
+      // Attempting to create a second new candidate with the same name
+      if (normalizedName === normalizeWriteInName(writeInVal)) {
+        return {
+          type: 'adjudicated-write-in-candidate',
+          name,
+          optionId,
+        };
+      }
+    }
+
+    return undefined;
+  }
 
   let districtString = getContestDistrictName(election, contest).repeat(3);
   if (districtString.length > MAX_DISTRICT_LENGTH) {
-    districtString = `${districtString.substring(0, MAX_DISTRICT_LENGTH)  }...`;
+    districtString = `${districtString.substring(0, MAX_DISTRICT_LENGTH)}...`;
   }
   let contestString = contest.title.repeat(100);
   if (contestString.length > MAX_TITLE_LENGTH) {
-    contestString = `${contestString.substring(0, MAX_TITLE_LENGTH)  }...`;
+    contestString = `${contestString.substring(0, MAX_TITLE_LENGTH)}...`;
   }
 
   // Adjudication controls
@@ -406,10 +474,13 @@ export function ContestAdjudicationScreen(): JSX.Element {
     const normalizedName = normalizeWriteInName(name);
     if (
       !normalizedName ||
-      disallowedWriteInCandidateNames.includes(normalizedName)
+      officialCandidateNormalizedNames.includes(normalizedName) ||
+      writeInCandidateNormalizedNames.includes(normalizedName)
     ) {
       return;
     }
+
+    console.log('REACHED');
 
     try {
       const writeInCandidate = await addWriteInCandidateMutation.mutateAsync({
@@ -677,6 +748,8 @@ export function ContestAdjudicationScreen(): JSX.Element {
     );
   }
 
+  console.log(writeInState);
+
   return (
     <Screen>
       <Main flexRow>
@@ -773,36 +846,47 @@ export function ContestAdjudicationScreen(): JSX.Element {
                   if (isSelected || isUnmarkedPendingWriteIn) {
                     return (
                       <WriteInAdjudicationButton
-                        cvrId={currentCvrId || ''}
                         key={optionId}
                         isFocused={isFocused}
                         isSelected={isSelected}
+                        hasInvalidEntry={doubleVoteAlert?.optionId === optionId}
                         onInputFocus={() => setFocusedOptionId(optionId)}
                         onInputBlur={() => setFocusedOptionId('')}
                         value={writeInState[optionId]}
-                        onChange={(selectedIdOrNewName) => {
-                          setFocusedOptionId('');
-                          updateWriteInState(
-                            optionId,
-                            selectedIdOrNewName || ''
-                          );
+                        onChange={(newVal) => {
+                          if (newVal) {
+                            if (newVal === 'invalid') {
+                              updateWriteInState(optionId, 'invalid');
+                              setVote(optionId, false);
+                              return;
+                            }
+
+                            const alert = checkForDoubleVote(newVal, optionId);
+                            if (alert) {
+                              updateWriteInState(optionId, '');
+                              setFocusedOptionId('');
+                              setDoubleVoteAlert(alert);
+                              return;
+                            }
+                          }
+
+                          // Mark unmarked write-ins
                           if (!isSelected) {
                             setVote(optionId, true);
-                          } else if (selectedIdOrNewName === 'invalid') {
-                            updateWriteInState(optionId, 'invalid');
-                            setVote(optionId, false);
                           }
+                          updateWriteInState(optionId, newVal || '');
+                          setFocusedOptionId('');
                         }}
                         toggleVote={() => {
                           if (isSelected) {
-                            updateWriteInState(optionId, 'invalid');
-                            setVote(optionId, false);
                             if (isFocused) {
                               setFocusedOptionId('');
                             }
+                            setVote(optionId, false);
+                            updateWriteInState(optionId, 'invalid');
                           } else {
-                            updateWriteInState(optionId, '');
                             setVote(optionId, true);
+                            updateWriteInState(optionId, '');
                           }
                         }}
                         officialCandidates={officialCandidates.filter(
@@ -893,6 +977,12 @@ export function ContestAdjudicationScreen(): JSX.Element {
             </AdjudicationBallotFooter>
           </AdjudicationBallot>
         </AdjudicationPanel>
+        {doubleVoteAlert && (
+          <DoubleVoteAlertModal
+            doubleVoteAlert={doubleVoteAlert}
+            onClose={() => setDoubleVoteAlert(undefined)}
+          />
+        )}
       </Main>
     </Screen>
   );
