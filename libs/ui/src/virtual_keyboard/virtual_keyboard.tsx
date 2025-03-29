@@ -276,7 +276,13 @@ function getNextRowIndex(keyMap: KeyMap, focusedRowIndex: number) {
   return getAdjacentRowIndex(keyMap, focusedRowIndex, 1);
 }
 
-function getAdjacentRowFocusRefIndex(
+// For a row adjacent to the currently focused row, find the index of the keyboard button
+// // that will be focused if the user navigates to that row. The target keyboard button
+// is determined by the algorithm:
+// 1. Find the currently focused keyboard button and compute its midpoint
+// 2. In the adjacent row, calculate the closest edge (left or right) for each keyboard button
+// 3. Choose the keyboard button with the closest edge
+function getAdjacentRowTargetButtonIndex(
   keyMap: KeyMap,
   rowRefs: React.MutableRefObject<Array<HTMLDivElement | null>>,
   focusedRowIndex: number,
@@ -322,24 +328,24 @@ function getAdjacentRowFocusRefIndex(
  * Returns the index of the Key to focus if the user navigates to the previous row.
  * Index of the Key is relative to its parent row only (not to all keys on the keyboard).
  */
-function getPrevRowFocusRefIndex(
+function getPrevRowTargetButtonIndex(
   keyMap: KeyMap,
   focusedRowIndex: number,
   rowRefs: React.MutableRefObject<Array<HTMLDivElement | null>>
 ) {
-  return getAdjacentRowFocusRefIndex(keyMap, rowRefs, focusedRowIndex, -1);
+  return getAdjacentRowTargetButtonIndex(keyMap, rowRefs, focusedRowIndex, -1);
 }
 
 /**
  * Returns the index of the Key to focus if the user navigates to the next row.
  * Index of the Key is relative to its parent row only (not to all keys on the keyboard).
  */
-function getNextRowFocusRefIndex(
+function getNextRowTargetButtonIndex(
   keyMap: KeyMap,
   focusedRowIndex: number,
   rowRefs: React.MutableRefObject<Array<HTMLDivElement | null>>
 ) {
-  return getAdjacentRowFocusRefIndex(keyMap, rowRefs, focusedRowIndex, 1);
+  return getAdjacentRowTargetButtonIndex(keyMap, rowRefs, focusedRowIndex, 1);
 }
 
 export function VirtualKeyboard({
@@ -384,7 +390,7 @@ export function VirtualKeyboard({
             keyMapWithActions,
             focusedRowIndex
           );
-          const targetKeyIndex = getPrevRowFocusRefIndex(
+          const targetKeyIndex = getPrevRowTargetButtonIndex(
             keyMapWithActions,
             focusedRowIndex,
             rowRefs
@@ -403,7 +409,7 @@ export function VirtualKeyboard({
             keyMapWithActions,
             focusedRowIndex
           );
-          const targetKeyIndex = getNextRowFocusRefIndex(
+          const targetKeyIndex = getNextRowTargetButtonIndex(
             keyMapWithActions,
             focusedRowIndex,
             rowRefs
