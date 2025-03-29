@@ -46,8 +46,6 @@ const KeyRow = styled.div`
 const COLUMNS_IN_ROW = 12;
 const DEFAULT_COLUMN_SPAN = 1;
 
-export type RowDirection = 'previous-row' | 'next-row';
-
 export interface VirtualKeyboardProps {
   onKeyPress: (key: string) => void;
   onBackspace: () => void;
