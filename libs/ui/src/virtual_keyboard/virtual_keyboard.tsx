@@ -235,6 +235,7 @@ export const SPACE_BAR_KEY: Key = {
 export const DELETE_KEY: Key = {
   value: 'delete',
   renderAudioString: () => appStrings.labelKeyboardDelete(),
+  renderLabel: () => appStrings.labelKeyboardDelete(),
   columnSpan: 4,
   icon: 'Backspace',
   action: ActionKey.DELETE,
@@ -243,6 +244,7 @@ export const DELETE_KEY: Key = {
 export const CANCEL_KEY: Key = {
   value: 'Cancel',
   renderAudioString: () => appStrings.buttonCancel(),
+  renderLabel: () => appStrings.buttonCancel(),
   columnSpan: 3,
   action: ActionKey.CANCEL,
 };
@@ -250,6 +252,7 @@ export const CANCEL_KEY: Key = {
 export const ACCEPT_KEY: Key = {
   value: 'Accept',
   renderAudioString: () => appStrings.buttonAccept(),
+  renderLabel: () => appStrings.buttonAccept(),
   columnSpan: 3,
   icon: 'Done',
   action: ActionKey.ACCEPT,

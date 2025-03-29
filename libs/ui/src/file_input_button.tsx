@@ -27,7 +27,7 @@ const HiddenFileInput = styled.input`
 
 export interface FileInputButtonProps {
   accept?: string;
-  buttonProps?: Omit<ButtonProps, 'onPress' | 'onFocus'>;
+  buttonProps?: Omit<ButtonProps, 'onPress'>;
   disabled?: boolean;
   required?: boolean;
   name?: string;
