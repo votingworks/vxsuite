@@ -31,6 +31,7 @@ import {
   AssistiveTechInstructions,
   PageNavigationButtonId,
   ScanPanelVirtualKeyboard,
+  AccessibilityMode,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 
@@ -46,7 +47,9 @@ interface Props {
   contest: CandidateContestInterface;
   vote: CandidateVote;
   updateVote: UpdateVoteFunction;
-  enableSwitchScanning?: boolean;
+  accessibilityMode?: AccessibilityMode;
+  onOpenWriteInKeyboard?: () => void;
+  onCloseWriteInKeyboard?: () => void;
 }
 
 const WriteInModalBody = styled.div`
@@ -85,7 +88,9 @@ export function CandidateContest({
   contest,
   vote,
   updateVote,
-  enableSwitchScanning,
+  accessibilityMode,
+  onOpenWriteInKeyboard,
+  onCloseWriteInKeyboard,
 }: Props): JSX.Element {
   const district = getContestDistrict(election, contest);
 
@@ -171,6 +176,11 @@ export function CandidateContest({
 
   function toggleWriteInCandidateModal(newValue: boolean) {
     setWriteInCandidateModalIsOpen(newValue);
+    if (newValue && onOpenWriteInKeyboard) {
+      onOpenWriteInKeyboard();
+    } else if (!newValue && onCloseWriteInKeyboard) {
+      onCloseWriteInKeyboard();
+    }
   }
 
   function initWriteInCandidate() {
@@ -468,7 +478,7 @@ export function CandidateContest({
                       </Caption>
                     </P>
                   </ReadOnLoad>
-                  {enableSwitchScanning ? (
+                  {accessibilityMode === AccessibilityMode.SWITCH_SCANNING ? (
                     <ScanPanelVirtualKeyboard
                       onBackspace={onKeyboardBackspace}
                       onKeyPress={onKeyboardInput}
@@ -478,19 +488,34 @@ export function CandidateContest({
                     <VirtualKeyboard
                       onBackspace={onKeyboardBackspace}
                       onKeyPress={onKeyboardInput}
+                      onCancel={cancelWriteInCandidateModal}
+                      onAccept={addWriteInCandidate}
                       keyDisabled={keyDisabled}
+                      enableWriteInAtiControllerNavigation={
+                        accessibilityMode === AccessibilityMode.ATI_CONTROLLER
+                      }
                     />
                   )}
                 </WriteInForm>
-                {!screenInfo.isPortrait && (
-                  <WriteInModalActionsSidebar>
-                    {modalActions}
-                  </WriteInModalActionsSidebar>
-                )}
+                {
+                  // VirtualKeyboard renders its own actions to support accessible controller navigation.
+                  !screenInfo.isPortrait &&
+                    accessibilityMode !== AccessibilityMode.ATI_CONTROLLER && (
+                      <WriteInModalActionsSidebar>
+                        {modalActions}
+                      </WriteInModalActionsSidebar>
+                    )
+                }
               </WriteInModalBody>
             </div>
           }
-          actions={screenInfo.isPortrait ? modalActions : undefined}
+          actions={
+            // VirtualKeyboard renders its own actions to support accessible controller navigation.
+            screenInfo.isPortrait &&
+            accessibilityMode !== AccessibilityMode.ATI_CONTROLLER
+              ? modalActions
+              : undefined
+          }
         />
       )}
     </React.Fragment>
