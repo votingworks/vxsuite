@@ -132,7 +132,7 @@ const AdjudicationPanelOverlay = styled.div`
   right: 0;
   height: 100vh;
   width: ${ADJUDICATION_PANEL_WIDTH};
-  z-index: 15;
+  z-index: 5;
   backdrop-filter: blur(1px);
   background: rgba(0, 0, 0, 50%);
 `;
@@ -342,7 +342,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const [writeInState, setWriteInState] = useState<
     Record<string, WriteInCandidateState> // optionId to WriteInCandidateState
   >({});
-  const [isStateStale, setIsStateStale] = useState(true);
+  const [isStateStale, setIsStateStale] = useState(false);
   const voteStateInitialized = Object.keys(voteState).length > 0;
   const [doubleVoteAlert, setDoubleVoteAlert] = useState<DoubleVoteAlert>();
 
