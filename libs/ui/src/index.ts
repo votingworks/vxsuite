@@ -1,4 +1,7 @@
 /* istanbul ignore file - @preserve */
+
+export * as images from './images';
+
 export * from './accessible_controllers';
 export * from './app_base';
 export * from './auth';

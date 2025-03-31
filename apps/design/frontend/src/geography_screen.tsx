@@ -16,6 +16,7 @@ import {
   TabPanel,
   RouterTabBar,
   Modal,
+  images,
 } from '@votingworks/ui';
 import {
   Switch,
@@ -458,6 +459,13 @@ const ClerkSignatureImageInput = styled(ImageInput)`
   }
 `;
 
+const PDF_PIXELS_PER_INCH = 96;
+const SIGNATURE_IMAGE_NORMALIZE_PARAMS: Readonly<images.NormalizeParams> = {
+  maxHeightPx: 1 * PDF_PIXELS_PER_INCH,
+  minHeightPx: 50,
+  minWidthPx: 100,
+};
+
 function PrecinctForm({
   electionId,
   savedPrecinct,
@@ -698,8 +706,7 @@ function PrecinctForm({
                           }
                           buttonLabel="Upload Signature Image"
                           removeButtonLabel="Remove Signature Image"
-                          minHeightPx={50}
-                          minWidthPx={100}
+                          normalizeParams={SIGNATURE_IMAGE_NORMALIZE_PARAMS}
                         />
                       </div>
                     )}
