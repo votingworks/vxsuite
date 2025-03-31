@@ -26,7 +26,11 @@ export function WriteInAdjudicationButton({
   isFocused: boolean;
   isSelected: boolean;
   hasInvalidEntry: boolean;
-  onChange: (value?: string) => void;
+  // newVal can be: id of existing candidate, name of new
+  // candidate, keyword 'invalid' for invalid, or undefined;
+  // id is used for existing candidates instead of name
+  // to allow two official candidates with the same name
+  onChange: (newVal?: string) => void;
   onInputBlur: () => void;
   onInputFocus: () => void;
   toggleVote: () => void;
@@ -82,6 +86,9 @@ export function WriteInAdjudicationButton({
         style={{ borderRadius: '0.5rem 0.5rem 0 0' }}
       />
       <SearchSelect
+        // The inner input does not clear the previous value when a
+        // double vote entry is detected because the `value` prop never
+        // changes. `hasInvalidEntry` as the key forces a re-render
         key={`${hasInvalidEntry}`}
         options={options}
         onBlur={onInputBlur}

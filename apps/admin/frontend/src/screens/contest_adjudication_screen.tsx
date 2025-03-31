@@ -25,7 +25,7 @@ import {
   addWriteInRecord,
   addWriteInCandidate,
   adjudicateVote,
-  adjudicateWriteIn,
+  adjudicateWriteIn as adjudicateWriteInApi,
   getCastVoteRecordVoteInfo,
   getCvrWriteInImageViews,
   getFirstPendingWriteInCvrId,
@@ -86,28 +86,28 @@ type WriteInCandidateState =
 function isInvalidWriteIn(
   candidate: WriteInCandidateState
 ): candidate is InvalidWriteIn {
-  return candidate?.type === 'invalid';
+  return candidate.type === 'invalid';
 }
 
 function isExistingCandidate(
   candidate: WriteInCandidateState
 ): candidate is ExistingOfficialCandidate | ExistingWriteInCandidate {
   return (
-    candidate?.type === 'existing-official' ||
-    candidate?.type === 'existing-write-in'
+    candidate.type === 'existing-official' ||
+    candidate.type === 'existing-write-in'
   );
 }
 
 function isNewCandidate(
   candidate: WriteInCandidateState
 ): candidate is NewCandidate {
-  return candidate?.type === 'new';
+  return candidate.type === 'new';
 }
 
 function isPendingWriteIn(
   candidate: WriteInCandidateState
 ): candidate is PendingWriteIn {
-  return candidate?.type === 'pending';
+  return candidate.type === 'pending';
 }
 
 const DEFAULT_PADDING = '0.75rem';
@@ -320,7 +320,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
 
   const addWriteInRecordMutation = addWriteInRecord.useMutation();
   const addWriteInCandidateMutation = addWriteInCandidate.useMutation();
-  const adjudicateWriteInMutation = adjudicateWriteIn.useMutation();
+  const adjudicateWriteInMutation = adjudicateWriteInApi.useMutation();
   const adjudicateVoteMutation = adjudicateVote.useMutation();
 
   // Vote and write-in state for adjudication management
@@ -368,8 +368,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
         : optionId;
     })
     .filter(Boolean);
-  const numPendingWriteIns = writeInOptionIds.filter((optionId) =>
-    isPendingWriteIn(writeInState[optionId])
+  const numPendingWriteIns = writeInOptionIds.filter(
+    (optionId) =>
+      optionId in writeInState && isPendingWriteIn(writeInState[optionId])
   ).length;
   const allWriteInsAdjudicated = numPendingWriteIns === 0;
 
@@ -459,28 +460,29 @@ export function ContestAdjudicationScreen(): JSX.Element {
   }
 
   async function createWriteInRecord(optionId: string): Promise<string> {
-    // Don't create new write in record if one already exists
+    assert(currentCvrId !== undefined);
     assert(writeIns !== undefined);
     const existingRecord = writeIns.find((item) => item.optionId === optionId);
     if (existingRecord) return existingRecord.id;
-    assert(currentCvrId !== undefined);
     const id = await addWriteInRecordMutation.mutateAsync({
       contestId,
       optionId,
+      isUnmarked: true,
       cvrId: currentCvrId,
       name: '',
       side: undefined, // NEED to add
-      isUnmarked: true, // NEED to confirm
     });
     return id;
   }
 
-  async function adjudicateAsOfficialCandidate({
+  async function adjudicateWriteIn({
     candidateId,
     optionId,
+    type,
   }: {
     candidateId: string;
     optionId: string;
+    type: 'write-in-candidate' | 'official-candidate';
   }): Promise<void> {
     assert(writeIns !== undefined);
     let writeInId = writeIns.find((item) => item.optionId === optionId)?.id;
@@ -488,32 +490,13 @@ export function ContestAdjudicationScreen(): JSX.Element {
       writeInId = await createWriteInRecord(optionId);
     }
     adjudicateWriteInMutation.mutate({
-      writeInId,
-      type: 'official-candidate',
       candidateId,
+      type,
+      writeInId,
     });
   }
 
-  async function adjudicateAsWriteInCandidate({
-    candidateId,
-    optionId,
-  }: {
-    candidateId: string;
-    optionId: string;
-  }): Promise<void> {
-    assert(writeIns !== undefined);
-    let writeInId = writeIns.find((item) => item.optionId === optionId)?.id;
-    if (!writeInId) {
-      writeInId = await createWriteInRecord(optionId);
-    }
-    adjudicateWriteInMutation.mutate({
-      writeInId,
-      type: 'write-in-candidate',
-      candidateId,
-    });
-  }
-
-  async function createAndAdjudicateWriteInCandidate({
+  async function createCandidateAndAdjudicateWriteIn({
     name,
     optionId,
   }: {
@@ -522,8 +505,8 @@ export function ContestAdjudicationScreen(): JSX.Element {
   }) {
     assert(writeInCandidates !== undefined);
     const normalizedCandidateNames = officialCandidates
-      .map((c) => normalizeWriteInName(c.name))
-      .concat(writeInCandidates.map((c) => normalizeWriteInName(c.name)));
+      .concat(writeInCandidates)
+      .map((c) => normalizeWriteInName(c.name));
 
     const normalizedName = normalizeWriteInName(name);
     if (!normalizedName || normalizedCandidateNames.includes(normalizedName)) {
@@ -534,9 +517,10 @@ export function ContestAdjudicationScreen(): JSX.Element {
         contestId: contest.id,
         name,
       });
-      await adjudicateAsWriteInCandidate({
+      await adjudicateWriteIn({
         candidateId: writeInCandidate.id,
         optionId,
+        type: 'write-in-candidate',
       });
     } catch {
       // Default query client error handling
@@ -544,16 +528,17 @@ export function ContestAdjudicationScreen(): JSX.Element {
   }
 
   function adjudicateWriteInAsInvalid(optionId: string) {
-    const writeInRecord = writeIns?.find((item) => item.optionId === optionId);
+    assert(writeIns !== undefined);
+    const writeInRecord = writeIns.find((item) => item.optionId === optionId);
     if (!writeInRecord) return;
     adjudicateWriteInMutation.mutate({
-      writeInId: writeInRecord.id,
       type: 'invalid',
+      writeInId: writeInRecord.id,
     });
   }
 
   function saveVoteAdjudication(optionId: string, isVote: boolean): void {
-    if (!currentCvrId) return;
+    assert(currentCvrId !== undefined);
     adjudicateVoteMutation.mutate({
       cvrId: currentCvrId,
       contestId,
@@ -574,12 +559,11 @@ export function ContestAdjudicationScreen(): JSX.Element {
         (adj) => adj.optionId === optionId
       );
       const originalVote = originalVotes.includes(optionId);
-      const voteChanged = originalVote !== currentVote;
-
-      if (
+      const voteChanged =
         (previousAdjudication && previousAdjudication.isVote !== currentVote) ||
-        (!previousAdjudication && voteChanged)
-      ) {
+        (!previousAdjudication && originalVote !== currentVote);
+
+      if (voteChanged) {
         saveVoteAdjudication(optionId, currentVote);
       }
 
@@ -592,21 +576,23 @@ export function ContestAdjudicationScreen(): JSX.Element {
 
       switch (writeInValue.type) {
         case 'existing-official': {
-          await adjudicateAsOfficialCandidate({
+          await adjudicateWriteIn({
             candidateId: writeInValue.id,
             optionId,
+            type: 'official-candidate',
           });
           break;
         }
         case 'existing-write-in': {
-          await adjudicateAsWriteInCandidate({
+          await adjudicateWriteIn({
             candidateId: writeInValue.id,
             optionId,
+            type: 'write-in-candidate',
           });
           break;
         }
         case 'new': {
-          await createAndAdjudicateWriteInCandidate({
+          await createCandidateAndAdjudicateWriteIn({
             name: writeInValue.name,
             optionId,
           });
@@ -621,10 +607,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
           }
           break;
         }
-        case 'pending': {
-          // There should be no pending write-ins on Save
+        case 'pending':
+          // There will be no pending write-ins on Save
           break;
-        }
         default: {
           /* istanbul ignore next - @preserve */
           throwIllegalValue(writeInValue, 'type');
