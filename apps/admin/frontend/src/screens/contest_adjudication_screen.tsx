@@ -84,30 +84,30 @@ type WriteInCandidateState =
   | PendingWriteIn;
 
 function isInvalidWriteIn(
-  candidate: WriteInCandidateState
+  candidate?: WriteInCandidateState
 ): candidate is InvalidWriteIn {
-  return candidate.type === 'invalid';
+  return candidate?.type === 'invalid';
 }
 
 function isExistingCandidate(
-  candidate: WriteInCandidateState
+  candidate?: WriteInCandidateState
 ): candidate is ExistingOfficialCandidate | ExistingWriteInCandidate {
   return (
-    candidate.type === 'existing-official' ||
-    candidate.type === 'existing-write-in'
+    candidate?.type === 'existing-official' ||
+    candidate?.type === 'existing-write-in'
   );
 }
 
 function isNewCandidate(
-  candidate: WriteInCandidateState
+  candidate?: WriteInCandidateState
 ): candidate is NewCandidate {
-  return candidate.type === 'new';
+  return candidate?.type === 'new';
 }
 
 function isPendingWriteIn(
   candidate: WriteInCandidateState
 ): candidate is PendingWriteIn {
-  return candidate.type === 'pending';
+  return candidate?.type === 'pending';
 }
 
 const DEFAULT_PADDING = '0.75rem';
@@ -362,15 +362,11 @@ export function ContestAdjudicationScreen(): JSX.Element {
     .filter(([, hasVote]) => hasVote)
     .map(([optionId]) => {
       const writeInEntry = writeInState[optionId];
-      return writeInOptionIds.includes(optionId) &&
-        isExistingCandidate(writeInEntry)
-        ? writeInEntry.id
-        : optionId;
+      return isExistingCandidate(writeInEntry) ? writeInEntry.id : optionId;
     })
     .filter(Boolean);
-  const numPendingWriteIns = writeInOptionIds.filter(
-    (optionId) =>
-      optionId in writeInState && isPendingWriteIn(writeInState[optionId])
+  const numPendingWriteIns = writeInOptionIds.filter((optionId) =>
+    isPendingWriteIn(writeInState[optionId])
   ).length;
   const allWriteInsAdjudicated = numPendingWriteIns === 0;
 
@@ -903,14 +899,14 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 const isFocused = focusedOptionId === optionId;
                 const isSelected = voteState[optionId];
 
-                let currentValue = '';
                 const writeInEntry = writeInState[optionId];
+                let stringValue = '';
                 if (isExistingCandidate(writeInEntry)) {
-                  currentValue = writeInEntry.id;
+                  stringValue = writeInEntry.id;
                 } else if (isNewCandidate(writeInEntry)) {
-                  currentValue = writeInEntry.name;
+                  stringValue = writeInEntry.name;
                 } else if (isInvalidWriteIn(writeInEntry)) {
-                  currentValue = 'invalid';
+                  stringValue = 'invalid';
                 }
 
                 const isUnmarkedPendingWriteIn =
@@ -950,7 +946,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                     hasInvalidEntry={doubleVoteAlert?.optionId === optionId}
                     onInputFocus={() => setFocusedOptionId(optionId)}
                     onInputBlur={() => setFocusedOptionId('')}
-                    value={currentValue}
+                    value={stringValue}
                     onChange={(newVal) => {
                       setFocusedOptionId('');
                       if (newVal === 'invalid') {
