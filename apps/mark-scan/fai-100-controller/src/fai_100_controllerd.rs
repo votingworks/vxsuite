@@ -13,7 +13,7 @@ use commands::{
 };
 use daemon_utils::{run_no_op_event_loop, write_pid_file};
 use std::{
-    fs::OpenOptions,
+    fs::{self, OpenOptions},
     io::{self, Read, Write},
     path::{Path, PathBuf},
     process::exit,
@@ -52,6 +52,10 @@ struct Args {
     /// Path to the directory where `MarkScan`'s working files are stored.
     #[arg(long, env = "MARK_SCAN_WORKSPACE")]
     mark_scan_workspace: PathBuf,
+}
+
+fn clear_pat_connection_status(workspace_path: &Path) -> Result<(), io::Error> {
+    fs::remove_file(workspace_path.join(PAT_CONNECTION_STATUS_FILENAME))
 }
 
 fn write_pat_connection_status(
@@ -121,6 +125,16 @@ fn main() -> color_eyre::Result<()> {
         // Graceful fallback; if PID file writing fails controller and PAT
         // input may still work.
         log!(EventId::Info, "Failed to write PID file: {}", err);
+    }
+
+    log!(EventId::Info, "Deleting old PAT status file");
+    if let Err(e) = clear_pat_connection_status(workspace_path) {
+        log!(
+            event_id: EventId::FileReadError,
+            message: e.to_string(),
+            event_type: EventType::SystemStatus,
+            disposition: Disposition::Failure
+        );
     }
 
     if let Some(mut port) = get_usb_device() {
@@ -499,12 +513,22 @@ fn run_event_loop(
             // Timeout error just means no event was sent in the current polling period
             Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
             Err(e) => {
-                log!(
-                    event_id: EventId::UnknownError,
-                    message: format!("Unexpected error when reading from bulk endpoint: {e:?}"),
-                    event_type: EventType::SystemStatus,
-                    disposition: Disposition::Failure
-                );
+                if e.to_string() == "NoDevice" {
+                    log!(
+                        event_id: EventId::PatDeviceError,
+                        message: format!("No FAI 100 USB device found: {}", e),
+                        event_type: EventType::SystemStatus,
+                        disposition: Disposition::Failure
+                    );
+                    running.store(false, Ordering::SeqCst);
+                } else {
+                    log!(
+                        event_id: EventId::UnknownError,
+                        message: format!("Unexpected error when reading from bulk endpoint: {e:?}"),
+                        event_type: EventType::SystemStatus,
+                        disposition: Disposition::Failure
+                    );
+                }
             }
         }
 
