@@ -1,6 +1,6 @@
 import { Result, assertDefined, err, iter, ok } from '@votingworks/basics';
 import { readFile, ReadFileError } from '@votingworks/fs';
-import { safeParseInt, safeParseJson } from '@votingworks/types';
+import { safeParseElectionDefinition, safeParseInt } from '@votingworks/types';
 import { parse } from 'csv-parse/sync';
 import {
   openZip,
@@ -15,8 +15,6 @@ import {
   AppContext,
   PollbookPackage,
   Voter,
-  Election,
-  ElectionSchema,
   ValidStreetInfo,
   StreetSide,
 } from './types';
@@ -62,10 +60,17 @@ async function readPollbookPackage(
       zipName
     );
     const electionJsonString = await readTextEntry(electionEntry);
-    const election: Election = safeParseJson(
-      electionJsonString,
-      ElectionSchema
-    ).unsafeUnwrap();
+    const electionResult = safeParseElectionDefinition(electionJsonString);
+    if (electionResult.isErr()) {
+      debug('Error parsing election definition: %O', electionResult.err());
+      return err({
+        type: 'ReadFileError',
+        error: new Error(
+          `Error parsing election definition: ${electionResult.err()}`
+        ),
+      });
+    }
+    const electionDefinition = electionResult.ok();
 
     const votersEntry = getFileByName(
       entries,
@@ -130,7 +135,7 @@ async function readPollbookPackage(
       },
     });
 
-    return ok({ election, voters, validStreets });
+    return ok({ electionDefinition, voters, validStreets });
   } catch (error) {
     debug('Error reading pollbook package: %O', error);
     return err({
@@ -149,53 +154,72 @@ export function pollUsbDriveForPollbookPackage({
   if (workspace.store.getElection()) {
     return;
   }
+  let pollingIntervalLock = false; // Flag to prevent overlapping executions
+
   process.nextTick(() => {
-    setInterval(async () => {
-      const usbDriveStatus = await usbDrive.status();
-      if (usbDriveStatus.status !== 'mounted') {
-        workspace.store.setConfigurationStatus(undefined);
-        return;
+    const intervalId = setInterval(async () => {
+      if (pollingIntervalLock) {
+        return; // Skip if a polling iteration is already in progress
       }
-      usbDebug('Found USB drive mounted at %s', usbDriveStatus.mountPoint);
+      pollingIntervalLock = true; // Set the flag to indicate polling is in progress
 
-      const authStatus = await auth.getAuthStatus(
-        constructAuthMachineState(workspace)
-      );
-      if (!isElectionManagerAuth(authStatus)) {
-        usbDebug('Not logged in as election manager, not configuring');
-        return;
-      }
-
-      workspace.store.setConfigurationStatus('loading');
-      const pollbookPackageResult = await readPollbookPackage(
-        join(usbDriveStatus.mountPoint, 'pollbook-package.zip')
-      );
-      if (pollbookPackageResult.isErr()) {
-        const result = pollbookPackageResult.err();
-        debug('Read pollbook package error: %O', result);
-        if (
-          result.type === 'OpenFileError' &&
-          'code' in result.error &&
-          result.error.code === 'ENOENT'
-        ) {
-          workspace.store.setConfigurationStatus('not-found');
-        } else {
-          throw result;
+      try {
+        if (workspace.store.getElection()) {
+          return;
         }
-        workspace.store.setConfigurationStatus('not-found');
-        return;
+
+        const usbDriveStatus = await usbDrive.status();
+        if (usbDriveStatus.status !== 'mounted') {
+          workspace.store.setConfigurationStatus(undefined);
+          return;
+        }
+        usbDebug('Found USB drive mounted at %s', usbDriveStatus.mountPoint);
+
+        const authStatus = await auth.getAuthStatus(
+          constructAuthMachineState(workspace)
+        );
+        if (!isElectionManagerAuth(authStatus)) {
+          usbDebug('Not logged in as election manager, not configuring');
+          return;
+        }
+
+        workspace.store.setConfigurationStatus('loading');
+        const pollbookPackageResult = await readPollbookPackage(
+          join(usbDriveStatus.mountPoint, 'pollbook-package.zip')
+        );
+        if (pollbookPackageResult.isErr()) {
+          const result = pollbookPackageResult.err();
+          debug('Read pollbook package error: %O', result);
+          if (
+            result.type === 'OpenFileError' &&
+            'code' in result.error &&
+            result.error.code === 'ENOENT'
+          ) {
+            workspace.store.setConfigurationStatus('not-found');
+          } else {
+            throw result;
+          }
+          workspace.store.setConfigurationStatus('not-found');
+          return;
+        }
+
+        const pollbookPackage = pollbookPackageResult.ok();
+        workspace.store.setElectionAndVoters(
+          pollbookPackage.electionDefinition.election,
+          pollbookPackage.validStreets,
+          pollbookPackage.voters
+        );
+        workspace.store.setConfigurationStatus(undefined);
+        debug('Configured with pollbook package: %O', {
+          election: pollbookPackage.electionDefinition.ballotHash,
+          voters: pollbookPackage.voters.length,
+        });
+        clearInterval(intervalId); // Stop the polling interval
+      } catch (error) {
+        debug('Error during polling loop: %O', error);
+      } finally {
+        pollingIntervalLock = false; // Reset the flag to allow the next iteration
       }
-      const pollbookPackage = pollbookPackageResult.ok();
-      workspace.store.setElectionAndVoters(
-        pollbookPackage.election,
-        pollbookPackage.validStreets,
-        pollbookPackage.voters
-      );
-      workspace.store.setConfigurationStatus(undefined);
-      debug('Configured with pollbook package: %O', {
-        election: pollbookPackage.election,
-        voters: pollbookPackage.voters.length,
-      });
     }, 100);
   });
 }

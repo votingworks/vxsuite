@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { Caption, Font, LabelledText, DateString, Seal } from '@votingworks/ui';
-import type { Election } from '@votingworks/pollbook-backend';
+import type { Election } from '@votingworks/types';
 
 const Bar = styled.div<{ inverse?: boolean }>`
   background: ${(p) => p.inverse && p.theme.colors.inverseBackground};

@@ -1,7 +1,11 @@
 import * as grout from '@votingworks/grout';
 import express, { Application } from 'express';
 import { assertDefined, err, ok, Result } from '@votingworks/basics';
-import { DEFAULT_SYSTEM_SETTINGS, PrinterStatus } from '@votingworks/types';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  Election,
+  PrinterStatus,
+} from '@votingworks/types';
 import { DippedSmartCardAuthMachineState } from '@votingworks/auth';
 import React from 'react';
 import { Exporter, getBatteryInfo } from '@votingworks/backend';
@@ -11,7 +15,6 @@ import {
   Workspace,
   AppContext,
   DeviceStatuses,
-  Election,
   MachineInformation,
   Voter,
   VoterIdentificationMethod,
