@@ -10,7 +10,7 @@ const BallotImageViewerContainer = styled.div`
 `;
 
 // We zoom in by scaling (setting the width) and then translating to center the
-// write-in on the screen (setting the top/left position).
+// zoomed-in bounds on the screen (setting the top/left position).
 const ZoomedInBallotImage = styled.img<{
   ballotBounds: Rect;
   zoomedInBounds: Rect;
@@ -38,13 +38,13 @@ const ZoomedInBallotImage = styled.img<{
 `;
 
 // We want to create a transparent overlay with a centered rectangle cut out of
-// it of the size of the write-in area. There's not a super easy way to do this
+// it of the size of the focused area. There's not a super easy way to do this
 // in CSS. Based on an idea from https://css-tricks.com/cutouts/, I used this
 // tool to design the clipping path, https://bennettfeely.com/clippy/, and then
 // parameterized it with the focus area width and height.
-const WriteInFocusOverlay = styled.div<{
-  focusWidth: number;
-  focusHeight: number;
+const BackgroundOverlay = styled.div<{
+  cutoutWidth: number;
+  cutoutHeight: number;
 }>`
   position: absolute;
   top: 0;
@@ -56,16 +56,16 @@ const WriteInFocusOverlay = styled.div<{
   clip-path: polygon(
     0% 0%,
     0% 100%,
-    calc(50% - ${(props) => props.focusWidth / 2}px) 100%,
-    calc(50% - ${(props) => props.focusWidth / 2}px)
-      calc(50% - ${(props) => props.focusHeight / 2}px),
-    calc(50% + ${(props) => props.focusWidth / 2}px)
-      calc(50% - ${(props) => props.focusHeight / 2}px),
-    calc(50% + ${(props) => props.focusWidth / 2}px)
-      calc(50% + ${(props) => props.focusHeight / 2}px),
-    calc(50% - ${(props) => props.focusWidth / 2}px)
-      calc(50% + ${(props) => props.focusHeight / 2}px),
-    calc(50% - ${(props) => props.focusWidth / 2}px) 100%,
+    calc(50% - ${(props) => props.cutoutWidth / 2}px) 100%,
+    calc(50% - ${(props) => props.cutoutWidth / 2}px)
+      calc(50% - ${(props) => props.cutoutHeight / 2}px),
+    calc(50% + ${(props) => props.cutoutWidth / 2}px)
+      calc(50% - ${(props) => props.cutoutHeight / 2}px),
+    calc(50% + ${(props) => props.cutoutWidth / 2}px)
+      calc(50% + ${(props) => props.cutoutHeight / 2}px),
+    calc(50% - ${(props) => props.cutoutWidth / 2}px)
+      calc(50% + ${(props) => props.cutoutHeight / 2}px),
+    calc(50% - ${(props) => props.cutoutWidth / 2}px) 100%,
     100% 100%,
     100% 0%
   );
@@ -106,12 +106,10 @@ export function BallotZoomImageViewer({
 
   const IMAGE_SCALE = 0.5; // The images are downscaled by 50% during CVR export, this is to adjust for that.
 
-  let zoomedInScale: number | null = null;
-  if (zoomedInBounds.width > zoomedInBounds.height) {
-    zoomedInScale = (ballotBounds.width / zoomedInBounds.width) * IMAGE_SCALE;
-  } else {
-    zoomedInScale = (ballotBounds.height / zoomedInBounds.height) * IMAGE_SCALE;
-  }
+  const zoomedInScale =
+    (zoomedInBounds.width > zoomedInBounds.height
+      ? ballotBounds.width / zoomedInBounds.width
+      : ballotBounds.height / zoomedInBounds.height) * IMAGE_SCALE;
 
   return (
     <BallotImageViewerContainer>
@@ -127,13 +125,13 @@ export function BallotZoomImageViewer({
       </BallotImageViewerControls>
       {isZoomedIn ? (
         <React.Fragment>
-          <WriteInFocusOverlay
-            focusWidth={zoomedInBounds.width * zoomedInScale}
-            focusHeight={zoomedInBounds.height * zoomedInScale}
+          <BackgroundOverlay
+            cutoutWidth={zoomedInBounds.width * zoomedInScale}
+            cutoutHeight={zoomedInBounds.height * zoomedInScale}
           />
           <ZoomedInBallotImage
             src={imageUrl}
-            alt="Ballot with write-in highlighted"
+            alt="Ballot with section highlighted"
             ballotBounds={ballotBounds}
             zoomedInBounds={zoomedInBounds}
             scale={zoomedInScale}
