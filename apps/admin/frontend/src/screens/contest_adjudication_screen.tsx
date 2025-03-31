@@ -83,12 +83,6 @@ type WriteInCandidateState =
   | InvalidWriteIn
   | PendingWriteIn;
 
-function isInvalidWriteIn(
-  candidate?: WriteInCandidateState
-): candidate is InvalidWriteIn {
-  return candidate?.type === 'invalid';
-}
-
 function isExistingCandidate(
   candidate?: WriteInCandidateState
 ): candidate is ExistingOfficialCandidate | ExistingWriteInCandidate {
@@ -102,6 +96,12 @@ function isNewCandidate(
   candidate?: WriteInCandidateState
 ): candidate is NewCandidate {
   return candidate?.type === 'new';
+}
+
+function isInvalidWriteIn(
+  candidate?: WriteInCandidateState
+): candidate is InvalidWriteIn {
+  return candidate?.type === 'invalid';
 }
 
 function isPendingWriteIn(
@@ -262,8 +262,7 @@ function renderCandidateButtonCaption(
   const newVoteString = newVote ? 'Marked' : 'Unmarked';
   return (
     <CandidateButtonCaption>
-      Adjudicated from <Font weight="semiBold">{`${originalVoteString}`}</Font>{' '}
-      to
+      Adjudicated from <Font weight="semiBold">${originalVoteString}</Font> to
       <Font weight="semiBold">{` ${newVoteString}`}</Font>
     </CandidateButtonCaption>
   );
@@ -328,6 +327,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const originalVotes = cvrVoteInfo?.votes[contestId];
   const voteAdjudications = cvrContestVoteAdjudicationsQuery.data;
   const writeIns = cvrContestWriteInsQuery.data;
+
   const writeInImages = cvrContestWriteInImagesQuery.data;
   const firstWriteInImage = writeInImages?.[0];
   const focusedWriteInImage = focusedOptionId
@@ -339,11 +339,11 @@ export function ContestAdjudicationScreen(): JSX.Element {
     firstWriteInImage && 'machineMarkedText' in firstWriteInImage;
 
   const [voteState, setVoteState] = useState<Record<string, boolean>>({}); // candidateId/optionId to boolean hasVote
+  const voteStateInitialized = Object.keys(voteState).length > 0;
   const [writeInState, setWriteInState] = useState<
     Record<string, WriteInCandidateState> // optionId to WriteInCandidateState
   >({});
   const [isStateStale, setIsStateStale] = useState(false);
-  const voteStateInitialized = Object.keys(voteState).length > 0;
   const [doubleVoteAlert, setDoubleVoteAlert] = useState<DoubleVoteAlert>();
 
   const officialCandidates = contest.candidates.filter((c) => !c.isWriteIn);
@@ -910,9 +910,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 }
 
                 const isUnmarkedPendingWriteIn =
-                  !isSelected &&
+                  existingWriteInRecord?.isUnmarked &&
                   isPendingWriteIn(writeInEntry) &&
-                  existingWriteInRecord?.isUnmarked;
+                  !isSelected;
 
                 if (!isSelected && !isUnmarkedPendingWriteIn) {
                   return (
@@ -949,13 +949,12 @@ export function ContestAdjudicationScreen(): JSX.Element {
                     value={stringValue}
                     onChange={(newVal) => {
                       setFocusedOptionId('');
-                      if (newVal === 'invalid') {
-                        updateWriteInState(optionId, { type: 'invalid' });
-                        updateVote(optionId, false);
-                        return;
-                      }
                       if (!newVal) {
                         updateWriteInState(optionId, { type: 'pending' });
+                        return;
+                      } if (newVal === 'invalid') {
+                        updateWriteInState(optionId, { type: 'invalid' });
+                        updateVote(optionId, false);
                         return;
                       }
                       const alert = checkForDoubleVote(newVal, optionId);
@@ -964,11 +963,12 @@ export function ContestAdjudicationScreen(): JSX.Element {
                         setDoubleVoteAlert(alert);
                         return;
                       }
+
                       // Mark unmarked write-ins
                       if (!isSelected) {
                         updateVote(optionId, true);
                       }
-                      // Check if updated entry is existing or new
+                      // Check if new value is existing candidate or new name
                       let newWriteInValue: WriteInCandidateState;
                       if (officialCandidateIds.includes(newVal)) {
                         const c = officialCandidates.find(
@@ -1004,15 +1004,15 @@ export function ContestAdjudicationScreen(): JSX.Element {
                     }}
                     officialCandidates={officialCandidates.filter(
                       (c) =>
+                        !selectedCandidateIds.includes(c.id) ||
                         (isExistingCandidate(writeInState[optionId]) &&
-                          writeInState[optionId].id === c.id) ||
-                        !selectedCandidateIds.includes(c.id)
+                          writeInState[optionId].id === c.id)
                     )}
                     writeInCandidates={writeInCandidates.filter(
                       (c) =>
+                        !selectedCandidateIds.includes(c.id) ||
                         (isExistingCandidate(writeInState[optionId]) &&
-                          writeInState[optionId].id === c.id) ||
-                        !selectedCandidateIds.includes(c.id)
+                          writeInState[optionId].id === c.id)
                     )}
                     caption={renderCandidateButtonCaption(
                       originalVote,
