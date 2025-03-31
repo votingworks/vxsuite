@@ -196,7 +196,7 @@ IDs are logged with each log to identify the log being written.
 **Machines:** All
 ### dmverity-boot
 **Type:** [system-status](#system-status)  
-**Description:** The system booted with dm-verity enabled.  
+**Description:** The system either successfully booted with dm-verity enabled or failed to do so, as indicated by the disposition.  
 **Machines:** All
 ### machine-boot-init
 **Type:** [system-action](#system-action)  

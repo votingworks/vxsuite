@@ -452,7 +452,8 @@ const FileReadError: LogDetails = {
 const DmVerityBoot: LogDetails = {
   eventId: LogEventId.DmVerityBoot,
   eventType: LogEventType.SystemStatus,
-  documentationMessage: 'The system booted with dm-verity enabled.',
+  documentationMessage:
+    'The system either successfully booted with dm-verity enabled or failed to do so, as indicated by the disposition.',
 };
 
 const MachineBootInit: LogDetails = {
