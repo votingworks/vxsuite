@@ -127,7 +127,7 @@ export const primaryElection: Election = {
     ...election.ballotStyles.map((bs) => ({
       ...bs,
       id: `${bs.id}R`,
-      groupId: `${bs.id}D`,
+      groupId: `${bs.id}R`,
       partyId: republicanPartyId,
     })),
   ] as BallotStyle[],
