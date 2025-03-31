@@ -11,8 +11,8 @@ const Container = styled.div`
 
 export function WriteInAdjudicationButton({
   caption,
-  isSelected,
   isFocused,
+  isSelected,
   hasInvalidEntry,
   onChange,
   onInputFocus,
@@ -78,7 +78,7 @@ export function WriteInAdjudicationButton({
   }
 
   return (
-    <Container style={{ zIndex: isFocused ? 20 : 0 }}>
+    <Container style={{ zIndex: isFocused ? 10 : 0 }}>
       <CheckboxButton
         isChecked={isSelected}
         label="Write-in"
@@ -90,6 +90,7 @@ export function WriteInAdjudicationButton({
         // double vote entry is detected because the `value` prop never
         // changes. `hasInvalidEntry` as the key forces a re-render
         key={`${hasInvalidEntry}`}
+        menuPortalTarget={document.body}
         options={options}
         onBlur={onInputBlur}
         onFocus={onInputFocus}

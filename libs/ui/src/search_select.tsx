@@ -91,9 +91,6 @@ export interface SearchSelectMultiProps<T extends string = string>
   onChange: (values: T[]) => void;
   disabled?: boolean;
   menuPortalTarget?: HTMLElement;
-  onInputChange?: (value?: T) => void;
-  onBlur?: () => void;
-  onFocus?: () => void;
 }
 
 export interface SearchSelectSingleProps<T extends string = string>
@@ -103,9 +100,6 @@ export interface SearchSelectSingleProps<T extends string = string>
   onChange: (value?: T) => void;
   disabled?: boolean;
   menuPortalTarget?: HTMLElement;
-  onInputChange?: (value?: T) => void;
-  onBlur?: () => void;
-  onFocus?: () => void;
 }
 
 export type SearchSelectProps<T extends string = string> =
@@ -167,13 +161,10 @@ export function SearchSelect<T extends string = string>({
       required={required}
       aria-label={ariaLabel}
       unstyled
-      components={{
-        DropdownIndicator,
-        MultiValueRemove,
-      }}
+      components={{ DropdownIndicator, MultiValueRemove }}
       className="search-select"
       maxMenuHeight="50vh"
-      menuPortalTarget={menuPortalTarget || document.body}
+      menuPortalTarget={menuPortalTarget}
       menuPlacement="auto"
       styles={typedAs<StylesConfig>({
         container: (baseStyles) => ({
@@ -230,7 +221,7 @@ export function SearchSelect<T extends string = string>({
         }),
         menuPortal: (base) => ({
           ...base,
-          zIndex: 9999,
+          zIndex: 10,
         }),
         menu: (baseStyles) => ({
           ...baseStyles,
