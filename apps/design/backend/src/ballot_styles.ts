@@ -62,9 +62,8 @@ export function generateBallotStyles(params: {
 
   const precinctsOrSplitsByDistricts: Array<
     [readonly DistrictId[], PrecinctOrSplitId[]]
-  > = groupBy(
-    allPrecinctsOrSplitsWithDistricts,
-    ({ districtIds }) => districtIds
+  > = groupBy(allPrecinctsOrSplitsWithDistricts, ({ districtIds }) =>
+    districtIds.toSorted()
   ).map(([districtIds, group]) => [
     districtIds,
     // Remove districtIds after grouping, we don't need them anymore
