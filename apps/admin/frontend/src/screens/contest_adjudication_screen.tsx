@@ -262,8 +262,8 @@ function renderCandidateButtonCaption(
   const newVoteString = newVote ? 'Marked' : 'Unmarked';
   return (
     <CandidateButtonCaption>
-      Adjudicated from <Font weight="semiBold">${originalVoteString}</Font> to
-      <Font weight="semiBold">{` ${newVoteString}`}</Font>
+      Adjudicated from <Font weight="semiBold">{originalVoteString}</Font> to
+      <Font weight="semiBold"> {newVoteString}</Font>
     </CandidateButtonCaption>
   );
 }
@@ -974,7 +974,8 @@ export function ContestAdjudicationScreen(): JSX.Element {
                       if (!newVal) {
                         updateWriteInState(optionId, { type: 'pending' });
                         return;
-                      } if (newVal === 'invalid') {
+                      }
+                      if (newVal === 'invalid') {
                         updateWriteInState(optionId, { type: 'invalid' });
                         if (isSelected) {
                           updateVote(optionId, false);
@@ -992,6 +993,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                       const official = officialCandidates.find(
                         (o) => o.name === newVal
                       );
+
                       const writeIn = official
                         ? undefined
                         : writeInCandidates?.find((w) => w.name === newVal);
@@ -1031,23 +1033,23 @@ export function ContestAdjudicationScreen(): JSX.Element {
                       .filter(
                         (c) =>
                           !selectedCandidateNames.includes(c.name) ||
-                          (isExistingCandidate(writeInState[optionId]) &&
-                            writeInState[optionId].id === c.id)
+                          (isExistingCandidate(writeInEntry) &&
+                            writeInEntry.name === c.name)
                       )
                       .map((c) => c.name)}
                     writeInCandidateNames={writeInCandidates
                       .filter(
                         (c) =>
                           !selectedCandidateNames.includes(c.name) ||
-                          (isExistingCandidate(writeInState[optionId]) &&
-                            writeInState[optionId].id === c.id)
+                          (isExistingCandidate(writeInEntry) &&
+                            writeInEntry.name === c.name)
                       )
                       .map((c) => c.name)}
                     caption={renderCandidateButtonCaption(
                       originalVote,
-                      voteState[optionId],
+                      isSelected,
                       existingWriteInRecord,
-                      isInvalidWriteIn(writeInState[optionId])
+                      isInvalidWriteIn(writeInEntry)
                     )}
                   />
                 );
