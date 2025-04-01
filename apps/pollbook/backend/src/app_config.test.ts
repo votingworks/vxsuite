@@ -14,9 +14,9 @@ let mockNodeEnv: 'production' | 'test' = 'test';
 
 async function allowRealTimeToPass() {
   vi.useRealTimers();
-  await sleep(200);
+  await sleep(300);
   vi.useFakeTimers();
-  vitest.advanceTimersByTime(200);
+  vitest.advanceTimersByTime(300);
 }
 
 function mockElectionManagerAuth(auth: DippedSmartCardAuthApi) {
