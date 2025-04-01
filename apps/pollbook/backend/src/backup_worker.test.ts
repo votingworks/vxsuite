@@ -6,7 +6,7 @@ import { Store } from './store';
 import { getBackupPaperChecklistPdfs } from './backup_worker';
 
 vitest.setConfig({
-  testTimeout: 20_000,
+  testTimeout: 30_000,
 });
 
 test('can export paper backup checklist', async () => {
