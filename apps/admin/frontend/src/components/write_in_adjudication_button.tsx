@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 import { CheckboxButton, Icons, SearchSelect } from '@votingworks/ui';
-import { Candidate } from '@votingworks/types';
 
 const Container = styled.div`
   display: flex;
@@ -19,24 +18,22 @@ export function WriteInAdjudicationButton({
   onInputBlur,
   toggleVote,
   value,
-  officialCandidates,
-  writeInCandidates,
+  officialCandidateNames,
+  writeInCandidateNames,
 }: {
   caption?: React.ReactNode;
   isFocused: boolean;
   isSelected: boolean;
   hasInvalidEntry: boolean;
-  // newVal can be: id of existing candidate, name of new
-  // candidate, keyword 'invalid' for invalid, or undefined;
-  // id is used for existing candidates instead of name
-  // to allow two official candidates with the same name
+  // newVal can be name of new or existing candidate,
+  // keyword 'invalid' for invalid write-in, or undefined
   onChange: (newVal?: string) => void;
   onInputBlur: () => void;
   onInputFocus: () => void;
   toggleVote: () => void;
   value: string;
-  officialCandidates: Candidate[];
-  writeInCandidates: Candidate[];
+  officialCandidateNames: string[];
+  writeInCandidateNames: string[];
 }): JSX.Element {
   const theme = useTheme();
   const [inputValue, setInputValue] = useState('');
@@ -47,24 +44,29 @@ export function WriteInAdjudicationButton({
   }
 
   const filteredCandidateOptions = inputValue
-    ? officialCandidates.filter((val) =>
-        val.name.toLowerCase().includes(inputValueLowerCase)
+    ? officialCandidateNames.filter((name) =>
+        name.toLowerCase().includes(inputValueLowerCase)
       )
-    : officialCandidates;
+    : officialCandidateNames;
   const filteredWriteInCandidateOptions = inputValue
-    ? writeInCandidates.filter((val) =>
-        val.name.toLowerCase().includes(inputValueLowerCase)
+    ? writeInCandidateNames.filter((name) =>
+        name.toLowerCase().includes(inputValueLowerCase)
       )
-    : writeInCandidates;
+    : writeInCandidateNames;
   const options = filteredWriteInCandidateOptions
     .concat(filteredCandidateOptions)
-    .map((val) => ({
-      label: val.name,
-      value: val.id,
+    .map((name) => ({
+      label: name,
+      value: name,
     }));
 
-  // 'Add: ${inputValue}' entry if there is no exact match
-  if (inputValue && !options.find((item) => item.label === inputValue)) {
+  // 'Add: NEW_CANDIDATE' entry if there is no exact match
+  if (
+    inputValue &&
+    !options.find(
+      (item) => item.label.toLowerCase() === inputValue.toLowerCase()
+    )
+  ) {
     options.push({ label: `Add: ${inputValue}`, value: inputValue });
   }
 
