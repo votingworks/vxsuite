@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { throwIllegalValue } from '@votingworks/basics';
 import type {
   Voter,
@@ -42,6 +42,8 @@ type CheckInFlowState =
   | { step: 'printing' }
   | { step: 'success'; voterId: string }
   | { step: 'error' };
+
+export const AUTOMATIC_FLOW_STATE_RESET_DELAY_MS = 3000;
 
 export function VoterCheckInSuccessScreen({
   voterId,
@@ -96,8 +98,15 @@ export function VoterCheckInScreen(): JSX.Element | null {
     step: 'search',
     search: createEmptySearchParams(),
   });
+  const [timeoutIdForFlowStateReset, setTimeoutIdForFlowStateReset] =
+    useState<ReturnType<typeof setTimeout>>();
   const checkInVoterMutation = checkInVoter.useMutation();
   const getIsAbsenteeModeQuery = getIsAbsenteeMode.useQuery();
+
+  const resetFlowState = useCallback(() => {
+    clearTimeout(timeoutIdForFlowStateReset);
+    setFlowState({ step: 'search', search: createEmptySearchParams() });
+  }, [timeoutIdForFlowStateReset]);
 
   if (!getIsAbsenteeModeQuery.isSuccess) {
     return null;
@@ -137,6 +146,12 @@ export function VoterCheckInScreen(): JSX.Element | null {
                       step: 'success',
                       voterId: flowState.voterId,
                     });
+                    setTimeoutIdForFlowStateReset(
+                      setTimeout(
+                        resetFlowState,
+                        AUTOMATIC_FLOW_STATE_RESET_DELAY_MS
+                      )
+                    );
                   } else {
                     setFlowState({ step: 'error' });
                   }
@@ -174,9 +189,7 @@ export function VoterCheckInScreen(): JSX.Element | null {
         <VoterCheckInSuccessScreen
           voterId={flowState.voterId}
           isAbsenteeMode={isAbsenteeMode}
-          onClose={() =>
-            setFlowState({ step: 'search', search: createEmptySearchParams() })
-          }
+          onClose={resetFlowState}
         />
       );
 
@@ -200,16 +213,7 @@ export function VoterCheckInScreen(): JSX.Element | null {
             />
           </Column>
           <ButtonBar>
-            <Button
-              onPress={() =>
-                setFlowState({
-                  step: 'search',
-                  search: createEmptySearchParams(),
-                })
-              }
-            >
-              Close
-            </Button>
+            <Button onPress={resetFlowState}>Close</Button>
           </ButtonBar>
         </NoNavScreen>
       );
@@ -229,6 +233,12 @@ function VoterRegistrationScreen(): JSX.Element {
   const [flowState, setFlowState] = useState<RegistrationFlowState>({
     step: 'register',
   });
+  const [timeoutIdForFlowStateReset, setTimeoutIdForFlowStateReset] =
+    useState<ReturnType<typeof setTimeout>>();
+  const resetFlowState = useCallback(() => {
+    clearTimeout(timeoutIdForFlowStateReset);
+    setFlowState({ step: 'register' });
+  }, [timeoutIdForFlowStateReset]);
 
   switch (flowState.step) {
     case 'register':
@@ -241,6 +251,12 @@ function VoterRegistrationScreen(): JSX.Element {
               {
                 onSuccess: (voter) => {
                   setFlowState({ step: 'success', voter });
+                  setTimeoutIdForFlowStateReset(
+                    setTimeout(
+                      resetFlowState,
+                      AUTOMATIC_FLOW_STATE_RESET_DELAY_MS
+                    )
+                  );
                 },
               }
             );
@@ -289,7 +305,7 @@ function VoterRegistrationScreen(): JSX.Element {
             </FullScreenMessage>
           </Column>
           <ButtonBar>
-            <Button icon="X" onPress={() => setFlowState({ step: 'register' })}>
+            <Button icon="X" onPress={resetFlowState}>
               Close
             </Button>
           </ButtonBar>

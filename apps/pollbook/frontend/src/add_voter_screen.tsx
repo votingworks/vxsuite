@@ -76,6 +76,7 @@ export function AddVoterScreen({
               <FieldName>Party Affiliation</FieldName>
               <SearchSelect
                 id="party"
+                aria-label="Party Affiliation"
                 style={{ width: '20rem' }}
                 value={voter.party || undefined}
                 onChange={(value) => setVoter({ ...voter, party: value || '' })}
