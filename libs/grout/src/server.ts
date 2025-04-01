@@ -18,7 +18,7 @@ const debug = rootDebug.extend('server');
  * specifics.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type AnyRpcMethod = (input: any) => any;
+export type AnyRpcMethod = (input: any, context?: any) => any;
 // Notes(jonah):
 // - We can't enforce the constraints on method input at compile time, because
 //  function argument subtyping is contravariant, meaning that for an RPC method to
@@ -45,21 +45,40 @@ export interface AnyMethods {
 /**
  * Type for a specific API definition returned by createApi.
  */
-export type Api<Methods extends AnyMethods> = Methods;
+export interface Api<Methods extends AnyMethods, Context extends AnyContext> {
+  methods: Methods;
+  middlewares?: Array<Middleware<Context>>;
+}
 
 /**
  * Base type for any API definition.
  */
-export type AnyApi = Api<AnyMethods>;
+export type AnyApi = Api<AnyMethods, AnyContext>;
 
 /**
  * Helper to extract the method types from an API definition type
  */
 export type inferApiMethods<SomeApi extends AnyApi> = SomeApi extends Api<
-  infer Methods
+  infer Methods,
+  AnyContext
 >
   ? Methods
   : never;
+
+// eslint-disable-next-line vx/gts-jsdoc
+export type AnyContext = object;
+
+// eslint-disable-next-line vx/gts-jsdoc
+export interface MiddlewareMethodCall<Context extends AnyContext> {
+  methodName: string;
+  input: unknown;
+  context: Context;
+}
+
+// eslint-disable-next-line vx/gts-jsdoc
+export type Middleware<Context extends AnyContext> = (
+  methodCall: MiddlewareMethodCall<Context>
+) => Context | void | Promise<Context | void>;
 
 /**
  * Creates a Grout API definition from a dictionary of methods.
@@ -73,13 +92,17 @@ export type inferApiMethods<SomeApi extends AnyApi> = SomeApi extends Api<
  *  })
  *
  */
-export function createApi<Methods extends AnyMethods>(
-  methods: Methods
-): Api<Methods> {
+export function createApi<
+  Methods extends AnyMethods,
+  Context extends AnyContext,
+>(
+  methods: Methods,
+  middlewares?: Array<Middleware<Context>>
+): Api<Methods, Context> {
   // Currently, we don't to actually need to do anything with the methods. By
   // calling createApi, we're able to infer their type into TMethods, which the
   // client can use.
-  return methods;
+  return { methods, middlewares };
 }
 
 /**
@@ -127,7 +150,9 @@ export function buildRouter(
     })
   );
 
-  for (const [methodName, method] of Object.entries<AnyRpcMethod>(api)) {
+  for (const [methodName, method] of Object.entries<AnyRpcMethod>(
+    api.methods
+  )) {
     const path = `/${methodName}`;
     debug(`Registering route: ${path}`);
 
@@ -158,7 +183,25 @@ export function buildRouter(
           );
         }
 
-        const result = await method(input);
+        let context: AnyContext = {};
+        for (const middleware of api.middlewares ?? []) {
+          const result = await middleware({
+            methodName,
+            input,
+            context,
+          });
+          if (result !== undefined) {
+            if (!isObject(result)) {
+              throw new GroutError(
+                'Middleware must return a context object or undefined. ' +
+                  `The result was: ${JSON.stringify(result)}`
+              );
+            }
+            context = result;
+          }
+        }
+
+        const result = await method(input, context);
         const jsonResult = serialize(result);
         debug(`Result: ${jsonResult}`);
 

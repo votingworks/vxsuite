@@ -6,7 +6,7 @@ import express from 'express';
 import { err, ok, Result, sleep } from '@votingworks/basics';
 import { expectTypeOf } from 'expect-type';
 import { createClient } from './client';
-import { AnyApi, buildRouter, createApi } from './server';
+import { AnyApi, buildRouter, createApi, MiddlewareMethodCall } from './server';
 
 function createTestApp(api: AnyApi) {
   const app = express();
@@ -131,11 +131,12 @@ test('works with the Result type', async () => {
 });
 
 test('errors if RPC method doesnt have the correct signature', async () => {
-  // We can catch the wrong number of arguments at compile time
+  // We can catch the wrong number of arguments for defining a method at compile time
+  // (Though there may be 1 or 2 arguments due to optional context)
   createApi({
     // @ts-expect-error `add` method does not match AnyRpcMethod signature
-    async add(input1: number, input2: number): Promise<number> {
-      return input1 + input2;
+    async add(input1: number, input2: number, input3: number): Promise<number> {
+      return input1 + input2 + input3;
     },
   });
 
@@ -156,6 +157,11 @@ test('errors if RPC method doesnt have the correct signature', async () => {
   });
   const { baseUrl, server } = createTestApp(api);
   const client = createClient<typeof api>({ baseUrl });
+
+  // We can catch the wrong number of arguments when calling a method at compile time
+  // @ts-expect-error expected 1 argument, got 2
+  await client.sqrt(4, 5);
+
   await expect(client.sqrt(4)).rejects.toThrow(
     'Grout methods must be called with an object or undefined as the sole argument. The argument received was: 4'
   );
@@ -308,6 +314,60 @@ test('client handles other server errors', async () => {
   const client = createClient<typeof api>({ baseUrl });
   await expect(client.getStuff()).rejects.toThrow(
     `Got 500 for ${baseUrl}/getStuff`
+  );
+  server.close();
+});
+
+test('middleware can add context that can be accessed in the method', async () => {
+  interface User {
+    id: string;
+    name: string;
+  }
+  const mockUser: User = { id: '123', name: 'Alice' };
+
+  interface Context {
+    user?: User;
+  }
+
+  function loadUserMiddleware(methodCall: MiddlewareMethodCall<Context>) {
+    expectTypeOf(methodCall).toEqualTypeOf<{
+      methodName: string;
+      input: unknown;
+      context: Context;
+    }>();
+    expect(methodCall.methodName).toEqual('getUserAttribute');
+    expect(methodCall.input).toEqual({ attribute: 'name' });
+    expect(methodCall.context).toEqual({});
+    return { user: mockUser };
+  }
+
+  function loggingMiddleware(methodCall: MiddlewareMethodCall<Context>) {
+    expectTypeOf(methodCall).toEqualTypeOf<{
+      methodName: string;
+      input: unknown;
+      context: Context;
+    }>();
+    expect(methodCall.methodName).toEqual('getUserAttribute');
+    expect(methodCall.input).toEqual({ attribute: 'name' });
+    expect(methodCall.context).toEqual({ user: mockUser });
+  }
+
+  const api = createApi(
+    {
+      async getUserAttribute(
+        input: { attribute: keyof User },
+        context: Context
+      ) {
+        return context.user?.[input.attribute];
+      },
+    },
+    [loadUserMiddleware, loggingMiddleware]
+  );
+
+  const { server, baseUrl } = createTestApp(api);
+  const client = createClient<typeof api>({ baseUrl });
+  expect(await client.getUserAttribute({ attribute: 'name' })).toEqual(
+    mockUser.name
   );
   server.close();
 });
