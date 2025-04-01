@@ -76,7 +76,7 @@ interface SearchSelectBaseProps<T extends string = string> {
   options: Array<SelectOption<T>>;
   'aria-label'?: string;
   style?: React.CSSProperties;
-  placeholder?: React.ReactNode;
+  placeholder?: React.ReactNode | string;
   disabled?: boolean;
   required?: boolean;
   onInputChange?: (value?: T) => void;
@@ -257,6 +257,8 @@ export function SearchSelect<T extends string = string>({
           ':last-of-type': { borderBottom: 'none' },
           // Ensure empty option still has height
           minHeight: '2.5rem',
+          // Fix slight vertical shift when menu is rendered in a portal (missing inherited line-height)
+          lineHeight: menuPortalTarget ? theme.sizes.lineHeight : undefined,
         }),
         noOptionsMessage: (baseStyles) => ({
           ...baseStyles,

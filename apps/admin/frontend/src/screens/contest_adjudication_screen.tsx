@@ -76,15 +76,16 @@ interface PendingWriteIn {
   type: 'pending';
 }
 
-type WriteInCandidateState =
+type WriteInOptionState =
   | ExistingOfficialCandidate
   | ExistingWriteInCandidate
   | NewCandidate
   | InvalidWriteIn
-  | PendingWriteIn;
+  | PendingWriteIn
+  | undefined;
 
 function isExistingCandidate(
-  candidate?: WriteInCandidateState
+  candidate?: WriteInOptionState
 ): candidate is ExistingOfficialCandidate | ExistingWriteInCandidate {
   return (
     candidate?.type === 'existing-official' ||
@@ -93,19 +94,19 @@ function isExistingCandidate(
 }
 
 function isNewCandidate(
-  candidate?: WriteInCandidateState
+  candidate?: WriteInOptionState
 ): candidate is NewCandidate {
   return candidate?.type === 'new';
 }
 
 function isInvalidWriteIn(
-  candidate?: WriteInCandidateState
+  candidate?: WriteInOptionState
 ): candidate is InvalidWriteIn {
   return candidate?.type === 'invalid';
 }
 
 function isPendingWriteIn(
-  candidate: WriteInCandidateState
+  candidate: WriteInOptionState
 ): candidate is PendingWriteIn {
   return candidate?.type === 'pending';
 }
@@ -237,33 +238,46 @@ const Label = styled.span`
   font-weight: 500;
 `;
 
-function renderCandidateButtonCaption(
-  originalVote: boolean,
-  newVote: boolean,
-  existingWriteInRecord?: WriteInRecord,
-  isWriteInMarkedInvalid?: boolean
-) {
-  if (originalVote === newVote) {
-    if (
-      existingWriteInRecord?.isUnmarked &&
-      !existingWriteInRecord?.isManuallyCreated &&
-      isWriteInMarkedInvalid
-    ) {
-      return (
-        <CandidateButtonCaption>
-          Adjudicated <Font weight="semiBold">Unmarked Write-in </Font> as
-          <Font weight="semiBold"> Unmarked</Font>
-        </CandidateButtonCaption>
-      );
+function renderCandidateButtonCaption({
+  originalVote,
+  currentVote,
+  isWriteIn,
+  writeInState,
+  writeInRecord,
+}: {
+  originalVote: boolean;
+  currentVote: boolean;
+  isWriteIn: boolean;
+  writeInState?: WriteInOptionState;
+  writeInRecord?: WriteInRecord;
+}) {
+  let originalValueStr: string | undefined;
+  let newValueStr: string | undefined;
+
+  if (isWriteIn) {
+    if (writeInRecord?.isUnmarked && isInvalidWriteIn(writeInState)) {
+      originalValueStr = 'Unmarked Write-in';
+      newValueStr = 'Invalid Mark';
+    } else if (originalVote && isInvalidWriteIn(writeInState)) {
+      originalValueStr = 'Mark';
+      newValueStr = 'Invalid Mark';
+    } else if ((!writeInRecord || writeInRecord?.isUnmarked) && currentVote) {
+      originalValueStr = 'Unmarked Write-in';
+      newValueStr = 'Valid Write-In';
     }
+  } else if (originalVote !== currentVote) {
+      originalValueStr = originalVote ? 'Mark' : 'Undetected Mark';
+      newValueStr = currentVote ? 'Valid Mark' : 'Invalid Mark';
+    }
+
+  if (!originalValueStr || !newValueStr) {
     return null;
   }
-  const originalVoteString = originalVote ? 'Marked' : 'Unmarked';
-  const newVoteString = newVote ? 'Marked' : 'Unmarked';
+
   return (
     <CandidateButtonCaption>
-      Adjudicated from <Font weight="semiBold">{originalVoteString}</Font> to
-      <Font weight="semiBold"> {newVoteString}</Font>
+      <Font weight="semiBold">{originalValueStr} </Font>adjudicated as
+      <Font weight="semiBold"> {newValueStr}</Font>
     </CandidateButtonCaption>
   );
 }
@@ -341,7 +355,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const [voteState, setVoteState] = useState<Record<string, boolean>>({}); // optionId to boolean hasVote
   const voteStateInitialized = Object.keys(voteState).length > 0;
   const [writeInState, setWriteInState] = useState<
-    Record<string, WriteInCandidateState> // optionId to WriteInCandidateState
+    Record<string, WriteInOptionState> // optionId to WriteInOptionState
   >({});
   const [isStateStale, setIsStateStale] = useState(false);
   const [doubleVoteAlert, setDoubleVoteAlert] = useState<DoubleVoteAlert>();
@@ -452,10 +466,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
     }));
   }
 
-  function updateWriteInState(
-    optionId: string,
-    newState: WriteInCandidateState
-  ) {
+  function updateWriteInState(optionId: string, newState: WriteInOptionState) {
     setWriteInState((prev) => ({
       ...prev,
       [optionId]: newState,
@@ -662,7 +673,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
         newVoteState[adjudication.optionId] = adjudication.isVote;
       }
 
-      const newWriteInState: Record<string, WriteInCandidateState> = {};
+      const newWriteInState: Record<string, WriteInOptionState> = {};
       let areAllWriteInsAdjudicated = true;
       for (const writeIn of writeIns) {
         const { optionId } = writeIn;
@@ -873,24 +884,25 @@ export function ContestAdjudicationScreen(): JSX.Element {
             <CandidateButtonList ref={candidateListRef} key={currentCvrId}>
               {officialCandidates.map((candidate) => {
                 assert(originalVotes !== undefined);
-                const hasVoteOriginal = originalVotes.includes(candidate.id);
-                const hasVoteCurrent = voteState[candidate.id];
+                const originalVote = originalVotes.includes(candidate.id);
+                const currentVote = voteState[candidate.id];
                 return (
                   <CandidateButton
                     key={candidate.id + currentCvrId}
                     candidate={candidate}
-                    isSelected={hasVoteCurrent}
+                    isSelected={currentVote}
                     onSelect={() => updateVote(candidate.id, true)}
                     onDeselect={() => updateVote(candidate.id, false)}
                     disabled={
                       // Disabled when there is a write-in selection for the candidate
-                      !hasVoteCurrent &&
+                      !currentVote &&
                       selectedCandidateNames.includes(candidate.name)
                     }
-                    caption={renderCandidateButtonCaption(
-                      hasVoteOriginal,
-                      hasVoteCurrent
-                    )}
+                    caption={renderCandidateButtonCaption({
+                      originalVote,
+                      currentVote,
+                      isWriteIn: false,
+                    })}
                   />
                 );
               })}
@@ -899,7 +911,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 assert(writeIns !== undefined);
                 assert(writeInCandidates !== undefined);
                 const originalVote = originalVotes.includes(optionId);
-                const existingWriteInRecord = writeIns.find(
+                const writeInRecord = writeIns.find(
                   (writeIn) => writeIn.optionId === optionId
                 );
                 const writeInEntry = writeInState[optionId];
@@ -907,7 +919,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 const isFocused = focusedOptionId === optionId;
                 const isSelected = voteState[optionId];
                 const isUnmarkedPendingWriteIn =
-                  existingWriteInRecord?.isUnmarked &&
+                  writeInRecord?.isUnmarked &&
                   isPendingWriteIn(writeInEntry) &&
                   !isSelected;
 
@@ -927,12 +939,13 @@ export function ContestAdjudicationScreen(): JSX.Element {
                         });
                       }}
                       onDeselect={() => undefined} // Cannot be reached
-                      caption={renderCandidateButtonCaption(
+                      caption={renderCandidateButtonCaption({
                         originalVote,
-                        isSelected,
-                        existingWriteInRecord,
-                        isInvalidWriteIn(writeInEntry)
-                      )}
+                        currentVote: false,
+                        isWriteIn: true,
+                        writeInRecord,
+                        writeInState: writeInEntry,
+                      })}
                     />
                   );
                 }
@@ -998,7 +1011,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                         ? undefined
                         : writeInCandidates?.find((w) => w.name === newVal);
 
-                      let newWriteInState: WriteInCandidateState;
+                      let newWriteInState: WriteInOptionState;
                       if (official) {
                         newWriteInState = {
                           type: 'existing-official',
@@ -1045,12 +1058,13 @@ export function ContestAdjudicationScreen(): JSX.Element {
                             writeInEntry.name === c.name)
                       )
                       .map((c) => c.name)}
-                    caption={renderCandidateButtonCaption(
+                    caption={renderCandidateButtonCaption({
                       originalVote,
-                      isSelected,
-                      existingWriteInRecord,
-                      isInvalidWriteIn(writeInEntry)
-                    )}
+                      currentVote: isSelected,
+                      isWriteIn: true,
+                      writeInRecord,
+                      writeInState: writeInEntry,
+                    })}
                   />
                 );
               })}

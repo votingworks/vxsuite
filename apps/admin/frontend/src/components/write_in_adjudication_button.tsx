@@ -6,6 +6,12 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
+
+  /* Prevent the CheckboxButton bottom border from being cutoff on hover
+   * from the SearchSelect, which has a higher z-index */
+  button:focus-visible {
+    z-index: 10;
+  }
 `;
 
 export function WriteInAdjudicationButton({
@@ -88,6 +94,7 @@ export function WriteInAdjudicationButton({
         style={{ borderRadius: '0.5rem 0.5rem 0 0' }}
       />
       <SearchSelect
+        aria-label="Select or add write-in candidate"
         // The inner input does not clear the previous value when a
         // double vote entry is detected because the `value` prop never
         // changes. `hasInvalidEntry` as the key forces a re-render
