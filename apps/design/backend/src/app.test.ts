@@ -998,10 +998,10 @@ test('CRUD contests', async () => {
     electionId,
     updatedContest: updatedContest1,
   });
-  // Expect contests to be reordered alphabetically due to name change
+  // Expect contests to have their ballot order preserved
   expect(await apiClient.listContests({ electionId })).toEqual([
-    contest2,
     updatedContest1,
+    contest2,
   ]);
 
   // Update ballot measure contest

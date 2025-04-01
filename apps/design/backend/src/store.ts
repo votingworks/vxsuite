@@ -1113,16 +1113,18 @@ export class Store {
         // 2. Contests/candidates are leaf nodes. There are no other tables with
         // foreign keys that reference contests/candidates, so we don't need to
         // worry about ON DELETE triggers.
-        const { rowCount } = await client.query(
+        const { rowCount, rows } = await client.query(
           `
             delete from contests
             where id = $1 and election_id = $2
+            returning ballot_order as "ballotOrder"
           `,
           contest.id,
           electionId
         );
         assert(rowCount === 1, 'Contest not found');
-        await insertContest(client, electionId, contest);
+        const { ballotOrder } = rows[0] as { ballotOrder: number };
+        await insertContest(client, electionId, contest, ballotOrder);
         return true;
       })
     );
