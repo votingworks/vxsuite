@@ -1,5 +1,5 @@
 import { DateWithoutTime } from '@votingworks/basics';
-import { ElectionId } from '@votingworks/types';
+import { Election, ElectionId, HmpbBallotPaperSize } from '@votingworks/types';
 import { HlcTimestamp } from '../src/hybrid_logical_clock';
 import { Store } from '../src/store';
 import {
@@ -7,7 +7,6 @@ import {
   VoterCheckInEvent,
   EventType,
   PollbookEventBase,
-  Election,
   ValidStreetInfo,
 } from '../src/types';
 
@@ -95,16 +94,29 @@ export function syncEventsForAllPollbooks(pollbooks: Store[]): void {
 
 export function getTestElection(): Election {
   const testElection: Election = {
-    id: 'test-election' as ElectionId,
-    title: 'Test Election',
-    date: new DateWithoutTime('2024-01-01'),
-    precincts: [],
+    id: 'test-election-id' as ElectionId,
+    state: 'Test State',
     county: {
       id: 'test-county',
       name: 'Test County',
     },
-    state: 'VX',
-    seal: 'test-seal-contents',
+    title: 'Test Election',
+    type: 'general',
+    date: new DateWithoutTime('2024-01-01'),
+    seal: '',
+    parties: [],
+    districts: [],
+    precincts: Array.from({ length: 5 }, (_, i) => ({
+      id: `precinct-${i}`,
+      name: `Test Precinct ${i}`,
+    })),
+    contests: [],
+    ballotStyles: [],
+    ballotLayout: {
+      paperSize: HmpbBallotPaperSize.Letter,
+      metadataEncoding: 'qr-code',
+    },
+    ballotStrings: {},
   };
   return testElection;
 }
