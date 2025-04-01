@@ -319,7 +319,7 @@ exports.up = async (pgm) => {
       `);
     }
 
-    for (const [i, contest] of election.contests.entries()) {
+    for (const contest of election.contests) {
       switch (contest.type) {
         case 'candidate': {
           pgm.sql(`
@@ -332,8 +332,7 @@ exports.up = async (pgm) => {
               seats,
               allow_write_ins,
               party_id,
-              term_description,
-              ballot_order
+              term_description
             )
             VALUES (
               '${contest.id}',
@@ -348,8 +347,7 @@ exports.up = async (pgm) => {
                 contest.termDescription
                   ? `'${quote(contest.termDescription)}'`
                   : 'NULL'
-              },
-              ${i + 1}
+              }
             )
           `);
           for (const candidate of contest.candidates) {
@@ -406,8 +404,7 @@ exports.up = async (pgm) => {
               yes_option_id,
               yes_option_label,
               no_option_id,
-              no_option_label,
-              ballot_order
+              no_option_label
             )
             VALUES (
               '${contest.id}',
@@ -419,8 +416,7 @@ exports.up = async (pgm) => {
               '${contest.yesOption.id}',
               '${quote(contest.yesOption.label)}',
               '${contest.noOption.id}',
-              '${quote(contest.noOption.label)}',
-              ${i + 1}
+              '${quote(contest.noOption.label)}'
             )
           `);
           break;
