@@ -414,4 +414,71 @@ describe('generateBallotStyles()', () => {
       })),
     ]);
   });
+
+  test('precincts with the same district IDs in different orders', () => {
+    const precinct1: SplittablePrecinct = {
+      id: 'precinct-1',
+      name: 'Precinct 1',
+      districtIds: [district1.id, district2.id],
+    };
+    const precinct2: SplittablePrecinct = {
+      id: 'precinct-2',
+      name: 'Precinct 2',
+      districtIds: [district2.id, district1.id],
+    };
+    const precinct3: SplittablePrecinct = {
+      id: 'precinct-3',
+      name: 'Precinct 3',
+      splits: [
+        {
+          id: 'precinct-3-split-1',
+          name: 'Precinct 3 - Split 1',
+          districtIds: [district1.id, district2.id],
+        },
+        {
+          id: 'precinct-3-split-2',
+          name: 'Precinct 3 - Split 2',
+          districtIds: [district2.id, district1.id],
+        },
+        {
+          id: 'precinct-3-split-3',
+          name: 'Precinct 3 - Split 3',
+          districtIds: [district1.id],
+        },
+      ],
+    };
+    const precinct4: SplittablePrecinct = {
+      id: 'precinct-4',
+      name: 'Precinct 4',
+      districtIds: [district1.id],
+    };
+
+    const ballotLanguageConfigs = [{ languages: [ENGLISH] }];
+    const ballotStyles = generateBallotStyles({
+      ballotLanguageConfigs,
+      contests: [generalContest1, generalContest2],
+      electionType: 'general',
+      parties: [],
+      precincts: [precinct1, precinct2, precinct3, precinct4],
+    });
+    expect(ballotStyles.length).toEqual(2);
+    expect(ballotStyles[0].districtIds).toEqual([district1.id, district2.id]);
+    expect(ballotStyles[0].precinctsOrSplits).toEqual([
+      { precinctId: precinct1.id },
+      { precinctId: precinct2.id },
+      {
+        precinctId: precinct3.id,
+        splitId: precinct3.splits[0].id,
+      },
+      {
+        precinctId: precinct3.id,
+        splitId: precinct3.splits[1].id,
+      },
+    ]);
+    expect(ballotStyles[1].districtIds).toEqual([district1.id]);
+    expect(ballotStyles[1].precinctsOrSplits).toEqual([
+      { precinctId: precinct3.id, splitId: precinct3.splits[2].id },
+      { precinctId: precinct4.id },
+    ]);
+  });
 });
