@@ -5,23 +5,13 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import styled, { DefaultTheme } from 'styled-components';
+import styled from 'styled-components';
 
 import { Button, ButtonProps } from '../button';
 import { WithAltAudio, appStrings } from '../ui_strings';
-import { ActionKey, Key } from './common';
+import { ActionKey, getBorderWidthRem, Key } from './common';
 import { advanceElementFocus } from '../accessible_controllers';
 import { Keybinding } from '../keybindings';
-
-/* istanbul ignore next - @preserve */
-function getBorderWidthRem(p: { theme: DefaultTheme }): number {
-  switch (p.theme.sizeMode) {
-    case 'touchExtraLarge':
-      return p.theme.sizes.bordersRem.hairline;
-    default:
-      return p.theme.sizes.bordersRem.thin;
-  }
-}
 
 const Keyboard = styled.div`
   & button {
