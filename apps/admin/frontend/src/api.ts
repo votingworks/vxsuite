@@ -690,7 +690,6 @@ function invalidateWriteInQueries(queryClient: QueryClient) {
     ),
 
     // contest adjudication
-    queryClient.invalidateQueries(getWriteInAdjudicationCvrQueue.queryKey()),
     queryClient.invalidateQueries(
       getWriteInAdjudicationCvrQueueMetadata.queryKey()
     ),

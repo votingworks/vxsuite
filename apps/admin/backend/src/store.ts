@@ -1937,6 +1937,41 @@ export class Store {
     return rows;
   }
 
+  getFirstPendingWriteInCvrId({
+    electionId,
+    contestId,
+  }: {
+    electionId: Id;
+    contestId: ContestId;
+  }): Optional<Id> {
+    this.assertElectionExists(electionId);
+
+    debug(
+      'querying database for first pending write-in cvr id for contest %s',
+      contestId
+    );
+    const row = this.client.one(
+      `
+        select
+          cvr_id
+        from write_ins
+        where
+          election_id = ? and
+          contest_id = ? and
+          official_candidate_id is null and
+          write_in_candidate_id is null and
+          is_invalid = 0
+        ${WRITE_IN_QUEUE_ORDER_BY}
+        limit 1
+      `,
+      electionId,
+      contestId
+    ) as { cvr_id: Id } | undefined;
+    debug('queried database for first pending write-in cvr id');
+
+    return row?.cvr_id;
+  }
+
   /**
    * Gets write-in tallies specifically for tabulation, filtered and and
    * grouped by cast vote record attributes.
@@ -2214,7 +2249,7 @@ export class Store {
   }
 
   /**
-   * @deprecated Gets write-in record adjudication queue for a specific contest.
+   * Gets write-in record adjudication queue for a specific contest.
    */
   getWriteInAdjudicationQueue({
     electionId,
@@ -2251,41 +2286,6 @@ export class Store {
     debug('queried database for write-in adjudication queue');
 
     return rows.map((r) => r.id);
-  }
-
-  getFirstPendingWriteInCvrId({
-    electionId,
-    contestId,
-  }: {
-    electionId: Id;
-    contestId: ContestId;
-  }): Optional<Id> {
-    this.assertElectionExists(electionId);
-
-    debug(
-      'querying database for first pending write-in cvr id for contest %s',
-      contestId
-    );
-    const row = this.client.one(
-      `
-        select
-          cvr_id
-        from write_ins
-        where
-          election_id = ? and
-          contest_id = ? and
-          official_candidate_id is null and
-          write_in_candidate_id is null and
-          is_invalid = 0
-        ${WRITE_IN_QUEUE_ORDER_BY}
-        limit 1
-      `,
-      electionId,
-      contestId
-    ) as { cvr_id: Id } | undefined;
-    debug('queried database for first pending write-in cvr id');
-
-    return row?.cvr_id;
   }
 
   /**

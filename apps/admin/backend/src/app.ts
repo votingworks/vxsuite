@@ -674,15 +674,6 @@ function buildApi({
       });
     },
 
-    getWriteInAdjudicationContext(input: {
-      writeInId: string;
-    }): WriteInAdjudicationContext {
-      return getWriteInAdjudicationContext({
-        store: workspace.store,
-        writeInId: input.writeInId,
-      });
-    },
-
     getWriteInCandidates(
       input: {
         contestId?: ContestId;
@@ -708,6 +699,15 @@ function buildApi({
       writeInId: string;
     }): Promise<WriteInImageView> {
       return getWriteInImageView({
+        store: workspace.store,
+        writeInId: input.writeInId,
+      });
+    },
+
+    getWriteInAdjudicationContext(input: {
+      writeInId: string;
+    }): WriteInAdjudicationContext {
+      return getWriteInAdjudicationContext({
         store: workspace.store,
         writeInId: input.writeInId,
       });
