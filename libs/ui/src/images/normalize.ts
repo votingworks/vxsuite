@@ -55,7 +55,7 @@ export type ImageType = (typeof SUPPORTED_MIME_TYPES)[number];
  * encoding as the original.
  *
  * If minimum dimensions are specified, an error is returned for images that
- * fall below the given thresholds (see {@link NormlaizeError}).
+ * fall below the given thresholds (see {@link NormalizeError}).
  */
 export async function normalizeDataUrl(
   imageDataUrl: string,
@@ -66,6 +66,8 @@ export async function normalizeDataUrl(
 
   const img = new Image();
   async function onLoad() {
+    img.removeEventListener('error', onError);
+
     if (params.minHeightPx && img.height < params.minHeightPx) {
       resolve(err({ code: 'belowMinHeight', heightPx: img.height }));
     }
@@ -108,7 +110,23 @@ export async function normalizeDataUrl(
     }
   }
 
+  function onError(event: ErrorEvent) {
+    img.removeEventListener('load', onLoad);
+
+    if (event.error instanceof Error) {
+      return resolve(err({ code: 'unexpected', error: event.error }));
+    }
+
+    return resolve(
+      err({
+        code: 'unexpected',
+        error: new Error(`Error while decoding image for resize`),
+      })
+    );
+  }
+
   img.addEventListener('load', onLoad, { once: true });
+  img.addEventListener('error', onError, { once: true });
   img.src = imageDataUrl;
 
   return promise;
@@ -141,6 +159,8 @@ async function serialize(blob: Blob): Promise<string> {
   const reader = new FileReader();
 
   function onRead() {
+    reader.removeEventListener('error', onError);
+
     if (typeof reader.result !== 'string') {
       return reject(
         new Error(`Expected image data URL, got ${typeof reader.result}`)
@@ -150,7 +170,18 @@ async function serialize(blob: Blob): Promise<string> {
     resolve(reader.result);
   }
 
+  function onError(event: ProgressEvent<FileReader>) {
+    reader.removeEventListener('load', onRead);
+
+    if (event.target?.error) {
+      return reject(event.target?.error);
+    }
+
+    reject(new Error('Error while serializing image data'));
+  }
+
   reader.addEventListener('load', onRead, { once: true });
+  reader.addEventListener('error', onError, { once: true });
   reader.readAsDataURL(blob);
 
   return promise;

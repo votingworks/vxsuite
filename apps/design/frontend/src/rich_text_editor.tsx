@@ -115,7 +115,6 @@ const LETTER_PAGE_WIDTH_INCHES = 8.5;
 const NORMALIZE_PARAMS: Readonly<images.NormalizeParams> = {
   maxHeightPx: (LETTER_PAGE_HEIGHT_INCHES - 3) * PDF_PIXELS_PER_INCH,
   maxWidthPx: (LETTER_PAGE_WIDTH_INCHES - 2) * PDF_PIXELS_PER_INCH,
-  minWidthPx: 1 * PDF_PIXELS_PER_INCH,
 };
 
 function Toolbar({ editor }: { editor: Editor }) {
