@@ -237,7 +237,7 @@ documentationMessage = "A system action failed to read a file from disk."
 [DmVerityBoot]
 eventId = "dmverity-boot"
 eventType = "system-status"
-documentationMessage = "The system booted with dm-verity enabled."
+documentationMessage = "The system either successfully booted with dm-verity enabled or failed to do so, as indicated by the disposition."
 
 [MachineBootInit]
 eventId = "machine-boot-init"
