@@ -19,16 +19,11 @@ async function allowRealTimeToPass() {
   vitest.advanceTimersByTime(200);
 }
 
-function mockElectionManagerAuth(
-  auth: DippedSmartCardAuthApi
-  // election: Election
-) {
+function mockElectionManagerAuth(auth: DippedSmartCardAuthApi) {
   vi.mocked(auth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_in',
-      user: mockElectionManagerUser({
-        // electionKey: constructElectionKey(electionDefinition.election),
-      }),
+      user: mockElectionManagerUser({}),
       sessionExpiresAt: mockSessionExpiresAt(),
     })
   );
