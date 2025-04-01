@@ -1,5 +1,5 @@
 import type Express from 'express';
-import { isObject, isString } from '@votingworks/basics';
+import { isObject, isPlainObject, isString } from '@votingworks/basics';
 import { rootDebug } from './debug';
 import { serialize, deserialize } from './serialization';
 
@@ -9,7 +9,8 @@ const debug = rootDebug.extend('server');
  * A Grout RPC method.
  *
  * A method must take either no arguments or a single object argument (which
- * is intended to be used as a dictionary of named parameters). It may be either
+ * is intended to be used as a dictionary of named parameters) as well as an
+ * optional context argument (to be filled in by middleware). It may be either
  * sync or async (i.e. return a plain value or a Promise).
  *
  * Method input and output values must be serializable to JSON and
@@ -18,7 +19,7 @@ const debug = rootDebug.extend('server');
  * specifics.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type AnyRpcMethod = (input: any) => any;
+export type AnyRpcMethod = (input: any, context?: any) => any;
 // Notes(jonah):
 // - We can't enforce the constraints on method input at compile time, because
 //  function argument subtyping is contravariant, meaning that for an RPC method to
@@ -27,13 +28,15 @@ export type AnyRpcMethod = (input: any) => any;
 //  but I couldn't figure it out. Instead I opted to just put in runtime checks
 //  during serialization/deserialization.
 //
-// - There are a few reasons behind having one single input argument object:
-//   - Input parameters will be named in the serialized JSON, which will
-//   hopefully make it more human-readable and ease debugging.
-//   - If we ever need to extend Grout to inject extra metadata into the RPC
-//   methods (e.g. accessing the current user via req.session), we can extend
-//   the input object with special fields. It's less straightforward to do this
-//   with a list of arguments.
+// - Having one single input argument object means that input parameters will be
+//  named in the serialized JSON, which will hopefully make it more
+//  human-readable and ease debugging.
+
+/**
+ * Base type for any context object created by middleware (to be passed to the
+ * RPC method).
+ */
+export type AnyContext = object;
 
 /**
  * Base type for any method dictionary passed to createApi.
@@ -45,24 +48,57 @@ export interface AnyMethods {
 /**
  * Type for a specific API definition returned by createApi.
  */
-export type Api<Methods extends AnyMethods> = Methods;
+export interface Api<Methods extends AnyMethods, Context extends AnyContext> {
+  methods: Methods;
+  middlewares?: Array<Middleware<Context>>;
+}
 
 /**
  * Base type for any API definition.
  */
-export type AnyApi = Api<AnyMethods>;
+export type AnyApi = Api<AnyMethods, AnyContext>;
 
 /**
  * Helper to extract the method types from an API definition type
  */
 export type inferApiMethods<SomeApi extends AnyApi> = SomeApi extends Api<
-  infer Methods
+  infer Methods,
+  AnyContext
 >
   ? Methods
   : never;
 
 /**
- * Creates a Grout API definition from a dictionary of methods.
+ * Info about a method call that is passed to middleware.
+ */
+export interface MiddlewareMethodCall<Context extends AnyContext> {
+  methodName: string;
+  input: unknown;
+  /**
+   * When a given middleware is called, the Context fields may not have been
+   * filled out by other middleware yet, so we can't get any guarantees from the
+   * type system.
+   */
+  context: Partial<Context>;
+}
+
+/**
+ * A function that can be run before the RPC method when it's called. Example applications:
+ * - Authentication/loading user data
+ * - Logging
+ *
+ * Middleware functions are run in sequence. Each middleware can extend and
+ * return the context object, which will be passed to the next middleware (and
+ * eventually, to the RPC method). If a middleware function returns void, the
+ * context will be unchanged.
+ */
+export type Middleware<Context extends AnyContext> = (
+  methodCall: MiddlewareMethodCall<Context>
+) => Context | void | Promise<Context | void>;
+
+/**
+ * Creates a Grout API definition from a dictionary of methods and array of
+ * middleware.
  *
  * Example:
  *
@@ -70,16 +106,20 @@ export type inferApiMethods<SomeApi extends AnyApi> = SomeApi extends Api<
  *    async sayHello({ name }: { name: string }): Promise<string> {
  *      return `Hello, ${name}!`;
  *    },
- *  })
+ *  }, [logApiCall])
  *
  */
-export function createApi<Methods extends AnyMethods>(
-  methods: Methods
-): Api<Methods> {
+export function createApi<
+  Methods extends AnyMethods,
+  Context extends AnyContext,
+>(
+  methods: Methods,
+  middlewares?: Array<Middleware<Context>>
+): Api<Methods, Context> {
   // Currently, we don't to actually need to do anything with the methods. By
-  // calling createApi, we're able to infer their type into TMethods, which the
+  // calling createApi, we're able to infer their type into Methods, which the
   // client can use.
-  return methods;
+  return { methods, middlewares };
 }
 
 /**
@@ -93,7 +133,7 @@ export class GroutError extends Error {}
  * API. This allows you to easily mount the Grout API within a larger Express
  * app like so:
  *
- *  const api = createApi({ ... methods ... });
+ *  const api = createApi({ ... methods ... }, middlewares);
  *  const app = express();
  *  app.use('/api', buildRouter(api, express));
  *
@@ -127,7 +167,9 @@ export function buildRouter(
     })
   );
 
-  for (const [methodName, method] of Object.entries<AnyRpcMethod>(api)) {
+  for (const [methodName, method] of Object.entries<AnyRpcMethod>(
+    api.methods
+  )) {
     const path = `/${methodName}`;
     debug(`Registering route: ${path}`);
 
@@ -158,7 +200,25 @@ export function buildRouter(
           );
         }
 
-        const result = await method(input);
+        let context: AnyContext = {};
+        for (const middleware of api.middlewares ?? []) {
+          const result = await middleware({
+            methodName,
+            input,
+            context,
+          });
+          if (result !== undefined) {
+            if (!isPlainObject(result)) {
+              throw new GroutError(
+                'Middleware must return a context object or undefined. ' +
+                  `The result was: ${JSON.stringify(result)}`
+              );
+            }
+            context = result;
+          }
+        }
+
+        const result = await method(input, context);
         const jsonResult = serialize(result);
         debug(`Result: ${jsonResult}`);
 

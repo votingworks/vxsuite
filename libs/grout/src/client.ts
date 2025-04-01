@@ -9,7 +9,9 @@ const debug = rootDebug.extend('client');
  * Wraps a method's return type in a Promise if it isn't already a Promise.
  */
 export type AsyncRpcMethod<Method extends AnyRpcMethod> = (
-  ...args: Parameters<Method>
+  ...args: Parameters<Method>[0] extends undefined
+    ? []
+    : [input: Parameters<Method>[0]]
 ) => Promise<Awaited<ReturnType<Method>>>;
 
 /**
