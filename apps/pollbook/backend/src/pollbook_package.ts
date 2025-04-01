@@ -40,6 +40,64 @@ export enum PollbookPackageFileName {
   STREET_NAMES = 'streetNames.csv',
 }
 
+export function parseValidStreetsFromCsvString(
+  csvString: string
+): ValidStreetInfo[] {
+  return parse(csvString, {
+    columns: (header) => header.map(toCamelCase),
+    skipEmptyLines: true,
+    onRecord: (record): ValidStreetInfo | null => {
+      // Filter out metadata row at the end
+      if (!record.streetName) {
+        return null;
+      }
+      const street: ValidStreetInfo = record;
+      return {
+        ...street,
+        lowRange: safeParseInt(street.lowRange).unsafeUnwrap(),
+        highRange: safeParseInt(street.highRange).unsafeUnwrap(),
+        side: street.side.toLowerCase() as StreetSide,
+      };
+    },
+  });
+}
+
+export function parseVotersFromCsvString(csvString: string): Voter[] {
+  let voters: Voter[] = parse(csvString, {
+    columns: (header) => header.map(toCamelCase),
+    skipEmptyLines: true,
+    onRecord: (record): Voter | null => {
+      // Filter out metadata row at the end
+      if (!record.voterId) {
+        return null;
+      }
+      const postalZip5 = record.postalZip5 ?? record.zip5;
+      const mailingCityTown = record.mailingCityTown ?? record.mailingTown;
+      const voter: Voter = record;
+      return {
+        ...voter,
+        // Add leading zeros to zip codes if necessary
+        postalZip5: postalZip5 && postalZip5.padStart(5, '0'),
+        zip4: voter.zip4 && voter.zip4.padStart(4, '0'),
+        mailingZip5: voter.mailingZip5 && voter.mailingZip5.padStart(5, '0'),
+        mailingZip4: voter.mailingZip4 && voter.mailingZip4.padStart(4, '0'),
+        mailingCityTown,
+      };
+    },
+  });
+  // Add leading zeros to voter IDs, ensuring they all end up the same length
+  const maxVoterIdLength = assertDefined(
+    iter(voters)
+      .map(({ voterId }) => voterId.length)
+      .max()
+  );
+  voters = voters.map((voter) => ({
+    ...voter,
+    voterId: voter.voterId.padStart(maxVoterIdLength, '0'),
+  }));
+  return voters;
+}
+
 async function readPollbookPackage(
   path: string
 ): Promise<Result<PollbookPackage, ReadFileError>> {
@@ -78,38 +136,7 @@ async function readPollbookPackage(
       zipName
     );
     const votersCsvString = await readTextEntry(votersEntry);
-    let voters: Voter[] = parse(votersCsvString, {
-      columns: (header) => header.map(toCamelCase),
-      skipEmptyLines: true,
-      onRecord: (record): Voter | null => {
-        // Filter out metadata row at the end
-        if (!record.voterId) {
-          return null;
-        }
-        const postalZip5 = record.postalZip5 ?? record.zip5;
-        const mailingCityTown = record.mailingCityTown ?? record.mailingTown;
-        const voter: Voter = record;
-        return {
-          ...voter,
-          // Add leading zeros to zip codes if necessary
-          postalZip5: postalZip5 && postalZip5.padStart(5, '0'),
-          zip4: voter.zip4 && voter.zip4.padStart(4, '0'),
-          mailingZip5: voter.mailingZip5 && voter.mailingZip5.padStart(5, '0'),
-          mailingZip4: voter.mailingZip4 && voter.mailingZip4.padStart(4, '0'),
-          mailingCityTown,
-        };
-      },
-    });
-    // Add leading zeros to voter IDs, ensuring they all end up the same length
-    const maxVoterIdLength = assertDefined(
-      iter(voters)
-        .map(({ voterId }) => voterId.length)
-        .max()
-    );
-    voters = voters.map((voter) => ({
-      ...voter,
-      voterId: voter.voterId.padStart(maxVoterIdLength, '0'),
-    }));
+    const voters = parseVotersFromCsvString(votersCsvString);
 
     const streetsEntry = getFileByName(
       entries,
@@ -117,23 +144,7 @@ async function readPollbookPackage(
       zipName
     );
     const streetCsvString = await readTextEntry(streetsEntry);
-    const validStreets: ValidStreetInfo[] = parse(streetCsvString, {
-      columns: (header) => header.map(toCamelCase),
-      skipEmptyLines: true,
-      onRecord: (record): ValidStreetInfo | null => {
-        // Filter out metadata row at the end
-        if (!record.streetName) {
-          return null;
-        }
-        const street: ValidStreetInfo = record;
-        return {
-          ...street,
-          lowRange: safeParseInt(street.lowRange).unsafeUnwrap(),
-          highRange: safeParseInt(street.highRange).unsafeUnwrap(),
-          side: street.side.toLowerCase() as StreetSide,
-        };
-      },
-    });
+    const validStreets = parseValidStreetsFromCsvString(streetCsvString);
 
     return ok({ electionDefinition, voters, validStreets });
   } catch (error) {
@@ -191,15 +202,15 @@ export function pollUsbDriveForPollbookPackage({
           const result = pollbookPackageResult.err();
           debug('Read pollbook package error: %O', result);
           if (
-            result.type === 'OpenFileError' &&
-            'code' in result.error &&
-            result.error.code === 'ENOENT'
+            result.type === 'ReadFileError' ||
+            (result.type === 'OpenFileError' &&
+              'code' in result.error &&
+              result.error.code === 'ENOENT')
           ) {
             workspace.store.setConfigurationStatus('not-found');
           } else {
             throw result;
           }
-          workspace.store.setConfigurationStatus('not-found');
           return;
         }
 
