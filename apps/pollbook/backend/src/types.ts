@@ -1,12 +1,6 @@
-import { DateWithoutTime } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import z from 'zod';
-import {
-  CountySchema,
-  ElectionIdSchema,
-  PrinterStatus,
-  Election as VxSuiteElection,
-} from '@votingworks/types';
+import { PrinterStatus, ElectionDefinition } from '@votingworks/types';
 import { BatteryInfo } from '@votingworks/backend';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { DippedSmartCardAuthApi } from '@votingworks/auth';
@@ -31,35 +25,6 @@ export interface Workspace {
   assetDirectoryPath: string;
   store: Store;
 }
-
-export type Election = Pick<
-  VxSuiteElection,
-  'id' | 'title' | 'date' | 'precincts' | 'county' | 'state' | 'seal'
->;
-
-export const ElectionSchema: z.ZodSchema<
-  Election,
-  z.ZodTypeDef,
-  Omit<Election, 'date'> & { date: string }
-> = z.object({
-  id: ElectionIdSchema,
-  title: z.string(),
-  date: z
-    .string()
-    .date()
-    .transform((date) => new DateWithoutTime(date)),
-  precincts: z
-    .array(
-      z.object({
-        id: z.string(),
-        name: z.string(),
-      })
-    )
-    .min(1),
-  county: CountySchema,
-  state: z.string(),
-  seal: z.string(),
-});
 
 export enum EventType {
   VoterCheckIn = 'VoterCheckIn',
@@ -335,7 +300,7 @@ export const ValidStreetInfoSchema: z.ZodSchema<ValidStreetInfo[]> = z.array(
 );
 
 export interface PollbookPackage {
-  election: Election;
+  electionDefinition: ElectionDefinition;
   voters: Voter[];
   validStreets: ValidStreetInfo[];
 }

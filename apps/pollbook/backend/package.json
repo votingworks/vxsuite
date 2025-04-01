@@ -73,6 +73,7 @@
     "@vitest/coverage-istanbul": "^2.1.8",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
+    "@votingworks/test-utils": "workspace:*",
     "esbuild": "0.21.2",
     "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",

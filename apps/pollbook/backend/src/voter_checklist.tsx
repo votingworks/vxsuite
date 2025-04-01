@@ -10,7 +10,8 @@ import JsBarcode from 'jsbarcode';
 import { format } from '@votingworks/utils';
 import React from 'react';
 import { iter, range } from '@votingworks/basics';
-import { Election, Voter, VoterGroup } from './types';
+import { Election } from '@votingworks/types';
+import { Voter, VoterGroup } from './types';
 
 const ROWS_PER_PAGE = 16;
 

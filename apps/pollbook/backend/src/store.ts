@@ -9,15 +9,18 @@ import {
   throwIllegalValue,
   typedAs,
 } from '@votingworks/basics';
-import { safeParseInt, safeParseJson } from '@votingworks/types';
+import {
+  Election,
+  safeParseElection,
+  safeParseInt,
+  safeParseJson,
+} from '@votingworks/types';
 import { asSqliteBool, fromSqliteBool, SqliteBool } from '@votingworks/utils';
 import { customAlphabet } from 'nanoid';
 import { rootDebug } from './debug';
 import {
   PollbookEvent,
   ConfigurationStatus,
-  Election,
-  ElectionSchema,
   EventDbRow,
   EventType,
   PollbookConnectionStatus,
@@ -401,9 +404,8 @@ export class Store {
       if (!row) {
         return undefined;
       }
-      const election: Election = safeParseJson(
-        row.election_data,
-        ElectionSchema
+      const election: Election = safeParseElection(
+        row.election_data
       ).unsafeUnwrap();
       this.election = election;
 
