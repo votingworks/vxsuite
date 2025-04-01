@@ -1,4 +1,11 @@
-import { DateWithoutTime, Optional, assert, find } from '@votingworks/basics';
+import {
+  DateWithoutTime,
+  Optional,
+  assert,
+  assertDefined,
+  throwIllegalValue,
+  typedAs,
+} from '@votingworks/basics';
 import {
   Id,
   Iso8601Timestamp,
@@ -20,6 +27,13 @@ import {
   Party,
   AnyContest,
   HmpbBallotPaperSize,
+  NhPrecinctSplitOptions,
+  Candidate,
+  CandidateId,
+  PartyId,
+  YesNoContest,
+  CandidateContest,
+  ElectionType,
 } from '@votingworks/types';
 import { v4 as uuid } from 'uuid';
 import { BaseLogger } from '@votingworks/logging';
@@ -29,10 +43,12 @@ import {
   BallotOrderInfoSchema,
   BallotStyle,
   convertToVxfBallotStyle,
+  ElectionInfo,
+  ElectionListing,
 } from './types';
 import { generateBallotStyles } from './ballot_styles';
 import { Db } from './db/db';
-import { Bindable } from './db/client';
+import { Bindable, Client } from './db/client';
 
 export interface ElectionRecord {
   orgId: string;
@@ -102,78 +118,247 @@ export interface BackgroundTaskMetadata {
   url?: string;
 }
 
-function hydrateElection(row: {
-  id: string;
-  electionData: string;
-  precinctData: string;
-  systemSettingsData: string;
-  ballotOrderInfoData: string;
-  createdAt: Date;
-  ballotTemplateId: BallotTemplateId;
-  ballotsFinalizedAt: Date | null;
-  orgId: string;
-  ballotLanguageCodes: LanguageCode[];
-}): ElectionRecord {
-  const ballotLanguageConfigs = row.ballotLanguageCodes.map(
-    (l): BallotLanguageConfig => ({ languages: [l] })
-  );
-  const rawElection = JSON.parse(row.electionData);
-  const precincts: SplittablePrecinct[] = JSON.parse(row.precinctData);
-  const ballotStyles = generateBallotStyles({
-    ballotLanguageConfigs,
-    contests: rawElection.contests,
-    electionType: rawElection.type,
-    parties: rawElection.parties,
-    precincts,
-  });
-  // Fill in our precinct/ballot style overrides in the VXF election format.
-  // This is important for pieces of the code that rely on the VXF election
-  // (e.g. rendering ballots)
-  const election: Election = {
-    ...rawElection,
-    date: new DateWithoutTime(rawElection.date),
-    precincts: precincts.map((precinct) => ({
-      id: precinct.id,
-      name: precinct.name,
-    })),
-    ballotStyles: ballotStyles.map(convertToVxfBallotStyle),
-  };
-
-  const systemSettings = safeParseSystemSettings(
-    row.systemSettingsData
-  ).unsafeUnwrap();
-
-  const ballotOrderInfo = safeParseJson(
-    row.ballotOrderInfoData,
-    BallotOrderInfoSchema
-  ).unsafeUnwrap();
-
-  return {
-    election,
-    precincts,
-    ballotStyles,
-    systemSettings,
-    ballotOrderInfo,
-    ballotTemplateId: row.ballotTemplateId,
-    createdAt: row.createdAt.toISOString(),
-    ballotLanguageConfigs,
-    ballotsFinalizedAt: row.ballotsFinalizedAt,
-    orgId: row.orgId,
-  };
+/**
+ * Ensures that the given function is called within a transaction by querying
+ * the database (only in non-production environments). Useful for any helper
+ * function that groups multiple database operations together.
+ */
+async function assertWithinTransaction(client: Client): Promise<void> {
+  if (process.env.NODE_ENV !== 'production') {
+    const { isInTransaction } = (
+      await client.query(
+        'select now() != statement_timestamp() as "isInTransaction"'
+      )
+    ).rows[0];
+    assert(isInTransaction, 'Expected to be within a transaction');
+  }
 }
 
-function validatePrecinctDistrictIds(
-  precinct: SplittablePrecinct,
-  districts: readonly District[]
+async function insertDistrict(
+  client: Client,
+  electionId: ElectionId,
+  district: District
 ) {
-  const districtIds = new Set(districts.map((d) => d.id));
-  const precinctDistrictIds = hasSplits(precinct)
-    ? precinct.splits.flatMap((split) => split.districtIds)
-    : precinct.districtIds;
-  assert(
-    precinctDistrictIds.every((id) => districtIds.has(id)),
-    'Precinct contains invalid district IDs'
+  await client.query(
+    `
+      insert into districts (
+        id,
+        election_id,
+        name
+      )
+      values ($1, $2, $3)
+    `,
+    district.id,
+    electionId,
+    district.name
   );
+}
+
+async function insertPrecinct(
+  client: Client,
+  electionId: ElectionId,
+  precinct: SplittablePrecinct
+) {
+  await assertWithinTransaction(client);
+  await client.query(
+    `
+      insert into precincts (
+        id,
+        election_id,
+        name
+      )
+      values ($1, $2, $3)
+    `,
+    precinct.id,
+    electionId,
+    precinct.name
+  );
+  if (hasSplits(precinct)) {
+    for (const split of precinct.splits) {
+      const { id: splitId, name, districtIds, ...nhOptions } = split;
+      await client.query(
+        `
+          insert into precinct_splits (
+            id,
+            precinct_id,
+            name,
+            nh_options
+          )
+          values ($1, $2, $3, $4)
+        `,
+        splitId,
+        precinct.id,
+        name,
+        JSON.stringify(nhOptions)
+      );
+      for (const districtId of districtIds) {
+        await client.query(
+          `
+          insert into districts_precinct_splits (
+            district_id,
+            precinct_split_id
+          )
+          values ($1, $2)
+        `,
+          districtId,
+          splitId
+        );
+      }
+    }
+  } else {
+    for (const districtId of precinct.districtIds) {
+      await client.query(
+        `
+          insert into districts_precincts (
+            district_id,
+            precinct_id
+          )
+          values ($1, $2)
+        `,
+        districtId,
+        precinct.id
+      );
+    }
+  }
+}
+
+async function insertParty(
+  client: Client,
+  electionId: ElectionId,
+  party: Party
+) {
+  await client.query(
+    `
+      insert into parties (
+        id,
+        election_id,
+        name,
+        full_name,
+        abbrev
+      )
+      values ($1, $2, $3, $4, $5)
+    `,
+    party.id,
+    electionId,
+    party.name,
+    party.fullName,
+    party.abbrev
+  );
+}
+
+async function insertContest(
+  client: Client,
+  electionId: ElectionId,
+  contest: AnyContest,
+  ballotOrder?: number
+) {
+  await assertWithinTransaction(client);
+  switch (contest.type) {
+    case 'candidate': {
+      await client.query(
+        `
+          insert into contests (
+            id,
+            election_id,
+            title,
+            type,
+            district_id,
+            seats,
+            allow_write_ins,
+            party_id,
+            term_description,
+            ballot_order
+          )
+          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, ${
+            ballotOrder ? '$10' : 'DEFAULT'
+          })
+        `,
+        contest.id,
+        electionId,
+        contest.title,
+        contest.type,
+        contest.districtId,
+        contest.seats,
+        contest.allowWriteIns,
+        contest.partyId,
+        contest.termDescription,
+        ...(ballotOrder ? [ballotOrder] : [])
+      );
+      for (const candidate of contest.candidates) {
+        await client.query(
+          `
+            insert into candidates (
+              id,
+              contest_id,
+              first_name,
+              middle_name,
+              last_name
+            )
+            values ($1, $2, $3, $4, $5)
+          `,
+          candidate.id,
+          contest.id,
+          candidate.firstName,
+          candidate.middleName,
+          candidate.lastName
+        );
+        for (const partyId of candidate.partyIds ?? []) {
+          await client.query(
+            `
+              insert into candidates_parties (
+                candidate_id,
+                party_id
+              )
+              values ($1, $2)
+            `,
+            candidate.id,
+            partyId
+          );
+        }
+      }
+      break;
+    }
+
+    case 'yesno': {
+      await client.query(
+        `
+          insert into contests (
+            id,
+            election_id,
+            title,
+            type,
+            district_id,
+            description,
+            yes_option_id,
+            yes_option_label,
+            no_option_id,
+            no_option_label,
+            ballot_order
+          )
+          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, ${
+            ballotOrder ? '$11' : 'DEFAULT'
+          })
+        `,
+        contest.id,
+        electionId,
+        contest.title,
+        contest.type,
+        contest.districtId,
+        contest.description,
+        contest.yesOption.id,
+        contest.yesOption.label,
+        contest.noOption.id,
+        contest.noOption.label,
+        ...(ballotOrder ? [ballotOrder] : [])
+      );
+      break;
+    }
+
+    default: {
+      /* istanbul ignore next - @preserve */
+      throwIllegalValue(contest);
+    }
+  }
 }
 
 export class Store {
@@ -183,7 +368,9 @@ export class Store {
     return new Store(new Db(logger));
   }
 
-  async listElections(input: { orgId?: string }): Promise<ElectionRecord[]> {
+  async listElections(input: {
+    orgId?: string;
+  }): Promise<Array<Omit<ElectionListing, 'orgName'>>> {
     let whereClause = '';
     const params: Bindable[] = [];
 
@@ -199,53 +386,72 @@ export class Store {
             await client.query(
               `
               select
-                id,
-                org_id as "orgId",
-                election_data as "electionData",
-                system_settings_data as "systemSettingsData",
-                ballot_order_info_data as "ballotOrderInfoData",
-                precinct_data as "precinctData",
-                ballot_template_id as "ballotTemplateId",
-                ballots_finalized_at as "ballotsFinalizedAt",
-                created_at as "createdAt",
-                ballot_language_codes as "ballotLanguageCodes"
+                elections.id as "electionId",
+                elections.org_id as "orgId",
+                elections.type,
+                elections.title,
+                elections.date,
+                elections.jurisdiction,
+                elections.state,
+                elections.ballots_finalized_at as "ballotsFinalizedAt",
+                elections.ballot_order_info_data as "ballotOrderInfoData",
+                count(contests.id)::int as "contestCount"
               from elections
+              left join contests on elections.id = contests.election_id
               ${whereClause}
-              order by created_at desc
-            `,
+              group by elections.id
+              order by elections.created_at desc
+              `,
               ...params
             )
-          ).rows as Array<{
-            id: string;
-            orgId: string;
-            electionData: string;
-            systemSettingsData: string;
-            ballotOrderInfoData: string;
-            precinctData: string;
-            ballotTemplateId: BallotTemplateId;
-            ballotsFinalizedAt: Date | null;
-            createdAt: Date;
-            ballotLanguageCodes: LanguageCode[];
-          }>
+          ).rows as Array<
+            Omit<ElectionListing, 'orgName' | 'status'> & {
+              date: Date;
+              ballotsFinalizedAt: Date | null;
+              ballotOrderInfoData: string;
+              contestCount: number;
+            }
+          >
       )
-    ).map((row) =>
-      hydrateElection({
-        ...row,
-      })
-    );
+    ).map((row) => ({
+      electionId: row.electionId,
+      orgId: row.orgId,
+      type: row.type,
+      title: row.title,
+      date: new DateWithoutTime(row.date.toISOString().split('T')[0]),
+      jurisdiction: row.jurisdiction,
+      state: row.state,
+      status: (() => {
+        if (row.contestCount === 0) {
+          return 'notStarted';
+        }
+        if (!row.ballotsFinalizedAt) {
+          return 'inProgress';
+        }
+        if (row.ballotOrderInfoData === '{}') {
+          return 'ballotsFinalized';
+        }
+        return 'orderSubmitted';
+      })(),
+    }));
   }
 
   async getElection(electionId: ElectionId): Promise<ElectionRecord> {
-    const electionRow = (
-      await this.db.withClient((client) =>
-        client.query(
+    return await this.db.withClient(async (client) => {
+      const electionRow = (
+        await client.query(
           `
             select
               org_id as "orgId",
-              election_data as "electionData",
+              type,
+              title,
+              date,
+              jurisdiction,
+              state,
+              seal,
               system_settings_data as "systemSettingsData",
               ballot_order_info_data as "ballotOrderInfoData",
-              precinct_data as "precinctData",
+              ballot_paper_size as "ballotPaperSize",
               ballot_template_id as "ballotTemplateId",
               ballots_finalized_at as "ballotsFinalizedAt",
               created_at as "createdAt",
@@ -255,22 +461,296 @@ export class Store {
           `,
           electionId
         )
-      )
-    ).rows[0] as {
-      orgId: string;
-      electionData: string;
-      systemSettingsData: string;
-      ballotOrderInfoData: string;
-      precinctData: string;
-      ballotTemplateId: BallotTemplateId;
-      ballotsFinalizedAt: Date | null;
-      createdAt: Date;
-      ballotLanguageCodes: LanguageCode[];
-    };
-    assert(electionRow !== undefined);
-    return hydrateElection({
-      id: electionId,
-      ...electionRow,
+      ).rows[0] as {
+        orgId: string;
+        type: ElectionType;
+        title: string;
+        date: Date;
+        jurisdiction: string;
+        state: string;
+        seal: string;
+        systemSettingsData: string;
+        ballotOrderInfoData: string;
+        ballotPaperSize: HmpbBallotPaperSize;
+        ballotTemplateId: BallotTemplateId;
+        ballotsFinalizedAt: Date | null;
+        createdAt: Date;
+        ballotLanguageCodes: LanguageCode[];
+      };
+      assert(electionRow, 'Election not found');
+
+      const districts = (
+        await client.query(
+          `
+            select
+              id,
+              name
+            from districts
+            where election_id = $1
+            order by name
+          `,
+          electionId
+        )
+      ).rows as District[];
+
+      const precinctRows = (
+        await client.query(
+          `
+            select
+              id,
+              name,
+              array_remove(array_agg(district_id ORDER BY district_id), NULL) as "districtIds"
+            from precincts
+            left join districts_precincts on districts_precincts.precinct_id = precincts.id
+            where election_id = $1
+            group by precincts.id
+            order by precincts.name
+          `,
+          electionId
+        )
+      ).rows as Array<{
+        id: PrecinctId;
+        name: string;
+        districtIds: DistrictId[];
+      }>;
+      const precinctSplitRows = (
+        await client.query(
+          `
+            select
+              precinct_splits.id,
+              precinct_id as "precinctId",
+              precinct_splits.name,
+              nh_options as "nhOptions",
+              array_remove(array_agg(district_id ORDER BY district_id), NULL) as "districtIds"
+            from precinct_splits
+            join precincts on precinct_splits.precinct_id = precincts.id
+            left join districts_precinct_splits on districts_precinct_splits.precinct_split_id = precinct_splits.id
+            where precincts.election_id = $1
+            group by precinct_splits.id
+            order by precinct_splits.name
+          `,
+          electionId
+        )
+      ).rows as Array<{
+        id: string;
+        precinctId: PrecinctId;
+        name: string;
+        nhOptions: NhPrecinctSplitOptions;
+        districtIds: DistrictId[];
+      }>;
+      const precincts: SplittablePrecinct[] = precinctRows.map((row) => {
+        const splits = precinctSplitRows
+          .filter((split) => split.precinctId === row.id)
+          .map((split) => ({
+            id: split.id,
+            name: split.name,
+            districtIds: split.districtIds,
+            ...split.nhOptions,
+          }));
+        return splits.length > 0
+          ? { id: row.id, name: row.name, splits }
+          : { id: row.id, name: row.name, districtIds: row.districtIds };
+      });
+
+      const parties = (
+        await client.query(
+          `
+            select
+              id,
+              name,
+              full_name as "fullName",
+              abbrev
+            from parties
+            where election_id = $1
+            order by name
+          `,
+          electionId
+        )
+      ).rows as Party[];
+
+      const contestRows = (
+        await client.query(
+          `
+            select
+              id,
+              title,
+              type,
+              district_id as "districtId",
+              seats,
+              allow_write_ins as "allowWriteIns",
+              party_id as "partyId",
+              term_description as "termDescription",
+              description,
+              yes_option_id as "yesOptionId",
+              yes_option_label as "yesOptionLabel",
+              no_option_id as "noOptionId",
+              no_option_label as "noOptionLabel"
+            from contests
+            where election_id = $1
+            order by ballot_order
+          `,
+          electionId
+        )
+      ).rows as Array<{
+        id: string;
+        title: string;
+        type: AnyContest['type'];
+        districtId: DistrictId;
+        seats: number | null;
+        allowWriteIns: boolean | null;
+        partyId: PartyId | null;
+        termDescription: string | null;
+        description: string | null;
+        yesOptionId: string | null;
+        yesOptionLabel: string | null;
+        noOptionId: string | null;
+        noOptionLabel: string | null;
+      }>;
+      const candidateRows = (
+        await client.query(
+          `
+            select
+              candidates.id,
+              contest_id as "contestId",
+              first_name as "firstName",
+              middle_name as "middleName",
+              last_name as "lastName",
+              array_remove(array_agg(candidates_parties.party_id ORDER BY candidates_parties.party_id), NULL) as "partyIds"
+            from candidates
+            join contests on candidates.contest_id = contests.id
+            left join candidates_parties on candidates_parties.candidate_id = candidates.id
+            where contests.election_id = $1
+            group by candidates.id
+            order by candidates.ballot_order
+          `,
+          electionId
+        )
+      ).rows as Array<{
+        id: CandidateId;
+        contestId: string;
+        firstName: string | null;
+        middleName: string | null;
+        lastName: string | null;
+        partyIds: PartyId[];
+      }>;
+      const contests: AnyContest[] = contestRows.map((row) => {
+        switch (row.type) {
+          case 'candidate': {
+            const candidates: Candidate[] = candidateRows
+              .filter((candidate) => candidate.contestId === row.id)
+              .map((candidate) => ({
+                id: candidate.id,
+                firstName: candidate.firstName || undefined,
+                middleName: candidate.middleName || undefined,
+                lastName: candidate.lastName || undefined,
+                name: [
+                  candidate.firstName,
+                  candidate.middleName,
+                  candidate.lastName,
+                ]
+                  .filter(Boolean)
+                  .join(' '),
+                partyIds:
+                  candidate.partyIds.length > 0
+                    ? candidate.partyIds
+                    : undefined,
+              }));
+            return typedAs<CandidateContest>({
+              id: row.id,
+              title: row.title,
+              type: row.type,
+              districtId: row.districtId,
+              seats: assertDefined(row.seats),
+              allowWriteIns: assertDefined(row.allowWriteIns),
+              partyId: row.partyId ?? undefined,
+              termDescription: row.termDescription ?? undefined,
+              candidates,
+            });
+          }
+          case 'yesno': {
+            return typedAs<YesNoContest>({
+              id: row.id,
+              title: row.title,
+              type: row.type,
+              districtId: row.districtId,
+              description: assertDefined(row.description),
+              yesOption: {
+                id: assertDefined(row.yesOptionId),
+                label: assertDefined(row.yesOptionLabel),
+              },
+              noOption: {
+                id: assertDefined(row.noOptionId),
+                label: assertDefined(row.noOptionLabel),
+              },
+            });
+          }
+          default: {
+            /* istanbul ignore next - @preserve */
+            return throwIllegalValue(row.type);
+          }
+        }
+      });
+
+      const ballotLanguageConfigs = electionRow.ballotLanguageCodes.map(
+        (l): BallotLanguageConfig => ({ languages: [l] })
+      );
+
+      const ballotStyles = generateBallotStyles({
+        ballotLanguageConfigs,
+        contests,
+        electionType: electionRow.type,
+        parties,
+        precincts,
+      });
+
+      // Fill in our precinct/ballot style overrides in the VXF election format.
+      // This is important for pieces of the code that rely on the VXF election
+      // (e.g. rendering ballots)
+      const election: Election = {
+        id: electionId,
+        type: electionRow.type,
+        title: electionRow.title,
+        date: new DateWithoutTime(electionRow.date.toISOString().split('T')[0]),
+        // County ID needs to be deterministic, but doesn't actually get used anywhere
+        county: { id: `${electionId}-county`, name: electionRow.jurisdiction },
+        state: electionRow.state,
+        seal: electionRow.seal,
+        districts,
+        precincts: precincts.map((precinct) => ({
+          id: precinct.id,
+          name: precinct.name,
+        })),
+        ballotStyles: ballotStyles.map(convertToVxfBallotStyle),
+        parties,
+        contests,
+        ballotLayout: {
+          paperSize: electionRow.ballotPaperSize,
+          metadataEncoding: 'qr-code',
+        },
+        ballotStrings: {},
+      };
+
+      const systemSettings = safeParseSystemSettings(
+        electionRow.systemSettingsData
+      ).unsafeUnwrap();
+
+      const ballotOrderInfo = safeParseJson(
+        electionRow.ballotOrderInfoData,
+        BallotOrderInfoSchema
+      ).unsafeUnwrap();
+
+      return {
+        election,
+        precincts,
+        ballotStyles,
+        systemSettings,
+        ballotOrderInfo,
+        ballotTemplateId: electionRow.ballotTemplateId,
+        createdAt: electionRow.createdAt.toISOString(),
+        ballotLanguageConfigs,
+        ballotsFinalizedAt: electionRow.ballotsFinalizedAt,
+        orgId: electionRow.orgId,
+      };
     });
   }
 
@@ -282,46 +762,68 @@ export class Store {
     systemSettings = DEFAULT_SYSTEM_SETTINGS
   ): Promise<void> {
     await this.db.withClient((client) =>
-      client.query(
-        `
+      client.withTransaction(async () => {
+        await client.query(
+          `
           insert into elections (
             id,
             org_id,
-            election_data,
-            system_settings_data,
-            ballot_order_info_data,
-            precinct_data,
+            type,
+            title,
+            date,
+            jurisdiction,
+            state,
+            seal,
+            ballot_paper_size,
             ballot_template_id,
-            ballot_language_codes
+            ballot_language_codes,
+            system_settings_data,
+            ballot_order_info_data
           )
-          values ($1, $2, $3, $4, $5, $6, $7, string_to_array($8, ','))
+          values (
+            $1,
+            $2,
+            $3,
+            $4,
+            $5,
+            $6,
+            $7,
+            $8,
+            $9,
+            $10,
+            $11,
+            $12,
+            $13
+          )
         `,
-        election.id,
-        orgId,
-        JSON.stringify(election),
-        JSON.stringify(systemSettings),
-        JSON.stringify({}),
-        JSON.stringify(precincts),
-        ballotTemplateId,
-        DEFAULT_LANGUAGE_CODES.join(',')
-      )
-    );
-  }
-
-  async updateElection(
-    electionId: ElectionId,
-    election: Election
-  ): Promise<void> {
-    await this.db.withClient((client) =>
-      client.query(
-        `
-          update elections
-          set election_data = $1
-          where id = $2
-        `,
-        JSON.stringify(election),
-        electionId
-      )
+          election.id,
+          orgId,
+          election.type,
+          election.title,
+          election.date.toISOString(),
+          election.county.name,
+          election.state,
+          election.seal,
+          election.ballotLayout.paperSize,
+          ballotTemplateId,
+          DEFAULT_LANGUAGE_CODES,
+          JSON.stringify(systemSettings),
+          JSON.stringify({})
+        );
+        for (const district of election.districts) {
+          await insertDistrict(client, election.id, district);
+        }
+        for (const precinct of precincts) {
+          await insertPrecinct(client, election.id, precinct);
+        }
+        for (const party of election.parties) {
+          await insertParty(client, election.id, party);
+        }
+        for (const contest of election.contests) {
+          await insertContest(client, election.id, contest);
+        }
+        return true;
+      })
     );
   }
 
@@ -394,6 +896,34 @@ export class Store {
     );
   }
 
+  async updateElectionInfo(electionInfo: ElectionInfo): Promise<void> {
+    const { rowCount } = await this.db.withClient((client) =>
+      client.query(
+        `
+          update elections
+          set
+            type = $1,
+            title = $2,
+            date = $3,
+            jurisdiction = $4,
+            state = $5,
+            seal = $6,
+            ballot_language_codes = $7
+          where id = $8
+        `,
+        electionInfo.type,
+        electionInfo.title,
+        electionInfo.date.toISOString(),
+        electionInfo.jurisdiction,
+        electionInfo.state,
+        electionInfo.seal,
+        electionInfo.languageCodes,
+        electionInfo.electionId
+      )
+    );
+    assert(rowCount === 1, 'Election not found');
+  }
+
   async listDistricts(electionId: ElectionId): Promise<readonly District[]> {
     const { election } = await this.getElection(electionId);
     return election.districts;
@@ -403,86 +933,45 @@ export class Store {
     electionId: ElectionId,
     district: District
   ): Promise<void> {
-    const { election } = await this.getElection(electionId);
-    await this.updateElection(electionId, {
-      ...election,
-      districts: [...election.districts, district],
-    });
+    await this.db.withClient((client) =>
+      insertDistrict(client, electionId, district)
+    );
   }
 
   async updateDistrict(
     electionId: ElectionId,
     district: District
   ): Promise<void> {
-    const { election } = await this.getElection(electionId);
-    assert(
-      election.districts.some((d) => d.id === district.id),
-      'District not found'
+    const { rowCount } = await this.db.withClient((client) =>
+      client.query(
+        `
+          update districts
+          set name = $1
+          where id = $2 and election_id = $3
+        `,
+        district.name,
+        district.id,
+        electionId
+      )
     );
-    const updatedDistricts = election.districts.map((d) =>
-      d.id === district.id ? district : d
-    );
-    await this.updateElection(electionId, {
-      ...election,
-      districts: updatedDistricts,
-    });
+    assert(rowCount === 1, 'District not found');
   }
 
   async deleteDistrict(
     electionId: ElectionId,
     districtId: DistrictId
   ): Promise<void> {
-    const { election, precincts } = await this.getElection(electionId);
-    assert(
-      election.districts.some((d) => d.id === districtId),
-      'District not found'
+    const { rowCount } = await this.db.withClient((client) =>
+      client.query(
+        `
+          delete from districts
+          where id = $1 and election_id = $2
+        `,
+        districtId,
+        electionId
+      )
     );
-    const updatedDistricts = election.districts.filter(
-      (d) => d.id !== districtId
-    );
-    // When deleting a district, we need to remove it from any precincts that
-    // reference it
-    const updatedPrecincts = precincts.map((precinct) => {
-      if (hasSplits(precinct)) {
-        return {
-          ...precinct,
-          splits: precinct.splits.map((split) => ({
-            ...split,
-            districtIds: split.districtIds.filter((id) => id !== districtId),
-          })),
-        };
-      }
-      return {
-        ...precinct,
-        districtIds: precinct.districtIds.filter((id) => id !== districtId),
-      };
-    });
-    await this.db.withClient((client) =>
-      client.withTransaction(async () => {
-        await client.query(
-          `
-            update elections
-            set election_data = $1
-            where id = $2
-          `,
-          JSON.stringify({
-            ...election,
-            districts: updatedDistricts,
-          }),
-          electionId
-        );
-        await client.query(
-          `
-            update elections
-            set precinct_data = $1
-            where id = $2
-          `,
-          JSON.stringify(updatedPrecincts),
-          electionId
-        );
-        return true;
-      })
-    );
+    assert(rowCount === 1, 'District not found');
   }
 
   async listPrecincts(electionId: ElectionId): Promise<SplittablePrecinct[]> {
@@ -494,55 +983,55 @@ export class Store {
     electionId: ElectionId,
     precinct: SplittablePrecinct
   ): Promise<void> {
-    const { election, precincts } = await this.getElection(electionId);
-    validatePrecinctDistrictIds(precinct, election.districts);
-    await this.updatePrecincts(electionId, [...precincts, precinct]);
+    await this.db.withClient((client) =>
+      client.withTransaction(async () => {
+        await insertPrecinct(client, electionId, precinct);
+        return true;
+      })
+    );
   }
 
   async updatePrecinct(
     electionId: ElectionId,
     precinct: SplittablePrecinct
   ): Promise<void> {
-    const { election, precincts } = await this.getElection(electionId);
-    assert(
-      precincts.some((p) => p.id === precinct.id),
-      'Precinct not found'
+    await this.db.withClient((client) =>
+      client.withTransaction(async () => {
+        // It's safe to delete and re-insert the precinct because:
+        // 1. The IDs of precincts/splits are stable
+        // 2. Precincts/splits are leaf nodes. There are no other tables with
+        // foreign keys that reference precincts/splits, so we don't need to
+        // worry about ON DELETE triggers.
+        const { rowCount } = await client.query(
+          `
+            delete from precincts
+            where id = $1 and election_id = $2
+          `,
+          precinct.id,
+          electionId
+        );
+        assert(rowCount === 1, 'Precinct not found');
+        await insertPrecinct(client, electionId, precinct);
+        return true;
+      })
     );
-    validatePrecinctDistrictIds(precinct, election.districts);
-    const updatedPrecincts = precincts.map((p) =>
-      p.id === precinct.id ? precinct : p
-    );
-    await this.updatePrecincts(electionId, updatedPrecincts);
   }
 
   async deletePrecinct(
     electionId: ElectionId,
     precinctId: PrecinctId
   ): Promise<void> {
-    const { precincts } = await this.getElection(electionId);
-    assert(
-      precincts.some((p) => p.id === precinctId),
-      'Precinct not found'
-    );
-    const updatedPrecincts = precincts.filter((p) => p.id !== precinctId);
-    await this.updatePrecincts(electionId, updatedPrecincts);
-  }
-
-  private async updatePrecincts(
-    electionId: ElectionId,
-    precincts: SplittablePrecinct[]
-  ): Promise<void> {
-    await this.db.withClient((client) =>
+    const { rowCount } = await this.db.withClient((client) =>
       client.query(
         `
-          update elections
-          set precinct_data = $1
-          where id = $2
+          delete from precincts
+          where id = $1 and election_id = $2
         `,
-        JSON.stringify(precincts),
+        precinctId,
         electionId
       )
     );
+    assert(rowCount === 1, 'Precinct not found');
   }
 
   async listBallotStyles(electionId: ElectionId): Promise<BallotStyle[]> {
@@ -556,58 +1045,44 @@ export class Store {
   }
 
   async createParty(electionId: ElectionId, party: Party): Promise<void> {
-    const { election } = await this.getElection(electionId);
-    await this.updateElection(electionId, {
-      ...election,
-      parties: [...election.parties, party],
-    });
+    await this.db.withClient((client) =>
+      insertParty(client, electionId, party)
+    );
   }
 
   async updateParty(electionId: ElectionId, party: Party): Promise<void> {
-    const { election } = await this.getElection(electionId);
-    assert(
-      election.parties.some((p) => p.id === party.id),
-      'Party not found'
+    const { rowCount } = await this.db.withClient((client) =>
+      client.query(
+        `
+          update parties
+          set
+            name = $1,
+            full_name = $2,
+            abbrev = $3
+          where id = $4 and election_id = $5
+        `,
+        party.name,
+        party.fullName,
+        party.abbrev,
+        party.id,
+        electionId
+      )
     );
-    const updatedParties = election.parties.map((p) =>
-      p.id === party.id ? party : p
-    );
-    await this.updateElection(electionId, {
-      ...election,
-      parties: updatedParties,
-    });
+    assert(rowCount === 1, 'Party not found');
   }
 
   async deleteParty(electionId: ElectionId, partyId: string): Promise<void> {
-    const { election } = await this.getElection(electionId);
-    assert(
-      election.parties.some((p) => p.id === partyId),
-      'Party not found'
+    const { rowCount } = await this.db.withClient((client) =>
+      client.query(
+        `
+          delete from parties
+          where id = $1 and election_id = $2
+        `,
+        partyId,
+        electionId
+      )
     );
-    const updatedParties = election.parties.filter((p) => p.id !== partyId);
-    // When deleting a party, we need to remove it from any
-    // contests/candidates that reference it
-    const updatedContests = election.contests.map((contest) => {
-      if (contest.type === 'candidate') {
-        return {
-          ...contest,
-          partyId: contest.partyId === partyId ? undefined : contest.partyId,
-          candidates: contest.candidates.map((candidate) => {
-            const partyIds = candidate.partyIds?.filter((id) => id !== partyId);
-            return {
-              ...candidate,
-              partyIds: partyIds && partyIds.length > 0 ? partyIds : undefined,
-            };
-          }),
-        };
-      }
-      return contest;
-    });
-    await this.updateElection(electionId, {
-      ...election,
-      parties: updatedParties,
-      contests: updatedContests,
-    });
+    assert(rowCount === 1, 'Party not found');
   }
 
   async listContests(electionId: ElectionId): Promise<readonly AnyContest[]> {
@@ -619,64 +1094,92 @@ export class Store {
     electionId: ElectionId,
     contest: AnyContest
   ): Promise<void> {
-    const { election } = await this.getElection(electionId);
-    await this.updateElection(electionId, {
-      ...election,
-      contests: [...election.contests, contest],
-    });
+    await this.db.withClient((client) =>
+      client.withTransaction(async () => {
+        await insertContest(client, electionId, contest);
+        return true;
+      })
+    );
   }
 
   async updateContest(
     electionId: ElectionId,
     contest: AnyContest
   ): Promise<void> {
-    const { election } = await this.getElection(electionId);
-    assert(
-      election.contests.some((c) => c.id === contest.id),
-      'Contest not found'
+    await this.db.withClient((client) =>
+      client.withTransaction(async () => {
+        // It's safe to delete and re-insert the contest because:
+        // 1. The IDs of contests/candidates are stable
+        // 2. Contests/candidates are leaf nodes. There are no other tables with
+        // foreign keys that reference contests/candidates, so we don't need to
+        // worry about ON DELETE triggers.
+        const { rowCount, rows } = await client.query(
+          `
+            delete from contests
+            where id = $1 and election_id = $2
+            returning ballot_order as "ballotOrder"
+          `,
+          contest.id,
+          electionId
+        );
+        assert(rowCount === 1, 'Contest not found');
+        const { ballotOrder } = rows[0] as { ballotOrder: number };
+        await insertContest(client, electionId, contest, ballotOrder);
+        return true;
+      })
     );
-    const updatedContests = election.contests.map((c) =>
-      c.id === contest.id ? contest : c
-    );
-    await this.updateElection(electionId, {
-      ...election,
-      contests: updatedContests,
-    });
   }
 
   async reorderContests(
     electionId: ElectionId,
     contestIds: string[]
   ): Promise<void> {
-    const { election } = await this.getElection(electionId);
-    assert(
-      contestIds.length === election.contests.length &&
-        election.contests.every((c) => contestIds.includes(c.id)),
-      'Invalid contest IDs'
+    await this.db.withClient((client) =>
+      client.withTransaction(async () => {
+        const existingContestIds = (
+          await client.query(
+            `select id from contests where election_id = $1`,
+            electionId
+          )
+        ).rows.map((row) => row.id);
+        assert(
+          contestIds.length === existingContestIds.length,
+          'Invalid contest IDs'
+        );
+        for (const contestId of contestIds) {
+          const { rowCount } = await client.query(
+            `
+            update contests
+            set ballot_order = DEFAULT
+            where id = $1 and election_id = $2
+          `,
+            contestId,
+            electionId
+          );
+          assert(rowCount === 1, `Contest not found: ${contestId}`);
+        }
+        return true;
+      })
     );
-    const updatedContests = contestIds.map((id) =>
-      find(election.contests, (c) => c.id === id)
-    );
-    await this.updateElection(electionId, {
-      ...election,
-      contests: updatedContests,
-    });
   }
 
   async deleteContest(
     electionId: ElectionId,
     contestId: string
   ): Promise<void> {
-    const { election } = await this.getElection(electionId);
-    assert(
-      election.contests.some((c) => c.id === contestId),
-      'Contest not found'
+    const { rowCount } = await this.db.withClient((client) =>
+      // We don't worry about updating ballot_order for other contests because
+      // they will still be in the correct order even with a gap.
+      client.query(
+        `
+          delete from contests
+          where id = $1 and election_id = $2
+        `,
+        contestId,
+        electionId
+      )
     );
-    const updatedContests = election.contests.filter((c) => c.id !== contestId);
-    await this.updateElection(electionId, {
-      ...election,
-      contests: updatedContests,
-    });
+    assert(rowCount === 1, 'Contest not found');
   }
 
   async getBallotPaperSize(
@@ -690,31 +1193,18 @@ export class Store {
     electionId: ElectionId,
     paperSize: HmpbBallotPaperSize
   ): Promise<void> {
-    const { election } = await this.getElection(electionId);
-    await this.updateElection(electionId, {
-      ...election,
-      ballotLayout: {
-        ...election.ballotLayout,
-        paperSize,
-      },
-    });
-  }
-
-  async updateBallotLanguageCodes(
-    electionId: ElectionId,
-    ballotLanguageCodes: LanguageCode[]
-  ): Promise<void> {
-    await this.db.withClient((client) =>
+    const { rowCount } = await this.db.withClient((client) =>
       client.query(
         `
           update elections
-          set ballot_language_codes = string_to_array($1, ',')
+          set ballot_paper_size = $1
           where id = $2
         `,
-        ballotLanguageCodes.join(','),
+        paperSize,
         electionId
       )
     );
+    assert(rowCount === 1, 'Election not found');
   }
 
   async deleteElection(electionId: ElectionId): Promise<void> {
