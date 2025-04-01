@@ -338,7 +338,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const isFocusedWriteInBmd =
     firstWriteInImage && 'machineMarkedText' in firstWriteInImage;
 
-  const [voteState, setVoteState] = useState<Record<string, boolean>>({}); // candidateId/optionId to boolean hasVote
+  const [voteState, setVoteState] = useState<Record<string, boolean>>({}); // optionId to boolean hasVote
   const voteStateInitialized = Object.keys(voteState).length > 0;
   const [writeInState, setWriteInState] = useState<
     Record<string, WriteInCandidateState> // optionId to WriteInCandidateState
@@ -347,9 +347,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const [doubleVoteAlert, setDoubleVoteAlert] = useState<DoubleVoteAlert>();
 
   const officialCandidates = contest.candidates.filter((c) => !c.isWriteIn);
-  const officialCandidateIds = officialCandidates.map((item) => item.id);
   const writeInCandidates = contestWriteInCandidatesQuery.data;
-  const writeInCandidateIds = writeInCandidates?.map((item) => item.id) || [];
 
   const seatCount = contest.seats;
   const voteCount = Object.values(voteState).filter(Boolean).length;
@@ -358,11 +356,20 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const writeInOptionIds = Array.from({ length: seatCount }).map(
     (_, idx) => `write-in-${idx}`
   );
-  const selectedCandidateIds = Object.entries(voteState)
+  const selectedCandidateNames = Object.entries(voteState)
     .filter(([, hasVote]) => hasVote)
     .map(([optionId]) => {
-      const writeInEntry = writeInState[optionId];
-      return isExistingCandidate(writeInEntry) ? writeInEntry.id : optionId;
+      if (writeInOptionIds.includes(optionId)) {
+        const writeInEntry = writeInState[optionId];
+        assert(writeInEntry !== undefined);
+        if (isExistingCandidate(writeInEntry) || isNewCandidate(writeInEntry)) {
+          return writeInEntry.name;
+        }
+        return undefined;
+      }
+      const official = officialCandidates.find((c) => c.id === optionId);
+      assert(official !== undefined);
+      return official.name;
     })
     .filter(Boolean);
   const numPendingWriteIns = writeInOptionIds.filter((optionId) =>
@@ -878,7 +885,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                     disabled={
                       // Disabled when there is a write-in selection for the candidate
                       !hasVoteCurrent &&
-                      selectedCandidateIds.includes(candidate.id)
+                      selectedCandidateNames.includes(candidate.name)
                     }
                     caption={renderCandidateButtonCaption(
                       hasVoteOriginal,
@@ -895,20 +902,10 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 const existingWriteInRecord = writeIns.find(
                   (writeIn) => writeIn.optionId === optionId
                 );
+                const writeInEntry = writeInState[optionId];
 
                 const isFocused = focusedOptionId === optionId;
                 const isSelected = voteState[optionId];
-
-                const writeInEntry = writeInState[optionId];
-                let stringValue = '';
-                if (isExistingCandidate(writeInEntry)) {
-                  stringValue = writeInEntry.id;
-                } else if (isNewCandidate(writeInEntry)) {
-                  stringValue = writeInEntry.name;
-                } else if (isInvalidWriteIn(writeInEntry)) {
-                  stringValue = 'invalid';
-                }
-
                 const isUnmarkedPendingWriteIn =
                   existingWriteInRecord?.isUnmarked &&
                   isPendingWriteIn(writeInEntry) &&
@@ -925,7 +922,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
                       key={optionId + currentCvrId}
                       onSelect={() => {
                         updateVote(optionId, true);
-                        updateWriteInState(optionId, { type: 'pending' });
+                        updateWriteInState(optionId, {
+                          type: 'pending',
+                        });
                       }}
                       onDeselect={() => undefined} // Cannot be reached
                       caption={renderCandidateButtonCaption(
@@ -936,6 +935,29 @@ export function ContestAdjudicationScreen(): JSX.Element {
                       )}
                     />
                   );
+                }
+
+                assert(writeInEntry !== undefined);
+                let stringValue: string;
+                switch (writeInEntry.type) {
+                  case 'pending': {
+                    stringValue = '';
+                    break;
+                  }
+                  case 'invalid': {
+                    stringValue = 'invalid';
+                    break;
+                  }
+                  case 'new':
+                  case 'existing-official':
+                  case 'existing-write-in': {
+                    stringValue = writeInEntry.name;
+                    break;
+                  }
+                  default: {
+                    /* istanbul ignore next - @preserve */
+                    throwIllegalValue(writeInEntry, 'type');
+                  }
                 }
 
                 return (
@@ -954,7 +976,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
                         return;
                       } if (newVal === 'invalid') {
                         updateWriteInState(optionId, { type: 'invalid' });
-                        updateVote(optionId, false);
+                        if (isSelected) {
+                          updateVote(optionId, false);
+                        }
                         return;
                       }
                       const alert = checkForDoubleVote(newVal, optionId);
@@ -964,31 +988,32 @@ export function ContestAdjudicationScreen(): JSX.Element {
                         return;
                       }
 
-                      // Mark unmarked write-ins
+                      // Check if new value is existing candidate or new name
+                      const official = officialCandidates.find(
+                        (o) => o.name === newVal
+                      );
+                      const writeIn = official
+                        ? undefined
+                        : writeInCandidates?.find((w) => w.name === newVal);
+
+                      let newWriteInState: WriteInCandidateState;
+                      if (official) {
+                        newWriteInState = {
+                          type: 'existing-official',
+                          ...official,
+                        };
+                      } else if (writeIn) {
+                        newWriteInState = {
+                          type: 'existing-write-in',
+                          ...writeIn,
+                        };
+                      } else {
+                        newWriteInState = { type: 'new', name: newVal };
+                      }
+                      updateWriteInState(optionId, newWriteInState);
                       if (!isSelected) {
                         updateVote(optionId, true);
                       }
-                      // Check if new value is existing candidate or new name
-                      let newWriteInValue: WriteInCandidateState;
-                      if (officialCandidateIds.includes(newVal)) {
-                        const c = officialCandidates.find(
-                          (o) => o.id === newVal
-                        );
-                        assert(c !== undefined);
-                        newWriteInValue = { type: 'existing-official', ...c };
-                      } else if (writeInCandidateIds.includes(newVal)) {
-                        const c = writeInCandidates?.find(
-                          (w) => w.id === newVal
-                        );
-                        assert(c !== undefined);
-                        newWriteInValue = {
-                          type: 'existing-write-in',
-                          ...c,
-                        };
-                      } else {
-                        newWriteInValue = { type: 'new', name: newVal };
-                      }
-                      updateWriteInState(optionId, newWriteInValue);
                     }}
                     toggleVote={() => {
                       if (isSelected) {
@@ -1002,18 +1027,22 @@ export function ContestAdjudicationScreen(): JSX.Element {
                         updateWriteInState(optionId, { type: 'pending' });
                       }
                     }}
-                    officialCandidates={officialCandidates.filter(
-                      (c) =>
-                        !selectedCandidateIds.includes(c.id) ||
-                        (isExistingCandidate(writeInState[optionId]) &&
-                          writeInState[optionId].id === c.id)
-                    )}
-                    writeInCandidates={writeInCandidates.filter(
-                      (c) =>
-                        !selectedCandidateIds.includes(c.id) ||
-                        (isExistingCandidate(writeInState[optionId]) &&
-                          writeInState[optionId].id === c.id)
-                    )}
+                    officialCandidateNames={officialCandidates
+                      .filter(
+                        (c) =>
+                          !selectedCandidateNames.includes(c.name) ||
+                          (isExistingCandidate(writeInState[optionId]) &&
+                            writeInState[optionId].id === c.id)
+                      )
+                      .map((c) => c.name)}
+                    writeInCandidateNames={writeInCandidates
+                      .filter(
+                        (c) =>
+                          !selectedCandidateNames.includes(c.name) ||
+                          (isExistingCandidate(writeInState[optionId]) &&
+                            writeInState[optionId].id === c.id)
+                      )
+                      .map((c) => c.name)}
                     caption={renderCandidateButtonCaption(
                       originalVote,
                       voteState[optionId],
