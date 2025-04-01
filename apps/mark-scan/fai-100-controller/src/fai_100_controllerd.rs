@@ -520,7 +520,6 @@ fn run_event_loop(
                         event_type: EventType::SystemStatus,
                         disposition: Disposition::Failure
                     );
-                    running.store(false, Ordering::SeqCst);
                 } else {
                     log!(
                         event_id: EventId::UnknownError,
@@ -529,6 +528,8 @@ fn run_event_loop(
                         disposition: Disposition::Failure
                     );
                 }
+
+                running.store(false, Ordering::SeqCst);
             }
         }
 
