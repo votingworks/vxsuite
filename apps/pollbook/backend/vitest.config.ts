@@ -3,11 +3,12 @@ import { defineConfig } from '../../../vitest.config.shared.mjs';
 
 export default defineConfig({
   test: {
-    setupFiles: [],
+    setupFiles: ['test/setupTests.ts'],
+    clearMocks: true,
     coverage: {
       thresholds: {
-        lines: 0,
-        branches: 0,
+        lines: 35,
+        branches: 33,
       },
       exclude: [
         '**/node_modules/**',

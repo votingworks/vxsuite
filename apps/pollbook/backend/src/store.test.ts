@@ -5,7 +5,7 @@ import {
   createVoter,
   createVoterCheckInEvent,
   getTestElection,
-} from './test_helpers';
+} from '../test/test_helpers';
 import { Store } from './store';
 
 export const myMachineId = 'machine-1';

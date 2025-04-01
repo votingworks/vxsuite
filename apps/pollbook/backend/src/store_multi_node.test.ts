@@ -6,7 +6,7 @@ import {
   getTestElection,
   syncEventsForAllPollbooks,
   syncEventsFromTo,
-} from './test_helpers';
+} from '../test/test_helpers';
 import { Voter } from './types';
 
 // Multi-Node test for the following scenario:
