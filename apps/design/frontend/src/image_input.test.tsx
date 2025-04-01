@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { Buffer } from 'node:buffer';
+import { images } from '@votingworks/ui';
+import { err, ok } from '@votingworks/basics';
 import {
   fireEvent,
   render,
@@ -9,26 +11,24 @@ import {
 } from '../test/react_testing_library';
 import { ImageInput } from './image_input';
 
-const mockImage = {
-  naturalWidth: 1,
-  naturalHeight: 2,
-  decode: vi.fn(() => Promise.resolve()),
-} as const;
+vi.mock(import('@votingworks/ui'), async (importActual) => {
+  const actual = await importActual();
+  return {
+    ...actual,
+    images: { ...actual.images, normalizeFile: vi.fn() },
+  };
+});
 
-// Mock Image so we can test getting the dimensions of the uploaded image
-HTMLImageElement.prototype.decode = function decode() {
-  Object.defineProperties(this, {
-    naturalWidth: { value: 1 },
-    naturalHeight: { value: 2 },
-  });
-  return Promise.resolve();
+const mockNormalizeFile = vi.mocked(images.normalizeFile);
+const MOCK_NORMALIZED_IMAGE: Readonly<images.NormalizedImage> = {
+  dataUrl: 'very_normal_image',
+  heightPx: 300,
+  widthPx: 300,
 };
 
 describe('ImageInput', () => {
   beforeEach(() => {
-    globalThis.Image = function Image() {
-      return mockImage;
-    } as unknown as typeof globalThis.Image;
+    mockNormalizeFile.mockResolvedValue(ok(MOCK_NORMALIZED_IMAGE));
   });
 
   test('accepts and sanitizes SVGs', async () => {
@@ -44,6 +44,7 @@ describe('ImageInput', () => {
         onChange={onChange}
         buttonLabel="Upload"
         removeButtonLabel="Remove"
+        normalizeParams={{ maxWidthPx: 300 }}
       />
     );
     const input = screen.getByLabelText('Upload');
@@ -61,6 +62,7 @@ describe('ImageInput', () => {
         onChange={vi.fn()}
         buttonLabel="Upload"
         removeButtonLabel="Remove"
+        normalizeParams={{ maxWidthPx: 300 }}
       />
     );
     const previewImage = await screen.findByRole('img', {
@@ -84,6 +86,7 @@ describe('ImageInput', () => {
           buttonLabel="Upload"
           removeButtonLabel="Remove"
           required
+          normalizeParams={{ maxWidthPx: 300 }}
         />
         <button type="submit">Submit</button>
       </form>
@@ -104,6 +107,7 @@ describe('ImageInput', () => {
           buttonLabel="Upload"
           removeButtonLabel="Remove"
           required
+          normalizeParams={{ maxWidthPx: 300 }}
         />
         <button type="submit">Submit</button>
       </form>
@@ -115,26 +119,87 @@ describe('ImageInput', () => {
 
   test.each(['png', 'jpeg'])('converts %s images to SVG', async (imageType) => {
     const onChange = vi.fn();
+
     const imageContents = 'test image contents';
     const imageFile = new File([imageContents], `image.${imageType}`, {
       type: `image/${imageType}`,
     });
-    const svgContents = `<svg xmlns="http://www.w3.org/2000/svg" width="1" height="2" viewBox="0 0 1 2">
-    <image href="data:image/${imageType};base64,${Buffer.from(
-      imageContents
-    ).toString('base64')}" width="1" height="2"></image>
+
+    const { dataUrl, heightPx, widthPx } = MOCK_NORMALIZED_IMAGE;
+    const svgViewBox = `0 0 ${widthPx} ${heightPx}`;
+    const svgDimensions = `width="${widthPx}" height="${heightPx}"`;
+
+    const svgContents = `<svg xmlns="http://www.w3.org/2000/svg" ${svgDimensions} viewBox="${svgViewBox}">
+    <image href="${dataUrl}" ${svgDimensions}></image>
   </svg>`;
+
     render(
       <ImageInput
         value={undefined}
         onChange={onChange}
         buttonLabel="Upload"
         removeButtonLabel="Remove"
+        normalizeParams={{ maxWidthPx: 300 }}
       />
     );
+
     const input = screen.getByLabelText('Upload');
     userEvent.upload(input, imageFile);
     await waitFor(() => expect(onChange).toHaveBeenCalledWith(svgContents));
+
+    expect(mockNormalizeFile).toHaveBeenCalledWith(imageFile, {
+      maxWidthPx: 300,
+    });
+  });
+
+  test('displays validation errors', async () => {
+    render(
+      <ImageInput
+        value={undefined}
+        onChange={vi.fn()}
+        buttonLabel="Upload"
+        removeButtonLabel="Remove"
+        normalizeParams={{
+          maxWidthPx: 300,
+          minHeightPx: 300,
+          minWidthPx: 300,
+        }}
+      />
+    );
+
+    const input = screen.getByLabelText<HTMLInputElement>('Upload');
+
+    async function expectDisplayedError(
+      error: images.NormalizeError,
+      msg: string | RegExp
+    ) {
+      mockNormalizeFile.mockResolvedValueOnce(err(error));
+
+      const file = new File([''], 'image.png', { type: 'image/png' });
+      userEvent.upload(input, file);
+
+      await waitFor(() => expect(input.validationMessage).toMatch(msg));
+    }
+
+    await expectDisplayedError(
+      { code: 'belowMinHeight', heightPx: 200 },
+      'Image height (200px) is smaller than minimum (300px).'
+    );
+
+    await expectDisplayedError(
+      { code: 'belowMinWidth', widthPx: 128 },
+      'Image width (128px) is smaller than minimum (300px).'
+    );
+
+    await expectDisplayedError(
+      { code: 'unsupportedImageType' },
+      /image type is not supported/i
+    );
+
+    await expectDisplayedError(
+      { code: 'unexpected', error: new Error('no clue') },
+      /something went wrong/i
+    );
   });
 
   test('rejects images that are too large', async () => {
@@ -146,6 +211,7 @@ describe('ImageInput', () => {
         onChange={vi.fn()}
         buttonLabel="Upload"
         removeButtonLabel="Remove"
+        normalizeParams={{ maxWidthPx: 300 }}
       />
     );
 
@@ -166,6 +232,7 @@ describe('ImageInput', () => {
         onChange={onChange}
         buttonLabel="Upload"
         removeButtonLabel="Remove"
+        normalizeParams={{ maxWidthPx: 300 }}
       />
     );
     const removeButton = screen.getByRole('button', { name: 'Remove' });
@@ -183,6 +250,7 @@ test('regression test #5967: does not crash when canceling an upload', () => {
       buttonLabel="Upload"
       removeButtonLabel="Remove"
       required
+      normalizeParams={{ maxWidthPx: 300 }}
     />
   );
 

@@ -19,7 +19,13 @@ import Dropcursor from '@tiptap/extension-dropcursor';
 import Gapcursor from '@tiptap/extension-gapcursor';
 import History from '@tiptap/extension-history';
 import { Slice } from '@tiptap/pm/model';
-import { Button, ButtonProps, Icons, richTextStyles } from '@votingworks/ui';
+import {
+  Button,
+  ButtonProps,
+  Icons,
+  images,
+  richTextStyles,
+} from '@votingworks/ui';
 import styled from 'styled-components';
 import React from 'react';
 import { Buffer } from 'node:buffer';
@@ -89,6 +95,28 @@ function ControlButton({
   );
 }
 
+const PDF_PIXELS_PER_INCH = 96;
+const LETTER_PAGE_HEIGHT_INCHES = 11;
+const LETTER_PAGE_WIDTH_INCHES = 8.5;
+
+/**
+ * These assume a worst-case of ballots with full-width contest boxes and images
+ * that take up all the available width.
+ *
+ * The subtracted margins are inexact and can be tweaked if needed. Last tested
+ * with "full-height" and "full-width" images rendering without error on
+ * letter-sized pages.
+ *
+ * [TODO] The max width should really be the VxMark screen size (1080px), since
+ * that's the largest render surface for these images, but we need to add image
+ * scaling to the ballot renderer first, to limit them to the bounds of the
+ * contest box.
+ */
+const NORMALIZE_PARAMS: Readonly<images.NormalizeParams> = {
+  maxHeightPx: (LETTER_PAGE_HEIGHT_INCHES - 3) * PDF_PIXELS_PER_INCH,
+  maxWidthPx: (LETTER_PAGE_WIDTH_INCHES - 2) * PDF_PIXELS_PER_INCH,
+};
+
 function Toolbar({ editor }: { editor: Editor }) {
   return (
     <StyledToolbar>
@@ -137,6 +165,7 @@ function Toolbar({ editor }: { editor: Editor }) {
           buttonProps={{
             fill: 'transparent',
           }}
+          normalizeParams={NORMALIZE_PARAMS}
           onChange={(svgImage) => {
             editor
               .chain()
@@ -148,8 +177,10 @@ function Toolbar({ editor }: { editor: Editor }) {
               })
               .run();
           }}
-          // eslint-disable-next-line no-console
-          onError={(err) => console.error(err)}
+          // [TODO] Display a user-friendly error instead.
+          onError={(err) => {
+            throw err;
+          }}
           aria-label="Insert Image"
         >
           <Icons.Image />

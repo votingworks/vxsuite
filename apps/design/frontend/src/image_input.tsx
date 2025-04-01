@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/browser';
 import { Buffer } from 'node:buffer';
 import sanitizeHtml from 'sanitize-html';
 import {
@@ -5,9 +6,16 @@ import {
   Callout,
   FileInputButton,
   FileInputButtonProps,
+  images,
 } from '@votingworks/ui';
-import { assert } from '@votingworks/basics';
-import { useEffect, useRef, useState } from 'react';
+import {
+  assert,
+  err,
+  ok,
+  Result,
+  throwIllegalValue,
+} from '@votingworks/basics';
+import React, { useEffect, useRef, useState } from 'react';
 
 const MAX_IMAGE_UPLOAD_BYTES = 5 * 1_000 * 1_000; // 5 MB
 
@@ -59,6 +67,7 @@ const ALLOWED_SVG_TAGS = [
   'vkern',
 ];
 
+// [TODO] Move to server-side.
 function sanitizeSvg(svg: string): string {
   return sanitizeHtml(svg, {
     allowedTags: ALLOWED_SVG_TAGS,
@@ -84,25 +93,15 @@ async function loadSvgImage(file: File): Promise<string> {
   });
 }
 
-async function getBitmapImageDimensions(
-  imageDataUrl: string
-): Promise<{ width: number; height: number }> {
-  const img = new Image();
-  img.src = imageDataUrl;
-  await img.decode();
-  return { width: img.naturalWidth, height: img.naturalHeight };
-}
-
 interface SvgImageWithMetadata {
   svgImage: string;
   width: number;
   height: number;
 }
 
-async function bitmapImageToSvg(
-  imageDataUrl: string
-): Promise<SvgImageWithMetadata> {
-  const { width, height } = await getBitmapImageDimensions(imageDataUrl);
+function bitmapImageToSvg(img: images.NormalizedImage): SvgImageWithMetadata {
+  const { dataUrl: imageDataUrl, heightPx: height, widthPx: width } = img;
+
   return {
     width,
     height,
@@ -112,21 +111,18 @@ async function bitmapImageToSvg(
   };
 }
 
-async function loadBitmapImageAndConvertToSvg(
-  file: File
-): Promise<SvgImageWithMetadata> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      /* istanbul ignore next - @preserve */
-      const imageDataUrl = e.target?.result;
-      if (typeof imageDataUrl === 'string') {
-        resolve(await bitmapImageToSvg(imageDataUrl));
-      }
-      reject(new Error('Could not read file contents'));
-    };
-    reader.readAsDataURL(file);
-  });
+type NormalizeToSvgResult = Result<SvgImageWithMetadata, images.NormalizeError>;
+
+async function normalizeToSvg(
+  file: File,
+  params: images.NormalizeParams
+): Promise<NormalizeToSvgResult> {
+  const normalizeResult = await images.normalizeFile(file, params);
+  if (normalizeResult.isErr()) {
+    return normalizeResult;
+  }
+
+  return ok(bitmapImageToSvg(normalizeResult.ok()));
 }
 
 interface ImageInputButtonProps
@@ -134,69 +130,94 @@ interface ImageInputButtonProps
   onChange: (svgImage: string) => void;
   onError: (error: Error) => void;
   required?: boolean;
-  minWidthPx?: number;
-  minHeightPx?: number;
+  normalizeParams: images.NormalizeParams;
 }
 
 export function ImageInputButton({
   onChange,
   onError,
-  minHeightPx,
-  minWidthPx,
+  normalizeParams,
   ...props
 }: ImageInputButtonProps): JSX.Element {
   const inputRef = useRef<HTMLInputElement>(null);
+
+  function handleError(msg: string) {
+    onError(new Error(msg));
+    inputRef.current?.setCustomValidity(msg);
+  }
+
+  async function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    inputRef.current?.setCustomValidity('');
+
+    if (file.size > MAX_IMAGE_UPLOAD_BYTES) {
+      return handleError(
+        `Image file size must be less than ${
+          MAX_IMAGE_UPLOAD_BYTES / 1_000 / 1_000
+        } MB`
+      );
+    }
+
+    if (file.type === 'image/svg+xml') {
+      return onChange(sanitizeSvg(await loadSvgImage(file)));
+    }
+
+    let svgResult: NormalizeToSvgResult;
+    try {
+      svgResult = await normalizeToSvg(file, normalizeParams);
+    } catch (error) {
+      svgResult = err({ code: 'unexpected', error });
+    }
+
+    if (svgResult.isErr()) {
+      const error = svgResult.err();
+
+      switch (error.code) {
+        case 'belowMinHeight':
+          return handleError(
+            `Image height (${error.heightPx}px) is smaller than minimum ` +
+              `(${normalizeParams.minHeightPx}px).`
+          );
+
+        case 'belowMinWidth':
+          return handleError(
+            `Image width (${error.widthPx}px) is smaller than minimum ` +
+              `(${normalizeParams.minWidthPx}px).`
+          );
+
+        case 'unsupportedImageType':
+          return handleError(
+            'This image type is not supported. Please try uploading a file ' +
+              'with one of the following extensions: .jpg, .jpeg, .png, .svg'
+          );
+
+        case 'unexpected': {
+          Sentry.captureException(error.error, {
+            tags: { action: 'normalizeToSvg' },
+          });
+
+          return handleError(
+            'Something went wrong. Please refresh the page and try again.'
+          );
+        }
+
+        default:
+          throwIllegalValue(error, 'code');
+      }
+    }
+
+    onChange(sanitizeSvg(svgResult.ok().svgImage));
+  }
 
   return (
     <FileInputButton
       {...props}
       accept={ALLOWED_IMAGE_TYPES.join(',')}
-      onChange={async (e) => {
-        const file = e.target.files?.[0];
-        if (!file) {
-          return;
-        }
-        let imageValidationError;
-        /* istanbul ignore next - @preserve */
-        if (file.size > MAX_IMAGE_UPLOAD_BYTES) {
-          imageValidationError = new Error(
-            `Image file size must be less than ${
-              MAX_IMAGE_UPLOAD_BYTES / 1_000 / 1_000
-            } MB`
-          );
-        }
-        assert(ALLOWED_IMAGE_TYPES.includes(file.type));
-        let svgImage: string;
-        if (file.type === 'image/svg+xml') {
-          svgImage = await loadSvgImage(file);
-        } else {
-          const svgWithMeta = await loadBitmapImageAndConvertToSvg(file);
-          const { width, height } = svgWithMeta;
-
-          // Validate dimensions against minimums if provided
-          if (minWidthPx && width < minWidthPx) {
-            imageValidationError = new Error(
-              `Image width (${width}px) is smaller than minimum (${minWidthPx}px).`
-            );
-          } else if (minHeightPx && height < minHeightPx) {
-            imageValidationError = new Error(
-              `Image height (${height}px) is smaller than minimum (${minHeightPx}px).`
-            );
-          }
-
-          if (imageValidationError) {
-            onError(imageValidationError);
-            inputRef.current?.setCustomValidity(imageValidationError.message);
-            return;
-          }
-
-          svgImage = svgWithMeta.svgImage;
-        }
-
-        inputRef.current?.setCustomValidity('');
-
-        onChange(sanitizeSvg(svgImage));
-      }}
+      onChange={handleChange}
       innerRef={inputRef}
     />
   );
@@ -210,8 +231,7 @@ export interface ImageInputProps {
   disabled?: boolean;
   className?: string;
   required?: boolean;
-  minWidthPx?: number;
-  minHeightPx?: number;
+  normalizeParams: images.NormalizeParams;
 }
 
 export function ImageInput({
@@ -222,8 +242,7 @@ export function ImageInput({
   disabled,
   className,
   required,
-  minWidthPx,
-  minHeightPx,
+  normalizeParams,
 }: ImageInputProps): JSX.Element {
   const [error, setError] = useState<Error>();
 
@@ -287,8 +306,7 @@ export function ImageInput({
           onChange={onSuccessfulImageUpload}
           onError={onError}
           required={value ? false : required}
-          minWidthPx={minWidthPx}
-          minHeightPx={minHeightPx}
+          normalizeParams={normalizeParams}
         >
           {buttonLabel}
         </ImageInputButton>
