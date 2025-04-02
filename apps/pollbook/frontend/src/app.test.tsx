@@ -156,11 +156,11 @@ test('renders PollWorkerScreen when logged in as poll worker basic e2e check in 
   userEvent.type(firstNameInput, 'ABI');
   vi.advanceTimersByTime(1000);
   await screen.findByText(/Adams, Abigail/i);
-  const cheeckInButton = screen.getByTestId('check-in-button#123');
-  within(cheeckInButton).getByText('Start Check-In');
+  const checkInButton = screen.getByTestId('check-in-button#123');
+  within(checkInButton).getByText('Start Check-In');
 
   apiMock.expectGetVoter(voter);
-  userEvent.click(cheeckInButton);
+  userEvent.click(checkInButton);
   await screen.findByText('Confirm Voter Identity');
 
   const confirmButton = screen.getByText('Confirm Check-In');
