@@ -74,6 +74,7 @@ export type inferApiMethods<SomeApi extends AnyApi> = SomeApi extends Api<
 export interface MiddlewareMethodCall<Context extends AnyContext> {
   methodName: string;
   input: unknown;
+  request: Express.Request;
   /**
    * When a given middleware is called, the Context fields may not have been
    * filled out by other middleware yet, so we can't get any guarantees from the
@@ -205,6 +206,7 @@ export function buildRouter(
           const result = await middleware({
             methodName,
             input,
+            request,
             context,
           });
           if (result !== undefined) {

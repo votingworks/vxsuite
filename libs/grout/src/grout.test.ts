@@ -333,6 +333,7 @@ test('middleware can add context that can be accessed in the method', async () =
     expectTypeOf(methodCall).toEqualTypeOf<{
       methodName: string;
       input: unknown;
+      request: express.Request;
       context: Partial<Context>;
     }>();
     expect(methodCall.methodName).toEqual('getUserAttribute');
@@ -345,6 +346,7 @@ test('middleware can add context that can be accessed in the method', async () =
     expectTypeOf(methodCall).toEqualTypeOf<{
       methodName: string;
       input: unknown;
+      request: express.Request;
       context: Partial<Context>;
     }>();
     expect(methodCall.methodName).toEqual('getUserAttribute');
