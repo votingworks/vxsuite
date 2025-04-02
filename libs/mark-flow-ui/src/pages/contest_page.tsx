@@ -33,8 +33,6 @@ export interface ContestPageProps {
   getStartPageUrl: () => string;
   getReviewPageUrl: (contestId?: ContestId) => string;
   isPatDeviceConnected?: boolean;
-  onOpenWriteInKeyboard?: () => void;
-  onCloseWriteInKeyboard?: () => void;
   precinctId?: PrecinctId;
   updateVote: ContestProps['updateVote'];
   votes: VotesDict;
@@ -57,8 +55,6 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
     getStartPageUrl,
     getReviewPageUrl,
     isPatDeviceConnected,
-    onOpenWriteInKeyboard,
-    onCloseWriteInKeyboard,
     precinctId,
     updateVote,
     votes,
@@ -191,8 +187,6 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
         votes={votes}
         updateVote={handleUpdateVote}
         accessibilityMode={accessibilityMode}
-        onOpenWriteInKeyboard={onOpenWriteInKeyboard}
-        onCloseWriteInKeyboard={onCloseWriteInKeyboard}
       />
     </VoterScreen>
   );

@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { Button, ButtonProps } from '../button';
@@ -48,10 +42,6 @@ export interface VirtualKeyboardProps {
 
 interface KeyMap {
   rows: Array<Key[]>;
-}
-
-function preventBrowserScroll(event: KeyboardEvent) {
-  event.preventDefault();
 }
 
 // NOTE: Although the letter keys here are rendered and spoken in English, the
@@ -365,7 +355,10 @@ export function VirtualKeyboard({
   // Remap the default behavior of the direction keys to navigate the keyboard grid in 2D
   /* istanbul ignore next */
   const handleKeyboardEventForVirtualKeyboard = useCallback(
-    (event: KeyboardEvent): void => {
+    (event: React.KeyboardEvent<HTMLDivElement>): void => {
+      // Prevent propagation so behavior here overrides the app-level keydown listeners bound to `window`
+      event.stopPropagation();
+
       switch (event.key) {
         case Keybinding.PAGE_PREVIOUS:
           advanceElementFocus(-1);
@@ -389,7 +382,8 @@ export function VirtualKeyboard({
             buttons[targetKeyIndex]?.focus();
             setFocusedRowIndex(targetRowIndex);
           }
-          preventBrowserScroll(event);
+          // Prevent browser scroll
+          event.preventDefault();
           break;
         }
         case Keybinding.FOCUS_NEXT: {
@@ -408,10 +402,12 @@ export function VirtualKeyboard({
             buttons[targetKeyIndex]?.focus();
             setFocusedRowIndex(targetRowIndex);
           }
-          preventBrowserScroll(event);
+          // Prevent browser scroll
+          event.preventDefault();
           break;
         }
         case Keybinding.SELECT:
+          // We want the default behavior for "Enter"
           break;
         default:
           // Simultaneous use of PAT and ATI controller for write-ins is not supported, so no need
@@ -421,24 +417,6 @@ export function VirtualKeyboard({
     },
     [focusedRowIndex, keyMapWithActions]
   );
-
-  useEffect(() => {
-    if (enableWriteInAtiControllerNavigation) {
-      document.addEventListener(
-        'keydown',
-        handleKeyboardEventForVirtualKeyboard
-      );
-      return () => {
-        document.removeEventListener(
-          'keydown',
-          handleKeyboardEventForVirtualKeyboard
-        );
-      };
-    }
-  }, [
-    enableWriteInAtiControllerNavigation,
-    handleKeyboardEventForVirtualKeyboard,
-  ]);
 
   function getFlexBasis(columnSpan: number = DEFAULT_COLUMN_SPAN) {
     return `${(columnSpan / COLUMNS_IN_ROW) * 100}%`;
@@ -490,7 +468,14 @@ export function VirtualKeyboard({
   }
 
   return (
-    <Keyboard data-testid="virtual-keyboard">
+    <Keyboard
+      data-testid="virtual-keyboard"
+      onKeyDown={
+        enableWriteInAtiControllerNavigation
+          ? handleKeyboardEventForVirtualKeyboard
+          : undefined
+      }
+    >
       {keyMapWithActions.rows.map((row, rowIndex) => (
         <KeyRow
           ref={(element) => {
