@@ -15,13 +15,13 @@ interface SignedQuickResultsReportingUrlProps {
 }
 
 /**
- * The separator between parts of the signed quick results message payload
+ * The separator between parts of the signed quick results reporting message payload
  */
-export const SIGNED_QUICK_RESULTS_MESSAGE_PAYLOAD_SEPARATOR = '.';
+const SIGNED_QUICK_RESULTS_REPORTING_MESSAGE_PAYLOAD_SEPARATOR = '.';
 
 /**
- * Returns the URL to encode as a QR Code for quick results reporting.
- * Encoded data is a URL to the quick results reporting page with a signed payload representing the election results.
+ * Returns the URL to encode as a QR code for quick results reporting, including a signed payload
+ * containing the election results
  */
 export async function getSignedQuickResultsReportingUrl(
   {
@@ -36,24 +36,23 @@ export async function getSignedQuickResultsReportingUrl(
   const { ballotHash, election } = electionDefinition;
   const compressedTally = compressTally(election, results);
   const secondsSince1970 = Math.round(new Date().getTime() / 1000);
-  const stringToSignParts = [
+  const messagePayloadParts = [
     ballotHash,
     signingMachineId,
     isLiveMode ? '1' : '0',
     secondsSince1970.toString(),
     Buffer.from(JSON.stringify(compressedTally)).toString('base64'),
   ];
-  const stringToSign = stringToSignParts.join(
-    SIGNED_QUICK_RESULTS_MESSAGE_PAYLOAD_SEPARATOR
+  const messagePayload = messagePayloadParts.join(
+    SIGNED_QUICK_RESULTS_REPORTING_MESSAGE_PAYLOAD_SEPARATOR
   );
-  const message = constructPrefixedMessage('qr1', stringToSign);
+  const message = constructPrefixedMessage('qr1', messagePayload);
   const messageSignature = await signMessage({
     message: Readable.from(message),
     signingPrivateKey: signingConfig.machinePrivateKey,
   });
-
-  const url = `${quickResultsReportingUrl}/?p=${encodeURIComponent(
+  const signedQuickResultsReportingUrl = `${quickResultsReportingUrl}/?p=${encodeURIComponent(
     message
   )}&s=${encodeURIComponent(messageSignature.toString('base64url'))}`;
-  return url;
+  return signedQuickResultsReportingUrl;
 }

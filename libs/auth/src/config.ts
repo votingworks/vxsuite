@@ -179,7 +179,7 @@ export interface SignedQuickResultsReportingConfig {
 }
 
 /**
- * Constructs a signed quick results config given relevant env vars
+ * Constructs a signed quick results reporting config given relevant env vars
  */
 export function constructSignedQuickResultsReportingConfig(): SignedQuickResultsReportingConfig {
   const { privateKey } = getMachineCertPathAndPrivateKey();
