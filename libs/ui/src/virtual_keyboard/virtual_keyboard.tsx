@@ -1,4 +1,10 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import styled from 'styled-components';
 
 import { Button, ButtonProps } from '../button';
@@ -351,6 +357,15 @@ export function VirtualKeyboard({
   }, [enableWriteInAtiControllerNavigation, keyMap.rows]);
 
   const rowRefs = useRef<Array<HTMLDivElement | null>>([]);
+
+  useEffect(() => {
+    const firstRow = rowRefs.current[0];
+    if (enableWriteInAtiControllerNavigation && firstRow) {
+      const firstButton = firstRow.querySelector('button');
+      firstButton?.focus();
+      setFocusedRowIndex(0);
+    }
+  }, [enableWriteInAtiControllerNavigation]);
 
   // Remap the default behavior of the direction keys to navigate the keyboard grid in 2D
   /* istanbul ignore next */

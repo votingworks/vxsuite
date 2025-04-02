@@ -177,12 +177,7 @@ const TEST_ROWS = [
 
 const TEST_ROWS_WITH_ACTIONS = [...TEST_ROWS, [CANCEL_KEY, ACCEPT_KEY]];
 
-function pressKeyAndExpectFocus(
-  keyToPress: string,
-  expectedFocusedKey: string
-) {
-  userEvent.keyboard(keyToPress);
-
+function expectFocus(expectedFocusedKey: string) {
   const expectedButtonContent = `${expectedFocusedKey}${getMockAudioOnlyTextPrefix(
     ENGLISH
   )} ${expectedFocusedKey}`;
@@ -195,6 +190,14 @@ function pressKeyAndExpectFocus(
   // The button with focus is the parent of the above <span> element
   const expectedFocus = expectedContentElement.parentNode;
   expect(expectedFocus).toHaveFocus();
+}
+
+function pressKeyAndExpectFocus(
+  keyToPress: string,
+  expectedFocusedKey: string
+) {
+  userEvent.keyboard(keyToPress);
+  expectFocus(expectedFocusedKey);
 }
 
 test('navigation with left and right arrow', async () => {
@@ -219,10 +222,14 @@ test('navigation with left and right arrow', async () => {
   // Wait for first render
   const expectedButtonContent = `Q${getMockAudioOnlyTextPrefix(ENGLISH)} Q`;
   await screen.findByText(hasTextAcrossElements(expectedButtonContent));
+  expectFocus('Q');
 
   for (const row of TEST_ROWS_WITH_ACTIONS) {
     for (const key of row) {
-      pressKeyAndExpectFocus('[ArrowRight]', key.value);
+      // Q is autofocused and tested right above this loop
+      if (key.value !== 'Q') {
+        pressKeyAndExpectFocus('[ArrowRight]', key.value);
+      }
     }
   }
 
@@ -260,9 +267,9 @@ test('navigation with up and down arrow', async () => {
   // Wait for first render
   const expectedButtonContent = `Q${getMockAudioOnlyTextPrefix(ENGLISH)} Q`;
   await screen.findByText(hasTextAcrossElements(expectedButtonContent));
+  expectFocus('Q');
 
   // Go down and wrap around to start
-  pressKeyAndExpectFocus('[ArrowDown]', 'Q');
   pressKeyAndExpectFocus('[ArrowDown]', 'A');
   pressKeyAndExpectFocus('[ArrowDown]', 'Z');
   pressKeyAndExpectFocus('[ArrowDown]', 'space');
