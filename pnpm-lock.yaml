@@ -2568,6 +2568,9 @@ importers:
       '@votingworks/backend':
         specifier: workspace:*
         version: link:../../../libs/backend
+      '@votingworks/fixtures':
+        specifier: workspace:*
+        version: link:../../../libs/fixtures
       '@votingworks/grout-test-utils':
         specifier: workspace:*
         version: link:../../../libs/grout/test-utils
@@ -2577,6 +2580,9 @@ importers:
       '@votingworks/pollbook-backend':
         specifier: workspace:*
         version: link:../backend
+      '@votingworks/printing':
+        specifier: workspace:*
+        version: link:../../../libs/printing
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../../../libs/test-utils

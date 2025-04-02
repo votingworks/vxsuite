@@ -54,7 +54,7 @@ export function SettingsScreen(): JSX.Element | null {
               }
             />
           </Row>
-          <div>
+          <div data-testid="election-info">
             <FieldName>Election</FieldName>
             <Card color="neutral">
               <Row style={{ gap: '1rem', alignItems: 'center' }}>

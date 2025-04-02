@@ -94,6 +94,7 @@ export function VoterSearch({
           <InputGroup label="Last Name">
             <input
               value={search.lastName}
+              data-testid="last-name-input"
               onChange={(e) =>
                 updateSearch({
                   lastName: e.target.value.toUpperCase(),
@@ -108,6 +109,7 @@ export function VoterSearch({
           <InputGroup label="First Name">
             <input
               value={search.firstName}
+              data-testid="first-name-input"
               onChange={(e) =>
                 updateSearch({
                   firstName: e.target.value.toUpperCase(),
@@ -229,10 +231,14 @@ export function VoterSearchScreen({
               {getCheckInCountsQuery.data && (
                 <Row style={{ gap: '1rem', fontSize: '1.2rem' }}>
                   <LabelledText label="Total Check-ins">
-                    {getCheckInCountsQuery.data.allMachines.toLocaleString()}
+                    <span data-testid="total-check-ins">
+                      {getCheckInCountsQuery.data.allMachines.toLocaleString()}
+                    </span>
                   </LabelledText>
                   <LabelledText label="Machine Check-ins">
-                    {getCheckInCountsQuery.data.thisMachine.toLocaleString()}
+                    <span data-testid="machine-check-ins">
+                      {getCheckInCountsQuery.data.thisMachine.toLocaleString()}
+                    </span>
                   </LabelledText>
                 </Row>
               )}
@@ -252,6 +258,7 @@ export function VoterSearchScreen({
                   style={{ flexWrap: 'nowrap' }}
                   rightIcon="Next"
                   color="primary"
+                  data-testid={`check-in-button#${voter.voterId}`}
                   onPress={() => onSelect(voter.voterId)}
                 >
                   <Font noWrap>Start Check-In</Font>
