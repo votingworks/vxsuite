@@ -15,10 +15,10 @@
     "editor.formatOnSave": false
   },
   "[typescript]": {
-    "editor.formatOnSave": true
+    "editor.formatOnSave": false
   },
   "[typescriptreact]": {
-    "editor.formatOnSave": true
+    "editor.formatOnSave": false
   },
   "css.validate": false,
   "less.validate": false,
