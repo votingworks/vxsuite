@@ -11,6 +11,7 @@ import {
   ReceiptMetadata,
   ReceiptIcon,
 } from './receipt_helpers';
+import { getCurrentTime } from '../get_current_time';
 
 export function UndoCheckInReceipt({
   voter,
@@ -38,7 +39,9 @@ export function UndoCheckInReceipt({
           <div>
             <strong>Undo Voter Check-In</strong>
           </div>
-          <div>{format.localeNumericDateAndTime(new Date())}</div>
+          <div>
+            {format.localeNumericDateAndTime(new Date(getCurrentTime()))}
+          </div>
           <div>Pollbook: {machineId}</div>
         </div>
 
