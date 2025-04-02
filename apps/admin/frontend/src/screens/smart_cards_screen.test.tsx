@@ -17,7 +17,6 @@ import {
 } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { deferred, err, ok } from '@votingworks/basics';
-import { Api } from '@votingworks/admin-backend';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { screen, within } from '../../test/react_testing_library';
 import {
@@ -118,6 +117,11 @@ test('Insert card prompt', async () => {
   expect(screen.getButton('Program System Administrator Card')).toBeDisabled();
 });
 
+type ProgramResult = Awaited<ReturnType<ApiMock['apiClient']['programCard']>>;
+type UnprogramResult = Awaited<
+  ReturnType<ApiMock['apiClient']['unprogramCard']>
+>;
+
 test('Insert blank card, program election manager card', async () => {
   apiMock.setAuthStatus(auth.blankCard);
   renderScreen({ apiMock });
@@ -126,7 +130,7 @@ test('Insert blank card, program election manager card', async () => {
 
   screen.getByText('Blank Card');
 
-  const deferredProgram = deferred<Awaited<ReturnType<Api['programCard']>>>();
+  const deferredProgram = deferred<ProgramResult>();
   apiMock.apiClient.programCard
     .expectCallWith({ userRole: 'election_manager' })
     .returns(deferredProgram.promise);
@@ -155,7 +159,7 @@ test('Insert blank card, program poll worker card, PINs disabled', async () => {
 
   screen.getByText('Blank Card');
 
-  const deferredProgram = deferred<Awaited<ReturnType<Api['programCard']>>>();
+  const deferredProgram = deferred<ProgramResult>();
   apiMock.apiClient.programCard
     .expectCallWith({ userRole: 'poll_worker' })
     .returns(deferredProgram.promise);
@@ -216,7 +220,7 @@ test('Insert blank card, program system administrator card', async () => {
   userEvent.click(screen.getButton('Program System Administrator Card'));
   confirmModal = await screen.findByRole('alertdialog');
 
-  const deferredProgram = deferred<Awaited<ReturnType<Api['programCard']>>>();
+  const deferredProgram = deferred<ProgramResult>();
   apiMock.apiClient.programCard
     .expectCallWith({ userRole: 'system_administrator' })
     .returns(deferredProgram.promise);
@@ -267,7 +271,7 @@ test('Insert blank card, program system administrator card when machine is not c
   userEvent.click(screen.getButton('Program System Administrator Card'));
   const confirmModal = await screen.findByRole('alertdialog');
 
-  const deferredProgram = deferred<Awaited<ReturnType<Api['programCard']>>>();
+  const deferredProgram = deferred<ProgramResult>();
   apiMock.apiClient.programCard
     .expectCallWith({ userRole: 'system_administrator' })
     .returns(deferredProgram.promise);
@@ -301,8 +305,7 @@ test('Insert election manager card, unprogram', async () => {
   screen.getByText(election.title);
   screen.getByText(prettyElectionDate);
 
-  const deferredUnprogram =
-    deferred<Awaited<ReturnType<Api['unprogramCard']>>>();
+  const deferredUnprogram = deferred<UnprogramResult>();
   apiMock.apiClient.unprogramCard
     .expectCallWith()
     .returns(deferredUnprogram.promise);
@@ -330,7 +333,7 @@ test('Insert election manager card, reset PIN', async () => {
 
   screen.getByText('Election Manager Card');
 
-  const deferredProgram = deferred<Awaited<ReturnType<Api['programCard']>>>();
+  const deferredProgram = deferred<ProgramResult>();
   apiMock.apiClient.programCard
     .expectCallWith({ userRole: 'election_manager' })
     .returns(deferredProgram.promise);
@@ -360,8 +363,7 @@ test('Insert poll worker card (PINs disabled), unprogram', async () => {
 
   expect(screen.queryButton('Reset Card PIN')).not.toBeInTheDocument();
 
-  const deferredUnprogram =
-    deferred<Awaited<ReturnType<Api['unprogramCard']>>>();
+  const deferredUnprogram = deferred<UnprogramResult>();
   apiMock.apiClient.unprogramCard
     .expectCallWith()
     .returns(deferredUnprogram.promise);
@@ -389,7 +391,7 @@ test('Insert poll worker card (PINs enabled), reset PIN', async () => {
 
   screen.getByText('Poll Worker Card');
 
-  const deferredProgram = deferred<Awaited<ReturnType<Api['programCard']>>>();
+  const deferredProgram = deferred<ProgramResult>();
   apiMock.apiClient.programCard
     .expectCallWith({ userRole: 'poll_worker' })
     .returns(deferredProgram.promise);
@@ -429,7 +431,7 @@ test('Insert system administrator card, reset PIN', async () => {
   userEvent.click(screen.getButton('Reset Card PIN'));
   confirmModal = await screen.findByRole('alertdialog');
 
-  const deferredProgram = deferred<Awaited<ReturnType<Api['programCard']>>>();
+  const deferredProgram = deferred<ProgramResult>();
   apiMock.apiClient.programCard
     .expectCallWith({ userRole: 'system_administrator' })
     .returns(deferredProgram.promise);

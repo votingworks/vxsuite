@@ -770,7 +770,7 @@ export function buildApp(context: AppContext): Application {
 
     // A little convoluted, but this is just to form a typechecked link between
     // this handler and the `getUser` API stub.
-    const userInfo: ReturnType<Api['getUser']> = {
+    const userInfo: ReturnType<grout.inferApiMethods<Api>['getUser']> = {
       orgId: user.org_id,
       orgName: org.displayName,
     };

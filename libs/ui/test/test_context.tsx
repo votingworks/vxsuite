@@ -3,7 +3,7 @@ import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Optional } from '@votingworks/basics';
 import { AudioControls } from '@votingworks/types';
-import type { SystemCallApi as SystemCallApiClient } from '@votingworks/backend';
+import type { SystemCallApiMethods as SystemCallApiClient } from '@votingworks/backend';
 import {
   UiStringsApiClient,
   UiStringsReactQueryApi,

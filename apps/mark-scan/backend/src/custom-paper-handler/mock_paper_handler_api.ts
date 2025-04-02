@@ -1,5 +1,3 @@
-import * as grout from '@votingworks/grout';
-
 import {
   MockPaperHandlerStatus,
   PaperHandlerDriverInterface,
@@ -12,7 +10,7 @@ export function buildMockPaperHandlerApi(params: {
 }) {
   const { paperHandler } = params;
 
-  return grout.createApi({
+  return {
     getMockPaperHandlerStatus(): MockPaperHandlerStatus | undefined {
       if (!isMockPaperHandler(paperHandler)) {
         return undefined;
@@ -30,5 +28,5 @@ export function buildMockPaperHandlerApi(params: {
 
       paperHandler.setMockStatus(input.mockStatus);
     },
-  });
+  };
 }

@@ -45,13 +45,13 @@ function buildTestApi() {
 test('startSessionWithPreprintedBallot', () => {
   const { api, mockStateMachine } = buildTestApi();
 
-  api.startSessionWithPreprintedBallot();
+  api.methods.startSessionWithPreprintedBallot();
   expect(mockStateMachine.startSessionWithPreprintedBallot).toHaveBeenCalled();
 });
 
 test('returnPreprintedBallot', () => {
   const { api, mockStateMachine } = buildTestApi();
 
-  api.returnPreprintedBallot();
+  api.methods.returnPreprintedBallot();
   expect(mockStateMachine.returnPreprintedBallot).toHaveBeenCalled();
 });

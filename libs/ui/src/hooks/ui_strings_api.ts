@@ -6,11 +6,11 @@ import {
   useQueries,
   useQuery,
 } from '@tanstack/react-query';
-import type { UiStringsApi } from '@votingworks/backend';
+import type { UiStringsApiMethods } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
 import { assertDefined } from '@votingworks/basics';
 
-export type UiStringsApiClient = grout.Client<UiStringsApi>;
+export type UiStringsApiClient = grout.Client<grout.Api<UiStringsApiMethods>>;
 
 function createReactQueryApi(getApiClient: () => UiStringsApiClient) {
   function createBatchAudioClipsClient(params: {

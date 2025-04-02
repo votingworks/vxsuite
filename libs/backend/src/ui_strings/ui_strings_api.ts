@@ -1,7 +1,6 @@
 /* istanbul ignore file - tested via VxSuite apps. @preserve */
 
 import { BaseLogger } from '@votingworks/logging';
-import * as grout from '@votingworks/grout';
 import {
   UiStringAudioClips,
   UiStringAudioIds,
@@ -9,7 +8,7 @@ import {
 } from '@votingworks/types';
 import { UiStringsStore } from './ui_strings_store';
 
-/** App context for {@link UiStringsApi} endpoints. */
+/** App context for {@link UiStringsApiMethods} endpoints. */
 export interface UiStringsApiContext {
   logger: BaseLogger;
   store: UiStringsStore;
@@ -18,7 +17,7 @@ export interface UiStringsApiContext {
 function buildApi(context: UiStringsApiContext) {
   const { store } = context;
 
-  return grout.createApi({
+  return {
     getAvailableLanguages(): string[] {
       return store.getLanguages();
     },
@@ -39,13 +38,15 @@ function buildApi(context: UiStringsApiContext) {
     }): UiStringAudioClips {
       return store.getAudioClips(input);
     },
-  });
+  };
 }
 
-/** Grout API definition for UI string functions */
-export type UiStringsApi = ReturnType<typeof buildApi>;
+/** Grout API methods for UI string functions */
+export type UiStringsApiMethods = ReturnType<typeof buildApi>;
 
-/** Creates a shareable implementation of {@link UiStringsApi}. */
-export function createUiStringsApi(context: UiStringsApiContext): UiStringsApi {
+/** Creates a shareable implementation of {@link UiStringsApiMethods}. */
+export function createUiStringsApi(
+  context: UiStringsApiContext
+): UiStringsApiMethods {
   return buildApi(context);
 }

@@ -77,6 +77,24 @@ interface SerializableMockSpec extends Omit<MockSpec, 'mockPdiScanner'> {
   mockPdiScanner?: boolean;
 }
 
+function setElection(path: string, devDockFilePath: string): void {
+  const electionData = fs.readFileSync(electionPathToAbsolute(path), 'utf-8');
+  const electionDefinition =
+    safeParseElectionDefinition(electionData).unsafeUnwrap();
+  const electionInfo: DevDockElectionInfo = {
+    path,
+    title: electionDefinition.election.title,
+  };
+
+  writeDevDockFileContents(devDockFilePath, {
+    electionInfo,
+  });
+}
+
+function getElection(devDockFilePath: string): Optional<DevDockElectionInfo> {
+  return readDevDockFileContents(devDockFilePath).electionInfo;
+}
+
 function buildApi(devDockFilePath: string, mockSpec: MockSpec) {
   const usbHandler = getMockFileUsbDriveHandler();
   const printerHandler = getMockFilePrinterHandler();
@@ -91,24 +109,11 @@ function buildApi(devDockFilePath: string, mockSpec: MockSpec) {
     },
 
     setElection(input: { path: string }): void {
-      const electionData = fs.readFileSync(
-        electionPathToAbsolute(input.path),
-        'utf-8'
-      );
-      const electionDefinition =
-        safeParseElectionDefinition(electionData).unsafeUnwrap();
-      const electionInfo: DevDockElectionInfo = {
-        path: input.path,
-        title: electionDefinition.election.title,
-      };
-
-      writeDevDockFileContents(devDockFilePath, {
-        electionInfo,
-      });
+      setElection(input.path, devDockFilePath);
     },
 
     getElection(): Optional<DevDockElectionInfo> {
-      return readDevDockFileContents(devDockFilePath).electionInfo;
+      return getElection(devDockFilePath);
     },
 
     getCurrentFixtureElectionPaths(): DevDockElectionInfo[] {
@@ -265,10 +270,11 @@ export function useDevDockRouter(
   const api = buildApi(devDockFilePath, mockSpec);
 
   // Set a default election if one is not already set
-  if (!api.getElection()) {
-    api.setElection({
-      path: 'libs/fixtures/data/electionGeneral/election.json',
-    });
+  if (!getElection(devDockFilePath)) {
+    setElection(
+      'libs/fixtures/data/electionGeneral/election.json',
+      devDockFilePath
+    );
   }
 
   const dockRouter = grout.buildRouter(api, express);
