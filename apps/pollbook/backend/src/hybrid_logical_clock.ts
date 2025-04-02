@@ -1,3 +1,5 @@
+import { getCurrentTime } from './get_current_time';
+
 export interface HlcTimestamp {
   physical: number; // e.g. Unix time in ms
   logical: number; // increments on ties
@@ -32,7 +34,7 @@ export class HybridLogicalClock {
    * Usually call this when you create an event locally.
    */
   tick(): HlcTimestamp {
-    const nowMs = Date.now();
+    const nowMs = getCurrentTime();
     // Compare local system time to lastPhysicalTime
     if (nowMs > this.lastPhysicalTime) {
       // Physical clock advanced
