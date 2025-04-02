@@ -1,5 +1,5 @@
 import type Express from 'express';
-import { isObject, isPlainObject, isString } from '@votingworks/basics';
+import { isObject, isString } from '@votingworks/basics';
 import { rootDebug } from './debug';
 import { serialize, deserialize } from './serialization';
 
@@ -210,12 +210,6 @@ export function buildRouter(
             context,
           });
           if (result !== undefined) {
-            if (!isPlainObject(result)) {
-              throw new GroutError(
-                'Middleware must return a context object or undefined. ' +
-                  `The result was: ${JSON.stringify(result)}`
-              );
-            }
             context = result;
           }
         }

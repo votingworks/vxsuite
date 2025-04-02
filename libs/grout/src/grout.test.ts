@@ -158,9 +158,11 @@ test('errors if RPC method doesnt have the correct signature', async () => {
   const { baseUrl, server } = createTestApp(api);
   const client = createClient<typeof api>({ baseUrl });
 
-  // We can catch the wrong number of arguments when calling a method at compile time
-  // @ts-expect-error expected 1 argument, got 2
-  await client.sqrt(4, 5);
+  async () => {
+    // We can catch the wrong number of arguments when calling a method at compile time
+    // @ts-expect-error expected 1 argument, got 2
+    await client.sqrt(4, 5);
+  };
 
   await expect(client.sqrt(4)).rejects.toThrow(
     'Grout methods must be called with an object or undefined as the sole argument. The argument received was: 4'
