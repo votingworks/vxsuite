@@ -204,10 +204,10 @@ export async function generateElectionPackageAndBallots(
     );
   }
 
-  if (
+  const isV3Template =
     ballotTemplateId === 'NhBallotV3' ||
-    ballotTemplateId === 'NhBallotV3Compact'
-  ) {
+    ballotTemplateId === 'NhBallotV3Compact';
+  if (isV3Template) {
     makeV3Compatible(electionPackageZip, systemSettings);
   }
 
@@ -233,7 +233,9 @@ export async function generateElectionPackageAndBallots(
   // Make ballot zip
   for (const [props, document] of iter(allBallotProps).zip(ballotDocuments)) {
     const colorPdf = await document.renderToPdf();
-    const grayscalePdf = await convertPdfToGrayscale(colorPdf);
+    const ballotPdf = isV3Template
+      ? await convertPdfToGrayscale(colorPdf)
+      : colorPdf;
     const { precinctId, ballotStyleId, ballotType, ballotMode } = props;
     const precinct = assertDefined(getPrecinctById({ election, precinctId }));
     const fileName = getPdfFileName(
@@ -242,7 +244,7 @@ export async function generateElectionPackageAndBallots(
       ballotType,
       ballotMode
     );
-    ballotsZip.file(fileName, grayscalePdf);
+    ballotsZip.file(fileName, ballotPdf);
   }
 
   const readinessReportPdf = await renderBallotStyleReadinessReport({
