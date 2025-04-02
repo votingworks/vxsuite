@@ -33,13 +33,15 @@ test('registers Express routes for an API', async () => {
     async getAllPeople(): Promise<Person[]> {
       return store.people;
     },
-    getPersonByName(input: { name: string }): Person | undefined {
-      return store.people.find((person) => person.name === input.name);
+    getPerson(input?: { name: string }): Person | undefined {
+      return store.people.find((person) =>
+        input ? person.name === input.name : true
+      );
     },
     async createPerson(input: { person: Person }) {
       store.people.push(input.person);
     },
-    async updatePersonByName(input: { name: string; newPerson: Person }) {
+    async updatePerson(input: { name: string; newPerson: Person }) {
       store.people = store.people.map((person) =>
         person.name === input.name ? input.newPerson : person
       );
@@ -51,12 +53,9 @@ test('registers Express routes for an API', async () => {
 
   expectTypeOf(client).toEqualTypeOf<{
     getAllPeople(): Promise<Person[]>;
-    getPersonByName(input: { name: string }): Promise<Person | undefined>;
+    getPerson(input?: { name: string }): Promise<Person | undefined>;
     createPerson(input: { person: Person }): Promise<void>;
-    updatePersonByName(input: {
-      name: string;
-      newPerson: Person;
-    }): Promise<void>;
+    updatePerson(input: { name: string; newPerson: Person }): Promise<void>;
   }>();
 
   // @ts-expect-error Catches typos in method names
@@ -69,14 +68,14 @@ test('registers Express routes for an API', async () => {
   const mockPerson: Person = { name: 'Alice', age: 99 };
 
   expect(await client.getAllPeople()).toEqual([]);
-  expect(await client.getPersonByName({ name: 'Alice' })).toEqual(undefined);
+  expect(await client.getPerson({ name: 'Alice' })).toEqual(undefined);
   await client.createPerson({ person: { ...mockPerson } });
   expect(await client.getAllPeople()).toEqual([mockPerson]);
-  await client.updatePersonByName({
+  await client.updatePerson({
     name: 'Alice',
     newPerson: { ...mockPerson, age: 100 },
   });
-  expect(await client.getPersonByName({ name: 'Alice' })).toEqual({
+  expect(await client.getPerson({ name: 'Alice' })).toEqual({
     ...mockPerson,
     age: 100,
   });
@@ -364,6 +363,9 @@ test('middleware can add context that can be accessed in the method', async () =
       ) {
         assert(context.user);
         return context.user[input.attribute];
+      },
+      async getCurrentUser(_input: void, context: Context) {
+        return context.user;
       },
     },
     [loadUserMiddleware, loggingMiddleware]

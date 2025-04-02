@@ -48,7 +48,10 @@ export interface AnyMethods {
 /**
  * Type for a specific API definition returned by createApi.
  */
-export interface Api<Methods extends AnyMethods, Context extends AnyContext> {
+export interface Api<
+  Methods extends AnyMethods,
+  Context extends AnyContext = AnyContext,
+> {
   methods: Methods;
   middlewares?: Array<Middleware<Context>>;
 }
