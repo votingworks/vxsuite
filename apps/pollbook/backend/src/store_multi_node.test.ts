@@ -2,12 +2,17 @@ import { test, expect, vi } from 'vitest';
 import { sleep } from '@votingworks/basics';
 import { Store } from './store';
 import {
+  createValidStreetInfo,
   createVoter,
   getTestElection,
   syncEventsForAllPollbooks,
   syncEventsFromTo,
 } from '../test/test_helpers';
-import { Voter } from './types';
+import {
+  Voter,
+  VoterAddressChangeRequest,
+  VoterNameChangeRequest,
+} from './types';
 
 // Multi-Node test for the following scenario:
 // - PollbookA comes online
@@ -627,4 +632,141 @@ test('late-arriving older event with a more recent undo', () => {
   expect((pennyA as Voter[])[0].checkIn).toBeDefined();
   expect((pennyB as Voter[])[0].checkIn).toBeDefined();
   expect((pennyC as Voter[])[0].checkIn).toBeDefined();
+});
+
+test('all possible events are synced', () => {
+  // Set up two pollbook nodes
+  const pollbookA = Store.memoryStore('pollbook-a');
+  const pollbookB = Store.memoryStore('pollbook-b');
+
+  // Set up test election and voters
+  const testElection = getTestElection();
+  const testVoters = [
+    createVoter('oscar', 'Oscar', 'Wilde'),
+    createVoter('penny', 'Penny', 'Lane'),
+  ];
+
+  // Initialize all pollbooks with same election data
+  pollbookA.setElectionAndVoters(
+    testElection,
+    [createValidStreetInfo('MAIN ST', 'odd', 1, 15)],
+    testVoters
+  );
+  pollbookB.setElectionAndVoters(
+    testElection,
+    [createValidStreetInfo('MAIN ST', 'odd', 1, 15)],
+    testVoters
+  );
+
+  // Pollbook A and B come online
+  pollbookA.setOnlineStatus(true);
+  pollbookB.setOnlineStatus(true);
+
+  const nameChangeData: VoterNameChangeRequest = {
+    firstName: 'Ozcar',
+    middleName: 'Oz',
+    lastName: 'Wild',
+    suffix: 'Jr.',
+  };
+
+  // Pollbook A changes name for Oscar
+  pollbookA.changeVoterName('oscar', nameChangeData);
+
+  const addressChangeData: VoterAddressChangeRequest = {
+    streetNumber: '15',
+    streetSuffix: 'B',
+    streetName: 'MAIN ST',
+    apartmentUnitNumber: 'Apt 4B',
+    houseFractionNumber: '',
+    addressLine2: 'line 2',
+    addressLine3: '',
+    city: 'Manchester',
+    state: 'NH',
+    zipCode: '03101',
+  };
+  // Pollbook A changes address for Penny
+  pollbookA.changeVoterAddress('penny', addressChangeData);
+
+  // Register a vew voter on Pollbook B
+  pollbookB.registerVoter({
+    firstName: 'New',
+    middleName: 'Voter',
+    lastName: 'Test',
+    suffix: '',
+    streetNumber: '13',
+    streetSuffix: '',
+    streetName: 'MAIN ST',
+    apartmentUnitNumber: '',
+    party: 'UND',
+    houseFractionNumber: '',
+    addressLine2: '',
+    addressLine3: '',
+    city: 'Manchester',
+    state: 'NH',
+    zipCode: '03101',
+  });
+  // Pollbook A syncs with Pollbook B
+  syncEventsForAllPollbooks([pollbookA, pollbookB]);
+
+  // No one should be checked in
+  expect(pollbookA.getCheckInCount()).toEqual(0);
+  expect(pollbookB.getCheckInCount()).toEqual(0);
+
+  // Both pollbooks should have the same number of voters
+  for (const pollbook of [pollbookA, pollbookB]) {
+    const voters = pollbook.getAllVoters();
+    expect(voters).toHaveLength(3);
+    expect(voters).toMatchObject([
+      expect.objectContaining({
+        voterId: 'penny',
+        firstName: 'Penny',
+        lastName: 'Lane',
+        addressChange: {
+          ...addressChangeData,
+          timestamp: expect.any(String),
+        },
+      }),
+      expect.objectContaining({
+        firstName: 'New',
+        middleName: 'Voter',
+        lastName: 'Test',
+        party: 'UND',
+        registrationEvent: expect.objectContaining({
+          streetNumber: '13',
+          streetSuffix: '',
+          streetName: 'MAIN ST',
+          apartmentUnitNumber: '',
+          houseFractionNumber: '',
+          addressLine2: '',
+          addressLine3: '',
+          city: 'Manchester',
+          state: 'NH',
+          zipCode: '03101',
+          party: 'UND',
+        }),
+      }),
+      expect.objectContaining({
+        voterId: 'oscar',
+        firstName: 'Oscar',
+        lastName: 'Wilde',
+        nameChange: {
+          ...nameChangeData,
+          timestamp: expect.any(String),
+        },
+      }),
+    ]);
+  }
+  // Check in all voters and sync events again.
+  const allVoters = pollbookA.getAllVoters();
+  for (const voter of allVoters) {
+    pollbookA.recordVoterCheckIn({
+      voterId: voter.voterId,
+      identificationMethod: { type: 'default' },
+    });
+  }
+  // Sync events between all pollbooks
+  syncEventsForAllPollbooks([pollbookA, pollbookB]);
+  // Verify all pollbooks see all voters checked in
+  expect(pollbookA.getCheckInCount()).toEqual(3);
+  expect(pollbookB.getCheckInCount()).toEqual(3);
 });
