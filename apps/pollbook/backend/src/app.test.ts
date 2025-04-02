@@ -84,8 +84,6 @@ test('check in a voter', async () => {
       machineId: 'test',
     });
 
-    await apiClient.setIsAbsenteeMode({ isAbsenteeMode: true });
-
     const receiptPdfPath = mockPrinterHandler.getLastPrintPath();
     expect(receiptPdfPath).toBeDefined();
     await expect(receiptPdfPath).toMatchPdfSnapshot();
@@ -102,7 +100,7 @@ test('check in a voter', async () => {
     });
     expect(updatedSecondVoterOos.checkIn).toEqual({
       identificationMethod: { type: 'outOfStateLicense', state: 'CA' },
-      isAbsentee: true,
+      isAbsentee: false,
       timestamp: expect.any(String),
       machineId: 'test',
     });
@@ -314,60 +312,6 @@ test('change a voter name', async () => {
   });
 });
 
-test('change a voter address', async () => {
-  await withApp(async ({ apiClient, workspace, mockPrinterHandler }) => {
-    const testVoters = parseVotersFromCsvString(
-      electionFamousNames2021Fixtures.pollbookVoters.asText()
-    );
-    const testStreets = parseValidStreetsFromCsvString(
-      electionFamousNames2021Fixtures.pollbookStreetNames.asText()
-    );
-    workspace.store.setElectionAndVoters(
-      electionFamousNames2021Fixtures.electionJson.readElection(),
-      testStreets,
-      testVoters
-    );
-    mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
-
-    const votersAbigail = await apiClient.searchVoters({
-      searchParams: {
-        firstName: 'Abigail',
-        lastName: 'Adams',
-      },
-    });
-
-    assert(votersAbigail !== null);
-    assert(Array.isArray(votersAbigail));
-    const thirdVoter = (votersAbigail as Voter[])[2];
-
-    const addressChangeData: VoterAddressChangeRequest = {
-      streetName: 'SIERRA RD',
-      streetNumber: '15',
-      streetSuffix: '',
-      apartmentUnitNumber: '',
-      houseFractionNumber: '',
-      addressLine2: '',
-      addressLine3: '',
-      city: 'MANCHESTER',
-      state: 'NH',
-      zipCode: '03101',
-    };
-
-    const changeAddressResult = await apiClient.changeVoterAddress({
-      voterId: thirdVoter.voterId,
-      addressChangeData,
-    });
-    expect(changeAddressResult.addressChange).toEqual({
-      ...addressChangeData,
-      timestamp: expect.any(String),
-    });
-
-    const receiptPdfPath = mockPrinterHandler.getLastPrintPath();
-    expect(receiptPdfPath).toBeDefined();
-    await expect(receiptPdfPath).toMatchPdfSnapshot();
-  });
-});
-
 test('undo a voter check-in', async () => {
   await withApp(async ({ apiClient, workspace, mockPrinterHandler }) => {
     const testVoters = parseVotersFromCsvString(
@@ -502,9 +446,9 @@ test('register a voter, change name and address, and check in', async () => {
       streetName: 'ELM ST',
       streetNumber: '20',
       streetSuffix: '',
-      apartmentUnitNumber: '2B',
+      apartmentUnitNumber: '',
       houseFractionNumber: '',
-      addressLine2: 'this is a second line',
+      addressLine2: '',
       addressLine3: '',
       city: 'Manchester',
       state: 'NH',
@@ -523,6 +467,25 @@ test('register a voter, change name and address, and check in', async () => {
     expect(addressReceiptPdfPath).toBeDefined();
     await expect(addressReceiptPdfPath).toMatchPdfSnapshot();
 
+    // Change the address again
+    const addressChangeData2: VoterAddressChangeRequest = {
+      ...addressChangeData,
+      streetSuffix: 'B',
+      apartmentUnitNumber: '2B',
+      addressLine2: 'this is a second line',
+    };
+    const addressChange2Result = await apiClient.changeVoterAddress({
+      voterId: registerResult.voterId,
+      addressChangeData: addressChangeData2,
+    });
+    expect(addressChange2Result.addressChange).toEqual({
+      ...addressChangeData2,
+      timestamp: expect.any(String),
+    });
+    const addressReceiptPdfPath2 = mockPrinterHandler.getLastPrintPath();
+    expect(addressReceiptPdfPath2).toBeDefined();
+    await expect(addressReceiptPdfPath2).toMatchPdfSnapshot();
+
     // Check in the voter after changes
     const checkInResult = await apiClient.checkInVoter({
       voterId: registerResult.voterId,
@@ -540,7 +503,7 @@ test('register a voter, change name and address, and check in', async () => {
         timestamp: expect.any(String),
       },
       addressChange: {
-        ...addressChangeData,
+        ...addressChangeData2,
         timestamp: expect.any(String),
       },
       checkIn: {
@@ -559,7 +522,7 @@ test('register a voter, change name and address, and check in', async () => {
       lastEventSyncedPerNode: {},
     });
     expect(eventsResult.hasMore).toEqual(false);
-    expect(eventsResult.events).toHaveLength(5);
+    expect(eventsResult.events).toHaveLength(6);
   });
 });
 
@@ -578,6 +541,8 @@ test('check in, change name, undo check-in, change address, and check in again',
     );
     mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
 
+    const result = await apiClient.setIsAbsenteeMode({ isAbsenteeMode: true });
+    expect(result).toEqual(undefined);
     const votersAbigail = await apiClient.searchVoters({
       searchParams: {
         firstName: 'Abigail',
@@ -653,7 +618,7 @@ test('check in, change name, undo check-in, change address, and check in again',
     });
     expect(finalUpdatedVoter.checkIn).toEqual({
       identificationMethod: { type: 'default' },
-      isAbsentee: false,
+      isAbsentee: true,
       timestamp: expect.any(String),
       machineId: 'test',
     });

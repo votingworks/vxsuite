@@ -7,13 +7,6 @@ import { Voter, VoterCheckIn } from '../types';
 
 export const StyledReceipt = styled.div``;
 
-export function capitalizeFirstLetters(str: string): string {
-  return str
-    .split(' ')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-}
-
 export function ReceiptIcon({ icon }: { icon: IconName }): JSX.Element {
   const IconComponent = Icons[icon];
   return <IconComponent style={{ fontSize: '3rem', marginRight: '2px' }} />;
@@ -68,8 +61,10 @@ export function PartyName({ party }: { party: 'DEM' | 'REP' | 'UND' }): string {
       return 'Republican';
     case 'UND':
       return 'Undeclared';
-    default:
+    default: {
+      /* istanbul ignore next: Compile-time check for completeness @preserve */
       throwIllegalValue(party);
+    }
   }
 }
 
@@ -85,8 +80,10 @@ export function IdentificationMethod({
       return null;
     case 'outOfStateLicense':
       return <div>OOS DL ({identificationMethod.state})</div>;
-    default:
+    default: {
+      /* istanbul ignore next: Compile-time check for completeness @preserve */
       throwIllegalValue(identificationMethod);
+    }
   }
 }
 
