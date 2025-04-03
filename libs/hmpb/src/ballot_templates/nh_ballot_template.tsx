@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  assert,
   assertDefined,
   err,
   iter,
@@ -14,6 +15,7 @@ import {
   BallotType,
   CandidateContest as CandidateContestStruct,
   Election,
+  LanguageCode,
   NhPrecinctSplitOptions,
   YesNoContest,
   ballotPaperDimensions,
@@ -192,6 +194,15 @@ function BallotPageFrame({
     getBallotStyle({ election, ballotStyleId })
   );
   const languageCode = primaryLanguageCode(ballotStyle);
+  // There are a number of places in the design and implementation of this
+  // template that haven't yet been extended to support translations and
+  // dual-language ballots (e.g. the header layout, the logic to split long
+  // ballot measures across pages).
+  assert(
+    (!ballotStyle.languages || ballotStyle.languages.length === 1) &&
+      languageCode === LanguageCode.ENGLISH,
+    'NH ballot template only supports English'
+  );
   return (
     <BackendLanguageContextProvider
       key={pageNumber}
