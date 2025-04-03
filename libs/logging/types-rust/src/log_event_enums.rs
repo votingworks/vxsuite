@@ -277,4 +277,6 @@ pub enum EventId {
     BackgroundTaskCancelled,
     #[serde(rename = "background-task-status")]
     BackgroundTaskStatus,
+    #[serde(rename = "api-call")]
+    ApiCall,
 }

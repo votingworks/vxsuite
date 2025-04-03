@@ -31,6 +31,7 @@ export enum AppName {
   VxMarkScan = 'vx-mark-scan',
   VxAdmin = 'vx-admin',
   VxCentralScan = 'vx-central-scan',
+  VxDesign = 'vx-design',
 }
 
 // The following log sources are frontends and always expect to log through window.kiosk

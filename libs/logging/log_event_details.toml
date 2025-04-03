@@ -765,3 +765,9 @@ eventId = "background-task-status"
 eventType = "system-status"
 documentationMessage = "A background task has reported an arbitrary status."
 defaultMessage = "A background task has reported its status."
+
+[ApiCall]
+eventId = "api-call"
+eventType = "application-action"
+documentationMessage = "An API call was made."
+restrictInDocumentationToApps = ["vx-design"]
