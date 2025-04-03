@@ -529,7 +529,11 @@ fn run_event_loop(
                     );
                 }
 
-                running.store(false, Ordering::SeqCst);
+                log!(
+                    EventId::ProcessTerminated;
+                    EventType::SystemAction
+                );
+                exit(1)
             }
         }
 
