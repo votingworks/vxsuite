@@ -3,8 +3,7 @@ import { iter } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import { SheetOf } from '@votingworks/types';
 import express, { Application } from 'express';
-import { readdir, stat } from 'node:fs/promises';
-import { join } from 'node:path';
+import { readdir } from 'node:fs/promises';
 import { getMachineConfig } from '../machine_config';
 import { ElectricalTestingComponent } from '../store';
 import { type ServerContext } from './context';
@@ -111,13 +110,9 @@ function buildApi({
 
     async getLatestScannedSheet(): Promise<SheetOf<string> | null> {
       const allScannedImageNames = await readdir(workspace.ballotImagesPath);
-      const latestElectricalTestingImageName = await iter(allScannedImageNames)
-        .async()
+      const latestElectricalTestingImageName = iter(allScannedImageNames)
         .filter((name) => name.startsWith('electrical-testing-'))
-        .maxBy(
-          async (name) =>
-            (await stat(join(workspace.ballotImagesPath, name))).mtimeMs
-        );
+        .max((a, b) => a.localeCompare(b));
 
       if (!latestElectricalTestingImageName) {
         return null;
