@@ -499,12 +499,27 @@ fn run_event_loop(
             // Timeout error just means no event was sent in the current polling period
             Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
             Err(e) => {
+                if e.to_string() == "NoDevice" {
+                    log!(
+                        event_id: EventId::PatDeviceError,
+                        message: format!("No FAI 100 USB device found: {}", e),
+                        event_type: EventType::SystemStatus,
+                        disposition: Disposition::Failure
+                    );
+                } else {
+                    log!(
+                        event_id: EventId::UnknownError,
+                        message: format!("Unexpected error when reading from bulk endpoint: {e:?}"),
+                        event_type: EventType::SystemStatus,
+                        disposition: Disposition::Failure
+                    );
+                }
+
                 log!(
-                    event_id: EventId::UnknownError,
-                    message: format!("Unexpected error when reading from bulk endpoint: {e:?}"),
-                    event_type: EventType::SystemStatus,
-                    disposition: Disposition::Failure
+                    EventId::ProcessTerminated;
+                    EventType::SystemAction
                 );
+                exit(1)
             }
         }
 
