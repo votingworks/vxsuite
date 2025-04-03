@@ -51,6 +51,7 @@ import {
 import { translateBallotStrings } from '@votingworks/backend';
 import { readFileSync } from 'node:fs';
 import { z } from 'zod';
+import { LogEventId } from '@votingworks/logging';
 import { BackgroundTaskMetadata } from './store';
 import {
   BallotOrderInfo,
@@ -83,6 +84,9 @@ import {
   getUserFeaturesConfig,
   UserFeaturesConfig,
 } from './features';
+import { rootDebug } from './debug';
+
+const debug = rootDebug.extend('app');
 
 export const BALLOT_STYLE_READINESS_REPORT_FILE_NAME =
   'ballot-style-readiness-report.pdf';
@@ -162,10 +166,23 @@ const UpdateElectionInfoInputSchema = z.object({
   languageCodes: z.array(LanguageCodeSchema),
 });
 
-function buildApi({ auth, workspace, translator }: AppContext) {
+function buildApi({ auth, logger, workspace, translator }: AppContext) {
   const { store } = workspace;
 
-  return grout.createApi({
+  type ApiContext = Record<string, never>; // No context for now
+  const middlewares: Array<grout.Middleware<ApiContext>> = [
+    async function logApiCall({ methodName, input }) {
+      // TODO: add relevant user info for debugging once we have middleware to
+      // load the user
+      await logger.logAsCurrentRole(
+        LogEventId.ApiCall,
+        { methodName, input: JSON.stringify(input) },
+        debug
+      );
+    },
+  ];
+
+  const methods = {
     async listElections(input: WithUserInfo): Promise<ElectionListing[]> {
       const { user } = input;
       const elections = await store.listElections({
@@ -706,7 +723,9 @@ function buildApi({ auth, workspace, translator }: AppContext) {
       const election = await store.getElection(input.electionId);
       return getElectionFeaturesConfig(election);
     },
-  });
+  } as const;
+
+  return grout.createApi(methods, middlewares);
 }
 export type Api = ReturnType<typeof buildApi>;
 
