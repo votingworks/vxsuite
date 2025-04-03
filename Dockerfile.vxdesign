@@ -23,7 +23,6 @@ RUN sudo apt update && apt install -y --no-install-recommends \
   gcc \
   ghostscript \
   libasound2  \
-  libatspi2.0-0 \
   libcairo2-dev \
   libdrm2\
   libgbm1 \
@@ -33,17 +32,8 @@ RUN sudo apt update && apt install -y --no-install-recommends \
   libjpeg-dev \
   libnotify4 \
   libpango1.0-dev \
-  libpcsclite-dev \
-  libpcsclite1 \
   libpixman-1-dev \
   libpng-dev \
-  libsane \
-  libsane-common \
-  libsane-hpaio \
-  libsane1 \
-  libudev-dev \
-  libusb-1.0-0-dev \
-  libxss1 \
   libxtst6 \
   libzbar-dev \
   linux-kbuild-6.1 \
@@ -66,7 +56,9 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | b
 
 COPY . .
 
-RUN . ~/.bashrc && pnpm install --frozen-lockfile
+RUN . ~/.bashrc && pnpm install --frozen-lockfile --ignore-scripts
+RUN . ~/.bashrc && pnpm -r rebuild canvas
+RUN . ~/.bashrc && pnpm -dir=libs/hmpb playwright install --with-deps chromium
 
 ENV NODE_ENV="production"
 RUN . ~/.bashrc && pnpm -dir=apps/design/frontend build:prod
