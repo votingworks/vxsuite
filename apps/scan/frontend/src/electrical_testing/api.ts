@@ -134,3 +134,17 @@ export const setUsbDriveLoopRunning = {
 } as const;
 
 export const systemCallApi = createSystemCallApi(useApiClient);
+
+export const getLatestScannedSheet = {
+  queryKey(): QueryKey {
+    return ['getLatestScannedSheet'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(
+      getLatestScannedSheet.queryKey(),
+      () => apiClient.getLatestScannedSheet(),
+      { refetchInterval: 1000 }
+    );
+  },
+} as const;
