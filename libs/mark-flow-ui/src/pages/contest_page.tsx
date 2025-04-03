@@ -15,6 +15,7 @@ import {
   appStrings,
   Button,
   PageNavigationButtonId,
+  AccessibilityMode,
 } from '@votingworks/ui';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 
@@ -26,6 +27,8 @@ import { VoterScreen } from '../components/voter_screen';
 export interface ContestPageProps {
   contests: ContestsWithMsEitherNeither;
   electionDefinition?: ElectionDefinition;
+  accessibilityMode?: AccessibilityMode;
+  enableWriteInAtiControllerNavigation?: boolean;
   getContestUrl: (contestIndex: number) => string;
   getStartPageUrl: () => string;
   getReviewPageUrl: (contestId?: ContestId) => string;
@@ -47,6 +50,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
   const {
     contests,
     electionDefinition,
+    accessibilityMode,
     getContestUrl,
     getStartPageUrl,
     getReviewPageUrl,
@@ -182,7 +186,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
         contest={contest}
         votes={votes}
         updateVote={handleUpdateVote}
-        enableSwitchScanning={!!isPatDeviceConnected}
+        accessibilityMode={accessibilityMode}
       />
     </VoterScreen>
   );

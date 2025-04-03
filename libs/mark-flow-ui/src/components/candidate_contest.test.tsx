@@ -8,7 +8,11 @@ import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 
 import userEvent from '@testing-library/user-event';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import { VirtualKeyboard, VirtualKeyboardProps } from '@votingworks/ui';
+import {
+  AccessibilityMode,
+  VirtualKeyboard,
+  VirtualKeyboardProps,
+} from '@votingworks/ui';
 import { screen, within, render, act } from '../../test/react_testing_library';
 import { CandidateContest } from './candidate_contest';
 import { UpdateVoteFunction } from '../config/types';
@@ -274,6 +278,8 @@ describe('supports write-in candidates', () => {
     const { fireBackspaceEvent, fireKeyPressEvents } =
       setUpMockVirtualKeyboard();
 
+    const mockOnOpenWriteInKeyboard = vi.fn();
+    const mockOnCloseWriteInKeyboard = vi.fn();
     const updateVote = vi.fn();
     render(
       <CandidateContest
@@ -281,13 +287,17 @@ describe('supports write-in candidates', () => {
         contest={candidateContestWithWriteIns}
         vote={[]}
         updateVote={updateVote}
+        onOpenWriteInKeyboard={mockOnOpenWriteInKeyboard}
+        onCloseWriteInKeyboard={mockOnCloseWriteInKeyboard}
       />
     );
+    expect(mockOnOpenWriteInKeyboard).not.toHaveBeenCalled();
     userEvent.click(
       screen.getByText('add write-in candidate').closest('button')!
     );
 
     const modal = within(screen.getByRole('alertdialog'));
+    expect(mockOnOpenWriteInKeyboard).toHaveBeenCalled();
 
     modal.getByRole('heading', {
       name: `Write-In: ${candidateContestWithWriteIns.title}`,
@@ -301,8 +311,57 @@ describe('supports write-in candidates', () => {
     fireKeyPressEvents('E');
     modal.getByText(hasTextAcrossElements(/characters remaining: 27/i));
 
+    expect(mockOnCloseWriteInKeyboard).not.toHaveBeenCalled();
     userEvent.click(modal.getByText('Accept'));
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    expect(mockOnCloseWriteInKeyboard).toHaveBeenCalled();
+
+    expect(updateVote).toHaveBeenCalledWith(candidateContestWithWriteIns.id, [
+      { id: 'write-in-lizardPeople', isWriteIn: true, name: 'LIZARD PEOPLE' },
+    ]);
+  });
+
+  test('calls cancel and accept handlers when buttons are pressed', () => {
+    const { fireBackspaceEvent, fireKeyPressEvents } =
+      setUpMockVirtualKeyboard();
+
+    const mockOnOpenWriteInKeyboard = vi.fn();
+    const mockOnCloseWriteInKeyboard = vi.fn();
+    const updateVote = vi.fn();
+    render(
+      <CandidateContest
+        election={electionDefinition.election}
+        contest={candidateContestWithWriteIns}
+        vote={[]}
+        updateVote={updateVote}
+        onOpenWriteInKeyboard={mockOnOpenWriteInKeyboard}
+        onCloseWriteInKeyboard={mockOnCloseWriteInKeyboard}
+      />
+    );
+    expect(mockOnOpenWriteInKeyboard).not.toHaveBeenCalled();
+    userEvent.click(
+      screen.getByText('add write-in candidate').closest('button')!
+    );
+
+    const modal = within(screen.getByRole('alertdialog'));
+    expect(mockOnOpenWriteInKeyboard).toHaveBeenCalled();
+
+    modal.getByRole('heading', {
+      name: `Write-In: ${candidateContestWithWriteIns.title}`,
+    });
+    modal.getByText(hasTextAcrossElements(/characters remaining: 40/i));
+
+    // type LIZARD PEOPLE, then backspace to remove the E, then add it back
+    fireKeyPressEvents('LIZARD PEOPLE');
+    fireBackspaceEvent();
+    modal.getByText(hasTextAcrossElements(/characters remaining: 28/i));
+    fireKeyPressEvents('E');
+    modal.getByText(hasTextAcrossElements(/characters remaining: 27/i));
+
+    expect(mockOnCloseWriteInKeyboard).not.toHaveBeenCalled();
+    userEvent.click(modal.getByText('Accept'));
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    expect(mockOnCloseWriteInKeyboard).toHaveBeenCalled();
 
     expect(updateVote).toHaveBeenCalledWith(candidateContestWithWriteIns.id, [
       { id: 'write-in-lizardPeople', isWriteIn: true, name: 'LIZARD PEOPLE' },
@@ -317,7 +376,7 @@ describe('supports write-in candidates', () => {
         contest={candidateContestWithWriteIns}
         vote={[]}
         updateVote={updateVote}
-        enableSwitchScanning
+        accessibilityMode={AccessibilityMode.SWITCH_SCANNING}
       />
     );
     userEvent.click(

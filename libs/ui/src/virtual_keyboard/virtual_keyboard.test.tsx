@@ -8,7 +8,14 @@ import {
 import { assertDefined } from '@votingworks/basics';
 
 import { act, render, screen, waitFor } from '../../test/react_testing_library';
-import { US_ENGLISH_KEYMAP, VirtualKeyboard } from './virtual_keyboard';
+import {
+  ACCEPT_KEY,
+  CANCEL_KEY,
+  DELETE_KEY,
+  SPACE_BAR_KEY,
+  US_ENGLISH_KEYMAP,
+  VirtualKeyboard,
+} from './virtual_keyboard';
 import { newTestContext as newUiStringsTestContext } from '../../test/test_context';
 import { AudioOnly } from '../ui_strings/audio_only';
 import { useCurrentLanguage } from '../hooks/use_current_language';
@@ -43,11 +50,15 @@ test('fires key events', async () => {
 
   const onKeyPress = vi.fn();
   const onBackspace = vi.fn();
+  const onCancel = vi.fn();
+  const onAccept = vi.fn();
 
   renderInUiStringsContext(
     <VirtualKeyboard
       onBackspace={onBackspace}
       onKeyPress={onKeyPress}
+      onCancel={onCancel}
+      onAccept={onAccept}
       keyDisabled={() => false}
     />
   );
@@ -88,19 +99,25 @@ test('fires key events', async () => {
 
   expect(onBackspace).not.toHaveBeenCalled();
 
-  userEvent.click(screen.getButton('delete'));
+  userEvent.click(
+    screen.getButton(`delete ${getMockAudioOnlyTextPrefix(SPANISH)} delete`)
+  );
   expect(onBackspace).toHaveBeenCalled();
 });
 
 test("doesn't fire key events for disabled keys", () => {
   const onKeyPress = vi.fn();
   const onBackspace = vi.fn();
+  const onCancel = vi.fn();
+  const onAccept = vi.fn();
 
   render(
     <VirtualKeyboard
       onBackspace={onBackspace}
       onKeyPress={onKeyPress}
       keyDisabled={(k) => k === 'M'}
+      onCancel={onCancel}
+      onAccept={onAccept}
     />
   );
 
@@ -111,11 +128,15 @@ test("doesn't fire key events for disabled keys", () => {
 test('custom keymap', () => {
   const onKeyPress = vi.fn();
   const onBackspace = vi.fn();
+  const onCancel = vi.fn();
+  const onAccept = vi.fn();
 
   render(
     <VirtualKeyboard
       onBackspace={onBackspace}
       onKeyPress={onKeyPress}
+      onCancel={onCancel}
+      onAccept={onAccept}
       keyDisabled={(k) => k === 'M'}
       keyMap={{
         rows: [
@@ -141,4 +162,123 @@ test('custom keymap', () => {
     screen.getButton(`magic ${getMockAudioOnlyTextPrefix(ENGLISH)} magic`)
   );
   expect(onKeyPress).lastCalledWith('✨');
+});
+
+const TEST_ROWS = [
+  ...US_ENGLISH_KEYMAP.rows,
+  [
+    // The actual value is ' ' but we are using `value` as a way to find elements in this test.
+    // Overriding like this is easier than possibly calling the nullable `renderLabel` and
+    // // extracting text from the resulting JSX.Element
+    { ...SPACE_BAR_KEY, value: 'space' },
+    DELETE_KEY,
+  ],
+];
+
+const TEST_ROWS_WITH_ACTIONS = [...TEST_ROWS, [CANCEL_KEY, ACCEPT_KEY]];
+
+function expectFocus(expectedFocusedKey: string) {
+  const expectedButtonContent = `${expectedFocusedKey}${getMockAudioOnlyTextPrefix(
+    ENGLISH
+  )} ${expectedFocusedKey}`;
+
+  // Finds the lowest element with the target text contained across its children. For the VirtualKeyboard
+  // this is a <span>
+  const expectedContentElement = screen.getByText(
+    hasTextAcrossElements(expectedButtonContent)
+  );
+  // The button with focus is the parent of the above <span> element
+  const expectedFocus = expectedContentElement.parentNode;
+  expect(expectedFocus).toHaveFocus();
+}
+
+function pressKeyAndExpectFocus(
+  keyToPress: string,
+  expectedFocusedKey: string
+) {
+  userEvent.keyboard(keyToPress);
+  expectFocus(expectedFocusedKey);
+}
+
+test('navigation with left and right arrow', async () => {
+  const { render: renderInUiStringsContext } = newUiStringsTestContext();
+
+  const onKeyPress = vi.fn();
+  const onBackspace = vi.fn();
+  const onCancel = vi.fn();
+  const onAccept = vi.fn();
+
+  renderInUiStringsContext(
+    <VirtualKeyboard
+      onBackspace={onBackspace}
+      onKeyPress={onKeyPress}
+      onCancel={onCancel}
+      onAccept={onAccept}
+      keyDisabled={() => false}
+      enableWriteInAtiControllerNavigation
+    />
+  );
+
+  // Wait for first render
+  const expectedButtonContent = `Q${getMockAudioOnlyTextPrefix(ENGLISH)} Q`;
+  await screen.findByText(hasTextAcrossElements(expectedButtonContent));
+  expectFocus('Q');
+
+  for (const row of TEST_ROWS_WITH_ACTIONS) {
+    for (const key of row) {
+      // Q is autofocused and tested right above this loop
+      if (key.value !== 'Q') {
+        pressKeyAndExpectFocus('[ArrowRight]', key.value);
+      }
+    }
+  }
+
+  // Expect wrap around from end of keyboard
+  pressKeyAndExpectFocus('[ArrowRight]', TEST_ROWS_WITH_ACTIONS[0][0].value);
+
+  const reversed = TEST_ROWS_WITH_ACTIONS.toReversed();
+  for (const row of reversed) {
+    const reversedKeys = row.toReversed();
+    for (const key of reversedKeys) {
+      pressKeyAndExpectFocus('[ArrowLeft]', key.value);
+    }
+  }
+});
+
+test('navigation with up and down arrow', async () => {
+  const { render: renderInUiStringsContext } = newUiStringsTestContext();
+
+  const onKeyPress = vi.fn();
+  const onBackspace = vi.fn();
+  const onCancel = vi.fn();
+  const onAccept = vi.fn();
+
+  renderInUiStringsContext(
+    <VirtualKeyboard
+      onBackspace={onBackspace}
+      onKeyPress={onKeyPress}
+      onCancel={onCancel}
+      onAccept={onAccept}
+      keyDisabled={() => false}
+      enableWriteInAtiControllerNavigation
+    />
+  );
+
+  // Wait for first render
+  const expectedButtonContent = `Q${getMockAudioOnlyTextPrefix(ENGLISH)} Q`;
+  await screen.findByText(hasTextAcrossElements(expectedButtonContent));
+  expectFocus('Q');
+
+  // Go down and wrap around to start
+  pressKeyAndExpectFocus('[ArrowDown]', 'A');
+  pressKeyAndExpectFocus('[ArrowDown]', 'Z');
+  pressKeyAndExpectFocus('[ArrowDown]', 'space');
+  pressKeyAndExpectFocus('[ArrowDown]', 'Cancel');
+  pressKeyAndExpectFocus('[ArrowDown]', 'Q');
+  // Go up and wrap around to start
+  pressKeyAndExpectFocus('[ArrowUp]', 'Cancel');
+  pressKeyAndExpectFocus('[ArrowUp]', 'space');
+  pressKeyAndExpectFocus('[ArrowUp]', 'Z');
+  pressKeyAndExpectFocus('[ArrowUp]', 'A');
+  pressKeyAndExpectFocus('[ArrowUp]', 'Q');
 });

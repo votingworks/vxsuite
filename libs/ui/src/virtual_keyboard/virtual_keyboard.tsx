@@ -1,9 +1,17 @@
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import styled from 'styled-components';
 
-import { Button } from '../button';
-import { Icons } from '../icons';
+import { Button, ButtonProps } from '../button';
 import { WithAltAudio, appStrings } from '../ui_strings';
-import { getBorderWidthRem, Key } from './common';
+import { ActionKey, getBorderWidthRem, Key } from './common';
+import { advanceElementFocus } from '../accessible_controllers';
+import { Keybinding } from '../keybindings';
 
 const Keyboard = styled.div`
   & button {
@@ -11,6 +19,7 @@ const Keyboard = styled.div`
     font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
     min-height: ${(p) => p.theme.sizes.minTouchAreaSizePx}px;
     min-width: ${(p) => p.theme.sizes.minTouchAreaSizePx}px;
+    flex-grow: 1;
 
     &:disabled {
       border-width: ${getBorderWidthRem}rem;
@@ -21,22 +30,20 @@ const Keyboard = styled.div`
 const KeyRow = styled.div`
   display: flex;
   gap: ${(p) => p.theme.sizes.minTouchAreaSeparationPx}px;
-  justify-content: center;
   margin-bottom: ${(p) => p.theme.sizes.minTouchAreaSeparationPx}px;
 `;
 
-const SpaceBar = styled.span`
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  flex-grow: 1;
-`;
+const COLUMNS_IN_ROW = 12;
+const DEFAULT_COLUMN_SPAN = 1;
 
 export interface VirtualKeyboardProps {
   onKeyPress: (key: string) => void;
   onBackspace: () => void;
+  onCancel: () => void;
+  onAccept: () => void;
   keyDisabled(key: string): boolean;
   keyMap?: KeyMap;
+  enableWriteInAtiControllerNavigation?: boolean;
 }
 
 interface KeyMap {
@@ -206,14 +213,230 @@ export const SPACE_BAR_KEY: Key = {
   renderAudioString: () => appStrings.labelKeyboardSpaceBar(),
   renderLabel: () => appStrings.labelKeyboardSpaceBar(),
   value: ' ',
+  columnSpan: 8,
 };
+
+export const DELETE_KEY: Key = {
+  value: 'delete',
+  renderAudioString: () => appStrings.labelKeyboardDelete(),
+  renderLabel: () => appStrings.labelKeyboardDelete(),
+  columnSpan: 4,
+  icon: 'Backspace',
+  action: ActionKey.DELETE,
+};
+
+export const CANCEL_KEY: Key = {
+  value: 'Cancel',
+  renderAudioString: () => appStrings.buttonCancel(),
+  renderLabel: () => appStrings.buttonCancel(),
+  columnSpan: 3,
+  action: ActionKey.CANCEL,
+};
+
+export const ACCEPT_KEY: Key = {
+  value: 'Accept',
+  renderAudioString: () => appStrings.buttonAccept(),
+  renderLabel: () => appStrings.buttonAccept(),
+  columnSpan: 3,
+  icon: 'Done',
+  action: ActionKey.ACCEPT,
+};
+
+function getAdjacentRowIndex(
+  keyMap: KeyMap,
+  focusedRowIndex: number,
+  direction: -1 | 1
+) {
+  return (
+    (focusedRowIndex + direction + keyMap.rows.length) % keyMap.rows.length
+  );
+}
+
+function getPrevRowIndex(keyMap: KeyMap, focusedRowIndex: number) {
+  return getAdjacentRowIndex(keyMap, focusedRowIndex, -1);
+}
+
+function getNextRowIndex(keyMap: KeyMap, focusedRowIndex: number) {
+  return getAdjacentRowIndex(keyMap, focusedRowIndex, 1);
+}
+
+// For a row adjacent to the currently focused row, find the index of the keyboard button
+// // that will be focused if the user navigates to that row. The target keyboard button
+// is determined by the algorithm:
+// 1. Find the currently focused keyboard button and compute its midpoint
+// 2. In the adjacent row, calculate the closest edge (left or right) for each keyboard button
+// 3. Choose the keyboard button with the closest edge
+function getAdjacentRowTargetButtonIndex(
+  keyMap: KeyMap,
+  rowRefs: React.MutableRefObject<Array<HTMLDivElement | null>>,
+  focusedRowIndex: number,
+  direction: -1 | 1
+) {
+  // The first time the user interacts with the keyboard there is no focused key
+  if (focusedRowIndex === -1) {
+    return 0;
+  }
+
+  const focusedElement = document.activeElement;
+  if (!focusedElement) {
+    return 0;
+  }
+
+  const { x, width } = focusedElement.getBoundingClientRect();
+  const targetX = Math.floor(x + width / 2); // Midpoint of button
+
+  const adjacentRowIndex = getAdjacentRowIndex(
+    keyMap,
+    focusedRowIndex,
+    direction
+  );
+  const adjacentRow = rowRefs.current[adjacentRowIndex];
+  if (!adjacentRow) {
+    return 0;
+  }
+
+  const adjacentRowKeys = Array.from(adjacentRow.querySelectorAll('button'));
+  const closestEdges = adjacentRowKeys.map((button) => {
+    const { x: currentX, width: currentWidth } = button.getBoundingClientRect();
+    const leftEdge = currentX;
+    const rightEdge = currentX + currentWidth;
+    const leftEdgeDistance = Math.abs(leftEdge - targetX);
+    const rightEdgeDistance = Math.abs(rightEdge - targetX);
+    return Math.min(leftEdgeDistance, rightEdgeDistance);
+  });
+
+  return closestEdges.indexOf(Math.min(...closestEdges));
+}
+
+/**
+ * Returns the index of the Key to focus if the user navigates to the previous row.
+ * Index of the Key is relative to its parent row only (not to all keys on the keyboard).
+ */
+function getPrevRowTargetButtonIndex(
+  keyMap: KeyMap,
+  focusedRowIndex: number,
+  rowRefs: React.MutableRefObject<Array<HTMLDivElement | null>>
+) {
+  return getAdjacentRowTargetButtonIndex(keyMap, rowRefs, focusedRowIndex, -1);
+}
+
+/**
+ * Returns the index of the Key to focus if the user navigates to the next row.
+ * Index of the Key is relative to its parent row only (not to all keys on the keyboard).
+ */
+function getNextRowTargetButtonIndex(
+  keyMap: KeyMap,
+  focusedRowIndex: number,
+  rowRefs: React.MutableRefObject<Array<HTMLDivElement | null>>
+) {
+  return getAdjacentRowTargetButtonIndex(keyMap, rowRefs, focusedRowIndex, 1);
+}
 
 export function VirtualKeyboard({
   onBackspace,
   onKeyPress,
+  onCancel,
+  onAccept,
   keyDisabled,
   keyMap = US_ENGLISH_KEYMAP,
+  enableWriteInAtiControllerNavigation,
 }: VirtualKeyboardProps): JSX.Element {
+  const [focusedRowIndex, setFocusedRowIndex] = useState(-1);
+
+  const keyMapWithActions: KeyMap = useMemo(() => {
+    const actions = enableWriteInAtiControllerNavigation
+      ? [
+          [SPACE_BAR_KEY, DELETE_KEY],
+          [CANCEL_KEY, ACCEPT_KEY],
+        ]
+      : // Cancel and Accept keys are rendered outside this component when ATI Controller navigation is off
+        [[SPACE_BAR_KEY, DELETE_KEY]];
+    return {
+      rows: [...keyMap.rows, ...actions],
+    };
+  }, [enableWriteInAtiControllerNavigation, keyMap.rows]);
+
+  const rowRefs = useRef<Array<HTMLDivElement | null>>([]);
+
+  useEffect(() => {
+    const firstRow = rowRefs.current[0];
+    if (enableWriteInAtiControllerNavigation && firstRow) {
+      const firstButton = firstRow.querySelector('button');
+      firstButton?.focus();
+      setFocusedRowIndex(0);
+    }
+  }, [enableWriteInAtiControllerNavigation]);
+
+  // Remap the default behavior of the direction keys to navigate the keyboard grid in 2D
+  /* istanbul ignore next */
+  const handleKeyboardEventForVirtualKeyboard = useCallback(
+    (event: React.KeyboardEvent<HTMLDivElement>): void => {
+      // Prevent propagation so behavior here overrides the app-level keydown listeners bound to `window`
+      event.stopPropagation();
+
+      switch (event.key) {
+        case Keybinding.PAGE_PREVIOUS:
+          advanceElementFocus(-1);
+          break;
+        case Keybinding.PAGE_NEXT:
+          advanceElementFocus(1);
+          break;
+        case Keybinding.FOCUS_PREVIOUS: {
+          const targetRowIndex = getPrevRowIndex(
+            keyMapWithActions,
+            focusedRowIndex
+          );
+          const targetKeyIndex = getPrevRowTargetButtonIndex(
+            keyMapWithActions,
+            focusedRowIndex,
+            rowRefs
+          );
+          const targetRow = rowRefs.current[targetRowIndex];
+          if (targetRow) {
+            const buttons = Array.from(targetRow.querySelectorAll('button'));
+            buttons[targetKeyIndex]?.focus();
+            setFocusedRowIndex(targetRowIndex);
+          }
+          // Prevent browser scroll
+          event.preventDefault();
+          break;
+        }
+        case Keybinding.FOCUS_NEXT: {
+          const targetRowIndex = getNextRowIndex(
+            keyMapWithActions,
+            focusedRowIndex
+          );
+          const targetKeyIndex = getNextRowTargetButtonIndex(
+            keyMapWithActions,
+            focusedRowIndex,
+            rowRefs
+          );
+          const targetRow = rowRefs.current[targetRowIndex];
+          if (targetRow) {
+            const buttons = Array.from(targetRow.querySelectorAll('button'));
+            buttons[targetKeyIndex]?.focus();
+            setFocusedRowIndex(targetRowIndex);
+          }
+          // Prevent browser scroll
+          event.preventDefault();
+          break;
+        }
+        case Keybinding.SELECT:
+          // We want the default behavior for "Enter"
+          break;
+        default:
+          // Simultaneous use of PAT and ATI controller for write-ins is not supported, so no need
+          // to define behavior for PAT-only key events
+          break;
+      }
+    },
+    [focusedRowIndex, keyMapWithActions]
+  );
+
+  function getFlexBasis(columnSpan: number = DEFAULT_COLUMN_SPAN) {
+    return `${(columnSpan / COLUMNS_IN_ROW) * 100}%`;
+  }
+
   function renderKey(key: Key) {
     const {
       audioLanguageOverride,
@@ -221,14 +444,32 @@ export function VirtualKeyboard({
       value,
       renderLabel = () => value,
     } = key;
+    const buttonProps: ButtonProps<string> = {
+      value,
+      onPress: onKeyPress,
+      disabled: keyDisabled(value),
+      style: {
+        flexBasis: getFlexBasis(key.columnSpan),
+      },
+      icon: key.icon,
+    };
 
-    return (
-      <Button
-        key={value}
-        value={value}
-        onPress={onKeyPress}
-        disabled={keyDisabled(value)}
-      >
+    switch (key.action) {
+      case ActionKey.DELETE:
+        buttonProps.onPress = onBackspace;
+        break;
+      case ActionKey.ACCEPT:
+        buttonProps.onPress = onAccept;
+        break;
+      case ActionKey.CANCEL:
+        buttonProps.onPress = onCancel;
+        break;
+      default:
+      // no override
+    }
+
+    const button = (
+      <Button key={value} {...buttonProps}>
         <WithAltAudio
           audioLanguageOverride={audioLanguageOverride}
           audioText={renderAudioString()}
@@ -237,21 +478,29 @@ export function VirtualKeyboard({
         </WithAltAudio>
       </Button>
     );
+
+    return button;
   }
 
   return (
-    <Keyboard data-testid="virtual-keyboard">
-      {keyMap.rows.map((row) => (
-        <KeyRow key={`row-${row.map((key) => key.value).join()}`}>
+    <Keyboard
+      data-testid="virtual-keyboard"
+      onKeyDown={
+        enableWriteInAtiControllerNavigation
+          ? handleKeyboardEventForVirtualKeyboard
+          : undefined
+      }
+    >
+      {keyMapWithActions.rows.map((row, rowIndex) => (
+        <KeyRow
+          ref={(element) => {
+            rowRefs.current[rowIndex] = element;
+          }}
+          key={`row-${row.map((key) => key.value).join()}`}
+        >
           {row.map(renderKey)}
         </KeyRow>
       ))}
-      <KeyRow>
-        <SpaceBar>{renderKey(SPACE_BAR_KEY)}</SpaceBar>
-        <Button onPress={onBackspace}>
-          <Icons.Backspace /> {appStrings.labelKeyboardDelete()}
-        </Button>
-      </KeyRow>
     </Keyboard>
   );
 }
