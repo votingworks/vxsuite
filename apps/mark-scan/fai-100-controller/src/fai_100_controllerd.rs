@@ -13,7 +13,7 @@ use commands::{
 };
 use daemon_utils::{run_no_op_event_loop, write_pid_file};
 use std::{
-    fs::{self, OpenOptions},
+    fs::OpenOptions,
     io::{self, Read, Write},
     path::{Path, PathBuf},
     process::exit,
@@ -52,10 +52,6 @@ struct Args {
     /// Path to the directory where `MarkScan`'s working files are stored.
     #[arg(long, env = "MARK_SCAN_WORKSPACE")]
     mark_scan_workspace: PathBuf,
-}
-
-fn clear_pat_connection_status(workspace_path: &Path) -> Result<(), io::Error> {
-    fs::remove_file(workspace_path.join(PAT_CONNECTION_STATUS_FILENAME))
 }
 
 fn write_pat_connection_status(
@@ -125,16 +121,6 @@ fn main() -> color_eyre::Result<()> {
         // Graceful fallback; if PID file writing fails controller and PAT
         // input may still work.
         log!(EventId::Info, "Failed to write PID file: {}", err);
-    }
-
-    log!(EventId::Info, "Deleting old PAT status file");
-    if let Err(e) = clear_pat_connection_status(workspace_path) {
-        log!(
-            event_id: EventId::FileReadError,
-            message: e.to_string(),
-            event_type: EventType::SystemStatus,
-            disposition: Disposition::Failure
-        );
     }
 
     if let Some(mut port) = get_usb_device() {
