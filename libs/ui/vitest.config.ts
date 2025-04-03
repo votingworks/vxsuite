@@ -13,8 +13,8 @@ export default defineConfig({
       exclude: [
         'src/reports/index.ts',
         'src/diagnostics/test_utils.ts',
-        '.*\\.stories\\.ts',
-        '.*\\.stories\\.tsx',
+        '**/*.stories.ts',
+        '**/*.stories.tsx',
         // Purely presentational components:
         'src/voter_settings/theme_label.tsx',
         'src/voter_settings/theme_preview.tsx',
