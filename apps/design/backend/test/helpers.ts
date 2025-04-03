@@ -5,7 +5,7 @@ import {
 } from '@votingworks/backend';
 import { assertDefined, err, find, ok, Result } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
-import { mockBaseLogger } from '@votingworks/logging';
+import { mockBaseLogger, mockLogger } from '@votingworks/logging';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
   ElectionId,
@@ -109,8 +109,12 @@ class MockFileStorageClient implements FileStorageClient {
 export function testSetupHelpers() {
   const servers: Server[] = [];
 
-  const logger = mockBaseLogger({ fn: vi.fn });
-  const testStore = new TestStore(logger);
+  const baseLogger = mockBaseLogger({ fn: vi.fn });
+  const logger = mockLogger({
+    getCurrentRole: () => Promise.resolve('system'),
+    fn: vi.fn,
+  });
+  const testStore = new TestStore(baseLogger);
 
   async function setupApp(
     opts: {
@@ -123,7 +127,7 @@ export function testSetupHelpers() {
     const store = testStore.getStore();
     await testStore.init();
 
-    const workspace = createWorkspace(tmp.dirSync().name, logger, store);
+    const workspace = createWorkspace(tmp.dirSync().name, baseLogger, store);
 
     const auth = new MockAuthClient(opts.auth?.orgs, opts.auth?.hasAccess);
     const fileStorageClient = new MockFileStorageClient();
@@ -141,6 +145,7 @@ export function testSetupHelpers() {
     const app = buildApp({
       auth,
       fileStorageClient,
+      logger,
       speechSynthesizer,
       translator,
       workspace,
@@ -150,7 +155,7 @@ export function testSetupHelpers() {
     const { port } = server.address() as AddressInfo;
     const baseUrl = `http://localhost:${port}/api`;
     const apiClient = grout.createClient<Api>({ baseUrl });
-    return { apiClient, workspace, auth, fileStorageClient };
+    return { apiClient, workspace, auth, fileStorageClient, logger };
   }
 
   async function cleanup() {

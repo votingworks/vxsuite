@@ -550,3 +550,7 @@ IDs are logged with each log to identify the log being written.
 **Type:** [system-status](#system-status)  
 **Description:** A background task has reported an arbitrary status.  
 **Machines:** All
+### api-call
+**Type:** [application-action](#application-action)  
+**Description:** An API call was made.  
+**Machines:** vx-design

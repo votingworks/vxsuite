@@ -82,7 +82,6 @@ import {
 import { FULL_TEST_DECK_TALLY_REPORT_FILE_NAME } from './test_decks';
 import {
   BallotOrderInfo,
-  BallotStyle,
   ElectionInfo,
   ElectionListing,
   ElectionStatus,
@@ -96,6 +95,7 @@ import { BALLOT_STYLE_READINESS_REPORT_FILE_NAME } from './app';
 import { join } from 'node:path';
 import { electionFeatureConfigs, userFeatureConfigs } from './features';
 import { sliOrgId } from './globals';
+import { LogEventId } from '@votingworks/logging';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -2490,4 +2490,25 @@ test('feature configs', async () => {
   expect(
     await apiClient.getElectionFeatures({ electionId: sliElectionId })
   ).toEqual(electionFeatureConfigs.sli);
+});
+
+test('api method logging', async () => {
+  const { apiClient, logger } = await setupApp();
+  await apiClient.createElection({
+    id: 'election-id' as ElectionId,
+    user: vxUser,
+    orgId: vxUser.orgId,
+  });
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.ApiCall,
+    'system',
+    expect.objectContaining({
+      methodName: 'createElection',
+      input: JSON.stringify({
+        id: 'election-id',
+        user: vxUser,
+        orgId: vxUser.orgId,
+      }),
+    })
+  );
 });

@@ -146,6 +146,7 @@ export enum LogEventId {
   BackgroundTaskSuccess = 'background-task-success',
   BackgroundTaskCancelled = 'background-task-cancelled',
   BackgroundTaskStatus = 'background-task-status',
+  ApiCall = 'api-call',
 }
 
 const ElectionConfigured: LogDetails = {
@@ -1140,6 +1141,13 @@ const BackgroundTaskStatus: LogDetails = {
   defaultMessage: 'A background task has reported its status.',
 };
 
+const ApiCall: LogDetails = {
+  eventId: LogEventId.ApiCall,
+  eventType: LogEventType.ApplicationAction,
+  documentationMessage: 'An API call was made.',
+  restrictInDocumentationToApps: [AppName.VxDesign],
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -1410,6 +1418,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return BackgroundTaskCancelled;
     case LogEventId.BackgroundTaskStatus:
       return BackgroundTaskStatus;
+    case LogEventId.ApiCall:
+      return ApiCall;
     default:
       throwIllegalValue(eventId);
   }

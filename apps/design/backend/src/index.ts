@@ -3,7 +3,7 @@
 import './configure_sentry'; // Must be imported first to instrument code
 import { resolve } from 'node:path';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
-import { BaseLogger, LogSource } from '@votingworks/logging';
+import { BaseLogger, Logger, LogSource } from '@votingworks/logging';
 import { authEnabled, WORKSPACE } from './globals';
 import * as server from './server';
 import { createWorkspace } from './workspace';
@@ -43,13 +43,17 @@ function main(): Promise<number> {
     );
   }
   const workspacePath = resolve(WORKSPACE);
-  const workspace = createWorkspace(
-    workspacePath,
-    new BaseLogger(LogSource.VxDesignService)
-  );
+  const baseLogger = new BaseLogger(LogSource.VxDesignService);
+  const workspace = createWorkspace(workspacePath, baseLogger);
   const { store } = workspace;
 
   const auth = authEnabled() ? AuthClient.init() : AuthClient.dev();
+
+  // We reuse the VxSuite logging library, but it doesn't matter if we meet VVSG
+  // requirements in VxDesign, so we can use it a bit loosely. For example, the
+  // VxSuite user roles don't match VxDesign's user roles and the "current user"
+  // isn't known outside of an API request, so we just log as "system".
+  const logger = Logger.from(baseLogger, () => Promise.resolve('system'));
 
   const fileStorageClient =
     process.env.NODE_ENV === 'production'
@@ -64,6 +68,7 @@ function main(): Promise<number> {
   server.start({
     auth,
     fileStorageClient,
+    logger,
     speechSynthesizer,
     translator,
     workspace,

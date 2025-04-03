@@ -1,3 +1,4 @@
+import { Logger } from '@votingworks/logging';
 import { AuthClientInterface } from './auth/client';
 import { FileStorageClient } from './file_storage_client';
 import { GoogleCloudSpeechSynthesizerWithDbCache } from './speech_synthesizer';
@@ -10,4 +11,5 @@ export interface AppContext {
   speechSynthesizer: GoogleCloudSpeechSynthesizerWithDbCache;
   translator: GoogleCloudTranslatorWithDbCache;
   workspace: Workspace;
+  logger: Logger;
 }
