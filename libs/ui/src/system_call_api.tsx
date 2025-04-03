@@ -2,7 +2,8 @@ import React from 'react';
 
 import { Optional } from '@votingworks/basics';
 import { QueryKey, useMutation, useQuery } from '@tanstack/react-query';
-import type { SystemCallApi as SystemCallApiClient } from '@votingworks/backend';
+import type { SystemCallApiMethods } from '@votingworks/backend';
+import * as grout from '@votingworks/grout';
 
 export const BATTERY_POLLING_INTERVAL_GROUT = 3000;
 export const AUDIO_INFO_POLLING_INTERVAL_MS = 1000;
@@ -15,6 +16,8 @@ export const AUDIO_INFO_POLLING_INTERVAL_MS = 1000;
 function async(fn: () => void) {
   return () => Promise.resolve(fn());
 }
+
+type SystemCallApiClient = grout.Client<grout.Api<SystemCallApiMethods>>;
 
 function createReactQueryApi(getApiClient: () => SystemCallApiClient) {
   return {

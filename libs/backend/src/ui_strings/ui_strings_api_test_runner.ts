@@ -3,11 +3,11 @@
 import type * as vitest from 'vitest';
 import { UiStringAudioClips } from '@votingworks/types';
 import { UiStringsStore } from './ui_strings_store';
-import { UiStringsApi } from './ui_strings_api';
+import { UiStringsApiMethods } from './ui_strings_api';
 
-/** Shared tests for the {@link UiStringsApi} and underlying store. */
+/** Shared tests for the {@link UiStringsApiMethods} and underlying store. */
 export function runUiStringApiTests(params: {
-  api: UiStringsApi;
+  api: UiStringsApiMethods;
   store: UiStringsStore;
   afterEach: typeof vitest.afterEach;
   expect: typeof vitest.expect;

@@ -1,4 +1,3 @@
-import type { ElectricalTestingApi } from '@votingworks/scan-backend';
 import {
   Button,
   Caption,
@@ -21,14 +20,15 @@ import {
   setScannerLoopRunning,
   setUsbDriveLoopRunning,
   systemCallApi,
+  ApiClient,
 } from './api';
 
-type ElectricalTestingComponent = keyof ReturnType<
-  ElectricalTestingApi['getElectricalTestingStatuses']
+type ElectricalTestingComponent = keyof Awaited<
+  ReturnType<ApiClient['getElectricalTestingStatuses']>
 >;
 type TaskStatus = Exclude<
-  ReturnType<
-    ElectricalTestingApi['getElectricalTestingStatuses']
+  Awaited<
+    ReturnType<ApiClient['getElectricalTestingStatuses']>
   >[ElectricalTestingComponent],
   undefined
 >['taskStatus'];

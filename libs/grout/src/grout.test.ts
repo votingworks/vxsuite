@@ -3,10 +3,10 @@
 import { expect, test, vi } from 'vitest';
 import { AddressInfo } from 'node:net';
 import express from 'express';
-import { err, ok, Result, sleep } from '@votingworks/basics';
+import { assert, err, ok, Result, sleep } from '@votingworks/basics';
 import { expectTypeOf } from 'expect-type';
 import { createClient } from './client';
-import { AnyApi, buildRouter, createApi } from './server';
+import { AnyApi, buildRouter, createApi, MiddlewareMethodCall } from './server';
 
 function createTestApp(api: AnyApi) {
   const app = express();
@@ -33,13 +33,15 @@ test('registers Express routes for an API', async () => {
     async getAllPeople(): Promise<Person[]> {
       return store.people;
     },
-    getPersonByName(input: { name: string }): Person | undefined {
-      return store.people.find((person) => person.name === input.name);
+    getPerson(input?: { name: string }): Person | undefined {
+      return store.people.find((person) =>
+        input ? person.name === input.name : true
+      );
     },
     async createPerson(input: { person: Person }) {
       store.people.push(input.person);
     },
-    async updatePersonByName(input: { name: string; newPerson: Person }) {
+    async updatePerson(input: { name: string; newPerson: Person }) {
       store.people = store.people.map((person) =>
         person.name === input.name ? input.newPerson : person
       );
@@ -51,12 +53,9 @@ test('registers Express routes for an API', async () => {
 
   expectTypeOf(client).toEqualTypeOf<{
     getAllPeople(): Promise<Person[]>;
-    getPersonByName(input: { name: string }): Promise<Person | undefined>;
+    getPerson(input?: { name: string }): Promise<Person | undefined>;
     createPerson(input: { person: Person }): Promise<void>;
-    updatePersonByName(input: {
-      name: string;
-      newPerson: Person;
-    }): Promise<void>;
+    updatePerson(input: { name: string; newPerson: Person }): Promise<void>;
   }>();
 
   // @ts-expect-error Catches typos in method names
@@ -69,14 +68,14 @@ test('registers Express routes for an API', async () => {
   const mockPerson: Person = { name: 'Alice', age: 99 };
 
   expect(await client.getAllPeople()).toEqual([]);
-  expect(await client.getPersonByName({ name: 'Alice' })).toEqual(undefined);
+  expect(await client.getPerson({ name: 'Alice' })).toEqual(undefined);
   await client.createPerson({ person: { ...mockPerson } });
   expect(await client.getAllPeople()).toEqual([mockPerson]);
-  await client.updatePersonByName({
+  await client.updatePerson({
     name: 'Alice',
     newPerson: { ...mockPerson, age: 100 },
   });
-  expect(await client.getPersonByName({ name: 'Alice' })).toEqual({
+  expect(await client.getPerson({ name: 'Alice' })).toEqual({
     ...mockPerson,
     age: 100,
   });
@@ -131,11 +130,12 @@ test('works with the Result type', async () => {
 });
 
 test('errors if RPC method doesnt have the correct signature', async () => {
-  // We can catch the wrong number of arguments at compile time
+  // We can catch the wrong number of arguments for defining a method at compile time
+  // (Though there may be 1 or 2 arguments due to optional context)
   createApi({
     // @ts-expect-error `add` method does not match AnyRpcMethod signature
-    async add(input1: number, input2: number): Promise<number> {
-      return input1 + input2;
+    async add(input1: number, input2: number, input3: number): Promise<number> {
+      return input1 + input2 + input3;
     },
   });
 
@@ -156,6 +156,13 @@ test('errors if RPC method doesnt have the correct signature', async () => {
   });
   const { baseUrl, server } = createTestApp(api);
   const client = createClient<typeof api>({ baseUrl });
+
+  async () => {
+    // We can catch the wrong number of arguments when calling a method at compile time
+    // @ts-expect-error expected 1 argument, got 2
+    await client.sqrt(4, 5);
+  };
+
   await expect(client.sqrt(4)).rejects.toThrow(
     'Grout methods must be called with an object or undefined as the sole argument. The argument received was: 4'
   );
@@ -310,4 +317,74 @@ test('client handles other server errors', async () => {
     `Got 500 for ${baseUrl}/getStuff`
   );
   server.close();
+});
+
+test('middleware can add context that can be accessed in the method', async () => {
+  interface User {
+    id: string;
+    name: string;
+  }
+  const mockUser: User = { id: '123', name: 'Alice' };
+
+  interface Context {
+    user: User;
+  }
+
+  function loadUserMiddleware(methodCall: MiddlewareMethodCall<Context>) {
+    expectTypeOf(methodCall).toEqualTypeOf<{
+      methodName: string;
+      input?: object;
+      request: express.Request;
+      context: Partial<Context>;
+    }>();
+    expect(methodCall.methodName).toEqual('getUserAttribute');
+    expect(methodCall.input).toEqual({ attribute: 'name' });
+    expect(methodCall.context).toEqual({});
+    return { user: mockUser };
+  }
+
+  function loggingMiddleware(methodCall: MiddlewareMethodCall<Context>) {
+    expectTypeOf(methodCall).toEqualTypeOf<{
+      methodName: string;
+      input?: object;
+      request: express.Request;
+      context: Partial<Context>;
+    }>();
+    expect(methodCall.methodName).toEqual('getUserAttribute');
+    expect(methodCall.input).toEqual({ attribute: 'name' });
+    expect(methodCall.context).toEqual({ user: mockUser });
+  }
+
+  const api = createApi(
+    {
+      async getUserAttribute(
+        input: { attribute: keyof User },
+        context: Context
+      ) {
+        assert(context.user);
+        return context.user[input.attribute];
+      },
+      async getCurrentUser(_input: void, context: Context) {
+        return context.user;
+      },
+    },
+    [loadUserMiddleware, loggingMiddleware]
+  );
+
+  const { server, baseUrl } = createTestApp(api);
+  const client = createClient<typeof api>({ baseUrl });
+  expect(await client.getUserAttribute({ attribute: 'name' })).toEqual(
+    mockUser.name
+  );
+  server.close();
+});
+
+test('can access methods directly for testing', async () => {
+  const methods = {
+    async getStuff(): Promise<number> {
+      return 42;
+    },
+  } as const;
+  const api = createApi(methods);
+  expect(api.methods()).toEqual(methods);
 });

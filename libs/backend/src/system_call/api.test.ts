@@ -3,7 +3,7 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import { LogEventId, MockLogger, mockLogger } from '@votingworks/logging';
-import { SystemCallApi, createSystemCallApi } from './api';
+import { SystemCallApiMethods, createSystemCallApi } from './api';
 import { execFile } from '../exec';
 import { getAudioInfo } from './get_audio_info';
 
@@ -24,7 +24,7 @@ vi.mock(import('./get_audio_info.js'));
 
 let mockUsbDrive: MockUsbDrive;
 let logger: MockLogger;
-let api: SystemCallApi;
+let api: SystemCallApiMethods;
 
 beforeEach(() => {
   vi.clearAllMocks();
