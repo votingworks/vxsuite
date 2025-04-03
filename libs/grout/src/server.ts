@@ -1,5 +1,6 @@
+/* eslint-disable no-underscore-dangle */
 import type Express from 'express';
-import { isObject, isString } from '@votingworks/basics';
+import { assert, isObject, isString } from '@votingworks/basics';
 import { rootDebug } from './debug';
 import { serialize, deserialize } from './serialization';
 
@@ -52,8 +53,18 @@ export interface Api<
   Methods extends AnyMethods,
   Context extends AnyContext = AnyContext,
 > {
-  methods: Methods;
-  middlewares?: Array<Middleware<Context>>;
+  // eslint-disable-next-line vx/gts-jsdoc
+  /** @private Grout internal use only */
+  _methods: Methods;
+  // eslint-disable-next-line vx/gts-jsdoc
+  /** @private Grout internal use only */
+  _middlewares?: Array<Middleware<Context>>;
+  /**
+   * Expose `methods()` for testing the API methods directly without having to
+   * run a server. Note that using this approach will bypass any middleware, so
+   * it's not recommended for most testing.
+   */
+  methods(): Readonly<Methods>;
 }
 
 /**
@@ -123,7 +134,14 @@ export function createApi<
   // Currently, we don't to actually need to do anything with the methods. By
   // calling createApi, we're able to infer their type into Methods, which the
   // client can use.
-  return { methods, middlewares };
+  return {
+    _methods: methods,
+    _middlewares: middlewares,
+    methods(): Readonly<Methods> {
+      assert(process.env.NODE_ENV === 'test');
+      return methods;
+    },
+  };
 }
 
 /**
@@ -172,7 +190,7 @@ export function buildRouter(
   );
 
   for (const [methodName, method] of Object.entries<AnyRpcMethod>(
-    api.methods
+    api._methods
   )) {
     const path = `/${methodName}`;
     debug(`Registering route: ${path}`);
@@ -205,7 +223,7 @@ export function buildRouter(
         }
 
         let context: AnyContext = {};
-        for (const middleware of api.middlewares ?? []) {
+        for (const middleware of api._middlewares ?? []) {
           const result = await middleware({
             methodName,
             input,

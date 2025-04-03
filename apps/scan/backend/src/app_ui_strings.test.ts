@@ -67,7 +67,7 @@ runUiStringApiTests({
     usbDrive: mockUsbDrive.usbDrive,
     printer: wrapLegacyPrinter(printer),
     logger: buildMockLogger(mockAuth, workspace),
-  }).methods,
+  }).methods(),
   store: store.getUiStringsStore(),
   afterEach,
   expect,
@@ -106,7 +106,7 @@ describe('configureFromElectionPackageOnUsbDrive', () => {
     electionDefinition,
     getMockUsbDrive: () => mockUsbDrive,
     runConfigureMachine: () =>
-      api.methods.configureFromElectionPackageOnUsbDrive(),
+      api.methods().configureFromElectionPackageOnUsbDrive(),
     store: store.getUiStringsStore(),
     expect,
     test,
@@ -124,7 +124,7 @@ describe('unconfigureElection', () => {
   });
 
   runUiStringMachineDeconfigurationTests({
-    runUnconfigureMachine: () => api.methods.unconfigureElection(),
+    runUnconfigureMachine: () => api.methods().unconfigureElection(),
     store: store.getUiStringsStore(),
     expect,
     test,

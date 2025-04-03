@@ -378,3 +378,13 @@ test('middleware can add context that can be accessed in the method', async () =
   );
   server.close();
 });
+
+test('can access methods directly for testing', async () => {
+  const methods = {
+    async getStuff(): Promise<number> {
+      return 42;
+    },
+  } as const;
+  const api = createApi(methods);
+  expect(api.methods()).toEqual(methods);
+});
