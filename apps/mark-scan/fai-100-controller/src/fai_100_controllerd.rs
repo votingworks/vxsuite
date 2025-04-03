@@ -502,7 +502,7 @@ fn run_event_loop(
                 if e.to_string() == "NoDevice" {
                     log!(
                         event_id: EventId::PatDeviceError,
-                        message: format!("No FAI 100 USB device found: {}", e),
+                        message: format!("No FAI 100 USB device found: {e}"),
                         event_type: EventType::SystemStatus,
                         disposition: Disposition::Failure
                     );
