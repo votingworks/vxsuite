@@ -87,7 +87,7 @@ export type inferApiMethods<SomeApi extends AnyApi> = SomeApi extends Api<
  */
 export interface MiddlewareMethodCall<Context extends AnyContext> {
   methodName: string;
-  input: unknown;
+  input?: object;
   request: Express.Request;
   /**
    * When a given middleware is called, the Context fields may not have been
@@ -117,11 +117,13 @@ export type Middleware<Context extends AnyContext> = (
  *
  * Example:
  *
- *  const api = createApi({
- *    async sayHello({ name }: { name: string }): Promise<string> {
- *      return `Hello, ${name}!`;
- *    },
- *  }, [logApiCall])
+ * ```
+ * const api = createApi({
+ *   async sayHello({ name }: { name: string }): Promise<string> {
+ *     return `Hello, ${name}!`;
+ *   },
+ * }, [logApiCall])
+ * ```
  *
  */
 export function createApi<
@@ -155,9 +157,11 @@ export class GroutError extends Error {}
  * API. This allows you to easily mount the Grout API within a larger Express
  * app like so:
  *
- *  const api = createApi({ ... methods ... }, middlewares);
- *  const app = express();
- *  app.use('/api', buildRouter(api, express));
+ * ```
+ * const api = createApi({ ... methods ... }, middlewares);
+ * const app = express();
+ * app.use('/api', buildRouter(api, express));
+ * ```
  *
  * All routes will use the POST HTTP method with a JSON body (for RPC input) and
  * return a JSON response (for RPC output), using Grout's serialization format

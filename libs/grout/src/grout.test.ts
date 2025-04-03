@@ -333,7 +333,7 @@ test('middleware can add context that can be accessed in the method', async () =
   function loadUserMiddleware(methodCall: MiddlewareMethodCall<Context>) {
     expectTypeOf(methodCall).toEqualTypeOf<{
       methodName: string;
-      input: unknown;
+      input?: object;
       request: express.Request;
       context: Partial<Context>;
     }>();
@@ -346,7 +346,7 @@ test('middleware can add context that can be accessed in the method', async () =
   function loggingMiddleware(methodCall: MiddlewareMethodCall<Context>) {
     expectTypeOf(methodCall).toEqualTypeOf<{
       methodName: string;
-      input: unknown;
+      input?: object;
       request: express.Request;
       context: Partial<Context>;
     }>();
