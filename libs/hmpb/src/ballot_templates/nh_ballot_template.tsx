@@ -56,6 +56,7 @@ import { BallotMode, PixelDimensions } from '../types';
 import { hmpbStrings } from '../hmpb_strings';
 import { layOutInColumns } from '../layout_in_columns';
 import { Watermark } from './watermark';
+import { ArrowRightCircle } from '../svg_assets';
 
 function Header({
   election,
@@ -422,10 +423,12 @@ function BallotMeasureContest({
   contest,
   compact,
   colorTint,
+  continuesOnNextPage,
 }: {
   contest: YesNoContest;
   compact?: boolean;
   colorTint?: ColorTint;
+  continuesOnNextPage?: boolean;
 }) {
   const ContestTitle = compact ? 'h3' : 'h2';
 
@@ -433,7 +436,7 @@ function BallotMeasureContest({
     <Box style={{ padding: 0 }}>
       <ContestHeader colorTint={colorTint}>
         <DualLanguageText delimiter="/">
-          <ContestTitle>{electionStrings.contestTitle(contest)}</ContestTitle>
+          <ContestTitle>{contest.title}</ContestTitle>
         </DualLanguageText>
       </ContestHeader>
       <div
@@ -458,50 +461,73 @@ function BallotMeasureContest({
               tableBorderColor={Colors.DARKER_GRAY}
               tableHeaderBackgroundColor={Colors.LIGHT_GRAY}
             >
-              {electionStrings.contestDescription(contest)}
+              <div dangerouslySetInnerHTML={{ __html: contest.description }} />
             </RichText>
           </DualLanguageText>
         </div>
-        <ul
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'end',
-          }}
-        >
-          {[contest.yesOption, contest.noOption].map((option) => (
-            <li
-              key={option.id}
-              style={{
-                padding: '0.375rem 0.5rem',
-                borderTop: `1px solid ${Colors.LIGHT_GRAY}`,
-              }}
+        {continuesOnNextPage ? (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              padding: '0.375rem 0.5rem',
+              borderTop: `1px solid ${Colors.LIGHT_GRAY}`,
+              backgroundColor: Colors.LIGHT_GRAY,
+            }}
+          >
+            <h4
+              style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}
             >
-              <div
+              Continues on next page{' '}
+              <ArrowRightCircle style={{ height: '1rem' }} />
+            </h4>
+          </div>
+        ) : (
+          <ul
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'end',
+            }}
+          >
+            {[contest.yesOption, contest.noOption].map((option) => (
+              <li
+                key={option.id}
                 style={{
-                  display: 'flex',
-                  gap: '0.5rem',
-                  paddingTop: '0.25rem',
+                  padding: '0.375rem 0.5rem',
+                  borderTop: `1px solid ${Colors.LIGHT_GRAY}`,
                 }}
               >
-                <strong
-                  style={{ flex: 1, textAlign: 'right', marginTop: '-0.25rem' }}
-                >
-                  <DualLanguageText delimiter="/">
-                    {electionStrings.contestOptionLabel(option)}
-                  </DualLanguageText>
-                </strong>
-                <Bubble
-                  optionInfo={{
-                    type: 'option',
-                    contestId: contest.id,
-                    optionId: option.id,
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: '0.5rem',
+                    paddingTop: '0.25rem',
                   }}
-                />
-              </div>
-            </li>
-          ))}
-        </ul>
+                >
+                  <strong
+                    style={{
+                      flex: 1,
+                      textAlign: 'right',
+                      marginTop: '-0.25rem',
+                    }}
+                  >
+                    <DualLanguageText delimiter="/">
+                      {electionStrings.contestOptionLabel(option)}
+                    </DualLanguageText>
+                  </strong>
+                  <Bubble
+                    optionInfo={{
+                      type: 'option',
+                      contestId: contest.id,
+                      optionId: option.id,
+                    }}
+                  />
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </Box>
   );
@@ -658,10 +684,80 @@ async function BallotPageContent(
     contests.length > 0 &&
     contestsLeftToLayout.flat().length === contests.length
   ) {
-    return err({
-      error: 'contestTooLong',
-      contest: contestsLeftToLayout[0],
-    });
+    const tooLongContest = assertDefined(contestsLeftToLayout.shift());
+    // Split long ballot measures onto multiple pages
+    if (tooLongContest.type === 'yesno') {
+      const numColumns = 1;
+      const columnWidthPx =
+        (dimensions.width - horizontalGapPx * (numColumns - 1)) / numColumns;
+      const contestElement = (
+        <Contest
+          compact={compact}
+          contest={tooLongContest}
+          election={election}
+          colorTint={props.colorTint}
+        />
+      );
+      const [measurements] = await scratchpad.measureElements(
+        <BackendLanguageContextProvider
+          currentLanguageCode={primaryLanguageCode(ballotStyle)}
+          uiStringsPackage={election.ballotStrings}
+        >
+          <div
+            className="contestWrapper"
+            style={{ width: `${columnWidthPx}px` }}
+          >
+            {contestElement}
+          </div>
+        </BackendLanguageContextProvider>,
+        '.contestWrapper'
+      );
+      const maxSplitPoint = Math.floor(
+        tooLongContest.description.length *
+          (dimensions.height / measurements.height)
+      );
+      const paragraphBreaksBeforeMaxSplitPoint = tooLongContest.description
+        .substring(0, maxSplitPoint)
+        .matchAll(/<\/p>/g);
+      const splitPoint =
+        iter(paragraphBreaksBeforeMaxSplitPoint).last()?.index ?? maxSplitPoint;
+      const firstDescriptionChunk = tooLongContest.description.slice(
+        0,
+        splitPoint
+      );
+      const restDescription = tooLongContest.description.slice(splitPoint);
+      console.log({
+        splitPoint,
+        dimensions,
+        measurements,
+        tooLongContest,
+        firstDescriptionChunk,
+        restDescription,
+      });
+      const firstContestElement = (
+        <BallotMeasureContest
+          compact={compact}
+          contest={{
+            ...tooLongContest,
+            description: firstDescriptionChunk,
+          }}
+          continuesOnNextPage
+        />
+      );
+      pageSections.push(<div key="section-0">{firstContestElement}</div>);
+
+      const restContest: YesNoContest = {
+        ...tooLongContest,
+        title: `${tooLongContest.title} (Continued)`,
+        description: restDescription,
+      };
+      contestsLeftToLayout.unshift(restContest);
+    } else {
+      return err({
+        error: 'contestTooLong',
+        contest: tooLongContest,
+      });
+    }
   }
 
   const currentPageElement =
@@ -679,14 +775,14 @@ async function BallotPageContent(
       <BlankPageMessage />
     );
   const nextPageProps =
-    contestSectionsLeftToLayout.length > 0
+    contestsLeftToLayout.length > 0
       ? {
           ...restProps,
           compact,
           ballotStyleId,
           election: {
             ...election,
-            contests: contestSectionsLeftToLayout.flat(),
+            contests: contestsLeftToLayout,
           },
         }
       : undefined;
