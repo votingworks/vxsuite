@@ -141,8 +141,10 @@ export const getLatestScannedSheet = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(getLatestScannedSheet.queryKey(), () =>
-      apiClient.getLatestScannedSheet()
+    return useQuery(
+      getLatestScannedSheet.queryKey(),
+      () => apiClient.getLatestScannedSheet(),
+      { refetchInterval: 1000 }
     );
   },
 } as const;
