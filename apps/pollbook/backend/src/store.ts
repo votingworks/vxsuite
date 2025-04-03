@@ -49,8 +49,17 @@ import {
 } from './types';
 import { MACHINE_DISCONNECTED_TIMEOUT, NETWORK_EVENT_LIMIT } from './globals';
 import { HlcTimestamp, HybridLogicalClock } from './hybrid_logical_clock';
-import { convertDbRowsToPollbookEvents } from './event_helpers';
+import {
+  applyPollbookEventsToVoters,
+  convertDbRowsToPollbookEvents,
+  createVoterFromRegistrationData,
+} from './event_helpers';
 import { getCurrentTime } from './get_current_time';
+import { get } from 'node:http';
+import {
+  getUpdatedVoterFirstName,
+  getUpdatedVoterLastName,
+} from './voter_helpers';
 
 const debug = rootDebug.extend('store');
 const debugConnections = debug.extend('connections');
@@ -209,57 +218,7 @@ export class Store {
         ) as EventDbRow[]);
 
     const orderedEvents = convertDbRowsToPollbookEvents(rows);
-
-    for (const event of orderedEvents) {
-      switch (event.type) {
-        case EventType.VoterCheckIn: {
-          const voter = this.voters[event.voterId];
-          // If we receive an event for a voter that doesn't exist, we should ignore it.
-          // If we get the VoterRegistration event for that voter later, this event will get reprocessed.
-          if (!voter) {
-            debug('Voter %s not found', event.voterId);
-            continue;
-          }
-          voter.checkIn = event.checkInData;
-          break;
-        }
-        case EventType.UndoVoterCheckIn: {
-          const voter = this.voters[event.voterId];
-          if (!voter) {
-            debug('Voter %s not found', event.voterId);
-            continue;
-          }
-          voter.checkIn = undefined;
-          break;
-        }
-        case EventType.VoterAddressChange: {
-          const { voterId, addressChangeData } = event;
-          this.voters[voterId] = {
-            ...this.voters[voterId],
-            addressChange: addressChangeData,
-          };
-          break;
-        }
-        case EventType.VoterNameChange: {
-          const { voterId, nameChangeData } = event;
-          this.voters[voterId] = {
-            ...this.voters[voterId],
-            nameChange: nameChangeData,
-          };
-          break;
-        }
-        case EventType.VoterRegistration: {
-          const newVoter = this.createVoterFromRegistrationData(
-            event.registrationData
-          );
-          this.voters[newVoter.voterId] = newVoter;
-          break;
-        }
-        default: {
-          throwIllegalValue(event, 'type');
-        }
-      }
-    }
+    this.voters = applyPollbookEventsToVoters(this.voters, orderedEvents);
   }
 
   getNextReceiptNumber(): number {
@@ -447,12 +406,20 @@ export class Store {
           `
             insert into voters (
               voter_id,
+              original_first_name,
+              original_last_name,
+              updated_first_name,
+              updated_last_name,
               voter_data
             ) values (
-              ?, ?
+              ?, ?, ?, ?, ?, ?
             )
           `,
           voter.voterId,
+          voter.firstName.toUpperCase(),
+          voter.lastName.toUpperCase(),
+          getUpdatedVoterFirstName(voter).toUpperCase(),
+          getUpdatedVoterLastName(voter).toUpperCase(),
           JSON.stringify(voter)
         );
       }
@@ -541,24 +508,59 @@ export class Store {
   }
 
   searchVoters(searchParams: VoterSearchParams): Voter[] | number {
-    const voters = this.getVoters();
-    assert(voters);
+    const { lastName, firstName } = searchParams;
+    const lastNameSearch = lastName.trim().toUpperCase();
+    const firstNameSearch = firstName.trim().toUpperCase();
     const MAX_VOTER_SEARCH_RESULTS = 100;
-    const lastNameSearch = searchParams.lastName.trim().toUpperCase();
-    const firstNameSearch = searchParams.firstName.trim().toUpperCase();
-    const matchingVoters = sortedByVoterName(
-      Object.values(voters).filter((voter) => {
-        const { lastName, firstName } = voter.nameChange ?? voter;
-        return (
-          lastName.toUpperCase().startsWith(lastNameSearch) &&
-          firstName.toUpperCase().startsWith(firstNameSearch)
-        );
-      })
-    );
-    if (matchingVoters.length > MAX_VOTER_SEARCH_RESULTS) {
-      return matchingVoters.length;
+
+    // Query the database for voters matching the search criteria
+    const voterRows = this.client.all(
+      `
+      SELECT v.voter_id, v.voter_data
+      FROM voters v
+      WHERE updated_last_name LIKE ? 
+        AND updated_first_name LIKE ?
+      `,
+      `${lastNameSearch}%`,
+      `${firstNameSearch}%`
+    ) as Array<{ voter_id: string; voter_data: string }>;
+
+    if (voterRows.length === 0) {
+      return [];
     }
-    return matchingVoters;
+
+    if (voterRows.length > MAX_VOTER_SEARCH_RESULTS) {
+      return voterRows.length;
+    }
+
+    // Map voter rows to voter objects
+    const voters: Record<string, Voter> = {};
+    for (const row of voterRows) {
+      voters[row.voter_id] = safeParseJson(
+        row.voter_data,
+        VoterSchema
+      ).unsafeUnwrap();
+    }
+
+    // Query the database for events related to the matched voters
+    const voterIds = voterRows.map((row) => row.voter_id);
+    const placeholders = voterIds.map(() => '?').join(', ');
+    const eventRows = this.client.all(
+      `
+      SELECT *
+      FROM event_log
+      WHERE voter_id IN (${placeholders})
+      ORDER BY physical_time, logical_counter, machine_id
+      `,
+      ...voterIds
+    ) as EventDbRow[];
+
+    // Convert event rows to pollbook events and apply them to the voters
+    const events = convertDbRowsToPollbookEvents(eventRows);
+    const updatedVoters = applyPollbookEventsToVoters(voters, events);
+
+    // Return the sorted list of voters
+    return sortedByVoterName(Object.values(updatedVoters));
   }
 
   getVoter(voterId: string): Voter {
@@ -641,44 +643,6 @@ export class Store {
     return { voter, receiptNumber };
   }
 
-  private createVoterFromRegistrationData(
-    registrationEvent: VoterRegistration
-  ): Voter {
-    assert(registrationEvent.voterId !== undefined);
-    return {
-      voterId: registrationEvent.voterId,
-      firstName: registrationEvent.firstName,
-      lastName: registrationEvent.lastName,
-      streetNumber: registrationEvent.streetNumber,
-      streetName: registrationEvent.streetName,
-      postalCityTown: registrationEvent.city,
-      state: registrationEvent.state,
-      postalZip5: registrationEvent.zipCode,
-      party: registrationEvent.party,
-      suffix: registrationEvent.suffix,
-      middleName: registrationEvent.middleName,
-      addressSuffix: registrationEvent.streetSuffix,
-      houseFractionNumber: registrationEvent.houseFractionNumber,
-      apartmentUnitNumber: registrationEvent.apartmentUnitNumber,
-      addressLine2: registrationEvent.addressLine2,
-      addressLine3: registrationEvent.addressLine3,
-      zip4: '',
-      mailingStreetNumber: '',
-      mailingSuffix: '',
-      mailingHouseFractionNumber: '',
-      mailingStreetName: '',
-      mailingApartmentUnitNumber: '',
-      mailingAddressLine2: '',
-      mailingAddressLine3: '',
-      mailingCityTown: '',
-      mailingState: '',
-      mailingZip5: '',
-      mailingZip4: '',
-      district: registrationEvent.district || '',
-      registrationEvent,
-    };
-  }
-
   private getStreetInfoForVoterAddress(
     voterRegistration: VoterAddressChangeRequest
   ): ValidStreetInfo | undefined {
@@ -741,7 +705,7 @@ export class Store {
       voterId: generateId(),
       district: streetInfo.district,
     };
-    const newVoter = this.createVoterFromRegistrationData(registrationEvent);
+    const newVoter = createVoterFromRegistrationData(registrationEvent);
     voters[newVoter.voterId] = newVoter;
     const receiptNumber = this.getNextReceiptNumber();
     const timestamp = this.incrementClock();

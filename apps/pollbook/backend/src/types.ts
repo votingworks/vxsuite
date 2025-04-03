@@ -64,7 +64,6 @@ export const VoterCheckInSchema: z.ZodSchema<VoterCheckIn> = z.object({
 });
 
 export type PartyAbbreviation = 'DEM' | 'REP' | 'UND';
-
 export interface Voter {
   voterId: string;
   lastName: string;
@@ -95,10 +94,10 @@ export interface Voter {
   mailingZip4: string;
   party: PartyAbbreviation;
   district: string;
-  checkIn?: VoterCheckIn;
-  registrationEvent?: VoterRegistration;
-  addressChange?: VoterAddressChange;
   nameChange?: VoterNameChange;
+  addressChange?: VoterAddressChange;
+  registrationEvent?: VoterRegistration;
+  checkIn?: VoterCheckIn;
 }
 
 export interface VoterAddressChangeRequest {

@@ -1,5 +1,9 @@
 CREATE TABLE voters (
     voter_id TEXT PRIMARY KEY,
+    original_first_name TEXT,
+    original_last_name TEXT,
+    updated_first_name TEXT,
+    updated_last_name TEXT,
     voter_data TEXT not null
 );
 
@@ -24,3 +28,6 @@ CREATE TABLE event_log (
 
 -- Index for sorting events by hybrid logical clock physical time then logical counter - machine id is included in the rare event of tie
 CREATE INDEX idx_hlc ON event_log (physical_time, logical_counter, machine_id); 
+CREATE INDEX idx_voter_hlc ON event_log (voter_id, physical_time, logical_counter, machine_id); 
+CREATE INDEX idx_updated_first_name ON voters (updated_first_name);
+CREATE INDEX idx_updated_last_name ON voters (updated_last_name);
