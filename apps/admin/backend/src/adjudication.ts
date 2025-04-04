@@ -154,7 +154,12 @@ export async function adjudicateWriteIn(
       );
       break;
     case 'invalid':
-      store.setWriteInRecordInvalid(adjudicationAction);
+      // Delete invalid manually created write-in records
+      if (initialWriteInRecord.isManuallyCreated) {
+        store.deleteManualWriteInRecord({ ...initialWriteInRecord });
+      } else {
+        store.setWriteInRecordInvalid(adjudicationAction);
+      }
       // ensure the vote appears as an undervote in tallies
       adjudicateVote(
         {

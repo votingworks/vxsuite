@@ -13,6 +13,7 @@ import {
   SystemSettings,
   Tabulation,
   convertElectionResultsReportingReportToVxManualResults,
+  Side,
 } from '@votingworks/types';
 import {
   assert,
@@ -81,10 +82,14 @@ import {
   WriteInImageView,
   ImportElectionResultsReportingError,
   ManualResultsMetadata,
+  CastVoteRecordVoteInfo,
+  WriteInRecord,
+  VoteAdjudication,
 } from './types';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
 import {
+  getCvrContestWriteInImageViews,
   getWriteInAdjudicationContext,
   getWriteInImageView,
 } from './util/write_ins';
@@ -105,7 +110,7 @@ import {
   listCastVoteRecordExportsOnUsbDrive,
 } from './cast_vote_records';
 import { generateBallotCountReportCsv } from './exports/csv_ballot_count_report';
-import { adjudicateWriteIn } from './adjudication';
+import { adjudicateVote, adjudicateWriteIn } from './adjudication';
 import { convertFrontendFilter as convertFrontendFilterUtil } from './util/filters';
 import { buildElectionResultsReport } from './util/cdf_results';
 import { tabulateElectionResults } from './tabulation/full_results';
@@ -630,6 +635,33 @@ function buildApi({
       await adjudicateWriteIn(input, store, logger);
     },
 
+    adjudicateVote(input: {
+      cvrId: Id;
+      contestId: Id;
+      optionId: Id;
+      isVote: boolean;
+    }): void {
+      adjudicateVote(
+        {
+          electionId: loadCurrentElectionIdOrThrow(workspace),
+          ...input,
+        },
+        store
+      );
+    },
+
+    getVoteAdjudications(
+      input: {
+        contestId?: ContestId;
+        cvrId?: Id;
+      } = {}
+    ): VoteAdjudication[] {
+      return store.getVoteAdjudications({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        ...input,
+      });
+    },
+
     getWriteInAdjudicationQueueMetadata(
       input: {
         contestId?: ContestId;
@@ -678,6 +710,88 @@ function buildApi({
       return getWriteInAdjudicationContext({
         store: workspace.store,
         writeInId: input.writeInId,
+      });
+    },
+
+    getCastVoteRecordVoteInfo(input: {
+      cvrId: string;
+    }): CastVoteRecordVoteInfo {
+      return store.getCastVoteRecordVoteInfo({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        ...input,
+      });
+    },
+
+    addWriteInRecord(input: {
+      contestId: ContestId;
+      optionId: Id;
+      cvrId: Id;
+      name: string;
+      side?: Side;
+      isUnmarked: boolean;
+    }): Id {
+      return store.addWriteIn({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        castVoteRecordId: input.cvrId,
+        contestId: input.contestId,
+        optionId: input.optionId,
+        side: input.side || 'front', // BMD ballots are always on the front.
+        isUnmarked: input.isUnmarked,
+        machineMarkedText: undefined, // VERIFY if this is correct
+        isManuallyCreated: true,
+      });
+    },
+
+    getWriteInAdjudicationCvrQueue(
+      input: {
+        contestId?: ContestId;
+      } = {}
+    ): Id[] {
+      return store.getWriteInAdjudicationCvrQueue({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        ...input,
+      });
+    },
+
+    getWriteInAdjudicationCvrQueueMetadata(
+      input: {
+        contestId?: ContestId;
+      } = {}
+    ): WriteInAdjudicationQueueMetadata[] {
+      return store.getWriteInAdjudicationCvrQueueMetadata({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        ...input,
+      });
+    },
+
+    getFirstPendingWriteInCvrId(input: { contestId: ContestId }): Id | null {
+      return (
+        store.getFirstPendingWriteInCvrId({
+          electionId: loadCurrentElectionIdOrThrow(workspace),
+          ...input,
+        }) ?? null
+      );
+    },
+
+    getWriteIns(input: {
+      cvrId?: string;
+      contestId?: string;
+    }): WriteInRecord[] {
+      return store.getWriteInRecords({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+        castVoteRecordId: input.cvrId,
+        contestId: input.contestId,
+      });
+    },
+
+    getCvrContestWriteInImageViews(input: {
+      cvrId: string;
+      contestId: string;
+    }): Promise<WriteInImageView[]> {
+      return getCvrContestWriteInImageViews({
+        store: workspace.store,
+        cvrId: input.cvrId,
+        contestId: input.contestId,
       });
     },
 

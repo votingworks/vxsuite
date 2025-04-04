@@ -1123,6 +1123,7 @@ export class Store {
     optionId,
     isUnmarked = false,
     machineMarkedText = undefined,
+    isManuallyCreated = false,
   }: {
     electionId: Id;
     castVoteRecordId: Id;
@@ -1131,6 +1132,7 @@ export class Store {
     optionId: Id;
     isUnmarked?: boolean;
     machineMarkedText?: string;
+    isManuallyCreated?: boolean;
   }): Id {
     const id = uuid();
 
@@ -1144,9 +1146,10 @@ export class Store {
           contest_id,
           option_id,
           is_unmarked,
-          machine_marked_text
+          machine_marked_text,
+          is_manually_created
         ) values (
-          ?, ?, ?, ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
       `,
       id,
@@ -1156,7 +1159,8 @@ export class Store {
       contestId,
       optionId,
       asSqliteBool(isUnmarked),
-      machineMarkedText || null
+      machineMarkedText || null,
+      asSqliteBool(isManuallyCreated)
     );
 
     return id;
@@ -1848,6 +1852,127 @@ export class Store {
   }
 
   /**
+   * Gets write-in record adjudication queue for a specific contest.
+   */
+  getWriteInAdjudicationCvrQueue({
+    electionId,
+    contestId,
+  }: {
+    electionId: Id;
+    contestId?: ContestId;
+  }): Id[] {
+    this.assertElectionExists(electionId);
+
+    const whereParts: string[] = ['election_id = ?'];
+    const params: Bindable[] = [electionId];
+
+    if (contestId) {
+      whereParts.push('contest_id = ?');
+      params.push(contestId);
+    }
+
+    debug(
+      'querying database for write-in adjudication ballot queue for contest %s',
+      contestId
+    );
+    const rows = this.client.all(
+      `
+        select
+          cvr_id
+        from write_ins
+        where
+          ${whereParts.join(' and ')}
+        group by cvr_id
+        ${WRITE_IN_QUEUE_ORDER_BY}
+`,
+      ...params
+    ) as Array<{ cvr_id: Id }>;
+    debug('queried database for write-in adjudication queue');
+    return rows.map((r) => r.cvr_id);
+  }
+
+  /**
+   * Gets write-in adjudication tallies.
+   */
+  getWriteInAdjudicationCvrQueueMetadata({
+    electionId,
+    contestId,
+  }: {
+    electionId: Id;
+    contestId?: ContestId;
+  }): WriteInAdjudicationQueueMetadata[] {
+    debug(
+      'querying database for write-in adjudication queue metadata for contest %s',
+      contestId
+    );
+    const whereParts: string[] = ['write_ins.election_id = ?'];
+    const params: Bindable[] = [electionId];
+
+    if (contestId) {
+      whereParts.push('write_ins.contest_id = ?');
+      params.push(contestId);
+    }
+
+    const rows = this.client.all(
+      `
+      select
+        contest_id as contestId,
+        count(distinct cvr_id) as totalTally,
+        count(distinct case when 
+          (coalesce(official_candidate_id, 0) = 0 and 
+          coalesce(write_in_candidate_id, 0) = 0 and 
+          is_invalid = 0) 
+        then cvr_id end) as pendingTally
+      from write_ins
+      where ${whereParts.join(' and ')}
+      group by contest_id
+      `,
+      ...params
+    ) as Array<{
+      contestId: ContestId;
+      totalTally: number;
+      pendingTally: number;
+    }>;
+    debug('queried database for write-in adjudication queue metadata');
+    return rows;
+  }
+
+  getFirstPendingWriteInCvrId({
+    electionId,
+    contestId,
+  }: {
+    electionId: Id;
+    contestId: ContestId;
+  }): Optional<Id> {
+    this.assertElectionExists(electionId);
+
+    debug(
+      'querying database for first pending write-in cvr id for contest %s',
+      contestId
+    );
+    const row = this.client.one(
+      `
+        select
+          cvr_id
+        from write_ins
+        where
+          election_id = ? and
+          contest_id = ? and
+          official_candidate_id is null and
+          write_in_candidate_id is null and
+          is_invalid = 0
+        ${WRITE_IN_QUEUE_ORDER_BY}
+        limit 1
+      `,
+      electionId,
+      contestId
+    ) as { cvr_id: Id } | undefined;
+    debug('queried database for first pending write-in cvr id');
+
+    return row?.cvr_id;
+  }
+
+  /**
    * Gets write-in tallies specifically for tabulation, filtered and and
    * grouped by cast vote record attributes.
    *
@@ -2021,6 +2146,7 @@ export class Store {
           write_ins.write_in_candidate_id as writeInCandidateId,
           write_ins.is_invalid as isInvalid,
           write_ins.is_unmarked as isUnmarked,
+          write_ins.is_manually_created as isManuallyCreated,
           datetime(write_ins.adjudicated_at, 'localtime') as adjudicatedAt
         from write_ins
         where
@@ -2037,6 +2163,7 @@ export class Store {
       optionId: ContestOptionId;
       isInvalid: SqliteBool;
       isUnmarked: SqliteBool;
+      isManuallyCreated: SqliteBool;
       officialCandidateId: string | null;
       writeInCandidateId: Id | null;
       adjudicatedAt: Iso8601Timestamp | null;
@@ -2055,6 +2182,7 @@ export class Store {
           adjudicationType: 'official-candidate',
           candidateId: row.officialCandidateId,
           isUnmarked: fromSqliteBool(row.isUnmarked),
+          isManuallyCreated: fromSqliteBool(row.isManuallyCreated),
         });
       }
 
@@ -2069,6 +2197,7 @@ export class Store {
           adjudicationType: 'write-in-candidate',
           candidateId: row.writeInCandidateId,
           isUnmarked: fromSqliteBool(row.isUnmarked),
+          isManuallyCreated: fromSqliteBool(row.isManuallyCreated),
         });
       }
 
@@ -2082,6 +2211,7 @@ export class Store {
           status: 'adjudicated',
           adjudicationType: 'invalid',
           isUnmarked: fromSqliteBool(row.isUnmarked),
+          isManuallyCreated: fromSqliteBool(row.isManuallyCreated),
         });
       }
 
@@ -2093,8 +2223,29 @@ export class Store {
         optionId: row.optionId,
         status: 'pending',
         isUnmarked: fromSqliteBool(row.isUnmarked),
+        isManuallyCreated: fromSqliteBool(row.isManuallyCreated),
       });
     });
+  }
+
+  deleteManualWriteInRecord({
+    electionId,
+    id,
+  }: {
+    electionId: Id;
+    id: Id;
+  }): void {
+    this.client.run(
+      `
+        delete from write_ins
+        where
+          election_id = ? and
+          id = ? and
+          is_manually_created = true
+      `,
+      electionId,
+      id
+    );
   }
 
   /**
@@ -2135,6 +2286,31 @@ export class Store {
     debug('queried database for write-in adjudication queue');
 
     return rows.map((r) => r.id);
+  }
+
+  /**
+   * Gets the write-in IDs for a given cast vote record's contest.
+   */
+  getCvrContestWriteInIds({
+    cvrId,
+    contestId,
+  }: {
+    cvrId: Id;
+    contestId: Id;
+  }): Id[] {
+    const rows = this.client.all(
+      `
+      select id
+      from write_ins
+      where 
+        cvr_id = ? and
+        contest_id = ?
+      `,
+      cvrId,
+      contestId
+    ) as Array<{ id: Id }>;
+
+    return rows.map((row) => row.id);
   }
 
   /**
@@ -2251,6 +2427,52 @@ export class Store {
       optionId,
       asSqliteBool(isVote)
     );
+  }
+
+  getVoteAdjudications({
+    electionId,
+    contestId,
+    cvrId,
+  }: {
+    electionId: Id;
+    contestId?: ContestId;
+    cvrId?: Id;
+  }): VoteAdjudication[] {
+    const whereParts: string[] = ['election_id = ?'];
+    const params: Bindable[] = [electionId];
+
+    if (contestId) {
+      whereParts.push('contest_id = ?');
+      params.push(contestId);
+    }
+
+    if (cvrId) {
+      whereParts.push('cvr_id = ?');
+      params.push(cvrId);
+    }
+
+    const rows = this.client.all(
+      `
+        select
+          cvr_id as cvrId,
+          contest_id as contestId,
+          option_id as optionId,
+          is_vote as isVote
+        from vote_adjudications
+        where ${whereParts.join(' and ')}
+      `,
+      ...params
+    ) as Array<{
+      cvrId: Id;
+      contestId: ContestId;
+      optionId: Id;
+      isVote: boolean;
+    }>;
+
+    return rows.map((row) => ({
+      electionId,
+      ...row,
+    }));
   }
 
   setWriteInRecordOfficialCandidate({

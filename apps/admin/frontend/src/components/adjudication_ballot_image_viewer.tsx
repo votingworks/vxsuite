@@ -10,10 +10,10 @@ const BallotImageViewerContainer = styled.div`
 `;
 
 // We zoom in by scaling (setting the width) and then translating to center the
-// write-in on the screen (setting the top/left position).
+// zoomed-in bounds on the screen (setting the top/left position).
 const ZoomedInBallotImage = styled.img<{
   ballotBounds: Rect;
-  writeInBounds: Rect;
+  zoomedInBounds: Rect;
   scale: number;
 }>`
   /* stylelint-disable value-keyword-case */
@@ -22,7 +22,7 @@ const ZoomedInBallotImage = styled.img<{
     (
       50% -
         ${(props) =>
-          (props.writeInBounds.y + props.writeInBounds.height / 2) *
+          (props.zoomedInBounds.y + props.zoomedInBounds.height / 2) *
           props.scale}px
     )
   );
@@ -30,7 +30,7 @@ const ZoomedInBallotImage = styled.img<{
     (
       50% -
         ${(props) =>
-          (props.writeInBounds.x + props.writeInBounds.width / 2) *
+          (props.zoomedInBounds.x + props.zoomedInBounds.width / 2) *
           props.scale}px
     )
   );
@@ -38,13 +38,13 @@ const ZoomedInBallotImage = styled.img<{
 `;
 
 // We want to create a transparent overlay with a centered rectangle cut out of
-// it of the size of the write-in area. There's not a super easy way to do this
+// it of the size of the focused area. There's not a super easy way to do this
 // in CSS. Based on an idea from https://css-tricks.com/cutouts/, I used this
 // tool to design the clipping path, https://bennettfeely.com/clippy/, and then
 // parameterized it with the focus area width and height.
-const WriteInFocusOverlay = styled.div<{
-  focusWidth: number;
-  focusHeight: number;
+const BackgroundOverlay = styled.div<{
+  cutoutWidth: number;
+  cutoutHeight: number;
 }>`
   position: absolute;
   top: 0;
@@ -56,16 +56,16 @@ const WriteInFocusOverlay = styled.div<{
   clip-path: polygon(
     0% 0%,
     0% 100%,
-    calc(50% - ${(props) => props.focusWidth / 2}px) 100%,
-    calc(50% - ${(props) => props.focusWidth / 2}px)
-      calc(50% - ${(props) => props.focusHeight / 2}px),
-    calc(50% + ${(props) => props.focusWidth / 2}px)
-      calc(50% - ${(props) => props.focusHeight / 2}px),
-    calc(50% + ${(props) => props.focusWidth / 2}px)
-      calc(50% + ${(props) => props.focusHeight / 2}px),
-    calc(50% - ${(props) => props.focusWidth / 2}px)
-      calc(50% + ${(props) => props.focusHeight / 2}px),
-    calc(50% - ${(props) => props.focusWidth / 2}px) 100%,
+    calc(50% - ${(props) => props.cutoutWidth / 2}px) 100%,
+    calc(50% - ${(props) => props.cutoutWidth / 2}px)
+      calc(50% - ${(props) => props.cutoutHeight / 2}px),
+    calc(50% + ${(props) => props.cutoutWidth / 2}px)
+      calc(50% - ${(props) => props.cutoutHeight / 2}px),
+    calc(50% + ${(props) => props.cutoutWidth / 2}px)
+      calc(50% + ${(props) => props.cutoutHeight / 2}px),
+    calc(50% - ${(props) => props.cutoutWidth / 2}px)
+      calc(50% + ${(props) => props.cutoutHeight / 2}px),
+    calc(50% - ${(props) => props.cutoutWidth / 2}px) 100%,
     100% 100%,
     100% 0%
   );
@@ -96,51 +96,44 @@ const BallotImageViewerControls = styled.div<{ isZoomedIn: boolean }>`
 export function BallotZoomImageViewer({
   imageUrl,
   ballotBounds,
-  writeInBounds,
+  zoomedInBounds,
 }: {
   imageUrl: string;
   ballotBounds: Rect;
-  writeInBounds: Rect;
+  zoomedInBounds: Rect;
 }): JSX.Element {
   const [isZoomedIn, setIsZoomedIn] = useState(true);
 
   const IMAGE_SCALE = 0.5; // The images are downscaled by 50% during CVR export, this is to adjust for that.
+
   const zoomedInScale =
-    (ballotBounds.width / writeInBounds.width) * IMAGE_SCALE;
+    (zoomedInBounds.width > zoomedInBounds.height
+      ? ballotBounds.width / zoomedInBounds.width
+      : ballotBounds.height / zoomedInBounds.height) * IMAGE_SCALE;
 
   return (
     <BallotImageViewerContainer>
       <BallotImageViewerControls isZoomedIn={isZoomedIn}>
         <Button
-          icon="ZoomOut"
-          onPress={() => setIsZoomedIn(false)}
-          disabled={!isZoomedIn}
+          icon={isZoomedIn ? 'ZoomOut' : 'ZoomIn'}
+          onPress={() => setIsZoomedIn(!isZoomedIn)}
           color="neutral"
           fill="tinted"
         >
-          Zoom Out
-        </Button>
-        <Button
-          icon="ZoomIn"
-          onPress={() => setIsZoomedIn(true)}
-          disabled={isZoomedIn}
-          color="neutral"
-          fill="tinted"
-        >
-          Zoom In
+          Zoom {isZoomedIn ? 'Out' : 'In'}
         </Button>
       </BallotImageViewerControls>
       {isZoomedIn ? (
         <React.Fragment>
-          <WriteInFocusOverlay
-            focusWidth={writeInBounds.width * zoomedInScale}
-            focusHeight={writeInBounds.height * zoomedInScale}
+          <BackgroundOverlay
+            cutoutWidth={zoomedInBounds.width * zoomedInScale}
+            cutoutHeight={zoomedInBounds.height * zoomedInScale}
           />
           <ZoomedInBallotImage
             src={imageUrl}
-            alt="Ballot with write-in highlighted"
+            alt="Ballot with section highlighted"
             ballotBounds={ballotBounds}
-            writeInBounds={writeInBounds}
+            zoomedInBounds={zoomedInBounds}
             scale={zoomedInScale}
           />
         </React.Fragment>
