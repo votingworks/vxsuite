@@ -439,7 +439,7 @@ function BallotMeasureContest({
       <div
         style={{
           display: 'flex',
-          flexDirection: 'column',
+          flexDirection: compact ? 'row' : 'column',
           justifyContent: 'space-between',
           gap: '0.25rem',
         }}
@@ -475,6 +475,9 @@ function BallotMeasureContest({
               style={{
                 padding: '0.375rem 0.5rem',
                 borderTop: `1px solid ${Colors.LIGHT_GRAY}`,
+                borderLeft: compact
+                  ? `1px solid ${Colors.LIGHT_GRAY}`
+                  : undefined,
               }}
             >
               <div
