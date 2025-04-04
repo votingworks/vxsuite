@@ -91,6 +91,7 @@ export function AddressInputGroup({
         <RequiredStaticInput>
           <FieldName>Street #</FieldName>
           <TextField
+            aria-label="Street Number"
             id="streetNumber"
             value={address.streetNumber + address.streetSuffix}
             style={{ width: '8rem' }}
@@ -107,6 +108,7 @@ export function AddressInputGroup({
         <RequiredExpandableInput>
           <FieldName>Street Name</FieldName>
           <SearchSelect
+            aria-label="Street Name"
             id="streetName"
             value={address.streetName || undefined}
             menuPortalTarget={document.body}
@@ -126,6 +128,7 @@ export function AddressInputGroup({
         <StaticInput>
           <FieldName>Apartment/Unit #</FieldName>
           <TextField
+            aria-label="Apartment or Unit Number"
             value={address.apartmentUnitNumber}
             style={{ width: '8rem' }}
             onChange={(e) =>
@@ -141,6 +144,7 @@ export function AddressInputGroup({
         <ExpandableInput>
           <FieldName>Address Line 2</FieldName>
           <TextField
+            aria-label="Address Line 2"
             value={address.addressLine2}
             onChange={(e) =>
               handleChange({
@@ -152,11 +156,11 @@ export function AddressInputGroup({
         </ExpandableInput>
         <RequiredExpandableInput>
           <FieldName>City</FieldName>
-          <TextField value={address.city} disabled />
+          <TextField aria-label="City" value={address.city} disabled />
         </RequiredExpandableInput>
         <RequiredExpandableInput>
           <FieldName>Zip Code</FieldName>
-          <TextField value={address.zipCode} disabled />
+          <TextField aria-label="Zip Code" value={address.zipCode} disabled />
         </RequiredExpandableInput>
       </Row>
     </React.Fragment>

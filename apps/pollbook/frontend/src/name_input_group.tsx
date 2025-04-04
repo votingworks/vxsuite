@@ -19,6 +19,7 @@ export function NameInputGroup({
       <RequiredExpandableInput>
         <FieldName>Last Name</FieldName>
         <TextField
+          aria-label="Last Name"
           value={name.lastName}
           onChange={(e) =>
             onChange({
@@ -31,6 +32,7 @@ export function NameInputGroup({
       <RequiredExpandableInput>
         <FieldName>First Name</FieldName>
         <TextField
+          aria-label="First Name"
           value={name.firstName}
           onChange={(e) =>
             onChange({
@@ -43,6 +45,7 @@ export function NameInputGroup({
       <ExpandableInput>
         <FieldName>Middle Name</FieldName>
         <TextField
+          aria-label="Middle Name"
           value={name.middleName}
           onChange={(e) =>
             onChange({
@@ -55,6 +58,7 @@ export function NameInputGroup({
       <StaticInput>
         <FieldName>Suffix</FieldName>
         <TextField
+          aria-label="Suffix"
           value={name.suffix}
           style={{ width: '5rem' }}
           onChange={(e) =>
