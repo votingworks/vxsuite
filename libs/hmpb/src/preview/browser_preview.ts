@@ -52,7 +52,7 @@ interface Config {
 async function loadConfigFromSearchParams(url: URL): Promise<Config> {
   const electionUrl =
     url.searchParams.get('election-url') ??
-    '/hmpb-fixtures/general-election/legal/election.json';
+    '/hmpb-fixtures/vx-general-election/legal/election.json';
   const paperSize = unsafeParse(
     HmpbBallotPaperSizeSchema,
     url.searchParams.get('paper-size') ?? HmpbBallotPaperSize.Legal

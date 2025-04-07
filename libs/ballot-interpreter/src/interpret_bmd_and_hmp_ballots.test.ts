@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { renderBmdBallotFixture } from '@votingworks/bmd-ballot-fixtures';
-import { famousNamesFixtures } from '@votingworks/hmpb';
+import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import {
   CandidateContest,
   DEFAULT_MARK_THRESHOLDS,
@@ -14,10 +14,10 @@ import { pdfToPageImages } from '../test/helpers/interpretation';
 import { interpretSheet } from './interpret';
 
 test('interpret BMD ballot for an election supporting hand-marked paper ballots', async () => {
-  const { electionDefinition } = famousNamesFixtures;
+  const { electionDefinition } = vxFamousNamesFixtures;
   // Fixture votes includes overvotes, which aren't possible on a BMD ballot
   const validBmdVotes: VotesDict = Object.fromEntries(
-    Object.entries(famousNamesFixtures.votes).map(([contestId, vote]) => [
+    Object.entries(vxFamousNamesFixtures.votes).map(([contestId, vote]) => [
       contestId,
       vote?.slice(
         0,
@@ -30,8 +30,8 @@ test('interpret BMD ballot for an election supporting hand-marked paper ballots'
     await pdfToPageImages(
       await renderBmdBallotFixture({
         electionDefinition,
-        precinctId: famousNamesFixtures.precinctId,
-        ballotStyleId: famousNamesFixtures.ballotStyleId,
+        precinctId: vxFamousNamesFixtures.precinctId,
+        ballotStyleId: vxFamousNamesFixtures.ballotStyleId,
         votes: validBmdVotes,
       })
     ).toArray()
@@ -59,7 +59,7 @@ test('interpret BMD ballot for an election supporting hand-marked paper ballots'
   });
 
   const hmpbBallot = asSheet(
-    await pdfToPageImages(famousNamesFixtures.markedBallotPath).toArray()
+    await pdfToPageImages(vxFamousNamesFixtures.markedBallotPath).toArray()
   );
 
   const [hmpbPage1Result, hmpbPage2Result] = await interpretSheet(
@@ -87,21 +87,21 @@ test('interpret BMD ballot for an election supporting hand-marked paper ballots'
   expect({
     ...(hmpbPage1Result.interpretation as InterpretedHmpbPage).votes,
     ...(hmpbPage2Result.interpretation as InterpretedHmpbPage).votes,
-  }).toEqual(famousNamesFixtures.votes);
+  }).toEqual(vxFamousNamesFixtures.votes);
 });
 
 // Regression test for a bug where the HMPB interpretation was taking precedence
 // over the BMD interpretation in this specific case
 test('interpret BMD ballot with test/official ballot mode mismatch error', async () => {
-  const { electionDefinition } = famousNamesFixtures;
+  const { electionDefinition } = vxFamousNamesFixtures;
   const bmdBallot = asSheet(
     await pdfToPageImages(
       // Test mode ballot
       await renderBmdBallotFixture({
         electionDefinition,
-        precinctId: famousNamesFixtures.precinctId,
-        ballotStyleId: famousNamesFixtures.ballotStyleId,
-        votes: famousNamesFixtures.votes,
+        precinctId: vxFamousNamesFixtures.precinctId,
+        ballotStyleId: vxFamousNamesFixtures.ballotStyleId,
+        votes: vxFamousNamesFixtures.votes,
       })
     ).toArray()
   );

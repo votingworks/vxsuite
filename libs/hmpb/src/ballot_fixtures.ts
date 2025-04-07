@@ -33,8 +33,8 @@ const debug = makeDebug('hmpb:ballot_fixtures');
 
 export const fixturesDir = join(__dirname, '../fixtures');
 
-export const famousNamesFixtures = (() => {
-  const dir = join(fixturesDir, 'famous-names');
+export const vxFamousNamesFixtures = (() => {
+  const dir = join(fixturesDir, 'vx-famous-names');
   const blankBallotPath = join(dir, 'blank-ballot.pdf');
   const markedBallotPath = join(dir, 'marked-ballot.pdf');
 
@@ -105,8 +105,8 @@ export const famousNamesFixtures = (() => {
   };
 })();
 
-export const generalElectionFixtures = (() => {
-  const dir = join(fixturesDir, 'general-election');
+export const vxGeneralElectionFixtures = (() => {
+  const dir = join(fixturesDir, 'vx-general-election');
 
   function makeElectionFixtureSpec(election: Election) {
     const electionDir = join(
@@ -244,8 +244,8 @@ export const generalElectionFixtures = (() => {
   };
 })();
 
-export const primaryElectionFixtures = (() => {
-  const dir = join(fixturesDir, 'primary-election');
+export const vxPrimaryElectionFixtures = (() => {
+  const dir = join(fixturesDir, 'vx-primary-election');
 
   const election = electionPrimaryPrecinctSplitsFixtures.readElection();
   const allBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
@@ -435,7 +435,7 @@ export const nhGeneralElectionFixtures = (() => {
 
   const customNhProps = {
     electionTitleOverride: 'Overriden Election Title',
-    electionSealOverride: famousNamesFixtures.election.seal,
+    electionSealOverride: vxFamousNamesFixtures.election.seal,
     clerkSignatureImage: `
         <svg xmlns="http://www.w3.org/2000/svg" width="200" height="50" viewBox="0 0 200 50">
           <rect width="200" height="50" style="fill: none; stroke-width: 2; stroke: black;" />

@@ -7,10 +7,10 @@ import { iter } from '@votingworks/basics';
 import { readElection } from '@votingworks/fs';
 import { allBubbleBallotFixtures } from './all_bubble_ballot_fixtures';
 import {
-  famousNamesFixtures,
-  generalElectionFixtures,
+  vxFamousNamesFixtures,
+  vxGeneralElectionFixtures,
   nhGeneralElectionFixtures,
-  primaryElectionFixtures,
+  vxPrimaryElectionFixtures,
 } from './ballot_fixtures';
 import { createPlaywrightRenderer } from './playwright_renderer';
 import { Renderer } from './renderer';
@@ -81,8 +81,8 @@ describe('fixtures are up to date - run `pnpm generate-fixtures` if this test fa
   });
 
   test('famous names fixtures', async () => {
-    const fixtures = famousNamesFixtures;
-    const generated = await famousNamesFixtures.generate(renderer, {
+    const fixtures = vxFamousNamesFixtures;
+    const generated = await vxFamousNamesFixtures.generate(renderer, {
       markedOnly: Boolean(process.env.CI),
     });
 
@@ -104,7 +104,7 @@ describe('fixtures are up to date - run `pnpm generate-fixtures` if this test fa
   });
 
   test('general election fixtures', async () => {
-    const allFixtures = generalElectionFixtures;
+    const allFixtures = vxGeneralElectionFixtures;
     // Speed up CI tests by only checking two paper sizes
     const paperSizesToTest = process.env.CI
       ? [HmpbBallotPaperSize.Letter, HmpbBallotPaperSize.Legal]
@@ -112,7 +112,7 @@ describe('fixtures are up to date - run `pnpm generate-fixtures` if this test fa
     const specs = allFixtures.fixtureSpecs.filter((spec) =>
       paperSizesToTest.includes(spec.paperSize)
     );
-    const allGenerated = await generalElectionFixtures.generate(
+    const allGenerated = await vxGeneralElectionFixtures.generate(
       renderer,
       specs
     );
@@ -136,8 +136,8 @@ describe('fixtures are up to date - run `pnpm generate-fixtures` if this test fa
   });
 
   test(`primary election fixtures`, async () => {
-    const fixtures = primaryElectionFixtures;
-    const generated = await primaryElectionFixtures.generate(renderer, {
+    const fixtures = vxPrimaryElectionFixtures;
+    const generated = await vxPrimaryElectionFixtures.generate(renderer, {
       markedOnly: Boolean(process.env.CI),
     });
 

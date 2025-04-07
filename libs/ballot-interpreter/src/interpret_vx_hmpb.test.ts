@@ -3,10 +3,10 @@ import { sliceBallotHashForEncoding } from '@votingworks/ballot-encoder';
 import { assert, assertDefined, iter } from '@votingworks/basics';
 import { readElection } from '@votingworks/fs';
 import {
-  famousNamesFixtures,
-  generalElectionFixtures,
+  vxFamousNamesFixtures,
+  vxGeneralElectionFixtures,
   nhGeneralElectionFixtures,
-  primaryElectionFixtures,
+  vxPrimaryElectionFixtures,
 } from '@votingworks/hmpb';
 import {
   AdjudicationReason,
@@ -41,14 +41,14 @@ beforeEach(() => {
   vi.mocked(normalizeBallotMode).mockImplementation((input) => input);
 });
 
-describe('HMPB - Famous Names', () => {
+describe('HMPB - VX Famous Names', () => {
   const {
     electionDefinition,
     precinctId,
     votes,
     blankBallotPath,
     markedBallotPath,
-  } = famousNamesFixtures;
+  } = vxFamousNamesFixtures;
 
   test('Blank ballot interpretation', async () => {
     const { election } = electionDefinition;
@@ -300,8 +300,8 @@ function snapshotWriteInCrops(
   }
 }
 
-for (const spec of generalElectionFixtures.fixtureSpecs) {
-  describe(`HMPB - general election - ${spec.paperSize} paper - language: ${spec.languageCode}`, () => {
+for (const spec of vxGeneralElectionFixtures.fixtureSpecs) {
+  describe(`HMPB - VX general election - ${spec.paperSize} paper - language: ${spec.languageCode}`, () => {
     const {
       electionPath,
       markedBallotPath,
@@ -394,9 +394,9 @@ for (const spec of generalElectionFixtures.fixtureSpecs) {
   });
 }
 
-describe('HMPB - primary election', () => {
+describe('HMPB - VX primary election', () => {
   const { electionDefinition, mammalParty, fishParty } =
-    primaryElectionFixtures;
+    vxPrimaryElectionFixtures;
 
   for (const [partyLabel, partyFixtures] of Object.entries({
     mammalParty,
@@ -635,7 +635,7 @@ for (const spec of nhGeneralElectionFixtures.fixtureSpecs) {
 
 test('Non-consecutive page numbers', async () => {
   const { electionPath, blankBallotPath } =
-    generalElectionFixtures.fixtureSpecs[0]!;
+    vxGeneralElectionFixtures.fixtureSpecs[0]!;
   const electionDefinition = (await readElection(electionPath)).unsafeUnwrap();
   const images = await pdfToPageImages(blankBallotPath).toArray();
   assert(images.length > 2);

@@ -856,7 +856,7 @@ mod test {
     #[test]
     fn test_inferred_missing_metadata_from_one_side() {
         let (mut side_a_image, side_b_image, options) =
-            load_hmpb_fixture("general-election/letter", 1);
+            load_hmpb_fixture("vx-general-election/letter", 1);
         let detected = qr_code::detect(&side_a_image, &ImageDebugWriter::disabled()).unwrap();
         let qr_code_bounds = detected.bounds();
 
@@ -939,7 +939,7 @@ mod test {
     #[test]
     fn test_vertical_streaks() {
         let (mut side_a_image, mut side_b_image, options) =
-            load_hmpb_fixture("general-election/letter", 1);
+            load_hmpb_fixture("vx-general-election/letter", 1);
         let thin_complete_streak_x = side_a_image.width() / 5;
         let thick_complete_streak_x = side_a_image.width() * 2 / 5;
         let fuzzy_streak_x = side_a_image.width() * 3 / 5;
@@ -995,7 +995,7 @@ mod test {
     #[test]
     fn test_vertical_streak_through_left_timing_mark() {
         let (mut side_a_image, side_b_image, options) =
-            load_hmpb_fixture("general-election/letter", 1);
+            load_hmpb_fixture("vx-general-election/letter", 1);
         let timing_mark_x = 60;
         let black_pixel = Luma([0]);
         for y in 0..side_a_image.height() {
@@ -1015,7 +1015,7 @@ mod test {
     #[test]
     fn test_vertical_streak_through_right_timing_mark() {
         let (mut side_a_image, side_b_image, options) =
-            load_hmpb_fixture("general-election/letter", 1);
+            load_hmpb_fixture("vx-general-election/letter", 1);
         let timing_mark_x = side_a_image.width() - 60;
         let black_pixel = Luma([0]);
         for y in 0..side_a_image.height() {
@@ -1044,7 +1044,8 @@ mod test {
 
     #[test]
     fn test_rotated_ballot_scoring_write_in_areas_no_write_ins() {
-        let (side_a_image, side_b_image, options) = load_hmpb_fixture("general-election/letter", 3);
+        let (side_a_image, side_b_image, options) =
+            load_hmpb_fixture("vx-general-election/letter", 3);
         let (side_a_image_rotated, side_b_image_rotated) = [side_a_image, side_b_image]
             .map(|image| {
                 geometric_transformations::warp(
