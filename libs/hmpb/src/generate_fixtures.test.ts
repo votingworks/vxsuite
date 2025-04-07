@@ -9,6 +9,7 @@ import { allBubbleBallotFixtures } from './all_bubble_ballot_fixtures';
 import {
   famousNamesFixtures,
   generalElectionFixtures,
+  nhGeneralElectionFixtures,
   primaryElectionFixtures,
 } from './ballot_fixtures';
 import { createPlaywrightRenderer } from './playwright_renderer';
@@ -158,6 +159,33 @@ describe('fixtures are up to date - run `pnpm generate-fixtures` if this test fa
       await expectToMatchSavedPdf(
         partyGenerated.markedBallotPdf,
         partyFixtures.markedBallotPath
+      );
+    }
+  });
+
+  test('NH general election fixtures', async () => {
+    const fixtures = nhGeneralElectionFixtures;
+    const allGenerated = await fixtures.generate(
+      renderer,
+      fixtures.fixtureSpecs
+    );
+    for (const [spec, generated] of iter(fixtures.fixtureSpecs).zip(
+      allGenerated
+    )) {
+      expect(generated.electionDefinition.election).toEqual(
+        (await readElection(spec.electionPath)).ok()?.election
+      );
+
+      // Speed up CI tests by only checking marked ballot
+      if (!process.env.CI) {
+        await expectToMatchSavedPdf(
+          generated.blankBallotPdf,
+          spec.blankBallotPath
+        );
+      }
+      await expectToMatchSavedPdf(
+        generated.markedBallotPdf,
+        spec.markedBallotPath
       );
     }
   });
