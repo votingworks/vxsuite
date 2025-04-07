@@ -2,24 +2,37 @@ import { expect, test } from 'vitest';
 import { renderBmdBallotFixture } from '@votingworks/bmd-ballot-fixtures';
 import { famousNamesFixtures } from '@votingworks/hmpb';
 import {
+  CandidateContest,
   DEFAULT_MARK_THRESHOLDS,
   InterpretedHmpbPage,
   PageInterpretation,
+  VotesDict,
   asSheet,
 } from '@votingworks/types';
-import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
+import { ALL_PRECINCTS_SELECTION, getContestById } from '@votingworks/utils';
 import { pdfToPageImages } from '../test/helpers/interpretation';
 import { interpretSheet } from './interpret';
 
 test('interpret BMD ballot for an election supporting hand-marked paper ballots', async () => {
   const { electionDefinition } = famousNamesFixtures;
+  // Fixture votes includes overvotes, which aren't possible on a BMD ballot
+  const validBmdVotes: VotesDict = Object.fromEntries(
+    Object.entries(famousNamesFixtures.votes).map(([contestId, vote]) => [
+      contestId,
+      vote?.slice(
+        0,
+        (getContestById(electionDefinition, contestId) as CandidateContest)
+          .seats
+      ),
+    ])
+  );
   const bmdBallot = asSheet(
     await pdfToPageImages(
       await renderBmdBallotFixture({
         electionDefinition,
         precinctId: famousNamesFixtures.precinctId,
         ballotStyleId: famousNamesFixtures.ballotStyleId,
-        votes: famousNamesFixtures.votes,
+        votes: validBmdVotes,
       })
     ).toArray()
   );
@@ -39,7 +52,7 @@ test('interpret BMD ballot for an election supporting hand-marked paper ballots'
     Partial<PageInterpretation>
   >({
     type: 'InterpretedBmdPage',
-    votes: famousNamesFixtures.votes,
+    votes: validBmdVotes,
   });
   expect(bmdPage2Result.interpretation).toEqual<PageInterpretation>({
     type: 'BlankPage',

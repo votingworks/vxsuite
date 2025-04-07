@@ -13,12 +13,11 @@ import {
   Election,
   getBallotStyle,
   getContests,
-  VotesDict,
 } from '@votingworks/types';
 import { join } from 'node:path';
 import makeDebug from 'debug';
 import { pdfToImages } from '@votingworks/image-utils';
-import { markBallotDocument, voteIsCandidate } from './mark_ballot';
+import { createTestVotes, markBallotDocument } from './mark_ballot';
 import {
   BaseBallotProps,
   renderAllBallotsAndCreateElectionDefinition,
@@ -52,22 +51,7 @@ export const famousNamesFixtures = (() => {
     getBallotStyle({ election, ballotStyleId: blankBallotProps.ballotStyleId })
   );
   const contests = getContests({ election, ballotStyle });
-  const votes: VotesDict = Object.fromEntries(
-    contests.map((contest, i) => {
-      assert(contest.type === 'candidate');
-      const candidates = iter(contest.candidates)
-        .cycle()
-        .skip(i)
-        .take(contest.seats)
-        .toArray()
-        // list candidates in the order they appear on the ballot
-        .sort(
-          (a, b) =>
-            contest.candidates.indexOf(a) - contest.candidates.indexOf(b)
-        );
-      return [contest.id, candidates];
-    })
-  );
+  const { votes } = createTestVotes(contests);
 
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
@@ -147,57 +131,8 @@ export const generalElectionFixtures = (() => {
       getBallotStyle({ election, ballotStyleId: '12' as BallotStyleId })
     );
     const precinctId = assertDefined(ballotStyle.precincts[0]);
-
     const contests = getContests({ election, ballotStyle });
-    const votes: VotesDict = Object.fromEntries(
-      contests.map((contest, i) => {
-        if (contest.type === 'candidate') {
-          const candidates = iter(contest.candidates)
-            .cycle()
-            .skip(i)
-            .take(contest.seats - (i % 2))
-            .toArray();
-          if (contest.allowWriteIns && i % 2 === 0) {
-            const writeInIndex = i % contest.seats;
-            candidates.push({
-              id: `write-in-${writeInIndex}`,
-              name: `Write-In #${writeInIndex + 1}`,
-              isWriteIn: true,
-              writeInIndex,
-            });
-          }
-          return [contest.id, candidates];
-        }
-        return [
-          contest.id,
-          i % 2 === 0 ? [contest.yesOption.id] : [contest.noOption.id],
-        ];
-      })
-    );
-
-    const unmarkedWriteIns = contests.flatMap((contest, i) => {
-      if (!(contest.type === 'candidate' && contest.allowWriteIns)) {
-        return [];
-      }
-      // Skip contests where we already voted for a write-in above
-      if (
-        assertDefined(votes[contest.id]).some(
-          (vote) => voteIsCandidate(vote) && vote.isWriteIn
-        )
-      ) {
-        return [];
-      }
-
-      const writeInIndex = i % contest.seats;
-      return [
-        {
-          contestId: contest.id,
-          writeInIndex,
-          name: `Unmarked Write-In #${writeInIndex + 1}`,
-        },
-      ];
-    });
-
+    const { votes, unmarkedWriteIns } = createTestVotes(contests);
     const { paperSize } = election.ballotLayout;
     const languageCode = ballotStyle.languages?.[0] ?? 'en';
     return {
@@ -333,22 +268,7 @@ export const primaryElectionFixtures = (() => {
     const otherPrecinctId = assertDefined(ballotStyle.precincts[1]);
     assert(precinctId !== otherPrecinctId);
     const contests = getContests({ election, ballotStyle });
-    const votes: VotesDict = Object.fromEntries(
-      contests.map((contest, i) => {
-        if (contest.type === 'candidate') {
-          const candidates = iter(contest.candidates)
-            .cycle()
-            .skip(i)
-            .take(contest.seats)
-            .toArray();
-          return [contest.id, candidates];
-        }
-        return [
-          contest.id,
-          i % 2 === 0 ? [contest.yesOption.id] : [contest.noOption.id],
-        ];
-      })
-    );
+    const { votes } = createTestVotes(contests);
 
     return {
       ballotStyleId: ballotStyle.id,

@@ -3,14 +3,13 @@ import {
   HmpbBallotPaperSize,
   BallotStyle,
   BallotType,
-  VotesDict,
   getContests,
   safeParseElection,
   Election,
   unsafeParse,
   HmpbBallotPaperSizeSchema,
 } from '@votingworks/types';
-import { assertDefined, iter } from '@votingworks/basics';
+import { assertDefined } from '@votingworks/basics';
 import {
   BallotPageTemplate,
   BaseBallotProps,
@@ -19,7 +18,7 @@ import {
   renderBallotTemplate,
 } from '../render_ballot';
 import { createBrowserPreviewRenderer } from './browser_preview_renderer';
-import { markBallotDocument, voteIsCandidate } from '../mark_ballot';
+import { createTestVotes, markBallotDocument } from '../mark_ballot';
 import { BUBBLE_CLASS, OptionInfo, PAGE_CLASS } from '../ballot_components';
 import { BallotTemplateId, ballotTemplates } from '../ballot_templates';
 
@@ -109,53 +108,7 @@ export async function main(): Promise<void> {
 
   // Mark some votes
   const contests = getContests({ election, ballotStyle });
-  const votes: VotesDict = Object.fromEntries(
-    contests.map((contest, i) => {
-      if (contest.type === 'candidate') {
-        const candidates = iter(contest.candidates)
-          .cycle()
-          .skip(i)
-          .take(contest.seats - (i % 2))
-          .toArray();
-        if (contest.allowWriteIns && i % 2 === 0) {
-          const writeInIndex = i % contest.seats;
-          candidates.push({
-            id: `write-in-${writeInIndex}`,
-            name: `Write-In #${writeInIndex + 1}`,
-            isWriteIn: true,
-            writeInIndex,
-          });
-        }
-        return [contest.id, candidates];
-      }
-      return [
-        contest.id,
-        i % 2 === 0 ? [contest.yesOption.id] : [contest.noOption.id],
-      ];
-    })
-  );
-  const unmarkedWriteIns = contests.flatMap((contest, i) => {
-    if (!(contest.type === 'candidate' && contest.allowWriteIns)) {
-      return [];
-    }
-    // Skip contests where we already voted for a write-in above
-    if (
-      assertDefined(votes[contest.id]).some(
-        (vote) => voteIsCandidate(vote) && vote.isWriteIn
-      )
-    ) {
-      return [];
-    }
-
-    const writeInIndex = i % contest.seats;
-    return [
-      {
-        contestId: contest.id,
-        writeInIndex,
-        name: `Unmarked Write-In #${writeInIndex + 1}`,
-      },
-    ];
-  });
+  const { votes, unmarkedWriteIns } = createTestVotes(contests);
   await markBallotDocument(renderer, document, votes, unmarkedWriteIns);
 
   // Outline write-in areas
