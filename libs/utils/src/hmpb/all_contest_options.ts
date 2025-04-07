@@ -1,6 +1,31 @@
-import { AnyContest, ContestOption } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/basics';
+import {
+  AnyContest,
+  CandidateContest,
+  CandidateContestOption,
+  ContestOption,
+  YesNoContest,
+  YesNoContestOption,
+} from '@votingworks/types';
 
+/**
+ * Enumerates all contest options in the order they would appear on a HMPB.
+ */
+export function allContestOptions(
+  contest: CandidateContest
+): Generator<CandidateContestOption>;
+/**
+ * Enumerates all contest options in the order they would appear on a HMPB.
+ */
+export function allContestOptions(
+  contest: YesNoContest
+): Generator<YesNoContestOption>;
+/**
+ * Enumerates all contest options in the order they would appear on a HMPB.
+ */
+export function allContestOptions(
+  contest: AnyContest
+): Generator<ContestOption>;
 /**
  * Enumerates all contest options in the order they would appear on a HMPB.
  */

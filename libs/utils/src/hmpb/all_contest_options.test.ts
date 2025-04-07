@@ -1,11 +1,15 @@
-import { expect, test } from 'vitest';
+import { assert, iter } from '@votingworks/basics';
 import {
   arbitraryCandidateContest,
   arbitraryYesNoContest,
 } from '@votingworks/test-utils';
-import { ContestOption } from '@votingworks/types';
+import {
+  CandidateContestOption,
+  ContestOption,
+  YesNoContestOption,
+} from '@votingworks/types';
 import fc from 'fast-check';
-import { assert } from '@votingworks/basics';
+import { expect, expectTypeOf, test } from 'vitest';
 import { allContestOptions } from './all_contest_options';
 
 test('candidate contest with no write-ins', () => {
@@ -14,6 +18,7 @@ test('candidate contest with no write-ins', () => {
       arbitraryCandidateContest({ allowWriteIns: fc.constant(false) }),
       (contest) => {
         const options = Array.from(allContestOptions(contest));
+        expectTypeOf(options).toEqualTypeOf<CandidateContestOption[]>();
         expect(options).toHaveLength(contest.candidates.length);
         for (const [i, option] of options.entries()) {
           assert(option.type === 'candidate');
@@ -36,7 +41,7 @@ test('candidate contest with write-ins', () => {
         const options = Array.from(allContestOptions(contest));
         expect(options).toHaveLength(contest.candidates.length + contest.seats);
         for (const [i, option] of options.entries()) {
-          assert(option.type === 'candidate');
+          expectTypeOf(option).toEqualTypeOf<CandidateContestOption>();
           expect(option.id).toEqual(
             contest.candidates[i]?.id ??
               `write-in-${i - contest.candidates.length}`
@@ -60,7 +65,9 @@ test('candidate contest with write-ins', () => {
 test('yesno contest', () => {
   fc.assert(
     fc.property(arbitraryYesNoContest(), (contest) => {
-      expect(Array.from(allContestOptions(contest))).toEqual<ContestOption[]>([
+      const options = Array.from(allContestOptions(contest));
+      expectTypeOf(options).toEqualTypeOf<YesNoContestOption[]>();
+      expect(options).toEqual<ContestOption[]>([
         {
           type: 'yesno',
           id: contest.yesOption.id,
@@ -75,5 +82,25 @@ test('yesno contest', () => {
         },
       ]);
     })
+  );
+});
+
+test('any contest', () => {
+  fc.assert(
+    fc.property(
+      fc.oneof(
+        arbitraryCandidateContest().filter((c) => c.candidates.length > 0),
+        arbitraryYesNoContest()
+      ),
+      (contest) => {
+        const options = Array.from(allContestOptions(contest));
+        expectTypeOf(options).toEqualTypeOf<ContestOption[]>();
+        expectTypeOf(options).not.toEqualTypeOf<YesNoContestOption[]>();
+        expectTypeOf(options).not.toEqualTypeOf<CandidateContestOption[]>();
+        const types = new Set(options.map(({ type }) => type));
+        expect(types.size).toEqual(1);
+        expect(iter(types).first()).toMatch(/^candidate|yesno$/);
+      }
+    )
   );
 });
