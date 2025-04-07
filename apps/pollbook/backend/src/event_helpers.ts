@@ -18,6 +18,7 @@ import {
   Voter,
   VoterRegistration,
 } from './types';
+
 const debug = rootDebug.extend('store');
 
 export function convertDbRowsToPollbookEvents(
@@ -89,63 +90,6 @@ export function convertDbRowsToPollbookEvents(
     .filter((event) => !!event);
 }
 
-export function applyPollbookEventsToVoters(
-  voters: Record<string, Voter>,
-  orderedEvents: PollbookEvent[]
-) {
-  for (const event of orderedEvents) {
-    switch (event.type) {
-      case EventType.VoterCheckIn: {
-        const voter = voters[event.voterId];
-        // If we receive an event for a voter that doesn't exist, we should ignore it.
-        // If we get the VoterRegistration event for that voter later, this event will get reprocessed.
-        if (!voter) {
-          debug('Voter %s not found', event.voterId);
-          continue;
-        }
-        voter.checkIn = event.checkInData;
-        break;
-      }
-      case EventType.UndoVoterCheckIn: {
-        const voter = voters[event.voterId];
-        if (!voter) {
-          debug('Voter %s not found', event.voterId);
-          continue;
-        }
-        voter.checkIn = undefined;
-        break;
-      }
-      case EventType.VoterAddressChange: {
-        const { voterId, addressChangeData } = event;
-        voters[voterId] = {
-          ...voters[voterId],
-          addressChange: addressChangeData,
-        };
-        break;
-      }
-      case EventType.VoterNameChange: {
-        const { voterId, nameChangeData } = event;
-        voters[voterId] = {
-          ...voters[voterId],
-          nameChange: nameChangeData,
-        };
-        break;
-      }
-      case EventType.VoterRegistration: {
-        const newVoter = createVoterFromRegistrationData(
-          event.registrationData
-        );
-        voters[newVoter.voterId] = newVoter;
-        break;
-      }
-      default: {
-        throwIllegalValue(event, 'type');
-      }
-    }
-  }
-  return voters;
-}
-
 export function createVoterFromRegistrationData(
   registrationEvent: VoterRegistration
 ): Voter {
@@ -182,4 +126,68 @@ export function createVoterFromRegistrationData(
     district: registrationEvent.district || '',
     registrationEvent,
   };
+}
+
+export function applyPollbookEventsToVoters(
+  voters: Record<string, Voter>,
+  orderedEvents: PollbookEvent[]
+): Record<string, Voter> {
+  const updatedVoters: Record<string, Voter> = { ...voters };
+  for (const event of orderedEvents) {
+    switch (event.type) {
+      case EventType.VoterCheckIn: {
+        const voter = updatedVoters[event.voterId];
+        // If we receive an event for a voter that doesn't exist, we should ignore it.
+        // If we get the VoterRegistration event for that voter later, this event will get reprocessed.
+        if (!voter) {
+          debug('Voter %s not found', event.voterId);
+          continue;
+        }
+        updatedVoters[event.voterId] = {
+          ...voter,
+          checkIn: event.checkInData,
+        };
+        break;
+      }
+      case EventType.UndoVoterCheckIn: {
+        const voter = updatedVoters[event.voterId];
+        if (!voter) {
+          debug('Voter %s not found', event.voterId);
+          continue;
+        }
+        updatedVoters[event.voterId] = {
+          ...voter,
+          checkIn: undefined,
+        };
+        break;
+      }
+      case EventType.VoterAddressChange: {
+        const { voterId, addressChangeData } = event;
+        updatedVoters[voterId] = {
+          ...updatedVoters[voterId],
+          addressChange: addressChangeData,
+        };
+        break;
+      }
+      case EventType.VoterNameChange: {
+        const { voterId, nameChangeData } = event;
+        updatedVoters[voterId] = {
+          ...updatedVoters[voterId],
+          nameChange: nameChangeData,
+        };
+        break;
+      }
+      case EventType.VoterRegistration: {
+        const newVoter = createVoterFromRegistrationData(
+          event.registrationData
+        );
+        updatedVoters[newVoter.voterId] = newVoter;
+        break;
+      }
+      default: {
+        throwIllegalValue(event, 'type');
+      }
+    }
+  }
+  return updatedVoters;
 }

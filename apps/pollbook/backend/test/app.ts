@@ -14,7 +14,7 @@ import * as grout from '@votingworks/grout';
 import { Application } from 'express';
 import { Server } from 'node:http';
 import { AddressInfo } from 'node:net';
-import { Api, buildApp } from '../src/app';
+import { Api, buildLocalApp } from '../src/app';
 import { createWorkspace } from '../src/workspace';
 import { Workspace } from '../src';
 
@@ -44,7 +44,7 @@ export async function withApp(
 
   const mockPrinterHandler = createMockPrinterHandler();
 
-  const app = buildApp({
+  const app = buildLocalApp({
     auth,
     workspace,
     usbDrive: mockUsbDrive.usbDrive,

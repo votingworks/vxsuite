@@ -12,7 +12,7 @@ import {
 import { join } from 'node:path';
 import { rootDebug } from './debug';
 import {
-  AppContext,
+  LocalAppContext,
   PollbookPackage,
   Voter,
   ValidStreetInfo,
@@ -160,7 +160,7 @@ export function pollUsbDriveForPollbookPackage({
   auth,
   workspace,
   usbDrive,
-}: AppContext): void {
+}: LocalAppContext): void {
   usbDebug('Polling USB drive for pollbook package');
   if (workspace.store.getElection()) {
     return;

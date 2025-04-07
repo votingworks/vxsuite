@@ -1,22 +1,24 @@
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import express from 'express';
 import { CITIZEN_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
-import { buildApp } from './app';
-import { PORT } from './globals';
-import { AppContext } from './types';
+import { buildLocalApp } from './app';
+import { LOCAL_PORT } from './globals';
+import { LocalAppContext } from './types';
 
 /**
  * Starts the server.
  */
-export function start(context: AppContext): void {
-  const app = buildApp(context);
+export function start(context: LocalAppContext): void {
+  const app = buildLocalApp(context);
 
   useDevDockRouter(app, express, {
     printerConfig: CITIZEN_THERMAL_PRINTER_CONFIG,
   });
 
-  app.listen(PORT, () => {
+  app.listen(LOCAL_PORT, () => {
     // eslint-disable-next-line no-console
-    console.log(`VxPollbook backend running at http://localhost:${PORT}/`);
+    console.log(
+      `VxPollbook backend running at http://localhost:${LOCAL_PORT}/`
+    );
   });
 }

@@ -5,25 +5,34 @@ import { BatteryInfo } from '@votingworks/backend';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { DippedSmartCardAuthApi } from '@votingworks/auth';
 import { Printer } from '@votingworks/printing';
-import type { Api } from './app';
+import type { PeerApi } from './peer_app';
 import { HlcTimestamp } from './hybrid_logical_clock';
-import type { Store } from './store';
+import type { LocalStore } from './local_store';
+import type { PeerStore } from './peer_store';
 
 export interface MachineConfig {
   machineId: string;
   codeVersion: string;
 }
 
-export interface AppContext extends MachineConfig {
-  workspace: Workspace;
+export interface LocalAppContext extends MachineConfig {
+  workspace: LocalWorkspace;
   auth: DippedSmartCardAuthApi;
   usbDrive: UsbDrive;
   printer: Printer;
 }
 
-export interface Workspace {
+export interface PeerAppContext extends MachineConfig {
+  workspace: PeerWorkspace;
+}
+
+export interface LocalWorkspace {
   assetDirectoryPath: string;
-  store: Store;
+  store: LocalStore;
+}
+
+export interface PeerWorkspace {
+  store: PeerStore;
 }
 
 export enum EventType {
@@ -305,7 +314,7 @@ export interface PollbookPackage {
 }
 
 export interface PollbookService {
-  apiClient?: grout.Client<Api>;
+  apiClient?: grout.Client<PeerApi>;
   machineId: string;
   lastSeen: Date;
   status: PollbookConnectionStatus;
@@ -313,7 +322,7 @@ export interface PollbookService {
 
 export interface ConnectedPollbookService extends PollbookService {
   status: PollbookConnectionStatus.Connected;
-  apiClient: grout.Client<Api>;
+  apiClient: grout.Client<PeerApi>;
 }
 
 export interface PollbookServiceInfo
