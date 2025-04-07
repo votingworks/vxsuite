@@ -139,12 +139,15 @@ function buildApi(context: LocalAppContext) {
     searchVoters(input: {
       searchParams: VoterSearchParams;
     }): Voter[] | number | null {
+      console.time('search');
       const { searchParams } = input;
       if (Object.values(searchParams).every((value) => value === '')) {
+        console.timeEnd('search');
         return null;
       }
 
       const result = store.searchVoters(searchParams);
+      console.timeEnd('search');
       return result;
     },
 
