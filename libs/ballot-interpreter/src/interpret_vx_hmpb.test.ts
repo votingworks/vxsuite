@@ -5,6 +5,7 @@ import { readElection } from '@votingworks/fs';
 import {
   famousNamesFixtures,
   generalElectionFixtures,
+  nhGeneralElectionFixtures,
   primaryElectionFixtures,
 } from '@votingworks/hmpb';
 import {
@@ -14,6 +15,9 @@ import {
   BallotType,
   DEFAULT_MARK_THRESHOLDS,
   PageInterpretation,
+  InterpretedHmpbPage,
+  SheetOf,
+  ImageData,
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
@@ -253,6 +257,49 @@ describe('HMPB - Famous Names', () => {
   });
 });
 
+function snapshotWriteInCrops(
+  sheetImages: SheetOf<ImageData>,
+  sheetInterpretations: SheetOf<InterpretedHmpbPage>
+) {
+  for (const [pageImage, interpretation] of iter(sheetImages).zip(
+    sheetInterpretations
+  )) {
+    // Skip pages without write-ins
+    if (
+      !interpretation.layout.contests.some((contest) =>
+        contest.options.some(
+          (option) =>
+            option.definition?.type === 'candidate' &&
+            option.definition.isWriteIn
+        )
+      )
+    ) {
+      continue;
+    }
+    const canvas = createCanvas(pageImage.width, pageImage.height);
+    const context = canvas.getContext('2d');
+    context.imageSmoothingEnabled = false;
+    context.putImageData(pageImage, 0, 0);
+    context.strokeStyle = 'blue';
+    context.lineWidth = 2;
+
+    for (const contest of interpretation.layout.contests) {
+      for (const option of contest.options) {
+        if (
+          option.definition?.type === 'candidate' &&
+          option.definition.isWriteIn
+        ) {
+          const { bounds } = option;
+          context.strokeRect(bounds.x, bounds.y, bounds.width, bounds.height);
+        }
+      }
+    }
+
+    const writeInImage = canvas.toBuffer('image/png');
+    expect(writeInImage).toMatchImageSnapshot();
+  }
+}
+
 for (const spec of generalElectionFixtures.fixtureSpecs) {
   describe(`HMPB - general election - ${spec.paperSize} paper - language: ${spec.languageCode}`, () => {
     const {
@@ -337,49 +384,10 @@ for (const spec of generalElectionFixtures.fixtureSpecs) {
         // Snapshot the ballot images with write-in crops drawn on them
         // To save time we don't test across paper sizes.
         if (spec.paperSize === HmpbBallotPaperSize.Letter) {
-          for (const [pageImage, interpretation] of iter(sheetImages).zip([
+          snapshotWriteInCrops(sheetImages, [
             frontResult.interpretation,
             backResult.interpretation,
-          ])) {
-            // Skip pages without write-ins
-            if (
-              !interpretation.layout.contests.some((contest) =>
-                contest.options.some(
-                  (option) =>
-                    option.definition?.type === 'candidate' &&
-                    option.definition.isWriteIn
-                )
-              )
-            ) {
-              continue;
-            }
-            const canvas = createCanvas(pageImage.width, pageImage.height);
-            const context = canvas.getContext('2d');
-            context.imageSmoothingEnabled = false;
-            context.putImageData(pageImage, 0, 0);
-            context.strokeStyle = 'blue';
-            context.lineWidth = 2;
-
-            for (const contest of interpretation.layout.contests) {
-              for (const option of contest.options) {
-                if (
-                  option.definition?.type === 'candidate' &&
-                  option.definition.isWriteIn
-                ) {
-                  const { bounds } = option;
-                  context.strokeRect(
-                    bounds.x,
-                    bounds.y,
-                    bounds.width,
-                    bounds.height
-                  );
-                }
-              }
-            }
-
-            const writeInImage = canvas.toBuffer('image/png');
-            expect(writeInImage).toMatchImageSnapshot();
-          }
+          ]);
         }
       }
     });
@@ -534,6 +542,96 @@ describe('HMPB - primary election', () => {
     });
   });
 });
+
+for (const spec of nhGeneralElectionFixtures.fixtureSpecs) {
+  describe(`HMPB - NH general election - ${spec.paperSize}${
+    spec.allBallotProps[0]!.compact ? ' - compact' : ''
+  }`, () => {
+    const { electionPath, markedBallotPath, precinctId, ballotStyleId, votes } =
+      spec;
+
+    test('Marked ballot interpretation', async () => {
+      const electionDefinition = (
+        await readElection(electionPath)
+      ).unsafeUnwrap();
+
+      const ballotImagePaths = pdfToPageImages(markedBallotPath);
+      for await (const [sheetIndex, sheetImages] of iter(ballotImagePaths)
+        .chunks(2)
+        .enumerate()) {
+        assert(sheetImages.length === 2);
+        const [frontResult, backResult] = await interpretSheet(
+          {
+            electionDefinition,
+            precinctSelection: singlePrecinctSelectionFor(precinctId),
+            testMode: false,
+            markThresholds: DEFAULT_MARK_THRESHOLDS,
+            adjudicationReasons: [AdjudicationReason.UnmarkedWriteIn],
+          },
+          sheetImages
+        );
+
+        const sheetNumber = sheetIndex + 1;
+        const gridLayout = electionDefinition.election.gridLayouts!.find(
+          (layout) => layout.ballotStyleId === ballotStyleId
+        )!;
+        const expectedVotes = votesForSheet(votes, sheetNumber, gridLayout);
+        const expectedUnmarkedWriteIns = unmarkedWriteInsForSheet(
+          spec.unmarkedWriteIns.map(({ contestId, writeInIndex }) => ({
+            contestId,
+            optionId: `write-in-${writeInIndex}`,
+          })),
+          sheetNumber,
+          gridLayout
+        );
+
+        assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
+        assert(backResult.interpretation.type === 'InterpretedHmpbPage');
+        expect(
+          sortVotesDict({
+            ...frontResult.interpretation.votes,
+            ...backResult.interpretation.votes,
+          })
+        ).toEqual(sortVotesDict(expectedVotes));
+
+        expect(
+          sortUnmarkedWriteIns([
+            ...(frontResult.interpretation.unmarkedWriteIns ?? []),
+            ...(backResult.interpretation.unmarkedWriteIns ?? []),
+          ])
+        ).toEqual(sortUnmarkedWriteIns(expectedUnmarkedWriteIns));
+
+        expect(frontResult.interpretation.metadata).toEqual({
+          source: 'qr-code',
+          ballotHash: sliceBallotHashForEncoding(electionDefinition.ballotHash),
+          precinctId,
+          ballotStyleId,
+          pageNumber: sheetIndex * 2 + 1,
+          isTestMode: false,
+          ballotType: BallotType.Precinct,
+        });
+        expect(backResult.interpretation.metadata).toEqual({
+          source: 'qr-code',
+          ballotHash: sliceBallotHashForEncoding(electionDefinition.ballotHash),
+          precinctId,
+          ballotStyleId,
+          pageNumber: sheetIndex * 2 + 2,
+          isTestMode: false,
+          ballotType: BallotType.Precinct,
+        });
+
+        // Snapshot the ballot images with write-in crops drawn on them
+        // To save time we don't test across paper sizes.
+        if (spec.paperSize === HmpbBallotPaperSize.Letter) {
+          snapshotWriteInCrops(sheetImages, [
+            frontResult.interpretation,
+            backResult.interpretation,
+          ]);
+        }
+      }
+    });
+  });
+}
 
 test('Non-consecutive page numbers', async () => {
   const { electionPath, blankBallotPath } =
