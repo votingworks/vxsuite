@@ -13,6 +13,7 @@ import {
 import {
   famousNamesFixtures,
   generalElectionFixtures,
+  nhGeneralElectionFixtures,
   primaryElectionFixtures,
 } from './ballot_fixtures';
 import { Renderer } from './renderer';
@@ -88,6 +89,22 @@ async function generatePrimaryElectionFixtures(renderer: Renderer) {
   }
 }
 
+async function generateNhGeneralElectionFixtures(renderer: Renderer) {
+  const fixtures = nhGeneralElectionFixtures;
+  const allGenerated = await fixtures.generate(renderer, fixtures.fixtureSpecs);
+  for (const [spec, generated] of iter(fixtures.fixtureSpecs).zip(
+    allGenerated
+  )) {
+    await mkdir(spec.electionDir, { recursive: true });
+    await writeFile(
+      spec.electionPath,
+      generated.electionDefinition.electionData
+    );
+    await writeFile(spec.blankBallotPath, generated.blankBallotPdf);
+    await writeFile(spec.markedBallotPath, generated.markedBallotPdf);
+  }
+}
+
 interface FixtureSpec {
   fixtureName: string;
   paperSize: HmpbBallotPaperSize;
@@ -102,6 +119,7 @@ const ALL_FIXTURE_SPECS: readonly FixtureSpec[] = [
   { fixtureName: 'famous-names', paperSize: HmpbBallotPaperSize.Letter },
   { fixtureName: 'general-election', paperSize: HmpbBallotPaperSize.Letter },
   { fixtureName: 'primary-election', paperSize: HmpbBallotPaperSize.Letter },
+  { fixtureName: 'nh-general-election', paperSize: HmpbBallotPaperSize.Letter },
 ];
 
 function usage(out: NodeJS.WriteStream) {
@@ -187,6 +205,14 @@ export async function main(): Promise<void> {
           force: true,
         });
         await generatePrimaryElectionFixtures(renderer);
+        break;
+
+      case 'nh-general-election':
+        await rm(nhGeneralElectionFixtures.dir, {
+          recursive: true,
+          force: true,
+        });
+        await generateNhGeneralElectionFixtures(renderer);
         break;
 
       default:
