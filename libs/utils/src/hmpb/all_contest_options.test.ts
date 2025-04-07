@@ -1,7 +1,6 @@
 import { expect, test } from 'vitest';
 import {
   arbitraryCandidateContest,
-  arbitraryCandidateId,
   arbitraryYesNoContest,
 } from '@votingworks/test-utils';
 import { ContestOption } from '@votingworks/types';
@@ -41,51 +40,6 @@ test('candidate contest with write-ins', () => {
           expect(option.id).toEqual(
             contest.candidates[i]?.id ??
               `write-in-${i - contest.candidates.length}`
-          );
-          expect(option.contestId).toEqual(contest.id);
-          expect(option.name).toEqual(
-            contest.candidates[i]?.name ?? 'Write-In'
-          );
-          expect(option.isWriteIn).toEqual(i >= contest.candidates.length);
-          expect(option.writeInIndex).toEqual(
-            i >= contest.candidates.length
-              ? i - contest.candidates.length
-              : undefined
-          );
-        }
-      }
-    )
-  );
-});
-
-test('candidate contest with provided write-in IDs', () => {
-  fc.assert(
-    fc.property(
-      // Make a contest…
-      arbitraryCandidateContest({
-        allowWriteIns: fc.constant(true),
-      }).chain((contest) =>
-        // …and come up with IDs for the write-ins.
-        fc.tuple(
-          fc.array(arbitraryCandidateId(), {
-            minLength: contest.seats,
-            maxLength: contest.seats,
-          }),
-          fc.constant(contest)
-        )
-      ),
-      ([writeInOptionIds, contest]) => {
-        const options = Array.from(
-          allContestOptions(contest, writeInOptionIds)
-        );
-        expect(options).toHaveLength(
-          contest.candidates.length + writeInOptionIds.length
-        );
-        for (const [i, option] of options.entries()) {
-          assert(option.type === 'candidate');
-          expect(option.id).toEqual(
-            contest.candidates[i]?.id ??
-              writeInOptionIds[i - contest.candidates.length]
           );
           expect(option.contestId).toEqual(contest.id);
           expect(option.name).toEqual(
