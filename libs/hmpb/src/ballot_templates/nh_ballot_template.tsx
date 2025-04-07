@@ -34,7 +34,6 @@ import {
 } from '../render_ballot';
 import { RenderScratchpad } from '../renderer';
 import {
-  Bubble,
   OptionInfo,
   Page,
   TimingMarkGrid,
@@ -42,7 +41,7 @@ import {
   pageMarginsInches,
   BlankPageMessage,
   Box,
-  BubbleWrapper,
+  AlignedBubble,
   Colors,
   ContestHeader,
   DualLanguageText,
@@ -361,10 +360,7 @@ function CandidateContest({
                     </DualLanguageText>
                   )}
                 </div>
-                <BubbleWrapper
-                  optionInfo={optionInfo}
-                  style={{ height: '1.2rem' }}
-                />
+                <AlignedBubble optionInfo={optionInfo} />
               </div>
             </li>
           );
@@ -405,11 +401,7 @@ function CandidateContest({
                     <WriteInLabel />
                   </div>
                 </div>
-                <BubbleWrapper
-                  optionInfo={optionInfo}
-                  // Match line-height of text to align bubble to center of write-in candidate name
-                  style={{ height: '1.25rem' }}
-                />
+                <AlignedBubble optionInfo={optionInfo} />
               </li>
             );
           })}
@@ -446,10 +438,10 @@ function BallotMeasureContest({
       >
         <div
           style={{
-            padding: compact ? '0.1rem 0.5rem 0.125rem' : '0.5rem 0.5rem',
+            padding: '0.5rem',
             display: 'flex',
             flexDirection: 'column',
-            gap: compact ? '0.25rem' : '0.5rem',
+            gap: '0.5rem',
           }}
         >
           <DualLanguageText>
@@ -477,21 +469,13 @@ function BallotMeasureContest({
                 borderTop: `1px solid ${Colors.LIGHT_GRAY}`,
               }}
             >
-              <div
-                style={{
-                  display: 'flex',
-                  gap: '0.5rem',
-                  paddingTop: '0.25rem',
-                }}
-              >
-                <strong
-                  style={{ flex: 1, textAlign: 'right', marginTop: '-0.25rem' }}
-                >
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <strong style={{ flex: 1, textAlign: 'right' }}>
                   <DualLanguageText delimiter="/">
                     {electionStrings.contestOptionLabel(option)}
                   </DualLanguageText>
                 </strong>
-                <Bubble
+                <AlignedBubble
                   optionInfo={{
                     type: 'option',
                     contestId: contest.id,

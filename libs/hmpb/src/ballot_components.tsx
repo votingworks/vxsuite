@@ -233,19 +233,19 @@ export function Bubble({
   );
 }
 
-export function BubbleWrapper({
+export function AlignedBubble({
   optionInfo,
-  style = {},
 }: {
   optionInfo: OptionInfo;
-  style: React.CSSProperties;
 }): React.ReactElement {
   return (
     <div
       style={{
         display: 'flex',
         alignItems: 'center',
-        ...style,
+        // Match line-height of text to align bubble to center of first line of
+        // option label
+        height: '1.2rem',
       }}
     >
       <Bubble optionInfo={optionInfo} />

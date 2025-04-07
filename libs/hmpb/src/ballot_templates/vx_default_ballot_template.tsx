@@ -33,7 +33,6 @@ import {
 } from '../render_ballot';
 import { RenderScratchpad } from '../renderer';
 import {
-  Bubble,
   OptionInfo,
   Page,
   TimingMarkGrid,
@@ -48,7 +47,7 @@ import {
   Colors,
   WriteInLabel,
   BlankPageMessage,
-  BubbleWrapper,
+  AlignedBubble,
 } from '../ballot_components';
 import { BallotMode, PixelDimensions } from '../types';
 import { layOutInColumns } from '../layout_in_columns';
@@ -281,11 +280,7 @@ function CandidateContest({
                   gap: '0.5rem',
                 }}
               >
-                {/* Match line-height of text to align bubble to center of first line of option label */}
-                <BubbleWrapper
-                  optionInfo={optionInfo}
-                  style={{ height: '1.2rem' }}
-                />
+                <AlignedBubble optionInfo={optionInfo} />
                 <div>
                   <strong>{candidate.name}</strong>
                   {partyText && (
@@ -323,11 +318,7 @@ function CandidateContest({
                   borderTop: `1px solid ${Colors.DARK_GRAY}`,
                 }}
               >
-                {/* Match line-height of text to align bubble to center of write-in candidate name */}
-                <BubbleWrapper
-                  optionInfo={optionInfo}
-                  style={{ height: '1.25rem' }}
-                />
+                <AlignedBubble optionInfo={optionInfo} />
                 <div style={{ flex: 1 }}>
                   <div
                     style={{
@@ -397,21 +388,13 @@ function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
               }}
             >
               <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    height: '1.2rem', // Match line-height of text to align bubble to center of first line of option label
+                <AlignedBubble
+                  optionInfo={{
+                    type: 'option',
+                    contestId: contest.id,
+                    optionId: option.id,
                   }}
-                >
-                  <Bubble
-                    optionInfo={{
-                      type: 'option',
-                      contestId: contest.id,
-                      optionId: option.id,
-                    }}
-                  />
-                </div>
+                />
                 <strong>
                   <DualLanguageText delimiter="/">
                     {electionStrings.contestOptionLabel(option)}
