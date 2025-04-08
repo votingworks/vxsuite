@@ -1185,9 +1185,9 @@
     {
       "ballotStyleId": "1-Ma_zh-Hans",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -1259,12 +1259,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 24.982809430255404,
+          "row": 24.966846758349707,
           "contestId": "congressional-1-mammal",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 24.182809430255404,
+            "y": 24.166846758349706,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -1292,9 +1292,9 @@
     {
       "ballotStyleId": "1-Ma_zh-Hant",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -1366,12 +1366,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 24.982809430255404,
+          "row": 24.966846758349707,
           "contestId": "congressional-1-mammal",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 24.182809430255404,
+            "y": 24.166846758349706,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -1399,9 +1399,9 @@
     {
       "ballotStyleId": "1-Ma_en",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -1473,12 +1473,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 20.69437622789784,
+          "row": 20.67841355599214,
           "contestId": "congressional-1-mammal",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 19.89437622789784,
+            "y": 19.87841355599214,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -1506,9 +1506,9 @@
     {
       "ballotStyleId": "1-Ma_es-US",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -1580,12 +1580,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 27.32011296660118,
+          "row": 27.304150294695482,
           "contestId": "congressional-1-mammal",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 26.52011296660118,
+            "y": 26.50415029469548,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -1613,9 +1613,9 @@
     {
       "ballotStyleId": "1-F_zh-Hans",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -1678,12 +1678,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 24.982809430255404,
+          "row": 24.966846758349707,
           "contestId": "congressional-1-fish",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 24.182809430255404,
+            "y": 24.166846758349706,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -1711,9 +1711,9 @@
     {
       "ballotStyleId": "1-F_zh-Hant",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -1776,12 +1776,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 24.982809430255404,
+          "row": 24.966846758349707,
           "contestId": "congressional-1-fish",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 24.182809430255404,
+            "y": 24.166846758349706,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -1809,9 +1809,9 @@
     {
       "ballotStyleId": "1-F_en",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -1874,12 +1874,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 20.69437622789784,
+          "row": 20.67841355599214,
           "contestId": "congressional-1-fish",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 19.89437622789784,
+            "y": 19.87841355599214,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -1907,9 +1907,9 @@
     {
       "ballotStyleId": "1-F_es-US",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -1972,12 +1972,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 27.32011296660118,
+          "row": 27.304150294695482,
           "contestId": "congressional-1-fish",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 26.52011296660118,
+            "y": 26.50415029469548,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -2005,9 +2005,9 @@
     {
       "ballotStyleId": "2-Ma_zh-Hans",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -2079,12 +2079,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 24.982809430255404,
+          "row": 24.966846758349707,
           "contestId": "congressional-1-mammal",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 24.182809430255404,
+            "y": 24.166846758349706,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -2112,9 +2112,9 @@
     {
       "ballotStyleId": "2-Ma_zh-Hant",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -2186,12 +2186,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 24.982809430255404,
+          "row": 24.966846758349707,
           "contestId": "congressional-1-mammal",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 24.182809430255404,
+            "y": 24.166846758349706,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -2219,9 +2219,9 @@
     {
       "ballotStyleId": "2-Ma_en",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -2293,12 +2293,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 20.69437622789784,
+          "row": 20.67841355599214,
           "contestId": "congressional-1-mammal",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 19.89437622789784,
+            "y": 19.87841355599214,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -2326,9 +2326,9 @@
     {
       "ballotStyleId": "2-Ma_es-US",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -2400,12 +2400,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 27.32011296660118,
+          "row": 27.304150294695482,
           "contestId": "congressional-1-mammal",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 26.52011296660118,
+            "y": 26.50415029469548,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -2433,9 +2433,9 @@
     {
       "ballotStyleId": "2-F_zh-Hans",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -2498,12 +2498,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 24.982809430255404,
+          "row": 24.966846758349707,
           "contestId": "congressional-1-fish",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 24.182809430255404,
+            "y": 24.166846758349706,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -2531,9 +2531,9 @@
     {
       "ballotStyleId": "2-F_zh-Hant",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -2596,12 +2596,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 24.982809430255404,
+          "row": 24.966846758349707,
           "contestId": "congressional-1-fish",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 24.182809430255404,
+            "y": 24.166846758349706,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -2629,9 +2629,9 @@
     {
       "ballotStyleId": "2-F_en",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -2694,12 +2694,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 20.69437622789784,
+          "row": 20.67841355599214,
           "contestId": "congressional-1-fish",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 19.89437622789784,
+            "y": 19.87841355599214,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -2727,9 +2727,9 @@
     {
       "ballotStyleId": "2-F_es-US",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -2792,12 +2792,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 27.32011296660118,
+          "row": 27.304150294695482,
           "contestId": "congressional-1-fish",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 26.52011296660118,
+            "y": 26.50415029469548,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -2825,9 +2825,9 @@
     {
       "ballotStyleId": "3-Ma_zh-Hans",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -2899,12 +2899,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 24.982809430255404,
+          "row": 24.966846758349707,
           "contestId": "congressional-2-mammal",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 24.182809430255404,
+            "y": 24.166846758349706,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -2932,9 +2932,9 @@
     {
       "ballotStyleId": "3-Ma_zh-Hant",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -3006,12 +3006,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 24.982809430255404,
+          "row": 24.966846758349707,
           "contestId": "congressional-2-mammal",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 24.182809430255404,
+            "y": 24.166846758349706,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -3039,9 +3039,9 @@
     {
       "ballotStyleId": "3-Ma_en",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -3113,12 +3113,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 20.69437622789784,
+          "row": 20.67841355599214,
           "contestId": "congressional-2-mammal",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 19.89437622789784,
+            "y": 19.87841355599214,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -3146,9 +3146,9 @@
     {
       "ballotStyleId": "3-Ma_es-US",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -3220,12 +3220,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 27.32011296660118,
+          "row": 27.304150294695482,
           "contestId": "congressional-2-mammal",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 26.52011296660118,
+            "y": 26.50415029469548,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -3253,9 +3253,9 @@
     {
       "ballotStyleId": "3-F_zh-Hans",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -3318,12 +3318,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 24.982809430255404,
+          "row": 24.966846758349707,
           "contestId": "congressional-2-fish",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 24.182809430255404,
+            "y": 24.166846758349706,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -3351,9 +3351,9 @@
     {
       "ballotStyleId": "3-F_zh-Hant",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -3416,12 +3416,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 24.982809430255404,
+          "row": 24.966846758349707,
           "contestId": "congressional-2-fish",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 24.182809430255404,
+            "y": 24.166846758349706,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -3449,9 +3449,9 @@
     {
       "ballotStyleId": "3-F_en",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -3514,12 +3514,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 20.69437622789784,
+          "row": 20.67841355599214,
           "contestId": "congressional-2-fish",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 19.89437622789784,
+            "y": 19.87841355599214,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -3547,9 +3547,9 @@
     {
       "ballotStyleId": "3-F_es-US",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -3612,12 +3612,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 27.32011296660118,
+          "row": 27.304150294695482,
           "contestId": "congressional-2-fish",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 26.52011296660118,
+            "y": 26.50415029469548,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -3645,9 +3645,9 @@
     {
       "ballotStyleId": "4-Ma_zh-Hans",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -3719,12 +3719,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 24.982809430255404,
+          "row": 24.966846758349707,
           "contestId": "congressional-2-mammal",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 24.182809430255404,
+            "y": 24.166846758349706,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -3752,9 +3752,9 @@
     {
       "ballotStyleId": "4-Ma_zh-Hant",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -3826,12 +3826,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 24.982809430255404,
+          "row": 24.966846758349707,
           "contestId": "congressional-2-mammal",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 24.182809430255404,
+            "y": 24.166846758349706,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -3859,9 +3859,9 @@
     {
       "ballotStyleId": "4-Ma_en",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -3933,12 +3933,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 20.69437622789784,
+          "row": 20.67841355599214,
           "contestId": "congressional-2-mammal",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 19.89437622789784,
+            "y": 19.87841355599214,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -3966,9 +3966,9 @@
     {
       "ballotStyleId": "4-Ma_es-US",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -4040,12 +4040,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 27.32011296660118,
+          "row": 27.304150294695482,
           "contestId": "congressional-2-mammal",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 26.52011296660118,
+            "y": 26.50415029469548,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -4073,9 +4073,9 @@
     {
       "ballotStyleId": "4-F_zh-Hans",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -4138,12 +4138,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 24.982809430255404,
+          "row": 24.966846758349707,
           "contestId": "congressional-2-fish",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 24.182809430255404,
+            "y": 24.166846758349706,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -4171,9 +4171,9 @@
     {
       "ballotStyleId": "4-F_zh-Hant",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -4236,12 +4236,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 24.982809430255404,
+          "row": 24.966846758349707,
           "contestId": "congressional-2-fish",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 24.182809430255404,
+            "y": 24.166846758349706,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -4269,9 +4269,9 @@
     {
       "ballotStyleId": "4-F_en",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -4334,12 +4334,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 20.69437622789784,
+          "row": 20.67841355599214,
           "contestId": "congressional-2-fish",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 19.89437622789784,
+            "y": 19.87841355599214,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -4367,9 +4367,9 @@
     {
       "ballotStyleId": "4-F_es-US",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -4432,12 +4432,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 27.32011296660118,
+          "row": 27.304150294695482,
           "contestId": "congressional-2-fish",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 26.52011296660118,
+            "y": 26.50415029469548,
             "width": 7.799999999999999,
             "height": 1
           }
