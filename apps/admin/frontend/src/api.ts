@@ -398,17 +398,25 @@ export const getCvrWriteInImageViews = {
       ? ['getCvrWriteInImageViews', input]
       : ['getCvrWriteInImageViews'];
   },
-  useQuery(input: GetCvrWriteInImageViewsInput, options = { enabled: true }) {
+  useQuery(input?: GetCvrWriteInImageViewsInput) {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(input),
       () =>
         apiClient.getCvrContestWriteInImageViews({
-          cvrId: input.cvrId,
-          contestId: input.contestId,
+          cvrId: input?.cvrId || '',
+          contestId: input?.contestId || '',
         }),
-      options
+      { enabled: !!input }
     );
+  },
+  usePrefetch() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return (input: GetCvrWriteInImageViewsInput) => queryClient.prefetchQuery({
+        queryKey: getCvrWriteInImageViews.queryKey(input),
+        queryFn: () => apiClient.getCvrContestWriteInImageViews(input),
+      });
   },
 } as const;
 
@@ -436,16 +444,16 @@ export const getWriteIns = {
   queryKey(input?: GetWriteInsInput): QueryKey {
     return input ? ['getWriteIns', input] : ['getWriteIns'];
   },
-  useQuery(input: GetWriteInsInput, options = { enabled: true }) {
+  useQuery(input?: GetWriteInsInput) {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(input),
       () =>
         apiClient.getWriteIns({
-          cvrId: input.cvrId,
-          contestId: input.contestId,
+          cvrId: input?.cvrId,
+          contestId: input?.contestId,
         }),
-      options
+      { enabled: !!input }
     );
   },
 } as const;
@@ -457,12 +465,12 @@ export const getCastVoteRecordVoteInfo = {
       ? ['getCastVoteRecordVoteInfo', input.cvrId]
       : ['getCastVoteRecordVoteInfo'];
   },
-  useQuery(input: GetCastVoteRecordVoteInfoInput, options = { enabled: true }) {
+  useQuery(input?: GetCastVoteRecordVoteInfoInput) {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(input),
-      () => apiClient.getCastVoteRecordVoteInfo({ cvrId: input.cvrId }),
-      options
+      () => apiClient.getCastVoteRecordVoteInfo({ cvrId: input?.cvrId || '' }),
+      { enabled: !!input }
     );
   },
 } as const;
@@ -472,12 +480,12 @@ export const getVoteAdjudications = {
   queryKey(input?: GetVoteAdjudicationsInput): QueryKey {
     return input ? ['getVoteAdjudications', input] : ['getVoteAdjudications'];
   },
-  useQuery(input?: GetVoteAdjudicationsInput, options = { enabled: true }) {
+  useQuery(input?: GetVoteAdjudicationsInput) {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(input),
       () => apiClient.getVoteAdjudications(input),
-      options
+      { enabled: !!input }
     );
   },
 } as const;
