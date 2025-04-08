@@ -47,4 +47,4 @@ CREATE TABLE check_in_status (
 );
 
 CREATE INDEX idx_check_in_status ON check_in_status (is_checked_in);
-CREATE INDEX idx_check_in_status ON check_in_status (machine_id, is_checked_in);
+CREATE INDEX idx_machine_check_in_status ON check_in_status (machine_id, is_checked_in);
