@@ -139,8 +139,28 @@ export abstract class Store {
       const eventData = (() => {
         switch (pollbookEvent.type) {
           case EventType.VoterCheckIn:
+            this.client.run(
+              `
+              INSERT INTO check_in_status (voter_id, machine_id, is_checked_in)
+              VALUES (?, ?, 1)
+              ON CONFLICT(voter_id) DO UPDATE SET 
+              machine_id = ?,
+              is_checked_in = 1
+              `,
+              pollbookEvent.voterId,
+              pollbookEvent.machineId,
+              pollbookEvent.machineId
+            );
             return pollbookEvent.checkInData;
           case EventType.UndoVoterCheckIn:
+            this.client.run(
+              `
+              UPDATE check_in_status
+              SET is_checked_in = 0, machine_id = NULL
+              WHERE voter_id = ?
+              `,
+              pollbookEvent.voterId
+            );
             return {};
           case EventType.VoterAddressChange:
             return pollbookEvent.addressChangeData;
@@ -369,27 +389,20 @@ export abstract class Store {
   }
 
   getCheckInCount(machineId?: string): number {
-    const query = `
-              SELECT COUNT(DISTINCT voter_id) as checkInCount
-              FROM event_log AS checkin
-              WHERE event_type = '${EventType.VoterCheckIn}'
-                ${machineId ? 'AND checkin.machine_id = ?' : ''}
-                AND NOT EXISTS (
-                  SELECT 1
-                  FROM event_log AS undo
-                  WHERE undo.event_type = '${EventType.UndoVoterCheckIn}'
-                    AND undo.voter_id = checkin.voter_id
-                    AND (
-                      undo.physical_time > checkin.physical_time OR
-                      (undo.physical_time = checkin.physical_time AND undo.logical_counter > checkin.logical_counter) OR
-                      (undo.physical_time = checkin.physical_time AND undo.logical_counter = checkin.logical_counter AND undo.machine_id > checkin.machine_id)
-                    )
-                )
-            `;
-    const row = this.client.one(query, ...(machineId ? [machineId] : [])) as {
-      checkInCount: number;
-    };
-
+    const query = machineId
+      ? `
+        SELECT COUNT(*) as checkInCount
+        FROM check_in_status
+        WHERE is_checked_in = 1 AND machine_id = ?
+      `
+      : `
+        SELECT COUNT(*) as checkInCount
+        FROM check_in_status
+        WHERE is_checked_in = 1
+      `;
+    const row = machineId
+      ? (this.client.one(query, machineId) as { checkInCount: number })
+      : (this.client.one(query) as { checkInCount: number });
     return row ? row.checkInCount : 0;
   }
 }

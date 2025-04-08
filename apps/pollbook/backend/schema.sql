@@ -38,3 +38,13 @@ CREATE INDEX idx_hlc ON event_log (physical_time, logical_counter, machine_id);
 CREATE INDEX idx_voter_hlc ON event_log (voter_id, physical_time, logical_counter, machine_id); 
 CREATE INDEX idx_updated_first_name ON voters (updated_first_name);
 CREATE INDEX idx_updated_last_name ON voters (updated_last_name);
+
+CREATE TABLE check_in_status (
+    voter_id TEXT NOT NULL,
+    machine_id TEXT,
+    is_checked_in BOOLEAN NOT NULL,
+    PRIMARY KEY (voter_id)
+);
+
+CREATE INDEX idx_check_in_status ON check_in_status (is_checked_in);
+CREATE INDEX idx_check_in_status ON check_in_status (machine_id, is_checked_in);
