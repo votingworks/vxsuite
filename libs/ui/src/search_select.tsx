@@ -76,7 +76,7 @@ interface SearchSelectBaseProps<T = string> {
   options: Array<SelectOption<T>>;
   'aria-label'?: string;
   style?: React.CSSProperties;
-  placeholder?: React.ReactNode | string;
+  placeholder?: React.ReactNode;
   disabled?: boolean;
   required?: boolean;
   onInputChange?: (value?: T) => void;

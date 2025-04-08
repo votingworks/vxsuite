@@ -1,4 +1,4 @@
-import { assertDefined, find, assert } from '@votingworks/basics';
+import { assertDefined, find, assert, iter } from '@votingworks/basics';
 import { Id, safeParseNumber } from '@votingworks/types';
 import { loadImageData, toDataUrl } from '@votingworks/image-utils';
 import { Store } from '../store';
@@ -34,6 +34,7 @@ export async function getWriteInImageView({
       cvrId,
       imageUrl: toDataUrl(await loadImageData(image), 'image/jpeg'),
       machineMarkedText,
+      type: 'bmd',
     };
   }
 
@@ -79,6 +80,7 @@ export async function getWriteInImageView({
     },
     contestCoordinates: contestLayout.bounds,
     writeInCoordinates: writeInLayout.bounds,
+    type: 'hmpb',
   };
 }
 
@@ -94,13 +96,10 @@ export async function getCvrContestWriteInImageViews({
   cvrId: Id;
   contestId: Id;
 }): Promise<WriteInImageView[]> {
-  const writeInIds = store.getCvrContestWriteInIds({ cvrId, contestId });
-  const imageViews = [];
-  for (const writeInId of writeInIds) {
-    const imageView = await getWriteInImageView({ store, writeInId });
-    imageViews.push(imageView);
-  }
-  return imageViews;
+  return await iter(store.getCvrContestWriteInIds({ cvrId, contestId }))
+    .async()
+    .map((writeInId) => getWriteInImageView({ store, writeInId }))
+    .toArray();
 }
 
 /**
