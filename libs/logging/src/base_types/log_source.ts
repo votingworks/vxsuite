@@ -23,6 +23,8 @@ export enum LogSource {
   VxBallotActivationService = 'vx-ballot-activation-service',
   VxScanService = 'vx-scan-service',
   VxDevelopmentScript = 'vx-development-script',
+  VxPollbookFrontend = 'vx-pollbook-frontend',
+  VxPollbookBackend = 'vx-pollbook-backend',
 }
 
 export enum AppName {

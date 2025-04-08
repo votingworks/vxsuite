@@ -8,9 +8,15 @@ import {
 } from '@votingworks/types';
 import { DippedSmartCardAuthMachineState } from '@votingworks/auth';
 import React from 'react';
-import { Exporter, getBatteryInfo } from '@votingworks/backend';
+import {
+  createSystemCallApi,
+  Exporter,
+  getBatteryInfo,
+} from '@votingworks/backend';
 import { generateFileTimeSuffix } from '@votingworks/utils';
 import { stringify } from 'csv-stringify/sync';
+import { UsbDriveStatus } from '@votingworks/usb-drive';
+import { Logger } from '@votingworks/logging';
 import {
   Workspace,
   AppContext,
@@ -48,6 +54,11 @@ import { renderAndPrintReceipt } from './receipts/printing';
 
 const debug = rootDebug;
 
+interface BuildAppParams {
+  context: AppContext;
+  logger: Logger;
+}
+
 function constructAuthMachineState(
   workspace: Workspace
 ): DippedSmartCardAuthMachineState {
@@ -61,7 +72,7 @@ function constructAuthMachineState(
   };
 }
 
-function buildApi(context: AppContext) {
+function buildApi({ context, logger }: BuildAppParams) {
   const { workspace, auth, usbDrive, printer, machineId, codeVersion } =
     context;
   const { store } = workspace;
@@ -91,6 +102,19 @@ function buildApi(context: AppContext) {
         constructAuthMachineState(workspace),
         input
       );
+    },
+
+    async formatUsbDrive(): Promise<Result<void, Error>> {
+      try {
+        await usbDrive.format();
+        return ok();
+      } catch (error) {
+        return err(error as Error);
+      }
+    },
+
+    async getUsbDriveStatus(): Promise<UsbDriveStatus> {
+      return usbDrive.status();
     },
 
     async getDeviceStatuses(): Promise<DeviceStatuses> {
@@ -382,14 +406,21 @@ function buildApi(context: AppContext) {
       await resetNetworkSetup(context.machineId);
       return true;
     },
+
+    ...createSystemCallApi({
+      usbDrive,
+      logger,
+      machineId,
+      codeVersion,
+    }),
   });
 }
 
 export type Api = ReturnType<typeof buildApi>;
 
-export function buildApp(context: AppContext): Application {
+export function buildApp({ context, logger }: BuildAppParams): Application {
   const app: Application = express();
-  const api = buildApi(context);
+  const api = buildApi({ context, logger });
   app.use('/api', grout.buildRouter(api, express));
 
   pollUsbDriveForPollbookPackage(context);

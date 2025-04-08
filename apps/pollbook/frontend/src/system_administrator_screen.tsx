@@ -1,9 +1,12 @@
 import {
   Card,
+  CurrentDateAndTime,
+  ExportLogsButton,
   H2,
   MainContent,
   P,
   Seal,
+  SetClockButton,
   UnconfigureMachineButton,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
@@ -13,11 +16,39 @@ import {
   SystemAdministratorNavScreen,
   systemAdministratorRoutes,
 } from './nav_screen';
-import { getElection, unconfigure } from './api';
+import { getElection, getUsbDriveStatus, logOut, unconfigure } from './api';
 import { Column, FieldName, Row } from './layout';
-import { VotersScreen } from './voters_screen';
 
 export function SettingsScreen(): JSX.Element | null {
+  const logOutMutation = logOut.useMutation();
+  const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
+
+  if (!usbDriveStatusQuery.isSuccess) {
+    return null;
+  }
+
+  const usbDriveStatus = usbDriveStatusQuery.data;
+
+  return (
+    <SystemAdministratorNavScreen title="Settings">
+      <MainContent>
+        <H2>Logs</H2>
+        <ExportLogsButton usbDriveStatus={usbDriveStatus} />
+        <H2>Date and Time</H2>
+        <P>
+          <CurrentDateAndTime />
+        </P>
+        <P>
+          <SetClockButton logOut={() => logOutMutation.mutate()}>
+            Set Date and Time
+          </SetClockButton>
+        </P>
+      </MainContent>
+    </SystemAdministratorNavScreen>
+  );
+}
+
+export function ElectionScreen(): JSX.Element | null {
   const getElectionQuery = getElection.useQuery();
   const unconfigureMutation = unconfigure.useMutation();
 
@@ -25,7 +56,7 @@ export function SettingsScreen(): JSX.Element | null {
   const election = getElectionQuery.data.unsafeUnwrap();
 
   return (
-    <SystemAdministratorNavScreen title="Settings">
+    <SystemAdministratorNavScreen title="Election">
       <MainContent>
         <Column style={{ gap: '1rem' }}>
           <div data-testid="election-info">
@@ -62,14 +93,14 @@ export function SystemAdministratorScreen(): JSX.Element {
   return (
     <Switch>
       <Route
+        path={systemAdministratorRoutes.election.path}
+        component={ElectionScreen}
+      />
+      <Route
         path={systemAdministratorRoutes.settings.path}
         component={SettingsScreen}
       />
-      <Route
-        path={systemAdministratorRoutes.voters.path}
-        component={VotersScreen}
-      />
-      <Redirect to={systemAdministratorRoutes.settings.path} />
+      <Redirect to={systemAdministratorRoutes.election.path} />
     </Switch>
   );
 }

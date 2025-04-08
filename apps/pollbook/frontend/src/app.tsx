@@ -5,6 +5,7 @@ import {
   InvalidCardScreen,
   RemoveCardScreen,
   SetupCardReaderPage,
+  SystemCallContextProvider,
   UnlockMachineScreen,
 } from '@votingworks/ui';
 import { BrowserRouter } from 'react-router-dom';
@@ -25,6 +26,7 @@ import {
   createQueryClient,
   getAuthStatus,
   getElection,
+  systemCallApi,
 } from './api';
 import { ErrorScreen } from './error_screen';
 import { PollWorkerScreen } from './poll_worker_screen';
@@ -124,9 +126,11 @@ export function App({
       <ErrorBoundary errorMessage={<ErrorScreen />} logger={logger}>
         <ApiClientContext.Provider value={apiClient}>
           <QueryClientProvider client={createQueryClient()}>
-            <BrowserRouter>
-              <AppRoot />
-            </BrowserRouter>
+            <SystemCallContextProvider api={systemCallApi}>
+              <BrowserRouter>
+                <AppRoot />
+              </BrowserRouter>
+            </SystemCallContextProvider>
           </QueryClientProvider>
         </ApiClientContext.Provider>
       </ErrorBoundary>

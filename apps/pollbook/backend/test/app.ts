@@ -9,7 +9,12 @@ import {
   createMockPrinterHandler,
   MemoryPrinterHandler,
 } from '@votingworks/printing';
-import { mockBaseLogger } from '@votingworks/logging';
+import {
+  LogSource,
+  mockBaseLogger,
+  MockLogger,
+  mockLogger,
+} from '@votingworks/logging';
 import * as grout from '@votingworks/grout';
 import { Application } from 'express';
 import { Server } from 'node:http';
@@ -17,6 +22,7 @@ import { AddressInfo } from 'node:net';
 import { Api, buildApp } from '../src/app';
 import { createWorkspace } from '../src/workspace';
 import { Workspace } from '../src';
+import { getUserRole } from '../src/auth';
 
 interface TestContext {
   auth: DippedSmartCardAuthApi;
@@ -28,16 +34,28 @@ interface TestContext {
   server: Server;
 }
 
+export function buildMockLogger(
+  auth: DippedSmartCardAuthApi,
+  workspace: Workspace
+): MockLogger {
+  return mockLogger({
+    source: LogSource.VxPollbookBackend,
+    getCurrentRole: () => getUserRole(auth, workspace),
+    fn: vi.fn,
+  });
+}
+
 export async function withApp(
   fn: (context: TestContext) => Promise<void>
 ): Promise<void> {
   const auth = buildMockDippedSmartCardAuth(vi.fn);
-
   const workspace = createWorkspace(
     tmp.dirSync().name,
     mockBaseLogger({ fn: vi.fn }),
     process.env.VX_MACHINE_ID || 'test'
   );
+
+  const logger = buildMockLogger(auth, workspace);
 
   const mockUsbDrive = createMockUsbDrive();
   mockUsbDrive.usbDrive.sync.expectOptionalRepeatedCallsWith().resolves(); // Called by paper backup export
@@ -45,12 +63,15 @@ export async function withApp(
   const mockPrinterHandler = createMockPrinterHandler();
 
   const app = buildApp({
-    auth,
-    workspace,
-    usbDrive: mockUsbDrive.usbDrive,
-    printer: mockPrinterHandler.printer,
-    machineId: process.env.VX_MACHINE_ID || 'test',
-    codeVersion: process.env.VX_CODE_VERSION || 'test',
+    context: {
+      auth,
+      workspace,
+      usbDrive: mockUsbDrive.usbDrive,
+      printer: mockPrinterHandler.printer,
+      machineId: process.env.VX_MACHINE_ID || 'test',
+      codeVersion: process.env.VX_CODE_VERSION || 'test',
+    },
+    logger,
   });
 
   const server = app.listen();

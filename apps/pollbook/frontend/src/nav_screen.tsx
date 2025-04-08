@@ -317,8 +317,8 @@ export function NavScreen({
 }
 
 export const systemAdministratorRoutes = {
+  election: { title: 'Election', path: '/election' },
   settings: { title: 'Settings', path: '/settings' },
-  voters: { title: 'Voters', path: '/voters' },
 } satisfies Record<string, { title: string; path: string }>;
 
 export function SystemAdministratorNavScreen({
