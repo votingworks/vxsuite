@@ -60,19 +60,33 @@ function createApiClientForAddress(address: string): grout.Client<PeerApi> {
   });
 }
 
+interface PerfLog {
+  duration: number; // in milliseconds
+  startTime: Date;
+}
+
+const networkingTimingLogs: Record<string, PerfLog[]> = {
+  fetchingEventsTotal: [],
+  getLastSyncEvent: [],
+  getEvents: [],
+  saveEvents: [],
+};
+
 export function fetchEventsFromConnectedPollbooks({
   workspace,
 }: PeerAppContext): void {
-  // Poll to fetch events from connected pollbooks
+  let runCount = 0; // Track the number of runs
+
   process.nextTick(async () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for await (const _ of setInterval(EVENT_POLLING_INTERVAL)) {
+      runCount += 1;
+
       if (!workspace.store.getIsOnline() || !workspace.store.getElection()) {
-        // There is no network to try to connect over. Bail out.
         debug('Not fetching events while offline or unconfigured');
         continue;
       }
-      console.time('fetchingEvents');
+      const fetchingEvents = Date.now();
 
       const previouslyConnected = workspace.store.getPollbookServicesByName();
 
@@ -88,25 +102,32 @@ export function fetchEventsFromConnectedPollbooks({
           continue;
         }
         try {
-          // Sync events from this pollbook service.
           let syncMoreEvents = true;
           while (syncMoreEvents) {
-            console.time('getLastSyncEvent');
+            const lastSyncEvent = Date.now();
             const lastEventSyncedPerNode =
               workspace.store.getLastEventSyncedPerNode();
-            console.timeEnd('getLastSyncEvent');
-            console.log('getEvents');
+            networkingTimingLogs['getLastSyncEvent'].push({
+              duration: Date.now() - lastSyncEvent,
+              startTime: new Date(lastSyncEvent),
+            });
+            const getEvents = Date.now();
             const { events, hasMore } = await apiClient.getEvents({
               lastEventSyncedPerNode,
             });
-            console.timeEnd('getEvents');
-            console.time('saveEvents');
+            networkingTimingLogs['getEvents'].push({
+              duration: Date.now() - getEvents,
+              startTime: new Date(getEvents),
+            });
+            const saveEvents = Date.now();
             workspace.store.saveRemoteEvents(events);
-            console.timeEnd('saveEvents');
+            networkingTimingLogs['saveEvents'].push({
+              duration: Date.now() - saveEvents,
+              startTime: new Date(saveEvents),
+            });
             syncMoreEvents = hasMore;
           }
 
-          // Update last seen time on node.
           workspace.store.setPollbookServiceForName(currentName, {
             machineId: currentPollbookService.machineId,
             apiClient,
@@ -120,9 +141,36 @@ export function fetchEventsFromConnectedPollbooks({
           debug('The api client is ', apiClient);
         }
       }
-      // Clean up stale machines
+
       workspace.store.cleanupStalePollbookServices();
-      console.timeEnd('fetchingEvents');
+      networkingTimingLogs['fetchingEventsTotal'].push({
+        duration: Date.now() - fetchingEvents,
+        startTime: new Date(fetchingEvents),
+      });
+
+      // Print metrics every 100 runs
+      if (runCount % 100 === 0) {
+        debug('Printing networking timing logs metrics:');
+        for (const [metricName, logs] of Object.entries(networkingTimingLogs)) {
+          if (logs.length > 0) {
+            const durations = logs.map((log) => log.duration);
+            const average =
+              durations.reduce((sum, duration) => sum + duration, 0) /
+              durations.length;
+            const min = Math.min(...durations);
+            const max = Math.max(...durations);
+            debug(
+              `Metric: ${metricName}, Average: ${average.toFixed(
+                2
+              )}ms, Min: ${min}ms, Max: ${max}ms`
+            );
+          }
+        }
+        // Reset networkingTimingLogs
+        for (const key of Object.keys(networkingTimingLogs)) {
+          networkingTimingLogs[key] = [];
+        }
+      }
     }
   });
 }
