@@ -445,7 +445,7 @@ function BallotMeasureContest({
       <div
         style={{
           display: 'flex',
-          flexDirection: compact ? 'row' : 'column',
+          flexDirection: compact && !continuesOnNextPage ? 'row' : 'column',
           justifyContent: 'space-between',
           gap: '0.25rem',
         }}
@@ -560,6 +560,29 @@ function Contest({
     default:
       return throwIllegalValue(contest);
   }
+}
+
+/**
+ * Finds the first index in the array where the predicate returns true using a
+ * binary search algorithm.
+ */
+export async function findFirstIndex(
+  array: unknown[],
+  predicate: (num: number) => boolean | Promise<boolean>
+): Promise<number> {
+  let low = 0;
+  let high = array.length - 1;
+
+  while (low <= high) {
+    const mid = Math.floor((low + high) / 2);
+    if (await predicate(mid)) {
+      high = mid - 1;
+    } else {
+      low = mid + 1;
+    }
+  }
+
+  return low;
 }
 
 async function BallotPageContent(
@@ -682,49 +705,68 @@ async function BallotPageContent(
     const tooLongContest = assertDefined(contestsLeftToLayout.shift());
     // Split long ballot measures onto multiple pages
     if (tooLongContest.type === 'yesno') {
-      const numColumns = 1;
-      const columnWidthPx =
-        (dimensions.width - horizontalGapPx * (numColumns - 1)) / numColumns;
-      const contestElement = (
-        <Contest
-          compact={compact}
-          contest={tooLongContest}
-          election={election}
-          colorTint={props.colorTint}
-        />
+      // eslint-disable-next-line no-inner-declarations
+      function splitIntoParagraphs(htmlString: string): string[] {
+        const paragraphs = htmlString.split(/<\/p><p>/g);
+        return paragraphs.map((paragraph) => {
+          if (paragraph.startsWith('<p>')) {
+            return `${paragraph}</p>`;
+          }
+          if (paragraph.endsWith('</p>')) {
+            return `<p>${paragraph}`;
+          }
+          return `<p>${paragraph}</p>`;
+        });
+      }
+
+      // eslint-disable-next-line no-inner-declarations
+      function joinParagraphs(paragraphs: string[]): string {
+        return paragraphs.join('');
+      }
+
+      const descriptionParagraphs = splitIntoParagraphs(
+        tooLongContest.description
       );
-      const [measurements] = await scratchpad.measureElements(
-        <BackendLanguageContextProvider
-          currentLanguageCode={primaryLanguageCode(ballotStyle)}
-          uiStringsPackage={election.ballotStrings}
-        >
-          <div
-            className="contestWrapper"
-            style={{ width: `${columnWidthPx}px` }}
-          >
-            {contestElement}
-          </div>
-        </BackendLanguageContextProvider>,
-        '.contestWrapper'
+      const paragraphSplitIndex =
+        (await findFirstIndex(descriptionParagraphs, async (splitPoint) => {
+          const description = joinParagraphs(
+            descriptionParagraphs.slice(0, splitPoint)
+          );
+          const columnWidthPx = dimensions.width;
+          const [chunkMeasurements] = await scratchpad.measureElements(
+            <BackendLanguageContextProvider
+              currentLanguageCode={primaryLanguageCode(ballotStyle)}
+              uiStringsPackage={election.ballotStrings}
+            >
+              <div
+                className="contestWrapper"
+                style={{ width: `${columnWidthPx}px` }}
+              >
+                <Contest
+                  election={election}
+                  contest={{
+                    ...tooLongContest,
+                    description,
+                  }}
+                  compact={compact}
+                  colorTint={props.colorTint}
+                />
+              </div>
+            </BackendLanguageContextProvider>,
+            '.contestWrapper'
+          );
+          return chunkMeasurements.height > dimensions.height;
+        })) - 1;
+      const firstDescriptionChunk = joinParagraphs(
+        descriptionParagraphs.slice(0, paragraphSplitIndex)
       );
-      const maxSplitPoint = Math.floor(
-        tooLongContest.description.length *
-          (dimensions.height / measurements.height)
+      const restDescription = joinParagraphs(
+        descriptionParagraphs.slice(paragraphSplitIndex)
       );
-      const paragraphBreaksBeforeMaxSplitPoint = tooLongContest.description
-        .substring(0, maxSplitPoint)
-        .matchAll(/<\/p>/g);
-      const splitPoint =
-        iter(paragraphBreaksBeforeMaxSplitPoint).last()?.index ?? maxSplitPoint;
-      const firstDescriptionChunk = tooLongContest.description.slice(
-        0,
-        splitPoint
-      );
-      const restDescription = tooLongContest.description.slice(splitPoint);
+
       console.log({
-        splitPoint,
+        paragraphsForChunk: paragraphSplitIndex,
         dimensions,
-        measurements,
         tooLongContest,
         firstDescriptionChunk,
         restDescription,
@@ -736,14 +778,18 @@ async function BallotPageContent(
             ...tooLongContest,
             description: firstDescriptionChunk,
           }}
+          colorTint={props.colorTint}
           continuesOnNextPage
         />
       );
-      pageSections.push(<div key="section-0">{firstContestElement}</div>);
+      pageSections.push(<div key="section-1">{firstContestElement}</div>);
 
+      const continuedTitleSuffix = ` (Continued)`;
       const restContest: YesNoContest = {
         ...tooLongContest,
-        title: `${tooLongContest.title} (Continued)`,
+        title: tooLongContest.title.endsWith(continuedTitleSuffix)
+          ? tooLongContest.title
+          : tooLongContest.title + continuedTitleSuffix,
         description: restDescription,
       };
       contestsLeftToLayout.unshift(restContest);
