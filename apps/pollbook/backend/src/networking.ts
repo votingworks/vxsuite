@@ -91,12 +91,18 @@ export function fetchEventsFromConnectedPollbooks({
           // Sync events from this pollbook service.
           let syncMoreEvents = true;
           while (syncMoreEvents) {
+            console.time('getLastSyncEvent');
             const lastEventSyncedPerNode =
               workspace.store.getLastEventSyncedPerNode();
+            console.timeEnd('getLastSyncEvent');
+            console.log('getEvents');
             const { events, hasMore } = await apiClient.getEvents({
               lastEventSyncedPerNode,
             });
+            console.timeEnd('getEvents');
+            console.time('saveEvents');
             workspace.store.saveRemoteEvents(events);
+            console.timeEnd('saveEvents');
             syncMoreEvents = hasMore;
           }
 
