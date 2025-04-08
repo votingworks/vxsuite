@@ -84,10 +84,12 @@ const ZoomedOutBallotImageContainer = styled.div`
 const BallotImageViewerControls = styled.div<{ isZoomedIn: boolean }>`
   display: flex;
   justify-content: flex-end;
+  align-items: center;
   position: absolute;
   top: 0;
   z-index: 2;
   background: ${(props) => (!props.isZoomedIn ? 'rgba(0, 0, 0, 0.5)' : 'none')};
+  height: 4rem;
   width: 100%;
   padding: 0.5rem;
   gap: 0.5rem;

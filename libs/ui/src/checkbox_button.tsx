@@ -6,7 +6,7 @@ export interface CheckboxButtonProps {
   isChecked: boolean;
   onChange: (isChecked: boolean) => void;
   disabled?: boolean;
-  style?: React.CSSProperties;
+  className?: string;
 }
 
 const StyledButton = styled(Button)`
@@ -31,7 +31,7 @@ export function CheckboxButton({
   isChecked,
   onChange,
   disabled,
-  style,
+  className,
 }: CheckboxButtonProps): JSX.Element {
   return (
     <StyledButton
@@ -42,7 +42,7 @@ export function CheckboxButton({
       color={isChecked ? 'primary' : 'neutral'}
       onPress={() => onChange(!isChecked)}
       icon={isChecked ? 'Checkbox' : 'Square'}
-      style={style}
+      className={className}
     >
       {label}
     </StyledButton>

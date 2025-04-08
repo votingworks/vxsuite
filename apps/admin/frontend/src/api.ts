@@ -398,7 +398,7 @@ export const getCvrWriteInImageViews = {
       ? ['getCvrWriteInImageViews', input]
       : ['getCvrWriteInImageViews'];
   },
-  useQuery(input: GetCvrWriteInImageViewsInput, enabled = true) {
+  useQuery(input: GetCvrWriteInImageViewsInput, options = { enabled: true }) {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(input),
@@ -407,7 +407,7 @@ export const getCvrWriteInImageViews = {
           cvrId: input.cvrId,
           contestId: input.contestId,
         }),
-      { enabled }
+      options
     );
   },
 } as const;
@@ -436,7 +436,7 @@ export const getWriteIns = {
   queryKey(input?: GetWriteInsInput): QueryKey {
     return input ? ['getWriteIns', input] : ['getWriteIns'];
   },
-  useQuery(input: GetWriteInsInput, enabled = true) {
+  useQuery(input: GetWriteInsInput, options = { enabled: true }) {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(input),
@@ -445,7 +445,7 @@ export const getWriteIns = {
           cvrId: input.cvrId,
           contestId: input.contestId,
         }),
-      { enabled }
+      options
     );
   },
 } as const;
@@ -457,12 +457,12 @@ export const getCastVoteRecordVoteInfo = {
       ? ['getCastVoteRecordVoteInfo', input.cvrId]
       : ['getCastVoteRecordVoteInfo'];
   },
-  useQuery(input: GetCastVoteRecordVoteInfoInput, enabled = true) {
+  useQuery(input: GetCastVoteRecordVoteInfoInput, options = { enabled: true }) {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(input),
       () => apiClient.getCastVoteRecordVoteInfo({ cvrId: input.cvrId }),
-      { enabled }
+      options
     );
   },
 } as const;
@@ -472,12 +472,12 @@ export const getVoteAdjudications = {
   queryKey(input?: GetVoteAdjudicationsInput): QueryKey {
     return input ? ['getVoteAdjudications', input] : ['getVoteAdjudications'];
   },
-  useQuery(input?: GetVoteAdjudicationsInput, enabled = true) {
+  useQuery(input?: GetVoteAdjudicationsInput, options = { enabled: true }) {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(input),
       () => apiClient.getVoteAdjudications(input),
-      { enabled }
+      options
     );
   },
 } as const;

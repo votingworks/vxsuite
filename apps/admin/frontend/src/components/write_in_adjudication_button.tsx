@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 import { CheckboxButton, Icons, SearchSelect } from '@votingworks/ui';
+import { normalizeWriteInName } from '../utils/write_ins';
 
 const Container = styled.div`
   display: flex;
@@ -12,6 +13,10 @@ const Container = styled.div`
   button:focus-visible {
     z-index: 10;
   }
+`;
+
+const RoundedCheckboxButton = styled(CheckboxButton)`
+  border-radius: 0.5rem 0.5rem 0 0;
 `;
 
 export function WriteInAdjudicationButton({
@@ -43,20 +48,20 @@ export function WriteInAdjudicationButton({
 }): JSX.Element {
   const theme = useTheme();
   const [inputValue, setInputValue] = useState('');
-  const inputValueLowerCase = inputValue.toLowerCase();
+  const normalizedInputValue = normalizeWriteInName(inputValue);
 
-  function onKeyPress(val?: string) {
+  function onInputChange(val?: string) {
     return setInputValue(val || '');
   }
 
   const filteredCandidateOptions = inputValue
     ? officialCandidateNames.filter((name) =>
-        name.toLowerCase().includes(inputValueLowerCase)
+        normalizeWriteInName(name).includes(normalizedInputValue)
       )
     : officialCandidateNames;
   const filteredWriteInCandidateOptions = inputValue
     ? writeInCandidateNames.filter((name) =>
-        name.toLowerCase().includes(inputValueLowerCase)
+        normalizeWriteInName(name).includes(normalizedInputValue)
       )
     : writeInCandidateNames;
   const options = filteredWriteInCandidateOptions
@@ -69,15 +74,15 @@ export function WriteInAdjudicationButton({
   // 'Add: NEW_CANDIDATE' entry if there is no exact match
   if (
     inputValue &&
-    !options.find(
-      (item) => item.label.toLowerCase() === inputValue.toLowerCase()
+    !options.some(
+      (item) => normalizeWriteInName(item.label) === normalizedInputValue
     )
   ) {
     options.push({ label: `Add: ${inputValue}`, value: inputValue });
   }
 
   // If value has been entered and it is a new entry, add it the dropdown
-  if (value && !options.find((option) => option.label === value)) {
+  if (value && !options.some((option) => option.label === value)) {
     options.push({ label: value, value });
   }
 
@@ -87,11 +92,10 @@ export function WriteInAdjudicationButton({
 
   return (
     <Container style={{ zIndex: isFocused ? 10 : 0 }}>
-      <CheckboxButton
+      <RoundedCheckboxButton
         isChecked={isSelected}
         label="Write-in"
         onChange={toggleVote}
-        style={{ borderRadius: '0.5rem 0.5rem 0 0' }}
       />
       <SearchSelect
         aria-label="Select or add write-in candidate"
@@ -103,7 +107,7 @@ export function WriteInAdjudicationButton({
         options={options}
         onBlur={onInputBlur}
         onFocus={onInputFocus}
-        onInputChange={onKeyPress}
+        onInputChange={onInputChange}
         onChange={(val) => {
           setInputValue('');
           onChange(val);
@@ -111,14 +115,14 @@ export function WriteInAdjudicationButton({
         value={value}
         placeholder={
           isFocused ? (
-            'Search or add...'
+            'Search or add…'
           ) : (
             <React.Fragment>
               <Icons.Warning
                 color="warning"
                 style={{ marginRight: '0.5rem' }}
               />
-              {isSelected ? 'Adjudicate' : 'Unmarked'} Write-in
+              {isSelected ? 'Adjudicate Write-in' : 'Unmarked Write-in'}{' '}
             </React.Fragment>
           )
         }

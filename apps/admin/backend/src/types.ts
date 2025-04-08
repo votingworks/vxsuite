@@ -349,6 +349,7 @@ export interface HmpbWriteInImageView {
   readonly ballotCoordinates: Rect;
   readonly contestCoordinates: Rect;
   readonly writeInCoordinates: Rect;
+  readonly type: 'hmpb';
 }
 
 /**
@@ -360,6 +361,7 @@ export interface BmdWriteInImageView {
   readonly optionId: Id;
   readonly imageUrl: string;
   readonly machineMarkedText: string;
+  readonly type: 'bmd';
 }
 
 /**
