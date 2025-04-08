@@ -33,11 +33,12 @@ export function MachineLockedScreen(): JSX.Element | null {
           <H3 style={{ fontWeight: 'normal' }}>
             {getElectionQuery.data.isOk() ? (
               <React.Fragment>
-                Insert election manager or poll worker card to unlock.
+                Insert system administrator, election manager, or poll worker
+                card to unlock.
               </React.Fragment>
             ) : (
               <React.Fragment>
-                Insert election manager card to unlock.
+                Insert system administrator or election manager card to unlock.
               </React.Fragment>
             )}
           </H3>

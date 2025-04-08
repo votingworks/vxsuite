@@ -316,6 +316,43 @@ export function NavScreen({
   );
 }
 
+export const systemAdminRoutes = {
+  settings: { title: 'Settings', path: '/settings' },
+  voters: { title: 'Voters', path: '/voters' },
+} satisfies Record<string, { title: string; path: string }>;
+
+export function SystemAdminNavScreen({
+  title,
+  children,
+}: {
+  title: string | React.ReactNode;
+  children: React.ReactNode;
+}): JSX.Element {
+  const currentRoute = useRouteMatch();
+
+  return (
+    <NavScreen
+      navContent={
+        <NavList>
+          {Object.values(systemAdminRoutes).map((route) => (
+            <NavListItem key={route.path}>
+              <NavLink
+                to={route.path}
+                isActive={route.path === currentRoute.url}
+              >
+                {route.title}
+              </NavLink>
+            </NavListItem>
+          ))}
+        </NavList>
+      }
+    >
+      <Header>{typeof title === 'string' ? <H1>{title}</H1> : title}</Header>
+      {children}
+    </NavScreen>
+  );
+}
+
 export const electionManagerRoutes = {
   settings: { title: 'Settings', path: '/settings' },
   voters: { title: 'Voters', path: '/voters' },

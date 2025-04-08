@@ -11,7 +11,11 @@ import { BrowserRouter } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { DevDock } from '@votingworks/dev-dock-frontend';
 import { assert } from '@votingworks/basics';
-import { isElectionManagerAuth, isPollWorkerAuth } from '@votingworks/utils';
+import {
+  isElectionManagerAuth,
+  isPollWorkerAuth,
+  isSystemAdministratorAuth,
+} from '@votingworks/utils';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import {
   ApiClient,
@@ -27,6 +31,7 @@ import { PollWorkerScreen } from './poll_worker_screen';
 import { UnconfiguredScreen } from './unconfigured_screen';
 import { MachineLockedScreen } from './machine_locked_screen';
 import { ElectionManagerScreen } from './election_manager_screen';
+import { SystemAdminScreen } from './system_admin_screen';
 
 function AppRoot(): JSX.Element | null {
   const getAuthStatusQuery = getAuthStatus.useQuery();
@@ -89,6 +94,10 @@ function AppRoot(): JSX.Element | null {
 
   if (election.isErr()) {
     return <UnconfiguredScreen />;
+  }
+
+  if (isSystemAdministratorAuth(auth)) {
+    return <SystemAdminScreen />;
   }
 
   if (isElectionManagerAuth(auth)) {
