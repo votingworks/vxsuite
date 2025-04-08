@@ -16,6 +16,7 @@ import {
   Admin,
   Sha256Hash,
   BallotStyleGroupId,
+  Side,
 } from '@votingworks/types';
 import * as z from 'zod';
 
@@ -349,6 +350,7 @@ export interface HmpbWriteInImageView {
   readonly ballotCoordinates: Rect;
   readonly contestCoordinates: Rect;
   readonly writeInCoordinates: Rect;
+  readonly side: Side;
   readonly type: 'hmpb';
 }
 
@@ -361,6 +363,7 @@ export interface BmdWriteInImageView {
   readonly optionId: Id;
   readonly imageUrl: string;
   readonly machineMarkedText: string;
+  readonly side: 'front'; // bmd ballots are always on the front.
   readonly type: 'bmd';
 }
 

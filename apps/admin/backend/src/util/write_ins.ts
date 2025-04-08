@@ -19,7 +19,7 @@ export async function getWriteInImageView({
 }): Promise<WriteInImageView> {
   debug('creating write-in image view for %s...', writeInId);
   const writeInDetails = store.getWriteInImageAndLayout(writeInId);
-  const { layout, image, contestId, optionId, cvrId, machineMarkedText } =
+  const { layout, image, contestId, optionId, cvrId, machineMarkedText, side } =
     writeInDetails;
 
   // BMD ballots do not have layouts, we do not support zoom during WIA on these ballots.
@@ -35,6 +35,7 @@ export async function getWriteInImageView({
       imageUrl: toDataUrl(await loadImageData(image), 'image/jpeg'),
       machineMarkedText,
       type: 'bmd',
+      side: 'front',
     };
   }
 
@@ -81,6 +82,7 @@ export async function getWriteInImageView({
     contestCoordinates: contestLayout.bounds,
     writeInCoordinates: writeInLayout.bounds,
     type: 'hmpb',
+    side,
   };
 }
 

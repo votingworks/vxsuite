@@ -7,11 +7,7 @@ import {
   useState,
 } from 'react';
 import styled from 'styled-components';
-import {
-  ContestOptionId,
-  getContestDistrictName,
-  Id,
-} from '@votingworks/types';
+import { ContestOptionId, getContestDistrictName } from '@votingworks/types';
 import {
   Button,
   Main,
@@ -28,7 +24,6 @@ import { assert, find, iter, throwIllegalValue } from '@votingworks/basics';
 import type { WriteInRecord } from '@votingworks/admin-backend';
 import { allContestOptions, format } from '@votingworks/utils';
 import { useHistory, useParams } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
 import {
   addWriteInRecord,
   addWriteInCandidate,
@@ -41,7 +36,6 @@ import {
   getWriteInAdjudicationCvrQueue,
   getWriteInCandidates,
   getVoteAdjudications,
-  useApiClient,
 } from '../api';
 import { AppContext } from '../contexts/app_context';
 import { ContestAdjudicationScreenParams } from '../config/types';
@@ -219,12 +213,12 @@ const ContestTitleDiv = styled.div`
   gap: 0;
 `;
 
-const StyledH1 = styled(H1)`
+const CompactH1 = styled(H1)`
   font-size: 1.125rem;
   margin: 0;
 `;
 
-const StyledH2 = styled(H2)`
+const CompactH2 = styled(H2)`
   font-size: 0.875rem;
   margin: 0;
 `;
@@ -235,16 +229,26 @@ const MediumText = styled(P)`
   margin: 0;
 `;
 
-const SmallText = styled.span`
+const SmallText = styled(P)`
   color: ${(p) => p.theme.colors.onBackgroundMuted};
   font-size: 0.875rem;
   font-weight: 500;
+  line-height: 1;
+  margin: 0;
 `;
 
 const Label = styled.span`
   color: ${(p) => p.theme.colors.inverseBackground};
   font-size: 1rem;
   font-weight: 500;
+`;
+
+const PrimaryNavButton = styled(Button)`
+  flex-grow: 1;
+`;
+
+const SecondaryNavButton = styled(Button)`
+  width: 5.5rem;
 `;
 
 function renderCandidateButtonCaption({
@@ -299,7 +303,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const contest = find(election.contests, (c) => c.id === contestId);
   assert(contest.type === 'candidate', 'contest must be a candidate contest');
 
-  const writeInCvrQueueQuery = getWriteInAdjudicationCvrQueue.useQuery({
+  const cvrQueueQuery = getWriteInAdjudicationCvrQueue.useQuery({
     contestId: contest.id,
   });
   const firstPendingWriteInCvrIdQuery = getFirstPendingWriteInCvrId.useQuery({
@@ -310,33 +314,27 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const [cvrQueueIndex, setCvrQueueIndex] = useState<number>();
   const [focusedOptionId, setFocusedOptionId] = useState<string>();
   const history = useHistory();
-  const scrollStateInitialized = cvrQueueIndex !== undefined;
-  const currentCvrId = scrollStateInitialized
-    ? writeInCvrQueueQuery.data?.[cvrQueueIndex]
-    : undefined;
-  const numBallots = writeInCvrQueueQuery.data?.length;
-  const onLastBallot = cvrQueueIndex ? cvrQueueIndex + 1 === numBallots : false;
+  const isQueueReady = cvrQueueIndex !== undefined;
+  const currentCvrId = isQueueReady ? cvrQueueQuery.data?.[cvrQueueIndex] : '';
+  const numBallots = cvrQueueQuery.data?.length ?? 0;
+  const onLastBallot = isQueueReady ? cvrQueueIndex + 1 === numBallots : false;
 
   // Queries and mutations
   const cvrVoteInfoQuery = getCastVoteRecordVoteInfo.useQuery(
-    { cvrId: currentCvrId || '' }, // add contestId
-    { enabled: !!currentCvrId } // only run query when there is a valid CvrId
+    currentCvrId ? { cvrId: currentCvrId } : undefined
   );
-  const cvrContestWriteInsQuery = getWriteIns.useQuery(
-    { cvrId: currentCvrId ?? 'no-op', contestId },
-    { enabled: !!currentCvrId }
+  const voteAdjudicationsQuery = getVoteAdjudications.useQuery(
+    currentCvrId ? { cvrId: currentCvrId, contestId } : undefined
   );
-  const cvrContestWriteInImagesQuery = getCvrWriteInImageViews.useQuery(
-    { cvrId: currentCvrId ?? 'no-op', contestId },
-    { enabled: !!currentCvrId }
+  const writeInsQuery = getWriteIns.useQuery(
+    currentCvrId ? { cvrId: currentCvrId, contestId } : undefined
   );
-  const contestWriteInCandidatesQuery = getWriteInCandidates.useQuery({
+  const writeInImagesQuery = getCvrWriteInImageViews.useQuery(
+    currentCvrId ? { cvrId: currentCvrId, contestId } : undefined
+  );
+  const writeInCandidatesQuery = getWriteInCandidates.useQuery({
     contestId: contest.id,
   });
-  const cvrContestVoteAdjudicationsQuery = getVoteAdjudications.useQuery(
-    { cvrId: currentCvrId ?? 'no-op', contestId },
-    { enabled: !!currentCvrId }
-  );
 
   const addWriteInRecordMutation = addWriteInRecord.useMutation();
   const addWriteInCandidateMutation = addWriteInCandidate.useMutation();
@@ -346,16 +344,17 @@ export function ContestAdjudicationScreen(): JSX.Element {
   // Vote and write-in state for adjudication management
   const cvrVoteInfo = cvrVoteInfoQuery.data;
   const originalVotes = cvrVoteInfo?.votes[contestId];
-  const voteAdjudications = cvrContestVoteAdjudicationsQuery.data;
-  const writeIns = cvrContestWriteInsQuery.data;
+  const voteAdjudications = voteAdjudicationsQuery.data;
+  const writeIns = writeInsQuery.data;
 
-  const writeInImages = cvrContestWriteInImagesQuery.data;
+  const writeInImages = writeInImagesQuery.data;
   const firstWriteInImage = writeInImages?.[0];
   const focusedWriteInImage = focusedOptionId
     ? writeInImages?.find((item) => item.optionId === focusedOptionId)
     : undefined;
   const isHmpb = firstWriteInImage?.type === 'hmpb';
   const isBmd = firstWriteInImage?.type === 'bmd';
+  const side = firstWriteInImage?.side;
 
   const [voteState, setVoteState] = useState<Record<ContestOptionId, boolean>>(
     {}
@@ -368,15 +367,19 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const [doubleVoteAlert, setDoubleVoteAlert] = useState<DoubleVoteAlert>();
 
   const officialCandidates = contest.candidates.filter((c) => !c.isWriteIn);
-  const writeInCandidates = contestWriteInCandidatesQuery.data;
+  const writeInCandidates = writeInCandidatesQuery.data;
 
   const seatCount = contest.seats;
   const voteCount = Object.values(voteState).filter(Boolean).length;
   const isOvervote = voteCount > seatCount;
 
-  const writeInOptionIds = useMemo(() => iter(allContestOptions(contest))
-      .filterMap((option) => (option.isWriteIn ? option.id : undefined))
-      .toArray(), [contest]);
+  const writeInOptionIds = useMemo(
+    () =>
+      iter(allContestOptions(contest))
+        .filterMap((option) => (option.isWriteIn ? option.id : undefined))
+        .toArray(),
+    [contest]
+  );
   const selectedCandidateNames = Object.entries(voteState)
     .filter(([, hasVote]) => hasVote)
     .map(([optionId]) => {
@@ -483,6 +486,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
   async function createWriteInRecord(optionId: string): Promise<string> {
     assert(currentCvrId !== undefined);
     assert(writeIns !== undefined);
+    assert(side !== undefined);
     const existingRecord = writeIns.find((item) => item.optionId === optionId);
     if (existingRecord) return existingRecord.id;
     const id = await addWriteInRecordMutation.mutateAsync({
@@ -490,7 +494,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
       optionId,
       isUnmarked: true,
       cvrId: currentCvrId,
-      side: undefined, // NEED to add
+      side,
     });
     return id;
   }
@@ -650,12 +654,12 @@ export function ContestAdjudicationScreen(): JSX.Element {
   useEffect(() => {
     if (
       cvrVoteInfoQuery.isSuccess &&
-      cvrContestWriteInsQuery.isSuccess &&
-      !cvrContestWriteInsQuery.isStale &&
-      contestWriteInCandidatesQuery.isSuccess &&
-      !contestWriteInCandidatesQuery.isStale &&
-      cvrContestVoteAdjudicationsQuery.isSuccess &&
-      !cvrContestVoteAdjudicationsQuery.isStale &&
+      writeInsQuery.isSuccess &&
+      !writeInsQuery.isStale &&
+      writeInCandidatesQuery.isSuccess &&
+      !writeInCandidatesQuery.isStale &&
+      voteAdjudicationsQuery.isSuccess &&
+      !voteAdjudicationsQuery.isStale &&
       (!voteStateInitialized || isStateStale)
     ) {
       if (
@@ -735,12 +739,12 @@ export function ContestAdjudicationScreen(): JSX.Element {
   }, [
     cvrVoteInfoQuery.isSuccess,
     cvrVoteInfoQuery.isStale,
-    cvrContestWriteInsQuery.isSuccess,
-    cvrContestWriteInsQuery.isStale,
-    contestWriteInCandidatesQuery.isSuccess,
-    contestWriteInCandidatesQuery.isStale,
-    cvrContestVoteAdjudicationsQuery.isSuccess,
-    cvrContestVoteAdjudicationsQuery.isStale,
+    writeInsQuery.isSuccess,
+    writeInsQuery.isStale,
+    writeInCandidatesQuery.isSuccess,
+    writeInCandidatesQuery.isStale,
+    voteAdjudicationsQuery.isSuccess,
+    voteAdjudicationsQuery.isStale,
     officialCandidates,
     originalVotes,
     seatCount,
@@ -755,11 +759,11 @@ export function ContestAdjudicationScreen(): JSX.Element {
   // Initiate cvr scrolling
   useEffect(() => {
     if (
-      writeInCvrQueueQuery.isSuccess &&
+      cvrQueueQuery.isSuccess &&
       firstPendingWriteInCvrIdQuery.isSuccess &&
-      !scrollStateInitialized
+      !isQueueReady
     ) {
-      const cvrQueue = writeInCvrQueueQuery.data;
+      const cvrQueue = cvrQueueQuery.data;
       const firstPendingWriteInCvrId = firstPendingWriteInCvrIdQuery.data;
       if (firstPendingWriteInCvrId) {
         setCvrQueueIndex(cvrQueue.indexOf(firstPendingWriteInCvrId));
@@ -767,40 +771,21 @@ export function ContestAdjudicationScreen(): JSX.Element {
         setCvrQueueIndex(0);
       }
     }
-  }, [
-    firstPendingWriteInCvrIdQuery,
-    scrollStateInitialized,
-    writeInCvrQueueQuery,
-  ]);
+  }, [firstPendingWriteInCvrIdQuery, isQueueReady, cvrQueueQuery]);
 
   // Prefetch the next and previous ballot images
-  const queryClient = useQueryClient();
-  const apiClient = useApiClient();
+  const prefetchImageViews = getCvrWriteInImageViews.usePrefetch();
   useEffect(() => {
-    if (!writeInCvrQueueQuery.isSuccess || !scrollStateInitialized) return;
-    function prefetch(cvrId: Id) {
-      void queryClient.prefetchQuery({
-        queryKey: getCvrWriteInImageViews.queryKey({ cvrId, contestId }),
-        queryFn: () =>
-          apiClient.getCvrContestWriteInImageViews({ cvrId, contestId }),
-      });
-    }
-    const nextCvrId = writeInCvrQueueQuery.data[cvrQueueIndex + 1];
+    if (!cvrQueueQuery.isSuccess || cvrQueueIndex === undefined) return;
+    const nextCvrId = cvrQueueQuery.data[cvrQueueIndex + 1];
     if (nextCvrId) {
-      prefetch(nextCvrId);
+      void prefetchImageViews({ cvrId: nextCvrId, contestId });
     }
-    const prevCvrId = writeInCvrQueueQuery.data[cvrQueueIndex - 1];
+    const prevCvrId = cvrQueueQuery.data[cvrQueueIndex - 1];
     if (prevCvrId) {
-      prefetch(prevCvrId);
+      void prefetchImageViews({ cvrId: prevCvrId, contestId });
     }
-  }, [
-    apiClient,
-    contestId,
-    queryClient,
-    cvrQueueIndex,
-    scrollStateInitialized,
-    writeInCvrQueueQuery,
-  ]);
+  }, [prefetchImageViews, contestId, cvrQueueIndex, cvrQueueQuery]);
 
   // Scroll candidate list to write-ins if adjudications are required
   const candidateListRef = useRef<HTMLDivElement>(null);
@@ -814,15 +799,15 @@ export function ContestAdjudicationScreen(): JSX.Element {
 
   const areQueriesLoading =
     !firstPendingWriteInCvrIdQuery.isSuccess ||
-    !writeInCvrQueueQuery.isSuccess ||
+    !cvrQueueQuery.isSuccess ||
     !cvrVoteInfoQuery.isSuccess ||
-    !cvrContestWriteInImagesQuery.isSuccess ||
-    !cvrContestWriteInsQuery.isSuccess ||
-    !contestWriteInCandidatesQuery.isSuccess ||
-    !cvrContestVoteAdjudicationsQuery.isSuccess;
+    !writeInImagesQuery.isSuccess ||
+    !writeInsQuery.isSuccess ||
+    !writeInCandidatesQuery.isSuccess ||
+    !voteAdjudicationsQuery.isSuccess;
 
   if (
-    !(scrollStateInitialized && voteStateInitialized) ||
+    !(isQueueReady && voteStateInitialized) ||
     (areQueriesLoading && !isStateStale)
   ) {
     return (
@@ -859,8 +844,8 @@ export function ContestAdjudicationScreen(): JSX.Element {
           {focusedOptionId && <AdjudicationPanelOverlay />}
           <BallotHeader>
             <ContestTitleDiv>
-              <StyledH2>{getContestDistrictName(election, contest)}</StyledH2>
-              <StyledH1>{contest.title}</StyledH1>
+              <CompactH2>{getContestDistrictName(election, contest)}</CompactH2>
+              <CompactH1>{contest.title}</CompactH1>
             </ContestTitleDiv>
             <LinkButton
               fill="outlined"
@@ -1078,43 +1063,39 @@ export function ContestAdjudicationScreen(): JSX.Element {
           <BallotFooter>
             <BallotMetadata>
               <SmallText>
-                {format.count(cvrQueueIndex + 1)} of{' '}
-                {format.count(numBallots ?? 0)}{' '}
+                {format.count(cvrQueueIndex + 1)} of {format.count(numBallots)}{' '}
               </SmallText>
               <SmallText>Ballot ID: {currentCvrId?.substring(0, 4)}</SmallText>
             </BallotMetadata>
             <BallotNavigation>
-              <Button
+              <SecondaryNavButton
                 disabled={cvrQueueIndex === 0}
                 icon="Previous"
                 onPress={() => {
                   setCvrQueueIndex(cvrQueueIndex - 1);
                   setIsStateStale(true);
                 }}
-                style={{ width: '5.5rem' }}
               >
                 Back
-              </Button>
-              <Button
+              </SecondaryNavButton>
+              <SecondaryNavButton
                 disabled={onLastBallot}
                 onPress={() => {
                   setCvrQueueIndex(cvrQueueIndex + 1);
                   setIsStateStale(true);
                 }}
                 rightIcon="Next"
-                style={{ width: '5.5rem' }}
               >
                 Skip
-              </Button>
-              <Button
+              </SecondaryNavButton>
+              <PrimaryNavButton
                 disabled={!allWriteInsAdjudicated}
                 icon="Done"
                 onPress={saveAndNext}
-                style={{ flexGrow: '1' }}
                 variant="primary"
               >
                 {onLastBallot ? 'Finish' : 'Save & Next'}
-              </Button>
+              </PrimaryNavButton>
             </BallotNavigation>
           </BallotFooter>
         </AdjudicationPanel>

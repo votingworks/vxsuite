@@ -1175,6 +1175,7 @@ export class Store {
     optionId: ContestOptionId;
     cvrId: Id;
     image: Buffer;
+    side: Side;
     layout?: BallotPageLayout;
     machineMarkedText?: string;
   } {
@@ -1185,6 +1186,7 @@ export class Store {
             write_ins.contest_id as contestId,
             write_ins.option_id as optionId,
             write_ins.cvr_id as cvrId,
+            write_ins.side as side,
             ballot_images.image as image,
             ballot_images.layout as layout,
             write_ins.machine_marked_text as machineMarkedText
@@ -1202,6 +1204,7 @@ export class Store {
       optionId: ContestOptionId;
       cvrId: string;
       image: Buffer;
+      side: Side;
       layout?: string;
       machineMarkedText?: string;
     };
