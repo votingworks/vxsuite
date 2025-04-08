@@ -150,7 +150,7 @@ export function fetchEventsFromConnectedPollbooks({
 
       // Print metrics every 100 runs
       if (runCount % 100 === 0) {
-        debug('Printing networking timing logs metrics:');
+        console.log('Printing networking timing logs metrics:');
         for (const [metricName, logs] of Object.entries(networkingTimingLogs)) {
           if (logs.length > 0) {
             const durations = logs.map((log) => log.duration);
@@ -159,7 +159,7 @@ export function fetchEventsFromConnectedPollbooks({
               durations.length;
             const min = Math.min(...durations);
             const max = Math.max(...durations);
-            debug(
+            console.log(
               `Metric: ${metricName}, Average: ${average.toFixed(
                 2
               )}ms, Min: ${min}ms, Max: ${max}ms`
