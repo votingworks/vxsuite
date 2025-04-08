@@ -5,12 +5,15 @@ export default defineConfig({
     setupFiles: ['test/setupTests.ts'],
     coverage: {
       thresholds: {
-        lines: 89,
-        branches: 79,
+        lines: 92,
+        branches: 84,
       },
       exclude: [
+        '**/*.test.ts',
+        '**/*.test.tsx',
         // tested by src/preview.test.ts, but no coverage is collected
         'src/preview',
+        'src/generate_fixtures.ts',
       ],
     },
   },
