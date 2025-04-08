@@ -9,7 +9,10 @@ import {
 import { assert } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
 import { Redirect, Route, Switch } from 'react-router-dom';
-import { SystemAdminNavScreen, systemAdminRoutes } from './nav_screen';
+import {
+  SystemAdministratorNavScreen,
+  systemAdministratorRoutes,
+} from './nav_screen';
 import { getElection, unconfigure } from './api';
 import { Column, FieldName, Row } from './layout';
 import { VotersScreen } from './voters_screen';
@@ -22,7 +25,7 @@ export function SettingsScreen(): JSX.Element | null {
   const election = getElectionQuery.data.unsafeUnwrap();
 
   return (
-    <SystemAdminNavScreen title="Settings">
+    <SystemAdministratorNavScreen title="Settings">
       <MainContent>
         <Column style={{ gap: '1rem' }}>
           <div data-testid="election-info">
@@ -51,19 +54,22 @@ export function SettingsScreen(): JSX.Element | null {
           </div>
         </Column>
       </MainContent>
-    </SystemAdminNavScreen>
+    </SystemAdministratorNavScreen>
   );
 }
 
-export function SystemAdminScreen(): JSX.Element {
+export function SystemAdministratorScreen(): JSX.Element {
   return (
     <Switch>
       <Route
-        path={systemAdminRoutes.settings.path}
+        path={systemAdministratorRoutes.settings.path}
         component={SettingsScreen}
       />
-      <Route path={systemAdminRoutes.voters.path} component={VotersScreen} />
-      <Redirect to={systemAdminRoutes.settings.path} />
+      <Route
+        path={systemAdministratorRoutes.voters.path}
+        component={VotersScreen}
+      />
+      <Redirect to={systemAdministratorRoutes.settings.path} />
     </Switch>
   );
 }

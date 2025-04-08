@@ -31,7 +31,7 @@ import { PollWorkerScreen } from './poll_worker_screen';
 import { UnconfiguredScreen } from './unconfigured_screen';
 import { MachineLockedScreen } from './machine_locked_screen';
 import { ElectionManagerScreen } from './election_manager_screen';
-import { SystemAdminScreen } from './system_admin_screen';
+import { SystemAdministratorScreen } from './system_administrator_screen';
 
 function AppRoot(): JSX.Element | null {
   const getAuthStatusQuery = getAuthStatus.useQuery();
@@ -97,7 +97,7 @@ function AppRoot(): JSX.Element | null {
   }
 
   if (isSystemAdministratorAuth(auth)) {
-    return <SystemAdminScreen />;
+    return <SystemAdministratorScreen />;
   }
 
   if (isElectionManagerAuth(auth)) {

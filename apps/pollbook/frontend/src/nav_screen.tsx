@@ -316,12 +316,12 @@ export function NavScreen({
   );
 }
 
-export const systemAdminRoutes = {
+export const systemAdministratorRoutes = {
   settings: { title: 'Settings', path: '/settings' },
   voters: { title: 'Voters', path: '/voters' },
 } satisfies Record<string, { title: string; path: string }>;
 
-export function SystemAdminNavScreen({
+export function SystemAdministratorNavScreen({
   title,
   children,
 }: {
@@ -334,7 +334,7 @@ export function SystemAdminNavScreen({
     <NavScreen
       navContent={
         <NavList>
-          {Object.values(systemAdminRoutes).map((route) => (
+          {Object.values(systemAdministratorRoutes).map((route) => (
             <NavListItem key={route.path}>
               <NavLink
                 to={route.path}
