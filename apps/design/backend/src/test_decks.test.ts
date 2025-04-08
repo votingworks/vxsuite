@@ -4,9 +4,9 @@ import {
   Renderer,
   ballotTemplates,
   createPlaywrightRenderer,
-  famousNamesFixtures,
-  generalElectionFixtures,
-  primaryElectionFixtures,
+  vxFamousNamesFixtures,
+  vxGeneralElectionFixtures,
+  vxPrimaryElectionFixtures,
   renderAllBallotsAndCreateElectionDefinition,
 } from '@votingworks/hmpb';
 import { assert, find, iter } from '@votingworks/basics';
@@ -35,8 +35,8 @@ afterAll(async () => {
 
 describe('createPrecinctTestDeck', () => {
   test('for a precinct with one ballot style', async () => {
-    const fixtures = famousNamesFixtures;
-    const { electionDefinition } = famousNamesFixtures;
+    const fixtures = vxFamousNamesFixtures;
+    const { electionDefinition } = vxFamousNamesFixtures;
     const { election } = electionDefinition;
     const precinctId = election.precincts[0].id;
     assert(
@@ -64,7 +64,7 @@ describe('createPrecinctTestDeck', () => {
   });
 
   test('for a precinct with multiple ballot styles', async () => {
-    const fixtures = primaryElectionFixtures;
+    const fixtures = vxPrimaryElectionFixtures;
     const primaryElectionDefinition = fixtures.electionDefinition;
     // Test takes unnecessarily long if using all language ballot styles
     const electionDefinition: ElectionDefinition = {
@@ -106,7 +106,7 @@ describe('createPrecinctTestDeck', () => {
   });
 
   test('for a precinct with no ballot styles', async () => {
-    const fixtures = generalElectionFixtures.fixtureSpecs[0];
+    const fixtures = vxGeneralElectionFixtures.fixtureSpecs[0];
     const electionDefinition = (
       await readElection(fixtures.electionPath)
     ).unsafeUnwrap();
@@ -130,7 +130,7 @@ describe('createPrecinctTestDeck', () => {
 
 describe('getTallyReportResults', () => {
   test('general', async () => {
-    const { electionDefinition } = famousNamesFixtures;
+    const { electionDefinition } = vxFamousNamesFixtures;
     const { election } = electionDefinition;
 
     const tallyReportResults = await getTallyReportResults(election);
@@ -171,7 +171,7 @@ describe('getTallyReportResults', () => {
   });
 
   test('primary', async () => {
-    const { electionDefinition } = primaryElectionFixtures;
+    const { electionDefinition } = vxPrimaryElectionFixtures;
     const { election } = electionDefinition;
 
     const tallyReportResults = await getTallyReportResults(election);
@@ -225,7 +225,7 @@ describe('getTallyReportResults', () => {
 });
 
 test('createTestDeckTallyReport', async () => {
-  const fixtures = generalElectionFixtures.fixtureSpecs[0];
+  const fixtures = vxGeneralElectionFixtures.fixtureSpecs[0];
   const electionDefinition = (
     await readElection(fixtures.electionPath)
   ).unsafeUnwrap();

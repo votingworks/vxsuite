@@ -5,14 +5,15 @@ export default defineConfig({
     setupFiles: ['test/setupTests.ts'],
     coverage: {
       thresholds: {
-        lines: 85,
-        branches: 78,
+        lines: 92,
+        branches: 84,
       },
       exclude: [
+        '**/*.test.ts',
+        '**/*.test.tsx',
         // tested by src/preview.test.ts, but no coverage is collected
         'src/preview',
-        // tested in VxDesign, the only consumer, but coverage should be added here to reduce fragility
-        'src/ballot_templates/nh_ballot_template.tsx',
+        'src/generate_fixtures.ts',
       ],
     },
   },

@@ -1,12 +1,13 @@
 import {
   Candidate,
   ContestId,
+  Contests,
   Id,
   Vote,
   VotesDict,
   WriteInCandidate,
 } from '@votingworks/types';
-import { throwIllegalValue } from '@votingworks/basics';
+import { assertDefined, iter, throwIllegalValue } from '@votingworks/basics';
 import React from 'react';
 import { RenderDocument, Renderer } from './renderer';
 import {
@@ -22,7 +23,7 @@ import {
   measureTimingMarkGrid,
 } from './render_ballot';
 
-export function voteIsCandidate(vote: Vote[number]): vote is Candidate {
+function voteIsCandidate(vote: Vote[number]): vote is Candidate {
   return typeof vote !== 'string';
 }
 
@@ -152,4 +153,65 @@ export async function markBallotDocument(
     );
   }
   return markedBallotDocument;
+}
+
+export function createTestVotes(contests: Contests): {
+  votes: VotesDict;
+  unmarkedWriteIns: UnmarkedWriteInVote[];
+} {
+  const votes: VotesDict = Object.fromEntries(
+    contests.map((contest, i) => {
+      if (contest.type === 'candidate') {
+        const candidates = iter(contest.candidates)
+          .cycle()
+          .skip(i)
+          .take(contest.seats - (i % 2))
+          .toArray()
+          // List candidates in the order they appear on the ballot
+          .sort(
+            (a, b) =>
+              contest.candidates.indexOf(a) - contest.candidates.indexOf(b)
+          );
+        if (contest.allowWriteIns && i % 2 === 0) {
+          const writeInIndex = i % contest.seats;
+          candidates.push({
+            id: `write-in-${writeInIndex}`,
+            name: `Write-In #${writeInIndex + 1}`,
+            isWriteIn: true,
+            writeInIndex,
+          });
+        }
+        return [contest.id, candidates];
+      }
+      return [
+        contest.id,
+        i % 2 === 0 ? [contest.yesOption.id] : [contest.noOption.id],
+      ];
+    })
+  );
+
+  const unmarkedWriteIns = contests.flatMap((contest, i) => {
+    if (!(contest.type === 'candidate' && contest.allowWriteIns)) {
+      return [];
+    }
+    // Skip contests where we already voted for a write-in above
+    if (
+      assertDefined(votes[contest.id]).some(
+        (vote) => voteIsCandidate(vote) && vote.isWriteIn
+      )
+    ) {
+      return [];
+    }
+
+    const writeInIndex = i % contest.seats;
+    return [
+      {
+        contestId: contest.id,
+        writeInIndex,
+        name: `Unmarked Write-In #${writeInIndex + 1}`,
+      },
+    ];
+  });
+
+  return { votes, unmarkedWriteIns };
 }

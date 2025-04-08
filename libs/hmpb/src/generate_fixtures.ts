@@ -11,9 +11,10 @@ import {
   allBubbleBallotFixtures,
 } from './all_bubble_ballot_fixtures';
 import {
-  famousNamesFixtures,
-  generalElectionFixtures,
-  primaryElectionFixtures,
+  vxFamousNamesFixtures,
+  vxGeneralElectionFixtures,
+  nhGeneralElectionFixtures,
+  vxPrimaryElectionFixtures,
 } from './ballot_fixtures';
 import { Renderer } from './renderer';
 import { createPlaywrightRenderer } from './playwright_renderer';
@@ -33,16 +34,16 @@ async function generateAllBubbleBallotFixtures(
   await writeFile(fixtures.cyclingTestDeckPath, generated.cyclingTestDeckPdf);
 }
 
-async function generateFamousNamesFixtures(renderer: Renderer) {
-  const fixtures = famousNamesFixtures;
+async function generateVxFamousNamesFixtures(renderer: Renderer) {
+  const fixtures = vxFamousNamesFixtures;
   const generated = await fixtures.generate(renderer);
   await mkdir(fixtures.dir, { recursive: true });
   await writeFile(fixtures.blankBallotPath, generated.blankBallotPdf);
   await writeFile(fixtures.markedBallotPath, generated.markedBallotPdf);
 }
 
-async function generateGeneralElectionFixtures(renderer: Renderer) {
-  const fixtures = generalElectionFixtures;
+async function generateVxGeneralElectionFixtures(renderer: Renderer) {
+  const fixtures = vxGeneralElectionFixtures;
   const allGenerated = await fixtures.generate(renderer, fixtures.fixtureSpecs);
   for (const [spec, generated] of iter(fixtures.fixtureSpecs).zip(
     allGenerated
@@ -65,8 +66,8 @@ async function generateGeneralElectionFixtures(renderer: Renderer) {
   }
 }
 
-async function generatePrimaryElectionFixtures(renderer: Renderer) {
-  const fixtures = primaryElectionFixtures;
+async function generateVxPrimaryElectionFixtures(renderer: Renderer) {
+  const fixtures = vxPrimaryElectionFixtures;
   const generated = await fixtures.generate(renderer);
   await mkdir(fixtures.dir, { recursive: true });
 
@@ -88,6 +89,22 @@ async function generatePrimaryElectionFixtures(renderer: Renderer) {
   }
 }
 
+async function generateNhGeneralElectionFixtures(renderer: Renderer) {
+  const fixtures = nhGeneralElectionFixtures;
+  const allGenerated = await fixtures.generate(renderer, fixtures.fixtureSpecs);
+  for (const [spec, generated] of iter(fixtures.fixtureSpecs).zip(
+    allGenerated
+  )) {
+    await mkdir(spec.electionDir, { recursive: true });
+    await writeFile(
+      spec.electionPath,
+      generated.electionDefinition.electionData
+    );
+    await writeFile(spec.blankBallotPath, generated.blankBallotPdf);
+    await writeFile(spec.markedBallotPath, generated.markedBallotPdf);
+  }
+}
+
 interface FixtureSpec {
   fixtureName: string;
   paperSize: HmpbBallotPaperSize;
@@ -99,9 +116,10 @@ const ALL_FIXTURE_SPECS: readonly FixtureSpec[] = [
   { fixtureName: 'all-bubble-ballot', paperSize: HmpbBallotPaperSize.Custom17 },
   { fixtureName: 'all-bubble-ballot', paperSize: HmpbBallotPaperSize.Custom19 },
   { fixtureName: 'all-bubble-ballot', paperSize: HmpbBallotPaperSize.Custom22 },
-  { fixtureName: 'famous-names', paperSize: HmpbBallotPaperSize.Letter },
-  { fixtureName: 'general-election', paperSize: HmpbBallotPaperSize.Letter },
-  { fixtureName: 'primary-election', paperSize: HmpbBallotPaperSize.Letter },
+  { fixtureName: 'vx-famous-names', paperSize: HmpbBallotPaperSize.Letter },
+  { fixtureName: 'vx-general-election', paperSize: HmpbBallotPaperSize.Letter },
+  { fixtureName: 'vx-primary-election', paperSize: HmpbBallotPaperSize.Letter },
+  { fixtureName: 'nh-general-election', paperSize: HmpbBallotPaperSize.Letter },
 ];
 
 function usage(out: NodeJS.WriteStream) {
@@ -168,25 +186,33 @@ export async function main(): Promise<void> {
         break;
       }
 
-      case 'famous-names':
-        await rm(famousNamesFixtures.dir, { recursive: true, force: true });
-        await generateFamousNamesFixtures(renderer);
+      case 'vx-famous-names':
+        await rm(vxFamousNamesFixtures.dir, { recursive: true, force: true });
+        await generateVxFamousNamesFixtures(renderer);
         break;
 
-      case 'general-election':
-        await rm(generalElectionFixtures.dir, {
+      case 'vx-general-election':
+        await rm(vxGeneralElectionFixtures.dir, {
           recursive: true,
           force: true,
         });
-        await generateGeneralElectionFixtures(renderer);
+        await generateVxGeneralElectionFixtures(renderer);
         break;
 
-      case 'primary-election':
-        await rm(primaryElectionFixtures.dir, {
+      case 'vx-primary-election':
+        await rm(vxPrimaryElectionFixtures.dir, {
           recursive: true,
           force: true,
         });
-        await generatePrimaryElectionFixtures(renderer);
+        await generateVxPrimaryElectionFixtures(renderer);
+        break;
+
+      case 'nh-general-election':
+        await rm(nhGeneralElectionFixtures.dir, {
+          recursive: true,
+          force: true,
+        });
+        await generateNhGeneralElectionFixtures(renderer);
         break;
 
       default:

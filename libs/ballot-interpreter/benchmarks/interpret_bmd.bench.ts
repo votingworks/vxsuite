@@ -1,6 +1,6 @@
 import { describe, test } from 'vitest';
 import { assertDefined } from '@votingworks/basics';
-import { famousNamesFixtures } from '@votingworks/hmpb';
+import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { asSheet, DEFAULT_MARK_THRESHOLDS } from '@votingworks/types';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import {
@@ -15,7 +15,7 @@ import { pdfToPageImages } from '../test/helpers/interpretation';
 import { benchmarkRegressionTest } from './benchmarking';
 
 describe('Interpretation benchmark', () => {
-  const { electionDefinition, precinctId } = famousNamesFixtures;
+  const { electionDefinition, precinctId } = vxFamousNamesFixtures;
 
   test('Blank HMPB', async () => {
     const famousNamesBmdBallot = asSheet(

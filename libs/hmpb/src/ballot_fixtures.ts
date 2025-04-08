@@ -13,25 +13,28 @@ import {
   Election,
   getBallotStyle,
   getContests,
-  VotesDict,
 } from '@votingworks/types';
 import { join } from 'node:path';
 import makeDebug from 'debug';
 import { pdfToImages } from '@votingworks/image-utils';
-import { markBallotDocument, voteIsCandidate } from './mark_ballot';
+import { createTestVotes, markBallotDocument } from './mark_ballot';
 import {
   BaseBallotProps,
   renderAllBallotsAndCreateElectionDefinition,
 } from './render_ballot';
 import { vxDefaultBallotTemplate } from './ballot_templates/vx_default_ballot_template';
 import { Renderer } from './renderer';
+import {
+  NhBallotProps,
+  nhBallotTemplate,
+} from './ballot_templates/nh_ballot_template';
 
 const debug = makeDebug('hmpb:ballot_fixtures');
 
 export const fixturesDir = join(__dirname, '../fixtures');
 
-export const famousNamesFixtures = (() => {
-  const dir = join(fixturesDir, 'famous-names');
+export const vxFamousNamesFixtures = (() => {
+  const dir = join(fixturesDir, 'vx-famous-names');
   const blankBallotPath = join(dir, 'blank-ballot.pdf');
   const markedBallotPath = join(dir, 'marked-ballot.pdf');
 
@@ -52,22 +55,7 @@ export const famousNamesFixtures = (() => {
     getBallotStyle({ election, ballotStyleId: blankBallotProps.ballotStyleId })
   );
   const contests = getContests({ election, ballotStyle });
-  const votes: VotesDict = Object.fromEntries(
-    contests.map((contest, i) => {
-      assert(contest.type === 'candidate');
-      const candidates = iter(contest.candidates)
-        .cycle()
-        .skip(i)
-        .take(contest.seats)
-        .toArray()
-        // list candidates in the order they appear on the ballot
-        .sort(
-          (a, b) =>
-            contest.candidates.indexOf(a) - contest.candidates.indexOf(b)
-        );
-      return [contest.id, candidates];
-    })
-  );
+  const { votes } = createTestVotes(contests);
 
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
@@ -117,8 +105,8 @@ export const famousNamesFixtures = (() => {
   };
 })();
 
-export const generalElectionFixtures = (() => {
-  const dir = join(fixturesDir, 'general-election');
+export const vxGeneralElectionFixtures = (() => {
+  const dir = join(fixturesDir, 'vx-general-election');
 
   function makeElectionFixtureSpec(election: Election) {
     const electionDir = join(
@@ -147,57 +135,8 @@ export const generalElectionFixtures = (() => {
       getBallotStyle({ election, ballotStyleId: '12' as BallotStyleId })
     );
     const precinctId = assertDefined(ballotStyle.precincts[0]);
-
     const contests = getContests({ election, ballotStyle });
-    const votes: VotesDict = Object.fromEntries(
-      contests.map((contest, i) => {
-        if (contest.type === 'candidate') {
-          const candidates = iter(contest.candidates)
-            .cycle()
-            .skip(i)
-            .take(contest.seats - (i % 2))
-            .toArray();
-          if (contest.allowWriteIns && i % 2 === 0) {
-            const writeInIndex = i % contest.seats;
-            candidates.push({
-              id: `write-in-${writeInIndex}`,
-              name: `Write-In #${writeInIndex + 1}`,
-              isWriteIn: true,
-              writeInIndex,
-            });
-          }
-          return [contest.id, candidates];
-        }
-        return [
-          contest.id,
-          i % 2 === 0 ? [contest.yesOption.id] : [contest.noOption.id],
-        ];
-      })
-    );
-
-    const unmarkedWriteIns = contests.flatMap((contest, i) => {
-      if (!(contest.type === 'candidate' && contest.allowWriteIns)) {
-        return [];
-      }
-      // Skip contests where we already voted for a write-in above
-      if (
-        assertDefined(votes[contest.id]).some(
-          (vote) => voteIsCandidate(vote) && vote.isWriteIn
-        )
-      ) {
-        return [];
-      }
-
-      const writeInIndex = i % contest.seats;
-      return [
-        {
-          contestId: contest.id,
-          writeInIndex,
-          name: `Unmarked Write-In #${writeInIndex + 1}`,
-        },
-      ];
-    });
-
+    const { votes, unmarkedWriteIns } = createTestVotes(contests);
     const { paperSize } = election.ballotLayout;
     const languageCode = ballotStyle.languages?.[0] ?? 'en';
     return {
@@ -305,8 +244,8 @@ export const generalElectionFixtures = (() => {
   };
 })();
 
-export const primaryElectionFixtures = (() => {
-  const dir = join(fixturesDir, 'primary-election');
+export const vxPrimaryElectionFixtures = (() => {
+  const dir = join(fixturesDir, 'vx-primary-election');
 
   const election = electionPrimaryPrecinctSplitsFixtures.readElection();
   const allBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
@@ -333,22 +272,7 @@ export const primaryElectionFixtures = (() => {
     const otherPrecinctId = assertDefined(ballotStyle.precincts[1]);
     assert(precinctId !== otherPrecinctId);
     const contests = getContests({ election, ballotStyle });
-    const votes: VotesDict = Object.fromEntries(
-      contests.map((contest, i) => {
-        if (contest.type === 'candidate') {
-          const candidates = iter(contest.candidates)
-            .cycle()
-            .skip(i)
-            .take(contest.seats)
-            .toArray();
-          return [contest.id, candidates];
-        }
-        return [
-          contest.id,
-          i % 2 === 0 ? [contest.yesOption.id] : [contest.noOption.id],
-        ];
-      })
-    );
+    const { votes } = createTestVotes(contests);
 
     return {
       ballotStyleId: ballotStyle.id,
@@ -448,6 +372,135 @@ export const primaryElectionFixtures = (() => {
         mammalParty: await generatePartyFixtures(mammalParty),
         fishParty: await generatePartyFixtures(fishParty),
       };
+    },
+  };
+})();
+
+export const nhGeneralElectionFixtures = (() => {
+  const dir = join(fixturesDir, 'nh-general-election');
+
+  const baseElection = readElectionGeneral();
+
+  function makeFixtureSpec(
+    paperSize: HmpbBallotPaperSize,
+    props: Partial<NhBallotProps>
+  ) {
+    const electionDir = join(
+      dir,
+      [paperSize, props.compact ? 'compact' : ''].filter(Boolean).join('-')
+    );
+    const election: Election = {
+      ...baseElection,
+      ballotLayout: {
+        ...baseElection.ballotLayout,
+        paperSize,
+      },
+    };
+    const electionPath = join(electionDir, 'election.json');
+    const blankBallotPath = join(electionDir, 'blank-ballot.pdf');
+    const markedBallotPath = join(electionDir, 'marked-ballot.pdf');
+    const allBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
+      ballotStyle.precincts.map(
+        (precinctId): BaseBallotProps => ({
+          election,
+          ballotStyleId: ballotStyle.id,
+          precinctId,
+          ballotType: BallotType.Precinct,
+          ballotMode: 'official',
+          ...props,
+        })
+      )
+    );
+
+    // Has ballot measures
+    const ballotStyle = assertDefined(
+      getBallotStyle({ election, ballotStyleId: '12' as BallotStyleId })
+    );
+    const precinctId = assertDefined(ballotStyle.precincts[0]);
+    const contests = getContests({ election, ballotStyle });
+    const { votes, unmarkedWriteIns } = createTestVotes(contests);
+    return {
+      electionDir,
+      electionPath,
+      paperSize,
+      allBallotProps,
+      precinctId,
+      ballotStyleId: ballotStyle.id,
+      votes,
+      unmarkedWriteIns,
+      blankBallotPath,
+      markedBallotPath,
+    };
+  }
+
+  const customNhProps = {
+    electionTitleOverride: 'Overriden Election Title',
+    electionSealOverride: vxFamousNamesFixtures.election.seal,
+    clerkSignatureImage: `
+        <svg xmlns="http://www.w3.org/2000/svg" width="200" height="50" viewBox="0 0 200 50">
+          <rect width="200" height="50" style="fill: none; stroke-width: 2; stroke: black;" />
+          <text y="20" fill="black">Clerk Signature Image</text>
+        </svg>
+      `.trim(),
+    clerkSignatureCaption: 'Clerk Signature Caption',
+  } as const;
+  const fixtureSpecs = [
+    makeFixtureSpec(HmpbBallotPaperSize.Letter, {}),
+    makeFixtureSpec(HmpbBallotPaperSize.Legal, customNhProps),
+    makeFixtureSpec(HmpbBallotPaperSize.Letter, {
+      ...customNhProps,
+      compact: true,
+    }),
+    makeFixtureSpec(HmpbBallotPaperSize.Legal, { compact: true }),
+  ];
+
+  return {
+    dir,
+    fixtureSpecs,
+
+    async generate(
+      renderer: Renderer,
+      specs: Array<ReturnType<typeof makeFixtureSpec>>
+    ) {
+      async function generateFixtures(
+        spec: ReturnType<typeof makeFixtureSpec>
+      ) {
+        debug(`Generating: ${spec.blankBallotPath}`);
+        const { electionDefinition, ballotDocuments } =
+          await renderAllBallotsAndCreateElectionDefinition(
+            renderer,
+            nhBallotTemplate,
+            spec.allBallotProps,
+            'vxf'
+          );
+        const [blankBallot] = assertDefined(
+          iter(ballotDocuments)
+            .zip(spec.allBallotProps)
+            .find(
+              ([, props]) =>
+                props.ballotStyleId === spec.ballotStyleId &&
+                props.precinctId === spec.precinctId
+            )
+        );
+        const blankBallotPdf = await blankBallot.renderToPdf();
+
+        debug(`Generating: ${spec.markedBallotPath}`);
+        const markedBallot = await markBallotDocument(
+          renderer,
+          blankBallot,
+          spec.votes,
+          spec.unmarkedWriteIns
+        );
+        const markedBallotPdf = await markedBallot.renderToPdf();
+
+        return {
+          electionDefinition,
+          blankBallotPdf,
+          markedBallotPdf,
+        };
+      }
+
+      return await Promise.all(specs.map(generateFixtures));
     },
   };
 })();
