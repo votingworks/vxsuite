@@ -2,9 +2,9 @@ import * as grout from '@votingworks/grout';
 import yargs, { alias } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { safeParseInt } from '@votingworks/types';
-import type { Api } from '../src/app';
+import type { LocalApi } from '../src/app';
 
-const api = grout.createClient<Api>({
+const api = grout.createClient<LocalApi>({
   baseUrl: 'http://localhost:3002/api',
 });
 
@@ -61,6 +61,7 @@ async function checkInAllVotersOnCurrentMachine(
     );
 
     let processed = 0;
+    console.time('100processed');
     for (const voter of votersToProcess) {
       if (slow !== undefined) {
         console.log('checking in voter', voter);
@@ -70,6 +71,8 @@ async function checkInAllVotersOnCurrentMachine(
 
       if (processed % 100 === 0) {
         console.log(`Processed ${processed} voters`);
+        console.timeEnd('100processed');
+        console.time('100processed');
       }
 
       if (slow !== undefined) {
