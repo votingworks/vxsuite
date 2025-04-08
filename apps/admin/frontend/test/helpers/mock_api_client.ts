@@ -383,6 +383,7 @@ export function createApiMock(
           imageUrl: 'WW91IGJlIGdvb2QsIEkgbG92ZSB5b3UuIFNlZSB5b3UgdG9tb3Jyb3cu',
           machineMarkedText: 'mock-text',
           ...imageView,
+          type: 'bmd',
         });
       } else {
         apiClient.getWriteInImageView.expectCallWith({ writeInId }).resolves({
@@ -394,6 +395,7 @@ export function createApiMock(
           contestCoordinates: mockRect,
           writeInCoordinates: mockRect,
           ...imageView,
+          type: 'hmpb',
         });
       }
     },

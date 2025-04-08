@@ -156,7 +156,7 @@ export function adjudicateWriteIn(
     case 'invalid':
       // Delete invalid manually created write-in records
       if (initialWriteInRecord.isManuallyCreated) {
-        store.deleteManualWriteInRecord({ ...initialWriteInRecord });
+        store.deleteManualWriteInRecord(initialWriteInRecord);
       } else {
         store.setWriteInRecordInvalid(adjudicationAction);
       }

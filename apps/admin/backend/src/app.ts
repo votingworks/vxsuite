@@ -653,8 +653,8 @@ function buildApi({
     }): void {
       adjudicateVote(
         {
-          electionId: loadCurrentElectionIdOrThrow(workspace),
           ...input,
+          electionId: loadCurrentElectionIdOrThrow(workspace),
         },
         store
       );
@@ -667,8 +667,8 @@ function buildApi({
       } = {}
     ): VoteAdjudication[] {
       return store.getVoteAdjudications({
-        electionId: loadCurrentElectionIdOrThrow(workspace),
         ...input,
+        electionId: loadCurrentElectionIdOrThrow(workspace),
       });
     },
 
@@ -727,8 +727,8 @@ function buildApi({
       cvrId: string;
     }): CastVoteRecordVoteInfo {
       return store.getCastVoteRecordVoteInfo({
-        electionId: loadCurrentElectionIdOrThrow(workspace),
         ...input,
+        electionId: loadCurrentElectionIdOrThrow(workspace),
       });
     },
 
@@ -736,7 +736,6 @@ function buildApi({
       contestId: ContestId;
       optionId: Id;
       cvrId: Id;
-      name: string;
       side?: Side;
       isUnmarked: boolean;
     }): Id {
@@ -758,8 +757,8 @@ function buildApi({
       } = {}
     ): Id[] {
       return store.getWriteInAdjudicationCvrQueue({
-        electionId: loadCurrentElectionIdOrThrow(workspace),
         ...input,
+        electionId: loadCurrentElectionIdOrThrow(workspace),
       });
     },
 
@@ -769,16 +768,16 @@ function buildApi({
       } = {}
     ): WriteInAdjudicationQueueMetadata[] {
       return store.getWriteInAdjudicationCvrQueueMetadata({
-        electionId: loadCurrentElectionIdOrThrow(workspace),
         ...input,
+        electionId: loadCurrentElectionIdOrThrow(workspace),
       });
     },
 
     getFirstPendingWriteInCvrId(input: { contestId: ContestId }): Id | null {
       return (
         store.getFirstPendingWriteInCvrId({
-          electionId: loadCurrentElectionIdOrThrow(workspace),
           ...input,
+          electionId: loadCurrentElectionIdOrThrow(workspace),
         }) ?? null
       );
     },
