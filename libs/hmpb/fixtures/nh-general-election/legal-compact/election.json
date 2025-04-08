@@ -1355,9 +1355,9 @@
     {
       "ballotStyleId": "12",
       "optionBoundsFromTargetMark": {
-        "top": 0.8492055895865237,
+        "top": 0.8361408882082695,
         "right": 0.7053890738685412,
-        "bottom": 0.9313265696784073,
+        "bottom": 0.9443912710566615,
         "left": 9.368787766678999
       },
       "gridPositions": [
@@ -1906,12 +1906,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 10.323776051301024,
-          "row": 21.46281584992343,
+          "row": 21.449751148545175,
           "contestId": "county-commissioners",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 1.623776051301025,
-            "y": 20.76281584992343,
+            "y": 20.749751148545176,
             "width": 7.799999999999999,
             "height": 0.8999999999999999
           }
@@ -1921,12 +1921,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 10.323776051301024,
-          "row": 23.24334800918836,
+          "row": 23.230283307810105,
           "contestId": "county-commissioners",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 1.623776051301025,
-            "y": 22.54334800918836,
+            "y": 22.530283307810105,
             "width": 7.799999999999999,
             "height": 0.8999999999999999
           }
@@ -1936,12 +1936,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 10.323776051301024,
-          "row": 25.023880168453292,
+          "row": 25.010815467075037,
           "contestId": "county-commissioners",
           "writeInIndex": 2,
           "writeInArea": {
             "x": 1.623776051301025,
-            "y": 24.323880168453293,
+            "y": 24.310815467075038,
             "width": 7.799999999999999,
             "height": 0.8999999999999999
           }
@@ -1951,12 +1951,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 10.323776051301024,
-          "row": 26.80441232771822,
+          "row": 26.791347626339967,
           "contestId": "county-commissioners",
           "writeInIndex": 3,
           "writeInArea": {
             "x": 1.623776051301025,
-            "y": 26.104412327718222,
+            "y": 26.091347626339967,
             "width": 7.799999999999999,
             "height": 0.8999999999999999
           }
@@ -1975,12 +1975,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 20.832038475767668,
-          "row": 4.82834035222052,
+          "row": 4.815275650842266,
           "contestId": "county-registrar-of-wills",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 12.132038475767668,
-            "y": 4.12834035222052,
+            "y": 4.115275650842266,
             "width": 7.799999999999999,
             "height": 0.8999999999999999
           }
@@ -2008,12 +2008,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 20.832038475767668,
-          "row": 11.954201761102603,
+          "row": 11.94113705972435,
           "contestId": "city-mayor",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 12.132038475767668,
-            "y": 11.254201761102603,
+            "y": 11.24113705972435,
             "width": 7.799999999999999,
             "height": 0.8999999999999999
           }
@@ -2077,12 +2077,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 31.34030090023431,
-          "row": 13.437356431852985,
+          "row": 13.424291730474732,
           "contestId": "city-council",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 22.640300900234312,
-            "y": 12.737356431852985,
+            "y": 12.724291730474732,
             "width": 7.799999999999999,
             "height": 0.8999999999999999
           }
@@ -2092,12 +2092,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 31.34030090023431,
-          "row": 15.217888591117916,
+          "row": 15.204823889739663,
           "contestId": "city-council",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 22.640300900234312,
-            "y": 14.517888591117917,
+            "y": 14.504823889739663,
             "width": 7.799999999999999,
             "height": 0.8999999999999999
           }
@@ -2107,12 +2107,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 31.34030090023431,
-          "row": 16.99842075038285,
+          "row": 16.985356049004594,
           "contestId": "city-council",
           "writeInIndex": 2,
           "writeInArea": {
             "x": 22.640300900234312,
-            "y": 16.29842075038285,
+            "y": 16.285356049004594,
             "width": 7.799999999999999,
             "height": 0.8999999999999999
           }
@@ -2122,7 +2122,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 31.339622641509436,
-          "row": 30.78168070444104,
+          "row": 31.130694869831544,
           "contestId": "judicial-robert-demergue",
           "optionId": "judicial-robert-demergue-option-yes"
         },
@@ -2131,7 +2131,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 31.339622641509436,
-          "row": 31.848631316998468,
+          "row": 32.205733154670746,
           "contestId": "judicial-robert-demergue",
           "optionId": "judicial-robert-demergue-option-no"
         },
@@ -2140,7 +2140,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 31.339622641509436,
-          "row": 35.34188361408882,
+          "row": 36.11830015313935,
           "contestId": "judicial-elmer-hull",
           "optionId": "judicial-elmer-hull-option-yes"
         },
@@ -2149,7 +2149,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 31.339622641509436,
-          "row": 36.40883422664625,
+          "row": 37.19333843797856,
           "contestId": "judicial-elmer-hull",
           "optionId": "judicial-elmer-hull-option-no"
         },
@@ -2158,7 +2158,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 31.339622641509436,
-          "row": 41.06919984686064,
+          "row": 42.27301875957121,
           "contestId": "question-a",
           "optionId": "question-a-option-yes"
         },
@@ -2167,7 +2167,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 31.339622641509436,
-          "row": 42.13615045941807,
+          "row": 43.34805704441041,
           "contestId": "question-a",
           "optionId": "question-a-option-no"
         },
@@ -2176,7 +2176,7 @@
           "sheetNumber": 2,
           "side": "front",
           "column": 31.339622641509436,
-          "row": 5.61906584992343,
+          "row": 5.9680800153139355,
           "contestId": "question-b",
           "optionId": "question-b-option-yes"
         },
@@ -2185,7 +2185,7 @@
           "sheetNumber": 2,
           "side": "front",
           "column": 31.339622641509436,
-          "row": 6.686016462480858,
+          "row": 7.0431183001531386,
           "contestId": "question-b",
           "optionId": "question-b-option-no"
         },
@@ -2194,7 +2194,7 @@
           "sheetNumber": 2,
           "side": "front",
           "column": 31.339622641509436,
-          "row": 10.76282542113323,
+          "row": 11.539241960183766,
           "contestId": "question-c",
           "optionId": "question-c-option-yes"
         },
@@ -2203,7 +2203,7 @@
           "sheetNumber": 2,
           "side": "front",
           "column": 31.339622641509436,
-          "row": 11.829776033690658,
+          "row": 12.61428024502297,
           "contestId": "question-c",
           "optionId": "question-c-option-no"
         },
@@ -2212,7 +2212,7 @@
           "sheetNumber": 2,
           "side": "front",
           "column": 31.339622641509436,
-          "row": 21.583508805513016,
+          "row": 22.787327718223583,
           "contestId": "proposition-1",
           "optionId": "proposition-1-option-yes"
         },
@@ -2221,7 +2221,7 @@
           "sheetNumber": 2,
           "side": "front",
           "column": 31.339622641509436,
-          "row": 22.650459418070444,
+          "row": 23.862366003062785,
           "contestId": "proposition-1",
           "optionId": "proposition-1-option-no"
         },
@@ -2230,7 +2230,7 @@
           "sheetNumber": 2,
           "side": "front",
           "column": 31.339622641509436,
-          "row": 32.59020865237366,
+          "row": 34.22142993874426,
           "contestId": "measure-101",
           "optionId": "measure-101-option-yes"
         },
@@ -2239,7 +2239,7 @@
           "sheetNumber": 2,
           "side": "front",
           "column": 31.339622641509436,
-          "row": 33.65715926493109,
+          "row": 35.29646822358346,
           "contestId": "measure-101",
           "optionId": "measure-101-option-no"
         },
@@ -2248,7 +2248,7 @@
           "sheetNumber": 2,
           "side": "front",
           "column": 31.339622641509436,
-          "row": 38.9010815467075,
+          "row": 40.95970520673813,
           "contestId": "102",
           "optionId": "measure-102-option-yes"
         },
@@ -2257,7 +2257,7 @@
           "sheetNumber": 2,
           "side": "front",
           "column": 31.339622641509436,
-          "row": 39.96803215926493,
+          "row": 42.03474349157733,
           "contestId": "102",
           "optionId": "measure-102-option-no"
         }
@@ -2266,9 +2266,9 @@
     {
       "ballotStyleId": "5",
       "optionBoundsFromTargetMark": {
-        "top": 0.8492055895865237,
+        "top": 0.8361408882082695,
         "right": 0.7053890738685412,
-        "bottom": 0.9313265696784073,
+        "bottom": 0.9443912710566615,
         "left": 9.368787766678999
       },
       "gridPositions": [
@@ -2502,12 +2502,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.34030090023431,
-          "row": 21.991625191424195,
+          "row": 21.97856049004594,
           "contestId": "county-registrar-of-wills",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 22.640300900234312,
-            "y": 21.291625191424195,
+            "y": 21.27856049004594,
             "width": 7.799999999999999,
             "height": 0.8999999999999999
           }
@@ -2517,7 +2517,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.339622641509436,
-          "row": 34.01799387442573,
+          "row": 34.367008039816234,
           "contestId": "judicial-robert-demergue",
           "optionId": "judicial-robert-demergue-option-yes"
         },
@@ -2526,7 +2526,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.339622641509436,
-          "row": 35.084944486983154,
+          "row": 35.442046324655436,
           "contestId": "judicial-robert-demergue",
           "optionId": "judicial-robert-demergue-option-no"
         },
@@ -2535,7 +2535,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.339622641509436,
-          "row": 39.74531010719755,
+          "row": 40.521726646248084,
           "contestId": "question-a",
           "optionId": "question-a-option-yes"
         },
@@ -2544,25 +2544,25 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.339622641509436,
-          "row": 40.812260719754974,
+          "row": 41.596764931087286,
           "contestId": "question-a",
           "optionId": "question-a-option-no"
         },
         {
           "type": "option",
           "sheetNumber": 1,
-          "side": "front",
+          "side": "back",
           "column": 31.339622641509436,
-          "row": 46.639739663093415,
+          "row": 5.9680800153139355,
           "contestId": "question-b",
           "optionId": "question-b-option-yes"
         },
         {
           "type": "option",
           "sheetNumber": 1,
-          "side": "front",
+          "side": "back",
           "column": 31.339622641509436,
-          "row": 47.70669027565084,
+          "row": 7.0431183001531386,
           "contestId": "question-b",
           "optionId": "question-b-option-no"
         },
@@ -2571,7 +2571,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 31.339622641509436,
-          "row": 9.54531967840735,
+          "row": 17.21616577335375,
           "contestId": "proposition-1",
           "optionId": "proposition-1-option-yes"
         },
@@ -2580,7 +2580,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 31.339622641509436,
-          "row": 10.612270290964778,
+          "row": 18.291204058192953,
           "contestId": "proposition-1",
           "optionId": "proposition-1-option-no"
         },
@@ -2589,7 +2589,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 31.339622641509436,
-          "row": 15.856192572741193,
+          "row": 23.954441041347625,
           "contestId": "102",
           "optionId": "measure-102-option-yes"
         },
@@ -2598,7 +2598,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 31.339622641509436,
-          "row": 16.92314318529862,
+          "row": 25.029479326186827,
           "contestId": "102",
           "optionId": "measure-102-option-no"
         }
