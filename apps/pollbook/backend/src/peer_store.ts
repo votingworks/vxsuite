@@ -19,6 +19,25 @@ export class PeerStore extends Store {
   private readonly connectedPollbooks: Record<string, PollbookService> = {};
   private isOnline: boolean = false;
 
+  constructor(client: DbClient, machineId: string) {
+    super(client, machineId);
+
+    // Load connected pollbooks from the database
+    // TODO-CARO-IMPLEMENT should this be reset on reboot?
+    const rows = this.client.all(
+      `SELECT machine_id, machine_data FROM machines WHERE status = ?`,
+      PollbookConnectionStatus.Connected
+    ) as Array<{ machine_id: string; machine_data: string }>;
+
+    for (const row of rows) {
+      const pollbookService = JSON.parse(row.machine_data) as PollbookService;
+      this.connectedPollbooks[row.machine_id] = pollbookService;
+    }
+    this.cleanupStalePollbookServices();
+
+    debug('Loaded connected pollbooks from database');
+  }
+
   /**
    * Builds and returns a new store at `dbPath`.
    */
