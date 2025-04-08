@@ -53,7 +53,7 @@ export async function generateElectionPackage(
   );
 
   const ballotLanguageConfigs = getBallotLanguageConfigs(
-    Object.values(LanguageCode)
+    isMultiLanguage ? Object.values(LanguageCode) : [LanguageCode.ENGLISH]
   );
   const translator = new GoogleCloudTranslatorWithElectionCache({
     priorElectionPackage,
