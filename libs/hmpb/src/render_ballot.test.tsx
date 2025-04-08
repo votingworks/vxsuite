@@ -17,6 +17,7 @@ import {
 import { BALLOT_MODES } from './types';
 import { createPlaywrightRenderer } from './playwright_renderer';
 import { ballotTemplates } from './ballot_templates';
+import { vxFamousNamesFixtures } from './ballot_fixtures';
 
 function combinations<T extends Record<string, unknown>>(
   arrays: Array<Array<Partial<T>>>
@@ -71,8 +72,7 @@ test('allBaseBallotProps creates props for all possible ballots for an election'
 });
 
 test('renderMinimalBallotsToCreateElectionDefinition', async () => {
-  const fixtureElectionDefinition =
-    electionFamousNames2021Fixtures.readElectionDefinition();
+  const fixtureElectionDefinition = vxFamousNamesFixtures.electionDefinition;
   const allBallotProps = allBaseBallotProps(fixtureElectionDefinition.election);
   const renderer = await createPlaywrightRenderer();
   const electionDefinition =
