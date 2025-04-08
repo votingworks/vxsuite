@@ -197,16 +197,14 @@ export class PeerStore extends Store {
     // Update the machines table with the pollbook service information
     this.client.run(
       `
-      INSERT INTO machines (machine_id, machine_data, status, last_updated, last_seen)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO machines (machine_id, status, last_updated, last_seen)
+      VALUES (?, ?, ?, ?)
       ON CONFLICT(machine_id) DO UPDATE SET
-        machine_data = excluded.machine_data,
         status = excluded.status,
         last_updated = excluded.last_updated,
         last_seen = excluded.last_seen
       `,
       pollbookService.machineId,
-      JSON.stringify(pollbookService),
       pollbookService.status,
       getCurrentTime(),
       pollbookService.lastSeen.getTime()

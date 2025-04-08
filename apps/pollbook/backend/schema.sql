@@ -9,7 +9,6 @@ CREATE TABLE voters (
 
 CREATE TABLE machines (
     machine_id TEXT PRIMARY KEY,
-    machine_data TEXT not null,
     status TEXT not null,
     last_updated INTEGER NOT NULL, -- last time the machine was updated
     last_seen INTEGER NOT NULL -- last time the machine was seen

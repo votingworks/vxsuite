@@ -10,6 +10,7 @@ import {
   ConfigurationStatus,
   EventDbRow,
   EventType,
+  PollbookConnectionStatus,
   PollbookServiceInfo,
   SummaryStatistics,
   ThroughputStat,
@@ -541,25 +542,20 @@ export class LocalStore extends Store {
   getPollbookServiceInfo(): PollbookServiceInfo[] {
     const rows = this.client.all(
       `
-      SELECT machine_id, machine_data, status, last_seen
+      SELECT machine_id, status, last_seen
       FROM machines
       `
     ) as Array<{
       machine_id: string;
-      machine_data: string;
       status: string;
       last_seen: number;
     }>;
 
-    return rows.map((row) => {
-      const machineData = JSON.parse(row.machine_data);
-      return {
-        ...machineData,
-        machineId: row.machine_id,
-        status: row.status,
-        lastSeen: new Date(row.last_seen),
-        numCheckIns: this.getCheckInCount(row.machine_id),
-      };
-    });
+    return rows.map((row) => ({
+      machineId: row.machine_id,
+      status: row.status as PollbookConnectionStatus,
+      lastSeen: new Date(row.last_seen),
+      numCheckIns: this.getCheckInCount(row.machine_id),
+    }));
   }
 }
