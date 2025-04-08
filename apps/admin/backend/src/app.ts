@@ -736,7 +736,7 @@ function buildApi({
       contestId: ContestId;
       optionId: Id;
       cvrId: Id;
-      side?: Side;
+      side: Side;
       isUnmarked: boolean;
     }): Id {
       return store.addWriteIn({
@@ -744,9 +744,8 @@ function buildApi({
         castVoteRecordId: input.cvrId,
         contestId: input.contestId,
         optionId: input.optionId,
-        side: input.side || 'front', // BMD ballots are always on the front.
+        side: input.side,
         isUnmarked: input.isUnmarked,
-        machineMarkedText: undefined, // VERIFY if this is correct
         isManuallyCreated: true,
       });
     },

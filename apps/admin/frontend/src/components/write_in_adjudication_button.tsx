@@ -122,7 +122,7 @@ export function WriteInAdjudicationButton({
                 color="warning"
                 style={{ marginRight: '0.5rem' }}
               />
-              {isSelected ? 'Adjudicate Write-in' : 'Unmarked Write-in'}{' '}
+              {isSelected ? 'Adjudicate Write-in' : 'Unmarked Write-in'}
             </React.Fragment>
           )
         }

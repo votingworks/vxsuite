@@ -384,6 +384,7 @@ export function createApiMock(
           machineMarkedText: 'mock-text',
           ...imageView,
           type: 'bmd',
+          side: 'front',
         });
       } else {
         apiClient.getWriteInImageView.expectCallWith({ writeInId }).resolves({
@@ -396,6 +397,7 @@ export function createApiMock(
           writeInCoordinates: mockRect,
           ...imageView,
           type: 'hmpb',
+          side: 'front',
         });
       }
     },
