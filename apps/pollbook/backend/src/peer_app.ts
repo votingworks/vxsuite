@@ -28,7 +28,10 @@ function buildApi(context: PeerAppContext) {
       events: PollbookEvent[];
       hasMore: boolean;
     } {
-      return store.getNewEvents(input.lastEventSyncedPerNode);
+      console.time('getEvents');
+      const events = store.getNewEvents(input.lastEventSyncedPerNode);
+      console.timeEnd('getEvents');
+      return events;
     },
   });
 }

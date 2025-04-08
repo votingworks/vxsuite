@@ -72,6 +72,7 @@ export function fetchEventsFromConnectedPollbooks({
         debug('Not fetching events while offline or unconfigured');
         continue;
       }
+      console.time('fetchingEvents');
 
       const previouslyConnected = workspace.store.getPollbookServicesByName();
 
@@ -115,6 +116,7 @@ export function fetchEventsFromConnectedPollbooks({
       }
       // Clean up stale machines
       workspace.store.cleanupStalePollbookServices();
+      console.timeEnd('fetchingEvents');
     }
   });
 }
