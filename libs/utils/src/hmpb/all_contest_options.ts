@@ -1,12 +1,36 @@
-import { AnyContest, ContestOption } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/basics';
+import {
+  AnyContest,
+  CandidateContest,
+  CandidateContestOption,
+  ContestOption,
+  YesNoContest,
+  YesNoContestOption,
+} from '@votingworks/types';
 
 /**
  * Enumerates all contest options in the order they would appear on a HMPB.
  */
+export function allContestOptions(
+  contest: CandidateContest
+): Generator<CandidateContestOption>;
+/**
+ * Enumerates all contest options in the order they would appear on a HMPB.
+ */
+export function allContestOptions(
+  contest: YesNoContest
+): Generator<YesNoContestOption>;
+/**
+ * Enumerates all contest options in the order they would appear on a HMPB.
+ */
+export function allContestOptions(
+  contest: AnyContest
+): Generator<ContestOption>;
+/**
+ * Enumerates all contest options in the order they would appear on a HMPB.
+ */
 export function* allContestOptions(
-  contest: AnyContest,
-  writeInOptionIds?: readonly string[]
+  contest: AnyContest
 ): Generator<ContestOption> {
   switch (contest.type) {
     case 'candidate': {
@@ -21,28 +45,15 @@ export function* allContestOptions(
       }
 
       if (contest.allowWriteIns) {
-        if (writeInOptionIds?.length) {
-          for (const [writeInIndex, writeInId] of writeInOptionIds.entries()) {
-            yield {
-              type: 'candidate',
-              id: writeInId,
-              contestId: contest.id,
-              name: 'Write-In',
-              isWriteIn: true,
-              writeInIndex,
-            };
-          }
-        } else {
-          for (let i = 0; i < contest.seats; i += 1) {
-            yield {
-              type: 'candidate',
-              id: `write-in-${i}`,
-              contestId: contest.id,
-              name: 'Write-In',
-              isWriteIn: true,
-              writeInIndex: i,
-            };
-          }
+        for (let i = 0; i < contest.seats; i += 1) {
+          yield {
+            type: 'candidate',
+            id: `write-in-${i}`,
+            contestId: contest.id,
+            name: 'Write-In',
+            isWriteIn: true,
+            writeInIndex: i,
+          };
         }
       }
       break;
