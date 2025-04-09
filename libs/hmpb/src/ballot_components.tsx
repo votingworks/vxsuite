@@ -20,6 +20,7 @@ import {
   InstructionsDiagramFillBubble,
   InstructionsDiagramWriteIn,
 } from './svg_assets';
+import { baseLineHeight } from './base_styles';
 
 /**
  * Include 5mm margins by default to create room for an imprinting ID
@@ -234,8 +235,10 @@ export function Bubble({
 }
 
 export function AlignedBubble({
+  compact,
   optionInfo,
 }: {
+  compact?: boolean;
   optionInfo: OptionInfo;
 }): React.ReactElement {
   return (
@@ -245,7 +248,7 @@ export function AlignedBubble({
         alignItems: 'center',
         // Match line-height of text to align bubble to center of first line of
         // option label
-        height: '1.2rem',
+        height: `${baseLineHeight(compact)}rem`,
       }}
     >
       <Bubble optionInfo={optionInfo} />

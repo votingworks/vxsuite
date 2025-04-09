@@ -360,7 +360,7 @@ function CandidateContest({
                     </DualLanguageText>
                   )}
                 </div>
-                <AlignedBubble optionInfo={optionInfo} />
+                <AlignedBubble compact={compact} optionInfo={optionInfo} />
               </div>
             </li>
           );
@@ -401,7 +401,7 @@ function CandidateContest({
                     <WriteInLabel />
                   </div>
                 </div>
-                <AlignedBubble optionInfo={optionInfo} />
+                <AlignedBubble compact={compact} optionInfo={optionInfo} />
               </li>
             );
           })}
@@ -476,6 +476,7 @@ function BallotMeasureContest({
                   </DualLanguageText>
                 </strong>
                 <AlignedBubble
+                  compact={compact}
                   optionInfo={{
                     type: 'option',
                     contestId: contest.id,
