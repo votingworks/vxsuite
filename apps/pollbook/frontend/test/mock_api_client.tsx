@@ -8,7 +8,9 @@ import type {
   Api,
   DeviceStatuses,
   MachineConfig,
+  ValidStreetInfo,
   Voter,
+  VoterRegistrationRequest,
 } from '@votingworks/pollbook-backend';
 import {
   mockElectionManagerUser,
@@ -282,6 +284,21 @@ export function createApiMock() {
           },
         })
         .resolves(ok());
+    },
+
+    expectGetValidStreetInfo(streetInfo: ValidStreetInfo[]) {
+      mockApiClient.getValidStreetInfo.reset();
+      mockApiClient.getValidStreetInfo.expectCallWith().resolves(streetInfo);
+    },
+
+    expectRegisterVoter(
+      registrationData: VoterRegistrationRequest,
+      voter: Voter
+    ) {
+      mockApiClient.registerVoter.reset();
+      mockApiClient.registerVoter
+        .expectCallWith({ registrationData })
+        .resolves(voter);
     },
   };
 }
