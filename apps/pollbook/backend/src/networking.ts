@@ -80,7 +80,6 @@ export function fetchEventsFromConnectedPollbooks({
   process.nextTick(async () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for await (const _ of setInterval(EVENT_POLLING_INTERVAL)) {
-      console.log('start of event polling interval', Date.now());
       runCount += 1;
 
       if (!workspace.store.getIsOnline() || !workspace.store.getElection()) {
