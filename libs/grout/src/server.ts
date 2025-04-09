@@ -5,6 +5,7 @@ import { rootDebug } from './debug';
 import { serialize, deserialize } from './serialization';
 
 const debug = rootDebug.extend('server');
+const perfDebug = debug.extend('perf');
 
 /**
  * A Grout RPC method.
@@ -199,6 +200,9 @@ export function buildRouter(
     const path = `/${methodName}`;
     debug(`Registering route: ${path}`);
 
+    // Create a debug instance specific to this method
+    const methodDebug = perfDebug.extend(methodName);
+
     // All routes use the POST method. This doesn't quite follow the traditional
     // semantics of HTTP, since there may or may not be a side-effect. But it's
     // better to err on the side of possible side-effects (as opposed to use GET).
@@ -226,6 +230,7 @@ export function buildRouter(
           );
         }
 
+        const durationStart = Date.now();
         let context: AnyContext = {};
         for (const middleware of api._middlewares ?? []) {
           const result = await middleware({
@@ -242,6 +247,11 @@ export function buildRouter(
         const result = await method(input, context);
         const jsonResult = serialize(result);
         debug(`Result: ${jsonResult}`);
+        methodDebug(
+          `Grout call to ${methodName} returned in ${
+            Date.now() - durationStart
+          }ms`
+        );
 
         response.set('Content-type', 'application/json');
         response.status(200).send(jsonResult);
