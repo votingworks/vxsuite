@@ -102,7 +102,7 @@ export function WriteInAdjudicationButton({
         // The inner input does not clear the previous value when a
         // double vote entry is detected because the `value` prop never
         // changes. `hasInvalidEntry` as the key forces a re-render
-        key={`${hasInvalidEntry}`}
+        key={`${hasInvalidEntry}-${value}`}
         menuPortalTarget={document.body}
         options={options}
         onBlur={onInputBlur}
