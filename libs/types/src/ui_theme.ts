@@ -77,6 +77,7 @@ export interface ColorTheme {
   readonly onInverse: ColorString;
   readonly inverseContainer: ColorString;
   readonly inversePrimary: ColorString;
+  readonly inverseWarningAccent: ColorString;
 
   readonly dangerAccent: ColorString;
   readonly warningAccent: ColorString;

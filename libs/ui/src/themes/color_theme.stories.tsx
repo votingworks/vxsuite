@@ -406,7 +406,7 @@ export function ColorThemes(): JSX.Element {
               <span style={{ color: colors.dangerAccent, fontSize: '1.5rem' }}>
                 <Icons.Danger />
               </span>
-              Error Accent
+              Danger Accent
               <span style={{ color: colors.dangerAccent }}>
                 <ContrastTag />
               </span>
@@ -450,8 +450,72 @@ export function ColorThemes(): JSX.Element {
               <span style={{ color: colors.dangerAccent, fontSize: '1.5rem' }}>
                 <Icons.Danger />
               </span>
-              Error Accent
+              Danger Accent
               <span style={{ color: colors.dangerAccent }}>
+                <ContrastTag />
+              </span>
+            </Accent>
+          </div>
+        </RoundedRect>
+        <RoundedRect
+          style={{
+            fontWeight: '500',
+            background: colors.inverseBackground,
+            color: colors.onInverse,
+            border: outlineIfTouchscreen,
+          }}
+        >
+          <H4>On Inverse Background</H4>
+          <div
+            style={{
+              marginTop: '1rem',
+              display: 'flex',
+              justifyContent: 'space-between',
+            }}
+          >
+            <Accent>
+              <span
+                style={{
+                  color: colors.inverseWarningAccent,
+                  fontSize: '1.5rem',
+                }}
+              >
+                <Icons.Warning />
+              </span>
+              Inverse Warning Accent
+              <span style={{ color: colors.inverseWarningAccent }}>
+                <ContrastTag />
+              </span>
+            </Accent>
+          </div>
+        </RoundedRect>
+        <RoundedRect
+          style={{
+            fontWeight: '500',
+            background: colors.inverseContainer,
+            color: colors.onInverse,
+            border: outlineIfTouchscreen,
+          }}
+        >
+          <H4>On Inverse Container</H4>
+          <div
+            style={{
+              marginTop: '1rem',
+              display: 'flex',
+              justifyContent: 'space-between',
+            }}
+          >
+            <Accent>
+              <span
+                style={{
+                  color: colors.inverseWarningAccent,
+                  fontSize: '1.5rem',
+                }}
+              >
+                <Icons.Warning />
+              </span>
+              Inverse Warning Accent
+              <span style={{ color: colors.inverseWarningAccent }}>
                 <ContrastTag />
               </span>
             </Accent>
