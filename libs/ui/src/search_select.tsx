@@ -82,6 +82,9 @@ interface SearchSelectBaseProps<T = string> {
   onInputChange?: (value?: T) => void;
   onBlur?: () => void;
   onFocus?: () => void;
+  menuPortalTarget?: HTMLElement;
+  noOptionsMessage?: () => React.ReactNode;
+  minMenuHeight?: number;
 }
 
 export interface SearchSelectMultiProps<T = string>
@@ -89,8 +92,6 @@ export interface SearchSelectMultiProps<T = string>
   isMulti: true;
   value: T[];
   onChange: (values: T[]) => void;
-  disabled?: boolean;
-  menuPortalTarget?: HTMLElement;
 }
 
 export interface SearchSelectSingleProps<T = string>
@@ -98,8 +99,6 @@ export interface SearchSelectSingleProps<T = string>
   isMulti?: false;
   value?: T;
   onChange: (value?: T) => void;
-  disabled?: boolean;
-  menuPortalTarget?: HTMLElement;
 }
 
 export type SearchSelectProps<T = string> =
@@ -128,6 +127,8 @@ export function SearchSelect<T = string>({
   placeholder,
   required,
   menuPortalTarget,
+  minMenuHeight,
+  noOptionsMessage,
   style = {},
 }: SearchSelectSingleProps<T> | SearchSelectMultiProps<T>): JSX.Element {
   const theme = useTheme();
@@ -166,6 +167,8 @@ export function SearchSelect<T = string>({
       maxMenuHeight="50vh"
       menuPortalTarget={menuPortalTarget}
       menuPlacement="auto"
+      minMenuHeight={minMenuHeight}
+      noOptionsMessage={noOptionsMessage}
       styles={typedAs<StylesConfig>({
         container: (baseStyles) => ({
           ...baseStyles,
