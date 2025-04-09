@@ -8,6 +8,10 @@ export interface BaseStylesProps {
   compact?: boolean;
 }
 
+export function baseLineHeight(compact?: boolean): number {
+  return compact ? 1.1 : 1.2;
+}
+
 function baseStyles(params: BaseStylesProps) {
   const { compact } = params;
 
@@ -30,7 +34,7 @@ function baseStyles(params: BaseStylesProps) {
      * reduce the total sheet count.
      */
     font-size: ${compact ? 10 : 12}pt;
-    line-height: ${compact ? 1.1 : 1.2};
+    line-height: ${baseLineHeight(compact)};
   }
 
   body {

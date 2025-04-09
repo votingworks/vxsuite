@@ -1363,9 +1363,9 @@
     {
       "ballotStyleId": "12",
       "optionBoundsFromTargetMark": {
-        "top": 1.010959035222052,
+        "top": 0.9947836906584991,
         "right": 9.194475274386484,
-        "bottom": 1.1683575803981623,
+        "bottom": 1.1845329249617151,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -1914,12 +1914,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 22.850536440991494,
-          "row": 28.034982771822357,
+          "row": 28.018807427258803,
           "contestId": "county-commissioners",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 23.750536440991493,
-            "y": 27.234982771822356,
+            "y": 27.218807427258803,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -1929,12 +1929,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 22.850536440991494,
-          "row": 30.214299387442573,
+          "row": 30.19812404287902,
           "contestId": "county-commissioners",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 23.750536440991493,
-            "y": 29.414299387442572,
+            "y": 29.39812404287902,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -1944,12 +1944,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 22.850536440991494,
-          "row": 32.39361600306279,
+          "row": 32.37744065849923,
           "contestId": "county-commissioners",
           "writeInIndex": 2,
           "writeInArea": {
             "x": 23.750536440991493,
-            "y": 31.593616003062788,
+            "y": 31.57744065849923,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -1959,12 +1959,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 22.850536440991494,
-          "row": 34.572932618683,
+          "row": 34.55675727411945,
           "contestId": "county-commissioners",
           "writeInIndex": 3,
           "writeInArea": {
             "x": 23.750536440991493,
-            "y": 33.772932618683,
+            "y": 33.75675727411945,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -1983,12 +1983,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 22.850536440991494,
-          "row": 42.477076952526794,
+          "row": 42.460901607963244,
           "contestId": "county-registrar-of-wills",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 23.750536440991493,
-            "y": 41.6770769525268,
+            "y": 41.66090160796325,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -2016,12 +2016,12 @@
           "sheetNumber": 2,
           "side": "front",
           "column": 1.7187076088296955,
-          "row": 8.020482388973965,
+          "row": 8.004307044410414,
           "contestId": "city-mayor",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 2.6187076088296957,
-            "y": 7.2204823889739655,
+            "y": 7.204307044410414,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -2085,12 +2085,12 @@
           "sheetNumber": 2,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 16.20271822358346,
+          "row": 16.186542879019907,
           "contestId": "city-council",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 15.40271822358346,
+            "y": 15.386542879019906,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -2100,12 +2100,12 @@
           "sheetNumber": 2,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 18.382034839203673,
+          "row": 18.365859494640123,
           "contestId": "city-council",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 17.582034839203672,
+            "y": 17.565859494640122,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -2115,12 +2115,12 @@
           "sheetNumber": 2,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 20.56135145482389,
+          "row": 20.545176110260336,
           "contestId": "city-council",
           "writeInIndex": 2,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 19.761351454823888,
+            "y": 19.745176110260335,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -2274,9 +2274,9 @@
     {
       "ballotStyleId": "5",
       "optionBoundsFromTargetMark": {
-        "top": 1.010959035222052,
+        "top": 0.9947836906584991,
         "right": 9.194475274386484,
-        "bottom": 1.1683575803981623,
+        "bottom": 1.1845329249617151,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -2510,12 +2510,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 12.284622024910593,
-          "row": 6.8154192189892795,
+          "row": 6.799243874425727,
           "contestId": "county-registrar-of-wills",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 6.01541921898928,
+            "y": 5.999243874425727,
             "width": 7.799999999999999,
             "height": 1
           }

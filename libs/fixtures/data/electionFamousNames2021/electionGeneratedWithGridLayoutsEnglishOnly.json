@@ -453,9 +453,9 @@
     {
       "ballotStyleId": "1",
       "optionBoundsFromTargetMark": {
-        "top": 0.9976669941060904,
+        "top": 0.9817043222003929,
         "right": 9.194475274386484,
-        "bottom": 1.1529960707269156,
+        "bottom": 1.168958742632613,
         "left": 0.7637193242076705
       },
       "gridPositions": [
@@ -482,12 +482,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.7187076088296955,
-          "row": 17.787328094302556,
+          "row": 17.77136542239686,
           "contestId": "mayor",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 2.6187076088296957,
-            "y": 16.987328094302555,
+            "y": 16.971365422396858,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -524,12 +524,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.7187076088296955,
-          "row": 28.795432220039295,
+          "row": 28.779469548133598,
           "contestId": "controller",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 2.6187076088296957,
-            "y": 27.995432220039294,
+            "y": 27.979469548133597,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -557,12 +557,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 17.787328094302556,
+          "row": 17.77136542239686,
           "contestId": "attorney",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 16.987328094302555,
+            "y": 16.971365422396858,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -599,12 +599,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.284622024910593,
-          "row": 28.795432220039295,
+          "row": 28.779469548133598,
           "contestId": "public-works-director",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 27.995432220039294,
+            "y": 27.979469548133597,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -650,12 +650,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 22.850536440991494,
-          "row": 21.824656188605108,
+          "row": 21.80869351669941,
           "contestId": "chief-of-police",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 23.750536440991493,
-            "y": 21.024656188605107,
+            "y": 21.00869351669941,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -701,12 +701,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.7187076088296955,
-          "row": 12.781802554027506,
+          "row": 12.765839882121808,
           "contestId": "parks-and-recreation-director",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 2.6187076088296957,
-            "y": 11.981802554027505,
+            "y": 11.965839882121807,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -770,12 +770,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 12.284622024910593,
-          "row": 16.743614931237722,
+          "row": 16.727652259332025,
           "contestId": "board-of-alderman",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 15.943614931237722,
+            "y": 15.927652259332024,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -785,12 +785,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 12.284622024910593,
-          "row": 18.894277996070727,
+          "row": 18.87831532416503,
           "contestId": "board-of-alderman",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 18.094277996070726,
+            "y": 18.07831532416503,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -800,12 +800,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 12.284622024910593,
-          "row": 21.044941060903735,
+          "row": 21.028978388998034,
           "contestId": "board-of-alderman",
           "writeInIndex": 2,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 20.244941060903734,
+            "y": 20.228978388998033,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -815,12 +815,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 12.284622024910593,
-          "row": 23.19560412573674,
+          "row": 23.179641453831042,
           "contestId": "board-of-alderman",
           "writeInIndex": 3,
           "writeInArea": {
             "x": 13.184622024910594,
-            "y": 22.39560412573674,
+            "y": 22.37964145383104,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -911,12 +911,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 22.850536440991494,
-          "row": 22.045677799607073,
+          "row": 22.029715127701376,
           "contestId": "city-council",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 23.750536440991493,
-            "y": 21.245677799607073,
+            "y": 21.229715127701375,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -926,12 +926,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 22.850536440991494,
-          "row": 24.196340864440078,
+          "row": 24.18037819253438,
           "contestId": "city-council",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 23.750536440991493,
-            "y": 23.396340864440077,
+            "y": 23.38037819253438,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -941,12 +941,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 22.850536440991494,
-          "row": 26.347003929273086,
+          "row": 26.33104125736739,
           "contestId": "city-council",
           "writeInIndex": 2,
           "writeInArea": {
             "x": 23.750536440991493,
-            "y": 25.547003929273085,
+            "y": 25.531041257367388,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -956,12 +956,12 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 22.850536440991494,
-          "row": 28.49766699410609,
+          "row": 28.481704322200393,
           "contestId": "city-council",
           "writeInIndex": 3,
           "writeInArea": {
             "x": 23.750536440991493,
-            "y": 27.69766699410609,
+            "y": 27.681704322200392,
             "width": 7.799999999999999,
             "height": 1
           }
