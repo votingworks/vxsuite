@@ -135,7 +135,7 @@ function iconColor(theme: UiTheme, color?: IconColor) {
     danger: colors.dangerAccent,
     inverse: colors.onInverse,
     inversePrimary: colors.inversePrimary,
-    inverseWarning: 'rgb(255 163 84)', // TODO #6167: Update to not use a hardcoded color, only used by VxPollbook
+    inverseWarning: colors.inverseWarningAccent,
     default: undefined,
   }[color];
 }
