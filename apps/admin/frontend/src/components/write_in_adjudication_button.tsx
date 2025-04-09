@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 import { CheckboxButton, Icons, SearchSelect } from '@votingworks/ui';
+import { Candidate } from '@votingworks/types';
+import { assert } from '@votingworks/basics';
 import { normalizeWriteInName } from '../utils/write_ins';
+import type { WriteInAdjudicationStatus } from '../screens/contest_adjudication_screen';
+
+const MAX_NAME_LENGTH = 200;
+const INVALID_KEY = '\0invalid';
 
 const Container = styled.div`
   display: flex;
@@ -29,22 +35,20 @@ export function WriteInAdjudicationButton({
   onInputBlur,
   toggleVote,
   value,
-  officialCandidateNames,
-  writeInCandidateNames,
+  officialCandidates,
+  writeInCandidates,
 }: {
   caption?: React.ReactNode;
   isFocused: boolean;
   isSelected: boolean;
   hasInvalidEntry: boolean;
-  // newVal can be name of new or existing candidate,
-  // keyword 'invalid' for invalid write-in, or undefined
-  onChange: (newVal?: string) => void;
+  onChange: (newStatus: Exclude<WriteInAdjudicationStatus, undefined>) => void;
   onInputBlur: () => void;
   onInputFocus: () => void;
   toggleVote: () => void;
   value: string;
-  officialCandidateNames: string[];
-  writeInCandidateNames: string[];
+  officialCandidates: Candidate[];
+  writeInCandidates: Candidate[];
 }): JSX.Element {
   const theme = useTheme();
   const [inputValue, setInputValue] = useState('');
@@ -54,26 +58,27 @@ export function WriteInAdjudicationButton({
     return setInputValue(val || '');
   }
 
-  const filteredCandidateOptions = inputValue
-    ? officialCandidateNames.filter((name) =>
+  const allCandidates = writeInCandidates.concat(officialCandidates);
+  const candidateNames = allCandidates.map((c) => c.name);
+  const filteredCandidateNames = inputValue
+    ? candidateNames.filter((name) =>
         normalizeWriteInName(name).includes(normalizedInputValue)
       )
-    : officialCandidateNames;
-  const filteredWriteInCandidateOptions = inputValue
-    ? writeInCandidateNames.filter((name) =>
-        normalizeWriteInName(name).includes(normalizedInputValue)
-      )
-    : writeInCandidateNames;
-  const options = filteredWriteInCandidateOptions
-    .concat(filteredCandidateOptions)
-    .map((name) => ({
-      label: name,
-      value: name,
-    }));
+    : candidateNames;
+  const options = filteredCandidateNames.map((name) => ({
+    label: name,
+    value: name,
+  }));
+
+  // If value has been entered and it is a new entry, add it the dropdown
+  if (value && !options.some((option) => option.label === value)) {
+    options.unshift({ label: value, value });
+  }
 
   // 'Add: NEW_CANDIDATE' entry if there is no exact match
   if (
     inputValue &&
+    inputValue.length < MAX_NAME_LENGTH &&
     !options.some(
       (item) => normalizeWriteInName(item.label) === normalizedInputValue
     )
@@ -81,13 +86,8 @@ export function WriteInAdjudicationButton({
     options.push({ label: `Add: ${inputValue}`, value: inputValue });
   }
 
-  // If value has been entered and it is a new entry, add it the dropdown
-  if (value && !options.some((option) => option.label === value)) {
-    options.push({ label: value, value });
-  }
-
   if (!inputValue) {
-    options.unshift({ label: 'Not a mark', value: 'invalid' });
+    options.unshift({ label: 'Not a mark', value: INVALID_KEY });
   }
 
   return (
@@ -110,8 +110,24 @@ export function WriteInAdjudicationButton({
         onInputChange={onInputChange}
         onChange={(val) => {
           setInputValue('');
-          onChange(val);
+          if (!val) {
+            onChange({ type: 'pending' });
+          } else if (val === INVALID_KEY) {
+            onChange({ type: 'invalid' });
+          } else if (candidateNames.includes(val)) {
+            const candidate = allCandidates.find((c) => c.name === val);
+            assert(candidate !== undefined);
+            const { isWriteIn } = candidate;
+            const type = isWriteIn ? 'existing-write-in' : 'existing-official';
+            onChange({ type, ...candidate });
+          } else {
+            onChange({ type: 'new', name: val });
+          }
         }}
+        minMenuHeight={300}
+        noOptionsMessage={() =>
+          `Entry exceeds max character length of ${MAX_NAME_LENGTH}`
+        }
         value={value}
         placeholder={
           isFocused ? (
