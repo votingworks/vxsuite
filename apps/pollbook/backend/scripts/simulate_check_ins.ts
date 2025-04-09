@@ -60,6 +60,7 @@ async function checkInAllVotersOnCurrentMachine(
       `Found ${sortedVoters.length} voters, will process ${votersToProcess.length}`
     );
 
+    console.time('100processed');
     let processed = 0;
     for (const voter of votersToProcess) {
       if (slow !== undefined) {
@@ -69,7 +70,9 @@ async function checkInAllVotersOnCurrentMachine(
       processed += 1;
 
       if (processed % 100 === 0) {
+        console.timeEnd('100processed');
         console.log(`Processed ${processed} voters`);
+        console.time('100processed');
       }
 
       if (slow !== undefined) {

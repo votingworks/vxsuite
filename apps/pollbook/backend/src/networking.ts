@@ -67,9 +67,11 @@ export function fetchEventsFromConnectedPollbooks({
   process.nextTick(async () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for await (const _ of setInterval(EVENT_POLLING_INTERVAL)) {
+      // console.time('EventPolling');
       if (!workspace.store.getIsOnline() || !workspace.store.getElection()) {
         // There is no network to try to connect over. Bail out.
         debug('Not fetching events while offline or unconfigured');
+        // console.timeEnd('EventPolling');
         continue;
       }
 
@@ -107,6 +109,7 @@ export function fetchEventsFromConnectedPollbooks({
             status: PollbookConnectionStatus.Connected,
           });
         } catch (error) {
+          // console.timeEnd('EventPolling');
           debug(
             `Failed to sync events from ${currentPollbookService.machineId}: ${error}`
           );
@@ -115,6 +118,7 @@ export function fetchEventsFromConnectedPollbooks({
       }
       // Clean up stale machines
       workspace.store.cleanupStalePollbookServices();
+      // console.timeEnd('EventPolling');
     }
   });
 }
