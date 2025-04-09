@@ -9,7 +9,6 @@ import {
   SetClockButton,
   UnconfigureMachineButton,
 } from '@votingworks/ui';
-import { assert } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import {
@@ -52,7 +51,10 @@ export function ElectionScreen(): JSX.Element | null {
   const getElectionQuery = getElection.useQuery();
   const unconfigureMutation = unconfigure.useMutation();
 
-  assert(getElectionQuery.isSuccess);
+  if (!getElectionQuery.isSuccess) {
+    return null;
+  }
+
   const election = getElectionQuery.data.unsafeUnwrap();
 
   return (
