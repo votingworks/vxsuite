@@ -376,8 +376,8 @@ export const getCvrWriteInImageViews = {
       this.queryKey(input),
       () =>
         apiClient.getCvrContestWriteInImageViews({
-          cvrId: input?.cvrId || '',
-          contestId: input?.contestId || '',
+          cvrId: input?.cvrId ?? '',
+          contestId: input?.contestId ?? '',
         }),
       { enabled: !!input }
     );
@@ -385,7 +385,8 @@ export const getCvrWriteInImageViews = {
   usePrefetch() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return (input: GetCvrWriteInImageViewsInput) => queryClient.prefetchQuery({
+    return (input: GetCvrWriteInImageViewsInput) =>
+      queryClient.prefetchQuery({
         queryKey: getCvrWriteInImageViews.queryKey(input),
         queryFn: () => apiClient.getCvrContestWriteInImageViews(input),
       });
@@ -441,7 +442,7 @@ export const getCastVoteRecordVoteInfo = {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(input),
-      () => apiClient.getCastVoteRecordVoteInfo({ cvrId: input?.cvrId || '' }),
+      () => apiClient.getCastVoteRecordVoteInfo({ cvrId: input?.cvrId ?? '' }),
       { enabled: !!input }
     );
   },
