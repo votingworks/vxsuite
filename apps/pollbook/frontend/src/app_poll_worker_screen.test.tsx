@@ -37,7 +37,6 @@ describe('PollWorkerScreen', () => {
     apiMock.authenticateAsPollWorker(famousNamesElection);
     apiMock.setElection(famousNamesElection);
     const { unmount } = render(<App apiClient={apiMock.mockApiClient} />);
-    // render(<App apiClient={apiMock.mockApiClient} />);
     await screen.findByText('Connect printer to continue.');
 
     apiMock.setPrinterStatus(true);
