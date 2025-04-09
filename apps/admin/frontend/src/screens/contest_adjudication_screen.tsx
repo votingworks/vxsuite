@@ -363,10 +363,12 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const [writeInState, setWriteInState] = useState<
     Record<ContestOptionId, WriteInOptionState>
   >({});
-  const [isStateStale, setIsStateStale] = useState(false);
   const [doubleVoteAlert, setDoubleVoteAlert] = useState<DoubleVoteAlert>();
 
-  const officialCandidates = contest.candidates.filter((c) => !c.isWriteIn);
+  const officialCandidates = useMemo(
+    () => contest.candidates.filter((c) => !c.isWriteIn),
+    [contest.candidates]
+  );
   const writeInCandidates = writeInCandidatesQuery.data;
 
   const seatCount = contest.seats;
@@ -646,31 +648,30 @@ export function ContestAdjudicationScreen(): JSX.Element {
     } else {
       assert(cvrQueueIndex !== undefined);
       setCvrQueueIndex(cvrQueueIndex + 1);
-      setIsStateStale(true);
     }
   }
+
+  const areQueriesLoading =
+    firstPendingWriteInCvrIdQuery.isFetching ||
+    cvrQueueQuery.isFetching ||
+    cvrVoteInfoQuery.isFetching ||
+    writeInImagesQuery.isFetching ||
+    writeInsQuery.isFetching ||
+    writeInCandidatesQuery.isFetching ||
+    voteAdjudicationsQuery.isFetching;
 
   // Initialize vote and write-in management; reset on cvr scroll
   useEffect(() => {
     if (
-      cvrVoteInfoQuery.isSuccess &&
-      writeInsQuery.isSuccess &&
+      !cvrVoteInfoQuery.isStale &&
       !writeInsQuery.isStale &&
-      writeInCandidatesQuery.isSuccess &&
       !writeInCandidatesQuery.isStale &&
-      voteAdjudicationsQuery.isSuccess &&
       !voteAdjudicationsQuery.isStale &&
-      (!voteStateInitialized || isStateStale)
+      originalVotes &&
+      writeIns &&
+      writeInCandidates &&
+      voteAdjudications
     ) {
-      if (
-        !originalVotes ||
-        !writeIns ||
-        !writeInCandidates ||
-        !voteAdjudications
-      ) {
-        return;
-      }
-
       const newVoteState: Record<string, boolean> = {};
       for (const c of officialCandidates) {
         newVoteState[c.id] = originalVotes.includes(c.id);
@@ -728,7 +729,6 @@ export function ContestAdjudicationScreen(): JSX.Element {
         }
       }
 
-      setIsStateStale(false);
       setFocusedOptionId(undefined);
       setVoteState(newVoteState);
       setWriteInState(newWriteInState);
@@ -737,23 +737,18 @@ export function ContestAdjudicationScreen(): JSX.Element {
       }
     }
   }, [
-    cvrVoteInfoQuery.isSuccess,
     cvrVoteInfoQuery.isStale,
-    writeInsQuery.isSuccess,
     writeInsQuery.isStale,
-    writeInCandidatesQuery.isSuccess,
     writeInCandidatesQuery.isStale,
-    voteAdjudicationsQuery.isSuccess,
     voteAdjudicationsQuery.isStale,
     officialCandidates,
     originalVotes,
     seatCount,
-    isStateStale,
     voteAdjudications,
-    voteStateInitialized,
     writeIns,
     writeInCandidates,
     writeInOptionIds,
+    cvrQueueIndex,
   ]);
 
   // Initiate cvr scrolling
@@ -790,26 +785,18 @@ export function ContestAdjudicationScreen(): JSX.Element {
   // Scroll candidate list to write-ins if adjudications are required
   const candidateListRef = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
-    if (shouldAutoscrollUser && candidateListRef.current) {
+    if (
+      !areQueriesLoading &&
+      shouldAutoscrollUser &&
+      candidateListRef.current
+    ) {
       candidateListRef.current.scrollTop =
         candidateListRef.current.scrollHeight;
       setShouldAutoscrollUser(false);
     }
-  }, [shouldAutoscrollUser]);
+  }, [shouldAutoscrollUser, areQueriesLoading]);
 
-  const areQueriesLoading =
-    !firstPendingWriteInCvrIdQuery.isSuccess ||
-    !cvrQueueQuery.isSuccess ||
-    !cvrVoteInfoQuery.isSuccess ||
-    !writeInImagesQuery.isSuccess ||
-    !writeInsQuery.isSuccess ||
-    !writeInCandidatesQuery.isSuccess ||
-    !voteAdjudicationsQuery.isSuccess;
-
-  if (
-    !(isQueueReady && voteStateInitialized) ||
-    (areQueriesLoading && !isStateStale)
-  ) {
+  if (!isQueueReady || !voteStateInitialized) {
     return (
       <NavigationScreen title="Contest Adjudication">
         <Loading isFullscreen />
@@ -866,7 +853,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
               </Label>
             )}
           </BallotVoteCount>
-          {isStateStale ? (
+          {areQueriesLoading ? (
             <CandidateButtonList style={{ justifyContent: 'center' }}>
               <Icons.Loading />
             </CandidateButtonList>
@@ -965,7 +952,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
 
                 return (
                   <WriteInAdjudicationButton
-                    key={optionId}
+                    key={optionId + currentCvrId}
                     isFocused={isFocused}
                     isSelected={isSelected}
                     hasInvalidEntry={doubleVoteAlert?.optionId === optionId}
@@ -1073,7 +1060,6 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 icon="Previous"
                 onPress={() => {
                   setCvrQueueIndex(cvrQueueIndex - 1);
-                  setIsStateStale(true);
                 }}
               >
                 Back
@@ -1082,7 +1068,6 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 disabled={onLastBallot}
                 onPress={() => {
                   setCvrQueueIndex(cvrQueueIndex + 1);
-                  setIsStateStale(true);
                 }}
                 rightIcon="Next"
               >
