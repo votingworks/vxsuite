@@ -1,4 +1,4 @@
-import { sliOrgId, votingWorksOrgId } from './globals';
+import { sliOrgId, votingWorksOrgId, vxDemosOrgId } from './globals';
 import { ElectionRecord } from './store';
 import { User } from './types';
 
@@ -134,6 +134,22 @@ export const userFeatureConfigs = {
     BALLOT_LANGUAGE_CONFIG: true,
   },
 
+  demos: {
+    ACCESS_ALL_ORGS: false,
+    SYSTEM_SETTINGS_SCREEN: true,
+    MARGINAL_MARK_THRESHOLD: false,
+    EXPORT_SCREEN: true,
+    CHOOSE_BALLOT_TEMPLATE: false,
+    EXPORT_TEST_DECKS: true,
+    ONLY_LETTER_AND_LEGAL_PAPER_SIZES: false,
+    CREATE_ELECTION: true,
+    DELETE_ELECTION: true,
+    CREATE_DELETE_DISTRICTS: true,
+    CREATE_DELETE_PRECINCTS: true,
+    CREATE_DELETE_PRECINCT_SPLITS: true,
+    BALLOT_LANGUAGE_CONFIG: true,
+  },
+
   nh: {
     ACCESS_ALL_ORGS: false,
     SYSTEM_SETTINGS_SCREEN: false,
@@ -185,6 +201,9 @@ export function getUserFeaturesConfig(user: User): UserFeaturesConfig {
   if (user.orgId === sliOrgId()) {
     return userFeatureConfigs.sli;
   }
+  if (user.orgId === vxDemosOrgId()) {
+    return userFeatureConfigs.demos;
+  }
   return userFeatureConfigs.nh;
 }
 
@@ -196,6 +215,9 @@ export function getElectionFeaturesConfig(
   }
   if (election.orgId === sliOrgId()) {
     return electionFeatureConfigs.sli;
+  }
+  if (election.orgId === vxDemosOrgId()) {
+    return electionFeatureConfigs.vx;
   }
   return electionFeatureConfigs.nh;
 }
