@@ -94,7 +94,7 @@ import { renderBallotStyleReadinessReport } from './ballot_style_reports';
 import { BALLOT_STYLE_READINESS_REPORT_FILE_NAME } from './app';
 import { join } from 'node:path';
 import { electionFeatureConfigs, userFeatureConfigs } from './features';
-import { sliOrgId } from './globals';
+import { sliOrgId, vxDemosOrgId } from './globals';
 import { LogEventId } from '@votingworks/logging';
 
 vi.setConfig({
@@ -2449,6 +2449,8 @@ test('v3-compatible election package', async () => {
 
 test('feature configs', async () => {
   const sliUser: User = { orgId: sliOrgId() };
+  const vxDemosUser: User = { orgId: vxDemosOrgId() };
+
   const { apiClient } = await setupApp();
   expect(await apiClient.getUserFeatures({ user: vxUser })).toEqual(
     userFeatureConfigs.vx
@@ -2458,6 +2460,9 @@ test('feature configs', async () => {
   );
   expect(await apiClient.getUserFeatures({ user: sliUser })).toEqual(
     userFeatureConfigs.sli
+  );
+  expect(await apiClient.getUserFeatures({ user: vxDemosUser })).toEqual(
+    userFeatureConfigs.demos
   );
 
   const vxElectionId = (
@@ -2481,6 +2486,13 @@ test('feature configs', async () => {
       orgId: sliUser.orgId,
     })
   ).unsafeUnwrap();
+  const vxDemosElectionId = (
+    await apiClient.createElection({
+      id: 'vx-demos-election-id' as ElectionId,
+      user: vxDemosUser,
+      orgId: vxDemosUser.orgId,
+    })
+  ).unsafeUnwrap();
   expect(
     await apiClient.getElectionFeatures({ electionId: vxElectionId })
   ).toEqual(electionFeatureConfigs.vx);
@@ -2490,6 +2502,9 @@ test('feature configs', async () => {
   expect(
     await apiClient.getElectionFeatures({ electionId: sliElectionId })
   ).toEqual(electionFeatureConfigs.sli);
+  expect(
+    await apiClient.getElectionFeatures({ electionId: vxDemosElectionId })
+  ).toEqual(electionFeatureConfigs.vx);
 });
 
 test('api method logging', async () => {
