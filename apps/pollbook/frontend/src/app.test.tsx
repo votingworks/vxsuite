@@ -5,6 +5,7 @@ import {
 } from '@votingworks/test-utils';
 import { constructElectionKey, Election } from '@votingworks/types';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import userEvent from '@testing-library/user-event';
 import { render, screen, within } from '../test/react_testing_library';
 import { App } from './app';
 import { ApiMock, createApiMock } from '../test/mock_api_client';
@@ -89,6 +90,34 @@ test('renders UnconfiguredScreen when election is unconfigured', async () => {
   });
   apiMock.setElection(undefined);
   render(<App apiClient={apiMock.mockApiClient} />);
+  await screen.findByText('Insert a USB drive containing a pollbook package');
+});
+
+test('system administrator can unconfigure', async () => {
+  apiMock.expectGetMachineConfig();
+  apiMock.expectGetDeviceStatuses();
+  apiMock.authenticateAsSystemAdministrator();
+  apiMock.setElection(famousNamesElection);
+  render(<App apiClient={apiMock.mockApiClient} />);
+  await screen.findByRole('heading', { name: 'Election' });
+  screen.getByText('Settings');
+
+  apiMock.expectUnconfigureElection();
+
+  await screen.findByRole('heading', { name: 'Election' });
+  const unconfigureButton = await screen.findByRole('button', {
+    name: 'Unconfigure Machine',
+  });
+  userEvent.click(unconfigureButton);
+
+  const confirmButton = await screen.findByRole('button', {
+    name: 'Delete All Election Data',
+  });
+  apiMock.setElection();
+
+  apiMock.expectGetMachineConfig();
+  userEvent.click(confirmButton);
+
   await screen.findByText('Insert a USB drive containing a pollbook package');
 });
 

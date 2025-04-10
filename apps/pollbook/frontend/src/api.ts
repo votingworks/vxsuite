@@ -10,7 +10,10 @@ import {
 } from '@tanstack/react-query';
 import type { Api, VoterSearchParams } from '@votingworks/pollbook-backend';
 import { deepEqual } from '@votingworks/basics';
-import { AUTH_STATUS_POLLING_INTERVAL_MS } from '@votingworks/ui';
+import {
+  AUTH_STATUS_POLLING_INTERVAL_MS,
+  createSystemCallApi,
+} from '@votingworks/ui';
 
 export type ApiClient = grout.Client<Api>;
 
@@ -119,6 +122,18 @@ export const updateSessionExpiry = {
         // necessary
         await queryClient.invalidateQueries(getAuthStatus.queryKey());
       },
+    });
+  },
+} as const;
+
+export const getUsbDriveStatus = {
+  queryKey(): QueryKey {
+    return ['getUsbDriveStatus'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getUsbDriveStatus(), {
+      refetchInterval: 1000,
     });
   },
 } as const;
@@ -350,3 +365,5 @@ export const exportVoterActivity = {
     return useMutation(apiClient.exportVoterActivity);
   },
 } as const;
+
+export const systemCallApi = createSystemCallApi(useApiClient);

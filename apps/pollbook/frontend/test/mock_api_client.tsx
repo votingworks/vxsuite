@@ -16,6 +16,7 @@ import {
   mockElectionManagerUser,
   mockPollWorkerUser,
   mockSessionExpiresAt,
+  mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { mockUsbDriveStatus } from '@votingworks/ui';
@@ -109,15 +110,16 @@ export function createApiMock() {
       });
     },
 
-    * TODO: System administrator user not yet supported
+    */
+
     authenticateAsSystemAdministrator() {
       setAuthStatus({
         status: 'logged_in',
         user: mockSystemAdministratorUser(),
         sessionExpiresAt: mockSessionExpiresAt(),
+        programmableCard: { status: 'ready' },
       });
-    }, 
-    */
+    },
 
     authenticateAsElectionManager(election: Election) {
       setAuthStatus({
@@ -148,6 +150,12 @@ export function createApiMock() {
 
     expectGetMachineConfig(): void {
       mockApiClient.getMachineConfig.expectCallWith().resolves(machineConfig);
+    },
+
+    expectGetUsbDriveStatus(usbDriveStatus?: UsbDriveStatus): void {
+      mockApiClient.getUsbDriveStatus
+        .expectRepeatedCallsWith()
+        .resolves(usbDriveStatus || { status: 'no_drive' });
     },
 
     expectGetDeviceStatuses(): void {
@@ -299,6 +307,15 @@ export function createApiMock() {
       mockApiClient.registerVoter
         .expectCallWith({ registrationData })
         .resolves(voter);
+    },
+
+    /**
+     * Sets an expectation that mockApiClient.unconfigure() will be called. You probably want to pair
+     * this with apiMock.setElection().
+     */
+    expectUnconfigureElection() {
+      mockApiClient.unconfigure.reset();
+      mockApiClient.unconfigure.expectCallWith().resolves();
     },
   };
 }
