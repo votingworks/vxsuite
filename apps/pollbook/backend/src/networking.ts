@@ -75,45 +75,46 @@ export function fetchEventsFromConnectedPollbooks({
 
       const previouslyConnected = workspace.store.getPollbookServicesByName();
 
-      for (const currentName of Object.keys(previouslyConnected)) {
-        const currentPollbookService = previouslyConnected[currentName];
-        if (
-          currentPollbookService.status !== PollbookConnectionStatus.Connected
-        ) {
-          continue;
-        }
-        const { apiClient } = currentPollbookService;
-        if (!apiClient) {
-          continue;
-        }
-        try {
-          // Sync events from this pollbook service.
-          let syncMoreEvents = true;
-          while (syncMoreEvents) {
-            const lastEventSyncedPerNode =
-              workspace.store.getLastEventSyncedPerNode();
-            const { events, hasMore } = await apiClient.getEvents({
-              lastEventSyncedPerNode,
-            });
-            workspace.store.saveRemoteEvents(events);
-            syncMoreEvents = hasMore;
+      // Fetch events from all connected pollbooks in parallel
+      await Promise.all(
+        Object.keys(previouslyConnected).map(async (currentName) => {
+          const currentPollbookService = previouslyConnected[currentName];
+          if (
+            currentPollbookService.status !== PollbookConnectionStatus.Connected
+          ) {
+            return;
           }
+          const { apiClient } = currentPollbookService;
+          if (!apiClient) {
+            return;
+          }
+          try {
+            let syncMoreEvents = true;
+            while (syncMoreEvents) {
+              const lastEventSyncedPerNode =
+                workspace.store.getLastEventSyncedPerNode();
+              const { events, hasMore } = await apiClient.getEvents({
+                lastEventSyncedPerNode,
+              });
+              workspace.store.saveRemoteEvents(events);
+              syncMoreEvents = hasMore;
+            }
 
-          // Update last seen time on node.
-          workspace.store.setPollbookServiceForName(currentName, {
-            machineId: currentPollbookService.machineId,
-            apiClient,
-            lastSeen: new Date(),
-            status: PollbookConnectionStatus.Connected,
-          });
-        } catch (error) {
-          debug(
-            `Failed to sync events from ${currentPollbookService.machineId}: ${error}`
-          );
-          debug('The api client is ', apiClient);
-        }
-      }
-      // Clean up stale machines
+            workspace.store.setPollbookServiceForName(currentName, {
+              machineId: currentPollbookService.machineId,
+              apiClient,
+              lastSeen: new Date(),
+              status: PollbookConnectionStatus.Connected,
+            });
+          } catch (error) {
+            debug(
+              `Failed to sync events from ${currentPollbookService.machineId}: ${error}`
+            );
+            debug('The api client is ', apiClient);
+          }
+        })
+      );
+
       workspace.store.cleanupStalePollbookServices();
     }
   });
