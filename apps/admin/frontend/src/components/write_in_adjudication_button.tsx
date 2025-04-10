@@ -60,12 +60,12 @@ export function WriteInAdjudicationButton({
 
   const allCandidates = writeInCandidates.concat(officialCandidates);
   const candidateNames = allCandidates.map((c) => c.name);
-  const filteredCandidateNames = inputValue
+  const filteredNames = inputValue
     ? candidateNames.filter((name) =>
         normalizeWriteInName(name).includes(normalizedInputValue)
       )
     : candidateNames;
-  const options = filteredCandidateNames.map((name) => ({
+  const options = filteredNames.map((name) => ({
     label: name,
     value: name,
   }));
@@ -114,7 +114,7 @@ export function WriteInAdjudicationButton({
             onChange({ type: 'pending' });
           } else if (val === INVALID_KEY) {
             onChange({ type: 'invalid' });
-          } else if (candidateNames.includes(val)) {
+          } else if (filteredNames.includes(val)) {
             const candidate = allCandidates.find((c) => c.name === val);
             assert(candidate !== undefined);
             const { isWriteIn } = candidate;
