@@ -16,7 +16,7 @@ import {
   systemAdministratorRoutes,
 } from './nav_screen';
 import { getElection, getUsbDriveStatus, logOut, unconfigure } from './api';
-import { Column, FieldName, Row } from './layout';
+import { Column, Row } from './layout';
 
 export function SettingsScreen(): JSX.Element | null {
   const logOutMutation = logOut.useMutation();
@@ -62,7 +62,6 @@ export function ElectionScreen(): JSX.Element | null {
       <MainContent>
         <Column style={{ gap: '1rem' }}>
           <div data-testid="election-info">
-            <FieldName>Election</FieldName>
             <Card color="neutral">
               <Row style={{ gap: '1rem', alignItems: 'center' }}>
                 <Seal seal={election.seal} maxWidth="7rem" />
