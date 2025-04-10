@@ -139,7 +139,7 @@ export const userFeatureConfigs = {
     SYSTEM_SETTINGS_SCREEN: true,
     MARGINAL_MARK_THRESHOLD: false,
     EXPORT_SCREEN: true,
-    CHOOSE_BALLOT_TEMPLATE: false,
+    CHOOSE_BALLOT_TEMPLATE: true,
     EXPORT_TEST_DECKS: true,
     ONLY_LETTER_AND_LEGAL_PAPER_SIZES: false,
     CREATE_ELECTION: true,
