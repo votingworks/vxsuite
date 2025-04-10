@@ -139,15 +139,12 @@ function buildApi(context: LocalAppContext) {
     searchVoters(input: {
       searchParams: VoterSearchParams;
     }): Voter[] | number | null {
-      console.time('search');
       const { searchParams } = input;
       if (Object.values(searchParams).every((value) => value === '')) {
-        console.timeEnd('search');
         return null;
       }
 
       const result = store.searchVoters(searchParams);
-      console.timeEnd('search');
       return result;
     },
 
@@ -261,12 +258,10 @@ function buildApi(context: LocalAppContext) {
     },
 
     getCheckInCounts(): { thisMachine: number; allMachines: number } {
-      console.time('getCheckInCounts');
       const result = {
         thisMachine: store.getCheckInCount(machineId),
         allMachines: store.getCheckInCount(),
       } as const;
-      console.timeEnd('getCheckInCounts');
       return result;
     },
 

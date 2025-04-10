@@ -247,6 +247,12 @@ export function buildRouter(
         const result = await method(input, context);
         const jsonResult = serialize(result);
         debug(`Result: ${jsonResult}`);
+        const currentTime = Date.now();
+        if (currentTime - durationStart > 100) {
+          perfDebug(
+            `SLOW QUERY ${methodName} took ${currentTime - durationStart}`
+          );
+        }
         methodDebug(
           `Grout call to ${methodName} returned in ${
             Date.now() - durationStart
