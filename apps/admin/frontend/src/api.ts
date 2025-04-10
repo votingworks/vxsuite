@@ -379,7 +379,7 @@ export const getCvrWriteInImageViews = {
           cvrId: input?.cvrId ?? '',
           contestId: input?.contestId ?? '',
         }),
-      { enabled: !!input }
+      { enabled: !!input, keepPreviousData: true }
     );
   },
   usePrefetch() {
@@ -426,7 +426,7 @@ export const getWriteIns = {
           cvrId: input?.cvrId,
           contestId: input?.contestId,
         }),
-      { enabled: !!input }
+      { enabled: !!input, keepPreviousData: true }
     );
   },
 } as const;
@@ -443,7 +443,7 @@ export const getCastVoteRecordVoteInfo = {
     return useQuery(
       this.queryKey(input),
       () => apiClient.getCastVoteRecordVoteInfo({ cvrId: input?.cvrId ?? '' }),
-      { enabled: !!input }
+      { enabled: !!input, keepPreviousData: true }
     );
   },
 } as const;
@@ -458,7 +458,7 @@ export const getVoteAdjudications = {
     return useQuery(
       this.queryKey(input),
       () => apiClient.getVoteAdjudications(input),
-      { enabled: !!input }
+      { enabled: !!input, keepPreviousData: true }
     );
   },
 } as const;
