@@ -46,7 +46,7 @@ test('formatting', async () => {
   );
   userEvent.click(screen.getButton('Format USB Drive'));
   await screen.findByText(
-    'USB drive successfully formatted and ejected. It can now be used with VxSuite components.'
+    'USB drive successfully formatted and ejected. It can now be used with VotingWorks components.'
   );
   expect(mockMutate).toHaveBeenCalledOnce();
 });

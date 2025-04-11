@@ -45,14 +45,14 @@ function FormatUsbFlow({
               {usbDriveStatus.status === 'error' ? (
                 <P>
                   The format of the inserted USB drive is{' '}
-                  <Font weight="semiBold">not compatible</Font> with VxSuite
+                  <Font weight="semiBold">not compatible</Font> with VotingWorks
                   components.
                 </P>
               ) : (
                 <P>
                   The format of the inserted USB drive is{' '}
-                  <Font weight="semiBold">already compatible</Font> with VxSuite
-                  components.
+                  <Font weight="semiBold">already compatible</Font> with
+                  VotingWorks components.
                 </P>
               )}
               <P>
