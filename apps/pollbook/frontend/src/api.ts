@@ -366,4 +366,11 @@ export const exportVoterActivity = {
   },
 } as const;
 
+export const formatUsbDrive = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.formatUsbDrive);
+  },
+} as const;
+
 export const systemCallApi = createSystemCallApi(useApiClient);

@@ -424,6 +424,24 @@ test('usbDrive', async () => {
   expect(await apiClient.formatUsbDrive()).toEqual(err(error));
 });
 
+test('usbDrive without proper auth', async () => {
+  const {
+    apiClient,
+    auth,
+    mockUsbDrive: { usbDrive },
+  } = buildTestEnvironment();
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  await configureMachine(apiClient, auth, electionDefinition);
+
+  mockElectionManagerAuth(auth, electionDefinition.election);
+
+  usbDrive.format.expectCallWith().resolves();
+  (await apiClient.formatUsbDrive()).assertErr(
+    'Formatting USB drive requires system administrator auth.'
+  );
+});
+
 test('printer status', async () => {
   const { mockPrinterHandler, apiClient } = buildTestEnvironment();
 

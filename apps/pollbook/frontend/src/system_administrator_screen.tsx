@@ -2,6 +2,7 @@ import {
   Card,
   CurrentDateAndTime,
   ExportLogsButton,
+  FormatUsbButton,
   H2,
   MainContent,
   P,
@@ -15,12 +16,19 @@ import {
   SystemAdministratorNavScreen,
   systemAdministratorRoutes,
 } from './nav_screen';
-import { getElection, getUsbDriveStatus, logOut, unconfigure } from './api';
+import {
+  formatUsbDrive,
+  getElection,
+  getUsbDriveStatus,
+  logOut,
+  unconfigure,
+} from './api';
 import { Column, Row } from './layout';
 
 export function SettingsScreen(): JSX.Element | null {
   const logOutMutation = logOut.useMutation();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
+  const formatUsbDriveMutation = formatUsbDrive.useMutation();
 
   if (!usbDriveStatusQuery.isSuccess) {
     return null;
@@ -41,6 +49,13 @@ export function SettingsScreen(): JSX.Element | null {
           <SetClockButton logOut={() => logOutMutation.mutate()}>
             Set Date and Time
           </SetClockButton>
+        </P>
+        <H2>USB</H2>
+        <P>
+          <FormatUsbButton
+            usbDriveStatus={usbDriveStatus}
+            formatUsbDriveMutation={formatUsbDriveMutation}
+          />
         </P>
       </MainContent>
     </SystemAdministratorNavScreen>

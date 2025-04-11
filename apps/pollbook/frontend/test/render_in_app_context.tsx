@@ -1,11 +1,4 @@
-import { MachineConfig } from '@votingworks/pollbook-backend';
-import {
-  DippedSmartCardAuth,
-  ElectionDefinition,
-  Iso8601Timestamp,
-} from '@votingworks/types';
 import { SystemCallContextProvider, TestErrorBoundary } from '@votingworks/ui';
-import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { createMemoryHistory, MemoryHistory } from 'history';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Router } from 'react-router-dom';
@@ -21,13 +14,6 @@ import {
 export interface RenderInAppContextParams {
   route?: string;
   history?: MemoryHistory;
-  electionDefinition?: ElectionDefinition | null;
-  configuredAt?: Iso8601Timestamp;
-  isOfficialResults?: boolean;
-  usbDriveStatus?: UsbDriveStatus;
-  auth?: DippedSmartCardAuth.AuthStatus;
-  machineConfig?: MachineConfig;
-  hasPrinterAttached?: boolean;
   apiMock?: ApiMock;
   queryClient?: QueryClient;
 }

@@ -1,10 +1,5 @@
 import { describe, test, beforeEach, afterEach, vi } from 'vitest';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { DippedSmartCardAuth } from '@votingworks/types';
-import {
-  mockSessionExpiresAt,
-  mockSystemAdministratorUser,
-} from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 import { screen } from '../test/react_testing_library';
 import { ApiMock, createApiMock } from '../test/mock_api_client';
@@ -13,12 +8,6 @@ import { renderInAppContext } from '../test/render_in_app_context';
 
 let apiMock: ApiMock;
 const electionFamousNames = electionFamousNames2021Fixtures.readElection();
-const auth: DippedSmartCardAuth.SystemAdministratorLoggedIn = {
-  status: 'logged_in',
-  user: mockSystemAdministratorUser(),
-  sessionExpiresAt: mockSessionExpiresAt(),
-  programmableCard: { status: 'no_card' },
-};
 
 let unmount: () => void;
 
@@ -40,7 +29,6 @@ describe('Election tab', () => {
   test('basic render', async () => {
     const renderResult = renderInAppContext(<SystemAdministratorScreen />, {
       apiMock,
-      auth,
     });
     unmount = renderResult.unmount;
 
@@ -52,7 +40,6 @@ describe('Settings tab', () => {
   async function renderSettingsTab() {
     const renderResult = renderInAppContext(<SystemAdministratorScreen />, {
       apiMock,
-      auth,
     });
     unmount = renderResult.unmount;
 
@@ -65,7 +52,10 @@ describe('Settings tab', () => {
   }
 
   beforeEach(() => {
-    apiMock.expectGetUsbDriveStatus();
+    apiMock.expectGetUsbDriveStatus({
+      status: 'mounted',
+      mountPoint: '/dev/null',
+    });
   });
 
   afterEach(() => {
@@ -81,7 +71,8 @@ describe('Settings tab', () => {
 
     // Full functionality tested in libs/ui/src/export_logs_modal.test.tsx
     userEvent.click(screen.getByRole('button', { name: 'Save Logs' }));
-    await screen.findByRole('heading', { name: 'No USB Drive Detected' });
+    await screen.findByRole('heading', { name: 'Save Logs' });
+    screen.getByText('Select a log format:');
   });
 
   test('set date and time button', async () => {
@@ -90,5 +81,16 @@ describe('Settings tab', () => {
     // Full functionality tested in libs/ui/src/set_clock.test.tsx
     userEvent.click(screen.getByRole('button', { name: 'Set Date and Time' }));
     await screen.findByRole('heading', { name: 'Set Date and Time' });
+  });
+
+  test('format USB drive button', async () => {
+    await renderSettingsTab();
+
+    // Full functionality tested in libs/ui/src/format_usb_modal.test.tsx
+    userEvent.click(screen.getByRole('button', { name: 'Format USB Drive' }));
+    await screen.findByRole('heading', { name: 'Format USB Drive' });
+    await screen.findByText(
+      'Formatting will delete all files on the USB drive. Back up USB drive files before formatting.'
+    );
   });
 });

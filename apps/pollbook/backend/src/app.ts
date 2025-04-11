@@ -13,7 +13,10 @@ import {
   Exporter,
   getBatteryInfo,
 } from '@votingworks/backend';
-import { generateFileTimeSuffix } from '@votingworks/utils';
+import {
+  generateFileTimeSuffix,
+  isSystemAdministratorAuth,
+} from '@votingworks/utils';
 import { stringify } from 'csv-stringify/sync';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { Logger } from '@votingworks/logging';
@@ -105,6 +108,15 @@ function buildApi({ context, logger }: BuildAppParams) {
     },
 
     async formatUsbDrive(): Promise<Result<void, Error>> {
+      const authStatus = await auth.getAuthStatus(
+        constructAuthMachineState(workspace)
+      );
+      if (!isSystemAdministratorAuth(authStatus)) {
+        return err(
+          new Error('Formatting USB drive requires system administrator auth.')
+        );
+      }
+
       try {
         await usbDrive.format();
         return ok();
