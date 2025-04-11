@@ -33,6 +33,7 @@ export function WriteInAdjudicationButton({
   isFocused,
   isSelected,
   hasInvalidEntry,
+  label,
   onChange,
   onInputFocus,
   onInputBlur,
@@ -43,6 +44,7 @@ export function WriteInAdjudicationButton({
   caption?: React.ReactNode;
   isFocused: boolean;
   isSelected: boolean;
+  label?: string;
   hasInvalidEntry: boolean;
   status: Exclude<WriteInAdjudicationStatus, undefined | InvalidWriteIn>;
   onChange: (newStatus: Exclude<WriteInAdjudicationStatus, undefined>) => void;
@@ -112,7 +114,7 @@ export function WriteInAdjudicationButton({
     <Container style={{ zIndex: isFocused ? 10 : 0 }}>
       <RoundedCheckboxButton
         isChecked={isSelected}
-        label="Write-in"
+        label={label ?? 'Write-in'}
         onChange={() => onChange({ type: isSelected ? 'invalid' : 'pending' })}
       />
       <SearchSelect
