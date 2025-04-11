@@ -810,9 +810,10 @@ export function ContestAdjudicationScreen(): JSX.Element {
                     onSelect={() => setOptionHasVote(candidate.id, true)}
                     onDeselect={() => setOptionHasVote(candidate.id, false)}
                     disabled={
+                      isBmd ||
                       // Disabled when there is a write-in selection for the candidate
-                      !currentVote &&
-                      selectedCandidateNames.includes(candidate.name)
+                      (!currentVote &&
+                        selectedCandidateNames.includes(candidate.name))
                     }
                     caption={renderCandidateButtonCaption({
                       originalVote,
@@ -827,6 +828,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 const writeInRecord = writeIns.find(
                   (writeIn) => writeIn.optionId === optionId
                 );
+                const writeInImage = writeInImages.find(
+                  (img) => img.optionId === optionId
+                );
                 const writeInStatus = writeInStatusByOptionId[optionId];
                 const isFocused = focusedOptionId === optionId;
                 const isSelected = hasVoteByOptionId[optionId];
@@ -835,8 +839,14 @@ export function ContestAdjudicationScreen(): JSX.Element {
                     <CandidateButton
                       candidate={{
                         id: optionId,
-                        name: 'Write-in',
+                        name:
+                          writeInImage?.type === 'bmd'
+                            ? writeInImage.machineMarkedText
+                            : 'Write-in',
                       }}
+                      // bmd ballots can only toggle-on write-ins that were
+                      // previously marked invalid
+                      disabled={isBmd && !isInvalidWriteIn(writeInStatus)}
                       isSelected={false}
                       key={optionId + currentCvrId}
                       onSelect={() => {
@@ -860,6 +870,11 @@ export function ContestAdjudicationScreen(): JSX.Element {
                     isFocused={isFocused}
                     isSelected={isSelected}
                     hasInvalidEntry={doubleVoteAlert?.optionId === optionId}
+                    label={
+                      writeInImage?.type === 'bmd'
+                        ? writeInImage.machineMarkedText
+                        : undefined
+                    }
                     status={writeInStatus}
                     onInputFocus={() => setFocusedOptionId(optionId)}
                     onInputBlur={() => setFocusedOptionId(undefined)}
