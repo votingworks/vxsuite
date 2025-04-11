@@ -93,6 +93,7 @@ export * from './export_logs_modal';
 export * from './task_screen';
 export * from './types';
 export * from './unconfigured_election_screen';
+export * from './format_usb_modal';
 export * from './usb_drive';
 export * from './usb_drive_image';
 export * from './power_down_button';

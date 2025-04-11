@@ -1,17 +1,12 @@
-import React, { useCallback, useContext, useState } from 'react';
-import { assert, throwIllegalValue } from '@votingworks/basics';
-
-import { Button, Modal, Loading, P, Icons, Font } from '@votingworks/ui';
-import {
-  isElectionManagerAuth,
-  isSystemAdministratorAuth,
-} from '@votingworks/utils';
-import { AppContext } from '../contexts/app_context';
-import { formatUsbDrive } from '../api';
-
-export interface FormatUsbModalProps {
-  onClose: () => void;
-}
+import React, { useCallback, useState } from 'react';
+import { assert, Result, throwIllegalValue } from '@votingworks/basics';
+import { UsbDriveStatus } from '@votingworks/usb-drive';
+import { UseMutationResult } from '@tanstack/react-query';
+import { Button } from './button';
+import { Modal } from './modal';
+import { Font, P } from './typography';
+import { Icons } from './icons';
+import { Loading } from './loading';
 
 type FlowState =
   | { stage: 'confirm' }
@@ -19,11 +14,12 @@ type FlowState =
   | { stage: 'done' }
   | { stage: 'error'; message: string };
 
-function FormatUsbFlow({ onClose }: FormatUsbModalProps): JSX.Element {
-  const { usbDriveStatus, auth } = useContext(AppContext);
+function FormatUsbFlow({
+  onClose,
+  usbDriveStatus,
+  formatUsbDriveMutation,
+}: FormatUsbModalProps): JSX.Element {
   assert(usbDriveStatus.status !== 'no_drive');
-  assert(isSystemAdministratorAuth(auth) || isElectionManagerAuth(auth));
-  const formatUsbDriveMutation = formatUsbDrive.useMutation();
 
   const [state, setState] = useState<FlowState>({ stage: 'confirm' });
 
@@ -107,8 +103,11 @@ function FormatUsbFlow({ onClose }: FormatUsbModalProps): JSX.Element {
   }
 }
 
-export function FormatUsbModal({ onClose }: FormatUsbModalProps): JSX.Element {
-  const { usbDriveStatus } = useContext(AppContext);
+export interface FormatUsbModalProps extends FormatUsbButtonProps {
+  onClose: () => void;
+}
+export function FormatUsbModal(props: FormatUsbModalProps): JSX.Element {
+  const { usbDriveStatus, onClose } = props;
 
   if (usbDriveStatus.status === 'no_drive') {
     return (
@@ -121,16 +120,28 @@ export function FormatUsbModal({ onClose }: FormatUsbModalProps): JSX.Element {
     );
   }
 
-  return <FormatUsbFlow onClose={onClose} />;
+  return <FormatUsbFlow {...props} />;
 }
 
-export function FormatUsbButton(): JSX.Element {
+export interface FormatUsbButtonProps {
+  usbDriveStatus: UsbDriveStatus;
+  formatUsbDriveMutation: UseMutationResult<
+    Result<void, Error>,
+    unknown,
+    void,
+    unknown
+  >;
+}
+
+export function FormatUsbButton(props: FormatUsbButtonProps): JSX.Element {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <React.Fragment>
       <Button onPress={() => setIsModalOpen(true)}>Format USB Drive</Button>
-      {isModalOpen && <FormatUsbModal onClose={() => setIsModalOpen(false)} />}
+      {isModalOpen && (
+        <FormatUsbModal {...props} onClose={() => setIsModalOpen(false)} />
+      )}
     </React.Fragment>
   );
 }
