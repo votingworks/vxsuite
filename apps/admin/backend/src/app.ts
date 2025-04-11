@@ -13,7 +13,6 @@ import {
   SystemSettings,
   Tabulation,
   convertElectionResultsReportingReportToVxManualResults,
-  Side,
 } from '@votingworks/types';
 import {
   assert,
@@ -85,6 +84,7 @@ import {
   CastVoteRecordVoteInfo,
   WriteInRecord,
   VoteAdjudication,
+  AdjudicatedCvrContest,
 } from './types';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
@@ -110,7 +110,7 @@ import {
   listCastVoteRecordExportsOnUsbDrive,
 } from './cast_vote_records';
 import { generateBallotCountReportCsv } from './exports/csv_ballot_count_report';
-import { adjudicateVote, adjudicateWriteIn } from './adjudication';
+import { adjudicateCvrContest, adjudicateWriteIn } from './adjudication';
 import { convertFrontendFilter as convertFrontendFilterUtil } from './util/filters';
 import { buildElectionResultsReport } from './util/cdf_results';
 import { tabulateElectionResults } from './tabulation/full_results';
@@ -635,19 +635,8 @@ function buildApi({
       await adjudicateWriteIn(input, store, logger);
     },
 
-    adjudicateVote(input: {
-      cvrId: Id;
-      contestId: Id;
-      optionId: Id;
-      isVote: boolean;
-    }): void {
-      adjudicateVote(
-        {
-          ...input,
-          electionId: loadCurrentElectionIdOrThrow(workspace),
-        },
-        store
-      );
+    adjudicateCvrContest(input: AdjudicatedCvrContest): void {
+      adjudicateCvrContest(input, store, logger);
     },
 
     getVoteAdjudications(
@@ -719,24 +708,6 @@ function buildApi({
       return store.getCastVoteRecordVoteInfo({
         ...input,
         electionId: loadCurrentElectionIdOrThrow(workspace),
-      });
-    },
-
-    addWriteInRecord(input: {
-      contestId: ContestId;
-      optionId: Id;
-      cvrId: Id;
-      side: Side;
-      isUnmarked: boolean;
-    }): Id {
-      return store.addWriteIn({
-        electionId: loadCurrentElectionIdOrThrow(workspace),
-        castVoteRecordId: input.cvrId,
-        contestId: input.contestId,
-        optionId: input.optionId,
-        side: input.side,
-        isUnmarked: input.isUnmarked,
-        isManuallyCreated: true,
       });
     },
 

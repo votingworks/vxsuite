@@ -326,6 +326,58 @@ export interface WriteInAdjudicationActionReset {
 }
 
 /**
+ * A cvr contest with all candidate and write-in options
+ * fully adjudicated.
+ */
+export interface AdjudicatedCvrContest {
+  adjudicatedContestOptionById: Record<
+    ContestOptionId,
+    AdjudicatedContestOption
+  >;
+  cvrId: string;
+  side: Side;
+  contestId: string;
+}
+
+/**
+ * A fully adjudicated candidate or write-in option
+ */
+export type AdjudicatedContestOption =
+  | AdjudicatedCandidateOption
+  | AdjudicatedWriteInOption;
+
+interface AdjudicatedCandidateOption {
+  type: 'candidate-option';
+  hasVote: boolean;
+}
+
+type AdjudicatedWriteInOption =
+  | AdjudicatedWriteInOfficialCandidate
+  | AdjudicatedWriteInUnofficialCandidate
+  | AdjudicatedWriteInFalse;
+
+interface AdjudicatedWriteInBase {
+  type: 'write-in-option';
+}
+
+interface AdjudicatedWriteInOfficialCandidate extends AdjudicatedWriteInBase {
+  candidateType: 'official-candidate';
+  hasVote: true;
+  candidateId: string;
+}
+
+interface AdjudicatedWriteInUnofficialCandidate extends AdjudicatedWriteInBase {
+  candidateType: 'unofficial-candidate';
+  hasVote: true;
+  // unofficial candidates have uniqueness enforced on name
+  name: string;
+}
+
+interface AdjudicatedWriteInFalse extends AdjudicatedWriteInBase {
+  hasVote: false;
+}
+
+/**
  * Information necessary to adjudicate a write-in.
  */
 export type WriteInAdjudicationAction =
