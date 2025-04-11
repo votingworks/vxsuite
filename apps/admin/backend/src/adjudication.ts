@@ -249,20 +249,20 @@ export function adjudicateCvrContest(
       )?.id;
 
       if (!isVote) {
-        if (!writeInId) {
-          continue;
+        if (writeInId) {
+          void adjudicateWriteIn(
+            {
+              type: 'invalid',
+              writeInId,
+            },
+            store,
+            logger
+          );
         }
-        void adjudicateWriteIn(
-          {
-            type: 'invalid',
-            writeInId,
-          },
-          store,
-          logger
-        );
         continue;
       }
 
+      // isVote = true
       if (!writeInId) {
         writeInId = store.addWriteIn({
           castVoteRecordId: cvrId,
@@ -277,11 +277,12 @@ export function adjudicateCvrContest(
       const { candidateType } = adjudicatedContestOption;
       switch (candidateType) {
         case 'official-candidate': {
+          const { candidateId } = adjudicatedContestOption;
           void adjudicateWriteIn(
             {
               type: 'official-candidate',
               writeInId,
-              candidateId: adjudicatedContestOption.candidateId,
+              candidateId,
             },
             store,
             logger

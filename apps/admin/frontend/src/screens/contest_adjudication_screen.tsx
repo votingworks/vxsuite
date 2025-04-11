@@ -13,14 +13,19 @@ import {
   Main,
   Screen,
   Font,
-  LinkButton,
   Loading,
   Icons,
   H2,
   H1,
   P,
 } from '@votingworks/ui';
-import { assert, find, iter, throwIllegalValue } from '@votingworks/basics';
+import {
+  assert,
+  deepEqual,
+  find,
+  iter,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import type {
   AdjudicatedContestOption,
   AdjudicatedCvrContest,
@@ -53,6 +58,7 @@ import {
   DoubleVoteAlert,
   DoubleVoteAlertModal,
 } from '../components/adjudication_double_vote_alert_modal';
+import { DiscardChangesModal } from '../components/discard_changes_modal';
 
 interface ExistingOfficialCandidate {
   type: 'existing-official';
@@ -71,7 +77,7 @@ interface NewCandidate {
   name: string;
 }
 
-interface InvalidWriteIn {
+export interface InvalidWriteIn {
   type: 'invalid';
 }
 
@@ -359,28 +365,40 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const [hasVoteByOptionId, setHasVoteByOptionId] = useState<HasVoteByOptionId>(
     {}
   );
+  const initialHasVoteByOptionIdRef = useRef<HasVoteByOptionId | null>(null);
+  function setOptionHasVote(optionId: ContestOptionId, hasVote: boolean) {
+    setHasVoteByOptionId((prev) => {
+      if (prev[optionId] === hasVote) return prev;
+      return {
+        ...prev,
+        [optionId]: hasVote,
+      };
+    });
+  }
   const [writeInStatusByOptionId, setWriteInStatusByOptionId] =
     useState<WriteInStatusByOptionId>({});
-  function setOptionHasVote(optionId: ContestOptionId, hasVote: boolean) {
-    setHasVoteByOptionId((prev) => ({
-      ...prev,
-      [optionId]: hasVote,
-    }));
-  }
+  const initialWriteInStatusByOptionIdRef =
+    useRef<WriteInStatusByOptionId | null>(null);
   function setOptionWriteInStatus(
     optionId: ContestOptionId,
     status: WriteInAdjudicationStatus
   ) {
-    setWriteInStatusByOptionId((prev) => ({
-      ...prev,
-      [optionId]: status,
-    }));
+    setWriteInStatusByOptionId((prev) => {
+      if (prev[optionId] === status) return prev;
+      return {
+        ...prev,
+        [optionId]: status,
+      };
+    });
   }
   const isStateReady = Object.keys(hasVoteByOptionId).length > 0;
 
   const [focusedOptionId, setFocusedOptionId] = useState<string>();
   const [shouldAutoscrollUser, setShouldAutoscrollUser] = useState(false);
   const [doubleVoteAlert, setDoubleVoteAlert] = useState<DoubleVoteAlert>();
+  const [discardChangesNextAction, setDiscardChangesNextAction] = useState<
+    'close' | 'back' | 'skip'
+  >();
   // isStateStale prevents showing new CVR data with stale state when revisiting a previously loaded CVR.
   // Without this check, state resets one render after query data, causing a brief mismatch.
   const [isStateStale, setIsStateStale] = useState(false);
@@ -402,13 +420,15 @@ export function ContestAdjudicationScreen(): JSX.Element {
       for (const c of officialCandidates) {
         newHasVoteByOptionId[c.id] = originalVotes.includes(c.id);
       }
+
+      const newWriteInStatusByOptionId: WriteInStatusByOptionId = {};
       for (const optionId of writeInOptionIds) {
         newHasVoteByOptionId[optionId] = originalVotes.includes(optionId);
+        newWriteInStatusByOptionId[optionId] = undefined;
       }
       for (const adjudication of voteAdjudicationsQuery.data) {
         newHasVoteByOptionId[adjudication.optionId] = adjudication.isVote;
       }
-      const newWriteInStatusByOptionId: WriteInStatusByOptionId = {};
       let areAllWriteInsAdjudicated = true;
       for (const writeIn of writeInsQuery.data) {
         const { optionId } = writeIn;
@@ -455,7 +475,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
       }
       setFocusedOptionId(undefined);
       setHasVoteByOptionId(newHasVoteByOptionId);
+      initialHasVoteByOptionIdRef.current = newHasVoteByOptionId;
       setWriteInStatusByOptionId(newWriteInStatusByOptionId);
+      initialWriteInStatusByOptionIdRef.current = newWriteInStatusByOptionId;
       setIsStateStale(false);
       if (!areAllWriteInsAdjudicated) {
         setShouldAutoscrollUser(true);
@@ -645,10 +667,10 @@ export function ContestAdjudicationScreen(): JSX.Element {
       AdjudicatedContestOption
     > = {};
     const adjudicatedCvrContest: AdjudicatedCvrContest = {
-      side,
-      cvrId: currentCvrId,
-      contestId,
       adjudicatedContestOptionById,
+      contestId,
+      cvrId: currentCvrId,
+      side,
     };
     const officialCandidateOptionIds = officialCandidates.map((c) => c.id);
     for (const optionId of officialCandidateOptionIds) {
@@ -658,7 +680,6 @@ export function ContestAdjudicationScreen(): JSX.Element {
         hasVote,
       };
     }
-
     for (const optionId of writeInOptionIds) {
       const writeInStatus = writeInStatusByOptionId[optionId];
       // throw error if there is a pending write-in
@@ -684,7 +705,6 @@ export function ContestAdjudicationScreen(): JSX.Element {
         };
       }
     }
-
     adjudicateCvrContestMutation.mutate(adjudicatedCvrContest);
     if (onLastBallot) {
       history.push(routerPaths.writeIns);
@@ -692,6 +712,39 @@ export function ContestAdjudicationScreen(): JSX.Element {
       setCvrQueueIndex(safeCvrQueueIndex + 1);
       setIsStateStale(true);
     }
+  }
+
+  const isModified =
+    !deepEqual(hasVoteByOptionId, initialHasVoteByOptionIdRef.current) ||
+    !deepEqual(
+      writeInStatusByOptionId,
+      initialWriteInStatusByOptionIdRef.current
+    );
+
+  function onSkip(): void {
+    if (isModified && !discardChangesNextAction) {
+      setDiscardChangesNextAction('skip');
+      return;
+    }
+    setCvrQueueIndex(safeCvrQueueIndex + 1);
+    setIsStateStale(true);
+  }
+
+  function onBack(): void {
+    if (isModified && !discardChangesNextAction) {
+      setDiscardChangesNextAction('back');
+      return;
+    }
+    setCvrQueueIndex(safeCvrQueueIndex - 1);
+    setIsStateStale(true);
+  }
+
+  function onClose(): void {
+    if (isModified && !discardChangesNextAction) {
+      setDiscardChangesNextAction('close');
+      return;
+    }
+    history.push(routerPaths.writeIns);
   }
 
   return (
@@ -721,14 +774,14 @@ export function ContestAdjudicationScreen(): JSX.Element {
               <CompactH2>{getContestDistrictName(election, contest)}</CompactH2>
               <CompactH1>{contest.title}</CompactH1>
             </ContestTitleDiv>
-            <LinkButton
+            <Button
               fill="outlined"
               icon="X"
-              to={routerPaths.writeIns}
+              onPress={onClose}
               variant="inverseNeutral"
             >
               Close
-            </LinkButton>
+            </Button>
           </BallotHeader>
           <BallotVoteCount>
             <MediumText>
@@ -788,9 +841,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                       key={optionId + currentCvrId}
                       onSelect={() => {
                         setOptionHasVote(optionId, true);
-                        setOptionWriteInStatus(optionId, {
-                          type: 'pending',
-                        });
+                        setOptionWriteInStatus(optionId, { type: 'pending' });
                       }}
                       onDeselect={() => undefined} // Cannot be reached
                       caption={renderCandidateButtonCaption({
@@ -803,43 +854,30 @@ export function ContestAdjudicationScreen(): JSX.Element {
                     />
                   );
                 }
-                let stringValue: string;
-                switch (writeInStatus.type) {
-                  case 'pending': {
-                    stringValue = '';
-                    break;
-                  }
-                  case 'new':
-                  case 'existing-official':
-                  case 'existing-write-in': {
-                    stringValue = writeInStatus.name;
-                    break;
-                  }
-                  default: {
-                    /* istanbul ignore next - @preserve */
-                    throwIllegalValue(writeInStatus, 'type');
-                  }
-                }
                 return (
                   <WriteInAdjudicationButton
                     key={optionId + currentCvrId}
                     isFocused={isFocused}
                     isSelected={isSelected}
                     hasInvalidEntry={doubleVoteAlert?.optionId === optionId}
+                    status={writeInStatus}
                     onInputFocus={() => setFocusedOptionId(optionId)}
                     onInputBlur={() => setFocusedOptionId(undefined)}
-                    value={stringValue}
                     onChange={(newStatus) => {
                       setFocusedOptionId(undefined);
                       if (isPendingWriteIn(newStatus)) {
                         setOptionWriteInStatus(optionId, newStatus);
+                        setOptionHasVote(optionId, true);
                         return;
                       }
                       if (isInvalidWriteIn(newStatus)) {
-                        setOptionWriteInStatus(optionId, newStatus);
-                        if (isSelected) {
-                          setOptionHasVote(optionId, false);
-                        }
+                        // If there was no write-in record, reset
+                        // to undefined instead of invalid
+                        setOptionWriteInStatus(
+                          optionId,
+                          writeInRecord ? newStatus : undefined
+                        );
+                        setOptionHasVote(optionId, false);
                         return;
                       }
                       const alert = checkForDoubleVote({
@@ -852,21 +890,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                         return;
                       }
                       setOptionWriteInStatus(optionId, newStatus);
-                      if (!isSelected) {
-                        setOptionHasVote(optionId, true);
-                      }
-                    }}
-                    toggleVote={() => {
-                      if (isSelected) {
-                        if (isFocused) {
-                          setFocusedOptionId(undefined);
-                        }
-                        setOptionHasVote(optionId, false);
-                        setOptionWriteInStatus(optionId, { type: 'invalid' });
-                      } else {
-                        setOptionHasVote(optionId, true);
-                        setOptionWriteInStatus(optionId, { type: 'pending' });
-                      }
+                      setOptionHasVote(optionId, true);
                     }}
                     officialCandidates={officialCandidates.filter(
                       (c) =>
@@ -903,19 +927,13 @@ export function ContestAdjudicationScreen(): JSX.Element {
               <SecondaryNavButton
                 disabled={cvrQueueIndex === 0}
                 icon="Previous"
-                onPress={() => {
-                  setCvrQueueIndex(cvrQueueIndex - 1);
-                  setIsStateStale(true);
-                }}
+                onPress={onBack}
               >
                 Back
               </SecondaryNavButton>
               <SecondaryNavButton
                 disabled={onLastBallot}
-                onPress={() => {
-                  setCvrQueueIndex(cvrQueueIndex + 1);
-                  setIsStateStale(true);
-                }}
+                onPress={onSkip}
                 rightIcon="Next"
               >
                 Skip
@@ -935,6 +953,29 @@ export function ContestAdjudicationScreen(): JSX.Element {
           <DoubleVoteAlertModal
             doubleVoteAlert={doubleVoteAlert}
             onClose={() => setDoubleVoteAlert(undefined)}
+          />
+        )}
+        {discardChangesNextAction && (
+          <DiscardChangesModal
+            onBack={() => setDiscardChangesNextAction(undefined)}
+            onDiscard={() => {
+              switch (discardChangesNextAction) {
+                case 'close':
+                  onClose();
+                  break;
+                case 'back':
+                  onBack();
+                  break;
+                case 'skip':
+                  onSkip();
+                  break;
+                default: {
+                  /* istanbul ignore next - @preserve */
+                  throwIllegalValue(discardChangesNextAction);
+                }
+              }
+              setDiscardChangesNextAction(undefined);
+            }}
           />
         )}
       </Main>

@@ -87,7 +87,7 @@ export async function getWriteInImageView({
 }
 
 /**
- * Retrieves data necessary to display a write-in image on the frontend for a given Cvr contest.
+ * Retrieves data necessary to display write-in images on the frontend for a given Cvr contest.
  */
 export async function getCvrContestWriteInImageViews({
   store,
