@@ -860,18 +860,6 @@ export const addWriteInCandidate = {
   },
 } as const;
 
-export const addWriteInRecord = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.addWriteInRecord, {
-      async onSuccess() {
-        await invalidateWriteInQueries(queryClient);
-      },
-    });
-  },
-} as const;
-
 export const adjudicateWriteIn = {
   useMutation() {
     const apiClient = useApiClient();
@@ -884,13 +872,14 @@ export const adjudicateWriteIn = {
   },
 } as const;
 
-export const adjudicateVote = {
+export const adjudicateCvrContest = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.adjudicateVote, {
+    return useMutation(apiClient.adjudicateCvrContest, {
       async onSuccess() {
         await queryClient.invalidateQueries(getVoteAdjudications.queryKey());
+        await invalidateWriteInQueries(queryClient);
       },
     });
   },
