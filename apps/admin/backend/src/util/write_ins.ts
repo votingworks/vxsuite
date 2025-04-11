@@ -1,4 +1,4 @@
-import { assertDefined, find, assert } from '@votingworks/basics';
+import { assertDefined, find, assert, iter } from '@votingworks/basics';
 import { Id, safeParseNumber } from '@votingworks/types';
 import { loadImageData, toDataUrl } from '@votingworks/image-utils';
 import { Store } from '../store';
@@ -19,7 +19,7 @@ export async function getWriteInImageView({
 }): Promise<WriteInImageView> {
   debug('creating write-in image view for %s...', writeInId);
   const writeInDetails = store.getWriteInImageAndLayout(writeInId);
-  const { layout, image, contestId, optionId, cvrId, machineMarkedText } =
+  const { layout, image, contestId, optionId, cvrId, machineMarkedText, side } =
     writeInDetails;
 
   // BMD ballots do not have layouts, we do not support zoom during WIA on these ballots.
@@ -30,9 +30,12 @@ export async function getWriteInImageView({
     );
     return {
       writeInId,
+      optionId,
       cvrId,
       imageUrl: toDataUrl(await loadImageData(image), 'image/jpeg'),
       machineMarkedText,
+      type: 'bmd',
+      side: 'front',
     };
   }
 
@@ -68,6 +71,7 @@ export async function getWriteInImageView({
   return {
     writeInId,
     cvrId,
+    optionId,
     imageUrl: toDataUrl(imageData, 'image/jpeg'),
     ballotCoordinates: {
       width: imageData.width,
@@ -77,7 +81,27 @@ export async function getWriteInImageView({
     },
     contestCoordinates: contestLayout.bounds,
     writeInCoordinates: writeInLayout.bounds,
+    type: 'hmpb',
+    side,
   };
+}
+
+/**
+ * Retrieves data necessary to display a write-in image on the frontend for a given Cvr contest.
+ */
+export async function getCvrContestWriteInImageViews({
+  store,
+  cvrId,
+  contestId,
+}: {
+  store: Store;
+  cvrId: Id;
+  contestId: Id;
+}): Promise<WriteInImageView[]> {
+  return await iter(store.getCvrContestWriteInIds({ cvrId, contestId }))
+    .async()
+    .map((writeInId) => getWriteInImageView({ store, writeInId }))
+    .toArray();
 }
 
 /**

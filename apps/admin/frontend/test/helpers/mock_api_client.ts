@@ -379,19 +379,25 @@ export function createApiMock(
         apiClient.getWriteInImageView.expectCallWith({ writeInId }).resolves({
           writeInId,
           cvrId: 'id',
+          optionId: 'option',
           imageUrl: 'WW91IGJlIGdvb2QsIEkgbG92ZSB5b3UuIFNlZSB5b3UgdG9tb3Jyb3cu',
           machineMarkedText: 'mock-text',
           ...imageView,
+          type: 'bmd',
+          side: 'front',
         });
       } else {
         apiClient.getWriteInImageView.expectCallWith({ writeInId }).resolves({
           writeInId,
           cvrId: 'id',
+          optionId: 'option',
           imageUrl: 'WW91IGJlIGdvb2QsIEkgbG92ZSB5b3UuIFNlZSB5b3UgdG9tb3Jyb3cu',
           ballotCoordinates: mockRect,
           contestCoordinates: mockRect,
           writeInCoordinates: mockRect,
           ...imageView,
+          type: 'hmpb',
+          side: 'front',
         });
       }
     },
