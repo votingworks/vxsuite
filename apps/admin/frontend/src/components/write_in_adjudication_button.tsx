@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 import { CheckboxButton, Icons, SearchSelect } from '@votingworks/ui';
 import { Candidate } from '@votingworks/types';
-import { assert } from '@votingworks/basics';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import { normalizeWriteInName } from '../utils/write_ins';
-import type { WriteInAdjudicationStatus } from '../screens/contest_adjudication_screen';
+import type {
+  InvalidWriteIn,
+  WriteInAdjudicationStatus,
+} from '../screens/contest_adjudication_screen';
 
 const MAX_NAME_LENGTH = 200;
 const INVALID_KEY = '\0invalid';
@@ -33,8 +36,7 @@ export function WriteInAdjudicationButton({
   onChange,
   onInputFocus,
   onInputBlur,
-  toggleVote,
-  value,
+  status,
   officialCandidates,
   writeInCandidates,
 }: {
@@ -42,18 +44,16 @@ export function WriteInAdjudicationButton({
   isFocused: boolean;
   isSelected: boolean;
   hasInvalidEntry: boolean;
+  status: Exclude<WriteInAdjudicationStatus, undefined | InvalidWriteIn>;
   onChange: (newStatus: Exclude<WriteInAdjudicationStatus, undefined>) => void;
   onInputBlur: () => void;
   onInputFocus: () => void;
-  toggleVote: () => void;
-  value: string;
   officialCandidates: Candidate[];
   writeInCandidates: Candidate[];
 }): JSX.Element {
   const theme = useTheme();
   const [inputValue, setInputValue] = useState('');
   const normalizedInputValue = normalizeWriteInName(inputValue);
-
   function onInputChange(val?: string) {
     return setInputValue(val || '');
   }
@@ -69,6 +69,24 @@ export function WriteInAdjudicationButton({
     label: name,
     value: name,
   }));
+
+  let value: string;
+  switch (status.type) {
+    case 'pending': {
+      value = '';
+      break;
+    }
+    case 'new':
+    case 'existing-official':
+    case 'existing-write-in': {
+      value = status.name;
+      break;
+    }
+    default: {
+      /* istanbul ignore next - @preserve */
+      throwIllegalValue(status, 'type');
+    }
+  }
 
   // If value has been entered and it is a new entry, add it the dropdown
   if (value && !options.some((option) => option.label === value)) {
@@ -95,7 +113,7 @@ export function WriteInAdjudicationButton({
       <RoundedCheckboxButton
         isChecked={isSelected}
         label="Write-in"
-        onChange={toggleVote}
+        onChange={() => onChange({ type: isSelected ? 'invalid' : 'pending' })}
       />
       <SearchSelect
         aria-label="Select or add write-in candidate"
