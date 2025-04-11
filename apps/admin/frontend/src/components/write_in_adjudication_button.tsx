@@ -115,10 +115,15 @@ export function WriteInAdjudicationButton({
           } else if (val === INVALID_KEY) {
             onChange({ type: 'invalid' });
           } else if (filteredNames.includes(val)) {
-            const candidate = allCandidates.find((c) => c.name === val);
+            let candidate = officialCandidates.find((c) => c.name === val);
+            const isOfficialCandidate = !!candidate;
+            if (!isOfficialCandidate) {
+              candidate = writeInCandidates.find((c) => c.name === val);
+            }
             assert(candidate !== undefined);
-            const { isWriteIn } = candidate;
-            const type = isWriteIn ? 'existing-write-in' : 'existing-official';
+            const type = isOfficialCandidate
+              ? 'existing-official'
+              : 'existing-write-in';
             onChange({ type, ...candidate });
           } else {
             onChange({ type: 'new', name: val });
