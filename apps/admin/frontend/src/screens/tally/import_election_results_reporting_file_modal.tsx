@@ -8,7 +8,6 @@ import {
   ElectronFile,
   P,
   FileInputButton,
-  UsbDriveImage,
   Loading,
 } from '@votingworks/ui';
 import {
@@ -132,12 +131,7 @@ export function ImportElectionsResultReportingFileModal({
     return (
       <Modal
         title="No USB Drive Detected"
-        content={
-          <P>
-            <UsbDriveImage />
-            Insert a USB drive in order to import a results file.
-          </P>
-        }
+        content={<P>Insert a USB drive in order to import a results file.</P>}
         onOverlayClick={onClose}
         actions={
           <React.Fragment>
