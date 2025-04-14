@@ -466,6 +466,13 @@ function BallotMeasureContest({
               tableBorderColor={Colors.DARKER_GRAY}
               tableHeaderBackgroundColor={Colors.LIGHT_GRAY}
             >
+              {/* The logic to split long ballot measures across pages
+              manipulates `contest.description`, but doesn't change
+              `Election.ballotStrings`, so we can't use the usual
+              `electionStrings.contestDescription(contest)` here, since that
+              relies on `ballotStrings`. Since we currently only support English
+              ballots, that's ok. However, if we ever support multiple
+              languages, we'll need to revisit this. */}
               <div
                 className="contestDescription"
                 dangerouslySetInnerHTML={{ __html: contest.description }}
