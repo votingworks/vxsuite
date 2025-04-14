@@ -42,7 +42,7 @@ vi.setConfig({
 });
 
 test('check in a voter', async () => {
-  await withApp(async ({ apiClient, workspace, mockPrinterHandler }) => {
+  await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
     const testVoters = parseVotersFromCsvString(
       electionFamousNames2021Fixtures.pollbookVoters.asText()
     );
@@ -55,7 +55,7 @@ test('check in a voter', async () => {
       testVoters
     );
     mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
-    const votersAbigail = await apiClient.searchVoters({
+    const votersAbigail = await localApiClient.searchVoters({
       searchParams: {
         firstName: 'Abigail',
         lastName: 'Adams',
@@ -68,13 +68,13 @@ test('check in a voter', async () => {
     const firstVoter = (votersAbigail as Voter[])[0];
     const secondVoter = (votersAbigail as Voter[])[1];
 
-    const checkInResult = await apiClient.checkInVoter({
+    const checkInResult = await localApiClient.checkInVoter({
       voterId: firstVoter.voterId,
       identificationMethod: { type: 'default' },
     });
     expect(checkInResult.ok()).toEqual(undefined);
 
-    const updatedFirstVoter = await apiClient.getVoter({
+    const updatedFirstVoter = await localApiClient.getVoter({
       voterId: firstVoter.voterId,
     });
     expect(updatedFirstVoter.checkIn).toEqual({
@@ -89,13 +89,13 @@ test('check in a voter', async () => {
     await expect(receiptPdfPath).toMatchPdfSnapshot();
 
     // Check in with out-of-state driver's license
-    const checkInResultOos = await apiClient.checkInVoter({
+    const checkInResultOos = await localApiClient.checkInVoter({
       voterId: secondVoter.voterId,
       identificationMethod: { type: 'outOfStateLicense', state: 'CA' },
     });
     expect(checkInResultOos.ok()).toEqual(undefined);
 
-    const updatedSecondVoterOos = await apiClient.getVoter({
+    const updatedSecondVoterOos = await localApiClient.getVoter({
       voterId: secondVoter.voterId,
     });
     expect(updatedSecondVoterOos.checkIn).toEqual({
@@ -112,7 +112,7 @@ test('check in a voter', async () => {
 });
 
 test('register a voter', async () => {
-  await withApp(async ({ apiClient, workspace, mockPrinterHandler }) => {
+  await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
     const testStreets = parseValidStreetsFromCsvString(
       electionFamousNames2021Fixtures.pollbookStreetNames.asText()
     );
@@ -141,7 +141,7 @@ test('register a voter', async () => {
       party: 'REP',
     };
 
-    const registerResult = await apiClient.registerVoter({
+    const registerResult = await localApiClient.registerVoter({
       registrationData,
     });
     expect(registerResult).toMatchObject({
@@ -155,13 +155,13 @@ test('register a voter', async () => {
     await expect(receiptPdfPath).toMatchPdfSnapshot();
 
     // Check in the registered voter
-    const checkInResult = await apiClient.checkInVoter({
+    const checkInResult = await localApiClient.checkInVoter({
       voterId: registerResult.voterId,
       identificationMethod: { type: 'default' },
     });
     expect(checkInResult.ok()).toEqual(undefined);
 
-    const updatedVoter = await apiClient.getVoter({
+    const updatedVoter = await localApiClient.getVoter({
       voterId: registerResult.voterId,
     });
     expect(updatedVoter.checkIn).toEqual({
@@ -175,7 +175,7 @@ test('register a voter', async () => {
     expect(checkInReceiptPdfPath).toBeDefined();
     await expect(checkInReceiptPdfPath).toMatchPdfSnapshot();
 
-    const votersEagen = await apiClient.searchVoters({
+    const votersEagen = await localApiClient.searchVoters({
       searchParams: {
         firstName: 'H',
         lastName: 'Eagen',
@@ -198,7 +198,7 @@ test('register a voter', async () => {
 });
 
 test('register a voter - invalid address', async () => {
-  await withApp(async ({ apiClient, workspace, mockPrinterHandler }) => {
+  await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
     const testStreets = parseValidStreetsFromCsvString(
       electionFamousNames2021Fixtures.pollbookStreetNames.asText()
     );
@@ -230,7 +230,7 @@ test('register a voter - invalid address', async () => {
     // eslint-disable-next-line no-console
     console.error = vi.fn();
     await expect(() =>
-      apiClient.registerVoter({
+      localApiClient.registerVoter({
         registrationData,
       })
     ).rejects.toThrow('Invalid voter registration');
@@ -238,7 +238,7 @@ test('register a voter - invalid address', async () => {
 });
 
 test('change a voter name', async () => {
-  await withApp(async ({ apiClient, workspace, mockPrinterHandler }) => {
+  await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
     const testVoters = parseVotersFromCsvString(
       electionFamousNames2021Fixtures.pollbookVoters.asText()
     );
@@ -252,7 +252,7 @@ test('change a voter name', async () => {
     );
     mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
 
-    const votersAbigail = await apiClient.searchVoters({
+    const votersAbigail = await localApiClient.searchVoters({
       searchParams: {
         firstName: 'Abigail',
         lastName: 'Adams',
@@ -271,7 +271,7 @@ test('change a voter name', async () => {
       suffix: 'Jr',
     };
 
-    const changeNameResult = await apiClient.changeVoterName({
+    const changeNameResult = await localApiClient.changeVoterName({
       voterId: secondVoter.voterId,
       nameChangeData,
     });
@@ -285,7 +285,7 @@ test('change a voter name', async () => {
     await expect(receiptPdfPath).toMatchPdfSnapshot();
 
     // search for the voter again
-    const votersAbigail2 = await apiClient.searchVoters({
+    const votersAbigail2 = await localApiClient.searchVoters({
       searchParams: {
         firstName: 'Abigail',
         lastName: 'Adams',
@@ -299,7 +299,7 @@ test('change a voter name', async () => {
     }
 
     // search for the changed name
-    const votersBarbara = await apiClient.searchVoters({
+    const votersBarbara = await localApiClient.searchVoters({
       searchParams: {
         firstName: 'Barbara',
         lastName: 'Bee',
@@ -313,7 +313,7 @@ test('change a voter name', async () => {
 });
 
 test('undo a voter check-in', async () => {
-  await withApp(async ({ apiClient, workspace, mockPrinterHandler }) => {
+  await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
     const testVoters = parseVotersFromCsvString(
       electionFamousNames2021Fixtures.pollbookVoters.asText()
     );
@@ -327,7 +327,7 @@ test('undo a voter check-in', async () => {
     );
     mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
 
-    const votersAbigail = await apiClient.searchVoters({
+    const votersAbigail = await localApiClient.searchVoters({
       searchParams: {
         firstName: 'Abigail',
         lastName: 'Adams',
@@ -338,19 +338,19 @@ test('undo a voter check-in', async () => {
     assert(Array.isArray(votersAbigail));
     const firstVoter = (votersAbigail as Voter[])[0];
 
-    const checkInResult = await apiClient.checkInVoter({
+    const checkInResult = await localApiClient.checkInVoter({
       voterId: firstVoter.voterId,
       identificationMethod: { type: 'default' },
     });
     expect(checkInResult.isOk()).toBeTruthy();
 
-    const undoResult = await apiClient.undoVoterCheckIn({
+    const undoResult = await localApiClient.undoVoterCheckIn({
       voterId: firstVoter.voterId,
       reason: 'Mistaken identity',
     });
     expect(undoResult).toBeUndefined();
 
-    const updatedFirstVoter = await apiClient.getVoter({
+    const updatedFirstVoter = await localApiClient.getVoter({
       voterId: firstVoter.voterId,
     });
     expect(updatedFirstVoter.checkIn).toBeUndefined();
@@ -362,172 +362,179 @@ test('undo a voter check-in', async () => {
 });
 
 test('register a voter, change name and address, and check in', async () => {
-  await withApp(async ({ apiClient, workspace, mockPrinterHandler }) => {
-    const testStreets = parseValidStreetsFromCsvString(
-      electionFamousNames2021Fixtures.pollbookStreetNames.asText()
-    );
-    workspace.store.setElectionAndVoters(
-      electionFamousNames2021Fixtures.electionJson.readElection(),
-      testStreets,
-      []
-    );
-    mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+  await withApp(
+    async ({
+      localApiClient,
+      peerApiClient,
+      workspace,
+      mockPrinterHandler,
+    }) => {
+      const testStreets = parseValidStreetsFromCsvString(
+        electionFamousNames2021Fixtures.pollbookStreetNames.asText()
+      );
+      workspace.store.setElectionAndVoters(
+        electionFamousNames2021Fixtures.electionJson.readElection(),
+        testStreets,
+        []
+      );
+      mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
 
-    const registrationData: VoterRegistrationRequest = {
-      firstName: 'Harmony',
-      lastName: 'Cobel',
-      middleName: 'A',
-      suffix: 'I',
-      streetNumber: '15',
-      streetName: 'MAIN ST',
-      streetSuffix: 'B',
-      apartmentUnitNumber: '',
-      houseFractionNumber: '',
-      addressLine2: 'Line2 Test',
-      addressLine3: '',
-      city: 'Manchester',
-      state: 'NH',
-      zipCode: '03101',
-      party: 'DEM',
-    };
+      const registrationData: VoterRegistrationRequest = {
+        firstName: 'Harmony',
+        lastName: 'Cobel',
+        middleName: 'A',
+        suffix: 'I',
+        streetNumber: '15',
+        streetName: 'MAIN ST',
+        streetSuffix: 'B',
+        apartmentUnitNumber: '',
+        houseFractionNumber: '',
+        addressLine2: 'Line2 Test',
+        addressLine3: '',
+        city: 'Manchester',
+        state: 'NH',
+        zipCode: '03101',
+        party: 'DEM',
+      };
 
-    const registerResult = await apiClient.registerVoter({
-      registrationData,
-    });
-    expect(registerResult).toMatchObject({
-      firstName: 'Harmony',
-      lastName: 'Cobel',
-      party: 'DEM',
-    });
-    const registerReceiptPdfPath = mockPrinterHandler.getLastPrintPath();
-    expect(registerReceiptPdfPath).toBeDefined();
-    await expect(registerReceiptPdfPath).toMatchPdfSnapshot();
+      const registerResult = await localApiClient.registerVoter({
+        registrationData,
+      });
+      expect(registerResult).toMatchObject({
+        firstName: 'Harmony',
+        lastName: 'Cobel',
+        party: 'DEM',
+      });
+      const registerReceiptPdfPath = mockPrinterHandler.getLastPrintPath();
+      expect(registerReceiptPdfPath).toBeDefined();
+      await expect(registerReceiptPdfPath).toMatchPdfSnapshot();
 
-    const nameChangeData: VoterNameChangeRequest = {
-      firstName: 'John',
-      lastName: 'Smith',
-      middleName: '',
-      suffix: '',
-    };
+      const nameChangeData: VoterNameChangeRequest = {
+        firstName: 'John',
+        lastName: 'Smith',
+        middleName: '',
+        suffix: '',
+      };
 
-    const nameChangeResult = await apiClient.changeVoterName({
-      voterId: registerResult.voterId,
-      nameChangeData,
-    });
-    expect(nameChangeResult.nameChange).toEqual({
-      ...nameChangeData,
-      timestamp: expect.any(String),
-    });
-    const nameChangeReceiptPdfPath = mockPrinterHandler.getLastPrintPath();
-    expect(nameChangeReceiptPdfPath).toBeDefined();
-    await expect(nameChangeReceiptPdfPath).toMatchPdfSnapshot();
+      const nameChangeResult = await localApiClient.changeVoterName({
+        voterId: registerResult.voterId,
+        nameChangeData,
+      });
+      expect(nameChangeResult.nameChange).toEqual({
+        ...nameChangeData,
+        timestamp: expect.any(String),
+      });
+      const nameChangeReceiptPdfPath = mockPrinterHandler.getLastPrintPath();
+      expect(nameChangeReceiptPdfPath).toBeDefined();
+      await expect(nameChangeReceiptPdfPath).toMatchPdfSnapshot();
 
-    // Change name again
-    const nameChangeData2: VoterNameChangeRequest = {
-      firstName: 'Harmonie',
-      lastName: 'Kobell',
-      middleName: 'A',
-      suffix: 'II',
-    };
+      // Change name again
+      const nameChangeData2: VoterNameChangeRequest = {
+        firstName: 'Harmonie',
+        lastName: 'Kobell',
+        middleName: 'A',
+        suffix: 'II',
+      };
 
-    const nameChangeResult2 = await apiClient.changeVoterName({
-      voterId: registerResult.voterId,
-      nameChangeData: nameChangeData2,
-    });
-    expect(nameChangeResult2.nameChange).toEqual({
-      ...nameChangeData2,
-      timestamp: expect.any(String),
-    });
-    const nameChangeReceiptPdfPath2 = mockPrinterHandler.getLastPrintPath();
-    expect(nameChangeReceiptPdfPath2).toBeDefined();
-    await expect(nameChangeReceiptPdfPath2).toMatchPdfSnapshot();
-
-    const addressChangeData: VoterAddressChangeRequest = {
-      streetName: 'ELM ST',
-      streetNumber: '20',
-      streetSuffix: '',
-      apartmentUnitNumber: '',
-      houseFractionNumber: '',
-      addressLine2: '',
-      addressLine3: '',
-      city: 'Manchester',
-      state: 'NH',
-      zipCode: '03101',
-    };
-
-    const addressChangeResult = await apiClient.changeVoterAddress({
-      voterId: registerResult.voterId,
-      addressChangeData,
-    });
-    expect(addressChangeResult.addressChange).toEqual({
-      ...addressChangeData,
-      timestamp: expect.any(String),
-    });
-    const addressReceiptPdfPath = mockPrinterHandler.getLastPrintPath();
-    expect(addressReceiptPdfPath).toBeDefined();
-    await expect(addressReceiptPdfPath).toMatchPdfSnapshot();
-
-    // Change the address again
-    const addressChangeData2: VoterAddressChangeRequest = {
-      ...addressChangeData,
-      streetSuffix: 'B',
-      apartmentUnitNumber: '2B',
-      addressLine2: 'this is a second line',
-    };
-    const addressChange2Result = await apiClient.changeVoterAddress({
-      voterId: registerResult.voterId,
-      addressChangeData: addressChangeData2,
-    });
-    expect(addressChange2Result.addressChange).toEqual({
-      ...addressChangeData2,
-      timestamp: expect.any(String),
-    });
-    const addressReceiptPdfPath2 = mockPrinterHandler.getLastPrintPath();
-    expect(addressReceiptPdfPath2).toBeDefined();
-    await expect(addressReceiptPdfPath2).toMatchPdfSnapshot();
-
-    // Check in the voter after changes
-    const checkInResult = await apiClient.checkInVoter({
-      voterId: registerResult.voterId,
-      identificationMethod: { type: 'default' },
-    });
-    expect(checkInResult.ok()).toEqual(undefined);
-
-    const updatedVoter = await apiClient.getVoter({
-      voterId: registerResult.voterId,
-    });
-    expect(updatedVoter).toEqual({
-      ...registerResult,
-      nameChange: {
+      const nameChangeResult2 = await localApiClient.changeVoterName({
+        voterId: registerResult.voterId,
+        nameChangeData: nameChangeData2,
+      });
+      expect(nameChangeResult2.nameChange).toEqual({
         ...nameChangeData2,
         timestamp: expect.any(String),
-      },
-      addressChange: {
+      });
+      const nameChangeReceiptPdfPath2 = mockPrinterHandler.getLastPrintPath();
+      expect(nameChangeReceiptPdfPath2).toBeDefined();
+      await expect(nameChangeReceiptPdfPath2).toMatchPdfSnapshot();
+
+      const addressChangeData: VoterAddressChangeRequest = {
+        streetName: 'ELM ST',
+        streetNumber: '20',
+        streetSuffix: '',
+        apartmentUnitNumber: '',
+        houseFractionNumber: '',
+        addressLine2: '',
+        addressLine3: '',
+        city: 'Manchester',
+        state: 'NH',
+        zipCode: '03101',
+      };
+
+      const addressChangeResult = await localApiClient.changeVoterAddress({
+        voterId: registerResult.voterId,
+        addressChangeData,
+      });
+      expect(addressChangeResult.addressChange).toEqual({
+        ...addressChangeData,
+        timestamp: expect.any(String),
+      });
+      const addressReceiptPdfPath = mockPrinterHandler.getLastPrintPath();
+      expect(addressReceiptPdfPath).toBeDefined();
+      await expect(addressReceiptPdfPath).toMatchPdfSnapshot();
+
+      // Change the address again
+      const addressChangeData2: VoterAddressChangeRequest = {
+        ...addressChangeData,
+        streetSuffix: 'B',
+        apartmentUnitNumber: '2B',
+        addressLine2: 'this is a second line',
+      };
+      const addressChange2Result = await localApiClient.changeVoterAddress({
+        voterId: registerResult.voterId,
+        addressChangeData: addressChangeData2,
+      });
+      expect(addressChange2Result.addressChange).toEqual({
         ...addressChangeData2,
         timestamp: expect.any(String),
-      },
-      checkIn: {
+      });
+      const addressReceiptPdfPath2 = mockPrinterHandler.getLastPrintPath();
+      expect(addressReceiptPdfPath2).toBeDefined();
+      await expect(addressReceiptPdfPath2).toMatchPdfSnapshot();
+
+      // Check in the voter after changes
+      const checkInResult = await localApiClient.checkInVoter({
+        voterId: registerResult.voterId,
         identificationMethod: { type: 'default' },
-        isAbsentee: false,
-        timestamp: expect.any(String),
-        machineId: 'test',
-      },
-    });
+      });
+      expect(checkInResult.ok()).toEqual(undefined);
 
-    const checkInReceiptPdfPath = mockPrinterHandler.getLastPrintPath();
-    expect(checkInReceiptPdfPath).toBeDefined();
-    await expect(checkInReceiptPdfPath).toMatchPdfSnapshot();
+      const updatedVoter = await localApiClient.getVoter({
+        voterId: registerResult.voterId,
+      });
+      expect(updatedVoter).toEqual({
+        ...registerResult,
+        nameChange: {
+          ...nameChangeData2,
+          timestamp: expect.any(String),
+        },
+        addressChange: {
+          ...addressChangeData2,
+          timestamp: expect.any(String),
+        },
+        checkIn: {
+          identificationMethod: { type: 'default' },
+          isAbsentee: false,
+          timestamp: expect.any(String),
+          machineId: 'test',
+        },
+      });
 
-    const eventsResult = await apiClient.getEvents({
-      lastEventSyncedPerNode: {},
-    });
-    expect(eventsResult.hasMore).toEqual(false);
-    expect(eventsResult.events).toHaveLength(6);
-  });
+      const checkInReceiptPdfPath = mockPrinterHandler.getLastPrintPath();
+      expect(checkInReceiptPdfPath).toBeDefined();
+      await expect(checkInReceiptPdfPath).toMatchPdfSnapshot();
+
+      const eventsResult = await peerApiClient.getEvents({
+        lastEventSyncedPerNode: {},
+      });
+      expect(eventsResult.hasMore).toEqual(false);
+      expect(eventsResult.events).toHaveLength(6);
+    }
+  );
 });
 
 test('check in, change name, undo check-in, change address, and check in again', async () => {
-  await withApp(async ({ apiClient, workspace, mockPrinterHandler }) => {
+  await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
     const testVoters = parseVotersFromCsvString(
       electionFamousNames2021Fixtures.pollbookVoters.asText()
     );
@@ -541,9 +548,11 @@ test('check in, change name, undo check-in, change address, and check in again',
     );
     mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
 
-    const result = await apiClient.setIsAbsenteeMode({ isAbsenteeMode: true });
+    const result = await localApiClient.setIsAbsenteeMode({
+      isAbsenteeMode: true,
+    });
     expect(result).toEqual(undefined);
-    const votersAbigail = await apiClient.searchVoters({
+    const votersAbigail = await localApiClient.searchVoters({
       searchParams: {
         firstName: 'Abigail',
         lastName: 'Adams',
@@ -555,7 +564,7 @@ test('check in, change name, undo check-in, change address, and check in again',
     const firstVoter = (votersAbigail as Voter[])[0];
 
     // Initial check-in
-    const checkInResult = await apiClient.checkInVoter({
+    const checkInResult = await localApiClient.checkInVoter({
       voterId: firstVoter.voterId,
       identificationMethod: { type: 'default' },
     });
@@ -568,7 +577,7 @@ test('check in, change name, undo check-in, change address, and check in again',
       suffix: '',
     };
 
-    const nameChangeResult = await apiClient.changeVoterName({
+    const nameChangeResult = await localApiClient.changeVoterName({
       voterId: firstVoter.voterId,
       nameChangeData,
     });
@@ -578,7 +587,7 @@ test('check in, change name, undo check-in, change address, and check in again',
     });
 
     // Undo check-in
-    const undoResult = await apiClient.undoVoterCheckIn({
+    const undoResult = await localApiClient.undoVoterCheckIn({
       voterId: firstVoter.voterId,
       reason: 'Mistaken identity',
     });
@@ -597,7 +606,7 @@ test('check in, change name, undo check-in, change address, and check in again',
       zipCode: '03101',
     };
 
-    const addressChangeResult = await apiClient.changeVoterAddress({
+    const addressChangeResult = await localApiClient.changeVoterAddress({
       voterId: firstVoter.voterId,
       addressChangeData,
     });
@@ -607,13 +616,13 @@ test('check in, change name, undo check-in, change address, and check in again',
     });
 
     // Final check-in
-    const finalCheckInResult = await apiClient.checkInVoter({
+    const finalCheckInResult = await localApiClient.checkInVoter({
       voterId: firstVoter.voterId,
       identificationMethod: { type: 'default' },
     });
     expect(finalCheckInResult.ok()).toEqual(undefined);
 
-    const finalUpdatedVoter = await apiClient.getVoter({
+    const finalUpdatedVoter = await localApiClient.getVoter({
       voterId: firstVoter.voterId,
     });
     expect(finalUpdatedVoter.checkIn).toEqual({
@@ -630,7 +639,7 @@ test('check in, change name, undo check-in, change address, and check in again',
 });
 
 test('change a voter address with various formats', async () => {
-  await withApp(async ({ apiClient, workspace, mockPrinterHandler }) => {
+  await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
     const testVoters = parseVotersFromCsvString(
       electionFamousNames2021Fixtures.pollbookVoters.asText()
     );
@@ -644,7 +653,7 @@ test('change a voter address with various formats', async () => {
     );
     mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
 
-    const votersAbigail = await apiClient.searchVoters({
+    const votersAbigail = await localApiClient.searchVoters({
       searchParams: {
         firstName: 'Abigail',
         lastName: 'Adams',
@@ -683,7 +692,7 @@ test('change a voter address with various formats', async () => {
     ];
 
     for (const addressChangeData of addressChangeDataVariants) {
-      const changeAddressResult = await apiClient.changeVoterAddress({
+      const changeAddressResult = await localApiClient.changeVoterAddress({
         voterId: thirdVoter.voterId,
         addressChangeData,
       });

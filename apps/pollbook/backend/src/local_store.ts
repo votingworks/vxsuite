@@ -1,9 +1,8 @@
 import { BaseLogger } from '@votingworks/logging';
 import { Client as DbClient } from '@votingworks/db';
 import { safeParseJson } from '@votingworks/types';
-import { groupBy, typedAs } from '@votingworks/basics';
+import { assert, groupBy, typedAs } from '@votingworks/basics';
 import { SqliteBool, fromSqliteBool, asSqliteBool } from '@votingworks/utils';
-import assert from 'node:assert';
 import debug from 'debug';
 import { generateId, SchemaPath, sortedByVoterName, Store } from './store';
 import {
@@ -248,41 +247,6 @@ export class LocalStore extends Store {
 
     // Return the sorted list of voters
     return sortedByVoterName(Object.values(updatedVoters));
-  }
-
-  getVoter(voterId: string): Voter {
-    const voterRows = this.client.all(
-      `
-            SELECT v.voter_data
-            FROM voters v
-            WHERE voter_id = ?
-            `,
-      voterId
-    ) as Array<{ voter_data: string }>;
-
-    assert(voterRows.length === 1, `Voter with ID ${voterId} not found.`);
-    const voter = safeParseJson(
-      voterRows[0].voter_data,
-      VoterSchema
-    ).unsafeUnwrap();
-
-    const eventRows = this.client.all(
-      `
-            SELECT *
-            FROM event_log
-            WHERE voter_id = ?
-            ORDER BY physical_time, logical_counter, machine_id
-            `,
-      voterId
-    ) as EventDbRow[];
-
-    const events = convertDbRowsToPollbookEvents(eventRows);
-    const updatedVoters = applyPollbookEventsToVoters(
-      { [voterId]: voter },
-      events
-    );
-
-    return updatedVoters[voterId];
   }
 
   recordVoterCheckIn({

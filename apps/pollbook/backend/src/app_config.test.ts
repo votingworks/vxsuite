@@ -61,8 +61,8 @@ test('uses machine config from env', async () => {
     VX_CODE_VERSION: 'test-code-version',
   };
 
-  await withApp(async ({ apiClient }) => {
-    expect(await apiClient.getMachineConfig()).toEqual({
+  await withApp(async ({ localApiClient }) => {
+    expect(await localApiClient.getMachineConfig()).toEqual({
       machineId: 'test-machine-id',
       codeVersion: 'test-code-version',
     });
@@ -72,46 +72,46 @@ test('uses machine config from env', async () => {
 });
 
 test('app config - unhappy paths polling usb', async () => {
-  await withApp(async ({ apiClient, mockUsbDrive, auth }) => {
-    expect(await apiClient.getElection()).toEqual(err('unconfigured'));
+  await withApp(async ({ localApiClient, mockUsbDrive, auth }) => {
+    expect(await localApiClient.getElection()).toEqual(err('unconfigured'));
     // Add an invalid pollbook package to the USB drive
     mockUsbDrive.insertUsbDrive({});
     // Advance timers and wait for the interval to trigger
     vitest.advanceTimersByTime(100);
 
     // Check that we are still unconfigured since the pollbook-package was invalid
-    expect(await apiClient.getElection()).toEqual(err('unconfigured'));
+    expect(await localApiClient.getElection()).toEqual(err('unconfigured'));
 
     mockElectionManagerAuth(auth);
     vitest.advanceTimersByTime(100);
-    expect(await apiClient.getElection()).toEqual(err('not-found'));
+    expect(await localApiClient.getElection()).toEqual(err('not-found'));
 
     mockUsbDrive.insertUsbDrive({
       'invalid-pollbook-package-path.zip': Buffer.from('invalid'),
     });
     vi.advanceTimersByTime(100);
-    expect(await apiClient.getElection()).toEqual(err('not-found'));
+    expect(await localApiClient.getElection()).toEqual(err('not-found'));
 
     mockUsbDrive.removeUsbDrive();
     vi.advanceTimersByTime(100);
-    expect(await apiClient.getElection()).toEqual(err('unconfigured'));
+    expect(await localApiClient.getElection()).toEqual(err('unconfigured'));
 
     mockUsbDrive.insertUsbDrive({
       'pollbook-package.zip': Buffer.from('invalid'),
     });
     vi.advanceTimersByTime(100);
     await allowRealTimeToPass();
-    expect(await apiClient.getElection()).toEqual(err('not-found'));
+    expect(await localApiClient.getElection()).toEqual(err('not-found'));
   });
 });
 
 test('app config - happy path polling usb from backend', async () => {
-  await withApp(async ({ apiClient, mockUsbDrive, auth }) => {
-    expect(await apiClient.getElection()).toEqual(err('unconfigured'));
+  await withApp(async ({ localApiClient, mockUsbDrive, auth }) => {
+    expect(await localApiClient.getElection()).toEqual(err('unconfigured'));
 
     mockElectionManagerAuth(auth);
     vitest.advanceTimersByTime(200);
-    expect(await apiClient.getElection()).toEqual(err('unconfigured'));
+    expect(await localApiClient.getElection()).toEqual(err('unconfigured'));
 
     // Add a valid pollbook package to the USB drive
     mockUsbDrive.insertUsbDrive(
@@ -122,10 +122,10 @@ test('app config - happy path polling usb from backend', async () => {
       )
     );
     vitest.advanceTimersByTime(100);
-    expect(await apiClient.getElection()).toEqual(err('loading'));
+    expect(await localApiClient.getElection()).toEqual(err('loading'));
     // Allow time for the pollbook package to be read
     await allowRealTimeToPass();
-    const result = await apiClient.getElection();
+    const result = await localApiClient.getElection();
     // Configured for proper election
     expect(result.unsafeUnwrap().id).toEqual(
       electionFamousNames2021Fixtures.electionJson.readElection().id
