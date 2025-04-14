@@ -395,6 +395,20 @@ export const nhGeneralElectionFixtures = (() => {
         ...baseElection.ballotLayout,
         paperSize,
       },
+      // Make one ballot measure description too long to fit on one page to test
+      // that it gets split onto multiple pages
+      contests: baseElection.contests.map((contest) =>
+        contest.id === 'proposition-1' && contest.type === 'yesno'
+          ? {
+              ...contest,
+              description: iter([contest.description])
+                .cycle()
+                .take(5)
+                .toArray()
+                .join(''),
+            }
+          : contest
+      ),
     };
     const electionPath = join(electionDir, 'election.json');
     const blankBallotPath = join(electionDir, 'blank-ballot.pdf');
