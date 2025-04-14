@@ -1159,7 +1159,7 @@ function setupLogging(
         );
       } else {
         // Non-user driven events can be logged with a user of 'system'
-        await logger.log(
+        logger.log(
           LogEventId.ScannerEvent,
           'system',
           { message: `Event: ${event.type}`, eventObject: eventString },
@@ -1167,7 +1167,7 @@ function setupLogging(
         );
       }
     })
-    .onChange(async (context, previousContext) => {
+    .onChange((context, previousContext) => {
       /* istanbul ignore next */
       if (!previousContext) return;
       const changed = Object.entries(context).filter(
@@ -1178,7 +1178,7 @@ function setupLogging(
         Object.fromEntries(changed),
         cleanLogData
       );
-      await logger.log(
+      logger.log(
         LogEventId.ScannerStateChanged,
         'system',
         {
@@ -1188,9 +1188,9 @@ function setupLogging(
         () => debug(`Context updated: ${contextString}`)
       );
     })
-    .onTransition(async (state) => {
+    .onTransition((state) => {
       if (!state.changed) return;
-      await logger.log(
+      logger.log(
         LogEventId.ScannerStateChanged,
         'system',
         {

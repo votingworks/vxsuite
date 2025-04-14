@@ -1,16 +1,16 @@
 import { BaseLogger, LogEventId } from '@votingworks/logging';
 import { PrinterStatus } from './types';
 
-export async function logPrinterStatusIfChanged(
+export function logPrinterStatusIfChanged(
   logger: BaseLogger,
   previousStatus?: PrinterStatus,
   newStatus?: PrinterStatus
-): Promise<void> {
+): void {
   if (!previousStatus && !newStatus) {
     return;
   }
   if (!previousStatus) {
-    await logger.log(LogEventId.PrinterStatusChanged, 'system', {
+    logger.log(LogEventId.PrinterStatusChanged, 'system', {
       message: `Printer Status initiated with ${JSON.stringify(newStatus)}`,
       status: JSON.stringify(newStatus),
       disposition:
@@ -19,14 +19,14 @@ export async function logPrinterStatusIfChanged(
     return;
   }
   if (!newStatus) {
-    await logger.log(LogEventId.PrinterStatusChanged, 'system', {
+    logger.log(LogEventId.PrinterStatusChanged, 'system', {
       message: `Printer status disconnected.`,
       disposition: 'failure',
     });
     return;
   }
   if (previousStatus.state !== newStatus.state) {
-    await logger.log(LogEventId.PrinterStatusChanged, 'system', {
+    logger.log(LogEventId.PrinterStatusChanged, 'system', {
       message: `Printer Status updated from ${JSON.stringify(
         previousStatus
       )} to ${JSON.stringify(newStatus)}`,
@@ -38,7 +38,7 @@ export async function logPrinterStatusIfChanged(
     newStatus.state === 'error' &&
     previousStatus.type !== newStatus.type
   ) {
-    await logger.log(LogEventId.PrinterStatusChanged, 'system', {
+    logger.log(LogEventId.PrinterStatusChanged, 'system', {
       message: `Printer Status updated from ${JSON.stringify(
         previousStatus
       )} to ${JSON.stringify(newStatus)}`,

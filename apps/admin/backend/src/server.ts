@@ -63,7 +63,7 @@ export async function start({
   if (!resolvedWorkspace) {
     const workspacePath = ADMIN_WORKSPACE;
     if (!workspacePath) {
-      await baseLogger.log(LogEventId.WorkspaceConfigurationMessage, 'system', {
+      baseLogger.log(LogEventId.WorkspaceConfigurationMessage, 'system', {
         message:
           'workspace path could not be determined; pass a workspace or run with ADMIN_WORKSPACE',
         disposition: 'failure',
@@ -121,8 +121,8 @@ export async function start({
   // restore could complete.
   await manageOpensslConfig('restore-default', { addSudo: true });
 
-  const server = resolvedApp.listen(port, async () => {
-    await baseLogger.log(LogEventId.ApplicationStartup, 'system', {
+  const server = resolvedApp.listen(port, () => {
+    baseLogger.log(LogEventId.ApplicationStartup, 'system', {
       message: `Admin Service running at http://localhost:${port}/`,
       disposition: 'success',
     });

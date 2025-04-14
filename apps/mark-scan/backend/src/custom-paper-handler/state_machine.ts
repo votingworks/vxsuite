@@ -488,7 +488,7 @@ export function buildMachine(
 
           return { type: 'PAT_DEVICE_NO_STATUS_CHANGE' };
         } catch (err) {
-          await logger.log(LogEventId.PatDeviceError, 'system', {
+          logger.log(LogEventId.PatDeviceError, 'system', {
             error: extractErrorMessage(err),
             disposition: 'failure',
           });
@@ -528,7 +528,7 @@ export function buildMachine(
           /* istanbul ignore next - unreachable if exhaustive - @preserve */
           return { type: 'AUTH_STATUS_UNHANDLED' };
         } catch (err) {
-          await logger.log(LogEventId.UnknownError, 'system', {
+          logger.log(LogEventId.UnknownError, 'system', {
             message: extractErrorMessage(err),
             stack: err instanceof Error ? err.stack : undefined,
             disposition: 'failure',
@@ -835,7 +835,7 @@ export function buildMachine(
                   // To work around this, we avoid ejecting to front. Instead, we present the paper so it's held by the device in a
                   // stable non-jam state. We instruct the poll worker to remove the paper directly from the 'presenting' state.
                   entry: async (context) => {
-                    await context.logger.log(
+                    context.logger.log(
                       LogEventId.BlankInterpretation,
                       'system'
                     );
@@ -1301,17 +1301,15 @@ export function buildMachine(
                     message: diagnosticError.message,
                   });
 
-                  return context.logger.log(
-                    LogEventId.DiagnosticComplete,
-                    'system',
-                    {
-                      disposition: 'failure',
-                      message: JSON.stringify({
-                        message: diagnosticError.message,
-                        cause: diagnosticError.cause,
-                      }),
-                    }
-                  );
+                  context.logger.log(LogEventId.DiagnosticComplete, 'system', {
+                    disposition: 'failure',
+                    message: JSON.stringify({
+                      message: diagnosticError.message,
+                      cause: diagnosticError.cause,
+                    }),
+                  });
+
+                  return Promise.resolve();
                 },
               },
               // No local transition defined. The frontend is expected to send a
@@ -1378,8 +1376,8 @@ export function buildMachine(
             scannedBallotImagePath: undefined,
           });
         },
-        endCardlessVoterAuth: async (context) => {
-          await auth.endCardlessVoterSession(
+        endCardlessVoterAuth: (context) => {
+          auth.endCardlessVoterSession(
             constructAuthMachineState(context.workspace)
           );
         },
@@ -1420,7 +1418,7 @@ function setUpLogging(
           );
         } else {
           // Non-user driven events can be logged with a user of 'system'
-          await logger.log(
+          logger.log(
             LogEventId.MarkScanStateMachineEvent,
             'system',
             { message: `Event: ${event.type}` },
@@ -1430,7 +1428,7 @@ function setUpLogging(
         }
       }
     })
-    .onChange(async (context, previousContext) => {
+    .onChange((context, previousContext) => {
       if (!previousContext) return;
       const changed = Object.entries(context)
         .filter(
@@ -1463,7 +1461,7 @@ function setUpLogging(
         ]);
 
       if (changed.length === 0) return;
-      await logger.log(
+      logger.log(
         LogEventId.PaperHandlerStateChanged,
         'system',
         {
@@ -1474,9 +1472,9 @@ function setUpLogging(
         () => debug('Context updated: %o', Object.fromEntries(changed))
       );
     })
-    .onTransition(async (state) => {
+    .onTransition((state) => {
       if (!state.changed) return;
-      await logger.log(
+      logger.log(
         LogEventId.PaperHandlerStateChanged,
         'system',
         {
@@ -1693,7 +1691,7 @@ export async function getPaperHandlerStateMachine({
       machineService.send({
         type: 'VOTER_VALIDATED_BALLOT',
       });
-      void logger.log(LogEventId.VoteCast, 'cardless_voter');
+      logger.log(LogEventId.VoteCast, 'cardless_voter');
     },
 
     invalidateBallot(): void {
@@ -1701,7 +1699,7 @@ export async function getPaperHandlerStateMachine({
         type: 'VOTER_INVALIDATED_BALLOT',
       });
 
-      void logger.log(LogEventId.BallotInvalidated, 'cardless_voter');
+      logger.log(LogEventId.BallotInvalidated, 'cardless_voter');
     },
 
     setPatDeviceIsCalibrated(): void {

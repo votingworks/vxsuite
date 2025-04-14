@@ -48,7 +48,7 @@ export function detectPrinter(logger: BaseLogger): Printer {
         // check if the printer was disconnected
         if (!justPrinted && !printerDetected) {
           debug('printer disconnected');
-          void logger.log(LogEventId.PrinterConfigurationRemoved, 'system', {
+          logger.log(LogEventId.PrinterConfigurationRemoved, 'system', {
             message: 'The previously configured printer is no longer detected.',
             uri: printerDevice.uri,
           });
@@ -62,7 +62,7 @@ export function detectPrinter(logger: BaseLogger): Printer {
           const config = getPrinterConfig(uri);
           if (config) {
             debug('supported printer attached: %s', uri);
-            void logger.log(LogEventId.PrinterConfigurationAdded, 'system', {
+            logger.log(LogEventId.PrinterConfigurationAdded, 'system', {
               message:
                 'A supported printer was discovered and configured for use.',
               uri,

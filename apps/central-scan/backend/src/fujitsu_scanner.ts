@@ -179,7 +179,7 @@ export class FujitsuScanner implements BatchScanner {
       args.push('--mode', this.mode);
     }
 
-    void this.logger.log(
+    this.logger.log(
       LogEventId.FujitsuScanInit,
       'system',
       {
@@ -195,7 +195,7 @@ export class FujitsuScanner implements BatchScanner {
     let done = false;
     const scanimage = streamExecFile('scanimage', args);
 
-    void this.logger.log(
+    this.logger.log(
       LogEventId.FujitsuScanInit,
       'system',
       {
@@ -207,7 +207,7 @@ export class FujitsuScanner implements BatchScanner {
     assert(scanimage.stdout);
     new StreamLines(scanimage.stdout).on('line', (line: string) => {
       const path = line.trim();
-      void this.logger.log(
+      this.logger.log(
         LogEventId.FujitsuScanImageScanned,
         'system',
         {
@@ -241,7 +241,7 @@ export class FujitsuScanner implements BatchScanner {
 
     assert(scanimage.stderr);
     new StreamLines(scanimage.stderr).on('line', (line: string) => {
-      void this.logger.log(
+      this.logger.log(
         LogEventId.FujitsuScanMessage,
         'system',
         {
@@ -254,7 +254,7 @@ export class FujitsuScanner implements BatchScanner {
     scanimage.once('exit', (code) => {
       done = true;
       if (code !== 0) {
-        void this.logger.log(
+        this.logger.log(
           LogEventId.FujitsuScanBatchComplete,
           'system',
           {
@@ -265,7 +265,7 @@ export class FujitsuScanner implements BatchScanner {
         );
         results.rejectAll(new Error(`scanimage exited with code=${code}`));
       } else {
-        void this.logger.log(
+        this.logger.log(
           LogEventId.FujitsuScanBatchComplete,
           'system',
           {
@@ -294,7 +294,7 @@ export class FujitsuScanner implements BatchScanner {
       endBatch: async (): Promise<void> => {
         if (!done) {
           done = true;
-          void this.logger.log(
+          this.logger.log(
             LogEventId.FujitsuScanBatchComplete,
             'system',
             {

@@ -289,10 +289,10 @@ export function buildApi(
       assertDefined(stateMachine).returnPreprintedBallot();
     },
 
-    async confirmInvalidateBallot(): Promise<void> {
+    confirmInvalidateBallot(): void {
       assert(stateMachine);
 
-      await logger.log(LogEventId.BallotInvalidated, 'poll_worker');
+      logger.log(LogEventId.BallotInvalidated, 'poll_worker');
 
       stateMachine.confirmInvalidateBallot();
     },
@@ -308,7 +308,7 @@ export function buildApi(
       workspace.store.setBallotsCastSinceLastBoxChange(0);
       stateMachine.confirmBallotBoxEmptied();
 
-      await logger.log(LogEventId.BallotBoxEmptied, 'poll_worker');
+      logger.log(LogEventId.BallotBoxEmptied, 'poll_worker');
     },
 
     ...createUiStringsApi({

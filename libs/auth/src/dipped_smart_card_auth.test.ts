@@ -412,7 +412,7 @@ test.each<{
       }
     );
 
-    await auth.logOut(defaultMachineState);
+    auth.logOut(defaultMachineState);
     expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
       status: 'logged_out',
       reason: 'machine_locked',

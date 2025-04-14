@@ -18,13 +18,13 @@ export async function runCardReadAndUsbDriveWriteLoop({
   workspace,
 }: ServerContext): Promise<void> {
   void cardTask.waitUntilIsStopped().then((reason) => {
-    void logger.log(LogEventId.BackgroundTaskCancelled, 'system', {
+    logger.log(LogEventId.BackgroundTaskCancelled, 'system', {
       message: `Card read loop stopping. Reason: ${reason}`,
     });
   });
 
   void usbDriveTask.waitUntilIsStopped().then((reason) => {
-    void logger.log(LogEventId.BackgroundTaskCancelled, 'system', {
+    logger.log(LogEventId.BackgroundTaskCancelled, 'system', {
       message: `USB drive write loop stopping. Reason: ${reason}`,
     });
   });

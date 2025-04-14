@@ -22,10 +22,10 @@ loadEnvVarsFromDotenvFiles();
 
 const logger = new BaseLogger(LogSource.VxMarkScanBackend);
 
-async function resolveWorkspace(): Promise<Workspace> {
+function resolveWorkspace(): Workspace {
   const workspacePath = MARK_SCAN_WORKSPACE;
   if (!workspacePath) {
-    await logger.log(LogEventId.WorkspaceConfigurationMessage, 'system', {
+    logger.log(LogEventId.WorkspaceConfigurationMessage, 'system', {
       message:
         'workspace path could not be determined; pass a workspace or run with MARK_SCAN_WORKSPACE',
       disposition: 'failure',
@@ -40,7 +40,7 @@ async function resolveWorkspace(): Promise<Workspace> {
 async function main(): Promise<number> {
   handleUncaughtExceptions(logger);
 
-  const workspace = await resolveWorkspace();
+  const workspace = resolveWorkspace();
 
   if (
     isFeatureFlagEnabled(
@@ -64,7 +64,7 @@ async function main(): Promise<number> {
 if (require.main === module) {
   void main()
     .catch((error) => {
-      void logger.log(LogEventId.ApplicationStartup, 'system', {
+      logger.log(LogEventId.ApplicationStartup, 'system', {
         message: `Error in starting VxMarkScan backend: ${
           (error as Error).stack
         }`,

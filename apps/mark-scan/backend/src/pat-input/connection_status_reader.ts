@@ -36,7 +36,7 @@ export class PatConnectionStatusReader
   ) {}
 
   async openBmd155(): Promise<boolean> {
-    await this.logger.log(LogEventId.ConnectToPatInputInit, 'system');
+    this.logger.log(LogEventId.ConnectToPatInputInit, 'system');
 
     const possiblePinAddresses = [
       PAT_CONNECTION_STATUS_PIN + PAT_GPIO_OFFSET,
@@ -57,7 +57,7 @@ export class PatConnectionStatusReader
         const openError = openResult.err();
         /* istanbul ignore next - @preserve */
         if (!openError.message.match('ENOENT')) {
-          await this.logger.log(LogEventId.ConnectToGpioPinComplete, 'system', {
+          this.logger.log(LogEventId.ConnectToGpioPinComplete, 'system', {
             message: `Unexpected error connecting to pin at ${address}: ${openError}`,
             disposition: 'failure',
           });
@@ -66,14 +66,14 @@ export class PatConnectionStatusReader
     }
 
     if (!pinFileHandle) {
-      await this.logger.log(LogEventId.ConnectToPatInputComplete, 'system', {
+      this.logger.log(LogEventId.ConnectToPatInputComplete, 'system', {
         message: `PatConnectionStatusReader failed to connect to PAT input. Attempted pins: ${possiblePinAddresses}`,
         disposition: 'failure',
       });
       return false;
     }
 
-    await this.logger.log(LogEventId.ConnectToPatInputComplete, 'system', {
+    this.logger.log(LogEventId.ConnectToPatInputComplete, 'system', {
       disposition: 'success',
     });
     this.file = pinFileHandle;
@@ -81,11 +81,11 @@ export class PatConnectionStatusReader
   }
 
   async openBmd150(): Promise<boolean> {
-    await this.logger.log(LogEventId.ConnectToPatInputInit, 'system');
+    this.logger.log(LogEventId.ConnectToPatInputInit, 'system');
     const path = join(this.workspacePath, FAI_100_STATUS_FILENAME);
     const openResult = await fsOpen(path);
     if (openResult.isErr()) {
-      await this.logger.log(LogEventId.ConnectToPatInputComplete, 'system', {
+      this.logger.log(LogEventId.ConnectToPatInputComplete, 'system', {
         message: `Unexpected error trying to open ${path}. Is fai_100_controllerd running?`,
         disposition: 'failure',
       });
@@ -94,7 +94,7 @@ export class PatConnectionStatusReader
     }
 
     this.file = openResult.ok();
-    await this.logger.log(LogEventId.ConnectToPatInputComplete, 'system', {
+    this.logger.log(LogEventId.ConnectToPatInputComplete, 'system', {
       disposition: 'success',
     });
     return true;

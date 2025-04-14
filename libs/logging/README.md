@@ -82,16 +82,16 @@ follows
 ```ts
 const { logger, currentUserSession } = useContext(AppContext);
 assert(currentUserSession.type === 'election_manager'); // Only election managers can import data
-await logger.log(LogEventId.ImportDataInit, currentUserSession.type); // There is no disposition, and a default message so no information needs to be passed to log.
+logger.log(LogEventId.ImportDataInit, currentUserSession.type); // There is no disposition, and a default message so no information needs to be passed to log.
 try {
   const data = await importData();
-  await logger.log(LogEventId.ImportDataComplete, currentUserSession.type, {
+  logger.log(LogEventId.ImportDataComplete, currentUserSession.type, {
     message: 'Import data completed successfully',
     disposition: 'success',
     fileImported: data.name,
   });
 } catch (err) {
-  await logger.log(LogEventId.ImportDataComplete, currentUserSession.type, {
+  logger.log(LogEventId.ImportDataComplete, currentUserSession.type, {
     message: 'Error importing data.',
     disposition: 'failure',
     errorMessage: err.message,

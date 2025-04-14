@@ -38,16 +38,13 @@ export class ErrorBoundary extends React.Component<Props, State> {
     return { error };
   }
 
-  async componentDidCatch(
-    error: unknown,
-    errorInfo: React.ErrorInfo
-  ): Promise<void> {
+  componentDidCatch(error: unknown, errorInfo: React.ErrorInfo): void {
     const { logger } = this.props;
 
     // eslint-disable-next-line no-console
     console.error('Error boundary caught error:', error, errorInfo);
 
-    await logger?.log(LogEventId.UnknownError, 'system', {
+    logger?.log(LogEventId.UnknownError, 'system', {
       message: extractErrorMessage(error),
       stack: error instanceof Error ? error.stack : undefined,
       disposition: 'failure',
@@ -61,14 +58,14 @@ export class ErrorBoundary extends React.Component<Props, State> {
   // should still be diligent about avoiding unhandled promise rejections at
   // the source.
   /* istanbul ignore next - @preserve */
-  async handleUnhandledRejection(event: PromiseRejectionEvent): Promise<void> {
+  handleUnhandledRejection(event: PromiseRejectionEvent): void {
     const { logger } = this.props;
     const error: unknown = event.reason;
 
     // eslint-disable-next-line no-console
     console.error('Error boundary caught unhandled promise rejection:', error);
 
-    await logger?.log(LogEventId.UnknownError, 'system', {
+    logger?.log(LogEventId.UnknownError, 'system', {
       errorMessage: extractErrorMessage(error),
       errorStack: error instanceof Error ? error.stack : undefined,
     });

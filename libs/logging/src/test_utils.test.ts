@@ -1,29 +1,26 @@
 import { expect, test, vi } from 'vitest';
-import { typedAs } from '@votingworks/basics';
 import { LogEventType, LogLine, LogSource } from '.';
 import { LogEventId } from './log_event_ids';
 import { mockBaseLogger, mockLogger } from './test_utils';
 
-test('mockBaseLogger returns a logger with a spy on logger.log', async () => {
+test('mockBaseLogger returns a logger with a spy on logger.log', () => {
   const logger = mockBaseLogger({ fn: vi.fn });
-  await logger.log(LogEventId.MachineBootInit, 'system');
+  logger.log(LogEventId.MachineBootInit, 'system');
   expect(logger.log).toHaveBeenCalledWith(LogEventId.MachineBootInit, 'system');
 });
 
-test('mockLogger returns a logger that can print debug logs', async () => {
+test('mockLogger returns a logger that can print debug logs', () => {
   const logger = mockLogger({ source: LogSource.System, fn: vi.fn });
   const debug = vi.fn();
-  await logger.log(LogEventId.MachineBootInit, 'system', undefined, debug);
-  expect(debug).toHaveBeenCalledWith(
-    typedAs<LogLine>({
-      source: LogSource.System,
-      eventId: LogEventId.MachineBootInit,
-      eventType: LogEventType.SystemAction,
-      user: 'system',
-      disposition: 'na',
-      details: undefined,
-    })
-  );
+  logger.log(LogEventId.MachineBootInit, 'system', undefined, debug);
+  expect(debug).toHaveBeenCalledWith<[LogLine]>({
+    source: LogSource.System,
+    eventId: LogEventId.MachineBootInit,
+    eventType: LogEventType.SystemAction,
+    user: 'system',
+    disposition: 'na',
+    details: undefined,
+  });
 });
 
 test('mockLogger', async () => {

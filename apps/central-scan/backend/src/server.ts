@@ -35,7 +35,7 @@ export interface StartOptions {
 /**
  * Starts the server with all the default options.
  */
-export async function start({
+export function start({
   port = PORT,
   batchScanner,
   usbDrive,
@@ -43,14 +43,14 @@ export async function start({
   app,
   logger: baseLogger = new BaseLogger(LogSource.VxCentralScanService),
   workspace,
-}: Partial<StartOptions> = {}): Promise<Server> {
+}: Partial<StartOptions> = {}): Server {
   detectDevices({ logger: baseLogger });
   let resolvedWorkspace = workspace;
   /* istanbul ignore next */
   if (!resolvedWorkspace) {
     const workspacePath = SCAN_WORKSPACE;
     if (!workspacePath) {
-      await baseLogger.log(LogEventId.WorkspaceConfigurationMessage, 'system', {
+      baseLogger.log(LogEventId.WorkspaceConfigurationMessage, 'system', {
         message:
           'workspace path could not be determined; pass a workspace or run with SCAN_WORKSPACE',
         disposition: 'failure',
@@ -115,13 +115,13 @@ export async function start({
 
   useDevDockRouter(resolvedApp, express, {});
 
-  return resolvedApp.listen(port, async () => {
-    await baseLogger.log(LogEventId.ApplicationStartup, 'system', {
+  return resolvedApp.listen(port, () => {
+    baseLogger.log(LogEventId.ApplicationStartup, 'system', {
       message: `Scan Service running at http://localhost:${port}/`,
       disposition: 'success',
     });
 
-    await baseLogger.log(LogEventId.WorkspaceConfigurationMessage, 'system', {
+    baseLogger.log(LogEventId.WorkspaceConfigurationMessage, 'system', {
       message: `Scanning ballots into ${resolvedWorkspace.ballotImagesPath}`,
     });
   });

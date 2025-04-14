@@ -29,7 +29,7 @@ export async function isAccessibleControllerDaemonRunning(
   });
 
   if (readResult.isErr()) {
-    await logger.log(LogEventId.NoPid, 'system', {
+    logger.log(LogEventId.NoPid, 'system', {
       message: 'Unable to read accessible controller daemon PID file',
       error: JSON.stringify(readResult.err()),
     });
@@ -39,7 +39,7 @@ export async function isAccessibleControllerDaemonRunning(
   const pidString = readResult.ok();
   const pidResult = safeParseInt(pidString);
   if (pidResult.isErr()) {
-    await logger.log(LogEventId.ParseError, 'system', {
+    logger.log(LogEventId.ParseError, 'system', {
       message: `Unable to parse accessible controller daemon PID: ${pidString}`,
       disposition: 'failure',
     });
@@ -55,17 +55,17 @@ export async function isAccessibleControllerDaemonRunning(
   } catch (error) {
     switch ((error as NodeJS.ErrnoException).code) {
       case 'ESRCH':
-        await logger.log(LogEventId.NoPid, 'system', {
+        logger.log(LogEventId.NoPid, 'system', {
           message: `Process with PID ${pid} is not running`,
         });
         return false;
       case 'EPERM':
-        await logger.log(LogEventId.PermissionDenied, 'system', {
+        logger.log(LogEventId.PermissionDenied, 'system', {
           message: 'Permission denied to check PID',
         });
         return false;
       default:
-        await logger.log(LogEventId.UnknownError, 'system', {
+        logger.log(LogEventId.UnknownError, 'system', {
           message: 'Unknown error when checking PID',
           error: JSON.stringify(error),
           disposition: 'failure',

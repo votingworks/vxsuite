@@ -25,7 +25,7 @@ export interface DippedSmartCardAuthApi {
     machineState: DippedSmartCardAuthMachineState,
     input: { pin: string }
   ): Promise<void>;
-  logOut(machineState: DippedSmartCardAuthMachineState): Promise<void>;
+  logOut(machineState: DippedSmartCardAuthMachineState): void;
   updateSessionExpiry(
     machineState: DippedSmartCardAuthMachineState,
     input: { sessionExpiresAt: Date }

@@ -13,25 +13,25 @@ export function startElectricalTestingServer(context: ServerContext): void {
     runCardReadAndUsbDriveWriteLoop(context);
   const printAndScanLoopPromise = printAndScanLoop(context);
 
-  void logger.log(LogEventId.BackgroundTaskStarted, 'system', {
+  logger.log(LogEventId.BackgroundTaskStarted, 'system', {
     disposition: 'success',
     message: 'Starting card read loop',
   });
 
-  void logger.log(LogEventId.BackgroundTaskStarted, 'system', {
+  logger.log(LogEventId.BackgroundTaskStarted, 'system', {
     disposition: 'success',
     message: 'Starting print and scan loop',
   });
 
   cardReadAndUsbDriveWriteLoopPromise
     .then(() => {
-      void logger.log(LogEventId.BackgroundTaskCompleted, 'system', {
+      logger.log(LogEventId.BackgroundTaskCompleted, 'system', {
         disposition: 'success',
         message: 'Card read and USB drive write loop completed',
       });
     })
     .catch((error) => {
-      void logger.log(LogEventId.BackgroundTaskFailure, 'system', {
+      logger.log(LogEventId.BackgroundTaskFailure, 'system', {
         disposition: 'failure',
         message: 'Card read and USB drive write loop failed',
         error,
@@ -40,7 +40,7 @@ export function startElectricalTestingServer(context: ServerContext): void {
 
   printAndScanLoopPromise
     .then(() => {
-      void logger.log(LogEventId.BackgroundTaskCompleted, 'system', {
+      logger.log(LogEventId.BackgroundTaskCompleted, 'system', {
         disposition: 'success',
         message: 'Print and scan loop completed',
       });
@@ -50,7 +50,7 @@ export function startElectricalTestingServer(context: ServerContext): void {
       );
     })
     .catch((error) => {
-      void logger.log(LogEventId.BackgroundTaskFailure, 'system', {
+      logger.log(LogEventId.BackgroundTaskFailure, 'system', {
         disposition: 'failure',
         message: 'Print and scan loop failed',
         error,
@@ -63,8 +63,8 @@ export function startElectricalTestingServer(context: ServerContext): void {
 
   const app = buildApp(context);
 
-  app.listen(PORT, async () => {
-    await logger.log(LogEventId.ApplicationStartup, 'system', {
+  app.listen(PORT, () => {
+    logger.log(LogEventId.ApplicationStartup, 'system', {
       disposition: 'success',
       message: `VxScan electrical testing backend running at http://localhost:${PORT}`,
     });

@@ -596,7 +596,7 @@ test('Logout through logout method', async () => {
 
   // Because the card is still inserted, we'll automatically transition back to the PIN checking
   // state after logout
-  await auth.logOut(defaultMachineState);
+  auth.logOut(defaultMachineState);
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'checking_pin',
     user: electionManagerUser,
@@ -954,7 +954,7 @@ test('Cardless voter sessions - ending preemptively', async () => {
   );
 
   // End cardless voter session before removing poll worker card
-  await auth.endCardlessVoterSession();
+  auth.endCardlessVoterSession();
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
     user: pollWorkerUser,
@@ -1079,7 +1079,7 @@ test('Cardless voter sessions - end-to-end', async () => {
   );
 
   // End cardless voter session
-  await auth.endCardlessVoterSession();
+  auth.endCardlessVoterSession();
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_out',
     reason: 'no_card',
@@ -1339,7 +1339,7 @@ test('Attempting to start a cardless voter session when not allowed by config', 
       precinctId: cardlessVoterUser.precinctId,
     })
   ).rejects.toThrow();
-  await expect(auth.endCardlessVoterSession()).rejects.toThrow();
+  expect(() => auth.endCardlessVoterSession()).toThrow();
 });
 
 test('Reading card data error handling', async () => {
@@ -1457,14 +1457,14 @@ describe('updateCardlessVoterBallotStyle', () => {
     });
   }
 
-  test("fails when there's no existing voter session", async () => {
+  test("fails when there's no existing voter session", () => {
     const api = newApi();
 
-    await expect(() =>
+    expect(() =>
       api.updateCardlessVoterBallotStyle({
         ballotStyleId: '1_en' as BallotStyleId,
       })
-    ).rejects.toThrow();
+    ).toThrow();
   });
 
   test('updates existing session ballot style', async () => {
@@ -1490,7 +1490,7 @@ describe('updateCardlessVoterBallotStyle', () => {
 
     vi.mocked(mockLogger.log).mockClear();
 
-    await api.updateCardlessVoterBallotStyle({
+    api.updateCardlessVoterBallotStyle({
       ballotStyleId: '1_es-US' as BallotStyleId,
     });
 
@@ -1523,7 +1523,7 @@ describe('updateCardlessVoterBallotStyle', () => {
     const initialStatus = await api.getAuthStatus(defaultMachineState);
 
     vi.mocked(mockLogger.log).mockClear();
-    await api.updateCardlessVoterBallotStyle({
+    api.updateCardlessVoterBallotStyle({
       ballotStyleId: '1_en' as BallotStyleId,
     });
 

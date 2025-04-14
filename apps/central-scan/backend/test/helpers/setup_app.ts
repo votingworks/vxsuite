@@ -73,7 +73,7 @@ export async function withApp(
   const apiClient = grout.createClient({
     baseUrl,
   });
-  const server = await start({
+  const server = start({
     app,
     logger,
     workspace,

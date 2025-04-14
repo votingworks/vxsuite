@@ -16,7 +16,7 @@ export function startElectricalTestingServer(context: ServerContext): void {
 
   app.listen(PORT, async () => {
     await execFile('amixer', ['sset', 'Master', `40%`, 'unmute']);
-    await logger.log(LogEventId.ApplicationStartup, 'system', {
+    logger.log(LogEventId.ApplicationStartup, 'system', {
       disposition: 'success',
       message: `VxMark electrical testing backend running at http://localhost:${PORT}`,
     });
