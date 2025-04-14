@@ -1,5 +1,12 @@
 import { DateWithoutTime } from '@votingworks/basics';
-import { Election, ElectionId, HmpbBallotPaperSize } from '@votingworks/types';
+import {
+  BallotStyleGroupId,
+  BallotStyleId,
+  DistrictId,
+  Election,
+  ElectionId,
+  HmpbBallotPaperSize,
+} from '@votingworks/types';
 import { HlcTimestamp } from '../src/hybrid_logical_clock';
 import { Store } from '../src/store';
 import {
@@ -9,6 +16,7 @@ import {
   PollbookEventBase,
   ValidStreetInfo,
 } from '../src/types';
+import { PeerStore } from '../src/peer_store';
 
 export function createVoter(
   voterId: string,
@@ -90,7 +98,10 @@ export function createValidStreetInfo(
   };
 }
 
-export function syncEventsFromTo(from: Store, to: Store): PollbookEventBase[] {
+export function syncEventsFromTo(
+  from: PeerStore,
+  to: PeerStore
+): PollbookEventBase[] {
   let keepSyncing = true;
   const allEvents: PollbookEventBase[] = [];
   while (keepSyncing) {
@@ -126,14 +137,26 @@ export function getTestElection(): Election {
     date: new DateWithoutTime('2024-01-01'),
     seal: '',
     parties: [],
-    districts: [],
+    districts: [
+      {
+        id: 'ds-1' as DistrictId,
+        name: 'district 1',
+      },
+    ],
     precincts: Array.from({ length: 5 }, (_, i) => ({
       id: `precinct-${i}`,
       name: `Test Precinct ${i}`,
       districtIds: [],
     })),
     contests: [],
-    ballotStyles: [],
+    ballotStyles: [
+      {
+        id: 'bs-1' as BallotStyleId,
+        groupId: 'bs-1' as BallotStyleGroupId,
+        precincts: [],
+        districts: [],
+      },
+    ],
     ballotLayout: {
       paperSize: HmpbBallotPaperSize.Letter,
       metadataEncoding: 'qr-code',

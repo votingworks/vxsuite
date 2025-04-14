@@ -1,7 +1,7 @@
 import { Client as DbClient } from '@votingworks/db';
 // import { Iso8601Timestamp } from '@votingworks/types';
 import { join } from 'node:path';
-import { throwIllegalValue } from '@votingworks/basics';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import { Election, safeParseElection, safeParseJson } from '@votingworks/types';
 import { customAlphabet } from 'nanoid';
 import { rootDebug } from './debug';
@@ -12,9 +12,11 @@ import {
   ValidStreetInfo,
   ValidStreetInfoSchema,
   Voter,
+  VoterSchema,
 } from './types';
 import { HlcTimestamp, HybridLogicalClock } from './hybrid_logical_clock';
 import {
+  applyPollbookEventsToVoters,
   convertDbRowsToPollbookEvents,
   createVoterFromRegistrationData,
 } from './event_helpers';
@@ -66,6 +68,10 @@ export abstract class Store {
   protected incrementClock(): HlcTimestamp {
     if (!this.currentClock) {
       this.currentClock = new HybridLogicalClock(this.machineId);
+    }
+    const mostRecentSeenTime = this.getMostRecentlySavedEventTimestamp();
+    if (mostRecentSeenTime) {
+      return this.currentClock.update(mostRecentSeenTime);
     }
     return this.currentClock.tick();
   }
@@ -121,6 +127,72 @@ export abstract class Store {
     return this.client.getDatabasePath();
   }
 
+  getMostRecentlySavedEventTimestamp(): HlcTimestamp | undefined {
+    const rows = this.client.all(
+      `
+        SELECT physical_time, logical_counter, machine_id
+        FROM event_log
+        ORDER BY physical_time DESC, logical_counter DESC, machine_id DESC
+        LIMIT 1
+      `
+    ) as Array<{
+      physical_time: number;
+      logical_counter: number;
+      machine_id: string;
+    }>;
+    if (rows.length === 0) {
+      return undefined;
+    }
+
+    assert(rows.length === 1, 'No events found in the event log.');
+    const {
+      physical_time: physical,
+      logical_counter: logical,
+      machine_id: machineId,
+    } = rows[0];
+
+    return {
+      physical,
+      logical,
+      machineId,
+    };
+  }
+
+  getVoter(voterId: string): Voter {
+    const voterRows = this.client.all(
+      `
+              SELECT v.voter_data
+              FROM voters v
+              WHERE voter_id = ?
+              `,
+      voterId
+    ) as Array<{ voter_data: string }>;
+
+    assert(voterRows.length === 1, `Voter with ID ${voterId} not found.`);
+    const voter = safeParseJson(
+      voterRows[0].voter_data,
+      VoterSchema
+    ).unsafeUnwrap();
+
+    const eventRows = this.client.all(
+      `
+              SELECT *
+              FROM event_log
+              WHERE voter_id = ?
+              ORDER BY physical_time, logical_counter, machine_id
+              `,
+      voterId
+    ) as EventDbRow[];
+
+    const events = convertDbRowsToPollbookEvents(eventRows);
+    const updatedVoters = applyPollbookEventsToVoters(
+      { [voterId]: voter },
+      events
+    );
+
+    return updatedVoters[voterId];
+  }
+
   saveEvent(pollbookEvent: PollbookEvent): boolean {
     try {
       debug('Saving event %o', pollbookEvent);
@@ -129,44 +201,13 @@ export abstract class Store {
       const eventData = (() => {
         switch (pollbookEvent.type) {
           case EventType.VoterCheckIn:
-            this.client.run(
-              `
-              INSERT INTO check_in_status (voter_id, machine_id, is_checked_in)
-              VALUES (?, ?, 1)
-              ON CONFLICT(voter_id) DO UPDATE SET 
-              machine_id = ?,
-              is_checked_in = 1
-              `,
-              pollbookEvent.voterId,
-              pollbookEvent.machineId,
-              pollbookEvent.machineId
-            );
             return pollbookEvent.checkInData;
           case EventType.UndoVoterCheckIn:
-            this.client.run(
-              `
-              UPDATE check_in_status
-              SET is_checked_in = 0, machine_id = NULL
-              WHERE voter_id = ?
-              `,
-              pollbookEvent.voterId
-            );
             return {};
           case EventType.VoterAddressChange:
             return pollbookEvent.addressChangeData;
-          case EventType.VoterNameChange: {
-            this.client.run(
-              `
-              UPDATE voters
-              SET updated_first_name = ?, updated_last_name = ?
-              WHERE voter_id = ?
-              `,
-              pollbookEvent.nameChangeData.firstName.toUpperCase(),
-              pollbookEvent.nameChangeData.lastName.toUpperCase(),
-              pollbookEvent.voterId
-            );
+          case EventType.VoterNameChange:
             return pollbookEvent.nameChangeData;
-          }
           case EventType.VoterRegistration: {
             const voter = createVoterFromRegistrationData(
               pollbookEvent.registrationData
@@ -218,6 +259,52 @@ export abstract class Store {
         pollbookEvent.timestamp.logical,
         JSON.stringify(eventData)
       );
+
+      // Update any materialized views necessary for the given event. Refetching the voter ensures
+      // that the event is handled in proper order by hlc timestamp with other events.
+      switch (pollbookEvent.type) {
+        case EventType.UndoVoterCheckIn:
+        case EventType.VoterCheckIn: {
+          // If we are saving a check in or undo update the materialized check_in_status table.
+          const voter = this.getVoter(pollbookEvent.voterId);
+          this.client.run(
+            `
+          INSERT INTO check_in_status (voter_id, machine_id, is_checked_in)
+          VALUES (?, ?, 1)
+          ON CONFLICT(voter_id) DO UPDATE SET 
+          machine_id = ?,
+          is_checked_in = ?
+          `,
+            pollbookEvent.voterId,
+            pollbookEvent.machineId,
+            pollbookEvent.machineId,
+            voter.checkIn ? '1' : '0'
+          );
+          break;
+        }
+        case EventType.VoterAddressChange:
+        case EventType.VoterRegistration:
+          // do nothing
+          break;
+        case EventType.VoterNameChange: {
+          const voter = this.getVoter(pollbookEvent.voterId);
+          if (voter.nameChange) {
+            this.client.run(
+              `
+                UPDATE voters
+                SET updated_first_name = ?, updated_last_name = ?
+                WHERE voter_id = ?
+                `,
+              voter.nameChange.firstName.toUpperCase(),
+              voter.nameChange.lastName.toUpperCase(),
+              pollbookEvent.voterId
+            );
+          }
+          break;
+        }
+        default:
+          throwIllegalValue(pollbookEvent, 'type');
+      }
       return true;
     } catch (error) {
       debug('Failed to save event: %s', error);
