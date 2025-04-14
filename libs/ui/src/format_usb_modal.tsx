@@ -82,7 +82,7 @@ function FormatUsbFlow({
           content={
             <P>
               USB drive successfully formatted and ejected. It can now be used
-              with VxSuite components.
+              with VotingWorks components.
             </P>
           }
           onOverlayClick={onClose}
