@@ -50,6 +50,7 @@ import {
 import { MACHINE_DISCONNECTED_TIMEOUT, NETWORK_EVENT_LIMIT } from './globals';
 import { HlcTimestamp, HybridLogicalClock } from './hybrid_logical_clock';
 import { convertDbRowsToPollbookEvents } from './event_helpers';
+import { getCurrentTime } from './get_current_time';
 
 const debug = rootDebug.extend('store');
 const debugConnections = debug.extend('connections');
@@ -582,7 +583,7 @@ export class Store {
     const voters = this.getVoters();
     assert(voters);
     const voter = voters[voterId];
-    const isoTimestamp = new Date().toISOString();
+    const isoTimestamp = new Date(getCurrentTime()).toISOString();
     voter.checkIn = {
       identificationMethod,
       isAbsentee: this.getIsAbsenteeMode(),
@@ -736,7 +737,7 @@ export class Store {
     const registrationEvent: VoterRegistration = {
       ...voterRegistration,
       party: voterRegistration.party as 'DEM' | 'REP' | 'UND', // this is already validated
-      timestamp: new Date().toISOString(),
+      timestamp: new Date(getCurrentTime()).toISOString(),
       voterId: generateId(),
       district: streetInfo.district,
     };
@@ -789,7 +790,7 @@ export class Store {
     assert(voter);
     const addressChangeData: VoterAddressChange = {
       ...addressChange,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date(getCurrentTime()).toISOString(),
     };
     const updatedVoter: Voter = {
       ...voter,
@@ -834,7 +835,7 @@ export class Store {
     assert(voter);
     const nameChangeData: VoterNameChange = {
       ...nameChange,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date(getCurrentTime()).toISOString(),
     };
     const updatedVoter: Voter = {
       ...voter,
@@ -898,7 +899,7 @@ export class Store {
     const throughputStats: ThroughputStat[] = [];
 
     // Generate intervals of start and end times from the start of the hour of the first event until the present time.
-    const now = new Date();
+    const now = new Date(getCurrentTime());
 
     const startOfHour = new Date(
       orderedByEventMachineTime[0].checkInData.timestamp
@@ -1054,7 +1055,7 @@ export class Store {
       this.connectedPollbooks
     )) {
       if (
-        Date.now() - pollbookService.lastSeen.getTime() >
+        getCurrentTime() - pollbookService.lastSeen.getTime() >
         MACHINE_DISCONNECTED_TIMEOUT
       ) {
         debugConnections(

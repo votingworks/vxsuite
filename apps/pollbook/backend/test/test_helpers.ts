@@ -69,6 +69,27 @@ export function createVoterCheckInEvent(
     },
   };
 }
+
+export function createValidStreetInfo(
+  streetName: string,
+  side: 'even' | 'odd',
+  lowRange: number,
+  highRange: number,
+  postalCity?: string,
+  zip5?: string
+): ValidStreetInfo {
+  return {
+    streetName,
+    side,
+    lowRange,
+    highRange,
+    postalCity: postalCity || 'Manchester',
+    zip5: zip5 || '03101',
+    zip4: '0000',
+    district: 'NH',
+  };
+}
+
 export function syncEventsFromTo(from: Store, to: Store): PollbookEventBase[] {
   let keepSyncing = true;
   const allEvents: PollbookEventBase[] = [];

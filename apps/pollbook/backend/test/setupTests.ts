@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, expect } from 'vitest';
+import { afterAll, beforeAll, expect, vi } from 'vitest';
 import {
   clearTemporaryRootDir,
   setupTemporaryRootDir,
@@ -9,10 +9,18 @@ import {
 } from '@votingworks/image-utils';
 import { cleanupCachedBrowser } from '@votingworks/printing';
 import { toMatchImageSnapshot } from 'jest-image-snapshot';
+import { makeIdFactory } from './id_helpers';
+
+// Deterministic ID generation
+const idFactory = makeIdFactory();
 
 afterAll(async () => {
   await cleanupCachedBrowser();
 });
+
+vi.mock(import('nanoid'), () => ({
+  customAlphabet: () => () => idFactory.next(),
+}));
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
