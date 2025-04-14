@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@votingworks/ui';
 import styled from 'styled-components';
-import { Rect } from '@votingworks/types';
+import { Rect, safeParseNumber } from '@votingworks/types';
 
 const BallotImageViewerContainer = styled.div`
   position: relative;
@@ -95,6 +95,14 @@ const BallotImageViewerControls = styled.div<{ isZoomedIn: boolean }>`
   gap: 0.5rem;
 `;
 
+function remToPx(rem: number) {
+  const fontSizeResult = safeParseNumber(
+    getComputedStyle(document.documentElement).fontSize
+  );
+  const fontSize = fontSizeResult.isOk() ? fontSizeResult.ok() : 30;
+  return rem * fontSize;
+};
+
 export function BallotZoomImageViewer({
   imageUrl,
   ballotBounds,
@@ -111,7 +119,9 @@ export function BallotZoomImageViewer({
   const zoomedInScale =
     (zoomedInBounds.width > zoomedInBounds.height
       ? ballotBounds.width / zoomedInBounds.width
-      : ballotBounds.height / zoomedInBounds.height) * IMAGE_SCALE;
+      : // If zoom is height-based, leave 4rems of buffer on top and bottom to prevent clipping ViewerControls
+        (ballotBounds.height - remToPx(4) * 2) / zoomedInBounds.height) *
+    IMAGE_SCALE;
 
   return (
     <BallotImageViewerContainer>
