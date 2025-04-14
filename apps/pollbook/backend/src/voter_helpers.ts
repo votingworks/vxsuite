@@ -1,4 +1,4 @@
-import { Voter } from './types';
+import { Voter, VoterNameChangeRequest } from './types';
 
 export function getUpdatedVoterFirstName(voter: Voter): string {
   if (voter.nameChange) {
@@ -12,4 +12,10 @@ export function getUpdatedVoterLastName(voter: Voter): string {
     return voter.nameChange.lastName;
   }
   return voter.lastName;
+}
+
+export function isVoterNameChangeValid(
+  nameChange: VoterNameChangeRequest
+): boolean {
+  return nameChange.firstName.length > 0 && nameChange.lastName.length > 0;
 }

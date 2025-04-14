@@ -38,6 +38,12 @@ import {
 } from './event_helpers';
 import { HybridLogicalClock } from './hybrid_logical_clock';
 import { getCurrentTime } from './get_current_time';
+import {
+  isVoterAddressChangeValid,
+  isVoterRegistrationValid,
+  maybeGetStreetInfoForAddress,
+} from './street_helpers';
+import { isVoterNameChangeValid } from './voter_helpers';
 
 export class LocalStore extends Store {
   private nextEventId?: number;
@@ -351,10 +357,14 @@ export class LocalStore extends Store {
   } {
     debug(`Registering voter: ${JSON.stringify(voterRegistration)}`);
     assert(
-      this.isVoterRegistrationValid(voterRegistration),
+      isVoterRegistrationValid(voterRegistration, this.getStreetInfo()),
       'Invalid voter registration'
     );
-    const streetInfo = this.getStreetInfoForVoterAddress(voterRegistration);
+    const streetInfo = maybeGetStreetInfoForAddress(
+      voterRegistration.streetName,
+      voterRegistration.streetNumber,
+      this.getStreetInfo()
+    );
     assert(streetInfo);
     const registrationEvent: VoterRegistration = {
       ...voterRegistration,
@@ -389,7 +399,7 @@ export class LocalStore extends Store {
   ): { voter: Voter; receiptNumber: number } {
     debug(`Changing address for voter ${voterId}`);
     assert(
-      this.isVoterAddressChangeValid(addressChange),
+      isVoterAddressChangeValid(addressChange, this.getStreetInfo()),
       'Invalid address change'
     );
     const voter = this.getVoter(voterId);
@@ -429,7 +439,7 @@ export class LocalStore extends Store {
     nameChange: VoterNameChangeRequest
   ): { voter: Voter; receiptNumber: number } {
     debug(`Changing name for voter ${voterId}`);
-    assert(this.isVoterNameChangeValid(nameChange), 'Invalid name change');
+    assert(isVoterNameChangeValid(nameChange), 'Invalid name change');
     const voter = this.getVoter(voterId);
     assert(voter);
 
