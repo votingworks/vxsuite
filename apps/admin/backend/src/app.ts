@@ -40,6 +40,7 @@ import {
   getBallotCount,
   groupMapToGroupList,
   isIntegrationTest,
+  isSystemAdministratorAuth,
 } from '@votingworks/utils';
 import { dirSync } from 'tmp';
 import {
@@ -275,6 +276,15 @@ function buildApi({
     },
 
     async formatUsbDrive(): Promise<Result<void, Error>> {
+      const authStatus = await auth.getAuthStatus(
+        constructAuthMachineState(workspace)
+      );
+      if (!isSystemAdministratorAuth(authStatus)) {
+        return err(
+          new Error('Formatting USB drive requires system administrator auth.')
+        );
+      }
+
       try {
         await usbDrive.format();
         return ok();

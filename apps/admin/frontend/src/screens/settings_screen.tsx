@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import {
   CurrentDateAndTime,
   ExportLogsButton,
+  FormatUsbButton,
   H2,
   P,
   SetClockButton,
@@ -11,13 +12,13 @@ import { isSystemAdministratorAuth } from '@votingworks/utils';
 
 import { AppContext } from '../contexts/app_context';
 import { NavigationScreen } from '../components/navigation_screen';
-import { FormatUsbButton } from '../components/format_usb_modal';
-import { logOut, useApiClient } from '../api';
+import { formatUsbDrive, logOut, useApiClient } from '../api';
 
-export function SettingsScreen(): JSX.Element {
+export function SettingsScreen(): JSX.Element | null {
   const { auth, usbDriveStatus } = useContext(AppContext);
   const apiClient = useApiClient();
   const logOutMutation = logOut.useMutation();
+  const formatUsbDriveMutation = formatUsbDrive.useMutation();
 
   return (
     <NavigationScreen title="Settings">
@@ -35,7 +36,10 @@ export function SettingsScreen(): JSX.Element {
       {isSystemAdministratorAuth(auth) && (
         <React.Fragment>
           <H2>USB Formatting</H2>
-          <FormatUsbButton />
+          <FormatUsbButton
+            usbDriveStatus={usbDriveStatus}
+            formatUsbDriveMutation={formatUsbDriveMutation}
+          />
         </React.Fragment>
       )}
       <H2>Security</H2>
