@@ -21,7 +21,7 @@ export function DiscardChangesModal({
       content={content}
       actions={
         <React.Fragment>
-          <EqualWidthButton variant="primary" onPress={onDiscard}>
+          <EqualWidthButton variant="danger" onPress={onDiscard}>
             Discard Changes
           </EqualWidthButton>
           <EqualWidthButton variant="neutral" onPress={onBack}>

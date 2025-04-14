@@ -170,6 +170,7 @@ const BallotHeader = styled(BaseRow)`
   color: ${(p) => p.theme.colors.onInverse};
   align-items: start;
   min-height: 4rem;
+  flex-shrink: 0;
 
   button {
     flex-wrap: nowrap;
