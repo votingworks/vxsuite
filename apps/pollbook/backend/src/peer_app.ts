@@ -19,11 +19,6 @@ function buildApi(context: PeerAppContext) {
       };
     },
 
-    // TODO-CARO this is not currently called
-    receiveEvent(input: { pollbookEvent: PollbookEvent }): boolean {
-      return store.saveEvent(input.pollbookEvent);
-    },
-
     getEvents(input: { lastEventSyncedPerNode: Record<string, number> }): {
       events: PollbookEvent[];
       hasMore: boolean;

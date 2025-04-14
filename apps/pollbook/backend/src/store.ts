@@ -2,12 +2,7 @@ import { Client as DbClient } from '@votingworks/db';
 // import { Iso8601Timestamp } from '@votingworks/types';
 import { join } from 'node:path';
 import { throwIllegalValue } from '@votingworks/basics';
-import {
-  Election,
-  safeParseElection,
-  safeParseInt,
-  safeParseJson,
-} from '@votingworks/types';
+import { Election, safeParseElection, safeParseJson } from '@votingworks/types';
 import { customAlphabet } from 'nanoid';
 import { rootDebug } from './debug';
 import {
@@ -17,9 +12,6 @@ import {
   ValidStreetInfo,
   ValidStreetInfoSchema,
   Voter,
-  VoterAddressChangeRequest,
-  VoterRegistrationRequest,
-  VoterNameChangeRequest,
 } from './types';
 import { HlcTimestamp, HybridLogicalClock } from './hybrid_logical_clock';
 import {
@@ -85,9 +77,7 @@ export abstract class Store {
     return this.currentClock.update(remoteClock);
   }
 
-  // Reprocess all events starting from the given HLC timestamp. If no timestamp is given, reprocess all events.
-  // Events are idempotent so this function can be called multiple times without side effects. The in memory voters
-  // does not need to be cleared when reprocessing.
+  // Retrieve all events starting from the given HLC timestamp. If no timestamp is given, retrieve all events.
   protected getAllEventsOrderedSince(
     timestamp?: HlcTimestamp
   ): PollbookEvent[] {
@@ -311,81 +301,10 @@ export abstract class Store {
     });
   }
 
-  getCurrentClockTime(): HlcTimestamp {
-    if (!this.currentClock) {
-      this.currentClock = new HybridLogicalClock(this.machineId);
-    }
-    return this.currentClock.now();
-  }
-
   // Returns the valid street info. Used when registering a voter to populate address typeahead options.
   // TODO the frontend doesn't need to know everything in the ValidStreetInfo object. This could be paired down.
   getStreetInfo(): ValidStreetInfo[] {
     return this.validStreetInfo || [];
-  }
-
-  // TODO-CARO move to a helper
-  protected getStreetInfoForVoterAddress(
-    voterRegistration: VoterAddressChangeRequest
-  ): ValidStreetInfo | undefined {
-    const validStreetNames = this.getStreetInfo().filter(
-      (info) =>
-        info.streetName.toLocaleUpperCase() === voterRegistration.streetName
-    );
-    const voterStreetNumberResult = safeParseInt(
-      voterRegistration.streetNumber
-    );
-    if (!voterStreetNumberResult.isOk()) {
-      return undefined;
-    }
-    const voterStreetNumber = voterStreetNumberResult.ok();
-    for (const streetInfo of validStreetNames) {
-      const step = streetInfo.side === 'all' ? 1 : 2;
-      const validNumbers = new Set<number>();
-      for (let n = streetInfo.lowRange; n <= streetInfo.highRange; n += step) {
-        validNumbers.add(n);
-      }
-      if (validNumbers.has(voterStreetNumber)) {
-        return streetInfo;
-      }
-    }
-    return undefined;
-  }
-
-  // TODO-CARO move to a helper
-  protected isVoterRegistrationValid(
-    voterRegistration: VoterRegistrationRequest
-  ): boolean {
-    const streetInfo = this.getStreetInfoForVoterAddress(voterRegistration);
-    return (
-      this.isVoterNameChangeValid(voterRegistration) &&
-      streetInfo !== undefined &&
-      voterRegistration.streetNumber.length > 0 &&
-      voterRegistration.city.length > 0 &&
-      voterRegistration.zipCode.length === 5 &&
-      voterRegistration.party.length > 0 &&
-      ['DEM', 'REP', 'UND'].includes(voterRegistration.party)
-    );
-  }
-
-  // TODO-CARO move to a helper
-  protected isVoterAddressChangeValid(
-    addressChange: VoterAddressChangeRequest
-  ): boolean {
-    const streetInfo = this.getStreetInfoForVoterAddress(addressChange);
-    return (
-      streetInfo !== undefined &&
-      addressChange.streetNumber.length > 0 &&
-      addressChange.city.length > 0 &&
-      addressChange.zipCode.length === 5
-    );
-  }
-
-  // TODO-CARO move to a helper
-  protected isVoterNameChangeValid(
-    nameChange: VoterNameChangeRequest
-  ): boolean {
-    return nameChange.firstName.length > 0 && nameChange.lastName.length > 0;
   }
 
   getCheckInCount(machineId?: string): number {
