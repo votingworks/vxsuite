@@ -30,12 +30,12 @@ export class BaseLogger {
     return this.source;
   }
 
-  async log(
+  log(
     eventId: LogEventId,
     user: LoggingUserRole,
     logData?: LogData,
     outerDebug?: (logLine: LogLine) => void
-  ): Promise<void> {
+  ): void {
     const eventSpecificDetails = getDetailsForEventId(eventId);
     const {
       message = eventSpecificDetails.defaultMessage,
@@ -62,7 +62,7 @@ export class BaseLogger {
     if (CLIENT_SIDE_LOG_SOURCES.includes(this.source)) {
       debug(logLine); // for internal debugging use log to the console
       if (this.kiosk) {
-        await this.kiosk.log(
+        void this.kiosk.log(
           JSON.stringify({
             timeLogInitiated: Date.now().toString(),
             ...logLine,
