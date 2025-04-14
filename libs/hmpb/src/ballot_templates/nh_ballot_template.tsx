@@ -606,6 +606,7 @@ async function splitLongBallotMeasureAcrossPages(
       child.y - contestMeasurements.y + child.height + contestFooterHeight >=
       dimensions.height
   );
+  assert(firstOverflowingChildIndex !== -1, 'No overflowing child found');
   const descriptionHtmlNode = parseHtml(tooLongContest.description);
   for (const overflowingChild of descriptionHtmlNode.childNodes.slice(
     firstOverflowingChildIndex

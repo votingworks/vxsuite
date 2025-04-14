@@ -401,11 +401,7 @@ export const nhGeneralElectionFixtures = (() => {
         contest.id === 'proposition-1' && contest.type === 'yesno'
           ? {
               ...contest,
-              description: iter([contest.description])
-                .cycle()
-                .take(5)
-                .toArray()
-                .join(''),
+              description: contest.description.repeat(5),
             }
           : contest
       ),
