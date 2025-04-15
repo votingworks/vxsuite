@@ -512,13 +512,14 @@ export class LocalStore extends Store {
     };
   }
 
-  // Query pollbook services from the database
   getPollbookServiceInfo(): PollbookServiceInfo[] {
     const rows = this.client.all(
       `
       SELECT machine_id, status, last_seen
       FROM machines
-      `
+      WHERE machine_id != ?
+      `,
+      this.machineId
     ) as Array<{
       machine_id: string;
       status: string;

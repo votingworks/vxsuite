@@ -13,6 +13,7 @@ import {
   ValidStreetInfoSchema,
   Voter,
   VoterSchema,
+  PollbookConnectionStatus,
 } from './types';
 import { HlcTimestamp, HybridLogicalClock } from './hybrid_logical_clock';
 import {
@@ -119,8 +120,18 @@ export abstract class Store {
   }
 
   getIsOnline(): boolean {
-    // TODO-CARO-IMPLEMENT
-    return true;
+    const row = this.client.one(
+      `
+        SELECT status
+        FROM machines
+        WHERE machine_id = ?
+      `,
+      this.machineId
+    ) as { status: PollbookConnectionStatus } | undefined;
+
+    return (
+      row !== undefined && row.status === PollbookConnectionStatus.Connected
+    );
   }
 
   getDbPath(): string {

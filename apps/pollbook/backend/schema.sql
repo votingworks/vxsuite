@@ -9,7 +9,7 @@ CREATE TABLE voters (
 
 CREATE TABLE machines (
     machine_id TEXT PRIMARY KEY,
-    status TEXT not null,
+    status TEXT NOT NULL, -- PollbookConnectionStatus enum
     last_updated INTEGER NOT NULL, -- last time the machine was updated
     last_seen INTEGER NOT NULL -- last time the machine was seen
 );
@@ -26,7 +26,7 @@ CREATE TABLE event_log (
     machine_id TEXT not null,
     physical_time INTEGER NOT NULL, -- physical time of the event
     logical_counter INTEGER NOT NULL, -- logical time of the event
-    event_type TEXT, -- e.g., "check_in", "undo_check_in"
+    event_type TEXT, -- EventType enum
     voter_id TEXT, -- voter_id of the voter involved in the event, if any
     receipt_number INTEGER NOT NULL, -- printed receipt number for the event
     event_data TEXT not null, -- JSON data for additional details associated with the event (id type used for check in, etc.)
