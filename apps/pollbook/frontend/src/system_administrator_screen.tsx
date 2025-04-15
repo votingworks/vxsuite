@@ -24,6 +24,7 @@ import {
   unconfigure,
 } from './api';
 import { Column, Row } from './layout';
+import { SmartCardsScreen } from './smart_cards_screen';
 
 export function SettingsScreen(): JSX.Element | null {
   const logOutMutation = logOut.useMutation();
@@ -115,6 +116,10 @@ export function SystemAdministratorScreen(): JSX.Element {
       <Route
         path={systemAdministratorRoutes.settings.path}
         component={SettingsScreen}
+      />
+      <Route
+        path={systemAdministratorRoutes.smartCards.path}
+        component={SmartCardsScreen}
       />
       <Redirect to={systemAdministratorRoutes.election.path} />
     </Switch>

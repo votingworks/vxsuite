@@ -319,6 +319,7 @@ export function NavScreen({
 export const systemAdministratorRoutes = {
   election: { title: 'Election', path: '/election' },
   settings: { title: 'Settings', path: '/settings' },
+  smartCards: { title: 'Smart Cards', path: '/smart-cards' },
 } satisfies Record<string, { title: string; path: string }>;
 
 export function SystemAdministratorNavScreen({
