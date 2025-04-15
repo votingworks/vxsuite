@@ -33,7 +33,7 @@ function baseStyles(params: BaseStylesProps) {
      * We drop this down to 10pt font for ballots with lots of contests to help
      * reduce the total sheet count.
      */
-    font-size: ${compact ? 10 : 12}pt;
+    font-size: ${compact ? 11 : 12}pt;
     line-height: ${baseLineHeight(compact)};
   }
 
