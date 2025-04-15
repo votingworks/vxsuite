@@ -8,6 +8,7 @@ import { Store } from '../store';
 import { getCurrentTime } from '../util/get_current_time';
 import { exportFile } from '../util/export_file';
 import { ExportDataResult } from '../types';
+import { REPORT_PRINT_OPTIONS } from '../globals';
 
 function buildWriteInAdjudicationReport({
   store,
@@ -95,7 +96,7 @@ export async function printWriteInAdjudicationReport({
     // Printing is disabled on the frontend if the report preview is too large,
     // so rendering the PDF shouldn't error
     const data = (await renderToPdf({ document: report })).unsafeUnwrap();
-    await printer.print({ data });
+    await printer.print({ data, ...REPORT_PRINT_OPTIONS });
     await logger.logAsCurrentRole(LogEventId.ElectionReportPrinted, {
       message: `User printed the write-in adjudication report.`,
       disposition: 'success',

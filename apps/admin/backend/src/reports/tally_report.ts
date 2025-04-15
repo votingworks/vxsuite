@@ -12,6 +12,7 @@ import { getCurrentTime } from '../util/get_current_time';
 import { TallyReportWarning, getTallyReportWarning } from './warnings';
 import { exportFile } from '../util/export_file';
 import { ExportDataResult } from '../types';
+import { REPORT_PRINT_OPTIONS } from '../globals';
 
 /**
  * Parameters that define a tally report.
@@ -160,7 +161,7 @@ export async function printTallyReport({
     // Printing is disabled on the frontend if the report preview is too large,
     // so rendering the PDF shouldn't error
     const data = (await renderToPdf({ document: report })).unsafeUnwrap();
-    await printer.print({ data });
+    await printer.print({ data, ...REPORT_PRINT_OPTIONS });
     await logger.logAsCurrentRole(LogEventId.ElectionReportPrinted, {
       message: `User printed a tally report.`,
       disposition: 'success',

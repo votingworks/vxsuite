@@ -13,6 +13,7 @@ import {
   BallotCountReportWarning,
   getBallotCountReportWarning,
 } from './warnings';
+import { REPORT_PRINT_OPTIONS } from '../globals';
 
 /**
  * Parameters that define a ballot count report.
@@ -134,7 +135,7 @@ export async function printBallotCountReport({
     // Printing is disabled on the frontend if the report preview is too large,
     // so rendering the PDF shouldn't error
     const data = (await renderToPdf({ document: report })).unsafeUnwrap();
-    await printer.print({ data });
+    await printer.print({ data, ...REPORT_PRINT_OPTIONS });
     await logger.logAsCurrentRole(LogEventId.ElectionReportPrinted, {
       message: `User printed a ballot count report.`,
       disposition: 'success',
