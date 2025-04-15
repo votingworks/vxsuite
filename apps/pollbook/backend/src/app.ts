@@ -393,7 +393,6 @@ function buildApi({ context, logger }: BuildAppParams) {
       return store.getThroughputStatistics(input.throughputInterval);
     },
 
-    // TODO-CARO-IMPLEMENT think about how this interacts with the other process
     async resetNetwork(): Promise<boolean> {
       await resetNetworkSetup(context.machineId);
       return true;

@@ -313,30 +313,27 @@ export abstract class Store {
   }
 
   getElection(): Election | undefined {
-    if (!this.election) {
-      // Load the election from the database if its not in memory.
-      const row = this.client.one(
-        `
+    const row = this.client.one(
+      `
           select election_data, valid_street_data
           from elections
           order by rowid desc
           limit 1
         `
-      ) as { election_data: string; valid_street_data: string };
-      if (!row) {
-        return undefined;
-      }
-      const election: Election = safeParseElection(
-        row.election_data
-      ).unsafeUnwrap();
-      this.election = election;
-
-      const validStreetInfo: ValidStreetInfo[] = safeParseJson(
-        row.valid_street_data,
-        ValidStreetInfoSchema
-      ).unsafeUnwrap();
-      this.validStreetInfo = validStreetInfo;
+    ) as { election_data: string; valid_street_data: string };
+    if (!row) {
+      return undefined;
     }
+    const election: Election = safeParseElection(
+      row.election_data
+    ).unsafeUnwrap();
+    this.election = election;
+
+    const validStreetInfo: ValidStreetInfo[] = safeParseJson(
+      row.valid_street_data,
+      ValidStreetInfoSchema
+    ).unsafeUnwrap();
+    this.validStreetInfo = validStreetInfo;
     return this.election;
   }
 
