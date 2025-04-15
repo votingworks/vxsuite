@@ -2,7 +2,6 @@ import { Election } from '@votingworks/types';
 import { ImageData } from 'canvas';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
-import { type TemplateGridAndBubbles } from './find_template_grid_and_bubbles';
 
 const addon = (() => {
   // NOTE: this only works because the build output can get to the root of the
@@ -55,19 +54,6 @@ export function interpret(
     debugBasePathSideA,
     debugBasePathSideB,
     options
-  );
-}
-
-/**
- * Type of the Rust `findTemplateGridAndBubbles` implementation.
- */
-export function findTemplateGridAndBubbles(
-  ballotImageSourceSideA: string | ImageData,
-  ballotImageSourceSideB: string | ImageData
-): TemplateGridAndBubbles {
-  return addon.findTemplateGridAndBubbles(
-    ballotImageSourceSideA,
-    ballotImageSourceSideB
   );
 }
 

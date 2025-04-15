@@ -1,6 +1,6 @@
 use image::{
     imageops::{resize, FilterType::Lanczos3},
-    GenericImage, GenericImageView, GrayImage, ImageError, Luma, Rgb,
+    GenericImage, GrayImage, ImageError, Luma, Rgb,
 };
 use itertools::Itertools;
 use serde::Serialize;
@@ -367,28 +367,6 @@ pub fn detect_vertical_streaks(
     streaks.into_iter().map(|(x, _, _)| x).collect()
 }
 
-/// Calculates the degree to which the given image matches the given template,
-/// where 0.0 means the images are perfect inverses of each other and 1.0 means
-/// the images are identical. Panics if the image and template do not have the
-/// same dimensions.
-pub fn match_template<
-    I: GenericImageView<Pixel = Luma<u8>>,
-    T: GenericImageView<Pixel = Luma<u8>>,
->(
-    image: &I,
-    template: &T,
-) -> UnitIntervalValue {
-    assert_eq!(image.dimensions(), template.dimensions());
-
-    let mut diff = 0.0;
-    for (image_pixel, template_pixel) in image.pixels().zip(template.pixels()) {
-        let image_luma = f32::from(image_pixel.2[0]);
-        let template_luma = f32::from(template_pixel.2[0]);
-        diff += (image_luma - template_luma).abs();
-    }
-    1.0 - (diff / (image.width() * image.height()) as f32 / f32::from(u8::MAX))
-}
-
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod test {
@@ -434,36 +412,5 @@ mod test {
                 right: 0,
             })
         );
-    }
-
-    #[test]
-    fn test_match_template_identical_images() {
-        let image = GrayImage::from_pixel(100, 100, Luma([0]));
-        let template = GrayImage::from_pixel(100, 100, Luma([0]));
-        let match_value = match_template(&image, &template);
-        assert!((match_value - 1.0).abs() < f32::EPSILON);
-    }
-
-    #[test]
-    fn test_match_template_inverse_images() {
-        let image = GrayImage::from_pixel(100, 100, Luma([0]));
-        let template = GrayImage::from_pixel(100, 100, Luma([u8::MAX]));
-        let match_value = match_template(&image, &template);
-        assert!((match_value - 0.0).abs() < f32::EPSILON);
-    }
-
-    #[test]
-    fn test_match_template_half_black_half_white_images() {
-        let image = GrayImage::from_pixel(100, 100, Luma([0]));
-        let template = GrayImage::from_pixel(100, 100, Luma([u8::MAX / 2]));
-        let match_value = match_template(&image, &template);
-        assert!((match_value - 0.5).abs() < 0.01);
-    }
-
-    #[test]
-    fn test_match_template_panics_if_image_dimensions_do_not_match() {
-        let image = GrayImage::from_pixel(100, 100, Luma([0]));
-        let template = GrayImage::from_pixel(100, 101, Luma([0]));
-        assert!(std::panic::catch_unwind(|| match_template(&image, &template)).is_err());
     }
 }
