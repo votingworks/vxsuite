@@ -41,6 +41,7 @@ const ballotTemplateOptions = {
   VxDefaultBallot: 'VotingWorks Default Ballot',
   NhBallot: 'New Hampshire Ballot',
   MsBallot: 'Mississippi Ballot',
+  NhPrimaryBallot: 'New Hampshire Primary Ballot',
 } satisfies Record<BallotTemplateId, string>;
 
 export function ExportScreen(): JSX.Element | null {

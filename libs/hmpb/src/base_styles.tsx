@@ -30,7 +30,7 @@ function baseStyles(params: BaseStylesProps) {
      * 12pt is the Center for Civic Design's recommended default font size, and
      * 10pt is their recommended minimum accessible font size.
      */
-    font-size: ${compact ? 10 : 12}pt;
+    font-size: ${compact ? 11 : 12}pt;
     line-height: ${baseLineHeight(compact)};
   }
 
