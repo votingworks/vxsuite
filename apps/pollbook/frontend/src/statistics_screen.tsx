@@ -36,6 +36,18 @@ const IntervalControl = styled(SegmentedButton)`
   }
 `;
 
+const Container = styled('div')`
+  flex: 1;
+
+  > div {
+    padding: 0;
+  }
+
+  h4 {
+    margin: 0;
+  }
+`;
+
 export function ThroughputChart(): JSX.Element {
   const [intervalMin, setIntervalMin] = useState(60);
   const getThroughputQuery = getThroughputStatistics.useQuery({
@@ -146,7 +158,20 @@ function Metric({
 export function StatisticsScreen(): JSX.Element {
   const getSummaryStatisticsQuery = getSummaryStatistics.useQuery();
   if (!getSummaryStatisticsQuery.isSuccess) {
-    return <Loading />;
+    return (
+      <ElectionManagerNavScreen title="Statistics">
+        <MainContent>
+          <Column style={{ gap: '1rem', height: '100%' }}>
+            <Row style={{ gap: '1rem' }}>
+              <Container>
+                <Loading />
+              </Container>
+            </Row>
+            <ThroughputChart />
+          </Column>
+        </MainContent>
+      </ElectionManagerNavScreen>
+    );
   }
   const {
     totalVoters,
