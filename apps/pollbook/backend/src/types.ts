@@ -315,6 +315,7 @@ export interface PollbookPackage {
 
 export interface PollbookService {
   apiClient?: grout.Client<PeerApi>;
+  configuredElectionId?: string;
   machineId: string;
   lastSeen: Date;
   status: PollbookConnectionStatus;

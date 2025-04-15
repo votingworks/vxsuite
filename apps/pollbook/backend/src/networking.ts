@@ -74,6 +74,7 @@ export function fetchEventsFromConnectedPollbooks({
       }
 
       const previouslyConnected = workspace.store.getPollbookServicesByName();
+      const election = workspace.store.getElection();
 
       // Fetch events from all connected pollbooks in parallel
       await Promise.all(
@@ -82,6 +83,17 @@ export function fetchEventsFromConnectedPollbooks({
           if (
             currentPollbookService.status !== PollbookConnectionStatus.Connected
           ) {
+            return;
+          }
+          if (
+            !election ||
+            currentPollbookService.configuredElectionId !== election.id
+          ) {
+            workspace.store.setPollbookServiceForName(currentName, {
+              ...currentPollbookService,
+              lastSeen: new Date(),
+              status: PollbookConnectionStatus.WrongElection,
+            });
             return;
           }
           const { apiClient } = currentPollbookService;
@@ -101,7 +113,7 @@ export function fetchEventsFromConnectedPollbooks({
             }
 
             workspace.store.setPollbookServiceForName(currentName, {
-              machineId: currentPollbookService.machineId,
+              ...currentPollbookService,
               apiClient,
               lastSeen: new Date(),
               status: PollbookConnectionStatus.Connected,
@@ -220,6 +232,7 @@ export async function setupMachineNetworking({
                 apiClient,
                 lastSeen: new Date(),
                 status: PollbookConnectionStatus.WrongElection,
+                configuredElectionId: machineInformation.configuredElectionId,
               });
               continue;
             }
@@ -239,6 +252,7 @@ export async function setupMachineNetworking({
               apiClient,
               lastSeen: new Date(),
               status: PollbookConnectionStatus.Connected,
+              configuredElectionId: machineInformation.configuredElectionId,
             });
           } catch (error) {
             if (name === currentNodeServiceName) {
