@@ -1,4 +1,5 @@
 import { nhBallotTemplate } from './nh_ballot_template';
+import { nhPrimaryBallotTemplate } from './nh_primary_ballot_template';
 import { nhBallotTemplateV3 } from './v3_nh_ballot_template';
 import { vxDefaultBallotTemplate } from './vx_default_ballot_template';
 
@@ -13,6 +14,7 @@ export const ballotTemplates = {
   NhBallotCompact: nhBallotTemplate,
   NhBallotV3: nhBallotTemplateV3,
   NhBallotV3Compact: nhBallotTemplateV3,
+  NhPrimaryBallot: nhPrimaryBallotTemplate,
 } as const;
 
 /**

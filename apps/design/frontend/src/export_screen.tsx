@@ -44,6 +44,7 @@ const ballotTemplateOptions = {
   NhBallotCompact: '[Compact] New Hampshire Ballot - V4',
   NhBallotV3: 'New Hampshire Ballot - V3',
   NhBallotV3Compact: '[Compact] New Hampshire Ballot - V3',
+  NhPrimaryBallot: 'New Hampshire Primary Ballot - V4',
 } satisfies Record<BallotTemplateId, string>;
 
 export function ExportScreen(): JSX.Element | null {
