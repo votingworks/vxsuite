@@ -147,14 +147,14 @@ version: 2.1
 executors:
   nodejs:
     docker:
-      - image: votingworks/cimg-debian12:4.1.0
+      - image: votingworks/cimg-debian12:4.2.0
         auth:
           username: $VX_DOCKER_USERNAME
           password: $VX_DOCKER_PASSWORD
 
   nodejs_postgres:
     docker:
-      - image: votingworks/cimg-debian12:4.1.0
+      - image: votingworks/cimg-debian12:4.2.0
         auth:
           username: $VX_DOCKER_USERNAME
           password: $VX_DOCKER_PASSWORD

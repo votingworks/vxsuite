@@ -87,7 +87,7 @@ impl Port {
                         event_type: EventType::SystemStatus,
                         disposition: Disposition::Failure
                     ),
-                };
+                }
             }
             Err(e) => log!(
                 event_id: EventId::UnknownError,

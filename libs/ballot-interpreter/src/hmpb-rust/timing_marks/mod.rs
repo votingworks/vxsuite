@@ -17,7 +17,7 @@ use crate::{
     ballot_card::{BallotImage, Geometry, Orientation},
     debug::{self, draw_timing_mark_debug_image_mut, ImageDebugWriter},
     image_utils::{expand_image, match_template, WHITE},
-    interpret::{self, Error},
+    interpret::{self, Error, Result},
     qr_code_metadata::BallotPageQrCodeMetadata,
     timing_mark_metadata::BallotPageTimingMarkMetadata,
 };
@@ -419,11 +419,12 @@ pub struct FindTimingMarkGridOptions<'a> {
 
 /// Finds the timing marks in the given image and computes the grid of timing
 /// marks, i.e. the locations of all the possible bubbles.
+#[allow(clippy::result_large_err)]
 pub fn find_timing_mark_grid(
     geometry: &Geometry,
     ballot_image: &BallotImage,
     options: FindTimingMarkGridOptions,
-) -> Result<TimingMarkGrid, Error> {
+) -> Result<TimingMarkGrid> {
     let debug = options.debug;
     // Find shapes that look like timing marks but may not be.
     let candidate_timing_marks = find_timing_mark_shapes(geometry, ballot_image, debug);
@@ -1468,16 +1469,12 @@ pub fn find_complete_from_partial(
     )
     else {
         let mut missing_corners = vec![];
-        if complete_top_line_marks.first().is_none() {
+        if complete_top_line_marks.is_empty() {
             missing_corners.push(Corner::TopLeft);
-        }
-        if complete_top_line_marks.last().is_none() {
             missing_corners.push(Corner::TopRight);
         }
-        if complete_bottom_line_marks.first().is_none() {
+        if complete_bottom_line_marks.is_empty() {
             missing_corners.push(Corner::BottomLeft);
-        }
-        if complete_bottom_line_marks.last().is_none() {
             missing_corners.push(Corner::BottomRight);
         }
         return Err(FindCompleteTimingMarksError::MissingCorners { missing_corners });
