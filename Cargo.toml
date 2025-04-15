@@ -64,5 +64,4 @@ dead_code = "deny"
 
 [workspace.lints.clippy]
 pedantic = { level = "deny", priority = -1 }
-nursery = { level = "deny", priority = -1 }
 unwrap_used = "deny"

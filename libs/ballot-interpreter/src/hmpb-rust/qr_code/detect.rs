@@ -140,8 +140,6 @@ impl Detected {
     }
 
     /// The areas of the image that were searched for QR codes.
-    // I believe `clippy` is mistaken in thinking this function can be `const`.
-    #[allow(clippy::missing_const_for_fn)]
     pub fn detection_areas(&self) -> &[Rect] {
         &self.detection_areas
     }
@@ -164,8 +162,6 @@ pub enum Error {
 }
 
 impl Error {
-    // I believe `clippy` is mistaken in thinking this function can be `const`.
-    #[allow(clippy::missing_const_for_fn)]
     fn detection_areas(&self) -> &[Rect] {
         match self {
             Self::DecodeFailed {
