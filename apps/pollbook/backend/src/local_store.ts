@@ -503,10 +503,11 @@ export class LocalStore extends Store {
     const totalNewRegistrations = Object.values(voters).filter(
       (v) => v.registrationEvent !== undefined
     ).length;
+    const totalCheckIns = Object.values(voters).filter((v) => v.checkIn).length;
 
     return {
       totalVoters,
-      totalCheckIns: this.getCheckInCount(),
+      totalCheckIns,
       totalAbsenteeCheckIns,
       totalNewRegistrations,
     };
