@@ -50,19 +50,37 @@ export class PeerStore extends Store {
 
   setOnlineStatus(isOnline: boolean): void {
     this.isOnline = isOnline;
-    if (!isOnline) {
-      // If we go offline, we should clear the list of connected pollbooks.
-      debug('Clearing connected pollbooks due to offline status');
-      for (const [avahiServiceName, pollbookService] of Object.entries(
-        this.connectedPollbooks
-      )) {
-        this.setPollbookServiceForName(avahiServiceName, {
-          ...pollbookService,
-          status: PollbookConnectionStatus.LostConnection,
-          apiClient: undefined,
-        });
+    this.client.transaction(() => {
+      if (!isOnline) {
+        // If we go offline, we should clear the list of connected pollbooks.
+        debug('Clearing connected pollbooks due to offline status');
+        for (const [avahiServiceName, pollbookService] of Object.entries(
+          this.connectedPollbooks
+        )) {
+          this.setPollbookServiceForName(avahiServiceName, {
+            ...pollbookService,
+            status: PollbookConnectionStatus.LostConnection,
+            apiClient: undefined,
+          });
+        }
       }
-    }
+      this.client.run(
+        `
+      INSERT INTO machines (machine_id, status, last_updated, last_seen)
+      VALUES (?, ?, ?, ?)
+      ON CONFLICT(machine_id) DO UPDATE SET
+        status = excluded.status,
+        last_updated = excluded.last_updated
+        ${isOnline ? ', last_seen = excluded.last_seen' : ''}
+      `,
+        this.machineId,
+        isOnline
+          ? PollbookConnectionStatus.Connected
+          : PollbookConnectionStatus.LostConnection,
+        getCurrentTime(),
+        isOnline ? getCurrentTime() : 0
+      );
+    });
   }
 
   // Saves all events received from a remote machine. Returning the last event's timestamp.
@@ -90,21 +108,6 @@ export class PeerStore extends Store {
       }
     });
   }
-
-  /**
-   * TODO-CARO-IMPLEMENT
-   * We need to make this periodically see if we have been unconfigured and if so drop all existing connections with the following code
-   *for (const [avahiServiceName, pollbookService] of Object.entries(
-        this.connectedPollbooks
-      )) {
-        if (pollbookService.status === PollbookConnectionStatus.Connected) {
-          this.setPollbookServiceForName(avahiServiceName, {
-            ...pollbookService,
-            status: PollbookConnectionStatus.WrongElection,
-          });
-        }
-      }
-   */
 
   getLastEventSyncedPerNode(): Record<string, number> {
     const rows = this.client.all(
