@@ -146,6 +146,7 @@ export function createBallotPropsForTemplate(
     compact,
   }));
   switch (templateId) {
+    case 'NhPrimaryBallot':
     case 'NhBallot':
       return baseBallotProps.map(buildNhBallotProps);
 
