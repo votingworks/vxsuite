@@ -10,8 +10,6 @@ import {
   constructElectionKey,
   DippedSmartCardAuth,
   Election,
-  ElectionDefinition,
-  SystemSettings,
   UserWithCard,
 } from '@votingworks/types';
 import React, { useState } from 'react';
@@ -314,13 +312,13 @@ export interface CardProgrammingApiClient {
 
 export function CardDetailsAndActions({
   card,
-  systemSettings,
-  electionDefinition,
+  arePollWorkerCardPinsEnabled,
+  election,
   apiClient,
 }: {
   card: DippedSmartCardAuth.ProgrammableCardReady;
-  systemSettings: SystemSettings;
-  electionDefinition: ElectionDefinition;
+  arePollWorkerCardPinsEnabled: boolean;
+  election: Election;
   apiClient: CardProgrammingApiClient;
 }): JSX.Element {
   const [actionResult, setActionResult] = useState<SmartCardActionResult>();
@@ -386,17 +384,14 @@ export function CardDetailsAndActions({
   const { role } = programmedUser ?? {};
 
   const doesCardElectionMatchMachineElection =
-    electionDefinition &&
+    election &&
     programmedUser &&
     (programmedUser.role === 'election_manager' ||
       programmedUser.role === 'poll_worker') &&
-    deepEqual(
-      programmedUser.electionKey,
-      constructElectionKey(electionDefinition.election)
-    );
+    deepEqual(programmedUser.electionKey, constructElectionKey(election));
 
   const electionInfo = doesCardElectionMatchMachineElection ? (
-    <ElectionInfo election={electionDefinition.election} />
+    <ElectionInfo election={election} />
   ) : (
     'Unknown Election'
   );
@@ -405,9 +400,9 @@ export function CardDetailsAndActions({
   // accidentally locked out.
   const unprogramAllowed =
     role === 'election_manager' || role === 'poll_worker';
-  // Disable unprogramming when there's no election definition on
+  // Disable unprogramming when there's no election on
   // the machine since cards can't be programmed in this state
-  const unprogramDisabled = !electionDefinition;
+  const unprogramDisabled = !election;
   const unprogramVariant = doesCardElectionMatchMachineElection
     ? 'danger'
     : 'primary';
@@ -415,8 +410,7 @@ export function CardDetailsAndActions({
   const resetPinAllowed =
     role === 'system_administrator' ||
     role === 'election_manager' ||
-    (systemSettings.auth.arePollWorkerCardPinsEnabled &&
-      role === 'poll_worker');
+    (arePollWorkerCardPinsEnabled && role === 'poll_worker');
   // Because PIN resetting completely reprograms the card under the hood, we also need the
   // relevant election definition to be loaded for election manager and poll worker cards, so
   // that we can write the proper election key
@@ -424,7 +418,7 @@ export function CardDetailsAndActions({
     role === 'system_administrator' || doesCardElectionMatchMachineElection
   );
 
-  const createElectionCardsDisabled = !electionDefinition;
+  const createElectionCardsDisabled = !election;
 
   const actionInProgress =
     unprogramCardMutation.isLoading || programCardMutation.isLoading;

@@ -390,6 +390,18 @@ function buildApi({ context, logger }: BuildAppParams) {
       return store.getThroughputStatistics(input.throughputInterval);
     },
 
+    programCard(input: {
+      userRole: 'system_administrator' | 'election_manager' | 'poll_worker';
+    }) {
+      return auth.programCard(constructAuthMachineState(workspace), {
+        userRole: input.userRole,
+      });
+    },
+
+    unprogramCard() {
+      return auth.unprogramCard(constructAuthMachineState(workspace));
+    },
+
     async resetNetwork(): Promise<boolean> {
       await resetNetworkSetup(context.machineId);
       return true;
