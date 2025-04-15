@@ -5,7 +5,11 @@ import {
   Result,
   throwIllegalValue,
 } from '@votingworks/basics';
-import { format, hyphenatePin } from '@votingworks/utils';
+import {
+  format,
+  hyphenatePin,
+  isSystemAdministratorAuth,
+} from '@votingworks/utils';
 import {
   constructElectionKey,
   DippedSmartCardAuth,
@@ -14,6 +18,7 @@ import {
 } from '@votingworks/types';
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
+import { AuthStatus } from '@votingworks/types/src/auth/dipped_smart_card_auth';
 import { Callout } from './callout';
 import { H1, H2, H3, P } from './typography';
 import { Button } from './button';
@@ -22,7 +27,7 @@ import { Icons } from './icons';
 import { CardIllustration } from './card_illustration';
 import { InsertCardImage, RotateCardImage } from './smart_card_images';
 
-export const SmartCardsScreenButtonList = styled.div`
+const SmartCardsScreenButtonList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -61,11 +66,7 @@ const CardActions = styled.div`
   flex-direction: column;
 `;
 
-export function ElectionInfo({
-  election,
-}: {
-  election: Election;
-}): JSX.Element {
+function ElectionInfo({ election }: { election: Election }): JSX.Element {
   return (
     <React.Fragment>
       {election.title}
@@ -77,7 +78,7 @@ export function ElectionInfo({
   );
 }
 
-export function InsertCardPrompt({
+function InsertCardPrompt({
   cardStatus,
 }: {
   cardStatus: 'no_card' | 'card_error';
@@ -125,7 +126,7 @@ export function InsertCardPrompt({
 
 type SmartCardAction = 'Program' | 'PinReset' | 'Unprogram';
 
-export interface SmartCardActionResult {
+interface SmartCardActionResult {
   status: 'Success' | 'Error';
   action: SmartCardAction;
   role: CardRole;
@@ -138,7 +139,7 @@ const CardPin = styled.div`
   color: ${(p) => p.theme.colors.primary};
 `;
 
-export function ActionResultCallout({
+function ActionResultCallout({
   result,
 }: {
   result: SmartCardActionResult;
@@ -229,7 +230,7 @@ interface ConfirmSystemAdminCardAction {
   doAction: VoidFunction;
 }
 
-export function ConfirmSystemAdminCardActionModal({
+function ConfirmSystemAdminCardActionModal({
   actionType,
   doAction,
   onClose,
@@ -296,7 +297,7 @@ export function ConfirmSystemAdminCardActionModal({
   );
 }
 
-export interface CardProgrammingApiClient {
+interface CardProgrammingApiClient {
   programCard: (input: {
     userRole: 'system_administrator' | 'election_manager' | 'poll_worker';
   }) => Promise<
@@ -310,7 +311,7 @@ export interface CardProgrammingApiClient {
   unprogramCard: () => Promise<Result<void, Error>>;
 }
 
-export function CardDetailsAndActions({
+function CardDetailsAndActions({
   card,
   arePollWorkerCardPinsEnabled,
   election,
@@ -540,4 +541,42 @@ export function CardDetailsAndActions({
       )}
     </React.Fragment>
   );
+}
+
+interface SmartCardsScreenProps {
+  auth: AuthStatus;
+  election: Election;
+  arePollWorkerCardPinsEnabled: boolean;
+  apiClient: CardProgrammingApiClient;
+}
+export function SmartCardsScreen({
+  auth,
+  election,
+  arePollWorkerCardPinsEnabled,
+  apiClient,
+}: SmartCardsScreenProps): JSX.Element | null {
+  assert(isSystemAdministratorAuth(auth));
+
+  const { programmableCard: card } = auth;
+
+  assert(card.status !== 'no_card_reader' && card.status !== 'unknown_error');
+  switch (card.status) {
+    case 'no_card':
+    case 'card_error':
+      return <InsertCardPrompt cardStatus={card.status} />;
+    case 'ready':
+      return (
+        <CardDetailsAndActions
+          card={card}
+          arePollWorkerCardPinsEnabled={arePollWorkerCardPinsEnabled}
+          election={election}
+          apiClient={apiClient}
+        />
+      );
+
+    default: {
+      /* istanbul ignore next - @preserve */
+      throwIllegalValue(card.status);
+    }
+  }
 }
