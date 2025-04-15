@@ -1,32 +1,28 @@
 import styled from 'styled-components';
 import { assert, deepEqual, throwIllegalValue } from '@votingworks/basics';
 import {
+  ActionResultCallout,
   Button,
   Callout,
+  CardIllustration,
+  ConfirmSystemAdminCardActionModal,
+  ElectionInfo,
   H1,
   H2,
-  H3,
   Icons,
-  InsertCardImage,
-  Modal,
+  InsertCardPrompt,
   P,
-  RotateCardImage,
-  SmartCardChipImage,
+  SmartCardsScreenButtonList,
 } from '@votingworks/ui';
 
-import {
-  format,
-  hyphenatePin,
-  isSystemAdministratorAuth,
-} from '@votingworks/utils';
+import { isSystemAdministratorAuth } from '@votingworks/utils';
 import {
   constructElectionKey,
   DippedSmartCardAuth,
-  Election,
   SystemSettings,
   UserWithCard,
 } from '@votingworks/types';
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { NavigationScreen } from '../components/navigation_screen';
 import { AppContext } from '../contexts/app_context';
 import {
@@ -35,18 +31,6 @@ import {
   unprogramCard as apiUnprogramCard,
   getAuthStatus,
 } from '../api';
-
-function toLowerCaseExceptFirst(str: string): string {
-  // istanbul ignore next
-  if (str.length === 0) {
-    return str;
-  }
-
-  const firstLetter = str[0];
-  const restOfString = str.slice(1).toLowerCase();
-
-  return firstLetter + restOfString;
-}
 
 type CardRole = UserWithCard['role'];
 
@@ -66,184 +50,16 @@ interface SmartCardActionResult {
   newPin?: string;
 }
 
-const CardPin = styled.div`
-  font-size: 2.5rem;
-  font-weight: bold;
-  color: ${(p) => p.theme.colors.primary};
-`;
-
-function ActionResultCallout({ result }: { result: SmartCardActionResult }) {
-  const { action, newPin, status } = result;
-  const cardRole = prettyRoles[result.role];
-
-  if (status === 'Error') {
-    let text: string;
-    switch (action) {
-      case 'Program': {
-        text = `Error programming ${cardRole.toLowerCase()} card.`;
-        break;
-      }
-      case 'PinReset': {
-        text = `Error resetting ${cardRole.toLowerCase()} card PIN.`;
-        break;
-      }
-      case 'Unprogram': {
-        text = `Error unprogramming ${cardRole.toLowerCase()} card.`;
-        break;
-      }
-      default: {
-        /* istanbul ignore next - @preserve */
-        throwIllegalValue(action);
-      }
-    }
-    return (
-      <Callout color="danger" icon="Danger">
-        {text} Please try again.
-      </Callout>
-    );
-  }
-
-  switch (action) {
-    case 'Program':
-      return (
-        <Callout color="primary" icon="Done">
-          <div>
-            {toLowerCaseExceptFirst(cardRole)} card programmed.
-            {newPin ? (
-              <React.Fragment>
-                <br />
-                <H3>Record the new PIN:</H3>
-                <CardPin>{hyphenatePin(newPin)}</CardPin>
-                <br />
-                Remove card to continue.
-              </React.Fragment>
-            ) : (
-              <React.Fragment> Remove card to continue.</React.Fragment>
-            )}
-          </div>
-        </Callout>
-      );
-
-    case 'PinReset': {
-      assert(newPin !== undefined);
-      return (
-        <Callout color="primary" icon="Done">
-          <div>
-            {toLowerCaseExceptFirst(cardRole)} card PIN reset.
-            <br />
-            <H3>Record the new PIN:</H3>
-            <CardPin>{hyphenatePin(newPin)}</CardPin>
-            <br />
-            Remove card to continue.
-          </div>
-        </Callout>
-      );
-    }
-
-    case 'Unprogram':
-      return (
-        <Callout color="primary" icon="Done">
-          {toLowerCaseExceptFirst(cardRole)} card unprogrammed.
-        </Callout>
-      );
-
-    default: {
-      /* istanbul ignore next - @preserve */
-      throwIllegalValue(action);
-    }
-  }
-}
-
-function ElectionInfo({ election }: { election: Election }) {
-  return (
-    <React.Fragment>
-      {election.title}
-      <br />
-      {format.localeWeekdayAndDate(
-        election.date.toMidnightDatetimeWithSystemTimezone()
-      )}
-    </React.Fragment>
-  );
-}
-
-const CardIllustrationContainer = styled.div<{
-  inserted?: boolean;
-  active?: boolean;
-}>`
-  height: 100%;
-  padding: 1rem;
-  background: ${(p) => p.theme.colors.containerLow};
-
-  > div {
-    width: 20rem;
-    border-radius: 1.5rem;
-    background: ${(p) => p.inserted && p.theme.colors.background};
-    border-width: ${(p) =>
-      p.active
-        ? p.theme.sizes.bordersRem.medium
-        : p.theme.sizes.bordersRem.thin}rem;
-    border-style: ${(p) => (p.inserted ? 'solid' : 'dashed')};
-    border-color: ${(p) =>
-      p.active ? p.theme.colors.primary : p.theme.colors.outline};
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: ${(p) => (p.inserted ? 'space-between' : 'center')};
-    padding: ${(p) => (p.inserted ? '5rem 2rem 3rem 2rem' : '2rem')};
-    flex-direction: column;
-    gap: 1rem;
-  }
-`;
-
-const SmartCardChipImageContainer = styled.div`
-  margin-right: 3rem;
-
-  svg {
-    width: 3.5rem;
-    background: ${(p) => p.theme.colors.containerLow};
-  }
-`;
-
-function CardIllustration({
-  inserted,
-  active,
-  children,
-}: {
-  inserted: boolean;
-  active?: boolean;
-  children: React.ReactNode;
-}): JSX.Element {
-  return (
-    <CardIllustrationContainer inserted={inserted} active={active}>
-      <div>
-        {children}
-        {inserted && (
-          <SmartCardChipImageContainer>
-            <SmartCardChipImage />
-          </SmartCardChipImageContainer>
-        )}
-      </div>
-    </CardIllustrationContainer>
-  );
-}
-
-const ImageWrapper = styled.div`
-  height: 12rem;
-  display: flex;
-`;
-
 const CardActions = styled.div`
   padding: 1rem;
   display: flex;
   flex-direction: column;
 `;
 
-const ButtonList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  align-items: start;
-`;
+interface ConfirmSystemAdminCardAction {
+  actionType: 'Program' | 'PinReset';
+  doAction: VoidFunction;
+}
 
 function SmartCardsScreenContainer({
   children,
@@ -254,122 +70,6 @@ function SmartCardsScreenContainer({
     <NavigationScreen title="Smart Cards" noPadding>
       <div style={{ display: 'flex', height: '100%' }}>{children}</div>
     </NavigationScreen>
-  );
-}
-
-function InsertCardPrompt({
-  cardStatus,
-}: {
-  cardStatus: 'no_card' | 'card_error';
-}) {
-  return (
-    <SmartCardsScreenContainer>
-      <CardIllustration inserted={false}>
-        {cardStatus === 'no_card' ? (
-          <React.Fragment>
-            <ImageWrapper>
-              <InsertCardImage cardInsertionDirection="right" />
-            </ImageWrapper>
-            <H2>Insert a smart card</H2>
-          </React.Fragment>
-        ) : (
-          <React.Fragment>
-            <ImageWrapper>
-              <RotateCardImage cardInsertionDirection="right" />
-            </ImageWrapper>
-            <H2>Card Backward</H2>
-          </React.Fragment>
-        )}
-      </CardIllustration>
-      <CardActions>
-        <Callout color="primary" icon="Info">
-          Insert a smart card to program or modify it.
-        </Callout>
-        <ButtonList style={{ alignItems: 'start', marginTop: '1rem' }}>
-          <Button onPress={() => {}} disabled>
-            Program Election Manager Card
-          </Button>
-          <Button onPress={() => {}} disabled>
-            Program Poll Worker Card
-          </Button>
-          <Button onPress={() => {}} disabled>
-            Program System Administrator Card
-          </Button>
-        </ButtonList>
-      </CardActions>
-    </SmartCardsScreenContainer>
-  );
-}
-
-interface ConfirmSystemAdminCardAction {
-  actionType: 'Program' | 'PinReset';
-  doAction: VoidFunction;
-}
-
-function ConfirmSystemAdminCardActionModal({
-  actionType,
-  doAction,
-  onClose,
-}: ConfirmSystemAdminCardAction & { onClose: VoidFunction }) {
-  const { title, content, confirmLabel } = (() => {
-    switch (actionType) {
-      case 'Program':
-        return {
-          title: 'Program System Administrator Card',
-          content: (
-            <React.Fragment>
-              <P>System administrator cards have full system access.</P>
-              <P>
-                Limit the number of system administrator cards and keep them
-                secure.
-              </P>
-            </React.Fragment>
-          ),
-          confirmLabel: 'Program System Administrator Card',
-        };
-
-      case 'PinReset':
-        return {
-          title: 'Reset System Administrator Card PIN',
-          content: (
-            <P>
-              The old PIN will no longer work. After resetting the PIN, you must
-              record the new PIN to avoid being locked out of this machine.
-            </P>
-          ),
-          confirmLabel: 'Reset System Administrator Card PIN',
-        };
-
-      default: {
-        /* istanbul ignore next - @preserve */
-        throwIllegalValue(actionType);
-      }
-    }
-  })();
-
-  return (
-    <Modal
-      onOverlayClick={onClose}
-      title={
-        <span>
-          <Icons.Warning color="warning" /> {title}
-        </span>
-      }
-      content={content}
-      actions={
-        <React.Fragment>
-          <Button
-            onPress={() => {
-              doAction();
-              onClose();
-            }}
-          >
-            {confirmLabel}
-          </Button>
-          <Button onPress={onClose}>Cancel</Button>
-        </React.Fragment>
-      }
-    />
   );
 }
 
@@ -513,7 +213,7 @@ function CardDetailsAndActions({
                 </Callout>
               )}
               <H2>Modify Card</H2>
-              <ButtonList>
+              <SmartCardsScreenButtonList>
                 {unprogramAllowed && (
                   <Button
                     onPress={() => unprogramCard(role)}
@@ -545,7 +245,7 @@ function CardDetailsAndActions({
                     Reset Card PIN
                   </Button>
                 )}
-              </ButtonList>
+              </SmartCardsScreenButtonList>
             </CardActions>
           )
         ) : (
@@ -557,7 +257,7 @@ function CardDetailsAndActions({
               </Callout>
             )}
             <H2>Program New Card</H2>
-            <ButtonList style={{ alignItems: 'start' }}>
+            <SmartCardsScreenButtonList style={{ alignItems: 'start' }}>
               <Button
                 icon="Add"
                 variant="primary"
@@ -586,7 +286,7 @@ function CardDetailsAndActions({
               >
                 Program System Administrator Card
               </Button>
-            </ButtonList>
+            </SmartCardsScreenButtonList>
           </CardActions>
         )}
       </div>
@@ -616,8 +316,11 @@ export function SmartCardsScreen(): JSX.Element | null {
   switch (card.status) {
     case 'no_card':
     case 'card_error':
-      return <InsertCardPrompt cardStatus={card.status} />;
-
+      return (
+        <SmartCardsScreenContainer>
+          <InsertCardPrompt cardStatus={card.status} />
+        </SmartCardsScreenContainer>
+      );
     case 'ready':
       return (
         <CardDetailsAndActions
