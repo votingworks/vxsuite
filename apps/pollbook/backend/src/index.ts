@@ -96,6 +96,10 @@ for (const signal of ['SIGINT', 'SIGTERM']) {
     process.exit();
   });
 }
+process.on('unhandledRejection', (reason) => {
+  // eslint-disable-next-line no-console
+  console.error('Unhandled Promise Rejection:', reason);
+});
 
 if (require.main === module) {
   void main()
