@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  assert,
   assertDefined,
   err,
   iter,
@@ -10,10 +11,12 @@ import {
 import { Buffer } from 'node:buffer';
 import {
   AnyContest,
+  BallotStyle,
   BallotStyleId,
   BallotType,
   CandidateContest as CandidateContestStruct,
   Election,
+  LanguageCode,
   NhPrecinctSplitOptions,
   YesNoContest,
   ballotPaperDimensions,
@@ -27,6 +30,7 @@ import {
   electionStrings,
   RichText,
 } from '@votingworks/ui';
+import { parse as parseHtml } from 'node-html-parser';
 import {
   BallotPageTemplate,
   BaseBallotProps,
@@ -55,6 +59,7 @@ import { BallotMode, PixelDimensions } from '../types';
 import { hmpbStrings } from '../hmpb_strings';
 import { layOutInColumns } from '../layout_in_columns';
 import { Watermark } from './watermark';
+import { ArrowRightCircle } from '../svg_assets';
 
 function Header({
   election,
@@ -191,6 +196,15 @@ function BallotPageFrame({
     getBallotStyle({ election, ballotStyleId })
   );
   const languageCode = primaryLanguageCode(ballotStyle);
+  // There are a number of places in the design and implementation of this
+  // template that haven't yet been extended to support translations and
+  // dual-language ballots (e.g. the header layout, the logic to split long
+  // ballot measures across pages).
+  assert(
+    (!ballotStyle.languages || ballotStyle.languages.length === 1) &&
+      languageCode === LanguageCode.ENGLISH,
+    'NH ballot template only supports English'
+  );
   return (
     <BackendLanguageContextProvider
       key={pageNumber}
@@ -414,10 +428,12 @@ function BallotMeasureContest({
   contest,
   compact,
   colorTint,
+  continuesOnNextPage,
 }: {
   contest: YesNoContest;
   compact?: boolean;
   colorTint?: ColorTint;
+  continuesOnNextPage?: boolean;
 }) {
   const ContestTitle = compact ? 'h3' : 'h2';
 
@@ -425,13 +441,13 @@ function BallotMeasureContest({
     <Box style={{ padding: 0 }}>
       <ContestHeader colorTint={colorTint}>
         <DualLanguageText delimiter="/">
-          <ContestTitle>{electionStrings.contestTitle(contest)}</ContestTitle>
+          <ContestTitle>{contest.title}</ContestTitle>
         </DualLanguageText>
       </ContestHeader>
       <div
         style={{
           display: 'flex',
-          flexDirection: compact ? 'row' : 'column',
+          flexDirection: compact && !continuesOnNextPage ? 'row' : 'column',
           justifyContent: 'space-between',
           gap: '0.25rem',
         }}
@@ -450,46 +466,75 @@ function BallotMeasureContest({
               tableBorderColor={Colors.DARKER_GRAY}
               tableHeaderBackgroundColor={Colors.LIGHT_GRAY}
             >
-              {electionStrings.contestDescription(contest)}
+              {/* The logic to split long ballot measures across pages
+              manipulates `contest.description`, but doesn't change
+              `Election.ballotStrings`, so we can't use the usual
+              `electionStrings.contestDescription(contest)` here, since that
+              relies on `ballotStrings`. Since we currently only support English
+              ballots, that's ok. However, if we ever support multiple
+              languages, we'll need to revisit this. */}
+              <div
+                className="contestDescription"
+                dangerouslySetInnerHTML={{ __html: contest.description }}
+              />
             </RichText>
           </DualLanguageText>
         </div>
-        <ul
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'end',
-          }}
-        >
-          {[contest.yesOption, contest.noOption].map((option) => (
-            <li
-              key={option.id}
-              style={{
-                padding: '0.375rem 0.5rem',
-                borderTop: `1px solid ${Colors.LIGHT_GRAY}`,
-                borderLeft: compact
-                  ? `1px solid ${Colors.LIGHT_GRAY}`
-                  : undefined,
-              }}
+        {continuesOnNextPage ? (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              padding: '0.375rem 0.5rem',
+              borderTop: `1px solid ${Colors.LIGHT_GRAY}`,
+              backgroundColor: Colors.LIGHT_GRAY,
+            }}
+          >
+            <h4
+              style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}
             >
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <strong style={{ flex: 1, textAlign: 'right' }}>
-                  <DualLanguageText delimiter="/">
-                    {electionStrings.contestOptionLabel(option)}
-                  </DualLanguageText>
-                </strong>
-                <AlignedBubble
-                  compact={compact}
-                  optionInfo={{
-                    type: 'option',
-                    contestId: contest.id,
-                    optionId: option.id,
-                  }}
-                />
-              </div>
-            </li>
-          ))}
-        </ul>
+              Continues on next page{' '}
+              <ArrowRightCircle style={{ height: '1rem' }} />
+            </h4>
+          </div>
+        ) : (
+          <ul
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'end',
+            }}
+          >
+            {[contest.yesOption, contest.noOption].map((option) => (
+              <li
+                key={option.id}
+                style={{
+                  padding: '0.375rem 0.5rem',
+                  borderTop: `1px solid ${Colors.LIGHT_GRAY}`,
+                  borderLeft: compact
+                    ? `1px solid ${Colors.LIGHT_GRAY}`
+                    : undefined,
+                }}
+              >
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <strong style={{ flex: 1, textAlign: 'right' }}>
+                    <DualLanguageText delimiter="/">
+                      {electionStrings.contestOptionLabel(option)}
+                    </DualLanguageText>
+                  </strong>
+                  <AlignedBubble
+                    compact={compact}
+                    optionInfo={{
+                      type: 'option',
+                      contestId: contest.id,
+                      optionId: option.id,
+                    }}
+                  />
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </Box>
   );
@@ -527,6 +572,77 @@ function Contest({
     default:
       return throwIllegalValue(contest);
   }
+}
+
+async function splitLongBallotMeasureAcrossPages(
+  tooLongContest: YesNoContest,
+  contestProps: Omit<Parameters<typeof Contest>[0], 'contest'>,
+  ballotStyle: BallotStyle,
+  dimensions: PixelDimensions,
+  scratchpad: RenderScratchpad
+) {
+  const columnWidthPx = dimensions.width;
+  const contestElement = (
+    <BackendLanguageContextProvider
+      currentLanguageCode={primaryLanguageCode(ballotStyle)}
+      uiStringsPackage={contestProps.election.ballotStrings}
+    >
+      <div className="contestWrapper" style={{ width: `${columnWidthPx}px` }}>
+        <Contest {...contestProps} contest={tooLongContest} />
+      </div>
+    </BackendLanguageContextProvider>
+  );
+  const [contestMeasurements] = await scratchpad.measureElements(
+    contestElement,
+    '.contestWrapper'
+  );
+  const childMeasurements = await scratchpad.measureElements(
+    contestElement,
+    '.contestDescription > *'
+  );
+  const contestFooterHeight = 30; // "Continues on next page" caption
+  const firstOverflowingChildIndex = childMeasurements.findIndex(
+    (child) =>
+      child.y - contestMeasurements.y + child.height + contestFooterHeight >=
+      dimensions.height
+  );
+  assert(firstOverflowingChildIndex !== -1, 'No overflowing child found');
+  const descriptionHtmlNode = parseHtml(tooLongContest.description);
+  for (const overflowingChild of descriptionHtmlNode.childNodes.slice(
+    firstOverflowingChildIndex
+  )) {
+    descriptionHtmlNode.removeChild(overflowingChild);
+  }
+  const splitIndex = descriptionHtmlNode.toString().length;
+
+  const firstDescriptionChunk = tooLongContest.description.slice(0, splitIndex);
+  const firstContest: YesNoContest = {
+    ...tooLongContest,
+    description: firstDescriptionChunk,
+  };
+  const firstContestElement = (
+    <BallotMeasureContest
+      {...contestProps}
+      contest={firstContest}
+      continuesOnNextPage
+    />
+  );
+
+  const restDescription = tooLongContest.description.slice(splitIndex);
+  const continuedTitleSuffix = ' (Continued)';
+  const continuedTitle = tooLongContest.title.endsWith(continuedTitleSuffix)
+    ? tooLongContest.title
+    : `${tooLongContest.title}${continuedTitleSuffix}`;
+  const restContest: YesNoContest = {
+    ...tooLongContest,
+    title: continuedTitle,
+    description: restDescription,
+  };
+
+  return {
+    firstContestElement,
+    restContest,
+  };
 }
 
 async function BallotPageContent(
@@ -646,10 +762,24 @@ async function BallotPageContent(
     contests.length > 0 &&
     contestsLeftToLayout.flat().length === contests.length
   ) {
-    return err({
-      error: 'contestTooLong',
-      contest: contestsLeftToLayout[0],
-    });
+    const tooLongContest = assertDefined(contestsLeftToLayout.shift());
+    if (tooLongContest.type === 'yesno') {
+      const { firstContestElement, restContest } =
+        await splitLongBallotMeasureAcrossPages(
+          tooLongContest,
+          { election, compact, colorTint: props.colorTint },
+          ballotStyle,
+          dimensions,
+          scratchpad
+        );
+      pageSections.push(<div key="section-1">{firstContestElement}</div>);
+      contestsLeftToLayout.unshift(restContest);
+    } else {
+      return err({
+        error: 'contestTooLong',
+        contest: tooLongContest,
+      });
+    }
   }
 
   const currentPageElement =
@@ -667,14 +797,14 @@ async function BallotPageContent(
       <BlankPageMessage />
     );
   const nextPageProps =
-    contestSectionsLeftToLayout.length > 0
+    contestsLeftToLayout.length > 0
       ? {
           ...restProps,
           compact,
           ballotStyleId,
           election: {
             ...election,
-            contests: contestSectionsLeftToLayout.flat(),
+            contests: contestsLeftToLayout,
           },
         }
       : undefined;

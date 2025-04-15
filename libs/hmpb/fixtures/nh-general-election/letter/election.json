@@ -1310,7 +1310,7 @@
       "districtId": "district-1",
       "title": "Proposition 1: Gambling in Franklin and Fromwit Counties",
       "type": "yesno",
-      "description": "<p>Shall there be an amendment to the State constitution authorizing Franklin and Fromwit Counties to hold referenda on whether to authorize slot machines in existing, licensed pari-mutuel facilities?</p><ol><li><p><strong>Thoroughbred racing</strong></p></li><li><p><em>Greyhound racing</em></p></li><li><p><u>Jai alai</u></p></li><li><p><s>Harness racing</s></p></li></ol><p>Requires implementing legislation:</p><ul><li><p>Proposition 1</p></li><li><p>Repeal Statute C</p></li></ul>",
+      "description": "<p>Shall there be an amendment to the State constitution authorizing Franklin and Fromwit Counties to hold referenda on whether to authorize slot machines in existing, licensed pari-mutuel facilities?</p><ol><li><p><strong>Thoroughbred racing</strong></p></li><li><p><em>Greyhound racing</em></p></li><li><p><u>Jai alai</u></p></li><li><p><s>Harness racing</s></p></li></ol><p>Requires implementing legislation:</p><ul><li><p>Proposition 1</p></li><li><p>Repeal Statute C</p></li></ul><p>Shall there be an amendment to the State constitution authorizing Franklin and Fromwit Counties to hold referenda on whether to authorize slot machines in existing, licensed pari-mutuel facilities?</p><ol><li><p><strong>Thoroughbred racing</strong></p></li><li><p><em>Greyhound racing</em></p></li><li><p><u>Jai alai</u></p></li><li><p><s>Harness racing</s></p></li></ol><p>Requires implementing legislation:</p><ul><li><p>Proposition 1</p></li><li><p>Repeal Statute C</p></li></ul><p>Shall there be an amendment to the State constitution authorizing Franklin and Fromwit Counties to hold referenda on whether to authorize slot machines in existing, licensed pari-mutuel facilities?</p><ol><li><p><strong>Thoroughbred racing</strong></p></li><li><p><em>Greyhound racing</em></p></li><li><p><u>Jai alai</u></p></li><li><p><s>Harness racing</s></p></li></ol><p>Requires implementing legislation:</p><ul><li><p>Proposition 1</p></li><li><p>Repeal Statute C</p></li></ul><p>Shall there be an amendment to the State constitution authorizing Franklin and Fromwit Counties to hold referenda on whether to authorize slot machines in existing, licensed pari-mutuel facilities?</p><ol><li><p><strong>Thoroughbred racing</strong></p></li><li><p><em>Greyhound racing</em></p></li><li><p><u>Jai alai</u></p></li><li><p><s>Harness racing</s></p></li></ol><p>Requires implementing legislation:</p><ul><li><p>Proposition 1</p></li><li><p>Repeal Statute C</p></li></ul><p>Shall there be an amendment to the State constitution authorizing Franklin and Fromwit Counties to hold referenda on whether to authorize slot machines in existing, licensed pari-mutuel facilities?</p><ol><li><p><strong>Thoroughbred racing</strong></p></li><li><p><em>Greyhound racing</em></p></li><li><p><u>Jai alai</u></p></li><li><p><s>Harness racing</s></p></li></ol><p>Requires implementing legislation:</p><ul><li><p>Proposition 1</p></li><li><p>Repeal Statute C</p></li></ul>",
       "yesOption": {
         "id": "proposition-1-option-yes",
         "label": "Yes"
@@ -2209,55 +2209,55 @@
         },
         {
           "type": "option",
-          "sheetNumber": 3,
+          "sheetNumber": 4,
           "side": "front",
           "column": 31.281292391170307,
-          "row": 20.089636542239685,
+          "row": 19.51375245579568,
           "contestId": "proposition-1",
           "optionId": "proposition-1-option-yes"
         },
         {
           "type": "option",
-          "sheetNumber": 3,
+          "sheetNumber": 4,
           "side": "front",
           "column": 31.281292391170307,
-          "row": 21.354371316306484,
+          "row": 20.778487229862478,
           "contestId": "proposition-1",
           "optionId": "proposition-1-option-no"
         },
         {
           "type": "option",
-          "sheetNumber": 3,
-          "side": "back",
+          "sheetNumber": 4,
+          "side": "front",
           "column": 31.281292391170307,
-          "row": 12.68909626719057,
+          "row": 34.00171905697446,
           "contestId": "measure-101",
           "optionId": "measure-101-option-yes"
         },
         {
           "type": "option",
-          "sheetNumber": 3,
-          "side": "back",
+          "sheetNumber": 4,
+          "side": "front",
           "column": 31.281292391170307,
-          "row": 13.953831041257368,
+          "row": 35.26645383104126,
           "contestId": "measure-101",
           "optionId": "measure-101-option-no"
         },
         {
           "type": "option",
-          "sheetNumber": 3,
+          "sheetNumber": 4,
           "side": "back",
           "column": 31.281292391170307,
-          "row": 21.182465618860512,
+          "row": 6.694499017681729,
           "contestId": "102",
           "optionId": "measure-102-option-yes"
         },
         {
           "type": "option",
-          "sheetNumber": 3,
+          "sheetNumber": 4,
           "side": "back",
           "column": 31.281292391170307,
-          "row": 22.44720039292731,
+          "row": 7.9592337917485265,
           "contestId": "102",
           "optionId": "measure-102-option-no"
         }
@@ -2569,36 +2569,36 @@
         {
           "type": "option",
           "sheetNumber": 2,
-          "side": "front",
+          "side": "back",
           "column": 31.281292391170307,
-          "row": 12.350196463654225,
+          "row": 19.51375245579568,
           "contestId": "proposition-1",
           "optionId": "proposition-1-option-yes"
         },
         {
           "type": "option",
           "sheetNumber": 2,
-          "side": "front",
+          "side": "back",
           "column": 31.281292391170307,
-          "row": 13.614931237721022,
+          "row": 20.778487229862478,
           "contestId": "proposition-1",
           "optionId": "proposition-1-option-no"
         },
         {
           "type": "option",
           "sheetNumber": 2,
-          "side": "front",
+          "side": "back",
           "column": 31.281292391170307,
-          "row": 20.843565815324165,
+          "row": 28.00712180746562,
           "contestId": "102",
           "optionId": "measure-102-option-yes"
         },
         {
           "type": "option",
           "sheetNumber": 2,
-          "side": "front",
+          "side": "back",
           "column": 31.281292391170307,
-          "row": 22.108300589390964,
+          "row": 29.27185658153242,
           "contestId": "102",
           "optionId": "measure-102-option-no"
         }
