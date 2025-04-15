@@ -118,34 +118,6 @@ export const updateSessionExpiry = {
   },
 } as const;
 
-export const programCard = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.programCard, {
-      async onSuccess() {
-        // Because we poll auth status with high frequency, this invalidation isn't strictly
-        // necessary
-        await queryClient.invalidateQueries(getAuthStatus.queryKey());
-      },
-    });
-  },
-} as const;
-
-export const unprogramCard = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.unprogramCard, {
-      async onSuccess() {
-        // Because we poll auth status with high frequency, this invalidation isn't strictly
-        // necessary
-        await queryClient.invalidateQueries(getAuthStatus.queryKey());
-      },
-    });
-  },
-} as const;
-
 export const getPrinterStatus = {
   queryKey(): QueryKey {
     return ['getPrinterStatus'];
