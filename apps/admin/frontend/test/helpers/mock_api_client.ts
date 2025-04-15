@@ -320,19 +320,13 @@ export function createApiMock(
 
     expectGetWriteInAdjudicationQueueMetadata(
       queueMetadata: WriteInAdjudicationQueueMetadata[],
-      contestId?: ContestId
+      contestId: ContestId
     ) {
-      if (contestId) {
-        apiClient.getWriteInAdjudicationQueueMetadata
-          .expectCallWith({
-            contestId,
-          })
-          .resolves(queueMetadata);
-      } else {
-        apiClient.getWriteInAdjudicationQueueMetadata
-          .expectCallWith()
-          .resolves(queueMetadata);
-      }
+      apiClient.getWriteInAdjudicationQueueMetadata
+        .expectCallWith({
+          contestId,
+        })
+        .resolves(queueMetadata);
     },
 
     expectGetWriteInAdjudicationQueue(writeInIds: Id[], contestId?: string) {

@@ -337,13 +337,13 @@ export function ContestAdjudicationScreen(): JSX.Element {
     currentCvrId ? { cvrId: currentCvrId } : undefined
   );
   const voteAdjudicationsQuery = getVoteAdjudications.useQuery(
-    currentCvrId ? { cvrId: currentCvrId, contestId } : undefined
+    currentCvrId ? { cvrId: currentCvrId, contestId: contest.id } : undefined
   );
   const writeInsQuery = getWriteIns.useQuery(
-    currentCvrId ? { cvrId: currentCvrId, contestId } : undefined
+    currentCvrId ? { cvrId: currentCvrId, contestId: contest.id } : undefined
   );
   const writeInImagesQuery = getCvrWriteInImageViews.useQuery(
-    currentCvrId ? { cvrId: currentCvrId, contestId } : undefined
+    currentCvrId ? { cvrId: currentCvrId, contestId: contest.id } : undefined
   );
   const writeInCandidatesQuery = getWriteInCandidates.useQuery({
     contestId: contest.id,

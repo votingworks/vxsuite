@@ -33,7 +33,7 @@ beforeEach(() => {
 });
 
 test('No CVRs loaded', async () => {
-  apiMock.expectGetWriteInAdjudicationQueueMetadata([]);
+  apiMock.expectGetWriteInAdjudicationQueueMetadata([], 'zoo-council-mammal');
   apiMock.expectGetCastVoteRecordFiles([]);
   renderInAppContext(<WriteInsSummaryScreen />, {
     electionDefinition,
@@ -57,7 +57,7 @@ test('Tally results already marked as official', async () => {
       pendingTally: 5,
       totalTally: 5,
     },
-  ]);
+  ], 'zoo-council-mammal');
   apiMock.expectGetCastVoteRecordFiles([]);
   renderInAppContext(<WriteInsSummaryScreen />, {
     electionDefinition,
@@ -80,7 +80,7 @@ test('CVRs with write-ins loaded', async () => {
       pendingTally: 3,
       totalTally: 3,
     },
-  ]);
+  ], 'zoo-council-mammal');
   apiMock.expectGetCastVoteRecordFiles([]);
   const history = createMemoryHistory();
   renderInAppContext(<WriteInsSummaryScreen />, {

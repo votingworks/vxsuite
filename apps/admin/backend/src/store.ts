@@ -1814,19 +1814,12 @@ export class Store {
     contestId,
   }: {
     electionId: Id;
-    contestId?: ContestId;
+    contestId: ContestId;
   }): WriteInAdjudicationQueueMetadata[] {
     debug(
       'querying database for write-in adjudication queue metadata for contest %s',
       contestId
     );
-    const whereParts: string[] = ['write_ins.election_id = ?'];
-    const params: Bindable[] = [electionId];
-
-    if (contestId) {
-      whereParts.push('write_ins.contest_id = ?');
-      params.push(contestId);
-    }
 
     const rows = this.client.all(
       `
@@ -1841,10 +1834,12 @@ export class Store {
             ) = 0
           ) as pendingTally
         from write_ins
-        where ${whereParts.join(' and ')}
+        where write_ins.election_id = ?
+          and write_ins.contest_id = ?
         group by contest_id
       `,
-      ...params
+      electionId,
+      contestId
     ) as Array<{
       contestId: ContestId;
       totalTally: number;
@@ -1862,18 +1857,9 @@ export class Store {
     contestId,
   }: {
     electionId: Id;
-    contestId?: ContestId;
+    contestId: ContestId;
   }): Id[] {
     this.assertElectionExists(electionId);
-
-    const whereParts: string[] = ['election_id = ?'];
-    const params: Bindable[] = [electionId];
-
-    if (contestId) {
-      whereParts.push('contest_id = ?');
-      params.push(contestId);
-    }
-
     debug(
       'querying database for write-in adjudication ballot queue for contest %s',
       contestId
@@ -1884,11 +1870,13 @@ export class Store {
           cvr_id
         from write_ins
         where
-          ${whereParts.join(' and ')}
+          election_id = ? and
+          contest_id = ?
         group by cvr_id
         ${WRITE_IN_QUEUE_ORDER_BY}
-`,
-      ...params
+      `,
+      electionId,
+      contestId
     ) as Array<{ cvr_id: Id }>;
     debug('queried database for write-in adjudication queue');
     return rows.map((r) => r.cvr_id);
@@ -1899,23 +1887,10 @@ export class Store {
    */
   getWriteInAdjudicationCvrQueueMetadata({
     electionId,
-    contestId,
   }: {
     electionId: Id;
-    contestId?: ContestId;
   }): WriteInAdjudicationQueueMetadata[] {
-    debug(
-      'querying database for write-in adjudication queue metadata for contest %s',
-      contestId
-    );
-    const whereParts: string[] = ['write_ins.election_id = ?'];
-    const params: Bindable[] = [electionId];
-
-    if (contestId) {
-      whereParts.push('write_ins.contest_id = ?');
-      params.push(contestId);
-    }
-
+    debug('querying database for write-in adjudication queue metadata');
     const rows = this.client.all(
       `
       select
@@ -1927,10 +1902,10 @@ export class Store {
           is_invalid = 0) 
         then cvr_id end) as pendingTally
       from write_ins
-      where ${whereParts.join(' and ')}
+      where write_ins.election_id = ?
       group by contest_id
       `,
-      ...params
+      electionId
     ) as Array<{
       contestId: ContestId;
       totalTally: number;
@@ -2438,22 +2413,9 @@ export class Store {
     cvrId,
   }: {
     electionId: Id;
-    contestId?: ContestId;
-    cvrId?: Id;
+    contestId: ContestId;
+    cvrId: Id;
   }): VoteAdjudication[] {
-    const whereParts: string[] = ['election_id = ?'];
-    const params: Bindable[] = [electionId];
-
-    if (contestId) {
-      whereParts.push('contest_id = ?');
-      params.push(contestId);
-    }
-
-    if (cvrId) {
-      whereParts.push('cvr_id = ?');
-      params.push(cvrId);
-    }
-
     const rows = this.client.all(
       `
         select
@@ -2462,9 +2424,13 @@ export class Store {
           option_id as optionId,
           is_vote as isVote
         from vote_adjudications
-        where ${whereParts.join(' and ')}
+        where election_id = ?
+          and contest_id = ?
+          and cvr_id = ?
       `,
-      ...params
+      electionId,
+      contestId,
+      cvrId
     ) as Array<{
       cvrId: Id;
       contestId: ContestId;

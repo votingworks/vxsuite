@@ -75,7 +75,6 @@ import {
   ScannerBatch,
   WriteInAdjudicationAction,
   WriteInAdjudicationQueueMetadata,
-  WriteInAdjudicationStatus,
   WriteInCandidateRecord,
   WriteInAdjudicationContext,
   WriteInImageView,
@@ -639,27 +638,23 @@ function buildApi({
       adjudicateCvrContest(input, store, logger);
     },
 
-    getVoteAdjudications(
-      input: {
-        contestId?: ContestId;
-        cvrId?: Id;
-      } = {}
-    ): VoteAdjudication[] {
+    getVoteAdjudications(input: {
+      contestId: ContestId;
+      cvrId: Id;
+    }): VoteAdjudication[] {
       return store.getVoteAdjudications({
-        ...input,
         electionId: loadCurrentElectionIdOrThrow(workspace),
+        contestId: input.contestId,
+        cvrId: input.cvrId,
       });
     },
 
-    getWriteInAdjudicationQueueMetadata(
-      input: {
-        contestId?: ContestId;
-        status?: WriteInAdjudicationStatus;
-      } = {}
-    ): WriteInAdjudicationQueueMetadata[] {
+    getWriteInAdjudicationQueueMetadata(input: {
+      contestId: ContestId;
+    }): WriteInAdjudicationQueueMetadata[] {
       return store.getWriteInAdjudicationQueueMetadata({
         electionId: loadCurrentElectionIdOrThrow(workspace),
-        ...input,
+        contestId: input.contestId,
       });
     },
 
@@ -711,24 +706,15 @@ function buildApi({
       });
     },
 
-    getWriteInAdjudicationCvrQueue(
-      input: {
-        contestId?: ContestId;
-      } = {}
-    ): Id[] {
+    getWriteInAdjudicationCvrQueue(input: { contestId: ContestId }): Id[] {
       return store.getWriteInAdjudicationCvrQueue({
-        ...input,
         electionId: loadCurrentElectionIdOrThrow(workspace),
+        contestId: input.contestId,
       });
     },
 
-    getWriteInAdjudicationCvrQueueMetadata(
-      input: {
-        contestId?: ContestId;
-      } = {}
-    ): WriteInAdjudicationQueueMetadata[] {
+    getWriteInAdjudicationCvrQueueMetadata(): WriteInAdjudicationQueueMetadata[] {
       return store.getWriteInAdjudicationCvrQueueMetadata({
-        ...input,
         electionId: loadCurrentElectionIdOrThrow(workspace),
       });
     },
