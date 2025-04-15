@@ -190,6 +190,7 @@ impl ScanInterpreter {
     /// # Errors
     ///
     /// Returns an error if the images could not be interpreted.
+    #[allow(clippy::result_large_err)]
     pub fn interpret<P: Into<Option<PathBuf>>>(
         &self,
         side_a_image: GrayImage,
@@ -249,6 +250,7 @@ impl ResizeStrategy {
 ///
 /// Returns an error if the images could not be loaded or if the ballot card
 /// could not be prepared.
+#[allow(clippy::result_large_err)]
 pub fn prepare_ballot_card_images(
     side_a_image: GrayImage,
     side_b_image: GrayImage,
@@ -328,6 +330,7 @@ pub fn crop_ballot_page_image_borders(mut image: GrayImage) -> Option<BallotImag
 
 /// Prepare a ballot page image for interpretation: crop the black border, and
 /// maybe resize it to the expected dimensions.
+#[allow(clippy::result_large_err)]
 fn prepare_ballot_page_image(
     label: &str,
     image: GrayImage,
@@ -375,7 +378,7 @@ fn prepare_ballot_page_image(
 /// # Errors
 ///
 /// Returns an error if the ballot card could not be interpreted.
-#[allow(clippy::too_many_lines)]
+#[allow(clippy::too_many_lines, clippy::result_large_err)]
 pub fn ballot_card(
     side_a_image: GrayImage,
     side_b_image: GrayImage,
