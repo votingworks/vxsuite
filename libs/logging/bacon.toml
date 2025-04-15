@@ -24,8 +24,6 @@ command = [
     "-W",
     "clippy::pedantic",
     "-W",
-    "clippy::nursery",
-    "-W",
     "clippy::unwrap_used",
     "-A",
     "clippy::cast-possible-truncation",
