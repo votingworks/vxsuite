@@ -48,7 +48,7 @@ async function exportCastVoteRecordToUsbDriveWithLogging(
   // which ballots were cast
   const operationId = uuid();
 
-  await logger.log(LogEventId.ExportCastVoteRecordsInit, 'system', {
+  logger.log(LogEventId.ExportCastVoteRecordsInit, 'system', {
     message: `Queueing ${acceptedOrRejected} sheet for continuous export to USB drive.`,
     operationId,
   });
@@ -56,7 +56,7 @@ async function exportCastVoteRecordToUsbDriveWithLogging(
   let exportResult: Result<void, ExportCastVoteRecordsToUsbDriveError>;
   try {
     exportResult = await continuousExportMutex.withLock(async () => {
-      await logger.log(LogEventId.ExportCastVoteRecordsInit, 'system', {
+      logger.log(LogEventId.ExportCastVoteRecordsInit, 'system', {
         message: `Exporting cast vote record for ${acceptedOrRejected} sheet to USB drive...`,
         operationId,
       });
@@ -73,7 +73,7 @@ async function exportCastVoteRecordToUsbDriveWithLogging(
   } catch (error) {
     // We have to use a try-catch and can't just check for an error Result because certain errors,
     // e.g., errors involving corrupted USB drive file systems, surface as unexpected errors.
-    await logger.log(LogEventId.ExportCastVoteRecordsComplete, 'system', {
+    logger.log(LogEventId.ExportCastVoteRecordsComplete, 'system', {
       disposition: 'failure',
       message: `Error exporting cast vote record for ${acceptedOrRejected} sheet to USB drive.`,
       errorDetails: extractErrorMessage(error),
@@ -81,7 +81,7 @@ async function exportCastVoteRecordToUsbDriveWithLogging(
     });
     throw error;
   }
-  await logger.log(LogEventId.ExportCastVoteRecordsComplete, 'system', {
+  logger.log(LogEventId.ExportCastVoteRecordsComplete, 'system', {
     disposition: 'success',
     message: `Successfully exported cast vote record for ${acceptedOrRejected} sheet to USB drive.`,
     operationId,

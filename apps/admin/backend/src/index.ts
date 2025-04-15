@@ -29,7 +29,7 @@ async function main(): Promise<number> {
 if (require.main === module) {
   void main()
     .catch((error) => {
-      void logger.log(LogEventId.ApplicationStartup, 'system', {
+      logger.log(LogEventId.ApplicationStartup, 'system', {
         message: `Error in starting Admin Service: ${error.stack}`,
         disposition: 'failure',
       });

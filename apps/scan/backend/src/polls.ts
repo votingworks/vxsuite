@@ -38,7 +38,7 @@ export async function openPolls({
   });
 
   const batchId = store.addBatch();
-  await logger.log(LogEventId.ScannerBatchStarted, 'system', {
+  logger.log(LogEventId.ScannerBatchStarted, 'system', {
     disposition: 'success',
     message: 'New scanning batch started on polls opened.',
     batchId,
@@ -73,7 +73,7 @@ export async function closePolls({
     const ongoingBatchId = store.getOngoingBatchId();
     assert(ongoingBatchId !== undefined);
     store.finishBatch({ batchId: ongoingBatchId });
-    await logger.log(LogEventId.ScannerBatchEnded, 'system', {
+    logger.log(LogEventId.ScannerBatchEnded, 'system', {
       disposition: 'success',
       message: 'Current scanning batch finished on polls closed.',
       batchId: ongoingBatchId,
@@ -114,7 +114,7 @@ export async function pauseVoting({
   const ongoingBatchId = store.getOngoingBatchId();
   assert(ongoingBatchId !== undefined);
   store.finishBatch({ batchId: ongoingBatchId });
-  await logger.log(LogEventId.ScannerBatchEnded, 'system', {
+  logger.log(LogEventId.ScannerBatchEnded, 'system', {
     disposition: 'success',
     message: 'Current scanning batch finished on voting paused.',
     batchId: ongoingBatchId,
@@ -138,7 +138,7 @@ export async function resumeVoting({
   });
 
   const batchId = store.addBatch();
-  await logger.log(LogEventId.ScannerBatchStarted, 'system', {
+  logger.log(LogEventId.ScannerBatchStarted, 'system', {
     disposition: 'success',
     message: 'New scanning batch started on voting resumed.',
     batchId,

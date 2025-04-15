@@ -1112,7 +1112,7 @@ export class Store {
     component: ElectricalTestingComponent,
     statusMessage: string
   ): void {
-    void this.logger.log(LogEventId.Info, 'system', {
+    this.logger.log(LogEventId.Info, 'system', {
       message: 'Setting electrical testing status message',
       component,
       statusMessage,

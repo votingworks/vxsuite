@@ -135,7 +135,7 @@ export class MockFileFujitsuPrinter implements FujitsuThermalPrinterInterface {
 
   async getStatus(): Promise<PrinterStatus> {
     const newPrinterStatus = await Promise.resolve(readFromMockFile());
-    await logPrinterStatusIfChanged(
+    logPrinterStatusIfChanged(
       this.logger,
       this.lastKnownStatus,
       newPrinterStatus || null

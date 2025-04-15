@@ -12,7 +12,7 @@ import { Importer } from './importer';
 import { buildCentralScannerApp } from './app';
 import { start } from './server';
 
-test('logs device attach/un-attach events', async () => {
+test('logs device attach/un-attach events', () => {
   const auth = buildMockDippedSmartCardAuth(vi.fn);
   const workspace = createWorkspace(
     dirSync().name,
@@ -39,7 +39,7 @@ test('logs device attach/un-attach events', async () => {
   vi.spyOn(console, 'log').mockReturnValue();
 
   // start up the server
-  await start({ app, workspace, port: 3005, logger });
+  start({ app, workspace, port: 3005, logger });
 
   testDetectDevices(logger, expect);
 });

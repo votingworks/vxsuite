@@ -41,7 +41,7 @@ beforeEach(async () => {
   apiClient = grout.createClient({
     baseUrl: `http://localhost:${port}/api`,
   });
-  server = await start({
+  server = start({
     app: buildCentralScannerApp({
       auth,
       usbDrive: createMockUsbDrive().usbDrive,

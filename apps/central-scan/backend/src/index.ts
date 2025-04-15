@@ -1,5 +1,5 @@
 import { BaseLogger, LogSource, LogEventId } from '@votingworks/logging';
-import { iter } from '@votingworks/basics';
+import { assert, iter } from '@votingworks/basics';
 import {
   handleUncaughtExceptions,
   loadEnvVarsFromDotenvFiles,
@@ -28,23 +28,22 @@ function getScanner(): BatchScanner | undefined {
   return new LoopScanner(mockScannerFiles);
 }
 
-async function main(): Promise<number> {
+function main(): number {
   handleUncaughtExceptions(logger);
 
-  await server.start({ batchScanner: getScanner(), logger });
+  server.start({ batchScanner: getScanner(), logger });
   return 0;
 }
 
 if (require.main === module) {
-  void main()
-    .catch((error) => {
-      void logger.log(LogEventId.ApplicationStartup, 'system', {
-        message: `Error in starting Scan Service: ${error.stack}`,
-        disposition: 'failure',
-      });
-      return 1;
-    })
-    .then((code) => {
-      process.exitCode = code;
+  try {
+    process.exitCode = main();
+  } catch (error) {
+    assert(error instanceof Error);
+    logger.log(LogEventId.ApplicationStartup, 'system', {
+      message: `Error in starting Scan Service: ${error.stack}`,
+      disposition: 'failure',
     });
+    process.exitCode = 1;
+  }
 }

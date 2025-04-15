@@ -57,7 +57,7 @@ export async function setAudioOutput(
   let lastError: any;
   for (let i = 0; i < MAX_PULSE_COMMAND_ATTEMPTS; i += 1) {
     if (i > 0) {
-      void logger.log(LogEventId.Info, 'system', {
+      logger.log(LogEventId.Info, 'system', {
         message:
           `Unable to set audio output to ${outputName} - ` +
           `retrying after error: ${lastError}`,

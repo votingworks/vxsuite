@@ -31,7 +31,7 @@ export class Db {
       },
     });
     this.pool.on('error', (error) => {
-      void this.logger.log(
+      this.logger.log(
         LogEventId.UnknownError, // [TODO] Figure out logging/reporting
         'system',
         {

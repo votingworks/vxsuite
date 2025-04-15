@@ -164,22 +164,19 @@ function isFat32(deviceInfo: BlockDeviceInfo): boolean {
   return deviceInfo.fstype === 'vfat' && deviceInfo.fsver === 'FAT32';
 }
 
-async function logMountInit(logger: BaseLogger): Promise<void> {
-  await logger.log(LogEventId.UsbDriveMountInit, 'system');
+function logMountInit(logger: BaseLogger): void {
+  logger.log(LogEventId.UsbDriveMountInit, 'system');
 }
 
-async function logMountSuccess(logger: BaseLogger): Promise<void> {
-  await logger.log(LogEventId.UsbDriveMounted, 'system', {
+function logMountSuccess(logger: BaseLogger): void {
+  logger.log(LogEventId.UsbDriveMounted, 'system', {
     disposition: 'success',
     message: 'USB drive successfully mounted.',
   });
 }
 
-async function logMountFailure(
-  logger: BaseLogger,
-  error: Error
-): Promise<void> {
-  await logger.log(LogEventId.UsbDriveMounted, 'system', {
+function logMountFailure(logger: BaseLogger, error: Error): void {
+  logger.log(LogEventId.UsbDriveMounted, 'system', {
     disposition: 'failure',
     message: 'USB drive failed to mount.',
     error: error.message,
@@ -231,13 +228,13 @@ async function mount(
   deviceInfo: BlockDeviceInfo,
   logger: BaseLogger
 ): Promise<void> {
-  await logMountInit(logger);
+  logMountInit(logger);
   try {
     await mountUsbDrive(deviceInfo.path);
-    await logMountSuccess(logger);
+    logMountSuccess(logger);
     debug('USB drive mounted successfully');
   } catch (error) {
-    await logMountFailure(logger, error as Error);
+    logMountFailure(logger, error as Error);
     debug(`USB drive mounting failed: ${error}`);
     throw error;
   }

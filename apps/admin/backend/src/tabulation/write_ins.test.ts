@@ -546,7 +546,7 @@ test('combineElectionWriteInSummaries', () => {
   });
 });
 
-test('filterOvervoteWriteInsFromElectionResults', async () => {
+test('filterOvervoteWriteInsFromElectionResults', () => {
   const store = Store.memoryStore();
   const logger = mockBaseLogger({ fn: vi.fn });
   const contestId = 'zoo-council-mammal';
@@ -703,7 +703,7 @@ test('filterOvervoteWriteInsFromElectionResults', async () => {
 
   for (const writeIn of writeIns) {
     if (writeIn.optionId.includes('invalid')) {
-      await adjudicateWriteIn(
+      adjudicateWriteIn(
         {
           writeInId: writeIn.id,
           type: 'invalid',
@@ -712,7 +712,7 @@ test('filterOvervoteWriteInsFromElectionResults', async () => {
         logger
       );
     } else if (writeIn.optionId.includes('existing')) {
-      await adjudicateWriteIn(
+      adjudicateWriteIn(
         {
           writeInId: writeIn.id,
           type: 'official-candidate',
@@ -722,7 +722,7 @@ test('filterOvervoteWriteInsFromElectionResults', async () => {
         logger
       );
     } else {
-      await adjudicateWriteIn(
+      adjudicateWriteIn(
         {
           writeInId: writeIn.id,
           type: 'write-in-candidate',

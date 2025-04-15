@@ -115,7 +115,7 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
       (e) => e === frontInterpretation.type || e === backInterpretation.type
     );
     if (errorInterpretations.length > 0) {
-      void logger.log(LogEventId.ScanAdjudicationInfo, userRole, {
+      logger.log(LogEventId.ScanAdjudicationInfo, userRole, {
         message:
           'Sheet scanned that has unresolvable errors. Sheet must be removed to continue scanning.',
         adjudicationTypes: errorInterpretations.join(', '),
@@ -140,7 +140,7 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
           adjudicationTypes.add(reason);
         }
       }
-      void logger.log(LogEventId.ScanAdjudicationInfo, userRole, {
+      logger.log(LogEventId.ScanAdjudicationInfo, userRole, {
         message:
           'Sheet scanned has warnings (ex: undervotes or overvotes). The user can either tabulate it as is or remove the ballot to continue scanning.',
         adjudicationTypes: [...adjudicationTypes].join(', '),

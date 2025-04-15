@@ -9,7 +9,7 @@ import { usb } from 'usb';
  */
 export function detectDevices({ logger }: { logger: BaseLogger }): void {
   usb.on('attach', (device) => {
-    void logger.log(LogEventId.DeviceAttached, 'system', {
+    logger.log(LogEventId.DeviceAttached, 'system', {
       message: `Device attached. Vendor ID: ${device.deviceDescriptor.idVendor}, Product ID: ${device.deviceDescriptor.idProduct}`,
       productId: device.deviceDescriptor.idProduct,
       vendorId: device.deviceDescriptor.idVendor,
@@ -17,7 +17,7 @@ export function detectDevices({ logger }: { logger: BaseLogger }): void {
   });
 
   usb.on('detach', (device) => {
-    void logger.log(LogEventId.DeviceUnattached, 'system', {
+    logger.log(LogEventId.DeviceUnattached, 'system', {
       message: `Device unattached. Vendor ID: ${device.deviceDescriptor.idVendor}, Product ID: ${device.deviceDescriptor.idProduct}`,
       productId: device.deviceDescriptor.idProduct,
       vendorId: device.deviceDescriptor.idVendor,

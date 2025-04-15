@@ -316,7 +316,7 @@ test('tabulateElectionResults - write-in handling', async () => {
   const { id: fileId } = importResult.unsafeUnwrap();
   expect(store.getCastVoteRecordCountByFileId(fileId)).toEqual(184);
 
-  /*  ******************* 
+  /*  *******************
   /*   Pre-Adjudication, No WIA Data
   /*  ******************* */
 
@@ -365,8 +365,8 @@ test('tabulateElectionResults - write-in handling', async () => {
     partialExpectedResultsPreAdjudication.contestResults[candidateContestId]
   );
 
-  /*  ********************** 
-  /*   With Screen WIA Data    
+  /*  **********************
+  /*   With Screen WIA Data
   /*  ********************** */
 
   // now let's add some "screen-adjudicated" write-in adjudication
@@ -375,7 +375,7 @@ test('tabulateElectionResults - write-in handling', async () => {
     contestId: candidateContestId,
   });
   const [writeIn1, writeIn2, writeIn3, writeIn4, writeIn5, writeIn6] = writeIns;
-  await adjudicateWriteIn(
+  adjudicateWriteIn(
     {
       writeInId: writeIn1!.id,
       type: 'invalid',
@@ -383,7 +383,7 @@ test('tabulateElectionResults - write-in handling', async () => {
     store,
     logger
   );
-  await adjudicateWriteIn(
+  adjudicateWriteIn(
     {
       writeInId: writeIn2!.id,
       type: 'invalid',
@@ -391,7 +391,7 @@ test('tabulateElectionResults - write-in handling', async () => {
     store,
     logger
   );
-  await adjudicateWriteIn(
+  adjudicateWriteIn(
     {
       writeInId: writeIn3!.id,
       type: 'official-candidate',
@@ -400,7 +400,7 @@ test('tabulateElectionResults - write-in handling', async () => {
     store,
     logger
   );
-  await adjudicateWriteIn(
+  adjudicateWriteIn(
     {
       writeInId: writeIn4!.id,
       type: 'official-candidate',
@@ -414,7 +414,7 @@ test('tabulateElectionResults - write-in handling', async () => {
     contestId: candidateContestId,
     name: 'Mr. Pickles',
   });
-  await adjudicateWriteIn(
+  adjudicateWriteIn(
     {
       writeInId: writeIn5!.id,
       type: 'write-in-candidate',
@@ -428,7 +428,7 @@ test('tabulateElectionResults - write-in handling', async () => {
     contestId: candidateContestId,
     name: 'Ms. Tomato',
   });
-  await adjudicateWriteIn(
+  adjudicateWriteIn(
     {
       writeInId: writeIn6!.id,
       type: 'write-in-candidate',
@@ -542,7 +542,7 @@ test('tabulateElectionResults - write-in handling', async () => {
   );
 
   /*  *******************************
-  /*   With Screen + Manual WIA Data    
+  /*   With Screen + Manual WIA Data
   /*  ******************************* */
 
   const manualOnlyWriteInCandidate = store.addWriteInCandidate({
@@ -649,7 +649,7 @@ test('tabulateElectionResults - write-in handling', async () => {
   );
 
   /*  ***********************************************
-  /*   With Screen + Manual WIA Data, Without Detail    
+  /*   With Screen + Manual WIA Data, Without Detail
   /*  *********************************************** */
 
   const overallResultsScreenAndManualWiaNoDetail = (
@@ -732,7 +732,7 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
   });
   expect(writeIns.length).toEqual(56);
   for (const writeIn of writeIns) {
-    await adjudicateWriteIn(
+    adjudicateWriteIn(
       {
         writeInId: writeIn.id,
         type: 'invalid',

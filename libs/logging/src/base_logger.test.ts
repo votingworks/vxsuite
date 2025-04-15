@@ -9,10 +9,10 @@ import { DEVICE_TYPES_FOR_APP, LogDispositionStandardTypes } from './types';
 
 vi.useFakeTimers().setSystemTime(new Date('2020-07-24T00:00:00.000Z'));
 
-test('logger logs server logs as expected', async () => {
+test('logger logs server logs as expected', () => {
   console.log = vi.fn();
   const logger = new BaseLogger(LogSource.System);
-  await logger.log(LogEventId.MachineBootInit, 'system', {
+  logger.log(LogEventId.MachineBootInit, 'system', {
     message: 'I come back stronger than a 90s trend',
     disposition: LogDispositionStandardTypes.Success,
     reputation: 'callitwhatyouwant',
@@ -30,11 +30,11 @@ test('logger logs server logs as expected', async () => {
   );
 });
 
-test('logger logs client logs as expected through kiosk browser with overridden message', async () => {
+test('logger logs client logs as expected through kiosk browser with overridden message', () => {
   console.log = vi.fn();
   const kiosk = mockKiosk(vi.fn);
   const logger = new BaseLogger(LogSource.VxAdminFrontend, kiosk);
-  await logger.log(LogEventId.ElectionConfigured, 'election_manager', {
+  logger.log(LogEventId.ElectionConfigured, 'election_manager', {
     message: 'On my tallest tiptoes',
     disposition: LogDispositionStandardTypes.NotApplicable,
     folklore: 'mirrorball',
@@ -55,11 +55,11 @@ test('logger logs client logs as expected through kiosk browser with overridden 
   expect(console.log).not.toHaveBeenCalled();
 });
 
-test('defaults to default message when defined and no disposition', async () => {
+test('defaults to default message when defined and no disposition', () => {
   console.log = vi.fn();
   const kiosk = mockKiosk(vi.fn);
   const logger = new BaseLogger(LogSource.VxAdminFrontend, kiosk);
-  await logger.log(LogEventId.ElectionUnconfigured, 'election_manager');
+  logger.log(LogEventId.ElectionUnconfigured, 'election_manager');
   expect(kiosk.log).toHaveBeenCalledTimes(1);
   expect(kiosk.log).toHaveBeenCalledWith(
     JSON.stringify({
@@ -75,10 +75,10 @@ test('defaults to default message when defined and no disposition', async () => 
   expect(console.log).not.toHaveBeenCalled();
 });
 
-test('logs unknown disposition as expected', async () => {
+test('logs unknown disposition as expected', () => {
   console.log = vi.fn();
   const logger = new BaseLogger(LogSource.System);
-  await logger.log(LogEventId.MachineBootComplete, 'system', {
+  logger.log(LogEventId.MachineBootComplete, 'system', {
     message: 'threw out our cloaks and our daggers now',
     disposition: 'daylight',
     maybe: 'you',
@@ -100,10 +100,10 @@ test('logs unknown disposition as expected', async () => {
   );
 });
 
-test('logging from a client side app without sending window.kiosk does NOT log to console', async () => {
+test('logging from a client side app without sending window.kiosk does NOT log to console', () => {
   console.log = vi.fn();
   const logger = new BaseLogger(LogSource.VxAdminFrontend);
-  await logger.log(LogEventId.AuthLogin, 'election_manager');
+  logger.log(LogEventId.AuthLogin, 'election_manager');
   expect(console.log).not.toHaveBeenCalled();
 });
 

@@ -1,3 +1,4 @@
+import { assert } from '@votingworks/basics';
 import {
   BaseLogger,
   LogEventId,
@@ -45,10 +46,10 @@ loadEnvVarsFromDotenvFiles();
 
 const baseLogger = new BaseLogger(LogSource.VxScanBackend);
 
-async function resolveWorkspace(): Promise<Workspace> {
+function resolveWorkspace(): Workspace {
   const workspacePath = SCAN_WORKSPACE;
   if (!workspacePath) {
-    await baseLogger.log(LogEventId.WorkspaceConfigurationMessage, 'system', {
+    baseLogger.log(LogEventId.WorkspaceConfigurationMessage, 'system', {
       message:
         'workspace path could not be determined; pass a workspace or run with SCAN_WORKSPACE',
       disposition: 'failure',
@@ -60,7 +61,7 @@ async function resolveWorkspace(): Promise<Workspace> {
   return createWorkspace(workspacePath, baseLogger);
 }
 
-async function main(): Promise<number> {
+function main(): number {
   handleUncaughtExceptions(baseLogger);
 
   const auth = new InsertedSmartCardAuth({
@@ -72,7 +73,7 @@ async function main(): Promise<number> {
     config: {},
     logger: baseLogger,
   });
-  const workspace = await resolveWorkspace();
+  const workspace = resolveWorkspace();
   const logger = Logger.from(baseLogger, () => getUserRole(auth, workspace));
   const usbDrive = detectUsbDrive(logger);
   const printer = getPrinter(logger);
@@ -108,15 +109,14 @@ async function main(): Promise<number> {
 }
 
 if (require.main === module) {
-  void main()
-    .catch((error) => {
-      void baseLogger.log(LogEventId.ApplicationStartup, 'system', {
-        message: `Error in starting VxScan backend: ${error.stack}`,
-        disposition: 'failure',
-      });
-      return 1;
-    })
-    .then((code) => {
-      process.exitCode = code;
+  try {
+    process.exitCode = main();
+  } catch (error) {
+    assert(error instanceof Error);
+    baseLogger.log(LogEventId.ApplicationStartup, 'system', {
+      message: `Error in starting VxScan backend: ${error.stack}`,
+      disposition: 'failure',
     });
+    process.exitCode = 1;
+  }
 }

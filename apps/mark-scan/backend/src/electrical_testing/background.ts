@@ -44,7 +44,7 @@ export async function cardReadLoop({
   workspace,
 }: ServerContext): Promise<void> {
   controller.signal.addEventListener('abort', () => {
-    void logger.log(LogEventId.BackgroundTaskCancelled, 'system', {
+    logger.log(LogEventId.BackgroundTaskCancelled, 'system', {
       message: `Card read loop stopping. Reason: ${controller.signal.reason}`,
     });
   });

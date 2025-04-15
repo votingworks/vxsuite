@@ -369,7 +369,7 @@ export class Client {
    * Deletes the entire database, including its on-disk representation.
    */
   destroy(): void {
-    void this.logger.log(
+    this.logger.log(
       LogEventId.DatabaseDestroyInit,
       'system',
       {
@@ -388,7 +388,7 @@ export class Client {
     try {
       debug('deleting the database file at %s', dbPath);
       fs.unlinkSync(dbPath);
-      void this.logger.log(
+      this.logger.log(
         LogEventId.DatabaseDestroyComplete,
         'system',
         {
@@ -398,7 +398,7 @@ export class Client {
         debug
       );
     } catch (error) {
-      void this.logger.log(
+      this.logger.log(
         LogEventId.DatabaseDestroyComplete,
         'system',
         {
@@ -417,7 +417,7 @@ export class Client {
    * Connects to the database, creating it if it doesn't exist.
    */
   connect(): Database {
-    void this.logger.log(
+    this.logger.log(
       LogEventId.DatabaseConnectInit,
       'system',
       {
@@ -431,7 +431,7 @@ export class Client {
     // only runs on db creation.
     this.run('pragma foreign_keys = 1');
 
-    void this.logger.log(
+    this.logger.log(
       LogEventId.DatabaseConnectComplete,
       'system',
       {
@@ -448,7 +448,7 @@ export class Client {
    * Creates the database including its tables.
    */
   create(): Database {
-    void this.logger.log(
+    this.logger.log(
       LogEventId.DatabaseCreateInit,
       'system',
       {
@@ -461,7 +461,7 @@ export class Client {
       const schema = fs.readFileSync(this.schemaPath, 'utf-8');
       this.exec(schema);
     }
-    void this.logger.log(
+    this.logger.log(
       LogEventId.DatabaseCreateComplete,
       'system',
       {

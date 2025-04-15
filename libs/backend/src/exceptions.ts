@@ -10,11 +10,11 @@ import { BaseLogger, LogEventId } from '@votingworks/logging';
 
 /** Sets up handlers for unhandled exceptions. */
 export function handleUncaughtExceptions(logger: BaseLogger): void {
-  async function handleException(
+  function handleException(
     error: Error,
     origin: NodeJS.UncaughtExceptionOrigin
   ) {
-    await logger.log(LogEventId.UnknownError, 'system', {
+    logger.log(LogEventId.UnknownError, 'system', {
       message: `Server shutting down due to ${origin}: ${error.message}`,
       stack: error.stack,
       disposition: 'failure',

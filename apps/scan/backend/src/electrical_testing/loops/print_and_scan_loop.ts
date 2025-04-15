@@ -37,13 +37,13 @@ export async function printAndScanLoop({
   workspace,
 }: ServerContext): Promise<void> {
   void printerTask.waitUntilIsStopped().then((reason = 'unknown') => {
-    void logger.log(LogEventId.BackgroundTaskCancelled, 'system', {
+    logger.log(LogEventId.BackgroundTaskCancelled, 'system', {
       message: `Printer loop stopping. Reason: ${reason}`,
     });
   });
 
   void scannerTask.waitUntilIsStopped().then((reason = 'unknown') => {
-    void logger.log(LogEventId.BackgroundTaskCancelled, 'system', {
+    logger.log(LogEventId.BackgroundTaskCancelled, 'system', {
       message: `Scanner loop stopping. Reason: ${reason}`,
     });
   });

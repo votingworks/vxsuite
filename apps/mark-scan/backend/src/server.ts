@@ -39,7 +39,7 @@ export async function resolveDriver(
   if (
     isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER)
   ) {
-    await logger.log(LogEventId.PaperHandlerConnection, 'system', {
+    logger.log(LogEventId.PaperHandlerConnection, 'system', {
       message: 'Starting server with mock paper handler',
     });
     return new MockPaperHandlerDriver();
@@ -54,13 +54,13 @@ export async function resolveDriver(
   const driver = await getPaperHandlerDriver({ maxPrintWidth });
 
   if (driver) {
-    await logger.log(LogEventId.PaperHandlerConnection, 'system', {
+    logger.log(LogEventId.PaperHandlerConnection, 'system', {
       disposition: 'success',
     });
     return driver;
   }
 
-  await logger.log(LogEventId.PaperHandlerConnection, 'system', {
+  logger.log(LogEventId.PaperHandlerConnection, 'system', {
     disposition: 'failure',
   });
   return undefined;
@@ -124,8 +124,8 @@ export async function start({
   return app.listen(
     port,
     /* istanbul ignore next - @preserve */
-    async () => {
-      await logger.log(LogEventId.ApplicationStartup, 'system', {
+    () => {
+      logger.log(LogEventId.ApplicationStartup, 'system', {
         message: `VxMarkScan backend running at http://localhost:${port}/`,
         disposition: 'success',
       });
