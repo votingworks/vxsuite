@@ -33,7 +33,7 @@ import {
   CastVoteRecordFilePreprocessedData,
   InputEventFunction,
 } from '../../config/types';
-import { TIME_FORMAT } from '../../config/globals';
+import { NODE_ENV, TIME_FORMAT } from '../../config/globals';
 import {
   addCastVoteRecordFile,
   getCastVoteRecordFileMode,
@@ -354,7 +354,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
         onOverlayClick={onClose}
         actions={
           <React.Fragment>
-            {window.kiosk && process.env.NODE_ENV === 'development' && (
+            {window.kiosk && NODE_ENV === 'development' && (
               <FileInputButton
                 data-testid="manual-input"
                 onChange={processCastVoteRecordFileFromFilePicker}
