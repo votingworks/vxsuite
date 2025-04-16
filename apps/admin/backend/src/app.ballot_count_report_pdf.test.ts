@@ -22,6 +22,7 @@ import {
 } from '../test/app';
 import { Api } from './app';
 import { BallotCountReportSpec } from './reports/ballot_count_report';
+import { expectLastPrintToHaveUsedReportPrintOptions } from '../test/printing';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -86,6 +87,7 @@ async function expectIdenticalSnapshotsAcrossExportMethods({
     customSnapshotIdentifier,
     failureThreshold: 0.0001,
   });
+  expectLastPrintToHaveUsedReportPrintOptions(mockPrinterHandler);
 
   const exportPath = tmpNameSync();
   const exportResult = await apiClient.exportBallotCountReportPdf({
