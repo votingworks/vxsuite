@@ -183,7 +183,7 @@ export function fetchEventsFromConnectedPollbooks({
               seenDurations.reduce((a, b) => a + b, 0) / seenDurations.length;
             const min = Math.min(...seenDurations);
             const max = Math.max(...seenDurations);
-            debug(
+            console.log(
               'Seen %s Pollbooks - Avg: %d ms, Min: %d ms, Max: %d ms',
               numSeen,
               avg,
@@ -203,7 +203,7 @@ export function fetchEventsFromConnectedPollbooks({
               queriedDurations.length;
             const min = Math.min(...queriedDurations);
             const max = Math.max(...queriedDurations);
-            debug(
+            console.log(
               'Queried %s Pollbooks - Avg: %d ms, Min: %d ms, Max: %d ms',
               numQueried,
               avg,
