@@ -15,7 +15,6 @@ mod layout;
 mod qr_code;
 mod qr_code_metadata;
 mod scoring;
-mod template;
 mod timing_mark_metadata;
 mod timing_marks;
 
@@ -23,10 +22,7 @@ mod timing_marks;
 #[neon::main]
 fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("interpret", js::interpret)?;
-    cx.export_function(
-        "findTemplateGridAndBubbles",
-        js::find_template_grid_and_bubbles,
-    )?;
+
     cx.export_function("runBlankPaperDiagnostic", js::run_blank_paper_diagnostic)?;
 
     Ok(())

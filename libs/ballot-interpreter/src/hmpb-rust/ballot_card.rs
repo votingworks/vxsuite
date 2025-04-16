@@ -284,12 +284,6 @@ pub fn load_ballot_scan_bubble_image() -> Result<GrayImage, image::ImageError> {
     image::load(inner, image::ImageFormat::Png).map(|image| image.to_luma8())
 }
 
-pub fn load_ballot_template_bubble_image() -> Result<GrayImage, image::ImageError> {
-    let bubble_image_bytes = include_bytes!("../../data/bubble_template.png");
-    let inner = io::Cursor::new(bubble_image_bytes);
-    image::load(inner, image::ImageFormat::Png).map(|image| image.to_luma8())
-}
-
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod tests {
@@ -326,6 +320,5 @@ mod tests {
     #[test]
     fn test_load_bubble_template() {
         load_ballot_scan_bubble_image().unwrap();
-        load_ballot_template_bubble_image().unwrap();
     }
 }

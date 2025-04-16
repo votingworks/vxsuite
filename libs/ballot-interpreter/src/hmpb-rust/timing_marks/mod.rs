@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 use std::time::Duration;
 use std::{iter::once, ops::Range};
 
-use image::{imageops::rotate180, GenericImageView, GrayImage};
+use image::{imageops::rotate180, GrayImage};
 use imageproc::contours::{find_contours_with_threshold, BorderType, Contour};
 use itertools::Itertools;
 use serde::Serialize;
@@ -16,7 +16,7 @@ use crate::scoring::UnitIntervalScore;
 use crate::{
     ballot_card::{BallotImage, Geometry, Orientation},
     debug::{self, draw_timing_mark_debug_image_mut, ImageDebugWriter},
-    image_utils::{expand_image, match_template, WHITE},
+    image_utils::{expand_image, WHITE},
     interpret::{self, Error, Result},
     qr_code_metadata::BallotPageQrCodeMetadata,
     timing_mark_metadata::BallotPageTimingMarkMetadata,
@@ -1704,77 +1704,6 @@ pub fn distances_between_marks(marks: &[CandidateTimingMark]) -> Vec<f32> {
         .collect::<Vec<_>>();
     distances.sort_by(|a, b| a.partial_cmp(b).unwrap_or(Ordering::Equal));
     distances
-}
-
-/// Finds the points in a timing mark grid that contain empty bubbles matching a
-/// given template image.
-pub fn find_empty_bubbles_matching_template(
-    ballot_image: &GrayImage,
-    bubble_template: &GrayImage,
-    grid: &TimingMarkGrid,
-    threshold: UnitIntervalValue,
-    match_error_pixels: PixelUnit,
-) -> Vec<Point<GridUnit>> {
-    let mut empty_bubbles = vec![];
-
-    for column in 1..grid.geometry.grid_size.width - 1 {
-        for row in 1..grid.geometry.grid_size.height - 1 {
-            if let Some(bubble_center) =
-                grid.point_for_location(column as SubGridUnit, row as SubGridUnit)
-            {
-                let bubble_center = bubble_center.round();
-                let bubble_origin = Point::new(
-                    (bubble_center.x as SubPixelUnit
-                        - bubble_template.width() as SubPixelUnit / 2.0)
-                        as PixelUnit,
-                    (bubble_center.y as SubPixelUnit
-                        - bubble_template.height() as SubPixelUnit / 2.0)
-                        as PixelUnit,
-                );
-                assert!(bubble_origin.x >= match_error_pixels);
-                assert!(bubble_origin.y >= match_error_pixels);
-                assert!(
-                    (bubble_origin.x + bubble_template.width() as PixelUnit)
-                        < ballot_image.width() - match_error_pixels,
-                    "column: {column}, row: {row}, bubble origin: {:?}, bubble template size: {:?}, ballot image size: {:?}",
-                    bubble_origin,
-                    bubble_template.dimensions(),
-                    ballot_image.dimensions()
-                );
-                assert!(
-                    (bubble_origin.y + bubble_template.height() as PixelUnit)
-                        < ballot_image.height() - match_error_pixels,
-                    "column: {column}, row: {row}, bubble origin: {:?}, bubble template size: {:?}, ballot image size: {:?}",
-                    bubble_origin,
-                    bubble_template.dimensions(),
-                    ballot_image.dimensions()
-                );
-
-                'bubble_search: for x in
-                    (bubble_origin.x - match_error_pixels)..=(bubble_origin.x + match_error_pixels)
-                {
-                    for y in (bubble_origin.y - match_error_pixels)
-                        ..=(bubble_origin.y + match_error_pixels)
-                    {
-                        let bubble_image = ballot_image.view(
-                            x,
-                            y,
-                            bubble_template.width(),
-                            bubble_template.height(),
-                        );
-
-                        let bubble_image = bubble_image.to_image();
-                        let match_score = match_template(&bubble_image, bubble_template);
-                        if match_score >= threshold {
-                            empty_bubbles.push(Point::new(column, row));
-                            break 'bubble_search;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    empty_bubbles
 }
 
 pub fn normalize_orientation(

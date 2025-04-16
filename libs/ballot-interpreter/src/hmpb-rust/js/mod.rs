@@ -14,7 +14,6 @@ use self::args::{
     ImageSource,
 };
 use self::image_data::ImageData;
-use self::serialization::tuple2_to_js;
 
 mod args;
 mod image_data;
@@ -155,43 +154,6 @@ pub fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
     result_object.set(&mut cx, "backNormalizedImage", back_js_normalized_image_obj)?;
 
     Ok(result_object)
-}
-
-pub fn find_template_grid_and_bubbles(mut cx: FunctionContext) -> JsResult<JsArray> {
-    let side_a_image_or_path = get_image_data_or_path_from_arg(&mut cx, 0)?;
-    let side_b_image_or_path = get_image_data_or_path_from_arg(&mut cx, 1)?;
-    let side_a_label = side_a_image_or_path.as_label_or(SIDE_A_LABEL);
-    let side_b_label = side_b_image_or_path.as_label_or(SIDE_B_LABEL);
-    let (side_a_image, side_b_image) = rayon::join(
-        || load_ballot_image_from_image_or_path(side_a_image_or_path),
-        || load_ballot_image_from_image_or_path(side_b_image_or_path),
-    );
-
-    let (side_a_image, side_b_image) =
-        match ((side_a_image, &side_a_label), (side_b_image, &side_b_label)) {
-            ((Some(a), _), (Some(b), _)) => (a, b),
-            ((None, label), (Some(_), _)) | ((Some(_), _), (None, label)) => {
-                return cx.throw_error(format!("failed to load ballot card image: {label}"));
-            }
-            ((None, a), (None, b)) => {
-                return cx.throw_error(format!("failed to load ballot card images: {a}, {b}"));
-            }
-        };
-
-    // call the underlying non-JS function
-    let template_grid_and_bubbles = match crate::template::find_template_grid_and_bubbles(
-        side_a_image,
-        side_b_image,
-        &side_a_label,
-        &side_b_label,
-    ) {
-        Ok(template_grid_and_bubbles) => template_grid_and_bubbles,
-        Err(err) => {
-            return cx.throw_error(err.to_string());
-        }
-    };
-
-    tuple2_to_js(&mut cx, template_grid_and_bubbles)
 }
 
 fn load_ballot_image_from_image_or_path(image_or_path: ImageSource) -> Option<GrayImage> {
