@@ -290,19 +290,23 @@
   "precincts": [
     {
       "id": "23",
-      "name": "North Lincoln"
+      "name": "North Lincoln",
+      "districtIds": ["district-1"]
     },
     {
       "id": "22",
-      "name": "South Lincoln"
+      "name": "South Lincoln",
+      "districtIds": ["district-1"]
     },
     {
       "id": "21",
-      "name": "East Lincoln"
+      "name": "East Lincoln",
+      "districtIds": ["district-1"]
     },
     {
       "id": "20",
-      "name": "West Lincoln"
+      "name": "West Lincoln",
+      "districtIds": ["district-1"]
     }
   ],
   "ballotStyles": [

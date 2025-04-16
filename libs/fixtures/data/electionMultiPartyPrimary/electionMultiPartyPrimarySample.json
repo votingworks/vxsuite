@@ -392,23 +392,28 @@
   "precincts": [
     {
       "id": "precinct-1",
-      "name": "Precinct 1"
+      "name": "Precinct 1",
+      "districtIds": ["district-1", "district-2", "district-3", "district-4"]
     },
     {
       "id": "precinct-2",
-      "name": "Precinct 2"
+      "name": "Precinct 2",
+      "districtIds": ["district-1", "district-2", "district-3", "district-4"]
     },
     {
       "id": "precinct-3",
-      "name": "Precinct 3"
+      "name": "Precinct 3",
+      "districtIds": ["district-1", "district-2", "district-3", "district-4"]
     },
     {
       "id": "precinct-4",
-      "name": "Precinct 4"
+      "name": "Precinct 4",
+      "districtIds": ["district-1", "district-2", "district-3", "district-4"]
     },
     {
       "id": "precinct-5",
-      "name": "Precinct 5"
+      "name": "Precinct 5",
+      "districtIds": ["district-1", "district-2", "district-3", "district-4"]
     }
   ],
   "ballotStyles": [
