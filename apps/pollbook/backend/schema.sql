@@ -29,6 +29,7 @@ CREATE TABLE event_log (
     voter_id TEXT, -- voter_id of the voter involved in the event, if any
     receipt_number INTEGER NOT NULL, -- printed receipt number for the event
     event_data TEXT not null, -- JSON data for additional details associated with the event (id type used for check in, etc.)
+    physical_saved_on_machine INTEGER NOT NULL,
     PRIMARY KEY (event_id, machine_id)
 );
 

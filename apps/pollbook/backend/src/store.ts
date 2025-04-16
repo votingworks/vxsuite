@@ -258,8 +258,9 @@ export abstract class Store {
           event_type,
           physical_time,
           logical_counter,
-          event_data
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          event_data,
+          physical_saved_on_machine
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
         pollbookEvent.localEventId,
         pollbookEvent.machineId,
@@ -268,7 +269,8 @@ export abstract class Store {
         pollbookEvent.type,
         pollbookEvent.timestamp.physical,
         pollbookEvent.timestamp.logical,
-        JSON.stringify(eventData)
+        JSON.stringify(eventData),
+        Date.now()
       );
 
       // Update any materialized views necessary for the given event. Refetching the voter ensures
