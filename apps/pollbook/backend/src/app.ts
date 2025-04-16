@@ -180,8 +180,7 @@ function buildApi({ context, logger }: BuildAppParams) {
         return null;
       }
 
-      const result = store.searchVoters(searchParams);
-      return result;
+      return store.searchVoters(searchParams);
     },
 
     getVoter(input: { voterId: string }): Voter {
