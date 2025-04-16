@@ -1,4 +1,3 @@
-import { expect, test } from 'vitest';
 import {
   electionFamousNames2021Fixtures,
   electionGridLayoutNewHampshireTestBallotFixtures,
@@ -10,6 +9,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   TEST_JURISDICTION,
 } from '@votingworks/types';
+import { expect, test } from 'vitest';
 import { mockElectionManagerAuth } from '../test/helpers/auth';
 import { generateBmdBallotFixture } from '../test/helpers/ballots';
 import { withApp } from '../test/helpers/setup_app';
@@ -20,10 +20,10 @@ const jurisdiction = TEST_JURISDICTION;
 test('scanBatch with multiple sheets', async () => {
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
-  const ballot = await generateBmdBallotFixture();
+  const bmdFixture = await generateBmdBallotFixture();
   const scannedBallot: ScannedSheetInfo = {
-    frontPath: ballot[0],
-    backPath: ballot[1],
+    frontPath: bmdFixture.sheet[0],
+    backPath: bmdFixture.sheet[1],
   };
   await withApp(async ({ auth, apiClient, scanner, importer, workspace }) => {
     mockElectionManagerAuth(auth, electionDefinition);
@@ -63,7 +63,7 @@ test('scanBatch with multiple sheets', async () => {
 test('continueScanning after invalid ballot', async () => {
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
-  const ballot = await generateBmdBallotFixture();
+  const bmdFixture = await generateBmdBallotFixture();
   await withApp(async ({ auth, apiClient, scanner, importer, workspace }) => {
     mockElectionManagerAuth(auth, electionDefinition);
     importer.configure(
@@ -77,12 +77,12 @@ test('continueScanning after invalid ballot', async () => {
     scanner
       .withNextScannerSession()
       .sheet({
-        frontPath: ballot[0],
-        backPath: ballot[1],
+        frontPath: bmdFixture.sheet[0],
+        backPath: bmdFixture.sheet[1],
       })
       // Invalid BMD ballot
-      .sheet({ frontPath: ballot[1], backPath: ballot[1] })
-      .sheet({ frontPath: ballot[0], backPath: ballot[1] })
+      .sheet({ frontPath: bmdFixture.sheet[1], backPath: bmdFixture.sheet[1] })
+      .sheet({ frontPath: bmdFixture.sheet[0], backPath: bmdFixture.sheet[1] })
       .end();
 
     await apiClient.scanBatch();

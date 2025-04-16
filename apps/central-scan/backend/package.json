@@ -38,6 +38,7 @@
     "@votingworks/db": "workspace:*",
     "@votingworks/dev-dock-backend": "workspace:*",
     "@votingworks/grout": "workspace:*",
+    "@votingworks/hmpb": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/logging": "workspace:*",
     "@votingworks/printing": "workspace:*",

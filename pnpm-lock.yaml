@@ -681,6 +681,9 @@ importers:
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../../../libs/grout
+      '@votingworks/hmpb':
+        specifier: workspace:*
+        version: link:../../../libs/hmpb
       '@votingworks/image-utils':
         specifier: workspace:*
         version: link:../../../libs/image-utils
