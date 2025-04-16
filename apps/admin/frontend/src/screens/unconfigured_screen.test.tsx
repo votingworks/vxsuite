@@ -6,12 +6,25 @@ import { mockUsbDriveStatus } from '@votingworks/ui';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { screen, within } from '../../test/react_testing_library';
 
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { UnconfiguredScreen } from './unconfigured_screen';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
+
+let mockNodeEnv: 'development' | 'test' = 'test';
+
+vi.mock(
+  '../config/globals.js',
+  async (importActual): Promise<typeof import('../config/globals')> => ({
+    ...(await importActual()),
+    get NODE_ENV(): 'development' | 'test' {
+      return mockNodeEnv;
+    },
+  })
+);
 
 let apiMock: ApiMock;
 
 beforeEach(() => {
+  mockNodeEnv = 'test';
   apiMock = createApiMock();
 });
 
@@ -108,6 +121,37 @@ test('configures from selected file', async () => {
   apiMock.expectConfigure('/path/to/election-package.zip');
   userEvent.click(screen.getButton('Select Other File...'));
   await vi.waitFor(() => apiMock.assertComplete());
+  expect(kiosk.showOpenDialog).toHaveBeenCalledWith({
+    properties: ['openFile'],
+    filters: [{ name: '', extensions: ['zip'] }],
+  });
+});
+
+test('allows configuring from json in development', async () => {
+  mockNodeEnv = 'development';
+
+  const kiosk = mockKiosk(vi.fn);
+  window.kiosk = kiosk;
+  kiosk.showOpenDialog.mockResolvedValueOnce({
+    canceled: false,
+    filePaths: ['/path/to/election-definition.json'],
+  });
+
+  apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
+  renderInAppContext(<UnconfiguredScreen />, {
+    apiMock,
+    usbDriveStatus: mockUsbDriveStatus('mounted'),
+  });
+
+  await screen.findByRole('heading', { name: 'Election' });
+
+  apiMock.expectConfigure('/path/to/election-definition.json');
+  userEvent.click(screen.getButton('Select Other File...'));
+  await vi.waitFor(() => apiMock.assertComplete());
+  expect(kiosk.showOpenDialog).toHaveBeenCalledWith({
+    properties: ['openFile'],
+    filters: [{ name: '', extensions: ['zip', 'json'] }],
+  });
 });
 
 test('shows configuration error', async () => {

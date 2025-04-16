@@ -16,7 +16,7 @@ import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';
 import { configure, listPotentialElectionPackagesOnUsbDrive } from '../api';
 import { AppContext } from '../contexts/app_context';
-import { TIME_FORMAT } from '../config/globals';
+import { NODE_ENV, TIME_FORMAT } from '../config/globals';
 
 const ButtonRow = styled.tr`
   cursor: pointer;
@@ -40,7 +40,12 @@ function SelectElectionPackage({
   async function onSelectOtherFile() {
     const dialogResult = await assertDefined(window.kiosk).showOpenDialog({
       properties: ['openFile'],
-      filters: [{ name: '', extensions: ['zip', 'json'] }],
+      filters: [
+        {
+          name: '',
+          extensions: NODE_ENV === 'development' ? ['zip', 'json'] : ['zip'],
+        },
+      ],
     });
     if (dialogResult.canceled) return;
     const selectedPath = dialogResult.filePaths[0];
