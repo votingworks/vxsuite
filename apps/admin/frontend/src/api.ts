@@ -248,12 +248,10 @@ export const getWriteInAdjudicationQueue = {
 type GetWriteInAdjudicationCvrQueueInput =
   QueryInput<'getWriteInAdjudicationCvrQueue'>;
 export const getWriteInAdjudicationCvrQueue = {
-  queryKey(input?: GetWriteInAdjudicationCvrQueueInput): QueryKey {
-    return input
-      ? ['getWriteInAdjudicationCvrQueue', input]
-      : ['getWriteInAdjudicationCvrQueue'];
+  queryKey(input: GetWriteInAdjudicationCvrQueueInput): QueryKey {
+    return ['getWriteInAdjudicationCvrQueue', input];
   },
-  useQuery(input: GetWriteInAdjudicationQueueInput) {
+  useQuery(input: GetWriteInAdjudicationCvrQueueInput) {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(input), () =>
       apiClient.getWriteInAdjudicationCvrQueue(input)
@@ -261,18 +259,14 @@ export const getWriteInAdjudicationCvrQueue = {
   },
 } as const;
 
-type GetWriteInAdjudicationCvrQueueMetadataInput =
-  QueryInput<'getWriteInAdjudicationCvrQueueMetadata'>;
 export const getWriteInAdjudicationCvrQueueMetadata = {
-  queryKey(input?: GetWriteInAdjudicationCvrQueueMetadataInput): QueryKey {
-    return input
-      ? ['getWriteInAdjudicationCvrQueueMetadata', input]
-      : ['getWriteInAdjudicationCvrQueueMetadata'];
+  queryKey(): QueryKey {
+    return ['getWriteInAdjudicationCvrQueueMetadata'];
   },
-  useQuery(input?: GetWriteInAdjudicationCvrQueueMetadataInput) {
+  useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(input), () =>
-      apiClient.getWriteInAdjudicationCvrQueueMetadata(input)
+    return useQuery(this.queryKey(), () =>
+      apiClient.getWriteInAdjudicationCvrQueueMetadata()
     );
   },
 } as const;
@@ -457,7 +451,9 @@ export const getVoteAdjudications = {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(input),
-      () => apiClient.getVoteAdjudications(input),
+      input
+        ? () => apiClient.getVoteAdjudications(input)
+        : () => fail('input is required'),
       { enabled: !!input, keepPreviousData: true }
     );
   },
