@@ -85,23 +85,4 @@ export class HybridLogicalClock {
 
     return this.now();
   }
-
-  /**
-   * Returns 1 if a > b, -1 if a < b, 0 if a == b.
-   */
-  static compareHlcTimestamps(a: HlcTimestamp, b: HlcTimestamp): number {
-    if (a.physical < b.physical) {
-      return -1;
-    }
-    if (a.physical > b.physical) {
-      return 1;
-    }
-    if (a.logical < b.logical) {
-      return -1;
-    }
-    if (a.logical > b.logical) {
-      return 1;
-    }
-    return a.machineId.localeCompare(b.machineId);
-  }
 }

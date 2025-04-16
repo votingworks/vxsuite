@@ -82,8 +82,10 @@ export function convertDbRowsToPollbookEvents(
               VoterRegistrationSchema
             ).unsafeUnwrap(),
           });
-        default:
+        default: {
+          /* istanbul ignore next - @preserve */
           throwIllegalValue(event.event_type);
+        }
       }
       return undefined;
     })
@@ -185,6 +187,7 @@ export function applyPollbookEventsToVoters(
         break;
       }
       default: {
+        /* istanbul ignore next - @preserve */
         throwIllegalValue(event, 'type');
       }
     }
