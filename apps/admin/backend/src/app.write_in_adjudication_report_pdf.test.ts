@@ -18,7 +18,6 @@ import {
   configureMachine,
   mockElectionManagerAuth,
 } from '../test/app';
-import { expectLastPrintToHaveUsedReportPrintOptions } from '../test/printing';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -97,7 +96,6 @@ test('write-in adjudication report', async () => {
       failureThreshold: 0.0001,
       customSnapshotIdentifier,
     });
-    expectLastPrintToHaveUsedReportPrintOptions(mockPrinterHandler);
 
     const exportPath = tmpNameSync();
     const exportResult = await apiClient.exportWriteInAdjudicationReportPdf({

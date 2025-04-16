@@ -9,7 +9,7 @@ const debug = rootDebug.extend('status');
 export async function print({
   data,
   copies,
-  sides = PrintSides.TwoSidedLongEdge,
+  sides = PrintSides.OneSided,
   raw = {},
 }: PrintProps): Promise<void> {
   const lprOptions: string[] = [];

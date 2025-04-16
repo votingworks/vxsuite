@@ -1,4 +1,3 @@
-import { PrintOptions, PrintSides } from '@votingworks/printing';
 import { unsafeParse } from '@votingworks/types';
 import { DEV_MOCK_USB_DRIVE_GLOB_PATTERN } from '@votingworks/usb-drive';
 import { join } from 'node:path';
@@ -58,10 +57,3 @@ const DEFAULT_ALLOWED_EXPORT_PATTERNS =
 export const ADMIN_ALLOWED_EXPORT_PATTERNS =
   process.env.ADMIN_ALLOWED_EXPORT_PATTERNS?.split(',') ??
   DEFAULT_ALLOWED_EXPORT_PATTERNS;
-
-/**
- * Print settings for reports, namely one-sided printing.
- */
-export const REPORT_PRINT_OPTIONS: PrintOptions = {
-  sides: PrintSides.OneSided,
-};

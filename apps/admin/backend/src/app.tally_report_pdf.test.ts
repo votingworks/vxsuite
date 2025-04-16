@@ -25,7 +25,6 @@ import {
 } from '../test/app';
 import { Api } from './app';
 import { TallyReportSpec } from './reports/tally_report';
-import { expectLastPrintToHaveUsedReportPrintOptions } from '../test/printing';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -90,7 +89,6 @@ async function expectIdenticalSnapshotsAcrossExportMethods({
     failureThreshold: 0.0001,
     customSnapshotIdentifier,
   });
-  expectLastPrintToHaveUsedReportPrintOptions(mockPrinterHandler);
 
   const exportPath = tmpNameSync();
   const exportResult = await apiClient.exportTallyReportPdf({

@@ -22,7 +22,7 @@ test('prints with defaults', async () => {
 
   expect(exec).toHaveBeenCalledWith(
     'lpr',
-    ['-P', DEFAULT_MANAGED_PRINTER_NAME, '-o', 'sides=two-sided-long-edge'],
+    ['-P', DEFAULT_MANAGED_PRINTER_NAME, '-o', 'sides=one-sided'],
     expect.anything()
   );
 });
@@ -30,11 +30,11 @@ test('prints with defaults', async () => {
 test('allows specifying other sided-ness', async () => {
   vi.mocked(exec).mockResolvedValueOnce(ok({ stdout: '', stderr: '' }));
 
-  await print({ data: Buffer.of(), sides: PrintSides.OneSided });
+  await print({ data: Buffer.of(), sides: PrintSides.TwoSidedLongEdge });
 
   expect(exec).toHaveBeenCalledWith(
     'lpr',
-    ['-P', DEFAULT_MANAGED_PRINTER_NAME, '-o', 'sides=one-sided'],
+    ['-P', DEFAULT_MANAGED_PRINTER_NAME, '-o', 'sides=two-sided-long-edge'],
     expect.anything()
   );
 });
@@ -46,14 +46,7 @@ test('prints a specified number of copies', async () => {
 
   expect(exec).toHaveBeenCalledWith(
     'lpr',
-    [
-      '-P',
-      DEFAULT_MANAGED_PRINTER_NAME,
-      '-o',
-      'sides=two-sided-long-edge',
-      '-#',
-      '3',
-    ],
+    ['-P', DEFAULT_MANAGED_PRINTER_NAME, '-o', 'sides=one-sided', '-#', '3'],
     expect.anything()
   );
 });
@@ -69,7 +62,7 @@ test('passes through raw options', async () => {
       '-P',
       DEFAULT_MANAGED_PRINTER_NAME,
       '-o',
-      'sides=two-sided-long-edge',
+      'sides=one-sided',
       '-o',
       'fit-to-page=true',
     ],
