@@ -114,7 +114,7 @@ export function syncEventsFromTo(
   return allEvents;
 }
 
-export function syncEventsForAllPollbooks(pollbooks: Store[]): void {
+export function syncEventsForAllPollbooks(pollbooks: PeerStore[]): void {
   for (const from of pollbooks) {
     for (const to of pollbooks) {
       if (from !== to) {
