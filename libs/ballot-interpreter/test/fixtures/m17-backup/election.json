@@ -858,7 +858,8 @@
   "precincts": [
     {
       "id": "town-id-00701-precinct-id-default",
-      "name": "Test Ballot"
+      "name": "Test Ballot",
+      "districtIds": ["town-id-00701-precinct-id-default"]
     }
   ],
   "seal": "",
