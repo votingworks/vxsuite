@@ -294,12 +294,10 @@ function buildApi({ context, logger }: BuildAppParams) {
     },
 
     getCheckInCounts(): { thisMachine: number; allMachines: number } {
-      console.time('getCheckInCounts');
       const result = {
         thisMachine: store.getCheckInCount(machineId),
         allMachines: store.getCheckInCount(),
       } as const;
-      console.timeEnd('getCheckInCounts');
       return result;
     },
 

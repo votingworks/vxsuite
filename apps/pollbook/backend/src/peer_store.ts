@@ -11,7 +11,6 @@ import {
 import { convertDbRowsToPollbookEvents } from './event_helpers';
 import { getCurrentTime } from './get_current_time';
 import { NETWORK_EVENT_LIMIT, MACHINE_DISCONNECTED_TIMEOUT } from './globals';
-import { HlcTimestamp, HybridLogicalClock } from './hybrid_logical_clock';
 
 const debug = rootDebug.extend('store:peer');
 
@@ -85,7 +84,6 @@ export class PeerStore extends Store {
   // Saves all events received from a remote machine. Returning the last event's timestamp.
   saveRemoteEvents(pollbookEvents: PollbookEvent[]): void {
     let isSuccess = true;
-    let earliestSyncTime: HlcTimestamp | undefined;
     this.client.transaction(() => {
       if (this.getElection() === undefined) {
         debug('No election set, not saving events');
@@ -93,17 +91,6 @@ export class PeerStore extends Store {
       }
       for (const pollbookEvent of pollbookEvents) {
         isSuccess = isSuccess && this.saveEvent(pollbookEvent);
-        if (!earliestSyncTime) {
-          earliestSyncTime = pollbookEvent.timestamp;
-        }
-        if (
-          HybridLogicalClock.compareHlcTimestamps(
-            earliestSyncTime,
-            pollbookEvent.timestamp
-          ) > 0
-        ) {
-          earliestSyncTime = pollbookEvent.timestamp;
-        }
       }
     });
   }
