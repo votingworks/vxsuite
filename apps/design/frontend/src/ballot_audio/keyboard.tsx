@@ -84,6 +84,11 @@ export interface Phoneme {
   isConsonant: boolean;
 }
 
+const consonantModfier = {
+  ipa: 'ə',
+  'x-sampa': '@',
+} as const;
+
 export function Keyboard(props: {
   alphabet: 'ipa' | 'x-sampa';
   onInput: (phoneme: Phoneme) => void;
@@ -122,7 +127,7 @@ export function Keyboard(props: {
       audioTimer.current = window.setTimeout(() => {
         let sound = phoneme[alphabet];
         if (phoneme.isConsonant) {
-          sound += 'ə';
+          sound += consonantModfier[alphabet];
         }
 
         setCurrentSsml(
@@ -145,7 +150,8 @@ export function Keyboard(props: {
     }
 
     if (lastAudio.current) {
-      lastAudio.current.pause();
+      // lastAudio.current.pause();
+      lastAudio.current.src = '';
       lastAudio.current = undefined;
     }
 

@@ -491,9 +491,14 @@ export function Phoneditor(props: {
 
   const onPlayPreview = React.useCallback(() => {
     if (lastAudio.current) {
-      lastAudio.current.pause();
+      // lastAudio.current.pause();
+      lastAudio.current.src = '';
       lastAudio.current = undefined;
     }
+
+    // x-sampa breaks if you add a stress - might be something to do with how
+    // we're serializing API requests.
+    const alphabetForPreview = 'ipa';
 
     let combinedPhonemes = '';
     for (let i = 0; i < syllables.length; i += 1) {
@@ -503,20 +508,20 @@ export function Phoneditor(props: {
       if (i > 0) combinedPhonemes += '.';
 
       if (syllable.stress === 'primary') {
-        combinedPhonemes += phonemes.en.stresses.primary[alphabet];
+        combinedPhonemes += phonemes.en.stresses.primary[alphabetForPreview];
       }
 
       for (const phoneme of syllable.phonemes) {
-        combinedPhonemes += phoneme[alphabet];
+        combinedPhonemes += phoneme[alphabetForPreview];
       }
     }
     setSsmlToPreview(
       `<speak>` +
-        `<phoneme alphabet="${alphabet}" ph="${combinedPhonemes}" />` +
+        `<phoneme alphabet="${alphabetForPreview}" ph="${combinedPhonemes}" />` +
         `</speak>`
     );
     setPlayingPreview(true);
-  }, [alphabet, syllables]);
+  }, [syllables]);
 
   const currentSyllable = syllables[currentSyllableIdx];
   const syllableElements: JSX.Element[] = [];
@@ -542,8 +547,9 @@ export function Phoneditor(props: {
         <SyllableText>
           {syllable.phonemes.length === 0 && ' '}
           {hasStress && phonemes.en.stresses.primary[alphabet]}
-          {syllable.phonemes.map((s) => (
-            <span key={s.ipa}>{s[alphabet]}</span>
+          {syllable.phonemes.map((p, idxPhoneme) => (
+            // eslint-disable-next-line react/no-array-index-key
+            <span key={`${idxPhoneme}-${p.ipa}`}>{p[alphabet]}</span>
           ))}
         </SyllableText>
         {canDelete && (
