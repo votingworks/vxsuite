@@ -2,7 +2,6 @@ import { describe, expect, test, vi } from 'vitest';
 import {
   LanguageCode,
   BallotLanguageConfigs,
-  generateSplittablePrecinctsForTest,
   DistrictId,
 } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
@@ -43,7 +42,7 @@ describe('translateBallotStrings', () => {
       election,
       mockHmpbStringsCatalog,
       englishOnlyConfig,
-      generateSplittablePrecinctsForTest(election)
+      [...election.precincts]
     );
 
     expect(result).toBeDefined();
@@ -64,7 +63,7 @@ describe('translateBallotStrings', () => {
       election,
       mockHmpbStringsCatalog,
       allOtherBallotLanguages,
-      generateSplittablePrecinctsForTest(election)
+      [...election.precincts]
     );
 
     expect(result).toBeDefined();

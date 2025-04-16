@@ -14,7 +14,6 @@ import {
   mergeUiStrings,
   getBallotLanguageConfigs,
   LanguageCode,
-  generateSplittablePrecinctsForTest,
 } from '@votingworks/types';
 import {
   Renderer,
@@ -79,7 +78,7 @@ describe('fixtures are up to date - run `pnpm generate-election-packages` if thi
               ? Object.values(LanguageCode)
               : [LanguageCode.ENGLISH]
           ),
-          generateSplittablePrecinctsForTest(baseElection)
+          [...baseElection.precincts]
         );
       const newCombinedStrings = mergeUiStrings(
         newAppStrings,
