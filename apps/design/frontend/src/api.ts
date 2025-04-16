@@ -700,3 +700,66 @@ export const getElectionFeatures = {
     );
   },
 } as const;
+
+export const appStrings = {
+  queryKey(): QueryKey {
+    return ['appStrings'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.appStrings());
+  },
+} as const;
+
+export const audioIds = {
+  queryKey(): QueryKey {
+    return ['audioIds'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.audioIds());
+  },
+} as const;
+
+export const audioClip = {
+  queryKey(id: string): QueryKey {
+    return ['audioClip', id];
+  },
+  useQuery(id: string) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(id), () => apiClient.audioClip(id));
+  },
+} as const;
+
+export const synthesizeSsml = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.synthesizeSsml);
+  },
+} as const;
+
+export const synthesizedSsml = {
+  queryKey(input: { languageCode: string; ssml: string }): QueryKey {
+    return ['synthesizedSsml', input.languageCode, input.ssml];
+  },
+  useQuery(input: { languageCode: string; ssml: string }) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(input), () => {
+      if (!input.ssml) return '';
+
+      return apiClient.synthesizeSsml(input);
+    });
+  },
+} as const;
+
+export const translation = {
+  queryKey(stringKey: string, languageCode: string): QueryKey {
+    return ['translation', stringKey, languageCode];
+  },
+  useQuery(stringKey: string, languageCode: string) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(stringKey, languageCode), () =>
+      apiClient.translation({ stringKey, languageCode })
+    );
+  },
+} as const;

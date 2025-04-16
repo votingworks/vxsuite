@@ -39,6 +39,7 @@ import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { BallotScreen, paperSizeLabels } from './ballot_screen';
 import { useTitle } from './hooks/use_title';
+import { BallotAudioTab } from './ballot_audio/ballot_audio_tab';
 
 function BallotDesignForm({
   electionId,
@@ -431,7 +432,11 @@ export function BallotsScreen(): JSX.Element | null {
           </MainHeader>
           <MainContent>
             <RouterTabBar
-              tabs={[ballotsRoutes.ballotStyles, ballotsRoutes.ballotLayout]}
+              tabs={[
+                ballotsRoutes.ballotStyles,
+                ballotsRoutes.ballotLayout,
+                ballotsRoutes.ballotAudio,
+              ]}
             />
             <Switch>
               <Route
@@ -441,6 +446,14 @@ export function BallotsScreen(): JSX.Element | null {
               <Route
                 path={ballotsParamRoutes.ballotLayout.path}
                 component={BallotLayoutTab}
+              />
+              <Route
+                path={ballotsParamRoutes.ballotAudio.path}
+                component={BallotAudioTab}
+              />
+              <Route
+                path={ballotsParamRoutes.ballotAudioManage(':stringKey').path}
+                component={BallotAudioTab}
               />
               <Redirect
                 from={ballotsParamRoutes.root.path}

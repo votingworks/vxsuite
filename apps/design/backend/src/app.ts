@@ -3,6 +3,7 @@ import * as Sentry from '@sentry/node';
 import { Buffer } from 'node:buffer';
 import { auth as auth0, requiresAuth } from 'express-openid-connect';
 import { join } from 'node:path';
+import readline from 'node:readline';
 import {
   Election,
   safeParseElection,
@@ -29,6 +30,9 @@ import {
   AnyContestSchema,
   HmpbBallotPaperSizeSchema,
   SystemSettingsSchema,
+  UiStringAudioClipSchema,
+  safeParseJson,
+  LanguageCode,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -48,8 +52,11 @@ import {
   hmpbStringsCatalog,
   renderBallotPreviewToPdf,
 } from '@votingworks/hmpb';
-import { translateBallotStrings } from '@votingworks/backend';
-import { readFileSync } from 'node:fs';
+import {
+  translateBallotStrings,
+  convertHtmlToAudioCues,
+} from '@votingworks/backend';
+import fs, { readFileSync } from 'node:fs';
 import { z } from 'zod';
 import { LogEventId } from '@votingworks/logging';
 import { BackgroundTaskMetadata } from './store';
@@ -84,7 +91,11 @@ import {
   getUserFeaturesConfig,
   UserFeaturesConfig,
 } from './features';
+import appStrings from './appStrings.json';
+import audioIds from './audioIds.json';
+import electionJson from './election.json';
 import { rootDebug } from './debug';
+import { GoogleCloudSpeechSynthesizerWithDbCache } from './speech_synthesizer';
 
 const debug = rootDebug.extend('app');
 
@@ -150,6 +161,11 @@ export function convertVxfPrecincts(election: Election): SplittablePrecinct[] {
   });
 }
 
+type AudioClips = Record<string, string>;
+let audioClips: AudioClips | undefined;
+let translationsEs: Record<string, UiStringInfo> | undefined;
+let translationsZh: Record<string, UiStringInfo> | undefined;
+
 const TextInput = z
   .string()
   .transform((s) => s.trim())
@@ -166,8 +182,15 @@ const UpdateElectionInfoInputSchema = z.object({
   languageCodes: z.array(LanguageCodeSchema),
 });
 
+type UiStringKey = string;
+type UiString = string;
+type TtsString = string;
+
+type UiStringInfo = [UiStringKey, UiString, TtsString];
+
 function buildApi({ auth, logger, workspace, translator }: AppContext) {
   const { store } = workspace;
+  const tts = new GoogleCloudSpeechSynthesizerWithDbCache({ store });
 
   type ApiContext = Record<string, never>; // No context for now
   const middlewares: Array<grout.Middleware<ApiContext>> = [
@@ -183,6 +206,152 @@ function buildApi({ auth, logger, workspace, translator }: AppContext) {
   ];
 
   const methods = {
+    appStrings(): UiStringInfo[] {
+      const strings: UiStringInfo[] = [];
+
+      // for (const [key, text] of Object.entries(appStrings.en)) {
+      //   strings.push([key, text, convertHtmlToAudioCues(text)]);
+      // }
+
+      for (const [key, textOrSubStrings] of Object.entries(
+        electionJson.ballotStrings.en
+      )) {
+        // if (key.startsWith('hmpb')) continue;
+        if (!key.startsWith('candidate')) continue;
+
+        if (typeof textOrSubStrings === 'string') {
+          strings.push([
+            key,
+            textOrSubStrings,
+            convertHtmlToAudioCues(textOrSubStrings),
+          ]);
+          continue;
+        }
+
+        for (const [subKey, text] of Object.entries(textOrSubStrings)) {
+          strings.push([
+            `${key}.${subKey}`,
+            text,
+            convertHtmlToAudioCues(text),
+          ]);
+        }
+      }
+
+      // eslint-disable-next-line vx/no-array-sort-mutation
+      strings.sort((a, b) =>
+        a[1].localeCompare(b[1], undefined, {
+          numeric: true,
+        })
+      );
+
+      return strings;
+    },
+
+    translation(input: {
+      stringKey: string;
+      languageCode: string;
+    }): UiStringInfo | null {
+      const { stringKey, languageCode } = input;
+
+      if (!translationsEs || !translationsZh) {
+        translationsEs = {};
+        translationsZh = {};
+
+        for (const [key, text] of Object.entries(appStrings['es-US'])) {
+          translationsEs[key] = [key, text, convertHtmlToAudioCues(text)];
+        }
+        for (const [key, text] of Object.entries(appStrings['zh-Hans'])) {
+          translationsZh[key] = [key, text, convertHtmlToAudioCues(text)];
+        }
+
+        for (const [key, textOrSubStrings] of Object.entries(
+          electionJson.ballotStrings['es-US']
+        )) {
+          if (key.startsWith('hmpb')) continue;
+
+          if (typeof textOrSubStrings === 'string') {
+            translationsEs[key] = [
+              key,
+              textOrSubStrings,
+              convertHtmlToAudioCues(textOrSubStrings),
+            ];
+            continue;
+          }
+
+          for (const [subKey, text] of Object.entries(textOrSubStrings)) {
+            const compoundKey = `${key}.${subKey}`;
+            translationsEs[compoundKey] = [
+              compoundKey,
+              text,
+              convertHtmlToAudioCues(text),
+            ];
+          }
+        }
+
+        for (const [key, textOrSubStrings] of Object.entries(
+          electionJson.ballotStrings['zh-Hans']
+        )) {
+          if (key.startsWith('hmpb')) continue;
+
+          if (typeof textOrSubStrings === 'string') {
+            translationsZh[key] = [
+              key,
+              textOrSubStrings,
+              convertHtmlToAudioCues(textOrSubStrings),
+            ];
+            continue;
+          }
+
+          for (const [subKey, text] of Object.entries(textOrSubStrings)) {
+            const compoundKey = `${key}.${subKey}`;
+            translationsZh[compoundKey] = [
+              compoundKey,
+              text,
+              convertHtmlToAudioCues(text),
+            ];
+          }
+        }
+      }
+
+      return (
+        (languageCode === 'es-US'
+          ? translationsEs[stringKey]
+          : languageCode === 'zh-Hans'
+          ? translationsZh[stringKey]
+          : null) || null
+      );
+    },
+
+    audioIds(): typeof audioIds.en {
+      return audioIds.en;
+    },
+
+    async audioClip(id: string): Promise<string> {
+      if (!audioClips) {
+        const audioClipsFileLines = readline.createInterface(
+          fs.createReadStream(`${__dirname}/audioClips`)
+        );
+
+        audioClips = {};
+        for await (const line of audioClipsFileLines) {
+          const clip = safeParseJson(
+            line,
+            UiStringAudioClipSchema
+          ).unsafeUnwrap();
+          audioClips[clip.id] = clip.dataBase64;
+        }
+      }
+
+      return assertDefined(audioClips[id]);
+    },
+
+    synthesizeSsml(input: {
+      ssml: string;
+      languageCode: string;
+    }): Promise<string> {
+      return tts.synthesizeSsml(input.ssml, input.languageCode as LanguageCode);
+    },
+
     async listElections(input: WithUserInfo): Promise<ElectionListing[]> {
       const { user } = input;
       const elections = await store.listElections({

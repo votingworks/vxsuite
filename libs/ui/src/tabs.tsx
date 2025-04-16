@@ -26,8 +26,7 @@ function TabButton<T>({ isActive, ...props }: TabButtonProps<T>): JSX.Element {
 const TabBar = styled.div.attrs({ role: 'tablist' })`
   display: flex;
   gap: 0.5rem;
-  border-bottom: ${(p) =>
-    `${p.theme.sizes.bordersRem.medium}rem solid ${p.theme.colors.outline}`};
+  border-bottom: ${(p) => `${p.theme.sizes.bordersRem.medium}rem solid #ddd`};
 `;
 
 export interface RouterTabBarProps {

@@ -1,5 +1,9 @@
 lockfileVersion: '6.0'
 
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
 overrides:
   '@babel/traverse': 7.23.2
   '@types/eslint': 8.4.1
@@ -124,7 +128,7 @@ importers:
         version: 5.6.2
       vitest:
         specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
+        version: 2.1.8(jsdom@20.0.1)
 
   apps/admin/backend:
     dependencies:
@@ -1344,6 +1348,9 @@ importers:
       nanoid:
         specifier: ^3.3.7
         version: 3.3.7
+      node-html-parser:
+        specifier: ^6.1.13
+        version: 6.1.13
       normalize.css:
         specifier: ^8.0.1
         version: 8.0.1
@@ -1461,7 +1468,7 @@ importers:
         version: 4.5.2(@types/node@20.16.0)
       vitest:
         specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
+        version: 2.1.8(jsdom@20.0.1)
 
   apps/mark-scan/backend:
     dependencies:
@@ -1826,7 +1833,7 @@ importers:
         version: 4.5.2(@types/node@20.16.0)
       vitest:
         specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
+        version: 2.1.8(jsdom@20.0.1)
 
   apps/mark-scan/frontend/prodserver:
     dependencies:
@@ -2204,7 +2211,7 @@ importers:
         version: 4.5.2(@types/node@20.16.0)
       vitest:
         specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
+        version: 2.1.8(jsdom@20.0.1)
 
   apps/mark/frontend/prodserver:
     dependencies:
@@ -2618,7 +2625,7 @@ importers:
         version: 4.5.2(@types/node@20.16.0)
       vitest:
         specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
+        version: 2.1.8(jsdom@20.0.1)
 
   apps/pollbook/frontend/prodserver:
     dependencies:
@@ -3100,7 +3107,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
+        version: 2.1.8(jsdom@20.0.1)
 
   libs/auth:
     dependencies:
@@ -3206,7 +3213,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
+        version: 2.1.8(jsdom@20.0.1)
       wait-for-expect:
         specifier: ^3.0.2
         version: 3.0.2
@@ -3625,7 +3632,7 @@ importers:
         version: 0.12.4
       vitest:
         specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
+        version: 2.1.8(jsdom@20.0.1)
 
   libs/cdf-schema-builder:
     dependencies:
@@ -4396,7 +4403,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
+        version: 2.1.8(jsdom@20.0.1)
 
   libs/grout/test-utils:
     dependencies:
@@ -4427,7 +4434,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
+        version: 2.1.8(jsdom@20.0.1)
 
   libs/hmpb:
     dependencies:
@@ -9364,7 +9371,7 @@ packages:
   /@joshwooding/vite-plugin-react-docgen-typescript@0.2.1(typescript@5.6.2)(vite@4.5.2):
     resolution: {integrity: sha512-ou4ZJSXMMWHqGS4g8uNRbC5TiTWxAgQZiVucoUrOCWuPrTbkpJbmVyIi9jU72SBry7gQtuMEDp4YR8EEXAg7VQ==}
     peerDependencies:
-      typescript: '>= 4.3.x'
+      typescript: 5.6.2
       vite: ^3.0.0 || ^4.0.0
     peerDependenciesMeta:
       typescript:
@@ -11658,7 +11665,7 @@ packages:
     resolution: {integrity: sha512-3YDxZPJsHOsRQob/85X2Xf6pYfwbQilJBsEcuwmEV0JEO4p3JijOlO8xV58uCjkZSpuJ0ARl6t5oCMBo89DKCQ==}
     peerDependencies:
       '@preact/preset-vite': '*'
-      typescript: '>= 4.3.x'
+      typescript: 5.6.2
       vite: ^3.0.0 || ^4.0.0
       vite-plugin-glimmerx: '*'
     peerDependenciesMeta:
@@ -12116,7 +12123,7 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-      typescript: '*'
+      typescript: 5.6.2
     peerDependenciesMeta:
       typescript:
         optional: true
@@ -13630,7 +13637,7 @@ packages:
       magicast: 0.3.5
       test-exclude: 7.0.1
       tinyrainbow: 1.2.0
-      vitest: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
+      vitest: 2.1.8(jsdom@20.0.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -16826,7 +16833,7 @@ packages:
     resolution: {integrity: sha512-AgaZCVuYDXHUGxj/ZGu1u8H8CYgDY3iG6w5kUFw4AzMVXzB7VvbKgYR4nATIN+OvUrghMbiDLeimVjVY5ilq3w==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
-      '@types/eslint': '>=8.0.0'
+      '@types/eslint': 8.4.1
       eslint: '>=8.0.0'
       eslint-config-prettier: '*'
       prettier: '>=3.0.0'
@@ -22321,7 +22328,7 @@ packages:
   /react-docgen-typescript@2.2.2(typescript@5.6.2):
     resolution: {integrity: sha512-tvg2ZtOpOi6QDwsb3GZhOjDkkX0h8Z2gipvTg6OVMUyoYoURhEiRNePT8NZItTVCDh39JJHnLdfCOkzoLbFnTg==}
     peerDependencies:
-      typescript: '>= 4.3.x'
+      typescript: 5.6.2
     dependencies:
       typescript: 5.6.2
     dev: true
@@ -24442,7 +24449,7 @@ packages:
     resolution: {integrity: sha512-UQMIo7pb8WRomKR1/+MFVLTroIvDVtMX3K6OUir8ynLyzB8Jeriont2bTAtmNPa1ekAgN7YPDyf6V+ygrdU+eQ==}
     engines: {node: '>=16'}
     peerDependencies:
-      typescript: '>=4.2.0'
+      typescript: 5.6.2
     dependencies:
       typescript: 5.6.2
 
@@ -24461,7 +24468,7 @@ packages:
       babel-jest: ^29.0.0
       esbuild: '*'
       jest: ^29.0.0
-      typescript: '>=4.3 <6'
+      typescript: 5.6.2
     peerDependenciesMeta:
       '@babel/core':
         optional: true
@@ -24507,7 +24514,7 @@ packages:
     resolution: {integrity: sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==}
     engines: {node: '>= 6'}
     peerDependencies:
-      typescript: '>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta'
+      typescript: 5.6.2
     dependencies:
       tslib: 1.14.1
       typescript: 5.6.2
@@ -25184,6 +25191,63 @@ packages:
       - supports-color
       - terser
 
+  /vitest@2.1.8(jsdom@20.0.1):
+    resolution: {integrity: sha512-1vBKTZskHw/aosXqQUlVWWlGUxSJR8YtiyZDJAFeW2kPAeX6S3Sool0mjspO+kXLuxVWlEDDowBAeqeAQefqLQ==}
+    engines: {node: ^18.0.0 || >=20.0.0}
+    hasBin: true
+    peerDependencies:
+      '@edge-runtime/vm': '*'
+      '@types/node': ^18.0.0 || >=20.0.0
+      '@vitest/browser': 2.1.8
+      '@vitest/ui': 2.1.8
+      happy-dom: '*'
+      jsdom: '*'
+    peerDependenciesMeta:
+      '@edge-runtime/vm':
+        optional: true
+      '@types/node':
+        optional: true
+      '@vitest/browser':
+        optional: true
+      '@vitest/ui':
+        optional: true
+      happy-dom:
+        optional: true
+      jsdom:
+        optional: true
+    dependencies:
+      '@vitest/expect': 2.1.8
+      '@vitest/mocker': 2.1.8(vite@5.4.11)
+      '@vitest/pretty-format': 2.1.8
+      '@vitest/runner': 2.1.8
+      '@vitest/snapshot': 2.1.8
+      '@vitest/spy': 2.1.8
+      '@vitest/utils': 2.1.8
+      chai: 5.1.2
+      debug: 4.4.0
+      expect-type: 1.1.0
+      jsdom: 20.0.1
+      magic-string: 0.30.17
+      pathe: 1.1.2
+      std-env: 3.8.0
+      tinybench: 2.9.0
+      tinyexec: 0.3.1
+      tinypool: 1.0.2
+      tinyrainbow: 1.2.0
+      vite: 5.4.11(@types/node@20.16.0)
+      vite-node: 2.1.8(@types/node@20.16.0)
+      why-is-node-running: 2.3.0
+    transitivePeerDependencies:
+      - less
+      - lightningcss
+      - msw
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+
   /vm-browserify@1.1.2:
     resolution: {integrity: sha512-2ham8XPWTONajOR0ohOKOHXkm3+gaBmGut3SRuu75xLd/RRaY6vqgh8NBYYk7+RW3u5AtzPQZG8F10LHkl0lAQ==}
     dev: false
@@ -25626,7 +25690,3 @@ packages:
   /zod@3.23.5:
     resolution: {integrity: sha512-fkwiq0VIQTksNNA131rDOsVJcns0pfVUjHzLrNBiF/O/Xxb5lQyEXkhZWcJ7npWsYlvs+h0jFWXXy4X46Em1JA==}
     dev: false
-
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false

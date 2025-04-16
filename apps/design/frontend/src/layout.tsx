@@ -17,12 +17,13 @@ export const Form = styled.form`
   flex-direction: column;
   gap: 1.5rem;
 
-  input[type='text'] {
-    min-width: 18rem;
+  input[type='text'],
+  input[type='date'] {
+    width: 18rem;
   }
 
   .search-select {
-    min-width: 18rem;
+    width: 18rem;
   }
 `;
 

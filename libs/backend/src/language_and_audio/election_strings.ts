@@ -239,7 +239,7 @@ function getElectionStringConfig({
     : electionStringConfigs[stringKey[0]];
 }
 
-function extractElectionStrings(election: Election): ElectionString[] {
+export function extractElectionStrings(election: Election): ElectionString[] {
   return Object.values(electionStringExtractorFns).flatMap((extractorFn) =>
     extractorFn(election)
   );

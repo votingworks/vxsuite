@@ -3,7 +3,7 @@ import {
   TextToSpeechClient as GoogleCloudTextToSpeechClient,
   protos,
 } from '@google-cloud/text-to-speech';
-import { assertDefined } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 
 import { LanguageCode } from '@votingworks/types';
 import { convertHtmlToAudioCues } from './rich_text';
@@ -49,6 +49,7 @@ export interface MinimalGoogleCloudTextToSpeechClient {
  */
 export interface SpeechSynthesizer {
   synthesizeSpeech(text: string, languageCode: LanguageCode): Promise<string>;
+  synthesizeSsml(ssml: string, languageCode: LanguageCode): Promise<string>;
 }
 
 /**
@@ -76,12 +77,29 @@ export class GoogleCloudSpeechSynthesizer implements SpeechSynthesizer {
     return await this.synthesizeSpeechSanitized(sanitizedText, languageCode);
   }
 
+  async synthesizeSsml(
+    ssml: string,
+    languageCode: LanguageCode
+  ): Promise<string> {
+    return await this.synthesizeSsmlSanitized(ssml, languageCode);
+  }
+
   protected async synthesizeSpeechSanitized(
     sanitizedText: string,
     languageCode: LanguageCode
   ): Promise<string> {
     return await this.synthesizeSpeechWithGoogleCloud(
       sanitizedText,
+      languageCode
+    );
+  }
+
+  protected async synthesizeSsmlSanitized(
+    sanitizedSsml: string,
+    languageCode: LanguageCode
+  ): Promise<string> {
+    return await this.synthesizeSsmlWithGoogleCloud(
+      sanitizedSsml,
       languageCode
     );
   }
@@ -99,5 +117,18 @@ export class GoogleCloudSpeechSynthesizer implements SpeechSynthesizer {
       assertDefined(response.audioContent)
     ).toString('base64');
     return audioClipBase64;
+  }
+
+  protected async synthesizeSsmlWithGoogleCloud(
+    sanitizedSsml: string,
+    languageCode: LanguageCode
+  ): Promise<string> {
+    const [response] = await this.textToSpeechClient.synthesizeSpeech({
+      audioConfig: { audioEncoding: 'MP3' },
+      input: { ssml: sanitizedSsml },
+      voice: GoogleCloudVoices[languageCode],
+    });
+    assert(response.audioContent instanceof Uint8Array);
+    return Buffer.from(response.audioContent.buffer).toString('base64');
   }
 }
