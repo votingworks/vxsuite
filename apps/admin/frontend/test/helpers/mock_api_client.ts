@@ -17,6 +17,10 @@ import type {
   TallyReportSpec,
   TallyReportWarning,
   ManualResultsMetadata,
+  WriteInRecord,
+  VoteAdjudication,
+  WriteInAdjudicationAction,
+  AdjudicatedCvrContest,
 } from '@votingworks/admin-backend';
 import type { BatteryInfo, DiskSpaceSummary } from '@votingworks/backend';
 import { FileSystemEntry, FileSystemEntryType } from '@votingworks/fs';
@@ -45,6 +49,7 @@ import {
   SystemSettings,
   Tabulation,
   DEV_MACHINE_ID,
+  ContestOptionId,
 } from '@votingworks/types';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
@@ -371,6 +376,56 @@ export function createApiMock(
         .resolves(writeInCandidateRecord);
     },
 
+    expectGetCvrContestWriteInImageViews(
+      input: { contestId: string; cvrId: string },
+      isBmd: boolean,
+      numImages: number = 1
+    ) {
+      const { cvrId } = input;
+      if (isBmd) {
+        apiClient.getCvrContestWriteInImageViews.expectCallWith(input).resolves(
+          Array.from({ length: numImages }).map((_, idx) => ({
+            cvrId,
+            imageUrl: `mock-image-data-${cvrId}-${idx}`,
+            machineMarkedText: 'machine-marked-mock-text',
+            type: 'bmd',
+            side: 'front',
+            optionId: `write-in-${idx}`,
+            writeInId: `write-in-${idx}`,
+          }))
+        );
+      } else {
+        apiClient.getCvrContestWriteInImageViews.expectCallWith(input).resolves(
+          Array.from({ length: numImages }).map((_, idx) => ({
+            cvrId,
+            optionId: `write-in-${idx}`,
+            writeInId: `write-in-${idx}`,
+            imageUrl: `mock-image-data-${cvrId}-${idx}`,
+            type: 'hmpb',
+            side: 'front',
+            ballotCoordinates: {
+              x: 0,
+              y: 0,
+              width: 1000,
+              height: 1000,
+            },
+            contestCoordinates: {
+              x: 200,
+              y: 200,
+              width: 600,
+              height: 600,
+            },
+            writeInCoordinates: {
+              x: 400,
+              y: 200,
+              width: 600,
+              height: 200,
+            },
+          }))
+        );
+      }
+    },
+
     expectGetWriteInImageView(
       writeInId: string,
       imageView: Partial<WriteInImageView> = {}
@@ -431,6 +486,65 @@ export function createApiMock(
       apiClient.getFirstPendingWriteInId
         .expectCallWith({ contestId })
         .resolves(writeInId);
+    },
+
+    expectGetWriteInAdjudicationCvrQueueMetadata(
+      queueMetadata: WriteInAdjudicationQueueMetadata[]
+    ) {
+      return apiClient.getWriteInAdjudicationCvrQueueMetadata
+        .expectCallWith()
+        .resolves(queueMetadata);
+    },
+
+    expectGetWriteInAdjudicationCvrQueue(
+      input: { contestId: string },
+      cvrIds: Id[]
+    ) {
+      apiClient.getWriteInAdjudicationCvrQueue
+        .expectCallWith(input)
+        .resolves(cvrIds);
+    },
+
+    expectGetFirstPendingWriteInCvrId(
+      input: { contestId: string },
+      cvrId: string | null
+    ) {
+      apiClient.getFirstPendingWriteInCvrId
+        .expectCallWith(input)
+        .resolves(cvrId);
+    },
+
+    expectGetCastVoteRecordVoteInfo(
+      input: { cvrId: string },
+      votes: Record<ContestId, ContestOptionId[]>
+    ) {
+      apiClient.getCastVoteRecordVoteInfo
+        .expectCallWith(input)
+        .resolves({ votes, id: 'id', electionId: 'electionId' });
+    },
+
+    expectGetWriteIns(
+      input: { contestId: string; cvrId: string },
+      writeIns: WriteInRecord[]
+    ) {
+      apiClient.getWriteIns.expectCallWith(input).resolves(writeIns);
+    },
+
+    expectGetVoteAdjudications(
+      input: { contestId: string; cvrId: string },
+      voteAdjudications: VoteAdjudication[]
+    ) {
+      apiClient.getVoteAdjudications
+        .expectCallWith(input)
+        .resolves(voteAdjudications);
+    },
+
+    expectAdjudicateCvrContest(input: AdjudicatedCvrContest) {
+      apiClient.adjudicateCvrContest.expectCallWith(input).resolves();
+    },
+
+    expectAdjudicateWriteIn(input: WriteInAdjudicationAction) {
+      apiClient.adjudicateWriteIn.expectCallWith(input).resolves();
     },
 
     expectMarkResultsOfficial() {

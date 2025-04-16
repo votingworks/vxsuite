@@ -101,7 +101,7 @@ function remToPx(rem: number) {
   );
   const fontSize = fontSizeResult.isOk() ? fontSizeResult.ok() : 30;
   return rem * fontSize;
-};
+}
 
 export function BallotZoomImageViewer({
   imageUrl,
