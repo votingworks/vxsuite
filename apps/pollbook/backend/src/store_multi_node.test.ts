@@ -795,3 +795,317 @@ test('all possible events are synced', () => {
   expect(localA.getCheckInCount()).toEqual(3);
   expect(localB.getCheckInCount()).toEqual(3);
 });
+
+// Register a voter on one machine, check in on another, then change name/address on a third
+// and verify all changes sync correctly.
+test('register on A, check in on B, name/address change on C, sync all', () => {
+  const [localA, peerA] = setupFileStores('pollbook-a');
+  const [localB, peerB] = setupFileStores('pollbook-b');
+  const [localC, peerC] = setupFileStores('pollbook-c');
+  const testElection = getTestElection();
+  const streets = [createValidStreetInfo('MAIN', 'even', 2, 10)];
+  localA.setElectionAndVoters(testElection, streets, []);
+  localB.setElectionAndVoters(testElection, streets, []);
+  localC.setElectionAndVoters(testElection, streets, []);
+  peerA.setOnlineStatus(true);
+  peerB.setOnlineStatus(true);
+  peerC.setOnlineStatus(true);
+
+  // Register voter on A
+  const { voter } = localA.registerVoter({
+    firstName: 'Reg',
+    middleName: '',
+    lastName: 'Tester',
+    suffix: '',
+    streetNumber: '4',
+    streetSuffix: '',
+    streetName: 'MAIN',
+    apartmentUnitNumber: '',
+    houseFractionNumber: '',
+    addressLine2: '',
+    addressLine3: '',
+    city: 'Manchester',
+    state: 'NH',
+    zipCode: '03101',
+    party: 'DEM',
+  });
+  syncEventsForAllPollbooks([peerA, peerB, peerC]);
+  // Check in on B
+  localB.recordVoterCheckIn({
+    voterId: voter.voterId,
+    identificationMethod: { type: 'default' },
+  });
+  syncEventsForAllPollbooks([peerA, peerB, peerC]);
+  // Name and address change on C
+  localC.changeVoterName(voter.voterId, {
+    firstName: 'Reginald',
+    middleName: '',
+    lastName: 'Tester',
+    suffix: 'Jr.',
+  });
+  localC.changeVoterAddress(voter.voterId, {
+    streetNumber: '6',
+    streetSuffix: '',
+    streetName: 'MAIN',
+    apartmentUnitNumber: '',
+    houseFractionNumber: '',
+    addressLine2: '',
+    addressLine3: '',
+    city: 'Manchester',
+    state: 'NH',
+    zipCode: '03101',
+  });
+  syncEventsForAllPollbooks([peerA, peerB, peerC]);
+  // All pollbooks should see all changes
+  for (const store of [localA, localB, localC]) {
+    const v = store.getVoter(voter.voterId);
+    expect(v.checkIn).toBeDefined();
+    expect(v.nameChange).toMatchObject({
+      firstName: 'Reginald',
+      suffix: 'Jr.',
+    });
+    expect(v.addressChange).toMatchObject({
+      streetName: 'MAIN',
+      streetNumber: '6',
+    });
+  }
+});
+
+// Last write wins for name/address changes, including with bad system time after sync
+test('last write wins for name/address changes with bad system time after sync', () => {
+  vi.useFakeTimers();
+  const [localA, peerA] = setupFileStores('pollbook-a');
+  const [localB, peerB] = setupFileStores('pollbook-b');
+  const testElection = getTestElection();
+  const voters = [
+    createVoter('tim', 'Tim', 'Traveler'),
+    createVoter('tia', 'Tia', 'Traveler'),
+  ];
+  const streets = [createValidStreetInfo('MAPLE', 'even', 2, 400)];
+  localA.setElectionAndVoters(testElection, streets, voters);
+  localB.setElectionAndVoters(testElection, streets, voters);
+  peerA.setOnlineStatus(true);
+  peerB.setOnlineStatus(true);
+  // Name change on A at 9am
+  const nineAm = new Date('2024-01-01T09:00:00Z').getTime();
+  vi.setSystemTime(nineAm);
+  localA.changeVoterName('tim', {
+    firstName: 'Timothy',
+    middleName: '',
+    lastName: 'Traveler',
+    suffix: '',
+  });
+  localA.changeVoterName('tia', {
+    firstName: 'Tiara',
+    middleName: '',
+    lastName: 'Traveler',
+    suffix: '',
+  });
+
+  // Name changes on B at 8am (bad clock)
+  const eightAm = new Date('2024-01-01T08:00:00Z').getTime();
+  vi.setSystemTime(eightAm);
+
+  // Tia name change is before the sync, this will create an older event then pollbookA
+  localB.changeVoterName('tia', {
+    firstName: 'Tamara',
+    middleName: '',
+    lastName: 'Traveler',
+    suffix: '',
+  });
+
+  // Sync
+  syncEventsForAllPollbooks([peerA, peerB]);
+
+  // Tim name change is after the sync, this will create a later event then pollbookA
+  localB.changeVoterName('tim', {
+    firstName: 'Tim',
+    middleName: 'E',
+    lastName: 'Traveler',
+    suffix: '',
+  });
+  // Sync again
+  syncEventsForAllPollbooks([peerA, peerB]);
+  // Last write wins: both should see Tim E, and Tiara
+  for (const store of [localA, localB]) {
+    const v = store.getVoter('tim');
+    expect(v.nameChange).toMatchObject({ firstName: 'Tim', middleName: 'E' });
+    const v2 = store.getVoter('tia');
+    expect(v2.nameChange).toMatchObject({ firstName: 'Tiara', middleName: '' });
+  }
+  // Address change on A at 10am
+  const tenAm = new Date('2024-01-01T10:00:00Z').getTime();
+  vi.setSystemTime(tenAm);
+  localA.changeVoterAddress('tim', {
+    streetNumber: '100',
+    streetSuffix: '',
+    streetName: 'MAPLE',
+    apartmentUnitNumber: '',
+    houseFractionNumber: '',
+    addressLine2: '',
+    addressLine3: '',
+    city: 'Manchester',
+    state: 'NH',
+    zipCode: '03101',
+  });
+  // Address change on B at 7am (bad clock, but after sync)
+  const sevenAm = new Date('2024-01-01T07:00:00Z').getTime();
+  vi.setSystemTime(sevenAm);
+  // Sync events so the logical clock should increment
+  syncEventsFromTo(peerA, peerB);
+
+  localB.changeVoterAddress('tim', {
+    streetNumber: '200',
+    streetSuffix: '',
+    streetName: 'MAPLE',
+    apartmentUnitNumber: '',
+    houseFractionNumber: '',
+    addressLine2: '',
+    addressLine3: '',
+    city: 'Manchester',
+    state: 'NH',
+    zipCode: '03101',
+  });
+  // Sync again
+  syncEventsForAllPollbooks([peerA, peerB]);
+  // Last write wins: both should see Oak/200
+  for (const store of [localA, localB]) {
+    const v = store.getVoter('tim');
+    expect(v.addressChange).toMatchObject({
+      streetName: 'MAPLE',
+      streetNumber: '200',
+    });
+  }
+  vi.useRealTimers();
+});
+
+// Register, check in, then change name/address, and verify sync
+test('register, check in, then change name/address, sync', () => {
+  const [localA, peerA] = setupFileStores('pollbook-a');
+  const [localB, peerB] = setupFileStores('pollbook-b');
+  const testElection = getTestElection();
+  const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
+  localA.setElectionAndVoters(testElection, streets, []);
+  localB.setElectionAndVoters(testElection, streets, []);
+  peerA.setOnlineStatus(true);
+  peerB.setOnlineStatus(true);
+  // Register on A
+  const { voter } = localA.registerVoter({
+    firstName: 'Sam',
+    middleName: '',
+    lastName: 'Sync',
+    suffix: '',
+    streetNumber: '7',
+    streetSuffix: '',
+    streetName: 'PEGASUS',
+    apartmentUnitNumber: '',
+    houseFractionNumber: '',
+    addressLine2: '',
+    addressLine3: '',
+    city: 'Manchester',
+    state: 'NH',
+    zipCode: '03101',
+    party: 'DEM',
+  });
+  syncEventsForAllPollbooks([peerA, peerB]);
+  // Check in on A
+  localA.recordVoterCheckIn({
+    voterId: voter.voterId,
+    identificationMethod: { type: 'default' },
+  });
+  // Name and address change on B
+  localB.changeVoterName(voter.voterId, {
+    firstName: 'Samuel',
+    middleName: '',
+    lastName: 'Sync',
+    suffix: '',
+  });
+  localB.changeVoterAddress(voter.voterId, {
+    streetNumber: '9',
+    streetSuffix: '',
+    streetName: 'PEGASUS',
+    apartmentUnitNumber: '',
+    houseFractionNumber: '',
+    addressLine2: '',
+    addressLine3: '',
+    city: 'Manchester',
+    state: 'NH',
+    zipCode: '03101',
+  });
+  syncEventsForAllPollbooks([peerA, peerB]);
+  // Both should see all changes
+  for (const store of [localA, localB]) {
+    const v = store.getVoter(voter.voterId);
+    expect(v.checkIn).toBeDefined();
+    expect(v.nameChange).toMatchObject({ firstName: 'Samuel' });
+    expect(v.addressChange).toMatchObject({
+      streetName: 'PEGASUS',
+      streetNumber: '9',
+    });
+  }
+});
+
+// Simultaneous name/address changes on different machines, then sync and verify last write wins
+test('simultaneous name/address changes, last write wins', async () => {
+  const [localA, peerA] = setupFileStores('pollbook-a');
+  const [localB, peerB] = setupFileStores('pollbook-b');
+  const testElection = getTestElection();
+  const voter = createVoter('sim', 'Sim', 'Multi');
+  const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
+  localA.setElectionAndVoters(testElection, streets, [voter]);
+  localB.setElectionAndVoters(testElection, streets, [voter]);
+  peerA.setOnlineStatus(true);
+  peerB.setOnlineStatus(true);
+  // Name change on A
+  localA.changeVoterName('sim', {
+    firstName: 'Simone',
+    middleName: '',
+    lastName: 'Multi',
+    suffix: '',
+  });
+  // Name change on B (should win after sync)
+  await sleep(10);
+  localB.changeVoterName('sim', {
+    firstName: 'Simon',
+    middleName: '',
+    lastName: 'Multi',
+    suffix: '',
+  });
+  // Address change on A
+  localA.changeVoterAddress('sim', {
+    streetNumber: '11',
+    streetSuffix: '',
+    streetName: 'PEGASUS',
+    apartmentUnitNumber: '',
+    houseFractionNumber: '',
+    addressLine2: '',
+    addressLine3: '',
+    city: 'Manchester',
+    state: 'NH',
+    zipCode: '03101',
+  });
+  // Address change on B (should win after sync)
+  await sleep(10);
+  localB.changeVoterAddress('sim', {
+    streetNumber: '15',
+    streetSuffix: '',
+    streetName: 'PEGASUS',
+    apartmentUnitNumber: '',
+    houseFractionNumber: '',
+    addressLine2: '',
+    addressLine3: '',
+    city: 'Manchester',
+    state: 'NH',
+    zipCode: '03101',
+  });
+  syncEventsForAllPollbooks([peerA, peerB]);
+  // Both should see last write for name and address
+  for (const store of [localA, localB]) {
+    const v = store.getVoter('sim');
+    expect(v.nameChange).toMatchObject({ firstName: 'Simon' });
+    expect(v.addressChange).toMatchObject({
+      streetName: 'PEGASUS',
+      streetNumber: '15',
+    });
+  }
+});
