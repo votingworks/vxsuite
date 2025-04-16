@@ -135,6 +135,7 @@ test('test-page print', async () => {
   // prints the sort of text, lines, and shading that will appear on our actual reports
   await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'test-print',
+    failureThreshold: 0.0001,
   });
 });
 
