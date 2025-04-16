@@ -111,10 +111,23 @@ export const testVxfElection: Election = {
     {
       id: 'precinct-1',
       name: 'North Lincoln',
+      splits: [
+        {
+          name: 'North Lincoln - Split 1',
+          id: 'precinct-1-split-1',
+          districtIds: ['district-1' as DistrictId],
+        },
+        {
+          name: 'North Lincoln - Split 2',
+          id: 'precinct-1-split-2',
+          districtIds: ['district-2' as DistrictId],
+        },
+      ],
     },
     {
       id: 'precinct-2',
       name: 'South Lincoln',
+      districtIds: ['district-1' as DistrictId, 'district-2' as DistrictId],
     },
   ],
   ballotStyles: [
@@ -425,6 +438,10 @@ export const testVxfElection: Election = {
       precinctName: {
         'precinct-1': 'North Lincoln',
         'precinct-2': 'South Lincoln',
+      },
+      precinctSplitName: {
+        'precinct-1-split-1': 'North Lincoln - Split 1',
+        'precinct-1-split-2': 'North Lincoln - Split 2',
       },
       stateName: 'State of Hamilton',
     },
