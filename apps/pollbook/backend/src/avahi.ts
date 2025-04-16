@@ -6,7 +6,7 @@ const debug = rootDebug.extend('networking');
 
 const execPromise = promisify(exec);
 
-interface AvahiDiscoveredService {
+export interface AvahiDiscoveredService {
   name: string;
   host: string;
   resolvedIp: string;

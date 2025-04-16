@@ -22,8 +22,7 @@ export class PeerStore extends Store {
   constructor(client: DbClient, machineId: string) {
     super(client, machineId);
 
-    // Load connected pollbooks from the database
-    // TODO-CARO-IMPLEMENT should this be reset on reboot?
+    // Reset knowledge of connected pollbook
     this.client.run(`DELETE FROM machines`);
   }
 

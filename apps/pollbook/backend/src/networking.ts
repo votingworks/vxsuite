@@ -1,6 +1,5 @@
 import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
-import { setInterval } from 'node:timers/promises';
 import * as grout from '@votingworks/grout';
 import { sleep } from '@votingworks/basics';
 import { rootDebug } from './debug';
@@ -64,71 +63,80 @@ export function fetchEventsFromConnectedPollbooks({
   workspace,
 }: PeerAppContext): void {
   // Poll to fetch events from connected pollbooks
-  process.nextTick(async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    for await (const _ of setInterval(EVENT_POLLING_INTERVAL)) {
-      if (!workspace.store.getIsOnline() || !workspace.store.getElection()) {
-        // There is no network to try to connect over. Bail out.
-        debug('Not fetching events while offline or unconfigured');
-        continue;
+  process.nextTick(() => {
+    let isPolling = false;
+    setInterval(async () => {
+      if (isPolling) {
+        return;
       }
+      isPolling = true;
+      try {
+        if (!workspace.store.getIsOnline() || !workspace.store.getElection()) {
+          // There is no network to try to connect over. Bail out.
+          debug('Not fetching events while offline or unconfigured');
+          return;
+        }
 
-      const previouslyConnected = workspace.store.getPollbookServicesByName();
-      const election = workspace.store.getElection();
+        const previouslyConnected = workspace.store.getPollbookServicesByName();
+        const election = workspace.store.getElection();
 
-      // Fetch events from all connected pollbooks in parallel
-      await Promise.all(
-        Object.keys(previouslyConnected).map(async (currentName) => {
-          const currentPollbookService = previouslyConnected[currentName];
-          if (
-            currentPollbookService.status !== PollbookConnectionStatus.Connected
-          ) {
-            return;
-          }
-          if (
-            !election ||
-            currentPollbookService.configuredElectionId !== election.id
-          ) {
-            workspace.store.setPollbookServiceForName(currentName, {
-              ...currentPollbookService,
-              lastSeen: new Date(),
-              status: PollbookConnectionStatus.WrongElection,
-            });
-            return;
-          }
-          const { apiClient } = currentPollbookService;
-          if (!apiClient) {
-            return;
-          }
-          try {
-            let syncMoreEvents = true;
-            while (syncMoreEvents) {
-              const lastEventSyncedPerNode =
-                workspace.store.getLastEventSyncedPerNode();
-              const { events, hasMore } = await apiClient.getEvents({
-                lastEventSyncedPerNode,
-              });
-              workspace.store.saveRemoteEvents(events);
-              syncMoreEvents = hasMore;
+        // Fetch events from all connected pollbooks in parallel
+        await Promise.all(
+          Object.keys(previouslyConnected).map(async (currentName) => {
+            const currentPollbookService = previouslyConnected[currentName];
+            if (
+              currentPollbookService.status !==
+              PollbookConnectionStatus.Connected
+            ) {
+              return;
             }
+            if (
+              !election ||
+              currentPollbookService.configuredElectionId !== election.id
+            ) {
+              workspace.store.setPollbookServiceForName(currentName, {
+                ...currentPollbookService,
+                lastSeen: new Date(),
+                status: PollbookConnectionStatus.WrongElection,
+              });
+              return;
+            }
+            const { apiClient } = currentPollbookService;
+            if (!apiClient) {
+              return;
+            }
+            try {
+              let syncMoreEvents = true;
+              while (syncMoreEvents) {
+                const lastEventSyncedPerNode =
+                  workspace.store.getLastEventSyncedPerNode();
+                const { events, hasMore } = await apiClient.getEvents({
+                  lastEventSyncedPerNode,
+                });
+                workspace.store.saveRemoteEvents(events);
+                syncMoreEvents = hasMore;
+              }
 
-            workspace.store.setPollbookServiceForName(currentName, {
-              ...currentPollbookService,
-              apiClient,
-              lastSeen: new Date(),
-              status: PollbookConnectionStatus.Connected,
-            });
-          } catch (error) {
-            debug(
-              `Failed to sync events from ${currentPollbookService.machineId}: ${error}`
-            );
-            debug('The api client is ', apiClient);
-          }
-        })
-      );
+              workspace.store.setPollbookServiceForName(currentName, {
+                ...currentPollbookService,
+                apiClient,
+                lastSeen: new Date(),
+                status: PollbookConnectionStatus.Connected,
+              });
+            } catch (error) {
+              debug(
+                `Failed to sync events from ${currentPollbookService.machineId}: ${error}`
+              );
+              debug('The api client is ', apiClient);
+            }
+          })
+        );
 
-      workspace.store.cleanupStalePollbookServices();
-    }
+        workspace.store.cleanupStalePollbookServices();
+      } finally {
+        isPolling = false;
+      }
+    }, EVENT_POLLING_INTERVAL);
   });
 }
 
@@ -146,9 +154,14 @@ export async function setupMachineNetworking({
   await AvahiService.advertiseHttpService(currentNodeServiceName, PEER_PORT);
 
   // Poll for new machines on the network
-  process.nextTick(async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    for await (const _ of setInterval(NETWORK_POLLING_INTERVAL)) {
+  process.nextTick(() => {
+    let isPolling = false;
+
+    setInterval(async () => {
+      if (isPolling) {
+        return;
+      }
+      isPolling = true;
       try {
         if (!(await hasOnlineInterface())) {
           // There is no network to try to connect over. Bail out.
@@ -156,15 +169,14 @@ export async function setupMachineNetworking({
             'No online interface found. Setting online status to false and bailing.'
           );
           workspace.store.setOnlineStatus(false);
-          continue;
+          return;
         }
 
         const currentElection = workspace.store.getElection();
-        debug('Polling network for new machines');
         const services = await AvahiService.discoverHttpServices();
         if (!services.length) {
           debug('No services found on the network');
-          continue;
+          return;
         }
         const previouslyConnected = workspace.store.getPollbookServicesByName();
         // If there are any services that were previously connected that no longer show up in avahi
@@ -188,7 +200,7 @@ export async function setupMachineNetworking({
             'The current service is no longer found on avahi. Setting online status to false'
           );
           workspace.store.setOnlineStatus(false);
-          continue;
+          return;
         }
         for (const { name, resolvedIp, port } of services) {
           debug('Checking service %s at %s:%d', name, resolvedIp, port);
@@ -268,7 +280,9 @@ export async function setupMachineNetworking({
         workspace.store.cleanupStalePollbookServices();
       } catch (error) {
         debug(`Previously uncaught error in network polling: ${error}`);
+      } finally {
+        isPolling = false;
       }
-    }
+    }, NETWORK_POLLING_INTERVAL);
   });
 }
