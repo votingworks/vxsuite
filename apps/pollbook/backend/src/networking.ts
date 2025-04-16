@@ -4,15 +4,15 @@ import { setInterval } from 'node:timers/promises';
 import * as grout from '@votingworks/grout';
 import { sleep } from '@votingworks/basics';
 import { rootDebug } from './debug';
-import { AppContext, PollbookConnectionStatus } from './types';
+import { PeerAppContext, PollbookConnectionStatus } from './types';
 import { AvahiService } from './avahi';
 import {
   EVENT_POLLING_INTERVAL,
   NETWORK_POLLING_INTERVAL,
   NETWORK_REQUEST_TIMEOUT,
-  PORT,
+  PEER_PORT,
 } from './globals';
-import type { Api } from './app';
+import type { PeerApi } from './peer_app';
 
 const debug = rootDebug.extend('networking');
 
@@ -42,19 +42,19 @@ export async function resetNetworkSetup(machineId: string): Promise<void> {
     debug(
       'Publishing avahi service %s on port %d',
       currentNodeServiceName,
-      PORT
+      PEER_PORT
     );
     await sleep(5000);
-    await AvahiService.advertiseHttpService(currentNodeServiceName, PORT);
+    await AvahiService.advertiseHttpService(currentNodeServiceName, PEER_PORT);
     debug('Network restarted');
   } catch (error) {
     debug(`Error restarting network: ${error}`);
   }
 }
 
-function createApiClientForAddress(address: string): grout.Client<Api> {
+function createApiClientForAddress(address: string): grout.Client<PeerApi> {
   debug('Creating API client for address %s', address);
-  return grout.createClient<Api>({
+  return grout.createClient<PeerApi>({
     baseUrl: `${address}/api`,
     timeout: NETWORK_REQUEST_TIMEOUT,
   });
@@ -62,7 +62,7 @@ function createApiClientForAddress(address: string): grout.Client<Api> {
 
 export function fetchEventsFromConnectedPollbooks({
   workspace,
-}: AppContext): void {
+}: PeerAppContext): void {
   // Poll to fetch events from connected pollbooks
   process.nextTick(async () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -122,11 +122,15 @@ export function fetchEventsFromConnectedPollbooks({
 export async function setupMachineNetworking({
   machineId,
   workspace,
-}: AppContext): Promise<void> {
+}: PeerAppContext): Promise<void> {
   const currentNodeServiceName = `Pollbook-${machineId}`;
   // Advertise a service for this machine
-  debug('Publishing avahi service %s on port %d', currentNodeServiceName, PORT);
-  await AvahiService.advertiseHttpService(currentNodeServiceName, PORT);
+  debug(
+    'Publishing avahi service %s on port %d',
+    currentNodeServiceName,
+    PEER_PORT
+  );
+  await AvahiService.advertiseHttpService(currentNodeServiceName, PEER_PORT);
 
   // Poll for new machines on the network
   process.nextTick(async () => {

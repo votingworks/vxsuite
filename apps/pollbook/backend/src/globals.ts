@@ -9,10 +9,12 @@ const NodeEnvSchema = z.union([
 ]);
 
 /**
- * Default port for the server.
+ * Default ports for the local and peer server.
  */
 // eslint-disable-next-line vx/gts-safe-number-parse
-export const PORT = Number(process.env.PORT || 3002);
+export const LOCAL_PORT = Number(process.env.LOCAL_PORT || 3002);
+// eslint-disable-next-line vx/gts-safe-number-parse
+export const PEER_PORT = Number(process.env.PEER_PORT || 3004);
 
 /**
  * Which node environment is this?

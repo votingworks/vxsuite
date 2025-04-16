@@ -19,24 +19,24 @@ import * as grout from '@votingworks/grout';
 import { Application } from 'express';
 import { Server } from 'node:http';
 import { AddressInfo } from 'node:net';
-import { Api, buildApp } from '../src/app';
-import { createWorkspace } from '../src/workspace';
-import { Workspace } from '../src';
+import { LocalApi, buildLocalApp } from '../src/app';
+import { createLocalWorkspace } from '../src/workspace';
+import { LocalWorkspace } from '../src';
 import { getUserRole } from '../src/auth';
 
 interface TestContext {
   auth: DippedSmartCardAuthApi;
-  workspace: Workspace;
+  workspace: LocalWorkspace;
   mockUsbDrive: MockUsbDrive;
   mockPrinterHandler: MemoryPrinterHandler;
-  apiClient: grout.Client<Api>;
+  apiClient: grout.Client<LocalApi>;
   app: Application;
   server: Server;
 }
 
 export function buildMockLogger(
   auth: DippedSmartCardAuthApi,
-  workspace: Workspace
+  workspace: LocalWorkspace
 ): MockLogger {
   return mockLogger({
     source: LogSource.VxPollbookBackend,
@@ -49,7 +49,7 @@ export async function withApp(
   fn: (context: TestContext) => Promise<void>
 ): Promise<void> {
   const auth = buildMockDippedSmartCardAuth(vi.fn);
-  const workspace = createWorkspace(
+  const workspace = createLocalWorkspace(
     tmp.dirSync().name,
     mockBaseLogger({ fn: vi.fn }),
     process.env.VX_MACHINE_ID || 'test'
@@ -62,7 +62,7 @@ export async function withApp(
 
   const mockPrinterHandler = createMockPrinterHandler();
 
-  const app = buildApp({
+  const app = buildLocalApp({
     context: {
       auth,
       workspace,

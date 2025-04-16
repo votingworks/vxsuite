@@ -21,10 +21,7 @@ import { stringify } from 'csv-stringify/sync';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { Logger } from '@votingworks/logging';
 import {
-  Workspace,
-  AppContext,
   DeviceStatuses,
-  MachineInformation,
   Voter,
   VoterIdentificationMethod,
   VoterSearchParams,
@@ -32,12 +29,13 @@ import {
   ValidStreetInfo,
   VoterRegistrationRequest,
   MachineConfig,
-  PollbookEvent,
   VoterAddressChangeRequest,
   SummaryStatistics,
   ThroughputStat,
   VoterNameChangeRequest,
   VoterAddressChange,
+  LocalAppContext,
+  LocalWorkspace,
 } from './types';
 import { rootDebug } from './debug';
 import {
@@ -47,23 +45,19 @@ import {
   NameChangeReceipt,
 } from './receipts';
 import { pollUsbDriveForPollbookPackage } from './pollbook_package';
-import {
-  fetchEventsFromConnectedPollbooks,
-  resetNetworkSetup,
-  setupMachineNetworking,
-} from './networking';
+import { resetNetworkSetup } from './networking';
 import { UndoCheckInReceipt } from './receipts/undo_check_in_receipt';
 import { renderAndPrintReceipt } from './receipts/printing';
 
-const debug = rootDebug;
+const debug = rootDebug.extend('local_app');
 
 interface BuildAppParams {
-  context: AppContext;
+  context: LocalAppContext;
   logger: Logger;
 }
 
 function constructAuthMachineState(
-  workspace: Workspace
+  workspace: LocalWorkspace
 ): DippedSmartCardAuthMachineState {
   const election = workspace.store.getElection();
   return {
@@ -186,7 +180,8 @@ function buildApi({ context, logger }: BuildAppParams) {
         return null;
       }
 
-      return store.searchVoters(searchParams);
+      const result = store.searchVoters(searchParams);
+      return result;
     },
 
     getVoter(input: { voterId: string }): Voter {
@@ -299,10 +294,13 @@ function buildApi({ context, logger }: BuildAppParams) {
     },
 
     getCheckInCounts(): { thisMachine: number; allMachines: number } {
-      return {
+      console.time('getCheckInCounts');
+      const result = {
         thisMachine: store.getCheckInCount(machineId),
         allMachines: store.getCheckInCount(),
-      };
+      } as const;
+      console.timeEnd('getCheckInCounts');
+      return result;
     },
 
     async exportVoterActivity(): Promise<void> {
@@ -348,7 +346,7 @@ function buildApi({ context, logger }: BuildAppParams) {
       }
 
       const voterActivity = store
-        .getAllVoters()
+        .getAllVotersSorted()
         .filter(
           (voter) =>
             voter.checkIn ||
@@ -381,27 +379,8 @@ function buildApi({ context, logger }: BuildAppParams) {
       result.unsafeUnwrap();
     },
 
-    getMachineInformation(): MachineInformation {
-      const election = store.getElection();
-      return {
-        machineId,
-        configuredElectionId: election ? election.id : undefined,
-      };
-    },
-
-    receiveEvent(input: { pollbookEvent: PollbookEvent }): boolean {
-      return store.saveEvent(input.pollbookEvent);
-    },
-
-    getEvents(input: { lastEventSyncedPerNode: Record<string, number> }): {
-      events: PollbookEvent[];
-      hasMore: boolean;
-    } {
-      return store.getNewEvents(input.lastEventSyncedPerNode);
-    },
-
     getAllVoters(): Voter[] {
-      return store.getAllVoters();
+      return store.getAllVotersSorted();
     },
 
     getSummaryStatistics(): SummaryStatistics {
@@ -414,6 +393,7 @@ function buildApi({ context, logger }: BuildAppParams) {
       return store.getThroughputStatistics(input.throughputInterval);
     },
 
+    // TODO-CARO-IMPLEMENT think about how this interacts with the other process
     async resetNetwork(): Promise<boolean> {
       await resetNetworkSetup(context.machineId);
       return true;
@@ -428,17 +408,17 @@ function buildApi({ context, logger }: BuildAppParams) {
   });
 }
 
-export type Api = ReturnType<typeof buildApi>;
+export type LocalApi = ReturnType<typeof buildApi>;
 
-export function buildApp({ context, logger }: BuildAppParams): Application {
+export function buildLocalApp({
+  context,
+  logger,
+}: BuildAppParams): Application {
   const app: Application = express();
   const api = buildApi({ context, logger });
   app.use('/api', grout.buildRouter(api, express));
 
   pollUsbDriveForPollbookPackage(context);
-
-  void setupMachineNetworking(context);
-  fetchEventsFromConnectedPollbooks(context);
 
   return app;
 }
