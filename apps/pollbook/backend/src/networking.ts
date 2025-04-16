@@ -1,7 +1,7 @@
 import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
 import * as grout from '@votingworks/grout';
-import { sleep } from '@votingworks/basics';
+import { groupBy, sleep } from '@votingworks/basics';
 import { rootDebug } from './debug';
 import { PeerAppContext, PollbookConnectionStatus } from './types';
 import { AvahiService, hasOnlineInterface } from './avahi';
@@ -49,6 +49,13 @@ function createApiClientForAddress(address: string): grout.Client<PeerApi> {
   });
 }
 
+interface PerfStat {
+  numSeenPollbooks: number;
+  numQueriedPollbooks: number;
+  duration: number;
+  timestamp: number;
+}
+
 export function fetchEventsFromConnectedPollbooks({
   workspace,
 }: PeerAppContext): void {
@@ -56,10 +63,14 @@ export function fetchEventsFromConnectedPollbooks({
   process.nextTick(() => {
     let isPolling = false;
     let pollbookQueue: string[] = [];
+    const durations: PerfStat[] = [];
     setInterval(async () => {
       if (isPolling) {
         return;
       }
+      const startTime = Date.now();
+      let numSeenPollbooks = 0;
+      let numQueriedPollbooks = 0;
       isPolling = true;
       try {
         if (!workspace.store.getIsOnline() || !workspace.store.getElection()) {
@@ -77,6 +88,7 @@ export function fetchEventsFromConnectedPollbooks({
             previouslyConnected[name].status ===
             PollbookConnectionStatus.Connected
         );
+        numSeenPollbooks = pollbookNames.length;
         if (pollbookQueue.length === 0) {
           // Shuffle pollbookNames
           pollbookQueue = pollbookNames
@@ -87,6 +99,7 @@ export function fetchEventsFromConnectedPollbooks({
 
         // Select up to BRANCHING_FACTOR pollbooks from the queue
         const pollbooksToQuery = pollbookQueue.splice(0, BRANCHING_FACTOR);
+        numQueriedPollbooks = pollbooksToQuery.length;
 
         await Promise.all(
           pollbooksToQuery.map(async (currentName) => {
@@ -143,6 +156,62 @@ export function fetchEventsFromConnectedPollbooks({
         workspace.store.cleanupStalePollbookServices();
       } finally {
         isPolling = false;
+        durations.push({
+          duration: Date.now() - startTime,
+          timestamp: startTime,
+          numSeenPollbooks,
+          numQueriedPollbooks,
+        });
+        if (durations.length % 50 === 0) {
+          const totalDurations = durations.map((d) => d.duration);
+          const totalAvg =
+            totalDurations.reduce((a, b) => a + b, 0) / totalDurations.length;
+          const totalMin = Math.min(...totalDurations);
+          const totalMax = Math.max(...totalDurations);
+          console.log('==== Event Statistics Dump ====');
+          console.log(
+            'Total - Avg: %d ms, Min: %d ms, Max: %d ms',
+            totalAvg,
+            totalMin,
+            totalMax
+          );
+
+          const durationsBySeen = groupBy(durations, (d) => d.numSeenPollbooks);
+          for (const [numSeen, group] of Object.values(durationsBySeen)) {
+            const seenDurations = group.map((d) => d.duration);
+            const avg =
+              seenDurations.reduce((a, b) => a + b, 0) / seenDurations.length;
+            const min = Math.min(...seenDurations);
+            const max = Math.max(...seenDurations);
+            debug(
+              'Seen %s Pollbooks - Avg: %d ms, Min: %d ms, Max: %d ms',
+              numSeen,
+              avg,
+              min,
+              max
+            );
+          }
+
+          const durationsByQueried = groupBy(
+            durations,
+            (d) => d.numQueriedPollbooks
+          );
+          for (const [numQueried, group] of Object.values(durationsByQueried)) {
+            const queriedDurations = group.map((d) => d.duration);
+            const avg =
+              queriedDurations.reduce((a, b) => a + b, 0) /
+              queriedDurations.length;
+            const min = Math.min(...queriedDurations);
+            const max = Math.max(...queriedDurations);
+            debug(
+              'Queried %s Pollbooks - Avg: %d ms, Min: %d ms, Max: %d ms',
+              numQueried,
+              avg,
+              min,
+              max
+            );
+          }
+        }
       }
     }, EVENT_POLLING_INTERVAL);
   });
