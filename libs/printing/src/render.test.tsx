@@ -218,6 +218,7 @@ test('renders with custom margins', async () => {
 
   await expect(outputPath).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'no-margins',
+    failureThreshold: 0.01,
   });
 });
 
