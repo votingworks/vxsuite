@@ -324,15 +324,17 @@ export function ContestAdjudicationScreen(): JSX.Element {
   assert(contest.type === 'candidate', 'contest must be a candidate contest');
 
   // Queries and mutations
-  const [cvrQueueIndex, setCvrQueueIndex] = useState<number>();
   const cvrQueueQuery = getWriteInAdjudicationCvrQueue.useQuery({
     contestId: contest.id,
   });
   const firstPendingCvrIdQuery = getFirstPendingWriteInCvrId.useQuery({
     contestId: contest.id,
   });
+
+  const [cvrQueueIndex, setCvrQueueIndex] = useState<number>();
   const isQueueReady = cvrQueueIndex !== undefined && cvrQueueQuery.data;
   const currentCvrId = isQueueReady ? cvrQueueQuery.data[cvrQueueIndex] : '';
+
   const cvrVoteInfoQuery = getCastVoteRecordVoteInfo.useQuery(
     currentCvrId ? { cvrId: currentCvrId } : undefined
   );
@@ -750,7 +752,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
 
   return (
     <Screen>
-      <Main flexRow>
+      <Main flexRow data-testid={`transcribe:${currentCvrId}`}>
         <BallotPanel>
           {isHmpb && (
             <BallotZoomImageViewer
@@ -854,6 +856,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                         setOptionHasVote(optionId, true);
                         setOptionWriteInStatus(optionId, { type: 'pending' });
                       }}
+                      /* istanbul ignore next */
                       onDeselect={() => undefined} // Cannot be reached
                       caption={renderCandidateButtonCaption({
                         originalVote,
