@@ -21,19 +21,21 @@ import { Server } from 'node:http';
 import { AddressInfo } from 'node:net';
 import { LocalApi, buildLocalApp } from '../src/app';
 import { createLocalWorkspace, createPeerWorkspace } from '../src/workspace';
-import { LocalWorkspace } from '../src';
+import { LocalWorkspace, PeerWorkspace } from '../src';
 import { getUserRole } from '../src/auth';
 import { buildPeerApp, PeerApi } from '../src/peer_app';
 
 interface TestContext {
   auth: DippedSmartCardAuthApi;
   workspace: LocalWorkspace;
+  peerWorkspace: PeerWorkspace;
   mockUsbDrive: MockUsbDrive;
   mockPrinterHandler: MemoryPrinterHandler;
   localApiClient: grout.Client<LocalApi>;
   peerApiClient: grout.Client<PeerApi>;
   app: Application;
-  server: Server;
+  localServer: Server;
+  peerServer: Server;
 }
 
 export function buildMockLogger(
@@ -109,7 +111,9 @@ export async function withApp(
       localApiClient,
       peerApiClient,
       app,
-      server: localServer,
+      localServer,
+      peerServer,
+      peerWorkspace,
     });
     mockUsbDrive.assertComplete();
   } finally {
@@ -118,5 +122,102 @@ export async function withApp(
       localServer.close((error) => (error ? reject(error) : resolve()));
       peerServer.close((error) => (error ? reject(error) : resolve()));
     });
+  }
+}
+
+/*
+ **
+ ** Creates N instances of mock pollbook apps in order to test multi-pollbook scenarios.
+ */
+export async function withManyApps(
+  n: number,
+  fn: (contexts: TestContext[]) => Promise<void>
+): Promise<void> {
+  const contexts: TestContext[] = [];
+
+  try {
+    for (let i = 0; i < n; i += 1) {
+      const auth = buildMockDippedSmartCardAuth(vi.fn);
+      const workspacePath = tmp.dirSync().name;
+      const workspace = createLocalWorkspace(
+        workspacePath,
+        mockBaseLogger({ fn: vi.fn }),
+        `test-${i}`
+      );
+      const peerWorkspace = createPeerWorkspace(
+        workspacePath,
+        mockBaseLogger({ fn: vi.fn }),
+        `test-${i}`
+      );
+
+      const logger = buildMockLogger(auth, workspace);
+
+      const mockUsbDrive = createMockUsbDrive();
+      mockUsbDrive.usbDrive.sync.expectOptionalRepeatedCallsWith().resolves();
+
+      const mockPrinterHandler = createMockPrinterHandler();
+
+      const app = buildLocalApp({
+        context: {
+          auth,
+          workspace,
+          usbDrive: mockUsbDrive.usbDrive,
+          printer: mockPrinterHandler.printer,
+          machineId: `test-${i}`,
+          codeVersion: process.env.VX_CODE_VERSION || 'test',
+        },
+        logger,
+      });
+      const peerApp = buildPeerApp({
+        workspace: peerWorkspace,
+        machineId: `test-${i}`,
+        codeVersion: process.env.VX_CODE_VERSION || 'test',
+      });
+
+      const localServer = app.listen();
+      const { port: localPort } = localServer.address() as AddressInfo;
+      const localBaseUrl = `http://localhost:${localPort}/api`;
+
+      const peerServer = peerApp.listen();
+      const { port: peerPort } = peerServer.address() as AddressInfo;
+      const peerBaseUrl = `http://localhost:${peerPort}/api`;
+
+      const localApiClient = grout.createClient<LocalApi>({
+        baseUrl: localBaseUrl,
+      });
+      const peerApiClient = grout.createClient<PeerApi>({
+        baseUrl: peerBaseUrl,
+      });
+
+      contexts.push({
+        auth,
+        workspace,
+        mockUsbDrive,
+        mockPrinterHandler,
+        localApiClient,
+        peerApiClient,
+        app,
+        localServer,
+        peerServer,
+        peerWorkspace,
+      });
+    }
+
+    await fn(contexts);
+
+    for (const context of contexts) {
+      context.mockUsbDrive.assertComplete();
+    }
+  } finally {
+    for (const context of contexts) {
+      await new Promise<void>((resolve, reject) => {
+        context.localServer.close((error) =>
+          error ? reject(error) : resolve()
+        );
+        context.peerServer.close((error) =>
+          error ? reject(error) : resolve()
+        );
+      });
+    }
   }
 }
