@@ -4,7 +4,7 @@ import * as grout from '@votingworks/grout';
 import { sleep } from '@votingworks/basics';
 import { rootDebug } from './debug';
 import { PeerAppContext, PollbookConnectionStatus } from './types';
-import { AvahiService } from './avahi';
+import { AvahiService, hasOnlineInterface } from './avahi';
 import {
   EVENT_POLLING_INTERVAL,
   NETWORK_POLLING_INTERVAL,
@@ -16,18 +16,6 @@ import type { PeerApi } from './peer_app';
 const debug = rootDebug.extend('networking');
 
 const execPromise = promisify(exec);
-// Checks if there is any network interface 'UP'.
-export async function hasOnlineInterface(): Promise<boolean> {
-  const command = 'ip link show | grep "state UP"';
-  try {
-    const { stdout } = await execPromise(command);
-    debug(`ip link show stdout: ${stdout}`);
-    return stdout.length > 0;
-  } catch (error) {
-    debug(`Error running ip link show: ${error}`);
-    return false;
-  }
-}
 
 export async function resetNetworkSetup(machineId: string): Promise<void> {
   const command = 'sudo systemctl start join-mesh-network';

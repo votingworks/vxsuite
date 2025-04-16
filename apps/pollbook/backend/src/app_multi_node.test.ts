@@ -1,4 +1,5 @@
 import { beforeEach, expect, test, vi, vitest } from 'vitest';
+
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { AddressInfo } from 'node:net';
 import { withManyApps } from '../test/app';
@@ -8,7 +9,7 @@ import {
 } from './pollbook_package.js';
 import { PollbookConnectionStatus } from './types.js';
 import { NETWORK_POLLING_INTERVAL } from './globals.js';
-import { AvahiService } from './avahi';
+import { AvahiService, hasOnlineInterface } from './avahi';
 
 let mockNodeEnv: 'production' | 'test' = 'test';
 
@@ -29,6 +30,7 @@ vi.mock(import('./get_current_time.js'), async (importActual) => ({
 }));
 
 vi.mock('./avahi.js', () => ({
+  hasOnlineInterface: vi.fn().mockResolvedValue(false),
   AvahiService: {
     advertiseHttpService: vi.fn().mockResolvedValue(undefined),
     stopAdvertisedService: vi.fn(),
@@ -64,10 +66,8 @@ test('connection status between two pollbooks is managed properly', async () => 
         },
       });
     }
-    // Dynamically import networking to allow mocking
-    const networking = await import('./networking.js');
     // Mock hasOnlineInterface to always return true
-    vi.spyOn(networking, 'hasOnlineInterface').mockResolvedValue(true);
+    vi.mocked(hasOnlineInterface).mockResolvedValue(true);
     const { port: port1 } =
       pollbookContext1.peerServer.address() as AddressInfo;
 
@@ -94,23 +94,26 @@ test('connection status between two pollbooks is managed properly', async () => 
         port: port1.toString(),
       },
     ]);
-    vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
 
-    expect(
-      await pollbookContext1.localApiClient.getDeviceStatuses()
-    ).toMatchObject({
-      network: {
-        isOnline: true,
-        pollbooks: [],
-      },
-    });
-    expect(
-      await pollbookContext2.localApiClient.getDeviceStatuses()
-    ).toMatchObject({
-      network: {
-        isOnline: false,
-        pollbooks: [],
-      },
+    await vi.waitFor(async () => {
+      vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+
+      expect(
+        await pollbookContext1.localApiClient.getDeviceStatuses()
+      ).toMatchObject({
+        network: {
+          isOnline: true,
+          pollbooks: [],
+        },
+      });
+      expect(
+        await pollbookContext2.localApiClient.getDeviceStatuses()
+      ).toMatchObject({
+        network: {
+          isOnline: false,
+          pollbooks: [],
+        },
+      });
     });
     const { port: port2 } =
       pollbookContext2.peerServer.address() as AddressInfo;

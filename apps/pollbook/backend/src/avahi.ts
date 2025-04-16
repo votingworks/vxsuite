@@ -13,6 +13,19 @@ export interface AvahiDiscoveredService {
   port: string;
 }
 
+// Checks if there is any network interface 'UP'.
+export async function hasOnlineInterface(): Promise<boolean> {
+  const command = 'ip link show | grep "state UP"';
+  try {
+    const { stdout } = await execPromise(command);
+    debug(`ip link show stdout: ${stdout}`);
+    return stdout.length > 0;
+  } catch (error) {
+    debug(`Error running ip link show: ${error}`);
+    return false;
+  }
+}
+
 export class AvahiService {
   private static runningProcess: ReturnType<typeof exec> | null = null;
 
