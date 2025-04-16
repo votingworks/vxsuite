@@ -7,7 +7,7 @@ import {
   ElectionType,
   Parties,
   PrecinctOrSplitId,
-  SplittablePrecinct,
+  Precinct,
   hasSplits,
 } from '@votingworks/types';
 import {
@@ -33,7 +33,7 @@ export function generateBallotStyles(params: {
   ballotLanguageConfigs: BallotLanguageConfigs;
   electionType: ElectionType;
   parties: Parties;
-  precincts: SplittablePrecinct[];
+  precincts: Precinct[];
 }): BallotStyle[] {
   const { ballotLanguageConfigs, contests, electionType, parties, precincts } =
     params;

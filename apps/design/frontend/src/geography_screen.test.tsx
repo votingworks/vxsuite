@@ -6,7 +6,7 @@ import {
   District,
   DistrictId,
   ElectionId,
-  SplittablePrecinct,
+  Precinct,
   PrecinctWithSplits,
   PrecinctWithoutSplits,
   hasSplits,
@@ -256,7 +256,7 @@ describe('Precincts tab', () => {
   });
 
   test('adding a precinct', async () => {
-    const newPrecinct: SplittablePrecinct = {
+    const newPrecinct: Precinct = {
       id: idFactory.next(),
       name: 'New Precinct',
       districtIds: [election.districts[0].id, election.districts[1].id],

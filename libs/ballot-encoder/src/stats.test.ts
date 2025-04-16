@@ -25,7 +25,9 @@ const election: Election = {
   seal: '<svg>test seal</svg>',
   districts: [{ id: district1Id, name: 'District 1' }],
   parties: [],
-  precincts: [{ id: 'precinct1', name: 'Precinct 1' }],
+  precincts: [
+    { id: 'precinct1', name: 'Precinct 1', districtIds: [district1Id] },
+  ],
   ballotStyles: [
     {
       id: 'style1_en' as BallotStyleId,

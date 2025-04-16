@@ -5,7 +5,7 @@ import {
   BallotLanguageConfigs,
   getAllBallotLanguages,
   LanguageCode,
-  SplittablePrecinct,
+  Precinct,
   hasSplits,
 } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
@@ -15,11 +15,11 @@ import { setUiString } from './utils';
 
 /**
  * Extracts strings defined on a list of "precinct splits".
- * @param precincts A list of SplittablePrecincts
+ * @param precincts A list of {@link Precinct}.
  * @returns A catalog of strings defined by the user in VxDesign.
  */
 export function getUserDefinedHmpbStrings(
-  precincts: SplittablePrecinct[]
+  precincts: Precinct[]
 ): Record<string, string> {
   const catalog: Record<string, string> = {};
   for (const precinct of precincts) {
@@ -82,7 +82,7 @@ export async function translateElectionAndHmpbStrings(
   election: Election,
   hmpbStringsCatalog: Record<string, string>,
   ballotLanguageConfigs: BallotLanguageConfigs,
-  precincts: SplittablePrecinct[]
+  precincts: Precinct[]
 ): Promise<{
   electionStrings: UiStringsPackage;
   hmpbStrings: UiStringsPackage;
@@ -118,7 +118,7 @@ export async function translateBallotStrings(
     Election,
     Record<string, string>,
     BallotLanguageConfigs,
-    SplittablePrecinct[],
+    Precinct[],
   ]
 ): Promise<UiStringsPackage> {
   const { electionStrings, hmpbStrings } =

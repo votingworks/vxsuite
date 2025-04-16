@@ -40,6 +40,7 @@ function getMockElectionDefinition(): ElectionDefinition {
       precincts: REPORT_ROW_RANGE.map((i) => ({
         id: `precinct-${i}`,
         name: `Test Precinct`,
+        districtIds: [],
       })),
       contests: [],
       ballotStyles: [],

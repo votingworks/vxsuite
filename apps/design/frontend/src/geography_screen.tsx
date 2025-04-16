@@ -31,7 +31,7 @@ import {
   ElectionId,
   hasSplits,
   PrecinctSplit,
-  SplittablePrecinct,
+  Precinct,
 } from '@votingworks/types';
 import { assert, assertDefined } from '@votingworks/basics';
 import styled from 'styled-components';
@@ -445,7 +445,7 @@ function PrecinctsTab(): JSX.Element | null {
   );
 }
 
-function createBlankPrecinct(): SplittablePrecinct {
+function createBlankPrecinct(): Precinct {
   return {
     name: '',
     id: generateId(),
@@ -477,12 +477,12 @@ function PrecinctForm({
   savedPrecinct,
 }: {
   electionId: ElectionId;
-  savedPrecinct?: SplittablePrecinct;
+  savedPrecinct?: Precinct;
 }): JSX.Element | null {
   const getUserFeaturesQuery = getUserFeatures.useQuery();
   const getElectionFeaturesQuery = getElectionFeatures.useQuery(electionId);
   const listDistrictsQuery = listDistricts.useQuery(electionId);
-  const [precinct, setPrecinct] = useState<SplittablePrecinct>(
+  const [precinct, setPrecinct] = useState<Precinct>(
     savedPrecinct ??
       // To make mocked IDs predictable in tests, we pass a function here
       // so it will only be called on initial render.

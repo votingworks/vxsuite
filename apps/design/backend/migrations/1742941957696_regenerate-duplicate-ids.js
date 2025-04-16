@@ -22,7 +22,7 @@ exports.up = async (pgm) => {
   const seenIds = new Set();
 
   /**
-   * @param {{ id: string; election: import('@votingworks/types').Election; precincts: import('@votingworks/types').SplittablePrecinct[]; }} electionRecord
+   * @param {{ id: string; election: import('@votingworks/types').Election; precincts: import('@votingworks/types').Precinct[]; }} electionRecord
    */
   function allIds(electionRecord) {
     const { election, precincts } = electionRecord;

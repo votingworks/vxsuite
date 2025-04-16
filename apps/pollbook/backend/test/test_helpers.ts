@@ -130,6 +130,7 @@ export function getTestElection(): Election {
     precincts: Array.from({ length: 5 }, (_, i) => ({
       id: `precinct-${i}`,
       name: `Test Precinct ${i}`,
+      districtIds: [],
     })),
     contests: [],
     ballotStyles: [],

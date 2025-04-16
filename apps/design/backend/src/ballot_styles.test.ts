@@ -7,7 +7,7 @@ import {
   Party,
   PartyId,
   LanguageCode,
-  SplittablePrecinct,
+  Precinct,
   PrecinctSplit,
 } from '@votingworks/types';
 import {
@@ -70,12 +70,12 @@ describe('generateBallotStyles()', () => {
     abbrev: 'C',
   };
 
-  const precinct1District1: SplittablePrecinct = {
+  const precinct1District1: Precinct = {
     id: 'precinct-1',
     name: 'Precinct 1',
     districtIds: [district1.id],
   };
-  const precinct2District2: SplittablePrecinct = {
+  const precinct2District2: Precinct = {
     id: 'precinct-2',
     name: 'Precinct 2',
     districtIds: [district2.id],
@@ -106,20 +106,20 @@ describe('generateBallotStyles()', () => {
       districtIds: [district3NoContests.id],
     }),
   } as const;
-  const precinct3District1And2: SplittablePrecinct = {
+  const precinct3District1And2: Precinct = {
     id: 'precinct-3-with-splits',
     name: 'Precinct 3 - With Splits',
     splits: Object.values(precinct3Splits),
   };
 
-  const precinct4NoDistricts: SplittablePrecinct = {
+  const precinct4NoDistricts: Precinct = {
     id: 'precinct-4',
     name: 'Precinct 4',
     // Shouldn't get a ballot style, since no districts assigned
     districtIds: [],
   };
 
-  const precinct5NoContests: SplittablePrecinct = {
+  const precinct5NoContests: Precinct = {
     id: 'precinct-5',
     name: 'Precinct 5',
     // Shouldn't get a ballot style, since no contests assigned
@@ -416,17 +416,17 @@ describe('generateBallotStyles()', () => {
   });
 
   test('precincts with the same district IDs in different orders', () => {
-    const precinct1: SplittablePrecinct = {
+    const precinct1: Precinct = {
       id: 'precinct-1',
       name: 'Precinct 1',
       districtIds: [district1.id, district2.id],
     };
-    const precinct2: SplittablePrecinct = {
+    const precinct2: Precinct = {
       id: 'precinct-2',
       name: 'Precinct 2',
       districtIds: [district2.id, district1.id],
     };
-    const precinct3: SplittablePrecinct = {
+    const precinct3: Precinct = {
       id: 'precinct-3',
       name: 'Precinct 3',
       splits: [
@@ -447,7 +447,7 @@ describe('generateBallotStyles()', () => {
         },
       ],
     };
-    const precinct4: SplittablePrecinct = {
+    const precinct4: Precinct = {
       id: 'precinct-4',
       name: 'Precinct 4',
       districtIds: [district1.id],

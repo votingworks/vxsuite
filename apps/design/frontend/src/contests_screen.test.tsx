@@ -94,10 +94,12 @@ const electionWithNoContestsRecord = makeElectionRecord(
       {
         id: 'test-precinct-1',
         name: 'Test Precinct 1',
+        districtIds: [unsafeParse(DistrictIdSchema, 'test-district-1')],
       },
       {
         id: 'test-precinct-2',
         name: 'Test Precinct 2',
+        districtIds: [],
       },
     ],
     ballotStyles: [
@@ -321,10 +323,12 @@ describe('Contests tab', () => {
           {
             id: 'test-precinct-1',
             name: 'Test Precinct 1',
+            districtIds: [unsafeParse(DistrictIdSchema, 'test-district-1')],
           },
           {
             id: 'test-precinct-2',
             name: 'Test Precinct 2',
+            districtIds: [],
           },
         ],
         ballotStyles: [

@@ -8,7 +8,7 @@ import {
   Election,
   hasSplits,
   Party,
-  SplittablePrecinct,
+  Precinct,
 } from '@votingworks/types';
 import { customAlphabet } from 'nanoid';
 
@@ -40,10 +40,10 @@ export function generateId(): string {
  */
 export function regenerateElectionIds(
   election: Election,
-  precincts: SplittablePrecinct[]
+  precincts: Precinct[]
 ): {
   districts: District[];
-  precincts: SplittablePrecinct[];
+  precincts: Precinct[];
   parties: Party[];
   contests: AnyContest[];
 } {
