@@ -1,3 +1,30 @@
+import { Scan } from '@votingworks/api';
+import {
+  buildMockDippedSmartCardAuth,
+  DippedSmartCardAuthApi,
+} from '@votingworks/auth';
+import { typedAs } from '@votingworks/basics';
+import { getTemporaryRootDir } from '@votingworks/fixtures';
+import { Logger, mockBaseLogger } from '@votingworks/logging';
+import {
+  AdjudicationReason,
+  BallotMetadata,
+  BallotStyleId,
+  BallotType,
+  DEFAULT_SYSTEM_SETTINGS,
+  ElectionDefinition,
+  InterpretedHmpbPage,
+  PageInterpretationWithFiles,
+  SheetOf,
+  TEST_JURISDICTION,
+} from '@votingworks/types';
+import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
+import { Application } from 'express';
+import * as fs from 'node:fs/promises';
+import { Server } from 'node:http';
+import request from 'supertest';
+import { dirSync } from 'tmp';
+import { v4 as uuid } from 'uuid';
 import {
   afterEach,
   beforeAll,
@@ -7,37 +34,12 @@ import {
   test,
   vi,
 } from 'vitest';
-import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
-import {
-  AdjudicationReason,
-  BallotMetadata,
-  BallotStyleId,
-  BallotType,
-  DEFAULT_SYSTEM_SETTINGS,
-  InterpretedHmpbPage,
-  PageInterpretationWithFiles,
-  SheetOf,
-  TEST_JURISDICTION,
-} from '@votingworks/types';
-import { Scan } from '@votingworks/api';
-import { Application } from 'express';
-import * as fs from 'node:fs/promises';
-import request from 'supertest';
-import { dirSync } from 'tmp';
-import { v4 as uuid } from 'uuid';
-import { typedAs } from '@votingworks/basics';
-import {
-  buildMockDippedSmartCardAuth,
-  DippedSmartCardAuthApi,
-} from '@votingworks/auth';
-import { Server } from 'node:http';
-import { Logger, mockBaseLogger } from '@votingworks/logging';
-import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
+import { generateHmpbFixture } from '../test/helpers/ballots';
+import { buildMockLogger } from '../test/helpers/setup_app';
 import { makeMock, makeMockScanner } from '../test/util/mocks';
+import { buildCentralScannerApp } from './app';
 import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
-import { buildCentralScannerApp } from './app';
-import { buildMockLogger } from '../test/helpers/setup_app';
 
 vi.mock(import('./importer.js'));
 
@@ -51,56 +53,22 @@ let workspace: Workspace;
 let logger: Logger;
 let mockUsbDrive: MockUsbDrive;
 
-beforeEach(() => {
-  auth = buildMockDippedSmartCardAuth(vi.fn);
-  workspace = createWorkspace(dirSync().name, mockBaseLogger({ fn: vi.fn }));
-  workspace.store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireTestBallotFixtures.electionJson.asText(),
-    jurisdiction,
-    electionPackageHash: 'test-election-package-hash',
-  });
-  workspace.store.setTestMode(false);
-  workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
-  logger = buildMockLogger(auth, workspace);
-  importer = makeMock(Importer);
-  mockUsbDrive = createMockUsbDrive();
-
-  app = buildCentralScannerApp({
-    auth,
-    usbDrive: mockUsbDrive.usbDrive,
-    allowedExportPatterns: ['/tmp/**'],
-    scanner: makeMockScanner(),
-    importer,
-    workspace,
-    logger,
-  });
-});
-
-afterEach(async () => {
-  await fs.rm(workspace.path, {
-    force: true,
-    recursive: true,
-  });
-  server?.close();
-});
-
+let electionDefinition: ElectionDefinition;
 let frontImagePath: string;
 let backImagePath: string;
 let sheet: SheetOf<PageInterpretationWithFiles>;
 
-beforeAll(() => {
-  frontImagePath =
-    electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedFront.asFilePath();
-  backImagePath =
-    electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asFilePath();
+beforeAll(async () => {
+  const hmpbFixture = await generateHmpbFixture();
+
+  electionDefinition = hmpbFixture.electionDefinition;
+  [frontImagePath, backImagePath] = hmpbFixture.sheet;
+
   sheet = (() => {
     const metadata: BallotMetadata = {
-      ballotHash:
-        electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
-          .ballotHash,
+      ballotHash: electionDefinition.ballotHash,
       ballotType: BallotType.Precinct,
-      ballotStyleId: '12' as BallotStyleId,
+      ballotStyleId: '1' as BallotStyleId,
       precinctId: '23',
       isTestMode: false,
     };
@@ -167,6 +135,38 @@ beforeAll(() => {
   })();
 });
 
+beforeEach(() => {
+  auth = buildMockDippedSmartCardAuth(vi.fn);
+  workspace = createWorkspace(
+    dirSync({ dir: getTemporaryRootDir() }).name,
+    mockBaseLogger({ fn: vi.fn })
+  );
+  workspace.store.setElectionAndJurisdiction({
+    electionData: electionDefinition.electionData,
+    jurisdiction,
+    electionPackageHash: 'test-election-package-hash',
+  });
+  workspace.store.setTestMode(false);
+  workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
+  logger = buildMockLogger(auth, workspace);
+  importer = makeMock(Importer);
+  mockUsbDrive = createMockUsbDrive();
+
+  app = buildCentralScannerApp({
+    auth,
+    usbDrive: mockUsbDrive.usbDrive,
+    allowedExportPatterns: ['/tmp/**'],
+    scanner: makeMockScanner(),
+    importer,
+    workspace,
+    logger,
+  });
+});
+
+afterEach(() => {
+  server?.close();
+});
+
 test('GET /scan/hmpb/ballot/:ballotId/:side/image', async () => {
   const batchId = workspace.store.addBatch();
   const sheetId = workspace.store.addSheet(uuid(), batchId, sheet);
@@ -228,9 +228,7 @@ test('get next sheet', async () => {
 
 test('get next sheet layouts', async () => {
   const metadata: BallotMetadata = {
-    ballotHash:
-      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
-        .ballotHash,
+    ballotHash: electionDefinition.ballotHash,
     ballotType: BallotType.Precinct,
     ballotStyleId: 'card-number-3' as BallotStyleId,
     precinctId: 'town-id-00701-precinct-id-default',

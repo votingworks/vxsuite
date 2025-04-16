@@ -1,9 +1,9 @@
-import { expect, test, vi } from 'vitest';
 import {
   getCastVoteRecordExportDirectoryPaths,
   mockElectionPackageFileTree,
   readCastVoteRecordExport,
 } from '@votingworks/backend';
+import { ok, sleep } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { CVR } from '@votingworks/types';
 import {
@@ -11,11 +11,11 @@ import {
   convertCastVoteRecordVotesToTabulationVotes,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { ok, sleep } from '@votingworks/basics';
 import * as fsExtra from 'fs-extra';
-import { withApp } from '../test/helpers/setup_app';
+import { expect, test, vi } from 'vitest';
 import { mockElectionManagerAuth } from '../test/helpers/auth';
 import { generateBmdBallotFixture } from '../test/helpers/ballots';
+import { withApp } from '../test/helpers/setup_app';
 import { ScannedSheetInfo } from './fujitsu_scanner';
 
 // we need more time for ballot interpretation
@@ -52,10 +52,10 @@ test('going through the whole process works - BMD', async () => {
 
       await apiClient.setTestMode({ testMode: true });
 
-      const ballot = await generateBmdBallotFixture();
+      const bmdFixture = await generateBmdBallotFixture();
       const scannedBallot: ScannedSheetInfo = {
-        frontPath: ballot[0],
-        backPath: ballot[1],
+        frontPath: bmdFixture.sheet[0],
+        backPath: bmdFixture.sheet[1],
       };
       {
         // define the next scanner session & scan some sample ballots

@@ -5,26 +5,56 @@ import {
   DEFAULT_FAMOUS_NAMES_VOTES,
   renderBmdBallotFixture,
 } from '@votingworks/bmd-ballot-fixtures';
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import { getTemporaryRootDir } from '@votingworks/fixtures';
+import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { pdfToImages, writeImageData } from '@votingworks/image-utils';
-import { SheetOf, asSheet } from '@votingworks/types';
+import { ElectionDefinition, SheetOf, asSheet } from '@votingworks/types';
+import { Buffer } from 'node:buffer';
+import * as fs from 'node:fs/promises';
 import { tmpNameSync } from 'tmp';
 
-export async function generateBmdBallotFixture(): Promise<SheetOf<string>> {
-  const ballotPdf = await renderBmdBallotFixture({
-    electionDefinition:
-      electionFamousNames2021Fixtures.readElectionDefinition(),
-    ballotStyleId: DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
-    precinctId: DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
-    votes: DEFAULT_FAMOUS_NAMES_VOTES,
-  });
+async function generateSheetFromPdf(pdfData: Buffer): Promise<SheetOf<string>> {
   return asSheet(
-    await iter(pdfToImages(ballotPdf, { scale: 200 / 72 }))
+    await iter(pdfToImages(pdfData, { scale: 200 / 72 }))
+      .take(2)
       .map(async ({ page }) => {
-        const path = tmpNameSync({ postfix: '.png' });
+        const path = tmpNameSync({
+          postfix: '.png',
+          dir: getTemporaryRootDir(),
+        });
         await writeImageData(path, page);
         return path;
       })
       .toArray()
   );
+}
+
+export async function generateBmdBallotFixture(): Promise<{
+  electionDefinition: ElectionDefinition;
+  sheet: SheetOf<string>;
+}> {
+  const { electionDefinition } = vxFamousNamesFixtures;
+  return {
+    electionDefinition,
+    sheet: await generateSheetFromPdf(
+      await renderBmdBallotFixture({
+        electionDefinition,
+        ballotStyleId: DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
+        precinctId: DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
+        votes: DEFAULT_FAMOUS_NAMES_VOTES,
+      })
+    ),
+  };
+}
+
+export async function generateHmpbFixture(): Promise<{
+  electionDefinition: ElectionDefinition;
+  sheet: SheetOf<string>;
+}> {
+  return {
+    electionDefinition: vxFamousNamesFixtures.electionDefinition,
+    sheet: await generateSheetFromPdf(
+      await fs.readFile(vxFamousNamesFixtures.markedBallotPath)
+    ),
+  };
 }
