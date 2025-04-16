@@ -32,6 +32,7 @@ import {
   UiStringsPackage,
   ElectionId,
   BallotStyleGroupId,
+  PrecinctSplit,
 } from '@votingworks/types';
 import { sha256 } from 'js-sha256';
 import { DateWithoutTime, assertDefined } from '@votingworks/basics';
@@ -336,12 +337,40 @@ export function arbitraryDistrict({
   });
 }
 
-export function arbitraryPrecinct({
-  id = arbitraryPrecinctId(),
-}: { id?: fc.Arbitrary<Precinct['id']> } = {}): fc.Arbitrary<Precinct> {
+export function arbitraryPrecinctSplit({
+  id = arbitraryId(),
+  districtIds = fc.array(arbitraryDistrictId()),
+}: {
+  id?: fc.Arbitrary<Precinct['id']>;
+  districtIds?: fc.Arbitrary<Array<District['id']>>;
+} = {}): fc.Arbitrary<PrecinctSplit> {
   return fc.record({
     id,
     name: fc.string({ minLength: 1 }),
+    districtIds,
+  });
+}
+
+export function arbitraryPrecinct({
+  id = arbitraryPrecinctId(),
+  districtIds = fc.array(arbitraryDistrictId()),
+  splits,
+}: {
+  id?: fc.Arbitrary<Precinct['id']>;
+  districtIds?: fc.Arbitrary<Array<District['id']>>;
+  splits?: fc.Arbitrary<PrecinctSplit[]>;
+} = {}): fc.Arbitrary<Precinct> {
+  if (splits) {
+    return fc.record({
+      id,
+      name: fc.string({ minLength: 1 }),
+      splits,
+    });
+  }
+  return fc.record({
+    id,
+    name: fc.string({ minLength: 1 }),
+    districtIds,
   });
 }
 
