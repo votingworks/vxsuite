@@ -90,13 +90,6 @@ export class PeerStore extends Store {
         return;
       }
       for (const pollbookEvent of pollbookEvents) {
-        if (getCurrentTime() - pollbookEvent.timestamp.physical > 1000) {
-          console.log(
-            'DELAYED-EVENT-SAVE Time: %d Object: %o',
-            getCurrentTime() - pollbookEvent.timestamp.physical,
-            pollbookEvent
-          );
-        }
         isSuccess = isSuccess && this.saveEvent(pollbookEvent);
       }
     });
