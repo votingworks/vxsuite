@@ -12,12 +12,13 @@ import {
 import { DippedSmartCardAuth, MockFileCard, JavaCard } from '@votingworks/auth';
 import { detectPrinter } from '@votingworks/printing';
 import { WORKSPACE } from './globals';
-import * as server from './server';
+import * as localServer from './server';
+import * as peerServer from './peer_server';
 import * as backupWorker from './backup_worker';
-import { createWorkspace } from './workspace';
+import { createLocalWorkspace, createPeerWorkspace } from './workspace';
 import { AvahiService } from './avahi';
 
-export type { Api } from './app';
+export type { LocalApi as Api } from './app';
 export * from './types';
 
 loadEnvVarsFromDotenvFiles();
@@ -54,17 +55,31 @@ function main(): Promise<number> {
   const logger = Logger.from(baseLogger, () => Promise.resolve('system'));
   const usbDrive = detectUsbDrive(logger);
   const printer = detectPrinter(logger);
-  const workspace = createWorkspace(workspacePath, baseLogger, machineId);
+  const localWorkspace = createLocalWorkspace(
+    workspacePath,
+    baseLogger,
+    machineId
+  );
+  const peerWorkspace = createPeerWorkspace(
+    workspacePath,
+    baseLogger,
+    machineId
+  );
 
-  server.start({
-    workspace,
+  localServer.start({
+    workspace: localWorkspace,
     auth,
     usbDrive,
     printer,
     machineId,
     codeVersion,
   });
-  backupWorker.start({ workspace, usbDrive });
+  peerServer.start({
+    workspace: peerWorkspace,
+    machineId,
+    codeVersion,
+  });
+  backupWorker.start({ workspace: localWorkspace, usbDrive });
 
   return Promise.resolve(0);
 }

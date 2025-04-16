@@ -9,13 +9,13 @@ import { UsbDrive } from '@votingworks/usb-drive';
 import { assertDefined, iter } from '@votingworks/basics';
 import { PDFDocument } from 'pdf-lib';
 import { Buffer } from 'node:buffer';
-import { PartyAbbreviation, Workspace } from './types';
+import { PartyAbbreviation, LocalWorkspace } from './types';
 import {
   CertificationPage,
   VoterChecklist,
   VoterChecklistHeader,
 } from './voter_checklist';
-import { Store } from './store';
+import { LocalStore } from './local_store';
 
 const BACKUP_INTERVAL = 1_000 * 60; // 1 minute
 
@@ -69,7 +69,7 @@ async function* splitIntoBalancedChunks<T>(
 }
 
 export async function getBackupPaperChecklistPdfs(
-  store: Store,
+  store: LocalStore,
   exportTime: Date = new Date()
 ): Promise<Buffer[]> {
   const election = assertDefined(store.getElection());
@@ -106,7 +106,7 @@ export async function getBackupPaperChecklistPdfs(
     });
 
   const voterCountByParty = store
-    .getAllVoters()
+    .getAllVotersSorted()
     .filter((voter) => !voter.registrationEvent)
     .reduce(
       (counts, voter) => ({
@@ -157,7 +157,7 @@ export async function getBackupPaperChecklistPdfs(
 }
 
 async function exportBackupVoterChecklist(
-  workspace: Workspace,
+  workspace: LocalWorkspace,
   usbDrive: UsbDrive
 ): Promise<void> {
   let usbDriveStatus = await usbDrive.status();
@@ -207,7 +207,7 @@ export function start({
   workspace,
   usbDrive,
 }: {
-  workspace: Workspace;
+  workspace: LocalWorkspace;
   usbDrive: UsbDrive;
 }): void {
   console.log('Starting VxPollbook backup worker');
