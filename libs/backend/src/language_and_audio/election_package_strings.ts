@@ -1,7 +1,7 @@
 import {
   BallotLanguageConfigs,
   Election,
-  SplittablePrecinct,
+  Precinct,
   UiStringsPackage,
 } from '@votingworks/types';
 import { GoogleCloudTranslator } from './translator';
@@ -17,7 +17,7 @@ export async function getAllStringsForElectionPackage(
   translator: GoogleCloudTranslator,
   hmpbStringsCatalog: Record<string, string>,
   ballotLanguageConfigs: BallotLanguageConfigs,
-  precincts: SplittablePrecinct[]
+  precincts: Precinct[]
 ): Promise<[UiStringsPackage, UiStringsPackage, UiStringsPackage]> {
   const { hmpbStrings, electionStrings } =
     await translateElectionAndHmpbStrings(

@@ -3,6 +3,7 @@ import {
   DateWithoutTime,
   mergeObjects,
   range,
+  unique,
 } from '@votingworks/basics';
 import {
   AnyContest,
@@ -19,6 +20,7 @@ import {
   PartyId,
   Precinct,
   safeParse,
+  PrecinctWithoutSplits,
 } from '@votingworks/types';
 import { customAlphabet } from 'nanoid';
 import { defaultConfig, GenerateElectionConfig } from './config';
@@ -77,16 +79,22 @@ export function generateElection(
     return {
       id: `precinct-${index}`,
       name: randomString(maxStringLengths.precinctName, words.locations),
+      districtIds: chooseRandomSubset(districts).map((district) => district.id),
     };
   }
   const precincts = range(0, config.numPrecincts).map(generatePrecinct);
 
   function generateBallotStyle(index: number): BallotStyle {
+    const ballotStylePrecincts = chooseRandomSubset(
+      precincts
+    ) as PrecinctWithoutSplits[];
     return {
       id: `ballot-style-${index}` as BallotStyleId,
       groupId: `ballot-style-${index}` as BallotStyleGroupId,
-      districts: chooseRandomSubset(districts).map((district) => district.id),
-      precincts: chooseRandomSubset(precincts).map((precinct) => precinct.id),
+      precincts: ballotStylePrecincts.map((precinct) => precinct.id),
+      districts: unique(
+        ballotStylePrecincts.flatMap((precinct) => precinct.districtIds)
+      ),
     };
   }
   const ballotStyles = range(0, config.numBallotStyles).map(

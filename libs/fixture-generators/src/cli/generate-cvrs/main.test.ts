@@ -390,7 +390,7 @@ test('generating as BMD ballots (non-gridlayouts election)', async () => {
   }
 });
 
-test('libs/fixtures are up to date - if this test fails run `pnpm generate-fixtures`', async () => {
+test('libs/fixtures are up to date - if this test fails run `pnpm generate-cvr-fixtures`', async () => {
   for (const fixtures of [
     electionGridLayoutNewHampshireTestBallotFixtures,
     electionTwoPartyPrimaryFixtures,

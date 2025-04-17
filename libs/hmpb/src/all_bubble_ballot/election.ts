@@ -88,6 +88,7 @@ export function createElection({
       {
         id: precinctId,
         name: 'Test Precinct',
+        districtIds: [districtId],
       },
     ],
     state: 'Test State',

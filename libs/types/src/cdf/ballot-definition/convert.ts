@@ -2,14 +2,12 @@ import {
   assert,
   assertDefined,
   DateWithoutTime,
+  deepEqual,
   duplicates,
   err,
   find,
-  groupBy,
-  iter,
   naturals,
   ok,
-  Optional,
   Result,
   throwIllegalValue,
   unique,
@@ -415,60 +413,24 @@ export function convertVxfElectionToCdfBallotDefinition(
 
   const stateId = vxfElection.state.toLowerCase().replaceAll(' ', '-');
 
-  const precinctSplits = new Map<
-    Vxf.PrecinctId,
-    Optional<
-      Array<{
-        split: Cdf.ReportingUnit;
-        ballotStyles: Vxf.BallotStyle[];
-      }>
-    >
-  >(
-    vxfElection.precincts.map((precinct) => {
-      const precinctBallotStyles = vxfElection.ballotStyles.filter(
-        (ballotStyle) => ballotStyle.precincts.includes(precinct.id)
-      );
-      // There may be multiple ballot styles with the same districts but
-      // different partyIds, but we only want to split precincts that are part
-      // of different districts.
-      const ballotStylesByDistricts = groupBy(
-        precinctBallotStyles,
-        (ballotStyle) => ballotStyle.districts
-      );
-      const splits =
-        ballotStylesByDistricts.length <= 1
-          ? undefined
-          : ballotStylesByDistricts.map(
-              (
-                [, ballotStyles],
-                index
-              ): {
-                split: Cdf.ReportingUnit;
-                ballotStyles: Vxf.BallotStyle[];
-              } => ({
-                split: {
-                  '@type': 'BallotDefinition.ReportingUnit',
-                  '@id': `${precinct.id}-split-${index + 1}`,
-                  Name: text(`${precinct.name} - Split ${index + 1}`, 'other'),
-                  Type: Cdf.ReportingUnitType.SplitPrecinct,
-                },
-                ballotStyles,
-              })
-            );
-      return [precinct.id, splits];
-    })
-  );
-
   function precinctsOrSplitsForBallotStyle(ballotStyle: Vxf.BallotStyle): Id[] {
-    return ballotStyle.precincts.map((precinctId) => {
-      const splits = precinctSplits.get(precinctId);
-      return splits !== undefined
-        ? // If the precinct has splits, only use the split corresponding to this ballot style
-          find(splits, (split) =>
-            split.ballotStyles.some((bs) => bs.id === ballotStyle.id)
-          ).split['@id']
-        : // Otherwise, use the precinct itself
-          precinctId;
+    return vxfElection.precincts.flatMap((precinct) => {
+      if (Vxf.hasSplits(precinct)) {
+        return precinct.splits
+          .filter((split) =>
+            deepEqual(
+              split.districtIds.toSorted(),
+              ballotStyle.districts.toSorted()
+            )
+          )
+          .map((split) => split.id);
+      }
+      return deepEqual(
+        precinct.districtIds.toSorted(),
+        ballotStyle.districts.toSorted()
+      )
+        ? [precinct.id]
+        : [];
     });
   }
 
@@ -787,14 +749,14 @@ export function convertVxfElectionToCdfBallotDefinition(
           // Since we represent multiple real-world entities as districts in VXF,
           // we can't know the actual type to use here
           Type: Cdf.ReportingUnitType.Other,
-          // To figure out which precincts/splits are in this district, we look at the
-          // associated ballot styles
-          ComposingGpUnitIds: unique(
-            vxfElection.ballotStyles
-              .filter((ballotStyle) =>
-                ballotStyle.districts.includes(district.id)
-              )
-              .flatMap(precinctsOrSplitsForBallotStyle)
+          ComposingGpUnitIds: vxfElection.precincts.flatMap((precinct) =>
+            Vxf.hasSplits(precinct)
+              ? precinct.splits
+                  .filter((split) => split.districtIds.includes(district.id))
+                  .map((split) => split.id)
+              : precinct.districtIds.includes(district.id)
+              ? [precinct.id]
+              : []
           ),
         })
       ),
@@ -807,13 +769,23 @@ export function convertVxfElectionToCdfBallotDefinition(
             precinct.id,
           ]),
           Type: Cdf.ReportingUnitType.Precinct,
-          ComposingGpUnitIds: precinctSplits
-            .get(precinct.id)
-            ?.map(({ split }) => split['@id']),
+          ComposingGpUnitIds: Vxf.hasSplits(precinct)
+            ? precinct.splits.map((split) => split.id)
+            : undefined,
         })
       ),
-      ...iter(precinctSplits.values()).flatMap(
-        (splits) => splits?.map(({ split }) => split) ?? []
+      ...vxfElection.precincts.flatMap((precinct) =>
+        Vxf.hasSplits(precinct)
+          ? precinct.splits.map(
+              (split): Cdf.ReportingUnit => ({
+                '@type': 'BallotDefinition.ReportingUnit',
+                '@id': split.id,
+                // TODO(jonah): Add election string for precinct split names (once we want to actually use them)
+                Name: text(split.name, 'other'),
+                Type: Cdf.ReportingUnitType.SplitPrecinct,
+              })
+            )
+          : []
       ),
     ],
 
@@ -889,6 +861,16 @@ export function convertCdfBallotDefinitionToVxfElection(
         precinct['@id'] === precinctOrSplitId ||
         Boolean(precinct['ComposingGpUnitIds']?.includes(precinctOrSplitId))
     )['@id'];
+  }
+
+  function districtsForPrecinctOrSplit(
+    precinctOrSplitId: Id
+  ): Vxf.DistrictId[] {
+    return districts
+      .filter((district) =>
+        assertDefined(district.ComposingGpUnitIds).includes(precinctOrSplitId)
+      )
+      .map((district) => district['@id'] as Vxf.DistrictId);
   }
 
   function convertOptionId(contestId: Vxf.ContestId, optionId: string): Id {
@@ -1032,10 +1014,32 @@ export function convertCdfBallotDefinitionToVxfElection(
       name: englishText(district.Name),
     })),
 
-    precincts: precincts.map((precinct) => ({
-      id: precinct['@id'],
-      name: englishText(precinct.Name),
-    })),
+    precincts: precincts.map((precinct) => {
+      const precinctBase = {
+        id: precinct['@id'],
+        name: englishText(precinct.Name),
+      } as const;
+      if ((precinct.ComposingGpUnitIds ?? []).length > 0) {
+        return {
+          ...precinctBase,
+          splits: precinctSplits
+            .filter(
+              (split) => precinct.ComposingGpUnitIds?.includes(split['@id'])
+            )
+            .map(
+              (split): Vxf.PrecinctSplit => ({
+                id: split['@id'],
+                name: englishText(split.Name),
+                districtIds: districtsForPrecinctOrSplit(split['@id']),
+              })
+            ),
+        };
+      }
+      return {
+        ...precinctBase,
+        districtIds: districtsForPrecinctOrSplit(precinct['@id']),
+      };
+    }),
 
     ballotStyles: election.BallotStyle.map((ballotStyle): Vxf.BallotStyle => {
       // Ballot style GpUnitIds should all be precincts or splits
@@ -1048,15 +1052,8 @@ export function convertCdfBallotDefinitionToVxfElection(
       );
       // To find the districts for a ballot style, we look at the associated
       // precincts/splits and find the districts that contain them
-      const ballotStyleDistricts = ballotStyle.GpUnitIds.flatMap((gpUnitId) =>
-        districts.filter((district) =>
-          assertDefined(district.ComposingGpUnitIds).includes(gpUnitId)
-        )
-      );
       const districtIds = unique(
-        ballotStyleDistricts.map(
-          (district) => district['@id'] as Vxf.DistrictId
-        )
+        ballotStyle.GpUnitIds.flatMap(districtsForPrecinctOrSplit)
       );
 
       if (ballotStyle.PartyIds) assert(ballotStyle.PartyIds.length <= 1);

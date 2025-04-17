@@ -392,55 +392,75 @@
   "precincts": [
     {
       "id": "6522",
-      "name": "District 5"
+      "name": "District 5",
+      "districtIds": [
+        "1",
+        "100000047",
+        "100000174",
+        "100000275",
+        "575000084",
+        "575000505"
+      ]
     },
     {
       "id": "6524",
-      "name": "Chester"
+      "name": "Chester",
+      "districtIds": ["1", "100000047", "100000174", "100000275", "575000501"]
     },
     {
       "id": "6525",
-      "name": "East Weir"
+      "name": "East Weir",
+      "districtIds": ["1", "100000047", "100000174", "100000275", "575000504"]
     },
     {
       "id": "6526",
-      "name": "French Camp"
+      "name": "French Camp",
+      "districtIds": ["1", "100000047", "100000174", "100000275", "575000503"]
     },
     {
       "id": "6527",
-      "name": "Fentress"
+      "name": "Fentress",
+      "districtIds": ["1", "100000047", "100000174", "100000275", "575000501"]
     },
     {
       "id": "6528",
-      "name": "Hebron"
+      "name": "Hebron",
+      "districtIds": ["1", "100000047", "100000174", "100000275", "575000502"]
     },
     {
       "id": "6529",
-      "name": "Kenego"
+      "name": "Kenego",
+      "districtIds": ["1", "100000047", "100000174", "100000275", "575000503"]
     },
     {
       "id": "6532",
-      "name": "Panhandle"
+      "name": "Panhandle",
+      "districtIds": ["1", "100000047", "100000174", "100000275", "575000504"]
     },
     {
       "id": "6534",
-      "name": "Reform"
+      "name": "Reform",
+      "districtIds": ["1", "100000047", "100000174", "100000275", "575000502"]
     },
     {
       "id": "6536",
-      "name": "Sherwood"
+      "name": "Sherwood",
+      "districtIds": ["1", "100000047", "100000174", "100000275", "575000502"]
     },
     {
       "id": "6537",
-      "name": "Southwest Ackerman"
+      "name": "Southwest Ackerman",
+      "districtIds": ["1", "100000047", "100000174", "100000275", "575000504"]
     },
     {
       "id": "6538",
-      "name": "Bywy"
+      "name": "Bywy",
+      "districtIds": ["1", "100000047", "100000174", "100000275", "575000501"]
     },
     {
       "id": "6539",
-      "name": "West Weir"
+      "name": "West Weir",
+      "districtIds": ["1", "100000047", "100000174", "100000275", "575000503"]
     }
   ],
   "ballotStyles": [

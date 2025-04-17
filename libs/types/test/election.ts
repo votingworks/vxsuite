@@ -65,7 +65,8 @@ export const electionData = `
   "precincts": [
     {
       "id": "P",
-      "name": "PRECINCT"
+      "name": "PRECINCT",
+      "districtIds": ["D"]
     }
   ],
   "seal": "<svg>test seal</svg>",
@@ -351,11 +352,13 @@ const electionTwoPartyPrimaryData = `
   "precincts": [
     {
       "id": "precinct-1",
-      "name": "Precinct 1"
+      "name": "Precinct 1",
+      "districtIds": ["district-1"]
     },
     {
       "id": "precinct-2",
-      "name": "Precinct 2"
+      "name": "Precinct 2",
+      "districtIds": ["district-1"]
     }
   ],
   "ballotStyles": [

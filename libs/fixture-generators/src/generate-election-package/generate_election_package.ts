@@ -15,7 +15,6 @@ import {
   ElectionPackage,
   ElectionPackageFileName,
   ElectionPackageMetadata,
-  generateSplittablePrecinctsForTest,
   getBallotLanguageConfigs,
   LanguageCode,
   LATEST_METADATA,
@@ -65,7 +64,7 @@ export async function generateElectionPackage(
       translator,
       hmpbStringsCatalog,
       ballotLanguageConfigs,
-      generateSplittablePrecinctsForTest(election)
+      [...election.precincts]
     );
 
   zip.file(

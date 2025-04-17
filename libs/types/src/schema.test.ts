@@ -129,7 +129,7 @@ test('parsing validates precinct references', () => {
     t
       .safeParseVxfElection({
         ...electionGeneral,
-        precincts: [{ id: 'PRE', name: 'PRE' }],
+        precincts: [{ id: 'PRE', name: 'PRE', districtIds: ['DIS'] }],
       })
       .unsafeUnwrapErr()
   ).toMatchSnapshot();
@@ -259,7 +259,7 @@ test('safeParseVxfElectionDefinition computes the ballot hash', () => {
   expect(
     t.safeParseElectionDefinition(electionData).unsafeUnwrap().ballotHash
   ).toMatchInlineSnapshot(
-    `"430e8eb209e61997237b1459e64d2400831089489655fb5fa4ffe536ee4d95ca"`
+    `"1a024d3458838e60ed1ff0cb6484156634db610e2d1257e3d60a056a8cd994a9"`
   );
 });
 

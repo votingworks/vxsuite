@@ -3,7 +3,7 @@ import {
   hasSplits,
   PrecinctSplit,
   PrecinctWithSplits,
-  SplittablePrecinct,
+  Precinct,
   UiStringsPackage,
 } from '@votingworks/types';
 import {
@@ -56,7 +56,7 @@ export function defaultBallotTemplate(
 export function formatElectionForExport(
   election: Election,
   ballotStrings: UiStringsPackage,
-  precincts: SplittablePrecinct[]
+  precincts: Precinct[]
 ): Election {
   const splitPrecincts = precincts.filter((p) => hasSplits(p));
 
@@ -106,7 +106,7 @@ const colorTints: ColorTintRecord[] = parse(colorTintsCsv, { columns: true });
 export function createBallotPropsForTemplate(
   templateId: BallotTemplateId,
   election: Election,
-  precincts: SplittablePrecinct[],
+  precincts: Precinct[],
   ballotStyles: BallotStyle[]
 ): BaseBallotProps[] {
   function buildNhBallotProps(props: BaseBallotProps): NhBallotProps {

@@ -11,6 +11,7 @@ import {
 } from '@votingworks/types';
 import styled from 'styled-components';
 import { getGroupedBallotStyles } from '@votingworks/utils';
+import { assertDefined } from '@votingworks/basics';
 import {
   BallotCountReport,
   BallotCountReportProps,
@@ -301,10 +302,20 @@ const maxReportArgs: BallotCountReportProps = {
         {
           id: 'precinct-1',
           name: 'Precinct 1',
+          districtIds: [
+            assertDefined(
+              electionTwoPartyPrimaryDefinition.election.districts[0]
+            ).id,
+          ],
         },
         {
           id: 'precinct-2',
           name: 'Precinct With Super Duper Long Name',
+          districtIds: [
+            assertDefined(
+              electionTwoPartyPrimaryDefinition.election.districts[0]
+            ).id,
+          ],
         },
       ],
     },

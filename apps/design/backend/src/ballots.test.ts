@@ -4,7 +4,7 @@ import {
   Election,
   ElectionStringKey,
   LanguageCode,
-  SplittablePrecinct,
+  Precinct,
   UiStringsPackage,
 } from '@votingworks/types';
 import { TestLanguageCode } from '@votingworks/test-utils';
@@ -76,7 +76,7 @@ test('formatElectionForExport', () => {
     [ENGLISH]: { [ElectionStringKey.BALLOT_LANGUAGE]: 'English' },
     [SPANISH]: { [ElectionStringKey.BALLOT_LANGUAGE]: 'Español' },
   };
-  const testPrecincts: SplittablePrecinct[] = [
+  const testPrecincts: Precinct[] = [
     {
       id: 'precinct-1',
       name: 'Precinct One',

@@ -1,7 +1,7 @@
-import { hasSplits, SplittablePrecinct } from '@votingworks/types';
+import { hasSplits, Precinct } from '@votingworks/types';
 
 export function getUserDefinedHmpbStrings(
-  precincts: SplittablePrecinct[]
+  precincts: Precinct[]
 ): Record<string, string> {
   const catalog: Record<string, string> = {};
   for (const precinct of precincts) {

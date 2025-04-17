@@ -67458,6 +67458,9 @@
   "parties": [],
   "precincts": [
     {
+      "districtIds": [
+        "test-district"
+      ],
       "id": "test-precinct",
       "name": "Test Precinct"
     }

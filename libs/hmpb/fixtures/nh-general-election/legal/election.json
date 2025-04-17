@@ -2683,14 +2683,36 @@
   ],
   "precincts": [
     {
+      "districtIds": [
+        "district-1",
+        "district-2"
+      ],
       "id": "23",
       "name": "Center Springfield"
     },
     {
       "id": "21",
-      "name": "North Springfield"
+      "name": "North Springfield",
+      "splits": [
+        {
+          "districtIds": [
+            "district-1"
+          ],
+          "id": "21-1",
+          "name": "North Springfield - Split 1"
+        },
+        {
+          "districtIds": [
+            "district-1",
+            "district-2"
+          ],
+          "id": "21-2",
+          "name": "North Springfield - Split 2"
+        }
+      ]
     },
     {
+      "districtIds": [],
       "id": "20",
       "name": "South Springfield"
     }

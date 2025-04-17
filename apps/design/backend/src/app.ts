@@ -17,18 +17,18 @@ import {
   unsafeParse,
   LanguageCodeSchema,
   getAllBallotLanguages,
-  SplittablePrecinct,
+  Precinct,
   District,
   DistrictSchema,
   DistrictId,
   PrecinctId,
-  SplittablePrecinctSchema,
   Party,
   PartySchema,
   AnyContest,
   AnyContestSchema,
   HmpbBallotPaperSizeSchema,
   SystemSettingsSchema,
+  PrecinctSchema,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -118,7 +118,7 @@ export function createBlankElection(id: ElectionId): Election {
 
 // If we are importing an existing VXF election, we need to convert the
 // precincts to have splits based on the ballot styles.
-export function convertVxfPrecincts(election: Election): SplittablePrecinct[] {
+export function convertVxfPrecincts(election: Election): Precinct[] {
   return election.precincts.map((precinct) => {
     const precinctBallotStyles = election.ballotStyles.filter((ballotStyle) =>
       ballotStyle.precincts.includes(precinct.id)
@@ -246,10 +246,7 @@ function buildApi({ auth, logger, workspace, translator }: AppContext) {
         ...sourceElection,
         id: input.newId,
         districts,
-        precincts: precincts.map((p) => ({
-          id: p.id,
-          name: p.name,
-        })),
+        precincts,
         parties,
         contests: contestsWithSplitCandidateNames,
         // Remove any existing ballot styles/grid layouts so we can generate our own
@@ -328,10 +325,7 @@ function buildApi({ auth, logger, workspace, translator }: AppContext) {
           id: input.destId,
           title: `(Copy) ${sourceElection.title}`,
           districts,
-          precincts: precincts.map((p) => ({
-            id: p.id,
-            name: p.name,
-          })),
+          precincts,
           parties,
           contests,
         },
@@ -398,26 +392,23 @@ function buildApi({ auth, logger, workspace, translator }: AppContext) {
 
     async listPrecincts(input: {
       electionId: ElectionId;
-    }): Promise<SplittablePrecinct[]> {
+    }): Promise<Precinct[]> {
       return store.listPrecincts(input.electionId);
     },
 
     async createPrecinct(input: {
       electionId: ElectionId;
-      newPrecinct: SplittablePrecinct;
+      newPrecinct: Precinct;
     }): Promise<void> {
-      const precinct = unsafeParse(SplittablePrecinctSchema, input.newPrecinct);
+      const precinct = unsafeParse(PrecinctSchema, input.newPrecinct);
       await store.createPrecinct(input.electionId, precinct);
     },
 
     async updatePrecinct(input: {
       electionId: ElectionId;
-      updatedPrecinct: SplittablePrecinct;
+      updatedPrecinct: Precinct;
     }): Promise<void> {
-      const precinct = unsafeParse(
-        SplittablePrecinctSchema,
-        input.updatedPrecinct
-      );
+      const precinct = unsafeParse(PrecinctSchema, input.updatedPrecinct);
       await store.updatePrecinct(input.electionId, precinct);
     },
 

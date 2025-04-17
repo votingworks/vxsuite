@@ -59,6 +59,7 @@ function replaceBallotStyles(
     const precincts = spec.precinctNames.map<Precinct>((name) => ({
       id: `${spec.id} - precinct - ${name}`,
       name,
+      districtIds: districts.map((d) => d.id),
     }));
     const party: Party | undefined = spec.partyName
       ? {

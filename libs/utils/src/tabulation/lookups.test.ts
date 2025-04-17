@@ -44,6 +44,7 @@ test('getPrecinctById', () => {
         {
           id: 'precinct-1',
           name: 'First Precinct',
+          districtIds: [electionDefinition.election.districts[0]!.id],
         },
       ],
     },

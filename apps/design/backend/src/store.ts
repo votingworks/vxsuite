@@ -19,7 +19,7 @@ import {
   safeParseJson,
   ElectionId,
   BallotLanguageConfig,
-  SplittablePrecinct,
+  Precinct,
   DistrictId,
   hasSplits,
   District,
@@ -53,7 +53,7 @@ import { Bindable, Client } from './db/client';
 export interface ElectionRecord {
   orgId: string;
   election: Election;
-  precincts: SplittablePrecinct[];
+  precincts: Precinct[];
   ballotStyles: BallotStyle[];
   systemSettings: SystemSettings;
   ballotOrderInfo: BallotOrderInfo;
@@ -157,7 +157,7 @@ async function insertDistrict(
 async function insertPrecinct(
   client: Client,
   electionId: ElectionId,
-  precinct: SplittablePrecinct
+  precinct: Precinct
 ) {
   await assertWithinTransaction(client);
   await client.query(
@@ -538,7 +538,7 @@ export class Store {
         nhOptions: NhPrecinctSplitOptions;
         districtIds: DistrictId[];
       }>;
-      const precincts: SplittablePrecinct[] = precinctRows.map((row) => {
+      const precincts: Precinct[] = precinctRows.map((row) => {
         const splits = precinctSplitRows
           .filter((split) => split.precinctId === row.id)
           .map((split) => ({
@@ -716,10 +716,7 @@ export class Store {
         state: electionRow.state,
         seal: electionRow.seal,
         districts,
-        precincts: precincts.map((precinct) => ({
-          id: precinct.id,
-          name: precinct.name,
-        })),
+        precincts,
         ballotStyles: ballotStyles.map(convertToVxfBallotStyle),
         parties,
         contests,
@@ -757,7 +754,7 @@ export class Store {
   async createElection(
     orgId: string,
     election: Election,
-    precincts: SplittablePrecinct[],
+    precincts: Precinct[],
     ballotTemplateId: BallotTemplateId,
     systemSettings = DEFAULT_SYSTEM_SETTINGS
   ): Promise<void> {
@@ -974,14 +971,14 @@ export class Store {
     assert(rowCount === 1, 'District not found');
   }
 
-  async listPrecincts(electionId: ElectionId): Promise<SplittablePrecinct[]> {
+  async listPrecincts(electionId: ElectionId): Promise<Precinct[]> {
     const { precincts } = await this.getElection(electionId);
     return precincts;
   }
 
   async createPrecinct(
     electionId: ElectionId,
-    precinct: SplittablePrecinct
+    precinct: Precinct
   ): Promise<void> {
     await this.db.withClient((client) =>
       client.withTransaction(async () => {
@@ -993,7 +990,7 @@ export class Store {
 
   async updatePrecinct(
     electionId: ElectionId,
-    precinct: SplittablePrecinct
+    precinct: Precinct
   ): Promise<void> {
     await this.db.withClient((client) =>
       client.withTransaction(async () => {

@@ -3,6 +3,7 @@ import {
   BallotStyleGroupId,
   BallotStyleId,
   Candidate,
+  DistrictId,
   Election,
   Parties,
   Party,
@@ -125,9 +126,14 @@ test('PrecinctSelectionName - single-precinct selection', async () => {
   const selectedPrecinct: Precinct = {
     id: 'precinctIdOldTown',
     name: 'Old Town',
+    districtIds: ['districtId' as DistrictId],
   };
   const precincts: readonly Precinct[] = [
-    { id: 'precinctIdNewTown', name: 'New Town' },
+    {
+      id: 'precinctIdNewTown',
+      name: 'New Town',
+      districtIds: ['districtId' as DistrictId],
+    },
     selectedPrecinct,
   ];
 
@@ -154,7 +160,11 @@ test('PrecinctSelectionName - single-precinct selection', async () => {
 
 test('PrecinctSelectionName - no selection', async () => {
   const precincts: readonly Precinct[] = [
-    { id: 'precinctA', name: 'New Town' },
+    {
+      id: 'precinctA',
+      name: 'New Town',
+      districtIds: ['districtId' as DistrictId],
+    },
   ];
 
   const { mockApiClient, render } = newTestContext();

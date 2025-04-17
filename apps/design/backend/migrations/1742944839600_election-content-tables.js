@@ -239,7 +239,7 @@ exports.up = async (pgm) => {
       text: 'SELECT precinct_data FROM elections WHERE id = $1',
       values: [election.id],
     });
-    /** @type import('@votingworks/types').SplittablePrecinct[] */
+    /** @type import('@votingworks/types').Precinct[] */
     const precincts = JSON.parse(precinctData.precinct_data);
     for (const precinct of precincts) {
       pgm.sql(`

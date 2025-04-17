@@ -1009,18 +1009,30 @@
   ],
   "precincts": [
     {
+      "districtIds": [
+        "district-1"
+      ],
       "id": "23",
       "name": "North Lincoln"
     },
     {
+      "districtIds": [
+        "district-1"
+      ],
       "id": "22",
       "name": "South Lincoln"
     },
     {
+      "districtIds": [
+        "district-1"
+      ],
       "id": "21",
       "name": "East Lincoln"
     },
     {
+      "districtIds": [
+        "district-1"
+      ],
       "id": "20",
       "name": "West Lincoln"
     }

@@ -1,10 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 import { electionPrimaryPrecinctSplitsFixtures } from '@votingworks/fixtures';
-import {
-  LanguageCode,
-  BallotLanguageConfigs,
-  generateSplittablePrecinctsForTest,
-} from '@votingworks/types';
+import { LanguageCode, BallotLanguageConfigs } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { getAllStringsForElectionPackage } from './election_package_strings';
 import { GoogleCloudTranslator } from './translator';
@@ -35,7 +31,7 @@ describe('getAllStringsForElectionPackage', () => {
         mockTranslator,
         mockHmpbStringsCatalog,
         allBallotLanguages,
-        generateSplittablePrecinctsForTest(election)
+        [...election.precincts]
       );
 
     expect(appStrings).toBeDefined();
