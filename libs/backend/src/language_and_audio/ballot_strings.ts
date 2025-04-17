@@ -19,7 +19,7 @@ import { setUiString } from './utils';
  * @returns A catalog of strings defined by the user in VxDesign.
  */
 export function getUserDefinedHmpbStrings(
-  precincts: Precinct[]
+  precincts: readonly Precinct[]
 ): Record<string, string> {
   const catalog: Record<string, string> = {};
   for (const precinct of precincts) {
@@ -81,13 +81,12 @@ export async function translateElectionAndHmpbStrings(
   translator: GoogleCloudTranslator,
   election: Election,
   hmpbStringsCatalog: Record<string, string>,
-  ballotLanguageConfigs: BallotLanguageConfigs,
-  precincts: Precinct[]
+  ballotLanguageConfigs: BallotLanguageConfigs
 ): Promise<{
   electionStrings: UiStringsPackage;
   hmpbStrings: UiStringsPackage;
 }> {
-  const userDefinedHmpbStrings = getUserDefinedHmpbStrings(precincts);
+  const userDefinedHmpbStrings = getUserDefinedHmpbStrings(election.precincts);
   const combinedHmpbStringsCatalog: Record<string, string> = {
     ...hmpbStringsCatalog,
     ...userDefinedHmpbStrings,
@@ -118,7 +117,6 @@ export async function translateBallotStrings(
     Election,
     Record<string, string>,
     BallotLanguageConfigs,
-    Precinct[],
   ]
 ): Promise<UiStringsPackage> {
   const { electionStrings, hmpbStrings } =

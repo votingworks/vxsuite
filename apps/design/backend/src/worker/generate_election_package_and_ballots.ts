@@ -96,7 +96,6 @@ export async function generateElectionPackageAndBallots(
     ballotLanguageConfigs,
     election,
     systemSettings,
-    precincts,
     ballotStyles,
     ballotTemplateId,
     orgId,
@@ -120,8 +119,7 @@ export async function generateElectionPackageAndBallots(
       election,
       translator,
       hmpbStringsCatalog,
-      ballotLanguageConfigs,
-      precincts
+      ballotLanguageConfigs
     );
 
   electionPackageZip.file(
@@ -130,16 +128,11 @@ export async function generateElectionPackageAndBallots(
   );
   const ballotStrings = mergeUiStrings(electionStrings, hmpbStrings);
 
-  const formattedElection = formatElectionForExport(
-    election,
-    ballotStrings,
-    precincts
-  );
+  const formattedElection = formatElectionForExport(election, ballotStrings);
 
   const allBallotProps = createBallotPropsForTemplate(
     ballotTemplateId,
     formattedElection,
-    precincts,
     ballotStyles
   );
 

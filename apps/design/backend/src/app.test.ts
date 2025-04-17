@@ -350,7 +350,7 @@ test('create/list/delete elections', async () => {
       contests: election2Contests,
       electionType: election2.type,
       parties: election2Parties,
-      precincts: election2Precincts,
+      precincts: [...election2Precincts],
     })
   );
   expect(

@@ -38,10 +38,7 @@ export function generateId(): string {
  * Regenerate the IDs of all entities in an election, ensuring that all
  * references are updated.
  */
-export function regenerateElectionIds(
-  election: Election,
-  precincts: Precinct[]
-): {
+export function regenerateElectionIds(election: Election): {
   districts: District[];
   precincts: Precinct[];
   parties: Party[];
@@ -59,7 +56,7 @@ export function regenerateElectionIds(
     ...district,
     id: replaceId(district.id),
   }));
-  const updatedPrecincts = precincts.map((precinct) => {
+  const precincts = election.precincts.map((precinct) => {
     if (hasSplits(precinct)) {
       return {
         ...precinct,
@@ -116,7 +113,7 @@ export function regenerateElectionIds(
   }));
   return {
     districts,
-    precincts: updatedPrecincts,
+    precincts,
     parties,
     contests,
   };

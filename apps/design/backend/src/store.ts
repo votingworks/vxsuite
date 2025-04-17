@@ -53,7 +53,6 @@ import { Bindable, Client } from './db/client';
 export interface ElectionRecord {
   orgId: string;
   election: Election;
-  precincts: Precinct[];
   ballotStyles: BallotStyle[];
   systemSettings: SystemSettings;
   ballotOrderInfo: BallotOrderInfo;
@@ -754,7 +753,6 @@ export class Store {
   async createElection(
     orgId: string,
     election: Election,
-    precincts: Precinct[],
     ballotTemplateId: BallotTemplateId,
     systemSettings = DEFAULT_SYSTEM_SETTINGS
   ): Promise<void> {
@@ -810,7 +808,7 @@ export class Store {
         for (const district of election.districts) {
           await insertDistrict(client, election.id, district);
         }
-        for (const precinct of precincts) {
+        for (const precinct of election.precincts) {
           await insertPrecinct(client, election.id, precinct);
         }
         for (const party of election.parties) {
@@ -971,9 +969,9 @@ export class Store {
     assert(rowCount === 1, 'District not found');
   }
 
-  async listPrecincts(electionId: ElectionId): Promise<Precinct[]> {
-    const { precincts } = await this.getElection(electionId);
-    return precincts;
+  async listPrecincts(electionId: ElectionId): Promise<readonly Precinct[]> {
+    const { election } = await this.getElection(electionId);
+    return election.precincts;
   }
 
   async createPrecinct(

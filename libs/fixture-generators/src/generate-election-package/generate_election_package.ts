@@ -63,8 +63,7 @@ export async function generateElectionPackage(
       election,
       translator,
       hmpbStringsCatalog,
-      ballotLanguageConfigs,
-      [...election.precincts]
+      ballotLanguageConfigs
     );
 
   zip.file(

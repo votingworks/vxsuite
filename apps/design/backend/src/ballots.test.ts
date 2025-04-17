@@ -21,11 +21,6 @@ const election: Election = {
   ...electionGridLayoutNewHampshireHudsonFixtures.readElection(),
   state: UsState.NEW_HAMPSHIRE,
 };
-const precincts = election.precincts.map((p) => ({
-  districtIds: [election.districts[0].id],
-  id: p.id,
-  name: p.name,
-}));
 const ballotStyles = election.ballotStyles.map((b) => ({
   districtIds: b.districts,
   group_id: b.groupId,
@@ -44,7 +39,6 @@ test('compact templates', () => {
     const propLists = createBallotPropsForTemplate(
       templateId,
       election,
-      precincts,
       ballotStyles
     );
     for (const props of propLists) {
@@ -60,7 +54,6 @@ test('compact templates', () => {
     const propLists = createBallotPropsForTemplate(
       templateId,
       election,
-      precincts,
       ballotStyles
     );
     for (const props of propLists) {
@@ -94,9 +87,8 @@ test('formatElectionForExport', () => {
   ];
 
   const formattedElection = formatElectionForExport(
-    election,
-    testTranslations,
-    testPrecincts
+    { ...election, precincts: testPrecincts },
+    testTranslations
   );
   expect(formattedElection).toHaveProperty('additionalHashInput');
   const hashInput = assertDefined(formattedElection.additionalHashInput);
