@@ -27,4 +27,4 @@ pnpm type-check
 sudo systemctl stop NetworkManager
 
 # Start join-mesh-networking service
-sudo systemctl start join-mesh-networking
+sudo systemctl start join-mesh-network
