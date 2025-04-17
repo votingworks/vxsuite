@@ -1,5 +1,6 @@
 import { BaseLogger } from '@votingworks/logging';
 import { Client as DbClient } from '@votingworks/db';
+import * as grout from '@votingworks/grout';
 import { safeParseJson } from '@votingworks/types';
 import { assert, groupBy, typedAs } from '@votingworks/basics';
 import { SqliteBool, fromSqliteBool, asSqliteBool } from '@votingworks/utils';
@@ -10,6 +11,7 @@ import {
   EventDbRow,
   EventType,
   PollbookConnectionStatus,
+  PollbookEvent,
   PollbookServiceInfo,
   SummaryStatistics,
   ThroughputStat,
@@ -43,10 +45,12 @@ import {
   maybeGetStreetInfoForAddress,
 } from './street_helpers';
 import { isVoterNameChangeValid } from './voter_helpers';
+import { PeerApi } from './peer_app';
 
 export class LocalStore extends Store {
   private nextEventId?: number;
   private configurationStatus?: ConfigurationStatus;
+  private readonly peerApiClient: grout.Client<PeerApi>;
 
   /**
    * Builds and returns a new store at `dbPath`.
@@ -156,6 +160,12 @@ export class LocalStore extends Store {
       asSqliteBool(isAbsenteeMode)
     );
   }
+
+  saveAndBroadcastEvent(event: PollbookEvent): void {
+    this.saveEvent(event);
+    void this.peerApiClient.broadcastEvent({ pollbookEvent: event });
+  }
+
   groupVotersAlphabeticallyByLastName(): Map<string, VoterGroup> {
     const voters = this.getAllVoters();
     assert(voters);
@@ -271,7 +281,7 @@ export class LocalStore extends Store {
     const localEventId = this.getNextEventId();
     this.client.transaction(() => {
       assert(voter.checkIn);
-      this.saveEvent(
+      this.saveAndBroadcastEvent(
         typedAs<VoterCheckInEvent>({
           type: EventType.VoterCheckIn,
           machineId: this.machineId,
@@ -300,7 +310,7 @@ export class LocalStore extends Store {
     const timestamp = this.incrementClock();
     const localEventId = this.getNextEventId();
     this.client.transaction(() => {
-      this.saveEvent(
+      this.saveAndBroadcastEvent(
         typedAs<UndoVoterCheckInEvent>({
           type: EventType.UndoVoterCheckIn,
           machineId: this.machineId,
@@ -342,7 +352,7 @@ export class LocalStore extends Store {
     const timestamp = this.incrementClock();
     const localEventId = this.getNextEventId();
     this.client.transaction(() => {
-      this.saveEvent(
+      this.saveAndBroadcastEvent(
         typedAs<VoterRegistrationEvent>({
           type: EventType.VoterRegistration,
           machineId: this.machineId,
@@ -382,7 +392,7 @@ export class LocalStore extends Store {
     const timestamp = this.incrementClock();
     const localEventId = this.getNextEventId();
     this.client.transaction(() => {
-      this.saveEvent(
+      this.saveAndBroadcastEvent(
         typedAs<VoterAddressChangeEvent>({
           type: EventType.VoterAddressChange,
           machineId: this.machineId,
@@ -420,7 +430,7 @@ export class LocalStore extends Store {
     const timestamp = this.incrementClock();
     const localEventId = this.getNextEventId();
     this.client.transaction(() => {
-      this.saveEvent(
+      this.saveAndBroadcastEvent(
         typedAs<VoterNameChangeEvent>({
           type: EventType.VoterNameChange,
           machineId: this.machineId,

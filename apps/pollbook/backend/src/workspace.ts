@@ -19,10 +19,10 @@ export function createLocalWorkspace(
   ensureDirSync(assetDirectoryPath);
 
   const dbPath = join(workspacePath, 'pollbook-backend.db');
-  const store = LocalStore.fileStore(dbPath, logger, machineId);
   const peerApiClient = createApiClientForAddress(
     `http://localhost:${PEER_PORT}`
   );
+  const store = LocalStore.fileStore(dbPath, logger, machineId, peerApiClient);
 
   return { assetDirectoryPath, store, peerApiClient };
 }
