@@ -96,7 +96,7 @@ export function opensslKeyParams(
         `?provider=${TPM_OPENSSL_PROVIDER}`,
       ];
     }
-    /* istanbul ignore next: Compile-time check for completeness */
+    /* istanbul ignore next: Compile-time check for completeness - @preserve */
     default: {
       throwIllegalValue(key, 'source');
     }

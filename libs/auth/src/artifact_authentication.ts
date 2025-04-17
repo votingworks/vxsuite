@@ -99,7 +99,7 @@ function constructMessage(artifact: Artifact): Stream {
           );
           break;
         }
-        /* istanbul ignore next: Compile-time check for completeness */
+        /* istanbul ignore next: Compile-time check for completeness - @preserve */
         default: {
           throwIllegalValue(artifact, 'context');
         }
@@ -110,7 +110,7 @@ function constructMessage(artifact: Artifact): Stream {
       const fileContents = createReadStream(artifact.filePath);
       return constructPrefixedMessage(artifact.type, fileContents);
     }
-    /* istanbul ignore next: Compile-time check for completeness */
+    /* istanbul ignore next: Compile-time check for completeness - @preserve */
     default: {
       throwIllegalValue(artifact, 'type');
     }
@@ -209,7 +209,7 @@ function constructSignatureFileName(artifact: ArtifactToExport): string {
     case 'election_package': {
       return `${path.basename(artifact.filePath)}${SIGNATURE_FILE_EXTENSION}`;
     }
-    /* istanbul ignore next: Compile-time check for completeness */
+    /* istanbul ignore next: Compile-time check for completeness - @preserve */
     default: {
       throwIllegalValue(artifact, 'type');
     }
@@ -224,7 +224,7 @@ function constructSignatureFilePath(artifact: ArtifactToImport): string {
     case 'election_package': {
       return `${artifact.filePath}${SIGNATURE_FILE_EXTENSION}`;
     }
-    /* istanbul ignore next: Compile-time check for completeness */
+    /* istanbul ignore next: Compile-time check for completeness - @preserve */
     default: {
       throwIllegalValue(artifact, 'type');
     }
@@ -302,7 +302,7 @@ async function performArtifactSpecificAuthenticationChecks(
       break;
     }
 
-    /* istanbul ignore next: Compile-time check for completeness */
+    /* istanbul ignore next: Compile-time check for completeness - @preserve */
     default: {
       throwIllegalValue(artifact, 'type');
     }
@@ -320,7 +320,7 @@ async function performArtifactSpecificAuthenticationChecks(
  */
 export async function prepareSignatureFile(
   artifact: ArtifactToExport,
-  /* istanbul ignore next */
+  /* istanbul ignore next - @preserve */
   config: ArtifactAuthenticationConfig = constructArtifactAuthenticationConfig()
 ): Promise<{ fileContents: Buffer; fileName: string }> {
   const artifactSignatureBundle = await constructArtifactSignatureBundle(
@@ -340,7 +340,7 @@ export async function prepareSignatureFile(
  */
 export async function authenticateArtifactUsingSignatureFile(
   artifact: ArtifactToImport,
-  /* istanbul ignore next */
+  /* istanbul ignore next - @preserve */
   config: ArtifactAuthenticationConfig = constructArtifactAuthenticationConfig()
 ): Promise<Result<void, Error>> {
   try {

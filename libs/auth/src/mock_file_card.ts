@@ -211,7 +211,7 @@ export class MockFileCard implements Card {
         });
         break;
       }
-      /* istanbul ignore next: Compile-time check for completeness */
+      /* istanbul ignore next: Compile-time check for completeness - @preserve */
       default:
         throwIllegalValue(user, 'role');
     }

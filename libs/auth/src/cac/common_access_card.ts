@@ -202,7 +202,7 @@ export class CommonAccessCard implements CommonAccessCardCompatibleCard {
             this.cardStatus = { status: 'ready', cardDetails };
             return;
           }
-          /* istanbul ignore next: Compile-time check for completeness */
+          /* istanbul ignore next: Compile-time check for completeness - @preserve */
           default: {
             throwIllegalValue(readerStatus);
           }

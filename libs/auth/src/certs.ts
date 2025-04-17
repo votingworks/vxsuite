@@ -322,7 +322,7 @@ export async function parseCardDetailsFromCert(
         hasPin: true,
       };
     }
-    /* istanbul ignore next: Compile-time check for completeness */
+    /* istanbul ignore next: Compile-time check for completeness - @preserve */
     default: {
       throwIllegalValue(cardType);
     }
@@ -360,7 +360,7 @@ export function constructCardCertSubject(
       electionKey = user.electionKey;
       break;
     }
-    /* istanbul ignore next: Compile-time check for completeness */
+    /* istanbul ignore next: Compile-time check for completeness - @preserve */
     default: {
       throwIllegalValue(user, 'role');
     }

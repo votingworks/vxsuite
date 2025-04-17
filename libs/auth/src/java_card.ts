@@ -170,14 +170,14 @@ export class JavaCard implements Card {
 
   constructor(
     // Support specifying a custom config for tests
-    /* istanbul ignore next */
+    /* istanbul ignore next - @preserve */
     input: JavaCardConfig = constructJavaCardConfig()
   ) {
     this.cardProgrammingConfig = input.cardProgrammingConfig;
     this.cardStatus = { status: 'no_card_reader' };
     this.generateChallenge =
       input.generateChallengeOverride ??
-      /* istanbul ignore next */ (() =>
+      /* istanbul ignore next - @preserve */ (() =>
         `VotingWorks/${new Date().toISOString()}/${uuid()}`);
     this.vxCertAuthorityCertPath = input.vxCertAuthorityCertPath;
 
@@ -205,7 +205,7 @@ export class JavaCard implements Card {
             this.cardStatus = { status: 'ready', cardDetails };
             return;
           }
-          /* istanbul ignore next: Compile-time check for completeness */
+          /* istanbul ignore next: Compile-time check for completeness - @preserve */
           default: {
             throwIllegalValue(readerStatus);
           }
@@ -314,7 +314,7 @@ export class JavaCard implements Card {
         cardDetails = { user, hasPin };
         break;
       }
-      /* istanbul ignore next: Compile-time check for completeness */
+      /* istanbul ignore next: Compile-time check for completeness - @preserve */
       default: {
         throwIllegalValue(user, 'role');
       }
@@ -469,7 +469,7 @@ export class JavaCard implements Card {
           return 'certificate_expired';
         }
         /* istanbul ignore next: It's hard to create test certs with start dates in the future
-           given our current code. */
+           given our current code. - @preserve */
         // This typically indicates that machines' clocks have fallen out of sync, e.g., a VxScan
         // has a time before the time on the VxAdmin when the card was programmed.
         if (errorMessage.includes('certificate is not yet valid')) {
@@ -773,7 +773,7 @@ export class JavaCard implements Card {
       }
       throw error;
     }
-    /* istanbul ignore next */
+    /* istanbul ignore next - @preserve */
     throw new Error('Error retrieving number of incorrect PIN attempts');
   }
 
