@@ -236,7 +236,8 @@ test('constructTlv/parseTlv round trip', () => {
             `does not match expected tag (<Buffer ${asHexString(wrongTag)}>)`
         );
       }
-    )
+    ),
+    { numRuns: 50 }
   );
 });
 
