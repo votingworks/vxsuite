@@ -32,7 +32,7 @@ export type { BallotTemplateId } from '@votingworks/hmpb';
 
 // Frontend tests import these for generating test data
 export { generateBallotStyles } from './ballot_styles';
-export { createBlankElection, convertVxfPrecincts } from './app';
+export { createBlankElection } from './app';
 
 loadEnvVarsFromDotenvFiles();
 

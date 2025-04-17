@@ -5,7 +5,6 @@ import type {
 } from '@votingworks/design-backend';
 import {
   createBlankElection,
-  convertVxfPrecincts,
   generateBallotStyles,
 } from '@votingworks/design-backend';
 import {
@@ -29,7 +28,7 @@ export function makeElectionRecord(
   const ballotLanguageConfigs: BallotLanguageConfigs = [
     { languages: [LanguageCode.ENGLISH] },
   ];
-  const precincts = convertVxfPrecincts(baseElection);
+  const precincts = [...baseElection.precincts];
   const ballotStyles = generateBallotStyles({
     ballotLanguageConfigs,
     contests: baseElection.contests,

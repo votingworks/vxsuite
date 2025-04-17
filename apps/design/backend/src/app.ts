@@ -35,7 +35,6 @@ import {
   assertDefined,
   DateWithoutTime,
   find,
-  groupBy,
   ok,
   Result,
 } from '@votingworks/basics';
@@ -77,7 +76,7 @@ import {
   authEnabled,
 } from './globals';
 import { createBallotPropsForTemplate, defaultBallotTemplate } from './ballots';
-import { generateId, getPdfFileName, regenerateElectionIds } from './utils';
+import { getPdfFileName, regenerateElectionIds } from './utils';
 import {
   ElectionFeaturesConfig,
   getElectionFeaturesConfig,
@@ -114,40 +113,6 @@ export function createBlankElection(id: ElectionId): Election {
     },
     ballotStrings: {},
   };
-}
-
-// If we are importing an existing VXF election, we need to convert the
-// precincts to have splits based on the ballot styles.
-export function convertVxfPrecincts(election: Election): Precinct[] {
-  return election.precincts.map((precinct) => {
-    const precinctBallotStyles = election.ballotStyles.filter((ballotStyle) =>
-      ballotStyle.precincts.includes(precinct.id)
-    );
-    // Since there may be multiple ballot styles for a precinct for different parties, we
-    // dedupe them based on the district IDs when creating splits.
-    const ballotStylesByDistricts = groupBy(
-      precinctBallotStyles,
-      (ballotStyle) => ballotStyle.districts
-    );
-    const ballotStyles = ballotStylesByDistricts.map(
-      ([, ballotStyleGroup]) => ballotStyleGroup[0]
-    );
-
-    if (ballotStyles.length <= 1) {
-      return {
-        ...precinct,
-        districtIds: ballotStyles[0]?.districts ?? [],
-      };
-    }
-    return {
-      ...precinct,
-      splits: ballotStyles.map((ballotStyle, index) => ({
-        id: generateId(),
-        name: `${precinct.name} - Split ${index + 1}`,
-        districtIds: ballotStyle.districts,
-      })),
-    };
-  });
 }
 
 const TextInput = z
@@ -213,10 +178,9 @@ function buildApi({ auth, logger, workspace, translator }: AppContext) {
       const parseResult = safeParseElection(input.electionData);
       if (parseResult.isErr()) return parseResult;
       const sourceElection = parseResult.ok();
-      const sourcePrecincts = convertVxfPrecincts(sourceElection);
       const { districts, precincts, parties, contests } = regenerateElectionIds(
         sourceElection,
-        sourcePrecincts
+        [...sourceElection.precincts]
       );
       // Split candidate names into first, middle, and last names, if they are
       // not already split
