@@ -248,7 +248,7 @@ describe('Districts tab', () => {
 });
 
 describe('Precincts tab', () => {
-  const { election, precincts } = generalElectionRecord(user.orgId);
+  const { election } = generalElectionRecord(user.orgId);
   const electionId = election.id;
 
   beforeEach(() => {
@@ -328,10 +328,10 @@ describe('Precincts tab', () => {
       election: { ...general.election, state: 'New Hampshire' },
     };
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    const { election, precincts } = nhElectionRecord;
+    const { election } = nhElectionRecord;
     // eslint-disable-next-line @typescript-eslint/no-shadow
     const electionId = election.id;
-    const savedPrecinct = precincts[0];
+    const savedPrecinct = election.precincts[0];
     assert(!hasSplits(savedPrecinct));
 
     const sealImage =
@@ -369,7 +369,9 @@ describe('Precincts tab', () => {
       PRECINCT_SPLIT_ELECTION_SEAL_OVERRIDE: true,
       PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE: true,
     });
-    apiMock.listPrecincts.expectCallWith({ electionId }).resolves(precincts);
+    apiMock.listPrecincts
+      .expectCallWith({ electionId })
+      .resolves(election.precincts);
     apiMock.listDistricts
       .expectCallWith({ electionId })
       .resolves(election.districts);
@@ -379,7 +381,9 @@ describe('Precincts tab', () => {
     userEvent.click(screen.getByRole('tab', { name: 'Precincts' }));
     await screen.findByText(savedPrecinct.name);
     const rows = screen.getAllByRole('row');
-    expect(rows).toHaveLength(precincts.length + 2 /* precinct splits */ + 1);
+    expect(rows).toHaveLength(
+      election.precincts.length + 2 /* precinct splits */ + 1
+    );
 
     const savedPrecinctRow = screen
       .getByText(savedPrecinct.name)
@@ -514,7 +518,7 @@ describe('Precincts tab', () => {
       .resolves();
     apiMock.listPrecincts
       .expectCallWith({ electionId })
-      .resolves([changedPrecinct, ...precincts.slice(1)]);
+      .resolves([changedPrecinct, ...election.precincts.slice(1)]);
     // Districts haven't changed, but we are using coarse-grained invalidation
     apiMock.listDistricts
       .expectCallWith({ electionId })
@@ -523,7 +527,7 @@ describe('Precincts tab', () => {
 
     await screen.findByRole('heading', { name: 'Geography' });
     expect(screen.getAllByRole('row')).toHaveLength(
-      precincts.length + 4 /* precinct splits */ + 1
+      election.precincts.length + 4 /* precinct splits */ + 1
     );
     const changedPrecinctRow = screen
       .getByText(changedPrecinct.name)
@@ -546,7 +550,7 @@ describe('Precincts tab', () => {
   });
 
   test('editing a precinct - removing splits', async () => {
-    const savedPrecinct = precincts.find(hasSplits)!;
+    const savedPrecinct = election.precincts.find(hasSplits)!;
     assert(savedPrecinct.splits.length === 2);
 
     const changedPrecinct: PrecinctWithoutSplits = {
@@ -556,7 +560,9 @@ describe('Precincts tab', () => {
     };
 
     mockElectionFeatures(apiMock, electionId, {});
-    apiMock.listPrecincts.expectCallWith({ electionId }).resolves(precincts);
+    apiMock.listPrecincts
+      .expectCallWith({ electionId })
+      .resolves(election.precincts);
     apiMock.listDistricts
       .expectCallWith({ electionId })
       .resolves(election.districts);
@@ -590,7 +596,7 @@ describe('Precincts tab', () => {
     });
     screen.getByRole('checkbox', {
       name: election.districts[1].name,
-      checked: false,
+      checked: true,
     });
     screen.getByRole('checkbox', {
       name: election.districts[2].name,
@@ -603,7 +609,7 @@ describe('Precincts tab', () => {
     apiMock.listPrecincts
       .expectCallWith({ electionId })
       .resolves(
-        precincts.map((p) =>
+        election.precincts.map((p) =>
           p.id === changedPrecinct.id ? changedPrecinct : p
         )
       );
@@ -614,7 +620,9 @@ describe('Precincts tab', () => {
     userEvent.type(screen.getByLabelText('Name'), '{enter}');
 
     await screen.findByRole('heading', { name: 'Geography' });
-    expect(screen.getAllByRole('row')).toHaveLength(precincts.length + 1);
+    expect(screen.getAllByRole('row')).toHaveLength(
+      election.precincts.length + 1
+    );
     const changedPrecinctRow = screen
       .getByText(changedPrecinct.name)
       .closest('tr')!;
@@ -622,15 +630,17 @@ describe('Precincts tab', () => {
       within(changedPrecinctRow)
         .getAllByRole('cell')
         .map((td) => td.textContent)
-    ).toEqual([changedPrecinct.name, election.districts[0].name, 'Edit']);
+    ).toEqual([changedPrecinct.name, 'District 1, District 2', 'Edit']);
   });
 
   test('deleting a precinct', async () => {
-    assert(precincts.length === 3);
-    const [savedPrecinct] = precincts;
+    assert(election.precincts.length === 3);
+    const [savedPrecinct] = election.precincts;
 
     mockElectionFeatures(apiMock, electionId, {});
-    apiMock.listPrecincts.expectCallWith({ electionId }).resolves(precincts);
+    apiMock.listPrecincts
+      .expectCallWith({ electionId })
+      .resolves(election.precincts);
     apiMock.listDistricts
       .expectCallWith({ electionId })
       .resolves(election.districts);
@@ -655,7 +665,7 @@ describe('Precincts tab', () => {
       .resolves();
     apiMock.listPrecincts
       .expectCallWith({ electionId })
-      .resolves(precincts.slice(1));
+      .resolves(election.precincts.slice(1));
     // Districts haven't changed, but we are using coarse-grained invalidation
     apiMock.listDistricts
       .expectCallWith({ electionId })
@@ -667,7 +677,7 @@ describe('Precincts tab', () => {
 
     await screen.findByRole('heading', { name: 'Geography' });
     expect(screen.getAllByRole('row')).toHaveLength(
-      precincts.length + 2 /* precinct splits */
+      election.precincts.length + 2 /* precinct splits */
     );
     expect(screen.queryByText(savedPrecinct.name)).not.toBeInTheDocument();
   });
@@ -677,7 +687,9 @@ describe('Precincts tab', () => {
     apiMock.getBallotsFinalizedAt
       .expectCallWith({ electionId })
       .resolves(new Date());
-    apiMock.listPrecincts.expectCallWith({ electionId }).resolves(precincts);
+    apiMock.listPrecincts
+      .expectCallWith({ electionId })
+      .resolves(election.precincts);
     apiMock.listDistricts
       .expectCallWith({ electionId })
       .resolves(election.districts);
@@ -685,14 +697,16 @@ describe('Precincts tab', () => {
 
     await screen.findByRole('heading', { name: 'Geography' });
     userEvent.click(screen.getByRole('tab', { name: 'Precincts' }));
-    await screen.findByText(precincts[0].name);
+    await screen.findByText(election.precincts[0].name);
     expect(screen.getAllByRole('button', { name: 'Edit' })[0]).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Add Precinct' })).toBeDisabled();
   });
 
   test('cancelling', async () => {
     mockElectionFeatures(apiMock, electionId, {});
-    apiMock.listPrecincts.expectCallWith({ electionId }).resolves(precincts);
+    apiMock.listPrecincts
+      .expectCallWith({ electionId })
+      .resolves(election.precincts);
     apiMock.listDistricts
       .expectCallWith({ electionId })
       .resolves(election.districts);

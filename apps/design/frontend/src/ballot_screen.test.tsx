@@ -24,7 +24,7 @@ import { BallotScreen } from './ballot_screen';
 const electionRecord = generalElectionRecord(user.orgId);
 const electionId = electionRecord.election.id;
 const ballotStyle = electionRecord.ballotStyles[0];
-const precinct = electionRecord.precincts[0];
+const precinct = electionRecord.election.precincts[0];
 
 function MockDocument({
   children,
@@ -70,7 +70,7 @@ beforeEach(() => {
     .resolves(electionRecord.ballotStyles);
   apiMock.listPrecincts
     .expectCallWith({ electionId })
-    .resolves(electionRecord.precincts);
+    .resolves(electionRecord.election.precincts);
   apiMock.getElectionInfo
     .expectCallWith({ electionId })
     .resolves(electionInfoFromElection(electionRecord.election));

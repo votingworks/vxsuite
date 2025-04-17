@@ -28,13 +28,12 @@ export function makeElectionRecord(
   const ballotLanguageConfigs: BallotLanguageConfigs = [
     { languages: [LanguageCode.ENGLISH] },
   ];
-  const precincts = [...baseElection.precincts];
   const ballotStyles = generateBallotStyles({
     ballotLanguageConfigs,
     contests: baseElection.contests,
     electionType: baseElection.type,
     parties: baseElection.parties,
-    precincts,
+    precincts: [...baseElection.precincts],
   });
   const election: Election = {
     ...baseElection,
@@ -50,7 +49,6 @@ export function makeElectionRecord(
     election,
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
     ballotOrderInfo: {},
-    precincts,
     ballotStyles,
     createdAt: new Date().toISOString(),
     ballotLanguageConfigs,
