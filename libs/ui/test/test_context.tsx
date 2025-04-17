@@ -30,10 +30,12 @@ import {
   SystemCallContextProvider,
 } from '../src/system_call_api';
 import { SignedHashValidationApiClient } from '../src/signed_hash_validation_button';
+import { CardProgrammingApiClient } from '../src/smart_cards_screen';
 
 type ApiClient = UiStringsApiClient &
   SystemCallApiClient &
-  SignedHashValidationApiClient;
+  SignedHashValidationApiClient &
+  CardProgrammingApiClient;
 
 export interface TestContext {
   getAudioContext: () => Optional<UiStringsAudioContextInterface>;
@@ -98,10 +100,16 @@ export function newTestContext(
       generateSignedHashValidationQrCodeValue: vi.fn(),
     };
 
+  const mockCardProgrammingApiClient: Mocked<CardProgrammingApiClient> = {
+    programCard: vi.fn(),
+    unprogramCard: vi.fn(),
+  };
+
   const mockApiClient = {
     ...mockUiStringsApiClient,
     ...mockSystemCallApiClient,
     ...mockSignedHashValidationApiClient,
+    ...mockCardProgrammingApiClient,
   } as const;
 
   const mockReactQueryUiStringsApi: UiStringsReactQueryApi = createUiStringsApi(
