@@ -26,10 +26,6 @@ export interface ManualTallyFormParams {
 export interface ManualTallyFormContestParams extends ManualTallyFormParams {
   contestId: ContestId;
 }
-export interface WriteInsAdjudicationScreenParams {
-  contestId: ContestId;
-}
-
 export interface CastVoteRecordFilePreprocessedData {
   readonly name: string;
   readonly path: string;
