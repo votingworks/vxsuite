@@ -1,5 +1,8 @@
 import { join } from 'node:path';
-import { getRustPackageIds, getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
+import {
+  getRustPackageIds,
+  getWorkspacePackageInfo,
+} from '@votingworks/monorepo-utils';
 import * as circleci from './circleci';
 import * as pkgs from './packages';
 import * as tsconfig from './tsconfig';
@@ -27,6 +30,10 @@ export async function* validateMonorepo(): AsyncGenerator<ValidationIssue> {
 
       // Exclude a package:
       // '!pkg-to-exclude',
+
+      // Exclude vitest while upgrading v2 to v3
+      '!vitest',
+      '!@vitest/coverage-istanbul',
     ],
     workspacePackages,
   });
