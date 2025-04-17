@@ -29,6 +29,7 @@ export interface PeerAppContext extends MachineConfig {
 export interface LocalWorkspace {
   assetDirectoryPath: string;
   store: LocalStore;
+  peerApiClient: grout.Client<PeerApi>;
 }
 
 export interface PeerWorkspace {

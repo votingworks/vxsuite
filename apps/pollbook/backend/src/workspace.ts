@@ -5,6 +5,8 @@ import { BaseLogger } from '@votingworks/logging';
 import { PeerWorkspace, LocalWorkspace } from './types';
 import { LocalStore } from './local_store';
 import { PeerStore } from './peer_store';
+import { createApiClientForAddress } from './networking';
+import { PEER_PORT } from './globals';
 
 export function createLocalWorkspace(
   workspacePath: string,
@@ -18,8 +20,11 @@ export function createLocalWorkspace(
 
   const dbPath = join(workspacePath, 'pollbook-backend.db');
   const store = LocalStore.fileStore(dbPath, logger, machineId);
+  const peerApiClient = createApiClientForAddress(
+    `http://localhost:${PEER_PORT}`
+  );
 
-  return { assetDirectoryPath, store };
+  return { assetDirectoryPath, store, peerApiClient };
 }
 
 export function createPeerWorkspace(

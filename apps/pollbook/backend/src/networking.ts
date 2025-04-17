@@ -41,7 +41,9 @@ export async function resetNetworkSetup(machineId: string): Promise<void> {
   }
 }
 
-function createApiClientForAddress(address: string): grout.Client<PeerApi> {
+export function createApiClientForAddress(
+  address: string
+): grout.Client<PeerApi> {
   debug('Creating API client for address %s', address);
   return grout.createClient<PeerApi>({
     baseUrl: `${address}/api`,
