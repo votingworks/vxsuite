@@ -30,8 +30,7 @@ describe('getAllStringsForElectionPackage', () => {
         election,
         mockTranslator,
         mockHmpbStringsCatalog,
-        allBallotLanguages,
-        [...election.precincts]
+        allBallotLanguages
       );
 
     expect(appStrings).toBeDefined();

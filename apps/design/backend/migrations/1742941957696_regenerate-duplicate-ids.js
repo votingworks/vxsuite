@@ -1,9 +1,92 @@
 /* eslint-disable vx/gts-object-literal-types */
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { hasSplits } = require('@votingworks/types');
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-const { regenerateElectionIds } = require('../build/utils.js');
+const { generateId } = require('../build/utils.js');
+
+/**
+ * Regenerate the IDs of all entities in an election, ensuring that all
+ * references are updated.
+ * @param {import('@votingworks/types').Election} election
+ * @param {import('@votingworks/types').Precinct[]} precincts
+ */
+function regenerateElectionIds(election, precincts) {
+  const idMap = new Map();
+  /**
+   * @param {string} id
+   */
+  function replaceId(id) {
+    if (!idMap.has(id)) {
+      idMap.set(id, generateId());
+    }
+    return idMap.get(id);
+  }
+
+  const districts = election.districts.map((district) => ({
+    ...district,
+    id: replaceId(district.id),
+  }));
+  const updatedPrecincts = precincts.map((precinct) => {
+    if (hasSplits(precinct)) {
+      return {
+        ...precinct,
+        id: replaceId(precinct.id),
+        splits: precinct.splits.map((split) => ({
+          ...split,
+          id: replaceId(split.id),
+          districtIds: split.districtIds.map(replaceId),
+        })),
+      };
+    }
+    return {
+      ...precinct,
+      id: replaceId(precinct.id),
+      districtIds: precinct.districtIds.map(replaceId),
+    };
+  });
+  const parties = election.parties.map((party) => ({
+    ...party,
+    id: replaceId(party.id),
+  }));
+  const contests = election.contests.map((contest) => ({
+    ...contest,
+    id: replaceId(contest.id),
+    districtId: replaceId(contest.districtId),
+
+    ...(() => {
+      switch (contest.type) {
+        case 'candidate':
+          return {
+            partyId: contest.partyId ? replaceId(contest.partyId) : undefined,
+            candidates: contest.candidates.map((candidate) => ({
+              ...candidate,
+              id: replaceId(candidate.id),
+              partyIds: candidate.partyIds?.map(replaceId),
+            })),
+          };
+        case 'yesno':
+          return {
+            yesOption: {
+              ...contest.yesOption,
+              id: replaceId(contest.yesOption.id),
+            },
+            noOption: {
+              ...contest.noOption,
+              id: replaceId(contest.noOption.id),
+            },
+          };
+        default: {
+          throw new Error(`Unknown contest type: ${contest}`);
+        }
+      }
+    })(),
+  }));
+  return {
+    districts,
+    precincts: updatedPrecincts,
+    parties,
+    contests,
+  };
+}
 
 /**
  * @type {import('node-pg-migrate').ColumnDefinitions | undefined}

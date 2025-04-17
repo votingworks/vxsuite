@@ -77,8 +77,7 @@ describe('fixtures are up to date - run `pnpm generate-election-packages` if thi
             isMultiLanguage
               ? Object.values(LanguageCode)
               : [LanguageCode.ENGLISH]
-          ),
-          [...baseElection.precincts]
+          )
         );
       const newCombinedStrings = mergeUiStrings(
         newAppStrings,

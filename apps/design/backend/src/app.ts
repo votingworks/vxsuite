@@ -35,7 +35,6 @@ import {
   assertDefined,
   DateWithoutTime,
   find,
-  groupBy,
   ok,
   Result,
 } from '@votingworks/basics';
@@ -77,7 +76,7 @@ import {
   authEnabled,
 } from './globals';
 import { createBallotPropsForTemplate, defaultBallotTemplate } from './ballots';
-import { generateId, getPdfFileName, regenerateElectionIds } from './utils';
+import { getPdfFileName, regenerateElectionIds } from './utils';
 import {
   ElectionFeaturesConfig,
   getElectionFeaturesConfig,
@@ -114,40 +113,6 @@ export function createBlankElection(id: ElectionId): Election {
     },
     ballotStrings: {},
   };
-}
-
-// If we are importing an existing VXF election, we need to convert the
-// precincts to have splits based on the ballot styles.
-export function convertVxfPrecincts(election: Election): Precinct[] {
-  return election.precincts.map((precinct) => {
-    const precinctBallotStyles = election.ballotStyles.filter((ballotStyle) =>
-      ballotStyle.precincts.includes(precinct.id)
-    );
-    // Since there may be multiple ballot styles for a precinct for different parties, we
-    // dedupe them based on the district IDs when creating splits.
-    const ballotStylesByDistricts = groupBy(
-      precinctBallotStyles,
-      (ballotStyle) => ballotStyle.districts
-    );
-    const ballotStyles = ballotStylesByDistricts.map(
-      ([, ballotStyleGroup]) => ballotStyleGroup[0]
-    );
-
-    if (ballotStyles.length <= 1) {
-      return {
-        ...precinct,
-        districtIds: ballotStyles[0]?.districts ?? [],
-      };
-    }
-    return {
-      ...precinct,
-      splits: ballotStyles.map((ballotStyle, index) => ({
-        id: generateId(),
-        name: `${precinct.name} - Split ${index + 1}`,
-        districtIds: ballotStyle.districts,
-      })),
-    };
-  });
 }
 
 const TextInput = z
@@ -213,11 +178,8 @@ function buildApi({ auth, logger, workspace, translator }: AppContext) {
       const parseResult = safeParseElection(input.electionData);
       if (parseResult.isErr()) return parseResult;
       const sourceElection = parseResult.ok();
-      const sourcePrecincts = convertVxfPrecincts(sourceElection);
-      const { districts, precincts, parties, contests } = regenerateElectionIds(
-        sourceElection,
-        sourcePrecincts
-      );
+      const { districts, precincts, parties, contests } =
+        regenerateElectionIds(sourceElection);
       // Split candidate names into first, middle, and last names, if they are
       // not already split
       const contestsWithSplitCandidateNames = contests.map((contest) => {
@@ -258,7 +220,6 @@ function buildApi({ auth, logger, workspace, translator }: AppContext) {
       await store.createElection(
         input.orgId,
         election,
-        precincts,
         defaultBallotTemplate(election.state, input.user)
       );
       return ok(election.id);
@@ -280,7 +241,6 @@ function buildApi({ auth, logger, workspace, translator }: AppContext) {
       await store.createElection(
         input.orgId,
         election,
-        [],
         // For now, default all elections to NH ballot template. In the future
         // we can make this a setting based on the user's organization.
         defaultBallotTemplate(UsState.NEW_HAMPSHIRE, input.user)
@@ -298,7 +258,6 @@ function buildApi({ auth, logger, workspace, translator }: AppContext) {
       const {
         election: sourceElection,
         ballotTemplateId,
-        precincts: sourcePrecincts,
         orgId,
         systemSettings,
       } = await store.getElection(input.srcId);
@@ -314,10 +273,8 @@ function buildApi({ auth, logger, workspace, translator }: AppContext) {
         });
       }
 
-      const { districts, precincts, parties, contests } = regenerateElectionIds(
-        sourceElection,
-        sourcePrecincts
-      );
+      const { districts, precincts, parties, contests } =
+        regenerateElectionIds(sourceElection);
       await store.createElection(
         input.destOrgId,
         {
@@ -329,7 +286,6 @@ function buildApi({ auth, logger, workspace, translator }: AppContext) {
           parties,
           contests,
         },
-        precincts,
         ballotTemplateId,
         systemSettings
       );
@@ -392,7 +348,7 @@ function buildApi({ auth, logger, workspace, translator }: AppContext) {
 
     async listPrecincts(input: {
       electionId: ElectionId;
-    }): Promise<Precinct[]> {
+    }): Promise<readonly Precinct[]> {
       return store.listPrecincts(input.electionId);
     },
 
@@ -578,7 +534,6 @@ function buildApi({ auth, logger, workspace, translator }: AppContext) {
       const {
         election,
         ballotLanguageConfigs,
-        precincts,
         ballotStyles,
         ballotTemplateId,
       } = await store.getElection(input.electionId);
@@ -586,8 +541,7 @@ function buildApi({ auth, logger, workspace, translator }: AppContext) {
         translator,
         election,
         hmpbStringsCatalog,
-        ballotLanguageConfigs,
-        precincts
+        ballotLanguageConfigs
       );
       const electionWithBallotStrings: Election = {
         ...election,
@@ -596,7 +550,6 @@ function buildApi({ auth, logger, workspace, translator }: AppContext) {
       const allBallotProps = createBallotPropsForTemplate(
         ballotTemplateId,
         electionWithBallotStrings,
-        precincts,
         ballotStyles
       );
       const ballotProps = find(

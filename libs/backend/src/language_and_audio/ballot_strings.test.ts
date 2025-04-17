@@ -41,8 +41,7 @@ describe('translateBallotStrings', () => {
       mockTranslator,
       election,
       mockHmpbStringsCatalog,
-      englishOnlyConfig,
-      [...election.precincts]
+      englishOnlyConfig
     );
 
     expect(result).toBeDefined();
@@ -62,8 +61,7 @@ describe('translateBallotStrings', () => {
       mockTranslator,
       election,
       mockHmpbStringsCatalog,
-      allOtherBallotLanguages,
-      [...election.precincts]
+      allOtherBallotLanguages
     );
 
     expect(result).toBeDefined();

@@ -49,7 +49,7 @@ function expectElectionApiCalls(electionRecord: ElectionRecord) {
     .resolves(electionRecord.ballotStyles);
   apiMock.listPrecincts
     .expectCallWith({ electionId })
-    .resolves(electionRecord.precincts);
+    .resolves(electionRecord.election.precincts);
   apiMock.getElectionInfo
     .expectCallWith({ electionId })
     .resolves(electionInfoFromElection(electionRecord.election));
@@ -89,8 +89,8 @@ describe('Ballot styles tab', () => {
     ).toEqual([
       ['Center Springfield', '1_en', 'View Ballot'],
       ['North Springfield', '', ''],
-      ['North Springfield - Split 1', '1_en', 'View Ballot'],
-      ['North Springfield - Split 2', '2_en', 'View Ballot'],
+      ['North Springfield - Split 1', '2_en', 'View Ballot'],
+      ['North Springfield - Split 2', '1_en', 'View Ballot'],
       ['South Springfield', 'No contests assigned', ''],
     ]);
   });
@@ -166,8 +166,8 @@ describe('Ballot styles tab', () => {
     ).toEqual([
       ['Center Springfield', 'No contests assigned', ''],
       ['North Springfield', '', ''],
-      ['North Springfield - Split 1', 'No contests assigned', ''],
-      ['North Springfield - Split 2', '2_en', 'View Ballot'],
+      ['North Springfield - Split 1', '2_en', 'View Ballot'],
+      ['North Springfield - Split 2', 'No contests assigned', ''],
       ['South Springfield', 'No contests assigned', ''],
     ]);
   });
