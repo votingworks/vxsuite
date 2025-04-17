@@ -24,10 +24,12 @@ const MainKeys = styled.div`
   padding: 0.5rem 0;
 `;
 
-const KeySet = styled.div`
+const KeySet = styled.div<{ split?: boolean }>`
   display: flex;
   flex-wrap: wrap;
   gap: 0.25rem;
+  justify-content: ${(p) => (p.split ? undefined : 'center')};
+  flex-grow: 0;
 `;
 
 const Consonants = styled.div`
@@ -277,21 +279,17 @@ export function Keyboard(props: {
   return (
     <Container>
       <MainKeys>
-        {all && (
-          <Consonants>
-            <KeySet>{all}</KeySet>
-          </Consonants>
-        )}
+        {all && <KeySet split={split}>{all}</KeySet>}
         {consonants && (
           <Consonants>
             <H4>Consonants</H4>
-            <KeySet>{consonants}</KeySet>
+            <KeySet split={split}>{consonants}</KeySet>
           </Consonants>
         )}
         {vowels && (
           <Vowels>
             <H4>Vowels</H4>
-            <KeySet>{vowels}</KeySet>
+            <KeySet split={split}>{vowels}</KeySet>
           </Vowels>
         )}
       </MainKeys>

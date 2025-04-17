@@ -10,6 +10,7 @@ import {
 } from '@votingworks/ui';
 import React from 'react';
 import styled, { css, keyframes } from 'styled-components';
+import { assertDefined } from '@votingworks/basics';
 import { Keyboard, Phoneme } from './keyboard';
 import { Tooltip, tooltipContainerCss } from './tooltip';
 import { phonemes } from './phonemes';
@@ -217,6 +218,11 @@ const styleCurrentSyllable = css`
   ${SyllableText} {
     animation: ${cursorAnimation} 1s steps(2, start) infinite;
   }
+`;
+
+const KeyboardContainer = styled.div`
+  display: flex;
+  justify-content: center;
 `;
 
 const Syllable = styled.div<{
@@ -459,17 +465,35 @@ export function Phoneditor(props: {
     setCurrentSyllableIdx(newCurrentSyllable);
   }, [currentSyllableIdx, syllables]);
 
+  const addSyllable = React.useCallback(() => {
+    const lastSyllable = assertDefined(syllables.at(-1));
+    if (lastSyllable.phonemes.length === 0) return;
+
+    setSyllables([...syllables, { phonemes: [] }]);
+    setCurrentSyllableIdx(syllables.length);
+  }, [syllables]);
+
   const onKeyDown = React.useCallback(
     (event: KeyboardEvent) => {
       switch (event.key) {
         case 'Backspace':
           onBackspace();
           break;
+        case '.':
+          addSyllable();
+          break;
         default:
+          for (const phoneme of phonemes.en.all) {
+            if (phoneme.regular === event.key) {
+              onInput(phoneme);
+              break;
+            }
+          }
+
           break;
       }
     },
-    [onBackspace]
+    [addSyllable, onBackspace, onInput]
   );
 
   const deleteSyllable = React.useCallback(
@@ -494,11 +518,6 @@ export function Phoneditor(props: {
     },
     [currentSyllableIdx, syllables]
   );
-
-  const addSyllable = React.useCallback(() => {
-    setSyllables([...syllables, { phonemes: [] }]);
-    setCurrentSyllableIdx(syllables.length);
-  }, [syllables]);
 
   React.useEffect(() => {
     window.addEventListener('keydown', onKeyDown);
@@ -676,13 +695,13 @@ export function Phoneditor(props: {
                 Preview
               </PlayPreview>
             </P>
-            <div>
+            <KeyboardContainer>
               <Keyboard
                 alphabet={alphabet}
                 onInput={onInput}
                 split={splitKeyboard}
               />
-            </div>
+            </KeyboardContainer>
             {devMenu}
           </ModalContent>
         }
@@ -692,7 +711,7 @@ export function Phoneditor(props: {
             <Font weight="regular">{currentWord}</Font>&quot;
           </span>
         }
-        modalWidth={ModalWidth.Wider}
+        modalWidth={ModalWidth.Wide}
       />
     );
   }
