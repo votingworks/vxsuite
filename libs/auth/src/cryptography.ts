@@ -153,7 +153,7 @@ export function publicKeyDerToPem(
  * Converts an ECC public key in PEM format to DER format
  */
 // Only used in a script so doesn't get covered by java_card.test.ts
-/* istanbul ignore next */
+/* istanbul ignore next - @preserve */
 export function publicKeyPemToDer(
   publicKey: FilePathOrBuffer
 ): Promise<Buffer> {

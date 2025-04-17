@@ -308,7 +308,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
     const programmedUserRole =
       ('programmableCard' in this.authStatus &&
         'programmedUser' in this.authStatus.programmableCard &&
-        /* istanbul ignore next */
+        /* istanbul ignore next - @preserve */
         this.authStatus.programmableCard.programmedUser?.role) ||
       'unprogrammed';
     this.logger.log(LogEventId.SmartCardUnprogramInit, 'system_administrator', {

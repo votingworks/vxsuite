@@ -150,7 +150,7 @@ function logAuthEvent(
       return;
     }
 
-    /* istanbul ignore next: Compile-time check for completeness */
+    /* istanbul ignore next: Compile-time check for completeness - @preserve */
     default:
       throwIllegalValue(previousAuthStatus, 'status');
   }
@@ -432,7 +432,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
                       ? { status: 'checking_pin', user, lockedOutUntil }
                       : { status: 'logged_in', user, sessionExpiresAt };
                   }
-                  /* istanbul ignore next: Compile-time check for completeness */
+                  /* istanbul ignore next: Compile-time check for completeness - @preserve */
                   default: {
                     throwIllegalValue(user, 'role');
                   }
@@ -448,7 +448,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
               machineJurisdiction: machineState.jurisdiction,
             };
           }
-          /* istanbul ignore next: Compile-time check for completeness */
+          /* istanbul ignore next: Compile-time check for completeness - @preserve */
           default: {
             return throwIllegalValue(action.cardStatus, 'status');
           }
@@ -492,7 +492,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
                     sessionExpiresAt,
                   };
                 }
-                /* istanbul ignore next: Compile-time check for completeness */
+                /* istanbul ignore next: Compile-time check for completeness - @preserve */
                 default: {
                   throwIllegalValue(currentAuthStatus.user, 'role');
                 }
@@ -513,7 +513,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
           case 'error': {
             return { ...currentAuthStatus, error: true };
           }
-          /* istanbul ignore next: Compile-time check for completeness */
+          /* istanbul ignore next: Compile-time check for completeness - @preserve */
           default: {
             return throwIllegalValue(action.checkPinResponse, 'response');
           }
@@ -534,7 +534,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
         };
       }
 
-      /* istanbul ignore next: Compile-time check for completeness */
+      /* istanbul ignore next: Compile-time check for completeness - @preserve */
       default: {
         throwIllegalValue(action, 'type');
       }

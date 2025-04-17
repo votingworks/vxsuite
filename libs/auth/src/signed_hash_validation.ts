@@ -37,7 +37,7 @@ async function computeSystemHash(): Promise<string> {
   const systemHash = stdout.toString('utf-8').trim();
 
   let systemHashBase64: string;
-  /* istanbul ignore else */
+  /* istanbul ignore else - @preserve */
   if (systemHash === 'UNVERIFIED') {
     systemHashBase64 = systemHash.padEnd(44, '=');
   } else {
@@ -66,7 +66,7 @@ interface SignedHashValidationMachineState {
  */
 export async function generateSignedHashValidationQrCodeValue(
   machineState: SignedHashValidationMachineState,
-  /* istanbul ignore next */
+  /* istanbul ignore next - @preserve */
   config: SignedHashValidationConfig = constructSignedHashValidationConfig()
 ): Promise<SignedHashValidationQrCodeValue> {
   const { electionRecord, softwareVersion } = machineState;
