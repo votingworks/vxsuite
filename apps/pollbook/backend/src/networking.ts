@@ -64,6 +64,7 @@ export function fetchEventsFromConnectedPollbooks({
     let isPolling = false;
     let pollbookQueue: string[] = [];
     const durations: PerfStat[] = [];
+    console.log('BRANCHING FACTOR IS ', BRANCHING_FACTOR);
     setInterval(async () => {
       if (isPolling) {
         return;
