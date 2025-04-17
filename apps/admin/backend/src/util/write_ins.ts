@@ -29,12 +29,12 @@ export async function getWriteInImageView({
       'cvr validation on import guarantees machineMarkedText or layout is defined'
     );
     return {
+      type: 'bmd',
       writeInId,
       optionId,
       cvrId,
       imageUrl: toDataUrl(await loadImageData(image), 'image/jpeg'),
       machineMarkedText,
-      type: 'bmd',
       side: 'front',
     };
   }
@@ -69,6 +69,7 @@ export async function getWriteInImageView({
   debug('created write-in image view');
   const imageData = await loadImageData(image);
   return {
+    type: 'hmpb',
     writeInId,
     cvrId,
     optionId,
@@ -81,7 +82,6 @@ export async function getWriteInImageView({
     },
     contestCoordinates: contestLayout.bounds,
     writeInCoordinates: writeInLayout.bounds,
-    type: 'hmpb',
     side,
   };
 }

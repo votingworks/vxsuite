@@ -1,5 +1,5 @@
 import { Button, Modal } from '@votingworks/ui';
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
 const EqualWidthButton = styled(Button)`
@@ -13,12 +13,21 @@ export function DiscardChangesModal({
   onBack: () => void;
   onDiscard: () => void;
 }): JSX.Element {
-  const content = 'Your adjudications for this ballot have not been saved.';
-
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent): void {
+      if (event.key === 'Enter') {
+        onDiscard();
+      } else if (event.key === 'Escape') {
+        onBack();
+      }
+    }
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [onBack, onDiscard]);
   return (
     <Modal
       title="Unsaved Changes"
-      content={content}
+      content="Your adjudications for this ballot have not been saved."
       actions={
         <React.Fragment>
           <EqualWidthButton variant="danger" onPress={onDiscard}>

@@ -250,7 +250,7 @@ export function adjudicateCvrContest(
 
       if (!isVote) {
         if (writeInId) {
-          void adjudicateWriteIn(
+          adjudicateWriteIn(
             {
               type: 'invalid',
               writeInId,
@@ -278,7 +278,7 @@ export function adjudicateCvrContest(
       switch (candidateType) {
         case 'official-candidate': {
           const { candidateId } = adjudicatedContestOption;
-          void adjudicateWriteIn(
+          adjudicateWriteIn(
             {
               type: 'official-candidate',
               writeInId,
@@ -301,7 +301,7 @@ export function adjudicateCvrContest(
               name: candidateName,
             }).id;
           }
-          void adjudicateWriteIn(
+          adjudicateWriteIn(
             {
               type: 'write-in-candidate',
               writeInId,

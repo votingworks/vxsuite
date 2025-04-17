@@ -332,8 +332,11 @@ export function ContestAdjudicationScreen(): JSX.Element {
   });
 
   const [cvrQueueIndex, setCvrQueueIndex] = useState<number>();
-  const isQueueReady = cvrQueueIndex !== undefined && cvrQueueQuery.data;
-  const currentCvrId = isQueueReady ? cvrQueueQuery.data[cvrQueueIndex] : '';
+  const isQueueReady =
+    cvrQueueIndex !== undefined && cvrQueueQuery.data !== undefined;
+  const currentCvrId = isQueueReady
+    ? cvrQueueQuery.data[cvrQueueIndex]
+    : undefined;
 
   const cvrVoteInfoQuery = getCastVoteRecordVoteInfo.useQuery(
     currentCvrId ? { cvrId: currentCvrId } : undefined
@@ -394,6 +397,10 @@ export function ContestAdjudicationScreen(): JSX.Element {
       };
     });
   }
+  function clearBallotState() {
+    setHasVoteByOptionId({});
+    setWriteInStatusByOptionId({});
+  }
   const isStateReady = Object.keys(hasVoteByOptionId).length > 0;
 
   const [focusedOptionId, setFocusedOptionId] = useState<string>();
@@ -402,9 +409,6 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const [discardChangesNextAction, setDiscardChangesNextAction] = useState<
     'close' | 'back' | 'skip'
   >();
-  // isStateStale prevents showing new CVR data with stale state when revisiting a previously loaded CVR.
-  // Without this check, state resets one render after query data, causing a brief mismatch.
-  const [isStateStale, setIsStateStale] = useState(false);
 
   // Initialize vote and write-in management; reset on cvr scroll
   useEffect(() => {
@@ -481,7 +485,6 @@ export function ContestAdjudicationScreen(): JSX.Element {
       initialHasVoteByOptionIdRef.current = newHasVoteByOptionId;
       setWriteInStatusByOptionId(newWriteInStatusByOptionId);
       initialWriteInStatusByOptionIdRef.current = newWriteInStatusByOptionId;
-      setIsStateStale(false);
       if (!areAllWriteInsAdjudicated) {
         setShouldAutoscrollUser(true);
       }
@@ -572,7 +575,6 @@ export function ContestAdjudicationScreen(): JSX.Element {
   // Only show full loading screen on initial load to mitigate screen flicker on scroll
   if (
     !isQueueReady ||
-    !isStateReady ||
     !cvrVoteInfoQuery.data ||
     !writeInCandidatesQuery.data ||
     !writeInsQuery.data ||
@@ -591,6 +593,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const writeInImages = writeInImagesQuery.data;
   const writeInCandidates = writeInCandidatesQuery.data;
   const safeCvrQueueIndex = cvrQueueIndex;
+  const safeCurrentCvrId = cvrQueueQuery.data[cvrQueueIndex];
 
   const voteCount = Object.values(hasVoteByOptionId).filter(Boolean).length;
   const seatCount = contest.seats;
@@ -672,7 +675,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
     const adjudicatedCvrContest: AdjudicatedCvrContest = {
       adjudicatedContestOptionById,
       contestId,
-      cvrId: currentCvrId,
+      cvrId: safeCurrentCvrId,
       side,
     };
     const officialCandidateOptionIds = officialCandidates.map((c) => c.id);
@@ -713,7 +716,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
       history.push(routerPaths.writeIns);
     } else {
       setCvrQueueIndex(safeCvrQueueIndex + 1);
-      setIsStateStale(true);
+      clearBallotState();
     }
   }
 
@@ -730,7 +733,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
       return;
     }
     setCvrQueueIndex(safeCvrQueueIndex + 1);
-    setIsStateStale(true);
+    clearBallotState();
   }
 
   function onBack(): void {
@@ -739,7 +742,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
       return;
     }
     setCvrQueueIndex(safeCvrQueueIndex - 1);
-    setIsStateStale(true);
+    clearBallotState();
   }
 
   function onClose(): void {
@@ -796,7 +799,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
               </Label>
             )}
           </BallotVoteCount>
-          {areQueriesFetching || isStateStale ? (
+          {areQueriesFetching || !isStateReady ? (
             <CandidateButtonList style={{ justifyContent: 'center' }}>
               <Icons.Loading />
             </CandidateButtonList>
