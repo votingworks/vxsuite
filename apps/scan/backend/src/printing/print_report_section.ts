@@ -16,7 +16,7 @@ import {
   renderToPdf,
 } from '@votingworks/printing';
 import { PrintResult } from '@votingworks/fujitsu-thermal-printer';
-import { getSignedQuickResultsReportingUrl } from '@votingworks/auth';
+import { generateSignedQuickResultsReportingUrl } from '@votingworks/auth';
 import { Store } from '../store';
 import { getMachineConfig } from '../machine_config';
 import { getScannerResults } from '../util/results';
@@ -67,7 +67,7 @@ async function getReportSections(
   const signedQuickResultsReportingUrl =
     (pollsTransitionType === 'close_polls' &&
       systemSettings.quickResultsReportingUrl &&
-      (await getSignedQuickResultsReportingUrl({
+      (await generateSignedQuickResultsReportingUrl({
         electionDefinition,
         quickResultsReportingUrl: systemSettings.quickResultsReportingUrl,
         signingMachineId: machineId,
