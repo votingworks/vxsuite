@@ -17,13 +17,11 @@ export function DiscardChangesModal({
     function onKeyDown(event: KeyboardEvent): void {
       if (event.key === 'Enter') {
         onDiscard();
-      } else if (event.key === 'Escape') {
-        onBack();
       }
     }
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [onBack, onDiscard]);
+  }, [onDiscard]);
   return (
     <Modal
       title="Unsaved Changes"

@@ -7,7 +7,7 @@ export interface DoubleVoteAlert {
     | 'adjudicated-write-in-candidate'
     | 'adjudicated-official-candidate';
   name: string;
-  optionId?: string;
+  optionId: string;
 }
 
 export function DoubleVoteAlertModal({
