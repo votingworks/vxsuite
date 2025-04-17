@@ -379,7 +379,7 @@ export function createApiMock(
             writeInCoordinates: {
               x: 400,
               y: 200,
-              width: 600,
+              width: 400,
               height: 200,
             },
           }))

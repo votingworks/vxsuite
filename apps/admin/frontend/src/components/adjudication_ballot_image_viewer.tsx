@@ -97,8 +97,11 @@ const BallotImageViewerControls = styled.div<{ isZoomedIn: boolean }>`
 
 function remToPx(rem: number) {
   const fontSizeResult = safeParseNumber(
-    getComputedStyle(document.documentElement).fontSize
+    // trim 'px' from the result
+    getComputedStyle(document.documentElement).fontSize.substring(0, -2)
   );
+  // fallback to default of 30
+  /* istanbul ignore next - fallback to default of 30 - @preserve */
   const fontSize = fontSizeResult.isOk() ? fontSizeResult.ok() : 30;
   return rem * fontSize;
 }

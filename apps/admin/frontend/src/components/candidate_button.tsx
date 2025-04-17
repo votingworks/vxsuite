@@ -5,7 +5,7 @@ import React from 'react';
 export function CandidateButton({
   candidate,
   caption,
-  disabled = false,
+  disabled,
   isSelected,
   onSelect,
   onDeselect,
@@ -15,7 +15,7 @@ export function CandidateButton({
   disabled?: boolean;
   isSelected: boolean;
   onSelect: () => void;
-  onDeselect: () => void;
+  onDeselect?: () => void;
 }): React.ReactNode {
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -28,7 +28,7 @@ export function CandidateButton({
           if (!isSelected) {
             onSelect();
           } else {
-            onDeselect();
+            onDeselect?.();
           }
         }}
       />

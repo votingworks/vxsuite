@@ -324,11 +324,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
   assert(contest.type === 'candidate', 'contest must be a candidate contest');
 
   // Queries and mutations
-  const cvrQueueQuery = getWriteInAdjudicationCvrQueue.useQuery({
-    contestId: contest.id,
-  });
+  const cvrQueueQuery = getWriteInAdjudicationCvrQueue.useQuery({ contestId });
   const firstPendingCvrIdQuery = getFirstPendingWriteInCvrId.useQuery({
-    contestId: contest.id,
+    contestId,
   });
 
   const [cvrQueueIndex, setCvrQueueIndex] = useState<number>();
@@ -351,7 +349,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
     currentCvrId ? { cvrId: currentCvrId, contestId } : undefined
   );
   const writeInCandidatesQuery = getWriteInCandidates.useQuery({
-    contestId: contest.id,
+    contestId,
   });
 
   const adjudicateCvrContestMutation = adjudicateCvrContest.useMutation();
@@ -373,13 +371,10 @@ export function ContestAdjudicationScreen(): JSX.Element {
   );
   const initialHasVoteByOptionIdRef = useRef<HasVoteByOptionId | null>(null);
   function setOptionHasVote(optionId: ContestOptionId, hasVote: boolean) {
-    setHasVoteByOptionId((prev) => {
-      if (prev[optionId] === hasVote) return prev;
-      return {
+    setHasVoteByOptionId((prev) => ({
         ...prev,
         [optionId]: hasVote,
-      };
-    });
+      }));
   }
   const [writeInStatusByOptionId, setWriteInStatusByOptionId] =
     useState<WriteInStatusByOptionId>({});
@@ -389,13 +384,10 @@ export function ContestAdjudicationScreen(): JSX.Element {
     optionId: ContestOptionId,
     status: WriteInAdjudicationStatus
   ) {
-    setWriteInStatusByOptionId((prev) => {
-      if (prev[optionId] === status) return prev;
-      return {
+    setWriteInStatusByOptionId((prev) => ({
         ...prev,
         [optionId]: status,
-      };
-    });
+      }));
   }
   function clearBallotState() {
     setHasVoteByOptionId({});
@@ -490,8 +482,8 @@ export function ContestAdjudicationScreen(): JSX.Element {
       }
     }
   }, [
-    cvrQueueIndex,
     contestId,
+    cvrQueueIndex,
     officialCandidates,
     cvrVoteInfoQuery.data,
     cvrVoteInfoQuery.isStale,
@@ -575,6 +567,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
   // Only show full loading screen on initial load to mitigate screen flicker on scroll
   if (
     !isQueueReady ||
+    !currentCvrId ||
     !cvrVoteInfoQuery.data ||
     !writeInCandidatesQuery.data ||
     !writeInsQuery.data ||
@@ -593,7 +586,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const writeInImages = writeInImagesQuery.data;
   const writeInCandidates = writeInCandidatesQuery.data;
   const safeCvrQueueIndex = cvrQueueIndex;
-  const safeCurrentCvrId = cvrQueueQuery.data[cvrQueueIndex];
+  const safeCurrentCvrId = currentCvrId;
 
   const voteCount = Object.values(hasVoteByOptionId).filter(Boolean).length;
   const seatCount = contest.seats;
@@ -611,7 +604,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const isBmd = firstWriteInImage.type === 'bmd';
   const { side } = firstWriteInImage;
 
-  const numBallots = cvrQueueQuery.data?.length ?? 0;
+  const numBallots = cvrQueueQuery.data.length;
   const onLastBallot = cvrQueueIndex + 1 === numBallots;
 
   const selectedCandidateNames = Object.entries(hasVoteByOptionId)
@@ -859,8 +852,6 @@ export function ContestAdjudicationScreen(): JSX.Element {
                         setOptionHasVote(optionId, true);
                         setOptionWriteInStatus(optionId, { type: 'pending' });
                       }}
-                      /* istanbul ignore next */
-                      onDeselect={() => undefined} // Cannot be reached
                       caption={renderCandidateButtonCaption({
                         originalVote,
                         currentVote: false,

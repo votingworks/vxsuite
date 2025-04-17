@@ -9,7 +9,7 @@ import type {
   WriteInAdjudicationStatus,
 } from '../screens/contest_adjudication_screen';
 
-const MAX_NAME_LENGTH = 200;
+export const MAX_NAME_LENGTH = 200;
 const INVALID_KEY = '\0invalid';
 
 const Container = styled.div`
@@ -46,7 +46,7 @@ export function WriteInAdjudicationButton({
   isSelected: boolean;
   label?: string;
   hasInvalidEntry: boolean;
-  status: Exclude<WriteInAdjudicationStatus, undefined | InvalidWriteIn>;
+  status: Exclude<WriteInAdjudicationStatus, InvalidWriteIn | undefined>;
   onChange: (newStatus: Exclude<WriteInAdjudicationStatus, undefined>) => void;
   onInputBlur: () => void;
   onInputFocus: () => void;
@@ -130,9 +130,9 @@ export function WriteInAdjudicationButton({
         onInputChange={onInputChange}
         onChange={(val) => {
           setInputValue('');
-          if (!val) {
-            onChange({ type: 'pending' });
-          } else if (val === INVALID_KEY) {
+          // we are guaranteed a value from SearchSelect with this use-case
+          assert(val !== undefined && val !== '');
+          if (val === INVALID_KEY) {
             onChange({ type: 'invalid' });
           } else if (filteredNames.includes(val)) {
             let candidate = officialCandidates.find((c) => c.name === val);
