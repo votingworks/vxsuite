@@ -334,9 +334,9 @@ export interface AdjudicatedCvrContest {
     ContestOptionId,
     AdjudicatedContestOption
   >;
-  cvrId: string;
+  contestId: ContestId;
+  cvrId: Id;
   side: Side;
-  contestId: string;
 }
 
 /**
@@ -395,6 +395,7 @@ export type WriteInImageView = HmpbWriteInImageView | BmdWriteInImageView;
  * Information necessary to display a hmpb write-in on the frontend.
  */
 export interface HmpbWriteInImageView {
+  readonly type: 'hmpb';
   readonly writeInId: Id;
   readonly cvrId: Id;
   readonly optionId: Id;
@@ -403,20 +404,19 @@ export interface HmpbWriteInImageView {
   readonly contestCoordinates: Rect;
   readonly writeInCoordinates: Rect;
   readonly side: Side;
-  readonly type: 'hmpb';
 }
 
 /**
  * Information necessary to display a bmd write-in on the frontend.
  */
 export interface BmdWriteInImageView {
+  readonly type: 'bmd';
   readonly writeInId: Id;
   readonly cvrId: Id;
   readonly optionId: Id;
   readonly imageUrl: string;
   readonly machineMarkedText: string;
   readonly side: 'front'; // bmd ballots are always on the front.
-  readonly type: 'bmd';
 }
 
 /**
