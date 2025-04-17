@@ -17,7 +17,7 @@ const debug = rootDebug.extend('networking');
 
 const execPromise = promisify(exec);
 
-const BRANCHING_FACTOR = 5; // Number of pollbooks to query per interval
+const BRANCHING_FACTOR = 10; // Number of pollbooks to query per interval
 
 export async function resetNetworkSetup(machineId: string): Promise<void> {
   const command = 'sudo systemctl start join-mesh-network';
