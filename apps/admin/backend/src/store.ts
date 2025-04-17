@@ -1807,54 +1807,6 @@ export class Store {
   }
 
   /**
-   * Gets write-in adjudication tallies.
-   */
-  getWriteInAdjudicationQueueMetadata({
-    electionId,
-    contestId,
-  }: {
-    electionId: Id;
-    contestId?: ContestId;
-  }): WriteInAdjudicationQueueMetadata[] {
-    debug(
-      'querying database for write-in adjudication queue metadata for contest %s',
-      contestId
-    );
-    const whereParts: string[] = ['write_ins.election_id = ?'];
-    const params: Bindable[] = [electionId];
-
-    if (contestId) {
-      whereParts.push('write_ins.contest_id = ?');
-      params.push(contestId);
-    }
-
-    const rows = this.client.all(
-      `
-        select
-          contest_id as contestId,
-          count(id) as totalTally,
-          sum(
-            (
-              (case when official_candidate_id is null then 0 else 1 end) +
-              (case when write_in_candidate_id is null then 0 else 1 end) +
-              is_invalid
-            ) = 0
-          ) as pendingTally
-        from write_ins
-        where ${whereParts.join(' and ')}
-        group by contest_id
-      `,
-      ...params
-    ) as Array<{
-      contestId: ContestId;
-      totalTally: number;
-      pendingTally: number;
-    }>;
-    debug('queried database for write-in adjudication queue metadata');
-    return rows;
-  }
-
-  /**
    * Gets write-in record adjudication queue for a specific contest.
    */
   getWriteInAdjudicationCvrQueue({
@@ -2234,46 +2186,6 @@ export class Store {
   }
 
   /**
-   * Gets write-in record adjudication queue for a specific contest.
-   */
-  getWriteInAdjudicationQueue({
-    electionId,
-    contestId,
-  }: {
-    electionId: Id;
-    contestId?: ContestId;
-  }): Id[] {
-    this.assertElectionExists(electionId);
-
-    const whereParts: string[] = ['election_id = ?'];
-    const params: Bindable[] = [electionId];
-
-    if (contestId) {
-      whereParts.push('contest_id = ?');
-      params.push(contestId);
-    }
-
-    debug(
-      'querying database for write-in adjudication queue for contest %s',
-      contestId
-    );
-    const rows = this.client.all(
-      `
-        select
-          id
-        from write_ins
-        where
-          ${whereParts.join(' and ')}
-        ${WRITE_IN_QUEUE_ORDER_BY}
-      `,
-      ...params
-    ) as Array<{ id: Id }>;
-    debug('queried database for write-in adjudication queue');
-
-    return rows.map((r) => r.id);
-  }
-
-  /**
    * Gets the write-in IDs for a given cast vote record's contest.
    */
   getCvrContestWriteInIds({
@@ -2296,45 +2208,6 @@ export class Store {
     ) as Array<{ id: Id }>;
 
     return rows.map((row) => row.id);
-  }
-
-  /**
-   * Within a contest adjudication queue provided by `getWriteInAdjudicationQueue`,
-   * gets the id of the first write-in that is pending adjudication.
-   */
-  getFirstPendingWriteInId({
-    electionId,
-    contestId,
-  }: {
-    electionId: Id;
-    contestId: ContestId;
-  }): Optional<Id> {
-    this.assertElectionExists(electionId);
-
-    debug(
-      'querying database for first pending write-in for contest %s',
-      contestId
-    );
-    const row = this.client.one(
-      `
-        select
-          id
-        from write_ins
-        where
-          election_id = ? and
-          contest_id = ? and
-          official_candidate_id is null and
-          write_in_candidate_id is null and
-          is_invalid = 0
-        ${WRITE_IN_QUEUE_ORDER_BY}
-        limit 1
-      `,
-      electionId,
-      contestId
-    ) as { id: Id } | undefined;
-    debug('queried database for first pending write-in');
-
-    return row?.id;
   }
 
   getCastVoteRecordVoteInfo({

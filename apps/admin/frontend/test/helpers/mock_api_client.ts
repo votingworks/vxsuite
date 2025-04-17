@@ -9,10 +9,8 @@ import type {
   MachineConfig,
   ManualResultsIdentifier,
   WriteInCandidateRecord,
-  WriteInAdjudicationContext,
   ScannerBatch,
   WriteInAdjudicationQueueMetadata,
-  WriteInImageView,
   ExportDataError,
   TallyReportSpec,
   TallyReportWarning,
@@ -45,7 +43,6 @@ import {
   Id,
   PrinterConfig,
   PrinterStatus,
-  Rect,
   SystemSettings,
   Tabulation,
   DEV_MACHINE_ID,
@@ -54,13 +51,6 @@ import {
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { Mock, vi } from 'vitest';
-
-const mockRect: Rect = {
-  width: 1000,
-  height: 1000,
-  x: 0,
-  y: 0,
-};
 
 // the below is copied from libs/printing to avoid importing a backend package
 export const MOCK_PRINTER_CONFIG: PrinterConfig = {
@@ -323,35 +313,6 @@ export function createApiMock(
       apiClient.getCastVoteRecordFiles.expectCallWith().resolves(fileRecords);
     },
 
-    expectGetWriteInAdjudicationQueueMetadata(
-      queueMetadata: WriteInAdjudicationQueueMetadata[],
-      contestId?: ContestId
-    ) {
-      if (contestId) {
-        apiClient.getWriteInAdjudicationQueueMetadata
-          .expectCallWith({
-            contestId,
-          })
-          .resolves(queueMetadata);
-      } else {
-        apiClient.getWriteInAdjudicationQueueMetadata
-          .expectCallWith()
-          .resolves(queueMetadata);
-      }
-    },
-
-    expectGetWriteInAdjudicationQueue(writeInIds: Id[], contestId?: string) {
-      if (contestId) {
-        apiClient.getWriteInAdjudicationQueue
-          .expectCallWith({ contestId })
-          .resolves(writeInIds);
-      } else {
-        apiClient.getWriteInAdjudicationQueue
-          .expectCallWith()
-          .resolves(writeInIds);
-      }
-    },
-
     expectGetWriteInCandidates(
       writeInCandidates: WriteInCandidateRecord[],
       contestId?: string
@@ -424,68 +385,6 @@ export function createApiMock(
           }))
         );
       }
-    },
-
-    expectGetWriteInImageView(
-      writeInId: string,
-      imageView: Partial<WriteInImageView> = {}
-    ) {
-      if ('machineMarkedText' in imageView) {
-        apiClient.getWriteInImageView.expectCallWith({ writeInId }).resolves({
-          writeInId,
-          cvrId: 'id',
-          optionId: 'option',
-          imageUrl: 'WW91IGJlIGdvb2QsIEkgbG92ZSB5b3UuIFNlZSB5b3UgdG9tb3Jyb3cu',
-          machineMarkedText: 'mock-text',
-          ...imageView,
-          type: 'bmd',
-          side: 'front',
-        });
-      } else {
-        apiClient.getWriteInImageView.expectCallWith({ writeInId }).resolves({
-          writeInId,
-          cvrId: 'id',
-          optionId: 'option',
-          imageUrl: 'WW91IGJlIGdvb2QsIEkgbG92ZSB5b3UuIFNlZSB5b3UgdG9tb3Jyb3cu',
-          ballotCoordinates: mockRect,
-          contestCoordinates: mockRect,
-          writeInCoordinates: mockRect,
-          ...imageView,
-          type: 'hmpb',
-          side: 'front',
-        });
-      }
-    },
-
-    expectGetWriteInAdjudicationContext(
-      writeInId: string,
-      adjudicationContext: Partial<WriteInAdjudicationContext> = {}
-    ) {
-      apiClient.getWriteInAdjudicationContext
-        .expectCallWith({ writeInId })
-        .resolves({
-          writeIn: {
-            id: writeInId,
-            contestId: 'id',
-            electionId: 'id',
-            cvrId: 'id',
-            optionId: 'id',
-            status: 'pending',
-          },
-          relatedWriteIns: [],
-          cvrId: 'id',
-          cvrVotes: {},
-          ...adjudicationContext,
-        });
-    },
-
-    expectGetFirstPendingWriteInId(
-      contestId: string,
-      writeInId: string | null
-    ) {
-      apiClient.getFirstPendingWriteInId
-        .expectCallWith({ contestId })
-        .resolves(writeInId);
     },
 
     expectGetWriteInAdjudicationCvrQueueMetadata(

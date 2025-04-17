@@ -2,7 +2,6 @@ import {
   ContestAdjudicationScreenParams,
   ManualTallyFormContestParams,
   ManualTallyFormParams,
-  WriteInsAdjudicationScreenParams,
 } from './config/types';
 
 export const routerPaths = {
@@ -40,10 +39,6 @@ export const routerPaths = {
   }: ContestAdjudicationScreenParams): string =>
     `/contests/adjudication/${contestId}`,
   writeIns: '/write-ins',
-  writeInsAdjudication: ({
-    contestId,
-  }: WriteInsAdjudicationScreenParams): string =>
-    `/write-ins/adjudication/${contestId}`,
   settings: '/settings',
   hardwareDiagnostics: '/hardware-diagnostics',
   system: '/system',
