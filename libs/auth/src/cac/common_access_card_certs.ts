@@ -108,9 +108,9 @@ export async function parseCert(
   const certFields: { [fieldName: string]: string } = {};
   for (const certField of certFieldsList) {
     const [fieldName, fieldValue] = certField.split(' = ');
-    if (fieldName && fieldValue) {
-      certFields[fieldName] = fieldValue;
-    }
+    assert(fieldName !== undefined, 'Malformed cert subject line');
+    assert(fieldValue !== undefined, 'Malformed cert subject line');
+    certFields[fieldName] = fieldValue;
   }
 
   const commonAccessCardInfo = parseCommonAccessCardFields(certFields);
