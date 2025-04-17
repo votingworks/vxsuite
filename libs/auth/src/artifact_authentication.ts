@@ -320,9 +320,11 @@ async function performArtifactSpecificAuthenticationChecks(
  */
 export async function prepareSignatureFile(
   artifact: ArtifactToExport,
-  /* istanbul ignore next - @preserve */
-  config: ArtifactAuthenticationConfig = constructArtifactAuthenticationConfig()
+  configOverride?: ArtifactAuthenticationConfig
 ): Promise<{ fileContents: Buffer; fileName: string }> {
+  const config =
+    configOverride ??
+    /* istanbul ignore next - @preserve */ constructArtifactAuthenticationConfig();
   const artifactSignatureBundle = await constructArtifactSignatureBundle(
     config,
     artifact
@@ -340,9 +342,11 @@ export async function prepareSignatureFile(
  */
 export async function authenticateArtifactUsingSignatureFile(
   artifact: ArtifactToImport,
-  /* istanbul ignore next - @preserve */
-  config: ArtifactAuthenticationConfig = constructArtifactAuthenticationConfig()
+  configOverride?: ArtifactAuthenticationConfig
 ): Promise<Result<void, Error>> {
+  const config =
+    configOverride ??
+    /* istanbul ignore next - @preserve */ constructArtifactAuthenticationConfig();
   try {
     const signatureFilePath = constructSignatureFilePath(artifact);
     const artifactSignatureBundle = deserializeArtifactSignatureBundle(
