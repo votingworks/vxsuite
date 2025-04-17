@@ -21,6 +21,7 @@ done
 git pull
 
 # Run pnpm type-check
+cd ../frontend
 pnpm type-check
 
 # Stop NetworkManager service
