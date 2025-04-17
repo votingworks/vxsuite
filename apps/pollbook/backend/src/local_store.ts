@@ -50,7 +50,13 @@ import { PeerApi } from './peer_app';
 export class LocalStore extends Store {
   private nextEventId?: number;
   private configurationStatus?: ConfigurationStatus;
-  private readonly peerApiClient: grout.Client<PeerApi>;
+  constructor(
+    client: DbClient,
+    machineId: string,
+    private readonly peerApiClient: grout.Client<PeerApi>
+  ) {
+    super(client, machineId);
+  }
 
   /**
    * Builds and returns a new store at `dbPath`.
@@ -58,19 +64,28 @@ export class LocalStore extends Store {
   static fileStore(
     dbPath: string,
     logger: BaseLogger,
-    machineId: string
+    machineId: string,
+    peerApiClient: grout.Client<PeerApi>
   ): LocalStore {
     return new LocalStore(
       DbClient.fileClient(dbPath, logger, SchemaPath),
-      machineId
+      machineId,
+      peerApiClient
     );
   }
 
   /**
    * Builds and returns a new store whose data is kept in memory.
    */
-  static memoryStore(machineId: string = 'test-machine'): LocalStore {
-    return new LocalStore(DbClient.memoryClient(SchemaPath), machineId);
+  static memoryStore(
+    machineId: string,
+    peerApiClient: grout.Client<PeerApi>
+  ): LocalStore {
+    return new LocalStore(
+      DbClient.memoryClient(SchemaPath),
+      machineId,
+      peerApiClient
+    );
   }
 
   private getNextEventId(): number {
