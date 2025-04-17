@@ -5,11 +5,7 @@ import {
   Result,
   throwIllegalValue,
 } from '@votingworks/basics';
-import {
-  format,
-  hyphenatePin,
-  isSystemAdministratorAuth,
-} from '@votingworks/utils';
+import { format, hyphenatePin } from '@votingworks/utils';
 import {
   constructElectionKey,
   DippedSmartCardAuth,
@@ -18,7 +14,6 @@ import {
 } from '@votingworks/types';
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { AuthStatus } from '@votingworks/types/src/auth/dipped_smart_card_auth';
 import { Callout } from './callout';
 import { H1, H2, H3, P } from './typography';
 import { Button } from './button';
@@ -109,12 +104,15 @@ function InsertCardPrompt({
         <SmartCardsScreenButtonList
           style={{ alignItems: 'start', marginTop: '1rem' }}
         >
+          {/* istanbul ignore next - @preserve | These functions will never be exercised */}
           <Button onPress={() => {}} disabled>
             Program Election Manager Card
           </Button>
+          {/* istanbul ignore next - @preserve */}
           <Button onPress={() => {}} disabled>
             Program Poll Worker Card
           </Button>
+          {/* istanbul ignore next - @preserve */}
           <Button onPress={() => {}} disabled>
             Program System Administrator Card
           </Button>
@@ -297,7 +295,7 @@ function ConfirmSystemAdminCardActionModal({
   );
 }
 
-interface CardProgrammingApiClient {
+export interface CardProgrammingApiClient {
   programCard: (input: {
     userRole: 'system_administrator' | 'election_manager' | 'poll_worker';
   }) => Promise<
@@ -311,7 +309,7 @@ interface CardProgrammingApiClient {
   unprogramCard: () => Promise<Result<void, Error>>;
 }
 
-function CardDetailsAndActions({
+export function CardDetailsAndActions({
   card,
   arePollWorkerCardPinsEnabled,
   election,
@@ -319,7 +317,7 @@ function CardDetailsAndActions({
 }: {
   card: DippedSmartCardAuth.ProgrammableCardReady;
   arePollWorkerCardPinsEnabled: boolean;
-  election: Election;
+  election?: Election;
   apiClient: CardProgrammingApiClient;
 }): JSX.Element {
   const [actionResult, setActionResult] = useState<SmartCardActionResult>();
@@ -543,9 +541,9 @@ function CardDetailsAndActions({
   );
 }
 
-interface SmartCardsScreenProps {
-  auth: AuthStatus;
-  election: Election;
+export interface SmartCardsScreenProps {
+  auth: DippedSmartCardAuth.SystemAdministratorLoggedIn;
+  election?: Election;
   arePollWorkerCardPinsEnabled: boolean;
   apiClient: CardProgrammingApiClient;
 }
@@ -555,8 +553,6 @@ export function SmartCardsScreen({
   arePollWorkerCardPinsEnabled,
   apiClient,
 }: SmartCardsScreenProps): JSX.Element | null {
-  assert(isSystemAdministratorAuth(auth));
-
   const { programmableCard: card } = auth;
 
   assert(card.status !== 'no_card_reader' && card.status !== 'unknown_error');

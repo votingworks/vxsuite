@@ -1,4 +1,4 @@
-import { assert, assertDefined } from '@votingworks/basics';
+import { assert } from '@votingworks/basics';
 import { SmartCardsScreen as SmartCardsScreenComponent } from '@votingworks/ui';
 
 import { isSystemAdministratorAuth } from '@votingworks/utils';
@@ -28,7 +28,7 @@ export function SmartCardsScreen(): JSX.Element | null {
           arePollWorkerCardPinsEnabled={
             systemSettingsQuery.data.auth.arePollWorkerCardPinsEnabled
           }
-          election={assertDefined(electionDefinition).election}
+          election={electionDefinition?.election}
           apiClient={apiClient}
         />
       </div>
