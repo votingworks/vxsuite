@@ -19,6 +19,21 @@ function buildApi(context: PeerAppContext) {
       };
     },
 
+    receiveEvent(input: { pollbookEvent: PollbookEvent }) {
+      store.saveEvent(input.pollbookEvent);
+    },
+
+    broadcastEvent(input: { pollbookEvent: PollbookEvent }) {
+      const connectedPollbooks = store.getPollbookServicesByName();
+      for (const pollbook of Object.values(connectedPollbooks)) {
+        if (pollbook.apiClient) {
+          void pollbook.apiClient.receiveEvent({
+            pollbookEvent: input.pollbookEvent,
+          });
+        }
+      }
+    },
+
     getEvents(input: { lastEventSyncedPerNode: Record<string, number> }): {
       events: PollbookEvent[];
       hasMore: boolean;
