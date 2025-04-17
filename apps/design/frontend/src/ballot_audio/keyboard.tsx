@@ -20,6 +20,7 @@ const Container = styled.div`
 const MainKeys = styled.div`
   display: flex;
   gap: 0.25rem;
+  justify-content: space-between;
   padding: 0.5rem 0;
 `;
 
@@ -34,7 +35,14 @@ const Consonants = styled.div`
 `;
 
 const Vowels = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: end;
   flex: 3 0;
+
+  ${KeySet} {
+    justify-content: end;
+  }
 `;
 
 const Key = styled(HoverButton)`
@@ -48,8 +56,8 @@ const Key = styled(HoverButton)`
   cursor: pointer;
   font-size: 1.5rem;
   font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
-  min-height: 2.25em;
-  min-width: 2.25em;
+  height: 2.25em;
+  width: 2.25em;
   outline-offset: 2px;
   padding: 0.5rem;
   transition: 100ms ease-out;
@@ -76,6 +84,7 @@ const Key = styled(HoverButton)`
 ` as unknown as new <T>() => React.Component<HoverButtonProps<T>>;
 
 export interface Phoneme {
+  regular: string;
   ipa: string;
   'x-sampa': string;
   exampleWord: string;
@@ -85,15 +94,17 @@ export interface Phoneme {
 }
 
 const consonantModfier = {
+  regular: 'ə',
   ipa: 'ə',
   'x-sampa': '@',
 } as const;
 
 export function Keyboard(props: {
-  alphabet: 'ipa' | 'x-sampa';
+  alphabet: 'ipa' | 'x-sampa' | 'regular';
   onInput: (phoneme: Phoneme) => void;
+  split?: boolean;
 }): JSX.Element {
-  const { alphabet, onInput } = props;
+  const { alphabet, onInput, split } = props;
   const audioTimer = React.useRef<number>();
   const lastAudioPhoneme = React.useRef<Phoneme>();
   const lastAudio = React.useRef<HTMLAudioElement>();
@@ -118,21 +129,23 @@ export function Keyboard(props: {
           return;
         }
 
-        lastAudio.current.pause();
+        // lastAudio.current.pause();
+        // lastAudio.current.src = '';
         lastAudio.current = undefined;
       }
 
       lastAudioPhoneme.current = phoneme;
 
+      const alphabetForAudio = 'ipa';
       audioTimer.current = window.setTimeout(() => {
-        let sound = phoneme[alphabet];
+        let sound = phoneme[alphabetForAudio];
         if (phoneme.isConsonant) {
-          sound += consonantModfier[alphabet];
+          sound += consonantModfier[alphabetForAudio];
         }
 
         setCurrentSsml(
           `<speak>` +
-            `<phoneme alphabet="${alphabet}" ph="${sound}">` +
+            `<phoneme alphabet="${alphabetForAudio}" ph="${sound}">` +
             `${phoneme[alphabet]}` +
             `</phoneme>` +
             `</speak>`
@@ -151,7 +164,7 @@ export function Keyboard(props: {
 
     if (lastAudio.current) {
       // lastAudio.current.pause();
-      lastAudio.current.src = '';
+      // lastAudio.current.src = '';
       lastAudio.current = undefined;
     }
 
@@ -162,24 +175,36 @@ export function Keyboard(props: {
   React.useEffect(() => {
     if (!audioSample || !playingSample) return;
 
-    lastAudio.current = new Audio(`data:audio/mp3;base64,${audioSample}`);
-    lastAudio.current.addEventListener('ended', () => {
-      lastAudio.current = undefined;
-      setPlayingSample(false);
+    const thisAudio = new Audio(`data:audio/mp3;base64,${audioSample}`);
+    thisAudio.addEventListener('loadeddata', () => {
+      if (thisAudio !== lastAudio.current) {
+        thisAudio.pause();
+      }
+    });
+    thisAudio.addEventListener('ended', () => {
+      if (thisAudio === lastAudio.current) {
+        lastAudio.current = undefined;
+        setPlayingSample(false);
+      }
     });
 
-    void lastAudio.current.play();
+    void thisAudio.play();
+
+    lastAudio.current = thisAudio;
   }, [audioSample, playingSample]);
 
   const consonants = React.useMemo(
     () =>
+      split &&
       phonemes.en.consonants.map((phoneme) => (
         <TooltipContainer key={phoneme.ipa}>
           <Tooltip opaque>
             <P weight="bold">Example:</P>
             <P>{phoneme.exampleWord}</P>
             <P>
-              {alphabet === 'ipa' ? phoneme.exampleIpa : phoneme.exampleXsampa}
+              {alphabet === 'x-sampa'
+                ? phoneme.exampleXsampa
+                : phoneme.exampleIpa}
             </P>
           </Tooltip>
           <Key
@@ -192,18 +217,21 @@ export function Keyboard(props: {
           </Key>
         </TooltipContainer>
       )),
-    [alphabet, onMouseOver, onMouseOut, onInput]
+    [alphabet, onMouseOver, onMouseOut, onInput, split]
   );
 
   const vowels = React.useMemo(
     () =>
+      split &&
       phonemes.en.vowels.map((phoneme) => (
         <TooltipContainer key={phoneme.ipa}>
           <Tooltip alignTo="right" opaque>
             <P weight="bold">Example:</P>
             <P>{phoneme.exampleWord}</P>
             <P>
-              {alphabet === 'ipa' ? phoneme.exampleIpa : phoneme.exampleXsampa}
+              {alphabet === 'x-sampa'
+                ? phoneme.exampleXsampa
+                : phoneme.exampleIpa}
             </P>
           </Tooltip>
           <Key
@@ -216,20 +244,56 @@ export function Keyboard(props: {
           </Key>
         </TooltipContainer>
       )),
-    [alphabet, onMouseOver, onMouseOut, onInput]
+    [alphabet, onMouseOver, onMouseOut, onInput, split]
+  );
+
+  const all = React.useMemo(
+    () =>
+      !split &&
+      phonemes.en.all.map((phoneme, i) => (
+        <TooltipContainer key={phoneme.ipa}>
+          <Tooltip alignTo={i % 16 < 8 ? 'left' : 'right'} opaque>
+            <P weight="bold">Example:</P>
+            <P>{phoneme.exampleWord}</P>
+            <P>
+              {alphabet === 'x-sampa'
+                ? phoneme.exampleXsampa
+                : phoneme.exampleIpa}
+            </P>
+          </Tooltip>
+          <Key
+            onMouseOver={onMouseOver}
+            onMouseOut={onMouseOut}
+            onPress={onInput}
+            value={phoneme}
+          >
+            {phoneme[alphabet]}
+          </Key>
+        </TooltipContainer>
+      )),
+    [alphabet, onMouseOver, onMouseOut, onInput, split]
   );
 
   return (
     <Container>
       <MainKeys>
-        <Consonants>
-          <H4>Consonants</H4>
-          <KeySet>{consonants}</KeySet>
-        </Consonants>
-        <Vowels>
-          <H4>Vowels</H4>
-          <KeySet>{vowels}</KeySet>
-        </Vowels>
+        {all && (
+          <Consonants>
+            <KeySet>{all}</KeySet>
+          </Consonants>
+        )}
+        {consonants && (
+          <Consonants>
+            <H4>Consonants</H4>
+            <KeySet>{consonants}</KeySet>
+          </Consonants>
+        )}
+        {vowels && (
+          <Vowels>
+            <H4>Vowels</H4>
+            <KeySet>{vowels}</KeySet>
+          </Vowels>
+        )}
       </MainKeys>
     </Container>
   );

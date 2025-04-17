@@ -52,6 +52,7 @@ import {
   faImage,
   faInfoCircle,
   faItalic,
+  faKeyboard,
   faLanguage,
   faListOl,
   faListUl,
@@ -360,6 +361,10 @@ export const Icons = {
 
   Italic(props) {
     return <FaIcon {...props} type={faItalic} />;
+  },
+
+  Keyboard(props) {
+    return <FaIcon {...props} type={faKeyboard} />;
   },
 
   Language(props) {

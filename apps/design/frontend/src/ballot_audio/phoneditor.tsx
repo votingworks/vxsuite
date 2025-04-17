@@ -68,11 +68,6 @@ const Word = styled.button`
   }
 `;
 
-const ModalTitle = styled.span`
-  display: flex;
-  justify-content: space-between;
-`;
-
 const ModalContent = styled.div`
   padding-bottom: 1rem;
 
@@ -226,10 +221,12 @@ const styleCurrentSyllable = css`
 
 const Syllable = styled.div<{
   current?: boolean;
+  emphasize?: boolean;
 }>`
   border-bottom: 0.25rem dashed #ccc;
   cursor: pointer;
   display: flex;
+  font-weight: ${(p) => (p.emphasize ? 900 : p.theme.sizes.fontWeight.bold)};
   padding: 0.25rem;
   position: relative;
   transition: 120ms ease-out;
@@ -312,6 +309,28 @@ const PlayPreview = styled(Button)`
   ${tooltipContainerCss}
 `;
 
+const DevMenu = styled.div`
+  background-color: #fff;
+  display: flex;
+  gap: 1rem;
+  left: 0;
+  opacity: 0.5;
+  padding: 1rem;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  transition: 120ms ease-out;
+  transition-property: opacity;
+
+  :hover {
+    opacity: 1;
+  }
+`;
+
+const Spacer = styled.span`
+  flex-grow: 1;
+`;
+
 interface SyllableInput {
   phonemes: Phoneme[];
   stress?: 'primary' | 'secondary' | 'none';
@@ -322,12 +341,33 @@ const emptySyllable: Readonly<SyllableInput> = {
   stress: 'none',
 };
 
+const alphabets = ['ipa', 'x-sampa', 'regular'] as const;
+
 export function Phoneditor(props: {
   disabled?: boolean;
   text: string;
 }): JSX.Element {
   const { disabled, text } = props;
-  const [alphabet, setAlphabet] = React.useState<'ipa' | 'x-sampa'>('ipa');
+
+  const [words, wordElements] = React.useMemo(() => {
+    const fragments = text.split(' ');
+
+    const elems: JSX.Element[] = [];
+    for (let i = 0; i < fragments.length; i += 1) {
+      elems.push(
+        <Word data-word={fragments[i]} key={fragments[i]} onClick={undefined}>
+          {fragments[i]}
+        </Word>
+      );
+    }
+
+    return [fragments, elems];
+  }, [text]);
+
+  const [splitKeyboard, setSplitKeyboard] = React.useState(true);
+  const [alphabet, setAlphabet] = React.useState<'ipa' | 'x-sampa' | 'regular'>(
+    'regular'
+  );
   const [currentWord, setCurrentWord] = React.useState<string>();
   const [syllables, setSyllables] = React.useState<SyllableInput[]>([
     { ...emptySyllable },
@@ -345,21 +385,6 @@ export function Phoneditor(props: {
   });
   const audioPreview = audioPreviewQuery.data;
   const audioPreviewLoading = audioPreviewQuery.isLoading;
-
-  const [words, wordElements] = React.useMemo(() => {
-    const fragments = text.split(' ');
-
-    const elems: JSX.Element[] = [];
-    for (let i = 0; i < fragments.length; i += 1) {
-      elems.push(
-        <Word data-word={fragments[i]} key={fragments[i]} onClick={undefined}>
-          {fragments[i]}
-        </Word>
-      );
-    }
-
-    return [fragments, elems];
-  }, [text]);
 
   const onClickWord = React.useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
@@ -422,6 +447,9 @@ export function Phoneditor(props: {
         }
 
         syllable.phonemes.pop();
+        if (syllable.phonemes.length === 0) {
+          syllable.stress = 'none';
+        }
       }
 
       newSyllables.push(syllable);
@@ -517,7 +545,7 @@ export function Phoneditor(props: {
     }
     setSsmlToPreview(
       `<speak>` +
-        `<phoneme alphabet="${alphabetForPreview}" ph="${combinedPhonemes}" />` +
+        `<phoneme alphabet="${alphabetForPreview}" ph="${combinedPhonemes}" />.` +
         `</speak>`
     );
     setPlayingPreview(true);
@@ -543,7 +571,11 @@ export function Phoneditor(props: {
       StressIcon = Icons.DownCircle;
     }
     syllableElements.push(
-      <Syllable current={i === currentSyllableIdx} key={`syllable-${i}`}>
+      <Syllable
+        current={i === currentSyllableIdx}
+        key={`syllable-${i}`}
+        emphasize={hasStress}
+      >
         <SyllableText>
           {syllable.phonemes.length === 0 && ' '}
           {hasStress && phonemes.en.stresses.primary[alphabet]}
@@ -568,7 +600,13 @@ export function Phoneditor(props: {
     );
   }
 
-  const nextAlphabet = alphabet === 'ipa' ? 'x-sampa' : 'ipa';
+  let nextAlphabet = alphabet;
+  for (let i = 0; i < alphabets.length; i += 1) {
+    if (alphabets.at(i - 1) !== alphabet) continue;
+
+    nextAlphabet = alphabets[i];
+    break;
+  }
 
   let canPreview = false;
   {
@@ -583,6 +621,19 @@ export function Phoneditor(props: {
 
   let modal: JSX.Element | undefined;
   if (currentWord) {
+    const devMenu = (
+      <DevMenu>
+        <span>[ DEV ]</span>
+        <Spacer />
+        <SwitchAlphabet onPress={setSplitKeyboard} value={!splitKeyboard}>
+          <Icons.Rotate /> Keyboard: {splitKeyboard ? 'split' : 'joined'}
+        </SwitchAlphabet>
+        <SwitchAlphabet onPress={setAlphabet} value={nextAlphabet}>
+          <Icons.Rotate /> Alphabet: {alphabet}
+        </SwitchAlphabet>
+      </DevMenu>
+    );
+
     modal = (
       <Modal
         actions={
@@ -626,22 +677,22 @@ export function Phoneditor(props: {
               </PlayPreview>
             </P>
             <div>
-              <Keyboard alphabet={alphabet} onInput={onInput} />
+              <Keyboard
+                alphabet={alphabet}
+                onInput={onInput}
+                split={splitKeyboard}
+              />
             </div>
+            {devMenu}
           </ModalContent>
         }
         title={
-          <ModalTitle>
-            <span>
-              Edit Pronunciation: &quot;
-              <Font weight="regular">{currentWord}</Font>&quot;
-            </span>
-            <SwitchAlphabet onPress={setAlphabet} value={nextAlphabet}>
-              [ DEV ] use {nextAlphabet}
-            </SwitchAlphabet>
-          </ModalTitle>
+          <span>
+            Edit Pronunciation: &quot;
+            <Font weight="regular">{currentWord}</Font>&quot;
+          </span>
         }
-        modalWidth={ModalWidth.Wide}
+        modalWidth={ModalWidth.Wider}
       />
     );
   }

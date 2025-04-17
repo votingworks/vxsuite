@@ -1,6 +1,7 @@
 import styled, { css } from 'styled-components';
 
 export const Tooltip = styled.span<{
+  attachTo?: 'bottom' | 'top';
   alignTo?: 'left' | 'right';
   bold?: boolean;
   opaque?: boolean;
@@ -12,7 +13,7 @@ export const Tooltip = styled.span<{
    */
   background: rgba(0, 0, 0, ${(p) => (p.opaque ? 100 : 75)}%);
   border-radius: 0.25rem;
-  bottom: calc(100% + 0.7rem);
+  bottom: calc(0.25rem + ${(p) => (p.attachTo === 'bottom' ? 0 : 100)}%);
   box-shadow: 0.1rem 0.1rem 0.2rem 0.05rem rgba(0, 0, 0, 25%);
   color: #fff;
   font-size: 1rem;
@@ -23,6 +24,7 @@ export const Tooltip = styled.span<{
   right: ${(p) => (p.alignTo === 'right' ? 0 : undefined)};
   left: ${(p) => (!p.alignTo || p.alignTo === 'left' ? 0 : undefined)};
   width: max-content;
+  z-index: 1;
 
   &:hover {
     /* Prevent it from sticking around when moving quickly between buttons. */
