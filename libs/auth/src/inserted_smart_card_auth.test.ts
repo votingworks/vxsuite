@@ -85,14 +85,15 @@ const electionKey = constructElectionKey(election);
 const otherElectionKey = constructElectionKey(readElectionTwoPartyPrimary());
 const defaultConfig: InsertedSmartCardAuthConfig = {};
 const defaultMachineState: InsertedSmartCardAuthMachineState = {
+  arePollWorkerCardPinsEnabled: false,
   electionKey,
   jurisdiction,
-  arePollWorkerCardPinsEnabled: false,
+  machineType: 'scan',
   numIncorrectPinAttemptsAllowedBeforeCardLockout:
     DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT,
+  overallSessionTimeLimitHours: DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
   startingCardLockoutDurationSeconds:
     DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS,
-  overallSessionTimeLimitHours: DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
 };
 const vendorUser = mockVendorUser({ jurisdiction });
 const systemAdministratorUser = mockSystemAdministratorUser({ jurisdiction });
@@ -679,6 +680,42 @@ test.each<{
         reason: 'certificate_not_yet_valid',
       },
     ],
+  },
+  {
+    description: 'VxPollBook-programmed card on machine other than VxPollBook',
+    config: defaultConfig,
+    machineState: { ...defaultMachineState, machineType: 'admin' },
+    cardDetails: {
+      user: { ...systemAdministratorUser, programmingMachineType: 'poll-book' },
+    },
+    expectedAuthStatus: {
+      status: 'logged_out',
+      reason: 'vx_poll_book_card_not_allowed',
+      cardJurisdiction: jurisdiction,
+      cardUserRole: 'system_administrator',
+      machineJurisdiction: jurisdiction,
+    },
+    expectedLog: [
+      LogEventId.AuthLogin,
+      'system_administrator',
+      {
+        disposition: LogDispositionStandardTypes.Failure,
+        message: 'User failed login.',
+        reason: 'vx_poll_book_card_not_allowed',
+      },
+    ],
+  },
+  {
+    description: 'VxAdmin-programmed card on VxPollBook',
+    config: defaultConfig,
+    machineState: { ...defaultMachineState, machineType: 'poll-book' },
+    cardDetails: {
+      user: { ...systemAdministratorUser, programmingMachineType: 'admin' },
+    },
+    expectedAuthStatus: {
+      status: 'checking_pin',
+      user: systemAdministratorUser,
+    },
   },
   {
     description: 'wrong jurisdiction',

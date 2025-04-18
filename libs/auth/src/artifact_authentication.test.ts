@@ -137,6 +137,19 @@ const vxAdminTestConfig: ArtifactAuthenticationConfig = {
   }),
 };
 
+const vxPollBookTestConfig: ArtifactAuthenticationConfig = {
+  signingMachineCertPath: getTestFilePath({
+    fileType: 'vx-poll-book-cert-authority-cert.pem',
+  }),
+  signingMachinePrivateKey: {
+    source: 'file',
+    path: getTestFilePath({ fileType: 'vx-poll-book-private-key.pem' }),
+  },
+  vxCertAuthorityCertPath: getTestFilePath({
+    fileType: 'vx-cert-authority-cert.pem',
+  }),
+};
+
 const vxScanTestConfig: ArtifactAuthenticationConfig = {
   signingMachineCertPath: getTestFilePath({
     fileType: 'vx-scan-cert.pem',
@@ -177,6 +190,12 @@ test.each<{
     artifactGenerator: () => electionPackage,
     exportingMachineConfig: vxAdminTestConfig,
     importingMachineConfig: vxScanTestConfig,
+  },
+  {
+    description: 'VxPollBook-signed election package',
+    artifactGenerator: () => electionPackage,
+    exportingMachineConfig: vxPollBookTestConfig,
+    importingMachineConfig: vxPollBookTestConfig,
   },
 ])(
   'Preparing signature file and authenticating artifact using signature file - $description',
