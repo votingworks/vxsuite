@@ -2,9 +2,9 @@ import * as grout from '@votingworks/grout';
 import yargs, { alias } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { safeParseInt } from '@votingworks/types';
-import type { Api } from '../src/app';
+import type { LocalApi } from '../src/app';
 
-const api = grout.createClient<Api>({
+const api = grout.createClient<LocalApi>({
   baseUrl: 'http://localhost:3002/api',
 });
 
@@ -26,6 +26,36 @@ async function checkInVoter(voterId: string) {
     });
   } catch (error) {
     console.error(`Failed to check in voter ${voterId}:`, error);
+  }
+}
+
+async function searchVoterByInitials(firstName: string, lastName: string) {
+  try {
+    const response = await api.searchVoters({
+      searchParams: {
+        firstName: firstName[0],
+        lastName: lastName[0],
+      },
+    });
+    return response;
+  } catch (error) {
+    console.error('Failed to search voter by initials:', error);
+    return [];
+  }
+}
+
+async function searchVoterByFullName(firstName: string, lastName: string) {
+  try {
+    const response = await api.searchVoters({
+      searchParams: {
+        firstName,
+        lastName,
+      },
+    });
+    return response;
+  } catch (error) {
+    console.error('Failed to search voter by full name:', error);
+    return [];
   }
 }
 
@@ -61,15 +91,59 @@ async function checkInAllVotersOnCurrentMachine(
     );
 
     let processed = 0;
+    const durations = {
+      searchByInitials: [] as number[],
+      searchByFullName: [] as number[],
+      checkIn: [] as number[],
+    };
+
+    console.time('100processed');
     for (const voter of votersToProcess) {
-      if (slow !== undefined) {
-        console.log('checking in voter', voter);
-      }
+      const startSearchByInitials = performance.now();
+      await searchVoterByInitials(voter.firstName, voter.lastName);
+      const endSearchByInitials = performance.now();
+      durations.searchByInitials.push(
+        endSearchByInitials - startSearchByInitials
+      );
+
+      const startSearchByFullName = performance.now();
+      await searchVoterByFullName(voter.firstName, voter.lastName);
+      const endSearchByFullName = performance.now();
+      durations.searchByFullName.push(
+        endSearchByFullName - startSearchByFullName
+      );
+
+      const startCheckIn = performance.now();
       await checkInVoter(voter.voterId);
+      const endCheckIn = performance.now();
+      durations.checkIn.push(endCheckIn - startCheckIn);
+
       processed += 1;
 
       if (processed % 100 === 0) {
         console.log(`Processed ${processed} voters`);
+        console.timeEnd('100processed');
+        console.time('100processed');
+
+        const calculateStats = (times: number[]) => ({
+          avg: (times.reduce((a, b) => a + b, 0) / times.length).toFixed(2),
+          min: Math.min(...times).toFixed(2),
+          max: Math.max(...times).toFixed(2),
+        });
+
+        console.log(
+          'Search by initials stats:',
+          calculateStats(durations.searchByInitials)
+        );
+        console.log(
+          'Search by full name stats:',
+          calculateStats(durations.searchByFullName)
+        );
+        console.log('Check-in stats:', calculateStats(durations.checkIn));
+
+        durations.searchByInitials = [];
+        durations.searchByFullName = [];
+        durations.checkIn = [];
       }
 
       if (slow !== undefined) {

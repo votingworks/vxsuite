@@ -1,6 +1,7 @@
 import { test, expect, vi } from 'vitest';
 import { sleep } from '@votingworks/basics';
-import { Store } from './store';
+import tmp from 'tmp';
+import { mockBaseLogger } from '@votingworks/logging';
 import {
   createValidStreetInfo,
   createVoter,
@@ -13,6 +14,23 @@ import {
   VoterAddressChangeRequest,
   VoterNameChangeRequest,
 } from './types';
+import { LocalStore } from './local_store';
+import { PeerStore } from './peer_store';
+
+function setupFileStores(machineId: string): [LocalStore, PeerStore] {
+  const workspacePath = tmp.dirSync().name;
+  const localStore = LocalStore.fileStore(
+    workspacePath,
+    mockBaseLogger({ fn: vi.fn }),
+    machineId
+  );
+  const peerStore = PeerStore.fileStore(
+    workspacePath,
+    mockBaseLogger({ fn: vi.fn }),
+    machineId
+  );
+  return [localStore, peerStore];
+}
 
 // Multi-Node test for the following scenario:
 // - PollbookA comes online
@@ -32,8 +50,8 @@ import {
 // Desired State: PollbookA and B both see Bob, Charlie and Sue as checked in with the check in for Sue coming from PollbookA
 test('offline undo with later real time check in', async () => {
   // Set up two pollbook nodes
-  const pollbookA = Store.memoryStore('pollbook-a');
-  const pollbookB = Store.memoryStore('pollbook-b');
+  const [localA, peerA] = setupFileStores('pollbook-a');
+  const [localB, peerB] = setupFileStores('pollbook-b');
 
   // Set up test election and voters
   const testElection = getTestElection();
@@ -44,76 +62,78 @@ test('offline undo with later real time check in', async () => {
   ];
 
   // Initialize both pollbooks with same election data
-  pollbookA.setElectionAndVoters(testElection, [], testVoters);
-  pollbookB.setElectionAndVoters(testElection, [], testVoters);
+  localA.setElectionAndVoters(testElection, [], testVoters);
+  localB.setElectionAndVoters(testElection, [], testVoters);
 
   // Both pollbooks come online
-  pollbookA.setOnlineStatus(true);
-  pollbookB.setOnlineStatus(true);
+  peerA.setOnlineStatus(true);
+  peerB.setOnlineStatus(true);
 
   // Bob checks in on PollbookA
-  pollbookA.recordVoterCheckIn({
+  localA.recordVoterCheckIn({
     voterId: 'bob',
     identificationMethod: { type: 'default' },
   });
-  expect(pollbookA.getCheckInCount()).toEqual(1);
+  expect(localA.getCheckInCount()).toEqual(1);
+  expect(peerA.getCheckInCount()).toEqual(1);
 
   // Charlie checks in on PollbookB
-  pollbookB.recordVoterCheckIn({
+  localB.recordVoterCheckIn({
     voterId: 'charlie',
     identificationMethod: { type: 'outOfStateLicense', state: 'al' },
   });
-  expect(pollbookB.getCheckInCount()).toEqual(1);
+  expect(localB.getCheckInCount()).toEqual(1);
+  expect(peerB.getCheckInCount()).toEqual(1);
 
   // Pollbook B syncs with Pollbook A
-  const eventsForB = syncEventsFromTo(pollbookA, pollbookB);
+  const eventsForB = syncEventsFromTo(peerA, peerB);
   expect(eventsForB.length).toEqual(1);
 
   // Pollbook A syncs with Pollbook B
-  const eventsForA = syncEventsFromTo(pollbookB, pollbookA);
+  const eventsForA = syncEventsFromTo(peerB, peerA);
   expect(eventsForA.length).toEqual(1);
 
   // Verify both pollbooks see Bob and Charlie checked in
-  expect(pollbookA.getCheckInCount()).toEqual(2);
-  expect(pollbookB.getCheckInCount()).toEqual(2);
+  expect(localA.getCheckInCount()).toEqual(2);
+  expect(localB.getCheckInCount()).toEqual(2);
 
   // PollbookB goes offline
-  pollbookB.setOnlineStatus(false);
+  peerB.setOnlineStatus(false);
 
   // Sue checks in with a CA id and then is undone on PollbookB while offline
-  pollbookB.recordVoterCheckIn({
+  localB.recordVoterCheckIn({
     voterId: 'sue',
     identificationMethod: { type: 'outOfStateLicense', state: 'ca' },
   });
-  pollbookB.recordUndoVoterCheckIn({ voterId: 'sue', reason: '' });
+  localB.recordUndoVoterCheckIn({ voterId: 'sue', reason: '' });
 
   // Wait a bit to ensure physical timestamps will be different
   await sleep(10);
 
   // Sue checks in on PollbookA
-  pollbookA.recordVoterCheckIn({
+  localA.recordVoterCheckIn({
     voterId: 'sue',
     identificationMethod: { type: 'default' },
   });
 
   // PollbookB comes back online
-  pollbookB.setOnlineStatus(true);
+  peerB.setOnlineStatus(true);
 
   // Pollbook B syncs with Pollbook A
-  const finalEventsForB = syncEventsFromTo(pollbookA, pollbookB);
+  const finalEventsForB = syncEventsFromTo(peerA, peerB);
   expect(finalEventsForB.length).toEqual(1);
 
   // Pollbook A sync with Pollbook B
-  const finalEventsForA = syncEventsFromTo(pollbookB, pollbookA);
+  const finalEventsForA = syncEventsFromTo(peerB, peerA);
   expect(finalEventsForA.length).toEqual(2);
 
   // Verify final state
   // Both pollbooks should see all three voters checked in
-  expect(pollbookA.getCheckInCount()).toEqual(3);
-  expect(pollbookB.getCheckInCount()).toEqual(3);
+  expect(localA.getCheckInCount()).toEqual(3);
+  expect(localB.getCheckInCount()).toEqual(3);
 
   // Verify Sue's check-in is from PollbookA with NH id.
-  const voters = pollbookA.searchVoters({ firstName: 'Sue', lastName: '' });
+  const voters = localA.searchVoters({ firstName: 'Sue', lastName: '' });
   expect((voters as Voter[]).length).toEqual(1);
   expect((voters as Voter[])[0].checkIn).toEqual({
     timestamp: expect.any(String),
@@ -134,57 +154,59 @@ test('bad system time nodes should be able to undo', () => {
   vi.useFakeTimers();
 
   // Set up two pollbook nodes
-  const pollbookA = Store.memoryStore('pollbook-a');
-  const pollbookB = Store.memoryStore('pollbook-b');
+  const [localA, peerA] = setupFileStores('pollbook-a');
+  const [localB, peerB] = setupFileStores('pollbook-b');
 
   // Set up test election and voters
   const testElection = getTestElection();
   const testVoters = [createVoter('bob', 'Bob', 'Smith')];
 
   // Initialize both pollbooks with same election data
-  pollbookA.setElectionAndVoters(testElection, [], testVoters);
-  pollbookB.setElectionAndVoters(testElection, [], testVoters);
+  localA.setElectionAndVoters(testElection, [], testVoters);
+  localB.setElectionAndVoters(testElection, [], testVoters);
 
   // Both pollbooks come online
-  pollbookA.setOnlineStatus(true);
-  pollbookB.setOnlineStatus(true);
+  peerA.setOnlineStatus(true);
+  peerB.setOnlineStatus(true);
 
   // Set time to 9am for PollbookB's check-in
   const nineAm = new Date('2024-01-01T09:00:00Z').getTime();
   vi.setSystemTime(nineAm);
 
   // Bob checks in on PollbookB (with correct time)
-  pollbookB.recordVoterCheckIn({
+  localB.recordVoterCheckIn({
     voterId: 'bob',
     identificationMethod: { type: 'default' },
   });
-  expect(pollbookB.getCheckInCount()).toEqual(1);
+  expect(localB.getCheckInCount()).toEqual(1);
+  expect(peerB.getCheckInCount()).toEqual(1);
 
   // PollbookA syncs events from PollbookB
-  const eventsForA = syncEventsFromTo(pollbookB, pollbookA);
+  const eventsForA = syncEventsFromTo(peerB, peerA);
   expect(eventsForA.length).toEqual(1);
-  expect(pollbookA.getCheckInCount()).toEqual(1);
+  expect(localA.getCheckInCount()).toEqual(1);
+  expect(peerA.getCheckInCount()).toEqual(1);
 
   // Set time back to 8am for PollbookA's undo operation
   const eightAm = new Date('2024-01-01T08:00:00Z').getTime();
   vi.setSystemTime(eightAm);
 
   // The bob check in is undone on PollbookA (with wrong time)
-  pollbookA.recordUndoVoterCheckIn({ voterId: 'bob', reason: '' });
-  expect(pollbookA.getCheckInCount()).toEqual(0);
+  localA.recordUndoVoterCheckIn({ voterId: 'bob', reason: '' });
+  expect(localA.getCheckInCount()).toEqual(0);
 
   // PollbookB syncs events from PollbookA
-  const eventsForB = syncEventsFromTo(pollbookA, pollbookB);
+  const eventsForB = syncEventsFromTo(peerA, peerB);
   expect(eventsForB.length).toEqual(1);
 
   // Verify final state - Bob should be marked as NOT checked in on both machines
   // even though the undo event has an earlier timestamp
-  expect(pollbookA.getCheckInCount()).toEqual(0);
-  expect(pollbookB.getCheckInCount()).toEqual(0);
+  expect(localA.getCheckInCount()).toEqual(0);
+  expect(localB.getCheckInCount()).toEqual(0);
 
   // Verify Bob's status specifically
-  const votersA = pollbookA.searchVoters({ firstName: 'Bob', lastName: '' });
-  const votersB = pollbookB.searchVoters({ firstName: 'Bob', lastName: '' });
+  const votersA = localA.searchVoters({ firstName: 'Bob', lastName: '' });
+  const votersB = localB.searchVoters({ firstName: 'Bob', lastName: '' });
   expect((votersA as Voter[])[0].checkIn).toBeUndefined();
   expect((votersB as Voter[])[0].checkIn).toBeUndefined();
 
@@ -203,9 +225,9 @@ test('bad system time nodes should be able to undo', () => {
 
 test("getting a offline machines events when I've synced with the online machine more recently", async () => {
   // Set up three pollbook nodes
-  const pollbookA = Store.memoryStore('pollbook-a');
-  const pollbookB = Store.memoryStore('pollbook-b');
-  const pollbookC = Store.memoryStore('pollbook-c');
+  const [localA, peerA] = setupFileStores('pollbook-a');
+  const [localB, peerB] = setupFileStores('pollbook-b');
+  const [localC, peerC] = setupFileStores('pollbook-c');
 
   // Set up test election and voters
   const testElection = getTestElection();
@@ -219,52 +241,55 @@ test("getting a offline machines events when I've synced with the online machine
   ];
 
   // Initialize all pollbooks with same election data
-  pollbookA.setElectionAndVoters(testElection, [], testVoters);
-  pollbookB.setElectionAndVoters(testElection, [], testVoters);
-  pollbookC.setElectionAndVoters(testElection, [], testVoters);
+  localA.setElectionAndVoters(testElection, [], testVoters);
+  localB.setElectionAndVoters(testElection, [], testVoters);
+  localC.setElectionAndVoters(testElection, [], testVoters);
 
   // All pollbooks come online
-  pollbookA.setOnlineStatus(true);
-  pollbookB.setOnlineStatus(true);
-  pollbookC.setOnlineStatus(true);
+  peerA.setOnlineStatus(true);
+  peerB.setOnlineStatus(true);
+  peerC.setOnlineStatus(true);
 
   // Alice checks in on PollbookA
-  pollbookA.recordVoterCheckIn({
+  localA.recordVoterCheckIn({
     voterId: 'alice',
     identificationMethod: { type: 'default' },
   });
-  expect(pollbookA.getCheckInCount()).toEqual(1);
+  expect(localA.getCheckInCount()).toEqual(1);
+  expect(peerA.getCheckInCount()).toEqual(1);
 
   // Bob checks in on PollbookB
-  pollbookB.recordVoterCheckIn({
+  localB.recordVoterCheckIn({
     voterId: 'bob',
     identificationMethod: { type: 'default' },
   });
-  expect(pollbookB.getCheckInCount()).toEqual(1);
+  expect(localB.getCheckInCount()).toEqual(1);
+  expect(peerB.getCheckInCount()).toEqual(1);
 
   // Carl checks in on PollbookC
-  pollbookC.recordVoterCheckIn({
+  localC.recordVoterCheckIn({
     voterId: 'carl',
     identificationMethod: { type: 'default' },
   });
-  expect(pollbookC.getCheckInCount()).toEqual(1);
+  expect(localC.getCheckInCount()).toEqual(1);
+  expect(peerC.getCheckInCount()).toEqual(1);
 
   // Sync events between all pollbooks
-  syncEventsForAllPollbooks([pollbookA, pollbookB, pollbookC]);
+  syncEventsForAllPollbooks([peerA, peerB, peerC]);
 
   // Verify all pollbooks see Alice, Bob, and Carl checked in
-  expect(pollbookA.getCheckInCount()).toEqual(3);
-  expect(pollbookB.getCheckInCount()).toEqual(3);
-  expect(pollbookC.getCheckInCount()).toEqual(3);
+  expect(localA.getCheckInCount()).toEqual(3);
+  expect(localB.getCheckInCount()).toEqual(3);
+  expect(localC.getCheckInCount()).toEqual(3);
 
   // PollbookC goes offline
-  pollbookC.setOnlineStatus(false);
+  peerC.setOnlineStatus(false);
 
   // Wait a bit to ensure physical timestamps will be different
   await sleep(10);
 
   // Sue checks in on PollbookC while offline
-  pollbookC.recordVoterCheckIn({
+  localC.recordVoterCheckIn({
     voterId: 'sue',
     identificationMethod: { type: 'default' },
   });
@@ -273,34 +298,34 @@ test("getting a offline machines events when I've synced with the online machine
   await sleep(10);
 
   // PollbookA and PollbookB check in more voters and sync events
-  pollbookA.recordVoterCheckIn({
+  localA.recordVoterCheckIn({
     voterId: 'dave',
     identificationMethod: { type: 'default' },
   });
-  pollbookB.recordVoterCheckIn({
+  localB.recordVoterCheckIn({
     voterId: 'eve',
     identificationMethod: { type: 'default' },
   });
 
   // Sync events between PollbookA and PollbookB, PollbookC is "offline" and does not sync
-  syncEventsForAllPollbooks([pollbookA, pollbookB]);
-  expect(pollbookA.getCheckInCount()).toEqual(5);
-  expect(pollbookB.getCheckInCount()).toEqual(5);
-  expect(pollbookC.getCheckInCount()).toEqual(4);
+  syncEventsForAllPollbooks([peerA, peerB]);
+  expect(localA.getCheckInCount()).toEqual(5);
+  expect(localB.getCheckInCount()).toEqual(5);
+  expect(localC.getCheckInCount()).toEqual(4);
 
   // PollbookB is shutdown
-  pollbookB.setOnlineStatus(false);
+  peerB.setOnlineStatus(false);
 
   // PollbookC rejoins the network
-  pollbookC.setOnlineStatus(true);
+  peerC.setOnlineStatus(true);
 
   // Sync events between PollbookA and PollbookC
-  syncEventsForAllPollbooks([pollbookA, pollbookC]);
+  syncEventsForAllPollbooks([peerA, peerC]);
 
   // Verify PollbookA has Carl's check-in from PollbookC
-  expect(pollbookA.getCheckInCount()).toEqual(6);
-  expect(pollbookC.getCheckInCount()).toEqual(6);
-  expect(pollbookA.searchVoters({ firstName: 'Carl', lastName: '' })).toEqual([
+  expect(localA.getCheckInCount()).toEqual(6);
+  expect(localC.getCheckInCount()).toEqual(6);
+  expect(localA.searchVoters({ firstName: 'Carl', lastName: '' })).toEqual([
     expect.objectContaining({
       voterId: 'carl',
       checkIn: expect.objectContaining({
@@ -311,17 +336,17 @@ test("getting a offline machines events when I've synced with the online machine
   ]);
 
   // PollbookC is shutdown
-  pollbookC.setOnlineStatus(false);
+  peerC.setOnlineStatus(false);
 
   // PollbookB rejoins the network
-  pollbookB.setOnlineStatus(true);
+  peerB.setOnlineStatus(true);
 
   // Sync events between PollbookA and PollbookB
-  syncEventsForAllPollbooks([pollbookA, pollbookB]);
+  syncEventsForAllPollbooks([peerA, peerB]);
 
   // Verify PollbookB has Carl's check-in from PollbookA
-  expect(pollbookB.getCheckInCount()).toEqual(6);
-  expect(pollbookB.searchVoters({ firstName: 'Carl', lastName: '' })).toEqual([
+  expect(localB.getCheckInCount()).toEqual(6);
+  expect(localB.searchVoters({ firstName: 'Carl', lastName: '' })).toEqual([
     expect.objectContaining({
       voterId: 'carl',
       checkIn: expect.objectContaining({
@@ -331,12 +356,12 @@ test("getting a offline machines events when I've synced with the online machine
     }),
   ]);
   // This is unchanged
-  expect(pollbookA.getCheckInCount()).toEqual(6);
+  expect(localA.getCheckInCount()).toEqual(6);
 });
 
 test('last write wins on double check ins', async () => {
-  const pollbookA = Store.memoryStore('pollbook-a');
-  const pollbookB = Store.memoryStore('pollbook-b');
+  const [localA, peerA] = setupFileStores('pollbook-a');
+  const [localB, peerB] = setupFileStores('pollbook-b');
 
   // Set up test election and voters
   const testElection = getTestElection();
@@ -346,34 +371,34 @@ test('last write wins on double check ins', async () => {
     createVoter('sue', 'Sue', 'Jones'),
   ];
 
-  pollbookA.setElectionAndVoters(testElection, [], testVoters);
-  pollbookB.setElectionAndVoters(testElection, [], testVoters);
+  localA.setElectionAndVoters(testElection, [], testVoters);
+  localB.setElectionAndVoters(testElection, [], testVoters);
 
-  pollbookA.setOnlineStatus(true);
-  pollbookB.setOnlineStatus(true);
+  peerA.setOnlineStatus(true);
+  peerB.setOnlineStatus(true);
 
-  pollbookA.recordVoterCheckIn({
+  localA.recordVoterCheckIn({
     voterId: 'bob',
     identificationMethod: { type: 'default' },
   });
-  expect(pollbookA.getCheckInCount()).toEqual(1);
+  expect(localA.getCheckInCount()).toEqual(1);
 
   // allow real time to pass
   await sleep(10);
 
-  pollbookB.recordVoterCheckIn({
+  localB.recordVoterCheckIn({
     voterId: 'bob',
     identificationMethod: { type: 'default' },
   });
-  expect(pollbookB.getCheckInCount()).toEqual(1);
+  expect(localB.getCheckInCount()).toEqual(1);
 
   // Sync events between all pollbooks
-  syncEventsForAllPollbooks([pollbookA, pollbookB]);
+  syncEventsForAllPollbooks([peerA, peerB]);
 
   // Verify the last write wins
-  expect(pollbookA.getCheckInCount()).toEqual(1);
-  expect(pollbookB.getCheckInCount()).toEqual(1);
-  expect(pollbookA.searchVoters({ firstName: 'Bob', lastName: '' })).toEqual([
+  expect(localA.getCheckInCount()).toEqual(1);
+  expect(localB.getCheckInCount()).toEqual(1);
+  expect(localA.searchVoters({ firstName: 'Bob', lastName: '' })).toEqual([
     expect.objectContaining({
       voterId: 'bob',
       checkIn: expect.objectContaining({
@@ -384,7 +409,7 @@ test('last write wins on double check ins', async () => {
       }),
     }),
   ]);
-  expect(pollbookB.searchVoters({ firstName: 'Bob', lastName: '' })).toEqual([
+  expect(localB.searchVoters({ firstName: 'Bob', lastName: '' })).toEqual([
     expect.objectContaining({
       voterId: 'bob',
       checkIn: expect.objectContaining({
@@ -401,46 +426,46 @@ test('last write wins even when there is bad system time after a sync', () => {
   vi.useFakeTimers();
 
   // Set up two pollbook nodes
-  const pollbookA = Store.memoryStore('pollbook-a');
-  const pollbookB = Store.memoryStore('pollbook-b');
+  const [localA, peerA] = setupFileStores('pollbook-a');
+  const [localB, peerB] = setupFileStores('pollbook-b');
 
   // Set up test election and voters
   const testElection = getTestElection();
   const testVoters = [createVoter('bob', 'Bob', 'Smith')];
 
   // Initialize both pollbooks with same election data
-  pollbookA.setElectionAndVoters(testElection, [], testVoters);
-  pollbookB.setElectionAndVoters(testElection, [], testVoters);
+  localA.setElectionAndVoters(testElection, [], testVoters);
+  localB.setElectionAndVoters(testElection, [], testVoters);
 
   // Both pollbooks come online
-  pollbookA.setOnlineStatus(true);
-  pollbookB.setOnlineStatus(true);
+  peerA.setOnlineStatus(true);
+  peerB.setOnlineStatus(true);
 
   // Set time to 9am for PollbookB's check-in
   const nineAm = new Date('2024-01-01T09:00:00Z').getTime();
   vi.setSystemTime(nineAm);
 
   // Bob checks in on PollbookB (with correct time)
-  pollbookB.recordVoterCheckIn({
+  localB.recordVoterCheckIn({
     voterId: 'bob',
     identificationMethod: { type: 'default' },
   });
-  expect(pollbookB.getCheckInCount()).toEqual(1);
+  expect(localB.getCheckInCount()).toEqual(1);
 
   // PollbookA & B sync events
-  syncEventsForAllPollbooks([pollbookA, pollbookB]);
+  syncEventsForAllPollbooks([peerA, peerB]);
 
   // Set time back to 8am for PollbookA's double check in operation
   const eightAm = new Date('2024-01-01T08:00:00Z').getTime();
   vi.setSystemTime(eightAm);
 
   // The bob check in is undone on PollbookA (with wrong time)
-  pollbookA.recordVoterCheckIn({
+  localA.recordVoterCheckIn({
     voterId: 'bob',
     identificationMethod: { type: 'default' },
   });
-  expect(pollbookA.getCheckInCount()).toEqual(1);
-  expect(pollbookA.searchVoters({ firstName: 'Bob', lastName: '' })).toEqual([
+  expect(localA.getCheckInCount()).toEqual(1);
+  expect(localA.searchVoters({ firstName: 'Bob', lastName: '' })).toEqual([
     expect.objectContaining({
       voterId: 'bob',
       checkIn: expect.objectContaining({
@@ -453,11 +478,11 @@ test('last write wins even when there is bad system time after a sync', () => {
   ]);
 
   // PollbookB syncs events from PollbookA
-  syncEventsForAllPollbooks([pollbookA, pollbookB]);
-  expect(pollbookA.getCheckInCount()).toEqual(1);
-  expect(pollbookB.getCheckInCount()).toEqual(1);
+  syncEventsForAllPollbooks([peerA, peerB]);
+  expect(localA.getCheckInCount()).toEqual(1);
+  expect(localB.getCheckInCount()).toEqual(1);
 
-  expect(pollbookA.searchVoters({ firstName: 'Bob', lastName: '' })).toEqual([
+  expect(localA.searchVoters({ firstName: 'Bob', lastName: '' })).toEqual([
     expect.objectContaining({
       voterId: 'bob',
       checkIn: expect.objectContaining({
@@ -468,7 +493,7 @@ test('last write wins even when there is bad system time after a sync', () => {
       }),
     }),
   ]);
-  expect(pollbookB.searchVoters({ firstName: 'Bob', lastName: '' })).toEqual([
+  expect(localB.searchVoters({ firstName: 'Bob', lastName: '' })).toEqual([
     expect.objectContaining({
       voterId: 'bob',
       checkIn: expect.objectContaining({
@@ -489,9 +514,9 @@ test('simultaneous events are handled properly', () => {
   vi.setSystemTime(nineAm);
 
   // Set up two pollbook nodes
-  const pollbookA = Store.memoryStore('pollbook-a');
-  const pollbookB = Store.memoryStore('pollbook-b');
-  const pollbookC = Store.memoryStore('pollbook-c');
+  const [localA, peerA] = setupFileStores('pollbook-a');
+  const [localB, peerB] = setupFileStores('pollbook-b');
+  const [localC, peerC] = setupFileStores('pollbook-c');
 
   // Set up test election and voters
   const testElection = getTestElection();
@@ -502,53 +527,53 @@ test('simultaneous events are handled properly', () => {
   ];
 
   // Initialize both pollbooks with same election data
-  pollbookA.setElectionAndVoters(testElection, [], testVoters);
-  pollbookB.setElectionAndVoters(testElection, [], testVoters);
-  pollbookC.setElectionAndVoters(testElection, [], testVoters);
+  localA.setElectionAndVoters(testElection, [], testVoters);
+  localB.setElectionAndVoters(testElection, [], testVoters);
+  localC.setElectionAndVoters(testElection, [], testVoters);
 
   // Both pollbooks come online
-  pollbookA.setOnlineStatus(true);
-  pollbookB.setOnlineStatus(true);
-  pollbookC.setOnlineStatus(true);
+  peerA.setOnlineStatus(true);
+  peerB.setOnlineStatus(true);
+  peerC.setOnlineStatus(true);
 
   // Charlie checks in and then is undone on pollbookA
-  pollbookA.recordVoterCheckIn({
+  localA.recordVoterCheckIn({
     voterId: 'charlie',
     identificationMethod: { type: 'default' },
   });
-  expect(pollbookA.getCheckInCount()).toEqual(1);
-  pollbookA.recordUndoVoterCheckIn({ voterId: 'charlie', reason: '' });
-  expect(pollbookA.getCheckInCount()).toEqual(0);
+  expect(localA.getCheckInCount()).toEqual(1);
+  localA.recordUndoVoterCheckIn({ voterId: 'charlie', reason: '' });
+  expect(localA.getCheckInCount()).toEqual(0);
 
   // Bob checks in on PollbookB (with correct time)
-  pollbookB.recordVoterCheckIn({
+  localB.recordVoterCheckIn({
     voterId: 'bob',
     identificationMethod: { type: 'default' },
   });
-  expect(pollbookB.getCheckInCount()).toEqual(1);
+  expect(localB.getCheckInCount()).toEqual(1);
 
   // Sue checks in on PollbookC
-  pollbookC.recordVoterCheckIn({
+  localC.recordVoterCheckIn({
     voterId: 'sue',
     identificationMethod: { type: 'default' },
   });
-  expect(pollbookC.getCheckInCount()).toEqual(1);
+  expect(localC.getCheckInCount()).toEqual(1);
 
   // Pollbooks sync events
-  syncEventsForAllPollbooks([pollbookA, pollbookB, pollbookC]);
+  syncEventsForAllPollbooks([peerA, peerB, peerC]);
 
-  expect(pollbookA.getCheckInCount()).toEqual(2);
-  expect(pollbookB.getCheckInCount()).toEqual(2);
-  expect(pollbookC.getCheckInCount()).toEqual(2);
+  expect(localA.getCheckInCount()).toEqual(2);
+  expect(localB.getCheckInCount()).toEqual(2);
+  expect(localC.getCheckInCount()).toEqual(2);
 
   vi.useRealTimers();
 });
 
 test('late-arriving older event with a more recent undo', () => {
   // Set up three pollbook nodes
-  const pollbookA = Store.memoryStore('pollbook-a');
-  const pollbookB = Store.memoryStore('pollbook-b');
-  const pollbookC = Store.memoryStore('pollbook-c');
+  const [localA, peerA] = setupFileStores('pollbook-a');
+  const [localB, peerB] = setupFileStores('pollbook-b');
+  const [localC, peerC] = setupFileStores('pollbook-c');
 
   // Set up test election and voters
   const testElection = getTestElection();
@@ -558,77 +583,77 @@ test('late-arriving older event with a more recent undo', () => {
   ];
 
   // Initialize all pollbooks with same election data
-  pollbookA.setElectionAndVoters(testElection, [], testVoters);
-  pollbookB.setElectionAndVoters(testElection, [], testVoters);
-  pollbookC.setElectionAndVoters(testElection, [], testVoters);
+  localA.setElectionAndVoters(testElection, [], testVoters);
+  localB.setElectionAndVoters(testElection, [], testVoters);
+  localC.setElectionAndVoters(testElection, [], testVoters);
 
   // Pollbook A and B come online
-  pollbookA.setOnlineStatus(true);
-  pollbookB.setOnlineStatus(true);
+  peerA.setOnlineStatus(true);
+  peerB.setOnlineStatus(true);
 
   // Oscar checks in on PollbookB
-  pollbookB.recordVoterCheckIn({
+  localB.recordVoterCheckIn({
     voterId: 'oscar',
     identificationMethod: { type: 'default' },
   });
-  expect(pollbookB.getCheckInCount()).toEqual(1);
+  expect(localB.getCheckInCount()).toEqual(1);
 
   // Pollbook A syncs with Pollbook B
-  syncEventsForAllPollbooks([pollbookB, pollbookA]);
-  expect(pollbookA.getCheckInCount()).toEqual(1);
-  expect(pollbookB.getCheckInCount()).toEqual(1);
+  syncEventsForAllPollbooks([peerB, peerA]);
+  expect(localA.getCheckInCount()).toEqual(1);
+  expect(localB.getCheckInCount()).toEqual(1);
 
   // Pollbook B undoes Oscar's check-in
-  pollbookB.recordUndoVoterCheckIn({ voterId: 'oscar', reason: '' });
-  expect(pollbookB.getCheckInCount()).toEqual(0);
+  localB.recordUndoVoterCheckIn({ voterId: 'oscar', reason: '' });
+  expect(localB.getCheckInCount()).toEqual(0);
 
   // Pollbook B goes offline
-  pollbookB.setOnlineStatus(false);
+  peerB.setOnlineStatus(false);
 
   // Pollbook C comes online
-  pollbookC.setOnlineStatus(true);
+  peerC.setOnlineStatus(true);
 
   // Penny checks in on PollbookC
-  pollbookC.recordVoterCheckIn({
+  localC.recordVoterCheckIn({
     voterId: 'penny',
     identificationMethod: { type: 'default' },
   });
-  expect(pollbookC.getCheckInCount()).toEqual(1);
+  expect(localC.getCheckInCount()).toEqual(1);
 
   // Pollbook C syncs with Pollbook A
-  syncEventsForAllPollbooks([pollbookC, pollbookA]);
-  expect(pollbookA.getCheckInCount()).toEqual(2);
-  expect(pollbookC.getCheckInCount()).toEqual(2);
+  syncEventsForAllPollbooks([peerC, peerA]);
+  expect(localA.getCheckInCount()).toEqual(2);
+  expect(localC.getCheckInCount()).toEqual(2);
 
   // Pollbook A goes offline
-  pollbookA.setOnlineStatus(false);
+  peerA.setOnlineStatus(false);
 
   // Pollbook B comes online and syncs with Pollbook C
-  pollbookB.setOnlineStatus(true);
-  syncEventsForAllPollbooks([pollbookC, pollbookB]);
-  expect(pollbookB.getCheckInCount()).toEqual(1);
-  expect(pollbookC.getCheckInCount()).toEqual(1);
+  peerB.setOnlineStatus(true);
+  syncEventsForAllPollbooks([peerC, peerB]);
+  expect(localB.getCheckInCount()).toEqual(1);
+  expect(localC.getCheckInCount()).toEqual(1);
 
   // Pollbook A comes back online and syncs with Pollbook B
-  pollbookA.setOnlineStatus(true);
-  syncEventsForAllPollbooks([pollbookB, pollbookA]);
+  peerA.setOnlineStatus(true);
+  syncEventsForAllPollbooks([peerB, peerA]);
 
   // Verify final state
-  expect(pollbookA.getCheckInCount()).toEqual(1);
-  expect(pollbookB.getCheckInCount()).toEqual(1);
-  expect(pollbookC.getCheckInCount()).toEqual(1);
+  expect(localA.getCheckInCount()).toEqual(1);
+  expect(localB.getCheckInCount()).toEqual(1);
+  expect(localC.getCheckInCount()).toEqual(1);
 
   // Verify Oscar is undone and Penny is checked in
-  const oscarA = pollbookA.searchVoters({ firstName: 'Oscar', lastName: '' });
-  const oscarB = pollbookB.searchVoters({ firstName: 'Oscar', lastName: '' });
-  const oscarC = pollbookC.searchVoters({ firstName: 'Oscar', lastName: '' });
+  const oscarA = localA.searchVoters({ firstName: 'Oscar', lastName: '' });
+  const oscarB = localB.searchVoters({ firstName: 'Oscar', lastName: '' });
+  const oscarC = localC.searchVoters({ firstName: 'Oscar', lastName: '' });
   expect((oscarA as Voter[])[0].checkIn).toBeUndefined();
   expect((oscarB as Voter[])[0].checkIn).toBeUndefined();
   expect((oscarC as Voter[])[0].checkIn).toBeUndefined();
 
-  const pennyA = pollbookA.searchVoters({ firstName: 'Penny', lastName: '' });
-  const pennyB = pollbookB.searchVoters({ firstName: 'Penny', lastName: '' });
-  const pennyC = pollbookC.searchVoters({ firstName: 'Penny', lastName: '' });
+  const pennyA = localA.searchVoters({ firstName: 'Penny', lastName: '' });
+  const pennyB = localB.searchVoters({ firstName: 'Penny', lastName: '' });
+  const pennyC = localC.searchVoters({ firstName: 'Penny', lastName: '' });
   expect((pennyA as Voter[])[0].checkIn).toBeDefined();
   expect((pennyB as Voter[])[0].checkIn).toBeDefined();
   expect((pennyC as Voter[])[0].checkIn).toBeDefined();
@@ -636,8 +661,8 @@ test('late-arriving older event with a more recent undo', () => {
 
 test('all possible events are synced', () => {
   // Set up two pollbook nodes
-  const pollbookA = Store.memoryStore('pollbook-a');
-  const pollbookB = Store.memoryStore('pollbook-b');
+  const [localA, peerA] = setupFileStores('pollbook-a');
+  const [localB, peerB] = setupFileStores('pollbook-b');
 
   // Set up test election and voters
   const testElection = getTestElection();
@@ -647,20 +672,20 @@ test('all possible events are synced', () => {
   ];
 
   // Initialize all pollbooks with same election data
-  pollbookA.setElectionAndVoters(
+  localA.setElectionAndVoters(
     testElection,
     [createValidStreetInfo('MAIN ST', 'odd', 1, 15)],
     testVoters
   );
-  pollbookB.setElectionAndVoters(
+  localB.setElectionAndVoters(
     testElection,
     [createValidStreetInfo('MAIN ST', 'odd', 1, 15)],
     testVoters
   );
 
   // Pollbook A and B come online
-  pollbookA.setOnlineStatus(true);
-  pollbookB.setOnlineStatus(true);
+  peerA.setOnlineStatus(true);
+  peerB.setOnlineStatus(true);
 
   const nameChangeData: VoterNameChangeRequest = {
     firstName: 'Ozcar',
@@ -670,7 +695,7 @@ test('all possible events are synced', () => {
   };
 
   // Pollbook A changes name for Oscar
-  pollbookA.changeVoterName('oscar', nameChangeData);
+  localA.changeVoterName('oscar', nameChangeData);
 
   const addressChangeData: VoterAddressChangeRequest = {
     streetNumber: '15',
@@ -685,10 +710,10 @@ test('all possible events are synced', () => {
     zipCode: '03101',
   };
   // Pollbook A changes address for Penny
-  pollbookA.changeVoterAddress('penny', addressChangeData);
+  localA.changeVoterAddress('penny', addressChangeData);
 
   // Register a vew voter on Pollbook B
-  pollbookB.registerVoter({
+  localB.registerVoter({
     firstName: 'New',
     middleName: 'Voter',
     lastName: 'Test',
@@ -706,15 +731,15 @@ test('all possible events are synced', () => {
     zipCode: '03101',
   });
   // Pollbook A syncs with Pollbook B
-  syncEventsForAllPollbooks([pollbookA, pollbookB]);
+  syncEventsForAllPollbooks([peerA, peerB]);
 
   // No one should be checked in
-  expect(pollbookA.getCheckInCount()).toEqual(0);
-  expect(pollbookB.getCheckInCount()).toEqual(0);
+  expect(localA.getCheckInCount()).toEqual(0);
+  expect(localB.getCheckInCount()).toEqual(0);
 
   // Both pollbooks should have the same number of voters
-  for (const pollbook of [pollbookA, pollbookB]) {
-    const voters = pollbook.getAllVoters();
+  for (const pollbook of [localA, localB]) {
+    const voters = pollbook.getAllVotersSorted();
     expect(voters).toHaveLength(3);
     expect(voters).toMatchObject([
       expect.objectContaining({
@@ -757,16 +782,330 @@ test('all possible events are synced', () => {
     ]);
   }
   // Check in all voters and sync events again.
-  const allVoters = pollbookA.getAllVoters();
+  const allVoters = localA.getAllVotersSorted();
   for (const voter of allVoters) {
-    pollbookA.recordVoterCheckIn({
+    localA.recordVoterCheckIn({
       voterId: voter.voterId,
       identificationMethod: { type: 'default' },
     });
   }
   // Sync events between all pollbooks
-  syncEventsForAllPollbooks([pollbookA, pollbookB]);
+  syncEventsForAllPollbooks([peerA, peerB]);
   // Verify all pollbooks see all voters checked in
-  expect(pollbookA.getCheckInCount()).toEqual(3);
-  expect(pollbookB.getCheckInCount()).toEqual(3);
+  expect(localA.getCheckInCount()).toEqual(3);
+  expect(localB.getCheckInCount()).toEqual(3);
+});
+
+// Register a voter on one machine, check in on another, then change name/address on a third
+// and verify all changes sync correctly.
+test('register on A, check in on B, name/address change on C, sync all', () => {
+  const [localA, peerA] = setupFileStores('pollbook-a');
+  const [localB, peerB] = setupFileStores('pollbook-b');
+  const [localC, peerC] = setupFileStores('pollbook-c');
+  const testElection = getTestElection();
+  const streets = [createValidStreetInfo('MAIN', 'even', 2, 10)];
+  localA.setElectionAndVoters(testElection, streets, []);
+  localB.setElectionAndVoters(testElection, streets, []);
+  localC.setElectionAndVoters(testElection, streets, []);
+  peerA.setOnlineStatus(true);
+  peerB.setOnlineStatus(true);
+  peerC.setOnlineStatus(true);
+
+  // Register voter on A
+  const { voter } = localA.registerVoter({
+    firstName: 'Reg',
+    middleName: '',
+    lastName: 'Tester',
+    suffix: '',
+    streetNumber: '4',
+    streetSuffix: '',
+    streetName: 'MAIN',
+    apartmentUnitNumber: '',
+    houseFractionNumber: '',
+    addressLine2: '',
+    addressLine3: '',
+    city: 'Manchester',
+    state: 'NH',
+    zipCode: '03101',
+    party: 'DEM',
+  });
+  syncEventsForAllPollbooks([peerA, peerB, peerC]);
+  // Check in on B
+  localB.recordVoterCheckIn({
+    voterId: voter.voterId,
+    identificationMethod: { type: 'default' },
+  });
+  syncEventsForAllPollbooks([peerA, peerB, peerC]);
+  // Name and address change on C
+  localC.changeVoterName(voter.voterId, {
+    firstName: 'Reginald',
+    middleName: '',
+    lastName: 'Tester',
+    suffix: 'Jr.',
+  });
+  localC.changeVoterAddress(voter.voterId, {
+    streetNumber: '6',
+    streetSuffix: '',
+    streetName: 'MAIN',
+    apartmentUnitNumber: '',
+    houseFractionNumber: '',
+    addressLine2: '',
+    addressLine3: '',
+    city: 'Manchester',
+    state: 'NH',
+    zipCode: '03101',
+  });
+  syncEventsForAllPollbooks([peerA, peerB, peerC]);
+  // All pollbooks should see all changes
+  for (const store of [localA, localB, localC]) {
+    const v = store.getVoter(voter.voterId);
+    expect(v.checkIn).toBeDefined();
+    expect(v.nameChange).toMatchObject({
+      firstName: 'Reginald',
+      suffix: 'Jr.',
+    });
+    expect(v.addressChange).toMatchObject({
+      streetName: 'MAIN',
+      streetNumber: '6',
+    });
+  }
+});
+
+// Last write wins for name/address changes, including with bad system time after sync
+test('last write wins for name/address changes with bad system time after sync', () => {
+  vi.useFakeTimers();
+  const [localA, peerA] = setupFileStores('pollbook-a');
+  const [localB, peerB] = setupFileStores('pollbook-b');
+  const testElection = getTestElection();
+  const voters = [
+    createVoter('tim', 'Tim', 'Traveler'),
+    createVoter('tia', 'Tia', 'Traveler'),
+  ];
+  const streets = [createValidStreetInfo('MAPLE', 'even', 2, 400)];
+  localA.setElectionAndVoters(testElection, streets, voters);
+  localB.setElectionAndVoters(testElection, streets, voters);
+  peerA.setOnlineStatus(true);
+  peerB.setOnlineStatus(true);
+  // Name change on A at 9am
+  const nineAm = new Date('2024-01-01T09:00:00Z').getTime();
+  vi.setSystemTime(nineAm);
+  localA.changeVoterName('tim', {
+    firstName: 'Timothy',
+    middleName: '',
+    lastName: 'Traveler',
+    suffix: '',
+  });
+  localA.changeVoterName('tia', {
+    firstName: 'Tiara',
+    middleName: '',
+    lastName: 'Traveler',
+    suffix: '',
+  });
+
+  // Name changes on B at 8am (bad clock)
+  const eightAm = new Date('2024-01-01T08:00:00Z').getTime();
+  vi.setSystemTime(eightAm);
+
+  // Tia name change is before the sync, this will create an older event then pollbookA
+  localB.changeVoterName('tia', {
+    firstName: 'Tamara',
+    middleName: '',
+    lastName: 'Traveler',
+    suffix: '',
+  });
+
+  // Sync
+  syncEventsForAllPollbooks([peerA, peerB]);
+
+  // Tim name change is after the sync, this will create a later event then pollbookA
+  localB.changeVoterName('tim', {
+    firstName: 'Tim',
+    middleName: 'E',
+    lastName: 'Traveler',
+    suffix: '',
+  });
+  // Sync again
+  syncEventsForAllPollbooks([peerA, peerB]);
+  // Last write wins: both should see Tim E, and Tiara
+  for (const store of [localA, localB]) {
+    const v = store.getVoter('tim');
+    expect(v.nameChange).toMatchObject({ firstName: 'Tim', middleName: 'E' });
+    const v2 = store.getVoter('tia');
+    expect(v2.nameChange).toMatchObject({ firstName: 'Tiara', middleName: '' });
+  }
+  // Address change on A at 10am
+  const tenAm = new Date('2024-01-01T10:00:00Z').getTime();
+  vi.setSystemTime(tenAm);
+  localA.changeVoterAddress('tim', {
+    streetNumber: '100',
+    streetSuffix: '',
+    streetName: 'MAPLE',
+    apartmentUnitNumber: '',
+    houseFractionNumber: '',
+    addressLine2: '',
+    addressLine3: '',
+    city: 'Manchester',
+    state: 'NH',
+    zipCode: '03101',
+  });
+  // Address change on B at 7am (bad clock, but after sync)
+  const sevenAm = new Date('2024-01-01T07:00:00Z').getTime();
+  vi.setSystemTime(sevenAm);
+  // Sync events so the logical clock should increment
+  syncEventsFromTo(peerA, peerB);
+
+  localB.changeVoterAddress('tim', {
+    streetNumber: '200',
+    streetSuffix: '',
+    streetName: 'MAPLE',
+    apartmentUnitNumber: '',
+    houseFractionNumber: '',
+    addressLine2: '',
+    addressLine3: '',
+    city: 'Manchester',
+    state: 'NH',
+    zipCode: '03101',
+  });
+  // Sync again
+  syncEventsForAllPollbooks([peerA, peerB]);
+  // Last write wins: both should see Oak/200
+  for (const store of [localA, localB]) {
+    const v = store.getVoter('tim');
+    expect(v.addressChange).toMatchObject({
+      streetName: 'MAPLE',
+      streetNumber: '200',
+    });
+  }
+  vi.useRealTimers();
+});
+
+// Register, check in, then change name/address, and verify sync
+test('register, check in, then change name/address, sync', () => {
+  const [localA, peerA] = setupFileStores('pollbook-a');
+  const [localB, peerB] = setupFileStores('pollbook-b');
+  const testElection = getTestElection();
+  const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
+  localA.setElectionAndVoters(testElection, streets, []);
+  localB.setElectionAndVoters(testElection, streets, []);
+  peerA.setOnlineStatus(true);
+  peerB.setOnlineStatus(true);
+  // Register on A
+  const { voter } = localA.registerVoter({
+    firstName: 'Sam',
+    middleName: '',
+    lastName: 'Sync',
+    suffix: '',
+    streetNumber: '7',
+    streetSuffix: '',
+    streetName: 'PEGASUS',
+    apartmentUnitNumber: '',
+    houseFractionNumber: '',
+    addressLine2: '',
+    addressLine3: '',
+    city: 'Manchester',
+    state: 'NH',
+    zipCode: '03101',
+    party: 'DEM',
+  });
+  syncEventsForAllPollbooks([peerA, peerB]);
+  // Check in on A
+  localA.recordVoterCheckIn({
+    voterId: voter.voterId,
+    identificationMethod: { type: 'default' },
+  });
+  // Name and address change on B
+  localB.changeVoterName(voter.voterId, {
+    firstName: 'Samuel',
+    middleName: '',
+    lastName: 'Sync',
+    suffix: '',
+  });
+  localB.changeVoterAddress(voter.voterId, {
+    streetNumber: '9',
+    streetSuffix: '',
+    streetName: 'PEGASUS',
+    apartmentUnitNumber: '',
+    houseFractionNumber: '',
+    addressLine2: '',
+    addressLine3: '',
+    city: 'Manchester',
+    state: 'NH',
+    zipCode: '03101',
+  });
+  syncEventsForAllPollbooks([peerA, peerB]);
+  // Both should see all changes
+  for (const store of [localA, localB]) {
+    const v = store.getVoter(voter.voterId);
+    expect(v.checkIn).toBeDefined();
+    expect(v.nameChange).toMatchObject({ firstName: 'Samuel' });
+    expect(v.addressChange).toMatchObject({
+      streetName: 'PEGASUS',
+      streetNumber: '9',
+    });
+  }
+});
+
+// Simultaneous name/address changes on different machines, then sync and verify last write wins
+test('simultaneous name/address changes, last write wins', async () => {
+  const [localA, peerA] = setupFileStores('pollbook-a');
+  const [localB, peerB] = setupFileStores('pollbook-b');
+  const testElection = getTestElection();
+  const voter = createVoter('sim', 'Sim', 'Multi');
+  const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
+  localA.setElectionAndVoters(testElection, streets, [voter]);
+  localB.setElectionAndVoters(testElection, streets, [voter]);
+  peerA.setOnlineStatus(true);
+  peerB.setOnlineStatus(true);
+  // Name change on A
+  localA.changeVoterName('sim', {
+    firstName: 'Simone',
+    middleName: '',
+    lastName: 'Multi',
+    suffix: '',
+  });
+  // Name change on B (should win after sync)
+  await sleep(10);
+  localB.changeVoterName('sim', {
+    firstName: 'Simon',
+    middleName: '',
+    lastName: 'Multi',
+    suffix: '',
+  });
+  // Address change on A
+  localA.changeVoterAddress('sim', {
+    streetNumber: '11',
+    streetSuffix: '',
+    streetName: 'PEGASUS',
+    apartmentUnitNumber: '',
+    houseFractionNumber: '',
+    addressLine2: '',
+    addressLine3: '',
+    city: 'Manchester',
+    state: 'NH',
+    zipCode: '03101',
+  });
+  // Address change on B (should win after sync)
+  await sleep(10);
+  localB.changeVoterAddress('sim', {
+    streetNumber: '15',
+    streetSuffix: '',
+    streetName: 'PEGASUS',
+    apartmentUnitNumber: '',
+    houseFractionNumber: '',
+    addressLine2: '',
+    addressLine3: '',
+    city: 'Manchester',
+    state: 'NH',
+    zipCode: '03101',
+  });
+  syncEventsForAllPollbooks([peerA, peerB]);
+  // Both should see last write for name and address
+  for (const store of [localA, localB]) {
+    const v = store.getVoter('sim');
+    expect(v.nameChange).toMatchObject({ firstName: 'Simon' });
+    expect(v.addressChange).toMatchObject({
+      streetName: 'PEGASUS',
+      streetNumber: '15',
+    });
+  }
 });

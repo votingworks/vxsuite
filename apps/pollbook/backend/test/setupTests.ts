@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, expect, vi } from 'vitest';
+import { afterAll, beforeAll, beforeEach, expect, vi } from 'vitest';
 import {
   clearTemporaryRootDir,
   setupTemporaryRootDir,
@@ -21,6 +21,7 @@ afterAll(async () => {
 vi.mock(import('nanoid'), () => ({
   customAlphabet: () => () => idFactory.next(),
 }));
+beforeEach(() => idFactory.reset());
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
