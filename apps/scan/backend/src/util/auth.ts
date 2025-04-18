@@ -12,11 +12,13 @@ export function constructAuthMachineState(
 ): InsertedSmartCardAuthMachineState {
   const electionKey = store.getElectionKey();
   const jurisdiction = store.getJurisdiction();
+  const machineType = 'scan';
   const systemSettings = store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
   return {
     ...systemSettings.auth,
     electionKey,
     jurisdiction,
+    machineType,
   };
 }
 

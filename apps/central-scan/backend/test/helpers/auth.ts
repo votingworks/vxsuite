@@ -17,6 +17,7 @@ export function mockElectionManagerAuth(
     user: {
       role: 'election_manager',
       jurisdiction,
+      programmingMachineType: 'admin',
       electionKey: constructElectionKey(electionDefinition.election),
     },
     sessionExpiresAt: mockSessionExpiresAt(),
@@ -32,6 +33,7 @@ export function mockSystemAdministratorAuth(
     user: {
       role: 'system_administrator',
       jurisdiction,
+      programmingMachineType: 'admin',
     },
     sessionExpiresAt: mockSessionExpiresAt(),
     programmableCard: { status: 'no_card' },

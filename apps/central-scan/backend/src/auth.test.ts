@@ -61,6 +61,7 @@ afterEach(() => {
 });
 
 const jurisdiction = TEST_JURISDICTION;
+const machineType = 'central-scan';
 const electionDefinition =
   electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 const { electionData, election } = electionDefinition;
@@ -96,9 +97,10 @@ test('getAuthStatus', async () => {
   await apiClient.getAuthStatus();
   expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
   expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, {
+    ...systemSettings.auth,
     electionKey,
     jurisdiction,
-    ...systemSettings.auth,
+    machineType,
   });
 });
 
@@ -109,7 +111,7 @@ test('checkPin', async () => {
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
   expect(auth.checkPin).toHaveBeenNthCalledWith(
     1,
-    { electionKey, jurisdiction, ...systemSettings.auth },
+    { ...systemSettings.auth, electionKey, jurisdiction, machineType },
     { pin: '123456' }
   );
 });
@@ -120,9 +122,10 @@ test('logOut', async () => {
   await apiClient.logOut();
   expect(auth.logOut).toHaveBeenCalledTimes(1);
   expect(auth.logOut).toHaveBeenNthCalledWith(1, {
+    ...systemSettings.auth,
     electionKey,
     jurisdiction,
-    ...systemSettings.auth,
+    machineType,
   });
 });
 
@@ -136,9 +139,10 @@ test('updateSessionExpiry', async () => {
   expect(auth.updateSessionExpiry).toHaveBeenNthCalledWith(
     1,
     {
+      ...systemSettings.auth,
       electionKey,
       jurisdiction,
-      ...systemSettings.auth,
+      machineType,
     },
     { sessionExpiresAt: expect.any(Date) }
   );
@@ -147,10 +151,10 @@ test('updateSessionExpiry', async () => {
 test('getAuthStatus before election definition has been configured', async () => {
   await apiClient.getAuthStatus();
   expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
-  expect(auth.getAuthStatus).toHaveBeenNthCalledWith(
-    1,
-    DEFAULT_SYSTEM_SETTINGS.auth
-  );
+  expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, {
+    ...DEFAULT_SYSTEM_SETTINGS.auth,
+    machineType,
+  });
 });
 
 test('checkPin before election definition has been configured', async () => {
@@ -158,7 +162,7 @@ test('checkPin before election definition has been configured', async () => {
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
   expect(auth.checkPin).toHaveBeenNthCalledWith(
     1,
-    DEFAULT_SYSTEM_SETTINGS.auth,
+    { ...DEFAULT_SYSTEM_SETTINGS.auth, machineType },
     {
       pin: '123456',
     }
@@ -168,7 +172,10 @@ test('checkPin before election definition has been configured', async () => {
 test('logOut before election definition has been configured', async () => {
   await apiClient.logOut();
   expect(auth.logOut).toHaveBeenCalledTimes(1);
-  expect(auth.logOut).toHaveBeenNthCalledWith(1, DEFAULT_SYSTEM_SETTINGS.auth);
+  expect(auth.logOut).toHaveBeenNthCalledWith(1, {
+    ...DEFAULT_SYSTEM_SETTINGS.auth,
+    machineType,
+  });
 });
 
 test('updateSessionExpiry before election definition has been configured', async () => {
@@ -178,7 +185,7 @@ test('updateSessionExpiry before election definition has been configured', async
   expect(auth.updateSessionExpiry).toHaveBeenCalledTimes(1);
   expect(auth.updateSessionExpiry).toHaveBeenNthCalledWith(
     1,
-    DEFAULT_SYSTEM_SETTINGS.auth,
+    { ...DEFAULT_SYSTEM_SETTINGS.auth, machineType },
     { sessionExpiresAt: expect.any(Date) }
   );
 });
