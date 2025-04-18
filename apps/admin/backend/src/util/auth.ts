@@ -25,6 +25,7 @@ export function constructAuthMachineState(
     return {
       ...DEFAULT_SYSTEM_SETTINGS.auth,
       jurisdiction,
+      machineType: 'admin',
     };
   }
 
@@ -33,6 +34,7 @@ export function constructAuthMachineState(
     ...systemSettings.auth,
     electionKey: workspace.store.getElectionKey(electionId),
     jurisdiction,
+    machineType: 'admin',
   };
 }
 

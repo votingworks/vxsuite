@@ -16,6 +16,7 @@ import {
 import {
   Byte,
   constructElectionKey,
+  ProgrammingMachineType,
   TEST_JURISDICTION,
 } from '@votingworks/types';
 
@@ -127,6 +128,22 @@ const configWithVxAdminCardProgrammingConfig: JavaCardConfig = {
       source: 'file',
       path: getTestFilePath({
         fileType: 'vx-admin-private-key.pem',
+      }),
+    },
+  },
+};
+
+const configWithVxPollBookCardProgrammingConfig: JavaCardConfig = {
+  ...config,
+  cardProgrammingConfig: {
+    configType: 'machine',
+    machineCertAuthorityCertPath: getTestFilePath({
+      fileType: 'vx-poll-book-cert-authority-cert.pem',
+    }),
+    machinePrivateKey: {
+      source: 'file',
+      path: getTestFilePath({
+        fileType: 'vx-poll-book-private-key.pem',
       }),
     },
   },
@@ -395,11 +412,20 @@ test.each<{
   vxCertAuthorityCert: TestFileSetId;
   cardVxCert: TestFileSetId;
   // Use null to indicate that the relevant data is not expected to be retrieved or used
-  cardIdentityCert: TestFileSetId | null;
+  cardIdentityCert: {
+    programmingMachineType: ProgrammingMachineType;
+    setId: TestFileSetId;
+  } | null;
   isCardIdentityCertExpired?: boolean;
-  programmingMachineCertAuthorityCert: TestFileSetId | null;
+  programmingMachineCertAuthorityCert: {
+    machineType: ProgrammingMachineType;
+    setId: TestFileSetId;
+  } | null;
   cardVxPrivateKey: TestFileSetId | null;
-  cardIdentityPrivateKey: TestFileSetId | null;
+  cardIdentityPrivateKey: {
+    programmingMachineType: ProgrammingMachineType;
+    setId: TestFileSetId;
+  } | null;
   numRemainingPinAttempts: number | Error | null;
   expectedCardDetails: CardDetails;
 }>([
@@ -408,7 +434,7 @@ test.each<{
     cardType: 'vendor',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
-    cardIdentityCert: '1',
+    cardIdentityCert: { setId: '1', programmingMachineType: 'admin' },
     programmingMachineCertAuthorityCert: null,
     cardVxPrivateKey: '1',
     cardIdentityPrivateKey: null,
@@ -422,8 +448,8 @@ test.each<{
     cardType: 'system-administrator',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
-    cardIdentityCert: '1',
-    programmingMachineCertAuthorityCert: '1',
+    cardIdentityCert: { setId: '1', programmingMachineType: 'admin' },
+    programmingMachineCertAuthorityCert: { setId: '1', machineType: 'admin' },
     cardVxPrivateKey: '1',
     cardIdentityPrivateKey: null,
     numRemainingPinAttempts: MAX_NUM_INCORRECT_PIN_ATTEMPTS,
@@ -436,8 +462,8 @@ test.each<{
     cardType: 'election-manager',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
-    cardIdentityCert: '1',
-    programmingMachineCertAuthorityCert: '1',
+    cardIdentityCert: { setId: '1', programmingMachineType: 'admin' },
+    programmingMachineCertAuthorityCert: { setId: '1', machineType: 'admin' },
     cardVxPrivateKey: '1',
     cardIdentityPrivateKey: null,
     numRemainingPinAttempts: MAX_NUM_INCORRECT_PIN_ATTEMPTS,
@@ -450,10 +476,10 @@ test.each<{
     cardType: 'poll-worker',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
-    cardIdentityCert: '1',
-    programmingMachineCertAuthorityCert: '1',
+    cardIdentityCert: { setId: '1', programmingMachineType: 'admin' },
+    programmingMachineCertAuthorityCert: { setId: '1', machineType: 'admin' },
     cardVxPrivateKey: '1',
-    cardIdentityPrivateKey: '1',
+    cardIdentityPrivateKey: { setId: '1', programmingMachineType: 'admin' },
     numRemainingPinAttempts: null,
     expectedCardDetails: {
       user: pollWorkerUser,
@@ -465,14 +491,31 @@ test.each<{
     cardType: 'poll-worker-with-pin',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
-    cardIdentityCert: '1',
-    programmingMachineCertAuthorityCert: '1',
+    cardIdentityCert: { setId: '1', programmingMachineType: 'admin' },
+    programmingMachineCertAuthorityCert: { setId: '1', machineType: 'admin' },
     cardVxPrivateKey: '1',
     cardIdentityPrivateKey: null,
     numRemainingPinAttempts: MAX_NUM_INCORRECT_PIN_ATTEMPTS,
     expectedCardDetails: {
       user: pollWorkerUser,
       hasPin: true,
+    },
+  },
+  {
+    description: 'VxPollBook-programmed card happy path',
+    cardType: 'system-administrator',
+    vxCertAuthorityCert: '1',
+    cardVxCert: '1',
+    cardIdentityCert: { setId: '1', programmingMachineType: 'poll-book' },
+    programmingMachineCertAuthorityCert: {
+      setId: '1',
+      machineType: 'poll-book',
+    },
+    cardVxPrivateKey: '1',
+    cardIdentityPrivateKey: null,
+    numRemainingPinAttempts: MAX_NUM_INCORRECT_PIN_ATTEMPTS,
+    expectedCardDetails: {
+      user: { ...systemAdministratorUser, programmingMachineType: 'poll-book' },
     },
   },
   {
@@ -495,7 +538,7 @@ test.each<{
     cardType: 'vendor',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
-    cardIdentityCert: '2',
+    cardIdentityCert: { setId: '2', programmingMachineType: 'admin' },
     programmingMachineCertAuthorityCert: null,
     cardVxPrivateKey: null,
     cardIdentityPrivateKey: null,
@@ -510,8 +553,8 @@ test.each<{
     cardType: 'poll-worker',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
-    cardIdentityCert: '2',
-    programmingMachineCertAuthorityCert: '1',
+    cardIdentityCert: { setId: '2', programmingMachineType: 'admin' },
+    programmingMachineCertAuthorityCert: { setId: '1', machineType: 'admin' },
     cardVxPrivateKey: null,
     cardIdentityPrivateKey: null,
     numRemainingPinAttempts: null,
@@ -525,8 +568,8 @@ test.each<{
     cardType: 'poll-worker',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
-    cardIdentityCert: '1',
-    programmingMachineCertAuthorityCert: '2',
+    cardIdentityCert: { setId: '1', programmingMachineType: 'admin' },
+    programmingMachineCertAuthorityCert: { machineType: 'admin', setId: '2' },
     cardVxPrivateKey: null,
     cardIdentityPrivateKey: null,
     numRemainingPinAttempts: null,
@@ -542,8 +585,8 @@ test.each<{
     cardType: 'poll-worker',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
-    cardIdentityCert: '1',
-    programmingMachineCertAuthorityCert: '1',
+    cardIdentityCert: { setId: '1', programmingMachineType: 'admin' },
+    programmingMachineCertAuthorityCert: { setId: '1', machineType: 'admin' },
     cardVxPrivateKey: '2',
     cardIdentityPrivateKey: null,
     numRemainingPinAttempts: null,
@@ -559,10 +602,10 @@ test.each<{
     cardType: 'poll-worker',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
-    cardIdentityCert: '1',
-    programmingMachineCertAuthorityCert: '1',
+    cardIdentityCert: { setId: '1', programmingMachineType: 'admin' },
+    programmingMachineCertAuthorityCert: { setId: '1', machineType: 'admin' },
     cardVxPrivateKey: '1',
-    cardIdentityPrivateKey: '2',
+    cardIdentityPrivateKey: { setId: '2', programmingMachineType: 'admin' },
     numRemainingPinAttempts: null,
     expectedCardDetails: {
       user: undefined,
@@ -574,8 +617,8 @@ test.each<{
     cardType: 'election-manager',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
-    cardIdentityCert: '1',
-    programmingMachineCertAuthorityCert: '1',
+    cardIdentityCert: { setId: '1', programmingMachineType: 'admin' },
+    programmingMachineCertAuthorityCert: { setId: '1', machineType: 'admin' },
     cardVxPrivateKey: '1',
     cardIdentityPrivateKey: null,
     numRemainingPinAttempts: MAX_NUM_INCORRECT_PIN_ATTEMPTS - 5,
@@ -589,8 +632,8 @@ test.each<{
     cardType: 'election-manager',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
-    cardIdentityCert: '1',
-    programmingMachineCertAuthorityCert: '1',
+    cardIdentityCert: { setId: '1', programmingMachineType: 'admin' },
+    programmingMachineCertAuthorityCert: { setId: '1', machineType: 'admin' },
     cardVxPrivateKey: '1',
     cardIdentityPrivateKey: null,
     numRemainingPinAttempts: new Error('Whoa!'),
@@ -604,7 +647,7 @@ test.each<{
     cardType: 'vendor',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
-    cardIdentityCert: '1',
+    cardIdentityCert: { setId: '1', programmingMachineType: 'admin' },
     isCardIdentityCertExpired: true,
     programmingMachineCertAuthorityCert: null,
     cardVxPrivateKey: null,
@@ -620,9 +663,9 @@ test.each<{
     cardType: 'system-administrator',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
-    cardIdentityCert: '1',
+    cardIdentityCert: { setId: '1', programmingMachineType: 'admin' },
     isCardIdentityCertExpired: true,
-    programmingMachineCertAuthorityCert: '1',
+    programmingMachineCertAuthorityCert: { setId: '1', machineType: 'admin' },
     cardVxPrivateKey: null,
     cardIdentityPrivateKey: null,
     numRemainingPinAttempts: null,
@@ -636,9 +679,9 @@ test.each<{
     cardType: 'election-manager',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
-    cardIdentityCert: '1',
+    cardIdentityCert: { setId: '1', programmingMachineType: 'admin' },
     isCardIdentityCertExpired: true,
-    programmingMachineCertAuthorityCert: '1',
+    programmingMachineCertAuthorityCert: { setId: '1', machineType: 'admin' },
     cardVxPrivateKey: null,
     cardIdentityPrivateKey: null,
     numRemainingPinAttempts: null,
@@ -652,9 +695,9 @@ test.each<{
     cardType: 'poll-worker',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
-    cardIdentityCert: '1',
+    cardIdentityCert: { setId: '1', programmingMachineType: 'admin' },
     isCardIdentityCertExpired: true,
-    programmingMachineCertAuthorityCert: '1',
+    programmingMachineCertAuthorityCert: { setId: '1', machineType: 'admin' },
     cardVxPrivateKey: null,
     cardIdentityPrivateKey: null,
     numRemainingPinAttempts: null,
@@ -695,23 +738,26 @@ test.each<{
       })
     );
     if (cardIdentityCert) {
+      const { setId, programmingMachineType } = cardIdentityCert;
       mockCardCertRetrievalRequest(
         CARD_IDENTITY_CERT.OBJECT_ID,
         getTestFilePath({
-          setId: cardIdentityCert,
+          setId,
           fileType: isCardIdentityCertExpired
             ? 'card-identity-cert-expired.der'
             : 'card-identity-cert.der',
           cardType,
+          programmingMachineType,
         })
       );
     }
     if (programmingMachineCertAuthorityCert) {
+      const { setId, machineType } = programmingMachineCertAuthorityCert;
       mockCardCertRetrievalRequest(
         PROGRAMMING_MACHINE_CERT_AUTHORITY_CERT.OBJECT_ID,
         getTestFilePath({
-          setId: programmingMachineCertAuthorityCert,
-          fileType: 'vx-admin-cert-authority-cert.der',
+          setId,
+          fileType: `vx-${machineType}-cert-authority-cert.der`,
         })
       );
     }
@@ -726,13 +772,15 @@ test.each<{
       );
     }
     if (cardIdentityPrivateKey) {
+      const { setId, programmingMachineType } = cardIdentityPrivateKey;
       mockCardPinVerificationRequest(DEFAULT_PIN);
       await mockCardSignatureRequest(
         CARD_IDENTITY_CERT.PRIVATE_KEY_ID,
         getTestFilePath({
-          setId: cardIdentityPrivateKey,
+          setId,
           fileType: 'card-identity-private-key.pem',
           cardType,
+          programmingMachineType,
         })
       );
     }
@@ -834,7 +882,7 @@ test.each<{
   expectedExpiryInDays: number;
   expectedSigningCertAuthorityCertPath: string;
   expectedSigningPrivateKeyPath: string;
-  isProgrammingMachineCertAuthorityCertRetrievalRequestExpected: boolean;
+  expectedProgrammingMachineCertAuthorityCertPath: string | null;
   expectedCardDetailsAfterProgramming: CardDetails;
 }>([
   {
@@ -857,7 +905,7 @@ test.each<{
     expectedSigningPrivateKeyPath: getTestFilePath({
       fileType: 'vx-private-key.pem',
     }),
-    isProgrammingMachineCertAuthorityCertRetrievalRequestExpected: false,
+    expectedProgrammingMachineCertAuthorityCertPath: null,
     expectedCardDetailsAfterProgramming: {
       user: vendorUser,
     },
@@ -882,7 +930,9 @@ test.each<{
     expectedSigningPrivateKeyPath: getTestFilePath({
       fileType: 'vx-admin-private-key.pem',
     }),
-    isProgrammingMachineCertAuthorityCertRetrievalRequestExpected: true,
+    expectedProgrammingMachineCertAuthorityCertPath: getTestFilePath({
+      fileType: 'vx-admin-cert-authority-cert.der',
+    }),
     expectedCardDetailsAfterProgramming: {
       user: systemAdministratorUser,
     },
@@ -909,7 +959,9 @@ test.each<{
     expectedSigningPrivateKeyPath: getTestFilePath({
       fileType: 'vx-admin-private-key.pem',
     }),
-    isProgrammingMachineCertAuthorityCertRetrievalRequestExpected: true,
+    expectedProgrammingMachineCertAuthorityCertPath: getTestFilePath({
+      fileType: 'vx-admin-cert-authority-cert.der',
+    }),
     expectedCardDetailsAfterProgramming: {
       user: electionManagerUser,
     },
@@ -935,7 +987,9 @@ test.each<{
     expectedSigningPrivateKeyPath: getTestFilePath({
       fileType: 'vx-admin-private-key.pem',
     }),
-    isProgrammingMachineCertAuthorityCertRetrievalRequestExpected: true,
+    expectedProgrammingMachineCertAuthorityCertPath: getTestFilePath({
+      fileType: 'vx-admin-cert-authority-cert.der',
+    }),
     expectedCardDetailsAfterProgramming: {
       user: pollWorkerUser,
       hasPin: false,
@@ -963,10 +1017,39 @@ test.each<{
     expectedSigningPrivateKeyPath: getTestFilePath({
       fileType: 'vx-admin-private-key.pem',
     }),
-    isProgrammingMachineCertAuthorityCertRetrievalRequestExpected: true,
+    expectedProgrammingMachineCertAuthorityCertPath: getTestFilePath({
+      fileType: 'vx-admin-cert-authority-cert.der',
+    }),
     expectedCardDetailsAfterProgramming: {
       user: pollWorkerUser,
       hasPin: true,
+    },
+  },
+  {
+    description: 'VxPollBook-programmed card',
+    config: configWithVxPollBookCardProgrammingConfig,
+    programInput: {
+      user: { ...systemAdministratorUser, programmingMachineType: 'poll-book' },
+      pin: '123456',
+    },
+    expectedCardType: 'system-administrator',
+    expectedCertSubject:
+      '/C=US/ST=CA/O=VotingWorks' +
+      '/1.3.6.1.4.1.59817.1=card' +
+      `/1.3.6.1.4.1.59817.2=${TEST_JURISDICTION}` +
+      '/1.3.6.1.4.1.59817.3=system-administrator/',
+    expectedExpiryInDays: 365 * 5,
+    expectedSigningCertAuthorityCertPath: getTestFilePath({
+      fileType: 'vx-poll-book-cert-authority-cert.pem',
+    }),
+    expectedSigningPrivateKeyPath: getTestFilePath({
+      fileType: 'vx-poll-book-private-key.pem',
+    }),
+    expectedProgrammingMachineCertAuthorityCertPath: getTestFilePath({
+      fileType: 'vx-poll-book-cert-authority-cert.der',
+    }),
+    expectedCardDetailsAfterProgramming: {
+      user: { ...systemAdministratorUser, programmingMachineType: 'poll-book' },
     },
   },
 ])(
@@ -979,7 +1062,7 @@ test.each<{
     expectedExpiryInDays,
     expectedSigningCertAuthorityCertPath,
     expectedSigningPrivateKeyPath,
-    isProgrammingMachineCertAuthorityCertRetrievalRequestExpected,
+    expectedProgrammingMachineCertAuthorityCertPath,
     expectedCardDetailsAfterProgramming,
   }) => {
     const javaCard = new JavaCard(configToUse);
@@ -1006,12 +1089,10 @@ test.each<{
       CARD_IDENTITY_CERT.OBJECT_ID,
       cardIdentityCertPath
     );
-    if (isProgrammingMachineCertAuthorityCertRetrievalRequestExpected) {
+    if (expectedProgrammingMachineCertAuthorityCertPath) {
       mockCardCertStorageRequest(
         PROGRAMMING_MACHINE_CERT_AUTHORITY_CERT.OBJECT_ID,
-        getTestFilePath({
-          fileType: 'vx-admin-cert-authority-cert.der',
-        })
+        expectedProgrammingMachineCertAuthorityCertPath
       );
     }
 

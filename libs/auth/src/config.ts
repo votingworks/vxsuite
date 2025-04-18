@@ -72,7 +72,7 @@ interface VxCardProgrammingConfig {
 }
 
 /**
- * Config params for card programming, by either a VxAdmin or VotingWorks directly
+ * Config params for card programming, by a VxAdmin, VxPollBook, or VotingWorks directly
  */
 export type CardProgrammingConfig =
   | MachineCardProgrammingConfig
@@ -97,7 +97,7 @@ export interface JavaCardConfig {
 export function constructJavaCardConfig(): JavaCardConfig {
   const machineType = getRequiredEnvVar('VX_MACHINE_TYPE');
   let cardProgrammingConfig: CardProgrammingConfig | undefined;
-  if (machineType === 'admin') {
+  if (machineType === 'admin' || machineType === 'poll-book') {
     const { certPath, privateKey } = getMachineCertPathAndPrivateKey();
     cardProgrammingConfig = {
       configType: 'machine',

@@ -1,4 +1,5 @@
 /* eslint-disable max-classes-per-file */
+import path from 'node:path';
 import { MockFunction, mockFunction } from '@votingworks/test-utils';
 
 import { Card, CardStatus } from '../src/card';
@@ -99,6 +100,9 @@ interface CardAgnosticTestFile {
     | 'vx-cert-authority-cert.pem'
     | 'vx-mark-cert.pem'
     | 'vx-mark-private-key.pem'
+    | 'vx-poll-book-cert-authority-cert.der'
+    | 'vx-poll-book-cert-authority-cert.pem'
+    | 'vx-poll-book-private-key.pem'
     | 'vx-private-key.pem'
     | 'vx-scan-cert.pem'
     | 'vx-scan-private-key.pem';
@@ -107,8 +111,8 @@ interface CardAgnosticTestFile {
 
 interface CardSpecificTestFile {
   fileType:
-    | 'card-identity-cert.der'
     | 'card-identity-cert-expired.der'
+    | 'card-identity-cert.der'
     | 'card-identity-private-key.pem'
     | 'card-identity-public-key.der'
     | 'card-vx-cert.der'
@@ -116,6 +120,7 @@ interface CardSpecificTestFile {
     | 'card-vx-public-key.der';
   setId?: TestFileSetId;
   cardType: CardType;
+  programmingMachineType?: 'admin' | 'poll-book';
 }
 
 type TestFile = CardAgnosticTestFile | CardSpecificTestFile;
@@ -131,8 +136,16 @@ function isCardSpecificTestFile(
  */
 export function getTestFilePath(testFile: TestFile): string {
   const setId: TestFileSetId = testFile.setId ?? '1';
-  if (isCardSpecificTestFile(testFile)) {
-    return `./certs/test/set-${setId}/${testFile.cardType}/${testFile.fileType}`;
-  }
-  return `./certs/test/set-${setId}/${testFile.fileType}`;
+  const pathParts: string[] = [
+    '.',
+    'certs',
+    'test',
+    `set-${setId}`,
+    isCardSpecificTestFile(testFile) && testFile.cardType,
+    isCardSpecificTestFile(testFile) &&
+      testFile.cardType !== 'vendor' &&
+      `vx-${testFile.programmingMachineType ?? 'admin'}-programmed`,
+    testFile.fileType,
+  ].filter((part): part is string => Boolean(part));
+  return path.join(...pathParts);
 }

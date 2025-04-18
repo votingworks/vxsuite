@@ -18,6 +18,7 @@ export function mockSystemAdministratorCardInsertion(): void {
         user: {
           role: 'system_administrator',
           jurisdiction: TEST_JURISDICTION,
+          programmingMachineType: 'admin',
         },
       },
     },
@@ -40,6 +41,7 @@ export function mockElectionManagerCardInsertion({
         user: {
           role: 'election_manager',
           jurisdiction: TEST_JURISDICTION,
+          programmingMachineType: 'admin',
           electionKey: {
             id: election.id,
             date: election.date,
@@ -66,6 +68,7 @@ export function mockPollWorkerCardInsertion({
         user: {
           role: 'poll_worker',
           jurisdiction: TEST_JURISDICTION,
+          programmingMachineType: 'admin',
           electionKey: {
             id: election.id,
             date: election.date,

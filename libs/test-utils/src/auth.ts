@@ -26,6 +26,7 @@ export function mockSystemAdministratorUser(
   return {
     role: 'system_administrator',
     jurisdiction: TEST_JURISDICTION,
+    programmingMachineType: 'admin',
     ...props,
   };
 }
@@ -36,6 +37,7 @@ export function mockElectionManagerUser(
   return {
     role: 'election_manager',
     jurisdiction: TEST_JURISDICTION,
+    programmingMachineType: 'admin',
     electionKey: {
       id: 'election-id' as ElectionId,
       date: new DateWithoutTime('2024-07-10'),
@@ -50,6 +52,7 @@ export function mockPollWorkerUser(
   return {
     role: 'poll_worker',
     jurisdiction: TEST_JURISDICTION,
+    programmingMachineType: 'admin',
     electionKey: {
       id: 'election-id' as ElectionId,
       date: new DateWithoutTime('2024-07-10'),

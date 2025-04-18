@@ -89,6 +89,7 @@ test('createCert end-to-end - card cert', async () => {
       user: {
         role: 'system_administrator',
         jurisdiction: TEST_JURISDICTION,
+        programmingMachineType: 'admin',
       },
     }),
     certType: 'standard_cert',

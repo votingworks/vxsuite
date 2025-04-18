@@ -2,7 +2,8 @@ import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs/promises';
 import path from 'node:path';
 import yargs from 'yargs/yargs';
-import { extractErrorMessage } from '@votingworks/basics';
+import { assertDefined, extractErrorMessage } from '@votingworks/basics';
+import { readElection } from '@votingworks/fs';
 import {
   constructElectionKey,
   DEV_MACHINE_ID,
@@ -10,7 +11,6 @@ import {
   TEST_JURISDICTION,
 } from '@votingworks/types';
 
-import { readElection } from '@votingworks/fs';
 import { ProgrammedCardDetails } from '../../src/card';
 import {
   CardType,
@@ -127,36 +127,56 @@ async function generateDevKeysAndCerts({
   });
   await fs.writeFile(vxCertAuthorityCertPath, vxCertAuthorityCert);
 
-  // Generate VxAdmin private key and cert authority cert
-  const vxAdminPrivateKeyPath = `${outputDir}/vx-admin-private-key.pem`;
-  const vxAdminCertAuthorityCertPath = `${outputDir}/vx-admin-cert-authority-cert.pem`;
-  const vxAdminPrivateKey = await generatePrivateKey();
-  await fs.writeFile(vxAdminPrivateKeyPath, vxAdminPrivateKey);
-  const vxAdminCertAuthorityCert = await createCert({
-    certKeyInput: {
-      type: 'private',
-      key: { source: 'file', path: vxAdminPrivateKeyPath },
-    },
-    certSubject: constructMachineCertSubject({
-      machineType: 'admin',
-      machineId: DEV_MACHINE_ID,
-      jurisdiction,
-    }),
-    certType: 'cert_authority_cert',
-    expiryInDays: CERT_EXPIRY_IN_DAYS.DEV,
-    signingCertAuthorityCertPath: vxCertAuthorityCertPath,
-    signingPrivateKey: { source: 'file', path: vxPrivateKeyPath },
-  });
-  await fs.writeFile(vxAdminCertAuthorityCertPath, vxAdminCertAuthorityCert);
+  // Generate card-programming machine private keys and cert authority certs
+  const cardProgrammingMachineTypes: MachineType[] = ['admin', 'poll-book'];
+  const cardProgrammingMachineKeysAndCerts: Map<
+    MachineType,
+    { machineCertAuthorityCertPath: string; machinePrivateKeyPath: string }
+  > = new Map();
+  for (const machineType of cardProgrammingMachineTypes) {
+    const machinePrivateKeyPath = `${outputDir}/vx-${machineType}-private-key.pem`;
+    const machineCertAuthorityCertPath = `${outputDir}/vx-${machineType}-cert-authority-cert.pem`;
+    const machinePrivateKey = await generatePrivateKey();
+    await fs.writeFile(machinePrivateKeyPath, machinePrivateKey);
+    const machineCertAuthorityCert = await createCert({
+      certKeyInput: {
+        type: 'private',
+        key: { source: 'file', path: machinePrivateKeyPath },
+      },
+      certSubject: constructMachineCertSubject({
+        machineType,
+        machineId: DEV_MACHINE_ID,
+        jurisdiction,
+      }),
+      certType: 'cert_authority_cert',
+      expiryInDays: CERT_EXPIRY_IN_DAYS.DEV,
+      signingCertAuthorityCertPath: vxCertAuthorityCertPath,
+      signingPrivateKey: { source: 'file', path: vxPrivateKeyPath },
+    });
+    await fs.writeFile(machineCertAuthorityCertPath, machineCertAuthorityCert);
 
-  // Generate non-VxAdmin machine private keys and certs
-  const nonVxAdminMachineTypes: MachineType[] = [
+    if (forTests) {
+      // Save machine cert authority cert in DER format
+      await fs.writeFile(
+        machineCertAuthorityCertPath.replace('.pem', '.der'),
+        await certPemToDer(machineCertAuthorityCert)
+      );
+    }
+
+    cardProgrammingMachineKeysAndCerts.set(machineType, {
+      machineCertAuthorityCertPath,
+      machinePrivateKeyPath,
+    });
+  }
+
+  // Generate non-card-programming machine private keys and certs
+  const nonCardProgrammingMachineTypes: MachineType[] = [
     'central-scan',
     'mark',
     'mark-scan',
     'scan',
   ];
-  for (const machineType of nonVxAdminMachineTypes) {
+  for (const machineType of nonCardProgrammingMachineTypes) {
     const machinePrivateKeyPath = `${outputDir}/vx-${machineType}-private-key.pem`;
     const machineCertPath = `${outputDir}/vx-${machineType}-cert.pem`;
     const machinePrivateKey = await generatePrivateKey();
@@ -178,12 +198,6 @@ async function generateDevKeysAndCerts({
   }
 
   if (forTests) {
-    // Save VxAdmin cert authority cert in DER format
-    await fs.writeFile(
-      vxAdminCertAuthorityCertPath.replace('.pem', '.der'),
-      await certPemToDer(vxAdminCertAuthorityCert)
-    );
-
     const { election } = electionDefinition;
     const electionKey = constructElectionKey(election);
     const cardConfigs: Array<{
@@ -193,43 +207,118 @@ async function generateDevKeysAndCerts({
       {
         cardType: 'vendor',
         cardDetails: {
-          user: { role: 'vendor', jurisdiction },
+          user: {
+            role: 'vendor',
+            jurisdiction,
+          },
         },
       },
       {
         cardType: 'system-administrator',
         cardDetails: {
-          user: { role: 'system_administrator', jurisdiction },
+          user: {
+            role: 'system_administrator',
+            jurisdiction,
+            programmingMachineType: 'admin',
+          },
         },
       },
       {
         cardType: 'election-manager',
         cardDetails: {
-          user: { role: 'election_manager', jurisdiction, electionKey },
+          user: {
+            role: 'election_manager',
+            jurisdiction,
+            programmingMachineType: 'admin',
+            electionKey,
+          },
         },
       },
       {
         cardType: 'poll-worker',
         cardDetails: {
-          user: { role: 'poll_worker', jurisdiction, electionKey },
+          user: {
+            role: 'poll_worker',
+            jurisdiction,
+            programmingMachineType: 'admin',
+            electionKey,
+          },
           hasPin: false,
         },
       },
       {
         cardType: 'poll-worker-with-pin',
         cardDetails: {
-          user: { role: 'poll_worker', jurisdiction, electionKey },
+          user: {
+            role: 'poll_worker',
+            jurisdiction,
+            programmingMachineType: 'admin',
+            electionKey,
+          },
+          hasPin: true,
+        },
+      },
+      {
+        cardType: 'system-administrator',
+        cardDetails: {
+          user: {
+            role: 'system_administrator',
+            jurisdiction,
+            programmingMachineType: 'poll-book',
+          },
+        },
+      },
+      {
+        cardType: 'election-manager',
+        cardDetails: {
+          user: {
+            role: 'election_manager',
+            jurisdiction,
+            programmingMachineType: 'poll-book',
+            electionKey,
+          },
+        },
+      },
+      {
+        cardType: 'poll-worker',
+        cardDetails: {
+          user: {
+            role: 'poll_worker',
+            jurisdiction,
+            programmingMachineType: 'poll-book',
+            electionKey,
+          },
+          hasPin: false,
+        },
+      },
+      {
+        cardType: 'poll-worker-with-pin',
+        cardDetails: {
+          user: {
+            role: 'poll_worker',
+            jurisdiction,
+            programmingMachineType: 'poll-book',
+            electionKey,
+          },
           hasPin: true,
         },
       },
     ];
     for (const { cardType, cardDetails } of cardConfigs) {
-      await runCommand(['mkdir', '-p', `${outputDir}/${cardType}`]);
+      const cardDirectoryPathComponents: string[] = [outputDir, cardType];
+      if (cardDetails.user.role !== 'vendor') {
+        cardDirectoryPathComponents.push(
+          // VxAdmin-programmed vs. VxPollBook-programmed
+          `vx-${cardDetails.user.programmingMachineType}-programmed`
+        );
+      }
+      const cardDirectoryPath = path.join(...cardDirectoryPathComponents);
+      await runCommand(['mkdir', '-p', cardDirectoryPath]);
 
       // Generate card VotingWorks key pair and cert
-      const cardVxPrivateKeyPath = `${outputDir}/${cardType}/card-vx-private-key.pem`;
-      const cardVxPublicKeyPath = `${outputDir}/${cardType}/card-vx-public-key.der`;
-      const cardVxCertPath = `${outputDir}/${cardType}/card-vx-cert.der`;
+      const cardVxPrivateKeyPath = `${cardDirectoryPath}/card-vx-private-key.pem`;
+      const cardVxPublicKeyPath = `${cardDirectoryPath}/card-vx-public-key.der`;
+      const cardVxCertPath = `${cardDirectoryPath}/card-vx-cert.der`;
       const cardVxPrivateKey = await generatePrivateKey();
       await fs.writeFile(cardVxPrivateKeyPath, cardVxPrivateKey);
       const cardVxPublicKey =
@@ -254,10 +343,10 @@ async function generateDevKeysAndCerts({
       await fs.writeFile(cardVxCertPath, await certPemToDer(cardVxCert));
 
       // Generate card identity key pair and cert
-      const cardIdentityPrivateKeyPath = `${outputDir}/${cardType}/card-identity-private-key.pem`;
-      const cardIdentityPublicKeyPath = `${outputDir}/${cardType}/card-identity-public-key.der`;
-      const cardIdentityCertPath = `${outputDir}/${cardType}/card-identity-cert.der`;
-      const cardIdentityCertExpiredPath = `${outputDir}/${cardType}/card-identity-cert-expired.der`;
+      const cardIdentityPrivateKeyPath = `${cardDirectoryPath}/card-identity-private-key.pem`;
+      const cardIdentityPublicKeyPath = `${cardDirectoryPath}/card-identity-public-key.der`;
+      const cardIdentityCertPath = `${cardDirectoryPath}/card-identity-cert.der`;
+      const cardIdentityCertExpiredPath = `${cardDirectoryPath}/card-identity-cert-expired.der`;
       const cardIdentityPrivateKey = await generatePrivateKey();
       await fs.writeFile(cardIdentityPrivateKeyPath, cardIdentityPrivateKey);
       const cardIdentityPublicKey = await extractPublicKeyFromDevPrivateKey(
@@ -278,13 +367,23 @@ async function generateDevKeysAndCerts({
         certSubject: constructCardCertSubject(cardDetails),
         expiryInDays: CERT_EXPIRY_IN_DAYS.DEV,
         signingCertAuthorityCertPath:
-          cardType === 'vendor'
+          cardDetails.user.role === 'vendor'
             ? vxCertAuthorityCertPath
-            : vxAdminCertAuthorityCertPath,
+            : assertDefined(
+                cardProgrammingMachineKeysAndCerts.get(
+                  cardDetails.user.programmingMachineType
+                )
+              ).machineCertAuthorityCertPath,
         signingPrivateKey: {
           source: 'file',
           path:
-            cardType === 'vendor' ? vxPrivateKeyPath : vxAdminPrivateKeyPath,
+            cardDetails.user.role === 'vendor'
+              ? vxPrivateKeyPath
+              : assertDefined(
+                  cardProgrammingMachineKeysAndCerts.get(
+                    cardDetails.user.programmingMachineType
+                  )
+                ).machinePrivateKeyPath,
         },
       };
       const cardIdentityCert = await createCert(createCertInput);
@@ -314,6 +413,8 @@ async function generateDevKeysAndCerts({
  * - VotingWorks cert authority cert
  * - VxAdmin private key
  * - VxAdmin cert authority cert
+ * - VxPollBook private key
+ * - VxPollBook cert authority cert
  * - VxCentralScan private key
  * - VxCentralScan cert
  * - VxMark private key
@@ -324,8 +425,17 @@ async function generateDevKeysAndCerts({
  * If run with --for-tests, the script will additionally:
  * - Save the VxAdmin cert authority cert in DER format
  *
- * And generate for each of a vendor user, system administrator, election manager, poll worker, and
- * poll worker with a PIN:
+ * And generate for each of a:
+ * - Vendor user
+ * - VxAdmin-programmed system administrator
+ * - VxAdmin-programmed election manager
+ * - VxAdmin-programmed poll worker
+ * - VxAdmin-programmed poll worker with a PIN
+ * - VxPollBook-programmed system administrator
+ * - VxPollBook-programmed election manager
+ * - VxPollBook-programmed poll worker
+ * - VxPollBook-programmed poll worker with a PIN
+ * The following:
  * - A first card key pair
  * - A second card key pair
  * - A card VotingWorks cert, containing the first key pair's public key

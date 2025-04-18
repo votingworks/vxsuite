@@ -16,6 +16,7 @@ export function constructAuthMachineState(
       id: election.id,
       date: election.date,
     },
+    machineType: 'poll-book',
   };
 }
 

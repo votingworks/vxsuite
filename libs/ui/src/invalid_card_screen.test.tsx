@@ -102,6 +102,16 @@ const testCases: Array<{
     expectedHeading: 'Invalid Card',
     expectedText: 'Insert a valid card.',
   },
+  {
+    description: 'VxPollBook-programmed card on machine other than VxPollBook',
+    reasonAndContext: {
+      reason: 'vx_poll_book_card_not_allowed',
+    },
+    expectedHeading: 'Invalid Card',
+    expectedText:
+      'VxPollBook cards can only be used to unlock VxPollBook. ' +
+      'Program a card using VxAdmin instead.',
+  },
 ];
 
 test.each(testCases)(

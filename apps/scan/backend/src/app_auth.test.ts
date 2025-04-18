@@ -16,6 +16,7 @@ import { withApp } from '../test/helpers/pdi_helpers';
 import { configureApp } from '../test/helpers/shared_helpers';
 
 const jurisdiction = TEST_JURISDICTION;
+const machineType = 'scan';
 const electionKey = constructElectionKey(
   electionFamousNames2021Fixtures.readElection()
 );
@@ -62,6 +63,7 @@ test('getAuthStatus', async () => {
       ...systemSettings.auth,
       electionKey,
       jurisdiction,
+      machineType,
     });
   });
 });
@@ -74,7 +76,7 @@ test('checkPin', async () => {
     expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
     expect(mockAuth.checkPin).toHaveBeenNthCalledWith(
       1,
-      { ...systemSettings.auth, electionKey, jurisdiction },
+      { ...systemSettings.auth, electionKey, jurisdiction, machineType },
       { pin: '123456' }
     );
   });
@@ -90,6 +92,7 @@ test('logOut', async () => {
       ...systemSettings.auth,
       electionKey,
       jurisdiction,
+      machineType,
     });
   });
 });
@@ -104,7 +107,7 @@ test('updateSessionExpiry', async () => {
     expect(mockAuth.updateSessionExpiry).toHaveBeenCalledTimes(1);
     expect(mockAuth.updateSessionExpiry).toHaveBeenNthCalledWith(
       1,
-      { ...systemSettings.auth, electionKey, jurisdiction },
+      { ...systemSettings.auth, electionKey, jurisdiction, machineType },
       { sessionExpiresAt: expect.any(Date) }
     );
   });
@@ -115,10 +118,10 @@ test('getAuthStatus before election definition has been configured', async () =>
     vi.mocked(mockAuth.getAuthStatus).mockClear(); // Clear mock calls from state machine
     await apiClient.getAuthStatus();
     expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(1);
-    expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(
-      1,
-      DEFAULT_SYSTEM_SETTINGS.auth
-    );
+    expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(1, {
+      ...DEFAULT_SYSTEM_SETTINGS.auth,
+      machineType,
+    });
   });
 });
 
@@ -128,7 +131,7 @@ test('checkPin before election definition has been configured', async () => {
     expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
     expect(mockAuth.checkPin).toHaveBeenNthCalledWith(
       1,
-      DEFAULT_SYSTEM_SETTINGS.auth,
+      { ...DEFAULT_SYSTEM_SETTINGS.auth, machineType },
       { pin: '123456' }
     );
   });
@@ -138,10 +141,10 @@ test('logOut before election definition has been configured', async () => {
   await withApp(async ({ apiClient, mockAuth }) => {
     await apiClient.logOut();
     expect(mockAuth.logOut).toHaveBeenCalledTimes(1);
-    expect(mockAuth.logOut).toHaveBeenNthCalledWith(
-      1,
-      DEFAULT_SYSTEM_SETTINGS.auth
-    );
+    expect(mockAuth.logOut).toHaveBeenNthCalledWith(1, {
+      ...DEFAULT_SYSTEM_SETTINGS.auth,
+      machineType,
+    });
   });
 });
 
@@ -153,7 +156,7 @@ test('updateSessionExpiry before election definition has been configured', async
     expect(mockAuth.updateSessionExpiry).toHaveBeenCalledTimes(1);
     expect(mockAuth.updateSessionExpiry).toHaveBeenNthCalledWith(
       1,
-      DEFAULT_SYSTEM_SETTINGS.auth,
+      { ...DEFAULT_SYSTEM_SETTINGS.auth, machineType },
       { sessionExpiresAt: expect.any(Date) }
     );
   });

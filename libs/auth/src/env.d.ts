@@ -7,6 +7,7 @@ declare namespace NodeJS {
       | 'central-scan'
       | 'mark'
       | 'mark-scan'
+      | 'poll-book'
       | 'scan';
   }
 }

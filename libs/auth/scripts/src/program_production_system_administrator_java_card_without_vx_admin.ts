@@ -90,6 +90,7 @@ export async function main(): Promise<void> {
       user: {
         role: 'system_administrator',
         jurisdiction: scriptEnvVars.jurisdiction,
+        programmingMachineType: 'admin',
       },
     });
   } catch (error) {

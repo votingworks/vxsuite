@@ -64,6 +64,12 @@ export function InvalidCardScreen({
         'This machine is unconfigured and cannot be unlocked with this card.';
       break;
     }
+    case 'vx_poll_book_card_not_allowed': {
+      errorDescription =
+        'VxPollBook cards can only be used to unlock VxPollBook.';
+      recommendedAction = 'Program a card using VxAdmin instead.';
+      break;
+    }
     case 'wrong_election': {
       const cardString = (() => {
         switch (cardUserRole) {

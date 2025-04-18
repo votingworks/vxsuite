@@ -6,8 +6,8 @@ import {
   throwIllegalValue,
 } from '@votingworks/basics';
 import { readElection } from '@votingworks/fs';
+import { ElectionKey, ProgrammingMachineType } from '@votingworks/types';
 
-import { ElectionKey } from '@votingworks/types';
 import { DEV_JURISDICTION } from '../../src/jurisdictions';
 import { mockCard } from '../../src/mock_file_card';
 
@@ -25,6 +25,7 @@ type CardType = (typeof CARD_TYPES)[number];
 interface CommandLineArgs {
   cardType: CardType;
   electionKey?: ElectionKey;
+  programmingMachineType: ProgrammingMachineType;
 }
 
 async function parseCommandLineArgs(
@@ -41,6 +42,12 @@ async function parseCommandLineArgs(
         description:
           'The election definition to use for an election manager or poll worker card',
         type: 'string',
+      },
+      'programming-machine-type': {
+        description:
+          'The programming machine type (default is admin as in VxAdmin)',
+        type: 'string',
+        choices: ['admin', 'poll-book'],
       },
     })
     .hide('help')
@@ -65,6 +72,11 @@ async function parseCommandLineArgs(
     )
     .example('$ mock-card --card-type unprogrammed', '')
     .example('$ mock-card --card-type no-card', '')
+    .example(
+      '$ mock-card --card-type system-administrator \\\n' +
+        '--programming-machine-type poll-book',
+      ''
+    )
     .strict();
 
   const helpMessage = await argParser.getHelp();
@@ -75,6 +87,7 @@ async function parseCommandLineArgs(
   const parsedArgs = argParser.parse(args) as {
     cardType?: CardType;
     electionDefinition?: string;
+    programmingMachineType?: ProgrammingMachineType;
     help?: boolean;
   };
 
@@ -116,10 +129,15 @@ async function parseCommandLineArgs(
   return {
     cardType: parsedArgs.cardType,
     electionKey,
+    programmingMachineType: parsedArgs.programmingMachineType ?? 'admin',
   };
 }
 
-function mockCardWrapper({ cardType, electionKey }: CommandLineArgs) {
+function mockCardWrapper({
+  cardType,
+  electionKey,
+  programmingMachineType,
+}: CommandLineArgs) {
   switch (cardType) {
     case 'vendor': {
       mockCard({
@@ -144,6 +162,7 @@ function mockCardWrapper({ cardType, electionKey }: CommandLineArgs) {
             user: {
               role: 'system_administrator',
               jurisdiction: DEV_JURISDICTION,
+              programmingMachineType,
             },
           },
         },
@@ -160,6 +179,7 @@ function mockCardWrapper({ cardType, electionKey }: CommandLineArgs) {
             user: {
               role: 'election_manager',
               jurisdiction: DEV_JURISDICTION,
+              programmingMachineType,
               electionKey,
             },
           },
@@ -177,6 +197,7 @@ function mockCardWrapper({ cardType, electionKey }: CommandLineArgs) {
             user: {
               role: 'poll_worker',
               jurisdiction: DEV_JURISDICTION,
+              programmingMachineType,
               electionKey,
             },
             hasPin: false,
@@ -194,6 +215,7 @@ function mockCardWrapper({ cardType, electionKey }: CommandLineArgs) {
             user: {
               role: 'poll_worker',
               jurisdiction: DEV_JURISDICTION,
+              programmingMachineType,
               electionKey,
             },
             hasPin: true,
