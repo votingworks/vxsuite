@@ -170,16 +170,18 @@ export class JavaCard implements Card {
 
   constructor(
     // Support specifying a custom config for tests
-    /* istanbul ignore next - @preserve */
-    input: JavaCardConfig = constructJavaCardConfig()
+    configOverride?: JavaCardConfig
   ) {
-    this.cardProgrammingConfig = input.cardProgrammingConfig;
+    const config =
+      configOverride ??
+      /* istanbul ignore next - @preserve */ constructJavaCardConfig();
+    this.cardProgrammingConfig = config.cardProgrammingConfig;
     this.cardStatus = { status: 'no_card_reader' };
     this.generateChallenge =
-      input.generateChallengeOverride ??
+      config.generateChallengeOverride ??
       /* istanbul ignore next - @preserve */ (() =>
         `VotingWorks/${new Date().toISOString()}/${uuid()}`);
-    this.vxCertAuthorityCertPath = input.vxCertAuthorityCertPath;
+    this.vxCertAuthorityCertPath = config.vxCertAuthorityCertPath;
 
     this.cardReader = new CardReader({
       onReaderStatusChange: async (readerStatus) => {
@@ -240,6 +242,7 @@ export class JavaCard implements Card {
         const numIncorrectPinAttempts =
           MAX_NUM_INCORRECT_PIN_ATTEMPTS -
           numRemainingPinAttemptsFromIncorrectPinStatusWord(error.statusWord());
+        /* istanbul ignore else - @preserve */
         if (
           this.cardStatus.status === 'ready' &&
           this.cardStatus.cardDetails.user
@@ -259,6 +262,7 @@ export class JavaCard implements Card {
       }
       throw error;
     }
+    /* istanbul ignore else - @preserve */
     if (
       this.cardStatus.status === 'ready' &&
       this.cardStatus.cardDetails.user

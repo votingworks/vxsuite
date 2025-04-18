@@ -7,8 +7,10 @@ import {
   constructJavaCardConfig,
   constructJavaCardConfigForVxProgramming,
   constructSignedHashValidationConfig,
+  constructSignedQuickResultsReportingConfig,
   JavaCardConfig,
   SignedHashValidationConfig,
+  SignedQuickResultsReportingConfig,
 } from './config';
 
 vi.mock(
@@ -492,5 +494,112 @@ test.each<{
     );
 
     expect(constructSignedHashValidationConfig()).toEqual(expectedOutput);
+  }
+);
+
+test.each<{
+  nodeEnv: NodeJS.ProcessEnv['NODE_ENV'];
+  isVxDev?: true;
+  isIntegrationTest?: true;
+  machineType: NonNullable<NodeJS.ProcessEnv['VX_MACHINE_TYPE']>;
+  expectedOutput: SignedQuickResultsReportingConfig;
+}>([
+  {
+    nodeEnv: 'development',
+    machineType: 'admin',
+    expectedOutput: {
+      machinePrivateKey: {
+        source: 'file',
+        path: expect.stringContaining('/certs/dev/vx-admin-private-key.pem'),
+      },
+    },
+  },
+  {
+    nodeEnv: 'development',
+    machineType: 'scan',
+    expectedOutput: {
+      machinePrivateKey: {
+        source: 'file',
+        path: expect.stringContaining('/certs/dev/vx-scan-private-key.pem'),
+      },
+    },
+  },
+  {
+    nodeEnv: 'production',
+    machineType: 'admin',
+    expectedOutput: {
+      machinePrivateKey: { source: 'tpm' },
+    },
+  },
+  {
+    nodeEnv: 'production',
+    machineType: 'scan',
+    expectedOutput: {
+      machinePrivateKey: { source: 'tpm' },
+    },
+  },
+  {
+    nodeEnv: 'production',
+    isVxDev: true,
+    machineType: 'admin',
+    expectedOutput: {
+      machinePrivateKey: {
+        source: 'file',
+        path: expect.stringContaining('/certs/dev/vx-admin-private-key.pem'),
+      },
+    },
+  },
+  {
+    nodeEnv: 'production',
+    isVxDev: true,
+    machineType: 'scan',
+    expectedOutput: {
+      machinePrivateKey: {
+        source: 'file',
+        path: expect.stringContaining('/certs/dev/vx-scan-private-key.pem'),
+      },
+    },
+  },
+  {
+    nodeEnv: 'production',
+    isIntegrationTest: true,
+    machineType: 'admin',
+    expectedOutput: {
+      machinePrivateKey: {
+        source: 'file',
+        path: expect.stringContaining('/certs/dev/vx-admin-private-key.pem'),
+      },
+    },
+  },
+  {
+    nodeEnv: 'production',
+    isIntegrationTest: true,
+    machineType: 'scan',
+    expectedOutput: {
+      machinePrivateKey: {
+        source: 'file',
+        path: expect.stringContaining('/certs/dev/vx-scan-private-key.pem'),
+      },
+    },
+  },
+])(
+  'constructSignedQuickResultsReportingConfig - nodeEnv = $nodeEnv, isVxDev = $isVxDev, isIntegrationTest = $isIntegrationTest, machineType = $machineType',
+  ({
+    nodeEnv,
+    isVxDev: isVxDevResult,
+    isIntegrationTest: isIntegrationTestResult,
+    machineType,
+    expectedOutput,
+  }) => {
+    (process.env.NODE_ENV as string) = nodeEnv;
+    (process.env.VX_MACHINE_TYPE as string) = machineType;
+    vi.mocked(isVxDev).mockImplementation(() => isVxDevResult ?? false);
+    vi.mocked(isIntegrationTest).mockImplementation(
+      () => isIntegrationTestResult ?? false
+    );
+
+    expect(constructSignedQuickResultsReportingConfig()).toEqual(
+      expectedOutput
+    );
   }
 );

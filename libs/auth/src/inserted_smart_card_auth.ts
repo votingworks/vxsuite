@@ -89,6 +89,7 @@ function logAuthEvent(
     }
 
     case 'checking_pin': {
+      /* istanbul ignore else - @preserve */
       if (newAuthStatus.status === 'logged_out') {
         logger.log(LogEventId.AuthPinEntry, previousAuthStatus.user.role, {
           disposition: LogDispositionStandardTypes.Failure,

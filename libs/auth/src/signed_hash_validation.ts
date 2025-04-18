@@ -66,9 +66,12 @@ interface SignedHashValidationMachineState {
  */
 export async function generateSignedHashValidationQrCodeValue(
   machineState: SignedHashValidationMachineState,
-  /* istanbul ignore next - @preserve */
-  config: SignedHashValidationConfig = constructSignedHashValidationConfig()
+  configOverride?: SignedHashValidationConfig
 ): Promise<SignedHashValidationQrCodeValue> {
+  const config =
+    configOverride ??
+    /* istanbul ignore next - @preserve */ constructSignedHashValidationConfig();
+
   const { electionRecord, softwareVersion } = machineState;
   const systemHash = await computeSystemHash();
   const combinedElectionHash = electionRecord
@@ -94,12 +97,10 @@ export async function generateSignedHashValidationQrCodeValue(
   const messagePayload = messagePayloadParts.join(
     SIGNED_HASH_VALIDATION_MESSAGE_PAYLOAD_SEPARATOR
   );
-
   const message = constructPrefixedMessage(
     'shv1', // Signed hash validation, version 1
     messagePayload
   );
-
   const messageSignature = await signMessage({
     message: Readable.from(message),
     signingPrivateKey: config.machinePrivateKey,

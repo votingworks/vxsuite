@@ -174,6 +174,17 @@ test('CardReader card disconnect - success', async () => {
   expect(mockPcscLiteReader.disconnect).toHaveBeenCalledTimes(1);
 });
 
+test('CardReader card disconnect - no-op if reader not ready', async () => {
+  const cardReader = newCardReader();
+  vi.mocked(mockPcscLiteReader.disconnect).mockImplementationOnce(
+    mockDisconnectSuccess
+  );
+
+  await cardReader.disconnectCard();
+
+  expect(mockPcscLiteReader.disconnect).toHaveBeenCalledTimes(0);
+});
+
 test('CardReader card disconnect - error', async () => {
   const cardReader = newCardReader('ready');
   vi.mocked(mockPcscLiteReader.disconnect).mockImplementationOnce(

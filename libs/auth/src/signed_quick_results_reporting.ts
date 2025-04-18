@@ -4,14 +4,17 @@ import { ElectionDefinition, Tabulation } from '@votingworks/types';
 import { compressTally } from '@votingworks/utils';
 import { constructPrefixedMessage } from './signatures';
 import { signMessage } from './cryptography';
-import { constructSignedQuickResultsReportingConfig } from './config';
+import {
+  constructSignedQuickResultsReportingConfig,
+  SignedQuickResultsReportingConfig,
+} from './config';
 
-interface SignedQuickResultsReportingUrlProps {
+interface SignedQuickResultsReportingInput {
   electionDefinition: ElectionDefinition;
-  quickResultsReportingUrl: string;
-  signingMachineId: string;
   isLiveMode: boolean;
+  quickResultsReportingUrl: string;
   results: Tabulation.ElectionResults;
+  signingMachineId: string;
 }
 
 /**
@@ -23,19 +26,24 @@ const SIGNED_QUICK_RESULTS_REPORTING_MESSAGE_PAYLOAD_SEPARATOR = '.';
  * Returns the URL to encode as a QR code for quick results reporting, including a signed payload
  * containing the election results
  */
-export async function getSignedQuickResultsReportingUrl(
+export async function generateSignedQuickResultsReportingUrl(
   {
     electionDefinition,
-    quickResultsReportingUrl,
-    signingMachineId,
     isLiveMode,
+    quickResultsReportingUrl,
     results,
-  }: SignedQuickResultsReportingUrlProps,
-  signingConfig = constructSignedQuickResultsReportingConfig()
+    signingMachineId,
+  }: SignedQuickResultsReportingInput,
+  configOverride?: SignedQuickResultsReportingConfig
 ): Promise<string> {
+  const config =
+    configOverride ??
+    /* istanbul ignore next - @preserve */ constructSignedQuickResultsReportingConfig();
+
   const { ballotHash, election } = electionDefinition;
   const compressedTally = compressTally(election, results);
   const secondsSince1970 = Math.round(new Date().getTime() / 1000);
+
   const messagePayloadParts = [
     ballotHash,
     signingMachineId,
@@ -49,8 +57,9 @@ export async function getSignedQuickResultsReportingUrl(
   const message = constructPrefixedMessage('qr1', messagePayload);
   const messageSignature = await signMessage({
     message: Readable.from(message),
-    signingPrivateKey: signingConfig.machinePrivateKey,
+    signingPrivateKey: config.machinePrivateKey,
   });
+
   const signedQuickResultsReportingUrl = `${quickResultsReportingUrl}/?p=${encodeURIComponent(
     message
   )}&s=${encodeURIComponent(messageSignature.toString('base64url'))}`;
