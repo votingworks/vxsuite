@@ -445,10 +445,15 @@ test('results', async ({ page }) => {
         case 3:
         case 4:
         case 5:
-        case 6:
           // Creates a candidate the first time
           await page.getByRole('combobox').fill('Write-In Campaign Candidate');
           await page.keyboard.press('Enter');
+          break;
+        case 6:
+          // Mark as invalid by clicking checkbox
+          await page
+            .getByRole('checkbox', { name: /write-in/i, checked: true })
+            .click();
           break;
         default: {
           const writeInName = WRITE_IN_NAMES[Math.floor(writeInIndex / 8)];
