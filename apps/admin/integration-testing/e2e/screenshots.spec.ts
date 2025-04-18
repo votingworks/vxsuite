@@ -447,8 +447,8 @@ test('results', async ({ page }) => {
         case 4:
         case 5:
         case 6:
-          // await page.getByRole('combobox').fill('  ');
           // Selects "Not a mark" or existing candidate
+          await page.getByRole('combobox').fill('  ');
           await selectDropdownOption(page, writeInIndex);
           break;
         default: {
