@@ -5,24 +5,19 @@ export function getAdjudicateButtons(page: Page): Locator {
   return page.getByText(/Adjudicate.*/);
 }
 
-export function getCandidateButtons(page: Page): Locator {
-  const heading = page.getByText('Official Candidates');
-  return heading.locator('..').getByRole('button');
+export function getDropdownOptions(page: Page): Locator {
+  return page.locator('div[aria-disabled="false"]');
 }
 
-export async function selectCandidate(
+export async function selectCandidateOrUndervote(
   page: Page,
   index: number
 ): Promise<void> {
-  const candidateButtons = getCandidateButtons(page);
-  const candidateButton = candidateButtons.nth(
-    index % (await candidateButtons.count())
+  const dropdownOptions = getDropdownOptions(page);
+  const selection = dropdownOptions.nth(
+    index % (await dropdownOptions.count())
   );
-  await candidateButton.click();
-}
-
-export async function markUndervote(page: Page): Promise<void> {
-  await page.getByText('Mark write-in as undervote').click();
+  await selection.click();
 }
 
 export const WRITE_IN_NAMES = [
