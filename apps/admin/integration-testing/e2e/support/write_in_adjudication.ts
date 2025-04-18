@@ -5,21 +5,6 @@ export function getAdjudicateButtons(page: Page): Locator {
   return page.getByText(/Adjudicate.*/);
 }
 
-export function getDropdownOptions(page: Page): Locator {
-  return page.locator('div[aria-disabled="false"]');
-}
-
-export async function selectCandidateOrUndervote(
-  page: Page,
-  index: number
-): Promise<void> {
-  const dropdownOptions = getDropdownOptions(page);
-  const selection = dropdownOptions.nth(
-    index % (await dropdownOptions.count())
-  );
-  await selection.click();
-}
-
 export const WRITE_IN_NAMES = [
   'John Smith',
   'Mary Johnson',
