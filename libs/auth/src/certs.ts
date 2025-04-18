@@ -20,8 +20,8 @@ const VX_IANA_ENTERPRISE_OID = '1.3.6.1.4.1.59817';
  */
 const VX_CUSTOM_CERT_FIELD = {
   /**
-   * One of: admin, central-scan, mark, mark-scan, scan, card (the first five referring to
-   * machines)
+   * One of: admin, central-scan, mark, mark-scan, poll-book, scan, card (the first six referring
+   * to machines)
    */
   COMPONENT: `${VX_IANA_ENTERPRISE_OID}.1`,
   /** Format: {state-2-letter-abbreviation}.{county-or-town} (e.g. ms.warren or ca.los-angeles) */
@@ -70,6 +70,11 @@ interface VxScanCustomCertFields extends BaseMachineCustomCertFields {
   component: 'scan';
 }
 
+interface VxPollBookCustomCertFields extends BaseMachineCustomCertFields {
+  component: 'poll-book';
+  jurisdiction: string;
+}
+
 interface BaseCardCustomCertFields {
   component: 'card';
   jurisdiction: string;
@@ -90,21 +95,29 @@ interface ElectionCardCustomCertFields extends BaseCardCustomCertFields {
   electionDate: string;
 }
 
-type CardCustomCertFields =
+/**
+ * Parsed custom cert fields for a card cert
+ */
+export type CardCustomCertFields =
   | VendorCardCustomCertFields
   | SystemAdministratorCardCustomCertFields
   | ElectionCardCustomCertFields;
 
 /**
- * Parsed custom cert fields
+ * Parsed custom cert fields for a machine cert
  */
-export type CustomCertFields =
+export type MachineCustomCertFields =
   | VxAdminCustomCertFields
   | VxCentralScanCustomCertFields
   | VxMarkCustomCertFields
   | VxMarkScanCustomCertFields
   | VxScanCustomCertFields
-  | CardCustomCertFields;
+  | VxPollBookCustomCertFields;
+
+/**
+ * Parsed custom cert fields
+ */
+export type CustomCertFields = CardCustomCertFields | MachineCustomCertFields;
 
 /**
  * Valid values for component field in VotingWorks certs
@@ -161,6 +174,13 @@ const VxScanCustomCertFieldsSchema: z.ZodSchema<VxScanCustomCertFields> =
     machineId: z.string(),
   });
 
+const VxPollBookCustomCertFieldsSchema: z.ZodSchema<VxPollBookCustomCertFields> =
+  z.strictObject({
+    component: z.literal('poll-book'),
+    machineId: z.string(),
+    jurisdiction: z.string(),
+  });
+
 const VendorCardCustomCertFieldsSchema: z.ZodSchema<VendorCardCustomCertFields> =
   z.strictObject({
     component: z.literal('card'),
@@ -203,6 +223,7 @@ const CustomCertFieldsSchema: z.ZodSchema<CustomCertFields> = z.union([
   VxMarkCustomCertFieldsSchema,
   VxMarkScanCustomCertFieldsSchema,
   VxScanCustomCertFieldsSchema,
+  VxPollBookCustomCertFieldsSchema,
   CardCustomCertFieldsSchema,
 ]);
 
@@ -272,25 +293,38 @@ function createElectionKey(
 }
 
 /**
- * Parses the provided cert and returns card details. Throws an error if the cert doesn't follow
- * VotingWorks's card cert format.
+ * Converts parsed certs into a {@link ProgrammedCardDetails} object
  */
-export async function parseCardDetailsFromCert(
-  cert: Buffer
-): Promise<ProgrammedCardDetails> {
-  const certDetails = await parseCert(cert);
-  assert(certDetails.component === 'card', 'Cert is not a card cert');
-  const { jurisdiction, cardType } = certDetails;
+export function certDetailsToCardDetails(
+  cardIdentityCertDetails: CardCustomCertFields,
+  programmingMachineCertAuthorityCertDetails?: MachineCustomCertFields
+): ProgrammedCardDetails {
+  const { cardType, jurisdiction } = cardIdentityCertDetails;
+
+  if (cardType === 'vendor') {
+    return {
+      user: {
+        role: 'vendor',
+        jurisdiction,
+      },
+    };
+  }
+
+  assert(programmingMachineCertAuthorityCertDetails !== undefined);
+  const programmingMachineType =
+    programmingMachineCertAuthorityCertDetails.component;
+  assert(
+    programmingMachineType === 'admin' || programmingMachineType === 'poll-book'
+  );
 
   switch (cardType) {
-    case 'vendor': {
-      return {
-        user: { role: 'vendor', jurisdiction },
-      };
-    }
     case 'system-administrator': {
       return {
-        user: { role: 'system_administrator', jurisdiction },
+        user: {
+          role: 'system_administrator',
+          jurisdiction,
+          programmingMachineType,
+        },
       };
     }
     case 'election-manager': {
@@ -298,7 +332,8 @@ export async function parseCardDetailsFromCert(
         user: {
           role: 'election_manager',
           jurisdiction,
-          electionKey: createElectionKey(certDetails),
+          programmingMachineType,
+          electionKey: createElectionKey(cardIdentityCertDetails),
         },
       };
     }
@@ -307,7 +342,8 @@ export async function parseCardDetailsFromCert(
         user: {
           role: 'poll_worker',
           jurisdiction,
-          electionKey: createElectionKey(certDetails),
+          programmingMachineType,
+          electionKey: createElectionKey(cardIdentityCertDetails),
         },
         hasPin: false,
       };
@@ -317,14 +353,15 @@ export async function parseCardDetailsFromCert(
         user: {
           role: 'poll_worker',
           jurisdiction,
-          electionKey: createElectionKey(certDetails),
+          programmingMachineType,
+          electionKey: createElectionKey(cardIdentityCertDetails),
         },
         hasPin: true,
       };
     }
     /* istanbul ignore next: Compile-time check for completeness - @preserve */
     default: {
-      throwIllegalValue(cardType);
+      throwIllegalValue(cardIdentityCertDetails, 'cardType');
     }
   }
 }
@@ -386,7 +423,7 @@ export function constructCardCertSubject(
 /**
  * Constructs a VotingWorks card cert subject without a jurisdiction and card type, that can be
  * passed to an openssl command. This trimmed down cert subject is used in the card's
- * VotingWorks-issued cert. The card's VxAdmin-issued cert, on the other hand, requires
+ * VotingWorks-issued cert. The card's VxAdmin/VxPollBook-issued cert, on the other hand, requires
  * jurisdiction and card type.
  */
 export function constructCardCertSubjectWithoutJurisdictionAndCardType(): string {
@@ -400,23 +437,6 @@ export function constructCardCertSubjectWithoutJurisdictionAndCardType(): string
 }
 
 /**
- * Parses the provided cert and returns machine details. Throws an error if the cert doesn't follow
- * VotingWorks's machine cert format.
- */
-export async function parseMachineDetailsFromCert(
-  cert: Buffer
-): Promise<MachineDetails> {
-  const certDetails = await parseCert(cert);
-  assert(certDetails.component !== 'card', 'Cert is not a machine cert');
-  const { component, machineId } = certDetails;
-  return {
-    machineType: component,
-    machineId,
-    jurisdiction: component === 'admin' ? certDetails.jurisdiction : undefined,
-  };
-}
-
-/**
  * Constructs a VotingWorks machine cert subject that can be passed to an openssl command
  */
 export function constructMachineCertSubject({
@@ -424,10 +444,11 @@ export function constructMachineCertSubject({
   machineId,
   jurisdiction,
 }: MachineDetails): string {
-  assert(
-    (machineType === 'admin' && jurisdiction !== undefined) ||
-      (machineType !== 'admin' && jurisdiction === undefined)
-  );
+  if (machineType === 'admin' || machineType === 'poll-book') {
+    assert(jurisdiction !== undefined);
+  } else {
+    assert(jurisdiction === undefined);
+  }
   const entries = [
     ...STANDARD_CERT_FIELDS,
     `${VX_CUSTOM_CERT_FIELD.COMPONENT}=${machineType}`,
