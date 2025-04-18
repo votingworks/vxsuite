@@ -42,7 +42,7 @@ import {
 } from './support/auth';
 import {
   getAdjudicateButtons,
-  selectCandidateOrUndervote,
+  selectDropdownOption,
   WRITE_IN_NAMES,
 } from './support/write_in_adjudication';
 import {
@@ -371,6 +371,7 @@ async function insertUsbDriveWithCvrs({
 }
 
 test('results', async ({ page }) => {
+  test.setTimeout(75_000); // 75 seconds
   const usbHandler = getMockFileUsbDriveHandler();
   const printerHandler = getMockFilePrinterHandler();
   printerHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
@@ -435,6 +436,7 @@ test('results', async ({ page }) => {
       // is still rendering and the button press doesn't always register.
       // Zooming out, by acting as a delay, seems to avoid the problem.
       await page.getByText('Zoom Out').click();
+      await page.getByRole('combobox').click();
 
       // uneven but deterministic strategy for making adjudications
       switch (writeInIndex % 8) {
@@ -445,25 +447,25 @@ test('results', async ({ page }) => {
         case 4:
         case 5:
         case 6:
-          await page.getByRole('combobox').click();
-          await selectCandidateOrUndervote(page, writeInIndex);
+          // await page.getByRole('combobox').fill('  ');
+          // Selects "Not a mark" or existing candidate
+          await selectDropdownOption(page, writeInIndex);
           break;
         default: {
-          await page.getByRole('combobox').click();
           const writeInName = WRITE_IN_NAMES[Math.floor(writeInIndex / 8)];
           await page.getByRole('combobox').fill(writeInName);
-          await page.getByText(`Add: ${writeInName}`, { exact: true }).click();
+          await page.keyboard.press('Enter');
           break;
         }
       }
 
-      await getPrimaryButton(page).waitFor();
+      await expect(getPrimaryButton(page)).toBeEnabled();
       if (await page.getByText('Finish').isVisible()) {
         await page.getByText('Finish').click();
         await page.getByText('Write-In Adjudication').waitFor();
         hasFinishedWriteInsForContest = true;
       } else {
-        await page.getByText('Next').click();
+        await page.getByText('Save & Next').click();
         writeInIndex += 1;
       }
     }

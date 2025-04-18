@@ -372,9 +372,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const initialHasVoteByOptionIdRef = useRef<HasVoteByOptionId | null>(null);
   function setOptionHasVote(optionId: ContestOptionId, hasVote: boolean) {
     setHasVoteByOptionId((prev) => ({
-        ...prev,
-        [optionId]: hasVote,
-      }));
+      ...prev,
+      [optionId]: hasVote,
+    }));
   }
   const [writeInStatusByOptionId, setWriteInStatusByOptionId] =
     useState<WriteInStatusByOptionId>({});
@@ -385,9 +385,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
     status: WriteInAdjudicationStatus
   ) {
     setWriteInStatusByOptionId((prev) => ({
-        ...prev,
-        [optionId]: status,
-      }));
+      ...prev,
+      [optionId]: status,
+    }));
   }
   function clearBallotState() {
     setHasVoteByOptionId({});
@@ -483,7 +483,6 @@ export function ContestAdjudicationScreen(): JSX.Element {
     }
   }, [
     contestId,
-    cvrQueueIndex,
     officialCandidates,
     cvrVoteInfoQuery.data,
     cvrVoteInfoQuery.isStale,
@@ -746,6 +745,15 @@ export function ContestAdjudicationScreen(): JSX.Element {
     history.push(routerPaths.writeIns);
   }
 
+  const areQueriesStale =
+    cvrVoteInfoQuery.isStale ||
+    cvrQueueQuery.isStale ||
+    firstPendingCvrIdQuery.isStale ||
+    writeInImagesQuery.isStale ||
+    writeInsQuery.isStale ||
+    writeInCandidatesQuery.isStale ||
+    voteAdjudicationsQuery.isStale;
+
   return (
     <Screen>
       <Main flexRow data-testid={`transcribe:${currentCvrId}`}>
@@ -792,7 +800,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
               </Label>
             )}
           </BallotVoteCount>
-          {areQueriesFetching || !isStateReady ? (
+          {areQueriesStale || !isStateReady ? (
             <CandidateButtonList style={{ justifyContent: 'center' }}>
               <Icons.Loading />
             </CandidateButtonList>

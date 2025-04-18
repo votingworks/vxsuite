@@ -1,5 +1,5 @@
 /* eslint-disable vx/gts-jsdoc */
-import { Locator, Page } from '@playwright/test';
+import { expect, Locator, Page } from '@playwright/test';
 
 export function getAdjudicateButtons(page: Page): Locator {
   return page.getByText(/Adjudicate.*/);
@@ -9,7 +9,7 @@ export function getDropdownOptions(page: Page): Locator {
   return page.locator('div[aria-disabled="false"]');
 }
 
-export async function selectCandidateOrUndervote(
+export async function selectDropdownOption(
   page: Page,
   index: number
 ): Promise<void> {
@@ -17,6 +17,8 @@ export async function selectCandidateOrUndervote(
   const selection = dropdownOptions.nth(
     index % (await dropdownOptions.count())
   );
+  await selection.scrollIntoViewIfNeeded();
+  await expect(selection).toBeVisible();
   await selection.click();
 }
 
