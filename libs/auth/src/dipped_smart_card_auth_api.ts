@@ -12,6 +12,8 @@ import {
   VendorUser,
 } from '@votingworks/types';
 
+import { MachineType } from './certs';
+
 /**
  * The API for a dipped smart card auth instance, "dipped" meaning that the card needs to be
  * inserted and removed from the card reader for the user to be authenticated
@@ -56,9 +58,10 @@ export interface DippedSmartCardAuthConfig {
  * Machine state that the consumer is responsible for providing
  */
 export interface DippedSmartCardAuthMachineState {
+  arePollWorkerCardPinsEnabled: boolean;
   electionKey?: ElectionKey;
   jurisdiction?: string;
-  arePollWorkerCardPinsEnabled: boolean;
+  machineType: MachineType;
   numIncorrectPinAttemptsAllowedBeforeCardLockout: NumIncorrectPinAttemptsAllowedBeforeCardLockout;
   overallSessionTimeLimitHours: OverallSessionTimeLimitHours;
   startingCardLockoutDurationSeconds: StartingCardLockoutDurationSeconds;
