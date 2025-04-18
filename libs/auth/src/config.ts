@@ -60,10 +60,10 @@ function getMachineCertPathAndPrivateKey(): {
   };
 }
 
-interface VxAdminCardProgrammingConfig {
-  configType: 'vx_admin';
-  vxAdminCertAuthorityCertPath: string;
-  vxAdminPrivateKey: FileKey | TpmKey;
+interface MachineCardProgrammingConfig {
+  configType: 'machine';
+  machineCertAuthorityCertPath: string;
+  machinePrivateKey: FileKey | TpmKey;
 }
 
 interface VxCardProgrammingConfig {
@@ -75,7 +75,7 @@ interface VxCardProgrammingConfig {
  * Config params for card programming, by either a VxAdmin or VotingWorks directly
  */
 export type CardProgrammingConfig =
-  | VxAdminCardProgrammingConfig
+  | MachineCardProgrammingConfig
   | VxCardProgrammingConfig;
 
 /**
@@ -100,9 +100,9 @@ export function constructJavaCardConfig(): JavaCardConfig {
   if (machineType === 'admin') {
     const { certPath, privateKey } = getMachineCertPathAndPrivateKey();
     cardProgrammingConfig = {
-      configType: 'vx_admin',
-      vxAdminCertAuthorityCertPath: certPath,
-      vxAdminPrivateKey: privateKey,
+      configType: 'machine',
+      machineCertAuthorityCertPath: certPath,
+      machinePrivateKey: privateKey,
     };
   }
   return {

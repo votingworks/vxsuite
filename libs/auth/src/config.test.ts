@@ -41,11 +41,11 @@ test.each<{
     machineType: 'admin',
     expectedOutput: {
       cardProgrammingConfig: {
-        configType: 'vx_admin',
-        vxAdminCertAuthorityCertPath: expect.stringContaining(
+        configType: 'machine',
+        machineCertAuthorityCertPath: expect.stringContaining(
           '/certs/dev/vx-admin-cert-authority-cert.pem'
         ),
-        vxAdminPrivateKey: {
+        machinePrivateKey: {
           source: 'file',
           path: expect.stringContaining('/certs/dev/vx-admin-private-key.pem'),
         },
@@ -69,10 +69,10 @@ test.each<{
     machineType: 'admin',
     expectedOutput: {
       cardProgrammingConfig: {
-        configType: 'vx_admin',
-        vxAdminCertAuthorityCertPath:
+        configType: 'machine',
+        machineCertAuthorityCertPath:
           '/vx/config/vx-admin-cert-authority-cert.pem',
-        vxAdminPrivateKey: { source: 'tpm' },
+        machinePrivateKey: { source: 'tpm' },
       },
       vxCertAuthorityCertPath: expect.stringContaining(
         '/certs/prod/vx-cert-authority-cert.pem'
@@ -94,11 +94,11 @@ test.each<{
     machineType: 'admin',
     expectedOutput: {
       cardProgrammingConfig: {
-        configType: 'vx_admin',
-        vxAdminCertAuthorityCertPath: expect.stringContaining(
+        configType: 'machine',
+        machineCertAuthorityCertPath: expect.stringContaining(
           '/certs/dev/vx-admin-cert-authority-cert.pem'
         ),
-        vxAdminPrivateKey: {
+        machinePrivateKey: {
           source: 'file',
           path: expect.stringContaining('/certs/dev/vx-admin-private-key.pem'),
         },
@@ -124,11 +124,11 @@ test.each<{
     machineType: 'admin',
     expectedOutput: {
       cardProgrammingConfig: {
-        configType: 'vx_admin',
-        vxAdminCertAuthorityCertPath: expect.stringContaining(
+        configType: 'machine',
+        machineCertAuthorityCertPath: expect.stringContaining(
           '/certs/dev/vx-admin-cert-authority-cert.pem'
         ),
-        vxAdminPrivateKey: {
+        machinePrivateKey: {
           source: 'file',
           path: expect.stringContaining('/certs/dev/vx-admin-private-key.pem'),
         },

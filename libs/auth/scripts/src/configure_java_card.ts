@@ -19,8 +19,8 @@ import {
   JavaCard,
   MAX_NUM_INCORRECT_PIN_ATTEMPTS,
   OPEN_FIPS_201_AID,
+  PROGRAMMING_MACHINE_CERT_AUTHORITY_CERT,
   PUK,
-  VX_ADMIN_CERT_AUTHORITY_CERT,
 } from '../../src/java_card';
 import {
   construct8BytePinBuffer,
@@ -236,7 +236,9 @@ async function runAppletConfigurationCommands(): Promise<void> {
     // Configure data object slots
     configureDataObjectSlotCommandApdu(CARD_VX_CERT.OBJECT_ID),
     configureDataObjectSlotCommandApdu(CARD_IDENTITY_CERT.OBJECT_ID),
-    configureDataObjectSlotCommandApdu(VX_ADMIN_CERT_AUTHORITY_CERT.OBJECT_ID),
+    configureDataObjectSlotCommandApdu(
+      PROGRAMMING_MACHINE_CERT_AUTHORITY_CERT.OBJECT_ID
+    ),
     ...GENERIC_STORAGE_SPACE.OBJECT_IDS.map((objectId) =>
       configureDataObjectSlotCommandApdu(objectId)
     ),

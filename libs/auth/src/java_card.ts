@@ -118,7 +118,7 @@ export const CARD_IDENTITY_CERT = {
 /**
  * The cert authority cert of the VxAdmin that programmed the card. Not relevant for vendor cards.
  */
-export const VX_ADMIN_CERT_AUTHORITY_CERT = {
+export const PROGRAMMING_MACHINE_CERT_AUTHORITY_CERT = {
   OBJECT_ID: pivDataObjectId(0xf2),
 } as const;
 
@@ -348,8 +348,8 @@ export class JavaCard implements Card {
       });
       await this.storeCert(CARD_IDENTITY_CERT.OBJECT_ID, cardIdentityCert);
     } else {
-      assert(this.cardProgrammingConfig.configType === 'vx_admin');
-      const { vxAdminCertAuthorityCertPath, vxAdminPrivateKey } =
+      assert(this.cardProgrammingConfig.configType === 'machine');
+      const { machineCertAuthorityCertPath, machinePrivateKey } =
         this.cardProgrammingConfig;
 
       // Store card identity cert
@@ -359,25 +359,27 @@ export class JavaCard implements Card {
           user.role === 'system_administrator'
             ? CERT_EXPIRY_IN_DAYS.SYSTEM_ADMINISTRATOR_CARD_IDENTITY_CERT
             : CERT_EXPIRY_IN_DAYS.ELECTION_CARD_IDENTITY_CERT,
-        signingCertAuthorityCertPath: vxAdminCertAuthorityCertPath,
-        signingPrivateKey: vxAdminPrivateKey,
+        signingCertAuthorityCertPath: machineCertAuthorityCertPath,
+        signingPrivateKey: machinePrivateKey,
       });
       await this.storeCert(CARD_IDENTITY_CERT.OBJECT_ID, cardIdentityCert);
 
       // Store VxAdmin cert authority cert
-      const vxAdminCertAuthorityCert = await fs.readFile(
-        vxAdminCertAuthorityCertPath
+      const programmingMachineCertAuthorityCert = await fs.readFile(
+        machineCertAuthorityCertPath
       );
-      const vxAdminCertAuthorityCertDetails = await parseMachineDetailsFromCert(
-        vxAdminCertAuthorityCert
-      );
-      assert(vxAdminCertAuthorityCertDetails.machineType === 'admin');
+      const programmingMachineCertAuthorityCertDetails =
+        await parseMachineDetailsFromCert(programmingMachineCertAuthorityCert);
       assert(
-        user.jurisdiction === vxAdminCertAuthorityCertDetails.jurisdiction
+        programmingMachineCertAuthorityCertDetails.machineType === 'admin'
+      );
+      assert(
+        user.jurisdiction ===
+          programmingMachineCertAuthorityCertDetails.jurisdiction
       );
       await this.storeCert(
-        VX_ADMIN_CERT_AUTHORITY_CERT.OBJECT_ID,
-        vxAdminCertAuthorityCert
+        PROGRAMMING_MACHINE_CERT_AUTHORITY_CERT.OBJECT_ID,
+        programmingMachineCertAuthorityCert
       );
     }
 
@@ -392,7 +394,7 @@ export class JavaCard implements Card {
     await this.selectApplet();
     await this.resetPinAndInvalidateCard(DEFAULT_PIN);
     await this.clearCert(CARD_IDENTITY_CERT.OBJECT_ID);
-    await this.clearCert(VX_ADMIN_CERT_AUTHORITY_CERT.OBJECT_ID);
+    await this.clearCert(PROGRAMMING_MACHINE_CERT_AUTHORITY_CERT.OBJECT_ID);
     await this.clearData();
     this.cardStatus = {
       status: 'ready',
@@ -514,28 +516,29 @@ export class JavaCard implements Card {
       );
     } else {
       // Verify that the card identity cert was signed by VxAdmin
-      const vxAdminCertAuthorityCert = await this.retrieveCert(
-        VX_ADMIN_CERT_AUTHORITY_CERT.OBJECT_ID
+      const programmingMachineCertAuthorityCert = await this.retrieveCert(
+        PROGRAMMING_MACHINE_CERT_AUTHORITY_CERT.OBJECT_ID
       );
       await verifyFirstCertWasSignedBySecondCert(
         cardIdentityCert,
-        vxAdminCertAuthorityCert
+        programmingMachineCertAuthorityCert
       );
 
       // Verify that the VxAdmin cert authority cert on the card is a valid VxAdmin cert, signed by
       // VotingWorks
-      const vxAdminCertAuthorityCertDetails = await parseMachineDetailsFromCert(
-        vxAdminCertAuthorityCert
+      const programmingMachineCertAuthorityCertDetails =
+        await parseMachineDetailsFromCert(programmingMachineCertAuthorityCert);
+      assert(
+        programmingMachineCertAuthorityCertDetails.machineType === 'admin'
       );
-      assert(vxAdminCertAuthorityCertDetails.machineType === 'admin');
       await verifyFirstCertWasSignedBySecondCert(
-        vxAdminCertAuthorityCert,
+        programmingMachineCertAuthorityCert,
         this.vxCertAuthorityCertPath
       );
 
       assert(
         cardDetails.user.jurisdiction ===
-          vxAdminCertAuthorityCertDetails.jurisdiction
+          programmingMachineCertAuthorityCertDetails.jurisdiction
       );
     }
 
@@ -846,14 +849,15 @@ export class JavaCard implements Card {
     certIdentifier:
       | 'cardVxCert'
       | 'cardIdentityCert'
-      | 'vxAdminCertAuthorityCert'
+      | 'programmingMachineCertAuthorityCert'
   ): Promise<Buffer> {
     await this.selectApplet();
 
     const certConfigs = {
       cardVxCert: CARD_VX_CERT,
       cardIdentityCert: CARD_IDENTITY_CERT,
-      vxAdminCertAuthorityCert: VX_ADMIN_CERT_AUTHORITY_CERT,
+      programmingMachineCertAuthorityCert:
+        PROGRAMMING_MACHINE_CERT_AUTHORITY_CERT,
     } as const;
     return await this.retrieveCert(certConfigs[certIdentifier].OBJECT_ID);
   }
