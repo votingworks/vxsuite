@@ -8,7 +8,7 @@ import {
   SignedHashValidationQrCodeValue,
 } from '@votingworks/types';
 
-import { parseMachineDetailsFromCert } from './certs';
+import { parseCert } from './certs';
 import {
   constructSignedHashValidationConfig,
   SignedHashValidationConfig,
@@ -107,7 +107,9 @@ export async function generateSignedHashValidationQrCodeValue(
   });
 
   const machineCert = await fs.readFile(config.machineCertPath);
-  const { machineId } = await parseMachineDetailsFromCert(machineCert);
+  const certDetails = await parseCert(machineCert);
+  assert(certDetails.component !== 'card');
+  const { machineId } = certDetails;
 
   const qrCodeValueParts: string[] = [
     message,
