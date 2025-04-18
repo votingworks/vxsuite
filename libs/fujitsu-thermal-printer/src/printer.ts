@@ -1,4 +1,10 @@
-import { assert, err, ok, Optional, Result } from '@votingworks/basics';
+import {
+  assert,
+  err,
+  extractErrorMessage,
+  ok,
+  Result,
+} from '@votingworks/basics';
 import { ImageData } from '@votingworks/image-utils';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
@@ -37,13 +43,11 @@ export class FujitsuThermalPrinter implements FujitsuThermalPrinterInterface {
   /**
    * Initializes and returns a new driver instance.
    */
-  private async initializeDriver(): Promise<
-    Optional<FujitsuThermalPrinterDriver>
-  > {
+  private async initializeDriver(): Promise<FujitsuThermalPrinterDriver> {
     const device = await getDevice();
     if (!device) {
       // the device is not attached or there is an access issue
-      return;
+      throw new Error('Printer not found');
     }
 
     const driver = new FujitsuThermalPrinterDriver(device);
@@ -71,19 +75,19 @@ export class FujitsuThermalPrinter implements FujitsuThermalPrinterInterface {
   }
 
   private async getCurrentStatus(): Promise<PrinterStatus> {
-    this.driver ??= await this.initializeDriver();
-    // if we failed to initialize the driver, the device is likely not connected
-    if (!this.driver) {
-      return { state: 'error', type: 'disconnected' };
-    }
-
     try {
+      this.driver ??= await this.initializeDriver();
       const status = await this.driver.getStatus();
       return summarizeRawStatus(status);
-    } catch {
-      // if a status request fails, the device is likely no longer connected
+    } catch (error) {
+      // If we failed to initialize the driver or a status request fails, the
+      // device is likely not connected.
       this.driver = undefined;
-      return { state: 'error', type: 'disconnected' };
+      return {
+        state: 'error',
+        type: 'disconnected',
+        message: extractErrorMessage(error),
+      };
     }
   }
 

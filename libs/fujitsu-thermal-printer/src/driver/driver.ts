@@ -24,10 +24,10 @@ import { rootDebug } from '../debug';
 const debug = rootDebug.extend('driver');
 
 // USB Interface Information
-const VENDOR_ID = 0x0430;
-const PRODUCT_ID = 0x0626;
-const CONFIGURATION_NUMBER = 1;
-const INTERFACE_NUMBER = 0;
+export const VENDOR_ID = 0x0430;
+export const PRODUCT_ID = 0x0626;
+export const CONFIGURATION_NUMBER = 1;
+export const INTERFACE_NUMBER = 0;
 const ENDPOINT_OUT = 1;
 
 export async function getDevice(): Promise<Optional<WebUSBDevice>> {
