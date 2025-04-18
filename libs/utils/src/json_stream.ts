@@ -35,6 +35,11 @@ export type JsonStreamInput<T> =
   | number
   | boolean;
 
+export class RawJson {
+  // eslint-disable-next-line vx/gts-no-public-class-fields
+  constructor(public contents: string) {}
+}
+
 /**
  * Stream a JSON-serializable value as a series of strings. In addition to the
  * standard JSON types, this also supports `Iterable` values such as
@@ -81,6 +86,8 @@ export async function* jsonStream<T>(
 
     if (value === null) {
       yield 'null';
+    } else if (value instanceof RawJson) {
+      yield value.contents;
     } else if (
       typeof value === 'boolean' ||
       typeof value === 'number' ||

@@ -18,7 +18,7 @@ export enum LogDispositionStandardTypes {
 export type LoggingUserRole = UserRole | 'vx-staff' | 'system' | 'unknown';
 export type LogDisposition = LogDispositionStandardTypes | string;
 
-export interface LogLine extends Dictionary<string> {
+export interface LogLineKnownFields {
   source: LogSource;
   eventId: LogEventId;
   eventType: LogEventType;
@@ -27,6 +27,8 @@ export interface LogLine extends Dictionary<string> {
   message?: string;
   timeLogInitiated?: string;
 }
+
+export interface LogLine extends Dictionary<string>, LogLineKnownFields {}
 
 export const LogSourceSchema: z.ZodSchema<LogSource> = z.nativeEnum(LogSource);
 export const AppNameSchema: z.ZodSchema<AppName> = z.nativeEnum(AppName);

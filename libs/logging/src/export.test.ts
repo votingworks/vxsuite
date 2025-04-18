@@ -1,10 +1,21 @@
 import { describe, expect, test, vi } from 'vitest';
 import { assert, iter } from '@votingworks/basics';
 import { EventLogging, safeParseJson } from '@votingworks/types';
-import { createReadStream } from 'node:fs';
+import { createReadStream, createWriteStream } from 'node:fs';
+import fs from 'node:fs/promises';
 import { join } from 'node:path';
-import { LogEventId, LogEventType, LogLine, LogSource, mockLogger } from '.';
-import { buildCdfLog, filterErrorLogs } from './export';
+import { pipeline } from 'node:stream/promises';
+import readline from 'node:readline/promises';
+import { jsonStream } from '@votingworks/utils';
+import {
+  DEVICE_TYPES_FOR_APP,
+  LogEventId,
+  LogEventType,
+  LogLine,
+  LogSource,
+  mockLogger,
+} from '.';
+import { buildCdfLog, convertToCdfEvents, filterErrorLogs } from './export';
 
 vi.useFakeTimers().setSystemTime(new Date('2020-07-24T00:00:00.000Z'));
 
@@ -108,6 +119,65 @@ describe('buildCdfLog', () => {
       })
     );
   });
+
+  // eslint-disable-next-line vitest/no-focused-tests
+  test.only(
+    'convert lots of things',
+    async () => {
+      const logger = mockLogger({
+        source: LogSource.VxAdminFrontend,
+        role: 'election_manager',
+        fn: vi.fn,
+      });
+
+      console.time('convert');
+
+      // await pipeline(
+      //   createReadStream(join(__dirname, 'biglog.log'), 'utf8'),
+      //   (inputStream: AsyncIterable<string>) =>
+      //     buildCdfLog(logger, inputStream, '001', 'dev'),
+      //   createWriteStream(join(__dirname, 'biglog.cdf.log'))
+      // );
+
+      const outputFile = createWriteStream(join(__dirname, 'biglog.cdf.log'));
+      outputFile.write(
+        `{"@type":"EventLogging.ElectionEventLog",` +
+          `"GeneratedTime":"${new Date().toISOString()}",` +
+          `"Device":[{` +
+          `"@type":"EventLogging.Device",` +
+          `"Type":"${DEVICE_TYPES_FOR_APP[LogSource.VxAdminFrontend]}",` +
+          `"Id":"001",` +
+          `"Version":"dev",` +
+          `"Events":[`
+      );
+
+      const lines = readline.createInterface(
+        createReadStream(join(__dirname, 'smollog.log'), 'utf8')
+      );
+
+      let idx = 0;
+      let seq = 0;
+      for await (const line of lines) {
+        const event = await convertToCdfEvents(logger, line, seq);
+        seq += 1;
+
+        if (event === null) continue;
+
+        if (idx > 0) outputFile.write(',');
+        outputFile.write(JSON.stringify(event));
+        idx += 1;
+      }
+
+      outputFile.write(
+        `]` + // end "Events"
+          `}]` + // end "Device"
+          `}` // end
+      );
+
+      console.timeEnd('convert');
+    },
+    60_000 * 5
+  );
 
   test('log with unspecified disposition as expected', async () => {
     const logger = mockLogger({ source: LogSource.VxAdminFrontend, fn: vi.fn });
