@@ -42,8 +42,7 @@ import {
 } from './support/auth';
 import {
   getAdjudicateButtons,
-  markUndervote,
-  selectCandidate,
+  selectCandidateOrUndervote,
   WRITE_IN_NAMES,
 } from './support/write_in_adjudication';
 import {
@@ -445,22 +444,17 @@ test('results', async ({ page }) => {
         case 3:
         case 4:
         case 5:
-          await selectCandidate(page, writeInIndex);
-          // if it's a double vote, just treat it as invalid
-          if (await page.getByRole('alertdialog').isVisible()) {
-            await page.getByText('Cancel').click();
-            await markUndervote(page);
-          }
-          break;
         case 6:
-          await page.getByText('Add new write-in candidate').click();
-          await page.keyboard.type(
-            WRITE_IN_NAMES[Math.floor(writeInIndex / 8)]
-          );
-          await page.getByText('Add', { exact: true }).click();
+          await page.getByRole('combobox').click();
+          await selectCandidateOrUndervote(page, writeInIndex);
           break;
-        default:
-          await markUndervote(page);
+        default: {
+          await page.getByRole('combobox').click();
+          const writeInName = WRITE_IN_NAMES[Math.floor(writeInIndex / 8)];
+          await page.getByRole('combobox').fill(writeInName);
+          await page.getByText(`Add: ${writeInName}`, { exact: true }).click();
+          break;
+        }
       }
 
       await getPrimaryButton(page).waitFor();
@@ -610,13 +604,13 @@ test('wia', async ({ page }) => {
   await page.getByText('Zoom Out').click();
   await expect(page.getByText('Zoom In')).toBeEnabled();
   await screenshot('write-in-adjudication-view-zoomed-out');
-
+  await page.getByRole('combobox').click();
+  await screenshot('write-in-adjudication-view-write-in-focused');
+  await page.getByRole('combobox').fill('New Candidate');
+  await page.keyboard.press('Enter');
+  await screenshot('write-in-adjudication-new-candidate-adjudicated');
   await page.getByText('Finish').click();
-  await page.getByText('Adjudicate 2').click();
-  await page.getByText('Zoom Out').click();
-  await page.getByText('Obadiah Carrigan').click();
-  await page.getByText('Possible Double Vote Detected').waitFor();
-  await screenshot('write-in-adjudication-double-vote');
+  await page.getByText('Write-In Adjudication').waitFor();
 });
 
 test('manual results', async ({ page }) => {
