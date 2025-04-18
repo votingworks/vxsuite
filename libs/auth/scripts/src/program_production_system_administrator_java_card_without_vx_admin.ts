@@ -59,9 +59,9 @@ async function instantiateJavaCardWithOneOffVxAdminPrivateKeyAndCertAuthorityCer
 
   const card = new JavaCard({
     cardProgrammingConfig: {
-      configType: 'vx_admin',
-      vxAdminCertAuthorityCertPath,
-      vxAdminPrivateKey: { source: 'file', path: vxAdminPrivateKeyPath },
+      configType: 'machine',
+      machineCertAuthorityCertPath: vxAdminCertAuthorityCertPath,
+      machinePrivateKey: { source: 'file', path: vxAdminPrivateKeyPath },
     },
     vxCertAuthorityCertPath: PROD_VX_CERT_AUTHORITY_CERT_PATH,
   });

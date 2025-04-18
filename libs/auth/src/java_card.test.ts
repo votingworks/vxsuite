@@ -52,8 +52,8 @@ import {
   JavaCard,
   MAX_NUM_INCORRECT_PIN_ATTEMPTS,
   OPEN_FIPS_201_AID,
+  PROGRAMMING_MACHINE_CERT_AUTHORITY_CERT,
   PUK,
-  VX_ADMIN_CERT_AUTHORITY_CERT,
 } from './java_card';
 import {
   construct8BytePinBuffer,
@@ -119,11 +119,11 @@ const config: JavaCardConfig = {
 const configWithVxAdminCardProgrammingConfig: JavaCardConfig = {
   ...config,
   cardProgrammingConfig: {
-    configType: 'vx_admin',
-    vxAdminCertAuthorityCertPath: getTestFilePath({
+    configType: 'machine',
+    machineCertAuthorityCertPath: getTestFilePath({
       fileType: 'vx-admin-cert-authority-cert.pem',
     }),
-    vxAdminPrivateKey: {
+    machinePrivateKey: {
       source: 'file',
       path: getTestFilePath({
         fileType: 'vx-admin-private-key.pem',
@@ -397,7 +397,7 @@ test.each<{
   // Use null to indicate that the relevant data is not expected to be retrieved or used
   cardIdentityCert: TestFileSetId | null;
   isCardIdentityCertExpired?: boolean;
-  vxAdminCertAuthorityCert: TestFileSetId | null;
+  programmingMachineCertAuthorityCert: TestFileSetId | null;
   cardVxPrivateKey: TestFileSetId | null;
   cardIdentityPrivateKey: TestFileSetId | null;
   numRemainingPinAttempts: number | Error | null;
@@ -409,7 +409,7 @@ test.each<{
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
     cardIdentityCert: '1',
-    vxAdminCertAuthorityCert: null,
+    programmingMachineCertAuthorityCert: null,
     cardVxPrivateKey: '1',
     cardIdentityPrivateKey: null,
     numRemainingPinAttempts: MAX_NUM_INCORRECT_PIN_ATTEMPTS,
@@ -423,7 +423,7 @@ test.each<{
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
     cardIdentityCert: '1',
-    vxAdminCertAuthorityCert: '1',
+    programmingMachineCertAuthorityCert: '1',
     cardVxPrivateKey: '1',
     cardIdentityPrivateKey: null,
     numRemainingPinAttempts: MAX_NUM_INCORRECT_PIN_ATTEMPTS,
@@ -437,7 +437,7 @@ test.each<{
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
     cardIdentityCert: '1',
-    vxAdminCertAuthorityCert: '1',
+    programmingMachineCertAuthorityCert: '1',
     cardVxPrivateKey: '1',
     cardIdentityPrivateKey: null,
     numRemainingPinAttempts: MAX_NUM_INCORRECT_PIN_ATTEMPTS,
@@ -451,7 +451,7 @@ test.each<{
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
     cardIdentityCert: '1',
-    vxAdminCertAuthorityCert: '1',
+    programmingMachineCertAuthorityCert: '1',
     cardVxPrivateKey: '1',
     cardIdentityPrivateKey: '1',
     numRemainingPinAttempts: null,
@@ -466,7 +466,7 @@ test.each<{
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
     cardIdentityCert: '1',
-    vxAdminCertAuthorityCert: '1',
+    programmingMachineCertAuthorityCert: '1',
     cardVxPrivateKey: '1',
     cardIdentityPrivateKey: null,
     numRemainingPinAttempts: MAX_NUM_INCORRECT_PIN_ATTEMPTS,
@@ -481,7 +481,7 @@ test.each<{
     vxCertAuthorityCert: '1',
     cardVxCert: '2',
     cardIdentityCert: null,
-    vxAdminCertAuthorityCert: null,
+    programmingMachineCertAuthorityCert: null,
     cardVxPrivateKey: null,
     cardIdentityPrivateKey: null,
     numRemainingPinAttempts: null,
@@ -496,7 +496,7 @@ test.each<{
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
     cardIdentityCert: '2',
-    vxAdminCertAuthorityCert: null,
+    programmingMachineCertAuthorityCert: null,
     cardVxPrivateKey: null,
     cardIdentityPrivateKey: null,
     numRemainingPinAttempts: null,
@@ -511,7 +511,7 @@ test.each<{
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
     cardIdentityCert: '2',
-    vxAdminCertAuthorityCert: '1',
+    programmingMachineCertAuthorityCert: '1',
     cardVxPrivateKey: null,
     cardIdentityPrivateKey: null,
     numRemainingPinAttempts: null,
@@ -526,7 +526,7 @@ test.each<{
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
     cardIdentityCert: '1',
-    vxAdminCertAuthorityCert: '2',
+    programmingMachineCertAuthorityCert: '2',
     cardVxPrivateKey: null,
     cardIdentityPrivateKey: null,
     numRemainingPinAttempts: null,
@@ -543,7 +543,7 @@ test.each<{
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
     cardIdentityCert: '1',
-    vxAdminCertAuthorityCert: '1',
+    programmingMachineCertAuthorityCert: '1',
     cardVxPrivateKey: '2',
     cardIdentityPrivateKey: null,
     numRemainingPinAttempts: null,
@@ -560,7 +560,7 @@ test.each<{
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
     cardIdentityCert: '1',
-    vxAdminCertAuthorityCert: '1',
+    programmingMachineCertAuthorityCert: '1',
     cardVxPrivateKey: '1',
     cardIdentityPrivateKey: '2',
     numRemainingPinAttempts: null,
@@ -575,7 +575,7 @@ test.each<{
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
     cardIdentityCert: '1',
-    vxAdminCertAuthorityCert: '1',
+    programmingMachineCertAuthorityCert: '1',
     cardVxPrivateKey: '1',
     cardIdentityPrivateKey: null,
     numRemainingPinAttempts: MAX_NUM_INCORRECT_PIN_ATTEMPTS - 5,
@@ -590,7 +590,7 @@ test.each<{
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
     cardIdentityCert: '1',
-    vxAdminCertAuthorityCert: '1',
+    programmingMachineCertAuthorityCert: '1',
     cardVxPrivateKey: '1',
     cardIdentityPrivateKey: null,
     numRemainingPinAttempts: new Error('Whoa!'),
@@ -606,7 +606,7 @@ test.each<{
     cardVxCert: '1',
     cardIdentityCert: '1',
     isCardIdentityCertExpired: true,
-    vxAdminCertAuthorityCert: null,
+    programmingMachineCertAuthorityCert: null,
     cardVxPrivateKey: null,
     cardIdentityPrivateKey: null,
     numRemainingPinAttempts: null,
@@ -622,7 +622,7 @@ test.each<{
     cardVxCert: '1',
     cardIdentityCert: '1',
     isCardIdentityCertExpired: true,
-    vxAdminCertAuthorityCert: '1',
+    programmingMachineCertAuthorityCert: '1',
     cardVxPrivateKey: null,
     cardIdentityPrivateKey: null,
     numRemainingPinAttempts: null,
@@ -638,7 +638,7 @@ test.each<{
     cardVxCert: '1',
     cardIdentityCert: '1',
     isCardIdentityCertExpired: true,
-    vxAdminCertAuthorityCert: '1',
+    programmingMachineCertAuthorityCert: '1',
     cardVxPrivateKey: null,
     cardIdentityPrivateKey: null,
     numRemainingPinAttempts: null,
@@ -654,7 +654,7 @@ test.each<{
     cardVxCert: '1',
     cardIdentityCert: '1',
     isCardIdentityCertExpired: true,
-    vxAdminCertAuthorityCert: '1',
+    programmingMachineCertAuthorityCert: '1',
     cardVxPrivateKey: null,
     cardIdentityPrivateKey: null,
     numRemainingPinAttempts: null,
@@ -671,7 +671,7 @@ test.each<{
     cardVxCert,
     cardIdentityCert,
     isCardIdentityCertExpired,
-    vxAdminCertAuthorityCert,
+    programmingMachineCertAuthorityCert,
     cardVxPrivateKey,
     cardIdentityPrivateKey,
     numRemainingPinAttempts,
@@ -706,11 +706,11 @@ test.each<{
         })
       );
     }
-    if (vxAdminCertAuthorityCert) {
+    if (programmingMachineCertAuthorityCert) {
       mockCardCertRetrievalRequest(
-        VX_ADMIN_CERT_AUTHORITY_CERT.OBJECT_ID,
+        PROGRAMMING_MACHINE_CERT_AUTHORITY_CERT.OBJECT_ID,
         getTestFilePath({
-          setId: vxAdminCertAuthorityCert,
+          setId: programmingMachineCertAuthorityCert,
           fileType: 'vx-admin-cert-authority-cert.der',
         })
       );
@@ -834,7 +834,7 @@ test.each<{
   expectedExpiryInDays: number;
   expectedSigningCertAuthorityCertPath: string;
   expectedSigningPrivateKeyPath: string;
-  isVxAdminCertAuthorityCertRetrievalRequestExpected: boolean;
+  isProgrammingMachineCertAuthorityCertRetrievalRequestExpected: boolean;
   expectedCardDetailsAfterProgramming: CardDetails;
 }>([
   {
@@ -857,7 +857,7 @@ test.each<{
     expectedSigningPrivateKeyPath: getTestFilePath({
       fileType: 'vx-private-key.pem',
     }),
-    isVxAdminCertAuthorityCertRetrievalRequestExpected: false,
+    isProgrammingMachineCertAuthorityCertRetrievalRequestExpected: false,
     expectedCardDetailsAfterProgramming: {
       user: vendorUser,
     },
@@ -882,7 +882,7 @@ test.each<{
     expectedSigningPrivateKeyPath: getTestFilePath({
       fileType: 'vx-admin-private-key.pem',
     }),
-    isVxAdminCertAuthorityCertRetrievalRequestExpected: true,
+    isProgrammingMachineCertAuthorityCertRetrievalRequestExpected: true,
     expectedCardDetailsAfterProgramming: {
       user: systemAdministratorUser,
     },
@@ -909,7 +909,7 @@ test.each<{
     expectedSigningPrivateKeyPath: getTestFilePath({
       fileType: 'vx-admin-private-key.pem',
     }),
-    isVxAdminCertAuthorityCertRetrievalRequestExpected: true,
+    isProgrammingMachineCertAuthorityCertRetrievalRequestExpected: true,
     expectedCardDetailsAfterProgramming: {
       user: electionManagerUser,
     },
@@ -935,7 +935,7 @@ test.each<{
     expectedSigningPrivateKeyPath: getTestFilePath({
       fileType: 'vx-admin-private-key.pem',
     }),
-    isVxAdminCertAuthorityCertRetrievalRequestExpected: true,
+    isProgrammingMachineCertAuthorityCertRetrievalRequestExpected: true,
     expectedCardDetailsAfterProgramming: {
       user: pollWorkerUser,
       hasPin: false,
@@ -963,7 +963,7 @@ test.each<{
     expectedSigningPrivateKeyPath: getTestFilePath({
       fileType: 'vx-admin-private-key.pem',
     }),
-    isVxAdminCertAuthorityCertRetrievalRequestExpected: true,
+    isProgrammingMachineCertAuthorityCertRetrievalRequestExpected: true,
     expectedCardDetailsAfterProgramming: {
       user: pollWorkerUser,
       hasPin: true,
@@ -979,7 +979,7 @@ test.each<{
     expectedExpiryInDays,
     expectedSigningCertAuthorityCertPath,
     expectedSigningPrivateKeyPath,
-    isVxAdminCertAuthorityCertRetrievalRequestExpected,
+    isProgrammingMachineCertAuthorityCertRetrievalRequestExpected,
     expectedCardDetailsAfterProgramming,
   }) => {
     const javaCard = new JavaCard(configToUse);
@@ -1006,9 +1006,9 @@ test.each<{
       CARD_IDENTITY_CERT.OBJECT_ID,
       cardIdentityCertPath
     );
-    if (isVxAdminCertAuthorityCertRetrievalRequestExpected) {
+    if (isProgrammingMachineCertAuthorityCertRetrievalRequestExpected) {
       mockCardCertStorageRequest(
-        VX_ADMIN_CERT_AUTHORITY_CERT.OBJECT_ID,
+        PROGRAMMING_MACHINE_CERT_AUTHORITY_CERT.OBJECT_ID,
         getTestFilePath({
           fileType: 'vx-admin-cert-authority-cert.der',
         })
@@ -1056,7 +1056,10 @@ test('Unprogramming', async () => {
   mockCardAppletSelectionRequest();
   mockCardPinResetRequest(DEFAULT_PIN);
   mockCardPutDataRequest(CARD_IDENTITY_CERT.OBJECT_ID, Buffer.of());
-  mockCardPutDataRequest(VX_ADMIN_CERT_AUTHORITY_CERT.OBJECT_ID, Buffer.of());
+  mockCardPutDataRequest(
+    PROGRAMMING_MACHINE_CERT_AUTHORITY_CERT.OBJECT_ID,
+    Buffer.of()
+  );
   mockCardAppletSelectionRequest();
   for (const objectId of GENERIC_STORAGE_SPACE.OBJECT_IDS) {
     mockCardPutDataRequest(objectId, Buffer.of());
