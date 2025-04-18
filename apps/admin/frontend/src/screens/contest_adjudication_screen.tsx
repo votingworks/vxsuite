@@ -372,9 +372,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const initialHasVoteByOptionIdRef = useRef<HasVoteByOptionId | null>(null);
   function setOptionHasVote(optionId: ContestOptionId, hasVote: boolean) {
     setHasVoteByOptionId((prev) => ({
-        ...prev,
-        [optionId]: hasVote,
-      }));
+      ...prev,
+      [optionId]: hasVote,
+    }));
   }
   const [writeInStatusByOptionId, setWriteInStatusByOptionId] =
     useState<WriteInStatusByOptionId>({});
@@ -385,9 +385,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
     status: WriteInAdjudicationStatus
   ) {
     setWriteInStatusByOptionId((prev) => ({
-        ...prev,
-        [optionId]: status,
-      }));
+      ...prev,
+      [optionId]: status,
+    }));
   }
   function clearBallotState() {
     setHasVoteByOptionId({});
@@ -483,7 +483,6 @@ export function ContestAdjudicationScreen(): JSX.Element {
     }
   }, [
     contestId,
-    cvrQueueIndex,
     officialCandidates,
     cvrVoteInfoQuery.data,
     cvrVoteInfoQuery.isStale,
@@ -660,7 +659,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
     return undefined;
   }
 
-  function saveAndNext(): void {
+  async function saveAndNext(): Promise<void> {
     const adjudicatedContestOptionById: Record<
       ContestOptionId,
       AdjudicatedContestOption
@@ -704,12 +703,16 @@ export function ContestAdjudicationScreen(): JSX.Element {
         };
       }
     }
-    adjudicateCvrContestMutation.mutate(adjudicatedCvrContest);
-    if (onLastBallot) {
-      history.push(routerPaths.writeIns);
-    } else {
-      setCvrQueueIndex(safeCvrQueueIndex + 1);
-      clearBallotState();
+    try {
+      await adjudicateCvrContestMutation.mutateAsync(adjudicatedCvrContest);
+      if (onLastBallot) {
+        history.push(routerPaths.writeIns);
+      } else {
+        setCvrQueueIndex(safeCvrQueueIndex + 1);
+        clearBallotState();
+      }
+    } catch {
+      // Handled by default query client error handling
     }
   }
 
@@ -745,6 +748,15 @@ export function ContestAdjudicationScreen(): JSX.Element {
     }
     history.push(routerPaths.writeIns);
   }
+
+  const areQueriesStale =
+    cvrVoteInfoQuery.isStale ||
+    cvrQueueQuery.isStale ||
+    firstPendingCvrIdQuery.isStale ||
+    writeInImagesQuery.isStale ||
+    writeInsQuery.isStale ||
+    writeInCandidatesQuery.isStale ||
+    voteAdjudicationsQuery.isStale;
 
   return (
     <Screen>
@@ -792,7 +804,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
               </Label>
             )}
           </BallotVoteCount>
-          {areQueriesFetching || !isStateReady ? (
+          {areQueriesStale || !isStateReady ? (
             <CandidateButtonList style={{ justifyContent: 'center' }}>
               <Icons.Loading />
             </CandidateButtonList>
