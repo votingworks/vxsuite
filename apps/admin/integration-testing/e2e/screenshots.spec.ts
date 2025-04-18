@@ -42,7 +42,7 @@ import {
 } from './support/auth';
 import {
   getAdjudicateButtons,
-  selectCandidateOrUndervote,
+  selectCandidateOrInvalidate,
   WRITE_IN_NAMES,
 } from './support/write_in_adjudication';
 import {
@@ -435,6 +435,7 @@ test('results', async ({ page }) => {
       // is still rendering and the button press doesn't always register.
       // Zooming out, by acting as a delay, seems to avoid the problem.
       await page.getByText('Zoom Out').click();
+      await page.getByRole('combobox').click();
 
       // uneven but deterministic strategy for making adjudications
       switch (writeInIndex % 8) {
@@ -443,27 +444,35 @@ test('results', async ({ page }) => {
         case 2:
         case 3:
         case 4:
+          // Creates a candidate the first time, re-selects subsequent times
+          await page.getByRole('combobox').fill('Write-In Campaign Candidate');
+          await page.keyboard.press('Enter');
+          break;
         case 5:
+          // Select a dropdown option via clicking
+          await selectCandidateOrInvalidate(page, writeInIndex);
+          break;
         case 6:
-          await page.getByRole('combobox').click();
-          await selectCandidateOrUndervote(page, writeInIndex);
+          // Mark as invalid by clicking checkbox
+          await page
+            .getByRole('checkbox', { name: /write-in/i, checked: true })
+            .click();
           break;
         default: {
-          await page.getByRole('combobox').click();
           const writeInName = WRITE_IN_NAMES[Math.floor(writeInIndex / 8)];
           await page.getByRole('combobox').fill(writeInName);
-          await page.getByText(`Add: ${writeInName}`, { exact: true }).click();
+          await page.keyboard.press('Enter');
           break;
         }
       }
 
-      await getPrimaryButton(page).waitFor();
+      await expect(getPrimaryButton(page)).toBeEnabled();
       if (await page.getByText('Finish').isVisible()) {
         await page.getByText('Finish').click();
         await page.getByText('Write-In Adjudication').waitFor();
         hasFinishedWriteInsForContest = true;
       } else {
-        await page.getByText('Next').click();
+        await page.getByText('Save & Next').click();
         writeInIndex += 1;
       }
     }

@@ -9,7 +9,7 @@ export function getDropdownOptions(page: Page): Locator {
   return page.locator('div[aria-disabled="false"]');
 }
 
-export async function selectCandidateOrUndervote(
+export async function selectCandidateOrInvalidate(
   page: Page,
   index: number
 ): Promise<void> {
