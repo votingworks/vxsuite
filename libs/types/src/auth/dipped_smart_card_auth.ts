@@ -18,6 +18,7 @@ export interface LoggedOut {
     | 'machine_not_configured'
     | 'no_card_reader'
     | 'user_role_not_allowed'
+    | 'vx_poll_book_card_not_allowed'
     | 'wrong_election'
     | 'wrong_jurisdiction';
   readonly cardJurisdiction?: string;
