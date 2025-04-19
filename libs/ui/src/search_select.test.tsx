@@ -58,6 +58,9 @@ test('single and not searchable', () => {
       options={options}
       aria-label="Choose Fruit"
       placeholder="Pick a fruit"
+      // Set menuPortalTarget and style overrides in one test for coverage
+      menuPortalTarget={document.body}
+      style={{ borderRadius: '0.5rem', backgroundColor: 'black' }}
     />,
     // Change theme in one test for coverage
     { vxTheme: makeTheme({ sizeMode: 'desktop', colorMode: 'desktop' }) }
@@ -68,9 +71,26 @@ test('single and not searchable', () => {
     expect(screen.queryByText(option.label)).not.toBeInTheDocument();
   }
 
+  // open dropdown using arrow
+  userEvent.click(
+    screen.getByRole('button', {
+      hidden: true,
+    })
+  );
+
+  // close dropdown using arrow
+  userEvent.click(
+    screen.getByRole('button', {
+      hidden: true,
+    })
+  );
+  for (const option of options) {
+    expect(screen.queryByText(option.label)).not.toBeInTheDocument();
+  }
+
   screen.getByText('Pick a fruit');
 
-  // open dropdown
+  // open dropdown by click
   userEvent.click(screen.getByLabelText('Choose Fruit'));
   for (const option of options) {
     screen.getByText(option.label);

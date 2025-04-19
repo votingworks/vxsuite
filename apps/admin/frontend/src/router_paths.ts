@@ -1,7 +1,7 @@
 import {
+  ContestAdjudicationScreenParams,
   ManualTallyFormContestParams,
   ManualTallyFormParams,
-  WriteInsAdjudicationScreenParams,
 } from './config/types';
 
 export const routerPaths = {
@@ -34,11 +34,11 @@ export const routerPaths = {
   ballotCountReportPrecinct: '/reports/ballot-count/precinct',
   ballotCountReportVotingMethod: '/reports/ballot-count/voting-method',
   tallyWriteInReport: '/reports/tally-reports/writein',
-  writeIns: '/write-ins',
-  writeInsAdjudication: ({
+  contestAdjudication: ({
     contestId,
-  }: WriteInsAdjudicationScreenParams): string =>
-    `/write-ins/adjudication/${contestId}`,
+  }: ContestAdjudicationScreenParams): string =>
+    `/contests/adjudication/${contestId}`,
+  writeIns: '/write-ins',
   settings: '/settings',
   hardwareDiagnostics: '/hardware-diagnostics',
   system: '/system',

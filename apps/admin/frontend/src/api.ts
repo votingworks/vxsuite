@@ -257,53 +257,48 @@ export const getCastVoteRecordFileMode = {
   },
 } as const;
 
-type GetWriteInAdjudicationQueueInput =
-  QueryInput<'getWriteInAdjudicationQueue'>;
-export const getWriteInAdjudicationQueue = {
-  queryKey(input?: GetWriteInAdjudicationQueueInput): QueryKey {
-    return input
-      ? ['getWriteInAdjudicationQueue', input]
-      : ['getWriteInAdjudicationQueue'];
+type GetWriteInAdjudicationCvrQueueInput =
+  QueryInput<'getWriteInAdjudicationCvrQueue'>;
+export const getWriteInAdjudicationCvrQueue = {
+  queryKey(input: GetWriteInAdjudicationCvrQueueInput): QueryKey {
+    return ['getWriteInAdjudicationCvrQueue', input];
   },
-  useQuery(input: GetWriteInAdjudicationQueueInput) {
+  useQuery(input: GetWriteInAdjudicationCvrQueueInput) {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(input), () =>
-      apiClient.getWriteInAdjudicationQueue(input)
+      apiClient.getWriteInAdjudicationCvrQueue(input)
     );
   },
 } as const;
 
-type GetFirstPendingWriteInIdInput = QueryInput<'getFirstPendingWriteInId'>;
-export const getFirstPendingWriteInId = {
-  queryKey(input?: GetFirstPendingWriteInIdInput): QueryKey {
-    return input
-      ? ['getFirstPendingWriteInId', input]
-      : ['getFirstPendingWriteInId'];
+export const getWriteInAdjudicationCvrQueueMetadata = {
+  queryKey(): QueryKey {
+    return ['getWriteInAdjudicationCvrQueueMetadata'];
   },
-  useQuery(input: GetFirstPendingWriteInIdInput) {
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () =>
+      apiClient.getWriteInAdjudicationCvrQueueMetadata()
+    );
+  },
+} as const;
+
+type GetFirstPendingWriteInCvrIdInput =
+  QueryInput<'getFirstPendingWriteInCvrId'>;
+export const getFirstPendingWriteInCvrId = {
+  queryKey(input?: GetFirstPendingWriteInCvrIdInput): QueryKey {
+    return input
+      ? ['getFirstPendingWriteInCvrId', input]
+      : ['getFirstPendingWriteInCvrId'];
+  },
+  useQuery(input: GetFirstPendingWriteInCvrIdInput) {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(input),
-      () => apiClient.getFirstPendingWriteInId(input),
+      () => apiClient.getFirstPendingWriteInCvrId(input),
       {
         cacheTime: 0,
       }
-    );
-  },
-} as const;
-
-type GetWriteInAdjudicationQueueMetadataInput =
-  QueryInput<'getWriteInAdjudicationQueueMetadata'>;
-export const getWriteInAdjudicationQueueMetadata = {
-  queryKey(input?: GetWriteInAdjudicationQueueMetadataInput): QueryKey {
-    return input
-      ? ['getWriteInAdjudicationQueueMetadata', input]
-      : ['getWriteInAdjudicationQueueMetadata'];
-  },
-  useQuery(input?: GetWriteInAdjudicationQueueMetadataInput) {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(input), () =>
-      apiClient.getWriteInAdjudicationQueueMetadata(input)
     );
   },
 } as const;
@@ -321,38 +316,87 @@ export const getWriteInCandidates = {
   },
 } as const;
 
-type GetWriteInImageViewInput = QueryInput<'getWriteInImageView'>;
-export const getWriteInImageView = {
-  queryKey(input?: GetWriteInImageViewInput): QueryKey {
+type GetCvrWriteInImageViewsInput =
+  QueryInput<'getCvrContestWriteInImageViews'>;
+export const getCvrWriteInImageViews = {
+  queryKey(input?: GetCvrWriteInImageViewsInput): QueryKey {
     return input
-      ? ['getWriteInImageView', input.writeInId]
-      : ['getWriteInImageView'];
+      ? ['getCvrWriteInImageViews', input]
+      : ['getCvrWriteInImageViews'];
   },
-  useQuery(input: GetWriteInImageViewInput, enabled = true) {
-    const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(input),
-      () => apiClient.getWriteInImageView({ writeInId: input.writeInId }),
-      { enabled }
-    );
-  },
-} as const;
-
-type GetWriteInAdjudicationContextInput =
-  QueryInput<'getWriteInAdjudicationContext'>;
-export const getWriteInAdjudicationContext = {
-  queryKey(input?: GetWriteInAdjudicationContextInput): QueryKey {
-    return input
-      ? ['getWriteInAdjudicationContext', input.writeInId]
-      : ['getWriteInAdjudicationContext'];
-  },
-  useQuery(input: GetWriteInAdjudicationContextInput, enabled = true) {
+  useQuery(input?: GetCvrWriteInImageViewsInput) {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(input),
       () =>
-        apiClient.getWriteInAdjudicationContext({ writeInId: input.writeInId }),
-      { enabled }
+        apiClient.getCvrContestWriteInImageViews({
+          cvrId: input?.cvrId ?? '',
+          contestId: input?.contestId ?? '',
+        }),
+      { enabled: !!input, keepPreviousData: true }
+    );
+  },
+  usePrefetch() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return (input: GetCvrWriteInImageViewsInput) =>
+      queryClient.prefetchQuery({
+        queryKey: getCvrWriteInImageViews.queryKey(input),
+        queryFn: () => apiClient.getCvrContestWriteInImageViews(input),
+      });
+  },
+} as const;
+
+type GetWriteInsInput = QueryInput<'getWriteIns'>;
+export const getWriteIns = {
+  queryKey(input?: GetWriteInsInput): QueryKey {
+    return input ? ['getWriteIns', input] : ['getWriteIns'];
+  },
+  useQuery(input?: GetWriteInsInput) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(input),
+      () =>
+        apiClient.getWriteIns({
+          cvrId: input?.cvrId,
+          contestId: input?.contestId,
+        }),
+      { enabled: !!input, keepPreviousData: true }
+    );
+  },
+} as const;
+
+type GetCastVoteRecordVoteInfoInput = QueryInput<'getCastVoteRecordVoteInfo'>;
+export const getCastVoteRecordVoteInfo = {
+  queryKey(input?: GetCastVoteRecordVoteInfoInput): QueryKey {
+    return input
+      ? ['getCastVoteRecordVoteInfo', input.cvrId]
+      : ['getCastVoteRecordVoteInfo'];
+  },
+  useQuery(input?: GetCastVoteRecordVoteInfoInput) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(input),
+      () => apiClient.getCastVoteRecordVoteInfo({ cvrId: input?.cvrId ?? '' }),
+      { enabled: !!input, keepPreviousData: true }
+    );
+  },
+} as const;
+
+type GetVoteAdjudicationsInput = QueryInput<'getVoteAdjudications'>;
+export const getVoteAdjudications = {
+  queryKey(input?: GetVoteAdjudicationsInput): QueryKey {
+    return input ? ['getVoteAdjudications', input] : ['getVoteAdjudications'];
+  },
+  useQuery(input?: GetVoteAdjudicationsInput) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(input),
+      input
+        ? () => apiClient.getVoteAdjudications(input)
+        : /* istanbul ignore next - @preserve */
+          () => fail('input is required'),
+      { enabled: !!input, keepPreviousData: true }
     );
   },
 } as const;
@@ -549,18 +593,19 @@ function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
     queryClient.invalidateQueries(getTotalBallotCount.queryKey()),
 
     // write-in queues
-    queryClient.invalidateQueries(getWriteInAdjudicationQueue.queryKey()),
+    queryClient.invalidateQueries(
+      getWriteInAdjudicationCvrQueueMetadata.queryKey()
+    ),
   ]);
 }
 
 function invalidateWriteInQueries(queryClient: QueryClient) {
   const invalidations = [
-    // write-in endpoints
-    queryClient.invalidateQueries(getWriteInAdjudicationContext.queryKey()),
-    queryClient.invalidateQueries(getWriteInCandidates.queryKey()),
     queryClient.invalidateQueries(
-      getWriteInAdjudicationQueueMetadata.queryKey()
+      getWriteInAdjudicationCvrQueueMetadata.queryKey()
     ),
+    queryClient.invalidateQueries(getWriteIns.queryKey()),
+    queryClient.invalidateQueries(getWriteInCandidates.queryKey()),
   ];
 
   return Promise.all(invalidations);
@@ -706,24 +751,13 @@ export const deleteManualResults = {
   },
 } as const;
 
-export const addWriteInCandidate = {
+export const adjudicateCvrContest = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.addWriteInCandidate, {
+    return useMutation(apiClient.adjudicateCvrContest, {
       async onSuccess() {
-        await queryClient.invalidateQueries(getWriteInCandidates.queryKey());
-      },
-    });
-  },
-} as const;
-
-export const adjudicateWriteIn = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.adjudicateWriteIn, {
-      async onSuccess() {
+        await queryClient.invalidateQueries(getVoteAdjudications.queryKey());
         await invalidateWriteInQueries(queryClient);
       },
     });

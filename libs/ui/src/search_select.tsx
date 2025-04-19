@@ -6,6 +6,7 @@ import Select, {
   StylesConfig,
 } from 'react-select';
 import { useTheme } from 'styled-components';
+import React from 'react';
 import { Button } from './button';
 
 function DropdownIndicator(
@@ -69,9 +70,15 @@ interface SearchSelectBaseProps<T extends string = string> {
   options: Array<SelectOption<T>>;
   'aria-label'?: string;
   style?: React.CSSProperties;
-  placeholder?: string;
+  placeholder?: React.ReactNode;
   disabled?: boolean;
   required?: boolean;
+  onInputChange?: (value?: T) => void;
+  onBlur?: () => void;
+  onFocus?: () => void;
+  menuPortalTarget?: HTMLElement;
+  noOptionsMessage?: () => React.ReactNode;
+  minMenuHeight?: number;
 }
 
 export interface SearchSelectMultiProps<T extends string = string>
@@ -79,8 +86,6 @@ export interface SearchSelectMultiProps<T extends string = string>
   isMulti: true;
   value: T[];
   onChange: (values: T[]) => void;
-  disabled?: boolean;
-  menuPortalTarget?: HTMLElement;
 }
 
 export interface SearchSelectSingleProps<T extends string = string>
@@ -88,8 +93,6 @@ export interface SearchSelectSingleProps<T extends string = string>
   isMulti?: false;
   value?: T;
   onChange: (value?: T) => void;
-  disabled?: boolean;
-  menuPortalTarget?: HTMLElement;
 }
 
 export type SearchSelectProps<T extends string = string> =
@@ -109,12 +112,17 @@ export function SearchSelect<T extends string = string>({
   isSearchable,
   options,
   value,
+  onBlur,
   onChange,
+  onFocus,
+  onInputChange,
   'aria-label': ariaLabel,
   disabled,
   placeholder,
   required,
   menuPortalTarget,
+  minMenuHeight,
+  noOptionsMessage,
   style = {},
 }: SearchSelectSingleProps<T> | SearchSelectMultiProps<T>): JSX.Element {
   const theme = useTheme();
@@ -135,12 +143,15 @@ export function SearchSelect<T extends string = string>({
           ? findOption(options, value)
           : null
       }
+      onBlur={onBlur}
       onChange={
         isMulti
           ? (selectedOptions: Array<SelectOption<T>>) =>
               onChange(selectedOptions.map((o) => o.value))
           : (selectedOption: SelectOption<T>) => onChange(selectedOption.value)
       }
+      onFocus={onFocus}
+      onInputChange={onInputChange}
       placeholder={placeholder ?? null}
       required={required}
       aria-label={ariaLabel}
@@ -149,6 +160,9 @@ export function SearchSelect<T extends string = string>({
       className="search-select"
       maxMenuHeight="50vh"
       menuPortalTarget={menuPortalTarget}
+      menuPlacement="auto"
+      minMenuHeight={minMenuHeight}
+      noOptionsMessage={noOptionsMessage}
       styles={typedAs<StylesConfig>({
         container: (baseStyles) => ({
           ...baseStyles,
@@ -161,8 +175,10 @@ export function SearchSelect<T extends string = string>({
           ...baseStyles,
           border: `${theme.colors.outline} solid ${theme.sizes.bordersRem.thin}rem`,
           borderStyle: state.isDisabled ? 'dashed' : 'solid',
-          borderRadius,
-          backgroundColor: state.isDisabled
+          borderRadius: style?.borderRadius ?? borderRadius,
+          backgroundColor: style?.backgroundColor
+            ? style?.backgroundColor
+            : state.isDisabled
             ? theme.colors.container
             : state.isFocused
             ? theme.colors.background
@@ -200,6 +216,10 @@ export function SearchSelect<T extends string = string>({
           ...baseStyles,
           padding: `0.25rem 0.25rem 0.25rem 0.5rem`,
         }),
+        menuPortal: (baseStyles) => ({
+          ...baseStyles,
+          zIndex: 10,
+        }),
         menu: (baseStyles) => ({
           ...baseStyles,
           border: `${theme.sizes.bordersRem.thin}rem solid ${theme.colors.outline}`,
@@ -234,6 +254,8 @@ export function SearchSelect<T extends string = string>({
           ':last-of-type': { borderBottom: 'none' },
           // Ensure empty option still has height
           minHeight: '2.5rem',
+          // Fix slight vertical shift when menu is rendered in a portal (missing inherited line-height)
+          lineHeight: menuPortalTarget ? theme.sizes.lineHeight : undefined,
         }),
         noOptionsMessage: (baseStyles) => ({
           ...baseStyles,

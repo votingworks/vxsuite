@@ -5,26 +5,6 @@ export function getAdjudicateButtons(page: Page): Locator {
   return page.getByText(/Adjudicate.*/);
 }
 
-export function getCandidateButtons(page: Page): Locator {
-  const heading = page.getByText('Official Candidates');
-  return heading.locator('..').getByRole('button');
-}
-
-export async function selectCandidate(
-  page: Page,
-  index: number
-): Promise<void> {
-  const candidateButtons = getCandidateButtons(page);
-  const candidateButton = candidateButtons.nth(
-    index % (await candidateButtons.count())
-  );
-  await candidateButton.click();
-}
-
-export async function markUndervote(page: Page): Promise<void> {
-  await page.getByText('Mark write-in as undervote').click();
-}
-
 export const WRITE_IN_NAMES = [
   'John Smith',
   'Mary Johnson',

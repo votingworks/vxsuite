@@ -16,6 +16,7 @@ import {
   Admin,
   Sha256Hash,
   BallotStyleGroupId,
+  Side,
 } from '@votingworks/types';
 import * as z from 'zod';
 
@@ -160,6 +161,7 @@ interface WriteInRecordBase {
   readonly cvrId: Id;
   readonly electionId: Id;
   readonly isUnmarked?: boolean;
+  readonly isManuallyCreated?: boolean;
 }
 
 /**
@@ -324,6 +326,58 @@ export interface WriteInAdjudicationActionReset {
 }
 
 /**
+ * A cvr contest with all candidate and write-in options
+ * fully adjudicated.
+ */
+export interface AdjudicatedCvrContest {
+  adjudicatedContestOptionById: Record<
+    ContestOptionId,
+    AdjudicatedContestOption
+  >;
+  contestId: ContestId;
+  cvrId: Id;
+  side: Side;
+}
+
+/**
+ * A fully adjudicated candidate or write-in option
+ */
+export type AdjudicatedContestOption =
+  | AdjudicatedCandidateOption
+  | AdjudicatedWriteInOption;
+
+interface AdjudicatedCandidateOption {
+  type: 'candidate-option';
+  hasVote: boolean;
+}
+
+type AdjudicatedWriteInOption =
+  | AdjudicatedWriteInOfficialCandidate
+  | AdjudicatedWriteInCandidate
+  | AdjudicatedWriteInFalse;
+
+interface AdjudicatedWriteInBase {
+  type: 'write-in-option';
+}
+
+interface AdjudicatedWriteInOfficialCandidate extends AdjudicatedWriteInBase {
+  candidateType: 'official-candidate';
+  hasVote: true;
+  candidateId: string;
+}
+
+interface AdjudicatedWriteInCandidate extends AdjudicatedWriteInBase {
+  candidateType: 'write-in-candidate';
+  hasVote: true;
+  // write-in candidates have uniqueness enforced on name
+  candidateName: string;
+}
+
+interface AdjudicatedWriteInFalse extends AdjudicatedWriteInBase {
+  hasVote: false;
+}
+
+/**
  * Information necessary to adjudicate a write-in.
  */
 export type WriteInAdjudicationAction =
@@ -341,22 +395,28 @@ export type WriteInImageView = HmpbWriteInImageView | BmdWriteInImageView;
  * Information necessary to display a hmpb write-in on the frontend.
  */
 export interface HmpbWriteInImageView {
+  readonly type: 'hmpb';
   readonly writeInId: Id;
   readonly cvrId: Id;
+  readonly optionId: Id;
   readonly imageUrl: string;
   readonly ballotCoordinates: Rect;
   readonly contestCoordinates: Rect;
   readonly writeInCoordinates: Rect;
+  readonly side: Side;
 }
 
 /**
  * Information necessary to display a bmd write-in on the frontend.
  */
 export interface BmdWriteInImageView {
+  readonly type: 'bmd';
   readonly writeInId: Id;
   readonly cvrId: Id;
+  readonly optionId: Id;
   readonly imageUrl: string;
   readonly machineMarkedText: string;
+  readonly side: 'front'; // bmd ballots are always on the front.
 }
 
 /**
