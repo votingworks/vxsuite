@@ -573,11 +573,11 @@ function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
 
 function invalidateWriteInQueries(queryClient: QueryClient) {
   const invalidations = [
-    queryClient.invalidateQueries(getWriteInCandidates.queryKey()),
     queryClient.invalidateQueries(
       getWriteInAdjudicationCvrQueueMetadata.queryKey()
     ),
     queryClient.invalidateQueries(getWriteIns.queryKey()),
+    queryClient.invalidateQueries(getWriteInCandidates.queryKey()),
   ];
 
   return Promise.all(invalidations);

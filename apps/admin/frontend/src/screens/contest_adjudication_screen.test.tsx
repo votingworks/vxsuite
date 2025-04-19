@@ -86,6 +86,426 @@ function formAdjudicatedCvrContest(
   };
 }
 
+describe('hmpb write-in adjudication', () => {
+  const contestId = 'zoo-council-mammal';
+  const cvrIds = ['id-174'];
+  const cvrId = cvrIds[0];
+  const writeIn0Id = 'write-in-0';
+  const writeInRecord: WriteInRecord = {
+    status: 'pending',
+    id: '1',
+    cvrId,
+    contestId,
+    electionId,
+    optionId: writeIn0Id,
+  };
+  const writeInCandidates: WriteInCandidateRecord[] = [
+    { id: 'write-in-0', name: 'oliver', electionId, contestId },
+  ];
+
+  beforeEach(() => {
+    apiMock.expectGetWriteInAdjudicationCvrQueue({ contestId }, cvrIds);
+    apiMock.expectGetFirstPendingWriteInCvrId({ contestId }, null);
+    apiMock.expectGetCastVoteRecordVoteInfo(
+      { cvrId },
+      { [contestId]: ['kangaroo', 'write-in-0'] }
+    );
+    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
+    apiMock.expectGetWriteIns({ contestId, cvrId }, [writeInRecord]);
+    apiMock.expectGetCvrContestWriteInImageViews({ contestId, cvrId }, false);
+    apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
+  });
+
+  test('hmpb write-in can be adjudicated as invalid', async () => {
+    renderScreen(contestId, {
+      electionDefinition,
+      apiMock,
+    });
+
+    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
+    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
+
+    const writeInCheckbox = screen.getByRole('checkbox', {
+      checked: true,
+      name: /write-in/i,
+    });
+    expect(writeInCheckbox).toBeChecked();
+
+    let finishButton = screen.getByRole('button', { name: /finish/i });
+    expect(finishButton).toBeDisabled();
+
+    let writeInSearchSelect = screen.getByRole('combobox');
+    expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.keyDown(writeInSearchSelect, { key: 'ArrowDown' });
+
+    writeInSearchSelect = screen.getByRole('combobox');
+    expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
+    const item = await screen.findByText(/not a mark/i);
+    fireEvent.click(item);
+
+    expect(screen.queryByText(/invalid mark/i)).toBeInTheDocument();
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+
+    finishButton = screen.getByRole('button', { name: /finish/i });
+    expect(finishButton).toBeEnabled();
+
+    const adjudicatedCvrContest = formAdjudicatedCvrContest(cvrId, {
+      kangaroo: { type: 'candidate-option', hasVote: true },
+    });
+    apiMock.expectAdjudicateCvrContest(adjudicatedCvrContest);
+
+    const adjudicatedWriteInRecord: WriteInRecord = {
+      ...writeInRecord,
+      status: 'adjudicated',
+      adjudicationType: 'invalid',
+    };
+    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
+    apiMock.expectGetWriteIns({ contestId, cvrId }, [adjudicatedWriteInRecord]);
+    apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
+    userEvent.click(finishButton);
+    await waitFor(() => {
+      expect(screen.queryByTestId('transcribe:id-174')).not.toBeInTheDocument();
+    });
+  });
+
+  test('hmpb write-in can be adjudicated as official candidate', async () => {
+    renderScreen(contestId, {
+      electionDefinition,
+      apiMock,
+    });
+
+    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
+    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
+
+    const writeInCheckbox = screen.getByRole('checkbox', {
+      checked: true,
+      name: /write-in/i,
+    });
+    expect(writeInCheckbox).toBeChecked();
+
+    let finishButton = screen.getByRole('button', { name: /finish/i });
+    expect(finishButton).toBeDisabled();
+
+    let writeInSearchSelect = screen.getByRole('combobox');
+    expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.keyDown(writeInSearchSelect, { key: 'ArrowDown' });
+
+    writeInSearchSelect = screen.getByRole('combobox');
+    expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
+
+    const elephantDropdownItem = getDropdownItemByLabel('Elephant');
+    userEvent.click(elephantDropdownItem!);
+
+    const elephantCheckbox = screen.getByRole('checkbox', {
+      checked: false,
+      name: /elephant/i,
+    });
+    expect(elephantCheckbox).toBeDisabled();
+
+    finishButton = screen.getByRole('button', { name: /finish/i });
+    expect(finishButton).toBeEnabled();
+
+    const adjudicatedCvrContest = formAdjudicatedCvrContest(cvrId, {
+      kangaroo: { type: 'candidate-option', hasVote: true },
+      'write-in-0': {
+        type: 'write-in-option',
+        hasVote: true,
+        candidateType: 'official-candidate',
+        candidateId: 'elephant',
+      },
+    });
+    apiMock.expectAdjudicateCvrContest(adjudicatedCvrContest);
+
+    const adjudicatedWriteInRecord: WriteInRecord = {
+      ...writeInRecord,
+      status: 'adjudicated',
+      adjudicationType: 'official-candidate',
+      candidateId: 'elephant',
+    };
+    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
+    apiMock.expectGetWriteIns({ contestId, cvrId }, [adjudicatedWriteInRecord]);
+    apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
+    userEvent.click(finishButton);
+    await waitFor(() => {
+      expect(screen.queryByTestId('transcribe:id-174')).not.toBeInTheDocument();
+    });
+  });
+
+  test('hmpb write-in can be adjudicated as existing write-in using filter and dropdown', async () => {
+    renderScreen(contestId, {
+      electionDefinition,
+      apiMock,
+    });
+
+    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
+    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
+    const writeInCheckbox = screen.getByRole('checkbox', {
+      checked: true,
+      name: /write-in/i,
+    });
+    expect(writeInCheckbox).toBeChecked();
+
+    let finishButton = screen.getByRole('button', { name: /finish/i });
+    expect(finishButton).toBeDisabled();
+
+    let writeInSearchSelect = screen.getByRole('combobox');
+    expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.keyDown(writeInSearchSelect, { key: 'ArrowDown' });
+
+    writeInSearchSelect = screen.getByRole('combobox');
+    expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
+
+    // review dropdown options
+    expect(screen.queryByText(/add:/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/not a mark/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/elephant/i)).toHaveLength(2);
+    expect(screen.getAllByText(/lion/i)).toHaveLength(2);
+    expect(screen.getAllByText(/kangaroo/i)).toHaveLength(1);
+    expect(screen.getAllByText(/kangaroo/i)).toHaveLength(1);
+
+    userEvent.type(writeInSearchSelect, 'e');
+
+    expect(screen.queryByText(/add: e/i)).toBeInTheDocument();
+    expect(screen.queryByText(/not a mark/i)).not.toBeInTheDocument();
+    expect(screen.getAllByText(/elephant/i)).toHaveLength(2);
+    expect(screen.getAllByText(/lion/i)).toHaveLength(1);
+
+    userEvent.clear(writeInSearchSelect);
+    // case insensitive filter
+    userEvent.type(writeInSearchSelect, 'OLIVER');
+
+    expect(screen.queryByText(/add:/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/not a mark/i)).not.toBeInTheDocument();
+    expect(screen.getAllByText(/elephant/i)).toHaveLength(1);
+    expect(screen.getAllByText(/oliver/i)).toHaveLength(2);
+
+    const oliverDropdownItem = getDropdownItemByLabel('oliver');
+    userEvent.click(oliverDropdownItem!);
+
+    finishButton = getButtonByName('finish');
+    expect(finishButton).toBeEnabled();
+
+    const adjudicatedCvrContest = formAdjudicatedCvrContest(cvrId, {
+      kangaroo: { type: 'candidate-option', hasVote: true },
+      'write-in-0': {
+        type: 'write-in-option',
+        hasVote: true,
+        candidateType: 'write-in-candidate',
+        candidateName: 'oliver',
+      },
+    });
+
+    apiMock.expectAdjudicateCvrContest(adjudicatedCvrContest);
+
+    const adjudicatedWriteInRecord: WriteInRecord = {
+      ...writeInRecord,
+      status: 'adjudicated',
+      adjudicationType: 'write-in-candidate',
+      candidateId: 'oliver',
+    };
+    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
+    apiMock.expectGetWriteIns({ contestId, cvrId }, [adjudicatedWriteInRecord]);
+    apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
+    userEvent.click(finishButton);
+    await waitFor(() => {
+      expect(screen.queryByTestId('transcribe:id-174')).not.toBeInTheDocument();
+    });
+  });
+
+  test('hmpb write-in can be adjudicated as new write-in candidate', async () => {
+    renderScreen(contestId, {
+      electionDefinition,
+      apiMock,
+    });
+
+    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
+    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
+    const writeInCheckbox = screen.getByRole('checkbox', {
+      checked: true,
+      name: /write-in/i,
+    });
+    expect(writeInCheckbox).toBeChecked();
+
+    let finishButton = screen.getByRole('button', { name: /finish/i });
+    expect(finishButton).toBeDisabled();
+
+    // test max name length
+    let writeInSearchSelect = screen.getByRole('combobox');
+    userEvent.type(writeInSearchSelect, 'a'.repeat(MAX_NAME_LENGTH + 1));
+    expect(
+      screen.queryByText(/entry exceeds max character length/i)
+    ).toBeInTheDocument();
+    // enter should not select anything since there is no valid option
+    userEvent.keyboard('{Enter}');
+    writeInSearchSelect = screen.getByRole('combobox');
+    expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
+    userEvent.clear(writeInSearchSelect);
+
+    // review dropdown options
+    writeInSearchSelect = screen.getByRole('combobox');
+    expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
+
+    expect(screen.queryByText(/add:/i)).not.toBeInTheDocument();
+    expect(screen.queryAllByText(/not a mark/i)).toHaveLength(2);
+    expect(screen.queryByText(/oliver/i)).toBeInTheDocument();
+
+    userEvent.type(writeInSearchSelect, 'siena');
+
+    expect(screen.queryByText(/not a mark/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/oliver/i)).not.toBeInTheDocument();
+
+    // add new candidate
+    const addNewItem = getDropdownItemByLabel('Add: siena');
+    userEvent.click(addNewItem!);
+
+    // once that candidate is added, they should be included in the next dropdown search
+    writeInSearchSelect = screen.getByRole('combobox');
+    userEvent.type(writeInSearchSelect, 'sie');
+    // even though we've only partially typed the name, the full name should be
+    // highlighted in the dropdown
+    userEvent.keyboard('{Enter}');
+
+    finishButton = getButtonByName('finish');
+    expect(finishButton).toBeEnabled();
+
+    const adjudicatedCvrContest = formAdjudicatedCvrContest(cvrId, {
+      kangaroo: { type: 'candidate-option', hasVote: true },
+      'write-in-0': {
+        type: 'write-in-option',
+        hasVote: true,
+        candidateType: 'write-in-candidate',
+        candidateName: 'siena',
+      },
+    });
+
+    apiMock.expectAdjudicateCvrContest(adjudicatedCvrContest);
+
+    const adjudicatedWriteInRecord: WriteInRecord = {
+      ...writeInRecord,
+      status: 'adjudicated',
+      adjudicationType: 'write-in-candidate',
+      candidateId: 'oliver',
+    };
+    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
+    apiMock.expectGetWriteIns({ contestId, cvrId }, [adjudicatedWriteInRecord]);
+    apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
+    userEvent.click(finishButton);
+    await waitFor(() => {
+      expect(screen.queryByTestId('transcribe:id-174')).not.toBeInTheDocument();
+    });
+  });
+});
+
+describe('bmd write-in adjudication', () => {
+  const contestId = 'zoo-council-mammal';
+  const cvrIds = ['id-174'];
+  const cvrId = cvrIds[0];
+  const writeIn0Id = 'write-in-0';
+  const writeInRecords: WriteInRecord[] = [
+    {
+      status: 'pending',
+      id: '1',
+      cvrId,
+      contestId,
+      electionId,
+      optionId: writeIn0Id,
+    },
+  ];
+  const writeInCandidates: WriteInCandidateRecord[] = [
+    { id: 'write-in-0', name: 'oliver', electionId, contestId },
+  ];
+
+  beforeEach(() => {
+    apiMock.expectGetWriteInAdjudicationCvrQueue({ contestId }, cvrIds);
+    apiMock.expectGetFirstPendingWriteInCvrId({ contestId }, null);
+    apiMock.expectGetCastVoteRecordVoteInfo(
+      { cvrId },
+      { [contestId]: ['kangaroo', 'write-in-0'] }
+    );
+    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
+    apiMock.expectGetWriteIns({ contestId, cvrId }, writeInRecords);
+    apiMock.expectGetCvrContestWriteInImageViews({ contestId, cvrId }, true);
+    apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
+  });
+
+  test('bmd write-in can be adjudicated and shows machine marked text', async () => {
+    renderScreen(contestId, {
+      electionDefinition,
+      apiMock,
+    });
+
+    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
+    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
+    let writeInCheckbox = screen.getByRole('checkbox', {
+      name: /machine-marked-mock-text/i,
+    });
+    expect(writeInCheckbox).toBeChecked();
+
+    const disabledWriteInCheckboxes = screen
+      .getAllByRole('checkbox', { name: /write-in/i })
+      .filter((el) => (el as HTMLInputElement).disabled);
+    expect(disabledWriteInCheckboxes).toHaveLength(2);
+
+    let finishButton = screen.getByRole('button', { name: /finish/i });
+    expect(finishButton).toBeDisabled();
+
+    let writeInSearchSelect = screen.getByRole('combobox');
+    expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.keyDown(writeInSearchSelect, { key: 'ArrowDown' });
+
+    writeInSearchSelect = screen.getByRole('combobox');
+    expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
+
+    const invalidMarkItem = getDropdownItemByLabel('Not a mark');
+    userEvent.click(invalidMarkItem!);
+
+    expect(screen.queryByText(/invalid mark/i)).toBeInTheDocument();
+
+    [writeInCheckbox] = screen
+      .getAllByRole('checkbox', { name: /machine-marked-mock-text/i })
+      .filter((el) => !(el as HTMLInputElement).disabled);
+    expect(writeInCheckbox).not.toBeChecked();
+
+    userEvent.click(writeInCheckbox);
+    writeInCheckbox = screen.getByRole('checkbox', {
+      name: /machine-marked-mock-text/i,
+    });
+    expect(writeInCheckbox).toBeChecked();
+
+    finishButton = screen.getByRole('button', { name: /finish/i });
+    expect(finishButton).toBeDisabled();
+
+    writeInSearchSelect = screen.getByRole('combobox');
+    fireEvent.keyDown(writeInSearchSelect, { key: 'ArrowDown' });
+    expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
+
+    const oliverItem = getDropdownItemByLabel('oliver');
+    userEvent.click(oliverItem!);
+
+    finishButton = screen.getByRole('button', { name: /finish/i });
+    expect(finishButton).toBeEnabled();
+
+    const adjudicatedCvrContest = formAdjudicatedCvrContest(cvrId, {
+      kangaroo: { type: 'candidate-option', hasVote: true },
+      'write-in-0': {
+        type: 'write-in-option',
+        hasVote: true,
+        candidateType: 'write-in-candidate',
+        candidateName: 'oliver',
+      },
+    });
+    apiMock.expectAdjudicateCvrContest(adjudicatedCvrContest);
+    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
+    apiMock.expectGetWriteIns({ contestId, cvrId }, writeInRecords);
+    apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
+
+    userEvent.click(finishButton);
+    await waitFor(() => {
+      expect(screen.queryByTestId('transcribe:id-174')).not.toBeInTheDocument();
+    });
+  });
+});
+
 describe('vote adjudication', () => {
   test('hmpb ballot can have votes adjudicated', async () => {
     const contestId = 'zoo-council-mammal';
@@ -637,276 +1057,10 @@ describe('detect unsaved changes', () => {
       name: /discard changes/i,
     });
     userEvent.click(modalDiscardButton);
-
-    await waitFor(() => {
-      expect(screen.queryByTestId('transcribe:id-174')).not.toBeInTheDocument();
-    });
   });
 });
 
-describe('hmpb write-in adjudication', () => {
-  const contestId = 'zoo-council-mammal';
-  const cvrIds = ['id-174'];
-  const cvrId = cvrIds[0];
-  // const cvrId2 = cvrIds[1];
-  const writeIn0Id = 'write-in-0';
-  const writeInRecord: WriteInRecord = {
-    status: 'pending',
-    id: '1',
-    cvrId,
-    contestId,
-    electionId,
-    optionId: writeIn0Id,
-  };
-  const writeInCandidates: WriteInCandidateRecord[] = [
-    { id: 'write-in-0', name: 'oliver', electionId, contestId },
-  ];
-
-  beforeEach(() => {
-    apiMock.expectGetWriteInAdjudicationCvrQueue({ contestId }, cvrIds);
-    apiMock.expectGetFirstPendingWriteInCvrId({ contestId }, null);
-    apiMock.expectGetCastVoteRecordVoteInfo(
-      { cvrId },
-      { [contestId]: ['kangaroo', 'write-in-0'] }
-    );
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
-    apiMock.expectGetWriteIns({ contestId, cvrId }, [writeInRecord]);
-    apiMock.expectGetCvrContestWriteInImageViews({ contestId, cvrId }, false);
-    apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
-  });
-
-  test('hmpb write-in can be adjudicated as invalid', async () => {
-    renderScreen(contestId, {
-      electionDefinition,
-      apiMock,
-    });
-
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
-
-    const writeInCheckbox = screen.getByRole('checkbox', {
-      checked: true,
-      name: /write-in/i,
-    });
-    expect(writeInCheckbox).toBeChecked();
-
-    let finishButton = screen.getByRole('button', { name: /finish/i });
-    expect(finishButton).toBeDisabled();
-
-    let writeInSearchSelect = screen.getByRole('combobox');
-    expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'false');
-    fireEvent.keyDown(writeInSearchSelect, { key: 'ArrowDown' });
-
-    writeInSearchSelect = screen.getByRole('combobox');
-    expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
-    const item = await screen.findByText(/not a mark/i);
-    fireEvent.click(item);
-
-    expect(screen.queryByText(/invalid mark/i)).toBeInTheDocument();
-    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
-
-    finishButton = screen.getByRole('button', { name: /finish/i });
-    expect(finishButton).toBeEnabled();
-
-    const adjudicatedCvrContest = formAdjudicatedCvrContest(cvrId, {
-      kangaroo: { type: 'candidate-option', hasVote: true },
-    });
-
-    apiMock.expectAdjudicateCvrContest(adjudicatedCvrContest);
-    userEvent.click(finishButton);
-  });
-
-  test('hmpb write-in can be adjudicated as official candidate', async () => {
-    renderScreen(contestId, {
-      electionDefinition,
-      apiMock,
-    });
-
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
-
-    const writeInCheckbox = screen.getByRole('checkbox', {
-      checked: true,
-      name: /write-in/i,
-    });
-    expect(writeInCheckbox).toBeChecked();
-
-    let finishButton = screen.getByRole('button', { name: /finish/i });
-    expect(finishButton).toBeDisabled();
-
-    let writeInSearchSelect = screen.getByRole('combobox');
-    expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'false');
-    fireEvent.keyDown(writeInSearchSelect, { key: 'ArrowDown' });
-
-    writeInSearchSelect = screen.getByRole('combobox');
-    expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
-
-    const elephantDropdownItem = getDropdownItemByLabel('Elephant');
-    userEvent.click(elephantDropdownItem!);
-
-    const elephantCheckbox = screen.getByRole('checkbox', {
-      checked: false,
-      name: /elephant/i,
-    });
-    expect(elephantCheckbox).toBeDisabled();
-
-    finishButton = screen.getByRole('button', { name: /finish/i });
-    expect(finishButton).toBeEnabled();
-
-    const adjudicatedCvrContest = formAdjudicatedCvrContest(cvrId, {
-      kangaroo: { type: 'candidate-option', hasVote: true },
-      'write-in-0': {
-        type: 'write-in-option',
-        hasVote: true,
-        candidateType: 'official-candidate',
-        candidateId: 'elephant',
-      },
-    });
-
-    apiMock.expectAdjudicateCvrContest(adjudicatedCvrContest);
-    userEvent.click(finishButton);
-  });
-
-  test('hmpb write-in can be adjudicated as existing write-in using filter and dropdown', async () => {
-    renderScreen(contestId, {
-      electionDefinition,
-      apiMock,
-    });
-
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
-    const writeInCheckbox = screen.getByRole('checkbox', {
-      checked: true,
-      name: /write-in/i,
-    });
-    expect(writeInCheckbox).toBeChecked();
-
-    let finishButton = screen.getByRole('button', { name: /finish/i });
-    expect(finishButton).toBeDisabled();
-
-    let writeInSearchSelect = screen.getByRole('combobox');
-    expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'false');
-    fireEvent.keyDown(writeInSearchSelect, { key: 'ArrowDown' });
-
-    writeInSearchSelect = screen.getByRole('combobox');
-    expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
-
-    // review dropdown options
-    expect(screen.queryByText(/add:/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/not a mark/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/elephant/i)).toHaveLength(2);
-    expect(screen.getAllByText(/lion/i)).toHaveLength(2);
-    expect(screen.getAllByText(/kangaroo/i)).toHaveLength(1);
-    expect(screen.getAllByText(/kangaroo/i)).toHaveLength(1);
-
-    userEvent.type(writeInSearchSelect, 'e');
-
-    expect(screen.queryByText(/add: e/i)).toBeInTheDocument();
-    expect(screen.queryByText(/not a mark/i)).not.toBeInTheDocument();
-    expect(screen.getAllByText(/elephant/i)).toHaveLength(2);
-    expect(screen.getAllByText(/lion/i)).toHaveLength(1);
-
-    userEvent.clear(writeInSearchSelect);
-    // case insensitive filter
-    userEvent.type(writeInSearchSelect, 'OLIVER');
-
-    expect(screen.queryByText(/add:/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/not a mark/i)).not.toBeInTheDocument();
-    expect(screen.getAllByText(/elephant/i)).toHaveLength(1);
-    expect(screen.getAllByText(/oliver/i)).toHaveLength(2);
-
-    const oliverDropdownItem = getDropdownItemByLabel('oliver');
-    userEvent.click(oliverDropdownItem!);
-
-    finishButton = getButtonByName('finish');
-    expect(finishButton).toBeEnabled();
-
-    const adjudicatedCvrContest = formAdjudicatedCvrContest(cvrId, {
-      kangaroo: { type: 'candidate-option', hasVote: true },
-      'write-in-0': {
-        type: 'write-in-option',
-        hasVote: true,
-        candidateType: 'write-in-candidate',
-        candidateName: 'oliver',
-      },
-    });
-
-    apiMock.expectAdjudicateCvrContest(adjudicatedCvrContest);
-    userEvent.click(finishButton);
-  });
-
-  test('hmpb write-in can be adjudicated as new write-in candidate', async () => {
-    renderScreen(contestId, {
-      electionDefinition,
-      apiMock,
-    });
-
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
-    const writeInCheckbox = screen.getByRole('checkbox', {
-      checked: true,
-      name: /write-in/i,
-    });
-    expect(writeInCheckbox).toBeChecked();
-
-    let finishButton = screen.getByRole('button', { name: /finish/i });
-    expect(finishButton).toBeDisabled();
-
-    // test max name length
-    let writeInSearchSelect = screen.getByRole('combobox');
-    userEvent.type(writeInSearchSelect, 'a'.repeat(MAX_NAME_LENGTH + 1));
-    expect(
-      screen.queryByText(/entry exceeds max character length/i)
-    ).toBeInTheDocument();
-    // enter should not select anything since there is no valid option
-    userEvent.keyboard('{Enter}');
-    writeInSearchSelect = screen.getByRole('combobox');
-    expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
-    userEvent.clear(writeInSearchSelect);
-
-    // review dropdown options
-    writeInSearchSelect = screen.getByRole('combobox');
-    expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
-
-    expect(screen.queryByText(/add:/i)).not.toBeInTheDocument();
-    expect(screen.queryAllByText(/not a mark/i)).toHaveLength(2);
-    expect(screen.queryByText(/oliver/i)).toBeInTheDocument();
-
-    userEvent.type(writeInSearchSelect, 'siena');
-
-    expect(screen.queryByText(/not a mark/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/oliver/i)).not.toBeInTheDocument();
-
-    // add new candidate
-    const addNewItem = getDropdownItemByLabel('Add: siena');
-    userEvent.click(addNewItem!);
-
-    // once that candidate is added, they should be included in the next dropdown search
-    writeInSearchSelect = screen.getByRole('combobox');
-    userEvent.type(writeInSearchSelect, 'sie');
-    // even though we've only partially typed the name, the full name should be
-    // highlighted in the dropdown
-    userEvent.keyboard('{Enter}');
-
-    finishButton = getButtonByName('finish');
-    expect(finishButton).toBeEnabled();
-
-    const adjudicatedCvrContest = formAdjudicatedCvrContest(cvrId, {
-      kangaroo: { type: 'candidate-option', hasVote: true },
-      'write-in-0': {
-        type: 'write-in-option',
-        hasVote: true,
-        candidateType: 'write-in-candidate',
-        candidateName: 'siena',
-      },
-    });
-
-    apiMock.expectAdjudicateCvrContest(adjudicatedCvrContest);
-    userEvent.click(finishButton);
-  });
-});
-
-describe('bmd write-in adjudication', () => {
+describe('unmarked and undetected write-ins', () => {
   const contestId = 'zoo-council-mammal';
   const cvrIds = ['id-174'];
   const cvrId = cvrIds[0];
@@ -919,114 +1073,9 @@ describe('bmd write-in adjudication', () => {
       contestId,
       electionId,
       optionId: writeIn0Id,
+      isUnmarked: true,
     },
   ];
-  const writeInCandidates: WriteInCandidateRecord[] = [
-    { id: 'write-in-0', name: 'oliver', electionId, contestId },
-  ];
-
-  beforeEach(() => {
-    apiMock.expectGetWriteInAdjudicationCvrQueue({ contestId }, cvrIds);
-    apiMock.expectGetFirstPendingWriteInCvrId({ contestId }, null);
-    apiMock.expectGetCastVoteRecordVoteInfo(
-      { cvrId },
-      { [contestId]: ['kangaroo', 'write-in-0'] }
-    );
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
-    apiMock.expectGetWriteIns({ contestId, cvrId }, writeInRecords);
-    apiMock.expectGetCvrContestWriteInImageViews({ contestId, cvrId }, true);
-    apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
-  });
-
-  test('bmd write-in can be adjudicated and shows machine marked text', async () => {
-    renderScreen(contestId, {
-      electionDefinition,
-      apiMock,
-    });
-
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
-    let writeInCheckbox = screen.getByRole('checkbox', {
-      name: /machine-marked-mock-text/i,
-    });
-    expect(writeInCheckbox).toBeChecked();
-
-    const disabledWriteInCheckboxes = screen
-      .getAllByRole('checkbox', { name: /write-in/i })
-      .filter((el) => (el as HTMLInputElement).disabled);
-    expect(disabledWriteInCheckboxes).toHaveLength(2);
-
-    let finishButton = screen.getByRole('button', { name: /finish/i });
-    expect(finishButton).toBeDisabled();
-
-    let writeInSearchSelect = screen.getByRole('combobox');
-    expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'false');
-    fireEvent.keyDown(writeInSearchSelect, { key: 'ArrowDown' });
-
-    writeInSearchSelect = screen.getByRole('combobox');
-    expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
-
-    const invalidMarkItem = getDropdownItemByLabel('Not a mark');
-    userEvent.click(invalidMarkItem!);
-
-    expect(screen.queryByText(/invalid mark/i)).toBeInTheDocument();
-
-    [writeInCheckbox] = screen
-      .getAllByRole('checkbox', { name: /write-in/i })
-      .filter((el) => !(el as HTMLInputElement).disabled);
-    expect(writeInCheckbox).not.toBeChecked();
-
-    userEvent.click(writeInCheckbox);
-    writeInCheckbox = screen.getByRole('checkbox', {
-      name: /machine-marked-mock-text/i,
-    });
-    expect(writeInCheckbox).toBeChecked();
-
-    finishButton = screen.getByRole('button', { name: /finish/i });
-    expect(finishButton).toBeDisabled();
-
-    writeInSearchSelect = screen.getByRole('combobox');
-    fireEvent.keyDown(writeInSearchSelect, { key: 'ArrowDown' });
-    expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
-
-    const oliverItem = getDropdownItemByLabel('oliver');
-    userEvent.click(oliverItem!);
-
-    finishButton = screen.getByRole('button', { name: /finish/i });
-    expect(finishButton).toBeEnabled();
-
-    const adjudicatedCvrContest = formAdjudicatedCvrContest(cvrId, {
-      kangaroo: { type: 'candidate-option', hasVote: true },
-      'write-in-0': {
-        type: 'write-in-option',
-        hasVote: true,
-        candidateType: 'write-in-candidate',
-        candidateName: 'oliver',
-      },
-    });
-    apiMock.expectAdjudicateCvrContest(adjudicatedCvrContest);
-
-    userEvent.click(finishButton);
-    await waitFor(() => {
-      expect(screen.queryByTestId('transcribe:id-174')).not.toBeInTheDocument();
-    });
-  });
-});
-
-describe('unmarked and undetected write-ins', () => {
-  const contestId = 'zoo-council-mammal';
-  const cvrIds = ['id-174'];
-  const cvrId = cvrIds[0];
-  const writeIn0Id = 'write-in-0';
-  const writeInRecord: WriteInRecord = {
-    status: 'pending',
-    id: '1',
-    cvrId,
-    contestId,
-    electionId,
-    optionId: writeIn0Id,
-    isUnmarked: true,
-  };
   const writeInCandidates: WriteInCandidateRecord[] = [
     { id: 'write-in-0', name: 'oliver', electionId, contestId },
   ];
@@ -1039,7 +1088,7 @@ describe('unmarked and undetected write-ins', () => {
       { [contestId]: ['kangaroo'] }
     );
     apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
-    apiMock.expectGetWriteIns({ contestId, cvrId }, [writeInRecord]);
+    apiMock.expectGetWriteIns({ contestId, cvrId }, writeInRecords);
     apiMock.expectGetCvrContestWriteInImageViews({ contestId, cvrId }, false);
     apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
   });
@@ -1126,7 +1175,44 @@ describe('unmarked and undetected write-ins', () => {
     });
 
     apiMock.expectAdjudicateCvrContest(adjudicatedCvrContest);
+
+    const adjudicatedWriteInRecords: WriteInRecord[] = [
+      {
+        ...writeInRecords[0],
+        status: 'adjudicated',
+        adjudicationType: 'official-candidate',
+        candidateId: 'elephant',
+      },
+      {
+        status: 'adjudicated',
+        adjudicationType: 'official-candidate',
+        candidateId: 'lion',
+        id: '2',
+        cvrId,
+        contestId,
+        electionId,
+        optionId: 'write-in-1',
+        isUnmarked: true,
+      },
+      {
+        status: 'adjudicated',
+        adjudicationType: 'official-candidate',
+        candidateId: 'zebra',
+        id: '3',
+        cvrId,
+        contestId,
+        electionId,
+        optionId: 'write-in-2',
+        isUnmarked: true,
+      },
+    ];
+    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
+    apiMock.expectGetWriteIns({ contestId, cvrId }, adjudicatedWriteInRecords);
+    apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
     userEvent.click(finishButton);
+    await waitFor(() => {
+      expect(screen.queryByTestId('transcribe:id-174')).not.toBeInTheDocument();
+    });
   });
 });
 
@@ -1213,7 +1299,7 @@ describe('double vote detection', () => {
     for (const select of writeInSearchSelects) {
       userEvent.type(select, 'Lion');
       userEvent.keyboard('{Enter}');
-    };
+    }
     modal = await screen.findByRole('alertdialog');
     expect(screen.queryByText(/double vote detected/i)).toBeInTheDocument();
     modalCancelButton = within(modal).getByRole('button', {
@@ -1402,7 +1488,6 @@ describe('ballot navigation', () => {
     expect(primaryButton).toBeDisabled();
 
     // go back one ballot
-
     apiMock.expectGetCastVoteRecordVoteInfo(
       { cvrId: cvrIds[0] },
       { [contestId]: votes }
@@ -1443,6 +1528,13 @@ describe('ballot navigation', () => {
       },
     });
     apiMock.expectAdjudicateCvrContest(adjudicatedCvrContest);
+    apiMock.expectGetVoteAdjudications({ contestId, cvrId: cvrIds[0] }, []);
+    apiMock.expectGetWriteIns(
+      { contestId, cvrId: cvrIds[0] },
+      completedWriteInRecords174
+    );
+    apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
+
     apiMock.expectGetVoteAdjudications(
       { contestId, cvrId: firstPendingCvrId },
       []
@@ -1451,7 +1543,6 @@ describe('ballot navigation', () => {
       { contestId, cvrId: firstPendingCvrId },
       pendingWriteInRecords175
     );
-    apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
     userEvent.click(primaryButton);
 
     await screen.findByTestId('transcribe:id-175');
