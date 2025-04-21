@@ -1,5 +1,4 @@
 /* istanbul ignore file - tested via Mark/Mark-Scan */
-import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import styled, { keyframes } from 'styled-components';
 import {
   Button,
@@ -12,18 +11,20 @@ import {
   H1,
   NumberString,
   P,
-  PrecinctSelectionName,
   PrimaryElectionTitlePrefix,
   Seal,
   useScreenInfo,
 } from '@votingworks/ui';
-import { assert, assertDefined } from '@votingworks/basics';
+
+import { assert, assertDefined, find } from '@votingworks/basics';
+
 import {
   BallotStyleId,
   ElectionDefinition,
   getBallotStyle,
   PrecinctId,
 } from '@votingworks/types';
+import { getPrecinctsAndSplitsForBallotStyle } from '@votingworks/utils';
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
 import { VoterScreen } from '../components/voter_screen';
 
@@ -87,6 +88,16 @@ export function StartPage(props: StartPageProps): JSX.Element {
   const { election } = electionDefinition;
   const { county, seal } = election;
   const screenInfo = useScreenInfo();
+  const ballotStyle = assertDefined(
+    getBallotStyle({ election, ballotStyleId })
+  );
+  const precinctOrSplit = find(
+    getPrecinctsAndSplitsForBallotStyle({ election, ballotStyle }),
+    ({ precinct }) => precinct.id === precinctId
+  );
+  const precinctOrSplitName = precinctOrSplit.split
+    ? electionStrings.precinctSplitName(precinctOrSplit.split)
+    : electionStrings.precinctName(precinctOrSplit.precinct);
 
   const electionInfo = (
     <ElectionInfo>
@@ -110,27 +121,10 @@ export function StartPage(props: StartPageProps): JSX.Element {
         <P>
           <Caption maxLines={4}>
             {/* TODO(kofi): Use more language-agnostic delimiter (e.g. '|') or find way to translate commas. */}
-            <span>
-              <PrecinctSelectionName
-                electionPrecincts={election.precincts}
-                precinctSelection={singlePrecinctSelectionFor(precinctId)}
-              />
-              ,{' '}
-            </span>
             {electionStrings.countyName(county)},{' '}
             {electionStrings.stateName(election)}
           </Caption>
-          <Caption>
-            {appStrings.labelBallotStyle()}{' '}
-            {electionStrings.ballotStyleId(
-              assertDefined(
-                getBallotStyle({
-                  ballotStyleId,
-                  election,
-                })
-              )
-            )}
-          </Caption>
+          <Caption>{precinctOrSplitName}</Caption>
           <br />
           <Caption>
             {appStrings.labelNumBallotContests()}{' '}
