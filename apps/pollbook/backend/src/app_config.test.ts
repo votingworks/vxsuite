@@ -42,10 +42,6 @@ afterEach(() => {
   vitest.useRealTimers();
 });
 
-vi.setConfig({
-  testTimeout: 20_000,
-});
-
 test('uses machine config from env', async () => {
   const originalEnv = process.env;
   process.env = {
