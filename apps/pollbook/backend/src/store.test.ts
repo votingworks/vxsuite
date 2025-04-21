@@ -6,13 +6,13 @@ import {
   createVoterCheckInEvent,
   getTestElection,
 } from '../test/test_helpers';
-import { Store } from './store';
+import { PeerStore } from './peer_store';
 
 export const myMachineId = 'machine-1';
 const otherMachineId = 'machine-2';
 
 test('getNewEvents returns events for unknown machines', () => {
-  const store = Store.memoryStore(myMachineId);
+  const store = PeerStore.memoryStore(myMachineId);
   const myHlcClock = new HybridLogicalClock(myMachineId);
   const theirHlcClock = new HybridLogicalClock(otherMachineId);
   const event1 = createVoterCheckInEvent(
@@ -40,7 +40,7 @@ test('getNewEvents returns events for unknown machines', () => {
 });
 
 test('getNewEvents returns events for known machines with new events', () => {
-  const store = Store.memoryStore(myMachineId);
+  const store = PeerStore.memoryStore(myMachineId);
   const myClock = new HybridLogicalClock(myMachineId);
   const theirClock = new HybridLogicalClock(otherMachineId);
   const event1 = createVoterCheckInEvent(
@@ -78,7 +78,7 @@ test('getNewEvents returns events for known machines with new events', () => {
 });
 
 test('getNewEvents returns no events for known machines and unknown machines', async () => {
-  const store = Store.memoryStore(myMachineId);
+  const store = PeerStore.memoryStore(myMachineId);
   const myClock = new HybridLogicalClock(myMachineId);
   const theirClock = new HybridLogicalClock(otherMachineId);
   const event1 = createVoterCheckInEvent(
@@ -145,8 +145,8 @@ test('getNewEvents returns no events for known machines and unknown machines', a
 });
 
 test('getNewEvents returns hasMore when there are more events from unknown machines', () => {
-  const store = Store.memoryStore(myMachineId);
-  const store2 = Store.memoryStore('machine-2');
+  const store = PeerStore.memoryStore(myMachineId);
+  const store2 = PeerStore.memoryStore('machine-2');
   const voters = Array.from({ length: 7 }, (_, i) =>
     createVoter(`voter-${i}`, 'firstname', 'lastname')
   );
@@ -185,8 +185,8 @@ test('getNewEvents returns hasMore when there are more events from unknown machi
 });
 
 test('getNewEvents returns hasMore when there are more events from known machines (no unknown machines)', () => {
-  const store = Store.memoryStore(myMachineId);
-  const store2 = Store.memoryStore('machine-2');
+  const store = PeerStore.memoryStore(myMachineId);
+  const store2 = PeerStore.memoryStore('machine-2');
   const voters = Array.from({ length: 7 }, (_, i) =>
     createVoter(`voter-${i}`, 'firstname', 'lastname')
   );
@@ -227,8 +227,8 @@ test('getNewEvents returns hasMore when there are more events from known machine
 });
 
 test('getNewEvents returns hasMore when there are more events from known machines and unknown machines combined', () => {
-  const store = Store.memoryStore(myMachineId);
-  const store2 = Store.memoryStore('test-machine');
+  const store = PeerStore.memoryStore(myMachineId);
+  const store2 = PeerStore.memoryStore('test-machine');
   const voters = Array.from({ length: 10 }, (_, i) =>
     createVoter(`voter-${i}`, 'firstname', 'lastname')
   );

@@ -4,10 +4,10 @@ import {
 } from '@votingworks/auth';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { LoggingUserRole } from '@votingworks/logging';
-import { Workspace } from './types';
+import { LocalWorkspace } from './types';
 
 export function constructAuthMachineState(
-  workspace: Workspace
+  workspace: LocalWorkspace
 ): DippedSmartCardAuthMachineState {
   const election = workspace.store.getElection();
   return {
@@ -24,7 +24,7 @@ export function constructAuthMachineState(
  */
 export async function getUserRole(
   auth: DippedSmartCardAuthApi,
-  workspace: Workspace
+  workspace: LocalWorkspace
 ): Promise<LoggingUserRole> {
   const authStatus = await auth.getAuthStatus(
     constructAuthMachineState(workspace)

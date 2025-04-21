@@ -2,15 +2,15 @@ import { expect, test, vitest } from 'vitest';
 import { tmpNameSync } from 'tmp';
 import { writeFileSync } from 'node:fs';
 import { setupTestElectionAndVoters } from '../test/test_helpers';
-import { Store } from './store';
 import { getBackupPaperChecklistPdfs } from './backup_worker';
+import { LocalStore } from './local_store';
 
 vitest.setConfig({
   testTimeout: 30_000,
 });
 
 test('can export paper backup checklist', async () => {
-  const store = Store.memoryStore();
+  const store = LocalStore.memoryStore();
   setupTestElectionAndVoters(store);
   store.recordVoterCheckIn({
     voterId: 'abigail',

@@ -1,34 +1,21 @@
 import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
-import { setInterval } from 'node:timers/promises';
 import * as grout from '@votingworks/grout';
 import { sleep } from '@votingworks/basics';
 import { rootDebug } from './debug';
-import { AppContext, PollbookConnectionStatus } from './types';
-import { AvahiService } from './avahi';
+import { PeerAppContext, PollbookConnectionStatus } from './types';
+import { AvahiService, hasOnlineInterface } from './avahi';
 import {
   EVENT_POLLING_INTERVAL,
   NETWORK_POLLING_INTERVAL,
   NETWORK_REQUEST_TIMEOUT,
-  PORT,
+  PEER_PORT,
 } from './globals';
-import type { Api } from './app';
+import type { PeerApi } from './peer_app';
 
 const debug = rootDebug.extend('networking');
 
 const execPromise = promisify(exec);
-// Checks if there is any network interface 'UP'.
-export async function hasOnlineInterface(): Promise<boolean> {
-  const command = 'ip link show | grep "state UP"';
-  try {
-    const { stdout } = await execPromise(command);
-    debug(`ip link show stdout: ${stdout}`);
-    return stdout.length > 0;
-  } catch (error) {
-    debug(`Error running ip link show: ${error}`);
-    return false;
-  }
-}
 
 export async function resetNetworkSetup(machineId: string): Promise<void> {
   const command = 'sudo systemctl start join-mesh-network';
@@ -42,19 +29,19 @@ export async function resetNetworkSetup(machineId: string): Promise<void> {
     debug(
       'Publishing avahi service %s on port %d',
       currentNodeServiceName,
-      PORT
+      PEER_PORT
     );
     await sleep(5000);
-    await AvahiService.advertiseHttpService(currentNodeServiceName, PORT);
+    await AvahiService.advertiseHttpService(currentNodeServiceName, PEER_PORT);
     debug('Network restarted');
   } catch (error) {
     debug(`Error restarting network: ${error}`);
   }
 }
 
-function createApiClientForAddress(address: string): grout.Client<Api> {
+function createApiClientForAddress(address: string): grout.Client<PeerApi> {
   debug('Creating API client for address %s', address);
-  return grout.createClient<Api>({
+  return grout.createClient<PeerApi>({
     baseUrl: `${address}/api`,
     timeout: NETWORK_REQUEST_TIMEOUT,
   });
@@ -62,76 +49,107 @@ function createApiClientForAddress(address: string): grout.Client<Api> {
 
 export function fetchEventsFromConnectedPollbooks({
   workspace,
-}: AppContext): void {
+}: PeerAppContext): void {
   // Poll to fetch events from connected pollbooks
-  process.nextTick(async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    for await (const _ of setInterval(EVENT_POLLING_INTERVAL)) {
-      if (!workspace.store.getIsOnline() || !workspace.store.getElection()) {
-        // There is no network to try to connect over. Bail out.
-        debug('Not fetching events while offline or unconfigured');
-        continue;
+  process.nextTick(() => {
+    let isPolling = false;
+    setInterval(async () => {
+      if (isPolling) {
+        return;
       }
-
-      const previouslyConnected = workspace.store.getPollbookServicesByName();
-
-      for (const currentName of Object.keys(previouslyConnected)) {
-        const currentPollbookService = previouslyConnected[currentName];
-        if (
-          currentPollbookService.status !== PollbookConnectionStatus.Connected
-        ) {
-          continue;
+      isPolling = true;
+      try {
+        if (!workspace.store.getIsOnline() || !workspace.store.getElection()) {
+          // There is no network to try to connect over. Bail out.
+          debug('Not fetching events while offline or unconfigured');
+          return;
         }
-        const { apiClient } = currentPollbookService;
-        if (!apiClient) {
-          continue;
-        }
-        try {
-          // Sync events from this pollbook service.
-          let syncMoreEvents = true;
-          while (syncMoreEvents) {
-            const lastEventSyncedPerNode =
-              workspace.store.getLastEventSyncedPerNode();
-            const { events, hasMore } = await apiClient.getEvents({
-              lastEventSyncedPerNode,
-            });
-            workspace.store.saveRemoteEvents(events);
-            syncMoreEvents = hasMore;
-          }
 
-          // Update last seen time on node.
-          workspace.store.setPollbookServiceForName(currentName, {
-            machineId: currentPollbookService.machineId,
-            apiClient,
-            lastSeen: new Date(),
-            status: PollbookConnectionStatus.Connected,
-          });
-        } catch (error) {
-          debug(
-            `Failed to sync events from ${currentPollbookService.machineId}: ${error}`
-          );
-          debug('The api client is ', apiClient);
-        }
+        const previouslyConnected = workspace.store.getPollbookServicesByName();
+        const election = workspace.store.getElection();
+
+        // Fetch events from all connected pollbooks in parallel
+        await Promise.all(
+          Object.keys(previouslyConnected).map(async (currentName) => {
+            const currentPollbookService = previouslyConnected[currentName];
+            if (
+              currentPollbookService.status !==
+              PollbookConnectionStatus.Connected
+            ) {
+              return;
+            }
+            if (
+              !election ||
+              currentPollbookService.configuredElectionId !== election.id
+            ) {
+              workspace.store.setPollbookServiceForName(currentName, {
+                ...currentPollbookService,
+                lastSeen: new Date(),
+                status: PollbookConnectionStatus.WrongElection,
+              });
+              return;
+            }
+            const { apiClient } = currentPollbookService;
+            if (!apiClient) {
+              return;
+            }
+            try {
+              let syncMoreEvents = true;
+              while (syncMoreEvents) {
+                const lastEventSyncedPerNode =
+                  workspace.store.getLastEventSyncedPerNode();
+                const { events, hasMore } = await apiClient.getEvents({
+                  lastEventSyncedPerNode,
+                });
+                workspace.store.saveRemoteEvents(events);
+                syncMoreEvents = hasMore;
+              }
+
+              workspace.store.setPollbookServiceForName(currentName, {
+                ...currentPollbookService,
+                apiClient,
+                lastSeen: new Date(),
+                status: PollbookConnectionStatus.Connected,
+              });
+            } catch (error) {
+              debug(
+                `Failed to sync events from ${currentPollbookService.machineId}: ${error}`
+              );
+              debug('The api client is ', apiClient);
+            }
+          })
+        );
+
+        workspace.store.cleanupStalePollbookServices();
+      } finally {
+        isPolling = false;
       }
-      // Clean up stale machines
-      workspace.store.cleanupStalePollbookServices();
-    }
+    }, EVENT_POLLING_INTERVAL);
   });
 }
 
 export async function setupMachineNetworking({
   machineId,
   workspace,
-}: AppContext): Promise<void> {
+}: PeerAppContext): Promise<void> {
   const currentNodeServiceName = `Pollbook-${machineId}`;
   // Advertise a service for this machine
-  debug('Publishing avahi service %s on port %d', currentNodeServiceName, PORT);
-  await AvahiService.advertiseHttpService(currentNodeServiceName, PORT);
+  debug(
+    'Publishing avahi service %s on port %d',
+    currentNodeServiceName,
+    PEER_PORT
+  );
+  await AvahiService.advertiseHttpService(currentNodeServiceName, PEER_PORT);
 
   // Poll for new machines on the network
-  process.nextTick(async () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    for await (const _ of setInterval(NETWORK_POLLING_INTERVAL)) {
+  process.nextTick(() => {
+    let isPolling = false;
+
+    setInterval(async () => {
+      if (isPolling) {
+        return;
+      }
+      isPolling = true;
       try {
         if (!(await hasOnlineInterface())) {
           // There is no network to try to connect over. Bail out.
@@ -139,15 +157,14 @@ export async function setupMachineNetworking({
             'No online interface found. Setting online status to false and bailing.'
           );
           workspace.store.setOnlineStatus(false);
-          continue;
+          return;
         }
 
         const currentElection = workspace.store.getElection();
-        debug('Polling network for new machines');
         const services = await AvahiService.discoverHttpServices();
         if (!services.length) {
           debug('No services found on the network');
-          continue;
+          return;
         }
         const previouslyConnected = workspace.store.getPollbookServicesByName();
         // If there are any services that were previously connected that no longer show up in avahi
@@ -171,7 +188,7 @@ export async function setupMachineNetworking({
             'The current service is no longer found on avahi. Setting online status to false'
           );
           workspace.store.setOnlineStatus(false);
-          continue;
+          return;
         }
         for (const { name, resolvedIp, port } of services) {
           debug('Checking service %s at %s:%d', name, resolvedIp, port);
@@ -215,6 +232,7 @@ export async function setupMachineNetworking({
                 apiClient,
                 lastSeen: new Date(),
                 status: PollbookConnectionStatus.WrongElection,
+                configuredElectionId: machineInformation.configuredElectionId,
               });
               continue;
             }
@@ -234,6 +252,7 @@ export async function setupMachineNetworking({
               apiClient,
               lastSeen: new Date(),
               status: PollbookConnectionStatus.Connected,
+              configuredElectionId: machineInformation.configuredElectionId,
             });
           } catch (error) {
             if (name === currentNodeServiceName) {
@@ -249,7 +268,9 @@ export async function setupMachineNetworking({
         workspace.store.cleanupStalePollbookServices();
       } catch (error) {
         debug(`Previously uncaught error in network polling: ${error}`);
+      } finally {
+        isPolling = false;
       }
-    }
+    }, NETWORK_POLLING_INTERVAL);
   });
 }
