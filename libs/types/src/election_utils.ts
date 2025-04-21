@@ -28,6 +28,9 @@ import {
   BallotStyleGroupId,
   BmdBallotPaperSize,
   BallotPaperSize,
+  PrecinctSplitId,
+  PrecinctSplit,
+  hasSplits,
 } from './election';
 
 /**
@@ -73,6 +76,28 @@ export function getPrecinctIndexById({
   precinctId: PrecinctId;
 }): number {
   return election.precincts.findIndex((p) => p.id === precinctId);
+}
+
+/**
+ * Retrieves a precinct split by id. Adds the precinct id to the split.
+ */
+export function getPrecinctSplitById({
+  election,
+  precinctSplitId,
+}: {
+  election: Election;
+  precinctSplitId: PrecinctSplitId;
+}): (PrecinctSplit & { precinctId: PrecinctId }) | undefined {
+  return election.precincts
+    .flatMap((precinct) =>
+      hasSplits(precinct)
+        ? precinct.splits.map((split) => ({
+            ...split,
+            precinctId: precinct.id,
+          }))
+        : []
+    )
+    .find((split) => split.id === precinctSplitId);
 }
 
 /**

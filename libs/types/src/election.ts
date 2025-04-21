@@ -320,9 +320,12 @@ export interface PrecinctWithSplits {
   name: string;
   splits: readonly PrecinctSplit[];
 }
+
+export type PrecinctSplitId = Id;
+
 interface PrecinctSplitBase {
+  id: PrecinctSplitId;
   districtIds: readonly DistrictId[];
-  id: Id;
   name: string;
 }
 export type PrecinctSplit = PrecinctSplitBase & NhPrecinctSplitOptions;
@@ -332,6 +335,10 @@ export type Precinct = PrecinctWithoutSplits | PrecinctWithSplits;
 export function hasSplits(precinct: Precinct): precinct is PrecinctWithSplits {
   return 'splits' in precinct && precinct.splits !== undefined;
 }
+
+export type PrecinctOrSplit =
+  | { precinct: PrecinctWithoutSplits; split?: never }
+  | { precinct: PrecinctWithSplits; split: PrecinctSplit };
 
 export interface PrecinctOrSplitId {
   precinctId: PrecinctId;

@@ -5,6 +5,7 @@ import {
   deepEqual,
   iter,
   ok,
+  find,
 } from '@votingworks/basics';
 import {
   BallotStyle,
@@ -13,6 +14,8 @@ import {
   BallotStyleGroup,
   Party,
   Election,
+  PrecinctOrSplit,
+  hasSplits,
 } from '@votingworks/types';
 
 const ID_LANGUAGES_SEPARATOR = '_';
@@ -143,4 +146,56 @@ export function getBallotStyleGroup({
   return getGroupedBallotStyles(election.ballotStyles).find(
     (group) => group.id === ballotStyleGroupId
   );
+}
+
+function hasMatchingDistrictIds(
+  ballotStyle: Pick<BallotStyle, 'districts'>,
+  precinctOrSplit: PrecinctOrSplit
+): boolean {
+  const precinctOrSplitDistrictIds = precinctOrSplit.split
+    ? precinctOrSplit.split.districtIds
+    : precinctOrSplit.precinct.districtIds;
+  return deepEqual(
+    [...ballotStyle.districts].sort(),
+    [...precinctOrSplitDistrictIds].sort()
+  );
+}
+
+/**
+ * Given a precinct or split, returns its associated ballot style group.
+ */
+export function getBallotStyleGroupForPrecinctOrSplit({
+  election,
+  precinctOrSplit,
+}: {
+  election: Election;
+  precinctOrSplit: PrecinctOrSplit;
+}): BallotStyleGroup {
+  return find(
+    getGroupedBallotStyles(election.ballotStyles),
+    (ballotStyleGroup) =>
+      hasMatchingDistrictIds(ballotStyleGroup, precinctOrSplit)
+  );
+}
+
+/**
+ * Given a ballot style, returns the precincts and splits that are associated
+ * with it.
+ */
+export function getPrecinctsAndSplitsForBallotStyle({
+  election,
+  ballotStyle,
+}: {
+  election: Election;
+  ballotStyle: BallotStyle;
+}): PrecinctOrSplit[] {
+  return election.precincts
+    .flatMap((precinct): PrecinctOrSplit[] =>
+      hasSplits(precinct)
+        ? precinct.splits.map((split) => ({ precinct, split }))
+        : [{ precinct }]
+    )
+    .filter((precinctOrSplit) =>
+      hasMatchingDistrictIds(ballotStyle, precinctOrSplit)
+    );
 }
