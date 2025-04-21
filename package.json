@@ -13,7 +13,7 @@
   "engines": {
     "node": "20.16.0"
   },
-  "packageManager": "pnpm@8.15.5",
+  "packageManager": "yarn@4.9.1",
   "devDependencies": {
     "@storybook/addon-a11y": "^7.2.2",
     "@storybook/addon-actions": "^7.2.2",

@@ -3,6 +3,7 @@
 
 import { describe, test, vi } from 'vitest';
 import { lines as lineIterator } from '@votingworks/basics';
+import * as rustExporter from '@votingworks/logging-perf-test';
 import { EventLogging } from '@votingworks/types';
 import { createReadStream, createWriteStream, ReadStream } from 'node:fs';
 import { join } from 'node:path';
@@ -38,6 +39,21 @@ describe('buildCdfLog - perf', () => {
   const ver = 'dev';
 
   test(
+    'Rust exporter',
+    async () => {
+      console.time('Rust exporter');
+
+      rustExporter.exportLog(
+        join(__dirname, logFileName),
+        join(__dirname, 'smollog-rust.cdf.log')
+      );
+
+      console.timeEnd('Rust exporter');
+    },
+    60_000 * 5
+  );
+
+  test(
     'ORIGINAL',
     async () => {
       console.time('ORIGINAL');
@@ -46,7 +62,7 @@ describe('buildCdfLog - perf', () => {
         createReadStream(join(__dirname, logFileName), 'utf8'),
         (inputStream: AsyncIterable<string>) =>
           buildCdfLog(logger, inputStream, machineId, ver),
-        createWriteStream(join(__dirname, 'biglog.cdf.log'))
+        createWriteStream(join(__dirname, 'smollog.cdf.log'))
       );
 
       console.timeEnd('ORIGINAL');

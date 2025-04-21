@@ -31,6 +31,7 @@
   "dependencies": {
     "@iarna/toml": "^2.2.5",
     "@votingworks/basics": "workspace:*",
+    "@votingworks/logging-perf-test": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "debug": "4.3.4",
