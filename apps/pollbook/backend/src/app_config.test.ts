@@ -1,6 +1,6 @@
 import { beforeEach, afterEach, expect, test, vi, vitest } from 'vitest';
 import { Buffer } from 'node:buffer';
-import { err, sleep } from '@votingworks/basics';
+import { err } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
   mockElectionManagerUser,
@@ -11,13 +11,6 @@ import { withApp } from '../test/app';
 import { mockPollbookPackageFileTree } from '../test/pollbook_package';
 
 let mockNodeEnv: 'production' | 'test' = 'test';
-
-async function allowRealTimeToPass() {
-  vi.useRealTimers();
-  await sleep(300);
-  vi.useFakeTimers();
-  vitest.advanceTimersByTime(300);
-}
 
 function mockElectionManagerAuth(auth: DippedSmartCardAuthApi) {
   vi.mocked(auth.getAuthStatus).mockImplementation(() =>
@@ -100,8 +93,9 @@ test('app config - unhappy paths polling usb', async () => {
       'pollbook-package.zip': Buffer.from('invalid'),
     });
     vi.advanceTimersByTime(100);
-    await allowRealTimeToPass();
-    expect(await localApiClient.getElection()).toEqual(err('not-found'));
+    await vi.waitFor(async () => {
+      expect(await localApiClient.getElection()).toEqual(err('not-found'));
+    });
   });
 });
 
@@ -124,11 +118,12 @@ test('app config - happy path polling usb from backend', async () => {
     vitest.advanceTimersByTime(100);
     expect(await localApiClient.getElection()).toEqual(err('loading'));
     // Allow time for the pollbook package to be read
-    await allowRealTimeToPass();
-    const result = await localApiClient.getElection();
-    // Configured for proper election
-    expect(result.unsafeUnwrap().id).toEqual(
-      electionFamousNames2021Fixtures.electionJson.readElection().id
-    );
+    await vi.waitFor(async () => {
+      const result = await localApiClient.getElection();
+      // Configured for proper election
+      expect(result.unsafeUnwrap().id).toEqual(
+        electionFamousNames2021Fixtures.electionJson.readElection().id
+      );
+    });
   });
 });
