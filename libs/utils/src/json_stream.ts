@@ -35,6 +35,14 @@ export type JsonStreamInput<T> =
   | number
   | boolean;
 
+/**
+ * Represents raw JSON for a previously stringified value.
+ *
+ * Provides an improvement to {@link jsonStream} performance for cases where the
+ * shape and size of a value are known ahead of time to be reasonably
+ * serializable in a single batch (e.g. a single element in a large array of log
+ * entry objects).
+ */
 export class RawJson {
   // eslint-disable-next-line vx/gts-no-public-class-fields
   constructor(public contents: string) {}

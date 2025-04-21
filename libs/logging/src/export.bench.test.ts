@@ -178,7 +178,7 @@ async function* buildCdfLogNoJsonStream(
     `"Type":"${DEVICE_TYPES_FOR_APP[LogSource.VxAdminFrontend]}",` +
     `"Id":"${machineId}",` +
     `"Version":"${codeVersion}",` +
-    `"Events":[`;
+    `"Event":[`;
 
   const lines = readline.createInterface(logFileReader);
 
