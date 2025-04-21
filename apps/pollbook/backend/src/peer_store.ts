@@ -67,7 +67,7 @@ export class PeerStore extends Store {
       INSERT INTO machines (machine_id, status, last_seen)
       VALUES (?, ?, ?)
       ON CONFLICT(machine_id) DO UPDATE SET
-        status = excluded.status,
+        status = excluded.status
         ${isOnline ? ', last_seen = excluded.last_seen' : ''}
       `,
         this.machineId,
