@@ -439,6 +439,10 @@ export const testVxfElection: Election = {
         'precinct-1': 'North Lincoln',
         'precinct-2': 'South Lincoln',
       },
+      precinctSplitName: {
+        'precinct-1-split-1': 'North Lincoln - Split 1',
+        'precinct-1-split-2': 'North Lincoln - Split 2',
+      },
       stateName: 'State of Hamilton',
     },
   },

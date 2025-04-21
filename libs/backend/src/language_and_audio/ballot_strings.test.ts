@@ -48,7 +48,7 @@ describe('translateBallotStrings', () => {
     expect(Object.keys(result)).toEqual([LanguageCode.ENGLISH]);
     const englishResults = result[LanguageCode.ENGLISH];
     assert(englishResults);
-    expect(Object.keys(englishResults)).toHaveLength(16);
+    expect(Object.keys(englishResults)).toHaveLength(17);
   });
 
   test('should extract and translate ballot strings correctly for multiple languages', async () => {
@@ -77,7 +77,7 @@ describe('translateBallotStrings', () => {
       }
       const subResults = result[languageCode];
       assert(subResults);
-      expect(Object.keys(subResults)).toHaveLength(14);
+      expect(Object.keys(subResults)).toHaveLength(15);
     }
   });
 });
