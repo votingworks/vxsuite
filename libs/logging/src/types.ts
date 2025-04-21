@@ -1,10 +1,13 @@
 import {
   UserRole,
   UserRoleSchema,
+  UserRoleSchemaZ4,
   Dictionary,
   EventLogging,
 } from '@votingworks/types';
+// import { z } from 'zod';
 import { z } from 'zod';
+import { z as z4 } from 'zod4';
 import { LogEventId } from './log_event_ids';
 import { AppName, LogSource } from './base_types/log_source';
 import { LogEventType } from './base_types/log_event_types';
@@ -53,6 +56,32 @@ export const LogLineSchema: z.ZodSchema<LogLine> = z.object({
   timeLogInitiated: z.string().optional(),
   // this key is not required when writing logs but we want to make sure it is present when reading logs
   timeLogWritten: z.string(),
+});
+
+export const LogSourceSchemaZ4: z4.ZodSchema<LogSource> =
+  z4.nativeEnum(LogSource);
+export const AppNameSchemaZ4: z4.ZodSchema<AppName> = z4.nativeEnum(AppName);
+export const LogEventIdSchemaZ4: z4.ZodSchema<LogEventId> =
+  z4.nativeEnum(LogEventId);
+export const LogEventTypeSchemaZ4: z4.ZodSchema<LogEventType> =
+  z4.nativeEnum(LogEventType);
+export const LoggingUserRoleSchemaZ4: z4.ZodSchema<LoggingUserRole> = z4.union([
+  UserRoleSchemaZ4,
+  z4.literal('vx-staff'),
+  z4.literal('system'),
+  z4.literal('unknown'),
+]);
+
+export const LogLineSchemaZ4: z4.ZodSchema<LogLine> = z4.object({
+  source: LogSourceSchemaZ4,
+  eventId: LogEventIdSchemaZ4,
+  eventType: LogEventTypeSchemaZ4,
+  user: LoggingUserRoleSchemaZ4,
+  disposition: z4.string(),
+  message: z4.string().optional(),
+  timeLogInitiated: z4.string().optional(),
+  // this key is not required when writing logs but we want to make sure it is present when reading logs
+  timeLogWritten: z4.string(),
 });
 
 export const DEVICE_TYPES_FOR_APP: Dictionary<EventLogging.DeviceType> = {

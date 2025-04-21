@@ -19,6 +19,7 @@ import {
 import {
   buildCdfLog,
   buildCdfLogPreStringifyEvents,
+  buildCdfLogPreStringifyEventsZ4,
   convertToCdfEventsNoZod,
 } from './export';
 
@@ -66,6 +67,23 @@ describe('buildCdfLog - perf', () => {
       );
 
       console.timeEnd('ORIGINAL - pre-stringify');
+    },
+    60_000 * 5
+  );
+
+  test(
+    'ORIGINAL - pre-stringify CDF event elements - with Zod v4',
+    async () => {
+      console.time('ORIGINAL - pre-stringify - Zod4');
+
+      await pipeline(
+        createReadStream(join(__dirname, logFileName), 'utf8'),
+        (inputStream: AsyncIterable<string>) =>
+          buildCdfLogPreStringifyEventsZ4(logger, inputStream, machineId, ver),
+        createWriteStream(join(__dirname, 'biglog.cdf.log'))
+      );
+
+      console.timeEnd('ORIGINAL - pre-stringify - Zod4');
     },
     60_000 * 5
   );

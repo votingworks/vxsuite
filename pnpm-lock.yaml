@@ -107,7 +107,7 @@ importers:
         version: 5.2.0
       postcss-styled-syntax:
         specifier: ^0.4.0
-        version: 0.4.0(postcss@8.4.49)(typescript@5.6.2)
+        version: 0.4.0(postcss@8.5.3)(typescript@5.6.2)
       prettier:
         specifier: ^3.0.3
         version: 3.0.3
@@ -4659,6 +4659,9 @@ importers:
       zod:
         specifier: 3.23.5
         version: 3.23.5
+      zod4:
+        specifier: npm:zod@4.0.0-beta.20250420T053007
+        version: /zod@4.0.0-beta.20250420T053007
     devDependencies:
       '@types/debug':
         specifier: 4.1.8
@@ -5233,6 +5236,9 @@ importers:
       zod:
         specifier: 3.23.5
         version: 3.23.5
+      zod4:
+        specifier: npm:zod@4.0.0-beta.20250420T053007
+        version: /zod@4.0.0-beta.20250420T053007
     devDependencies:
       '@types/kiosk-browser':
         specifier: workspace:*
@@ -14348,6 +14354,10 @@ packages:
       '@yornaath/batshit-devtools': 1.6.0
     dev: false
 
+  /@zod/core@0.8.1:
+    resolution: {integrity: sha512-djj8hPhxIHcG8ptxITaw/Bout5HJZ9NyRbKr95Eilqwt9R0kvITwUQGDU+n+MVdsBIka5KwztmZSLti22F+P0A==}
+    dev: false
+
   /abab@2.0.6:
     resolution: {integrity: sha512-j2afSsaIENvHZN2B8GOpF566vZ5WVk5opAiMTvWgaQT8DkbOqsTfvNAvHoRGU2zzP8cPoqys+xHTRDWW8L+/BA==}
     deprecated: Use your platform's native atob() and btoa() methods instead
@@ -22268,14 +22278,14 @@ packages:
       util-deprecate: 1.0.2
     dev: true
 
-  /postcss-styled-syntax@0.4.0(postcss@8.4.49)(typescript@5.6.2):
+  /postcss-styled-syntax@0.4.0(postcss@8.5.3)(typescript@5.6.2):
     resolution: {integrity: sha512-LvG++K8LtIyX1Q1mNuZVQYmBo+SCwn90cEkMigo4/I0QwXrEiYt8nPeJ5rrI5Uuh+5w7hRfPyJKlvQdhVZBhUg==}
     peerDependencies:
       postcss: ^8.4.21
     dependencies:
       '@typescript-eslint/typescript-estree': 5.62.0(typescript@5.6.2)
       estree-walker: 2.0.2
-      postcss: 8.4.49
+      postcss: 8.5.3
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -26441,4 +26451,10 @@ packages:
 
   /zod@3.23.5:
     resolution: {integrity: sha512-fkwiq0VIQTksNNA131rDOsVJcns0pfVUjHzLrNBiF/O/Xxb5lQyEXkhZWcJ7npWsYlvs+h0jFWXXy4X46Em1JA==}
+    dev: false
+
+  /zod@4.0.0-beta.20250420T053007:
+    resolution: {integrity: sha512-5pp8Q0PNDaNcUptGiBE9akyioJh3RJpagIxrLtAVMR9IxwcSZiOsJD/1/98CyhItdTlI2H91MfhhLzRlU+fifA==}
+    dependencies:
+      '@zod/core': 0.8.1
     dev: false

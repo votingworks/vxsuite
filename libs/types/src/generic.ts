@@ -1,5 +1,6 @@
 import check8601 from '@antongolub/iso8601';
 import { z } from 'zod';
+import { z as z4 } from 'zod4';
 import {
   err,
   ok,
@@ -26,6 +27,25 @@ export function safeParse<T>(
   parser: z.ZodType<T>,
   value: unknown
 ): Result<T, z.ZodError> {
+  const result = parser.safeParse(value);
+
+  if (!result.success) {
+    return err(result.error);
+  }
+
+  return ok(result.data);
+}
+
+/**
+ * Parse `value` using `parser`. Note that this takes an object that is already
+ * supposed to be of type `T`, not a JSON string. For that, use `safeParseJson`.
+ *
+ * @returns `Ok` when the parse succeeded, `Err` otherwise.
+ */
+export function safeParseZ4<T>(
+  parser: z4.ZodType<T>,
+  value: unknown
+): Result<T, z4.ZodError> {
   const result = parser.safeParse(value);
 
   if (!result.success) {
@@ -63,6 +83,27 @@ export function safeParseJson<T>(
   }
 
   return parser ? safeParse(parser, parsed) : ok(parsed);
+}
+
+/**
+ * Parse JSON and then validate the result with `parser`.
+ */
+export function safeParseJsonZ4<T>(
+  text: string,
+  parser: z4.ZodType<T, unknown>
+): Result<T, z4.ZodError | SyntaxError>;
+export function safeParseJsonZ4<T>(
+  text: string,
+  parser?: z4.ZodType<T>
+): Result<T | unknown, z4.ZodError | SyntaxError> {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text);
+  } catch (error) {
+    return wrapException(error);
+  }
+
+  return parser ? safeParseZ4(parser, parsed) : ok(parsed);
 }
 
 /**

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { z as z4 } from 'zod4';
 
 import { DateWithoutTime } from '@votingworks/basics';
 import { BallotStyleId, Election, ElectionId, PrecinctId } from '../election';
@@ -73,6 +74,14 @@ export const UserRoleSchema: z.ZodSchema<UserRole> = z.union([
   z.literal('election_manager'),
   z.literal('poll_worker'),
   z.literal('cardless_voter'),
+]);
+
+export const UserRoleSchemaZ4: z4.ZodSchema<UserRole> = z4.union([
+  z4.literal('vendor'),
+  z4.literal('system_administrator'),
+  z4.literal('election_manager'),
+  z4.literal('poll_worker'),
+  z4.literal('cardless_voter'),
 ]);
 
 /**

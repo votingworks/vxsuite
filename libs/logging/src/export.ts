@@ -3,10 +3,13 @@ import {
   Dictionary,
   EventLogging,
   safeParse,
+  safeParseZ4,
   safeParseJson,
+  safeParseJsonZ4,
 } from '@votingworks/types';
 import { JsonStreamInput, RawJson, jsonStream } from '@votingworks/utils';
 import { z } from 'zod';
+import { z as z4 } from 'zod4';
 import { EventDispositionType } from '@votingworks/types/src/cdf/election-event-logging';
 import { LogEventId } from './log_event_ids';
 // import { CLIENT_SIDE_LOG_SOURCES } from './base_types/log_source';
@@ -17,6 +20,7 @@ import {
   LogLine,
   LogLineKnownFields,
   LogLineSchema,
+  LogLineSchemaZ4,
 } from './types';
 import { Logger } from './logger';
 import { LogEventType, LogSource } from './base_types';
@@ -169,6 +173,59 @@ async function* generateCdfEventsPreStringified(
   }
 }
 
+async function* generateCdfEventsPreStringifiedZ4(
+  logger: Logger,
+  logFileReader: AsyncIterable<string>
+): AsyncGenerator<RawJson> {
+  const logs = lines(logFileReader).filter((l) => l !== '');
+  for await (const [idx, log] of logs.enumerate()) {
+    const decodedLogResult = safeParseJsonZ4(log, LogLineSchemaZ4);
+    if (decodedLogResult.isErr()) {
+      void logger.logAsCurrentRole(LogEventId.LogConversionToCdfLogLineError, {
+        message: `Malformed log line identified, log line will be ignored: ${log} `,
+        result: 'Log line will not be included in CDF output',
+        disposition: 'failure',
+      });
+      continue;
+    }
+    const decodedLog = decodedLogResult.ok();
+    assert(typeof decodedLog['timeLogWritten'] === 'string'); // While this is not enforced in the LogLine type the zod schema will enforce it is always present so we know this to be true.
+
+    const rawDecodedObject = JSON.parse(log);
+    const customInformation = extractAdditionalKeysFromObj(
+      decodedLog,
+      rawDecodedObject
+    );
+
+    const standardDispositionResult = safeParseZ4(
+      z4.nativeEnum(EventLogging.EventDispositionType),
+      decodedLog.disposition
+    );
+    const disposition = standardDispositionResult.isOk()
+      ? standardDispositionResult.ok()
+      : decodedLog.disposition === ''
+      ? EventLogging.EventDispositionType.Na
+      : EventLogging.EventDispositionType.Other;
+    const cdfEvent: EventLogging.Event = {
+      '@type': 'EventLogging.Event',
+      Id: decodedLog.eventId,
+      Disposition: disposition,
+      OtherDisposition:
+        disposition === 'other' ? decodedLog.disposition : undefined,
+      Sequence: idx.toString(),
+      TimeStamp: decodedLog['timeLogWritten'],
+      Type: decodedLog.eventType,
+      Description: decodedLog.message,
+      Details: JSON.stringify({
+        ...customInformation,
+        source: decodedLog.source,
+      }),
+      UserId: decodedLog.user,
+    };
+    yield new RawJson(JSON.stringify(cdfEvent));
+  }
+}
+
 const LOG_SOURCES = Object.values(LogSource) as string[];
 const LOG_EVENT_IDS = Object.values(LogEventId) as string[];
 const LOG_EVENT_TYPES = Object.values(LogEventType) as string[];
@@ -220,29 +277,29 @@ function parseLogLine(line: string): LogLineExtended | Error {
     return new Error(`${err}`);
   }
 
-  const rawLogSource = parsed['source'] as string;
-  if (!LOG_SOURCES.includes(rawLogSource)) {
+  if (!LOG_SOURCES.includes(parsed['source'] as string)) {
     return new Error('Invalid log source');
   }
 
-  const rawEventId = parsed['eventId'] as string;
-  if (!LOG_EVENT_IDS.includes(rawEventId)) return new Error('Invalid event ID');
+  if (!LOG_EVENT_IDS.includes(parsed['eventId'] as string)) {
+    return new Error('Invalid event ID');
+  }
 
-  const rawEventType = parsed['eventType'] as string;
-  if (!LOG_EVENT_TYPES.includes(rawEventType)) {
+  if (!LOG_EVENT_TYPES.includes(parsed['eventType'] as string)) {
     return new Error('Invalid event Type');
   }
 
-  const rawRole = parsed['user'] as string;
-  if (!LOG_USER_ROLES.includes(rawRole)) {
+  if (!LOG_USER_ROLES.includes(parsed['user'] as string)) {
     return new Error('Invalid roleType');
   }
 
-  const disposition = parsed['disposition'] as string;
-  if (!disposition) return new Error('Missing required disposition');
+  if (typeof parsed['disposition'] !== 'string') {
+    return new Error('Missing or invalid field: disposition');
+  }
 
-  const timeLogWritten = parsed['timeLogWritten'] as string;
-  if (!timeLogWritten) return new Error('Missing required timeLogWritten');
+  if (typeof parsed['timeLogWritten'] !== 'string') {
+    return new Error('Missing or invalid field: timeLogWritten');
+  }
 
   return parsed as LogLineExtended;
 }
@@ -347,6 +404,35 @@ export async function* buildCdfLogPreStringifyEvents(
     Id: machineId,
     Version: codeVersion,
     Event: generateCdfEventsPreStringified(logger, logFileReader),
+  };
+  const eventElectionLog: JsonStreamInput<EventLogging.ElectionEventLog> = {
+    '@type': 'EventLogging.ElectionEventLog',
+    Device: [currentDevice],
+    GeneratedTime: new Date().toISOString(),
+  };
+
+  void logger.logAsCurrentRole(LogEventId.LogConversionToCdfComplete, {
+    message: 'Log file successfully converted to CDF format.',
+    disposition: 'success',
+  });
+
+  return yield* jsonStream(eventElectionLog);
+}
+
+export async function* buildCdfLogPreStringifyEventsZ4(
+  logger: Logger,
+  logFileReader: AsyncIterable<string>,
+  machineId: string,
+  codeVersion: string
+): AsyncIterable<string> {
+  const source = logger.getSource();
+
+  const currentDevice: JsonStreamInput<EventLogging.Device> = {
+    '@type': 'EventLogging.Device',
+    Type: DEVICE_TYPES_FOR_APP[source],
+    Id: machineId,
+    Version: codeVersion,
+    Event: generateCdfEventsPreStringifiedZ4(logger, logFileReader),
   };
   const eventElectionLog: JsonStreamInput<EventLogging.ElectionEventLog> = {
     '@type': 'EventLogging.ElectionEventLog',
