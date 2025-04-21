@@ -397,7 +397,7 @@ export abstract class Store {
   }
 
   // Returns the valid street info. Used when registering a voter to populate address typeahead options.
-  // TODO the frontend doesn't need to know everything in the ValidStreetInfo object. This could be paired down.
+  // TODO the frontend doesn't need to know everything in the ValidStreetInfo object. This could be pared down.
   getStreetInfo(): ValidStreetInfo[] {
     return this.validStreetInfo || [];
   }

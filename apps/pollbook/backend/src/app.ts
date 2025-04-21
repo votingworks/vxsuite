@@ -293,11 +293,10 @@ function buildApi({ context, logger }: BuildAppParams) {
     },
 
     getCheckInCounts(): { thisMachine: number; allMachines: number } {
-      const result = {
+      return {
         thisMachine: store.getCheckInCount(machineId),
         allMachines: store.getCheckInCount(),
-      } as const;
-      return result;
+      };
     },
 
     async exportVoterActivity(): Promise<void> {

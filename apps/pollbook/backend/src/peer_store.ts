@@ -64,18 +64,16 @@ export class PeerStore extends Store {
       }
       this.client.run(
         `
-      INSERT INTO machines (machine_id, status, last_updated, last_seen)
-      VALUES (?, ?, ?, ?)
+      INSERT INTO machines (machine_id, status, last_seen)
+      VALUES (?, ?, ?)
       ON CONFLICT(machine_id) DO UPDATE SET
         status = excluded.status,
-        last_updated = excluded.last_updated
         ${isOnline ? ', last_seen = excluded.last_seen' : ''}
       `,
         this.machineId,
         isOnline
           ? PollbookConnectionStatus.Connected
           : PollbookConnectionStatus.LostConnection,
-        getCurrentTime(),
         isOnline ? getCurrentTime() : 0
       );
     });
@@ -83,14 +81,13 @@ export class PeerStore extends Store {
 
   // Saves all events received from a remote machine. Returning the last event's timestamp.
   saveRemoteEvents(pollbookEvents: PollbookEvent[]): void {
-    let isSuccess = true;
     this.client.transaction(() => {
       if (this.getElection() === undefined) {
         debug('No election set, not saving events');
         return;
       }
       for (const pollbookEvent of pollbookEvents) {
-        isSuccess = isSuccess && this.saveEvent(pollbookEvent);
+        this.saveEvent(pollbookEvent);
       }
     });
   }
@@ -186,16 +183,14 @@ export class PeerStore extends Store {
     // Update the machines table with the pollbook service information
     this.client.run(
       `
-      INSERT INTO machines (machine_id, status, last_updated, last_seen)
-      VALUES (?, ?, ?, ?)
+      INSERT INTO machines (machine_id, status, last_seen)
+      VALUES (?, ?, ?)
       ON CONFLICT(machine_id) DO UPDATE SET
         status = excluded.status,
-        last_updated = excluded.last_updated,
         last_seen = excluded.last_seen
       `,
       pollbookService.machineId,
       pollbookService.status,
-      getCurrentTime(),
       pollbookService.lastSeen.getTime()
     );
   }
