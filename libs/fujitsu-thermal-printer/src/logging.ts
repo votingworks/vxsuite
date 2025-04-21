@@ -1,4 +1,5 @@
 import { BaseLogger, LogEventId } from '@votingworks/logging';
+import { deepEqual } from '@votingworks/basics';
 import { PrinterStatus } from './types';
 
 export function logPrinterStatusIfChanged(
@@ -25,25 +26,13 @@ export function logPrinterStatusIfChanged(
     });
     return;
   }
-  if (previousStatus.state !== newStatus.state) {
+  if (!deepEqual(previousStatus, newStatus)) {
     logger.log(LogEventId.PrinterStatusChanged, 'system', {
       message: `Printer Status updated from ${JSON.stringify(
         previousStatus
       )} to ${JSON.stringify(newStatus)}`,
       status: JSON.stringify(newStatus),
       disposition: newStatus.state === 'error' ? 'failure' : 'success',
-    });
-  } else if (
-    previousStatus.state === 'error' &&
-    newStatus.state === 'error' &&
-    previousStatus.type !== newStatus.type
-  ) {
-    logger.log(LogEventId.PrinterStatusChanged, 'system', {
-      message: `Printer Status updated from ${JSON.stringify(
-        previousStatus
-      )} to ${JSON.stringify(newStatus)}`,
-      status: JSON.stringify(newStatus),
-      disposition: 'failure',
     });
   }
 }

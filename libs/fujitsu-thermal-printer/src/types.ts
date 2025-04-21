@@ -21,6 +21,7 @@ export type PrinterStatus =
   | {
       state: 'error';
       type: ErrorType;
+      message?: string;
     };
 
 export type PrinterState = PrinterStatus['state'];
