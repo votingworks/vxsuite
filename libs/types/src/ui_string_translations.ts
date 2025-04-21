@@ -21,6 +21,7 @@ export enum ElectionStringKey {
   PARTY_FULL_NAME = 'partyFullName',
   PARTY_NAME = 'partyName',
   PRECINCT_NAME = 'precinctName',
+  PRECINCT_SPLIT_NAME = 'precinctSplitName',
   STATE_NAME = 'stateName',
 }
 

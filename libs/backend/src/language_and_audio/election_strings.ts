@@ -8,6 +8,7 @@ import {
   BallotLanguageConfigs,
   getAllBallotLanguages,
   LanguageCode,
+  hasSplits,
 } from '@votingworks/types';
 
 import { format } from '@votingworks/utils';
@@ -86,6 +87,9 @@ const electionStringConfigs: Record<ElectionStringKey, ElectionStringConfig> = {
     translatable: true,
   },
   [ElectionStringKey.PRECINCT_NAME]: {
+    translatable: true,
+  },
+  [ElectionStringKey.PRECINCT_SPLIT_NAME]: {
     translatable: true,
   },
   [ElectionStringKey.STATE_NAME]: {
@@ -220,6 +224,16 @@ const electionStringExtractorFns: Record<
       stringKey: [ElectionStringKey.PRECINCT_NAME, precinct.id],
       stringInEnglish: precinct.name,
     }));
+  },
+  [ElectionStringKey.PRECINCT_SPLIT_NAME](election) {
+    return election.precincts.flatMap((precinct) =>
+      hasSplits(precinct)
+        ? precinct.splits.map((split) => ({
+            stringKey: [ElectionStringKey.PRECINCT_SPLIT_NAME, split.id],
+            stringInEnglish: split.name,
+          }))
+        : []
+    );
   },
   [ElectionStringKey.STATE_NAME](election) {
     return [
