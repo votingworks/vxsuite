@@ -11,6 +11,8 @@ import {
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
 import { join } from 'node:path';
+import { createReadStream, createWriteStream } from 'node:fs';
+import { pipeline } from 'node:stream/promises';
 import { rootDebug } from './debug';
 import {
   LocalAppContext,
@@ -99,7 +101,7 @@ export function parseVotersFromCsvString(csvString: string): Voter[] {
   return voters;
 }
 
-async function readPollbookPackage(
+export async function readPollbookPackage(
   path: string
 ): Promise<Result<PollbookPackage, ReadFileError>> {
   const pollbookPackage = await readFile(path, {
@@ -177,6 +179,7 @@ export function pollUsbDriveForPollbookPackage({
 
       try {
         if (workspace.store.getElection()) {
+          clearInterval(intervalId); // Stop the polling interval
           return;
         }
 
@@ -225,6 +228,15 @@ export function pollUsbDriveForPollbookPackage({
           pollbookPackage.electionDefinition.election,
           pollbookPackage.validStreets,
           pollbookPackage.voters
+        );
+        // Save the zip file asset to be able to propagate to other machines
+        await pipeline(
+          createReadStream(
+            join(usbDriveStatus.mountPoint, 'pollbook-package.zip')
+          ),
+          createWriteStream(
+            join(workspace.assetDirectoryPath, 'pollbook-package.zip')
+          )
         );
         workspace.store.setConfigurationStatus(undefined);
         debug('Configured with pollbook package: %O', {

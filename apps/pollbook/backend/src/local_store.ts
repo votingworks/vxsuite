@@ -516,7 +516,7 @@ export class LocalStore extends Store {
   getPollbookServiceInfo(): PollbookServiceInfo[] {
     const rows = this.client.all(
       `
-      SELECT machine_id, status, last_seen
+      SELECT machine_id, status, last_seen, configured_election_id
       FROM machines
       WHERE machine_id != ?
       `,
@@ -525,6 +525,7 @@ export class LocalStore extends Store {
       machine_id: string;
       status: string;
       last_seen: number;
+      configured_election_id?: string;
     }>;
 
     return rows.map((row) => ({
@@ -532,6 +533,7 @@ export class LocalStore extends Store {
       status: row.status as PollbookConnectionStatus,
       lastSeen: new Date(row.last_seen),
       numCheckIns: this.getCheckInCount(row.machine_id),
+      configuredElectionId: row.configured_election_id,
     }));
   }
 }

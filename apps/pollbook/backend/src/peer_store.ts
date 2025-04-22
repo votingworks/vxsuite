@@ -16,7 +16,6 @@ const debug = rootDebug.extend('store:peer');
 
 export class PeerStore extends Store {
   private readonly connectedPollbooks: Record<string, PollbookService> = {};
-  private isOnline: boolean = false;
 
   constructor(client: DbClient, machineId: string) {
     super(client, machineId);
@@ -47,7 +46,6 @@ export class PeerStore extends Store {
   }
 
   setOnlineStatus(isOnline: boolean): void {
-    this.isOnline = isOnline;
     this.client.transaction(() => {
       if (!isOnline) {
         // If we go offline, we should clear the list of connected pollbooks.
@@ -183,15 +181,17 @@ export class PeerStore extends Store {
     // Update the machines table with the pollbook service information
     this.client.run(
       `
-      INSERT INTO machines (machine_id, status, last_seen)
-      VALUES (?, ?, ?)
+      INSERT INTO machines (machine_id, status, last_seen, configured_election_id)
+      VALUES (?, ?, ?, ?)
       ON CONFLICT(machine_id) DO UPDATE SET
         status = excluded.status,
-        last_seen = excluded.last_seen
+        last_seen = excluded.last_seen,
+        configured_election_id = excluded.configured_election_id
       `,
       pollbookService.machineId,
       pollbookService.status,
-      pollbookService.lastSeen.getTime()
+      pollbookService.lastSeen.getTime(),
+      pollbookService.configuredElectionId || ''
     );
   }
 

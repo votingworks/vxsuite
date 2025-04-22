@@ -29,9 +29,11 @@ export interface PeerAppContext extends MachineConfig {
 export interface LocalWorkspace {
   assetDirectoryPath: string;
   store: LocalStore;
+  peerApiClient: grout.Client<PeerApi>;
 }
 
 export interface PeerWorkspace {
+  assetDirectoryPath: string;
   store: PeerStore;
 }
 
@@ -315,6 +317,7 @@ export interface PollbookPackage {
 
 export interface PollbookService {
   apiClient?: grout.Client<PeerApi>;
+  address?: string;
   configuredElectionId?: string;
   machineId: string;
   lastSeen: Date;
@@ -324,6 +327,7 @@ export interface PollbookService {
 export interface ConnectedPollbookService extends PollbookService {
   status: PollbookConnectionStatus.Connected;
   apiClient: grout.Client<PeerApi>;
+  address: string;
 }
 
 export interface PollbookServiceInfo

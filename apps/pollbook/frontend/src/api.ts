@@ -270,6 +270,18 @@ export const checkInVoter = {
   },
 } as const;
 
+export const configureFromMachine = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.configureFromMachine, {
+      async onSuccess() {
+        await queryClient.resetQueries();
+      },
+    });
+  },
+} as const;
+
 export const undoVoterCheckIn = {
   useMutation() {
     const apiClient = useApiClient();

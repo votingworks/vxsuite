@@ -151,10 +151,15 @@ function buildApi({ context, logger }: BuildAppParams) {
             machineId: pollbook.machineId,
             lastSeen: pollbook.lastSeen,
             numCheckIns: pollbook.numCheckIns,
+            configuredElectionId: pollbook.configuredElectionId,
             status: pollbook.status,
           })),
         },
       };
+    },
+
+    async configureFromMachine(input: { machineId: string }): Promise<void> {
+      return await workspace.peerApiClient.configureFromMachine(input);
     },
 
     getPrinterStatus(): Promise<PrinterStatus> {

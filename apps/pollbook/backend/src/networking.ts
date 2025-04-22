@@ -40,7 +40,9 @@ export async function resetNetworkSetup(machineId: string): Promise<void> {
   }
 }
 
-function createApiClientForAddress(address: string): grout.Client<PeerApi> {
+export function createPeerApiClientForAddress(
+  address: string
+): grout.Client<PeerApi> {
   debug('Creating API client for address %s', address);
   return grout.createClient<PeerApi>({
     baseUrl: `${address}/api`,
@@ -228,7 +230,7 @@ export async function setupMachineNetworking({
           const apiClient =
             currentPollbookService && currentPollbookService.apiClient
               ? currentPollbookService.apiClient
-              : createApiClientForAddress(`http://${resolvedIp}:${port}`);
+              : createPeerApiClientForAddress(`http://${resolvedIp}:${port}`);
 
           try {
             if (!apiClient) {
@@ -252,6 +254,7 @@ export async function setupMachineNetworking({
               workspace.store.setPollbookServiceForName(name, {
                 machineId: machineInformation.machineId,
                 apiClient,
+                address: `http://${resolvedIp}:${port}`,
                 lastSeen: new Date(),
                 status: PollbookConnectionStatus.WrongElection,
                 configuredElectionId: machineInformation.configuredElectionId,
@@ -272,6 +275,7 @@ export async function setupMachineNetworking({
             workspace.store.setPollbookServiceForName(name, {
               machineId: machineInformation.machineId,
               apiClient,
+              address: `http://${resolvedIp}:${port}`,
               lastSeen: new Date(),
               status: PollbookConnectionStatus.Connected,
               configuredElectionId: machineInformation.configuredElectionId,

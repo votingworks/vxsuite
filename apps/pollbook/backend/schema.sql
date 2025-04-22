@@ -10,7 +10,8 @@ CREATE TABLE voters (
 CREATE TABLE machines (
     machine_id TEXT PRIMARY KEY,
     status TEXT NOT NULL, -- PollbookConnectionStatus enum
-    last_seen INTEGER NOT NULL -- last time the machine was seen
+    last_seen INTEGER NOT NULL, -- last time the machine was seen
+    configured_election_id TEXT -- election id this machine is configured for
 );
 
 CREATE TABLE elections (
