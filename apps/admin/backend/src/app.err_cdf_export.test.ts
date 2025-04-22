@@ -144,18 +144,18 @@ test('exports results and metadata accurately', async () => {
     contestId: candidateContestId,
     name: 'Mr. Jerry',
   });
-  const [writeInId1, writeInId2] = await apiClient.getWriteInAdjudicationQueue({
+  const [writeIn1, writeIn2] = await apiClient.getWriteIns({
     contestId: candidateContestId,
   });
-  assert(writeInId1 !== undefined);
-  assert(writeInId2 !== undefined);
+  assert(writeIn1 !== undefined);
+  assert(writeIn2 !== undefined);
   await apiClient.adjudicateWriteIn({
-    writeInId: writeInId1,
+    writeInId: writeIn1.id,
     type: 'write-in-candidate',
     candidateId: writeInCandidate1.id,
   });
   await apiClient.adjudicateWriteIn({
-    writeInId: writeInId2,
+    writeInId: writeIn2.id,
     type: 'official-candidate',
     candidateId: officialCandidateId,
   });

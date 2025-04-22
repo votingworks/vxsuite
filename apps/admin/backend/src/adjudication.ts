@@ -1,5 +1,5 @@
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
-import { LogEventId, BaseLogger, Logger } from '@votingworks/logging';
+import { LogEventId, BaseLogger } from '@votingworks/logging';
 import {
   AdjudicatedCvrContest,
   VoteAdjudication,
@@ -208,7 +208,7 @@ export function adjudicateWriteIn(
 export function adjudicateCvrContest(
   adjudicatedCvrContest: AdjudicatedCvrContest,
   store: Store,
-  logger: Logger
+  logger: BaseLogger
 ): void {
   const electionId = assertDefined(store.getCurrentElectionId());
   const { adjudicatedContestOptionById, cvrId, contestId, side } =

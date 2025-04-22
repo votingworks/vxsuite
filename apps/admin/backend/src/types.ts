@@ -420,21 +420,6 @@ export interface BmdWriteInImageView {
 }
 
 /**
- * Information necessary to adjudicate a write-in including the write-in record,
- * any related write-in records (same ballot and contest), and the CVR votes.
- */
-export interface WriteInAdjudicationContext {
-  readonly writeIn: WriteInRecord;
-  /**
-   * Related write-ins are write-ins that are on the same ballot and in the same
-   * contest as the primary write-in.
-   */
-  readonly relatedWriteIns: WriteInRecord[];
-  readonly cvrId: Id;
-  readonly cvrVotes: Tabulation.Votes;
-}
-
-/**
  * An adjudication that creates a mark where one was not previously tabulated
  * or removes a mark that was previously tabulated.
  */

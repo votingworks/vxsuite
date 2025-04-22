@@ -14,8 +14,12 @@ import {
   addMockCvrFileToStore,
 } from '../test/mock_cvr_file';
 import { Store } from './store';
-import { adjudicateVote, adjudicateWriteIn } from './adjudication';
-import { WriteInRecord } from '.';
+import {
+  adjudicateCvrContest,
+  adjudicateVote,
+  adjudicateWriteIn,
+} from './adjudication';
+import { AdjudicatedContestOption, VoteAdjudication, WriteInRecord } from '.';
 
 const contestId = 'zoo-council-mammal';
 
@@ -52,6 +56,7 @@ test('adjudicateVote', () => {
     mockCastVoteRecordFile,
     store,
   });
+  assert(cvrId !== undefined);
 
   function expectVotes(votes: Tabulation.Votes) {
     const [cvr] = [...store.getCastVoteRecords({ electionId, filter: {} })];
@@ -60,6 +65,22 @@ test('adjudicateVote', () => {
       ...initialVotes,
       ...votes,
     });
+  }
+
+  function expectVoteAdjudications(
+    voteAdjudications: Array<Partial<VoteAdjudication>>
+  ) {
+    assert(cvrId !== undefined);
+    expect(
+      store.getVoteAdjudications({ electionId, contestId, cvrId })
+    ).toEqual(
+      voteAdjudications.map((adj) => ({
+        contestId,
+        cvrId,
+        electionId,
+        ...adj,
+      }))
+    );
   }
 
   function setOption(optionId: ContestOptionId, isVote: boolean): void {
@@ -81,28 +102,48 @@ test('adjudicateVote', () => {
   // toggle a vote that has a scanned mark back and forth, confirm it is idempotent
   setOption('lion', true);
   expectVotes({ 'zoo-council-mammal': ['lion'] });
+  expectVoteAdjudications([]);
   setOption('lion', false);
   expectVotes({ 'zoo-council-mammal': [] });
+  expectVoteAdjudications([{ optionId: 'lion', isVote: false }]);
   setOption('lion', true);
   expectVotes({ 'zoo-council-mammal': ['lion'] });
+  expectVoteAdjudications([]);
   setOption('lion', true);
   expectVotes({ 'zoo-council-mammal': ['lion'] });
+  expectVoteAdjudications([]);
   setOption('lion', false);
   expectVotes({ 'zoo-council-mammal': [] });
+  expectVoteAdjudications([{ optionId: 'lion', isVote: false }]);
   setOption('lion', false);
   expectVotes({ 'zoo-council-mammal': [] });
+  expectVoteAdjudications([{ optionId: 'lion', isVote: false }]);
 
   // toggle a vote without a scanned mark back and forth, confirm it is idempotent
   setOption('zebra', false);
   expectVotes({ 'zoo-council-mammal': [] });
+  expectVoteAdjudications([{ optionId: 'lion', isVote: false }]);
   setOption('zebra', true);
   expectVotes({ 'zoo-council-mammal': ['zebra'] });
+  expectVoteAdjudications([
+    { optionId: 'lion', isVote: false },
+    { optionId: 'zebra', isVote: true },
+  ]);
   setOption('zebra', true);
   expectVotes({ 'zoo-council-mammal': ['zebra'] });
+  expectVoteAdjudications([
+    { optionId: 'lion', isVote: false },
+    { optionId: 'zebra', isVote: true },
+  ]);
   setOption('zebra', false);
   expectVotes({ 'zoo-council-mammal': [] });
+  expectVoteAdjudications([{ optionId: 'lion', isVote: false }]);
   setOption('zebra', true);
   expectVotes({ 'zoo-council-mammal': ['zebra'] });
+  expectVoteAdjudications([
+    { optionId: 'lion', isVote: false },
+    { optionId: 'zebra', isVote: true },
+  ]);
 });
 
 test('adjudicateWriteIn', () => {
@@ -136,7 +177,7 @@ test('adjudicateWriteIn', () => {
   });
   assert(cvrId !== undefined);
 
-  const [writeInId] = store.getWriteInAdjudicationQueue({ electionId });
+  const [writeInId] = store.getCvrContestWriteInIds({ cvrId, contestId });
   assert(writeInId !== undefined);
 
   function expectVotes(votes: Tabulation.Votes) {
@@ -146,7 +187,10 @@ test('adjudicateWriteIn', () => {
   }
 
   function expectWriteInRecord(expected: Partial<WriteInRecord>) {
-    const [writeInRecord] = store.getWriteInRecords({ electionId, writeInId });
+    const [writeInRecord] = store.getWriteInRecords({
+      electionId,
+      writeInId: expected.id || writeInId,
+    });
     expect(writeInRecord).toMatchObject(expected);
   }
 
@@ -253,4 +297,236 @@ test('adjudicateWriteIn', () => {
     previousStatus: 'invalid',
     status: 'pending',
   });
+
+  // create a manual write-in record
+  const manuallyCreatedWriteInRecordId = store.addWriteIn({
+    castVoteRecordId: cvrId,
+    contestId,
+    electionId,
+    isManuallyCreated: true,
+    optionId: 'write-in-1',
+    side: 'front',
+  });
+  expectWriteInRecord({
+    id: manuallyCreatedWriteInRecordId,
+    status: 'pending',
+    isManuallyCreated: true,
+  });
+
+  // it should be deleted when it is adjudicated as invalid
+  adjudicateWriteIn(
+    { writeInId: manuallyCreatedWriteInRecordId, type: 'invalid' },
+    store,
+    logger
+  );
+  const [writeInRecord] = store.getWriteInRecords({
+    electionId,
+    writeInId: manuallyCreatedWriteInRecordId,
+  });
+  expect(writeInRecord).toBeUndefined();
+});
+
+test('adjudicateCvrContest', () => {
+  const store = Store.memoryStore();
+  const logger = mockBaseLogger({ fn: vi.fn });
+  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
+  });
+  store.setCurrentElectionId(electionId);
+
+  const initialVotes = ['lion', 'write-in-0'];
+  const initialWriteInRecords: Array<Partial<WriteInRecord>> = [
+    {
+      status: 'pending',
+      optionId: 'write-in-0',
+    },
+  ];
+  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
+    {
+      ballotStyleGroupId: '1M' as BallotStyleGroupId,
+      batchId: 'batch-1-1',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: { 'zoo-council-mammal': initialVotes },
+      card: { type: 'bmd' },
+      multiplier: 1,
+    },
+  ];
+  const [cvrId] = addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store,
+  });
+  assert(cvrId !== undefined);
+
+  function expectVotes(votes: string[]) {
+    const [cvr] = [...store.getCastVoteRecords({ electionId, filter: {} })];
+    assert(cvr);
+    expect(cvr.votes[contestId]).toEqual(votes);
+  }
+
+  function expectWriteInRecords(expected: Array<Partial<WriteInRecord>>) {
+    const writeInRecords = store.getWriteInRecords({
+      electionId,
+      contestId,
+      castVoteRecordId: cvrId,
+    });
+    expect(writeInRecords).toMatchObject(expected);
+  }
+
+  function adjudicate(
+    trueVotes: Record<ContestOptionId, AdjudicatedContestOption>
+  ): void {
+    assert(cvrId !== undefined);
+    adjudicateCvrContest(
+      {
+        adjudicatedContestOptionById: {
+          kangaroo: { type: 'candidate-option', hasVote: false },
+          elephant: { type: 'candidate-option', hasVote: false },
+          lion: { type: 'candidate-option', hasVote: false },
+          zebra: { type: 'candidate-option', hasVote: false },
+          'write-in-0': { type: 'write-in-option', hasVote: false },
+          'write-in-1': { type: 'write-in-option', hasVote: false },
+          'write-in-2': { type: 'write-in-option', hasVote: false },
+          ...trueVotes,
+        },
+        cvrId,
+        contestId: 'zoo-council-mammal',
+        side: 'front',
+      },
+      store,
+      logger
+    );
+  }
+
+  expectVotes(initialVotes);
+  expectWriteInRecords(initialWriteInRecords);
+
+  // remove both initial votes
+  adjudicate({});
+  expectVotes([]);
+  expectWriteInRecords([
+    {
+      status: 'adjudicated',
+      adjudicationType: 'invalid',
+      optionId: 'write-in-0',
+    },
+  ]);
+
+  // write-in as official candidate, re-add lion
+  adjudicate({
+    lion: { type: 'candidate-option', hasVote: true },
+    'write-in-0': {
+      type: 'write-in-option',
+      hasVote: true,
+      candidateId: 'elephant',
+      candidateType: 'official-candidate',
+    },
+  });
+  expectVotes(['lion', 'write-in-0']);
+  expectWriteInRecords([
+    {
+      status: 'adjudicated',
+      adjudicationType: 'official-candidate',
+      optionId: 'write-in-0',
+      candidateId: 'elephant',
+    },
+  ]);
+
+  // one additional candidate and write-in with new write-in candidate
+  adjudicate({
+    lion: { type: 'candidate-option', hasVote: true },
+    zebra: { type: 'candidate-option', hasVote: true },
+    'write-in-0': {
+      type: 'write-in-option',
+      hasVote: true,
+      candidateId: 'elephant',
+      candidateType: 'official-candidate',
+    },
+    'write-in-1': {
+      type: 'write-in-option',
+      hasVote: true,
+      candidateName: 'siena',
+      candidateType: 'write-in-candidate',
+    },
+  });
+  expectVotes(['lion', 'write-in-0', 'zebra', 'write-in-1']);
+  const newWriteInCandidate = store
+    .getWriteInCandidates({
+      electionId,
+      contestId,
+    })
+    .find((c) => c.name === 'siena');
+  assert(newWriteInCandidate !== undefined);
+  expectWriteInRecords([
+    {
+      status: 'adjudicated',
+      adjudicationType: 'official-candidate',
+      optionId: 'write-in-0',
+      candidateId: 'elephant',
+    },
+    {
+      status: 'adjudicated',
+      adjudicationType: 'write-in-candidate',
+      optionId: 'write-in-1',
+      candidateId: newWriteInCandidate.id,
+      isManuallyCreated: true,
+      isUnmarked: true,
+    },
+  ]);
+
+  // remove the initial votes, keep the two new votes;
+  // write-in previously adjudicated for new candidate should
+  // be adjudicated for the same write-in candidate with the same id
+  adjudicate({
+    zebra: { type: 'candidate-option', hasVote: true },
+    'write-in-1': {
+      type: 'write-in-option',
+      hasVote: true,
+      candidateName: 'siena',
+      candidateType: 'write-in-candidate',
+    },
+  });
+  expectVotes(['zebra', 'write-in-1']);
+  expectWriteInRecords([
+    {
+      status: 'adjudicated',
+      adjudicationType: 'invalid',
+      optionId: 'write-in-0',
+    },
+    {
+      status: 'adjudicated',
+      adjudicationType: 'write-in-candidate',
+      optionId: 'write-in-1',
+      candidateId: newWriteInCandidate.id,
+      isManuallyCreated: true,
+      isUnmarked: true,
+    },
+  ]);
+
+  // normal adjudication to finish, which should delete the write-in record
+  // for the manually created record instead of marking it as invalid
+  adjudicate({
+    lion: { type: 'candidate-option', hasVote: true },
+    'write-in-0': {
+      type: 'write-in-option',
+      hasVote: true,
+      candidateId: 'elephant',
+      candidateType: 'official-candidate',
+    },
+  });
+  expectVotes(['lion', 'write-in-0']);
+  expectWriteInRecords([
+    {
+      status: 'adjudicated',
+      adjudicationType: 'official-candidate',
+      optionId: 'write-in-0',
+      candidateId: 'elephant',
+    },
+  ]);
 });

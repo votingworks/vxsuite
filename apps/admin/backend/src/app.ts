@@ -76,9 +76,7 @@ import {
   ScannerBatch,
   WriteInAdjudicationAction,
   WriteInAdjudicationQueueMetadata,
-  WriteInAdjudicationStatus,
   WriteInCandidateRecord,
-  WriteInAdjudicationContext,
   WriteInImageView,
   ImportElectionResultsReportingError,
   ManualResultsMetadata,
@@ -89,11 +87,7 @@ import {
 } from './types';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
-import {
-  getCvrContestWriteInImageViews,
-  getWriteInAdjudicationContext,
-  getWriteInImageView,
-} from './util/write_ins';
+import { getCvrContestWriteInImageViews } from './util/write_ins';
 import {
   transformWriteInsAndSetManualResults,
   validateManualResults,
@@ -621,26 +615,6 @@ function buildApi({
       );
     },
 
-    getWriteInAdjudicationQueue(
-      input: {
-        contestId?: ContestId;
-      } = {}
-    ): Id[] {
-      return store.getWriteInAdjudicationQueue({
-        electionId: loadCurrentElectionIdOrThrow(workspace),
-        ...input,
-      });
-    },
-
-    getFirstPendingWriteInId(input: { contestId: ContestId }): Id | null {
-      return (
-        store.getFirstPendingWriteInId({
-          electionId: loadCurrentElectionIdOrThrow(workspace),
-          ...input,
-        }) ?? null
-      );
-    },
-
     adjudicateWriteIn(input: WriteInAdjudicationAction): void {
       adjudicateWriteIn(input, store, logger);
     },
@@ -657,18 +631,6 @@ function buildApi({
         electionId: loadCurrentElectionIdOrThrow(workspace),
         contestId: input.contestId,
         cvrId: input.cvrId,
-      });
-    },
-
-    getWriteInAdjudicationQueueMetadata(
-      input: {
-        contestId?: ContestId;
-        status?: WriteInAdjudicationStatus;
-      } = {}
-    ): WriteInAdjudicationQueueMetadata[] {
-      return store.getWriteInAdjudicationQueueMetadata({
-        electionId: loadCurrentElectionIdOrThrow(workspace),
-        ...input,
       });
     },
 
@@ -690,24 +652,6 @@ function buildApi({
       return store.addWriteInCandidate({
         electionId: loadCurrentElectionIdOrThrow(workspace),
         ...input,
-      });
-    },
-
-    getWriteInImageView(input: {
-      writeInId: string;
-    }): Promise<WriteInImageView> {
-      return getWriteInImageView({
-        store: workspace.store,
-        writeInId: input.writeInId,
-      });
-    },
-
-    getWriteInAdjudicationContext(input: {
-      writeInId: string;
-    }): WriteInAdjudicationContext {
-      return getWriteInAdjudicationContext({
-        store: workspace.store,
-        writeInId: input.writeInId,
       });
     },
 

@@ -280,12 +280,12 @@ test('incorporates wia and manual data (grouping by voting method)', async () =>
     contestId: candidateContestId,
     name: 'Mr. Pickles',
   });
-  const writeInIds = await apiClient.getWriteInAdjudicationQueue({
+  const writeIns = await apiClient.getWriteIns({
     contestId: candidateContestId,
   });
-  for (const writeInId of writeInIds) {
+  for (const writeIn of writeIns) {
     await apiClient.adjudicateWriteIn({
-      writeInId,
+      writeInId: writeIn.id,
       type: 'write-in-candidate',
       candidateId: writeInCandidate.id,
     });

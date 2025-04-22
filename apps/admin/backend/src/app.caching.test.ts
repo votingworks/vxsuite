@@ -116,10 +116,11 @@ test('uses and clears CVR tabulation cache appropriately', async () => {
   expect(doubledResultsExport).not.toEqual(resultsExport);
 
   // adjudicating a mark as a non-vote (by invalidating a write-in) should clear the cache
-  const [writeInId] = await apiClient.getWriteInAdjudicationQueue({
-    contestId: 'State-Representatives-Hillsborough-District-34-b1012d38',
-  });
-  assert(writeInId !== undefined);
+  const contestId = 'State-Representatives-Hillsborough-District-34-b1012d38';
+  const [cvrId] = await apiClient.getWriteInAdjudicationCvrQueue({ contestId });
+  const [writeIn] = await apiClient.getWriteIns({ cvrId, contestId });
+  assert(writeIn !== undefined);
+  const { id: writeInId } = writeIn;
   await apiClient.adjudicateWriteIn({
     writeInId,
     type: 'invalid',

@@ -1,8 +1,8 @@
-import { assertDefined, find, assert, iter } from '@votingworks/basics';
+import { assert, iter } from '@votingworks/basics';
 import { Id, safeParseNumber } from '@votingworks/types';
 import { loadImageData, toDataUrl } from '@votingworks/image-utils';
 import { Store } from '../store';
-import { WriteInAdjudicationContext, WriteInImageView } from '../types';
+import { WriteInImageView } from '../types';
 import { rootDebug } from './debug';
 
 const debug = rootDebug.extend('write-ins');
@@ -102,46 +102,4 @@ export async function getCvrContestWriteInImageViews({
     .async()
     .map((writeInId) => getWriteInImageView({ store, writeInId }))
     .toArray();
-}
-
-/**
- * Retrieves and compiles the data necessary to adjudicate a write-in (image,
- * layout, disallowed votes)
- */
-export function getWriteInAdjudicationContext({
-  store,
-  writeInId,
-}: {
-  store: Store;
-  writeInId: Id;
-}): WriteInAdjudicationContext {
-  debug('creating write-in adjudication context for %s...', writeInId);
-  debug('getting write-in record with votes...');
-  const writeInContext = store.getWriteInWithVotes(writeInId);
-  const { contestId, optionId, cvrVotes, cvrId } = writeInContext;
-  const electionId = assertDefined(store.getCurrentElectionId());
-
-  debug('getting all write-in records for the current cvr and contest...');
-  const allWriteInRecords = store.getWriteInRecords({
-    electionId,
-    contestId,
-    castVoteRecordId: cvrId,
-  });
-
-  const primaryWriteIn = find(
-    allWriteInRecords,
-    (writeInRecord) => writeInRecord.optionId === optionId
-  );
-
-  const relatedWriteIns = allWriteInRecords.filter(
-    (writeInRecord) => writeInRecord.optionId !== optionId
-  );
-
-  debug('created write-in adjudication context');
-  return {
-    writeIn: primaryWriteIn,
-    relatedWriteIns,
-    cvrId,
-    cvrVotes,
-  };
 }

@@ -1121,18 +1121,18 @@ export class Store {
     side,
     contestId,
     optionId,
+    isManuallyCreated = false,
     isUnmarked = false,
     machineMarkedText = undefined,
-    isManuallyCreated = false,
   }: {
     electionId: Id;
     castVoteRecordId: Id;
     side: Side;
     contestId: Id;
     optionId: Id;
+    isManuallyCreated?: boolean;
     isUnmarked?: boolean;
     machineMarkedText?: string;
-    isManuallyCreated?: boolean;
   }): Id {
     const id = uuid();
 
@@ -1145,9 +1145,9 @@ export class Store {
           side,
           contest_id,
           option_id,
+          is_manually_created,
           is_unmarked,
-          machine_marked_text,
-          is_manually_created
+          machine_marked_text
         ) values (
           ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
@@ -1158,9 +1158,9 @@ export class Store {
       side,
       contestId,
       optionId,
+      asSqliteBool(isManuallyCreated),
       asSqliteBool(isUnmarked),
-      machineMarkedText || null,
-      asSqliteBool(isManuallyCreated)
+      machineMarkedText || null
     );
 
     return id;
@@ -1214,45 +1214,6 @@ export class Store {
       layout: row.layout
         ? safeParseJson(row.layout, BallotPageLayoutSchema).unsafeUnwrap()
         : undefined,
-    };
-  }
-
-  /**
-   * Returns the write-in ids with votes on the associated CVR.
-   */
-  getWriteInWithVotes(writeInId: Id): {
-    writeInId: Id;
-    contestId: ContestId;
-    optionId: ContestOptionId;
-    cvrId: Id;
-    cvrVotes: Tabulation.Votes;
-  } {
-    const row = this.client.one(
-      `
-        select
-          write_ins.id as writeInId,
-          write_ins.contest_id as contestId,
-          write_ins.option_id as optionId,
-          cvrs.votes as cvrVotes,
-          write_ins.cvr_id as cvrId
-        from write_ins
-        inner join
-          cvrs on
-            write_ins.cvr_id = cvrs.id
-        where write_ins.id = ?
-      `,
-      writeInId
-    ) as {
-      writeInId: Id;
-      contestId: ContestId;
-      optionId: ContestOptionId;
-      cvrVotes: string;
-      cvrId: string;
-    };
-
-    return {
-      ...row,
-      cvrVotes: JSON.parse(row.cvrVotes),
     };
   }
 
@@ -2315,12 +2276,13 @@ export class Store {
       cvrId: Id;
       contestId: ContestId;
       optionId: Id;
-      isVote: boolean;
+      isVote: SqliteBool;
     }>;
 
     return rows.map((row) => ({
       electionId,
       ...row,
+      isVote: fromSqliteBool(row.isVote),
     }));
   }
 
