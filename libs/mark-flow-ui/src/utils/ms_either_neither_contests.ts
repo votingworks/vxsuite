@@ -52,7 +52,7 @@ export function mergeMsEitherNeitherContests(
     (contest) =>
       contest.type === 'yesno' &&
       contest.yesOption.label.startsWith('FOR APPROVAL OF EITHER') &&
-      /* istanbul ignore next */
+      /* istanbul ignore next - @preserve */
       contest.noOption.label.startsWith('AGAINST BOTH')
   );
   if (!eitherNeitherContest) {
@@ -64,9 +64,9 @@ export function mergeMsEitherNeitherContests(
   const pickOneContest = contests.find(
     (contest) =>
       contest.type === 'yesno' &&
-      /* istanbul ignore next */
+      /* istanbul ignore next - @preserve */
       contest.yesOption.label.startsWith('FOR') &&
-      /* istanbul ignore next */
+      /* istanbul ignore next - @preserve */
       contest.noOption.label.startsWith('FOR') &&
       contest.description === eitherNeitherContest.description
   );

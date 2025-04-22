@@ -145,9 +145,9 @@ function MsEitherNeitherContestResult({
   selectionsAreEditable,
 }: MsEitherNeitherContestResultInterface): JSX.Element {
   const district = getContestDistrict(election, contest);
-  /* istanbul ignore next */
+  /* istanbul ignore next - @preserve */
   const eitherNeitherVote = eitherNeitherContestVote?.[0];
-  /* istanbul ignore next */
+  /* istanbul ignore next - @preserve */
   const pickOneVote = pickOneContestVote?.[0];
 
   const votes: ContestVote[] = [];

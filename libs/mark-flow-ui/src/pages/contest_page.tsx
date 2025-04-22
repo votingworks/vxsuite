@@ -1,4 +1,4 @@
-/* istanbul ignore file - tested via Mark/Mark-Scan */
+/* istanbul ignore file - @preserve - tested via Mark/Mark-Scan */
 import React, { useCallback, useRef } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 
@@ -100,9 +100,10 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
           votes[contest.eitherNeitherContestId]?.[0] ===
             contest.neitherOption.id
         );
-      /* istanbul ignore next */
-      default:
+      default: {
+        /* istanbul ignore next - @preserve */
         throwIllegalValue(contest);
+      }
     }
   })();
 

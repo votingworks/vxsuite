@@ -141,7 +141,7 @@ export function CandidateContest({
   }
 
   function handleUpdateSelection(candidateId: string) {
-    /* istanbul ignore else */
+    /* istanbul ignore else - @preserve */
     if (candidateId) {
       const candidate = findCandidateById(vote, candidateId);
       if (candidate) {
