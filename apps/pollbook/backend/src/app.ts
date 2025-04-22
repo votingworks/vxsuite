@@ -5,8 +5,12 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   Election,
   PrinterStatus,
+  TEST_JURISDICTION,
 } from '@votingworks/types';
-import { DippedSmartCardAuthMachineState } from '@votingworks/auth';
+import {
+  DEV_JURISDICTION,
+  DippedSmartCardAuthMachineState,
+} from '@votingworks/auth';
 import React from 'react';
 import {
   createSystemCallApi,
@@ -15,6 +19,7 @@ import {
 } from '@votingworks/backend';
 import {
   generateFileTimeSuffix,
+  isIntegrationTest,
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
 import { stringify } from 'csv-stringify/sync';
@@ -60,12 +65,18 @@ function constructAuthMachineState(
   workspace: LocalWorkspace
 ): DippedSmartCardAuthMachineState {
   const election = workspace.store.getElection();
+
+  const jurisdiction = isIntegrationTest()
+    ? TEST_JURISDICTION
+    : process.env.VX_MACHINE_JURISDICTION ?? DEV_JURISDICTION;
+
   return {
     ...DEFAULT_SYSTEM_SETTINGS['auth'],
     electionKey: election && {
       id: election.id,
       date: election.date,
     },
+    jurisdiction,
     machineType: 'poll-book',
   };
 }
@@ -388,6 +399,18 @@ function buildApi({ context, logger }: BuildAppParams) {
       throughputInterval: number;
     }): ThroughputStat[] {
       return store.getThroughputStatistics(input.throughputInterval);
+    },
+
+    programCard(input: {
+      userRole: 'system_administrator' | 'election_manager' | 'poll_worker';
+    }) {
+      return auth.programCard(constructAuthMachineState(workspace), {
+        userRole: input.userRole,
+      });
+    },
+
+    unprogramCard() {
+      return auth.unprogramCard(constructAuthMachineState(workspace));
     },
 
     async resetNetwork(): Promise<boolean> {

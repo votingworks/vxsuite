@@ -8,5 +8,6 @@ declare namespace NodeJS {
     readonly WORKSPACE?: string;
     readonly VX_MACHINE_ID?: string;
     readonly VX_CODE_VERSION?: string;
+    readonly VX_MACHINE_JURISDICTION?: string;
   }
 }

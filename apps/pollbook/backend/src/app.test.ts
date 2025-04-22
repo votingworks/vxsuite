@@ -2,6 +2,14 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { assert } from 'node:console';
 import { CITIZEN_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
+import {
+  constructElectionKey,
+  DEFAULT_SYSTEM_SETTINGS,
+} from '@votingworks/types';
+import {
+  DEV_JURISDICTION,
+  DippedSmartCardAuthMachineState,
+} from '@votingworks/auth';
 import { withApp } from '../test/app';
 import {
   parseValidStreetsFromCsvString,
@@ -15,6 +23,10 @@ import {
 } from './types';
 
 let mockNodeEnv: 'production' | 'test' = 'test';
+
+const electionDefinition =
+  electionFamousNames2021Fixtures.readElectionDefinition();
+const electionKey = constructElectionKey(electionDefinition.election);
 
 vi.mock(
   './globals.js',
@@ -705,5 +717,51 @@ test('change a voter address with various formats', async () => {
       expect(receiptPdfPath).toBeDefined();
       await expect(receiptPdfPath).toMatchPdfSnapshot();
     }
+  });
+});
+
+test('programCard and unprogramCard', async () => {
+  await withApp(async ({ localApiClient, auth: authApi, workspace }) => {
+    workspace.store.setElectionAndVoters(electionDefinition.election, [], []);
+
+    const auth: DippedSmartCardAuthMachineState = {
+      ...DEFAULT_SYSTEM_SETTINGS['auth'],
+      electionKey,
+      jurisdiction: DEV_JURISDICTION,
+      machineType: 'poll-book',
+    };
+
+    void (await localApiClient.programCard({
+      userRole: 'system_administrator',
+    }));
+    expect(authApi.programCard).toHaveBeenCalledTimes(1);
+    expect(authApi.programCard).toHaveBeenNthCalledWith(
+      1,
+      { electionKey, ...auth },
+      { userRole: 'system_administrator' }
+    );
+
+    void (await localApiClient.programCard({ userRole: 'election_manager' }));
+    expect(authApi.programCard).toHaveBeenCalledTimes(2);
+    expect(authApi.programCard).toHaveBeenNthCalledWith(
+      2,
+      { electionKey, ...auth },
+      { userRole: 'election_manager' }
+    );
+
+    void (await localApiClient.programCard({ userRole: 'poll_worker' }));
+    expect(authApi.programCard).toHaveBeenCalledTimes(3);
+    expect(authApi.programCard).toHaveBeenNthCalledWith(
+      3,
+      { electionKey, ...auth },
+      { userRole: 'poll_worker' }
+    );
+
+    void (await localApiClient.unprogramCard());
+    expect(authApi.unprogramCard).toHaveBeenCalledTimes(1);
+    expect(authApi.unprogramCard).toHaveBeenNthCalledWith(1, {
+      electionKey,
+      ...auth,
+    });
   });
 });
