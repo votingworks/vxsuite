@@ -21,6 +21,7 @@ impl TryFrom<vx::LogEntry> for cdf::Event {
     fn try_from(value: vx::LogEntry) -> std::result::Result<Self, Self::Error> {
         let log_line = value.line?;
         let lineno = value.lineno;
+        assert!(lineno >= 1, "lineno must be at least 1 to prevent underflow");
         let lineno0 = lineno - 1;
 
         let time_log_written = match log_line.extras.get(TIME_LOG_WRITTEN_KEY) {
