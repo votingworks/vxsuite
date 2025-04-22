@@ -5,14 +5,18 @@ import {
   BallotStyleId,
   DistrictId,
   Election,
+  hasSplits,
   Party,
   PartyId,
 } from '@votingworks/types';
 import { readElectionGeneral } from '@votingworks/fixtures';
+import { assert } from '@votingworks/basics';
 import {
   generateBallotStyleId,
   getBallotStyleGroup,
+  getBallotStyleGroupForPrecinctOrSplit,
   getGroupedBallotStyles,
+  getPrecinctsAndSplitsForBallotStyle,
   getRelatedBallotStyle,
 } from './ballot_styles';
 
@@ -272,4 +276,49 @@ describe('ballot style groups', () => {
       }).err()
     ).toMatch('not found');
   });
+});
+
+test('getBallotStyleGroupForPrecinctOrSplit', () => {
+  const [precinct1, precinct2] = electionGeneral.precincts;
+  assert(precinct1 && !hasSplits(precinct1));
+  assert(precinct2 && hasSplits(precinct2));
+  expect(
+    getBallotStyleGroupForPrecinctOrSplit({
+      election: electionGeneral,
+      precinctOrSplit: { precinct: precinct1 },
+    }).id
+  ).toEqual('12' as BallotStyleGroupId);
+  expect(
+    getBallotStyleGroupForPrecinctOrSplit({
+      election: electionGeneral,
+      precinctOrSplit: { precinct: precinct2, split: precinct2.splits[0]! },
+    }).id
+  ).toEqual('5' as BallotStyleGroupId);
+  expect(
+    getBallotStyleGroupForPrecinctOrSplit({
+      election: electionGeneral,
+      precinctOrSplit: { precinct: precinct2, split: precinct2.splits[1]! },
+    }).id
+  ).toEqual('12' as BallotStyleGroupId);
+});
+
+test('getPrecinctsAndSplitsForBallotStyle', () => {
+  const [precinct1, precinct2] = electionGeneral.precincts;
+  assert(precinct1 && !hasSplits(precinct1));
+  assert(precinct2 && hasSplits(precinct2));
+  expect(
+    getPrecinctsAndSplitsForBallotStyle({
+      election: electionGeneral,
+      ballotStyle: electionGeneral.ballotStyles[0]!,
+    })
+  ).toEqual([
+    { precinct: precinct1 },
+    { precinct: precinct2, split: precinct2.splits[1]! },
+  ]);
+  expect(
+    getPrecinctsAndSplitsForBallotStyle({
+      election: electionGeneral,
+      ballotStyle: electionGeneral.ballotStyles[1]!,
+    })
+  ).toEqual([{ precinct: precinct2, split: precinct2.splits[0]! }]);
 });

@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import * as fc from 'fast-check';
 import { sha256 } from 'js-sha256';
-import { find, ok } from '@votingworks/basics';
+import { assert, find, ok } from '@votingworks/basics';
 import {
   ballotPaperDimensions,
   getBallotStyle,
@@ -25,6 +25,7 @@ import {
   formatElectionPackageHash,
   formatElectionHashes,
   getGroupIdFromBallotStyleId,
+  getPrecinctSplitById,
 } from './election_utils';
 import {
   election,
@@ -202,6 +203,29 @@ test('getPrecinctIndexById', () => {
     getPrecinctIndexById({ election, precinctId: election.precincts[0].id })
   ).toEqual(0);
   expect(getPrecinctIndexById({ election, precinctId: '' })).toEqual(-1);
+});
+
+test('getPrecinctSplitById', () => {
+  const precinct = testVxfElection.precincts[0];
+  assert(hasSplits(precinct));
+  expect(
+    getPrecinctSplitById({
+      election: testVxfElection,
+      precinctSplitId: 'precinct-1-split-1',
+    })
+  ).toEqual({
+    ...precinct.splits[0],
+    precinctId: precinct.id,
+  });
+  expect(
+    getPrecinctSplitById({
+      election: testVxfElection,
+      precinctSplitId: 'precinct-1-split-2',
+    })
+  ).toEqual({
+    ...precinct.splits[1],
+    precinctId: precinct.id,
+  });
 });
 
 test('getDistrictIdsForPartyId', () => {
