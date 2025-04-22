@@ -6,7 +6,10 @@ import {
   constructElectionKey,
   DEFAULT_SYSTEM_SETTINGS,
 } from '@votingworks/types';
-import { DippedSmartCardAuthMachineState } from '@votingworks/auth';
+import {
+  DEV_JURISDICTION,
+  DippedSmartCardAuthMachineState,
+} from '@votingworks/auth';
 import { withApp } from '../test/app';
 import {
   parseValidStreetsFromCsvString,
@@ -724,6 +727,7 @@ test('programCard and unprogramCard', async () => {
     const auth: DippedSmartCardAuthMachineState = {
       ...DEFAULT_SYSTEM_SETTINGS['auth'],
       electionKey,
+      jurisdiction: DEV_JURISDICTION,
       machineType: 'poll-book',
     };
 

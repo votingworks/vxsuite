@@ -155,6 +155,7 @@ test.each(electionInfoTestSpecs)(
             role: 'election_manager',
             jurisdiction: TEST_JURISDICTION,
             electionKey: constructElectionKey(election),
+            programmingMachineType: 'admin',
           },
         },
       };
