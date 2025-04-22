@@ -296,6 +296,23 @@ function createElectionKey(
  * Converts parsed certs into a {@link ProgrammedCardDetails} object
  */
 export function certDetailsToCardDetails(
+  cardIdentityCertDetails: VendorCardCustomCertFields
+): ProgrammedCardDetails;
+
+/**
+ * Converts parsed certs into a {@link ProgrammedCardDetails} object
+ */
+export function certDetailsToCardDetails(
+  cardIdentityCertDetails:
+    | SystemAdministratorCardCustomCertFields
+    | ElectionCardCustomCertFields,
+  programmingMachineCertAuthorityCertDetails: MachineCustomCertFields
+): ProgrammedCardDetails;
+
+/**
+ * Converts parsed certs into a {@link ProgrammedCardDetails} object
+ */
+export function certDetailsToCardDetails(
   cardIdentityCertDetails: CardCustomCertFields,
   programmingMachineCertAuthorityCertDetails?: MachineCustomCertFields
 ): ProgrammedCardDetails {

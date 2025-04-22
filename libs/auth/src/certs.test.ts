@@ -1,6 +1,6 @@
 import { Buffer } from 'node:buffer';
 import { expect, test, vi } from 'vitest';
-import { DateWithoutTime } from '@votingworks/basics';
+import { assert, DateWithoutTime } from '@votingworks/basics';
 import {
   DEV_MACHINE_ID,
   ElectionId,
@@ -303,12 +303,19 @@ test.each<{
     programmingMachineCertAuthorityCertDetails,
     expectedProgrammedCardDetails,
   }) => {
-    expect(
-      certDetailsToCardDetails(
-        cardIdentityCertDetails,
-        programmingMachineCertAuthorityCertDetails
-      )
-    ).toEqual(expectedProgrammedCardDetails);
+    if (cardIdentityCertDetails.cardType === 'vendor') {
+      expect(certDetailsToCardDetails(cardIdentityCertDetails)).toEqual(
+        expectedProgrammedCardDetails
+      );
+    } else {
+      assert(programmingMachineCertAuthorityCertDetails !== undefined);
+      expect(
+        certDetailsToCardDetails(
+          cardIdentityCertDetails,
+          programmingMachineCertAuthorityCertDetails
+        )
+      ).toEqual(expectedProgrammedCardDetails);
+    }
   }
 );
 
