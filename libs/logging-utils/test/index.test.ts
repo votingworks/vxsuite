@@ -252,7 +252,6 @@ test('read and interpret a real log file as expected', async () => {
   expect(cdfLogDevice.Version).toEqual('codeversion');
   expect(cdfLogDevice.Type).toEqual('ems');
   const events = cdfLogDevice.Event!;
-  // There are 25 log lines in the sample file.
   expect(events).toHaveLength(24);
   // There should be one auth-login log from the application logging.
   expect(events.filter((e) => e.Id === LogEventId.AuthLogin)).toHaveLength(1);
