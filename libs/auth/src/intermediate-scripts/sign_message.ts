@@ -7,8 +7,8 @@ import {
 } from '../cryptography';
 
 /**
- * An intermediate component of signMessage in src/openssl.ts, needed for permissions purposes. See
- * signMessage for more context.
+ * An intermediate component of signMessage in src/cryptography.ts, needed for permissions
+ * purposes. See signMessage for more context.
  */
 export async function main(): Promise<void> {
   let messageSignature: Buffer;

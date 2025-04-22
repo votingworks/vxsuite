@@ -9,6 +9,8 @@ import {
   StartingCardLockoutDurationSeconds,
 } from '@votingworks/types';
 
+import { MachineType } from './certs';
+
 /**
  * The API for an inserted smart card auth instance, "inserted" meaning that the card needs to be
  * kept in the card reader for the user to remain authenticated
@@ -62,9 +64,10 @@ export interface InsertedSmartCardAuthConfig {
  * Machine state that the consumer is responsible for providing
  */
 export interface InsertedSmartCardAuthMachineState {
+  arePollWorkerCardPinsEnabled: boolean;
   electionKey?: ElectionKey;
   jurisdiction?: string;
-  arePollWorkerCardPinsEnabled: boolean;
+  machineType: MachineType;
   numIncorrectPinAttemptsAllowedBeforeCardLockout: NumIncorrectPinAttemptsAllowedBeforeCardLockout;
   overallSessionTimeLimitHours: OverallSessionTimeLimitHours;
   startingCardLockoutDurationSeconds: StartingCardLockoutDurationSeconds;

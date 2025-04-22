@@ -1,6 +1,6 @@
-import { expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
-import { DateWithoutTime } from '@votingworks/basics';
+import { expect, test, vi } from 'vitest';
+import { assert, DateWithoutTime } from '@votingworks/basics';
 import {
   DEV_MACHINE_ID,
   ElectionId,
@@ -8,14 +8,16 @@ import {
   TEST_JURISDICTION,
 } from '@votingworks/types';
 
-import { CardDetails, ProgrammedCardDetails } from './card';
+import { ProgrammedCardDetails } from './card';
 import {
+  CardCustomCertFields,
+  certDetailsToCardDetails,
   constructCardCertSubject,
   constructCardCertSubjectWithoutJurisdictionAndCardType,
   constructMachineCertSubject,
   CustomCertFields,
+  MachineCustomCertFields,
   MachineType,
-  parseCardDetailsFromCert,
   parseCert,
 } from './certs';
 import { openssl } from './cryptography';
@@ -155,122 +157,167 @@ test.each<{ description: string; subject: string }>([
 });
 
 test.each<{
-  subject: string;
-  expectedCardDetails: CardDetails;
+  description: string;
+  cardIdentityCertDetails: CardCustomCertFields;
+  programmingMachineCertAuthorityCertDetails?: MachineCustomCertFields;
+  expectedProgrammedCardDetails: ProgrammedCardDetails;
 }>([
   {
-    subject:
-      'subject=C = US, ST = CA, O = VotingWorks, ' +
-      '1.3.6.1.4.1.59817.1 = card, ' +
-      `1.3.6.1.4.1.59817.2 = ${jurisdiction}, ` +
-      '1.3.6.1.4.1.59817.3 = vendor',
-    expectedCardDetails: {
-      user: { role: 'vendor', jurisdiction },
+    description: 'vendor user',
+    cardIdentityCertDetails: {
+      component: 'card',
+      jurisdiction,
+      cardType: 'vendor',
+    },
+    expectedProgrammedCardDetails: {
+      user: {
+        role: 'vendor',
+        jurisdiction,
+      },
     },
   },
   {
-    subject:
-      'subject=C = US, ST = CA, O = VotingWorks, ' +
-      '1.3.6.1.4.1.59817.1 = card, ' +
-      `1.3.6.1.4.1.59817.2 = ${jurisdiction}, ` +
-      '1.3.6.1.4.1.59817.3 = system-administrator',
-    expectedCardDetails: {
-      user: { role: 'system_administrator', jurisdiction },
+    description: 'system administrator',
+    cardIdentityCertDetails: {
+      component: 'card',
+      jurisdiction,
+      cardType: 'system-administrator',
+    },
+    programmingMachineCertAuthorityCertDetails: {
+      component: 'admin',
+      jurisdiction,
+      machineId: DEV_MACHINE_ID,
+    },
+    expectedProgrammedCardDetails: {
+      user: {
+        role: 'system_administrator',
+        jurisdiction,
+        programmingMachineType: 'admin',
+      },
     },
   },
   {
-    subject:
-      'subject=C = US, ST = CA, O = VotingWorks, ' +
-      '1.3.6.1.4.1.59817.1 = card, ' +
-      `1.3.6.1.4.1.59817.2 = ${jurisdiction}, ` +
-      '1.3.6.1.4.1.59817.3 = election-manager, ' +
-      `1.3.6.1.4.1.59817.4 = ${electionId}, ` +
-      `1.3.6.1.4.1.59817.5 = ${electionDate}`,
-    expectedCardDetails: {
-      user: { role: 'election_manager', jurisdiction, electionKey },
+    description: 'election manager',
+    cardIdentityCertDetails: {
+      component: 'card',
+      jurisdiction,
+      cardType: 'election-manager',
+      electionId,
+      electionDate,
+    },
+    programmingMachineCertAuthorityCertDetails: {
+      component: 'admin',
+      jurisdiction,
+      machineId: DEV_MACHINE_ID,
+    },
+    expectedProgrammedCardDetails: {
+      user: {
+        role: 'election_manager',
+        jurisdiction,
+        programmingMachineType: 'admin',
+        electionKey: {
+          id: electionId as ElectionId,
+          date: new DateWithoutTime(electionDate),
+        },
+      },
     },
   },
   {
-    subject:
-      'subject=C = US, ST = CA, O = VotingWorks, ' +
-      '1.3.6.1.4.1.59817.1 = card, ' +
-      `1.3.6.1.4.1.59817.2 = ${jurisdiction}, ` +
-      '1.3.6.1.4.1.59817.3 = poll-worker, ' +
-      `1.3.6.1.4.1.59817.4 = ${electionId}, ` +
-      `1.3.6.1.4.1.59817.5 = ${electionDate}`,
-    expectedCardDetails: {
-      user: { role: 'poll_worker', jurisdiction, electionKey },
+    description: 'poll worker',
+    cardIdentityCertDetails: {
+      component: 'card',
+      jurisdiction,
+      cardType: 'poll-worker',
+      electionId,
+      electionDate,
+    },
+    programmingMachineCertAuthorityCertDetails: {
+      component: 'admin',
+      jurisdiction,
+      machineId: DEV_MACHINE_ID,
+    },
+    expectedProgrammedCardDetails: {
+      user: {
+        role: 'poll_worker',
+        jurisdiction,
+        programmingMachineType: 'admin',
+        electionKey: {
+          id: electionId as ElectionId,
+          date: new DateWithoutTime(electionDate),
+        },
+      },
       hasPin: false,
     },
   },
   {
-    subject:
-      'subject=C = US, ST = CA, O = VotingWorks, ' +
-      '1.3.6.1.4.1.59817.1 = card, ' +
-      `1.3.6.1.4.1.59817.2 = ${jurisdiction}, ` +
-      '1.3.6.1.4.1.59817.3 = poll-worker-with-pin, ' +
-      `1.3.6.1.4.1.59817.4 = ${electionId}, ` +
-      `1.3.6.1.4.1.59817.5 = ${electionDate}`,
-    expectedCardDetails: {
-      user: { role: 'poll_worker', jurisdiction, electionKey },
+    description: 'poll worker with PIN',
+    cardIdentityCertDetails: {
+      component: 'card',
+      jurisdiction,
+      cardType: 'poll-worker-with-pin',
+      electionId,
+      electionDate,
+    },
+    programmingMachineCertAuthorityCertDetails: {
+      component: 'admin',
+      jurisdiction,
+      machineId: DEV_MACHINE_ID,
+    },
+    expectedProgrammedCardDetails: {
+      user: {
+        role: 'poll_worker',
+        jurisdiction,
+        programmingMachineType: 'admin',
+        electionKey: {
+          id: electionId as ElectionId,
+          date: new DateWithoutTime(electionDate),
+        },
+      },
       hasPin: true,
     },
   },
-])('parseUserDataFromCert', async ({ subject, expectedCardDetails }) => {
-  vi.mocked(openssl).mockImplementationOnce(() =>
-    Promise.resolve(Buffer.from(subject, 'utf-8'))
-  );
-  expect(await parseCardDetailsFromCert(cert)).toEqual(expectedCardDetails);
-});
-
-test.each<{ description: string; subject: string }>([
   {
-    description: 'machine cert instead of card cert',
-    subject:
-      'subject=C = US, ST = CA, O = VotingWorks, ' +
-      '1.3.6.1.4.1.59817.1 = admin, ' +
-      `1.3.6.1.4.1.59817.6 = ${DEV_MACHINE_ID}, ` +
-      `1.3.6.1.4.1.59817.2 = ${jurisdiction}`,
+    description: 'VxPollBook user',
+    cardIdentityCertDetails: {
+      component: 'card',
+      jurisdiction,
+      cardType: 'system-administrator',
+    },
+    programmingMachineCertAuthorityCertDetails: {
+      component: 'poll-book',
+      jurisdiction,
+      machineId: DEV_MACHINE_ID,
+    },
+    expectedProgrammedCardDetails: {
+      user: {
+        role: 'system_administrator',
+        jurisdiction,
+        programmingMachineType: 'poll-book',
+      },
+    },
   },
-  {
-    description: 'missing card type',
-    subject:
-      'subject=C = US, ST = CA, O = VotingWorks, ' +
-      '1.3.6.1.4.1.59817.1 = card, ' +
-      `1.3.6.1.4.1.59817.2 = ${jurisdiction}`,
-  },
-  {
-    description: 'missing election id and date for election card',
-    subject:
-      'subject=C = US, ST = CA, O = VotingWorks, ' +
-      '1.3.6.1.4.1.59817.1 = card, ' +
-      `1.3.6.1.4.1.59817.2 = ${jurisdiction}, ` +
-      '1.3.6.1.4.1.59817.3 = election-manager',
-  },
-  {
-    description: 'missing election date on election card cert',
-    subject:
-      'subject=C = US, ST = CA, O = VotingWorks, ' +
-      '1.3.6.1.4.1.59817.1 = card, ' +
-      `1.3.6.1.4.1.59817.2 = ${jurisdiction}, ` +
-      '1.3.6.1.4.1.59817.3 = election-manager, ' +
-      `1.3.6.1.4.1.59817.4 = ${electionId}`,
-  },
-  {
-    description: 'missing election id on election card cert',
-    subject:
-      'subject=C = US, ST = CA, O = VotingWorks, ' +
-      '1.3.6.1.4.1.59817.1 = card, ' +
-      `1.3.6.1.4.1.59817.2 = ${jurisdiction}, ` +
-      '1.3.6.1.4.1.59817.3 = election-manager, ' +
-      `1.3.6.1.4.1.59817.5 = ${electionDate}`,
-  },
-])('parseUserDataFromCert validation - $description', async ({ subject }) => {
-  vi.mocked(openssl).mockImplementationOnce(() =>
-    Promise.resolve(Buffer.from(subject, 'utf-8'))
-  );
-  await expect(parseCardDetailsFromCert(cert)).rejects.toThrow();
-});
+])(
+  'certDetailsToCardDetails - $description',
+  ({
+    cardIdentityCertDetails,
+    programmingMachineCertAuthorityCertDetails,
+    expectedProgrammedCardDetails,
+  }) => {
+    if (cardIdentityCertDetails.cardType === 'vendor') {
+      expect(certDetailsToCardDetails(cardIdentityCertDetails)).toEqual(
+        expectedProgrammedCardDetails
+      );
+    } else {
+      assert(programmingMachineCertAuthorityCertDetails !== undefined);
+      expect(
+        certDetailsToCardDetails(
+          cardIdentityCertDetails,
+          programmingMachineCertAuthorityCertDetails
+        )
+      ).toEqual(expectedProgrammedCardDetails);
+    }
+  }
+);
 
 test.each<{
   cardDetails: ProgrammedCardDetails;
@@ -288,7 +335,11 @@ test.each<{
   },
   {
     cardDetails: {
-      user: { role: 'system_administrator', jurisdiction },
+      user: {
+        role: 'system_administrator',
+        jurisdiction,
+        programmingMachineType: 'admin',
+      },
     },
     expectedSubject:
       '/C=US/ST=CA/O=VotingWorks' +
@@ -298,7 +349,12 @@ test.each<{
   },
   {
     cardDetails: {
-      user: { role: 'election_manager', jurisdiction, electionKey },
+      user: {
+        role: 'election_manager',
+        jurisdiction,
+        programmingMachineType: 'admin',
+        electionKey,
+      },
     },
     expectedSubject:
       '/C=US/ST=CA/O=VotingWorks' +
@@ -310,7 +366,12 @@ test.each<{
   },
   {
     cardDetails: {
-      user: { role: 'poll_worker', jurisdiction, electionKey },
+      user: {
+        role: 'poll_worker',
+        jurisdiction,
+        programmingMachineType: 'admin',
+        electionKey,
+      },
       hasPin: false,
     },
     expectedSubject:
@@ -323,7 +384,12 @@ test.each<{
   },
   {
     cardDetails: {
-      user: { role: 'poll_worker', jurisdiction, electionKey },
+      user: {
+        role: 'poll_worker',
+        jurisdiction,
+        programmingMachineType: 'admin',
+        electionKey,
+      },
       hasPin: true,
     },
     expectedSubject:
@@ -411,6 +477,11 @@ test.each<{
   {
     description: 'missing jurisdiction for VxAdmin',
     machineType: 'admin',
+    jurisdiction: undefined,
+  },
+  {
+    description: 'missing jurisdiction for VxPollBook',
+    machineType: 'poll-book',
     jurisdiction: undefined,
   },
   {

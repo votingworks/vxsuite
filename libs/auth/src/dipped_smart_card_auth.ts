@@ -359,14 +359,23 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
       throw new Error('User is not a system administrator');
     }
 
-    const { arePollWorkerCardPinsEnabled, electionKey, jurisdiction } =
-      machineState;
+    const {
+      arePollWorkerCardPinsEnabled,
+      electionKey,
+      jurisdiction,
+      machineType,
+    } = machineState;
     assert(jurisdiction !== undefined);
+    assert(machineType === 'admin' || machineType === 'poll-book');
     const pin = generatePin();
     switch (input.userRole) {
       case 'system_administrator': {
         await this.card.program({
-          user: { role: 'system_administrator', jurisdiction },
+          user: {
+            role: 'system_administrator',
+            jurisdiction,
+            programmingMachineType: machineType,
+          },
           pin,
         });
         return pin;
@@ -374,7 +383,12 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
       case 'election_manager': {
         assert(electionKey !== undefined);
         await this.card.program({
-          user: { role: 'election_manager', jurisdiction, electionKey },
+          user: {
+            role: 'election_manager',
+            jurisdiction,
+            programmingMachineType: machineType,
+            electionKey,
+          },
           pin,
         });
         return pin;
@@ -383,13 +397,23 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
         assert(electionKey !== undefined);
         if (arePollWorkerCardPinsEnabled) {
           await this.card.program({
-            user: { role: 'poll_worker', jurisdiction, electionKey },
+            user: {
+              role: 'poll_worker',
+              jurisdiction,
+              programmingMachineType: machineType,
+              electionKey,
+            },
             pin,
           });
           return pin;
         }
         await this.card.program({
-          user: { role: 'poll_worker', jurisdiction, electionKey },
+          user: {
+            role: 'poll_worker',
+            jurisdiction,
+            programmingMachineType: machineType,
+            electionKey,
+          },
         });
         return undefined;
       }
@@ -649,6 +673,14 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
     }
 
     const { user } = cardDetails;
+
+    if (
+      machineState.machineType !== 'poll-book' &&
+      user.role !== 'vendor' &&
+      user.programmingMachineType === 'poll-book'
+    ) {
+      return err('vx_poll_book_card_not_allowed');
+    }
 
     if (
       machineState.jurisdiction &&

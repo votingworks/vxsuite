@@ -14,7 +14,7 @@ function readScriptEnvVars(): ScriptEnvVars {
   const machineType = getRequiredEnvVar('VX_MACHINE_TYPE');
   const machineId = getRequiredEnvVar('VX_MACHINE_ID');
   const jurisdiction =
-    machineType === 'admin'
+    machineType === 'admin' || machineType === 'poll-book'
       ? getRequiredEnvVar('VX_MACHINE_JURISDICTION')
       : undefined;
   return { machineType, machineId, jurisdiction };

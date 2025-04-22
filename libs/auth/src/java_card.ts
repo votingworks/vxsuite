@@ -38,10 +38,10 @@ import {
 import { CardReader } from './card_reader';
 import {
   CERT_EXPIRY_IN_DAYS,
+  certDetailsToCardDetails,
   constructCardCertSubject,
   constructCardCertSubjectWithoutJurisdictionAndCardType,
-  parseCardDetailsFromCert,
-  parseMachineDetailsFromCert,
+  parseCert,
 } from './certs';
 import {
   CardProgrammingConfig,
@@ -107,8 +107,8 @@ export const CARD_VX_CERT = {
 
 /**
  * This cert is issued during card programming, by VotingWorks directly for vendor cards and by
- * VxAdmin for all other cards. The cert indicates the card's identity, i.e, user role,
- * jurisdiction, election key, etc.
+ * VxAdmin or VxPollBook for all other cards. The cert indicates the card's identity, i.e, user
+ * role, jurisdiction, election key, etc.
  */
 export const CARD_IDENTITY_CERT = {
   OBJECT_ID: pivDataObjectId(0xf1),
@@ -116,7 +116,8 @@ export const CARD_IDENTITY_CERT = {
 } as const;
 
 /**
- * The cert authority cert of the VxAdmin that programmed the card. Not relevant for vendor cards.
+ * The cert authority cert of the VxAdmin or VxPollBook that programmed the card. Not relevant for
+ * vendor cards.
  */
 export const PROGRAMMING_MACHINE_CERT_AUTHORITY_CERT = {
   OBJECT_ID: pivDataObjectId(0xf2),
@@ -364,14 +365,20 @@ export class JavaCard implements Card {
       });
       await this.storeCert(CARD_IDENTITY_CERT.OBJECT_ID, cardIdentityCert);
 
-      // Store VxAdmin cert authority cert
+      // Store programming machine cert authority cert
       const programmingMachineCertAuthorityCert = await fs.readFile(
         machineCertAuthorityCertPath
       );
-      const programmingMachineCertAuthorityCertDetails =
-        await parseMachineDetailsFromCert(programmingMachineCertAuthorityCert);
+      const programmingMachineCertAuthorityCertDetails = await parseCert(
+        programmingMachineCertAuthorityCert
+      );
       assert(
-        programmingMachineCertAuthorityCertDetails.machineType === 'admin'
+        programmingMachineCertAuthorityCertDetails.component === 'admin' ||
+          programmingMachineCertAuthorityCertDetails.component === 'poll-book'
+      );
+      assert(
+        user.programmingMachineType ===
+          programmingMachineCertAuthorityCertDetails.component
       );
       assert(
         user.jurisdiction ===
@@ -504,18 +511,22 @@ export class JavaCard implements Card {
     const cardIdentityCert = await this.retrieveCert(
       CARD_IDENTITY_CERT.OBJECT_ID
     );
-    const cardDetails = await parseCardDetailsFromCert(cardIdentityCert);
+    const cardIdentityCertDetails = await parseCert(cardIdentityCert);
+    assert(cardIdentityCertDetails.component === 'card');
+    let cardDetails: ProgrammedCardDetails;
 
     // Verify the card identity cert, the details of verification being dependent on whether the
-    // card is a vendor card or a VxAdmin-programmed card
-    if (cardDetails.user.role === 'vendor') {
+    // card is a vendor card or a VxAdmin/VxPollBook-programmed card
+    if (cardIdentityCertDetails.cardType === 'vendor') {
       // Verify that the card identity cert was signed by VotingWorks
       await verifyFirstCertWasSignedBySecondCert(
         cardIdentityCert,
         this.vxCertAuthorityCertPath
       );
+
+      cardDetails = certDetailsToCardDetails(cardIdentityCertDetails);
     } else {
-      // Verify that the card identity cert was signed by VxAdmin
+      // Verify that the card identity cert was signed by the programming machine
       const programmingMachineCertAuthorityCert = await this.retrieveCert(
         PROGRAMMING_MACHINE_CERT_AUTHORITY_CERT.OBJECT_ID
       );
@@ -524,12 +535,14 @@ export class JavaCard implements Card {
         programmingMachineCertAuthorityCert
       );
 
-      // Verify that the VxAdmin cert authority cert on the card is a valid VxAdmin cert, signed by
-      // VotingWorks
-      const programmingMachineCertAuthorityCertDetails =
-        await parseMachineDetailsFromCert(programmingMachineCertAuthorityCert);
+      // Verify that the programming machine cert authority cert on the card is a valid VxAdmin or
+      // VxPollBook cert, signed by VotingWorks
+      const programmingMachineCertAuthorityCertDetails = await parseCert(
+        programmingMachineCertAuthorityCert
+      );
       assert(
-        programmingMachineCertAuthorityCertDetails.machineType === 'admin'
+        programmingMachineCertAuthorityCertDetails.component === 'admin' ||
+          programmingMachineCertAuthorityCertDetails.component === 'poll-book'
       );
       await verifyFirstCertWasSignedBySecondCert(
         programmingMachineCertAuthorityCert,
@@ -537,8 +550,13 @@ export class JavaCard implements Card {
       );
 
       assert(
-        cardDetails.user.jurisdiction ===
+        cardIdentityCertDetails.jurisdiction ===
           programmingMachineCertAuthorityCertDetails.jurisdiction
+      );
+
+      cardDetails = certDetailsToCardDetails(
+        cardIdentityCertDetails,
+        programmingMachineCertAuthorityCertDetails
       );
     }
 
@@ -788,10 +806,10 @@ export class JavaCard implements Card {
    * Resets the card PIN using the PUK and, given our modification to OpenFIPS201, clears all
    * PIN-gated keys.
    *
-   * Because the private key associated with the card VxAdmin cert is PIN-gated, this action clears
-   * that key. Subsequent auth attempts will fail when we try to verify that the card has a private
-   * key that corresponds to the public key in the card VxAdmin cert, and the card will need to be
-   * reprogrammed.
+   * Because the private key associated with the card identity cert is PIN-gated, this action
+   * clears that key. Subsequent auth attempts will fail when we try to verify that the card has a
+   * private key that corresponds to the public key in the card identity cert, and the card will
+   * need to be reprogrammed.
    */
   private async resetPinAndInvalidateCard(newPin: string): Promise<void> {
     await this.cardReader.transmit(

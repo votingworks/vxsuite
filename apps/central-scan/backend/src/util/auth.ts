@@ -11,12 +11,14 @@ export function constructAuthMachineState(
 ): DippedSmartCardAuthMachineState {
   const electionKey = workspace.store.getElectionKey();
   const jurisdiction = workspace.store.getJurisdiction();
+  const machineType = 'central-scan';
   const systemSettings =
     workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
   return {
     ...systemSettings.auth,
     electionKey,
     jurisdiction,
+    machineType,
   };
 }
 

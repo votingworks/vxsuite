@@ -26,6 +26,7 @@ const initialProps: PropsAndCustomArgs = {
         date: new DateWithoutTime('2024-07-10'),
       },
       jurisdiction: 'jxn',
+      programmingMachineType: 'admin',
     },
     status: 'checking_pin',
   },

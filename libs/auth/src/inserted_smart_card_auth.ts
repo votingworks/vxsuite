@@ -553,6 +553,14 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
     const { user } = cardDetails;
 
     if (
+      machineState.machineType !== 'poll-book' &&
+      user.role !== 'vendor' &&
+      user.programmingMachineType === 'poll-book'
+    ) {
+      return err('vx_poll_book_card_not_allowed');
+    }
+
+    if (
       machineState.jurisdiction &&
       user.jurisdiction !== machineState.jurisdiction &&
       !areUniversalVendorCardDetails(cardDetails)

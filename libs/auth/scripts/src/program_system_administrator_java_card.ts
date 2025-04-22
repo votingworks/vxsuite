@@ -34,7 +34,11 @@ export async function main(): Promise<void> {
     await programJavaCard({
       card,
       isProduction,
-      user: { role: 'system_administrator', jurisdiction },
+      user: {
+        role: 'system_administrator',
+        jurisdiction,
+        programmingMachineType: 'admin',
+      },
     });
     process.exit(0); // Smart card scripts require an explicit exit or else they hang
   } catch (error) {

@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { DateWithoutTime } from '@votingworks/basics';
 import { BallotStyleId, Election, ElectionId, PrecinctId } from '../election';
 
+export type ProgrammingMachineType = 'admin' | 'poll-book';
+
 /**
  * An election key identifies an election. It can be encoded in a smart card and
  * later validated to make sure a smart card is only used for the election it
@@ -35,17 +37,20 @@ export interface VendorUser {
 export interface SystemAdministratorUser {
   readonly role: 'system_administrator';
   readonly jurisdiction: string;
+  readonly programmingMachineType: ProgrammingMachineType;
 }
 
 export interface ElectionManagerUser {
   readonly role: 'election_manager';
   readonly jurisdiction: string;
+  readonly programmingMachineType: ProgrammingMachineType;
   readonly electionKey: ElectionKey;
 }
 
 export interface PollWorkerUser {
   readonly role: 'poll_worker';
   readonly jurisdiction: string;
+  readonly programmingMachineType: ProgrammingMachineType;
   readonly electionKey: ElectionKey;
 }
 

@@ -15,6 +15,7 @@ beforeEach(() => {
 });
 
 const jurisdiction = TEST_JURISDICTION;
+const machineType = 'admin';
 const electionDefinition =
   electionFamousNames2021Fixtures.readElectionDefinition();
 const electionKey = constructElectionKey(electionDefinition.election);
@@ -41,9 +42,10 @@ test('getAuthStatus', async () => {
   await apiClient.getAuthStatus();
   expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
   expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, {
+    ...systemSettings.auth,
     electionKey,
     jurisdiction,
-    ...systemSettings.auth,
+    machineType,
   });
 });
 
@@ -55,7 +57,7 @@ test('checkPin', async () => {
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
   expect(auth.checkPin).toHaveBeenNthCalledWith(
     1,
-    { electionKey, jurisdiction, ...systemSettings.auth },
+    { ...systemSettings.auth, electionKey, jurisdiction, machineType },
     { pin: '123456' }
   );
 });
@@ -67,9 +69,10 @@ test('logOut', async () => {
   await apiClient.logOut();
   expect(auth.logOut).toHaveBeenCalledTimes(1);
   expect(auth.logOut).toHaveBeenNthCalledWith(1, {
+    ...systemSettings.auth,
     electionKey,
     jurisdiction,
-    ...systemSettings.auth,
+    machineType,
   });
 });
 
@@ -83,7 +86,7 @@ test('updateSessionExpiry', async () => {
   expect(auth.updateSessionExpiry).toHaveBeenCalledTimes(1);
   expect(auth.updateSessionExpiry).toHaveBeenNthCalledWith(
     1,
-    { electionKey, jurisdiction, ...systemSettings.auth },
+    { ...systemSettings.auth, electionKey, jurisdiction, machineType },
     { sessionExpiresAt: expect.any(Date) }
   );
 });
@@ -96,7 +99,7 @@ test('programCard', async () => {
   expect(auth.programCard).toHaveBeenCalledTimes(1);
   expect(auth.programCard).toHaveBeenNthCalledWith(
     1,
-    { electionKey, jurisdiction, ...systemSettings.auth },
+    { ...systemSettings.auth, electionKey, jurisdiction, machineType },
     { userRole: 'system_administrator' }
   );
 
@@ -104,7 +107,7 @@ test('programCard', async () => {
   expect(auth.programCard).toHaveBeenCalledTimes(2);
   expect(auth.programCard).toHaveBeenNthCalledWith(
     2,
-    { electionKey, jurisdiction, ...systemSettings.auth },
+    { ...systemSettings.auth, electionKey, jurisdiction, machineType },
     { userRole: 'election_manager' }
   );
 
@@ -112,7 +115,7 @@ test('programCard', async () => {
   expect(auth.programCard).toHaveBeenCalledTimes(3);
   expect(auth.programCard).toHaveBeenNthCalledWith(
     3,
-    { electionKey, jurisdiction, ...systemSettings.auth },
+    { ...systemSettings.auth, electionKey, jurisdiction, machineType },
     { userRole: 'poll_worker' }
   );
 });
@@ -124,9 +127,10 @@ test('unprogramCard', async () => {
   void (await apiClient.unprogramCard());
   expect(auth.unprogramCard).toHaveBeenCalledTimes(1);
   expect(auth.unprogramCard).toHaveBeenNthCalledWith(1, {
+    ...systemSettings.auth,
     electionKey,
     jurisdiction,
-    ...systemSettings.auth,
+    machineType,
   });
 });
 
@@ -136,8 +140,9 @@ test('getAuthStatus before election definition has been configured', async () =>
   await apiClient.getAuthStatus();
   expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
   expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, {
-    jurisdiction,
     ...DEFAULT_SYSTEM_SETTINGS.auth,
+    jurisdiction,
+    machineType,
   });
 });
 
@@ -149,8 +154,9 @@ test('checkPin before election definition has been configured', async () => {
   expect(auth.checkPin).toHaveBeenNthCalledWith(
     1,
     {
-      jurisdiction,
       ...DEFAULT_SYSTEM_SETTINGS.auth,
+      jurisdiction,
+      machineType,
     },
     { pin: '123456' }
   );
@@ -162,8 +168,9 @@ test('logOut before election definition has been configured', async () => {
   await apiClient.logOut();
   expect(auth.logOut).toHaveBeenCalledTimes(1);
   expect(auth.logOut).toHaveBeenNthCalledWith(1, {
-    jurisdiction,
     ...DEFAULT_SYSTEM_SETTINGS.auth,
+    jurisdiction,
+    machineType,
   });
 });
 
@@ -177,8 +184,9 @@ test('updateSessionExpiry before election definition has been configured', async
   expect(auth.updateSessionExpiry).toHaveBeenNthCalledWith(
     1,
     {
-      jurisdiction,
       ...DEFAULT_SYSTEM_SETTINGS.auth,
+      jurisdiction,
+      machineType,
     },
     { sessionExpiresAt: expect.any(Date) }
   );

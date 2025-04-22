@@ -88,14 +88,15 @@ const defaultConfig: DippedSmartCardAuthConfig = {
   allowedUserRoles: ['vendor', 'system_administrator', 'election_manager'],
 };
 const defaultMachineState: DippedSmartCardAuthMachineState = {
+  arePollWorkerCardPinsEnabled: false,
   electionKey,
   jurisdiction,
-  arePollWorkerCardPinsEnabled: false,
+  machineType: 'admin',
   numIncorrectPinAttemptsAllowedBeforeCardLockout:
     DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT,
+  overallSessionTimeLimitHours: DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
   startingCardLockoutDurationSeconds:
     DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS,
-  overallSessionTimeLimitHours: DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
 };
 const vendorUser = mockVendorUser({ jurisdiction });
 const systemAdministratorUser = mockSystemAdministratorUser({ jurisdiction });
@@ -594,10 +595,7 @@ test.each<{
     description: 'unprogrammed or invalid card',
     config: defaultConfig,
     machineState: defaultMachineState,
-    cardDetails: {
-      user: undefined,
-      reason: 'unprogrammed_or_invalid_card',
-    },
+    cardDetails: { user: undefined, reason: 'unprogrammed_or_invalid_card' },
     expectedAuthStatus: {
       status: 'logged_out',
       reason: 'unprogrammed_or_invalid_card',
@@ -652,6 +650,42 @@ test.each<{
         reason: 'certificate_not_yet_valid',
       },
     ],
+  },
+  {
+    description: 'VxPollBook-programmed card on machine other than VxPollBook',
+    config: defaultConfig,
+    machineState: { ...defaultMachineState, machineType: 'admin' },
+    cardDetails: {
+      user: { ...systemAdministratorUser, programmingMachineType: 'poll-book' },
+    },
+    expectedAuthStatus: {
+      status: 'logged_out',
+      reason: 'vx_poll_book_card_not_allowed',
+      cardJurisdiction: jurisdiction,
+      cardUserRole: 'system_administrator',
+      machineJurisdiction: jurisdiction,
+    },
+    expectedLog: [
+      LogEventId.AuthLogin,
+      'system_administrator',
+      {
+        disposition: LogDispositionStandardTypes.Failure,
+        message: 'User failed login.',
+        reason: 'vx_poll_book_card_not_allowed',
+      },
+    ],
+  },
+  {
+    description: 'VxAdmin-programmed card on VxPollBook',
+    config: defaultConfig,
+    machineState: { ...defaultMachineState, machineType: 'poll-book' },
+    cardDetails: {
+      user: { ...systemAdministratorUser, programmingMachineType: 'admin' },
+    },
+    expectedAuthStatus: {
+      status: 'checking_pin',
+      user: systemAdministratorUser,
+    },
   },
   {
     description: 'wrong jurisdiction',
@@ -753,33 +787,7 @@ test.each<{
     ],
   },
   {
-    description: 'user role not allowed - different config',
-    config: {
-      allowedUserRoles: ['election_manager'],
-    },
-    machineState: defaultMachineState,
-    cardDetails: {
-      user: vendorUser,
-    },
-    expectedAuthStatus: {
-      status: 'logged_out',
-      reason: 'user_role_not_allowed',
-      cardJurisdiction: jurisdiction,
-      cardUserRole: 'vendor',
-      machineJurisdiction: jurisdiction,
-    },
-    expectedLog: [
-      LogEventId.AuthLogin,
-      'vendor',
-      {
-        disposition: LogDispositionStandardTypes.Failure,
-        message: 'User failed login.',
-        reason: 'user_role_not_allowed',
-      },
-    ],
-  },
-  {
-    description: 'poll_worker user-role allowed if specified',
+    description: 'poll worker user role allowed if specified',
     config: {
       allowedUserRoles: ['poll_worker'],
     },
@@ -882,30 +890,6 @@ test.each<{
       },
     ],
   },
-  {
-    description: 'pollworker card ',
-    config: defaultConfig,
-    machineState: defaultMachineState,
-    cardDetails: {
-      user: { ...electionManagerUser, electionKey: otherElectionKey },
-    },
-    expectedAuthStatus: {
-      status: 'logged_out',
-      reason: 'wrong_election',
-      cardJurisdiction: jurisdiction,
-      cardUserRole: 'election_manager',
-      machineJurisdiction: jurisdiction,
-    },
-    expectedLog: [
-      LogEventId.AuthLogin,
-      'election_manager',
-      {
-        disposition: LogDispositionStandardTypes.Failure,
-        message: 'User failed login.',
-        reason: 'wrong_election',
-      },
-    ],
-  },
 ])(
   'Card validation - $description',
   async ({
@@ -926,6 +910,8 @@ test.each<{
     if (expectedLog) {
       expect(mockLogger.log).toHaveBeenCalledTimes(1);
       expect(mockLogger.log).toHaveBeenNthCalledWith(1, ...expectedLog);
+    } else {
+      expect(mockLogger.log).toHaveBeenCalledTimes(0);
     }
   }
 );
@@ -945,12 +931,20 @@ test.each<{
     machineState: defaultMachineState,
     input: { userRole: 'system_administrator' },
     expectedCardProgramInput: {
-      user: { role: 'system_administrator', jurisdiction },
+      user: {
+        role: 'system_administrator',
+        jurisdiction,
+        programmingMachineType: 'admin',
+      },
       pin,
     },
     expectedProgramResult: ok({ pin }),
     cardDetailsAfterProgramming: {
-      user: { role: 'system_administrator', jurisdiction },
+      user: {
+        role: 'system_administrator',
+        jurisdiction,
+        programmingMachineType: 'admin',
+      },
     },
   },
   {
@@ -958,12 +952,22 @@ test.each<{
     machineState: defaultMachineState,
     input: { userRole: 'election_manager' },
     expectedCardProgramInput: {
-      user: { role: 'election_manager', jurisdiction, electionKey },
+      user: {
+        role: 'election_manager',
+        jurisdiction,
+        programmingMachineType: 'admin',
+        electionKey,
+      },
       pin,
     },
     expectedProgramResult: ok({ pin }),
     cardDetailsAfterProgramming: {
-      user: { role: 'election_manager', jurisdiction, electionKey },
+      user: {
+        role: 'election_manager',
+        jurisdiction,
+        programmingMachineType: 'admin',
+        electionKey,
+      },
     },
   },
   {
@@ -971,11 +975,21 @@ test.each<{
     machineState: defaultMachineState,
     input: { userRole: 'poll_worker' },
     expectedCardProgramInput: {
-      user: { role: 'poll_worker', jurisdiction, electionKey },
+      user: {
+        role: 'poll_worker',
+        jurisdiction,
+        programmingMachineType: 'admin',
+        electionKey,
+      },
     },
     expectedProgramResult: ok({ pin: undefined }),
     cardDetailsAfterProgramming: {
-      user: { role: 'poll_worker', jurisdiction, electionKey },
+      user: {
+        role: 'poll_worker',
+        jurisdiction,
+        programmingMachineType: 'admin',
+        electionKey,
+      },
       hasPin: false,
     },
   },
@@ -987,13 +1001,44 @@ test.each<{
     },
     input: { userRole: 'poll_worker' },
     expectedCardProgramInput: {
-      user: { role: 'poll_worker', jurisdiction, electionKey },
+      user: {
+        role: 'poll_worker',
+        jurisdiction,
+        programmingMachineType: 'admin',
+        electionKey,
+      },
       pin,
     },
     expectedProgramResult: ok({ pin }),
     cardDetailsAfterProgramming: {
-      user: { role: 'poll_worker', jurisdiction, electionKey },
+      user: {
+        role: 'poll_worker',
+        jurisdiction,
+        programmingMachineType: 'admin',
+        electionKey,
+      },
       hasPin: true,
+    },
+  },
+  {
+    description: 'VxPollBook-programmed cards',
+    machineState: { ...defaultMachineState, machineType: 'poll-book' },
+    input: { userRole: 'system_administrator' },
+    expectedCardProgramInput: {
+      user: {
+        role: 'system_administrator',
+        jurisdiction,
+        programmingMachineType: 'poll-book',
+      },
+      pin,
+    },
+    expectedProgramResult: ok({ pin }),
+    cardDetailsAfterProgramming: {
+      user: {
+        role: 'system_administrator',
+        jurisdiction,
+        programmingMachineType: 'poll-book',
+      },
     },
   },
 ])(
@@ -1370,7 +1415,12 @@ test('Card programming error handling', async () => {
 
   mockCard.program
     .expectCallWith({
-      user: { role: 'poll_worker', jurisdiction, electionKey },
+      user: {
+        role: 'poll_worker',
+        jurisdiction,
+        programmingMachineType: 'admin',
+        electionKey,
+      },
     })
     .throws(new Error('Whoa!'));
   expect(

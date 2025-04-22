@@ -19,7 +19,7 @@ import {
 import { parseCastVoteRecordReportExportDirectoryName } from '@votingworks/utils';
 
 import { computeCastVoteRecordRootHashFromScratch } from './cast_vote_record_hashes';
-import { MachineDetails, parseMachineDetailsFromCert } from './certs';
+import { MachineCustomCertFields, parseCert } from './certs';
 import {
   ArtifactAuthenticationConfig,
   constructArtifactAuthenticationConfig,
@@ -166,14 +166,14 @@ function deserializeArtifactSignatureBundle(
 async function validateSigningMachineCert(
   config: ArtifactAuthenticationConfig,
   signingMachineCert: Buffer
-): Promise<MachineDetails> {
+): Promise<MachineCustomCertFields> {
   await verifyFirstCertWasSignedBySecondCert(
     signingMachineCert,
     config.vxCertAuthorityCertPath
   );
-  const signingMachineDetails =
-    await parseMachineDetailsFromCert(signingMachineCert);
-  return signingMachineDetails;
+  const signingMachineCertDetails = await parseCert(signingMachineCert);
+  assert(signingMachineCertDetails.component !== 'card');
+  return signingMachineCertDetails;
 }
 
 /**
@@ -183,11 +183,11 @@ async function authenticateArtifactUsingArtifactSignatureBundle(
   config: ArtifactAuthenticationConfig,
   artifact: ArtifactToImport,
   artifactSignatureBundle: ArtifactSignatureBundle
-): Promise<MachineDetails> {
+): Promise<MachineCustomCertFields> {
   const message = constructMessage(artifact);
   const { signature: messageSignature, signingMachineCert } =
     artifactSignatureBundle;
-  const signingMachineDetails = await validateSigningMachineCert(
+  const signingMachineCertDetails = await validateSigningMachineCert(
     config,
     signingMachineCert
   );
@@ -198,7 +198,7 @@ async function authenticateArtifactUsingArtifactSignatureBundle(
     messageSignature,
     publicKey: signingMachinePublicKey,
   });
-  return signingMachineDetails;
+  return signingMachineCertDetails;
 }
 
 function constructSignatureFileName(artifact: ArtifactToExport): string {
@@ -233,13 +233,13 @@ function constructSignatureFilePath(artifact: ArtifactToImport): string {
 
 async function performArtifactSpecificAuthenticationChecks(
   artifact: ArtifactToImport,
-  signingMachineDetails: MachineDetails
+  signingMachineCertDetails: MachineCustomCertFields
 ): Promise<void> {
   switch (artifact.type) {
     case 'cast_vote_records': {
       assert(
-        signingMachineDetails.machineType === 'central-scan' ||
-          signingMachineDetails.machineType === 'scan',
+        signingMachineCertDetails.component === 'central-scan' ||
+          signingMachineCertDetails.component === 'scan',
         'Signing machine for cast vote records should be a VxCentralScan or VxScan'
       );
 
@@ -252,9 +252,9 @@ async function performArtifactSpecificAuthenticationChecks(
       );
       assert(
         exportDirectoryNameComponents.machineId ===
-          signingMachineDetails.machineId,
+          signingMachineCertDetails.machineId,
         `Machine ID in export directory name doesn't match machine ID in signing machine cert: ` +
-          `${exportDirectoryNameComponents.machineId} != ${signingMachineDetails.machineId}`
+          `${exportDirectoryNameComponents.machineId} != ${signingMachineCertDetails.machineId}`
       );
 
       const metadataFileContents = await fs.readFile(
@@ -285,9 +285,9 @@ async function performArtifactSpecificAuthenticationChecks(
       const scannerIds = metadata.batchManifest.map((batch) => batch.scannerId);
       for (const scannerId of scannerIds) {
         assert(
-          scannerId === signingMachineDetails.machineId,
+          scannerId === signingMachineCertDetails.machineId,
           `Scanner ID in metadata file doesn't match machine ID in signing machine cert: ` +
-            `${scannerId} != ${signingMachineDetails.machineId}`
+            `${scannerId} != ${signingMachineCertDetails.machineId}`
         );
       }
 
@@ -296,7 +296,7 @@ async function performArtifactSpecificAuthenticationChecks(
 
     case 'election_package': {
       assert(
-        signingMachineDetails.machineType === 'admin',
+        signingMachineCertDetails.component === 'admin',
         'Signing machine for election package should be a VxAdmin'
       );
       break;
