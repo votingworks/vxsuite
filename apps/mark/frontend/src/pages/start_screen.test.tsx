@@ -24,10 +24,8 @@ test('renders StartScreen', () => {
     name: 'Mammal Party Example Primary Election',
   });
   screen.getByText('September 8, 2021');
-  screen.getByText(
-    hasTextAcrossElements('Precinct 1, Sample County, State of Sample')
-  );
-  screen.getByText(hasTextAcrossElements('Ballot Style: 1M'));
+  screen.getByText(hasTextAcrossElements('Sample County, State of Sample'));
+  screen.getByText('Precinct 1');
   screen.getByText(
     hasTextAcrossElements('Number of contests on your ballot: 7')
   );

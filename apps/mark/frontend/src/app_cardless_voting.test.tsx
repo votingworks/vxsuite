@@ -92,7 +92,7 @@ test('poll worker selects ballot style, voter votes', async () => {
 
   // Voter Ballot Style is active
   await findByTextWithMarkup('Number of contests on your ballot: 20');
-  screen.getByText(/(12)/);
+  screen.getByText('Center Springfield');
   userEvent.click(screen.getByText('Start Voting'));
 
   // Voter votes in first contest
@@ -138,7 +138,7 @@ test('poll worker selects ballot style, voter votes', async () => {
 
   // Voter Ballot Style is active
   await findByTextWithMarkup('Number of contests on your ballot: 20');
-  screen.getByText(/(12)/);
+  screen.getByText('Center Springfield');
   userEvent.click(screen.getByText('Start Voting'));
 
   // Voter makes selection in first contest and then advances to review screen
@@ -232,6 +232,6 @@ test('in "All Precincts" mode, poll worker must select a precinct first', async 
 
   // Voter Ballot Style is active
   await findByTextWithMarkup('Number of contests on your ballot: 20');
-  screen.getByText(/(12)/);
+  screen.getByText('Center Springfield');
   userEvent.click(screen.getByText('Start Voting'));
 });
