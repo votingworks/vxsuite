@@ -37,8 +37,8 @@ function getMachineCertPathAndPrivateKey(): {
 } {
   const machineType = getRequiredEnvVar('VX_MACHINE_TYPE');
   const machineCertFileName =
-    machineType === 'admin'
-      ? 'vx-admin-cert-authority-cert.pem'
+    machineType === 'admin' || machineType === 'poll-book'
+      ? `vx-${machineType}-cert-authority-cert.pem`
       : `vx-${machineType}-cert.pem`;
   if (shouldUseProdCerts()) {
     const configRoot = getRequiredEnvVar('VX_CONFIG_ROOT');

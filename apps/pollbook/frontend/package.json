@@ -108,7 +108,7 @@
   "packageManager": "pnpm@8.15.5",
   "vx": {
     "env": {
-      "VX_MACHINE_TYPE": "pollbook"
+      "VX_MACHINE_TYPE": "poll-book"
     },
     "isBundled": true,
     "services": [
