@@ -9,12 +9,12 @@ import {
   InsertedSmartCardAuth,
   PrecinctSelection,
   VotesDict,
-  hasSplits,
   PrecinctOrSplit,
   getBallotStyle,
+  getAllPrecinctsAndSplits,
   Election,
-  getPartyForBallotStyle,
   PrecinctSplitId,
+  getPartyForBallotStyle,
 } from '@votingworks/types';
 import {
   Button,
@@ -555,18 +555,14 @@ export function PollWorkerScreen({
     return null;
   }
 
-  const configuredPrecinctsAndSplits = election.precincts
-    .flatMap((precinct): PrecinctOrSplit[] =>
-      hasSplits(precinct)
-        ? precinct.splits.map((split) => ({ precinct, split }))
-        : [{ precinct }]
-    )
-    .filter(
-      ({ precinct }) =>
-        precinctSelection.kind === 'AllPrecincts' ||
-        (precinctSelection.kind === 'SinglePrecinct' &&
-          precinctSelection.precinctId === precinct.id)
-    );
+  const configuredPrecinctsAndSplits = getAllPrecinctsAndSplits(
+    election
+  ).filter(
+    ({ precinct }) =>
+      precinctSelection.kind === 'AllPrecincts' ||
+      (precinctSelection.kind === 'SinglePrecinct' &&
+        precinctSelection.precinctId === precinct.id)
+  );
 
   return (
     <Screen>

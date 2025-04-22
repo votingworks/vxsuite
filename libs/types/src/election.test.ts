@@ -26,6 +26,7 @@ import {
   formatElectionHashes,
   getGroupIdFromBallotStyleId,
   getPrecinctSplitById,
+  getAllPrecinctsAndSplits,
 } from './election_utils';
 import {
   election,
@@ -46,6 +47,7 @@ import {
   BmdBallotPaperSize,
   hasSplits,
   DistrictId,
+  Precinct,
 } from './election';
 import { safeParse, safeParseJson, unsafeParse } from './generic';
 import {
@@ -674,4 +676,36 @@ test('hasSplits', () => {
 
   expect(hasSplits(precincts[0])).toEqual(true);
   expect(hasSplits(precincts[1])).toEqual(false);
+});
+
+test('getAllPrecinctsAndSplits', () => {
+  expect(getAllPrecinctsAndSplits(election)).toEqual([
+    { precinct: election.precincts[0] },
+  ]);
+  const precinct2: Precinct = {
+    id: 'precinct-2',
+    name: 'Precinct 2',
+    splits: [
+      {
+        id: 'split-1',
+        name: 'Split 1',
+        districtIds: ['district-1' as DistrictId],
+      },
+      {
+        id: 'split-2',
+        name: 'Split 2',
+        districtIds: ['district-2' as DistrictId],
+      },
+    ],
+  };
+  expect(
+    getAllPrecinctsAndSplits({
+      ...election,
+      precincts: [...election.precincts, precinct2],
+    })
+  ).toEqual([
+    { precinct: election.precincts[0] },
+    { precinct: precinct2, split: precinct2.splits[0] },
+    { precinct: precinct2, split: precinct2.splits[1] },
+  ]);
 });
