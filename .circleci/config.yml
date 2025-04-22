@@ -1037,6 +1037,29 @@ jobs:
       - store_test_results:
           path: libs/logging/reports/
 
+  # @votingworks/logging-utils
+  test-libs-logging-utils:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/logging-utils build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/logging-utils lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/logging-utils test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/logging-utils/reports/
+
   # @votingworks/mark-flow-ui
   test-libs-mark-flow-ui:
     executor: nodejs
@@ -1364,6 +1387,24 @@ jobs:
           command: |
             cargo test -p fai100-controllerd
 
+  test-crate-logging-utils:
+    executor: 'nodejs'
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            cargo build -p logging-utils
+      - run:
+          name: Lint
+          command: |
+            cargo clippy -p logging-utils
+      - run:
+          name: Test
+          command: |
+            cargo test -p logging-utils
+
   test-crate-patinputd:
     executor: 'nodejs'
     resource_class: xlarge
@@ -1495,6 +1536,7 @@ workflows:
       - test-libs-hmpb
       - test-libs-image-utils
       - test-libs-logging
+      - test-libs-logging-utils
       - test-libs-mark-flow-ui
       - test-libs-message-coder
       - test-libs-monorepo-utils
@@ -1510,6 +1552,7 @@ workflows:
       - test-crate-controllerd
       - test-crate-daemon-utils
       - test-crate-fai100-controllerd
+      - test-crate-logging-utils
       - test-crate-patinputd
       - test-crate-pdi-scanner
       - test-crate-types-rs
