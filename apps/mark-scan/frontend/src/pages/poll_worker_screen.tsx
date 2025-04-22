@@ -431,6 +431,7 @@ export function PollWorkerScreen({
                         value: id,
                       })
                     )}
+                    value=""
                     onChange={(value) => {
                       assert(value !== undefined);
                       const split = getPrecinctSplitById({
