@@ -296,9 +296,8 @@ async function performArtifactSpecificAuthenticationChecks(
 
     case 'election_package': {
       assert(
-        signingMachineCertDetails.component === 'admin' ||
-          signingMachineCertDetails.component === 'poll-book',
-        'Signing machine for election package should be a VxAdmin or VxPollBook'
+        signingMachineCertDetails.component === 'admin',
+        'Signing machine for election package should be a VxAdmin'
       );
       break;
     }
