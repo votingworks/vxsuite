@@ -24,7 +24,22 @@ async function convertStringToCdf(
   const inputPath = fileSync().name;
   await writeFile(inputPath, input);
   const outputPath = fileSync().name;
-  convertVxLogToCdf(logger, machineId, codeVersion, inputPath, outputPath);
+  await new Promise<void>((resolve, reject) => {
+    convertVxLogToCdf(
+      logger,
+      machineId,
+      codeVersion,
+      inputPath,
+      outputPath,
+      (error) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve();
+        }
+      }
+    );
+  });
   return await readFile(outputPath, 'utf8');
 }
 

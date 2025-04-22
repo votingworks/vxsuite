@@ -3,10 +3,13 @@
 use std::{
     io::{BufReader, BufWriter},
     path::{Path, PathBuf},
+    thread,
 };
 
 use napi::{
-    threadsafe_function::{ErrorStrategy, ThreadsafeFunction, ThreadsafeFunctionCallMode},
+    threadsafe_function::{
+        ErrorStrategy, ThreadSafeCallContext, ThreadsafeFunction, ThreadsafeFunctionCallMode,
+    },
     Error, JsFunction, JsObject, JsString, Result, Status,
 };
 use vx_logging::{Disposition, EventId, Source};
@@ -19,13 +22,15 @@ mod vx;
 #[macro_use]
 extern crate napi_derive;
 
-/// Convert a VX-formatted log file to a CDF-formatted log file.
+/// Convert a VX-formatted log file to a CDF-formatted log file and calls the
+/// provided callback after completion.
 #[napi(ts_args_type = "
     logger: import('@votingworks/logging').Logger,
     machineId: string,
     codeVersion: string,
     inputPath: string,
-    outputPath: string
+    outputPath: string,
+    callback: (error: Error | null) => void,
 ")]
 pub fn convert_vx_log_to_cdf(
     logger: JsObject,
@@ -33,6 +38,7 @@ pub fn convert_vx_log_to_cdf(
     code_version: String,
     input_path: String,
     output_path: String,
+    callback: JsFunction,
 ) -> Result<()> {
     let Some(get_source) = logger.get::<_, JsFunction>("getSource")? else {
         return Err(Error::new(
@@ -83,29 +89,38 @@ pub fn convert_vx_log_to_cdf(
             ])
         })?;
 
-    convert_vx_log_to_cdf_impl(
-        source,
-        machine_id,
-        code_version,
-        &input_path,
-        &output_path,
-        |event_id, message, disposition| {
-            log_as_current_role.call(
-                LogData {
-                    event_id,
-                    message,
-                    disposition,
-                },
-                ThreadsafeFunctionCallMode::NonBlocking,
-            );
-        },
-    )
+    let callback: ThreadsafeFunction<(), ErrorStrategy::CalleeHandled> = callback
+        .create_threadsafe_function(0, |_: ThreadSafeCallContext<()>| Ok(Vec::<()>::new()))?;
+
+    thread::spawn(move || {
+        let result = convert_vx_log_to_cdf_impl(
+            source,
+            machine_id,
+            code_version,
+            &input_path,
+            &output_path,
+            |event_id, message, disposition| {
+                log_as_current_role.call(
+                    LogData {
+                        event_id,
+                        message,
+                        disposition,
+                    },
+                    ThreadsafeFunctionCallMode::NonBlocking,
+                );
+            },
+        );
+
+        callback.call(result, ThreadsafeFunctionCallMode::NonBlocking);
+    });
+
+    Ok(())
 }
 
-/// Convert a VX-formatted log file to a CDF-formatted log file.
+/// Convert a VX-formatted log file to a CDF-formatted log file. Blocks
+/// until the conversion is complete.
 ///
-/// Separated from `convert_vx_log_to_cdf` because tooling struggles with
-/// `#[napi]`-annotated values.
+/// This version is meant to be run in a non-main thread.
 pub fn convert_vx_log_to_cdf_impl(
     source: Source,
     machine_id: String,
@@ -208,4 +223,10 @@ fn device_type_for_source(source: Source) -> Option<cdf::EventLoggingDeviceType>
         Source::VxBallotActivationFrontend => Some(cdf::EventLoggingDeviceType::BallotActivation),
         _ => None,
     }
+}
+
+struct LogData {
+    event_id: EventId,
+    message: String,
+    disposition: Disposition,
 }
