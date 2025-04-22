@@ -431,10 +431,8 @@ export function PollWorkerScreen({
                         value: id,
                       })
                     )}
-                    value=""
                     onChange={(value) => {
-                      /* istanbul ignore next - @preserve */
-                      if (!value) return;
+                      assert(value !== undefined);
                       const split = getPrecinctSplitById({
                         election,
                         precinctSplitId: value,
