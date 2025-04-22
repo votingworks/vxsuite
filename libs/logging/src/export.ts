@@ -7,7 +7,7 @@ import {
 } from '@votingworks/types';
 import { JsonStreamInput, RawJson, jsonStream } from '@votingworks/utils';
 import { z } from 'zod';
-import { LogEventId } from './log_event_ids';
+import { LogEventId } from './log_event_enums';
 import { DEVICE_TYPES_FOR_APP, LogLineSchema } from './types';
 import { Logger } from './logger';
 

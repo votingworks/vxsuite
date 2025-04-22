@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
 import { LogEventType, LogLine, LogSource } from '.';
-import { LogEventId } from './log_event_ids';
+import { LogEventId } from './log_event_enums';
 import { mockBaseLogger, mockLogger } from './test_utils';
 
 test('mockBaseLogger returns a logger with a spy on logger.log', () => {

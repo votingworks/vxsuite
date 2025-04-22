@@ -24,7 +24,7 @@ use uinput::{
     Device,
 };
 
-use vx_logging::{log, set_app_name, types::EventType, Disposition, EventId};
+use vx_logging::{log, set_source, Disposition, EventId, EventType, Source};
 
 use crate::pin::GpioPin;
 
@@ -33,7 +33,7 @@ mod pin;
 
 const UINPUT_PATH: &str = "/dev/uinput";
 const POLL_INTERVAL: Duration = Duration::from_millis(50);
-const APP_NAME: &str = "vx-mark-scan-pat-input-daemon";
+const SOURCE: Source = Source::VxMarkScanPatDaemon;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -63,7 +63,7 @@ fn create_virtual_device() -> Device {
 fn main() {
     let args = Args::parse();
 
-    set_app_name(APP_NAME);
+    set_source(SOURCE);
     log!(EventId::ProcessStarted; EventType::SystemAction);
 
     let running = Arc::new(AtomicBool::new(true));

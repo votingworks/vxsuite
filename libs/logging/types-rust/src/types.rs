@@ -1,15 +1,13 @@
+use std::collections::HashMap;
+
 // Non-generated types. This file can be edited directly.
 use serde::{Deserialize, Serialize};
 
-use crate::{log_event_enums::EventId, APP_NAME};
-
-#[derive(Serialize, Deserialize)]
-pub enum EventType {
-    #[serde(rename = "system-action")]
-    SystemAction,
-    #[serde(rename = "system-status")]
-    SystemStatus,
-}
+use crate::{
+    derive_display,
+    log_event_enums::{EventId, EventType, Source},
+    SOURCE,
+};
 
 #[derive(Serialize, Deserialize)]
 pub enum Disposition {
@@ -20,6 +18,8 @@ pub enum Disposition {
     #[serde(rename = "n/a")]
     NA,
 }
+
+derive_display!(Disposition);
 
 #[derive(Serialize, Deserialize)]
 pub enum User {
@@ -40,28 +40,32 @@ pub enum User {
     Unknown,
 }
 
+derive_display!(User);
+
 #[derive(Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 #[serde(rename_all = "camelCase")]
 pub struct Log {
-    pub source: String,
+    pub source: Source,
     pub event_id: EventId,
     pub message: String,
     pub event_type: EventType,
     pub user: User,
     pub disposition: Disposition,
+    #[serde(flatten)]
+    pub extras: HashMap<String, serde_json::Value>,
 }
 
 impl Default for Log {
     fn default() -> Self {
-        let app_name = APP_NAME.get().expect("App name is not initialized").clone();
+        let source = *SOURCE.get().expect("Log source is not initialized");
         Self {
-            source: app_name,
+            source,
             user: User::System,
             event_id: EventId::Unspecified,
             event_type: EventType::SystemStatus,
             message: String::new(),
             disposition: Disposition::NA,
+            extras: HashMap::default(),
         }
     }
 }

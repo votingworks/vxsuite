@@ -1,11 +1,13 @@
 import { EventLogging } from '@votingworks/types';
-import { getDetailsForEventId, LogDetails, LogEventId } from './log_event_ids';
 import {
+  getDetailsForEventId,
   getDocumentationForEventType,
+  AppName,
+  LogDetails,
+  LogEventId,
   LogEventType,
   LogEventTypeDocumentation,
-} from './base_types/log_event_types';
-import { AppName } from './base_types/log_source';
+} from './log_event_enums';
 
 export function generateMarkdownDocumentationContent(): string {
   const allEventTypes: LogEventTypeDocumentation[] = Object.values(
@@ -30,8 +32,8 @@ ${allEventIdsForDevice
   .map(
     (details) =>
       `### ${details.eventId}
-**Type:** [${details.eventType}](#${details.eventType})  
-**Description:** ${details.documentationMessage}  
+**Type:** [${details.eventType}](#${details.eventType})
+**Description:** ${details.documentationMessage}
 **Machines:** ${
         details.restrictInDocumentationToApps
           ? details.restrictInDocumentationToApps.join(', ')

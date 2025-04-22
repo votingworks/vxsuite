@@ -2,12 +2,11 @@ import { describe, expect, test, vi } from 'vitest';
 import { EventLogging, safeParseJson } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import * as fs from 'node:fs';
-import { LogEventId } from './log_event_ids';
+import { AppName, LogEventId } from './log_event_enums';
 import {
   generateCdfLogDocumentationFileContent,
   generateMarkdownDocumentationContent,
 } from './log_documentation';
-import { AppName } from './base_types/log_source';
 
 vi.useFakeTimers().setSystemTime(new Date('2020-07-24T00:00:00.000Z'));
 

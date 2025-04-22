@@ -1,6 +1,6 @@
 use std::io::Write;
 use std::{io::stdout, sync::OnceLock};
-pub(crate) static APP_NAME: OnceLock<String> = OnceLock::new();
+pub(crate) static SOURCE: OnceLock<Source> = OnceLock::new();
 
 /// Prints a log to stdout in JSON format. You probably want to use the `log!` macro instead of
 /// calling this directly.
@@ -8,9 +8,9 @@ pub(crate) static APP_NAME: OnceLock<String> = OnceLock::new();
 /// # Example
 ///
 /// ```
-/// use vx_logging::{print_log, Log, EventId, set_app_name};
+/// use vx_logging::{print_log, Log, EventId, set_source, Source};
 ///
-/// set_app_name("my-app");
+/// set_source(Source::VxScanBackend);
 /// print_log(&Log {
 ///    event_id: EventId::AuthLogin,
 ///    message: format!("User {user} logged in", user = "test-user"),
@@ -31,9 +31,9 @@ pub fn print_log(log: &Log) {
 /// # Example
 ///
 /// ```
-/// use vx_logging::{log, set_app_name, Disposition, EventId};
+/// use vx_logging::{log, set_source, Disposition, EventId, Source};
 ///
-/// set_app_name("my-app");
+/// set_source(Source::VxScanBackend);
 ///
 /// // shorthand versions: event ID and optional message
 /// log!(EventId::MachineBootComplete);
@@ -76,48 +76,48 @@ macro_rules! log {
     };
 }
 
-/// Set the app name to be used in logs for this process.
+/// Set the source to be used in logs for this process.
 ///
 /// # Example
 ///
 /// ```
-/// use vx_logging::{log, set_app_name, EventId};
+/// use vx_logging::{log, set_source, EventId, Source};
 ///
-/// set_app_name("my-app");
+/// set_source(Source::VxMarkScanBackend);
 /// log!(EventId::AuthLogin, "User {user} logged in", user = "test-user");
 /// ```
-pub fn set_app_name(app_name: impl Into<String>) {
-    if let Err(e) = APP_NAME.set(app_name.into()) {
-        eprintln!("Error setting app name: {e}");
+pub fn set_source(source: Source) {
+    if let Err(e) = SOURCE.set(source) {
+        eprintln!("Error setting source: {e}");
     }
 }
 
 mod log_event_enums;
-pub use self::log_event_enums::EventId;
+pub use self::log_event_enums::{EventId, EventType, Source};
 
 pub mod types;
-pub use self::types::{Disposition, EventType, Log, User};
+pub use self::types::{Disposition, Log, User};
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_set_app_name() {
-        set_app_name("test-app");
-        assert_eq!(APP_NAME.get().unwrap(), "test-app");
+    fn test_set_source() {
+        set_source(Source::VxScanBackend);
+        assert!(matches!(SOURCE.get().unwrap(), Source::VxScanBackend));
     }
 
     #[test]
     fn test_print_log() {
-        set_app_name("test-app");
+        set_source(Source::VxScanBackend);
 
         print_log(&Log::default());
     }
 
     #[test]
     fn test_log_macro() {
-        set_app_name("test-app");
+        set_source(Source::VxScanBackend);
 
         log!(EventId::MachineBootComplete);
 

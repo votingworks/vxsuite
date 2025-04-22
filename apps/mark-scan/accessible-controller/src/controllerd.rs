@@ -20,7 +20,7 @@ use std::{
     time::Duration,
 };
 use uinput::event::keyboard;
-use vx_logging::{log, set_app_name, Disposition, EventId, EventType};
+use vx_logging::{log, set_source, Disposition, EventId, EventType, Source};
 
 use crate::{
     commands::handle_command,
@@ -32,7 +32,7 @@ mod commands;
 mod device;
 mod port;
 
-const APP_NAME: &str = "vx-mark-scan-controller-daemon";
+const SOURCE: Source = Source::VxMarkScanControllerDaemon;
 const KPB_200_FW_VID: u16 = 0x28cd;
 const KPB_200_FW_PID: u16 = 0x4008;
 const STARTUP_SLEEP_DURATION: Duration = Duration::from_millis(3000);
@@ -57,7 +57,7 @@ fn main() -> color_eyre::Result<()> {
     sleep(STARTUP_SLEEP_DURATION);
 
     let args = Args::parse();
-    set_app_name(APP_NAME);
+    set_source(SOURCE);
     log!(
         EventId::ProcessStarted;
         EventType::SystemAction
@@ -231,7 +231,7 @@ mod tests {
 
     #[test]
     fn test_press_help() {
-        set_app_name("test");
+        set_source(SOURCE);
         let mut mock_keyboard = MockKeyboard::new();
         let data = [
             0x30,
@@ -251,7 +251,7 @@ mod tests {
 
     #[test]
     fn test_press_left() {
-        set_app_name("test");
+        set_source(SOURCE);
         let mut mock_keyboard = MockKeyboard::new();
         let data = [
             0x30,

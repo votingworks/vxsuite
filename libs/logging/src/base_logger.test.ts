@@ -1,10 +1,8 @@
 /* eslint-disable no-console */
 import { expect, test, vi } from 'vitest';
 import { mockKiosk } from '@votingworks/test-utils';
-import { LogEventId } from './log_event_ids';
-import { LogEventType } from './base_types/log_event_types';
-import { CLIENT_SIDE_LOG_SOURCES, LogSource } from './base_types/log_source';
-import { BaseLogger } from './base_logger';
+import { LogEventId, LogEventType, LogSource } from './log_event_enums';
+import { BaseLogger, CLIENT_SIDE_LOG_SOURCES } from './base_logger';
 import { DEVICE_TYPES_FOR_APP, LogDispositionStandardTypes } from './types';
 
 vi.useFakeTimers().setSystemTime(new Date('2020-07-24T00:00:00.000Z'));

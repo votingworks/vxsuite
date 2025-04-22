@@ -1,9 +1,8 @@
 import type { Mocked, vi } from 'vitest';
-import { Logger } from './logger';
-import { LogSource } from './base_types/log_source';
-import { LogDispositionStandardTypes, LogLine, LoggingUserRole } from './types';
 import { BaseLogger } from './base_logger';
-import { getDetailsForEventId } from './log_event_ids';
+import { LogSource, getDetailsForEventId } from './log_event_enums';
+import { Logger } from './logger';
+import { LogDispositionStandardTypes, LogLine, LoggingUserRole } from './types';
 
 export interface MockBaseLogger extends BaseLogger {
   log: Mocked<BaseLogger['log']>;

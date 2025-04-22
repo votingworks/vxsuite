@@ -27,13 +27,13 @@ use std::{
 use uinput::event::keyboard;
 use usb_device::UsbDevice;
 use virtual_keyboard::{create_keyboard, VirtualKeyboard};
-use vx_logging::{log, set_app_name, Disposition, EventId, EventType};
+use vx_logging::{log, set_source, Disposition, EventId, EventType, Source};
 
 mod commands;
 mod usb_device;
 mod virtual_keyboard;
 
-const APP_NAME: &str = "vx-mark-scan-fai-100-controller-daemon";
+const SOURCE: Source = Source::VxMarkScanControllerDaemon;
 const FAI_100_VID: u16 = 0x28cd;
 const FAI_100_PID: u16 = 0x4002;
 const POLL_INTERVAL: Duration = Duration::from_millis(100);
@@ -77,7 +77,7 @@ fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
 
     let args = Args::parse();
-    set_app_name(APP_NAME);
+    set_source(SOURCE);
     log!(
         EventId::ProcessStarted;
         EventType::SystemAction
@@ -559,7 +559,7 @@ mod tests {
 
     #[test]
     fn test_press_help() {
-        set_app_name("test");
+        set_source(SOURCE);
         let mut mock_keyboard = MockKeyboard::new();
 
         let current_status = &mut CurrentStatus {
@@ -586,7 +586,7 @@ mod tests {
 
     #[test]
     fn test_press_left() {
-        set_app_name("test");
+        set_source(SOURCE);
         let mut mock_keyboard = MockKeyboard::new();
 
         let current_status = &mut CurrentStatus {
