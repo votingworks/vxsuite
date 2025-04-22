@@ -57,6 +57,27 @@ test.each<{
   },
   {
     nodeEnv: 'development',
+    machineType: 'poll-book',
+    expectedOutput: {
+      cardProgrammingConfig: {
+        configType: 'machine',
+        machineCertAuthorityCertPath: expect.stringContaining(
+          '/certs/dev/vx-poll-book-cert-authority-cert.pem'
+        ),
+        machinePrivateKey: {
+          source: 'file',
+          path: expect.stringContaining(
+            '/certs/dev/vx-poll-book-private-key.pem'
+          ),
+        },
+      },
+      vxCertAuthorityCertPath: expect.stringContaining(
+        '/certs/dev/vx-cert-authority-cert.pem'
+      ),
+    },
+  },
+  {
+    nodeEnv: 'development',
     machineType: 'scan',
     expectedOutput: {
       vxCertAuthorityCertPath: expect.stringContaining(
@@ -72,6 +93,21 @@ test.each<{
         configType: 'machine',
         machineCertAuthorityCertPath:
           '/vx/config/vx-admin-cert-authority-cert.pem',
+        machinePrivateKey: { source: 'tpm' },
+      },
+      vxCertAuthorityCertPath: expect.stringContaining(
+        '/certs/prod/vx-cert-authority-cert.pem'
+      ),
+    },
+  },
+  {
+    nodeEnv: 'production',
+    machineType: 'poll-book',
+    expectedOutput: {
+      cardProgrammingConfig: {
+        configType: 'machine',
+        machineCertAuthorityCertPath:
+          '/vx/config/vx-poll-book-cert-authority-cert.pem',
         machinePrivateKey: { source: 'tpm' },
       },
       vxCertAuthorityCertPath: expect.stringContaining(
