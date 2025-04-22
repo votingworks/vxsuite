@@ -718,15 +718,18 @@ test('change a voter address with various formats', async () => {
 });
 
 test('programCard and unprogramCard', async () => {
-  await withApp(async ({ apiClient, auth: authApi, workspace }) => {
+  await withApp(async ({ localApiClient, auth: authApi, workspace }) => {
     workspace.store.setElectionAndVoters(electionDefinition.election, [], []);
 
     const auth: DippedSmartCardAuthMachineState = {
       ...DEFAULT_SYSTEM_SETTINGS['auth'],
       electionKey,
+      machineType: 'poll-book',
     };
 
-    void (await apiClient.programCard({ userRole: 'system_administrator' }));
+    void (await localApiClient.programCard({
+      userRole: 'system_administrator',
+    }));
     expect(authApi.programCard).toHaveBeenCalledTimes(1);
     expect(authApi.programCard).toHaveBeenNthCalledWith(
       1,
@@ -734,7 +737,7 @@ test('programCard and unprogramCard', async () => {
       { userRole: 'system_administrator' }
     );
 
-    void (await apiClient.programCard({ userRole: 'election_manager' }));
+    void (await localApiClient.programCard({ userRole: 'election_manager' }));
     expect(authApi.programCard).toHaveBeenCalledTimes(2);
     expect(authApi.programCard).toHaveBeenNthCalledWith(
       2,
@@ -742,7 +745,7 @@ test('programCard and unprogramCard', async () => {
       { userRole: 'election_manager' }
     );
 
-    void (await apiClient.programCard({ userRole: 'poll_worker' }));
+    void (await localApiClient.programCard({ userRole: 'poll_worker' }));
     expect(authApi.programCard).toHaveBeenCalledTimes(3);
     expect(authApi.programCard).toHaveBeenNthCalledWith(
       3,
@@ -750,7 +753,7 @@ test('programCard and unprogramCard', async () => {
       { userRole: 'poll_worker' }
     );
 
-    void (await apiClient.unprogramCard());
+    void (await localApiClient.unprogramCard());
     expect(authApi.unprogramCard).toHaveBeenCalledTimes(1);
     expect(authApi.unprogramCard).toHaveBeenNthCalledWith(1, {
       electionKey,
