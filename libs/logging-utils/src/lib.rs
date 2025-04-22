@@ -5,7 +5,10 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use napi::{Env, Error, JsFunction, JsObject, JsString, Result, Status};
+use napi::{
+    threadsafe_function::{ErrorStrategy, ThreadsafeFunction, ThreadsafeFunctionCallMode},
+    Error, JsFunction, JsObject, JsString, Result, Status,
+};
 use vx_logging::{Disposition, EventId, Source};
 
 mod cdf;
@@ -25,7 +28,6 @@ extern crate napi_derive;
     outputPath: string
 ")]
 pub fn convert_vx_log_to_cdf(
-    env: Env,
     logger: JsObject,
     machine_id: String,
     code_version: String,
@@ -57,6 +59,30 @@ pub fn convert_vx_log_to_cdf(
         })?;
     let input_path = PathBuf::from(input_path);
     let output_path = PathBuf::from(output_path);
+
+    let log_as_current_role: ThreadsafeFunction<LogData, ErrorStrategy::Fatal> =
+        log_as_current_role.create_threadsafe_function(0, |ctx| {
+            let LogData {
+                event_id,
+                message,
+                disposition,
+            } = ctx.value;
+            let mut log_data = ctx.env.create_object().expect("create_object succeeds");
+            log_data
+                .set("message", message)
+                .expect("Set `logData.message` succeeds");
+            log_data
+                .set("disposition", disposition.to_string())
+                .expect("Set `logData.disposition` succeeds");
+            Ok(vec![
+                ctx.env
+                    .create_string(&event_id.to_string())
+                    .expect("create_string succeeds")
+                    .into_unknown(),
+                log_data.into_unknown(),
+            ])
+        })?;
+
     convert_vx_log_to_cdf_impl(
         source,
         machine_id,
@@ -64,16 +90,14 @@ pub fn convert_vx_log_to_cdf(
         &input_path,
         &output_path,
         |event_id, message, disposition| {
-            let mut log_data = env.create_object().expect("create_object succeeds");
-            log_data
-                .set("message", message)
-                .expect("Set `logData.message` succeeds");
-            log_data
-                .set("disposition", disposition.to_string())
-                .expect("Set `logData.disposition` succeeds");
-            log_as_current_role
-                .apply2::<_, _, _, JsObject>(&logger, event_id.to_string(), log_data)
-                .expect("logger.logAsCurrentRole succeeds");
+            log_as_current_role.call(
+                LogData {
+                    event_id,
+                    message,
+                    disposition,
+                },
+                ThreadsafeFunctionCallMode::NonBlocking,
+            );
         },
     )
 }
