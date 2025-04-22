@@ -30,7 +30,7 @@ export function MachineLockedScreen(): JSX.Element | null {
         <div>
           <LockedImage src="/locked.svg" alt="Locked Icon" />
           <H1 align="center">VxPollbook Locked</H1>
-          <H3 style={{ fontWeight: 'normal' }}>
+          <H3 align="center" style={{ fontWeight: 'normal' }}>
             {getElectionQuery.data.isOk() ? (
               <React.Fragment>Insert card to unlock.</React.Fragment>
             ) : (
