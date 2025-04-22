@@ -1,25 +1,76 @@
 import toml from '@iarna/toml';
+import { execFileSync } from 'node:child_process';
 import { createReadStream, createWriteStream } from 'node:fs';
 import { pipeline } from 'node:stream/promises';
-import { execFileSync } from 'node:child_process';
 import yargs from 'yargs';
 import {
-  configFilepath,
-  rustEnumsTemplateFilepath,
-  rustEnumsOutputFilepath,
   checkRustOutputTempFilepath,
+  configFilepath,
+  rustEnumsOutputFilepath,
+  rustEnumsTemplateFilepath,
 } from './filepaths';
 import {
   GenerateTypesArgs,
-  ParsedConfig,
+  LoggingConfig,
   diffAndCleanUp,
-  getTypedConfig,
+  parseConfig,
 } from './types';
 
-function* formatLogEventIdEnum(config: ParsedConfig): Generator<string> {
-  const entries = Object.entries(config);
+function* generateLogEventIdEnum(config: LoggingConfig): Generator<string> {
   yield `
-    #[derive(Serialize, Deserialize)]
+  #[macro_export]
+  macro_rules! derive_display {
+      ($enum_name:ident) => {
+          impl ::std::fmt::Display for $enum_name {
+              fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                  self.serialize(f)
+              }
+          }
+      };
+  }
+  `;
+
+  yield `
+    #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+    pub enum AppName {
+  `;
+
+  for (const [enumMember, eventType] of config.apps) {
+    yield `#[serde(rename = "${eventType.name}")]
+      ${enumMember},`;
+  }
+
+  yield '}';
+  yield 'derive_display!(AppName);';
+
+  yield `
+    #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+    pub enum Source {
+  `;
+
+  for (const [enumMember, eventType] of config.logSources) {
+    yield `#[serde(rename = "${eventType.source}")]
+      ${enumMember},`;
+  }
+
+  yield '}';
+  yield 'derive_display!(Source);';
+
+  yield `
+    #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+    pub enum EventType {
+  `;
+
+  for (const [enumMember, eventType] of config.eventTypes) {
+    yield `#[serde(rename = "${eventType.eventType}")]
+      ${enumMember},`;
+  }
+
+  yield '}';
+  yield 'derive_display!(EventType);';
+
+  yield `
+    #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
     pub enum EventId {
   `;
 
@@ -29,11 +80,12 @@ function* formatLogEventIdEnum(config: ParsedConfig): Generator<string> {
   // Generated enum values
   `;
 
-  for (const [enumMember, logDetails] of entries) {
+  for (const [enumMember, logDetails] of config.events) {
     yield `#[serde(rename = "${logDetails.eventId}")]
       ${enumMember},`;
   }
   yield '}';
+  yield 'derive_display!(EventId);';
 }
 
 const argv: GenerateTypesArgs = yargs(process.argv.slice(2)).options({
@@ -52,12 +104,12 @@ async function main(): Promise<void> {
   const untypedConfig = await toml.parse.stream(
     createReadStream(configFilepath)
   );
-  const typedConfig = getTypedConfig(untypedConfig);
+  const typedConfig = parseConfig(untypedConfig);
   const out = createWriteStream(filepath);
 
   await pipeline(async function* makeRustFile() {
     yield* createReadStream(rustEnumsTemplateFilepath);
-    yield* formatLogEventIdEnum(typedConfig);
+    yield* generateLogEventIdEnum(typedConfig);
   }, out);
 
   execFileSync('rustfmt', [filepath]);

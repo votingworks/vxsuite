@@ -1,13 +1,16 @@
 import {
-  UserRole,
-  UserRoleSchema,
   Dictionary,
   EventLogging,
+  UserRole,
+  UserRoleSchema,
 } from '@votingworks/types';
 import { z } from 'zod';
-import { LogEventId } from './log_event_ids';
-import { AppName, LogSource } from './base_types/log_source';
-import { LogEventType } from './base_types/log_event_types';
+import {
+  AppName,
+  LogEventId,
+  LogEventType,
+  LogSource,
+} from './log_event_enums';
 
 export enum LogDispositionStandardTypes {
   Success = 'success',

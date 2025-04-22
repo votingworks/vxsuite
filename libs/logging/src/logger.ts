@@ -1,5 +1,4 @@
-import { LogEventId } from './log_event_ids';
-import { LogSource } from './base_types/log_source';
+import { LogEventId, LogSource } from './log_event_enums';
 import { LogLine, LoggingUserRole } from './types';
 import { LogData, BaseLogger } from './base_logger';
 

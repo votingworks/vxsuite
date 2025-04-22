@@ -197,7 +197,9 @@ impl fmt::Display for MockNoOffsetPin {
 
 #[cfg(test)]
 mod tests {
-    use vx_logging::set_app_name;
+    use vx_logging::set_source;
+
+    use crate::SOURCE;
 
     use super::*;
 
@@ -209,7 +211,7 @@ mod tests {
 
     #[test]
     fn test_connect_offset() {
-        set_app_name("test");
+        set_source(SOURCE);
         let reader = get_default_mocked_reader();
 
         assert_eq!(
@@ -228,7 +230,7 @@ mod tests {
 
     #[test]
     fn test_connect_no_offset() {
-        set_app_name("test");
+        set_source(SOURCE);
         let mut reader: PatInputReader<MockNoOffsetPin> = PatInputReader::new();
         reader.connect().unwrap();
         assert_eq!(
@@ -241,7 +243,7 @@ mod tests {
 
     #[test]
     fn test_is_connected() {
-        set_app_name("test");
+        set_source(SOURCE);
         let mut reader = get_default_mocked_reader();
 
         assert!(!reader.is_connected());
@@ -251,7 +253,7 @@ mod tests {
 
     #[test]
     fn test_signal_a() {
-        set_app_name("test");
+        set_source(SOURCE);
         let mut reader = get_default_mocked_reader();
 
         assert!(!reader.is_signal_a_active());
@@ -261,7 +263,7 @@ mod tests {
 
     #[test]
     fn test_signal_b() {
-        set_app_name("test");
+        set_source(SOURCE);
         let mut reader = get_default_mocked_reader();
 
         assert!(!reader.is_signal_b_active());

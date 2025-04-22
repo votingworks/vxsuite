@@ -30,7 +30,7 @@ Each log has its own entry in the `LogEventId` enum and corresponding
 `LogDetails`. These types are specified in
 [`config/log_event_details.toml`](config/log_event_details.toml). Resulting
 TypeScript types and Rust enums are found in the generated files
-[log_event_ids.ts](src /log_event_ids.ts) and
+[log_event_enums.ts](src/log_event_enums.ts) and
 [log_event_enums.rs](types-rust/src/log_event_enums.rs) respectively.
 
 To add a log event, add a new entry to `log_event_details.toml`. Each entry must
@@ -43,6 +43,9 @@ disposition.
 
 You can optionally provide a `defaultMessage` for a log which will be the
 message included on the log line if one is not specified in the call to `log`.
+
+Adding a log event type is similar to adding a log event, but there are different
+fields to add.
 
 ## Generating TypeScript and Rust types
 
@@ -63,13 +66,13 @@ to import data. First we define the TOML log entries for an `init` and
 `complete` log.
 
 ```toml
-[ImportDataInit]
+[Events.ImportDataInit]
 eventId = "import-data-init"
 eventType = "user-action"
 documentationMessage = "A request to import data."
 defaultMessage = "Importing data..."
 
-[ImportDataComplete]
+[Events.ImportDataComplete]
 eventId = "import-data-complete"
 eventType = "user-action"
 documentationMessage = "Data has finished being imported to the system. Success or failure is indicated by the disposition."
@@ -101,13 +104,14 @@ try {
 
 ```rs
 use vx_logging::{
-    log, set_app_name,
+    log, set_source,
     Disposition, EventId,
     EventType, Log,
+    Source,
 };
 
 // run this once at the start of the application
-set_app_name("VxAppName");
+set_source(Source::VxMarkScanBackend);
 
 fn import_something(file_name: &PathBuf) {
     log!(EventId::ImportDataInit, "starting to import some data from file: {file_name}");

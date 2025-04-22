@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { getLogEventIdForPollsTransition } from './helpers';
-import { LogEventId } from './log_event_ids';
+import { LogEventId } from './log_event_enums';
 
 test('getLogEventIdForPollsTransition', () => {
   expect(getLogEventIdForPollsTransition('open_polls')).toEqual(

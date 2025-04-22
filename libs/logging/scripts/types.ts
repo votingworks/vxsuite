@@ -2,28 +2,38 @@ import toml from '@iarna/toml';
 import { assert } from '@votingworks/basics';
 import { execFile } from 'node:child_process';
 import * as fs from 'node:fs';
-import { LogEventType } from '../src/base_types/log_event_types';
-import { AppName } from '../src/base_types/log_source';
-import { BaseLogEventDetails } from '../src';
+import { AppName, BaseLogEventDetails } from '../src';
 
-export interface ParsedLogDetails extends Omit<BaseLogEventDetails, 'eventId'> {
+export interface AppDetails {
+  name: string;
+}
+
+export interface LogSourceDetails {
+  source: string;
+}
+
+export interface EventTypeDetails {
+  eventType: string;
+  documentationMessage: string;
+}
+
+export interface EventDetails extends Omit<BaseLogEventDetails, 'eventId'> {
   // We haven't yet generated the final type for `eventId`, `LogEventId`.
   eventId: string;
 }
 
-export interface ParsedConfig {
-  [titleCaseLogId: string]: ParsedLogDetails;
-}
-
-function isLogEventType(input: string): input is LogEventType {
-  return (Object.values(LogEventType) as string[]).includes(input);
+export interface LoggingConfig {
+  apps: Map<string, AppDetails>;
+  logSources: Map<string, LogSourceDetails>;
+  eventTypes: Map<string, EventTypeDetails>;
+  events: Map<string, EventDetails>;
 }
 
 function isAppName(input: string): input is AppName {
   return (Object.values(AppName) as string[]).includes(input);
 }
 
-function getTypedEntry(untypedEntry: toml.AnyJson): ParsedLogDetails {
+function parseEventDetails(untypedEntry: toml.AnyJson): EventDetails {
   const value = untypedEntry.valueOf();
   assert(typeof value === 'object');
   assert(
@@ -35,16 +45,12 @@ function getTypedEntry(untypedEntry: toml.AnyJson): ParsedLogDetails {
     `Log config entry ${value.eventId} is missing eventType`
   );
   assert(
-    isLogEventType(value.eventType),
-    `Unknown eventType ${value.eventType} in log config centry ${value.eventId}`
-  );
-  assert(
     'documentationMessage' in value &&
       typeof value.documentationMessage === 'string',
     `Log config entry ${value.eventId} is missing documentationMessage`
   );
 
-  const entry: ParsedLogDetails = {
+  const entry: EventDetails = {
     eventId: value.eventId,
     eventType: value.eventType,
     documentationMessage: value.documentationMessage,
@@ -79,13 +85,90 @@ function getTypedEntry(untypedEntry: toml.AnyJson): ParsedLogDetails {
   return entry;
 }
 
-export function getTypedConfig(tomlConfig: toml.JsonMap): ParsedConfig {
-  const entries = Object.entries(tomlConfig);
-  const typedConfig: ParsedConfig = {};
-  for (const [titleCaseEventId, untypedEntry] of entries) {
-    typedConfig[titleCaseEventId] = getTypedEntry(untypedEntry);
-  }
-  return typedConfig;
+function parseEventTypeDetails(untypedEntry: toml.AnyJson): EventTypeDetails {
+  const value = untypedEntry.valueOf();
+  assert(typeof value === 'object');
+  assert(
+    'eventType' in value && typeof value.eventType === 'string',
+    'Log config entry is missing eventType'
+  );
+  assert(
+    'eventType' in value && typeof value.eventType === 'string',
+    `Log config entry type ${value.eventType} is missing eventType`
+  );
+  assert(
+    'documentationMessage' in value &&
+      typeof value.documentationMessage === 'string',
+    `Log config entry type ${value.eventType} is missing documentationMessage`
+  );
+
+  return {
+    eventType: value.eventType,
+    documentationMessage: value.documentationMessage,
+  };
+}
+
+function parseAppDetails(untypedEntry: toml.AnyJson): AppDetails {
+  const value = untypedEntry.valueOf();
+  assert(typeof value === 'object');
+  assert(
+    'name' in value && typeof value.name === 'string',
+    'App is missing "name"'
+  );
+  return {
+    name: value.name,
+  };
+}
+
+function parseLogSourceDetails(untypedEntry: toml.AnyJson): LogSourceDetails {
+  const value = untypedEntry.valueOf();
+  assert(typeof value === 'object');
+  assert(
+    'source' in value && typeof value.source === 'string',
+    'Log source is missing "source"'
+  );
+  return {
+    source: value.source,
+  };
+}
+
+export function parseConfig(tomlConfig: toml.JsonMap): LoggingConfig {
+  const entries = tomlConfig;
+  const {
+    Apps: apps,
+    LogSources: logSources,
+    EventTypes: eventTypes,
+    Events: events,
+  } = entries;
+  assert(typeof apps === 'object');
+  assert(typeof logSources === 'object');
+  assert(typeof eventTypes === 'object');
+  assert(typeof events === 'object');
+  return {
+    apps: new Map(
+      Object.entries(apps).map(
+        ([name, untypedEntry]) => [name, parseAppDetails(untypedEntry)] as const
+      )
+    ),
+    logSources: new Map(
+      Object.entries(logSources).map(
+        ([name, untypedEntry]) =>
+          [name, parseLogSourceDetails(untypedEntry)] as const
+      )
+    ),
+    eventTypes: new Map(
+      Object.entries(eventTypes).map(
+        ([name, untypedEntry]) =>
+          [name, parseEventTypeDetails(untypedEntry)] as const
+      )
+    ),
+    events: new Map(
+      Object.entries(events).map(
+        ([name, untypedEntry]) =>
+          [name, parseEventDetails(untypedEntry)] as const
+      )
+    ),
+  };
 }
 
 export interface GenerateTypesArgs {
@@ -98,21 +181,21 @@ export function diffAndCleanUp(
 ): Promise<void> {
   // Use callback version of execFile because TypeScript infers error type.
   // try/catch with execFileSync or promisified execFile requires type narrowing
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     execFile('diff', [tempFile, existingFile], (error, stdout) => {
       // An error with code 1 is expected when a diff exists
       fs.rmSync(tempFile);
       if (error) {
-        if (error.code === 1) {
-          throw new Error(
-            `Diff found between generated types and existing types on disk. Did you run pnpm build:generate-types and commit the output?\n${stdout}`
-          );
-        }
-
-        throw new Error(`Unexpected error when running diff: ${error}`);
+        reject(
+          new Error(
+            error.code === 1
+              ? `Diff found between generated types and existing types on disk. Did you run pnpm build:generate-types and commit the output?\n${stdout}`
+              : `Unexpected error when running diff: ${error}`
+          )
+        );
+      } else {
+        resolve();
       }
-
-      resolve();
     });
   });
 }

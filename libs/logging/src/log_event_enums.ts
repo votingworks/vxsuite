@@ -4,13 +4,63 @@
  */
 
 import { throwIllegalValue } from '@votingworks/basics';
-import { BaseLogEventDetails, AppName, LogEventType } from './base_types';
+import { BaseLogEventDetails } from './base_types';
 
 export interface LogDetails extends Omit<BaseLogEventDetails, 'eventId'> {
   // LogEventId is generated later in this file
   eventId: LogEventId;
+  // LogEventType is generated later in this file
+  eventType: LogEventType;
 }
 
+export interface LogEventTypeDocumentation {
+  eventType: LogEventType;
+  documentationMessage: string;
+}
+
+export enum AppName {
+  VxMark = 'vx-mark',
+  VxScan = 'vx-scan',
+  VxMarkScan = 'vx-mark-scan',
+  VxAdmin = 'vx-admin',
+  VxCentralScan = 'vx-central-scan',
+  VxDesign = 'vx-design',
+}
+export enum LogSource {
+  System = 'system',
+  VxAdminFrontend = 'vx-admin-frontend',
+  VxAdminFrontendServer = 'vx-admin-frontend-server',
+  VxAdminService = 'vx-admin-service',
+  VxCentralScanFrontend = 'vx-central-scan-frontend',
+  VxCentralScanFrontendServer = 'vx-central-scan-frontend-server',
+  VxCentralScanService = 'vx-central-scan-service',
+  VxDesignService = 'vx-design-service',
+  VxDesignWorker = 'vx-design-worker',
+  VxScanFrontend = 'vx-scan-frontend',
+  VxScanFrontendServer = 'vx-scan-frontend-server',
+  VxScanBackend = 'vx-scan-backend',
+  VxMarkFrontend = 'vx-mark-frontend',
+  VxMarkFrontendServer = 'vx-mark-frontend-server',
+  VxMarkBackend = 'vx-mark-backend',
+  VxMarkScanFrontend = 'vx-mark-scan-frontend',
+  VxMarkScanFrontendServer = 'vx-mark-scan-frontend-server',
+  VxMarkScanBackend = 'vx-mark-scan-backend',
+  VxMarkScanPatDaemon = 'vx-mark-scan-pat-daemon',
+  VxMarkScanControllerDaemon = 'vx-mark-scan-controller-daemon',
+  VxBallotActivationFrontend = 'vx-ballot-activation-frontend',
+  VxBallotActivationService = 'vx-ballot-activation-service',
+  VxScanService = 'vx-scan-service',
+  VxDevelopmentScript = 'vx-development-script',
+  VxPollbookFrontend = 'vx-pollbook-frontend',
+  VxPollbookBackend = 'vx-pollbook-backend',
+}
+export enum LogEventType {
+  UserAction = 'user-action',
+  SystemAction = 'system-action',
+  SystemStatus = 'system-status',
+  ApplicationStatus = 'application-status',
+  ApplicationAction = 'application-action',
+}
 export enum LogEventId {
   ElectionConfigured = 'election-configured',
   ElectionUnconfigured = 'election-unconfigured',
@@ -1422,5 +1472,53 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ApiCall;
     default:
       throwIllegalValue(eventId);
+  }
+}
+const UserActionEventDocumentation: LogEventTypeDocumentation = {
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A log that results from a user taking an action, i.e. an election admin uploading an election definition to a machine.',
+};
+
+const SystemActionEventDocumentation: LogEventTypeDocumentation = {
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'A log that results from the system taking some action, i.e. the machine booting.',
+};
+
+const SystemStatusEventDocumentation: LogEventTypeDocumentation = {
+  eventType: LogEventType.SystemStatus,
+  documentationMessage:
+    'A log that results from the system updating on the status of a process it is running, i.e. completion of machine shutdown or boot.',
+};
+
+const ApplicationStatusEventDocumentation: LogEventTypeDocumentation = {
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'Status update or message that the application took without user action.',
+};
+
+const ApplicationActionEventDocumentation: LogEventTypeDocumentation = {
+  eventType: LogEventType.ApplicationAction,
+  documentationMessage:
+    'Action taken by the votingworks application automatically when a certain condition is met. Example: When a new USB drive is detected, the application will automatically mount it.',
+};
+
+export function getDocumentationForEventType(
+  eventType: LogEventType
+): LogEventTypeDocumentation {
+  switch (eventType) {
+    case LogEventType.UserAction:
+      return UserActionEventDocumentation;
+    case LogEventType.SystemAction:
+      return SystemActionEventDocumentation;
+    case LogEventType.SystemStatus:
+      return SystemStatusEventDocumentation;
+    case LogEventType.ApplicationStatus:
+      return ApplicationStatusEventDocumentation;
+    case LogEventType.ApplicationAction:
+      return ApplicationActionEventDocumentation;
+    default:
+      throwIllegalValue(eventType);
   }
 }
