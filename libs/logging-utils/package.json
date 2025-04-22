@@ -1,0 +1,41 @@
+{
+  "name": "@votingworks/logging-utils",
+  "version": "0.0.0",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "napi": {
+    "name": "logging-utils",
+    "triples": {
+      "defaults": false,
+      "additional": [
+        "aarch64-unknown-linux-gnu",
+        "x86_64-unknown-linux-gnu"
+      ]
+    }
+  },
+  "license": "GPL-3.0-only",
+  "devDependencies": {
+    "@napi-rs/cli": "^2.18.4",
+    "@types/tmp": "0.2.4",
+    "@vitest/coverage-istanbul": "^3.1.1",
+    "@votingworks/logging": "workspace:*",
+    "@votingworks/types": "workspace:*",
+    "is-ci-cli": "2.2.0",
+    "tmp": "^0.2.1",
+    "vitest": "^3.1.1"
+  },
+  "scripts": {
+    "artifacts": "napi artifacts",
+    "build": "is-ci build:ci build:dev",
+    "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
+    "build:dev": "pnpm --filter $npm_package_name... build:self",
+    "build:self": "napi build --platform --release",
+    "build:debug": "napi build --platform",
+    "prepublishOnly": "napi prepublish -t npm",
+    "lint": "cargo clippy",
+    "test": "cargo test && vitest",
+    "universal": "napi universal",
+    "version": "napi version"
+  },
+  "packageManager": "pnpm@8.15.5"
+}
