@@ -211,7 +211,7 @@ describe('pre-printed ballots', () => {
       precinctSelection: singlePrecinctSelectionFor(precinct.id),
     });
     apiMock.expectSetAcceptingPaperState(['BlankPage', 'InterpretedBmdPage']);
-    userEvent.click(screen.getByText("Select voter's precinct…"));
+    userEvent.click(screen.getByText('Select ballot style…'));
     userEvent.click(screen.getByText(precinct.splits[0].name));
     await waitFor(() =>
       expect(activateCardlessVoterSessionMock).toHaveBeenCalledOnce()
@@ -248,7 +248,7 @@ describe('pre-printed ballots', () => {
       precinctSelection: ALL_PRECINCTS_SELECTION,
     });
     apiMock.expectSetAcceptingPaperState(['BlankPage', 'InterpretedBmdPage']);
-    userEvent.click(screen.getByText("Select voter's precinct…"));
+    userEvent.click(screen.getByText('Select ballot style…'));
     userEvent.click(screen.getByText(precinct1.name));
     await waitFor(() =>
       expect(activateCardlessVoterSessionMock).toHaveBeenCalledOnce()
