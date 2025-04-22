@@ -1,4 +1,4 @@
-/* istanbul ignore file - presentational component */
+/* istanbul ignore file - @preserve - presentational component */
 
 import React from 'react';
 import styled, { DefaultTheme } from 'styled-components';

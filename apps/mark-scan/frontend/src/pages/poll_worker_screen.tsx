@@ -9,11 +9,16 @@ import {
   InsertedSmartCardAuth,
   PrecinctSelection,
   VotesDict,
+  hasSplits,
+  getPrecinctById,
+  getPrecinctSplitById,
+  PrecinctOrSplit,
   getBallotStyle,
+  PrecinctWithoutSplits,
+  PrecinctSplit,
 } from '@votingworks/types';
 import {
   Button,
-  ButtonList,
   Main,
   Modal,
   Screen,
@@ -26,7 +31,6 @@ import {
   H4,
   Icons,
   H3,
-  H6,
   SearchSelect,
   SignedHashValidationButton,
   RemoveCardImage,
@@ -40,8 +44,9 @@ import {
   getPollTransitionsFromState,
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
-  getGroupedBallotStyles,
   format,
+  getPrecinctsAndSplitsForBallotStyle,
+  getBallotStyleGroupForPrecinctOrSplit,
 } from '@votingworks/utils';
 
 import type {
@@ -50,6 +55,7 @@ import type {
 } from '@votingworks/mark-scan-backend';
 import styled from 'styled-components';
 import {
+  assert,
   assertDefined,
   DateWithoutTime,
   find,
@@ -219,18 +225,7 @@ export function PollWorkerScreen({
   const stateMachineState = getStateMachineStateQuery.data;
 
   const setAcceptingPaperStateMutation = setAcceptingPaperState.useMutation();
-  const [selectedCardlessVoterPrecinctId, setSelectedCardlessVoterPrecinctId] =
-    useState<PrecinctId | undefined>(
-      precinctSelection.kind === 'SinglePrecinct'
-        ? precinctSelection.precinctId
-        : undefined
-    );
 
-  const precinctBallotStyles = selectedCardlessVoterPrecinctId
-    ? getGroupedBallotStyles(election.ballotStyles).filter((group) =>
-        group.precincts.includes(selectedCardlessVoterPrecinctId)
-      )
-    : [];
   /*
    * Various state parameters to handle controlling when certain modals on the page are open or not.
    */
@@ -247,20 +242,21 @@ export function PollWorkerScreen({
   }
 
   const mutateAcceptingPaperState = setAcceptingPaperStateMutation.mutate;
-  const onChooseBallotStyle = React.useCallback(
-    (ballotStyleId: BallotStyleId) =>
+  const onChoosePrecinctOrSplit = React.useCallback(
+    (precinctOrSplit: PrecinctOrSplit) => {
       mutateAcceptingPaperState(ACCEPTING_ALL_PAPER_TYPES_PARAMS, {
-        onSuccess: () =>
+        onSuccess: () => {
           activateCardlessVoterSession(
-            assertDefined(selectedCardlessVoterPrecinctId),
-            ballotStyleId
-          ),
-      }),
-    [
-      activateCardlessVoterSession,
-      selectedCardlessVoterPrecinctId,
-      mutateAcceptingPaperState,
-    ]
+            precinctOrSplit.precinct.id,
+            getBallotStyleGroupForPrecinctOrSplit({
+              election,
+              precinctOrSplit,
+            }).defaultLanguageBallotStyle.id
+          );
+        },
+      });
+    },
+    [activateCardlessVoterSession, mutateAcceptingPaperState, election]
   );
 
   // TODO(kofi): Remove once we've added mock paper handler functionality to the
@@ -313,7 +309,16 @@ export function PollWorkerScreen({
 
   if (pollWorkerAuth.cardlessVoterUser) {
     const { precinctId, ballotStyleId } = pollWorkerAuth.cardlessVoterUser;
-    const precinct = find(election.precincts, (p) => p.id === precinctId);
+    const ballotStyle = assertDefined(
+      getBallotStyle({ election, ballotStyleId })
+    );
+    const precinctOrSplit = find(
+      getPrecinctsAndSplitsForBallotStyle({ election, ballotStyle }),
+      ({ precinct }) => precinct.id === precinctId
+    );
+    const precinctOrSplitName = precinctOrSplit.split
+      ? electionStrings.precinctSplitName(precinctOrSplit.split)
+      : electionStrings.precinctName(precinctOrSplit.precinct);
 
     if (
       hasVotes &&
@@ -330,17 +335,7 @@ export function PollWorkerScreen({
         >
           <P weight="bold">Remove card to continue voting session.</P>
           <P>
-            Precinct: {electionStrings.precinctName(precinct)}
-            <br />
-            Ballot Style:{' '}
-            {electionStrings.ballotStyleId(
-              assertDefined(
-                getBallotStyle({
-                  ballotStyleId,
-                  election,
-                })
-              )
-            )}
+            <Font weight="semiBold">Precinct:</Font> {precinctOrSplitName}
           </P>
           <P>
             <ResetVoterSessionButton>Reset Ballot</ResetVoterSessionButton>
@@ -377,13 +372,7 @@ export function PollWorkerScreen({
           voterFacing={false}
         >
           <P>
-            <Font weight="semiBold">Precinct:</Font>{' '}
-            {electionStrings.precinctName(precinct)}
-            <br />
-            <Font weight="semiBold">Ballot Style:</Font>{' '}
-            {electionStrings.ballotStyleId(
-              assertDefined(getBallotStyle({ ballotStyleId, election }))
-            )}
+            <Font weight="semiBold">Precinct:</Font> {precinctOrSplitName}
           </P>
         </CenteredCardPageLayout>
       );
@@ -391,6 +380,18 @@ export function PollWorkerScreen({
 
     return null;
   }
+
+  const configuredPrecinctsAndSplits = election.precincts
+    .filter(
+      (precinct) =>
+        precinctSelection.kind === 'AllPrecincts' ||
+        (precinctSelection.kind === 'SinglePrecinct' &&
+          precinctSelection.precinctId === precinct.id)
+    )
+    .flatMap(
+      (precinct): ReadonlyArray<PrecinctWithoutSplits | PrecinctSplit> =>
+        hasSplits(precinct) ? precinct.splits : [precinct]
+    );
 
   return (
     <Screen>
@@ -408,46 +409,51 @@ export function PollWorkerScreen({
             <React.Fragment>
               <VotingSession>
                 <H4 as="h2">Start a New Voting Session</H4>
-                {precinctSelection.kind === 'AllPrecincts' && (
-                  <React.Fragment>
-                    <H6 as="h3">1. Select Voter’s Precinct</H6>
-                    <SearchSelect
-                      placeholder="Select a precinct…"
-                      options={election.precincts.map((precinct) => ({
-                        label: precinct.name,
-                        value: precinct.id,
-                      }))}
-                      value={selectedCardlessVoterPrecinctId}
-                      onChange={(value) =>
-                        setSelectedCardlessVoterPrecinctId(value)
-                      }
-                      style={{ width: '100%' }}
-                    />
-                  </React.Fragment>
-                )}
-                <H6 as="h3">
-                  {precinctSelection.kind === 'AllPrecincts' ? '2. ' : ''}
-                  Select Voter’s Ballot Style
-                </H6>
-                {selectedCardlessVoterPrecinctId ? (
-                  <ButtonList data-testid="ballot-styles">
-                    {precinctBallotStyles.map((ballotStyleGroup) => (
+                {configuredPrecinctsAndSplits.length === 1 ? (
+                  (() => {
+                    const [precinct] = configuredPrecinctsAndSplits;
+                    return (
                       <Button
-                        key={ballotStyleGroup.id}
-                        onPress={onChooseBallotStyle}
-                        value={ballotStyleGroup.defaultLanguageBallotStyle.id}
+                        onPress={() => onChoosePrecinctOrSplit({ precinct })}
+                        rightIcon="Next"
                       >
-                        {electionStrings.ballotStyleId(
-                          ballotStyleGroup.defaultLanguageBallotStyle
-                        )}
+                        Start Voting Session:{' '}
+                        {electionStrings.precinctName(precinct)}
                       </Button>
-                    ))}
-                  </ButtonList>
+                    );
+                  })()
                 ) : (
-                  <Caption>
-                    <Icons.Info /> Select the voter’s precinct above to view
-                    ballot styles for the precinct.
-                  </Caption>
+                  <SearchSelect
+                    placeholder="Select voter's precinct…"
+                    options={configuredPrecinctsAndSplits.map(
+                      ({ name, id }) => ({
+                        label: name,
+                        value: id,
+                      })
+                    )}
+                    value=""
+                    onChange={(value) => {
+                      assert(value !== undefined);
+                      const split = getPrecinctSplitById({
+                        election,
+                        precinctSplitId: value,
+                      });
+                      const precinct = assertDefined(
+                        getPrecinctById({
+                          election,
+                          precinctId: split ? split.precinctId : value,
+                        })
+                      );
+                      if (split) {
+                        assert(hasSplits(precinct));
+                        onChoosePrecinctOrSplit({ precinct, split });
+                      } else {
+                        assert(!hasSplits(precinct));
+                        onChoosePrecinctOrSplit({ precinct });
+                      }
+                    }}
+                    style={{ width: '100%' }}
+                  />
                 )}
               </VotingSession>
               <VotingSession>

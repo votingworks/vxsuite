@@ -180,7 +180,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   userEvent.click(
     within(await screen.findByRole('alertdialog')).getButton('Open Polls')
   );
-  await screen.findByText('Select Voter’s Ballot Style');
+  await screen.findByText('Start a New Voting Session');
 
   // Close polls:
   await screen.findByText('Close Polls');
@@ -199,7 +199,11 @@ test('MarkAndPrint end-to-end flow', async () => {
     .expectCallWith({ ballotStyleId: '12' as BallotStyleId, precinctId: '23' })
     .resolves();
   apiMock.expectSetAcceptingPaperState();
-  userEvent.click(await screen.findByText('12'));
+  userEvent.click(
+    await screen.findByText(
+      hasTextAcrossElements(`Start Voting Session: ${precinctName}`)
+    )
+  );
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12' as BallotStyleId,
@@ -214,7 +218,6 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   await findByTextWithMarkup('Number of contests on your ballot: 20');
   screen.getByText(/Center Springfield/);
-  screen.getByText(/(12)/);
 
   // Start Voting
   userEvent.click(screen.getByText('Start Voting'));

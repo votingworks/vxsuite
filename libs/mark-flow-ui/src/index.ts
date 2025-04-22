@@ -1,4 +1,3 @@
-/* istanbul ignore file - no real logic here */
 export * from './components/button_footer';
 export * from './components/contest';
 export * from './components/voter_settings_button';

@@ -214,7 +214,6 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   await findByTextWithMarkup('Number of contests on your ballot: 20');
   screen.getByText(/Center Springfield/);
-  screen.getByText(/(12)/);
 
   // Start Voting
   userEvent.click(screen.getByText('Start Voting'));

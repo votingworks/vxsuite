@@ -1,4 +1,4 @@
-/* istanbul ignore file - tested via Mark/Mark-Scan */
+/* istanbul ignore file - @preserve - tested via Mark/Mark-Scan */
 import styled from 'styled-components';
 import {
   LinkButton,

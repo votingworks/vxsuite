@@ -7,12 +7,7 @@ import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { BallotStyleId } from '@votingworks/types';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import {
-  fireEvent,
-  render,
-  screen,
-  within,
-} from '../test/react_testing_library';
+import { fireEvent, render, screen } from '../test/react_testing_library';
 
 import { App } from './app';
 
@@ -44,11 +39,6 @@ function mockLoadPaper() {
   apiMock.setPaperHandlerState('waiting_for_ballot_data');
 }
 
-async function awaitRenderAndClickBallotStyle(): Promise<void> {
-  const ballotStylesElement = await screen.findByTestId('ballot-styles');
-  fireEvent.click(within(ballotStylesElement).getByText('12'));
-}
-
 const CENTER_SPRINGFIELD_PRECINCT_SELECTION = singlePrecinctSelectionFor('23');
 
 test('Cardless Voting Flow', async () => {
@@ -69,12 +59,18 @@ test('Cardless Voting Flow', async () => {
 
   // Activate Voter Session for Cardless Voter
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
-  await screen.findByText('Select Voter’s Ballot Style');
+  await screen.findByText('Start a New Voting Session');
+
   apiMock.mockApiClient.startCardlessVoterSession
     .expectCallWith({ ballotStyleId: '12' as BallotStyleId, precinctId: '23' })
     .resolves();
   apiMock.expectSetAcceptingPaperState();
-  await awaitRenderAndClickBallotStyle();
+  userEvent.click(
+    screen.getByText(
+      hasTextAcrossElements('Start Voting Session: Center Springfield')
+    )
+  );
+
   apiMock.setPaperHandlerState('accepting_paper');
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
@@ -82,8 +78,6 @@ test('Cardless Voting Flow', async () => {
       precinctId: '23',
     },
   });
-  screen.getByText(/(12)/);
-
   await screen.findByText('Load Ballot Sheet');
   screen.getButton('Start a New Voting Session');
   mockLoadPaper();
@@ -93,14 +87,19 @@ test('Cardless Voting Flow', async () => {
   const cancelButton = await screen.findByText('Cancel Voting Session');
   userEvent.click(cancelButton);
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
-  await screen.findByText('Select Voter’s Ballot Style');
+  await screen.findByText('Start a New Voting Session');
 
   // Poll worker reactivates ballot style
   apiMock.mockApiClient.startCardlessVoterSession
     .expectCallWith({ ballotStyleId: '12' as BallotStyleId, precinctId: '23' })
     .resolves();
   apiMock.expectSetAcceptingPaperState();
-  await awaitRenderAndClickBallotStyle();
+  userEvent.click(
+    screen.getByText(
+      hasTextAcrossElements('Start Voting Session: Center Springfield')
+    )
+  );
+
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12' as BallotStyleId,
@@ -117,7 +116,7 @@ test('Cardless Voting Flow', async () => {
 
   // Voter Ballot Style is active
   await findByTextWithMarkup('Number of contests on your ballot: 20');
-  screen.getByText(/(12)/);
+  screen.getByText('Center Springfield');
   fireEvent.click(screen.getByText('Start Voting'));
 
   // Voter votes in first contest
@@ -139,14 +138,19 @@ test('Cardless Voting Flow', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
 
   // Back on poll worker screen
-  await screen.findByText('Select Voter’s Ballot Style');
+  await screen.findByText('Start a New Voting Session');
 
   // Activates Ballot Style again
   apiMock.mockApiClient.startCardlessVoterSession
     .expectCallWith({ ballotStyleId: '12' as BallotStyleId, precinctId: '23' })
     .resolves();
   apiMock.expectSetAcceptingPaperState();
-  await awaitRenderAndClickBallotStyle();
+  userEvent.click(
+    screen.getByText(
+      hasTextAcrossElements('Start Voting Session: Center Springfield')
+    )
+  );
+
   mockLoadPaper();
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
@@ -156,7 +160,6 @@ test('Cardless Voting Flow', async () => {
   });
   await screen.findByText('Remove Card to Begin Voting Session');
   screen.getByText(hasTextAcrossElements(/Precinct: Center Springfield/));
-  screen.getByText(hasTextAcrossElements(/Ballot Style: 12/));
 
   // Poll worker removes their card
   apiMock.setAuthStatusCardlessVoterLoggedIn({
@@ -166,7 +169,7 @@ test('Cardless Voting Flow', async () => {
 
   // Voter Ballot Style is active
   await findByTextWithMarkup('Number of contests on your ballot: 20');
-  screen.getByText(/(12)/);
+  screen.getByText('Center Springfield');
   fireEvent.click(screen.getByText('Start Voting'));
 
   // Voter makes selection in first contest and then advances to review screen
@@ -214,7 +217,7 @@ test('Cardless Voting Flow', async () => {
   await screen.findByText('Insert Card');
 });
 
-test('in "All Precincts" mode, poll worker must select a precinct first', async () => {
+test('in "All Precincts" mode, poll worker must select a precinct', async () => {
   const electionDefinition = readElectionGeneralDefinition();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
@@ -230,25 +233,76 @@ test('in "All Precincts" mode, poll worker must select a precinct first', async 
   // ---------------
   // Activate Voter Session for Cardless Voter
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
-  await screen.findByText('1. Select Voter’s Precinct');
-  userEvent.click(screen.getByText('Select a precinct…'));
-  userEvent.click(screen.getByText('Center Springfield'));
+  await screen.findByText('Start a New Voting Session');
+  userEvent.click(screen.getByText("Select voter's precinct…"));
 
-  screen.getByText('2. Select Voter’s Ballot Style');
   apiMock.mockApiClient.startCardlessVoterSession
     .expectCallWith({ ballotStyleId: '12' as BallotStyleId, precinctId: '23' })
     .resolves();
   apiMock.expectSetAcceptingPaperState();
-  await awaitRenderAndClickBallotStyle();
-  apiMock.setPaperHandlerState('accepting_paper');
+  userEvent.click(screen.getByText('Center Springfield'));
 
+  apiMock.setPaperHandlerState('accepting_paper');
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12' as BallotStyleId,
       precinctId: '23',
     },
   });
-  screen.getByText(/(12)/);
+  await screen.findByText('Load Ballot Sheet');
+});
+
+test('selecting a precinct split', async () => {
+  const electionDefinition = readElectionGeneralDefinition();
+  apiMock.expectGetMachineConfig();
+  apiMock.expectGetSystemSettings();
+  apiMock.expectGetElectionRecord(electionDefinition);
+  apiMock.expectGetElectionState({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollsState: 'polls_open',
+  });
+  render(<App apiClient={apiMock.mockApiClient} />);
+
+  await screen.findByText('Insert Card');
+
+  // ---------------
+  // Activate Voter Session for Cardless Voter
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
+  await screen.findByText('Start a New Voting Session');
+  userEvent.click(screen.getByText("Select voter's precinct…"));
+
+  apiMock.mockApiClient.startCardlessVoterSession
+    .expectCallWith({ ballotStyleId: '5' as BallotStyleId, precinctId: '21' })
+    .resolves();
+  apiMock.expectSetAcceptingPaperState();
+  userEvent.click(screen.getByText('North Springfield - Split 1'));
+
+  apiMock.setPaperHandlerState('accepting_paper');
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
+    cardlessVoterUserParams: {
+      ballotStyleId: '5' as BallotStyleId,
+      precinctId: '21',
+    },
+  });
 
   await screen.findByText('Load Ballot Sheet');
+  mockLoadPaper();
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
+    cardlessVoterUserParams: {
+      ballotStyleId: '5' as BallotStyleId,
+      precinctId: '21',
+    },
+  });
+  await screen.findByText('Remove Card to Begin Voting Session');
+  screen.getByText(
+    hasTextAcrossElements(/Precinct: North Springfield - Split 1/)
+  );
+
+  // Poll worker removes their card
+  apiMock.setAuthStatusCardlessVoterLoggedIn({
+    ballotStyleId: '5' as BallotStyleId,
+    precinctId: '21',
+  });
+  // Voter Ballot Style is active
+  screen.getByText('North Springfield - Split 1');
 });
