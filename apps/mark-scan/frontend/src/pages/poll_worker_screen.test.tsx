@@ -6,11 +6,12 @@ import {
 import {
   ElectionDefinition,
   formatElectionHashes,
+  hasSplits,
   InsertedSmartCardAuth,
 } from '@votingworks/types';
 
 import {
-  generateBallotStyleId,
+  ALL_PRECINCTS_SELECTION,
   getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
@@ -20,9 +21,9 @@ import {
 } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 
-import { assertDefined, DateWithoutTime } from '@votingworks/basics';
+import { assert, DateWithoutTime } from '@votingworks/basics';
 import { SimpleServerStatus } from '@votingworks/mark-scan-backend';
-import { fireEvent, screen } from '../../test/react_testing_library';
+import { fireEvent, screen, waitFor } from '../../test/react_testing_library';
 
 import { render } from '../../test/test_utils';
 
@@ -178,50 +179,112 @@ test('returns null if status is unhandled', () => {
   expect(screen.queryByText('Poll Worker Menu')).toBeNull();
 });
 
-test('displays only default English ballot styles', async () => {
-  const baseElection = electionGeneralDefinition.election;
-
-  const ballotLanguages = ['en', 'es-US'];
-  const [ballotStyleEnglish, ballotStyleSpanish] = ballotLanguages.map((l) => ({
-    ...baseElection.ballotStyles[0],
-    id: generateBallotStyleId({ ballotStyleIndex: 1, languages: [l] }),
-    languages: [l],
-  }));
-
-  const electionDefinition: ElectionDefinition = {
-    ...electionGeneralDefinition,
-    election: {
-      ...baseElection,
-      ballotStyles: [ballotStyleEnglish, ballotStyleSpanish],
-    },
-  };
-  renderScreen({
-    pollsState: 'polls_open',
-    machineConfig: mockMachineConfig(),
-    pollWorkerAuth: mockPollWorkerAuth(electionDefinition),
-    electionDefinition,
-  });
-
-  await screen.findByText(hasTextAcrossElements('Select Voter’s Ballot Style'));
-
-  screen.getButton(ballotStyleEnglish.groupId);
-  expect(
-    screen.queryByRole('button', { name: ballotStyleSpanish.id })
-  ).not.toBeInTheDocument();
-});
 describe('pre-printed ballots', () => {
-  test('start new session with blank sheet', () => {
-    renderScreen({ electionDefinition: electionGeneralDefinition });
-
-    const ballotStyle = assertDefined(
-      electionGeneralDefinition.election.ballotStyles[0]
-    );
+  test('start new session with blank sheet: single precinct configuration', async () => {
+    const precinct = electionGeneralDefinition.election.precincts[0];
+    const ballotStyle = electionGeneralDefinition.election.ballotStyles[0];
+    const activateCardlessVoterSessionMock = vi.fn();
+    renderScreen({
+      electionDefinition: electionGeneralDefinition,
+      activateCardlessVoterSession: activateCardlessVoterSessionMock,
+    });
     apiMock.expectSetAcceptingPaperState(['BlankPage', 'InterpretedBmdPage']);
-
-    userEvent.click(screen.getButton(ballotStyle.groupId));
+    userEvent.click(screen.getButton(`Start Voting Session: ${precinct.name}`));
+    await waitFor(() =>
+      expect(activateCardlessVoterSessionMock).toHaveBeenCalledOnce()
+    );
+    expect(activateCardlessVoterSessionMock).toHaveBeenCalledWith(
+      precinct.id,
+      ballotStyle.id
+    );
   });
 
-  test('can insert pre-printed ballots without ballot style selection', () => {
+  test('start new session with blank sheet: single precinct configuration with splits', async () => {
+    const precinct = electionGeneralDefinition.election.precincts[1];
+    assert(hasSplits(precinct));
+    const [ballotStyle1, ballotStyle2] =
+      electionGeneralDefinition.election.ballotStyles;
+    const activateCardlessVoterSessionMock = vi.fn();
+    renderScreen({
+      electionDefinition: electionGeneralDefinition,
+      activateCardlessVoterSession: activateCardlessVoterSessionMock,
+      precinctSelection: singlePrecinctSelectionFor(precinct.id),
+    });
+    apiMock.expectSetAcceptingPaperState(['BlankPage', 'InterpretedBmdPage']);
+    userEvent.click(screen.getByText("Select voter's precinct…"));
+    userEvent.click(screen.getByText(precinct.splits[0].name));
+    await waitFor(() =>
+      expect(activateCardlessVoterSessionMock).toHaveBeenCalledOnce()
+    );
+    expect(activateCardlessVoterSessionMock).toHaveBeenLastCalledWith(
+      precinct.id,
+      ballotStyle2.id
+    );
+
+    // Reopen dropdown to select another option. (Normally activating the session
+    // would navigate away from the screen, so this is just a shortcut for
+    // testing, not a realistic flow)
+    apiMock.expectSetAcceptingPaperState(['BlankPage', 'InterpretedBmdPage']);
+    userEvent.click(screen.getByText(precinct.splits[0].name));
+    userEvent.click(screen.getByText(precinct.splits[1].name));
+    await waitFor(() =>
+      expect(activateCardlessVoterSessionMock).toHaveBeenCalledTimes(2)
+    );
+    expect(activateCardlessVoterSessionMock).toHaveBeenLastCalledWith(
+      precinct.id,
+      ballotStyle1.id
+    );
+  });
+
+  test('start new session with blank sheet: all precincts configuration', async () => {
+    const [precinct1, precinct2] = electionGeneralDefinition.election.precincts;
+    assert(hasSplits(precinct2));
+    const [ballotStyle1, ballotStyle2] =
+      electionGeneralDefinition.election.ballotStyles;
+    const activateCardlessVoterSessionMock = vi.fn();
+    renderScreen({
+      electionDefinition: electionGeneralDefinition,
+      activateCardlessVoterSession: activateCardlessVoterSessionMock,
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+    });
+    apiMock.expectSetAcceptingPaperState(['BlankPage', 'InterpretedBmdPage']);
+    userEvent.click(screen.getByText("Select voter's precinct…"));
+    userEvent.click(screen.getByText(precinct1.name));
+    await waitFor(() =>
+      expect(activateCardlessVoterSessionMock).toHaveBeenCalledOnce()
+    );
+    expect(activateCardlessVoterSessionMock).toHaveBeenLastCalledWith(
+      precinct1.id,
+      ballotStyle1.id
+    );
+
+    // Reopen dropdown to select another option. (Normally activating the session
+    // would navigate away from the screen, so this is just a shortcut for
+    // testing, not a realistic flow)
+    apiMock.expectSetAcceptingPaperState(['BlankPage', 'InterpretedBmdPage']);
+    userEvent.click(screen.getByText(precinct1.name));
+    userEvent.click(screen.getByText(precinct2.splits[0].name));
+    await waitFor(() =>
+      expect(activateCardlessVoterSessionMock).toHaveBeenCalledOnce()
+    );
+    expect(activateCardlessVoterSessionMock).toHaveBeenLastCalledWith(
+      precinct2.id,
+      ballotStyle2.id
+    );
+
+    apiMock.expectSetAcceptingPaperState(['BlankPage', 'InterpretedBmdPage']);
+    userEvent.click(screen.getByText(precinct2.splits[0].name));
+    userEvent.click(screen.getByText(precinct2.splits[1].name));
+    await waitFor(() =>
+      expect(activateCardlessVoterSessionMock).toHaveBeenCalledTimes(2)
+    );
+    expect(activateCardlessVoterSessionMock).toHaveBeenLastCalledWith(
+      precinct2.id,
+      ballotStyle1.id
+    );
+  });
+
+  test('can insert pre-printed ballots', () => {
     renderScreen();
 
     apiMock.expectSetAcceptingPaperState(['InterpretedBmdPage']);
