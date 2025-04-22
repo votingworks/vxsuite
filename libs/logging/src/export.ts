@@ -5,10 +5,9 @@ import {
   safeParse,
   safeParseJson,
 } from '@votingworks/types';
-import { JsonStreamInput, jsonStream } from '@votingworks/utils';
+import { JsonStreamInput, RawJson, jsonStream } from '@votingworks/utils';
 import { z } from 'zod';
 import { LogEventId } from './log_event_ids';
-// import { CLIENT_SIDE_LOG_SOURCES } from './base_types/log_source';
 import { DEVICE_TYPES_FOR_APP, LogLineSchema } from './types';
 import { Logger } from './logger';
 
@@ -41,10 +40,14 @@ function extractAdditionalKeysFromObj(
     }, baseDict);
 }
 
+const EventDispositionTypeSchema = z.nativeEnum(
+  EventLogging.EventDispositionType
+);
+
 async function* generateCdfEventsForExport(
   logger: Logger,
   logFileReader: AsyncIterable<string>
-): AsyncGenerator<EventLogging.Event> {
+): AsyncGenerator<RawJson> {
   const logs = lines(logFileReader).filter((l) => l !== '');
   for await (const [idx, log] of logs.enumerate()) {
     const decodedLogResult = safeParseJson(log, LogLineSchema);
@@ -66,7 +69,7 @@ async function* generateCdfEventsForExport(
     );
 
     const standardDispositionResult = safeParse(
-      z.nativeEnum(EventLogging.EventDispositionType),
+      EventDispositionTypeSchema,
       decodedLog.disposition
     );
     const disposition = standardDispositionResult.isOk()
@@ -90,7 +93,7 @@ async function* generateCdfEventsForExport(
       }),
       UserId: decodedLog.user,
     };
-    yield cdfEvent;
+    yield new RawJson(JSON.stringify(cdfEvent));
   }
 }
 

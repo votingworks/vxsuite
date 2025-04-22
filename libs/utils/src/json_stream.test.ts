@@ -1,7 +1,12 @@
 import { expect, test } from 'vitest';
 import { integers, iter } from '@votingworks/basics';
 import * as fc from 'fast-check';
-import { jsonStream, JsonStreamInput, JsonStreamOptions } from './json_stream';
+import {
+  jsonStream,
+  JsonStreamInput,
+  JsonStreamOptions,
+  RawJson,
+} from './json_stream';
 
 async function asString<T>(
   input: JsonStreamInput<T>,
@@ -201,6 +206,25 @@ test('delegates to toJSON', async () => {
           )
         )
       ).toEqual(JSON.parse(JSON.stringify(input)));
+    })
+  );
+});
+
+test('RawJson', async () => {
+  function* items() {
+    yield new RawJson(JSON.stringify({ item: 0 }));
+    yield { item: 1 };
+  }
+
+  expect(
+    await asString({
+      foo: 'bar',
+      items: items(),
+    })
+  ).toEqual(
+    JSON.stringify({
+      foo: 'bar',
+      items: [{ item: 0 }, { item: 1 }],
     })
   );
 });
