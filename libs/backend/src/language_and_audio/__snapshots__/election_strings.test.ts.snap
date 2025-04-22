@@ -104,6 +104,10 @@ exports[`extractAndTranslateElectionStrings > should extract and translate elect
     "precinct-c1-w2": "Precinct 3",
     "precinct-c2": "Precinct 4",
   },
+  "precinctSplitName": {
+    "precinct-c2-split-1": "Precinct 4 - Split 1",
+    "precinct-c2-split-2": "Precinct 4 - Split 2",
+  },
   "stateName": "State of Sample",
 }
 `;
@@ -230,6 +234,10 @@ exports[`extractAndTranslateElectionStrings > should extract and translate elect
     "precinct-c1-w1-2": "Precinct 2 (in es-US)",
     "precinct-c1-w2": "Precinct 3 (in es-US)",
     "precinct-c2": "Precinct 4 (in es-US)",
+  },
+  "precinctSplitName": {
+    "precinct-c2-split-1": "Precinct 4 - Split 1 (in es-US)",
+    "precinct-c2-split-2": "Precinct 4 - Split 2 (in es-US)",
   },
   "stateName": "State of Sample (in es-US)",
 }

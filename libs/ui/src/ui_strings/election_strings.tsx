@@ -11,6 +11,7 @@ import {
   ElectionStringKey as Key,
   Party,
   Precinct,
+  PrecinctSplit,
   YesNoOption,
 } from '@votingworks/types';
 import { format } from '@votingworks/utils';
@@ -122,9 +123,17 @@ export const electionStrings = {
     </UiString>
   ),
 
+  [Key.PRECINCT_SPLIT_NAME]: (split: PrecinctSplit) => (
+    <UiString uiStringKey={Key.PRECINCT_SPLIT_NAME} uiStringSubKey={split.id}>
+      {split.name}
+    </UiString>
+  ),
+
   [Key.STATE_NAME]: (election: Election) => (
     <UiString uiStringKey={Key.STATE_NAME}>{election.state}</UiString>
   ),
-} as const;
-// TODO(kofi): Update esbuild so we can use the `satisfies` operator here:
-// } satisfies Record<Key, unknown>;
+} satisfies Record<
+  Key,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (..._args: any[]) => JSX.Element
+>;

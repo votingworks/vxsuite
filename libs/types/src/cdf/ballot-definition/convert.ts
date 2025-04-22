@@ -315,6 +315,20 @@ const extractorFns: Record<
     }
   },
 
+  [ElectionStringKey.PRECINCT_SPLIT_NAME](cdfElection, uiStrings) {
+    for (const gpUnit of cdfElection.GpUnit) {
+      if (gpUnit.Type !== Cdf.ReportingUnitType.SplitPrecinct) {
+        continue;
+      }
+
+      setInternationalizedUiStrings({
+        stringKey: [ElectionStringKey.PRECINCT_SPLIT_NAME, gpUnit['@id']],
+        uiStrings,
+        values: gpUnit.Name.Text,
+      });
+    }
+  },
+
   [ElectionStringKey.STATE_NAME](cdfElection, uiStrings) {
     const state = cdfElection.GpUnit.find(
       (gpUnit) => gpUnit.Type === Cdf.ReportingUnitType.State

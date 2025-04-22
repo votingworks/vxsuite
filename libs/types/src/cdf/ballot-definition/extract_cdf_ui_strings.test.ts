@@ -554,6 +554,63 @@ const tests: Record<ElectionStringKey, () => void> = {
     });
   },
 
+  [ElectionStringKey.PRECINCT_SPLIT_NAME]() {
+    const uiStrings = extractCdfUiStrings({
+      ...testCdfBallotDefinition,
+      GpUnit: [
+        {
+          '@id': 'brooklyn99',
+          '@type': 'BallotDefinition.ReportingUnit',
+          Name: buildInternationalizedText({
+            en: 'Brooklyn Nine-Nine',
+            'es-US': 'Brooklyn Nueve-Nueve',
+          }),
+          Type: BallotDefinition.ReportingUnitType.SplitPrecinct,
+        },
+        {
+          '@id': 'westRiver',
+          '@type': 'BallotDefinition.ReportingUnit',
+          Name: buildInternationalizedText({
+            en: 'West River',
+            'es-US': 'Río Oeste',
+          }),
+          Type: BallotDefinition.ReportingUnitType.SplitPrecinct,
+        },
+        {
+          '@id': 'precinct8',
+          '@type': 'BallotDefinition.ReportingUnit',
+          Name: buildInternationalizedText({
+            en: 'Precinct8',
+          }),
+          Type: BallotDefinition.ReportingUnitType.Precinct,
+        },
+        {
+          '@id': 'district9',
+          '@type': 'BallotDefinition.ReportingUnit',
+          Name: buildInternationalizedText({
+            en: 'District9',
+          }),
+          Type: BallotDefinition.ReportingUnitType.Other,
+        },
+      ],
+    });
+
+    expect(uiStrings).toEqual({
+      en: expect.objectContaining({
+        [ElectionStringKey.PRECINCT_SPLIT_NAME]: {
+          brooklyn99: 'Brooklyn Nine-Nine',
+          westRiver: 'West River',
+        },
+      }),
+      'es-US': expect.objectContaining({
+        [ElectionStringKey.PRECINCT_SPLIT_NAME]: {
+          brooklyn99: 'Brooklyn Nueve-Nueve',
+          westRiver: 'Río Oeste',
+        },
+      }),
+    });
+  },
+
   [ElectionStringKey.STATE_NAME]() {
     const uiStrings = extractCdfUiStrings({
       ...testCdfBallotDefinition,

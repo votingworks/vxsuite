@@ -105,6 +105,10 @@
         "precinct-c1-w2": "Precinct 3",
         "precinct-c2": "Precinct 4"
       },
+      "precinctSplitName": {
+        "precinct-c2-split-1": "Precinct 4 - Split 1",
+        "precinct-c2-split-2": "Precinct 4 - Split 2"
+      },
       "stateName": "State of Sample",
       "ballotLanguage": "English",
       "electionDate": "September 8, 2021",
@@ -192,6 +196,10 @@
         "precinct-c1-w1-2": "第2选区",
         "precinct-c1-w2": "第 3 区",
         "precinct-c2": "第四区"
+      },
+      "precinctSplitName": {
+        "precinct-c2-split-1": "第 4 区 - 第 1 分区",
+        "precinct-c2-split-2": "第四区 - 第二分区"
       },
       "stateName": "样品状态",
       "ballotLanguage": "简体中文",
@@ -281,6 +289,10 @@
         "precinct-c1-w2": "第 3 區",
         "precinct-c2": "第四區"
       },
+      "precinctSplitName": {
+        "precinct-c2-split-1": "第 4 區 - 第 1 分區",
+        "precinct-c2-split-2": "第四區 - 第二分區"
+      },
       "stateName": "樣品狀態",
       "ballotLanguage": "繁體中文",
       "electionDate": "2021年9月8日",
@@ -368,6 +380,10 @@
         "precinct-c1-w1-2": "Distrito Electoral 2",
         "precinct-c1-w2": "Precinto 3",
         "precinct-c2": "Precinto 4"
+      },
+      "precinctSplitName": {
+        "precinct-c2-split-1": "Precinto 4 - División 1",
+        "precinct-c2-split-2": "Precinto 4 - División 2"
       },
       "stateName": "Estado de la muestra",
       "ballotLanguage": "español (EE. UU.)",
