@@ -5,7 +5,6 @@ import {
   deepEqual,
   iter,
   ok,
-  find,
 } from '@votingworks/basics';
 import {
   BallotStyle,
@@ -162,17 +161,17 @@ function hasMatchingDistrictIds(
 }
 
 /**
- * Given a precinct or split, returns its associated ballot style group.
+ * Given a precinct or split, returns its associated ballot style groups (there
+ * may be multiple since each party has a ballot style in a primary election).
  */
-export function getBallotStyleGroupForPrecinctOrSplit({
+export function getBallotStyleGroupsForPrecinctOrSplit({
   election,
   precinctOrSplit,
 }: {
   election: Election;
   precinctOrSplit: PrecinctOrSplit;
-}): BallotStyleGroup {
-  return find(
-    getGroupedBallotStyles(election.ballotStyles),
+}): BallotStyleGroup[] {
+  return getGroupedBallotStyles(election.ballotStyles).filter(
     (ballotStyleGroup) =>
       hasMatchingDistrictIds(ballotStyleGroup, precinctOrSplit)
   );
