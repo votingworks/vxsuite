@@ -97,12 +97,13 @@ const BallotImageViewerControls = styled.div<{ isZoomedIn: boolean }>`
 
 function remToPx(rem: number) {
   const fontSizeResult = safeParseNumber(
-    // trim 'px' from the result
-    getComputedStyle(document.documentElement).fontSize.substring(0, -2)
+    getComputedStyle(document.documentElement).fontSize.substring(
+      0,
+      -'px'.length
+    )
   );
-  // fallback to default of 30
-  /* istanbul ignore next - fallback to default of 30 - @preserve */
-  const fontSize = fontSizeResult.isOk() ? fontSizeResult.ok() : 30;
+  /* istanbul ignore next - @preserve */
+  const fontSize = fontSizeResult.ok() ?? 30;
   return rem * fontSize;
 }
 
@@ -135,7 +136,7 @@ export function BallotZoomImageViewer({
           color="neutral"
           fill="tinted"
         >
-          Zoom {isZoomedIn ? 'Out' : 'In'}
+          {isZoomedIn ? 'Zoom Out' : 'Zoom In'}
         </Button>
       </BallotImageViewerControls>
       {isZoomedIn ? (

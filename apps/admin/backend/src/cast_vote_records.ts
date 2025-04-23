@@ -376,7 +376,7 @@ export async function importCastVoteRecords(
               side: castVoteRecordWriteIn.side || 'front', // BMD ballots are always on the front.
               isUnmarked: castVoteRecordWriteIn.isUnmarked,
               machineMarkedText: castVoteRecordWriteIn.text,
-              isManuallyCreated: false,
+              isUndetected: false,
             });
           }
         }

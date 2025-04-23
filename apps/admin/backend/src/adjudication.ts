@@ -155,9 +155,9 @@ export function adjudicateWriteIn(
       );
       break;
     case 'invalid':
-      // Delete invalid manually created write-in records
-      if (initialWriteInRecord.isManuallyCreated) {
-        store.deleteManualWriteInRecord(initialWriteInRecord);
+      // Delete invalid undetected write-in records, as a user created and deleted it
+      if (initialWriteInRecord.isUndetected) {
+        store.deleteUndetectedWriteInRecord(initialWriteInRecord);
       } else {
         store.setWriteInRecordInvalid(adjudicationAction);
       }
@@ -269,7 +269,7 @@ export function adjudicateCvrContest(
           contestId,
           electionId,
           isUnmarked: true,
-          isManuallyCreated: true,
+          isUndetected: true,
           optionId,
           side,
         });

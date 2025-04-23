@@ -1121,7 +1121,7 @@ export class Store {
     side,
     contestId,
     optionId,
-    isManuallyCreated = false,
+    isUndetected = false,
     isUnmarked = false,
     machineMarkedText = undefined,
   }: {
@@ -1130,7 +1130,7 @@ export class Store {
     side: Side;
     contestId: Id;
     optionId: Id;
-    isManuallyCreated?: boolean;
+    isUndetected?: boolean;
     isUnmarked?: boolean;
     machineMarkedText?: string;
   }): Id {
@@ -1145,7 +1145,7 @@ export class Store {
           side,
           contest_id,
           option_id,
-          is_manually_created,
+          is_undetected,
           is_unmarked,
           machine_marked_text
         ) values (
@@ -1158,7 +1158,7 @@ export class Store {
       side,
       contestId,
       optionId,
-      asSqliteBool(isManuallyCreated),
+      asSqliteBool(isUndetected),
       asSqliteBool(isUnmarked),
       machineMarkedText || null
     );
@@ -2044,7 +2044,7 @@ export class Store {
           write_ins.write_in_candidate_id as writeInCandidateId,
           write_ins.is_invalid as isInvalid,
           write_ins.is_unmarked as isUnmarked,
-          write_ins.is_manually_created as isManuallyCreated,
+          write_ins.is_undetected as isUndetected,
           datetime(write_ins.adjudicated_at, 'localtime') as adjudicatedAt
         from write_ins
         where
@@ -2061,7 +2061,7 @@ export class Store {
       optionId: ContestOptionId;
       isInvalid: SqliteBool;
       isUnmarked: SqliteBool;
-      isManuallyCreated: SqliteBool;
+      isUndetected: SqliteBool;
       officialCandidateId: string | null;
       writeInCandidateId: Id | null;
       adjudicatedAt: Iso8601Timestamp | null;
@@ -2080,7 +2080,7 @@ export class Store {
           adjudicationType: 'official-candidate',
           candidateId: row.officialCandidateId,
           isUnmarked: fromSqliteBool(row.isUnmarked),
-          isManuallyCreated: fromSqliteBool(row.isManuallyCreated),
+          isUndetected: fromSqliteBool(row.isUndetected),
         });
       }
 
@@ -2095,7 +2095,7 @@ export class Store {
           adjudicationType: 'write-in-candidate',
           candidateId: row.writeInCandidateId,
           isUnmarked: fromSqliteBool(row.isUnmarked),
-          isManuallyCreated: fromSqliteBool(row.isManuallyCreated),
+          isUndetected: fromSqliteBool(row.isUndetected),
         });
       }
 
@@ -2109,7 +2109,7 @@ export class Store {
           status: 'adjudicated',
           adjudicationType: 'invalid',
           isUnmarked: fromSqliteBool(row.isUnmarked),
-          isManuallyCreated: fromSqliteBool(row.isManuallyCreated),
+          isUndetected: fromSqliteBool(row.isUndetected),
         });
       }
 
@@ -2121,12 +2121,12 @@ export class Store {
         optionId: row.optionId,
         status: 'pending',
         isUnmarked: fromSqliteBool(row.isUnmarked),
-        isManuallyCreated: fromSqliteBool(row.isManuallyCreated),
+        isUndetected: fromSqliteBool(row.isUndetected),
       });
     });
   }
 
-  deleteManualWriteInRecord({
+  deleteUndetectedWriteInRecord({
     electionId,
     id,
   }: {
@@ -2139,7 +2139,7 @@ export class Store {
         where
           election_id = ? and
           id = ? and
-          is_manually_created = true
+          is_undetected = true
       `,
       electionId,
       id

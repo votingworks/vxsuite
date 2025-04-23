@@ -56,8 +56,8 @@ export function WriteInAdjudicationButton({
   const theme = useTheme();
   const [inputValue, setInputValue] = useState('');
   const normalizedInputValue = normalizeWriteInName(inputValue);
-  function onInputChange(val?: string) {
-    return setInputValue(val || '');
+  function onInputChange(val: string = '') {
+    return setInputValue(val);
   }
 
   const allCandidates = writeInCandidates.concat(officialCandidates);

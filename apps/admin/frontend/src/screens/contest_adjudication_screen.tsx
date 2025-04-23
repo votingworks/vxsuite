@@ -72,7 +72,7 @@ interface ExistingWriteInCandidate {
   name: string;
 }
 
-interface NewCandidate {
+interface NewWriteInCandidate {
   type: 'new';
   name: string;
 }
@@ -88,7 +88,7 @@ interface PendingWriteIn {
 export type WriteInAdjudicationStatus =
   | ExistingOfficialCandidate
   | ExistingWriteInCandidate
-  | NewCandidate
+  | NewWriteInCandidate
   | InvalidWriteIn
   | PendingWriteIn
   | undefined;
@@ -105,7 +105,7 @@ function isValidCandidate(
 ): status is
   | ExistingOfficialCandidate
   | ExistingWriteInCandidate
-  | NewCandidate {
+  | NewWriteInCandidate {
   return (
     status?.type === 'existing-official' ||
     status?.type === 'existing-write-in' ||
@@ -369,7 +369,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const [hasVoteByOptionId, setHasVoteByOptionId] = useState<HasVoteByOptionId>(
     {}
   );
-  const initialHasVoteByOptionIdRef = useRef<HasVoteByOptionId | null>(null);
+  const initialHasVoteByOptionIdRef = useRef<HasVoteByOptionId>();
   function setOptionHasVote(optionId: ContestOptionId, hasVote: boolean) {
     setHasVoteByOptionId((prev) => ({
       ...prev,
@@ -378,8 +378,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
   }
   const [writeInStatusByOptionId, setWriteInStatusByOptionId] =
     useState<WriteInStatusByOptionId>({});
-  const initialWriteInStatusByOptionIdRef =
-    useRef<WriteInStatusByOptionId | null>(null);
+  const initialWriteInStatusByOptionIdRef = useRef<WriteInStatusByOptionId>();
   function setOptionWriteInStatus(
     optionId: ContestOptionId,
     status: WriteInAdjudicationStatus
@@ -590,9 +589,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const voteCount = Object.values(hasVoteByOptionId).filter(Boolean).length;
   const seatCount = contest.seats;
   const isOvervote = voteCount > seatCount;
-  const numPendingWriteIns = writeInOptionIds.filter((optionId) =>
-    isPendingWriteIn(writeInStatusByOptionId[optionId])
-  ).length;
+  const numPendingWriteIns = iter(writeInOptionIds)
+    .filter((optionId) => isPendingWriteIn(writeInStatusByOptionId[optionId]))
+    .count();
   const allWriteInsAdjudicated = numPendingWriteIns === 0;
 
   const firstWriteInImage = writeInImages[0];
@@ -629,7 +628,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
     optionId,
   }: {
     name: string;
-    optionId: string;
+    optionId: ContestOptionId;
   }): DoubleVoteAlert | undefined {
     const normalizedName = normalizeWriteInName(name);
     const existingCandidate = officialCandidates.find(
@@ -834,7 +833,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                   />
                 );
               })}
-              {writeInOptionIds.map((optionId: string) => {
+              {writeInOptionIds.map((optionId) => {
                 const originalVote = originalVotes.includes(optionId);
                 const writeInRecord = writeIns.find(
                   (writeIn) => writeIn.optionId === optionId

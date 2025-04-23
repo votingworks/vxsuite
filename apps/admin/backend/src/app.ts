@@ -686,10 +686,7 @@ function buildApi({
       );
     },
 
-    getWriteIns(input: {
-      cvrId?: string;
-      contestId?: string;
-    }): WriteInRecord[] {
+    getWriteIns(input: { cvrId?: Id; contestId?: ContestId }): WriteInRecord[] {
       return store.getWriteInRecords({
         electionId: loadCurrentElectionIdOrThrow(workspace),
         castVoteRecordId: input.cvrId,
@@ -698,8 +695,8 @@ function buildApi({
     },
 
     getCvrContestWriteInImageViews(input: {
-      cvrId: string;
-      contestId: string;
+      cvrId: Id;
+      contestId: ContestId;
     }): Promise<WriteInImageView[]> {
       return getCvrContestWriteInImageViews({
         store: workspace.store,

@@ -250,7 +250,7 @@ export function createApiMock(
       metadata?: {
         electionDefinition: ElectionDefinition;
         isOfficialResults?: boolean;
-        id?: string;
+        id?: Id;
         createdAt?: string;
         electionPackageHash?: string;
       } | null
@@ -315,7 +315,7 @@ export function createApiMock(
 
     expectGetWriteInCandidates(
       writeInCandidates: WriteInCandidateRecord[],
-      contestId?: string
+      contestId?: ContestId
     ) {
       if (contestId) {
         apiClient.getWriteInCandidates
@@ -329,7 +329,7 @@ export function createApiMock(
     },
 
     expectAddWriteInCandidate(
-      input: { contestId: string; name: string },
+      input: { contestId: ContestId; name: string },
       writeInCandidateRecord: WriteInCandidateRecord
     ) {
       apiClient.addWriteInCandidate
@@ -338,7 +338,7 @@ export function createApiMock(
     },
 
     expectGetCvrContestWriteInImageViews(
-      input: { contestId: string; cvrId: string },
+      input: { contestId: ContestId; cvrId: Id },
       isBmd: boolean,
       numImages: number = 1
     ) {
@@ -396,7 +396,7 @@ export function createApiMock(
     },
 
     expectGetWriteInAdjudicationCvrQueue(
-      input: { contestId: string },
+      input: { contestId: ContestId },
       cvrIds: Id[]
     ) {
       apiClient.getWriteInAdjudicationCvrQueue
@@ -405,8 +405,8 @@ export function createApiMock(
     },
 
     expectGetFirstPendingWriteInCvrId(
-      input: { contestId: string },
-      cvrId: string | null
+      input: { contestId: ContestId },
+      cvrId: Id | null
     ) {
       apiClient.getFirstPendingWriteInCvrId
         .expectCallWith(input)
@@ -414,7 +414,7 @@ export function createApiMock(
     },
 
     expectGetCastVoteRecordVoteInfo(
-      input: { cvrId: string },
+      input: { cvrId: Id },
       votes: Record<ContestId, ContestOptionId[]>
     ) {
       apiClient.getCastVoteRecordVoteInfo
@@ -423,14 +423,14 @@ export function createApiMock(
     },
 
     expectGetWriteIns(
-      input: { contestId: string; cvrId: string },
+      input: { contestId: ContestId; cvrId: Id },
       writeIns: WriteInRecord[]
     ) {
       apiClient.getWriteIns.expectCallWith(input).resolves(writeIns);
     },
 
     expectGetVoteAdjudications(
-      input: { contestId: string; cvrId: string },
+      input: { contestId: ContestId; cvrId: Id },
       voteAdjudications: VoteAdjudication[]
     ) {
       apiClient.getVoteAdjudications

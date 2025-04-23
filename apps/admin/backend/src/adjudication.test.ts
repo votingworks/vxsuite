@@ -56,7 +56,6 @@ test('adjudicateVote', () => {
     mockCastVoteRecordFile,
     store,
   });
-  assert(cvrId !== undefined);
 
   function expectVotes(votes: Tabulation.Votes) {
     const [cvr] = [...store.getCastVoteRecords({ electionId, filter: {} })];
@@ -298,30 +297,31 @@ test('adjudicateWriteIn', () => {
     status: 'pending',
   });
 
-  // create a manual write-in record
-  const manuallyCreatedWriteInRecordId = store.addWriteIn({
+  // create an undetected write-in record
+  const undetectedWriteInRecordId = store.addWriteIn({
     castVoteRecordId: cvrId,
     contestId,
     electionId,
-    isManuallyCreated: true,
+    isUndetected: true,
     optionId: 'write-in-1',
     side: 'front',
   });
   expectWriteInRecord({
-    id: manuallyCreatedWriteInRecordId,
+    id: undetectedWriteInRecordId,
     status: 'pending',
-    isManuallyCreated: true,
+    isUndetected: true,
   });
 
   // it should be deleted when it is adjudicated as invalid
+  // since we don't maintain undetected records marked invalid
   adjudicateWriteIn(
-    { writeInId: manuallyCreatedWriteInRecordId, type: 'invalid' },
+    { writeInId: undetectedWriteInRecordId, type: 'invalid' },
     store,
     logger
   );
   const [writeInRecord] = store.getWriteInRecords({
     electionId,
-    writeInId: manuallyCreatedWriteInRecordId,
+    writeInId: undetectedWriteInRecordId,
   });
   expect(writeInRecord).toBeUndefined();
 });
@@ -475,7 +475,7 @@ test('adjudicateCvrContest', () => {
       adjudicationType: 'write-in-candidate',
       optionId: 'write-in-1',
       candidateId: newWriteInCandidate.id,
-      isManuallyCreated: true,
+      isUndetected: true,
       isUnmarked: true,
     },
   ]);
@@ -504,13 +504,13 @@ test('adjudicateCvrContest', () => {
       adjudicationType: 'write-in-candidate',
       optionId: 'write-in-1',
       candidateId: newWriteInCandidate.id,
-      isManuallyCreated: true,
+      isUndetected: true,
       isUnmarked: true,
     },
   ]);
 
   // normal adjudication to finish, which should delete the write-in record
-  // for the manually created record instead of marking it as invalid
+  // for the undetected write-in record instead of marking it as invalid
   adjudicate({
     lion: { type: 'candidate-option', hasVote: true },
     'write-in-0': {

@@ -1423,7 +1423,7 @@ describe('ballot navigation', () => {
       adjudicationType: 'official-candidate',
       candidateId: 'lion',
       isUnmarked: true,
-      isManuallyCreated: true,
+      isUndetected: true,
     },
     {
       status: 'adjudicated',
