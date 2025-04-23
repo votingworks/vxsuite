@@ -10,7 +10,7 @@ use napi::{
     threadsafe_function::{
         ErrorStrategy, ThreadSafeCallContext, ThreadsafeFunction, ThreadsafeFunctionCallMode,
     },
-    Error, JsFunction, JsObject, JsString, Result, Status,
+    Error, JsFunction, Result, Status,
 };
 use vx_logging::{Disposition, EventId, Source};
 
@@ -25,7 +25,12 @@ extern crate napi_derive;
 /// Convert a VX-formatted log file to a CDF-formatted log file and calls the
 /// provided callback after completion.
 #[napi(ts_args_type = "
-    logger: import('@votingworks/logging').Logger,
+    log: (
+      eventId: import('@votingworks/logging').LogEventId,
+      message: string,
+      disposition: import('@votingworks/logging').LogDisposition
+    ) => void,
+    source: import('@votingworks/logging').LogSource,
     machineId: string,
     codeVersion: string,
     inputPath: string,
@@ -33,29 +38,14 @@ extern crate napi_derive;
     callback: (error: Error | null) => void,
 ")]
 pub fn convert_vx_log_to_cdf(
-    logger: JsObject,
+    log: JsFunction,
+    source: String,
     machine_id: String,
     code_version: String,
     input_path: String,
     output_path: String,
     callback: JsFunction,
 ) -> Result<()> {
-    let Some(get_source) = logger.get::<_, JsFunction>("getSource")? else {
-        return Err(Error::new(
-            Status::InvalidArg,
-            "Logger does not have `getSource` method",
-        ));
-    };
-    let Some(log_as_current_role) = logger.get::<_, JsFunction>("logAsCurrentRole")? else {
-        return Err(Error::new(
-            Status::InvalidArg,
-            "Logger does not have `logAsCurrentRole` method",
-        ));
-    };
-    let source = get_source
-        .apply0::<JsString, _>(&logger)?
-        .into_utf8()?
-        .into_owned()?;
     let source: Source = serde_json::from_value(serde_json::Value::String(source.clone()))
         .map_err(|e| {
             Error::new(
@@ -66,26 +56,20 @@ pub fn convert_vx_log_to_cdf(
     let input_path = PathBuf::from(input_path);
     let output_path = PathBuf::from(output_path);
 
-    let log_as_current_role: ThreadsafeFunction<LogData, ErrorStrategy::Fatal> =
-        log_as_current_role.create_threadsafe_function(0, |ctx| {
+    let log: ThreadsafeFunction<LogData, ErrorStrategy::Fatal> =
+        log.create_threadsafe_function(0, |ctx| {
             let LogData {
                 event_id,
                 message,
                 disposition,
             } = ctx.value;
-            let mut log_data = ctx.env.create_object().expect("create_object succeeds");
-            log_data
-                .set("message", message)
-                .expect("Set `logData.message` succeeds");
-            log_data
-                .set("disposition", disposition.to_string())
-                .expect("Set `logData.disposition` succeeds");
+            let event_id = ctx.env.create_string(&event_id.to_string())?;
+            let message = ctx.env.create_string(&message)?;
+            let disposition = ctx.env.create_string(&disposition.to_string())?;
             Ok(vec![
-                ctx.env
-                    .create_string(&event_id.to_string())
-                    .expect("create_string succeeds")
-                    .into_unknown(),
-                log_data.into_unknown(),
+                event_id.into_unknown(),
+                message.into_unknown(),
+                disposition.into_unknown(),
             ])
         })?;
 
@@ -100,7 +84,7 @@ pub fn convert_vx_log_to_cdf(
             &input_path,
             &output_path,
             |event_id, message, disposition| {
-                log_as_current_role.call(
+                log.call(
                     LogData {
                         event_id,
                         message,

@@ -6,6 +6,7 @@ import {
   LogSource,
   mockLogger,
 } from '@votingworks/logging';
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { EventLogging, safeParseJson } from '@votingworks/types';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -26,7 +27,10 @@ async function convertStringToCdf(
   const outputPath = fileSync().name;
   await new Promise<void>((resolve, reject) => {
     convertVxLogToCdf(
-      logger,
+      (eventId, message, disposition) => {
+        void logger.logAsCurrentRole(eventId, { message, disposition });
+      },
+      logger.getSource(),
       machineId,
       codeVersion,
       inputPath,
@@ -302,4 +306,14 @@ test('read and interpret a real log file as expected', async () => {
     Type: 'system-status',
     UserId: 'system',
   });
+});
+
+test('with a real logger', async () => {
+  const logger = new Logger(LogSource.VxAdminFrontend, () =>
+    Promise.resolve('system')
+  );
+
+  await suppressingConsoleOutput(() =>
+    convertStringToCdf(logger, '12machine34', 'thisisacodeversion', '')
+  );
 });

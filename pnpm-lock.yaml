@@ -4720,6 +4720,9 @@ importers:
       '@votingworks/logging':
         specifier: workspace:*
         version: link:../logging
+      '@votingworks/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
       '@votingworks/types':
         specifier: workspace:*
         version: link:../types
