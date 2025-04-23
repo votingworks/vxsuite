@@ -335,7 +335,7 @@ export function PollWorkerScreen({
         >
           <P weight="bold">Remove card to continue voting session.</P>
           <P>
-            <Font weight="semiBold">Precinct:</Font> {precinctOrSplitName}
+            <Font weight="semiBold">Ballot Style:</Font> {precinctOrSplitName}
           </P>
           <P>
             <ResetVoterSessionButton>Reset Ballot</ResetVoterSessionButton>
@@ -372,7 +372,7 @@ export function PollWorkerScreen({
           voterFacing={false}
         >
           <P>
-            <Font weight="semiBold">Precinct:</Font> {precinctOrSplitName}
+            <Font weight="semiBold">Ballot Style:</Font> {precinctOrSplitName}
           </P>
         </CenteredCardPageLayout>
       );
@@ -424,7 +424,7 @@ export function PollWorkerScreen({
                   })()
                 ) : (
                   <SearchSelect
-                    placeholder="Select voter's precinct…"
+                    placeholder="Select ballot style…"
                     options={configuredPrecinctsAndSplits.map(
                       ({ name, id }) => ({
                         label: name,

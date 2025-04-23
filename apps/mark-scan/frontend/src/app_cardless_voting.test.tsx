@@ -159,7 +159,7 @@ test('Cardless Voting Flow', async () => {
     },
   });
   await screen.findByText('Remove Card to Begin Voting Session');
-  screen.getByText(hasTextAcrossElements(/Precinct: Center Springfield/));
+  screen.getByText(hasTextAcrossElements(/Ballot Style: Center Springfield/));
 
   // Poll worker removes their card
   apiMock.setAuthStatusCardlessVoterLoggedIn({
@@ -234,7 +234,7 @@ test('in "All Precincts" mode, poll worker must select a precinct', async () => 
   // Activate Voter Session for Cardless Voter
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   await screen.findByText('Start a New Voting Session');
-  userEvent.click(screen.getByText("Select voter's precinct…"));
+  userEvent.click(screen.getByText('Select ballot style…'));
 
   apiMock.mockApiClient.startCardlessVoterSession
     .expectCallWith({ ballotStyleId: '12' as BallotStyleId, precinctId: '23' })
@@ -269,7 +269,7 @@ test('selecting a precinct split', async () => {
   // Activate Voter Session for Cardless Voter
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   await screen.findByText('Start a New Voting Session');
-  userEvent.click(screen.getByText("Select voter's precinct…"));
+  userEvent.click(screen.getByText('Select ballot style…'));
 
   apiMock.mockApiClient.startCardlessVoterSession
     .expectCallWith({ ballotStyleId: '5' as BallotStyleId, precinctId: '21' })
@@ -295,7 +295,7 @@ test('selecting a precinct split', async () => {
   });
   await screen.findByText('Remove Card to Begin Voting Session');
   screen.getByText(
-    hasTextAcrossElements(/Precinct: North Springfield - Split 1/)
+    hasTextAcrossElements(/Ballot Style: North Springfield - Split 1/)
   );
 
   // Poll worker removes their card
