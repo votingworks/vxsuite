@@ -95,7 +95,7 @@ function AppRoot(): JSX.Element | null {
   }
 
   if (election.isErr()) {
-    return <UnconfiguredScreen />;
+    return <UnconfiguredScreen auth={auth} />;
   }
 
   if (isSystemAdministratorAuth(auth)) {
