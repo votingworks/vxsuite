@@ -8,7 +8,12 @@
  * provided callback after completion.
  */
 export declare function convertVxLogToCdf(
-logger: import('@votingworks/logging').Logger,
+log: (
+eventId: import('@votingworks/logging').LogEventId,
+message: string,
+disposition: import('@votingworks/logging').LogDisposition
+) => void,
+source: import('@votingworks/logging').LogSource,
 machineId: string,
 codeVersion: string,
 inputPath: string,

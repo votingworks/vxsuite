@@ -19,6 +19,7 @@
     "@types/tmp": "0.2.4",
     "@vitest/coverage-istanbul": "^3.1.1",
     "@votingworks/logging": "workspace:*",
+    "@votingworks/test-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "is-ci-cli": "2.2.0",
     "tmp": "^0.2.1",
