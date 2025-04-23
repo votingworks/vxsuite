@@ -22,6 +22,7 @@
     "@votingworks/test-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "is-ci-cli": "2.2.0",
+    "nodemon": "^3.1.7",
     "tmp": "^0.2.1",
     "vitest": "^3.1.1"
   },
@@ -30,11 +31,14 @@
     "build": "is-ci build:ci build:dev",
     "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
     "build:dev": "pnpm --filter $npm_package_name... build:self",
+    "build:watch": "nodemon -x 'pnpm build:self' -w src -w test -e rs",
     "build:self": "napi build --platform --release",
     "build:debug": "napi build --platform",
     "prepublishOnly": "napi prepublish -t npm",
     "lint": "cargo clippy",
-    "test": "cargo test && vitest",
+    "test": "is-ci test:ci test:watch",
+    "test:ci": "cargo test && vitest",
+    "test:watch": "if which zellij; then zellij -l test/zellij-layout.kdl; else vitest; fi",
     "universal": "napi universal",
     "version": "napi version"
   },
