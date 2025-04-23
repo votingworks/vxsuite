@@ -1,6 +1,7 @@
 import { screen } from '@testing-library/react';
 import type {
   Api,
+  AdjudicatedCvrContest,
   BallotCountReportSpec,
   BallotCountReportWarning,
   CastVoteRecordFileMetadata,
@@ -17,8 +18,6 @@ import type {
   ManualResultsMetadata,
   WriteInRecord,
   VoteAdjudication,
-  WriteInAdjudicationAction,
-  AdjudicatedCvrContest,
 } from '@votingworks/admin-backend';
 import type { BatteryInfo, DiskSpaceSummary } from '@votingworks/backend';
 import { FileSystemEntry, FileSystemEntryType } from '@votingworks/fs';
@@ -35,6 +34,7 @@ import {
 import {
   Admin,
   ContestId,
+  ContestOptionId,
   DEFAULT_SYSTEM_SETTINGS,
   DiagnosticRecord,
   DippedSmartCardAuth,
@@ -46,7 +46,6 @@ import {
   SystemSettings,
   Tabulation,
   DEV_MACHINE_ID,
-  ContestOptionId,
 } from '@votingworks/types';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
@@ -337,14 +336,56 @@ export function createApiMock(
         .resolves(writeInCandidateRecord);
     },
 
-    expectGetCvrContestWriteInImageViews(
+    expectGetWriteInAdjudicationCvrQueue(
+      input: { contestId: ContestId },
+      cvrIds: Id[]
+    ) {
+      apiClient.getWriteInAdjudicationCvrQueue
+        .expectCallWith(input)
+        .resolves(cvrIds);
+    },
+
+    expectGetWriteInAdjudicationCvrQueueMetadata(
+      queueMetadata: WriteInAdjudicationQueueMetadata[]
+    ) {
+      return apiClient.getWriteInAdjudicationCvrQueueMetadata
+        .expectCallWith()
+        .resolves(queueMetadata);
+    },
+
+    expectGetFirstPendingWriteInCvrId(
+      input: { contestId: ContestId },
+      cvrId: Id | null
+    ) {
+      apiClient.getFirstPendingWriteInCvrId
+        .expectCallWith(input)
+        .resolves(cvrId);
+    },
+
+    expectGetCastVoteRecordVoteInfo(
+      input: { cvrId: Id },
+      votes: Record<ContestId, ContestOptionId[]>
+    ) {
+      apiClient.getCastVoteRecordVoteInfo
+        .expectCallWith(input)
+        .resolves({ votes, id: input.cvrId, electionId: 'electionId' });
+    },
+
+    expectGetWriteIns(
+      input: { contestId: ContestId; cvrId: Id },
+      writeIns: WriteInRecord[]
+    ) {
+      apiClient.getWriteIns.expectCallWith(input).resolves(writeIns);
+    },
+
+    expectGetWriteInImageViews(
       input: { contestId: ContestId; cvrId: Id },
       isBmd: boolean,
       numImages: number = 1
     ) {
       const { cvrId } = input;
       if (isBmd) {
-        apiClient.getCvrContestWriteInImageViews.expectCallWith(input).resolves(
+        apiClient.getWriteInImageViews.expectCallWith(input).resolves(
           Array.from({ length: numImages }).map((_, idx) => ({
             cvrId,
             imageUrl: `mock-image-data-${cvrId}-${idx}`,
@@ -356,7 +397,7 @@ export function createApiMock(
           }))
         );
       } else {
-        apiClient.getCvrContestWriteInImageViews.expectCallWith(input).resolves(
+        apiClient.getWriteInImageViews.expectCallWith(input).resolves(
           Array.from({ length: numImages }).map((_, idx) => ({
             cvrId,
             optionId: `write-in-${idx}`,
@@ -387,48 +428,6 @@ export function createApiMock(
       }
     },
 
-    expectGetWriteInAdjudicationCvrQueueMetadata(
-      queueMetadata: WriteInAdjudicationQueueMetadata[]
-    ) {
-      return apiClient.getWriteInAdjudicationCvrQueueMetadata
-        .expectCallWith()
-        .resolves(queueMetadata);
-    },
-
-    expectGetWriteInAdjudicationCvrQueue(
-      input: { contestId: ContestId },
-      cvrIds: Id[]
-    ) {
-      apiClient.getWriteInAdjudicationCvrQueue
-        .expectCallWith(input)
-        .resolves(cvrIds);
-    },
-
-    expectGetFirstPendingWriteInCvrId(
-      input: { contestId: ContestId },
-      cvrId: Id | null
-    ) {
-      apiClient.getFirstPendingWriteInCvrId
-        .expectCallWith(input)
-        .resolves(cvrId);
-    },
-
-    expectGetCastVoteRecordVoteInfo(
-      input: { cvrId: Id },
-      votes: Record<ContestId, ContestOptionId[]>
-    ) {
-      apiClient.getCastVoteRecordVoteInfo
-        .expectCallWith(input)
-        .resolves({ votes, id: 'id', electionId: 'electionId' });
-    },
-
-    expectGetWriteIns(
-      input: { contestId: ContestId; cvrId: Id },
-      writeIns: WriteInRecord[]
-    ) {
-      apiClient.getWriteIns.expectCallWith(input).resolves(writeIns);
-    },
-
     expectGetVoteAdjudications(
       input: { contestId: ContestId; cvrId: Id },
       voteAdjudications: VoteAdjudication[]
@@ -440,10 +439,6 @@ export function createApiMock(
 
     expectAdjudicateCvrContest(input: AdjudicatedCvrContest) {
       apiClient.adjudicateCvrContest.expectCallWith(input).resolves();
-    },
-
-    expectAdjudicateWriteIn(input: WriteInAdjudicationAction) {
-      apiClient.adjudicateWriteIn.expectCallWith(input).resolves();
     },
 
     expectMarkResultsOfficial() {

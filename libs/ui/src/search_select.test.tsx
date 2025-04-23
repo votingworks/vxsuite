@@ -77,6 +77,9 @@ test('single and not searchable', () => {
       hidden: true,
     })
   );
+  for (const option of options) {
+    screen.getByText(option.label);
+  }
 
   // close dropdown using arrow
   userEvent.click(
@@ -90,7 +93,7 @@ test('single and not searchable', () => {
 
   screen.getByText('Pick a fruit');
 
-  // open dropdown by click
+  // open dropdown by clicking input
   userEvent.click(screen.getByLabelText('Choose Fruit'));
   for (const option of options) {
     screen.getByText(option.label);

@@ -4,19 +4,19 @@ import React from 'react';
 
 export function CandidateButton({
   candidate,
-  caption,
-  disabled,
   isSelected,
   onSelect,
   onDeselect,
+  caption,
+  disabled,
 }: {
   candidate: Pick<Candidate, 'id' | 'name'>;
-  caption?: React.ReactNode;
-  disabled?: boolean;
   isSelected: boolean;
   onSelect: () => void;
   onDeselect?: () => void;
-}): React.ReactNode {
+  caption?: React.ReactNode;
+  disabled?: boolean;
+}): JSX.Element {
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
       <CheckboxButton

@@ -154,7 +154,7 @@ test('getWriteInImageViews on hmpb', async () => {
 
   // check image of first write-in
   const [writeInImageViewA, writeInImageViewB] =
-    await apiClient.getCvrContestWriteInImageViews({
+    await apiClient.getWriteInImageViews({
       cvrId,
       contestId,
     });
@@ -243,7 +243,7 @@ test('getWriteInImageViews on bmd', async () => {
   assert(cvrId1 !== undefined && cvrId2 !== undefined);
 
   // check image of first write-in
-  const [writeInImageViewA] = await apiClient.getCvrContestWriteInImageViews({
+  const [writeInImageViewA] = await apiClient.getWriteInImageViews({
     cvrId: cvrId1,
     contestId,
   });
@@ -256,7 +256,7 @@ test('getWriteInImageViews on bmd', async () => {
 
   // check the second write-in image view, which should have the same image
   // but different writeInCoordinates
-  const [writeInImageViewB] = await apiClient.getCvrContestWriteInImageViews({
+  const [writeInImageViewB] = await apiClient.getWriteInImageViews({
     cvrId: cvrId2,
     contestId,
   });

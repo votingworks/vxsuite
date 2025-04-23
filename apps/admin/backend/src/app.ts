@@ -87,7 +87,7 @@ import {
 } from './types';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
-import { getCvrContestWriteInImageViews } from './util/write_ins';
+import { getWriteInImageViews } from './util/write_ins';
 import {
   transformWriteInsAndSetManualResults,
   validateManualResults,
@@ -623,6 +623,13 @@ function buildApi({
       adjudicateCvrContest(input, store, logger);
     },
 
+    getCastVoteRecordVoteInfo(input: { cvrId: Id }): CastVoteRecordVoteInfo {
+      return store.getCastVoteRecordVoteInfo({
+        ...input,
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+      });
+    },
+
     getVoteAdjudications(input: {
       contestId: ContestId;
       cvrId: Id;
@@ -652,15 +659,6 @@ function buildApi({
       return store.addWriteInCandidate({
         electionId: loadCurrentElectionIdOrThrow(workspace),
         ...input,
-      });
-    },
-
-    getCastVoteRecordVoteInfo(input: {
-      cvrId: string;
-    }): CastVoteRecordVoteInfo {
-      return store.getCastVoteRecordVoteInfo({
-        ...input,
-        electionId: loadCurrentElectionIdOrThrow(workspace),
       });
     },
 
@@ -694,11 +692,11 @@ function buildApi({
       });
     },
 
-    getCvrContestWriteInImageViews(input: {
+    getWriteInImageViews(input: {
       cvrId: Id;
       contestId: ContestId;
     }): Promise<WriteInImageView[]> {
-      return getCvrContestWriteInImageViews({
+      return getWriteInImageViews({
         store: workspace.store,
         cvrId: input.cvrId,
         contestId: input.contestId,

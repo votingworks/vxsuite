@@ -87,9 +87,9 @@ export async function getWriteInImageView({
 }
 
 /**
- * Retrieves data necessary to display write-in images on the frontend for a given Cvr contest.
+ * Retrieves image data necessary to adjudicate write-ins for a given cvr contest
  */
-export async function getCvrContestWriteInImageViews({
+export async function getWriteInImageViews({
   store,
   cvrId,
   contestId,
@@ -98,7 +98,7 @@ export async function getCvrContestWriteInImageViews({
   cvrId: Id;
   contestId: Id;
 }): Promise<WriteInImageView[]> {
-  return await iter(store.getCvrContestWriteInIds({ cvrId, contestId }))
+  return await iter(store.getWriteInIds({ cvrId, contestId }))
     .async()
     .map((writeInId) => getWriteInImageView({ store, writeInId }))
     .toArray();

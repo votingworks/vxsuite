@@ -458,12 +458,12 @@ test('results', async ({ page }) => {
             .getByRole('checkbox', { name: /write-in/i, checked: true })
             .click();
           break;
-        default: {
-          const writeInName = WRITE_IN_NAMES[Math.floor(writeInIndex / 8)];
-          await page.getByRole('combobox').fill(writeInName);
+        default:
+          // Create other new candidate
+          await page
+            .getByRole('combobox')
+            .fill(WRITE_IN_NAMES[Math.floor(writeInIndex / 8)]);
           await page.keyboard.press('Enter');
-          break;
-        }
       }
 
       await expect(getPrimaryButton(page)).toBeEnabled();

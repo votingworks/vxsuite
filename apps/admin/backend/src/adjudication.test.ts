@@ -176,7 +176,7 @@ test('adjudicateWriteIn', () => {
   });
   assert(cvrId !== undefined);
 
-  const [writeInId] = store.getCvrContestWriteInIds({ cvrId, contestId });
+  const [writeInId] = store.getWriteInIds({ cvrId, contestId });
   assert(writeInId !== undefined);
 
   function expectVotes(votes: Tabulation.Votes) {

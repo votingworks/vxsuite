@@ -140,7 +140,7 @@ export function WriteInsSummaryScreen(): JSX.Element {
                         <LinkButton
                           disabled={isOfficialResults}
                           variant={pendingCount ? 'primary' : 'neutral'}
-                          to={routerPaths.contestAdjudication({
+                          to={routerPaths.writeInAdjudication({
                             contestId: contest.id,
                           })}
                         >

@@ -73,12 +73,12 @@ interface SearchSelectBaseProps<T = string> {
   placeholder?: React.ReactNode;
   disabled?: boolean;
   required?: boolean;
-  onInputChange?: (value?: T) => void;
   onBlur?: () => void;
   onFocus?: () => void;
+  onInputChange?: (value?: T) => void;
   menuPortalTarget?: HTMLElement;
-  noOptionsMessage?: () => React.ReactNode;
   minMenuHeight?: number;
+  noOptionsMessage?: () => React.ReactNode;
 }
 
 export interface SearchSelectMultiProps<T = string>
@@ -159,8 +159,8 @@ export function SearchSelect<T = string>({
       components={{ DropdownIndicator, MultiValueRemove }}
       className="search-select"
       maxMenuHeight="50vh"
-      menuPortalTarget={menuPortalTarget}
       menuPlacement="auto"
+      menuPortalTarget={menuPortalTarget}
       minMenuHeight={minMenuHeight}
       noOptionsMessage={noOptionsMessage}
       styles={typedAs<StylesConfig>({
@@ -177,7 +177,7 @@ export function SearchSelect<T = string>({
           borderStyle: state.isDisabled ? 'dashed' : 'solid',
           borderRadius: style?.borderRadius ?? borderRadius,
           backgroundColor: style?.backgroundColor
-            ? style?.backgroundColor
+            ? style.backgroundColor
             : state.isDisabled
             ? theme.colors.container
             : state.isFocused

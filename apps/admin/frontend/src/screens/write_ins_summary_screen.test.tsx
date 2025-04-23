@@ -94,6 +94,6 @@ test('CVRs with write-ins loaded', async () => {
 
   userEvent.click(adjudicateButton);
   expect(history.location.pathname).toEqual(
-    '/contests/adjudication/zoo-council-mammal'
+    '/write-ins/adjudication/zoo-council-mammal'
   );
 });

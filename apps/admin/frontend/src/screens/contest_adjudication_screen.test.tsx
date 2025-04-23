@@ -112,7 +112,7 @@ describe('hmpb write-in adjudication', () => {
     );
     apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
     apiMock.expectGetWriteIns({ contestId, cvrId }, [writeInRecord]);
-    apiMock.expectGetCvrContestWriteInImageViews({ contestId, cvrId }, false);
+    apiMock.expectGetWriteInImageViews({ contestId, cvrId }, false);
     apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
   });
 
@@ -424,7 +424,7 @@ describe('bmd write-in adjudication', () => {
     );
     apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
     apiMock.expectGetWriteIns({ contestId, cvrId }, writeInRecords);
-    apiMock.expectGetCvrContestWriteInImageViews({ contestId, cvrId }, true);
+    apiMock.expectGetWriteInImageViews({ contestId, cvrId }, true);
     apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
   });
 
@@ -530,11 +530,8 @@ describe('vote adjudication', () => {
     );
     apiMock.expectGetVoteAdjudications({ contestId, cvrId }, voteAdjudications);
     apiMock.expectGetWriteIns({ contestId, cvrId }, []);
-    apiMock.expectGetCvrContestWriteInImageViews({ contestId, cvrId }, false);
-    apiMock.expectGetCvrContestWriteInImageViews(
-      { contestId, cvrId: cvrId2 },
-      false
-    );
+    apiMock.expectGetWriteInImageViews({ contestId, cvrId }, false);
+    apiMock.expectGetWriteInImageViews({ contestId, cvrId: cvrId2 }, false);
     apiMock.expectGetWriteInCandidates([], contestId);
 
     renderScreen(contestId, {
@@ -603,7 +600,7 @@ describe('vote adjudication', () => {
     );
     apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
     apiMock.expectGetWriteIns({ contestId, cvrId }, []);
-    apiMock.expectGetCvrContestWriteInImageViews({ contestId, cvrId }, true);
+    apiMock.expectGetWriteInImageViews({ contestId, cvrId }, true);
     apiMock.expectGetWriteInCandidates([], contestId);
 
     renderScreen(contestId, {
@@ -662,12 +659,9 @@ describe('ballot image viewer', () => {
     );
     apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
     apiMock.expectGetWriteIns({ contestId, cvrId }, writeInRecords);
-    apiMock.expectGetCvrContestWriteInImageViews({ contestId, cvrId }, false);
+    apiMock.expectGetWriteInImageViews({ contestId, cvrId }, false);
     // Prefetch
-    apiMock.expectGetCvrContestWriteInImageViews(
-      { contestId, cvrId: cvrId2 },
-      false
-    );
+    apiMock.expectGetWriteInImageViews({ contestId, cvrId: cvrId2 }, false);
     apiMock.expectGetWriteInCandidates([], contestId);
 
     renderScreen(contestId, {
@@ -798,12 +792,9 @@ describe('ballot image viewer', () => {
     );
     apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
     apiMock.expectGetWriteIns({ contestId, cvrId }, []);
-    apiMock.expectGetCvrContestWriteInImageViews({ contestId, cvrId }, true);
+    apiMock.expectGetWriteInImageViews({ contestId, cvrId }, true);
     // Prefetch
-    apiMock.expectGetCvrContestWriteInImageViews(
-      { contestId, cvrId: cvrId2 },
-      true
-    );
+    apiMock.expectGetWriteInImageViews({ contestId, cvrId: cvrId2 }, true);
     apiMock.expectGetWriteInCandidates([], contestId);
 
     renderScreen(contestId, {
@@ -864,11 +855,8 @@ describe('detect unsaved changes', () => {
     apiMock.expectGetCastVoteRecordVoteInfo({ cvrId }, { [contestId]: votes });
     apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
     apiMock.expectGetWriteIns({ contestId, cvrId }, [writeInRecord]);
-    apiMock.expectGetCvrContestWriteInImageViews({ contestId, cvrId }, false);
-    apiMock.expectGetCvrContestWriteInImageViews(
-      { contestId, cvrId: cvrId2 },
-      false
-    );
+    apiMock.expectGetWriteInImageViews({ contestId, cvrId }, false);
+    apiMock.expectGetWriteInImageViews({ contestId, cvrId: cvrId2 }, false);
     apiMock.expectGetWriteInCandidates([], contestId);
   });
 
@@ -1089,7 +1077,7 @@ describe('unmarked and undetected write-ins', () => {
     );
     apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
     apiMock.expectGetWriteIns({ contestId, cvrId }, writeInRecords);
-    apiMock.expectGetCvrContestWriteInImageViews({ contestId, cvrId }, false);
+    apiMock.expectGetWriteInImageViews({ contestId, cvrId }, false);
     apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
   });
 
@@ -1250,7 +1238,7 @@ describe('double vote detection', () => {
     apiMock.expectGetCastVoteRecordVoteInfo({ cvrId }, { [contestId]: votes });
     apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
     apiMock.expectGetWriteIns({ contestId, cvrId }, writeInRecords);
-    apiMock.expectGetCvrContestWriteInImageViews({ contestId, cvrId }, false);
+    apiMock.expectGetWriteInImageViews({ contestId, cvrId }, false);
     apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
   });
 
@@ -1457,18 +1445,12 @@ describe('ballot navigation', () => {
       { contestId, cvrId: firstPendingCvrId },
       pendingWriteInRecords175
     );
-    apiMock.expectGetCvrContestWriteInImageViews(
+    apiMock.expectGetWriteInImageViews(
       { contestId, cvrId: firstPendingCvrId },
       false
     );
-    apiMock.expectGetCvrContestWriteInImageViews(
-      { contestId, cvrId: cvrIds[2] },
-      false
-    );
-    apiMock.expectGetCvrContestWriteInImageViews(
-      { contestId, cvrId: cvrIds[0] },
-      false
-    );
+    apiMock.expectGetWriteInImageViews({ contestId, cvrId: cvrIds[2] }, false);
+    apiMock.expectGetWriteInImageViews({ contestId, cvrId: cvrIds[0] }, false);
     apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
   });
   test('opens to pending cvr, loads previous adjudications, and enables/disables navigation buttons based on remaining queue', async () => {

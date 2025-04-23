@@ -288,8 +288,7 @@ export const getWriteInCandidates = {
   },
 } as const;
 
-type GetCvrWriteInImageViewsInput =
-  QueryInput<'getCvrContestWriteInImageViews'>;
+type GetCvrWriteInImageViewsInput = QueryInput<'getWriteInImageViews'>;
 export const getCvrWriteInImageViews = {
   queryKey(input?: GetCvrWriteInImageViewsInput): QueryKey {
     return input
@@ -301,7 +300,7 @@ export const getCvrWriteInImageViews = {
     return useQuery(
       this.queryKey(input),
       () =>
-        apiClient.getCvrContestWriteInImageViews({
+        apiClient.getWriteInImageViews({
           cvrId: input?.cvrId ?? '',
           contestId: input?.contestId ?? '',
         }),
@@ -314,7 +313,7 @@ export const getCvrWriteInImageViews = {
     return (input: GetCvrWriteInImageViewsInput) =>
       queryClient.prefetchQuery({
         queryKey: getCvrWriteInImageViews.queryKey(input),
-        queryFn: () => apiClient.getCvrContestWriteInImageViews(input),
+        queryFn: () => apiClient.getWriteInImageViews(input),
       });
   },
 } as const;

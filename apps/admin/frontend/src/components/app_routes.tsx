@@ -144,7 +144,7 @@ export function AppRoutes(): JSX.Element | null {
       ) && (
         <Route
           exact
-          path={routerPaths.contestAdjudication({ contestId: ':contestId' })}
+          path={routerPaths.writeInAdjudication({ contestId: ':contestId' })}
         >
           <ContestAdjudicationScreen />
         </Route>
