@@ -11,12 +11,14 @@ CREATE TABLE machines (
     machine_id TEXT PRIMARY KEY,
     status TEXT NOT NULL, -- PollbookConnectionStatus enum
     last_seen INTEGER NOT NULL, -- last time the machine was seen
-    configured_election_id TEXT -- election id this machine is configured for
+    pollbook_information TEXT NOT NULL -- JSON blob of PollbookInformation
 );
 
 CREATE TABLE elections (
     election_id TEXT PRIMARY KEY,
     election_data TEXT not null,
+    ballot_hash TEXT not null,
+    package_hash TEXT not null,
     valid_street_data TEXT,
     is_absentee_mode BOOLEAN NOT NULL
 );

@@ -224,9 +224,8 @@ export const VoterSchema: z.ZodSchema<Voter> = z.object({
   nameChange: VoterNameChangeSchema.optional(),
 });
 
-export interface MachineInformation {
+export interface MachineInformation extends PollbookInformation {
   machineId: string;
-  configuredElectionId?: string;
 }
 
 export type VectorClock = Record<string, number>;
@@ -310,15 +309,30 @@ export const ValidStreetInfoSchema: z.ZodSchema<ValidStreetInfo[]> = z.array(
 );
 
 export interface PollbookPackage {
+  packageHash: string;
   electionDefinition: ElectionDefinition;
   voters: Voter[];
   validStreets: ValidStreetInfo[];
 }
 
-export interface PollbookService {
+export interface PollbookInformation {
+  configuredElectionId?: string;
+  configuredElectionBallotHash?: string;
+  configuredElectionPackageHash?: string;
+  configuredElectionName?: string;
+}
+
+export const PollbookInformationSchema: z.ZodSchema<PollbookInformation> =
+  z.object({
+    configuredElectionId: z.string().optional(),
+    configuredElectionBallotHash: z.string(),
+    configuredElectionPackageHash: z.string(),
+    configuredElectionName: z.string(),
+  });
+
+export interface PollbookService extends PollbookInformation {
   apiClient?: grout.Client<PeerApi>;
   address?: string;
-  configuredElectionId?: string;
   machineId: string;
   lastSeen: Date;
   status: PollbookConnectionStatus;

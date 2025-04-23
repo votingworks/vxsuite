@@ -19,10 +19,15 @@ function buildApi(context: PeerAppContext) {
 
   return grout.createApi({
     getMachineInformation(): MachineInformation {
-      const election = store.getElection();
+      const pollbookInformation = store.getMachineInformation();
+      if (!pollbookInformation) {
+        return {
+          machineId,
+        };
+      }
       return {
+        ...pollbookInformation,
         machineId,
-        configuredElectionId: election ? election.id : undefined,
       };
     },
 
@@ -67,7 +72,8 @@ function buildApi(context: PeerAppContext) {
       const pollbookPackage = pollbookPackageResult.ok();
       // Configure this machine
       store.setElectionAndVoters(
-        pollbookPackage.electionDefinition.election,
+        pollbookPackage.electionDefinition,
+        pollbookPackage.packageHash,
         pollbookPackage.validStreets,
         pollbookPackage.voters
       );

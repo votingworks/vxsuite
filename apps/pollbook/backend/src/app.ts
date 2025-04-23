@@ -147,13 +147,7 @@ function buildApi({ context, logger }: BuildAppParams) {
         battery: batteryStatus ?? undefined,
         network: {
           isOnline: store.getIsOnline(),
-          pollbooks: store.getPollbookServiceInfo().map((pollbook) => ({
-            machineId: pollbook.machineId,
-            lastSeen: pollbook.lastSeen,
-            numCheckIns: pollbook.numCheckIns,
-            configuredElectionId: pollbook.configuredElectionId,
-            status: pollbook.status,
-          })),
+          pollbooks: store.getPollbookServiceInfo(),
         },
       };
     },

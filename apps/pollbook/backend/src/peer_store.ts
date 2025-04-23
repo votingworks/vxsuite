@@ -62,8 +62,8 @@ export class PeerStore extends Store {
       }
       this.client.run(
         `
-      INSERT INTO machines (machine_id, status, last_seen)
-      VALUES (?, ?, ?)
+      INSERT INTO machines (machine_id, status, last_seen, pollbook_information)
+      VALUES (?, ?, ?, ?)
       ON CONFLICT(machine_id) DO UPDATE SET
         status = excluded.status
         ${isOnline ? ', last_seen = excluded.last_seen' : ''}
@@ -72,7 +72,8 @@ export class PeerStore extends Store {
         isOnline
           ? PollbookConnectionStatus.Connected
           : PollbookConnectionStatus.LostConnection,
-        isOnline ? getCurrentTime() : 0
+        isOnline ? getCurrentTime() : 0,
+        '{}'
       );
     });
   }
@@ -179,19 +180,27 @@ export class PeerStore extends Store {
     this.connectedPollbooks[avahiServiceName] = pollbookService;
 
     // Update the machines table with the pollbook service information
+
     this.client.run(
       `
-      INSERT INTO machines (machine_id, status, last_seen, configured_election_id)
+      INSERT INTO machines (machine_id, status, last_seen, pollbook_information)
       VALUES (?, ?, ?, ?)
       ON CONFLICT(machine_id) DO UPDATE SET
         status = excluded.status,
         last_seen = excluded.last_seen,
-        configured_election_id = excluded.configured_election_id
+        pollbook_information = excluded.pollbook_information
       `,
       pollbookService.machineId,
       pollbookService.status,
       pollbookService.lastSeen.getTime(),
-      pollbookService.configuredElectionId || ''
+      JSON.stringify({
+        configuredElectionId: pollbookService.configuredElectionId,
+        configuredElectionBallotHash:
+          pollbookService.configuredElectionBallotHash,
+        configuredElectionPackageHash:
+          pollbookService.configuredElectionPackageHash,
+        configuredElectionName: pollbookService.configuredElectionName,
+      })
     );
   }
 

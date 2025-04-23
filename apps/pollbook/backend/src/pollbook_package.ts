@@ -1,5 +1,6 @@
 import { Result, assertDefined, err, iter, ok } from '@votingworks/basics';
 import { readFile, ReadFileError } from '@votingworks/fs';
+import { sha256 } from 'js-sha256';
 import { safeParseElectionDefinition, safeParseInt } from '@votingworks/types';
 import { parse } from 'csv-parse/sync';
 import {
@@ -111,9 +112,11 @@ export async function readPollbookPackage(
     return err(pollbookPackage.err());
   }
   try {
-    const zipFile = await openZip(pollbookPackage.ok() as Uint8Array);
+    const fileContents = pollbookPackage.ok() as Uint8Array;
+    const zipFile = await openZip(fileContents);
     const zipName = 'pollbook package';
     const entries = getEntries(zipFile);
+    const packageHash = sha256(fileContents);
 
     const electionEntry = getFileByName(
       entries,
@@ -149,7 +152,7 @@ export async function readPollbookPackage(
     const streetCsvString = await readTextEntry(streetsEntry);
     const validStreets = parseValidStreetsFromCsvString(streetCsvString);
 
-    return ok({ electionDefinition, voters, validStreets });
+    return ok({ electionDefinition, voters, validStreets, packageHash });
   } catch (error) {
     debug('Error reading pollbook package: %O', error);
     return err({
@@ -225,7 +228,8 @@ export function pollUsbDriveForPollbookPackage({
 
         const pollbookPackage = pollbookPackageResult.ok();
         workspace.store.setElectionAndVoters(
-          pollbookPackage.electionDefinition.election,
+          pollbookPackage.electionDefinition,
+          pollbookPackage.packageHash,
           pollbookPackage.validStreets,
           pollbookPackage.voters
         );
