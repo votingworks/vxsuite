@@ -3,7 +3,10 @@ import {
   singlePrecinctSelectionFor,
   ALL_PRECINCTS_SELECTION,
 } from '@votingworks/utils';
-import { readElectionGeneralDefinition } from '@votingworks/fixtures';
+import {
+  electionPrimaryPrecinctSplitsFixtures,
+  readElectionGeneralDefinition,
+} from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { BallotStyleId } from '@votingworks/types';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
@@ -305,4 +308,56 @@ test('selecting a precinct split', async () => {
   });
   // Voter Ballot Style is active
   screen.getByText('North Springfield - Split 1');
+});
+
+test('primary election', async () => {
+  const electionDefinition =
+    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
+  apiMock.expectGetMachineConfig();
+  apiMock.expectGetSystemSettings();
+  apiMock.expectGetElectionRecord(electionDefinition);
+  apiMock.expectGetElectionState({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollsState: 'polls_open',
+  });
+  render(<App apiClient={apiMock.mockApiClient} />);
+  const expectedCardlessVoterArgs = {
+    ballotStyleId: '3-Ma_en' as BallotStyleId,
+    precinctId: 'precinct-c2',
+  } as const;
+
+  await screen.findByText('Insert Card');
+
+  // ---------------
+  // Activate Voter Session for Cardless Voter
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
+  await screen.findByText('Start a New Voting Session');
+  userEvent.click(screen.getByText("Select voter's precinct…"));
+  userEvent.click(screen.getByText('Precinct 4 - Split 1'));
+
+  apiMock.mockApiClient.startCardlessVoterSession
+    .expectCallWith(expectedCardlessVoterArgs)
+    .resolves();
+  apiMock.expectSetAcceptingPaperState();
+  userEvent.click(screen.getButton('Mammal'));
+
+  apiMock.setPaperHandlerState('accepting_paper');
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
+    cardlessVoterUserParams: expectedCardlessVoterArgs,
+  });
+
+  await screen.findByText('Load Ballot Sheet');
+  mockLoadPaper();
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
+    cardlessVoterUserParams: expectedCardlessVoterArgs,
+  });
+  await screen.findByText('Remove Card to Begin Voting Session');
+  screen.getByText(hasTextAcrossElements('Precinct: Precinct 4 - Split 1'));
+  screen.getByText(hasTextAcrossElements('Ballot Style: Mammal'));
+
+  // Poll worker removes their card
+  apiMock.setAuthStatusCardlessVoterLoggedIn(expectedCardlessVoterArgs);
+  // Voter Ballot Style is active
+  screen.getByText(/Mammal/);
+  screen.getByText('Precinct 4 - Split 1');
 });
