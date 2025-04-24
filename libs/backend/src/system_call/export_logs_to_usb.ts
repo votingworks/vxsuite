@@ -179,7 +179,7 @@ async function exportLogsToUsbHelper({
           machineId,
           codeVersion
         );
-      } catch (error) {
+      } catch {
         await fs.rm(tempDirectory, { recursive: true });
         return err('cdf-conversion-failed');
       }
