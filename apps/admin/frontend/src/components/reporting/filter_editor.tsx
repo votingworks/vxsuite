@@ -7,7 +7,12 @@ import {
 import { Admin, Election, Tabulation } from '@votingworks/types';
 import { useState } from 'react';
 import styled from 'styled-components';
-import { SearchSelect, SelectOption, Button } from '@votingworks/ui';
+import {
+  SearchSelect,
+  SelectOption,
+  Button,
+  getBallotStyleLabel,
+} from '@votingworks/ui';
 import type { ScannerBatch } from '@votingworks/admin-backend';
 import { getGroupedBallotStyles } from '@votingworks/utils';
 import { getScannerBatches } from '../../api';
@@ -98,11 +103,14 @@ function generateOptionsForFilter({
         value: precinct.id,
         label: precinct.name,
       }));
-    case 'ballot-style':
-      return getGroupedBallotStyles(election.ballotStyles).map((bs) => ({
-        value: bs.id,
-        label: bs.id,
-      }));
+    case 'ballot-style': {
+      return getGroupedBallotStyles(election.ballotStyles).map(
+        (ballotStyleGroup) => ({
+          value: ballotStyleGroup.id,
+          label: getBallotStyleLabel(election, ballotStyleGroup.id),
+        })
+      );
+    }
     case 'party':
       return getPartiesWithPrimaryElections(election).map((party) => ({
         value: party.id,

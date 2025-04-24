@@ -9,7 +9,12 @@ import {
 import pluralize from 'pluralize';
 import styled from 'styled-components';
 import { Font } from '../typography';
-import { getBatchLabel, getScannerLabel, LabeledScannerBatch } from './utils';
+import {
+  getBallotStyleLabel,
+  getBatchLabel,
+  getScannerLabel,
+  LabeledScannerBatch,
+} from './utils';
 import { Box } from './layout';
 
 interface Props {
@@ -67,7 +72,14 @@ export function CustomFilterSummary({
           <Font weight="semiBold">
             {pluralize('Ballot Style', filter.ballotStyleGroupIds.length)}:
           </Font>{' '}
-          {filter.ballotStyleGroupIds.join(', ')}
+          {filter.ballotStyleGroupIds
+            .map((ballotStyleGroupId) =>
+              getBallotStyleLabel(
+                electionDefinition.election,
+                ballotStyleGroupId
+              )
+            )
+            .join(' • ')}
         </FilterDisplayRow>
       )}
       {filter.scannerIds && (
