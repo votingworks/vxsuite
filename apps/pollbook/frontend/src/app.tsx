@@ -39,12 +39,13 @@ function AppRoot(): JSX.Element | null {
   const getAuthStatusQuery = getAuthStatus.useQuery();
   const checkPinMutation = checkPin.useMutation();
   const getElectionQuery = getElection.useQuery();
-  if (!(getAuthStatusQuery.isSuccess && getElectionQuery.isSuccess)) {
+  console.log('app root');
+  if (!getAuthStatusQuery.isSuccess) {
+    console.log('auth success');
     return null;
   }
 
   const auth = getAuthStatusQuery.data;
-  const election = getElectionQuery.data;
 
   if (auth.status === 'logged_out' && auth.reason === 'no_card_reader') {
     return <SetupCardReaderPage usePollWorkerLanguage={false} />;
@@ -94,7 +95,8 @@ function AppRoot(): JSX.Element | null {
     );
   }
 
-  if (election.isErr()) {
+  if (!getElectionQuery.isSuccess || getElectionQuery.data.isErr()) {
+    console.log('unconfig');
     return <UnconfiguredScreen auth={auth} />;
   }
 

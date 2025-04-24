@@ -322,6 +322,10 @@ export interface PollbookInformation {
   configuredElectionName?: string;
 }
 
+export type ConfigurationError =
+  | 'pollbook-connection-problem'
+  | 'invalid-pollbook-package';
+
 export const PollbookInformationSchema: z.ZodSchema<PollbookInformation> =
   z.object({
     configuredElectionId: z.string().optional(),

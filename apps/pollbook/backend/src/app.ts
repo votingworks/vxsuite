@@ -41,6 +41,7 @@ import {
   VoterAddressChange,
   LocalAppContext,
   LocalWorkspace,
+  ConfigurationError,
 } from './types';
 import { rootDebug } from './debug';
 import {
@@ -152,7 +153,9 @@ function buildApi({ context, logger }: BuildAppParams) {
       };
     },
 
-    async configureFromMachine(input: { machineId: string }): Promise<void> {
+    async configureFromMachine(input: {
+      machineId: string;
+    }): Promise<Result<void, ConfigurationError>> {
       return await workspace.peerApiClient.configureFromMachine(input);
     },
 

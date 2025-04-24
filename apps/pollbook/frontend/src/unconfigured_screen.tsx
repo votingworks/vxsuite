@@ -1,12 +1,15 @@
 import { assert, groupBy } from '@votingworks/basics';
 import {
   Button,
+  Card,
   FullScreenIconWrapper,
   FullScreenMessage,
   H1,
   Icons,
+  Loading,
   Main,
   MainContent,
+  P,
   Table,
   UsbDriveImage,
 } from '@votingworks/ui';
@@ -17,6 +20,7 @@ import {
 import { LoggedIn } from '@votingworks/types/src/auth/dipped_smart_card_auth';
 import type { PollbookServiceInfo } from '@votingworks/pollbook-backend';
 import { useState } from 'react';
+import { formatElectionHashes } from '@votingworks/types';
 import { configureFromMachine, getDeviceStatuses, getElection } from './api';
 import { Header, NavScreen } from './nav_screen';
 
@@ -66,11 +70,8 @@ function PollbookConnectionTable({
   onConfigure: (machineId: string) => void;
 }): JSX.Element {
   // Group pollbooks by election hash (ballotHash-packageHash)
-  const pollbooksWithHash = pollbooks.filter(
-    (p) => p.configuredElectionBallotHash && p.configuredElectionPackageHash
-  );
   const groups = groupBy(
-    pollbooksWithHash,
+    pollbooks,
     (p) =>
       `${p.configuredElectionBallotHash}-${p.configuredElectionPackageHash}`
   );
@@ -92,10 +93,13 @@ function PollbookConnectionTable({
         <tbody>
           {groups.map(([electionHash, pollbooksForElection]) => (
             <tr key={electionHash}>
+              <td>{pollbooksForElection[0].configuredElectionName}</td>
               <td>
-                {pollbooksForElection[0].configuredElectionName ?? 'Unknown'}
+                {formatElectionHashes(
+                  pollbooksForElection[0].configuredElectionBallotHash || '',
+                  pollbooksForElection[0].configuredElectionPackageHash || ''
+                )}
               </td>
-              <td>{electionHash}</td>
               <td>{pollbooksForElection.map((p) => p.machineId).join(', ')}</td>
               <td>
                 <Button
@@ -119,9 +123,18 @@ export function UnconfiguredSystemAdminScreen(): JSX.Element {
   });
   const getDevicesQuery = getDeviceStatuses.useQuery();
   const configureMutation = configureFromMachine.useMutation();
-  assert(getElectionQuery.isSuccess);
-  const electionResult = getElectionQuery.data;
   const [isLoadingFromNetwork, setIsLoadingFromNetwork] = useState(false);
+  const [configurationErrorMessage, setConfigurationErrorMessage] =
+    useState('');
+
+  if (getDevicesQuery.isLoading || !getElectionQuery.isSuccess) {
+    return (
+      <CenteredScreen>
+        <Loading />
+      </CenteredScreen>
+    );
+  }
+  const electionResult = getElectionQuery.data;
 
   if (electionResult.isOk() || electionResult.err() === 'loading') {
     return (
@@ -151,38 +164,28 @@ export function UnconfiguredSystemAdminScreen(): JSX.Element {
       </CenteredScreen>
     );
   }
-  // TODO-CARO-IMPLEMENT handle loading and error responses
-  if (!getDevicesQuery.isSuccess) {
-    return <CenteredScreen>HI</CenteredScreen>;
-  }
-  const { isOnline, pollbooks } = getDevicesQuery.data.network;
+  const { isOnline, pollbooks } = getDevicesQuery.isError
+    ? { isOnline: false, pollbooks: [] }
+    : getDevicesQuery.data.network;
 
-  if (electionResult.err() === 'not-found') {
-    return (
-      <CenteredScreen>
-        <FullScreenMessage
-          title="Failed to configure VxPollbook"
-          image={
-            <FullScreenIconWrapper>
-              <Icons.Warning color="warning" />
-            </FullScreenIconWrapper>
-          }
-        >
-          No pollbook package found on the inserted USB drive.
-        </FullScreenMessage>
-      </CenteredScreen>
-    );
-  }
-
-  function configureElectionFromMachine(machineId: string) {
-    setIsLoadingFromNetwork(true);
-    configureMutation.mutate(
-      { machineId },
-      { onSuccess: () => setIsLoadingFromNetwork(false) }
-    );
-  }
   const configuredPollbooks = pollbooks.filter((p) => p.configuredElectionId);
   if (!isOnline || configuredPollbooks.length <= 0) {
+    if (electionResult.err() === 'not-found') {
+      return (
+        <CenteredScreen>
+          <FullScreenMessage
+            title="Failed to configure VxPollbook"
+            image={
+              <FullScreenIconWrapper>
+                <Icons.Warning color="warning" />
+              </FullScreenIconWrapper>
+            }
+          >
+            No pollbook package found on the inserted USB drive.
+          </FullScreenMessage>
+        </CenteredScreen>
+      );
+    }
     return (
       <CenteredScreen>
         <FullScreenMessage
@@ -195,11 +198,39 @@ export function UnconfiguredSystemAdminScreen(): JSX.Element {
 
   return (
     <ConfigurationScreen>
-      Insert a USB drive containing a pollbook package, or configure from
-      another nearby machine listed below.
+      {electionResult.err() === 'not-found' && (
+        <Card color="warning" style={{ marginBottom: '1rem' }}>
+          <Icons.Warning color="warning" /> No pollbook package found on the
+          insertted USB drive.
+        </Card>
+      )}
+      {configurationErrorMessage && (
+        <Card color="warning" style={{ marginBottom: '1rem' }}>
+          <Icons.Warning color="warning" /> Error during configuration, please
+          try again.
+        </Card>
+      )}
+      <P>
+        Insert a USB drive containing a pollbook package, or configure from
+        another nearby machine listed below.
+      </P>
       <PollbookConnectionTable
         pollbooks={configuredPollbooks}
-        onConfigure={configureElectionFromMachine}
+        onConfigure={(machineId) => {
+          setIsLoadingFromNetwork(true);
+          configureMutation.mutate(
+            { machineId },
+            {
+              onSuccess: (result) => {
+                console.log('here');
+                setIsLoadingFromNetwork(false);
+                if (result.isErr()) {
+                  setConfigurationErrorMessage(result.err());
+                }
+              },
+            }
+          );
+        }}
       />
     </ConfigurationScreen>
   );

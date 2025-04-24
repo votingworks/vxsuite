@@ -275,8 +275,11 @@ export const configureFromMachine = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.configureFromMachine, {
-      async onSuccess() {
-        await queryClient.resetQueries();
+      async onSuccess(result) {
+        if (result.isOk()) {
+          await queryClient.resetQueries();
+        }
+        console.log('on success in api client');
       },
     });
   },
