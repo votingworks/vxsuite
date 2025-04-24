@@ -19,6 +19,7 @@ import {
   BallotStyleGroupId,
   Contests,
   Precinct,
+  Election,
 } from '@votingworks/types';
 import {
   Button,
@@ -64,6 +65,10 @@ import {
   ManualTallyFormContestParams,
   ManualTallyFormParams,
 } from '../../config/types';
+import {
+  BallotStyleLabel,
+  VotingMethodLabel,
+} from './manual_tallies_shared_components';
 
 const TallyTaskControls = styled(TaskControls)`
   width: 25rem;
@@ -102,21 +107,28 @@ const TallyMetadataContainer = styled.div`
 `;
 
 function TallyMetadata({
+  election,
   ballotStyleGroupId,
   precinct,
   votingMethod,
 }: {
+  election: Election;
   ballotStyleGroupId: BallotStyleGroupId;
   precinct: Precinct;
-  votingMethod: Tabulation.VotingMethod;
+  votingMethod: ManualResultsVotingMethod;
 }) {
-  const votingMethodTitle =
-    votingMethod === 'absentee' ? 'Absentee' : 'Precinct';
   return (
     <TallyMetadataContainer>
-      <LabelledText label="Ballot Style">{ballotStyleGroupId}</LabelledText>
-      <LabelledText label="Precinct">{precinct.name}</LabelledText>
-      <LabelledText label="Voting Method">{votingMethodTitle}</LabelledText>
+      <LabelledText label="Ballot Style">
+        <BallotStyleLabel
+          election={election}
+          ballotStyleGroupId={ballotStyleGroupId}
+          precinctId={precinct.id}
+        />
+      </LabelledText>
+      <LabelledText label="Voting Method">
+        <VotingMethodLabel votingMethod={votingMethod} />{' '}
+      </LabelledText>
     </TallyMetadataContainer>
   );
 }
@@ -498,6 +510,7 @@ function BallotCountForm({
         <TallyTaskHeader />
         <ControlsContent>
           <TallyMetadata
+            election={election}
             ballotStyleGroupId={ballotStyleGroupId}
             precinct={precinct}
             votingMethod={votingMethod}
@@ -905,6 +918,7 @@ function ContestForm({
         <TallyTaskHeader />
         <ControlsContent>
           <TallyMetadata
+            election={election}
             ballotStyleGroupId={ballotStyleGroupId}
             precinct={precinct}
             votingMethod={votingMethod}
