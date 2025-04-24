@@ -3244,6 +3244,9 @@ importers:
       '@votingworks/logging':
         specifier: workspace:*
         version: link:../logging
+      '@votingworks/logging-utils':
+        specifier: workspace:*
+        version: link:../logging-utils
       '@votingworks/types':
         specifier: workspace:*
         version: link:../types
