@@ -73,7 +73,7 @@ test('getWriteInAdjudicationCvrQueue', async () => {
 
   const contestId = 'Sheriff-4243fe0b';
   const contestCvrIds = await apiClient.getWriteInAdjudicationCvrQueue({
-    contestId: 'Sheriff-4243fe0b',
+    contestId,
   });
   expect(contestCvrIds).toHaveLength(2);
 
@@ -152,12 +152,13 @@ test('getWriteInImageViews on hmpb', async () => {
   const [cvrId] = cvrIds;
   assert(cvrId !== undefined);
 
-  // check image of first write-in
   const [writeInImageViewA, writeInImageViewB] =
     await apiClient.getWriteInImageViews({
       cvrId,
       contestId,
     });
+
+  // check first write-in image
   assert(writeInImageViewA);
 
   const {
@@ -266,7 +267,7 @@ test('getWriteInImageViews on bmd', async () => {
   expect(machineMarkedTextB).toEqual('Mock Write-In');
 });
 
-test('getFirstPendingCvrId', async () => {
+test('getFirstPendingWriteInCvrId', async () => {
   const { auth, apiClient } = buildTestEnvironment();
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();

@@ -1,4 +1,4 @@
-import {
+import React, {
   useContext,
   useEffect,
   useLayoutEffect,
@@ -35,7 +35,7 @@ import { allContestOptions, format } from '@votingworks/utils';
 import { useHistory, useParams } from 'react-router-dom';
 import {
   getCastVoteRecordVoteInfo,
-  getCvrWriteInImageViews,
+  getWriteInImageViews,
   getFirstPendingWriteInCvrId,
   getWriteIns,
   getWriteInAdjudicationCvrQueue,
@@ -73,7 +73,7 @@ interface ExistingWriteInCandidate {
 }
 
 interface NewWriteInCandidate {
-  type: 'new';
+  type: 'new-write-in';
   name: string;
 }
 
@@ -109,7 +109,7 @@ function isValidCandidate(
   return (
     status?.type === 'existing-official' ||
     status?.type === 'existing-write-in' ||
-    status?.type === 'new'
+    status?.type === 'new-write-in'
   );
 }
 
@@ -329,24 +329,24 @@ export function ContestAdjudicationScreen(): JSX.Element {
     contestId,
   });
 
-  const [cvrQueueIndex, setCvrQueueIndex] = useState<number>();
+  const [maybeCvrQueueIndex, setMaybeCvrQueueIndex] = useState<number>();
   const isQueueReady =
-    cvrQueueIndex !== undefined && cvrQueueQuery.data !== undefined;
-  const currentCvrId = isQueueReady
-    ? cvrQueueQuery.data[cvrQueueIndex]
+    maybeCvrQueueIndex !== undefined && cvrQueueQuery.data !== undefined;
+  const maybeCurrentCvrId = isQueueReady
+    ? cvrQueueQuery.data[maybeCvrQueueIndex]
     : undefined;
 
   const cvrVoteInfoQuery = getCastVoteRecordVoteInfo.useQuery(
-    currentCvrId ? { cvrId: currentCvrId } : undefined
+    maybeCurrentCvrId ? { cvrId: maybeCurrentCvrId } : undefined
   );
   const voteAdjudicationsQuery = getVoteAdjudications.useQuery(
-    currentCvrId ? { cvrId: currentCvrId, contestId } : undefined
+    maybeCurrentCvrId ? { cvrId: maybeCurrentCvrId, contestId } : undefined
   );
   const writeInsQuery = getWriteIns.useQuery(
-    currentCvrId ? { cvrId: currentCvrId, contestId } : undefined
+    maybeCurrentCvrId ? { cvrId: maybeCurrentCvrId, contestId } : undefined
   );
-  const writeInImagesQuery = getCvrWriteInImageViews.useQuery(
-    currentCvrId ? { cvrId: currentCvrId, contestId } : undefined
+  const writeInImagesQuery = getWriteInImageViews.useQuery(
+    maybeCurrentCvrId ? { cvrId: maybeCurrentCvrId, contestId } : undefined
   );
   const writeInCandidatesQuery = getWriteInCandidates.useQuery({
     contestId,
@@ -392,10 +392,10 @@ export function ContestAdjudicationScreen(): JSX.Element {
     setHasVoteByOptionId({});
     setWriteInStatusByOptionId({});
   }
-  const isStateReady = Object.keys(hasVoteByOptionId).length > 0;
+  const isVoteStateReady = Object.keys(hasVoteByOptionId).length > 0;
 
   const [focusedOptionId, setFocusedOptionId] = useState<string>();
-  const [shouldAutoscrollUser, setShouldAutoscrollUser] = useState(false);
+  const [shouldScrollToWriteIns, setShouldScrollToWriteIns] = useState(false);
   const [doubleVoteAlert, setDoubleVoteAlert] = useState<DoubleVoteAlert>();
   const [discardChangesNextAction, setDiscardChangesNextAction] = useState<
     'close' | 'back' | 'skip'
@@ -477,7 +477,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
       setWriteInStatusByOptionId(newWriteInStatusByOptionId);
       initialWriteInStatusByOptionIdRef.current = newWriteInStatusByOptionId;
       if (!areAllWriteInsAdjudicated) {
-        setShouldAutoscrollUser(true);
+        setShouldScrollToWriteIns(true);
       }
     }
   }, [
@@ -501,33 +501,33 @@ export function ContestAdjudicationScreen(): JSX.Element {
   // Open to first pending cvr when queue data is loaded
   useEffect(() => {
     if (
-      cvrQueueIndex === undefined &&
+      maybeCvrQueueIndex === undefined &&
       cvrQueueQuery.isSuccess &&
       firstPendingCvrIdQuery.isSuccess
     ) {
       const cvrQueue = cvrQueueQuery.data;
       const cvrId = firstPendingCvrIdQuery.data;
       if (cvrId) {
-        setCvrQueueIndex(cvrQueue.indexOf(cvrId));
+        setMaybeCvrQueueIndex(cvrQueue.indexOf(cvrId));
       } else {
-        setCvrQueueIndex(0);
+        setMaybeCvrQueueIndex(0);
       }
     }
-  }, [firstPendingCvrIdQuery, cvrQueueQuery, cvrQueueIndex]);
+  }, [firstPendingCvrIdQuery, cvrQueueQuery, maybeCvrQueueIndex]);
 
   // Prefetch the next and previous ballot images
-  const prefetchImageViews = getCvrWriteInImageViews.usePrefetch();
+  const prefetchImageViews = getWriteInImageViews.usePrefetch();
   useEffect(() => {
-    if (!cvrQueueQuery.isSuccess || cvrQueueIndex === undefined) return;
-    const nextCvrId = cvrQueueQuery.data[cvrQueueIndex + 1];
+    if (!cvrQueueQuery.isSuccess || maybeCvrQueueIndex === undefined) return;
+    const nextCvrId = cvrQueueQuery.data[maybeCvrQueueIndex + 1];
     if (nextCvrId) {
       void prefetchImageViews({ cvrId: nextCvrId, contestId });
     }
-    const prevCvrId = cvrQueueQuery.data[cvrQueueIndex - 1];
+    const prevCvrId = cvrQueueQuery.data[maybeCvrQueueIndex - 1];
     if (prevCvrId) {
       void prefetchImageViews({ cvrId: prevCvrId, contestId });
     }
-  }, [contestId, cvrQueueIndex, cvrQueueQuery, prefetchImageViews]);
+  }, [contestId, maybeCvrQueueIndex, cvrQueueQuery, prefetchImageViews]);
 
   // Remove focus when escape key is clicked
   useEffect(() => {
@@ -553,19 +553,19 @@ export function ContestAdjudicationScreen(): JSX.Element {
   useLayoutEffect(() => {
     if (
       !areQueriesFetching &&
-      shouldAutoscrollUser &&
+      shouldScrollToWriteIns &&
       candidateListRef.current
     ) {
       candidateListRef.current.scrollTop =
         candidateListRef.current.scrollHeight;
-      setShouldAutoscrollUser(false);
+      setShouldScrollToWriteIns(false);
     }
-  }, [shouldAutoscrollUser, areQueriesFetching]);
+  }, [shouldScrollToWriteIns, areQueriesFetching]);
 
   // Only show full loading screen on initial load to mitigate screen flicker on scroll
   if (
     !isQueueReady ||
-    !currentCvrId ||
+    !maybeCurrentCvrId ||
     !cvrVoteInfoQuery.data ||
     !writeInCandidatesQuery.data ||
     !writeInsQuery.data ||
@@ -583,8 +583,8 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const writeIns = writeInsQuery.data;
   const writeInImages = writeInImagesQuery.data;
   const writeInCandidates = writeInCandidatesQuery.data;
-  const safeCvrQueueIndex = cvrQueueIndex;
-  const safeCurrentCvrId = currentCvrId;
+  const cvrQueueIndex = maybeCvrQueueIndex;
+  const currentCvrId = maybeCurrentCvrId;
 
   const voteCount = Object.values(hasVoteByOptionId).filter(Boolean).length;
   const seatCount = contest.seats;
@@ -666,7 +666,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
     const adjudicatedCvrContest: AdjudicatedCvrContest = {
       adjudicatedContestOptionById,
       contestId,
-      cvrId: safeCurrentCvrId,
+      cvrId: currentCvrId,
       side,
     };
     const officialCandidateOptionIds = officialCandidates.map((c) => c.id);
@@ -707,7 +707,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
       if (onLastBallot) {
         history.push(routerPaths.writeIns);
       } else {
-        setCvrQueueIndex(safeCvrQueueIndex + 1);
+        setMaybeCvrQueueIndex(cvrQueueIndex + 1);
         clearBallotState();
       }
     } catch {
@@ -727,7 +727,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
       setDiscardChangesNextAction('skip');
       return;
     }
-    setCvrQueueIndex(safeCvrQueueIndex + 1);
+    setMaybeCvrQueueIndex(cvrQueueIndex + 1);
     clearBallotState();
   }
 
@@ -736,7 +736,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
       setDiscardChangesNextAction('back');
       return;
     }
-    setCvrQueueIndex(safeCvrQueueIndex - 1);
+    setMaybeCvrQueueIndex(cvrQueueIndex - 1);
     clearBallotState();
   }
 
@@ -747,15 +747,6 @@ export function ContestAdjudicationScreen(): JSX.Element {
     }
     history.push(routerPaths.writeIns);
   }
-
-  const areQueriesStale =
-    cvrVoteInfoQuery.isStale ||
-    cvrQueueQuery.isStale ||
-    firstPendingCvrIdQuery.isStale ||
-    writeInImagesQuery.isStale ||
-    writeInsQuery.isStale ||
-    writeInCandidatesQuery.isStale ||
-    voteAdjudicationsQuery.isStale;
 
   return (
     <Screen>
@@ -795,7 +786,12 @@ export function ContestAdjudicationScreen(): JSX.Element {
           </BallotHeader>
           <BallotVoteCount>
             <MediumText>
-              Votes cast: {format.count(voteCount)} of {format.count(seatCount)}
+              Votes cast:{' '}
+              {isVoteStateReady && (
+                <React.Fragment>
+                  {format.count(voteCount)} of {format.count(seatCount)}
+                </React.Fragment>
+              )}
             </MediumText>
             {isOvervote && (
               <Label>
@@ -803,7 +799,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
               </Label>
             )}
           </BallotVoteCount>
-          {areQueriesStale || !isStateReady ? (
+          {!isVoteStateReady ? (
             <CandidateButtonList style={{ justifyContent: 'center' }}>
               <Icons.Loading />
             </CandidateButtonList>
@@ -945,7 +941,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
               <SmallText>
                 {format.count(cvrQueueIndex + 1)} of {format.count(numBallots)}{' '}
               </SmallText>
-              <SmallText>Ballot ID: {currentCvrId?.substring(0, 4)}</SmallText>
+              <SmallText>Ballot ID: {currentCvrId.substring(0, 4)}</SmallText>
             </BallotMetadata>
             <BallotNavigation>
               <SecondaryNavButton

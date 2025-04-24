@@ -9,7 +9,7 @@ import type {
   WriteInAdjudicationStatus,
 } from '../screens/contest_adjudication_screen';
 
-export const MAX_NAME_LENGTH = 200;
+export const MAX_WRITE_IN_NAME_LENGTH = 200;
 const INVALID_KEY = '\0invalid';
 
 const Container = styled.div`
@@ -29,29 +29,29 @@ const RoundedCheckboxButton = styled(CheckboxButton)`
 `;
 
 export function WriteInAdjudicationButton({
-  caption,
   isFocused,
   isSelected,
-  hasInvalidEntry,
-  label,
+  status,
   onChange,
   onInputFocus,
   onInputBlur,
-  status,
   officialCandidates,
   writeInCandidates,
+  hasInvalidEntry,
+  caption,
+  label,
 }: {
-  caption?: React.ReactNode;
   isFocused: boolean;
   isSelected: boolean;
-  label?: string;
-  hasInvalidEntry: boolean;
   status: Exclude<WriteInAdjudicationStatus, InvalidWriteIn | undefined>;
   onChange: (newStatus: Exclude<WriteInAdjudicationStatus, undefined>) => void;
   onInputBlur: () => void;
   onInputFocus: () => void;
   officialCandidates: Candidate[];
   writeInCandidates: Candidate[];
+  hasInvalidEntry: boolean;
+  caption?: React.ReactNode;
+  label?: string;
 }): JSX.Element {
   const theme = useTheme();
   const [inputValue, setInputValue] = useState('');
@@ -78,7 +78,7 @@ export function WriteInAdjudicationButton({
       value = '';
       break;
     }
-    case 'new':
+    case 'new-write-in':
     case 'existing-official':
     case 'existing-write-in': {
       value = status.name;
@@ -98,7 +98,7 @@ export function WriteInAdjudicationButton({
   // 'Add: NEW_CANDIDATE' entry if there is no exact match
   if (
     inputValue &&
-    inputValue.length < MAX_NAME_LENGTH &&
+    inputValue.length < MAX_WRITE_IN_NAME_LENGTH &&
     !options.some(
       (item) => normalizeWriteInName(item.label) === normalizedInputValue
     )
@@ -146,12 +146,12 @@ export function WriteInAdjudicationButton({
               : 'existing-write-in';
             onChange({ type, ...candidate });
           } else {
-            onChange({ type: 'new', name: val });
+            onChange({ type: 'new-write-in', name: val });
           }
         }}
         minMenuHeight={300}
         noOptionsMessage={() =>
-          `Entry exceeds max character length of ${MAX_NAME_LENGTH}`
+          `Entry exceeds max character length of ${MAX_WRITE_IN_NAME_LENGTH}`
         }
         value={value}
         placeholder={

@@ -1780,7 +1780,7 @@ export class Store {
     this.assertElectionExists(electionId);
 
     debug(
-      'querying database for write-in adjudication ballot queue for contest %s',
+      'querying database for write-in adjudication cvr queue for contest %s',
       contestId
     );
     const rows = this.client.all(

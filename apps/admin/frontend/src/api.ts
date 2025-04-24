@@ -232,8 +232,10 @@ export const getCastVoteRecordFileMode = {
 type GetWriteInAdjudicationCvrQueueInput =
   QueryInput<'getWriteInAdjudicationCvrQueue'>;
 export const getWriteInAdjudicationCvrQueue = {
-  queryKey(input: GetWriteInAdjudicationCvrQueueInput): QueryKey {
-    return ['getWriteInAdjudicationCvrQueue', input];
+  queryKey(input?: GetWriteInAdjudicationCvrQueueInput): QueryKey {
+    return input
+      ? ['getWriteInAdjudicationCvrQueue', input]
+      : ['getWriteInAdjudicationCvrQueue'];
   },
   useQuery(input: GetWriteInAdjudicationCvrQueueInput) {
     const apiClient = useApiClient();
@@ -288,36 +290,6 @@ export const getWriteInCandidates = {
   },
 } as const;
 
-type GetCvrWriteInImageViewsInput = QueryInput<'getWriteInImageViews'>;
-export const getCvrWriteInImageViews = {
-  queryKey(input?: GetCvrWriteInImageViewsInput): QueryKey {
-    return input
-      ? ['getCvrWriteInImageViews', input]
-      : ['getCvrWriteInImageViews'];
-  },
-  useQuery(input?: GetCvrWriteInImageViewsInput) {
-    const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(input),
-      () =>
-        apiClient.getWriteInImageViews({
-          cvrId: input?.cvrId ?? '',
-          contestId: input?.contestId ?? '',
-        }),
-      { enabled: !!input, keepPreviousData: true }
-    );
-  },
-  usePrefetch() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return (input: GetCvrWriteInImageViewsInput) =>
-      queryClient.prefetchQuery({
-        queryKey: getCvrWriteInImageViews.queryKey(input),
-        queryFn: () => apiClient.getWriteInImageViews(input),
-      });
-  },
-} as const;
-
 type GetWriteInsInput = QueryInput<'getWriteIns'>;
 export const getWriteIns = {
   queryKey(input?: GetWriteInsInput): QueryKey {
@@ -337,6 +309,37 @@ export const getWriteIns = {
   },
 } as const;
 
+type GetWriteInImageViewsInput = QueryInput<'getWriteInImageViews'>;
+export const getWriteInImageViews = {
+  queryKey(input?: GetWriteInImageViewsInput): QueryKey {
+    return input ? ['getWriteInImageViews', input] : ['getWriteInImageViews'];
+  },
+  useQuery(input?: GetWriteInImageViewsInput) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(input),
+      input
+        ? () =>
+            apiClient.getWriteInImageViews({
+              cvrId: input.cvrId,
+              contestId: input.contestId,
+            })
+        : /* istanbul ignore next - @preserve */
+          () => fail('input is required'),
+      { enabled: !!input, keepPreviousData: true }
+    );
+  },
+  usePrefetch() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return (input: GetWriteInImageViewsInput) =>
+      queryClient.prefetchQuery({
+        queryKey: getWriteInImageViews.queryKey(input),
+        queryFn: () => apiClient.getWriteInImageViews(input),
+      });
+  },
+} as const;
+
 type GetCastVoteRecordVoteInfoInput = QueryInput<'getCastVoteRecordVoteInfo'>;
 export const getCastVoteRecordVoteInfo = {
   queryKey(input?: GetCastVoteRecordVoteInfoInput): QueryKey {
@@ -348,7 +351,12 @@ export const getCastVoteRecordVoteInfo = {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(input),
-      () => apiClient.getCastVoteRecordVoteInfo({ cvrId: input?.cvrId ?? '' }),
+      input
+        ? () =>
+            apiClient.getCastVoteRecordVoteInfo({
+              cvrId: input.cvrId,
+            }) /* istanbul ignore next - @preserve */
+        : () => fail('input is required'),
       { enabled: !!input, keepPreviousData: true }
     );
   },
@@ -556,6 +564,7 @@ function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
     // cast vote record endpoints
     queryClient.invalidateQueries(getCastVoteRecordFileMode.queryKey()),
     queryClient.invalidateQueries(getCastVoteRecordFiles.queryKey()),
+    queryClient.invalidateQueries(getCastVoteRecordVoteInfo.queryKey()),
 
     // scanner batches are generated from cast vote records
     queryClient.invalidateQueries(getScannerBatches.queryKey()),
@@ -564,9 +573,7 @@ function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
     queryClient.invalidateQueries(getTotalBallotCount.queryKey()),
 
     // write-in queues
-    queryClient.invalidateQueries(
-      getWriteInAdjudicationCvrQueueMetadata.queryKey()
-    ),
+    queryClient.invalidateQueries(getWriteInAdjudicationCvrQueue.queryKey()),
   ]);
 }
 
