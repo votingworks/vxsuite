@@ -8,7 +8,10 @@ import {
   SearchSelect,
 } from '@votingworks/ui';
 import { useMemo, useState } from 'react';
-import type { VoterRegistrationRequest } from '@votingworks/pollbook-backend';
+import type {
+  PartyAbbreviation,
+  VoterRegistrationRequest,
+} from '@votingworks/pollbook-backend';
 import { Column, Row, FieldName } from './layout';
 import { PollWorkerNavScreen } from './nav_screen';
 import { AddressInputGroup } from './address_input_group';
@@ -74,7 +77,7 @@ export function AddVoterScreen({
           <Row style={{ gap: '1rem' }}>
             <RequiredStaticInput>
               <FieldName>Party Affiliation</FieldName>
-              <SearchSelect
+              <SearchSelect<PartyAbbreviation>
                 id="party"
                 aria-label="Party Affiliation"
                 style={{ width: '20rem' }}

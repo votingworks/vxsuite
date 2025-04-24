@@ -46,7 +46,7 @@ export function Multi(props: SearchSelectMultiProps): JSX.Element {
   const [value, setValue] = useState<string[]>([]);
 
   return (
-    <SearchSelect
+    <SearchSelect<string>
       style={{ minWidth: '8rem' }}
       {...props}
       value={value}

@@ -284,7 +284,7 @@ export function FilterEditor({
               aria-label="Edit Filter Type"
             />
             <Predicate>is</Predicate>
-            <SearchSelect
+            <SearchSelect<string>
               isMulti
               isSearchable
               key={filterType}

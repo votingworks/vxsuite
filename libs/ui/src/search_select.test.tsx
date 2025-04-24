@@ -17,13 +17,13 @@ const options = [
   { value: 'pear', label: 'Pear' },
 ];
 
-function ControlledSingleSelect({
+function ControlledSingleSelect<T>({
   value: valueProp,
   ...rest
-}: Partial<SearchSelectSingleProps>): JSX.Element {
-  const [value, setValue] = React.useState<string | undefined>(valueProp);
+}: Partial<SearchSelectSingleProps<T>>): JSX.Element {
+  const [value, setValue] = React.useState<T | undefined>(valueProp);
   return (
-    <SearchSelect
+    <SearchSelect<T>
       isSearchable={false}
       options={[]}
       {...rest}
@@ -40,7 +40,7 @@ function ControlledMultiSelect({
 }: Partial<SearchSelectProps>): JSX.Element {
   const [value, setValue] = React.useState<string[]>(valueProp as string[]);
   return (
-    <SearchSelect
+    <SearchSelect<string>
       isSearchable={false}
       options={[]}
       {...rest}
@@ -271,4 +271,23 @@ test('empty option', () => {
   userEvent.click(screen.getByText('None'));
   expect(screen.queryByText('Apple')).not.toBeInTheDocument();
   screen.getByText('None');
+});
+
+test('complex value type uses deep equality', () => {
+  render(
+    <ControlledSingleSelect
+      options={[
+        { value: { fruit: 'apple', color: 'red' }, label: 'Red Apple' },
+        { value: { fruit: 'apple', color: 'green' }, label: 'Green Apple' },
+      ]}
+      aria-label="Choose Fruit"
+      value={{ fruit: 'apple', color: 'red' }}
+    />
+  );
+
+  screen.getByText('Red Apple');
+  userEvent.click(screen.getByText('Red Apple'));
+  userEvent.click(screen.getByText('Green Apple'));
+  screen.getByText('Green Apple');
+  expect(screen.queryByText('Red Apple')).not.toBeInTheDocument();
 });
