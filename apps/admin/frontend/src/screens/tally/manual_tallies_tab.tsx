@@ -1,4 +1,4 @@
-import { assert, find, iter } from '@votingworks/basics';
+import { assert, iter } from '@votingworks/basics';
 import React, { useContext, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
@@ -16,15 +16,15 @@ import {
   Icons,
 } from '@votingworks/ui';
 import {
-  getBallotStyleGroup,
+  getBallotStyleGroupsForPrecinctOrSplit,
   getGroupedBallotStyles,
   isElectionManagerAuth,
 } from '@votingworks/utils';
 import {
   BallotStyleGroup,
-  BallotStyleGroupId,
   Election,
-  Precinct,
+  getAllPrecinctsAndSplits,
+  PrecinctOrSplit,
 } from '@votingworks/types';
 import type {
   ManualResultsVotingMethod,
@@ -36,6 +36,10 @@ import { AppContext } from '../../contexts/app_context';
 import { ConfirmRemoveAllManualTalliesModal } from './confirm_remove_all_manual_tallies_modal';
 import { deleteManualResults, getManualResultsMetadata } from '../../api';
 import { ImportElectionsResultReportingFileModal } from './import_election_results_reporting_file_modal';
+import {
+  BallotStyleLabel,
+  VotingMethodLabel,
+} from './manual_tallies_shared_components';
 
 export const TITLE = 'Manual Tallies';
 
@@ -76,10 +80,6 @@ const SummaryTableWrapper = styled.div`
   }
 `;
 
-const ImportResultsFileButtonContainer = styled.div`
-  margin-right: 0.5rem;
-`;
-
 function RemoveManualTallyModal({
   identifier,
   election,
@@ -101,12 +101,6 @@ function RemoveManualTallyModal({
       { onSuccess: onClose }
     );
   }
-  const precinct = find(
-    election.precincts,
-    (p) => p.id === identifier.precinctId
-  );
-  const votingMethodTitle =
-    identifier.votingMethod === 'absentee' ? 'Absentee' : 'Precinct';
 
   return (
     <Modal
@@ -119,11 +113,14 @@ function RemoveManualTallyModal({
           </P>
           <P>
             <Font weight="bold">Ballot Style:</Font>{' '}
-            {identifier.ballotStyleGroupId}
+            <BallotStyleLabel
+              election={election}
+              ballotStyleGroupId={identifier.ballotStyleGroupId}
+              precinctId={identifier.precinctId}
+            />
             <br />
-            <Font weight="bold">Precinct:</Font> {precinct.name}
-            <br />
-            <Font weight="bold">Voting Method:</Font> {votingMethodTitle}
+            <Font weight="bold">Voting Method:</Font>{' '}
+            <VotingMethodLabel votingMethod={identifier.votingMethod} />
           </P>
         </React.Fragment>
       }
@@ -148,6 +145,11 @@ function RemoveManualTallyModal({
       onOverlayClick={onClose}
     />
   );
+}
+
+interface PrecinctAndBallotStyle {
+  precinctOrSplit: PrecinctOrSplit;
+  ballotStyleGroup: BallotStyleGroup;
 }
 
 export function ManualTalliesTab(): JSX.Element | null {
@@ -196,57 +198,47 @@ export function ManualTalliesTab(): JSX.Element | null {
     [election, manualTallyMetadataRecords]
   );
 
-  const [selectedPrecinct, setSelectedPrecinct] = useState<Precinct>();
-  const [selectedBallotStyle, setSelectedBallotStyle] =
-    useState<BallotStyleGroup>();
+  const [selectedPrecinctAndBallotStyle, setSelectedPrecinctAndBallotStyle] =
+    useState<PrecinctAndBallotStyle>();
   const [selectedVotingMethod, setSelectedBallotType] =
     useState<ManualResultsVotingMethod>();
   const [showUploadTalliesModal, setShowUploadTalliesModal] =
     useState<boolean>();
 
-  const selectableBallotStyles = getGroupedBallotStyles(
-    election.ballotStyles
-  ).filter((bs) =>
-    uncreatedManualTallyMetadata.some(
-      (metadata) => metadata.ballotStyleGroupId === bs.id
+  const selectablePrecinctAndBallotStyles = getAllPrecinctsAndSplits(election)
+    .flatMap((precinctOrSplit) =>
+      getBallotStyleGroupsForPrecinctOrSplit({
+        election,
+        precinctOrSplit,
+      }).map((ballotStyleGroup) => ({
+        precinctOrSplit,
+        ballotStyleGroup,
+      }))
     )
-  );
-  const selectablePrecincts = selectedBallotStyle
-    ? election.precincts.filter((precinct) =>
-        uncreatedManualTallyMetadata.some(
-          (metadata) =>
-            metadata.ballotStyleGroupId === selectedBallotStyle.id &&
-            metadata.precinctId === precinct.id
-        )
+    .filter(({ precinctOrSplit, ballotStyleGroup }) =>
+      uncreatedManualTallyMetadata.some(
+        (metadata) =>
+          metadata.precinctId === precinctOrSplit.precinct.id &&
+          metadata.ballotStyleGroupId === ballotStyleGroup.id
       )
-    : [];
-  const selectableBallotTypes: ManualResultsVotingMethod[] =
-    selectedBallotStyle && selectedPrecinct
+    );
+
+  const selectableVotingMethods: ManualResultsVotingMethod[] =
+    selectedPrecinctAndBallotStyle
       ? ALL_MANUAL_TALLY_BALLOT_TYPES.filter((votingMethod) =>
           uncreatedManualTallyMetadata.some(
             (metadata) =>
-              metadata.ballotStyleGroupId === selectedBallotStyle.id &&
-              metadata.precinctId === selectedPrecinct.id &&
+              metadata.ballotStyleGroupId ===
+                selectedPrecinctAndBallotStyle.ballotStyleGroup.id &&
+              metadata.precinctId ===
+                selectedPrecinctAndBallotStyle.precinctOrSplit.precinct.id &&
               metadata.votingMethod === votingMethod
           )
         )
       : [];
 
-  function handleBallotStyleSelect(value?: string) {
-    setSelectedBallotStyle(
-      value
-        ? getBallotStyleGroup({
-            election,
-            ballotStyleGroupId: value as BallotStyleGroupId,
-          })
-        : undefined
-    );
-    setSelectedPrecinct(undefined);
-    setSelectedBallotType(undefined);
-  }
-
-  function handlePrecinctSelect(value?: string) {
-    setSelectedPrecinct(election.precincts.find((p) => p.id === value));
+  function handlePrecinctAndBallotStyleSelect(value?: PrecinctAndBallotStyle) {
+    setSelectedPrecinctAndBallotStyle(value);
     setSelectedBallotType(undefined);
   }
 
@@ -260,8 +252,7 @@ export function ManualTalliesTab(): JSX.Element | null {
 
   if (
     showUploadTalliesModal &&
-    selectedBallotStyle &&
-    selectedPrecinct &&
+    selectedPrecinctAndBallotStyle &&
     selectedVotingMethod
   ) {
     return (
@@ -269,8 +260,8 @@ export function ManualTalliesTab(): JSX.Element | null {
         onClose={() => {
           setShowUploadTalliesModal(false);
         }}
-        ballotStyleGroupId={selectedBallotStyle.id}
-        precinctId={selectedPrecinct.id}
+        ballotStyleGroupId={selectedPrecinctAndBallotStyle.ballotStyleGroup.id}
+        precinctId={selectedPrecinctAndBallotStyle.precinctOrSplit.precinct.id}
         votingMethod={selectedVotingMethod}
       />
     );
@@ -289,100 +280,75 @@ export function ManualTalliesTab(): JSX.Element | null {
             style={{
               display: 'flex',
               gap: '1rem',
+              alignItems: 'end',
             }}
           >
             <div style={{ flex: 1 }}>
               <FieldName>Ballot Style</FieldName>
               <SearchSelect
-                id="selectBallotStyle"
+                id="selectPrecinctAndBallotStyle"
                 aria-label="Ballot Style"
-                options={selectableBallotStyles.map((bs) => ({
-                  label: bs.id,
-                  value: bs.id,
-                }))}
-                value={selectedBallotStyle?.id}
+                options={selectablePrecinctAndBallotStyles.map(
+                  ({ precinctOrSplit, ballotStyleGroup }) => ({
+                    label: BallotStyleLabel({
+                      election,
+                      ballotStyleGroupId: ballotStyleGroup.id,
+                      precinctId: precinctOrSplit.precinct.id,
+                    }),
+                    value: { precinctOrSplit, ballotStyleGroup },
+                  })
+                )}
+                value={selectedPrecinctAndBallotStyle}
                 disabled={isOfficialResults}
-                onChange={handleBallotStyleSelect}
+                onChange={handlePrecinctAndBallotStyleSelect}
                 style={{ width: '100%' }}
               />
             </div>
-            <div style={{ flex: 1 }}>
-              <FieldName>Precinct</FieldName>
-              <SearchSelect
-                id="selectPrecinct"
-                aria-label="Precinct"
-                options={selectablePrecincts.map((p) => ({
-                  label: p.name,
-                  value: p.id,
-                }))}
-                value={selectedPrecinct?.id}
-                onChange={handlePrecinctSelect}
-                disabled={!selectedBallotStyle}
-                style={{ width: '100%' }}
-              />
-            </div>
-            <div style={{ flex: 1 }}>
+            <div style={{ width: '7rem' }}>
               <FieldName>Voting Method</FieldName>
               <SearchSelect
                 id="selectBallotType"
                 aria-label="Voting Method"
-                options={selectableBallotTypes.map((bt) => ({
-                  label: bt === 'absentee' ? 'Absentee' : 'Precinct',
-                  value: bt,
+                options={selectableVotingMethods.map((votingMethod) => ({
+                  label: VotingMethodLabel({ votingMethod }),
+                  value: votingMethod,
                 }))}
                 value={selectedVotingMethod}
                 onChange={handleBallotTypeSelect}
-                disabled={!selectedPrecinct}
+                disabled={!selectedPrecinctAndBallotStyle}
                 style={{ width: '100%' }}
               />
             </div>
-          </div>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'end',
-              marginTop: '0.5rem',
-            }}
-          >
-            <ImportResultsFileButtonContainer>
-              <Button
-                disabled={
-                  !(
-                    selectedBallotStyle &&
-                    selectedPrecinct &&
-                    selectedVotingMethod
-                  )
-                }
-                icon="Import"
-                variant="secondary"
-                onPress={onPressUploadTallies}
-              >
-                Import Results File
-              </Button>
-            </ImportResultsFileButtonContainer>
             <LinkButton
               disabled={
-                !(
-                  selectedBallotStyle &&
-                  selectedPrecinct &&
-                  selectedVotingMethod
-                )
+                !(selectedPrecinctAndBallotStyle && selectedVotingMethod)
               }
               icon="Add"
               variant="primary"
               to={
-                selectedBallotStyle &&
-                selectedPrecinct &&
+                selectedPrecinctAndBallotStyle &&
                 selectedVotingMethod &&
                 routerPaths.tallyManualForm({
-                  ballotStyleGroupId: selectedBallotStyle.id,
-                  precinctId: selectedPrecinct.id,
+                  ballotStyleGroupId:
+                    selectedPrecinctAndBallotStyle.ballotStyleGroup.id,
+                  precinctId:
+                    selectedPrecinctAndBallotStyle.precinctOrSplit.precinct.id,
                   votingMethod: selectedVotingMethod,
                 })
               }
             >
               Enter Tallies
             </LinkButton>
+            <Button
+              disabled={
+                !(selectedPrecinctAndBallotStyle && selectedVotingMethod)
+              }
+              icon="Import"
+              variant="secondary"
+              onPress={onPressUploadTallies}
+            >
+              Import Results
+            </Button>
           </div>
         </AddTalliesCard>
       )}
@@ -391,13 +357,10 @@ export function ManualTalliesTab(): JSX.Element | null {
           <Table condensed data-testid="summary-data">
             <thead>
               <tr>
-                <TD as="th" narrow nowrap>
+                <TD as="th" nowrap>
                   Ballot Style
                 </TD>
-                <TD as="th" narrow nowrap>
-                  Precinct
-                </TD>
-                <TD as="th" narrow nowrap>
+                <TD as="th" nowrap>
                   Voting Method
                 </TD>
                 <TD as="th" narrow nowrap>
@@ -408,60 +371,56 @@ export function ManualTalliesTab(): JSX.Element | null {
               </tr>
             </thead>
             <tbody>
-              {manualTallyMetadataRecords.map((metadata) => {
-                const precinct = find(
-                  election.precincts,
-                  (p) => p.id === metadata.precinctId
-                );
-                const votingMethodTitle =
-                  metadata.votingMethod === 'absentee'
-                    ? 'Absentee'
-                    : 'Precinct';
-                return (
-                  <tr
-                    key={`${metadata.precinctId}-${metadata.ballotStyleGroupId}-${metadata.votingMethod}`}
-                  >
-                    <TD>{metadata.ballotStyleGroupId}</TD>
-                    <TD>{precinct.name}</TD>
-
-                    <TD>{votingMethodTitle}</TD>
-                    <TD nowrap data-testid="numBallots">
-                      {metadata.ballotCount.toLocaleString()}
-                    </TD>
-                    <TD narrow nowrap>
-                      {metadata.validationError === 'invalid' && (
-                        <React.Fragment>
-                          <Icons.Warning color="warning" /> Invalid
-                        </React.Fragment>
-                      )}
-                      {metadata.validationError === 'incomplete' && (
-                        <React.Fragment>
-                          <Icons.Info /> Incomplete
-                        </React.Fragment>
-                      )}
-                    </TD>
-                    <TD nowrap style={{ minWidth: '13rem' }}>
-                      <LinkButton
-                        icon="Edit"
-                        fill="transparent"
-                        to={routerPaths.tallyManualForm(metadata)}
-                        disabled={isOfficialResults}
-                      >
-                        Edit
-                      </LinkButton>
-                      <Button
-                        icon="Delete"
-                        color="danger"
-                        fill="transparent"
-                        onPress={() => setManualTallyToRemove(metadata)}
-                        disabled={isOfficialResults}
-                      >
-                        Remove
-                      </Button>
-                    </TD>
-                  </tr>
-                );
-              })}
+              {manualTallyMetadataRecords.map((metadata) => (
+                <tr
+                  key={`${metadata.precinctId}-${metadata.ballotStyleGroupId}-${metadata.votingMethod}`}
+                >
+                  <TD>
+                    <BallotStyleLabel
+                      election={election}
+                      ballotStyleGroupId={metadata.ballotStyleGroupId}
+                      precinctId={metadata.precinctId}
+                    />
+                  </TD>
+                  <TD>
+                    <VotingMethodLabel votingMethod={metadata.votingMethod} />
+                  </TD>
+                  <TD nowrap data-testid="numBallots">
+                    {metadata.ballotCount.toLocaleString()}
+                  </TD>
+                  <TD narrow nowrap>
+                    {metadata.validationError === 'invalid' && (
+                      <React.Fragment>
+                        <Icons.Warning color="warning" /> Invalid
+                      </React.Fragment>
+                    )}
+                    {metadata.validationError === 'incomplete' && (
+                      <React.Fragment>
+                        <Icons.Info /> Incomplete
+                      </React.Fragment>
+                    )}
+                  </TD>
+                  <TD nowrap style={{ minWidth: '14rem' }}>
+                    <LinkButton
+                      icon="Edit"
+                      fill="transparent"
+                      to={routerPaths.tallyManualForm(metadata)}
+                      disabled={isOfficialResults}
+                    >
+                      Edit
+                    </LinkButton>
+                    <Button
+                      icon="Delete"
+                      color="danger"
+                      fill="transparent"
+                      onPress={() => setManualTallyToRemove(metadata)}
+                      disabled={isOfficialResults}
+                    >
+                      Remove
+                    </Button>
+                  </TD>
+                </tr>
+              ))}
             </tbody>
           </Table>
         </SummaryTableWrapper>

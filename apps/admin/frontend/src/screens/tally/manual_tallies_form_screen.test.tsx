@@ -144,9 +144,8 @@ test('entering initial ballot count and contest tallies', async () => {
   const { history } = renderScreen();
 
   await screen.findByRole('heading', { name: 'Edit Tallies' });
-  screen.getByText(hasTextAcrossElements('Ballot Style1M'));
-  screen.getByText(hasTextAcrossElements('PrecinctPrecinct 1'));
-  screen.getByText(hasTextAcrossElements('Voting MethodAbsentee'));
+  screen.getByText(hasTextAcrossElements(/Ballot StylePrecinct 1 - Mammal/));
+  screen.getByText(hasTextAcrossElements(/Voting MethodAbsentee/));
 
   // Enter ballot count
   screen.getButton('Close');
@@ -256,7 +255,7 @@ test('editing existing tallies', async () => {
   });
 
   await screen.findByRole('heading', { name: 'Edit Tallies' });
-  screen.getByText(hasTextAcrossElements('Voting MethodPrecinct'));
+  screen.getByText(hasTextAcrossElements(/Voting MethodPrecinct/));
 
   // Edit ballot count
   const ballotCountInput = screen.getByLabelText('Total Ballots Cast');

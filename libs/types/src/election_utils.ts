@@ -31,6 +31,7 @@ import {
   PrecinctSplitId,
   PrecinctSplit,
   hasSplits,
+  PrecinctOrSplit,
 } from './election';
 
 /**
@@ -477,4 +478,14 @@ export function ballotPaperDimensions(paperSize: BallotPaperSize): {
       return throwIllegalValue(paperSize);
     }
   }
+}
+
+export function getAllPrecinctsAndSplits(
+  election: Election
+): PrecinctOrSplit[] {
+  return election.precincts.flatMap((precinct) =>
+    hasSplits(precinct)
+      ? precinct.splits.map((split): PrecinctOrSplit => ({ precinct, split }))
+      : [{ precinct }]
+  );
 }

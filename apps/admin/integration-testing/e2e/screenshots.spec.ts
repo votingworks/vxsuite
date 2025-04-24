@@ -658,8 +658,6 @@ test('manual results', async ({ page }) => {
   await page.getByText('Manual Tallies').click();
   await screenshot('manual-tallies-tab-empty');
   await openDropdown(page, 'Ballot Style');
-  await selectOpenDropdownOption(page, 'card-number-3');
-  await openDropdown(page, 'Precinct');
   await selectOpenDropdownOption(page, 'Test Ballot');
   await openDropdown(page, 'Voting Method');
   await screenshot('manual-tallies-metadata-selection');
