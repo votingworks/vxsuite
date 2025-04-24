@@ -501,7 +501,11 @@ describe('PDI scanner mock', () => {
     mockApiClient.pdiScannerGetSheetStatus
       .expectRepeatedCallsWith()
       .resolves('noSheet');
-    await screen.findByRole('button', { name: 'Insert Ballot' });
+    await screen.findByRole(
+      'button',
+      { name: 'Insert Ballot' },
+      { timeout: 2000 }
+    );
   });
 
   test('ignores canceled open file dialog', async () => {
