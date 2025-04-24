@@ -1,4 +1,4 @@
-import { typedAs } from '@votingworks/basics';
+import { deepEqual, typedAs } from '@votingworks/basics';
 import Select, {
   components,
   DropdownIndicatorProps,
@@ -57,12 +57,12 @@ function MultiValueRemove(
   );
 }
 
-export interface SelectOption<T extends string = string> {
+export interface SelectOption<T = string> {
   value: T;
   label: string;
 }
 
-interface SearchSelectBaseProps<T extends string = string> {
+interface SearchSelectBaseProps<T = string> {
   id?: string;
   isMulti?: boolean;
   isSearchable?: boolean;
@@ -74,7 +74,7 @@ interface SearchSelectBaseProps<T extends string = string> {
   required?: boolean;
 }
 
-export interface SearchSelectMultiProps<T extends string = string>
+export interface SearchSelectMultiProps<T = string>
   extends SearchSelectBaseProps<T> {
   isMulti: true;
   value: T[];
@@ -83,7 +83,7 @@ export interface SearchSelectMultiProps<T extends string = string>
   menuPortalTarget?: HTMLElement;
 }
 
-export interface SearchSelectSingleProps<T extends string = string>
+export interface SearchSelectSingleProps<T = string>
   extends SearchSelectBaseProps<T> {
   isMulti?: false;
   value?: T;
@@ -92,18 +92,18 @@ export interface SearchSelectSingleProps<T extends string = string>
   menuPortalTarget?: HTMLElement;
 }
 
-export type SearchSelectProps<T extends string = string> =
+export type SearchSelectProps<T = string> =
   | SearchSelectSingleProps<T>
   | SearchSelectMultiProps<T>;
 
-function findOption<T extends string = string>(
+function findOption<T = string>(
   options: Array<SelectOption<T>>,
   value: T
 ): SelectOption<T> | undefined {
-  return options.find((option) => option.value === value);
+  return options.find((option) => deepEqual(option.value, value));
 }
 
-export function SearchSelect<T extends string = string>({
+export function SearchSelect<T = string>({
   id,
   isMulti,
   isSearchable,
