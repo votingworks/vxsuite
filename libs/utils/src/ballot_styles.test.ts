@@ -9,12 +9,15 @@ import {
   Party,
   PartyId,
 } from '@votingworks/types';
-import { readElectionGeneral } from '@votingworks/fixtures';
+import {
+  electionPrimaryPrecinctSplitsFixtures,
+  readElectionGeneral,
+} from '@votingworks/fixtures';
 import { assert } from '@votingworks/basics';
 import {
   generateBallotStyleId,
   getBallotStyleGroup,
-  getBallotStyleGroupForPrecinctOrSplit,
+  getBallotStyleGroupsForPrecinctOrSplit,
   getGroupedBallotStyles,
   getPrecinctsAndSplitsForBallotStyle,
   getRelatedBallotStyle,
@@ -278,28 +281,53 @@ describe('ballot style groups', () => {
   });
 });
 
-test('getBallotStyleGroupForPrecinctOrSplit', () => {
+test('getBallotStyleGroupForPrecinctOrSplit - general election', () => {
   const [precinct1, precinct2] = electionGeneral.precincts;
   assert(precinct1 && !hasSplits(precinct1));
   assert(precinct2 && hasSplits(precinct2));
   expect(
-    getBallotStyleGroupForPrecinctOrSplit({
+    getBallotStyleGroupsForPrecinctOrSplit({
       election: electionGeneral,
       precinctOrSplit: { precinct: precinct1 },
-    }).id
-  ).toEqual('12' as BallotStyleGroupId);
+    }).map((group) => group.id)
+  ).toEqual(['12']);
   expect(
-    getBallotStyleGroupForPrecinctOrSplit({
+    getBallotStyleGroupsForPrecinctOrSplit({
       election: electionGeneral,
       precinctOrSplit: { precinct: precinct2, split: precinct2.splits[0]! },
-    }).id
-  ).toEqual('5' as BallotStyleGroupId);
+    }).map((group) => group.id)
+  ).toEqual(['5']);
   expect(
-    getBallotStyleGroupForPrecinctOrSplit({
+    getBallotStyleGroupsForPrecinctOrSplit({
       election: electionGeneral,
       precinctOrSplit: { precinct: precinct2, split: precinct2.splits[1]! },
-    }).id
-  ).toEqual('12' as BallotStyleGroupId);
+    }).map((group) => group.id)
+  ).toEqual(['12']);
+});
+
+test('getBallotStyleGroupForPrecinctOrSplit - primary election', () => {
+  const election = electionPrimaryPrecinctSplitsFixtures.readElection();
+  const [precinct1, , , precinct4] = election.precincts;
+  assert(precinct1 && !hasSplits(precinct1));
+  assert(precinct4 && hasSplits(precinct4));
+  expect(
+    getBallotStyleGroupsForPrecinctOrSplit({
+      election,
+      precinctOrSplit: { precinct: precinct1 },
+    }).map((group) => group.id)
+  ).toEqual(['1-Ma', '1-F']);
+  expect(
+    getBallotStyleGroupsForPrecinctOrSplit({
+      election,
+      precinctOrSplit: { precinct: precinct4, split: precinct4.splits[0]! },
+    }).map((group) => group.id)
+  ).toEqual(['3-Ma', '3-F']);
+  expect(
+    getBallotStyleGroupsForPrecinctOrSplit({
+      election,
+      precinctOrSplit: { precinct: precinct4, split: precinct4.splits[1]! },
+    }).map((group) => group.id)
+  ).toEqual(['4-Ma', '4-F']);
 });
 
 test('getPrecinctsAndSplitsForBallotStyle', () => {
