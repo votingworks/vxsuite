@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { electionPrimaryPrecinctSplitsFixtures } from '@votingworks/fixtures';
+import {
+  electionPrimaryPrecinctSplitsFixtures,
+  readElectionGeneralDefinition,
+} from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { createMemoryHistory } from 'history';
 import { Router } from 'react-router-dom';
@@ -34,7 +37,7 @@ const electionDefinition =
   electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
 const { election } = electionDefinition;
 
-test('initial table without manual tallies & adding a manual tally', async () => {
+test('initial table without manual tallies & adding a manual tally - primary election', async () => {
   const history = createMemoryHistory();
   apiMock.expectGetManualResultsMetadata([]);
   renderInAppContext(
@@ -57,25 +60,34 @@ test('initial table without manual tallies & adding a manual tally', async () =>
   // adding a manual tally
   expect(screen.getButton('Enter Tallies')).toBeDisabled();
   expect(screen.getByLabelText('Voting Method')).toBeDisabled();
-  expect(screen.getByLabelText('Precinct')).toBeDisabled();
 
   userEvent.click(screen.getByLabelText('Ballot Style'));
-  userEvent.click(screen.getByText('1-Ma'));
-
-  expect(screen.getButton('Enter Tallies')).toBeDisabled();
-  expect(screen.getByLabelText('Voting Method')).toBeDisabled();
-
-  userEvent.click(screen.getByLabelText('Precinct'));
-  userEvent.click(screen.getByText('Precinct 1'));
+  const ballotStyleOptions = screen.getByText('Precinct 1 - Mammal')
+    .parentElement!;
+  expect(
+    [...ballotStyleOptions.children].map((option) => option.textContent)
+  ).toEqual([
+    'Precinct 1 - Mammal',
+    'Precinct 1 - Fish',
+    'Precinct 2 - Mammal',
+    'Precinct 2 - Fish',
+    'Precinct 3 - Mammal',
+    'Precinct 3 - Fish',
+    'Precinct 4 - Split 1 - Mammal',
+    'Precinct 4 - Split 1 - Fish',
+    'Precinct 4 - Split 2 - Mammal',
+    'Precinct 4 - Split 2 - Fish',
+  ]);
+  userEvent.click(screen.getByText('Precinct 1 - Mammal'));
 
   expect(screen.getButton('Enter Tallies')).toBeDisabled();
 
   userEvent.click(screen.getByLabelText('Voting Method'));
-  const options = screen.getByText('Absentee').parentElement!;
-  userEvent.click(within(options).getByText('Precinct'));
+  const votingMethodOptions = screen.getByText('Absentee').parentElement!;
+  userEvent.click(within(votingMethodOptions).getByText('Precinct'));
 
   // Modal for uploading an ERR file. Functionality tested at component level.
-  userEvent.click(screen.getButton('Import Results File'));
+  userEvent.click(screen.getButton('Import Results'));
   screen.getByText('Insert a USB drive in order to import a results file.');
   userEvent.click(screen.getByText('Cancel'));
 
@@ -84,6 +96,59 @@ test('initial table without manual tallies & adding a manual tally', async () =>
   expect(history.location.pathname).toEqual(
     '/tally/manual/1-Ma/precinct/precinct-c1-w1-1'
   );
+});
+
+test('adding a manual tally - general election', async () => {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
+  const electionDefinition = readElectionGeneralDefinition();
+  const history = createMemoryHistory();
+  apiMock.expectGetManualResultsMetadata([]);
+  renderInAppContext(
+    <Router history={history}>
+      <ManualTalliesTab />
+    </Router>,
+    {
+      route: '/tally/manual',
+      electionDefinition,
+      apiMock,
+    }
+  );
+
+  await screen.findByText('No manual tallies entered.');
+
+  expect(
+    screen.queryByRole('button', { name: 'Remove All Manual Tallies' })
+  ).not.toBeInTheDocument();
+
+  // adding a manual tally
+  expect(screen.getButton('Enter Tallies')).toBeDisabled();
+  expect(screen.getByLabelText('Voting Method')).toBeDisabled();
+
+  userEvent.click(screen.getByLabelText('Ballot Style'));
+  const ballotStyleOptions =
+    screen.getByText('Center Springfield').parentElement!;
+  expect(
+    [...ballotStyleOptions.children].map((option) => option.textContent)
+  ).toEqual([
+    'Center Springfield',
+    'North Springfield - Split 1',
+    'North Springfield - Split 2',
+  ]);
+  userEvent.click(screen.getByText('North Springfield - Split 1'));
+
+  expect(screen.getButton('Enter Tallies')).toBeDisabled();
+
+  userEvent.click(screen.getByLabelText('Voting Method'));
+  userEvent.click(screen.getByText('Absentee'));
+
+  // Modal for uploading an ERR file. Functionality tested at component level.
+  userEvent.click(screen.getButton('Import Results'));
+  screen.getByText('Insert a USB drive in order to import a results file.');
+  userEvent.click(screen.getByText('Cancel'));
+
+  // Entering data manually
+  userEvent.click(screen.getButton('Enter Tallies'));
+  expect(history.location.pathname).toEqual('/tally/manual/5/absentee/21');
 });
 
 test('link to edit an existing tally', async () => {
@@ -128,27 +193,18 @@ test('table shows tally info and validation errors', async () => {
     within(table)
       .getAllByRole('columnheader')
       .map((th) => th.textContent)
-  ).toEqual([
-    'Ballot Style',
-    'Precinct',
-    'Voting Method',
-    'Ballot Count',
-    '',
-    '',
-  ]);
+  ).toEqual(['Ballot Style', 'Voting Method', 'Ballot Count', '', '']);
   expect(
     within(table)
       .getAllByRole('cell')
       .map((td) => td.textContent)
   ).toEqual([
-    '1-Ma',
-    'Precinct 1',
+    'Precinct 1 - Mammal',
     'Absentee',
     '10',
     ' Invalid',
     'EditRemove',
-    '1-Ma',
-    'Precinct 1',
+    'Precinct 1 - Mammal',
     'Precinct',
     '10',
     ' Incomplete',
@@ -168,8 +224,9 @@ test('delete an existing tally', async () => {
 
   userEvent.click(screen.getButton('Remove'));
   const modal = await screen.findByRole('alertdialog');
-  within(modal).getByText(hasTextAcrossElements(/Ballot Style: 1-Ma/));
-  within(modal).getByText(hasTextAcrossElements(/Precinct: Precinct 1/));
+  within(modal).getByText(
+    hasTextAcrossElements(/Ballot Style: Precinct 1 - Mammal/)
+  );
   within(modal).getByText(hasTextAcrossElements(/Voting Method: Precinct/));
 
   // expect delete request and refetch
@@ -209,7 +266,6 @@ test('full table & clearing all data', async () => {
 
   // adding row should be gone
   expect(screen.queryByLabelText('Ballot Style')).not.toBeInTheDocument();
-  expect(screen.queryByLabelText('Precinct')).not.toBeInTheDocument();
   expect(screen.queryByLabelText('Voting Method')).not.toBeInTheDocument();
   expect(screen.queryByText('Enter Tallies')).not.toBeInTheDocument();
 
@@ -227,7 +283,6 @@ test('full table & clearing all data', async () => {
 
   await screen.findByText('Enter Tallies');
   screen.getByLabelText('Ballot Style');
-  screen.getByLabelText('Precinct');
   screen.getByLabelText('Voting Method');
 });
 
@@ -244,6 +299,5 @@ test('disable buttons when results are official', async () => {
   expect(screen.getButton('Remove')).toBeDisabled();
   expect(screen.getButton('Edit')).toBeDisabled();
   expect(screen.getByLabelText('Ballot Style')).toBeDisabled();
-  expect(screen.getByLabelText('Precinct')).toBeDisabled();
   expect(screen.getByLabelText('Voting Method')).toBeDisabled();
 });
