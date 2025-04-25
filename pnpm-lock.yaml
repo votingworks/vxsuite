@@ -1186,8 +1186,8 @@ importers:
         specifier: 9.0.5
         version: 9.0.5
       '@vitest/coverage-istanbul':
-        specifier: ^2.1.8
-        version: 2.1.8(vitest@2.1.8)
+        specifier: ^3.1.1
+        version: 3.1.1(vitest@3.1.1)
       '@votingworks/ballot-interpreter':
         specifier: workspace:*
         version: link:../../../libs/ballot-interpreter
@@ -1231,8 +1231,8 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
+        specifier: ^3.1.1
+        version: 3.1.1(@types/debug@4.1.8)(@types/node@20.16.0)
 
   apps/design/frontend:
     dependencies:
@@ -2388,8 +2388,8 @@ importers:
         specifier: 17.0.22
         version: 17.0.22
       '@vitest/coverage-istanbul':
-        specifier: ^2.1.8
-        version: 2.1.8(vitest@2.1.8)
+        specifier: ^3.1.1
+        version: 3.1.1(vitest@3.1.1)
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
@@ -2427,8 +2427,8 @@ importers:
         specifier: ^0.2.1
         version: 0.2.1
       vitest:
-        specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
+        specifier: ^3.1.1
+        version: 3.1.1(@types/debug@4.1.8)(@types/node@20.16.0)
       yargs:
         specifier: 17.7.1
         version: 17.7.1
@@ -4602,8 +4602,8 @@ importers:
         specifier: 0.2.4
         version: 0.2.4
       '@vitest/coverage-istanbul':
-        specifier: ^2.1.8
-        version: 2.1.8(vitest@2.1.8)
+        specifier: ^3.1.1
+        version: 3.1.1(vitest@3.1.1)
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
@@ -4626,8 +4626,8 @@ importers:
         specifier: 11.0.0
         version: 11.0.0
       vitest:
-        specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
+        specifier: ^3.1.1
+        version: 3.1.1(@types/debug@4.1.8)(@types/node@20.16.0)
 
   libs/logging:
     dependencies:
@@ -5139,8 +5139,8 @@ importers:
         specifier: 0.2.4
         version: 0.2.4
       '@vitest/coverage-istanbul':
-        specifier: ^2.1.8
-        version: 2.1.8(vitest@2.1.8)
+        specifier: ^3.1.1
+        version: 3.1.1(vitest@3.1.1)
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
@@ -5169,8 +5169,8 @@ importers:
         specifier: ^1.50.0
         version: 1.50.0
       vitest:
-        specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
+        specifier: ^3.1.1
+        version: 3.1.1(@types/debug@4.1.8)(@types/node@20.16.0)
 
   libs/test-utils:
     dependencies:

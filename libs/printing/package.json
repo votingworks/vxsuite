@@ -48,7 +48,7 @@
     "@types/react-dom": "18.3.0",
     "@types/styled-components": "^5.1.26",
     "@types/tmp": "0.2.4",
-    "@vitest/coverage-istanbul": "^2.1.8",
+    "@vitest/coverage-istanbul": "^3.1.1",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "esbuild": "0.21.2",
@@ -58,7 +58,7 @@
     "jest-image-snapshot": "^6.4.0",
     "lint-staged": "11.0.0",
     "sort-package-json": "^1.50.0",
-    "vitest": "^2.1.8"
+    "vitest": "^3.1.1"
   },
   "packageManager": "pnpm@8.15.5"
 }
