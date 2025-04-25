@@ -31,7 +31,7 @@ function generateTestJobForNodeJsPackage(
     `  resource_class: xlarge`,
     `  steps:`,
     `    - checkout-install-build:`,
-    `        relative-directory: ${pkg.relativePath}`,
+    `      relative-directory: ${pkg.relativePath}`,
     ...(hasPlaywrightTests
       ? [
           `    - run:`,
@@ -80,7 +80,7 @@ function generateTestJobForRustCrate(pkgId: string): string[] {
     `  resource_class: xlarge`,
     `  steps:`,
     `    - checkout-install-build:`,
-    `        relative-directory: ${pkgId}`,
+    `      relative-directory: ${pkgId}`,
     `    - run:`,
     `        name: Lint`,
     `        command: |`,
@@ -218,7 +218,7 @@ ${rustJobs
     resource_class: xlarge
     steps:
       - checkout-install-build:
-          relative-directory: script
+        relative-directory: script
       - run:
           name: Build
           command: |
