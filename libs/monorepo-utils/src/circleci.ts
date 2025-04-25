@@ -30,7 +30,8 @@ function generateTestJobForNodeJsPackage(
     `  executor: ${needsPostgres ? 'nodejs_postgres' : 'nodejs'}`,
     `  resource_class: xlarge`,
     `  steps:`,
-    `    - checkout-and-install`,
+    `    - checkout-install-build`,
+    `        relative-directory: ${pkg.relativePath}`,
     ...(hasPlaywrightTests
       ? [
           `    - run:`,
@@ -40,10 +41,6 @@ function generateTestJobForNodeJsPackage(
           `          pnpm --dir ${pkg.relativePath} exec playwright install chromium`,
         ]
       : []),
-    `    - run:`,
-    `        name: Build`,
-    `        command: |`,
-    `          pnpm --dir ${pkg.relativePath} build`,
     `    - run:`,
     `        name: Lint`,
     `        command: |`,
@@ -82,11 +79,8 @@ function generateTestJobForRustCrate(pkgId: string): string[] {
     `  executor: 'nodejs'`,
     `  resource_class: xlarge`,
     `  steps:`,
-    `    - checkout-and-install`,
-    `    - run:`,
-    `        name: Build`,
-    `        command: |`,
-    `          cargo build -p ${pkgId}`,
+    `    - checkout-install-build`,
+    `        relative-directory: ${pkgId}`,
     `    - run:`,
     `        name: Lint`,
     `        command: |`,
@@ -176,7 +170,8 @@ ${rustJobs
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-install-build
+          relative-directory: script
       - run:
           name: Build
           command: |
@@ -192,8 +187,11 @@ workflows:
 ${jobIds.map((jobId) => `      - ${jobId}`).join('\n')}
 
 commands:
-  checkout-and-install:
-    description: Get the code and install dependencies.
+  checkout-install-build:
+    description: Get the code, install dependencies, and build.
+    parameters:
+      relative-directory:
+        type: string
     steps:
       - run:
           name: Ensure rust is in the PATH variable
@@ -205,20 +203,34 @@ commands:
       # comment will invalidate the cache without changing the behavior.
       # last edited by Kofi 2024-09-19
       - restore_cache:
+          name: Restore pnpm cache
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
+            pnpm-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
             "pnpm-lock.yaml" }}
+      - restore_cache:
+          name: Restore cargo cache
+          key: 
+            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum
+            "Cargo.lock" }}
       - run:
-          name: Setup Dependencies
+          name: Install Node Dependencies
           command: |
             pnpm install --frozen-lockfile
+      - run:
+          name: Build (and install rust dependencies)
+          command: |
+            pnpm --dir << parameters.relative-directory >> build
       - save_cache:
+          name: Save pnpm cache
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
+            pnpm-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
             "pnpm-lock.yaml" }}
           paths:
             - /root/.local/share/pnpm/store/v3
             - /root/.cache/ms-playwright
+      - save_cache:
+          name: Save cargo cache
+          paths:
             - /root/.cargo
 `.trim();
 }

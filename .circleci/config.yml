@@ -28,11 +28,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/admin/backend build
+      - checkout-install-build
+          relative-directory: apps/admin/backend
       - run:
           name: Lint
           command: |
@@ -53,11 +50,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/admin/frontend build
+      - checkout-install-build
+          relative-directory: apps/admin/frontend
       - run:
           name: Lint
           command: |
@@ -76,16 +70,13 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-install-build
+          relative-directory: apps/admin/integration-testing
       - run:
           name: Install Browser
           command: |
             pnpm --dir apps/admin/integration-testing exec playwright install-deps
             pnpm --dir apps/admin/integration-testing exec playwright install chromium
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/admin/integration-testing build
       - run:
           name: Lint
           command: |
@@ -106,11 +97,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/central-scan/backend build
+      - checkout-install-build
+          relative-directory: apps/central-scan/backend
       - run:
           name: Lint
           command: |
@@ -131,11 +119,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/central-scan/frontend build
+      - checkout-install-build
+          relative-directory: apps/central-scan/frontend
       - run:
           name: Lint
           command: |
@@ -154,16 +139,13 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-install-build
+          relative-directory: apps/central-scan/integration-testing
       - run:
           name: Install Browser
           command: |
             pnpm --dir apps/central-scan/integration-testing exec playwright install-deps
             pnpm --dir apps/central-scan/integration-testing exec playwright install chromium
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/central-scan/integration-testing build
       - run:
           name: Lint
           command: |
@@ -184,11 +166,8 @@ jobs:
     executor: nodejs_postgres
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/design/backend build
+      - checkout-install-build
+          relative-directory: apps/design/backend
       - run:
           name: Lint
           command: |
@@ -209,11 +188,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/design/frontend build
+      - checkout-install-build
+          relative-directory: apps/design/frontend
       - run:
           name: Lint
           command: |
@@ -232,11 +208,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/mark-scan/backend build
+      - checkout-install-build
+          relative-directory: apps/mark-scan/backend
       - run:
           name: Lint
           command: |
@@ -257,11 +230,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/mark-scan/frontend build
+      - checkout-install-build
+          relative-directory: apps/mark-scan/frontend
       - run:
           name: Lint
           command: |
@@ -280,16 +250,13 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-install-build
+          relative-directory: apps/mark-scan/integration-testing
       - run:
           name: Install Browser
           command: |
             pnpm --dir apps/mark-scan/integration-testing exec playwright install-deps
             pnpm --dir apps/mark-scan/integration-testing exec playwright install chromium
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/mark-scan/integration-testing build
       - run:
           name: Lint
           command: |
@@ -310,11 +277,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/mark/backend build
+      - checkout-install-build
+          relative-directory: apps/mark/backend
       - run:
           name: Lint
           command: |
@@ -335,11 +299,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/mark/frontend build
+      - checkout-install-build
+          relative-directory: apps/mark/frontend
       - run:
           name: Lint
           command: |
@@ -358,16 +319,13 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-install-build
+          relative-directory: apps/mark/integration-testing
       - run:
           name: Install Browser
           command: |
             pnpm --dir apps/mark/integration-testing exec playwright install-deps
             pnpm --dir apps/mark/integration-testing exec playwright install chromium
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/mark/integration-testing build
       - run:
           name: Lint
           command: |
@@ -388,11 +346,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/pollbook/backend build
+      - checkout-install-build
+          relative-directory: apps/pollbook/backend
       - run:
           name: Lint
           command: |
@@ -413,11 +368,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/pollbook/frontend build
+      - checkout-install-build
+          relative-directory: apps/pollbook/frontend
       - run:
           name: Lint
           command: |
@@ -436,11 +388,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/scan/backend build
+      - checkout-install-build
+          relative-directory: apps/scan/backend
       - run:
           name: Lint
           command: |
@@ -461,11 +410,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/scan/frontend build
+      - checkout-install-build
+          relative-directory: apps/scan/frontend
       - run:
           name: Lint
           command: |
@@ -484,11 +430,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir docs/exercises build
+      - checkout-install-build
+          relative-directory: docs/exercises
       - run:
           name: Lint
           command: |
@@ -507,11 +450,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/api build
+      - checkout-install-build
+          relative-directory: libs/api
       - run:
           name: Lint
           command: |
@@ -530,11 +470,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/auth build
+      - checkout-install-build
+          relative-directory: libs/auth
       - run:
           name: Lint
           command: |
@@ -553,11 +490,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/backend build
+      - checkout-install-build
+          relative-directory: libs/backend
       - run:
           name: Lint
           command: |
@@ -576,11 +510,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/ballot-encoder build
+      - checkout-install-build
+          relative-directory: libs/ballot-encoder
       - run:
           name: Lint
           command: |
@@ -599,11 +530,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/ballot-interpreter build
+      - checkout-install-build
+          relative-directory: libs/ballot-interpreter
       - run:
           name: Lint
           command: |
@@ -624,11 +552,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/basics build
+      - checkout-install-build
+          relative-directory: libs/basics
       - run:
           name: Lint
           command: |
@@ -647,11 +572,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/bmd-ballot-fixtures build
+      - checkout-install-build
+          relative-directory: libs/bmd-ballot-fixtures
       - run:
           name: Lint
           command: |
@@ -672,11 +594,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/cdf-schema-builder build
+      - checkout-install-build
+          relative-directory: libs/cdf-schema-builder
       - run:
           name: Lint
           command: |
@@ -695,11 +614,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/custom-paper-handler build
+      - checkout-install-build
+          relative-directory: libs/custom-paper-handler
       - run:
           name: Lint
           command: |
@@ -718,11 +634,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/custom-scanner build
+      - checkout-install-build
+          relative-directory: libs/custom-scanner
       - run:
           name: Lint
           command: |
@@ -741,11 +654,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/db build
+      - checkout-install-build
+          relative-directory: libs/db
       - run:
           name: Lint
           command: |
@@ -764,11 +674,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/dev-dock/backend build
+      - checkout-install-build
+          relative-directory: libs/dev-dock/backend
       - run:
           name: Lint
           command: |
@@ -787,11 +694,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/dev-dock/frontend build
+      - checkout-install-build
+          relative-directory: libs/dev-dock/frontend
       - run:
           name: Lint
           command: |
@@ -810,11 +714,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/eslint-plugin-vx build
+      - checkout-install-build
+          relative-directory: libs/eslint-plugin-vx
       - run:
           name: Lint
           command: |
@@ -833,11 +734,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/fixture-generators build
+      - checkout-install-build
+          relative-directory: libs/fixture-generators
       - run:
           name: Lint
           command: |
@@ -856,11 +754,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/fixtures build
+      - checkout-install-build
+          relative-directory: libs/fixtures
       - run:
           name: Lint
           command: |
@@ -879,11 +774,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/fs build
+      - checkout-install-build
+          relative-directory: libs/fs
       - run:
           name: Lint
           command: |
@@ -902,11 +794,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/fujitsu-thermal-printer build
+      - checkout-install-build
+          relative-directory: libs/fujitsu-thermal-printer
       - run:
           name: Lint
           command: |
@@ -925,11 +814,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/grout build
+      - checkout-install-build
+          relative-directory: libs/grout
       - run:
           name: Lint
           command: |
@@ -948,11 +834,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/grout/test-utils build
+      - checkout-install-build
+          relative-directory: libs/grout/test-utils
       - run:
           name: Lint
           command: |
@@ -971,11 +854,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/hmpb build
+      - checkout-install-build
+          relative-directory: libs/hmpb
       - run:
           name: Lint
           command: |
@@ -996,11 +876,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/image-utils build
+      - checkout-install-build
+          relative-directory: libs/image-utils
       - run:
           name: Lint
           command: |
@@ -1019,11 +896,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/logging build
+      - checkout-install-build
+          relative-directory: libs/logging
       - run:
           name: Lint
           command: |
@@ -1042,11 +916,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/logging-utils build
+      - checkout-install-build
+          relative-directory: libs/logging-utils
       - run:
           name: Lint
           command: |
@@ -1065,11 +936,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/mark-flow-ui build
+      - checkout-install-build
+          relative-directory: libs/mark-flow-ui
       - run:
           name: Lint
           command: |
@@ -1088,11 +956,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/message-coder build
+      - checkout-install-build
+          relative-directory: libs/message-coder
       - run:
           name: Lint
           command: |
@@ -1111,11 +976,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/monorepo-utils build
+      - checkout-install-build
+          relative-directory: libs/monorepo-utils
       - run:
           name: Lint
           command: |
@@ -1134,11 +996,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/pdi-scanner build
+      - checkout-install-build
+          relative-directory: libs/pdi-scanner
       - run:
           name: Lint
           command: |
@@ -1157,11 +1016,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/printing build
+      - checkout-install-build
+          relative-directory: libs/printing
       - run:
           name: Lint
           command: |
@@ -1182,11 +1038,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/test-utils build
+      - checkout-install-build
+          relative-directory: libs/test-utils
       - run:
           name: Lint
           command: |
@@ -1205,11 +1058,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/types build
+      - checkout-install-build
+          relative-directory: libs/types
       - run:
           name: Lint
           command: |
@@ -1228,11 +1078,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/types-rs build
+      - checkout-install-build
+          relative-directory: libs/types-rs
       - run:
           name: Lint
           command: |
@@ -1251,11 +1098,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/ui build
+      - checkout-install-build
+          relative-directory: libs/ui
       - run:
           name: Lint
           command: |
@@ -1274,11 +1118,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/usb-drive build
+      - checkout-install-build
+          relative-directory: libs/usb-drive
       - run:
           name: Lint
           command: |
@@ -1297,11 +1138,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/utils build
+      - checkout-install-build
+          relative-directory: libs/utils
       - run:
           name: Lint
           command: |
@@ -1319,11 +1157,8 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            cargo build -p ballot-interpreter
+      - checkout-install-build
+          relative-directory: ballot-interpreter
       - run:
           name: Lint
           command: |
@@ -1337,11 +1172,8 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            cargo build -p controllerd
+      - checkout-install-build
+          relative-directory: controllerd
       - run:
           name: Lint
           command: |
@@ -1355,11 +1187,8 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            cargo build -p daemon-utils
+      - checkout-install-build
+          relative-directory: daemon-utils
       - run:
           name: Lint
           command: |
@@ -1373,11 +1202,8 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            cargo build -p fai100-controllerd
+      - checkout-install-build
+          relative-directory: fai100-controllerd
       - run:
           name: Lint
           command: |
@@ -1391,11 +1217,8 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            cargo build -p logging-utils
+      - checkout-install-build
+          relative-directory: logging-utils
       - run:
           name: Lint
           command: |
@@ -1409,11 +1232,8 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            cargo build -p patinputd
+      - checkout-install-build
+          relative-directory: patinputd
       - run:
           name: Lint
           command: |
@@ -1427,11 +1247,8 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            cargo build -p pdi-scanner
+      - checkout-install-build
+          relative-directory: pdi-scanner
       - run:
           name: Lint
           command: |
@@ -1445,11 +1262,8 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            cargo build -p types-rs
+      - checkout-install-build
+          relative-directory: types-rs
       - run:
           name: Lint
           command: |
@@ -1463,11 +1277,8 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            cargo build -p vx-logging
+      - checkout-install-build
+          relative-directory: vx-logging
       - run:
           name: Lint
           command: |
@@ -1481,7 +1292,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-install-build
+          relative-directory: script
       - run:
           name: Build
           command: |
@@ -1560,8 +1372,11 @@ workflows:
       - validate-monorepo
 
 commands:
-  checkout-and-install:
-    description: Get the code and install dependencies.
+  checkout-install-build:
+    description: Get the code, install dependencies, and build.
+    parameters:
+      relative-directory:
+        type: string
     steps:
       - run:
           name: Ensure rust is in the PATH variable
@@ -1573,20 +1388,32 @@ commands:
       # comment will invalidate the cache without changing the behavior.
       # last edited by Kofi 2024-09-19
       - restore_cache:
+          name: Restore pnpm cache
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
+            pnpm-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
             "pnpm-lock.yaml" }}
+      - restore_cache:
+          name: Restore cargo cache
+          key: 
+            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum
+            "Cargo.lock" }}
       - run:
-          name: Setup Dependencies
+          name: Install Node Dependencies
           command: |
             pnpm install --frozen-lockfile
-            pnpm --recursive install:rust-addon
-            pnpm --recursive build:rust-addon
+      - run:
+          name: Build (and install rust dependencies)
+          command: |
+            pnpm --dir << parameters.relative-directory >> build
       - save_cache:
+          name: Save pnpm cache
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
+            pnpm-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
             "pnpm-lock.yaml" }}
           paths:
             - /root/.local/share/pnpm/store/v3
             - /root/.cache/ms-playwright
+      - save_cache:
+          name: Save cargo cache
+          paths:
             - /root/.cargo
