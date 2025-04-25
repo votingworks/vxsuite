@@ -121,14 +121,15 @@ test('general, full election, write in adjudication', async () => {
     contestId: writeInContestId,
     name: 'Unofficial Candidate',
   });
-  const writeInIds = await apiClient.getWriteInAdjudicationQueue({
+  const writeIns = await apiClient.getWriteIns({
     contestId: writeInContestId,
   });
-  expect(writeInIds).toHaveLength(56);
+  expect(writeIns).toHaveLength(56);
   const NUM_INVALID = 24;
   const NUM_OFFICIAL = 16;
   const NUM_UNOFFICIAL = 56 - NUM_INVALID - NUM_OFFICIAL;
-  for (const [i, writeInId] of writeInIds.entries()) {
+  for (const [i, writeIn] of writeIns.entries()) {
+    const { id: writeInId } = writeIn;
     if (i < NUM_INVALID) {
       await apiClient.adjudicateWriteIn({
         writeInId,

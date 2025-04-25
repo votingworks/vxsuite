@@ -110,7 +110,7 @@ test('write-in adjudication report', async () => {
 
   await expectIdenticalSnapshotsAcrossExportMethods('wia-report-zero');
 
-  const writeInIds = await apiClient.getWriteInAdjudicationQueue({
+  const writeIns = await apiClient.getWriteIns({
     contestId: writeInContestId,
   });
 
@@ -120,7 +120,8 @@ test('write-in adjudication report', async () => {
   });
 
   // generate some adjudication information
-  for (const [i, writeInId] of writeInIds.entries()) {
+  for (const [i, writeIn] of writeIns.entries()) {
+    const { id: writeInId } = writeIn;
     if (i < 24) {
       await apiClient.adjudicateWriteIn({
         writeInId,

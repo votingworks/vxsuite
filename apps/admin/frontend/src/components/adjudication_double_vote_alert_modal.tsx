@@ -1,4 +1,5 @@
 import { throwIllegalValue } from '@votingworks/basics';
+import { ContestOptionId } from '@votingworks/types';
 import { Button, Font, Modal, P } from '@votingworks/ui';
 
 export interface DoubleVoteAlert {
@@ -7,6 +8,7 @@ export interface DoubleVoteAlert {
     | 'adjudicated-write-in-candidate'
     | 'adjudicated-official-candidate';
   name: string;
+  optionId: ContestOptionId;
 }
 
 export function DoubleVoteAlertModal({
@@ -29,7 +31,7 @@ export function DoubleVoteAlertModal({
             <br />
             If the ballot contest does indeed contain a double vote, you can
             invalidate the write-in by selecting{' '}
-            <Font weight="bold">Mark write-in as undervote</Font>.
+            <Font weight="bold">Not a mark</Font>.
           </P>
         );
       case 'adjudicated-official-candidate':
@@ -44,7 +46,7 @@ export function DoubleVoteAlertModal({
             <br />
             If the ballot contest does indeed contain a double vote, you can
             invalidate the write-in by selecting{' '}
-            <Font weight="bold">Mark write-in as undervote</Font>.
+            <Font weight="bold">Not a mark</Font>.
           </P>
         );
       default: {

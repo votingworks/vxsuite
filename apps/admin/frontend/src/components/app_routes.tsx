@@ -31,7 +31,6 @@ import { WriteInsSummaryScreen } from '../screens/write_ins_summary_screen';
 import { SettingsScreen } from '../screens/settings_screen';
 import { ReportsScreen } from '../screens/reporting/reports_screen';
 import { checkPin, logOut, useApiClient } from '../api';
-import { WriteInsAdjudicationScreen } from '../screens/write_ins_adjudication_screen';
 import { TallyReportBuilder } from '../screens/reporting/tally_report_builder';
 import { BallotCountReportBuilder } from '../screens/reporting/ballot_count_report_builder';
 import { AllPrecinctsTallyReportScreen } from '../screens/reporting/all_precincts_tally_report_screen';
@@ -40,6 +39,7 @@ import { PrecinctBallotCountReport } from '../screens/reporting/precinct_ballot_
 import { VotingMethodBallotCountReport } from '../screens/reporting/voting_method_ballot_count_report_screen';
 import { FullElectionTallyReportScreen } from '../screens/reporting/full_election_tally_report_screen';
 import { DiagnosticsScreen } from '../screens/diagnostics_screen';
+import { ContestAdjudicationScreen } from '../screens/contest_adjudication_screen';
 
 export function AppRoutes(): JSX.Element | null {
   const { electionDefinition, auth } = useContext(AppContext);
@@ -144,9 +144,9 @@ export function AppRoutes(): JSX.Element | null {
       ) && (
         <Route
           exact
-          path={routerPaths.writeInsAdjudication({ contestId: ':contestId' })}
+          path={routerPaths.writeInAdjudication({ contestId: ':contestId' })}
         >
-          <WriteInsAdjudicationScreen />
+          <ContestAdjudicationScreen />
         </Route>
       )}
       <Route

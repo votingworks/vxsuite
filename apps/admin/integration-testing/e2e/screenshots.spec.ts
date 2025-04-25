@@ -42,8 +42,7 @@ import {
 } from './support/auth';
 import {
   getAdjudicateButtons,
-  markUndervote,
-  selectCandidate,
+  selectCandidateOrInvalidate,
   WRITE_IN_NAMES,
 } from './support/write_in_adjudication';
 import {
@@ -436,6 +435,7 @@ test('results', async ({ page }) => {
       // is still rendering and the button press doesn't always register.
       // Zooming out, by acting as a delay, seems to avoid the problem.
       await page.getByText('Zoom Out').click();
+      await page.getByRole('combobox').click();
 
       // uneven but deterministic strategy for making adjudications
       switch (writeInIndex % 8) {
@@ -444,32 +444,35 @@ test('results', async ({ page }) => {
         case 2:
         case 3:
         case 4:
+          // Creates a candidate the first time, re-selects subsequent times
+          await page.getByRole('combobox').fill('Write-In Campaign Candidate');
+          await page.keyboard.press('Enter');
+          break;
         case 5:
-          await selectCandidate(page, writeInIndex);
-          // if it's a double vote, just treat it as invalid
-          if (await page.getByRole('alertdialog').isVisible()) {
-            await page.getByText('Cancel').click();
-            await markUndervote(page);
-          }
+          // Select a dropdown option via clicking
+          await selectCandidateOrInvalidate(page, writeInIndex);
           break;
         case 6:
-          await page.getByText('Add new write-in candidate').click();
-          await page.keyboard.type(
-            WRITE_IN_NAMES[Math.floor(writeInIndex / 8)]
-          );
-          await page.getByText('Add', { exact: true }).click();
+          // Mark as invalid by clicking checkbox
+          await page
+            .getByRole('checkbox', { name: /write-in/i, checked: true })
+            .click();
           break;
         default:
-          await markUndervote(page);
+          // Create other new candidate
+          await page
+            .getByRole('combobox')
+            .fill(WRITE_IN_NAMES[Math.floor(writeInIndex / 8)]);
+          await page.keyboard.press('Enter');
       }
 
-      await getPrimaryButton(page).waitFor();
+      await expect(getPrimaryButton(page)).toBeEnabled();
       if (await page.getByText('Finish').isVisible()) {
         await page.getByText('Finish').click();
         await page.getByText('Write-In Adjudication').waitFor();
         hasFinishedWriteInsForContest = true;
       } else {
-        await page.getByText('Next').click();
+        await page.getByText('Save & Next').click();
         writeInIndex += 1;
       }
     }
@@ -610,13 +613,13 @@ test('wia', async ({ page }) => {
   await page.getByText('Zoom Out').click();
   await expect(page.getByText('Zoom In')).toBeEnabled();
   await screenshot('write-in-adjudication-view-zoomed-out');
-
+  await page.getByRole('combobox').click();
+  await screenshot('write-in-adjudication-view-write-in-focused');
+  await page.getByRole('combobox').fill('New Candidate');
+  await page.keyboard.press('Enter');
+  await screenshot('write-in-adjudication-new-candidate-adjudicated');
   await page.getByText('Finish').click();
-  await page.getByText('Adjudicate 2').click();
-  await page.getByText('Zoom Out').click();
-  await page.getByText('Obadiah Carrigan').click();
-  await page.getByText('Possible Double Vote Detected').waitFor();
-  await screenshot('write-in-adjudication-double-vote');
+  await page.getByText('Write-In Adjudication').waitFor();
 });
 
 test('manual results', async ({ page }) => {

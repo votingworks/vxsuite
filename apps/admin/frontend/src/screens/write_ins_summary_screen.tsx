@@ -22,12 +22,13 @@ import { NavigationScreen } from '../components/navigation_screen';
 import { AppContext } from '../contexts/app_context';
 import {
   getCastVoteRecordFiles,
-  getWriteInAdjudicationQueueMetadata,
+  getWriteInAdjudicationCvrQueueMetadata,
 } from '../api';
 import { routerPaths } from '../router_paths';
 
 const ContentWrapper = styled.div`
   display: inline-block;
+  width: 100%;
 
   button {
     min-width: 9rem;
@@ -37,8 +38,8 @@ const ContentWrapper = styled.div`
 export function WriteInsSummaryScreen(): JSX.Element {
   const { electionDefinition, isOfficialResults } = useContext(AppContext);
 
-  const writeInAdjudicationQueueMetadataQuery =
-    getWriteInAdjudicationQueueMetadata.useQuery();
+  const writeInAdjudicationCvrQueueMetadataQuery =
+    getWriteInAdjudicationCvrQueueMetadata.useQuery();
   const castVoteRecordFilesQuery = getCastVoteRecordFiles.useQuery();
 
   const election = electionDefinition?.election;
@@ -51,7 +52,7 @@ export function WriteInsSummaryScreen(): JSX.Element {
   }
 
   if (
-    !writeInAdjudicationQueueMetadataQuery.isSuccess ||
+    !writeInAdjudicationCvrQueueMetadataQuery.isSuccess ||
     !castVoteRecordFilesQuery.isSuccess
   ) {
     return (
@@ -104,12 +105,12 @@ export function WriteInsSummaryScreen(): JSX.Element {
             </thead>
             <tbody>
               {contestsWithWriteIns.map((contest) => {
-                const contestQueueMetadata =
-                  writeInAdjudicationQueueMetadataQuery.data.find(
+                const contestCvrQueueMetadata =
+                  writeInAdjudicationCvrQueueMetadataQuery.data.find(
                     (m) => m.contestId === contest.id
                   );
-                const totalCount = contestQueueMetadata?.totalTally ?? 0;
-                const pendingCount = contestQueueMetadata?.pendingTally ?? 0;
+                const totalCount = contestCvrQueueMetadata?.totalTally ?? 0;
+                const pendingCount = contestCvrQueueMetadata?.pendingTally ?? 0;
                 const adjudicatedCount = totalCount - pendingCount;
 
                 const hasWriteIns = totalCount > 0;
@@ -139,7 +140,7 @@ export function WriteInsSummaryScreen(): JSX.Element {
                         <LinkButton
                           disabled={isOfficialResults}
                           variant={pendingCount ? 'primary' : 'neutral'}
-                          to={routerPaths.writeInsAdjudication({
+                          to={routerPaths.writeInAdjudication({
                             contestId: contest.id,
                           })}
                         >

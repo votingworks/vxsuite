@@ -1,6 +1,7 @@
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { LogEventId, BaseLogger } from '@votingworks/logging';
 import {
+  AdjudicatedCvrContest,
   VoteAdjudication,
   WriteInAdjudicationAction,
   WriteInRecord,
@@ -154,7 +155,12 @@ export function adjudicateWriteIn(
       );
       break;
     case 'invalid':
-      store.setWriteInRecordInvalid(adjudicationAction);
+      // Delete invalid undetected write-in records, as a user created and deleted it
+      if (initialWriteInRecord.isUndetected) {
+        store.deleteUndetectedWriteInRecord(initialWriteInRecord);
+      } else {
+        store.setWriteInRecordInvalid(adjudicationAction);
+      }
       // ensure the vote appears as an undervote in tallies
       adjudicateVote(
         {
@@ -190,5 +196,127 @@ export function adjudicateWriteIn(
     initialWriteInRecord,
     adjudicationAction,
     logger,
+  });
+}
+
+/**
+ * Receives a fully adjudicated cvr contest as input
+ * and updates write-in records, write-in candidates,
+ * and vote adjudications to ensure the store reflects
+ * the input, within a single transaction
+ */
+export function adjudicateCvrContest(
+  adjudicatedCvrContest: AdjudicatedCvrContest,
+  store: Store,
+  logger: BaseLogger
+): void {
+  const electionId = assertDefined(store.getCurrentElectionId());
+  const { adjudicatedContestOptionById, cvrId, contestId, side } =
+    adjudicatedCvrContest;
+
+  const cvrWriteInRecords = store.getWriteInRecords({
+    electionId,
+    castVoteRecordId: cvrId,
+    contestId,
+  });
+  const contestWriteInCandidates = store.getWriteInCandidates({
+    electionId,
+    contestId,
+  });
+
+  return store.withTransaction(() => {
+    for (const [optionId, adjudicatedContestOption] of Object.entries(
+      adjudicatedContestOptionById
+    )) {
+      const { hasVote: isVote, type } = adjudicatedContestOption;
+      if (type === 'candidate-option') {
+        adjudicateVote(
+          {
+            contestId,
+            cvrId,
+            electionId,
+            isVote,
+            optionId,
+          },
+          store
+        );
+        continue;
+      }
+
+      // write-in option
+      let writeInId = cvrWriteInRecords.find(
+        (record) => record.optionId === optionId
+      )?.id;
+
+      if (!isVote) {
+        if (writeInId) {
+          adjudicateWriteIn(
+            {
+              type: 'invalid',
+              writeInId,
+            },
+            store,
+            logger
+          );
+        }
+        continue;
+      }
+
+      // isVote = true
+      if (!writeInId) {
+        writeInId = store.addWriteIn({
+          castVoteRecordId: cvrId,
+          contestId,
+          electionId,
+          isUnmarked: true,
+          isUndetected: true,
+          optionId,
+          side,
+        });
+      }
+      const { candidateType } = adjudicatedContestOption;
+      switch (candidateType) {
+        case 'official-candidate': {
+          const { candidateId } = adjudicatedContestOption;
+          adjudicateWriteIn(
+            {
+              type: 'official-candidate',
+              writeInId,
+              candidateId,
+            },
+            store,
+            logger
+          );
+          break;
+        }
+        case 'write-in-candidate': {
+          const { candidateName } = adjudicatedContestOption;
+          let candidateId = contestWriteInCandidates.find(
+            (c) => c.name === candidateName
+          )?.id;
+          if (!candidateId) {
+            candidateId = store.addWriteInCandidate({
+              electionId,
+              contestId,
+              name: candidateName,
+            }).id;
+          }
+          adjudicateWriteIn(
+            {
+              type: 'write-in-candidate',
+              writeInId,
+              candidateId,
+            },
+            store,
+            logger
+          );
+          break;
+        }
+        default: {
+          /* istanbul ignore next - @preserve */
+          throwIllegalValue(adjudicatedContestOption, 'type');
+        }
+      }
+    }
   });
 }

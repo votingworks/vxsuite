@@ -1,8 +1,8 @@
-import { assertDefined, find, assert } from '@votingworks/basics';
+import { assert, iter } from '@votingworks/basics';
 import { Id, safeParseNumber } from '@votingworks/types';
 import { loadImageData, toDataUrl } from '@votingworks/image-utils';
 import { Store } from '../store';
-import { WriteInAdjudicationContext, WriteInImageView } from '../types';
+import { WriteInImageView } from '../types';
 import { rootDebug } from './debug';
 
 const debug = rootDebug.extend('write-ins');
@@ -19,7 +19,7 @@ export async function getWriteInImageView({
 }): Promise<WriteInImageView> {
   debug('creating write-in image view for %s...', writeInId);
   const writeInDetails = store.getWriteInImageAndLayout(writeInId);
-  const { layout, image, contestId, optionId, cvrId, machineMarkedText } =
+  const { layout, image, contestId, optionId, cvrId, machineMarkedText, side } =
     writeInDetails;
 
   // BMD ballots do not have layouts, we do not support zoom during WIA on these ballots.
@@ -29,10 +29,13 @@ export async function getWriteInImageView({
       'cvr validation on import guarantees machineMarkedText or layout is defined'
     );
     return {
+      type: 'bmd',
       writeInId,
+      optionId,
       cvrId,
       imageUrl: toDataUrl(await loadImageData(image), 'image/jpeg'),
       machineMarkedText,
+      side: 'front',
     };
   }
 
@@ -66,8 +69,10 @@ export async function getWriteInImageView({
   debug('created write-in image view');
   const imageData = await loadImageData(image);
   return {
+    type: 'hmpb',
     writeInId,
     cvrId,
+    optionId,
     imageUrl: toDataUrl(imageData, 'image/jpeg'),
     ballotCoordinates: {
       width: imageData.width,
@@ -77,47 +82,24 @@ export async function getWriteInImageView({
     },
     contestCoordinates: contestLayout.bounds,
     writeInCoordinates: writeInLayout.bounds,
+    side,
   };
 }
 
 /**
- * Retrieves and compiles the data necessary to adjudicate a write-in (image,
- * layout, disallowed votes)
+ * Retrieves image data necessary to adjudicate write-ins for a given cvr contest
  */
-export function getWriteInAdjudicationContext({
+export async function getWriteInImageViews({
   store,
-  writeInId,
+  cvrId,
+  contestId,
 }: {
   store: Store;
-  writeInId: Id;
-}): WriteInAdjudicationContext {
-  debug('creating write-in adjudication context for %s...', writeInId);
-  debug('getting write-in record with votes...');
-  const writeInContext = store.getWriteInWithVotes(writeInId);
-  const { contestId, optionId, cvrVotes, cvrId } = writeInContext;
-  const electionId = assertDefined(store.getCurrentElectionId());
-
-  debug('getting all write-in records for the current cvr and contest...');
-  const allWriteInRecords = store.getWriteInRecords({
-    electionId,
-    contestId,
-    castVoteRecordId: cvrId,
-  });
-
-  const primaryWriteIn = find(
-    allWriteInRecords,
-    (writeInRecord) => writeInRecord.optionId === optionId
-  );
-
-  const relatedWriteIns = allWriteInRecords.filter(
-    (writeInRecord) => writeInRecord.optionId !== optionId
-  );
-
-  debug('created write-in adjudication context');
-  return {
-    writeIn: primaryWriteIn,
-    relatedWriteIns,
-    cvrId,
-    cvrVotes,
-  };
+  cvrId: Id;
+  contestId: Id;
+}): Promise<WriteInImageView[]> {
+  return await iter(store.getWriteInIds({ cvrId, contestId }))
+    .async()
+    .map((writeInId) => getWriteInImageView({ store, writeInId }))
+    .toArray();
 }
