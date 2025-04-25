@@ -1968,8 +1968,8 @@ importers:
         specifier: 0.2.4
         version: 0.2.4
       '@vitest/coverage-istanbul':
-        specifier: ^2.1.8
-        version: 2.1.8(vitest@2.1.8)
+        specifier: ^3.1.1
+        version: 3.1.1(vitest@3.1.1)
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
@@ -2001,8 +2001,8 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
+        specifier: ^3.1.1
+        version: 3.1.1(@types/debug@4.1.8)(@types/node@20.16.0)
 
   apps/mark/frontend:
     dependencies:
