@@ -28,7 +28,7 @@ export function combinePageInterpretationsForSheet(
     (frontType === 'InterpretedBmdPage' && backType === 'BlankPage') ||
     (backType === 'InterpretedBmdPage' && frontType === 'BlankPage')
   ) {
-    /* istanbul ignore next */
+    /* istanbul ignore next - @preserve */
     const printedPage = frontType === 'InterpretedBmdPage' ? front : back;
     const interpretation = printedPage.interpretation as InterpretedBmdPage;
 

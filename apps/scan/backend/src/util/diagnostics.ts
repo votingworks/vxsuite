@@ -22,11 +22,11 @@ export function testPrintFailureDiagnosticMessage(
           return 'The printer experienced a data transmission error during printing.';
         case 'hardware':
           return 'The printer experienced an unknown hardware error during printing.';
-        /* istanbul ignore next */
+        /* istanbul ignore next - @preserve */
         default:
           throwIllegalValue(failureStatus.type);
       }
-    /* istanbul ignore next */
+    /* istanbul ignore next - @preserve */
     // eslint-disable-next-line no-fallthrough
     default:
       throwIllegalValue(failureStatus, 'state');

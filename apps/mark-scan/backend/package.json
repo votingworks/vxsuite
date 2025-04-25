@@ -71,7 +71,7 @@
     "@types/react": "18.3.3",
     "@types/tmp": "0.2.4",
     "@types/uuid": "9.0.5",
-    "@vitest/coverage-istanbul": "^2.1.8",
+    "@vitest/coverage-istanbul": "^3.1.1",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "copyfiles": "^2.4.1",
@@ -83,7 +83,7 @@
     "lint-staged": "11.0.0",
     "nodemon": "^3.1.7",
     "sort-package-json": "^1.50.0",
-    "vitest": "^2.1.8"
+    "vitest": "^3.1.1"
   },
   "engines": {
     "node": ">= 16"

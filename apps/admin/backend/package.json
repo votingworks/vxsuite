@@ -80,7 +80,7 @@
     "@types/tmp": "0.2.4",
     "@types/uuid": "9.0.5",
     "@types/zip-stream": "workspace:*",
-    "@vitest/coverage-istanbul": "^2.1.8",
+    "@vitest/coverage-istanbul": "^3.1.1",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "csv-parse": "^5.5.0",
@@ -95,7 +95,7 @@
     "nodemon": "^3.1.7",
     "sort-package-json": "^1.50.0",
     "supertest": "^6.0.1",
-    "vitest": "^2.1.8"
+    "vitest": "^3.1.1"
   },
   "engines": {
     "node": ">= 16"

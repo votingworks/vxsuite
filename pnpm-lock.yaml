@@ -277,8 +277,8 @@ importers:
         specifier: workspace:*
         version: link:../../../libs/@types/zip-stream
       '@vitest/coverage-istanbul':
-        specifier: ^2.1.8
-        version: 2.1.8(vitest@2.1.8)
+        specifier: ^3.1.1
+        version: 3.1.1(vitest@3.1.1)
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
@@ -322,8 +322,8 @@ importers:
         specifier: ^6.0.1
         version: 6.1.1
       vitest:
-        specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
+        specifier: ^3.1.1
+        version: 3.1.1(@types/debug@4.1.8)(@types/node@20.16.0)
 
   apps/admin/frontend:
     dependencies:
@@ -763,8 +763,8 @@ importers:
         specifier: 9.0.5
         version: 9.0.5
       '@vitest/coverage-istanbul':
-        specifier: ^2.1.8
-        version: 2.1.8(vitest@2.1.8)
+        specifier: ^3.1.1
+        version: 3.1.1(vitest@3.1.1)
       '@votingworks/bmd-ballot-fixtures':
         specifier: workspace:*
         version: link:../../../libs/bmd-ballot-fixtures
@@ -805,8 +805,8 @@ importers:
         specifier: ^6.0.1
         version: 6.1.1
       vitest:
-        specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
+        specifier: ^3.1.1
+        version: 3.1.1(@types/debug@4.1.8)(@types/node@20.16.0)
 
   apps/central-scan/frontend:
     dependencies:
@@ -1596,8 +1596,8 @@ importers:
         specifier: 9.0.5
         version: 9.0.5
       '@vitest/coverage-istanbul':
-        specifier: ^2.1.8
-        version: 2.1.8(vitest@2.1.8)
+        specifier: ^3.1.1
+        version: 3.1.1(vitest@3.1.1)
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
@@ -1632,8 +1632,8 @@ importers:
         specifier: ^1.50.0
         version: 1.50.0
       vitest:
-        specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
+        specifier: ^3.1.1
+        version: 3.1.1(@types/debug@4.1.8)(@types/node@20.16.0)
 
   apps/mark-scan/frontend:
     dependencies:
@@ -2771,8 +2771,8 @@ importers:
         specifier: 9.0.5
         version: 9.0.5
       '@vitest/coverage-istanbul':
-        specifier: ^2.1.8
-        version: 2.1.8(vitest@2.1.8)
+        specifier: ^3.1.1
+        version: 3.1.1(vitest@3.1.1)
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
@@ -2810,8 +2810,8 @@ importers:
         specifier: ^6.0.1
         version: 6.1.1
       vitest:
-        specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
+        specifier: ^3.1.1
+        version: 3.1.1(@types/debug@4.1.8)(@types/node@20.16.0)
       wait-for-expect:
         specifier: ^3.0.2
         version: 3.0.2

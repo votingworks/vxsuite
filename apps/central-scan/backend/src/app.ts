@@ -301,7 +301,7 @@ function buildApi({
       return workspace.getDiskSpaceSummary();
     },
 
-    /* istanbul ignore next */
+    /* istanbul ignore next - @preserve */
     async generateSignedHashValidationQrCodeValue() {
       const { codeVersion } = getMachineConfig();
       const electionRecord = store.getElectionRecord();
