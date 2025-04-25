@@ -28,7 +28,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: apps/admin/backend
       - run:
           name: Lint
@@ -50,7 +50,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: apps/admin/frontend
       - run:
           name: Lint
@@ -70,7 +70,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: apps/admin/integration-testing
       - run:
           name: Install Browser
@@ -97,7 +97,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: apps/central-scan/backend
       - run:
           name: Lint
@@ -119,7 +119,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: apps/central-scan/frontend
       - run:
           name: Lint
@@ -139,7 +139,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: apps/central-scan/integration-testing
       - run:
           name: Install Browser
@@ -166,7 +166,7 @@ jobs:
     executor: nodejs_postgres
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: apps/design/backend
       - run:
           name: Lint
@@ -188,7 +188,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: apps/design/frontend
       - run:
           name: Lint
@@ -208,7 +208,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: apps/mark-scan/backend
       - run:
           name: Lint
@@ -230,7 +230,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: apps/mark-scan/frontend
       - run:
           name: Lint
@@ -250,7 +250,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: apps/mark-scan/integration-testing
       - run:
           name: Install Browser
@@ -277,7 +277,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: apps/mark/backend
       - run:
           name: Lint
@@ -299,7 +299,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: apps/mark/frontend
       - run:
           name: Lint
@@ -319,7 +319,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: apps/mark/integration-testing
       - run:
           name: Install Browser
@@ -346,7 +346,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: apps/pollbook/backend
       - run:
           name: Lint
@@ -368,7 +368,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: apps/pollbook/frontend
       - run:
           name: Lint
@@ -388,7 +388,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: apps/scan/backend
       - run:
           name: Lint
@@ -410,7 +410,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: apps/scan/frontend
       - run:
           name: Lint
@@ -430,7 +430,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: docs/exercises
       - run:
           name: Lint
@@ -450,7 +450,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/api
       - run:
           name: Lint
@@ -470,7 +470,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/auth
       - run:
           name: Lint
@@ -490,7 +490,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/backend
       - run:
           name: Lint
@@ -510,7 +510,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/ballot-encoder
       - run:
           name: Lint
@@ -530,7 +530,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/ballot-interpreter
       - run:
           name: Lint
@@ -552,7 +552,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/basics
       - run:
           name: Lint
@@ -572,7 +572,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/bmd-ballot-fixtures
       - run:
           name: Lint
@@ -594,7 +594,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/cdf-schema-builder
       - run:
           name: Lint
@@ -614,7 +614,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/custom-paper-handler
       - run:
           name: Lint
@@ -634,7 +634,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/custom-scanner
       - run:
           name: Lint
@@ -654,7 +654,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/db
       - run:
           name: Lint
@@ -674,7 +674,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/dev-dock/backend
       - run:
           name: Lint
@@ -694,7 +694,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/dev-dock/frontend
       - run:
           name: Lint
@@ -714,7 +714,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/eslint-plugin-vx
       - run:
           name: Lint
@@ -734,7 +734,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/fixture-generators
       - run:
           name: Lint
@@ -754,7 +754,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/fixtures
       - run:
           name: Lint
@@ -774,7 +774,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/fs
       - run:
           name: Lint
@@ -794,7 +794,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/fujitsu-thermal-printer
       - run:
           name: Lint
@@ -814,7 +814,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/grout
       - run:
           name: Lint
@@ -834,7 +834,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/grout/test-utils
       - run:
           name: Lint
@@ -854,7 +854,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/hmpb
       - run:
           name: Lint
@@ -876,7 +876,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/image-utils
       - run:
           name: Lint
@@ -896,7 +896,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/logging
       - run:
           name: Lint
@@ -916,7 +916,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/logging-utils
       - run:
           name: Lint
@@ -936,7 +936,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/mark-flow-ui
       - run:
           name: Lint
@@ -956,7 +956,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/message-coder
       - run:
           name: Lint
@@ -976,7 +976,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/monorepo-utils
       - run:
           name: Lint
@@ -996,7 +996,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/pdi-scanner
       - run:
           name: Lint
@@ -1016,7 +1016,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/printing
       - run:
           name: Lint
@@ -1038,7 +1038,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/test-utils
       - run:
           name: Lint
@@ -1058,7 +1058,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/types
       - run:
           name: Lint
@@ -1078,7 +1078,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/types-rs
       - run:
           name: Lint
@@ -1098,7 +1098,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/ui
       - run:
           name: Lint
@@ -1118,7 +1118,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/usb-drive
       - run:
           name: Lint
@@ -1138,7 +1138,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: libs/utils
       - run:
           name: Lint
@@ -1157,7 +1157,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: ballot-interpreter
       - run:
           name: Lint
@@ -1172,7 +1172,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: controllerd
       - run:
           name: Lint
@@ -1187,7 +1187,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: daemon-utils
       - run:
           name: Lint
@@ -1202,7 +1202,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: fai100-controllerd
       - run:
           name: Lint
@@ -1217,7 +1217,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: logging-utils
       - run:
           name: Lint
@@ -1232,7 +1232,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: patinputd
       - run:
           name: Lint
@@ -1247,7 +1247,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: pdi-scanner
       - run:
           name: Lint
@@ -1262,7 +1262,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: types-rs
       - run:
           name: Lint
@@ -1277,7 +1277,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: vx-logging
       - run:
           name: Lint
@@ -1292,7 +1292,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: script
       - run:
           name: Build

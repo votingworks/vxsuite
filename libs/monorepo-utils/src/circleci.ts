@@ -30,7 +30,7 @@ function generateTestJobForNodeJsPackage(
     `  executor: ${needsPostgres ? 'nodejs_postgres' : 'nodejs'}`,
     `  resource_class: xlarge`,
     `  steps:`,
-    `    - checkout-install-build`,
+    `    - checkout-install-build:`,
     `        relative-directory: ${pkg.relativePath}`,
     ...(hasPlaywrightTests
       ? [
@@ -79,7 +79,7 @@ function generateTestJobForRustCrate(pkgId: string): string[] {
     `  executor: 'nodejs'`,
     `  resource_class: xlarge`,
     `  steps:`,
-    `    - checkout-install-build`,
+    `    - checkout-install-build:`,
     `        relative-directory: ${pkgId}`,
     `    - run:`,
     `        name: Lint`,
@@ -170,7 +170,7 @@ ${rustJobs
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build
+      - checkout-install-build:
           relative-directory: script
       - run:
           name: Build
