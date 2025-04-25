@@ -157,35 +157,6 @@ executors:
         environment:
           POSTGRES_USER: postgres
 
-jobs:
-${[...pnpmJobs.values()]
-  .map((lines) => lines.map((line) => `  ${line}`).join('\n'))
-  .join('\n\n')}
-
-${rustJobs
-  .map((lines) => lines.map((line) => `  ${line}`).join('\n'))
-  .join('\n\n')}
-
-  validate-monorepo:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-install-build:
-          relative-directory: script
-      - run:
-          name: Build
-          command: |
-            pnpm --dir script build
-      - run:
-          name: Validate
-          command: |
-            ./script/validate-monorepo
-
-workflows:
-  test:
-    jobs:
-${jobIds.map((jobId) => `      - ${jobId}`).join('\n')}
-
 commands:
   checkout-install-build:
     description: Get the code, install dependencies, and build.
@@ -232,5 +203,34 @@ commands:
           name: Save cargo cache
           paths:
             - /root/.cargo
+
+jobs:
+${[...pnpmJobs.values()]
+  .map((lines) => lines.map((line) => `  ${line}`).join('\n'))
+  .join('\n\n')}
+
+${rustJobs
+  .map((lines) => lines.map((line) => `  ${line}`).join('\n'))
+  .join('\n\n')}
+
+  validate-monorepo:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-install-build:
+          relative-directory: script
+      - run:
+          name: Build
+          command: |
+            pnpm --dir script build
+      - run:
+          name: Validate
+          command: |
+            ./script/validate-monorepo
+
+workflows:
+  test:
+    jobs:
+${jobIds.map((jobId) => `      - ${jobId}`).join('\n')}
 `.trim();
 }

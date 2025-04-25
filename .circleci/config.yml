@@ -22,6 +22,53 @@ executors:
         environment:
           POSTGRES_USER: postgres
 
+commands:
+  checkout-install-build:
+    description: Get the code, install dependencies, and build.
+    parameters:
+      relative-directory:
+        type: string
+    steps:
+      - run:
+          name: Ensure rust is in the PATH variable
+          command: |
+            echo 'export PATH="/root/.cargo/bin:$PATH"' >> $BASH_ENV
+      - checkout
+      # Edit this comment somehow in order to invalidate the CircleCI cache.
+      # Since the contents of this file affect the cache key, editing only a
+      # comment will invalidate the cache without changing the behavior.
+      # last edited by Kofi 2024-09-19
+      - restore_cache:
+          name: Restore pnpm cache
+          key:
+            pnpm-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
+            "pnpm-lock.yaml" }}
+      - restore_cache:
+          name: Restore cargo cache
+          key: 
+            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum
+            "Cargo.lock" }}
+      - run:
+          name: Install Node Dependencies
+          command: |
+            pnpm install --frozen-lockfile
+      - run:
+          name: Build (and install rust dependencies)
+          command: |
+            pnpm --dir << parameters.relative-directory >> build
+      - save_cache:
+          name: Save pnpm cache
+          key:
+            pnpm-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
+            "pnpm-lock.yaml" }}
+          paths:
+            - /root/.local/share/pnpm/store/v3
+            - /root/.cache/ms-playwright
+      - save_cache:
+          name: Save cargo cache
+          paths:
+            - /root/.cargo
+
 jobs:
   # @votingworks/admin-backend
   test-apps-admin-backend:
@@ -1370,50 +1417,3 @@ workflows:
       - test-crate-types-rs
       - test-crate-vx-logging
       - validate-monorepo
-
-commands:
-  checkout-install-build:
-    description: Get the code, install dependencies, and build.
-    parameters:
-      relative-directory:
-        type: string
-    steps:
-      - run:
-          name: Ensure rust is in the PATH variable
-          command: |
-            echo 'export PATH="/root/.cargo/bin:$PATH"' >> $BASH_ENV
-      - checkout
-      # Edit this comment somehow in order to invalidate the CircleCI cache.
-      # Since the contents of this file affect the cache key, editing only a
-      # comment will invalidate the cache without changing the behavior.
-      # last edited by Kofi 2024-09-19
-      - restore_cache:
-          name: Restore pnpm cache
-          key:
-            pnpm-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
-            "pnpm-lock.yaml" }}
-      - restore_cache:
-          name: Restore cargo cache
-          key: 
-            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum
-            "Cargo.lock" }}
-      - run:
-          name: Install Node Dependencies
-          command: |
-            pnpm install --frozen-lockfile
-      - run:
-          name: Build (and install rust dependencies)
-          command: |
-            pnpm --dir << parameters.relative-directory >> build
-      - save_cache:
-          name: Save pnpm cache
-          key:
-            pnpm-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
-            "pnpm-lock.yaml" }}
-          paths:
-            - /root/.local/share/pnpm/store/v3
-            - /root/.cache/ms-playwright
-      - save_cache:
-          name: Save cargo cache
-          paths:
-            - /root/.cargo
