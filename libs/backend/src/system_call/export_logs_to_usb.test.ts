@@ -10,6 +10,8 @@ import {
 import { LogEventId, MockLogger, mockLogger } from '@votingworks/logging';
 import { tmpNameSync } from 'tmp';
 import { PassThrough } from 'node:stream';
+import { ok } from '@votingworks/basics';
+import { convertVxLogToCdf } from '@votingworks/logging-utils';
 import { execFile } from '../exec';
 import { exportLogsToUsb } from './export_logs_to_usb';
 
@@ -31,6 +33,8 @@ vi.mock(
     execFile: vi.fn(),
   })
 );
+
+vi.mock(import('@votingworks/logging-utils'));
 
 const execFileMock = vi.mocked(execFile);
 
@@ -189,7 +193,7 @@ test('exportLogsToUsb works for vxf format when all conditions are met', async (
   mockUsbDrive.assertComplete();
 });
 
-test('exportLogsToUsb returns error when cdf conversion fails', async () => {
+test('exportLogsToUsb returns error when cdf conversion fails - compressed file', async () => {
   const { createReadStream: realCreateReadStream } =
     await vi.importActual<typeof import('node:fs')>('node:fs');
   const mockUsbDrive = createMockUsbDrive();
@@ -205,7 +209,7 @@ test('exportLogsToUsb returns error when cdf conversion fails', async () => {
   const readdirMock = fs.readdir as unknown as MockInstance<
     () => Promise<string[]>
   >;
-  readdirMock.mockResolvedValue(['vx-logs.log', 'vx-logs.log-20240101.gz']);
+  readdirMock.mockResolvedValue(['vx-logs.log-20240101.gz']);
 
   const logFile = tmpNameSync();
   await fs.writeFile(logFile, ``);
@@ -213,8 +217,48 @@ test('exportLogsToUsb returns error when cdf conversion fails', async () => {
     realCreateReadStream(logFile, 'utf8')
   );
   // There will be an error uncompressing if this is an empty file
-  vi.mocked(createReadStream).mockReturnValueOnce(
-    realCreateReadStream(logFile, 'utf8')
+  execFileMock.mockResolvedValue({ stdout: '', stderr: '' });
+
+  const result = await exportLogsToUsb({
+    usbDrive: mockUsbDrive.usbDrive,
+    logger,
+    machineId: 'TEST-MACHINE-ID',
+    codeVersion: 'TEST-CODE-VERSION',
+    format: 'cdf',
+  });
+  expect(result.isErr()).toBeTruthy();
+  expect(result.err()).toEqual('cdf-conversion-failed');
+});
+
+test('exportLogsToUsb returns error when cdf conversion fails - plain file', async () => {
+  const mockUsbDrive = createMockUsbDrive();
+  mockUsbDrive.usbDrive.status.reset();
+  mockUsbDrive.usbDrive.status.expectRepeatedCallsWith().resolves({
+    status: 'mounted',
+    mountPoint: '/media/usb-drive',
+  });
+
+  const mockStats = new Stats();
+  mockStats.isDirectory = vi.fn().mockReturnValue(true);
+  vi.mocked(fs.stat).mockResolvedValueOnce(mockStats);
+  const readdirMock = fs.readdir as unknown as MockInstance<
+    () => Promise<string[]>
+  >;
+  readdirMock.mockResolvedValue(['vx-logs.log']);
+
+  const logFile = tmpNameSync();
+  await fs.writeFile(logFile, ``);
+
+  vi.mocked(convertVxLogToCdf).mockImplementation(
+    (
+      _logWrapper,
+      _source,
+      _machineId,
+      _codeVersion,
+      _inputPath,
+      _outputPath,
+      cb
+    ) => cb(new Error('conversion failed'))
   );
 
   execFileMock.mockResolvedValue({ stdout: '', stderr: '' });
@@ -298,17 +342,28 @@ test('exportLogsToUsb works for cdf format when all conditions are met', async (
 
   execFileMock.mockResolvedValue({ stdout: '', stderr: '' });
 
+  vi.mocked(convertVxLogToCdf).mockImplementation(
+    (logWrapper, source, machineId, codeVersion, inputPath, outputPath, cb) => {
+      expect(source).toEqual(logger.getSource());
+      expect(machineId).toEqual('TEST-MACHINE-ID');
+      expect(codeVersion).toEqual('TEST-CODE-VERSION');
+      expect(inputPath).toMatch(/vx-logs.log$/);
+      expect(outputPath).toMatch(/vx-logs.cdf.log.json$/);
+
+      logWrapper(LogEventId.LogConversionToCdfComplete, 'unknown', 'success');
+      cb(null);
+    }
+  );
+
   expect(
-    (
-      await exportLogsToUsb({
-        usbDrive: mockUsbDrive.usbDrive,
-        logger,
-        machineId: 'TEST-MACHINE-ID',
-        codeVersion: 'TEST-CODE-VERSION',
-        format: 'cdf',
-      })
-    ).isOk()
-  ).toBeTruthy();
+    await exportLogsToUsb({
+      usbDrive: mockUsbDrive.usbDrive,
+      logger,
+      machineId: 'TEST-MACHINE-ID',
+      codeVersion: 'TEST-CODE-VERSION',
+      format: 'cdf',
+    })
+  ).toEqual(ok());
   expect(vi.mocked(fs.stat)).toHaveBeenCalledWith('/var/log/votingworks');
 
   expect(execFileMock).toHaveBeenCalledWith('mkdir', [
@@ -321,10 +376,6 @@ test('exportLogsToUsb works for cdf format when all conditions are met', async (
     expect.stringContaining('/tmp/'),
     expect.stringMatching('^/media/usb-drive/logs/machine_TEST-MACHINE-ID/'),
   ]);
-
-  expect(createWriteStream).toHaveBeenCalledWith(
-    expect.stringContaining('vx-logs.cdf.log.json')
-  );
 
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.LogConversionToCdfComplete,

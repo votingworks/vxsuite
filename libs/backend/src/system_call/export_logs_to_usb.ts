@@ -1,4 +1,10 @@
-import { Result, err, ok, throwIllegalValue } from '@votingworks/basics';
+import {
+  Result,
+  deferred,
+  err,
+  ok,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import { UsbDrive } from '@votingworks/usb-drive';
 import * as fs from 'node:fs/promises';
 import { join } from 'node:path';
@@ -15,6 +21,7 @@ import { pipeline } from 'node:stream/promises';
 import { createGunzip, createGzip } from 'node:zlib';
 import { dirSync } from 'tmp';
 import { generateFileTimeSuffix } from '@votingworks/utils';
+import { convertVxLogToCdf } from '@votingworks/logging-utils';
 import { execFile } from '../exec';
 
 const LOG_DIR = '/var/log/votingworks';
@@ -30,6 +37,30 @@ export type LogsResultType = Result<
   | 'error-filtering-failed'
 >;
 
+function convertFileToCdf(
+  logger: Logger,
+  inputPath: string,
+  outputPath: string,
+  machineId: string,
+  codeVersion: string
+): Promise<void> {
+  const { promise, reject, resolve } = deferred<void>();
+
+  convertVxLogToCdf(
+    (eventId, message, disposition) => {
+      void logger.logAsCurrentRole(eventId, { message, disposition });
+    },
+    logger.getSource(),
+    machineId,
+    codeVersion,
+    inputPath,
+    outputPath,
+    (error) => (error ? reject(error) : resolve())
+  );
+
+  return promise;
+}
+
 async function convertLogsToCdf(
   logDir: string,
   outputDir: string,
@@ -41,15 +72,18 @@ async function convertLogsToCdf(
 
   // Create CDF for vx-logs.log
   if (files.includes('vx-logs.log')) {
-    await pipeline(
-      createReadStream(join(logDir, 'vx-logs.log'), 'utf8'),
-      (inputStream: AsyncIterable<string>) =>
-        buildCdfLog(logger, inputStream, machineId, codeVersion),
-      createWriteStream(join(outputDir, 'vx-logs.cdf.log.json'))
+    await convertFileToCdf(
+      logger,
+      join(logDir, 'vx-logs.log'),
+      join(outputDir, 'vx-logs.cdf.log.json'),
+      machineId,
+      codeVersion
     );
   }
 
   // Create CDF for all compressed vx-logs files
+  // [TODO] Add support for gzipped files to `libs/logging-utils` and update
+  // this conversion.
   for (const file of files) {
     if (file.match(COMPRESSED_VX_LOGS_NAME_REGEX)) {
       const cdfFileName = file.replace('vx-logs', 'vx-logs.cdf.json');

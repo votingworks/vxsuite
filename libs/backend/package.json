@@ -34,6 +34,7 @@
     "@votingworks/db": "workspace:*",
     "@votingworks/grout": "workspace:*",
     "@votingworks/logging": "workspace:*",
+    "@votingworks/logging-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/usb-drive": "workspace:*",
     "@votingworks/utils": "workspace:*",
