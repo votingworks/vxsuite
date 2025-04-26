@@ -28,8 +28,6 @@ commands:
     parameters:
       relative-directory:
         type: string
-      job-id:
-        type: string
     steps:
       - run:
           name: Ensure rust is in the PATH variable
@@ -45,7 +43,7 @@ commands:
           key: pnpm-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "pnpm-lock.yaml" }}
       - restore_cache:
           name: Restore cargo cache
-          key: cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}-{{ checksum << parameters.job-id >> }}
+          key: cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}-{{ .Environment.CIRCLE_JOB }}
       - run:
           name: Install Node Dependencies
           command: |
@@ -62,7 +60,7 @@ commands:
             - /root/.cache/ms-playwright
       - save_cache:
           name: Save cargo cache
-          key: cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}-{{ checksum << parameters.job-id >> }}
+          key: cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}-{{ .Environment.CIRCLE_JOB }}
           paths:
             - /root/.cargo
 
@@ -74,7 +72,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: apps/admin/backend
-          job-id: test-apps-admin-backend
       - run:
           name: Lint
           command: |
@@ -97,7 +94,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: apps/admin/frontend
-          job-id: test-apps-admin-frontend
       - run:
           name: Lint
           command: |
@@ -118,7 +114,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: apps/admin/integration-testing
-          job-id: test-apps-admin-integration-testing
       - run:
           name: Install Browser
           command: |
@@ -146,7 +141,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: apps/central-scan/backend
-          job-id: test-apps-central-scan-backend
       - run:
           name: Lint
           command: |
@@ -169,7 +163,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: apps/central-scan/frontend
-          job-id: test-apps-central-scan-frontend
       - run:
           name: Lint
           command: |
@@ -190,7 +183,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: apps/central-scan/integration-testing
-          job-id: test-apps-central-scan-integration-testing
       - run:
           name: Install Browser
           command: |
@@ -218,7 +210,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: apps/design/backend
-          job-id: test-apps-design-backend
       - run:
           name: Lint
           command: |
@@ -241,7 +232,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: apps/design/frontend
-          job-id: test-apps-design-frontend
       - run:
           name: Lint
           command: |
@@ -262,7 +252,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: apps/mark-scan/backend
-          job-id: test-apps-mark-scan-backend
       - run:
           name: Lint
           command: |
@@ -285,7 +274,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: apps/mark-scan/frontend
-          job-id: test-apps-mark-scan-frontend
       - run:
           name: Lint
           command: |
@@ -306,7 +294,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: apps/mark-scan/integration-testing
-          job-id: test-apps-mark-scan-integration-testing
       - run:
           name: Install Browser
           command: |
@@ -334,7 +321,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: apps/mark/backend
-          job-id: test-apps-mark-backend
       - run:
           name: Lint
           command: |
@@ -357,7 +343,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: apps/mark/frontend
-          job-id: test-apps-mark-frontend
       - run:
           name: Lint
           command: |
@@ -378,7 +363,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: apps/mark/integration-testing
-          job-id: test-apps-mark-integration-testing
       - run:
           name: Install Browser
           command: |
@@ -406,7 +390,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: apps/pollbook/backend
-          job-id: test-apps-pollbook-backend
       - run:
           name: Lint
           command: |
@@ -429,7 +412,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: apps/pollbook/frontend
-          job-id: test-apps-pollbook-frontend
       - run:
           name: Lint
           command: |
@@ -450,7 +432,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: apps/scan/backend
-          job-id: test-apps-scan-backend
       - run:
           name: Lint
           command: |
@@ -473,7 +454,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: apps/scan/frontend
-          job-id: test-apps-scan-frontend
       - run:
           name: Lint
           command: |
@@ -494,7 +474,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: docs/exercises
-          job-id: test-docs-exercises
       - run:
           name: Lint
           command: |
@@ -515,7 +494,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/api
-          job-id: test-libs-api
       - run:
           name: Lint
           command: |
@@ -536,7 +514,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/auth
-          job-id: test-libs-auth
       - run:
           name: Lint
           command: |
@@ -557,7 +534,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/backend
-          job-id: test-libs-backend
       - run:
           name: Lint
           command: |
@@ -578,7 +554,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/ballot-encoder
-          job-id: test-libs-ballot-encoder
       - run:
           name: Lint
           command: |
@@ -599,7 +574,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/ballot-interpreter
-          job-id: test-libs-ballot-interpreter
       - run:
           name: Lint
           command: |
@@ -622,7 +596,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/basics
-          job-id: test-libs-basics
       - run:
           name: Lint
           command: |
@@ -643,7 +616,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/bmd-ballot-fixtures
-          job-id: test-libs-bmd-ballot-fixtures
       - run:
           name: Lint
           command: |
@@ -666,7 +638,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/cdf-schema-builder
-          job-id: test-libs-cdf-schema-builder
       - run:
           name: Lint
           command: |
@@ -687,7 +658,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/custom-paper-handler
-          job-id: test-libs-custom-paper-handler
       - run:
           name: Lint
           command: |
@@ -708,7 +678,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/custom-scanner
-          job-id: test-libs-custom-scanner
       - run:
           name: Lint
           command: |
@@ -729,7 +698,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/db
-          job-id: test-libs-db
       - run:
           name: Lint
           command: |
@@ -750,7 +718,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/dev-dock/backend
-          job-id: test-libs-dev-dock-backend
       - run:
           name: Lint
           command: |
@@ -771,7 +738,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/dev-dock/frontend
-          job-id: test-libs-dev-dock-frontend
       - run:
           name: Lint
           command: |
@@ -792,7 +758,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/eslint-plugin-vx
-          job-id: test-libs-eslint-plugin-vx
       - run:
           name: Lint
           command: |
@@ -813,7 +778,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/fixture-generators
-          job-id: test-libs-fixture-generators
       - run:
           name: Lint
           command: |
@@ -834,7 +798,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/fixtures
-          job-id: test-libs-fixtures
       - run:
           name: Lint
           command: |
@@ -855,7 +818,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/fs
-          job-id: test-libs-fs
       - run:
           name: Lint
           command: |
@@ -876,7 +838,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/fujitsu-thermal-printer
-          job-id: test-libs-fujitsu-thermal-printer
       - run:
           name: Lint
           command: |
@@ -897,7 +858,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/grout
-          job-id: test-libs-grout
       - run:
           name: Lint
           command: |
@@ -918,7 +878,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/grout/test-utils
-          job-id: test-libs-grout-test-utils
       - run:
           name: Lint
           command: |
@@ -939,7 +898,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/hmpb
-          job-id: test-libs-hmpb
       - run:
           name: Lint
           command: |
@@ -962,7 +920,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/image-utils
-          job-id: test-libs-image-utils
       - run:
           name: Lint
           command: |
@@ -983,7 +940,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/logging
-          job-id: test-libs-logging
       - run:
           name: Lint
           command: |
@@ -1004,7 +960,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/logging-utils
-          job-id: test-libs-logging-utils
       - run:
           name: Lint
           command: |
@@ -1025,7 +980,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/mark-flow-ui
-          job-id: test-libs-mark-flow-ui
       - run:
           name: Lint
           command: |
@@ -1046,7 +1000,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/message-coder
-          job-id: test-libs-message-coder
       - run:
           name: Lint
           command: |
@@ -1067,7 +1020,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/monorepo-utils
-          job-id: test-libs-monorepo-utils
       - run:
           name: Lint
           command: |
@@ -1088,7 +1040,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/pdi-scanner
-          job-id: test-libs-pdi-scanner
       - run:
           name: Lint
           command: |
@@ -1109,7 +1060,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/printing
-          job-id: test-libs-printing
       - run:
           name: Lint
           command: |
@@ -1132,7 +1082,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/test-utils
-          job-id: test-libs-test-utils
       - run:
           name: Lint
           command: |
@@ -1153,7 +1102,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/types
-          job-id: test-libs-types
       - run:
           name: Lint
           command: |
@@ -1174,7 +1122,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/types-rs
-          job-id: test-libs-types-rs
       - run:
           name: Lint
           command: |
@@ -1195,7 +1142,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/ui
-          job-id: test-libs-ui
       - run:
           name: Lint
           command: |
@@ -1216,7 +1162,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/usb-drive
-          job-id: test-libs-usb-drive
       - run:
           name: Lint
           command: |
@@ -1237,7 +1182,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: libs/utils
-          job-id: test-libs-utils
       - run:
           name: Lint
           command: |
@@ -1257,7 +1201,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: /home/vx/code/vxsuite/libs/ballot-interpreter
-          job-id: test-crate-ballot-interpreter
       - run:
           name: Lint
           command: |
@@ -1273,7 +1216,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: /home/vx/code/vxsuite/apps/mark-scan/accessible-controller
-          job-id: test-crate-controllerd
       - run:
           name: Lint
           command: |
@@ -1289,7 +1231,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: /home/vx/code/vxsuite/apps/mark-scan/daemon-utils
-          job-id: test-crate-daemon-utils
       - run:
           name: Lint
           command: |
@@ -1305,7 +1246,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: /home/vx/code/vxsuite/apps/mark-scan/fai-100-controller
-          job-id: test-crate-fai100-controllerd
       - run:
           name: Lint
           command: |
@@ -1321,7 +1261,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: /home/vx/code/vxsuite/libs/logging-utils
-          job-id: test-crate-logging-utils
       - run:
           name: Lint
           command: |
@@ -1337,7 +1276,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: /home/vx/code/vxsuite/apps/mark-scan/pat-device-input
-          job-id: test-crate-patinputd
       - run:
           name: Lint
           command: |
@@ -1353,7 +1291,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: /home/vx/code/vxsuite/libs/pdi-scanner
-          job-id: test-crate-pdi-scanner
       - run:
           name: Lint
           command: |
@@ -1369,7 +1306,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: /home/vx/code/vxsuite/libs/types-rs
-          job-id: test-crate-types-rs
       - run:
           name: Lint
           command: |
@@ -1385,7 +1321,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: /home/vx/code/vxsuite/libs/logging
-          job-id: test-crate-vx-logging
       - run:
           name: Lint
           command: |
@@ -1401,7 +1336,6 @@ jobs:
     steps:
       - checkout-install-build:
           relative-directory: script
-          job-id: validate-monorepo
       - run:
           name: Build
           command: |

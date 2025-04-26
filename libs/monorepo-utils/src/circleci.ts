@@ -32,7 +32,6 @@ function generateTestJobForNodeJsPackage(
     `  steps:`,
     `    - checkout-install-build:`,
     `        relative-directory: ${pkg.relativePath}`,
-    `        job-id: ${jobIdForPackage(pkg)}`,
     ...(hasPlaywrightTests
       ? [
           `    - run:`,
@@ -82,7 +81,6 @@ function generateTestJobForRustCrate(rustPackage: CargoPackageInfo): string[] {
     `  steps:`,
     `    - checkout-install-build:`,
     `        relative-directory: ${rustPackage.relativePath}`,
-    `        job-id: ${jobIdForRustPackageName(rustPackage.name)}`,
     `    - run:`,
     `        name: Lint`,
     `        command: |`,
@@ -165,8 +163,6 @@ commands:
     parameters:
       relative-directory:
         type: string
-      job-id:
-        type: string
     steps:
       - run:
           name: Ensure rust is in the PATH variable
@@ -182,7 +178,7 @@ commands:
           key: pnpm-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "pnpm-lock.yaml" }}
       - restore_cache:
           name: Restore cargo cache
-          key: cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}-{{ checksum << parameters.job-id >> }}
+          key: cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}-{{ .Environment.CIRCLE_JOB }}
       - run:
           name: Install Node Dependencies
           command: |
@@ -199,7 +195,7 @@ commands:
             - /root/.cache/ms-playwright
       - save_cache:
           name: Save cargo cache
-          key: cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}-{{ checksum << parameters.job-id >> }}
+          key: cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}-{{ .Environment.CIRCLE_JOB }}
           paths:
             - /root/.cargo
 
@@ -218,7 +214,6 @@ ${rustJobs
     steps:
       - checkout-install-build:
           relative-directory: script
-          job-id: validate-monorepo
       - run:
           name: Build
           command: |
