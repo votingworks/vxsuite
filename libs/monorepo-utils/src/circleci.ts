@@ -213,7 +213,6 @@ commands:
           command: |
             pnpm install --frozen-lockfile
             pnpm --recursive install:rust-addon
-            pnpm --recursive build:rust-addon
       - save_cache:
           key:
             dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
