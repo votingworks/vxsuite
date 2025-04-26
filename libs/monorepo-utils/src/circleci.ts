@@ -30,7 +30,7 @@ function generateTestJobForNodeJsPackage(
     `  executor: ${needsPostgres ? 'nodejs_postgres' : 'nodejs'}`,
     `  resource_class: xlarge`,
     `  steps:`,
-    `    - command: checkout-install-build`,
+    `    - checkout-install-build:`,
     `      parameters:`,
     `        relative-directory: ${pkg.relativePath}`,
     `        job-id: ${jobIdForPackage(pkg)}`,
@@ -81,7 +81,7 @@ function generateTestJobForRustCrate(rustPackage: CargoPackageInfo): string[] {
     `  executor: 'nodejs'`,
     `  resource_class: xlarge`,
     `  steps:`,
-    `    - command: checkout-install-build`,
+    `    - checkout-install-build:`,
     `      parameters:`,
     `        relative-directory: ${rustPackage.relativePath}`,
     `        job-id: ${jobIdForRustPackageName(rustPackage.name)}`,
@@ -218,7 +218,7 @@ ${rustJobs
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build
+      - checkout-install-build:
         parameters:
           relative-directory: script
           job-id: validate-monorepo
