@@ -73,9 +73,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: apps/admin/backend
-          job-id: test-apps-admin-backend
+          parameters:
+            relative-directory: apps/admin/backend
+            job-id: test-apps-admin-backend
       - run:
           name: Lint
           command: |
@@ -97,9 +97,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: apps/admin/frontend
-          job-id: test-apps-admin-frontend
+          parameters:
+            relative-directory: apps/admin/frontend
+            job-id: test-apps-admin-frontend
       - run:
           name: Lint
           command: |
@@ -119,9 +119,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: apps/admin/integration-testing
-          job-id: test-apps-admin-integration-testing
+          parameters:
+            relative-directory: apps/admin/integration-testing
+            job-id: test-apps-admin-integration-testing
       - run:
           name: Install Browser
           command: |
@@ -148,9 +148,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: apps/central-scan/backend
-          job-id: test-apps-central-scan-backend
+          parameters:
+            relative-directory: apps/central-scan/backend
+            job-id: test-apps-central-scan-backend
       - run:
           name: Lint
           command: |
@@ -172,9 +172,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: apps/central-scan/frontend
-          job-id: test-apps-central-scan-frontend
+          parameters:
+            relative-directory: apps/central-scan/frontend
+            job-id: test-apps-central-scan-frontend
       - run:
           name: Lint
           command: |
@@ -194,9 +194,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: apps/central-scan/integration-testing
-          job-id: test-apps-central-scan-integration-testing
+          parameters:
+            relative-directory: apps/central-scan/integration-testing
+            job-id: test-apps-central-scan-integration-testing
       - run:
           name: Install Browser
           command: |
@@ -223,9 +223,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: apps/design/backend
-          job-id: test-apps-design-backend
+          parameters:
+            relative-directory: apps/design/backend
+            job-id: test-apps-design-backend
       - run:
           name: Lint
           command: |
@@ -247,9 +247,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: apps/design/frontend
-          job-id: test-apps-design-frontend
+          parameters:
+            relative-directory: apps/design/frontend
+            job-id: test-apps-design-frontend
       - run:
           name: Lint
           command: |
@@ -269,9 +269,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: apps/mark-scan/backend
-          job-id: test-apps-mark-scan-backend
+          parameters:
+            relative-directory: apps/mark-scan/backend
+            job-id: test-apps-mark-scan-backend
       - run:
           name: Lint
           command: |
@@ -293,9 +293,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: apps/mark-scan/frontend
-          job-id: test-apps-mark-scan-frontend
+          parameters:
+            relative-directory: apps/mark-scan/frontend
+            job-id: test-apps-mark-scan-frontend
       - run:
           name: Lint
           command: |
@@ -315,9 +315,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: apps/mark-scan/integration-testing
-          job-id: test-apps-mark-scan-integration-testing
+          parameters:
+            relative-directory: apps/mark-scan/integration-testing
+            job-id: test-apps-mark-scan-integration-testing
       - run:
           name: Install Browser
           command: |
@@ -344,9 +344,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: apps/mark/backend
-          job-id: test-apps-mark-backend
+          parameters:
+            relative-directory: apps/mark/backend
+            job-id: test-apps-mark-backend
       - run:
           name: Lint
           command: |
@@ -368,9 +368,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: apps/mark/frontend
-          job-id: test-apps-mark-frontend
+          parameters:
+            relative-directory: apps/mark/frontend
+            job-id: test-apps-mark-frontend
       - run:
           name: Lint
           command: |
@@ -390,9 +390,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: apps/mark/integration-testing
-          job-id: test-apps-mark-integration-testing
+          parameters:
+            relative-directory: apps/mark/integration-testing
+            job-id: test-apps-mark-integration-testing
       - run:
           name: Install Browser
           command: |
@@ -419,9 +419,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: apps/pollbook/backend
-          job-id: test-apps-pollbook-backend
+          parameters:
+            relative-directory: apps/pollbook/backend
+            job-id: test-apps-pollbook-backend
       - run:
           name: Lint
           command: |
@@ -443,9 +443,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: apps/pollbook/frontend
-          job-id: test-apps-pollbook-frontend
+          parameters:
+            relative-directory: apps/pollbook/frontend
+            job-id: test-apps-pollbook-frontend
       - run:
           name: Lint
           command: |
@@ -465,9 +465,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: apps/scan/backend
-          job-id: test-apps-scan-backend
+          parameters:
+            relative-directory: apps/scan/backend
+            job-id: test-apps-scan-backend
       - run:
           name: Lint
           command: |
@@ -489,9 +489,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: apps/scan/frontend
-          job-id: test-apps-scan-frontend
+          parameters:
+            relative-directory: apps/scan/frontend
+            job-id: test-apps-scan-frontend
       - run:
           name: Lint
           command: |
@@ -511,9 +511,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: docs/exercises
-          job-id: test-docs-exercises
+          parameters:
+            relative-directory: docs/exercises
+            job-id: test-docs-exercises
       - run:
           name: Lint
           command: |
@@ -533,9 +533,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/api
-          job-id: test-libs-api
+          parameters:
+            relative-directory: libs/api
+            job-id: test-libs-api
       - run:
           name: Lint
           command: |
@@ -555,9 +555,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/auth
-          job-id: test-libs-auth
+          parameters:
+            relative-directory: libs/auth
+            job-id: test-libs-auth
       - run:
           name: Lint
           command: |
@@ -577,9 +577,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/backend
-          job-id: test-libs-backend
+          parameters:
+            relative-directory: libs/backend
+            job-id: test-libs-backend
       - run:
           name: Lint
           command: |
@@ -599,9 +599,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/ballot-encoder
-          job-id: test-libs-ballot-encoder
+          parameters:
+            relative-directory: libs/ballot-encoder
+            job-id: test-libs-ballot-encoder
       - run:
           name: Lint
           command: |
@@ -621,9 +621,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/ballot-interpreter
-          job-id: test-libs-ballot-interpreter
+          parameters:
+            relative-directory: libs/ballot-interpreter
+            job-id: test-libs-ballot-interpreter
       - run:
           name: Lint
           command: |
@@ -645,9 +645,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/basics
-          job-id: test-libs-basics
+          parameters:
+            relative-directory: libs/basics
+            job-id: test-libs-basics
       - run:
           name: Lint
           command: |
@@ -667,9 +667,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/bmd-ballot-fixtures
-          job-id: test-libs-bmd-ballot-fixtures
+          parameters:
+            relative-directory: libs/bmd-ballot-fixtures
+            job-id: test-libs-bmd-ballot-fixtures
       - run:
           name: Lint
           command: |
@@ -691,9 +691,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/cdf-schema-builder
-          job-id: test-libs-cdf-schema-builder
+          parameters:
+            relative-directory: libs/cdf-schema-builder
+            job-id: test-libs-cdf-schema-builder
       - run:
           name: Lint
           command: |
@@ -713,9 +713,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/custom-paper-handler
-          job-id: test-libs-custom-paper-handler
+          parameters:
+            relative-directory: libs/custom-paper-handler
+            job-id: test-libs-custom-paper-handler
       - run:
           name: Lint
           command: |
@@ -735,9 +735,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/custom-scanner
-          job-id: test-libs-custom-scanner
+          parameters:
+            relative-directory: libs/custom-scanner
+            job-id: test-libs-custom-scanner
       - run:
           name: Lint
           command: |
@@ -757,9 +757,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/db
-          job-id: test-libs-db
+          parameters:
+            relative-directory: libs/db
+            job-id: test-libs-db
       - run:
           name: Lint
           command: |
@@ -779,9 +779,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/dev-dock/backend
-          job-id: test-libs-dev-dock-backend
+          parameters:
+            relative-directory: libs/dev-dock/backend
+            job-id: test-libs-dev-dock-backend
       - run:
           name: Lint
           command: |
@@ -801,9 +801,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/dev-dock/frontend
-          job-id: test-libs-dev-dock-frontend
+          parameters:
+            relative-directory: libs/dev-dock/frontend
+            job-id: test-libs-dev-dock-frontend
       - run:
           name: Lint
           command: |
@@ -823,9 +823,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/eslint-plugin-vx
-          job-id: test-libs-eslint-plugin-vx
+          parameters:
+            relative-directory: libs/eslint-plugin-vx
+            job-id: test-libs-eslint-plugin-vx
       - run:
           name: Lint
           command: |
@@ -845,9 +845,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/fixture-generators
-          job-id: test-libs-fixture-generators
+          parameters:
+            relative-directory: libs/fixture-generators
+            job-id: test-libs-fixture-generators
       - run:
           name: Lint
           command: |
@@ -867,9 +867,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/fixtures
-          job-id: test-libs-fixtures
+          parameters:
+            relative-directory: libs/fixtures
+            job-id: test-libs-fixtures
       - run:
           name: Lint
           command: |
@@ -889,9 +889,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/fs
-          job-id: test-libs-fs
+          parameters:
+            relative-directory: libs/fs
+            job-id: test-libs-fs
       - run:
           name: Lint
           command: |
@@ -911,9 +911,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/fujitsu-thermal-printer
-          job-id: test-libs-fujitsu-thermal-printer
+          parameters:
+            relative-directory: libs/fujitsu-thermal-printer
+            job-id: test-libs-fujitsu-thermal-printer
       - run:
           name: Lint
           command: |
@@ -933,9 +933,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/grout
-          job-id: test-libs-grout
+          parameters:
+            relative-directory: libs/grout
+            job-id: test-libs-grout
       - run:
           name: Lint
           command: |
@@ -955,9 +955,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/grout/test-utils
-          job-id: test-libs-grout-test-utils
+          parameters:
+            relative-directory: libs/grout/test-utils
+            job-id: test-libs-grout-test-utils
       - run:
           name: Lint
           command: |
@@ -977,9 +977,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/hmpb
-          job-id: test-libs-hmpb
+          parameters:
+            relative-directory: libs/hmpb
+            job-id: test-libs-hmpb
       - run:
           name: Lint
           command: |
@@ -1001,9 +1001,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/image-utils
-          job-id: test-libs-image-utils
+          parameters:
+            relative-directory: libs/image-utils
+            job-id: test-libs-image-utils
       - run:
           name: Lint
           command: |
@@ -1023,9 +1023,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/logging
-          job-id: test-libs-logging
+          parameters:
+            relative-directory: libs/logging
+            job-id: test-libs-logging
       - run:
           name: Lint
           command: |
@@ -1045,9 +1045,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/logging-utils
-          job-id: test-libs-logging-utils
+          parameters:
+            relative-directory: libs/logging-utils
+            job-id: test-libs-logging-utils
       - run:
           name: Lint
           command: |
@@ -1067,9 +1067,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/mark-flow-ui
-          job-id: test-libs-mark-flow-ui
+          parameters:
+            relative-directory: libs/mark-flow-ui
+            job-id: test-libs-mark-flow-ui
       - run:
           name: Lint
           command: |
@@ -1089,9 +1089,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/message-coder
-          job-id: test-libs-message-coder
+          parameters:
+            relative-directory: libs/message-coder
+            job-id: test-libs-message-coder
       - run:
           name: Lint
           command: |
@@ -1111,9 +1111,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/monorepo-utils
-          job-id: test-libs-monorepo-utils
+          parameters:
+            relative-directory: libs/monorepo-utils
+            job-id: test-libs-monorepo-utils
       - run:
           name: Lint
           command: |
@@ -1133,9 +1133,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/pdi-scanner
-          job-id: test-libs-pdi-scanner
+          parameters:
+            relative-directory: libs/pdi-scanner
+            job-id: test-libs-pdi-scanner
       - run:
           name: Lint
           command: |
@@ -1155,9 +1155,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/printing
-          job-id: test-libs-printing
+          parameters:
+            relative-directory: libs/printing
+            job-id: test-libs-printing
       - run:
           name: Lint
           command: |
@@ -1179,9 +1179,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/test-utils
-          job-id: test-libs-test-utils
+          parameters:
+            relative-directory: libs/test-utils
+            job-id: test-libs-test-utils
       - run:
           name: Lint
           command: |
@@ -1201,9 +1201,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/types
-          job-id: test-libs-types
+          parameters:
+            relative-directory: libs/types
+            job-id: test-libs-types
       - run:
           name: Lint
           command: |
@@ -1223,9 +1223,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/types-rs
-          job-id: test-libs-types-rs
+          parameters:
+            relative-directory: libs/types-rs
+            job-id: test-libs-types-rs
       - run:
           name: Lint
           command: |
@@ -1245,9 +1245,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/ui
-          job-id: test-libs-ui
+          parameters:
+            relative-directory: libs/ui
+            job-id: test-libs-ui
       - run:
           name: Lint
           command: |
@@ -1267,9 +1267,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/usb-drive
-          job-id: test-libs-usb-drive
+          parameters:
+            relative-directory: libs/usb-drive
+            job-id: test-libs-usb-drive
       - run:
           name: Lint
           command: |
@@ -1289,9 +1289,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: libs/utils
-          job-id: test-libs-utils
+          parameters:
+            relative-directory: libs/utils
+            job-id: test-libs-utils
       - run:
           name: Lint
           command: |
@@ -1310,9 +1310,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: /home/vx/code/vxsuite/libs/ballot-interpreter
-          job-id: test-crate-ballot-interpreter
+          parameters:
+            relative-directory: /home/vx/code/vxsuite/libs/ballot-interpreter
+            job-id: test-crate-ballot-interpreter
       - run:
           name: Lint
           command: |
@@ -1327,9 +1327,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: /home/vx/code/vxsuite/apps/mark-scan/accessible-controller
-          job-id: test-crate-controllerd
+          parameters:
+            relative-directory: /home/vx/code/vxsuite/apps/mark-scan/accessible-controller
+            job-id: test-crate-controllerd
       - run:
           name: Lint
           command: |
@@ -1344,9 +1344,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: /home/vx/code/vxsuite/apps/mark-scan/daemon-utils
-          job-id: test-crate-daemon-utils
+          parameters:
+            relative-directory: /home/vx/code/vxsuite/apps/mark-scan/daemon-utils
+            job-id: test-crate-daemon-utils
       - run:
           name: Lint
           command: |
@@ -1361,9 +1361,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: /home/vx/code/vxsuite/apps/mark-scan/fai-100-controller
-          job-id: test-crate-fai100-controllerd
+          parameters:
+            relative-directory: /home/vx/code/vxsuite/apps/mark-scan/fai-100-controller
+            job-id: test-crate-fai100-controllerd
       - run:
           name: Lint
           command: |
@@ -1378,9 +1378,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: /home/vx/code/vxsuite/libs/logging-utils
-          job-id: test-crate-logging-utils
+          parameters:
+            relative-directory: /home/vx/code/vxsuite/libs/logging-utils
+            job-id: test-crate-logging-utils
       - run:
           name: Lint
           command: |
@@ -1395,9 +1395,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: /home/vx/code/vxsuite/apps/mark-scan/pat-device-input
-          job-id: test-crate-patinputd
+          parameters:
+            relative-directory: /home/vx/code/vxsuite/apps/mark-scan/pat-device-input
+            job-id: test-crate-patinputd
       - run:
           name: Lint
           command: |
@@ -1412,9 +1412,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: /home/vx/code/vxsuite/libs/pdi-scanner
-          job-id: test-crate-pdi-scanner
+          parameters:
+            relative-directory: /home/vx/code/vxsuite/libs/pdi-scanner
+            job-id: test-crate-pdi-scanner
       - run:
           name: Lint
           command: |
@@ -1429,9 +1429,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: /home/vx/code/vxsuite/libs/types-rs
-          job-id: test-crate-types-rs
+          parameters:
+            relative-directory: /home/vx/code/vxsuite/libs/types-rs
+            job-id: test-crate-types-rs
       - run:
           name: Lint
           command: |
@@ -1446,9 +1446,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: /home/vx/code/vxsuite/libs/logging
-          job-id: test-crate-vx-logging
+          parameters:
+            relative-directory: /home/vx/code/vxsuite/libs/logging
+            job-id: test-crate-vx-logging
       - run:
           name: Lint
           command: |
@@ -1463,9 +1463,9 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: script
-          job-id: validate-monorepo
+          parameters:
+            relative-directory: script
+            job-id: validate-monorepo
       - run:
           name: Build
           command: |

@@ -31,9 +31,9 @@ function generateTestJobForNodeJsPackage(
     `  resource_class: xlarge`,
     `  steps:`,
     `    - checkout-install-build:`,
-    `      parameters:`,
-    `        relative-directory: ${pkg.relativePath}`,
-    `        job-id: ${jobIdForPackage(pkg)}`,
+    `        parameters:`,
+    `          relative-directory: ${pkg.relativePath}`,
+    `          job-id: ${jobIdForPackage(pkg)}`,
     ...(hasPlaywrightTests
       ? [
           `    - run:`,
@@ -82,9 +82,9 @@ function generateTestJobForRustCrate(rustPackage: CargoPackageInfo): string[] {
     `  resource_class: xlarge`,
     `  steps:`,
     `    - checkout-install-build:`,
-    `      parameters:`,
-    `        relative-directory: ${rustPackage.relativePath}`,
-    `        job-id: ${jobIdForRustPackageName(rustPackage.name)}`,
+    `        parameters:`,
+    `          relative-directory: ${rustPackage.relativePath}`,
+    `          job-id: ${jobIdForRustPackageName(rustPackage.name)}`,
     `    - run:`,
     `        name: Lint`,
     `        command: |`,
@@ -219,9 +219,9 @@ ${rustJobs
     resource_class: xlarge
     steps:
       - checkout-install-build:
-        parameters:
-          relative-directory: script
-          job-id: validate-monorepo
+          parameters:
+            relative-directory: script
+            job-id: validate-monorepo
       - run:
           name: Build
           command: |
