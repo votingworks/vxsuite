@@ -205,21 +205,34 @@ commands:
       # comment will invalidate the cache without changing the behavior.
       # last edited by Kofi 2024-09-19
       - restore_cache:
+          name: Restore pnpm Cache
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
+            pnpm-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
             "pnpm-lock.yaml" }}
+      - restore_cache:
+          name: Restore Cargo Cache
+          key:
+            cargo-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
+            "Cargo.lock" }}
       - run:
           name: Setup Dependencies
           command: |
             pnpm install --frozen-lockfile
             pnpm --recursive install:rust-addon
       - save_cache:
+          name: Save pnpm Cache
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
+            pnpm-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
             "pnpm-lock.yaml" }}
           paths:
             - /root/.local/share/pnpm/store/v3
             - /root/.cache/ms-playwright
+      - save_cache:
+          name: Save Cargo Cache
+          key:
+            cargo-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
+            "Cargo.lock" }}
+          paths:
             - /root/.cargo
 `.trim();
 }
