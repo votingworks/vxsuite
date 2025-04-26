@@ -72,7 +72,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: apps/admin/backend
           job-id: test-apps-admin-backend
@@ -96,7 +96,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: apps/admin/frontend
           job-id: test-apps-admin-frontend
@@ -118,7 +118,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: apps/admin/integration-testing
           job-id: test-apps-admin-integration-testing
@@ -147,7 +147,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: apps/central-scan/backend
           job-id: test-apps-central-scan-backend
@@ -171,7 +171,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: apps/central-scan/frontend
           job-id: test-apps-central-scan-frontend
@@ -193,7 +193,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: apps/central-scan/integration-testing
           job-id: test-apps-central-scan-integration-testing
@@ -222,7 +222,7 @@ jobs:
     executor: nodejs_postgres
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: apps/design/backend
           job-id: test-apps-design-backend
@@ -246,7 +246,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: apps/design/frontend
           job-id: test-apps-design-frontend
@@ -268,7 +268,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: apps/mark-scan/backend
           job-id: test-apps-mark-scan-backend
@@ -292,7 +292,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: apps/mark-scan/frontend
           job-id: test-apps-mark-scan-frontend
@@ -314,7 +314,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: apps/mark-scan/integration-testing
           job-id: test-apps-mark-scan-integration-testing
@@ -343,7 +343,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: apps/mark/backend
           job-id: test-apps-mark-backend
@@ -367,7 +367,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: apps/mark/frontend
           job-id: test-apps-mark-frontend
@@ -389,7 +389,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: apps/mark/integration-testing
           job-id: test-apps-mark-integration-testing
@@ -418,7 +418,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: apps/pollbook/backend
           job-id: test-apps-pollbook-backend
@@ -442,7 +442,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: apps/pollbook/frontend
           job-id: test-apps-pollbook-frontend
@@ -464,7 +464,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: apps/scan/backend
           job-id: test-apps-scan-backend
@@ -488,7 +488,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: apps/scan/frontend
           job-id: test-apps-scan-frontend
@@ -510,7 +510,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: docs/exercises
           job-id: test-docs-exercises
@@ -532,7 +532,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/api
           job-id: test-libs-api
@@ -554,7 +554,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/auth
           job-id: test-libs-auth
@@ -576,7 +576,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/backend
           job-id: test-libs-backend
@@ -598,7 +598,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/ballot-encoder
           job-id: test-libs-ballot-encoder
@@ -620,7 +620,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/ballot-interpreter
           job-id: test-libs-ballot-interpreter
@@ -644,7 +644,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/basics
           job-id: test-libs-basics
@@ -666,7 +666,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/bmd-ballot-fixtures
           job-id: test-libs-bmd-ballot-fixtures
@@ -690,7 +690,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/cdf-schema-builder
           job-id: test-libs-cdf-schema-builder
@@ -712,7 +712,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/custom-paper-handler
           job-id: test-libs-custom-paper-handler
@@ -734,7 +734,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/custom-scanner
           job-id: test-libs-custom-scanner
@@ -756,7 +756,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/db
           job-id: test-libs-db
@@ -778,7 +778,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/dev-dock/backend
           job-id: test-libs-dev-dock-backend
@@ -800,7 +800,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/dev-dock/frontend
           job-id: test-libs-dev-dock-frontend
@@ -822,7 +822,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/eslint-plugin-vx
           job-id: test-libs-eslint-plugin-vx
@@ -844,7 +844,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/fixture-generators
           job-id: test-libs-fixture-generators
@@ -866,7 +866,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/fixtures
           job-id: test-libs-fixtures
@@ -888,7 +888,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/fs
           job-id: test-libs-fs
@@ -910,7 +910,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/fujitsu-thermal-printer
           job-id: test-libs-fujitsu-thermal-printer
@@ -932,7 +932,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/grout
           job-id: test-libs-grout
@@ -954,7 +954,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/grout/test-utils
           job-id: test-libs-grout-test-utils
@@ -976,7 +976,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/hmpb
           job-id: test-libs-hmpb
@@ -1000,7 +1000,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/image-utils
           job-id: test-libs-image-utils
@@ -1022,7 +1022,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/logging
           job-id: test-libs-logging
@@ -1044,7 +1044,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/logging-utils
           job-id: test-libs-logging-utils
@@ -1066,7 +1066,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/mark-flow-ui
           job-id: test-libs-mark-flow-ui
@@ -1088,7 +1088,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/message-coder
           job-id: test-libs-message-coder
@@ -1110,7 +1110,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/monorepo-utils
           job-id: test-libs-monorepo-utils
@@ -1132,7 +1132,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/pdi-scanner
           job-id: test-libs-pdi-scanner
@@ -1154,7 +1154,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/printing
           job-id: test-libs-printing
@@ -1178,7 +1178,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/test-utils
           job-id: test-libs-test-utils
@@ -1200,7 +1200,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/types
           job-id: test-libs-types
@@ -1222,7 +1222,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/types-rs
           job-id: test-libs-types-rs
@@ -1244,7 +1244,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/ui
           job-id: test-libs-ui
@@ -1266,7 +1266,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/usb-drive
           job-id: test-libs-usb-drive
@@ -1288,7 +1288,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: libs/utils
           job-id: test-libs-utils
@@ -1309,7 +1309,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: /home/vx/code/vxsuite/libs/ballot-interpreter
           job-id: test-crate-ballot-interpreter
@@ -1326,7 +1326,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: /home/vx/code/vxsuite/apps/mark-scan/accessible-controller
           job-id: test-crate-controllerd
@@ -1343,7 +1343,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: /home/vx/code/vxsuite/apps/mark-scan/daemon-utils
           job-id: test-crate-daemon-utils
@@ -1360,7 +1360,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: /home/vx/code/vxsuite/apps/mark-scan/fai-100-controller
           job-id: test-crate-fai100-controllerd
@@ -1377,7 +1377,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: /home/vx/code/vxsuite/libs/logging-utils
           job-id: test-crate-logging-utils
@@ -1394,7 +1394,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: /home/vx/code/vxsuite/apps/mark-scan/pat-device-input
           job-id: test-crate-patinputd
@@ -1411,7 +1411,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: /home/vx/code/vxsuite/libs/pdi-scanner
           job-id: test-crate-pdi-scanner
@@ -1428,7 +1428,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: /home/vx/code/vxsuite/libs/types-rs
           job-id: test-crate-types-rs
@@ -1445,7 +1445,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - command: checkout-install-build:
+      - command: checkout-install-build
         parameters:
           relative-directory: /home/vx/code/vxsuite/libs/logging
           job-id: test-crate-vx-logging
