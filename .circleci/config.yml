@@ -28,7 +28,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -53,7 +53,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -76,7 +76,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Install Browser
           command: |
@@ -106,7 +106,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -131,7 +131,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -154,7 +154,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Install Browser
           command: |
@@ -184,7 +184,7 @@ jobs:
     executor: nodejs_postgres
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -209,7 +209,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -232,7 +232,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -257,7 +257,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -280,7 +280,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Install Browser
           command: |
@@ -310,7 +310,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -335,7 +335,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -358,7 +358,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Install Browser
           command: |
@@ -388,7 +388,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -413,7 +413,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -436,7 +436,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -461,7 +461,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -484,7 +484,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -507,7 +507,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -530,7 +530,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -553,7 +553,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -576,7 +576,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -599,7 +599,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -624,7 +624,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -647,7 +647,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -672,7 +672,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -695,7 +695,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -718,7 +718,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -741,7 +741,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -764,7 +764,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -787,7 +787,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -810,7 +810,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -833,7 +833,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -856,7 +856,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -879,7 +879,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -902,7 +902,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -925,7 +925,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -948,7 +948,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -971,7 +971,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -996,7 +996,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -1019,7 +1019,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -1042,7 +1042,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -1065,7 +1065,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -1088,7 +1088,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -1111,7 +1111,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -1134,7 +1134,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -1157,7 +1157,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -1182,7 +1182,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -1205,7 +1205,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -1228,7 +1228,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -1251,7 +1251,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -1274,7 +1274,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -1297,7 +1297,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -1319,7 +1319,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -1337,7 +1337,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -1355,7 +1355,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -1373,7 +1373,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -1391,7 +1391,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -1409,7 +1409,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -1427,7 +1427,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -1445,7 +1445,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -1463,7 +1463,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -1481,7 +1481,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - load-deps
+      - checkout-and-install
       - run:
           name: Build
           command: |
@@ -1495,51 +1495,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - run:
-          name: Ensure rust is in the PATH variable
-          command: |
-            echo 'export PATH="/root/.cargo/bin:$PATH"' >> $BASH_ENV
-      - checkout
-      - restore_cache:
-          name: Restore pnpm Cache
-          key:
-            pnpm-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
-            "pnpm-lock.yaml" }}
-      - restore_cache:
-          name: Restore Cargo Cache
-          key:
-            cargo-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
-            "Cargo.lock" }}
-      - run:
-          name: Setup Dependencies
-          command: |
-            pnpm install --frozen-lockfile
-            pnpm --recursive install:rust-addon
-      - save_cache:
-          name: Save pnpm Cache
-          key:
-            pnpm-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
-            "pnpm-lock.yaml" }}
-          paths:
-            - /root/.local/share/pnpm/store/v3
-            - /root/.cache/ms-playwright
-      - save_cache:
-          name: Save Cargo Cache
-          key:
-            cargo-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
-            "Cargo.lock" }}
-          paths:
-            - /root/.cargo
-      - run:
-          name: Clean up .git folder
-          command: rm -rf .git
-      - persist_to_workspace:
-          root: /root
-          paths:
-            - project
-            - .cargo
-            - .cache/ms-playwright
-            - .local/share/pnpm/store/v3
+      - checkout-and-install
 
 workflows:
   test:
@@ -1739,20 +1695,44 @@ workflows:
             - setup-deps
 
 commands:
-  load-deps:
+  checkout-and-install:
     description: Load code and dependencies from the workspace.
     steps:
       - run:
-          name: Ensure rust is in the PATH variable
+          name: Ensure rust is in the PATH variable.
           command: |
             echo 'export PATH="/root/.cargo/bin:$PATH"' >> $BASH_ENV
-      - attach_workspace:
-          at: /root
+      - checkout
+      - restore_cache:
+          name: Restore pnpm Cache
+          key:
+            pnpm-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
+            "pnpm-lock.yaml" }}
+      - restore_cache:
+          name: Restore Cargo Cache
+          key:
+            cargo-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
+            "Cargo.lock" }}
       - run:
-          name: Verify Dependencies
+          name: Setup Dependencies
           command: |
             pnpm install --frozen-lockfile
             pnpm --recursive install:rust-addon
+      - save_cache:
+          name: Save pnpm Cache
+          key:
+            pnpm-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
+            "pnpm-lock.yaml" }}
+          paths:
+            - /root/.local/share/pnpm/store/v3
+            - /root/.cache/ms-playwright
+      - save_cache:
+          name: Save Cargo Cache
+          key:
+            cargo-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
+            "Cargo.lock" }}
+          paths:
+            - /root/.cargo
       # Edit this comment somehow in order to invalidate the CircleCI cache.
       # Since the contents of this file affect the cache key, editing only a
       # comment will invalidate the cache without changing the behavior.
