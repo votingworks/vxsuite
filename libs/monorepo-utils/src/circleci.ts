@@ -30,7 +30,7 @@ function generateTestJobForNodeJsPackage(
     `  executor: ${needsPostgres ? 'nodejs_postgres' : 'nodejs'}`,
     `  resource_class: xlarge`,
     `  steps:`,
-    `    - checkout-and-install`,
+    `    - load-deps`,
     ...(hasPlaywrightTests
       ? [
           `    - run:`,
@@ -82,7 +82,7 @@ function generateTestJobForRustCrate(pkgId: string): string[] {
     `  executor: 'nodejs'`,
     `  resource_class: xlarge`,
     `  steps:`,
-    `    - checkout-and-install`,
+    `    - load-deps`,
     `    - run:`,
     `        name: Build`,
     `        command: |`,
@@ -176,7 +176,7 @@ ${rustJobs
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -186,24 +186,15 @@ ${rustJobs
           command: |
             ./script/validate-monorepo
 
-workflows:
-  test:
-    jobs:
-${jobIds.map((jobId) => `      - ${jobId}`).join('\n')}
-
-commands:
-  checkout-and-install:
-    description: Get the code and install dependencies.
+  setup-deps:
+    executor: nodejs
+    resource_class: xlarge
     steps:
       - run:
           name: Ensure rust is in the PATH variable
           command: |
             echo 'export PATH="/root/.cargo/bin:$PATH"' >> $BASH_ENV
       - checkout
-      # Edit this comment somehow in order to invalidate the CircleCI cache.
-      # Since the contents of this file affect the cache key, editing only a
-      # comment will invalidate the cache without changing the behavior.
-      # last edited by Kofi 2024-09-19
       - restore_cache:
           name: Restore pnpm Cache
           key:
@@ -234,5 +225,49 @@ commands:
             "Cargo.lock" }}
           paths:
             - /root/.cargo
+      - run:
+          name: Clean up .git folder
+          command: rm -rf .git
+      - persist_to_workspace:
+          root: /root
+          paths:
+            - project
+            - .cargo
+            - .cache/ms-playwright
+            - .local/share/pnpm/store/v3
+
+workflows:
+  test:
+    jobs:
+      - setup-deps
+${jobIds
+  .map((jobId) =>
+    [
+      `      - ${jobId}:`,
+      `          requires:`,
+      `            - setup-deps`,
+    ].join('\n')
+  )
+  .join('\n')}
+
+commands:
+  load-deps:
+    description: Load code and dependencies from the workspace.
+    steps:
+      - run:
+          name: Ensure rust is in the PATH variable
+          command: |
+            echo 'export PATH="/root/.cargo/bin:$PATH"' >> $BASH_ENV
+      - attach_workspace:
+          at: /root
+      - run:
+          name: Verify Dependencies
+          command: |
+            pnpm install --frozen-lockfile
+            pnpm --recursive install:rust-addon
+      # Edit this comment somehow in order to invalidate the CircleCI cache.
+      # Since the contents of this file affect the cache key, editing only a
+      # comment will invalidate the cache without changing the behavior.
+      # last edited by Kofi 2024-09-19
 `.trim();
 }

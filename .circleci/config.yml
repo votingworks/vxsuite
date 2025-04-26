@@ -28,7 +28,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -53,7 +53,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -76,7 +76,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Install Browser
           command: |
@@ -106,7 +106,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -131,7 +131,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -154,7 +154,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Install Browser
           command: |
@@ -184,7 +184,7 @@ jobs:
     executor: nodejs_postgres
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -209,7 +209,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -232,7 +232,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -257,7 +257,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -280,7 +280,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Install Browser
           command: |
@@ -310,7 +310,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -335,7 +335,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -358,7 +358,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Install Browser
           command: |
@@ -388,7 +388,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -413,7 +413,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -436,7 +436,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -461,7 +461,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -484,7 +484,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -507,7 +507,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -530,7 +530,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -553,7 +553,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -576,7 +576,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -599,7 +599,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -624,7 +624,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -647,7 +647,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -672,7 +672,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -695,7 +695,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -718,7 +718,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -741,7 +741,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -764,7 +764,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -787,7 +787,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -810,7 +810,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -833,7 +833,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -856,7 +856,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -879,7 +879,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -902,7 +902,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -925,7 +925,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -948,7 +948,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -971,7 +971,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -996,7 +996,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -1019,7 +1019,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -1042,7 +1042,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -1065,7 +1065,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -1088,7 +1088,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -1111,7 +1111,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -1134,7 +1134,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -1157,7 +1157,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -1182,7 +1182,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -1205,7 +1205,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -1228,7 +1228,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -1251,7 +1251,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -1274,7 +1274,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -1297,7 +1297,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -1319,7 +1319,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -1337,7 +1337,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -1355,7 +1355,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -1373,7 +1373,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -1391,7 +1391,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -1409,7 +1409,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -1427,7 +1427,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -1445,7 +1445,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -1463,7 +1463,7 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -1481,7 +1481,7 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - load-deps
       - run:
           name: Build
           command: |
@@ -1491,87 +1491,15 @@ jobs:
           command: |
             ./script/validate-monorepo
 
-workflows:
-  test:
-    jobs:
-      - test-apps-admin-backend
-      - test-apps-admin-frontend
-      - test-apps-admin-integration-testing
-      - test-apps-central-scan-backend
-      - test-apps-central-scan-frontend
-      - test-apps-central-scan-integration-testing
-      - test-apps-design-backend
-      - test-apps-design-frontend
-      - test-apps-mark-scan-backend
-      - test-apps-mark-scan-frontend
-      - test-apps-mark-scan-integration-testing
-      - test-apps-mark-backend
-      - test-apps-mark-frontend
-      - test-apps-mark-integration-testing
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-frontend
-      - test-apps-scan-backend
-      - test-apps-scan-frontend
-      - test-docs-exercises
-      - test-libs-api
-      - test-libs-auth
-      - test-libs-backend
-      - test-libs-ballot-encoder
-      - test-libs-ballot-interpreter
-      - test-libs-basics
-      - test-libs-bmd-ballot-fixtures
-      - test-libs-cdf-schema-builder
-      - test-libs-custom-paper-handler
-      - test-libs-custom-scanner
-      - test-libs-db
-      - test-libs-dev-dock-backend
-      - test-libs-dev-dock-frontend
-      - test-libs-eslint-plugin-vx
-      - test-libs-fixture-generators
-      - test-libs-fixtures
-      - test-libs-fs
-      - test-libs-fujitsu-thermal-printer
-      - test-libs-grout
-      - test-libs-grout-test-utils
-      - test-libs-hmpb
-      - test-libs-image-utils
-      - test-libs-logging
-      - test-libs-logging-utils
-      - test-libs-mark-flow-ui
-      - test-libs-message-coder
-      - test-libs-monorepo-utils
-      - test-libs-pdi-scanner
-      - test-libs-printing
-      - test-libs-test-utils
-      - test-libs-types
-      - test-libs-types-rs
-      - test-libs-ui
-      - test-libs-usb-drive
-      - test-libs-utils
-      - test-crate-ballot-interpreter
-      - test-crate-controllerd
-      - test-crate-daemon-utils
-      - test-crate-fai100-controllerd
-      - test-crate-logging-utils
-      - test-crate-patinputd
-      - test-crate-pdi-scanner
-      - test-crate-types-rs
-      - test-crate-vx-logging
-      - validate-monorepo
-
-commands:
-  checkout-and-install:
-    description: Get the code and install dependencies.
+  setup-deps:
+    executor: nodejs
+    resource_class: xlarge
     steps:
       - run:
           name: Ensure rust is in the PATH variable
           command: |
             echo 'export PATH="/root/.cargo/bin:$PATH"' >> $BASH_ENV
       - checkout
-      # Edit this comment somehow in order to invalidate the CircleCI cache.
-      # Since the contents of this file affect the cache key, editing only a
-      # comment will invalidate the cache without changing the behavior.
-      # last edited by Kofi 2024-09-19
       - restore_cache:
           name: Restore pnpm Cache
           key:
@@ -1602,3 +1530,230 @@ commands:
             "Cargo.lock" }}
           paths:
             - /root/.cargo
+      - run:
+          name: Clean up .git folder
+          command: rm -rf .git
+      - persist_to_workspace:
+          root: /root
+          paths:
+            - project
+            - .cargo
+            - .cache/ms-playwright
+            - .local/share/pnpm/store/v3
+
+workflows:
+  test:
+    jobs:
+      - setup-deps
+      - test-apps-admin-backend:
+          requires:
+            - setup-deps
+      - test-apps-admin-frontend:
+          requires:
+            - setup-deps
+      - test-apps-admin-integration-testing:
+          requires:
+            - setup-deps
+      - test-apps-central-scan-backend:
+          requires:
+            - setup-deps
+      - test-apps-central-scan-frontend:
+          requires:
+            - setup-deps
+      - test-apps-central-scan-integration-testing:
+          requires:
+            - setup-deps
+      - test-apps-design-backend:
+          requires:
+            - setup-deps
+      - test-apps-design-frontend:
+          requires:
+            - setup-deps
+      - test-apps-mark-scan-backend:
+          requires:
+            - setup-deps
+      - test-apps-mark-scan-frontend:
+          requires:
+            - setup-deps
+      - test-apps-mark-scan-integration-testing:
+          requires:
+            - setup-deps
+      - test-apps-mark-backend:
+          requires:
+            - setup-deps
+      - test-apps-mark-frontend:
+          requires:
+            - setup-deps
+      - test-apps-mark-integration-testing:
+          requires:
+            - setup-deps
+      - test-apps-pollbook-backend:
+          requires:
+            - setup-deps
+      - test-apps-pollbook-frontend:
+          requires:
+            - setup-deps
+      - test-apps-scan-backend:
+          requires:
+            - setup-deps
+      - test-apps-scan-frontend:
+          requires:
+            - setup-deps
+      - test-docs-exercises:
+          requires:
+            - setup-deps
+      - test-libs-api:
+          requires:
+            - setup-deps
+      - test-libs-auth:
+          requires:
+            - setup-deps
+      - test-libs-backend:
+          requires:
+            - setup-deps
+      - test-libs-ballot-encoder:
+          requires:
+            - setup-deps
+      - test-libs-ballot-interpreter:
+          requires:
+            - setup-deps
+      - test-libs-basics:
+          requires:
+            - setup-deps
+      - test-libs-bmd-ballot-fixtures:
+          requires:
+            - setup-deps
+      - test-libs-cdf-schema-builder:
+          requires:
+            - setup-deps
+      - test-libs-custom-paper-handler:
+          requires:
+            - setup-deps
+      - test-libs-custom-scanner:
+          requires:
+            - setup-deps
+      - test-libs-db:
+          requires:
+            - setup-deps
+      - test-libs-dev-dock-backend:
+          requires:
+            - setup-deps
+      - test-libs-dev-dock-frontend:
+          requires:
+            - setup-deps
+      - test-libs-eslint-plugin-vx:
+          requires:
+            - setup-deps
+      - test-libs-fixture-generators:
+          requires:
+            - setup-deps
+      - test-libs-fixtures:
+          requires:
+            - setup-deps
+      - test-libs-fs:
+          requires:
+            - setup-deps
+      - test-libs-fujitsu-thermal-printer:
+          requires:
+            - setup-deps
+      - test-libs-grout:
+          requires:
+            - setup-deps
+      - test-libs-grout-test-utils:
+          requires:
+            - setup-deps
+      - test-libs-hmpb:
+          requires:
+            - setup-deps
+      - test-libs-image-utils:
+          requires:
+            - setup-deps
+      - test-libs-logging:
+          requires:
+            - setup-deps
+      - test-libs-logging-utils:
+          requires:
+            - setup-deps
+      - test-libs-mark-flow-ui:
+          requires:
+            - setup-deps
+      - test-libs-message-coder:
+          requires:
+            - setup-deps
+      - test-libs-monorepo-utils:
+          requires:
+            - setup-deps
+      - test-libs-pdi-scanner:
+          requires:
+            - setup-deps
+      - test-libs-printing:
+          requires:
+            - setup-deps
+      - test-libs-test-utils:
+          requires:
+            - setup-deps
+      - test-libs-types:
+          requires:
+            - setup-deps
+      - test-libs-types-rs:
+          requires:
+            - setup-deps
+      - test-libs-ui:
+          requires:
+            - setup-deps
+      - test-libs-usb-drive:
+          requires:
+            - setup-deps
+      - test-libs-utils:
+          requires:
+            - setup-deps
+      - test-crate-ballot-interpreter:
+          requires:
+            - setup-deps
+      - test-crate-controllerd:
+          requires:
+            - setup-deps
+      - test-crate-daemon-utils:
+          requires:
+            - setup-deps
+      - test-crate-fai100-controllerd:
+          requires:
+            - setup-deps
+      - test-crate-logging-utils:
+          requires:
+            - setup-deps
+      - test-crate-patinputd:
+          requires:
+            - setup-deps
+      - test-crate-pdi-scanner:
+          requires:
+            - setup-deps
+      - test-crate-types-rs:
+          requires:
+            - setup-deps
+      - test-crate-vx-logging:
+          requires:
+            - setup-deps
+      - validate-monorepo:
+          requires:
+            - setup-deps
+
+commands:
+  load-deps:
+    description: Load code and dependencies from the workspace.
+    steps:
+      - run:
+          name: Ensure rust is in the PATH variable
+          command: |
+            echo 'export PATH="/root/.cargo/bin:$PATH"' >> $BASH_ENV
+      - attach_workspace:
+          at: /root
+      - run:
+          name: Verify Dependencies
+          command: |
+            pnpm install --frozen-lockfile
+            pnpm --recursive install:rust-addon
+      # Edit this comment somehow in order to invalidate the CircleCI cache.
+      # Since the contents of this file affect the cache key, editing only a
+      # comment will invalidate the cache without changing the behavior.
+      # last edited by Kofi 2024-09-19
