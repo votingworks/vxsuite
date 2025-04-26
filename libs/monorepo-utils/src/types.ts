@@ -71,3 +71,18 @@ export interface PnpmPackageInfo {
    */
   readonly packageJsonPath?: string;
 }
+
+/**
+ * Cargo package info.
+ */
+export interface CargoPackageInfo {
+  /**
+   * Name of the package, i.e. `name` from `Cargo.toml`.
+   */
+  readonly name: string;
+
+  /**
+   * Relative path to the package root.
+   */
+  readonly relativePath: string;
+}

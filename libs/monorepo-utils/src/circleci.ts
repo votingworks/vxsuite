@@ -1,13 +1,13 @@
 import { join } from 'node:path';
 import { existsSync } from 'node:fs';
 import { Optional } from '@votingworks/basics';
-import { PnpmPackageInfo } from './types';
+import { CargoPackageInfo, PnpmPackageInfo } from './types';
 
 function jobIdForPackage(pkg: PnpmPackageInfo): string {
   return `test-${pkg.relativePath.replace(/\//g, '-')}`;
 }
 
-function jobIdForRustPackageId(pkgId: string): string {
+function jobIdForRustPackageName(pkgId: string): string {
   return `test-crate-${pkgId}`;
 }
 
@@ -30,8 +30,10 @@ function generateTestJobForNodeJsPackage(
     `  executor: ${needsPostgres ? 'nodejs_postgres' : 'nodejs'}`,
     `  resource_class: xlarge`,
     `  steps:`,
-    `    - checkout-install-build:`,
+    `    - command: checkout-install-build:`,
+    `      parameters:`,
     `        relative-directory: ${pkg.relativePath}`,
+    `        job-id: ${jobIdForPackage(pkg)}`,
     ...(hasPlaywrightTests
       ? [
           `    - run:`,
@@ -72,23 +74,25 @@ function generateTestJobForNodeJsPackage(
   return lines;
 }
 
-function generateTestJobForRustCrate(pkgId: string): string[] {
+function generateTestJobForRustCrate(rustPackage: CargoPackageInfo): string[] {
   return [
-    `${jobIdForRustPackageId(pkgId)}:`,
+    `${jobIdForRustPackageName(rustPackage.name)}:`,
     // Executors are either nodejs or nodejs-browser. Both have Rust deps installed.
     `  executor: 'nodejs'`,
     `  resource_class: xlarge`,
     `  steps:`,
-    `    - checkout-install-build:`,
-    `        relative-directory: ${pkgId}`,
+    `    - command: checkout-install-build:`,
+    `      parameters:`,
+    `        relative-directory: ${rustPackage.relativePath}`,
+    `        job-id: ${jobIdForRustPackageName(rustPackage.name)}`,
     `    - run:`,
     `        name: Lint`,
     `        command: |`,
-    `          cargo clippy -p ${pkgId}`,
+    `          cargo clippy -p ${rustPackage.name}`,
     `    - run:`,
     `        name: Test`,
     `        command: |`,
-    `          cargo test -p ${pkgId}`,
+    `          cargo test -p ${rustPackage.name}`,
   ];
 }
 
@@ -115,7 +119,7 @@ export const CIRCLECI_CONFIG_PATH = join(
  */
 export function generateConfig(
   pnpmPackages: ReadonlyMap<string, PnpmPackageInfo>,
-  rustPackageIds: string[]
+  rustPackages: CargoPackageInfo[]
 ): string {
   const pnpmJobs = [...pnpmPackages.values()].reduce((memo, pkg) => {
     const jobLines = generateTestJobForPackage(pkg);
@@ -124,10 +128,10 @@ export function generateConfig(
     }
     return memo.set(pkg, jobLines);
   }, new Map<PnpmPackageInfo, string[]>());
-  const rustJobs = rustPackageIds.map(generateTestJobForRustCrate);
+  const rustJobs = rustPackages.map(generateTestJobForRustCrate);
   const jobIds = [
     ...[...pnpmJobs.keys()].map(jobIdForPackage),
-    ...rustPackageIds.map(jobIdForRustPackageId),
+    ...rustPackages.map(({ name }) => jobIdForRustPackageName(name)),
     // hardcoded jobs
     'validate-monorepo',
   ];
@@ -163,6 +167,8 @@ commands:
     parameters:
       relative-directory:
         type: string
+      job-id:
+        type: string
     steps:
       - run:
           name: Ensure rust is in the PATH variable
@@ -178,7 +184,7 @@ commands:
           key: pnpm-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "pnpm-lock.yaml" }}
       - restore_cache:
           name: Restore cargo cache
-          key: cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}-{{ checksum << parameters.relative-directory >> }}
+          key: cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}-{{ checksum << parameters.job-id >> }}
       - run:
           name: Install Node Dependencies
           command: |
@@ -195,7 +201,7 @@ commands:
             - /root/.cache/ms-playwright
       - save_cache:
           name: Save cargo cache
-          key: cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}-{{ checksum << parameters.relative-directory >> }}
+          key: cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}-{{ checksum << parameters.job-id >> }}
           paths:
             - /root/.cargo
 
@@ -212,8 +218,10 @@ ${rustJobs
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-install-build:
+      - command: checkout-install-build
+        parameters:
           relative-directory: script
+          job-id: validate-monorepo
       - run:
           name: Build
           command: |

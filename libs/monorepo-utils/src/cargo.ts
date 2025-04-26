@@ -1,11 +1,14 @@
 import { assertDefined, lines } from '@votingworks/basics';
 import { spawn } from 'node:child_process';
 import { getAbsoluteRootPath } from './dependencies';
+import { CargoPackageInfo } from './types';
 
 /**
  * Get all Rust crate paths.
  */
-export async function getRustPackageIds(root: string): Promise<string[]> {
+export async function getRustPackageIds(
+  root: string
+): Promise<CargoPackageInfo[]> {
   const absoluteRootPath = getAbsoluteRootPath(root);
   // Output is formatted like
   // "package-id v0.1.2 (/path/to/package)"
@@ -20,6 +23,17 @@ export async function getRustPackageIds(root: string): Promise<string[]> {
   cargo.stdout.setEncoding('utf-8');
 
   return lines(cargo.stdout)
-    .filterMap((line) => (line ? assertDefined(line.split(' ')[0]) : undefined))
+    .filterMap((line) => {
+      if (line) {
+        const lineParts = line.split(' ');
+
+        return {
+          name: assertDefined(lineParts[0]),
+          relativePath: assertDefined(lineParts[2]).slice(1, -1),
+        };
+      }
+
+      return undefined;
+    })
     .toArray();
 }
