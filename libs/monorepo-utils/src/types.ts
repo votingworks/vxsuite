@@ -67,7 +67,7 @@ export interface PnpmPackageInfo {
   readonly packageJson?: PackageJson;
 
   /**
-   * The full `package.json` path.
+   * The full `package.json` path .
    */
   readonly packageJsonPath?: string;
 }
