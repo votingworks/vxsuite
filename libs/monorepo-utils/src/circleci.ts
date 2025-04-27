@@ -30,7 +30,8 @@ function generateTestJobForNodeJsPackage(
     `  executor: ${needsPostgres ? 'nodejs_postgres' : 'nodejs'}`,
     `  resource_class: xlarge`,
     `  steps:`,
-    `    - checkout-and-install`,
+    `    - checkout-and-install:`,
+    `        is_node_package: true`,
     ...(hasPlaywrightTests
       ? [
           `    - run:`,
@@ -84,7 +85,8 @@ function generateTestJobForRustCrate(pkgId: string): string[] {
     `  executor: 'nodejs'`,
     `  resource_class: xlarge`,
     `  steps:`,
-    `    - checkout-and-install`,
+    `    - checkout-and-install:`,
+    `        is_node_package: false`,
     `    - run:`,
     `        name: Build`,
     `        command: |`,
@@ -178,7 +180,8 @@ ${rustJobs
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -196,6 +199,9 @@ ${jobIds.map((jobId) => `      - ${jobId}`).join('\n')}
 commands:
   checkout-and-install:
     description: Get the code and install dependencies.
+    parameters:
+      is_node_package:
+        type: boolean
     steps:
       - run:
           name: Ensure rust is in the PATH variable
@@ -206,32 +212,36 @@ commands:
       # Since the contents of this file affect the cache key, editing only a
       # comment will invalidate the cache without changing the behavior.
       # last edited by Kofi 2024-09-19
-      - restore_cache:
-          name: Restore pnpm Cache
-          key:
-            pnpm-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
-            "pnpm-lock.yaml" }}
+      - when:
+          condition: << parameters.is_node_package >>
+          steps:
+            - restore_cache:
+                name: Restore Node.js Cache
+                key:
+                  pnpm-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
+                  "pnpm-lock.yaml" }}
+            - run:
+                name: Install Node.js Dependencies
+                command: pnpm install --frozen-lockfile
+            - save_cache:
+                name: Save Node.js Cache
+                key:
+                  pnpm-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
+                  "pnpm-lock.yaml" }}
+                paths:
+                  - /root/.local/share/pnpm/store/v3
+                  - /root/.cache/ms-playwright
       - restore_cache:
           name: Restore Cargo Cache
           key:
             cargo-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
             "Cargo.lock" }}
       - run:
-          name: Setup Dependencies
-          command: |
-            pnpm install --frozen-lockfile
-            pnpm --recursive install:rust-addon
-      - save_cache:
-          name: Save pnpm Cache
-          key:
-            pnpm-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
-            "pnpm-lock.yaml" }}
-          paths:
-            - /root/.local/share/pnpm/store/v3
-            - /root/.cache/ms-playwright
+          name: Install Rust Dependencies
+          command: pnpm --recursive install:rust-addon
       - save_cache:
           name: Save Cargo Cache
-          key:
+          key: 
             cargo-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
             "Cargo.lock" }}
           paths:
