@@ -55,7 +55,9 @@ function generateTestJobForNodeJsPackage(
     `        environment:`,
     `          JEST_JUNIT_OUTPUT_DIR: ./reports/`,
     `    - store_test_results:`,
-    `        path: ${pkg.relativePath}/reports/`,
+    `        path: ${pkg.relativePath}/${
+      hasPlaywrightTests ? 'test-results' : 'reports'
+    }/`,
   ];
 
   if (hasSnapshotTests || hasPlaywrightTests) {

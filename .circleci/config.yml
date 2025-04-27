@@ -97,7 +97,7 @@ jobs:
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
-          path: apps/admin/integration-testing/reports/
+          path: apps/admin/integration-testing/test-results/
       - store_artifacts:
           path: apps/admin/integration-testing/test-results/
 
@@ -175,7 +175,7 @@ jobs:
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
-          path: apps/central-scan/integration-testing/reports/
+          path: apps/central-scan/integration-testing/test-results/
       - store_artifacts:
           path: apps/central-scan/integration-testing/test-results/
 
@@ -301,7 +301,7 @@ jobs:
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
-          path: apps/mark-scan/integration-testing/reports/
+          path: apps/mark-scan/integration-testing/test-results/
       - store_artifacts:
           path: apps/mark-scan/integration-testing/test-results/
 
@@ -379,7 +379,7 @@ jobs:
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
-          path: apps/mark/integration-testing/reports/
+          path: apps/mark/integration-testing/test-results/
       - store_artifacts:
           path: apps/mark/integration-testing/test-results/
 
