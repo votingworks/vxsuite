@@ -54,12 +54,15 @@ export type ListDirectoryError =
 
 /**
  * Get entries for a directory, includes stat information for each entry.
- * Requires that the path be absolute.
+ * Requires that the path be absolute. Recursive up to a specified depth.
+ * Defaults to not recursive, i.e. depth = 1.
  */
 export async function* listDirectory(
-  path: string
+  path: string,
+  depth = 1
 ): AsyncGenerator<Result<FileSystemEntry, ListDirectoryError>> {
   assert(isAbsolute(path));
+  assert(depth >= 1, 'depth must be positive');
 
   try {
     const dir = await fs.opendir(path);
@@ -81,6 +84,10 @@ export async function* listDirectory(
         atime: stat.atime,
         ctime: stat.ctime,
       });
+
+      if (entry.isDirectory() && depth > 1) {
+        yield* listDirectory(entryPath, depth - 1);
+      }
     }
   } catch (e) {
     const error = e as { code: string };
@@ -117,15 +124,5 @@ export async function* listDirectory(
 export async function* listDirectoryRecursive(
   path: string
 ): AsyncGenerator<Result<FileSystemEntry, ListDirectoryError>> {
-  for await (const result of listDirectory(path)) {
-    if (result.isErr()) {
-      yield result;
-    } else {
-      const fileEntry = result.ok();
-      if (fileEntry.type === FileSystemEntryType.Directory) {
-        yield* listDirectoryRecursive(fileEntry.path);
-      }
-      yield result;
-    }
-  }
+  yield* listDirectory(path, Infinity);
 }

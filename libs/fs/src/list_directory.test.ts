@@ -1,45 +1,112 @@
 import { describe, expect, test } from 'vitest';
-import { err, iter, ok } from '@votingworks/basics';
+import { err, iter, Result } from '@votingworks/basics';
 import { symlinkSync } from 'node:fs';
 import tmp from 'tmp';
 import {
+  FileSystemEntry,
   FileSystemEntryType,
   listDirectory,
+  ListDirectoryError,
   listDirectoryRecursive,
 } from './list_directory';
 
+async function unwrapAndSortEntries(
+  generator: AsyncGenerator<Result<FileSystemEntry, ListDirectoryError>>
+) {
+  return (await iter(generator).toArray())
+    .map((entry) => entry.unsafeUnwrap())
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
 describe('listDirectory', () => {
-  test('happy path', async () => {
+  test('happy path (default depth = 1)', async () => {
     const directory = tmp.dirSync();
     tmp.fileSync({ name: 'file-1', dir: directory.name });
     tmp.fileSync({ name: 'file-2', dir: directory.name });
-    tmp.dirSync({
+    const subdirectory = tmp.dirSync({
       name: 'subdirectory',
       dir: directory.name,
     });
+    tmp.fileSync({ name: 'sub-file-1', dir: subdirectory.name });
 
-    const results = await iter(listDirectory(directory.name)).toArray();
+    const results = await unwrapAndSortEntries(listDirectory(directory.name));
 
     expect(results).toMatchObject([
-      ok(
-        expect.objectContaining({
-          name: 'file-1',
-          type: FileSystemEntryType.File,
-        })
-      ),
-      ok(
-        expect.objectContaining({
-          name: 'file-2',
-          type: FileSystemEntryType.File,
-        })
-      ),
-      ok(
-        expect.objectContaining({
-          name: 'subdirectory',
-          type: FileSystemEntryType.Directory,
-        })
-      ),
+      expect.objectContaining({
+        name: 'file-1',
+        type: FileSystemEntryType.File,
+      }),
+      expect.objectContaining({
+        name: 'file-2',
+        type: FileSystemEntryType.File,
+      }),
+      expect.objectContaining({
+        name: 'subdirectory',
+        type: FileSystemEntryType.Directory,
+      }),
     ]);
+  });
+
+  test('happy path (depth > 1)', async () => {
+    const directory = tmp.dirSync();
+    tmp.fileSync({ name: 'file-1', dir: directory.name });
+    tmp.fileSync({ name: 'file-2', dir: directory.name });
+    const subdirectory = tmp.dirSync({
+      name: 'subdirectory',
+      dir: directory.name,
+    });
+    tmp.fileSync({ name: 'sub-file-1', dir: subdirectory.name });
+    const subSubdirectory = tmp.dirSync({
+      name: 'sub-subdirectory',
+      dir: subdirectory.name,
+    });
+    tmp.fileSync({ name: 'sub-sub-file-1', dir: subSubdirectory.name });
+
+    expect(
+      await unwrapAndSortEntries(listDirectory(directory.name, 1))
+    ).toMatchObject(
+      ['file-1', 'file-2', 'subdirectory'].map((name) =>
+        expect.objectContaining({ name })
+      )
+    );
+
+    expect(
+      await unwrapAndSortEntries(listDirectory(directory.name, 2))
+    ).toMatchObject(
+      [
+        'file-1',
+        'file-2',
+        'sub-file-1',
+        'sub-subdirectory',
+        'subdirectory',
+      ].map((name) => expect.objectContaining({ name }))
+    );
+
+    expect(
+      await unwrapAndSortEntries(listDirectory(directory.name, 3))
+    ).toMatchObject(
+      [
+        'file-1',
+        'file-2',
+        'sub-file-1',
+        'sub-sub-file-1',
+        'sub-subdirectory',
+        'subdirectory',
+      ].map((name) => expect.objectContaining({ name }))
+    );
+
+    expect(
+      await unwrapAndSortEntries(listDirectory(directory.name, 4))
+    ).toMatchObject(
+      [
+        'file-1',
+        'file-2',
+        'sub-file-1',
+        'sub-sub-file-1',
+        'sub-subdirectory',
+        'subdirectory',
+      ].map((name) => expect.objectContaining({ name }))
+    );
   });
 
   test('ignores symlinks', async () => {
@@ -47,15 +114,13 @@ describe('listDirectory', () => {
     const file = tmp.fileSync({ name: 'file-1', dir: directory.name });
     symlinkSync(file.name, `${directory.name}/symlink`);
 
-    const results = await iter(listDirectory(directory.name)).toArray();
+    const results = await unwrapAndSortEntries(listDirectory(directory.name));
 
     expect(results).toMatchObject([
-      ok(
-        expect.objectContaining({
-          name: 'file-1',
-          type: FileSystemEntryType.File,
-        })
-      ),
+      expect.objectContaining({
+        name: 'file-1',
+        type: FileSystemEntryType.File,
+      }),
     ]);
   });
 
@@ -88,33 +153,25 @@ describe('listDirectoryRecursive', () => {
     });
     tmp.fileSync({ name: 'sub-file-2', dir: subDirectory.name });
 
-    const results = iter(listDirectoryRecursive(directory.name));
-
-    expect(await results.toArray()).toMatchObject([
-      ok(
-        expect.objectContaining({
-          name: 'file-1',
-          type: FileSystemEntryType.File,
-        })
-      ),
-      ok(
-        expect.objectContaining({
-          name: 'file-2',
-          type: FileSystemEntryType.File,
-        })
-      ),
-      ok(
-        expect.objectContaining({
-          name: 'sub-file-2',
-          type: FileSystemEntryType.File,
-        })
-      ),
-      ok(
-        expect.objectContaining({
-          name: 'subdirectory',
-          type: FileSystemEntryType.Directory,
-        })
-      ),
+    expect(
+      await unwrapAndSortEntries(listDirectoryRecursive(directory.name))
+    ).toMatchObject([
+      expect.objectContaining({
+        name: 'file-1',
+        type: FileSystemEntryType.File,
+      }),
+      expect.objectContaining({
+        name: 'file-2',
+        type: FileSystemEntryType.File,
+      }),
+      expect.objectContaining({
+        name: 'sub-file-2',
+        type: FileSystemEntryType.File,
+      }),
+      expect.objectContaining({
+        name: 'subdirectory',
+        type: FileSystemEntryType.Directory,
+      }),
     ]);
   });
 

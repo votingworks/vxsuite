@@ -20,7 +20,8 @@ export type ListDirectoryOnUsbDriveError =
  */
 export async function* listDirectoryOnUsbDrive(
   usbDrive: UsbDrive,
-  relativePath: string
+  relativePath: string,
+  depth = 1
 ): AsyncGenerator<Result<FileSystemEntry, ListDirectoryOnUsbDriveError>> {
   const usbDriveStatus = await usbDrive.status();
 
@@ -35,9 +36,13 @@ export async function* listDirectoryOnUsbDrive(
       break;
 
     case 'mounted':
-      yield* listDirectory(join(usbDriveStatus.mountPoint, relativePath));
+      yield* listDirectory(
+        join(usbDriveStatus.mountPoint, relativePath),
+        depth
+      );
       break;
 
+    /* istanbul ignore next - @preserve */
     default:
       throwIllegalValue(usbDriveStatus);
   }
