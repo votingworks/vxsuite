@@ -351,7 +351,7 @@ function buildInterpretedHmpbPageMetadata(
   const { election } = electionDefinition;
   const ballotStyle = getBallotStyle({
     election,
-    ballotStyleId: `card-number-${ballotConfig.card}` ,
+    ballotStyleId: `card-number-${ballotConfig.card}`,
   });
   assert(ballotStyle, `Ballot style ${ballotConfig.card} not found`);
   const precinctId = ballotStyle.precincts[0];

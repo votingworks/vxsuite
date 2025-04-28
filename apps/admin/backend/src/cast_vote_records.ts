@@ -81,7 +81,7 @@ function validateCastVoteRecordAgainstElectionDefinition(
   }
 
   const ballotStyle = getBallotStyle({
-    ballotStyleId: castVoteRecord.BallotStyleId ,
+    ballotStyleId: castVoteRecord.BallotStyleId,
     election: electionDefinition.election,
   });
   if (!ballotStyle) {
@@ -301,10 +301,10 @@ export async function importCastVoteRecords(
       const votingMethod = getCastVoteRecordBallotType(castVoteRecord);
       assert(votingMethod);
       const addCastVoteRecordResult = store.addCastVoteRecordFileEntry({
-        ballotId: castVoteRecord.UniqueId ,
+        ballotId: castVoteRecord.UniqueId,
         cvr: {
           ballotStyleGroupId: getGroupIdFromBallotStyleId({
-            ballotStyleId: castVoteRecord.BallotStyleId ,
+            ballotStyleId: castVoteRecord.BallotStyleId,
             election: electionDefinition.election,
           }),
           batchId: castVoteRecord.BatchId,

@@ -137,7 +137,7 @@ export class Store {
     }
 
     return {
-      id: result.id ,
+      id: result.id,
       date: new DateWithoutTime(result.date),
     };
   }

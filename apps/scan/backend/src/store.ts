@@ -264,7 +264,7 @@ export class Store {
 
     return (
       result && {
-        id: result.id ,
+        id: result.id,
         date: new DateWithoutTime(result.date),
       }
     );

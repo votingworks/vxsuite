@@ -1077,7 +1077,7 @@ function PartiesTab(): JSX.Element | null {
 
 function createBlankParty(): Party {
   return {
-    id: generateId() ,
+    id: generateId(),
     name: '',
     fullName: '',
     abbrev: '',

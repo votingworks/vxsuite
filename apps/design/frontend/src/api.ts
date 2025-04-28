@@ -234,7 +234,7 @@ export const loadElection = {
       (input: { electionData: string; orgId: string }) =>
         apiClient.loadElection({
           ...input,
-          newId: generateId() ,
+          newId: generateId(),
           user: assertDefined(user),
         }),
       {
@@ -273,7 +273,7 @@ export const cloneElection = {
     return useMutation(
       (input: { id: ElectionId; orgId: string }) =>
         apiClient.cloneElection({
-          destId: generateId() ,
+          destId: generateId(),
           destOrgId: input.orgId,
           srcId: input.id,
           user: assertDefined(user),
