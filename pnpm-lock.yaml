@@ -2339,7 +2339,7 @@ importers:
         specifier: ^3.3.7
         version: 3.3.7
       node-fetch:
-        specifier: ^2.6.7
+        specifier: ^2.6.0
         version: 2.6.7
       pdf-lib:
         specifier: ^1.17.1
