@@ -28,7 +28,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -53,7 +54,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -76,7 +78,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Install Browser
           command: |
@@ -97,7 +100,7 @@ jobs:
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
-          path: apps/admin/integration-testing/reports/
+          path: apps/admin/integration-testing/test-results/
       - store_artifacts:
           path: apps/admin/integration-testing/test-results/
 
@@ -106,7 +109,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -131,7 +135,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -154,7 +159,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Install Browser
           command: |
@@ -175,7 +181,7 @@ jobs:
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
-          path: apps/central-scan/integration-testing/reports/
+          path: apps/central-scan/integration-testing/test-results/
       - store_artifacts:
           path: apps/central-scan/integration-testing/test-results/
 
@@ -184,7 +190,8 @@ jobs:
     executor: nodejs_postgres
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -209,7 +216,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -232,7 +240,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -257,7 +266,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -280,7 +290,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Install Browser
           command: |
@@ -301,7 +312,7 @@ jobs:
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
-          path: apps/mark-scan/integration-testing/reports/
+          path: apps/mark-scan/integration-testing/test-results/
       - store_artifacts:
           path: apps/mark-scan/integration-testing/test-results/
 
@@ -310,7 +321,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -335,7 +347,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -358,7 +371,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Install Browser
           command: |
@@ -379,7 +393,7 @@ jobs:
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
-          path: apps/mark/integration-testing/reports/
+          path: apps/mark/integration-testing/test-results/
       - store_artifacts:
           path: apps/mark/integration-testing/test-results/
 
@@ -388,7 +402,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -413,7 +428,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -436,7 +452,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -461,7 +478,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -484,7 +502,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -507,7 +526,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -530,7 +550,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -553,7 +574,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -576,7 +598,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -599,7 +622,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -624,7 +648,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -647,7 +672,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -672,7 +698,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -695,7 +722,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -718,7 +746,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -741,7 +770,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -764,7 +794,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -787,7 +818,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -810,7 +842,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -833,7 +866,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -856,7 +890,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -879,7 +914,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -902,7 +938,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -925,7 +962,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -948,7 +986,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -971,7 +1010,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -996,7 +1036,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -1019,7 +1060,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -1042,7 +1084,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -1065,7 +1108,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -1088,7 +1132,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -1111,7 +1156,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -1134,7 +1180,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -1157,7 +1204,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -1182,7 +1230,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -1205,7 +1254,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -1228,7 +1278,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -1251,7 +1302,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -1274,7 +1326,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -1297,7 +1350,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -1319,7 +1373,8 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: false
       - run:
           name: Build
           command: |
@@ -1337,7 +1392,8 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: false
       - run:
           name: Build
           command: |
@@ -1355,7 +1411,8 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: false
       - run:
           name: Build
           command: |
@@ -1373,7 +1430,8 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: false
       - run:
           name: Build
           command: |
@@ -1391,7 +1449,8 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: false
       - run:
           name: Build
           command: |
@@ -1409,7 +1468,8 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: false
       - run:
           name: Build
           command: |
@@ -1427,7 +1487,8 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: false
       - run:
           name: Build
           command: |
@@ -1445,7 +1506,8 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: false
       - run:
           name: Build
           command: |
@@ -1463,7 +1525,8 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: false
       - run:
           name: Build
           command: |
@@ -1481,7 +1544,8 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -1562,6 +1626,9 @@ workflows:
 commands:
   checkout-and-install:
     description: Get the code and install dependencies.
+    parameters:
+      is_node_package:
+        type: boolean
     steps:
       - run:
           name: Ensure rust is in the PATH variable
@@ -1572,21 +1639,37 @@ commands:
       # Since the contents of this file affect the cache key, editing only a
       # comment will invalidate the cache without changing the behavior.
       # last edited by Kofi 2024-09-19
+      - when:
+          condition: << parameters.is_node_package >>
+          steps:
+            - restore_cache:
+                name: Restore Node.js Cache
+                key:
+                  pnpm-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
+                  "pnpm-lock.yaml" }}
+            - run:
+                name: Install Node.js Dependencies
+                command: pnpm install --frozen-lockfile
+            - save_cache:
+                name: Save Node.js Cache
+                key:
+                  pnpm-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
+                  "pnpm-lock.yaml" }}
+                paths:
+                  - /root/.local/share/pnpm/store/v3
+                  - /root/.cache/ms-playwright
       - restore_cache:
+          name: Restore Cargo Cache
           key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
-            "pnpm-lock.yaml" }}
+            cargo-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
+            "Cargo.lock" }}
       - run:
-          name: Setup Dependencies
-          command: |
-            pnpm install --frozen-lockfile
-            pnpm --recursive install:rust-addon
-            pnpm --recursive build:rust-addon
+          name: Install Rust Dependencies
+          command: pnpm --recursive install:rust-addon
       - save_cache:
-          key:
-            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
-            "pnpm-lock.yaml" }}
+          name: Save Cargo Cache
+          key: 
+            cargo-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
+            "Cargo.lock" }}
           paths:
-            - /root/.local/share/pnpm/store/v3
-            - /root/.cache/ms-playwright
             - /root/.cargo
