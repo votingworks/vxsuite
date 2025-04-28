@@ -1,9 +1,5 @@
 lockfileVersion: '6.0'
 
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false
-
 overrides:
   '@babel/traverse': 7.23.2
   '@types/eslint': 8.4.1
@@ -128,7 +124,7 @@ importers:
         version: 5.6.2
       vitest:
         specifier: ^2.1.8
-        version: 2.1.8(jsdom@20.0.1)
+        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
 
   apps/admin/backend:
     dependencies:
@@ -281,8 +277,8 @@ importers:
         specifier: workspace:*
         version: link:../../../libs/@types/zip-stream
       '@vitest/coverage-istanbul':
-        specifier: ^2.1.8
-        version: 2.1.8(vitest@2.1.8)
+        specifier: ^3.1.1
+        version: 3.1.1(vitest@3.1.1)
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
@@ -326,8 +322,8 @@ importers:
         specifier: ^6.0.1
         version: 6.1.1
       vitest:
-        specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
+        specifier: ^3.1.1
+        version: 3.1.1(@types/debug@4.1.8)(@types/node@20.16.0)
 
   apps/admin/frontend:
     dependencies:
@@ -767,8 +763,8 @@ importers:
         specifier: 9.0.5
         version: 9.0.5
       '@vitest/coverage-istanbul':
-        specifier: ^2.1.8
-        version: 2.1.8(vitest@2.1.8)
+        specifier: ^3.1.1
+        version: 3.1.1(vitest@3.1.1)
       '@votingworks/bmd-ballot-fixtures':
         specifier: workspace:*
         version: link:../../../libs/bmd-ballot-fixtures
@@ -809,8 +805,8 @@ importers:
         specifier: ^6.0.1
         version: 6.1.1
       vitest:
-        specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
+        specifier: ^3.1.1
+        version: 3.1.1(@types/debug@4.1.8)(@types/node@20.16.0)
 
   apps/central-scan/frontend:
     dependencies:
@@ -1190,8 +1186,8 @@ importers:
         specifier: 9.0.5
         version: 9.0.5
       '@vitest/coverage-istanbul':
-        specifier: ^2.1.8
-        version: 2.1.8(vitest@2.1.8)
+        specifier: ^3.1.1
+        version: 3.1.1(vitest@3.1.1)
       '@votingworks/ballot-interpreter':
         specifier: workspace:*
         version: link:../../../libs/ballot-interpreter
@@ -1235,8 +1231,8 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
+        specifier: ^3.1.1
+        version: 3.1.1(@types/debug@4.1.8)(@types/node@20.16.0)
 
   apps/design/frontend:
     dependencies:
@@ -1468,7 +1464,7 @@ importers:
         version: 4.5.2(@types/node@20.16.0)
       vitest:
         specifier: ^2.1.8
-        version: 2.1.8(jsdom@20.0.1)
+        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
 
   apps/mark-scan/backend:
     dependencies:
@@ -1600,8 +1596,8 @@ importers:
         specifier: 9.0.5
         version: 9.0.5
       '@vitest/coverage-istanbul':
-        specifier: ^2.1.8
-        version: 2.1.8(vitest@2.1.8)
+        specifier: ^3.1.1
+        version: 3.1.1(vitest@3.1.1)
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
@@ -1636,8 +1632,8 @@ importers:
         specifier: ^1.50.0
         version: 1.50.0
       vitest:
-        specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
+        specifier: ^3.1.1
+        version: 3.1.1(@types/debug@4.1.8)(@types/node@20.16.0)
 
   apps/mark-scan/frontend:
     dependencies:
@@ -1833,7 +1829,7 @@ importers:
         version: 4.5.2(@types/node@20.16.0)
       vitest:
         specifier: ^2.1.8
-        version: 2.1.8(jsdom@20.0.1)
+        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
 
   apps/mark-scan/frontend/prodserver:
     dependencies:
@@ -1972,8 +1968,8 @@ importers:
         specifier: 0.2.4
         version: 0.2.4
       '@vitest/coverage-istanbul':
-        specifier: ^2.1.8
-        version: 2.1.8(vitest@2.1.8)
+        specifier: ^3.1.1
+        version: 3.1.1(vitest@3.1.1)
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
@@ -2005,8 +2001,8 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
+        specifier: ^3.1.1
+        version: 3.1.1(@types/debug@4.1.8)(@types/node@20.16.0)
 
   apps/mark/frontend:
     dependencies:
@@ -2211,7 +2207,7 @@ importers:
         version: 4.5.2(@types/node@20.16.0)
       vitest:
         specifier: ^2.1.8
-        version: 2.1.8(jsdom@20.0.1)
+        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
 
   apps/mark/frontend/prodserver:
     dependencies:
@@ -2392,8 +2388,8 @@ importers:
         specifier: 17.0.22
         version: 17.0.22
       '@vitest/coverage-istanbul':
-        specifier: ^2.1.8
-        version: 2.1.8(vitest@2.1.8)
+        specifier: ^3.1.1
+        version: 3.1.1(vitest@3.1.1)
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
@@ -2431,8 +2427,8 @@ importers:
         specifier: ^0.2.1
         version: 0.2.1
       vitest:
-        specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
+        specifier: ^3.1.1
+        version: 3.1.1(@types/debug@4.1.8)(@types/node@20.16.0)
       yargs:
         specifier: 17.7.1
         version: 17.7.1
@@ -2625,7 +2621,7 @@ importers:
         version: 4.5.2(@types/node@20.16.0)
       vitest:
         specifier: ^2.1.8
-        version: 2.1.8(jsdom@20.0.1)
+        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
 
   apps/pollbook/frontend/prodserver:
     dependencies:
@@ -2775,8 +2771,8 @@ importers:
         specifier: 9.0.5
         version: 9.0.5
       '@vitest/coverage-istanbul':
-        specifier: ^2.1.8
-        version: 2.1.8(vitest@2.1.8)
+        specifier: ^3.1.1
+        version: 3.1.1(vitest@3.1.1)
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
@@ -2814,8 +2810,8 @@ importers:
         specifier: ^6.0.1
         version: 6.1.1
       vitest:
-        specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
+        specifier: ^3.1.1
+        version: 3.1.1(@types/debug@4.1.8)(@types/node@20.16.0)
       wait-for-expect:
         specifier: ^3.0.2
         version: 3.0.2
@@ -3107,7 +3103,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: ^2.1.8
-        version: 2.1.8(jsdom@20.0.1)
+        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
 
   libs/auth:
     dependencies:
@@ -3213,7 +3209,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: ^3.1.1
-        version: 3.1.1(@types/debug@4.1.8)
+        version: 3.1.1(@types/debug@4.1.8)(@types/node@20.16.0)
       wait-for-expect:
         specifier: ^3.0.2
         version: 3.0.2
@@ -3342,8 +3338,8 @@ importers:
         specifier: 0.2.4
         version: 0.2.4
       '@vitest/coverage-istanbul':
-        specifier: ^2.1.8
-        version: 2.1.8(vitest@2.1.8)
+        specifier: ^3.1.1
+        version: 3.1.1(vitest@3.1.1)
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
@@ -3375,8 +3371,8 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
+        specifier: ^3.1.1
+        version: 3.1.1(@types/debug@4.1.8)(@types/node@20.16.0)
 
   libs/ballot-encoder:
     dependencies:
@@ -3635,7 +3631,7 @@ importers:
         version: 0.12.4
       vitest:
         specifier: ^2.1.8
-        version: 2.1.8(jsdom@20.0.1)
+        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
 
   libs/cdf-schema-builder:
     dependencies:
@@ -4406,7 +4402,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: ^2.1.8
-        version: 2.1.8(jsdom@20.0.1)
+        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
 
   libs/grout/test-utils:
     dependencies:
@@ -4437,7 +4433,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: ^2.1.8
-        version: 2.1.8(jsdom@20.0.1)
+        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
 
   libs/hmpb:
     dependencies:
@@ -4609,8 +4605,8 @@ importers:
         specifier: 0.2.4
         version: 0.2.4
       '@vitest/coverage-istanbul':
-        specifier: ^2.1.8
-        version: 2.1.8(vitest@2.1.8)
+        specifier: ^3.1.1
+        version: 3.1.1(vitest@3.1.1)
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
@@ -4633,8 +4629,8 @@ importers:
         specifier: 11.0.0
         version: 11.0.0
       vitest:
-        specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
+        specifier: ^3.1.1
+        version: 3.1.1(@types/debug@4.1.8)(@types/node@20.16.0)
 
   libs/logging:
     dependencies:
@@ -4740,7 +4736,7 @@ importers:
         version: 0.2.1
       vitest:
         specifier: ^3.1.1
-        version: 3.1.1(@types/debug@4.1.8)
+        version: 3.1.1(@types/debug@4.1.8)(@types/node@20.16.0)
 
   libs/mark-flow-ui:
     dependencies:
@@ -5146,8 +5142,8 @@ importers:
         specifier: 0.2.4
         version: 0.2.4
       '@vitest/coverage-istanbul':
-        specifier: ^2.1.8
-        version: 2.1.8(vitest@2.1.8)
+        specifier: ^3.1.1
+        version: 3.1.1(vitest@3.1.1)
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
@@ -5176,8 +5172,8 @@ importers:
         specifier: ^1.50.0
         version: 1.50.0
       vitest:
-        specifier: ^2.1.8
-        version: 2.1.8(@types/node@20.16.0)(jsdom@20.0.1)
+        specifier: ^3.1.1
+        version: 3.1.1(@types/debug@4.1.8)(@types/node@20.16.0)
 
   libs/test-utils:
     dependencies:
@@ -9635,7 +9631,7 @@ packages:
   /@joshwooding/vite-plugin-react-docgen-typescript@0.2.1(typescript@5.6.2)(vite@4.5.2):
     resolution: {integrity: sha512-ou4ZJSXMMWHqGS4g8uNRbC5TiTWxAgQZiVucoUrOCWuPrTbkpJbmVyIi9jU72SBry7gQtuMEDp4YR8EEXAg7VQ==}
     peerDependencies:
-      typescript: 5.6.2
+      typescript: '>= 4.3.x'
       vite: ^3.0.0 || ^4.0.0
     peerDependenciesMeta:
       typescript:
@@ -10723,7 +10719,7 @@ packages:
       rollup:
         optional: true
     dependencies:
-      '@types/estree': 1.0.6
+      '@types/estree': 1.0.7
       estree-walker: 2.0.2
       picomatch: 2.3.1
     dev: true
@@ -12095,7 +12091,7 @@ packages:
     resolution: {integrity: sha512-3YDxZPJsHOsRQob/85X2Xf6pYfwbQilJBsEcuwmEV0JEO4p3JijOlO8xV58uCjkZSpuJ0ARl6t5oCMBo89DKCQ==}
     peerDependencies:
       '@preact/preset-vite': '*'
-      typescript: 5.6.2
+      typescript: '>= 4.3.x'
       vite: ^3.0.0 || ^4.0.0
       vite-plugin-glimmerx: '*'
     peerDependenciesMeta:
@@ -12553,7 +12549,7 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-      typescript: 5.6.2
+      typescript: '*'
     peerDependenciesMeta:
       typescript:
         optional: true
@@ -13141,7 +13137,6 @@ packages:
 
   /@types/estree@1.0.7:
     resolution: {integrity: sha512-w28IoSUCJpidD/TGviZwwMJckNESJZXFu7NBZ5YJ4mEUnNraUn9Pm8HSZm/jDF1pDWYKspWE7oVphigUPRakIQ==}
-    dev: true
 
   /@types/express-serve-static-core@4.17.31:
     resolution: {integrity: sha512-DxMhY+NAsTwMMFHBTtJFNp5qiHKJ7TeqOo23zVEM9alT1Ml27Q3xcTH0xwxn7Q0BbMcVEJOs/7aQtUWupUQN3Q==}
@@ -14090,7 +14085,7 @@ packages:
       magicast: 0.3.5
       test-exclude: 7.0.1
       tinyrainbow: 2.0.0
-      vitest: 3.1.1(@types/debug@4.1.8)
+      vitest: 3.1.1(@types/debug@4.1.8)(@types/node@20.16.0)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -14142,7 +14137,7 @@ packages:
       '@vitest/spy': 3.1.1
       estree-walker: 3.0.3
       magic-string: 0.30.17
-      vite: 6.3.1
+      vite: 6.3.1(@types/node@20.16.0)
     dev: true
 
   /@vitest/pretty-format@2.1.8:
@@ -17392,7 +17387,7 @@ packages:
     resolution: {integrity: sha512-AgaZCVuYDXHUGxj/ZGu1u8H8CYgDY3iG6w5kUFw4AzMVXzB7VvbKgYR4nATIN+OvUrghMbiDLeimVjVY5ilq3w==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
-      '@types/eslint': 8.4.1
+      '@types/eslint': '>=8.0.0'
       eslint: '>=8.0.0'
       eslint-config-prettier: '*'
       prettier: '>=3.0.0'
@@ -17609,7 +17604,7 @@ packages:
   /estree-walker@3.0.3:
     resolution: {integrity: sha512-7RUKfXgSMMkzt6ZuXmqapOurLGPPfgj6l9uRZ7lRGolvk0y2yocc35LdcxKC5PQZdn2DMqioAQ2NoWcrTKmm6g==}
     dependencies:
-      '@types/estree': 1.0.6
+      '@types/estree': 1.0.7
 
   /esutils@2.0.3:
     resolution: {integrity: sha512-kVscqXk4OCp68SZ0dkgEKVi6/8ij300KBWTJq32P/dYeWTSwK41WyTxalN1eRmA5Z9UU/LX9D7FWSmV9SAYx6g==}
@@ -21274,12 +21269,12 @@ packages:
     resolution: {integrity: sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
-    dev: true
 
   /nanoid@3.3.7:
     resolution: {integrity: sha512-eSRppjcPIatRIMC1U6UngP8XFcz8MQWGQdt1MTBQ7NaAmvXDfvNxbvWV3x2y6CdEUciCSsDHDQZbhYaB8QEo2g==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
+    dev: false
 
   /nanomatch@1.2.13:
     resolution: {integrity: sha512-fpoe2T0RbHwBTBUOftAfBPaDEi06ufaUai0mE6Yn1kacc3SnTErfb/h+X94VXzI64rKFHYImXSvdwGGCmwOqCA==}
@@ -22330,7 +22325,7 @@ packages:
     resolution: {integrity: sha512-gY/ACJtJPSmUFPDCHtX78+01fHa64FaU4zaaWfuh1MhGJISufJAH4cun6k/8fwsHYeK4UQmENQK+tRLCFJE8JQ==}
     engines: {node: ^10 || ^12 || >=14}
     dependencies:
-      nanoid: 3.3.7
+      nanoid: 3.3.11
       picocolors: 1.1.1
       source-map-js: 1.2.1
     dev: true
@@ -22339,7 +22334,7 @@ packages:
     resolution: {integrity: sha512-Wglpdk03BSfXkHoQa3b/oulrotAkwrlLDRSOb9D0bN86FdRyE9lppSp33aHNPgBa0JKCoB+drFLZkQoRRYae5A==}
     engines: {node: ^10 || ^12 || >=14}
     dependencies:
-      nanoid: 3.3.7
+      nanoid: 3.3.11
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
@@ -22347,7 +22342,7 @@ packages:
     resolution: {integrity: sha512-OCVPnIObs4N29kxTjzLfUryOkvZEq+pf8jTF0lg8E7uETuWHA+v7j3c/xJmiqpX450191LlmZfUKkXxkTry7nA==}
     engines: {node: ^10 || ^12 || >=14}
     dependencies:
-      nanoid: 3.3.7
+      nanoid: 3.3.11
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
@@ -22931,7 +22926,7 @@ packages:
   /react-docgen-typescript@2.2.2(typescript@5.6.2):
     resolution: {integrity: sha512-tvg2ZtOpOi6QDwsb3GZhOjDkkX0h8Z2gipvTg6OVMUyoYoURhEiRNePT8NZItTVCDh39JJHnLdfCOkzoLbFnTg==}
     peerDependencies:
-      typescript: 5.6.2
+      typescript: '>= 4.3.x'
     dependencies:
       typescript: 5.6.2
     dev: true
@@ -25103,7 +25098,7 @@ packages:
     resolution: {integrity: sha512-UQMIo7pb8WRomKR1/+MFVLTroIvDVtMX3K6OUir8ynLyzB8Jeriont2bTAtmNPa1ekAgN7YPDyf6V+ygrdU+eQ==}
     engines: {node: '>=16'}
     peerDependencies:
-      typescript: 5.6.2
+      typescript: '>=4.2.0'
     dependencies:
       typescript: 5.6.2
 
@@ -25122,7 +25117,7 @@ packages:
       babel-jest: ^29.0.0
       esbuild: '*'
       jest: ^29.0.0
-      typescript: 5.6.2
+      typescript: '>=4.3 <6'
     peerDependenciesMeta:
       '@babel/core':
         optional: true
@@ -25168,7 +25163,7 @@ packages:
     resolution: {integrity: sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==}
     engines: {node: '>= 6'}
     peerDependencies:
-      typescript: 5.6.2
+      typescript: '>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta'
     dependencies:
       tslib: 1.14.1
       typescript: 5.6.2
@@ -25702,7 +25697,7 @@ packages:
       - supports-color
       - terser
 
-  /vite-node@3.1.1:
+  /vite-node@3.1.1(@types/node@20.16.0):
     resolution: {integrity: sha512-V+IxPAE2FvXpTCHXyNem0M+gWm6J7eRyWPR6vYoG/Gl+IscNOjXzztUhimQgTxaAoUoj40Qqimaa0NLIOOAH4w==}
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
     hasBin: true
@@ -25711,7 +25706,7 @@ packages:
       debug: 4.4.0
       es-module-lexer: 1.6.0
       pathe: 2.0.3
-      vite: 6.3.1
+      vite: 6.3.1(@types/node@20.16.0)
     transitivePeerDependencies:
       - '@types/node'
       - jiti
@@ -25801,7 +25796,7 @@ packages:
     optionalDependencies:
       fsevents: 2.3.3
 
-  /vite@6.3.1:
+  /vite@6.3.1(@types/node@20.16.0):
     resolution: {integrity: sha512-kkzzkqtMESYklo96HKKPE5KKLkC1amlsqt+RjFMlX2AvbRB/0wghap19NdBxxwGZ+h/C6DLCrcEphPIItlGrRQ==}
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
     hasBin: true
@@ -25841,6 +25836,7 @@ packages:
       yaml:
         optional: true
     dependencies:
+      '@types/node': 20.16.0
       esbuild: 0.25.2
       fdir: 6.4.3(picomatch@4.0.2)
       picomatch: 4.0.2
@@ -25920,65 +25916,7 @@ packages:
       - supports-color
       - terser
 
-  /vitest@2.1.8(jsdom@20.0.1):
-    resolution: {integrity: sha512-1vBKTZskHw/aosXqQUlVWWlGUxSJR8YtiyZDJAFeW2kPAeX6S3Sool0mjspO+kXLuxVWlEDDowBAeqeAQefqLQ==}
-    engines: {node: ^18.0.0 || >=20.0.0}
-    hasBin: true
-    peerDependencies:
-      '@edge-runtime/vm': '*'
-      '@types/node': ^18.0.0 || >=20.0.0
-      '@vitest/browser': 2.1.8
-      '@vitest/ui': 2.1.8
-      happy-dom: '*'
-      jsdom: '*'
-    peerDependenciesMeta:
-      '@edge-runtime/vm':
-        optional: true
-      '@types/node':
-        optional: true
-      '@vitest/browser':
-        optional: true
-      '@vitest/ui':
-        optional: true
-      happy-dom:
-        optional: true
-      jsdom:
-        optional: true
-    dependencies:
-      '@vitest/expect': 2.1.8
-      '@vitest/mocker': 2.1.8(vite@5.4.18)
-      '@vitest/pretty-format': 2.1.8
-      '@vitest/runner': 2.1.8
-      '@vitest/snapshot': 2.1.8
-      '@vitest/spy': 2.1.8
-      '@vitest/utils': 2.1.8
-      chai: 5.1.2
-      debug: 4.4.0
-      expect-type: 1.1.0
-      jsdom: 20.0.1
-      magic-string: 0.30.17
-      pathe: 1.1.2
-      std-env: 3.8.0
-      tinybench: 2.9.0
-      tinyexec: 0.3.1
-      tinypool: 1.0.2
-      tinyrainbow: 1.2.0
-      vite: 5.4.18(@types/node@20.16.0)
-      vite-node: 2.1.8(@types/node@20.16.0)
-      why-is-node-running: 2.3.0
-    transitivePeerDependencies:
-      - less
-      - lightningcss
-      - msw
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-    dev: true
-
-  /vitest@3.1.1(@types/debug@4.1.8):
+  /vitest@3.1.1(@types/debug@4.1.8)(@types/node@20.16.0):
     resolution: {integrity: sha512-kiZc/IYmKICeBAZr9DQ5rT7/6bD9G7uqQEki4fxazi1jdVl2mWGzedtBs5s6llz59yQhVb7FFY2MbHzHCnT79Q==}
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
     hasBin: true
@@ -26007,6 +25945,7 @@ packages:
         optional: true
     dependencies:
       '@types/debug': 4.1.8
+      '@types/node': 20.16.0
       '@vitest/expect': 3.1.1
       '@vitest/mocker': 3.1.1(vite@6.3.1)
       '@vitest/pretty-format': 3.1.1
@@ -26024,8 +25963,8 @@ packages:
       tinyexec: 0.3.2
       tinypool: 1.0.2
       tinyrainbow: 2.0.0
-      vite: 6.3.1
-      vite-node: 3.1.1
+      vite: 6.3.1(@types/node@20.16.0)
+      vite-node: 3.1.1(@types/node@20.16.0)
       why-is-node-running: 2.3.0
     transitivePeerDependencies:
       - jiti
@@ -26484,3 +26423,7 @@ packages:
   /zod@3.23.5:
     resolution: {integrity: sha512-fkwiq0VIQTksNNA131rDOsVJcns0pfVUjHzLrNBiF/O/Xxb5lQyEXkhZWcJ7npWsYlvs+h0jFWXXy4X46Em1JA==}
     dev: false
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false

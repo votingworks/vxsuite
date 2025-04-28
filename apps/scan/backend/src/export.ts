@@ -97,7 +97,7 @@ export async function exportCastVoteRecordsToUsbDrive({
       });
       break;
     }
-    /* istanbul ignore next: Compile-time check for completeness */
+    /* istanbul ignore next: Compile-time check for completeness - @preserve */
     default: {
       throwIllegalValue(mode);
     }

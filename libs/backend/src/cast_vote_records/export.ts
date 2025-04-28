@@ -497,7 +497,7 @@ async function exportCastVoteRecordFilesToUsbDrive(
       path.join(castVoteRecordId, file.fileName),
       file.open()
     );
-    /* istanbul ignore next: Hard to trigger without significant mocking */
+    /* istanbul ignore next: Hard to trigger without significant mocking - @preserve */
     if (exportResult.isErr()) {
       return exportResult;
     }
@@ -531,7 +531,7 @@ async function exportRejectedSheetToUsbDrive(
       path.join(subDirectoryName, file.fileName),
       file.open()
     );
-    /* istanbul ignore next: Hard to trigger without significant mocking */
+    /* istanbul ignore next: Hard to trigger without significant mocking - @preserve  */
     if (exportResult.isErr()) {
       return exportResult;
     }
@@ -591,7 +591,7 @@ async function exportMetadataFileToUsbDrive(
     CastVoteRecordExportFileName.METADATA,
     metadataFileContents
   );
-  /* istanbul ignore next: Hard to trigger without significant mocking */
+  /* istanbul ignore next: Hard to trigger without significant mocking - @preserve  */
   if (exportResult.isErr()) {
     return exportResult;
   }
@@ -622,7 +622,7 @@ async function exportSignatureFileToUsbDrive(
     signatureFile.fileName,
     signatureFile.fileContents
   );
-  /* istanbul ignore next: Hard to trigger without significant mocking */
+  /* istanbul ignore next: Hard to trigger without significant mocking - @preserve  */
   if (exportResult.isErr()) {
     return exportResult;
   }
@@ -797,7 +797,7 @@ export async function exportCastVoteRecordsToUsbDrive(
         sheet,
         exportDirectoryPathRelativeToUsbMountPoint
       );
-      /* istanbul ignore next: Hard to trigger without significant mocking */
+      /* istanbul ignore next: Hard to trigger without significant mocking - @preserve  */
       if (exportResult.isErr()) {
         return exportResult;
       }
@@ -860,7 +860,7 @@ export async function exportCastVoteRecordsToUsbDrive(
     updatedCastVoteRecordRootHash,
     exportDirectoryPathRelativeToUsbMountPoint
   );
-  /* istanbul ignore next: Hard to trigger without significant mocking */
+  /* istanbul ignore next: Hard to trigger without significant mocking - @preserve  */
   if (exportMetadataFileResult.isErr()) {
     return exportMetadataFileResult;
   }
@@ -871,7 +871,7 @@ export async function exportCastVoteRecordsToUsbDrive(
     metadataFileContents,
     exportDirectoryPathRelativeToUsbMountPoint
   );
-  /* istanbul ignore next: Hard to trigger without significant mocking */
+  /* istanbul ignore next: Hard to trigger without significant mocking - @preserve  */
   if (exportSignatureFileResult.isErr()) {
     return exportSignatureFileResult;
   }
