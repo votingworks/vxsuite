@@ -25,6 +25,7 @@ import {
 } from './api';
 import { Column, Row } from './layout';
 import { SmartCardsScreen } from './smart_cards_screen';
+import { UnconfiguredSystemAdminScreen } from './unconfigured_screen';
 
 export function SettingsScreen(): JSX.Element | null {
   const logOutMutation = logOut.useMutation();
@@ -71,6 +72,13 @@ export function ElectionScreen(): JSX.Element | null {
     return null;
   }
 
+  if (getElectionQuery.data.isErr()) {
+    return (
+      <SystemAdministratorNavScreen title="Election">
+        <UnconfiguredSystemAdminScreen />
+      </SystemAdministratorNavScreen>
+    );
+  }
   const election = getElectionQuery.data.unsafeUnwrap();
 
   return (

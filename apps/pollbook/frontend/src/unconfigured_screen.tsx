@@ -4,7 +4,6 @@ import {
   Card,
   FullScreenIconWrapper,
   FullScreenMessage,
-  H1,
   Icons,
   Loading,
   Main,
@@ -13,54 +12,11 @@ import {
   Table,
   UsbDriveImage,
 } from '@votingworks/ui';
-import {
-  isElectionManagerAuth,
-  isSystemAdministratorAuth,
-} from '@votingworks/utils';
-import { LoggedIn } from '@votingworks/types/src/auth/dipped_smart_card_auth';
 import type { PollbookServiceInfo } from '@votingworks/pollbook-backend';
 import { useState } from 'react';
 import { formatElectionHashes } from '@votingworks/types';
 import { configureFromMachine, getDeviceStatuses, getElection } from './api';
-import { Header, NavScreen } from './nav_screen';
-
-function CenteredScreen({
-  children,
-}: {
-  children: React.ReactNode;
-}): JSX.Element {
-  return (
-    <NavScreen>
-      <Main flexColumn>
-        <MainContent
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          {children}
-        </MainContent>
-      </Main>
-    </NavScreen>
-  );
-}
-function ConfigurationScreen({
-  children,
-}: {
-  children: React.ReactNode;
-}): JSX.Element {
-  return (
-    <NavScreen>
-      <Header>
-        <H1>Configuration</H1>
-      </Header>
-      <Main flexColumn>
-        <MainContent>{children}</MainContent>
-      </Main>
-    </NavScreen>
-  );
-}
+import { NavScreen } from './nav_screen';
 
 function PollbookConnectionTable({
   pollbooks,
@@ -128,40 +84,32 @@ export function UnconfiguredSystemAdminScreen(): JSX.Element {
     useState('');
 
   if (getDevicesQuery.isLoading || !getElectionQuery.isSuccess) {
-    return (
-      <CenteredScreen>
-        <Loading />
-      </CenteredScreen>
-    );
+    return <Loading />;
   }
   const electionResult = getElectionQuery.data;
 
   if (electionResult.isOk() || electionResult.err() === 'loading') {
     return (
-      <CenteredScreen>
-        <FullScreenMessage
-          title="Configuring VxPollbook from USB drive…"
-          image={
-            <FullScreenIconWrapper>
-              <Icons.Loading />
-            </FullScreenIconWrapper>
-          }
-        />
-      </CenteredScreen>
+      <FullScreenMessage
+        title="Configuring VxPollbook from USB drive…"
+        image={
+          <FullScreenIconWrapper>
+            <Icons.Loading />
+          </FullScreenIconWrapper>
+        }
+      />
     );
   }
   if (isLoadingFromNetwork && electionResult.err() === 'unconfigured') {
     return (
-      <CenteredScreen>
-        <FullScreenMessage
-          title="Configuring VxPollbook from network…"
-          image={
-            <FullScreenIconWrapper>
-              <Icons.Loading />
-            </FullScreenIconWrapper>
-          }
-        />
-      </CenteredScreen>
+      <FullScreenMessage
+        title="Configuring VxPollbook from network…"
+        image={
+          <FullScreenIconWrapper>
+            <Icons.Loading />
+          </FullScreenIconWrapper>
+        }
+      />
     );
   }
   const { isOnline, pollbooks } = getDevicesQuery.isError
@@ -172,32 +120,28 @@ export function UnconfiguredSystemAdminScreen(): JSX.Element {
   if (!isOnline || configuredPollbooks.length <= 0) {
     if (electionResult.err() === 'not-found') {
       return (
-        <CenteredScreen>
-          <FullScreenMessage
-            title="Failed to configure VxPollbook"
-            image={
-              <FullScreenIconWrapper>
-                <Icons.Warning color="warning" />
-              </FullScreenIconWrapper>
-            }
-          >
-            No pollbook package found on the inserted USB drive.
-          </FullScreenMessage>
-        </CenteredScreen>
+        <FullScreenMessage
+          title="Failed to configure VxPollbook"
+          image={
+            <FullScreenIconWrapper>
+              <Icons.Warning color="warning" />
+            </FullScreenIconWrapper>
+          }
+        >
+          No pollbook package found on the inserted USB drive.
+        </FullScreenMessage>
       );
     }
     return (
-      <CenteredScreen>
-        <FullScreenMessage
-          title="Insert a USB drive containing a pollbook package or power up another configured machine."
-          image={<UsbDriveImage />}
-        />
-      </CenteredScreen>
+      <FullScreenMessage
+        title="Insert a USB drive containing a pollbook package or power up another configured machine."
+        image={<UsbDriveImage />}
+      />
     );
   }
 
   return (
-    <ConfigurationScreen>
+    <MainContent>
       {electionResult.err() === 'not-found' && (
         <Card color="warning" style={{ marginBottom: '1rem' }}>
           <Icons.Warning color="warning" /> No pollbook package found on the
@@ -222,7 +166,6 @@ export function UnconfiguredSystemAdminScreen(): JSX.Element {
             { machineId },
             {
               onSuccess: (result) => {
-                console.log('here');
                 setIsLoadingFromNetwork(false);
                 if (result.isErr()) {
                   setConfigurationErrorMessage(result.err());
@@ -232,7 +175,17 @@ export function UnconfiguredSystemAdminScreen(): JSX.Element {
           );
         }}
       />
-    </ConfigurationScreen>
+    </MainContent>
+  );
+}
+
+function Screen({ children }: { children: React.ReactNode }): JSX.Element {
+  return (
+    <NavScreen>
+      <Main flexColumn>
+        <MainContent>{children}</MainContent>
+      </Main>
+    </NavScreen>
   );
 }
 
@@ -245,7 +198,7 @@ export function UnconfiguredElectionManagerScreen(): JSX.Element {
 
   if (electionResult.isOk() || electionResult.err() === 'loading') {
     return (
-      <CenteredScreen>
+      <Screen>
         <FullScreenMessage
           title="Configuring VxPollbook from USB drive…"
           image={
@@ -254,12 +207,12 @@ export function UnconfiguredElectionManagerScreen(): JSX.Element {
             </FullScreenIconWrapper>
           }
         />
-      </CenteredScreen>
+      </Screen>
     );
   }
   if (electionResult.err() === 'not-found') {
     return (
-      <CenteredScreen>
+      <Screen>
         <FullScreenMessage
           title="Failed to configure VxPollbook"
           image={
@@ -270,26 +223,16 @@ export function UnconfiguredElectionManagerScreen(): JSX.Element {
         >
           No pollbook package found on the inserted USB drive.
         </FullScreenMessage>
-      </CenteredScreen>
+      </Screen>
     );
   }
 
   return (
-    <CenteredScreen>
+    <Screen>
       <FullScreenMessage
         title="Insert a USB drive containing a pollbook package"
         image={<UsbDriveImage />}
       />
-    </CenteredScreen>
+    </Screen>
   );
-}
-
-export function UnconfiguredScreen({ auth }: { auth: LoggedIn }): JSX.Element {
-  if (isSystemAdministratorAuth(auth)) {
-    return <UnconfiguredSystemAdminScreen />;
-  }
-  if (isElectionManagerAuth(auth)) {
-    return <UnconfiguredElectionManagerScreen />;
-  }
-  throw new Error('Unsupported'); // TODO-CARO
 }
