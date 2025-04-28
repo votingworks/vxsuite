@@ -244,7 +244,7 @@ export class Store {
     }
 
     return {
-      id: result.id as ElectionId,
+      id: result.id ,
       date: new DateWithoutTime(result.date),
     };
   }

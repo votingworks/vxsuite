@@ -70,7 +70,7 @@ describe('Districts tab', () => {
 
   test('adding a district', async () => {
     const newDistrict: District = {
-      id: idFactory.next() as DistrictId,
+      id: idFactory.next() ,
       name: 'New District',
     };
 

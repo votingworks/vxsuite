@@ -1144,7 +1144,7 @@ describe('Parties tab', () => {
 
   test('adding a party', async () => {
     const newParty: Party = {
-      id: idFactory.next() as PartyId,
+      id: idFactory.next() ,
       name: 'New Party',
       fullName: 'New Party Full Name',
       abbrev: 'NP',

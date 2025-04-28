@@ -172,7 +172,7 @@ function convertFilterRowsToTabulationFilter(
         filter.votingMethods = filterValues as Tabulation.VotingMethod[];
         break;
       case 'ballot-style':
-        filter.ballotStyleGroupIds = filterValues as BallotStyleGroupId[];
+        filter.ballotStyleGroupIds = filterValues ;
         break;
       case 'party':
         filter.partyIds = filterValues;

@@ -884,7 +884,7 @@ export function convertCdfBallotDefinitionToVxfElection(
       .filter((district) =>
         assertDefined(district.ComposingGpUnitIds).includes(precinctOrSplitId)
       )
-      .map((district) => district['@id'] as Vxf.DistrictId);
+      .map((district) => district['@id']);
   }
 
   function convertOptionId(contestId: Vxf.ContestId, optionId: string): Id {
@@ -929,7 +929,7 @@ export function convertCdfBallotDefinitionToVxfElection(
   }
 
   return {
-    id: assertDefined(election.ExternalIdentifier[0]).Value as Vxf.ElectionId,
+    id: assertDefined(election.ExternalIdentifier[0]).Value,
     type: election.Type,
     title: englishText(election.Name),
     state: englishText(state.Name),
@@ -946,7 +946,7 @@ export function convertCdfBallotDefinitionToVxfElection(
     seal: '',
 
     parties: cdfBallotDefinition.Party.map((party) => ({
-      id: party['@id'] as Vxf.PartyId,
+      id: party['@id'],
       name: englishText(party.Name),
       fullName: englishText(party.Name),
       abbrev: englishText(party.Abbreviation),
@@ -956,7 +956,7 @@ export function convertCdfBallotDefinitionToVxfElection(
       const contestBase = {
         id: contest['@id'],
         title: englishText(contest.BallotTitle),
-        districtId: contest.ElectionDistrictId as Vxf.DistrictId,
+        districtId: contest.ElectionDistrictId,
       } as const;
       switch (contest['@type']) {
         case 'BallotDefinition.CandidateContest': {
@@ -988,7 +988,7 @@ export function convertCdfBallotDefinitionToVxfElection(
               };
             }),
             partyId: contest.PrimaryPartyIds
-              ? (contest.PrimaryPartyIds[0] as Vxf.PartyId)
+              ? contest.PrimaryPartyIds[0]
               : undefined,
             termDescription: termDescriptionForContest(
               cdfBallotDefinition,
@@ -1024,7 +1024,7 @@ export function convertCdfBallotDefinitionToVxfElection(
     }),
 
     districts: districts.map((district) => ({
-      id: district['@id'] as Vxf.DistrictId,
+      id: district['@id'],
       name: englishText(district.Name),
     })),
 
@@ -1094,13 +1094,11 @@ export function convertCdfBallotDefinitionToVxfElection(
         idParts[1] === ballotStyle.Language[0];
 
       return {
-        id: ballotStyleId as Vxf.BallotStyleId,
-        groupId: (useExtractedGroupId
-          ? idParts[0]
-          : ballotStyleId) as Vxf.BallotStyleGroupId,
+        id: ballotStyleId,
+        groupId: useExtractedGroupId ? idParts[0] : ballotStyleId,
         districts: districtIds,
         precincts: precinctIds,
-        partyId: ballotStyle.PartyIds?.[0] as Vxf.PartyId | undefined,
+        partyId: ballotStyle.PartyIds?.[0],
         languages: ballotStyle.Language,
       };
     }),
@@ -1123,8 +1121,7 @@ export function convertCdfBallotDefinitionToVxfElection(
       ).map((ballotStyle): Vxf.GridLayout => {
         const orderedContests = assertDefined(ballotStyle.OrderedContent);
         return {
-          ballotStyleId: ballotStyle.ExternalIdentifier[0]
-            .Value as Vxf.BallotStyleId,
+          ballotStyleId: ballotStyle.ExternalIdentifier[0].Value,
           // Since there's no CDF field for this, we set a default based on what
           // generally works well for our HMPBs.
           optionBoundsFromTargetMark: {

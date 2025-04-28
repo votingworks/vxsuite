@@ -90,7 +90,7 @@ export function electionListing(
 
 export function blankElectionRecord(orgId: Id): ElectionRecord {
   return makeElectionRecord(
-    createBlankElection(generateId() as ElectionId),
+    createBlankElection(generateId() ),
     orgId
   );
 }

@@ -75,7 +75,7 @@ export function addMockCvrFileToStore({
       const addCastVoteRecordResult = store.addCastVoteRecordFileEntry({
         electionId,
         cvrFileId,
-        ballotId: uuid() as BallotId,
+        ballotId: uuid() ,
         cvr: mockCastVoteRecord,
         adjudicationFlags: getCastVoteRecordAdjudicationFlags(
           mockCastVoteRecord.votes,

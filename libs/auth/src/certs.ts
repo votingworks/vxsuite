@@ -287,7 +287,7 @@ function createElectionKey(
 ): ElectionKey {
   const { electionId, electionDate } = certDetails;
   return {
-    id: electionId as ElectionId,
+    id: electionId ,
     date: new DateWithoutTime(electionDate),
   };
 }

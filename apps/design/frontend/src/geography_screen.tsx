@@ -136,7 +136,7 @@ function DistrictsTab(): JSX.Element | null {
 
 function createBlankDistrict(): District {
   return {
-    id: generateId() as DistrictId,
+    id: generateId() ,
     name: '',
   };
 }
@@ -664,7 +664,7 @@ function PrecinctForm({
                       onChange={(districtIds) =>
                         setSplit(index, {
                           ...split,
-                          districtIds: districtIds as DistrictId[],
+                          districtIds ,
                         })
                       }
                       disabled={!userFeatures.CREATE_DELETE_PRECINCT_SPLITS}
@@ -766,7 +766,7 @@ function PrecinctForm({
                   onChange={(districtIds) =>
                     setPrecinct({
                       ...precinct,
-                      districtIds: districtIds as DistrictId[],
+                      districtIds ,
                     })
                   }
                 />

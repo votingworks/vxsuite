@@ -69,7 +69,7 @@ export function generateElection(
 
   function generateDistrict(index: number): District {
     return {
-      id: `district-${index}` as DistrictId,
+      id: `district-${index}` ,
       name: randomString(maxStringLengths.districtName, words.locations),
     };
   }
@@ -89,8 +89,8 @@ export function generateElection(
       precincts
     ) as PrecinctWithoutSplits[];
     return {
-      id: `ballot-style-${index}` as BallotStyleId,
-      groupId: `ballot-style-${index}` as BallotStyleGroupId,
+      id: `ballot-style-${index}` ,
+      groupId: `ballot-style-${index}` ,
       precincts: ballotStylePrecincts.map((precinct) => precinct.id),
       districts: unique(
         ballotStylePrecincts.flatMap((precinct) => precinct.districtIds)
@@ -109,7 +109,7 @@ export function generateElection(
         words.parties
       ) + partyStr;
     return {
-      id: `party-${index}` as PartyId,
+      id: `party-${index}` ,
       name,
       fullName: name,
       abbrev: name
@@ -170,7 +170,7 @@ export function generateElection(
 
   const election: Election = {
     title: randomString(maxStringLengths.title, words.titles),
-    id: generateId() as ElectionId,
+    id: generateId() ,
     date: DateWithoutTime.today(),
     type: 'general',
     county: {

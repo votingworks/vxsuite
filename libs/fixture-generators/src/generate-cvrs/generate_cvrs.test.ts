@@ -25,7 +25,7 @@ test('produces well-formed cast vote records with all contests in HMPB (gridlayo
   })) {
     expect(cvr.CVRSnapshot).toHaveLength(1);
     expect(cvr.BallotSheetId).toEqual('1');
-    const ballotStyleId = cvr.BallotStyleId as BallotStyleId;
+    const ballotStyleId = cvr.BallotStyleId ;
     expect(
       cvr.CVRSnapshot[0]!.CVRContest?.map((cvrContest) => cvrContest.ContestId)
     ).toMatchObject(
@@ -53,7 +53,7 @@ test('produces well-formed cast vote records with all contests in BMD (non-gridl
   })) {
     expect(cvr.CVRSnapshot).toHaveLength(1);
     expect(cvr.BallotSheetId).toBeUndefined();
-    const ballotStyleId = cvr.BallotStyleId as BallotStyleId;
+    const ballotStyleId = cvr.BallotStyleId ;
     expect(
       cvr.CVRSnapshot[0]!.CVRContest?.map((cvrContest) => cvrContest.ContestId)
     ).toMatchObject(
