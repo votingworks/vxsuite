@@ -4,7 +4,6 @@ import { Buffer } from 'node:buffer';
 import { createMemoryHistory } from 'history';
 import {
   District,
-  DistrictId,
   ElectionId,
   Precinct,
   PrecinctWithSplits,

@@ -15,7 +15,6 @@ import {
   BallotLanguageConfigs,
   DEFAULT_SYSTEM_SETTINGS,
   Election,
-  ElectionId,
   Id,
   LanguageCode,
 } from '@votingworks/types';

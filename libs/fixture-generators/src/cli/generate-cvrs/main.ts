@@ -1,6 +1,5 @@
 import {
   HmpbBallotPaperSize,
-  BallotStyleId,
   BallotType,
   BatchInfo,
   CVR,

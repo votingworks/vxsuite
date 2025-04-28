@@ -1,5 +1,4 @@
 import { assert } from '@votingworks/basics';
-import { ElectionId } from '@votingworks/types';
 import { P, Button, Modal, ButtonVariant } from '@votingworks/ui';
 import React from 'react';
 import { useHistory } from 'react-router-dom';

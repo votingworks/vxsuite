@@ -1,5 +1,4 @@
 import {
-  BallotId,
   BallotPageLayout,
   BallotStyleId,
   BallotType,

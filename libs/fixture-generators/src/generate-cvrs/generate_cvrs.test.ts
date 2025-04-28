@@ -3,12 +3,7 @@ import {
   electionFamousNames2021Fixtures,
   electionGridLayoutNewHampshireTestBallotFixtures,
 } from '@votingworks/fixtures';
-import {
-  BallotStyleId,
-  BallotType,
-  getBallotStyle,
-  getContests,
-} from '@votingworks/types';
+import { BallotType, getBallotStyle, getContests } from '@votingworks/types';
 import { assert, find, throwIllegalValue } from '@votingworks/basics';
 import { getCastVoteRecordBallotType } from '@votingworks/utils';
 import { generateCvrs } from './generate_cvrs';

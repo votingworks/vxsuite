@@ -10,7 +10,6 @@ import {
   ElectionId,
   HmpbBallotPaperSize,
   Party,
-  PartyId,
   PartyIdSchema,
   PrecinctIdSchema,
   unsafeParse,

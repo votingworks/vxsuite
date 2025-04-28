@@ -26,7 +26,6 @@ import {
   AdjudicationReason,
   DiagnosticRecord,
   DiagnosticType,
-  ElectionId,
   ElectionKey,
   constructElectionKey,
 } from '@votingworks/types';

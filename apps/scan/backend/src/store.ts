@@ -27,7 +27,6 @@ import {
   DiagnosticRecord,
   DiagnosticType,
   ElectionKey,
-  ElectionId,
   constructElectionKey,
   DEFAULT_BITONAL_THRESHOLD,
 } from '@votingworks/types';

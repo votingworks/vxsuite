@@ -17,7 +17,6 @@ import {
   PollsState,
   safeParse,
   PollsStateSchema,
-  ElectionId,
   ElectionKey,
   constructElectionKey,
 } from '@votingworks/types';

@@ -17,8 +17,6 @@ import {
 } from '@votingworks/basics';
 import { FileSystemEntryType } from '@votingworks/fs';
 import {
-  BallotId,
-  BallotStyleId,
   CVR,
   ElectionDefinition,
   getBallotStyle,

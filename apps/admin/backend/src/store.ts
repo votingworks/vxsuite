@@ -39,7 +39,6 @@ import {
   BallotType,
   DiagnosticType,
   ElectionKey,
-  ElectionId,
   constructElectionKey,
   BallotStyleGroupId,
   BallotStyleGroup,

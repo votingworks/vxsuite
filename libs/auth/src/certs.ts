@@ -5,7 +5,7 @@ import {
   DateWithoutTime,
   throwIllegalValue,
 } from '@votingworks/basics';
-import { ElectionId, ElectionKey } from '@votingworks/types';
+import { ElectionKey } from '@votingworks/types';
 
 import { arePollWorkerCardDetails, ProgrammedCardDetails } from './card';
 import { openssl } from './cryptography';

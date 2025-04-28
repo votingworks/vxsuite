@@ -26,7 +26,6 @@ import {
   PollsStateSchema,
   DiagnosticRecord,
   DiagnosticType,
-  ElectionId,
   ElectionKey,
   constructElectionKey,
 } from '@votingworks/types';
