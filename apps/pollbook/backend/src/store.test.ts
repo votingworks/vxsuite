@@ -4,7 +4,7 @@ import { HybridLogicalClock } from './hybrid_logical_clock';
 import {
   createVoter,
   createVoterCheckInEvent,
-  getTestElection,
+  getTestElectionDefinition,
 } from '../test/test_helpers';
 import { PeerStore } from './peer_store';
 
@@ -150,7 +150,12 @@ test('getNewEvents returns hasMore when there are more events from unknown machi
   const voters = Array.from({ length: 7 }, (_, i) =>
     createVoter(`voter-${i}`, 'firstname', 'lastname')
   );
-  store2.setElectionAndVoters(getTestElection(), [], voters);
+  store2.setElectionAndVoters(
+    getTestElectionDefinition(),
+    'fake-package-hash',
+    [],
+    voters
+  );
   const theirClock = new HybridLogicalClock(otherMachineId);
   const events = Array.from({ length: 7 }, (_, i) =>
     createVoterCheckInEvent(i, otherMachineId, `voter-${i}`, theirClock.tick())
@@ -190,7 +195,12 @@ test('getNewEvents returns hasMore when there are more events from known machine
   const voters = Array.from({ length: 7 }, (_, i) =>
     createVoter(`voter-${i}`, 'firstname', 'lastname')
   );
-  store2.setElectionAndVoters(getTestElection(), [], voters);
+  store2.setElectionAndVoters(
+    getTestElectionDefinition(),
+    'fake-package-hash',
+    [],
+    voters
+  );
   const myClock = new HybridLogicalClock(myMachineId);
   const events = Array.from({ length: 7 }, (_, i) =>
     createVoterCheckInEvent(i, myMachineId, `voter-${i + 1}`, myClock.tick())
@@ -232,7 +242,12 @@ test('getNewEvents returns hasMore when there are more events from known machine
   const voters = Array.from({ length: 10 }, (_, i) =>
     createVoter(`voter-${i}`, 'firstname', 'lastname')
   );
-  store2.setElectionAndVoters(getTestElection(), [], voters);
+  store2.setElectionAndVoters(
+    getTestElectionDefinition(),
+    'fake-package-hash',
+    [],
+    voters
+  );
   const myClock = new HybridLogicalClock(myMachineId);
   const theirClock = new HybridLogicalClock(otherMachineId);
   const machine1Events = Array.from({ length: 4 }, (_, i) =>

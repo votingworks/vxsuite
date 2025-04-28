@@ -185,12 +185,14 @@ test('connection status between two pollbooks is managed properly', async () => 
 
     // Set the pollbooks for the same election
     pollbookContext1.workspace.store.setElectionAndVoters(
-      electionFamousNames2021Fixtures.electionJson.readElection(),
+      electionFamousNames2021Fixtures.readElectionDefinition(),
+      'fake-package-hash',
       testStreets,
       testVoters
     );
     pollbookContext2.workspace.store.setElectionAndVoters(
-      electionFamousNames2021Fixtures.electionJson.readElection(),
+      electionFamousNames2021Fixtures.readElectionDefinition(),
+      'fake-package-hash',
       testStreets,
       testVoters
     );

@@ -62,7 +62,8 @@ test('check in a voter', async () => {
       electionFamousNames2021Fixtures.pollbookStreetNames.asText()
     );
     workspace.store.setElectionAndVoters(
-      electionFamousNames2021Fixtures.electionJson.readElection(),
+      electionFamousNames2021Fixtures.readElectionDefinition(),
+      'fake-package-hash',
       testStreets,
       testVoters
     );
@@ -129,7 +130,8 @@ test('register a voter', async () => {
       electionFamousNames2021Fixtures.pollbookStreetNames.asText()
     );
     workspace.store.setElectionAndVoters(
-      electionFamousNames2021Fixtures.electionJson.readElection(),
+      electionFamousNames2021Fixtures.readElectionDefinition(),
+      'fake-package-hash',
       testStreets,
       []
     );
@@ -215,7 +217,8 @@ test('register a voter - invalid address', async () => {
       electionFamousNames2021Fixtures.pollbookStreetNames.asText()
     );
     workspace.store.setElectionAndVoters(
-      electionFamousNames2021Fixtures.electionJson.readElection(),
+      electionFamousNames2021Fixtures.readElectionDefinition(),
+      'fake-package-hash',
       testStreets,
       []
     );
@@ -258,7 +261,8 @@ test('change a voter name', async () => {
       electionFamousNames2021Fixtures.pollbookStreetNames.asText()
     );
     workspace.store.setElectionAndVoters(
-      electionFamousNames2021Fixtures.electionJson.readElection(),
+      electionFamousNames2021Fixtures.readElectionDefinition(),
+      'fake-package-hash',
       testStreets,
       testVoters
     );
@@ -333,7 +337,8 @@ test('undo a voter check-in', async () => {
       electionFamousNames2021Fixtures.pollbookStreetNames.asText()
     );
     workspace.store.setElectionAndVoters(
-      electionFamousNames2021Fixtures.electionJson.readElection(),
+      electionFamousNames2021Fixtures.readElectionDefinition(),
+      'fake-package-hash',
       testStreets,
       testVoters
     );
@@ -385,7 +390,8 @@ test('register a voter, change name and address, and check in', async () => {
         electionFamousNames2021Fixtures.pollbookStreetNames.asText()
       );
       workspace.store.setElectionAndVoters(
-        electionFamousNames2021Fixtures.electionJson.readElection(),
+        electionFamousNames2021Fixtures.readElectionDefinition(),
+        'fake-package-hash',
         testStreets,
         []
       );
@@ -554,7 +560,8 @@ test('check in, change name, undo check-in, change address, and check in again',
       electionFamousNames2021Fixtures.pollbookStreetNames.asText()
     );
     workspace.store.setElectionAndVoters(
-      electionFamousNames2021Fixtures.electionJson.readElection(),
+      electionFamousNames2021Fixtures.readElectionDefinition(),
+      'fake-package-hash',
       testStreets,
       testVoters
     );
@@ -659,7 +666,8 @@ test('change a voter address with various formats', async () => {
       electionFamousNames2021Fixtures.pollbookStreetNames.asText()
     );
     workspace.store.setElectionAndVoters(
-      electionFamousNames2021Fixtures.electionJson.readElection(),
+      electionFamousNames2021Fixtures.readElectionDefinition(),
+      'fake-package-hash',
       testStreets,
       testVoters
     );
@@ -722,7 +730,12 @@ test('change a voter address with various formats', async () => {
 
 test('programCard and unprogramCard', async () => {
   await withApp(async ({ localApiClient, auth: authApi, workspace }) => {
-    workspace.store.setElectionAndVoters(electionDefinition.election, [], []);
+    workspace.store.setElectionAndVoters(
+      electionDefinition,
+      'fake-package-hash',
+      [],
+      []
+    );
 
     const auth: DippedSmartCardAuthMachineState = {
       ...DEFAULT_SYSTEM_SETTINGS['auth'],
