@@ -8,9 +8,15 @@ import {
 import { Screen } from '../components/layout';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 
-export function ScanBusyScreen(): JSX.Element {
+export interface ScanBusyScreenProps {
+  isTestMode: boolean;
+}
+
+export function ScanBusyScreen({
+  isTestMode,
+}: ScanBusyScreenProps): JSX.Element {
   return (
-    <Screen centerContent voterFacing>
+    <Screen centerContent voterFacing showTestModeBanner={isTestMode}>
       <FullScreenPromptLayout
         title={appStrings.titleRemoveYourBallot()}
         image={
@@ -28,5 +34,5 @@ export function ScanBusyScreen(): JSX.Element {
 
 /* istanbul ignore next - @preserve */
 export function DefaultPreview(): JSX.Element {
-  return <ScanBusyScreen />;
+  return <ScanBusyScreen isTestMode={false} />;
 }

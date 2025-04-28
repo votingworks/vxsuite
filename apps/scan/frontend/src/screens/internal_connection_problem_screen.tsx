@@ -37,7 +37,11 @@ export function InternalConnectionProblemScreen({
     printerStatus.scheme === 'hardware-v4' && printerStatus.state === 'error'
   );
   return (
-    <ScreenMainCenterChild ballotCountOverride={scannedBallotCount} voterFacing>
+    <ScreenMainCenterChild
+      ballotCountOverride={scannedBallotCount}
+      voterFacing
+      showTestModeBanner={false}
+    >
       <CenteredText>
         <H1>{appStrings.titleInternalConnectionProblem()}</H1>
         {!isScannerConnected && <P>{appStrings.noteScannerDisconnected()}</P>}

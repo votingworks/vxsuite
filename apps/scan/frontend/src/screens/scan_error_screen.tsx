@@ -73,7 +73,7 @@ export function ScanErrorScreen({
   return (
     <Screen
       centerContent
-      isLiveMode={!isTestMode}
+      showTestModeBanner={isTestMode}
       ballotCountOverride={scannedBallotCount}
       voterFacing
     >

@@ -85,6 +85,11 @@ export function VoterScreen({
       scannerStatus.state !== 'calibrating_double_feed_detection.done'
   );
 
+  const sharedScreenProps = {
+    isTestMode,
+    scannedBallotCount: scannerStatus.ballotsCounted,
+  } as const;
+
   switch (scannerStatus.state) {
     // This state should pass quickly, so we don't show a message
     case 'connecting':
@@ -97,21 +102,14 @@ export function VoterScreen({
     case 'scanner_diagnostic.running':
     case 'scanner_diagnostic.done':
     case 'no_paper':
-      return (
-        <InsertBallotScreen
-          isLiveMode={!isTestMode}
-          scannedBallotCount={scannerStatus.ballotsCounted}
-        />
-      );
+      return <InsertBallotScreen {...sharedScreenProps} />;
     case 'hardware_ready_to_scan':
     case 'scanning':
     case 'accepting':
     case 'returning_to_rescan':
-      return <ScanProcessingScreen />;
+      return <ScanProcessingScreen {...sharedScreenProps} />;
     case 'accepted':
-      return (
-        <ScanSuccessScreen scannedBallotCount={scannerStatus.ballotsCounted} />
-      );
+      return <ScanSuccessScreen {...sharedScreenProps} />;
     case 'needs_review':
     case 'accepting_after_review':
       assert(scannerStatus.interpretation?.type === 'NeedsReviewSheet');
@@ -120,11 +118,12 @@ export function VoterScreen({
           electionDefinition={electionDefinition}
           systemSettings={systemSettings}
           adjudicationReasonInfo={scannerStatus.interpretation.reasons}
+          {...sharedScreenProps}
         />
       );
     case 'returning':
     case 'returned':
-      return <ScanReturnedBallotScreen />;
+      return <ScanReturnedBallotScreen {...sharedScreenProps} />;
     case 'rejecting':
     case 'rejected':
       return (
@@ -134,34 +133,25 @@ export function VoterScreen({
               ? scannerStatus.interpretation.reason
               : scannerStatus.error
           }
-          isTestMode={isTestMode}
-          scannedBallotCount={scannerStatus.ballotsCounted}
+          {...sharedScreenProps}
         />
       );
     case 'jammed':
       return (
-        <ScanJamScreen
-          error={scannerStatus.error}
-          scannedBallotCount={scannerStatus.ballotsCounted}
-        />
+        <ScanJamScreen error={scannerStatus.error} {...sharedScreenProps} />
       );
     case 'double_sheet_jammed':
-      return (
-        <ScanDoubleSheetScreen
-          scannedBallotCount={scannerStatus.ballotsCounted}
-        />
-      );
+      return <ScanDoubleSheetScreen {...sharedScreenProps} />;
     case 'both_sides_have_paper':
-      return <ScanBusyScreen />;
+      return <ScanBusyScreen {...sharedScreenProps} />;
     case 'recovering_from_error':
-      return <ScanProcessingScreen />;
+      return <ScanProcessingScreen {...sharedScreenProps} />;
     case 'unrecoverable_error':
       return (
         <ScanErrorScreen
           error={scannerStatus.error}
-          isTestMode={isTestMode}
-          scannedBallotCount={scannerStatus.ballotsCounted}
           restartRequired
+          {...sharedScreenProps}
         />
       );
     /* istanbul ignore next - compile time check for completeness @preserve */

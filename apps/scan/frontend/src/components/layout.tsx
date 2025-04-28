@@ -30,11 +30,11 @@ export interface ScreenProps {
   hideBallotCount?: boolean;
   centerContent?: boolean;
   children: React.ReactNode;
-  isLiveMode?: boolean;
   infoBarMode?: InfoBarMode;
   hideInfoBar?: boolean;
   padded?: boolean;
   title?: React.ReactNode;
+  showTestModeBanner: boolean;
   voterFacing: boolean;
 }
 
@@ -106,7 +106,7 @@ export function Screen(props: ScreenProps): JSX.Element | null {
     centerContent,
     infoBarMode,
     hideInfoBar: hideInfoBarFromProps,
-    isLiveMode = true,
+    showTestModeBanner,
     padded,
     title,
     voterFacing,
@@ -155,7 +155,7 @@ export function Screen(props: ScreenProps): JSX.Element | null {
 
   return (
     <ScreenBase>
-      {!isLiveMode && <TestMode />}
+      {showTestModeBanner && <TestMode />}
       {voterFacing && (
         <VoterHeader>
           <LanguageSettingsButton

@@ -3,20 +3,20 @@ import { Screen } from '../components/layout';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 
 interface Props {
-  isLiveMode: boolean;
   scannedBallotCount: number;
+  isTestMode: boolean;
 }
 
 export function InsertBallotScreen({
-  isLiveMode,
   scannedBallotCount,
+  isTestMode,
 }: Props): JSX.Element {
   return (
     <Screen
       centerContent
-      isLiveMode={isLiveMode}
       ballotCountOverride={scannedBallotCount}
       voterFacing
+      showTestModeBanner={isTestMode}
     >
       <FullScreenPromptLayout
         title={appStrings.titleScannerInsertBallotScreen()}
@@ -30,10 +30,10 @@ export function InsertBallotScreen({
 
 /* istanbul ignore next - @preserve */
 export function ZeroBallotsScannedPreview(): JSX.Element {
-  return <InsertBallotScreen scannedBallotCount={0} isLiveMode />;
+  return <InsertBallotScreen scannedBallotCount={0} isTestMode={false} />;
 }
 
 /* istanbul ignore next - @preserve */
 export function ManyBallotsScannedPreview(): JSX.Element {
-  return <InsertBallotScreen scannedBallotCount={1234} isLiveMode />;
+  return <InsertBallotScreen scannedBallotCount={1234} isTestMode={false} />;
 }

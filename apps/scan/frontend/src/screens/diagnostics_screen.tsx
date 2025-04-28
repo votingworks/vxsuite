@@ -58,7 +58,12 @@ export function DiagnosticsScreen({
     !mostRecentScannerDiagnosticQuery.isSuccess
   ) {
     return (
-      <Screen title="Diagnostics" voterFacing={false} padded>
+      <Screen
+        title="Diagnostics"
+        voterFacing={false}
+        showTestModeBanner={false}
+        padded
+      >
         <Loading />
       </Screen>
     );
@@ -91,6 +96,7 @@ export function DiagnosticsScreen({
     <Screen
       title="Diagnostics"
       voterFacing={false}
+      showTestModeBanner={false}
       padded
       hideBallotCount
       hideInfoBar

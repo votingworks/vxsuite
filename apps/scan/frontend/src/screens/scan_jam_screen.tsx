@@ -12,15 +12,22 @@ import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout'
 interface Props {
   error?: PrecinctScannerErrorType;
   scannedBallotCount: number;
+  isTestMode: boolean;
 }
 
 export function ScanJamScreen({
   error,
   scannedBallotCount,
+  isTestMode,
 }: Props): JSX.Element {
   const isOutfeedBlocked = error === 'outfeed_blocked';
   return (
-    <Screen centerContent ballotCountOverride={scannedBallotCount} voterFacing>
+    <Screen
+      centerContent
+      ballotCountOverride={scannedBallotCount}
+      voterFacing
+      showTestModeBanner={isTestMode}
+    >
       <FullScreenPromptLayout
         title={
           isOutfeedBlocked
@@ -42,5 +49,5 @@ export function ScanJamScreen({
 
 /* istanbul ignore next - @preserve */
 export function DefaultPreview(): JSX.Element {
-  return <ScanJamScreen scannedBallotCount={42} />;
+  return <ScanJamScreen scannedBallotCount={42} isTestMode={false} />;
 }

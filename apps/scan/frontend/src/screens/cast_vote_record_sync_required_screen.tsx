@@ -29,7 +29,7 @@ interface Props {
 
 export function CastVoteRecordSyncRequiredVoterScreen(): JSX.Element {
   return (
-    <ScreenMainCenterChild voterFacing={false}>
+    <ScreenMainCenterChild voterFacing={false} showTestModeBanner={false}>
       <FullScreenPromptLayout
         title={appStrings.titleScannerCvrSyncRequired()}
         image={
@@ -117,7 +117,7 @@ export function CastVoteRecordSyncRequiredScreen({
   }
 
   return (
-    <ScreenMainCenterChild voterFacing={false}>
+    <ScreenMainCenterChild voterFacing={false} showTestModeBanner={false}>
       <FullScreenPromptLayout
         title="CVR Sync Required"
         image={
