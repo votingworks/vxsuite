@@ -1,6 +1,6 @@
 /* eslint-disable prefer-regex-literals */
 
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi, afterEach } from 'vitest';
 import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import { LogEventId, MockLogger, mockLogger } from '@votingworks/logging';
 import { SystemCallApiMethods, createSystemCallApi } from './api';
@@ -22,6 +22,8 @@ vi.mock(
 
 vi.mock(import('./get_audio_info.js'));
 
+const actualTimezone = process.env.TZ;
+
 let mockUsbDrive: MockUsbDrive;
 let logger: MockLogger;
 let api: SystemCallApiMethods;
@@ -37,6 +39,14 @@ beforeEach(() => {
     machineId: 'TEST-MACHINE-ID',
     codeVersion: 'TEST-CODE-VERSION',
   });
+});
+
+// setClock changes the process's TZ variable so it must be reset
+afterEach(() => {
+  process.env = {
+    ...process.env,
+    TZ: actualTimezone,
+  };
 });
 
 test('exportLogsToUsb', async () => {

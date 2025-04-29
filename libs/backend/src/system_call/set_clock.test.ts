@@ -1,6 +1,6 @@
 /* eslint-disable prefer-regex-literals */
 
-import { beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { setClock } from './set_clock';
 import { execFile } from '../exec';
 
@@ -14,8 +14,18 @@ vi.mock(
 
 const execMock = vi.mocked(execFile);
 
+const actualTimezone = process.env.TZ;
+
 beforeEach(() => {
   execMock.mockClear();
+});
+
+// set_clock changes the process's TZ variable so it must be reset
+afterEach(() => {
+  process.env = {
+    ...process.env,
+    TZ: actualTimezone,
+  };
 });
 
 test('setClock works in daylights savings', async () => {
@@ -46,6 +56,21 @@ test('setClock works in non-daylights savings', async () => {
     'America/Chicago',
     '2020-11-03 09:00:00',
   ]);
+});
+
+test('setClock sets the process timezone', async () => {
+  process.env = {
+    ...process.env,
+    TZ: 'America/Anchorage',
+  };
+  expect(process.env.TZ).toEqual('America/Anchorage');
+
+  await setClock({
+    isoDatetime: '2020-11-03T15:00Z',
+    ianaZone: 'America/Chicago',
+  });
+
+  expect(process.env.TZ).toEqual('America/Chicago');
 });
 
 test('setClock bubbles up errors', async () => {

@@ -26,6 +26,7 @@ export async function setClock({
       ianaZone,
       datetimeString,
     ]);
+    process.env.TZ = ianaZone;
   } catch (err) {
     const error = err as Error;
     if ('stderr' in error) {
