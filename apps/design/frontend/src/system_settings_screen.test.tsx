@@ -490,3 +490,36 @@ test('cancelling', async () => {
     })
   ).not.toBeChecked();
 });
+
+test('all controls are disabled until clicking "Edit"', async () => {
+  mockUserFeatures(apiMock, user, { MARGINAL_MARK_THRESHOLD: true });
+  const { systemSettings } = electionRecord;
+  apiMock.getUser.expectCallWith().resolves(user);
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves(systemSettings);
+  renderScreen();
+
+  await screen.findByRole('heading', { name: 'System Settings' });
+
+  const allTextBoxes = document.body.querySelectorAll('input');
+
+  for (const textbox of allTextBoxes) {
+    expect(textbox.type).toMatch(/^text|number$/);
+  }
+
+  const allCheckboxes = document.body.querySelectorAll('[role=checkbox]');
+  const allControls = [...allTextBoxes, ...allCheckboxes];
+
+  expect(allControls).toHaveLength(24);
+
+  for (const control of allControls) {
+    expect(control).toBeDisabled();
+  }
+
+  userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+
+  for (const control of allControls) {
+    expect(control).not.toBeDisabled();
+  }
+});
