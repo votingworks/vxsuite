@@ -365,6 +365,7 @@ export function SystemSettingsForm({
                       isMulti={false}
                       isSearchable={false}
                       value={systemSettings.auth.inactiveSessionTimeLimitMinutes.toString()}
+                      disabled={!isEditing}
                       options={[
                         { value: '10', label: '10 minutes' },
                         { value: '15', label: '15 minutes' },
@@ -390,6 +391,7 @@ export function SystemSettingsForm({
                       isMulti={false}
                       isSearchable={false}
                       value={systemSettings.auth.numIncorrectPinAttemptsAllowedBeforeCardLockout.toString()}
+                      disabled={!isEditing}
                       options={[
                         { value: '3', label: '3' },
                         { value: '4', label: '4' },
@@ -418,6 +420,7 @@ export function SystemSettingsForm({
                       isMulti={false}
                       isSearchable={false}
                       value={systemSettings.auth.startingCardLockoutDurationSeconds.toString()}
+                      disabled={!isEditing}
                       options={[
                         { value: '15', label: '15 seconds' },
                         { value: '30', label: '30 seconds' },
@@ -444,6 +447,7 @@ export function SystemSettingsForm({
                       step={1}
                       min={1}
                       max={12}
+                      disabled={!isEditing}
                       onChange={(e) => {
                         setSystemSettings({
                           ...systemSettings,
