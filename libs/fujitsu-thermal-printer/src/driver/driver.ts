@@ -115,8 +115,11 @@ export class FujitsuThermalPrinterDriver
     const encodeResult = coder.encode(value);
     const data = encodeResult.unsafeUnwrap();
 
+    const arrayBuffer = new ArrayBuffer(data.byteLength);
+    const arrayBufferView = new Uint8Array(arrayBuffer);
+    data.copy(arrayBufferView);
     await this.lock.acquire();
-    const result = await this.webDevice.transferOut(ENDPOINT_OUT, data);
+    const result = await this.webDevice.transferOut(ENDPOINT_OUT, arrayBuffer);
     this.lock.release();
 
     debug(JSON.stringify(result));
