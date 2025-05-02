@@ -31,12 +31,12 @@
     "@votingworks/utils": "workspace:*",
     "buffer": "^6.0.3",
     "debug": "4.3.4",
-    "usb": "^2.6.0",
+    "usb": "2.15.0",
     "wait-for-expect": "^3.0.2"
   },
   "devDependencies": {
     "@types/debug": "4.1.8",
-    "@types/node": "20.16.0",
+    "@types/node": "20.17.31",
     "@types/w3c-web-usb": "^1.0.6",
     "@vitest/coverage-istanbul": "^2.1.8",
     "@votingworks/test-utils": "workspace:*",

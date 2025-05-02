@@ -41,7 +41,7 @@
   "devDependencies": {
     "@types/kiosk-browser": "workspace:*",
     "@types/luxon": "^3.0.0",
-    "@types/node": "20.16.0",
+    "@types/node": "20.17.31",
     "@types/react": "18.3.3",
     "@types/zip-stream": "workspace:*",
     "@vitest/coverage-istanbul": "^2.1.8",

@@ -30,7 +30,7 @@
     "tmp": "^0.2.1"
   },
   "devDependencies": {
-    "@types/node": "20.16.0",
+    "@types/node": "20.17.31",
     "@types/tmp": "0.2.4",
     "eslint-plugin-vx": "workspace:*",
     "lint-staged": "11.0.0",

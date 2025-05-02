@@ -42,7 +42,7 @@
     "@types/lodash.clonedeep": "^4.5.9",
     "@types/lodash.set": "^4.3.7",
     "@types/lodash.setwith": "^4.3.9",
-    "@types/node": "20.16.0",
+    "@types/node": "20.17.31",
     "@types/react": "18.3.3",
     "@vitest/coverage-istanbul": "^2.1.8",
     "@votingworks/cdf-schema-builder": "workspace:*",

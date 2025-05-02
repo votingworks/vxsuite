@@ -29,7 +29,7 @@
     "js-sha256": "^0.9.0"
   },
   "devDependencies": {
-    "@types/node": "20.16.0",
+    "@types/node": "20.17.31",
     "@types/text-encoding": "^0.0.35",
     "@vitest/coverage-istanbul": "^2.1.8",
     "@votingworks/fixtures": "workspace:*",
