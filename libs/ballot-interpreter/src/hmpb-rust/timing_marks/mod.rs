@@ -2,6 +2,7 @@ use std::cmp::Ordering;
 use std::time::Duration;
 use std::{iter::once, ops::Range};
 
+use ballot_encoder_rs::hmpb;
 use image::{imageops::rotate180, GrayImage};
 use imageproc::contours::{find_contours_with_threshold, BorderType, Contour};
 use itertools::Itertools;
@@ -18,7 +19,6 @@ use crate::{
     debug::{self, draw_timing_mark_debug_image_mut, ImageDebugWriter},
     image_utils::{expand_image, WHITE},
     interpret::{self, Error, Result},
-    qr_code_metadata::BallotPageQrCodeMetadata,
     timing_mark_metadata::BallotPageTimingMarkMetadata,
 };
 
@@ -282,7 +282,7 @@ impl Complete {
 #[serde(tag = "source", rename_all = "kebab-case")]
 pub enum BallotPageMetadata {
     TimingMarks(BallotPageTimingMarkMetadata),
-    QrCode(BallotPageQrCodeMetadata),
+    QrCode(hmpb::Metadata),
 }
 
 /// Represents a grid of timing marks and provides access to the expected

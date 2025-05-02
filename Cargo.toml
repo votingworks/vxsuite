@@ -5,11 +5,12 @@ members = [
     "apps/mark-scan/fai-100-controller",
     "apps/mark-scan/daemon-utils",
     "apps/mark-scan/pat-device-input",
+    "libs/ballot-encoder-rs",
     "libs/ballot-interpreter",
     "libs/logging",
     "libs/logging-utils",
     "libs/pdi-scanner",
-    "libs/types-rs", "libs/ballot-encoder-rs",
+    "libs/types-rs",
 ]
 
 [workspace.package]
@@ -19,6 +20,7 @@ license-file = "LICENSE"
 [workspace.dependencies]
 ab_glyph = "0.2.23"
 anyhow = "1.0.75"
+ballot-encoder-rs = { path = "libs/ballot-encoder-rs" }
 base64 = "0.22.0"
 bitter = "0.6.1"
 chrono = "0.4.31"

@@ -13,7 +13,6 @@ pub mod interpret;
 mod js;
 mod layout;
 mod qr_code;
-mod qr_code_metadata;
 mod scoring;
 mod timing_mark_metadata;
 mod timing_marks;

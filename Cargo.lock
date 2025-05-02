@@ -230,6 +230,7 @@ name = "ballot-interpreter"
 version = "0.1.0"
 dependencies = [
  "ab_glyph",
+ "ballot-encoder-rs",
  "base64",
  "bitter",
  "clap",
