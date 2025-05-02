@@ -39,6 +39,12 @@ let mockWebUsbDevice: MockWebUsbDevice;
 let paperHandlerWebDevice: WebUSBDevice;
 let paperHandlerDriver: PaperHandlerDriver;
 
+function arrayBufferOf(...numbers: number[]): ArrayBuffer {
+  const arrayBuffer = new ArrayBuffer(numbers.length);
+  Buffer.from(numbers).copy(new Uint8Array(arrayBuffer));
+  return arrayBuffer;
+}
+
 export async function setUpMocksAndDriver(): Promise<void> {
   // setUpMockWebUsbDevice creates a MockWebUsbDevice (A) that represents the paper handler.
   // getPaperHandlerWebDevice is the driver function that returns the underlying WebUSBDevice (B).
@@ -69,7 +75,7 @@ test('initializePrinter sends the correct message', async () => {
   expect(paperHandlerWebDevice.transferOut).toHaveBeenCalledTimes(1);
   expect(paperHandlerWebDevice.transferOut).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    Buffer.from([0x1b, 0x40])
+    arrayBufferOf(0x1b, 0x40)
   );
 });
 
@@ -136,15 +142,14 @@ test('getScannerStatus sends the correct message and can parse a response', asyn
 
   const result = await paperHandlerDriver.getScannerStatus();
   expect(transferOutSpy).toHaveBeenCalledTimes(1);
-  const inputAsBuffer = Buffer.from([
-    0x02,
-    RealTimeRequestIds.SCANNER_COMPLETE_STATUS_REQUEST_ID,
-    TOKEN,
-    NULL_CODE,
-  ]);
   expect(transferOutSpy).toHaveBeenCalledWith(
     REAL_TIME_ENDPOINT_OUT,
-    inputAsBuffer
+    arrayBufferOf(
+      0x02,
+      RealTimeRequestIds.SCANNER_COMPLETE_STATUS_REQUEST_ID,
+      TOKEN,
+      NULL_CODE
+    )
   );
 
   expect(result).toEqual(expectation);
@@ -206,15 +211,14 @@ test('getPrinterStatus sends the correct message and can parse a response', asyn
 
   const result = await paperHandlerDriver.getPrinterStatus();
   expect(transferOutSpy).toHaveBeenCalledTimes(1);
-  const inputAsBuffer = Buffer.from([
-    0x02,
-    RealTimeRequestIds.PRINTER_STATUS_REQUEST_ID,
-    TOKEN,
-    NULL_CODE,
-  ]);
   expect(transferOutSpy).toHaveBeenCalledWith(
     REAL_TIME_ENDPOINT_OUT,
-    inputAsBuffer
+    arrayBufferOf(
+      0x02,
+      RealTimeRequestIds.PRINTER_STATUS_REQUEST_ID,
+      TOKEN,
+      NULL_CODE
+    )
   );
 
   expect(result).toEqual(expectedStatus);
@@ -249,10 +253,9 @@ test.each(testsWithNoAdditionalResponseData)(
 
     await functionToTest.call(paperHandlerDriver);
     expect(transferOutSpy).toHaveBeenCalledTimes(1);
-    const inputAsBuffer = Buffer.from([0x02, requestId, TOKEN, NULL_CODE]);
     expect(transferOutSpy).toHaveBeenCalledWith(
       REAL_TIME_ENDPOINT_OUT,
-      inputAsBuffer
+      arrayBufferOf(0x02, requestId, TOKEN, NULL_CODE)
     );
   }
 );
@@ -310,7 +313,7 @@ test.each(scannerCommands)(
     await functionToTest.call(paperHandlerDriver);
     expect(transferOutSpy).toHaveBeenCalledWith(
       GENERIC_ENDPOINT_OUT,
-      Buffer.from(command)
+      arrayBufferOf(...command)
     );
   }
 );
@@ -359,7 +362,7 @@ async function expectScanConfigTransferOut(
   await testFn();
   expect(transferOutSpy).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    Buffer.from(expectation)
+    arrayBufferOf(...expectation)
   );
 }
 
@@ -439,11 +442,10 @@ test('print command', async () => {
   );
 
   const motionUnits = 0xff;
-  const expectation = [0x1b, 0x4a, motionUnits];
   await paperHandlerDriver.print(motionUnits);
   expect(transferOutSpy).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    Buffer.from(expectation)
+    arrayBufferOf(0x1b, 0x4a, motionUnits)
   );
 });
 
@@ -454,12 +456,10 @@ test('print command defaults to 0 motion units', async () => {
     Buffer.from([ReturnCodes.POSITIVE_ACKNOWLEDGEMENT])
   );
 
-  const expectation = [0x1b, 0x4a, 0];
-
   await paperHandlerDriver.print();
   expect(transferOutSpy).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    Buffer.from(expectation)
+    arrayBufferOf(0x1b, 0x4a, 0)
   );
 });
 
@@ -518,7 +518,7 @@ test.each(commandsWithMotionUnits)(
     functionToTest.call(paperHandlerDriver, motionUnits);
     expect(transferOutSpy).toHaveBeenCalledWith(
       GENERIC_ENDPOINT_OUT,
-      Buffer.from(transferOutExpectation)
+      arrayBufferOf(...transferOutExpectation)
     );
   }
 );
@@ -530,12 +530,10 @@ test('setPrintingDensity', async () => {
     Buffer.from([ReturnCodes.POSITIVE_ACKNOWLEDGEMENT])
   );
 
-  const expectation = [0x1d, 0x7c, 0x06];
-
   await paperHandlerDriver.setPrintingDensity('+25%');
   expect(transferOutSpy).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    Buffer.from(expectation)
+    arrayBufferOf(0x1d, 0x7c, 0x06)
   );
 });
 
@@ -546,12 +544,10 @@ test('setPrintingSpeed', async () => {
     Buffer.from([ReturnCodes.POSITIVE_ACKNOWLEDGEMENT])
   );
 
-  const expectation = [0x1d, 0xf0, 0x02];
-
   await paperHandlerDriver.setPrintingSpeed('fast');
   expect(transferOutSpy).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    Buffer.from(expectation)
+    arrayBufferOf(0x1d, 0xf0, 0x02)
   );
 });
 
@@ -564,12 +560,10 @@ test('setMotionUnits', async () => {
 
   const x = 0xab;
   const y = 0xcd;
-  const expectation = [0x1d, 0x50, x, y];
-
   await paperHandlerDriver.setMotionUnits(x, y);
   expect(transferOutSpy).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    Buffer.from(expectation)
+    arrayBufferOf(0x1d, 0x50, x, y)
   );
 });
 
@@ -581,17 +575,15 @@ test('setLineSpacing', async () => {
   );
 
   const n = 0xab;
-  const expectation = [0x1b, 0x33, n];
-
   await paperHandlerDriver.setLineSpacing(n);
   expect(transferOutSpy).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    Buffer.from(expectation)
+    arrayBufferOf(0x1b, 0x33, n)
   );
 });
 
 function getFillerData(byteLength: number): Uint8Array {
-  const data: Uint8Array = new Uint8Array(byteLength);
+  const data = new Uint8Array(byteLength);
   for (let i = 0; i < byteLength; i += 1) {
     data[i] = i % 256;
   }
@@ -628,7 +620,7 @@ test('scan with exactly 1 data block', async () => {
   await paperHandlerDriver.scan();
   expect(transferOutSpy).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    Buffer.from([0x1c, 0x53, 0x50, 0x53])
+    arrayBufferOf(0x1c, 0x53, 0x50, 0x53)
   );
 });
 
@@ -640,10 +632,9 @@ test('bufferChunk', async () => {
 
   const input: PaperHandlerBitmap = { data: dataBlock, width: 0x03ff };
   await paperHandlerDriver.bufferChunk(input);
-  const expectation = [0x1b, 0x2a, 33, 0xff, 3, ...dataBlock];
   expect(transferOutSpy).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,
-    Buffer.from(expectation)
+    arrayBufferOf(0x1b, 0x2a, 33, 0xff, 3, ...dataBlock)
   );
 });
 
@@ -665,7 +656,7 @@ describe('transferInGeneric', () => {
 
     await mockWebUsbDevice.mockAddTransferInData(
       GENERIC_ENDPOINT_IN,
-      Buffer.of(ReturnCodes.POSITIVE_ACKNOWLEDGEMENT)
+      Buffer.from([ReturnCodes.POSITIVE_ACKNOWLEDGEMENT])
     );
 
     const result = await paperHandlerDriver.transferInGeneric();
