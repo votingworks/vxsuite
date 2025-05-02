@@ -2,6 +2,7 @@
 
 use std::path::PathBuf;
 
+use ballot_encoder_rs::coding::BitDecode;
 use ballot_encoder_rs::hmpb;
 use image::GenericImage;
 use image::GrayImage;
@@ -459,14 +460,15 @@ pub fn ballot_card(
                             message: e.to_string(),
                         }
                     })?;
-                    let metadata = hmpb::decode_metadata_bits(&options.election, qr_code.bytes())
-                        .ok_or_else(|| Error::InvalidQrCodeMetadata {
-                        label: label.to_string(),
-                        message: format!(
-                            "Unable to decode QR code bytes: {bytes:?}",
-                            bytes = qr_code.bytes()
-                        ),
-                    })?;
+                    let metadata =
+                        hmpb::Metadata::decode_be_bytes(qr_code.bytes(), options.election.clone())
+                            .ok_or_else(|| Error::InvalidQrCodeMetadata {
+                                label: label.to_string(),
+                                message: format!(
+                                    "Unable to decode QR code bytes: {bytes:?}",
+                                    bytes = qr_code.bytes()
+                                ),
+                            })?;
                     Ok((metadata, qr_code.orientation()))
                 },
             );
@@ -540,14 +542,10 @@ pub fn ballot_card(
                     side_b: side_b_metadata.ballot_style_id,
                 });
             }
-            if side_a_metadata
-                .page_number
-                .abs_diff(side_b_metadata.page_number)
-                != 1
-            {
+            if side_a_metadata.page_number.opposite() != side_b_metadata.page_number {
                 return Err(Error::NonConsecutivePageNumbers {
-                    side_a: side_a_metadata.page_number,
-                    side_b: side_b_metadata.page_number,
+                    side_a: side_a_metadata.page_number.get(),
+                    side_b: side_b_metadata.page_number.get(),
                 });
             }
 
@@ -568,7 +566,7 @@ pub fn ballot_card(
 
             let ballot_style_id = side_a_metadata.ballot_style_id.clone();
 
-            if side_a_metadata.page_number % 2 == 1 {
+            if side_a_metadata.page_number.is_recto() {
                 (side_a, side_b, ballot_style_id)
             } else {
                 (side_b, side_a, ballot_style_id)
@@ -648,9 +646,7 @@ pub fn ballot_card(
     };
 
     let sheet_number = match &front_metadata {
-        BallotPageMetadata::QrCode(metadata) => {
-            (f32::from(metadata.page_number) / 2.0).ceil() as u32
-        }
+        BallotPageMetadata::QrCode(metadata) => metadata.page_number.sheet_number().get() as u32,
         BallotPageMetadata::TimingMarks(_) => 1,
     };
 

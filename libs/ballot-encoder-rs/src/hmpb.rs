@@ -1,7 +1,11 @@
-use bitter::{BigEndianReader, BitReader};
-use image::EncodableLayout;
+use bitter::BitReader;
 use serde::Serialize;
 use types_rs::election::{BallotStyleId, Election, PrecinctId};
+
+use crate::{
+    coding::{BitDecode, bit_size},
+    types::{BallotStyleIndex, PageNumber, PrecinctIndex},
+};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
 pub enum BallotType {
@@ -13,81 +17,84 @@ pub enum BallotType {
     Provisional,
 }
 
+impl BallotType {
+    const MAX: u32 = 2_u32.pow(4) - 1;
+    const BITS: u32 = bit_size(Self::MAX as u64);
+}
+
+impl BitDecode for BallotType {
+    type Context = ();
+
+    fn bit_decode<R: BitReader>(bits: &mut R, _context: Self::Context) -> Option<Self> {
+        Some(match bits.read_bits(Self::BITS)? {
+            0 => BallotType::Precinct,
+            1 => BallotType::Absentee,
+            2 => BallotType::Provisional,
+            _ => return None,
+        })
+    }
+}
+
 #[derive(Debug, Serialize, PartialEq, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Metadata {
-    pub ballot_hash: String, // Hex string, first 20 characters of the hash
+    pub ballot_hash: String, // Hex string, first BALLOT_HASH_LENGTH characters of the hash
     pub precinct_id: PrecinctId,
     pub ballot_style_id: BallotStyleId,
-    pub page_number: u8,
+    pub page_number: PageNumber,
     pub is_test_mode: bool,
     pub ballot_type: BallotType,
 }
 
-const BALLOT_HASH_LENGTH: u32 = 20;
-const HEX_BYTES_PER_CHAR: u32 = 2;
-const MAXIMUM_PRECINCTS: u32 = 4096;
-const MAXIMUM_BALLOT_STYLES: u32 = 4096;
-const MAXIMUM_PAGE_NUMBERS: u32 = 30;
-const BALLOT_TYPE_MAXIMUM_VALUE: u32 = 2_u32.pow(4) - 1;
-const HMPB_PRELUDE: &[u8] = b"VP\x02";
+impl BitDecode for Metadata {
+    type Context = Election;
 
-pub fn decode_metadata_bits(election: &Election, bytes: &[u8]) -> Option<Metadata> {
-    let mut bits = BigEndianReader::new(bytes);
+    fn bit_decode<R: BitReader>(bits: &mut R, context: Self::Context) -> Option<Self> {
+        let election = context;
+        let mut prelude = [0; 3];
+        bits.read_bytes(&mut prelude);
+        if &prelude != HMPB_PRELUDE {
+            return None;
+        }
 
-    let mut prelude = [0; 3];
-    bits.read_bytes(&mut prelude);
-    if prelude != HMPB_PRELUDE.as_bytes() {
-        return None;
+        let mut ballot_hash_bytes = [0; (BALLOT_HASH_LENGTH / HEX_BYTES_PER_CHAR) as usize];
+        bits.read_bytes(&mut ballot_hash_bytes);
+        let ballot_hash = hex::encode(ballot_hash_bytes);
+
+        let precinct_index = PrecinctIndex::bit_decode(bits, ())?;
+        let ballot_style_index = BallotStyleIndex::bit_decode(bits, ())?;
+        let page_number = PageNumber::bit_decode(bits, ())?;
+        let is_test_mode = bits.read_bit()?;
+        let ballot_type = BallotType::bit_decode(bits, ())?;
+
+        let precinct = election.precincts.get(precinct_index.get())?;
+        let ballot_style = election.ballot_styles.get(ballot_style_index.get())?;
+
+        Some(Metadata {
+            ballot_hash,
+            precinct_id: precinct.id.clone(),
+            ballot_style_id: ballot_style.id.clone(),
+            page_number,
+            is_test_mode,
+            ballot_type,
+        })
     }
-
-    let mut ballot_hash_bytes = [0; (BALLOT_HASH_LENGTH / HEX_BYTES_PER_CHAR) as usize];
-    bits.read_bytes(&mut ballot_hash_bytes);
-    let ballot_hash = hex::encode(ballot_hash_bytes);
-
-    let precinct_index = bits.read_bits(bit_size(MAXIMUM_PRECINCTS))?;
-    let ballot_style_index = bits.read_bits(bit_size(MAXIMUM_BALLOT_STYLES))?;
-    let page_number = bits.read_bits(bit_size(MAXIMUM_PAGE_NUMBERS))? as u8;
-    let is_test_mode = bits.read_bit()?;
-    let ballot_type: BallotType = match bits.read_bits(bit_size(BALLOT_TYPE_MAXIMUM_VALUE))? {
-        0 => BallotType::Precinct,
-        1 => BallotType::Absentee,
-        2 => BallotType::Provisional,
-        _ => return None,
-    };
-
-    let precinct = election.precincts.get(precinct_index as usize)?;
-    let ballot_style = election.ballot_styles.get(ballot_style_index as usize)?;
-
-    Some(Metadata {
-        ballot_hash,
-        precinct_id: precinct.id.clone(),
-        ballot_style_id: ballot_style.id.clone(),
-        page_number,
-        is_test_mode,
-        ballot_type,
-    })
 }
 
-pub fn infer_missing_page_metadata(detected_ballot_metadata: &Metadata) -> Metadata {
-    let inferred_page_number = match detected_ballot_metadata.page_number % 2 {
-        0 => detected_ballot_metadata.page_number - 1,
-        1 => detected_ballot_metadata.page_number + 1,
-        _ => unreachable!(),
-    };
+const BALLOT_HASH_LENGTH: u32 = 20;
+const HEX_BYTES_PER_CHAR: u32 = 2;
+const HMPB_PRELUDE: &[u8; 3] = b"VP\x02";
 
+#[must_use]
+pub fn infer_missing_page_metadata(detected_ballot_metadata: &Metadata) -> Metadata {
     Metadata {
         ballot_hash: detected_ballot_metadata.ballot_hash.clone(),
         ballot_style_id: detected_ballot_metadata.ballot_style_id.clone(),
         precinct_id: detected_ballot_metadata.precinct_id.clone(),
         ballot_type: detected_ballot_metadata.ballot_type,
         is_test_mode: detected_ballot_metadata.is_test_mode,
-        page_number: inferred_page_number,
+        page_number: detected_ballot_metadata.page_number.opposite(),
     }
-}
-
-const fn bit_size(n: u32) -> u32 {
-    if n == 0 { 1 } else { n.ilog2() + 1 }
 }
 
 #[cfg(test)]
@@ -101,6 +108,7 @@ mod test {
     };
 
     use super::*;
+    use crate::types::tests::arbitrary_page_number;
 
     #[test]
     fn test_decode_metadata_bits() {
@@ -124,12 +132,12 @@ mod test {
             86, 80, 2, 210, 122, 182, 88, 139, 24, 105, 84, 76, 222, 0, 0, 0, 2, 0,
         ];
         assert_eq!(
-            decode_metadata_bits(&election, &bytes),
+            Metadata::decode_be_bytes(&bytes, election),
             Some(Metadata {
                 ballot_hash: "d27ab6588b1869544cde".to_string(),
                 precinct_id: PrecinctId::from("town-id-01001-precinct-id-default".to_string()),
                 ballot_style_id: BallotStyleId::from("card-number-5".to_string()),
-                page_number: 1,
+                page_number: PageNumber::new_unchecked(1),
                 is_test_mode: false,
                 ballot_type: BallotType::Precinct,
             })
@@ -147,7 +155,7 @@ mod test {
     proptest! {
         #[test]
         fn test_infer_missing_page_metadata(
-            page_number in 1u8..100,
+            page_number in arbitrary_page_number(),
             ballot_hash in "[0-9a-f]{20}",
             precinct_id in "[0-9a-z-]{1,100}",
             ballot_style_id in "[0-9a-z-]{1,100}",
@@ -165,7 +173,7 @@ mod test {
 
             // The inferred page number should be one less or one more than the detected page number.
             let inferred_metadata = infer_missing_page_metadata(&detected_metadata);
-            assert_eq!(u8::abs_diff(inferred_metadata.page_number, detected_metadata.page_number), 1);
+            assert_eq!(u8::abs_diff(inferred_metadata.page_number.get(), detected_metadata.page_number.get()), 1);
 
             assert_eq!(inferred_metadata.ballot_hash, detected_metadata.ballot_hash);
             assert_eq!(inferred_metadata.precinct_id, detected_metadata.precinct_id);

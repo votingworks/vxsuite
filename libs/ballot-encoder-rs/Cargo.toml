@@ -9,6 +9,7 @@ bitter.workspace = true
 hex.workspace = true
 image.workspace = true
 serde.workspace = true
+static_assertions.workspace = true
 thiserror.workspace = true
 types-rs.workspace = true
 
