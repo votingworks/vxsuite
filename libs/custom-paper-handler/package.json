@@ -37,7 +37,7 @@
   "devDependencies": {
     "@types/debug": "4.1.8",
     "@types/node": "20.17.31",
-    "@types/w3c-web-usb": "^1.0.6",
+    "@types/w3c-web-usb": "1.0.8",
     "@vitest/coverage-istanbul": "^2.1.8",
     "@votingworks/test-utils": "workspace:*",
     "esbuild": "0.21.2",

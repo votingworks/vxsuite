@@ -3723,7 +3723,7 @@ importers:
         specifier: 20.17.31
         version: 20.17.31
       '@types/w3c-web-usb':
-        specifier: ^1.0.6
+        specifier: 1.0.8
         version: 1.0.8
       '@vitest/coverage-istanbul':
         specifier: ^2.1.8
@@ -3781,7 +3781,7 @@ importers:
         specifier: 20.17.31
         version: 20.17.31
       '@types/w3c-web-usb':
-        specifier: ^1.0.6
+        specifier: 1.0.8
         version: 1.0.8
       '@vitest/coverage-istanbul':
         specifier: ^2.1.8
