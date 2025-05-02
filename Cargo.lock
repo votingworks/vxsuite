@@ -212,6 +212,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "ballot-encoder-rs"
+version = "0.1.0"
+dependencies = [
+ "bitter",
+ "hex",
+ "image",
+ "proptest",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "types-rs",
+]
+
+[[package]]
 name = "ballot-interpreter"
 version = "0.1.0"
 dependencies = [

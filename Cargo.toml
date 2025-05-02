@@ -9,7 +9,7 @@ members = [
     "libs/logging",
     "libs/logging-utils",
     "libs/pdi-scanner",
-    "libs/types-rs",
+    "libs/types-rs", "libs/ballot-encoder-rs",
 ]
 
 [workspace.package]
