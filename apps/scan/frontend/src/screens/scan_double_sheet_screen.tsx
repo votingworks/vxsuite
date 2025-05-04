@@ -18,17 +18,14 @@ export function ScanDoubleSheetScreen({
   return (
     <Screen centerContent ballotCountOverride={scannedBallotCount} voterFacing>
       <FullScreenPromptLayout
-        title={appStrings.titleScannerBallotNotCounted()}
+        title={appStrings.titleScannerMultipleSheetsDetected()}
         image={
           <FullScreenIconWrapper>
             <Icons.Delete color="danger" />
           </FullScreenIconWrapper>
         }
       >
-        <P>{appStrings.warningScannerMultipleSheetsDetected()}</P>
-        <P>
-          <Caption>{appStrings.instructionsScannerRemoveDoubleSheet()}</Caption>
-        </P>
+        <P>{appStrings.instructionsScannerRemoveDoubleSheet()}</P>
         <P>
           <Caption>{appStrings.noteAskPollWorkerForHelp()}</Caption>
         </P>

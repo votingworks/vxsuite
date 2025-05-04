@@ -25,7 +25,7 @@ export function ScanJamScreen({
         title={
           isOutfeedBlocked
             ? appStrings.titleScannerOutfeedBlocked()
-            : appStrings.titleScannerBallotNotCounted()
+            : appStrings.titleBallotJammed()
         }
         image={
           <FullScreenIconWrapper>
@@ -33,7 +33,7 @@ export function ScanJamScreen({
           </FullScreenIconWrapper>
         }
       >
-        {!isOutfeedBlocked && <P>{appStrings.warningScannerJammed()}</P>}
+        {!isOutfeedBlocked && <P>{appStrings.warningBallotNotCounted()}</P>}
         <Caption>{appStrings.instructionsAskForHelp()}</Caption>
       </FullScreenPromptLayout>
     </Screen>
@@ -41,6 +41,11 @@ export function ScanJamScreen({
 }
 
 /* istanbul ignore next - @preserve */
-export function DefaultPreview(): JSX.Element {
+export function InternalJamPreview(): JSX.Element {
   return <ScanJamScreen scannedBallotCount={42} />;
+}
+
+/* istanbul ignore next - @preserve */
+export function OutfeedJamPreview(): JSX.Element {
+  return <ScanJamScreen scannedBallotCount={42} error="outfeed_blocked" />;
 }

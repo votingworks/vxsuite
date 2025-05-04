@@ -26,15 +26,54 @@ export function ScanErrorScreen({
   scannedBallotCount,
   restartRequired = false,
 }: Props): JSX.Element {
+  assert(
+    error !== 'double_feed_calibration_timed_out' && // Only used in double feed calibration
+      error !== 'scanner_diagnostic_failed' && // Only used in ScannerDiagnosticScreen
+      error !== 'outfeed_blocked' // Only used in ScanJamScreen
+  );
+
+  const title = (() => {
+    if (!error) return undefined;
+    switch (error) {
+      // interpretation errors
+      case 'vertical_streaks_detected':
+        return appStrings.titleScannerNeedsCleaning();
+      case 'unreadable':
+      case 'unknown':
+        return appStrings.titleScannerBallotUnreadable();
+      case 'invalid_test_mode':
+      case 'invalid_ballot_hash':
+      case 'invalid_precinct':
+        return appStrings.titleScannerBallotRejected();
+      // scanner errors
+      case 'double_feed_detected':
+        return appStrings.titleScannerMultipleSheetsDetected();
+      case 'both_sides_have_paper':
+      case 'scanning_failed':
+      case 'paper_in_front_after_reconnect':
+      case 'paper_in_back_after_reconnect':
+      case 'paper_in_back_after_accept':
+      case 'paper_in_both_sides_after_reconnect':
+      case 'paper_status_timed_out':
+      case 'scanning_timed_out':
+      case 'unexpected_paper_status':
+      case 'unexpected_event':
+      case 'client_error':
+        return appStrings.titleScannerError();
+      default:
+        throwIllegalValue(error);
+    }
+  })();
+
   const errorMessage = (() => {
     if (!error) return undefined;
-    assert(
-      error !== 'double_feed_calibration_timed_out' && // Only used in double feed calibration
-        error !== 'scanner_diagnostic_failed' && // Only used in ScannerDiagnosticScreen
-        error !== 'outfeed_blocked' // Only used in ScanJamScreen
-    );
     switch (error) {
-      // Invalid ballot interpretations
+      // interpretation errors
+      case 'vertical_streaks_detected':
+        return appStrings.warningScannerVerticalStreaksDetected();
+      case 'unreadable':
+      case 'unknown':
+        return appStrings.warningProblemScanningBallotScanAgain();
       case 'invalid_test_mode':
         return isTestMode
           ? appStrings.warningScannerOfficialBallotInTestMode()
@@ -43,12 +82,9 @@ export function ScanErrorScreen({
         return appStrings.warningScannerMismatchedElection();
       case 'invalid_precinct':
         return appStrings.warningScannerMismatchedPrecinct();
-      case 'vertical_streaks_detected':
-        return appStrings.warningScannerVerticalStreaksDetected();
-      case 'unreadable':
-      case 'unknown':
-        return appStrings.warningProblemScanningBallotScanAgain();
-      // Precinct scanner errors
+      // scanner errors
+      case 'double_feed_detected':
+        return appStrings.instructionsScannerRemoveDoubleSheet();
       case 'scanning_failed':
       case 'both_sides_have_paper':
       case 'paper_in_front_after_reconnect':
@@ -56,8 +92,6 @@ export function ScanErrorScreen({
       case 'paper_in_back_after_accept':
       case 'paper_in_both_sides_after_reconnect':
         return appStrings.instructionsScannerRemoveBallotToContinue();
-      case 'double_feed_detected':
-        return appStrings.instructionsScannerRemoveDoubleSheet();
       case 'paper_status_timed_out':
       case 'scanning_timed_out':
       case 'unexpected_paper_status':
@@ -70,6 +104,41 @@ export function ScanErrorScreen({
         throwIllegalValue(error);
     }
   })();
+
+  const requiresPollWorkerHelp = (() => {
+    if (!error) return undefined;
+    switch (error) {
+      // interpretation errors
+      case 'vertical_streaks_detected':
+        return true;
+      case 'unreadable':
+      case 'unknown':
+        return false;
+      case 'invalid_test_mode':
+      case 'invalid_ballot_hash':
+      case 'invalid_precinct':
+        return true;
+      // scanner errors
+      case 'double_feed_detected':
+        return false;
+      case 'scanning_failed':
+      case 'both_sides_have_paper':
+      case 'paper_in_front_after_reconnect':
+      case 'paper_in_back_after_reconnect':
+      case 'paper_in_back_after_accept':
+      case 'paper_in_both_sides_after_reconnect':
+        return false;
+      case 'paper_status_timed_out':
+      case 'scanning_timed_out':
+      case 'unexpected_paper_status':
+      case 'unexpected_event':
+      case 'client_error':
+        return true;
+      default:
+        throwIllegalValue(error);
+    }
+  })();
+
   return (
     <Screen
       centerContent
@@ -78,18 +147,22 @@ export function ScanErrorScreen({
       voterFacing
     >
       <FullScreenPromptLayout
-        title={appStrings.titleScannerBallotNotCounted()}
+        title={title}
         image={
           <FullScreenIconWrapper>
             <Icons.Delete color="danger" />
           </FullScreenIconWrapper>
         }
       >
-        <P>{errorMessage}</P>
+        {errorMessage && <P>{errorMessage}</P>}
         {restartRequired ? (
           <P>{appStrings.instructionsScannerAskForRestart()}</P>
         ) : (
-          <Caption>{appStrings.noteAskPollWorkerForHelp()}</Caption>
+          <Caption>
+            {requiresPollWorkerHelp
+              ? appStrings.instructionsAskForHelp()
+              : appStrings.noteAskPollWorkerForHelp()}
+          </Caption>
         )}
       </FullScreenPromptLayout>
     </Screen>
@@ -212,6 +285,29 @@ export function UnexpectedScannerErrorPreview(): JSX.Element {
     <ScanErrorScreen
       isTestMode={false}
       error="client_error"
+      scannedBallotCount={42}
+      restartRequired
+    />
+  );
+}
+
+/* istanbul ignore next - @preserve */
+export function VerticalStreaksDetectedErrorPreview(): JSX.Element {
+  return (
+    <ScanErrorScreen
+      isTestMode={false}
+      error="vertical_streaks_detected"
+      scannedBallotCount={42}
+    />
+  );
+}
+
+/* istanbul ignore next - @preserve */
+export function DoubleSheetErrorPreview(): JSX.Element {
+  return (
+    <ScanErrorScreen
+      isTestMode={false}
+      error="double_feed_detected"
       scannedBallotCount={42}
     />
   );

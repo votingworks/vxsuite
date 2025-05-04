@@ -601,7 +601,7 @@ export const appStrings = {
 
   instructionsScannerAskForRestart: () => (
     <UiString uiStringKey="instructionsScannerAskForRestart">
-      Ask a poll worker to restart the scanner.
+      The ballot has not been counted. Ask a poll worker to restart the scanner.
     </UiString>
   ),
 
@@ -613,7 +613,7 @@ export const appStrings = {
 
   instructionsScannerRemoveBallotToContinue: () => (
     <UiString uiStringKey="instructionsScannerRemoveBallotToContinue">
-      Remove ballot to continue.
+      The ballot has not been counted. Please remove the ballot to continue.
     </UiString>
   ),
 
@@ -1341,7 +1341,7 @@ export const appStrings = {
 
   titleScannerOutfeedBlocked: () => (
     <UiString uiStringKey="titleScannerOutfeedBlocked">
-      Ballot Box Opening is Blocked
+      Ballot Box Opening Blocked
     </UiString>
   ),
 
@@ -1380,6 +1380,42 @@ export const appStrings = {
   titleUnofficialTestBallot: () => (
     <UiString uiStringKey="titleUnofficialTestBallot">
       Unofficial Test Ballot
+    </UiString>
+  ),
+
+  titleScannerMultipleSheetsDetected: () => (
+    <UiString uiStringKey="titleScannerMultipleSheetsDetected">
+      Multiple Sheets Detected
+    </UiString>
+  ),
+
+  titleBallotJammed: () => (
+    <UiString uiStringKey="titleBallotJammed">
+      Ballot Jammed
+    </UiString>
+  ),
+
+  titleScannerBallotRejected: () => (
+    <UiString uiStringKey="titleScannerBallotRejected">
+      Ballot Rejected
+    </UiString>
+  ),
+
+  titleScannerNeedsCleaning: () => (
+    <UiString uiStringKey="titleScannerNeedsCleaning">
+      Scanner Needs Cleaning
+    </UiString>
+  ),
+
+  titleScannerBallotUnreadable: () => (
+    <UiString uiStringKey="titleScannerBallotUnreadable">
+      Ballot Unreadable
+    </UiString>
+  ),
+
+  titleScannerError: () => (
+    <UiString uiStringKey="titleScannerError">
+      Scanner Error
     </UiString>
   ),
 
@@ -1486,9 +1522,9 @@ export const appStrings = {
     </UiString>
   ),
 
-  warningScannerJammed: () => (
-    <UiString uiStringKey="warningScannerJammed">
-      The ballot is jammed in the scanner.
+  warningBallotNotCounted: () => (
+    <UiString uiStringKey="warningBallotNotCounted">
+      The ballot has not been counted.
     </UiString>
   ),
 
@@ -1516,15 +1552,9 @@ export const appStrings = {
     </UiString>
   ),
 
-  warningScannerMultipleSheetsDetected: () => (
-    <UiString uiStringKey="warningScannerMultipleSheetsDetected">
-      Multiple sheets detected.
-    </UiString>
-  ),
-
   warningScannerVerticalStreaksDetected: () => (
     <UiString uiStringKey="warningScannerVerticalStreaksDetected">
-      The scanner needs to be cleaned.
+      The ballot was not counted and must be scanned again after cleaning.
     </UiString>
   ),
 
