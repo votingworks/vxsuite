@@ -318,7 +318,7 @@ export interface PollbookPackage {
 export interface PollbookInformation {
   configuredElectionId?: string;
   configuredElectionBallotHash?: string;
-  configuredElectionPackageHash?: string;
+  configuredPollbookPackageHash?: string;
   configuredElectionName?: string;
 }
 
@@ -330,7 +330,7 @@ export const PollbookInformationSchema: z.ZodSchema<PollbookInformation> =
   z.object({
     configuredElectionId: z.string().optional(),
     configuredElectionBallotHash: z.string(),
-    configuredElectionPackageHash: z.string(),
+    configuredPollbookPackageHash: z.string(),
     configuredElectionName: z.string(),
   });
 

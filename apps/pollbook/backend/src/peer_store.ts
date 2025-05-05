@@ -197,8 +197,8 @@ export class PeerStore extends Store {
         configuredElectionId: pollbookService.configuredElectionId,
         configuredElectionBallotHash:
           pollbookService.configuredElectionBallotHash,
-        configuredElectionPackageHash:
-          pollbookService.configuredElectionPackageHash,
+        configuredPollbookPackageHash:
+          pollbookService.configuredPollbookPackageHash,
         configuredElectionName: pollbookService.configuredElectionName,
       })
     );

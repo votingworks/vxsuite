@@ -541,8 +541,8 @@ export class LocalStore extends Store {
         numCheckIns: this.getCheckInCount(row.machine_id),
         configuredElectionBallotHash:
           pollbookInfo?.configuredElectionBallotHash,
-        configuredElectionPackageHash:
-          pollbookInfo?.configuredElectionPackageHash,
+        configuredPollbookPackageHash:
+          pollbookInfo?.configuredPollbookPackageHash,
         configuredElectionId: pollbookInfo?.configuredElectionId,
         configuredElectionName: pollbookInfo?.configuredElectionName,
       };

@@ -373,7 +373,7 @@ export abstract class Store {
       configuredElectionId: election.id,
       configuredElectionName: election.title,
       configuredElectionBallotHash: row.ballot_hash,
-      configuredElectionPackageHash: row.package_hash,
+      configuredPollbookPackageHash: row.package_hash,
     };
   }
 
