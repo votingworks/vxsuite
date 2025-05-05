@@ -63,23 +63,27 @@ test('uses machine config from env', async () => {
 test('app config - unhappy paths polling usb', async () => {
   await withApp(async ({ localApiClient, mockUsbDrive, auth }) => {
     expect(await localApiClient.getElection()).toEqual(err('unconfigured'));
-    // Add an invalid pollbook package to the USB drive
+    // Load a usb drive with no pollbook package
     mockUsbDrive.insertUsbDrive({});
-    // Advance timers and wait for the interval to trigger
     vitest.advanceTimersByTime(100);
 
-    // Check that we are still unconfigured since the pollbook-package was invalid
+    // Check that we are still unconfigured as the usb will not be processed until authentication
     expect(await localApiClient.getElection()).toEqual(err('unconfigured'));
 
     mockElectionManagerAuth(auth);
     vitest.advanceTimersByTime(100);
-    expect(await localApiClient.getElection()).toEqual(err('not-found'));
+    // The usb should now be processed and return a not found error since there is no package
+    await vi.waitFor(async () => {
+      expect(await localApiClient.getElection()).toEqual(err('not-found'));
+    });
 
     mockUsbDrive.insertUsbDrive({
       'invalid-pollbook-package-path.zip': Buffer.from('invalid'),
     });
     vi.advanceTimersByTime(100);
-    expect(await localApiClient.getElection()).toEqual(err('not-found'));
+    await vi.waitFor(async () => {
+      expect(await localApiClient.getElection()).toEqual(err('not-found'));
+    });
 
     mockUsbDrive.removeUsbDrive();
     vi.advanceTimersByTime(100);
