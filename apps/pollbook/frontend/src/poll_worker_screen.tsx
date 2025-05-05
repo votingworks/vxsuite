@@ -35,6 +35,7 @@ import {
 } from './api';
 import { AddVoterScreen } from './add_voter_screen';
 import { AbsenteeModeCallout, VoterName } from './shared_components';
+import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './constants';
 
 type CheckInFlowState =
   | { step: 'search'; search: VoterSearchParams }
@@ -42,8 +43,6 @@ type CheckInFlowState =
   | { step: 'printing' }
   | { step: 'success'; voterId: string }
   | { step: 'error' };
-
-export const AUTOMATIC_FLOW_STATE_RESET_DELAY_MS = 3000;
 
 export function VoterCheckInSuccessScreen({
   voterId,
