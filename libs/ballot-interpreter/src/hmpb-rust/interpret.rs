@@ -651,7 +651,9 @@ pub fn ballot_card(
     };
 
     let sheet_number = match &front_metadata {
-        BallotPageMetadata::QrCode(metadata) => metadata.page_number.sheet_number().get() as u32,
+        BallotPageMetadata::QrCode(metadata) => {
+            u32::from(metadata.page_number.sheet_number().get())
+        }
         BallotPageMetadata::TimingMarks(_) => 1,
     };
 
