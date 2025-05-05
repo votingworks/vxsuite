@@ -160,11 +160,6 @@ test('address change', async () => {
       domElementText: 'Street Number',
       newValue: '99',
     },
-    // {
-    //   domElementText: 'Street Name',
-    //   domElementRole: 'combobox',
-    //   newValue: 'Main St',
-    // },
     {
       domElementText: 'Apartment or Unit Number',
       newValue: '#789',
