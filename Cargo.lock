@@ -216,7 +216,6 @@ name = "ballot-encoder-rs"
 version = "0.1.0"
 dependencies = [
  "bitstream-io 4.0.0",
- "bitter",
  "hex",
  "image",
  "proptest",
@@ -309,12 +308,6 @@ checksum = "4dc7691a79ba3cf60484e3fb6c53003b2a609921b6578aec7726a655939266d6"
 dependencies = [
  "core2",
 ]
-
-[[package]]
-name = "bitter"
-version = "0.6.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1e5958a5c88910651ad16ab92586bce672368e90e4f49ad0dd32518d13b0a73d"
 
 [[package]]
 name = "built"

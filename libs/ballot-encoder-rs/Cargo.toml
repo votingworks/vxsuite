@@ -6,7 +6,6 @@ license.workspace = true
 
 [dependencies]
 bitstream-io.workspace = true
-bitter.workspace = true
 hex.workspace = true
 image.workspace = true
 serde.workspace = true
