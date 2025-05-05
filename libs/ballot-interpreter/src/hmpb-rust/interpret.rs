@@ -1,7 +1,11 @@
 #![allow(clippy::similar_names)]
 
+use std::io::Cursor;
 use std::path::PathBuf;
 
+use bitstream_io::BigEndian;
+use bitstream_io::BitReader;
+use bitstream_io::FromBitStreamWith;
 use image::GenericImage;
 use image::GrayImage;
 use imageproc::contrast::otsu_level;
@@ -27,10 +31,8 @@ use crate::image_utils::maybe_resize_image_to_fit;
 use crate::image_utils::Inset;
 use crate::layout::build_interpreted_page_layout;
 use crate::layout::InterpretedContestLayout;
+use crate::metadata::hmpb;
 use crate::qr_code;
-use crate::qr_code_metadata::decode_metadata_bits;
-use crate::qr_code_metadata::infer_missing_page_metadata;
-use crate::qr_code_metadata::BallotPageQrCodeMetadataError;
 use crate::scoring::score_bubble_marks_from_grid_layout;
 use crate::scoring::score_write_in_areas;
 use crate::scoring::ScoredBubbleMarks;
@@ -98,11 +100,8 @@ pub enum Error {
         label: String,
         error: BallotPageTimingMarkMetadataError,
     },
-    #[error("invalid QR code metadata for {label}: {error:?}")]
-    InvalidQrCodeMetadata {
-        label: String,
-        error: BallotPageQrCodeMetadataError,
-    },
+    #[error("invalid QR code metadata for {label}: {message}")]
+    InvalidQrCodeMetadata { label: String, message: String },
     #[error("mismatched precincts: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}")]
     #[serde(rename_all = "camelCase")]
     MismatchedPrecincts {
@@ -460,17 +459,21 @@ pub fn ballot_card(
                 |(image, debug, label)| {
                     let qr_code = qr_code::detect(image, debug).map_err(|e| {
                         Error::InvalidQrCodeMetadata {
-                            label: label.to_string(),
-                            error: BallotPageQrCodeMetadataError::QrCodeError(e),
+                            label: label.to_owned(),
+                            message: e.to_string(),
                         }
                     })?;
-                    let metadata = decode_metadata_bits(&options.election, qr_code.bytes())
-                        .ok_or_else(|| Error::InvalidQrCodeMetadata {
-                            label: label.to_string(),
-                            error: BallotPageQrCodeMetadataError::InvalidMetadata {
-                                bytes: qr_code.bytes().clone(),
-                            },
-                        })?;
+                    let metadata = hmpb::Metadata::from_reader(
+                        &mut BitReader::endian(Cursor::new(qr_code.bytes()), BigEndian),
+                        &options.election,
+                    )
+                    .map_err(|e| Error::InvalidQrCodeMetadata {
+                        label: label.to_string(),
+                        message: format!(
+                            "Unable to decode QR code bytes: {e} (bytes={bytes:?})",
+                            bytes = qr_code.bytes()
+                        ),
+                    })?;
                     Ok((metadata, qr_code.orientation()))
                 },
             );
@@ -483,7 +486,7 @@ pub fn ballot_card(
                         Err(Error::InvalidQrCodeMetadata { .. }),
                         Ok((side_b_metadata, side_b_orientation)),
                     ) => {
-                        let side_a_metadata = infer_missing_page_metadata(&side_b_metadata);
+                        let side_a_metadata = hmpb::infer_missing_page_metadata(&side_b_metadata);
                         let side_a_orientation = side_b_orientation;
 
                         (
@@ -495,7 +498,7 @@ pub fn ballot_card(
                         Ok((side_a_metadata, side_a_orientation)),
                         Err(Error::InvalidQrCodeMetadata { .. }),
                     ) => {
-                        let side_b_metadata = infer_missing_page_metadata(&side_a_metadata);
+                        let side_b_metadata = hmpb::infer_missing_page_metadata(&side_a_metadata);
                         let side_b_orientation = side_a_orientation;
 
                         (
@@ -544,14 +547,10 @@ pub fn ballot_card(
                     side_b: side_b_metadata.ballot_style_id,
                 });
             }
-            if side_a_metadata
-                .page_number
-                .abs_diff(side_b_metadata.page_number)
-                != 1
-            {
+            if side_a_metadata.page_number.opposite() != side_b_metadata.page_number {
                 return Err(Error::NonConsecutivePageNumbers {
-                    side_a: side_a_metadata.page_number,
-                    side_b: side_b_metadata.page_number,
+                    side_a: side_a_metadata.page_number.get(),
+                    side_b: side_b_metadata.page_number.get(),
                 });
             }
 
@@ -572,7 +571,7 @@ pub fn ballot_card(
 
             let ballot_style_id = side_a_metadata.ballot_style_id.clone();
 
-            if side_a_metadata.page_number % 2 == 1 {
+            if side_a_metadata.page_number.is_front() {
                 (side_a, side_b, ballot_style_id)
             } else {
                 (side_b, side_a, ballot_style_id)
@@ -653,7 +652,7 @@ pub fn ballot_card(
 
     let sheet_number = match &front_metadata {
         BallotPageMetadata::QrCode(metadata) => {
-            (f32::from(metadata.page_number) / 2.0).ceil() as u32
+            u32::from(metadata.page_number.sheet_number().get())
         }
         BallotPageMetadata::TimingMarks(_) => 1,
     };

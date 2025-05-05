@@ -20,7 +20,6 @@ path = "src/rust/parse_traffic.rs"
 [dependencies]
 anyhow = { workspace = true }
 base64 = { workspace = true }
-bitter = { workspace = true }
 chrono = { workspace = true }
 clap = { workspace = true }
 color-eyre = { workspace = true }

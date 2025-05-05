@@ -12,13 +12,13 @@ use types_rs::geometry::{
 };
 use types_rs::{election::UnitIntervalValue, geometry::IntersectionBounds};
 
-use crate::scoring::UnitIntervalScore;
 use crate::{
     ballot_card::{BallotImage, Geometry, Orientation},
     debug::{self, draw_timing_mark_debug_image_mut, ImageDebugWriter},
     image_utils::{expand_image, WHITE},
     interpret::{self, Error, Result},
-    qr_code_metadata::BallotPageQrCodeMetadata,
+    metadata::hmpb,
+    scoring::UnitIntervalScore,
     timing_mark_metadata::BallotPageTimingMarkMetadata,
 };
 
@@ -282,7 +282,7 @@ impl Complete {
 #[serde(tag = "source", rename_all = "kebab-case")]
 pub enum BallotPageMetadata {
     TimingMarks(BallotPageTimingMarkMetadata),
-    QrCode(BallotPageQrCodeMetadata),
+    QrCode(hmpb::Metadata),
 }
 
 /// Represents a grid of timing marks and provides access to the expected

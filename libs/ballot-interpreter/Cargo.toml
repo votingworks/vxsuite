@@ -16,6 +16,7 @@ harness = false
 
 [dependencies]
 ab_glyph = { workspace = true }
+bitstream-io = { workspace = true }
 clap = { workspace = true }
 color-eyre = { workspace = true }
 image = { workspace = true }
@@ -28,10 +29,10 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 itertools = { workspace = true }
 rqrr = { workspace = true }
-bitter = { workspace = true }
 hex = { workspace = true }
 zbar-rust = { workspace = true }
 base64 = { workspace = true }
+static_assertions = { workspace = true }
 thiserror = { workspace = true }
 types-rs = { workspace = true }
 
