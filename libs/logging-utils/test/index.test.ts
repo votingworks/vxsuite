@@ -10,20 +10,26 @@ import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { EventLogging, safeParseJson } from '@votingworks/types';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import zlib from 'node:zlib';
 import { fileSync, setGracefulCleanup } from 'tmp';
 import { assert, expect, test, vi } from 'vitest';
 import { convertVxLogToCdf } from '..';
 
 setGracefulCleanup();
 
+type Format = 'compressed' | 'uncompressed';
+
 async function convertStringToCdf(
   logger: Logger,
   machineId: string,
   codeVersion: string,
-  input: string
+  input: string,
+  fmt: Format = 'uncompressed'
 ): Promise<string> {
+  const compressed = fmt === 'compressed';
   const inputPath = fileSync().name;
-  await writeFile(inputPath, input);
+  await writeFile(inputPath, compressed ? zlib.gzipSync(input) : input);
+
   const outputPath = fileSync().name;
   await new Promise<void>((resolve, reject) => {
     convertVxLogToCdf(
@@ -35,6 +41,7 @@ async function convertStringToCdf(
       codeVersion,
       inputPath,
       outputPath,
+      compressed,
       (error) => {
         if (error) {
           reject(error);
@@ -44,16 +51,22 @@ async function convertStringToCdf(
       }
     );
   });
-  return await readFile(outputPath, 'utf8');
+
+  if (!compressed) return await readFile(outputPath, 'utf8');
+
+  return zlib.gunzipSync(await readFile(outputPath)).toString();
 }
 
-test('builds device and election info properly', async () => {
+const testFormats = test.each<Format>(['compressed', 'uncompressed']);
+
+testFormats('builds device and election info properly [$0]', async (fmt) => {
   const logger = mockLogger({ source: LogSource.VxAdminFrontend, fn: vi.fn });
   const cdfLogContent = await convertStringToCdf(
     logger,
     '12machine34',
     'thisisacodeversion',
-    ''
+    '',
+    fmt
   );
   const cdfLog = safeParseJson(
     cdfLogContent,
@@ -72,7 +85,7 @@ test('builds device and election info properly', async () => {
   expect(cdfLogDevice.Event).toStrictEqual([]);
 });
 
-test('converts basic log as expected', async () => {
+testFormats('converts basic log as expected [$0]', async (fmt) => {
   const logger = mockLogger({
     source: LogSource.VxAdminFrontend,
     role: 'election_manager',
@@ -83,7 +96,8 @@ test('converts basic log as expected', async () => {
     logger,
     '12machine34',
     'thisisacodeversion',
-    '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","source":"vx-admin-frontend","eventId":"usb-drive-mount-init","eventType":"application-status","user":"system","message":"i know the deal","disposition":"na"}'
+    '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","source":"vx-admin-frontend","eventId":"usb-drive-mount-init","eventType":"application-status","user":"system","message":"i know the deal","disposition":"na"}',
+    fmt
   );
   const cdfLog = safeParseJson(
     cdfLogContent,
@@ -115,13 +129,14 @@ test('converts basic log as expected', async () => {
   );
 });
 
-test('log with unspecified disposition as expected', async () => {
+testFormats('with unspecified disposition [$0]', async (fmt) => {
   const logger = mockLogger({ source: LogSource.VxAdminFrontend, fn: vi.fn });
   const cdfLogContent = await convertStringToCdf(
     logger,
     '12machine34',
     'thisisacodeversion',
-    '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","source":"vx-admin-frontend","eventId":"usb-drive-mount-init","eventType":"application-status","user":"system","message":"i know the deal","disposition":""}'
+    '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","source":"vx-admin-frontend","eventId":"usb-drive-mount-init","eventType":"application-status","user":"system","message":"i know the deal","disposition":""}',
+    fmt
   );
   const cdfLog = safeParseJson(
     cdfLogContent,
@@ -136,13 +151,14 @@ test('log with unspecified disposition as expected', async () => {
   expect(decodedEvent.Disposition).toEqual('na');
 });
 
-test('converts log with custom disposition and extra details as expected', async () => {
+testFormats('with custom disposition and extra details  [$0]', async (fmt) => {
   const logger = mockLogger({ source: LogSource.VxAdminFrontend, fn: vi.fn });
   const cdfLogContent = await convertStringToCdf(
     logger,
     '12machine34',
     'thisisacodeversion',
-    '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","host":"ubuntu","timeLogInitiated":"1635982689382","source":"vx-admin-frontend","eventId":"usb-drive-eject-complete","eventType":"application-status","user":"system","message":"glistened as it fell","disposition":"dinosaurs","newStatus":"absent"}'
+    '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","host":"ubuntu","timeLogInitiated":"1635982689382","source":"vx-admin-frontend","eventId":"usb-drive-eject-complete","eventType":"application-status","user":"system","message":"glistened as it fell","disposition":"dinosaurs","newStatus":"absent"}',
+    fmt
   );
   const cdfLog = safeParseJson(
     cdfLogContent,
@@ -168,7 +184,7 @@ test('converts log with custom disposition and extra details as expected', async
   });
 });
 
-test('malformed logs are logged', async () => {
+testFormats('malformed logs are logged [$0]', async (fmt) => {
   const logger = mockLogger({
     source: LogSource.VxAdminFrontend,
     role: 'election_manager',
@@ -192,7 +208,8 @@ test('malformed logs are logged', async () => {
     logger,
     '12machine34',
     'thisisacodeversion',
-    `rawr\n${properLog}\n`
+    `rawr\n${properLog}\n`,
+    fmt
   );
   const cdfLog = safeParseJson(
     output,
@@ -213,7 +230,8 @@ test('malformed logs are logged', async () => {
     logger,
     '12machine34',
     'thisisacodeversion',
-    missingTimeLog
+    missingTimeLog,
+    fmt
   );
   const cdfLog2 = safeParseJson(
     output2,
@@ -230,7 +248,7 @@ test('malformed logs are logged', async () => {
   expect(cdfLog2.Device?.[0]!.Event).toStrictEqual([]);
 });
 
-test('read and interpret a real log file as expected', async () => {
+testFormats('with real log file [$0]', async (fmt) => {
   const logFile = await readFile(
     join(__dirname, 'fixtures/samplelog.log'),
     'utf8'
@@ -240,7 +258,8 @@ test('read and interpret a real log file as expected', async () => {
     logger,
     '1234',
     'codeversion',
-    logFile
+    logFile,
+    fmt
   );
   const cdfLog = safeParseJson(
     cdfLogContent,

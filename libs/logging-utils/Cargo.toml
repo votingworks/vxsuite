@@ -7,6 +7,7 @@ version = "0.0.0"
 crate-type = ["cdylib"]
 
 [dependencies]
+flate2.workspace = true
 napi.workspace = true
 napi-derive.workspace = true
 serde.workspace = true

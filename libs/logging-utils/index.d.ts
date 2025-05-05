@@ -18,5 +18,6 @@ machineId: string,
 codeVersion: string,
 inputPath: string,
 outputPath: string,
+compressed: boolean,
 callback: (error: Error | null) => void,
 ): void

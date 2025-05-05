@@ -257,6 +257,7 @@ test('exportLogsToUsb returns error when cdf conversion fails - plain file', asy
       _codeVersion,
       _inputPath,
       _outputPath,
+      _compressed,
       cb
     ) => cb(new Error('conversion failed'))
   );
@@ -343,12 +344,22 @@ test('exportLogsToUsb works for cdf format when all conditions are met', async (
   execFileMock.mockResolvedValue({ stdout: '', stderr: '' });
 
   vi.mocked(convertVxLogToCdf).mockImplementation(
-    (logWrapper, source, machineId, codeVersion, inputPath, outputPath, cb) => {
+    (
+      logWrapper,
+      source,
+      machineId,
+      codeVersion,
+      inputPath,
+      outputPath,
+      compressed,
+      cb
+    ) => {
       expect(source).toEqual(logger.getSource());
       expect(machineId).toEqual('TEST-MACHINE-ID');
       expect(codeVersion).toEqual('TEST-CODE-VERSION');
       expect(inputPath).toMatch(/vx-logs.log$/);
       expect(outputPath).toMatch(/vx-logs.cdf.log.json$/);
+      expect(compressed).toEqual(false);
 
       logWrapper(LogEventId.LogConversionToCdfComplete, 'unknown', 'success');
       cb(null);

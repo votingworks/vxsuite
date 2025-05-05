@@ -1,7 +1,6 @@
 #![deny(clippy::all)]
 
 use std::{
-    io::{BufReader, BufWriter},
     path::{Path, PathBuf},
     thread,
 };
@@ -17,6 +16,7 @@ use vx_logging::{Disposition, EventId, Source};
 mod cdf;
 mod convert;
 mod ser;
+mod stream;
 mod vx;
 
 #[macro_use]
@@ -35,8 +35,10 @@ extern crate napi_derive;
     codeVersion: string,
     inputPath: string,
     outputPath: string,
+    compressed: boolean,
     callback: (error: Error | null) => void,
 ")]
+#[allow(clippy::too_many_arguments)]
 pub fn convert_vx_log_to_cdf(
     log: JsFunction,
     source: String,
@@ -44,6 +46,7 @@ pub fn convert_vx_log_to_cdf(
     code_version: String,
     input_path: String,
     output_path: String,
+    compressed: bool,
     callback: JsFunction,
 ) -> Result<()> {
     let source: Source = serde_json::from_value(serde_json::Value::String(source.clone()))
@@ -83,6 +86,7 @@ pub fn convert_vx_log_to_cdf(
             code_version,
             &input_path,
             &output_path,
+            compressed,
             |event_id, message, disposition| {
                 log.call(
                     LogData {
@@ -111,6 +115,7 @@ pub fn convert_vx_log_to_cdf_impl(
     code_version: String,
     input_path: &Path,
     output_path: &Path,
+    compressed: bool,
     log: impl Fn(EventId, String, Disposition),
 ) -> Result<()> {
     let device_type = device_type_for_source(source);
@@ -123,7 +128,7 @@ pub fn convert_vx_log_to_cdf_impl(
             ),
         )
     })?;
-    let reader = BufReader::new(infile);
+    let reader = stream::Reader::new(infile, compressed);
     let log_reader = vx::LogReader::new(reader);
 
     let event_serializer = ser::iterator(log_reader.filter_map(|log_entry| {
@@ -177,7 +182,8 @@ pub fn convert_vx_log_to_cdf_impl(
             )
         })?;
 
-    serde_json::to_writer(BufWriter::new(outfile), &cdf_event_log).map_err(|e| {
+    let writer = stream::Writer::new(outfile, compressed);
+    serde_json::to_writer(writer, &cdf_event_log).map_err(|e| {
         Error::new(
             Status::Cancelled,
             format!(
