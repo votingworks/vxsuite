@@ -1,7 +1,7 @@
 import { beforeEach, expect, test, vi } from 'vitest';
-import { ok } from '@votingworks/basics';
+import { err, ok } from '@votingworks/basics';
 import { exec } from '../utils/exec';
-import { getConnectedDeviceUris } from './device_uri';
+import { getConnectedDeviceUris, LPINFO_ARGS } from './device_uri';
 
 vi.mock('../utils/exec');
 
@@ -53,9 +53,51 @@ test.each([
 
   expect(await getConnectedDeviceUris()).toEqual(expected);
 
-  expect(execMock).toHaveBeenCalledWith('lpinfo', [
-    '--include-schemes',
-    'usb',
-    '-v',
-  ]);
+  expect(execMock).toHaveBeenCalledWith('lpinfo', LPINFO_ARGS);
+});
+
+test('lpinfo retries on failure', async () => {
+  const retryCount = 4;
+  const retryDelay = 1;
+  // simulate a success on the final retry
+  for (let i = 0; i < retryCount; i += 1) {
+    execMock.mockResolvedValueOnce(
+      err({
+        stdout: '',
+        stderr: 'lpinfo: Success\n',
+        code: 1,
+        signal: null,
+        cmd: 'lpinfo --include-schemes usb -v',
+      })
+    );
+  }
+  execMock.mockResolvedValueOnce(
+    ok({
+      stdout: LPINFO_EXAMPLE_OUTPUT_NO_PRINTERS,
+      stderr: '',
+    })
+  );
+
+  expect(await getConnectedDeviceUris({ retryCount, retryDelay })).toEqual([]);
+  expect(execMock).toHaveBeenCalledTimes(retryCount + 1);
+
+  // simulate a failure on the final retry
+  execMock.mockClear();
+
+  for (let i = 0; i < retryCount + 1; i += 1) {
+    execMock.mockResolvedValueOnce(
+      err({
+        stdout: '',
+        stderr: 'lpinfo: Success\n',
+        code: 1,
+        signal: null,
+        cmd: 'lpinfo --include-schemes usb -v',
+      })
+    );
+  }
+
+  await expect(
+    getConnectedDeviceUris({ retryCount, retryDelay })
+  ).rejects.toThrow();
+  expect(execMock).toHaveBeenCalledTimes(retryCount + 1);
 });
