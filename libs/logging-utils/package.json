@@ -1,31 +1,9 @@
 {
   "name": "@votingworks/logging-utils",
   "version": "0.0.0",
+  "license": "GPL-3.0-only",
   "main": "index.js",
   "types": "index.d.ts",
-  "napi": {
-    "name": "logging-utils",
-    "triples": {
-      "defaults": false,
-      "additional": [
-        "aarch64-unknown-linux-gnu",
-        "x86_64-unknown-linux-gnu"
-      ]
-    }
-  },
-  "license": "GPL-3.0-only",
-  "devDependencies": {
-    "@napi-rs/cli": "^2.18.4",
-    "@types/tmp": "0.2.4",
-    "@vitest/coverage-istanbul": "^3.1.1",
-    "@votingworks/logging": "workspace:*",
-    "@votingworks/test-utils": "workspace:*",
-    "@votingworks/types": "workspace:*",
-    "is-ci-cli": "2.2.0",
-    "nodemon": "^3.1.7",
-    "tmp": "^0.2.1",
-    "vitest": "^3.1.1"
-  },
   "scripts": {
     "artifacts": "napi artifacts",
     "build": "is-ci build:ci build:dev",
@@ -36,11 +14,36 @@
     "build:debug": "napi build --platform",
     "prepublishOnly": "napi prepublish -t npm",
     "lint": "cargo clippy",
+    "pre-commit": "lint-staged",
     "test": "is-ci test:ci test:watch",
     "test:ci": "cargo test && vitest",
     "test:watch": "if which zellij; then zellij -l test/zellij-layout.kdl; else vitest; fi",
     "universal": "napi universal",
     "version": "napi version"
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "^2.18.4",
+    "@types/tmp": "0.2.4",
+    "@vitest/coverage-istanbul": "^3.1.1",
+    "@votingworks/logging": "workspace:*",
+    "@votingworks/test-utils": "workspace:*",
+    "@votingworks/types": "workspace:*",
+    "eslint-plugin-vx": "workspace:*",
+    "is-ci-cli": "2.2.0",
+    "lint-staged": "11.0.0",
+    "nodemon": "^3.1.7",
+    "tmp": "^0.2.1",
+    "vitest": "^3.1.1"
+  },
+  "napi": {
+    "name": "logging-utils",
+    "triples": {
+      "defaults": false,
+      "additional": [
+        "aarch64-unknown-linux-gnu",
+        "x86_64-unknown-linux-gnu"
+      ]
+    }
   },
   "packageManager": "pnpm@8.15.5"
 }
