@@ -34,6 +34,7 @@ interface TestContext {
   localApiClient: grout.Client<LocalApi>;
   peerApiClient: grout.Client<PeerApi>;
   app: Application;
+  peerApp: Application;
   localServer: Server;
   peerServer: Server;
 }
@@ -112,6 +113,7 @@ export async function withApp(
       localApiClient,
       peerApiClient,
       app,
+      peerApp,
       localServer,
       peerServer,
       peerWorkspace,
@@ -200,6 +202,7 @@ export async function withManyApps(
         localApiClient,
         peerApiClient,
         app,
+        peerApp,
         localServer,
         peerServer,
         peerWorkspace,
