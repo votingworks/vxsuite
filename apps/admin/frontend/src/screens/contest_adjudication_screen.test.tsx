@@ -255,7 +255,7 @@ describe('hmpb write-in adjudication', () => {
     expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
 
     // review dropdown options
-    expect(screen.queryByText(/add:/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/press enter to add:/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/invalid mark/i)).toBeInTheDocument();
     expect(screen.getAllByText(/elephant/i)).toHaveLength(2);
     expect(screen.getAllByText(/lion/i)).toHaveLength(2);
@@ -264,7 +264,7 @@ describe('hmpb write-in adjudication', () => {
 
     userEvent.type(writeInSearchSelect, 'e');
 
-    expect(screen.queryByText(/add: e/i)).toBeInTheDocument();
+    expect(screen.queryByText(/press enter to add: e/i)).toBeInTheDocument();
     expect(screen.queryByText(/invalid mark/i)).not.toBeInTheDocument();
     expect(screen.getAllByText(/elephant/i)).toHaveLength(2);
     expect(screen.getAllByText(/lion/i)).toHaveLength(1);
@@ -273,7 +273,7 @@ describe('hmpb write-in adjudication', () => {
     // case insensitive filter
     userEvent.type(writeInSearchSelect, 'OLIVER');
 
-    expect(screen.queryByText(/add:/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/press enter to add:/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/invalid mark/i)).not.toBeInTheDocument();
     expect(screen.getAllByText(/elephant/i)).toHaveLength(1);
     expect(screen.getAllByText(/oliver/i)).toHaveLength(2);
@@ -347,7 +347,7 @@ describe('hmpb write-in adjudication', () => {
     writeInSearchSelect = screen.getByRole('combobox');
     expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
 
-    expect(screen.queryByText(/add:/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/press enter to add:/i)).not.toBeInTheDocument();
     expect(screen.queryAllByText(/invalid mark/i)).toHaveLength(2);
     expect(screen.queryByText(/oliver/i)).toBeInTheDocument();
 
@@ -357,7 +357,7 @@ describe('hmpb write-in adjudication', () => {
     expect(screen.queryByText(/oliver/i)).not.toBeInTheDocument();
 
     // add new candidate
-    const addNewItem = getDropdownItemByLabel('Add: siena');
+    const addNewItem = getDropdownItemByLabel('Press enter to add: siena');
     userEvent.click(addNewItem!);
 
     // once that candidate is added, they should be included in the next dropdown search

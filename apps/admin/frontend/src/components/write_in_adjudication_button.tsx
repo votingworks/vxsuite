@@ -95,7 +95,7 @@ export function WriteInAdjudicationButton({
     options.unshift({ label: value, value });
   }
 
-  // 'Add: NEW_CANDIDATE' entry if there is no exact match
+  // 'Press enter to add: NEW_CANDIDATE' entry if there is no exact match
   if (
     inputValue &&
     inputValue.length < MAX_WRITE_IN_NAME_LENGTH &&
