@@ -15,7 +15,6 @@ import {
   BallotLanguageConfigs,
   DEFAULT_SYSTEM_SETTINGS,
   Election,
-  ElectionId,
   Id,
   LanguageCode,
 } from '@votingworks/types';
@@ -89,10 +88,7 @@ export function electionListing(
 }
 
 export function blankElectionRecord(orgId: Id): ElectionRecord {
-  return makeElectionRecord(
-    createBlankElection(generateId() as ElectionId),
-    orgId
-  );
+  return makeElectionRecord(createBlankElection(generateId()), orgId);
 }
 export function blankElectionInfo(orgId: Id): ElectionInfo {
   return electionInfoFromElection(blankElectionRecord(orgId).election);

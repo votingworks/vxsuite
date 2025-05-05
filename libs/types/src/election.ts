@@ -8,7 +8,6 @@ import {
   IdSchema,
   Iso8601Timestamp,
   Iso8601TimestampSchema,
-  NewType,
   DateWithoutTimeSchema,
 } from './generic';
 import {
@@ -41,7 +40,7 @@ function* findDuplicateIds<T extends { id: unknown }>(
   }
 }
 
-export type PartyId = NewType<string, 'PartyId'>;
+export type PartyId = string;
 export const PartyIdSchema = IdSchema as unknown as z.ZodSchema<PartyId>;
 export interface Party {
   readonly id: PartyId;
@@ -69,7 +68,7 @@ export const PartiesSchema: z.ZodSchema<Parties> = z
     }
   });
 
-export type DistrictId = NewType<string, 'DistrictId'>;
+export type DistrictId = string;
 export const DistrictIdSchema = IdSchema as unknown as z.ZodSchema<DistrictId>;
 export interface District {
   readonly id: DistrictId;
@@ -296,7 +295,7 @@ export const ContestsSchema = z
   });
 
 // Election
-export type ElectionId = NewType<string, 'ElectionId'>;
+export type ElectionId = string;
 export const ElectionIdSchema: z.ZodSchema<ElectionId> =
   IdSchema as unknown as z.ZodSchema<ElectionId>;
 
@@ -391,7 +390,7 @@ export const PrecinctsSchema = z
     }
   });
 
-export type BallotStyleId = NewType<string, 'BallotStyleId'>;
+export type BallotStyleId = string;
 export const BallotStyleIdSchema =
   IdSchema as unknown as z.ZodSchema<BallotStyleId>;
 
@@ -404,7 +403,7 @@ export interface BallotStyle {
   readonly languages?: readonly string[]; // TODO(kofi): Make required.
 }
 
-export type BallotStyleGroupId = NewType<string, 'BallotStyleGroupId'>;
+export type BallotStyleGroupId = string;
 export const BallotStyleGroupIdSchema =
   IdSchema as unknown as z.ZodSchema<BallotStyleGroupId>;
 export interface BallotStyleGroup {
@@ -874,7 +873,7 @@ export const AdjudicationReasonInfoSchema: z.ZodSchema<AdjudicationReasonInfo> =
     BlankBallotAdjudicationReasonInfoSchema,
   ]);
 
-export type BallotId = NewType<string, 'BallotId'>;
+export type BallotId = string;
 export const BallotIdSchema = z
   .string()
   .nonempty()

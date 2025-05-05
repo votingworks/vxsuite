@@ -1,5 +1,4 @@
 import { assert } from '@votingworks/basics';
-import { ElectionId } from '@votingworks/types';
 import { P, Button, Modal, ButtonVariant } from '@votingworks/ui';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
@@ -42,7 +41,7 @@ export function CreateElectionButton(
     assert(!!orgId);
 
     mutateCreateElection(
-      { id: generateId() as ElectionId, orgId },
+      { id: generateId(), orgId },
       {
         onSuccess(result) {
           if (result.isOk()) {

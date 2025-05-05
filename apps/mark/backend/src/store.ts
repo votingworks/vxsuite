@@ -17,7 +17,6 @@ import {
   PollsState,
   safeParse,
   PollsStateSchema,
-  ElectionId,
   ElectionKey,
   constructElectionKey,
 } from '@votingworks/types';
@@ -137,7 +136,7 @@ export class Store {
     }
 
     return {
-      id: result.id as ElectionId,
+      id: result.id,
       date: new DateWithoutTime(result.date),
     };
   }

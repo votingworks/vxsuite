@@ -4,7 +4,6 @@ import { Buffer } from 'node:buffer';
 import { createMemoryHistory } from 'history';
 import {
   District,
-  DistrictId,
   ElectionId,
   Precinct,
   PrecinctWithSplits,
@@ -70,7 +69,7 @@ describe('Districts tab', () => {
 
   test('adding a district', async () => {
     const newDistrict: District = {
-      id: idFactory.next() as DistrictId,
+      id: idFactory.next(),
       name: 'New District',
     };
 

@@ -5,11 +5,9 @@ import {
   BallotStyleGroupId,
   BallotStyleId,
   District,
-  DistrictId,
   Election,
   ElectionDefinition,
   Party,
-  PartyId,
   Precinct,
   getContests,
 } from '@votingworks/types';
@@ -53,7 +51,7 @@ function replaceBallotStyles(
 
   for (const spec of ballotStyleSpecs) {
     const districts = spec.districtNames.map<District>((name) => ({
-      id: `${spec.id} - district - ${name}` as DistrictId,
+      id: `${spec.id} - district - ${name}`,
       name,
     }));
     const precincts = spec.precinctNames.map<Precinct>((name) => ({
@@ -63,7 +61,7 @@ function replaceBallotStyles(
     }));
     const party: Party | undefined = spec.partyName
       ? {
-          id: `${spec.id} - party - ${name}` as PartyId,
+          id: `${spec.id} - party - ${name}`,
           name: spec.partyName.substring(0, 3),
           fullName: spec.partyName,
           abbrev: spec.partyName.substring(0, 2),

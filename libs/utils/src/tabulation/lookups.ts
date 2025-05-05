@@ -152,7 +152,7 @@ export function determinePartyId<T>(
   if (!group.ballotStyleGroupId) return undefined;
   const ballotStyleGroup = getBallotStyleGroup({
     election: electionDefinition.election,
-    ballotStyleGroupId: group.ballotStyleGroupId as BallotStyleGroupId,
+    ballotStyleGroupId: group.ballotStyleGroupId ,
   });
   return ballotStyleGroup?.partyId;
 }

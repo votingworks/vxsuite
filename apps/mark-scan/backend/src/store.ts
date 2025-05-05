@@ -26,7 +26,6 @@ import {
   PollsStateSchema,
   DiagnosticRecord,
   DiagnosticType,
-  ElectionId,
   ElectionKey,
   constructElectionKey,
 } from '@votingworks/types';
@@ -149,7 +148,7 @@ export class Store {
 
     return (
       result && {
-        id: result.id as ElectionId,
+        id: result.id,
         date: new DateWithoutTime(result.date),
       }
     );

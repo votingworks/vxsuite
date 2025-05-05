@@ -111,21 +111,21 @@ export function arbitraryId(): fc.Arbitrary<Id> {
  * Builds values suitable for ballot style IDs.
  */
 export function arbitraryBallotId(): fc.Arbitrary<BallotId> {
-  return arbitraryId() as fc.Arbitrary<BallotId>;
+  return arbitraryId();
 }
 
 /**
  * Builds values suitable for ballot style IDs.
  */
 export function arbitraryBallotStyleId(): fc.Arbitrary<BallotStyleId> {
-  return arbitraryId() as fc.Arbitrary<BallotStyleId>;
+  return arbitraryId();
 }
 
 /**
  * Builds values suitable for ballot style IDs.
  */
 export function arbitraryBallotStyleGroupId(): fc.Arbitrary<BallotStyleGroupId> {
-  return arbitraryId() as fc.Arbitrary<BallotStyleGroupId>;
+  return arbitraryId();
 }
 
 /**
@@ -153,21 +153,21 @@ export function arbitraryCountyId(): fc.Arbitrary<CountyId> {
  * Builds values suitable for district IDs.
  */
 export function arbitraryDistrictId(): fc.Arbitrary<DistrictId> {
-  return arbitraryId() as fc.Arbitrary<DistrictId>;
+  return arbitraryId();
 }
 
 /**
  * Builds values suitable for election IDs.
  */
 export function arbitraryElectionId(): fc.Arbitrary<ElectionId> {
-  return arbitraryId() as fc.Arbitrary<ElectionId>;
+  return arbitraryId();
 }
 
 /**
  * Builds values suitable for party IDs.
  */
 export function arbitraryPartyId(): fc.Arbitrary<PartyId> {
-  return arbitraryId() as fc.Arbitrary<PartyId>;
+  return arbitraryId();
 }
 
 /**

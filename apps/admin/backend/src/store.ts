@@ -39,7 +39,6 @@ import {
   BallotType,
   DiagnosticType,
   ElectionKey,
-  ElectionId,
   constructElectionKey,
   BallotStyleGroupId,
   BallotStyleGroup,
@@ -388,7 +387,7 @@ export class Store {
     }
 
     return {
-      id: result.id as ElectionId,
+      id: result.id,
       date: new DateWithoutTime(result.date),
     };
   }
@@ -1445,7 +1444,7 @@ export class Store {
           on
             cvrs.election_id = aggregated_adjudications.election_id and
             cvrs.id = aggregated_adjudications.cvr_id
-        where ${whereParts.join(' and ')} 
+        where ${whereParts.join(' and ')}
         ${cvrId ? `and cvrs.id = ?` : ''}
   `,
       ...(cvrId ? [...params, cvrId] : params)
@@ -1816,10 +1815,10 @@ export class Store {
       select
         contest_id as contestId,
         count(distinct cvr_id) as totalTally,
-        count(distinct case when 
-          (coalesce(official_candidate_id, 0) = 0 and 
-          coalesce(write_in_candidate_id, 0) = 0 and 
-          is_invalid = 0) 
+        count(distinct case when
+          (coalesce(official_candidate_id, 0) = 0 and
+          coalesce(write_in_candidate_id, 0) = 0 and
+          is_invalid = 0)
         then cvr_id end) as pendingTally
       from write_ins
       where write_ins.election_id = ?
@@ -2154,7 +2153,7 @@ export class Store {
       `
       select id
       from write_ins
-      where 
+      where
         cvr_id = ? and
         contest_id = ?
       `,

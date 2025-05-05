@@ -26,7 +26,6 @@ import {
   AdjudicationReason,
   DiagnosticRecord,
   DiagnosticType,
-  ElectionId,
   ElectionKey,
   constructElectionKey,
 } from '@votingworks/types';
@@ -244,7 +243,7 @@ export class Store {
     }
 
     return {
-      id: result.id as ElectionId,
+      id: result.id,
       date: new DateWithoutTime(result.date),
     };
   }
@@ -575,7 +574,7 @@ export class Store {
     // Adding or deleting sheets would have updated the CVR count
     const { maxSheetsCreatedAt, maxSheetsDeletedAt } = this.client.one(`
         select
-          max(created_at) as maxSheetsCreatedAt, 
+          max(created_at) as maxSheetsCreatedAt,
           max(deleted_at) as maxSheetsDeletedAt
         from sheets
       `) as {

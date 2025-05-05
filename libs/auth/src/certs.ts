@@ -5,7 +5,7 @@ import {
   DateWithoutTime,
   throwIllegalValue,
 } from '@votingworks/basics';
-import { ElectionId, ElectionKey } from '@votingworks/types';
+import { ElectionKey } from '@votingworks/types';
 
 import { arePollWorkerCardDetails, ProgrammedCardDetails } from './card';
 import { openssl } from './cryptography';
@@ -287,7 +287,7 @@ function createElectionKey(
 ): ElectionKey {
   const { electionId, electionDate } = certDetails;
   return {
-    id: electionId as ElectionId,
+    id: electionId,
     date: new DateWithoutTime(electionDate),
   };
 }

@@ -12,7 +12,6 @@ import {
   CastVoteRecordExportFileName,
   CandidateContest,
   BallotType,
-  BallotStyleId,
   BallotStyleGroupId,
   getGroupIdFromBallotStyleId,
   DEV_MACHINE_ID,
@@ -57,7 +56,7 @@ function castVoteRecordToTabulationCastVoteRecord(
 ): Tabulation.CastVoteRecord {
   return {
     ballotStyleGroupId: getGroupIdFromBallotStyleId({
-      ballotStyleId: castVoteRecord.BallotStyleId as BallotStyleId,
+      ballotStyleId: castVoteRecord.BallotStyleId,
       election: electionTwoPartyPrimaryFixtures.readElection(),
     }),
     batchId: castVoteRecord.BatchId,

@@ -25,8 +25,8 @@ export function generateBallotStyleGroupId(params: {
   party?: Party;
 }): BallotStyleGroupId {
   return params.party
-    ? (`${params.ballotStyleIndex}${GROUP_ID_PARTS_SEPARATOR}${params.party.abbrev}` as BallotStyleGroupId)
-    : (params.ballotStyleIndex.toString() as BallotStyleGroupId);
+    ? (`${params.ballotStyleIndex}${GROUP_ID_PARTS_SEPARATOR}${params.party.abbrev}` )
+    : (params.ballotStyleIndex.toString() );
 }
 
 /**
@@ -40,7 +40,7 @@ export function generateBallotStyleId(params: {
 }): BallotStyleId {
   return [generateBallotStyleGroupId(params), ...params.languages].join(
     ID_LANGUAGES_SEPARATOR
-  ) as BallotStyleId;
+  ) ;
 }
 
 function getBallotStyleGroupMap(

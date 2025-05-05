@@ -4,12 +4,7 @@ import {
   typedAs,
   unique,
 } from '@votingworks/basics';
-import {
-  Admin,
-  BallotStyleGroupId,
-  Election,
-  Tabulation,
-} from '@votingworks/types';
+import { Admin, Election, Tabulation } from '@votingworks/types';
 import { useState } from 'react';
 import styled from 'styled-components';
 import { SearchSelect, SelectOption, Button } from '@votingworks/ui';
@@ -172,7 +167,7 @@ function convertFilterRowsToTabulationFilter(
         filter.votingMethods = filterValues as Tabulation.VotingMethod[];
         break;
       case 'ballot-style':
-        filter.ballotStyleGroupIds = filterValues as BallotStyleGroupId[];
+        filter.ballotStyleGroupIds = filterValues;
         break;
       case 'party':
         filter.partyIds = filterValues;
