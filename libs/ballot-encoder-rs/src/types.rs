@@ -134,7 +134,7 @@ pub mod tests {
 
         #[test]
         fn test_invalid_page_number(value in PageNumber::MAX_VALUE + 1..=u8::MAX) {
-            assert_eq!(PageNumber::new(value), None)
+            assert_eq!(PageNumber::new(value), None);
         }
     }
 }
