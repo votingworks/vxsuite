@@ -2,7 +2,6 @@ use std::cmp::Ordering;
 use std::time::Duration;
 use std::{iter::once, ops::Range};
 
-use ballot_encoder_rs::hmpb;
 use image::{imageops::rotate180, GrayImage};
 use imageproc::contours::{find_contours_with_threshold, BorderType, Contour};
 use itertools::Itertools;
@@ -13,12 +12,13 @@ use types_rs::geometry::{
 };
 use types_rs::{election::UnitIntervalValue, geometry::IntersectionBounds};
 
-use crate::scoring::UnitIntervalScore;
 use crate::{
     ballot_card::{BallotImage, Geometry, Orientation},
     debug::{self, draw_timing_mark_debug_image_mut, ImageDebugWriter},
     image_utils::{expand_image, WHITE},
     interpret::{self, Error, Result},
+    metadata::hmpb,
+    scoring::UnitIntervalScore,
     timing_mark_metadata::BallotPageTimingMarkMetadata,
 };
 

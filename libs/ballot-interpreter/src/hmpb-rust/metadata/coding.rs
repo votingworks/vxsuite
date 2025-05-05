@@ -15,7 +15,7 @@ macro_rules! codable {
             const MAX_VALUE: $inner = *Self::RANGE.end();
             pub const MAX: Self = Self(*Self::RANGE.end());
 
-            pub const BITS: u32 = $crate::coding::bit_size(*Self::RANGE.end() as u64);
+            pub const BITS: u32 = $crate::metadata::coding::bit_size(*Self::RANGE.end() as u64);
 
             /// Makes a new `Self` validating that `value` is valid, returning
             /// `Some(Self)` if so and `None` if not.
@@ -40,7 +40,7 @@ macro_rules! codable {
         }
 
         impl ::bitstream_io::FromBitStream for $name {
-            type Error = $crate::coding::Error;
+            type Error = $crate::metadata::coding::Error;
 
             fn from_reader<R: ::bitstream_io::BitRead + ?Sized>(
                 r: &mut R,
@@ -50,7 +50,7 @@ macro_rules! codable {
             {
                 let value = r.read_var::<$inner>(Self::BITS)?;
                 Self::new(value)
-                    .ok_or_else(|| $crate::coding::Error::InvalidValue(value.to_string()))
+                    .ok_or_else(|| $crate::metadata::coding::Error::InvalidValue(value.to_string()))
             }
         }
 
@@ -75,5 +75,9 @@ pub enum Error {
 
 #[inline]
 pub(crate) const fn bit_size(n: u64) -> u32 {
-    if n == 0 { 1 } else { n.ilog2() + 1 }
+    if n == 0 {
+        1
+    } else {
+        n.ilog2() + 1
+    }
 }

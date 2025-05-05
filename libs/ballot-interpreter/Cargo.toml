@@ -16,7 +16,6 @@ harness = false
 
 [dependencies]
 ab_glyph = { workspace = true }
-ballot-encoder-rs = { workspace = true }
 bitstream-io = { workspace = true }
 clap = { workspace = true }
 color-eyre = { workspace = true }
@@ -33,6 +32,7 @@ rqrr = { workspace = true }
 hex = { workspace = true }
 zbar-rust = { workspace = true }
 base64 = { workspace = true }
+static_assertions = { workspace = true }
 thiserror = { workspace = true }
 types-rs = { workspace = true }
 

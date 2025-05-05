@@ -2,7 +2,7 @@ use bitstream_io::read::{FromBitStream, FromBitStreamWith};
 use serde::Serialize;
 use types_rs::election::{BallotStyleId, Election, PrecinctId};
 
-use crate::{
+use super::{
     coding,
     types::{BallotStyleIndex, PageNumber, PrecinctIndex},
 };
@@ -64,7 +64,7 @@ pub enum Error {
     InvalidBallotStyleIndex { index: usize, count: usize },
 
     #[error("Coding error: {0}")]
-    CodingError(coding::Error),
+    Coding(coding::Error),
 
     #[error("IO error: {0}")]
     Io(#[from] std::io::Error),
@@ -75,7 +75,7 @@ impl From<coding::Error> for Error {
         match value {
             // hoist the `io::Error` up to avoid an extra layer of nesting
             coding::Error::IoError(e) => Error::Io(e),
-            coding::Error::InvalidValue(_) => Error::CodingError(value),
+            coding::Error::InvalidValue(_) => Error::Coding(value),
         }
     }
 }
@@ -163,8 +163,8 @@ mod test {
         strategy::{Just, Strategy},
     };
 
+    use super::super::types::tests::arbitrary_page_number;
     use super::*;
-    use crate::types::tests::arbitrary_page_number;
 
     #[test]
     fn test_decode_metadata_bits() {
@@ -182,24 +182,24 @@ mod test {
             210, 122, 182, 88, 139, 24, 105, 84, 76, 222,
 
             // 8 bits for precinct index
-            0b00000000,
-            //PPPPPPPP
+            0b0000_0000,
+            //PPPP PPPP
 
             // 5 bits for precinct index, 3 bits for ballot style index
-            0b00000000,
-            //PPPPPBBB
+            0b0000_0000,
+            //PPPP PBBB
 
             // 8 bits for ballot style index
-            0b00000000,
-            //BBBBBBBB
+            0b0000_0000,
+            //BBBB BBBB
 
             // 2 bits for ballot style index, 5 bits for page number, 1 bit for test mode
-            0b00000010,
-            //BBNNNNNM
+            0b0000_0010,
+            //BBNN NNNM
 
             // 4 bits for ballot type, 4 bits padding
-            0b00000000,
-            //TTTT----
+            0b0000_0000,
+            //TTTT ----
         ];
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
@@ -262,24 +262,24 @@ mod test {
             210, 122, 182, 88, 139, 24, 105, 84, 76, 222,
 
             // 8 bits for precinct index
-            0b00000000,
-            //PPPPPPPP
+            0b0000_0000,
+            //PPPP PPPP
 
             // 5 bits for precinct index, 3 bits for ballot style index
-            0b00001000,
-            //PPPPPBBB
+            0b0000_1000,
+            //PPPP PBBB
 
             // 8 bits for ballot style index
-            0b00000000,
-            //BBBBBBBB
+            0b0000_0000,
+            //BBBB BBBB
 
             // 2 bits for ballot style index, 5 bits for page number, 1 bit for test mode
-            0b00000010,
-            //BBNNNNNM
+            0b0000_0010,
+            //BBNN NNNM
 
             // 4 bits for ballot type, 4 bits padding
-            0b00000000,
-            //TTTT----
+            0b0000_0000,
+            //TTTT ----
         ];
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
@@ -309,24 +309,24 @@ mod test {
             210, 122, 182, 88, 139, 24, 105, 84, 76, 222,
 
             // 8 bits for precinct index
-            0b00000000,
-            //PPPPPPPP
+            0b0000_0000,
+            //PPPP PPPP
 
             // 5 bits for precinct index, 3 bits for ballot style index
-            0b00000000,
-            //PPPPPBBB
+            0b0000_0000,
+            //PPPP PBBB
 
             // 8 bits for ballot style index
-            0b00000000,
-            //BBBBBBBB
+            0b0000_0000,
+            //BBBB BBBB
 
             // 2 bits for ballot style index, 5 bits for page number, 1 bit for test mode
-            0b01000010,
-            //BBNNNNNM
+            0b0100_0010,
+            //BBNN NNNM
 
             // 4 bits for ballot type, 4 bits padding
-            0b00000000,
-            //TTTT----
+            0b0000_0000,
+            //TTTT ----
         ];
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
@@ -358,24 +358,24 @@ mod test {
             210, 122, 182, 88, 139, 24, 105, 84, 76, 222,
 
             // 8 bits for precinct index
-            0b00000000,
-            //PPPPPPPP
+            0b0000_0000,
+            //PPPP PPPP
 
             // 5 bits for precinct index, 3 bits for ballot style index
-            0b00000000,
-            //PPPPPBBB
+            0b0000_0000,
+            //PPPP PBBB
 
             // 8 bits for ballot style index
-            0b00000000,
-            //BBBBBBBB
+            0b0000_0000,
+            //BBBB BBBB
 
             // 2 bits for ballot style index, 5 bits for page number, 1 bit for test mode
-            0b00000010,
-            //BBNNNNNM
+            0b0000_0010,
+            //BBNN NNNM
 
             // 4 bits for ballot type, 4 bits padding
-            0b11110000,
-            //TTTT----
+            0b1111_0000,
+            //TTTT ----
         ];
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
@@ -404,33 +404,31 @@ mod test {
             210, 122, 182, 88, 139, 24, 105, 84, 76, 222,
 
             // 8 bits for precinct index
-            0b00000000,
-            //PPPPPPPP
+            0b0000_0000,
+            //PPPP PPPP
 
             // 5 bits for precinct index, 3 bits for ballot style index
-            0b00000000,
-            //PPPPPBBB
+            0b0000_0000,
+            //PPPP PBBB
 
             // 8 bits for ballot style index
-            0b00000000,
-            //BBBBBBBB
+            0b0000_0000,
+            //BBBB BBBB
 
             // 2 bits for ballot style index, 5 bits for page number, 1 bit for test mode
-            0b00111110,
-            //BBNNNNNM
+            0b0011_1110,
+            //BBNN NNNM
 
             // 4 bits for ballot type, 4 bits padding
-            0b00000000,
-            //TTTT----
+            0b0000_0000,
+            //TTTT ----
         ];
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
         let result = Metadata::from_reader(&mut reader, &election);
 
         // TODO: use `assert_matches!` once that API is stable.
-        assert!(
-            matches!(result, Err(Error::CodingError(coding::Error::InvalidValue(v))) if v == "31")
-        );
+        assert!(matches!(result, Err(Error::Coding(coding::Error::InvalidValue(v))) if v == "31"));
     }
 
     fn arbitrary_ballot_type() -> impl Strategy<Value = BallotType> {

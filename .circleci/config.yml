@@ -1369,25 +1369,6 @@ jobs:
       - store_test_results:
           path: libs/utils/reports/
 
-  test-crate-ballot-encoder-rs:
-    executor: 'nodejs'
-    resource_class: xlarge
-    steps:
-      - checkout-and-install:
-          is_node_package: false
-      - run:
-          name: Build
-          command: |
-            cargo build -p ballot-encoder-rs
-      - run:
-          name: Lint
-          command: |
-            cargo clippy -p ballot-encoder-rs
-      - run:
-          name: Test
-          command: |
-            cargo test -p ballot-encoder-rs
-
   test-crate-ballot-interpreter:
     executor: 'nodejs'
     resource_class: xlarge
@@ -1631,7 +1612,6 @@ workflows:
       - test-libs-ui
       - test-libs-usb-drive
       - test-libs-utils
-      - test-crate-ballot-encoder-rs
       - test-crate-ballot-interpreter
       - test-crate-controllerd
       - test-crate-daemon-utils

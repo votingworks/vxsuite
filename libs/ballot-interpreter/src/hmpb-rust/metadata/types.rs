@@ -18,37 +18,37 @@ impl PageNumber {
     /// Whether this is the first page of its sheet, i.e. the front.
     ///
     /// ```
-    /// # use ballot_encoder_rs::types::PageNumber;
+    /// # use ballot_interpreter::metadata::types::PageNumber;
     /// let page_one = PageNumber::new_unchecked(1);
     /// let page_two = PageNumber::new_unchecked(2);
     ///
-    /// assert!(page_one.is_recto());
-    /// assert!(!page_two.is_recto());
+    /// assert!(page_one.is_front());
+    /// assert!(!page_two.is_front());
     /// ```
     #[must_use]
-    pub const fn is_recto(self) -> bool {
+    pub const fn is_front(self) -> bool {
         self.0 % 2 == 1
     }
 
     /// Whether this is the second page of its sheet, i.e. the back.
     ///
     /// ```
-    /// # use ballot_encoder_rs::types::PageNumber;
+    /// # use ballot_interpreter::metadata::types::PageNumber;
     /// let page_one = PageNumber::new_unchecked(1);
     /// let page_two = PageNumber::new_unchecked(2);
     ///
-    /// assert!(!page_one.is_verso());
-    /// assert!(page_two.is_verso());
+    /// assert!(!page_one.is_back());
+    /// assert!(page_two.is_back());
     /// ```
     #[must_use]
-    pub const fn is_verso(self) -> bool {
+    pub const fn is_back(self) -> bool {
         self.0 % 2 == 0
     }
 
     /// Determines the sheet number.
     ///
     /// ```
-    /// # use ballot_encoder_rs::types::PageNumber;
+    /// # use ballot_interpreter::metadata::types::PageNumber;
     /// let page_one = PageNumber::new_unchecked(1);
     /// let page_two = PageNumber::new_unchecked(2);
     /// let page_three = PageNumber::new_unchecked(3);
@@ -66,7 +66,7 @@ impl PageNumber {
     /// of zero, this method will panic.
     #[must_use]
     pub const fn sheet_number(self) -> NonZeroU8 {
-        let verso_page = if self.is_verso() {
+        let verso_page = if self.is_back() {
             self
         } else {
             self.opposite()
@@ -77,7 +77,7 @@ impl PageNumber {
     /// Gets the `PageNumber` opposite this one on the same sheet.
     ///
     /// ```
-    /// # use ballot_encoder_rs::types::PageNumber;
+    /// # use ballot_interpreter::metadata::types::PageNumber;
     /// let page_one = PageNumber::new_unchecked(1);
     /// let page_two = page_one.opposite();
     /// assert_eq!(page_two.get(), 2);
@@ -92,6 +92,7 @@ impl PageNumber {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 pub mod tests {
     use std::num::NonZeroU8;
 
@@ -110,10 +111,10 @@ pub mod tests {
         assert_eq!(page_one, page_one);
         assert_ne!(page_one, page_two);
 
-        assert!(page_one.is_recto());
-        assert!(!page_two.is_recto());
-        assert!(!page_one.is_verso());
-        assert!(page_two.is_verso());
+        assert!(page_one.is_front());
+        assert!(!page_two.is_front());
+        assert!(!page_one.is_back());
+        assert!(page_two.is_back());
 
         assert_eq!(page_one.sheet_number(), NonZeroU8::new(1).unwrap());
         assert_eq!(page_two.sheet_number(), NonZeroU8::new(1).unwrap());
@@ -127,8 +128,8 @@ pub mod tests {
         #[test]
         fn test_valid_page_number(page_number in arbitrary_page_number()) {
             assert_eq!(page_number, page_number.opposite().opposite());
-            assert_eq!(page_number.is_recto(), page_number.opposite().is_verso());
-            assert_eq!(page_number.is_verso(), page_number.opposite().is_recto());
+            assert_eq!(page_number.is_front(), page_number.opposite().is_back());
+            assert_eq!(page_number.is_back(), page_number.opposite().is_front());
             assert_eq!(page_number.sheet_number(), page_number.opposite().sheet_number());
         }
 

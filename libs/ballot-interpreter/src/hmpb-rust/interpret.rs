@@ -3,7 +3,6 @@
 use std::io::Cursor;
 use std::path::PathBuf;
 
-use ballot_encoder_rs::hmpb;
 use bitstream_io::BigEndian;
 use bitstream_io::BitReader;
 use bitstream_io::FromBitStreamWith;
@@ -32,6 +31,7 @@ use crate::image_utils::maybe_resize_image_to_fit;
 use crate::image_utils::Inset;
 use crate::layout::build_interpreted_page_layout;
 use crate::layout::InterpretedContestLayout;
+use crate::metadata::hmpb;
 use crate::qr_code;
 use crate::scoring::score_bubble_marks_from_grid_layout;
 use crate::scoring::score_write_in_areas;
@@ -571,7 +571,7 @@ pub fn ballot_card(
 
             let ballot_style_id = side_a_metadata.ballot_style_id.clone();
 
-            if side_a_metadata.page_number.is_recto() {
+            if side_a_metadata.page_number.is_front() {
                 (side_a, side_b, ballot_style_id)
             } else {
                 (side_b, side_a, ballot_style_id)
