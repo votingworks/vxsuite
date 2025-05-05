@@ -215,6 +215,7 @@ dependencies = [
 name = "ballot-encoder-rs"
 version = "0.1.0"
 dependencies = [
+ "bitstream-io 4.0.0",
  "bitter",
  "hex",
  "image",
@@ -233,6 +234,7 @@ dependencies = [
  "ab_glyph",
  "ballot-encoder-rs",
  "base64",
+ "bitstream-io 4.0.0",
  "clap",
  "color-eyre",
  "divan",
@@ -298,6 +300,15 @@ name = "bitstream-io"
 version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "06c9989a51171e2e81038ab168b6ae22886fe9ded214430dbb4f41c28cf176da"
+
+[[package]]
+name = "bitstream-io"
+version = "4.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4dc7691a79ba3cf60484e3fb6c53003b2a609921b6578aec7726a655939266d6"
+dependencies = [
+ "core2",
+]
 
 [[package]]
 name = "bitter"
@@ -518,6 +529,15 @@ name = "core-foundation-sys"
 version = "0.8.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "06ea2b9bc92be3c2baa9334a323ebca2d6f074ff852cd1d7b11064035cd3868f"
+
+[[package]]
+name = "core2"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b49ba7ef1ad6107f8824dbe97de947cbaac53c44e7f9756a1fba0d37c1eec505"
+dependencies = [
+ "memchr",
+]
 
 [[package]]
 name = "crc16"
@@ -1966,7 +1986,7 @@ dependencies = [
  "arg_enum_proc_macro",
  "arrayvec",
  "av1-grain",
- "bitstream-io",
+ "bitstream-io 2.2.0",
  "built",
  "cfg-if 1.0.0",
  "interpolate_name",

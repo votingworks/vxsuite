@@ -1,9 +1,9 @@
-use bitter::BitReader;
+use bitstream_io::read::{FromBitStream, FromBitStreamWith};
 use serde::Serialize;
 use types_rs::election::{BallotStyleId, Election, PrecinctId};
 
 use crate::{
-    coding::{BitDecode, bit_size},
+    coding,
     types::{BallotStyleIndex, PageNumber, PrecinctIndex},
 };
 
@@ -19,19 +19,22 @@ pub enum BallotType {
 
 impl BallotType {
     const MAX: u32 = 2_u32.pow(4) - 1;
-    const BITS: u32 = bit_size(Self::MAX as u64);
+    const BITS: u32 = coding::bit_size(Self::MAX as u64);
 }
 
-impl BitDecode for BallotType {
-    type Context = ();
+impl FromBitStream for BallotType {
+    type Error = Error;
 
-    fn bit_decode<R: BitReader>(bits: &mut R, _context: Self::Context) -> Option<Self> {
-        Some(match bits.read_bits(Self::BITS)? {
-            0 => BallotType::Precinct,
-            1 => BallotType::Absentee,
-            2 => BallotType::Provisional,
-            _ => return None,
-        })
+    fn from_reader<R: bitstream_io::BitRead + ?Sized>(r: &mut R) -> Result<Self, Self::Error>
+    where
+        Self: Sized,
+    {
+        match r.read_var::<u8>(BallotType::BITS)? {
+            0 => Ok(BallotType::Precinct),
+            1 => Ok(BallotType::Absentee),
+            2 => Ok(BallotType::Provisional),
+            t => Err(Error::InvalidBallotType(t)),
+        }
     }
 }
 
@@ -46,31 +49,79 @@ pub struct Metadata {
     pub ballot_type: BallotType,
 }
 
-impl BitDecode for Metadata {
-    type Context = Election;
+#[derive(Debug, thiserror::Error)]
+pub enum Error {
+    #[error("Invalid prelude: {0:?}")]
+    InvalidPrelude([u8; 3]),
 
-    fn bit_decode<R: BitReader>(bits: &mut R, context: Self::Context) -> Option<Self> {
-        let election = context;
-        let mut prelude = [0; 3];
-        bits.read_bytes(&mut prelude);
+    #[error("Invalid ballot type: {0}")]
+    InvalidBallotType(u8),
+
+    #[error("Invalid precinct index: {index} (max: {max})")]
+    InvalidPrecinctIndex { index: usize, max: usize },
+
+    #[error("Invalid ballot style index: {index} (max: {max})")]
+    InvalidBallotStyleIndex { index: usize, max: usize },
+
+    #[error("Coding error: {0}")]
+    CodingError(coding::Error),
+
+    #[error("IO error: {0}")]
+    Io(#[from] std::io::Error),
+}
+
+impl From<coding::Error> for Error {
+    fn from(value: coding::Error) -> Self {
+        match value {
+            // hoist the `io::Error` up to avoid an extra layer of nesting
+            coding::Error::IoError(e) => Error::Io(e),
+            coding::Error::InvalidValue(_) => Error::CodingError(value),
+        }
+    }
+}
+
+impl FromBitStreamWith<'_> for Metadata {
+    type Context = Election;
+    type Error = Error;
+
+    fn from_reader<R: bitstream_io::BitRead + ?Sized>(
+        r: &mut R,
+        election: &Self::Context,
+    ) -> Result<Self, Self::Error>
+    where
+        Self: Sized,
+    {
+        let prelude: [u8; 3] = r.read_to()?;
         if &prelude != HMPB_PRELUDE {
-            return None;
+            return Err(Error::InvalidPrelude(prelude));
         }
 
-        let mut ballot_hash_bytes = [0; (BALLOT_HASH_LENGTH / HEX_BYTES_PER_CHAR) as usize];
-        bits.read_bytes(&mut ballot_hash_bytes);
+        let ballot_hash_bytes: [u8; (BALLOT_HASH_LENGTH / HEX_BYTES_PER_CHAR) as usize] =
+            r.read_to()?;
         let ballot_hash = hex::encode(ballot_hash_bytes);
 
-        let precinct_index = PrecinctIndex::bit_decode(bits, ())?;
-        let ballot_style_index = BallotStyleIndex::bit_decode(bits, ())?;
-        let page_number = PageNumber::bit_decode(bits, ())?;
-        let is_test_mode = bits.read_bit()?;
-        let ballot_type = BallotType::bit_decode(bits, ())?;
+        let precinct_index = PrecinctIndex::from_reader(r)?;
+        let ballot_style_index = BallotStyleIndex::from_reader(r)?;
+        let page_number = PageNumber::from_reader(r)?;
+        let is_test_mode = r.read_bit()?;
+        let ballot_type = BallotType::from_reader(r)?;
 
-        let precinct = election.precincts.get(precinct_index.get())?;
-        let ballot_style = election.ballot_styles.get(ballot_style_index.get())?;
+        let precinct = election
+            .precincts
+            .get(precinct_index.get() as usize)
+            .ok_or_else(|| Error::InvalidPrecinctIndex {
+                index: precinct_index.get() as usize,
+                max: election.precincts.len(),
+            })?;
+        let ballot_style = election
+            .ballot_styles
+            .get(ballot_style_index.get() as usize)
+            .ok_or_else(|| Error::InvalidBallotStyleIndex {
+                index: ballot_style_index.get() as usize,
+                max: election.ballot_styles.len(),
+            })?;
 
-        Some(Metadata {
+        Ok(Metadata {
             ballot_hash,
             precinct_id: precinct.id.clone(),
             ballot_style_id: ballot_style.id.clone(),
@@ -100,8 +151,13 @@ pub fn infer_missing_page_metadata(detected_ballot_metadata: &Metadata) -> Metad
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod test {
-    use std::{fs::File, io::BufReader, path::PathBuf};
+    use std::{
+        fs::File,
+        io::{BufReader, Cursor},
+        path::PathBuf,
+    };
 
+    use bitstream_io::{BigEndian, BitReader};
     use proptest::{
         prop_oneof, proptest,
         strategy::{Just, Strategy},
@@ -131,16 +187,17 @@ mod test {
         let bytes = [
             86, 80, 2, 210, 122, 182, 88, 139, 24, 105, 84, 76, 222, 0, 0, 0, 2, 0,
         ];
+        let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
         assert_eq!(
-            Metadata::decode_be_bytes(&bytes, election),
-            Some(Metadata {
+            Metadata::from_reader(&mut reader, &election).unwrap(),
+            Metadata {
                 ballot_hash: "d27ab6588b1869544cde".to_string(),
                 precinct_id: PrecinctId::from("town-id-01001-precinct-id-default".to_string()),
                 ballot_style_id: BallotStyleId::from("card-number-5".to_string()),
                 page_number: PageNumber::new_unchecked(1),
                 is_test_mode: false,
                 ballot_type: BallotType::Precinct,
-            })
+            }
         );
     }
 

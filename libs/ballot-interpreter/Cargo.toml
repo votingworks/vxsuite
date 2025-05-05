@@ -17,6 +17,7 @@ harness = false
 [dependencies]
 ab_glyph = { workspace = true }
 ballot-encoder-rs = { workspace = true }
+bitstream-io = { workspace = true }
 clap = { workspace = true }
 color-eyre = { workspace = true }
 image = { workspace = true }

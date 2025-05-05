@@ -1,30 +1,3 @@
-use bitter::{BigEndianReader, BitReader};
-
-/// Provides a means of decoding data from a `BitReader` directly, or by
-/// decoding bytes as either big- or little-endian.
-pub trait BitDecode
-where
-    Self: Sized,
-{
-    type Context;
-
-    /// Try to decode a `Self` from the given `BitReader`, with a given context
-    /// that may determine how the resulting value is decoded.
-    #[must_use]
-    fn bit_decode<R: BitReader>(bits: &mut R, context: Self::Context) -> Option<Self>;
-
-    /// Try to decode a `Self` from the given `bytes`, with a given context
-    /// that may determine how the resulting value is decoded.
-    ///
-    /// An automatic implementation is provided, and generally should not need
-    /// to be overwritten in trait implementations.
-    #[must_use]
-    fn decode_be_bytes(bytes: &[u8], context: Self::Context) -> Option<Self> {
-        let mut bits = BigEndianReader::new(bytes);
-        Self::bit_decode(&mut bits, context)
-    }
-}
-
 #[macro_export]
 macro_rules! codable {
     ($name:ident, $inner:path, $range:expr) => {
@@ -45,6 +18,7 @@ macro_rules! codable {
             pub const MAX: Self = Self(*Self::RANGE.end());
 
             pub const BITS: u32 = $crate::coding::bit_size(*Self::RANGE.end() as u64);
+            pub const BYTES: u32 = $crate::coding::byte_size(*Self::RANGE.end() as u64);
 
             /// Makes a new `Self` validating that `value` is valid, returning
             /// `Some(Self)` if so and `None` if not.
@@ -68,6 +42,21 @@ macro_rules! codable {
             }
         }
 
+        impl ::bitstream_io::FromBitStream for $name {
+            type Error = $crate::coding::Error;
+
+            fn from_reader<R: ::bitstream_io::BitRead + ?Sized>(
+                r: &mut R,
+            ) -> Result<Self, Self::Error>
+            where
+                Self: Sized,
+            {
+                let value = r.read_var::<$inner>(Self::BITS)?;
+                Self::new(value)
+                    .ok_or_else(|| $crate::coding::Error::InvalidValue(value.to_string()))
+            }
+        }
+
         impl PartialEq for $name {
             fn eq(&self, other: &Self) -> bool {
                 self.0 == other.0
@@ -75,24 +64,26 @@ macro_rules! codable {
         }
 
         impl Eq for $name {}
-
-        impl $crate::coding::BitDecode for $name {
-            type Context = ();
-
-            fn bit_decode<R: ::bitter::BitReader>(
-                bits: &mut R,
-                _context: Self::Context,
-            ) -> Option<Self> {
-                match bits.read_bits(Self::BITS)? {
-                    index @ ..=Self::MAX_U64 => index.try_into().ok().map(Self),
-                    _ => None,
-                }
-            }
-        }
     };
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum Error {
+    #[error("Invalid value: {0}")]
+    InvalidValue(String),
+
+    #[error("IO error: {0}")]
+    IoError(#[from] std::io::Error),
 }
 
 #[inline]
 pub(crate) const fn bit_size(n: u64) -> u32 {
     if n == 0 { 1 } else { n.ilog2() + 1 }
+}
+
+#[inline]
+pub(crate) const fn byte_size(n: u64) -> u32 {
+    let bits = bit_size(n);
+    let rem = bits % u8::BITS;
+    (bits + rem) / u8::BITS
 }

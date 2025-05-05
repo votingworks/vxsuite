@@ -1,9 +1,12 @@
 #![allow(clippy::similar_names)]
 
+use std::io::Cursor;
 use std::path::PathBuf;
 
-use ballot_encoder_rs::coding::BitDecode;
 use ballot_encoder_rs::hmpb;
+use bitstream_io::BigEndian;
+use bitstream_io::BitReader;
+use bitstream_io::FromBitStreamWith;
 use image::GenericImage;
 use image::GrayImage;
 use imageproc::contrast::otsu_level;
@@ -460,15 +463,17 @@ pub fn ballot_card(
                             message: e.to_string(),
                         }
                     })?;
-                    let metadata =
-                        hmpb::Metadata::decode_be_bytes(qr_code.bytes(), options.election.clone())
-                            .ok_or_else(|| Error::InvalidQrCodeMetadata {
-                                label: label.to_string(),
-                                message: format!(
-                                    "Unable to decode QR code bytes: {bytes:?}",
-                                    bytes = qr_code.bytes()
-                                ),
-                            })?;
+                    let metadata = hmpb::Metadata::from_reader(
+                        &mut BitReader::endian(Cursor::new(qr_code.bytes()), BigEndian),
+                        &options.election,
+                    )
+                    .map_err(|e| Error::InvalidQrCodeMetadata {
+                        label: label.to_string(),
+                        message: format!(
+                            "Unable to decode QR code bytes: {e} (bytes={bytes:?})",
+                            bytes = qr_code.bytes()
+                        ),
+                    })?;
                     Ok((metadata, qr_code.orientation()))
                 },
             );

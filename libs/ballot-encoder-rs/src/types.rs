@@ -4,9 +4,15 @@ use static_assertions::const_assert;
 
 use crate::codable;
 
-codable!(PrecinctIndex, usize, 0..=4096);
-codable!(BallotStyleIndex, usize, 0..=4096);
+codable!(PrecinctIndex, u32, 0..=4096);
+codable!(BallotStyleIndex, u32, 0..=4096);
 codable!(PageNumber, u8, 1..=30);
+
+// Statically validate our maximum values fit within the types we're using.
+// TODO: move this into `codable!`
+const_assert!(PrecinctIndex::BITS <= usize::BITS);
+const_assert!(BallotStyleIndex::BITS <= usize::BITS);
+const_assert!(PageNumber::BITS <= u8::BITS);
 
 impl PageNumber {
     /// Whether this is the first page of its sheet, i.e. the front.
@@ -84,12 +90,6 @@ impl PageNumber {
         }
     }
 }
-
-// Statically validate our maximum values fit within the types we're using.
-// TODO: move this into `codable!`
-const_assert!(PrecinctIndex::BITS <= usize::BITS);
-const_assert!(BallotStyleIndex::BITS <= usize::BITS);
-const_assert!(PageNumber::BITS <= u8::BITS);
 
 #[cfg(test)]
 pub mod tests {
