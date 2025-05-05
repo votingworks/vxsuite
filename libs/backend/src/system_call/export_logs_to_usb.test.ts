@@ -193,9 +193,10 @@ test('exportLogsToUsb works for vxf format when all conditions are met', async (
   mockUsbDrive.assertComplete();
 });
 
-test('exportLogsToUsb returns error when cdf conversion fails - compressed file', async () => {
-  const { createReadStream: realCreateReadStream } =
-    await vi.importActual<typeof import('node:fs')>('node:fs');
+type LogFormat = 'compressed' | 'plain';
+const testPlainAndCompressed = test.each<LogFormat>(['plain', 'compressed']);
+
+testPlainAndCompressed('when CDF conversion fails - [$0]', async (fmt) => {
   const mockUsbDrive = createMockUsbDrive();
   mockUsbDrive.usbDrive.status.reset();
   mockUsbDrive.usbDrive.status.expectRepeatedCallsWith().resolves({
@@ -209,45 +210,9 @@ test('exportLogsToUsb returns error when cdf conversion fails - compressed file'
   const readdirMock = fs.readdir as unknown as MockInstance<
     () => Promise<string[]>
   >;
-  readdirMock.mockResolvedValue(['vx-logs.log-20240101.gz']);
-
-  const logFile = tmpNameSync();
-  await fs.writeFile(logFile, ``);
-  vi.mocked(createReadStream).mockReturnValueOnce(
-    realCreateReadStream(logFile, 'utf8')
-  );
-  // There will be an error uncompressing if this is an empty file
-  execFileMock.mockResolvedValue({ stdout: '', stderr: '' });
-
-  const result = await exportLogsToUsb({
-    usbDrive: mockUsbDrive.usbDrive,
-    logger,
-    machineId: 'TEST-MACHINE-ID',
-    codeVersion: 'TEST-CODE-VERSION',
-    format: 'cdf',
-  });
-  expect(result.isErr()).toBeTruthy();
-  expect(result.err()).toEqual('cdf-conversion-failed');
-});
-
-test('exportLogsToUsb returns error when cdf conversion fails - plain file', async () => {
-  const mockUsbDrive = createMockUsbDrive();
-  mockUsbDrive.usbDrive.status.reset();
-  mockUsbDrive.usbDrive.status.expectRepeatedCallsWith().resolves({
-    status: 'mounted',
-    mountPoint: '/media/usb-drive',
-  });
-
-  const mockStats = new Stats();
-  mockStats.isDirectory = vi.fn().mockReturnValue(true);
-  vi.mocked(fs.stat).mockResolvedValueOnce(mockStats);
-  const readdirMock = fs.readdir as unknown as MockInstance<
-    () => Promise<string[]>
-  >;
-  readdirMock.mockResolvedValue(['vx-logs.log']);
-
-  const logFile = tmpNameSync();
-  await fs.writeFile(logFile, ``);
+  readdirMock.mockResolvedValue([
+    fmt === 'compressed' ? 'vx-logs.log-20240101.gz' : 'vx-logs.log',
+  ]);
 
   vi.mocked(convertVxLogToCdf).mockImplementation(
     (
@@ -261,8 +226,6 @@ test('exportLogsToUsb returns error when cdf conversion fails - plain file', asy
       cb
     ) => cb(new Error('conversion failed'))
   );
-
-  execFileMock.mockResolvedValue({ stdout: '', stderr: '' });
 
   const result = await exportLogsToUsb({
     usbDrive: mockUsbDrive.usbDrive,
@@ -316,9 +279,7 @@ test('exportLogsToUsb returns error when error filtering fails', async () => {
   expect(result.err()).toEqual('error-filtering-failed');
 });
 
-test('exportLogsToUsb works for cdf format when all conditions are met', async () => {
-  const { createReadStream: realCreateReadStream } =
-    await vi.importActual<typeof import('node:fs')>('node:fs');
+testPlainAndCompressed('works for CDF format - [$0]', async (fmt) => {
   const mockUsbDrive = createMockUsbDrive();
   mockUsbDrive.usbDrive.status.reset();
   mockUsbDrive.usbDrive.status.expectRepeatedCallsWith().resolves({
@@ -333,15 +294,10 @@ test('exportLogsToUsb works for cdf format when all conditions are met', async (
   const readdirMock = fs.readdir as unknown as MockInstance<
     () => Promise<string[]>
   >;
-  readdirMock.mockResolvedValue(['vx-logs.log']);
 
-  const logFile = tmpNameSync();
-  await fs.writeFile(logFile, ``);
-  vi.mocked(createReadStream).mockReturnValueOnce(
-    realCreateReadStream(logFile, 'utf8')
-  );
-
-  execFileMock.mockResolvedValue({ stdout: '', stderr: '' });
+  const inputFilename =
+    fmt === 'compressed' ? 'vx-logs.log-20240101.gz' : 'vx-logs.log';
+  readdirMock.mockResolvedValue([inputFilename]);
 
   vi.mocked(convertVxLogToCdf).mockImplementation(
     (
@@ -357,9 +313,11 @@ test('exportLogsToUsb works for cdf format when all conditions are met', async (
       expect(source).toEqual(logger.getSource());
       expect(machineId).toEqual('TEST-MACHINE-ID');
       expect(codeVersion).toEqual('TEST-CODE-VERSION');
-      expect(inputPath).toMatch(/vx-logs.log$/);
-      expect(outputPath).toMatch(/vx-logs.cdf.log.json$/);
-      expect(compressed).toEqual(false);
+      expect(inputPath).toMatch(inputFilename);
+      expect(outputPath).toMatch(
+        fmt === 'compressed' ? /vx-logs.cdf.json/ : /vx-logs.cdf.log.json$/
+      );
+      expect(compressed).toEqual(fmt === 'compressed');
 
       logWrapper(LogEventId.LogConversionToCdfComplete, 'unknown', 'success');
       cb(null);

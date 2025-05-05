@@ -13,7 +13,6 @@ import {
   LogEventId,
   LogExportFormat,
   Logger,
-  buildCdfLog,
   filterErrorLogs,
 } from '@votingworks/logging';
 import { createReadStream, createWriteStream } from 'node:fs';
@@ -74,29 +73,29 @@ async function convertLogsToCdf(
 
   // Create CDF for vx-logs.log
   if (files.includes('vx-logs.log')) {
+    const compressed = false;
     await convertFileToCdf(
       logger,
       join(logDir, 'vx-logs.log'),
       join(outputDir, 'vx-logs.cdf.log.json'),
       machineId,
       codeVersion,
-      false
+      compressed
     );
   }
 
   // Create CDF for all compressed vx-logs files
-  // [TODO] Add support for gzipped files to `libs/logging-utils` and update
-  // this conversion.
   for (const file of files) {
     if (file.match(COMPRESSED_VX_LOGS_NAME_REGEX)) {
       const cdfFileName = file.replace('vx-logs', 'vx-logs.cdf.json');
-      await pipeline(
-        createReadStream(join(logDir, file)),
-        createGunzip(),
-        (inputStream: AsyncIterable<string>) =>
-          buildCdfLog(logger, inputStream, machineId, codeVersion),
-        createGzip(),
-        createWriteStream(join(outputDir, cdfFileName))
+      const compressed = true;
+      await convertFileToCdf(
+        logger,
+        join(logDir, file),
+        join(outputDir, cdfFileName),
+        machineId,
+        codeVersion,
+        compressed
       );
     }
   }
