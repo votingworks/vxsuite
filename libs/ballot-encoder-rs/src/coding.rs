@@ -9,16 +9,13 @@ macro_rules! codable {
         #[allow(dead_code)]
         impl $name {
             const RANGE: ::std::ops::RangeInclusive<$inner> = $range;
-            const MIN_U64: u64 = *Self::RANGE.start() as u64;
             const MIN_VALUE: $inner = *Self::RANGE.start();
             pub const MIN: Self = Self(*Self::RANGE.start());
 
-            const MAX_U64: u64 = *Self::RANGE.end() as u64;
             const MAX_VALUE: $inner = *Self::RANGE.end();
             pub const MAX: Self = Self(*Self::RANGE.end());
 
             pub const BITS: u32 = $crate::coding::bit_size(*Self::RANGE.end() as u64);
-            pub const BYTES: u32 = $crate::coding::byte_size(*Self::RANGE.end() as u64);
 
             /// Makes a new `Self` validating that `value` is valid, returning
             /// `Some(Self)` if so and `None` if not.
@@ -79,11 +76,4 @@ pub enum Error {
 #[inline]
 pub(crate) const fn bit_size(n: u64) -> u32 {
     if n == 0 { 1 } else { n.ilog2() + 1 }
-}
-
-#[inline]
-pub(crate) const fn byte_size(n: u64) -> u32 {
-    let bits = bit_size(n);
-    let rem = bits % u8::BITS;
-    (bits + rem) / u8::BITS
 }
