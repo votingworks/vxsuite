@@ -13,6 +13,7 @@ import {
   SystemSettings,
   Tabulation,
   convertElectionResultsReportingReportToVxManualResults,
+  ContestOptionId,
 } from '@votingworks/types';
 import {
   assert,
@@ -134,6 +135,7 @@ import { printTestPage } from './reports/test_print';
 import { saveReadinessReport } from './reports/readiness';
 import { constructAuthMachineState } from './util/auth';
 import { parseElectionResultsReportingFile } from './tabulation/election_results_reporting';
+import { getMarginalMarks } from './util/marginal_marks';
 
 const debug = rootDebug.extend('app');
 
@@ -630,6 +632,16 @@ function buildApi({
       });
     },
 
+    getMarginalMarks(input: {
+      cvrId: Id;
+      contestId: ContestId;
+    }): ContestOptionId[] {
+      console.log(input);
+      return getMarginalMarks();
+
+      // return getMarginalMarks(input, store);
+    },
+
     getVoteAdjudications(input: {
       contestId: ContestId;
       cvrId: Id;
@@ -662,14 +674,14 @@ function buildApi({
       });
     },
 
-    getWriteInAdjudicationCvrQueue(input: { contestId: ContestId }): Id[] {
+    getAdjudicationQueue(input: { contestId: ContestId }): Id[] {
       return store.getWriteInAdjudicationCvrQueue({
         electionId: loadCurrentElectionIdOrThrow(workspace),
         contestId: input.contestId,
       });
     },
 
-    getWriteInAdjudicationCvrQueueMetadata(): WriteInAdjudicationQueueMetadata[] {
+    getAdjudicationQueueCounts(): WriteInAdjudicationQueueMetadata[] {
       return store.getWriteInAdjudicationCvrQueueMetadata({
         electionId: loadCurrentElectionIdOrThrow(workspace),
       });

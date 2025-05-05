@@ -416,7 +416,7 @@ test('results', async ({ page }) => {
   await screenshot('tally-screen-with-cvrs');
 
   await page.getByText('Write-Ins').click();
-  await page.getByText('Write-In Adjudication').waitFor();
+  await page.getByText('Adjudication').waitFor();
   await screenshot('write-in-screen-pre-adjudication');
 
   // iterate through all the adjudication queues
@@ -469,7 +469,7 @@ test('results', async ({ page }) => {
       await expect(getPrimaryButton(page)).toBeEnabled();
       if (await page.getByText('Finish').isVisible()) {
         await page.getByText('Finish').click();
-        await page.getByText('Write-In Adjudication').waitFor();
+        await page.getByText('Adjudication').waitFor();
         hasFinishedWriteInsForContest = true;
       } else {
         await page.getByText('Save & Next').click();
@@ -478,7 +478,7 @@ test('results', async ({ page }) => {
     }
   }
 
-  await page.getByText('Write-In Adjudication').waitFor();
+  await page.getByText('Adjudication').waitFor();
   await screenshot('write-in-screen-post-adjudication');
 
   await page.getByText('Reports').click();
@@ -605,7 +605,7 @@ test('wia', async ({ page }) => {
   await page.getByText('Total CVR Count: 1').waitFor();
 
   await page.getByText('Write-Ins').click();
-  await page.getByText('Write-In Adjudication').waitFor();
+  await page.getByText('Adjudication').waitFor();
 
   await page.getByText('Adjudicate 1').first().click();
   await page.getByText('Zoom Out').waitFor();
@@ -619,7 +619,7 @@ test('wia', async ({ page }) => {
   await page.keyboard.press('Enter');
   await screenshot('write-in-adjudication-new-candidate-adjudicated');
   await page.getByText('Finish').click();
-  await page.getByText('Write-In Adjudication').waitFor();
+  await page.getByText('Adjudication').waitFor();
 });
 
 test('manual results', async ({ page }) => {

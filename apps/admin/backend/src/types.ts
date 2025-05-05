@@ -326,6 +326,32 @@ export interface WriteInAdjudicationActionReset {
 }
 
 /**
+ *  CvrContestTagType is
+ */
+export type CvrContestTagType = 'overvote' | 'marginal-mark' | 'write-in';
+// | 'undervote' // future, not yet useful
+// | 'blank'; // future, not yet useful
+
+/**
+ *  CvrContestTag is
+ */
+export interface CvrContestTag {
+  tagType: CvrContestTagType;
+  contestId: ContestId;
+  cvrId: Id;
+  isResolved: boolean;
+}
+// 1. unique on cvrId-contestId-type-optionId
+// 2. works for marginal marks; note: actual adjudication to affect tallies maintained by VoteAdjudication
+// 3. can solve existing overvote/write-in tally bug: drop write-in-records that on cvr-contest-id join have type=overvote.
+//    This requires the "confirmed" and "invalid" status, so we know whether the tag is valid when using the tags in
+//    tabulations. i.e. we join the write-in table on cvr-contest-tag, keep write-ins tagged overvote if status is 'invalid'
+// 4. future: works for blank ballots (query for cvrs that have every contestId tagged blank)
+
+//  writeInId?: Id; // defined for write-in and unmarked-write-in, potentially marginal-mark
+//  voteAdjudication id isn't there, so I don't think writeInId should be there
+
+/**
  * A cvr contest with all candidate and write-in options
  * fully adjudicated.
  */

@@ -42,6 +42,7 @@ import { Store } from './store';
 import {
   CastVoteRecordElectionDefinitionValidationError,
   CastVoteRecordFileMetadata,
+  CvrContestTag,
   CvrFileImportInfo,
   CvrFileMode,
   ImportCastVoteRecordsError,
@@ -378,6 +379,26 @@ export async function importCastVoteRecords(
               isUndetected: false,
               machineMarkedText: castVoteRecordWriteIn.text,
             });
+          }
+
+          // calculate tags here or where write-ins are calculated
+          const castVoteRecordTags: CvrContestTag[] = [
+            {
+              cvrId: castVoteRecordId,
+              contestId: 'contest-id',
+              isResolved: false,
+              tagType: 'marginal-mark',
+            },
+            {
+              cvrId: castVoteRecordId,
+              contestId: 'contest-id',
+              isResolved: false,
+              tagType: 'overvote',
+            },
+          ];
+          for (const castVoteRecordTag of castVoteRecordTags) {
+            console.log(castVoteRecordTag);
+            // store.addCvrContestTag(castVoteRecordTag);
           }
         }
       }

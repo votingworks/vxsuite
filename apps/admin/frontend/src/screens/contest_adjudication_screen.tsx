@@ -37,8 +37,9 @@ import {
   getCastVoteRecordVoteInfo,
   getWriteInImageViews,
   getFirstPendingWriteInCvrId,
+  getMarginalMarks,
   getWriteIns,
-  getWriteInAdjudicationCvrQueue,
+  getAdjudicationQueue,
   getWriteInCandidates,
   getVoteAdjudications,
   adjudicateCvrContest,
@@ -59,6 +60,7 @@ import {
   DoubleVoteAlertModal,
 } from '../components/adjudication_double_vote_alert_modal';
 import { DiscardChangesModal } from '../components/discard_changes_modal';
+import { MarkAdjudicationButton } from '../components/mark_adjudication_button';
 
 interface ExistingOfficialCandidate {
   type: 'existing-official';
@@ -324,7 +326,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
   assert(contest.type === 'candidate', 'contest must be a candidate contest');
 
   // Queries and mutations
-  const cvrQueueQuery = getWriteInAdjudicationCvrQueue.useQuery({ contestId });
+  const cvrQueueQuery = getAdjudicationQueue.useQuery({
+    contestId,
+  });
   const firstPendingCvrIdQuery = getFirstPendingWriteInCvrId.useQuery({
     contestId,
   });
@@ -351,6 +355,11 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const writeInCandidatesQuery = getWriteInCandidates.useQuery({
     contestId,
   });
+  const marginalMarksQuery = getMarginalMarks.useQuery(
+    maybeCurrentCvrId ? { cvrId: maybeCurrentCvrId, contestId } : undefined
+  );
+  console.log(marginalMarksQuery.data);
+  const marginalMarks = marginalMarksQuery.data;
 
   const adjudicateCvrContestMutation = adjudicateCvrContest.useMutation();
   const officialCandidates = useMemo(
@@ -840,6 +849,29 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 const writeInStatus = writeInStatusByOptionId[optionId];
                 const isFocused = focusedOptionId === optionId;
                 const isSelected = hasVoteByOptionId[optionId];
+                const marginalMark = marginalMarks?.find(
+                  (id) => optionId === id
+                );
+                if (marginalMark) {
+                  return (
+                    <MarkAdjudicationButton
+                      candidate={{
+                        id: optionId,
+                        name:
+                          writeInImage?.type === 'bmd'
+                            ? writeInImage.machineMarkedText
+                            : 'Write-in',
+                      }}
+                      isSelected={false}
+                      isFocused={false}
+                      key={optionId + currentCvrId}
+                      onSelect={() => {
+                        setOptionHasVote(optionId, true);
+                        setOptionWriteInStatus(optionId, { type: 'pending' });
+                      }}
+                    />
+                  );
+                }
                 if (!writeInStatus || isInvalidWriteIn(writeInStatus)) {
                   return (
                     <CandidateButton

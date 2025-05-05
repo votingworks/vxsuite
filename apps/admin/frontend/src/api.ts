@@ -229,30 +229,27 @@ export const getCastVoteRecordFileMode = {
   },
 } as const;
 
-type GetWriteInAdjudicationCvrQueueInput =
-  QueryInput<'getWriteInAdjudicationCvrQueue'>;
-export const getWriteInAdjudicationCvrQueue = {
+type GetWriteInAdjudicationCvrQueueInput = QueryInput<'getAdjudicationQueue'>;
+export const getAdjudicationQueue = {
   queryKey(input?: GetWriteInAdjudicationCvrQueueInput): QueryKey {
-    return input
-      ? ['getWriteInAdjudicationCvrQueue', input]
-      : ['getWriteInAdjudicationCvrQueue'];
+    return input ? ['getAdjudicationQueue', input] : ['getAdjudicationQueue'];
   },
   useQuery(input: GetWriteInAdjudicationCvrQueueInput) {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(input), () =>
-      apiClient.getWriteInAdjudicationCvrQueue(input)
+      apiClient.getAdjudicationQueue(input)
     );
   },
 } as const;
 
-export const getWriteInAdjudicationCvrQueueMetadata = {
+export const getAdjudicationQueueCounts = {
   queryKey(): QueryKey {
-    return ['getWriteInAdjudicationCvrQueueMetadata'];
+    return ['getAdjudicationQueueCounts'];
   },
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () =>
-      apiClient.getWriteInAdjudicationCvrQueueMetadata()
+      apiClient.getAdjudicationQueueCounts()
     );
   },
 } as const;
@@ -357,6 +354,28 @@ export const getCastVoteRecordVoteInfo = {
               cvrId: input.cvrId,
             }) /* istanbul ignore next - @preserve */
         : () => fail('input is required'),
+      { enabled: !!input, keepPreviousData: true }
+    );
+  },
+} as const;
+
+type GetMarginalMarksInput = QueryInput<'getMarginalMarks'>;
+export const getMarginalMarks = {
+  queryKey(input?: GetMarginalMarksInput): QueryKey {
+    return input ? ['getMarginalMarks', input] : ['getMarginalMarks'];
+  },
+  useQuery(input?: GetMarginalMarksInput) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(input),
+      input
+        ? () =>
+            apiClient.getMarginalMarks({
+              cvrId: input.cvrId,
+              contestId: input.contestId,
+            })
+        : /* istanbul ignore next - @preserve */
+          () => fail('input is required'),
       { enabled: !!input, keepPreviousData: true }
     );
   },
@@ -573,15 +592,13 @@ function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
     queryClient.invalidateQueries(getTotalBallotCount.queryKey()),
 
     // write-in queues
-    queryClient.invalidateQueries(getWriteInAdjudicationCvrQueue.queryKey()),
+    queryClient.invalidateQueries(getAdjudicationQueue.queryKey()),
   ]);
 }
 
 function invalidateWriteInQueries(queryClient: QueryClient) {
   const invalidations = [
-    queryClient.invalidateQueries(
-      getWriteInAdjudicationCvrQueueMetadata.queryKey()
-    ),
+    queryClient.invalidateQueries(getAdjudicationQueueCounts.queryKey()),
     queryClient.invalidateQueries(getWriteIns.queryKey()),
     queryClient.invalidateQueries(getWriteInCandidates.queryKey()),
   ];

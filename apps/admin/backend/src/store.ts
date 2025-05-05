@@ -92,6 +92,7 @@ import {
   WriteInAdjudicationActionWriteInCandidate,
   CastVoteRecordAdjudicationFlags,
   WriteInAdjudicationActionReset,
+  CvrContestTag,
 } from './types';
 import { rootDebug } from './util/debug';
 
@@ -104,7 +105,7 @@ type StoreCastVoteRecordAttributes = Omit<
   readonly partyId: string | null;
 };
 
-const WRITE_IN_QUEUE_ORDER_BY = `order by sequence_id`;
+const ADJUDICATION_QUEUE_ORDER_BY = `order by sequence_id`;
 
 /**
  * Path to the store's schema file, i.e. the file that defines the database.
@@ -1792,7 +1793,7 @@ export class Store {
           election_id = ? and
           contest_id = ?
         group by cvr_id
-        ${WRITE_IN_QUEUE_ORDER_BY}
+        ${ADJUDICATION_QUEUE_ORDER_BY}
       `,
       electionId,
       contestId
@@ -1859,7 +1860,7 @@ export class Store {
           official_candidate_id is null and
           write_in_candidate_id is null and
           is_invalid = 0
-        ${WRITE_IN_QUEUE_ORDER_BY}
+        ${ADJUDICATION_QUEUE_ORDER_BY}
         limit 1
       `,
       electionId,
@@ -1869,7 +1870,6 @@ export class Store {
 
     return row?.cvr_id;
   }
-
   /**
    * Gets write-in tallies specifically for tabulation, filtered and and
    * grouped by cast vote record attributes.
@@ -2278,6 +2278,78 @@ export class Store {
       ...row,
       isVote: fromSqliteBool(row.isVote),
     }));
+  }
+
+  addCvrContestTag({
+    cvrId,
+    contestId,
+    tagType,
+    isResolved,
+  }: CvrContestTag): void {
+    this.client.run(
+      `
+      insert into cvr_contest_tags
+        (cvr_id, contest_id, tag_type, is_resolved)
+      values
+        (?, ?, ?, ?, ?)
+    `,
+      cvrId,
+      contestId,
+      tagType,
+      asSqliteBool(isResolved)
+    );
+  }
+
+  getCvrContestTags({
+    contestId,
+    cvrId,
+  }: {
+    contestId: ContestId;
+    cvrId: Id;
+  }): CvrContestTag[] {
+    const rows = this.client.all(
+      `
+        select
+          cvr_id as cvrId,
+          contest_id as contestId,
+          tag_type as tagType,
+          is_resolved as isResolved
+        from cvr_contest_tags
+        where cvr_id = ?
+          and contest_id = ?
+      `,
+      contestId,
+      cvrId
+    ) as Array<{
+      cvrId: Id;
+      contestId: ContestId;
+      tagType: 'overvote' | 'write-in' | 'marginal-mark';
+      isResolved: SqliteBool;
+    }>;
+
+    return rows.map((row) => ({
+      ...row,
+      isResolved: fromSqliteBool(row.isResolved),
+    }));
+  }
+
+  resolveCvrContestTags({
+    contestId,
+    cvrId,
+  }: {
+    contestId: ContestId;
+    cvrId: Id;
+  }): void {
+    this.client.run(
+      `
+      update cvr_contest_tags
+      set is_resolved = 1
+      where cvr_id = ?
+        and contest_id = ?
+    `,
+      cvrId,
+      contestId
+    );
   }
 
   setWriteInRecordOfficialCandidate({

@@ -20,10 +20,7 @@ import {
 import { format } from '@votingworks/utils';
 import { NavigationScreen } from '../components/navigation_screen';
 import { AppContext } from '../contexts/app_context';
-import {
-  getCastVoteRecordFiles,
-  getWriteInAdjudicationCvrQueueMetadata,
-} from '../api';
+import { getCastVoteRecordFiles, getAdjudicationQueueCounts } from '../api';
 import { routerPaths } from '../router_paths';
 
 const ContentWrapper = styled.div`
@@ -39,13 +36,13 @@ export function WriteInsSummaryScreen(): JSX.Element {
   const { electionDefinition, isOfficialResults } = useContext(AppContext);
 
   const writeInAdjudicationCvrQueueMetadataQuery =
-    getWriteInAdjudicationCvrQueueMetadata.useQuery();
+    getAdjudicationQueueCounts.useQuery();
   const castVoteRecordFilesQuery = getCastVoteRecordFiles.useQuery();
 
   const election = electionDefinition?.election;
   if (!election) {
     return (
-      <NavigationScreen title="Write-In Adjudication">
+      <NavigationScreen title="Adjudication">
         <P>Election must be defined.</P>
       </NavigationScreen>
     );
@@ -56,7 +53,7 @@ export function WriteInsSummaryScreen(): JSX.Element {
     !castVoteRecordFilesQuery.isSuccess
   ) {
     return (
-      <NavigationScreen title="Write-In Adjudication">
+      <NavigationScreen title="Adjudication">
         <Loading isFullscreen />
       </NavigationScreen>
     );
@@ -90,7 +87,7 @@ export function WriteInsSummaryScreen(): JSX.Element {
   }
 
   return (
-    <NavigationScreen title="Write-In Adjudication">
+    <NavigationScreen title="Adjudication">
       <ContentWrapper>
         <div>
           {renderHeaderText()}

@@ -152,6 +152,15 @@ create table vote_adjudications (
     on delete cascade
 );
 
+create table cvr_contest_tags (
+  sequence_id integer primary key autoincrement,
+  cvr_id varchar(36) not null,
+  contest_id text not null,
+  is_resolved boolean not null default false,
+  tag_type text not null 
+    check (tag_type = 'overvote' or tag_type = 'write-in' or tag_type = 'marginal-mark')
+);
+
 create table scanner_batches (
   id text not null,
   label text not null,

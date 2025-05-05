@@ -340,15 +340,13 @@ export function createApiMock(
       input: { contestId: ContestId },
       cvrIds: Id[]
     ) {
-      apiClient.getWriteInAdjudicationCvrQueue
-        .expectCallWith(input)
-        .resolves(cvrIds);
+      apiClient.getAdjudicationQueue.expectCallWith(input).resolves(cvrIds);
     },
 
     expectGetWriteInAdjudicationCvrQueueMetadata(
       queueMetadata: WriteInAdjudicationQueueMetadata[]
     ) {
-      return apiClient.getWriteInAdjudicationCvrQueueMetadata
+      return apiClient.getAdjudicationQueueCounts
         .expectCallWith()
         .resolves(queueMetadata);
     },
