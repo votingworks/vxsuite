@@ -33,7 +33,7 @@ test('ballot style filter', () => {
     />
   );
   expect(screen.getByTestId('custom-filter-summary').textContent).toEqual(
-    'Ballot Style: 1'
+    'Ballot Style: City of Lincoln'
   );
 });
 
@@ -147,7 +147,7 @@ test('complex filter', () => {
     [
       'Voting Method: Absentee',
       'Precinct: North Lincoln',
-      'Ballot Style: 1',
+      'Ballot Style: City of Lincoln',
     ].join('')
   );
 });

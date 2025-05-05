@@ -68,6 +68,9 @@ test('generateTitleForReport', () => {
       votingMethods: ['absentee'],
       adjudicationFlags: ['isBlank'],
     },
+    {
+      ballotStyleGroupIds: ['1M'] as BallotStyleGroupId[],
+    },
   ];
 
   for (const filter of unsupportedFilters) {
@@ -90,12 +93,6 @@ test('generateTitleForReport', () => {
         precinctIds: ['precinct-1'],
       },
       'Tally Report • Precinct 1',
-    ],
-    [
-      {
-        ballotStyleGroupIds: ['1M'] as BallotStyleGroupId[],
-      },
-      'Tally Report • Ballot Style 1M',
     ],
     [
       {

@@ -91,8 +91,8 @@ test('precinct, voting method, ballot style selection (general flow)', () => {
       'Select Filter Values'
     )
   );
-  screen.getByText('1M');
-  screen.getByText('2F');
+  screen.getByText('District 1 - Mammal');
+  screen.getByText('District 1 - Fish');
 
   // Remove filter row
   userEvent.click(
