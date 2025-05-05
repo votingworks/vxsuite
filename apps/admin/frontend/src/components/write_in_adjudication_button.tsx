@@ -110,7 +110,7 @@ export function WriteInAdjudicationButton({
   }
 
   if (!inputValue) {
-    options.unshift({ label: 'Not a mark', value: INVALID_KEY });
+    options.unshift({ label: 'Invalid mark', value: INVALID_KEY });
   }
 
   return (

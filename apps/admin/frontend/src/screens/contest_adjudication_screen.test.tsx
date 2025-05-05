@@ -139,7 +139,7 @@ describe('hmpb write-in adjudication', () => {
 
     writeInSearchSelect = screen.getByRole('combobox');
     expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
-    const item = await screen.findByText(/not a mark/i);
+    const item = await screen.findByText(/invalid mark/i);
     fireEvent.click(item);
 
     expect(screen.queryByText(/invalid mark/i)).toBeInTheDocument();
@@ -256,7 +256,7 @@ describe('hmpb write-in adjudication', () => {
 
     // review dropdown options
     expect(screen.queryByText(/add:/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/not a mark/i)).toBeInTheDocument();
+    expect(screen.queryByText(/invalid mark/i)).toBeInTheDocument();
     expect(screen.getAllByText(/elephant/i)).toHaveLength(2);
     expect(screen.getAllByText(/lion/i)).toHaveLength(2);
     expect(screen.getAllByText(/kangaroo/i)).toHaveLength(1);
@@ -265,7 +265,7 @@ describe('hmpb write-in adjudication', () => {
     userEvent.type(writeInSearchSelect, 'e');
 
     expect(screen.queryByText(/add: e/i)).toBeInTheDocument();
-    expect(screen.queryByText(/not a mark/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/invalid mark/i)).not.toBeInTheDocument();
     expect(screen.getAllByText(/elephant/i)).toHaveLength(2);
     expect(screen.getAllByText(/lion/i)).toHaveLength(1);
 
@@ -274,7 +274,7 @@ describe('hmpb write-in adjudication', () => {
     userEvent.type(writeInSearchSelect, 'OLIVER');
 
     expect(screen.queryByText(/add:/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/not a mark/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/invalid mark/i)).not.toBeInTheDocument();
     expect(screen.getAllByText(/elephant/i)).toHaveLength(1);
     expect(screen.getAllByText(/oliver/i)).toHaveLength(2);
 
@@ -348,12 +348,12 @@ describe('hmpb write-in adjudication', () => {
     expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
 
     expect(screen.queryByText(/add:/i)).not.toBeInTheDocument();
-    expect(screen.queryAllByText(/not a mark/i)).toHaveLength(2);
+    expect(screen.queryAllByText(/invalid mark/i)).toHaveLength(2);
     expect(screen.queryByText(/oliver/i)).toBeInTheDocument();
 
     userEvent.type(writeInSearchSelect, 'siena');
 
-    expect(screen.queryByText(/not a mark/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/invalid mark/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/oliver/i)).not.toBeInTheDocument();
 
     // add new candidate
@@ -457,7 +457,7 @@ describe('bmd write-in adjudication', () => {
     writeInSearchSelect = screen.getByRole('combobox');
     expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
 
-    const invalidMarkItem = getDropdownItemByLabel('Not a mark');
+    const invalidMarkItem = getDropdownItemByLabel('Invalid mark');
     userEvent.click(invalidMarkItem!);
 
     expect(screen.queryByText(/invalid mark/i)).toBeInTheDocument();

@@ -31,7 +31,7 @@ export function DoubleVoteAlertModal({
             <br />
             If the ballot contest does indeed contain a double vote, you can
             invalidate the write-in by selecting{' '}
-            <Font weight="bold">Not a mark</Font>.
+            <Font weight="bold">Invalid mark</Font>.
           </P>
         );
       case 'adjudicated-official-candidate':
@@ -46,7 +46,7 @@ export function DoubleVoteAlertModal({
             <br />
             If the ballot contest does indeed contain a double vote, you can
             invalidate the write-in by selecting{' '}
-            <Font weight="bold">Not a mark</Font>.
+            <Font weight="bold">Invalid mark</Font>.
           </P>
         );
       default: {
