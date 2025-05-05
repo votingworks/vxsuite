@@ -6,9 +6,9 @@ import { withManyApps } from '../test/app';
 import {
   parseValidStreetsFromCsvString,
   parseVotersFromCsvString,
-} from './pollbook_package.js';
-import { PollbookConnectionStatus } from './types.js';
-import { NETWORK_POLLING_INTERVAL } from './globals.js';
+} from './pollbook_package';
+import { PollbookConnectionStatus } from './types';
+import { EVENT_POLLING_INTERVAL, NETWORK_POLLING_INTERVAL } from './globals';
 import { AvahiService, hasOnlineInterface } from './avahi';
 
 let mockNodeEnv: 'production' | 'test' = 'test';
@@ -340,6 +340,121 @@ test('connection status between two pollbooks is managed properly', async () => 
           ],
         },
       });
+    });
+  });
+});
+
+test('connection status is managed properly with many pollbooks', async () => {
+  await withManyApps(5, async (pollbookContexts) => {
+    const testVoters = parseVotersFromCsvString(
+      electionFamousNames2021Fixtures.pollbookVoters.asText()
+    );
+    const testStreets = parseValidStreetsFromCsvString(
+      electionFamousNames2021Fixtures.pollbookStreetNames.asText()
+    );
+    vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+    const ports = [];
+    for (const context of pollbookContexts) {
+      context.mockUsbDrive.insertUsbDrive({});
+      expect(await context.localApiClient.getDeviceStatuses()).toMatchObject({
+        network: {
+          isOnline: false,
+          pollbooks: [],
+        },
+      });
+      const { port } = context.peerServer.address() as AddressInfo;
+      ports.push(port);
+
+      vi.spyOn(context.peerWorkspace.store, 'getNewEvents').mockResolvedValue({
+        events: [],
+        hasMore: false,
+      });
+    }
+    // Mock hasOnlineInterface to always return true
+    vi.mocked(hasOnlineInterface).mockResolvedValue(true);
+
+    vi.spyOn(AvahiService, 'discoverHttpServices').mockResolvedValue(
+      ports.map((port, i) => ({
+        name: `Pollbook-test-${i}`,
+        host: 'local',
+        resolvedIp: 'localhost',
+        port: port.toString(),
+      }))
+    );
+
+    await vi.waitFor(async () => {
+      vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+      for (const context of pollbookContexts) {
+        expect(await context.localApiClient.getDeviceStatuses()).toMatchObject({
+          network: {
+            isOnline: true,
+            pollbooks: [
+              expect.objectContaining({
+                status: PollbookConnectionStatus.WrongElection,
+              }),
+              expect.objectContaining({
+                status: PollbookConnectionStatus.WrongElection,
+              }),
+              expect.objectContaining({
+                status: PollbookConnectionStatus.WrongElection,
+              }),
+              expect.objectContaining({
+                status: PollbookConnectionStatus.WrongElection,
+              }),
+            ],
+          },
+        });
+      }
+    });
+
+    for (const context of pollbookContexts) {
+      expect(context.peerWorkspace.store.getNewEvents).not.toHaveBeenCalled();
+    }
+    for (const context of pollbookContexts) {
+      context.workspace.store.setElectionAndVoters(
+        electionFamousNames2021Fixtures.electionJson.readElection(),
+        testStreets,
+        testVoters
+      );
+    }
+
+    vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+    await vi.waitFor(
+      async () => {
+        vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+        for (const context of pollbookContexts) {
+          expect(
+            await context.localApiClient.getDeviceStatuses()
+          ).toMatchObject({
+            network: {
+              isOnline: true,
+              pollbooks: [
+                expect.objectContaining({
+                  status: PollbookConnectionStatus.Connected,
+                }),
+                expect.objectContaining({
+                  status: PollbookConnectionStatus.Connected,
+                }),
+                expect.objectContaining({
+                  status: PollbookConnectionStatus.Connected,
+                }),
+                expect.objectContaining({
+                  status: PollbookConnectionStatus.Connected,
+                }),
+              ],
+            },
+          });
+        }
+      },
+      { timeout: 3000 }
+    );
+
+    // Now that the pollbooks are connected they should be querying for each others events
+    await vi.waitFor(() => {
+      vi.advanceTimersByTime(EVENT_POLLING_INTERVAL);
+      for (const context of pollbookContexts) {
+        expect(context.peerWorkspace.store.getNewEvents).toHaveBeenCalled();
+      }
     });
   });
 });

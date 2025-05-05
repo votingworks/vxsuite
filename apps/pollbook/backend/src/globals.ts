@@ -33,10 +33,11 @@ export const WORKSPACE =
     ? join(__dirname, '../dev-workspace')
     : undefined);
 
-export const EVENT_POLLING_INTERVAL = 100;
+export const EVENT_POLLING_INTERVAL = 200;
 export const NETWORK_POLLING_INTERVAL = 2000;
 export const MACHINE_DISCONNECTED_TIMEOUT = 10000;
 export const NETWORK_REQUEST_TIMEOUT = 1000;
+export const NETWORK_GOSSIP_BRANCHING_FACTOR = 3;
 
 export const NETWORK_EVENT_LIMIT = 500;
 

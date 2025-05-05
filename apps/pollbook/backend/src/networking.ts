@@ -7,6 +7,7 @@ import { PeerAppContext, PollbookConnectionStatus } from './types';
 import { AvahiService, hasOnlineInterface } from './avahi';
 import {
   EVENT_POLLING_INTERVAL,
+  NETWORK_GOSSIP_BRANCHING_FACTOR,
   NETWORK_POLLING_INTERVAL,
   NETWORK_REQUEST_TIMEOUT,
   PEER_PORT,
@@ -50,9 +51,10 @@ function createApiClientForAddress(address: string): grout.Client<PeerApi> {
 export function fetchEventsFromConnectedPollbooks({
   workspace,
 }: PeerAppContext): void {
-  // Poll to fetch events from connected pollbooks
+  // Poll to fetch events from connected pollbooks using a gossip protocol
   process.nextTick(() => {
     let isPolling = false;
+    let pollbookQueue: string[] = [];
     setInterval(async () => {
       if (isPolling) {
         return;
@@ -68,9 +70,28 @@ export function fetchEventsFromConnectedPollbooks({
         const previouslyConnected = workspace.store.getPollbookServicesByName();
         const election = workspace.store.getElection();
 
-        // Fetch events from all connected pollbooks in parallel
+        // Maintain a queue of pollbooks to visit, refill and shuffle when empty
+        const pollbookNames = Object.keys(previouslyConnected).filter(
+          (name) =>
+            previouslyConnected[name].status ===
+            PollbookConnectionStatus.Connected
+        );
+        if (pollbookQueue.length === 0) {
+          // Shuffle pollbookNames
+          pollbookQueue = pollbookNames
+            .map((name) => ({ name, sort: Math.random() }))
+            .sort((a, b) => a.sort - b.sort)
+            .map(({ name }) => name);
+        }
+
+        // Select up to NETWORK_GOSSIP_BRANCHING_FACTOR pollbooks from the queue
+        const pollbooksToQuery = pollbookQueue.splice(
+          0,
+          NETWORK_GOSSIP_BRANCHING_FACTOR
+        );
+
         await Promise.all(
-          Object.keys(previouslyConnected).map(async (currentName) => {
+          pollbooksToQuery.map(async (currentName) => {
             const currentPollbookService = previouslyConnected[currentName];
             if (
               currentPollbookService.status !==
@@ -94,6 +115,7 @@ export function fetchEventsFromConnectedPollbooks({
               return;
             }
             try {
+              debug('Fetching events from ', currentPollbookService.machineId);
               let syncMoreEvents = true;
               while (syncMoreEvents) {
                 const lastEventSyncedPerNode =
