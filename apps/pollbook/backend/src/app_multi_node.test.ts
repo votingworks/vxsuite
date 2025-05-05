@@ -6,9 +6,9 @@ import { withManyApps } from '../test/app';
 import {
   parseValidStreetsFromCsvString,
   parseVotersFromCsvString,
-} from './pollbook_package.js';
-import { PollbookConnectionStatus } from './types.js';
-import { EVENT_POLLING_INTERVAL, NETWORK_POLLING_INTERVAL } from './globals.js';
+} from './pollbook_package';
+import { PollbookConnectionStatus } from './types';
+import { EVENT_POLLING_INTERVAL, NETWORK_POLLING_INTERVAL } from './globals';
 import { AvahiService, hasOnlineInterface } from './avahi';
 
 let mockNodeEnv: 'production' | 'test' = 'test';
