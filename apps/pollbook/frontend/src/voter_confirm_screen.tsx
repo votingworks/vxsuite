@@ -27,7 +27,6 @@ import {
 } from './shared_components';
 import { UpdateAddressFlow } from './update_address_flow';
 import { getVoter } from './api';
-import { UpdateNameFlow } from './update_name_flow';
 
 function isIdentificationMethodComplete(
   identificationMethod: Partial<VoterIdentificationMethod>
@@ -57,7 +56,6 @@ export function VoterConfirmScreen({
 }): JSX.Element | null {
   const getVoterQuery = getVoter.useQuery(voterId);
   const [showUpdateAddressFlow, setShowUpdateAddressFlow] = useState(false);
-  const [showUpdateNameFlow, setShowUpdateNameFlow] = useState(false);
   const [identificationMethod, setIdentificationMethod] = useState<
     Partial<VoterIdentificationMethod>
   >({ type: 'default' });
@@ -72,18 +70,8 @@ export function VoterConfirmScreen({
     return (
       <UpdateAddressFlow
         voter={voter}
-        returnToCheckIn={() => setShowUpdateAddressFlow(false)}
-        exitToSearch={onCancel}
-      />
-    );
-  }
-
-  if (showUpdateNameFlow) {
-    return (
-      <UpdateNameFlow
-        voter={voter}
-        returnToCheckIn={() => setShowUpdateNameFlow(false)}
-        exitToSearch={onCancel}
+        returnToPreviousScreen={() => setShowUpdateAddressFlow(false)}
+        returnToPreviousScreenLabelText="Return to Check-In"
       />
     );
   }
@@ -189,17 +177,9 @@ export function VoterConfirmScreen({
                 )}
               </Row>
             )}
-            <Row style={{ gap: '0.5rem' }}>
-              <Button icon="Edit" onPress={() => setShowUpdateNameFlow(true)}>
-                Update Name
-              </Button>
-              <Button
-                icon="Edit"
-                onPress={() => setShowUpdateAddressFlow(true)}
-              >
-                Update Address
-              </Button>
-            </Row>
+            <Button icon="Edit" onPress={() => setShowUpdateAddressFlow(true)}>
+              Update Address
+            </Button>
           </Row>
         </Column>
       </MainContent>
