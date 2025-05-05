@@ -42,7 +42,8 @@ function convertFileToCdf(
   inputPath: string,
   outputPath: string,
   machineId: string,
-  codeVersion: string
+  codeVersion: string,
+  compressed: boolean
 ): Promise<void> {
   const { promise, reject, resolve } = deferred<void>();
 
@@ -55,6 +56,7 @@ function convertFileToCdf(
     codeVersion,
     inputPath,
     outputPath,
+    compressed,
     (error) => (error ? reject(error) : resolve())
   );
 
@@ -77,7 +79,8 @@ async function convertLogsToCdf(
       join(logDir, 'vx-logs.log'),
       join(outputDir, 'vx-logs.cdf.log.json'),
       machineId,
-      codeVersion
+      codeVersion,
+      false
     );
   }
 
