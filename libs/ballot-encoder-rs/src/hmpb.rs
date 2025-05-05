@@ -57,11 +57,11 @@ pub enum Error {
     #[error("Invalid ballot type: {0}")]
     InvalidBallotType(u8),
 
-    #[error("Invalid precinct index: {index} (max: {max})")]
-    InvalidPrecinctIndex { index: usize, max: usize },
+    #[error("Invalid precinct index: {index} (count: {count})")]
+    InvalidPrecinctIndex { index: usize, count: usize },
 
-    #[error("Invalid ballot style index: {index} (max: {max})")]
-    InvalidBallotStyleIndex { index: usize, max: usize },
+    #[error("Invalid ballot style index: {index} (count: {count})")]
+    InvalidBallotStyleIndex { index: usize, count: usize },
 
     #[error("Coding error: {0}")]
     CodingError(coding::Error),
@@ -111,14 +111,14 @@ impl FromBitStreamWith<'_> for Metadata {
             .get(precinct_index.get() as usize)
             .ok_or_else(|| Error::InvalidPrecinctIndex {
                 index: precinct_index.get() as usize,
-                max: election.precincts.len(),
+                count: election.precincts.len(),
             })?;
         let ballot_style = election
             .ballot_styles
             .get(ballot_style_index.get() as usize)
             .ok_or_else(|| Error::InvalidBallotStyleIndex {
                 index: ballot_style_index.get() as usize,
-                max: election.ballot_styles.len(),
+                count: election.ballot_styles.len(),
             })?;
 
         Ok(Metadata {
@@ -172,21 +172,36 @@ mod test {
         let election_path = fixture_path.join("election.json");
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
-        // Encoded using libs/ballot-encoder
-        /*
-          const election = readFileSync('libs/ballot-interpreter/test/fixtures/ashland/election.json', 'utf-8');
-          console.log(encodeHmpbBallotPageMetadata(election, {
-            ballotHash: 'd27ab6588b1869544cde',
-            precinctId: 'town-id-01001-precinct-id-default',
-            ballotStyleId: 'card-number-5',
-            pageNumber: 1,
-            isTestMode: false,
-            ballotType: BallotType.Precinct,
-          }));
-        */
+
+        #[rustfmt::skip]
         let bytes = [
-            86, 80, 2, 210, 122, 182, 88, 139, 24, 105, 84, 76, 222, 0, 0, 0, 2, 0,
+            // 3-byte prelude
+            b'V', b'P', 2,
+
+            // 10-byte ballot hash
+            210, 122, 182, 88, 139, 24, 105, 84, 76, 222,
+
+            // 8 bits for precinct index
+            0b00000000,
+            //PPPPPPPP
+
+            // 5 bits for precinct index, 3 bits for ballot style index
+            0b00000000,
+            //PPPPPBBB
+
+            // 8 bits for ballot style index
+            0b00000000,
+            //BBBBBBBB
+
+            // 2 bits for ballot style index, 5 bits for page number, 1 bit for test mode
+            0b00000010,
+            //BBNNNNNM
+
+            // 4 bits for ballot type, 4 bits padding
+            0b00000000,
+            //TTTT----
         ];
+
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
         assert_eq!(
             Metadata::from_reader(&mut reader, &election).unwrap(),
@@ -198,6 +213,223 @@ mod test {
                 is_test_mode: false,
                 ballot_type: BallotType::Precinct,
             }
+        );
+    }
+
+    #[test]
+    fn test_error_empty_data() {
+        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures/ashland");
+        let election_path = fixture_path.join("election.json");
+        let election: Election =
+            serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
+        let mut reader = BitReader::endian(Cursor::new(&[]), BigEndian);
+
+        // TODO: use `assert_matches!` once that API is stable.
+        assert!(matches!(
+            Metadata::from_reader(&mut reader, &election),
+            Err(Error::Io(_))
+        ));
+    }
+
+    #[test]
+    fn test_error_invalid_prelude() {
+        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures/ashland");
+        let election_path = fixture_path.join("election.json");
+        let election: Election =
+            serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
+        let mut reader = BitReader::endian(Cursor::new(b"NOT"), BigEndian);
+
+        // TODO: use `assert_matches!` once that API is stable.
+        assert!(matches!(
+            Metadata::from_reader(&mut reader, &election),
+            Err(Error::InvalidPrelude([b'N', b'O', b'T']))
+        ));
+    }
+
+    #[test]
+    fn test_error_invalid_precinct_index() {
+        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures/ashland");
+        let election_path = fixture_path.join("election.json");
+        let election: Election =
+            serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
+
+        #[rustfmt::skip]
+        let bytes = [
+            // 3-byte prelude
+            b'V', b'P', 2,
+
+            // 10-byte ballot hash
+            210, 122, 182, 88, 139, 24, 105, 84, 76, 222,
+
+            // 8 bits for precinct index
+            0b00000000,
+            //PPPPPPPP
+
+            // 5 bits for precinct index, 3 bits for ballot style index
+            0b00001000,
+            //PPPPPBBB
+
+            // 8 bits for ballot style index
+            0b00000000,
+            //BBBBBBBB
+
+            // 2 bits for ballot style index, 5 bits for page number, 1 bit for test mode
+            0b00000010,
+            //BBNNNNNM
+
+            // 4 bits for ballot type, 4 bits padding
+            0b00000000,
+            //TTTT----
+        ];
+
+        let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
+        let result = Metadata::from_reader(&mut reader, &election);
+        assert!(
+            matches!(
+                result,
+                Err(Error::InvalidPrecinctIndex { index: 1, count: 1 })
+            ),
+            "Result is wrong: {result:?}"
+        );
+    }
+
+    #[test]
+    fn test_error_invalid_ballot_style_index() {
+        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures/ashland");
+        let election_path = fixture_path.join("election.json");
+        let election: Election =
+            serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
+
+        #[rustfmt::skip]
+        let bytes = [
+            // 3-byte prelude
+            b'V', b'P', 2,
+
+            // 10-byte ballot hash
+            210, 122, 182, 88, 139, 24, 105, 84, 76, 222,
+
+            // 8 bits for precinct index
+            0b00000000,
+            //PPPPPPPP
+
+            // 5 bits for precinct index, 3 bits for ballot style index
+            0b00000000,
+            //PPPPPBBB
+
+            // 8 bits for ballot style index
+            0b00000000,
+            //BBBBBBBB
+
+            // 2 bits for ballot style index, 5 bits for page number, 1 bit for test mode
+            0b01000010,
+            //BBNNNNNM
+
+            // 4 bits for ballot type, 4 bits padding
+            0b00000000,
+            //TTTT----
+        ];
+
+        let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
+        let result = Metadata::from_reader(&mut reader, &election);
+
+        // TODO: use `assert_matches!` once that API is stable.
+        assert!(
+            matches!(
+                result,
+                Err(Error::InvalidBallotStyleIndex { index: 1, count: 1 })
+            ),
+            "Result is wrong: {result:?}"
+        );
+    }
+
+    #[test]
+    fn test_error_invalid_ballot_type() {
+        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures/ashland");
+        let election_path = fixture_path.join("election.json");
+        let election: Election =
+            serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
+
+        #[rustfmt::skip]
+        let bytes = [
+            // 3-byte prelude
+            b'V', b'P', 2,
+
+            // 10-byte ballot hash
+            210, 122, 182, 88, 139, 24, 105, 84, 76, 222,
+
+            // 8 bits for precinct index
+            0b00000000,
+            //PPPPPPPP
+
+            // 5 bits for precinct index, 3 bits for ballot style index
+            0b00000000,
+            //PPPPPBBB
+
+            // 8 bits for ballot style index
+            0b00000000,
+            //BBBBBBBB
+
+            // 2 bits for ballot style index, 5 bits for page number, 1 bit for test mode
+            0b00000010,
+            //BBNNNNNM
+
+            // 4 bits for ballot type, 4 bits padding
+            0b11110000,
+            //TTTT----
+        ];
+
+        let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
+        let result = Metadata::from_reader(&mut reader, &election);
+
+        // TODO: use `assert_matches!` once that API is stable.
+        assert!(
+            matches!(result, Err(Error::InvalidBallotType(0b1111))),
+            "Result is wrong: {result:?}"
+        );
+    }
+
+    #[test]
+    fn test_error_invalid_page_number() {
+        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures/ashland");
+        let election_path = fixture_path.join("election.json");
+        let election: Election =
+            serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
+
+        #[rustfmt::skip]
+        let bytes = [
+            // 3-byte prelude
+            b'V', b'P', 2,
+
+            // 10-byte ballot hash
+            210, 122, 182, 88, 139, 24, 105, 84, 76, 222,
+
+            // 8 bits for precinct index
+            0b00000000,
+            //PPPPPPPP
+
+            // 5 bits for precinct index, 3 bits for ballot style index
+            0b00000000,
+            //PPPPPBBB
+
+            // 8 bits for ballot style index
+            0b00000000,
+            //BBBBBBBB
+
+            // 2 bits for ballot style index, 5 bits for page number, 1 bit for test mode
+            0b00111110,
+            //BBNNNNNM
+
+            // 4 bits for ballot type, 4 bits padding
+            0b00000000,
+            //TTTT----
+        ];
+
+        let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
+        let result = Metadata::from_reader(&mut reader, &election);
+
+        // TODO: use `assert_matches!` once that API is stable.
+        assert!(
+            matches!(result, Err(Error::CodingError(coding::Error::InvalidValue(v))) if v == "31")
         );
     }
 
