@@ -585,5 +585,11 @@ test('one pollbook can be configured from another pollbook', async () => {
       pollbookPackageHash: sha256(new Uint8Array(validZip)),
       machineId: 'test-1',
     });
+
+    expect(
+      await pollbookContext2.peerApiClient.configureFromMachine({
+        machineId: pollbookContext1.workspace.store.getMachineId(),
+      })
+    ).toEqual(err('already-configured'));
   });
 });

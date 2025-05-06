@@ -324,6 +324,7 @@ export interface PollbookInformation {
 
 export type ConfigurationError =
   | 'pollbook-connection-problem'
+  | 'already-configured'
   | 'invalid-pollbook-package';
 
 export const PollbookInformationSchema: z.ZodSchema<PollbookInformation> =

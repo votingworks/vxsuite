@@ -20,6 +20,7 @@ import {
   VoterSchema,
   PollbookConnectionStatus,
   PollbookInformation,
+  ConfigurationError,
 } from './types';
 import { HlcTimestamp, HybridLogicalClock } from './hybrid_logical_clock';
 import {
@@ -382,52 +383,64 @@ export abstract class Store {
     packageHash: string,
     validStreets: ValidStreetInfo[],
     voters: Voter[]
-  ): void {
+  ): undefined | ConfigurationError {
     this.election = electionDefinition.election;
     this.validStreetInfo = validStreets;
-    this.client.transaction(() => {
-      this.client.run(
-        `
-          insert into elections (
-            election_id,
-            election_data,
-            ballot_hash,
-            package_hash,
-            valid_street_data,
-            is_absentee_mode
-          ) values (
-            ?, ?, ?, ?, ?, 0
-          )
-        `,
-        electionDefinition.election.id,
-        JSON.stringify(electionDefinition.election),
-        electionDefinition.ballotHash,
-        packageHash,
-        JSON.stringify(validStreets)
-      );
-      for (const voter of voters) {
+    try {
+      this.client.transaction(() => {
         this.client.run(
           `
-            insert into voters (
-              voter_id,
-              original_first_name,
-              original_last_name,
-              updated_first_name,
-              updated_last_name,
-              voter_data
+            insert into elections (
+              election_id,
+              election_data,
+              ballot_hash,
+              package_hash,
+              valid_street_data,
+              is_absentee_mode
             ) values (
-              ?, ?, ?, ?, ?, ?
+              ?, ?, ?, ?, ?, 0
             )
           `,
-          voter.voterId,
-          voter.firstName.toUpperCase(),
-          voter.lastName.toUpperCase(),
-          getUpdatedVoterFirstName(voter).toUpperCase(),
-          getUpdatedVoterLastName(voter).toUpperCase(),
-          JSON.stringify(voter)
+          electionDefinition.election.id,
+          JSON.stringify(electionDefinition.election),
+          electionDefinition.ballotHash,
+          packageHash,
+          JSON.stringify(validStreets)
         );
+        for (const voter of voters) {
+          this.client.run(
+            `
+              insert into voters (
+                voter_id,
+                original_first_name,
+                original_last_name,
+                updated_first_name,
+                updated_last_name,
+                voter_data
+              ) values (
+                ?, ?, ?, ?, ?, ?
+              )
+            `,
+            voter.voterId,
+            voter.firstName.toUpperCase(),
+            voter.lastName.toUpperCase(),
+            getUpdatedVoterFirstName(voter).toUpperCase(),
+            getUpdatedVoterLastName(voter).toUpperCase(),
+            JSON.stringify(voter)
+          );
+        }
+      });
+    } catch (error) {
+      debug('Failed to set election and voters: %s', error);
+
+      if (
+        error instanceof Error &&
+        error.message.includes('UNIQUE constraint failed')
+      ) {
+        return 'already-configured';
       }
-    });
+      throw error;
+    }
   }
 
   // Returns the valid street info. Used when registering a voter to populate address typeahead options.
