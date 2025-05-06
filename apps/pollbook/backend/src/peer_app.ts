@@ -2,11 +2,13 @@ import * as grout from '@votingworks/grout';
 import express, { Application } from 'express';
 import { join } from 'node:path';
 import fetch from 'node-fetch';
+import { unlink } from 'node:fs/promises';
 import { createReadStream, createWriteStream } from 'node:fs';
 import { pipeline } from 'node:stream/promises';
 import { tmpdir } from 'node:os';
 import { randomUUID } from 'node:crypto';
 import { err, ok, Result } from '@votingworks/basics';
+import { rootDebug } from './debug';
 import {
   MachineInformation,
   PollbookEvent,
@@ -18,6 +20,8 @@ import {
   setupMachineNetworking,
 } from './networking';
 import { readPollbookPackage } from './pollbook_package';
+
+const debug = rootDebug.extend('app:peer');
 
 function buildApi(context: PeerAppContext) {
   const { workspace, machineId } = context;
@@ -63,31 +67,37 @@ function buildApi(context: PeerAppContext) {
       }
       // Save to a temp file
       const tempPath = `${tmpdir()}/pollbook-package-${randomUUID()}.zip`;
-      const fileStream = createWriteStream(tempPath);
-      await pipeline(response.body, fileStream);
-      // Read and parse the pollbook package
-      const pollbookPackageResult = await readPollbookPackage(tempPath);
-      if (pollbookPackageResult.isErr()) {
-        return err('invalid-pollbook-package');
+      try {
+        const fileStream = createWriteStream(tempPath);
+        await pipeline(response.body, fileStream);
+        // Read and parse the pollbook package
+        const pollbookPackageResult = await readPollbookPackage(tempPath);
+        if (pollbookPackageResult.isErr()) {
+          return err('invalid-pollbook-package');
+        }
+        const pollbookPackage = pollbookPackageResult.ok();
+        // Configure this machine
+        store.setElectionAndVoters(
+          pollbookPackage.electionDefinition,
+          pollbookPackage.packageHash,
+          pollbookPackage.validStreets,
+          pollbookPackage.voters
+        );
+        // Save the pollbook package to send to other machines if necessary
+        const destinationPath = join(
+          context.workspace.assetDirectoryPath,
+          'pollbook-package.zip'
+        );
+        await pipeline(
+          createReadStream(tempPath),
+          createWriteStream(destinationPath)
+        );
+        return ok();
+      } finally {
+        await unlink(tempPath).catch((error) => {
+          debug(`Failed to delete temporary file at ${tempPath}:`, error);
+        });
       }
-      const pollbookPackage = pollbookPackageResult.ok();
-      // Configure this machine
-      store.setElectionAndVoters(
-        pollbookPackage.electionDefinition,
-        pollbookPackage.packageHash,
-        pollbookPackage.validStreets,
-        pollbookPackage.voters
-      );
-      // Save the pollbook package to send to other machines if necessary
-      const destinationPath = join(
-        context.workspace.assetDirectoryPath,
-        'pollbook-package.zip'
-      );
-      await pipeline(
-        createReadStream(tempPath),
-        createWriteStream(destinationPath)
-      );
-      return ok();
     },
   });
 }
