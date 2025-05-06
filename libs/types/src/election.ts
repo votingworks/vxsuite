@@ -889,7 +889,6 @@ export interface HmpbBallotPageMetadata {
   pageNumber: number;
   isTestMode: boolean;
   ballotType: BallotType;
-  ballotId?: BallotId;
 }
 export const HmpbBallotPageMetadataSchema: z.ZodSchema<HmpbBallotPageMetadata> =
   z.object({
@@ -1044,7 +1043,6 @@ export interface CompletedBallot {
   readonly ballotHash: string;
   readonly ballotStyleId: BallotStyleId;
   readonly precinctId: PrecinctId;
-  readonly ballotId?: BallotId;
   readonly votes: VotesDict;
   readonly isTestMode: boolean;
   readonly ballotType: BallotType;

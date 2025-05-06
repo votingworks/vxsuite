@@ -1,7 +1,6 @@
 import { expect, test } from 'vitest';
 import { readElectionGeneralDefinition as readElectionDefinition } from '@votingworks/fixtures';
 import {
-  BallotIdSchema,
   BallotStyleId,
   BallotType,
   BallotTypeMaximumValue,
@@ -9,7 +8,6 @@ import {
   getContests,
   HmpbBallotPageMetadata,
   isVotePresent,
-  unsafeParse,
   vote,
   VotesDict,
 } from '@votingworks/types';
@@ -63,10 +61,8 @@ test('encodes & decodes with Uint8Array as the standard encoding interface', () 
   const precinctId = precinct.id;
   const contests = getContests({ election, ballotStyle });
   const votes = vote(contests, {});
-  const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const ballot: CompletedBallot = {
     ballotHash,
-    ballotId,
     ballotStyleId,
     precinctId,
     votes,
@@ -81,57 +77,6 @@ test('encodes & decodes with Uint8Array as the standard encoding interface', () 
 });
 
 test('encodes & decodes empty votes correctly', () => {
-  const { election, ballotHash } = readElectionDefinition();
-  const ballotStyle = election.ballotStyles[0]!;
-  const precinct = election.precincts[0]!;
-  const ballotStyleId = ballotStyle.id;
-  const precinctId = precinct.id;
-  const contests = getContests({ ballotStyle, election });
-  const votes = vote(contests, {});
-  const ballotId = unsafeParse(BallotIdSchema, 'abcde');
-  const ballot: CompletedBallot = {
-    ballotHash,
-    ballotId,
-    ballotStyleId,
-    precinctId,
-    votes,
-    isTestMode: false,
-    ballotType: BallotType.Precinct,
-  };
-  const encodedBallot = new BitWriter()
-    // prelude + version number
-    .writeString('VX', { includeLength: false, length: 2 })
-    .writeUint8(2)
-    // ballot hash
-    .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
-      encoding: HexEncoding,
-      includeLength: false,
-      length: BALLOT_HASH_ENCODING_LENGTH,
-    })
-    // precinct index
-    .writeUint(0, { max: MAXIMUM_PRECINCTS })
-    // ballot style index
-    .writeUint(0, { max: MAXIMUM_BALLOT_STYLES })
-    // test ballot?
-    .writeBoolean(false)
-    // ballot type
-    .writeUint(precinctBallotTypeIndex, { max: BallotTypeMaximumValue })
-    // ballot id?
-    .writeBoolean(true)
-    // ballot id
-    .writeString('abcde')
-    // vote roll call only, no vote data
-    .writeBoolean(...contests.map(() => false))
-    .toUint8Array();
-
-  expect(encodeBallot(election, ballot)).toEqualBits(encodedBallot);
-  expect(decodeBallot(election, encodedBallot)).toEqual({
-    ...ballot,
-    ballotHash: ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH),
-  });
-});
-
-test('encodes & decodes without a ballot id', () => {
   const { election, ballotHash } = readElectionDefinition();
   const ballotStyle = election.ballotStyles[0]!;
   const precinct = election.precincts[0]!;
@@ -186,10 +131,8 @@ test('encodes & decodes whether it is a test ballot', () => {
   const precinctId = precinct.id;
   const contests = getContests({ ballotStyle, election });
   const votes = vote(contests, {});
-  const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const ballot: CompletedBallot = {
     ballotHash,
-    ballotId,
     ballotStyleId,
     precinctId,
     votes,
@@ -215,9 +158,7 @@ test('encodes & decodes whether it is a test ballot', () => {
     // ballot type
     .writeUint(precinctBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
-    .writeBoolean(true)
-    // ballot id
-    .writeString('abcde')
+    .writeBoolean(false)
     // vote roll call only, no vote data
     .writeBoolean(...contests.map(() => false))
     .toUint8Array();
@@ -237,13 +178,11 @@ test('encodes & decodes the ballot type', () => {
   const precinctId = precinct.id;
   const contests = getContests({ ballotStyle, election });
   const votes = vote(contests, {});
-  const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const absenteeBallotTypeIndex = Object.values(BallotType).indexOf(
     BallotType.Absentee
   );
   const ballot: CompletedBallot = {
     ballotHash,
-    ballotId,
     ballotStyleId,
     precinctId,
     votes,
@@ -269,9 +208,7 @@ test('encodes & decodes the ballot type', () => {
     // ballot type
     .writeUint(absenteeBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
-    .writeBoolean(true)
-    // ballot id
-    .writeString('abcde')
+    .writeBoolean(false)
     // vote roll call only, no vote data
     .writeBoolean(...contests.map(() => false))
     .toUint8Array();
@@ -289,7 +226,6 @@ test('encodes & decodes yesno votes correctly', () => {
   const precinct = election.precincts[0]!;
   const ballotStyleId = ballotStyle.id;
   const precinctId = precinct.id;
-  const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const contests = getContests({ ballotStyle, election });
   const votes = vote(contests, {
     'judicial-robert-demergue': ['judicial-robert-demergue-option-yes'],
@@ -303,7 +239,6 @@ test('encodes & decodes yesno votes correctly', () => {
   });
   const ballot: CompletedBallot = {
     ballotHash,
-    ballotId,
     ballotStyleId,
     precinctId,
     votes,
@@ -329,9 +264,7 @@ test('encodes & decodes yesno votes correctly', () => {
     // ballot type
     .writeUint(precinctBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
-    .writeBoolean(true)
-    // ballot id
-    .writeString('abcde')
+    .writeBoolean(false)
     // vote roll call
     .writeBoolean(
       ...contests.map((contest) => isVotePresent(votes[contest.id]))
@@ -357,12 +290,10 @@ test('throws on invalid precinct', () => {
   const ballotStyle = election.ballotStyles[0]!;
   const ballotStyleId = ballotStyle.id;
   const precinctId = 'not-a-precinct';
-  const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const contests = getContests({ ballotStyle, election });
   const votes = vote(contests, {});
   const ballot: CompletedBallot = {
     ballotHash,
-    ballotId,
     ballotStyleId,
     precinctId,
     votes,
@@ -380,7 +311,6 @@ test('throws on invalid ballot style', () => {
   const precinct = election.precincts[0]!;
   const ballotStyleId = 'not-a-ballot-style' as BallotStyleId;
   const precinctId = precinct.id;
-  const ballotId = unsafeParse(BallotIdSchema, 'abcde');
 
   expect(() =>
     encodeBallotConfigInto(
@@ -388,7 +318,6 @@ test('throws on invalid ballot style', () => {
       {
         ballotStyleId,
         precinctId,
-        ballotId,
         ballotType: BallotType.Precinct,
         isTestMode: false,
       },
@@ -403,14 +332,12 @@ test('throws on trying to encode a bad yes/no vote', () => {
   const precinct = election.precincts[0]!;
   const ballotStyleId = ballotStyle.id;
   const precinctId = precinct.id;
-  const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const contests = getContests({ ballotStyle, election });
   const votes = vote(contests, {});
   votes['judicial-robert-demergue'] =
     'judicial-robert-demergue-option-yes' as unknown as string[];
   const ballot: CompletedBallot = {
     ballotHash,
-    ballotId,
     ballotStyleId,
     precinctId,
     votes,
@@ -438,11 +365,9 @@ test('throws on trying to encode a ballot style', () => {
   const precinct = election.precincts[0]!;
   const ballotStyleId = `${ballotStyle.id}-CORRUPTED`;
   const precinctId = precinct.id;
-  const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const votes: VotesDict = {};
   const ballot: CompletedBallot = {
     ballotHash,
-    ballotId,
     ballotStyleId,
     precinctId,
     votes,
@@ -461,7 +386,6 @@ test('encodes & decodes candidate choice votes correctly', () => {
   const precinct = election.precincts[0]!;
   const ballotStyleId = ballotStyle.id;
   const precinctId = precinct.id;
-  const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const contests = getContests({ ballotStyle, election });
   const votes = vote(contests, {
     president: 'barchi-hallaren',
@@ -479,7 +403,6 @@ test('encodes & decodes candidate choice votes correctly', () => {
   });
   const ballot: CompletedBallot = {
     ballotHash,
-    ballotId,
     ballotStyleId,
     precinctId,
     votes,
@@ -505,9 +428,7 @@ test('encodes & decodes candidate choice votes correctly', () => {
     // ballot type
     .writeUint(precinctBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
-    .writeBoolean(true)
-    // ballot id
-    .writeString('abcde')
+    .writeBoolean(false)
     // vote roll call
     .writeBoolean(
       ...contests.map((contest) => isVotePresent(votes[contest.id]))
@@ -562,10 +483,8 @@ test('encodes & decodes write-in votes correctly', () => {
       { id: 'write-in-MICKEY MOUSE', name: 'MICKEY MOUSE', isWriteIn: true },
     ],
   });
-  const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const ballot: CompletedBallot = {
     ballotHash,
-    ballotId,
     ballotStyleId,
     precinctId,
     votes,
@@ -591,9 +510,7 @@ test('encodes & decodes write-in votes correctly', () => {
     // ballot type
     .writeUint(precinctBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
-    .writeBoolean(true)
-    // ballot id
-    .writeString('abcde')
+    .writeBoolean(false)
     // vote roll call
     .writeBoolean(
       ...contests.map((contest) => isVotePresent(votes[contest.id]))
@@ -637,10 +554,8 @@ test('cannot decode a ballot that includes extra data at the end', () => {
   const precinctId = precinct.id;
   const contests = getContests({ election, ballotStyle });
   const votes = vote(contests, {});
-  const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const ballot: CompletedBallot = {
     ballotHash,
-    ballotId,
     ballotStyleId,
     precinctId,
     votes,
@@ -667,10 +582,8 @@ test('cannot decode a ballot that includes too much padding at the end', () => {
   const precinctId = precinct.id;
   const contests = getContests({ election, ballotStyle });
   const votes = vote(contests, {});
-  const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const ballot: CompletedBallot = {
     ballotHash,
-    ballotId,
     ballotStyleId,
     precinctId,
     votes,
@@ -697,10 +610,8 @@ test('decode ballot hash from BMD metadata', () => {
   const precinctId = precinct.id;
   const contests = getContests({ ballotStyle, election });
   const votes = vote(contests, {});
-  const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const ballot: CompletedBallot = {
     ballotHash,
-    ballotId,
     ballotStyleId,
     precinctId,
     votes,

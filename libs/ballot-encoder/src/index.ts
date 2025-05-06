@@ -1,6 +1,4 @@
 import {
-  BallotId,
-  BallotIdSchema,
   BallotStyleId,
   BallotType,
   BallotTypeMaximumValue,
@@ -15,7 +13,6 @@ import {
   HmpbBallotPageMetadata,
   isVotePresent,
   PrecinctId,
-  unsafeParse,
   validateVotes,
   VotesDict,
   YesNoContest,
@@ -103,7 +100,6 @@ export function isVxBallot(data: Uint8Array): boolean {
  * Data needed to uniquely identify a ballot page, possibly including an ID.
  */
 export interface BallotConfig {
-  ballotId?: BallotId;
   ballotStyleId: BallotStyleId;
   ballotType: BallotType;
   isTestMode: boolean;
@@ -117,7 +113,6 @@ export interface BallotConfig {
 export function encodeBallotConfigInto(
   election: Election,
   {
-    ballotId,
     ballotStyleId,
     ballotType,
     isTestMode,
@@ -153,11 +148,12 @@ export function encodeBallotConfigInto(
   const ballotTypeIndex = Object.values(BallotType).indexOf(ballotType);
   bits.writeUint(ballotTypeIndex, { max: BallotTypeMaximumValue });
 
-  bits.writeBoolean(!!ballotId);
-
-  if (ballotId) {
-    bits.writeString(ballotId);
-  }
+  // The encoding includes an optional ballot ID string preceded by a boolean
+  // flag signifying whether the ballot ID is present. Since the ballot ID isn't
+  // used anymore by the ballots, this flag is  always false for backwards
+  // compatibility.
+  // TODO: remove the ballot ID flag at some point: https://github.com/votingworks/vxsuite/issues/6373
+  bits.writeBoolean(false);
 
   return bits;
 }
@@ -185,9 +181,11 @@ export function decodeBallotConfigFromReader(
   const ballotType = Object.values(BallotType)[ballotTypeIndex];
   assert(ballotType, `ballot type index ${ballotTypeIndex} is invalid`);
 
-  const ballotId = bits.readBoolean()
-    ? unsafeParse(BallotIdSchema, bits.readString())
-    : undefined;
+  // The encoding includes an optional ballot ID string preceded by a boolean
+  // flag signifying whether the ballot ID is present. We no longer use the
+  // ballot ID, but to maintain backwards compatibility we still write the flag.
+  // So we still need to read the flag (which should always be false).
+  assert(!bits.readBoolean(), 'Ballot ID is not supported');
 
   const ballotStyle = ballotStyles[ballotStyleIndex];
   const precinct = precincts[precinctIndex];
@@ -196,7 +194,6 @@ export function decodeBallotConfigFromReader(
   assert(precinct, `precinct index ${precinctIndex} is invalid`);
 
   return {
-    ballotId,
     ballotStyleId: ballotStyle.id,
     precinctId: precinct.id,
     pageNumber,
@@ -293,7 +290,6 @@ export function encodeBallotInto(
     ballotStyleId,
     precinctId,
     votes,
-    ballotId,
     isTestMode,
     ballotType,
   }: CompletedBallot,
@@ -320,7 +316,6 @@ export function encodeBallotInto(
       encodeBallotConfigInto(
         election,
         {
-          ballotId,
           ballotStyleId,
           precinctId,
           ballotType,
@@ -444,7 +439,7 @@ export function decodeBallotFromReader(
     length: BALLOT_HASH_ENCODING_LENGTH,
   });
 
-  const { ballotId, ballotStyleId, ballotType, isTestMode, precinctId } =
+  const { ballotStyleId, ballotType, isTestMode, precinctId } =
     decodeBallotConfigFromReader(election, bits);
   const ballotStyle = getBallotStyle({ ballotStyleId, election });
   const precinct = getPrecinctById({ precinctId, election });
@@ -459,7 +454,6 @@ export function decodeBallotFromReader(
 
   return {
     ballotHash,
-    ballotId,
     ballotStyleId,
     precinctId,
     votes,
@@ -505,7 +499,6 @@ export function decodeBallotHash(data: Uint8Array): string | undefined {
 export function encodeHmpbBallotPageMetadataInto(
   election: Election,
   {
-    ballotId,
     ballotStyleId,
     ballotType,
     ballotHash,
@@ -526,7 +519,6 @@ export function encodeHmpbBallotPageMetadataInto(
       encodeBallotConfigInto(
         election,
         {
-          ballotId,
           ballotStyleId,
           ballotType,
           isTestMode,
