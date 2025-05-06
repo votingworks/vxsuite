@@ -393,7 +393,7 @@ export const testVxfElection: Election = {
   ],
   ballotStrings: {
     en: {
-      ballotLanguage: 'English',
+      ballotLanguage: { en: 'English' },
       ballotStyleId: {
         '1_en': '1_en',
         '2_en': '2_en',

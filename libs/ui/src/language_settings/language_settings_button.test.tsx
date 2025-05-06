@@ -1,5 +1,9 @@
 import { expect, test, vi } from 'vitest';
-import { ElectionStringKey, UiStringsPackage } from '@votingworks/types';
+import {
+  ElectionStringKey,
+  LanguageCode,
+  UiStringsPackage,
+} from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { advancePromises, TestLanguageCode } from '@votingworks/test-utils';
@@ -29,8 +33,16 @@ test('displays current language', async () => {
   mockApiClient.getAvailableLanguages.mockResolvedValue([ENGLISH, SPANISH]);
 
   const testTranslations: UiStringsPackage = {
-    [ENGLISH]: { [ElectionStringKey.BALLOT_LANGUAGE]: 'English' },
-    [SPANISH]: { [ElectionStringKey.BALLOT_LANGUAGE]: 'Español' },
+    [ENGLISH]: {
+      [ElectionStringKey.BALLOT_LANGUAGE]: {
+        [LanguageCode.ENGLISH]: 'English',
+      },
+    },
+    [SPANISH]: {
+      [ElectionStringKey.BALLOT_LANGUAGE]: {
+        [LanguageCode.SPANISH]: 'Español',
+      },
+    },
   };
   mockApiClient.getUiStrings.mockImplementation((input) =>
     Promise.resolve(testTranslations[input.languageCode] || null)
@@ -84,17 +96,23 @@ test('plays audio instructions in all languages', async () => {
 
   const testTranslations: UiStringsPackage = {
     [ENGLISH]: {
-      [ElectionStringKey.BALLOT_LANGUAGE]: 'English',
+      [ElectionStringKey.BALLOT_LANGUAGE]: {
+        [LanguageCode.ENGLISH]: 'English',
+      },
       labelCurrentLanguage: '(English Label)',
       instructionsLanguageSettingsButton: '(English Instructions)',
     },
     [SPANISH]: {
-      [ElectionStringKey.BALLOT_LANGUAGE]: 'Español',
+      [ElectionStringKey.BALLOT_LANGUAGE]: {
+        [LanguageCode.SPANISH]: 'Español',
+      },
       labelCurrentLanguage: '(Spanish Label)',
       instructionsLanguageSettingsButton: '(Spanish Instructions)',
     },
     [CHINESE_SIMPLIFIED]: {
-      [ElectionStringKey.BALLOT_LANGUAGE]: '简体中文',
+      [ElectionStringKey.BALLOT_LANGUAGE]: {
+        [LanguageCode.CHINESE_SIMPLIFIED]: '简体中文',
+      },
       labelCurrentLanguage: '(Chinese Label)',
       instructionsLanguageSettingsButton: '(Chinese Instructions)',
     },

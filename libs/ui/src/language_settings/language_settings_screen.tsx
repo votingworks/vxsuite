@@ -7,6 +7,7 @@ import { Screen } from '../screen';
 import { Button } from '../button';
 import {
   AudioOnly,
+  LanguageOverride,
   ReadOnLoad,
   appStrings,
   electionStrings,
@@ -69,7 +70,9 @@ export function LanguageSettingsScreen(
     return (
       <React.Fragment>
         {selectedPrefix}
-        {electionStrings.ballotLanguage(languageCode)}
+        <LanguageOverride languageCode={languageCode}>
+          {electionStrings.ballotLanguage(languageCode)}
+        </LanguageOverride>
       </React.Fragment>
     );
   }

@@ -73,7 +73,9 @@ export const electionData = `
   "state": "STATE",
   "ballotStrings": {
     "en": {
-       "ballotLanguage": "English",
+       "ballotLanguage": {
+          "en": "English"
+       },
        "ballotStyleId": {
           "1": "1"
        },
@@ -380,7 +382,9 @@ const electionTwoPartyPrimaryData = `
   "seal": "<svg>test seal</svg>",
   "ballotStrings": {
     "en": {
-      "ballotLanguage": "English",
+      "ballotLanguage": {
+        "en": "English"
+      },
       "ballotStyleId": {
         "1M": "1M",
         "2F": "2F"

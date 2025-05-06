@@ -1,4 +1,4 @@
-import { assert, assertDefined } from '@votingworks/basics';
+import { assert, assertDefined, unique } from '@votingworks/basics';
 import {
   CandidateContest,
   Election,
@@ -9,6 +9,7 @@ import {
   getAllBallotLanguages,
   LanguageCode,
   hasSplits,
+  DEFAULT_LANGUAGE_CODE,
 } from '@votingworks/types';
 
 import { format } from '@votingworks/utils';
@@ -27,9 +28,10 @@ interface ElectionStringConfigNotTranslatable {
 interface ElectionStringConfigTranslatable {
   translatable: true;
   customTranslationMethod?: (input: {
+    stringKey: ElectionStringKey | [ElectionStringKey, string];
+    stringInEnglish: string;
     election: Election;
     languageCode: LanguageCode;
-    stringInEnglish: string;
   }) => string;
 }
 
@@ -40,9 +42,10 @@ type ElectionStringConfig =
 const electionStringConfigs: Record<ElectionStringKey, ElectionStringConfig> = {
   [ElectionStringKey.BALLOT_LANGUAGE]: {
     translatable: true,
-    customTranslationMethod: (p) =>
+    customTranslationMethod: ({ stringKey, languageCode }) =>
       format.languageDisplayName({
-        languageCode: p.languageCode,
+        languageCode: stringKey[1],
+        displayLanguageCode: languageCode,
       }),
   },
   [ElectionStringKey.BALLOT_STYLE_ID]: {
@@ -101,13 +104,19 @@ const electionStringExtractorFns: Record<
   ElectionStringKey,
   (election: Election) => ElectionString[]
 > = {
-  [ElectionStringKey.BALLOT_LANGUAGE]() {
-    return [
-      {
-        stringKey: ElectionStringKey.BALLOT_LANGUAGE,
-        stringInEnglish: 'English',
-      },
-    ];
+  [ElectionStringKey.BALLOT_LANGUAGE](election) {
+    const electionLanguages = unique(
+      election.ballotStyles
+        .flatMap((ballotStyle) => ballotStyle.languages ?? [])
+        .concat([DEFAULT_LANGUAGE_CODE])
+    );
+    return electionLanguages.map((languageCode) => ({
+      stringKey: [ElectionStringKey.BALLOT_LANGUAGE, languageCode],
+      stringInEnglish: format.languageDisplayName({
+        languageCode,
+        displayLanguageCode: DEFAULT_LANGUAGE_CODE,
+      }),
+    }));
   },
   [ElectionStringKey.BALLOT_STYLE_ID](election) {
     return election.ballotStyles.map((ballotStyle) => ({
@@ -334,9 +343,10 @@ export async function extractAndTranslateElectionStrings(
     assert(config.translatable && config.customTranslationMethod);
     for (const languageCode of languages) {
       const stringInLanguage = config.customTranslationMethod({
+        stringKey,
+        stringInEnglish,
         election,
         languageCode,
-        stringInEnglish,
       });
       setUiString(electionStrings, languageCode, stringKey, stringInLanguage);
     }

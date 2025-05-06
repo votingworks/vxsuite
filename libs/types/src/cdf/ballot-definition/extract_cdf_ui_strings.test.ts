@@ -4,6 +4,7 @@ import { extractCdfUiStrings } from './convert';
 import * as BallotDefinition from './index';
 import { testCdfBallotDefinition } from './fixtures';
 import { ElectionStringKey } from '../../ui_string_translations';
+import { LanguageCode } from '../../language_code';
 
 function buildInternationalizedText(
   values: Record<string, string>
@@ -30,9 +31,9 @@ const tests: Record<ElectionStringKey, () => void> = {
   [ElectionStringKey.BALLOT_LANGUAGE]() {
     const uiStrings = extractCdfUiStrings(testCdfBallotDefinition);
 
-    expect(uiStrings['en']?.[ElectionStringKey.BALLOT_LANGUAGE]).toEqual(
-      'English'
-    );
+    expect(uiStrings['en']?.[ElectionStringKey.BALLOT_LANGUAGE]).toEqual({
+      [LanguageCode.ENGLISH]: 'English',
+    });
   },
 
   [ElectionStringKey.BALLOT_STYLE_ID]() {

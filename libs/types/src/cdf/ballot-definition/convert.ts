@@ -108,23 +108,26 @@ const extractorFns: Record<
   [ElectionStringKey.BALLOT_LANGUAGE](cdfElection, uiStrings) {
     // CDF does not support internationalized text for this string, so we just
     // use JS to internationalize the language code.
-    setInternationalizedUiStrings({
-      uiStrings,
-      stringKey: ElectionStringKey.BALLOT_LANGUAGE,
-      values: electionLanguageCodes(cdfElection).map(
-        (languageCode): Cdf.LanguageString => ({
-          '@type': 'BallotDefinition.LanguageString',
-          Language: languageCode,
-          Content: assertDefined(
-            new Intl.DisplayNames([languageCode], {
-              type: 'language',
-              style: 'narrow',
-              fallback: 'none',
-            }).of(languageCode)
-          ),
-        })
-      ),
-    });
+    const languageCodes = electionLanguageCodes(cdfElection);
+    for (const languageCode of languageCodes) {
+      setInternationalizedUiStrings({
+        uiStrings,
+        stringKey: [ElectionStringKey.BALLOT_LANGUAGE, languageCode],
+        values: languageCodes.map(
+          (displayLanguageCode): Cdf.LanguageString => ({
+            '@type': 'BallotDefinition.LanguageString',
+            Language: displayLanguageCode,
+            Content: assertDefined(
+              new Intl.DisplayNames([displayLanguageCode], {
+                type: 'language',
+                style: 'narrow',
+                fallback: 'none',
+              }).of(languageCode)
+            ),
+          })
+        ),
+      });
+    }
   },
 
   [ElectionStringKey.BALLOT_STYLE_ID](cdfElection, uiStrings) {

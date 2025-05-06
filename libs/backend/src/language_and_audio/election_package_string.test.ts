@@ -41,7 +41,7 @@ describe('getAllStringsForElectionPackage', () => {
       LanguageCode.SPANISH,
     ]);
     assert(appStrings[LanguageCode.ENGLISH]);
-    expect(Object.keys(appStrings[LanguageCode.ENGLISH])).toHaveLength(427);
+    expect(Object.keys(appStrings[LanguageCode.ENGLISH])).toHaveLength(428);
 
     expect(hmpbStrings).toBeDefined();
     expect(Object.keys(hmpbStrings)).toEqual([
