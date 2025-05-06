@@ -6,12 +6,19 @@ import {
 } from '../components/layout';
 
 export function Screen(
-  props: Omit<CenteredScreenProps, 'infoBarMode' | 'voterFacing'>
+  props: Omit<
+    CenteredScreenProps,
+    'infoBarMode' | 'voterFacing' | 'showTestModeBanner'
+  >
 ): JSX.Element {
   const { children } = props;
 
   return (
-    <ScreenMainCenterChild infoBarMode="pollworker" voterFacing={false}>
+    <ScreenMainCenterChild
+      infoBarMode="pollworker"
+      voterFacing={false}
+      showTestModeBanner={false}
+    >
       {children}
     </ScreenMainCenterChild>
   );

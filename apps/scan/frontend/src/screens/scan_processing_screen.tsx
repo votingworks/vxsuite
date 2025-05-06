@@ -1,9 +1,15 @@
 import { H1, LoadingAnimation, P, appStrings } from '@votingworks/ui';
 import { CenteredText, ScreenMainCenterChild } from '../components/layout';
 
-export function ScanProcessingScreen(): JSX.Element {
+export interface ScanProcessingScreenProps {
+  isTestMode: boolean;
+}
+
+export function ScanProcessingScreen({
+  isTestMode,
+}: ScanProcessingScreenProps): JSX.Element {
   return (
-    <ScreenMainCenterChild voterFacing>
+    <ScreenMainCenterChild voterFacing showTestModeBanner={isTestMode}>
       <LoadingAnimation />
       <CenteredText>
         <H1>{appStrings.titleScannerProcessingScreen()}</H1>
@@ -15,5 +21,5 @@ export function ScanProcessingScreen(): JSX.Element {
 
 /* istanbul ignore next - @preserve */
 export function DefaultPreview(): JSX.Element {
-  return <ScanProcessingScreen />;
+  return <ScanProcessingScreen isTestMode={false} />;
 }

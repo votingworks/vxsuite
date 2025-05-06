@@ -4,20 +4,20 @@ import { Screen } from '../components/layout';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 
 export interface PollsNotOpenScreenProps {
-  isLiveMode: boolean;
+  isTestMode: boolean;
   pollsState: Omit<PollsState, 'polls_open'>;
   scannedBallotCount: number;
 }
 
 export function PollsNotOpenScreen({
-  isLiveMode,
+  isTestMode,
   pollsState,
   scannedBallotCount,
 }: PollsNotOpenScreenProps): JSX.Element {
   return (
     <Screen
       centerContent
-      isLiveMode={isLiveMode}
+      showTestModeBanner={isTestMode}
       infoBarMode="pollworker"
       ballotCountOverride={scannedBallotCount}
       voterFacing={false}
@@ -50,7 +50,7 @@ export function PollsNotOpenScreen({
 export function DefaultPreview(): JSX.Element {
   return (
     <PollsNotOpenScreen
-      isLiveMode
+      isTestMode={false}
       pollsState="polls_closed_initial"
       scannedBallotCount={42}
     />
@@ -61,7 +61,7 @@ export function DefaultPreview(): JSX.Element {
 export function DefaultTestModePreview(): JSX.Element {
   return (
     <PollsNotOpenScreen
-      isLiveMode={false}
+      isTestMode
       pollsState="polls_closed_initial"
       scannedBallotCount={42}
     />
@@ -72,7 +72,7 @@ export function DefaultTestModePreview(): JSX.Element {
 export function NoPowerConnectedPreview(): JSX.Element {
   return (
     <PollsNotOpenScreen
-      isLiveMode
+      isTestMode={false}
       pollsState="polls_closed_initial"
       scannedBallotCount={42}
     />
@@ -83,7 +83,7 @@ export function NoPowerConnectedPreview(): JSX.Element {
 export function PollsPausedPreview(): JSX.Element {
   return (
     <PollsNotOpenScreen
-      isLiveMode
+      isTestMode={false}
       pollsState="polls_paused"
       scannedBallotCount={42}
     />
@@ -94,7 +94,7 @@ export function PollsPausedPreview(): JSX.Element {
 export function PollsClosedFinalPreview(): JSX.Element {
   return (
     <PollsNotOpenScreen
-      isLiveMode
+      isTestMode={false}
       pollsState="polls_closed_final"
       scannedBallotCount={42}
     />

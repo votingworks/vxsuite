@@ -3,7 +3,7 @@ import { CenteredText, ScreenMainCenterChild } from '../components/layout';
 
 export function LoadingConfigurationScreen(): JSX.Element {
   return (
-    <ScreenMainCenterChild voterFacing={false}>
+    <ScreenMainCenterChild voterFacing={false} showTestModeBanner={false}>
       <LoadingAnimation />
       <CenteredText>
         <H1>Loading Configuration…</H1>

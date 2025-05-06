@@ -707,6 +707,76 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
   await screen.findByText('Polls Closed');
 });
 
+test('ballot mode banner consistently displayed in voter screens', async () => {
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
+  apiMock.expectGetConfig({
+    electionDefinition,
+    isTestMode: true,
+  });
+  apiMock.expectGetPollsInfo();
+  apiMock.expectGetUsbDriveStatus('mounted');
+  apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatusV3({ connected: true });
+  renderApp();
+
+  // banner before polls opened
+  await screen.findByText('Polls Closed');
+  screen.getByText('Test Ballot Mode');
+
+  // open polls
+  apiMock.authenticateAsPollWorker(electionDefinition);
+  await screen.findByText('Do you want to open the polls?');
+  apiMock.expectOpenPolls();
+  apiMock.expectPrintReportV3();
+  apiMock.expectGetPollsInfo('polls_open');
+  userEvent.click(await screen.findByText('Open Polls'));
+  await screen.findByText('Polls Opened');
+  apiMock.removeCard();
+
+  // banner when open
+  await screen.findByText(/Insert Your Ballot/i);
+  screen.getByText('Test Ballot Mode');
+
+  // banner while scanning
+  apiMock.expectGetScannerStatus(
+    scannerStatus({ state: 'hardware_ready_to_scan' })
+  );
+  vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
+  await screen.findByText(/Please wait/);
+  screen.getByText('Test Ballot Mode');
+
+  apiMock.expectGetScannerStatus(scannerStatus({ state: 'scanning' }));
+  vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
+
+  apiMock.expectGetScannerStatus(scannerStatus({ state: 'accepting' }));
+  vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
+
+  // banner after successful scan
+  apiMock.expectGetScannerStatus(scannerStatus({ state: 'accepted' }));
+  vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
+  await screen.findByText('Your ballot was counted!');
+  screen.getByText('Test Ballot Mode');
+
+  apiMock.expectGetScannerStatus(statusBallotCounted);
+  vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
+  await screen.findByText(/Insert Your Ballot/i);
+
+  // close polls
+  apiMock.authenticateAsPollWorker(electionDefinition);
+  await screen.findByText('Do you want to close the polls?');
+  apiMock.expectClosePolls();
+  apiMock.expectPrintReportV3();
+  apiMock.expectGetPollsInfo('polls_closed_final');
+  userEvent.click(await screen.findByText('Close Polls'));
+  await screen.findByText('Closing Polls…');
+  await screen.findByText('Polls Closed');
+  apiMock.removeCard();
+
+  // banner after polls closed
+  await screen.findByText('Voting is complete.');
+  screen.getByText('Test Ballot Mode');
+});
+
 test('system administrator can log in and unconfigure machine', async () => {
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo();

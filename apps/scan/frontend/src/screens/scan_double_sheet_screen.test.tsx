@@ -23,7 +23,10 @@ afterEach(() => {
 
 test('renders double sheet screen as expected', async () => {
   render(
-    provideApi(apiMock, <ScanDoubleSheetScreen scannedBallotCount={42} />)
+    provideApi(
+      apiMock,
+      <ScanDoubleSheetScreen scannedBallotCount={42} isTestMode={false} />
+    )
   );
   await screen.findByText('Ballot Not Counted');
   await screen.findByText('Multiple sheets detected.');

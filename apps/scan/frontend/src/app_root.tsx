@@ -284,7 +284,7 @@ export function AppRoot(): JSX.Element | null {
   if (pollsState !== 'polls_open') {
     return (
       <PollsNotOpenScreen
-        isLiveMode={!isTestMode}
+        isTestMode={isTestMode}
         pollsState={pollsState}
         scannedBallotCount={scannerStatus.ballotsCounted}
       />
