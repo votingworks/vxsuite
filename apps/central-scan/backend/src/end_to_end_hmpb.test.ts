@@ -93,11 +93,7 @@ test('going through the whole process works - HMPB', async () => {
         mockUsbDrive.insertUsbDrive({});
         mockUsbDrive.usbDrive.sync.expectRepeatedCallsWith().resolves();
 
-        expect(
-          await apiClient.exportCastVoteRecordsToUsbDrive({
-            isMinimalExport: true,
-          })
-        ).toEqual(ok());
+        expect(await apiClient.exportCastVoteRecordsToUsbDrive()).toEqual(ok());
 
         const cvrReportDirectoryPath = (
           await getCastVoteRecordExportDirectoryPaths(mockUsbDrive.usbDrive)

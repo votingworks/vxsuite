@@ -42,7 +42,6 @@ import {
   generateCastVoteRecordExportDirectoryName,
   generateElectionBasedSubfolderName,
   getCastVoteRecordExportSubDirectoryNames,
-  hasWriteIns,
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
 
@@ -131,11 +130,6 @@ interface ScannerStateUnchangedByExport {
 
 interface CentralScannerOptions {
   scannerType: 'central';
-  /**
-   * A minimal export includes only the images that are absolutely necessary for tabulation, i.e.
-   * images for accepted ballots with write-ins.
-   */
-  isMinimalExport?: boolean;
 }
 
 interface PrecinctScannerOptions {
@@ -221,27 +215,6 @@ let doesUsbDriveRequireCastVoteRecordSyncCachedResult:
  */
 export function clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult(): void {
   doesUsbDriveRequireCastVoteRecordSyncCachedResult = undefined;
-}
-
-function isMinimalExport(exportOptions: ExportOptions): boolean {
-  return Boolean(
-    exportOptions.scannerType === 'central' && exportOptions.isMinimalExport
-  );
-}
-
-function shouldIncludeImagesInMinimalExport(
-  canonicalizedSheet: CanonicalizedSheet
-): boolean {
-  return (
-    (canonicalizedSheet.type === 'hmpb' &&
-      canonicalizedSheet.interpretation.some(
-        ({ votes, unmarkedWriteIns }) =>
-          hasWriteIns(votes) ||
-          (unmarkedWriteIns && unmarkedWriteIns.length > 0)
-      )) ||
-    (canonicalizedSheet.type === 'bmd' &&
-      hasWriteIns(canonicalizedSheet.interpretation.votes))
-  );
 }
 
 /**
@@ -415,7 +388,7 @@ async function exportCastVoteRecordFilesToUsbDrive(
     ExportCastVoteRecordsToUsbDriveError
   >
 > {
-  const { exporter, exportOptions } = exportContext;
+  const { exporter } = exportContext;
 
   const canonicalizeSheetResult = canonicalizeSheet(sheet.interpretation, [
     sheet.frontImagePath,
@@ -426,35 +399,30 @@ async function exportCastVoteRecordFilesToUsbDrive(
   }
   const canonicalizedSheet = canonicalizeSheetResult.ok();
 
-  const shouldIncludeImages = isMinimalExport(exportOptions)
-    ? shouldIncludeImagesInMinimalExport(canonicalizedSheet)
-    : true;
-
   const castVoteRecordFilesToExport: ReadableFile[] = [];
-  let imageFiles: SheetOf<ReadableFile> | undefined;
+
+  const [frontImagePath, backImagePath] = canonicalizedSheet.filenames;
+  const imageFiles: SheetOf<ReadableFile> = [
+    readableFileFromDisk(frontImagePath),
+    readableFileFromDisk(backImagePath),
+  ];
+  castVoteRecordFilesToExport.push(...imageFiles);
+
   let layoutFiles: SheetOf<ReadableFile> | undefined;
-  if (shouldIncludeImages) {
-    const [frontImagePath, backImagePath] = canonicalizedSheet.filenames;
-    imageFiles = [
-      readableFileFromDisk(frontImagePath),
-      readableFileFromDisk(backImagePath),
+  if (canonicalizedSheet.type === 'hmpb') {
+    const [frontInterpretation, backInterpretation] =
+      canonicalizedSheet.interpretation;
+    layoutFiles = [
+      readableFileFromData(
+        `${path.parse(frontImagePath).name}.layout.json`,
+        JSON.stringify(frontInterpretation.layout)
+      ),
+      readableFileFromData(
+        `${path.parse(backImagePath).name}.layout.json`,
+        JSON.stringify(backInterpretation.layout)
+      ),
     ];
-    castVoteRecordFilesToExport.push(...imageFiles);
-    if (canonicalizedSheet.type === 'hmpb') {
-      const [frontInterpretation, backInterpretation] =
-        canonicalizedSheet.interpretation;
-      layoutFiles = [
-        readableFileFromData(
-          `${path.parse(frontImagePath).name}.layout.json`,
-          JSON.stringify(frontInterpretation.layout)
-        ),
-        readableFileFromData(
-          `${path.parse(backImagePath).name}.layout.json`,
-          JSON.stringify(backInterpretation.layout)
-        ),
-      ];
-      castVoteRecordFilesToExport.push(...layoutFiles);
-    }
+    castVoteRecordFilesToExport.push(...layoutFiles);
   }
 
   const castVoteRecordReportMetadata = exportContext.scannerState.systemSettings
@@ -470,7 +438,7 @@ async function exportCastVoteRecordFilesToUsbDrive(
     exportContext,
     sheet,
     canonicalizedSheet,
-    imageFiles ? { imageFiles, layoutFiles } : undefined
+    { imageFiles, layoutFiles }
   );
   const castVoteRecordId = castVoteRecord.UniqueId;
   const castVoteRecordReport:
@@ -753,11 +721,6 @@ export async function exportCastVoteRecordsToUsbDrive(
   const castVoteRecordHashes: { [castVoteRecordId: string]: string } = {};
   const sheetIds: string[] = [];
   for (const sheet of sheets) {
-    assert(
-      !(isMinimalExport(exportOptions) && sheet.type === 'rejected'),
-      'Encountered an unexpected rejected sheet while performing a minimal export. ' +
-        'Minimal exports should only include accepted sheets.'
-    );
     sheetIds.push(sheet.id);
 
     if (isRecoveryExport) {

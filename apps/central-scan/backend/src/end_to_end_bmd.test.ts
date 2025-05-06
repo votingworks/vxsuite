@@ -84,20 +84,12 @@ test('going through the whole process works - BMD', async () => {
         mockUsbDrive.insertUsbDrive({});
         mockUsbDrive.usbDrive.sync.expectRepeatedCallsWith().resolves();
 
-        expect(
-          await apiClient.exportCastVoteRecordsToUsbDrive({
-            isMinimalExport: true,
-          })
-        ).toEqual(ok());
+        expect(await apiClient.exportCastVoteRecordsToUsbDrive()).toEqual(ok());
 
         // Sleep 1 second to guarantee that this next export directory has a different name than the
         // previously created one
         await sleep(1000);
-        expect(
-          await apiClient.exportCastVoteRecordsToUsbDrive({
-            isMinimalExport: false,
-          })
-        ).toEqual(ok());
+        expect(await apiClient.exportCastVoteRecordsToUsbDrive()).toEqual(ok());
 
         const cvrReportDirectoryPath = (
           await getCastVoteRecordExportDirectoryPaths(mockUsbDrive.usbDrive)
@@ -141,11 +133,7 @@ test('going through the whole process works - BMD', async () => {
       // Sleep 1 second to guarantee that this next export directory has a different name than the
       // previously created one
       await sleep(1000);
-      expect(
-        await apiClient.exportCastVoteRecordsToUsbDrive({
-          isMinimalExport: true,
-        })
-      ).toEqual(ok());
+      expect(await apiClient.exportCastVoteRecordsToUsbDrive()).toEqual(ok());
 
       const cvrReportDirectoryPaths =
         await getCastVoteRecordExportDirectoryPaths(mockUsbDrive.usbDrive);
