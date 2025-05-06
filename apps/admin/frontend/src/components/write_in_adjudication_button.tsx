@@ -95,7 +95,7 @@ export function WriteInAdjudicationButton({
     options.unshift({ label: value, value });
   }
 
-  // 'Add: NEW_CANDIDATE' entry if there is no exact match
+  // 'Press enter to add: NEW_CANDIDATE' entry if there is no exact match
   if (
     inputValue &&
     inputValue.length < MAX_WRITE_IN_NAME_LENGTH &&
@@ -103,11 +103,14 @@ export function WriteInAdjudicationButton({
       (item) => normalizeWriteInName(item.label) === normalizedInputValue
     )
   ) {
-    options.push({ label: `Add: ${inputValue}`, value: inputValue });
+    options.push({
+      label: `Press enter to add: ${inputValue}`,
+      value: inputValue,
+    });
   }
 
   if (!inputValue) {
-    options.unshift({ label: 'Not a mark', value: INVALID_KEY });
+    options.unshift({ label: 'Invalid mark', value: INVALID_KEY });
   }
 
   return (
@@ -156,14 +159,16 @@ export function WriteInAdjudicationButton({
         value={value}
         placeholder={
           isFocused ? (
-            'Search or add…'
+            'Type to search or add candidate…'
           ) : (
             <React.Fragment>
               <Icons.Warning
                 color="warning"
                 style={{ marginRight: '0.5rem' }}
               />
-              {isSelected ? 'Adjudicate Write-in' : 'Unmarked Write-in'}
+              {isSelected
+                ? 'Click to adjudicate write-in'
+                : 'Click to adjudicate Unmarked Write-in'}
             </React.Fragment>
           )
         }
