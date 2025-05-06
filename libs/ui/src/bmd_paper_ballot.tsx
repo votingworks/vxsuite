@@ -19,7 +19,7 @@ import {
   YesNoContest,
   YesNoVote,
 } from '@votingworks/types';
-import { getSingleYesNoVote, randomBallotId } from '@votingworks/utils';
+import { getSingleYesNoVote } from '@votingworks/utils';
 
 import { assert, err, ok, Result } from '@votingworks/basics';
 import { QrCode } from './qrcode';
@@ -527,7 +527,6 @@ export interface BmdPaperBallotProps {
   ballotStyleId: BallotStyleId;
   binarize?: boolean;
   electionDefinition: ElectionDefinition;
-  generateBallotId?: () => string;
   isLiveMode: boolean;
   precinctId: PrecinctId;
   votes: VotesDict;
@@ -556,7 +555,6 @@ export function BmdPaperBallot({
   ballotStyleId,
   binarize,
   electionDefinition,
-  generateBallotId = randomBallotId,
   isLiveMode,
   precinctId,
   votes,
@@ -564,7 +562,6 @@ export function BmdPaperBallot({
   layout,
   machineType,
 }: BmdPaperBallotProps): JSX.Element {
-  const ballotId = generateBallotId();
   const {
     election,
     election: { county, seal },
@@ -654,12 +651,6 @@ export function BmdPaperBallot({
                     <InEnglish>{appStrings.titleBallotStyle()}</InEnglish>
                   </div>
                   <strong>{ballotStyleId}</strong>
-                </div>
-                <div>
-                  <div>
-                    <InEnglish>{appStrings.titleBallotId()}</InEnglish>
-                  </div>
-                  <strong style={{ whiteSpace: 'nowrap' }}>{ballotId}</strong>
                 </div>
               </div>
             </div>
