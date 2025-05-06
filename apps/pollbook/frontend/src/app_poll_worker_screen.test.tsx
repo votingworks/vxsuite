@@ -13,7 +13,7 @@ import {
   createApiMock,
   createMockVoter,
 } from '../test/mock_api_client';
-import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './constants';
+import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals';
 
 let apiMock: ApiMock;
 const famousNamesElection: Election =

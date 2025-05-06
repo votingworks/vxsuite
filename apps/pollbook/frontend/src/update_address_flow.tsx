@@ -21,7 +21,7 @@ import { NoNavScreen } from './nav_screen';
 import { TitledCard, VoterName } from './shared_components';
 import { AddressInputGroup } from './address_input_group';
 import { changeVoterAddress } from './api';
-import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './constants';
+import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals';
 
 type UpdateAddressFlowState =
   | { step: 'update' }

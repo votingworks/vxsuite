@@ -20,7 +20,7 @@ import { TitledCard, VoterName } from './shared_components';
 import { Column, Row } from './layout';
 import { changeVoterName } from './api';
 import { NameInputGroup } from './name_input_group';
-import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './constants';
+import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals';
 
 type UpdateNameFlowState =
   | { step: 'update' }

@@ -35,7 +35,7 @@ import {
 } from './api';
 import { AddVoterScreen } from './add_voter_screen';
 import { AbsenteeModeCallout, VoterName } from './shared_components';
-import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './constants';
+import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals';
 
 type CheckInFlowState =
   | { step: 'search'; search: VoterSearchParams }

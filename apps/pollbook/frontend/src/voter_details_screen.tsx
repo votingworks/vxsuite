@@ -67,6 +67,7 @@ function ConfirmUndoCheckInModal({
           <Column>
             <P>Record the reason for undoing the check-in:</P>
             <textarea
+              aria-label="reason for undoing check-in"
               // eslint-disable-next-line jsx-a11y/no-autofocus
               autoFocus
               value={reason}
@@ -117,7 +118,7 @@ function VoterDetailsScreenLayout({
     <NoNavScreen>
       <MainHeader>
         <Row style={{ justifyContent: 'space-between' }}>
-          <H1>Voter details</H1>
+          <H1>Voter Details</H1>
           <Button icon="Delete" onPress={onClose} variant="primary">
             Close
           </Button>

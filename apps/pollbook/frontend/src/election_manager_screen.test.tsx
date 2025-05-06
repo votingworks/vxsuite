@@ -58,6 +58,6 @@ describe('Voters tab', () => {
     apiMock.expectGetVoter(voter);
     userEvent.click(screen.getButton('View Details'));
 
-    await screen.findByRole('heading', { name: 'Voter details' });
+    await screen.findByRole('heading', { name: 'Voter Details' });
   });
 });

@@ -23,7 +23,7 @@ const mockVoterId = '123';
 let voter: Voter;
 
 beforeEach(() => {
-  voter = createMockVoter(mockVoterId, 'Abigail', 'Adams');
+  voter = createMockVoter(mockVoterId, 'ABIGAIL', 'ADAMS');
   vi.clearAllMocks();
   apiMock = createApiMock();
   apiMock.expectGetVoter(voter);
@@ -48,20 +48,23 @@ async function renderComponent() {
   );
   unmount = renderResult.unmount;
 
-  await screen.findByRole('heading', { name: 'Voter details' });
-  await screen.findByRole('heading', { name: 'Abigail Adams' });
+  await screen.findByRole('heading', { name: 'Voter Details' });
+  await screen.findByRole('heading', { name: 'ABIGAIL ADAMS' });
 }
 
-test('flows that require printer render a warning when no printer is connected', async () => {
-  apiMock.setPrinterStatus(false);
-  apiMock.expectGetDeviceStatuses();
+test.each([['Update Name'], ['Update Address']])(
+  '%s flow renders a warning when no printer is attached',
+  async (buttonName) => {
+    apiMock.setPrinterStatus(false);
+    apiMock.expectGetDeviceStatuses();
 
-  await renderComponent();
+    await renderComponent();
 
-  userEvent.click(screen.getButton('Update Name'));
+    userEvent.click(screen.getButton(buttonName));
 
-  await screen.findByRole('heading', { name: 'No Printer Detected' });
-});
+    await screen.findByRole('heading', { name: 'No Printer Detected' });
+  }
+);
 
 // Specifies a DOM element to look for and value to enter
 interface InputElementChangeSpec {
@@ -81,15 +84,15 @@ test('name change', async () => {
   const nameParts: InputElementChangeSpec[] = [
     {
       domElementText: 'First Name',
-      newValue: 'Nabby',
+      newValue: 'NABBY',
     },
     {
       domElementText: 'Middle Name',
-      newValue: 'Abigail',
+      newValue: 'ABIGAIL',
     },
     {
       domElementText: 'Last Name',
-      newValue: 'Addams',
+      newValue: 'ADDAMS',
     },
     {
       domElementText: 'Suffix',
@@ -115,7 +118,10 @@ test('name change', async () => {
     voterToUpdate: voter,
   } as const;
   apiMock.expectChangeVoterName(expectation);
-  const updatedVoter: Voter = { ...voter, ...nameChangeData };
+  const updatedVoter: Voter = {
+    ...voter,
+    nameChange: { ...nameChangeData, timestamp: new Date().toISOString() },
+  };
   const updateButton = screen.getButton('Confirm Name Update');
   userEvent.click(updateButton);
 
@@ -127,9 +133,11 @@ test('name change', async () => {
   });
 
   await screen.findByText('NABBY ABIGAIL ADDAMS JR');
+  const oldName = screen.getByText('ABIGAIL ADAMS');
+  expect(oldName.parentElement?.tagName).toEqual('S');
 });
 
-test('address change', async () => {
+test('invalid address change', async () => {
   apiMock.setPrinterStatus(true);
   apiMock.expectGetDeviceStatuses();
   const validStreetInfo: ValidStreetInfo[] = [
@@ -155,7 +163,43 @@ test('address change', async () => {
   userEvent.click(screen.getByLabelText('Street Name'));
   userEvent.keyboard('[Enter]');
 
-  const nameParts: InputElementChangeSpec[] = [
+  const partInput = await screen.findByRole('textbox', {
+    name: 'Street Number',
+  });
+  userEvent.type(partInput, '1000000');
+
+  await screen.findByText(
+    'Invalid address. Make sure the street number and name match a valid address for this jurisdiction.'
+  );
+});
+
+test('valid address change', async () => {
+  apiMock.setPrinterStatus(true);
+  apiMock.expectGetDeviceStatuses();
+  const validStreetInfo: ValidStreetInfo[] = [
+    {
+      streetName: 'MAIN ST',
+      side: 'all',
+      lowRange: 1,
+      highRange: 100,
+      postalCity: 'CONCORD',
+      zip5: '03301',
+      zip4: '1111',
+      district: '',
+    },
+  ];
+  apiMock.expectGetValidStreetInfo(validStreetInfo);
+
+  await renderComponent();
+
+  userEvent.click(screen.getButton('Update Address'));
+
+  await screen.findByRole('heading', { name: 'Update Voter Address' });
+
+  userEvent.click(screen.getByLabelText('Street Name'));
+  userEvent.keyboard('[Enter]');
+
+  const addressParts: InputElementChangeSpec[] = [
     {
       domElementText: 'Street Number',
       newValue: '99',
@@ -169,13 +213,10 @@ test('address change', async () => {
       newValue: 'LINE 2',
     },
   ];
-  for (const part of nameParts) {
-    const partInput = await screen.findByRole(
-      part.domElementRole ?? 'textbox',
-      {
-        name: part.domElementText,
-      }
-    );
+  for (const part of addressParts) {
+    const partInput = await screen.findByRole('textbox', {
+      name: part.domElementText,
+    });
     userEvent.type(partInput, part.newValue);
   }
 
@@ -197,7 +238,13 @@ test('address change', async () => {
     voterToUpdate: voter,
   } as const;
   apiMock.expectChangeVoterAddress(expectation);
-  const updatedVoter: Voter = { ...voter, ...addressChangeData };
+  const updatedVoter: Voter = {
+    ...voter,
+    addressChange: {
+      ...addressChangeData,
+      timestamp: new Date().toISOString(),
+    },
+  };
   const updateButton = screen.getButton('Confirm Address Update');
   userEvent.click(updateButton);
 
@@ -209,4 +256,48 @@ test('address change', async () => {
   });
 
   await screen.findByText('99 MAIN ST #789');
+  const oldAddress = await screen.findByText(
+    `${voter.streetNumber} ${voter.streetName}`
+  );
+  expect(oldAddress.parentElement?.style?.textDecoration).toEqual(
+    'line-through'
+  );
+});
+
+test('undo check-in', async () => {
+  const checkedInVoter: Voter = {
+    ...voter,
+    checkIn: {
+      identificationMethod: { type: 'default' },
+      timestamp: new Date().toISOString(),
+      isAbsentee: false,
+      machineId: 'test-machine-01',
+    },
+  };
+
+  apiMock.expectGetVoter(checkedInVoter);
+  apiMock.setPrinterStatus(true);
+  apiMock.expectGetDeviceStatuses();
+
+  await renderComponent();
+
+  const undoCheckInReason = 'accidental check-in';
+  apiMock.expectUndoVoterCheckIn(checkedInVoter, undoCheckInReason);
+  userEvent.click(await screen.findButton('Undo check-in'));
+
+  await screen.findByRole('heading', { name: 'Undo Check-In' });
+  screen.getByText('Record the reason for undoing the check-in:');
+  const textInput = screen.getByRole('textbox', {
+    name: 'reason for undoing check-in',
+  });
+  userEvent.type(textInput, undoCheckInReason);
+
+  // updatedVoter should be the same as the default mock voter in this file, but
+  // we make this assignment to make it clear what the expected diff is
+  const updatedVoter: Voter = { ...checkedInVoter, checkIn: undefined };
+  apiMock.expectGetVoter(updatedVoter);
+
+  userEvent.click(screen.getButton('Undo Check-In'));
+
+  await screen.findByText('Not checked in');
 });

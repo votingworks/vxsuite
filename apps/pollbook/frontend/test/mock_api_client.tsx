@@ -296,6 +296,16 @@ export function createApiMock() {
         .resolves(ok());
     },
 
+    expectUndoVoterCheckIn(voter: Voter, reason: string) {
+      mockApiClient.undoVoterCheckIn.reset();
+      mockApiClient.undoVoterCheckIn
+        .expectCallWith({
+          voterId: voter.voterId,
+          reason,
+        })
+        .resolves();
+    },
+
     expectGetValidStreetInfo(streetInfo: ValidStreetInfo[]) {
       mockApiClient.getValidStreetInfo.reset();
       mockApiClient.getValidStreetInfo.expectCallWith().resolves(streetInfo);
