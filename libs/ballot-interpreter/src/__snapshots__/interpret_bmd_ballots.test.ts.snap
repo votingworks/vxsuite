@@ -9,7 +9,6 @@ exports[`VX BMD interpretation > extracts votes encoded in a QR code 1`] = `
       "ignoredReasonInfos": [],
       "requiresAdjudication": false,
     },
-    "ballotId": undefined,
     "metadata": {
       "ballotHash": "728705900ac9af39a83b",
       "ballotStyleId": "1",
@@ -150,7 +149,6 @@ exports[`VX BMD interpretation > interpretSimplexBmdBallot 1`] = `
       "ignoredReasonInfos": [],
       "requiresAdjudication": false,
     },
-    "ballotId": undefined,
     "metadata": {
       "ballotHash": "728705900ac9af39a83b",
       "ballotStyleId": "1",
