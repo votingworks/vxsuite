@@ -219,10 +219,7 @@ export function ScanBallotsScreen({
         />
       )}
       {isExportingCvrs && (
-        <ExportResultsModal
-          mode="cvrs"
-          onClose={() => setIsExportingCvrs(false)}
-        />
+        <ExportResultsModal onClose={() => setIsExportingCvrs(false)} />
       )}
       {deleteBallotDataFlowState === 'confirmation' &&
         (status.canUnconfigure ? (

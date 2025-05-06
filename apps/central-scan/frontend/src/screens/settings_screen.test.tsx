@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
-import { mockUsbDriveStatus } from '@votingworks/ui';
 import { screen, within } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { SettingsScreenProps, SettingsScreen } from './settings_screen';
@@ -28,31 +27,6 @@ function renderScreen(
     { apiMock, history }
   );
 }
-
-test('clicking "Save Backup" triggers modal', async () => {
-  apiMock.setUsbDriveStatus(mockUsbDriveStatus('no_drive'));
-  renderScreen();
-
-  userEvent.click(await screen.findByText('Save Backup'));
-  await screen.findByText('No USB Drive Detected');
-
-  apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
-  await screen.findByRole('heading', { name: 'Save Backup' });
-
-  apiMock.expectExportCastVoteRecords({ isMinimalExport: false });
-  userEvent.click(screen.getButton('Save'));
-  await screen.findByText('Saving Backup');
-  await screen.findByText('Backup Saved');
-
-  apiMock.expectEjectUsbDrive();
-  userEvent.click(screen.getButton('Eject USB'));
-  apiMock.setUsbDriveStatus(mockUsbDriveStatus('ejected'));
-  await screen.findByText('USB Drive Ejected');
-  userEvent.click(screen.getButton('Close'));
-  await vi.waitFor(() =>
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
-  );
-});
 
 test('Unconfigure Machine button is disabled when canUnconfigure is falsy', () => {
   renderScreen({

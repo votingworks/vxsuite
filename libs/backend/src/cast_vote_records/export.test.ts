@@ -174,7 +174,7 @@ test.each<{
   {
     description: 'accepted HMPB on central scanner, non-minimal export',
     sheetGenerator: () => newAcceptedSheet(interpretedHmpb, sheet1Id),
-    exportOptions: { scannerType: 'central', isMinimalExport: false },
+    exportOptions: { scannerType: 'central' },
     expectedDirectoryContents: [
       CastVoteRecordExportFileName.METADATA,
       `${sheet1Id}/${CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT}`,
@@ -199,7 +199,7 @@ test.each<{
   {
     description: 'accepted HMPB on central scanner, minimal export',
     sheetGenerator: () => newAcceptedSheet(interpretedHmpb, sheet1Id),
-    exportOptions: { scannerType: 'central', isMinimalExport: true },
+    exportOptions: { scannerType: 'central' },
     expectedDirectoryContents: [
       CastVoteRecordExportFileName.METADATA,
       `${sheet1Id}/${CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT}`,
@@ -237,7 +237,7 @@ test.each<{
       'accepted HMPB with write-in on central scanner, non-minimal export',
     sheetGenerator: () =>
       newAcceptedSheet(interpretedHmpbWithWriteIn, sheet1Id),
-    exportOptions: { scannerType: 'central', isMinimalExport: false },
+    exportOptions: { scannerType: 'central' },
     expectedDirectoryContents: [
       CastVoteRecordExportFileName.METADATA,
       `${sheet1Id}/${CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT}`,
@@ -264,7 +264,7 @@ test.each<{
       'accepted HMPB with write-in on central scanner, minimal export',
     sheetGenerator: () =>
       newAcceptedSheet(interpretedHmpbWithWriteIn, sheet1Id),
-    exportOptions: { scannerType: 'central', isMinimalExport: true },
+    exportOptions: { scannerType: 'central' },
     expectedDirectoryContents: [
       CastVoteRecordExportFileName.METADATA,
       `${sheet1Id}/${CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT}`,
@@ -291,7 +291,7 @@ test.each<{
       'accepted HMPB with unmarked write-in on central scanner, minimal export',
     sheetGenerator: () =>
       newAcceptedSheet(interpretedHmpbWithUnmarkedWriteIn, sheet1Id),
-    exportOptions: { scannerType: 'central', isMinimalExport: true },
+    exportOptions: { scannerType: 'central' },
     expectedDirectoryContents: [
       CastVoteRecordExportFileName.METADATA,
       `${sheet1Id}/${CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT}`,
@@ -339,7 +339,7 @@ test.each<{
   {
     description: 'accepted BMD ballot on central scanner, non-minimal export',
     sheetGenerator: () => newAcceptedSheet(interpretedBmdBallot, sheet1Id),
-    exportOptions: { scannerType: 'central', isMinimalExport: false },
+    exportOptions: { scannerType: 'central' },
     expectedDirectoryContents: [
       CastVoteRecordExportFileName.METADATA,
       `${sheet1Id}/${CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT}`,
@@ -364,7 +364,7 @@ test.each<{
       'accepted BMD ballot with write in on central scanner, non-minimal export',
     sheetGenerator: () =>
       newAcceptedSheet(interpretedBmdBallotWithWriteIn, sheet1Id),
-    exportOptions: { scannerType: 'central', isMinimalExport: false },
+    exportOptions: { scannerType: 'central' },
     expectedDirectoryContents: [
       CastVoteRecordExportFileName.METADATA,
       `${sheet1Id}/${CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT}`,
@@ -387,7 +387,7 @@ test.each<{
   {
     description: 'accepted BMD ballot on central scanner, minimal export',
     sheetGenerator: () => newAcceptedSheet(interpretedBmdBallot, sheet1Id),
-    exportOptions: { scannerType: 'central', isMinimalExport: true },
+    exportOptions: { scannerType: 'central' },
     expectedDirectoryContents: [
       CastVoteRecordExportFileName.METADATA,
       `${sheet1Id}/${CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT}`,
@@ -399,7 +399,7 @@ test.each<{
       'accepted BMD ballot with write in on central scanner, minimal export',
     sheetGenerator: () =>
       newAcceptedSheet(interpretedBmdBallotWithWriteIn, sheet1Id),
-    exportOptions: { scannerType: 'central', isMinimalExport: true },
+    exportOptions: { scannerType: 'central' },
     expectedDirectoryContents: [
       CastVoteRecordExportFileName.METADATA,
       `${sheet1Id}/${CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT}`,
@@ -432,7 +432,7 @@ test.each<{
   {
     description: 'rejected sheet on central scanner, non-minimal export',
     sheetGenerator: () => newRejectedSheet(sheet1Id),
-    exportOptions: { scannerType: 'central', isMinimalExport: false },
+    exportOptions: { scannerType: 'central' },
     expectedDirectoryContents: [
       CastVoteRecordExportFileName.METADATA,
       `rejected-${sheet1Id}/${sheet1Id}-front.jpg`,
@@ -640,7 +640,7 @@ test('central scanner multiple-sheet export, minimal and non-minimal', async () 
       mockCentralScannerStore,
       mockUsbDrive.usbDrive,
       sheets,
-      { scannerType: 'central', isMinimalExport: true }
+      { scannerType: 'central' }
     )
   ).toEqual(ok());
 
@@ -674,7 +674,7 @@ test('central scanner multiple-sheet export, minimal and non-minimal', async () 
       mockCentralScannerStore,
       mockUsbDrive.usbDrive,
       sheets,
-      { scannerType: 'central', isMinimalExport: false }
+      { scannerType: 'central' }
     )
   ).toEqual(ok());
 
@@ -726,7 +726,7 @@ test('central scanner minimal export does not allow rejected sheets', async () =
       mockCentralScannerStore,
       mockUsbDrive.usbDrive,
       [newRejectedSheet()],
-      { scannerType: 'central', isMinimalExport: true }
+      { scannerType: 'central' }
     )
   ).rejects.toThrow(
     'Encountered an unexpected rejected sheet while performing a minimal export. ' +

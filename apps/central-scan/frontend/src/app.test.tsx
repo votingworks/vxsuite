@@ -152,7 +152,7 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
   await vi.waitFor(() => expect(saveButton).toBeEnabled());
   userEvent.click(saveButton);
   await screen.findByRole('alertdialog');
-  apiMock.expectExportCastVoteRecords({ isMinimalExport: true });
+  apiMock.expectExportCastVoteRecords();
   userEvent.click(await screen.findByText('Save'));
   await screen.findByText('CVRs Saved');
   userEvent.click(screen.getByText('Close'));
