@@ -65,7 +65,7 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
                 <div>
                   <div>
                     <span>
-                      Precinct
+                      Ballot Style
                     </span>
                   </div>
                   <strong>
@@ -77,11 +77,13 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
                 <div>
                   <div>
                     <span>
-                      Ballot Style
+                      Language
                     </span>
                   </div>
                   <strong>
-                    1
+                    <span>
+                      English
+                    </span>
                   </strong>
                 </div>
               </div>
@@ -434,7 +436,7 @@ House Bill 1796 - Flag Referendum
               <div>
                 <div>
                   <span>
-                    Precinct
+                    Ballot Style
                   </span>
                 </div>
                 <strong>
@@ -446,11 +448,13 @@ House Bill 1796 - Flag Referendum
               <div>
                 <div>
                   <span>
-                    Ballot Style
+                    Language
                   </span>
                 </div>
                 <strong>
-                  1
+                  <span>
+                    English
+                  </span>
                 </strong>
               </div>
             </div>

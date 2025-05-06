@@ -14,13 +14,14 @@ import {
   readElectionGeneralDefinition,
   readElectionTwoPartyPrimaryDefinition,
   readElectionWithMsEitherNeitherDefinition,
+  electionPrimaryPrecinctSplitsFixtures,
 } from '@votingworks/fixtures';
 
 import { encodeBallot } from '@votingworks/ballot-encoder';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { fromByteArray } from 'base64-js';
 import { assertDefined, find } from '@votingworks/basics';
-import { render, screen } from '../test/react_testing_library';
+import { render, screen, within } from '../test/react_testing_library';
 import {
   ORDERED_BMD_BALLOT_LAYOUTS,
   MachineType,
@@ -36,6 +37,8 @@ import * as QrCodeModule from './qrcode';
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();
+const electionPrimaryPrecinctSplitsDefinition =
+  electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
 const electionWithMsEitherNeitherDefinition =
   readElectionWithMsEitherNeitherDefinition();
 
@@ -97,6 +100,36 @@ function renderBmdPaperBallot({
     />
   );
 }
+
+test('BmdPaperBallot includes ballot style and language metadata - general election', () => {
+  renderBmdPaperBallot({
+    electionDefinition: electionGeneralDefinition,
+    ballotStyleId: '5' as BallotStyleId,
+    precinctId: '21',
+    votes: {},
+  });
+  within(
+    screen.getByText('Ballot Style').parentElement!.parentElement!
+  ).getByText('North Springfield - Split 1');
+  within(screen.getByText('Language').parentElement!.parentElement!).getByText(
+    'English'
+  );
+});
+
+test('BmdPaperBallot includes ballot style and language metadata - primary election', () => {
+  renderBmdPaperBallot({
+    electionDefinition: electionPrimaryPrecinctSplitsDefinition,
+    ballotStyleId: '1-Ma_es-US' as BallotStyleId,
+    precinctId: 'precinct-c1-w1-1',
+    votes: {},
+  });
+  within(
+    screen.getByText('Ballot Style').parentElement!.parentElement!
+  ).getByText(hasTextAcrossElements('Precinct 1 - Mammal'));
+  within(screen.getByText('Language').parentElement!.parentElement!).getByText(
+    'Spanish (US)'
+  );
+});
 
 test('BmdPaperBallot renders votes for candidate contests and yes-no contests', () => {
   renderBmdPaperBallot({
