@@ -4,7 +4,6 @@ import {
   MachineConfig,
   UpdateVoteFunction,
 } from '@votingworks/mark-flow-ui';
-import { randomBallotId } from '@votingworks/utils';
 import {
   BallotStyleId,
   ElectionDefinition,
@@ -74,7 +73,6 @@ export function VoterFlow(props: VoterFlowProps): React.ReactNode {
     <BallotContext.Provider
       value={{
         ...rest,
-        generateBallotId: randomBallotId,
         isCardlessVoter: true,
         resetBallot,
       }}

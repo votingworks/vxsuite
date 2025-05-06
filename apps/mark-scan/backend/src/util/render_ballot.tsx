@@ -18,7 +18,6 @@ import {
   getLayout,
   MachineType,
 } from '@votingworks/ui';
-import { randomBallotId } from '@votingworks/utils';
 import { pdfToImages } from '@votingworks/image-utils';
 import { Store } from '../store';
 import { getMarkScanBmdModel } from './hardware';
@@ -66,7 +65,6 @@ export async function renderTestModeBallotWithoutLanguageContext(
       precinctId={precinctId}
       votes={votes}
       isLiveMode={false}
-      generateBallotId={randomBallotId}
       sheetSize={getSheetSize()}
       layout={layout}
       machineType={MACHINE_TYPE}
@@ -120,7 +118,6 @@ export async function renderBallot({
           precinctId={precinctId}
           votes={votes}
           isLiveMode={isLiveMode}
-          generateBallotId={randomBallotId}
           sheetSize={getSheetSize()}
           layout={layout.ok()}
           machineType={MACHINE_TYPE}

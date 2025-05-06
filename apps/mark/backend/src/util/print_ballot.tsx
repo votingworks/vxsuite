@@ -6,7 +6,6 @@ import {
   BmdPaperBallot,
   BackendLanguageContextProvider,
 } from '@votingworks/ui';
-import { randomBallotId } from '@votingworks/utils';
 import { Store } from '../store';
 
 export interface PrintBallotProps {
@@ -40,7 +39,6 @@ export async function printBallot({
         precinctId={precinctId}
         votes={votes}
         isLiveMode={isLiveMode}
-        generateBallotId={randomBallotId}
         machineType="mark"
       />
     </BackendLanguageContextProvider>

@@ -11,7 +11,6 @@ const ballot: BallotContextInterface = {
   contests: [],
   isCardlessVoter: false,
   isLiveMode: false,
-  generateBallotId: () => '',
   endVoterSession: () => Promise.resolve(),
   resetBallot: () => undefined,
   updateVote: () => undefined,
