@@ -7,7 +7,6 @@ import { pipeline } from 'node:stream/promises';
 import { tmpdir } from 'node:os';
 import { randomUUID } from 'node:crypto';
 import { err, ok, Result } from '@votingworks/basics';
-import { debug } from 'node:console';
 import {
   MachineInformation,
   PollbookEvent,
@@ -53,51 +52,42 @@ function buildApi(context: PeerAppContext) {
       const peer = Object.values(pollbooks).find(
         (pb) => pb.machineId === input.machineId && pb.apiClient
       );
-      if (!peer || !peer.apiClient) {
-        return err('pollbook-connection-problem');
-      }
-      // Get the peer's base URL (strip trailing /api if present)
-      if (!peer.address) {
+      if (!peer || !peer.apiClient || !peer.address) {
         return err('pollbook-connection-problem');
       }
       // Download the pollbook package zip via streaming
       const pollbookUrl = `${peer.address}/file/pollbook-package`;
-      try {
-        const response = await fetch(pollbookUrl);
-        if (!response.ok) {
-          return err('pollbook-connection-problem');
-        }
-        // Save to a temp file
-        const tempPath = `${tmpdir()}/pollbook-package-${randomUUID()}.zip`;
-        const fileStream = createWriteStream(tempPath);
-        await pipeline(response.body, fileStream);
-        // Read and parse the pollbook package
-        const pollbookPackageResult = await readPollbookPackage(tempPath);
-        if (pollbookPackageResult.isErr()) {
-          return err('invalid-pollbook-package');
-        }
-        const pollbookPackage = pollbookPackageResult.ok();
-        // Configure this machine
-        store.setElectionAndVoters(
-          pollbookPackage.electionDefinition,
-          pollbookPackage.packageHash,
-          pollbookPackage.validStreets,
-          pollbookPackage.voters
-        );
-        // Save the pollbook package to send to other machines if necessary
-        const destinationPath = join(
-          context.workspace.assetDirectoryPath,
-          'pollbook-package.zip'
-        );
-        await pipeline(
-          createReadStream(tempPath),
-          createWriteStream(destinationPath)
-        );
-        return ok();
-      } catch (error) {
-        debug(error);
+      const response = await fetch(pollbookUrl);
+      if (!response.ok) {
         return err('pollbook-connection-problem');
       }
+      // Save to a temp file
+      const tempPath = `${tmpdir()}/pollbook-package-${randomUUID()}.zip`;
+      const fileStream = createWriteStream(tempPath);
+      await pipeline(response.body, fileStream);
+      // Read and parse the pollbook package
+      const pollbookPackageResult = await readPollbookPackage(tempPath);
+      if (pollbookPackageResult.isErr()) {
+        return err('invalid-pollbook-package');
+      }
+      const pollbookPackage = pollbookPackageResult.ok();
+      // Configure this machine
+      store.setElectionAndVoters(
+        pollbookPackage.electionDefinition,
+        pollbookPackage.packageHash,
+        pollbookPackage.validStreets,
+        pollbookPackage.voters
+      );
+      // Save the pollbook package to send to other machines if necessary
+      const destinationPath = join(
+        context.workspace.assetDirectoryPath,
+        'pollbook-package.zip'
+      );
+      await pipeline(
+        createReadStream(tempPath),
+        createWriteStream(destinationPath)
+      );
+      return ok();
     },
   });
 }
@@ -111,24 +101,20 @@ export function buildPeerApp(context: PeerAppContext): Application {
 
   // Streaming endpoint for pollbook-package.zip
   app.get('/file/pollbook-package', (_req, res) => {
-    try {
-      const pollbookPackagePath = join(
-        context.workspace.assetDirectoryPath,
-        'pollbook-package.zip'
-      );
-      res.setHeader('Content-Type', 'application/zip');
-      res.setHeader(
-        'Content-Disposition',
-        'attachment; filename="pollbook-package.zip"'
-      );
-      res.sendFile(pollbookPackagePath, (e) => {
-        if (e) {
-          res.status(404).send('Pollbook package not found');
-        }
-      });
-    } catch (error) {
-      res.status(500).send('Error streaming pollbook package');
-    }
+    const pollbookPackagePath = join(
+      context.workspace.assetDirectoryPath,
+      'pollbook-package.zip'
+    );
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename="pollbook-package.zip"'
+    );
+    res.sendFile(pollbookPackagePath, (e) => {
+      if (e) {
+        res.status(404).send('Pollbook package not found');
+      }
+    });
   });
 
   void setupMachineNetworking(context);
