@@ -8,7 +8,6 @@ import {
   getEntries,
   getFileByName,
   readTextEntry,
-  isElectionManagerAuth,
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
 import { join } from 'node:path';
@@ -199,13 +198,8 @@ export function pollUsbDriveForPollbookPackage({
         const authStatus = await auth.getAuthStatus(
           constructAuthMachineState(workspace)
         );
-        if (
-          !isElectionManagerAuth(authStatus) &&
-          !isSystemAdministratorAuth(authStatus)
-        ) {
-          usbDebug(
-            'Not logged in as election manager or system admin, not configuring'
-          );
+        if (!isSystemAdministratorAuth(authStatus)) {
+          usbDebug('Not logged in as system admin, not configuring');
           return;
         }
 
