@@ -7,7 +7,6 @@ import {
   SegmentedButton,
   UnconfigureMachineButton,
 } from '@votingworks/ui';
-import { assert } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { ElectionManagerNavScreen, electionManagerRoutes } from './nav_screen';
@@ -19,7 +18,8 @@ import {
 } from './api';
 import { Column, FieldName, Row } from './layout';
 import { StatisticsScreen } from './statistics_screen';
-import { VotersScreen } from './voters_screen';
+import { ElectionManagerVotersScreen } from './voters_screen';
+import { VoterDetailsScreen } from './voter_details_screen';
 
 export function SettingsScreen(): JSX.Element | null {
   const getElectionQuery = getElection.useQuery();
@@ -27,8 +27,7 @@ export function SettingsScreen(): JSX.Element | null {
   const getIsAbsenteeModeQuery = getIsAbsenteeMode.useQuery();
   const setIsAbsenteeModeMutation = setIsAbsenteeMode.useMutation();
 
-  assert(getElectionQuery.isSuccess);
-  if (!getIsAbsenteeModeQuery.isSuccess) {
+  if (!getIsAbsenteeModeQuery.isSuccess || !getElectionQuery.isSuccess) {
     return null;
   }
 
@@ -92,13 +91,15 @@ export function ElectionManagerScreen(): JSX.Element {
         component={SettingsScreen}
       />
       <Route
+        exact
         path={electionManagerRoutes.voters.path}
-        component={VotersScreen}
+        component={ElectionManagerVotersScreen}
       />
       <Route
         path={electionManagerRoutes.statistics.path}
         component={StatisticsScreen}
       />
+      <Route path="/voters/:voterId" component={VoterDetailsScreen} />
       <Redirect to={electionManagerRoutes.settings.path} />
     </Switch>
   );

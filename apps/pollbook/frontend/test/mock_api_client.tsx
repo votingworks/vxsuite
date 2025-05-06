@@ -10,6 +10,8 @@ import type {
   MachineConfig,
   ValidStreetInfo,
   Voter,
+  VoterAddressChangeRequest,
+  VoterNameChangeRequest,
   VoterRegistrationRequest,
 } from '@votingworks/pollbook-backend';
 import {
@@ -160,7 +162,7 @@ export function createApiMock() {
 
     expectGetDeviceStatuses(): void {
       mockApiClient.getDeviceStatuses
-        .expectRepeatedCallsWith()
+        .expectOptionalRepeatedCallsWith()
         .resolves(currentDeviceStatus);
     },
 
@@ -294,6 +296,16 @@ export function createApiMock() {
         .resolves(ok());
     },
 
+    expectUndoVoterCheckIn(voter: Voter, reason: string) {
+      mockApiClient.undoVoterCheckIn.reset();
+      mockApiClient.undoVoterCheckIn
+        .expectCallWith({
+          voterId: voter.voterId,
+          reason,
+        })
+        .resolves();
+    },
+
     expectGetValidStreetInfo(streetInfo: ValidStreetInfo[]) {
       mockApiClient.getValidStreetInfo.reset();
       mockApiClient.getValidStreetInfo.expectCallWith().resolves(streetInfo);
@@ -307,6 +319,33 @@ export function createApiMock() {
       mockApiClient.registerVoter
         .expectCallWith({ registrationData })
         .resolves(voter);
+    },
+
+    // The caller is responsible for updating expectGetVoter or other API mocks
+    expectChangeVoterName(input: {
+      voterId: string;
+      nameChangeData: VoterNameChangeRequest;
+      voterToUpdate: Voter;
+    }) {
+      mockApiClient.changeVoterName
+        .expectCallWith({
+          voterId: input.voterId,
+          nameChangeData: input.nameChangeData,
+        })
+        .resolves({ ...input.voterToUpdate, ...input.nameChangeData });
+    },
+
+    expectChangeVoterAddress(input: {
+      voterId: string;
+      addressChangeData: VoterAddressChangeRequest;
+      voterToUpdate: Voter;
+    }) {
+      mockApiClient.changeVoterAddress
+        .expectCallWith({
+          voterId: input.voterId,
+          addressChangeData: input.addressChangeData,
+        })
+        .resolves({ ...input.voterToUpdate, ...input.addressChangeData });
     },
 
     /**

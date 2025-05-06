@@ -20,6 +20,7 @@ import { TitledCard, VoterName } from './shared_components';
 import { Column, Row } from './layout';
 import { changeVoterName } from './api';
 import { NameInputGroup } from './name_input_group';
+import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals';
 
 type UpdateNameFlowState =
   | { step: 'update' }
@@ -73,7 +74,9 @@ function UpdateNameScreen({
           rightIcon="Next"
           variant="primary"
           disabled={!isNameValid}
-          onPress={() => onConfirm(name)}
+          onPress={() => {
+            onConfirm(name);
+          }}
         >
           Confirm Name Update
         </Button>
@@ -85,18 +88,18 @@ function UpdateNameScreen({
 
 interface UpdateNameFlowProps {
   voter: Voter;
-  returnToCheckIn: () => void;
-  exitToSearch: () => void;
+  returnToDetailsScreen: () => void;
 }
 
 export function UpdateNameFlow({
   voter,
-  returnToCheckIn,
-  exitToSearch,
+  returnToDetailsScreen,
 }: UpdateNameFlowProps): JSX.Element {
   const [flowState, setFlowState] = useState<UpdateNameFlowState>({
     step: 'update',
   });
+  const [timeoutIdForReset, setTimeoutIdForReset] =
+    useState<ReturnType<typeof setTimeout>>();
   const changeVoterNameMutation = changeVoterName.useMutation();
 
   switch (flowState.step) {
@@ -112,12 +115,19 @@ export function UpdateNameFlow({
                 nameChangeData,
               },
               {
-                onSuccess: (updatedVoter) =>
-                  setFlowState({ step: 'success', voter: updatedVoter }),
+                onSuccess: (updatedVoter) => {
+                  setTimeoutIdForReset(
+                    setTimeout(
+                      returnToDetailsScreen,
+                      AUTOMATIC_FLOW_STATE_RESET_DELAY_MS
+                    )
+                  );
+                  setFlowState({ step: 'success', voter: updatedVoter });
+                },
               }
             );
           }}
-          onCancel={exitToSearch}
+          onCancel={returnToDetailsScreen}
         />
       );
 
@@ -163,19 +173,18 @@ export function UpdateNameFlow({
               <p>Give the voter their receipt.</p>
             </FullScreenMessage>
           </Column>
-          <ButtonBar>
+          <Row style={{ padding: '1rem', justifyContent: 'flex-end' }}>
             <Button
-              style={{ flex: 1 }}
               icon="Next"
               variant="primary"
-              onPress={returnToCheckIn}
+              onPress={() => {
+                clearTimeout(timeoutIdForReset);
+                returnToDetailsScreen();
+              }}
             >
-              Continue Check-In
+              Return to Voter Details
             </Button>
-            <Button style={{ flex: 1 }} icon="X" onPress={exitToSearch}>
-              Close
-            </Button>
-          </ButtonBar>
+          </Row>
         </NoNavScreen>
       );
 

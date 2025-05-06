@@ -21,6 +21,7 @@ import { NoNavScreen } from './nav_screen';
 import { TitledCard, VoterName } from './shared_components';
 import { AddressInputGroup } from './address_input_group';
 import { changeVoterAddress } from './api';
+import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals';
 
 type UpdateAddressFlowState =
   | { step: 'update' }
@@ -111,18 +112,20 @@ function UpdateAddressScreen({
 
 interface UpdateAddressFlowProps {
   voter: Voter;
-  returnToCheckIn: () => void;
-  exitToSearch: () => void;
+  returnToPreviousScreen: () => void;
+  returnToPreviousScreenLabelText: string;
 }
 
 export function UpdateAddressFlow({
   voter,
-  returnToCheckIn,
-  exitToSearch,
+  returnToPreviousScreen,
+  returnToPreviousScreenLabelText,
 }: UpdateAddressFlowProps): JSX.Element {
   const [flowState, setFlowState] = useState<UpdateAddressFlowState>({
     step: 'update',
   });
+  const [timeoutIdForReset, setTimeoutIdForReset] =
+    useState<ReturnType<typeof setTimeout>>();
   const changeVoterAddressMutation = changeVoterAddress.useMutation();
 
   switch (flowState.step) {
@@ -137,10 +140,20 @@ export function UpdateAddressFlow({
                 voterId: voter.voterId,
                 addressChangeData,
               },
-              { onSuccess: () => setFlowState({ step: 'success' }) }
+              {
+                onSuccess: () => {
+                  setTimeoutIdForReset(
+                    setTimeout(
+                      returnToPreviousScreen,
+                      AUTOMATIC_FLOW_STATE_RESET_DELAY_MS
+                    )
+                  );
+                  setFlowState({ step: 'success' });
+                },
+              }
             );
           }}
-          onCancel={returnToCheckIn}
+          onCancel={returnToPreviousScreen}
         />
       );
 
@@ -186,19 +199,18 @@ export function UpdateAddressFlow({
               <p>Give the voter their receipt.</p>
             </FullScreenMessage>
           </Column>
-          <ButtonBar>
+          <Row style={{ padding: '1rem', justifyContent: 'flex-end' }}>
             <Button
-              style={{ flex: 1 }}
               icon="Next"
               variant="primary"
-              onPress={returnToCheckIn}
+              onPress={() => {
+                clearTimeout(timeoutIdForReset);
+                returnToPreviousScreen();
+              }}
             >
-              Continue Check-In
+              {returnToPreviousScreenLabelText}
             </Button>
-            <Button style={{ flex: 1 }} icon="X" onPress={exitToSearch}>
-              Close
-            </Button>
-          </ButtonBar>
+          </Row>
         </NoNavScreen>
       );
 
