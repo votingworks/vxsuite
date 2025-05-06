@@ -34,7 +34,6 @@ import {
   systemSettings,
 } from '@votingworks/fixtures';
 import {
-  BallotId,
   BallotStyleId,
   BallotType,
   PageInterpretationType,
@@ -162,7 +161,6 @@ const SUCCESSFUL_INTERPRETATION_MOCK: SheetOf<InterpretFileResult> = [
   {
     interpretation: {
       type: 'InterpretedBmdPage',
-      ballotId: '1_en' as BallotId,
       metadata: {
         ballotHash: 'hash',
         ballotType: BallotType.Precinct,

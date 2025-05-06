@@ -11,7 +11,6 @@ import {
 } from '@votingworks/types';
 import { MachineConfig } from '@votingworks/mark-backend';
 
-import { randomBallotId } from '@votingworks/utils';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { render as testRender } from './react_testing_library';
 import { BallotContext } from '../src/contexts/ballot_context';
@@ -26,7 +25,6 @@ export function render(
     contests = electionDefinition.election.contests,
     endVoterSession = vi.fn(),
     history = createMemoryHistory({ initialEntries: [route] }),
-    generateBallotId = randomBallotId,
     isCardlessVoter = false,
     isLiveMode = false,
     machineConfig = mockMachineConfig(),
@@ -41,7 +39,6 @@ export function render(
     contests?: Contests;
     endVoterSession?: () => Promise<void>;
     history?: History;
-    generateBallotId?: () => string;
     isCardlessVoter?: boolean;
     isLiveMode?: boolean;
     machineConfig?: MachineConfig;
@@ -59,7 +56,6 @@ export function render(
           ballotStyleId,
           contests,
           electionDefinition,
-          generateBallotId,
           isCardlessVoter,
           isLiveMode,
           machineConfig,

@@ -347,10 +347,7 @@ async function buildCastVoteRecord(
   const scannerId = VX_MACHINE_ID;
 
   const { id, batchId, indexInBatch, ballotAuditId } = sheet;
-  const castVoteRecordId =
-    (canonicalizedSheet.type === 'bmd' &&
-      canonicalizedSheet.interpretation.ballotId) ||
-    unsafeParse(BallotIdSchema, id);
+  const castVoteRecordId = unsafeParse(BallotIdSchema, id);
   const images: SheetOf<CvrImageDataInput> | undefined = referencedFiles
     ? await mapSheet(
         referencedFiles.imageFiles,

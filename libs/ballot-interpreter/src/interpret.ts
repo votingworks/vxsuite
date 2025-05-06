@@ -713,7 +713,6 @@ async function interpretBmdBallot(
   const front: InterpretFileResult = {
     interpretation: {
       type: 'InterpretedBmdPage',
-      ballotId: ballot.ballotId,
       metadata: {
         ballotHash: ballot.ballotHash,
         ballotType: BallotType.Precinct,

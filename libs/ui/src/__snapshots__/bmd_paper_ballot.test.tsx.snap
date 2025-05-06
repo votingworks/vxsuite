@@ -84,18 +84,6 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
                     1
                   </strong>
                 </div>
-                <div>
-                  <div>
-                    <span>
-                      Ballot ID
-                    </span>
-                  </div>
-                  <strong
-                    style="white-space: nowrap;"
-                  >
-                    CHhgYxfN5GeqnK8KaVOt1w
-                  </strong>
-                </div>
               </div>
             </div>
             <div
@@ -463,18 +451,6 @@ House Bill 1796 - Flag Referendum
                 </div>
                 <strong>
                   1
-                </strong>
-              </div>
-              <div>
-                <div>
-                  <span>
-                    Ballot ID
-                  </span>
-                </div>
-                <strong
-                  style="white-space: nowrap;"
-                >
-                  CHhgYxfN5GeqnK8KaVOt1w
                 </strong>
               </div>
             </div>

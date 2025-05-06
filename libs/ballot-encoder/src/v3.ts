@@ -321,7 +321,6 @@ export function encodeBallotInto(
     ballotStyleId,
     precinctId,
     votes,
-    ballotId,
     isTestMode,
     ballotType,
   }: CompletedBallot,
@@ -348,7 +347,6 @@ export function encodeBallotInto(
       encodeBallotConfigInto(
         election,
         {
-          ballotId,
           ballotStyleId,
           precinctId,
           ballotType,
@@ -472,7 +470,7 @@ export function decodeBallotFromReader(
     length: ELECTION_HASH_LENGTH,
   });
 
-  const { ballotId, ballotStyleId, ballotType, isTestMode, precinctId } =
+  const { ballotStyleId, ballotType, isTestMode, precinctId } =
     decodeBallotConfigFromReader(election, bits);
   const ballotStyle = getBallotStyle({ ballotStyleId, election });
   const precinct = getPrecinctById({ precinctId, election });
@@ -487,7 +485,6 @@ export function decodeBallotFromReader(
 
   return {
     ballotHash: electionHash,
-    ballotId,
     ballotStyleId,
     precinctId,
     votes,
@@ -533,7 +530,6 @@ export function decodeElectionHash(data: Uint8Array): string | undefined {
 export function encodeHmpbBallotPageMetadataInto(
   election: Election,
   {
-    ballotId,
     ballotStyleId,
     ballotType,
     ballotHash: electionHash,
@@ -554,7 +550,6 @@ export function encodeHmpbBallotPageMetadataInto(
       encodeBallotConfigInto(
         election,
         {
-          ballotId,
           ballotStyleId,
           ballotType,
           isTestMode,

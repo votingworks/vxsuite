@@ -28,7 +28,6 @@
   "dependencies": {
     "@votingworks/basics": "workspace:*",
     "@votingworks/types": "workspace:*",
-    "base64-js": "1.5.1",
     "buffer": "^6.0.3",
     "debug": "4.3.4",
     "fast-text-encoding": "^1.0.2",

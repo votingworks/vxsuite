@@ -18,7 +18,6 @@ import {
   isCardlessVoterAuth,
   isPollWorkerAuth,
   isSystemAdministratorAuth,
-  randomBallotId,
   isVendorAuth,
 } from '@votingworks/utils';
 
@@ -508,7 +507,6 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
                 ballotStyleId,
                 contests,
                 electionDefinition,
-                generateBallotId: randomBallotId,
                 isCardlessVoter: isCardlessVoterAuth(authStatus),
                 isLiveMode: !isTestMode,
                 endVoterSession,

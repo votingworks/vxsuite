@@ -39,7 +39,6 @@ export async function renderBmdBallotFixture(
     <React.Fragment>
       <BmdPaperBallot
         isLiveMode={false}
-        generateBallotId={() => '1'}
         machineType="mark"
         ballotStyleId={ballotStyle.id}
         precinctId={precinctId}

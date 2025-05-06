@@ -9,7 +9,6 @@ import { Server } from 'node:http';
 import { LogEventId, Logger } from '@votingworks/logging';
 import tmp from 'tmp';
 import {
-  BallotId,
   BallotType,
   DiagnosticRecord,
   PageInterpretation,
@@ -302,7 +301,6 @@ describe('paper handler diagnostic', () => {
       {
         interpretation: {
           type: 'InterpretedBmdPage',
-          ballotId: '1_en' as BallotId,
           metadata: {
             ballotHash: 'hash',
             ballotType: BallotType.Precinct,

@@ -3,7 +3,6 @@ import { throwIllegalValue } from '@votingworks/basics';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
-  BallotIdSchema,
   BallotMetadata,
   BallotStyleId,
   BallotType,
@@ -12,7 +11,6 @@ import {
   InterpretedHmpbPage,
   PageInterpretation,
   UnreadablePage,
-  unsafeParse,
 } from '@votingworks/types';
 import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
 
@@ -212,7 +210,6 @@ test('sheetRequiresAdjudication triggers for HMPB/blank page', () => {
 test('sheetRequiresAdjudication is happy with a BMD ballot', () => {
   const bmd: InterpretedBmdPage = {
     type: 'InterpretedBmdPage',
-    ballotId: unsafeParse(BallotIdSchema, '42'),
     metadata: {
       ballotHash: '41',
       precinctId: '12',
