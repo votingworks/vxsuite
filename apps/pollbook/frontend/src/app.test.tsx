@@ -1,4 +1,4 @@
-import { test, beforeEach, afterEach, vi, expect } from 'vitest';
+import { test, beforeEach, afterEach, vi } from 'vitest';
 import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
@@ -78,7 +78,7 @@ test('renders InvalidCardScreen for invalid card reasons', async () => {
   await screen.findByText('Use a valid election manager or poll worker card.');
 });
 
-test('renders UnconfiguredScreen when election is unconfigured', async () => {
+test('election manager - renders UnconfiguredScreen when election is unconfigured and not connected to other machines', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetDeviceStatuses();
   apiMock.setAuthStatus({
@@ -118,7 +118,9 @@ test('system administrator can unconfigure', async () => {
   apiMock.expectGetMachineConfig();
   userEvent.click(confirmButton);
 
-  await screen.findByText('Insert a USB drive containing a pollbook package');
+  await screen.findByText(
+    'Insert a USB drive containing a pollbook package or power up another configured machine.'
+  );
 });
 
 test('renders ElectionManagerScreen when logged in as election manager', async () => {
@@ -131,8 +133,11 @@ test('renders ElectionManagerScreen when logged in as election manager', async (
   await screen.findByText('Voters');
   await screen.findByText('Statistics');
 
-  // We should land on the Settings page so the text should be present twice
-  expect(await screen.findAllByText('Settings')).toHaveLength(2);
+  // We should land on the Settings page
+  await screen.findByRole('heading', {
+    level: 1,
+    name: 'Settings',
+  });
 
   const electionInfoSection = screen.getByTestId('election-info');
   await within(electionInfoSection).findByText(
