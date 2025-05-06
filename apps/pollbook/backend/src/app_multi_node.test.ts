@@ -436,7 +436,8 @@ test('connection status is managed properly with many pollbooks', async () => {
     }
     for (const context of pollbookContexts) {
       context.workspace.store.setElectionAndVoters(
-        electionFamousNames2021Fixtures.electionJson.readElection(),
+        electionDefinition,
+        'fake-package-hash',
         testStreets,
         testVoters
       );
