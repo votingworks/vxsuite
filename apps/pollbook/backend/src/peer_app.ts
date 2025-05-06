@@ -52,6 +52,10 @@ function buildApi(context: PeerAppContext) {
     async configureFromPeerMachine(input: {
       machineId: string;
     }): Promise<Result<void, ConfigurationError>> {
+      const election = store.getElection();
+      if (election) {
+        return err('already-configured');
+      }
       // Find the connected pollbook with the given machineId
       const pollbooks = store.getPollbookServicesByName();
       const peer = Object.values(pollbooks).find(
@@ -78,12 +82,15 @@ function buildApi(context: PeerAppContext) {
         }
         const pollbookPackage = pollbookPackageResult.ok();
         // Configure this machine
-        store.setElectionAndVoters(
+        const error = store.setElectionAndVoters(
           pollbookPackage.electionDefinition,
           pollbookPackage.packageHash,
           pollbookPackage.validStreets,
           pollbookPackage.voters
         );
+        if (error) {
+          return err(error);
+        }
         // Save the pollbook package to send to other machines if necessary
         const destinationPath = join(
           context.workspace.assetDirectoryPath,
