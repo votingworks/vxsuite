@@ -17,6 +17,7 @@ import { useState } from 'react';
 import { formatElectionHashes } from '@votingworks/types';
 import { configureFromMachine, getDeviceStatuses, getElection } from './api';
 import { NavScreen } from './nav_screen';
+import { PollbookConnectionStatus } from './types';
 
 function PollbookConnectionTable({
   pollbooks,
@@ -29,7 +30,7 @@ function PollbookConnectionTable({
   const groups = groupBy(
     pollbooks,
     (p) =>
-      `${p.configuredElectionBallotHash}-${p.configuredElectionPackageHash}`
+      `${p.configuredElectionBallotHash}-${p.configuredPollbookPackageHash}`
   );
   return (
     <div
@@ -48,12 +49,12 @@ function PollbookConnectionTable({
         </thead>
         <tbody>
           {groups.map(([electionHash, pollbooksForElection]) => (
-            <tr key={electionHash}>
+            <tr key={electionHash} data-testid="pollbook-config-row">
               <td>{pollbooksForElection[0].configuredElectionName}</td>
               <td>
                 {formatElectionHashes(
                   pollbooksForElection[0].configuredElectionBallotHash || '',
-                  pollbooksForElection[0].configuredElectionPackageHash || ''
+                  pollbooksForElection[0].configuredPollbookPackageHash || ''
                 )}
               </td>
               <td>{pollbooksForElection.map((p) => p.machineId).join(', ')}</td>
@@ -116,7 +117,11 @@ export function UnconfiguredSystemAdminScreen(): JSX.Element {
     ? { isOnline: false, pollbooks: [] }
     : getDevicesQuery.data.network;
 
-  const configuredPollbooks = pollbooks.filter((p) => p.configuredElectionId);
+  const configuredPollbooks = pollbooks.filter(
+    (p) =>
+      p.configuredElectionId &&
+      p.status === PollbookConnectionStatus.WrongElection
+  );
   if (!isOnline || configuredPollbooks.length <= 0) {
     if (electionResult.err() === 'not-found') {
       return (
@@ -145,7 +150,7 @@ export function UnconfiguredSystemAdminScreen(): JSX.Element {
       {electionResult.err() === 'not-found' && (
         <Card color="warning" style={{ marginBottom: '1rem' }}>
           <Icons.Warning color="warning" /> No pollbook package found on the
-          insertted USB drive.
+          inserted USB drive.
         </Card>
       )}
       {configurationErrorMessage && (

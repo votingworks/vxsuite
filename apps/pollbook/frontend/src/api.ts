@@ -279,7 +279,6 @@ export const configureFromMachine = {
         if (result.isOk()) {
           await queryClient.resetQueries();
         }
-        console.log('on success in api client');
       },
     });
   },
