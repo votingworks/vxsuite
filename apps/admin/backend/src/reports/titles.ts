@@ -70,11 +70,14 @@ export function generateTitleForReport({
     return ok(baseTitle);
   }
 
-  if (isCompoundFilter(filter) || reportRank > 1) {
+  if (
+    isCompoundFilter(filter) ||
+    reportRank > 1 ||
+    filter.ballotStyleGroupIds
+  ) {
     return err('title-not-supported');
   }
 
-  const ballotStyleGroupId = filter.ballotStyleGroupIds?.[0];
   const precinctId = filter.precinctIds?.[0];
   const votingMethod = filter.votingMethods?.[0];
   const batchId = filter.batchIds?.[0];
@@ -86,10 +89,6 @@ export function generateTitleForReport({
   const reportSuffix = (() => {
     if (precinctId) {
       return getPrecinctById(electionDefinition, precinctId).name;
-    }
-
-    if (ballotStyleGroupId) {
-      return `Ballot Style ${ballotStyleGroupId}`;
     }
 
     if (votingMethod) {
