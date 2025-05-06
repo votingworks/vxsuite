@@ -3,24 +3,13 @@ import { Buffer } from 'node:buffer';
 import { err } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
-  mockElectionManagerUser,
-  mockSessionExpiresAt,
-} from '@votingworks/test-utils';
-import { DippedSmartCardAuthApi } from '@votingworks/auth';
-import { withApp } from '../test/app';
+  mockElectionManagerAuth,
+  mockSystemAdministratorAuth,
+  withApp,
+} from '../test/app';
 import { mockPollbookPackageFileTree } from '../test/pollbook_package';
 
 let mockNodeEnv: 'production' | 'test' = 'test';
-
-function mockElectionManagerAuth(auth: DippedSmartCardAuthApi) {
-  vi.mocked(auth.getAuthStatus).mockImplementation(() =>
-    Promise.resolve({
-      status: 'logged_in',
-      user: mockElectionManagerUser({}),
-      sessionExpiresAt: mockSessionExpiresAt(),
-    })
-  );
-}
 
 vi.mock(
   './globals.js',
@@ -70,7 +59,7 @@ test('app config - unhappy paths polling usb', async () => {
     // Check that we are still unconfigured as the usb will not be processed until authentication
     expect(await localApiClient.getElection()).toEqual(err('unconfigured'));
 
-    mockElectionManagerAuth(auth);
+    mockSystemAdministratorAuth(auth);
     vitest.advanceTimersByTime(100);
     // The usb should now be processed and return a not found error since there is no package
     await vi.waitFor(async () => {
@@ -99,11 +88,35 @@ test('app config - unhappy paths polling usb', async () => {
   });
 });
 
-test('app config - happy path polling usb from backend', async () => {
+test('app config - polling usb from backend does not trigger with election manager auth', async () => {
   await withApp(async ({ localApiClient, mockUsbDrive, auth }) => {
     expect(await localApiClient.getElection()).toEqual(err('unconfigured'));
 
-    mockElectionManagerAuth(auth);
+    mockElectionManagerAuth(
+      auth,
+      electionFamousNames2021Fixtures.readElection()
+    );
+    vitest.advanceTimersByTime(200);
+    expect(await localApiClient.getElection()).toEqual(err('unconfigured'));
+
+    // Add a valid pollbook package to the USB drive
+    mockUsbDrive.insertUsbDrive(
+      await mockPollbookPackageFileTree(
+        electionFamousNames2021Fixtures.electionJson.asBuffer(),
+        electionFamousNames2021Fixtures.pollbookVoters.asText(),
+        electionFamousNames2021Fixtures.pollbookStreetNames.asText()
+      )
+    );
+    vitest.advanceTimersByTime(100);
+    expect(await localApiClient.getElection()).toEqual(err('unconfigured'));
+  });
+});
+
+test('app config - polling usb from backend does trigger with system admin auth', async () => {
+  await withApp(async ({ localApiClient, mockUsbDrive, auth }) => {
+    expect(await localApiClient.getElection()).toEqual(err('unconfigured'));
+
+    mockSystemAdministratorAuth(auth);
     vitest.advanceTimersByTime(200);
     expect(await localApiClient.getElection()).toEqual(err('unconfigured'));
 

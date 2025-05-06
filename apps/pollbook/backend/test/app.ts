@@ -19,6 +19,16 @@ import * as grout from '@votingworks/grout';
 import { Application } from 'express';
 import { Server } from 'node:http';
 import { AddressInfo } from 'node:net';
+import {
+  mockElectionManagerUser,
+  mockSessionExpiresAt,
+  mockSystemAdministratorUser,
+} from '@votingworks/test-utils';
+import {
+  constructElectionKey,
+  DippedSmartCardAuth,
+  Election,
+} from '@votingworks/types';
 import { LocalApi, buildLocalApp } from '../src/app';
 import { createLocalWorkspace, createPeerWorkspace } from '../src/workspace';
 import { LocalWorkspace, PeerWorkspace } from '../src';
@@ -47,6 +57,38 @@ export function buildMockLogger(
     source: LogSource.VxPollbookBackend,
     getCurrentRole: () => getUserRole(auth, workspace),
     fn: vi.fn,
+  });
+}
+
+export function mockAuthStatus(
+  auth: DippedSmartCardAuthApi,
+  authStatus: DippedSmartCardAuth.AuthStatus
+): void {
+  const mockGetAuthStatus = vi.mocked(auth.getAuthStatus);
+  mockGetAuthStatus.mockResolvedValue(authStatus);
+}
+
+export function mockSystemAdministratorAuth(
+  auth: DippedSmartCardAuthApi
+): void {
+  mockAuthStatus(auth, {
+    status: 'logged_in',
+    user: mockSystemAdministratorUser(),
+    sessionExpiresAt: mockSessionExpiresAt(),
+    programmableCard: { status: 'no_card' },
+  });
+}
+
+export function mockElectionManagerAuth(
+  auth: DippedSmartCardAuthApi,
+  election: Election
+): void {
+  mockAuthStatus(auth, {
+    status: 'logged_in',
+    user: mockElectionManagerUser({
+      electionKey: constructElectionKey(election),
+    }),
+    sessionExpiresAt: mockSessionExpiresAt(),
   });
 }
 
