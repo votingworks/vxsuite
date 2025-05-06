@@ -1228,6 +1228,10 @@ export const appStrings = {
     <UiString uiStringKey="titleBmdReviewScreen">Review Your Votes</UiString>
   ),
 
+  titleLanguage: () => (
+    <UiString uiStringKey="titleLanguage">Language</UiString>
+  ),
+
   titleLanguageSettingsScreen: () => (
     <UiString uiStringKey="titleLanguageSettingsScreen">
       Select Your Ballot Language
