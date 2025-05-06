@@ -59,7 +59,6 @@ const mockFeatureFlagger = getFeatureFlagMock();
 vi.mock(import('@votingworks/utils'), async (importActual) => ({
   ...(await importActual()),
   isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-  randomBallotId: () => '12345',
 }));
 
 vi.mock(import('./util/accessible_controller.js'), async (importActual) => ({

@@ -48,16 +48,6 @@ vi.mock(import('@votingworks/ballot-encoder'), async (importActual) => ({
 const encodeBallotMock = vi.mocked(encodeBallot);
 const mockEncodedBallotData = new Uint8Array([0, 1, 2, 3]);
 
-vi.mock(import('@votingworks/utils'), async (importActual) => {
-  const original = await importActual();
-  // Mock random string generation so that snapshots match, while leaving the rest of the module
-  // intact
-  return {
-    ...original,
-    randomBallotId: () => 'CHhgYxfN5GeqnK8KaVOt1w',
-  };
-});
-
 beforeEach(() => {
   encodeBallotMock.mockReset();
   encodeBallotMock.mockReturnValue(mockEncodedBallotData);
