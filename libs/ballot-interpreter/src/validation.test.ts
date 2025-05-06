@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import {
-  BallotId,
   BallotStyleId,
   BallotType,
   DEFAULT_MARK_THRESHOLDS,
@@ -18,7 +17,6 @@ function createMockInterpretation(spec: {
 }): PageInterpretation {
   return {
     type: 'InterpretedBmdPage',
-    ballotId: 'abc' as BallotId,
     metadata: {
       ballotHash: 'hash',
       ballotType: BallotType.Precinct,

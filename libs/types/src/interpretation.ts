@@ -5,8 +5,6 @@ import {
   AdjudicationReason,
   AdjudicationReasonInfo,
   AdjudicationReasonSchema,
-  BallotId,
-  BallotIdSchema,
   BallotMetadata,
   BallotMetadataSchema,
   ContestId,
@@ -37,7 +35,6 @@ export const BlankPageSchema: z.ZodSchema<BlankPage> = z.object({
 
 export interface InterpretedBmdPage {
   type: 'InterpretedBmdPage';
-  ballotId?: BallotId;
   metadata: BallotMetadata;
   votes: VotesDict;
   adjudicationInfo: AdjudicationInfo;
@@ -45,7 +42,6 @@ export interface InterpretedBmdPage {
 export const InterpretedBmdPageSchema: z.ZodSchema<InterpretedBmdPage> =
   z.object({
     type: z.literal('InterpretedBmdPage'),
-    ballotId: BallotIdSchema.optional(),
     metadata: BallotMetadataSchema,
     votes: VotesDictSchema,
     adjudicationInfo: AdjudicationInfoSchema,
@@ -63,7 +59,6 @@ export const UnmarkedWriteInSchema: z.ZodSchema<UnmarkedWriteIn> = z.object({
 
 export interface InterpretedHmpbPage {
   type: 'InterpretedHmpbPage';
-  ballotId?: BallotId;
   metadata: HmpbBallotPageMetadata;
   markInfo: MarkInfo;
   unmarkedWriteIns?: UnmarkedWriteIn[];
@@ -74,7 +69,6 @@ export interface InterpretedHmpbPage {
 export const InterpretedHmpbPageSchema: z.ZodSchema<InterpretedHmpbPage> =
   z.object({
     type: z.literal('InterpretedHmpbPage'),
-    ballotId: BallotIdSchema.optional(),
     metadata: HmpbBallotPageMetadataSchema,
     markInfo: MarkInfoSchema,
     unmarkedWriteIns: z.array(UnmarkedWriteInSchema).optional(),
