@@ -177,27 +177,29 @@ const TEST_ROWS = [
 
 const TEST_ROWS_WITH_ACTIONS = [...TEST_ROWS, [CANCEL_KEY, ACCEPT_KEY]];
 
-function expectFocus(expectedFocusedKey: string) {
+async function expectFocus(expectedFocusedKey: string) {
   const expectedButtonContent = `${expectedFocusedKey}${getMockAudioOnlyTextPrefix(
     ENGLISH
   )} ${expectedFocusedKey}`;
 
-  // Finds the lowest element with the target text contained across its children. For the VirtualKeyboard
-  // this is a <span>
-  const expectedContentElement = screen.getByText(
-    hasTextAcrossElements(expectedButtonContent)
-  );
-  // The button with focus is the parent of the above <span> element
-  const expectedFocus = expectedContentElement.parentNode;
-  expect(expectedFocus).toHaveFocus();
+  await vi.waitFor(async () => {
+    // Finds the lowest element with the target text contained across its children. For the VirtualKeyboard
+    // this is a <span>
+    const expectedContentElement = await screen.findByText(
+      hasTextAcrossElements(expectedButtonContent)
+    );
+    // The button with focus is the parent of the above <span> element
+    const expectedFocus = expectedContentElement.parentNode;
+    expect(expectedFocus).toHaveFocus();
+  });
 }
 
-function pressKeyAndExpectFocus(
+async function pressKeyAndExpectFocus(
   keyToPress: string,
   expectedFocusedKey: string
 ) {
   userEvent.keyboard(keyToPress);
-  expectFocus(expectedFocusedKey);
+  await expectFocus(expectedFocusedKey);
 }
 
 test('navigation with left and right arrow', async () => {
@@ -222,25 +224,28 @@ test('navigation with left and right arrow', async () => {
   // Wait for first render
   const expectedButtonContent = `Q${getMockAudioOnlyTextPrefix(ENGLISH)} Q`;
   await screen.findByText(hasTextAcrossElements(expectedButtonContent));
-  expectFocus('Q');
+  await expectFocus('Q');
 
   for (const row of TEST_ROWS_WITH_ACTIONS) {
     for (const key of row) {
       // Q is autofocused and tested right above this loop
       if (key.value !== 'Q') {
-        pressKeyAndExpectFocus('[ArrowRight]', key.value);
+        await pressKeyAndExpectFocus('[ArrowRight]', key.value);
       }
     }
   }
 
   // Expect wrap around from end of keyboard
-  pressKeyAndExpectFocus('[ArrowRight]', TEST_ROWS_WITH_ACTIONS[0][0].value);
+  await pressKeyAndExpectFocus(
+    '[ArrowRight]',
+    TEST_ROWS_WITH_ACTIONS[0][0].value
+  );
 
   const reversed = TEST_ROWS_WITH_ACTIONS.toReversed();
   for (const row of reversed) {
     const reversedKeys = row.toReversed();
     for (const key of reversedKeys) {
-      pressKeyAndExpectFocus('[ArrowLeft]', key.value);
+      await pressKeyAndExpectFocus('[ArrowLeft]', key.value);
     }
   }
 });
@@ -267,18 +272,18 @@ test('navigation with up and down arrow', async () => {
   // Wait for first render
   const expectedButtonContent = `Q${getMockAudioOnlyTextPrefix(ENGLISH)} Q`;
   await screen.findByText(hasTextAcrossElements(expectedButtonContent));
-  expectFocus('Q');
+  await expectFocus('Q');
 
   // Go down and wrap around to start
-  pressKeyAndExpectFocus('[ArrowDown]', 'A');
-  pressKeyAndExpectFocus('[ArrowDown]', 'Z');
-  pressKeyAndExpectFocus('[ArrowDown]', 'space');
-  pressKeyAndExpectFocus('[ArrowDown]', 'Cancel');
-  pressKeyAndExpectFocus('[ArrowDown]', 'Q');
+  await pressKeyAndExpectFocus('[ArrowDown]', 'A');
+  await pressKeyAndExpectFocus('[ArrowDown]', 'Z');
+  await pressKeyAndExpectFocus('[ArrowDown]', 'space');
+  await pressKeyAndExpectFocus('[ArrowDown]', 'Cancel');
+  await pressKeyAndExpectFocus('[ArrowDown]', 'Q');
   // Go up and wrap around to start
-  pressKeyAndExpectFocus('[ArrowUp]', 'Cancel');
-  pressKeyAndExpectFocus('[ArrowUp]', 'space');
-  pressKeyAndExpectFocus('[ArrowUp]', 'Z');
-  pressKeyAndExpectFocus('[ArrowUp]', 'A');
-  pressKeyAndExpectFocus('[ArrowUp]', 'Q');
+  await pressKeyAndExpectFocus('[ArrowUp]', 'Cancel');
+  await pressKeyAndExpectFocus('[ArrowUp]', 'space');
+  await pressKeyAndExpectFocus('[ArrowUp]', 'Z');
+  await pressKeyAndExpectFocus('[ArrowUp]', 'A');
+  await pressKeyAndExpectFocus('[ArrowUp]', 'Q');
 });
