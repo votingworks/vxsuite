@@ -43,3 +43,5 @@ export const NETWORK_EVENT_LIMIT = 500;
 
 export const MEGABYTE = 1024 * 1024;
 export const MAX_POLLBOOK_PACKAGE_SIZE = 10 * MEGABYTE;
+
+export const POLLBOOK_PACKAGE_ASSET_FILE_NAME = 'pollbook-package.zip';

@@ -5,7 +5,7 @@ import { mockBaseLogger } from '@votingworks/logging';
 import {
   createValidStreetInfo,
   createVoter,
-  getTestElection,
+  getTestElectionDefinition,
   syncEventsForAllPollbooks,
   syncEventsFromTo,
 } from '../test/test_helpers';
@@ -54,7 +54,7 @@ test('offline undo with later real time check in', async () => {
   const [localB, peerB] = setupFileStores('pollbook-b');
 
   // Set up test election and voters
-  const testElection = getTestElection();
+  const testElectionDefinition = getTestElectionDefinition();
   const testVoters = [
     createVoter('bob', 'Bob', 'Smith'),
     createVoter('charlie', 'Charlie', 'Brown'),
@@ -62,8 +62,18 @@ test('offline undo with later real time check in', async () => {
   ];
 
   // Initialize both pollbooks with same election data
-  localA.setElectionAndVoters(testElection, [], testVoters);
-  localB.setElectionAndVoters(testElection, [], testVoters);
+  localA.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    [],
+    testVoters
+  );
+  localB.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    [],
+    testVoters
+  );
 
   // Both pollbooks come online
   peerA.setOnlineStatus(true);
@@ -158,12 +168,22 @@ test('bad system time nodes should be able to undo', () => {
   const [localB, peerB] = setupFileStores('pollbook-b');
 
   // Set up test election and voters
-  const testElection = getTestElection();
+  const testElectionDefinition = getTestElectionDefinition();
   const testVoters = [createVoter('bob', 'Bob', 'Smith')];
 
   // Initialize both pollbooks with same election data
-  localA.setElectionAndVoters(testElection, [], testVoters);
-  localB.setElectionAndVoters(testElection, [], testVoters);
+  localA.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    [],
+    testVoters
+  );
+  localB.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    [],
+    testVoters
+  );
 
   // Both pollbooks come online
   peerA.setOnlineStatus(true);
@@ -230,7 +250,7 @@ test("getting a offline machines events when I've synced with the online machine
   const [localC, peerC] = setupFileStores('pollbook-c');
 
   // Set up test election and voters
-  const testElection = getTestElection();
+  const testElectionDefinition = getTestElectionDefinition();
   const testVoters = [
     createVoter('alice', 'Alice', 'Wonderland'),
     createVoter('bob', 'Bob', 'Builder'),
@@ -241,9 +261,24 @@ test("getting a offline machines events when I've synced with the online machine
   ];
 
   // Initialize all pollbooks with same election data
-  localA.setElectionAndVoters(testElection, [], testVoters);
-  localB.setElectionAndVoters(testElection, [], testVoters);
-  localC.setElectionAndVoters(testElection, [], testVoters);
+  localA.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    [],
+    testVoters
+  );
+  localB.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    [],
+    testVoters
+  );
+  localC.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    [],
+    testVoters
+  );
 
   // All pollbooks come online
   peerA.setOnlineStatus(true);
@@ -364,15 +399,25 @@ test('last write wins on double check ins', async () => {
   const [localB, peerB] = setupFileStores('pollbook-b');
 
   // Set up test election and voters
-  const testElection = getTestElection();
+  const testElectionDefinition = getTestElectionDefinition();
   const testVoters = [
     createVoter('bob', 'Bob', 'Smith'),
     createVoter('charlie', 'Charlie', 'Brown'),
     createVoter('sue', 'Sue', 'Jones'),
   ];
 
-  localA.setElectionAndVoters(testElection, [], testVoters);
-  localB.setElectionAndVoters(testElection, [], testVoters);
+  localA.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    [],
+    testVoters
+  );
+  localB.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    [],
+    testVoters
+  );
 
   peerA.setOnlineStatus(true);
   peerB.setOnlineStatus(true);
@@ -430,12 +475,22 @@ test('last write wins even when there is bad system time after a sync', () => {
   const [localB, peerB] = setupFileStores('pollbook-b');
 
   // Set up test election and voters
-  const testElection = getTestElection();
+  const testElectionDefinition = getTestElectionDefinition();
   const testVoters = [createVoter('bob', 'Bob', 'Smith')];
 
   // Initialize both pollbooks with same election data
-  localA.setElectionAndVoters(testElection, [], testVoters);
-  localB.setElectionAndVoters(testElection, [], testVoters);
+  localA.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    [],
+    testVoters
+  );
+  localB.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    [],
+    testVoters
+  );
 
   // Both pollbooks come online
   peerA.setOnlineStatus(true);
@@ -519,7 +574,7 @@ test('simultaneous events are handled properly', () => {
   const [localC, peerC] = setupFileStores('pollbook-c');
 
   // Set up test election and voters
-  const testElection = getTestElection();
+  const testElectionDefinition = getTestElectionDefinition();
   const testVoters = [
     createVoter('bob', 'Bob', 'Smith'),
     createVoter('charlie', 'Charlie', 'Brown'),
@@ -527,9 +582,24 @@ test('simultaneous events are handled properly', () => {
   ];
 
   // Initialize both pollbooks with same election data
-  localA.setElectionAndVoters(testElection, [], testVoters);
-  localB.setElectionAndVoters(testElection, [], testVoters);
-  localC.setElectionAndVoters(testElection, [], testVoters);
+  localA.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    [],
+    testVoters
+  );
+  localB.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    [],
+    testVoters
+  );
+  localC.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    [],
+    testVoters
+  );
 
   // Both pollbooks come online
   peerA.setOnlineStatus(true);
@@ -576,16 +646,31 @@ test('late-arriving older event with a more recent undo', () => {
   const [localC, peerC] = setupFileStores('pollbook-c');
 
   // Set up test election and voters
-  const testElection = getTestElection();
+  const testElectionDefinition = getTestElectionDefinition();
   const testVoters = [
     createVoter('oscar', 'Oscar', 'Wilde'),
     createVoter('penny', 'Penny', 'Lane'),
   ];
 
   // Initialize all pollbooks with same election data
-  localA.setElectionAndVoters(testElection, [], testVoters);
-  localB.setElectionAndVoters(testElection, [], testVoters);
-  localC.setElectionAndVoters(testElection, [], testVoters);
+  localA.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    [],
+    testVoters
+  );
+  localB.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    [],
+    testVoters
+  );
+  localC.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    [],
+    testVoters
+  );
 
   // Pollbook A and B come online
   peerA.setOnlineStatus(true);
@@ -665,7 +750,7 @@ test('all possible events are synced', () => {
   const [localB, peerB] = setupFileStores('pollbook-b');
 
   // Set up test election and voters
-  const testElection = getTestElection();
+  const testElectionDefinition = getTestElectionDefinition();
   const testVoters = [
     createVoter('oscar', 'Oscar', 'Wilde'),
     createVoter('penny', 'Penny', 'Lane'),
@@ -673,12 +758,14 @@ test('all possible events are synced', () => {
 
   // Initialize all pollbooks with same election data
   localA.setElectionAndVoters(
-    testElection,
+    testElectionDefinition,
+    'fake-package-hash',
     [createValidStreetInfo('MAIN ST', 'odd', 1, 15)],
     testVoters
   );
   localB.setElectionAndVoters(
-    testElection,
+    testElectionDefinition,
+    'fake-package-hash',
     [createValidStreetInfo('MAIN ST', 'odd', 1, 15)],
     testVoters
   );
@@ -802,11 +889,26 @@ test('register on A, check in on B, name/address change on C, sync all', () => {
   const [localA, peerA] = setupFileStores('pollbook-a');
   const [localB, peerB] = setupFileStores('pollbook-b');
   const [localC, peerC] = setupFileStores('pollbook-c');
-  const testElection = getTestElection();
+  const testElectionDefinition = getTestElectionDefinition();
   const streets = [createValidStreetInfo('MAIN', 'even', 2, 10)];
-  localA.setElectionAndVoters(testElection, streets, []);
-  localB.setElectionAndVoters(testElection, streets, []);
-  localC.setElectionAndVoters(testElection, streets, []);
+  localA.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    streets,
+    []
+  );
+  localB.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    streets,
+    []
+  );
+  localC.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    streets,
+    []
+  );
   peerA.setOnlineStatus(true);
   peerB.setOnlineStatus(true);
   peerC.setOnlineStatus(true);
@@ -876,14 +978,24 @@ test('last write wins for name/address changes with bad system time after sync',
   vi.useFakeTimers();
   const [localA, peerA] = setupFileStores('pollbook-a');
   const [localB, peerB] = setupFileStores('pollbook-b');
-  const testElection = getTestElection();
+  const testElectionDefinition = getTestElectionDefinition();
   const voters = [
     createVoter('tim', 'Tim', 'Traveler'),
     createVoter('tia', 'Tia', 'Traveler'),
   ];
   const streets = [createValidStreetInfo('MAPLE', 'even', 2, 400)];
-  localA.setElectionAndVoters(testElection, streets, voters);
-  localB.setElectionAndVoters(testElection, streets, voters);
+  localA.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    streets,
+    voters
+  );
+  localB.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    streets,
+    voters
+  );
   peerA.setOnlineStatus(true);
   peerB.setOnlineStatus(true);
   // Name change on A at 9am
@@ -983,10 +1095,20 @@ test('last write wins for name/address changes with bad system time after sync',
 test('register, check in, then change name/address, sync', () => {
   const [localA, peerA] = setupFileStores('pollbook-a');
   const [localB, peerB] = setupFileStores('pollbook-b');
-  const testElection = getTestElection();
+  const testElectionDefinition = getTestElectionDefinition();
   const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
-  localA.setElectionAndVoters(testElection, streets, []);
-  localB.setElectionAndVoters(testElection, streets, []);
+  localA.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    streets,
+    []
+  );
+  localB.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    streets,
+    []
+  );
   peerA.setOnlineStatus(true);
   peerB.setOnlineStatus(true);
   // Register on A
@@ -1049,11 +1171,21 @@ test('register, check in, then change name/address, sync', () => {
 test('simultaneous name/address changes, last write wins', async () => {
   const [localA, peerA] = setupFileStores('pollbook-a');
   const [localB, peerB] = setupFileStores('pollbook-b');
-  const testElection = getTestElection();
+  const testElectionDefinition = getTestElectionDefinition();
   const voter = createVoter('sim', 'Sim', 'Multi');
   const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
-  localA.setElectionAndVoters(testElection, streets, [voter]);
-  localB.setElectionAndVoters(testElection, streets, [voter]);
+  localA.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    streets,
+    [voter]
+  );
+  localB.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    streets,
+    [voter]
+  );
   peerA.setOnlineStatus(true);
   peerB.setOnlineStatus(true);
   // Name change on A

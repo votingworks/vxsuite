@@ -10,6 +10,7 @@ import {
   EventDbRow,
   EventType,
   PollbookConnectionStatus,
+  PollbookInformationSchema,
   PollbookServiceInfo,
   SummaryStatistics,
   ThroughputStat,
@@ -516,7 +517,7 @@ export class LocalStore extends Store {
   getPollbookServiceInfo(): PollbookServiceInfo[] {
     const rows = this.client.all(
       `
-      SELECT machine_id, status, last_seen
+      SELECT machine_id, status, last_seen, pollbook_information
       FROM machines
       WHERE machine_id != ?
       `,
@@ -525,13 +526,24 @@ export class LocalStore extends Store {
       machine_id: string;
       status: string;
       last_seen: number;
+      pollbook_information: string;
     }>;
 
-    return rows.map((row) => ({
-      machineId: row.machine_id,
-      status: row.status as PollbookConnectionStatus,
-      lastSeen: new Date(row.last_seen),
-      numCheckIns: this.getCheckInCount(row.machine_id),
-    }));
+    return rows.map((row) => {
+      const pollbookInfo = safeParseJson(
+        row.pollbook_information,
+        PollbookInformationSchema
+      ).unsafeUnwrap();
+      return {
+        machineId: row.machine_id,
+        status: row.status as PollbookConnectionStatus,
+        lastSeen: new Date(row.last_seen),
+        numCheckIns: this.getCheckInCount(row.machine_id),
+        electionBallotHash: pollbookInfo?.electionBallotHash,
+        pollbookPackageHash: pollbookInfo?.pollbookPackageHash,
+        electionId: pollbookInfo?.electionId,
+        electionName: pollbookInfo?.electionTitle,
+      };
+    });
   }
 }

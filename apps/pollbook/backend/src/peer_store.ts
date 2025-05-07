@@ -16,7 +16,6 @@ const debug = rootDebug.extend('store:peer');
 
 export class PeerStore extends Store {
   private readonly connectedPollbooks: Record<string, PollbookService> = {};
-  private isOnline: boolean = false;
 
   constructor(client: DbClient, machineId: string) {
     super(client, machineId);
@@ -47,7 +46,6 @@ export class PeerStore extends Store {
   }
 
   setOnlineStatus(isOnline: boolean): void {
-    this.isOnline = isOnline;
     this.client.transaction(() => {
       if (!isOnline) {
         // If we go offline, we should clear the list of connected pollbooks.
@@ -64,8 +62,8 @@ export class PeerStore extends Store {
       }
       this.client.run(
         `
-      INSERT INTO machines (machine_id, status, last_seen)
-      VALUES (?, ?, ?)
+      INSERT INTO machines (machine_id, status, last_seen, pollbook_information)
+      VALUES (?, ?, ?, ?)
       ON CONFLICT(machine_id) DO UPDATE SET
         status = excluded.status
         ${isOnline ? ', last_seen = excluded.last_seen' : ''}
@@ -74,7 +72,8 @@ export class PeerStore extends Store {
         isOnline
           ? PollbookConnectionStatus.Connected
           : PollbookConnectionStatus.LostConnection,
-        isOnline ? getCurrentTime() : 0
+        isOnline ? getCurrentTime() : 0,
+        '{}'
       );
     });
   }
@@ -181,17 +180,25 @@ export class PeerStore extends Store {
     this.connectedPollbooks[avahiServiceName] = pollbookService;
 
     // Update the machines table with the pollbook service information
+
     this.client.run(
       `
-      INSERT INTO machines (machine_id, status, last_seen)
-      VALUES (?, ?, ?)
+      INSERT INTO machines (machine_id, status, last_seen, pollbook_information)
+      VALUES (?, ?, ?, ?)
       ON CONFLICT(machine_id) DO UPDATE SET
         status = excluded.status,
-        last_seen = excluded.last_seen
+        last_seen = excluded.last_seen,
+        pollbook_information = excluded.pollbook_information
       `,
       pollbookService.machineId,
       pollbookService.status,
-      pollbookService.lastSeen.getTime()
+      pollbookService.lastSeen.getTime(),
+      JSON.stringify({
+        electionId: pollbookService.electionId,
+        electionBallotHash: pollbookService.electionBallotHash,
+        pollbookPackageHash: pollbookService.pollbookPackageHash,
+        electionTitle: pollbookService.electionTitle,
+      })
     );
   }
 

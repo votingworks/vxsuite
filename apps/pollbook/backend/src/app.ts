@@ -41,6 +41,7 @@ import {
   VoterAddressChange,
   LocalAppContext,
   LocalWorkspace,
+  ConfigurationError,
 } from './types';
 import { rootDebug } from './debug';
 import {
@@ -147,14 +148,15 @@ function buildApi({ context, logger }: BuildAppParams) {
         battery: batteryStatus ?? undefined,
         network: {
           isOnline: store.getIsOnline(),
-          pollbooks: store.getPollbookServiceInfo().map((pollbook) => ({
-            machineId: pollbook.machineId,
-            lastSeen: pollbook.lastSeen,
-            numCheckIns: pollbook.numCheckIns,
-            status: pollbook.status,
-          })),
+          pollbooks: store.getPollbookServiceInfo(),
         },
       };
+    },
+
+    async configureFromPeerMachine(input: {
+      machineId: string;
+    }): Promise<Result<void, ConfigurationError>> {
+      return await workspace.peerApiClient.configureFromPeerMachine(input);
     },
 
     getPrinterStatus(): Promise<PrinterStatus> {

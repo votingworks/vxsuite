@@ -1,6 +1,11 @@
-import { describe, test, beforeEach, afterEach, vi } from 'vitest';
+import { describe, test, beforeEach, afterEach, vi, expect } from 'vitest';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
+import {
+  PollbookConnectionStatus,
+  PollbookServiceInfo,
+} from '@votingworks/pollbook-backend';
+import { within } from '@testing-library/react';
 import { screen } from '../test/react_testing_library';
 import { ApiMock, createApiMock } from '../test/mock_api_client';
 import { SystemAdministratorScreen } from './system_administrator_screen';
@@ -8,6 +13,19 @@ import { renderInAppContext } from '../test/render_in_app_context';
 
 let apiMock: ApiMock;
 const electionFamousNames = electionFamousNames2021Fixtures.readElection();
+const electionDefFamousNames =
+  electionFamousNames2021Fixtures.readElectionDefinition();
+
+const mockPollbookService: PollbookServiceInfo = {
+  electionId: electionFamousNames.id,
+  electionBallotHash: electionDefFamousNames.ballotHash,
+  pollbookPackageHash: 'test-pollbook-hash',
+  electionTitle: 'Test Election',
+  machineId: 'TEST',
+  lastSeen: new Date('2025-01-01'),
+  status: PollbookConnectionStatus.WrongElection,
+  numCheckIns: 0,
+};
 
 let unmount: () => void;
 
@@ -15,24 +33,121 @@ beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
   vi.clearAllMocks();
   apiMock = createApiMock();
-  apiMock.setElection(electionFamousNames);
   apiMock.expectGetMachineConfig();
   apiMock.expectGetDeviceStatuses();
 });
 
-afterEach(() => {
-  apiMock.mockApiClient.assertComplete();
-  unmount();
-});
-
 describe('Election tab', () => {
+  afterEach(() => {
+    apiMock.mockApiClient.assertComplete();
+    unmount();
+  });
   test('basic render', async () => {
+    apiMock.setElection(electionFamousNames);
     const renderResult = renderInAppContext(<SystemAdministratorScreen />, {
       apiMock,
     });
     unmount = renderResult.unmount;
 
     await screen.findByRole('heading', { name: 'Election' });
+  });
+
+  test('sys admin - renders UnconfiguredScreen when election is unconfigured and not connected to other machines', async () => {
+    apiMock.setElection(undefined);
+    const renderResult = renderInAppContext(<SystemAdministratorScreen />, {
+      apiMock,
+    });
+    unmount = renderResult.unmount;
+    await screen.findByRole('heading', { name: 'Election' });
+    await screen.findByText(
+      'Insert a USB drive containing a pollbook package or power up another configured machine.'
+    );
+  });
+
+  test('sys admin - can configure from usb', async () => {
+    apiMock.setElection(undefined);
+    const renderResult = renderInAppContext(<SystemAdministratorScreen />, {
+      apiMock,
+    });
+    unmount = renderResult.unmount;
+    await screen.findByRole('heading', { name: 'Election' });
+    await screen.findByText(
+      'Insert a USB drive containing a pollbook package or power up another configured machine.'
+    );
+
+    apiMock.setElectionConfiguration('not-found');
+    await screen.findByText(
+      'No pollbook package found on the inserted USB drive.'
+    );
+
+    apiMock.setElectionConfiguration('loading');
+    await screen.findByText('Configuring VxPollbook from USB drive…');
+  });
+
+  test('sys admin - can configure from networked machine', async () => {
+    apiMock.setNetworkOnline([
+      {
+        ...mockPollbookService,
+        machineId: 'TEST-01',
+        status: PollbookConnectionStatus.WrongElection,
+      },
+      {
+        ...mockPollbookService,
+        machineId: 'TEST-02',
+        status: PollbookConnectionStatus.ShutDown,
+      },
+      {
+        ...mockPollbookService,
+        machineId: 'TEST-03',
+        status: PollbookConnectionStatus.LostConnection,
+      },
+      {
+        ...mockPollbookService,
+        machineId: 'TEST-04',
+        status: PollbookConnectionStatus.WrongElection,
+        pollbookPackageHash: 'different-pollbook-hash',
+        electionTitle: 'Bad Election',
+      },
+    ]);
+    apiMock.setElection(undefined);
+    const renderResult = renderInAppContext(<SystemAdministratorScreen />, {
+      apiMock,
+    });
+    unmount = renderResult.unmount;
+    await screen.findByRole('heading', { name: 'Election' });
+    const rows = screen.getAllByTestId('pollbook-config-row');
+    expect(rows).toHaveLength(2);
+    await within(rows[0]).findByText('Test Election');
+    // Only TEST-01 should show as a machineId as the 02 and 03 are offline
+    await within(rows[0]).findByText('TEST-01');
+    await within(rows[0]).findByText(
+      `${electionDefFamousNames.ballotHash.slice(0, 7)}-test-po`
+    );
+    await within(rows[1]).findByText('Bad Election');
+    await within(rows[1]).findByText('TEST-04');
+    await within(rows[1]).findByText(
+      `${electionDefFamousNames.ballotHash.slice(0, 7)}-differe`
+    );
+    await screen.findByText(
+      /Insert a USB drive containing a pollbook package, or configure from another nearby machine listed below./
+    );
+
+    // If the usb drive is inserted without a package there is a warning.
+    apiMock.setElectionConfiguration('not-found');
+    await screen.findByText(
+      /No pollbook package found on the inserted USB drive/
+    );
+
+    // Try to configure from the "bad" election and mimic an error
+    apiMock.expectConfigureOverNetwork('TEST-04', 'invalid-pollbook-package');
+    const configureBad = await within(rows[1]).findByText('Configure');
+    userEvent.click(configureBad);
+    await screen.findByText(/Error during configuration, please try again./);
+
+    // Try to configure from the "good" election and mimic success
+    apiMock.expectConfigureOverNetwork('TEST-01');
+    const configureGood = await within(rows[0]).findByText('Configure');
+    userEvent.click(configureGood);
   });
 });
 
@@ -52,6 +167,7 @@ describe('Settings tab', () => {
   }
 
   beforeEach(() => {
+    apiMock.setElection(electionFamousNames);
     apiMock.expectGetUsbDriveStatus({
       status: 'mounted',
       mountPoint: '/dev/null',

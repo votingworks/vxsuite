@@ -2,7 +2,12 @@ import { Client as DbClient } from '@votingworks/db';
 // import { Iso8601Timestamp } from '@votingworks/types';
 import { join } from 'node:path';
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { Election, safeParseElection, safeParseJson } from '@votingworks/types';
+import {
+  Election,
+  ElectionDefinition,
+  safeParseElection,
+  safeParseJson,
+} from '@votingworks/types';
 import { customAlphabet } from 'nanoid';
 import { rootDebug } from './debug';
 import {
@@ -14,6 +19,7 @@ import {
   Voter,
   VoterSchema,
   PollbookConnectionStatus,
+  PollbookInformation,
 } from './types';
 import { HlcTimestamp, HybridLogicalClock } from './hybrid_logical_clock';
 import {
@@ -348,12 +354,36 @@ export abstract class Store {
     return this.election;
   }
 
+  getMachineInformation(): PollbookInformation | undefined {
+    const row = this.client.one(
+      `
+          select election_data, ballot_hash, package_hash
+          from elections
+          order by rowid desc
+          limit 1
+        `
+    ) as { election_data: string; ballot_hash: string; package_hash: string };
+    if (!row) {
+      return undefined;
+    }
+    const election: Election = safeParseElection(
+      row.election_data
+    ).unsafeUnwrap();
+    return {
+      electionId: election.id,
+      electionTitle: election.title,
+      electionBallotHash: row.ballot_hash,
+      pollbookPackageHash: row.package_hash,
+    };
+  }
+
   setElectionAndVoters(
-    election: Election,
+    electionDefinition: ElectionDefinition,
+    packageHash: string,
     validStreets: ValidStreetInfo[],
     voters: Voter[]
   ): void {
-    this.election = election;
+    this.election = electionDefinition.election;
     this.validStreetInfo = validStreets;
     this.client.transaction(() => {
       this.client.run(
@@ -361,14 +391,18 @@ export abstract class Store {
           insert into elections (
             election_id,
             election_data,
+            ballot_hash,
+            package_hash,
             valid_street_data,
             is_absentee_mode
           ) values (
-            ?, ?, ?, 0
+            ?, ?, ?, ?, ?, 0
           )
         `,
-        election.id,
-        JSON.stringify(election),
+        electionDefinition.election.id,
+        JSON.stringify(electionDefinition.election),
+        electionDefinition.ballotHash,
+        packageHash,
         JSON.stringify(validStreets)
       );
       for (const voter of voters) {

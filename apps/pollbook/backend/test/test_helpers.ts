@@ -4,6 +4,7 @@ import {
   BallotStyleId,
   DistrictId,
   Election,
+  ElectionDefinition,
   ElectionId,
   HmpbBallotPaperSize,
 } from '@votingworks/types';
@@ -166,8 +167,17 @@ export function getTestElection(): Election {
   return testElection;
 }
 
+export function getTestElectionDefinition(): ElectionDefinition {
+  const testElectionDefinition: ElectionDefinition = {
+    election: getTestElection(),
+    electionData: '',
+    ballotHash: 'test-ballot-hash',
+  };
+  return testElectionDefinition;
+}
+
 export function setupTestElectionAndVoters(store: Store): void {
-  const testElection = getTestElection();
+  const testElectionDefinition = getTestElectionDefinition();
   const testVoters = [
     createVoter('abigail', 'Abigail', 'Adams'),
     createVoter('bob', 'Bob', 'Smith'),
@@ -186,5 +196,10 @@ export function setupTestElectionAndVoters(store: Store): void {
       district: 'Somewhere',
     },
   ];
-  store.setElectionAndVoters(testElection, testStreetInfo, testVoters);
+  store.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    testStreetInfo,
+    testVoters
+  );
 }

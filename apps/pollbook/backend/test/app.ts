@@ -34,6 +34,7 @@ interface TestContext {
   localApiClient: grout.Client<LocalApi>;
   peerApiClient: grout.Client<PeerApi>;
   app: Application;
+  peerApp: Application;
   localServer: Server;
   peerServer: Server;
 }
@@ -54,17 +55,27 @@ export async function withApp(
 ): Promise<void> {
   const auth = buildMockDippedSmartCardAuth(vi.fn);
   const workspacePath = tmp.dirSync().name;
-  const workspace = createLocalWorkspace(
-    workspacePath,
-    mockBaseLogger({ fn: vi.fn }),
-    process.env.VX_MACHINE_ID || 'test'
-  );
   const peerWorkspace = createPeerWorkspace(
     workspacePath,
     mockBaseLogger({ fn: vi.fn }),
     process.env.VX_MACHINE_ID || 'test'
   );
+  const peerApp = buildPeerApp({
+    workspace: peerWorkspace,
+    machineId: process.env.VX_MACHINE_ID || 'test',
+    codeVersion: process.env.VX_CODE_VERSION || 'test',
+  });
 
+  const peerServer = peerApp.listen();
+  const { port: peerPort } = peerServer.address() as AddressInfo;
+  const peerBaseUrl = `http://localhost:${peerPort}/api`;
+
+  const workspace = createLocalWorkspace(
+    workspacePath,
+    mockBaseLogger({ fn: vi.fn }),
+    peerPort,
+    process.env.VX_MACHINE_ID || 'test'
+  );
   const logger = buildMockLogger(auth, workspace);
 
   const mockUsbDrive = createMockUsbDrive();
@@ -83,19 +94,10 @@ export async function withApp(
     },
     logger,
   });
-  const peerApp = buildPeerApp({
-    workspace: peerWorkspace,
-    machineId: process.env.VX_MACHINE_ID || 'test',
-    codeVersion: process.env.VX_CODE_VERSION || 'test',
-  });
 
   const localServer = app.listen();
   const { port: localPort } = localServer.address() as AddressInfo;
   const localBaseUrl = `http://localhost:${localPort}/api`;
-
-  const peerServer = peerApp.listen();
-  const { port: peerPort } = peerServer.address() as AddressInfo;
-  const peerBaseUrl = `http://localhost:${peerPort}/api`;
 
   const localApiClient = grout.createClient<LocalApi>({
     baseUrl: localBaseUrl,
@@ -111,6 +113,7 @@ export async function withApp(
       localApiClient,
       peerApiClient,
       app,
+      peerApp,
       localServer,
       peerServer,
       peerWorkspace,
@@ -139,23 +142,34 @@ export async function withManyApps(
     for (let i = 0; i < n; i += 1) {
       const auth = buildMockDippedSmartCardAuth(vi.fn);
       const workspacePath = tmp.dirSync().name;
-      const workspace = createLocalWorkspace(
-        workspacePath,
-        mockBaseLogger({ fn: vi.fn }),
-        `test-${i}`
-      );
       const peerWorkspace = createPeerWorkspace(
         workspacePath,
         mockBaseLogger({ fn: vi.fn }),
         `test-${i}`
       );
 
-      const logger = buildMockLogger(auth, workspace);
+      const peerApp = buildPeerApp({
+        workspace: peerWorkspace,
+        machineId: `test-${i}`,
+        codeVersion: process.env.VX_CODE_VERSION || 'test',
+      });
+
+      const peerServer = peerApp.listen();
+      const { port: peerPort } = peerServer.address() as AddressInfo;
+      const peerBaseUrl = `http://localhost:${peerPort}/api`;
 
       const mockUsbDrive = createMockUsbDrive();
       mockUsbDrive.usbDrive.sync.expectOptionalRepeatedCallsWith().resolves();
 
       const mockPrinterHandler = createMockPrinterHandler();
+
+      const workspace = createLocalWorkspace(
+        workspacePath,
+        mockBaseLogger({ fn: vi.fn }),
+        peerPort,
+        `test-${i}`
+      );
+      const logger = buildMockLogger(auth, workspace);
 
       const app = buildLocalApp({
         context: {
@@ -168,19 +182,10 @@ export async function withManyApps(
         },
         logger,
       });
-      const peerApp = buildPeerApp({
-        workspace: peerWorkspace,
-        machineId: `test-${i}`,
-        codeVersion: process.env.VX_CODE_VERSION || 'test',
-      });
 
       const localServer = app.listen();
       const { port: localPort } = localServer.address() as AddressInfo;
       const localBaseUrl = `http://localhost:${localPort}/api`;
-
-      const peerServer = peerApp.listen();
-      const { port: peerPort } = peerServer.address() as AddressInfo;
-      const peerBaseUrl = `http://localhost:${peerPort}/api`;
 
       const localApiClient = grout.createClient<LocalApi>({
         baseUrl: localBaseUrl,
@@ -197,6 +202,7 @@ export async function withManyApps(
         localApiClient,
         peerApiClient,
         app,
+        peerApp,
         localServer,
         peerServer,
         peerWorkspace,

@@ -2,13 +2,16 @@ import { ensureDirSync } from 'fs-extra';
 import { join } from 'node:path';
 
 import { BaseLogger } from '@votingworks/logging';
+import * as grout from '@votingworks/grout';
 import { PeerWorkspace, LocalWorkspace } from './types';
 import { LocalStore } from './local_store';
 import { PeerStore } from './peer_store';
+import { PeerApi } from './peer_app';
 
 export function createLocalWorkspace(
   workspacePath: string,
   logger: BaseLogger,
+  peerPort: number,
   machineId: string
 ): LocalWorkspace {
   ensureDirSync(workspacePath);
@@ -18,8 +21,11 @@ export function createLocalWorkspace(
 
   const dbPath = join(workspacePath, 'pollbook-backend.db');
   const store = LocalStore.fileStore(dbPath, logger, machineId);
+  const peerApiClient = grout.createClient<PeerApi>({
+    baseUrl: `http://localhost:${peerPort}/api`,
+  });
 
-  return { assetDirectoryPath, store };
+  return { assetDirectoryPath, store, peerApiClient };
 }
 
 export function createPeerWorkspace(
@@ -29,8 +35,10 @@ export function createPeerWorkspace(
 ): PeerWorkspace {
   ensureDirSync(workspacePath);
 
+  const assetDirectoryPath = join(workspacePath, 'assets');
+  ensureDirSync(assetDirectoryPath);
   const dbPath = join(workspacePath, 'pollbook-backend.db');
   const store = PeerStore.fileStore(dbPath, logger, machineId);
 
-  return { store };
+  return { assetDirectoryPath, store };
 }

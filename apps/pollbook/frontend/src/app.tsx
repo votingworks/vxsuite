@@ -30,7 +30,7 @@ import {
 } from './api';
 import { ErrorScreen } from './error_screen';
 import { PollWorkerScreen } from './poll_worker_screen';
-import { UnconfiguredScreen } from './unconfigured_screen';
+import { UnconfiguredElectionManagerScreen } from './unconfigured_screen';
 import { MachineLockedScreen } from './machine_locked_screen';
 import { ElectionManagerScreen } from './election_manager_screen';
 import { SystemAdministratorScreen } from './system_administrator_screen';
@@ -39,12 +39,11 @@ function AppRoot(): JSX.Element | null {
   const getAuthStatusQuery = getAuthStatus.useQuery();
   const checkPinMutation = checkPin.useMutation();
   const getElectionQuery = getElection.useQuery();
-  if (!(getAuthStatusQuery.isSuccess && getElectionQuery.isSuccess)) {
+  if (!getAuthStatusQuery.isSuccess) {
     return null;
   }
 
   const auth = getAuthStatusQuery.data;
-  const election = getElectionQuery.data;
 
   if (auth.status === 'logged_out' && auth.reason === 'no_card_reader') {
     return <SetupCardReaderPage usePollWorkerLanguage={false} />;
@@ -94,12 +93,12 @@ function AppRoot(): JSX.Element | null {
     );
   }
 
-  if (election.isErr()) {
-    return <UnconfiguredScreen />;
-  }
-
   if (isSystemAdministratorAuth(auth)) {
     return <SystemAdministratorScreen />;
+  }
+
+  if (!getElectionQuery.isSuccess || getElectionQuery.data.isErr()) {
+    return <UnconfiguredElectionManagerScreen />;
   }
 
   if (isElectionManagerAuth(auth)) {

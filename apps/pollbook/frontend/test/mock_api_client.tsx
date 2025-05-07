@@ -6,8 +6,11 @@ import {
 import { createMockClient } from '@votingworks/grout-test-utils';
 import type {
   Api,
+  ConfigurationError,
+  ConfigurationStatus,
   DeviceStatuses,
   MachineConfig,
+  PollbookServiceInfo,
   ValidStreetInfo,
   Voter,
   VoterAddressChangeRequest,
@@ -81,7 +84,7 @@ export function createApiMock() {
     printer: { connected: false },
     battery: { level: 1, discharging: false },
     network: {
-      isOnline: true,
+      isOnline: false,
       pollbooks: [],
     },
   };
@@ -151,7 +154,9 @@ export function createApiMock() {
     },
 
     expectGetMachineConfig(): void {
-      mockApiClient.getMachineConfig.expectCallWith().resolves(machineConfig);
+      mockApiClient.getMachineConfig
+        .expectRepeatedCallsWith()
+        .resolves(machineConfig);
     },
 
     expectGetUsbDriveStatus(usbDriveStatus?: UsbDriveStatus): void {
@@ -171,6 +176,7 @@ export function createApiMock() {
         ...currentDeviceStatus,
         usbDrive: mockUsbDriveStatus(status),
       };
+      mockApiClient.getDeviceStatuses.reset();
       mockApiClient.getDeviceStatuses
         .expectRepeatedCallsWith()
         .resolves(currentDeviceStatus);
@@ -191,6 +197,7 @@ export function createApiMock() {
           printer: { connected },
         };
       }
+      mockApiClient.getDeviceStatuses.reset();
       mockApiClient.getDeviceStatuses
         .expectRepeatedCallsWith()
         .resolves(currentDeviceStatus);
@@ -201,6 +208,35 @@ export function createApiMock() {
         ...currentDeviceStatus,
         battery: { level, discharging },
       };
+      mockApiClient.getDeviceStatuses.reset();
+      mockApiClient.getDeviceStatuses
+        .expectRepeatedCallsWith()
+        .resolves(currentDeviceStatus);
+    },
+
+    setNetworkOffline(): void {
+      currentDeviceStatus = {
+        ...currentDeviceStatus,
+        network: {
+          isOnline: false,
+          pollbooks: [],
+        },
+      };
+      mockApiClient.getDeviceStatuses.reset();
+      mockApiClient.getDeviceStatuses
+        .expectRepeatedCallsWith()
+        .resolves(currentDeviceStatus);
+    },
+
+    setNetworkOnline(pollbooks: PollbookServiceInfo[]): void {
+      currentDeviceStatus = {
+        ...currentDeviceStatus,
+        network: {
+          isOnline: true,
+          pollbooks,
+        },
+      };
+      mockApiClient.getDeviceStatuses.reset();
       mockApiClient.getDeviceStatuses
         .expectRepeatedCallsWith()
         .resolves(currentDeviceStatus);
@@ -210,11 +246,18 @@ export function createApiMock() {
       mockApiClient.getElection.reset();
       if (!election) {
         mockApiClient.getElection
-          .expectCallWith()
+          .expectRepeatedCallsWith()
           .resolves(err('unconfigured'));
         return;
       }
-      mockApiClient.getElection.expectCallWith().resolves(ok(election));
+      mockApiClient.getElection
+        .expectRepeatedCallsWith()
+        .resolves(ok(election));
+    },
+
+    setElectionConfiguration(status: ConfigurationStatus) {
+      mockApiClient.getElection.reset();
+      mockApiClient.getElection.expectRepeatedCallsWith().resolves(err(status));
     },
 
     setIsAbsenteeMode(isAbsenteeMode: boolean) {
@@ -355,6 +398,22 @@ export function createApiMock() {
     expectUnconfigureElection() {
       mockApiClient.unconfigure.reset();
       mockApiClient.unconfigure.expectCallWith().resolves();
+    },
+
+    expectConfigureOverNetwork(
+      machineId: string,
+      configErr?: ConfigurationError
+    ) {
+      mockApiClient.configureFromPeerMachine.reset();
+      if (configErr) {
+        mockApiClient.configureFromPeerMachine
+          .expectCallWith({ machineId })
+          .resolves(err(configErr));
+      } else {
+        mockApiClient.configureFromPeerMachine
+          .expectCallWith({ machineId })
+          .resolves(ok());
+      }
     },
   };
 }

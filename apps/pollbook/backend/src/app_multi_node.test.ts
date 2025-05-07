@@ -2,6 +2,10 @@ import { beforeEach, expect, test, vi, vitest } from 'vitest';
 
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { AddressInfo } from 'node:net';
+import { err, ok } from '@votingworks/basics';
+import { existsSync, unlinkSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { sha256 } from 'js-sha256';
 import { withManyApps } from '../test/app';
 import {
   parseValidStreetsFromCsvString,
@@ -10,8 +14,11 @@ import {
 import { PollbookConnectionStatus } from './types';
 import { EVENT_POLLING_INTERVAL, NETWORK_POLLING_INTERVAL } from './globals';
 import { AvahiService, hasOnlineInterface } from './avahi';
+import { mockPollbookPackageZip } from '../test/pollbook_package';
 
 let mockNodeEnv: 'production' | 'test' = 'test';
+const electionDefinition =
+  electionFamousNames2021Fixtures.readElectionDefinition();
 
 vi.mock(
   './globals.js',
@@ -185,12 +192,14 @@ test('connection status between two pollbooks is managed properly', async () => 
 
     // Set the pollbooks for the same election
     pollbookContext1.workspace.store.setElectionAndVoters(
-      electionFamousNames2021Fixtures.electionJson.readElection(),
+      electionFamousNames2021Fixtures.readElectionDefinition(),
+      'fake-package-hash',
       testStreets,
       testVoters
     );
     pollbookContext2.workspace.store.setElectionAndVoters(
-      electionFamousNames2021Fixtures.electionJson.readElection(),
+      electionFamousNames2021Fixtures.readElectionDefinition(),
+      'fake-package-hash',
       testStreets,
       testVoters
     );
@@ -313,6 +322,21 @@ test('connection status between two pollbooks is managed properly', async () => 
         port: port2.toString(),
       },
     ]);
+
+    vi.spyOn(
+      pollbookContext1.peerWorkspace.store,
+      'getNewEvents'
+    ).mockResolvedValue({
+      events: [],
+      hasMore: false,
+    });
+    vi.spyOn(
+      pollbookContext2.peerWorkspace.store,
+      'getNewEvents'
+    ).mockResolvedValue({
+      events: [],
+      hasMore: false,
+    });
     vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
     await vi.waitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
@@ -412,7 +436,8 @@ test('connection status is managed properly with many pollbooks', async () => {
     }
     for (const context of pollbookContexts) {
       context.workspace.store.setElectionAndVoters(
-        electionFamousNames2021Fixtures.electionJson.readElection(),
+        electionDefinition,
+        'fake-package-hash',
         testStreets,
         testVoters
       );
@@ -455,6 +480,110 @@ test('connection status is managed properly with many pollbooks', async () => {
       for (const context of pollbookContexts) {
         expect(context.peerWorkspace.store.getNewEvents).toHaveBeenCalled();
       }
+    });
+  });
+});
+
+test('one pollbook can be configured from another pollbook', async () => {
+  await withManyApps(2, async ([pollbookContext1, pollbookContext2]) => {
+    // Configure the first pollbook
+    const testVoters = parseVotersFromCsvString(
+      electionFamousNames2021Fixtures.pollbookVoters.asText()
+    );
+    const testStreets = parseValidStreetsFromCsvString(
+      electionFamousNames2021Fixtures.pollbookStreetNames.asText()
+    );
+    pollbookContext1.workspace.store.setElectionAndVoters(
+      electionDefinition,
+      'fake-package-hash',
+      testStreets,
+      testVoters
+    );
+    const zipPath = join(
+      pollbookContext1.workspace.assetDirectoryPath,
+      'pollbook-package.zip'
+    );
+    if (existsSync(zipPath)) {
+      unlinkSync(zipPath);
+    }
+
+    // Set both pollbooks so they are online and can see one another.
+    const { port: port1 } =
+      pollbookContext1.peerServer.address() as AddressInfo;
+    const { port: port2 } =
+      pollbookContext2.peerServer.address() as AddressInfo;
+
+    pollbookContext1.mockUsbDrive.removeUsbDrive();
+    pollbookContext2.mockUsbDrive.removeUsbDrive();
+    vi.mocked(hasOnlineInterface).mockResolvedValue(true);
+    vi.spyOn(AvahiService, 'discoverHttpServices').mockResolvedValue([
+      {
+        name: 'Pollbook-test-0',
+        host: 'local',
+        resolvedIp: 'localhost',
+        port: port1.toString(),
+      },
+      {
+        name: 'Pollbook-test-1',
+        host: 'local',
+        resolvedIp: 'localhost',
+        port: port2.toString(),
+      },
+    ]);
+    await vi.waitFor(async () => {
+      vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+      expect(
+        await pollbookContext1.localApiClient.getDeviceStatuses()
+      ).toMatchObject({
+        network: {
+          isOnline: true,
+          pollbooks: [
+            expect.objectContaining({
+              status: PollbookConnectionStatus.WrongElection,
+            }),
+          ],
+        },
+      });
+    });
+    expect(
+      await pollbookContext2.peerApiClient.configureFromPeerMachine({
+        machineId: 'bad-machine-id',
+      })
+    ).toEqual(err('pollbook-connection-problem'));
+    // We have not set up the zip asset on pollbook1 so it will create an error.
+    expect(
+      await pollbookContext2.peerApiClient.configureFromPeerMachine({
+        machineId: pollbookContext1.workspace.store.getMachineId(),
+      })
+    ).toEqual(err('pollbook-connection-problem'));
+
+    // Write a dummy zip file
+    writeFileSync(zipPath, 'fakecontent');
+    expect(
+      await pollbookContext2.peerApiClient.configureFromPeerMachine({
+        machineId: pollbookContext1.workspace.store.getMachineId(),
+      })
+    ).toEqual(err('invalid-pollbook-package'));
+    const validZip = await mockPollbookPackageZip(
+      electionFamousNames2021Fixtures.electionJson.asBuffer(),
+      electionFamousNames2021Fixtures.pollbookVoters.asText(),
+      electionFamousNames2021Fixtures.pollbookStreetNames.asText()
+    );
+
+    writeFileSync(zipPath, new Uint8Array(validZip));
+    expect(
+      await pollbookContext2.peerApiClient.configureFromPeerMachine({
+        machineId: pollbookContext1.workspace.store.getMachineId(),
+      })
+    ).toEqual(ok());
+    expect(
+      await pollbookContext2.peerApiClient.getMachineInformation()
+    ).toMatchObject({
+      electionBallotHash: electionDefinition.ballotHash,
+      electionId: electionDefinition.election.id,
+      electionTitle: electionDefinition.election.title,
+      pollbookPackageHash: sha256(new Uint8Array(validZip)),
+      machineId: 'test-1',
     });
   });
 });

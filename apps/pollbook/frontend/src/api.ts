@@ -270,6 +270,20 @@ export const checkInVoter = {
   },
 } as const;
 
+export const configureFromPeerMachine = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.configureFromPeerMachine, {
+      async onSuccess(result) {
+        if (result.isOk()) {
+          await queryClient.resetQueries();
+        }
+      },
+    });
+  },
+} as const;
+
 export const undoVoterCheckIn = {
   useMutation() {
     const apiClient = useApiClient();

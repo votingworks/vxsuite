@@ -55,27 +55,28 @@ function main(): Promise<number> {
   const logger = Logger.from(baseLogger, () => Promise.resolve('system'));
   const usbDrive = detectUsbDrive(logger);
   const printer = detectPrinter(logger);
-  const localWorkspace = createLocalWorkspace(
-    workspacePath,
-    baseLogger,
-    machineId
-  );
   const peerWorkspace = createPeerWorkspace(
     workspacePath,
     baseLogger,
     machineId
   );
+  const peerPort = peerServer.start({
+    workspace: peerWorkspace,
+    machineId,
+    codeVersion,
+  });
 
+  const localWorkspace = createLocalWorkspace(
+    workspacePath,
+    baseLogger,
+    peerPort,
+    machineId
+  );
   localServer.start({
     workspace: localWorkspace,
     auth,
     usbDrive,
     printer,
-    machineId,
-    codeVersion,
-  });
-  peerServer.start({
-    workspace: peerWorkspace,
     machineId,
     codeVersion,
   });

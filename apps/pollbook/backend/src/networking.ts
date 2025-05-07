@@ -40,7 +40,9 @@ export async function resetNetworkSetup(machineId: string): Promise<void> {
   }
 }
 
-function createApiClientForAddress(address: string): grout.Client<PeerApi> {
+export function createPeerApiClientForAddress(
+  address: string
+): grout.Client<PeerApi> {
   debug('Creating API client for address %s', address);
   return grout.createClient<PeerApi>({
     baseUrl: `${address}/api`,
@@ -101,7 +103,7 @@ export function fetchEventsFromConnectedPollbooks({
             }
             if (
               !election ||
-              currentPollbookService.configuredElectionId !== election.id
+              currentPollbookService.electionId !== election.id
             ) {
               workspace.store.setPollbookServiceForName(currentName, {
                 ...currentPollbookService,
@@ -228,7 +230,7 @@ export async function setupMachineNetworking({
           const apiClient =
             currentPollbookService && currentPollbookService.apiClient
               ? currentPollbookService.apiClient
-              : createApiClientForAddress(`http://${resolvedIp}:${port}`);
+              : createPeerApiClientForAddress(`http://${resolvedIp}:${port}`);
 
           try {
             if (!apiClient) {
@@ -246,15 +248,15 @@ export async function setupMachineNetworking({
             }
             if (
               !currentElection ||
-              currentElection.id !== machineInformation.configuredElectionId
+              currentElection.id !== machineInformation.electionId
             ) {
               // Only connect if the two machines are configured for the same election.
               workspace.store.setPollbookServiceForName(name, {
-                machineId: machineInformation.machineId,
+                ...machineInformation,
                 apiClient,
+                address: `http://${resolvedIp}:${port}`,
                 lastSeen: new Date(),
                 status: PollbookConnectionStatus.WrongElection,
-                configuredElectionId: machineInformation.configuredElectionId,
               });
               continue;
             }
@@ -270,11 +272,11 @@ export async function setupMachineNetworking({
             }
             // Mark as connected so events start syncing.
             workspace.store.setPollbookServiceForName(name, {
-              machineId: machineInformation.machineId,
+              ...machineInformation,
               apiClient,
+              address: `http://${resolvedIp}:${port}`,
               lastSeen: new Date(),
               status: PollbookConnectionStatus.Connected,
-              configuredElectionId: machineInformation.configuredElectionId,
             });
           } catch (error) {
             if (name === currentNodeServiceName) {

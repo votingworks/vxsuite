@@ -1,5 +1,6 @@
 import { Result, assertDefined, err, iter, ok } from '@votingworks/basics';
 import { readFile, ReadFileError } from '@votingworks/fs';
+import { sha256 } from 'js-sha256';
 import { safeParseElectionDefinition, safeParseInt } from '@votingworks/types';
 import { parse } from 'csv-parse/sync';
 import {
@@ -11,6 +12,8 @@ import {
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
 import { join } from 'node:path';
+import { createReadStream, createWriteStream } from 'node:fs';
+import { pipeline } from 'node:stream/promises';
 import { rootDebug } from './debug';
 import {
   LocalAppContext,
@@ -19,7 +22,10 @@ import {
   ValidStreetInfo,
   StreetSide,
 } from './types';
-import { MAX_POLLBOOK_PACKAGE_SIZE } from './globals';
+import {
+  MAX_POLLBOOK_PACKAGE_SIZE,
+  POLLBOOK_PACKAGE_ASSET_FILE_NAME,
+} from './globals';
 import { constructAuthMachineState } from './auth';
 
 const usbDebug = rootDebug.extend('usb');
@@ -99,7 +105,7 @@ export function parseVotersFromCsvString(csvString: string): Voter[] {
   return voters;
 }
 
-async function readPollbookPackage(
+export async function readPollbookPackage(
   path: string
 ): Promise<Result<PollbookPackage, ReadFileError>> {
   const pollbookPackage = await readFile(path, {
@@ -109,9 +115,11 @@ async function readPollbookPackage(
     return err(pollbookPackage.err());
   }
   try {
-    const zipFile = await openZip(pollbookPackage.ok() as Uint8Array);
+    const fileContents = pollbookPackage.ok() as Uint8Array;
+    const zipFile = await openZip(fileContents);
     const zipName = 'pollbook package';
     const entries = getEntries(zipFile);
+    const packageHash = sha256(fileContents);
 
     const electionEntry = getFileByName(
       entries,
@@ -147,7 +155,7 @@ async function readPollbookPackage(
     const streetCsvString = await readTextEntry(streetsEntry);
     const validStreets = parseValidStreetsFromCsvString(streetCsvString);
 
-    return ok({ electionDefinition, voters, validStreets });
+    return ok({ electionDefinition, voters, validStreets, packageHash });
   } catch (error) {
     debug('Error reading pollbook package: %O', error);
     return err({
@@ -177,6 +185,7 @@ export function pollUsbDriveForPollbookPackage({
 
       try {
         if (workspace.store.getElection()) {
+          clearInterval(intervalId); // Stop the polling interval
           return;
         }
 
@@ -201,6 +210,7 @@ export function pollUsbDriveForPollbookPackage({
         }
 
         workspace.store.setConfigurationStatus('loading');
+        // TODO #6189 Accept any zip with the prefix pollbook-package on the usb (most recent if there are more then one)
         const pollbookPackageResult = await readPollbookPackage(
           join(usbDriveStatus.mountPoint, 'pollbook-package.zip')
         );
@@ -222,9 +232,20 @@ export function pollUsbDriveForPollbookPackage({
 
         const pollbookPackage = pollbookPackageResult.ok();
         workspace.store.setElectionAndVoters(
-          pollbookPackage.electionDefinition.election,
+          pollbookPackage.electionDefinition,
+          pollbookPackage.packageHash,
           pollbookPackage.validStreets,
           pollbookPackage.voters
+        );
+        // Save the zip file asset to be able to propagate to other machines
+        await pipeline(
+          // TODO #6189 Accept any zip with the prefix pollbook-package on the usb (most recent if there are more then one)
+          createReadStream(
+            join(usbDriveStatus.mountPoint, 'pollbook-package.zip')
+          ),
+          createWriteStream(
+            join(workspace.assetDirectoryPath, POLLBOOK_PACKAGE_ASSET_FILE_NAME)
+          )
         );
         workspace.store.setConfigurationStatus(undefined);
         debug('Configured with pollbook package: %O', {

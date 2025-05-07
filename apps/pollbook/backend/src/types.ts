@@ -29,9 +29,11 @@ export interface PeerAppContext extends MachineConfig {
 export interface LocalWorkspace {
   assetDirectoryPath: string;
   store: LocalStore;
+  peerApiClient: grout.Client<PeerApi>;
 }
 
 export interface PeerWorkspace {
+  assetDirectoryPath: string;
   store: PeerStore;
 }
 
@@ -222,9 +224,8 @@ export const VoterSchema: z.ZodSchema<Voter> = z.object({
   nameChange: VoterNameChangeSchema.optional(),
 });
 
-export interface MachineInformation {
+export interface MachineInformation extends PollbookInformation {
   machineId: string;
-  configuredElectionId?: string;
 }
 
 export type VectorClock = Record<string, number>;
@@ -308,14 +309,34 @@ export const ValidStreetInfoSchema: z.ZodSchema<ValidStreetInfo[]> = z.array(
 );
 
 export interface PollbookPackage {
+  packageHash: string;
   electionDefinition: ElectionDefinition;
   voters: Voter[];
   validStreets: ValidStreetInfo[];
 }
 
-export interface PollbookService {
+export interface PollbookInformation {
+  electionId?: string;
+  electionBallotHash?: string;
+  pollbookPackageHash?: string;
+  electionTitle?: string;
+}
+
+export type ConfigurationError =
+  | 'pollbook-connection-problem'
+  | 'invalid-pollbook-package';
+
+export const PollbookInformationSchema: z.ZodSchema<PollbookInformation> =
+  z.object({
+    electionId: z.string().optional(),
+    electionBallotHash: z.string().optional(),
+    pollbookPackageHash: z.string().optional(),
+    electionTitle: z.string().optional(),
+  });
+
+export interface PollbookService extends PollbookInformation {
   apiClient?: grout.Client<PeerApi>;
-  configuredElectionId?: string;
+  address?: string;
   machineId: string;
   lastSeen: Date;
   status: PollbookConnectionStatus;
@@ -324,6 +345,7 @@ export interface PollbookService {
 export interface ConnectedPollbookService extends PollbookService {
   status: PollbookConnectionStatus.Connected;
   apiClient: grout.Client<PeerApi>;
+  address: string;
 }
 
 export interface PollbookServiceInfo

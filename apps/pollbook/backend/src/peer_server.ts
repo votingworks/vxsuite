@@ -3,9 +3,9 @@ import { PEER_PORT } from './globals';
 import { PeerAppContext } from './types';
 
 /**
- * Starts the server.
+ * Starts the server. Returns the port being listened on
  */
-export function start(context: PeerAppContext): void {
+export function start(context: PeerAppContext): number {
   const app = buildPeerApp(context);
 
   app.listen(PEER_PORT, () => {
@@ -14,4 +14,5 @@ export function start(context: PeerAppContext): void {
       `VxPollbook p2p backend running at http://localhost:${PEER_PORT}/`
     );
   });
+  return PEER_PORT;
 }
