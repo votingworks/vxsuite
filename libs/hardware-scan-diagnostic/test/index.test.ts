@@ -4,7 +4,8 @@ import { dirname, join } from 'node:path';
 import { expect, test } from 'vitest';
 import { analyzeScannedPage, createDebugImage, loadImage } from '../index.js';
 
-const GENERATE_ALL_DEBUG_IMAGES = false;
+// Set this to generate debug images in `fixtures/debug`.
+const { GENERATE_ALL_DEBUG_IMAGES } = process.env;
 
 test.each([
   'legal-failed-feed-bottom.png',

@@ -2671,6 +2671,9 @@ importers:
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../../../libs/grout
+      '@votingworks/hardware-scan-diagnostic':
+        specifier: workspace:*
+        version: link:../../../libs/hardware-scan-diagnostic
       '@votingworks/image-utils':
         specifier: workspace:*
         version: link:../../../libs/image-utils
