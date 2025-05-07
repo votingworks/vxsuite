@@ -22,9 +22,21 @@ test('displays all available languages', async () => {
   ]);
 
   const testTranslations: UiStringsPackage = {
-    [CHINESE_SIMPLIFIED]: { [ElectionStringKey.BALLOT_LANGUAGE]: '简体中文' },
-    [ENGLISH]: { [ElectionStringKey.BALLOT_LANGUAGE]: 'English' },
-    [SPANISH]: { [ElectionStringKey.BALLOT_LANGUAGE]: 'Español' },
+    [CHINESE_SIMPLIFIED]: {
+      [ElectionStringKey.BALLOT_LANGUAGE]: {
+        [CHINESE_SIMPLIFIED]: '简体中文',
+      },
+    },
+    [ENGLISH]: {
+      [ElectionStringKey.BALLOT_LANGUAGE]: {
+        [ENGLISH]: 'English',
+      },
+    },
+    [SPANISH]: {
+      [ElectionStringKey.BALLOT_LANGUAGE]: {
+        [SPANISH]: 'Español',
+      },
+    },
   };
   mockApiClient.getUiStrings.mockImplementation((input) =>
     Promise.resolve(testTranslations[input.languageCode] || null)

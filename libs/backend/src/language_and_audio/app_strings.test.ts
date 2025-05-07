@@ -36,8 +36,8 @@ describe('translateAppStrings', () => {
     expect(Object.keys(result)).toEqual([LanguageCode.ENGLISH]);
     const englishResults = result[LanguageCode.ENGLISH];
     assert(englishResults);
-    // There should be 427 app strings generated, this number may need to be updated if you are adding a new app string
-    expect(Object.keys(englishResults)).toHaveLength(427);
+    // This number may need to be updated if you are adding a new app string
+    expect(Object.keys(englishResults)).toHaveLength(428);
   });
 
   test('should extract and translate app strings correctly for multiple languages', async () => {
@@ -61,8 +61,8 @@ describe('translateAppStrings', () => {
     for (const languageCode of Object.keys(result)) {
       const subResults = result[languageCode];
       assert(subResults);
-      // There should be 427 app strings generated, this number may need to be updated if you are adding a new app string
-      expect(Object.keys(subResults)).toHaveLength(427);
+      // This number may need to be updated if you are adding a new app string
+      expect(Object.keys(subResults)).toHaveLength(428);
     }
   });
 });

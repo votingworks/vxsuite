@@ -6,6 +6,7 @@ import {
   CandidateContest,
   ContestLike,
   County,
+  DEFAULT_LANGUAGE_CODE,
   District,
   Election,
   ElectionStringKey as Key,
@@ -18,7 +19,7 @@ import { format } from '@votingworks/utils';
 
 import { UiRichTextString, UiString } from './ui_string';
 import { DateString } from './date_string';
-import { InEnglish, LanguageOverride } from './language_override';
+import { InEnglish } from './language_override';
 
 type ContestWithDescription = ContestLike & {
   description: string;
@@ -30,11 +31,12 @@ type ContestWithDescription = ContestLike & {
 /* istanbul ignore next - mostly presentational, tested via apps where relevant - @preserve */
 export const electionStrings = {
   [Key.BALLOT_LANGUAGE]: (languageCode: string) => (
-    <LanguageOverride languageCode={languageCode}>
-      <UiString uiStringKey={Key.BALLOT_LANGUAGE}>
-        {format.languageDisplayName({ languageCode })}
-      </UiString>
-    </LanguageOverride>
+    <UiString uiStringKey={Key.BALLOT_LANGUAGE} uiStringSubKey={languageCode}>
+      {format.languageDisplayName({
+        languageCode,
+        displayLanguageCode: DEFAULT_LANGUAGE_CODE,
+      })}
+    </UiString>
   ),
 
   [Key.BALLOT_STYLE_ID]: (ballotStyle: BallotStyle) => (

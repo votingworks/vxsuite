@@ -12,16 +12,19 @@ import {
   ElectionDefinition,
   getBallotStyle,
   getContests,
-  getPrecinctById,
+  getPartyForBallotStyle,
   OptionalYesNoVote,
   PrecinctId,
   VotesDict,
   YesNoContest,
   YesNoVote,
 } from '@votingworks/types';
-import { getSingleYesNoVote } from '@votingworks/utils';
+import {
+  getPrecinctsAndSplitsForBallotStyle,
+  getSingleYesNoVote,
+} from '@votingworks/utils';
 
-import { assert, err, ok, Result } from '@votingworks/basics';
+import { assert, err, find, ok, Result } from '@votingworks/basics';
 import { QrCode } from './qrcode';
 import { Font, H4, H5, P } from './typography';
 import { VxThemeProvider } from './themes/vx_theme_provider';
@@ -571,8 +574,14 @@ export function BmdPaperBallot({
   assert(ballotStyle);
   const primaryBallotLanguage = ballotStyle.languages?.[0] || 'en';
   const contests = getContests({ ballotStyle, election });
-  const precinct = getPrecinctById({ election, precinctId });
-  assert(precinct);
+  const precinctOrSplit = find(
+    getPrecinctsAndSplitsForBallotStyle({ election, ballotStyle }),
+    ({ precinct }) => precinct.id === precinctId
+  );
+  const precinctOrSplitName = precinctOrSplit.split
+    ? electionStrings.precinctSplitName(precinctOrSplit.split)
+    : electionStrings.precinctName(precinctOrSplit.precinct);
+  const party = getPartyForBallotStyle({ ballotStyleId, election });
   const encodedBallot = encodeBallot(election, {
     ballotHash,
     precinctId,
@@ -638,19 +647,29 @@ export function BmdPaperBallot({
               <div>
                 <div>
                   <div>
-                    <InEnglish>{appStrings.titlePrecinct()}</InEnglish>
+                    <InEnglish>{appStrings.titleBallotStyle()}</InEnglish>
                   </div>
                   <strong>
                     <InEnglish>
-                      {electionStrings.precinctName(precinct)}
+                      {precinctOrSplitName}
+                      {party && (
+                        <React.Fragment>
+                          {' - '}
+                          {electionStrings.partyName(party)}
+                        </React.Fragment>
+                      )}
                     </InEnglish>
                   </strong>
                 </div>
                 <div>
                   <div>
-                    <InEnglish>{appStrings.titleBallotStyle()}</InEnglish>
+                    <InEnglish>{appStrings.titleLanguage()}</InEnglish>
                   </div>
-                  <strong>{ballotStyleId}</strong>
+                  <strong>
+                    <InEnglish>
+                      {electionStrings.ballotLanguage(primaryBallotLanguage)}
+                    </InEnglish>
+                  </strong>
                 </div>
               </div>
             </div>

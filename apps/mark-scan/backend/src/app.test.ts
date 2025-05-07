@@ -70,7 +70,6 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
   ...(await importActual()),
   isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
     featureFlagMock.isEnabled(flag),
-  randomBallotId: () => '12345',
 }));
 
 let apiClient: grout.Client<Api>;

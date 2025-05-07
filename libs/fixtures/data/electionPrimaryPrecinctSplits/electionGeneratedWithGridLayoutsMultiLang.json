@@ -110,7 +110,12 @@
         "precinct-c2-split-2": "Precinct 4 - Split 2"
       },
       "stateName": "State of Sample",
-      "ballotLanguage": "English",
+      "ballotLanguage": {
+        "zh-Hans": "Simplified Chinese",
+        "zh-Hant": "Traditional Chinese",
+        "en": "English",
+        "es-US": "Spanish (US)"
+      },
       "electionDate": "September 8, 2021",
       "hmpb10WillBeElected": "10 will be elected",
       "hmpb2WillBeElected": "2 will be elected",
@@ -202,7 +207,12 @@
         "precinct-c2-split-2": "第四区 - 第二分区"
       },
       "stateName": "样品状态",
-      "ballotLanguage": "简体中文",
+      "ballotLanguage": {
+        "zh-Hans": "简体中文",
+        "zh-Hant": "繁体中文",
+        "en": "英语",
+        "es-US": "西班牙语（美国）"
+      },
       "electionDate": "2021年9月8日",
       "hmpb10WillBeElected": "10人将当选",
       "hmpb2WillBeElected": "2人将当选",
@@ -294,7 +304,12 @@
         "precinct-c2-split-2": "第四區 - 第二分區"
       },
       "stateName": "樣品狀態",
-      "ballotLanguage": "繁體中文",
+      "ballotLanguage": {
+        "zh-Hans": "簡體中文",
+        "zh-Hant": "繁體中文",
+        "en": "英文",
+        "es-US": "西班牙文（美國）"
+      },
       "electionDate": "2021年9月8日",
       "hmpb10WillBeElected": "10人將當選",
       "hmpb2WillBeElected": "2人將當選",
@@ -386,7 +401,12 @@
         "precinct-c2-split-2": "Precinto 4 - División 2"
       },
       "stateName": "Estado de la muestra",
-      "ballotLanguage": "español (EE. UU.)",
+      "ballotLanguage": {
+        "zh-Hans": "chino simplificado",
+        "zh-Hant": "chino tradicional",
+        "en": "inglés",
+        "es-US": "español (EE. UU.)"
+      },
       "electionDate": "8 de septiembre de 2021",
       "hmpb10WillBeElected": "10 serán elegidos",
       "hmpb2WillBeElected": "2 serán elegidos",

@@ -77,7 +77,9 @@
         "23": "North Lincoln"
       },
       "stateName": "State of Hamilton",
-      "ballotLanguage": "English",
+      "ballotLanguage": {
+        "en": "English"
+      },
       "electionDate": "June 6, 2021",
       "hmpb10WillBeElected": "10 will be elected",
       "hmpb2WillBeElected": "2 will be elected",

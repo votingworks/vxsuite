@@ -2,7 +2,12 @@
 
 exports[`extractAndTranslateElectionStrings > should extract and translate election strings correctly for english only 1`] = `
 {
-  "ballotLanguage": "English",
+  "ballotLanguage": {
+    "en": "English",
+    "es-US": "Spanish (US)",
+    "zh-Hans": "Simplified Chinese",
+    "zh-Hant": "Traditional Chinese",
+  },
   "ballotStyleId": {
     "1-F_en": "1-F",
     "1-F_es-US": "1-F",
@@ -114,7 +119,9 @@ exports[`extractAndTranslateElectionStrings > should extract and translate elect
 
 exports[`extractAndTranslateElectionStrings > should extract and translate election strings correctly for english only with election with contest term 1`] = `
 {
-  "ballotLanguage": "English",
+  "ballotLanguage": {
+    "en": "English",
+  },
   "ballotStyleId": {
     "1M": "1M",
     "2F": "2F",
@@ -190,7 +197,12 @@ exports[`extractAndTranslateElectionStrings > should extract and translate elect
 
 exports[`extractAndTranslateElectionStrings > should extract and translate election strings correctly for multiple languages 1`] = `
 {
-  "ballotLanguage": "español (EE. UU.)",
+  "ballotLanguage": {
+    "en": "inglés",
+    "es-US": "español (EE. UU.)",
+    "zh-Hans": "chino simplificado",
+    "zh-Hant": "chino tradicional",
+  },
   "contestDescription": {
     "water-1-fishing": "Should fishing be banned in all city owned lakes and rivers? (in es-US)",
     "water-2-fishing": "Should fishing be banned in all city owned lakes and rivers? (in es-US)",
