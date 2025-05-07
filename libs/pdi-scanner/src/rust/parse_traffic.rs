@@ -165,7 +165,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 };
 
                 for (side, page) in [(Side::Top, top_page), (Side::Bottom, bottom_page)] {
-                    page.to_image()
+                    page.to_cropped_image()
                         .unwrap()
                         .save(format!("image-{side:?}.png"))?;
                 }
