@@ -316,10 +316,10 @@ export interface PollbookPackage {
 }
 
 export interface PollbookInformation {
-  configuredElectionId?: string;
-  configuredElectionBallotHash?: string;
-  configuredPollbookPackageHash?: string;
-  configuredElectionName?: string;
+  electionId?: string;
+  electionBallotHash?: string;
+  pollbookPackageHash?: string;
+  electionTitle?: string;
 }
 
 export type ConfigurationError =
@@ -328,10 +328,10 @@ export type ConfigurationError =
 
 export const PollbookInformationSchema: z.ZodSchema<PollbookInformation> =
   z.object({
-    configuredElectionId: z.string().optional(),
-    configuredElectionBallotHash: z.string(),
-    configuredPollbookPackageHash: z.string(),
-    configuredElectionName: z.string(),
+    electionId: z.string().optional(),
+    electionBallotHash: z.string().optional(),
+    pollbookPackageHash: z.string().optional(),
+    electionTitle: z.string().optional(),
   });
 
 export interface PollbookService extends PollbookInformation {

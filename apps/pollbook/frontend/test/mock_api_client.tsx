@@ -404,13 +404,13 @@ export function createApiMock() {
       machineId: string,
       configErr?: ConfigurationError
     ) {
-      mockApiClient.configureFromMachine.reset();
+      mockApiClient.configureFromPeerMachine.reset();
       if (configErr) {
-        mockApiClient.configureFromMachine
+        mockApiClient.configureFromPeerMachine
           .expectCallWith({ machineId })
           .resolves(err(configErr));
       } else {
-        mockApiClient.configureFromMachine
+        mockApiClient.configureFromPeerMachine
           .expectCallWith({ machineId })
           .resolves(ok());
       }

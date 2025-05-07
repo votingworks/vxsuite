@@ -103,7 +103,7 @@ export function fetchEventsFromConnectedPollbooks({
             }
             if (
               !election ||
-              currentPollbookService.configuredElectionId !== election.id
+              currentPollbookService.electionId !== election.id
             ) {
               workspace.store.setPollbookServiceForName(currentName, {
                 ...currentPollbookService,
@@ -248,7 +248,7 @@ export async function setupMachineNetworking({
             }
             if (
               !currentElection ||
-              currentElection.id !== machineInformation.configuredElectionId
+              currentElection.id !== machineInformation.electionId
             ) {
               // Only connect if the two machines are configured for the same election.
               workspace.store.setPollbookServiceForName(name, {

@@ -370,10 +370,10 @@ export abstract class Store {
       row.election_data
     ).unsafeUnwrap();
     return {
-      configuredElectionId: election.id,
-      configuredElectionName: election.title,
-      configuredElectionBallotHash: row.ballot_hash,
-      configuredPollbookPackageHash: row.package_hash,
+      electionId: election.id,
+      electionTitle: election.title,
+      electionBallotHash: row.ballot_hash,
+      pollbookPackageHash: row.package_hash,
     };
   }
 

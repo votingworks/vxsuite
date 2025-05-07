@@ -62,7 +62,7 @@ test('check in a voter', async () => {
       electionFamousNames2021Fixtures.pollbookStreetNames.asText()
     );
     workspace.store.setElectionAndVoters(
-      electionFamousNames2021Fixtures.readElectionDefinition(),
+      electionDefinition,
       'fake-package-hash',
       testStreets,
       testVoters
@@ -130,7 +130,7 @@ test('register a voter', async () => {
       electionFamousNames2021Fixtures.pollbookStreetNames.asText()
     );
     workspace.store.setElectionAndVoters(
-      electionFamousNames2021Fixtures.readElectionDefinition(),
+      electionDefinition,
       'fake-package-hash',
       testStreets,
       []
@@ -217,7 +217,7 @@ test('register a voter - invalid address', async () => {
       electionFamousNames2021Fixtures.pollbookStreetNames.asText()
     );
     workspace.store.setElectionAndVoters(
-      electionFamousNames2021Fixtures.readElectionDefinition(),
+      electionDefinition,
       'fake-package-hash',
       testStreets,
       []
@@ -261,7 +261,7 @@ test('change a voter name', async () => {
       electionFamousNames2021Fixtures.pollbookStreetNames.asText()
     );
     workspace.store.setElectionAndVoters(
-      electionFamousNames2021Fixtures.readElectionDefinition(),
+      electionDefinition,
       'fake-package-hash',
       testStreets,
       testVoters
@@ -337,7 +337,7 @@ test('undo a voter check-in', async () => {
       electionFamousNames2021Fixtures.pollbookStreetNames.asText()
     );
     workspace.store.setElectionAndVoters(
-      electionFamousNames2021Fixtures.readElectionDefinition(),
+      electionDefinition,
       'fake-package-hash',
       testStreets,
       testVoters
@@ -390,7 +390,7 @@ test('register a voter, change name and address, and check in', async () => {
         electionFamousNames2021Fixtures.pollbookStreetNames.asText()
       );
       workspace.store.setElectionAndVoters(
-        electionFamousNames2021Fixtures.readElectionDefinition(),
+        electionDefinition,
         'fake-package-hash',
         testStreets,
         []
@@ -560,7 +560,7 @@ test('check in, change name, undo check-in, change address, and check in again',
       electionFamousNames2021Fixtures.pollbookStreetNames.asText()
     );
     workspace.store.setElectionAndVoters(
-      electionFamousNames2021Fixtures.readElectionDefinition(),
+      electionDefinition,
       'fake-package-hash',
       testStreets,
       testVoters
@@ -666,7 +666,7 @@ test('change a voter address with various formats', async () => {
       electionFamousNames2021Fixtures.pollbookStreetNames.asText()
     );
     workspace.store.setElectionAndVoters(
-      electionFamousNames2021Fixtures.readElectionDefinition(),
+      electionDefinition,
       'fake-package-hash',
       testStreets,
       testVoters

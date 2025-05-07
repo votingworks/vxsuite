@@ -15,7 +15,11 @@ import {
 import type { PollbookServiceInfo } from '@votingworks/pollbook-backend';
 import { useState } from 'react';
 import { formatElectionHashes } from '@votingworks/types';
-import { configureFromMachine, getDeviceStatuses, getElection } from './api';
+import {
+  configureFromPeerMachine,
+  getDeviceStatuses,
+  getElection,
+} from './api';
 import { NavScreen } from './nav_screen';
 import { PollbookConnectionStatus } from './types';
 
@@ -29,8 +33,7 @@ function PollbookConnectionTable({
   // Group pollbooks by election hash (ballotHash-packageHash)
   const groups = groupBy(
     pollbooks,
-    (p) =>
-      `${p.configuredElectionBallotHash}-${p.configuredPollbookPackageHash}`
+    (p) => `${p.electionBallotHash}-${p.pollbookPackageHash}`
   );
   return (
     <div
@@ -50,11 +53,11 @@ function PollbookConnectionTable({
         <tbody>
           {groups.map(([electionHash, pollbooksForElection]) => (
             <tr key={electionHash} data-testid="pollbook-config-row">
-              <td>{pollbooksForElection[0].configuredElectionName}</td>
+              <td>{pollbooksForElection[0].electionTitle}</td>
               <td>
                 {formatElectionHashes(
-                  pollbooksForElection[0].configuredElectionBallotHash || '',
-                  pollbooksForElection[0].configuredPollbookPackageHash || ''
+                  pollbooksForElection[0].electionBallotHash || '',
+                  pollbooksForElection[0].pollbookPackageHash || ''
                 )}
               </td>
               <td>{pollbooksForElection.map((p) => p.machineId).join(', ')}</td>
@@ -79,7 +82,7 @@ export function UnconfiguredSystemAdminScreen(): JSX.Element {
     refetchInterval: 100,
   });
   const getDevicesQuery = getDeviceStatuses.useQuery();
-  const configureMutation = configureFromMachine.useMutation();
+  const configureMutation = configureFromPeerMachine.useMutation();
   const [isLoadingFromNetwork, setIsLoadingFromNetwork] = useState(false);
   const [configurationErrorMessage, setConfigurationErrorMessage] =
     useState('');
@@ -118,9 +121,7 @@ export function UnconfiguredSystemAdminScreen(): JSX.Element {
     : getDevicesQuery.data.network;
 
   const configuredPollbooks = pollbooks.filter(
-    (p) =>
-      p.configuredElectionId &&
-      p.status === PollbookConnectionStatus.WrongElection
+    (p) => p.electionId && p.status === PollbookConnectionStatus.WrongElection
   );
   if (!isOnline || configuredPollbooks.length <= 0) {
     if (electionResult.err() === 'not-found') {

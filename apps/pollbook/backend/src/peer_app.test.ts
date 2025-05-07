@@ -50,10 +50,10 @@ test('getMachineInformation', async () => {
     );
 
     expect(await peerApiClient.getMachineInformation()).toMatchObject({
-      configuredElectionBallotHash: electionDefinition.ballotHash,
-      configuredElectionId: electionDefinition.election.id,
-      configuredElectionName: electionDefinition.election.title,
-      configuredPollbookPackageHash: 'fake-package-hash',
+      electionBallotHash: electionDefinition.ballotHash,
+      electionId: electionDefinition.election.id,
+      electionTitle: electionDefinition.election.title,
+      pollbookPackageHash: 'fake-package-hash',
       machineId: 'test',
     });
   });

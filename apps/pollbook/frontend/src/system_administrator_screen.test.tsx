@@ -17,10 +17,10 @@ const electionDefFamousNames =
   electionFamousNames2021Fixtures.readElectionDefinition();
 
 const mockPollbookService: PollbookServiceInfo = {
-  configuredElectionId: electionFamousNames.id,
-  configuredElectionBallotHash: electionDefFamousNames.ballotHash,
-  configuredPollbookPackageHash: 'test-pollbook-hash',
-  configuredElectionName: 'Test Election',
+  electionId: electionFamousNames.id,
+  electionBallotHash: electionDefFamousNames.ballotHash,
+  pollbookPackageHash: 'test-pollbook-hash',
+  electionTitle: 'Test Election',
   machineId: 'TEST',
   lastSeen: new Date('2025-01-01'),
   status: PollbookConnectionStatus.WrongElection,
@@ -105,8 +105,8 @@ describe('Election tab', () => {
         ...mockPollbookService,
         machineId: 'TEST-04',
         status: PollbookConnectionStatus.WrongElection,
-        configuredPollbookPackageHash: 'different-pollbook-hash',
-        configuredElectionName: 'Bad Election',
+        pollbookPackageHash: 'different-pollbook-hash',
+        electionTitle: 'Bad Election',
       },
     ]);
     apiMock.setElection(undefined);

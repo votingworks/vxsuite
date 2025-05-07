@@ -22,7 +22,10 @@ import {
   ValidStreetInfo,
   StreetSide,
 } from './types';
-import { MAX_POLLBOOK_PACKAGE_SIZE } from './globals';
+import {
+  MAX_POLLBOOK_PACKAGE_SIZE,
+  POLLBOOK_PACKAGE_ASSET_FILE_NAME,
+} from './globals';
 import { constructAuthMachineState } from './auth';
 
 const usbDebug = rootDebug.extend('usb');
@@ -207,6 +210,7 @@ export function pollUsbDriveForPollbookPackage({
         }
 
         workspace.store.setConfigurationStatus('loading');
+        // TODO #6189 Accept any zip with the prefix pollbook-package on the usb (most recent if there are more then one)
         const pollbookPackageResult = await readPollbookPackage(
           join(usbDriveStatus.mountPoint, 'pollbook-package.zip')
         );
@@ -235,11 +239,12 @@ export function pollUsbDriveForPollbookPackage({
         );
         // Save the zip file asset to be able to propagate to other machines
         await pipeline(
+          // TODO #6189 Accept any zip with the prefix pollbook-package on the usb (most recent if there are more then one)
           createReadStream(
             join(usbDriveStatus.mountPoint, 'pollbook-package.zip')
           ),
           createWriteStream(
-            join(workspace.assetDirectoryPath, 'pollbook-package.zip')
+            join(workspace.assetDirectoryPath, POLLBOOK_PACKAGE_ASSET_FILE_NAME)
           )
         );
         workspace.store.setConfigurationStatus(undefined);

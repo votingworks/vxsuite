@@ -194,12 +194,10 @@ export class PeerStore extends Store {
       pollbookService.status,
       pollbookService.lastSeen.getTime(),
       JSON.stringify({
-        configuredElectionId: pollbookService.configuredElectionId,
-        configuredElectionBallotHash:
-          pollbookService.configuredElectionBallotHash,
-        configuredPollbookPackageHash:
-          pollbookService.configuredPollbookPackageHash,
-        configuredElectionName: pollbookService.configuredElectionName,
+        electionId: pollbookService.electionId,
+        electionBallotHash: pollbookService.electionBallotHash,
+        pollbookPackageHash: pollbookService.pollbookPackageHash,
+        electionTitle: pollbookService.electionTitle,
       })
     );
   }

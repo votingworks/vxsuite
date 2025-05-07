@@ -270,11 +270,11 @@ export const checkInVoter = {
   },
 } as const;
 
-export const configureFromMachine = {
+export const configureFromPeerMachine = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.configureFromMachine, {
+    return useMutation(apiClient.configureFromPeerMachine, {
       async onSuccess(result) {
         if (result.isOk()) {
           await queryClient.resetQueries();

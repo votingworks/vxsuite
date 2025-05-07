@@ -546,13 +546,13 @@ test('one pollbook can be configured from another pollbook', async () => {
       });
     });
     expect(
-      await pollbookContext2.peerApiClient.configureFromMachine({
+      await pollbookContext2.peerApiClient.configureFromPeerMachine({
         machineId: 'bad-machine-id',
       })
     ).toEqual(err('pollbook-connection-problem'));
     // We have not set up the zip asset on pollbook1 so it will create an error.
     expect(
-      await pollbookContext2.peerApiClient.configureFromMachine({
+      await pollbookContext2.peerApiClient.configureFromPeerMachine({
         machineId: pollbookContext1.workspace.store.getMachineId(),
       })
     ).toEqual(err('pollbook-connection-problem'));
@@ -560,7 +560,7 @@ test('one pollbook can be configured from another pollbook', async () => {
     // Write a dummy zip file
     writeFileSync(zipPath, 'fakecontent');
     expect(
-      await pollbookContext2.peerApiClient.configureFromMachine({
+      await pollbookContext2.peerApiClient.configureFromPeerMachine({
         machineId: pollbookContext1.workspace.store.getMachineId(),
       })
     ).toEqual(err('invalid-pollbook-package'));
@@ -572,17 +572,17 @@ test('one pollbook can be configured from another pollbook', async () => {
 
     writeFileSync(zipPath, new Uint8Array(validZip));
     expect(
-      await pollbookContext2.peerApiClient.configureFromMachine({
+      await pollbookContext2.peerApiClient.configureFromPeerMachine({
         machineId: pollbookContext1.workspace.store.getMachineId(),
       })
     ).toEqual(ok());
     expect(
       await pollbookContext2.peerApiClient.getMachineInformation()
     ).toMatchObject({
-      configuredElectionBallotHash: electionDefinition.ballotHash,
-      configuredElectionId: electionDefinition.election.id,
-      configuredElectionName: electionDefinition.election.title,
-      configuredPollbookPackageHash: sha256(new Uint8Array(validZip)),
+      electionBallotHash: electionDefinition.ballotHash,
+      electionId: electionDefinition.election.id,
+      electionTitle: electionDefinition.election.title,
+      pollbookPackageHash: sha256(new Uint8Array(validZip)),
       machineId: 'test-1',
     });
   });

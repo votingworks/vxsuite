@@ -533,18 +533,16 @@ export class LocalStore extends Store {
       const pollbookInfo = safeParseJson(
         row.pollbook_information,
         PollbookInformationSchema
-      ).ok();
+      ).unsafeUnwrap();
       return {
         machineId: row.machine_id,
         status: row.status as PollbookConnectionStatus,
         lastSeen: new Date(row.last_seen),
         numCheckIns: this.getCheckInCount(row.machine_id),
-        configuredElectionBallotHash:
-          pollbookInfo?.configuredElectionBallotHash,
-        configuredPollbookPackageHash:
-          pollbookInfo?.configuredPollbookPackageHash,
-        configuredElectionId: pollbookInfo?.configuredElectionId,
-        configuredElectionName: pollbookInfo?.configuredElectionName,
+        electionBallotHash: pollbookInfo?.electionBallotHash,
+        pollbookPackageHash: pollbookInfo?.pollbookPackageHash,
+        electionId: pollbookInfo?.electionId,
+        electionName: pollbookInfo?.electionTitle,
       };
     });
   }

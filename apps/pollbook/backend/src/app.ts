@@ -153,10 +153,10 @@ function buildApi({ context, logger }: BuildAppParams) {
       };
     },
 
-    async configureFromMachine(input: {
+    async configureFromPeerMachine(input: {
       machineId: string;
     }): Promise<Result<void, ConfigurationError>> {
-      return await workspace.peerApiClient.configureFromMachine(input);
+      return await workspace.peerApiClient.configureFromPeerMachine(input);
     },
 
     getPrinterStatus(): Promise<PrinterStatus> {

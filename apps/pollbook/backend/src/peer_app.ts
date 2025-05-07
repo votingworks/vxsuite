@@ -20,6 +20,7 @@ import {
   setupMachineNetworking,
 } from './networking';
 import { readPollbookPackage } from './pollbook_package';
+import { POLLBOOK_PACKAGE_ASSET_FILE_NAME } from './globals';
 
 const debug = rootDebug.extend('app:peer');
 
@@ -48,7 +49,7 @@ function buildApi(context: PeerAppContext) {
       return store.getNewEvents(input.lastEventSyncedPerNode);
     },
 
-    async configureFromMachine(input: {
+    async configureFromPeerMachine(input: {
       machineId: string;
     }): Promise<Result<void, ConfigurationError>> {
       // Find the connected pollbook with the given machineId
@@ -86,7 +87,7 @@ function buildApi(context: PeerAppContext) {
         // Save the pollbook package to send to other machines if necessary
         const destinationPath = join(
           context.workspace.assetDirectoryPath,
-          'pollbook-package.zip'
+          POLLBOOK_PACKAGE_ASSET_FILE_NAME
         );
         await pipeline(
           createReadStream(tempPath),
@@ -109,16 +110,16 @@ export function buildPeerApp(context: PeerAppContext): Application {
   const api = buildApi(context);
   app.use('/api', grout.buildRouter(api, express));
 
-  // Streaming endpoint for pollbook-package.zip
+  // Streaming endpoint for sending the pollbook package zip file to a peer
   app.get('/file/pollbook-package', (_req, res) => {
     const pollbookPackagePath = join(
       context.workspace.assetDirectoryPath,
-      'pollbook-package.zip'
+      POLLBOOK_PACKAGE_ASSET_FILE_NAME
     );
     res.setHeader('Content-Type', 'application/zip');
     res.setHeader(
       'Content-Disposition',
-      'attachment; filename="pollbook-package.zip"'
+      `attachment; filename="${POLLBOOK_PACKAGE_ASSET_FILE_NAME}"`
     );
     res.sendFile(pollbookPackagePath, (e) => {
       if (e) {
