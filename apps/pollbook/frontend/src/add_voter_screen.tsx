@@ -2,9 +2,7 @@ import {
   Button,
   ButtonBar,
   Callout,
-  H1,
   MainContent,
-  MainHeader,
   SearchSelect,
 } from '@votingworks/ui';
 import { useMemo, useState } from 'react';
@@ -13,7 +11,7 @@ import type {
   VoterRegistrationRequest,
 } from '@votingworks/pollbook-backend';
 import { Column, Row, FieldName } from './layout';
-import { PollWorkerNavScreen } from './nav_screen';
+import { ElectionManagerNavScreen } from './nav_screen';
 import { AddressInputGroup } from './address_input_group';
 import { RequiredStaticInput } from './shared_components';
 import { NameInputGroup } from './name_input_group';
@@ -60,10 +58,7 @@ export function AddVoterScreen({
   );
 
   return (
-    <PollWorkerNavScreen>
-      <MainHeader>
-        <H1>Voter Registration</H1>
-      </MainHeader>
+    <ElectionManagerNavScreen title="Voter Registration">
       <MainContent>
         <Column style={{ gap: '1rem' }}>
           <NameInputGroup
@@ -114,6 +109,6 @@ export function AddVoterScreen({
         </Button>
         <div />
       </ButtonBar>
-    </PollWorkerNavScreen>
+    </ElectionManagerNavScreen>
   );
 }

@@ -20,6 +20,7 @@ import { Column, FieldName, Row } from './layout';
 import { StatisticsScreen } from './statistics_screen';
 import { ElectionManagerVotersScreen } from './voters_screen';
 import { VoterDetailsScreen } from './voter_details_screen';
+import { VoterRegistrationScreen } from './voter_registration_screen';
 
 export function SettingsScreen(): JSX.Element | null {
   const getElectionQuery = getElection.useQuery();
@@ -98,6 +99,10 @@ export function ElectionManagerScreen(): JSX.Element {
       <Route
         path={electionManagerRoutes.statistics.path}
         component={StatisticsScreen}
+      />
+      <Route
+        path={electionManagerRoutes.addVoter.path}
+        component={VoterRegistrationScreen}
       />
       <Route path="/voters/:voterId" component={VoterDetailsScreen} />
       <Redirect to={electionManagerRoutes.settings.path} />
