@@ -1,10 +1,10 @@
 /* eslint-disable no-empty-pattern */
+import { TaskController } from '@votingworks/backend';
 import { Mocked, test, vi } from 'vitest';
-import { AppContext, withApp } from './pdi_helpers';
-import { wrapLegacyPrinter } from '../../src/printing/printer';
 import { ServerContext } from '../../src/electrical_testing/context';
 import { SimpleScannerClient } from '../../src/electrical_testing/simple_scanner_client';
-import { TaskController } from '../../src/electrical_testing/task_controller';
+import { wrapLegacyPrinter } from '../../src/printing/printer';
+import { AppContext, withApp } from './pdi_helpers';
 
 function createMockSimpleScannerClient(): Mocked<SimpleScannerClient> {
   return {
