@@ -654,8 +654,8 @@ export function BmdPaperBallot({
                       {precinctOrSplitName}
                       {party && (
                         <React.Fragment>
-                          {' '}
-                          - {electionStrings.partyName(party)}
+                          {' - '}
+                          {electionStrings.partyName(party)}
                         </React.Fragment>
                       )}
                     </InEnglish>

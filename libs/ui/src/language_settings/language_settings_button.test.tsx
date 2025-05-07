@@ -1,9 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import {
-  ElectionStringKey,
-  LanguageCode,
-  UiStringsPackage,
-} from '@votingworks/types';
+import { ElectionStringKey, UiStringsPackage } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { advancePromises, TestLanguageCode } from '@votingworks/test-utils';
@@ -35,12 +31,12 @@ test('displays current language', async () => {
   const testTranslations: UiStringsPackage = {
     [ENGLISH]: {
       [ElectionStringKey.BALLOT_LANGUAGE]: {
-        [LanguageCode.ENGLISH]: 'English',
+        [ENGLISH]: 'English',
       },
     },
     [SPANISH]: {
       [ElectionStringKey.BALLOT_LANGUAGE]: {
-        [LanguageCode.SPANISH]: 'Español',
+        [SPANISH]: 'Español',
       },
     },
   };
@@ -97,21 +93,21 @@ test('plays audio instructions in all languages', async () => {
   const testTranslations: UiStringsPackage = {
     [ENGLISH]: {
       [ElectionStringKey.BALLOT_LANGUAGE]: {
-        [LanguageCode.ENGLISH]: 'English',
+        [ENGLISH]: 'English',
       },
       labelCurrentLanguage: '(English Label)',
       instructionsLanguageSettingsButton: '(English Instructions)',
     },
     [SPANISH]: {
       [ElectionStringKey.BALLOT_LANGUAGE]: {
-        [LanguageCode.SPANISH]: 'Español',
+        [SPANISH]: 'Español',
       },
       labelCurrentLanguage: '(Spanish Label)',
       instructionsLanguageSettingsButton: '(Spanish Instructions)',
     },
     [CHINESE_SIMPLIFIED]: {
       [ElectionStringKey.BALLOT_LANGUAGE]: {
-        [LanguageCode.CHINESE_SIMPLIFIED]: '简体中文',
+        [CHINESE_SIMPLIFIED]: '简体中文',
       },
       labelCurrentLanguage: '(Chinese Label)',
       instructionsLanguageSettingsButton: '(Chinese Instructions)',
