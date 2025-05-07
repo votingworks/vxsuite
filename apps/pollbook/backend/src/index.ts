@@ -64,6 +64,7 @@ function main(): Promise<number> {
     workspace: peerWorkspace,
     machineId,
     codeVersion,
+    auth,
   });
 
   const localWorkspace = createLocalWorkspace(

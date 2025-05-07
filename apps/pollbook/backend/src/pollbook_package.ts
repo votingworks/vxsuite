@@ -9,6 +9,7 @@ import {
   getFileByName,
   readTextEntry,
   isSystemAdministratorAuth,
+  isElectionManagerAuth,
 } from '@votingworks/utils';
 import { join } from 'node:path';
 import { createReadStream, createWriteStream } from 'node:fs';
@@ -20,6 +21,8 @@ import {
   Voter,
   ValidStreetInfo,
   StreetSide,
+  PeerAppContext,
+  PollbookConnectionStatus,
 } from './types';
 import {
   MAX_POLLBOOK_PACKAGE_SIZE,
@@ -188,13 +191,6 @@ export function pollUsbDriveForPollbookPackage({
           return;
         }
 
-        const usbDriveStatus = await usbDrive.status();
-        if (usbDriveStatus.status !== 'mounted') {
-          workspace.store.setConfigurationStatus(undefined);
-          return;
-        }
-        usbDebug('Found USB drive mounted at %s', usbDriveStatus.mountPoint);
-
         const authStatus = await auth.getAuthStatus(
           constructAuthMachineState(workspace)
         );
@@ -202,6 +198,13 @@ export function pollUsbDriveForPollbookPackage({
           usbDebug('Not logged in as system admin, not configuring');
           return;
         }
+
+        const usbDriveStatus = await usbDrive.status();
+        if (usbDriveStatus.status !== 'mounted') {
+          workspace.store.setConfigurationStatus(undefined);
+          return;
+        }
+        usbDebug('Found USB drive mounted at %s', usbDriveStatus.mountPoint);
 
         workspace.store.setConfigurationStatus('loading');
         // TODO #6189 Accept any zip with the prefix pollbook-package on the usb (most recent if there are more then one)
@@ -217,7 +220,7 @@ export function pollUsbDriveForPollbookPackage({
               'code' in result.error &&
               result.error.code === 'ENOENT')
           ) {
-            workspace.store.setConfigurationStatus('not-found');
+            workspace.store.setConfigurationStatus('not-found-usb');
           } else {
             throw result;
           }
@@ -249,6 +252,103 @@ export function pollUsbDriveForPollbookPackage({
         clearInterval(intervalId); // Stop the polling interval
       } catch (error) {
         debug('Error during polling loop: %O', error);
+      } finally {
+        pollingIntervalLock = false; // Reset the flag to allow the next iteration
+      }
+    }, 100);
+  });
+}
+
+export function pollNetworkForPollbookPackage({
+  auth,
+  workspace,
+}: PeerAppContext): void {
+  usbDebug('Polling network for pollbook package');
+  if (workspace.store.getElection()) {
+    return;
+  }
+  let pollingIntervalLock = false; // Flag to prevent overlapping executions
+  let hadConfigurationError = false;
+
+  process.nextTick(() => {
+    const intervalId = setInterval(async () => {
+      if (pollingIntervalLock) {
+        return; // Skip if a polling iteration is already in progress
+      }
+      pollingIntervalLock = true; // Set the flag to indicate polling is in progress
+
+      try {
+        if (workspace.store.getElection()) {
+          clearInterval(intervalId); // Stop the polling interval
+          return;
+        }
+
+        const authStatus = await auth.getAuthStatus(
+          constructAuthMachineState(workspace)
+        );
+        if (!isElectionManagerAuth(authStatus)) {
+          workspace.store.setConfigurationStatus(undefined);
+          usbDebug('Not logged in as election manager, not configuring');
+          hadConfigurationError = false;
+          return;
+        }
+        if (hadConfigurationError) {
+          return;
+        }
+        const cardElectionId = authStatus.user.electionKey.id;
+        const pollbooksOnNetwork = workspace.store.getPollbookServicesByName();
+        const configuredPollbooks = Object.values(pollbooksOnNetwork).filter(
+          (pollbook) =>
+            pollbook.status === PollbookConnectionStatus.WrongElection &&
+            pollbook.electionId
+        );
+        const matchingConfiguredPollbooks = configuredPollbooks.filter(
+          (p) => p.electionId === cardElectionId
+        );
+        const allPollbooksHashesMatch =
+          matchingConfiguredPollbooks.length > 0 &&
+          matchingConfiguredPollbooks.every(
+            (pollbook) =>
+              pollbook.electionBallotHash ===
+                matchingConfiguredPollbooks[0].electionBallotHash &&
+              pollbook.pollbookPackageHash ===
+                matchingConfiguredPollbooks[0].pollbookPackageHash
+          );
+
+        if (configuredPollbooks.length === 0) {
+          workspace.store.setConfigurationStatus('not-found-network');
+          return;
+        }
+        if (matchingConfiguredPollbooks.length === 0) {
+          workspace.store.setConfigurationStatus(
+            'network-has-other-configurations'
+          );
+          return;
+        }
+        if (!allPollbooksHashesMatch) {
+          workspace.store.setConfigurationStatus(
+            'network-multiple-pollbook-packages'
+          );
+          return;
+        }
+        workspace.store.setConfigurationStatus('loading');
+        // We can now attempt to configure to the matching pollbooks
+        for (const pollbook of matchingConfiguredPollbooks) {
+          const { machineId } = pollbook;
+          const result = await workspace.store.configureFromPeerMachine(
+            workspace.assetDirectoryPath,
+            machineId
+          );
+          // Check if we have successfully configured!
+          if (result.isOk()) {
+            workspace.store.setConfigurationStatus(undefined);
+            clearInterval(intervalId); // Stop the polling interval
+            return;
+          }
+        }
+        // If we made it here all machines failed when we tried to configure from them
+        workspace.store.setConfigurationStatus('network-configuration-error');
+        hadConfigurationError = true;
       } finally {
         pollingIntervalLock = false; // Reset the flag to allow the next iteration
       }

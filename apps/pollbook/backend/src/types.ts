@@ -23,6 +23,7 @@ export interface LocalAppContext extends MachineConfig {
 }
 
 export interface PeerAppContext extends MachineConfig {
+  auth: DippedSmartCardAuthApi;
   workspace: PeerWorkspace;
 }
 
@@ -404,4 +405,11 @@ export interface SummaryStatistics {
   totalAbsenteeCheckIns: number;
 }
 
-export type ConfigurationStatus = 'loading' | 'not-found';
+export type ConfigurationStatus =
+  | 'loading'
+  | 'not-found-usb'
+  | 'not-found-network'
+  | 'network-has-other-configurations'
+  | 'network-configuration-error'
+  | 'recently-unconfigured'
+  | 'network-multiple-pollbook-packages';

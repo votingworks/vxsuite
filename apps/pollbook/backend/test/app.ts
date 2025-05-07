@@ -68,6 +68,13 @@ export function mockAuthStatus(
   mockGetAuthStatus.mockResolvedValue(authStatus);
 }
 
+export function mockLoggedOut(auth: DippedSmartCardAuthApi): void {
+  mockAuthStatus(auth, {
+    status: 'logged_out',
+    reason: 'machine_locked',
+  });
+}
+
 export function mockSystemAdministratorAuth(
   auth: DippedSmartCardAuthApi
 ): void {
@@ -103,6 +110,7 @@ export async function withApp(
     process.env.VX_MACHINE_ID || 'test'
   );
   const peerApp = buildPeerApp({
+    auth,
     workspace: peerWorkspace,
     machineId: process.env.VX_MACHINE_ID || 'test',
     codeVersion: process.env.VX_CODE_VERSION || 'test',
@@ -191,6 +199,7 @@ export async function withManyApps(
       );
 
       const peerApp = buildPeerApp({
+        auth,
         workspace: peerWorkspace,
         machineId: `test-${i}`,
         codeVersion: process.env.VX_CODE_VERSION || 'test',

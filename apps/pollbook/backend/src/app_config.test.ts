@@ -63,7 +63,7 @@ test('app config - unhappy paths polling usb', async () => {
     vitest.advanceTimersByTime(100);
     // The usb should now be processed and return a not found error since there is no package
     await vi.waitFor(async () => {
-      expect(await localApiClient.getElection()).toEqual(err('not-found'));
+      expect(await localApiClient.getElection()).toEqual(err('not-found-usb'));
     });
 
     mockUsbDrive.insertUsbDrive({
@@ -71,7 +71,7 @@ test('app config - unhappy paths polling usb', async () => {
     });
     vi.advanceTimersByTime(100);
     await vi.waitFor(async () => {
-      expect(await localApiClient.getElection()).toEqual(err('not-found'));
+      expect(await localApiClient.getElection()).toEqual(err('not-found-usb'));
     });
 
     mockUsbDrive.removeUsbDrive();
@@ -83,7 +83,7 @@ test('app config - unhappy paths polling usb', async () => {
     });
     vi.advanceTimersByTime(100);
     await vi.waitFor(async () => {
-      expect(await localApiClient.getElection()).toEqual(err('not-found'));
+      expect(await localApiClient.getElection()).toEqual(err('not-found-usb'));
     });
   });
 });
@@ -97,7 +97,9 @@ test('app config - polling usb from backend does not trigger with election manag
       electionFamousNames2021Fixtures.readElection()
     );
     vitest.advanceTimersByTime(200);
-    expect(await localApiClient.getElection()).toEqual(err('unconfigured'));
+    expect(await localApiClient.getElection()).toEqual(
+      err('not-found-network')
+    );
 
     // Add a valid pollbook package to the USB drive
     mockUsbDrive.insertUsbDrive(
@@ -107,8 +109,12 @@ test('app config - polling usb from backend does not trigger with election manag
         electionFamousNames2021Fixtures.pollbookStreetNames.asText()
       )
     );
+    // We don't actually expect the usb drive status to be called
+    mockUsbDrive.usbDrive.status.reset();
     vitest.advanceTimersByTime(100);
-    expect(await localApiClient.getElection()).toEqual(err('unconfigured'));
+    expect(await localApiClient.getElection()).toEqual(
+      err('not-found-network')
+    );
   });
 });
 

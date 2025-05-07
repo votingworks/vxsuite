@@ -35,6 +35,13 @@ CREATE TABLE event_log (
     PRIMARY KEY (event_id, machine_id)
 );
 
+-- Utility table to store any simple fields that need to be shared the local and peer servers
+CREATE TABLE config_data (
+    id INTEGER PRIMARY KEY CHECK (id = 0), -- enforces there is only one row to this table
+    configuration_status TEXT
+);
+INSERT INTO config_data (id, configuration_status) VALUES (0, null);
+
 -- Index for sorting events by hybrid logical clock physical time then logical counter - machine id is included in the rare event of tie
 CREATE INDEX idx_hlc ON event_log (physical_time, logical_counter, machine_id); 
 CREATE INDEX idx_machine_hlc ON event_log (machine_id, physical_time, logical_counter); 
