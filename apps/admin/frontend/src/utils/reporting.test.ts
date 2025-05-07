@@ -210,7 +210,7 @@ test('generateTallyReportPdfFilename', () => {
         ballotStyleGroupIds: ['1M'] as BallotStyleGroupId[],
       },
       expectedFilename:
-        'unofficial-ballot-style-1M-tally-report__2023-12-09_15-59-32.pdf',
+        'unofficial-custom-tally-report__2023-12-09_15-59-32.pdf',
     },
     {
       filter: {
@@ -239,7 +239,7 @@ test('generateTallyReportPdfFilename', () => {
         votingMethods: ['absentee'],
       },
       expectedFilename:
-        'unofficial-ballot-style-1M-absentee-ballots-tally-report__2023-12-09_15-59-32.pdf',
+        'unofficial-custom-tally-report__2023-12-09_15-59-32.pdf',
     },
     {
       filter: {

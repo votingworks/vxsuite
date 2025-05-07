@@ -128,23 +128,18 @@ function generateReportFilenameFilterPrefix({
     return '';
   }
 
-  if (filterRank > 2) {
+  if (filterRank > 2 || filter.ballotStyleGroupIds) {
     return 'custom';
   }
 
   const filterPrefixes: string[] = [];
 
-  const ballotStyleId = filter.ballotStyleGroupIds?.[0];
   const precinctId = filter.precinctIds?.[0];
   const votingMethod = filter.votingMethods?.[0];
   const scannerId = filter.scannerIds?.[0];
   const batchId = filter.batchIds?.[0];
   const adjudicationFlag = filter.adjudicationFlags?.[0];
   const districtId = filter.districtIds?.[0];
-
-  if (ballotStyleId) {
-    filterPrefixes.push(`ballot-style-${ballotStyleId}`);
-  }
 
   if (precinctId) {
     const precinctName = find(
