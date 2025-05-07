@@ -47,7 +47,6 @@ import { isVoterNameChangeValid } from './voter_helpers';
 
 export class LocalStore extends Store {
   private nextEventId?: number;
-  private configurationStatus?: ConfigurationStatus;
 
   /**
    * Builds and returns a new store at `dbPath`.
@@ -118,11 +117,16 @@ export class LocalStore extends Store {
   }
 
   getConfigurationStatus(): ConfigurationStatus | undefined {
-    return this.configurationStatus;
-  }
-
-  setConfigurationStatus(status?: ConfigurationStatus): void {
-    this.configurationStatus = status;
+    const row = this.client.one(
+      `
+        SELECT configuration_status as configurationStatus
+        FROM config_data
+      `
+    ) as { configurationStatus: string } | undefined;
+    if (row) {
+      return row.configurationStatus as ConfigurationStatus;
+    }
+    return undefined;
   }
 
   deleteElectionAndVoters(): void {
@@ -542,7 +546,7 @@ export class LocalStore extends Store {
         electionBallotHash: pollbookInfo?.electionBallotHash,
         pollbookPackageHash: pollbookInfo?.pollbookPackageHash,
         electionId: pollbookInfo?.electionId,
-        electionName: pollbookInfo?.electionTitle,
+        electionTitle: pollbookInfo?.electionTitle,
       };
     });
   }

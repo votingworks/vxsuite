@@ -4,10 +4,10 @@ import {
 } from '@votingworks/auth';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { LoggingUserRole } from '@votingworks/logging';
-import { LocalWorkspace } from './types';
+import { LocalWorkspace, PeerWorkspace } from './types';
 
 export function constructAuthMachineState(
-  workspace: LocalWorkspace
+  workspace: LocalWorkspace | PeerWorkspace
 ): DippedSmartCardAuthMachineState {
   const election = workspace.store.getElection();
   return {

@@ -1,16 +1,30 @@
 import { BaseLogger } from '@votingworks/logging';
 import { Client as DbClient } from '@votingworks/db';
-import { SchemaPath, Store } from './store';
-import { rootDebug } from './debug';
+import { Result, err, ok } from '@votingworks/basics';
+import fetch from 'node-fetch';
+import { randomUUID } from 'node:crypto';
+import { unlink } from 'node:fs/promises';
+import { createWriteStream, createReadStream } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { pipeline } from 'node:stream/promises';
 import {
+  NETWORK_EVENT_LIMIT,
+  MACHINE_DISCONNECTED_TIMEOUT,
+  POLLBOOK_PACKAGE_ASSET_FILE_NAME,
+} from './globals';
+import { getCurrentTime } from './get_current_time';
+import { convertDbRowsToPollbookEvents } from './event_helpers';
+import {
+  ConfigurationError,
   EventDbRow,
   PollbookConnectionStatus,
   PollbookEvent,
   PollbookService,
 } from './types';
-import { convertDbRowsToPollbookEvents } from './event_helpers';
-import { getCurrentTime } from './get_current_time';
-import { NETWORK_EVENT_LIMIT, MACHINE_DISCONNECTED_TIMEOUT } from './globals';
+import { rootDebug } from './debug';
+import { SchemaPath, Store } from './store';
+import { readPollbookPackage } from './pollbook_package';
 
 const debug = rootDebug.extend('store:peer');
 
@@ -217,6 +231,66 @@ export class PeerStore extends Store {
           apiClient: undefined,
         });
       }
+    }
+  }
+
+  async configureFromPeerMachine(
+    assetDirectoryPath: string,
+    machineId: string
+  ): Promise<Result<void, ConfigurationError>> {
+    const election = this.getElection();
+    if (election) {
+      return err('already-configured');
+    }
+    // Find the connected pollbook with the given machineId
+    const pollbooks = this.getPollbookServicesByName();
+    const peer = Object.values(pollbooks).find(
+      (pb) => pb.machineId === machineId && pb.apiClient
+    );
+    if (!peer || !peer.apiClient || !peer.address) {
+      return err('pollbook-connection-problem');
+    }
+    // Download the pollbook package zip via streaming
+    const pollbookUrl = `${peer.address}/file/pollbook-package`;
+    const response = await fetch(pollbookUrl);
+    if (!response.ok) {
+      return err('pollbook-connection-problem');
+    }
+    // Save to a temp file
+    const tempPath = `${tmpdir()}/pollbook-package-${randomUUID()}.zip`;
+    try {
+      const fileStream = createWriteStream(tempPath);
+      await pipeline(response.body, fileStream);
+      // Read and parse the pollbook package
+      const pollbookPackageResult = await readPollbookPackage(tempPath);
+      if (pollbookPackageResult.isErr()) {
+        return err('invalid-pollbook-package');
+      }
+      const pollbookPackage = pollbookPackageResult.ok();
+      // Configure this machine
+      const error = this.setElectionAndVoters(
+        pollbookPackage.electionDefinition,
+        pollbookPackage.packageHash,
+        pollbookPackage.validStreets,
+        pollbookPackage.voters
+      );
+      if (error) {
+        return err(error);
+      }
+      // Save the pollbook package to send to other machines if necessary
+      const destinationPath = join(
+        assetDirectoryPath,
+        POLLBOOK_PACKAGE_ASSET_FILE_NAME
+      );
+      await pipeline(
+        createReadStream(tempPath),
+        createWriteStream(destinationPath)
+      );
+      return ok();
+    } finally {
+      await unlink(tempPath).catch((error) => {
+        debug(`Failed to delete temporary file at ${tempPath}:`, error);
+      });
     }
   }
 }

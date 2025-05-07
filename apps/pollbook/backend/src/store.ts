@@ -21,6 +21,7 @@ import {
   PollbookConnectionStatus,
   PollbookInformation,
   ConfigurationError,
+  ConfigurationStatus,
 } from './types';
 import { HlcTimestamp, HybridLogicalClock } from './hybrid_logical_clock';
 import {
@@ -465,5 +466,15 @@ export abstract class Store {
       ? (this.client.one(query, machineId) as { checkInCount: number })
       : (this.client.one(query) as { checkInCount: number });
     return row ? row.checkInCount : 0;
+  }
+
+  setConfigurationStatus(status?: ConfigurationStatus): void {
+    this.client.run(
+      `
+      UPDATE config_data
+      SET configuration_status = ?
+      `,
+      status ?? null
+    );
   }
 }
