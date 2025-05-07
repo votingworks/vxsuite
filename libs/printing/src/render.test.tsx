@@ -67,7 +67,7 @@ test('rendered tally report has minimum of letter when size is LetterRoll', asyn
   ).unsafeUnwrap();
 
   await expect(outputPath).toMatchPdfSnapshot({
-    customSnapshotIdentifier: 'single-page-tally-report',
+    customSnapshotIdentifier: 'single-page-tally-report-letter-roll',
     failureThreshold: FAILURE_THRESHOLD,
   });
 });
@@ -183,11 +183,11 @@ test('can render multiple documents at once', async () => {
   ).unsafeUnwrap();
 
   await expect(outputPath1).toMatchPdfSnapshot({
-    customSnapshotIdentifier: 'single-page-tally-report',
+    customSnapshotIdentifier: 'single-page-tally-report-multiple-documents',
     failureThreshold: FAILURE_THRESHOLD,
   });
   await expect(outputPath2).toMatchPdfSnapshot({
-    customSnapshotIdentifier: 'roll-document',
+    customSnapshotIdentifier: 'roll-document-multiple-documents',
     failureThreshold: FAILURE_THRESHOLD,
   });
 });
