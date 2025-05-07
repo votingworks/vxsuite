@@ -52,7 +52,7 @@
     "@types/debug": "4.1.8",
     "@types/fs-extra": "11.0.1",
     "@types/jest-image-snapshot": "^6.4.0",
-    "@types/node": "20.16.0",
+    "@types/node": "20.17.31",
     "@types/node-quirc": "workspace:*",
     "@types/tmp": "0.2.4",
     "@vitest/coverage-istanbul": "^2.1.8",

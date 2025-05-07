@@ -31,12 +31,12 @@
     "buffer": "^6.0.3",
     "chalk": "4.1.2",
     "debug": "4.3.4",
-    "usb": "^2.6.0"
+    "usb": "2.15.0"
   },
   "devDependencies": {
     "@types/debug": "4.1.8",
-    "@types/node": "20.16.0",
-    "@types/w3c-web-usb": "^1.0.6",
+    "@types/node": "20.17.31",
+    "@types/w3c-web-usb": "1.0.8",
     "@vitest/coverage-istanbul": "^2.1.8",
     "@votingworks/test-utils": "workspace:*",
     "esbuild": "0.21.2",

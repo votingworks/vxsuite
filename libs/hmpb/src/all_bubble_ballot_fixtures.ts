@@ -88,8 +88,8 @@ export function allBubbleBallotFixtures(
       const [blankBallot] = ballotDocuments;
       const blankBallotPdf = await blankBallot.renderToPdf();
 
-      let filledBallotPdf = Buffer.from('');
-      let cyclingTestDeckPdf = Buffer.from('');
+      let filledBallotPdf: Buffer<ArrayBufferLike> = Buffer.from('');
+      let cyclingTestDeckPdf: Buffer<ArrayBufferLike> = Buffer.from('');
       if (!blankOnly) {
         debug(`Generating: ${filledBallotPath}`);
         const filledVotes: VotesDict = Object.fromEntries(

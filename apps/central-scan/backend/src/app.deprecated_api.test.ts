@@ -48,7 +48,7 @@ const jurisdiction = TEST_JURISDICTION;
 let app: Application;
 let auth: DippedSmartCardAuthApi;
 let importer: Mocked<Importer>;
-let server: Server;
+let server!: Server;
 let workspace: Workspace;
 let logger: Logger;
 let mockUsbDrive: MockUsbDrive;

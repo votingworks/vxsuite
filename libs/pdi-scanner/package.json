@@ -40,7 +40,7 @@
   },
   "devDependencies": {
     "@types/debug": "4.1.8",
-    "@types/node": "20.16.0",
+    "@types/node": "20.17.31",
     "@vitest/coverage-istanbul": "^2.1.8",
     "@votingworks/test-utils": "workspace:*",
     "esbuild-runner": "2.2.2",

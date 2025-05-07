@@ -78,7 +78,7 @@
     "@types/fs-extra": "11.0.1",
     "@types/jest-image-snapshot": "^6.4.0",
     "@types/lodash.get": "^4.4.9",
-    "@types/node": "20.16.0",
+    "@types/node": "20.17.31",
     "@types/pg": "^8.11.10",
     "@types/react": "18.3.3",
     "@types/tmp": "0.2.4",

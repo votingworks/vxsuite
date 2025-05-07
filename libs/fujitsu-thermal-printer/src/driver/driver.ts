@@ -1,5 +1,10 @@
 import { findByIds, WebUSBDevice } from 'usb';
-import { assert, assertDefined, Optional } from '@votingworks/basics';
+import {
+  arrayBufferFrom,
+  assert,
+  assertDefined,
+  Optional,
+} from '@votingworks/basics';
 import { byteArray, Coder, literal, message } from '@votingworks/message-coder';
 import { Buffer } from 'node:buffer';
 import { inspect } from 'node:util';
@@ -116,7 +121,10 @@ export class FujitsuThermalPrinterDriver
     const data = encodeResult.unsafeUnwrap();
 
     await this.lock.acquire();
-    const result = await this.webDevice.transferOut(ENDPOINT_OUT, data);
+    const result = await this.webDevice.transferOut(
+      ENDPOINT_OUT,
+      arrayBufferFrom(data)
+    );
     this.lock.release();
 
     debug(JSON.stringify(result));
