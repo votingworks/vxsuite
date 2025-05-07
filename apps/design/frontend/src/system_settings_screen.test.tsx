@@ -422,7 +422,6 @@ test('setting "other" system settings', async () => {
     'Allow Official Ballots in Test Mode',
     'Disable Vertical Streak Detection',
     'Enable Shoeshine Mode on VxScan',
-    'Include Original Snapshots',
     'Include Redundant Metadata',
   ];
 
@@ -434,7 +433,6 @@ test('setting "other" system settings', async () => {
     ...DEFAULT_SYSTEM_SETTINGS,
     allowOfficialBallotsInTestMode: true,
     precinctScanEnableShoeshineMode: true,
-    castVoteRecordsIncludeOriginalSnapshots: true,
     castVoteRecordsIncludeRedundantMetadata: true,
     disableVerticalStreakDetection: true,
   };
@@ -511,7 +509,7 @@ test('all controls are disabled until clicking "Edit"', async () => {
   const allCheckboxes = document.body.querySelectorAll('[role=checkbox]');
   const allControls = [...allTextBoxes, ...allCheckboxes];
 
-  expect(allControls).toHaveLength(24);
+  expect(allControls).toHaveLength(23);
 
   for (const control of allControls) {
     expect(control).toBeDisabled();

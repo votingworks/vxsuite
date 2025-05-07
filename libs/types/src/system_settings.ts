@@ -66,11 +66,6 @@ export interface SystemSettings {
   readonly disallowCastingOvervotes: boolean;
   readonly precinctScanEnableShoeshineMode?: boolean;
   /**
-   * Includes original snapshots in cast vote record reports, increasing export size and
-   * import/export time (required for CDF).
-   */
-  readonly castVoteRecordsIncludeOriginalSnapshots?: boolean;
-  /**
    * Includes redundant metadata in cast vote record reports, increasing export size and
    * import/export time (required for CDF).
    */
@@ -101,7 +96,6 @@ export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
   ),
   disallowCastingOvervotes: z.boolean(),
   precinctScanEnableShoeshineMode: z.boolean().optional(),
-  castVoteRecordsIncludeOriginalSnapshots: z.boolean().optional(),
   castVoteRecordsIncludeRedundantMetadata: z.boolean().optional(),
   disableVerticalStreakDetection: z.boolean().optional(),
   quickResultsReportingUrl: z.string().optional(),

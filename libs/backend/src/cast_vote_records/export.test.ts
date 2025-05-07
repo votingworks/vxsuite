@@ -795,52 +795,6 @@ test('castVoteRecordsIncludeRedundantMetadata system setting', async () => {
   expect(castVoteRecords[0]).toEqual(castVoteRecords[1]);
 });
 
-test('castVoteRecordsIncludeOriginalSnapshots system setting', async () => {
-  const sheet = newAcceptedSheet(interpretedHmpb, sheet1Id);
-  const castVoteRecords: CVR.CVR[] = [];
-  for (const includeOriginalSnapshots of [true, false] as const) {
-    mockUsbDrive.removeUsbDrive();
-    mockUsbDrive.insertUsbDrive({});
-
-    mockPrecinctScannerStore.setSystemSettings({
-      ...assertDefined(mockPrecinctScannerStore.getSystemSettings()),
-      castVoteRecordsIncludeOriginalSnapshots: includeOriginalSnapshots,
-    });
-
-    expect(
-      await exportCastVoteRecordsToUsbDrive(
-        mockPrecinctScannerStore,
-        mockUsbDrive.usbDrive,
-        [sheet],
-        { scannerType: 'precinct' }
-      )
-    ).toEqual(ok());
-
-    const exportDirectoryPaths = await getCastVoteRecordExportDirectoryPaths(
-      mockUsbDrive.usbDrive
-    );
-    expect(exportDirectoryPaths).toHaveLength(1);
-    const exportDirectoryPath = assertDefined(exportDirectoryPaths[0]);
-    const { castVoteRecord } = readCastVoteRecord(
-      path.join(exportDirectoryPath, sheet1Id)
-    );
-
-    castVoteRecords.push(castVoteRecord);
-    const modifiedSnapshot = castVoteRecord.CVRSnapshot.find(
-      (snapshot) => snapshot.Type === CVR.CVRType.Modified
-    );
-    expect(modifiedSnapshot).toBeDefined();
-    const originalSnapshot = castVoteRecord.CVRSnapshot.find(
-      (snapshot) => snapshot.Type === CVR.CVRType.Original
-    );
-    if (includeOriginalSnapshots) {
-      expect(originalSnapshot).toBeDefined();
-    } else {
-      expect(originalSnapshot).toBeUndefined();
-    }
-  }
-});
-
 test.each<{
   description: string;
   setupFn: () => void | Promise<void>;

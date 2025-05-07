@@ -145,12 +145,10 @@ export function SystemSettingsForm({
   ];
 
   enum CvrOption {
-    OriginalSnapshots = 'Original Snapshots',
     RedudantMetadata = 'Redundant Metadata',
   }
 
   const cvrOptions = [
-    { label: 'Include Original Snapshots', value: CvrOption.OriginalSnapshots },
     { label: 'Include Redundant Metadata', value: CvrOption.RedudantMetadata },
   ];
 
@@ -511,9 +509,6 @@ export function SystemSettingsForm({
                     options={cvrOptions}
                     value={
                       [
-                        systemSettings.castVoteRecordsIncludeOriginalSnapshots
-                          ? CvrOption.OriginalSnapshots
-                          : undefined,
                         systemSettings.castVoteRecordsIncludeRedundantMetadata
                           ? CvrOption.RedudantMetadata
                           : undefined,
@@ -522,9 +517,6 @@ export function SystemSettingsForm({
                     onChange={(value) =>
                       setSystemSettings({
                         ...systemSettings,
-                        castVoteRecordsIncludeOriginalSnapshots: value.includes(
-                          CvrOption.OriginalSnapshots
-                        ),
                         castVoteRecordsIncludeRedundantMetadata: value.includes(
                           CvrOption.RedudantMetadata
                         ),

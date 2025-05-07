@@ -341,7 +341,7 @@ async function buildCastVoteRecord(
   }
 ): Promise<CVR.CVR> {
   const { scannerState } = exportContext;
-  const { electionDefinition, systemSettings, markThresholds } = scannerState;
+  const { electionDefinition, markThresholds } = scannerState;
   const { election, ballotHash: electionId } = electionDefinition;
   const electionOptionPositionMap = buildElectionOptionPositionMap(election);
   const scannerId = VX_MACHINE_ID;
@@ -388,8 +388,6 @@ async function buildCastVoteRecord(
     electionDefinition,
     electionId,
     electionOptionPositionMap,
-    includeOriginalSnapshots:
-      systemSettings.castVoteRecordsIncludeOriginalSnapshots,
     images,
     indexInBatch,
     interpretations: [frontInterpretation, backInterpretation],
