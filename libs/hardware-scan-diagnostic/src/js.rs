@@ -72,7 +72,7 @@ pub fn gray_image_from_rgba_image_data(
     let image = image::RgbaImage::from_raw(width, height, data.to_vec()).ok_or_else(|| {
         Error::new(
             Status::InvalidArg,
-            "Unable to create ScannedPage from provided image data. Is it 4-channel RGBA?",
+            "Unable to create GrayImage from provided image data. Is it 4-channel RGBA?",
         )
     })?;
     Ok(GrayImage {
