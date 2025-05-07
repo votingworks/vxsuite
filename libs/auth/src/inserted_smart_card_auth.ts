@@ -207,6 +207,9 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
       return {
         status: 'logged_in',
         user: this.cardlessVoterUser,
+        // This is unused for voter sessions - voter session timeouts are
+        // managed client-side. Making this value static helps avoid unnecessary
+        // UI re-renders whenever the client polls for updates.
         sessionExpiresAt: NEVER,
       };
     }
