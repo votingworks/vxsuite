@@ -157,6 +157,8 @@ function logAuthEvent(
   }
 }
 
+const NEVER = new Date('01/01/9000');
+
 /**
  * The implementation of the inserted smart card auth API
  */
@@ -205,7 +207,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
       return {
         status: 'logged_in',
         user: this.cardlessVoterUser,
-        sessionExpiresAt: computeSessionEndTime(machineState),
+        sessionExpiresAt: NEVER,
       };
     }
 
