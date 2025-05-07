@@ -124,7 +124,7 @@ export function UnconfiguredSystemAdminScreen(): JSX.Element {
     (p) => p.electionId && p.status === PollbookConnectionStatus.WrongElection
   );
   if (!isOnline || configuredPollbooks.length <= 0) {
-    if (electionResult.err() === 'not-found') {
+    if (electionResult.err() === 'not-found-usb') {
       return (
         <FullScreenMessage
           title="Failed to configure VxPollbook"
@@ -148,7 +148,7 @@ export function UnconfiguredSystemAdminScreen(): JSX.Element {
 
   return (
     <MainContent>
-      {electionResult.err() === 'not-found' && (
+      {electionResult.err() === 'not-found-usb' && (
         <Card color="warning" style={{ marginBottom: '1rem' }}>
           <Icons.Warning color="warning" /> No pollbook package found on the
           inserted USB drive.
@@ -199,14 +199,12 @@ export function UnconfiguredElectionManagerScreen(): JSX.Element {
   const getElectionQuery = getElection.useQuery({
     refetchInterval: 100,
   });
-  assert(getElectionQuery.isSuccess);
-  const electionResult = getElectionQuery.data;
 
-  if (electionResult.isOk() || electionResult.err() === 'loading') {
+  if (!getElectionQuery.isSuccess) {
     return (
       <Screen>
         <FullScreenMessage
-          title="Configuring VxPollbook from USB drive…"
+          title="Configuring VxPollbook from network…"
           image={
             <FullScreenIconWrapper>
               <Icons.Loading />
@@ -216,29 +214,108 @@ export function UnconfiguredElectionManagerScreen(): JSX.Element {
       </Screen>
     );
   }
-  if (electionResult.err() === 'not-found') {
+  const electionResult = getElectionQuery.data;
+  if (electionResult.err() === 'recently-unconfigured') {
     return (
       <Screen>
         <FullScreenMessage
-          title="Failed to configure VxPollbook"
+          title="Machine Unconfigured"
+          image={
+            <FullScreenIconWrapper>
+              <Icons.Loading />
+            </FullScreenIconWrapper>
+          }
+        >
+          The machine has been unconfigured and will now lock automatically…
+        </FullScreenMessage>
+      </Screen>
+    );
+  }
+
+  if (
+    electionResult.isOk() ||
+    electionResult.err() === 'loading' ||
+    electionResult.err() === 'unconfigured'
+  ) {
+    return (
+      <Screen>
+        <FullScreenMessage
+          title="Configuring VxPollbook from network…"
+          image={
+            <FullScreenIconWrapper>
+              <Icons.Loading />
+            </FullScreenIconWrapper>
+          }
+        />
+      </Screen>
+    );
+  }
+  if (electionResult.err() === 'network-configuration-error') {
+    return (
+      <Screen>
+        <FullScreenMessage
+          title="Failed to configure VxPollBook"
           image={
             <FullScreenIconWrapper>
               <Icons.Warning color="warning" />
             </FullScreenIconWrapper>
           }
         >
-          No pollbook package found on the inserted USB drive.
+          Error configuring machine please try again.
+        </FullScreenMessage>
+      </Screen>
+    );
+  }
+  if (electionResult.err() === 'network-multiple-pollbook-packages') {
+    return (
+      <Screen>
+        <FullScreenMessage
+          title="No Valid Configuration Detected"
+          image={
+            <FullScreenIconWrapper>
+              <Icons.Warning color="warning" />
+            </FullScreenIconWrapper>
+          }
+        >
+          VxPollBook detected other poll books on the network with conflicting
+          configurations. Make sure you unconfigure any outdated machines and
+          try again.
         </FullScreenMessage>
       </Screen>
     );
   }
 
+  if (electionResult.err() === 'network-has-other-configurations') {
+    return (
+      <Screen>
+        <FullScreenMessage
+          title="No Valid Configuration Detected"
+          image={
+            <FullScreenIconWrapper>
+              <Icons.Warning color="warning" />
+            </FullScreenIconWrapper>
+          }
+        >
+          VxPollBook detected other poll books, but none of them are configured
+          with a poll book package matching the current election manager card.
+        </FullScreenMessage>
+      </Screen>
+    );
+  }
+  assert(electionResult.err() === 'not-found-network');
   return (
     <Screen>
       <FullScreenMessage
-        title="Insert a USB drive containing a pollbook package"
-        image={<UsbDriveImage />}
-      />
+        title="No Configuration Detected"
+        image={
+          <FullScreenIconWrapper>
+            <Icons.Warning color="warning" />
+          </FullScreenIconWrapper>
+        }
+      >
+        VxPollBook did not detect any other configured poll books on the
+        network.
+      </FullScreenMessage>
     </Screen>
   );
 }
