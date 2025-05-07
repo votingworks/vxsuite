@@ -1,6 +1,7 @@
 import { findByIds, WebUSBDevice } from 'usb';
 import makeDebug from 'debug';
 import {
+  arrayBufferFrom,
   assert,
   assertDefined,
   Optional,
@@ -272,10 +273,10 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     const buf = TransferOutRealTimeRequest.encode({
       requestId,
     }).unsafeUnwrap();
-    const arrayBuffer = new ArrayBuffer(buf.byteLength);
-    const arrayBufferView = new Uint8Array(arrayBuffer);
-    buf.copy(arrayBufferView);
-    return this.webDevice.transferOut(REAL_TIME_ENDPOINT_OUT, arrayBuffer);
+    return this.webDevice.transferOut(
+      REAL_TIME_ENDPOINT_OUT,
+      arrayBufferFrom(buf)
+    );
   }
 
   /**
@@ -320,10 +321,10 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
       throw new Error(encodeResult.err());
     }
     const data = encodeResult.unsafeUnwrap();
-    const arrayBuffer = new ArrayBuffer(data.byteLength);
-    const arrayBufferView = new Uint8Array(arrayBuffer);
-    data.copy(arrayBufferView);
-    return this.webDevice.transferOut(GENERIC_ENDPOINT_OUT, arrayBuffer);
+    return this.webDevice.transferOut(
+      GENERIC_ENDPOINT_OUT,
+      arrayBufferFrom(data)
+    );
   }
 
   /**

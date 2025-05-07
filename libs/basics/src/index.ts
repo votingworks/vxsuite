@@ -1,5 +1,6 @@
 /* istanbul ignore file */
 export * from './assert';
+export * from './buffers';
 export * as collections from './collections';
 export * from './date_without_time';
 export * from './deferred';
