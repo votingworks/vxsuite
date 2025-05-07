@@ -1005,12 +1005,13 @@ jobs:
       - store_test_results:
           path: libs/grout/test-utils/reports/
 
-  # hardware-scan-diagnostic
+  # @votingworks/hardware-scan-diagnostic
   test-libs-hardware-scan-diagnostic:
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: true
       - run:
           name: Build
           command: |
@@ -1472,7 +1473,8 @@ jobs:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          is_node_package: false
       - run:
           name: Build
           command: |
