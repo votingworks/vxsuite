@@ -90,7 +90,7 @@ test('election manager - renders UnconfiguredScreen when election is unconfigure
   });
   apiMock.setElection(undefined);
   render(<App apiClient={apiMock.mockApiClient} />);
-  await screen.findByText('Insert a USB drive containing a pollbook package');
+  await screen.findByText(/Configuring/);
 });
 
 test('system administrator can unconfigure', async () => {
@@ -151,4 +151,97 @@ test('renders VendorScreen when logged in as vendor', async () => {
   render(<App apiClient={apiMock.mockApiClient} />);
 
   await screen.findByText('Reboot to Vendor Menu');
+});
+
+test('election manager - unconfigured screen - loading', async () => {
+  apiMock.expectGetMachineConfig();
+  apiMock.expectGetDeviceStatuses();
+  apiMock.setAuthStatus({
+    status: 'logged_in',
+    user: mockElectionManagerUser({
+      electionKey: constructElectionKey(famousNamesElection),
+    }),
+    sessionExpiresAt: mockSessionExpiresAt(),
+  });
+  apiMock.setElectionConfiguration('loading');
+  render(<App apiClient={apiMock.mockApiClient} />);
+  await screen.findByText(/Configuring/);
+});
+
+test('election manager - unconfigured screen - recently unconfigured', async () => {
+  apiMock.expectGetMachineConfig();
+  apiMock.expectGetDeviceStatuses();
+  apiMock.setAuthStatus({
+    status: 'logged_in',
+    user: mockElectionManagerUser({
+      electionKey: constructElectionKey(famousNamesElection),
+    }),
+    sessionExpiresAt: mockSessionExpiresAt(),
+  });
+  apiMock.setElectionConfiguration('recently-unconfigured');
+  render(<App apiClient={apiMock.mockApiClient} />);
+  await screen.findByText('Machine Unconfigured');
+});
+
+test('election manager - unconfigured screen - network configuration error', async () => {
+  apiMock.expectGetMachineConfig();
+  apiMock.expectGetDeviceStatuses();
+  apiMock.setAuthStatus({
+    status: 'logged_in',
+    user: mockElectionManagerUser({
+      electionKey: constructElectionKey(famousNamesElection),
+    }),
+    sessionExpiresAt: mockSessionExpiresAt(),
+  });
+  apiMock.setElectionConfiguration('network-configuration-error');
+  render(<App apiClient={apiMock.mockApiClient} />);
+  await screen.findByText('Failed to configure VxPollBook');
+});
+
+test('election manager - unconfigured screen - network-multiple-pollbook-packages', async () => {
+  apiMock.expectGetMachineConfig();
+  apiMock.expectGetDeviceStatuses();
+  apiMock.setAuthStatus({
+    status: 'logged_in',
+    user: mockElectionManagerUser({
+      electionKey: constructElectionKey(famousNamesElection),
+    }),
+    sessionExpiresAt: mockSessionExpiresAt(),
+  });
+  apiMock.setElectionConfiguration('network-multiple-pollbook-packages');
+  render(<App apiClient={apiMock.mockApiClient} />);
+  await screen.findByText('No Valid Configuration Detected');
+  await screen.findByText(/conflicting configurations/);
+});
+
+test('election manager - unconfigured screen - network-has-other-configurations', async () => {
+  apiMock.expectGetMachineConfig();
+  apiMock.expectGetDeviceStatuses();
+  apiMock.setAuthStatus({
+    status: 'logged_in',
+    user: mockElectionManagerUser({
+      electionKey: constructElectionKey(famousNamesElection),
+    }),
+    sessionExpiresAt: mockSessionExpiresAt(),
+  });
+  apiMock.setElectionConfiguration('network-has-other-configurations');
+  render(<App apiClient={apiMock.mockApiClient} />);
+  await screen.findByText('No Valid Configuration Detected');
+  await screen.findByText(/none of them are configured/);
+});
+
+test('election manager - unconfigured screen - not-found-network', async () => {
+  apiMock.expectGetMachineConfig();
+  apiMock.expectGetDeviceStatuses();
+  apiMock.setAuthStatus({
+    status: 'logged_in',
+    user: mockElectionManagerUser({
+      electionKey: constructElectionKey(famousNamesElection),
+    }),
+    sessionExpiresAt: mockSessionExpiresAt(),
+  });
+  apiMock.setElectionConfiguration('not-found-network');
+  render(<App apiClient={apiMock.mockApiClient} />);
+  await screen.findByText('No Configuration Detected');
+  await screen.findByText(/did not detect/);
 });

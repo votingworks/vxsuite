@@ -89,7 +89,7 @@ export function ElectionManagerScreen(): JSX.Element {
     <Switch>
       <Route
         path={electionManagerRoutes.settings.path}
-        component={SettingsScreen}
+        render={() => <SettingsScreen />}
       />
       <Route
         exact
