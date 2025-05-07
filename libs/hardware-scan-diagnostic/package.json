@@ -18,7 +18,7 @@
     "@napi-rs/canvas": "^0.1.69",
     "@napi-rs/cli": "^2.18.4",
     "@types/jest-image-snapshot": "^6.4.0",
-    "@types/node": "20.16.0",
+    "@types/node": "20.17.31",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "canvas": "2.11.2",
