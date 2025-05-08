@@ -4,6 +4,7 @@ import * as grout from '@votingworks/grout';
 import { SheetOf } from '@votingworks/types';
 import express, { Application } from 'express';
 import { readdir } from 'node:fs/promises';
+import { join } from 'node:path';
 import { getMachineConfig } from '../machine_config';
 import { ElectricalTestingComponent } from '../store';
 import { type ServerContext } from './context';
@@ -108,10 +109,18 @@ function buildApi({
     },
 
     async getLatestScannedSheet(): Promise<SheetOf<string> | null> {
-      const allScannedImageNames = await readdir(workspace.ballotImagesPath);
-      const latestElectricalTestingImageName = iter(allScannedImageNames)
-        .filter((name) => name.startsWith('electrical-testing-'))
-        .max((a, b) => a.localeCompare(b));
+      const usbDriveStatus = await usbDrive.status();
+      const basedir =
+        usbDriveStatus.status === 'mounted'
+          ? join(usbDriveStatus.mountPoint, 'ballot-images')
+          : workspace.ballotImagesPath;
+      const allFileNames = await readdir(basedir);
+      const allScannedImageNames = allFileNames.filter((name) =>
+        /^electrical-testing.*\.(jpe?g|png)$/.test(name)
+      );
+      const latestElectricalTestingImageName = iter(allScannedImageNames).max(
+        (a, b) => a.localeCompare(b)
+      );
 
       if (!latestElectricalTestingImageName) {
         return null;
