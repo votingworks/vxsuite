@@ -58,7 +58,7 @@ test('plays clips in order', async () => {
 
   const { mockOfNewAudioPlayer, mockPlayer } = initMockPlayer();
   const deferredPlayClip1 = deferred<void>();
-  mockPlayer.play.mockReturnValue(deferredPlayClip1.promise);
+  mockPlayer.play.mockReturnValueOnce(deferredPlayClip1.promise);
 
   const onDone = vi.fn();
 
@@ -67,6 +67,7 @@ test('plays clips in order', async () => {
       clips={[
         { audioId: 'abc', languageCode: ENGLISH },
         { audioId: 'def', languageCode: SPANISH },
+        { audioId: 'def', languageCode: SPANISH }, // Should handle repeats.
       ]}
       onDone={onDone}
     />
@@ -89,9 +90,9 @@ test('plays clips in order', async () => {
   expect(mockOfNewAudioPlayer).toHaveBeenCalledTimes(1);
   expect(onDone).not.toHaveBeenCalled();
 
-  // Prep mock player for 2nd clip adn simulate first clip ending:
+  // Prep mock player for 2nd clip and simulate first clip ending:
   const deferredPlayClip2 = deferred<void>();
-  mockPlayer.play.mockReturnValue(deferredPlayClip2.promise);
+  mockPlayer.play.mockReturnValueOnce(deferredPlayClip2.promise);
   act(() => deferredPlayClip1.resolve());
 
   // Verify player instantiation and playback for the 2nd clip:
@@ -111,16 +112,37 @@ test('plays clips in order', async () => {
   expect(mockOfNewAudioPlayer).toHaveBeenCalledTimes(2);
   expect(onDone).not.toHaveBeenCalled();
 
+  // Prep mock player for 3rd clip and simulate 2nd clip ending:
+  const deferredPlayClip3 = deferred<void>();
+  mockPlayer.play.mockReturnValueOnce(deferredPlayClip3.promise);
+  act(() => deferredPlayClip2.resolve());
+
+  // Verify handling of repeated audio (clip #2 -> clip #3):
+  await waitFor(() => expect(mockOfNewAudioPlayer).toHaveBeenCalledTimes(3));
+  expect(mockOfNewAudioPlayer).toHaveBeenLastCalledWith<[AudioPlayerParams]>({
+    clip: { id: 'def', dataBase64: 'data-for-def', languageCode: SPANISH },
+    webAudioContext: mockWebAudioContext,
+  });
+  expect(mockPlayer.setPlaybackRate).toHaveBeenCalledTimes(3);
+  expect(mockPlayer.setPlaybackRate).toHaveBeenLastCalledWith(
+    DEFAULT_PLAYBACK_RATE
+  );
+  expect(mockPlayer.setVolume).toHaveBeenCalledTimes(3);
+  expect(mockPlayer.setVolume).toHaveBeenLastCalledWith(DEFAULT_AUDIO_VOLUME);
+  expect(mockPlayer.play).toHaveBeenCalledTimes(3);
+  expect(mockOfNewAudioPlayer).toHaveBeenCalledTimes(3);
+  expect(onDone).not.toHaveBeenCalled();
+
   // Simulate end of the audio queue and expect a final `stop` call for cleanup:
   mockPlayer.play.mockReset();
   mockPlayer.stop.mockReset();
-  act(() => deferredPlayClip2.resolve());
+  act(() => deferredPlayClip3.resolve());
   await waitFor(() => expect(mockPlayer.stop).toHaveBeenCalled());
   expect(mockPlayer.play).not.toHaveBeenCalled();
   expect(onDone).toHaveBeenCalledTimes(1);
 
-  // Expect only 2 player instantiations over the course of the test.
-  expect(mockOfNewAudioPlayer).toHaveBeenCalledTimes(2);
+  // Expect no aditional player instantiations.
+  expect(mockOfNewAudioPlayer).toHaveBeenCalledTimes(3);
 });
 
 test('works without an onDone prop value', async () => {

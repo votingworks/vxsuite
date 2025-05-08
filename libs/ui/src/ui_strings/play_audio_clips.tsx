@@ -124,5 +124,13 @@ export function PlayAudioClips(props: PlayAudioQueueProps): React.ReactNode {
     return null;
   }
 
-  return <PlayAudioClip {...currentClip} onDone={onClipDone} />;
+  return (
+    <PlayAudioClip
+      {...currentClip}
+      // Ensure that a remount (and, by extension, a replay) is triggered for
+      // repeated audio (e.g. repeated characters in a write-in candidate name).
+      key={clipIndex}
+      onDone={onClipDone}
+    />
+  );
 }
