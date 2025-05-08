@@ -28,7 +28,7 @@ function PollbookConnectionTable({
   onConfigure,
 }: {
   pollbooks: PollbookServiceInfo[];
-  onConfigure: (machineId: string) => void;
+  onConfigure: (pollbooks: PollbookServiceInfo[]) => void;
 }): JSX.Element {
   // Group pollbooks by election hash (ballotHash-packageHash)
   const groups = groupBy(
@@ -64,7 +64,7 @@ function PollbookConnectionTable({
               <td>
                 <Button
                   color="primary"
-                  onPress={() => onConfigure(pollbooksForElection[0].machineId)}
+                  onPress={() => onConfigure(pollbooksForElection)}
                 >
                   Configure
                 </Button>
@@ -84,8 +84,7 @@ export function UnconfiguredSystemAdminScreen(): JSX.Element {
   const getDevicesQuery = getDeviceStatuses.useQuery();
   const configureMutation = configureFromPeerMachine.useMutation();
   const [isLoadingFromNetwork, setIsLoadingFromNetwork] = useState(false);
-  const [configurationErrorMessage, setConfigurationErrorMessage] =
-    useState('');
+  const [hadConfigurationError, setHadConfigurationError] = useState(false);
 
   if (getDevicesQuery.isLoading || !getElectionQuery.isSuccess) {
     return <Loading />;
@@ -124,6 +123,20 @@ export function UnconfiguredSystemAdminScreen(): JSX.Element {
     (p) => p.electionId && p.status === PollbookConnectionStatus.WrongElection
   );
   if (!isOnline || configuredPollbooks.length <= 0) {
+    if (hadConfigurationError) {
+      return (
+        <FullScreenMessage
+          title="Failed to configure VxPollBook"
+          image={
+            <FullScreenIconWrapper>
+              <Icons.Warning color="warning" />
+            </FullScreenIconWrapper>
+          }
+        >
+          Error configuring machine please try again.
+        </FullScreenMessage>
+      );
+    }
     if (electionResult.err() === 'not-found-usb') {
       return (
         <FullScreenMessage
@@ -154,7 +167,7 @@ export function UnconfiguredSystemAdminScreen(): JSX.Element {
           inserted USB drive.
         </Card>
       )}
-      {configurationErrorMessage && (
+      {hadConfigurationError && (
         <Card color="warning" style={{ marginBottom: '1rem' }}>
           <Icons.Warning color="warning" /> Error during configuration, please
           try again.
@@ -166,19 +179,20 @@ export function UnconfiguredSystemAdminScreen(): JSX.Element {
       </P>
       <PollbookConnectionTable
         pollbooks={configuredPollbooks}
-        onConfigure={(machineId) => {
+        onConfigure={async (inputPollbooks) => {
           setIsLoadingFromNetwork(true);
-          configureMutation.mutate(
-            { machineId },
-            {
-              onSuccess: (result) => {
-                setIsLoadingFromNetwork(false);
-                if (result.isErr()) {
-                  setConfigurationErrorMessage(result.err());
-                }
-              },
+          setHadConfigurationError(false);
+          for (const pollbook of inputPollbooks) {
+            const result = await configureMutation.mutateAsync({
+              machineId: pollbook.machineId,
+            });
+            if (result.isOk()) {
+              setIsLoadingFromNetwork(false);
+              return;
             }
-          );
+            setIsLoadingFromNetwork(false);
+            setHadConfigurationError(true);
+          }
         }}
       />
     </MainContent>
