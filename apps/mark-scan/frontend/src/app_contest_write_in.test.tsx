@@ -128,8 +128,9 @@ test('Single Seat Contest with Write In', async () => {
 
   // Review Screen
   await screen.findByText('Review Your Votes');
-  expect(screen.getByText('SAL')).toBeTruthy();
-  expect(screen.getByText(/\(write-in\)/)).toBeTruthy();
+  // Expect one instance rendered for display and one for audio:
+  expect(screen.getAllByText('SAL')).toHaveLength(2);
+  screen.getByText(/\(write-in\)/);
 
   // Print Screen
   apiMock.expectPrintBallot({

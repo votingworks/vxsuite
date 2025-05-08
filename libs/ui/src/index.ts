@@ -1,6 +1,7 @@
 /* istanbul ignore file - @preserve */
 
 export * as images from './images';
+export * as virtualKeyboardCommon from './virtual_keyboard/common';
 
 export * from './accessible_controllers';
 export * from './app_base';

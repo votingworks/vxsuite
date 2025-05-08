@@ -23,6 +23,7 @@ import {
   NumberString,
   WithAltAudio,
   AssistiveTechInstructions,
+  AudioOnly,
 } from '@votingworks/ui';
 
 import { getSingleYesNoVote } from '@votingworks/utils';
@@ -33,6 +34,7 @@ import {
 } from '../config/types';
 
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
+import { WriteInCandidateName } from './write_in_candidate_name';
 
 const Contest = styled.div`
   display: block;
@@ -91,7 +93,16 @@ function CandidateContestResult({
             />
           ),
           id: candidate.id,
-          label: electionStrings.candidateName(candidate),
+          label: candidate.isWriteIn ? (
+            <React.Fragment>
+              <AudioOnly>
+                <WriteInCandidateName name={candidate.name} />
+              </AudioOnly>
+              {candidate.name}
+            </React.Fragment>
+          ) : (
+            electionStrings.candidateName(candidate)
+          ),
         })
       )}
     />

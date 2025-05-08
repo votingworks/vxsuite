@@ -40,6 +40,7 @@ import { UpdateVoteFunction } from '../config/types';
 import { WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals';
 import { ChoicesGrid } from './contest_screen_layout';
 import { BreadcrumbMetadata, ContestHeader } from './contest_header';
+import { WriteInCandidateName } from './write_in_candidate_name';
 
 interface Props {
   breadcrumbs?: BreadcrumbMetadata;
@@ -356,7 +357,7 @@ export function CandidateContest({
                       <React.Fragment>
                         <AudioOnly>
                           {appStrings.labelSelected()}
-                          {appStrings.labelWriteInCandidateName()}
+                          <WriteInCandidateName name={candidate.name} />
                         </AudioOnly>
                         {/* User-generated content - no translation/audio available: */}
                         {candidate.name}

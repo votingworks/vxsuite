@@ -332,6 +332,27 @@ function getNextRowTargetButtonIndex(
   return getAdjacentRowTargetButtonIndex(keyMap, rowRefs, focusedRowIndex, 1);
 }
 
+export function VirtualKeyboardLabel(props: { config: Key }): JSX.Element {
+  const { config } = props;
+  const {
+    audioLanguageOverride,
+    renderAudioString,
+    value,
+    renderLabel = () => value,
+  } = config;
+
+  const button = (
+    <WithAltAudio
+      audioLanguageOverride={audioLanguageOverride}
+      audioText={renderAudioString()}
+    >
+      {renderLabel()}
+    </WithAltAudio>
+  );
+
+  return button;
+}
+
 export function VirtualKeyboard({
   onBackspace,
   onKeyPress,
@@ -438,12 +459,7 @@ export function VirtualKeyboard({
   }
 
   function renderKey(key: Key) {
-    const {
-      audioLanguageOverride,
-      renderAudioString,
-      value,
-      renderLabel = () => value,
-    } = key;
+    const { value } = key;
     const buttonProps: ButtonProps<string> = {
       value,
       onPress: onKeyPress,
@@ -470,12 +486,7 @@ export function VirtualKeyboard({
 
     const button = (
       <Button key={value} {...buttonProps}>
-        <WithAltAudio
-          audioLanguageOverride={audioLanguageOverride}
-          audioText={renderAudioString()}
-        >
-          {renderLabel()}
-        </WithAltAudio>
+        <VirtualKeyboardLabel config={key} />
       </Button>
     );
 
