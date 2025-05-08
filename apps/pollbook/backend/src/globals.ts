@@ -47,3 +47,4 @@ export const MEGABYTE = 1024 * 1024;
 export const MAX_POLLBOOK_PACKAGE_SIZE = 10 * MEGABYTE;
 
 export const POLLBOOK_PACKAGE_ASSET_FILE_NAME = 'pollbook-package.zip';
+export const POLLBOOK_PACKAGE_FILENAME_PREFIX = 'pollbook-package';

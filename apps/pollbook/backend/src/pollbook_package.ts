@@ -12,6 +12,7 @@ import {
   isElectionManagerAuth,
 } from '@votingworks/utils';
 import { join } from 'node:path';
+import { readdir, lstat } from 'node:fs/promises';
 import { createReadStream, createWriteStream } from 'node:fs';
 import { pipeline } from 'node:stream/promises';
 import { rootDebug } from './debug';
@@ -28,6 +29,7 @@ import {
   CONFIGURATION_POLLING_INTERVAL,
   MAX_POLLBOOK_PACKAGE_SIZE,
   POLLBOOK_PACKAGE_ASSET_FILE_NAME,
+  POLLBOOK_PACKAGE_FILENAME_PREFIX,
 } from './globals';
 import { constructAuthMachineState } from './auth';
 
@@ -214,9 +216,27 @@ export function pollUsbDriveForPollbookPackage({
         usbDebug('Found USB drive mounted at %s', usbDriveStatus.mountPoint);
 
         workspace.store.setConfigurationStatus('loading');
-        // TODO #6189 Accept any zip with the prefix pollbook-package on the usb (most recent if there are more then one)
+        const files = await readdir(usbDriveStatus.mountPoint);
+        const pollbookFiles = files
+          .filter(
+            (file) =>
+              file.startsWith(POLLBOOK_PACKAGE_FILENAME_PREFIX) &&
+              file.endsWith('.zip')
+          )
+          .map((file) => join(usbDriveStatus.mountPoint, file));
+        if (pollbookFiles.length === 0) {
+          workspace.store.setConfigurationStatus('not-found-usb');
+          hadConfigurationError = true;
+          pollingIntervalLock = false;
+          return;
+        }
+        const mostRecentPollbookPackageFilePath = assertDefined(
+          await iter(pollbookFiles)
+            .async()
+            .maxBy(async (filePath) => (await lstat(filePath)).ctime.getTime())
+        );
         const pollbookPackageResult = await readPollbookPackage(
-          join(usbDriveStatus.mountPoint, 'pollbook-package.zip')
+          mostRecentPollbookPackageFilePath
         );
         if (pollbookPackageResult.isErr()) {
           const result = pollbookPackageResult.err();
@@ -244,10 +264,7 @@ export function pollUsbDriveForPollbookPackage({
         );
         // Save the zip file asset to be able to propagate to other machines
         await pipeline(
-          // TODO #6189 Accept any zip with the prefix pollbook-package on the usb (most recent if there are more then one)
-          createReadStream(
-            join(usbDriveStatus.mountPoint, 'pollbook-package.zip')
-          ),
+          createReadStream(mostRecentPollbookPackageFilePath),
           createWriteStream(
             join(workspace.assetDirectoryPath, POLLBOOK_PACKAGE_ASSET_FILE_NAME)
           )
