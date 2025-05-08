@@ -1,13 +1,14 @@
-import { inspect } from 'node:util';
-
 import { saveSheetImages } from '@votingworks/ballot-interpreter';
 import { extractErrorMessage, ok, sleep } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import { ScannerEvent } from '@votingworks/pdi-scanner';
 import { createCanvas, ImageData } from 'canvas';
 import { DateTime } from 'luxon';
-
+import { mkdir } from 'node:fs/promises';
+import { join } from 'node:path';
+import { inspect } from 'node:util';
 import { delays } from '../../scanners/pdi/state_machine';
+import { writeScanPageAnalyses } from '../analysis/scan';
 import { type ServerContext } from '../context';
 import { resultToString } from '../utils';
 
@@ -29,6 +30,7 @@ function createPrinterTestImage(): ImageData {
 }
 
 export async function printAndScanLoop({
+  usbDrive,
   printerTask,
   scannerTask,
   logger,
@@ -68,11 +70,28 @@ export async function printAndScanLoop({
         `Scanned sheet: front=${front.width}×${front.height}, back=${back.width}×${back.height}`
       );
 
+      const usbDriveStatus = await usbDrive.status();
+
+      const basedir =
+        usbDriveStatus.status === 'mounted'
+          ? join(usbDriveStatus.mountPoint, 'ballot-images')
+          : workspace.ballotImagesPath;
+      const basename = `electrical-testing-${lastScanTime.toISO()}`;
+
+      await mkdir(basedir, { recursive: true });
       await saveSheetImages({
-        sheetId: `electrical-testing-${lastScanTime.toISO()}`,
-        ballotImagesPath: workspace.ballotImagesPath,
+        sheetId: basename,
+        ballotImagesPath: basedir,
         images: scannerEvent.images,
       });
+
+      await writeScanPageAnalyses(
+        logger,
+        lastScanTime,
+        [front, back],
+        basedir,
+        basename
+      );
     }
 
     if (scannerEvent.event === 'error') {
