@@ -23,7 +23,7 @@ export const LETTER_KEYS: { [char: string]: virtualKeyboardCommon.Key } =
   })();
 
 /**
- * Renders a screen-reader comptible series of letters representing the given
+ * Renders a screen-reader-compatible series of letters representing the given
  * write-in candidate name.
  */
 export function WriteInCandidateName(
