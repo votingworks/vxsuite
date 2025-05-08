@@ -203,7 +203,6 @@ export function pollUsbDriveForPollbookPackage({
 
         const usbDriveStatus = await usbDrive.status();
         if (usbDriveStatus.status !== 'mounted') {
-          workspace.store.setConfigurationStatus(undefined);
           hadConfigurationError = false;
           return;
         }
@@ -294,7 +293,9 @@ export function pollNetworkForPollbookPackage({
           constructAuthMachineState(workspace)
         );
         if (!isElectionManagerAuth(authStatus)) {
-          workspace.store.setConfigurationStatus(undefined);
+          if (!isSystemAdministratorAuth(authStatus)) {
+            workspace.store.setConfigurationStatus(undefined);
+          }
           usbDebug('Not logged in as election manager, not configuring');
           hadConfigurationError = false;
           return;
