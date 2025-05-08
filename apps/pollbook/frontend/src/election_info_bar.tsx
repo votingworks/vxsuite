@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { Caption, Font, LabelledText, DateString, Seal } from '@votingworks/ui';
-import type { Election } from '@votingworks/types';
+import { formatElectionHashes, type Election } from '@votingworks/types';
 
 const Bar = styled.div<{ inverse?: boolean }>`
   background: ${(p) => p.inverse && p.theme.colors.inverseBackground};
@@ -33,12 +33,16 @@ const SystemInfoContainer = styled.div`
 
 export interface ElectionInfoBarProps {
   election?: Election;
+  electionBallotHash?: string;
+  pollbookPackageHash?: string;
   codeVersion?: string;
   machineId?: string;
   inverse?: boolean;
 }
 export function ElectionInfoBar({
   election,
+  electionBallotHash,
+  pollbookPackageHash,
   codeVersion,
   machineId,
   inverse,
@@ -59,7 +63,7 @@ export function ElectionInfoBar({
     </Caption>
   ) : null;
 
-  if (!election) {
+  if (!election || !electionBallotHash || !pollbookPackageHash) {
     return (
       <Bar data-testid="electionInfoBar" inverse={inverse}>
         <SystemInfoContainer>
@@ -92,7 +96,9 @@ export function ElectionInfoBar({
   const electionIdInfo = (
     <Caption>
       <LabelledText label="Election ID">
-        <Font weight="bold">{election.id}</Font>
+        <Font weight="bold">
+          {formatElectionHashes(electionBallotHash, pollbookPackageHash)}
+        </Font>
       </LabelledText>
     </Caption>
   );
@@ -122,11 +128,13 @@ const VerticalBar = styled.div<{ inverse?: boolean }>`
 
 export function VerticalElectionInfoBar({
   election,
+  electionBallotHash,
+  pollbookPackageHash,
   codeVersion,
   machineId,
   inverse,
 }: ElectionInfoBarProps): JSX.Element {
-  if (!election) {
+  if (!election || !electionBallotHash || !pollbookPackageHash) {
     return (
       <VerticalBar inverse={inverse}>
         <Caption>
@@ -180,7 +188,10 @@ export function VerticalElectionInfoBar({
         )}
 
         <div>
-          Election ID: <Font weight="semiBold">{election.id}</Font>
+          Election ID:{' '}
+          <Font weight="semiBold">
+            {formatElectionHashes(electionBallotHash, pollbookPackageHash)}
+          </Font>
         </div>
       </Caption>
     </VerticalBar>
