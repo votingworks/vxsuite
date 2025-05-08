@@ -177,6 +177,7 @@ export function pollUsbDriveForPollbookPackage({
     return;
   }
   let pollingIntervalLock = false; // Flag to prevent overlapping executions
+  let hadConfigurationError = false;
 
   process.nextTick(() => {
     const intervalId = setInterval(async () => {
@@ -196,12 +197,17 @@ export function pollUsbDriveForPollbookPackage({
         );
         if (!isSystemAdministratorAuth(authStatus)) {
           usbDebug('Not logged in as system admin, not configuring');
+          hadConfigurationError = false;
           return;
         }
 
         const usbDriveStatus = await usbDrive.status();
         if (usbDriveStatus.status !== 'mounted') {
           workspace.store.setConfigurationStatus(undefined);
+          hadConfigurationError = false;
+          return;
+        }
+        if (hadConfigurationError) {
           return;
         }
         usbDebug('Found USB drive mounted at %s', usbDriveStatus.mountPoint);
@@ -221,6 +227,7 @@ export function pollUsbDriveForPollbookPackage({
               result.error.code === 'ENOENT')
           ) {
             workspace.store.setConfigurationStatus('not-found-usb');
+            hadConfigurationError = true;
           } else {
             throw result;
           }
