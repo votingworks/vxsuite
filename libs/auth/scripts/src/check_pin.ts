@@ -1,49 +1,19 @@
 import readline from 'node:readline';
-import { extractErrorMessage, throwIllegalValue } from '@votingworks/basics';
+import { extractErrorMessage } from '@votingworks/basics';
 
-import { CommonAccessCard, CommonAccessCardDetails } from '../../src/cac';
-import { CardDetails, PinProtectedCard, StatefulCard } from '../../src/card';
 import { JavaCard } from '../../src/java_card';
 import { waitForReadyCardStatus } from './utils';
 
-const usageMessage = 'Usage: check-pin [--cac|--vxsuite (default)]';
-
-interface CommandLineArgs {
-  cardType: 'cac' | 'vxsuite';
-}
-
-function parseCommandLineArgs(args: readonly string[]): CommandLineArgs {
-  if (args.length > 1 || ![undefined, '--cac', '--vxsuite'].includes(args[0])) {
-    console.error(usageMessage);
-    process.exit(1);
-  }
-  return { cardType: args[0] === '--cac' ? 'cac' : 'vxsuite' };
-}
-
-async function checkPin({ cardType }: CommandLineArgs): Promise<void> {
+async function checkPin(): Promise<void> {
   const rl = readline.createInterface(process.stdin, process.stdout);
   const pin = await new Promise<string>((resolve) => {
     rl.question('Enter PIN: ', resolve);
   });
   rl.close();
 
-  let card: PinProtectedCard &
-    StatefulCard<CardDetails | CommonAccessCardDetails | undefined>;
-  switch (cardType) {
-    case 'cac': {
-      card = new CommonAccessCard();
-      break;
-    }
-    case 'vxsuite': {
-      (process.env.NODE_ENV as string) = 'development';
-      (process.env.VX_MACHINE_TYPE as string) = 'admin';
-      card = new JavaCard();
-      break;
-    }
-    default: {
-      throwIllegalValue(cardType);
-    }
-  }
+  (process.env.NODE_ENV as string) = 'development';
+  (process.env.VX_MACHINE_TYPE as string) = 'admin';
+  const card = new JavaCard();
 
   await waitForReadyCardStatus(card);
   const checkPinResponse = await card.checkPin(pin);
@@ -53,10 +23,9 @@ async function checkPin({ cardType }: CommandLineArgs): Promise<void> {
 /**
  * A script for checking a Java Card PIN
  */
-export async function main(args: readonly string[]): Promise<void> {
+export async function main(): Promise<void> {
   try {
-    const commandLineArgs = parseCommandLineArgs(args);
-    await checkPin(commandLineArgs);
+    await checkPin();
     process.exit(0); // Smart card scripts require an explicit exit or else they hang
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);

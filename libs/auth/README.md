@@ -207,13 +207,6 @@ for the inserted Java Card.
 ./scripts/check-pin
 ```
 
-The script works not only with VxSuite cards but also with Common Access Cards:
-
-```
-# With a card reader connected and a Common Access Card in the card reader
-./scripts/check-pin --cac
-```
-
 ### Production Machine Cert Signing Request Creation Script
 
 This script creates a production machine cert signing request, using the
@@ -263,19 +256,3 @@ The following command generates keys and certs for tests:
 ```
 ./scripts/generate-test-keys-and-certs
 ```
-
-### Common Access Card Certificate Retrieval Script
-
-This script gets a Common Access Card's certificate. It's meant to be used for
-development and testing.
-
-```
-# With a card reader connected and a Common Access Card in the card reader
-./scripts/cac/cac-get-cert
-```
-
-The script prints the certificate to stdout in PEM format by default. Use the
-`--output` option to write the certificate to a file, or the `--json` option to
-print the certificate metadata in JSON format.
-
-More on Common Access Cards [here](./src/cac/README.md).
