@@ -19,6 +19,7 @@ import {
 import {
   handleUncaughtExceptions,
   loadEnvVarsFromDotenvFiles,
+  TaskController,
 } from '@votingworks/backend';
 import { SCAN_WORKSPACE } from './globals';
 import * as server from './server';
@@ -27,7 +28,6 @@ import { createWorkspace, Workspace } from './util/workspace';
 import { getUserRole } from './util/auth';
 import { getPrinter } from './printing/printer';
 import { createSimpleScannerClient } from './electrical_testing/simple_scanner_client';
-import { TaskController } from './electrical_testing/task_controller';
 
 export type { Api } from './app';
 export type { ElectricalTestingApi } from './electrical_testing/app';

@@ -1,5 +1,9 @@
 import { deferred, Optional } from '@votingworks/basics';
 
+/**
+ * Status of a `TaskController` task, which you can think of as labels for
+ * states in a state machine.
+ */
 export type TaskStatus = 'init' | 'running' | 'paused' | 'stopped';
 
 /**

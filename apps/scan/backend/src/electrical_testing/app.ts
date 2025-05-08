@@ -1,4 +1,4 @@
-import { createSystemCallApi } from '@votingworks/backend';
+import { createSystemCallApi, TaskStatus } from '@votingworks/backend';
 import { iter } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import { SheetOf } from '@votingworks/types';
@@ -7,7 +7,6 @@ import { readdir } from 'node:fs/promises';
 import { getMachineConfig } from '../machine_config';
 import { ElectricalTestingComponent } from '../store';
 import { type ServerContext } from './context';
-import { TaskStatus } from './task_controller';
 
 function buildApi({
   workspace,
