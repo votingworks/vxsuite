@@ -1,0 +1,20 @@
+[package]
+edition = "2021"
+name = "hardware-scan-diagnostic"
+version = "0.0.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+anyhow.workspace = true
+image.workspace = true
+imageproc.workspace = true
+napi.workspace = true
+napi-derive.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+types-rs.workspace = true
+
+[build-dependencies]
+napi-build.workspace = true

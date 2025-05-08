@@ -910,8 +910,8 @@ describe('ballot navigation', () => {
       apiMock,
     });
 
+    await screen.findByTestId('transcribe:id-175');
     await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-    expect(screen.queryByTestId('transcribe:id-175')).toBeInTheDocument();
 
     let skipButton = getButtonByName('skip');
     expect(skipButton).toBeEnabled();
@@ -932,8 +932,8 @@ describe('ballot navigation', () => {
     );
     userEvent.click(backButton);
 
+    await screen.findByTestId('transcribe:id-174');
     await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
 
     skipButton = getButtonByName('skip');
     expect(skipButton).toBeEnabled();
@@ -991,9 +991,8 @@ describe('ballot navigation', () => {
     skipButton = getButtonByName('skip');
     userEvent.click(skipButton);
 
+    await screen.findByTestId('transcribe:id-176');
     await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-    expect(screen.queryByTestId('transcribe:id-176')).toBeInTheDocument();
-
     skipButton = getButtonByName('skip');
     expect(skipButton).toBeDisabled();
     backButton = getButtonByName('back');
@@ -1038,8 +1037,9 @@ describe('ballot image viewer', () => {
       apiMock,
     });
 
+    await screen.findByTestId('transcribe:id-174');
     await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
+
     let ballotImage = await screen.findByRole('img', {
       name: /ballot with section highlighted/i,
     });
@@ -1109,8 +1109,8 @@ describe('ballot image viewer', () => {
 
     // When switching to previous adjudication, resets to zoomed in
     userEvent.click(screen.getButton(/Back/));
+    await screen.findByTestId('transcribe:id-174');
     await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
     ballotImage = await screen.findByRole('img', {
       name: /ballot with section highlighted/i,
     });
@@ -1171,8 +1171,8 @@ describe('ballot image viewer', () => {
       apiMock,
     });
 
+    await screen.findByTestId('transcribe:id-174');
     await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
     let ballotImage = await screen.findByRole('img', {
       name: /Full ballot/i,
     });
@@ -1442,8 +1442,8 @@ describe('unsaved changes', () => {
     const skipButton = screen.getByRole('button', { name: /skip/i });
     userEvent.click(skipButton);
 
+    await screen.findByTestId('transcribe:id-175');
     await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-    expect(screen.queryByTestId('transcribe:id-175')).toBeInTheDocument();
 
     let elephantCheckbox = getCheckboxByName('elephant');
     expect(elephantCheckbox).not.toBeChecked();
@@ -1469,8 +1469,8 @@ describe('unsaved changes', () => {
       name: /discard changes/i,
     });
     userEvent.click(modalDiscardButton);
+    await screen.findByTestId('transcribe:id-174');
     await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
   });
 
   test('detects unsaved changes when navigating with the skip button', async () => {

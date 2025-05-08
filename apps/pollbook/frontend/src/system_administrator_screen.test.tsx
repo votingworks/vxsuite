@@ -33,7 +33,6 @@ beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
   vi.clearAllMocks();
   apiMock = createApiMock();
-  apiMock.expectGetMachineConfig();
   apiMock.expectGetDeviceStatuses();
 });
 
@@ -43,7 +42,7 @@ describe('Election tab', () => {
     unmount();
   });
   test('basic render', async () => {
-    apiMock.setElection(electionFamousNames);
+    apiMock.setElection(electionDefFamousNames);
     const renderResult = renderInAppContext(<SystemAdministratorScreen />, {
       apiMock,
     });
@@ -167,7 +166,7 @@ describe('Settings tab', () => {
   }
 
   beforeEach(() => {
-    apiMock.setElection(electionFamousNames);
+    apiMock.setElection(electionDefFamousNames);
     apiMock.expectGetUsbDriveStatus({
       status: 'mounted',
       mountPoint: '/dev/null',

@@ -40,6 +40,7 @@
     "@votingworks/dev-dock-backend": "workspace:*",
     "@votingworks/fujitsu-thermal-printer": "workspace:*",
     "@votingworks/grout": "workspace:*",
+    "@votingworks/hardware-scan-diagnostic": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/logging": "workspace:*",
     "@votingworks/pdi-scanner": "workspace:*",

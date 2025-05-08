@@ -25,6 +25,7 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
 }));
 
 beforeEach(() => {
+  vi.useRealTimers();
   mockFeatureFlagger.resetFeatureFlags();
   mockFeatureFlagger.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
@@ -114,6 +115,7 @@ test('continuous CVR export, including polls closing', async () => {
 });
 
 test('continuous CVR export, including polls closing, followed by a full export', async () => {
+  vi.useFakeTimers({ shouldAdvanceTime: true });
   await withApp(
     async ({
       apiClient,
@@ -139,6 +141,10 @@ test('continuous CVR export, including polls closing, followed by a full export'
       });
 
       await apiClient.closePolls();
+
+      // Ensure that the second export has a different timestamp than the first in its directory
+      // name
+      vi.advanceTimersByTime(1000);
 
       expect(
         await apiClient.exportCastVoteRecordsToUsbDrive({ mode: 'full_export' })

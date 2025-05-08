@@ -31,7 +31,9 @@ test.electrical(
 
 test.electrical(
   'printAndScanLoop ejects paper to re-scan after a scan completes',
-  async ({ electricalAppContext, mockSimpleScannerClient }) => {
+  async ({ mainAppContext, electricalAppContext, mockSimpleScannerClient }) => {
+    mainAppContext.mockUsbDrive.insertUsbDrive({});
+
     const loopPromise = printAndScanLoop(electricalAppContext);
     await vi.waitFor(() => {
       expect(mockSimpleScannerClient.connect).toHaveBeenCalled();

@@ -1,0 +1,7 @@
+target
+.github
+npm
+.eslintrc
+.prettierignore
+*.node
+__test__
