@@ -1,4 +1,3 @@
-import { fail, throwIllegalValue } from '@votingworks/basics';
 import {
   Button,
   Caption,
