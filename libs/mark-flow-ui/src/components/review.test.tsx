@@ -10,6 +10,9 @@ import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { screen, within, render } from '../../test/react_testing_library';
 import { mergeMsEitherNeitherContests } from '../utils/ms_either_neither_contests';
 import { Review } from './review';
+import { WriteInCandidateName } from './write_in_candidate_name';
+
+vi.mock('./write_in_candidate_name');
 
 const electionGeneral = readElectionGeneral();
 const electionWithMsEitherNeither = readElectionWithMsEitherNeither();
@@ -113,6 +116,37 @@ test('candidate contest fully voted', () => {
     />
   );
   expect(screen.queryByText(/You may still vote/)).not.toBeInTheDocument();
+});
+
+test('candidate contest - write-in', () => {
+  vi.mocked(WriteInCandidateName).mockImplementation((p) => (
+    <span data-testid="MockWriteInAudio">{p.name}</span>
+  ));
+
+  const contest = find(
+    electionGeneral.contests,
+    (c): c is CandidateContest => c.type === 'candidate' && c.seats === 1
+  );
+  const contests = [contest];
+  render(
+    <Review
+      election={electionGeneral}
+      contests={contests}
+      precinctId={electionGeneral.precincts[0].id}
+      votes={{
+        [contest.id]: [
+          {
+            id: 'write-in-foo',
+            name: 'HON. FOO',
+            isWriteIn: true,
+          },
+        ],
+      }}
+      returnToContest={vi.fn()}
+    />
+  );
+
+  expect(screen.getByTestId('MockWriteInAudio')).toHaveTextContent('HON. FOO');
 });
 
 describe('yesno contest', () => {
