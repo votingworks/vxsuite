@@ -167,12 +167,11 @@ test('renders VendorScreen when logged in as vendor', async () => {
 });
 
 test('election manager - unconfigured screen - loading', async () => {
-  apiMock.expectGetMachineConfig();
   apiMock.expectGetDeviceStatuses();
   apiMock.setAuthStatus({
     status: 'logged_in',
     user: mockElectionManagerUser({
-      electionKey: constructElectionKey(famousNamesElection),
+      electionKey: constructElectionKey(famousNamesElection.election),
     }),
     sessionExpiresAt: mockSessionExpiresAt(),
   });
@@ -182,12 +181,11 @@ test('election manager - unconfigured screen - loading', async () => {
 });
 
 test('election manager - unconfigured screen - recently unconfigured', async () => {
-  apiMock.expectGetMachineConfig();
   apiMock.expectGetDeviceStatuses();
   apiMock.setAuthStatus({
     status: 'logged_in',
     user: mockElectionManagerUser({
-      electionKey: constructElectionKey(famousNamesElection),
+      electionKey: constructElectionKey(famousNamesElection.election),
     }),
     sessionExpiresAt: mockSessionExpiresAt(),
   });
@@ -197,12 +195,11 @@ test('election manager - unconfigured screen - recently unconfigured', async () 
 });
 
 test('election manager - unconfigured screen - network configuration error', async () => {
-  apiMock.expectGetMachineConfig();
   apiMock.expectGetDeviceStatuses();
   apiMock.setAuthStatus({
     status: 'logged_in',
     user: mockElectionManagerUser({
-      electionKey: constructElectionKey(famousNamesElection),
+      electionKey: constructElectionKey(famousNamesElection.election),
     }),
     sessionExpiresAt: mockSessionExpiresAt(),
   });
@@ -213,11 +210,10 @@ test('election manager - unconfigured screen - network configuration error', asy
 
 test('election manager - unconfigured screen - network-conflicting-pollbook-packages-match-card', async () => {
   apiMock.expectGetDeviceStatuses();
-  apiMock.expectGetMachineConfig();
   apiMock.setAuthStatus({
     status: 'logged_in',
     user: mockElectionManagerUser({
-      electionKey: constructElectionKey(famousNamesElection),
+      electionKey: constructElectionKey(famousNamesElection.election),
     }),
     sessionExpiresAt: mockSessionExpiresAt(),
   });
@@ -231,11 +227,10 @@ test('election manager - unconfigured screen - network-conflicting-pollbook-pack
 
 test('election manager - unconfigured screen - not-found-configuration-matching-election-card', async () => {
   apiMock.expectGetDeviceStatuses();
-  apiMock.expectGetMachineConfig();
   apiMock.setAuthStatus({
     status: 'logged_in',
     user: mockElectionManagerUser({
-      electionKey: constructElectionKey(famousNamesElection),
+      electionKey: constructElectionKey(famousNamesElection.election),
     }),
     sessionExpiresAt: mockSessionExpiresAt(),
   });
@@ -248,12 +243,11 @@ test('election manager - unconfigured screen - not-found-configuration-matching-
 });
 
 test('election manager - unconfigured screen - not-found-network', async () => {
-  apiMock.expectGetMachineConfig();
   apiMock.expectGetDeviceStatuses();
   apiMock.setAuthStatus({
     status: 'logged_in',
     user: mockElectionManagerUser({
-      electionKey: constructElectionKey(famousNamesElection),
+      electionKey: constructElectionKey(famousNamesElection.election),
     }),
     sessionExpiresAt: mockSessionExpiresAt(),
   });
