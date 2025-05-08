@@ -70,7 +70,7 @@ export function fetchEventsFromConnectedPollbooks({
         }
 
         const previouslyConnected = workspace.store.getPollbookServicesByName();
-        const election = workspace.store.getElection();
+        const myMachineInformation = workspace.store.getMachineInformation();
 
         // Maintain a queue of pollbooks to visit, refill and shuffle when empty
         const pollbookNames = Object.keys(previouslyConnected).filter(
@@ -102,8 +102,11 @@ export function fetchEventsFromConnectedPollbooks({
               return;
             }
             if (
-              !election ||
-              currentPollbookService.electionId !== election.id
+              !myMachineInformation?.electionBallotHash ||
+              myMachineInformation.electionBallotHash !==
+                currentPollbookService.electionBallotHash ||
+              myMachineInformation.pollbookPackageHash !==
+                currentPollbookService.pollbookPackageHash
             ) {
               workspace.store.setPollbookServiceForName(currentName, {
                 ...currentPollbookService,
@@ -184,7 +187,7 @@ export async function setupMachineNetworking({
           return;
         }
 
-        const currentElection = workspace.store.getElection();
+        const myMachineInformation = workspace.store.getMachineInformation();
         const services = await AvahiService.discoverHttpServices();
         if (!services.length) {
           debug('No services found on the network');
@@ -247,8 +250,11 @@ export async function setupMachineNetworking({
               continue;
             }
             if (
-              !currentElection ||
-              currentElection.id !== machineInformation.electionId
+              !myMachineInformation?.electionBallotHash ||
+              myMachineInformation.electionBallotHash !==
+                machineInformation.electionBallotHash ||
+              myMachineInformation.pollbookPackageHash !==
+                machineInformation.pollbookPackageHash
             ) {
               // Only connect if the two machines are configured for the same election.
               workspace.store.setPollbookServiceForName(name, {
