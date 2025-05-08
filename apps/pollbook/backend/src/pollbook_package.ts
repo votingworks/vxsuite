@@ -203,6 +203,7 @@ export function pollUsbDriveForPollbookPackage({
 
         const usbDriveStatus = await usbDrive.status();
         if (usbDriveStatus.status !== 'mounted') {
+          workspace.store.setConfigurationStatus(undefined);
           hadConfigurationError = false;
           return;
         }
