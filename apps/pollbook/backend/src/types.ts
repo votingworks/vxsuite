@@ -226,6 +226,7 @@ export const VoterSchema: z.ZodSchema<Voter> = z.object({
 
 export interface MachineInformation extends PollbookInformation {
   machineId: string;
+  codeVersion: string;
 }
 
 export type VectorClock = Record<string, number>;

@@ -11,7 +11,8 @@ import { renderInAppContext } from '../test/render_in_app_context';
 import { ElectionManagerScreen } from './election_manager_screen';
 
 let apiMock: ApiMock;
-const electionFamousNames = electionFamousNames2021Fixtures.readElection();
+const electionDefFamousNames =
+  electionFamousNames2021Fixtures.readElectionDefinition();
 
 let unmount: () => void;
 
@@ -19,8 +20,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   apiMock = createApiMock();
   apiMock.setIsAbsenteeMode(false);
-  apiMock.setElection(electionFamousNames);
-  apiMock.expectGetMachineConfig();
+  apiMock.setElection(electionDefFamousNames);
   apiMock.expectGetDeviceStatuses();
 });
 

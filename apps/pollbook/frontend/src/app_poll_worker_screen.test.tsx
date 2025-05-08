@@ -1,6 +1,6 @@
 import { describe, expect, test, beforeEach, afterEach, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { Election } from '@votingworks/types';
+import { Election, ElectionDefinition } from '@votingworks/types';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
   ValidStreetInfo,
@@ -18,6 +18,8 @@ import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals';
 let apiMock: ApiMock;
 const famousNamesElection: Election =
   electionFamousNames2021Fixtures.readElection();
+const famousNamesElectionDefinition: ElectionDefinition =
+  electionFamousNames2021Fixtures.readElectionDefinition();
 
 describe('PollWorkerScreen', () => {
   beforeEach(() => {
@@ -32,10 +34,9 @@ describe('PollWorkerScreen', () => {
   });
 
   test('basic e2e check in flow works', async () => {
-    apiMock.expectGetMachineConfig();
     apiMock.expectGetDeviceStatuses();
     apiMock.authenticateAsPollWorker(famousNamesElection);
-    apiMock.setElection(famousNamesElection);
+    apiMock.setElection(famousNamesElectionDefinition);
     const { unmount } = render(<App apiClient={apiMock.mockApiClient} />);
     await screen.findByText('Connect printer to continue.');
 
@@ -123,10 +124,9 @@ describe('PollWorkerScreen', () => {
       middleName: '',
     };
 
-    apiMock.expectGetMachineConfig();
     apiMock.expectGetDeviceStatuses();
     apiMock.authenticateAsPollWorker(famousNamesElection);
-    apiMock.setElection(famousNamesElection);
+    apiMock.setElection(famousNamesElectionDefinition);
     const { unmount } = render(<App apiClient={apiMock.mockApiClient} />);
     await screen.findByText('Connect printer to continue.');
 
