@@ -64,8 +64,8 @@ export function SettingsScreen({
       </ButtonRow>
       {!canUnconfigure && (
         <Caption>
-          <Icons.Warning color="warning" /> You must save a backup before you
-          can unconfigure this machine.
+          <Icons.Warning color="warning" /> You must save cvrs before you can
+          unconfigure this machine.
         </Caption>
       )}
 

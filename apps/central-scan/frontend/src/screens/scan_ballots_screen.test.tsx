@@ -80,7 +80,7 @@ test('Delete All Batches is not allowed when canUnconfigure is false', () => {
   renderScreen({ status });
 
   userEvent.click(screen.getButton('Delete All Batches'));
-  screen.getByRole('heading', { name: 'Backup Required' });
+  screen.getByRole('heading', { name: 'CVR Backup Required' });
   userEvent.click(screen.getButton('Close'));
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 });

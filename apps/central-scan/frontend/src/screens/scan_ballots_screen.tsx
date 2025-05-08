@@ -244,12 +244,12 @@ export function ScanBallotsScreen({
           <Modal
             title={
               <span>
-                <Icons.Warning color="warning" /> Backup Required
+                <Icons.Warning color="warning" /> CVR Backup Required
               </span>
             }
             content={
               <P>
-                Go to <Font weight="semiBold">Settings</Font> and save a backup
+                Click <Font weight="semiBold">Save CVRs</Font> to save a backup
                 before deleting all batches.
               </P>
             }
