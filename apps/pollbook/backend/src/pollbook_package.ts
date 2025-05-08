@@ -247,7 +247,7 @@ export function pollUsbDriveForPollbookPackage({
               'code' in result.error &&
               result.error.code === 'ENOENT')
           ) {
-            workspace.store.setConfigurationStatus('not-found-usb');
+            workspace.store.setConfigurationStatus('usb-configuration-error');
             hadConfigurationError = true;
           } else {
             throw result;

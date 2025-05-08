@@ -409,6 +409,7 @@ export interface SummaryStatistics {
 export type ConfigurationStatus =
   | 'loading'
   | 'not-found-usb'
+  | 'usb-configuration-error'
   | 'not-found-network'
   | 'not-found-configuration-matching-election-card'
   | 'network-configuration-error'
