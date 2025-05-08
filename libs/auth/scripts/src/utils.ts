@@ -1,4 +1,3 @@
-import { Buffer } from 'node:buffer';
 import { assert, sleep, throwIllegalValue } from '@votingworks/basics';
 import { SystemAdministratorUser, VendorUser } from '@votingworks/types';
 import { generatePin, hyphenatePin } from '@votingworks/utils';
@@ -6,6 +5,12 @@ import { generatePin, hyphenatePin } from '@votingworks/utils';
 import { ResponseApduError } from '../../src/apdu';
 import { CardStatusReady, StatefulCard } from '../../src/card';
 import { STANDARD_CERT_FIELDS } from '../../src/certs';
+import {
+  CertPemBuffer,
+  pemBuffer,
+  PrivateKeyPemBuffer,
+  PrivateKeyPemFile,
+} from '../../src/cryptographic_material';
 import { openssl } from '../../src/cryptography';
 import { JavaCard } from '../../src/java_card';
 
@@ -15,45 +20,51 @@ import { JavaCard } from '../../src/java_card';
  */
 export async function generatePrivateKey(
   options: { encrypted?: boolean } = {}
-): Promise<Buffer> {
-  return await openssl([
-    'genpkey',
-    '-algorithm',
-    'EC',
-    '-pkeyopt',
-    'ec_paramgen_curve:prime256v1',
-    ...(options.encrypted ? ['-aes-256-cbc'] : []),
-  ]);
+): Promise<PrivateKeyPemBuffer> {
+  return pemBuffer(
+    'private_key',
+    await openssl([
+      'genpkey',
+      '-algorithm',
+      'EC',
+      '-pkeyopt',
+      'ec_paramgen_curve:prime256v1',
+      ...(options.encrypted ? ['-aes-256-cbc'] : []),
+    ])
+  );
 }
 
 /**
  * Generates a self-signed cert to be used as the root in a cert chain
  */
 export async function generateSelfSignedCert({
-  privateKeyPath,
+  privateKey,
   commonName,
   expiryDays,
 }: {
-  privateKeyPath: string;
+  privateKey: PrivateKeyPemFile;
   commonName: string;
   expiryDays: number;
-}): Promise<Buffer> {
+}): Promise<CertPemBuffer> {
   const certFields = [...STANDARD_CERT_FIELDS, `CN=${commonName}`];
   assert(
     certFields.every((certField) => !certField.includes('/')),
     `Cert fields cannot contain a slash: ${certFields}`
   );
-  return openssl([
-    'req',
-    '-new',
-    '-x509',
-    '-key',
-    privateKeyPath,
-    '-subj',
-    `/${certFields.join('/')}`,
-    '-days',
-    `${expiryDays}`,
-  ]);
+  return pemBuffer(
+    'cert',
+    await openssl([
+      'req',
+      '-new',
+      '-x509',
+      '-key',
+      privateKey.path,
+      '-subj',
+      `/${certFields.join('/')}`,
+      '-days',
+      `${expiryDays}`,
+    ])
+  );
 }
 
 /**

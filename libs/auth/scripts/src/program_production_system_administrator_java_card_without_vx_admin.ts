@@ -1,4 +1,3 @@
-import * as fs from 'node:fs/promises';
 import path from 'node:path';
 import tmp from 'tmp';
 import { extractErrorMessage } from '@votingworks/basics';
@@ -8,7 +7,11 @@ import {
   CERT_EXPIRY_IN_DAYS,
   constructMachineCertSubject,
 } from '../../src/certs';
-import { PROD_VX_CERT_AUTHORITY_CERT_PATH } from '../../src/config';
+import { PROD_VX_CERT_AUTHORITY_CERT } from '../../src/config';
+import {
+  cryptographicBufferToFile,
+  pemFile,
+} from '../../src/cryptographic_material';
 import { createCert } from '../../src/cryptography';
 import { getRequiredEnvVar } from '../../src/env_vars';
 import { JavaCard } from '../../src/java_card';
@@ -29,41 +32,44 @@ async function instantiateJavaCardWithOneOffVxAdminPrivateKeyAndCertAuthorityCer
   { jurisdiction, vxPrivateKeyPath }: ScriptEnvVars,
   tempDirectoryPath: string
 ): Promise<JavaCard> {
-  const vxAdminPrivateKey = await generatePrivateKey();
+  const vxPrivateKey = pemFile('private_key', vxPrivateKeyPath);
+
   const vxAdminPrivateKeyPath = path.join(
     tempDirectoryPath,
     'vx-admin-private-key.pem'
   );
-  await fs.writeFile(vxAdminPrivateKeyPath, vxAdminPrivateKey);
+  const vxAdminPrivateKey = await cryptographicBufferToFile(
+    await generatePrivateKey(),
+    vxAdminPrivateKeyPath
+  );
 
-  const vxAdminCertAuthorityCert = await createCert({
-    certKeyInput: {
-      type: 'private',
-      key: { source: 'file', path: vxAdminPrivateKeyPath },
-    },
-    certSubject: constructMachineCertSubject({
-      machineType: 'admin',
-      machineId: DEV_MACHINE_ID,
-      jurisdiction,
-    }),
-    certType: 'cert_authority_cert',
-    expiryInDays: CERT_EXPIRY_IN_DAYS.MACHINE_VX_CERT,
-    signingCertAuthorityCertPath: PROD_VX_CERT_AUTHORITY_CERT_PATH,
-    signingPrivateKey: { source: 'file', path: vxPrivateKeyPath },
-  });
   const vxAdminCertAuthorityCertPath = path.join(
     tempDirectoryPath,
     'vx-admin-cert-authority-cert.pem'
   );
-  await fs.writeFile(vxAdminCertAuthorityCertPath, vxAdminCertAuthorityCert);
+  const vxAdminCertAuthorityCert = await cryptographicBufferToFile(
+    await createCert({
+      certKeyInput: vxAdminPrivateKey,
+      certSubject: constructMachineCertSubject({
+        machineType: 'admin',
+        machineId: DEV_MACHINE_ID,
+        jurisdiction,
+      }),
+      certType: 'cert_authority_cert',
+      expiryInDays: CERT_EXPIRY_IN_DAYS.MACHINE_VX_CERT,
+      signingCertAuthorityCert: PROD_VX_CERT_AUTHORITY_CERT,
+      signingPrivateKey: vxPrivateKey,
+    }),
+    vxAdminCertAuthorityCertPath
+  );
 
   const card = new JavaCard({
     cardProgrammingConfig: {
       configType: 'machine',
-      machineCertAuthorityCertPath: vxAdminCertAuthorityCertPath,
-      machinePrivateKey: { source: 'file', path: vxAdminPrivateKeyPath },
+      machineCertAuthorityCert: vxAdminCertAuthorityCert,
+      machinePrivateKey: vxAdminPrivateKey,
     },
-    vxCertAuthorityCertPath: PROD_VX_CERT_AUTHORITY_CERT_PATH,
+    vxCertAuthorityCert: PROD_VX_CERT_AUTHORITY_CERT,
   });
 
   return card;

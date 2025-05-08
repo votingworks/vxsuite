@@ -1,5 +1,3 @@
-import { Buffer } from 'node:buffer';
-import * as fs from 'node:fs/promises';
 import path from 'node:path';
 import yargs from 'yargs/yargs';
 import { assertDefined, extractErrorMessage } from '@votingworks/basics';
@@ -21,6 +19,13 @@ import {
   MachineType,
 } from '../../src/certs';
 import {
+  CertPemFile,
+  cryptographicBufferToFile,
+  pemBuffer,
+  PrivateKeyPemFile,
+  PublicKeyPemBuffer,
+} from '../../src/cryptographic_material';
+import {
   certPemToDer,
   createCert,
   CreateCertInput,
@@ -31,10 +36,13 @@ import { DEV_JURISDICTION } from '../../src/jurisdictions';
 import { runCommand } from '../../src/shell';
 import { generatePrivateKey, generateSelfSignedCert } from './utils';
 
-function extractPublicKeyFromDevPrivateKey(
-  privateKeyPath: string
-): Promise<Buffer> {
-  return openssl(['ec', '-pubout', '-in', privateKeyPath]);
+async function extractPublicKeyFromPrivateKey(
+  privateKey: PrivateKeyPemFile
+): Promise<PublicKeyPemBuffer> {
+  return pemBuffer(
+    'public_key',
+    await openssl(['ec', '-pubout', '-in', privateKey.path])
+  );
 }
 
 interface CommandLineArgs {
@@ -116,56 +124,60 @@ async function generateDevKeysAndCerts({
   await runCommand(['mkdir', '-p', outputDir]);
 
   // Generate VotingWorks private key and cert authority cert
-  const vxPrivateKeyPath = `${outputDir}/vx-private-key.pem`;
-  const vxCertAuthorityCertPath = `${outputDir}/vx-cert-authority-cert.pem`;
-  const vxPrivateKey = await generatePrivateKey();
-  await fs.writeFile(vxPrivateKeyPath, vxPrivateKey);
-  const vxCertAuthorityCert = await generateSelfSignedCert({
-    privateKeyPath: vxPrivateKeyPath,
-    commonName: 'VotingWorks Development',
-    expiryDays: CERT_EXPIRY_IN_DAYS.DEV,
-  });
-  await fs.writeFile(vxCertAuthorityCertPath, vxCertAuthorityCert);
+  const vxPrivateKey = await cryptographicBufferToFile(
+    await generatePrivateKey(),
+    `${outputDir}/vx-private-key.pem`
+  );
+  const vxCertAuthorityCert = await cryptographicBufferToFile(
+    await generateSelfSignedCert({
+      privateKey: vxPrivateKey,
+      commonName: 'VotingWorks Development',
+      expiryDays: CERT_EXPIRY_IN_DAYS.DEV,
+    }),
+    `${outputDir}/vx-cert-authority-cert.pem`
+  );
 
   // Generate card-programming machine private keys and cert authority certs
   const cardProgrammingMachineTypes: MachineType[] = ['admin', 'poll-book'];
   const cardProgrammingMachineKeysAndCerts: Map<
     MachineType,
-    { machineCertAuthorityCertPath: string; machinePrivateKeyPath: string }
+    {
+      machineCertAuthorityCert: CertPemFile;
+      machinePrivateKey: PrivateKeyPemFile;
+    }
   > = new Map();
   for (const machineType of cardProgrammingMachineTypes) {
-    const machinePrivateKeyPath = `${outputDir}/vx-${machineType}-private-key.pem`;
-    const machineCertAuthorityCertPath = `${outputDir}/vx-${machineType}-cert-authority-cert.pem`;
-    const machinePrivateKey = await generatePrivateKey();
-    await fs.writeFile(machinePrivateKeyPath, machinePrivateKey);
-    const machineCertAuthorityCert = await createCert({
-      certKeyInput: {
-        type: 'private',
-        key: { source: 'file', path: machinePrivateKeyPath },
-      },
-      certSubject: constructMachineCertSubject({
-        machineType,
-        machineId: DEV_MACHINE_ID,
-        jurisdiction,
+    const machinePrivateKey = await cryptographicBufferToFile(
+      await generatePrivateKey(),
+      `${outputDir}/vx-${machineType}-private-key.pem`
+    );
+    const machineCertAuthorityCert = await cryptographicBufferToFile(
+      await createCert({
+        certKeyInput: machinePrivateKey,
+        certSubject: constructMachineCertSubject({
+          machineType,
+          machineId: DEV_MACHINE_ID,
+          jurisdiction,
+        }),
+        certType: 'cert_authority_cert',
+        expiryInDays: CERT_EXPIRY_IN_DAYS.DEV,
+        signingCertAuthorityCert: vxCertAuthorityCert,
+        signingPrivateKey: vxPrivateKey,
       }),
-      certType: 'cert_authority_cert',
-      expiryInDays: CERT_EXPIRY_IN_DAYS.DEV,
-      signingCertAuthorityCertPath: vxCertAuthorityCertPath,
-      signingPrivateKey: { source: 'file', path: vxPrivateKeyPath },
-    });
-    await fs.writeFile(machineCertAuthorityCertPath, machineCertAuthorityCert);
+      `${outputDir}/vx-${machineType}-cert-authority-cert.pem`
+    );
 
     if (forTests) {
       // Save machine cert authority cert in DER format
-      await fs.writeFile(
-        machineCertAuthorityCertPath.replace('.pem', '.der'),
-        await certPemToDer(machineCertAuthorityCert)
+      await cryptographicBufferToFile(
+        await certPemToDer(machineCertAuthorityCert),
+        `${outputDir}/vx-${machineType}-cert-authority-cert.der`
       );
     }
 
     cardProgrammingMachineKeysAndCerts.set(machineType, {
-      machineCertAuthorityCertPath,
-      machinePrivateKeyPath,
+      machineCertAuthorityCert,
+      machinePrivateKey,
     });
   }
 
@@ -177,24 +189,23 @@ async function generateDevKeysAndCerts({
     'scan',
   ];
   for (const machineType of nonCardProgrammingMachineTypes) {
-    const machinePrivateKeyPath = `${outputDir}/vx-${machineType}-private-key.pem`;
-    const machineCertPath = `${outputDir}/vx-${machineType}-cert.pem`;
-    const machinePrivateKey = await generatePrivateKey();
-    await fs.writeFile(machinePrivateKeyPath, machinePrivateKey);
-    const machineCert = await createCert({
-      certKeyInput: {
-        type: 'private',
-        key: { source: 'file', path: machinePrivateKeyPath },
-      },
-      certSubject: constructMachineCertSubject({
-        machineType,
-        machineId: DEV_MACHINE_ID,
+    const machinePrivateKey = await cryptographicBufferToFile(
+      await generatePrivateKey(),
+      `${outputDir}/vx-${machineType}-private-key.pem`
+    );
+    await cryptographicBufferToFile(
+      await createCert({
+        certKeyInput: machinePrivateKey,
+        certSubject: constructMachineCertSubject({
+          machineType,
+          machineId: DEV_MACHINE_ID,
+        }),
+        expiryInDays: CERT_EXPIRY_IN_DAYS.DEV,
+        signingCertAuthorityCert: vxCertAuthorityCert,
+        signingPrivateKey: vxPrivateKey,
       }),
-      expiryInDays: CERT_EXPIRY_IN_DAYS.DEV,
-      signingCertAuthorityCertPath: vxCertAuthorityCertPath,
-      signingPrivateKey: { source: 'file', path: vxPrivateKeyPath },
-    });
-    await fs.writeFile(machineCertPath, machineCert);
+      `${outputDir}/vx-${machineType}-cert.pem`
+    );
   }
 
   if (forTests) {
@@ -316,80 +327,65 @@ async function generateDevKeysAndCerts({
       await runCommand(['mkdir', '-p', cardDirectoryPath]);
 
       // Generate card VotingWorks key pair and cert
-      const cardVxPrivateKeyPath = `${cardDirectoryPath}/card-vx-private-key.pem`;
-      const cardVxPublicKeyPath = `${cardDirectoryPath}/card-vx-public-key.der`;
-      const cardVxCertPath = `${cardDirectoryPath}/card-vx-cert.der`;
-      const cardVxPrivateKey = await generatePrivateKey();
-      await fs.writeFile(cardVxPrivateKeyPath, cardVxPrivateKey);
+      const cardVxPrivateKey = await cryptographicBufferToFile(
+        await generatePrivateKey(),
+        `${cardDirectoryPath}/card-vx-private-key.pem`
+      );
       const cardVxPublicKey =
-        await extractPublicKeyFromDevPrivateKey(cardVxPrivateKeyPath);
-      await fs.writeFile(
-        cardVxPublicKeyPath,
-        await publicKeyPemToDer(cardVxPublicKey)
+        await extractPublicKeyFromPrivateKey(cardVxPrivateKey);
+      await cryptographicBufferToFile(
+        await publicKeyPemToDer(cardVxPublicKey),
+        `${cardDirectoryPath}/card-vx-public-key.der`
       );
       const cardVxCert = await createCert({
-        certKeyInput: {
-          type: 'public',
-          key: {
-            source: 'inline',
-            content: cardVxPublicKey.toString('utf-8'),
-          },
-        },
+        certKeyInput: cardVxPublicKey,
         certSubject: constructCardCertSubjectWithoutJurisdictionAndCardType(),
         expiryInDays: CERT_EXPIRY_IN_DAYS.DEV,
-        signingCertAuthorityCertPath: vxCertAuthorityCertPath,
-        signingPrivateKey: { source: 'file', path: vxPrivateKeyPath },
+        signingCertAuthorityCert: vxCertAuthorityCert,
+        signingPrivateKey: vxPrivateKey,
       });
-      await fs.writeFile(cardVxCertPath, await certPemToDer(cardVxCert));
+      await cryptographicBufferToFile(
+        await certPemToDer(cardVxCert),
+        `${cardDirectoryPath}/card-vx-cert.der`
+      );
 
       // Generate card identity key pair and cert
-      const cardIdentityPrivateKeyPath = `${cardDirectoryPath}/card-identity-private-key.pem`;
-      const cardIdentityPublicKeyPath = `${cardDirectoryPath}/card-identity-public-key.der`;
-      const cardIdentityCertPath = `${cardDirectoryPath}/card-identity-cert.der`;
-      const cardIdentityCertExpiredPath = `${cardDirectoryPath}/card-identity-cert-expired.der`;
-      const cardIdentityPrivateKey = await generatePrivateKey();
-      await fs.writeFile(cardIdentityPrivateKeyPath, cardIdentityPrivateKey);
-      const cardIdentityPublicKey = await extractPublicKeyFromDevPrivateKey(
-        cardIdentityPrivateKeyPath
+      const cardIdentityPrivateKey = await cryptographicBufferToFile(
+        await generatePrivateKey(),
+        `${cardDirectoryPath}/card-identity-private-key.pem`
       );
-      await fs.writeFile(
-        cardIdentityPublicKeyPath,
-        await publicKeyPemToDer(cardIdentityPublicKey)
+      const cardIdentityPublicKey = await extractPublicKeyFromPrivateKey(
+        cardIdentityPrivateKey
+      );
+      await cryptographicBufferToFile(
+        await publicKeyPemToDer(cardIdentityPublicKey),
+        `${cardDirectoryPath}/card-identity-public-key.der`
       );
       const createCertInput: CreateCertInput = {
-        certKeyInput: {
-          type: 'public',
-          key: {
-            source: 'inline',
-            content: cardIdentityPublicKey.toString('utf-8'),
-          },
-        },
+        certKeyInput: cardIdentityPublicKey,
         certSubject: constructCardCertSubject(cardDetails),
         expiryInDays: CERT_EXPIRY_IN_DAYS.DEV,
-        signingCertAuthorityCertPath:
+        signingCertAuthorityCert:
           cardDetails.user.role === 'vendor'
-            ? vxCertAuthorityCertPath
+            ? vxCertAuthorityCert
             : assertDefined(
                 cardProgrammingMachineKeysAndCerts.get(
                   cardDetails.user.programmingMachineType
                 )
-              ).machineCertAuthorityCertPath,
-        signingPrivateKey: {
-          source: 'file',
-          path:
-            cardDetails.user.role === 'vendor'
-              ? vxPrivateKeyPath
-              : assertDefined(
-                  cardProgrammingMachineKeysAndCerts.get(
-                    cardDetails.user.programmingMachineType
-                  )
-                ).machinePrivateKeyPath,
-        },
+              ).machineCertAuthorityCert,
+        signingPrivateKey:
+          cardDetails.user.role === 'vendor'
+            ? vxPrivateKey
+            : assertDefined(
+                cardProgrammingMachineKeysAndCerts.get(
+                  cardDetails.user.programmingMachineType
+                )
+              ).machinePrivateKey,
       };
       const cardIdentityCert = await createCert(createCertInput);
-      await fs.writeFile(
-        cardIdentityCertPath,
-        await certPemToDer(cardIdentityCert)
+      await cryptographicBufferToFile(
+        await certPemToDer(cardIdentityCert),
+        `${cardDirectoryPath}/card-identity-cert.der`
       );
 
       // Generate an expired version of the card identity cert
@@ -397,9 +393,9 @@ async function generateDevKeysAndCerts({
         ...createCertInput,
         expiryInDays: 0,
       });
-      await fs.writeFile(
-        cardIdentityCertExpiredPath,
-        await certPemToDer(cardIdentityCertExpired)
+      await cryptographicBufferToFile(
+        await certPemToDer(cardIdentityCertExpired),
+        `${cardDirectoryPath}/card-identity-cert-expired.der`
       );
     }
   }

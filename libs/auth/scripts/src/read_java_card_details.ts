@@ -2,9 +2,10 @@ import { extractErrorMessage } from '@votingworks/basics';
 
 import { CardDetails } from '../../src/card';
 import {
-  DEV_VX_CERT_AUTHORITY_CERT_PATH,
-  PROD_VX_CERT_AUTHORITY_CERT_PATH,
+  DEV_VX_CERT_AUTHORITY_CERT,
+  PROD_VX_CERT_AUTHORITY_CERT,
 } from '../../src/config';
+import { CertPemFile } from '../../src/cryptographic_material';
 import { verifyFirstCertWasSignedBySecondCert } from '../../src/cryptography';
 import { JavaCard } from '../../src/java_card';
 import { waitForReadyCardStatus } from './utils';
@@ -18,15 +19,15 @@ interface ExtendedCardDetails {
   env?: Env;
 }
 
-const VX_CERT_AUTHORITY_CERT_PATHS: Record<Env, string> = {
-  development: DEV_VX_CERT_AUTHORITY_CERT_PATH,
-  production: PROD_VX_CERT_AUTHORITY_CERT_PATH,
+const VX_CERT_AUTHORITY_CERTS: Record<Env, CertPemFile> = {
+  development: DEV_VX_CERT_AUTHORITY_CERT,
+  production: PROD_VX_CERT_AUTHORITY_CERT,
 };
 
 async function readJavaCardDetails(): Promise<ExtendedCardDetails> {
   for (const env of ENVS) {
-    const vxCertAuthorityCertPath = VX_CERT_AUTHORITY_CERT_PATHS[env];
-    const card = new JavaCard({ vxCertAuthorityCertPath });
+    const vxCertAuthorityCert = VX_CERT_AUTHORITY_CERTS[env];
+    const card = new JavaCard({ vxCertAuthorityCert });
     const { cardDetails } = await waitForReadyCardStatus(card);
     if (cardDetails.user) {
       // Card has been run through initial Java Card configuration script and programmed for a user
@@ -37,7 +38,7 @@ async function readJavaCardDetails(): Promise<ExtendedCardDetails> {
       const cardVxCert = await card.retrieveCertByIdentifier('cardVxCert');
       await verifyFirstCertWasSignedBySecondCert(
         cardVxCert,
-        vxCertAuthorityCertPath
+        vxCertAuthorityCert
       );
       // Card has been run through initial Java Card configuration script but not programmed for a
       // user

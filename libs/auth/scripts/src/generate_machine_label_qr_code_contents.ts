@@ -3,12 +3,12 @@ import { Readable } from 'node:stream';
 import yargs from 'yargs/yargs';
 import { extractErrorMessage } from '@votingworks/basics';
 
+import { pemFile } from '../../src/cryptographic_material';
 import {
   extractPublicKeyFromCert,
   signMessage,
   verifySignature,
 } from '../../src/cryptography';
-import { FileKey } from '../../src/keys';
 import { constructPrefixedMessage } from '../../src/signatures';
 
 interface CommandLineArgs {
@@ -80,10 +80,7 @@ async function generateMachineLabelQrCodeContents({
   privateKeyPath,
   serialNumber,
 }: CommandLineArgs): Promise<void> {
-  const signingPrivateKey: FileKey = {
-    source: 'file',
-    path: privateKeyPath,
-  };
+  const signingPrivateKey = pemFile('private_key', privateKeyPath);
   const message = constructPrefixedMessage(
     'signed-serial-number',
     `sn=${serialNumber}`
@@ -93,11 +90,14 @@ async function generateMachineLabelQrCodeContents({
     signingPrivateKey,
   });
 
-  const certPath = path.join(
-    __dirname,
-    '../../certs/prod/vx-label-qr-codes-cert-authority-cert.pem'
+  const cert = pemFile(
+    'cert',
+    path.join(
+      __dirname,
+      '../../certs/prod/vx-label-qr-codes-cert-authority-cert.pem'
+    )
   );
-  const publicKey = await extractPublicKeyFromCert(certPath);
+  const publicKey = await extractPublicKeyFromCert(cert);
   try {
     await verifySignature({
       message: Readable.from(message),

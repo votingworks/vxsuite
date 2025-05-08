@@ -4,6 +4,7 @@ import yargs from 'yargs';
 import { extractErrorMessage } from '@votingworks/basics';
 
 import { CERT_EXPIRY_IN_DAYS } from '../../src/certs';
+import { cryptographicBufferToFile } from '../../src/cryptographic_material';
 import { generatePrivateKey, generateSelfSignedCert } from './utils';
 
 interface CommandLineArgs {
@@ -70,17 +71,21 @@ async function generateRootCertAuthorityKeyAndCert({
   const certPath = path.join(outputDir, 'cert.pem');
 
   console.log('🔑 Generating private key');
-  const privateKey = await generatePrivateKey({ encrypted: true });
-  await fs.writeFile(privateKeyPath, privateKey);
+  const privateKey = await cryptographicBufferToFile(
+    await generatePrivateKey({ encrypted: true }),
+    privateKeyPath
+  );
   console.log(`Private key written to: ${privateKeyPath}\n`);
 
   console.log('🔏 Generating cert');
-  const cert = await generateSelfSignedCert({
-    privateKeyPath,
-    commonName,
-    expiryDays: CERT_EXPIRY_IN_DAYS.ROOT_CERT_AUTHORITY_CERT,
-  });
-  await fs.writeFile(certPath, cert);
+  await cryptographicBufferToFile(
+    await generateSelfSignedCert({
+      privateKey,
+      commonName,
+      expiryDays: CERT_EXPIRY_IN_DAYS.ROOT_CERT_AUTHORITY_CERT,
+    }),
+    certPath
+  );
   console.log(`Cert written to: ${certPath}\n`);
 
   console.log('✅ Done!');

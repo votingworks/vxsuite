@@ -26,14 +26,14 @@ async function createProductionMachineCertSigningRequest({
   jurisdiction,
 }: ScriptEnvVars): Promise<void> {
   const certSigningRequest = await createCertSigningRequest({
-    certKey: { source: 'tpm' },
+    certPrivateKey: { type: 'private_key', source: 'tpm' },
     certSubject: constructMachineCertSubject({
       machineType,
       machineId,
       jurisdiction,
     }),
   });
-  process.stdout.write(certSigningRequest);
+  process.stdout.write(certSigningRequest.content);
 }
 
 /**
