@@ -82,22 +82,3 @@ test('render export modal with errors when appropriate', async () => {
   userEvent.click(screen.getByText('Close'));
   expect(closeFn).toHaveBeenCalled();
 });
-
-test('render export modal with errors when appropriate - backup', async () => {
-  const closeFn = vi.fn();
-  apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
-  renderInAppContext(<ExportResultsModal onClose={closeFn} />, {
-    apiMock,
-  });
-  await screen.findByText('Save CVRs');
-
-  apiMock.apiClient.exportCastVoteRecordsToUsbDrive
-    .expectCallWith()
-    .resolves(err({ type: 'file-system-error' }));
-  userEvent.click(screen.getByText('Save'));
-  await screen.findByText('Failed to Save CVRs');
-  await screen.findByText('Unable to write to USB drive.');
-
-  userEvent.click(screen.getByText('Close'));
-  expect(closeFn).toHaveBeenCalled();
-});
