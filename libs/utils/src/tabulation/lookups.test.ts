@@ -1,9 +1,5 @@
 import { expect, test } from 'vitest';
-import {
-  BallotStyleGroupId,
-  ElectionDefinition,
-  Tabulation,
-} from '@votingworks/types';
+import { ElectionDefinition } from '@votingworks/types';
 import {
   electionPrimaryPrecinctSplitsFixtures,
   readElectionTwoPartyPrimaryDefinition,
@@ -16,7 +12,6 @@ import {
   getPrecinctById,
   getBallotStylesByPartyId,
   getBallotStylesByPrecinctId,
-  determinePartyId,
 } from './lookups';
 
 const electionTwoPartyPrimaryDefinition =
@@ -125,74 +120,4 @@ test('getBallotStylesByPrecinct', () => {
       (bs) => bs.id
     )
   ).toEqual(['1M', '2F']);
-});
-
-test('determinePartyId', () => {
-  const electionDefinition = electionTwoPartyPrimaryDefinition;
-
-  const partyCardCounts: Tabulation.GroupOf<Tabulation.CardCounts> = {
-    partyId: '0',
-    bmd: 1,
-    hmpb: [1],
-  };
-
-  const ballotStyleCardCounts: Tabulation.GroupOf<Tabulation.CardCounts> = {
-    ballotStyleGroupId: '1M' as BallotStyleGroupId,
-    bmd: 1,
-    hmpb: [1],
-  };
-
-  const precinctCardCounts: Tabulation.GroupOf<Tabulation.CardCounts> = {
-    precinctId: 'precinct-1',
-    bmd: 1,
-    hmpb: [1],
-  };
-
-  expect(determinePartyId(electionDefinition, partyCardCounts)).toEqual('0');
-  expect(determinePartyId(electionDefinition, ballotStyleCardCounts)).toEqual(
-    '0'
-  );
-  expect(determinePartyId(electionDefinition, precinctCardCounts)).toEqual(
-    undefined
-  );
-});
-
-test('determinePartyId - multi language election', () => {
-  const electionDefinition =
-    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
-
-  const partyCardCounts: Tabulation.GroupOf<Tabulation.CardCounts> = {
-    partyId: '0',
-    bmd: 1,
-    hmpb: [1],
-  };
-
-  const ballotStyleCardCounts: Tabulation.GroupOf<Tabulation.CardCounts> = {
-    ballotStyleGroupId: '1-Ma' as BallotStyleGroupId,
-    bmd: 1,
-    hmpb: [1],
-  };
-
-  const ballotStyleCardCounts2: Tabulation.GroupOf<Tabulation.CardCounts> = {
-    ballotStyleGroupId: 'fake-ballot-style' as BallotStyleGroupId,
-    bmd: 1,
-    hmpb: [1],
-  };
-
-  const precinctCardCounts: Tabulation.GroupOf<Tabulation.CardCounts> = {
-    precinctId: 'precinct-1',
-    bmd: 1,
-    hmpb: [1],
-  };
-
-  expect(determinePartyId(electionDefinition, partyCardCounts)).toEqual('0');
-  expect(determinePartyId(electionDefinition, ballotStyleCardCounts)).toEqual(
-    '0'
-  );
-  expect(determinePartyId(electionDefinition, precinctCardCounts)).toEqual(
-    undefined
-  );
-  expect(determinePartyId(electionDefinition, ballotStyleCardCounts2)).toEqual(
-    undefined
-  );
 });

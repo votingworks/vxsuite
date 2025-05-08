@@ -7,7 +7,7 @@ import {
 } from '@votingworks/types';
 import {
   formatFullDateTimeZone,
-  getPartyById,
+  CachedElectionLookups,
   getPollsReportTitle,
   getPollsTransitionActionPastTense,
   getPrecinctSelectionName,
@@ -62,7 +62,8 @@ export function PrecinctScannerReportHeader({
   const partyLabel =
     showTallies && election.type === 'primary'
       ? partyId
-        ? getPartyById(electionDefinition, partyId).fullName
+        ? CachedElectionLookups.getPartyById(electionDefinition, partyId)
+            .fullName
         : 'Nonpartisan Contests'
       : undefined;
 

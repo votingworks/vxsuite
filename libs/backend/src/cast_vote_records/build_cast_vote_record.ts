@@ -30,7 +30,7 @@ import {
 import {
   UNMARKED_WRITE_IN_SELECTION_POSITION_OTHER_STATUS,
   buildCVRSnapshotBallotTypeMetadata,
-  getContestById,
+  CachedElectionLookups,
   getMarkStatus,
 } from '@votingworks/utils';
 
@@ -393,7 +393,7 @@ export function buildCVRContestsFromVotes({
   const cvrContests: CVR.CVRContest[] = [];
 
   const contests = Object.keys(votes).map((contestId) =>
-    getContestById(electionDefinition, contestId)
+    CachedElectionLookups.getContestById(electionDefinition, contestId)
   );
   for (const contest of contests) {
     // If there is no element in the `votes` object, there are no votes. We

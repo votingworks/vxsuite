@@ -6,7 +6,7 @@ import {
 } from '@votingworks/types';
 import { ThemeProvider } from 'styled-components';
 import { unique } from '@votingworks/basics';
-import { getPartyById } from '@votingworks/utils';
+import { CachedElectionLookups } from '@votingworks/utils';
 import {
   printedReportThemeFn,
   PrintedReport,
@@ -67,7 +67,9 @@ export function WriteInAdjudicationReport({
       <div data-testid="write-in-tally-report">
         {relevantPartyIds.map((partyId) => {
           const partyLabel =
-            partyId && getPartyById(electionDefinition, partyId).fullName;
+            partyId &&
+            CachedElectionLookups.getPartyById(electionDefinition, partyId)
+              .fullName;
           const partyWriteInContests = allWriteInContests.filter(
             (c) => c.partyId === partyId
           );

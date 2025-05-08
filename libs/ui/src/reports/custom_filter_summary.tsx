@@ -1,10 +1,6 @@
 import { Admin, ElectionDefinition, Tabulation } from '@votingworks/types';
 
-import {
-  getDistrictById,
-  getPartyById,
-  getPrecinctById,
-} from '@votingworks/utils';
+import { CachedElectionLookups } from '@votingworks/utils';
 
 import pluralize from 'pluralize';
 import styled from 'styled-components';
@@ -62,7 +58,10 @@ export function CustomFilterSummary({
           {filter.precinctIds
             .map(
               (precinctId) =>
-                getPrecinctById(electionDefinition, precinctId).name
+                CachedElectionLookups.getPrecinctById(
+                  electionDefinition,
+                  precinctId
+                ).name
             )
             .join(', ')}
         </FilterDisplayRow>
@@ -118,7 +117,10 @@ export function CustomFilterSummary({
           {filter.districtIds
             .map(
               (districtId) =>
-                getDistrictById(electionDefinition, districtId).name
+                CachedElectionLookups.getDistrictById(
+                  electionDefinition,
+                  districtId
+                ).name
             )
             .join(', ')}
         </FilterDisplayRow>
@@ -130,7 +132,9 @@ export function CustomFilterSummary({
           </Font>{' '}
           {filter.partyIds
             .map(
-              (partyId) => getPartyById(electionDefinition, partyId).fullName
+              (partyId) =>
+                CachedElectionLookups.getPartyById(electionDefinition, partyId)
+                  .fullName
             )
             .join(', ')}
         </FilterDisplayRow>

@@ -5,6 +5,7 @@ import {
   deepEqual,
   iter,
   ok,
+  Optional,
 } from '@votingworks/basics';
 import {
   BallotStyle,
@@ -15,6 +16,8 @@ import {
   Election,
   PrecinctOrSplit,
   hasSplits,
+  ElectionDefinition,
+  Tabulation,
 } from '@votingworks/types';
 
 const ID_LANGUAGES_SEPARATOR = '_';
@@ -25,8 +28,8 @@ export function generateBallotStyleGroupId(params: {
   party?: Party;
 }): BallotStyleGroupId {
   return params.party
-    ? (`${params.ballotStyleIndex}${GROUP_ID_PARTS_SEPARATOR}${params.party.abbrev}` )
-    : (params.ballotStyleIndex.toString() );
+    ? `${params.ballotStyleIndex}${GROUP_ID_PARTS_SEPARATOR}${params.party.abbrev}`
+    : params.ballotStyleIndex.toString();
 }
 
 /**
@@ -40,7 +43,7 @@ export function generateBallotStyleId(params: {
 }): BallotStyleId {
   return [generateBallotStyleGroupId(params), ...params.languages].join(
     ID_LANGUAGES_SEPARATOR
-  ) ;
+  );
 }
 
 function getBallotStyleGroupMap(
@@ -197,4 +200,20 @@ export function getPrecinctsAndSplitsForBallotStyle({
     .filter((precinctOrSplit) =>
       hasMatchingDistrictIds(ballotStyle, precinctOrSplit)
     );
+}
+
+/**
+ * Tries to determine party ID from ballot style ID if not available directly.
+ */
+export function determinePartyId<T>(
+  electionDefinition: ElectionDefinition,
+  group: Tabulation.GroupOf<T>
+): Optional<string> {
+  if (group.partyId) return group.partyId;
+  if (!group.ballotStyleGroupId) return undefined;
+  const ballotStyleGroup = getBallotStyleGroup({
+    election: electionDefinition.election,
+    ballotStyleGroupId: group.ballotStyleGroupId,
+  });
+  return ballotStyleGroup?.partyId;
 }

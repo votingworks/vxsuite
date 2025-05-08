@@ -9,7 +9,10 @@ import {
   VotesDict,
   asSheet,
 } from '@votingworks/types';
-import { ALL_PRECINCTS_SELECTION, getContestById } from '@votingworks/utils';
+import {
+  ALL_PRECINCTS_SELECTION,
+  CachedElectionLookups,
+} from '@votingworks/utils';
 import { pdfToPageImages } from '../test/helpers/interpretation';
 import { interpretSheet } from './interpret';
 
@@ -21,8 +24,12 @@ test('interpret BMD ballot for an election supporting hand-marked paper ballots'
       contestId,
       vote?.slice(
         0,
-        (getContestById(electionDefinition, contestId) as CandidateContest)
-          .seats
+        (
+          CachedElectionLookups.getContestById(
+            electionDefinition,
+            contestId
+          ) as CandidateContest
+        ).seats
       ),
     ])
   );

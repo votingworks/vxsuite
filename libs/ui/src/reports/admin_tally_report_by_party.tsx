@@ -2,11 +2,7 @@ import { Admin, ElectionDefinition } from '@votingworks/types';
 import React from 'react';
 
 import { unique } from '@votingworks/basics';
-import {
-  getContestById,
-  getEmptyCardCounts,
-  getPartyById,
-} from '@votingworks/utils';
+import { CachedElectionLookups, getEmptyCardCounts } from '@votingworks/utils';
 import { AdminTallyReport } from './admin_tally_report';
 import { LabeledScannerBatch } from './utils';
 
@@ -51,7 +47,7 @@ export function AdminTallyReportByParty({
   includeSignatureLines,
 }: AdminTallyReportByPartyProps): JSX.Element {
   const contests = tallyReportResults.contestIds.map((contestId) =>
-    getContestById(electionDefinition, contestId)
+    CachedElectionLookups.getContestById(electionDefinition, contestId)
   );
 
   // general election case - just return a single report section
@@ -89,7 +85,10 @@ export function AdminTallyReportByParty({
     const partyCardCounts =
       /* istanbul ignore next - trivial fallthrough case - @preserve */
       tallyReportResults.cardCountsByParty[partyId] ?? getEmptyCardCounts();
-    const partyLabel = getPartyById(electionDefinition, partyId).fullName;
+    const partyLabel = CachedElectionLookups.getPartyById(
+      electionDefinition,
+      partyId
+    ).fullName;
 
     partyCompleteTallyReports.push(
       <AdminTallyReport
