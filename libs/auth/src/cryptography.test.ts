@@ -1,24 +1,27 @@
-import { beforeEach, expect, Mock, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { spawn } from 'node:child_process';
 import * as fs from 'node:fs/promises';
 import { Readable, Writable } from 'node:stream';
 import { fileSync } from 'tmp';
+import { beforeEach, expect, Mock, test, vi } from 'vitest';
 import {
   mockChildProcess as newMockChildProcess,
   MockChildProcess,
 } from '@votingworks/test-utils';
 
+import { pemBuffer, pemFile } from './cryptographic_material';
 import {
   createCert,
   createCertGivenCertSigningRequest,
   createCertHelper,
   CreateCertInput,
   createCertSigningRequest,
+  deserializeCreateCertInput,
+  deserializeSignMessageInputExcludingMessage,
   manageOpensslConfig,
   openssl,
-  parseCreateCertInput,
-  parseSignMessageInputExcludingMessage,
+  serializeCreateCertInput,
+  serializeSignMessageInputExcludingMessage,
   signMessage,
   signMessageHelper,
   SignMessageInput,
@@ -196,48 +199,38 @@ test('openssl - provides both stderr and stdout on error', async () => {
 
 test.each<CreateCertInput>([
   {
-    certKeyInput: {
-      type: 'private',
-      key: { source: 'file', path: '/path/to/private-key-1.pem' },
-    },
+    certKeyInput: pemFile('private_key', '/path/to/private-key.pem'),
     certSubject: '//',
     certType: 'cert_authority_cert',
     expiryInDays: 365,
-    signingCertAuthorityCertPath: '/path/to/cert-authority-cert.pem',
-    signingPrivateKey: { source: 'file', path: '/path/to/private-key-2.pem' },
+    signingCertAuthorityCert: pemFile(
+      'cert',
+      '/path/to/cert-authority-cert.pem'
+    ),
+    signingPrivateKey: pemFile('private_key', '/path/to/private-key-2.pem'),
   },
   {
-    certKeyInput: {
-      type: 'public',
-      key: { source: 'inline', content: 'content' },
-    },
+    certKeyInput: pemBuffer('public_key', fileBuffers[0]),
     certSubject: '//',
     expiryInDays: 365,
-    signingCertAuthorityCertPath: '/path/to/cert-authority-cert.pem',
-    signingPrivateKey: { source: 'tpm' },
+    signingCertAuthorityCert: pemFile(
+      'cert',
+      '/path/to/cert-authority-cert.pem'
+    ),
+    signingPrivateKey: { type: 'private_key', source: 'tpm' },
   },
-])('parseCreateCertInput success', (createCertInput) => {
-  expect(parseCreateCertInput(JSON.stringify(createCertInput))).toEqual(
-    createCertInput
-  );
+])('CreateCertInput serialization', (createCertInput) => {
+  expect(
+    deserializeCreateCertInput(serializeCreateCertInput(createCertInput))
+  ).toEqual(createCertInput);
 });
 
-test.each<string>([
-  '',
-  JSON.stringify({}),
-  JSON.stringify({
-    certKeyInput: {
-      type: 'public',
-      key: { source: 'inline', oops: 'oops' },
-    },
-    certSubject: '//',
-    expiryInDays: 365,
-    signingCertAuthorityCertPath: '/path/to/cert-authority-cert.pem',
-    signingPrivateKey: { source: 'tpm' },
-  }),
-])('parseCreateCertInput error', (createCertInput) => {
-  expect(() => parseCreateCertInput(createCertInput)).toThrow();
-});
+test.each<string>(['', JSON.stringify({})])(
+  'deserializeCreateCertInput error',
+  (createCertInput) => {
+    expect(() => deserializeCreateCertInput(createCertInput)).toThrow();
+  }
+);
 
 test('createCertSigningRequest', async () => {
   setTimeout(() => {
@@ -245,7 +238,7 @@ test('createCertSigningRequest', async () => {
   });
 
   await createCertSigningRequest({
-    certKey: { source: 'tpm' },
+    certPrivateKey: { type: 'private_key', source: 'tpm' },
     certSubject: '//',
   });
 
@@ -270,10 +263,13 @@ test('createCertGivenCertSigningRequest', async () => {
   });
 
   await createCertGivenCertSigningRequest({
-    certSigningRequest: Buffer.from('csr'),
+    certSigningRequest: pemBuffer('cert_signing_request', fileBuffers[0]),
     expiryInDays: 365,
-    signingCertAuthorityCertPath: '/path/to/cert-authority-cert.pem',
-    signingPrivateKey: { source: 'file', path: '/path/to/private-key.pem' },
+    signingCertAuthorityCert: pemFile(
+      'cert',
+      '/path/to/cert-authority-cert.pem'
+    ),
+    signingPrivateKey: pemFile('private_key', '/path/to/private-key.pem'),
   });
 
   expect(spawn).toHaveBeenCalledTimes(1);
@@ -307,11 +303,8 @@ test.each<{
     description:
       'certifying public key with private key file, ' +
       'where private key of public key to certify is unavailable',
-    certKeyInput: {
-      type: 'public',
-      key: { source: 'inline', content: 'content' },
-    },
-    signingPrivateKey: { source: 'file', path: '/path/to/private-key.pem' },
+    certKeyInput: pemBuffer('public_key', fileBuffers[0]),
+    signingPrivateKey: pemFile('private_key', '/path/to/private-key.pem'),
     expectedOpensslCsrCreationRequestParams: [
       'req',
       '-config',
@@ -345,11 +338,8 @@ test.each<{
     description:
       'certifying public key with TPM private key, ' +
       'where private key of public key to certify is unavailable',
-    certKeyInput: {
-      type: 'public',
-      key: { source: 'inline', content: 'content' },
-    },
-    signingPrivateKey: { source: 'tpm' },
+    certKeyInput: pemBuffer('public_key', fileBuffers[0]),
+    signingPrivateKey: { type: 'private_key', source: 'tpm' },
     expectedOpensslCsrCreationRequestParams: [
       'req',
       '-config',
@@ -385,12 +375,9 @@ test.each<{
     description:
       'certifying public key with private key file, ' +
       'where private key of public key to certify is available and cert type is cert authority cert',
-    certKeyInput: {
-      type: 'private',
-      key: { source: 'file', path: '/path/to/private-key-1.pem' },
-    },
+    certKeyInput: pemFile('private_key', '/path/to/private-key-1.pem'),
     certType: 'cert_authority_cert',
-    signingPrivateKey: { source: 'file', path: '/path/to/private-key-2.pem' },
+    signingPrivateKey: pemFile('private_key', '/path/to/private-key-2.pem'),
     expectedOpensslCsrCreationRequestParams: [
       'req',
       '-config',
@@ -452,7 +439,10 @@ test.each<{
       certSubject: '//',
       certType,
       expiryInDays: 365,
-      signingCertAuthorityCertPath: '/path/to/cert-authority-cert.pem',
+      signingCertAuthorityCert: pemFile(
+        'cert',
+        '/path/to/cert-authority-cert.pem'
+      ),
       signingPrivateKey,
     });
 
@@ -500,19 +490,13 @@ test.each<{
   isSudoExpected: boolean;
 }>([
   {
-    certKeyInput: {
-      type: 'public',
-      key: { source: 'inline', content: 'content' },
-    },
-    signingPrivateKey: { source: 'file', path: '/path/to/private-key.pem' },
+    certKeyInput: pemBuffer('public_key', fileBuffers[0]),
+    signingPrivateKey: pemFile('private_key', '/path/to/private-key.pem'),
     isSudoExpected: false,
   },
   {
-    certKeyInput: {
-      type: 'public',
-      key: { source: 'inline', content: 'content' },
-    },
-    signingPrivateKey: { source: 'tpm' },
+    certKeyInput: pemBuffer('public_key', fileBuffers[0]),
+    signingPrivateKey: { type: 'private_key', source: 'tpm' },
     isSudoExpected: true,
   },
 ])(
@@ -529,10 +513,13 @@ test.each<{
       certKeyInput,
       certSubject: '//',
       expiryInDays: 365,
-      signingCertAuthorityCertPath: '/path/to/cert-authority-cert.pem',
+      signingCertAuthorityCert: pemFile(
+        'cert',
+        '/path/to/cert-authority-cert.pem'
+      ),
       signingPrivateKey,
     });
-    expect(cert.toString('utf-8')).toEqual('Hey! How is it going?');
+    expect(cert.content.toString('utf-8')).toEqual('Hey! How is it going?');
 
     expect(spawn).toHaveBeenCalledTimes(1);
     if (isSudoExpected) {
@@ -555,28 +542,30 @@ test.each<{
 //
 
 test.each<SignMessageInputExcludingMessage>([
-  { signingPrivateKey: { source: 'file', path: '/path/to/private-key.pem' } },
-  { signingPrivateKey: { source: 'tpm' } },
+  {
+    signingPrivateKey: pemFile('private_key', '/path/to/private-key.pem'),
+  },
+  { signingPrivateKey: { type: 'private_key', source: 'tpm' } },
 ])(
-  'parseSignMessageInputExcludingMessage success',
+  'SignMessageInputExcludingMessage serialization',
   (signMessageInputExcludingMessage) => {
     expect(
-      parseSignMessageInputExcludingMessage(
-        JSON.stringify(signMessageInputExcludingMessage)
+      deserializeSignMessageInputExcludingMessage(
+        serializeSignMessageInputExcludingMessage(
+          signMessageInputExcludingMessage
+        )
       )
     ).toEqual(signMessageInputExcludingMessage);
   }
 );
 
-test.each<string>([
-  '',
-  JSON.stringify({}),
-  JSON.stringify({ signingPrivateKey: { source: 'file', oops: 'oops' } }),
-])(
-  'parseSignMessageInputExcludingMessage error',
+test.each<string>(['', JSON.stringify({})])(
+  'deserializeSignMessageInputExcludingMessage error',
   (signMessageInputExcludingMessage) => {
     expect(() =>
-      parseSignMessageInputExcludingMessage(signMessageInputExcludingMessage)
+      deserializeSignMessageInputExcludingMessage(
+        signMessageInputExcludingMessage
+      )
     ).toThrow();
   }
 );
@@ -588,7 +577,7 @@ test.each<{
 }>([
   {
     description: 'signing with private key file',
-    signingPrivateKey: { source: 'file', path: '/path/to/private-key.pem' },
+    signingPrivateKey: pemFile('private_key', '/path/to/private-key.pem'),
     expectedOpensslSignatureRequestParams: [
       'pkeyutl',
       '-sign',
@@ -598,7 +587,7 @@ test.each<{
   },
   {
     description: 'signing with TPM private key',
-    signingPrivateKey: { source: 'tpm' },
+    signingPrivateKey: { type: 'private_key', source: 'tpm' },
     expectedOpensslSignatureRequestParams: [
       'pkeyutl',
       '-config',
@@ -646,11 +635,11 @@ test.each<{
   isSudoExpected: boolean;
 }>([
   {
-    signingPrivateKey: { source: 'file', path: '/path/to/private-key.pem' },
+    signingPrivateKey: pemFile('private_key', '/path/to/private-key.pem'),
     isSudoExpected: false,
   },
   {
-    signingPrivateKey: { source: 'tpm' },
+    signingPrivateKey: { type: 'private_key', source: 'tpm' },
     isSudoExpected: true,
   },
 ])('signMessage', async ({ signingPrivateKey, isSudoExpected }) => {

@@ -12,6 +12,11 @@ import {
   SignedHashValidationConfig,
   SignedQuickResultsReportingConfig,
 } from './config';
+import {
+  pemFile,
+  remotePrivateKey,
+  tpmPrivateKey,
+} from './cryptographic_material';
 
 vi.mock(
   '@votingworks/utils',
@@ -42,16 +47,18 @@ test.each<{
     expectedOutput: {
       cardProgrammingConfig: {
         configType: 'machine',
-        machineCertAuthorityCertPath: expect.stringContaining(
-          '/certs/dev/vx-admin-cert-authority-cert.pem'
+        machineCertAuthorityCert: pemFile(
+          'cert',
+          expect.stringContaining('/certs/dev/vx-admin-cert-authority-cert.pem')
         ),
-        machinePrivateKey: {
-          source: 'file',
-          path: expect.stringContaining('/certs/dev/vx-admin-private-key.pem'),
-        },
+        machinePrivateKey: pemFile(
+          'private_key',
+          expect.stringContaining('/certs/dev/vx-admin-private-key.pem')
+        ),
       },
-      vxCertAuthorityCertPath: expect.stringContaining(
-        '/certs/dev/vx-cert-authority-cert.pem'
+      vxCertAuthorityCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/dev/vx-cert-authority-cert.pem')
       ),
     },
   },
@@ -61,18 +68,20 @@ test.each<{
     expectedOutput: {
       cardProgrammingConfig: {
         configType: 'machine',
-        machineCertAuthorityCertPath: expect.stringContaining(
-          '/certs/dev/vx-poll-book-cert-authority-cert.pem'
+        machineCertAuthorityCert: pemFile(
+          'cert',
+          expect.stringContaining(
+            '/certs/dev/vx-poll-book-cert-authority-cert.pem'
+          )
         ),
-        machinePrivateKey: {
-          source: 'file',
-          path: expect.stringContaining(
-            '/certs/dev/vx-poll-book-private-key.pem'
-          ),
-        },
+        machinePrivateKey: pemFile(
+          'private_key',
+          expect.stringContaining('/certs/dev/vx-poll-book-private-key.pem')
+        ),
       },
-      vxCertAuthorityCertPath: expect.stringContaining(
-        '/certs/dev/vx-cert-authority-cert.pem'
+      vxCertAuthorityCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/dev/vx-cert-authority-cert.pem')
       ),
     },
   },
@@ -80,8 +89,9 @@ test.each<{
     nodeEnv: 'development',
     machineType: 'scan',
     expectedOutput: {
-      vxCertAuthorityCertPath: expect.stringContaining(
-        '/certs/dev/vx-cert-authority-cert.pem'
+      vxCertAuthorityCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/dev/vx-cert-authority-cert.pem')
       ),
     },
   },
@@ -91,12 +101,15 @@ test.each<{
     expectedOutput: {
       cardProgrammingConfig: {
         configType: 'machine',
-        machineCertAuthorityCertPath:
-          '/vx/config/vx-admin-cert-authority-cert.pem',
-        machinePrivateKey: { source: 'tpm' },
+        machineCertAuthorityCert: pemFile(
+          'cert',
+          '/vx/config/vx-admin-cert-authority-cert.pem'
+        ),
+        machinePrivateKey: tpmPrivateKey,
       },
-      vxCertAuthorityCertPath: expect.stringContaining(
-        '/certs/prod/vx-cert-authority-cert.pem'
+      vxCertAuthorityCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/prod/vx-cert-authority-cert.pem')
       ),
     },
   },
@@ -106,12 +119,15 @@ test.each<{
     expectedOutput: {
       cardProgrammingConfig: {
         configType: 'machine',
-        machineCertAuthorityCertPath:
-          '/vx/config/vx-poll-book-cert-authority-cert.pem',
-        machinePrivateKey: { source: 'tpm' },
+        machineCertAuthorityCert: pemFile(
+          'cert',
+          '/vx/config/vx-poll-book-cert-authority-cert.pem'
+        ),
+        machinePrivateKey: tpmPrivateKey,
       },
-      vxCertAuthorityCertPath: expect.stringContaining(
-        '/certs/prod/vx-cert-authority-cert.pem'
+      vxCertAuthorityCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/prod/vx-cert-authority-cert.pem')
       ),
     },
   },
@@ -119,8 +135,9 @@ test.each<{
     nodeEnv: 'production',
     machineType: 'scan',
     expectedOutput: {
-      vxCertAuthorityCertPath: expect.stringContaining(
-        '/certs/prod/vx-cert-authority-cert.pem'
+      vxCertAuthorityCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/prod/vx-cert-authority-cert.pem')
       ),
     },
   },
@@ -131,16 +148,18 @@ test.each<{
     expectedOutput: {
       cardProgrammingConfig: {
         configType: 'machine',
-        machineCertAuthorityCertPath: expect.stringContaining(
-          '/certs/dev/vx-admin-cert-authority-cert.pem'
+        machineCertAuthorityCert: pemFile(
+          'cert',
+          expect.stringContaining('/certs/dev/vx-admin-cert-authority-cert.pem')
         ),
-        machinePrivateKey: {
-          source: 'file',
-          path: expect.stringContaining('/certs/dev/vx-admin-private-key.pem'),
-        },
+        machinePrivateKey: pemFile(
+          'private_key',
+          expect.stringContaining('/certs/dev/vx-admin-private-key.pem')
+        ),
       },
-      vxCertAuthorityCertPath: expect.stringContaining(
-        '/certs/dev/vx-cert-authority-cert.pem'
+      vxCertAuthorityCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/dev/vx-cert-authority-cert.pem')
       ),
     },
   },
@@ -149,8 +168,9 @@ test.each<{
     isVxDev: true,
     machineType: 'scan',
     expectedOutput: {
-      vxCertAuthorityCertPath: expect.stringContaining(
-        '/certs/dev/vx-cert-authority-cert.pem'
+      vxCertAuthorityCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/dev/vx-cert-authority-cert.pem')
       ),
     },
   },
@@ -161,16 +181,18 @@ test.each<{
     expectedOutput: {
       cardProgrammingConfig: {
         configType: 'machine',
-        machineCertAuthorityCertPath: expect.stringContaining(
-          '/certs/dev/vx-admin-cert-authority-cert.pem'
+        machineCertAuthorityCert: pemFile(
+          'cert',
+          expect.stringContaining('/certs/dev/vx-admin-cert-authority-cert.pem')
         ),
-        machinePrivateKey: {
-          source: 'file',
-          path: expect.stringContaining('/certs/dev/vx-admin-private-key.pem'),
-        },
+        machinePrivateKey: pemFile(
+          'private_key',
+          expect.stringContaining('/certs/dev/vx-admin-private-key.pem')
+        ),
       },
-      vxCertAuthorityCertPath: expect.stringContaining(
-        '/certs/dev/vx-cert-authority-cert.pem'
+      vxCertAuthorityCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/dev/vx-cert-authority-cert.pem')
       ),
     },
   },
@@ -179,8 +201,9 @@ test.each<{
     isIntegrationTest: true,
     machineType: 'scan',
     expectedOutput: {
-      vxCertAuthorityCertPath: expect.stringContaining(
-        '/certs/dev/vx-cert-authority-cert.pem'
+      vxCertAuthorityCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/dev/vx-cert-authority-cert.pem')
       ),
     },
   },
@@ -214,13 +237,14 @@ test.each<{
     expectedOutput: {
       cardProgrammingConfig: {
         configType: 'vx',
-        vxPrivateKey: {
-          source: 'file',
-          path: expect.stringContaining('/certs/dev/vx-private-key.pem'),
-        },
+        vxPrivateKey: pemFile(
+          'private_key',
+          expect.stringContaining('/certs/dev/vx-private-key.pem')
+        ),
       },
-      vxCertAuthorityCertPath: expect.stringContaining(
-        '/certs/dev/vx-cert-authority-cert.pem'
+      vxCertAuthorityCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/dev/vx-cert-authority-cert.pem')
       ),
     },
   },
@@ -230,13 +254,11 @@ test.each<{
     expectedOutput: {
       cardProgrammingConfig: {
         configType: 'vx',
-        vxPrivateKey: {
-          source: 'file',
-          path: '/path/to/vx-private-key.pem',
-        },
+        vxPrivateKey: pemFile('private_key', '/path/to/vx-private-key.pem'),
       },
-      vxCertAuthorityCertPath: expect.stringContaining(
-        '/certs/prod/vx-cert-authority-cert.pem'
+      vxCertAuthorityCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/prod/vx-cert-authority-cert.pem')
       ),
     },
   },
@@ -246,12 +268,11 @@ test.each<{
     expectedOutput: {
       cardProgrammingConfig: {
         configType: 'vx',
-        vxPrivateKey: {
-          source: 'remote',
-        },
+        vxPrivateKey: remotePrivateKey,
       },
-      vxCertAuthorityCertPath: expect.stringContaining(
-        '/certs/prod/vx-cert-authority-cert.pem'
+      vxCertAuthorityCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/prod/vx-cert-authority-cert.pem')
       ),
     },
   },
@@ -276,15 +297,17 @@ test.each<{
     nodeEnv: 'development',
     machineType: 'admin',
     expectedOutput: {
-      signingMachineCertPath: expect.stringContaining(
-        '/certs/dev/vx-admin-cert-authority-cert.pem'
+      signingMachineCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/dev/vx-admin-cert-authority-cert.pem')
       ),
-      signingMachinePrivateKey: {
-        source: 'file',
-        path: expect.stringContaining('/certs/dev/vx-admin-private-key.pem'),
-      },
-      vxCertAuthorityCertPath: expect.stringContaining(
-        '/certs/dev/vx-cert-authority-cert.pem'
+      signingMachinePrivateKey: pemFile(
+        'private_key',
+        expect.stringContaining('/certs/dev/vx-admin-private-key.pem')
+      ),
+      vxCertAuthorityCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/dev/vx-cert-authority-cert.pem')
       ),
     },
   },
@@ -292,15 +315,17 @@ test.each<{
     nodeEnv: 'development',
     machineType: 'scan',
     expectedOutput: {
-      signingMachineCertPath: expect.stringContaining(
-        '/certs/dev/vx-scan-cert.pem'
+      signingMachineCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/dev/vx-scan-cert.pem')
       ),
-      signingMachinePrivateKey: {
-        source: 'file',
-        path: expect.stringContaining('/certs/dev/vx-scan-private-key.pem'),
-      },
-      vxCertAuthorityCertPath: expect.stringContaining(
-        '/certs/dev/vx-cert-authority-cert.pem'
+      signingMachinePrivateKey: pemFile(
+        'private_key',
+        expect.stringContaining('/certs/dev/vx-scan-private-key.pem')
+      ),
+      vxCertAuthorityCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/dev/vx-cert-authority-cert.pem')
       ),
     },
   },
@@ -308,10 +333,14 @@ test.each<{
     nodeEnv: 'production',
     machineType: 'admin',
     expectedOutput: {
-      signingMachineCertPath: '/vx/config/vx-admin-cert-authority-cert.pem',
-      signingMachinePrivateKey: { source: 'tpm' },
-      vxCertAuthorityCertPath: expect.stringContaining(
-        '/certs/prod/vx-cert-authority-cert.pem'
+      signingMachineCert: pemFile(
+        'cert',
+        '/vx/config/vx-admin-cert-authority-cert.pem'
+      ),
+      signingMachinePrivateKey: tpmPrivateKey,
+      vxCertAuthorityCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/prod/vx-cert-authority-cert.pem')
       ),
     },
   },
@@ -319,10 +348,11 @@ test.each<{
     nodeEnv: 'production',
     machineType: 'scan',
     expectedOutput: {
-      signingMachineCertPath: '/vx/config/vx-scan-cert.pem',
-      signingMachinePrivateKey: { source: 'tpm' },
-      vxCertAuthorityCertPath: expect.stringContaining(
-        '/certs/prod/vx-cert-authority-cert.pem'
+      signingMachineCert: pemFile('cert', '/vx/config/vx-scan-cert.pem'),
+      signingMachinePrivateKey: tpmPrivateKey,
+      vxCertAuthorityCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/prod/vx-cert-authority-cert.pem')
       ),
     },
   },
@@ -331,15 +361,17 @@ test.each<{
     isVxDev: true,
     machineType: 'admin',
     expectedOutput: {
-      signingMachineCertPath: expect.stringContaining(
-        '/certs/dev/vx-admin-cert-authority-cert.pem'
+      signingMachineCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/dev/vx-admin-cert-authority-cert.pem')
       ),
-      signingMachinePrivateKey: {
-        source: 'file',
-        path: expect.stringContaining('/certs/dev/vx-admin-private-key.pem'),
-      },
-      vxCertAuthorityCertPath: expect.stringContaining(
-        '/certs/dev/vx-cert-authority-cert.pem'
+      signingMachinePrivateKey: pemFile(
+        'private_key',
+        expect.stringContaining('/certs/dev/vx-admin-private-key.pem')
+      ),
+      vxCertAuthorityCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/dev/vx-cert-authority-cert.pem')
       ),
     },
   },
@@ -348,15 +380,17 @@ test.each<{
     isVxDev: true,
     machineType: 'scan',
     expectedOutput: {
-      signingMachineCertPath: expect.stringContaining(
-        '/certs/dev/vx-scan-cert.pem'
+      signingMachineCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/dev/vx-scan-cert.pem')
       ),
-      signingMachinePrivateKey: {
-        source: 'file',
-        path: expect.stringContaining('/certs/dev/vx-scan-private-key.pem'),
-      },
-      vxCertAuthorityCertPath: expect.stringContaining(
-        '/certs/dev/vx-cert-authority-cert.pem'
+      signingMachinePrivateKey: pemFile(
+        'private_key',
+        expect.stringContaining('/certs/dev/vx-scan-private-key.pem')
+      ),
+      vxCertAuthorityCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/dev/vx-cert-authority-cert.pem')
       ),
     },
   },
@@ -365,15 +399,17 @@ test.each<{
     isIntegrationTest: true,
     machineType: 'admin',
     expectedOutput: {
-      signingMachineCertPath: expect.stringContaining(
-        '/certs/dev/vx-admin-cert-authority-cert.pem'
+      signingMachineCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/dev/vx-admin-cert-authority-cert.pem')
       ),
-      signingMachinePrivateKey: {
-        source: 'file',
-        path: expect.stringContaining('/certs/dev/vx-admin-private-key.pem'),
-      },
-      vxCertAuthorityCertPath: expect.stringContaining(
-        '/certs/dev/vx-cert-authority-cert.pem'
+      signingMachinePrivateKey: pemFile(
+        'private_key',
+        expect.stringContaining('/certs/dev/vx-admin-private-key.pem')
+      ),
+      vxCertAuthorityCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/dev/vx-cert-authority-cert.pem')
       ),
     },
   },
@@ -382,15 +418,17 @@ test.each<{
     isIntegrationTest: true,
     machineType: 'scan',
     expectedOutput: {
-      signingMachineCertPath: expect.stringContaining(
-        '/certs/dev/vx-scan-cert.pem'
+      signingMachineCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/dev/vx-scan-cert.pem')
       ),
-      signingMachinePrivateKey: {
-        source: 'file',
-        path: expect.stringContaining('/certs/dev/vx-scan-private-key.pem'),
-      },
-      vxCertAuthorityCertPath: expect.stringContaining(
-        '/certs/dev/vx-cert-authority-cert.pem'
+      signingMachinePrivateKey: pemFile(
+        'private_key',
+        expect.stringContaining('/certs/dev/vx-scan-private-key.pem')
+      ),
+      vxCertAuthorityCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/dev/vx-cert-authority-cert.pem')
       ),
     },
   },
@@ -425,40 +463,47 @@ test.each<{
     nodeEnv: 'development',
     machineType: 'admin',
     expectedOutput: {
-      machineCertPath: expect.stringContaining(
-        '/certs/dev/vx-admin-cert-authority-cert.pem'
+      machineCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/dev/vx-admin-cert-authority-cert.pem')
       ),
-      machinePrivateKey: {
-        source: 'file',
-        path: expect.stringContaining('/certs/dev/vx-admin-private-key.pem'),
-      },
+      machinePrivateKey: pemFile(
+        'private_key',
+        expect.stringContaining('/certs/dev/vx-admin-private-key.pem')
+      ),
     },
   },
   {
     nodeEnv: 'development',
     machineType: 'scan',
     expectedOutput: {
-      machineCertPath: expect.stringContaining('/certs/dev/vx-scan-cert.pem'),
-      machinePrivateKey: {
-        source: 'file',
-        path: expect.stringContaining('/certs/dev/vx-scan-private-key.pem'),
-      },
+      machineCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/dev/vx-scan-cert.pem')
+      ),
+      machinePrivateKey: pemFile(
+        'private_key',
+        expect.stringContaining('/certs/dev/vx-scan-private-key.pem')
+      ),
     },
   },
   {
     nodeEnv: 'production',
     machineType: 'admin',
     expectedOutput: {
-      machineCertPath: '/vx/config/vx-admin-cert-authority-cert.pem',
-      machinePrivateKey: { source: 'tpm' },
+      machineCert: pemFile(
+        'cert',
+        '/vx/config/vx-admin-cert-authority-cert.pem'
+      ),
+      machinePrivateKey: tpmPrivateKey,
     },
   },
   {
     nodeEnv: 'production',
     machineType: 'scan',
     expectedOutput: {
-      machineCertPath: '/vx/config/vx-scan-cert.pem',
-      machinePrivateKey: { source: 'tpm' },
+      machineCert: pemFile('cert', '/vx/config/vx-scan-cert.pem'),
+      machinePrivateKey: tpmPrivateKey,
     },
   },
   {
@@ -466,13 +511,14 @@ test.each<{
     isVxDev: true,
     machineType: 'admin',
     expectedOutput: {
-      machineCertPath: expect.stringContaining(
-        '/certs/dev/vx-admin-cert-authority-cert.pem'
+      machineCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/dev/vx-admin-cert-authority-cert.pem')
       ),
-      machinePrivateKey: {
-        source: 'file',
-        path: expect.stringContaining('/certs/dev/vx-admin-private-key.pem'),
-      },
+      machinePrivateKey: pemFile(
+        'private_key',
+        expect.stringContaining('/certs/dev/vx-admin-private-key.pem')
+      ),
     },
   },
   {
@@ -480,11 +526,14 @@ test.each<{
     isVxDev: true,
     machineType: 'scan',
     expectedOutput: {
-      machineCertPath: expect.stringContaining('/certs/dev/vx-scan-cert.pem'),
-      machinePrivateKey: {
-        source: 'file',
-        path: expect.stringContaining('/certs/dev/vx-scan-private-key.pem'),
-      },
+      machineCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/dev/vx-scan-cert.pem')
+      ),
+      machinePrivateKey: pemFile(
+        'private_key',
+        expect.stringContaining('/certs/dev/vx-scan-private-key.pem')
+      ),
     },
   },
   {
@@ -492,13 +541,14 @@ test.each<{
     isIntegrationTest: true,
     machineType: 'admin',
     expectedOutput: {
-      machineCertPath: expect.stringContaining(
-        '/certs/dev/vx-admin-cert-authority-cert.pem'
+      machineCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/dev/vx-admin-cert-authority-cert.pem')
       ),
-      machinePrivateKey: {
-        source: 'file',
-        path: expect.stringContaining('/certs/dev/vx-admin-private-key.pem'),
-      },
+      machinePrivateKey: pemFile(
+        'private_key',
+        expect.stringContaining('/certs/dev/vx-admin-private-key.pem')
+      ),
     },
   },
   {
@@ -506,11 +556,14 @@ test.each<{
     isIntegrationTest: true,
     machineType: 'scan',
     expectedOutput: {
-      machineCertPath: expect.stringContaining('/certs/dev/vx-scan-cert.pem'),
-      machinePrivateKey: {
-        source: 'file',
-        path: expect.stringContaining('/certs/dev/vx-scan-private-key.pem'),
-      },
+      machineCert: pemFile(
+        'cert',
+        expect.stringContaining('/certs/dev/vx-scan-cert.pem')
+      ),
+      machinePrivateKey: pemFile(
+        'private_key',
+        expect.stringContaining('/certs/dev/vx-scan-private-key.pem')
+      ),
     },
   },
 ])(
@@ -544,34 +597,34 @@ test.each<{
     nodeEnv: 'development',
     machineType: 'admin',
     expectedOutput: {
-      machinePrivateKey: {
-        source: 'file',
-        path: expect.stringContaining('/certs/dev/vx-admin-private-key.pem'),
-      },
+      machinePrivateKey: pemFile(
+        'private_key',
+        expect.stringContaining('/certs/dev/vx-admin-private-key.pem')
+      ),
     },
   },
   {
     nodeEnv: 'development',
     machineType: 'scan',
     expectedOutput: {
-      machinePrivateKey: {
-        source: 'file',
-        path: expect.stringContaining('/certs/dev/vx-scan-private-key.pem'),
-      },
+      machinePrivateKey: pemFile(
+        'private_key',
+        expect.stringContaining('/certs/dev/vx-scan-private-key.pem')
+      ),
     },
   },
   {
     nodeEnv: 'production',
     machineType: 'admin',
     expectedOutput: {
-      machinePrivateKey: { source: 'tpm' },
+      machinePrivateKey: tpmPrivateKey,
     },
   },
   {
     nodeEnv: 'production',
     machineType: 'scan',
     expectedOutput: {
-      machinePrivateKey: { source: 'tpm' },
+      machinePrivateKey: tpmPrivateKey,
     },
   },
   {
@@ -579,10 +632,10 @@ test.each<{
     isVxDev: true,
     machineType: 'admin',
     expectedOutput: {
-      machinePrivateKey: {
-        source: 'file',
-        path: expect.stringContaining('/certs/dev/vx-admin-private-key.pem'),
-      },
+      machinePrivateKey: pemFile(
+        'private_key',
+        expect.stringContaining('/certs/dev/vx-admin-private-key.pem')
+      ),
     },
   },
   {
@@ -590,10 +643,10 @@ test.each<{
     isVxDev: true,
     machineType: 'scan',
     expectedOutput: {
-      machinePrivateKey: {
-        source: 'file',
-        path: expect.stringContaining('/certs/dev/vx-scan-private-key.pem'),
-      },
+      machinePrivateKey: pemFile(
+        'private_key',
+        expect.stringContaining('/certs/dev/vx-scan-private-key.pem')
+      ),
     },
   },
   {
@@ -601,10 +654,10 @@ test.each<{
     isIntegrationTest: true,
     machineType: 'admin',
     expectedOutput: {
-      machinePrivateKey: {
-        source: 'file',
-        path: expect.stringContaining('/certs/dev/vx-admin-private-key.pem'),
-      },
+      machinePrivateKey: pemFile(
+        'private_key',
+        expect.stringContaining('/certs/dev/vx-admin-private-key.pem')
+      ),
     },
   },
   {
@@ -612,10 +665,10 @@ test.each<{
     isIntegrationTest: true,
     machineType: 'scan',
     expectedOutput: {
-      machinePrivateKey: {
-        source: 'file',
-        path: expect.stringContaining('/certs/dev/vx-scan-private-key.pem'),
-      },
+      machinePrivateKey: pemFile(
+        'private_key',
+        expect.stringContaining('/certs/dev/vx-scan-private-key.pem')
+      ),
     },
   },
 ])(

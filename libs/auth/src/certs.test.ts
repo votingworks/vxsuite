@@ -20,11 +20,12 @@ import {
   MachineType,
   parseCert,
 } from './certs';
+import { pemBuffer } from './cryptographic_material';
 import { openssl } from './cryptography';
 
 vi.mock('./cryptography');
 
-const cert = Buffer.of();
+const cert = pemBuffer('cert', Buffer.of());
 const electionId = 'rhr6fw5qb077';
 const electionDate = '2024-07-10';
 const electionKey: ElectionKey = {

@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { DEV_MACHINE_ID, formatElectionHashes } from '@votingworks/types';
 
-import { getTestFilePath } from '../test/utils';
+import { getTestFile } from '../test/utils';
 import { SignedHashValidationConfig } from './config';
 import {
   generateSignedHashValidationQrCodeValue,
@@ -20,23 +20,13 @@ const combinedElectionHash: string = formatElectionHashes(
 );
 
 const vxAdminTestConfig: SignedHashValidationConfig = {
-  machineCertPath: getTestFilePath({
-    fileType: 'vx-admin-cert-authority-cert.pem',
-  }),
-  machinePrivateKey: {
-    source: 'file',
-    path: getTestFilePath({ fileType: 'vx-admin-private-key.pem' }),
-  },
+  machineCert: getTestFile({ fileType: 'vx-admin-cert-authority-cert.pem' }),
+  machinePrivateKey: getTestFile({ fileType: 'vx-admin-private-key.pem' }),
 };
 
 const vxScanTestConfig: SignedHashValidationConfig = {
-  machineCertPath: getTestFilePath({
-    fileType: 'vx-scan-cert.pem',
-  }),
-  machinePrivateKey: {
-    source: 'file',
-    path: getTestFilePath({ fileType: 'vx-scan-private-key.pem' }),
-  },
+  machineCert: getTestFile({ fileType: 'vx-scan-cert.pem' }),
+  machinePrivateKey: getTestFile({ fileType: 'vx-scan-private-key.pem' }),
 };
 
 test.each<{

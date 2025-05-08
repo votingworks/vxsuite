@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import { Readable } from 'node:stream';
 import { DEV_MACHINE_ID, TEST_JURISDICTION } from '@votingworks/types';
 
-import { getTestFilePath } from '../test/utils';
+import { getTestFile } from '../test/utils';
 import {
   CERT_EXPIRY_IN_DAYS,
   constructCardCertSubject,
@@ -26,21 +26,18 @@ import {
  */
 
 test('createCert end-to-end - machine cert', async () => {
-  const vxCertAuthorityCertPath = getTestFilePath({
+  const vxCertAuthorityCert = getTestFile({
     fileType: 'vx-cert-authority-cert.pem',
   });
-  const vxPrivateKeyPath = getTestFilePath({
+  const vxPrivateKey = getTestFile({
     fileType: 'vx-private-key.pem',
   });
-  const vxAdminPrivateKeyPath = getTestFilePath({
+  const vxAdminPrivateKey = getTestFile({
     fileType: 'vx-admin-private-key.pem',
   });
 
   const vxAdminCertAuthorityCert = await createCert({
-    certKeyInput: {
-      type: 'private',
-      key: { source: 'file', path: vxAdminPrivateKeyPath },
-    },
+    certKeyInput: vxAdminPrivateKey,
     certSubject: constructMachineCertSubject({
       machineType: 'admin',
       machineId: DEV_MACHINE_ID,
@@ -48,12 +45,12 @@ test('createCert end-to-end - machine cert', async () => {
     }),
     certType: 'cert_authority_cert',
     expiryInDays: CERT_EXPIRY_IN_DAYS.DEV,
-    signingCertAuthorityCertPath: vxCertAuthorityCertPath,
-    signingPrivateKey: { source: 'file', path: vxPrivateKeyPath },
+    signingCertAuthorityCert: vxCertAuthorityCert,
+    signingPrivateKey: vxPrivateKey,
   });
   await verifyFirstCertWasSignedBySecondCert(
     vxAdminCertAuthorityCert,
-    vxCertAuthorityCertPath
+    vxCertAuthorityCert
   );
   const certDetails = await parseCert(vxAdminCertAuthorityCert);
   expect(certDetails).toEqual({
@@ -64,27 +61,19 @@ test('createCert end-to-end - machine cert', async () => {
 });
 
 test('createCert end-to-end - card cert', async () => {
-  const vxAdminCertAuthorityCertPath = getTestFilePath({
+  const vxAdminCertAuthorityCert = getTestFile({
     fileType: 'vx-admin-cert-authority-cert.pem',
   });
-  const vxAdminPrivateKeyPath = getTestFilePath({
+  const vxAdminPrivateKey = getTestFile({
     fileType: 'vx-admin-private-key.pem',
   });
-  const cardIdentityPublicKeyPath = getTestFilePath({
+  const cardIdentityPublicKey = getTestFile({
     fileType: 'card-identity-public-key.der',
     cardType: 'system-administrator',
   });
 
   const cardIdentityCert = await createCert({
-    certKeyInput: {
-      type: 'public',
-      key: {
-        source: 'inline',
-        content: (await publicKeyDerToPem(cardIdentityPublicKeyPath)).toString(
-          'utf-8'
-        ),
-      },
-    },
+    certKeyInput: await publicKeyDerToPem(cardIdentityPublicKey),
     certSubject: constructCardCertSubject({
       user: {
         role: 'system_administrator',
@@ -94,12 +83,12 @@ test('createCert end-to-end - card cert', async () => {
     }),
     certType: 'standard_cert',
     expiryInDays: CERT_EXPIRY_IN_DAYS.DEV,
-    signingCertAuthorityCertPath: vxAdminCertAuthorityCertPath,
-    signingPrivateKey: { source: 'file', path: vxAdminPrivateKeyPath },
+    signingCertAuthorityCert: vxAdminCertAuthorityCert,
+    signingPrivateKey: vxAdminPrivateKey,
   });
   await verifyFirstCertWasSignedBySecondCert(
     cardIdentityCert,
-    vxAdminCertAuthorityCertPath
+    vxAdminCertAuthorityCert
   );
   const certDetails = await parseCert(cardIdentityCert);
   expect(certDetails).toEqual({
@@ -110,16 +99,16 @@ test('createCert end-to-end - card cert', async () => {
 });
 
 test('signMessage end-to-end', async () => {
-  const vxScanCertPath = getTestFilePath({ fileType: 'vx-scan-cert.pem' });
-  const vxScanPrivateKeyPath = getTestFilePath({
+  const vxScanCert = getTestFile({ fileType: 'vx-scan-cert.pem' });
+  const vxScanPrivateKey = getTestFile({
     fileType: 'vx-scan-private-key.pem',
   });
 
   const messageSignature = await signMessage({
     message: Readable.from('abcd'),
-    signingPrivateKey: { source: 'file', path: vxScanPrivateKeyPath },
+    signingPrivateKey: vxScanPrivateKey,
   });
-  const vxScanPublicKey = await extractPublicKeyFromCert(vxScanCertPath);
+  const vxScanPublicKey = await extractPublicKeyFromCert(vxScanCert);
   await verifySignature({
     message: Readable.from('abcd'),
     messageSignature,

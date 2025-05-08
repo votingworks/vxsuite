@@ -3,7 +3,7 @@ import { electionGeneralFixtures } from '@votingworks/fixtures';
 import { DEV_MACHINE_ID, Tabulation } from '@votingworks/types';
 import { compressTally } from '@votingworks/utils';
 
-import { getTestFilePath } from '../test/utils';
+import { getTestFile } from '../test/utils';
 import { SignedQuickResultsReportingConfig } from './config';
 import { generateSignedQuickResultsReportingUrl } from './signed_quick_results_reporting';
 
@@ -16,10 +16,7 @@ vi.mock(
 );
 
 const vxScanTestConfig: SignedQuickResultsReportingConfig = {
-  machinePrivateKey: {
-    source: 'file',
-    path: getTestFilePath({ fileType: 'vx-scan-private-key.pem' }),
-  },
+  machinePrivateKey: getTestFile({ fileType: 'vx-scan-private-key.pem' }),
 };
 
 const electionDefinition = electionGeneralFixtures.readElectionDefinition();

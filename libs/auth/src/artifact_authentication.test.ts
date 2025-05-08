@@ -11,7 +11,7 @@ import {
   DEV_MACHINE_ID,
 } from '@votingworks/types';
 
-import { getTestFilePath } from '../test/utils';
+import { getTestFile } from '../test/utils';
 import {
   ArtifactToExport,
   ArtifactToImport,
@@ -125,27 +125,25 @@ afterEach(() => {
 });
 
 const vxAdminTestConfig: ArtifactAuthenticationConfig = {
-  signingMachineCertPath: getTestFilePath({
+  signingMachineCert: getTestFile({
     fileType: 'vx-admin-cert-authority-cert.pem',
   }),
-  signingMachinePrivateKey: {
-    source: 'file',
-    path: getTestFilePath({ fileType: 'vx-admin-private-key.pem' }),
-  },
-  vxCertAuthorityCertPath: getTestFilePath({
+  signingMachinePrivateKey: getTestFile({
+    fileType: 'vx-admin-private-key.pem',
+  }),
+  vxCertAuthorityCert: getTestFile({
     fileType: 'vx-cert-authority-cert.pem',
   }),
 };
 
 const vxScanTestConfig: ArtifactAuthenticationConfig = {
-  signingMachineCertPath: getTestFilePath({
+  signingMachineCert: getTestFile({
     fileType: 'vx-scan-cert.pem',
   }),
-  signingMachinePrivateKey: {
-    source: 'file',
-    path: getTestFilePath({ fileType: 'vx-scan-private-key.pem' }),
-  },
-  vxCertAuthorityCertPath: getTestFilePath({
+  signingMachinePrivateKey: getTestFile({
+    fileType: 'vx-scan-private-key.pem',
+  }),
+  vxCertAuthorityCert: getTestFile({
     fileType: 'vx-cert-authority-cert.pem',
   }),
 };

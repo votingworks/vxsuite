@@ -21,7 +21,7 @@ import {
 } from '@votingworks/types';
 
 import {
-  getTestFilePath,
+  getTestFile,
   MockCardReader,
   TestFileSetId,
   TestJavaCard,
@@ -38,8 +38,17 @@ import { CardReader } from './card_reader';
 import { CardType } from './certs';
 import { JavaCardConfig } from './config';
 import {
+  CertDerFile,
+  CertPemFile,
+  pemBuffer,
+  PrivateKeyPemFile,
+  PublicKeyDerFile,
+  remotePrivateKey,
+} from './cryptographic_material';
+import {
   certDerToPem,
   createCert,
+  CreateCertInput,
   openssl,
   PUBLIC_KEY_IN_DER_FORMAT_HEADER,
   publicKeyDerToPem,
@@ -90,7 +99,9 @@ beforeEach(() => {
     mockCardReader = new MockCardReader(...params);
     return mockCardReader as unknown as CardReader;
   });
-  vi.mocked(createCert).mockImplementation(() => Promise.resolve(Buffer.of()));
+  vi.mocked(createCert).mockImplementation(() =>
+    Promise.resolve(pemBuffer('cert', Buffer.of()))
+  );
 });
 
 afterEach(() => {
@@ -112,7 +123,7 @@ function generateChallengeOverride(): string {
 
 const config: JavaCardConfig = {
   generateChallengeOverride,
-  vxCertAuthorityCertPath: getTestFilePath({
+  vxCertAuthorityCert: getTestFile({
     fileType: 'vx-cert-authority-cert.pem',
   }),
 };
@@ -121,15 +132,12 @@ const configWithVxAdminCardProgrammingConfig: JavaCardConfig = {
   ...config,
   cardProgrammingConfig: {
     configType: 'machine',
-    machineCertAuthorityCertPath: getTestFilePath({
+    machineCertAuthorityCert: getTestFile({
       fileType: 'vx-admin-cert-authority-cert.pem',
     }),
-    machinePrivateKey: {
-      source: 'file',
-      path: getTestFilePath({
-        fileType: 'vx-admin-private-key.pem',
-      }),
-    },
+    machinePrivateKey: getTestFile({
+      fileType: 'vx-admin-private-key.pem',
+    }),
   },
 };
 
@@ -137,15 +145,12 @@ const configWithVxPollBookCardProgrammingConfig: JavaCardConfig = {
   ...config,
   cardProgrammingConfig: {
     configType: 'machine',
-    machineCertAuthorityCertPath: getTestFilePath({
+    machineCertAuthorityCert: getTestFile({
       fileType: 'vx-poll-book-cert-authority-cert.pem',
     }),
-    machinePrivateKey: {
-      source: 'file',
-      path: getTestFilePath({
-        fileType: 'vx-poll-book-private-key.pem',
-      }),
-    },
+    machinePrivateKey: getTestFile({
+      fileType: 'vx-poll-book-private-key.pem',
+    }),
   },
 };
 
@@ -153,12 +158,9 @@ const configWithVxCardProgrammingConfig: JavaCardConfig = {
   ...config,
   cardProgrammingConfig: {
     configType: 'vx',
-    vxPrivateKey: {
-      source: 'file',
-      path: getTestFilePath({
-        fileType: 'vx-private-key.pem',
-      }),
-    },
+    vxPrivateKey: getTestFile({
+      fileType: 'vx-private-key.pem',
+    }),
   },
 };
 
@@ -166,9 +168,7 @@ const configWithVxCardProgrammingConfigAndRemoteKey: JavaCardConfig = {
   ...config,
   cardProgrammingConfig: {
     configType: 'vx',
-    vxPrivateKey: {
-      source: 'remote',
-    },
+    vxPrivateKey: remotePrivateKey,
   },
 };
 
@@ -185,7 +185,7 @@ function mockCardAppletSelectionRequest(): void {
 
 function mockCardCertRetrievalRequest(
   certObjectId: Buffer,
-  certPath: string
+  cert: CertDerFile
 ): void {
   const command = new CardCommand({
     ins: GET_DATA.INS,
@@ -196,7 +196,7 @@ function mockCardCertRetrievalRequest(
   const responseData = constructTlv(
     PUT_DATA.DATA_TAG,
     Buffer.concat([
-      constructTlv(PUT_DATA.CERT_TAG, fs.readFileSync(certPath)),
+      constructTlv(PUT_DATA.CERT_TAG, fs.readFileSync(cert.path)),
       constructTlv(
         PUT_DATA.CERT_INFO_TAG,
         Buffer.of(PUT_DATA.CERT_INFO_UNCOMPRESSED)
@@ -209,7 +209,7 @@ function mockCardCertRetrievalRequest(
 
 async function mockCardSignatureRequest(
   privateKeyId: Byte,
-  privateKeyPath: string,
+  privateKey: PrivateKeyPemFile,
   error?: Error
 ): Promise<void> {
   const challengeHash = Buffer.from(sha256.arrayBuffer(mockChallenge));
@@ -233,7 +233,7 @@ async function mockCardSignatureRequest(
     'dgst',
     '-sha256',
     '-sign',
-    privateKeyPath,
+    privateKey.path,
     Buffer.from(mockChallenge, 'utf-8'),
   ]);
   const responseData = constructTlv(
@@ -297,7 +297,7 @@ function mockCardPinResetRequest(newPin: string): void {
 
 function mockCardKeyPairGenerationRequest(
   privateKeyId: Byte,
-  publicKeyPath: string
+  publicKey: PublicKeyDerFile
 ): void {
   const command = new CardCommand({
     ins: GENERATE_ASYMMETRIC_KEY_PAIR.INS,
@@ -312,7 +312,7 @@ function mockCardKeyPairGenerationRequest(
     ),
   });
   const publicKeyRawData = fs
-    .readFileSync(publicKeyPath)
+    .readFileSync(publicKey.path)
     .subarray(PUBLIC_KEY_IN_DER_FORMAT_HEADER.length);
   const responseData = constructTlv(
     GENERATE_ASYMMETRIC_KEY_PAIR.RESPONSE_TAG,
@@ -326,7 +326,7 @@ function mockCardKeyPairGenerationRequest(
 
 function mockCardCertStorageRequest(
   certObjectId: Buffer,
-  certPath: string
+  cert: CertDerFile
 ): void {
   const command = new CardCommand({
     ins: PUT_DATA.INS,
@@ -337,7 +337,7 @@ function mockCardCertStorageRequest(
       constructTlv(
         PUT_DATA.DATA_TAG,
         Buffer.concat([
-          constructTlv(PUT_DATA.CERT_TAG, fs.readFileSync(certPath)),
+          constructTlv(PUT_DATA.CERT_TAG, fs.readFileSync(cert.path)),
           constructTlv(
             PUT_DATA.CERT_INFO_TAG,
             Buffer.of(PUT_DATA.CERT_INFO_UNCOMPRESSED)
@@ -386,7 +386,7 @@ function mockCardPutDataRequest(dataObjectId: Buffer, data: Buffer): void {
 test('Non-ready card statuses', async () => {
   const javaCard = new JavaCard({
     generateChallengeOverride,
-    vxCertAuthorityCertPath: getTestFilePath({
+    vxCertAuthorityCert: getTestFile({
       fileType: 'vx-cert-authority-cert.pem',
     }),
   });
@@ -722,7 +722,7 @@ test.each<{
   }) => {
     const javaCard = new JavaCard({
       generateChallengeOverride,
-      vxCertAuthorityCertPath: getTestFilePath({
+      vxCertAuthorityCert: getTestFile({
         setId: vxCertAuthorityCert,
         fileType: 'vx-cert-authority-cert.pem',
       }),
@@ -731,23 +731,23 @@ test.each<{
     mockCardAppletSelectionRequest();
     mockCardCertRetrievalRequest(
       CARD_VX_CERT.OBJECT_ID,
-      getTestFilePath({
-        setId: cardVxCert,
+      getTestFile({
         fileType: 'card-vx-cert.der',
         cardType,
+        setId: cardVxCert,
       })
     );
     if (cardIdentityCert) {
       const { setId, programmingMachineType } = cardIdentityCert;
       mockCardCertRetrievalRequest(
         CARD_IDENTITY_CERT.OBJECT_ID,
-        getTestFilePath({
-          setId,
+        getTestFile({
           fileType: isCardIdentityCertExpired
             ? 'card-identity-cert-expired.der'
             : 'card-identity-cert.der',
           cardType,
           programmingMachineType,
+          setId,
         })
       );
     }
@@ -755,19 +755,19 @@ test.each<{
       const { setId, machineType } = programmingMachineCertAuthorityCert;
       mockCardCertRetrievalRequest(
         PROGRAMMING_MACHINE_CERT_AUTHORITY_CERT.OBJECT_ID,
-        getTestFilePath({
-          setId,
+        getTestFile({
           fileType: `vx-${machineType}-cert-authority-cert.der`,
+          setId,
         })
       );
     }
     if (cardVxPrivateKey) {
       await mockCardSignatureRequest(
         CARD_VX_CERT.PRIVATE_KEY_ID,
-        getTestFilePath({
-          setId: cardVxPrivateKey,
+        getTestFile({
           fileType: 'card-vx-private-key.pem',
           cardType,
+          setId: cardVxPrivateKey,
         })
       );
     }
@@ -776,11 +776,11 @@ test.each<{
       mockCardPinVerificationRequest(DEFAULT_PIN);
       await mockCardSignatureRequest(
         CARD_IDENTITY_CERT.PRIVATE_KEY_ID,
-        getTestFilePath({
-          setId,
+        getTestFile({
           fileType: 'card-identity-private-key.pem',
           cardType,
           programmingMachineType,
+          setId,
         })
       );
     }
@@ -846,7 +846,7 @@ test.each<{
     mockCardAppletSelectionRequest();
     mockCardCertRetrievalRequest(
       CARD_IDENTITY_CERT.OBJECT_ID,
-      getTestFilePath({
+      getTestFile({
         fileType: 'card-identity-cert.der',
         cardType: 'system-administrator',
       })
@@ -855,7 +855,7 @@ test.each<{
     if (!cardPinVerificationRequestError) {
       await mockCardSignatureRequest(
         CARD_IDENTITY_CERT.PRIVATE_KEY_ID,
-        getTestFilePath({
+        getTestFile({
           fileType: 'card-identity-private-key.pem',
           cardType: 'system-administrator',
         }),
@@ -880,9 +880,9 @@ test.each<{
   expectedCardType: CardType;
   expectedCertSubject: string;
   expectedExpiryInDays: number;
-  expectedSigningCertAuthorityCertPath: string;
-  expectedSigningPrivateKeyPath: string;
-  expectedProgrammingMachineCertAuthorityCertPath: string | null;
+  expectedSigningCertAuthorityCert: CertPemFile;
+  expectedSigningPrivateKey: PrivateKeyPemFile;
+  expectedProgrammingMachineCertAuthorityCert: CertDerFile | null;
   expectedCardDetailsAfterProgramming: CardDetails;
 }>([
   {
@@ -899,13 +899,13 @@ test.each<{
       `/1.3.6.1.4.1.59817.2=${TEST_JURISDICTION}` +
       '/1.3.6.1.4.1.59817.3=vendor/',
     expectedExpiryInDays: 7,
-    expectedSigningCertAuthorityCertPath: getTestFilePath({
+    expectedSigningCertAuthorityCert: getTestFile({
       fileType: 'vx-cert-authority-cert.pem',
     }),
-    expectedSigningPrivateKeyPath: getTestFilePath({
+    expectedSigningPrivateKey: getTestFile({
       fileType: 'vx-private-key.pem',
     }),
-    expectedProgrammingMachineCertAuthorityCertPath: null,
+    expectedProgrammingMachineCertAuthorityCert: null,
     expectedCardDetailsAfterProgramming: {
       user: vendorUser,
     },
@@ -924,13 +924,13 @@ test.each<{
       `/1.3.6.1.4.1.59817.2=${TEST_JURISDICTION}` +
       '/1.3.6.1.4.1.59817.3=system-administrator/',
     expectedExpiryInDays: 365 * 5,
-    expectedSigningCertAuthorityCertPath: getTestFilePath({
+    expectedSigningCertAuthorityCert: getTestFile({
       fileType: 'vx-admin-cert-authority-cert.pem',
     }),
-    expectedSigningPrivateKeyPath: getTestFilePath({
+    expectedSigningPrivateKey: getTestFile({
       fileType: 'vx-admin-private-key.pem',
     }),
-    expectedProgrammingMachineCertAuthorityCertPath: getTestFilePath({
+    expectedProgrammingMachineCertAuthorityCert: getTestFile({
       fileType: 'vx-admin-cert-authority-cert.der',
     }),
     expectedCardDetailsAfterProgramming: {
@@ -953,13 +953,13 @@ test.each<{
       `/1.3.6.1.4.1.59817.4=${electionKey.id}` +
       `/1.3.6.1.4.1.59817.5=${electionKey.date.toISOString()}/`,
     expectedExpiryInDays: Math.round(365 * 0.5),
-    expectedSigningCertAuthorityCertPath: getTestFilePath({
+    expectedSigningCertAuthorityCert: getTestFile({
       fileType: 'vx-admin-cert-authority-cert.pem',
     }),
-    expectedSigningPrivateKeyPath: getTestFilePath({
+    expectedSigningPrivateKey: getTestFile({
       fileType: 'vx-admin-private-key.pem',
     }),
-    expectedProgrammingMachineCertAuthorityCertPath: getTestFilePath({
+    expectedProgrammingMachineCertAuthorityCert: getTestFile({
       fileType: 'vx-admin-cert-authority-cert.der',
     }),
     expectedCardDetailsAfterProgramming: {
@@ -981,13 +981,13 @@ test.each<{
       `/1.3.6.1.4.1.59817.4=${electionKey.id}` +
       `/1.3.6.1.4.1.59817.5=${electionKey.date.toISOString()}/`,
     expectedExpiryInDays: Math.round(365 * 0.5),
-    expectedSigningCertAuthorityCertPath: getTestFilePath({
+    expectedSigningCertAuthorityCert: getTestFile({
       fileType: 'vx-admin-cert-authority-cert.pem',
     }),
-    expectedSigningPrivateKeyPath: getTestFilePath({
+    expectedSigningPrivateKey: getTestFile({
       fileType: 'vx-admin-private-key.pem',
     }),
-    expectedProgrammingMachineCertAuthorityCertPath: getTestFilePath({
+    expectedProgrammingMachineCertAuthorityCert: getTestFile({
       fileType: 'vx-admin-cert-authority-cert.der',
     }),
     expectedCardDetailsAfterProgramming: {
@@ -1011,13 +1011,13 @@ test.each<{
       `/1.3.6.1.4.1.59817.4=${electionKey.id}` +
       `/1.3.6.1.4.1.59817.5=${electionKey.date.toISOString()}/`,
     expectedExpiryInDays: Math.round(365 * 0.5),
-    expectedSigningCertAuthorityCertPath: getTestFilePath({
+    expectedSigningCertAuthorityCert: getTestFile({
       fileType: 'vx-admin-cert-authority-cert.pem',
     }),
-    expectedSigningPrivateKeyPath: getTestFilePath({
+    expectedSigningPrivateKey: getTestFile({
       fileType: 'vx-admin-private-key.pem',
     }),
-    expectedProgrammingMachineCertAuthorityCertPath: getTestFilePath({
+    expectedProgrammingMachineCertAuthorityCert: getTestFile({
       fileType: 'vx-admin-cert-authority-cert.der',
     }),
     expectedCardDetailsAfterProgramming: {
@@ -1039,13 +1039,13 @@ test.each<{
       `/1.3.6.1.4.1.59817.2=${TEST_JURISDICTION}` +
       '/1.3.6.1.4.1.59817.3=system-administrator/',
     expectedExpiryInDays: 365 * 5,
-    expectedSigningCertAuthorityCertPath: getTestFilePath({
+    expectedSigningCertAuthorityCert: getTestFile({
       fileType: 'vx-poll-book-cert-authority-cert.pem',
     }),
-    expectedSigningPrivateKeyPath: getTestFilePath({
+    expectedSigningPrivateKey: getTestFile({
       fileType: 'vx-poll-book-private-key.pem',
     }),
-    expectedProgrammingMachineCertAuthorityCertPath: getTestFilePath({
+    expectedProgrammingMachineCertAuthorityCert: getTestFile({
       fileType: 'vx-poll-book-cert-authority-cert.der',
     }),
     expectedCardDetailsAfterProgramming: {
@@ -1060,9 +1060,9 @@ test.each<{
     expectedCardType,
     expectedCertSubject,
     expectedExpiryInDays,
-    expectedSigningCertAuthorityCertPath,
-    expectedSigningPrivateKeyPath,
-    expectedProgrammingMachineCertAuthorityCertPath,
+    expectedSigningCertAuthorityCert,
+    expectedSigningPrivateKey,
+    expectedProgrammingMachineCertAuthorityCert,
     expectedCardDetailsAfterProgramming,
   }) => {
     const javaCard = new JavaCard(configToUse);
@@ -1073,55 +1073,39 @@ test.each<{
     mockCardPinVerificationRequest(pin);
     mockCardKeyPairGenerationRequest(
       CARD_IDENTITY_CERT.PRIVATE_KEY_ID,
-      getTestFilePath({
+      getTestFile({
         fileType: 'card-identity-public-key.der',
         cardType: expectedCardType,
       })
     );
-    const cardIdentityCertPath = getTestFilePath({
+    const cardIdentityCert = getTestFile({
       fileType: 'card-identity-cert.der',
       cardType: expectedCardType,
     });
     vi.mocked(createCert).mockImplementationOnce(() =>
-      certDerToPem(fs.readFileSync(cardIdentityCertPath))
+      certDerToPem(cardIdentityCert)
     );
-    mockCardCertStorageRequest(
-      CARD_IDENTITY_CERT.OBJECT_ID,
-      cardIdentityCertPath
-    );
-    if (expectedProgrammingMachineCertAuthorityCertPath) {
+    mockCardCertStorageRequest(CARD_IDENTITY_CERT.OBJECT_ID, cardIdentityCert);
+    if (expectedProgrammingMachineCertAuthorityCert) {
       mockCardCertStorageRequest(
         PROGRAMMING_MACHINE_CERT_AUTHORITY_CERT.OBJECT_ID,
-        expectedProgrammingMachineCertAuthorityCertPath
+        expectedProgrammingMachineCertAuthorityCert
       );
     }
 
     await javaCard.program(programInput);
     expect(createCert).toHaveBeenCalledTimes(1);
     expect(createCert).toHaveBeenNthCalledWith(1, {
-      certKeyInput: {
-        type: 'public',
-        key: {
-          source: 'inline',
-          content: (
-            await publicKeyDerToPem(
-              fs.readFileSync(
-                getTestFilePath({
-                  fileType: 'card-identity-public-key.der',
-                  cardType: expectedCardType,
-                })
-              )
-            )
-          ).toString('utf-8'),
-        },
-      },
+      certKeyInput: await publicKeyDerToPem(
+        getTestFile({
+          fileType: 'card-identity-public-key.der',
+          cardType: expectedCardType,
+        })
+      ),
       certSubject: expectedCertSubject,
       expiryInDays: expectedExpiryInDays,
-      signingCertAuthorityCertPath: expectedSigningCertAuthorityCertPath,
-      signingPrivateKey: {
-        source: 'file',
-        path: expectedSigningPrivateKeyPath,
-      },
+      signingCertAuthorityCert: expectedSigningCertAuthorityCert,
+      signingPrivateKey: expectedSigningPrivateKey,
     });
 
     expect(await javaCard.getCardStatus()).toEqual({
@@ -1300,7 +1284,7 @@ test('retrieveCertByIdentifier', async () => {
   mockCardAppletSelectionRequest();
   mockCardCertRetrievalRequest(
     CARD_VX_CERT.OBJECT_ID,
-    getTestFilePath({
+    getTestFile({
       fileType: 'card-vx-cert.der',
       cardType: 'system-administrator',
     })
@@ -1315,50 +1299,35 @@ test('createAndStoreCardVxCert', async () => {
   mockCardAppletSelectionRequest();
   mockCardKeyPairGenerationRequest(
     CARD_VX_CERT.PRIVATE_KEY_ID,
-    getTestFilePath({
+    getTestFile({
       fileType: 'card-vx-public-key.der',
       cardType: 'system-administrator',
     })
   );
-  const cardVxCertPath = getTestFilePath({
+  const cardVxCert = getTestFile({
     fileType: 'card-vx-cert.der',
     cardType: 'system-administrator',
   });
-  vi.mocked(createCert).mockImplementationOnce(() =>
-    certDerToPem(fs.readFileSync(cardVxCertPath))
-  );
-  mockCardCertStorageRequest(CARD_VX_CERT.OBJECT_ID, cardVxCertPath);
+  vi.mocked(createCert).mockImplementationOnce(() => certDerToPem(cardVxCert));
+  mockCardCertStorageRequest(CARD_VX_CERT.OBJECT_ID, cardVxCert);
 
   await javaCard.createAndStoreCardVxCert();
   expect(createCert).toHaveBeenCalledTimes(1);
-  expect(createCert).toHaveBeenNthCalledWith(1, {
-    certKeyInput: {
-      type: 'public',
-      key: {
-        source: 'inline',
-        content: (
-          await publicKeyDerToPem(
-            fs.readFileSync(
-              getTestFilePath({
-                fileType: 'card-vx-public-key.der',
-                cardType: 'system-administrator',
-              })
-            )
-          )
-        ).toString('utf-8'),
-      },
-    },
+  expect(createCert).toHaveBeenNthCalledWith<CreateCertInput[]>(1, {
+    certKeyInput: await publicKeyDerToPem(
+      getTestFile({
+        fileType: 'card-vx-public-key.der',
+        cardType: 'system-administrator',
+      })
+    ),
     certSubject: '/C=US/ST=CA/O=VotingWorks/1.3.6.1.4.1.59817.1=card/',
     expiryInDays: 365 * 100,
-    signingCertAuthorityCertPath: getTestFilePath({
+    signingCertAuthorityCert: getTestFile({
       fileType: 'vx-cert-authority-cert.pem',
     }),
-    signingPrivateKey: {
-      source: 'file',
-      path: getTestFilePath({
-        fileType: 'vx-private-key.pem',
-      }),
-    },
+    signingPrivateKey: getTestFile({
+      fileType: 'vx-private-key.pem',
+    }),
   });
 });
 
@@ -1368,16 +1337,16 @@ test('createAndStoreCardVxCert with remote key', async () => {
   mockCardAppletSelectionRequest();
   mockCardKeyPairGenerationRequest(
     CARD_VX_CERT.PRIVATE_KEY_ID,
-    getTestFilePath({
+    getTestFile({
       fileType: 'card-vx-public-key.der',
       cardType: 'system-administrator',
     })
   );
-  const cardVxCertPath = getTestFilePath({
+  const cardVxCert = getTestFile({
     fileType: 'card-vx-cert.der',
     cardType: 'system-administrator',
   });
-  mockCardCertStorageRequest(CARD_VX_CERT.OBJECT_ID, cardVxCertPath);
+  mockCardCertStorageRequest(CARD_VX_CERT.OBJECT_ID, cardVxCert);
 
   const randomId = '123456';
   const workingDirectory = tmp.dirSync().name;
@@ -1389,10 +1358,7 @@ test('createAndStoreCardVxCert with remote key', async () => {
     mockQuestion.mockImplementationOnce(() => Promise.resolve(''));
     mockQuestion.mockImplementationOnce(async () => {
       // Only write the cert after the second prompt to simulate the no-file-found case
-      fs.writeFileSync(
-        certPath,
-        await certDerToPem(fs.readFileSync(cardVxCertPath))
-      );
+      fs.writeFileSync(certPath, (await certDerToPem(cardVxCert)).content);
       return Promise.resolve('');
     });
     const mockReadline: Partial<ReturnType<typeof createInterface>> = {
