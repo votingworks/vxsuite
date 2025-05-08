@@ -1,6 +1,6 @@
 import * as grout from '@votingworks/grout';
 import express, { Application } from 'express';
-import { assertDefined, err, ok, Result } from '@votingworks/basics';
+import { assertDefined, err, ok, Result, sleep } from '@votingworks/basics';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   Election,
@@ -19,6 +19,7 @@ import {
 } from '@votingworks/backend';
 import {
   generateFileTimeSuffix,
+  isElectionManagerAuth,
   isIntegrationTest,
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
@@ -54,6 +55,7 @@ import { pollUsbDriveForPollbookPackage } from './pollbook_package';
 import { resetNetworkSetup } from './networking';
 import { UndoCheckInReceipt } from './receipts/undo_check_in_receipt';
 import { renderAndPrintReceipt } from './receipts/printing';
+import { UNCONFIGURE_LOCKOUT_TIMEOUT } from './globals';
 
 const debug = rootDebug.extend('local_app');
 
@@ -175,6 +177,17 @@ function buildApi({ context, logger }: BuildAppParams) {
     async unconfigure(): Promise<void> {
       store.deleteElectionAndVoters();
       await usbDrive.eject();
+      const authStatus = await auth.getAuthStatus(
+        constructAuthMachineState(workspace)
+      );
+      // If we are an election manager, log the user out so we do not auto reconfigure
+      if (isElectionManagerAuth(authStatus)) {
+        workspace.store.setConfigurationStatus('recently-unconfigured');
+        await sleep(UNCONFIGURE_LOCKOUT_TIMEOUT);
+        auth.logOut(constructAuthMachineState(workspace));
+        workspace.store.setConfigurationStatus(undefined);
+      }
+      await workspace.peerApiClient.unconfigure();
       pollUsbDriveForPollbookPackage(context);
     },
 

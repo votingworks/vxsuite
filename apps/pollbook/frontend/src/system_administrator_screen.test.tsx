@@ -75,7 +75,7 @@ describe('Election tab', () => {
       'Insert a USB drive containing a pollbook package or power up another configured machine.'
     );
 
-    apiMock.setElectionConfiguration('not-found');
+    apiMock.setElectionConfiguration('not-found-usb');
     await screen.findByText(
       'No pollbook package found on the inserted USB drive.'
     );
@@ -133,7 +133,7 @@ describe('Election tab', () => {
     );
 
     // If the usb drive is inserted without a package there is a warning.
-    apiMock.setElectionConfiguration('not-found');
+    apiMock.setElectionConfiguration('not-found-usb');
     await screen.findByText(
       /No pollbook package found on the inserted USB drive/
     );
