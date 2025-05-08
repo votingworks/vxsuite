@@ -363,7 +363,7 @@ export function buildCentralScannerApp({
   deprecatedApiRouter.use(express.urlencoded({ extended: false }));
 
   deprecatedApiRouter.get(
-    '/central-scanner/scan/hmpb/ballot/:sheetId/:side/image',
+    '/scan/hmpb/ballot/:sheetId/:side/image',
     (request, response) => {
       const { sheetId, side } = request.params;
 
@@ -385,7 +385,7 @@ export function buildCentralScannerApp({
   );
 
   deprecatedApiRouter.get<NoParams, Scan.GetNextReviewSheetResponse>(
-    '/central-scanner/scan/hmpb/review/next-sheet',
+    '/scan/hmpb/review/next-sheet',
     (_request, response) => {
       const sheet = store.getNextAdjudicationSheet();
 
@@ -431,7 +431,7 @@ export function buildCentralScannerApp({
     }
   );
 
-  app.use(deprecatedApiRouter);
+  app.use('/central-scanner', deprecatedApiRouter);
 
   return app;
 }
