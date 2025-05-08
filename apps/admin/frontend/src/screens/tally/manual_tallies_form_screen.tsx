@@ -1,6 +1,7 @@
 import {
   assert,
   assertDefined,
+  find,
   mapObject,
   throwIllegalValue,
 } from '@votingworks/basics';
@@ -41,7 +42,6 @@ import {
 } from '@votingworks/ui';
 import {
   format,
-  getContestById,
   getBallotStyleGroup,
   areContestResultsValid,
 } from '@votingworks/utils';
@@ -549,8 +549,8 @@ function ContestForm({
     getBallotStyleGroup({ election, ballotStyleGroupId })
   );
 
-  const contest = getContestById(electionDefinition, contestId);
   const contests = getContests({ election, ballotStyle: ballotStyleGroup });
+  const contest = find(contests, (c) => c.id === contestId);
   const contestIndex = contests.indexOf(contest);
   const nextContest = contests[contestIndex + 1];
   const previousContest = contests[contestIndex - 1];
