@@ -79,6 +79,10 @@ describe('Election tab', () => {
       'No pollbook package found on the inserted USB drive.'
     );
 
+    // There should be a error if there was an error in configuration from usb
+    apiMock.setElectionConfiguration('usb-configuration-error');
+    await screen.findByText('Failed to configure VxPollBook');
+
     apiMock.setElectionConfiguration('loading');
     await screen.findByText('Configuring VxPollbook from USB drive…');
   });
@@ -136,6 +140,10 @@ describe('Election tab', () => {
     await screen.findByText(
       /No pollbook package found on the inserted USB drive/
     );
+
+    // There should be a warning if there was an error in configuration from usb
+    apiMock.setElectionConfiguration('usb-configuration-error');
+    await screen.findByText(/Error during configuration/);
 
     // Try to configure from the "bad" election and mimic an error
     apiMock.expectConfigureOverNetwork('TEST-04', 'invalid-pollbook-package');
