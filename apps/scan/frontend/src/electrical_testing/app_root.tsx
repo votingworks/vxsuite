@@ -12,7 +12,6 @@ import { useSound } from '../utils/use_sound';
 import {
   getElectricalTestingStatuses,
   getLatestScannedSheet,
-  getTestTaskStatuses,
   setCardReaderTaskRunning,
   setPrinterTaskRunning,
   setScannerTaskRunning,
@@ -54,7 +53,6 @@ function formatTimestamp(timestamp: DateTime): string {
 export function AppRoot(): JSX.Element {
   const getElectricalTestingStatusMessagesQuery =
     getElectricalTestingStatuses.useQuery();
-  const getTestTaskStatusesQuery = getTestTaskStatuses.useQuery();
   const setCardReaderTaskRunningMutation =
     setCardReaderTaskRunning.useMutation();
   const setUsbDriveTaskRunningMutation = setUsbDriveTaskRunning.useMutation();
@@ -87,25 +85,29 @@ export function AppRoot(): JSX.Element {
 
   function toggleCardReaderTaskRunning() {
     setCardReaderTaskRunningMutation.mutate(
-      getTestTaskStatusesQuery.data?.card === 'paused'
+      getElectricalTestingStatusMessagesQuery.data?.card?.taskStatus ===
+        'paused'
     );
   }
 
   function toggleUsbDriveTaskRunning() {
     setUsbDriveTaskRunningMutation.mutate(
-      getTestTaskStatusesQuery.data?.usbDrive === 'paused'
+      getElectricalTestingStatusMessagesQuery.data?.usbDrive?.taskStatus ===
+        'paused'
     );
   }
 
   function togglePrinterTaskRunning() {
     setPrinterTaskRunningMutation.mutate(
-      getTestTaskStatusesQuery.data?.printer === 'paused'
+      getElectricalTestingStatusMessagesQuery.data?.printer?.taskStatus ===
+        'paused'
     );
   }
 
   function toggleScannerTaskRunning() {
     setScannerTaskRunningMutation.mutate(
-      getTestTaskStatusesQuery.data?.scanner === 'paused'
+      getElectricalTestingStatusMessagesQuery.data?.scanner?.taskStatus ===
+        'paused'
     );
   }
 

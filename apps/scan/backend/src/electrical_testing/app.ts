@@ -1,11 +1,10 @@
-import { createSystemCallApi, TaskStatus } from '@votingworks/backend';
+import { createSystemCallApi } from '@votingworks/backend';
 import { iter } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import { SheetOf } from '@votingworks/types';
 import express, { Application } from 'express';
 import { readdir } from 'node:fs/promises';
 import { getMachineConfig } from '../machine_config';
-import { ElectricalTestingComponent } from '../store';
 import { type ServerContext } from './context';
 
 function buildApi({
@@ -47,15 +46,6 @@ function buildApi({
         scanner: scannerMessage
           ? { ...scannerMessage, taskStatus: scannerTask.getStatus() }
           : undefined,
-      };
-    },
-
-    getTestTaskStatuses(): Record<ElectricalTestingComponent, TaskStatus> {
-      return {
-        card: cardTask.getStatus(),
-        usbDrive: usbDriveTask.getStatus(),
-        printer: printerTask.getStatus(),
-        scanner: scannerTask.getStatus(),
       };
     },
 

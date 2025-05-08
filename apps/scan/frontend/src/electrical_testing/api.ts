@@ -49,18 +49,6 @@ export const getElectricalTestingStatuses = {
   },
 } as const;
 
-export const getTestTaskStatuses = {
-  queryKey(): QueryKey {
-    return ['getTestTaskStatuses'];
-  },
-  useQuery() {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getTestTaskStatuses(), {
-      refetchInterval: 1000,
-    });
-  },
-} as const;
-
 export const setCardReaderTaskRunning = {
   queryKey(): QueryKey {
     return ['setCardReaderTaskRunning'];
@@ -72,7 +60,9 @@ export const setCardReaderTaskRunning = {
       (running: boolean) => apiClient.setCardReaderTaskRunning({ running }),
       {
         onSuccess: async () => {
-          await queryClient.invalidateQueries(getTestTaskStatuses.queryKey());
+          await queryClient.invalidateQueries(
+            getElectricalTestingStatuses.queryKey()
+          );
         },
       }
     );
@@ -90,7 +80,9 @@ export const setPrinterTaskRunning = {
       (running: boolean) => apiClient.setPrinterTaskRunning({ running }),
       {
         onSuccess: async () => {
-          await queryClient.invalidateQueries(getTestTaskStatuses.queryKey());
+          await queryClient.invalidateQueries(
+            getElectricalTestingStatuses.queryKey()
+          );
         },
       }
     );
@@ -108,7 +100,9 @@ export const setScannerTaskRunning = {
       (running: boolean) => apiClient.setScannerTaskRunning({ running }),
       {
         onSuccess: async () => {
-          await queryClient.invalidateQueries(getTestTaskStatuses.queryKey());
+          await queryClient.invalidateQueries(
+            getElectricalTestingStatuses.queryKey()
+          );
         },
       }
     );
@@ -126,7 +120,9 @@ export const setUsbDriveTaskRunning = {
       (running: boolean) => apiClient.setUsbDriveTaskRunning({ running }),
       {
         onSuccess: async () => {
-          await queryClient.invalidateQueries(getTestTaskStatuses.queryKey());
+          await queryClient.invalidateQueries(
+            getElectricalTestingStatuses.queryKey()
+          );
         },
       }
     );
