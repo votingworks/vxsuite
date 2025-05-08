@@ -251,12 +251,12 @@ impl<T> Client<T> {
     /// This function will return an error if the connection to the scanner is
     /// lost.
     pub fn eject_document(&mut self, eject_motion: EjectMotion) -> Result<()> {
-        // The feeder needs to be enabled for the eject command to work.
-        self.set_feeder_mode(FeederMode::AutoScanSheets)?;
         self.set_eject_pause_mode(match eject_motion {
             EjectMotion::ToRear => EjectPauseMode::PauseWhileInputPaperDetected,
             _ => EjectPauseMode::DoNotCheckForInputPaper,
         })?;
+        // The feeder needs to be enabled for the eject command to work.
+        self.set_feeder_mode(FeederMode::AutoScanSheets)?;
         self.send(match eject_motion {
             EjectMotion::ToRear => Outgoing::EjectDocumentToRearOfScannerRequest,
             EjectMotion::ToFront => Outgoing::EjectDocumentToFrontOfScannerRequest,

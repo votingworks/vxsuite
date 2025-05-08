@@ -105,7 +105,7 @@ fn main() -> color_eyre::Result<()> {
                     match raw_image_data.try_decode_scan(DEFAULT_IMAGE_WIDTH, ScanSideMode::Duplex)
                     {
                         Ok(Sheet::Duplex(top, bottom)) => {
-                            match (top.to_image(), bottom.to_image()) {
+                            match (top.to_cropped_image(), bottom.to_cropped_image()) {
                                 (Some(top_image), Some(bottom_image)) => {
                                     let top_path =
                                         PathBuf::from(format!("scan-{scan_index:04}-top.png"));
