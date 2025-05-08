@@ -1,74 +1,81 @@
 import path from 'node:path';
 import { isIntegrationTest, isVxDev } from '@votingworks/utils';
 
+import {
+  CertPemFile,
+  pemFile,
+  PrivateKeyPemFile,
+  remotePrivateKey,
+  RemotePrivateKey,
+  TpmPrivateKey,
+} from './cryptographic_material';
 import { getRequiredEnvVar, isNodeEnvProduction } from './env_vars';
-import { FileKey, RemoteKey, TpmKey } from './keys';
 
 /**
- * The path to the dev root cert
+ * The dev root cert
  */
-export const DEV_VX_CERT_AUTHORITY_CERT_PATH = path.join(
-  __dirname,
-  '../certs/dev/vx-cert-authority-cert.pem'
+export const DEV_VX_CERT_AUTHORITY_CERT: CertPemFile = pemFile(
+  'cert',
+  path.join(__dirname, '../certs/dev/vx-cert-authority-cert.pem')
 );
 
 /**
- * The path to the prod root cert. We can commit this cert to the codebase because it's 1)
- * universal and 2) public.
+ * The prod root cert. We can commit this cert to the codebase because it's 1) universal and 2)
+ * public.
  */
-export const PROD_VX_CERT_AUTHORITY_CERT_PATH = path.join(
-  __dirname,
-  '../certs/prod/vx-cert-authority-cert.pem'
+export const PROD_VX_CERT_AUTHORITY_CERT: CertPemFile = pemFile(
+  'cert',
+  path.join(__dirname, '../certs/prod/vx-cert-authority-cert.pem')
 );
 
 function shouldUseProdCerts(): boolean {
   return isNodeEnvProduction() && !isVxDev() && !isIntegrationTest();
 }
 
-function getVxCertAuthorityCertPath(): string {
+function getVxCertAuthorityCert(): CertPemFile {
   return shouldUseProdCerts()
-    ? PROD_VX_CERT_AUTHORITY_CERT_PATH
-    : DEV_VX_CERT_AUTHORITY_CERT_PATH;
+    ? PROD_VX_CERT_AUTHORITY_CERT
+    : DEV_VX_CERT_AUTHORITY_CERT;
 }
 
-function getMachineCertPathAndPrivateKey(): {
-  certPath: string;
-  privateKey: FileKey | TpmKey;
+function getMachineCertAndPrivateKey(): {
+  cert: CertPemFile;
+  privateKey: PrivateKeyPemFile | TpmPrivateKey;
 } {
   const machineType = getRequiredEnvVar('VX_MACHINE_TYPE');
   const machineCertFileName =
     machineType === 'admin' || machineType === 'poll-book'
       ? `vx-${machineType}-cert-authority-cert.pem`
       : `vx-${machineType}-cert.pem`;
+  const machinePrivateKeyFileName = `vx-${machineType}-private-key.pem`;
   if (shouldUseProdCerts()) {
     const configRoot = getRequiredEnvVar('VX_CONFIG_ROOT');
     return {
-      certPath: path.join(configRoot, machineCertFileName),
-      privateKey: { source: 'tpm' },
+      cert: pemFile('cert', path.join(configRoot, machineCertFileName)),
+      privateKey: { type: 'private_key', source: 'tpm' },
     };
   }
   return {
-    certPath: path.join(__dirname, '../certs/dev', machineCertFileName),
-    privateKey: {
-      source: 'file',
-      path: path.join(
-        __dirname,
-        '../certs/dev',
-        `vx-${machineType}-private-key.pem`
-      ),
-    },
+    cert: pemFile(
+      'cert',
+      path.join(__dirname, '../certs/dev', machineCertFileName)
+    ),
+    privateKey: pemFile(
+      'private_key',
+      path.join(__dirname, '../certs/dev', machinePrivateKeyFileName)
+    ),
   };
 }
 
 interface MachineCardProgrammingConfig {
   configType: 'machine';
-  machineCertAuthorityCertPath: string;
-  machinePrivateKey: FileKey | TpmKey;
+  machineCertAuthorityCert: CertPemFile;
+  machinePrivateKey: PrivateKeyPemFile | TpmPrivateKey;
 }
 
 interface VxCardProgrammingConfig {
   configType: 'vx';
-  vxPrivateKey: FileKey | RemoteKey;
+  vxPrivateKey: PrivateKeyPemFile | RemotePrivateKey;
 }
 
 /**
@@ -85,7 +92,7 @@ export interface JavaCardConfig {
   /** For card programming */
   cardProgrammingConfig?: CardProgrammingConfig;
   /** The path to the VotingWorks cert authority cert */
-  vxCertAuthorityCertPath: string;
+  vxCertAuthorityCert: CertPemFile;
 
   /** Only tests should provide this param, to make challenge generation non-random */
   generateChallengeOverride?: () => string;
@@ -98,16 +105,16 @@ export function constructJavaCardConfig(): JavaCardConfig {
   const machineType = getRequiredEnvVar('VX_MACHINE_TYPE');
   let cardProgrammingConfig: CardProgrammingConfig | undefined;
   if (machineType === 'admin' || machineType === 'poll-book') {
-    const { certPath, privateKey } = getMachineCertPathAndPrivateKey();
+    const { cert, privateKey } = getMachineCertAndPrivateKey();
     cardProgrammingConfig = {
       configType: 'machine',
-      machineCertAuthorityCertPath: certPath,
+      machineCertAuthorityCert: cert,
       machinePrivateKey: privateKey,
     };
   }
   return {
     cardProgrammingConfig,
-    vxCertAuthorityCertPath: getVxCertAuthorityCertPath(),
+    vxCertAuthorityCert: getVxCertAuthorityCert(),
   };
 }
 
@@ -124,10 +131,10 @@ export function constructJavaCardConfigForVxProgramming(): JavaCardConfig {
       configType: 'vx',
       vxPrivateKey:
         vxPrivateKeyPath === 'remote'
-          ? { source: 'remote' }
-          : { source: 'file', path: vxPrivateKeyPath },
+          ? remotePrivateKey
+          : pemFile('private_key', vxPrivateKeyPath),
     },
-    vxCertAuthorityCertPath: getVxCertAuthorityCertPath(),
+    vxCertAuthorityCert: getVxCertAuthorityCert(),
   };
 }
 
@@ -135,20 +142,20 @@ export function constructJavaCardConfigForVxProgramming(): JavaCardConfig {
  * Config params for artifact authentication
  */
 export interface ArtifactAuthenticationConfig {
-  signingMachineCertPath: string;
-  signingMachinePrivateKey: FileKey | TpmKey;
-  vxCertAuthorityCertPath: string;
+  signingMachineCert: CertPemFile;
+  signingMachinePrivateKey: PrivateKeyPemFile | TpmPrivateKey;
+  vxCertAuthorityCert: CertPemFile;
 }
 
 /**
  * Constructs an artifact authentication config given relevant env vars
  */
 export function constructArtifactAuthenticationConfig(): ArtifactAuthenticationConfig {
-  const { certPath, privateKey } = getMachineCertPathAndPrivateKey();
+  const { cert, privateKey } = getMachineCertAndPrivateKey();
   return {
-    signingMachineCertPath: certPath,
+    signingMachineCert: cert,
     signingMachinePrivateKey: privateKey,
-    vxCertAuthorityCertPath: getVxCertAuthorityCertPath(),
+    vxCertAuthorityCert: getVxCertAuthorityCert(),
   };
 }
 
@@ -156,17 +163,17 @@ export function constructArtifactAuthenticationConfig(): ArtifactAuthenticationC
  * Config params for a signed hash validation instance
  */
 export interface SignedHashValidationConfig {
-  machineCertPath: string;
-  machinePrivateKey: FileKey | TpmKey;
+  machineCert: CertPemFile;
+  machinePrivateKey: PrivateKeyPemFile | TpmPrivateKey;
 }
 
 /**
  * Constructs a signed hash validation config given relevant env vars
  */
 export function constructSignedHashValidationConfig(): SignedHashValidationConfig {
-  const { certPath, privateKey } = getMachineCertPathAndPrivateKey();
+  const { cert, privateKey } = getMachineCertAndPrivateKey();
   return {
-    machineCertPath: certPath,
+    machineCert: cert,
     machinePrivateKey: privateKey,
   };
 }
@@ -175,14 +182,14 @@ export function constructSignedHashValidationConfig(): SignedHashValidationConfi
  * Config params for a signed quick results reporting instance
  */
 export interface SignedQuickResultsReportingConfig {
-  machinePrivateKey: FileKey | TpmKey;
+  machinePrivateKey: PrivateKeyPemFile | TpmPrivateKey;
 }
 
 /**
  * Constructs a signed quick results reporting config given relevant env vars
  */
 export function constructSignedQuickResultsReportingConfig(): SignedQuickResultsReportingConfig {
-  const { privateKey } = getMachineCertPathAndPrivateKey();
+  const { privateKey } = getMachineCertAndPrivateKey();
   return {
     machinePrivateKey: privateKey,
   };
