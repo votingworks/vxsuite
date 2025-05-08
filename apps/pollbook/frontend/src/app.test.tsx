@@ -3,7 +3,7 @@ import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
-import { constructElectionKey, Election } from '@votingworks/types';
+import { constructElectionKey, ElectionDefinition } from '@votingworks/types';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { render, screen, within } from '../test/react_testing_library';
@@ -11,8 +11,8 @@ import { App } from './app';
 import { ApiMock, createApiMock } from '../test/mock_api_client';
 
 let apiMock: ApiMock;
-const famousNamesElection: Election =
-  electionFamousNames2021Fixtures.readElection();
+const famousNamesElection: ElectionDefinition =
+  electionFamousNames2021Fixtures.readElectionDefinition();
 
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
@@ -39,7 +39,7 @@ test('renders UnlockMachineScreen when checking PIN', async () => {
   apiMock.setAuthStatus({
     status: 'checking_pin',
     user: mockElectionManagerUser({
-      electionKey: constructElectionKey(famousNamesElection),
+      electionKey: constructElectionKey(famousNamesElection.election),
     }),
   });
   render(<App apiClient={apiMock.mockApiClient} />);
@@ -50,7 +50,7 @@ test('renders RemoveCardScreen when card needs to be removed', async () => {
   apiMock.setAuthStatus({
     status: 'remove_card',
     user: mockElectionManagerUser({
-      electionKey: constructElectionKey(famousNamesElection),
+      electionKey: constructElectionKey(famousNamesElection.election),
     }),
     sessionExpiresAt: mockSessionExpiresAt(),
   });
@@ -58,8 +58,7 @@ test('renders RemoveCardScreen when card needs to be removed', async () => {
   await screen.findByText(/Remove card to unlock/);
 });
 
-test('renders MachineLockedScreen when machine is locked', async () => {
-  apiMock.expectGetMachineConfig();
+test('renders MachineLockedScreen when machine is locked - unconfigure', async () => {
   apiMock.expectGetDeviceStatuses();
   apiMock.setAuthStatus({
     status: 'logged_out',
@@ -67,6 +66,24 @@ test('renders MachineLockedScreen when machine is locked', async () => {
   });
   render(<App apiClient={apiMock.mockApiClient} />);
   await screen.findByText('VxPollbook Locked');
+  await screen.findByText(
+    'Insert system administrator or election manager card to unlock.'
+  );
+});
+
+test('renders MachineLockedScreen when machine is locked - configured', async () => {
+  apiMock.expectGetDeviceStatuses();
+  apiMock.setAuthStatus({
+    status: 'logged_out',
+    reason: 'machine_locked',
+  });
+  apiMock.setElection(famousNamesElection, 'FAKEHASH');
+  render(<App apiClient={apiMock.mockApiClient} />);
+  await screen.findByText('VxPollbook Locked');
+  await screen.findByText('Insert card to unlock.');
+  await screen.findByText(
+    `${famousNamesElection.ballotHash.slice(0, 7)}-FAKEHAS`
+  );
 });
 
 test('renders InvalidCardScreen for invalid card reasons', async () => {
@@ -79,12 +96,11 @@ test('renders InvalidCardScreen for invalid card reasons', async () => {
 });
 
 test('election manager - renders UnconfiguredScreen when election is unconfigured and not connected to other machines', async () => {
-  apiMock.expectGetMachineConfig();
   apiMock.expectGetDeviceStatuses();
   apiMock.setAuthStatus({
     status: 'logged_in',
     user: mockElectionManagerUser({
-      electionKey: constructElectionKey(famousNamesElection),
+      electionKey: constructElectionKey(famousNamesElection.election),
     }),
     sessionExpiresAt: mockSessionExpiresAt(),
   });
@@ -94,7 +110,6 @@ test('election manager - renders UnconfiguredScreen when election is unconfigure
 });
 
 test('system administrator can unconfigure', async () => {
-  apiMock.expectGetMachineConfig();
   apiMock.expectGetDeviceStatuses();
   apiMock.authenticateAsSystemAdministrator();
   apiMock.setElection(famousNamesElection);
@@ -115,7 +130,6 @@ test('system administrator can unconfigure', async () => {
   });
   apiMock.setElection();
 
-  apiMock.expectGetMachineConfig();
   userEvent.click(confirmButton);
 
   await screen.findByText(
@@ -124,9 +138,8 @@ test('system administrator can unconfigure', async () => {
 });
 
 test('renders ElectionManagerScreen when logged in as election manager', async () => {
-  apiMock.expectGetMachineConfig();
   apiMock.expectGetDeviceStatuses();
-  apiMock.authenticateAsElectionManager(famousNamesElection);
+  apiMock.authenticateAsElectionManager(famousNamesElection.election);
   apiMock.setElection(famousNamesElection);
   apiMock.setIsAbsenteeMode(false);
   render(<App apiClient={apiMock.mockApiClient} />);

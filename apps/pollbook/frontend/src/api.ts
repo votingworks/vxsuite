@@ -54,13 +54,15 @@ export function createQueryClient(): QueryClient {
   });
 }
 
-export const getMachineConfig = {
+export const getMachineInformation = {
   queryKey(): QueryKey {
-    return ['getMachineConfig'];
+    return ['getMachineInformation'];
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getMachineConfig());
+    return useQuery(this.queryKey(), () => apiClient.getMachineInformation(), {
+      refetchInterval: 1000,
+    });
   },
 } as const;
 

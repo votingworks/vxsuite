@@ -2,6 +2,7 @@ import {
   constructElectionKey,
   DippedSmartCardAuth,
   Election,
+  ElectionDefinition,
 } from '@votingworks/types';
 import { createMockClient } from '@votingworks/grout-test-utils';
 import type {
@@ -150,8 +151,8 @@ export function createApiMock() {
       });
     },
 
-    expectGetMachineConfig(): void {
-      mockApiClient.getMachineConfig
+    expectGetMachineInformation(): void {
+      mockApiClient.getMachineInformation
         .expectRepeatedCallsWith()
         .resolves(machineConfig);
     },
@@ -239,17 +240,31 @@ export function createApiMock() {
         .resolves(currentDeviceStatus);
     },
 
-    setElection(election?: Election) {
+    setElection(
+      electionDefinition?: ElectionDefinition,
+      pollbookPackageHash: string = 'test-package-hash'
+    ) {
       mockApiClient.getElection.reset();
-      if (!election) {
+      if (!electionDefinition) {
         mockApiClient.getElection
           .expectRepeatedCallsWith()
           .resolves(err('unconfigured'));
+        mockApiClient.getMachineInformation
+          .expectOptionalRepeatedCallsWith()
+          .resolves(machineConfig);
         return;
       }
       mockApiClient.getElection
         .expectRepeatedCallsWith()
-        .resolves(ok(election));
+        .resolves(ok(electionDefinition.election));
+      mockApiClient.getMachineInformation
+        .expectOptionalRepeatedCallsWith()
+        .resolves({
+          electionId: electionDefinition.election.id,
+          electionBallotHash: electionDefinition.ballotHash,
+          pollbookPackageHash,
+          ...machineConfig,
+        });
     },
 
     setElectionConfiguration(status: ConfigurationStatus) {
