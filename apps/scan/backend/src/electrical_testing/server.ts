@@ -3,15 +3,15 @@ import { LogEventId } from '@votingworks/logging';
 
 import { PORT } from '../globals';
 import { buildApp } from './app';
-import { printAndScanLoop } from './loops/print_and_scan_loop';
+import { runPrintAndScanTask } from './tasks/print_and_scan_task';
 import { ServerContext } from './context';
-import { runCardReadAndUsbDriveWriteLoop } from './loops/card_read_and_usb_drive_write_loop';
+import { runCardReadAndUsbDriveWriteTask } from './tasks/card_read_and_usb_drive_write_task';
 
 export function startElectricalTestingServer(context: ServerContext): void {
   const { workspace, logger } = context;
   const cardReadAndUsbDriveWriteLoopPromise =
-    runCardReadAndUsbDriveWriteLoop(context);
-  const printAndScanLoopPromise = printAndScanLoop(context);
+    runCardReadAndUsbDriveWriteTask(context);
+  const printAndScanLoopPromise = runPrintAndScanTask(context);
 
   logger.log(LogEventId.BackgroundTaskStarted, 'system', {
     disposition: 'success',

@@ -61,15 +61,15 @@ export const getTestTaskStatuses = {
   },
 } as const;
 
-export const setCardReaderLoopRunning = {
+export const setCardReaderTaskRunning = {
   queryKey(): QueryKey {
-    return ['setCardReaderLoopRunning'];
+    return ['setCardReaderTaskRunning'];
   },
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(
-      (running: boolean) => apiClient.setCardReaderLoopRunning({ running }),
+      (running: boolean) => apiClient.setCardReaderTaskRunning({ running }),
       {
         onSuccess: async () => {
           await queryClient.invalidateQueries(getTestTaskStatuses.queryKey());
@@ -79,15 +79,15 @@ export const setCardReaderLoopRunning = {
   },
 } as const;
 
-export const setPrinterLoopRunning = {
+export const setPrinterTaskRunning = {
   queryKey(): QueryKey {
-    return ['setPrinterLoopRunning'];
+    return ['setPrinterTaskRunning'];
   },
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(
-      (running: boolean) => apiClient.setPrinterLoopRunning({ running }),
+      (running: boolean) => apiClient.setPrinterTaskRunning({ running }),
       {
         onSuccess: async () => {
           await queryClient.invalidateQueries(getTestTaskStatuses.queryKey());
@@ -97,15 +97,15 @@ export const setPrinterLoopRunning = {
   },
 } as const;
 
-export const setScannerLoopRunning = {
+export const setScannerTaskRunning = {
   queryKey(): QueryKey {
-    return ['setScannerLoopRunning'];
+    return ['setScannerTaskRunning'];
   },
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(
-      (running: boolean) => apiClient.setScannerLoopRunning({ running }),
+      (running: boolean) => apiClient.setScannerTaskRunning({ running }),
       {
         onSuccess: async () => {
           await queryClient.invalidateQueries(getTestTaskStatuses.queryKey());
@@ -115,15 +115,15 @@ export const setScannerLoopRunning = {
   },
 } as const;
 
-export const setUsbDriveLoopRunning = {
+export const setUsbDriveTaskRunning = {
   queryKey(): QueryKey {
-    return ['setUsbDriveLoopRunning'];
+    return ['setUsbDriveTaskRunning'];
   },
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(
-      (running: boolean) => apiClient.setUsbDriveLoopRunning({ running }),
+      (running: boolean) => apiClient.setUsbDriveTaskRunning({ running }),
       {
         onSuccess: async () => {
           await queryClient.invalidateQueries(getTestTaskStatuses.queryKey());

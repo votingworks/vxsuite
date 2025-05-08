@@ -59,7 +59,7 @@ function buildApi({
       };
     },
 
-    setCardReaderLoopRunning(input: { running: boolean }) {
+    setCardReaderTaskRunning(input: { running: boolean }) {
       workspace.store.setElectricalTestingStatusMessage(
         'card',
         input.running ? 'Resumed' : 'Paused'
@@ -71,7 +71,7 @@ function buildApi({
       }
     },
 
-    setUsbDriveLoopRunning(input: { running: boolean }) {
+    setUsbDriveTaskRunning(input: { running: boolean }) {
       workspace.store.setElectricalTestingStatusMessage(
         'usbDrive',
         input.running ? 'Resumed' : 'Paused'
@@ -83,7 +83,7 @@ function buildApi({
       }
     },
 
-    setPrinterLoopRunning(input: { running: boolean }) {
+    setPrinterTaskRunning(input: { running: boolean }) {
       workspace.store.setElectricalTestingStatusMessage(
         'printer',
         input.running ? 'Resumed' : 'Paused'
@@ -95,7 +95,7 @@ function buildApi({
       }
     },
 
-    setScannerLoopRunning(input: { running: boolean }) {
+    setScannerTaskRunning(input: { running: boolean }) {
       workspace.store.setElectricalTestingStatusMessage(
         'scanner',
         input.running ? 'Resumed' : 'Paused'

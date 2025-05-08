@@ -13,10 +13,10 @@ import {
   getElectricalTestingStatuses,
   getLatestScannedSheet,
   getTestTaskStatuses,
-  setCardReaderLoopRunning,
-  setPrinterLoopRunning,
-  setScannerLoopRunning,
-  setUsbDriveLoopRunning,
+  setCardReaderTaskRunning,
+  setPrinterTaskRunning,
+  setScannerTaskRunning,
+  setUsbDriveTaskRunning,
   systemCallApi,
 } from './api';
 import { SheetImagesModal } from './sheet_images_modal';
@@ -55,11 +55,11 @@ export function AppRoot(): JSX.Element {
   const getElectricalTestingStatusMessagesQuery =
     getElectricalTestingStatuses.useQuery();
   const getTestTaskStatusesQuery = getTestTaskStatuses.useQuery();
-  const setCardReaderLoopRunningMutation =
-    setCardReaderLoopRunning.useMutation();
-  const setUsbDriveLoopRunningMutation = setUsbDriveLoopRunning.useMutation();
-  const setPrinterLoopRunningMutation = setPrinterLoopRunning.useMutation();
-  const setScannerLoopRunningMutation = setScannerLoopRunning.useMutation();
+  const setCardReaderTaskRunningMutation =
+    setCardReaderTaskRunning.useMutation();
+  const setUsbDriveTaskRunningMutation = setUsbDriveTaskRunning.useMutation();
+  const setPrinterTaskRunningMutation = setPrinterTaskRunning.useMutation();
+  const setScannerTaskRunningMutation = setScannerTaskRunning.useMutation();
   const getLatestScannedSheetQuery = getLatestScannedSheet.useQuery();
   const powerDownMutation = systemCallApi.powerDown.useMutation();
   const [isShowingLatestSheet, setIsShowingLatestSheet] = useState(false);
@@ -86,25 +86,25 @@ export function AppRoot(): JSX.Element {
   }, []);
 
   function toggleCardReaderTaskRunning() {
-    setCardReaderLoopRunningMutation.mutate(
+    setCardReaderTaskRunningMutation.mutate(
       getTestTaskStatusesQuery.data?.card === 'paused'
     );
   }
 
   function toggleUsbDriveTaskRunning() {
-    setUsbDriveLoopRunningMutation.mutate(
+    setUsbDriveTaskRunningMutation.mutate(
       getTestTaskStatusesQuery.data?.usbDrive === 'paused'
     );
   }
 
   function togglePrinterTaskRunning() {
-    setPrinterLoopRunningMutation.mutate(
+    setPrinterTaskRunningMutation.mutate(
       getTestTaskStatusesQuery.data?.printer === 'paused'
     );
   }
 
   function toggleScannerTaskRunning() {
-    setScannerLoopRunningMutation.mutate(
+    setScannerTaskRunningMutation.mutate(
       getTestTaskStatusesQuery.data?.scanner === 'paused'
     );
   }
