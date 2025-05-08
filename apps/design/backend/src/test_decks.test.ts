@@ -12,7 +12,7 @@ import {
 import { assert, find, iter } from '@votingworks/basics';
 import {
   buildContestResultsFixture,
-  getBallotStylesByPrecinctId,
+  CachedElectionLookups,
 } from '@votingworks/utils';
 import { ElectionDefinition, LanguageCode } from '@votingworks/types';
 import {
@@ -40,7 +40,10 @@ describe('createPrecinctTestDeck', () => {
     const { election } = electionDefinition;
     const precinctId = election.precincts[0].id;
     assert(
-      getBallotStylesByPrecinctId(electionDefinition, precinctId).length === 1
+      CachedElectionLookups.getBallotStylesByPrecinctId(
+        electionDefinition,
+        precinctId
+      ).length === 1
     );
     const { ballotDocuments } =
       await renderAllBallotsAndCreateElectionDefinition(
@@ -82,7 +85,10 @@ describe('createPrecinctTestDeck', () => {
     const { election } = electionDefinition;
     const precinctId = election.precincts[0].id;
     assert(
-      getBallotStylesByPrecinctId(electionDefinition, precinctId).length > 1
+      CachedElectionLookups.getBallotStylesByPrecinctId(
+        electionDefinition,
+        precinctId
+      ).length > 1
     );
     const { ballotDocuments } =
       await renderAllBallotsAndCreateElectionDefinition(
@@ -114,8 +120,10 @@ describe('createPrecinctTestDeck', () => {
     const precinctWithNoBallotStyles = find(
       election.precincts,
       (precinct) =>
-        getBallotStylesByPrecinctId(electionDefinition, precinct.id).length ===
-        0
+        CachedElectionLookups.getBallotStylesByPrecinctId(
+          electionDefinition,
+          precinct.id
+        ).length === 0
     );
 
     const testDeckDocument = await createPrecinctTestDeck({

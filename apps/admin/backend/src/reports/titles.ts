@@ -7,11 +7,7 @@ import {
   ok,
   throwIllegalValue,
 } from '@votingworks/basics';
-import {
-  getDistrictById,
-  getPartyById,
-  getPrecinctById,
-} from '@votingworks/utils';
+import { CachedElectionLookups } from '@votingworks/utils';
 import { ScannerBatch } from '../types';
 
 const MANUAL_BATCH_REPORT_LABEL = 'Manual Tallies';
@@ -88,7 +84,10 @@ export function generateTitleForReport({
 
   const reportSuffix = (() => {
     if (precinctId) {
-      return getPrecinctById(electionDefinition, precinctId).name;
+      return CachedElectionLookups.getPrecinctById(
+        electionDefinition,
+        precinctId
+      ).name;
     }
 
     if (votingMethod) {
@@ -119,7 +118,8 @@ export function generateTitleForReport({
     }
 
     if (partyId) {
-      return getPartyById(electionDefinition, partyId).fullName;
+      return CachedElectionLookups.getPartyById(electionDefinition, partyId)
+        .fullName;
     }
 
     if (adjudicationFlag) {
@@ -140,7 +140,10 @@ export function generateTitleForReport({
     }
 
     if (districtId) {
-      return getDistrictById(electionDefinition, districtId).name;
+      return CachedElectionLookups.getDistrictById(
+        electionDefinition,
+        districtId
+      ).name;
     }
   })();
 

@@ -15,8 +15,7 @@ import {
   getMaxSheetsPerBallot,
   getGroupKey,
   getHmpbBallotCount,
-  getPartyById,
-  getPrecinctById,
+  CachedElectionLookups,
   isGroupByEmpty,
 } from '@votingworks/utils';
 import React from 'react';
@@ -376,14 +375,14 @@ function getCellContent({
     case 'attribute':
       switch (column.id) {
         case 'precinct':
-          return getPrecinctById(
+          return CachedElectionLookups.getPrecinctById(
             electionDefinition,
             assertDefined(cardCounts.precinctId)
           ).name;
         case 'ballot-style':
           return assertDefined(cardCounts.ballotStyleGroupId);
         case 'party':
-          return getPartyById(
+          return CachedElectionLookups.getPartyById(
             electionDefinition,
             assertDefined(determinePartyId(electionDefinition, cardCounts))
           ).name;

@@ -1,4 +1,4 @@
-import { Optional, assert, assertDefined } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import {
   AnyContest,
   BallotStyle,
@@ -11,9 +11,8 @@ import {
   Party,
   Precinct,
   PrecinctId,
-  Tabulation,
 } from '@votingworks/types';
-import { getBallotStyleGroup, getGroupedBallotStyles } from '../ballot_styles';
+import { getGroupedBallotStyles } from '../ballot_styles';
 
 /**
  * Creates a lookup function for getting some election metadata based on a key.
@@ -140,19 +139,3 @@ export const getBallotStylesByPrecinctId = createElectionMetadataLookupFunction(
     return lookup;
   }
 );
-
-/**
- * Tries to determine party ID from ballot style ID if not available directly.
- */
-export function determinePartyId<T>(
-  electionDefinition: ElectionDefinition,
-  group: Tabulation.GroupOf<T>
-): Optional<string> {
-  if (group.partyId) return group.partyId;
-  if (!group.ballotStyleGroupId) return undefined;
-  const ballotStyleGroup = getBallotStyleGroup({
-    election: electionDefinition.election,
-    ballotStyleGroupId: group.ballotStyleGroupId ,
-  });
-  return ballotStyleGroup?.partyId;
-}

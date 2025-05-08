@@ -5,11 +5,7 @@ import {
   Tabulation,
 } from '@votingworks/types';
 import { assert, assertDefined } from '@votingworks/basics';
-import {
-  getParentBallotStyleById,
-  getPartyById,
-  getPrecinctById,
-} from '@votingworks/utils';
+import { CachedElectionLookups } from '@votingworks/utils';
 import { ScannerBatchLookup } from '../types';
 import { Store } from '../store';
 
@@ -213,7 +209,9 @@ export function getCsvMetadataRowValues({
 
   if (metadataStructure.precinct === 'single') {
     const precinctId = assertOnlyElement(filter.precinctIds);
-    values.push(getPrecinctById(electionDefinition, precinctId).name);
+    values.push(
+      CachedElectionLookups.getPrecinctById(electionDefinition, precinctId).name
+    );
     values.push(precinctId);
   }
 
@@ -229,11 +227,16 @@ export function getCsvMetadataRowValues({
 
       const ballotStyleGroupId = assertOnlyElement(filter.ballotStyleGroupIds);
       return assertDefined(
-        getParentBallotStyleById(electionDefinition, ballotStyleGroupId).partyId
+        CachedElectionLookups.getParentBallotStyleById(
+          electionDefinition,
+          ballotStyleGroupId
+        ).partyId
       );
     })();
 
-    values.push(getPartyById(electionDefinition, partyId).name);
+    values.push(
+      CachedElectionLookups.getPartyById(electionDefinition, partyId).name
+    );
     values.push(partyId);
   }
 
@@ -281,7 +284,10 @@ export function getCsvMetadataRowValues({
   if (metadataStructure.precinct === 'multi') {
     values.push(
       assertDefined(filter.precinctIds)
-        .map((id) => getPrecinctById(electionDefinition, id).name)
+        .map(
+          (id) =>
+            CachedElectionLookups.getPrecinctById(electionDefinition, id).name
+        )
         .join(CSV_MULTI_VALUE_SEPARATOR)
     );
   }
@@ -289,7 +295,10 @@ export function getCsvMetadataRowValues({
   if (metadataStructure.party === 'multi') {
     values.push(
       assertDefined(filter.partyIds)
-        .map((id) => getPartyById(electionDefinition, id).name)
+        .map(
+          (id) =>
+            CachedElectionLookups.getPartyById(electionDefinition, id).name
+        )
         .join(CSV_MULTI_VALUE_SEPARATOR)
     );
   }

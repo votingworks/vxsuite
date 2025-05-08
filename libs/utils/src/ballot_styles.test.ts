@@ -8,10 +8,12 @@ import {
   hasSplits,
   Party,
   PartyId,
+  Tabulation,
 } from '@votingworks/types';
 import {
   electionPrimaryPrecinctSplitsFixtures,
   readElectionGeneral,
+  readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { assert } from '@votingworks/basics';
 import {
@@ -21,9 +23,13 @@ import {
   getGroupedBallotStyles,
   getPrecinctsAndSplitsForBallotStyle,
   getRelatedBallotStyle,
+  determinePartyId,
 } from './ballot_styles';
 
 const electionGeneral = readElectionGeneral();
+
+const electionTwoPartyPrimaryDefinition =
+  readElectionTwoPartyPrimaryDefinition();
 
 const GREEN_PARTY: Party = {
   abbrev: 'G',
@@ -349,4 +355,74 @@ test('getPrecinctsAndSplitsForBallotStyle', () => {
       ballotStyle: electionGeneral.ballotStyles[1]!,
     })
   ).toEqual([{ precinct: precinct2, split: precinct2.splits[0]! }]);
+});
+
+test('determinePartyId', () => {
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
+
+  const partyCardCounts: Tabulation.GroupOf<Tabulation.CardCounts> = {
+    partyId: '0',
+    bmd: 1,
+    hmpb: [1],
+  };
+
+  const ballotStyleCardCounts: Tabulation.GroupOf<Tabulation.CardCounts> = {
+    ballotStyleGroupId: '1M' as BallotStyleGroupId,
+    bmd: 1,
+    hmpb: [1],
+  };
+
+  const precinctCardCounts: Tabulation.GroupOf<Tabulation.CardCounts> = {
+    precinctId: 'precinct-1',
+    bmd: 1,
+    hmpb: [1],
+  };
+
+  expect(determinePartyId(electionDefinition, partyCardCounts)).toEqual('0');
+  expect(determinePartyId(electionDefinition, ballotStyleCardCounts)).toEqual(
+    '0'
+  );
+  expect(determinePartyId(electionDefinition, precinctCardCounts)).toEqual(
+    undefined
+  );
+});
+
+test('determinePartyId - multi language election', () => {
+  const electionDefinition =
+    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
+
+  const partyCardCounts: Tabulation.GroupOf<Tabulation.CardCounts> = {
+    partyId: '0',
+    bmd: 1,
+    hmpb: [1],
+  };
+
+  const ballotStyleCardCounts: Tabulation.GroupOf<Tabulation.CardCounts> = {
+    ballotStyleGroupId: '1-Ma' as BallotStyleGroupId,
+    bmd: 1,
+    hmpb: [1],
+  };
+
+  const ballotStyleCardCounts2: Tabulation.GroupOf<Tabulation.CardCounts> = {
+    ballotStyleGroupId: 'fake-ballot-style' as BallotStyleGroupId,
+    bmd: 1,
+    hmpb: [1],
+  };
+
+  const precinctCardCounts: Tabulation.GroupOf<Tabulation.CardCounts> = {
+    precinctId: 'precinct-1',
+    bmd: 1,
+    hmpb: [1],
+  };
+
+  expect(determinePartyId(electionDefinition, partyCardCounts)).toEqual('0');
+  expect(determinePartyId(electionDefinition, ballotStyleCardCounts)).toEqual(
+    '0'
+  );
+  expect(determinePartyId(electionDefinition, precinctCardCounts)).toEqual(
+    undefined
+  );
+  expect(determinePartyId(electionDefinition, ballotStyleCardCounts2)).toEqual(
+    undefined
+  );
 });

@@ -1,5 +1,5 @@
 import { AnyContest, ElectionDefinition, Tabulation } from '@votingworks/types';
-import { getContestById } from '@votingworks/utils';
+import { CachedElectionLookups } from '@votingworks/utils';
 import { CastVoteRecordAdjudicationFlags } from '../types';
 
 function getNumberVotesAllowed(contest: AnyContest): number {
@@ -23,7 +23,10 @@ export function getCastVoteRecordAdjudicationFlags(
   let hasWriteIn = false;
 
   for (const [contestId, optionIds] of Object.entries(votes)) {
-    const contest = getContestById(electionDefinition, contestId);
+    const contest = CachedElectionLookups.getContestById(
+      electionDefinition,
+      contestId
+    );
 
     if (optionIds.length > 0) {
       isBlank = false;

@@ -9,7 +9,7 @@ import React, { useCallback, useState } from 'react';
 import { ElectionDefinition, PollsTransitionType } from '@votingworks/types';
 import { Optional, assert } from '@votingworks/basics';
 import {
-  getPartyById,
+  CachedElectionLookups,
   getPollsReportTitle,
   isPollsSuspensionTransition,
 } from '@votingworks/utils';
@@ -40,7 +40,8 @@ function getReportManifest(
       return 'Nonpartisan Contests';
     }
 
-    return getPartyById(electionDefinition, partyId).fullName;
+    return CachedElectionLookups.getPartyById(electionDefinition, partyId)
+      .fullName;
   });
 }
 
