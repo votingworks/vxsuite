@@ -2,7 +2,7 @@ import { Buffer } from 'node:buffer';
 import { extractErrorMessage } from '@votingworks/basics';
 
 import {
-  parseSignMessageInputExcludingMessage,
+  deserializeSignMessageInputExcludingMessage,
   signMessageHelper,
 } from '../cryptography';
 
@@ -14,7 +14,7 @@ export async function main(): Promise<void> {
   let messageSignature: Buffer;
   try {
     messageSignature = await signMessageHelper(
-      parseSignMessageInputExcludingMessage(process.argv[2] ?? '')
+      deserializeSignMessageInputExcludingMessage(process.argv[2] ?? '')
     );
   } catch (error) {
     process.stderr.write(extractErrorMessage(error));
