@@ -122,8 +122,10 @@ export function UnconfiguredSystemAdminScreen(): JSX.Element {
   const configuredPollbooks = pollbooks.filter(
     (p) => p.electionId && p.status === PollbookConnectionStatus.WrongElection
   );
+  const hasError =
+    hadConfigurationError || electionResult.err() === 'usb-configuration-error';
   if (!isOnline || configuredPollbooks.length <= 0) {
-    if (hadConfigurationError) {
+    if (hasError) {
       return (
         <FullScreenMessage
           title="Failed to configure VxPollBook"
@@ -167,7 +169,7 @@ export function UnconfiguredSystemAdminScreen(): JSX.Element {
           inserted USB drive.
         </Card>
       )}
-      {hadConfigurationError && (
+      {hasError && (
         <Card color="warning" style={{ marginBottom: '1rem' }}>
           <Icons.Warning color="warning" /> Error during configuration, please
           try again.
