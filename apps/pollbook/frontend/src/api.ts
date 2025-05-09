@@ -15,6 +15,8 @@ import {
   createSystemCallApi,
 } from '@votingworks/ui';
 
+export const DEFAULT_QUERY_REFETCH_INTERVAL = 1000;
+
 export type ApiClient = grout.Client<Api>;
 
 export function createApiClient(): ApiClient {
@@ -133,7 +135,7 @@ export const getUsbDriveStatus = {
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getUsbDriveStatus(), {
-      refetchInterval: 1000,
+      refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
     });
   },
 } as const;
@@ -145,7 +147,7 @@ export const getDeviceStatuses = {
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getDeviceStatuses(), {
-      refetchInterval: 1000,
+      refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
     });
   },
 } as const;
@@ -206,7 +208,7 @@ export const getCheckInCounts = {
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getCheckInCounts(), {
-      refetchInterval: 1000,
+      refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
     });
   },
 } as const;
@@ -218,7 +220,7 @@ export const getSummaryStatistics = {
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getSummaryStatistics(), {
-      refetchInterval: 1000,
+      refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
     });
   },
 } as const;
@@ -235,7 +237,7 @@ export const getThroughputStatistics = {
       this.queryKey(input),
       () => apiClient.getThroughputStatistics(input),
       {
-        refetchInterval: 1000,
+        refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
       }
     );
   },

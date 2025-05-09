@@ -358,13 +358,14 @@ export const electionManagerRoutes = {
   settings: { title: 'Settings', path: '/settings' },
   voters: { title: 'Voters', path: '/voters' },
   statistics: { title: 'Statistics', path: '/statistics' },
+  addVoter: { title: 'Registration', path: '/registration' },
 } satisfies Record<string, { title: string; path: string }>;
 
 export function ElectionManagerNavScreen({
   title,
   children,
 }: {
-  title: string | React.ReactNode;
+  title?: string | React.ReactNode;
   children: React.ReactNode;
 }): JSX.Element {
   const currentRoute = useRouteMatch();
@@ -386,7 +387,9 @@ export function ElectionManagerNavScreen({
         </NavList>
       }
     >
-      <Header>{typeof title === 'string' ? <H1>{title}</H1> : title}</Header>
+      {title && (
+        <Header>{typeof title === 'string' ? <H1>{title}</H1> : title}</Header>
+      )}
       {children}
     </NavScreen>
   );
@@ -394,7 +397,6 @@ export function ElectionManagerNavScreen({
 
 export const pollWorkerRoutes = {
   checkIn: { title: 'Check-In', path: '/check-in' },
-  addVoter: { title: 'Registration', path: '/registration' },
 } satisfies Record<string, { title: string; path: string }>;
 
 export function PollWorkerNavScreen({
