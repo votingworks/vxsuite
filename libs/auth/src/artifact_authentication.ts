@@ -25,6 +25,11 @@ import {
   constructArtifactAuthenticationConfig,
 } from './config';
 import {
+  CertPemBuffer,
+  cryptographicFileToBuffer,
+  pemBuffer,
+} from './cryptographic_material';
+import {
   extractPublicKeyFromCert,
   signMessage,
   verifyFirstCertWasSignedBySecondCert,
@@ -74,7 +79,7 @@ export type Artifact = CastVoteRecords | ElectionPackage;
 
 interface ArtifactSignatureBundle {
   signature: Buffer;
-  signingMachineCert: Buffer;
+  signingMachineCert: CertPemBuffer;
 }
 
 //
@@ -126,8 +131,12 @@ async function constructArtifactSignatureBundle(
     message,
     signingPrivateKey: config.signingMachinePrivateKey,
   });
-  const signingMachineCert = await fs.readFile(config.signingMachineCertPath);
-  return { signature: messageSignature, signingMachineCert };
+  return {
+    signature: messageSignature,
+    signingMachineCert: await cryptographicFileToBuffer(
+      config.signingMachineCert
+    ),
+  };
 }
 
 function serializeArtifactSignatureBundle(
@@ -138,7 +147,7 @@ function serializeArtifactSignatureBundle(
     // ECC signature length can vary ever so slightly, hence the need to persist length metadata
     Buffer.of(signature.length),
     signature,
-    signingMachineCert,
+    signingMachineCert.content,
   ]);
 }
 
@@ -156,8 +165,14 @@ function deserializeArtifactSignatureBundle(
     `Signature length should be between 60 and 72, received ${signatureLength}`
   );
   const signature = buffer.subarray(1, signatureLength + 1);
-  const signingMachineCert = buffer.subarray(signatureLength + 1);
-  return { signature, signingMachineCert };
+  const signingMachineCert = pemBuffer(
+    'cert',
+    buffer.subarray(signatureLength + 1)
+  );
+  return {
+    signature,
+    signingMachineCert,
+  };
 }
 
 /**
@@ -165,11 +180,11 @@ function deserializeArtifactSignatureBundle(
  */
 async function validateSigningMachineCert(
   config: ArtifactAuthenticationConfig,
-  signingMachineCert: Buffer
+  signingMachineCert: CertPemBuffer
 ): Promise<MachineCustomCertFields> {
   await verifyFirstCertWasSignedBySecondCert(
     signingMachineCert,
-    config.vxCertAuthorityCertPath
+    config.vxCertAuthorityCert
   );
   const signingMachineCertDetails = await parseCert(signingMachineCert);
   assert(signingMachineCertDetails.component !== 'card');
