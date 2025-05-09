@@ -159,7 +159,7 @@ export const US_ENGLISH_KEYMAP: KeyMap = {
       },
       {
         value: "'",
-        renderAudioString: () => appStrings.labelKeyboardSingleQuote(),
+        renderAudioString: () => appStrings.labelKeyboardApostrophe(),
       },
       {
         value: '"',

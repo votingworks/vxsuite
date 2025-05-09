@@ -718,6 +718,10 @@ export const appStrings = {
     </UiString>
   ),
 
+  labelKeyboardApostrophe: () => (
+    <UiString uiStringKey="labelKeyboardApostrophe">apostrophe</UiString>
+  ),
+
   labelKeyboardComma: () => (
     <UiString uiStringKey="labelKeyboardComma">,</UiString>
   ),
@@ -736,10 +740,6 @@ export const appStrings = {
 
   labelKeyboardPeriod: () => (
     <UiString uiStringKey="labelKeyboardPeriod">.</UiString>
-  ),
-
-  labelKeyboardSingleQuote: () => (
-    <UiString uiStringKey="labelKeyboardSingleQuote">'</UiString>
   ),
 
   labelKeyboardSpaceBar: () => (
