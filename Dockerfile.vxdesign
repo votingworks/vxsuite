@@ -1,8 +1,10 @@
 # Docker Image for VxDesign deployments.
 
-# [TODO] Pull from votingworks/cimg-debian12 instead. This setup just makes
-# testing the image locally easier, since the former is currently only available
-# for linux/amd64.
+# [TODO] Pull from votingworks/cimg-debian12 instead.
+# [Update] Attempted the switch and ran into an issue with having to re-push the
+# CI image separately to the Heroku-hosted registry (can't point to Dockerhub),
+# which complicates the process a bit. Worth revisiting later, but will depend
+# on the plan for https://github.com/votingworks/vxsuite/issues/6261.
 FROM bitnami/minideb:bookworm
 
 # Essentials
@@ -64,12 +66,14 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | b
   npm i -g pnpm@8.15.5 && \
   pnpm -v
 
+RUN curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain=1.86.0 -y
+
 COPY . .
 
-RUN . ~/.bashrc && pnpm install --frozen-lockfile
+RUN . ~/.bashrc && . ~/.cargo/env && pnpm install --frozen-lockfile
 
 ENV NODE_ENV="production"
-RUN . ~/.bashrc && pnpm -dir=apps/design/frontend build:prod
+RUN . ~/.bashrc && . ~/.cargo/env && pnpm -dir=apps/design/frontend build:prod
 
 EXPOSE 80
 EXPOSE 3000

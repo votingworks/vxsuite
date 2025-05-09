@@ -9,5 +9,4 @@ heroku.yml
 apps/admin
 apps/central-scan
 apps/scan
-apps/mark-scan
 libs/hmpb/fixtures
