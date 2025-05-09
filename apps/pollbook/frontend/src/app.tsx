@@ -103,8 +103,8 @@ function AppRoot(): JSX.Element | null {
   if (isVendorAuth(auth)) {
     return (
       <VendorScreen
-        logOut={() => logOutMutation.mutate()}
-        rebootToVendorMenu={() => apiClient.rebootToVendorMenu()}
+        logOut={logOutMutation.mutate}
+        rebootToVendorMenu={apiClient.rebootToVendorMenu}
       />
     );
   }
