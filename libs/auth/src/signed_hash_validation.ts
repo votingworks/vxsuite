@@ -106,16 +106,14 @@ export async function generateSignedHashValidationQrCodeValue(
     signingPrivateKey: config.machinePrivateKey,
   });
 
-  const machineCert = await fs.readFile(config.machineCertPath);
-  const certDetails = await parseCert(machineCert);
+  const certDetails = await parseCert(config.machineCert);
   assert(certDetails.component !== 'card');
   const { machineId } = certDetails;
 
   const qrCodeValueParts: string[] = [
     message,
     messageSignature.toString('base64'),
-    machineCert
-      .toString('utf-8')
+    (await fs.readFile(config.machineCert.path, 'utf-8'))
       // Remove the standard PEM header and footer to make the QR code as small as possible
       .replace('-----BEGIN CERTIFICATE-----', '')
       .replace('-----END CERTIFICATE-----', ''),
