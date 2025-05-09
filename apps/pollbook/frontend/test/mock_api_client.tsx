@@ -22,6 +22,7 @@ import {
   mockPollWorkerUser,
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
+  mockVendorUser,
 } from '@votingworks/test-utils';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { mockUsbDriveStatus } from '@votingworks/ui';
@@ -105,8 +106,6 @@ export function createApiMock() {
 
     setAuthStatus,
 
-    /**
-     * TODO: Vendor user not yet supported 
     authenticateAsVendor() {
       setAuthStatus({
         status: 'logged_in',
@@ -114,8 +113,6 @@ export function createApiMock() {
         sessionExpiresAt: mockSessionExpiresAt(),
       });
     },
-
-    */
 
     authenticateAsSystemAdministrator() {
       setAuthStatus({
