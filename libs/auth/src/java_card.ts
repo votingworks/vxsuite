@@ -49,6 +49,14 @@ import {
   JavaCardConfig,
 } from './config';
 import {
+  CertPemBuffer,
+  CertPemFile,
+  cryptographicFileToBuffer,
+  derBuffer,
+  pemBuffer,
+  PublicKeyPemBuffer,
+} from './cryptographic_material';
+import {
   certDerToPem,
   certPemToDer,
   createCert,
@@ -167,7 +175,7 @@ export class JavaCard implements Card {
   // See TestJavaCard in test/utils.ts to understand why this is protected instead of private
   protected cardStatus: CardStatus;
   private readonly generateChallenge: () => string;
-  private readonly vxCertAuthorityCertPath: string;
+  private readonly vxCertAuthorityCert: CertPemFile;
 
   constructor(
     // Support specifying a custom config for tests
@@ -182,7 +190,7 @@ export class JavaCard implements Card {
       config.generateChallengeOverride ??
       /* istanbul ignore next - @preserve */ (() =>
         `VotingWorks/${new Date().toISOString()}/${uuid()}`);
-    this.vxCertAuthorityCertPath = config.vxCertAuthorityCertPath;
+    this.vxCertAuthorityCert = config.vxCertAuthorityCert;
 
     this.cardReader = new CardReader({
       onReaderStatusChange: async (readerStatus) => {
@@ -328,10 +336,7 @@ export class JavaCard implements Card {
       CreateCertInput,
       'certKeyInput' | 'certSubject'
     > = {
-      certKeyInput: {
-        type: 'public',
-        key: { source: 'inline', content: publicKey.toString('utf-8') },
-      },
+      certKeyInput: publicKey,
       certSubject: constructCardCertSubject(cardDetails),
     };
 
@@ -344,13 +349,13 @@ export class JavaCard implements Card {
       const cardIdentityCert = await createCert({
         ...createCertInputBase,
         expiryInDays: CERT_EXPIRY_IN_DAYS.VENDOR_CARD_IDENTITY_CERT,
-        signingCertAuthorityCertPath: this.vxCertAuthorityCertPath,
+        signingCertAuthorityCert: this.vxCertAuthorityCert,
         signingPrivateKey: vxPrivateKey,
       });
       await this.storeCert(CARD_IDENTITY_CERT.OBJECT_ID, cardIdentityCert);
     } else {
       assert(this.cardProgrammingConfig.configType === 'machine');
-      const { machineCertAuthorityCertPath, machinePrivateKey } =
+      const { machineCertAuthorityCert, machinePrivateKey } =
         this.cardProgrammingConfig;
 
       // Store card identity cert
@@ -360,17 +365,14 @@ export class JavaCard implements Card {
           user.role === 'system_administrator'
             ? CERT_EXPIRY_IN_DAYS.SYSTEM_ADMINISTRATOR_CARD_IDENTITY_CERT
             : CERT_EXPIRY_IN_DAYS.ELECTION_CARD_IDENTITY_CERT,
-        signingCertAuthorityCertPath: machineCertAuthorityCertPath,
+        signingCertAuthorityCert: machineCertAuthorityCert,
         signingPrivateKey: machinePrivateKey,
       });
       await this.storeCert(CARD_IDENTITY_CERT.OBJECT_ID, cardIdentityCert);
 
       // Store programming machine cert authority cert
-      const programmingMachineCertAuthorityCert = await fs.readFile(
-        machineCertAuthorityCertPath
-      );
       const programmingMachineCertAuthorityCertDetails = await parseCert(
-        programmingMachineCertAuthorityCert
+        machineCertAuthorityCert
       );
       assert(
         programmingMachineCertAuthorityCertDetails.component === 'admin' ||
@@ -386,7 +388,7 @@ export class JavaCard implements Card {
       );
       await this.storeCert(
         PROGRAMMING_MACHINE_CERT_AUTHORITY_CERT.OBJECT_ID,
-        programmingMachineCertAuthorityCert
+        await cryptographicFileToBuffer(machineCertAuthorityCert)
       );
     }
 
@@ -505,7 +507,7 @@ export class JavaCard implements Card {
     const cardVxCert = await this.retrieveCert(CARD_VX_CERT.OBJECT_ID);
     await verifyFirstCertWasSignedBySecondCert(
       cardVxCert,
-      this.vxCertAuthorityCertPath
+      this.vxCertAuthorityCert
     );
 
     const cardIdentityCert = await this.retrieveCert(
@@ -521,7 +523,7 @@ export class JavaCard implements Card {
       // Verify that the card identity cert was signed by VotingWorks
       await verifyFirstCertWasSignedBySecondCert(
         cardIdentityCert,
-        this.vxCertAuthorityCertPath
+        this.vxCertAuthorityCert
       );
 
       cardDetails = certDetailsToCardDetails(cardIdentityCertDetails);
@@ -546,7 +548,7 @@ export class JavaCard implements Card {
       );
       await verifyFirstCertWasSignedBySecondCert(
         programmingMachineCertAuthorityCert,
-        this.vxCertAuthorityCertPath
+        this.vxCertAuthorityCert
       );
 
       assert(
@@ -606,9 +608,9 @@ export class JavaCard implements Card {
   /**
    * Retrieves a cert in PEM format
    */
-  private async retrieveCert(certObjectId: Buffer): Promise<Buffer> {
+  private async retrieveCert(certObjectId: Buffer): Promise<CertPemBuffer> {
     const data = await this.getData(certObjectId);
-    const [{ value: certInDerFormat }, certInDerFormatRemainder] =
+    const [{ value: certDerBufferContent }, certInDerFormatRemainder] =
       parseTlvPartial(PUT_DATA.CERT_TAG, data);
     const [{ value: certInfo }, certInfoRemainder] = parseTlvPartial(
       PUT_DATA.CERT_INFO_TAG,
@@ -626,7 +628,8 @@ export class JavaCard implements Card {
       certErrorDetectionCode.length === 0,
       'Expected no error detection code'
     );
-    return await certDerToPem(certInDerFormat);
+    const certDerBuffer = derBuffer('cert', certDerBufferContent);
+    return await certDerToPem(certDerBuffer);
   }
 
   /**
@@ -635,13 +638,12 @@ export class JavaCard implements Card {
    */
   private async storeCert(
     certObjectId: Buffer,
-    certInPemFormat: Buffer
+    cert: CertPemBuffer
   ): Promise<void> {
-    const certInDerFormat = await certPemToDer(certInPemFormat);
     await this.putData(
       certObjectId,
       Buffer.concat([
-        constructTlv(PUT_DATA.CERT_TAG, certInDerFormat),
+        constructTlv(PUT_DATA.CERT_TAG, (await certPemToDer(cert)).content),
         constructTlv(
           PUT_DATA.CERT_INFO_TAG,
           Buffer.of(PUT_DATA.CERT_INFO_UNCOMPRESSED)
@@ -664,7 +666,7 @@ export class JavaCard implements Card {
    */
   private async verifyCardPrivateKey(
     privateKeyId: Byte,
-    cert: Buffer,
+    cert: CertPemBuffer,
     pin?: string
   ): Promise<void> {
     if (pin) {
@@ -717,7 +719,7 @@ export class JavaCard implements Card {
   private async generateAsymmetricKeyPair(
     privateKeyId: Byte,
     pin?: string
-  ): Promise<Buffer> {
+  ): Promise<PublicKeyPemBuffer> {
     if (pin) {
       await this.checkPinInternal(pin);
     }
@@ -747,12 +749,11 @@ export class JavaCard implements Card {
       publicKeyEccWrapper
     );
 
-    const publicKeyInDerFormat = Buffer.concat([
-      PUBLIC_KEY_IN_DER_FORMAT_HEADER,
-      publicKeyDerFormatBody,
-    ]);
-    const publicKeyInPemFormat = await publicKeyDerToPem(publicKeyInDerFormat);
-    return publicKeyInPemFormat;
+    const publicKeyDerBuffer = derBuffer(
+      'public_key',
+      Buffer.concat([PUBLIC_KEY_IN_DER_FORMAT_HEADER, publicKeyDerFormatBody])
+    );
+    return await publicKeyDerToPem(publicKeyDerBuffer);
   }
 
   /**
@@ -868,7 +869,7 @@ export class JavaCard implements Card {
       | 'cardVxCert'
       | 'cardIdentityCert'
       | 'programmingMachineCertAuthorityCert'
-  ): Promise<Buffer> {
+  ): Promise<CertPemBuffer> {
     await this.selectApplet();
 
     const certConfigs = {
@@ -892,11 +893,11 @@ export class JavaCard implements Card {
     assert(this.cardProgrammingConfig.configType === 'vx');
     await this.selectApplet();
 
-    const certPublicKey = (
-      await this.generateAsymmetricKeyPair(CARD_VX_CERT.PRIVATE_KEY_ID)
-    ).toString('utf-8');
+    const certPublicKey = await this.generateAsymmetricKeyPair(
+      CARD_VX_CERT.PRIVATE_KEY_ID
+    );
 
-    let cert: Buffer;
+    let cert: CertPemBuffer;
     if (this.cardProgrammingConfig.vxPrivateKey.source === 'remote') {
       assert(remoteCertParams !== undefined);
       const { randomId, workingDirectory } = remoteCertParams;
@@ -906,7 +907,7 @@ export class JavaCard implements Card {
       );
       const certPath = path.join(workingDirectory, `cert-${randomId}.pem`);
 
-      await fs.writeFile(certPublicKeyPath, certPublicKey);
+      await fs.writeFile(certPublicKeyPath, certPublicKey.content);
 
       const rl = readline.createInterface({
         input: process.stdin,
@@ -923,18 +924,15 @@ Place that file in ${workingDirectory} and press enter. `);
       }
       rl.close();
 
-      cert = await fs.readFile(certPath);
+      cert = pemBuffer('cert', await fs.readFile(certPath));
       await fs.rm(certPublicKeyPath);
       await fs.rm(certPath);
     } else {
       cert = await createCert({
-        certKeyInput: {
-          type: 'public',
-          key: { source: 'inline', content: certPublicKey },
-        },
+        certKeyInput: certPublicKey,
         certSubject: constructCardCertSubjectWithoutJurisdictionAndCardType(),
         expiryInDays: CERT_EXPIRY_IN_DAYS.CARD_VX_CERT,
-        signingCertAuthorityCertPath: this.vxCertAuthorityCertPath,
+        signingCertAuthorityCert: this.vxCertAuthorityCert,
         signingPrivateKey: this.cardProgrammingConfig.vxPrivateKey,
       });
     }
