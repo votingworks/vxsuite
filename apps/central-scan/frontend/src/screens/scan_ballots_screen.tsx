@@ -248,10 +248,7 @@ export function ScanBallotsScreen({
               </span>
             }
             content={
-              <P>
-                Click <Font weight="semiBold">Save CVRs</Font> to save a backup
-                before deleting all batches.
-              </P>
+              <P>You must save CVRs before you can delete all batches.</P>
             }
             actions={<Button onPress={resetDeleteBallotDataFlow}>Close</Button>}
             onOverlayClick={resetDeleteBallotDataFlow}
