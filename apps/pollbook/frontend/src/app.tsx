@@ -7,6 +7,7 @@ import {
   SetupCardReaderPage,
   SystemCallContextProvider,
   UnlockMachineScreen,
+  VendorScreen,
 } from '@votingworks/ui';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -16,6 +17,7 @@ import {
   isElectionManagerAuth,
   isPollWorkerAuth,
   isSystemAdministratorAuth,
+  isVendorAuth,
 } from '@votingworks/utils';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import {
@@ -26,7 +28,9 @@ import {
   createQueryClient,
   getAuthStatus,
   getElection,
+  logOut,
   systemCallApi,
+  useApiClient,
 } from './api';
 import { ErrorScreen } from './error_screen';
 import { PollWorkerScreen } from './poll_worker_screen';
@@ -36,8 +40,10 @@ import { ElectionManagerScreen } from './election_manager_screen';
 import { SystemAdministratorScreen } from './system_administrator_screen';
 
 function AppRoot(): JSX.Element | null {
-  const getAuthStatusQuery = getAuthStatus.useQuery();
+  const apiClient = useApiClient();
   const checkPinMutation = checkPin.useMutation();
+  const logOutMutation = logOut.useMutation();
+  const getAuthStatusQuery = getAuthStatus.useQuery();
   const getElectionQuery = getElection.useQuery();
   if (!getAuthStatusQuery.isSuccess) {
     return null;
@@ -80,6 +86,7 @@ function AppRoot(): JSX.Element | null {
     ) {
       return <MachineLockedScreen />;
     }
+
     return (
       <InvalidCardScreen
         reasonAndContext={auth}
@@ -89,6 +96,15 @@ function AppRoot(): JSX.Element | null {
             : 'Use a valid election manager or poll worker card.'
         }
         cardInsertionDirection="right"
+      />
+    );
+  }
+
+  if (isVendorAuth(auth)) {
+    return (
+      <VendorScreen
+        logOut={logOutMutation.mutate}
+        rebootToVendorMenu={apiClient.rebootToVendorMenu}
       />
     );
   }
