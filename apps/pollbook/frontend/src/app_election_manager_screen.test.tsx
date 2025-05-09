@@ -70,7 +70,6 @@ test('basic e2e registration flow works', async () => {
   apiMock.setElection(famousNamesElection);
   const { unmount } = render(<App apiClient={apiMock.mockApiClient} />);
 
-  // apiMock.setPrinterStatus(true);
   apiMock.expectGetValidStreetInfo([validStreetInfo]);
   await screen.findByText('Registration');
 
@@ -87,13 +86,25 @@ test('basic e2e registration flow works', async () => {
   vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
 
   await screen.findByText('Voter Registration');
+
+  // Set name
   const lastNameInput = await screen.findByLabelText('Last Name');
   userEvent.type(lastNameInput, voter.lastName);
   const firstNameInput = screen.getByLabelText('First Name');
   userEvent.type(firstNameInput, voter.firstName);
-  userEvent.type(screen.getByLabelText('Street Number'), '1000');
+
+  // Set invalid street address
+  const streetNumberInput = screen.getByLabelText('Street Number');
+  userEvent.type(streetNumberInput, '3000');
   userEvent.click(screen.getByLabelText('Street Name'));
   userEvent.keyboard('[Enter]');
+  await screen.findByText(/Invalid address/);
+
+  // Set valid street address
+  userEvent.clear(streetNumberInput);
+  userEvent.type(streetNumberInput, '1000');
+
+  // Set party affiliation
   userEvent.click(screen.getByLabelText('Party Affiliation'));
   userEvent.keyboard('[Enter]');
 
