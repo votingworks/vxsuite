@@ -31,6 +31,16 @@ function getMockAudioOnlyTextPrefix(languageCode: string) {
   return `[AudioOnly] [${languageCode}]`;
 }
 
+function getExpectedUiString(keyboardKeyValue: string) {
+  switch (keyboardKeyValue) {
+    case "'":
+      return 'apostrophe';
+
+    default:
+      return keyboardKeyValue;
+  }
+}
+
 beforeEach(() => {
   vi.mocked(AudioOnly).mockImplementation((props) => {
     const { children, ...rest } = props;
@@ -78,7 +88,7 @@ test('fires key events', async () => {
 
       const expectedButtonContent = `${key.value}${getMockAudioOnlyTextPrefix(
         expectedLanguageCode
-      )} ${key.value}`;
+      )} ${getExpectedUiString(key.value)}`;
 
       // Using `getByText` here instead of `getButton`, since the latter is
       // significantly slower, especially with this many iterations.
@@ -180,7 +190,7 @@ const TEST_ROWS_WITH_ACTIONS = [...TEST_ROWS, [CANCEL_KEY, ACCEPT_KEY]];
 function expectFocus(expectedFocusedKey: string) {
   const expectedButtonContent = `${expectedFocusedKey}${getMockAudioOnlyTextPrefix(
     ENGLISH
-  )} ${expectedFocusedKey}`;
+  )} ${getExpectedUiString(expectedFocusedKey)}`;
 
   // Finds the lowest element with the target text contained across its children. For the VirtualKeyboard
   // this is a <span>

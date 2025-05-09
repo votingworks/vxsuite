@@ -205,7 +205,7 @@ export const US_ENGLISH_SCAN_PANEL_KEYMAP: ScanPanelKeyMap = {
           },
           {
             value: "'",
-            renderAudioString: () => appStrings.labelKeyboardSingleQuote(),
+            renderAudioString: () => appStrings.labelKeyboardApostrophe(),
           },
           {
             value: '"',
