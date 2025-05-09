@@ -7,7 +7,6 @@ import {
 import { PROD_VX_CERT_AUTHORITY_CERT } from '../../src/config';
 import {
   cryptographicBufferToFile,
-  cryptographicFileToBuffer,
   pemFile,
 } from '../../src/cryptographic_material';
 import { createCert } from '../../src/cryptography';
@@ -29,9 +28,7 @@ async function remoteCardVxCertifier({
   vxPrivateKeyPath,
 }: ScriptEnvVars): Promise<void> {
   const vxPrivateKey = pemFile('private_key', vxPrivateKeyPath);
-  const certPublicKey = await cryptographicFileToBuffer(
-    pemFile('public_key', certPublicKeyPath)
-  );
+  const certPublicKey = pemFile('public_key', certPublicKeyPath);
   const certPath = certPublicKeyPath.replace('public-key-', 'cert-');
   await cryptographicBufferToFile(
     await createCert({

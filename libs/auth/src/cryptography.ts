@@ -25,6 +25,7 @@ import {
   PublicKeyPemBuffer,
   publicKeyPemBufferToString,
   PublicKeyPemFile,
+  PublicKeyPemFileSchema,
   PublicKeyPemString,
   PublicKeyPemStringSchema,
   publicKeyPemStringToBuffer,
@@ -39,7 +40,7 @@ type FilePath = string;
 /**
  * The static header for a public key in DER format
  */
-export const PUBLIC_KEY_IN_DER_FORMAT_HEADER = Buffer.of(
+export const PUBLIC_KEY_DER_HEADER = Buffer.of(
   0x30,
   0x59,
   0x30,
@@ -379,7 +380,7 @@ export async function createCertGivenCertSigningRequest({
   signingCertAuthorityCert,
   signingPrivateKey,
 }: {
-  certPublicKeyOverride?: PublicKeyPemBuffer;
+  certPublicKeyOverride?: PublicKeyPemBuffer | PublicKeyPemFile;
   certSigningRequest: CertSigningRequestPemBuffer;
   certType?: CertType;
   expiryInDays: number;
@@ -439,13 +440,13 @@ export async function createCertGivenCertSigningRequest({
 /**
  * The input to {@link createCert}
  */
-export interface CreateCertInput {
+export interface CreateCertInput<T = PublicKeyPemBuffer> {
   /**
    * A private key should be provided when possible, but if the private key of the public key to
    * certify isn't available (as is the case for a key pair generated on a Java Card), the public
    * key is also acceptable. We set the cert key using -force_pubkey in this case.
    */
-  certKeyInput: PrivateKeyPemFile | PublicKeyPemBuffer;
+  certKeyInput: PrivateKeyPemFile | PublicKeyPemFile | T;
   certSubject: string;
   certType?: CertType;
   expiryInDays: number;
@@ -453,13 +454,15 @@ export interface CreateCertInput {
   signingPrivateKey: PrivateKeyPemFile | TpmPrivateKey;
 }
 
-type SerializableCreateCertInput = Omit<CreateCertInput, 'certKeyInput'> & {
-  certKeyInput: PrivateKeyPemFile | PublicKeyPemString;
-};
+type SerializableCreateCertInput = CreateCertInput<PublicKeyPemString>;
 
 const SerializableCreateCertInputSchema: z.ZodSchema<SerializableCreateCertInput> =
   z.object({
-    certKeyInput: z.union([PrivateKeyPemFileSchema, PublicKeyPemStringSchema]),
+    certKeyInput: z.union([
+      PrivateKeyPemFileSchema,
+      PublicKeyPemFileSchema,
+      PublicKeyPemStringSchema,
+    ]),
     certSubject: z.string(),
     certType: z
       .union([z.literal('cert_authority_cert'), z.literal('standard_cert')])
@@ -476,7 +479,8 @@ export function serializeCreateCertInput(input: CreateCertInput): string {
   const serializableInput: SerializableCreateCertInput = {
     ...input,
     certKeyInput:
-      input.certKeyInput.type === 'public_key'
+      input.certKeyInput.type === 'public_key' &&
+      input.certKeyInput.source === 'buffer'
         ? publicKeyPemBufferToString(input.certKeyInput)
         : input.certKeyInput,
   };
@@ -494,7 +498,8 @@ export function deserializeCreateCertInput(value: string): CreateCertInput {
   return {
     ...serializableInput,
     certKeyInput:
-      serializableInput.certKeyInput.type === 'public_key'
+      serializableInput.certKeyInput.type === 'public_key' &&
+      serializableInput.certKeyInput.source === 'string'
         ? publicKeyPemStringToBuffer(serializableInput.certKeyInput)
         : serializableInput.certKeyInput,
   };

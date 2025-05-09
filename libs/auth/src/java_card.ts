@@ -53,7 +53,7 @@ import {
   CertPemFile,
   cryptographicFileToBuffer,
   derBuffer,
-  pemBuffer,
+  pemFile,
   PublicKeyPemBuffer,
 } from './cryptographic_material';
 import {
@@ -62,7 +62,7 @@ import {
   createCert,
   CreateCertInput,
   extractPublicKeyFromCert,
-  PUBLIC_KEY_IN_DER_FORMAT_HEADER,
+  PUBLIC_KEY_DER_HEADER,
   publicKeyDerToPem,
   verifyFirstCertWasSignedBySecondCert,
   verifySignature,
@@ -610,11 +610,11 @@ export class JavaCard implements Card {
    */
   private async retrieveCert(certObjectId: Buffer): Promise<CertPemBuffer> {
     const data = await this.getData(certObjectId);
-    const [{ value: certDerBufferContent }, certInDerFormatRemainder] =
+    const [{ value: certDerContent }, certDerContentRemainder] =
       parseTlvPartial(PUT_DATA.CERT_TAG, data);
     const [{ value: certInfo }, certInfoRemainder] = parseTlvPartial(
       PUT_DATA.CERT_INFO_TAG,
-      certInDerFormatRemainder
+      certDerContentRemainder
     );
     assert(
       certInfo[0] === PUT_DATA.CERT_INFO_UNCOMPRESSED,
@@ -628,8 +628,7 @@ export class JavaCard implements Card {
       certErrorDetectionCode.length === 0,
       'Expected no error detection code'
     );
-    const certDerBuffer = derBuffer('cert', certDerBufferContent);
-    return await certDerToPem(certDerBuffer);
+    return await certDerToPem(derBuffer('cert', certDerContent));
   }
 
   /**
@@ -640,10 +639,11 @@ export class JavaCard implements Card {
     certObjectId: Buffer,
     cert: CertPemBuffer
   ): Promise<void> {
+    const certDerContent = (await certPemToDer(cert)).content;
     await this.putData(
       certObjectId,
       Buffer.concat([
-        constructTlv(PUT_DATA.CERT_TAG, (await certPemToDer(cert)).content),
+        constructTlv(PUT_DATA.CERT_TAG, certDerContent),
         constructTlv(
           PUT_DATA.CERT_INFO_TAG,
           Buffer.of(PUT_DATA.CERT_INFO_UNCOMPRESSED)
@@ -743,17 +743,18 @@ export class JavaCard implements Card {
       GENERATE_ASYMMETRIC_KEY_PAIR.RESPONSE_TAG,
       generateKeyPairResponse
     );
-
-    const { value: publicKeyDerFormatBody } = parseTlv(
+    const { value: publicKeyDerBody } = parseTlv(
       GENERATE_ASYMMETRIC_KEY_PAIR.RESPONSE_ECC_POINT_TAG,
       publicKeyEccWrapper
     );
+    const publicKeyDerContent = Buffer.concat([
+      PUBLIC_KEY_DER_HEADER,
+      publicKeyDerBody,
+    ]);
 
-    const publicKeyDerBuffer = derBuffer(
-      'public_key',
-      Buffer.concat([PUBLIC_KEY_IN_DER_FORMAT_HEADER, publicKeyDerFormatBody])
+    return await publicKeyDerToPem(
+      derBuffer('public_key', publicKeyDerContent)
     );
-    return await publicKeyDerToPem(publicKeyDerBuffer);
   }
 
   /**
@@ -924,7 +925,7 @@ Place that file in ${workingDirectory} and press enter. `);
       }
       rl.close();
 
-      cert = pemBuffer('cert', await fs.readFile(certPath));
+      cert = await cryptographicFileToBuffer(pemFile('cert', certPath));
       await fs.rm(certPublicKeyPath);
       await fs.rm(certPath);
     } else {

@@ -7,6 +7,7 @@ import {
   PrivateKeyPemFile,
   remotePrivateKey,
   RemotePrivateKey,
+  tpmPrivateKey,
   TpmPrivateKey,
 } from './cryptographic_material';
 import { getRequiredEnvVar, isNodeEnvProduction } from './env_vars';
@@ -52,7 +53,7 @@ function getMachineCertAndPrivateKey(): {
     const configRoot = getRequiredEnvVar('VX_CONFIG_ROOT');
     return {
       cert: pemFile('cert', path.join(configRoot, machineCertFileName)),
-      privateKey: { type: 'private_key', source: 'tpm' },
+      privateKey: tpmPrivateKey,
     };
   }
   return {

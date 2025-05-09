@@ -211,6 +211,13 @@ export const PrivateKeyPemFileSchema: z.ZodSchema<PrivateKeyPemFile> = z.object(
   }
 );
 
+export const PublicKeyPemFileSchema: z.ZodSchema<PublicKeyPemFile> = z.object({
+  type: z.literal('public_key'),
+  format: z.literal('pem'),
+  source: z.literal('file'),
+  path: z.string(),
+});
+
 export const TpmPrivateKeySchema: z.ZodSchema<TpmPrivateKey> = z.object({
   type: z.literal('private_key'),
   source: z.literal('tpm'),
@@ -218,7 +225,7 @@ export const TpmPrivateKeySchema: z.ZodSchema<TpmPrivateKey> = z.object({
 
 export type PublicKeyPemString = Omit<
   PublicKeyPemBuffer,
-  'source' | 'content' | 'asFile'
+  'source' | 'content'
 > & {
   source: 'string';
   content: string;
@@ -246,5 +253,5 @@ export function publicKeyPemStringToBuffer(
   publicKeyPemString: PublicKeyPemString
 ): PublicKeyPemBuffer {
   const content = Buffer.from(publicKeyPemString.content, 'utf-8');
-  return cryptographicBuffer('public_key', 'pem', content);
+  return pemBuffer('public_key', content);
 }

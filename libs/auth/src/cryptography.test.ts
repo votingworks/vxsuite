@@ -9,7 +9,7 @@ import {
   MockChildProcess,
 } from '@votingworks/test-utils';
 
-import { pemBuffer, pemFile } from './cryptographic_material';
+import { pemBuffer, pemFile, tpmPrivateKey } from './cryptographic_material';
 import {
   createCert,
   createCertGivenCertSigningRequest,
@@ -210,6 +210,17 @@ test.each<CreateCertInput>([
     signingPrivateKey: pemFile('private_key', '/path/to/private-key-2.pem'),
   },
   {
+    certKeyInput: pemFile('public_key', '/path/to/public-key.pem'),
+    certSubject: '//',
+    certType: 'cert_authority_cert',
+    expiryInDays: 365,
+    signingCertAuthorityCert: pemFile(
+      'cert',
+      '/path/to/cert-authority-cert.pem'
+    ),
+    signingPrivateKey: pemFile('private_key', '/path/to/private-key-2.pem'),
+  },
+  {
     certKeyInput: pemBuffer('public_key', fileBuffers[0]),
     certSubject: '//',
     expiryInDays: 365,
@@ -217,7 +228,7 @@ test.each<CreateCertInput>([
       'cert',
       '/path/to/cert-authority-cert.pem'
     ),
-    signingPrivateKey: { type: 'private_key', source: 'tpm' },
+    signingPrivateKey: tpmPrivateKey,
   },
 ])('CreateCertInput serialization', (createCertInput) => {
   expect(
@@ -238,7 +249,7 @@ test('createCertSigningRequest', async () => {
   });
 
   await createCertSigningRequest({
-    certPrivateKey: { type: 'private_key', source: 'tpm' },
+    certPrivateKey: tpmPrivateKey,
     certSubject: '//',
   });
 
@@ -339,7 +350,7 @@ test.each<{
       'certifying public key with TPM private key, ' +
       'where private key of public key to certify is unavailable',
     certKeyInput: pemBuffer('public_key', fileBuffers[0]),
-    signingPrivateKey: { type: 'private_key', source: 'tpm' },
+    signingPrivateKey: tpmPrivateKey,
     expectedOpensslCsrCreationRequestParams: [
       'req',
       '-config',
@@ -496,7 +507,7 @@ test.each<{
   },
   {
     certKeyInput: pemBuffer('public_key', fileBuffers[0]),
-    signingPrivateKey: { type: 'private_key', source: 'tpm' },
+    signingPrivateKey: tpmPrivateKey,
     isSudoExpected: true,
   },
 ])(
@@ -545,7 +556,7 @@ test.each<SignMessageInputExcludingMessage>([
   {
     signingPrivateKey: pemFile('private_key', '/path/to/private-key.pem'),
   },
-  { signingPrivateKey: { type: 'private_key', source: 'tpm' } },
+  { signingPrivateKey: tpmPrivateKey },
 ])(
   'SignMessageInputExcludingMessage serialization',
   (signMessageInputExcludingMessage) => {
@@ -587,7 +598,7 @@ test.each<{
   },
   {
     description: 'signing with TPM private key',
-    signingPrivateKey: { type: 'private_key', source: 'tpm' },
+    signingPrivateKey: tpmPrivateKey,
     expectedOpensslSignatureRequestParams: [
       'pkeyutl',
       '-config',
@@ -639,7 +650,7 @@ test.each<{
     isSudoExpected: false,
   },
   {
-    signingPrivateKey: { type: 'private_key', source: 'tpm' },
+    signingPrivateKey: tpmPrivateKey,
     isSudoExpected: true,
   },
 ])('signMessage', async ({ signingPrivateKey, isSudoExpected }) => {

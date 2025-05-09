@@ -1,6 +1,7 @@
 import { extractErrorMessage } from '@votingworks/basics';
 
 import { constructMachineCertSubject, MachineType } from '../../src/certs';
+import { tpmPrivateKey } from '../../src/cryptographic_material';
 import { createCertSigningRequest } from '../../src/cryptography';
 import { getRequiredEnvVar } from '../../src/env_vars';
 
@@ -26,7 +27,7 @@ async function createProductionMachineCertSigningRequest({
   jurisdiction,
 }: ScriptEnvVars): Promise<void> {
   const certSigningRequest = await createCertSigningRequest({
-    certPrivateKey: { type: 'private_key', source: 'tpm' },
+    certPrivateKey: tpmPrivateKey,
     certSubject: constructMachineCertSubject({
       machineType,
       machineId,

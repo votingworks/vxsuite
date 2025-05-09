@@ -50,7 +50,7 @@ import {
   createCert,
   CreateCertInput,
   openssl,
-  PUBLIC_KEY_IN_DER_FORMAT_HEADER,
+  PUBLIC_KEY_DER_HEADER,
   publicKeyDerToPem,
 } from './cryptography';
 import {
@@ -311,14 +311,14 @@ function mockCardKeyPairGenerationRequest(
       )
     ),
   });
-  const publicKeyRawData = fs
+  const publicKeyDerBody = fs
     .readFileSync(publicKey.path)
-    .subarray(PUBLIC_KEY_IN_DER_FORMAT_HEADER.length);
+    .subarray(PUBLIC_KEY_DER_HEADER.length);
   const responseData = constructTlv(
     GENERATE_ASYMMETRIC_KEY_PAIR.RESPONSE_TAG,
     constructTlv(
       GENERATE_ASYMMETRIC_KEY_PAIR.RESPONSE_ECC_POINT_TAG,
-      publicKeyRawData
+      publicKeyDerBody
     )
   );
   mockCardReader.transmit.expectCallWith(command).resolves(responseData);
