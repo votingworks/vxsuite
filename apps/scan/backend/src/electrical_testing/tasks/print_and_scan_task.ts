@@ -29,7 +29,7 @@ function createPrinterTestImage(): ImageData {
   return ctx.getImageData(0, 0, canvas.width, canvas.height);
 }
 
-export async function printAndScanLoop({
+export async function runPrintAndScanTask({
   usbDrive,
   printerTask,
   scannerTask,

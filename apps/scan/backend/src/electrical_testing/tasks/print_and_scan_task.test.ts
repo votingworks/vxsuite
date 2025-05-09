@@ -2,7 +2,7 @@ import { createImageData } from 'canvas';
 import { afterEach, beforeEach, expect, vi } from 'vitest';
 import { test } from '../../../test/helpers/test';
 import { delays } from '../../scanners/pdi/state_machine';
-import { printAndScanLoop } from './print_and_scan_loop';
+import { runPrintAndScanTask } from './print_and_scan_task';
 
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
@@ -19,7 +19,7 @@ test.electrical(
     electricalAppContext.printerTask.stop();
     electricalAppContext.scannerTask.stop();
 
-    await printAndScanLoop(electricalAppContext);
+    await runPrintAndScanTask(electricalAppContext);
 
     expect(mockSimpleScannerClient.connect).not.toHaveBeenCalled();
     expect(
@@ -34,7 +34,7 @@ test.electrical(
   async ({ mainAppContext, electricalAppContext, mockSimpleScannerClient }) => {
     mainAppContext.mockUsbDrive.insertUsbDrive({});
 
-    const loopPromise = printAndScanLoop(electricalAppContext);
+    const loopPromise = runPrintAndScanTask(electricalAppContext);
     await vi.waitFor(() => {
       expect(mockSimpleScannerClient.connect).toHaveBeenCalled();
     });
@@ -70,7 +70,7 @@ test.electrical(
     vi.useFakeTimers({
       shouldAdvanceTime: true,
     });
-    const loopPromise = printAndScanLoop(electricalAppContext);
+    const loopPromise = runPrintAndScanTask(electricalAppContext);
     await vi.waitFor(() => {
       expect(mockSimpleScannerClient.connect).toHaveBeenCalled();
     });
