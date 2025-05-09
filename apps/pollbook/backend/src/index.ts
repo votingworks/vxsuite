@@ -45,6 +45,7 @@ function main(): Promise<number> {
         'system_administrator',
         'election_manager',
         'poll_worker',
+        'vendor',
       ],
     },
     logger: baseLogger,

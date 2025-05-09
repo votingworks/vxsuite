@@ -144,3 +144,11 @@ test('renders ElectionManagerScreen when logged in as election manager', async (
     'Lincoln Municipal General Election'
   );
 });
+
+test('renders VendorScreen when logged in as vendor', async () => {
+  apiMock.expectGetDeviceStatuses();
+  apiMock.authenticateAsVendor();
+  render(<App apiClient={apiMock.mockApiClient} />);
+
+  await screen.findByText('Reboot to Vendor Menu');
+});
