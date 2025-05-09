@@ -1,5 +1,6 @@
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { LogEventId, BaseLogger } from '@votingworks/logging';
+import { ContestId, ContestOptionId, Id } from '@votingworks/types';
 import {
   AdjudicatedCvrContest,
   VoteAdjudication,
@@ -318,5 +319,30 @@ export function adjudicateCvrContest(
         }
       }
     }
+    store.resolveCvrContestTags({ cvrId, contestId });
   });
+}
+
+/**
+ * Returns a list of option ids for a cvr-contest pair
+ * that are below the mark threshold and above
+ * the marginal threshold
+ */
+export function getMarginalMarks({
+  store,
+  cvrId,
+  contestId,
+}: {
+  store: Store;
+  cvrId: Id;
+  contestId: ContestId;
+}): ContestOptionId[] {
+  assertDefined(store.getCurrentElectionId());
+  assertDefined(cvrId);
+  assertDefined(contestId);
+
+  // Either get marginal marks from cvr data vs thresholds
+  // or cvr_contest_tags (if including optionId)
+
+  return ['write-in-0'];
 }
