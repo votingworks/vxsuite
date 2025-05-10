@@ -296,9 +296,7 @@ impl Transfer {
                 return Ok(data);
             }
             ffi::constants::LIBUSB_TRANSFER_CANCELLED => Error::Cancelled,
-            ffi::constants::LIBUSB_TRANSFER_ERROR => {
-                Error::Other("Error occurred during transfer execution")
-            }
+            ffi::constants::LIBUSB_TRANSFER_ERROR => Error::TransferError,
             ffi::constants::LIBUSB_TRANSFER_TIMED_OUT => {
                 unreachable!("We are using timeout=0 which means no timeout")
             }

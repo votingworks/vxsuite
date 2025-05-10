@@ -56,4 +56,7 @@ pub enum Error {
 
     #[error("Transfer was cancelled")]
     Cancelled,
+
+    #[error("Transfer failed")]
+    TransferError,
 }
