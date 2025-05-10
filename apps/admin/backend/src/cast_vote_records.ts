@@ -28,6 +28,7 @@ import { listDirectoryOnUsbDrive, UsbDrive } from '@votingworks/usb-drive';
 import {
   BooleanEnvironmentVariableName,
   castVoteRecordHasValidContestReferences,
+  convertCastVoteRecordMarkMetricsToMarkScores,
   convertCastVoteRecordVotesToTabulationVotes,
   generateElectionBasedSubfolderName,
   getCastVoteRecordBallotType,
@@ -274,6 +275,7 @@ export async function importCastVoteRecords(
         castVoteRecord,
         castVoteRecordBallotSheetId,
         castVoteRecordCurrentSnapshot,
+        castVoteRecordOriginalSnapshot,
         castVoteRecordWriteIns,
         referencedFiles,
       } = castVoteRecordResult.ok();
@@ -289,6 +291,10 @@ export async function importCastVoteRecords(
       const votes = convertCastVoteRecordVotesToTabulationVotes(
         castVoteRecordCurrentSnapshot
       );
+      const markScores = convertCastVoteRecordMarkMetricsToMarkScores(
+        castVoteRecordOriginalSnapshot
+      );
+
       // Currently, we only support filtering on initial adjudication status,
       // rather than post-adjudication status. As a result, we can just calculate
       // now, during import.
@@ -310,6 +316,7 @@ export async function importCastVoteRecords(
             ? { type: 'hmpb', sheetNumber: castVoteRecordBallotSheetId }
             : { type: 'bmd' },
           precinctId: castVoteRecord.BallotStyleUnitId,
+          markScores,
           votes,
           votingMethod,
         },
