@@ -11,10 +11,10 @@ import {
 import {
   AppBase,
   AppErrorBoundary,
+  FrontendLogger,
   SystemCallContextProvider,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
-import { LogSource, BaseLogger } from '@votingworks/logging';
 import { App } from './app';
 import {
   ApiClientContext,
@@ -29,7 +29,7 @@ const queryClient = createQueryClient();
 const rootElement = document.getElementById('root');
 assert(rootElement);
 const root = createRoot(rootElement);
-const logger = new BaseLogger(LogSource.VxAdminFrontend, window.kiosk);
+const logger = new FrontendLogger();
 
 root.render(
   <React.StrictMode>

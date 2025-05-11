@@ -98,7 +98,6 @@
     "@types/debug": "4.1.8",
     "@types/fetch-mock": "^7.3.2",
     "@types/history": "4.7.11",
-    "@types/kiosk-browser": "workspace:*",
     "@types/luxon": "^3.0.0",
     "@types/node": "20.17.31",
     "@types/pdfjs-dist": "2.1.3",

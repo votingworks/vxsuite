@@ -487,9 +487,6 @@ importers:
       '@types/history':
         specifier: 4.7.11
         version: 4.7.11
-      '@types/kiosk-browser':
-        specifier: workspace:*
-        version: link:../../../libs/@types/kiosk-browser
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0

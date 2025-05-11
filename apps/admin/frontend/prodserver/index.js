@@ -24,6 +24,13 @@ app.use((req, res, next) => {
 
 proxy(app);
 
+app.use(express.json());
+app.post('/log', (req, res) => {
+  const { eventId, user, ...logData } = req.body;
+  logger.log(eventId, user, logData);
+  res.status(200).json({ status: 'ok' });
+});
+
 app.use(express.static(path.join(__dirname, '../build')));
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../build/index.html'));
