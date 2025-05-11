@@ -1,14 +1,13 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
 import {
   ManualResultsIdentifier,
   ImportElectionResultsReportingError,
 } from '@votingworks/admin-backend';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { assertDefined, deferred, err, ok, Result } from '@votingworks/basics';
-import { ElectronFile, mockUsbDriveStatus } from '@votingworks/ui';
+import { mockUsbDriveStatus } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
 import {
-  mockKiosk,
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
@@ -18,7 +17,7 @@ import { BallotStyleGroupId, DippedSmartCardAuth } from '@votingworks/types';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { ImportElectionsResultReportingFileModal } from './import_election_results_reporting_file_modal';
-import { fireEvent, screen } from '../../../test/react_testing_library';
+import { screen } from '../../../test/react_testing_library';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 
@@ -26,12 +25,6 @@ let apiMock: ApiMock;
 
 beforeEach(() => {
   apiMock = createApiMock();
-  window.kiosk = mockKiosk(vi.fn);
-});
-
-afterEach(() => {
-  delete window.kiosk;
-  apiMock.assertComplete();
 });
 
 function getTestConfig(): {
@@ -67,9 +60,16 @@ function getTestConfig(): {
 }
 
 test('can upload an ERR file and close modal', async () => {
-  const { filename, filepath, ballotStyleGroupId, precinctId, identifier } =
+  const { filepath, ballotStyleGroupId, precinctId, identifier } =
     getTestConfig();
 
+  apiMock.expectOpenFileDialog(
+    {
+      title: 'Select ERR CDF Results File',
+      extensions: ['json'],
+    },
+    ok(filepath)
+  );
   apiMock.expectImportElectionResultReportingFileMutation({
     ...identifier,
     filepath,
@@ -94,14 +94,7 @@ test('can upload an ERR file and close modal', async () => {
     'Results may be imported as an Election Results Reporting Common Data Format (ERR CDF) file. Choose an ERR CDF file to import.'
   );
 
-  const file: ElectronFile = {
-    ...new File([''], filename),
-    path: filepath,
-  };
-  fireEvent.change(screen.getByTestId('manual-input'), {
-    target: { files: [file] },
-  });
-
+  userEvent.click(screen.getByText('Select File…'));
   await screen.findByText('Results Imported');
 
   expect(closeFn).toHaveBeenCalledTimes(0);
@@ -145,9 +138,16 @@ test.each(usbStatuses)(
 );
 
 test('loading state', async () => {
-  const { filename, filepath, ballotStyleGroupId, precinctId, identifier } =
+  const { filepath, ballotStyleGroupId, precinctId, identifier } =
     getTestConfig();
 
+  apiMock.expectOpenFileDialog(
+    {
+      title: 'Select ERR CDF Results File',
+      extensions: ['json'],
+    },
+    ok(filepath)
+  );
   const { promise, resolve } =
     deferred<Result<void, ImportElectionResultsReportingError>>();
   apiMock.apiClient.importElectionResultsReportingFile
@@ -175,14 +175,7 @@ test('loading state', async () => {
     'Results may be imported as an Election Results Reporting Common Data Format (ERR CDF) file. Choose an ERR CDF file to import.'
   );
 
-  const file: ElectronFile = {
-    ...new File([''], filename),
-    path: filepath,
-  };
-  fireEvent.change(screen.getByTestId('manual-input'), {
-    target: { files: [file] },
-  });
-
+  userEvent.click(screen.getByText('Select File…'));
   await screen.findByText('Importing Results');
 
   resolve(ok());
@@ -212,9 +205,16 @@ const errorTests: ErrorTestSpec[] = [
 test.each(errorTests)(
   'handles error returned by API: $error.type',
   async ({ error, message }) => {
-    const { filename, filepath, ballotStyleGroupId, precinctId, identifier } =
+    const { filepath, ballotStyleGroupId, precinctId, identifier } =
       getTestConfig();
 
+    apiMock.expectOpenFileDialog(
+      {
+        title: 'Select ERR CDF Results File',
+        extensions: ['json'],
+      },
+      ok(filepath)
+    );
     apiMock.apiClient.importElectionResultsReportingFile
       .expectCallWith({
         ...identifier,
@@ -240,14 +240,7 @@ test.each(errorTests)(
       'Results may be imported as an Election Results Reporting Common Data Format (ERR CDF) file. Choose an ERR CDF file to import.'
     );
 
-    const file: ElectronFile = {
-      ...new File([''], filename),
-      path: filepath,
-    };
-    fireEvent.change(screen.getByTestId('manual-input'), {
-      target: { files: [file] },
-    });
-
+    userEvent.click(screen.getByText('Select File…'));
     await screen.findByText('Failed to Import Results');
     screen.getByText(message);
 
@@ -280,8 +273,17 @@ test('handles no file input', async () => {
   );
 
   expect(closeFn).toHaveBeenCalledTimes(0);
-  fireEvent.change(screen.getByTestId('manual-input'), {
-    target: { files: null },
+  apiMock.expectOpenFileDialog(
+    {
+      title: 'Select ERR CDF Results File',
+      extensions: ['json'],
+    },
+    err('no-file-selected')
+  );
+
+  userEvent.click(screen.getByText('Select File…'));
+  await vi.waitFor(() => {
+    apiMock.assertComplete();
   });
   expect(closeFn).toHaveBeenCalledTimes(1);
 });

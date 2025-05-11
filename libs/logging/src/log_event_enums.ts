@@ -106,6 +106,7 @@ export enum LogEventId {
   DatabaseCreateComplete = 'database-create-complete',
   DatabaseDestroyInit = 'database-destroy-init',
   DatabaseDestroyComplete = 'database-destroy-complete',
+  FileSelectionDialog = 'file-selection',
   FileReadError = 'file-read-error',
   DmVerityBoot = 'dmverity-boot',
   MachineBootInit = 'machine-boot-init',
@@ -492,6 +493,13 @@ const DatabaseDestroyComplete: LogDetails = {
   eventType: LogEventType.SystemAction,
   documentationMessage:
     'Database destroyed. Success or failure indicated by disposition.',
+};
+
+const FileSelectionDialog: LogDetails = {
+  eventId: LogEventId.FileSelectionDialog,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'The user opened a file selection dialog to manually select a file.',
 };
 
 const FileReadError: LogDetails = {
@@ -1288,6 +1296,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return DatabaseDestroyInit;
     case LogEventId.DatabaseDestroyComplete:
       return DatabaseDestroyComplete;
+    case LogEventId.FileSelectionDialog:
+      return FileSelectionDialog;
     case LogEventId.FileReadError:
       return FileReadError;
     case LogEventId.DmVerityBoot:

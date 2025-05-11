@@ -61,6 +61,12 @@ function createReactQueryApi(getApiClient: () => SystemCallApiClient) {
         });
       },
     },
+    openFileDialog: {
+      useMutation: () => {
+        const apiClient = getApiClient();
+        return useMutation(apiClient.openFileDialog);
+      },
+    },
   };
 }
 

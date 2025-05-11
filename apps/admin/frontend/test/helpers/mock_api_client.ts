@@ -19,7 +19,12 @@ import type {
   WriteInRecord,
   VoteAdjudication,
 } from '@votingworks/admin-backend';
-import type { BatteryInfo, DiskSpaceSummary } from '@votingworks/backend';
+import type {
+  BatteryInfo,
+  DiskSpaceSummary,
+  OpenFileDialogOptions,
+  OpenFileDialogResult,
+} from '@votingworks/backend';
 import { FileSystemEntry, FileSystemEntryType } from '@votingworks/fs';
 import { Result, deferred, ok } from '@votingworks/basics';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
@@ -639,6 +644,13 @@ export function createApiMock(
 
     expectRebootToVendorMenu() {
       apiClient.rebootToVendorMenu.expectCallWith().resolves();
+    },
+
+    expectOpenFileDialog(
+      options: OpenFileDialogOptions,
+      result: OpenFileDialogResult
+    ) {
+      apiClient.openFileDialog.expectCallWith(options).resolves(result);
     },
   };
 }

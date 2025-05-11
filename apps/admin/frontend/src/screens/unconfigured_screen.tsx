@@ -11,10 +11,14 @@ import {
   UsbDriveImage,
 } from '@votingworks/ui';
 import type { FileSystemEntry } from '@votingworks/fs';
-import { assertDefined, throwIllegalValue } from '@votingworks/basics';
+import { throwIllegalValue } from '@votingworks/basics';
 import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';
-import { configure, listPotentialElectionPackagesOnUsbDrive } from '../api';
+import {
+  configure,
+  listPotentialElectionPackagesOnUsbDrive,
+  systemCallApi,
+} from '../api';
 import { AppContext } from '../contexts/app_context';
 import { NODE_ENV, TIME_FORMAT } from '../config/globals';
 
@@ -35,22 +39,20 @@ function SelectElectionPackage({
 }: {
   potentialElectionPackageFiles: FileSystemEntry[];
 }): JSX.Element {
+  const openFileDialogMutation = systemCallApi.openFileDialog.useMutation();
   const configureMutation = configure.useMutation();
 
   async function onSelectOtherFile() {
-    const dialogResult = await assertDefined(window.kiosk).showOpenDialog({
-      properties: ['openFile'],
-      filters: [
-        {
-          name: '',
-          extensions: NODE_ENV === 'development' ? ['zip', 'json'] : ['zip'],
-        },
-      ],
-    });
-    if (dialogResult.canceled) return;
-    const selectedPath = dialogResult.filePaths[0];
-    if (selectedPath) {
-      configureMutation.mutate({ electionFilePath: selectedPath });
+    try {
+      const dialogResult = await openFileDialogMutation.mutateAsync({
+        title: 'Select Election Package',
+        extensions: NODE_ENV === 'development' ? ['zip', 'json'] : ['zip'],
+      });
+      if (dialogResult.isOk()) {
+        configureMutation.mutate({ electionFilePath: dialogResult.ok() });
+      }
+    } catch (error) {
+      // Handled by default query client error handling
     }
   }
 

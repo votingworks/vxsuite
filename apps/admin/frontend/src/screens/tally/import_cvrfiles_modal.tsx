@@ -9,12 +9,10 @@ import {
   Table,
   TD,
   Button,
-  ElectronFile,
   useExternalStateChangeListener,
   P,
   Font,
   Icons,
-  FileInputButton,
 } from '@votingworks/ui';
 import {
   format,
@@ -29,16 +27,14 @@ import type {
 } from '@votingworks/admin-backend';
 import { AppContext } from '../../contexts/app_context';
 import { Loading } from '../../components/loading';
-import {
-  CastVoteRecordFilePreprocessedData,
-  InputEventFunction,
-} from '../../config/types';
+import { CastVoteRecordFilePreprocessedData } from '../../config/types';
 import { NODE_ENV, TIME_FORMAT } from '../../config/globals';
 import {
   addCastVoteRecordFile,
   getCastVoteRecordFileMode,
   getCastVoteRecordFiles,
   listCastVoteRecordFilesOnUsb,
+  systemCallApi,
 } from '../../api';
 
 const CvrFileTableWrapper = styled.div`
@@ -184,6 +180,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
   const cvrFilesOnUsbQuery = listCastVoteRecordFilesOnUsb.useQuery();
   const addCastVoteRecordFileMutation = addCastVoteRecordFile.useMutation();
+  const openFileDialogMutation = systemCallApi.openFileDialog.useMutation();
 
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth)); // TODO(auth) check permissions for loaded cvr
@@ -226,22 +223,19 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
     importCastVoteRecordFile(fileData.path);
   }
 
-  const processCastVoteRecordFileFromFilePicker: InputEventFunction = (
-    event
-  ) => {
-    // electron adds a path field to the File object
-    assert(window.kiosk);
-    const input = event.currentTarget;
-    const files = Array.from(input.files || []);
-    const file = files[0] as ElectronFile;
-
-    if (!file) {
-      onClose();
-      return;
+  async function onSelectOtherFile() {
+    try {
+      const dialogResult = await openFileDialogMutation.mutateAsync({
+        title: 'Select Cast Vote Record Metadata File',
+        extensions: ['json'],
+      });
+      if (dialogResult.isOk()) {
+        importCastVoteRecordFile(dialogResult.ok());
+      }
+    } catch (error) {
+      // Handled by default query client error handling
     }
-
-    importCastVoteRecordFile(file.path);
-  };
+  }
 
   // TODO: Rather than explicitly refetching, which is outside of the standard
   // React Query pattern, we should invalidate the query on USB drive status
@@ -354,14 +348,10 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
         onOverlayClick={onClose}
         actions={
           <React.Fragment>
-            {window.kiosk && NODE_ENV === 'development' && (
-              <FileInputButton
-                data-testid="manual-input"
-                onChange={processCastVoteRecordFileFromFilePicker}
-                accept=".json"
-              >
+            {NODE_ENV === 'development' && (
+              <Button onPress={onSelectOtherFile}>
                 Select CVR Export Manually…
-              </FileInputButton>
+              </Button>
             )}
             <Button onPress={onClose}>Cancel</Button>
           </React.Fragment>
@@ -496,13 +486,9 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
         onOverlayClick={onClose}
         actions={
           <React.Fragment>
-            <FileInputButton
-              data-testid="manual-input"
-              onChange={processCastVoteRecordFileFromFilePicker}
-              accept=".json"
-            >
+            <Button onPress={onSelectOtherFile}>
               Select CVR Export Manually…
-            </FileInputButton>
+            </Button>
             <Button onPress={onClose}>Cancel</Button>
           </React.Fragment>
         }

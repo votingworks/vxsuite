@@ -1,12 +1,10 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import { mockKiosk } from '@votingworks/test-utils';
 
-import { ElectronFile, mockUsbDriveStatus } from '@votingworks/ui';
+import { mockUsbDriveStatus } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
 import { ok } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import {
-  fireEvent,
   getByText as domGetByText,
   getByTestId as domGetByTestId,
   screen,
@@ -59,7 +57,6 @@ test('when USB is not present or valid', async () => {
 
 describe('when USB is properly mounted', () => {
   test('no files found screen & manual load', async () => {
-    window.kiosk = mockKiosk(vi.fn);
     const closeFn = vi.fn();
     apiMock.expectGetCastVoteRecordFileMode('unlocked');
     apiMock.expectGetCastVoteRecordFiles([]);
@@ -78,26 +75,24 @@ describe('when USB is properly mounted', () => {
     userEvent.click(screen.getByText('Cancel'));
     expect(closeFn).toHaveBeenCalledTimes(1);
 
+    apiMock.expectOpenFileDialog(
+      {
+        title: 'Select Cast Vote Record Metadata File',
+        extensions: ['json'],
+      },
+      ok('/tmp/metadata.json')
+    );
     apiMock.apiClient.addCastVoteRecordFile
-      .expectCallWith({ path: '/tmp/cast-vote-record.jsonl' })
+      .expectCallWith({ path: '/tmp/metadata.json' })
       .resolves(ok(mockCastVoteRecordImportInfo));
 
-    // You can still manually load files
-    const file: ElectronFile = {
-      ...new File([''], 'cast-vote-record.jsonl'),
-      path: '/tmp/cast-vote-record.jsonl',
-    };
-    fireEvent.change(screen.getByTestId('manual-input'), {
-      target: { files: [file] },
-    });
+    userEvent.click(screen.getByText('Select CVR Export Manually…'));
 
     // modal refetches after adding cast vote record
     apiMock.expectGetCastVoteRecordFileMode('test');
     apiMock.expectGetCastVoteRecordFiles([]);
 
     await screen.findByText('1,000 New CVRs Loaded');
-
-    delete window.kiosk;
   });
 
   test('shows table with both test and live CVR files & allows loading', async () => {

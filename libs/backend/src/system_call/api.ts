@@ -7,6 +7,7 @@ import { powerDown } from './power_down';
 import { setClock } from './set_clock';
 import { getBatteryInfo } from './get_battery_info';
 import { getAudioInfo } from './get_audio_info';
+import { openFileDialog, OpenFileDialogOptions } from './file_selection_dialog';
 
 function buildApi({
   usbDrive,
@@ -33,6 +34,8 @@ function buildApi({
     setClock,
     getBatteryInfo,
     getAudioInfo: async () => getAudioInfo(logger),
+    openFileDialog: async (input: OpenFileDialogOptions) =>
+      openFileDialog(input, logger),
   };
 }
 

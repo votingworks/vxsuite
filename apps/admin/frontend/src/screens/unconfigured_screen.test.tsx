@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { mockKiosk } from '@votingworks/test-utils';
-import { err } from '@votingworks/basics';
+import { err, ok } from '@votingworks/basics';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { screen, within } from '../../test/react_testing_library';
@@ -103,14 +102,14 @@ test('configures from election packages on USB drive', async () => {
 });
 
 test('configures from selected file', async () => {
-  const kiosk = mockKiosk(vi.fn);
-  window.kiosk = kiosk;
-  kiosk.showOpenDialog.mockResolvedValueOnce({
-    canceled: false,
-    filePaths: ['/path/to/election-package.zip'],
-  });
-
   apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
+  apiMock.expectOpenFileDialog(
+    {
+      title: 'Select Election Package',
+      extensions: ['zip'],
+    },
+    ok('/path/to/election-package.zip')
+  );
   renderInAppContext(<UnconfiguredScreen />, {
     apiMock,
     usbDriveStatus: mockUsbDriveStatus('mounted'),
@@ -121,21 +120,18 @@ test('configures from selected file', async () => {
   apiMock.expectConfigure('/path/to/election-package.zip');
   userEvent.click(screen.getButton('Select Other File...'));
   await vi.waitFor(() => apiMock.assertComplete());
-  expect(kiosk.showOpenDialog).toHaveBeenCalledWith({
-    properties: ['openFile'],
-    filters: [{ name: '', extensions: ['zip'] }],
-  });
 });
 
 test('allows configuring from json in development', async () => {
   mockNodeEnv = 'development';
 
-  const kiosk = mockKiosk(vi.fn);
-  window.kiosk = kiosk;
-  kiosk.showOpenDialog.mockResolvedValueOnce({
-    canceled: false,
-    filePaths: ['/path/to/election-definition.json'],
-  });
+  apiMock.expectOpenFileDialog(
+    {
+      title: 'Select Election Package',
+      extensions: ['zip', 'json'],
+    },
+    ok('/path/to/election-definition.json')
+  );
 
   apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
   renderInAppContext(<UnconfiguredScreen />, {
@@ -148,10 +144,6 @@ test('allows configuring from json in development', async () => {
   apiMock.expectConfigure('/path/to/election-definition.json');
   userEvent.click(screen.getButton('Select Other File...'));
   await vi.waitFor(() => apiMock.assertComplete());
-  expect(kiosk.showOpenDialog).toHaveBeenCalledWith({
-    properties: ['openFile'],
-    filters: [{ name: '', extensions: ['zip', 'json'] }],
-  });
 });
 
 test('shows configuration error', async () => {

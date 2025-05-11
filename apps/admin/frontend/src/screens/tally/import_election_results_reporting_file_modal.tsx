@@ -1,15 +1,7 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 
-import {
-  Modal,
-  ModalWidth,
-  Button,
-  ElectronFile,
-  P,
-  FileInputButton,
-  Loading,
-} from '@votingworks/ui';
+import { Modal, ModalWidth, Button, P, Loading } from '@votingworks/ui';
 import {
   isElectionManagerAuth,
   isSystemAdministratorAuth,
@@ -22,8 +14,7 @@ import type {
 } from '@votingworks/admin-backend';
 import { BallotStyleGroupId } from '@votingworks/types';
 import { AppContext } from '../../contexts/app_context';
-import { InputEventFunction } from '../../config/types';
-import { importElectionResultsReportingFile } from '../../api';
+import { importElectionResultsReportingFile, systemCallApi } from '../../api';
 
 const Content = styled.div`
   overflow: hidden;
@@ -60,6 +51,7 @@ export function ImportElectionsResultReportingFileModal({
   const { usbDriveStatus, electionDefinition, auth } = useContext(AppContext);
   const importElectionResultReportingFileMutation =
     importElectionResultsReportingFile.useMutation();
+  const openFileDialogMutation = systemCallApi.openFileDialog.useMutation();
 
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
@@ -74,22 +66,21 @@ export function ImportElectionsResultReportingFileModal({
     });
   }
 
-  const processElectionResultReportingFileFromFilePicker: InputEventFunction = (
-    event
-  ) => {
-    // electron adds a path field to the File object
-    assert(window.kiosk, 'No window.kiosk');
-    const input = event.currentTarget;
-    const files = Array.from(input.files || []);
-    const file = files[0] as ElectronFile;
-
-    if (!file) {
-      onClose();
-      return;
+  async function onSelectOtherFile() {
+    try {
+      const dialogResult = await openFileDialogMutation.mutateAsync({
+        title: 'Select ERR CDF Results File',
+        extensions: ['json'],
+      });
+      if (dialogResult.isOk()) {
+        handleImportElectionResultReportingFile(dialogResult.ok());
+      } else {
+        onClose();
+      }
+    } catch (error) {
+      // Handled by default query client error handling
     }
-
-    handleImportElectionResultReportingFile(file.path);
-  };
+  }
 
   function errorContents(message: string) {
     return (
@@ -135,16 +126,9 @@ export function ImportElectionsResultReportingFileModal({
         onOverlayClick={onClose}
         actions={
           <React.Fragment>
-            {window.kiosk && (
-              <FileInputButton
-                data-testid="manual-input"
-                onChange={processElectionResultReportingFileFromFilePicker}
-                accept=".json"
-                disabled
-              >
-                Select File…
-              </FileInputButton>
-            )}
+            <Button onPress={onSelectOtherFile} disabled>
+              Select File…
+            </Button>
             <Button onPress={onClose}>Cancel</Button>
           </React.Fragment>
         }
@@ -168,13 +152,7 @@ export function ImportElectionsResultReportingFileModal({
         onOverlayClick={onClose}
         actions={
           <React.Fragment>
-            <FileInputButton
-              data-testid="manual-input"
-              onChange={processElectionResultReportingFileFromFilePicker}
-              accept=".json"
-            >
-              Select File…
-            </FileInputButton>
+            <Button onPress={onSelectOtherFile}>Select File…</Button>
             <Button onPress={onClose}>Cancel</Button>
           </React.Fragment>
         }

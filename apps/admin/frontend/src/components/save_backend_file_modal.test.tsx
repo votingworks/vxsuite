@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { advancePromises, mockKiosk } from '@votingworks/test-utils';
+import { advancePromises } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 import { err, ok } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
@@ -12,13 +12,10 @@ import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  const kiosk = mockKiosk(vi.fn);
-  window.kiosk = kiosk;
   apiMock = createApiMock();
 });
 
 afterEach(() => {
-  window.kiosk = undefined;
   apiMock.assertComplete();
 });
 
