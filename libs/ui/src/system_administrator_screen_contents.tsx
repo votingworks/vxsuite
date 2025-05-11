@@ -1,9 +1,7 @@
 import React from 'react';
-import { isVxDev } from '@votingworks/utils';
 
 import styled from 'styled-components';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
-import { Button } from './button';
 import { UnconfigureMachineButton } from './unconfigure_machine_button';
 import { ResetPollsToPausedButton } from './reset_polls_to_paused_button';
 import { P } from './typography';
@@ -74,9 +72,6 @@ export function SystemAdministratorScreenContents({
         <ExportLogsButton usbDriveStatus={usbDriveStatus} />
         <SetClockButton logOut={logOut}>Set Date and Time</SetClockButton>
         {additionalButtons}
-        {isVxDev() && (
-          <Button onPress={() => window.kiosk?.quit()}>Quit</Button>
-        )}
       </ButtonGrid>
       <P>{primaryText}</P>
     </React.Fragment>

@@ -1,6 +1,5 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { mockKiosk } from '@votingworks/test-utils';
 import { isVxDev } from '@votingworks/utils';
 import {
   screen,
@@ -20,7 +19,6 @@ const { render, mockApiClient } = newTestContext({ skipUiStringsApi: true });
 
 beforeEach(() => {
   vi.mocked(isVxDev).mockImplementation(() => false);
-  window.kiosk = undefined;
 });
 
 const renderTestCases: Array<{
@@ -108,41 +106,6 @@ test.each(renderTestCases)(
     }
   }
 );
-
-test('Quit button makes expected call', () => {
-  vi.mocked(isVxDev).mockImplementation(() => true);
-  window.kiosk = mockKiosk(vi.fn);
-  const unconfigureMachine = vi.fn();
-  render(
-    <SystemAdministratorScreenContents
-      primaryText="To adjust settings for the current election, please insert an election manager card."
-      unconfigureMachine={unconfigureMachine}
-      isMachineConfigured
-      logOut={vi.fn()}
-      usbDriveStatus={mockUsbDriveStatus('mounted')}
-    />
-  );
-
-  userEvent.click(screen.getByRole('button', { name: 'Quit' }));
-  expect(window.kiosk.quit).toBeCalledTimes(1);
-});
-
-test('Quit button does nothing when kiosk is undefined', () => {
-  vi.mocked(isVxDev).mockImplementation(() => true);
-  window.kiosk = undefined;
-  const unconfigureMachine = vi.fn();
-  render(
-    <SystemAdministratorScreenContents
-      primaryText="To adjust settings for the current election, please insert an election manager card."
-      unconfigureMachine={unconfigureMachine}
-      isMachineConfigured
-      logOut={vi.fn()}
-      usbDriveStatus={mockUsbDriveStatus('mounted')}
-    />
-  );
-
-  userEvent.click(screen.getByRole('button', { name: 'Quit' }));
-});
 
 test('Reset Polls to Paused button not rendered if not specified', () => {
   render(
