@@ -9,7 +9,6 @@ import { ApiMock } from './mock_api_client';
  * Simulates inserting a USB drive, configuring the backend with an election definition,
  * and removing the USB drive.
  * @param apiMock
- * @param kiosk
  * @param screen
  * @param electionDefinition The election definition to return from apiMock.
  */

@@ -58,7 +58,6 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  window.kiosk = undefined;
   apiMock.mockApiClient.assertComplete();
 });
 

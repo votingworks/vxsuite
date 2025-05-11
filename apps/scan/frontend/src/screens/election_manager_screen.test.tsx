@@ -4,7 +4,6 @@ import {
   electionTwoPartyPrimaryFixtures,
   readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
-import { mockKiosk } from '@votingworks/test-utils';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { ok } from '@votingworks/basics';
 import { mockUsbDriveStatus } from '@votingworks/ui';
@@ -36,7 +35,6 @@ let apiMock: ApiMock;
 vi.useFakeTimers({ shouldAdvanceTime: true });
 
 beforeEach(() => {
-  window.kiosk = mockKiosk(vi.fn);
   apiMock = createApiMock();
   apiMock.expectGetPollsInfo();
   apiMock.expectGetMachineConfig();
@@ -47,7 +45,6 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  window.kiosk = undefined;
   apiMock.mockApiClient.assertComplete();
 });
 
