@@ -8,7 +8,7 @@
 const express = require('express');
 const path = require('path');
 const { Logger, LogSource, LogEventId } = require('@votingworks/logging');
-const { handleUncaughtExceptions } = require('@votingworks/backend');
+const { handleUncaughtExceptions, setupFrontendLogging } = require('@votingworks/backend');
 
 const proxy = require('./setupProxy');
 const app = express();
@@ -23,13 +23,7 @@ app.use((req, res, next) => {
 });
 
 proxy(app);
-
-app.use(express.json());
-app.post('/log', (req, res) => {
-  const { eventId, user, ...logData } = req.body;
-  logger.log(eventId, user, logData);
-  res.status(200).json({ status: 'ok' });
-});
+setupFrontendLogging(app, logger);
 
 app.use(express.static(path.join(__dirname, '../build')));
 app.get('*', (req, res) => {

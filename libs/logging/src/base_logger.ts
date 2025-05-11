@@ -1,5 +1,4 @@
 import { Dictionary } from '@votingworks/types';
-import makeDebug from 'debug';
 import { LogEventId, LogSource, getDetailsForEventId } from './log_event_enums';
 import {
   LogDisposition,
@@ -12,30 +11,13 @@ export const LOGS_ROOT_LOCATION = '/var/log';
 export const LOG_NAME = 'vx-logs';
 export const FULL_LOG_PATH = `${LOGS_ROOT_LOCATION}/${LOG_NAME}.log`;
 
-// The following log sources are frontends and always expect to log through window.kiosk
-// In various tests window.kiosk may not be defined and we don't want to fallback to logging with console.log
-// to avoid unnecessary log spew in the test runs.
-export const CLIENT_SIDE_LOG_SOURCES = [
-  LogSource.VxAdminFrontend,
-  LogSource.VxCentralScanFrontend,
-  LogSource.VxScanFrontend,
-  LogSource.VxBallotActivationFrontend,
-  LogSource.VxMarkFrontend,
-  LogSource.VxMarkScanFrontend,
-];
-
-const debug = makeDebug('logger');
-
 export interface LogData extends Dictionary<string | boolean | number> {
   message?: string;
   disposition?: LogDisposition;
 }
 
 export class BaseLogger {
-  constructor(
-    private readonly source: LogSource,
-    private readonly kiosk?: KioskBrowser.Kiosk
-  ) {}
+  constructor(private readonly source: LogSource) {}
 
   getSource(): LogSource {
     return this.source;
@@ -67,22 +49,6 @@ export class BaseLogger {
     /* istanbul ignore next - figure out how to test this @preserve */
     if (outerDebug && process.env.NODE_ENV !== 'production') {
       outerDebug(logLine);
-      return;
-    }
-
-    if (CLIENT_SIDE_LOG_SOURCES.includes(this.source)) {
-      debug(logLine); // for internal debugging use log to the console
-      if (this.kiosk) {
-        void this.kiosk.log(
-          JSON.stringify({
-            timeLogInitiated: Date.now().toString(),
-            ...logLine,
-          })
-        );
-      }
-    } else {
-      // eslint-disable-next-line no-console
-      console.log(JSON.stringify(logLine));
     }
   }
 }

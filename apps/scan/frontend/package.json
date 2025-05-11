@@ -78,7 +78,6 @@
     "@types/connect": "^3.4.35",
     "@types/debug": "4.1.8",
     "@types/history": "4.7.11",
-    "@types/kiosk-browser": "workspace:*",
     "@types/luxon": "^3.0.0",
     "@types/node": "20.17.31",
     "@types/pluralize": "^0.0.29",

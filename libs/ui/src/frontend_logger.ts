@@ -8,6 +8,8 @@ import {
 
 export class FrontendLogger extends BaseLogger {
   constructor() {
+    // log source does not matter because the frontend logger is just passing
+    // logs to the backend
     super(LogSource.System);
   }
 
@@ -16,15 +18,16 @@ export class FrontendLogger extends BaseLogger {
     user: LoggingUserRole,
     logData: LogData = {}
   ): Promise<void> {
+    const logEvent = JSON.stringify({ eventId, user, ...logData });
     try {
       await fetch('/log', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ eventId, user, ...logData }),
+        body: logEvent,
       });
     } catch (error) {
       // eslint-disable-next-line no-console
-      console.log('Error logging via frontend server failed. Error:', error);
+      console.log('Error logging via frontend server failed. Log:', logEvent);
     }
   }
 }

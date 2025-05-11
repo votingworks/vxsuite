@@ -1,10 +1,10 @@
 import { BrowserRouter } from 'react-router-dom';
 
-import { BaseLogger, LogSource } from '@votingworks/logging';
 import { QueryClient } from '@tanstack/react-query';
 import {
   AppBase,
   AppErrorBoundary,
+  FrontendLogger,
   VisualModeDisabledOverlay,
 } from '@votingworks/ui';
 import { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
@@ -27,7 +27,7 @@ const DEFAULT_SCREEN_TYPE: ScreenType = 'elo15';
 const DEFAULT_SIZE_MODE: SizeMode = 'touchMedium';
 
 export interface Props {
-  logger?: BaseLogger;
+  logger?: FrontendLogger;
   apiClient?: ApiClient;
   queryClient?: QueryClient;
   enableStringTranslation?: boolean;
@@ -38,7 +38,7 @@ const RESTART_MESSAGE =
   'Ask a poll worker to restart the ballot marking device.';
 
 export function App({
-  logger = new BaseLogger(LogSource.VxMarkScanFrontend, window.kiosk),
+  logger = new FrontendLogger(),
   /* istanbul ignore next - @preserve */ apiClient = createApiClient(),
   queryClient = createQueryClient(),
   enableStringTranslation,

@@ -8,12 +8,15 @@
 const express = require('express');
 const path = require('path');
 const { Logger, LogSource, LogEventId } = require('@votingworks/logging');
-const { handleUncaughtExceptions } = require('@votingworks/backend');
+const {
+  handleUncaughtExceptions,
+  setupFrontendLogging,
+} = require('@votingworks/backend');
 
 const proxy = require('./setupProxy');
 const app = express();
 const port = 3000;
-const logger = new Logger(LogSource.VxMarkScanFrontendServer);
+const logger = new Logger(LogSource.VxScanFrontend);
 
 handleUncaughtExceptions(logger);
 
@@ -23,6 +26,7 @@ app.use((req, res, next) => {
 });
 
 proxy(app);
+setupFrontendLogging(app, logger);
 
 app.use(express.static(path.join(__dirname, '../build')));
 app.get('*', (req, res) => {

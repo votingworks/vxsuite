@@ -1,9 +1,9 @@
 import { BrowserRouter } from 'react-router-dom';
-import { BaseLogger, LogSource } from '@votingworks/logging';
 import {
   AppBase,
   AppErrorBoundary,
   BatteryLowAlert,
+  FrontendLogger,
   SystemCallContextProvider,
 } from '@votingworks/ui';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -24,7 +24,7 @@ export interface Props {
 }
 
 export function App({
-  logger = new BaseLogger(LogSource.VxCentralScanFrontend, window.kiosk),
+  logger = new FrontendLogger(),
   apiClient = createApiClient(),
   queryClient = createQueryClient(),
 }: Props): JSX.Element {

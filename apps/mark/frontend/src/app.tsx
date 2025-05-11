@@ -1,10 +1,10 @@
 import { BrowserRouter } from 'react-router-dom';
 
-import { BaseLogger, LogSource } from '@votingworks/logging';
 import { QueryClient } from '@tanstack/react-query';
 import {
   AppBase,
   AppErrorBoundary,
+  FrontendLogger,
   VisualModeDisabledOverlay,
 } from '@votingworks/ui';
 import { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
@@ -31,7 +31,7 @@ const RESTART_MESSAGE =
 
 export interface Props {
   reload?: VoidFunction;
-  logger?: BaseLogger;
+  logger?: FrontendLogger;
   apiClient?: ApiClient;
   queryClient?: QueryClient;
   enableStringTranslation?: boolean;
@@ -40,7 +40,7 @@ export interface Props {
 
 export function App({
   reload = () => window.location.reload(),
-  logger = new BaseLogger(LogSource.VxMarkFrontend, window.kiosk),
+  logger = new FrontendLogger(),
   /* istanbul ignore next - @preserve */ apiClient = createApiClient(),
   queryClient = createQueryClient(),
   enableStringTranslation,

@@ -6,7 +6,6 @@ export * from './child_process';
 export * from './compressed_tallies';
 export * from './console';
 export * from './disposable';
-export * from './mock_kiosk';
 export * from './mock_use_audio_controls';
 export * from './has_text_across_elements';
 export * from './mock_function';

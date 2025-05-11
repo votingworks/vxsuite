@@ -913,9 +913,6 @@ importers:
       '@types/history':
         specifier: 4.7.11
         version: 4.7.11
-      '@types/kiosk-browser':
-        specifier: workspace:*
-        version: link:../../../libs/@types/kiosk-browser
       '@types/node':
         specifier: 20.17.31
         version: 20.17.31
@@ -1749,9 +1746,6 @@ importers:
       '@types/history':
         specifier: 4.7.11
         version: 4.7.11
-      '@types/kiosk-browser':
-        specifier: workspace:*
-        version: link:../../../libs/@types/kiosk-browser
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
@@ -2121,9 +2115,6 @@ importers:
       '@types/history':
         specifier: 4.7.11
         version: 4.7.11
-      '@types/kiosk-browser':
-        specifier: workspace:*
-        version: link:../../../libs/@types/kiosk-browser
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
@@ -2924,9 +2915,6 @@ importers:
       '@types/history':
         specifier: 4.7.11
         version: 4.7.11
-      '@types/kiosk-browser':
-        specifier: workspace:*
-        version: link:../../../libs/@types/kiosk-browser
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
@@ -3056,12 +3044,6 @@ importers:
       '@types/readable-stream':
         specifier: 2.3.9
         version: 2.3.9
-
-  libs/@types/kiosk-browser:
-    dependencies:
-      rxjs:
-        specifier: 7.8.1
-        version: 7.8.1
 
   libs/@types/node-quirc: {}
 
@@ -3270,6 +3252,9 @@ importers:
       dotenv-expand:
         specifier: 9.0.0
         version: 9.0.0
+      express:
+        specifier: 4.18.2
+        version: 4.18.2
       fs-extra:
         specifier: 11.1.1
         version: 11.1.1
@@ -3316,6 +3301,9 @@ importers:
       '@types/debug':
         specifier: 4.1.8
         version: 4.1.8
+      '@types/express':
+        specifier: 4.17.14
+        version: 4.17.14
       '@types/fs-extra':
         specifier: 11.0.1
         version: 11.0.1
@@ -3974,9 +3962,6 @@ importers:
       '@types/express':
         specifier: 4.17.14
         version: 4.17.14
-      '@types/kiosk-browser':
-        specifier: workspace:*
-        version: link:../../@types/kiosk-browser
       '@types/node':
         specifier: 20.17.31
         version: 20.17.31
@@ -4713,9 +4698,6 @@ importers:
       '@types/debug':
         specifier: 4.1.8
         version: 4.1.8
-      '@types/kiosk-browser':
-        specifier: workspace:*
-        version: link:../@types/kiosk-browser
       '@types/node':
         specifier: 20.17.31
         version: 20.17.31
@@ -4888,9 +4870,6 @@ importers:
       '@types/history':
         specifier: 4.7.11
         version: 4.7.11
-      '@types/kiosk-browser':
-        specifier: workspace:*
-        version: link:../@types/kiosk-browser
       '@types/lodash.camelcase':
         specifier: ^4.3.6
         version: 4.3.6
@@ -5268,9 +5247,6 @@ importers:
         specifier: 18.3.1
         version: 18.3.1
     devDependencies:
-      '@types/kiosk-browser':
-        specifier: workspace:*
-        version: link:../@types/kiosk-browser
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
@@ -5323,9 +5299,6 @@ importers:
         specifier: 3.23.5
         version: 3.23.5
     devDependencies:
-      '@types/kiosk-browser':
-        specifier: workspace:*
-        version: link:../@types/kiosk-browser
       '@types/lodash.clonedeep':
         specifier: ^4.5.9
         version: 4.5.9
@@ -5518,9 +5491,6 @@ importers:
       '@types/i18next':
         specifier: ^13.0.0
         version: 13.0.0
-      '@types/kiosk-browser':
-        specifier: workspace:*
-        version: link:../@types/kiosk-browser
       '@types/lodash.get':
         specifier: ^4.4.9
         version: 4.4.9
@@ -5766,9 +5736,6 @@ importers:
       '@types/fast-text-encoding':
         specifier: ^1.0.1
         version: 1.0.1
-      '@types/kiosk-browser':
-        specifier: workspace:*
-        version: link:../@types/kiosk-browser
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0

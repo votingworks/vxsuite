@@ -1,12 +1,4 @@
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  Mocked,
-  test,
-  vi,
-} from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
@@ -19,7 +11,6 @@ import {
   mockSystemAdministratorUser,
   mockElectionManagerUser,
   mockPollWorkerUser,
-  mockKiosk,
 } from '@votingworks/test-utils';
 import { CardStatus } from '@votingworks/auth';
 import { PrinterConfig } from '@votingworks/types';
@@ -65,7 +56,6 @@ vi.mock('@votingworks/utils', async () => ({
 }));
 
 let mockApiClient: MockClient<Api>;
-let kiosk: Mocked<KioskBrowser.Kiosk>;
 
 beforeEach(() => {
   mockApiClient = createMockClient<Api>();
@@ -99,8 +89,6 @@ beforeEach(() => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE
   );
-  kiosk = mockKiosk(vi.fn);
-  window.kiosk = kiosk;
 });
 
 afterEach(() => {
@@ -448,10 +436,6 @@ describe('PDI scanner mock', () => {
     });
     expect(insertBallotButton).toBeEnabled();
 
-    kiosk.showOpenDialog.mockResolvedValueOnce({
-      canceled: false,
-      filePaths: ['mock-ballot-path.pdf'],
-    });
     mockApiClient.pdiScannerInsertSheet
       .expectCallWith({ path: 'mock-ballot-path.pdf' })
       .resolves();
@@ -499,14 +483,6 @@ describe('PDI scanner mock', () => {
       name: 'Insert Ballot',
     });
 
-    kiosk.showOpenDialog.mockResolvedValueOnce({
-      canceled: true,
-      filePaths: [],
-    });
     userEvent.click(insertBallotButton);
-    await waitFor(() => {
-      expect(kiosk.showOpenDialog).toHaveBeenCalled();
-      mockApiClient.assertComplete();
-    });
   });
 });

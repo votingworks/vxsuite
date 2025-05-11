@@ -38,7 +38,6 @@
     "zod": "3.23.5"
   },
   "devDependencies": {
-    "@types/kiosk-browser": "workspace:*",
     "@types/lodash.clonedeep": "^4.5.9",
     "@types/lodash.set": "^4.3.7",
     "@types/lodash.setwith": "^4.3.9",

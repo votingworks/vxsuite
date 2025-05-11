@@ -18,5 +18,6 @@ export * from './split';
 export * from './task_controller';
 export * from './ui_strings';
 export * from './language_and_audio';
+export * from './frontend_logging';
 
 export type { Device } from 'usb';

@@ -1,12 +1,11 @@
 import { QueryClientProvider } from '@tanstack/react-query';
-import { BaseLogger, LogSource } from '@votingworks/logging';
-import { AppErrorBoundary } from '@votingworks/ui';
+import { AppErrorBoundary, FrontendLogger } from '@votingworks/ui';
 
 import { ApiClientContext, createApiClient, createQueryClient } from './api';
 import { AppRoot } from './app_root';
 
 export function App(): JSX.Element {
-  const logger = new BaseLogger(LogSource.VxScanFrontend, window.kiosk);
+  const logger = new FrontendLogger();
   const queryClient = createQueryClient();
   const apiClient = createApiClient();
 
