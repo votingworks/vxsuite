@@ -1,0 +1,36 @@
+#!/bin/bash
+
+DISPLAY=:0 chromium \
+  --noerrdialogs \
+  --disable-infobars \
+  --disable-session-crashed-bubble \
+  --disable-translate \
+  --no-first-run \
+  --disable-features=TranslateUI,TouchpadOverscrollHistoryNavigation,NetworkPrediction,RendererCodeIntegrity \
+  --disable-pinch \
+  --overscroll-history-navigation=0 \
+  --disable-component-update \
+  --autoplay-policy=no-user-gesture-required \
+  --disable-pdf-extension \
+  --disable-dev-shm-usage \
+  --disable-session-crashed-bubble \
+  --disable-restore-session-state \
+  --disable-sync \
+  --disable-background-mode \
+  --disable-hang-monitor \
+  --disable-breakpad \
+  --disable-client-side-phishing-detection \
+  --disable-cloud-management \
+  --disable-default-apps \
+  --disable-features=TranslateUI \
+  --disable-extensions \
+  --disable-plugins-discovery \
+  --disable-popup-blocking \
+  --disable-print-preview \
+  --disable-speech-api \
+  --window-position=0,0 \
+  --start-fullscreen \
+  --no-default-browser-check \
+  --no-proxy-server \
+  --enable-features=OverlayScrollbar \
+  --new-window http://localhost:3000

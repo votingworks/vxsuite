@@ -39,8 +39,9 @@ function npmBinCommand({
     env: {
       ...process.env,
       ...(env ?? {}),
-      PATH: `${join(cwd, 'node_modules', '.bin')}:${env?.['PATH'] ?? process.env['PATH']
-        }`,
+      PATH: `${join(cwd, 'node_modules', '.bin')}:${
+        env?.['PATH'] ?? process.env['PATH']
+      }`,
     },
     ...rest,
   };
@@ -75,6 +76,7 @@ export async function main(
   const logger = new Logger({});
 
   let coreOnly = false;
+  let kiosk = false;
   let frontend: string | undefined;
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i] as string;
@@ -86,6 +88,10 @@ export async function main(
 
       case '--core-only':
         coreOnly = true;
+        break;
+
+      case '--kiosk':
+        kiosk = true;
         break;
 
       default:
@@ -175,6 +181,15 @@ export async function main(
         }
       }
     }
+  }
+
+  if (kiosk) {
+    commands.push({
+      cwd: join(monorepoRoot, 'libs', 'ui'),
+      name: 'kiosk',
+      command: 'pnpm run:kiosk:dev',
+      prefixColor: 'red',
+    });
   }
 
   const running = concurrently(commands, {

@@ -22,6 +22,8 @@
     "clean:self": "rm -rf build && tsc --build --clean tsconfig.build.json",
     "lint": "pnpm type-check && eslint . && pnpm stylelint:run && pnpm check:app-strings-catalog",
     "lint:fix": "pnpm type-check && eslint . --fix && pnpm stylelint:run:fix",
+    "run:kiosk": "bash ./scripts/run-kiosk.sh",
+    "run:kiosk:dev": "bash ./scripts/run-kiosk-dev.sh",
     "start": "storybook dev -p 6060",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix",
