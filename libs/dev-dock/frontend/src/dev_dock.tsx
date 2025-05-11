@@ -1,4 +1,4 @@
-import React, { RefObject, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   QueryClient,
   QueryClientProvider,
@@ -9,17 +9,10 @@ import {
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import styled from 'styled-components';
 import * as grout from '@votingworks/grout';
-import {
-  assert,
-  assertDefined,
-  sleep,
-  throwIllegalValue,
-  uniqueBy,
-} from '@votingworks/basics';
+import { throwIllegalValue, uniqueBy } from '@votingworks/basics';
 import type { Api, DevDockUserRole } from '@votingworks/dev-dock-backend';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faCamera,
   faCaretDown,
   faCaretUp,
   faCircleDown,
@@ -74,26 +67,22 @@ function ElectionControl(): JSX.Element | null {
   const setElectionMutation = useMutation(apiClient.setElection, {
     onSuccess: async () => await queryClient.invalidateQueries(['getElection']),
   });
+  const openFileDialogMutation = useMutation(apiClient.openFileDialog);
 
   if (!getElectionQuery.isSuccess) return <ElectionControlSelect />;
 
   const selectedElection = getElectionQuery.data;
 
-  async function onSelectElection(
-    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) {
-    const path = event.target.value;
-    if (path === 'Pick from file...') {
-      const dialogResult = await assertDefined(window.kiosk).showOpenDialog({
-        properties: ['openFile'],
+  async function onSelectElection() {
+    try {
+      const dialogResult = await openFileDialogMutation.mutateAsync({
+        extensions: ['json'],
       });
-      if (dialogResult.canceled) return;
-      const selectedPath = dialogResult.filePaths[0];
-      if (selectedPath) {
-        setElectionMutation.mutate({ path: selectedPath });
+      if (dialogResult.isOk()) {
+        setElectionMutation.mutate({ path: dialogResult.ok() });
       }
-    } else {
-      setElectionMutation.mutate({ path });
+    } catch (error) {
+      // Handled by default query client error handling
     }
   }
 
@@ -112,7 +101,7 @@ function ElectionControl(): JSX.Element | null {
           {election.title} - {election.path}
         </option>
       ))}
-      {window.kiosk && <option>Pick from file...</option>}
+      <option>Pick from file...</option>
     </ElectionControlSelect>
   );
 }
@@ -375,76 +364,6 @@ function UsbDriveMockControls() {
   );
 }
 
-const ScreenshotButton = styled.button`
-  background-color: white;
-  width: 80px;
-  height: 80px;
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid ${Colors.BORDER};
-  color: ${Colors.TEXT};
-
-  &:active {
-    color: ${Colors.ACTIVE};
-    border-color: ${Colors.ACTIVE};
-  }
-  &:disabled {
-    color: ${Colors.DISABLED};
-    border-color: ${Colors.DISABLED};
-  }
-`;
-
-function ScreenshotControls({
-  containerRef,
-}: {
-  containerRef: RefObject<HTMLDivElement>;
-}) {
-  const apiClient = useApiClient();
-  const saveScreenshotForAppMutation = useMutation(
-    apiClient.saveScreenshotForApp
-  );
-
-  async function captureScreenshot() {
-    // Use a ref to the dock container to momentarily hide it during the
-    // screenshot.
-    assert(containerRef.current);
-    // eslint-disable-next-line no-param-reassign
-    containerRef.current.style.visibility = 'hidden';
-    await sleep(500);
-
-    assert(window.kiosk);
-    const screenshot = await window.kiosk.captureScreenshot();
-
-    // "VotingWorks VxAdmin" -> "VxAdmin"
-    const appName = document.title.replace('VotingWorks', '').trim();
-    const fileName = await saveScreenshotForAppMutation.mutateAsync({
-      appName,
-      screenshot,
-    });
-
-    // eslint-disable-next-line no-param-reassign
-    containerRef.current.style.visibility = 'visible';
-
-    if (fileName) {
-      // eslint-disable-next-line no-alert
-      alert(`Screenshot saved as ${fileName} in the Downloads folder.`);
-    }
-  }
-
-  return (
-    <ScreenshotButton
-      onClick={captureScreenshot}
-      disabled={!window.kiosk}
-      aria-label="Capture Screenshot"
-    >
-      <FontAwesomeIcon icon={faCamera} size="2x" />
-    </ScreenshotButton>
-  );
-}
-
 const PrinterButton = styled.button<{ isConnected: boolean }>`
   position: relative;
   background-color: white;
@@ -542,6 +461,20 @@ function PdiScannerMockControl() {
   );
   const insertSheetMutation = useMutation(apiClient.pdiScannerInsertSheet);
   const removeSheetMutation = useMutation(apiClient.pdiScannerRemoveSheet);
+  const openFileDialogMutation = useMutation(apiClient.openFileDialog);
+
+  async function onSelectBallot() {
+    try {
+      const dialogResult = await openFileDialogMutation.mutateAsync({
+        extensions: ['pdf'],
+      });
+      if (dialogResult.isOk()) {
+        insertSheetMutation.mutate({ path: dialogResult.ok() });
+      }
+    } catch (error) {
+      // Handled by default query client error handling
+    }
+  }
 
   const sheetStatus = getSheetStatusQuery.data;
 
@@ -549,23 +482,7 @@ function PdiScannerMockControl() {
     switch (sheetStatus) {
       case 'noSheet':
         return (
-          <ScannerButton
-            onClick={async () => {
-              const dialogResult = await assertDefined(
-                window.kiosk
-              ).showOpenDialog({
-                properties: ['openFile'],
-                filters: [{ name: '', extensions: ['pdf'] }],
-              });
-              if (dialogResult.canceled) return;
-              const selectedPath = dialogResult.filePaths[0];
-              if (selectedPath) {
-                insertSheetMutation.mutate({ path: selectedPath });
-              }
-            }}
-          >
-            Insert Ballot
-          </ScannerButton>
+          <ScannerButton onClick={onSelectBallot}>Insert Ballot</ScannerButton>
         );
 
       case 'sheetInserted':
@@ -717,7 +634,6 @@ function DevDock() {
             <UsbDriveMockControls />
           </Column>
           <Column>
-            <ScreenshotControls containerRef={containerRef} />
             {mockSpec.printerConfig && mockSpec.printerConfig !== 'fujitsu' && (
               <PrinterMockControl />
             )}

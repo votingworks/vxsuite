@@ -22,7 +22,7 @@ export type OpenFileDialogResult = Result<string, OpenFileDialogError>;
 /** Get current system audio status. */
 export async function openFileDialog(
   options: OpenFileDialogOptions,
-  logger: Logger
+  logger?: Logger
 ): Promise<OpenFileDialogResult> {
   let errorOutput: string;
   let commandOutput: string;
@@ -51,7 +51,7 @@ export async function openFileDialog(
     ]));
 
     if (errorOutput) {
-      void logger.logAsCurrentRole(LogEventId.FileSelectionDialog, {
+      void logger?.logAsCurrentRole(LogEventId.FileSelectionDialog, {
         message: `file selection dialog failed unexpected with error: ${errorOutput}`,
         disposition: 'failure',
       });
@@ -60,7 +60,7 @@ export async function openFileDialog(
 
     return ok(commandOutput.trim());
   } catch (error) {
-    void logger.logAsCurrentRole(LogEventId.FileSelectionDialog, {
+    void logger?.logAsCurrentRole(LogEventId.FileSelectionDialog, {
       message: 'User did not make a file selection.',
       disposition: 'failure',
     });

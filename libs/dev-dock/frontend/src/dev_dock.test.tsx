@@ -304,27 +304,6 @@ test('disabled USB drive controls if USB drive mocks are disabled', async () => 
   expect(clearUsbDriveButton).toBeDisabled();
 });
 
-test('screenshot button', async () => {
-  render(<DevDock apiClient={mockApiClient} />);
-  const screenshotButton = await screen.findByRole('button', {
-    name: 'Capture Screenshot',
-  });
-
-  vi.spyOn(window, 'alert').mockImplementation(() => {});
-  document.title = 'VotingWorks VxAdmin';
-  mockApiClient.saveScreenshotForApp
-    .expectCallWith({ appName: 'VxAdmin', screenshot: Uint8Array.of() })
-    .resolves('Screenshot-VxAdmin-2024-11-25-00:00:00.000Z.png');
-  userEvent.click(screenshotButton);
-
-  await waitFor(() => {
-    mockApiClient.assertComplete();
-    expect(window.alert).toHaveBeenCalledWith(
-      'Screenshot saved as Screenshot-VxAdmin-2024-11-25-00:00:00.000Z.png in the Downloads folder.'
-    );
-  });
-});
-
 test('printer mock control', async () => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.USE_MOCK_PRINTER

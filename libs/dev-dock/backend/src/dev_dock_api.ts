@@ -1,7 +1,6 @@
 import type Express from 'express';
 import * as grout from '@votingworks/grout';
 import * as fs from 'node:fs';
-import { homedir } from 'node:os';
 import { isAbsolute, join } from 'node:path';
 import { Optional, assert, assertDefined, iter } from '@votingworks/basics';
 import {
@@ -25,9 +24,9 @@ import {
   PrinterStatus as FujitsuPrinterStatus,
 } from '@votingworks/fujitsu-thermal-printer';
 import { getMockFilePrinterHandler } from '@votingworks/printing';
-import { writeFile } from 'node:fs/promises';
 import { MockScanner, MockSheetStatus } from '@votingworks/pdi-scanner';
 import { pdfToImages } from '@votingworks/image-utils';
+import { openFileDialog, OpenFileDialogResult } from '@votingworks/backend';
 import { execFile } from './utils';
 
 export type DevDockUserRole = Exclude<UserRole, 'cardless_voter'>;
@@ -184,20 +183,6 @@ function buildApi(devDockFilePath: string, mockSpec: MockSpec) {
       usbHandler.clearData();
     },
 
-    async saveScreenshotForApp({
-      appName,
-      screenshot,
-    }: {
-      appName: string;
-      screenshot: Uint8Array;
-    }): Promise<string> {
-      assert(/^[a-z0-9]+$/i.test(appName));
-      const downloadsPath = join(homedir(), 'Downloads');
-      const fileName = `Screenshot-${appName}-${new Date().toISOString()}.png`;
-      await writeFile(join(downloadsPath, fileName), screenshot);
-      return fileName;
-    },
-
     getPrinterStatus(): PrinterStatus {
       return printerHandler.getPrinterStatus();
     },
@@ -239,6 +224,12 @@ function buildApi(devDockFilePath: string, mockSpec: MockSpec) {
 
     pdiScannerRemoveSheet(): void {
       assertDefined(mockSpec.mockPdiScanner).removeSheet();
+    },
+
+    openFileDialog(input: {
+      extensions: string[];
+    }): Promise<OpenFileDialogResult> {
+      return openFileDialog(input);
     },
   });
 }
