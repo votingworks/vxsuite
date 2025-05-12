@@ -31,12 +31,8 @@ import {
   createBallotPropsForTemplate,
   formatElectionForExport,
 } from '../ballots';
-import { renderBallotStyleReadinessReport } from '../ballot_style_reports';
 import { getPdfFileName } from '../utils';
 import { renderBallotPdf } from './ballot_pdfs';
-
-const BALLOT_STYLE_READINESS_REPORT_FILE_NAME =
-  'ballot-style-readiness-report.pdf';
 
 export interface V3SystemSettings {
   readonly auth: SystemSettings['auth'];
@@ -210,18 +206,8 @@ export async function generateElectionPackageAndBallots(
     ballotsZip.file(fileName, ballotPdf);
   }
 
-  const readinessReportPdf = await renderBallotStyleReadinessReport({
-    componentProps: {
-      electionDefinition,
-      generatedAtTime: new Date(),
-    },
-    renderer,
-  });
-
   // eslint-disable-next-line no-console
   renderer.cleanup().catch(console.error);
-
-  ballotsZip.file(BALLOT_STYLE_READINESS_REPORT_FILE_NAME, readinessReportPdf);
 
   // Add ballot package to combined zip
   const ballotZipContents = await ballotsZip.generateAsync({
