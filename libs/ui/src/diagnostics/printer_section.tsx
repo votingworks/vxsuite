@@ -180,11 +180,13 @@ export function PrinterStatusDisplay({
 }
 
 export interface PrinterSectionProps {
+  printerDiagnosticUi?: React.ReactNode;
   printerStatus: PrinterStatus;
   mostRecentPrinterDiagnostic?: DiagnosticRecord;
 }
 
 export function PrinterSection({
+  printerDiagnosticUi,
   printerStatus,
   mostRecentPrinterDiagnostic,
 }: PrinterSectionProps): JSX.Element {
@@ -211,6 +213,7 @@ export function PrinterSection({
           {new Date(mostRecentPrinterDiagnostic.timestamp).toLocaleString()}
         </P>
       )}
+      {printerDiagnosticUi}
     </section>
   );
 }

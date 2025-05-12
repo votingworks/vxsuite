@@ -18,6 +18,7 @@ export interface ConfigurationSectionProps {
   electionPackageHash?: string;
   expectPrecinctSelection?: boolean;
   markThresholds?: MarkThresholds;
+  omitConfigSectionBallotStyles?: boolean;
   precinctSelection?: PrecinctSelection;
 }
 
@@ -124,6 +125,7 @@ export function ConfigurationSection({
   electionPackageHash,
   expectPrecinctSelection,
   markThresholds,
+  omitConfigSectionBallotStyles,
   precinctSelection,
 }: ConfigurationSectionProps): JSX.Element {
   if (!electionDefinition) {
@@ -159,12 +161,13 @@ export function ConfigurationSection({
             <WarningIcon /> No precinct selected.
           </P>
         ))}
-      {!(expectPrecinctSelection && !precinctSelection) && (
-        <BallotStylesSection
-          election={election}
-          precinctSelection={precinctSelection}
-        />
-      )}
+      {!(expectPrecinctSelection && !precinctSelection) &&
+        !omitConfigSectionBallotStyles && (
+          <BallotStylesSection
+            election={election}
+            precinctSelection={precinctSelection}
+          />
+        )}
       {markThresholds?.definite && (
         <P>
           <SuccessIcon /> Mark Threshold: {truncate(markThresholds.definite, 4)}

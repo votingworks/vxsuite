@@ -64,8 +64,9 @@ export function DiagnosticsScreen(): JSX.Element {
             mostRecentPrinterDiagnostic={mostRecentPrinterDiagnostic}
             electionDefinition={electionDefinition}
             electionPackageHash={electionPackageHash}
+            printerDiagnosticUi={<PrintTestPageButton />}
+            omitConfigSectionBallotStyles
           />
-          <PrintTestPageButton />
         </div>
         <SaveReadinessReportButton
           usbDriveStatus={getUsbDriveStatusQuery.data}
