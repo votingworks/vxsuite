@@ -35,7 +35,7 @@ CREATE TABLE event_log (
     PRIMARY KEY (event_id, machine_id)
 );
 
--- Utility table to store any simple fields that need to be shared the local and peer servers
+-- Utility table to store any simple fields that need to be shared between the local and peer servers
 CREATE TABLE config_data (
     id INTEGER PRIMARY KEY CHECK (id = 0), -- enforces there is only one row to this table
     configuration_status TEXT

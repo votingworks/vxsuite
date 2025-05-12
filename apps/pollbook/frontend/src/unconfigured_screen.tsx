@@ -266,7 +266,9 @@ export function UnconfiguredElectionManagerScreen(): JSX.Element {
       </Screen>
     );
   }
-  if (electionResult.err() === 'network-multiple-pollbook-packages') {
+  if (
+    electionResult.err() === 'network-conflicting-pollbook-packages-match-card'
+  ) {
     return (
       <Screen>
         <FullScreenMessage
@@ -285,7 +287,9 @@ export function UnconfiguredElectionManagerScreen(): JSX.Element {
     );
   }
 
-  if (electionResult.err() === 'network-has-other-configurations') {
+  if (
+    electionResult.err() === 'not-found-configuration-matching-election-card'
+  ) {
     return (
       <Screen>
         <FullScreenMessage

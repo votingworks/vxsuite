@@ -312,9 +312,21 @@ export function pollNetworkForPollbookPackage({
             pollbook.status === PollbookConnectionStatus.WrongElection &&
             pollbook.electionId
         );
+        if (configuredPollbooks.length === 0) {
+          workspace.store.setConfigurationStatus('not-found-network');
+          return;
+        }
+
         const matchingConfiguredPollbooks = configuredPollbooks.filter(
           (p) => p.electionId === cardElectionId
         );
+        if (matchingConfiguredPollbooks.length === 0) {
+          workspace.store.setConfigurationStatus(
+            'not-found-configuration-matching-election-card'
+          );
+          return;
+        }
+
         const allPollbooksHashesMatch =
           matchingConfiguredPollbooks.length > 0 &&
           matchingConfiguredPollbooks.every(
@@ -324,23 +336,13 @@ export function pollNetworkForPollbookPackage({
               pollbook.pollbookPackageHash ===
                 matchingConfiguredPollbooks[0].pollbookPackageHash
           );
-
-        if (configuredPollbooks.length === 0) {
-          workspace.store.setConfigurationStatus('not-found-network');
-          return;
-        }
-        if (matchingConfiguredPollbooks.length === 0) {
-          workspace.store.setConfigurationStatus(
-            'network-has-other-configurations'
-          );
-          return;
-        }
         if (!allPollbooksHashesMatch) {
           workspace.store.setConfigurationStatus(
-            'network-multiple-pollbook-packages'
+            'network-conflicting-pollbook-packages-match-card'
           );
           return;
         }
+
         workspace.store.setConfigurationStatus('loading');
         // We can now attempt to configure to the matching pollbooks
         for (const pollbook of matchingConfiguredPollbooks) {

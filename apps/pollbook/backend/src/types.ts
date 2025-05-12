@@ -409,7 +409,7 @@ export type ConfigurationStatus =
   | 'loading'
   | 'not-found-usb'
   | 'not-found-network'
-  | 'network-has-other-configurations'
+  | 'not-found-configuration-matching-election-card'
   | 'network-configuration-error'
   | 'recently-unconfigured'
-  | 'network-multiple-pollbook-packages';
+  | 'network-conflicting-pollbook-packages-match-card';

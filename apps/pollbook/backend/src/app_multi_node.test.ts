@@ -702,7 +702,7 @@ test('one pollbook can be configured from another pollbook automatically as an e
         vitest.advanceTimersByTime(100);
         expect(
           (await pollbookContext2.localApiClient.getElection()).err()
-        ).toEqual('network-has-other-configurations');
+        ).toEqual('not-found-configuration-matching-election-card');
       });
       mockLoggedOut(pollbookContext2.auth);
       vitest.advanceTimersByTime(100);
@@ -754,7 +754,7 @@ test('one pollbook can be configured from another pollbook automatically as an e
         vitest.advanceTimersByTime(100);
         expect(
           (await pollbookContext2.localApiClient.getElection()).err()
-        ).toEqual('network-multiple-pollbook-packages');
+        ).toEqual('network-conflicting-pollbook-packages-match-card');
       });
       mockLoggedOut(pollbookContext2.auth);
 

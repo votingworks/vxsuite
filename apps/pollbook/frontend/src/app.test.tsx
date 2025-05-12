@@ -198,8 +198,7 @@ test('election manager - unconfigured screen - network configuration error', asy
   await screen.findByText('Failed to configure VxPollBook');
 });
 
-test('election manager - unconfigured screen - network-multiple-pollbook-packages', async () => {
-  apiMock.expectGetMachineConfig();
+test('election manager - unconfigured screen - network-conflicting-pollbook-packages-match-card', async () => {
   apiMock.expectGetDeviceStatuses();
   apiMock.setAuthStatus({
     status: 'logged_in',
@@ -208,14 +207,15 @@ test('election manager - unconfigured screen - network-multiple-pollbook-package
     }),
     sessionExpiresAt: mockSessionExpiresAt(),
   });
-  apiMock.setElectionConfiguration('network-multiple-pollbook-packages');
+  apiMock.setElectionConfiguration(
+    'network-conflicting-pollbook-packages-match-card'
+  );
   render(<App apiClient={apiMock.mockApiClient} />);
   await screen.findByText('No Valid Configuration Detected');
   await screen.findByText(/conflicting configurations/);
 });
 
-test('election manager - unconfigured screen - network-has-other-configurations', async () => {
-  apiMock.expectGetMachineConfig();
+test('election manager - unconfigured screen - not-found-configuration-matching-election-card', async () => {
   apiMock.expectGetDeviceStatuses();
   apiMock.setAuthStatus({
     status: 'logged_in',
@@ -224,7 +224,9 @@ test('election manager - unconfigured screen - network-has-other-configurations'
     }),
     sessionExpiresAt: mockSessionExpiresAt(),
   });
-  apiMock.setElectionConfiguration('network-has-other-configurations');
+  apiMock.setElectionConfiguration(
+    'not-found-configuration-matching-election-card'
+  );
   render(<App apiClient={apiMock.mockApiClient} />);
   await screen.findByText('No Valid Configuration Detected');
   await screen.findByText(/none of them are configured/);
