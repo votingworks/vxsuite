@@ -728,6 +728,111 @@ test('change a voter address with various formats', async () => {
   });
 });
 
+test('voter search ignores punctuation', async () => {
+  await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
+    const testVoters = parseVotersFromCsvString(
+      electionFamousNames2021Fixtures.pollbookVoters.asText()
+    );
+    const testStreets = parseValidStreetsFromCsvString(
+      electionFamousNames2021Fixtures.pollbookStreetNames.asText()
+    );
+    workspace.store.setElectionAndVoters(
+      electionDefinition,
+      'fake-package-hash',
+      testStreets,
+      testVoters
+    );
+    mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+
+    // Register some voters with punctuation in names
+    const baseNewVoter: Omit<
+      VoterRegistrationRequest,
+      'firstName' | 'lastName' | 'middleName'
+    > = {
+      suffix: '',
+      streetNumber: '15',
+      streetName: 'MAIN ST',
+      streetSuffix: '',
+      apartmentUnitNumber: '',
+      houseFractionNumber: '',
+      addressLine2: '',
+      addressLine3: '',
+      city: 'Manchester',
+      state: 'NH',
+      zipCode: '03101',
+      party: 'UND',
+    };
+
+    const registrationRequests: VoterRegistrationRequest[] = [
+      {
+        ...baseNewVoter,
+        firstName: 'George Washington',
+        lastName: 'Carver Farmer',
+        middleName: '',
+      },
+      {
+        ...baseNewVoter,
+        firstName: "Geo'rge",
+        lastName: "Washing'ton",
+        middleName: '',
+      },
+      {
+        ...baseNewVoter,
+        firstName: 'Mar-tha',
+        lastName: 'Washing-ton',
+        middleName: '',
+      },
+    ];
+
+    for (const registrationData of registrationRequests) {
+      const registerResult = await localApiClient.registerVoter({
+        registrationData,
+      });
+      expect(registerResult).toMatchObject({
+        firstName: registrationData.firstName,
+        lastName: registrationData.lastName,
+        party: 'UND',
+      });
+    }
+
+    const testSearchParams = [
+      // Test puncutation and whitespace in input are ignored
+      {
+        firstName: 'george-washington',
+        lastName: 'carver-farmer',
+      },
+      {
+        firstName: "george'washington",
+        lastName: "carver'farmer",
+      },
+      {
+        firstName: 'mar tha',
+        lastName: 'wash ington',
+      },
+      // Test punctuation and whitespace in db column are ignored
+      {
+        firstName: 'georgewashington',
+        lastName: 'carverfar',
+      },
+      {
+        firstName: 'george',
+        lastName: 'washington',
+      },
+      {
+        firstName: 'martha',
+        lastName: 'washington',
+      },
+    ];
+
+    for (const searchParams of testSearchParams) {
+      const result = await localApiClient.searchVoters({
+        searchParams,
+      });
+      assert(result !== null);
+    }
+  });
+});
+
 test('programCard and unprogramCard', async () => {
   await withApp(async ({ localApiClient, auth: authApi, workspace }) => {
     workspace.store.setElectionAndVoters(

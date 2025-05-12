@@ -3,7 +3,7 @@ import { Client as DbClient } from '@votingworks/db';
 import { safeParseJson } from '@votingworks/types';
 import { assert, groupBy, typedAs } from '@votingworks/basics';
 import { SqliteBool, fromSqliteBool, asSqliteBool } from '@votingworks/utils';
-import debug from 'debug';
+import makeDebug from 'debug';
 import { generateId, SchemaPath, sortedByVoterName, Store } from './store';
 import {
   ConfigurationStatus,
@@ -45,6 +45,21 @@ import {
 } from './street_helpers';
 import { isVoterNameChangeValid } from './voter_helpers';
 
+const debug = makeDebug('pollbook:local-store');
+
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// Takes a raw string input eg. search string for voter name
+// and turns it into a pattern to pass to sqlite3. The pattern
+// ignores apostrophes, dashes, and whitespace
+function toPattern(raw: string): string {
+  const clean = raw.trim().replace(/[\s'-]/g, '');
+  const parts = clean.split('').map((ch) => escapeRegex(ch));
+  return `^${parts.join(`[\\s'\\-]*`)}.*$`;
+}
+
 export class LocalStore extends Store {
   private nextEventId?: number;
 
@@ -56,10 +71,10 @@ export class LocalStore extends Store {
     logger: BaseLogger,
     machineId: string
   ): LocalStore {
-    return new LocalStore(
-      DbClient.fileClient(dbPath, logger, SchemaPath),
-      machineId
-    );
+    const client = DbClient.fileClient(dbPath, logger, SchemaPath, {
+      registerRegexpFn: true,
+    });
+    return new LocalStore(client, machineId);
   }
 
   /**
@@ -200,20 +215,21 @@ export class LocalStore extends Store {
 
   searchVoters(searchParams: VoterSearchParams): Voter[] | number {
     const { lastName, firstName } = searchParams;
-    const lastNameSearch = lastName.trim().toUpperCase();
-    const firstNameSearch = firstName.trim().toUpperCase();
     const MAX_VOTER_SEARCH_RESULTS = 100;
+
+    const lastNamePattern = toPattern(lastName);
+    const firstNamePattern = toPattern(firstName);
 
     // Query the database for voters matching the search criteria
     const voterRows = this.client.all(
       `
             SELECT v.voter_id, v.voter_data
             FROM voters v
-            WHERE updated_last_name LIKE ? 
-              AND updated_first_name LIKE ?
+            WHERE updated_last_name REGEXP ?
+              AND updated_first_name REGEXP ?
             `,
-      `${lastNameSearch}%`,
-      `${firstNameSearch}%`
+      `${lastNamePattern}`,
+      `${firstNamePattern}`
     ) as Array<{ voter_id: string; voter_data: string }>;
 
     if (voterRows.length === 0) {

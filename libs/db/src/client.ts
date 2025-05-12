@@ -33,6 +33,13 @@ export interface Statement<P extends Bindable[] = []> {
 }
 
 /**
+ * Interface describing options for database connection
+ */
+export interface DbConnectionOptions {
+  registerRegexpFn?: boolean;
+}
+
+/**
  * Manages a connection for a SQLite database.
  */
 export class Client {
@@ -44,7 +51,8 @@ export class Client {
   private constructor(
     private readonly dbPath: string,
     private readonly logger: BaseLogger,
-    private readonly schemaPath?: string
+    private readonly schemaPath?: string,
+    private readonly connectionOptions?: DbConnectionOptions
   ) {}
 
   /**
@@ -89,9 +97,12 @@ export class Client {
   static fileClient(
     dbPath: string,
     logger: BaseLogger,
-    schemaPath?: string
+    schemaPath?: string,
+    connectionOptions?: DbConnectionOptions
   ): Client {
-    const client = new Client(dbPath, logger, schemaPath);
+    const client = new Client(dbPath, logger, schemaPath, connectionOptions);
+
+    debug('creating client with connectionOptions: %o', connectionOptions);
 
     if (!schemaPath) {
       return client;
@@ -425,11 +436,24 @@ export class Client {
       },
       debug
     );
+
     this.db = new Database(this.getDatabasePath());
 
     // Enforce foreign key constraints. This is not in schema.sql because that
     // only runs on db creation.
     this.run('pragma foreign_keys = 1');
+
+    if (this.connectionOptions?.registerRegexpFn) {
+      // sqlite3 has no built-in regexp function
+      // This is o(n) and should be used with caution on large tables (>20,000 rows)
+      this.db.function('regexp', (pattern: string, value: string) => {
+        try {
+          return new RegExp(pattern, 'i').test(value) ? 1 : 0;
+        } catch {
+          return 0;
+        }
+      });
+    }
 
     this.logger.log(
       LogEventId.DatabaseConnectComplete,
