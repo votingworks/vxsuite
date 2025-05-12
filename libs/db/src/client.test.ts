@@ -3,7 +3,7 @@ import * as fs from 'node:fs';
 import { join } from 'node:path';
 import * as tmp from 'tmp';
 import { mockBaseLogger } from '@votingworks/logging';
-import { Client, Statement } from './client';
+import { Client, DbConnectionOptions, Statement } from './client';
 
 test('file database client', () => {
   const dbFile = tmp.fileSync();
@@ -96,6 +96,51 @@ test('file database client with a schema', () => {
   expect(anotherClient.one('select count(*) as count from users')).toEqual({
     count: 1,
   });
+});
+
+test('file database client with regex enabled in connectionOptions', () => {
+  const dbFile = tmp.fileSync();
+  const connectionOptions: DbConnectionOptions = { registerRegexpFn: true };
+  const client = Client.fileClient(
+    dbFile.name,
+    mockBaseLogger({ fn: vi.fn }),
+    undefined,
+    connectionOptions
+  );
+
+  client.reset();
+  fs.accessSync(dbFile.name);
+
+  expect(client.getDatabasePath()).toEqual(dbFile.name);
+  expect(client.isMemoryDatabase()).toEqual(false);
+
+  client.exec(
+    'create table if not exists muppets (name varchar(255) unique not null)'
+  );
+  client.run('insert into muppets (name) values (?)', 'Kermit');
+  client.run('insert into muppets (name) values (?)', 'Fozzie');
+
+  const queryString = 'select * from muppets where name REGEXP ?';
+
+  // Test valid match
+  expect(client.all(queryString, '.*ermi.*')).toEqual([{ name: 'Kermit' }]);
+
+  // Test no match, but valid regexp
+  expect(client.all(queryString, '.*mspiggy.*')).toEqual([]);
+
+  // Test invalid regexp
+  expect(client.all(queryString, '[')).toEqual([]);
+
+  // Test client throws if it doesn't have regexp function registered
+  const anotherClient = Client.fileClient(
+    dbFile.name,
+    mockBaseLogger({ fn: vi.fn })
+  );
+  expect(() => anotherClient.all(queryString, '.*ermi.*')).toThrow(
+    new Error('no such function: REGEXP')
+  );
+
+  client.destroy();
 });
 
 test('memory database client', () => {

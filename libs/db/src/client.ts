@@ -444,7 +444,8 @@ export class Client {
     this.run('pragma foreign_keys = 1');
 
     if (this.connectionOptions?.registerRegexpFn) {
-      debug('registering regexp function');
+      // sqlite3 has no built-in regexp function
+      // This is o(n) and should be used with caution on large tables (>20,000 rows)
       this.db.function('regexp', (pattern: string, value: string) => {
         try {
           return new RegExp(pattern, 'i').test(value) ? 1 : 0;
