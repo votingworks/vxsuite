@@ -9,7 +9,7 @@ import { resultToString } from '../utils';
 export const CARD_READ_AND_USB_DRIVE_WRITE_INTERVAL_SECONDS = 5;
 export const USB_DRIVE_FILE_NAME = 'electrical-testing.txt';
 
-export async function runCardReadAndUsbDriveWriteLoop({
+export async function runCardReadAndUsbDriveWriteTask({
   auth,
   cardTask,
   logger,

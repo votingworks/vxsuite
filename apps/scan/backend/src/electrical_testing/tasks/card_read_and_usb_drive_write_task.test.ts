@@ -7,9 +7,9 @@ import { afterEach, beforeEach, expect, vi } from 'vitest';
 import { test } from '../../../test/helpers/test';
 import {
   CARD_READ_AND_USB_DRIVE_WRITE_INTERVAL_SECONDS,
-  runCardReadAndUsbDriveWriteLoop,
+  runCardReadAndUsbDriveWriteTask,
   USB_DRIVE_FILE_NAME,
-} from './card_read_and_usb_drive_write_loop';
+} from './card_read_and_usb_drive_write_task';
 
 async function hasWrittenFileToUsbDrive(usbDrive: UsbDrive) {
   const status = await usbDrive.status();
@@ -32,7 +32,7 @@ test.electrical(
   async ({ electricalAppContext }) => {
     electricalAppContext.cardTask.stop();
     electricalAppContext.usbDriveTask.stop();
-    await runCardReadAndUsbDriveWriteLoop(electricalAppContext);
+    await runCardReadAndUsbDriveWriteTask(electricalAppContext);
 
     await vi.waitFor(() => {
       expect(electricalAppContext.logger.log).toHaveBeenCalledWith(
@@ -68,7 +68,7 @@ test.electrical(
 
     // Start the loop.
     const runLoopPromise =
-      runCardReadAndUsbDriveWriteLoop(electricalAppContext);
+      runCardReadAndUsbDriveWriteTask(electricalAppContext);
 
     // Wait for the loop to go at least once.
     await vi.waitUntil(() =>
@@ -104,7 +104,7 @@ test.electrical(
 
     // Start the loop.
     const runLoopPromise =
-      runCardReadAndUsbDriveWriteLoop(electricalAppContext);
+      runCardReadAndUsbDriveWriteTask(electricalAppContext);
 
     // Wait for the loop to go at least once.
     await vi.waitUntil(
@@ -134,7 +134,7 @@ test.electrical(
 
     // Start the loop.
     const runLoopPromise =
-      runCardReadAndUsbDriveWriteLoop(electricalAppContext);
+      runCardReadAndUsbDriveWriteTask(electricalAppContext);
 
     // Wait for the loop to go a few times.
     await vi.waitUntil(() => {
@@ -170,7 +170,7 @@ test.electrical(
 
     // Start the loop.
     const runLoopPromise =
-      runCardReadAndUsbDriveWriteLoop(electricalAppContext);
+      runCardReadAndUsbDriveWriteTask(electricalAppContext);
 
     // Wait for the loop to go a few times.
     await vi.waitUntil(() => {

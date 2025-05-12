@@ -1,4 +1,4 @@
-import { createSystemCallApi, TaskStatus } from '@votingworks/backend';
+import { createSystemCallApi } from '@votingworks/backend';
 import { iter } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import { SheetOf } from '@votingworks/types';
@@ -6,7 +6,6 @@ import express, { Application } from 'express';
 import { readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { getMachineConfig } from '../machine_config';
-import { ElectricalTestingComponent } from '../store';
 import { type ServerContext } from './context';
 
 function buildApi({
@@ -51,16 +50,7 @@ function buildApi({
       };
     },
 
-    getTestTaskStatuses(): Record<ElectricalTestingComponent, TaskStatus> {
-      return {
-        card: cardTask.getStatus(),
-        usbDrive: usbDriveTask.getStatus(),
-        printer: printerTask.getStatus(),
-        scanner: scannerTask.getStatus(),
-      };
-    },
-
-    setCardReaderLoopRunning(input: { running: boolean }) {
+    setCardReaderTaskRunning(input: { running: boolean }) {
       workspace.store.setElectricalTestingStatusMessage(
         'card',
         input.running ? 'Resumed' : 'Paused'
@@ -72,7 +62,7 @@ function buildApi({
       }
     },
 
-    setUsbDriveLoopRunning(input: { running: boolean }) {
+    setUsbDriveTaskRunning(input: { running: boolean }) {
       workspace.store.setElectricalTestingStatusMessage(
         'usbDrive',
         input.running ? 'Resumed' : 'Paused'
@@ -84,7 +74,7 @@ function buildApi({
       }
     },
 
-    setPrinterLoopRunning(input: { running: boolean }) {
+    setPrinterTaskRunning(input: { running: boolean }) {
       workspace.store.setElectricalTestingStatusMessage(
         'printer',
         input.running ? 'Resumed' : 'Paused'
@@ -96,7 +86,7 @@ function buildApi({
       }
     },
 
-    setScannerLoopRunning(input: { running: boolean }) {
+    setScannerTaskRunning(input: { running: boolean }) {
       workspace.store.setElectricalTestingStatusMessage(
         'scanner',
         input.running ? 'Resumed' : 'Paused'
