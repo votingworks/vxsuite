@@ -796,12 +796,30 @@ test('voter search ignores punctuation', async () => {
     }
 
     const testSearchParams = [
+      // Test puncutation and whitespace in input are ignored
+      {
+        firstName: 'george-washington',
+        lastName: 'carver-farmer',
+      },
+      {
+        firstName: "george'washington",
+        lastName: "carver'farmer",
+      },
+      {
+        firstName: 'mar tha',
+        lastName: 'wash ington',
+      },
+      // Test punctuation and whitespace in db column are ignored
       {
         firstName: 'georgewashington',
         lastName: 'carverfar',
       },
       {
         firstName: 'george',
+        lastName: 'washington',
+      },
+      {
+        firstName: 'martha',
         lastName: 'washington',
       },
     ];
