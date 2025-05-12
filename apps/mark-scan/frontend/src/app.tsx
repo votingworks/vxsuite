@@ -13,6 +13,7 @@ import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
+import { BaseLogger } from '@votingworks/logging';
 import { AppRoot } from './app_root';
 import { ApiClient, createApiClient, createQueryClient } from './api';
 import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
@@ -27,7 +28,7 @@ const DEFAULT_SCREEN_TYPE: ScreenType = 'elo15';
 const DEFAULT_SIZE_MODE: SizeMode = 'touchMedium';
 
 export interface Props {
-  logger?: FrontendLogger;
+  logger?: BaseLogger;
   apiClient?: ApiClient;
   queryClient?: QueryClient;
   enableStringTranslation?: boolean;

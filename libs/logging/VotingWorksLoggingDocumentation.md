@@ -190,6 +190,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [system-action](#system-action)
 **Description:** Database destroyed. Success or failure indicated by disposition.
 **Machines:** All
+### file-selection-dialog
+**Type:** [user-action](#user-action)
+**Description:** The user opened a file selection dialog to manually select a file.
+**Machines:** All
 ### file-read-error
 **Type:** [system-action](#system-action)
 **Description:** A system action failed to read a file from disk.

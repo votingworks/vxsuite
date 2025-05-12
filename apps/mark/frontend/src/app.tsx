@@ -13,6 +13,7 @@ import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
+import { BaseLogger } from '@votingworks/logging';
 import { AppRoot } from './app_root';
 import { ApiClient, createApiClient, createQueryClient } from './api';
 import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
@@ -31,7 +32,7 @@ const RESTART_MESSAGE =
 
 export interface Props {
   reload?: VoidFunction;
-  logger?: FrontendLogger;
+  logger?: BaseLogger;
   apiClient?: ApiClient;
   queryClient?: QueryClient;
   enableStringTranslation?: boolean;

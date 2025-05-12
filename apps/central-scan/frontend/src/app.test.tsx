@@ -351,6 +351,9 @@ test('election manager cannot auth onto machine with different election', async 
 test('error boundary', async () => {
   apiMock.expectGetTestMode(true);
   apiMock.expectGetElectionRecord(electionDefinition);
+  fetchMock.postOnce('/log', {
+    status: 200,
+  });
 
   await suppressingConsoleOutput(async () => {
     render(<App apiClient={apiMock.apiClient} />);
@@ -360,6 +363,7 @@ test('error boundary', async () => {
     apiMock.apiClient.logOut.expectCallWith().throws(new Error('Whoa!'));
     userEvent.click(screen.getByText('Lock Machine'));
     await screen.findByText('Something went wrong');
+    await vi.waitFor(() => fetchMock.called());
   });
 });
 

@@ -2,6 +2,7 @@ import { BrowserRouter, Route } from 'react-router-dom';
 
 import { QueryClient } from '@tanstack/react-query';
 import { AppErrorBoundary, FrontendLogger } from '@votingworks/ui';
+import { BaseLogger } from '@votingworks/logging';
 import { AppRoot } from './app_root';
 import { ApiClient, createApiClient, createQueryClient } from './api';
 import { ScanAppBase } from './scan_app_base';
@@ -11,7 +12,7 @@ import { VoterSettingsScreen } from './screens/voter_settings_screen';
 import { ApiProvider } from './api_provider';
 
 export interface AppProps {
-  logger?: FrontendLogger;
+  logger?: BaseLogger;
   apiClient?: ApiClient;
   queryClient?: QueryClient;
   enableStringTranslation?: boolean;

@@ -106,7 +106,7 @@ export enum LogEventId {
   DatabaseCreateComplete = 'database-create-complete',
   DatabaseDestroyInit = 'database-destroy-init',
   DatabaseDestroyComplete = 'database-destroy-complete',
-  FileSelectionDialog = 'file-selection',
+  FileSelectionDialog = 'file-selection-dialog',
   FileReadError = 'file-read-error',
   DmVerityBoot = 'dmverity-boot',
   MachineBootInit = 'machine-boot-init',

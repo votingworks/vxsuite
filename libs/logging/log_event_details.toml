@@ -347,6 +347,11 @@ eventId = "database-destroy-complete"
 eventType = "system-action"
 documentationMessage = "Database destroyed. Success or failure indicated by disposition."
 
+[Events.FileSelectionDialog]
+eventId = "file-selection-dialog"
+eventType = "user-action"
+documentationMessage = "The user opened a file selection dialog to manually select a file."
+
 [Events.FileReadError]
 eventId = "file-read-error"
 eventType = "system-action"
