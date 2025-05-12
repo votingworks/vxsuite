@@ -244,9 +244,8 @@ function buildApi({
     async exportCastVoteRecordsToUsbDrive(): Promise<
       Result<void, ExportCastVoteRecordsToUsbDriveError>
     > {
-      const logItem = 'all accepted and rejected cast vote records';
       await logger.logAsCurrentRole(LogEventId.ExportCastVoteRecordsInit, {
-        message: `Exporting ${logItem}...`,
+        message: 'Exporting all accepted and rejected cast vote records...',
       });
       const exportResult = await exportCastVoteRecordsToUsbDrive(
         store,
@@ -260,7 +259,7 @@ function buildApi({
           LogEventId.ExportCastVoteRecordsComplete,
           {
             disposition: 'failure',
-            message: `Error exporting ${logItem}.`,
+            message: `Error exporting all accepted and rejected cast vote records.`,
             errorDetails: JSON.stringify(exportResult.err()),
           }
         );
@@ -269,7 +268,7 @@ function buildApi({
           LogEventId.ExportCastVoteRecordsComplete,
           {
             disposition: 'success',
-            message: `Successfully exported ${logItem}.`,
+            message: `Successfully exported all accepted and rejected cast vote records.`,
           }
         );
       }
