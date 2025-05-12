@@ -164,7 +164,7 @@ impl ScanPage {
         let data = self.convert_1bpp_to_8bpp();
         let image =
             GrayImage::from_raw(self.width, (data.len() / self.width as usize) as u32, data)
-                .unwrap();
+                .expect("from_raw can only fail if the data buffer is not big enough for the dimensions, but we compute the dimensions from the data buffer");
         let mut image = DynamicImage::ImageLuma8(image);
         let crop_start = self.find_crop_start();
         let crop_end = self.find_crop_end();
