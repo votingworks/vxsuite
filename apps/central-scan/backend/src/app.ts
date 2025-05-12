@@ -241,30 +241,25 @@ function buildApi({
       await importer.doZero();
     },
 
-    async exportCastVoteRecordsToUsbDrive(input: {
-      isMinimalExport?: boolean;
-    }): Promise<Result<void, ExportCastVoteRecordsToUsbDriveError>> {
-      const logItem = input.isMinimalExport ? 'cast vote records' : 'backup';
+    async exportCastVoteRecordsToUsbDrive(): Promise<
+      Result<void, ExportCastVoteRecordsToUsbDriveError>
+    > {
       await logger.logAsCurrentRole(LogEventId.ExportCastVoteRecordsInit, {
-        message: `Exporting ${logItem}...`,
+        message: 'Exporting all accepted and rejected cast vote records...',
       });
       const exportResult = await exportCastVoteRecordsToUsbDrive(
         store,
         usbDrive,
-        input.isMinimalExport
-          ? store.forEachAcceptedSheet()
-          : store.forEachSheet(),
-        { scannerType: 'central', isMinimalExport: input.isMinimalExport }
+        store.forEachSheet(),
+        { scannerType: 'central' }
       );
-      if (!input.isMinimalExport) {
-        store.setScannerBackedUp();
-      }
+      store.setScannerBackedUp();
       if (exportResult.isErr()) {
         await logger.logAsCurrentRole(
           LogEventId.ExportCastVoteRecordsComplete,
           {
             disposition: 'failure',
-            message: `Error exporting ${logItem}.`,
+            message: `Error exporting all accepted and rejected cast vote records.`,
             errorDetails: JSON.stringify(exportResult.err()),
           }
         );
@@ -273,7 +268,7 @@ function buildApi({
           LogEventId.ExportCastVoteRecordsComplete,
           {
             disposition: 'success',
-            message: `Successfully exported ${logItem}.`,
+            message: `Successfully exported all accepted and rejected cast vote records.`,
           }
         );
       }

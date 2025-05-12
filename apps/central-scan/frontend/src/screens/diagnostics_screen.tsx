@@ -53,6 +53,7 @@ export function DiagnosticsScreen(): JSX.Element {
   const diskSpaceSummary = diskSpaceQuery.data;
   const scannerDiagnosticRecord =
     scannerDiagnosticRecordQuery.data ?? undefined;
+  /* istanbul ignore next - @preserve */
   const { markThresholds } = systemSettings.data ?? {};
 
   return (

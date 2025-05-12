@@ -29,7 +29,7 @@ test('render insert USB screen when there is not a valid, mounted usb drive', as
     apiMock.setUsbDriveStatus(usbDriveStatus);
     const closeFn = vi.fn();
     const { unmount } = renderInAppContext(
-      <ExportResultsModal mode="cvrs" onClose={closeFn} />,
+      <ExportResultsModal onClose={closeFn} />,
       {
         apiMock,
       }
@@ -46,12 +46,12 @@ test('render insert USB screen when there is not a valid, mounted usb drive', as
 test('render export modal when a usb drive is mounted as expected and allows export', async () => {
   const closeFn = vi.fn();
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
-  renderInAppContext(<ExportResultsModal mode="cvrs" onClose={closeFn} />, {
+  renderInAppContext(<ExportResultsModal onClose={closeFn} />, {
     apiMock,
   });
   await screen.findByText('Save CVRs');
 
-  apiMock.expectExportCastVoteRecords({ isMinimalExport: true });
+  apiMock.expectExportCastVoteRecords();
   userEvent.click(screen.getByText('Save'));
   await screen.findByText('CVRs Saved');
 
@@ -67,35 +67,16 @@ test('render export modal when a usb drive is mounted as expected and allows exp
 test('render export modal with errors when appropriate', async () => {
   const closeFn = vi.fn();
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
-  renderInAppContext(<ExportResultsModal mode="cvrs" onClose={closeFn} />, {
+  renderInAppContext(<ExportResultsModal onClose={closeFn} />, {
     apiMock,
   });
   await screen.findByText('Save CVRs');
 
   apiMock.apiClient.exportCastVoteRecordsToUsbDrive
-    .expectCallWith({ isMinimalExport: true })
+    .expectCallWith()
     .resolves(err({ type: 'file-system-error' }));
   userEvent.click(screen.getByText('Save'));
   await screen.findByText('Failed to Save CVRs');
-  await screen.findByText('Unable to write to USB drive.');
-
-  userEvent.click(screen.getByText('Close'));
-  expect(closeFn).toHaveBeenCalled();
-});
-
-test('render export modal with errors when appropriate - backup', async () => {
-  const closeFn = vi.fn();
-  apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
-  renderInAppContext(<ExportResultsModal mode="backup" onClose={closeFn} />, {
-    apiMock,
-  });
-  await screen.findByText('Save Backup');
-
-  apiMock.apiClient.exportCastVoteRecordsToUsbDrive
-    .expectCallWith({ isMinimalExport: false })
-    .resolves(err({ type: 'file-system-error' }));
-  userEvent.click(screen.getByText('Save'));
-  await screen.findByText('Failed to Save Backup');
   await screen.findByText('Unable to write to USB drive.');
 
   userEvent.click(screen.getByText('Close'));

@@ -219,10 +219,7 @@ export function ScanBallotsScreen({
         />
       )}
       {isExportingCvrs && (
-        <ExportResultsModal
-          mode="cvrs"
-          onClose={() => setIsExportingCvrs(false)}
-        />
+        <ExportResultsModal onClose={() => setIsExportingCvrs(false)} />
       )}
       {deleteBallotDataFlowState === 'confirmation' &&
         (status.canUnconfigure ? (
@@ -247,14 +244,11 @@ export function ScanBallotsScreen({
           <Modal
             title={
               <span>
-                <Icons.Warning color="warning" /> Backup Required
+                <Icons.Warning color="warning" /> CVR Backup Required
               </span>
             }
             content={
-              <P>
-                Go to <Font weight="semiBold">Settings</Font> and save a backup
-                before deleting all batches.
-              </P>
+              <P>You must save CVRs before you can delete all batches.</P>
             }
             actions={<Button onPress={resetDeleteBallotDataFlow}>Close</Button>}
             onOverlayClick={resetDeleteBallotDataFlow}

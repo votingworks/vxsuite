@@ -125,10 +125,8 @@ export function createApiMock(
       apiClient.continueScanning.expectCallWith(input).resolves();
     },
 
-    expectExportCastVoteRecords(input: { isMinimalExport: boolean }) {
-      apiClient.exportCastVoteRecordsToUsbDrive
-        .expectCallWith(input)
-        .resolves(ok());
+    expectExportCastVoteRecords() {
+      apiClient.exportCastVoteRecordsToUsbDrive.expectCallWith().resolves(ok());
     },
 
     expectSetTestMode(testMode: boolean) {
