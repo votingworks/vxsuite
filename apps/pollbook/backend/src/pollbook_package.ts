@@ -25,6 +25,7 @@ import {
   PollbookConnectionStatus,
 } from './types';
 import {
+  CONFIGURATION_POLLING_INTERVAL,
   MAX_POLLBOOK_PACKAGE_SIZE,
   POLLBOOK_PACKAGE_ASSET_FILE_NAME,
 } from './globals';
@@ -262,7 +263,7 @@ export function pollUsbDriveForPollbookPackage({
       } finally {
         pollingIntervalLock = false; // Reset the flag to allow the next iteration
       }
-    }, 100);
+    }, CONFIGURATION_POLLING_INTERVAL);
   });
 }
 
@@ -361,6 +362,6 @@ export function pollNetworkForPollbookPackage({
       } finally {
         pollingIntervalLock = false; // Reset the flag to allow the next iteration
       }
-    }, 100);
+    }, CONFIGURATION_POLLING_INTERVAL);
   });
 }
