@@ -90,8 +90,6 @@ import {
 } from './types';
 import { generateBallotStyles } from './ballot_styles';
 import { BackgroundTaskMetadata } from './store';
-import { renderBallotStyleReadinessReport } from './ballot_style_reports';
-import { BALLOT_STYLE_READINESS_REPORT_FILE_NAME } from './app';
 import { join } from 'node:path';
 import { electionFeatureConfigs, userFeatureConfigs } from './features';
 import { sliOrgId, vxDemosOrgId } from './globals';
@@ -136,10 +134,6 @@ vi.mock(import('@votingworks/hmpb'), async (importActual) => {
 const { setupApp, cleanup } = testSetupHelpers();
 
 const MOCK_READINESS_REPORT_CONTENTS = '%PDF - MockReadinessReport';
-const MOCK_READINESS_REPORT_PDF = Buffer.from(
-  MOCK_READINESS_REPORT_CONTENTS,
-  'utf-8'
-);
 
 function expectedEnglishBallotStrings(election: Election): UiStringsPackage {
   const expectedStrings = mergeUiStrings(election.ballotStrings, {
@@ -185,10 +179,6 @@ afterAll(cleanup);
 
 beforeEach(() => {
   mockFeatureFlagger.resetFeatureFlags();
-
-  vi.mocked(renderBallotStyleReadinessReport).mockResolvedValue(
-    MOCK_READINESS_REPORT_PDF
-  );
 });
 
 test('create/list/delete elections', async () => {
@@ -1934,7 +1924,6 @@ test('Election package and ballots export', async () => {
   const zip = await JsZip.loadAsync(new Uint8Array(ballotsContents));
 
   const expectedFileNames = [
-    BALLOT_STYLE_READINESS_REPORT_FILE_NAME,
     ...ballotStyles
       .flatMap(({ id, precinctsOrSplits }) =>
         precinctsOrSplits.map((p) => ({
@@ -1961,10 +1950,6 @@ test('Election package and ballots export', async () => {
       }),
   ].sort();
   expect(Object.keys(zip.files).sort()).toEqual(expectedFileNames);
-
-  const readinessReportFileContents =
-    await zip.files[BALLOT_STYLE_READINESS_REPORT_FILE_NAME].async('text');
-  expect(readinessReportFileContents).toContain(MOCK_READINESS_REPORT_CONTENTS);
 
   // Ballot appearance is tested by fixtures in libs/hmpb, so we
   // just make sure we got a PDF and that we called the layout function with the

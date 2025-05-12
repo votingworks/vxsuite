@@ -41,6 +41,7 @@ async function getReadinessReport({
     generatedAtTime,
     electionDefinition,
     electionPackageHash,
+    omitConfigSectionBallotStyles: true,
   });
 }
 

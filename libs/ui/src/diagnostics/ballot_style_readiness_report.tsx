@@ -3,16 +3,14 @@ import {
   AnyContest,
   ElectionDefinition,
   getContests,
-  formatBallotHash,
 } from '@votingworks/types';
 import { format } from '@votingworks/utils';
 import React from 'react';
-import { ReadinessReportHeader } from './report_header';
-import { Font, H3 } from '../typography';
+import { Font, H2, H3 } from '../typography';
+import { SuccessIcon } from './icons';
 
 export interface BallotStyleReadinessReportProps {
   electionDefinition: ElectionDefinition;
-  generatedAtTime: Date;
 }
 
 const BallotStyleInfoList = styled.div`
@@ -20,7 +18,7 @@ const BallotStyleInfoList = styled.div`
   flex-direction: column;
   gap: 1.5rem;
   line-height: 1;
-  padding-top: 1.5rem;
+  padding-top: 0.5rem;
 `;
 
 const BallotStyleInfo = styled.div`
@@ -68,7 +66,8 @@ function BallotStyleDetail(props: BallotStyleDetailProps) {
       <BallotStyleDetailLabel weight="bold">{label}:</BallotStyleDetailLabel>
       <BallotStyleDetailValues numColumns={numColumns || 1}>
         {Array.isArray(values)
-          ? values.map((v) => <span key={v}>{v}</span>)
+          ? // eslint-disable-next-line react/no-array-index-key
+            values.map((value, i) => <span key={`${i}-${value}`}>{value}</span>)
           : values}
       </BallotStyleDetailValues>
     </React.Fragment>
@@ -88,7 +87,7 @@ function sortCompareFn(a: string, b: string) {
 export function BallotStyleReadinessReport(
   props: BallotStyleReadinessReportProps
 ): JSX.Element {
-  const { electionDefinition, generatedAtTime } = props;
+  const { electionDefinition } = props;
   const { election } = electionDefinition;
 
   const partyNames = Object.fromEntries(
@@ -104,23 +103,14 @@ export function BallotStyleReadinessReport(
   );
 
   return (
-    <div>
-      <ReadinessReportHeader
-        additionalMetadata={[
-          {
-            label: 'Election',
-            value: `${election.title}, ${formatBallotHash(
-              electionDefinition.ballotHash
-            )}`,
-          },
-        ]}
-        generatedAtTime={generatedAtTime}
-        reportType="Ballot Style"
-      />
+    <section>
+      <H2>Ballot Styles</H2>
       <BallotStyleInfoList>
         {election.ballotStyles.map((b) => (
           <BallotStyleInfo key={b.id}>
-            <H3>Ballot Style {b.id}</H3>
+            <H3>
+              <SuccessIcon /> {b.id}
+            </H3>
             <BallotStyleInfoContent>
               {b.partyId && (
                 <BallotStyleDetail
@@ -161,6 +151,6 @@ export function BallotStyleReadinessReport(
           </BallotStyleInfo>
         ))}
       </BallotStyleInfoList>
-    </div>
+    </section>
   );
 }

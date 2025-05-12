@@ -87,9 +87,6 @@ import { rootDebug } from './debug';
 
 const debug = rootDebug.extend('app');
 
-export const BALLOT_STYLE_READINESS_REPORT_FILE_NAME =
-  'ballot-style-readiness-report.pdf';
-
 export function createBlankElection(id: ElectionId): Election {
   return {
     id,

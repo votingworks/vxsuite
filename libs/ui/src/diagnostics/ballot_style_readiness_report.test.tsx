@@ -17,10 +17,6 @@ import {
 } from '@votingworks/test-utils';
 import { render, screen } from '../../test/react_testing_library';
 import { BallotStyleReadinessReport } from './ballot_style_readiness_report';
-import {
-  ReadinessReportHeader,
-  ReadinessReportHeaderProps,
-} from './report_header';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const electionGeneral = electionGeneralDefinition.election;
@@ -28,8 +24,6 @@ const electionGeneral = electionGeneralDefinition.election;
 vi.mock(import('./report_header.js'));
 
 const { ENGLISH, SPANISH } = TestLanguageCode;
-
-const MOCK_GENERATION_DATE = new Date('2024-01-02, 09:00');
 
 interface BallotStyleSpec {
   districtNames: string[];
@@ -100,40 +94,15 @@ beforeEach(() => {
   vi.resetAllMocks();
 });
 
-test('renders report header', () => {
-  const { election } = electionGeneralDefinition;
-  vi.mocked(ReadinessReportHeader).mockImplementation((props) => {
-    expect(props).toEqual<ReadinessReportHeaderProps>({
-      additionalMetadata: [
-        { label: 'Election', value: expect.stringContaining(election.title) },
-      ],
-      generatedAtTime: MOCK_GENERATION_DATE,
-      reportType: 'Ballot Style',
-    });
-
-    return <div data-testid="MockReportHeader" />;
-  });
-
-  render(
-    <BallotStyleReadinessReport
-      electionDefinition={electionGeneralDefinition}
-      generatedAtTime={MOCK_GENERATION_DATE}
-    />
-  );
-
-  screen.getByTestId('MockReportHeader');
-});
-
 test('renders multiple ballot styles', () => {
   render(
     <BallotStyleReadinessReport
       electionDefinition={electionGeneralDefinition}
-      generatedAtTime={MOCK_GENERATION_DATE}
     />
   );
 
   for (const ballotStyle of electionGeneral.ballotStyles) {
-    screen.getByRole('heading', { name: `Ballot Style ${ballotStyle.id}` });
+    screen.getByRole('heading', { name: `${ballotStyle.id}` });
   }
 });
 
@@ -149,10 +118,7 @@ test('primary election', () => {
   ]);
 
   render(
-    <BallotStyleReadinessReport
-      electionDefinition={electionDefinition}
-      generatedAtTime={MOCK_GENERATION_DATE}
-    />
+    <BallotStyleReadinessReport electionDefinition={electionDefinition} />
   );
 
   screen.getByText(
@@ -176,10 +142,7 @@ test('general election', () => {
   ]);
 
   render(
-    <BallotStyleReadinessReport
-      electionDefinition={electionDefinition}
-      generatedAtTime={MOCK_GENERATION_DATE}
-    />
+    <BallotStyleReadinessReport electionDefinition={electionDefinition} />
   );
 
   screen.getByText(hasTextAcrossElements(/Districts:.?District 2/));
@@ -203,10 +166,7 @@ test('renders contests', () => {
     };
 
     const { unmount } = render(
-      <BallotStyleReadinessReport
-        electionDefinition={electionDefinition}
-        generatedAtTime={MOCK_GENERATION_DATE}
-      />
+      <BallotStyleReadinessReport electionDefinition={electionDefinition} />
     );
 
     for (const contest of getContests({ ballotStyle, election })) {

@@ -10,6 +10,7 @@ import {
 import { ReportContents } from './components';
 import { BatterySection, BatterySectionProps } from './battery_section';
 import { StorageSection, StorageSectionProps } from './storage_section';
+import { BallotStyleReadinessReport } from './ballot_style_readiness_report';
 
 type ReportContentsProps = ConfigurationSectionProps &
   BatterySectionProps &
@@ -19,12 +20,17 @@ type ReportContentsProps = ConfigurationSectionProps &
 export function AdminReadinessReportContents(
   props: ReportContentsProps
 ): JSX.Element {
+  const { electionDefinition } = props;
+
   return (
     <ReportContents>
       <ConfigurationSection {...props} />
       <BatterySection {...props} />
       <StorageSection {...props} />
       <PrinterSection {...props} />
+      {electionDefinition && (
+        <BallotStyleReadinessReport electionDefinition={electionDefinition} />
+      )}
     </ReportContents>
   );
 }
