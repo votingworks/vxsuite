@@ -1,30 +1,16 @@
-import { BrowserRouter } from 'react-router-dom';
-
-import { BaseLogger, LogSource } from '@votingworks/logging';
 import { QueryClient } from '@tanstack/react-query';
-import {
-  AppBase,
-  AppErrorBoundary,
-  VisualModeDisabledOverlay,
-} from '@votingworks/ui';
-import { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
-
-import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
-import { AppRoot } from './app_root';
+import { BaseLogger, LogSource } from '@votingworks/logging';
+import { AppErrorBoundary, VisualModeDisabledOverlay } from '@votingworks/ui';
+import { BrowserRouter } from 'react-router-dom';
 import { ApiClient, createApiClient, createQueryClient } from './api';
-import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
 import { ApiProvider } from './api_provider';
+import { AppRoot } from './app_root';
+import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
+import { MarkScanAppBase } from './mark_scan_app_base';
 
 window.oncontextmenu = (e: MouseEvent): void => {
   e.preventDefault();
 };
-
-const DEFAULT_COLOR_MODE: ColorMode = 'contrastMedium';
-const DEFAULT_SCREEN_TYPE: ScreenType = 'elo15';
-const DEFAULT_SIZE_MODE: SizeMode = 'touchMedium';
 
 export interface Props {
   logger?: BaseLogger;
@@ -45,14 +31,7 @@ export function App({
   noAudio,
 }: Props): JSX.Element {
   return (
-    <AppBase
-      defaultColorMode={DEFAULT_COLOR_MODE}
-      defaultSizeMode={DEFAULT_SIZE_MODE}
-      screenType={DEFAULT_SCREEN_TYPE}
-      hideCursor={isFeatureFlagEnabled(
-        BooleanEnvironmentVariableName.HIDE_CURSOR
-      )}
-    >
+    <MarkScanAppBase>
       <BrowserRouter>
         <AppErrorBoundary restartMessage={RESTART_MESSAGE} logger={logger}>
           <ApiProvider
@@ -67,6 +46,6 @@ export function App({
           </ApiProvider>
         </AppErrorBoundary>
       </BrowserRouter>
-    </AppBase>
+    </MarkScanAppBase>
   );
 }
