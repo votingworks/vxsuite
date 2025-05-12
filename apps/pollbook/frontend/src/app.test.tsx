@@ -200,6 +200,7 @@ test('election manager - unconfigured screen - network configuration error', asy
 
 test('election manager - unconfigured screen - network-conflicting-pollbook-packages-match-card', async () => {
   apiMock.expectGetDeviceStatuses();
+  apiMock.expectGetMachineConfig();
   apiMock.setAuthStatus({
     status: 'logged_in',
     user: mockElectionManagerUser({
@@ -217,6 +218,7 @@ test('election manager - unconfigured screen - network-conflicting-pollbook-pack
 
 test('election manager - unconfigured screen - not-found-configuration-matching-election-card', async () => {
   apiMock.expectGetDeviceStatuses();
+  apiMock.expectGetMachineConfig();
   apiMock.setAuthStatus({
     status: 'logged_in',
     user: mockElectionManagerUser({
