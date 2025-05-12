@@ -283,6 +283,18 @@ fn main() -> color_eyre::Result<()> {
                             }
                             client = Some(c);
                         }
+                        // We've seen this Other error in the logs a few times, and we think it might
+                        // be a blip, but we haven't been able to reproduce it. Let's try mapping it
+                        // to Disconnected to see if our auto-reconnecting logic (in the VxScan state
+                        // machine) can handle it. We map it here rather than in send_error_response
+                        // to keep the mitigation scoped to the connect command, where we saw this
+                        // error occur.
+                        Err(Error::Usb(UsbError::Rusb(rusb::Error::Other))) => {
+                            send_response(Response::Error {
+                                code: ErrorCode::Disconnected,
+                                message: Some("Unknown USB error during connect".to_owned()),
+                            })?;
+                        }
                         Err(e) => send_error_response(&e)?,
                     },
                     (Some(_), Command::Disconnect) => {
