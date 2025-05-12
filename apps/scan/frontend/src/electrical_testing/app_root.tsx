@@ -1,7 +1,7 @@
 import {
   Button,
   Caption,
-  ElectricalTestingScreenNew,
+  ElectricalTestingScreen,
   Icons,
 } from '@votingworks/ui';
 import { DateTime } from 'luxon';
@@ -127,7 +127,7 @@ export function AppRoot(): JSX.Element {
   const scannerStatus = getElectricalTestingStatusMessagesQuery.data?.scanner;
 
   return (
-    <ElectricalTestingScreenNew
+    <ElectricalTestingScreen
       tasks={[
         {
           id: 'scanner',
@@ -224,6 +224,7 @@ export function AppRoot(): JSX.Element {
           ),
         },
       ]}
+      perRow={3}
       powerDown={powerDown}
       modals={
         isShowingLatestSheet &&

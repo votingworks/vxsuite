@@ -1,70 +1,117 @@
-import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
+import { DateTime } from 'luxon';
+import { expect, test, vi } from 'vitest';
 import { render, screen } from '../test/react_testing_library';
 import { ElectricalTestingScreen } from './electrical_testing_screen';
+import { Icons } from './icons';
+import { P } from './typography';
 
-const mockStatusMessages: Array<{
-  component: string;
-  statusMessage: string;
-  updatedAt: string;
-}> = [
-  {
-    component: 'card',
-    statusMessage: 'Success',
-    updatedAt: '2025-02-28T00:00:00.000Z',
-  },
-  {
-    component: 'usbDrive',
-    statusMessage: 'Success',
-    updatedAt: '2025-02-28T00:00:01.000Z',
-  },
-];
-
-test('ElectricalTestingScreen', () => {
-  const stopTesting = vi.fn();
+test('single task', async () => {
+  const powerDown = vi.fn();
+  const toggleIsRunning = vi.fn();
   render(
     <ElectricalTestingScreen
-      additionalContent={<div>Additional content</div>}
-      isTestRunning
-      graphic={<div>Graphic</div>}
-      statusMessages={mockStatusMessages}
-      stopTesting={stopTesting}
+      tasks={[
+        {
+          id: 'test',
+          icon: <Icons.Display />,
+          title: 'Test',
+          isRunning: true,
+          toggleIsRunning,
+          statusMessage: 'Test Status Message',
+          updatedAt: DateTime.fromObject({ year: 2025, month: 6, day: 1 }),
+        },
+      ]}
+      powerDown={powerDown}
+      perRow={1}
     />
   );
 
-  screen.getByText('Graphic');
-  screen.getByText('[2025-02-28T00:00:00.000Z] card: Success');
-  screen.getByText('[2025-02-28T00:00:01.000Z] usbDrive: Success');
-  const testButton = screen.getByRole('button', { name: 'Test Button' });
-  expect(screen.queryByText(/Last pressed at/)).not.toBeInTheDocument();
-  screen.getByText('Additional content');
-  const stopTestingButton = screen.getByRole('button', {
-    name: 'Stop Testing',
-  });
+  await screen.findByText('Test Status Message');
+  await screen.findByText(/06\/01\/2025/);
 
-  userEvent.click(testButton);
-  screen.getByText(/Last pressed at/);
+  const buttons = await screen.findAllByRole('button');
+  const powerOffButton = buttons.pop();
+  expect(powerOffButton).toHaveTextContent('Power Off');
+  expect(buttons).toHaveLength(1);
 
-  userEvent.click(stopTestingButton);
-  expect(stopTesting).toHaveBeenCalledTimes(1);
+  // Toggle the task once.
+  userEvent.click(buttons[0]);
+  expect(toggleIsRunning).toHaveBeenCalledOnce();
+
+  // Clicking again calls again.
+  userEvent.click(buttons[0]);
+  expect(toggleIsRunning).toHaveBeenCalledTimes(2);
 });
 
-test('ElectricalTestingScreen after testing has been stopped', () => {
-  const stopTesting = vi.fn();
+test('multiple tasks', async () => {
+  const powerDown = vi.fn();
+  const toggleIsRunning1 = vi.fn();
+  const toggleIsRunning2 = vi.fn();
   render(
     <ElectricalTestingScreen
-      isTestRunning={false}
-      graphic={<div>Graphic</div>}
-      statusMessages={mockStatusMessages}
-      stopTesting={stopTesting}
+      tasks={[
+        {
+          id: 'test',
+          icon: <Icons.Display />,
+          title: 'Test',
+          isRunning: true,
+          toggleIsRunning: toggleIsRunning1,
+          body: <P>Body text.</P>,
+        },
+        {
+          id: 'test2',
+          icon: <Icons.Display />,
+          title: 'Test #2',
+          isRunning: false,
+          toggleIsRunning: toggleIsRunning2,
+        },
+      ]}
+      powerDown={powerDown}
+      perRow={1}
     />
   );
 
-  screen.getByText('Graphic');
-  screen.getByText('[2025-02-28T00:00:00.000Z] card: Success');
-  screen.getByText('[2025-02-28T00:00:01.000Z] usbDrive: Success');
-  expect(screen.getByRole('button', { name: 'Test Button' })).toBeDisabled();
-  expect(
-    screen.getByRole('button', { name: 'Testing Stopped' })
-  ).toBeDisabled();
+  await screen.findByText('Body text.');
+
+  const buttons = await screen.findAllByRole('button');
+  const powerOffButton = buttons.pop();
+  expect(powerOffButton).toHaveTextContent('Power Off');
+  expect(buttons).toHaveLength(2);
+
+  // Toggle the second task once.
+  userEvent.click(buttons[1]);
+  expect(toggleIsRunning1).not.toHaveBeenCalled();
+  expect(toggleIsRunning2).toHaveBeenCalledOnce();
+
+  // Clicking again calls again.
+  userEvent.click(buttons[1]);
+  expect(toggleIsRunning1).not.toHaveBeenCalled();
+  expect(toggleIsRunning2).toHaveBeenCalledTimes(2);
+});
+
+test('power off', async () => {
+  const powerDown = vi.fn();
+  const toggleIsRunning = vi.fn();
+  render(
+    <ElectricalTestingScreen
+      tasks={[
+        {
+          id: 'test',
+          icon: <Icons.Display />,
+          title: 'Test',
+          isRunning: true,
+          toggleIsRunning,
+        },
+      ]}
+      powerDown={powerDown}
+      perRow={1}
+    />
+  );
+
+  const buttons = await screen.findAllByRole('button');
+  const powerOffButton = buttons.pop()!;
+  expect(powerOffButton).toHaveTextContent('Power Off');
+  userEvent.click(powerOffButton);
+  expect(powerDown).toHaveBeenCalledOnce();
 });

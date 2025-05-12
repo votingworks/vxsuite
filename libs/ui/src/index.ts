@@ -26,7 +26,6 @@ export * from './diagnostics';
 export * from './error_boundary';
 export * from './election_info_bar';
 export * from './electrical_testing_screen';
-export * from './electrical_testing_screen_new';
 export * from './file_input_button';
 export * from './fonts/font_family';
 export * from './full_screen_message';

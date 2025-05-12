@@ -1,13 +1,14 @@
-import { join } from 'node:path';
 import { promises as fs } from 'node:fs';
+import { join } from 'node:path';
 
 import {
+  assert,
+  assertDefined,
   err,
-  ok,
   extractErrorMessage,
+  ok,
   Result,
   sleep,
-  assertDefined,
 } from '@votingworks/basics';
 import {
   getPaperHandlerDriver,
@@ -17,19 +18,20 @@ import {
 } from '@votingworks/custom-paper-handler';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { DateTime } from 'luxon';
-import { constructAuthMachineState } from '../util/auth';
+import { AudioOutput, setAudioOutput } from '../audio/outputs';
 import {
   printBallotChunks,
   scanAndSave,
 } from '../custom-paper-handler/application_driver';
+import { constructAuthMachineState } from '../util/auth';
 import { ServerContext } from './context';
-import { AudioOutput, setAudioOutput } from '../audio/outputs';
 
-const CARD_READ_INTERVAL_SECONDS = 5;
+const CARD_READ_AND_USB_DRIVE_WRITE_INTERVAL_SECONDS = 5;
 const PAPER_HANDLER_POLL_INTERVAL_MS = 250;
 const PAPER_LOAD_LOG_INTERVAL_MS = 5000;
 const HEADPHONE_OUTPUT_DURATION_SECONDS = 50;
 const SPEAKER_OUTPUT_DURATION_SECONDS = 10;
+export const USB_DRIVE_FILE_NAME = 'electrical-testing.txt';
 
 function resultToString(result: Result<unknown, unknown>): string {
   return result.isOk()
@@ -37,9 +39,11 @@ function resultToString(result: Result<unknown, unknown>): string {
     : `Error: ${extractErrorMessage(result.err())}`;
 }
 
-export async function cardReadLoop({
+export async function runCardReadAndUsbDriveWriteTask({
   auth,
+  usbDrive,
   cardTask,
+  usbDriveTask,
   logger,
   workspace,
 }: ServerContext): Promise<void> {
@@ -51,23 +55,58 @@ export async function cardReadLoop({
     workspace.store.setElectricalTestingStatusMessage('card', message);
   });
 
-  while (!cardTask.isStopped()) {
-    await cardTask.waitUntilIsRunning();
-    const machineState = constructAuthMachineState(workspace);
-    const cardReadResult = await auth.readCardData(machineState);
-    workspace.store.setElectricalTestingStatusMessage(
-      'card',
-      resultToString(cardReadResult)
-    );
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    // Exit the loop if both tasks are stopped.
+    if (cardTask.isStopped() && usbDriveTask.isStopped()) {
+      break;
+    }
 
+    // Wait for at least one task to be running.
     await Promise.race([
-      sleep(CARD_READ_INTERVAL_SECONDS * 1000),
-      cardTask.waitUntilIsStopped(),
+      cardTask.waitUntilIsRunning(),
+      usbDriveTask.waitUntilIsRunning(),
+    ]);
+
+    if (cardTask.isRunning()) {
+      const machineState = constructAuthMachineState(workspace);
+      const cardReadResult = await auth.readCardData(machineState);
+      workspace.store.setElectricalTestingStatusMessage(
+        'card',
+        resultToString(cardReadResult)
+      );
+    }
+
+    if (usbDriveTask.isRunning()) {
+      let usbDriveWriteResult: Result<void, unknown> = ok();
+      try {
+        const usbDriveStatus = await usbDrive.status();
+        assert(usbDriveStatus.status === 'mounted', 'USB drive not mounted');
+        await fs.appendFile(
+          join(usbDriveStatus.mountPoint, USB_DRIVE_FILE_NAME),
+          `${new Date().toISOString()}\n`
+        );
+      } catch (error) {
+        usbDriveWriteResult = err(error);
+      }
+      workspace.store.setElectricalTestingStatusMessage(
+        'usbDrive',
+        resultToString(usbDriveWriteResult)
+      );
+    }
+
+    // Wait for the next interval or until both loops are stopped.
+    await Promise.race([
+      sleep(CARD_READ_AND_USB_DRIVE_WRITE_INTERVAL_SECONDS * 1000),
+      Promise.all([
+        cardTask.waitUntilIsStopped(),
+        usbDriveTask.waitUntilIsStopped(),
+      ]),
     ]);
   }
 }
 
-export async function printAndScanLoop({
+export async function runPrintAndScanTask({
   paperHandlerTask,
   logger: baseLogger,
   workspace,
@@ -78,7 +117,7 @@ export async function printAndScanLoop({
   });
 
   function setPaperHandlerStatusMessage(message: string) {
-    workspace.store.setElectricalTestingStatusMessage('paper-handler', message);
+    workspace.store.setElectricalTestingStatusMessage('paperHandler', message);
   }
 
   void paperHandlerTask.waitUntilIsStopped().then((reason) => {

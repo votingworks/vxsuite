@@ -111,7 +111,7 @@ test('getElectricalTestingStatusMessages and setElectricalTestingStatusMessage',
     },
   ]);
 
-  store.setElectricalTestingStatusMessage('paper-handler', 'Success');
+  store.setElectricalTestingStatusMessage('paperHandler', 'Success');
   expect(store.getElectricalTestingStatusMessages()).toEqual([
     {
       component: 'card',
@@ -119,7 +119,7 @@ test('getElectricalTestingStatusMessages and setElectricalTestingStatusMessage',
       updatedAt: expect.any(String),
     },
     {
-      component: 'paper-handler',
+      component: 'paperHandler',
       statusMessage: 'Success',
       updatedAt: expect.any(String),
     },
@@ -133,7 +133,7 @@ test('getElectricalTestingStatusMessages and setElectricalTestingStatusMessage',
       updatedAt: expect.any(String),
     },
     {
-      component: 'paper-handler',
+      component: 'paperHandler',
       statusMessage: 'Success',
       updatedAt: expect.any(String),
     },

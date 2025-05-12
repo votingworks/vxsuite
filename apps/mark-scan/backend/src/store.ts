@@ -29,6 +29,7 @@ import {
   ElectionKey,
   constructElectionKey,
 } from '@votingworks/types';
+import { DateTime } from 'luxon';
 import { join } from 'node:path';
 
 const SchemaPath = join(__dirname, '../schema.sql');
@@ -38,7 +39,7 @@ export interface ElectionRecord {
   electionPackageHash: string;
 }
 
-export type ElectricalTestingComponent = 'card' | 'paper-handler';
+export type ElectricalTestingComponent = 'card' | 'paperHandler' | 'usbDrive';
 
 /**
  * Manages a data store for imported election definition and system settings
@@ -420,10 +421,11 @@ export class Store {
   getElectricalTestingStatusMessages(): Array<{
     component: ElectricalTestingComponent;
     statusMessage: string;
-    updatedAt: string;
+    updatedAt: DateTime;
   }> {
-    return this.client.all(
-      `
+    return (
+      this.client.all(
+        `
       select
         component,
         status_message as statusMessage,
@@ -431,11 +433,15 @@ export class Store {
       from electrical_testing_status_messages
       order by component asc
       `
-    ) as Array<{
-      component: ElectricalTestingComponent;
-      statusMessage: string;
-      updatedAt: string;
-    }>;
+      ) as Array<{
+        component: ElectricalTestingComponent;
+        statusMessage: string;
+        updatedAt: string;
+      }>
+    ).map((record) => ({
+      ...record,
+      updatedAt: DateTime.fromSQL(record.updatedAt).toUTC(),
+    }));
   }
 
   setElectricalTestingStatusMessage(
