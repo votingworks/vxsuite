@@ -445,6 +445,7 @@ test('connection status is managed properly with many pollbooks', async () => {
     for (const context of pollbookContexts) {
       expect(context.peerWorkspace.store.getNewEvents).not.toHaveBeenCalled();
     }
+    // Set all the pollbooks to the same election package and pollbook package
     for (const context of pollbookContexts) {
       context.workspace.store.setElectionAndVoters(
         electionDefinition,
@@ -492,6 +493,49 @@ test('connection status is managed properly with many pollbooks', async () => {
         expect(context.peerWorkspace.store.getNewEvents).toHaveBeenCalled();
       }
     });
+
+    // If the pollbook package hash is different they will not connect
+    let i = 0;
+    for (const context of pollbookContexts) {
+      context.workspace.store.deleteElectionAndVoters();
+      context.workspace.store.setElectionAndVoters(
+        electionDefinition,
+        `fake-package-hash-${i}`,
+        testStreets,
+        testVoters
+      );
+      i += 1;
+    }
+    vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+    await vi.waitFor(
+      async () => {
+        vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+        for (const context of pollbookContexts) {
+          expect(
+            await context.localApiClient.getDeviceStatuses()
+          ).toMatchObject({
+            network: {
+              isOnline: true,
+              pollbooks: [
+                expect.objectContaining({
+                  status: PollbookConnectionStatus.WrongElection,
+                }),
+                expect.objectContaining({
+                  status: PollbookConnectionStatus.WrongElection,
+                }),
+                expect.objectContaining({
+                  status: PollbookConnectionStatus.WrongElection,
+                }),
+                expect.objectContaining({
+                  status: PollbookConnectionStatus.WrongElection,
+                }),
+              ],
+            },
+          });
+        }
+      },
+      { timeout: 3000 }
+    );
   });
 });
 

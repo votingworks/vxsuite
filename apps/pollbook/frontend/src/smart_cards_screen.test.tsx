@@ -1,12 +1,12 @@
 import { test, beforeEach, afterEach, vi } from 'vitest';
-import { readElectionGeneral } from '@votingworks/fixtures';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { screen } from '../test/react_testing_library';
 import { ApiMock, createApiMock } from '../test/mock_api_client';
 import { renderInAppContext } from '../test/render_in_app_context';
 import { SmartCardsScreen } from './smart_cards_screen';
 
 let apiMock: ApiMock;
-const electionGeneral = readElectionGeneral();
+const electionGeneral = readElectionGeneralDefinition();
 
 let unmount: () => void;
 
@@ -16,7 +16,6 @@ beforeEach(() => {
   apiMock = createApiMock();
   apiMock.setElection(electionGeneral);
   apiMock.authenticateAsSystemAdministrator();
-  apiMock.expectGetMachineConfig();
   apiMock.expectGetDeviceStatuses();
 });
 

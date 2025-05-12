@@ -28,7 +28,7 @@ import {
   resetNetwork,
   logOut,
   getElection,
-  getMachineConfig,
+  getMachineInformation,
 } from './api';
 import { PollbookConnectionStatus } from './types';
 import { VerticalElectionInfoBar } from './election_info_bar';
@@ -283,14 +283,15 @@ export function NavScreen({
   children?: React.ReactNode;
 }): JSX.Element | null {
   const getElectionQuery = getElection.useQuery();
-  const getMachineConfigQuery = getMachineConfig.useQuery();
+  const getMachineInfoQuery = getMachineInformation.useQuery();
 
-  if (!(getElectionQuery.isSuccess && getMachineConfigQuery.isSuccess)) {
+  if (!(getElectionQuery.isSuccess && getMachineInfoQuery.isSuccess)) {
     return null;
   }
 
   const election = getElectionQuery.data.ok();
-  const { machineId, codeVersion } = getMachineConfigQuery.data;
+  const { machineId, codeVersion, electionBallotHash, pollbookPackageHash } =
+    getMachineInfoQuery.data;
 
   return (
     <Screen flexDirection="row">
@@ -302,6 +303,8 @@ export function NavScreen({
         <div style={{ marginTop: 'auto' }}>
           <VerticalElectionInfoBar
             election={election}
+            electionBallotHash={electionBallotHash}
+            pollbookPackageHash={pollbookPackageHash}
             machineId={machineId}
             codeVersion={codeVersion}
             inverse

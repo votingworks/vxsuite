@@ -34,7 +34,6 @@ import {
   ConfigurationStatus,
   ValidStreetInfo,
   VoterRegistrationRequest,
-  MachineConfig,
   VoterAddressChangeRequest,
   SummaryStatistics,
   ThroughputStat,
@@ -43,6 +42,7 @@ import {
   LocalAppContext,
   LocalWorkspace,
   ConfigurationError,
+  MachineInformation,
 } from './types';
 import { rootDebug } from './debug';
 import {
@@ -90,8 +90,16 @@ function buildApi({ context, logger }: BuildAppParams) {
   const { store } = workspace;
 
   return grout.createApi({
-    getMachineConfig(): MachineConfig {
+    getMachineInformation(): MachineInformation {
+      const pollbookInformation = store.getMachineInformation();
+      if (!pollbookInformation) {
+        return {
+          machineId,
+          codeVersion,
+        };
+      }
       return {
+        ...pollbookInformation,
         machineId,
         codeVersion,
       };

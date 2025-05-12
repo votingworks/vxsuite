@@ -41,7 +41,7 @@ test('uses machine config from env', async () => {
   };
 
   await withApp(async ({ localApiClient }) => {
-    expect(await localApiClient.getMachineConfig()).toEqual({
+    expect(await localApiClient.getMachineInformation()).toEqual({
       machineId: 'test-machine-id',
       codeVersion: 'test-code-version',
     });

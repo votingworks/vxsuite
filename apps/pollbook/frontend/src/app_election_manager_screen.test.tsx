@@ -4,7 +4,7 @@ import {
   ValidStreetInfo,
   VoterRegistrationRequest,
 } from '@votingworks/pollbook-backend';
-import { Election } from '@votingworks/types';
+import { Election, ElectionDefinition } from '@votingworks/types';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 
 import userEvent from '@testing-library/user-event';
@@ -21,6 +21,8 @@ import { DEFAULT_QUERY_REFETCH_INTERVAL } from './api';
 let apiMock: ApiMock;
 const famousNamesElection: Election =
   electionFamousNames2021Fixtures.readElection();
+const famousNamesElectionDef: ElectionDefinition =
+  electionFamousNames2021Fixtures.readElectionDefinition();
 
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
@@ -64,10 +66,9 @@ test('basic e2e registration flow works', async () => {
     middleName: '',
   };
 
-  apiMock.expectGetMachineConfig();
   apiMock.expectGetDeviceStatuses();
   apiMock.authenticateAsElectionManager(famousNamesElection);
-  apiMock.setElection(famousNamesElection);
+  apiMock.setElection(famousNamesElectionDef);
   const { unmount } = render(<App apiClient={apiMock.mockApiClient} />);
 
   apiMock.expectGetValidStreetInfo([validStreetInfo]);
