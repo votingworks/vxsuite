@@ -23,6 +23,7 @@ export interface LocalAppContext extends MachineConfig {
 }
 
 export interface PeerAppContext extends MachineConfig {
+  auth: DippedSmartCardAuthApi;
   workspace: PeerWorkspace;
 }
 
@@ -324,6 +325,7 @@ export interface PollbookInformation {
 
 export type ConfigurationError =
   | 'pollbook-connection-problem'
+  | 'already-configured'
   | 'invalid-pollbook-package';
 
 export const PollbookInformationSchema: z.ZodSchema<PollbookInformation> =
@@ -403,4 +405,11 @@ export interface SummaryStatistics {
   totalAbsenteeCheckIns: number;
 }
 
-export type ConfigurationStatus = 'loading' | 'not-found';
+export type ConfigurationStatus =
+  | 'loading'
+  | 'not-found-usb'
+  | 'not-found-network'
+  | 'not-found-configuration-matching-election-card'
+  | 'network-configuration-error'
+  | 'recently-unconfigured'
+  | 'network-conflicting-pollbook-packages-match-card';
