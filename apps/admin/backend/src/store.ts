@@ -91,6 +91,7 @@ import {
   WriteInAdjudicationActionWriteInCandidate,
   CastVoteRecordAdjudicationFlags,
   WriteInAdjudicationActionReset,
+  CvrContestTag,
 } from './types';
 import { rootDebug } from './util/debug';
 
@@ -1801,6 +1802,8 @@ export class Store {
       'querying database for write-in adjudication cvr queue for contest %s',
       contestId
     );
+    // Update query to use CvrId on CvrContestTags
+    // Allow input of tags to filter on
     const rows = this.client.all(
       `
         select
@@ -1829,8 +1832,9 @@ export class Store {
   }): WriteInAdjudicationQueueMetadata[] {
     debug('querying database for write-in adjudication queue metadata');
 
+    // Update query to use tag/isResolved on CvrContestTags
     const rows = this.client.all(
-      `
+      ` 
       select
         contest_id as contestId,
         count(distinct cvr_id) as totalTally,
@@ -1866,6 +1870,7 @@ export class Store {
       'querying database for first pending write-in cvr id for contest %s',
       contestId
     );
+    // Update query to use isResolved on CvrContestTags
     const row = this.client.one(
       `
         select
@@ -2622,6 +2627,47 @@ export class Store {
       ballotCount: row.ballotCount,
       createdAt: convertSqliteTimestampToIso8601(row.createdAt),
     }));
+  }
+
+  addCvrContestTags({
+    cvrId,
+    contestId,
+    tags,
+  }: {
+    cvrId: Id;
+    contestId: ContestId;
+    tags: Set<CvrContestTag>;
+  }): void {
+    if (tags.size === 0) return;
+
+    const arrayTags = Array.from(tags);
+    const placeholders = arrayTags.map(() => `(?, ?, ?)`).join(', ');
+    const values = arrayTags.flatMap((tag) => [cvrId, contestId, tag]);
+    const sql = `
+      insert into cvr_contest_tags (cvr_id, contest_id, tag)
+      values ${placeholders}
+    `;
+
+    this.client.run(sql, ...values);
+  }
+
+  resolveCvrContestTags({
+    cvrId,
+    contestId,
+  }: {
+    cvrId: Id;
+    contestId: ContestId;
+  }): void {
+    this.client.run(
+      `
+        update cvr_contest_tags
+        set is_resolved = true
+        where cvr_id = ? and
+          contest_id = ?
+      `,
+      cvrId,
+      contestId
+    );
   }
 
   /**

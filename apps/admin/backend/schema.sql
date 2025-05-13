@@ -139,6 +139,17 @@ create table cvrs (
 create index idx_cvrs_election_id on cvrs(election_id);
 create index idx_cvrs_ballot_id on cvrs(ballot_id);
 
+create table cvr_contest_tags (
+  cvr_id varchar(36) not null,
+  contest_id text not null,
+  tag text not null 
+    check (tag = 'overvote' or tag = 'write-in' or tag = 'unmarked-write-in' or tag = 'marginal-mark'),
+  is_resolved boolean not null default false,
+  primary key (cvr_id, contest_id, tag),
+  foreign key (cvr_id) references cvrs(id)
+    on delete cascade
+);
+
 create table vote_adjudications (
   election_id varchar(36) not null,
   cvr_id varchar(36) not null,

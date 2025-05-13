@@ -378,6 +378,15 @@ interface AdjudicatedWriteInFalse extends AdjudicatedWriteInBase {
 }
 
 /**
+ * A queryable tag for a cvr-contest pair, used for adjudication
+ */
+export type CvrContestTag =
+  | 'overvote'
+  | 'write-in'
+  | 'unmarked-write-in'
+  | 'marginal-mark';
+
+/**
  * Information necessary to adjudicate a write-in.
  */
 export type WriteInAdjudicationAction =

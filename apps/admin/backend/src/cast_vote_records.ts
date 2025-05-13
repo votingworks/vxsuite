@@ -17,6 +17,7 @@ import {
 } from '@votingworks/basics';
 import { FileSystemEntryType } from '@votingworks/fs';
 import {
+  ContestId,
   CVR,
   ElectionDefinition,
   getBallotStyle,
@@ -30,6 +31,7 @@ import {
   BooleanEnvironmentVariableName,
   castVoteRecordHasValidContestReferences,
   convertCastVoteRecordMarkMetricsToMarkScores,
+  CastVoteRecordWriteIn,
   convertCastVoteRecordVotesToTabulationVotes,
   generateElectionBasedSubfolderName,
   getCastVoteRecordBallotType,
@@ -42,6 +44,7 @@ import { Store } from './store';
 import {
   CastVoteRecordElectionDefinitionValidationError,
   CastVoteRecordFileMetadata,
+  CvrContestTag,
   CvrFileImportInfo,
   CvrFileMode,
   ImportCastVoteRecordsError,
@@ -184,6 +187,22 @@ export async function listCastVoteRecordExportsOnUsbDrive(
       (a, b) => b.exportTimestamp.getTime() - a.exportTimestamp.getTime()
     )
   );
+}
+
+function determineCvrContestTags(cvrWriteIns: CastVoteRecordWriteIn[]): {
+  [contestId: ContestId]: Set<CvrContestTag>;
+} {
+  const tagsByContestId: { [contestId: ContestId]: Set<CvrContestTag> } = {};
+
+  for (const writeIn of cvrWriteIns) {
+    const tags = tagsByContestId[writeIn.contestId] ?? new Set<CvrContestTag>();
+    tags.add('write-in');
+    if (writeIn.isUnmarked) {
+      tags.add('unmarked-write-in');
+    }
+    tagsByContestId[writeIn.contestId] = tags;
+  }
+  return tagsByContestId;
 }
 
 /**
@@ -389,6 +408,19 @@ export async function importCastVoteRecords(
               isUnmarked: castVoteRecordWriteIn.isUnmarked,
               isUndetected: false,
               machineMarkedText: castVoteRecordWriteIn.text,
+            });
+          }
+
+          const castVoteRecordContestTags = determineCvrContestTags(
+            castVoteRecordWriteIns
+          );
+          for (const [contestId, tags] of Object.entries(
+            castVoteRecordContestTags
+          )) {
+            store.addCvrContestTags({
+              cvrId: castVoteRecordId,
+              contestId,
+              tags,
             });
           }
         }
