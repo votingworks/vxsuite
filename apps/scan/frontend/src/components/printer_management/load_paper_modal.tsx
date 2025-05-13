@@ -42,7 +42,7 @@ export function LoadPaperModal({
         title="Remove Paper Roll Holder"
         content={
           <P>
-            Open the access door to reveal the printer. Press the green lever on
+            Open the access door to reveal the printer. Press the white lever on
             the paper roll holder to separate it from the printer.
           </P>
         }
