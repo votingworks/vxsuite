@@ -21,7 +21,6 @@ import { CompletedBallot, getContests, vote } from '@votingworks/types';
 
 const ballotStyle = election.ballotStyles[0];
 const precinct = election.precincts[0];
-const ballotId = 'abcde';
 const contests = getContests({ ballotStyle, election });
 const votes = vote(contests, {
   'judicial-robert-demergue': 'judicial-robert-demergue-option-yes'
@@ -34,7 +33,6 @@ const votes = vote(contests, {
   '102': '102-option-yes',
 });
 const ballot: CompletedBallot = {
-  ballotId,
   ballotStyleId: ballotStyle.id,
   precinctId: precinct.id,
   votes,
@@ -118,7 +116,7 @@ is encoded as follows:
 - **Ballot Style Index:** A fixed-width number for the index of the ballot style
   in the election's ballot style list (`C.ballotStyleId`).
   - Size: 12 bits.
-- **Page Number:** _(HMPB-only.)_ A dynamic-width number for the 1-based page
+- **Page Number:** _(HMPB-only)_ A dynamic-width number for the 1-based page
   number up to a maximum number of pages (`C.pageNumber`).
   - Size: 5 bits.
 - **Test Ballot?:** This is a single bit that is set if the ballot is a test
@@ -127,12 +125,13 @@ is encoded as follows:
 - **Ballot Type:** One of the `BallotType` values, e.g. `Precinct`, `Absentee`,
   or `Provisional` (`C.ballotType`).
   - Size: 4 bits.
-- **Ballot ID Set?:** This bit is true if there is a ballot id, unset otherwise
-  (`C.ballotId`).
+- **Audit Ballot ID Set?:** _(HMPB-only, always false for BMDB)_ This bit is
+  true if there is an audit ballot id, unset otherwise (`C.auditBallotId`).
   - Size: 1 bit.
-- **Ballot ID:** Only present if the previous bit is set. This is a
-  dynamic-length string whose maximum length is 255 bytes (`C.ballotId`).
-  - Size: `(1 + bytes(C.ballotId)) * 8` bits.
+- **Audit Ballot ID:** _(HMPB-only)_ Only present if the previous bit is set.
+  This is a dynamic-length string whose maximum length is 255 bytes
+  (`C.auditBallotId`).
+  - Size: `(1 + bytes(C.auditBallotId)) * 8` bits.
 
 ### Completed BMD Ballot Encoding
 
