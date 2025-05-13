@@ -40,7 +40,7 @@ export function ExportLogsModal({
     const result = await exportLogsToUsbMutation.mutateAsync({ format });
 
     if (result.isErr()) {
-      setErrorMessage(result.err());
+      setErrorMessage(result.err().code);
       setCurrentState(ModalState.Error);
     } else {
       setCurrentState(ModalState.Done);

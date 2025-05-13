@@ -6,6 +6,7 @@ import { LogEventId, MockLogger, mockLogger } from '@votingworks/logging';
 import { SystemCallApiMethods, createSystemCallApi } from './api';
 import { execFile } from '../exec';
 import { getAudioInfo } from './get_audio_info';
+import { LogsExportError } from './export_logs_to_usb';
 
 vi.mock(import('node:fs/promises'), async (importActual) => ({
   ...(await importActual()),
@@ -50,9 +51,9 @@ afterEach(() => {
 });
 
 test('exportLogsToUsb', async () => {
-  expect((await api.exportLogsToUsb({ format: 'vxf' })).err()).toEqual(
-    'no-logs-directory'
-  );
+  expect(
+    (await api.exportLogsToUsb({ format: 'vxf' })).err()
+  ).toEqual<LogsExportError>({ code: 'no-logs-directory' });
 });
 
 test('rebootToVendorMenu', async () => {

@@ -12,7 +12,9 @@ const { mockApiClient, render } = newTestContext({
 });
 
 test('renders no log file found when usb is mounted but no log file on machine', async () => {
-  mockApiClient.exportLogsToUsb.mockResolvedValueOnce(err('no-logs-directory'));
+  mockApiClient.exportLogsToUsb.mockResolvedValueOnce(
+    err({ code: 'no-logs-directory' })
+  );
 
   render(<ExportLogsButton usbDriveStatus={mockUsbDriveStatus('mounted')} />);
   userEvent.click(screen.getByText('Save Logs'));

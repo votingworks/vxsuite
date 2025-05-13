@@ -12,8 +12,9 @@ import { tmpNameSync } from 'tmp';
 import { PassThrough } from 'node:stream';
 import { ok } from '@votingworks/basics';
 import { convertVxLogToCdf } from '@votingworks/logging-utils';
+import zlib from 'node:zlib';
 import { execFile } from '../exec';
-import { exportLogsToUsb } from './export_logs_to_usb';
+import { exportLogsToUsb, LogsExportError } from './export_logs_to_usb';
 
 vi.mock(import('node:fs/promises'), async (importActual) => ({
   ...(await importActual()),
@@ -67,7 +68,7 @@ test('exportLogsToUsb without logs directory', async () => {
         format: 'vxf',
       })
     ).err()
-  ).toEqual('no-logs-directory');
+  ).toEqual<LogsExportError>({ code: 'no-logs-directory' });
 
   // now we have the filesystem entry, but it's a file not a directory
   const mockStats = new Stats();
@@ -84,7 +85,7 @@ test('exportLogsToUsb without logs directory', async () => {
         format: 'vxf',
       })
     ).err()
-  ).toEqual('no-logs-directory');
+  ).toEqual<LogsExportError>({ code: 'no-logs-directory' });
 
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.FileSaved,
@@ -114,7 +115,7 @@ test('exportLogsToUsb without USB', async () => {
         format: 'vxf',
       })
     ).err()
-  ).toEqual('no-usb-drive');
+  ).toEqual<LogsExportError>({ code: 'no-usb-drive' });
 });
 
 test('exportLogsToUsb with unknown failure', async () => {
@@ -125,8 +126,9 @@ test('exportLogsToUsb with unknown failure', async () => {
   mockStats.isDirectory = vi.fn().mockReturnValue(true);
   vi.mocked(fs.stat).mockResolvedValueOnce(mockStats);
 
+  const cause = new Error('something went wrong');
   execFileMock.mockImplementationOnce(() => {
-    throw new Error('boo');
+    throw cause;
   });
 
   expect(
@@ -139,7 +141,17 @@ test('exportLogsToUsb with unknown failure', async () => {
         format: 'vxf',
       })
     ).err()
-  ).toEqual('copy-failed');
+  ).toEqual<LogsExportError>({ code: 'copy-failed', cause });
+
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.FileSaved,
+    'unknown',
+    expect.objectContaining({
+      disposition: 'failure',
+      message: 'Failed to save logs to usb drive: copy-failed',
+      cause: expect.stringContaining('something went wrong'),
+    })
+  );
 });
 
 test('exportLogsToUsb works for vxf format when all conditions are met', async () => {
@@ -214,6 +226,7 @@ testPlainAndCompressed('when CDF conversion fails - [$0]', async (fmt) => {
     fmt === 'compressed' ? 'vx-logs.log-20240101.gz' : 'vx-logs.log',
   ]);
 
+  const cause = new Error('conversion failed');
   vi.mocked(convertVxLogToCdf).mockImplementation(
     (
       _logWrapper,
@@ -224,7 +237,7 @@ testPlainAndCompressed('when CDF conversion fails - [$0]', async (fmt) => {
       _outputPath,
       _compressed,
       cb
-    ) => cb(new Error('conversion failed'))
+    ) => cb(cause)
   );
 
   const result = await exportLogsToUsb({
@@ -235,12 +248,13 @@ testPlainAndCompressed('when CDF conversion fails - [$0]', async (fmt) => {
     format: 'cdf',
   });
   expect(result.isErr()).toBeTruthy();
-  expect(result.err()).toEqual('cdf-conversion-failed');
+  expect(result.err()).toEqual<LogsExportError>({
+    code: 'cdf-conversion-failed',
+    cause,
+  });
 });
 
 test('exportLogsToUsb returns error when error filtering fails', async () => {
-  const { createReadStream: realCreateReadStream } =
-    await vi.importActual<typeof import('node:fs')>('node:fs');
   const mockUsbDrive = createMockUsbDrive();
   mockUsbDrive.usbDrive.status.reset();
   mockUsbDrive.usbDrive.status.expectRepeatedCallsWith().resolves({
@@ -256,15 +270,10 @@ test('exportLogsToUsb returns error when error filtering fails', async () => {
   >;
   readdirMock.mockResolvedValue(['vx-logs.log', 'vx-logs.log-20240101.gz']);
 
-  const logFile = tmpNameSync();
-  await fs.writeFile(logFile, ``);
-  vi.mocked(createReadStream).mockReturnValueOnce(
-    realCreateReadStream(logFile, 'utf8')
-  );
-  // There will be an error uncompressing if this is an empty file
-  vi.mocked(createReadStream).mockReturnValueOnce(
-    realCreateReadStream(logFile, 'utf8')
-  );
+  const cause = 'invalid archive';
+  vi.mocked(createReadStream).mockImplementationOnce(() => {
+    throw cause;
+  });
 
   execFileMock.mockResolvedValue({ stdout: '', stderr: '' });
 
@@ -276,7 +285,20 @@ test('exportLogsToUsb returns error when error filtering fails', async () => {
     format: 'err',
   });
   expect(result.isErr()).toBeTruthy();
-  expect(result.err()).toEqual('error-filtering-failed');
+  expect(result.err()).toEqual<LogsExportError>({
+    code: 'error-filtering-failed',
+    cause,
+  });
+
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.FileSaved,
+    'unknown',
+    expect.objectContaining({
+      disposition: 'failure',
+      message: 'Failed to save logs to usb drive: error-filtering-failed',
+      cause: expect.stringContaining('invalid archive'),
+    })
+  );
 });
 
 testPlainAndCompressed('works for CDF format - [$0]', async (fmt) => {
@@ -367,7 +389,7 @@ testPlainAndCompressed('works for CDF format - [$0]', async (fmt) => {
   mockUsbDrive.assertComplete();
 });
 
-test('exportLogsToUsb works for error format when all conditions are met', async () => {
+testPlainAndCompressed('works for error format - [$0]', async (fmt) => {
   const { createReadStream: realCreateReadStream } =
     await vi.importActual<typeof import('node:fs')>('node:fs');
   const mockUsbDrive = createMockUsbDrive();
@@ -384,12 +406,16 @@ test('exportLogsToUsb works for error format when all conditions are met', async
   const readdirMock = fs.readdir as unknown as MockInstance<
     () => Promise<string[]>
   >;
-  readdirMock.mockResolvedValue(['vx-logs.log']);
+
+  const compressed = fmt === 'compressed';
+  readdirMock.mockResolvedValue([
+    compressed ? 'vx-logs.log-20240101.gz' : 'vx-logs.log',
+  ]);
 
   const logFile = tmpNameSync();
-  await fs.writeFile(logFile, ``);
+  await fs.writeFile(logFile, compressed ? zlib.gzipSync('') : ``);
   vi.mocked(createReadStream).mockReturnValueOnce(
-    realCreateReadStream(logFile, 'utf8')
+    realCreateReadStream(logFile)
   );
 
   execFileMock.mockResolvedValue({ stdout: '', stderr: '' });
