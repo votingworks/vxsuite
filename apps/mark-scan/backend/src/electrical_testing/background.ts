@@ -39,17 +39,20 @@ function resultToString(result: Result<unknown, unknown>): string {
 
 export async function cardReadLoop({
   auth,
-  controller,
+  cardTask,
   logger,
   workspace,
 }: ServerContext): Promise<void> {
-  controller.signal.addEventListener('abort', () => {
+  void cardTask.waitUntilIsStopped().then((reason) => {
+    const message = `Card read loop stopping. Reason: ${reason}`;
     logger.log(LogEventId.BackgroundTaskCancelled, 'system', {
-      message: `Card read loop stopping. Reason: ${controller.signal.reason}`,
+      message,
     });
+    workspace.store.setElectricalTestingStatusMessage('card', message);
   });
 
-  while (!controller.signal.aborted) {
+  while (!cardTask.isStopped()) {
+    await cardTask.waitUntilIsRunning();
     const machineState = constructAuthMachineState(workspace);
     const cardReadResult = await auth.readCardData(machineState);
     workspace.store.setElectricalTestingStatusMessage(
@@ -57,12 +60,15 @@ export async function cardReadLoop({
       resultToString(cardReadResult)
     );
 
-    await sleep(CARD_READ_INTERVAL_SECONDS * 1000);
+    await Promise.race([
+      sleep(CARD_READ_INTERVAL_SECONDS * 1000),
+      cardTask.waitUntilIsStopped(),
+    ]);
   }
 }
 
 export async function printAndScanLoop({
-  controller,
+  paperHandlerTask,
   logger: baseLogger,
   workspace,
 }: ServerContext): Promise<void> {
@@ -75,8 +81,8 @@ export async function printAndScanLoop({
     workspace.store.setElectricalTestingStatusMessage('paper-handler', message);
   }
 
-  controller.signal.addEventListener('abort', () => {
-    const message = `Print and scan loop stopping. Reason: ${controller.signal.reason}`;
+  void paperHandlerTask.waitUntilIsStopped().then((reason) => {
+    const message = `Print and scan loop stopping. Reason: ${reason}`;
     void logger.logAsCurrentRole(LogEventId.BackgroundTaskCancelled, {
       message,
     });
@@ -197,7 +203,8 @@ export async function printAndScanLoop({
   let audioOutputDuration = HEADPHONE_OUTPUT_DURATION_SECONDS;
   let audioOutputStart = DateTime.now();
 
-  while (!controller.signal.aborted) {
+  while (!paperHandlerTask.isStopped()) {
+    await paperHandlerTask.waitUntilIsRunning();
     if (
       DateTime.now().diff(audioOutputStart).as('seconds') > audioOutputDuration
     ) {
