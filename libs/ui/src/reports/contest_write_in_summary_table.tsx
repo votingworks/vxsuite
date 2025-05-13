@@ -9,7 +9,7 @@ import {
 import { find } from '@votingworks/basics';
 import pluralize from 'pluralize';
 import { format } from '@votingworks/utils';
-import { TD, TH } from '../table';
+import { TD } from '../table';
 import { Caption, Font, FontProps } from '../typography';
 import { reportColors } from './layout';
 
@@ -83,12 +83,12 @@ function TallyRow({
 }): JSX.Element {
   return (
     <tr>
-      <TH
+      <th
         className={indent ? 'indent' : undefined}
         colSpan={tally === undefined ? 2 : 1}
       >
         <Font weight={weight}>{label}</Font>
-      </TH>
+      </th>
       {tally !== undefined && (
         <TD narrow textAlign="right">
           {format.count(tally)}
