@@ -910,6 +910,7 @@ export class Store {
     const cvrSheetNumber =
       cvr.card.type === 'bmd' ? null : cvr.card.sheetNumber;
     const serializedVotes = JSON.stringify(cvr.votes);
+    const serializedMarkScores = JSON.stringify(cvr.markScores);
     const existingCvr = this.client.one(
       `
         select
@@ -919,7 +920,8 @@ export class Store {
           batch_id as batchId,
           precinct_id as precinctId,
           sheet_number as sheetNumber,
-          votes
+          votes,
+          mark_scores as markScores
         from cvrs
         where
           election_id = ? and
@@ -936,6 +938,7 @@ export class Store {
           precinctId: string;
           sheetNumber: number | null;
           votes: string;
+          markScores: string;
         }
       | undefined;
 
@@ -971,12 +974,13 @@ export class Store {
           precinct_id,
           sheet_number,
           votes,
+          mark_scores,
           is_blank,
           has_overvote,
           has_undervote,
           has_write_in
         ) values (
-          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
       `,
         cvrId,
@@ -988,6 +992,7 @@ export class Store {
         cvr.precinctId,
         cvrSheetNumber,
         serializedVotes,
+        serializedMarkScores,
         asSqliteBool(adjudicationFlags.isBlank),
         asSqliteBool(adjudicationFlags.hasOvervote),
         asSqliteBool(adjudicationFlags.hasUndervote),
@@ -1392,6 +1397,15 @@ export class Store {
     return votes;
   }
 
+  private parseMarkScores({
+    markScoresString,
+  }: {
+    markScoresString: string;
+  }): Tabulation.MarkScores {
+    const markScores = JSON.parse(markScoresString) as Tabulation.MarkScores;
+    return markScores;
+  }
+
   /**
    * Returns an iterator of cast vote records for tabulation purposes. Filters
    * the cast vote records by specified filters.
@@ -1421,6 +1435,7 @@ export class Store {
           scanner_batches.scanner_id as scannerId,
           cvrs.sheet_number as sheetNumber,
           cvrs.votes as votes,
+          cvrs.mark_scores as markScores,
           aggregated_adjudications.adjudications as adjudications
         from cvrs
         inner join scanner_batches on cvrs.batch_id = scanner_batches.id
@@ -1452,6 +1467,7 @@ export class Store {
       StoreCastVoteRecordAttributes & {
         sheetNumber: number | null;
         votes: string;
+        markScores: string;
         adjudications: string | null;
       }
     >) {
@@ -1466,6 +1482,9 @@ export class Store {
         votes: this.parseVotesWithAdjudications({
           votesString: row.votes,
           adjudicationsString: row.adjudications,
+        }),
+        markScores: this.parseMarkScores({
+          markScoresString: row.markScores,
         }),
       };
     }

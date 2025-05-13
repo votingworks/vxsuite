@@ -140,6 +140,9 @@ function userReadableMessageFromImportError(
           case 'no-current-snapshot': {
             return 'The record does not contain a current snapshot of the interpreted results.';
           }
+          case 'no-original-snapshot': {
+            return 'The record does not contain the original snapshot of the results.';
+          }
           case 'parse-error': {
             return 'The record could not be parsed.';
           }
