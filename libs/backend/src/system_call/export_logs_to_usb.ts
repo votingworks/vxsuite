@@ -27,14 +27,15 @@ const LOG_DIR = '/var/log/votingworks';
 const COMPRESSED_VX_LOGS_NAME_REGEX = 'vx-logs.log-[0-9]*.gz';
 
 /** type of return value from exporting logs */
-export type LogsResultType = Result<
-  void,
-  | 'no-logs-directory'
-  | 'no-usb-drive'
-  | 'copy-failed'
-  | 'cdf-conversion-failed'
-  | 'error-filtering-failed'
->;
+export type LogsExportError =
+  | { code: 'no-logs-directory' }
+  | { code: 'no-usb-drive' }
+  | { code: 'copy-failed'; cause: unknown }
+  | { code: 'cdf-conversion-failed'; cause: unknown }
+  | { code: 'error-filtering-failed'; cause: unknown };
+
+/** type of return value from exporting logs */
+export type LogsResultType = Result<void, LogsExportError>;
 
 function convertFileToCdf(
   logger: Logger,
@@ -156,12 +157,12 @@ async function exportLogsToUsbHelper({
   }
 
   if (!logDirPathExistsAndIsDirectory) {
-    return err('no-logs-directory');
+    return err({ code: 'no-logs-directory' });
   }
 
   const status = await usbDrive.status();
   if (status.status !== 'mounted') {
-    return err('no-usb-drive');
+    return err({ code: 'no-usb-drive' });
   }
 
   const machineNamePath = join(status.mountPoint, `/logs/machine_${machineId}`);
@@ -181,17 +182,17 @@ async function exportLogsToUsbHelper({
           machineId,
           codeVersion
         );
-      } catch {
+      } catch (cause) {
         await fs.rm(tempDirectory, { recursive: true });
-        return err('cdf-conversion-failed');
+        return err({ code: 'cdf-conversion-failed', cause });
       }
       break;
     case 'err':
       try {
         await filterLogsToErrors(LOG_DIR, tempDirectory);
-      } catch {
+      } catch (cause) {
         await fs.rm(tempDirectory, { recursive: true });
-        return err('error-filtering-failed');
+        return err({ code: 'error-filtering-failed', cause });
       }
       break;
     /* istanbul ignore next - compile time check @preserve */
@@ -214,8 +215,8 @@ async function exportLogsToUsbHelper({
         throwIllegalValue(format);
     }
     await usbDrive.sync();
-  } catch {
-    return err('copy-failed');
+  } catch (cause) {
+    return err({ code: 'copy-failed', cause });
   } finally {
     if (format === 'cdf' || format === 'err') {
       await fs.rm(tempDirectory, { recursive: true });
@@ -249,11 +250,31 @@ export async function exportLogsToUsb({
     logger,
   });
 
+  if (result.isErr()) {
+    const error = result.err();
+
+    let cause: string | undefined;
+    if ('cause' in error) {
+      if (error.cause instanceof Error) {
+        cause = error.cause.stack || error.cause.toString();
+      } else {
+        cause = `${error.cause}`;
+      }
+    }
+
+    await logger.logAsCurrentRole(LogEventId.FileSaved, {
+      disposition: 'failure',
+      message: `Failed to save logs to usb drive: ${error.code}`,
+      fileType: 'logs',
+      cause,
+    });
+
+    return result;
+  }
+
   await logger.logAsCurrentRole(LogEventId.FileSaved, {
-    disposition: result.isOk() ? 'success' : 'failure',
-    message: result.isOk()
-      ? 'Successfully saved logs on the usb drive.'
-      : `Failed to save logs to usb drive: ${result.err()}`,
+    disposition: 'success',
+    message: 'Successfully saved logs on the usb drive.',
     fileType: 'logs',
   });
 
