@@ -76,7 +76,7 @@ import {
   authEnabled,
 } from './globals';
 import { createBallotPropsForTemplate, defaultBallotTemplate } from './ballots';
-import { getPdfFileName, regenerateElectionIds } from './utils';
+import { getBallotPdfFileName, regenerateElectionIds } from './utils';
 import {
   ElectionFeaturesConfig,
   getElectionFeaturesConfig,
@@ -580,7 +580,7 @@ function buildApi({ auth, logger, workspace, translator }: AppContext) {
       );
       return ok({
         pdfData: ballotPdf.ok(),
-        fileName: `PROOF-${getPdfFileName(
+        fileName: `PROOF-${getBallotPdfFileName(
           precinct.name,
           input.ballotStyleId,
           input.ballotType,

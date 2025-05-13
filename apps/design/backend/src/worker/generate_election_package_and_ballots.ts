@@ -33,7 +33,7 @@ import {
   createBallotPropsForTemplate,
   formatElectionForExport,
 } from '../ballots';
-import { getPdfFileName } from '../utils';
+import { getBallotPdfFileName } from '../utils';
 import { renderBallotPdf } from './ballot_pdfs';
 
 export interface V3SystemSettings {
@@ -229,7 +229,7 @@ export async function generateElectionPackageAndBallots(
     const { precinctId, ballotStyleId, ballotType, ballotMode, auditBallotId } =
       props;
     const precinct = assertDefined(getPrecinctById({ election, precinctId }));
-    const fileName = getPdfFileName(
+    const fileName = getBallotPdfFileName(
       precinct.name,
       ballotStyleId,
       ballotType,

@@ -12,7 +12,7 @@ import {
 } from '@votingworks/types';
 import { customAlphabet } from 'nanoid';
 
-export function getPdfFileName(
+export function getBallotPdfFileName(
   precinctName: string,
   ballotStyleId: BallotStyleId,
   ballotType: BallotType,
