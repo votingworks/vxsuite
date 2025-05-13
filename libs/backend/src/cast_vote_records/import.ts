@@ -31,6 +31,7 @@ import {
   CastVoteRecordWriteIn,
   getCurrentSnapshot,
   getExportedCastVoteRecordIds,
+  getOriginalSnapshot,
   getWriteInsFromCastVoteRecord,
   isCastVoteRecordWriteInValid,
   isFeatureFlagEnabled,
@@ -49,6 +50,7 @@ interface CastVoteRecordAndReferencedFiles {
   castVoteRecord: CVR.CVR;
   castVoteRecordBallotSheetId?: number;
   castVoteRecordCurrentSnapshot: CVR.CVRSnapshot;
+  castVoteRecordOriginalSnapshot?: CVR.CVRSnapshot;
   castVoteRecordWriteIns: CastVoteRecordWriteIn[];
   referencedFiles?: ReferencedFiles;
 }
@@ -154,6 +156,16 @@ async function* castVoteRecordGenerator(
       return;
     }
 
+    let castVoteRecordOriginalSnapshot: CVR.CVRSnapshot | undefined;
+    // Original snapshots are used for hmpb mark adjudication
+    if (isHandMarkedPaperBallot) {
+      castVoteRecordOriginalSnapshot = getOriginalSnapshot(castVoteRecord);
+      if (!castVoteRecordOriginalSnapshot) {
+        yield wrapError({ subType: 'no-original-snapshot' });
+        return;
+      }
+    }
+
     const castVoteRecordWriteIns =
       getWriteInsFromCastVoteRecord(castVoteRecord);
     if (!castVoteRecordWriteIns.every(isCastVoteRecordWriteInValid)) {
@@ -234,6 +246,7 @@ async function* castVoteRecordGenerator(
       castVoteRecord,
       castVoteRecordBallotSheetId,
       castVoteRecordCurrentSnapshot,
+      castVoteRecordOriginalSnapshot,
       castVoteRecordWriteIns,
       referencedFiles,
     });
