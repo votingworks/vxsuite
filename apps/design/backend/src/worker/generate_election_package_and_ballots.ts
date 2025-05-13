@@ -13,19 +13,21 @@ import {
   ElectionId,
   getPrecinctById,
   formatBallotHash,
+  BallotType,
 } from '@votingworks/types';
 import {
   createPlaywrightRenderer,
   hmpbStringsCatalog,
   ballotTemplates,
   renderAllBallotsAndCreateElectionDefinition,
+  BaseBallotProps,
 } from '@votingworks/hmpb';
 import { sha256 } from 'js-sha256';
 import {
   generateAudioIdsAndClips,
   getAllStringsForElectionPackage,
 } from '@votingworks/backend';
-import { assertDefined, iter } from '@votingworks/basics';
+import { assertDefined, find, iter, range } from '@votingworks/basics';
 import { WorkerContext } from './context';
 import {
   createBallotPropsForTemplate,
@@ -80,22 +82,25 @@ export async function generateElectionPackageAndBallots(
     electionId,
     electionSerializationFormat,
     shouldExportAudio,
+    numAuditIdBallots,
   }: {
     electionId: ElectionId;
     electionSerializationFormat: ElectionSerializationFormat;
     shouldExportAudio: boolean;
+    numAuditIdBallots?: number;
   }
 ): Promise<void> {
   const { store } = workspace;
 
+  const electionRecord = await store.getElection(electionId);
   const {
     ballotLanguageConfigs,
     election,
-    systemSettings,
     ballotStyles,
     ballotTemplateId,
     orgId,
-  } = await store.getElection(electionId);
+  } = electionRecord;
+  let { systemSettings } = electionRecord;
 
   // This function makes separate zips for ballot package and election package
   // then wraps both in an outer zip for export.
@@ -126,11 +131,37 @@ export async function generateElectionPackageAndBallots(
 
   const formattedElection = formatElectionForExport(election, ballotStrings);
 
-  const allBallotProps = createBallotPropsForTemplate(
+  let allBallotProps = createBallotPropsForTemplate(
     ballotTemplateId,
     formattedElection,
     ballotStyles
   );
+
+  // If we're exporting ballots with audit ballot IDs...
+  if (numAuditIdBallots) {
+    // Turn on the system setting so VxScan knows to expect audit ballot IDs.
+    systemSettings = {
+      ...electionRecord.systemSettings,
+      enableAuditBallotIds: true,
+    };
+
+    // Instead of generating one of each combo of ballot style/precinct/ballot
+    // type/ballot mode, just pick one and generate a ballot PDF for each audit
+    // ballot ID. For now, we're just testing this feature, so we don't need
+    // every combo.
+    const officialPrecinctBallotProps = find(
+      allBallotProps,
+      (props) =>
+        props.ballotMode === 'official' &&
+        props.ballotType === BallotType.Precinct
+    );
+    allBallotProps = range(1, numAuditIdBallots + 1).map(
+      (ballotIndex): BaseBallotProps => ({
+        ...officialPrecinctBallotProps,
+        auditBallotId: String(ballotIndex),
+      })
+    );
+  }
 
   const renderer = await createPlaywrightRenderer();
   const { electionDefinition, ballotDocuments } =
@@ -195,13 +226,15 @@ export async function generateElectionPackageAndBallots(
   // Make ballot zip
   for (const [props, document] of iter(allBallotProps).zip(ballotDocuments)) {
     const ballotPdf = await renderBallotPdf(props, document);
-    const { precinctId, ballotStyleId, ballotType, ballotMode } = props;
+    const { precinctId, ballotStyleId, ballotType, ballotMode, auditBallotId } =
+      props;
     const precinct = assertDefined(getPrecinctById({ election, precinctId }));
     const fileName = getPdfFileName(
       precinct.name,
       ballotStyleId,
       ballotType,
-      ballotMode
+      ballotMode,
+      auditBallotId
     );
     ballotsZip.file(fileName, ballotPdf);
   }

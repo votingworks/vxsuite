@@ -1239,7 +1239,8 @@ export class Store {
   async createElectionPackageBackgroundTask(
     electionId: ElectionId,
     electionSerializationFormat: ElectionSerializationFormat,
-    shouldExportAudio: boolean
+    shouldExportAudio: boolean,
+    numAuditIdBallots?: number
   ): Promise<void> {
     await this.db.withClient(async (client) =>
       client.withTransaction(async () => {
@@ -1255,6 +1256,7 @@ export class Store {
             electionId,
             electionSerializationFormat,
             shouldExportAudio,
+            numAuditIdBallots,
           }
         );
         await client.query(

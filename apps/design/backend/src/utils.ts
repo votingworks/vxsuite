@@ -16,12 +16,20 @@ export function getPdfFileName(
   precinctName: string,
   ballotStyleId: BallotStyleId,
   ballotType: BallotType,
-  ballotMode: BallotMode
+  ballotMode: BallotMode,
+  ballotAuditId?: string
 ): string {
-  return `${ballotMode}-${ballotType}-ballot-${precinctName.replaceAll(
-    ' ',
-    '_'
-  )}-${ballotStyleId}.pdf`;
+  const baseName = [
+    ballotMode,
+    ballotType,
+    'ballot',
+    precinctName.replaceAll(' ', '_'),
+    ballotStyleId,
+    ballotAuditId,
+  ]
+    .filter(Boolean)
+    .join('-');
+  return `${baseName}.pdf`;
 }
 
 const idGenerator = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 12);
