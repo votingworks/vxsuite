@@ -2,6 +2,7 @@ import { BaseLogger, LogSource, LogEventId } from '@votingworks/logging';
 import {
   handleUncaughtExceptions,
   loadEnvVarsFromDotenvFiles,
+  TaskController,
 } from '@votingworks/backend';
 import {
   BooleanEnvironmentVariableName,
@@ -47,10 +48,10 @@ async function main(): Promise<number> {
       BooleanEnvironmentVariableName.ENABLE_ELECTRICAL_TESTING_MODE
     )
   ) {
-    const controller = new AbortController();
     startElectricalTestingServer({
       auth: getDefaultAuth(logger),
-      controller,
+      cardTask: TaskController.started(),
+      paperHandlerTask: TaskController.started(),
       logger,
       workspace,
     });

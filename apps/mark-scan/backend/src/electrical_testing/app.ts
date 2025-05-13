@@ -2,7 +2,7 @@ import express, { Application } from 'express';
 import * as grout from '@votingworks/grout';
 import { ServerContext } from './context';
 
-function buildApi({ workspace, controller }: ServerContext) {
+function buildApi({ workspace, cardTask, paperHandlerTask }: ServerContext) {
   const { store } = workspace;
 
   return grout.createApi({
@@ -11,7 +11,8 @@ function buildApi({ workspace, controller }: ServerContext) {
     },
 
     stopElectricalTesting() {
-      controller.abort('User requested testing be stopped');
+      cardTask.stop('User requested testing be stopped');
+      paperHandlerTask.stop('User requested testing be stopped');
     },
   });
 }
