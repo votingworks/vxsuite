@@ -21,6 +21,7 @@ import {
   CVRSnapshotOtherStatusSchema,
   safeParse,
   safeParseJson,
+  safeParseNumber,
   Side,
   Tabulation,
 } from '@votingworks/types';
@@ -35,6 +36,16 @@ export const UNMARKED_WRITE_IN_SELECTION_POSITION_OTHER_STATUS =
 export function getCurrentSnapshot(cvr: CVR.CVR): Optional<CVR.CVRSnapshot> {
   return cvr.CVRSnapshot.find(
     (snapshot) => snapshot['@id'] === cvr.CurrentSnapshotId
+  );
+}
+
+/**
+ * Returns the original snapshot of a cast vote record, or undefined if none
+ * exists. If undefined, the cast vote record is invalid.
+ */
+export function getOriginalSnapshot(cvr: CVR.CVR): Optional<CVR.CVRSnapshot> {
+  return cvr.CVRSnapshot.find((snapshot) =>
+    snapshot['@id'].includes('-original')
   );
 }
 
@@ -116,6 +127,35 @@ export function convertCastVoteRecordVotesToTabulationVotes(
   }
 
   return votes;
+}
+
+/**
+ * Converts the mark data of the original snapshot into the simple
+ * dictionary of contest ids to mark scores that VxAdmin uses
+ * internally as a basis for adjudicating marks.
+ */
+export function convertCastVoteRecordMarkMetricsToMarkScores(
+  originalSnapshot: CVR.CVRSnapshot
+): Tabulation.MarkScores {
+  const markScores: Tabulation.MarkScores = {};
+  for (const cvrContest of originalSnapshot.CVRContest) {
+    const contestMarkScores: Record<ContestOptionId, Tabulation.MarkScore> = {};
+    for (const cvrContestSelection of cvrContest.CVRContestSelection) {
+      // We assume every contest selection has only one selection position
+      assert(cvrContestSelection.SelectionPosition.length === 1);
+      const selectionPosition = cvrContestSelection.SelectionPosition[0];
+      assert(selectionPosition);
+      const markMetric = safeParseNumber(selectionPosition.MarkMetricValue);
+      /* istanbul ignore next - @preserve */
+      if (markMetric.isErr()) {
+        throw new Error('unable to interpret mark metric value as number');
+      }
+      contestMarkScores[cvrContestSelection.ContestSelectionId] =
+        markMetric.ok();
+    }
+    markScores[cvrContest.ContestId] = contestMarkScores;
+  }
+  return markScores;
 }
 
 /**

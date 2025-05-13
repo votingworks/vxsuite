@@ -45,10 +45,12 @@ import {
   areContestResultsValid,
 } from './tabulation';
 import {
+  convertCastVoteRecordMarkMetricsToMarkScores,
   convertCastVoteRecordVotesToTabulationVotes,
   getCastVoteRecordBallotType,
   getCurrentSnapshot,
   getExportedCastVoteRecordIds,
+  getOriginalSnapshot,
 } from '../cast_vote_records';
 
 function castVoteRecordToTabulationCastVoteRecord(
@@ -70,6 +72,11 @@ function castVoteRecordToTabulationCastVoteRecord(
     votes: convertCastVoteRecordVotesToTabulationVotes(
       assertDefined(getCurrentSnapshot(castVoteRecord))
     ),
+    markScores: castVoteRecord.BallotSheetId
+      ? convertCastVoteRecordMarkMetricsToMarkScores(
+          assertDefined(getOriginalSnapshot(castVoteRecord))
+        )
+      : undefined,
     votingMethod: assertDefined(getCastVoteRecordBallotType(castVoteRecord)),
   };
 }
