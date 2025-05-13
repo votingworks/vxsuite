@@ -4,7 +4,7 @@ use types_rs::election::{BallotStyleId, Election, PrecinctId};
 
 use super::{
     coding,
-    types::{BallotStyleIndex, PageNumber, PrecinctIndex},
+    types::{AuditBallotIdLength, BallotStyleIndex, PageNumber, PrecinctIndex},
 };
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
@@ -47,6 +47,9 @@ pub struct Metadata {
     pub page_number: PageNumber,
     pub is_test_mode: bool,
     pub ballot_type: BallotType,
+    // Only used when SystemSettings.auditBallotId is enabled
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub audit_ballot_id: Option<String>,
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -62,6 +65,9 @@ pub enum Error {
 
     #[error("Invalid ballot style index: {index} (count: {count})")]
     InvalidBallotStyleIndex { index: usize, count: usize },
+
+    #[error("Invalid audit ballot ID: {0}")]
+    InvalidAuditBallotId(#[from] std::string::FromUtf8Error),
 
     #[error("Coding error: {0}")]
     Coding(coding::Error),
@@ -105,6 +111,13 @@ impl FromBitStreamWith<'_> for Metadata {
         let page_number = PageNumber::from_reader(r)?;
         let is_test_mode = r.read_bit()?;
         let ballot_type = BallotType::from_reader(r)?;
+        let audit_ballot_id = if r.read_bit()? {
+            let audit_ballot_id_length = AuditBallotIdLength::from_reader(r)?;
+            let audit_ballot_id_bytes = r.read_to_vec(audit_ballot_id_length.get().into())?;
+            Some(String::from_utf8(audit_ballot_id_bytes)?)
+        } else {
+            None
+        };
 
         let precinct = election
             .precincts
@@ -128,6 +141,7 @@ impl FromBitStreamWith<'_> for Metadata {
             page_number,
             is_test_mode,
             ballot_type,
+            audit_ballot_id,
         })
     }
 }
@@ -145,6 +159,7 @@ pub fn infer_missing_page_metadata(detected_ballot_metadata: &Metadata) -> Metad
         ballot_type: detected_ballot_metadata.ballot_type,
         is_test_mode: detected_ballot_metadata.is_test_mode,
         page_number: detected_ballot_metadata.page_number.opposite(),
+        audit_ballot_id: detected_ballot_metadata.audit_ballot_id.clone(),
     }
 }
 
@@ -172,6 +187,7 @@ mod test {
         let election_path = fixture_path.join("election.json");
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
+        let audit_ballot_id = "test-audit-ballot-id";
 
         #[rustfmt::skip]
         let bytes = [
@@ -197,9 +213,16 @@ mod test {
             0b0000_0010,
             //BBNN NNNM
 
-            // 4 bits for ballot type, 4 bits padding
-            0b0000_0000,
-            //TTTT ----
+            // 4 bits for ballot type, 1 bit for audit ballot ID flag, 3 bits for audit ballot ID length
+            0b0000_1000,
+            //TTTT FLLL
+
+            // 5 bits for audit ballot ID length, 3 bits start of audit ballot ID
+            0b1010_0011,
+            //LLLL LIII
+
+            // Rest of audit ballot ID
+            163, 43, 155, 161, 107, 11, 171, 35, 75, 161, 107, 19, 11, 99, 99, 123, 161, 107, 75, 32
         ];
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
@@ -212,6 +235,7 @@ mod test {
                 page_number: PageNumber::new_unchecked(1),
                 is_test_mode: false,
                 ballot_type: BallotType::Precinct,
+                audit_ballot_id: Some(audit_ballot_id.to_string()),
             }
         );
     }
@@ -277,9 +301,9 @@ mod test {
             0b0000_0010,
             //BBNN NNNM
 
-            // 4 bits for ballot type, 4 bits padding
+            // 4 bits for ballot type, 1 bit for audit ballot ID flag, 3 bits padding
             0b0000_0000,
-            //TTTT ----
+            //TTTT F---
         ];
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
@@ -324,9 +348,9 @@ mod test {
             0b0100_0010,
             //BBNN NNNM
 
-            // 4 bits for ballot type, 4 bits padding
+            // 4 bits for ballot type, 1 bit for audit ballot ID flag, 3 bits padding
             0b0000_0000,
-            //TTTT ----
+            //TTTT F---
         ];
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
@@ -373,9 +397,9 @@ mod test {
             0b0000_0010,
             //BBNN NNNM
 
-            // 4 bits for ballot type, 4 bits padding
+            // 4 bits for ballot type, 1 bit for audit ballot ID flag, 3 bits padding
             0b1111_0000,
-            //TTTT ----
+            //TTTT F---
         ];
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
@@ -419,9 +443,9 @@ mod test {
             0b0011_1110,
             //BBNN NNNM
 
-            // 4 bits for ballot type, 4 bits padding
+            // 4 bits for ballot type, 1 bit for audit ballot ID flag, 3 bits padding
             0b0000_0000,
-            //TTTT ----
+            //TTTT F---
         ];
 
         let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
@@ -429,6 +453,56 @@ mod test {
 
         // TODO: use `assert_matches!` once that API is stable.
         assert!(matches!(result, Err(Error::Coding(coding::Error::InvalidValue(v))) if v == "31"));
+    }
+
+    #[test]
+    fn test_error_invalid_audit_ballot_id() {
+        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures/ashland");
+        let election_path = fixture_path.join("election.json");
+        let election: Election =
+            serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
+
+        #[rustfmt::skip]
+        let bytes = [
+            // 3-byte prelude
+            b'V', b'P', 2,
+
+            // 10-byte ballot hash
+            210, 122, 182, 88, 139, 24, 105, 84, 76, 222,
+
+            // 8 bits for precinct index
+            0b0000_0000,
+            //PPPP PPPP
+
+            // 5 bits for precinct index, 3 bits for ballot style index
+            0b0000_0000,
+            //PPPP PBBB
+
+            // 8 bits for ballot style index
+            0b0000_0000,
+            //BBBB BBBB
+
+            // 2 bits for ballot style index, 5 bits for page number, 1 bit for test mode
+            0b0000_0010,
+            //BBNN NNNM
+
+            // 4 bits for ballot type, 1 bit for audit ballot ID flag, 3 bits for audit ballot ID length
+            0b0000_1000,
+            //TTTT FLLL
+
+            // 5 bits for audit ballot ID length, 3 bits start of audit ballot ID
+            0b1010_0011,
+            //LLLL LIII
+
+            // Rest of audit ballot ID (with invalid UTF-8 char at beginning)
+            255, 43, 155, 161, 107, 11, 171, 35, 75, 161, 107, 19, 11, 99, 99, 123, 161, 107, 75, 32
+        ];
+
+        let mut reader = BitReader::endian(Cursor::new(&bytes), BigEndian);
+        let result = Metadata::from_reader(&mut reader, &election);
+
+        // TODO: use `assert_matches!` once that API is stable.
+        assert!(matches!(result, Err(Error::InvalidAuditBallotId(_))));
     }
 
     fn arbitrary_ballot_type() -> impl Strategy<Value = BallotType> {
@@ -447,7 +521,8 @@ mod test {
             precinct_id in "[0-9a-z-]{1,100}",
             ballot_style_id in "[0-9a-z-]{1,100}",
             is_test_mode in proptest::bool::ANY,
-            ballot_type in arbitrary_ballot_type()
+            ballot_type in arbitrary_ballot_type(),
+            audit_ballot_id in proptest::option::of("[0-9a-z-]{1,100}"),
         ) {
             let detected_metadata = Metadata {
                 ballot_hash,
@@ -456,6 +531,7 @@ mod test {
                 page_number,
                 is_test_mode,
                 ballot_type,
+                audit_ballot_id
             };
 
             // The inferred page number should be one less or one more than the detected page number.
@@ -467,6 +543,7 @@ mod test {
             assert_eq!(inferred_metadata.ballot_style_id, detected_metadata.ballot_style_id);
             assert_eq!(inferred_metadata.is_test_mode, detected_metadata.is_test_mode);
             assert_eq!(inferred_metadata.ballot_type, detected_metadata.ballot_type);
+            assert_eq!(inferred_metadata.audit_ballot_id, detected_metadata.audit_ballot_id);
         }
     }
 }
