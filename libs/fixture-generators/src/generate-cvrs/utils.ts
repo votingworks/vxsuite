@@ -153,18 +153,44 @@ export function replaceUniqueId(
   castVoteRecord: CVR.CVR,
   newUniqueId: string
 ): CVR.CVR {
-  const snapshot = castVoteRecord.CVRSnapshot[0];
-  assert(snapshot);
+  const currentSnapshotId = castVoteRecord.CurrentSnapshotId;
+  const currentSnapshot = castVoteRecord.CVRSnapshot.find(
+    (ss) => ss['@id'] === currentSnapshotId
+  );
+  assert(currentSnapshot);
+  const isCurrentSnapshotModified = currentSnapshot['@id'].includes('modified');
+  const maybeSecondSnapshot = isCurrentSnapshotModified
+    ? castVoteRecord.CVRSnapshot[1]
+    : undefined;
   return {
     ...castVoteRecord,
     UniqueId: newUniqueId,
-    CurrentSnapshotId: `${newUniqueId}-modified`,
-    CVRSnapshot: [
-      {
-        ...snapshot,
-        '@id': `${newUniqueId}-modified`,
-      },
-    ],
+    CurrentSnapshotId: `${newUniqueId}-${
+      isCurrentSnapshotModified ? 'modified' : 'original'
+    }`,
+    CVRSnapshot: maybeSecondSnapshot
+      ? [
+          {
+            ...currentSnapshot,
+            '@id': `${newUniqueId}-${
+              isCurrentSnapshotModified ? 'modified' : 'original'
+            }`,
+          },
+          {
+            ...maybeSecondSnapshot,
+            '@id': `${newUniqueId}-${
+              isCurrentSnapshotModified ? 'original' : 'modified'
+            }`,
+          },
+        ]
+      : [
+          {
+            ...currentSnapshot,
+            '@id': `${newUniqueId}-${
+              isCurrentSnapshotModified ? 'modified' : 'original'
+            }`,
+          },
+        ],
   };
 }
 

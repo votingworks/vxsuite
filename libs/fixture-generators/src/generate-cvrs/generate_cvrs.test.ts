@@ -18,7 +18,7 @@ test('produces well-formed cast vote records with all contests in HMPB (gridlayo
     scannerIds: ['scanner-1'],
     testMode: true,
   })) {
-    expect(cvr.CVRSnapshot).toHaveLength(1);
+    expect(cvr.CVRSnapshot).toHaveLength(2);
     expect(cvr.BallotSheetId).toEqual('1');
     const ballotStyleId = cvr.BallotStyleId;
     expect(
