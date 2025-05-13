@@ -81,6 +81,12 @@ export interface SystemSettings {
    * Enables quick results reporting and provides the server URL to post results to
    */
   readonly quickResultsReportingUrl?: string;
+
+  /**
+   * Turns on the VxScan feature to read ballot IDs from HMPB QR codes, encrypt
+   * them, and export them to CVRs (to be used for post-election auditing).
+   */
+  readonly enableAuditBallotIds?: boolean;
 }
 
 export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
@@ -99,6 +105,7 @@ export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
   castVoteRecordsIncludeRedundantMetadata: z.boolean().optional(),
   disableVerticalStreakDetection: z.boolean().optional(),
   quickResultsReportingUrl: z.string().optional(),
+  enableAuditBallotIds: z.boolean().optional(),
 });
 
 /**
