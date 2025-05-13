@@ -12,6 +12,7 @@ import { tmpNameSync } from 'tmp';
 import { PassThrough } from 'node:stream';
 import { ok } from '@votingworks/basics';
 import { convertVxLogToCdf } from '@votingworks/logging-utils';
+import zlib from 'node:zlib';
 import { execFile } from '../exec';
 import { exportLogsToUsb, LogsExportError } from './export_logs_to_usb';
 
@@ -388,7 +389,7 @@ testPlainAndCompressed('works for CDF format - [$0]', async (fmt) => {
   mockUsbDrive.assertComplete();
 });
 
-test('exportLogsToUsb works for error format when all conditions are met', async () => {
+testPlainAndCompressed('works for error format - [$0]', async (fmt) => {
   const { createReadStream: realCreateReadStream } =
     await vi.importActual<typeof import('node:fs')>('node:fs');
   const mockUsbDrive = createMockUsbDrive();
@@ -405,12 +406,16 @@ test('exportLogsToUsb works for error format when all conditions are met', async
   const readdirMock = fs.readdir as unknown as MockInstance<
     () => Promise<string[]>
   >;
-  readdirMock.mockResolvedValue(['vx-logs.log']);
+
+  const compressed = fmt === 'compressed';
+  readdirMock.mockResolvedValue([
+    compressed ? 'vx-logs.log-20240101.gz' : 'vx-logs.log',
+  ]);
 
   const logFile = tmpNameSync();
-  await fs.writeFile(logFile, ``);
+  await fs.writeFile(logFile, compressed ? zlib.gzipSync('') : ``);
   vi.mocked(createReadStream).mockReturnValueOnce(
-    realCreateReadStream(logFile, 'utf8')
+    realCreateReadStream(logFile)
   );
 
   execFileMock.mockResolvedValue({ stdout: '', stderr: '' });
