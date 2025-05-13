@@ -889,6 +889,10 @@ export interface HmpbBallotPageMetadata {
   pageNumber: number;
   isTestMode: boolean;
   ballotType: BallotType;
+  /**
+   * Only used when SystemSettings.enableAuditBallotIds feature is enabled.
+   */
+  auditBallotId?: BallotId;
 }
 export const HmpbBallotPageMetadataSchema: z.ZodSchema<HmpbBallotPageMetadata> =
   z.object({
@@ -898,12 +902,12 @@ export const HmpbBallotPageMetadataSchema: z.ZodSchema<HmpbBallotPageMetadata> =
     pageNumber: z.number(),
     isTestMode: z.boolean(),
     ballotType: BallotTypeSchema,
-    ballotId: BallotIdSchema.optional(),
+    auditBallotId: BallotIdSchema.optional(),
   });
 
 export type BallotMetadata = Omit<
   HmpbBallotPageMetadata,
-  'pageNumber' | 'ballotId'
+  'pageNumber' | 'auditBallotId'
 >;
 export const BallotMetadataSchema: z.ZodSchema<BallotMetadata> = z.object({
   ballotHash: Sha256Hash,

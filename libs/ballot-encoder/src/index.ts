@@ -1,4 +1,5 @@
 import {
+  BallotIdSchema,
   BallotStyleId,
   BallotType,
   BallotTypeMaximumValue,
@@ -13,6 +14,7 @@ import {
   HmpbBallotPageMetadata,
   isVotePresent,
   PrecinctId,
+  unsafeParse,
   validateVotes,
   VotesDict,
   YesNoContest,
@@ -104,7 +106,14 @@ export interface BallotConfig {
   ballotType: BallotType;
   isTestMode: boolean;
   precinctId: PrecinctId;
-  pageNumber?: number; // For HMPB only
+  /**
+   * For HMPB only
+   */
+  pageNumber?: number;
+  /**
+   * For HMPB only, when using the SystemSettings.enableAuditBallotIds feature.
+   */
+  auditBallotId?: string;
 }
 
 /**
@@ -118,6 +127,7 @@ export function encodeBallotConfigInto(
     isTestMode,
     precinctId,
     pageNumber,
+    auditBallotId,
   }: BallotConfig,
   bits: BitWriter
 ): BitWriter {
@@ -148,12 +158,10 @@ export function encodeBallotConfigInto(
   const ballotTypeIndex = Object.values(BallotType).indexOf(ballotType);
   bits.writeUint(ballotTypeIndex, { max: BallotTypeMaximumValue });
 
-  // The encoding includes an optional ballot ID string preceded by a boolean
-  // flag signifying whether the ballot ID is present. Since the ballot ID isn't
-  // used anymore by the ballots, this flag is  always false for backwards
-  // compatibility.
-  // TODO: remove the ballot ID flag at some point: https://github.com/votingworks/vxsuite/issues/6373
-  bits.writeBoolean(false);
+  bits.writeBoolean(auditBallotId !== undefined);
+  if (auditBallotId) {
+    bits.writeString(auditBallotId);
+  }
 
   return bits;
 }
@@ -181,11 +189,9 @@ export function decodeBallotConfigFromReader(
   const ballotType = Object.values(BallotType)[ballotTypeIndex];
   assert(ballotType, `ballot type index ${ballotTypeIndex} is invalid`);
 
-  // The encoding includes an optional ballot ID string preceded by a boolean
-  // flag signifying whether the ballot ID is present. We no longer use the
-  // ballot ID, but to maintain backwards compatibility we still write the flag.
-  // So we still need to read the flag (which should always be false).
-  assert(!bits.readBoolean(), 'Ballot ID is not supported');
+  const auditBallotId = bits.readBoolean()
+    ? unsafeParse(BallotIdSchema, bits.readString())
+    : undefined;
 
   const ballotStyle = ballotStyles[ballotStyleIndex];
   const precinct = precincts[precinctIndex];
@@ -199,6 +205,7 @@ export function decodeBallotConfigFromReader(
     pageNumber,
     isTestMode,
     ballotType,
+    auditBallotId,
   };
 }
 
@@ -505,6 +512,7 @@ export function encodeHmpbBallotPageMetadataInto(
     isTestMode,
     pageNumber,
     precinctId,
+    auditBallotId,
   }: HmpbBallotPageMetadata,
   bits: BitWriter
 ): BitWriter {
@@ -524,6 +532,7 @@ export function encodeHmpbBallotPageMetadataInto(
           isTestMode,
           pageNumber,
           precinctId,
+          auditBallotId,
         },
         bits
       )
