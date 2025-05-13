@@ -2,6 +2,7 @@ import {
   Result,
   deferred,
   err,
+  extractErrorMessage,
   ok,
   throwIllegalValue,
 } from '@votingworks/basics';
@@ -256,9 +257,9 @@ export async function exportLogsToUsb({
     let cause: string | undefined;
     if ('cause' in error) {
       if (error.cause instanceof Error) {
-        cause = error.cause.stack || error.cause.toString();
+        cause = error.cause.stack || extractErrorMessage(error.cause);
       } else {
-        cause = `${error.cause}`;
+        cause = extractErrorMessage(error.cause);
       }
     }
 
