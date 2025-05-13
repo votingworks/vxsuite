@@ -232,7 +232,7 @@ test.each<{
       castVoteRecordModifier: (castVoteRecord) => ({
         ...castVoteRecord,
         CVRSnapshot: castVoteRecord.CVRSnapshot.filter(
-          (ss) => !ss['@id'].includes('original')
+          (ss) => ss.Type !== CVR.CVRType.Original
         ),
         BallotSheetId: '1', // used to infer an hmpb ballot
       }),

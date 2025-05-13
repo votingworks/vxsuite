@@ -461,7 +461,7 @@ export function* generateCvrs({
                                       '@type': 'CVR.SelectionPosition',
                                       NumberVotes: 1,
                                       MarkMetricValue: hasIndication
-                                        ? ['0.75']
+                                        ? ['1.0']
                                         : ['0.0'],
                                       HasIndication: hasIndication
                                         ? CVR.IndicationStatus.Yes

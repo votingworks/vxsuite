@@ -44,8 +44,8 @@ export function getCurrentSnapshot(cvr: CVR.CVR): Optional<CVR.CVRSnapshot> {
  * exists. If undefined, the cast vote record is invalid.
  */
 export function getOriginalSnapshot(cvr: CVR.CVR): Optional<CVR.CVRSnapshot> {
-  return cvr.CVRSnapshot.find((snapshot) =>
-    snapshot['@id'].includes('-original')
+  return cvr.CVRSnapshot.find(
+    (snapshot) => snapshot.Type === CVR.CVRType.Original
   );
 }
 
@@ -142,16 +142,17 @@ export function convertCastVoteRecordMarkMetricsToMarkScores(
     const contestMarkScores: Record<ContestOptionId, Tabulation.MarkScore> = {};
     for (const cvrContestSelection of cvrContest.CVRContestSelection) {
       // We assume every contest selection has only one selection position
-      assert(cvrContestSelection.SelectionPosition.length === 1);
+      // which is true for standard voting but would not be true for ranked choice
+      assert(
+        cvrContestSelection.SelectionPosition.length === 1,
+        'Invalid CVR: contest selection unexpectedly has multiple selection positions'
+      );
       const selectionPosition = cvrContestSelection.SelectionPosition[0];
       assert(selectionPosition);
-      const markMetric = safeParseNumber(selectionPosition.MarkMetricValue);
-      /* istanbul ignore next - @preserve */
-      if (markMetric.isErr()) {
-        throw new Error('unable to interpret mark metric value as number');
-      }
-      contestMarkScores[cvrContestSelection.ContestSelectionId] =
-        markMetric.ok();
+      const markMetric = safeParseNumber(
+        selectionPosition.MarkMetricValue
+      ).assertOk('unable to interpret mark metric value as number');
+      contestMarkScores[cvrContestSelection.ContestSelectionId] = markMetric;
     }
     markScores[cvrContest.ContestId] = contestMarkScores;
   }
