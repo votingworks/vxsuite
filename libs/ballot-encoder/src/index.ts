@@ -111,7 +111,7 @@ export interface BallotConfig {
    */
   pageNumber?: number;
   /**
-   * For HMPB only, when using the SystemSettings.enableAuditBallotIds feature.
+   * For HMPB only, when using the SystemSettings.precinctScanEnableBallotAuditIds feature.
    */
   ballotAuditId?: string;
 }

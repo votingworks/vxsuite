@@ -4,7 +4,7 @@ use types_rs::election::{BallotStyleId, Election, PrecinctId};
 
 use super::{
     coding,
-    types::{AuditBallotIdLength, BallotStyleIndex, PageNumber, PrecinctIndex},
+    types::{BallotAuditIdLength, BallotStyleIndex, PageNumber, PrecinctIndex},
 };
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
@@ -112,7 +112,7 @@ impl FromBitStreamWith<'_> for Metadata {
         let is_test_mode = r.read_bit()?;
         let ballot_type = BallotType::from_reader(r)?;
         let ballot_audit_id = if r.read_bit()? {
-            let ballot_audit_id_length = AuditBallotIdLength::from_reader(r)?;
+            let ballot_audit_id_length = BallotAuditIdLength::from_reader(r)?;
             let ballot_audit_id_bytes = r.read_to_vec(ballot_audit_id_length.get().into())?;
             Some(String::from_utf8(ballot_audit_id_bytes)?)
         } else {
