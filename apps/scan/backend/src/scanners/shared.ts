@@ -19,6 +19,7 @@ import { Store } from '../store';
 import { rootDebug } from '../util/debug';
 import { Workspace } from '../util/workspace';
 import { InterpretationResult } from '../types';
+import { encryptBallotAuditId } from '../export';
 
 const debug = rootDebug.extend('state-machine');
 
@@ -60,10 +61,16 @@ async function exportCastVoteRecordToUsbDriveWithLogging(
         message: `Exporting cast vote record for ${acceptedOrRejected} sheet to USB drive...`,
         operationId,
       });
+      const sheet = assertDefined(store.getSheet(sheetId));
+      const sheetWithEncryptedBallotAuditId = await encryptBallotAuditId(
+        store,
+        assertDefined(store.getSystemSettings()),
+        sheet
+      );
       return await exportCastVoteRecordsToUsbDrive(
         store,
         usbDrive,
-        [assertDefined(store.getSheet(sheetId))],
+        [sheetWithEncryptedBallotAuditId],
         { scannerType: 'precinct' }
       );
     });
