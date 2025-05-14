@@ -25,6 +25,7 @@ import {
 import { assert, assertDefined, ok, Result } from '@votingworks/basics';
 import {
   InsertedSmartCardAuthApi,
+  generateRandomKey,
   generateSignedHashValidationQrCodeValue,
 } from '@votingworks/auth';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
@@ -64,6 +65,8 @@ import {
   testPrintFailureDiagnosticMessage,
 } from './util/diagnostics';
 import { saveReadinessReport } from './printing/readiness_report';
+
+const BALLOT_AUDIT_ID_KEY_LENGTH = 16;
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi({
@@ -170,7 +173,7 @@ export function buildApi({
         );
       }
 
-      store.withTransaction(() => {
+      await store.withTransaction(async () => {
         store.setElectionAndJurisdiction({
           electionData: electionDefinition.electionData,
           jurisdiction: authStatus.user.jurisdiction,
@@ -180,6 +183,11 @@ export function buildApi({
           store.setPrecinctSelection(precinctSelection);
         }
         store.setSystemSettings(systemSettings);
+        if (systemSettings.precinctScanEnableBallotAuditIds) {
+          store.setBallotAuditIdSecretKey(
+            await generateRandomKey(BALLOT_AUDIT_ID_KEY_LENGTH)
+          );
+        }
 
         configureUiStrings({
           electionPackage,
