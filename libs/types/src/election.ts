@@ -890,7 +890,7 @@ export interface HmpbBallotPageMetadata {
   isTestMode: boolean;
   ballotType: BallotType;
   /**
-   * Only used when SystemSettings.enableAuditBallotIds feature is enabled.
+   * Only used when SystemSettings.precinctScanEnableBallotAuditIds feature is enabled.
    */
   ballotAuditId?: BallotId;
 }

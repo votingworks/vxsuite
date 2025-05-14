@@ -142,7 +142,7 @@ export async function generateElectionPackageAndBallots(
     // Turn on the system setting so VxScan knows to expect ballot audit IDs.
     systemSettings = {
       ...electionRecord.systemSettings,
-      enableAuditBallotIds: true,
+      precinctScanEnableBallotAuditIds: true,
     };
 
     // Instead of generating one of each combo of ballot style/precinct/ballot

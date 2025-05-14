@@ -86,7 +86,7 @@ export interface SystemSettings {
    * Turns on the VxScan feature to read ballot IDs from HMPB QR codes, encrypt
    * them, and export them to CVRs (to be used for post-election auditing).
    */
-  readonly enableAuditBallotIds?: boolean;
+  readonly precinctScanEnableBallotAuditIds?: boolean;
 }
 
 export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
@@ -105,7 +105,7 @@ export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
   castVoteRecordsIncludeRedundantMetadata: z.boolean().optional(),
   disableVerticalStreakDetection: z.boolean().optional(),
   quickResultsReportingUrl: z.string().optional(),
-  enableAuditBallotIds: z.boolean().optional(),
+  precinctScanEnableBallotAuditIds: z.boolean().optional(),
 });
 
 /**
