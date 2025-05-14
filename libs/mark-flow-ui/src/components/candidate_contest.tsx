@@ -32,6 +32,7 @@ import {
   PageNavigationButtonId,
   ScanPanelVirtualKeyboard,
   AccessibilityMode,
+  Font,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 
@@ -354,14 +355,14 @@ export function CandidateContest({
                     choice={candidate.id}
                     onPress={handleUpdateSelection}
                     label={
-                      <React.Fragment>
+                      <Font breakWord>
                         <AudioOnly>
                           {appStrings.labelSelected()}
                           <WriteInCandidateName name={candidate.name} />
                         </AudioOnly>
                         {/* User-generated content - no translation/audio available: */}
                         {candidate.name}
-                      </React.Fragment>
+                      </Font>
                     }
                     caption={appStrings.labelWriteInTitleCase()}
                   />

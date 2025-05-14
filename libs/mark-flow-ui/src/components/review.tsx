@@ -24,6 +24,7 @@ import {
   WithAltAudio,
   AssistiveTechInstructions,
   AudioOnly,
+  Font,
 } from '@votingworks/ui';
 
 import { getSingleYesNoVote } from '@votingworks/utils';
@@ -94,12 +95,12 @@ function CandidateContestResult({
           ),
           id: candidate.id,
           label: candidate.isWriteIn ? (
-            <React.Fragment>
+            <Font breakWord>
               <AudioOnly>
                 <WriteInCandidateName name={candidate.name} />
               </AudioOnly>
               {candidate.name}
-            </React.Fragment>
+            </Font>
           ) : (
             electionStrings.candidateName(candidate)
           ),

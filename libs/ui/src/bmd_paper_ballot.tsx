@@ -451,7 +451,7 @@ function CandidateContestResult({
     <React.Fragment>
       {vote.map((candidate) => (
         <VoteLine key={candidate.id}>
-          <Font weight="bold">
+          <Font breakWord weight="bold">
             {candidate.isWriteIn ? (
               candidate.name
             ) : (
