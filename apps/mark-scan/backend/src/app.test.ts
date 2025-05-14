@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { assert, deferred, err, mapObject } from '@votingworks/basics';
+import { assert, deferred, err, find, mapObject } from '@votingworks/basics';
 import tmp from 'tmp';
 import {
   electionFamousNames2021Fixtures,
@@ -567,6 +567,24 @@ test('printing ballots', async () => {
   // vote a ballot in English
   await mockLoadFlow(apiClient, driver);
   const mockVotes = generateMockVotes(electionDefinition.election);
+
+  // Add extreme-case write-in to track handling of long names with no breaks.
+  const maxWriteInChars = 40 - 'WRITEIN'.length;
+  const fillCharCount = maxWriteInChars - 'WRITEIN'.length;
+  const writeInName = `WRITEIN${'N'.repeat(fillCharCount)}`;
+
+  const writeInContest = find(
+    electionDefinition.election.contests,
+    (c) => c.type === 'candidate' && c.allowWriteIns && c.seats === 1
+  );
+  mockVotes[writeInContest.id] = [
+    {
+      id: `write-in-${writeInName}`,
+      isWriteIn: true,
+      name: writeInName,
+    },
+  ];
+
   await apiClient.printBallot({
     precinctId: '21',
     ballotStyleId: electionDefinition.election.ballotStyles.find(
