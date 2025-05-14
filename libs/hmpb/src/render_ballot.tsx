@@ -519,6 +519,7 @@ export interface BaseBallotProps {
   ballotMode: BallotMode;
   watermark?: string;
   compact?: boolean;
+  auditBallotId?: string;
 }
 
 /**
@@ -671,6 +672,7 @@ export async function renderAllBallotsAndCreateElectionDefinition<
           precinctId: props.precinctId,
           ballotType: props.ballotType,
           isTestMode: props.ballotMode !== 'official',
+          auditBallotId: props.auditBallotId,
         },
         template
       );

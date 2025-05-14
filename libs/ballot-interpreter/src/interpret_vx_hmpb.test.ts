@@ -1,12 +1,17 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { sliceBallotHashForEncoding } from '@votingworks/ballot-encoder';
-import { assert, assertDefined, iter } from '@votingworks/basics';
+import { assert, assertDefined, find, iter } from '@votingworks/basics';
 import { readElection } from '@votingworks/fs';
 import {
   vxFamousNamesFixtures,
   vxGeneralElectionFixtures,
   nhGeneralElectionFixtures,
   vxPrimaryElectionFixtures,
+  allBaseBallotProps,
+  createPlaywrightRenderer,
+  BaseBallotProps,
+  ballotTemplates,
+  renderAllBallotsAndCreateElectionDefinition,
 } from '@votingworks/hmpb';
 import {
   AdjudicationReason,
@@ -24,6 +29,7 @@ import {
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { createCanvas } from 'canvas';
+import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
   pdfToPageImages,
   sortUnmarkedWriteIns,
@@ -660,4 +666,52 @@ test('Non-consecutive page numbers', async () => {
     type: 'UnreadablePage',
     reason: 'nonConsecutivePageNumbers',
   });
+});
+
+test('Audit ballot IDs', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const { election } = electionDefinition;
+  const allBallotProps = allBaseBallotProps(election);
+  const ballotPropsWithAuditId: BaseBallotProps = {
+    ...find(allBallotProps, (p) => p.ballotMode === 'official'),
+    auditBallotId: 'test-audit-ballot-id',
+  };
+  const renderer = await createPlaywrightRenderer();
+  const ballotDocument = (
+    await renderAllBallotsAndCreateElectionDefinition(
+      renderer,
+      ballotTemplates.VxDefaultBallot,
+      [ballotPropsWithAuditId],
+      'vxf'
+    )
+  ).ballotDocuments[0]!;
+  const content = await ballotDocument.getContent();
+  expect(content).toContain('Ballot: <b>test-audit-ballot-id</b>');
+  const pdf = await ballotDocument.renderToPdf();
+  const images = asSheet(await pdfToPageImages(pdf).toArray());
+  expect(images).toHaveLength(2);
+
+  const testMode = ballotPropsWithAuditId.ballotMode === 'test';
+  const [frontResult, backResult] = await interpretSheet(
+    {
+      electionDefinition,
+      precinctSelection: singlePrecinctSelectionFor(
+        ballotPropsWithAuditId.precinctId
+      ),
+      testMode,
+      markThresholds: DEFAULT_MARK_THRESHOLDS,
+      adjudicationReasons: [],
+    },
+    images
+  );
+
+  assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
+  assert(backResult.interpretation.type === 'InterpretedHmpbPage');
+  expect(frontResult.interpretation.metadata.auditBallotId).toEqual(
+    'test-audit-ballot-id'
+  );
+  expect(backResult.interpretation.metadata.auditBallotId).toEqual(
+    'test-audit-ballot-id'
+  );
 });

@@ -127,6 +127,7 @@ test('export election package and ballots', async () => {
       electionId,
       electionSerializationFormat: 'vxf',
       shouldExportAudio: false,
+      numAuditIdBallots: undefined,
     })
     .resolves();
   apiMock.getElectionPackage.expectRepeatedCallsWith({ electionId }).resolves({
@@ -192,6 +193,7 @@ test.each([
         electionId,
         electionSerializationFormat: 'vxf',
         shouldExportAudio,
+        numAuditIdBallots: undefined,
       })
       .resolves();
     apiMock.getElectionPackage
@@ -222,6 +224,7 @@ test('export election package error handling', async () => {
       electionId,
       electionSerializationFormat: 'vxf',
       shouldExportAudio: false,
+      numAuditIdBallots: undefined,
     })
     .resolves();
   apiMock.getElectionPackage.expectRepeatedCallsWith({ electionId }).resolves({
@@ -286,6 +289,7 @@ test('using CDF', async () => {
       electionId,
       electionSerializationFormat: 'cdf',
       shouldExportAudio: false,
+      numAuditIdBallots: undefined,
     })
     .resolves();
   apiMock.getElectionPackage.expectRepeatedCallsWith({ electionId }).resolves({
@@ -311,6 +315,43 @@ test('using CDF', async () => {
     name: 'Format election using CDF',
     checked: false,
   });
+});
+
+test('export ballots with audit ballot IDs', async () => {
+  apiMock.getUser.expectCallWith().resolves(user);
+  renderScreen();
+  await screen.findAllByRole('heading', { name: 'Export' });
+
+  const taskCreatedAt = new Date();
+  apiMock.exportElectionPackage
+    .expectCallWith({
+      electionId,
+      electionSerializationFormat: 'vxf',
+      shouldExportAudio: false,
+      numAuditIdBallots: 10,
+    })
+    .resolves();
+  apiMock.getElectionPackage.expectRepeatedCallsWith({ electionId }).resolves({
+    task: {
+      createdAt: taskCreatedAt,
+      id: '1',
+      payload: JSON.stringify({ electionId }),
+      taskName: 'generate_election_package',
+    },
+  });
+  const numAuditIdBallotsInput = screen.getByLabelText(
+    'Number of Audit IDs to Generate'
+  );
+  expect(numAuditIdBallotsInput).toBeDisabled();
+  userEvent.click(
+    screen.getByRole('checkbox', { name: 'Generate audit IDs for ballots' })
+  );
+  expect(numAuditIdBallotsInput).toBeEnabled();
+  expect(numAuditIdBallotsInput).toHaveValue(1);
+  userEvent.type(numAuditIdBallotsInput, '0'); // Add 0 after 1 to make it 10
+  userEvent.click(screen.getButton('Export Election Package and Ballots'));
+
+  await screen.findByText('Exporting Election Package and Ballots...');
 });
 
 test('feature flag to hide ballot template selector', async () => {

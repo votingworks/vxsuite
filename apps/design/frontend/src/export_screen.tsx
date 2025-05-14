@@ -65,6 +65,7 @@ export function ExportScreen(): JSX.Element | null {
 
   const [electionSerializationFormat, setElectionSerializationFormat] =
     useState<ElectionSerializationFormat>('vxf');
+  const [numAuditIdBallots, setNumAuditIdBallots] = useState<number>();
   const [exportError, setExportError] = useState<string>();
 
   useQueryChangeListener(electionPackageQuery, {
@@ -114,6 +115,7 @@ export function ExportScreen(): JSX.Element | null {
       electionId,
       electionSerializationFormat,
       shouldExportAudio,
+      numAuditIdBallots,
     });
   }
 
@@ -282,6 +284,25 @@ export function ExportScreen(): JSX.Element | null {
             }
           />
         </P>
+        <P>
+          <CheckboxButton
+            label="Generate audit IDs for ballots"
+            isChecked={numAuditIdBallots !== undefined}
+            onChange={(isChecked) =>
+              setNumAuditIdBallots(isChecked ? 1 : undefined)
+            }
+          />
+        </P>
+        <InputGroup label="Number of Audit IDs to Generate">
+          <input
+            type="number"
+            min={1}
+            max={100}
+            value={numAuditIdBallots ?? ''}
+            onChange={(e) => setNumAuditIdBallots(e.target.valueAsNumber)}
+            disabled={numAuditIdBallots === undefined}
+          />
+        </InputGroup>
       </MainContent>
     </ElectionNavScreen>
   );

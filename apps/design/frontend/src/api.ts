@@ -601,20 +601,13 @@ export const exportElectionPackage = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
 
-    return useMutation(
-      (input: {
-        electionId: ElectionId;
-        electionSerializationFormat: ElectionSerializationFormat;
-        shouldExportAudio: boolean;
-      }) => apiClient.exportElectionPackage(input),
-      {
-        async onSuccess(_, { electionId }) {
-          await queryClient.invalidateQueries(
-            getElectionPackage.queryKey(electionId)
-          );
-        },
-      }
-    );
+    return useMutation(apiClient.exportElectionPackage, {
+      async onSuccess(_, { electionId }) {
+        await queryClient.invalidateQueries(
+          getElectionPackage.queryKey(electionId)
+        );
+      },
+    });
   },
 } as const;
 

@@ -7,6 +7,7 @@ import {
   assert,
   assertDefined,
   find,
+  range,
 } from '@votingworks/basics';
 import { readFileSync } from 'node:fs';
 import {
@@ -2162,6 +2163,62 @@ test('CDF exports', async () => {
   // Test decks only report the shortened formatted ballot hash
   expect(formatBallotHash(electionDefinition.ballotHash)).toEqual(
     testDecksBallotHash
+  );
+});
+
+test('export ballots with audit IDs', async () => {
+  const baseElectionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const { apiClient, workspace, fileStorageClient } = await setupApp();
+
+  const electionId = (
+    await apiClient.loadElection({
+      user: vxUser,
+      newId: 'new-election-id' as ElectionId,
+      orgId: nonVxUser.orgId,
+      electionData: baseElectionDefinition.electionData,
+    })
+  ).unsafeUnwrap();
+
+  const numAuditIdBallots = 3;
+  const electionPackageFilePath = await exportElectionPackage({
+    fileStorageClient,
+    apiClient,
+    electionId,
+    workspace,
+    electionSerializationFormat: 'vxf',
+    shouldExportAudio: true,
+    numAuditIdBallots,
+  });
+  const contents = assertDefined(
+    fileStorageClient.getRawFile(join(nonVxUser.orgId, electionPackageFilePath))
+  );
+  const { electionPackageContents, ballotsContents } =
+    await unzipElectionPackageAndBallots(contents);
+  const zip = await JsZip.loadAsync(new Uint8Array(ballotsContents));
+  expect(Object.keys(zip.files)).toHaveLength(numAuditIdBallots);
+  expect(Object.keys(zip.files).sort()).toEqual([
+    'official-precinct-ballot-East_Lincoln-1_en-1.pdf',
+    'official-precinct-ballot-East_Lincoln-1_en-2.pdf',
+    'official-precinct-ballot-East_Lincoln-1_en-3.pdf',
+  ]);
+  expect(renderAllBallotsAndCreateElectionDefinition).toHaveBeenCalledTimes(1);
+  const ballotStyles = await apiClient.listBallotStyles({ electionId });
+  const expectedBallotProps = range(1, numAuditIdBallots + 1).map(
+    (i): BaseBallotProps => ({
+      ballotStyleId: ballotStyles[0].id,
+      precinctId: ballotStyles[0].precinctsOrSplits[0].precinctId,
+      ballotType: BallotType.Precinct,
+      ballotMode: 'official',
+      election: expect.any(Object),
+      auditBallotId: String(i),
+    })
+  );
+  expect(renderAllBallotsAndCreateElectionDefinition).toHaveBeenCalledWith(
+    expect.any(Object), // Renderer
+    ballotTemplates.VxDefaultBallot,
+    expectedBallotProps,
+    'vxf'
   );
 });
 

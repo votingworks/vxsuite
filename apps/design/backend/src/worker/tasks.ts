@@ -25,6 +25,7 @@ export async function processBackgroundTask(
           electionId: ElectionIdSchema,
           electionSerializationFormat: ElectionSerializationFormatSchema,
           shouldExportAudio: z.boolean(),
+          numAuditIdBallots: z.number().optional(),
         })
       ).unsafeUnwrap();
       await generateElectionPackageAndBallots(context, parsedPayload);
