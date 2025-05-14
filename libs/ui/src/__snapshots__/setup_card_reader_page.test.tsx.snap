@@ -8,12 +8,12 @@ exports[`renders SetupCardReaderPage > with no useEffect trigger as expected 1`]
     class="sc-aXZVg nXaxQ"
   >
     <h1
-      class="sc-kAyceB cbOvap"
+      class="sc-kAyceB uTKko"
     >
       Card Reader Not Detected
     </h1>
     <p
-      class="sc-gsFSXq MLwSu"
+      class="sc-gsFSXq hVLuFb"
     >
       Please ask a poll worker to connect card reader.
     </p>
