@@ -10,6 +10,7 @@ type HeadingType = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 export interface FontProps {
   'aria-label'?: string;
   align?: Align;
+  breakWord?: boolean;
   children?: React.ReactNode;
   className?: string;
   id?: string;
@@ -40,6 +41,10 @@ const maxLinesStyles = css<FontProps>`
   -webkit-line-clamp: ${(p) => p.maxLines};
 `;
 
+const breakWordStyles = css`
+  word-break: break-word;
+`;
+
 const fontStyles = css<FontProps>`
   font-size: 1em;
   font-style: ${(p) => (p.italic ? 'italic' : undefined)};
@@ -50,6 +55,7 @@ const fontStyles = css<FontProps>`
   text-align: ${(p) => p.align};
   white-space: ${(p) => (p.noWrap ? 'nowrap' : undefined)};
   ${(p) => p.maxLines && maxLinesStyles}
+  ${(p) => p.breakWord && breakWordStyles}
 `;
 
 const StyledFont = styled.span<FontProps>`
