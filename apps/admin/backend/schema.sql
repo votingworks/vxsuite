@@ -125,6 +125,7 @@ create table cvrs (
   precinct_id text not null,
   sheet_number integer check (sheet_number is null or sheet_number > 0),
   votes text not null,
+  mark_scores text,
   is_blank boolean not null,
   has_overvote boolean not null,
   has_undervote boolean not null,

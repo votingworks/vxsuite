@@ -6,10 +6,12 @@ import { BallotType, CVR } from '@votingworks/types';
 
 import {
   buildCVRSnapshotBallotTypeMetadata,
+  convertCastVoteRecordMarkMetricsToMarkScores,
   convertCastVoteRecordVotesToTabulationVotes,
   getCastVoteRecordBallotType,
   getCurrentSnapshot,
   getExportedCastVoteRecordIds,
+  getOriginalSnapshot,
   getWriteInsFromCastVoteRecord,
   isBmdWriteIn,
   isCastVoteRecordWriteInValid,
@@ -39,6 +41,40 @@ beforeEach(() => {
 
 afterEach(() => {
   fs.rmSync(tempDirectoryPath, { recursive: true });
+});
+
+describe('getOriginalSnapshot', () => {
+  test('happy path', () => {
+    const originalSnapshot: CVR.CVRSnapshot = {
+      '@type': 'CVR.CVRSnapshot',
+      '@id': '0-original',
+      Type: CVR.CVRType.Original,
+      CVRContest: [],
+    };
+    const modifiedSnapshot: CVR.CVRSnapshot = {
+      '@type': 'CVR.CVRSnapshot',
+      '@id': '0-modified',
+      Type: CVR.CVRType.Modified,
+      CVRContest: [],
+    };
+
+    const actualSnapshot = getOriginalSnapshot({
+      ...mockCastVoteRecord,
+      CurrentSnapshotId: '0-modified',
+      CVRSnapshot: [modifiedSnapshot, originalSnapshot],
+    });
+
+    expect(actualSnapshot).toEqual(originalSnapshot);
+  });
+
+  test('missing snapshot', () => {
+    expect(
+      getOriginalSnapshot({
+        ...mockCastVoteRecord,
+        CVRSnapshot: [],
+      })
+    ).toBeUndefined();
+  });
 });
 
 describe('getCurrentSnapshot', () => {
@@ -139,6 +175,74 @@ describe('convertCastVoteRecordVotesToTabulationVotes', () => {
         ],
       })
     ).toEqual({ mayor: ['frodo', 'gandalf'] });
+  });
+});
+
+describe('convertCastVoteRecordMarkMetricsToMarkScores', () => {
+  test('snapshot without contests', () => {
+    expect(
+      convertCastVoteRecordMarkMetricsToMarkScores({
+        '@id': 'test',
+        '@type': 'CVR.CVRSnapshot',
+        Type: CVR.CVRType.Original,
+        CVRContest: [],
+      })
+    ).toMatchObject({});
+  });
+
+  test('converts snapshot', () => {
+    expect(
+      convertCastVoteRecordMarkMetricsToMarkScores({
+        '@id': 'test',
+        '@type': 'CVR.CVRSnapshot',
+        Type: CVR.CVRType.Original,
+        CVRContest: [
+          {
+            '@type': 'CVR.CVRContest',
+            ContestId: 'mayor',
+            CVRContestSelection: [
+              {
+                '@type': 'CVR.CVRContestSelection',
+                ContestSelectionId: 'frodo',
+                SelectionPosition: [
+                  {
+                    '@type': 'CVR.SelectionPosition',
+                    HasIndication: CVR.IndicationStatus.Yes,
+                    NumberVotes: 1,
+                    MarkMetricValue: ['0.75'],
+                  },
+                ],
+              },
+              {
+                '@type': 'CVR.CVRContestSelection',
+                ContestSelectionId: 'gandalf',
+                SelectionPosition: [
+                  {
+                    '@type': 'CVR.SelectionPosition',
+                    HasIndication: CVR.IndicationStatus.Yes,
+                    NumberVotes: 1,
+                    MarkMetricValue: ['0.25'],
+                  },
+                ],
+              },
+              {
+                '@type': 'CVR.CVRContestSelection',
+                ContestSelectionId: 'sam',
+                SelectionPosition: [
+                  {
+                    '@type': 'CVR.SelectionPosition',
+                    // should be ignored because not indicated
+                    HasIndication: CVR.IndicationStatus.No,
+                    NumberVotes: 1,
+                    MarkMetricValue: ['0.0'],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      })
+    ).toEqual({ mayor: { frodo: 0.75, gandalf: 0.25, sam: 0 } });
   });
 });
 

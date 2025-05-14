@@ -227,6 +227,20 @@ test.each<{
     expectedErrorSubType: 'no-current-snapshot',
   },
   {
+    description: 'no original snapshot',
+    modifications: {
+      castVoteRecordModifier: (castVoteRecord) => ({
+        ...castVoteRecord,
+        CVRSnapshot: castVoteRecord.CVRSnapshot.filter(
+          (ss) => ss.Type !== CVR.CVRType.Original
+        ),
+        BallotSheetId: '1', // used to infer an hmpb ballot
+      }),
+      numCastVoteRecordsToKeep: 1,
+    },
+    expectedErrorSubType: 'no-original-snapshot',
+  },
+  {
     description: 'invalid write-in field',
     modifications: {
       castVoteRecordModifier: (castVoteRecord) =>

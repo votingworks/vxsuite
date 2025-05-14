@@ -163,9 +163,24 @@ export type ElectionResultsGroupList = GroupList<ElectionResults>;
  */
 export type Votes = Record<ContestId, ContestOptionId[]>;
 
+/**
+ * The score of a mark between 0.0, meaning no indication, and 1.0, meaning full indication.
+ */
+export type MarkScore = number;
+/**
+ * A map of contest option Ids to their corresponding mark score for a given contest.
+ */
+export type ContestMarkScores = Record<ContestOptionId, MarkScore>;
+/**
+ * Representation of mark scores on a scanned ballot for adjudication and
+ * tabulation purposes.
+ */
+export type MarkScores = Record<ContestId, ContestMarkScores>;
+
 export type CastVoteRecord = {
   readonly votes: Votes;
   readonly card: Card;
+  readonly markScores?: MarkScores /* markScores are not relevant for bmd cvrs */;
 } & CastVoteRecordAttributes;
 
 /**

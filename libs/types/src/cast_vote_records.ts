@@ -173,6 +173,7 @@ export type ReadCastVoteRecordError = { type: 'invalid-cast-vote-record' } & (
   | { subType: 'invalid-write-in-field' }
   | { subType: 'layout-file-parse-error' }
   | { subType: 'no-current-snapshot' }
+  | { subType: 'no-original-snapshot' }
   | { subType: 'parse-error' }
   | { subType: `${ReferencedFileType}-not-found` }
   | { subType: `${ReferencedFileType}-read-error` }

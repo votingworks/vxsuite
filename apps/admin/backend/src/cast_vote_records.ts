@@ -23,11 +23,13 @@ import {
   getContests,
   getGroupIdFromBallotStyleId,
   getPrecinctById,
+  Tabulation,
 } from '@votingworks/types';
 import { listDirectoryOnUsbDrive, UsbDrive } from '@votingworks/usb-drive';
 import {
   BooleanEnvironmentVariableName,
   castVoteRecordHasValidContestReferences,
+  convertCastVoteRecordMarkMetricsToMarkScores,
   convertCastVoteRecordVotesToTabulationVotes,
   generateElectionBasedSubfolderName,
   getCastVoteRecordBallotType,
@@ -274,6 +276,7 @@ export async function importCastVoteRecords(
         castVoteRecord,
         castVoteRecordBallotSheetId,
         castVoteRecordCurrentSnapshot,
+        castVoteRecordOriginalSnapshot,
         castVoteRecordWriteIns,
         referencedFiles,
       } = castVoteRecordResult.ok();
@@ -289,6 +292,16 @@ export async function importCastVoteRecords(
       const votes = convertCastVoteRecordVotesToTabulationVotes(
         castVoteRecordCurrentSnapshot
       );
+      const isHmpb = castVoteRecordBallotSheetId !== undefined;
+      let markScores: Tabulation.MarkScores | undefined;
+      if (isHmpb) {
+        // hmpb are validated to have original snapshots by now
+        assert(castVoteRecordOriginalSnapshot !== undefined);
+        markScores = convertCastVoteRecordMarkMetricsToMarkScores(
+          castVoteRecordOriginalSnapshot
+        );
+      }
+
       // Currently, we only support filtering on initial adjudication status,
       // rather than post-adjudication status. As a result, we can just calculate
       // now, during import.
@@ -306,10 +319,11 @@ export async function importCastVoteRecords(
             election: electionDefinition.election,
           }),
           batchId: castVoteRecord.BatchId,
-          card: castVoteRecordBallotSheetId
+          card: isHmpb
             ? { type: 'hmpb', sheetNumber: castVoteRecordBallotSheetId }
             : { type: 'bmd' },
           precinctId: castVoteRecord.BallotStyleUnitId,
+          markScores,
           votes,
           votingMethod,
         },

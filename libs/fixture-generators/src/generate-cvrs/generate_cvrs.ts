@@ -3,8 +3,14 @@ import {
   buildCVRContestsFromVotes,
   buildCvrImageData,
   combineImageAndLayoutHashes,
+  getOptionPosition,
 } from '@votingworks/backend';
-import { assertDefined, iter, throwIllegalValue } from '@votingworks/basics';
+import {
+  assertDefined,
+  find,
+  iter,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import {
   BallotMetadata,
   BallotPageContestLayout,
@@ -16,6 +22,7 @@ import {
   CandidateContest,
   CandidateVote,
   ContestId,
+  ContestOptionId,
   CVR,
   Election,
   ElectionDefinition,
@@ -24,6 +31,7 @@ import {
   Size,
   Vote,
   VotesDict,
+  YesNoVote,
 } from '@votingworks/types';
 import {
   allContestOptions,
@@ -275,6 +283,9 @@ export function* generateCvrs({
                 assetType: 'image',
                 frontOrBack: 'back',
               });
+              const uniqueId = ballotIdPrefix
+                ? `${ballotIdPrefix}-${castVoteRecordId.toString()}`
+                : castVoteRecordId.toString();
               yield {
                 '@type': 'CVR.CVR',
                 BallotStyleId: ballotStyleId,
@@ -283,16 +294,14 @@ export function* generateCvrs({
                 CreatingDeviceId: scannerId,
                 ElectionId: electionDefinition.ballotHash,
                 BatchId: batchId,
-                CurrentSnapshotId: `${castVoteRecordId}-modified`,
-                UniqueId: ballotIdPrefix
-                  ? `${ballotIdPrefix}-${castVoteRecordId.toString()}`
-                  : castVoteRecordId.toString(),
+                CurrentSnapshotId: `${uniqueId}-original`,
+                UniqueId: uniqueId,
                 CVRSnapshot: [
                   {
                     '@type': 'CVR.CVRSnapshot',
-                    '@id': `${castVoteRecordId}-modified`,
+                    '@id': `${uniqueId}-original`,
                     ...buildCVRSnapshotBallotTypeMetadata(ballotType),
-                    Type: CVR.CVRType.Modified,
+                    Type: CVR.CVRType.Original,
                     CVRContest: buildCVRContestsFromVotes({
                       electionDefinition,
                       votes,
@@ -341,6 +350,14 @@ export function* generateCvrs({
                 const [frontContests, backContests] = sheetContests;
                 const frontVotes = filterVotesByContests(votes, frontContests);
                 const backVotes = filterVotesByContests(votes, backContests);
+                const optionIdsByContest: Record<ContestId, ContestOptionId[]> =
+                  {};
+                for (const contest of contests) {
+                  const options = allContestOptions(contest);
+                  optionIdsByContest[contest.id] = iter(options)
+                    .map((option) => option.id)
+                    .toArray();
+                }
                 const frontHasWriteIns = hasWriteIns(frontVotes);
                 const backHasWriteIns = hasWriteIns(backVotes);
                 const sheetHasWriteIns = frontHasWriteIns || backHasWriteIns;
@@ -355,6 +372,9 @@ export function* generateCvrs({
                   assetType: 'image',
                   frontOrBack: 'back',
                 });
+                const uniqueId = ballotIdPrefix
+                  ? `${ballotIdPrefix}-${castVoteRecordId.toString()}`
+                  : castVoteRecordId.toString();
 
                 yield {
                   '@type': 'CVR.CVR',
@@ -364,15 +384,13 @@ export function* generateCvrs({
                   CreatingDeviceId: scannerId,
                   ElectionId: electionDefinition.ballotHash,
                   BatchId: batchId,
-                  CurrentSnapshotId: `${castVoteRecordId}-modified`,
-                  UniqueId: ballotIdPrefix
-                    ? `${ballotIdPrefix}-${castVoteRecordId.toString()}`
-                    : castVoteRecordId.toString(),
+                  CurrentSnapshotId: `${uniqueId}-modified`,
+                  UniqueId: uniqueId,
                   BallotSheetId: (sheetIndex + 1).toString(),
                   CVRSnapshot: [
                     {
                       '@type': 'CVR.CVRSnapshot',
-                      '@id': `${castVoteRecordId}-modified`,
+                      '@id': `${uniqueId}-modified`,
                       Type: CVR.CVRType.Modified,
                       ...buildCVRSnapshotBallotTypeMetadata(ballotType),
                       CVRContest: [
@@ -405,6 +423,57 @@ export function* generateCvrs({
                           },
                         }),
                       ],
+                    },
+                    {
+                      '@type': 'CVR.CVRSnapshot',
+                      '@id': `${uniqueId}-original`,
+                      Type: CVR.CVRType.Original,
+                      ...buildCVRSnapshotBallotTypeMetadata(ballotType),
+                      CVRContest: Object.entries(optionIdsByContest).map(
+                        ([contestId, contestOptionIds]) => {
+                          const contest = find(
+                            election.contests,
+                            (c) => c.id === contestId
+                          );
+                          const contestVotes = votes[contest.id] || [];
+                          return {
+                            '@type': 'CVR.CVRContest',
+                            ContestId: contestId,
+                            CVRContestSelection: contestOptionIds.map(
+                              (optionId) => {
+                                const hasIndication =
+                                  contest.type === 'yesno'
+                                    ? (contestVotes as YesNoVote).includes(
+                                        optionId
+                                      )
+                                    : (contestVotes as CandidateVote).find(
+                                        (c) => c.id === optionId
+                                      );
+                                return {
+                                  '@type': 'CVR.CVRContestSelection',
+                                  ContestSelectionId: optionId,
+                                  OptionPosition: getOptionPosition({
+                                    contest,
+                                    optionId,
+                                  }),
+                                  SelectionPosition: [
+                                    {
+                                      '@type': 'CVR.SelectionPosition',
+                                      NumberVotes: 1,
+                                      MarkMetricValue: hasIndication
+                                        ? ['1.0']
+                                        : ['0.0'],
+                                      HasIndication: hasIndication
+                                        ? CVR.IndicationStatus.Yes
+                                        : CVR.IndicationStatus.No,
+                                    },
+                                  ],
+                                };
+                              }
+                            ),
+                          };
+                        }
+                      ),
                     },
                   ],
                   BallotImage: sheetHasWriteIns
