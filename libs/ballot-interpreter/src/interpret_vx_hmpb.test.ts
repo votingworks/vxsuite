@@ -668,14 +668,14 @@ test('Non-consecutive page numbers', async () => {
   });
 });
 
-test('Audit ballot IDs', async () => {
+test('Ballot audit IDs', async () => {
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { election } = electionDefinition;
   const allBallotProps = allBaseBallotProps(election);
   const ballotPropsWithAuditId: BaseBallotProps = {
     ...find(allBallotProps, (p) => p.ballotMode === 'official'),
-    auditBallotId: 'test-audit-ballot-id',
+    ballotAuditId: 'test-ballot-audit-id',
   };
   const renderer = await createPlaywrightRenderer();
   const ballotDocument = (
@@ -687,7 +687,7 @@ test('Audit ballot IDs', async () => {
     )
   ).ballotDocuments[0]!;
   const content = await ballotDocument.getContent();
-  expect(content).toContain('Ballot: <b>test-audit-ballot-id</b>');
+  expect(content).toContain('Ballot: <b>test-ballot-audit-id</b>');
   const pdf = await ballotDocument.renderToPdf();
   const images = asSheet(await pdfToPageImages(pdf).toArray());
   expect(images).toHaveLength(2);
@@ -708,10 +708,10 @@ test('Audit ballot IDs', async () => {
 
   assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
   assert(backResult.interpretation.type === 'InterpretedHmpbPage');
-  expect(frontResult.interpretation.metadata.auditBallotId).toEqual(
-    'test-audit-ballot-id'
+  expect(frontResult.interpretation.metadata.ballotAuditId).toEqual(
+    'test-ballot-audit-id'
   );
-  expect(backResult.interpretation.metadata.auditBallotId).toEqual(
-    'test-audit-ballot-id'
+  expect(backResult.interpretation.metadata.ballotAuditId).toEqual(
+    'test-ballot-audit-id'
   );
 });

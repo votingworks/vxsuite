@@ -138,7 +138,7 @@ function BallotPageFrame({
   totalPages,
   children,
   watermark,
-  auditBallotId,
+  ballotAuditId,
 }: BaseBallotProps & {
   pageNumber: number;
   totalPages?: number;
@@ -198,7 +198,7 @@ function BallotPageFrame({
               precinctId={precinctId}
               pageNumber={pageNumber}
               totalPages={totalPages}
-              auditBallotId={auditBallotId}
+              ballotAuditId={ballotAuditId}
             />
           </div>
         </TimingMarkGrid>

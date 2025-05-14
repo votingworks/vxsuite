@@ -638,7 +638,7 @@ test('encode HMPB ballot page metadata', () => {
     pageNumber: 3,
     isTestMode: true,
     ballotType: BallotType.Precinct,
-    auditBallotId: 'test-audit-ballot-id',
+    ballotAuditId: 'test-ballot-audit-id',
   };
 
   const encoded = encodeHmpbBallotPageMetadata(election, ballotMetadata);
