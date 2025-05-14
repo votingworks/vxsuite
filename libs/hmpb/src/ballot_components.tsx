@@ -505,7 +505,7 @@ export function Footer({
   pageNumber,
   totalPages,
   colorTint,
-  auditBallotId,
+  ballotAuditId,
 }: {
   election: Election;
   ballotStyleId: BallotStyleId;
@@ -513,7 +513,7 @@ export function Footer({
   pageNumber: number;
   totalPages?: number;
   colorTint?: ColorTint;
-  auditBallotId?: string;
+  ballotAuditId?: string;
 }): JSX.Element {
   const precinct = assertDefined(getPrecinctById({ election, precinctId }));
   const ballotStyle = assertDefined(
@@ -618,9 +618,9 @@ export function Footer({
               <BallotHashSlot />
             </b>
           </span>
-          {auditBallotId && (
+          {ballotAuditId && (
             <span>
-              Ballot: <b>{auditBallotId}</b>
+              Ballot: <b>{ballotAuditId}</b>
             </span>
           )}
           <span>

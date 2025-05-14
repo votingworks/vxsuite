@@ -47,9 +47,9 @@ pub struct Metadata {
     pub page_number: PageNumber,
     pub is_test_mode: bool,
     pub ballot_type: BallotType,
-    // Only used when SystemSettings.auditBallotId is enabled
+    // Only used when SystemSettings.ballotAuditId is enabled
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub audit_ballot_id: Option<String>,
+    pub ballot_audit_id: Option<String>,
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -66,8 +66,8 @@ pub enum Error {
     #[error("Invalid ballot style index: {index} (count: {count})")]
     InvalidBallotStyleIndex { index: usize, count: usize },
 
-    #[error("Invalid audit ballot ID: {0}")]
-    InvalidAuditBallotId(#[from] std::string::FromUtf8Error),
+    #[error("Invalid ballot audit ID: {0}")]
+    InvalidBallotAuditId(#[from] std::string::FromUtf8Error),
 
     #[error("Coding error: {0}")]
     Coding(coding::Error),
@@ -111,10 +111,10 @@ impl FromBitStreamWith<'_> for Metadata {
         let page_number = PageNumber::from_reader(r)?;
         let is_test_mode = r.read_bit()?;
         let ballot_type = BallotType::from_reader(r)?;
-        let audit_ballot_id = if r.read_bit()? {
-            let audit_ballot_id_length = AuditBallotIdLength::from_reader(r)?;
-            let audit_ballot_id_bytes = r.read_to_vec(audit_ballot_id_length.get().into())?;
-            Some(String::from_utf8(audit_ballot_id_bytes)?)
+        let ballot_audit_id = if r.read_bit()? {
+            let ballot_audit_id_length = AuditBallotIdLength::from_reader(r)?;
+            let ballot_audit_id_bytes = r.read_to_vec(ballot_audit_id_length.get().into())?;
+            Some(String::from_utf8(ballot_audit_id_bytes)?)
         } else {
             None
         };
@@ -141,7 +141,7 @@ impl FromBitStreamWith<'_> for Metadata {
             page_number,
             is_test_mode,
             ballot_type,
-            audit_ballot_id,
+            ballot_audit_id,
         })
     }
 }
@@ -159,7 +159,7 @@ pub fn infer_missing_page_metadata(detected_ballot_metadata: &Metadata) -> Metad
         ballot_type: detected_ballot_metadata.ballot_type,
         is_test_mode: detected_ballot_metadata.is_test_mode,
         page_number: detected_ballot_metadata.page_number.opposite(),
-        audit_ballot_id: detected_ballot_metadata.audit_ballot_id.clone(),
+        ballot_audit_id: detected_ballot_metadata.ballot_audit_id.clone(),
     }
 }
 
@@ -187,7 +187,7 @@ mod test {
         let election_path = fixture_path.join("election.json");
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
-        let audit_ballot_id = "test-audit-ballot-id";
+        let ballot_audit_id = "test-audit-ballot-id";
 
         #[rustfmt::skip]
         let bytes = [
@@ -213,15 +213,15 @@ mod test {
             0b0000_0010,
             //BBNN NNNM
 
-            // 4 bits for ballot type, 1 bit for audit ballot ID flag, 3 bits for audit ballot ID length
+            // 4 bits for ballot type, 1 bit for ballot audit ID flag, 3 bits for ballot audit ID length
             0b0000_1000,
             //TTTT FLLL
 
-            // 5 bits for audit ballot ID length, 3 bits start of audit ballot ID
+            // 5 bits for ballot audit ID length, 3 bits start of ballot audit ID
             0b1010_0011,
             //LLLL LIII
 
-            // Rest of audit ballot ID
+            // Rest of ballot audit ID
             163, 43, 155, 161, 107, 11, 171, 35, 75, 161, 107, 19, 11, 99, 99, 123, 161, 107, 75, 32
         ];
 
@@ -235,7 +235,7 @@ mod test {
                 page_number: PageNumber::new_unchecked(1),
                 is_test_mode: false,
                 ballot_type: BallotType::Precinct,
-                audit_ballot_id: Some(audit_ballot_id.to_string()),
+                ballot_audit_id: Some(ballot_audit_id.to_string()),
             }
         );
     }
@@ -301,7 +301,7 @@ mod test {
             0b0000_0010,
             //BBNN NNNM
 
-            // 4 bits for ballot type, 1 bit for audit ballot ID flag, 3 bits padding
+            // 4 bits for ballot type, 1 bit for ballot audit ID flag, 3 bits padding
             0b0000_0000,
             //TTTT F---
         ];
@@ -348,7 +348,7 @@ mod test {
             0b0100_0010,
             //BBNN NNNM
 
-            // 4 bits for ballot type, 1 bit for audit ballot ID flag, 3 bits padding
+            // 4 bits for ballot type, 1 bit for ballot audit ID flag, 3 bits padding
             0b0000_0000,
             //TTTT F---
         ];
@@ -397,7 +397,7 @@ mod test {
             0b0000_0010,
             //BBNN NNNM
 
-            // 4 bits for ballot type, 1 bit for audit ballot ID flag, 3 bits padding
+            // 4 bits for ballot type, 1 bit for ballot audit ID flag, 3 bits padding
             0b1111_0000,
             //TTTT F---
         ];
@@ -443,7 +443,7 @@ mod test {
             0b0011_1110,
             //BBNN NNNM
 
-            // 4 bits for ballot type, 1 bit for audit ballot ID flag, 3 bits padding
+            // 4 bits for ballot type, 1 bit for ballot audit ID flag, 3 bits padding
             0b0000_0000,
             //TTTT F---
         ];
@@ -456,7 +456,7 @@ mod test {
     }
 
     #[test]
-    fn test_error_invalid_audit_ballot_id() {
+    fn test_error_invalid_ballot_audit_id() {
         let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures/ashland");
         let election_path = fixture_path.join("election.json");
         let election: Election =
@@ -486,15 +486,15 @@ mod test {
             0b0000_0010,
             //BBNN NNNM
 
-            // 4 bits for ballot type, 1 bit for audit ballot ID flag, 3 bits for audit ballot ID length
+            // 4 bits for ballot type, 1 bit for ballot audit ID flag, 3 bits for ballot audit ID length
             0b0000_1000,
             //TTTT FLLL
 
-            // 5 bits for audit ballot ID length, 3 bits start of audit ballot ID
+            // 5 bits for ballot audit ID length, 3 bits start of ballot audit ID
             0b1010_0011,
             //LLLL LIII
 
-            // Rest of audit ballot ID (with invalid UTF-8 char at beginning)
+            // Rest of ballot audit ID (with invalid UTF-8 char at beginning)
             255, 43, 155, 161, 107, 11, 171, 35, 75, 161, 107, 19, 11, 99, 99, 123, 161, 107, 75, 32
         ];
 
@@ -502,7 +502,7 @@ mod test {
         let result = Metadata::from_reader(&mut reader, &election);
 
         // TODO: use `assert_matches!` once that API is stable.
-        assert!(matches!(result, Err(Error::InvalidAuditBallotId(_))));
+        assert!(matches!(result, Err(Error::InvalidBallotAuditId(_))));
     }
 
     fn arbitrary_ballot_type() -> impl Strategy<Value = BallotType> {
@@ -522,7 +522,7 @@ mod test {
             ballot_style_id in "[0-9a-z-]{1,100}",
             is_test_mode in proptest::bool::ANY,
             ballot_type in arbitrary_ballot_type(),
-            audit_ballot_id in proptest::option::of("[0-9a-z-]{1,100}"),
+            ballot_audit_id in proptest::option::of("[0-9a-z-]{1,100}"),
         ) {
             let detected_metadata = Metadata {
                 ballot_hash,
@@ -531,7 +531,7 @@ mod test {
                 page_number,
                 is_test_mode,
                 ballot_type,
-                audit_ballot_id
+                ballot_audit_id
             };
 
             // The inferred page number should be one less or one more than the detected page number.
@@ -543,7 +543,7 @@ mod test {
             assert_eq!(inferred_metadata.ballot_style_id, detected_metadata.ballot_style_id);
             assert_eq!(inferred_metadata.is_test_mode, detected_metadata.is_test_mode);
             assert_eq!(inferred_metadata.ballot_type, detected_metadata.ballot_type);
-            assert_eq!(inferred_metadata.audit_ballot_id, detected_metadata.audit_ballot_id);
+            assert_eq!(inferred_metadata.ballot_audit_id, detected_metadata.ballot_audit_id);
         }
     }
 }

@@ -113,7 +113,7 @@ export interface BallotConfig {
   /**
    * For HMPB only, when using the SystemSettings.enableAuditBallotIds feature.
    */
-  auditBallotId?: string;
+  ballotAuditId?: string;
 }
 
 /**
@@ -127,7 +127,7 @@ export function encodeBallotConfigInto(
     isTestMode,
     precinctId,
     pageNumber,
-    auditBallotId,
+    ballotAuditId,
   }: BallotConfig,
   bits: BitWriter
 ): BitWriter {
@@ -158,9 +158,9 @@ export function encodeBallotConfigInto(
   const ballotTypeIndex = Object.values(BallotType).indexOf(ballotType);
   bits.writeUint(ballotTypeIndex, { max: BallotTypeMaximumValue });
 
-  bits.writeBoolean(auditBallotId !== undefined);
-  if (auditBallotId) {
-    bits.writeString(auditBallotId);
+  bits.writeBoolean(ballotAuditId !== undefined);
+  if (ballotAuditId) {
+    bits.writeString(ballotAuditId);
   }
 
   return bits;
@@ -189,7 +189,7 @@ export function decodeBallotConfigFromReader(
   const ballotType = Object.values(BallotType)[ballotTypeIndex];
   assert(ballotType, `ballot type index ${ballotTypeIndex} is invalid`);
 
-  const auditBallotId = bits.readBoolean()
+  const ballotAuditId = bits.readBoolean()
     ? unsafeParse(BallotIdSchema, bits.readString())
     : undefined;
 
@@ -205,7 +205,7 @@ export function decodeBallotConfigFromReader(
     pageNumber,
     isTestMode,
     ballotType,
-    auditBallotId,
+    ballotAuditId,
   };
 }
 
@@ -512,7 +512,7 @@ export function encodeHmpbBallotPageMetadataInto(
     isTestMode,
     pageNumber,
     precinctId,
-    auditBallotId,
+    ballotAuditId,
   }: HmpbBallotPageMetadata,
   bits: BitWriter
 ): BitWriter {
@@ -532,7 +532,7 @@ export function encodeHmpbBallotPageMetadataInto(
           isTestMode,
           pageNumber,
           precinctId,
-          auditBallotId,
+          ballotAuditId,
         },
         bits
       )

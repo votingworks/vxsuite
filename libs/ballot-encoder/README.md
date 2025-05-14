@@ -125,13 +125,13 @@ is encoded as follows:
 - **Ballot Type:** One of the `BallotType` values, e.g. `Precinct`, `Absentee`,
   or `Provisional` (`C.ballotType`).
   - Size: 4 bits.
-- **Audit Ballot ID Set?:** _(HMPB-only, always false for BMDB)_ This bit is
-  true if there is an audit ballot id, unset otherwise (`C.auditBallotId`).
+- **Ballot Audit ID Set?:** _(HMPB-only, always false for BMDB)_ This bit is
+  true if there is a ballot audit id, unset otherwise (`C.ballotAuditId`).
   - Size: 1 bit.
-- **Audit Ballot ID:** _(HMPB-only)_ Only present if the previous bit is set.
+- **Ballot Audit ID:** _(HMPB-only)_ Only present if the previous bit is set.
   This is a dynamic-length string whose maximum length is 255 bytes
-  (`C.auditBallotId`).
-  - Size: `(1 + bytes(C.auditBallotId)) * 8` bits.
+  (`C.ballotAuditId`).
+  - Size: `(1 + bytes(C.ballotAuditId)) * 8` bits.
 
 ### Completed BMD Ballot Encoding
 

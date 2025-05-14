@@ -2211,7 +2211,7 @@ test('export ballots with audit IDs', async () => {
       ballotType: BallotType.Precinct,
       ballotMode: 'official',
       election: expect.any(Object),
-      auditBallotId: String(i),
+      ballotAuditId: String(i),
     })
   );
   expect(renderAllBallotsAndCreateElectionDefinition).toHaveBeenCalledWith(

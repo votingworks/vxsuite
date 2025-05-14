@@ -137,9 +137,9 @@ export async function generateElectionPackageAndBallots(
     ballotStyles
   );
 
-  // If we're exporting ballots with audit ballot IDs...
+  // If we're exporting ballots with ballot audit IDs...
   if (numAuditIdBallots) {
-    // Turn on the system setting so VxScan knows to expect audit ballot IDs.
+    // Turn on the system setting so VxScan knows to expect ballot audit IDs.
     systemSettings = {
       ...electionRecord.systemSettings,
       enableAuditBallotIds: true,
@@ -158,7 +158,7 @@ export async function generateElectionPackageAndBallots(
     allBallotProps = range(1, numAuditIdBallots + 1).map(
       (ballotIndex): BaseBallotProps => ({
         ...officialPrecinctBallotProps,
-        auditBallotId: String(ballotIndex),
+        ballotAuditId: String(ballotIndex),
       })
     );
   }
@@ -226,7 +226,7 @@ export async function generateElectionPackageAndBallots(
   // Make ballot zip
   for (const [props, document] of iter(allBallotProps).zip(ballotDocuments)) {
     const ballotPdf = await renderBallotPdf(props, document);
-    const { precinctId, ballotStyleId, ballotType, ballotMode, auditBallotId } =
+    const { precinctId, ballotStyleId, ballotType, ballotMode, ballotAuditId } =
       props;
     const precinct = assertDefined(getPrecinctById({ election, precinctId }));
     const fileName = getBallotPdfFileName(
@@ -234,7 +234,7 @@ export async function generateElectionPackageAndBallots(
       ballotStyleId,
       ballotType,
       ballotMode,
-      auditBallotId
+      ballotAuditId
     );
     ballotsZip.file(fileName, ballotPdf);
   }
