@@ -1257,6 +1257,7 @@ test('get/update system settings', async () => {
       AdjudicationReason.Undervote,
       AdjudicationReason.MarginalMark,
     ],
+    adminAdjudicationReasons: [AdjudicationReason.MarginalMark],
   };
   expect(updatedSystemSettings).not.toEqual(DEFAULT_SYSTEM_SETTINGS);
   await apiClient.updateSystemSettings({
@@ -2478,6 +2479,7 @@ test('v3-compatible election package', async () => {
   expect(Object.keys(systemSettings)).toEqual([
     'auth',
     'markThresholds',
+    'adminAdjudicationReasons',
     'centralScanAdjudicationReasons',
     'precinctScanAdjudicationReasons',
     'precinctScanDisallowCastingOvervotes',
