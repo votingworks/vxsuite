@@ -70,6 +70,7 @@ import {
 import { saveReadinessReport } from './printing/readiness_report';
 
 const BALLOT_AUDIT_ID_KEY_LENGTH = 16;
+export const BALLOT_AUDIT_ID_FILE_NAME = 'ballot-audit-id-secret-key.txt';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi({
@@ -526,10 +527,9 @@ export function buildApi({
         usbDrive,
         allowedExportPatterns: SCAN_ALLOWED_EXPORT_PATTERNS,
       });
-      const fileName = 'ballot-audit-id-secret-key.txt';
       const exportResult = await exporter.exportDataToUsbDrive(
         '.',
-        fileName,
+        BALLOT_AUDIT_ID_FILE_NAME,
         ballotAuditIdSecretKey
       );
 
@@ -537,7 +537,7 @@ export function buildApi({
         await logger.logAsCurrentRole(LogEventId.FileSaved, {
           message: `User saved the ballot audit ID secret key to a USB drive.`,
           fileType: 'ballotAuditIdSecretKey',
-          fileName,
+          fileName: BALLOT_AUDIT_ID_FILE_NAME,
           disposition: 'success',
         });
       } else {
