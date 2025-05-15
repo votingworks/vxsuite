@@ -30,6 +30,7 @@
     { "path": "../../../libs/fixtures/tsconfig.build.json" },
     { "path": "../../../libs/fujitsu-thermal-printer/tsconfig.build.json" },
     { "path": "../../../libs/grout/tsconfig.build.json" },
+    { "path": "../../../libs/hmpb/tsconfig.build.json" },
     { "path": "../../../libs/image-utils/tsconfig.build.json" },
     { "path": "../../../libs/logging/tsconfig.build.json" },
     { "path": "../../../libs/pdi-scanner/tsconfig.build.json" },
