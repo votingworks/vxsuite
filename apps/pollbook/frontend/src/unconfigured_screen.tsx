@@ -277,7 +277,7 @@ export function UnconfiguredElectionManagerScreen(): JSX.Element {
             </FullScreenIconWrapper>
           }
         >
-          Error configuring machine please try again.
+          Error configuring machine. Please try again.
         </FullScreenMessage>
       </Screen>
     );
