@@ -107,7 +107,7 @@ test('app can load and configure from a usb stick', async () => {
     electionDefinition: undefined,
   });
   await screen.findByText(
-    'No election package found on the inserted USB drive.'
+    'No signed election package found on the inserted USB drive. Save a signed election package in VxAdmin.'
   );
 
   // Remove the USB
