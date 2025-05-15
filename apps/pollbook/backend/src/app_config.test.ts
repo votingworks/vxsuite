@@ -80,11 +80,41 @@ test('app config - unhappy paths polling usb', async () => {
     expect(await localApiClient.getElection()).toEqual(err('unconfigured'));
 
     mockUsbDrive.insertUsbDrive({
-      'pollbook-package.zip': Buffer.from('invalid'),
+      'pollbook-package-invalid.zip': Buffer.from('invalid'),
     });
     vi.advanceTimersByTime(CONFIGURATION_POLLING_INTERVAL);
     await vi.waitFor(async () => {
-      expect(await localApiClient.getElection()).toEqual(err('not-found-usb'));
+      expect(await localApiClient.getElection()).toEqual(
+        err('usb-configuration-error')
+      );
+    });
+
+    mockUsbDrive.removeUsbDrive();
+    vi.advanceTimersByTime(100);
+    expect(await localApiClient.getElection()).toEqual(err('unconfigured'));
+
+    mockUsbDrive.insertUsbDrive({
+      'pollbook-package-invalid.zip': Buffer.from('invalid'),
+    });
+    vi.advanceTimersByTime(100);
+    await vi.waitFor(async () => {
+      expect(await localApiClient.getElection()).toEqual(
+        err('usb-configuration-error')
+      );
+    });
+
+    mockUsbDrive.insertUsbDrive(
+      await mockPollbookPackageFileTree(
+        Buffer.from('invalid'),
+        'invalid',
+        'invalid'
+      )
+    );
+    vi.advanceTimersByTime(100);
+    await vi.waitFor(async () => {
+      expect(await localApiClient.getElection()).toEqual(
+        err('usb-configuration-error')
+      );
     });
   });
 });

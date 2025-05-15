@@ -250,15 +250,15 @@ export class PeerStore extends Store {
     if (!peer || !peer.apiClient || !peer.address) {
       return err('pollbook-connection-problem');
     }
-    // Download the pollbook package zip via streaming
-    const pollbookUrl = `${peer.address}/file/pollbook-package`;
-    const response = await fetch(pollbookUrl);
-    if (!response.ok) {
-      return err('pollbook-connection-problem');
-    }
-    // Save to a temp file
     const tempPath = `${tmpdir()}/pollbook-package-${randomUUID()}.zip`;
+    // Download the pollbook package zip via streaming
     try {
+      const pollbookUrl = `${peer.address}/file/pollbook-package`;
+      const response = await fetch(pollbookUrl);
+      if (!response.ok) {
+        return err('pollbook-connection-problem');
+      }
+      // Save to a temp file
       const fileStream = createWriteStream(tempPath);
       await pipeline(response.body, fileStream);
       // Read and parse the pollbook package
@@ -287,6 +287,8 @@ export class PeerStore extends Store {
         createWriteStream(destinationPath)
       );
       return ok();
+    } catch {
+      return err('pollbook-connection-problem');
     } finally {
       await unlink(tempPath).catch((error) => {
         debug(`Failed to delete temporary file at ${tempPath}:`, error);

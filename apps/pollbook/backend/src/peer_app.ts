@@ -66,6 +66,10 @@ export function buildPeerApp(context: PeerAppContext): Application {
 
   // Streaming endpoint for sending the pollbook package zip file to a peer
   app.get('/file/pollbook-package', (_req, res) => {
+    // Return a 404 if we are not configured
+    if (!context.workspace.store.getElection()) {
+      res.status(404).send('Pollbook package not found');
+    }
     const pollbookPackagePath = join(
       context.workspace.assetDirectoryPath,
       POLLBOOK_PACKAGE_ASSET_FILE_NAME

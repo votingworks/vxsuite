@@ -61,6 +61,12 @@ test('getMachineInformation', async () => {
 
 test('GET /file/pollbook-package returns 404 if file does not exist, 200 if it does', async () => {
   await withApp(async ({ peerServer, workspace }) => {
+    const testVoters = parseVotersFromCsvString(
+      electionFamousNames2021Fixtures.pollbookVoters.asText()
+    );
+    const testStreets = parseValidStreetsFromCsvString(
+      electionFamousNames2021Fixtures.pollbookStreetNames.asText()
+    );
     // Ensure no file exists
     const zipPath = join(workspace.assetDirectoryPath, 'pollbook-package.zip');
     if (existsSync(zipPath)) {
@@ -68,25 +74,39 @@ test('GET /file/pollbook-package returns 404 if file does not exist, 200 if it d
     }
     const { port } = peerServer.address() as AddressInfo;
 
-    // Should return 404 when file does not exist
-    const response = await fetch(
+    // Should return 404 when the pollbook is unconfigured
+    const responseUnconfig = await fetch(
       `http://localhost:${port}/file/pollbook-package`
     );
-    expect(response.status).toEqual(404);
-    expect(await response.text()).toEqual('Pollbook package not found');
+    expect(responseUnconfig.status).toEqual(404);
+    expect(await responseUnconfig.text()).toEqual('Pollbook package not found');
+
+    workspace.store.setElectionAndVoters(
+      electionDefinition,
+      'fake-package-hash',
+      testStreets,
+      testVoters
+    );
+
+    // Should return 404 when file does not exist
+    const responseNoFile = await fetch(
+      `http://localhost:${port}/file/pollbook-package`
+    );
+    expect(responseNoFile.status).toEqual(404);
+    expect(await responseNoFile.text()).toEqual('Pollbook package not found');
 
     // Write a dummy zip file
     writeFileSync(zipPath, 'fakecontent');
 
     // Should return 200 and correct headers when file exists
-    const response2 = await fetch(
+    const responseOk = await fetch(
       `http://localhost:${port}/file/pollbook-package`
     );
-    expect(response2.headers.get('content-type')).toEqual('application/zip');
-    expect(response2.headers.get('content-disposition')).toContain(
+    expect(responseOk.headers.get('content-type')).toEqual('application/zip');
+    expect(responseOk.headers.get('content-disposition')).toContain(
       'attachment; filename="pollbook-package.zip"'
     );
-    const bodyContent = await response2.text();
+    const bodyContent = await responseOk.text();
     expect(bodyContent.length).toBeGreaterThan(0);
     expect(bodyContent).toEqual('fakecontent');
 
