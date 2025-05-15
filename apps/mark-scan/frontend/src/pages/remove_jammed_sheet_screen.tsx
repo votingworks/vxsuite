@@ -1,6 +1,6 @@
 /* istanbul ignore file - trivial presentational component. @preserve */
 
-import { Caption, Icons, P } from '@votingworks/ui';
+import { Icons, P } from '@votingworks/ui';
 import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
 
 export function RemoveJammedSheetScreen(): JSX.Element {
@@ -14,10 +14,6 @@ export function RemoveJammedSheetScreen(): JSX.Element {
         Please remove the jammed sheet, opening the printer cover or ballot box
         if necessary.
       </P>
-      <Caption>
-        <Icons.Info /> To end the current voter session and start over, press
-        the button below to deactivate the voter session.
-      </Caption>
     </CenteredCardPageLayout>
   );
 }
