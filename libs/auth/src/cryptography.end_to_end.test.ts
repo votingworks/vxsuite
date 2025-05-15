@@ -11,6 +11,8 @@ import {
 } from './certs';
 import {
   createCert,
+  decryptAes256,
+  encryptAes256,
   extractPublicKeyFromCert,
   publicKeyDerToPem,
   signMessage,
@@ -125,4 +127,12 @@ test('signMessage end-to-end', async () => {
     messageSignature,
     publicKey: vxScanPublicKey,
   });
+});
+
+test('AES encryption/decryption end-to-end', async () => {
+  const message = 'test-message';
+  const key = 'test-key';
+  const encryptedMessage = await encryptAes256(key, message);
+  expect(encryptedMessage).not.toEqual(message);
+  expect(await decryptAes256(key, encryptedMessage)).toEqual(message);
 });

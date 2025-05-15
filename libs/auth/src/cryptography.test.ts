@@ -15,6 +15,7 @@ import {
   createCertHelper,
   CreateCertInput,
   createCertSigningRequest,
+  generateRandomKey,
   manageOpensslConfig,
   openssl,
   parseCreateCertInput,
@@ -699,4 +700,16 @@ test('manageOpensslConfig with addSudo', async () => {
     expect.stringContaining('/src/intermediate-scripts/manage-openssl-config'),
     'restore-default',
   ]);
+});
+
+test('generateRandomKey', async () => {
+  const mockRandomKey = Buffer.from('test-random-key', 'utf-8');
+  setTimeout(() => {
+    mockChildProcess.stdout.emit('data', mockRandomKey);
+    mockChildProcess.emit('close', successExitCode);
+  });
+
+  expect(await generateRandomKey(10)).toEqual(mockRandomKey.toString('base64'));
+  expect(spawn).toHaveBeenCalledTimes(1);
+  expect(spawn).toHaveBeenNthCalledWith(1, 'openssl', ['rand', '10']);
 });
