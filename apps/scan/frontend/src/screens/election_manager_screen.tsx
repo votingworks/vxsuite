@@ -40,6 +40,7 @@ import {
 } from '../api';
 import { ElectionManagerPrinterTabContent } from '../components/printer_management/election_manager_printer_tab_content';
 import { DiagnosticsScreen } from './diagnostics_screen';
+import { SaveBallotAuditIdSecretKeyButton } from '../components/save_ballot_audit_id_secret_key_button';
 
 const TabPanel = styled.div`
   display: flex;
@@ -105,6 +106,7 @@ export function ElectionManagerScreen({
     isSoundMuted,
     isDoubleFeedDetectionDisabled,
     isContinuousExportEnabled,
+    systemSettings,
   } = configQuery.data;
   const { pollsState } = pollsInfoQuery.data;
   const printerStatus = printerStatusQuery.data;
@@ -205,6 +207,9 @@ export function ElectionManagerScreen({
       >
         {isContinuousExportEnabled ? 'Pause' : 'Resume'} Continuous CVR Export
       </Button>{' '}
+      {systemSettings.precinctScanEnableBallotAuditIds && (
+        <SaveBallotAuditIdSecretKeyButton />
+      )}
       <ExportLogsButton usbDriveStatus={usbDrive} />
     </React.Fragment>
   );

@@ -21,6 +21,9 @@ import {
   doesUsbDriveRequireCastVoteRecordSync as doesUsbDriveRequireCastVoteRecordSyncFn,
   configureUiStrings,
   DiskSpaceSummary,
+  Exporter,
+  SCAN_ALLOWED_EXPORT_PATTERNS,
+  ExportDataResult,
 } from '@votingworks/backend';
 import { assert, assertDefined, ok, Result } from '@votingworks/basics';
 import {
@@ -511,6 +514,39 @@ export function buildApi({
             ? 'Audio playback successful.'
             : `Audio playback failed. ${TEST_AUDIO_USER_FAIL_REASON}`,
       });
+    },
+
+    async saveBallotAuditIdSecretKey(): Promise<ExportDataResult> {
+      const ballotAuditIdSecretKey = store.getBallotAuditIdSecretKey();
+      const exporter = new Exporter({
+        usbDrive,
+        allowedExportPatterns: SCAN_ALLOWED_EXPORT_PATTERNS,
+      });
+      const fileName = 'ballot-audit-id-secret-key.txt';
+      const exportResult = await exporter.exportDataToUsbDrive(
+        '.',
+        fileName,
+        ballotAuditIdSecretKey
+      );
+
+      if (exportResult.isOk()) {
+        await logger.logAsCurrentRole(LogEventId.FileSaved, {
+          message: `User saved the ballot audit ID secret key to a USB drive.`,
+          fileType: 'ballotAuditIdSecretKey',
+          fileName,
+          disposition: 'success',
+        });
+      } else {
+        await logger.logAsCurrentRole(LogEventId.FileSaved, {
+          message: `Error while attempting to save the ballot audit ID secret key to a USB drive: ${
+            exportResult.err().message
+          }`,
+          fileType: 'ballotAuditIdSecretKey',
+          disposition: 'failure',
+        });
+      }
+
+      return exportResult;
     },
 
     ...createUiStringsApi({
