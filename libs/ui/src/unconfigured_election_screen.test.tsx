@@ -34,7 +34,7 @@ test.each([
     description: 'no election package on USB drive',
     errorString: 'no_election_package_on_usb_drive',
     expectedErrorMessage:
-      'No election package found on the inserted USB drive.',
+      'No signed election package found on the inserted USB drive. Save a signed election package in VxAdmin.',
   },
   {
     description: 'election package loading is attempted before authorization',
