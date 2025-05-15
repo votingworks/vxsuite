@@ -3,7 +3,7 @@ import {
   getCastVoteRecordExportDirectoryPaths,
   readCastVoteRecordExport,
 } from '@votingworks/backend';
-import { assertDefined, err, find, ok } from '@votingworks/basics';
+import { assert, assertDefined, err, find, ok } from '@votingworks/basics';
 import { CVR, DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -20,8 +20,12 @@ import {
 } from '@votingworks/hmpb';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { decryptAes256 } from '@votingworks/auth';
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
+import { LogEventId } from '@votingworks/logging';
 import { scanBallot, withApp } from '../test/helpers/pdi_helpers';
 import { configureApp, pdfToImageSheet } from '../test/helpers/shared_helpers';
+import { BALLOT_AUDIT_ID_FILE_NAME } from './app';
 
 vi.setConfig({ testTimeout: 30_000 });
 
@@ -414,6 +418,7 @@ test('audit ballot IDs', async () => {
       mockScanner,
       mockUsbDrive,
       workspace,
+      logger,
     }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
         electionPackage: {
@@ -443,13 +448,44 @@ test('audit ballot IDs', async () => {
           castVoteRecordResult.unsafeUnwrap().castVoteRecord
       );
       expect(castVoteRecords).toHaveLength(1);
-      const secretKey = workspace.store.getBallotAuditIdSecretKey();
+
+      (await apiClient.saveBallotAuditIdSecretKey()).unsafeUnwrap();
+      const usbDriveStatus = await mockUsbDrive.usbDrive.status();
+      assert(usbDriveStatus.status === 'mounted');
+      const secretKeyPath = path.join(
+        usbDriveStatus.mountPoint,
+        BALLOT_AUDIT_ID_FILE_NAME
+      );
+      const secretKey = await readFile(secretKeyPath, 'utf-8');
+
       expect(
         await decryptAes256(
           secretKey,
           assertDefined(castVoteRecords[0].BallotAuditId)
         )
       ).toEqual(ballotPropsWithAuditId.ballotAuditId);
+
+      expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+        LogEventId.FileSaved,
+        expect.objectContaining({
+          disposition: 'success',
+          fileType: 'ballotAuditIdSecretKey',
+          fileName: BALLOT_AUDIT_ID_FILE_NAME,
+        })
+      );
+
+      mockUsbDrive.removeUsbDrive();
+
+      expect(await apiClient.saveBallotAuditIdSecretKey()).toEqual(
+        err({ type: 'missing-usb-drive', message: 'No USB drive found' })
+      );
+      expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+        LogEventId.FileSaved,
+        expect.objectContaining({
+          disposition: 'failure',
+          fileType: 'ballotAuditIdSecretKey',
+        })
+      );
     }
   );
 });

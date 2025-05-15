@@ -14,11 +14,11 @@ import {
 import { decryptAes256 } from '../../src/cryptography';
 
 const usageMessage =
-  'Usage: decrypt-cvr-ballot-audit-ids input-cvr-directory secret-key output-directory';
+  'Usage: decrypt-cvr-ballot-audit-ids input-cvr-directory secret-key-file output-directory';
 
 interface CommandLineArgs {
   inputCvrDirectory: string;
-  secretKey: string;
+  secretKeyFile: string;
   outputDirectory: string;
 }
 
@@ -29,18 +29,20 @@ function parseCommandLineArgs(args: readonly string[]): CommandLineArgs {
   }
   return {
     inputCvrDirectory: assertDefined(args[0]),
-    secretKey: assertDefined(args[1]),
+    secretKeyFile: assertDefined(args[1]),
     outputDirectory: assertDefined(args[2]),
   };
 }
 
 async function decryptCvrBallotAuditIds({
   inputCvrDirectory,
-  secretKey,
+  secretKeyFile,
   outputDirectory,
 }: CommandLineArgs): Promise<void> {
   const cvrIds = await getExportedCastVoteRecordIds(inputCvrDirectory);
   assert(cvrIds.length > 0, 'No CVR IDs found in the input directory');
+
+  const secretKey = await fs.readFile(secretKeyFile, 'utf-8');
 
   await fs.mkdir(outputDirectory, { recursive: true });
 
