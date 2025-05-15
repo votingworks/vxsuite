@@ -7,6 +7,7 @@ export {
   manageOpensslConfig,
   generateRandomKey,
   encryptAes256,
+  decryptAes256,
 } from './cryptography';
 export * from './dipped_smart_card_auth_api';
 export * from './dipped_smart_card_auth';

@@ -256,7 +256,10 @@ export async function scanBallot(
   apiClient: grout.Client<Api>,
   store: Store,
   initialBallotsCounted: number,
-  options: { waitForContinuousExportToUsbDrive?: boolean } = {}
+  options: {
+    waitForContinuousExportToUsbDrive?: boolean;
+    ballotImages?: SheetOf<ImageData>;
+  } = {}
 ): Promise<void> {
   clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
   await waitForStatus(apiClient, {
@@ -266,7 +269,7 @@ export async function scanBallot(
   await simulateScan(
     apiClient,
     mockScanner,
-    await ballotImages.completeBmd(),
+    options.ballotImages ?? (await ballotImages.completeBmd()),
     initialBallotsCounted
   );
   await waitForStatus(apiClient, {
