@@ -342,9 +342,12 @@ test('shows instructions to restart when the scanner client crashed', async () =
   apiMock.expectGetScannerStatus({
     ...statusNoPaper,
     state: 'unrecoverable_error',
+    error: 'unexpected_event',
   });
   apiMock.setPrinterStatusV4();
   renderApp();
-  await screen.findByRole('heading', { name: 'Ballot Not Counted' });
-  screen.getByText('Ask a poll worker to restart the scanner.');
+  await screen.findByRole('heading', { name: 'Scanner Error' });
+  screen.getByText(
+    'The ballot was not counted. Ask a poll worker to restart the scanner.'
+  );
 });
