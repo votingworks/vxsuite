@@ -1,5 +1,7 @@
 use std::fmt::{Display, Formatter};
+use std::num::ParseFloatError;
 use std::ops::Add;
+use std::str::FromStr;
 
 use image::{GenericImageView, GrayImage};
 use imageproc::contrast::otsu_level;
@@ -40,6 +42,35 @@ impl core::fmt::Debug for UnitIntervalScore {
             self.0 * 100.0,
             precision = f.precision().unwrap_or(2)
         )
+    }
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum ParseUnitIntervalScoreError {
+    #[error("Error parsing float: {0}")]
+    ParseFloat(#[from] ParseFloatError),
+
+    #[error("Invalid value: {0} (must be between 0 and 1 inclusive)")]
+    InvalidValue(f32),
+}
+
+impl FromStr for UnitIntervalScore {
+    type Err = ParseUnitIntervalScoreError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let s = s.trim();
+        let score = if let Some(pct) = s.strip_suffix("%") {
+            let pct: f32 = pct.parse()?;
+            pct / 100.0
+        } else {
+            s.parse()?
+        };
+
+        if score < 0.0 || score > 1.0 {
+            Err(ParseUnitIntervalScoreError::InvalidValue(score))
+        } else {
+            Ok(Self(score))
+        }
     }
 }
 

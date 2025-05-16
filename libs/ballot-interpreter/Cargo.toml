@@ -8,6 +8,14 @@ exclude = ["build/addon.node"]
 crate-type = ["cdylib", "rlib"]
 path = "src/hmpb-rust/lib.rs"
 
+[[bin]]
+name = "interpret"
+path = "bin/interpret.rs"
+
+[[bin]]
+name = "debug-vertical-streaks"
+path = "bin/debug-vertical-streaks.rs"
+
 [[bench]]
 name = "main"
 harness = false
@@ -19,6 +27,7 @@ ab_glyph = { workspace = true }
 bitstream-io = { workspace = true }
 clap = { workspace = true }
 color-eyre = { workspace = true }
+ignore = { workspace = true }
 image = { workspace = true }
 imageproc = { workspace = true }
 log = { workspace = true }

@@ -21,7 +21,7 @@ fn imageproc_rect_from_rect(rect: &Rect) -> imageproc::rect::Rect {
     imageproc::rect::Rect::at(rect.left(), rect.top()).of_size(rect.width(), rect.height())
 }
 
-use crate::image_utils::{dark_rainbow, rainbow};
+use crate::image_utils::{dark_rainbow, rainbow, Streak};
 use crate::layout::InterpretedContestLayout;
 use crate::scoring::UnitIntervalScore;
 use crate::timing_marks::{
@@ -116,7 +116,7 @@ pub fn draw_vertical_streaks_debug_image_mut(
     canvas: &mut RgbImage,
     threshold: u8,
     x_range: Range<PixelUnit>,
-    streaks: &[(PixelPosition, UnitIntervalScore, PixelUnit)],
+    streaks: &[Streak],
 ) {
     // binarize the image since that's what the detection algorithm works with
     for px in canvas.pixels_mut() {
@@ -137,15 +137,17 @@ pub fn draw_vertical_streaks_debug_image_mut(
         }
     }
 
-    for (i, ((x, percent_black_pixels, longest_white_gap_length), color)) in
-        streaks.iter().zip(dark_rainbow()).enumerate()
-    {
-        let x = *x as PixelPosition;
+    for (i, (streak, color)) in streaks.iter().zip(dark_rainbow()).enumerate() {
+        let x = streak.x_right() as PixelPosition;
         let y = 20 + (i as PixelPosition * 20);
         draw_cross_mut(canvas, color, x, y);
         draw_text_with_background_mut(
             canvas,
-            &format!("x={x}, Black: {percent_black_pixels}, Gap: {longest_white_gap_length}"),
+            &format!(
+                "x={x}, Black: {score}, Gap: {gap}",
+                score = streak.score(),
+                gap = streak.longest_white_gap()
+            ),
             x + 5,
             y,
             PxScale::from(20.0),
