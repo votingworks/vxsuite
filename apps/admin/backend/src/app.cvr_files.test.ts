@@ -189,9 +189,7 @@ test('happy path - mock election flow', async () => {
   expect(await apiClient.getTotalBallotCount()).toEqual(184);
 
   // check write-in records were created
-  expect(await apiClient.getWriteInAdjudicationCvrQueueMetadata()).toHaveLength(
-    13
-  );
+  expect(await apiClient.getAdjudicationQueueMetadata()).toHaveLength(13);
 
   // check scanner batches
   expect(await apiClient.getScannerBatches()).toEqual([
@@ -303,7 +301,7 @@ test('adding a file with BMD cast vote records', async () => {
 
   // check that write-in records were added
   expect(
-    await apiClient.getWriteInAdjudicationCvrQueue({
+    await apiClient.getAdjudicationQueue({
       contestId: 'zoo-council-mammal',
     })
   ).toHaveLength(24);

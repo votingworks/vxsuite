@@ -229,47 +229,44 @@ export const getCastVoteRecordFileMode = {
   },
 } as const;
 
-type GetWriteInAdjudicationCvrQueueInput =
-  QueryInput<'getWriteInAdjudicationCvrQueue'>;
-export const getWriteInAdjudicationCvrQueue = {
-  queryKey(input?: GetWriteInAdjudicationCvrQueueInput): QueryKey {
-    return input
-      ? ['getWriteInAdjudicationCvrQueue', input]
-      : ['getWriteInAdjudicationCvrQueue'];
+type GetAdjudicationQueueInput = QueryInput<'getAdjudicationQueue'>;
+export const getAdjudicationQueue = {
+  queryKey(input?: GetAdjudicationQueueInput): QueryKey {
+    return input ? ['getAdjudicationQueue', input] : ['getAdjudicationQueue'];
   },
-  useQuery(input: GetWriteInAdjudicationCvrQueueInput) {
+  useQuery(input: GetAdjudicationQueueInput) {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(input), () =>
-      apiClient.getWriteInAdjudicationCvrQueue(input)
+      apiClient.getAdjudicationQueue(input)
     );
   },
 } as const;
 
-export const getWriteInAdjudicationCvrQueueMetadata = {
+export const getAdjudicationQueueMetadata = {
   queryKey(): QueryKey {
-    return ['getWriteInAdjudicationCvrQueueMetadata'];
+    return ['getAdjudicationQueueMetadata'];
   },
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () =>
-      apiClient.getWriteInAdjudicationCvrQueueMetadata()
+      apiClient.getAdjudicationQueueMetadata()
     );
   },
 } as const;
 
-type GetFirstPendingWriteInCvrIdInput =
-  QueryInput<'getFirstPendingWriteInCvrId'>;
-export const getFirstPendingWriteInCvrId = {
-  queryKey(input?: GetFirstPendingWriteInCvrIdInput): QueryKey {
+type GetNextCvrIdForAdjudicationInput =
+  QueryInput<'getNextCvrIdForAdjudication'>;
+export const getNextCvrIdForAdjudication = {
+  queryKey(input?: GetNextCvrIdForAdjudicationInput): QueryKey {
     return input
-      ? ['getFirstPendingWriteInCvrId', input]
-      : ['getFirstPendingWriteInCvrId'];
+      ? ['getNextCvrIdForAdjudication', input]
+      : ['getNextCvrIdForAdjudication'];
   },
-  useQuery(input: GetFirstPendingWriteInCvrIdInput) {
+  useQuery(input: GetNextCvrIdForAdjudicationInput) {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(input),
-      () => apiClient.getFirstPendingWriteInCvrId(input),
+      () => apiClient.getNextCvrIdForAdjudication(input),
       {
         cacheTime: 0,
       }
@@ -573,15 +570,13 @@ function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
     queryClient.invalidateQueries(getTotalBallotCount.queryKey()),
 
     // write-in queues
-    queryClient.invalidateQueries(getWriteInAdjudicationCvrQueue.queryKey()),
+    queryClient.invalidateQueries(getAdjudicationQueue.queryKey()),
   ]);
 }
 
 function invalidateWriteInQueries(queryClient: QueryClient) {
   const invalidations = [
-    queryClient.invalidateQueries(
-      getWriteInAdjudicationCvrQueueMetadata.queryKey()
-    ),
+    queryClient.invalidateQueries(getAdjudicationQueueMetadata.queryKey()),
     queryClient.invalidateQueries(getWriteIns.queryKey()),
     queryClient.invalidateQueries(getWriteInCandidates.queryKey()),
   ];
