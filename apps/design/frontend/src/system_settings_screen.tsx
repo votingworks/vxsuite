@@ -223,6 +223,25 @@ export function SystemSettingsForm({
               }
               disabled={!isEditing}
             />
+            <CheckboxGroup
+              label="VxAdmin"
+              options={adjudicationReasonOptions.filter((option) =>
+                [AdjudicationReason.MarginalMark].includes(option.value)
+              )}
+              value={
+                (systemSettings.adminAdjudicationReasons ?? []) as string[]
+              }
+              onChange={(value) =>
+                setSystemSettings({
+                  ...systemSettings,
+                  adminAdjudicationReasons: unsafeParse(
+                    z.array(AdjudicationReasonSchema),
+                    value
+                  ),
+                })
+              }
+              disabled={!isEditing}
+            />
           </Column>
         </Card>
         <Card style={{ minWidth: '16rem' }}>

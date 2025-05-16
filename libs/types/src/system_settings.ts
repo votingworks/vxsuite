@@ -61,6 +61,7 @@ export interface SystemSettings {
   readonly auth: AuthSettings;
   readonly markThresholds: MarkThresholds;
   readonly bitonalThreshold?: number;
+  readonly adminAdjudicationReasons: readonly AdjudicationReason[];
   readonly centralScanAdjudicationReasons: readonly AdjudicationReason[];
   readonly precinctScanAdjudicationReasons: readonly AdjudicationReason[];
   readonly disallowCastingOvervotes: boolean;
@@ -94,6 +95,7 @@ export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
   auth: AuthSettingsSchema,
   markThresholds: MarkThresholdsSchema,
   bitonalThreshold: z.number().min(0).max(100).optional(),
+  adminAdjudicationReasons: z.array(z.lazy(() => AdjudicationReasonSchema)),
   centralScanAdjudicationReasons: z.array(
     z.lazy(() => AdjudicationReasonSchema)
   ),
@@ -144,4 +146,5 @@ export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
   precinctScanAdjudicationReasons: [],
   disallowCastingOvervotes: false,
   centralScanAdjudicationReasons: [],
+  adminAdjudicationReasons: [],
 };

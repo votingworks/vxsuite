@@ -14,6 +14,23 @@ exports[`disallows invalid adjudication reasons 1`] = `
       "UnmarkedWriteIn"
     ],
     "path": [
+      "adminAdjudicationReasons",
+      0
+    ],
+    "message": "Invalid enum value. Expected 'UninterpretableBallot' | 'MarginalMark' | 'Overvote' | 'Undervote' | 'BlankBallot' | 'UnmarkedWriteIn', received 'abcdefg'"
+  },
+  {
+    "received": "abcdefg",
+    "code": "invalid_enum_value",
+    "options": [
+      "UninterpretableBallot",
+      "MarginalMark",
+      "Overvote",
+      "Undervote",
+      "BlankBallot",
+      "UnmarkedWriteIn"
+    ],
+    "path": [
       "centralScanAdjudicationReasons",
       0
     ],

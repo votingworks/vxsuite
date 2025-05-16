@@ -39,6 +39,7 @@ import { renderBallotPdf } from './ballot_pdfs';
 export interface V3SystemSettings {
   readonly auth: SystemSettings['auth'];
   readonly markThresholds: MarkThresholds;
+  readonly adminAdjudicationReasons: readonly AdjudicationReason[];
   readonly centralScanAdjudicationReasons: readonly AdjudicationReason[];
   readonly precinctScanAdjudicationReasons: readonly AdjudicationReason[];
   readonly precinctScanDisallowCastingOvervotes: boolean;
@@ -53,6 +54,7 @@ function makeV3Compatible(zip: JsZip, systemSettings: SystemSettings): void {
 
   const {
     auth,
+    adminAdjudicationReasons,
     centralScanAdjudicationReasons,
     precinctScanAdjudicationReasons,
     disallowCastingOvervotes,
@@ -61,6 +63,7 @@ function makeV3Compatible(zip: JsZip, systemSettings: SystemSettings): void {
   const v3SystemSettings: V3SystemSettings = {
     auth,
     markThresholds,
+    adminAdjudicationReasons,
     centralScanAdjudicationReasons,
     precinctScanAdjudicationReasons,
     precinctScanDisallowCastingOvervotes: disallowCastingOvervotes,
