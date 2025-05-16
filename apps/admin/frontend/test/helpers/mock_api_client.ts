@@ -11,7 +11,7 @@ import type {
   ManualResultsIdentifier,
   WriteInCandidateRecord,
   ScannerBatch,
-  WriteInAdjudicationQueueMetadata,
+  AdjudicationQueueMetadata,
   ExportDataError,
   TallyReportSpec,
   TallyReportWarning,
@@ -336,28 +336,23 @@ export function createApiMock(
         .resolves(writeInCandidateRecord);
     },
 
-    expectGetWriteInAdjudicationCvrQueue(
-      input: { contestId: ContestId },
-      cvrIds: Id[]
-    ) {
-      apiClient.getWriteInAdjudicationCvrQueue
-        .expectCallWith(input)
-        .resolves(cvrIds);
+    expectGetAdjudicationQueue(input: { contestId: ContestId }, cvrIds: Id[]) {
+      apiClient.getAdjudicationQueue.expectCallWith(input).resolves(cvrIds);
     },
 
-    expectGetWriteInAdjudicationCvrQueueMetadata(
-      queueMetadata: WriteInAdjudicationQueueMetadata[]
+    expectGetAdjudicationQueueMetadata(
+      queueMetadata: AdjudicationQueueMetadata[]
     ) {
-      return apiClient.getWriteInAdjudicationCvrQueueMetadata
+      return apiClient.getAdjudicationQueueMetadata
         .expectCallWith()
         .resolves(queueMetadata);
     },
 
-    expectGetFirstPendingWriteInCvrId(
+    expectGetNextCvrIdForAdjudication(
       input: { contestId: ContestId },
       cvrId: Id | null
     ) {
-      apiClient.getFirstPendingWriteInCvrId
+      apiClient.getNextCvrIdForAdjudication
         .expectCallWith(input)
         .resolves(cvrId);
     },

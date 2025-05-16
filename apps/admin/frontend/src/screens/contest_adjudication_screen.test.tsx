@@ -103,8 +103,8 @@ describe('hmpb write-in adjudication', () => {
   ];
 
   beforeEach(() => {
-    apiMock.expectGetWriteInAdjudicationCvrQueue({ contestId }, cvrIds);
-    apiMock.expectGetFirstPendingWriteInCvrId({ contestId }, null);
+    apiMock.expectGetAdjudicationQueue({ contestId }, cvrIds);
+    apiMock.expectGetNextCvrIdForAdjudication({ contestId }, null);
     apiMock.expectGetCastVoteRecordVoteInfo(
       { cvrId },
       { [contestId]: ['kangaroo', 'write-in-0'] }
@@ -417,8 +417,8 @@ describe('bmd write-in adjudication', () => {
   ];
 
   beforeEach(() => {
-    apiMock.expectGetWriteInAdjudicationCvrQueue({ contestId }, cvrIds);
-    apiMock.expectGetFirstPendingWriteInCvrId({ contestId }, null);
+    apiMock.expectGetAdjudicationQueue({ contestId }, cvrIds);
+    apiMock.expectGetNextCvrIdForAdjudication({ contestId }, null);
     apiMock.expectGetCastVoteRecordVoteInfo(
       { cvrId },
       { [contestId]: ['kangaroo', 'write-in-0'] }
@@ -523,8 +523,8 @@ describe('vote adjudication', () => {
       },
     ];
 
-    apiMock.expectGetWriteInAdjudicationCvrQueue({ contestId }, cvrIds);
-    apiMock.expectGetFirstPendingWriteInCvrId({ contestId }, null);
+    apiMock.expectGetAdjudicationQueue({ contestId }, cvrIds);
+    apiMock.expectGetNextCvrIdForAdjudication({ contestId }, null);
     apiMock.expectGetCastVoteRecordVoteInfo(
       { cvrId },
       { [contestId]: ['kangaroo'] }
@@ -617,8 +617,8 @@ describe('vote adjudication', () => {
     const cvrIds = ['id-174'];
     const cvrId = cvrIds[0];
 
-    apiMock.expectGetWriteInAdjudicationCvrQueue({ contestId }, cvrIds);
-    apiMock.expectGetFirstPendingWriteInCvrId({ contestId }, null);
+    apiMock.expectGetAdjudicationQueue({ contestId }, cvrIds);
+    apiMock.expectGetNextCvrIdForAdjudication({ contestId }, null);
     apiMock.expectGetCastVoteRecordVoteInfo(
       { cvrId },
       { [contestId]: ['rockfish'] }
@@ -679,8 +679,8 @@ describe('unmarked and undetected write-ins', () => {
   ];
 
   beforeEach(() => {
-    apiMock.expectGetWriteInAdjudicationCvrQueue({ contestId }, cvrIds);
-    apiMock.expectGetFirstPendingWriteInCvrId({ contestId }, null);
+    apiMock.expectGetAdjudicationQueue({ contestId }, cvrIds);
+    apiMock.expectGetNextCvrIdForAdjudication({ contestId }, null);
     apiMock.expectGetCastVoteRecordVoteInfo(
       { cvrId },
       { [contestId]: ['kangaroo'] }
@@ -882,8 +882,8 @@ describe('ballot navigation', () => {
   const votes = ['kangaroo', 'write-in-0'];
 
   beforeEach(() => {
-    apiMock.expectGetWriteInAdjudicationCvrQueue({ contestId }, cvrIds);
-    apiMock.expectGetFirstPendingWriteInCvrId({ contestId }, firstPendingCvrId);
+    apiMock.expectGetAdjudicationQueue({ contestId }, cvrIds);
+    apiMock.expectGetNextCvrIdForAdjudication({ contestId }, firstPendingCvrId);
     apiMock.expectGetCastVoteRecordVoteInfo(
       { cvrId: firstPendingCvrId },
       { [contestId]: votes }
@@ -1019,8 +1019,8 @@ describe('ballot image viewer', () => {
       },
     ];
 
-    apiMock.expectGetWriteInAdjudicationCvrQueue({ contestId }, cvrIds);
-    apiMock.expectGetFirstPendingWriteInCvrId({ contestId }, null);
+    apiMock.expectGetAdjudicationQueue({ contestId }, cvrIds);
+    apiMock.expectGetNextCvrIdForAdjudication({ contestId }, null);
     apiMock.expectGetCastVoteRecordVoteInfo(
       { cvrId },
       { [contestId]: ['kangaroo', 'write-in-0'] }
@@ -1153,8 +1153,8 @@ describe('ballot image viewer', () => {
     const cvrId = cvrIds[0];
     const cvrId2 = cvrIds[1];
 
-    apiMock.expectGetWriteInAdjudicationCvrQueue({ contestId }, cvrIds);
-    apiMock.expectGetFirstPendingWriteInCvrId({ contestId }, null);
+    apiMock.expectGetAdjudicationQueue({ contestId }, cvrIds);
+    apiMock.expectGetNextCvrIdForAdjudication({ contestId }, null);
     apiMock.expectGetCastVoteRecordVoteInfo(
       { cvrId },
       { [contestId]: ['kangaroo'] }
@@ -1231,8 +1231,8 @@ describe('double votes', () => {
   const votes = ['kangaroo', 'write-in-0', 'write-in-1'];
 
   beforeEach(() => {
-    apiMock.expectGetWriteInAdjudicationCvrQueue({ contestId }, cvrIds);
-    apiMock.expectGetFirstPendingWriteInCvrId({ contestId }, null);
+    apiMock.expectGetAdjudicationQueue({ contestId }, cvrIds);
+    apiMock.expectGetNextCvrIdForAdjudication({ contestId }, null);
     apiMock.expectGetCastVoteRecordVoteInfo({ cvrId }, { [contestId]: votes });
     apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
     apiMock.expectGetWriteIns({ contestId, cvrId }, writeInRecords);
@@ -1378,8 +1378,8 @@ describe('unsaved changes', () => {
   const votes = ['kangaroo', 'write-in-0'];
 
   beforeEach(() => {
-    apiMock.expectGetWriteInAdjudicationCvrQueue({ contestId }, cvrIds);
-    apiMock.expectGetFirstPendingWriteInCvrId({ contestId }, null);
+    apiMock.expectGetAdjudicationQueue({ contestId }, cvrIds);
+    apiMock.expectGetNextCvrIdForAdjudication({ contestId }, null);
     apiMock.expectGetCastVoteRecordVoteInfo({ cvrId }, { [contestId]: votes });
     apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
     apiMock.expectGetWriteIns({ contestId, cvrId }, [writeInRecord]);
