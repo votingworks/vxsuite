@@ -1130,4 +1130,19 @@ export class Store {
       DateTime.now().toUTC().toSQL()
     );
   }
+
+  setBallotAuditIdSecretKey(key: string): void {
+    this.client.run(`update election set ballot_audit_id_secret_key = ?`, key);
+  }
+
+  getBallotAuditIdSecretKey(): string {
+    const row = this.client.one(
+      `select ballot_audit_id_secret_key as key from election`
+    ) as { key: string } | undefined;
+    assert(
+      row,
+      'Cannot get ballot audit ID secret key when machine is not configured'
+    );
+    return row.key;
+  }
 }

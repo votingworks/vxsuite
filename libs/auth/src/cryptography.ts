@@ -550,3 +550,52 @@ export async function signMessage({
     : [scriptPath, scriptInput];
   return runCommand(command, { stdin: message });
 }
+
+/**
+ * Generates a random key of the specified length using OpenSSL. The key is
+ * returned in base64 encoding.
+ */
+export async function generateRandomKey(length: number): Promise<string> {
+  return (await openssl(['rand', String(length)])).toString('base64');
+}
+
+/**
+ * Encrypts the given utf8-encoded input string using AES-256-CBC with the
+ * specified key, returning the encrypted data in base64 encoding.
+ */
+export async function encryptAes256(
+  key: string,
+  input: string
+): Promise<string> {
+  return (
+    await openssl([
+      'enc',
+      '-aes-256-cbc',
+      '-k',
+      key,
+      '-in',
+      Buffer.from(input, 'utf-8'),
+    ])
+  ).toString('base64');
+}
+
+/**
+ * Decrypts the given base64-encoded input string using AES-256-CBC with the
+ * specified key, returning the decrypted data as a utf8-encoded string.
+ */
+export async function decryptAes256(
+  key: string,
+  input: string
+): Promise<string> {
+  return (
+    await openssl([
+      'enc',
+      '-d',
+      '-aes-256-cbc',
+      '-k',
+      key,
+      '-in',
+      Buffer.from(input, 'base64'),
+    ])
+  ).toString('utf-8');
+}

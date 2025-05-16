@@ -648,7 +648,7 @@ async function randomlyUpdateCreationTimestamps(
 export async function exportCastVoteRecordsToUsbDrive(
   scannerStore: ScannerStore,
   usbDrive: UsbDrive,
-  sheets: Iterable<Sheet>,
+  sheets: Iterable<Sheet> | AsyncIterable<Sheet>,
   exportOptions: ExportOptions
 ): Promise<Result<void, ExportCastVoteRecordsToUsbDriveError>> {
   assert(scannerStore.scannerType === exportOptions.scannerType);
@@ -720,7 +720,7 @@ export async function exportCastVoteRecordsToUsbDrive(
 
   const castVoteRecordHashes: { [castVoteRecordId: string]: string } = {};
   const sheetIds: string[] = [];
-  for (const sheet of sheets) {
+  for await (const sheet of sheets) {
     sheetIds.push(sheet.id);
 
     if (isRecoveryExport) {
