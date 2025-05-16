@@ -1,7 +1,8 @@
-import { Icons, P } from '@votingworks/ui';
+import { Caption, Icons, P } from '@votingworks/ui';
 import type { SimpleServerStatus } from '@votingworks/mark-scan-backend';
 import React from 'react';
 import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
+import { ResetVoterSessionButton } from '../components/deactivate_voter_session_button';
 
 export const JAM_CLEARED_STATES = [
   'accepting_paper_after_jam',
@@ -55,8 +56,13 @@ export function ReplaceJammedSheetScreen(
       icon={<Icons.Info />}
       title="Jam Cleared"
       voterFacing={false}
+      buttons={<ResetVoterSessionButton />}
     >
       {STATUS_MESSAGES[stateMachineState]}
+      <Caption>
+        <Icons.Info /> To end the current voter session and start over, press
+        the button below to deactivate the voter session.
+      </Caption>
     </CenteredCardPageLayout>
   );
 }
