@@ -318,5 +318,6 @@ export function adjudicateCvrContest(
         }
       }
     }
+    store.resolveCvrContestTag({ cvrId, contestId });
   });
 }
