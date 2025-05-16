@@ -33,7 +33,7 @@ beforeEach(() => {
 });
 
 test('No CVRs loaded', async () => {
-  apiMock.expectGetWriteInAdjudicationCvrQueueMetadata([]);
+  apiMock.expectGetAdjudicationQueueMetadata([]);
   apiMock.expectGetCastVoteRecordFiles([]);
   renderInAppContext(<WriteInsSummaryScreen />, {
     electionDefinition,
@@ -46,7 +46,7 @@ test('No CVRs loaded', async () => {
 });
 
 test('Tally results already marked as official', async () => {
-  apiMock.expectGetWriteInAdjudicationCvrQueueMetadata([
+  apiMock.expectGetAdjudicationQueueMetadata([
     {
       contestId: 'zoo-council-mammal',
       pendingTally: 3,
@@ -74,7 +74,7 @@ test('Tally results already marked as official', async () => {
 });
 
 test('CVRs with write-ins loaded', async () => {
-  apiMock.expectGetWriteInAdjudicationCvrQueueMetadata([
+  apiMock.expectGetAdjudicationQueueMetadata([
     {
       contestId: 'zoo-council-mammal',
       pendingTally: 3,

@@ -36,9 +36,9 @@ import { useHistory, useParams } from 'react-router-dom';
 import {
   getCastVoteRecordVoteInfo,
   getWriteInImageViews,
-  getFirstPendingWriteInCvrId,
+  getNextCvrIdForAdjudication,
   getWriteIns,
-  getWriteInAdjudicationCvrQueue,
+  getAdjudicationQueue,
   getWriteInCandidates,
   getVoteAdjudications,
   adjudicateCvrContest,
@@ -324,8 +324,8 @@ export function ContestAdjudicationScreen(): JSX.Element {
   assert(contest.type === 'candidate', 'contest must be a candidate contest');
 
   // Queries and mutations
-  const cvrQueueQuery = getWriteInAdjudicationCvrQueue.useQuery({ contestId });
-  const firstPendingCvrIdQuery = getFirstPendingWriteInCvrId.useQuery({
+  const cvrQueueQuery = getAdjudicationQueue.useQuery({ contestId });
+  const firstPendingCvrIdQuery = getNextCvrIdForAdjudication.useQuery({
     contestId,
   });
 
