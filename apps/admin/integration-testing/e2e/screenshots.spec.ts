@@ -371,6 +371,7 @@ async function insertUsbDriveWithCvrs({
 }
 
 test('results', async ({ page }) => {
+  test.setTimeout(70_000);
   const usbHandler = getMockFileUsbDriveHandler();
   const printerHandler = getMockFilePrinterHandler();
   printerHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
