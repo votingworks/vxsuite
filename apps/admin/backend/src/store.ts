@@ -83,7 +83,7 @@ import {
   WriteInPendingTally,
   ManualResultsFilter,
   CardTally,
-  WriteInAdjudicationQueueMetadata,
+  AdjudicationQueueMetadata,
   VoteAdjudication,
   CastVoteRecordVoteInfo,
   WriteInAdjudicationActionOfficialCandidate,
@@ -91,6 +91,7 @@ import {
   WriteInAdjudicationActionWriteInCandidate,
   CastVoteRecordAdjudicationFlags,
   WriteInAdjudicationActionReset,
+  CvrContestTag,
 } from './types';
 import { rootDebug } from './util/debug';
 
@@ -103,7 +104,7 @@ type StoreCastVoteRecordAttributes = Omit<
   readonly partyId: string | null;
 };
 
-const WRITE_IN_QUEUE_ORDER_BY = `order by sequence_id`;
+const ADJUDICATION_QUEUE_ORDER_BY = `order by sequence_id`;
 
 /**
  * Path to the store's schema file, i.e. the file that defines the database.
@@ -1786,9 +1787,9 @@ export class Store {
   }
 
   /**
-   * Gets write-in record adjudication queue for a specific contest.
+   * Gets the adjudication queue for a specific contest.
    */
-  getWriteInAdjudicationCvrQueue({
+  getAdjudicationQueue({
     electionId,
     contestId,
   }: {
@@ -1796,64 +1797,59 @@ export class Store {
     contestId: ContestId;
   }): Id[] {
     this.assertElectionExists(electionId);
-
     debug(
-      'querying database for write-in adjudication cvr queue for contest %s',
+      'querying database for adjudication cvr queue for contest %s',
       contestId
     );
+
     const rows = this.client.all(
       `
-        select
+        select 
           cvr_id
-        from write_ins
+        from cvr_contest_tags
         where
-          election_id = ? and
           contest_id = ?
-        group by cvr_id
-        ${WRITE_IN_QUEUE_ORDER_BY}
+        ${ADJUDICATION_QUEUE_ORDER_BY}
       `,
-      electionId,
       contestId
     ) as Array<{ cvr_id: Id }>;
-    debug('queried database for write-in adjudication queue');
+
+    debug('queried cvr contests tags for adjudication queue');
     return rows.map((r) => r.cvr_id);
   }
 
   /**
-   * Gets write-in adjudication total and pending tallies by contest.
+   * Gets adjudication queue total and pending tallies by contest.
    */
-  getWriteInAdjudicationCvrQueueMetadata({
+  getAdjudicationQueueMetadata({
     electionId,
   }: {
     electionId: Id;
-  }): WriteInAdjudicationQueueMetadata[] {
-    debug('querying database for write-in adjudication queue metadata');
+  }): AdjudicationQueueMetadata[] {
+    this.assertElectionExists(electionId);
+    debug('querying database for adjudication queue metadata using tags');
 
     const rows = this.client.all(
       `
-      select
-        contest_id as contestId,
-        count(distinct cvr_id) as totalTally,
-        count(distinct case when
-          (coalesce(official_candidate_id, 0) = 0 and
-          coalesce(write_in_candidate_id, 0) = 0 and
-          is_invalid = 0)
-        then cvr_id end) as pendingTally
-      from write_ins
-      where write_ins.election_id = ?
-      group by contest_id
-      `,
-      electionId
+        select
+          contest_id as contestId,
+          count(*) as totalTally,
+          count(case when is_resolved = 0 then 1 end) as pendingTally
+        from cvr_contest_tags
+        group
+          by contest_id
+      `
     ) as Array<{
       contestId: ContestId;
       totalTally: number;
       pendingTally: number;
     }>;
-    debug('queried database for write-in adjudication queue metadata');
+
+    debug('queried adjudication queue metadata from cvr contest tags');
     return rows;
   }
 
-  getFirstPendingWriteInCvrId({
+  getNextCvrIdForAdjudication({
     electionId,
     contestId,
   }: {
@@ -1861,30 +1857,26 @@ export class Store {
     contestId: ContestId;
   }): Optional<Id> {
     this.assertElectionExists(electionId);
-
     debug(
-      'querying database for first pending write-in cvr id for contest %s',
+      'querying database for first unresolved cvr id for contest %s adjudication',
       contestId
     );
+
     const row = this.client.one(
       `
-        select
+        select 
           cvr_id
-        from write_ins
+        from cvr_contest_tags
         where
-          election_id = ? and
-          contest_id = ? and
-          official_candidate_id is null and
-          write_in_candidate_id is null and
-          is_invalid = 0
-        ${WRITE_IN_QUEUE_ORDER_BY}
+          contest_id = ?
+          and is_resolved = 0
+        ${ADJUDICATION_QUEUE_ORDER_BY}
         limit 1
       `,
-      electionId,
       contestId
     ) as { cvr_id: Id } | undefined;
-    debug('queried database for first pending write-in cvr id');
 
+    debug('queried database for first unresolved cvr id');
     return row?.cvr_id;
   }
 
@@ -2622,6 +2614,99 @@ export class Store {
       ballotCount: row.ballotCount,
       createdAt: convertSqliteTimestampToIso8601(row.createdAt),
     }));
+  }
+
+  addCvrContestTag({
+    cvrId,
+    contestId,
+    hasWriteIn = false,
+    hasUnmarkedWriteIn = false,
+    hasMarginalMark = false,
+  }: CvrContestTag): void {
+    this.client.run(
+      `
+        insert into cvr_contest_tags (
+          cvr_id,
+          contest_id,
+          is_resolved,
+          has_write_in,
+          has_unmarked_write_in,
+          has_marginal_mark
+        ) values (?, ?, ?, ?, ?, ?)
+      `,
+      cvrId,
+      contestId,
+      asSqliteBool(false),
+      asSqliteBool(hasWriteIn),
+      asSqliteBool(hasUnmarkedWriteIn),
+      asSqliteBool(hasMarginalMark)
+    );
+  }
+
+  getCvrContestTag({
+    cvrId,
+    contestId,
+  }: {
+    cvrId: Id;
+    contestId: ContestId;
+  }): CvrContestTag | undefined {
+    const row = this.client.one(
+      `
+        select
+          cvr_id as cvrId,
+          contest_id as contestId,
+          is_resolved as isResolved,
+          has_write_in as hasWriteIn,
+          has_unmarked_write_in as hasUnmarkedWriteIn,
+          has_marginal_mark as hasMarginalMark
+        from cvr_contest_tags
+        where 
+          cvr_id = ? and 
+          contest_id = ?
+      `,
+      cvrId,
+      contestId
+    ) as
+      | {
+          cvrId: Id;
+          contestId: ContestId;
+          isResolved: SqliteBool;
+          hasWriteIn: SqliteBool;
+          hasUnmarkedWriteIn: SqliteBool;
+          hasMarginalMark: SqliteBool;
+        }
+      | undefined;
+
+    return row
+      ? {
+          ...row,
+          isResolved: fromSqliteBool(row.isResolved),
+          hasWriteIn: fromSqliteBool(row.hasWriteIn),
+          hasUnmarkedWriteIn: fromSqliteBool(row.hasUnmarkedWriteIn),
+          hasMarginalMark: fromSqliteBool(row.hasMarginalMark),
+        }
+      : undefined;
+  }
+
+  resolveCvrContestTag({
+    cvrId,
+    contestId,
+  }: {
+    cvrId: Id;
+    contestId: ContestId;
+  }): void {
+    this.client.run(
+      `
+        update cvr_contest_tags
+        set 
+          is_resolved = 1
+        where 
+          cvr_id = ? and 
+          contest_id = ?
+      `,
+      cvrId,
+      contestId
+    );
   }
 
   /**
