@@ -28,6 +28,6 @@ test('renders double sheet screen as expected', async () => {
       <ScanDoubleSheetScreen scannedBallotCount={42} isTestMode={false} />
     )
   );
-  await screen.findByText('Ballot Not Counted');
-  await screen.findByText('Multiple sheets detected.');
+  await screen.findByText('Multiple Sheets Detected');
+  await screen.findByText('Remove your ballot and insert one sheet at a time.');
 });

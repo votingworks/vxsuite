@@ -32,7 +32,7 @@ test('render correct test ballot error screen when we are in test mode', async (
       />
     )
   );
-  await screen.findByText('Ballot Not Counted');
+  await screen.findByText('Official Ballot');
   await screen.findByText(
     'The scanner is in test ballot mode. Official ballots may not be scanned.'
   );
@@ -49,7 +49,7 @@ test('render correct test ballot error screen when we are in live mode', async (
       />
     )
   );
-  await screen.findByText('Ballot Not Counted');
+  await screen.findByText('Test Ballot');
   await screen.findByText(
     'The scanner is in official ballot mode. Test ballots may not be scanned.'
   );
@@ -66,9 +66,9 @@ test('render correct invalid precinct screen', async () => {
       />
     )
   );
-  await screen.findByText('Ballot Not Counted');
+  await screen.findByText('Wrong Precinct');
   await screen.findByText(
-    'The ballot does not match the precinct this scanner is configured for.'
+    'The scanner is configured for a precinct that does not match the ballot.'
   );
 });
 
@@ -83,9 +83,9 @@ test('render correct invalid ballot hash screen', async () => {
       />
     )
   );
-  await screen.findByText('Ballot Not Counted');
+  await screen.findByText('Wrong Election');
   await screen.findByText(
-    'The ballot does not match the election this scanner is configured for.'
+    'The scanner is configured for an election that does not match the ballot.'
   );
 });
 
@@ -100,8 +100,8 @@ test('warning when scanner needs cleaning', async () => {
       />
     )
   );
-  await screen.findByText('Ballot Not Counted');
-  screen.getByText('The scanner needs to be cleaned.');
+  await screen.findByText('Scanner Needs Cleaning');
+  screen.getByText('The ballot was not counted. Scan it again after cleaning.');
 });
 
 test('render correct unreadable ballot screen', async () => {
@@ -111,7 +111,7 @@ test('render correct unreadable ballot screen', async () => {
       <ScanErrorScreen error="unreadable" isTestMode scannedBallotCount={42} />
     )
   );
-  await screen.findByText('Ballot Not Counted');
+  await screen.findByText('Ballot Scan Failed');
   await screen.findByText(
     'There was a problem scanning your ballot. Please scan it again.'
   );
@@ -128,6 +128,6 @@ test('double feed error screen', async () => {
       />
     )
   );
-  await screen.findByText('Ballot Not Counted');
+  await screen.findByText('Multiple Sheets Detected');
   await screen.findByText('Remove your ballot and insert one sheet at a time.');
 });
