@@ -686,8 +686,6 @@ test('Ballot audit IDs', async () => {
       'vxf'
     )
   ).ballotDocuments[0]!;
-  const content = await ballotDocument.getContent();
-  expect(content).toContain('Ballot: <b>test-ballot-audit-id</b>');
   const pdf = await ballotDocument.renderToPdf();
   const images = asSheet(await pdfToPageImages(pdf).toArray());
   expect(images).toHaveLength(2);
