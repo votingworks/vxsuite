@@ -2,9 +2,7 @@ use std::io::Write;
 use std::time::Duration;
 use std::{fmt::Debug, path::PathBuf, time::Instant};
 
-use ballot_interpreter::{
-    debug::ImageDebugWriter, image_utils::detect_vertical_streaks, UnitIntervalScore,
-};
+use ballot_interpreter::{debug::ImageDebugWriter, image_utils::detect_vertical_streaks};
 use clap::Parser;
 use color_eyre::owo_colors::OwoColorize;
 use image::{GenericImageView, GrayImage};
@@ -22,22 +20,6 @@ struct Options {
     /// What threshold to use to distinguish black from white. Omit to determine dynamically.
     #[clap(long)]
     binarization_threshold: Option<u8>,
-
-    /// How high a score is required to consider a vertical stretch of semi-contiguous black pixels a "streak".
-    #[clap(long)]
-    min_streak_score: Option<UnitIntervalScore>,
-
-    /// How high a score is required to consider a single pixel column to be considered part of a streak.
-    #[clap(long)]
-    min_column_streak_score: Option<UnitIntervalScore>,
-
-    /// How many white pixels are allowed between two black pixels before considering the streak broken.
-    #[clap(long)]
-    max_white_gap_pixel_count: Option<u32>,
-
-    /// How many pixels in from the left and right sides of the image are ignored when looking for streaks.
-    #[clap(long)]
-    border_inset_pixels: Option<u32>,
 
     /// Path to write results of the streak detection.
     #[clap(short, long)]
