@@ -50,8 +50,14 @@ struct Options {
 }
 
 impl Options {
+    fn input(&self) -> PathBuf {
+        self.input
+            .canonicalize()
+            .expect("input must be canonicalizable")
+    }
+
     fn walker(&self) -> ignore::Walk {
-        ignore::WalkBuilder::new(&self.input).build()
+        ignore::WalkBuilder::new(&self.input()).build()
     }
 
     fn config_for_detect_vertical_streaks(
@@ -121,9 +127,9 @@ pub fn main() -> color_eyre::Result<()> {
         )
         // Process each image.
         .filter_map(|entry| {
-            let path = entry.path();
+            let path = entry.path().canonicalize().ok()?;
             let read_image_start = Instant::now();
-            let image = match image::open(path) {
+            let image = match image::open(&path) {
                 Ok(image) => image.to_luma8(),
                 Err(e) => {
                     eprintln!(
@@ -157,7 +163,7 @@ pub fn main() -> color_eyre::Result<()> {
                     .to_image();
                 let streak_crop_output_path = options
                     .output
-                    .join(path.strip_prefix(&options.input).unwrap())
+                    .join(path.strip_prefix(&options.input()).unwrap())
                     .with_file_name(format!(
                         "{stem}-x={x}.{ext}",
                         stem = path.file_stem().unwrap().to_str().unwrap(),
@@ -226,11 +232,7 @@ pub fn main() -> color_eyre::Result<()> {
                 <h3>{src}</h3>
                 <div style="position: relative; padding: 0; margin: 0;">
             "#,
-                    src = options
-                        .input
-                        .canonicalize()?
-                        .join(&streaked_ballot.ballot_path)
-                        .display()
+                    src = streaked_ballot.ballot_path.display()
                 )?;
 
                 for (streak, _) in &streaked_ballot.cropped_streaks {
@@ -252,11 +254,7 @@ pub fn main() -> color_eyre::Result<()> {
                 </div>
             </div>
             "#,
-                    src = options
-                        .input
-                        .canonicalize()?
-                        .join(&streaked_ballot.ballot_path)
-                        .display()
+                    src = streaked_ballot.ballot_path.display()
                 )?;
             }
         }
