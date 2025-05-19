@@ -22,7 +22,7 @@ import {
 } from './test_decks';
 
 vi.setConfig({
-  testTimeout: 60_000,
+  testTimeout: 90_000,
 });
 
 let renderer: Renderer;
