@@ -13,6 +13,7 @@ use rayon::iter::IntoParallelRefIterator;
 use rayon::iter::ParallelIterator;
 use serde::Serialize;
 use types_rs::election::{BallotStyleId, Election, MetadataEncoding, PrecinctId};
+use types_rs::geometry::PixelPosition;
 use types_rs::geometry::{PixelUnit, Size};
 
 use crate::ballot_card::get_matching_paper_info_for_image_size;
@@ -27,9 +28,7 @@ use crate::debug::ImageDebugWriter;
 use crate::image_utils::detect_vertical_streaks;
 use crate::image_utils::find_scanned_document_inset;
 use crate::image_utils::maybe_resize_image_to_fit;
-use crate::image_utils::DetectVerticalStreaksConfiguration;
 use crate::image_utils::Inset;
-use crate::image_utils::Streak;
 use crate::layout::build_interpreted_page_layout;
 use crate::layout::InterpretedContestLayout;
 use crate::metadata::hmpb;
@@ -147,7 +146,10 @@ pub enum Error {
     CouldNotComputeLayout { side: BallotSide },
     #[error("vertical streaks detected on {label:?}")]
     #[serde(rename_all = "camelCase")]
-    VerticalStreaksDetected { label: String, streaks: Vec<Streak> },
+    VerticalStreaksDetected {
+        label: String,
+        x_coordinates: Vec<PixelPosition>,
+    },
 }
 
 pub type Result<T, E = Error> = std::result::Result<T, E>;
@@ -408,20 +410,13 @@ pub fn ballot_card(
         ]
         .par_iter()
         .map(|(label, side, debug)| {
-            let streaks = detect_vertical_streaks(
-                &side.image,
-                debug,
-                DetectVerticalStreaksConfiguration {
-                    threshold: side.threshold,
-                    ..Default::default()
-                },
-            );
+            let streaks = detect_vertical_streaks(&side.image, side.threshold, debug);
             if streaks.is_empty() {
                 Ok(())
             } else {
                 Err(Error::VerticalStreaksDetected {
                     label: (*label).to_string(),
-                    streaks,
+                    x_coordinates: streaks,
                 })
             }
         })
@@ -749,7 +744,7 @@ mod test {
 
     use image::Luma;
     use imageproc::geometric_transformations::{self, Interpolation, Projection};
-    use types_rs::geometry::{Degrees, Radians, Rect};
+    use types_rs::geometry::{Degrees, PixelPosition, Radians, Rect};
 
     use crate::{
         ballot_card::load_ballot_scan_bubble_image, scoring::UnitIntervalScore,
@@ -970,33 +965,20 @@ mod test {
             }
             side_a_image.put_pixel(cropped_streak_x, y, black_pixel);
         }
-        side_a_image
-            .save("vertical_streak_test_side_a.png")
-            .unwrap();
-        let Error::VerticalStreaksDetected { label, streaks } =
-            ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap_err()
+        let Error::VerticalStreaksDetected {
+            label,
+            x_coordinates,
+        } = ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap_err()
         else {
             panic!("wrong error type");
         };
         assert_eq!(label, "side A");
         assert_eq!(
-            streaks,
+            x_coordinates,
             vec![
-                Streak::new(
-                    thin_complete_streak_x..=thin_complete_streak_x,
-                    0,
-                    UnitIntervalScore(1.0)
-                ),
-                Streak::new(
-                    thick_complete_streak_x..=thick_complete_streak_x + 2,
-                    0,
-                    UnitIntervalScore(1.0)
-                ),
-                Streak::new(
-                    fuzzy_streak_x..=fuzzy_streak_x + 1,
-                    1,
-                    UnitIntervalScore(0.84090906)
-                ),
+                thin_complete_streak_x as PixelPosition,
+                (thick_complete_streak_x + 2) as PixelPosition,
+                fuzzy_streak_x as PixelPosition
             ]
         );
 
@@ -1021,20 +1003,15 @@ mod test {
         for y in 0..side_a_image.height() {
             side_a_image.put_pixel(timing_mark_x, y, black_pixel);
         }
-        let Error::VerticalStreaksDetected { label, streaks } =
-            ballot_card(side_a_image, side_b_image, &options).unwrap_err()
+        let Error::VerticalStreaksDetected {
+            label,
+            x_coordinates,
+        } = ballot_card(side_a_image, side_b_image, &options).unwrap_err()
         else {
             panic!("wrong error type");
         };
         assert_eq!(label, "side A");
-        assert_eq!(
-            streaks,
-            vec![Streak::new(
-                timing_mark_x..=timing_mark_x,
-                0,
-                UnitIntervalScore(1.0)
-            )]
-        );
+        assert_eq!(x_coordinates, vec![timing_mark_x as PixelPosition]);
     }
 
     #[test]
@@ -1046,20 +1023,15 @@ mod test {
         for y in 0..side_a_image.height() {
             side_a_image.put_pixel(timing_mark_x, y, black_pixel);
         }
-        let Error::VerticalStreaksDetected { label, streaks } =
-            ballot_card(side_a_image, side_b_image, &options).unwrap_err()
+        let Error::VerticalStreaksDetected {
+            label,
+            x_coordinates,
+        } = ballot_card(side_a_image, side_b_image, &options).unwrap_err()
         else {
             panic!("wrong error type");
         };
         assert_eq!(label, "side A");
-        assert_eq!(
-            streaks,
-            vec![Streak::new(
-                timing_mark_x..=timing_mark_x,
-                0,
-                UnitIntervalScore(1.0)
-            )]
-        );
+        assert_eq!(x_coordinates, vec![timing_mark_x as PixelPosition]);
     }
 
     #[test]

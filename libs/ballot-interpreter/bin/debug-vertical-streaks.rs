@@ -3,9 +3,7 @@ use std::time::Duration;
 use std::{fmt::Debug, path::PathBuf, time::Instant};
 
 use ballot_interpreter::{
-    debug::ImageDebugWriter,
-    image_utils::{detect_vertical_streaks, DetectVerticalStreaksConfiguration, Streak},
-    UnitIntervalScore,
+    debug::ImageDebugWriter, image_utils::detect_vertical_streaks, UnitIntervalScore,
 };
 use clap::Parser;
 use color_eyre::owo_colors::OwoColorize;
@@ -60,23 +58,9 @@ impl Options {
         ignore::WalkBuilder::new(&self.input()).build()
     }
 
-    fn config_for_detect_vertical_streaks(
-        &self,
-        image: &GrayImage,
-    ) -> DetectVerticalStreaksConfiguration {
-        let default_config = DetectVerticalStreaksConfiguration::default();
-
-        DetectVerticalStreaksConfiguration::new(
-            self.binarization_threshold
-                .unwrap_or_else(|| otsu_level(image)),
-            self.min_streak_score.unwrap_or(default_config.min_score),
-            self.min_column_streak_score
-                .unwrap_or(default_config.min_column_score),
-            self.max_white_gap_pixel_count
-                .unwrap_or(default_config.max_white_gap_pixel_count),
-            self.border_inset_pixels
-                .unwrap_or(default_config.border_inset_pixels),
-        )
+    fn binarization_threshold(&self, image: &GrayImage) -> u8 {
+        self.binarization_threshold
+            .unwrap_or_else(|| otsu_level(image))
     }
 }
 
@@ -85,7 +69,7 @@ struct StreakedBallot {
     ballot_path: PathBuf,
     width: u32,
     height: u32,
-    cropped_streaks: Vec<(Streak, PathBuf)>,
+    cropped_streaks: Vec<(i32, PathBuf)>,
     read_image_duration: Duration,
     detect_streaks_duration: Duration,
     write_crops_duration: Duration,
@@ -144,20 +128,22 @@ pub fn main() -> color_eyre::Result<()> {
             let detect_streaks_start = Instant::now();
             let streaks = detect_vertical_streaks(
                 &image,
+                options.binarization_threshold(&image),
                 &ImageDebugWriter::disabled(),
-                options.config_for_detect_vertical_streaks(&image),
             );
             let detect_streaks_duration = detect_streaks_start.elapsed();
 
             let write_crops_start = Instant::now();
             let mut cropped_streaks = vec![];
 
-            for streak in streaks {
+            for streak_x_right in streaks {
+                let x_left = (streak_x_right as u32 - options.debug_margin_pixels).max(0);
                 let streak_crop = image
                     .view(
-                        streak.x_left() - options.debug_margin_pixels,
+                        x_left,
                         0,
-                        streak.width() + options.debug_margin_pixels * 2,
+                        (streak_x_right as u32 + options.debug_margin_pixels)
+                            .min(image.width() - x_left),
                         image.height(),
                     )
                     .to_image();
@@ -167,7 +153,7 @@ pub fn main() -> color_eyre::Result<()> {
                     .with_file_name(format!(
                         "{stem}-x={x}.{ext}",
                         stem = path.file_stem().unwrap().to_str().unwrap(),
-                        x = streak.x_left(),
+                        x = streak_x_right,
                         ext = path.extension().unwrap().to_str().unwrap()
                     ));
                 if let Err(e) = std::fs::create_dir_all(streak_crop_output_path.parent().unwrap()) {
@@ -179,12 +165,12 @@ pub fn main() -> color_eyre::Result<()> {
                 if let Err(e) = streak_crop.save(&streak_crop_output_path) {
                     eprintln!(
                         "Error: Failed to save streak at x={x} from image at path {path}: {e}",
-                        x = streak.x_left(),
+                        x = streak_x_right,
                         path = path.display()
                     );
                 }
 
-                cropped_streaks.push((streak, streak_crop_output_path));
+                cropped_streaks.push((streak_x_right, streak_crop_output_path));
             }
 
             let write_crops_duration = write_crops_start.elapsed();
@@ -235,15 +221,15 @@ pub fn main() -> color_eyre::Result<()> {
                     src = streaked_ballot.ballot_path.display()
                 )?;
 
-                for (streak, _) in &streaked_ballot.cropped_streaks {
+                for (streak_x_right, _) in &streaked_ballot.cropped_streaks {
                     writeln!(
                         &mut streaks_html,
                         r#"
                     <div style="position: absolute; top: 0; bottom: 0; left: {left}px; width: {width}px; background-color: #ff000066;"></div>
                     <div style="position: absolute; top: -10px; height: 10px; left: {left}px; width: {width}px; background-color: red;"></div>
                         "#,
-                        left = scale * streak.x_left() as f32,
-                        width = scale * streak.width() as f32,
+                        left = scale * (*streak_x_right - 1) as f32,
+                        width = scale * 2.0,
                     )?;
                 }
 
@@ -289,16 +275,8 @@ pub fn main() -> color_eyre::Result<()> {
             "Ballot:".bold(),
             streaked_ballot.ballot_path.display()
         );
-        for (streak, path) in &streaked_ballot.cropped_streaks {
-            println!(
-                "- x={}..={}, score={}, max gap={}px",
-                streak.x_left().yellow(),
-                streak.x_right().yellow(),
-                streak.score().green(),
-                streak.longest_white_gap().purple()
-            );
-            println!("  {}", path.display());
-            println!("");
+        for (_, path) in &streaked_ballot.cropped_streaks {
+            println!("- {}", path.display());
         }
     }
 
