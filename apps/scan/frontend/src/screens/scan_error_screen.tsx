@@ -1,5 +1,6 @@
 import {
   Caption,
+  Font,
   FullScreenIconWrapper,
   Icons,
   P,
@@ -26,50 +27,117 @@ export function ScanErrorScreen({
   scannedBallotCount,
   restartRequired = false,
 }: Props): JSX.Element {
-  const errorMessage = (() => {
-    if (!error) return undefined;
-    assert(
-      error !== 'double_feed_calibration_timed_out' && // Only used in double feed calibration
-        error !== 'scanner_diagnostic_failed' && // Only used in ScannerDiagnosticScreen
-        error !== 'outfeed_blocked' // Only used in ScanJamScreen
-    );
+  assert(
+    error !== 'double_feed_calibration_timed_out' && // Only used in double feed calibration
+      error !== 'scanner_diagnostic_failed' && // Only used in ScannerDiagnosticScreen
+      error !== 'outfeed_blocked' // Only used in ScanJamScreen
+  );
+
+  const {
+    title,
+    errorMessage,
+    pollWorkerMessage,
+  }: {
+    title: JSX.Element;
+    errorMessage: JSX.Element;
+    pollWorkerMessage: 'needs-help' | 'might-need-help' | 'none';
+  } = (() => {
+    if (
+      restartRequired ||
+      !error ||
+      error === 'paper_status_timed_out' ||
+      error === 'scanning_timed_out' ||
+      error === 'unexpected_paper_status' ||
+      error === 'unexpected_event' ||
+      error === 'client_error'
+    ) {
+      return {
+        title: appStrings.titleScannerError(),
+        errorMessage: (
+          <Font weight="bold">
+            {appStrings.instructionsScannerAskForRestart()}
+          </Font>
+        ),
+        pollWorkerMessage: 'none',
+      };
+    }
+
     switch (error) {
-      // Invalid ballot interpretations
-      case 'invalid_test_mode':
-        return isTestMode
-          ? appStrings.warningScannerOfficialBallotInTestMode()
-          : appStrings.warningScannerTestBallotInOfficialMode();
-      case 'invalid_ballot_hash':
-        return appStrings.warningScannerMismatchedElection();
-      case 'invalid_precinct':
-        return appStrings.warningScannerMismatchedPrecinct();
+      // interpretation errors
       case 'vertical_streaks_detected':
-        return appStrings.warningScannerVerticalStreaksDetected();
+        return {
+          title: appStrings.titleScannerNeedsCleaning(),
+          errorMessage: (
+            <Font weight="bold">
+              {appStrings.warningScannerNeedsCleaning()}
+            </Font>
+          ),
+          pollWorkerMessage: 'needs-help',
+        };
       case 'unreadable':
       case 'unknown':
-        return appStrings.warningProblemScanningBallotScanAgain();
-      // Precinct scanner errors
+        return {
+          title: appStrings.titleScannerBallotUnreadable(),
+          errorMessage: (
+            <Font weight="bold">
+              {appStrings.warningProblemScanningBallotScanAgain()}
+            </Font>
+          ),
+          pollWorkerMessage: 'might-need-help',
+        };
+      case 'invalid_test_mode':
+        return isTestMode
+          ? {
+              title: appStrings.titleScannerOfficialBallot(),
+              errorMessage: appStrings.warningScannerOfficialBallotInTestMode(),
+              pollWorkerMessage: 'needs-help',
+            }
+          : {
+              title: appStrings.titleScannerTestBallot(),
+              errorMessage: appStrings.warningScannerTestBallotInOfficialMode(),
+              pollWorkerMessage: 'needs-help',
+            };
+      case 'invalid_ballot_hash':
+        return {
+          title: appStrings.titleScannerWrongElection(),
+          errorMessage: appStrings.warningScannerMismatchedElection(),
+          pollWorkerMessage: 'needs-help',
+        };
+      case 'invalid_precinct':
+        return {
+          title: appStrings.titleScannerWrongPrecinct(),
+          errorMessage: appStrings.warningScannerMismatchedPrecinct(),
+          pollWorkerMessage: 'needs-help',
+        };
+      // non-restart scanner errors
+      case 'double_feed_detected':
+        return {
+          title: appStrings.titleScannerMultipleSheetsDetected(),
+          errorMessage: appStrings.instructionsScannerRemoveDoubleSheet(),
+          pollWorkerMessage: 'might-need-help',
+        };
       case 'scanning_failed':
       case 'both_sides_have_paper':
       case 'paper_in_front_after_reconnect':
       case 'paper_in_back_after_reconnect':
       case 'paper_in_back_after_accept':
       case 'paper_in_both_sides_after_reconnect':
-        return appStrings.instructionsScannerRemoveBallotToContinue();
-      case 'double_feed_detected':
-        return appStrings.instructionsScannerRemoveDoubleSheet();
-      case 'paper_status_timed_out':
-      case 'scanning_timed_out':
-      case 'unexpected_paper_status':
-      case 'unexpected_event':
-      case 'client_error':
-        // These cases require restart, so we don't need to show an error
-        // message, since that's handled below.
-        return undefined;
-      default:
+        return {
+          title: appStrings.titleScannerError(),
+          errorMessage: (
+            <Font weight="bold">
+              {appStrings.instructionsScannerRemoveBallotToContinue()}
+            </Font>
+          ),
+          pollWorkerMessage: 'might-need-help',
+        };
+      default: {
+        /* istanbul ignore next - @preserve */
         throwIllegalValue(error);
+      }
     }
   })();
+
   return (
     <Screen
       centerContent
@@ -78,7 +146,7 @@ export function ScanErrorScreen({
       voterFacing
     >
       <FullScreenPromptLayout
-        title={appStrings.titleScannerBallotNotCounted()}
+        title={title}
         image={
           <FullScreenIconWrapper>
             <Icons.Delete color="danger" />
@@ -86,11 +154,13 @@ export function ScanErrorScreen({
         }
       >
         <P>{errorMessage}</P>
-        {restartRequired ? (
-          <P>{appStrings.instructionsScannerAskForRestart()}</P>
-        ) : (
-          <Caption>{appStrings.noteAskPollWorkerForHelp()}</Caption>
-        )}
+        <Caption>
+          {pollWorkerMessage === 'needs-help'
+            ? appStrings.instructionsAskForHelp()
+            : pollWorkerMessage === 'might-need-help'
+            ? appStrings.noteAskPollWorkerForHelp()
+            : undefined}
+        </Caption>
       </FullScreenPromptLayout>
     </Screen>
   );
@@ -212,6 +282,29 @@ export function UnexpectedScannerErrorPreview(): JSX.Element {
     <ScanErrorScreen
       isTestMode={false}
       error="client_error"
+      scannedBallotCount={42}
+      restartRequired
+    />
+  );
+}
+
+/* istanbul ignore next - @preserve */
+export function VerticalStreaksDetectedErrorPreview(): JSX.Element {
+  return (
+    <ScanErrorScreen
+      isTestMode={false}
+      error="vertical_streaks_detected"
+      scannedBallotCount={42}
+    />
+  );
+}
+
+/* istanbul ignore next - @preserve */
+export function DoubleSheetErrorPreview(): JSX.Element {
+  return (
+    <ScanErrorScreen
+      isTestMode={false}
+      error="double_feed_detected"
       scannedBallotCount={42}
     />
   );

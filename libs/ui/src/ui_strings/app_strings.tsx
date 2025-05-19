@@ -601,7 +601,7 @@ export const appStrings = {
 
   instructionsScannerAskForRestart: () => (
     <UiString uiStringKey="instructionsScannerAskForRestart">
-      Ask a poll worker to restart the scanner.
+      The ballot was not counted. Ask a poll worker to restart the scanner.
     </UiString>
   ),
 
@@ -613,7 +613,7 @@ export const appStrings = {
 
   instructionsScannerRemoveBallotToContinue: () => (
     <UiString uiStringKey="instructionsScannerRemoveBallotToContinue">
-      Remove ballot to continue.
+      The ballot was not counted. Please remove the ballot to continue.
     </UiString>
   ),
 
@@ -1319,12 +1319,6 @@ export const appStrings = {
     </UiString>
   ),
 
-  titleScannerBallotNotCounted: () => (
-    <UiString uiStringKey="titleScannerBallotNotCounted">
-      Ballot Not Counted
-    </UiString>
-  ),
-
   titleScannerInsertBallotScreen: () => (
     <UiString uiStringKey="titleScannerInsertBallotScreen">
       Insert Your Ballot
@@ -1345,7 +1339,7 @@ export const appStrings = {
 
   titleScannerOutfeedBlocked: () => (
     <UiString uiStringKey="titleScannerOutfeedBlocked">
-      Ballot Box Opening is Blocked
+      Ballot Box Opening Blocked
     </UiString>
   ),
 
@@ -1385,6 +1379,56 @@ export const appStrings = {
     <UiString uiStringKey="titleUnofficialTestBallot">
       Unofficial Test Ballot
     </UiString>
+  ),
+
+  titleScannerMultipleSheetsDetected: () => (
+    <UiString uiStringKey="titleScannerMultipleSheetsDetected">
+      Multiple Sheets Detected
+    </UiString>
+  ),
+
+  titleBallotJammed: () => (
+    <UiString uiStringKey="titleBallotJammed">Ballot Jammed</UiString>
+  ),
+
+  titleScannerBallotRejected: () => (
+    <UiString uiStringKey="titleScannerBallotRejected">
+      Ballot Rejected
+    </UiString>
+  ),
+
+  titleScannerWrongPrecinct: () => (
+    <UiString uiStringKey="titleScannerWrongPrecinct">Wrong Precinct</UiString>
+  ),
+
+  titleScannerWrongElection: () => (
+    <UiString uiStringKey="titleScannerWrongElection">Wrong Election</UiString>
+  ),
+
+  titleScannerTestBallot: () => (
+    <UiString uiStringKey="titleScannerTestBallot">Test Ballot</UiString>
+  ),
+
+  titleScannerOfficialBallot: () => (
+    <UiString uiStringKey="titleScannerOfficialBallot">
+      Official Ballot
+    </UiString>
+  ),
+
+  titleScannerNeedsCleaning: () => (
+    <UiString uiStringKey="titleScannerNeedsCleaning">
+      Scanner Needs Cleaning
+    </UiString>
+  ),
+
+  titleScannerBallotUnreadable: () => (
+    <UiString uiStringKey="titleScannerBallotUnreadable">
+      Ballot Scan Failed
+    </UiString>
+  ),
+
+  titleScannerError: () => (
+    <UiString uiStringKey="titleScannerError">Scanner Error</UiString>
   ),
 
   unrecoverableError: () => (
@@ -1490,9 +1534,9 @@ export const appStrings = {
     </UiString>
   ),
 
-  warningScannerJammed: () => (
-    <UiString uiStringKey="warningScannerJammed">
-      The ballot is jammed in the scanner.
+  warningBallotNotCounted: () => (
+    <UiString uiStringKey="warningBallotNotCounted">
+      The ballot was not counted.
     </UiString>
   ),
 
@@ -1510,25 +1554,19 @@ export const appStrings = {
 
   warningScannerMismatchedElection: () => (
     <UiString uiStringKey="warningScannerMismatchedElection">
-      The ballot does not match the election this scanner is configured for.
+      The scanner is configured for an election that does not match the ballot.
     </UiString>
   ),
 
   warningScannerMismatchedPrecinct: () => (
     <UiString uiStringKey="warningScannerMismatchedPrecinct">
-      The ballot does not match the precinct this scanner is configured for.
+      The scanner is configured for a precinct that does not match the ballot.
     </UiString>
   ),
 
-  warningScannerMultipleSheetsDetected: () => (
-    <UiString uiStringKey="warningScannerMultipleSheetsDetected">
-      Multiple sheets detected.
-    </UiString>
-  ),
-
-  warningScannerVerticalStreaksDetected: () => (
+  warningScannerNeedsCleaning: () => (
     <UiString uiStringKey="warningScannerVerticalStreaksDetected">
-      The scanner needs to be cleaned.
+      The ballot was not counted. Scan it again after cleaning.
     </UiString>
   ),
 
