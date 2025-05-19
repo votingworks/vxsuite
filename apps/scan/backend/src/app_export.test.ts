@@ -392,7 +392,7 @@ test('audit ballot IDs', async () => {
   const allBallotProps = allBaseBallotProps(election);
   const ballotPropsWithAuditId: BaseBallotProps = {
     ...find(allBallotProps, (p) => p.ballotMode === 'official'),
-    ballotAuditId: 'test-ballot-audit-id',
+    ballotAuditId: '123',
   };
   const renderer = await createPlaywrightRenderer();
   const ballotDocument = (

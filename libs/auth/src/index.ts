@@ -5,7 +5,7 @@ export * from './cast_vote_record_hashes';
 export * from './config';
 export {
   manageOpensslConfig,
-  generateRandomKey,
+  generateRandomAes256Key,
   encryptAes256,
   decryptAes256,
 } from './cryptography';

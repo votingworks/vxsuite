@@ -14,6 +14,7 @@ import {
   decryptAes256,
   encryptAes256,
   extractPublicKeyFromCert,
+  generateRandomAes256Key,
   publicKeyDerToPem,
   signMessage,
   verifyFirstCertWasSignedBySecondCert,
@@ -131,8 +132,9 @@ test('signMessage end-to-end', async () => {
 
 test('AES encryption/decryption end-to-end', async () => {
   const message = 'test-message';
-  const key = 'test-key';
+  const key = await generateRandomAes256Key();
   const encryptedMessage = await encryptAes256(key, message);
+  expect(encryptedMessage).toEqual(await encryptAes256(key, message));
   expect(encryptedMessage).not.toEqual(message);
   expect(await decryptAes256(key, encryptedMessage)).toEqual(message);
 });
