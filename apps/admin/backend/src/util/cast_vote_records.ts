@@ -1,6 +1,12 @@
-import { AnyContest, ElectionDefinition, Tabulation } from '@votingworks/types';
+import {
+  AnyContest,
+  ContestId,
+  ElectionDefinition,
+  Id,
+  Tabulation,
+} from '@votingworks/types';
 import { CachedElectionLookups } from '@votingworks/utils';
-import { CastVoteRecordAdjudicationFlags } from '../types';
+import { CastVoteRecordAdjudicationFlags, CvrContestTag } from '../types';
 
 function getNumberVotesAllowed(contest: AnyContest): number {
   if (contest.type === 'yesno') {
@@ -57,4 +63,31 @@ export function getCastVoteRecordAdjudicationFlags(
     hasOvervote,
     hasWriteIn,
   };
+}
+
+/**
+ * An ease of use helper class to manage a list of
+ * CvrContestTags without duplicates.
+ */
+export class CvrContestTagList {
+  constructor(private readonly cvrId: Id) {}
+  private readonly byContestId = new Map<ContestId, CvrContestTag>();
+
+  getOrCreateTag(contestId: ContestId): CvrContestTag {
+    const existingContestTag = this.byContestId.get(contestId);
+    if (existingContestTag) {
+      return existingContestTag;
+    }
+    const newContestTag: CvrContestTag = {
+      cvrId: this.cvrId,
+      contestId,
+      isResolved: false,
+    };
+    this.byContestId.set(contestId, newContestTag);
+    return newContestTag;
+  }
+
+  toArray(): CvrContestTag[] {
+    return Array.from(this.byContestId.values());
+  }
 }

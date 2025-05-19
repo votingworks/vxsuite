@@ -5,10 +5,11 @@ import {
   BallotStyleGroupId,
   ContestOptionId,
   DEFAULT_SYSTEM_SETTINGS,
+  SystemSettings,
   Tabulation,
 } from '@votingworks/types';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
-import { assert } from '@votingworks/basics';
+import { assert, typedAs } from '@votingworks/basics';
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import {
   MockCastVoteRecordFile,
@@ -338,10 +339,12 @@ test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
   const electionId = store.addElection({
     electionData,
-    systemSettingsData: JSON.stringify({
-      ...DEFAULT_SYSTEM_SETTINGS,
-      adminAdjudicationReasons: [AdjudicationReason.MarginalMark],
-    }),
+    systemSettingsData: JSON.stringify(
+      typedAs<SystemSettings>({
+        ...DEFAULT_SYSTEM_SETTINGS,
+        adminAdjudicationReasons: [AdjudicationReason.MarginalMark],
+      })
+    ),
     electionPackageFileContents: Buffer.of(),
     electionPackageHash: 'test-election-package-hash',
   });
@@ -425,10 +428,12 @@ test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
   expectWriteInRecords(initialWriteInRecords);
   const initialContestTag = store.getCvrContestTag({ cvrId, contestId });
   expect(initialContestTag).toBeDefined();
-  expect(initialContestTag?.isResolved).toEqual(false);
-  expect(initialContestTag?.hasMarginalMark).toEqual(true);
-  expect(initialContestTag?.hasWriteIn).toEqual(true);
-  expect(initialContestTag?.hasUnmarkedWriteIn).toEqual(false);
+  expect(
+    initialContestTag?.isResolved === false &&
+      initialContestTag?.hasMarginalMark &&
+      initialContestTag?.hasWriteIn &&
+      initialContestTag?.hasUnmarkedWriteIn === false
+  ).toEqual(true);
 
   // remove both initial votes
   adjudicate({});
@@ -462,10 +467,12 @@ test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
   ]);
   const adjudicatedContestTag = store.getCvrContestTag({ cvrId, contestId });
   expect(adjudicatedContestTag).toBeDefined();
-  expect(adjudicatedContestTag?.isResolved).toEqual(true);
-  expect(adjudicatedContestTag?.hasMarginalMark).toEqual(true);
-  expect(adjudicatedContestTag?.hasWriteIn).toEqual(true);
-  expect(adjudicatedContestTag?.hasUnmarkedWriteIn).toEqual(false);
+  expect(
+    adjudicatedContestTag?.isResolved &&
+      adjudicatedContestTag?.hasMarginalMark &&
+      adjudicatedContestTag?.hasWriteIn &&
+      adjudicatedContestTag?.hasUnmarkedWriteIn === false
+  ).toEqual(true);
 
   // one additional candidate and write-in with new write-in candidate
   adjudicate({
@@ -560,8 +567,10 @@ test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
   ]);
   const finalContestTag = store.getCvrContestTag({ cvrId, contestId });
   expect(finalContestTag).toBeDefined();
-  expect(finalContestTag?.isResolved).toEqual(true);
-  expect(finalContestTag?.hasMarginalMark).toEqual(true);
-  expect(finalContestTag?.hasWriteIn).toEqual(true);
-  expect(finalContestTag?.hasUnmarkedWriteIn).toEqual(false);
+  expect(
+    finalContestTag?.isResolved &&
+      finalContestTag?.hasMarginalMark &&
+      finalContestTag?.hasWriteIn &&
+      finalContestTag?.hasUnmarkedWriteIn === false
+  ).toEqual(true);
 });

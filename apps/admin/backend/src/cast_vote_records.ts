@@ -18,7 +18,6 @@ import {
 import { FileSystemEntryType } from '@votingworks/fs';
 import {
   AdjudicationReason,
-  ContestId,
   CVR,
   ElectionDefinition,
   getBallotStyle,
@@ -52,7 +51,10 @@ import {
   CvrFileMode,
   ImportCastVoteRecordsError,
 } from './types';
-import { getCastVoteRecordAdjudicationFlags } from './util/cast_vote_records';
+import {
+  CvrContestTagList,
+  getCastVoteRecordAdjudicationFlags,
+} from './util/cast_vote_records';
 
 /**
  * Validates that the fields in a cast vote record and the election definition correspond
@@ -196,36 +198,29 @@ export async function listCastVoteRecordExportsOnUsbDrive(
  * Returns a list of contest tags for a given cvr based on
  * system settings.
  */
-export function determineCvrContestTags(input: {
+export function determineCvrContestTags({
+  store,
+  cvrId,
+  writeIns,
+  markScores,
+}: {
   store: Store;
   cvrId: Id;
   writeIns: CastVoteRecordWriteIn[];
   markScores?: MarkScores;
 }): CvrContestTag[] {
-  const { store, cvrId, writeIns, markScores } = input;
   const electionId = assertDefined(store.getCurrentElectionId());
   const { adminAdjudicationReasons, markThresholds } =
     store.getSystemSettings(electionId);
 
-  const tagsByContestId = new Map<ContestId, CvrContestTag>();
-  function getOrCreateTag(contestId: ContestId): CvrContestTag {
-    return (
-      tagsByContestId.get(contestId) ?? {
-        cvrId,
-        contestId,
-        isResolved: false,
-      }
-    );
-  }
-
+  const tagsByContestId = new CvrContestTagList(cvrId);
   for (const writeIn of writeIns) {
-    const tag = getOrCreateTag(writeIn.contestId);
+    const tag = tagsByContestId.getOrCreateTag(writeIn.contestId);
     if (writeIn.isUnmarked) {
       tag.hasUnmarkedWriteIn = true;
     } else {
       tag.hasWriteIn = true;
     }
-    tagsByContestId.set(writeIn.contestId, tag);
   }
 
   if (adminAdjudicationReasons.includes(AdjudicationReason.MarginalMark)) {
@@ -240,16 +235,15 @@ export function determineCvrContestTags(input: {
           optionMarkScore >= markThresholds.marginal &&
           optionMarkScore < markThresholds.definite;
         if (hasMarginalMark) {
-          const tag = getOrCreateTag(contestId);
+          const tag = tagsByContestId.getOrCreateTag(contestId);
           tag.hasMarginalMark = true;
-          tagsByContestId.set(contestId, tag);
           break;
         }
       }
     }
   }
 
-  return Array.from(tagsByContestId.values());
+  return Array.from(tagsByContestId.toArray());
 }
 
 /**

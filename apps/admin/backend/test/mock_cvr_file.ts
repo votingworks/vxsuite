@@ -2,6 +2,8 @@ import {
   BallotPageLayout,
   BallotStyleId,
   BallotType,
+  ContestId,
+  ContestOptionId,
   Id,
   Tabulation,
 } from '@votingworks/types';
@@ -88,8 +90,8 @@ export function addMockCvrFileToStore({
       cvrIds.push(cvrId);
 
       const writeIns: Array<{
-        contestId: string;
-        optionId: string;
+        contestId: ContestId;
+        optionId: ContestOptionId;
         isUnmarked: boolean;
       }> = [];
       for (const [contestId, optionIds] of Object.entries(
