@@ -1565,7 +1565,7 @@ export const appStrings = {
   ),
 
   warningScannerNeedsCleaning: () => (
-    <UiString uiStringKey="warningScannerVerticalStreaksDetected">
+    <UiString uiStringKey="warningScannerNeedsCleaning">
       The ballot was not counted. Scan it again after cleaning.
     </UiString>
   ),
