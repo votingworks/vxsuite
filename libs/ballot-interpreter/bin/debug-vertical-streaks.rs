@@ -188,7 +188,19 @@ pub fn main() -> color_eyre::Result<()> {
 
         writeln!(
             &mut streaks_html,
-            r#"<div style="display: flex; flex-direction: column; gap: 1em;">"#
+            r#"
+            <style>
+                .overlay {{
+                    background-color: #ff000066;
+                    pointer-events: none;
+                }}
+
+                .no-overlay .overlay {{
+                    display: none;
+                }}
+            </style>
+            <div style="display: flex; flex-direction: column; gap: 1em;">
+            "#
         )?;
         for streaked_ballot in &streaked_ballots {
             if !streaked_ballot.cropped_streaks.is_empty() {
@@ -198,7 +210,8 @@ pub fn main() -> color_eyre::Result<()> {
                     r#"
             <div>
                 <h3>{src}</h3>
-                <div style="position: relative; padding: 0; margin: 0;">
+                <div style="display: flex; flex-direction: row; gap: 2em;">
+                    <div style="position: relative; padding: 0; margin: 0;">
             "#,
                     src = streaked_ballot.ballot_path.display()
                 )?;
@@ -207,8 +220,8 @@ pub fn main() -> color_eyre::Result<()> {
                     writeln!(
                         &mut streaks_html,
                         r#"
-                    <div style="position: absolute; top: 0; bottom: 0; left: {left}px; width: {width}px; background-color: #ff000066;"></div>
-                    <div style="position: absolute; top: -10px; height: 10px; left: {left}px; width: {width}px; background-color: red;"></div>
+                        <div class="overlay" style="position: absolute; top: 0; bottom: 0; left: {left}px; width: {width}px;"></div>
+                        <div class="overlay" style="position: absolute; top: -10px; height: 10px; left: {left}px; width: {width}px; background-color: red;"></div>
                         "#,
                         left = scale * (*streak_x_right - 1) as f32,
                         width = scale * 2.0,
@@ -218,7 +231,15 @@ pub fn main() -> color_eyre::Result<()> {
                 writeln!(
                     &mut streaks_html,
                     r#"
-                    <img src="file://{src}" style="width: {ballot_width}px; image-rendering: pixelated;">
+                        <img
+                            src="file://{src}"
+                            onclick="this.parentElement.classList.toggle('no-overlay')"
+                            style="width: {ballot_width}px; image-rendering: pixelated;"
+                        >
+                    </div>
+                    <div style="position: relative; padding: 0; margin: 0;">
+                        <img src="file://{src}" style="width: {ballot_width}px; image-rendering: pixelated;">
+                    </div>
                 </div>
             </div>
             "#,
