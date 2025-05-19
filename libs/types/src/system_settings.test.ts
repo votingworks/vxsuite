@@ -56,6 +56,7 @@ test('disallows invalid adjudication reasons', () => {
         ...DEFAULT_SYSTEM_SETTINGS,
         precinctScanAdjudicationReasons: ['abcdefg'],
         centralScanAdjudicationReasons: ['abcdefg'],
+        adminAdjudicationReasons: ['abcdefg'],
       })
     ).unsafeUnwrapErr()
   ).toMatchSnapshot();
