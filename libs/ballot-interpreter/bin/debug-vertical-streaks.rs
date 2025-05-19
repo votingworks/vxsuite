@@ -199,6 +199,7 @@ pub fn main() -> color_eyre::Result<()> {
         let mut streaks_json = std::fs::OpenOptions::new()
             .create(true)
             .write(true)
+            .truncate(true)
             .open(options.output.join("streaks.json"))?;
         serde_json::to_writer(&mut streaks_json, &streaked_ballots)?;
     }
@@ -208,6 +209,7 @@ pub fn main() -> color_eyre::Result<()> {
         let mut streaks_html = std::fs::OpenOptions::new()
             .create(true)
             .write(true)
+            .truncate(true)
             .open(options.output.join("streaks.html"))?;
 
         writeln!(
