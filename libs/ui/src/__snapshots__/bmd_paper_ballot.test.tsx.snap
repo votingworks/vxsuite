@@ -7,10 +7,10 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
     <div>
       <div
         aria-hidden="true"
-        class="sc-fPXMVe dwMYLV"
+        class="sc-gFqAkR gWCgPx"
       >
         <div
-          class="sc-gFqAkR daeioy"
+          class="sc-ikkxIA cakAEP"
           data-testid="header"
         >
           <img
@@ -58,7 +58,7 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
             </p>
           </div>
           <div
-            class="sc-ikkxIA dwzXnI"
+            class="sc-dAbbOL fjIaoX"
           >
             <div>
               <div>
@@ -111,19 +111,19 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
           </div>
         </div>
         <div
-          class="sc-dAbbOL fduIjL"
+          class="sc-feUZmu jGERvx"
         >
           <div
-            class="sc-feUZmu kjoAph"
+            class="sc-fUnMCh ddLMsu"
           >
             <div
-              class="sc-fUnMCh cPTFGw"
+              class="sc-hzhJZQ eTZHeg"
             >
               <div
-                class="sc-hzhJZQ hdQGKH"
+                class="sc-fHjqPf fbZbL"
               >
                 <span
-                  class="sc-bXCLTC ieXDgY"
+                  class="sc-jsJBEP jNqJTi"
                 >
                   <span>
                     President
@@ -131,7 +131,7 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
                 </span>
               </div>
               <span
-                class="sc-fHjqPf dAgyJG"
+                class="sc-hmdomO iYDVdN"
               >
                 <span
                   class="sc-gEvEer hUnYwC"
@@ -145,13 +145,13 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
               </span>
             </div>
             <div
-              class="sc-fUnMCh cPTFGw"
+              class="sc-hzhJZQ eTZHeg"
             >
               <div
-                class="sc-hzhJZQ hdQGKH"
+                class="sc-fHjqPf fbZbL"
               >
                 <span
-                  class="sc-bXCLTC ieXDgY"
+                  class="sc-jsJBEP jNqJTi"
                 >
                   <span>
                     Senate 
@@ -159,7 +159,7 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
                 </span>
               </div>
               <span
-                class="sc-fHjqPf dAgyJG"
+                class="sc-hmdomO iYDVdN"
               >
                 <span
                   class="sc-gEvEer hUnYwC"
@@ -173,13 +173,13 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
               </span>
             </div>
             <div
-              class="sc-fUnMCh cPTFGw"
+              class="sc-hzhJZQ eTZHeg"
             >
               <div
-                class="sc-hzhJZQ hdQGKH"
+                class="sc-fHjqPf fbZbL"
               >
                 <span
-                  class="sc-bXCLTC ieXDgY"
+                  class="sc-jsJBEP jNqJTi"
                 >
                   <span>
                     1st Congressional District
@@ -187,7 +187,7 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
                 </span>
               </div>
               <span
-                class="sc-fHjqPf dAgyJG"
+                class="sc-hmdomO iYDVdN"
               >
                 <span
                   class="sc-gEvEer hUnYwC"
@@ -201,13 +201,13 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
               </span>
             </div>
             <div
-              class="sc-fUnMCh cPTFGw"
+              class="sc-hzhJZQ eTZHeg"
             >
               <div
-                class="sc-hzhJZQ hdQGKH"
+                class="sc-fHjqPf fbZbL"
               >
                 <span
-                  class="sc-bXCLTC ieXDgY"
+                  class="sc-jsJBEP jNqJTi"
                 >
                   <span>
                     Supreme Court District 3(Northern) Position 3
@@ -215,7 +215,7 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
                 </span>
               </div>
               <span
-                class="sc-fHjqPf dAgyJG"
+                class="sc-hmdomO iYDVdN"
               >
                 <span
                   class="sc-gEvEer hUnYwC"
@@ -229,13 +229,13 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
               </span>
             </div>
             <div
-              class="sc-fUnMCh cPTFGw"
+              class="sc-hzhJZQ eTZHeg"
             >
               <div
-                class="sc-hzhJZQ hdQGKH"
+                class="sc-fHjqPf fbZbL"
               >
                 <span
-                  class="sc-bXCLTC ieXDgY"
+                  class="sc-jsJBEP jNqJTi"
                 >
                   <span>
                     Election Commissioner 04
@@ -243,7 +243,7 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
                 </span>
               </div>
               <span
-                class="sc-fHjqPf dAgyJG"
+                class="sc-hmdomO iYDVdN"
               >
                 <span
                   class="sc-gEvEer hUnYwC"
@@ -257,13 +257,13 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
               </span>
             </div>
             <div
-              class="sc-fUnMCh cPTFGw"
+              class="sc-hzhJZQ eTZHeg"
             >
               <div
-                class="sc-hzhJZQ hdQGKH"
+                class="sc-fHjqPf fbZbL"
               >
                 <span
-                  class="sc-bXCLTC ieXDgY"
+                  class="sc-jsJBEP jNqJTi"
                 >
                   <span>
                     Ballot Measure 2
@@ -272,7 +272,7 @@ House Concurrent Resolution No. 47
                 </span>
               </div>
               <span
-                class="sc-fHjqPf dAgyJG"
+                class="sc-hmdomO iYDVdN"
               >
                 <span
                   class="sc-gEvEer hUnYwC"
@@ -286,13 +286,13 @@ House Concurrent Resolution No. 47
               </span>
             </div>
             <div
-              class="sc-fUnMCh cPTFGw"
+              class="sc-hzhJZQ eTZHeg"
             >
               <div
-                class="sc-hzhJZQ hdQGKH"
+                class="sc-fHjqPf fbZbL"
               >
                 <span
-                  class="sc-bXCLTC ieXDgY"
+                  class="sc-jsJBEP jNqJTi"
                 >
                   <span>
                     Ballot Measure 3
@@ -301,7 +301,7 @@ House Bill 1796 - Flag Referendum
                 </span>
               </div>
               <span
-                class="sc-fHjqPf dAgyJG"
+                class="sc-hmdomO iYDVdN"
               >
                 <span
                   class="sc-gEvEer hUnYwC"
@@ -315,13 +315,13 @@ House Bill 1796 - Flag Referendum
               </span>
             </div>
             <div
-              class="sc-fUnMCh cPTFGw"
+              class="sc-hzhJZQ eTZHeg"
             >
               <div
-                class="sc-hzhJZQ hdQGKH"
+                class="sc-fHjqPf fbZbL"
               >
                 <span
-                  class="sc-bXCLTC ieXDgY"
+                  class="sc-jsJBEP jNqJTi"
                 >
                   <span>
                     Ballot Measure 1
@@ -329,7 +329,7 @@ House Bill 1796 - Flag Referendum
                 </span>
               </div>
               <span
-                class="sc-fHjqPf dAgyJG"
+                class="sc-hmdomO iYDVdN"
               >
                 <span
                   class="sc-gEvEer hUnYwC"
@@ -343,13 +343,13 @@ House Bill 1796 - Flag Referendum
               </span>
             </div>
             <div
-              class="sc-fUnMCh cPTFGw"
+              class="sc-hzhJZQ eTZHeg"
             >
               <div
-                class="sc-hzhJZQ hdQGKH"
+                class="sc-fHjqPf fbZbL"
               >
                 <span
-                  class="sc-bXCLTC ieXDgY"
+                  class="sc-jsJBEP jNqJTi"
                 >
                   <span>
                     Ballot Measure 1
@@ -357,7 +357,7 @@ House Bill 1796 - Flag Referendum
                 </span>
               </div>
               <span
-                class="sc-fHjqPf dAgyJG"
+                class="sc-hmdomO iYDVdN"
               >
                 <span
                   class="sc-gEvEer hUnYwC"
@@ -378,10 +378,10 @@ House Bill 1796 - Flag Referendum
   "container": <div>
     <div
       aria-hidden="true"
-      class="sc-fPXMVe dwMYLV"
+      class="sc-gFqAkR gWCgPx"
     >
       <div
-        class="sc-gFqAkR daeioy"
+        class="sc-ikkxIA cakAEP"
         data-testid="header"
       >
         <img
@@ -429,7 +429,7 @@ House Bill 1796 - Flag Referendum
           </p>
         </div>
         <div
-          class="sc-ikkxIA dwzXnI"
+          class="sc-dAbbOL fjIaoX"
         >
           <div>
             <div>
@@ -482,19 +482,19 @@ House Bill 1796 - Flag Referendum
         </div>
       </div>
       <div
-        class="sc-dAbbOL fduIjL"
+        class="sc-feUZmu jGERvx"
       >
         <div
-          class="sc-feUZmu kjoAph"
+          class="sc-fUnMCh ddLMsu"
         >
           <div
-            class="sc-fUnMCh cPTFGw"
+            class="sc-hzhJZQ eTZHeg"
           >
             <div
-              class="sc-hzhJZQ hdQGKH"
+              class="sc-fHjqPf fbZbL"
             >
               <span
-                class="sc-bXCLTC ieXDgY"
+                class="sc-jsJBEP jNqJTi"
               >
                 <span>
                   President
@@ -502,7 +502,7 @@ House Bill 1796 - Flag Referendum
               </span>
             </div>
             <span
-              class="sc-fHjqPf dAgyJG"
+              class="sc-hmdomO iYDVdN"
             >
               <span
                 class="sc-gEvEer hUnYwC"
@@ -516,13 +516,13 @@ House Bill 1796 - Flag Referendum
             </span>
           </div>
           <div
-            class="sc-fUnMCh cPTFGw"
+            class="sc-hzhJZQ eTZHeg"
           >
             <div
-              class="sc-hzhJZQ hdQGKH"
+              class="sc-fHjqPf fbZbL"
             >
               <span
-                class="sc-bXCLTC ieXDgY"
+                class="sc-jsJBEP jNqJTi"
               >
                 <span>
                   Senate 
@@ -530,7 +530,7 @@ House Bill 1796 - Flag Referendum
               </span>
             </div>
             <span
-              class="sc-fHjqPf dAgyJG"
+              class="sc-hmdomO iYDVdN"
             >
               <span
                 class="sc-gEvEer hUnYwC"
@@ -544,13 +544,13 @@ House Bill 1796 - Flag Referendum
             </span>
           </div>
           <div
-            class="sc-fUnMCh cPTFGw"
+            class="sc-hzhJZQ eTZHeg"
           >
             <div
-              class="sc-hzhJZQ hdQGKH"
+              class="sc-fHjqPf fbZbL"
             >
               <span
-                class="sc-bXCLTC ieXDgY"
+                class="sc-jsJBEP jNqJTi"
               >
                 <span>
                   1st Congressional District
@@ -558,7 +558,7 @@ House Bill 1796 - Flag Referendum
               </span>
             </div>
             <span
-              class="sc-fHjqPf dAgyJG"
+              class="sc-hmdomO iYDVdN"
             >
               <span
                 class="sc-gEvEer hUnYwC"
@@ -572,13 +572,13 @@ House Bill 1796 - Flag Referendum
             </span>
           </div>
           <div
-            class="sc-fUnMCh cPTFGw"
+            class="sc-hzhJZQ eTZHeg"
           >
             <div
-              class="sc-hzhJZQ hdQGKH"
+              class="sc-fHjqPf fbZbL"
             >
               <span
-                class="sc-bXCLTC ieXDgY"
+                class="sc-jsJBEP jNqJTi"
               >
                 <span>
                   Supreme Court District 3(Northern) Position 3
@@ -586,7 +586,7 @@ House Bill 1796 - Flag Referendum
               </span>
             </div>
             <span
-              class="sc-fHjqPf dAgyJG"
+              class="sc-hmdomO iYDVdN"
             >
               <span
                 class="sc-gEvEer hUnYwC"
@@ -600,13 +600,13 @@ House Bill 1796 - Flag Referendum
             </span>
           </div>
           <div
-            class="sc-fUnMCh cPTFGw"
+            class="sc-hzhJZQ eTZHeg"
           >
             <div
-              class="sc-hzhJZQ hdQGKH"
+              class="sc-fHjqPf fbZbL"
             >
               <span
-                class="sc-bXCLTC ieXDgY"
+                class="sc-jsJBEP jNqJTi"
               >
                 <span>
                   Election Commissioner 04
@@ -614,7 +614,7 @@ House Bill 1796 - Flag Referendum
               </span>
             </div>
             <span
-              class="sc-fHjqPf dAgyJG"
+              class="sc-hmdomO iYDVdN"
             >
               <span
                 class="sc-gEvEer hUnYwC"
@@ -628,13 +628,13 @@ House Bill 1796 - Flag Referendum
             </span>
           </div>
           <div
-            class="sc-fUnMCh cPTFGw"
+            class="sc-hzhJZQ eTZHeg"
           >
             <div
-              class="sc-hzhJZQ hdQGKH"
+              class="sc-fHjqPf fbZbL"
             >
               <span
-                class="sc-bXCLTC ieXDgY"
+                class="sc-jsJBEP jNqJTi"
               >
                 <span>
                   Ballot Measure 2
@@ -643,7 +643,7 @@ House Concurrent Resolution No. 47
               </span>
             </div>
             <span
-              class="sc-fHjqPf dAgyJG"
+              class="sc-hmdomO iYDVdN"
             >
               <span
                 class="sc-gEvEer hUnYwC"
@@ -657,13 +657,13 @@ House Concurrent Resolution No. 47
             </span>
           </div>
           <div
-            class="sc-fUnMCh cPTFGw"
+            class="sc-hzhJZQ eTZHeg"
           >
             <div
-              class="sc-hzhJZQ hdQGKH"
+              class="sc-fHjqPf fbZbL"
             >
               <span
-                class="sc-bXCLTC ieXDgY"
+                class="sc-jsJBEP jNqJTi"
               >
                 <span>
                   Ballot Measure 3
@@ -672,7 +672,7 @@ House Bill 1796 - Flag Referendum
               </span>
             </div>
             <span
-              class="sc-fHjqPf dAgyJG"
+              class="sc-hmdomO iYDVdN"
             >
               <span
                 class="sc-gEvEer hUnYwC"
@@ -686,13 +686,13 @@ House Bill 1796 - Flag Referendum
             </span>
           </div>
           <div
-            class="sc-fUnMCh cPTFGw"
+            class="sc-hzhJZQ eTZHeg"
           >
             <div
-              class="sc-hzhJZQ hdQGKH"
+              class="sc-fHjqPf fbZbL"
             >
               <span
-                class="sc-bXCLTC ieXDgY"
+                class="sc-jsJBEP jNqJTi"
               >
                 <span>
                   Ballot Measure 1
@@ -700,7 +700,7 @@ House Bill 1796 - Flag Referendum
               </span>
             </div>
             <span
-              class="sc-fHjqPf dAgyJG"
+              class="sc-hmdomO iYDVdN"
             >
               <span
                 class="sc-gEvEer hUnYwC"
@@ -714,13 +714,13 @@ House Bill 1796 - Flag Referendum
             </span>
           </div>
           <div
-            class="sc-fUnMCh cPTFGw"
+            class="sc-hzhJZQ eTZHeg"
           >
             <div
-              class="sc-hzhJZQ hdQGKH"
+              class="sc-fHjqPf fbZbL"
             >
               <span
-                class="sc-bXCLTC ieXDgY"
+                class="sc-jsJBEP jNqJTi"
               >
                 <span>
                   Ballot Measure 1
@@ -728,7 +728,7 @@ House Bill 1796 - Flag Referendum
               </span>
             </div>
             <span
-              class="sc-fHjqPf dAgyJG"
+              class="sc-hmdomO iYDVdN"
             >
               <span
                 class="sc-gEvEer hUnYwC"
