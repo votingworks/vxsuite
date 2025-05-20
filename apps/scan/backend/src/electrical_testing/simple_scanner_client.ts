@@ -42,7 +42,7 @@ export function createSimpleScannerClient(): SimpleScannerClient {
         await client.enableScanning({
           bitonalThreshold: 75,
           doubleFeedDetectionEnabled: false,
-          paperLengthInches: 11,
+          paperLengthInches: 22,
         })
       ).unsafeUnwrap();
     },

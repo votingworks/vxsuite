@@ -151,7 +151,21 @@ export type ElectricalTestingApi = ReturnType<typeof buildApi>;
 export function buildApp(context: ServerContext): Application {
   const app: Application = express();
   const api = buildApi(context);
-  app.use('/api/images', express.static(context.workspace.ballotImagesPath));
+  app.use('/api/images', async (req, res) => {
+    const usbDriveStatus = await context.usbDrive.status();
+    const basedir =
+      usbDriveStatus.status === 'mounted'
+        ? join(usbDriveStatus.mountPoint, 'ballot-images')
+        : context.workspace.ballotImagesPath;
+
+    const path = join(basedir, req.path);
+    if (!path.startsWith(basedir)) {
+      res.status(404).send('Not Found');
+      return;
+    }
+
+    res.sendFile(path);
+  });
   app.use('/api', grout.buildRouter(api, express));
   return app;
 }
