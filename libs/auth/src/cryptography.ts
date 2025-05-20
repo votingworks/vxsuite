@@ -573,14 +573,7 @@ export async function encryptAes256(
   const inputBuffer = Buffer.from(input, 'utf-8');
   assert(inputBuffer.length <= 16, 'Input must be 128 bits or less');
   return (
-    await openssl([
-      'enc',
-      '-aes-256-ecb',
-      '-K',
-      key,
-      '-in',
-      Buffer.from(input, 'utf-8'),
-    ])
+    await openssl(['enc', '-aes-256-ecb', '-K', key, '-in', inputBuffer])
   ).toString('base64');
 }
 
@@ -593,15 +586,8 @@ export async function decryptAes256(
   key: string,
   input: string
 ): Promise<string> {
+  const inputBuffer = Buffer.from(input, 'base64');
   return (
-    await openssl([
-      'enc',
-      '-d',
-      '-aes-256-ecb',
-      '-K',
-      key,
-      '-in',
-      Buffer.from(input, 'base64'),
-    ])
+    await openssl(['enc', '-d', '-aes-256-ecb', '-K', key, '-in', inputBuffer])
   ).toString('utf-8');
 }
