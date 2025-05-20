@@ -1,5 +1,4 @@
-import { exec } from 'node:child_process';
-import { promisify } from 'node:util';
+import { execFile } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
 import { sleep } from '@votingworks/basics';
 import { rootDebug } from './debug';
@@ -13,18 +12,16 @@ import {
   PEER_PORT,
 } from './globals';
 import type { PeerApi } from './peer_app';
+import { intermediateScript } from './intermediate_scripts';
 
 const debug = rootDebug.extend('networking');
 
-const execPromise = promisify(exec);
-
 export async function resetNetworkSetup(machineId: string): Promise<void> {
-  const command = 'sudo systemctl start join-mesh-network';
   try {
     debug('Removing published service before reset.');
     AvahiService.stopAdvertisedService();
     debug('Triggering network reset.');
-    await execPromise(command);
+    await execFile('sudo', [intermediateScript('reset-network')]);
     const currentNodeServiceName = `Pollbook-${machineId}`;
     // Advertise a service for this machine
     debug(
@@ -33,7 +30,7 @@ export async function resetNetworkSetup(machineId: string): Promise<void> {
       PEER_PORT
     );
     await sleep(5000);
-    await AvahiService.advertiseHttpService(currentNodeServiceName, PEER_PORT);
+    AvahiService.advertiseHttpService(currentNodeServiceName, PEER_PORT);
     debug('Network restarted');
   } catch (error) {
     debug(`Error restarting network: ${error}`);
@@ -155,10 +152,10 @@ export function fetchEventsFromConnectedPollbooks({
   });
 }
 
-export async function setupMachineNetworking({
+export function setupMachineNetworking({
   machineId,
   workspace,
-}: PeerAppContext): Promise<void> {
+}: PeerAppContext): void {
   const currentNodeServiceName = `Pollbook-${machineId}`;
   // Advertise a service for this machine
   debug(
@@ -166,7 +163,7 @@ export async function setupMachineNetworking({
     currentNodeServiceName,
     PEER_PORT
   );
-  await AvahiService.advertiseHttpService(currentNodeServiceName, PEER_PORT);
+  AvahiService.advertiseHttpService(currentNodeServiceName, PEER_PORT);
 
   // Poll for new machines on the network
   process.nextTick(() => {

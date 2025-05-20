@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+ip link show | grep "state UP"

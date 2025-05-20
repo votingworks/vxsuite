@@ -1,10 +1,9 @@
-import { exec, ExecException } from 'node:child_process';
-import { promisify } from 'node:util';
+import { exec, spawn } from 'node:child_process';
+import { execFile } from '@votingworks/backend';
 import { rootDebug } from './debug';
+import { intermediateScript } from './intermediate_scripts';
 
 const debug = rootDebug.extend('networking');
-
-const execPromise = promisify(exec);
 
 export interface AvahiDiscoveredService {
   name: string;
@@ -15,9 +14,10 @@ export interface AvahiDiscoveredService {
 
 // Checks if there is any network interface 'UP'.
 export async function hasOnlineInterface(): Promise<boolean> {
-  const command = 'ip link show | grep "state UP"';
   try {
-    const { stdout } = await execPromise(command);
+    const { stdout } = await execFile('sudo', [
+      intermediateScript('is-online'),
+    ]);
     debug(`ip link show stdout: ${stdout}`);
     return stdout.length > 0;
   } catch (error) {
@@ -35,26 +35,21 @@ export class AvahiService {
    * @param port - The port of the HTTP service.
    * @returns A promise that resolves when the service starts.
    */
-  static async advertiseHttpService(name: string, port: number): Promise<void> {
-    const command = `avahi-publish-service ${name} _http._tcp ${port}`;
-    return new Promise((resolve, reject) => {
-      const process = exec(command, (error: ExecException | null) => {
-        if (error) {
-          reject(error);
-        }
-      });
+  static advertiseHttpService(name: string, port: number): void {
+    const process = spawn('sudo', [
+      intermediateScript('avahi-publish-service'),
+      name,
+      `${port}`,
+    ]);
 
-      this.runningProcess = process;
+    this.runningProcess = process;
 
-      process.stdout?.on('data', (data) => {
-        debug(`avahi-publish-service successful stdout: ${data}`);
-        resolve();
-      });
+    process.stdout?.on('data', (data) => {
+      debug(`avahi-publish-service successful stdout: ${data}`);
+    });
 
-      process.stderr?.on('data', (data) => {
-        debug(`avahi-publish-service stderr: ${data}`);
-        resolve();
-      });
+    process.stderr?.on('data', (data) => {
+      debug(`avahi-publish-service stderr: ${data}`);
     });
   }
 
@@ -74,9 +69,10 @@ export class AvahiService {
    * @returns A promise resolving to an array of discovered services.
    */
   static async discoverHttpServices(): Promise<AvahiDiscoveredService[]> {
-    const command = `avahi-browse -r -t -p _http._tcp`;
     try {
-      const { stdout, stderr } = await execPromise(command, { timeout: 3000 });
+      const { stdout, stderr } = await execFile('sudo', [
+        intermediateScript('avahi-browse'),
+      ]);
       if (stderr) {
         debug(`avahi-browse stderr: ${stderr}`);
         return [];
