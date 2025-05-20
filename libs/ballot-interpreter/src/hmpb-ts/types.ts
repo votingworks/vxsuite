@@ -152,6 +152,8 @@ export interface TimingMarkGrid {
 
   /** Areas of the ballot card that contain shapes that may be timing marks. */
   candidateTimingMarks: Rect[];
+
+  cornerSkew: [topLeft: f32, topRight: f32, bottomLeft: f32, bottomRight: f32];
 }
 
 /** Metadata from the ballot card. */

@@ -242,18 +242,17 @@ async function interpretFiles(
   const interpreted = result.ok();
 
   if (json) {
-    const normalizedImagePaths = await writeNormalizedImages(interpreted);
     await writeIterToStream(
       jsonStream(
         {
           ...interpreted,
           front: {
             ...interpreted.front,
-            normalizedImage: normalizedImagePaths.front,
+            normalizedImage: null,
           },
           back: {
             ...interpreted.back,
-            normalizedImage: normalizedImagePaths.back,
+            normalizedImage: null,
           },
         },
         { compact: false }

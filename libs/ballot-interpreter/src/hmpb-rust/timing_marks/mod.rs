@@ -202,6 +202,7 @@ pub struct Complete {
     pub top_right_mark: CandidateTimingMark,
     pub bottom_left_mark: CandidateTimingMark,
     pub bottom_right_mark: CandidateTimingMark,
+    pub corner_skew: [Degrees; 4],
 }
 
 impl Complete {
@@ -220,6 +221,7 @@ impl Complete {
             bottom_marks,
             left_marks,
             right_marks,
+            corner_skew: [top_left, top_right, bottom_left, bottom_right],
         } = self;
 
         let rotator = Rotator180::new(image_size);
@@ -274,6 +276,7 @@ impl Complete {
             bottom_marks: rotated_top_marks,
             left_marks: rotated_right_marks,
             right_marks: rotated_left_marks,
+            corner_skew: [bottom_right, bottom_left, top_right, top_left],
         }
     }
 }
@@ -1480,7 +1483,7 @@ pub fn find_complete_from_partial(
         return Err(FindCompleteTimingMarksError::MissingCorners { missing_corners });
     };
 
-    let complete_timing_marks = Complete {
+    let mut complete_timing_marks = Complete {
         geometry: *geometry,
         top_marks: complete_top_line_marks,
         bottom_marks: complete_bottom_line_marks,
@@ -1494,6 +1497,12 @@ pub fn find_complete_from_partial(
         top_right_mark: top_right_rect,
         bottom_left_mark: bottom_left_rect,
         bottom_right_mark: bottom_right_rect,
+        corner_skew: [
+            Degrees::new(0.0),
+            Degrees::new(0.0),
+            Degrees::new(0.0),
+            Degrees::new(0.0),
+        ],
     };
 
     let partial_timing_marks_from_complete_timing_marks: Partial =
@@ -1552,6 +1561,13 @@ pub fn find_complete_from_partial(
         let bottom_right_skew = partial_timing_marks_from_complete_timing_marks
             .bottom_right_corner_skew()
             .to_degrees();
+
+        complete_timing_marks.corner_skew = [
+            top_left_skew,
+            top_right_skew,
+            bottom_left_skew,
+            bottom_right_skew,
+        ];
 
         if top_left_skew > MAXIMUM_ALLOWED_BALLOT_SKEW
             || top_right_skew > MAXIMUM_ALLOWED_BALLOT_SKEW
