@@ -214,6 +214,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [system-status](#system-status)
 **Description:** The machine has completed all the steps to shutdown and will now power down or reboot.
 **Machines:** All
+### usb-device-reconnect-attempted
+**Type:** [system-action](#system-action)
+**Description:** A message from the machine kernel about an application-initiated attempt to reconnect an externally-connected USB device.
+**Machines:** All
 ### usb-device-change-detected
 **Type:** [system-status](#system-status)
 **Description:** A message from the machine kernel about an externally-connected USB device, usually when a new device is connected or disconnected.
@@ -554,3 +558,15 @@ IDs are logged with each log to identify the log being written.
 **Type:** [application-action](#application-action)
 **Description:** An API call was made.
 **Machines:** vx-design
+### socket-client-error
+**Type:** [application-status](#application-status)
+**Description:** An error was reported by a socket client.
+**Machines:** All
+### socket-connection
+**Type:** [application-action](#application-action)
+**Description:** A socket client connection was attempted.
+**Machines:** All
+### socket-disconnection
+**Type:** [application-action](#application-action)
+**Description:** A socket client was disconnected.
+**Machines:** All
