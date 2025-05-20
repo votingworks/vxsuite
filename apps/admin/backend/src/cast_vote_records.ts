@@ -17,12 +17,14 @@ import {
 } from '@votingworks/basics';
 import { FileSystemEntryType } from '@votingworks/fs';
 import {
+  AdjudicationReason,
   CVR,
   ElectionDefinition,
   getBallotStyle,
   getContests,
   getGroupIdFromBallotStyleId,
   getPrecinctById,
+  Id,
   Tabulation,
 } from '@votingworks/types';
 import { listDirectoryOnUsbDrive, UsbDrive } from '@votingworks/usb-drive';
@@ -30,6 +32,7 @@ import {
   BooleanEnvironmentVariableName,
   castVoteRecordHasValidContestReferences,
   convertCastVoteRecordMarkMetricsToMarkScores,
+  CastVoteRecordWriteIn,
   convertCastVoteRecordVotesToTabulationVotes,
   generateElectionBasedSubfolderName,
   getCastVoteRecordBallotType,
@@ -38,15 +41,20 @@ import {
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
 
+import { MarkScores } from '@votingworks/types/src/tabulation';
 import { Store } from './store';
 import {
   CastVoteRecordElectionDefinitionValidationError,
   CastVoteRecordFileMetadata,
+  CvrContestTag,
   CvrFileImportInfo,
   CvrFileMode,
   ImportCastVoteRecordsError,
 } from './types';
-import { getCastVoteRecordAdjudicationFlags } from './util/cast_vote_records';
+import {
+  CvrContestTagList,
+  getCastVoteRecordAdjudicationFlags,
+} from './util/cast_vote_records';
 
 /**
  * Validates that the fields in a cast vote record and the election definition correspond
@@ -184,6 +192,58 @@ export async function listCastVoteRecordExportsOnUsbDrive(
       (a, b) => b.exportTimestamp.getTime() - a.exportTimestamp.getTime()
     )
   );
+}
+
+/**
+ * Returns a list of contest tags for a given cvr based on
+ * system settings.
+ */
+export function determineCvrContestTags({
+  store,
+  cvrId,
+  writeIns,
+  markScores,
+}: {
+  store: Store;
+  cvrId: Id;
+  writeIns: CastVoteRecordWriteIn[];
+  markScores?: MarkScores;
+}): CvrContestTag[] {
+  const electionId = assertDefined(store.getCurrentElectionId());
+  const { adminAdjudicationReasons, markThresholds } =
+    store.getSystemSettings(electionId);
+
+  const tagsByContestId = new CvrContestTagList(cvrId);
+  for (const writeIn of writeIns) {
+    const tag = tagsByContestId.getOrCreateTag(writeIn.contestId);
+    if (writeIn.isUnmarked) {
+      tag.hasUnmarkedWriteIn = true;
+    } else {
+      tag.hasWriteIn = true;
+    }
+  }
+
+  if (adminAdjudicationReasons.includes(AdjudicationReason.MarginalMark)) {
+    assert(
+      markScores !== undefined,
+      `mark scores expected with 'MarginalMark' 
+       adjudication reason set in system settings`
+    );
+    for (const [contestId, contestMarkScores] of Object.entries(markScores)) {
+      for (const optionMarkScore of Object.values(contestMarkScores)) {
+        const hasMarginalMark =
+          optionMarkScore >= markThresholds.marginal &&
+          optionMarkScore < markThresholds.definite;
+        if (hasMarginalMark) {
+          const tag = tagsByContestId.getOrCreateTag(contestId);
+          tag.hasMarginalMark = true;
+          break;
+        }
+      }
+    }
+  }
+
+  return Array.from(tagsByContestId.toArray());
 }
 
 /**
@@ -390,6 +450,15 @@ export async function importCastVoteRecords(
               isUndetected: false,
               machineMarkedText: castVoteRecordWriteIn.text,
             });
+          }
+
+          for (const tag of determineCvrContestTags({
+            store,
+            cvrId: castVoteRecordId,
+            writeIns: castVoteRecordWriteIns,
+            markScores,
+          })) {
+            store.addCvrContestTag(tag);
           }
         }
       }

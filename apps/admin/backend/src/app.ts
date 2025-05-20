@@ -75,7 +75,7 @@ import {
   ManualResultsRecord,
   ScannerBatch,
   WriteInAdjudicationAction,
-  WriteInAdjudicationQueueMetadata,
+  AdjudicationQueueMetadata,
   WriteInCandidateRecord,
   WriteInImageView,
   ImportElectionResultsReportingError,
@@ -662,22 +662,22 @@ function buildApi({
       });
     },
 
-    getWriteInAdjudicationCvrQueue(input: { contestId: ContestId }): Id[] {
-      return store.getWriteInAdjudicationCvrQueue({
+    getAdjudicationQueue(input: { contestId: ContestId }): Id[] {
+      return store.getAdjudicationQueue({
         electionId: loadCurrentElectionIdOrThrow(workspace),
         contestId: input.contestId,
       });
     },
 
-    getWriteInAdjudicationCvrQueueMetadata(): WriteInAdjudicationQueueMetadata[] {
-      return store.getWriteInAdjudicationCvrQueueMetadata({
+    getAdjudicationQueueMetadata(): AdjudicationQueueMetadata[] {
+      return store.getAdjudicationQueueMetadata({
         electionId: loadCurrentElectionIdOrThrow(workspace),
       });
     },
 
-    getFirstPendingWriteInCvrId(input: { contestId: ContestId }): Id | null {
+    getNextCvrIdForAdjudication(input: { contestId: ContestId }): Id | null {
       return (
-        store.getFirstPendingWriteInCvrId({
+        store.getNextCvrIdForAdjudication({
           ...input,
           electionId: loadCurrentElectionIdOrThrow(workspace),
         }) ?? null

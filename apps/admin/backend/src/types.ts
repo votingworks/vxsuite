@@ -283,9 +283,9 @@ export type WriteInAdjudicatedTally =
 export type WriteInTally = WriteInPendingTally | WriteInAdjudicatedTally;
 
 /**
- * Description of the write-in adjudication queue size.
+ * Description of adjudication queue size.
  */
-export interface WriteInAdjudicationQueueMetadata {
+export interface AdjudicationQueueMetadata {
   contestId: ContestId;
   pendingTally: number;
   totalTally: number;
@@ -375,6 +375,18 @@ interface AdjudicatedWriteInCandidate extends AdjudicatedWriteInBase {
 
 interface AdjudicatedWriteInFalse extends AdjudicatedWriteInBase {
   hasVote: false;
+}
+
+/**
+ * A queryable tag for a cvr-contest pair, used for adjudication
+ */
+export interface CvrContestTag {
+  cvrId: Id;
+  contestId: ContestId;
+  isResolved: boolean;
+  hasMarginalMark?: boolean;
+  hasWriteIn?: boolean;
+  hasUnmarkedWriteIn?: boolean;
 }
 
 /**

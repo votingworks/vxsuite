@@ -20,10 +20,7 @@ import {
 import { format } from '@votingworks/utils';
 import { NavigationScreen } from '../components/navigation_screen';
 import { AppContext } from '../contexts/app_context';
-import {
-  getCastVoteRecordFiles,
-  getWriteInAdjudicationCvrQueueMetadata,
-} from '../api';
+import { getCastVoteRecordFiles, getAdjudicationQueueMetadata } from '../api';
 import { routerPaths } from '../router_paths';
 
 const ContentWrapper = styled.div`
@@ -39,7 +36,7 @@ export function WriteInsSummaryScreen(): JSX.Element {
   const { electionDefinition, isOfficialResults } = useContext(AppContext);
 
   const writeInAdjudicationCvrQueueMetadataQuery =
-    getWriteInAdjudicationCvrQueueMetadata.useQuery();
+    getAdjudicationQueueMetadata.useQuery();
   const castVoteRecordFilesQuery = getCastVoteRecordFiles.useQuery();
 
   const election = electionDefinition?.election;

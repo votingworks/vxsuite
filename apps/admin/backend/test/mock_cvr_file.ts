@@ -2,6 +2,8 @@ import {
   BallotPageLayout,
   BallotStyleId,
   BallotType,
+  ContestId,
+  ContestOptionId,
   Id,
   Tabulation,
 } from '@votingworks/types';
@@ -10,6 +12,7 @@ import { Buffer } from 'node:buffer';
 import { assertDefined } from '@votingworks/basics';
 import { Store } from '../src/store';
 import { getCastVoteRecordAdjudicationFlags } from '../src/util/cast_vote_records';
+import { determineCvrContestTags } from '../src/cast_vote_records';
 
 export type MockCastVoteRecordFile = Array<
   Tabulation.CastVoteRecord & { multiplier?: number }
@@ -86,13 +89,21 @@ export function addMockCvrFileToStore({
       const { cvrId } = addCastVoteRecordResult.unsafeUnwrap();
       cvrIds.push(cvrId);
 
-      const writeIns: Array<[contestId: string, optionId: string]> = [];
+      const writeIns: Array<{
+        contestId: ContestId;
+        optionId: ContestOptionId;
+        isUnmarked: boolean;
+      }> = [];
       for (const [contestId, optionIds] of Object.entries(
         mockCastVoteRecord.votes
       )) {
         for (const optionId of optionIds) {
           if (optionId.startsWith('write-in')) {
-            writeIns.push([contestId, optionId]);
+            writeIns.push({
+              contestId,
+              optionId,
+              isUnmarked: optionId.includes('unmarked'),
+            });
           }
         }
       }
@@ -106,16 +117,25 @@ export function addMockCvrFileToStore({
           side: 'front',
         });
 
-        for (const [contestId, optionId] of writeIns) {
+        for (const { contestId, optionId, isUnmarked } of writeIns) {
           store.addWriteIn({
             electionId,
             castVoteRecordId: cvrId,
             side: 'front',
             contestId,
             optionId,
-            isUnmarked: optionId.includes('unmarked'),
+            isUnmarked,
           });
         }
+      }
+
+      for (const tag of determineCvrContestTags({
+        store,
+        cvrId,
+        writeIns,
+        markScores: mockCastVoteRecord.markScores,
+      })) {
+        store.addCvrContestTag(tag);
       }
     }
   }

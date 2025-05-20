@@ -1,13 +1,15 @@
 import { expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import {
+  AdjudicationReason,
   BallotStyleGroupId,
   ContestOptionId,
   DEFAULT_SYSTEM_SETTINGS,
+  SystemSettings,
   Tabulation,
 } from '@votingworks/types';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
-import { assert } from '@votingworks/basics';
+import { assert, typedAs } from '@votingworks/basics';
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import {
   MockCastVoteRecordFile,
@@ -56,6 +58,11 @@ test('adjudicateVote', () => {
     mockCastVoteRecordFile,
     store,
   });
+  assert(cvrId !== undefined);
+
+  // Validate this cvr didn't create a contest tag
+  const cvrContestTag = store.getCvrContestTag({ cvrId, contestId });
+  expect(cvrContestTag).toBeUndefined();
 
   function expectVotes(votes: Tabulation.Votes) {
     const [cvr] = [...store.getCastVoteRecords({ electionId, filter: {} })];
@@ -326,13 +333,18 @@ test('adjudicateWriteIn', () => {
   expect(writeInRecord).toBeUndefined();
 });
 
-test('adjudicateCvrContest', () => {
+test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
   const store = Store.memoryStore();
   const logger = mockBaseLogger({ fn: vi.fn });
   const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
   const electionId = store.addElection({
     electionData,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    systemSettingsData: JSON.stringify(
+      typedAs<SystemSettings>({
+        ...DEFAULT_SYSTEM_SETTINGS,
+        adminAdjudicationReasons: [AdjudicationReason.MarginalMark],
+      })
+    ),
     electionPackageFileContents: Buffer.of(),
     electionPackageHash: 'test-election-package-hash',
   });
@@ -352,6 +364,14 @@ test('adjudicateCvrContest', () => {
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
       votingMethod: 'precinct',
+      markScores: {
+        'zoo-council-mammal': {
+          lion: 1.0,
+          'write-in-0': 0.9,
+          zebra: 0.06,
+          'write-in-1': 0,
+        },
+      },
       votes: { 'zoo-council-mammal': initialVotes },
       card: { type: 'bmd' },
       multiplier: 1,
@@ -406,6 +426,14 @@ test('adjudicateCvrContest', () => {
 
   expectVotes(initialVotes);
   expectWriteInRecords(initialWriteInRecords);
+  const initialContestTag = store.getCvrContestTag({ cvrId, contestId });
+  expect(initialContestTag).toBeDefined();
+  expect(
+    initialContestTag?.isResolved === false &&
+      initialContestTag?.hasMarginalMark &&
+      initialContestTag?.hasWriteIn &&
+      initialContestTag?.hasUnmarkedWriteIn === false
+  ).toEqual(true);
 
   // remove both initial votes
   adjudicate({});
@@ -437,6 +465,14 @@ test('adjudicateCvrContest', () => {
       candidateId: 'elephant',
     },
   ]);
+  const adjudicatedContestTag = store.getCvrContestTag({ cvrId, contestId });
+  expect(adjudicatedContestTag).toBeDefined();
+  expect(
+    adjudicatedContestTag?.isResolved &&
+      adjudicatedContestTag?.hasMarginalMark &&
+      adjudicatedContestTag?.hasWriteIn &&
+      adjudicatedContestTag?.hasUnmarkedWriteIn === false
+  ).toEqual(true);
 
   // one additional candidate and write-in with new write-in candidate
   adjudicate({
@@ -529,4 +565,12 @@ test('adjudicateCvrContest', () => {
       candidateId: 'elephant',
     },
   ]);
+  const finalContestTag = store.getCvrContestTag({ cvrId, contestId });
+  expect(finalContestTag).toBeDefined();
+  expect(
+    finalContestTag?.isResolved &&
+      finalContestTag?.hasMarginalMark &&
+      finalContestTag?.hasWriteIn &&
+      finalContestTag?.hasUnmarkedWriteIn === false
+  ).toEqual(true);
 });

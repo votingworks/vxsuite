@@ -13,7 +13,16 @@ import {
   buildElectionResultsFixture,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { ContestOptionId, CVR, Id, Rect, Tabulation } from '@votingworks/types';
+import {
+  AdjudicationReason,
+  ContestOptionId,
+  CVR,
+  DEFAULT_SYSTEM_SETTINGS,
+  Id,
+  Rect,
+  SystemSettings,
+  Tabulation,
+} from '@votingworks/types';
 import { modifyCastVoteRecordExport } from '@votingworks/backend';
 import { ContestWriteInSummary } from '@votingworks/types/src/tabulation';
 import {
@@ -56,7 +65,7 @@ afterEach(() => {
   featureFlagMock.resetFeatureFlags();
 });
 
-test('getWriteInAdjudicationCvrQueue', async () => {
+test('getAdjudicationQueue', async () => {
   const { auth, apiClient } = buildTestEnvironment();
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
@@ -72,10 +81,12 @@ test('getWriteInAdjudicationCvrQueue', async () => {
   ).unsafeUnwrap();
 
   const contestId = 'Sheriff-4243fe0b';
-  const contestCvrIds = await apiClient.getWriteInAdjudicationCvrQueue({
+  const contestCvrIds = await apiClient.getAdjudicationQueue({
     contestId,
   });
   expect(contestCvrIds).toHaveLength(2);
+  const initialNextForAdjudication =
+    await apiClient.getNextCvrIdForAdjudication({ contestId });
 
   // add another file, whose write-ins should end up at the end of the queue
   const secondReportPath = await modifyCastVoteRecordExport(
@@ -93,20 +104,29 @@ test('getWriteInAdjudicationCvrQueue', async () => {
     })
   ).unsafeUnwrap();
 
-  const contestCvrIdsDouble = await apiClient.getWriteInAdjudicationCvrQueue({
+  const contestCvrIdsDouble = await apiClient.getAdjudicationQueue({
     contestId,
   });
   expect(contestCvrIdsDouble).toHaveLength(4);
   expect(contestCvrIdsDouble.slice(0, 2)).toEqual(contestCvrIds);
+  const updatedNextForAdjudication =
+    await apiClient.getNextCvrIdForAdjudication({ contestId });
+
+  // since no cvrs were adjudicated, the next pending one should be unchanged
+  expect(initialNextForAdjudication).toEqual(updatedNextForAdjudication);
 });
 
-test('getWriteInAdjudicationCvrQueueMetadata', async () => {
+test('getAdjudicationQueueMetadata', async () => {
   const { auth, apiClient } = buildTestEnvironment();
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
   const { castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
-  await configureMachine(apiClient, auth, electionDefinition);
+  const systemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    adminAdjudicationReasons: [AdjudicationReason.MarginalMark],
+  };
+  await configureMachine(apiClient, auth, electionDefinition, systemSettings);
 
   (
     await apiClient.addCastVoteRecordFile({
@@ -118,8 +138,7 @@ test('getWriteInAdjudicationCvrQueueMetadata', async () => {
     (contest) => contest.type === 'candidate' && contest.allowWriteIns
   );
 
-  const allQueueMetadata =
-    await apiClient.getWriteInAdjudicationCvrQueueMetadata();
+  const allQueueMetadata = await apiClient.getAdjudicationQueueMetadata();
   expect(allQueueMetadata).toHaveLength(contestsWithWriteIns.length);
   assert(
     allQueueMetadata.every(
@@ -145,7 +164,7 @@ test('getWriteInImageViews on hmpb', async () => {
 
   // look at a contest that can have multiple write-ins per ballot
   const contestId = 'State-Representatives-Hillsborough-District-34-b1012d38';
-  const cvrIds = await apiClient.getWriteInAdjudicationCvrQueue({
+  const cvrIds = await apiClient.getAdjudicationQueue({
     contestId,
   });
   expect(cvrIds).toHaveLength(1);
@@ -236,7 +255,7 @@ test('getWriteInImageViews on bmd', async () => {
 
   // look at a contest that can have multiple write-ins per ballot
   const contestId = 'zoo-council-mammal';
-  const cvrIds = await apiClient.getWriteInAdjudicationCvrQueue({
+  const cvrIds = await apiClient.getAdjudicationQueue({
     contestId,
   });
   expect(cvrIds).toHaveLength(24);
@@ -267,13 +286,17 @@ test('getWriteInImageViews on bmd', async () => {
   expect(machineMarkedTextB).toEqual('Mock Write-In');
 });
 
-test('getFirstPendingWriteInCvrId', async () => {
+test('getNextCvrIdForAdjudication', async () => {
   const { auth, apiClient } = buildTestEnvironment();
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
   const { castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
-  await configureMachine(apiClient, auth, electionDefinition);
+  const systemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    adminAdjudicationReasons: [AdjudicationReason.MarginalMark],
+  };
+  await configureMachine(apiClient, auth, electionDefinition, systemSettings);
 
   (
     await apiClient.addCastVoteRecordFile({
@@ -283,45 +306,42 @@ test('getFirstPendingWriteInCvrId', async () => {
 
   const contestId = 'State-Representatives-Hillsborough-District-34-b1012d38';
 
-  const writeInQueue = await apiClient.getWriteInAdjudicationCvrQueue({
+  const adjudicationQueue = await apiClient.getAdjudicationQueue({
     contestId,
   });
 
   async function adjudicateAtIndex(index: number) {
-    const [writeIn] = await apiClient.getWriteIns({
-      cvrId: writeInQueue[index],
+    await apiClient.adjudicateCvrContest({
       contestId,
-    });
-    assert(writeIn !== undefined);
-    return apiClient.adjudicateWriteIn({
-      writeInId: writeIn.id,
-      type: 'invalid',
+      cvrId: adjudicationQueue[index] || '',
+      adjudicatedContestOptionById: {},
+      side: 'front',
     });
   }
 
-  expect(await apiClient.getFirstPendingWriteInCvrId({ contestId })).toEqual(
-    writeInQueue[0]
+  expect(await apiClient.getNextCvrIdForAdjudication({ contestId })).toEqual(
+    adjudicationQueue[0]
   );
 
   await adjudicateAtIndex(0);
-  expect(await apiClient.getFirstPendingWriteInCvrId({ contestId })).toEqual(
-    writeInQueue[1]
+  expect(await apiClient.getNextCvrIdForAdjudication({ contestId })).toEqual(
+    adjudicationQueue[1]
   );
 
   await adjudicateAtIndex(2);
-  expect(await apiClient.getFirstPendingWriteInCvrId({ contestId })).toEqual(
-    writeInQueue[1]
+  expect(await apiClient.getNextCvrIdForAdjudication({ contestId })).toEqual(
+    adjudicationQueue[1]
   );
 
   await adjudicateAtIndex(1);
-  expect(await apiClient.getFirstPendingWriteInCvrId({ contestId })).toEqual(
-    writeInQueue[3]
+  expect(await apiClient.getNextCvrIdForAdjudication({ contestId })).toEqual(
+    adjudicationQueue[3]
   );
 
-  for (const [i] of writeInQueue.entries()) {
+  for (const [i] of adjudicationQueue.entries()) {
     await adjudicateAtIndex(i);
   }
-  expect(await apiClient.getFirstPendingWriteInCvrId({ contestId })).toEqual(
+  expect(await apiClient.getNextCvrIdForAdjudication({ contestId })).toEqual(
     null
   );
 });
@@ -377,7 +397,7 @@ test('handling unmarked write-ins', async () => {
     })
   ).unsafeUnwrap();
 
-  const [cvrId] = await apiClient.getWriteInAdjudicationCvrQueue({
+  const [cvrId] = await apiClient.getAdjudicationQueue({
     contestId: WRITE_IN_CONTEST_ID,
   });
   assert(cvrId !== undefined);
@@ -503,7 +523,7 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
 
   // look at a contest that can have multiple write-ins per ballot
   const contestId = 'Governor-061a401b';
-  const cvrIds = await apiClient.getWriteInAdjudicationCvrQueue({
+  const cvrIds = await apiClient.getAdjudicationQueue({
     contestId,
   });
   expect(cvrIds).toHaveLength(2);
@@ -605,7 +625,7 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
     status: 'pending',
   });
   expect(
-    (await apiClient.getWriteInAdjudicationCvrQueueMetadata()).find(
+    (await apiClient.getAdjudicationQueueMetadata()).find(
       (data) => data.contestId === contestId
     )
   ).toEqual({
@@ -834,7 +854,7 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
 
   // adjudication queue metadata should be updated
   expect(
-    (await apiClient.getWriteInAdjudicationCvrQueueMetadata()).find(
+    (await apiClient.getAdjudicationQueueMetadata()).find(
       (data) => data.contestId === contestId
     )
   ).toEqual({
