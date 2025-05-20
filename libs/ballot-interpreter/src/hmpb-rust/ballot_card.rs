@@ -6,7 +6,7 @@ use types_rs::geometry::PixelUnit;
 
 pub use types_rs::ballot_card::*;
 
-use crate::{image_utils::Inset, interpret::ResizeStrategy};
+use crate::image_utils::Inset;
 
 use types_rs::geometry::{GridUnit, Inch, PixelPosition, Rect, Size, SubPixelUnit};
 
@@ -258,7 +258,6 @@ impl PaperInfo {
 pub fn get_matching_paper_info_for_image_size(
     size: (PixelUnit, PixelUnit),
     possible_paper_info: &[PaperInfo],
-    resize_strategy: ResizeStrategy,
 ) -> Option<PaperInfo> {
     const WIDTH_ERROR_THRESHOLD: f32 = 0.05;
     const HEIGHT_ERROR_THRESHOLD: f32 = 0.15;
@@ -266,13 +265,15 @@ pub fn get_matching_paper_info_for_image_size(
         .iter()
         .map(|paper_info| {
             let geometry = paper_info.compute_geometry();
-            (
-                paper_info,
-                resize_strategy.compute_error(
-                    (geometry.canvas_size.width, geometry.canvas_size.height),
-                    size,
-                ),
-            )
+            (paper_info, {
+                let expected_dimensions = (geometry.canvas_size.width, geometry.canvas_size.height);
+                let (expected_width, expected_height) = expected_dimensions;
+                let (actual_width, actual_height) = size;
+                (
+                    expected_width.abs_diff(actual_width) as f32 / expected_width as f32,
+                    expected_height.abs_diff(actual_height) as f32 / expected_height as f32,
+                )
+            })
         })
         .filter(|(_, (width_error, height_error))| {
             *width_error < WIDTH_ERROR_THRESHOLD && *height_error < HEIGHT_ERROR_THRESHOLD
@@ -299,27 +300,15 @@ mod tests {
     #[test]
     fn test_get_scanned_ballot_card_geometry() {
         assert_eq!(
-            get_matching_paper_info_for_image_size(
-                (1696, 2200),
-                &PaperInfo::scanned(),
-                ResizeStrategy
-            ),
+            get_matching_paper_info_for_image_size((1696, 2200), &PaperInfo::scanned(),),
             Some(PaperInfo::scanned_letter())
         );
         assert_eq!(
-            get_matching_paper_info_for_image_size(
-                (1696, 2800),
-                &PaperInfo::scanned(),
-                ResizeStrategy
-            ),
+            get_matching_paper_info_for_image_size((1696, 2800), &PaperInfo::scanned(),),
             Some(PaperInfo::scanned_legal())
         );
         assert_eq!(
-            get_matching_paper_info_for_image_size(
-                (1500, 1500),
-                &PaperInfo::scanned(),
-                ResizeStrategy
-            ),
+            get_matching_paper_info_for_image_size((1500, 1500), &PaperInfo::scanned(),),
             None
         );
     }

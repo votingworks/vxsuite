@@ -209,25 +209,6 @@ impl ScanInterpreter {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
-pub struct ResizeStrategy;
-
-impl ResizeStrategy {
-    #[must_use]
-    pub fn compute_error(
-        self,
-        expected_dimensions: (u32, u32),
-        actual_dimensions: (u32, u32),
-    ) -> (f32, f32) {
-        let (expected_width, expected_height) = expected_dimensions;
-        let (actual_width, actual_height) = actual_dimensions;
-        (
-            expected_width.abs_diff(actual_width) as f32 / expected_width as f32,
-            expected_height.abs_diff(actual_height) as f32 / expected_height as f32,
-        )
-    }
-}
-
 /// Load both sides of a ballot card image and return the ballot card.
 ///
 /// # Errors
@@ -239,14 +220,11 @@ pub fn prepare_ballot_card_images(
     side_a_image: GrayImage,
     side_b_image: GrayImage,
     possible_paper_infos: &[PaperInfo],
-    resize_strategy: ResizeStrategy,
 ) -> Result<BallotCard> {
     let (side_a_result, side_b_result) = par_map_pair(
         (SIDE_A_LABEL, side_a_image),
         (SIDE_B_LABEL, side_b_image),
-        |(label, image)| {
-            prepare_ballot_page_image(label, image, possible_paper_infos, resize_strategy)
-        },
+        |(label, image)| prepare_ballot_page_image(label, image, possible_paper_infos),
     );
 
     let BallotPage {
@@ -319,7 +297,6 @@ fn prepare_ballot_page_image(
     label: &str,
     image: GrayImage,
     possible_paper_infos: &[PaperInfo],
-    resize_strategy: ResizeStrategy,
 ) -> Result<BallotPage> {
     let Some(BallotImage {
         image,
@@ -332,11 +309,9 @@ fn prepare_ballot_page_image(
         });
     };
 
-    let Some(paper_info) = get_matching_paper_info_for_image_size(
-        image.dimensions(),
-        possible_paper_infos,
-        resize_strategy,
-    ) else {
+    let Some(paper_info) =
+        get_matching_paper_info_for_image_size(image.dimensions(), possible_paper_infos)
+    else {
         let (width, height) = image.dimensions();
         return Err(Error::UnexpectedDimensions {
             label: label.to_string(),
@@ -372,12 +347,7 @@ pub fn ballot_card(
         side_a,
         side_b,
         geometry,
-    } = prepare_ballot_card_images(
-        side_a_image,
-        side_b_image,
-        &PaperInfo::scanned(),
-        ResizeStrategy,
-    )?;
+    } = prepare_ballot_card_images(side_a_image, side_b_image, &PaperInfo::scanned())?;
 
     let mut side_a_debug = match &options.debug_side_a_base {
         Some(base) => ImageDebugWriter::new(base.clone(), side_a.image.clone()),
