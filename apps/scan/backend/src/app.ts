@@ -25,6 +25,7 @@ import {
 import { assert, assertDefined, ok, Result } from '@votingworks/basics';
 import {
   InsertedSmartCardAuthApi,
+  generateRandomAes256Key,
   generateSignedHashValidationQrCodeValue,
 } from '@votingworks/auth';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
@@ -170,7 +171,7 @@ export function buildApi({
         );
       }
 
-      store.withTransaction(() => {
+      await store.withTransaction(async () => {
         store.setElectionAndJurisdiction({
           electionData: electionDefinition.electionData,
           jurisdiction: authStatus.user.jurisdiction,
@@ -180,6 +181,9 @@ export function buildApi({
           store.setPrecinctSelection(precinctSelection);
         }
         store.setSystemSettings(systemSettings);
+        if (systemSettings.precinctScanEnableBallotAuditIds) {
+          store.setBallotAuditIdSecretKey(await generateRandomAes256Key());
+        }
 
         configureUiStrings({
           electionPackage,

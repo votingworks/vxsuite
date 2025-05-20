@@ -79,6 +79,7 @@
     "@types/uuid": "9.0.5",
     "@vitest/coverage-istanbul": "^3.1.1",
     "@votingworks/fixtures": "workspace:*",
+    "@votingworks/hmpb": "workspace:*",
     "esbuild": "0.21.2",
     "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",

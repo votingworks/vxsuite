@@ -5,7 +5,7 @@ import { Readable, Stream } from 'node:stream';
 import { FileResult, fileSync } from 'tmp';
 import { z } from 'zod';
 import { unsafeParse } from '@votingworks/types';
-
+import { assert } from '@votingworks/basics';
 import {
   FileKey,
   FileKeySchema,
@@ -549,4 +549,46 @@ export async function signMessage({
     ? ['sudo', scriptPath, scriptInput]
     : [scriptPath, scriptInput];
   return runCommand(command, { stdin: message });
+}
+
+/**
+ * Generates a 256-bit random key using OpenSSL's rand command. The key is
+ * returned in hex encoding.
+ */
+export async function generateRandomAes256Key(): Promise<string> {
+  return (await openssl(['rand', String(32)])).toString('hex');
+}
+
+/**
+ * Encrypts the given utf8-encoded input string using AES-256-ECB with the
+ * specified hex-encoded key, returning the encrypted data in base64 encoding.
+ * To ensure this encryption is used securely, we want to output no more than a
+ * single block of data (128 bits of input).
+ */
+export async function encryptAes256(
+  key: string,
+  input: string
+): Promise<string> {
+  assert(Buffer.from(key, 'hex').length === 32, 'Key must be 256 bits');
+  const inputBuffer = Buffer.from(input, 'utf-8');
+  assert(inputBuffer.length <= 16, 'Input must be 128 bits or less');
+  return (
+    await openssl(['enc', '-aes-256-ecb', '-K', key, '-in', inputBuffer])
+  ).toString('base64');
+}
+
+/**
+ * Decrypts the given base64-encoded input string using AES-256-ECB with the
+ * specified hex-encoded key, returning the decrypted data as a utf8-encoded
+ * string.
+ */
+export async function decryptAes256(
+  key: string,
+  input: string
+): Promise<string> {
+  const inputBuffer = Buffer.from(input, 'base64');
+  assert(inputBuffer.length === 16, 'Input must be exactly 128 bits');
+  return (
+    await openssl(['enc', '-d', '-aes-256-ecb', '-K', key, '-in', inputBuffer])
+  ).toString('utf-8');
 }

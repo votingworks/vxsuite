@@ -1,13 +1,63 @@
 import { LogEventId, Logger } from '@votingworks/logging';
-import { ExportCastVoteRecordsToUsbDriveError } from '@votingworks/types';
 import {
+  ExportCastVoteRecordsToUsbDriveError,
+  SystemSettings,
+} from '@votingworks/types';
+import {
+  assert,
+  assertDefined,
   extractErrorMessage,
+  iter,
   Result,
   throwIllegalValue,
 } from '@votingworks/basics';
-import { exportCastVoteRecordsToUsbDrive as exportCastVoteRecordsToUsbDriveBackend } from '@votingworks/backend';
+import {
+  exportCastVoteRecordsToUsbDrive as exportCastVoteRecordsToUsbDriveBackend,
+  Sheet,
+} from '@votingworks/backend';
 import { UsbDrive } from '@votingworks/usb-drive';
+import { encryptAes256 } from '@votingworks/auth';
 import { Workspace } from './util/workspace';
+import { Store } from './store';
+
+export async function encryptBallotAuditId(
+  store: Store,
+  systemSettings: SystemSettings,
+  sheet: Sheet
+): Promise<Sheet> {
+  if (
+    !(
+      systemSettings.precinctScanEnableBallotAuditIds &&
+      sheet.type === 'accepted' &&
+      sheet.interpretation[0].type === 'InterpretedHmpbPage'
+    )
+  ) {
+    return sheet;
+  }
+  const ballotAuditIdFromMetadata =
+    sheet.interpretation[0].metadata.ballotAuditId;
+  assert(ballotAuditIdFromMetadata !== undefined, 'Ballot is missing audit ID');
+
+  const key = store.getBallotAuditIdSecretKey();
+  const encryptedBallotAuditId = await encryptAes256(
+    key,
+    ballotAuditIdFromMetadata
+  );
+  return {
+    ...sheet,
+    ballotAuditId: encryptedBallotAuditId,
+  };
+}
+
+function encryptBallotAuditIds(
+  store: Store,
+  systemSettings: SystemSettings,
+  sheets: Iterable<Sheet>
+): AsyncIterable<Sheet> {
+  return iter(sheets)
+    .async()
+    .map((sheet) => encryptBallotAuditId(store, systemSettings, sheet));
+}
 
 export type ExportCastVoteRecordsToUsbDriveResult = Result<
   void,
@@ -26,6 +76,7 @@ export async function exportCastVoteRecordsToUsbDrive({
   logger: Logger;
 }): Promise<ExportCastVoteRecordsToUsbDriveResult> {
   const { store, continuousExportMutex } = workspace;
+  const systemSettings = assertDefined(store.getSystemSettings());
 
   await logger.logAsCurrentRole(LogEventId.ExportCastVoteRecordsInit, {
     message:
@@ -41,16 +92,16 @@ export async function exportCastVoteRecordsToUsbDrive({
   let exportResult: Result<void, ExportCastVoteRecordsToUsbDriveError>;
   switch (mode) {
     case 'full_export': {
+      const sheets = encryptBallotAuditIds(
+        store,
+        systemSettings,
+        store.forEachSheet()
+      );
       exportResult = await continuousExportMutex.withLock(() =>
-        exportCastVoteRecordsToUsbDriveBackend(
-          store,
-          usbDrive,
-          store.forEachSheet(),
-          {
-            scannerType: 'precinct',
-            isFullExport: true,
-          }
-        )
+        exportCastVoteRecordsToUsbDriveBackend(store, usbDrive, sheets, {
+          scannerType: 'precinct',
+          isFullExport: true,
+        })
       );
       break;
     }
@@ -66,11 +117,16 @@ export async function exportCastVoteRecordsToUsbDrive({
     case 'recovery_export': {
       exportResult = await continuousExportMutex.withLock(async () => {
         try {
+          const sheets = encryptBallotAuditIds(
+            store,
+            systemSettings,
+            store.forEachSheetPendingContinuousExport()
+          );
           const recoveryExportResult =
             await exportCastVoteRecordsToUsbDriveBackend(
               store,
               usbDrive,
-              store.forEachSheetPendingContinuousExport(),
+              sheets,
               { scannerType: 'precinct', isRecoveryExport: true }
             );
           if (recoveryExportResult.isErr()) {
@@ -86,10 +142,15 @@ export async function exportCastVoteRecordsToUsbDrive({
             message: 'Falling back to full export...',
             errorDetails: extractErrorMessage(error),
           });
+          const sheets = encryptBallotAuditIds(
+            store,
+            systemSettings,
+            store.forEachSheet()
+          );
           const fullExportResult = await exportCastVoteRecordsToUsbDriveBackend(
             store,
             usbDrive,
-            store.forEachSheet(),
+            sheets,
             { scannerType: 'precinct', isFullExport: true }
           );
           return fullExportResult;

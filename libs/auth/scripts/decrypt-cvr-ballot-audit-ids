@@ -1,0 +1,6 @@
+#!/usr/bin/env node
+
+require('esbuild-runner').install({
+  type: 'transform',
+});
+require('./src/decrypt_cvr_ballot_audit_ids').main(process.argv.slice(2));

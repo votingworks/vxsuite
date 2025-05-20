@@ -3,17 +3,25 @@ import {
   getCastVoteRecordExportDirectoryPaths,
   readCastVoteRecordExport,
 } from '@votingworks/backend';
-import { assertDefined, err, ok } from '@votingworks/basics';
-import { CVR } from '@votingworks/types';
+import { assertDefined, err, find, ok } from '@votingworks/basics';
+import { CVR, DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   convertCastVoteRecordVotesToTabulationVotes,
   getCurrentSnapshot,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-
+import {
+  allBaseBallotProps,
+  ballotTemplates,
+  BaseBallotProps,
+  createPlaywrightRenderer,
+  renderAllBallotsAndCreateElectionDefinition,
+} from '@votingworks/hmpb';
+import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import { decryptAes256 } from '@votingworks/auth';
 import { scanBallot, withApp } from '../test/helpers/pdi_helpers';
-import { configureApp } from '../test/helpers/shared_helpers';
+import { configureApp, pdfToImageSheet } from '../test/helpers/shared_helpers';
 
 vi.setConfig({ testTimeout: 30_000 });
 
@@ -372,6 +380,76 @@ test('CVR export error handling', async () => {
           mode: 'full_export',
         })
       ).toEqual(err({ type: 'missing-usb-drive' }));
+    }
+  );
+});
+
+test('audit ballot IDs', async () => {
+  // Create a ballot and election definition with an audit ID
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const { election } = electionDefinition;
+  const allBallotProps = allBaseBallotProps(election);
+  const ballotPropsWithAuditId: BaseBallotProps = {
+    ...find(allBallotProps, (p) => p.ballotMode === 'official'),
+    ballotAuditId: '123',
+  };
+  const renderer = await createPlaywrightRenderer();
+  const ballotDocument = (
+    await renderAllBallotsAndCreateElectionDefinition(
+      renderer,
+      ballotTemplates.VxDefaultBallot,
+      [ballotPropsWithAuditId],
+      'vxf'
+    )
+  ).ballotDocuments[0]!;
+  const pdf = await ballotDocument.renderToPdf();
+  const ballotImages = await pdfToImageSheet(pdf);
+
+  await withApp(
+    async ({
+      apiClient,
+      clock,
+      mockAuth,
+      mockScanner,
+      mockUsbDrive,
+      workspace,
+    }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        electionPackage: {
+          electionDefinition,
+          systemSettings: {
+            ...DEFAULT_SYSTEM_SETTINGS,
+            precinctScanEnableBallotAuditIds: true,
+          },
+        },
+      });
+
+      await scanBallot(mockScanner, clock, apiClient, workspace.store, 0, {
+        waitForContinuousExportToUsbDrive: true,
+        ballotImages,
+      });
+
+      const [exportDirectoryPath] = await getCastVoteRecordExportDirectoryPaths(
+        mockUsbDrive.usbDrive
+      );
+      const { castVoteRecordIterator } = (
+        await readCastVoteRecordExport(exportDirectoryPath)
+      ).unsafeUnwrap();
+      const castVoteRecords: CVR.CVR[] = (
+        await castVoteRecordIterator.toArray()
+      ).map(
+        (castVoteRecordResult) =>
+          castVoteRecordResult.unsafeUnwrap().castVoteRecord
+      );
+      expect(castVoteRecords).toHaveLength(1);
+      const secretKey = workspace.store.getBallotAuditIdSecretKey();
+      expect(
+        await decryptAes256(
+          secretKey,
+          assertDefined(castVoteRecords[0].BallotAuditId)
+        )
+      ).toEqual(ballotPropsWithAuditId.ballotAuditId);
     }
   );
 });

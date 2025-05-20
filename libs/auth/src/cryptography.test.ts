@@ -9,12 +9,15 @@ import {
   MockChildProcess,
 } from '@votingworks/test-utils';
 
+import { range } from '@votingworks/basics';
 import {
   createCert,
   createCertGivenCertSigningRequest,
   createCertHelper,
   CreateCertInput,
   createCertSigningRequest,
+  encryptAes256,
+  generateRandomAes256Key,
   manageOpensslConfig,
   openssl,
   parseCreateCertInput,
@@ -699,4 +702,28 @@ test('manageOpensslConfig with addSudo', async () => {
     expect.stringContaining('/src/intermediate-scripts/manage-openssl-config'),
     'restore-default',
   ]);
+});
+
+test('generateRandomAesKey', async () => {
+  const mockRandomKey = Buffer.from(range(0, 32).map((i) => i));
+  setTimeout(() => {
+    mockChildProcess.stdout.emit('data', mockRandomKey);
+    mockChildProcess.emit('close', successExitCode);
+  });
+
+  expect(await generateRandomAes256Key()).toEqual(
+    mockRandomKey.toString('hex')
+  );
+  expect(spawn).toHaveBeenCalledTimes(1);
+  expect(spawn).toHaveBeenNthCalledWith(1, 'openssl', ['rand', '32']);
+});
+
+test('encryptAes256 only encrypts data that fits in a single block', async () => {
+  const mockRandomKey = Buffer.from(range(0, 32).map((i) => i)).toString('hex');
+  await expect(
+    encryptAes256(
+      mockRandomKey,
+      Buffer.from(range(0, 17).map((i) => i)).toString('utf-8')
+    )
+  ).rejects.toThrow('Input must be 128 bits or less');
 });
