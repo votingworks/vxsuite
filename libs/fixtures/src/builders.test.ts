@@ -70,19 +70,19 @@ test('election allows converting to an election package', () => {
 
 test('image allows reading the image contents as a buffer', () => {
   const image = builders.image('data/sample-ballot-images/blank-page.png');
-  expect(image.asBuffer().length).toEqual(9299);
+  expect(image.asBuffer().length).toEqual(20675);
 });
 
 test('image allows reading the image contents as a path', async () => {
   const image = builders.image('data/sample-ballot-images/blank-page.png');
   const tmpPath = image.asFilePath();
   expect(basename(tmpPath)).toEqual('blank-page.png');
-  expect((await readFile(tmpPath)).length).toEqual(9299);
+  expect((await readFile(tmpPath)).length).toEqual(20675);
 });
 
 test('image allows reading the image data', async () => {
   const image = builders.image('data/sample-ballot-images/blank-page.png');
   const data = await image.asImageData();
-  expect(data.width).toEqual(2544);
-  expect(data.height).toEqual(3300);
+  expect(data.width).toEqual(1700);
+  expect(data.height).toEqual(2200);
 });
