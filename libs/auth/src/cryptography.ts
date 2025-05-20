@@ -587,6 +587,7 @@ export async function decryptAes256(
   input: string
 ): Promise<string> {
   const inputBuffer = Buffer.from(input, 'base64');
+  assert(inputBuffer.length === 16, 'Input must be exactly 128 bits');
   return (
     await openssl(['enc', '-d', '-aes-256-ecb', '-K', key, '-in', inputBuffer])
   ).toString('utf-8');
