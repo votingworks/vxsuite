@@ -14,6 +14,13 @@ use crate::{
 const FAIL_SCORE: f32 = 0.05;
 const CROP_BORDER_PIXELS: u32 = 20;
 
+/// The threshold computed by `otsu_level` might be unreasonbly high if the
+/// scanned image is mostly very white. This can lead to  identifying cells as
+/// overly dark that are actually just a slightly darker white/gray. Setting
+/// a high but not too high maximum white threshold should prevent this from
+/// happening.
+const MAX_WHITE_THRESHOLD: u8 = 200;
+
 fn generate_cells(
     left_start: u32,
     top_start: u32,
@@ -107,7 +114,8 @@ pub fn blank_paper(img: GrayImage, debug_path: Option<PathBuf>) -> bool {
         })
         .collect::<Vec<_>>();
 
-    let (passed_cells, failed_cells) = inspect_cells(&image, &cells, threshold);
+    let (passed_cells, failed_cells) =
+        inspect_cells(&image, &cells, threshold.min(MAX_WHITE_THRESHOLD));
 
     let debug = debug_path.map_or_else(ImageDebugWriter::disabled, |base| {
         ImageDebugWriter::new(base, image)
