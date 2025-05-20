@@ -35,13 +35,14 @@ import { allContestOptions, format } from '@votingworks/utils';
 import { useHistory, useParams } from 'react-router-dom';
 import {
   getCastVoteRecordVoteInfo,
-  getWriteInImageViews,
+  getBallotImageView,
   getNextCvrIdForAdjudication,
   getWriteIns,
   getAdjudicationQueue,
   getWriteInCandidates,
   getVoteAdjudications,
   adjudicateCvrContest,
+  getMarginalMarks,
 } from '../api';
 import { AppContext } from '../contexts/app_context';
 import { ContestAdjudicationScreenParams } from '../config/types';
@@ -53,7 +54,10 @@ import {
 import { WriteInAdjudicationButton } from '../components/write_in_adjudication_button';
 import { NavigationScreen } from '../components/navigation_screen';
 import { CandidateButton } from '../components/candidate_button';
-import { normalizeWriteInName } from '../utils/write_ins';
+import {
+  getOptionCoordinates,
+  normalizeWriteInName,
+} from '../utils/adjudication';
 import {
   DoubleVoteAlert,
   DoubleVoteAlertModal,
@@ -345,12 +349,15 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const writeInsQuery = getWriteIns.useQuery(
     maybeCurrentCvrId ? { cvrId: maybeCurrentCvrId, contestId } : undefined
   );
-  const writeInImagesQuery = getWriteInImageViews.useQuery(
+  const ballotImageViewQuery = getBallotImageView.useQuery(
     maybeCurrentCvrId ? { cvrId: maybeCurrentCvrId, contestId } : undefined
   );
   const writeInCandidatesQuery = getWriteInCandidates.useQuery({
     contestId,
   });
+  const marginalMarksQuery = getMarginalMarks.useQuery(
+    maybeCurrentCvrId ? { cvrId: maybeCurrentCvrId, contestId } : undefined
+  );
 
   const adjudicateCvrContestMutation = adjudicateCvrContest.useMutation();
   const officialCandidates = useMemo(
@@ -388,6 +395,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
       [optionId]: status,
     }));
   }
+
   function clearBallotState() {
     setHasVoteByOptionId({});
     setWriteInStatusByOptionId({});
@@ -411,7 +419,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
       writeInCandidatesQuery.isSuccess &&
       !writeInCandidatesQuery.isStale &&
       voteAdjudicationsQuery.isSuccess &&
-      !voteAdjudicationsQuery.isStale
+      !voteAdjudicationsQuery.isStale &&
+      marginalMarksQuery.isSuccess &&
+      !marginalMarksQuery.isStale
     ) {
       const originalVotes = cvrVoteInfoQuery.data.votes[contestId];
       const newHasVoteByOptionId: HasVoteByOptionId = {};
@@ -486,6 +496,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
     cvrVoteInfoQuery.data,
     cvrVoteInfoQuery.isStale,
     cvrVoteInfoQuery.isSuccess,
+    marginalMarksQuery.data,
+    marginalMarksQuery.isStale,
+    marginalMarksQuery.isSuccess,
     voteAdjudicationsQuery.data,
     voteAdjudicationsQuery.isStale,
     voteAdjudicationsQuery.isSuccess,
@@ -516,7 +529,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
   }, [firstPendingCvrIdQuery, cvrQueueQuery, maybeCvrQueueIndex]);
 
   // Prefetch the next and previous ballot images
-  const prefetchImageViews = getWriteInImageViews.usePrefetch();
+  const prefetchImageViews = getBallotImageView.usePrefetch();
   useEffect(() => {
     if (!cvrQueueQuery.isSuccess || maybeCvrQueueIndex === undefined) return;
     const nextCvrId = cvrQueueQuery.data[maybeCvrQueueIndex + 1];
@@ -545,7 +558,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
     cvrVoteInfoQuery.isFetching ||
     cvrQueueQuery.isFetching ||
     firstPendingCvrIdQuery.isFetching ||
-    writeInImagesQuery.isFetching ||
+    ballotImageViewQuery.isFetching ||
     writeInsQuery.isFetching ||
     writeInCandidatesQuery.isFetching ||
     voteAdjudicationsQuery.isFetching;
@@ -570,7 +583,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
     !writeInCandidatesQuery.data ||
     !writeInsQuery.data ||
     !voteAdjudicationsQuery.data ||
-    !writeInImagesQuery.data
+    !ballotImageViewQuery.data
   ) {
     return (
       <NavigationScreen title="Contest Adjudication">
@@ -581,7 +594,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
 
   const originalVotes = cvrVoteInfoQuery.data.votes[contestId];
   const writeIns = writeInsQuery.data;
-  const writeInImages = writeInImagesQuery.data;
+  const ballotImage = ballotImageViewQuery.data;
   const writeInCandidates = writeInCandidatesQuery.data;
   const cvrQueueIndex = maybeCvrQueueIndex;
   const currentCvrId = maybeCurrentCvrId;
@@ -594,13 +607,13 @@ export function ContestAdjudicationScreen(): JSX.Element {
     .count();
   const allWriteInsAdjudicated = numPendingWriteIns === 0;
 
-  const firstWriteInImage = writeInImages[0];
-  const focusedWriteInImage = focusedOptionId
-    ? writeInImages.find((item) => item.optionId === focusedOptionId)
-    : undefined;
-  const isHmpb = firstWriteInImage.type === 'hmpb';
-  const isBmd = firstWriteInImage.type === 'bmd';
-  const { side } = firstWriteInImage;
+  const isHmpb = ballotImage.type === 'hmpb';
+  const isBmd = ballotImage.type === 'bmd';
+  const { side } = ballotImage;
+  const focusedCoordinates =
+    focusedOptionId && isHmpb
+      ? getOptionCoordinates(ballotImage.contestOptions, focusedOptionId)
+      : undefined;
 
   const numBallots = cvrQueueQuery.data.length;
   const onLastBallot = cvrQueueIndex + 1 === numBallots;
@@ -754,19 +767,15 @@ export function ContestAdjudicationScreen(): JSX.Element {
         <BallotPanel>
           {isHmpb && (
             <BallotZoomImageViewer
-              ballotBounds={firstWriteInImage.ballotCoordinates}
+              ballotBounds={ballotImage.ballotCoordinates}
               key={currentCvrId} // Reset zoom state for each write-in
-              imageUrl={firstWriteInImage.imageUrl}
+              imageUrl={ballotImage.imageUrl}
               zoomedInBounds={
-                focusedWriteInImage?.type === 'hmpb'
-                  ? focusedWriteInImage.writeInCoordinates
-                  : firstWriteInImage.contestCoordinates
+                focusedCoordinates || ballotImage.contestCoordinates
               }
             />
           )}
-          {isBmd && (
-            <BallotStaticImageViewer imageUrl={firstWriteInImage.imageUrl} />
-          )}
+          {isBmd && <BallotStaticImageViewer imageUrl={ballotImage.imageUrl} />}
         </BallotPanel>
         <AdjudicationPanel>
           {focusedOptionId && <AdjudicationPanelOverlay />}
@@ -834,9 +843,6 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 const writeInRecord = writeIns.find(
                   (writeIn) => writeIn.optionId === optionId
                 );
-                const writeInImage = writeInImages.find(
-                  (img) => img.optionId === optionId
-                );
                 const writeInStatus = writeInStatusByOptionId[optionId];
                 const isFocused = focusedOptionId === optionId;
                 const isSelected = hasVoteByOptionId[optionId];
@@ -845,10 +851,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                     <CandidateButton
                       candidate={{
                         id: optionId,
-                        name:
-                          writeInImage?.type === 'bmd'
-                            ? writeInImage.machineMarkedText
-                            : 'Write-in',
+                        name: writeInRecord?.machineMarkedText ?? 'Write-in',
                       }}
                       // bmd ballots can only toggle-on write-ins that were
                       // previously marked invalid
@@ -875,11 +878,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                     isFocused={isFocused}
                     isSelected={isSelected}
                     hasInvalidEntry={doubleVoteAlert?.optionId === optionId}
-                    label={
-                      writeInImage?.type === 'bmd'
-                        ? writeInImage.machineMarkedText
-                        : undefined
-                    }
+                    label={writeInRecord?.machineMarkedText}
                     status={writeInStatus}
                     onInputFocus={() => setFocusedOptionId(optionId)}
                     onInputBlur={() => setFocusedOptionId(undefined)}

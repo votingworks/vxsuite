@@ -1172,54 +1172,67 @@ export class Store {
   }
 
   /**
-   * Returns the write-in image and layout.
+   * Returns the image and layout for a cvr-contest.
    */
-  getWriteInImageAndLayout(writeInId: Id): {
-    writeInId: Id;
+  getBallotImageAndLayout({
+    cvrId,
+    contestId,
+  }: {
+    cvrId: Id;
     contestId: ContestId;
-    optionId: ContestOptionId;
+  }): {
+    contestId: ContestId;
     cvrId: Id;
     image: Buffer;
     side: Side;
     layout?: BallotPageLayout;
-    machineMarkedText?: string;
   } {
-    const row = this.client.one(
+    const rows = this.client.all(
       `
-          select
-            write_ins.id as writeInId,
-            write_ins.contest_id as contestId,
-            write_ins.option_id as optionId,
-            write_ins.cvr_id as cvrId,
-            write_ins.side as side,
-            ballot_images.image as image,
-            ballot_images.layout as layout,
-            write_ins.machine_marked_text as machineMarkedText
-          from write_ins
-          inner join
-            ballot_images on
-              write_ins.cvr_id = ballot_images.cvr_id and
-              write_ins.side = ballot_images.side
-          where write_ins.id = ?
-        `,
-      writeInId
-    ) as {
-      writeInId: Id;
-      contestId: ContestId;
-      optionId: ContestOptionId;
-      cvrId: string;
+      select
+        image,
+        layout,
+        side
+      from ballot_images
+      where cvr_id = ?
+      `,
+      cvrId
+    ) as Array<{
       image: Buffer;
-      side: Side;
       layout?: string;
-      machineMarkedText?: string;
-    };
+      side: Side;
+    }>;
 
-    return {
-      ...row,
-      layout: row.layout
-        ? safeParseJson(row.layout, BallotPageLayoutSchema).unsafeUnwrap()
-        : undefined,
-    };
+    for (const row of rows) {
+      // Always return the front for bmd ballots
+      if (!row.layout && row.side === 'front') {
+        return {
+          cvrId,
+          contestId,
+          image: row.image,
+          side: row.side,
+        };
+      }
+      if (row.layout) {
+        const parsedLayout = safeParseJson(
+          row.layout,
+          BallotPageLayoutSchema
+        ).unsafeUnwrap();
+        const hasContest = parsedLayout.contests.some(
+          (contest) => contest.contestId === contestId
+        );
+        if (hasContest) {
+          return {
+            cvrId,
+            contestId,
+            image: row.image,
+            side: row.side,
+            layout: parsedLayout,
+          };
+        }
+      }
+    }
+    throw new Error(`No matching ballot layout found for contest ${contestId}`);
   }
 
   getCvrFiles(electionId: Id): CastVoteRecordFileRecord[] {
@@ -2055,6 +2068,7 @@ export class Store {
           write_ins.is_invalid as isInvalid,
           write_ins.is_unmarked as isUnmarked,
           write_ins.is_undetected as isUndetected,
+          write_ins.machine_marked_text as machineMarkedText,
           datetime(write_ins.adjudicated_at, 'localtime') as adjudicatedAt
         from write_ins
         where
@@ -2072,6 +2086,7 @@ export class Store {
       isInvalid: SqliteBool;
       isUnmarked: SqliteBool;
       isUndetected: SqliteBool;
+      machineMarkedText?: string;
       officialCandidateId: string | null;
       writeInCandidateId: Id | null;
       adjudicatedAt: Iso8601Timestamp | null;
@@ -2091,6 +2106,7 @@ export class Store {
           candidateId: row.officialCandidateId,
           isUnmarked: fromSqliteBool(row.isUnmarked),
           isUndetected: fromSqliteBool(row.isUndetected),
+          machineMarkedText: row.machineMarkedText,
         });
       }
 
@@ -2106,6 +2122,7 @@ export class Store {
           candidateId: row.writeInCandidateId,
           isUnmarked: fromSqliteBool(row.isUnmarked),
           isUndetected: fromSqliteBool(row.isUndetected),
+          machineMarkedText: row.machineMarkedText,
         });
       }
 
@@ -2120,6 +2137,7 @@ export class Store {
           adjudicationType: 'invalid',
           isUnmarked: fromSqliteBool(row.isUnmarked),
           isUndetected: fromSqliteBool(row.isUndetected),
+          machineMarkedText: row.machineMarkedText,
         });
       }
 
@@ -2132,6 +2150,7 @@ export class Store {
         status: 'pending',
         isUnmarked: fromSqliteBool(row.isUnmarked),
         isUndetected: fromSqliteBool(row.isUndetected),
+        machineMarkedText: row.machineMarkedText,
       });
     });
   }
@@ -2154,25 +2173,6 @@ export class Store {
       electionId,
       id
     );
-  }
-
-  /**
-   * Gets the write-in IDs for a given cast vote record's contest.
-   */
-  getWriteInIds({ cvrId, contestId }: { cvrId: Id; contestId: Id }): Id[] {
-    const rows = this.client.all(
-      `
-      select id
-      from write_ins
-      where
-        cvr_id = ? and
-        contest_id = ?
-      `,
-      cvrId,
-      contestId
-    ) as Array<{ id: Id }>;
-
-    return rows.map((row) => row.id);
   }
 
   getCastVoteRecordVoteInfo({

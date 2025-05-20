@@ -13,6 +13,7 @@ import {
   SystemSettings,
   Tabulation,
   convertElectionResultsReportingReportToVxManualResults,
+  ContestOptionId,
 } from '@votingworks/types';
 import {
   assert,
@@ -77,7 +78,7 @@ import {
   WriteInAdjudicationAction,
   AdjudicationQueueMetadata,
   WriteInCandidateRecord,
-  WriteInImageView,
+  BallotImageView,
   ImportElectionResultsReportingError,
   ManualResultsMetadata,
   CastVoteRecordVoteInfo,
@@ -87,7 +88,7 @@ import {
 } from './types';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
-import { getWriteInImageViews } from './util/write_ins';
+import { getBallotImageView } from './util/adjudication';
 import {
   transformWriteInsAndSetManualResults,
   validateManualResults,
@@ -105,7 +106,11 @@ import {
   listCastVoteRecordExportsOnUsbDrive,
 } from './cast_vote_records';
 import { generateBallotCountReportCsv } from './exports/csv_ballot_count_report';
-import { adjudicateCvrContest, adjudicateWriteIn } from './adjudication';
+import {
+  adjudicateCvrContest,
+  adjudicateWriteIn,
+  getMarginalMarks,
+} from './adjudication';
 import { convertFrontendFilter as convertFrontendFilterUtil } from './util/filters';
 import { buildElectionResultsReport } from './util/cdf_results';
 import { tabulateElectionResults } from './tabulation/full_results';
@@ -692,11 +697,22 @@ function buildApi({
       });
     },
 
-    getWriteInImageViews(input: {
+    getBallotImageView(input: {
       cvrId: Id;
       contestId: ContestId;
-    }): Promise<WriteInImageView[]> {
-      return getWriteInImageViews({
+    }): Promise<BallotImageView> {
+      return getBallotImageView({
+        store: workspace.store,
+        cvrId: input.cvrId,
+        contestId: input.contestId,
+      });
+    },
+
+    getMarginalMarks(input: {
+      cvrId: Id;
+      contestId: ContestId;
+    }): ContestOptionId[] {
+      return getMarginalMarks({
         store: workspace.store,
         cvrId: input.cvrId,
         contestId: input.contestId,
