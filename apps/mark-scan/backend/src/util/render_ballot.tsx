@@ -5,7 +5,9 @@ import {
 } from '@votingworks/printing';
 import {
   BallotStyleId,
+  Election,
   ElectionDefinition,
+  HmpbBallotPaperSize,
   VotesDict,
 } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
@@ -33,16 +35,22 @@ export interface RenderBallotProps {
 
 const MACHINE_TYPE: MachineType = 'markScan';
 
-function getPaperDimensions(): PaperDimensions {
+function getPaperDimensions(election: Election): PaperDimensions {
   /* istanbul ignore next - hardware support in flux - @preserve */
   return getMarkScanBmdModel() === 'bmd-150'
-    ? PAPER_DIMENSIONS['Bmd150']
+    ? election.ballotLayout.paperSize === HmpbBallotPaperSize.Letter
+      ? PAPER_DIMENSIONS['Bmd150Letter']
+      : PAPER_DIMENSIONS['Bmd150']
     : PAPER_DIMENSIONS['Letter'];
 }
 
-function getSheetSize(): BmdBallotSheetSize {
+function getSheetSize(election: Election): BmdBallotSheetSize {
   /* istanbul ignore next - hardware support in flux - @preserve */
-  return getMarkScanBmdModel() === 'bmd-150' ? 'bmd150' : 'letter';
+  return getMarkScanBmdModel() === 'bmd-150'
+    ? election.ballotLayout.paperSize === HmpbBallotPaperSize.Letter
+      ? 'bmd150Letter'
+      : 'bmd150'
+    : 'letter';
 }
 
 export async function renderTestModeBallotWithoutLanguageContext(
@@ -65,7 +73,7 @@ export async function renderTestModeBallotWithoutLanguageContext(
       precinctId={precinctId}
       votes={votes}
       isLiveMode={false}
-      sheetSize={getSheetSize()}
+      sheetSize={getSheetSize(electionDefinition.election)}
       layout={layout}
       machineType={MACHINE_TYPE}
     />
@@ -74,7 +82,7 @@ export async function renderTestModeBallotWithoutLanguageContext(
   return (
     await renderToPdf({
       document: ballot,
-      paperDimensions: getPaperDimensions(),
+      paperDimensions: getPaperDimensions(electionDefinition.election),
     })
   ).unsafeUnwrap();
 }
@@ -118,7 +126,7 @@ export async function renderBallot({
           precinctId={precinctId}
           votes={votes}
           isLiveMode={isLiveMode}
-          sheetSize={getSheetSize()}
+          sheetSize={getSheetSize(electionDefinition.election)}
           layout={layout.ok()}
           machineType={MACHINE_TYPE}
         />
@@ -128,7 +136,7 @@ export async function renderBallot({
     const pdfData = (
       await renderToPdf({
         document: ballot,
-        paperDimensions: getPaperDimensions(),
+        paperDimensions: getPaperDimensions(electionDefinition.election),
       })
     ).unsafeUnwrap();
 

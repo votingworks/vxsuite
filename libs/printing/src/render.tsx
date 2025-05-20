@@ -29,6 +29,7 @@ export const PAPER_DIMENSIONS = {
   // Width of exactly 8in results in 1-3 dots of overflow. The overflowing dots print on a line of
   // their own, followed by a mostly blank line. This causes stripes in the printed page.
   Bmd150: { width: 7.975, height: 13.25 },
+  Bmd150Letter: { width: 7.975, height: 11 },
   Letter: { width: 8.5, height: 11 },
   LetterRoll: { width: 8.5, height: 100 }, // If we make the height infinite the canvas conversion to an image can seg fault. Break into pages beyond 100 inches.
 } satisfies Record<string, PaperDimensions>;
