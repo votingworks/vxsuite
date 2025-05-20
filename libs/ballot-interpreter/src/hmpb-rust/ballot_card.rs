@@ -260,7 +260,8 @@ pub fn get_matching_paper_info_for_image_size(
     possible_paper_info: &[PaperInfo],
     resize_strategy: ResizeStrategy,
 ) -> Option<PaperInfo> {
-    const THRESHOLD: f32 = 0.05;
+    const WIDTH_ERROR_THRESHOLD: f32 = 0.05;
+    const HEIGHT_ERROR_THRESHOLD: f32 = 0.15;
     possible_paper_info
         .iter()
         .map(|paper_info| {
@@ -273,8 +274,14 @@ pub fn get_matching_paper_info_for_image_size(
                 ),
             )
         })
-        .min_by(|(_, error1), (_, error2)| error1.partial_cmp(error2).unwrap_or(Ordering::Equal))
-        .filter(|(_, error)| *error < THRESHOLD)
+        .filter(|(_, (width_error, height_error))| {
+            *width_error < WIDTH_ERROR_THRESHOLD && *height_error < HEIGHT_ERROR_THRESHOLD
+        })
+        .min_by(|(_, (_, height_error1)), (_, (_, height_error2))| {
+            height_error1
+                .partial_cmp(height_error2)
+                .unwrap_or(Ordering::Equal)
+        })
         .map(|(paper_info, _)| *paper_info)
 }
 
@@ -295,7 +302,7 @@ mod tests {
             get_matching_paper_info_for_image_size(
                 (1696, 2200),
                 &PaperInfo::scanned(),
-                ResizeStrategy::Fit
+                ResizeStrategy
             ),
             Some(PaperInfo::scanned_letter())
         );
@@ -303,7 +310,7 @@ mod tests {
             get_matching_paper_info_for_image_size(
                 (1696, 2800),
                 &PaperInfo::scanned(),
-                ResizeStrategy::Fit
+                ResizeStrategy
             ),
             Some(PaperInfo::scanned_legal())
         );
@@ -311,7 +318,7 @@ mod tests {
             get_matching_paper_info_for_image_size(
                 (1500, 1500),
                 &PaperInfo::scanned(),
-                ResizeStrategy::Fit
+                ResizeStrategy
             ),
             None
         );

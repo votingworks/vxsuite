@@ -210,10 +210,7 @@ impl ScanInterpreter {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
-pub enum ResizeStrategy {
-    Fit,
-    NoResize,
-}
+pub struct ResizeStrategy;
 
 impl ResizeStrategy {
     #[must_use]
@@ -221,25 +218,13 @@ impl ResizeStrategy {
         self,
         expected_dimensions: (u32, u32),
         actual_dimensions: (u32, u32),
-    ) -> f32 {
-        match self {
-            Self::Fit => {
-                let (expected_width, expected_height) = expected_dimensions;
-                let (actual_width, actual_height) = actual_dimensions;
-                let expected_aspect_ratio = expected_width as f32 / expected_height as f32;
-                let actual_aspect_ratio = actual_width as f32 / actual_height as f32;
-                (expected_aspect_ratio - actual_aspect_ratio).abs()
-            }
-            Self::NoResize => {
-                let (expected_width, expected_height) = expected_dimensions;
-                let (actual_width, actual_height) = actual_dimensions;
-                let width_error =
-                    (expected_width as f32 - actual_width as f32).abs() / expected_width as f32;
-                let height_error =
-                    (expected_height as f32 - actual_height as f32).abs() / expected_height as f32;
-                width_error + height_error
-            }
-        }
+    ) -> (f32, f32) {
+        let (expected_width, expected_height) = expected_dimensions;
+        let (actual_width, actual_height) = actual_dimensions;
+        (
+            expected_width.abs_diff(actual_width) as f32 / expected_width as f32,
+            expected_height.abs_diff(actual_height) as f32 / expected_height as f32,
+        )
     }
 }
 
@@ -391,7 +376,7 @@ pub fn ballot_card(
         side_a_image,
         side_b_image,
         &PaperInfo::scanned(),
-        ResizeStrategy::Fit,
+        ResizeStrategy,
     )?;
 
     let mut side_a_debug = match &options.debug_side_a_base {

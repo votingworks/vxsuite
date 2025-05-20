@@ -1822,7 +1822,7 @@ mod tests {
             side_a_image,
             side_b_image,
             &PaperInfo::scanned(),
-            ResizeStrategy::Fit,
+            ResizeStrategy,
         )
         .unwrap();
 
