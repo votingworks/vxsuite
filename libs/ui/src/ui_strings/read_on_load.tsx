@@ -1,11 +1,13 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
+import styled from 'styled-components';
 import { useAudioContext } from './audio_context';
 
-export interface ReadOnLoadProps {
-  children: React.ReactNode;
-  className?: string;
-}
+const Container = styled.div`
+  /* stylelint-disable no-empty-source */
+`;
+
+export type ReadOnLoadProps = React.ComponentProps<typeof Container>;
 
 /**
  * Returns the react-router location state if a react-router context exists,
@@ -35,7 +37,7 @@ function useLocationIfAvailable() {
  * content within the last `ReadOnLoad` instance.
  */
 export function ReadOnLoad(props: ReadOnLoadProps): JSX.Element {
-  const { children, className } = props;
+  const { as = 'div', children, className, ...rest } = props;
 
   const location = useLocationIfAvailable();
   const currentUrl = location?.pathname;
@@ -68,8 +70,8 @@ export function ReadOnLoad(props: ReadOnLoadProps): JSX.Element {
   }, [currentUrl, isInAudioContext]);
 
   return (
-    <div className={className} ref={containerRef}>
+    <Container {...rest} as={as} className={className} ref={containerRef}>
       {children}
-    </div>
+    </Container>
   );
 }

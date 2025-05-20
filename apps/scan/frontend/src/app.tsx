@@ -16,6 +16,7 @@ export interface AppProps {
   apiClient?: ApiClient;
   queryClient?: QueryClient;
   enableStringTranslation?: boolean;
+  noAudio?: boolean;
 }
 
 const RESTART_MESSAGE = 'Ask a poll worker to restart the scanner.';
@@ -25,6 +26,7 @@ export function App({
   apiClient = createApiClient(),
   queryClient = createQueryClient(),
   enableStringTranslation,
+  noAudio,
 }: AppProps): JSX.Element {
   return (
     <ScanAppBase>
@@ -34,6 +36,7 @@ export function App({
             queryClient={queryClient}
             apiClient={apiClient}
             enableStringTranslation={enableStringTranslation}
+            noAudio={noAudio}
           >
             <Route path={Paths.VOTER_SETTINGS} exact>
               <VoterSettingsScreen />

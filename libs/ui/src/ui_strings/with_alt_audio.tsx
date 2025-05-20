@@ -15,7 +15,9 @@ export interface WithAltAudioProps {
  * Renders the given {@link children} within an empty audio context, to exclude
  * them from screen reader audio playback.
  */
-function TextOnly(props: { children: React.ReactNode }): React.ReactNode {
+export function TextOnly(props: {
+  children: React.ReactNode;
+}): React.ReactNode {
   const { children } = props;
 
   return (
