@@ -53,6 +53,7 @@ export enum LogSource {
   VxDevelopmentScript = 'vx-development-script',
   VxPollbookFrontend = 'vx-pollbook-frontend',
   VxPollbookBackend = 'vx-pollbook-backend',
+  VxPollbookBarcodeScannerDaemon = 'vx-pollbook-barcode-scanner-daemon',
 }
 export enum LogEventType {
   UserAction = 'user-action',
@@ -112,6 +113,7 @@ export enum LogEventId {
   MachineBootComplete = 'machine-boot-complete',
   MachineShutdownInit = 'machine-shutdown-init',
   MachineShutdownComplete = 'machine-shutdown-complete',
+  UsbDeviceReconnectAttempted = 'usb-device-reconnect-attempted',
   UsbDeviceChangeDetected = 'usb-device-change-detected',
   Info = 'info',
   Heartbeat = 'heartbeat',
@@ -197,6 +199,9 @@ export enum LogEventId {
   BackgroundTaskCancelled = 'background-task-cancelled',
   BackgroundTaskStatus = 'background-task-status',
   ApiCall = 'api-call',
+  SocketClientError = 'socket-client-error',
+  SocketConnection = 'socket-connection',
+  SocketDisconnection = 'socket-disconnection',
 }
 
 const ElectionConfigured: LogDetails = {
@@ -531,6 +536,13 @@ const MachineShutdownComplete: LogDetails = {
   eventType: LogEventType.SystemStatus,
   documentationMessage:
     'The machine has completed all the steps to shutdown and will now power down or reboot.',
+};
+
+const UsbDeviceReconnectAttempted: LogDetails = {
+  eventId: LogEventId.UsbDeviceReconnectAttempted,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'A message from the machine kernel about an application-initiated attempt to reconnect an externally-connected USB device.',
 };
 
 const UsbDeviceChangeDetected: LogDetails = {
@@ -1198,6 +1210,24 @@ const ApiCall: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxDesign],
 };
 
+const SocketClientError: LogDetails = {
+  eventId: LogEventId.SocketClientError,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage: 'An error was reported by a socket client.',
+};
+
+const SocketConnection: LogDetails = {
+  eventId: LogEventId.SocketConnection,
+  eventType: LogEventType.ApplicationAction,
+  documentationMessage: 'A socket client connection was attempted.',
+};
+
+const SocketDisconnection: LogDetails = {
+  eventId: LogEventId.SocketDisconnection,
+  eventType: LogEventType.ApplicationAction,
+  documentationMessage: 'A socket client was disconnected.',
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -1300,6 +1330,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return MachineShutdownInit;
     case LogEventId.MachineShutdownComplete:
       return MachineShutdownComplete;
+    case LogEventId.UsbDeviceReconnectAttempted:
+      return UsbDeviceReconnectAttempted;
     case LogEventId.UsbDeviceChangeDetected:
       return UsbDeviceChangeDetected;
     case LogEventId.Info:
@@ -1470,6 +1502,12 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return BackgroundTaskStatus;
     case LogEventId.ApiCall:
       return ApiCall;
+    case LogEventId.SocketClientError:
+      return SocketClientError;
+    case LogEventId.SocketConnection:
+      return SocketConnection;
+    case LogEventId.SocketDisconnection:
+      return SocketDisconnection;
     default:
       throwIllegalValue(eventId);
   }

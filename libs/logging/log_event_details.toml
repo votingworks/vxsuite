@@ -95,6 +95,9 @@ source = 'vx-pollbook-frontend'
 [LogSources.VxPollbookBackend]
 source = 'vx-pollbook-backend'
 
+[LogSources.VxPollbookBarcodeScannerDaemon]
+source = 'vx-pollbook-barcode-scanner-daemon'
+
 
 [EventTypes.UserAction]
 eventType = "user-action"
@@ -377,6 +380,11 @@ documentationMessage = "The machine is beginning the shutdown process to power d
 eventId = "machine-shutdown-complete"
 eventType = "system-status"
 documentationMessage = "The machine has completed all the steps to shutdown and will now power down or reboot."
+
+[Events.UsbDeviceReconnectAttempted]
+eventId = "usb-device-reconnect-attempted"
+eventType = "system-action"
+documentationMessage = "A message from the machine kernel about an application-initiated attempt to reconnect an externally-connected USB device."
 
 [Events.UsbDeviceChangeDetected]
 eventId = "usb-device-change-detected"
@@ -890,3 +898,18 @@ eventId = "api-call"
 eventType = "application-action"
 documentationMessage = "An API call was made."
 restrictInDocumentationToApps = ["vx-design"]
+
+[Events.SocketClientError]
+eventId = "socket-client-error"
+eventType = "application-status"
+documentationMessage = "An error was reported by a socket client."
+
+[Events.SocketConnection]
+eventId = "socket-connection"
+eventType = "application-action"
+documentationMessage = "A socket client connection was attempted."
+
+[Events.SocketDisconnection]
+eventId = "socket-disconnection"
+eventType = "application-action"
+documentationMessage = "A socket client was disconnected."
