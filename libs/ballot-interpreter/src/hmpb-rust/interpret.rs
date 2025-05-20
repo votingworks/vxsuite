@@ -281,7 +281,11 @@ pub fn crop_ballot_page_image_borders(mut image: GrayImage) -> Option<BallotImag
         )
         .to_image();
 
+    // Re-compute the threshold after cropping to ensure future
+    // re-interpretations based on the saved image are consistent with the
+    // initial one.
     let threshold = otsu_level(&image);
+
     Some(BallotImage {
         image,
         threshold,
