@@ -76,7 +76,9 @@ export async function runPrintAndScanTask({
         usbDriveStatus.status === 'mounted'
           ? join(usbDriveStatus.mountPoint, 'ballot-images')
           : workspace.ballotImagesPath;
-      const basename = `electrical-testing-${lastScanTime.toISO()}`;
+      const basename = `electrical-testing-${lastScanTime
+        .toISO()
+        .replaceAll(':', '-')}`;
 
       await mkdir(basedir, { recursive: true });
       await saveSheetImages({
