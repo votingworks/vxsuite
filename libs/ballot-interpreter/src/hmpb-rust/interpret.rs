@@ -27,7 +27,6 @@ use crate::ballot_card::PaperInfo;
 use crate::debug::ImageDebugWriter;
 use crate::image_utils::detect_vertical_streaks;
 use crate::image_utils::find_scanned_document_inset;
-use crate::image_utils::maybe_resize_image_to_fit;
 use crate::image_utils::Inset;
 use crate::layout::build_interpreted_page_layout;
 use crate::layout::InterpretedContestLayout;
@@ -290,8 +289,7 @@ pub fn crop_ballot_page_image_borders(mut image: GrayImage) -> Option<BallotImag
     })
 }
 
-/// Prepare a ballot page image for interpretation: crop the black border, and
-/// maybe resize it to the expected dimensions.
+/// Prepare a ballot page image for interpretation by cropping the black border.
 #[allow(clippy::result_large_err)]
 fn prepare_ballot_page_image(
     label: &str,
@@ -319,16 +317,13 @@ fn prepare_ballot_page_image(
         });
     };
 
-    let geometry = paper_info.compute_geometry();
-    let image = maybe_resize_image_to_fit(image, geometry.canvas_size);
-
     Ok(BallotPage {
         ballot_image: BallotImage {
             image,
             threshold,
             border_inset,
         },
-        geometry,
+        geometry: paper_info.compute_geometry(),
     })
 }
 

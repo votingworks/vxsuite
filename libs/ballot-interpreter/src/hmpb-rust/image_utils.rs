@@ -1,10 +1,7 @@
-use image::{
-    imageops::{resize, FilterType::Lanczos3},
-    GenericImage, GrayImage, ImageError, Luma, Rgb,
-};
+use image::{GenericImage, GrayImage, ImageError, Luma, Rgb};
 use itertools::Itertools;
 use serde::Serialize;
-use types_rs::geometry::{PixelPosition, PixelUnit, Size, SubPixelUnit};
+use types_rs::geometry::{PixelPosition, PixelUnit};
 use types_rs::{election::UnitIntervalValue, geometry::Quadrilateral};
 
 use crate::{
@@ -171,50 +168,6 @@ pub fn count_pixels_in_shape(
         }
     }
     counted
-}
-
-/// Resizes an image to fit within the given dimensions while maintaining the
-/// aspect ratio.
-pub fn size_image_to_fit(
-    img: &GrayImage,
-    max_width: PixelUnit,
-    max_height: PixelUnit,
-) -> GrayImage {
-    let aspect_ratio = img.width() as f32 / img.height() as f32;
-    let new_width = if aspect_ratio > 1.0 {
-        max_width
-    } else {
-        (max_height as f32 * aspect_ratio).ceil() as PixelUnit
-    };
-    let new_height = if aspect_ratio > 1.0 {
-        (max_width as f32 / aspect_ratio).ceil() as PixelUnit
-    } else {
-        max_height
-    };
-    resize(img, new_width, new_height, Lanczos3)
-}
-
-/// Resizes an image to fit within the given dimensions while maintaining the
-/// aspect ratio. If the image is already within the given dimensions, it is
-/// returned as-is.
-pub fn maybe_resize_image_to_fit(image: GrayImage, max_size: Size<PixelUnit>) -> GrayImage {
-    let (width, height) = image.dimensions();
-    let x_scale = max_size.width as SubPixelUnit / width as SubPixelUnit;
-    let y_scale = max_size.height as SubPixelUnit / height as SubPixelUnit;
-    let allowed_error = 0.05;
-    let x_error = (1.0 - x_scale).abs();
-    let y_error = (1.0 - y_scale).abs();
-
-    if x_error <= allowed_error && y_error <= allowed_error {
-        image
-    } else {
-        eprintln!(
-            "WARNING: image dimensions do not match expected dimensions: {}x{} vs {}x{}, resizing",
-            width, height, max_size.width, max_size.height
-        );
-
-        size_image_to_fit(&image, max_size.width, max_size.height)
-    }
 }
 
 /// Expands an image by the given number of pixels on all sides.
