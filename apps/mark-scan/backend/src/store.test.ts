@@ -1,6 +1,7 @@
 import { expect, test, vi } from 'vitest';
 import { safeParseSystemSettings, TEST_JURISDICTION } from '@votingworks/types';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
+import { DateTime } from 'luxon';
 import { Store } from './store';
 
 // We pause in some of these tests so we need to increase the timeout
@@ -107,21 +108,21 @@ test('getElectricalTestingStatusMessages and setElectricalTestingStatusMessage',
     {
       component: 'card',
       statusMessage: 'Success',
-      updatedAt: expect.any(String),
+      updatedAt: expect.any(DateTime),
     },
   ]);
 
-  store.setElectricalTestingStatusMessage('paper-handler', 'Success');
+  store.setElectricalTestingStatusMessage('paperHandler', 'Success');
   expect(store.getElectricalTestingStatusMessages()).toEqual([
     {
       component: 'card',
       statusMessage: 'Success',
-      updatedAt: expect.any(String),
+      updatedAt: expect.any(DateTime),
     },
     {
-      component: 'paper-handler',
+      component: 'paperHandler',
       statusMessage: 'Success',
-      updatedAt: expect.any(String),
+      updatedAt: expect.any(DateTime),
     },
   ]);
 
@@ -130,12 +131,12 @@ test('getElectricalTestingStatusMessages and setElectricalTestingStatusMessage',
     {
       component: 'card',
       statusMessage: 'Error: No card',
-      updatedAt: expect.any(String),
+      updatedAt: expect.any(DateTime),
     },
     {
-      component: 'paper-handler',
+      component: 'paperHandler',
       statusMessage: 'Success',
-      updatedAt: expect.any(String),
+      updatedAt: expect.any(DateTime),
     },
   ]);
 });

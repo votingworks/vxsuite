@@ -1,12 +1,15 @@
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { TaskController } from '@votingworks/backend';
-import { BaseLogger } from '@votingworks/logging';
+import { Logger } from '@votingworks/logging';
+import { UsbDrive } from '@votingworks/usb-drive';
 import { Workspace } from '../util/workspace';
 
 export interface ServerContext {
   auth: InsertedSmartCardAuthApi;
   cardTask: TaskController<string>;
   paperHandlerTask: TaskController<string>;
-  logger: BaseLogger;
+  usbDriveTask: TaskController<string>;
+  logger: Logger;
+  usbDrive: UsbDrive;
   workspace: Workspace;
 }
