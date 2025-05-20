@@ -377,6 +377,24 @@ export const getVoteAdjudications = {
   },
 } as const;
 
+type GetMarginalMarksInput = QueryInput<'getMarginalMarks'>;
+export const getMarginalMarks = {
+  queryKey(input?: GetMarginalMarksInput): QueryKey {
+    return input ? ['getMarginalMarks', input] : ['getMarginalMarks'];
+  },
+  useQuery(input?: GetMarginalMarksInput) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(input),
+      input
+        ? () => apiClient.getMarginalMarks(input)
+        : /* istanbul ignore next - @preserve */
+          () => fail('input is required'),
+      { enabled: !!input, keepPreviousData: true }
+    );
+  },
+} as const;
+
 export const getSystemSettings = {
   queryKey(): QueryKey {
     return ['getSystemSettings'];
