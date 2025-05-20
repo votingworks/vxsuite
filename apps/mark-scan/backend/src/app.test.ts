@@ -29,6 +29,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   DEV_MACHINE_ID,
   ElectionDefinition,
+  HmpbBallotPaperSize,
   UiStringsPackage,
   VotesDict,
   convertVxfElectionToCdfBallotDefinition,
@@ -553,10 +554,20 @@ test('printing ballots', async () => {
   const mockEject = vi.spyOn(driver, 'ejectBallotToRear');
   mockEject.mockReturnValue(deferredEjection.promise);
 
-  const electionDefinition = getMockMultiLanguageElectionDefinition(
+  const electionDefinitionLetter = getMockMultiLanguageElectionDefinition(
     readElectionGeneralDefinition(),
     ['en', 'zh-Hans']
   );
+  const electionDefinition = safeParseElectionDefinition(
+    JSON.stringify({
+      ...electionDefinitionLetter.election,
+      ballotLayout: {
+        ...electionDefinitionLetter.election.ballotLayout,
+        paperSize: HmpbBallotPaperSize.Legal,
+      },
+    })
+  ).unsafeUnwrap();
+
   await configureForTestElection(
     electionDefinition,
     electionGeneralFixtures.uiStrings
