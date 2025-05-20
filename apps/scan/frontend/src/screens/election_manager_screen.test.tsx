@@ -6,9 +6,10 @@ import {
 } from '@votingworks/fixtures';
 import { mockKiosk } from '@votingworks/test-utils';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
-import { ok } from '@votingworks/basics';
+import { err, ok } from '@votingworks/basics';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { FujitsuPrinterStatus } from '@votingworks/scan-backend';
+import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import {
   act,
   render,
@@ -257,6 +258,75 @@ test('when continuous export is paused, shows a button to resume continuous expo
     screen.getByRole('button', { name: 'Resume Continuous CVR Export' })
   );
   await screen.findByRole('button', { name: 'Pause Continuous CVR Export' });
+});
+
+test('when ballot audit IDs not enabled, doesnt show button to save secret key', async () => {
+  apiMock.expectGetConfig();
+  renderScreen();
+  await screen.findByRole('heading', { name: 'Election Manager Menu' });
+  userEvent.click(screen.getByRole('tab', { name: 'CVRs and Logs' }));
+  expect(
+    screen.queryByRole('button', { name: 'Save Ballot Audit ID Secret Key' })
+  ).not.toBeInTheDocument();
+});
+
+test('when ballot audit IDs enabled, shows a button to save secret key', async () => {
+  apiMock.expectGetConfig({
+    systemSettings: {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      precinctScanEnableBallotAuditIds: true,
+    },
+  });
+  renderScreen();
+  await screen.findByRole('heading', { name: 'Election Manager Menu' });
+
+  userEvent.click(screen.getByRole('tab', { name: 'CVRs and Logs' }));
+
+  apiMock.mockApiClient.saveBallotAuditIdSecretKey
+    .expectCallWith()
+    .resolves(ok(['test-export-path']));
+  userEvent.click(
+    screen.getByRole('button', { name: 'Save Ballot Audit ID Secret Key' })
+  );
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByRole('heading', {
+    name: 'Ballot Audit ID Secret Key Saved',
+  });
+  userEvent.click(within(modal).getByRole('button', { name: 'Close' }));
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
+});
+
+test('shows error if saving ballot audit ID secret key fails', async () => {
+  apiMock.expectGetConfig({
+    systemSettings: {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      precinctScanEnableBallotAuditIds: true,
+    },
+  });
+  renderScreen();
+  await screen.findByRole('heading', { name: 'Election Manager Menu' });
+
+  userEvent.click(screen.getByRole('tab', { name: 'CVRs and Logs' }));
+
+  apiMock.mockApiClient.saveBallotAuditIdSecretKey
+    .expectCallWith()
+    .resolves(
+      err({ type: 'missing-usb-drive', message: 'No USB drive found' })
+    );
+  userEvent.click(
+    screen.getByRole('button', { name: 'Save Ballot Audit ID Secret Key' })
+  );
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByRole('heading', {
+    name: 'Failed to Save Ballot Audit ID Secret Key',
+  });
+  within(modal).getByText('No USB drive found');
+  userEvent.click(within(modal).getByRole('button', { name: 'Close' }));
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
 });
 
 test('switching mode when no ballots have been counted', async () => {

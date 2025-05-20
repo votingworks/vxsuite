@@ -518,4 +518,11 @@ export const saveReadinessReport = {
   },
 } as const;
 
+export const saveBallotAuditIdSecretKey = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.saveBallotAuditIdSecretKey);
+  },
+} as const;
+
 export const systemCallApi = createSystemCallApi(useApiClient);
