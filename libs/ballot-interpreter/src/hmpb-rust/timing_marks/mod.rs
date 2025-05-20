@@ -1788,7 +1788,7 @@ mod tests {
     use crate::{
         ballot_card::{BallotCard, PaperInfo},
         debug::ImageDebugWriter,
-        interpret::{par_map_pair, prepare_ballot_card_images, ResizeStrategy},
+        interpret::{par_map_pair, prepare_ballot_card_images},
     };
 
     use super::*;
@@ -1818,13 +1818,7 @@ mod tests {
             side_a: _,
             side_b,
             geometry,
-        } = prepare_ballot_card_images(
-            side_a_image,
-            side_b_image,
-            &PaperInfo::scanned(),
-            ResizeStrategy::Fit,
-        )
-        .unwrap();
+        } = prepare_ballot_card_images(side_a_image, side_b_image, &PaperInfo::scanned()).unwrap();
 
         let rects = find_timing_mark_shapes(&geometry, &side_b, &ImageDebugWriter::disabled());
         let partial_timing_marks = find_partial_timing_marks_from_candidates(

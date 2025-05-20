@@ -1,4 +1,4 @@
-use std::{cmp::Ordering, io};
+use std::{cmp::Ordering, io, ops::Range};
 
 use image::GrayImage;
 use serde::Serialize;
@@ -6,7 +6,7 @@ use types_rs::geometry::PixelUnit;
 
 pub use types_rs::ballot_card::*;
 
-use crate::{image_utils::Inset, interpret::ResizeStrategy};
+use crate::image_utils::Inset;
 
 use types_rs::geometry::{GridUnit, Inch, PixelPosition, Rect, Size, SubPixelUnit};
 
@@ -258,23 +258,43 @@ impl PaperInfo {
 pub fn get_matching_paper_info_for_image_size(
     size: (PixelUnit, PixelUnit),
     possible_paper_info: &[PaperInfo],
-    resize_strategy: ResizeStrategy,
 ) -> Option<PaperInfo> {
-    const THRESHOLD: f32 = 0.05;
+    /// Allow a fairly small deviation of the width due to possible rotation of
+    /// the ballot. This isn't the direction images are scanned in, so there
+    /// should not be any stretching of the image.
+    const WIDTH_ERROR_THRESHOLD_RANGE: Range<f32> = -0.05..0.05;
+
+    /// Allow a small negative deviation but a higher positive deviation due to
+    /// height being the direction we scan in, which can lead to stretching of
+    /// the ballot image in that direction. We don't allow a higher negative
+    /// deviation because compression of the ballot image doesn't seem to
+    /// happen, and also this range ensures that we don't have overlap in
+    /// acceptable heights of the different allowed paper sizes.
+    const HEIGHT_ERROR_THRESHOLD_RANGE: Range<f32> = -0.05..0.15;
+
     possible_paper_info
         .iter()
         .map(|paper_info| {
             let geometry = paper_info.compute_geometry();
-            (
-                paper_info,
-                resize_strategy.compute_error(
-                    (geometry.canvas_size.width, geometry.canvas_size.height),
-                    size,
-                ),
-            )
+            (paper_info, {
+                let expected_dimensions = (geometry.canvas_size.width, geometry.canvas_size.height);
+                let (expected_width, expected_height) = expected_dimensions;
+                let (actual_width, actual_height) = size;
+                (
+                    (actual_width as f32 - expected_width as f32) / expected_width as f32,
+                    (actual_height as f32 - expected_height as f32) / expected_height as f32,
+                )
+            })
         })
-        .min_by(|(_, error1), (_, error2)| error1.partial_cmp(error2).unwrap_or(Ordering::Equal))
-        .filter(|(_, error)| *error < THRESHOLD)
+        .filter(|(_, (width_error, height_error))| {
+            WIDTH_ERROR_THRESHOLD_RANGE.contains(width_error)
+                && HEIGHT_ERROR_THRESHOLD_RANGE.contains(height_error)
+        })
+        .min_by(|(_, (_, height_error1)), (_, (_, height_error2))| {
+            height_error1
+                .partial_cmp(height_error2)
+                .unwrap_or(Ordering::Equal)
+        })
         .map(|(paper_info, _)| *paper_info)
 }
 
@@ -292,27 +312,15 @@ mod tests {
     #[test]
     fn test_get_scanned_ballot_card_geometry() {
         assert_eq!(
-            get_matching_paper_info_for_image_size(
-                (1696, 2200),
-                &PaperInfo::scanned(),
-                ResizeStrategy::Fit
-            ),
+            get_matching_paper_info_for_image_size((1696, 2200), &PaperInfo::scanned(),),
             Some(PaperInfo::scanned_letter())
         );
         assert_eq!(
-            get_matching_paper_info_for_image_size(
-                (1696, 2800),
-                &PaperInfo::scanned(),
-                ResizeStrategy::Fit
-            ),
+            get_matching_paper_info_for_image_size((1696, 2800), &PaperInfo::scanned(),),
             Some(PaperInfo::scanned_legal())
         );
         assert_eq!(
-            get_matching_paper_info_for_image_size(
-                (1500, 1500),
-                &PaperInfo::scanned(),
-                ResizeStrategy::Fit
-            ),
+            get_matching_paper_info_for_image_size((1500, 1500), &PaperInfo::scanned(),),
             None
         );
     }
