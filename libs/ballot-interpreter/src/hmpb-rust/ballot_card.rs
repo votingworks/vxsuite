@@ -1,4 +1,4 @@
-use std::{cmp::Ordering, io};
+use std::{cmp::Ordering, io, ops::Range};
 
 use image::GrayImage;
 use serde::Serialize;
@@ -259,8 +259,19 @@ pub fn get_matching_paper_info_for_image_size(
     size: (PixelUnit, PixelUnit),
     possible_paper_info: &[PaperInfo],
 ) -> Option<PaperInfo> {
-    const WIDTH_ERROR_THRESHOLD: f32 = 0.05;
-    const HEIGHT_ERROR_THRESHOLD: f32 = 0.15;
+    /// Allow a fairly small deviation of the width due to possible rotation of
+    /// the ballot. This isn't the direction images are scanned in, so there
+    /// should not be any stretching of the image.
+    const WIDTH_ERROR_THRESHOLD_RANGE: Range<f32> = -0.05..0.05;
+
+    /// Allow a small negative deviation but a higher positive deviation due to
+    /// height being the direction we scan in, which can lead to stretching of
+    /// the ballot image in that direction. We don't allow a higher negative
+    /// deviation because compression of the ballot image doesn't seem to
+    /// happen, and also this range ensures that we don't have overlap in
+    /// acceptable heights of the different allowed paper sizes.
+    const HEIGHT_ERROR_THRESHOLD_RANGE: Range<f32> = -0.05..0.15;
+
     possible_paper_info
         .iter()
         .map(|paper_info| {
@@ -270,13 +281,14 @@ pub fn get_matching_paper_info_for_image_size(
                 let (expected_width, expected_height) = expected_dimensions;
                 let (actual_width, actual_height) = size;
                 (
-                    expected_width.abs_diff(actual_width) as f32 / expected_width as f32,
-                    expected_height.abs_diff(actual_height) as f32 / expected_height as f32,
+                    (actual_width as f32 - expected_width as f32) / expected_width as f32,
+                    (actual_height as f32 - expected_height as f32) / expected_height as f32,
                 )
             })
         })
         .filter(|(_, (width_error, height_error))| {
-            *width_error < WIDTH_ERROR_THRESHOLD && *height_error < HEIGHT_ERROR_THRESHOLD
+            WIDTH_ERROR_THRESHOLD_RANGE.contains(width_error)
+                && HEIGHT_ERROR_THRESHOLD_RANGE.contains(height_error)
         })
         .min_by(|(_, (_, height_error1)), (_, (_, height_error2))| {
             height_error1
