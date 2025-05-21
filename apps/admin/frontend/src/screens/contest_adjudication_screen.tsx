@@ -722,7 +722,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
     try {
       await adjudicateCvrContestMutation.mutateAsync(adjudicatedCvrContest);
       if (onLastBallot) {
-        history.push(routerPaths.writeIns);
+        history.push(routerPaths.adjudication);
       } else {
         setMaybeCvrQueueIndex(cvrQueueIndex + 1);
         clearBallotState();
@@ -762,7 +762,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
       setDiscardChangesNextAction('close');
       return;
     }
-    history.push(routerPaths.writeIns);
+    history.push(routerPaths.adjudication);
   }
 
   return (
