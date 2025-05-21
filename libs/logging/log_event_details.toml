@@ -899,17 +899,37 @@ eventType = "application-action"
 documentationMessage = "An API call was made."
 restrictInDocumentationToApps = ["vx-design"]
 
+[Events.SocketClientConnect]
+eventId = "socket-client-connect"
+eventType = "application-status"
+documentationMessage = "A socket client attempted to connect to the socket."
+
+[Events.SocketClientDisconnect]
+eventId = "socket-client-disconnect"
+eventType = "application-status"
+documentationMessage = "A socket client was disconnected."
+
 [Events.SocketClientError]
 eventId = "socket-client-error"
 eventType = "application-status"
 documentationMessage = "An error was reported by a socket client."
 
-[Events.SocketConnection]
-eventId = "socket-connection"
+[Events.SocketServerBind]
+eventId = "socket-server-bind"
 eventType = "application-action"
-documentationMessage = "A socket client connection was attempted."
+documentationMessage = "A process attempted to bind a socket."
 
-[Events.SocketDisconnection]
-eventId = "socket-disconnection"
+[Events.SocketServerClose]
+eventId = "socket-server-close"
 eventType = "application-action"
-documentationMessage = "A socket client was disconnected."
+documentationMessage = "A socket server was closed."
+
+[Events.SocketServerAwaitingClient]
+eventId = "socket-server-awaiting-client"
+eventType = "application-status"
+documentationMessage = "A socket server is awaiting a client."
+
+[Events.SocketServerError]
+eventId = "socket-server-error"
+eventType = "application-status"
+documentationMessage = "An error was reported by a socket server."

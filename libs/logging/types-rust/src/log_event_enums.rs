@@ -381,11 +381,19 @@ pub enum EventId {
     BackgroundTaskStatus,
     #[serde(rename = "api-call")]
     ApiCall,
+    #[serde(rename = "socket-client-connect")]
+    SocketClientConnect,
+    #[serde(rename = "socket-client-disconnect")]
+    SocketClientDisconnect,
     #[serde(rename = "socket-client-error")]
     SocketClientError,
-    #[serde(rename = "socket-connection")]
-    SocketConnection,
-    #[serde(rename = "socket-disconnection")]
-    SocketDisconnection,
+    #[serde(rename = "socket-server-bind")]
+    SocketServerBind,
+    #[serde(rename = "socket-server-close")]
+    SocketServerClose,
+    #[serde(rename = "socket-server-awaiting-client")]
+    SocketServerAwaitingClient,
+    #[serde(rename = "socket-server-error")]
+    SocketServerError,
 }
 derive_display!(EventId);

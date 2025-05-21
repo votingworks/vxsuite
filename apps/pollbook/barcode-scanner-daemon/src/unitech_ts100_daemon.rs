@@ -1,43 +1,55 @@
 use color_eyre::eyre::Context;
 use parse_aamva::AamvaDocument;
+use rusb::{DeviceHandle, UsbContext};
 use serde_json;
 use serialport::{DataBits, FlowControl, Parity, StopBits};
-use std::io::Write;
-use std::io::{BufRead, BufReader, ErrorKind};
+use std::fs;
+use std::io::{self, BufRead, BufReader, ErrorKind, Write};
 use std::os::unix::fs::PermissionsExt;
 use std::os::unix::net::{UnixListener, UnixStream};
 use std::process::exit;
 use std::str::from_utf8;
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use std::thread::sleep;
 use std::time::{Duration, Instant};
-use std::{fs, thread};
-
 use vx_logging::{log, set_source, Disposition, EventId, EventType, Source};
 
-const UDS_PATH: &str = "/tmp/barcodescannerd.sock";
+mod aamva_jurisdictions;
+mod parse_aamva;
 
-const SOURCE: Source = Source::VxMarkScanControllerDaemon;
+/*
+ * Logging config
+ */
+const SOURCE: Source = Source::VxPollbookBarcodeScannerDaemon;
+const HEARTBEAT_LOG_INTERVAL: Duration = Duration::from_secs(60);
+
+/*
+ * Unix domain socket config
+ */
+const UDS_PATH: &str = "/tmp/barcodescannerd.sock";
+// How long to wait for a UDS client (the pollbook node backend) to connect
+const UDS_CLIENT_CONNECTION_TIMEOUT: Duration = Duration::from_secs(30);
+
+/*
+ * Barcode scanner config
+ */
+const UNITECH_VENDOR_ID: u16 = 0x2745;
+const TS100_PRODUCT_ID: u16 = 0x300a;
+const TS100_PORT_NAME: &str = "/dev/ttyACM0";
+const TS100_BAUD_RATE: u32 = 115200;
+const TS100_DATA_TERMINATOR: u8 = b'\r';
 
 // The string denoting the start of an AAMVA-encoded document.
 // 3 ASCII chars '@', 'line feed', 'record separator' expected per "D.12.3 Header" AAMVA 2020 p.50
 const COMPLIANCE_INDICATOR: &[u8] = b"@\n\x1E";
 
-const HEARTBEAT_LOG_INTERVAL: Duration = Duration::from_secs(60);
-const PORT_NAME: &str = "/dev/ttyACM0";
-const BAUD_RATE: u32 = 115200;
-
-use rusb::{DeviceHandle, UsbContext};
-
-mod aamva_jurisdictions;
-mod parse_aamva;
-
+// Resets the TS100 barcode scanner
 fn reset_scanner() -> rusb::Result<()> {
     let ctx = rusb::Context::new()?;
     for device in ctx.devices()?.iter() {
         let desc = device.device_descriptor()?;
-        if desc.vendor_id() == 0x2745 && desc.product_id() == 0x300a {
+        if desc.vendor_id() == UNITECH_VENDOR_ID && desc.product_id() == TS100_PRODUCT_ID {
             let mut handle = device.open()?;
             handle.reset()?;
             sleep(std::time::Duration::from_millis(500));
@@ -47,12 +59,14 @@ fn reset_scanner() -> rusb::Result<()> {
     Ok(())
 }
 
+// Connects to TS100 barcode scanner
 fn init_port(
     port_name: &str,
     baud_rate: u32,
 ) -> color_eyre::Result<Box<dyn serialport::SerialPort>> {
     // We have experienced difficulty reconnecting the scanner when the daemon
     // is stopped and started multiple times. Resetting the scanner solves the issue.
+    // Configuration such as USB COM Port Emulation persists between resets.
     match reset_scanner() {
         Ok(_) => {
             log!(
@@ -78,7 +92,6 @@ fn init_port(
         }
     }
 
-    // Open barcode scanner device
     let port = serialport::new(port_name, baud_rate)
         .data_bits(DataBits::Eight)
         .parity(Parity::None)
@@ -91,6 +104,41 @@ fn init_port(
     Ok(port)
 }
 
+// Waits for and accepts a socket client until `timeout` has elapsed.
+// Returns a Result containing a UnixStream to write to the client or
+// a TimedOut error if no client was accepted.
+fn accept_with_timeout(
+    listener: UnixListener,
+    timeout: Duration,
+) -> color_eyre::Result<UnixStream, io::Error> {
+    listener.set_nonblocking(true)?;
+
+    let start = Instant::now();
+    log!(EventId::SocketServerAwaitingClient);
+    loop {
+        match listener.accept() {
+            Ok((stream, _)) => {
+                log!(event_id: EventId::SocketClientConnect, message: "Accepted UDS client".to_string(), disposition: Disposition::Success);
+                return Ok(stream);
+            }
+            Err(e) if e.kind() == ErrorKind::WouldBlock => {
+                if start.elapsed() >= timeout {
+                    return Err(io::Error::new(
+                        ErrorKind::TimedOut,
+                        "Timed out waiting for UDS client",
+                    ));
+                }
+
+                sleep(Duration::from_millis(200));
+                continue;
+            }
+            Err(e) => {
+                return Err(e);
+            }
+        }
+    }
+}
+
 fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
 
@@ -100,33 +148,8 @@ fn main() -> color_eyre::Result<()> {
         EventType::SystemAction
     );
 
-    let _ = fs::remove_file(UDS_PATH);
-    let listener = UnixListener::bind(UDS_PATH)?;
-
-    // TODO(Kevin) run server and daemon as same user so we can avoid lax permissions
-    fs::set_permissions(UDS_PATH, fs::Permissions::from_mode(0o666))?;
-
-    // A thread‐safe list of all currently‐connected clients
-    let clients = Arc::new(Mutex::new(Vec::<UnixStream>::new()));
-
-    // Spawn thread to accept clients
-    {
-        let clients = clients.clone();
-        thread::spawn(move || {
-            for stream in listener.incoming() {
-                match stream {
-                    Ok(sock) => {
-                        clients.lock().unwrap().push(sock);
-                    }
-                    Err(e) => {
-                        log!(event_id: EventId::SocketConnection, message: format!("UDS client manager encountered error with client: {}", e), event_type: EventType::SystemStatus, disposition: Disposition::Failure)
-                    }
-                }
-            }
-        });
-    }
-
-    let port = match init_port(PORT_NAME, BAUD_RATE) {
+    // Connect to barcode scanner device
+    let port = match init_port(TS100_PORT_NAME, TS100_BAUD_RATE) {
         Ok(p) => p,
         Err(e) => {
             log!(
@@ -144,30 +167,39 @@ fn main() -> color_eyre::Result<()> {
             exit(1);
         }
     };
+    // Reader to read from the barcode scanner
+    let mut scanner_reader = BufReader::new(port);
 
     log!(
         event_id: EventId::DeviceAttached,
-        message: format!("Listening for barcode scan data on {PORT_NAME}..."),
+        message: format!("Connected to TS100 barcode scanner at {TS100_PORT_NAME}..."),
         event_type: EventType::SystemStatus,
         disposition: Disposition::Success
     );
 
-    let mut reader = BufReader::new(port);
-    let running = Arc::new(AtomicBool::new(true));
+    // Unlink old socket if it exists
+    let _ = fs::remove_file(UDS_PATH);
+    // Assign address to socket
+    let listener = UnixListener::bind(UDS_PATH)?;
+    // TODO(Kevin) run server and daemon as same user so we can avoid lax permissions
+    fs::set_permissions(UDS_PATH, fs::Permissions::from_mode(0o666))?;
+    log!(
+        event_id: EventId::SocketServerBind,
+        message: format!("UDS bound on {}", UDS_PATH),
+        disposition: Disposition::Success
+    );
 
-    if let Err(e) = ctrlc::set_handler({
+    // Wait for socket client (eg. pollbook backend) to connect. Simultaneous clients are not supported.
+    let mut uds_client = accept_with_timeout(listener, UDS_CLIENT_CONNECTION_TIMEOUT)?;
+
+    // Set up ctrl+c handler
+    let running = Arc::new(AtomicBool::new(true));
+    ctrlc::set_handler({
         let running = running.clone();
         move || {
             running.store(false, Ordering::SeqCst);
         }
-    }) {
-        log!(
-            event_id: EventId::ErrorSettingSigintHandler,
-            message: e.to_string(),
-            event_type: EventType::SystemStatus,
-            disposition: Disposition::Failure
-        );
-    }
+    })?;
 
     let mut buf = Vec::new();
     let mut start = Instant::now();
@@ -188,10 +220,9 @@ fn main() -> color_eyre::Result<()> {
 
         buf.clear();
 
-        match reader.read_until(b'\r', &mut buf) {
+        match scanner_reader.read_until(TS100_DATA_TERMINATOR, &mut buf) {
             Ok(_) => {
-                // Scanner is configured by default to terminate data with '\r'
-                if buf.ends_with(&[b'\r']) {
+                if buf.ends_with(&[TS100_DATA_TERMINATOR]) {
                     buf.pop();
                 }
 
@@ -200,42 +231,29 @@ fn main() -> color_eyre::Result<()> {
                 }
 
                 // We expect the input sequence to start with the compliance indicator
-                // so we just ignore it and continue to read the next line
+                // on its own line so we just ignore it and skip to the next line
                 if buf.as_slice() == COMPLIANCE_INDICATOR {
                     continue;
                 }
 
                 match from_utf8(&buf) {
-                    Ok(s) => {
-                        match AamvaDocument::try_from(s) {
-                            Ok(document) => {
-                                let serialized = serde_json::to_string_pretty(&document)
-                                    .context("Failed to serialize AAMVA document to JSON")?;
-                                let mut guard = clients.lock().unwrap();
-
-                                // Write the serialized scan JSON to every connected client
-                                guard.retain_mut(|client| {
-                                    // send, and drop this client from the list if it errors (disconnected)
-                                    if let Err(_) = client
-                                        .write_all(serialized.as_bytes())
-                                        .and_then(|_| client.write_all(b"\n"))
-                                    {
-                                        false
-                                    } else {
-                                        true
-                                    }
-                                });
-                            }
-                            Err(e) => {
-                                log!(
-                                    event_id: EventId::ParseError,
-                                    message: format!("Scanned data was not in AAMVA format: {e}"),
-                                    event_type: EventType::SystemAction,
-                                    disposition: Disposition::Failure
-                                );
-                            }
+                    Ok(s) => match AamvaDocument::try_from(s) {
+                        Ok(document) => {
+                            let serialized = serde_json::to_string_pretty(&document)
+                                .context("Failed to serialize AAMVA document to JSON")?;
+                            let _ = uds_client
+                                .write_all(serialized.as_bytes())
+                                .context("Failed to write data to UDS client")?;
                         }
-                    }
+                        Err(e) => {
+                            log!(
+                                event_id: EventId::ParseError,
+                                message: format!("Scanned data was not in AAMVA format: {e}"),
+                                event_type: EventType::SystemAction,
+                                disposition: Disposition::Failure
+                            );
+                        }
+                    },
                     Err(e) => {
                         log!(
                             event_id: EventId::ParseError,
@@ -257,9 +275,12 @@ fn main() -> color_eyre::Result<()> {
         }
     }
 
-    let mut port = reader.into_inner();
+    // Close port and unlink socket
+    let mut port = scanner_reader.into_inner();
     let _ = port.write_data_terminal_ready(false);
     drop(port);
+
+    let _ = fs::remove_file(UDS_PATH);
 
     log!(
         EventId::ProcessTerminated;
@@ -267,4 +288,52 @@ fn main() -> color_eyre::Result<()> {
     );
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::env::temp_dir;
+    use std::io::ErrorKind;
+    use std::os::unix::net::UnixStream;
+    use std::path::PathBuf;
+    use std::time::Duration;
+
+    fn make_socket_path(name: &str) -> PathBuf {
+        let mut path = temp_dir();
+        path.push(name);
+        path
+    }
+
+    #[test]
+    fn accept_with_client_succeeds() {
+        set_source(SOURCE);
+        let socket_path = make_socket_path("accept_success.sock");
+        let _ = fs::remove_file(&socket_path);
+
+        // bind the listener
+        let listener = UnixListener::bind(&socket_path).expect("could not bind listener");
+
+        sleep(Duration::from_millis(50));
+        let _ = UnixStream::connect(&socket_path).expect("client connect should succeed");
+
+        let stream = accept_with_timeout(listener, Duration::from_secs(1))
+            .expect("should accept within timeout");
+        assert!(stream.peer_addr().is_ok());
+        let _ = fs::remove_file(&socket_path);
+    }
+
+    #[test]
+    fn accept_with_timeout_errors_if_no_client() {
+        set_source(SOURCE);
+        let socket_path = make_socket_path("accept_timeout.sock");
+        let _ = fs::remove_file(&socket_path);
+
+        let listener = UnixListener::bind(&socket_path).expect("could not bind listener");
+
+        let err = accept_with_timeout(listener, Duration::from_millis(100))
+            .expect_err("expected connection timeout");
+        assert_eq!(err.kind(), ErrorKind::TimedOut);
+        let _ = fs::remove_file(&socket_path);
+    }
 }
