@@ -23,7 +23,7 @@ const electionGeneralDefinition = readElectionGeneralDefinition();
 let apiMock: ApiMock;
 
 function renderApp(props: Partial<AppProps> = {}) {
-  render(<App apiClient={apiMock.mockApiClient} {...props} />);
+  render(<App apiClient={apiMock.mockApiClient} noAudio {...props} />);
 }
 
 beforeEach(() => {

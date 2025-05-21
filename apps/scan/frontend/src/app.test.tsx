@@ -39,7 +39,7 @@ const pauseSessionMock = vi.fn();
 const resumeSessionMock = vi.fn();
 
 function renderApp(props: Partial<AppProps> = {}) {
-  render(<App apiClient={apiMock.mockApiClient} {...props} />);
+  render(<App apiClient={apiMock.mockApiClient} noAudio {...props} />);
 }
 
 beforeEach(() => {

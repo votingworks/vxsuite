@@ -372,7 +372,9 @@ export function provideApi(
 ): JSX.Element {
   return (
     <TestErrorBoundary>
-      <ApiProvider apiClient={apiMock.mockApiClient}>{children}</ApiProvider>
+      <ApiProvider apiClient={apiMock.mockApiClient} noAudio>
+        {children}
+      </ApiProvider>
     </TestErrorBoundary>
   );
 }

@@ -8,6 +8,8 @@ import {
   H1,
   LanguageSettingsButton,
   LanguageSettingsScreen,
+  ReadOnLoad,
+  AudioOnly,
 } from '@votingworks/ui';
 import styled, { DefaultTheme, ThemeContext } from 'styled-components';
 import { SizeMode } from '@votingworks/types';
@@ -170,9 +172,16 @@ export function Screen(props: ScreenProps): JSX.Element | null {
         <TitleContainer>{title && <H1>{title}</H1>}</TitleContainer>
         {!voterFacing && ballotCountElement}
       </TitleBar>
-      <Main centerChild={centerContent} padded={padded}>
-        {children}
-      </Main>
+      {voterFacing ? (
+        <ReadOnLoad as={Main} centerChild={centerContent} padded={padded}>
+          {title && <AudioOnly>{title}</AudioOnly>}
+          {children}
+        </ReadOnLoad>
+      ) : (
+        <Main centerChild={centerContent} padded={padded}>
+          {children}
+        </Main>
+      )}
       {actionButtons && <ButtonBar>{actionButtons}</ButtonBar>}
       {!hideInfoBar && (
         <ElectionInfoBar
