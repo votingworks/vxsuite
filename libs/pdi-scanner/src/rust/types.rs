@@ -9,6 +9,12 @@ pub enum UsbError {
 
     #[error("rusb_async error: {0}")]
     RusbAsync(rusb_async::Error),
+
+    #[error("nusb error: {0}")]
+    Nusb(nusb::Error),
+
+    #[error("device not found")]
+    DeviceNotFound,
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -38,6 +44,17 @@ impl From<rusb::Error> for Error {
 impl From<rusb_async::Error> for Error {
     fn from(err: rusb_async::Error) -> Self {
         Self::Usb(UsbError::RusbAsync(err))
+    }
+}
+
+impl From<nusb::Error> for Error {
+    fn from(err: nusb::Error) -> Self {
+        Self::Usb(UsbError::Nusb(err.into()))
+    }
+}
+impl From<nusb::transfer::TransferError> for Error {
+    fn from(err: nusb::transfer::TransferError) -> Self {
+        Self::Usb(UsbError::Nusb(err.into()))
     }
 }
 
