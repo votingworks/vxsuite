@@ -78,17 +78,24 @@ impl RawImageData {
             ScanSideMode::Duplex => {
                 let mut top = Vec::new();
                 let mut bottom = Vec::new();
-                for row in self.data.chunks_exact((width / u8::BITS * 2) as usize) {
-                    let mut row = row.iter().copied();
-                    let mut top_row = Vec::new();
-                    while let Some(byte) = row.next() {
-                        top_row.push(byte.reverse_bits());
-                        bottom.push(row.next().expect("bottom side byte"));
-                    }
-                    top.extend(top_row.into_iter().rev());
+                for row in self.data.chunks_exact(2) {
+                    top.push(row[0]);
+                    bottom.push(row[1]);
+                    // let mut row = row.iter().copied();
+                    // let mut top_row = Vec::new();
+                    // while let Some(byte) = row.next() {
+                    //     top_row.push(byte);
+                    //     bottom.push(row.next().expect("bottom side byte"));
+                    // }
+                    // top.extend(top_row.into_iter().rev());
                 }
 
-                let top_page = ScanPage::new(width, height, top)
+                let top_mirrored = top
+                    .chunks_exact(width as usize)
+                    .flat_map(|row| row.iter().copied().rev().collect::<Vec<u8>>())
+                    .collect();
+
+                let top_page = ScanPage::new(width, height, top_mirrored)
                     .ok_or_else(|| Error::InvalidData("unexpected data length".to_string()))?;
                 let bottom_page = ScanPage::new(width, height, bottom)
                     .ok_or_else(|| Error::InvalidData("unexpected data length".to_string()))?;
@@ -122,7 +129,7 @@ impl RawImageData {
         }
 
         // for now we assume that the data is 1bpp
-        let pixels = self.data.len() * u8::BITS as usize;
+        let pixels = self.data.len();
         let pixels_per_side = pixels / page_count;
         Ok((pixels_per_side / width as usize) as u32)
     }
@@ -161,67 +168,67 @@ impl ScanPage {
     /// rows at the top and bottom. Returns None if the image is entirely black.
     #[must_use]
     pub fn to_cropped_image(&self) -> Option<GrayImage> {
-        let data = self.convert_1bpp_to_8bpp();
+        let data = self.data.clone(); //convert_1bpp_to_8bpp();
         let image =
             GrayImage::from_raw(self.width, (data.len() / self.width as usize) as u32, data)
                 .expect("from_raw can only fail if the data buffer is not big enough for the dimensions, but we compute the dimensions from the data buffer");
-        let mut image = DynamicImage::ImageLuma8(image);
-        let crop_start = self.find_crop_start();
-        let crop_end = self.find_crop_end();
+        let image = DynamicImage::ImageLuma8(image);
+        // let crop_start = self.find_crop_start();
+        // let crop_end = self.find_crop_end();
 
-        if crop_start >= crop_end {
-            return None;
-        }
+        // if crop_start >= crop_end {
+        //     return None;
+        // }
 
         Some(
             image
-                .crop(0, crop_start, self.width, crop_end - crop_start)
+                // .crop(0, crop_start, self.width, crop_end - crop_start)
                 .into_luma8(),
         )
     }
 
-    /// Finds the start of the crop area by looking for the first row that is
-    /// not completely black. The value is returned as the row index, i.e. the
-    /// number of rows to skip from the top or the y-coordinate of the start of
-    /// the crop area, where the start is inclusive.
-    fn find_crop_start(&self) -> u32 {
-        self.data
-            .chunks_exact((self.width / u8::BITS) as usize)
-            .take_while(|row_data| row_data.iter().all(|byte| *byte == u8::MAX))
-            .count() as u32
-    }
+    // Finds the start of the crop area by looking for the first row that is
+    // not completely black. The value is returned as the row index, i.e. the
+    // number of rows to skip from the top or the y-coordinate of the start of
+    // the crop area, where the start is inclusive.
+    // fn find_crop_start(&self) -> u32 {
+    //     self.data
+    //         .chunks_exact((self.width) as usize)
+    //         .take_while(|row_data| row_data.iter().all(|byte| *byte == u8::MAX))
+    //         .count() as u32
+    // }
 
-    /// Finds the end of the crop area by looking for the first row that is not
-    /// completely black, starting from the bottom. The value is returned as
-    /// the row index, i.e. the number of rows to skip from the bottom or the
-    /// y-coordinate of the end of the crop area, where the end is exclusive.
-    fn find_crop_end(&self) -> u32 {
-        self.height
-            - self
-                .data
-                .chunks_exact((self.width / u8::BITS) as usize)
-                .rev()
-                .take_while(|row_data| row_data.iter().all(|byte| *byte == u8::MAX))
-                .count() as u32
-    }
+    // Finds the end of the crop area by looking for the first row that is not
+    // completely black, starting from the bottom. The value is returned as
+    // the row index, i.e. the number of rows to skip from the bottom or the
+    // y-coordinate of the end of the crop area, where the end is exclusive.
+    // fn find_crop_end(&self) -> u32 {
+    //     self.height
+    //         - self
+    //             .data
+    //             .chunks_exact((self.width) as usize)
+    //             .rev()
+    //             .take_while(|row_data| row_data.iter().all(|byte| *byte == u8::MAX))
+    //             .count() as u32
+    // }
 
-    /// Converts 1bpp data to 8bpp grayscale data.
-    fn convert_1bpp_to_8bpp(&self) -> Vec<u8> {
-        self.data
-            .iter()
-            .copied()
-            .flat_map(|byte| {
-                (0..u8::BITS).rev().map(move |i| {
-                    // convert `1` to black and `0` to white
-                    if byte & (1 << i) == 0 {
-                        u8::MAX
-                    } else {
-                        u8::MIN
-                    }
-                })
-            })
-            .collect()
-    }
+    // Converts 1bpp data to 8bpp grayscale data.
+    // fn convert_1bpp_to_8bpp(&self) -> Vec<u8> {
+    //     self.data
+    //         .iter()
+    //         .copied()
+    //         .flat_map(|byte| {
+    //             (0..u8::BITS).rev().map(move |i| {
+    //                 // convert `1` to black and `0` to white
+    //                 if byte & (1 << i) == 0 {
+    //                     u8::MAX
+    //                 } else {
+    //                     u8::MIN
+    //                 }
+    //             })
+    //         })
+    //         .collect()
+    // }
 }
 
 #[derive(Debug, thiserror::Error)]
