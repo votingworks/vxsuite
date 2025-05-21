@@ -1,6 +1,5 @@
 import {
   Caption,
-  Font,
   FullScreenIconWrapper,
   Icons,
   P,
@@ -53,11 +52,7 @@ export function ScanErrorScreen({
     ) {
       return {
         title: appStrings.titleScannerError(),
-        errorMessage: (
-          <Font weight="bold">
-            {appStrings.instructionsScannerAskForRestart()}
-          </Font>
-        ),
+        errorMessage: appStrings.instructionsScannerAskForRestart(),
         pollWorkerMessage: 'none',
       };
     }
@@ -67,22 +62,14 @@ export function ScanErrorScreen({
       case 'vertical_streaks_detected':
         return {
           title: appStrings.titleScannerNeedsCleaning(),
-          errorMessage: (
-            <Font weight="bold">
-              {appStrings.warningScannerNeedsCleaning()}
-            </Font>
-          ),
+          errorMessage: appStrings.warningScannerNeedsCleaning(),
           pollWorkerMessage: 'needs-help',
         };
       case 'unreadable':
       case 'unknown':
         return {
           title: appStrings.titleScannerBallotUnreadable(),
-          errorMessage: (
-            <Font weight="bold">
-              {appStrings.warningProblemScanningBallotScanAgain()}
-            </Font>
-          ),
+          errorMessage: appStrings.warningProblemScanningBallotScanAgain(),
           pollWorkerMessage: 'might-need-help',
         };
       case 'invalid_test_mode':
@@ -124,11 +111,7 @@ export function ScanErrorScreen({
       case 'paper_in_both_sides_after_reconnect':
         return {
           title: appStrings.titleScannerError(),
-          errorMessage: (
-            <Font weight="bold">
-              {appStrings.instructionsScannerRemoveBallotToContinue()}
-            </Font>
-          ),
+          errorMessage: appStrings.instructionsScannerRemoveBallotToContinue(),
           pollWorkerMessage: 'might-need-help',
         };
       default: {
@@ -153,7 +136,7 @@ export function ScanErrorScreen({
           </FullScreenIconWrapper>
         }
       >
-        <P>{errorMessage}</P>
+        <P weight="bold">{errorMessage}</P>
         <Caption>
           {pollWorkerMessage === 'needs-help'
             ? appStrings.instructionsAskForHelp()

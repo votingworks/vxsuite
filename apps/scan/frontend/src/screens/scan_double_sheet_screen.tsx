@@ -32,7 +32,7 @@ export function ScanDoubleSheetScreen({
           </FullScreenIconWrapper>
         }
       >
-        <P>{appStrings.instructionsScannerRemoveDoubleSheet()}</P>
+        <P weight="bold">{appStrings.instructionsScannerRemoveDoubleSheet()}</P>
         <P>
           <Caption>{appStrings.noteAskPollWorkerForHelp()}</Caption>
         </P>
