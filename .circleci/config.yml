@@ -1412,6 +1412,25 @@ jobs:
           command: |
             cargo test -p ballot-interpreter
 
+  test-crate-barcode-scanner-daemon:
+    executor: 'nodejs'
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: false
+      - run:
+          name: Build
+          command: |
+            cargo build -p barcode-scanner-daemon
+      - run:
+          name: Lint
+          command: |
+            cargo clippy -p barcode-scanner-daemon
+      - run:
+          name: Test
+          command: |
+            cargo test -p barcode-scanner-daemon
+
   test-crate-controllerd:
     executor: 'nodejs'
     resource_class: xlarge
@@ -1657,6 +1676,7 @@ workflows:
       - test-libs-usb-drive
       - test-libs-utils
       - test-crate-ballot-interpreter
+      - test-crate-barcode-scanner-daemon
       - test-crate-controllerd
       - test-crate-daemon-utils
       - test-crate-fai100-controllerd
