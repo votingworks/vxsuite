@@ -27,7 +27,7 @@ import { TallyWriteInReportScreen } from '../screens/reporting/write_in_adjudica
 import { ManualTalliesFormScreen } from '../screens/tally/manual_tallies_form_screen';
 import { SmartCardsScreen } from '../screens/smart_cards_screen';
 import { MachineLockedScreen } from '../screens/machine_locked_screen';
-import { WriteInsSummaryScreen } from '../screens/write_ins_summary_screen';
+import { AdjudicationSummaryScreen } from '../screens/adjudication_summary_screen';
 import { SettingsScreen } from '../screens/settings_screen';
 import { ReportsScreen } from '../screens/reporting/reports_screen';
 import { checkPin, logOut, useApiClient } from '../api';
@@ -135,8 +135,8 @@ export function AppRoutes(): JSX.Element | null {
       {isFeatureFlagEnabled(
         BooleanEnvironmentVariableName.WRITE_IN_ADJUDICATION
       ) && (
-        <Route exact path={routerPaths.writeIns}>
-          <WriteInsSummaryScreen />
+        <Route exact path={routerPaths.adjudication}>
+          <AdjudicationSummaryScreen />
         </Route>
       )}
       {isFeatureFlagEnabled(
@@ -144,7 +144,7 @@ export function AppRoutes(): JSX.Element | null {
       ) && (
         <Route
           exact
-          path={routerPaths.writeInAdjudication({ contestId: ':contestId' })}
+          path={routerPaths.contestAdjudication({ contestId: ':contestId' })}
         >
           <ContestAdjudicationScreen />
         </Route>
