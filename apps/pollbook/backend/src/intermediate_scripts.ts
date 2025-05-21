@@ -7,11 +7,10 @@ import path from 'node:path';
  */
 export function intermediateScript(
   script:
-    | 'power-down'
-    | 'reboot'
-    | 'reboot-to-bios'
-    | 'reboot-to-vendor-menu'
-    | 'set-clock'
+    | 'reset-network'
+    | 'avahi-publish-service'
+    | 'avahi-browse'
+    | 'is-online'
 ): string {
   // Prefix with ../src since we're actually in ../build at runtime
   return path.join(__dirname, '../intermediate-scripts', script);

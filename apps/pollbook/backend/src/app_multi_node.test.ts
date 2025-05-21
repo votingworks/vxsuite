@@ -50,7 +50,7 @@ vi.mock(import('./get_current_time.js'), async (importActual) => ({
 vi.mock('./avahi.js', () => ({
   hasOnlineInterface: vi.fn().mockResolvedValue(false),
   AvahiService: {
-    advertiseHttpService: vi.fn().mockResolvedValue(undefined),
+    advertiseHttpService: vi.fn().mockReturnValue(undefined),
     stopAdvertisedService: vi.fn(),
     discoverHttpServices: vi.fn().mockResolvedValue([]),
   },

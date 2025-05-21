@@ -67,7 +67,7 @@ test('rebootToVendorMenu', async () => {
   expect(execFile).toHaveBeenCalledWith('sudo', [
     expect.stringMatching(
       new RegExp(
-        '^/.*/libs/backend/src/intermediate-scripts/reboot-to-vendor-menu$'
+        '^/.*/libs/backend/intermediate-scripts/reboot-to-vendor-menu$'
       )
     ),
     '/vx/config/app-flags',
@@ -88,7 +88,7 @@ test('rebootToVendorMenu in dev', async () => {
   expect(execFile).toHaveBeenCalledWith('sudo', [
     expect.stringMatching(
       new RegExp(
-        '^/.*/libs/backend/src/intermediate-scripts/reboot-to-vendor-menu$'
+        '^/.*/libs/backend/intermediate-scripts/reboot-to-vendor-menu$'
       )
     ),
     '/tmp',
@@ -102,7 +102,7 @@ test('powerDown', async () => {
   });
   expect(execFile).toHaveBeenCalledWith('sudo', [
     expect.stringMatching(
-      new RegExp('^/.*/libs/backend/src/intermediate-scripts/power-down$')
+      new RegExp('^/.*/libs/backend/intermediate-scripts/power-down$')
     ),
   ]);
 });
@@ -115,7 +115,7 @@ test('setClock', async () => {
 
   expect(execFile).toHaveBeenNthCalledWith(1, 'sudo', [
     expect.stringMatching(
-      new RegExp('^/.*/libs/backend/src/intermediate-scripts/set-clock$')
+      new RegExp('^/.*/libs/backend/intermediate-scripts/set-clock$')
     ),
     'America/Chicago',
     '2020-11-03 09:00:00',

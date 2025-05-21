@@ -9,7 +9,8 @@
     "build",
     "bin",
     "Makefile",
-    "schema.sql"
+    "schema.sql",
+    "intermediate-scripts"
   ],
   "scripts": {
     "build": "pnpm --filter $npm_package_name... build:self",

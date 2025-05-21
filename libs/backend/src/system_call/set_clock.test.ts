@@ -36,7 +36,7 @@ test('setClock works in daylights savings', async () => {
 
   expect(execMock).toHaveBeenNthCalledWith(1, 'sudo', [
     expect.stringMatching(
-      new RegExp('^/.*/libs/backend/src/intermediate-scripts/set-clock$')
+      new RegExp('^/.*/libs/backend/intermediate-scripts/set-clock$')
     ),
     'America/Chicago',
     '2020-10-03 10:00:00',
@@ -51,7 +51,7 @@ test('setClock works in non-daylights savings', async () => {
 
   expect(execMock).toHaveBeenNthCalledWith(1, 'sudo', [
     expect.stringMatching(
-      new RegExp('^/.*/libs/backend/src/intermediate-scripts/set-clock$')
+      new RegExp('^/.*/libs/backend/intermediate-scripts/set-clock$')
     ),
     'America/Chicago',
     '2020-11-03 09:00:00',

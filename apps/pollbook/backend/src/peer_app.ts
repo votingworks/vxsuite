@@ -86,7 +86,7 @@ export function buildPeerApp(context: PeerAppContext): Application {
     });
   });
 
-  void setupMachineNetworking(context);
+  setupMachineNetworking(context);
   fetchEventsFromConnectedPollbooks(context);
   pollNetworkForPollbookPackage(context);
 
