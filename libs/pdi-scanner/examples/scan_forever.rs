@@ -72,7 +72,11 @@ async fn main() -> color_eyre::Result<()> {
     let mut raw_image_data = RawImageData::new();
     let mut scan_index = 0;
 
-    client.send_initial_commands_after_connect(Duration::from_secs(3))?;
+    if let Err(_) = client.send_initial_commands_after_connect(Duration::from_millis(500)) {
+        client.send_initial_commands_after_connect(Duration::from_secs(3))?;
+    }
+    let image_calibration_tables = client.get_image_calibration_tables(Duration::from_secs(3))?;
+
     client.send_enable_scan_commands(
         config.bitonal_threshold,
         DoubleFeedDetectionMode::RejectDoubleFeeds,
@@ -103,8 +107,11 @@ async fn main() -> color_eyre::Result<()> {
                     raw_image_data = RawImageData::new();
                 }
                 Incoming::EndScanEvent => {
-                    match raw_image_data.try_decode_scan(DEFAULT_IMAGE_WIDTH, ScanSideMode::Duplex)
-                    {
+                    match raw_image_data.try_decode_scan(
+                        DEFAULT_IMAGE_WIDTH,
+                        ScanSideMode::Duplex,
+                        &image_calibration_tables,
+                    ) {
                         Ok(Sheet::Duplex(top, bottom)) => {
                             match (top.to_cropped_image(), bottom.to_cropped_image()) {
                                 (Some(top_image), Some(bottom_image)) => {

@@ -1,8 +1,52 @@
 use image::{DynamicImage, GrayImage};
 
+use crate::client::ImageCalibrationTables;
+
 use super::types::ScanSideMode;
 
 pub const DEFAULT_IMAGE_WIDTH: u32 = 1728;
+
+fn apply_image_calibration(
+    row: &[u8],
+    image_calibration_tables: &ImageCalibrationTables,
+) -> Vec<u8> {
+    assert!(
+        row.len() == image_calibration_tables.white.len()
+            && row.len() == image_calibration_tables.black.len(),
+        "Image calibration tables must be the same length as the row"
+    );
+    row.iter()
+        .enumerate()
+        .map(|(index, pixel)| {
+            let white_calibration = image_calibration_tables.white[index] as i16;
+            let black_calibration = image_calibration_tables.black[index] as i16;
+            let denominator = white_calibration - black_calibration;
+            let white_adjustment = 1.0;
+            let denominator = (denominator as f32 * white_adjustment).round() as i16;
+            let numerator = (*pixel as i16 - black_calibration).clamp(0, 255);
+            // if index == 10 {
+            //     println!(
+            //         "pixel: {}, white: {}, black: {}, denominator: {}, numerator: {}, result: {}",
+            //         pixel,
+            //         white_calibration,
+            //         black_calibration,
+            //         denominator,
+            //         numerator,
+            //         if denominator > 0 {
+            //             ((numerator as u16 * 255) / denominator as u16).min(255) as i16
+            //         } else {
+            //             -1
+            //         }
+            //     );
+            // }
+            if denominator <= 0 {
+                0
+            } else {
+                ((numerator as u16 * 255) / denominator as u16).min(255) as u8
+            }
+        })
+        .collect()
+}
 
 /// Container for raw image data from the scanner. Decodes the data as images
 /// (see [`RawImageData::try_decode_scan`]).
@@ -35,7 +79,7 @@ impl RawImageData {
     /// raw data from the scanner.
     pub fn extend_from_slice(&mut self, slice: &[u8]) {
         // the scanner sends the data XOR'd with 0x33
-        self.data.extend(slice.iter().map(|byte| *byte ^ 0x33));
+        self.data.extend(slice.iter().map(|byte| *byte)); // ^ 0x33));
     }
 
     /// Attempts to decode data as image(s) from the scanner. The data is
@@ -56,6 +100,7 @@ impl RawImageData {
         &self,
         width: u32,
         scan_side_mode: ScanSideMode,
+        image_calibration_tables: &ImageCalibrationTables,
     ) -> Result<Sheet<ScanPage>, Error> {
         let height = self.compute_expected_height(width, scan_side_mode)?;
 
@@ -76,26 +121,44 @@ impl RawImageData {
             .ok_or_else(|| Error::InvalidData("unexpected data length".to_string())),
 
             ScanSideMode::Duplex => {
-                let mut top = Vec::new();
-                let mut bottom = Vec::new();
-                for row in self.data.chunks_exact(2) {
-                    top.push(row[0]);
-                    bottom.push(row[1]);
-                    // let mut row = row.iter().copied();
-                    // let mut top_row = Vec::new();
-                    // while let Some(byte) = row.next() {
-                    //     top_row.push(byte);
-                    //     bottom.push(row.next().expect("bottom side byte"));
-                    // }
-                    // top.extend(top_row.into_iter().rev());
-                }
+                let (top_raw, bottom_raw): (Vec<u8>, Vec<u8>) = self
+                    .data
+                    .chunks_exact(2)
+                    .into_iter()
+                    .map(|pixel_pair| (pixel_pair[0], pixel_pair[1]))
+                    .unzip();
 
-                let top_mirrored = top
+                let top: Vec<u8> = top_raw
                     .chunks_exact(width as usize)
-                    .flat_map(|row| row.iter().copied().rev().collect::<Vec<u8>>())
+                    .map(|row| row.iter().copied().rev().collect::<Vec<_>>())
+                    .map(|row| apply_image_calibration(&row, image_calibration_tables))
+                    .flatten()
                     .collect();
 
-                let top_page = ScanPage::new(width, height, top_mirrored)
+                let bottom: Vec<u8> = bottom_raw
+                    .chunks_exact(width as usize)
+                    .map(|row| apply_image_calibration(row, image_calibration_tables))
+                    .flatten()
+                    .collect();
+
+                GrayImage::from_raw(width, (top_raw.len() / width as usize) as u32, top_raw)
+                    .unwrap()
+                    .save("top-raw.png")
+                    .unwrap();
+                GrayImage::from_raw(
+                    width,
+                    (bottom_raw.len() / width as usize) as u32,
+                    bottom_raw,
+                )
+                .unwrap()
+                .save("bottom-raw.png")
+                .unwrap();
+                println!("top: {:?}", top.len());
+                println!("bottom: {:?}", bottom.len());
+                println!("white table: {:?}", image_calibration_tables.white.len());
+                println!("black table: {:?}", image_calibration_tables.black.len());
+
+                let top_page = ScanPage::new(width, height, top)
                     .ok_or_else(|| Error::InvalidData("unexpected data length".to_string()))?;
                 let bottom_page = ScanPage::new(width, height, bottom)
                     .ok_or_else(|| Error::InvalidData("unexpected data length".to_string()))?;

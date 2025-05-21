@@ -1092,10 +1092,6 @@ pub fn get_calibration_information_request(input: &[u8]) -> IResult<&[u8], Optio
 ///
 /// Returns an error if the input does not match the expected format.
 pub fn get_calibration_information_response(input: &[u8]) -> IResult<&[u8], (Vec<u8>, Vec<u8>)> {
-    // TODO: This implementation corresponds to the documentation, but it doesn't
-    // seem to match the actual behavior of the scanner. The scanner seems to
-    // return an extra byte at the end of the packet, which is not accounted for
-    // here.
     let (input, _) = packet_start(input)?;
     let (input, _) = tag(b"W")(input)?;
     let (input, pixel_count) = le_u16(input)?;
@@ -1104,16 +1100,19 @@ pub fn get_calibration_information_response(input: &[u8]) -> IResult<&[u8], (Vec
     // dbg!(
     //     white_calibration_table.len(),
     //     // white_calibration_table,
-    //     white_calibration_table_checksum
+    //     _white_calibration_table_checksum
     // );
     let (input, black_calibration_table) = take(pixel_count)(input)?;
     let (input, _black_calibration_table_checksum) = le_u16(input)?;
     // dbg!(
     //     black_calibration_table.len(),
     //     // black_calibration_table,
-    //     black_calibration_table_checksum,
+    //     _black_calibration_table_checksum,
     //     input
     // );
+    // The scanner seems to return an extra byte at the end of the packet that's
+    // not included in the documentation. We just ignore it for now.
+    let input = &input[1..];
     let (input, _) = packet_end(input)?;
 
     Ok((

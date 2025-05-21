@@ -22,6 +22,8 @@ use super::protocol::{
     },
 };
 
+const DEFAULT_RESOLUTION: Resolution = Resolution::Half;
+
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DoubleFeedDetectionCalibrationConfig {
@@ -29,6 +31,12 @@ pub struct DoubleFeedDetectionCalibrationConfig {
     single_sheet_calibration_value: u16,
     double_sheet_calibration_value: u16,
     threshold_value: u16,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ImageCalibrationTables {
+    pub white: Vec<u8>,
+    pub black: Vec<u8>,
 }
 
 macro_rules! recv {
@@ -767,6 +775,18 @@ impl<T> Client<T> {
         })
     }
 
+    pub fn get_image_calibration_tables(
+        &mut self,
+        timeout: Duration,
+    ) -> Result<ImageCalibrationTables> {
+        send_and_recv!(
+            self => Outgoing::GetCalibrationInformationRequest { resolution: Some(DEFAULT_RESOLUTION) },
+            Incoming::GetCalibrationInformationResponse { white_calibration_table: white, black_calibration_table: black } =>
+                ImageCalibrationTables { white, black },
+            timeout
+        )
+    }
+
     /// Sends commands to make sure the scanner starts in the correct state after connecting.
     ///
     /// # Errors
@@ -805,7 +825,7 @@ impl<T> Client<T> {
         let timeout = Duration::from_secs(5);
 
         // OUT SetScannerImageDensityToHalfNativeResolutionRequest
-        self.set_scan_resolution(Resolution::Half)?;
+        self.set_scan_resolution(DEFAULT_RESOLUTION)?;
         // OUT SetScannerToDuplexModeRequest
         self.set_scan_side_mode(ScanSideMode::Duplex)?;
         // OUT Enable AutoScanStart
