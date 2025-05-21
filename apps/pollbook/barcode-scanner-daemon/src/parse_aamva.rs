@@ -77,8 +77,7 @@ impl TryFrom<&str> for AamvaHeader {
         }
 
         // 2) Validate issuer ID
-        let issuer_start_index = EXPECTED_PREFIX.len();
-        let issuer_id = &input[issuer_start_index..issuer_start_index + ISSUER_SIZE];
+        let issuer_id = &input[EXPECTED_PREFIX.len()..][..ISSUER_SIZE];
 
         match iin_to_issuing_jurisdiction(issuer_id) {
             AamvaIssuingJurisdiction::None => Err(Self::Error::UnknownIssuingJurisdictionId(
@@ -121,14 +120,13 @@ impl TryFrom<&str> for AamvaDocument {
     fn try_from(input: &str) -> Result<Self, Self::Error> {
         let mut lines = input.lines();
 
-        let next_line = lines.next();
-        if next_line.is_none() {
-            return Err(Self::Error::NoLine);
-        }
-        let header = AamvaHeader::try_from(next_line.unwrap())?;
+        let header = match lines.next() {
+            Some(next_line) => AamvaHeader::try_from(next_line)?,
+            None => return Err(Self::Error::NoLine),
+        };
 
-        let mut document: AamvaDocument = AamvaDocument {
-            issuing_jurisdiction: header.issuing_jurisdiction.as_str().to_string(),
+        let mut document = Self {
+            issuing_jurisdiction: header.issuing_jurisdiction.as_str().to_owned(),
             first_name: None,
             middle_name: None,
             last_name: None,
@@ -145,15 +143,15 @@ impl TryFrom<&str> for AamvaDocument {
             let value = data.trim();
 
             match id {
-                "DAC" => document.first_name = Some(value.to_string()),
-                "DAD" => document.middle_name = Some(value.to_string()),
-                "DCS" => document.last_name = Some(value.to_string()),
-                "DCU" => document.name_suffix = Some(value.to_string()),
+                "DAC" => document.first_name = Some(value.to_owned()),
+                "DAD" => document.middle_name = Some(value.to_owned()),
+                "DCS" => document.last_name = Some(value.to_owned()),
+                "DCU" => document.name_suffix = Some(value.to_owned()),
 
                 // DBA is expiration in MMDDYYYY
                 "DBA" => match NaiveDate::parse_from_str(value, "%m%d%Y") {
                     Ok(date) => document.expiration = Some(date),
-                    Err(e) => return Err(Self::Error::DateParse(value.to_string(), e)),
+                    Err(e) => return Err(Self::Error::DateParse(value.to_owned(), e)),
                 },
 
                 _ => {} // ignore other fields
