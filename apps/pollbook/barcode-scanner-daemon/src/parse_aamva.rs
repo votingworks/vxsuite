@@ -1,5 +1,4 @@
 use chrono::{prelude::*, ParseError};
-use core::fmt;
 use serde::ser::Serializer;
 use serde::Serialize;
 use std::convert::TryFrom;
@@ -48,16 +47,6 @@ pub struct AamvaHeader {
     raw: String,
     /// The jurisdiction that issued the document eg. US State, Washington DC, etc.
     pub issuing_jurisdiction: AamvaIssuingJurisdiction,
-}
-
-impl fmt::Display for AamvaHeader {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "raw: {}, issuing_jurisdiction: {}",
-            self.raw, self.issuing_jurisdiction
-        )
-    }
 }
 
 impl TryFrom<&str> for AamvaHeader {
@@ -158,10 +147,6 @@ impl TryFrom<&str> for AamvaDocument {
             }
         }
 
-        println!(
-            "Scanned ID for: {:?} {:?}",
-            document.first_name, document.last_name
-        );
         Ok(document)
     }
 }
