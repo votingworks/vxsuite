@@ -13,9 +13,11 @@ import {
   LabelledText,
   Caption,
 } from '@votingworks/ui';
+import { io } from 'socket.io-client';
 import debounce from 'lodash.debounce';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import type {
+  AamvaDocument,
   Voter,
   VoterCheckIn,
   VoterSearchParams,
@@ -86,6 +88,20 @@ export function VoterSearch({
     updateDebouncedSearch({ ...search, ...newSearch });
   }
   const searchVotersQuery = searchVoters.useQuery(debouncedSearch);
+
+  useEffect(() => {
+    // TODO use a global
+    const socket = io('http://localhost:3002');
+    socket.on('barcode-scan', (data: AamvaDocument) => {
+      setDebouncedSearch({
+        firstName: data.firstName,
+        lastName: data.lastName,
+      });
+    });
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   return (
     <Column style={{ gap: '1rem', height: '100%' }}>
