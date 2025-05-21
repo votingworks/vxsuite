@@ -3,13 +3,12 @@ use std::{
         mpsc::{self, Receiver, Sender},
         Arc,
     },
-    thread,
     time::Duration,
 };
 
-use rusb::UsbContext;
+use nusb::transfer::RequestBuffer;
 
-use crate::{protocol::parsers, rusb_async, Result};
+use crate::{protocol::parsers, Result, UsbError};
 
 use super::protocol::packets::{self, Incoming};
 
@@ -20,10 +19,9 @@ type ScannerChannels = (
 );
 
 pub struct Scanner {
-    device_handle: Arc<rusb::DeviceHandle<rusb::Context>>,
+    scanner_interface: Arc<nusb::Interface>,
     default_timeout: Duration,
     stop_tx: Option<mpsc::Sender<()>>,
-    thread_handle: Option<thread::JoinHandle<()>>,
 }
 
 impl Scanner {
@@ -36,29 +34,21 @@ impl Scanner {
 
         const INTERFACE: u8 = 0;
 
-        let ctx = rusb::Context::new()?;
-        let Some(device) = ctx.devices()?.iter().find(|device| {
-            device.device_descriptor().is_ok_and(|device_desc| {
-                device_desc.vendor_id() == VENDOR_ID && device_desc.product_id() == PRODUCT_ID
-            })
-        }) else {
-            return Err(rusb::Error::NotFound.into());
-        };
+        let mut devices = nusb::list_devices()?;
+        let device = devices
+            .find(|device| device.vendor_id() == VENDOR_ID && device.product_id() == PRODUCT_ID)
+            .ok_or(UsbError::DeviceNotFound)?
+            .open()?;
+        device.set_configuration(1)?;
+        let scanner_interface = device.detach_and_claim_interface(INTERFACE)?;
+        tracing::debug!("Connected to PDI scanner and claimed interface {INTERFACE}");
 
-        let mut device_handle = device.open()?;
-        if device_handle.kernel_driver_active(INTERFACE)? {
-            device_handle.detach_kernel_driver(INTERFACE)?;
-        }
-        device_handle.set_active_configuration(1)?;
-        device_handle.claim_interface(INTERFACE)?;
-
-        let device_handle = Arc::new(device_handle);
+        let scanner_interface = Arc::new(scanner_interface);
 
         Ok(Self {
-            device_handle,
+            scanner_interface,
             default_timeout: Duration::from_secs(1),
             stop_tx: None,
-            thread_handle: None,
         })
     }
 
@@ -77,6 +67,10 @@ impl Scanner {
         /// receive image data.
         const ENDPOINT_IN_IMAGE_DATA: u8 = 0x86;
 
+        /// For receving responses from the scanner (other than image data).
+        const DEFAULT_BUFFER_SIZE: usize = 16_384;
+
+        /// For receiving image data from the scanner.
         /// Make this big enough that we can receive just about any packet in one go.
         ///
         /// For letter size, we have ~1700 × 2200 pixels, which is ~3.7 million
@@ -87,14 +81,7 @@ impl Scanner {
         /// bit trying to catch the paper, we might need a bit more. So for any
         /// reasonable paper size, 4 MB should be plenty and doesn't really put
         /// a dent in available memory.
-        #[cfg(production)]
-        const BUFFER_SIZE: usize = 4_194_304;
-
-        /// For development, we want a smaller buffer because, for reasons we
-        /// don't understand, communicating with the scanner times out with a
-        /// larger buffer.
-        #[cfg(not(production))]
-        const BUFFER_SIZE: usize = 16_384;
+        const IMAGE_BUFFER_SIZE: usize = 4_194_304;
 
         let (host_to_scanner_tx, host_to_scanner_rx) =
             mpsc::channel::<(usize, packets::Outgoing)>();
@@ -104,121 +91,132 @@ impl Scanner {
 
         self.stop_tx = Some(stop_tx);
 
-        let mut transfer_pool = rusb_async::TransferPool::new(self.device_handle.clone());
+        // let mut transfer_pool = rusb_async::TransferPool::new(self.device_handle.clone());
+        // let mut out_queue = self.device_handle.bulk_out_queue(ENDPOINT_OUT);
+        let mut in_primary_queue = self.scanner_interface.bulk_in_queue(ENDPOINT_IN_PRIMARY);
+        let mut in_image_data_queue = self.scanner_interface.bulk_in_queue(ENDPOINT_IN_IMAGE_DATA);
+        let device_handle = self.scanner_interface.clone();
         let default_timeout = self.default_timeout;
 
-        self.thread_handle = Some(thread::spawn({
-            move || {
-                tracing::debug!("Scanner thread started; submitting initial IN endpoint transfers");
-                transfer_pool
-                    .submit_bulk(ENDPOINT_IN_PRIMARY, vec![0; BUFFER_SIZE])
-                    .unwrap();
+        tokio::spawn(async move {
+            tracing::debug!("Scanner thread started; submitting initial IN endpoint transfers");
 
-                transfer_pool
-                    .submit_bulk(ENDPOINT_IN_IMAGE_DATA, vec![0; BUFFER_SIZE])
-                    .unwrap();
+            in_primary_queue.submit(RequestBuffer::new(DEFAULT_BUFFER_SIZE));
 
-                loop {
-                    if let Ok(()) = stop_rx.try_recv() {
-                        tracing::debug!("Scanner thread received stop signal");
+            // Submit two initial transfers to the image data transfer queue so
+            // that we always have one ready to go while we process the other.
+            // We want image data transfer to be as fast as possible so the
+            // scanner doesn't overflow its internal buffer.
+            in_image_data_queue.submit(RequestBuffer::new(IMAGE_BUFFER_SIZE));
+            in_image_data_queue.submit(RequestBuffer::new(IMAGE_BUFFER_SIZE));
+
+            loop {
+                if let Ok(()) = stop_rx.try_recv() {
+                    tracing::debug!("Scanner thread received stop signal");
+                    break;
+                }
+
+                match host_to_scanner_rx.try_recv() {
+                    Ok((id, packet)) => {
+                        let bytes = packet.to_bytes();
+                        tracing::debug!(
+                            "sending packet: {packet:?} (data: {data:?})",
+                            data = String::from_utf8_lossy(&bytes)
+                        );
+
+                        let completion = tokio::time::timeout(
+                            default_timeout,
+                            device_handle.bulk_out(ENDPOINT_OUT, bytes),
+                        )
+                        .await
+                        .unwrap();
+                        completion.status.expect("Error sending outgoing packet");
+
+                        host_to_scanner_ack_tx.send(id).unwrap();
+                    }
+                    Err(mpsc::TryRecvError::Empty) => {}
+                    Err(e) => {
+                        tracing::error!("Error receiving outgoing packet: {e}");
                         break;
                     }
+                }
 
-                    match host_to_scanner_rx.try_recv() {
-                        Ok((id, packet)) => {
-                            let bytes = packet.to_bytes();
-                            tracing::debug!(
-                                "sending packet: {packet:?} (data: {data:?})",
-                                data = String::from_utf8_lossy(&bytes)
-                            );
-
-                            transfer_pool.submit_bulk(ENDPOINT_OUT, bytes).unwrap();
-
-                            // wait for submit_bulk to complete
-                            transfer_pool
-                                .poll_endpoint(ENDPOINT_OUT, default_timeout)
-                                .unwrap();
-
-                            host_to_scanner_ack_tx.send(id).unwrap();
-                        }
-                        Err(mpsc::TryRecvError::Empty) => {}
-                        Err(e) => {
-                            tracing::error!("Error receiving outgoing packet: {e}");
+                match tokio::time::timeout(
+                    Duration::from_millis(1),
+                    in_primary_queue.next_complete(),
+                )
+                .await
+                {
+                    Ok(completion) => {
+                        if completion.status.is_err() {
+                            let err = completion.status.unwrap_err();
+                            tracing::error!("Error while polling primary IN endpoint: {err:?}");
+                            scanner_to_host_tx.send(Err(err.into())).unwrap();
                             break;
                         }
-                    }
-
-                    match transfer_pool.poll_endpoint(ENDPOINT_IN_PRIMARY, Duration::from_millis(1))
-                    {
-                        Ok(data) => {
-                            tracing::debug!(
-                                "Received data on primary endpoint: {len} bytes",
-                                len = data.len()
-                            );
-                            match parsers::any_incoming(&data) {
-                                Ok(([], packet)) => {
-                                    tracing::debug!("Received incoming packet: {packet:?}");
-                                    scanner_to_host_tx.send(Ok(packet)).unwrap();
-                                }
-                                Ok((remaining, packet)) => {
-                                    tracing::warn!(
+                        let data = completion.data;
+                        tracing::debug!(
+                            "Received data on primary endpoint: {len} bytes",
+                            len = data.len()
+                        );
+                        match parsers::any_incoming(&data) {
+                            Ok(([], packet)) => {
+                                tracing::debug!("Received incoming packet: {packet:?}");
+                                scanner_to_host_tx.send(Ok(packet)).unwrap();
+                            }
+                            Ok((remaining, packet)) => {
+                                tracing::warn!(
                                         "Received packet: {packet:?} with {len} bytes remaining: {remaining:?}",
                                         len = remaining.len(),
                                         remaining = String::from_utf8_lossy(remaining)
                                     );
-                                    scanner_to_host_tx
-                                        .send(Ok(Incoming::Unknown(data.to_vec())))
-                                        .unwrap();
-                                }
-                                Err(err) => {
-                                    tracing::error!(
-                                        "Error parsing packet: {data:?} (err={err})",
-                                        data = String::from_utf8_lossy(&data)
-                                    );
-                                    scanner_to_host_tx
-                                        .send(Ok(Incoming::Unknown(data.to_vec())))
-                                        .unwrap();
-                                }
+                                scanner_to_host_tx
+                                    .send(Ok(Incoming::Unknown(data.to_vec())))
+                                    .unwrap();
                             }
-
-                            // resubmit the transfer to receive more data
-                            tracing::debug!("Resubmitting primary IN endpoint transfer");
-                            transfer_pool
-                                .submit_bulk(ENDPOINT_IN_PRIMARY, data)
-                                .unwrap();
+                            Err(err) => {
+                                tracing::error!(
+                                    "Error parsing packet: {data:?} (err={err})",
+                                    data = String::from_utf8_lossy(&data)
+                                );
+                                scanner_to_host_tx
+                                    .send(Ok(Incoming::Unknown(data.to_vec())))
+                                    .unwrap();
+                            }
                         }
-                        Err(rusb_async::Error::PollTimeout) => {}
-                        Err(err) => {
-                            tracing::error!("Error while polling primary IN endpoint: {err}");
+
+                        // resubmit the transfer to receive more data
+                        in_primary_queue.submit(RequestBuffer::reuse(data, DEFAULT_BUFFER_SIZE));
+                    }
+                    Err(_) => {}
+                }
+
+                match tokio::time::timeout(
+                    Duration::from_millis(10),
+                    in_image_data_queue.next_complete(),
+                )
+                .await
+                {
+                    Ok(completion) => {
+                        if completion.status.is_err() {
+                            let err = completion.status.unwrap_err();
+                            tracing::error!("Error while polling image data endpoint: {err:?}");
                             scanner_to_host_tx.send(Err(err.into())).unwrap();
                             break;
                         }
-                    }
+                        let data = completion.data;
+                        tracing::debug!("Received image data: {len} bytes", len = data.len());
+                        scanner_to_host_tx
+                            .send(Ok(packets::Incoming::ImageData(data.clone())))
+                            .unwrap();
 
-                    match transfer_pool
-                        .poll_endpoint(ENDPOINT_IN_IMAGE_DATA, Duration::from_millis(1))
-                    {
-                        Ok(data) => {
-                            tracing::debug!("Received image data: {len} bytes", len = data.len());
-                            scanner_to_host_tx
-                                .send(Ok(packets::Incoming::ImageData(data.clone())))
-                                .unwrap();
-
-                            // resubmit the transfer to receive more data
-                            transfer_pool
-                                .submit_bulk(ENDPOINT_IN_IMAGE_DATA, data)
-                                .unwrap();
-                        }
-                        Err(rusb_async::Error::PollTimeout) => {}
-                        Err(err) => {
-                            tracing::error!("Error while polling image data endpoint: {err}");
-                            scanner_to_host_tx.send(Err(err.into())).unwrap();
-                            break;
-                        }
+                        // resubmit the transfer to receive more data
+                        in_image_data_queue.submit(RequestBuffer::reuse(data, IMAGE_BUFFER_SIZE));
                     }
+                    Err(_) => {}
                 }
             }
-        }));
+        });
 
         (
             host_to_scanner_tx,
@@ -236,10 +234,6 @@ impl Scanner {
             // means the scanner is already cleaned up, so it's safe to ignore
             // the error here.
             let _ = stop_tx.send(());
-        }
-
-        if let Some(thread_handle) = self.thread_handle.take() {
-            thread_handle.join().unwrap();
         }
     }
 }
