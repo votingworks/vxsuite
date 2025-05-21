@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
 use std::{
     collections::VecDeque,
-    sync::mpsc,
     time::{Duration, Instant},
 };
+use tokio::sync::mpsc::{self, error::TryRecvError};
 
 use crate::{
     protocol::types::{
@@ -38,10 +38,10 @@ macro_rules! recv {
             #[allow(unused_variables)]
             |incoming| matches!(incoming, $pattern $(if $guard)?),
             $deadline.saturating_duration_since(Instant::now()),
-        ) {
+        ).await {
             Ok($consequent)
         } else {
-            Err(Error::RecvTimeout(mpsc::RecvTimeoutError::Timeout))
+            Err(Error::RecvTimeout)
         }
     }};
 }
@@ -49,7 +49,7 @@ macro_rules! recv {
 macro_rules! send_and_recv {
     ($client:expr => $outgoing:expr, $pattern:pat $(if $guard:expr)? => $consequent:expr, $timeout:expr $(,)?) => {{
         $client.clear_unhandled_packets_except_events();
-        $client.send($outgoing)?;
+        $client.send($outgoing).await?;
         recv!($client, $pattern $(if $guard)? => $consequent, Instant::now() + $timeout)
     }};
 }
@@ -106,16 +106,18 @@ impl<T> Client<T> {
         }
     }
 
-    fn send(&mut self, packet: Outgoing) -> Result<()> {
+    async fn send(&mut self, packet: Outgoing) -> Result<()> {
         let id = self.id;
         self.id = self.id.wrapping_add(1);
         self.host_to_scanner_tx
             .send((id, packet))
+            .await
             .map_err(|_| Error::Usb(UsbError::Rusb(rusb::Error::Io)))?;
         let ack_id = self
             .host_to_scanner_ack_rx
             .recv()
-            .map_err(|_| Error::Usb(UsbError::Rusb(rusb::Error::Io)))?;
+            .await
+            .ok_or_else(|| Error::Usb(UsbError::Rusb(rusb::Error::Io)))?;
         assert_eq!(id, ack_id);
         Ok(())
     }
@@ -127,7 +129,7 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the response is not received within
     /// the timeout.
-    pub fn get_test_string(&mut self, timeout: Duration) -> Result<String> {
+    pub async fn get_test_string(&mut self, timeout: Duration) -> Result<String> {
         send_and_recv!(
             self => Outgoing::GetTestStringRequest,
             Incoming::GetTestStringResponse(s) => s,
@@ -141,7 +143,7 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the response is not received within
     /// the timeout.
-    pub fn get_firmware_version(&mut self, timeout: Duration) -> Result<Version> {
+    pub async fn get_firmware_version(&mut self, timeout: Duration) -> Result<Version> {
         send_and_recv!(
             self => Outgoing::GetFirmwareVersionRequest,
             Incoming::GetFirmwareVersionResponse(version) => version,
@@ -155,7 +157,7 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the response is not received within
     /// the timeout.
-    pub fn get_scanner_status(&mut self, timeout: Duration) -> Result<Status> {
+    pub async fn get_scanner_status(&mut self, timeout: Duration) -> Result<Status> {
         send_and_recv!(
             self => Outgoing::GetScannerStatusRequest,
             Incoming::GetScannerStatusResponse(status) => status,
@@ -171,7 +173,7 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the response is not received within
     /// the timeout.
-    pub fn get_required_input_sensors(&mut self, timeout: Duration) -> Result<(u8, u8)> {
+    pub async fn get_required_input_sensors(&mut self, timeout: Duration) -> Result<(u8, u8)> {
         send_and_recv!(
             self => Outgoing::GetRequiredInputSensorsRequest,
             Incoming::GetSetRequiredInputSensorsResponse {
@@ -190,13 +192,17 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the response is not received within
     /// the timeout.
-    pub fn set_double_feed_detection_mode(&mut self, mode: DoubleFeedDetectionMode) -> Result<()> {
+    pub async fn set_double_feed_detection_mode(
+        &mut self,
+        mode: DoubleFeedDetectionMode,
+    ) -> Result<()> {
         self.send(match mode {
             DoubleFeedDetectionMode::RejectDoubleFeeds => {
                 Outgoing::EnableDoubleFeedDetectionRequest
             }
             DoubleFeedDetectionMode::Disabled => Outgoing::DisableDoubleFeedDetectionRequest,
         })
+        .await
     }
 
     /// Enables or disables the feeder. When the feeder is enabled, the scanner
@@ -207,11 +213,12 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the response is not received within
     /// the timeout.
-    pub fn set_feeder_mode(&mut self, mode: FeederMode) -> Result<()> {
+    pub async fn set_feeder_mode(&mut self, mode: FeederMode) -> Result<()> {
         self.send(match mode {
             FeederMode::Disabled => Outgoing::DisableFeederRequest,
             FeederMode::AutoScanSheets => Outgoing::EnableFeederRequest,
         })
+        .await
     }
 
     /// Gets the serial number of the scanner.
@@ -220,7 +227,7 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the response is not received within
     /// the timeout.
-    pub fn get_serial_number(&mut self, timeout: Duration) -> Result<[u8; 8]> {
+    pub async fn get_serial_number(&mut self, timeout: Duration) -> Result<[u8; 8]> {
         send_and_recv!(
             self => Outgoing::GetSerialNumberRequest,
             Incoming::GetSetSerialNumberResponse(serial_number) => serial_number,
@@ -234,7 +241,7 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the response is not received within
     /// the timeout.
-    pub fn get_scanner_settings(&mut self, timeout: Duration) -> Result<Settings> {
+    pub async fn get_scanner_settings(&mut self, timeout: Duration) -> Result<Settings> {
         send_and_recv!(
             self => Outgoing::GetScannerSettingsRequest,
             Incoming::GetScannerSettingsResponse(settings) => settings,
@@ -250,13 +257,14 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the connection to the scanner is
     /// lost.
-    pub fn eject_document(&mut self, eject_motion: EjectMotion) -> Result<()> {
+    pub async fn eject_document(&mut self, eject_motion: EjectMotion) -> Result<()> {
         self.set_eject_pause_mode(match eject_motion {
             EjectMotion::ToRear => EjectPauseMode::PauseWhileInputPaperDetected,
             _ => EjectPauseMode::DoNotCheckForInputPaper,
-        })?;
+        })
+        .await?;
         // The feeder needs to be enabled for the eject command to work.
-        self.set_feeder_mode(FeederMode::AutoScanSheets)?;
+        self.set_feeder_mode(FeederMode::AutoScanSheets).await?;
         self.send(match eject_motion {
             EjectMotion::ToRear => Outgoing::EjectDocumentToRearOfScannerRequest,
             EjectMotion::ToFront => Outgoing::EjectDocumentToFrontOfScannerRequest,
@@ -264,10 +272,11 @@ impl<T> Client<T> {
                 Outgoing::EjectDocumentToFrontOfScannerAndHoldInInputRollersRequest
             }
             EjectMotion::ToFrontAndRescan => Outgoing::RescanDocumentHeldInEscrowPositionRequest,
-        })?;
+        })
+        .await?;
         // It's safest to always disable the feeder after ejecting a document to
         // protect against a second document sneaking in.
-        self.set_feeder_mode(FeederMode::Disabled)
+        self.set_feeder_mode(FeederMode::Disabled).await
     }
 
     /// Adjusts the bitonal threshold by 1. The threshold is a percentage of the
@@ -279,7 +288,7 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the response is not received within
     /// the timeout.
-    pub fn adjust_bitonal_threshold_by_1(
+    pub async fn adjust_bitonal_threshold_by_1(
         &mut self,
         side: Side,
         direction: Direction,
@@ -306,11 +315,12 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the connection to the scanner is
     /// lost.
-    pub fn set_color_mode(&mut self, color_mode: ColorMode) -> Result<()> {
+    pub async fn set_color_mode(&mut self, color_mode: ColorMode) -> Result<()> {
         self.send(match color_mode {
             ColorMode::Native => Outgoing::TransmitInNativeBitsPerPixelRequest,
             ColorMode::LowColor => Outgoing::TransmitInLowBitsPerPixelRequest,
         })
+        .await
     }
 
     /// Sets whether to hold the paper after scanning (default), requiring an
@@ -321,7 +331,7 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the connection to the scanner is
     /// lost.
-    pub fn set_auto_run_out_at_end_of_scan_behavior(
+    pub async fn set_auto_run_out_at_end_of_scan_behavior(
         &mut self,
         behavior: AutoRunOutAtEndOfScanBehavior,
     ) -> Result<()> {
@@ -333,6 +343,7 @@ impl<T> Client<T> {
                 Outgoing::EnableAutoRunOutAtEndOfScanRequest
             }
         })
+        .await
     }
 
     /// Sets the motor speed to either full or half speed.
@@ -341,11 +352,12 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the connection to the scanner is
     /// lost.
-    pub fn set_motor_speed(&mut self, speed: Speed) -> Result<()> {
+    pub async fn set_motor_speed(&mut self, speed: Speed) -> Result<()> {
         self.send(match speed {
             Speed::Full => Outgoing::ConfigureMotorToRunAtFullSpeedRequest,
             Speed::Half => Outgoing::ConfigureMotorToRunAtHalfSpeedRequest,
         })
+        .await
     }
 
     /// Sets the bitonal threshold for the top or bottom sensor. The threshold
@@ -357,7 +369,7 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the response is not received within
     /// the timeout.
-    pub fn set_threshold(
+    pub async fn set_threshold(
         &mut self,
         side: Side,
         threshold: ClampedPercentage,
@@ -382,8 +394,9 @@ impl<T> Client<T> {
     /// # Errors
     ///
     /// This function will return an error if the sensors is not a valid value.
-    pub fn set_required_input_sensors(&mut self, sensors: u8) -> Result<()> {
+    pub async fn set_required_input_sensors(&mut self, sensors: u8) -> Result<()> {
         self.send(Outgoing::SetRequiredInputSensorsRequest { sensors })
+            .await
     }
 
     /// Sets the maximum length of the document to scan. The length is specified
@@ -394,7 +407,7 @@ impl<T> Client<T> {
     /// # Errors
     ///
     /// This function will return an error if the length is not a valid value.
-    pub fn set_length_of_document_to_scan(&mut self, length_inches: f32) -> Result<()> {
+    pub async fn set_length_of_document_to_scan(&mut self, length_inches: f32) -> Result<()> {
         const MIN_LENGTH: f32 = 0.0;
         const MAX_LENGTH: f32 = 22.3;
 
@@ -409,14 +422,16 @@ impl<T> Client<T> {
             let length_byte = 32.0 + (10.0 * length_inches) / unit_inches;
 
             if length_byte <= f32::from(u8::MAX) || length_byte >= f32::from(u8::MIN) {
-                return self.send(Outgoing::SetLengthOfDocumentToScanRequest {
-                    length_byte: length_byte as u8,
-                    unit_byte: if unit_byte == b'0' {
-                        None
-                    } else {
-                        Some(unit_byte)
-                    },
-                });
+                return self
+                    .send(Outgoing::SetLengthOfDocumentToScanRequest {
+                        length_byte: length_byte as u8,
+                        unit_byte: if unit_byte == b'0' {
+                            None
+                        } else {
+                            Some(unit_byte)
+                        },
+                    })
+                    .await;
             }
         }
 
@@ -432,7 +447,7 @@ impl<T> Client<T> {
     /// # Errors
     ///
     /// This function will return an error if the duration is not a valid value.
-    pub fn set_scan_delay_interval_for_document_feed(
+    pub async fn set_scan_delay_interval_for_document_feed(
         &mut self,
         delay_interval: Duration,
     ) -> Result<()> {
@@ -446,6 +461,7 @@ impl<T> Client<T> {
         };
 
         self.send(Outgoing::SetScanDelayIntervalForDocumentFeedRequest { delay_interval })
+            .await
     }
 
     /// Calls `predicate` on each unhandled packet and returns the first packet
@@ -470,7 +486,7 @@ impl<T> Client<T> {
             Ok(packet) if predicate(&packet) => Ok(packet),
             Ok(packet) => {
                 self.unhandled_packets.push_back(packet);
-                Err(Error::TryRecvError(mpsc::TryRecvError::Empty))
+                Err(Error::TryRecvError(TryRecvError::Empty))
             }
             err => err,
         }
@@ -485,7 +501,7 @@ impl<T> Client<T> {
     /// This function will return an error if the response is not received within
     /// the timeout.
     #[allow(clippy::missing_panics_doc)]
-    fn recv_matching_timeout(
+    async fn recv_matching_timeout(
         &mut self,
         predicate: impl Fn(&Incoming) -> bool,
         timeout: Duration,
@@ -503,16 +519,16 @@ impl<T> Client<T> {
 
         loop {
             if deadline <= Instant::now() {
-                return Err(Error::RecvTimeout(mpsc::RecvTimeoutError::Timeout));
+                return Err(Error::RecvTimeout);
             }
 
-            match self
-                .scanner_to_host_rx
-                .recv_timeout(deadline.saturating_duration_since(Instant::now()))?
-            {
-                Ok(packet) if predicate(&packet) => return Ok(packet),
-                Ok(packet) => self.unhandled_packets.push_back(packet),
-                err => return err,
+            let timeout = deadline.saturating_duration_since(Instant::now());
+            match tokio::time::timeout(timeout, self.scanner_to_host_rx.recv()).await {
+                Ok(Some(Ok(packet))) if predicate(&packet) => return Ok(packet),
+                Ok(Some(Ok(packet))) => self.unhandled_packets.push_back(packet),
+                Ok(Some(Err(e))) => return Err(e),
+                Ok(None) => (),
+                Err(_) => return Err(Error::RecvTimeout),
             }
         }
     }
@@ -523,8 +539,8 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the connection to the scanner is
     /// lost.
-    fn send_command(&mut self, command: &Command) -> Result<()> {
-        self.send_raw_packet(&command.to_bytes())
+    async fn send_command(&mut self, command: &Command) -> Result<()> {
+        self.send_raw_packet(&command.to_bytes()).await
     }
 
     /// Sends raw packet data to the scanner.
@@ -533,8 +549,8 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the connection to the scanner is
     /// lost.
-    pub fn send_raw_packet(&mut self, packet: &[u8]) -> Result<()> {
-        self.send(Outgoing::RawPacket(packet.to_vec()))
+    pub async fn send_raw_packet(&mut self, packet: &[u8]) -> Result<()> {
+        self.send(Outgoing::RawPacket(packet.to_vec())).await
     }
 
     /// Sets the resolution of the scanner to either half or native. The native
@@ -545,14 +561,16 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the connection to the scanner is
     /// lost.
-    pub fn set_scan_resolution(&mut self, resolution: Resolution) -> Result<()> {
+    pub async fn set_scan_resolution(&mut self, resolution: Resolution) -> Result<()> {
         match resolution {
             Resolution::Half => {
                 self.send(Outgoing::SetScannerImageDensityToHalfNativeResolutionRequest)
+                    .await
             }
             Resolution::Medium => todo!("not implemented for PageScan 5/6"),
             Resolution::Native => {
                 self.send(Outgoing::SetScannerImageDensityToNativeResolutionRequest)
+                    .await
             }
         }
     }
@@ -564,12 +582,13 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the connection to the scanner is
     /// lost.
-    pub fn set_scan_side_mode(&mut self, scan_side_mode: ScanSideMode) -> Result<()> {
+    pub async fn set_scan_side_mode(&mut self, scan_side_mode: ScanSideMode) -> Result<()> {
         self.send(match scan_side_mode {
             ScanSideMode::Duplex => Outgoing::SetScannerToDuplexModeRequest,
             ScanSideMode::SimplexTopOnly => Outgoing::SetScannerToTopOnlySimplexModeRequest,
             ScanSideMode::SimplexBottomOnly => Outgoing::SetScannerToBottomOnlySimplexModeRequest,
         })
+        .await
     }
 
     /// Enables or disables "pick-on-command" mode. When pick-on-command mode is
@@ -580,7 +599,7 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the connection to the scanner is
     /// lost.
-    pub fn set_pick_on_command_mode(&mut self, mode: PickOnCommandMode) -> Result<()> {
+    pub async fn set_pick_on_command_mode(&mut self, mode: PickOnCommandMode) -> Result<()> {
         self.send(match mode {
             PickOnCommandMode::FeederStaysEnabledBetweenScans => {
                 Outgoing::DisablePickOnCommandModeRequest
@@ -589,6 +608,7 @@ impl<T> Client<T> {
                 Outgoing::EnablePickOnCommandModeRequest
             }
         })
+        .await
     }
 
     /// Enables or disables pausing before ejecting a document if the input
@@ -598,11 +618,12 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the connection to the scanner is
     /// lost.
-    pub fn set_eject_pause_mode(&mut self, mode: EjectPauseMode) -> Result<()> {
+    pub async fn set_eject_pause_mode(&mut self, mode: EjectPauseMode) -> Result<()> {
         self.send(match mode {
             EjectPauseMode::DoNotCheckForInputPaper => Outgoing::DisableEjectPauseRequest,
             EjectPauseMode::PauseWhileInputPaperDetected => Outgoing::EnableEjectPauseRequest,
         })
+        .await
     }
 
     /// Sets the sensitivity of the double feed detection. The percentage
@@ -613,8 +634,12 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the percentage is not between 0
     /// and 100.
-    pub fn set_double_feed_sensitivity(&mut self, percentage: ClampedPercentage) -> Result<()> {
+    pub async fn set_double_feed_sensitivity(
+        &mut self,
+        percentage: ClampedPercentage,
+    ) -> Result<()> {
         self.send(Outgoing::SetDoubleFeedDetectionSensitivityRequest { percentage })
+            .await
     }
 
     /// Sets the minimum length to scan before double feed detection is
@@ -630,7 +655,7 @@ impl<T> Client<T> {
     /// # Errors
     ///
     /// This function will return an error if the length is not a valid value.
-    pub fn set_double_feed_detection_minimum_document_length(
+    pub async fn set_double_feed_detection_minimum_document_length(
         &mut self,
         length_in_hundredths_of_an_inch: u8,
     ) -> Result<()> {
@@ -639,6 +664,7 @@ impl<T> Client<T> {
                 length_in_hundredths_of_an_inch,
             },
         )
+        .await
     }
 
     /// Triggers calibration of the double feed detection. The calibration type
@@ -655,14 +681,16 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the connection to the scanner is
     /// lost.
-    pub fn calibrate_double_feed_detection(
+    pub async fn calibrate_double_feed_detection(
         &mut self,
         calibration_type: DoubleFeedDetectionCalibrationType,
     ) -> Result<()> {
-        self.set_double_feed_detection_mode(DoubleFeedDetectionMode::Disabled)?;
+        self.set_double_feed_detection_mode(DoubleFeedDetectionMode::Disabled)
+            .await?;
         self.send(Outgoing::CalibrateDoubleFeedDetectionRequest(
             calibration_type,
         ))
+        .await
     }
 
     /// Gets the intensity of the double feed detection LED.
@@ -671,7 +699,10 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the response is not received within
     /// the timeout.
-    pub fn get_double_feed_detection_led_intensity(&mut self, timeout: Duration) -> Result<u16> {
+    pub async fn get_double_feed_detection_led_intensity(
+        &mut self,
+        timeout: Duration,
+    ) -> Result<u16> {
         send_and_recv!(
             self => Outgoing::GetDoubleFeedDetectionLedIntensityRequest,
             Incoming::GetDoubleFeedDetectionLedIntensityResponse(intensity) => intensity,
@@ -685,7 +716,7 @@ impl<T> Client<T> {
     /// # Errors
     ///
     /// This function will return an error if the response is not received within the timeout.
-    pub fn get_double_feed_detection_single_sheet_calibration_value(
+    pub async fn get_double_feed_detection_single_sheet_calibration_value(
         &mut self,
         timeout: Duration,
     ) -> Result<u16> {
@@ -704,7 +735,7 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the response is not received
     /// within the timeout.
-    pub fn get_double_feed_detection_double_sheet_calibration_value(
+    pub async fn get_double_feed_detection_double_sheet_calibration_value(
         &mut self,
         timeout: Duration,
     ) -> Result<u16> {
@@ -722,7 +753,7 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the response is not received
     /// within the timeout.
-    pub fn get_double_feed_detection_double_sheet_threshold_value(
+    pub async fn get_double_feed_detection_double_sheet_threshold_value(
         &mut self,
         timeout: Duration,
     ) -> Result<u16> {
@@ -733,17 +764,22 @@ impl<T> Client<T> {
         )
     }
 
-    pub fn get_double_feed_detection_calibration_config(
+    pub async fn get_double_feed_detection_calibration_config(
         &mut self,
         timeout: Duration,
     ) -> Result<DoubleFeedDetectionCalibrationConfig> {
-        let led_intensity = self.get_double_feed_detection_led_intensity(timeout)?;
-        let single_sheet_calibration_value =
-            self.get_double_feed_detection_single_sheet_calibration_value(timeout)?;
-        let double_sheet_calibration_value =
-            self.get_double_feed_detection_double_sheet_calibration_value(timeout)?;
-        let threshold_value =
-            self.get_double_feed_detection_double_sheet_threshold_value(timeout)?;
+        let led_intensity = self
+            .get_double_feed_detection_led_intensity(timeout)
+            .await?;
+        let single_sheet_calibration_value = self
+            .get_double_feed_detection_single_sheet_calibration_value(timeout)
+            .await?;
+        let double_sheet_calibration_value = self
+            .get_double_feed_detection_double_sheet_calibration_value(timeout)
+            .await?;
+        let threshold_value = self
+            .get_double_feed_detection_double_sheet_threshold_value(timeout)
+            .await?;
 
         Ok(DoubleFeedDetectionCalibrationConfig {
             led_intensity,
@@ -759,12 +795,13 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the connection to the scanner is
     /// lost.
-    pub fn set_array_light_source_enabled(&mut self, enabled: bool) -> Result<()> {
+    pub async fn set_array_light_source_enabled(&mut self, enabled: bool) -> Result<()> {
         self.send(if enabled {
             Outgoing::TurnArrayLightSourceOnRequest
         } else {
             Outgoing::TurnArrayLightSourceOffRequest
         })
+        .await
     }
 
     /// Sends commands to make sure the scanner starts in the correct state after connecting.
@@ -773,9 +810,9 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if any of the commands fail to
     /// validate or if the response is not received within the timeout.
-    pub fn send_initial_commands_after_connect(&mut self, timeout: Duration) -> Result<()> {
-        self.get_test_string(timeout)?;
-        self.set_feeder_mode(FeederMode::Disabled)?;
+    pub async fn send_initial_commands_after_connect(&mut self, timeout: Duration) -> Result<()> {
+        self.get_test_string(timeout).await?;
+        self.set_feeder_mode(FeederMode::Disabled).await?;
 
         // This command enables "flow control" on the scanner
         // // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 1b 55 03 a0> } (string: "\u{2}\u{1b}U\u{3}�") (length: 5)
@@ -783,7 +820,7 @@ impl<T> Client<T> {
 
         // Turn on CRC checking on the scanner
         // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 1b 4b 03 1b> } (string: "\u{2}\u{1b}K\u{3}\u{1b}") (length: 5)
-        self.send_command(&Command::new(b"\x1bK"))?;
+        self.send_command(&Command::new(b"\x1bK")).await?;
 
         Ok(())
     }
@@ -796,7 +833,7 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if any of the commands fail to
     /// validate or if the response is not received within the timeout.
-    pub fn send_enable_scan_commands(
+    pub async fn send_enable_scan_commands(
         &mut self,
         bitonal_threshold: ClampedPercentage,
         double_feed_detection_mode: DoubleFeedDetectionMode,
@@ -805,15 +842,17 @@ impl<T> Client<T> {
         let timeout = Duration::from_secs(5);
 
         // OUT SetScannerImageDensityToHalfNativeResolutionRequest
-        self.set_scan_resolution(Resolution::Half)?;
+        self.set_scan_resolution(Resolution::Half).await?;
         // OUT SetScannerToDuplexModeRequest
-        self.set_scan_side_mode(ScanSideMode::Duplex)?;
+        self.set_scan_side_mode(ScanSideMode::Duplex).await?;
         // OUT Enable AutoScanStart
-        self.send_command(&Command::new(b"g"))?;
+        self.send_command(&Command::new(b"g")).await?;
         // OUT DisablePickOnCommandModeRequest
-        self.set_pick_on_command_mode(PickOnCommandMode::FeederStaysEnabledBetweenScans)?;
+        self.set_pick_on_command_mode(PickOnCommandMode::FeederStaysEnabledBetweenScans)
+            .await?;
         // OUT SetDoubleFeedDetectionSensitivityRequest { percentage: 50 }
-        self.set_double_feed_sensitivity(ClampedPercentage::new_unchecked(50))?;
+        self.set_double_feed_sensitivity(ClampedPercentage::new_unchecked(50))
+            .await?;
         // OUT SetDoubleFeedDetectionMinimumDocumentLengthRequest { length_in_hundredths_of_an_inch: 100 }
         // From the docs:
         //      The higher the value in this tag, the longer the overlap needs to be
@@ -822,25 +861,30 @@ impl<T> Client<T> {
         //      allow you to skip those lines.
         // Since our ballots have thick black areas (timing marks, illustrations),
         // we set this to a full inch to be safe.
-        self.set_double_feed_detection_minimum_document_length(100)?;
+        self.set_double_feed_detection_minimum_document_length(100)
+            .await?;
         // OUT DisableDoubleFeedDetectionRequest
-        self.set_double_feed_detection_mode(double_feed_detection_mode)?;
+        self.set_double_feed_detection_mode(double_feed_detection_mode)
+            .await?;
         // OUT TransmitInLowBitsPerPixelRequest
-        self.set_color_mode(ColorMode::LowColor)?;
+        self.set_color_mode(ColorMode::LowColor).await?;
         // OUT DisableAutoRunOutAtEndOfScanRequest
         self.set_auto_run_out_at_end_of_scan_behavior(
             AutoRunOutAtEndOfScanBehavior::HoldPaperInEscrow,
-        )?;
+        )
+        .await?;
         // OUT ConfigureMotorToRunAtFullSpeedRequest
-        self.set_motor_speed(Speed::Full)?;
+        self.set_motor_speed(Speed::Full).await?;
         // OUT SetThresholdToANewValueRequest { side: Top, new_threshold: 75 }
         // IN AdjustTopCISSensorThresholdResponse { percent_white_threshold: 75 }
-        self.set_threshold(Side::Top, bitonal_threshold, timeout)?;
+        self.set_threshold(Side::Top, bitonal_threshold, timeout)
+            .await?;
         // OUT SetThresholdToANewValueRequest { side: Bottom, new_threshold: 75 }
         // IN AdjustBottomCISSensorThresholdResponse { percent_white_threshold: 75 }
-        self.set_threshold(Side::Bottom, bitonal_threshold, timeout)?;
+        self.set_threshold(Side::Bottom, bitonal_threshold, timeout)
+            .await?;
         // OUT SetRequiredInputSensorsRequest { sensors: 2 }
-        self.set_required_input_sensors(2)?;
+        self.set_required_input_sensors(2).await?;
 
         // Set the max length of the document to scan to 0.5" less than the
         // paper length. Experimentally, this seems to result in the scanner
@@ -850,11 +894,13 @@ impl<T> Client<T> {
         // the rear accidentally. If you set the max length to the exact paper
         // length, the scanner will not stop quickly enough.
         // OUT SetLengthOfDocumentToScanRequest
-        self.set_length_of_document_to_scan(paper_length_inches - 0.5)?;
+        self.set_length_of_document_to_scan(paper_length_inches - 0.5)
+            .await?;
         // OUT SetScanDelayIntervalForDocumentFeedRequest { delay_interval: 0ns }
-        self.set_scan_delay_interval_for_document_feed(Duration::ZERO)?;
+        self.set_scan_delay_interval_for_document_feed(Duration::ZERO)
+            .await?;
         // OUT EnableFeederRequest
-        self.set_feeder_mode(FeederMode::AutoScanSheets)?;
+        self.set_feeder_mode(FeederMode::AutoScanSheets).await?;
 
         Ok(())
     }

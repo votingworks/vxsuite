@@ -3,9 +3,9 @@ use image::EncodableLayout;
 use std::{
     cell::Cell,
     io::{self, Write},
-    sync::mpsc,
     time::Duration,
 };
+use tokio::sync::mpsc::error::TryRecvError;
 use tracing_subscriber::prelude::*;
 
 use base64::{engine::general_purpose::STANDARD, Engine as _};
@@ -265,7 +265,9 @@ async fn main() -> color_eyre::Result<()> {
                     }
                     (None, Command::Connect) => match connect() {
                         Ok(mut c) => {
-                            match c.send_initial_commands_after_connect(Duration::from_millis(500))
+                            match c
+                                .send_initial_commands_after_connect(Duration::from_millis(500))
+                                .await
                             {
                                 Ok(()) => {
                                     send_response(Response::Ok)?;
@@ -277,6 +279,7 @@ async fn main() -> color_eyre::Result<()> {
                                 // which seems to resolve it.
                                 Err(_) => match c
                                     .send_initial_commands_after_connect(Duration::from_secs(3))
+                                    .await
                                 {
                                     Ok(()) => send_response(Response::Ok)?,
                                     Err(e) => send_error_response(&e)?,
@@ -306,7 +309,7 @@ async fn main() -> color_eyre::Result<()> {
                         // We use a long-ish timeout here because the scanner
                         // may sometimes be delayed in sending a response (e.g.
                         // if its busy ejecting a long sheet of paper).
-                        match client.get_scanner_status(Duration::from_secs(2)) {
+                        match client.get_scanner_status(Duration::from_secs(2)).await {
                             Ok(status) => send_response(Response::ScannerStatus { status })?,
                             Err(e) => send_error_response(&e)?,
                         }
@@ -324,29 +327,35 @@ async fn main() -> color_eyre::Result<()> {
                         } else {
                             DoubleFeedDetectionMode::Disabled
                         };
-                        match client.send_enable_scan_commands(
-                            bitonal_threshold,
-                            double_feed_detection_mode,
-                            paper_length_inches,
-                        ) {
+                        match client
+                            .send_enable_scan_commands(
+                                bitonal_threshold,
+                                double_feed_detection_mode,
+                                paper_length_inches,
+                            )
+                            .await
+                        {
                             Ok(()) => send_response(Response::Ok)?,
                             Err(e) => send_error_response(&e)?,
                         }
                     }
                     (Some(client), Command::DisableScanning) => {
-                        match client.set_feeder_mode(FeederMode::Disabled) {
+                        match client.set_feeder_mode(FeederMode::Disabled).await {
                             Ok(()) => send_response(Response::Ok)?,
                             Err(e) => send_error_response(&e)?,
                         }
                     }
                     (Some(client), Command::EjectDocument { eject_motion }) => {
-                        match client.eject_document(eject_motion) {
+                        match client.eject_document(eject_motion).await {
                             Ok(()) => send_response(Response::Ok)?,
                             Err(e) => send_error_response(&e)?,
                         }
                     }
                     (Some(client), Command::CalibrateDoubleFeedDetection { calibration_type }) => {
-                        match client.calibrate_double_feed_detection(calibration_type) {
+                        match client
+                            .calibrate_double_feed_detection(calibration_type)
+                            .await
+                        {
                             Ok(()) => send_response(Response::Ok)?,
                             Err(e) => send_error_response(&e)?,
                         }
@@ -354,6 +363,7 @@ async fn main() -> color_eyre::Result<()> {
                     (Some(client), Command::GetDoubleFeedDetectionCalibrationConfig) => {
                         match client
                             .get_double_feed_detection_calibration_config(Duration::from_secs(1))
+                            .await
                         {
                             Ok(config) => {
                                 send_response(Response::DoubleFeedDetectionCalibrationConfig {
@@ -391,7 +401,7 @@ async fn main() -> color_eyre::Result<()> {
                     // where a scan fails (e.g. if the paper isn't caught by the rollers) and then
                     // another scan immediately starts. We want to have time to handle the results
                     // of this scan safely.
-                    c.set_feeder_mode(FeederMode::Disabled)?;
+                    c.set_feeder_mode(FeederMode::Disabled).await?;
                     match raw_image_data.try_decode_scan(DEFAULT_IMAGE_WIDTH, ScanSideMode::Duplex)
                     {
                         Ok(Sheet::Duplex(top, bottom)) => {
@@ -467,8 +477,8 @@ async fn main() -> color_eyre::Result<()> {
                 Ok(event) => {
                     tracing::info!("unhandled event: {event:?}");
                 }
-                Err(Error::TryRecvError(mpsc::TryRecvError::Empty)) => {}
-                Err(Error::TryRecvError(mpsc::TryRecvError::Disconnected)) => {
+                Err(Error::TryRecvError(TryRecvError::Empty)) => {}
+                Err(Error::TryRecvError(TryRecvError::Disconnected)) => {
                     tracing::debug!("scanner channel disconnected");
                     client = None;
                 }
@@ -482,8 +492,8 @@ async fn main() -> color_eyre::Result<()> {
                     raw_image_data.extend_from_slice(&image_data);
                 }
                 Ok(_) => unreachable!(),
-                Err(Error::TryRecvError(mpsc::TryRecvError::Empty)) => {}
-                Err(Error::TryRecvError(mpsc::TryRecvError::Disconnected)) => {
+                Err(Error::TryRecvError(TryRecvError::Empty)) => {}
+                Err(Error::TryRecvError(TryRecvError::Disconnected)) => {
                     tracing::debug!("scanner channel disconnected");
                     client = None;
                 }

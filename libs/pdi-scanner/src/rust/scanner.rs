@@ -1,14 +1,15 @@
-use std::{
-    sync::{
-        mpsc::{self, Receiver, Sender},
-        Arc,
-    },
-    time::Duration,
+use std::{sync::Arc, time::Duration};
+
+use nusb::transfer::{Completion, RequestBuffer};
+use tokio::sync::{
+    mpsc::{self, Receiver, Sender},
+    oneshot,
 };
 
-use nusb::transfer::RequestBuffer;
-
-use crate::{protocol::parsers, Result, UsbError};
+use crate::{
+    protocol::{packets::Outgoing, parsers},
+    Result, UsbError,
+};
 
 use super::protocol::packets::{self, Incoming};
 
@@ -21,7 +22,7 @@ type ScannerChannels = (
 pub struct Scanner {
     scanner_interface: Arc<nusb::Interface>,
     default_timeout: Duration,
-    stop_tx: Option<mpsc::Sender<()>>,
+    stop_tx: Option<oneshot::Sender<()>>,
 }
 
 impl Scanner {
@@ -83,11 +84,11 @@ impl Scanner {
         /// a dent in available memory.
         const IMAGE_BUFFER_SIZE: usize = 4_194_304;
 
-        let (host_to_scanner_tx, host_to_scanner_rx) =
-            mpsc::channel::<(usize, packets::Outgoing)>();
-        let (host_to_scanner_ack_tx, host_to_scanner_ack_rx) = mpsc::channel::<usize>();
-        let (scanner_to_host_tx, scanner_to_host_rx) = mpsc::channel();
-        let (stop_tx, stop_rx) = mpsc::channel();
+        let (host_to_scanner_tx, mut host_to_scanner_rx) =
+            mpsc::channel::<(usize, packets::Outgoing)>(10);
+        let (host_to_scanner_ack_tx, host_to_scanner_ack_rx) = mpsc::channel::<usize>(10);
+        let (scanner_to_host_tx, scanner_to_host_rx) = mpsc::channel(10);
+        let (stop_tx, mut stop_rx) = oneshot::channel();
 
         self.stop_tx = Some(stop_tx);
 
@@ -110,14 +111,36 @@ impl Scanner {
             in_image_data_queue.submit(RequestBuffer::new(IMAGE_BUFFER_SIZE));
             in_image_data_queue.submit(RequestBuffer::new(IMAGE_BUFFER_SIZE));
 
-            loop {
-                if let Ok(()) = stop_rx.try_recv() {
-                    tracing::debug!("Scanner thread received stop signal");
-                    break;
-                }
+            enum Action {
+                Stop,
+                HostToScanner(usize, Outgoing),
+                IncomingPrimary(Completion<Vec<u8>>),
+                IncomingImage(Completion<Vec<u8>>),
+            }
 
-                match host_to_scanner_rx.try_recv() {
-                    Ok((id, packet)) => {
+            loop {
+                let action = tokio::select! {
+                    _ = &mut stop_rx => {
+                        Action::Stop
+                    },
+                    Some((id, packet)) = host_to_scanner_rx.recv() => {
+                        Action::HostToScanner(id, packet)
+                    },
+                    completion = in_primary_queue.next_complete() => {
+                        Action::IncomingPrimary(completion)
+                    },
+                    completion = in_image_data_queue.next_complete() => {
+                        Action::IncomingImage(completion)
+                    },
+                };
+
+                match action {
+                    Action::Stop => {
+                        tracing::debug!("Scanner thread received stop signal");
+                        break;
+                    }
+
+                    Action::HostToScanner(id, packet) => {
                         let bytes = packet.to_bytes();
                         tracing::debug!(
                             "sending packet: {packet:?} (data: {data:?})",
@@ -132,26 +155,14 @@ impl Scanner {
                         .unwrap();
                         completion.status.expect("Error sending outgoing packet");
 
-                        host_to_scanner_ack_tx.send(id).unwrap();
+                        host_to_scanner_ack_tx.send(id).await.unwrap();
                     }
-                    Err(mpsc::TryRecvError::Empty) => {}
-                    Err(e) => {
-                        tracing::error!("Error receiving outgoing packet: {e}");
-                        break;
-                    }
-                }
 
-                match tokio::time::timeout(
-                    Duration::from_millis(1),
-                    in_primary_queue.next_complete(),
-                )
-                .await
-                {
-                    Ok(completion) => {
+                    Action::IncomingPrimary(completion) => {
                         if completion.status.is_err() {
                             let err = completion.status.unwrap_err();
                             tracing::error!("Error while polling primary IN endpoint: {err:?}");
-                            scanner_to_host_tx.send(Err(err.into())).unwrap();
+                            scanner_to_host_tx.send(Err(err.into())).await.unwrap();
                             break;
                         }
                         let data = completion.data;
@@ -162,7 +173,7 @@ impl Scanner {
                         match parsers::any_incoming(&data) {
                             Ok(([], packet)) => {
                                 tracing::debug!("Received incoming packet: {packet:?}");
-                                scanner_to_host_tx.send(Ok(packet)).unwrap();
+                                scanner_to_host_tx.send(Ok(packet)).await.unwrap();
                             }
                             Ok((remaining, packet)) => {
                                 tracing::warn!(
@@ -172,6 +183,7 @@ impl Scanner {
                                     );
                                 scanner_to_host_tx
                                     .send(Ok(Incoming::Unknown(data.to_vec())))
+                                    .await
                                     .unwrap();
                             }
                             Err(err) => {
@@ -181,6 +193,7 @@ impl Scanner {
                                 );
                                 scanner_to_host_tx
                                     .send(Ok(Incoming::Unknown(data.to_vec())))
+                                    .await
                                     .unwrap();
                             }
                         }
@@ -188,32 +201,24 @@ impl Scanner {
                         // resubmit the transfer to receive more data
                         in_primary_queue.submit(RequestBuffer::reuse(data, DEFAULT_BUFFER_SIZE));
                     }
-                    Err(_) => {}
-                }
 
-                match tokio::time::timeout(
-                    Duration::from_millis(10),
-                    in_image_data_queue.next_complete(),
-                )
-                .await
-                {
-                    Ok(completion) => {
+                    Action::IncomingImage(completion) => {
                         if completion.status.is_err() {
                             let err = completion.status.unwrap_err();
                             tracing::error!("Error while polling image data endpoint: {err:?}");
-                            scanner_to_host_tx.send(Err(err.into())).unwrap();
+                            scanner_to_host_tx.send(Err(err.into())).await.unwrap();
                             break;
                         }
                         let data = completion.data;
                         tracing::debug!("Received image data: {len} bytes", len = data.len());
                         scanner_to_host_tx
                             .send(Ok(packets::Incoming::ImageData(data.clone())))
+                            .await
                             .unwrap();
 
                         // resubmit the transfer to receive more data
                         in_image_data_queue.submit(RequestBuffer::reuse(data, IMAGE_BUFFER_SIZE));
                     }
-                    Err(_) => {}
                 }
             }
         });

@@ -1,4 +1,4 @@
-use std::sync::mpsc::{RecvTimeoutError, TryRecvError};
+use tokio::sync::mpsc::error::TryRecvError;
 
 use crate::rusb_async;
 
@@ -25,8 +25,8 @@ pub enum Error {
     #[error("failed to validate request: {0}")]
     ValidateRequest(String),
 
-    #[error("failed to receive: {0}")]
-    RecvTimeout(#[from] RecvTimeoutError),
+    #[error("timed out receiving")]
+    RecvTimeout,
 
     #[error("tried to receive but could not: {0}")]
     TryRecvError(#[from] TryRecvError),

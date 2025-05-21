@@ -72,12 +72,16 @@ async fn main() -> color_eyre::Result<()> {
     let mut raw_image_data = RawImageData::new();
     let mut scan_index = 0;
 
-    client.send_initial_commands_after_connect(Duration::from_secs(3))?;
-    client.send_enable_scan_commands(
-        config.bitonal_threshold,
-        DoubleFeedDetectionMode::RejectDoubleFeeds,
-        11.0,
-    )?;
+    client
+        .send_initial_commands_after_connect(Duration::from_secs(3))
+        .await?;
+    client
+        .send_enable_scan_commands(
+            config.bitonal_threshold,
+            DoubleFeedDetectionMode::RejectDoubleFeeds,
+            11.0,
+        )
+        .await?;
     println!("waiting for sheet…");
 
     let running = Arc::new(AtomicBool::new(true));
@@ -122,13 +126,15 @@ async fn main() -> color_eyre::Result<()> {
                                     scan_index += 1;
 
                                     if let Ok(status) =
-                                        client.get_scanner_status(Duration::from_secs(1))
+                                        client.get_scanner_status(Duration::from_secs(1)).await
                                     {
                                         if status.rear_sensors_covered() {
-                                            client.eject_document(EjectMotion::ToFront)?;
+                                            client.eject_document(EjectMotion::ToFront).await?;
                                             // ejecting the document will disable the feeder,
                                             // so we need to re-enable it
-                                            client.set_feeder_mode(FeederMode::AutoScanSheets)?;
+                                            client
+                                                .set_feeder_mode(FeederMode::AutoScanSheets)
+                                                .await?;
                                         }
                                     }
                                 }
@@ -165,7 +171,7 @@ async fn main() -> color_eyre::Result<()> {
         }
     }
 
-    client.set_feeder_mode(FeederMode::Disabled)?;
+    client.set_feeder_mode(FeederMode::Disabled).await?;
 
     Ok(())
 }
