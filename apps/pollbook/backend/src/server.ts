@@ -82,8 +82,10 @@ function tryConnect(logger: Logger, io: IoServer): Promise<net.Socket> {
   });
 }
 
-// Attempts to connect to the barcode scanner Unix socket within a retry loop.
-// Allows failure to connect so the app can fall back gracefully.
+/**
+ * Attempts to connect to the barcode scanner Unix socket within a retry loop.
+ * Allows failure to connect so the app can fall back gracefully.
+ */
 async function connectToBarcodeScannerSocket(
   logger: Logger,
   io: IoServer

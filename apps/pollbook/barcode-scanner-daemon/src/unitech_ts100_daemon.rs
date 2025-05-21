@@ -38,7 +38,7 @@ fn reset_scanner() -> rusb::Result<()> {
     for device in ctx.devices()?.iter() {
         let desc = device.device_descriptor()?;
         if desc.vendor_id() == 0x2745 && desc.product_id() == 0x300a {
-            let mut handle: DeviceHandle<_> = device.open()?;
+            let mut handle = device.open()?;
             handle.reset()?;
             sleep(std::time::Duration::from_millis(500));
             break;
@@ -86,7 +86,7 @@ fn init_port(
         .flow_control(FlowControl::None)
         .timeout(Duration::from_millis(500))
         .open()
-        .with_context(|| format!("Failed to open serial port {}", port_name))?;
+        .with_context(|| format!("Failed to open serial port {port_name}"))?;
 
     Ok(port)
 }
@@ -147,7 +147,7 @@ fn main() -> color_eyre::Result<()> {
 
     log!(
         event_id: EventId::DeviceAttached,
-        message: format!("Listening for barcode scan data on {}...", PORT_NAME),
+        message: format!("Listening for barcode scan data on {PORT_NAME}..."),
         event_type: EventType::SystemStatus,
         disposition: Disposition::Success
     );
