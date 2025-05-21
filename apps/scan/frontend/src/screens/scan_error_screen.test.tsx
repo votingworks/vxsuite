@@ -21,6 +21,20 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
+test('render correct unreadable ballot screen', async () => {
+  render(
+    provideApi(
+      apiMock,
+      <ScanErrorScreen error="unreadable" isTestMode scannedBallotCount={42} />
+    )
+  );
+  await screen.findByText('Ballot Scan Failed');
+  await screen.findByText(
+    'There was a problem scanning your ballot. Please scan it again.'
+  );
+  await screen.findByText('Ask a poll worker if you need help.');
+});
+
 test('render correct test ballot error screen when we are in test mode', async () => {
   render(
     provideApi(
@@ -32,10 +46,11 @@ test('render correct test ballot error screen when we are in test mode', async (
       />
     )
   );
-  await screen.findByText('Ballot Not Counted');
+  await screen.findByText('Official Ballot');
   await screen.findByText(
     'The scanner is in test ballot mode. Official ballots may not be scanned.'
   );
+  await screen.findByText('Please ask a poll worker for help.');
 });
 
 test('render correct test ballot error screen when we are in live mode', async () => {
@@ -49,10 +64,11 @@ test('render correct test ballot error screen when we are in live mode', async (
       />
     )
   );
-  await screen.findByText('Ballot Not Counted');
+  await screen.findByText('Test Ballot');
   await screen.findByText(
     'The scanner is in official ballot mode. Test ballots may not be scanned.'
   );
+  await screen.findByText('Please ask a poll worker for help.');
 });
 
 test('render correct invalid precinct screen', async () => {
@@ -66,10 +82,11 @@ test('render correct invalid precinct screen', async () => {
       />
     )
   );
-  await screen.findByText('Ballot Not Counted');
+  await screen.findByText('Wrong Precinct');
   await screen.findByText(
-    'The ballot does not match the precinct this scanner is configured for.'
+    'The scanner is configured for a precinct that does not match the ballot.'
   );
+  await screen.findByText('Please ask a poll worker for help.');
 });
 
 test('render correct invalid ballot hash screen', async () => {
@@ -83,10 +100,11 @@ test('render correct invalid ballot hash screen', async () => {
       />
     )
   );
-  await screen.findByText('Ballot Not Counted');
+  await screen.findByText('Wrong Election');
   await screen.findByText(
-    'The ballot does not match the election this scanner is configured for.'
+    'The scanner is configured for an election that does not match the ballot.'
   );
+  await screen.findByText('Please ask a poll worker for help.');
 });
 
 test('warning when scanner needs cleaning', async () => {
@@ -100,21 +118,11 @@ test('warning when scanner needs cleaning', async () => {
       />
     )
   );
-  await screen.findByText('Ballot Not Counted');
-  screen.getByText('The scanner needs to be cleaned.');
-});
-
-test('render correct unreadable ballot screen', async () => {
-  render(
-    provideApi(
-      apiMock,
-      <ScanErrorScreen error="unreadable" isTestMode scannedBallotCount={42} />
-    )
-  );
-  await screen.findByText('Ballot Not Counted');
+  await screen.findByText('Scanner Needs Cleaning');
   await screen.findByText(
-    'There was a problem scanning your ballot. Please scan it again.'
+    'The ballot was not counted. Scan it again after cleaning.'
   );
+  await screen.findByText('Please ask a poll worker for help.');
 });
 
 test('double feed error screen', async () => {
@@ -128,6 +136,43 @@ test('double feed error screen', async () => {
       />
     )
   );
-  await screen.findByText('Ballot Not Counted');
+  await screen.findByText('Multiple Sheets Detected');
   await screen.findByText('Remove your ballot and insert one sheet at a time.');
+  await screen.findByText('Ask a poll worker if you need help.');
+});
+
+test('recoverable error screen', async () => {
+  render(
+    provideApi(
+      apiMock,
+      <ScanErrorScreen
+        error="paper_in_back_after_reconnect"
+        isTestMode
+        scannedBallotCount={42}
+      />
+    )
+  );
+  await screen.findByText('Scanner Error');
+  await screen.findByText(
+    'The ballot was not counted. Please remove the ballot to continue.'
+  );
+  await screen.findByText('Ask a poll worker if you need help.');
+});
+
+test('restart required', async () => {
+  render(
+    provideApi(
+      apiMock,
+      <ScanErrorScreen
+        restartRequired
+        error="client_error"
+        isTestMode
+        scannedBallotCount={42}
+      />
+    )
+  );
+  await screen.findByText('Scanner Error');
+  await screen.findByText(
+    'The ballot was not counted. Ask a poll worker to restart the scanner.'
+  );
 });

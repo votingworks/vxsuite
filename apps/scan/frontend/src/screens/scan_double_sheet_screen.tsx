@@ -25,17 +25,14 @@ export function ScanDoubleSheetScreen({
       showTestModeBanner={isTestMode}
     >
       <FullScreenPromptLayout
-        title={appStrings.titleScannerBallotNotCounted()}
+        title={appStrings.titleScannerMultipleSheetsDetected()}
         image={
           <FullScreenIconWrapper>
             <Icons.Delete color="danger" />
           </FullScreenIconWrapper>
         }
       >
-        <P>{appStrings.warningScannerMultipleSheetsDetected()}</P>
-        <P>
-          <Caption>{appStrings.instructionsScannerRemoveDoubleSheet()}</Caption>
-        </P>
+        <P weight="bold">{appStrings.instructionsScannerRemoveDoubleSheet()}</P>
         <P>
           <Caption>{appStrings.noteAskPollWorkerForHelp()}</Caption>
         </P>

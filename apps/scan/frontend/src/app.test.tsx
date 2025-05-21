@@ -480,9 +480,9 @@ test('voter tries to cast ballot that is rejected', async () => {
     })
   );
   vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
-  await screen.findByText('Ballot Not Counted');
+  await screen.findByText('Wrong Election');
   screen.getByText(
-    'The ballot does not match the election this scanner is configured for.'
+    'The scanner is configured for an election that does not match the ballot.'
   );
 
   // When the voter removes the ballot return to the insert ballot screen
