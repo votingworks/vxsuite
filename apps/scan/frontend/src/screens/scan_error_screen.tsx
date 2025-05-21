@@ -39,7 +39,7 @@ export function ScanErrorScreen({
   }: {
     title: JSX.Element;
     errorMessage: JSX.Element;
-    pollWorkerMessage: 'needs-help' | 'might-need-help' | 'none';
+    pollWorkerMessage?: JSX.Element;
   } = (() => {
     if (
       restartRequired ||
@@ -53,7 +53,6 @@ export function ScanErrorScreen({
       return {
         title: appStrings.titleScannerError(),
         errorMessage: appStrings.instructionsScannerAskForRestart(),
-        pollWorkerMessage: 'none',
       };
     }
 
@@ -63,45 +62,45 @@ export function ScanErrorScreen({
         return {
           title: appStrings.titleScannerNeedsCleaning(),
           errorMessage: appStrings.warningScannerNeedsCleaning(),
-          pollWorkerMessage: 'needs-help',
+          pollWorkerMessage: appStrings.instructionsAskForHelp(),
         };
       case 'unreadable':
       case 'unknown':
         return {
           title: appStrings.titleScannerBallotUnreadable(),
           errorMessage: appStrings.warningProblemScanningBallotScanAgain(),
-          pollWorkerMessage: 'might-need-help',
+          pollWorkerMessage: appStrings.noteAskPollWorkerForHelp(),
         };
       case 'invalid_test_mode':
         return isTestMode
           ? {
               title: appStrings.titleScannerOfficialBallot(),
               errorMessage: appStrings.warningScannerOfficialBallotInTestMode(),
-              pollWorkerMessage: 'needs-help',
+              pollWorkerMessage: appStrings.instructionsAskForHelp(),
             }
           : {
               title: appStrings.titleScannerTestBallot(),
               errorMessage: appStrings.warningScannerTestBallotInOfficialMode(),
-              pollWorkerMessage: 'needs-help',
+              pollWorkerMessage: appStrings.instructionsAskForHelp(),
             };
       case 'invalid_ballot_hash':
         return {
           title: appStrings.titleScannerWrongElection(),
           errorMessage: appStrings.warningScannerMismatchedElection(),
-          pollWorkerMessage: 'needs-help',
+          pollWorkerMessage: appStrings.instructionsAskForHelp(),
         };
       case 'invalid_precinct':
         return {
           title: appStrings.titleScannerWrongPrecinct(),
           errorMessage: appStrings.warningScannerMismatchedPrecinct(),
-          pollWorkerMessage: 'needs-help',
+          pollWorkerMessage: appStrings.instructionsAskForHelp(),
         };
       // non-restart scanner errors
       case 'double_feed_detected':
         return {
           title: appStrings.titleScannerMultipleSheetsDetected(),
           errorMessage: appStrings.instructionsScannerRemoveDoubleSheet(),
-          pollWorkerMessage: 'might-need-help',
+          pollWorkerMessage: appStrings.noteAskPollWorkerForHelp(),
         };
       case 'scanning_failed':
       case 'both_sides_have_paper':
@@ -112,7 +111,7 @@ export function ScanErrorScreen({
         return {
           title: appStrings.titleScannerError(),
           errorMessage: appStrings.instructionsScannerRemoveBallotToContinue(),
-          pollWorkerMessage: 'might-need-help',
+          pollWorkerMessage: appStrings.noteAskPollWorkerForHelp(),
         };
       default: {
         /* istanbul ignore next - @preserve */
@@ -137,13 +136,7 @@ export function ScanErrorScreen({
         }
       >
         <P weight="bold">{errorMessage}</P>
-        <Caption>
-          {pollWorkerMessage === 'needs-help'
-            ? appStrings.instructionsAskForHelp()
-            : pollWorkerMessage === 'might-need-help'
-            ? appStrings.noteAskPollWorkerForHelp()
-            : undefined}
-        </Caption>
+        {pollWorkerMessage && <Caption>{pollWorkerMessage}</Caption>}
       </FullScreenPromptLayout>
     </Screen>
   );
