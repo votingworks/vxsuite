@@ -558,15 +558,31 @@ IDs are logged with each log to identify the log being written.
 **Type:** [application-action](#application-action)
 **Description:** An API call was made.
 **Machines:** vx-design
+### socket-client-connect
+**Type:** [application-status](#application-status)
+**Description:** A socket client attempted to connect to the socket.
+**Machines:** All
+### socket-client-disconnect
+**Type:** [application-status](#application-status)
+**Description:** A socket client was disconnected.
+**Machines:** All
 ### socket-client-error
 **Type:** [application-status](#application-status)
 **Description:** An error was reported by a socket client.
 **Machines:** All
-### socket-connection
+### socket-server-bind
 **Type:** [application-action](#application-action)
-**Description:** A socket client connection was attempted.
+**Description:** A process attempted to bind a socket.
 **Machines:** All
-### socket-disconnection
+### socket-server-close
 **Type:** [application-action](#application-action)
-**Description:** A socket client was disconnected.
+**Description:** A socket server was closed.
+**Machines:** All
+### socket-server-awaiting-client
+**Type:** [application-status](#application-status)
+**Description:** A socket server is awaiting a client.
+**Machines:** All
+### socket-server-error
+**Type:** [application-status](#application-status)
+**Description:** An error was reported by a socket server.
 **Machines:** All

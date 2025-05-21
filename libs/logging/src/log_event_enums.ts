@@ -199,9 +199,13 @@ export enum LogEventId {
   BackgroundTaskCancelled = 'background-task-cancelled',
   BackgroundTaskStatus = 'background-task-status',
   ApiCall = 'api-call',
+  SocketClientConnect = 'socket-client-connect',
+  SocketClientDisconnect = 'socket-client-disconnect',
   SocketClientError = 'socket-client-error',
-  SocketConnection = 'socket-connection',
-  SocketDisconnection = 'socket-disconnection',
+  SocketServerBind = 'socket-server-bind',
+  SocketServerClose = 'socket-server-close',
+  SocketServerAwaitingClient = 'socket-server-awaiting-client',
+  SocketServerError = 'socket-server-error',
 }
 
 const ElectionConfigured: LogDetails = {
@@ -1210,22 +1214,46 @@ const ApiCall: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxDesign],
 };
 
+const SocketClientConnect: LogDetails = {
+  eventId: LogEventId.SocketClientConnect,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage: 'A socket client attempted to connect to the socket.',
+};
+
+const SocketClientDisconnect: LogDetails = {
+  eventId: LogEventId.SocketClientDisconnect,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage: 'A socket client was disconnected.',
+};
+
 const SocketClientError: LogDetails = {
   eventId: LogEventId.SocketClientError,
   eventType: LogEventType.ApplicationStatus,
   documentationMessage: 'An error was reported by a socket client.',
 };
 
-const SocketConnection: LogDetails = {
-  eventId: LogEventId.SocketConnection,
+const SocketServerBind: LogDetails = {
+  eventId: LogEventId.SocketServerBind,
   eventType: LogEventType.ApplicationAction,
-  documentationMessage: 'A socket client connection was attempted.',
+  documentationMessage: 'A process attempted to bind a socket.',
 };
 
-const SocketDisconnection: LogDetails = {
-  eventId: LogEventId.SocketDisconnection,
+const SocketServerClose: LogDetails = {
+  eventId: LogEventId.SocketServerClose,
   eventType: LogEventType.ApplicationAction,
-  documentationMessage: 'A socket client was disconnected.',
+  documentationMessage: 'A socket server was closed.',
+};
+
+const SocketServerAwaitingClient: LogDetails = {
+  eventId: LogEventId.SocketServerAwaitingClient,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage: 'A socket server is awaiting a client.',
+};
+
+const SocketServerError: LogDetails = {
+  eventId: LogEventId.SocketServerError,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage: 'An error was reported by a socket server.',
 };
 
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
@@ -1502,12 +1530,20 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return BackgroundTaskStatus;
     case LogEventId.ApiCall:
       return ApiCall;
+    case LogEventId.SocketClientConnect:
+      return SocketClientConnect;
+    case LogEventId.SocketClientDisconnect:
+      return SocketClientDisconnect;
     case LogEventId.SocketClientError:
       return SocketClientError;
-    case LogEventId.SocketConnection:
-      return SocketConnection;
-    case LogEventId.SocketDisconnection:
-      return SocketDisconnection;
+    case LogEventId.SocketServerBind:
+      return SocketServerBind;
+    case LogEventId.SocketServerClose:
+      return SocketServerClose;
+    case LogEventId.SocketServerAwaitingClient:
+      return SocketServerAwaitingClient;
+    case LogEventId.SocketServerError:
+      return SocketServerError;
     default:
       throwIllegalValue(eventId);
   }

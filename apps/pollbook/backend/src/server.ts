@@ -17,22 +17,22 @@ import { LOCAL_PORT } from './globals';
 import { AamvaDocumentSchema, LocalAppContext } from './types';
 import { getUserRole } from './auth';
 
-const UDS_SOCKET_PATH = '/tmp/barcodescannerd.sock';
-const SOCKET_CONNECTION_ATTEMPT_DELAY_MS = 1000;
-const MAX_SOCKET_CONNECTION_ATTEMPTS = 60;
+const UDS_PATH = '/tmp/barcodescannerd.sock';
+const UDS_CONNECTION_ATTEMPT_DELAY_MS = 1000;
+const UDS_CONNECTION_TIMEOUT_MS = 60 * 1000;
 
 // Attempts to connect to the barcode scanner Unix socket once. Resolves with
 // the socket client if successful or rejects with an error.
 function tryConnect(logger: Logger, io: IoServer): Promise<net.Socket> {
   return new Promise<net.Socket>((resolve, reject) => {
     const client = net.createConnection({
-      path: UDS_SOCKET_PATH,
+      path: UDS_PATH,
     });
 
     client.on('error', () => {
       const message =
         'Pollbook backend failed to connect to barcode scanner Unix socket';
-      logger.log(LogEventId.SocketConnection, 'system', {
+      logger.log(LogEventId.SocketClientConnect, 'system', {
         message,
         disposition: LogDispositionStandardTypes.Failure,
       });
@@ -72,7 +72,7 @@ function tryConnect(logger: Logger, io: IoServer): Promise<net.Socket> {
         });
       });
 
-      logger.log(LogEventId.SocketConnection, 'system', {
+      logger.log(LogEventId.SocketClientConnect, 'system', {
         message: 'Pollbook backend connected to barcode scanner Unix socket',
         disposition: LogDispositionStandardTypes.Success,
       });
@@ -90,15 +90,19 @@ async function connectToBarcodeScannerSocket(
   logger: Logger,
   io: IoServer
 ): Promise<Optional<net.Socket>> {
-  for (let i = 0; i < MAX_SOCKET_CONNECTION_ATTEMPTS; i += 1) {
+  const connectStart = new Date();
+  while (
+    new Date().getTime() - connectStart.getTime() <
+    UDS_CONNECTION_TIMEOUT_MS
+  ) {
     try {
       return await tryConnect(logger, io);
     } catch (e) {
-      await sleep(SOCKET_CONNECTION_ATTEMPT_DELAY_MS);
+      await sleep(UDS_CONNECTION_ATTEMPT_DELAY_MS);
     }
   }
 
-  logger.log(LogEventId.SocketConnection, 'system', {
+  logger.log(LogEventId.SocketClientConnect, 'system', {
     message: 'Exhausted UDS connection attempts',
     disposition: LogDispositionStandardTypes.Failure,
   });
@@ -128,14 +132,16 @@ export async function start(context: LocalAppContext): Promise<void> {
   const serverAddress = server.address() as net.AddressInfo;
 
   // Set up socket.io server for communication with frontend
-  const io = new IoServer(server, { cors: { origin: '*' } });
+  const io = new IoServer(server, {
+    cors: { origin: 'http://localhost:3000' },
+  });
   io.on('connection', (socket) => {
-    logger.log(LogEventId.SocketConnection, 'system', {
+    logger.log(LogEventId.SocketClientConnect, 'system', {
       message: `Pollbook socket.io client connected to [${serverAddress.address}]:${serverAddress.port}`,
       disposition: LogDispositionStandardTypes.Success,
     });
     socket.on('disconnect', () => {
-      logger.log(LogEventId.SocketDisconnection, 'system', {
+      logger.log(LogEventId.SocketClientDisconnect, 'system', {
         message: `Pollbook socket.io client disconnected from [${serverAddress.address}]:${serverAddress.port}`,
         disposition: LogDispositionStandardTypes.Success,
       });

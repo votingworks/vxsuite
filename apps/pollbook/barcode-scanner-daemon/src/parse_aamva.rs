@@ -213,12 +213,9 @@ DACJANE
     }
 
     #[test]
-    fn input_too_short_errors() {
+    fn empty_string_errors() {
         let err = AamvaDocument::try_from("").unwrap_err();
-        assert!(matches!(
-            err,
-            AamvaParseError::HeaderTooShort(ref s) if s == ""
-        ));
+        assert!(matches!(err, AamvaParseError::NoLine));
     }
 
     #[test]
