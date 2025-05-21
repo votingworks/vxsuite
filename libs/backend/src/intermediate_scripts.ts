@@ -14,5 +14,5 @@ export function intermediateScript(
     | 'set-clock'
 ): string {
   // Prefix with ../src since we're actually in ../build at runtime
-  return path.join(__dirname, '../src/intermediate-scripts', script);
+  return path.join(__dirname, '../intermediate-scripts', script);
 }
