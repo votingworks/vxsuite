@@ -24,7 +24,7 @@ export default defineConfig({
         'src/printing_ballot_image.tsx',
         'src/rotate_card_image.tsx',
         'src/svg.tsx',
-        'src/tabbed_section/.*.tsx?',
+        'src/tabbed_section/*.tsx',
         'src/touch_text_input.tsx',
         'src/verify_ballot_image.tsx',
         'src/voter_contest_summary.tsx',
