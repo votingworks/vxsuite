@@ -7,7 +7,12 @@ import React, {
   useState,
 } from 'react';
 import styled from 'styled-components';
-import { ContestOptionId, getContestDistrictName } from '@votingworks/types';
+import {
+  Candidate,
+  ContestOptionId,
+  getContestDistrictName,
+  YesNoOption,
+} from '@votingworks/types';
 import {
   Button,
   Main,
@@ -21,6 +26,7 @@ import {
 } from '@votingworks/ui';
 import {
   assert,
+  assertDefined,
   deepEqual,
   find,
   iter,
@@ -52,8 +58,11 @@ import {
 } from '../components/adjudication_ballot_image_viewer';
 import { WriteInAdjudicationButton } from '../components/write_in_adjudication_button';
 import { NavigationScreen } from '../components/navigation_screen';
-import { CandidateButton } from '../components/candidate_button';
-import { normalizeWriteInName } from '../utils/write_ins';
+import { BallotOptionButton } from '../components/ballot_option_button';
+import {
+  getOptionCoordinates,
+  normalizeWriteInName,
+} from '../utils/adjudication';
 import {
   DoubleVoteAlert,
   DoubleVoteAlertModal,
@@ -209,7 +218,7 @@ const BallotNavigation = styled(BaseRow)`
   }
 `;
 
-const CandidateButtonList = styled.div`
+const BallotOptionButtonList = styled.div`
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -220,7 +229,7 @@ const CandidateButtonList = styled.div`
   overflow-y: scroll;
 `;
 
-const CandidateButtonCaption = styled.span`
+const BallotOptionButtonCaption = styled.span`
   color: ${(p) => p.theme.colors.neutral};
   font-size: 0.75rem;
   margin: 0.25rem 0 0.25rem 0.125rem;
@@ -270,7 +279,7 @@ const SecondaryNavButton = styled(Button)`
   width: 5.5rem;
 `;
 
-function renderCandidateButtonCaption({
+function renderBallotOptionButtonCaption({
   originalVote,
   currentVote,
   isWriteIn,
@@ -307,10 +316,10 @@ function renderCandidateButtonCaption({
   }
 
   return (
-    <CandidateButtonCaption>
+    <BallotOptionButtonCaption>
       <Font weight="semiBold">{originalValueStr} </Font>adjudicated as
       <Font weight="semiBold"> {newValueStr}</Font>
-    </CandidateButtonCaption>
+    </BallotOptionButtonCaption>
   );
 }
 
@@ -321,7 +330,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
   assert(electionDefinition);
   const { election } = electionDefinition;
   const contest = find(election.contests, (c) => c.id === contestId);
-  assert(contest.type === 'candidate', 'contest must be a candidate contest');
+  const isCandidateContest = contest.type === 'candidate';
 
   // Queries and mutations
   const cvrQueueQuery = getAdjudicationQueue.useQuery({ contestId });
@@ -353,16 +362,21 @@ export function ContestAdjudicationScreen(): JSX.Element {
   });
 
   const adjudicateCvrContestMutation = adjudicateCvrContest.useMutation();
-  const officialCandidates = useMemo(
-    () => contest.candidates.filter((c) => !c.isWriteIn),
-    [contest.candidates]
+  const officialOptions = useMemo(
+    () =>
+      isCandidateContest
+        ? contest.candidates.filter((c) => !c.isWriteIn)
+        : [contest.yesOption, contest.noOption],
+    [contest, isCandidateContest]
   );
   const writeInOptionIds = useMemo(
     () =>
-      iter(allContestOptions(contest))
-        .filterMap((option) => (option.isWriteIn ? option.id : undefined))
-        .toArray(),
-    [contest]
+      isCandidateContest
+        ? iter(allContestOptions(contest))
+            .filterMap((option) => (option.isWriteIn ? option.id : undefined))
+            .toArray()
+        : [],
+    [contest, isCandidateContest]
   );
 
   // Vote and write-in state for adjudication management
@@ -415,8 +429,8 @@ export function ContestAdjudicationScreen(): JSX.Element {
     ) {
       const originalVotes = cvrVoteInfoQuery.data.votes[contestId];
       const newHasVoteByOptionId: HasVoteByOptionId = {};
-      for (const c of officialCandidates) {
-        newHasVoteByOptionId[c.id] = originalVotes.includes(c.id);
+      for (const o of officialOptions) {
+        newHasVoteByOptionId[o.id] = originalVotes.includes(o.id);
       }
 
       const newWriteInStatusByOptionId: WriteInStatusByOptionId = {};
@@ -437,10 +451,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
         }
         switch (writeIn.adjudicationType) {
           case 'official-candidate': {
-            const candidate = officialCandidates.find(
-              (c) => c.id === writeIn.candidateId
-            );
-            assert(candidate !== undefined);
+            const candidate = assertDefined(
+              officialOptions.find((c) => c.id === writeIn.candidateId)
+            ) as Candidate;
             newWriteInStatusByOptionId[optionId] = {
               ...candidate,
               type: 'existing-official',
@@ -449,10 +462,11 @@ export function ContestAdjudicationScreen(): JSX.Element {
             break;
           }
           case 'write-in-candidate': {
-            const candidate = writeInCandidatesQuery.data.find(
-              (c) => c.id === writeIn.candidateId
+            const candidate = assertDefined(
+              writeInCandidatesQuery.data.find(
+                (c) => c.id === writeIn.candidateId
+              )
             );
-            assert(candidate !== undefined);
             newWriteInStatusByOptionId[optionId] = {
               ...candidate,
               type: 'existing-write-in',
@@ -482,7 +496,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
     }
   }, [
     contestId,
-    officialCandidates,
+    officialOptions,
     cvrVoteInfoQuery.data,
     cvrVoteInfoQuery.isStale,
     cvrVoteInfoQuery.isSuccess,
@@ -549,15 +563,15 @@ export function ContestAdjudicationScreen(): JSX.Element {
     writeInsQuery.isFetching ||
     writeInCandidatesQuery.isFetching ||
     voteAdjudicationsQuery.isFetching;
-  const candidateListRef = useRef<HTMLDivElement>(null);
+  const ballotOptionListRef = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
     if (
       !areQueriesFetching &&
       shouldScrollToWriteIns &&
-      candidateListRef.current
+      ballotOptionListRef.current
     ) {
-      candidateListRef.current.scrollTop =
-        candidateListRef.current.scrollHeight;
+      ballotOptionListRef.current.scrollTop =
+        ballotOptionListRef.current.scrollHeight;
       setShouldScrollToWriteIns(false);
     }
   }, [shouldScrollToWriteIns, areQueriesFetching]);
@@ -587,7 +601,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const currentCvrId = maybeCurrentCvrId;
 
   const voteCount = Object.values(hasVoteByOptionId).filter(Boolean).length;
-  const seatCount = contest.seats;
+  const seatCount = isCandidateContest ? contest.seats : 1;
   const isOvervote = voteCount > seatCount;
   const numPendingWriteIns = iter(writeInOptionIds)
     .filter((optionId) => isPendingWriteIn(writeInStatusByOptionId[optionId]))
@@ -605,23 +619,26 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const numBallots = cvrQueueQuery.data.length;
   const onLastBallot = cvrQueueIndex + 1 === numBallots;
 
-  const selectedCandidateNames = Object.entries(hasVoteByOptionId)
-    .filter(([, hasVote]) => hasVote)
-    .map(([optionId]) => {
-      if (writeInOptionIds.includes(optionId)) {
-        const writeInStatus = writeInStatusByOptionId[optionId];
-        if (isValidCandidate(writeInStatus)) {
-          return writeInStatus.name;
-        }
-        // Pending write-in so there is no name yet
-        return undefined;
-      }
-      // Must be official candidate
-      const official = officialCandidates.find((c) => c.id === optionId);
-      assert(official !== undefined);
-      return official.name;
-    })
-    .filter(Boolean);
+  const selectedCandidateNames = isCandidateContest
+    ? Object.entries(hasVoteByOptionId)
+        .filter(([, hasVote]) => hasVote)
+        .map(([optionId]) => {
+          if (writeInOptionIds.includes(optionId)) {
+            const writeInStatus = writeInStatusByOptionId[optionId];
+            if (isValidCandidate(writeInStatus)) {
+              return writeInStatus.name;
+            }
+            // Pending write-in so there is no name yet
+            return undefined;
+          }
+          // Must be official candidate
+          const official = assertDefined(
+            officialOptions.find((c) => c.id === optionId)
+          ) as Candidate;
+          return official.name;
+        })
+        .filter(Boolean)
+    : [];
 
   function checkForDoubleVote({
     name,
@@ -631,7 +648,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
     optionId: ContestOptionId;
   }): DoubleVoteAlert | undefined {
     const normalizedName = normalizeWriteInName(name);
-    const existingCandidate = officialCandidates.find(
+    const existingCandidate = (officialOptions as Candidate[]).find(
       (c) => normalizeWriteInName(c.name) === normalizedName
     );
     if (existingCandidate && hasVoteByOptionId[existingCandidate.id]) {
@@ -669,8 +686,8 @@ export function ContestAdjudicationScreen(): JSX.Element {
       cvrId: currentCvrId,
       side,
     };
-    const officialCandidateOptionIds = officialCandidates.map((c) => c.id);
-    for (const optionId of officialCandidateOptionIds) {
+    const officialOptionIds = officialOptions.map((o) => o.id);
+    for (const optionId of officialOptionIds) {
       const hasVote = hasVoteByOptionId[optionId];
       adjudicatedContestOptionById[optionId] = {
         type: 'candidate-option',
@@ -800,28 +817,36 @@ export function ContestAdjudicationScreen(): JSX.Element {
             )}
           </BallotVoteCount>
           {!isVoteStateReady ? (
-            <CandidateButtonList style={{ justifyContent: 'center' }}>
+            <BallotOptionButtonList style={{ justifyContent: 'center' }}>
               <Icons.Loading />
-            </CandidateButtonList>
+            </BallotOptionButtonList>
           ) : (
-            <CandidateButtonList ref={candidateListRef}>
-              {officialCandidates.map((candidate) => {
-                const originalVote = originalVotes.includes(candidate.id);
-                const currentVote = hasVoteByOptionId[candidate.id];
+            <BallotOptionButtonList ref={ballotOptionListRef}>
+              {officialOptions.map((officialOption) => {
+                const originalVote = originalVotes.includes(officialOption.id);
+                const currentVote = hasVoteByOptionId[officialOption.id];
+                const optionLabel = isCandidateContest
+                  ? (officialOption as Candidate).name
+                  : (officialOption as YesNoOption).label;
                 return (
-                  <CandidateButton
-                    key={candidate.id + currentCvrId}
-                    candidate={candidate}
+                  <BallotOptionButton
+                    key={officialOption.id + currentCvrId}
+                    option={{
+                      id: officialOption.id,
+                      label: optionLabel,
+                    }}
                     isSelected={currentVote}
-                    onSelect={() => setOptionHasVote(candidate.id, true)}
-                    onDeselect={() => setOptionHasVote(candidate.id, false)}
+                    onSelect={() => setOptionHasVote(officialOption.id, true)}
+                    onDeselect={() =>
+                      setOptionHasVote(officialOption.id, false)
+                    }
                     disabled={
                       isBmd ||
                       // Disabled when there is a write-in selection for the candidate
                       (!currentVote &&
-                        selectedCandidateNames.includes(candidate.name))
+                        selectedCandidateNames.includes(optionLabel))
                     }
-                    caption={renderCandidateButtonCaption({
+                    caption={renderBallotOptionButtonCaption({
                       originalVote,
                       currentVote,
                       isWriteIn: false,
@@ -842,13 +867,10 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 const isSelected = hasVoteByOptionId[optionId];
                 if (!writeInStatus || isInvalidWriteIn(writeInStatus)) {
                   return (
-                    <CandidateButton
-                      candidate={{
+                    <BallotOptionButton
+                      option={{
                         id: optionId,
-                        name:
-                          writeInImage?.type === 'bmd'
-                            ? writeInImage.machineMarkedText
-                            : 'Write-in',
+                        label: writeInRecord?.machineMarkedText ?? 'Write-in',
                       }}
                       // bmd ballots can only toggle-on write-ins that were
                       // previously marked invalid
@@ -859,7 +881,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                         setOptionHasVote(optionId, true);
                         setOptionWriteInStatus(optionId, { type: 'pending' });
                       }}
-                      caption={renderCandidateButtonCaption({
+                      caption={renderBallotOptionButtonCaption({
                         originalVote,
                         currentVote: false,
                         isWriteIn: true,
@@ -912,7 +934,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                       setOptionWriteInStatus(optionId, newStatus);
                       setOptionHasVote(optionId, true);
                     }}
-                    officialCandidates={officialCandidates.filter(
+                    officialCandidates={(officialOptions as Candidate[]).filter(
                       (c) =>
                         !selectedCandidateNames.includes(c.name) ||
                         (isValidCandidate(writeInStatus) &&
@@ -924,7 +946,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                         (isValidCandidate(writeInStatus) &&
                           writeInStatus.name === c.name)
                     )}
-                    caption={renderCandidateButtonCaption({
+                    caption={renderBallotOptionButtonCaption({
                       originalVote,
                       currentVote: isSelected,
                       isWriteIn: true,
@@ -934,7 +956,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                   />
                 );
               })}
-            </CandidateButtonList>
+            </BallotOptionButtonList>
           )}
           <BallotFooter>
             <BallotMetadata>

@@ -1,16 +1,16 @@
-import { Candidate } from '@votingworks/types';
+import { Id } from '@votingworks/types';
 import { CheckboxButton } from '@votingworks/ui';
 import React from 'react';
 
-export function CandidateButton({
-  candidate,
+export function BallotOptionButton({
+  option,
   isSelected,
   onSelect,
   onDeselect,
   caption,
   disabled,
 }: {
-  candidate: Pick<Candidate, 'id' | 'name'>;
+  option: { id: Id; label: string };
   isSelected: boolean;
   onSelect: () => void;
   onDeselect?: () => void;
@@ -22,8 +22,8 @@ export function CandidateButton({
       <CheckboxButton
         disabled={disabled}
         isChecked={isSelected}
-        key={candidate.id}
-        label={candidate.name}
+        key={option.id}
+        label={option.label}
         onChange={() => {
           if (!isSelected) {
             onSelect();
