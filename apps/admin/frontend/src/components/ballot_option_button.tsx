@@ -11,8 +11,9 @@ const MarginalMarkFlag = styled.div<{ hasVote: boolean }>`
   border: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
     ${(p) => p.theme.colors.outline};
   border-bottom: 0;
-  padding: 0.5rem;
+  padding: 0.25rem 0.5rem;
   display: flex;
+  align-items: center;
   justify-content: space-between;
   font-weight: 500;
   color: ${(p) => p.theme.colors.neutral};
@@ -36,7 +37,7 @@ export function BallotOptionButton({
   caption,
   disabled,
   marginalMarkStatus,
-  onDismissFlag,
+  resolveMarginalMark,
 }: {
   option: { id: Id; label: string };
   isSelected: boolean;
@@ -45,11 +46,11 @@ export function BallotOptionButton({
   caption?: React.ReactNode;
   disabled?: boolean;
   marginalMarkStatus?: MarginalMarkStatus;
-  onDismissFlag?: () => void;
+  resolveMarginalMark?: () => void;
 }): JSX.Element {
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
-      {marginalMarkStatus === 'flagged' && onDismissFlag && (
+      {marginalMarkStatus === 'pending' && resolveMarginalMark && (
         <MarginalMarkFlag hasVote={isSelected}>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             {isSelected ? (
@@ -57,22 +58,39 @@ export function BallotOptionButton({
             ) : (
               <Icons.Warning color="warning" />
             )}
-            Review marginal mark
+            Is marginal mark valid?
           </div>
           <Button
-            style={{ justifySelf: 'end', padding: 0 }}
-            icon="X"
-            onPress={onDismissFlag}
+            style={{ padding: '0.25rem 0.75rem' }}
+            // icon="X"
+            onPress={() => {
+              onSelect();
+              resolveMarginalMark();
+            }}
             aria-label="Close"
-            value={undefined}
-            fill="transparent"
-          />
+            value="undefined"
+            // fill="transparent"
+          >
+            Yes
+          </Button>
+          <Button
+            style={{ padding: '0.25rem 0.75rem' }}
+            // icon="X"
+            onPress={resolveMarginalMark}
+            aria-label="Close"
+            value="undefined"
+            // fill="transparent"
+          >
+            No
+          </Button>
         </MarginalMarkFlag>
       )}
       <StyledCheckboxButton
-        hasMarginalMark={marginalMarkStatus === 'flagged'}
+        hasMarginalMark={marginalMarkStatus === 'pending'}
         disabled={disabled}
-        isChecked={isSelected}
+        isChecked={
+          marginalMarkStatus === 'pending' ? 'indeterminate' : isSelected
+        }
         key={option.id}
         label={option.label}
         onChange={() => {

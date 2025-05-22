@@ -38,9 +38,11 @@ export function CheckboxButton({
       aria-checked={isChecked}
       disabled={disabled}
       role="checkbox"
-      fill={isChecked ? 'tinted' : 'outlined'}
-      color={isChecked ? 'primary' : 'neutral'}
-      onPress={() => onChange(!isChecked)}
+      fill={isChecked === true ? 'tinted' : 'outlined'}
+      color={isChecked === true ? 'primary' : 'neutral'}
+      onPress={() =>
+        onChange(!!(isChecked === 'indeterminate' || !isChecked))
+      }
       icon={
         isChecked === 'indeterminate'
           ? 'Question'
