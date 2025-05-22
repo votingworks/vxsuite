@@ -141,6 +141,9 @@ function isPendingWriteIn(
   return status?.type === 'pending';
 }
 
+export type MarginalMarkStatus = 'flagged' | 'dismissed';
+type MarginalMarkStatusByOptionId = Record<ContestOptionId, MarginalMarkStatus>;
+
 const DEFAULT_PADDING = '0.75rem';
 const ADJUDICATION_PANEL_WIDTH = '23.5rem';
 
@@ -286,17 +289,25 @@ function renderBallotOptionButtonCaption({
   isWriteIn,
   writeInStatus,
   writeInRecord,
+  marginalMarkStatus,
 }: {
   originalVote: boolean;
   currentVote: boolean;
   isWriteIn: boolean;
   writeInStatus?: WriteInAdjudicationStatus;
   writeInRecord?: WriteInRecord;
+  marginalMarkStatus?: MarginalMarkStatus;
 }) {
   let originalValueStr: string | undefined;
   let newValueStr: string | undefined;
 
-  if (isWriteIn) {
+  if (marginalMarkStatus && currentVote) {
+    originalValueStr = 'Marginal Mark';
+    newValueStr = 'Valid Mark';
+  } else if (marginalMarkStatus === 'dismissed' && !currentVote) {
+    originalValueStr = 'Marginal Mark';
+    newValueStr = 'Invalid Mark';
+  } else if (isWriteIn) {
     if (writeInRecord?.isUnmarked && isInvalidWriteIn(writeInStatus)) {
       originalValueStr = 'Unmarked Write-in';
       newValueStr = 'Invalid Mark';
@@ -407,9 +418,19 @@ export function ContestAdjudicationScreen(): JSX.Element {
     }));
   }
 
+  const [marginalMarks, setMarginalMarks] =
+    useState<MarginalMarkStatusByOptionId>({});
+  function resolveMarginalMark(optionId: ContestOptionId) {
+    setMarginalMarks((prev) => ({
+      ...prev,
+      [optionId]: 'dismissed',
+    }));
+  }
+
   function clearBallotState() {
     setHasVoteByOptionId({});
     setWriteInStatusByOptionId({});
+    setMarginalMarks({});
   }
   const isVoteStateReady = Object.keys(hasVoteByOptionId).length > 0;
 
@@ -448,6 +469,10 @@ export function ContestAdjudicationScreen(): JSX.Element {
       for (const adjudication of voteAdjudicationsQuery.data) {
         newHasVoteByOptionId[adjudication.optionId] = adjudication.isVote;
       }
+      const newMarginalMarkStatusByOptionId: MarginalMarkStatusByOptionId = {};
+      for (const optionId of marginalMarksQuery.data) {
+        newMarginalMarkStatusByOptionId[optionId] = 'flagged';
+      };
       let areAllWriteInsAdjudicated = true;
       for (const writeIn of writeInsQuery.data) {
         const { optionId } = writeIn;
@@ -497,6 +522,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
       initialHasVoteByOptionIdRef.current = newHasVoteByOptionId;
       setWriteInStatusByOptionId(newWriteInStatusByOptionId);
       initialWriteInStatusByOptionIdRef.current = newWriteInStatusByOptionId;
+      setMarginalMarks(newMarginalMarkStatusByOptionId);
       if (!areAllWriteInsAdjudicated) {
         setShouldScrollToWriteIns(true);
       }
@@ -572,7 +598,8 @@ export function ContestAdjudicationScreen(): JSX.Element {
     ballotImageViewQuery.isFetching ||
     writeInsQuery.isFetching ||
     writeInCandidatesQuery.isFetching ||
-    voteAdjudicationsQuery.isFetching;
+    voteAdjudicationsQuery.isFetching ||
+    marginalMarksQuery.isFetching;
   const ballotOptionListRef = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
     if (
@@ -594,7 +621,8 @@ export function ContestAdjudicationScreen(): JSX.Element {
     !writeInCandidatesQuery.data ||
     !writeInsQuery.data ||
     !voteAdjudicationsQuery.data ||
-    !ballotImageViewQuery.data
+    !ballotImageViewQuery.data ||
+    !marginalMarksQuery.data
   ) {
     return (
       <NavigationScreen title="Contest Adjudication">
@@ -835,6 +863,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 const optionLabel = isCandidateContest
                   ? (officialOption as Candidate).name
                   : (officialOption as YesNoOption).label;
+                const marginalMarkStatus = marginalMarks?.[officialOption.id];
                 return (
                   <BallotOptionButton
                     key={officialOption.id + currentCvrId}
@@ -857,7 +886,10 @@ export function ContestAdjudicationScreen(): JSX.Element {
                       originalVote,
                       currentVote,
                       isWriteIn: false,
+                      marginalMarkStatus,
                     })}
+                    marginalMarkStatus={marginalMarkStatus}
+                    onDismissFlag={() => resolveMarginalMark(officialOption.id)}
                   />
                 );
               })}
@@ -869,6 +901,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 const writeInStatus = writeInStatusByOptionId[optionId];
                 const isFocused = focusedOptionId === optionId;
                 const isSelected = hasVoteByOptionId[optionId];
+                const marginalMarkStatus = marginalMarks?.[optionId];
                 if (!writeInStatus || isInvalidWriteIn(writeInStatus)) {
                   return (
                     <BallotOptionButton
@@ -891,7 +924,10 @@ export function ContestAdjudicationScreen(): JSX.Element {
                         isWriteIn: true,
                         writeInRecord,
                         writeInStatus,
+                        marginalMarkStatus,
                       })}
+                      marginalMarkStatus={marginalMarkStatus}
+                      onDismissFlag={() => resolveMarginalMark(optionId)}
                     />
                   );
                 }
@@ -952,6 +988,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                       isWriteIn: true,
                       writeInRecord,
                       writeInStatus,
+                      marginalMarkStatus,
                     })}
                   />
                 );
