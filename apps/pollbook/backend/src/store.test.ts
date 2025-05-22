@@ -166,7 +166,7 @@ test('getNewEvents returns hasMore when there are more events from unknown machi
   }
 
   const { events: firstBatch, hasMore: firstHasMore } = store.getNewEvents(
-    store2.getLastEventSyncedPerNode(), // empty
+    store2.getMostRecentEventIdPerMachine(), // empty
     5
   );
   store2.saveRemoteEvents(firstBatch);
@@ -175,12 +175,12 @@ test('getNewEvents returns hasMore when there are more events from unknown machi
   expect(firstBatch).toEqual(events.slice(0, 5));
   expect(firstHasMore).toEqual(true);
 
-  expect(store2.getLastEventSyncedPerNode()).toEqual({
+  expect(store2.getMostRecentEventIdPerMachine()).toEqual({
     [otherMachineId]: 4,
   });
 
   const { events: secondBatch, hasMore: secondHasMore } = store.getNewEvents(
-    store2.getLastEventSyncedPerNode(),
+    store2.getMostRecentEventIdPerMachine(),
     5
   );
 
@@ -212,10 +212,10 @@ test('getNewEvents returns hasMore when there are more events from known machine
 
   // Set up store2 to have synced the first event only from myMachineId
   store2.saveRemoteEvents([events[0]]);
-  expect(store2.getLastEventSyncedPerNode()).toEqual({ [myMachineId]: 0 });
+  expect(store2.getMostRecentEventIdPerMachine()).toEqual({ [myMachineId]: 0 });
 
   const { events: firstBatch, hasMore: firstHasMore } = store.getNewEvents(
-    store2.getLastEventSyncedPerNode(),
+    store2.getMostRecentEventIdPerMachine(),
     5
   );
 
@@ -224,10 +224,10 @@ test('getNewEvents returns hasMore when there are more events from known machine
   expect(firstHasMore).toEqual(true);
 
   store2.saveRemoteEvents(firstBatch);
-  expect(store2.getLastEventSyncedPerNode()).toEqual({ [myMachineId]: 5 });
+  expect(store2.getMostRecentEventIdPerMachine()).toEqual({ [myMachineId]: 5 });
 
   const { events: secondBatch, hasMore: secondHasMore } = store.getNewEvents(
-    store2.getLastEventSyncedPerNode(),
+    store2.getMostRecentEventIdPerMachine(),
     5
   );
 
@@ -271,9 +271,9 @@ test('getNewEvents returns hasMore when there are more events from known machine
 
   // Set up store2 to have synced the first event only from myMachineId
   store2.saveRemoteEvents([machine1Events[0]]);
-  expect(store2.getLastEventSyncedPerNode()).toEqual({ [myMachineId]: 0 });
+  expect(store2.getMostRecentEventIdPerMachine()).toEqual({ [myMachineId]: 0 });
   const { events: firstBatch, hasMore: firstHasMore } = store.getNewEvents(
-    store2.getLastEventSyncedPerNode(),
+    store2.getMostRecentEventIdPerMachine(),
     5
   );
 
@@ -285,13 +285,13 @@ test('getNewEvents returns hasMore when there are more events from known machine
   expect(firstHasMore).toEqual(true);
 
   store2.saveRemoteEvents(firstBatch);
-  expect(store2.getLastEventSyncedPerNode()).toEqual({
+  expect(store2.getMostRecentEventIdPerMachine()).toEqual({
     [myMachineId]: 2,
     [otherMachineId]: 2,
   });
 
   const { events: secondBatch, hasMore: secondHasMore } = store.getNewEvents(
-    store2.getLastEventSyncedPerNode(),
+    store2.getMostRecentEventIdPerMachine(),
     5
   );
 

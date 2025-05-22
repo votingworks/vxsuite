@@ -88,6 +88,7 @@ export function IdentificationMethod({
 }
 
 export interface ReceiptMetadataProps {
+  machineId: string;
   receiptNumber: number;
   election: Election;
 }
@@ -95,6 +96,7 @@ export interface ReceiptMetadataProps {
 export function ReceiptMetadata({
   receiptNumber,
   election,
+  machineId,
 }: ReceiptMetadataProps): JSX.Element {
   return (
     <div
@@ -115,7 +117,11 @@ export function ReceiptMetadata({
           election.date.toMidnightDatetimeWithSystemTimezone()
         )}
       </div>
-      <div>Receipt&nbsp;#{receiptNumber}</div>
+      <div>
+        {machineId}
+        <br />
+        Receipt&nbsp;#{receiptNumber}
+      </div>
     </div>
   );
 }

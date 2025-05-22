@@ -105,17 +105,6 @@ export class PeerStore extends Store {
     });
   }
 
-  getLastEventSyncedPerNode(): Record<string, number> {
-    const rows = this.client.all(
-      `SELECT machine_id, max(event_id) as max_event_id FROM event_log GROUP BY machine_id`
-    ) as Array<{ machine_id: string; max_event_id: number }>;
-    const lastEventSyncedPerNode: Record<string, number> = {};
-    for (const row of rows) {
-      lastEventSyncedPerNode[row.machine_id] = row.max_event_id;
-    }
-    return lastEventSyncedPerNode;
-  }
-
   // Returns the events that the fromClock does not know about.
   getNewEvents(
     lastEventSyncedPerNode: Record<string, number>,

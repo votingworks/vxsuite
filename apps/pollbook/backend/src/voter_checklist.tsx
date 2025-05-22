@@ -4,6 +4,7 @@ import {
   DesktopPalette,
   LabelledText,
   Icons,
+  Table,
 } from '@votingworks/ui';
 import { createCanvas } from 'canvas';
 import JsBarcode from 'jsbarcode';
@@ -54,15 +55,9 @@ const StyledVoterChecklistHeader = styled.div`
 `;
 
 export function VoterChecklistHeader({
-  totalCheckIns,
-  lastReceiptNumber,
-  exportTime,
   election,
   letter,
 }: {
-  totalCheckIns: number;
-  lastReceiptNumber: number;
-  exportTime: Date;
   election: Election;
   letter: string;
 }): JSX.Element {
@@ -85,13 +80,10 @@ export function VoterChecklistHeader({
           gridTemplateColumns: 'auto auto',
         }}
       >
-        <div>Exported At: {format.localeNumericDateAndTime(exportTime)}</div>
         <div>
           Page: <span className="pageNumber" />/
           <span className="totalPages" />
         </div>
-        <div>Total Check-ins: {totalCheckIns.toLocaleString()}</div>
-        <div>Last Receipt: #{lastReceiptNumber}</div>
       </div>
     </StyledVoterChecklistHeader>
   );
@@ -351,18 +343,37 @@ export function VoterChecklist({
 }
 
 export function CertificationPageHeader({
-  lastReceiptNumber,
-  exportTime,
   election,
 }: {
-  lastReceiptNumber: number;
-  exportTime: Date;
   election: Election;
 }): JSX.Element {
   return (
     <StyledVoterChecklistHeader style={{ padding: 0 }}>
       <div>
         <h1>Backup Voter Checklist: Certification</h1>
+        <h2>
+          {election.title} &bull;{' '}
+          {format.localeLongDate(
+            election.date.toMidnightDatetimeWithSystemTimezone()
+          )}{' '}
+          &bull; {election.county.name}, {election.state}
+        </h2>
+      </div>
+    </StyledVoterChecklistHeader>
+  );
+}
+
+export function CoverPageHeader({
+  election,
+  exportTime,
+}: {
+  election: Election;
+  exportTime: Date;
+}): JSX.Element {
+  return (
+    <StyledVoterChecklistHeader style={{ padding: 0 }}>
+      <div>
+        <h1>Backup Voter Checklist: Receipt Inventory</h1>
         <h2>
           {election.title} &bull;{' '}
           {format.localeLongDate(
@@ -379,7 +390,6 @@ export function CertificationPageHeader({
         }}
       >
         <div>Exported At: {format.localeNumericDateAndTime(exportTime)}</div>
-        <div>Last Receipt: #{lastReceiptNumber}</div>
       </div>
     </StyledVoterChecklistHeader>
   );
@@ -393,7 +403,7 @@ const SignatureLine = styled.span`
   margin-right: 2rem;
 `;
 
-const StyledCertificationPage = styled.div`
+const StyledChecklistPage = styled.div`
   font-size: 16px;
   font-family: ${VX_DEFAULT_FONT_FAMILY_DECLARATION};
 `;
@@ -401,22 +411,14 @@ const StyledCertificationPage = styled.div`
 export function CertificationPage({
   election,
   voterCountByParty,
-  exportTime,
-  lastReceiptNumber,
 }: {
   election: Election;
   voterCountByParty: Record<string, number>;
-  exportTime: Date;
-  lastReceiptNumber: number;
 }): JSX.Element {
   const totalVoterCount = iter(Object.values(voterCountByParty)).sum();
   return (
-    <StyledCertificationPage>
-      <CertificationPageHeader
-        election={election}
-        exportTime={exportTime}
-        lastReceiptNumber={lastReceiptNumber}
-      />
+    <StyledChecklistPage>
+      <CertificationPageHeader election={election} />
       <div
         style={{
           display: 'flex',
@@ -471,6 +473,70 @@ export function CertificationPage({
       <p>
         Moderator: <SignatureLine /> Town Clerk: <SignatureLine />
       </p>
-    </StyledCertificationPage>
+    </StyledChecklistPage>
+  );
+}
+
+export function CoverPage({
+  election,
+  totalCheckIns,
+  exportTime,
+  lastEventPerMachine,
+}: {
+  election: Election;
+  totalCheckIns: number;
+  exportTime: Date;
+  lastEventPerMachine: Record<string, number>;
+}): JSX.Element {
+  return (
+    <StyledChecklistPage>
+      <CoverPageHeader exportTime={exportTime} election={election} />
+      <div
+        style={{
+          display: 'flex',
+          gap: '2rem',
+          backgroundColor: grayBackgroundColor,
+          padding: '1rem',
+          marginTop: '1rem',
+        }}
+      >
+        <LabelledText label="Total Voters Checked In">
+          {totalCheckIns}
+        </LabelledText>
+        <LabelledText label="Total Included Receipts">
+          <div style={{ display: 'flex', gap: '1.5rem' }}>
+            {Object.values(lastEventPerMachine).reduce(
+              (sum, count) => sum + count,
+              0
+            )}
+          </div>
+        </LabelledText>
+      </div>
+      <p>
+        The following backup voter checklist is marked to reflect voter
+        check-ins, new registrations, and registration changes up until the time
+        that the checklist was exported. The table on this page lists all poll
+        books used in the election and, for each, the count of receipts that are
+        already reflected in the checklist. Ensure that the checklist is
+        manually updated for any receipt with a number higher than its poll
+        book's receipt count.
+      </p>
+      <Table>
+        <thead>
+          <tr>
+            <th>Poll Book</th>
+            <th>Number of Included Receipts</th>
+          </tr>
+        </thead>
+        <tbody>
+          {Object.entries(lastEventPerMachine).map(([machineId, count]) => (
+            <tr key={machineId}>
+              <td>{machineId}</td>
+              <td>{count}</td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+    </StyledChecklistPage>
   );
 }

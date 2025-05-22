@@ -12,6 +12,7 @@ import { Buffer } from 'node:buffer';
 import { PartyAbbreviation, LocalWorkspace } from './types';
 import {
   CertificationPage,
+  CoverPage,
   VoterChecklist,
   VoterChecklistHeader,
 } from './voter_checklist';
@@ -75,20 +76,35 @@ export async function getBackupPaperChecklistPdfs(
   const election = assertDefined(store.getElection());
   const voterGroups = store.groupVotersAlphabeticallyByLastName();
   const totalCheckIns = store.getCheckInCount();
-  const lastReceiptNumber = store.getLastReceiptNumber();
+  const lastEventPerMachine = store.getMostRecentEventIdPerMachine();
   const marginDimensions: MarginDimensions = {
     top: 0.7, // Leave space for header
     right: 0.25,
     bottom: 0.25,
     left: 0.25,
   };
+
+  const coverPage = React.createElement(CoverPage, {
+    election,
+    totalCheckIns,
+    exportTime,
+    lastEventPerMachine,
+  });
+  const coverPdf = (
+    await renderToPdf({
+      document: coverPage,
+      landscape: true,
+      marginDimensions: {
+        ...marginDimensions,
+        top: marginDimensions.bottom,
+      },
+    })
+  ).unsafeUnwrap();
+
   const groupPdfs = iter(voterGroups)
     .async()
     .map(async ([letter, voterGroup]) => {
       const headerElement = React.createElement(VoterChecklistHeader, {
-        totalCheckIns,
-        lastReceiptNumber,
-        exportTime,
         election,
         letter,
       });
@@ -119,8 +135,6 @@ export async function getBackupPaperChecklistPdfs(
   const certificationPage = React.createElement(CertificationPage, {
     election,
     voterCountByParty,
-    exportTime,
-    lastReceiptNumber,
   });
   const certificationPdf = (
     await renderToPdf({
@@ -145,8 +159,12 @@ export async function getBackupPaperChecklistPdfs(
     groupVoterCounts.toArray(),
     numPdfChunks
   );
+  // Attach the cover sheet to the first chunk and the certification page to the last
   const pdfs = await iter(chunks)
     .map((chunkPdfs, i) => {
+      if (i === 0) {
+        chunkPdfs.unshift(coverPdf);
+      }
       if (i === numPdfChunks - 1) {
         chunkPdfs.push(certificationPdf);
       }

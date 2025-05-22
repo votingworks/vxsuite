@@ -58,6 +58,7 @@ export interface VoterCheckIn {
   isAbsentee: boolean;
   timestamp: string;
   machineId: string;
+  receiptNumber: number;
 }
 
 export const VoterCheckInSchema: z.ZodSchema<VoterCheckIn> = z.object({
@@ -73,6 +74,7 @@ export const VoterCheckInSchema: z.ZodSchema<VoterCheckIn> = z.object({
   isAbsentee: z.boolean(),
   timestamp: z.string(),
   machineId: z.string(),
+  receiptNumber: z.number(),
 });
 
 export type PartyAbbreviation = 'DEM' | 'REP' | 'UND';
@@ -237,7 +239,6 @@ export const VectorClockSchema: z.ZodSchema<VectorClock> = z.record(z.number());
 export interface PollbookEventBase {
   type: EventType;
   machineId: string;
-  localEventId: number;
   receiptNumber: number;
   timestamp: HlcTimestamp;
 }
@@ -382,7 +383,6 @@ export interface EventDbRow {
   event_id: number;
   machine_id: string;
   voter_id: string;
-  receipt_number: number;
   event_type: EventType;
   event_data: string;
   physical_time: number;

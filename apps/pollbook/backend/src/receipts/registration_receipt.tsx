@@ -13,11 +13,9 @@ import {
 
 export function RegistrationReceipt({
   voter,
-  machineId,
   ...metadata
 }: {
   voter: Voter;
-  machineId: string;
 } & ReceiptMetadataProps): JSX.Element {
   const { registrationEvent } = voter;
   assert(registrationEvent);
@@ -40,13 +38,10 @@ export function RegistrationReceipt({
               new Date(registrationEvent.timestamp)
             )}
           </div>
-          <div>Pollbook: {machineId}</div>
         </div>
 
         <ReceiptIcon icon="Add" />
       </div>
-
-      <br />
 
       <div>
         <strong>Voter</strong>

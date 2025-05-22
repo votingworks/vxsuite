@@ -57,15 +57,14 @@ export function createVoter(
   };
 }
 export function createVoterCheckInEvent(
-  localEventId: number,
+  receiptNumber: number,
   machineId: string,
   voterId: string,
   hlcTimestamp: HlcTimestamp
 ): VoterCheckInEvent {
   const timestamp = new Date().toISOString();
   return {
-    receiptNumber: 0,
-    localEventId,
+    receiptNumber,
     type: EventType.VoterCheckIn,
     machineId,
     timestamp: hlcTimestamp,
@@ -75,6 +74,7 @@ export function createVoterCheckInEvent(
       identificationMethod: { type: 'default' },
       machineId,
       isAbsentee: false,
+      receiptNumber,
     },
   };
 }
@@ -106,7 +106,7 @@ export function syncEventsFromTo(
   let keepSyncing = true;
   const allEvents: PollbookEventBase[] = [];
   while (keepSyncing) {
-    const lastSyncHeads = to.getLastEventSyncedPerNode();
+    const lastSyncHeads = to.getMostRecentEventIdPerMachine();
     const { events, hasMore } = from.getNewEvents(lastSyncHeads);
     to.saveRemoteEvents(events);
     allEvents.push(...events);

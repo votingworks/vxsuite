@@ -16,12 +16,10 @@ import { getCurrentTime } from '../get_current_time';
 export function UndoCheckInReceipt({
   voter,
   reason,
-  machineId,
   ...metadata
 }: {
   voter: Voter;
   reason: string;
-  machineId: string;
 } & ReceiptMetadataProps): JSX.Element {
   const { checkIn } = voter;
   assert(checkIn);
@@ -42,13 +40,10 @@ export function UndoCheckInReceipt({
           <div>
             {format.localeNumericDateAndTime(new Date(getCurrentTime()))}
           </div>
-          <div>Pollbook: {machineId}</div>
         </div>
 
         <ReceiptIcon icon="Delete" />
       </div>
-
-      <br />
 
       <div>
         <strong>Voter</strong>
@@ -75,7 +70,8 @@ export function UndoCheckInReceipt({
         <strong>Check-In Details</strong>
       </div>
       <div>{format.localeNumericDateAndTime(new Date(checkIn.timestamp))}</div>
-      <div>Pollbook: {checkIn.machineId}</div>
+      <div>Poll Book: {checkIn.machineId}</div>
+      <div>Receipt Number: {checkIn.receiptNumber}</div>
       <IdentificationMethod checkIn={checkIn} />
 
       <ReceiptMetadata {...metadata} />

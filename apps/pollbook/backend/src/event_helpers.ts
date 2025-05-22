@@ -27,10 +27,9 @@ export function convertDbRowsToPollbookEvents(
   return rows
     .map((event) => {
       const eventBase: Omit<PollbookEventBase, 'type'> & { voterId: string } = {
-        localEventId: event.event_id,
+        receiptNumber: event.event_id,
         machineId: event.machine_id,
         voterId: event.voter_id,
-        receiptNumber: event.receipt_number,
         timestamp: {
           physical: event.physical_time,
           logical: event.logical_counter,

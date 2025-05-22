@@ -13,7 +13,6 @@ import { Voter } from '../types';
 
 export function AddressChangeReceipt({
   voter,
-  machineId,
   ...metadata
 }: {
   voter: Voter;
@@ -38,12 +37,10 @@ export function AddressChangeReceipt({
           <div>
             {format.localeNumericDateAndTime(new Date(addressChange.timestamp))}
           </div>
-          <div>Pollbook: {machineId}</div>
         </div>
 
         <ReceiptIcon icon="Edit" />
       </div>
-      <br />
       <div>
         <strong>Voter</strong>
         <div>

@@ -33,7 +33,7 @@ beforeEach(() => {
 test('getMachineInformation', async () => {
   await withApp(async ({ peerApiClient, workspace }) => {
     expect(await peerApiClient.getMachineInformation()).toMatchObject({
-      machineId: 'test',
+      machineId: '0102',
     });
 
     const testVoters = parseVotersFromCsvString(
@@ -54,7 +54,7 @@ test('getMachineInformation', async () => {
       electionId: electionDefinition.election.id,
       electionTitle: electionDefinition.election.title,
       pollbookPackageHash: 'fake-package-hash',
-      machineId: 'test',
+      machineId: '0102',
     });
   });
 });
