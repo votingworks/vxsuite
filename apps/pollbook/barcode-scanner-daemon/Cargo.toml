@@ -14,7 +14,7 @@ chrono = { workspace = true, features = ["serde"] }
 color-eyre = { workspace = true }
 ctrlc = { workspace = true }
 nix = { workspace = true }
-rusb = { workspace = true }
+nusb = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 serialport = { workspace = true }

@@ -1,6 +1,6 @@
 use color_eyre::eyre::Context;
+use nusb::Error;
 use parse_aamva::AamvaDocument;
-use rusb::UsbContext;
 use serde_json;
 use serialport::{DataBits, FlowControl, Parity, StopBits};
 use std::fs;
@@ -45,18 +45,23 @@ const TS100_DATA_TERMINATOR: u8 = b'\r';
 const COMPLIANCE_INDICATOR: &[u8] = b"@\n\x1E";
 
 // Resets the TS100 barcode scanner
-fn reset_scanner() -> rusb::Result<()> {
-    let ctx = rusb::Context::new()?;
-    for device in ctx.devices()?.iter() {
-        let desc = device.device_descriptor()?;
-        if desc.vendor_id() == UNITECH_VENDOR_ID && desc.product_id() == TS100_PRODUCT_ID {
-            let mut handle = device.open()?;
-            handle.reset()?;
+fn reset_scanner() -> Result<(), Error> {
+    match nusb::list_devices()?
+        .find(|dev| dev.vendor_id() == UNITECH_VENDOR_ID && dev.product_id() == TS100_PRODUCT_ID)
+    {
+        Some(device) => {
+            device.open()?.reset()?;
             sleep(std::time::Duration::from_millis(500));
-            break;
+            Ok(())
         }
+        None => Err(Error::new(
+            ErrorKind::NotConnected,
+            format!(
+                "No USB device found at {}:{}",
+                UNITECH_VENDOR_ID, TS100_PRODUCT_ID
+            ),
+        )),
     }
-    Ok(())
 }
 
 // Connects to TS100 barcode scanner
@@ -108,7 +113,7 @@ fn init_port(
 // Returns a Result containing a UnixStream to write to the client or
 // a TimedOut error if no client was accepted.
 fn accept_with_timeout(
-    listener: UnixListener,
+    listener: &UnixListener,
     timeout: Duration,
 ) -> color_eyre::Result<UnixStream, io::Error> {
     listener.set_nonblocking(true)?;
@@ -190,7 +195,7 @@ fn main() -> color_eyre::Result<()> {
     );
 
     // Wait for socket client (eg. pollbook backend) to connect. Simultaneous clients are not supported.
-    let mut uds_client = accept_with_timeout(listener, UDS_CLIENT_CONNECTION_TIMEOUT)?;
+    let mut uds_client = accept_with_timeout(&listener, UDS_CLIENT_CONNECTION_TIMEOUT)?;
 
     // Set up ctrl+c handler
     let running = Arc::new(AtomicBool::new(true));
@@ -243,6 +248,7 @@ fn main() -> color_eyre::Result<()> {
                                 .context("Failed to serialize AAMVA document to JSON")?;
                             serialized.push('\n');
                             let _ = uds_client.write_all(serialized.as_bytes())?;
+                            log!(EventId::BarcodeScannerDataReceived);
                         }
                         Err(e) => {
                             log!(
@@ -316,7 +322,7 @@ mod tests {
         sleep(Duration::from_millis(50));
         let _ = UnixStream::connect(&socket_path).expect("client connect should succeed");
 
-        let stream = accept_with_timeout(listener, Duration::from_secs(1))
+        let stream = accept_with_timeout(&listener, Duration::from_secs(1))
             .expect("should accept within timeout");
         assert!(stream.peer_addr().is_ok());
         let _ = fs::remove_file(&socket_path);
@@ -330,7 +336,7 @@ mod tests {
 
         let listener = UnixListener::bind(&socket_path).expect("could not bind listener");
 
-        let err = accept_with_timeout(listener, Duration::from_millis(100))
+        let err = accept_with_timeout(&listener, Duration::from_millis(100))
             .expect_err("expected connection timeout");
         assert_eq!(err.kind(), ErrorKind::TimedOut);
         let _ = fs::remove_file(&socket_path);

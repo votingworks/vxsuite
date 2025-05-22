@@ -260,7 +260,7 @@ dependencies = [
  "color-eyre",
  "ctrlc",
  "nix 0.26.4",
- "rusb",
+ "nusb",
  "serde",
  "serde_json",
  "serialport",
