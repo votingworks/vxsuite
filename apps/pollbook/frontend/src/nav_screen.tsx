@@ -88,9 +88,12 @@ function NetworkStatus({ status }: { status: NetworkStatus }) {
     <Row
       onClick={() => setShowModal(!showModal)}
       style={{ gap: '0.25rem', alignItems: 'center', position: 'relative' }}
+      data-testid="network-status"
     >
       <Icons.Antenna color="inverse" style={{ cursor: 'pointer' }} />
       {status.isOnline ? (
+        // Add one for the current machine
+        1 +
         status.pollbooks.filter(
           (pollbook) => pollbook.status === PollbookConnectionStatus.Connected
         ).length
