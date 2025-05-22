@@ -41,3 +41,5 @@ thiserror = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 users = { workspace = true }
+nusb = "0.1.14"
+tokio = { workspace = true, features = ["full"] }
