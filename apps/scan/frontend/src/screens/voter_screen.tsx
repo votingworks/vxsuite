@@ -1,9 +1,7 @@
 import { ElectionDefinition, SystemSettings } from '@votingworks/types';
-import { useQueryChangeListener } from '@votingworks/ui';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { getScannerStatus } from '../api';
 import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from '../config/globals';
-import { useSound } from '../utils/use_sound';
 import { InsertBallotScreen } from './insert_ballot_screen';
 import { ScanBusyScreen } from './scan_busy_screen';
 import { ScanErrorScreen } from './scan_error_screen';
@@ -13,8 +11,9 @@ import { ScanReturnedBallotScreen } from './scan_returned_ballot_screen';
 import { ScanSuccessScreen } from './scan_success_screen';
 import { ScanWarningScreen } from './scan_warning_screen';
 import { ScanDoubleSheetScreen } from './scan_double_sheet_screen';
+import { useScanFeedbackAudio } from '../utils/use_scan_feedback_audio';
 
-interface VoterScreenProps {
+export interface VoterScreenProps {
   electionDefinition: ElectionDefinition;
   systemSettings: SystemSettings;
   isTestMode: boolean;
@@ -31,40 +30,9 @@ export function VoterScreen({
     refetchInterval: POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
   });
 
-  // Play sounds for scan result events
-  const playSuccess = useSound('success');
-  const playWarning = useSound('warning');
-  const playError = useSound('error');
-  useQueryChangeListener(scannerStatusQuery, {
-    select: ({ state }) => state,
-    onChange: (newScannerState) => {
-      if (isSoundMuted) return;
-      switch (newScannerState) {
-        case 'accepted': {
-          playSuccess();
-          break;
-        }
-
-        case 'needs_review':
-        case 'both_sides_have_paper': {
-          playWarning();
-          break;
-        }
-
-        case 'rejecting':
-        case 'jammed':
-        case 'double_sheet_jammed':
-        case 'unrecoverable_error': {
-          playError();
-          break;
-        }
-
-        default: {
-          // No sound
-          break;
-        }
-      }
-    },
+  useScanFeedbackAudio({
+    currentState: scannerStatusQuery.data?.state,
+    isSoundMuted,
   });
 
   if (!scannerStatusQuery.isSuccess) {

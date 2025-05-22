@@ -37,6 +37,7 @@ export * from './hooks/use_available_languages';
 export * from './hooks/use_change_listener';
 export * from './hooks/use_current_language';
 export * from './hooks/use_current_theme';
+export * from './hooks/use_headphones_plugged_in';
 export * from './hooks/use_language_controls';
 export * from './hooks/use_lock';
 export * from './hooks/use_now';
