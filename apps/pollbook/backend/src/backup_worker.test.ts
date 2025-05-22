@@ -38,6 +38,7 @@ test('can export paper backup checklist', async () => {
       registrationData: {
         ...createVoter(`voter-${i + 1}`, `First${i}`, `Last${i}`),
         streetSuffix: '',
+        addressLine2: '',
         city: 'Somewhere',
         zipCode: '12345',
         timestamp: new Date('2025-01-01').toISOString(),

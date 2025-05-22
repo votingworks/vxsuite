@@ -268,8 +268,9 @@ export function NewRegistrationsVoterChecklistTable({
 }: {
   voters: Voter[];
 }): JSX.Element {
+  const remainder = voters.length % ROWS_PER_PAGE;
   const emptyRows =
-    ROWS_PER_PAGE > voters.length ? ROWS_PER_PAGE - voters.length : 0;
+    voters.length === 0 ? ROWS_PER_PAGE : ROWS_PER_PAGE - remainder;
   return (
     <VoterTable>
       <thead>
