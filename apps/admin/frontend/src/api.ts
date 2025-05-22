@@ -395,6 +395,24 @@ export const getMarginalMarks = {
   },
 } as const;
 
+type GetCvrContestTagInput = QueryInput<'getCvrContestTag'>;
+export const getCvrContestTag = {
+  queryKey(input?: GetCvrContestTagInput): QueryKey {
+    return input ? ['getCvrContestTag', input] : ['getCvrContestTag'];
+  },
+  useQuery(input?: GetCvrContestTagInput) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(input),
+      input
+        ? () => apiClient.getCvrContestTag(input)
+        : /* istanbul ignore next - @preserve */
+          () => fail('input is required'),
+      { enabled: !!input, keepPreviousData: true }
+    );
+  },
+} as const;
+
 export const getSystemSettings = {
   queryKey(): QueryKey {
     return ['getSystemSettings'];
@@ -749,6 +767,7 @@ export const adjudicateCvrContest = {
     return useMutation(apiClient.adjudicateCvrContest, {
       async onSuccess() {
         await queryClient.invalidateQueries(getVoteAdjudications.queryKey());
+        await queryClient.invalidateQueries(getCvrContestTag.queryKey());
         await invalidateWriteInQueries(queryClient);
       },
     });

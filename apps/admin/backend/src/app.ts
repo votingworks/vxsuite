@@ -85,6 +85,7 @@ import {
   WriteInRecord,
   VoteAdjudication,
   AdjudicatedCvrContest,
+  CvrContestTag,
 } from './types';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
@@ -717,6 +718,13 @@ function buildApi({
         cvrId: input.cvrId,
         contestId: input.contestId,
       });
+    },
+
+    getCvrContestTag(input: {
+      cvrId: Id;
+      contestId: ContestId;
+    }): CvrContestTag | undefined {
+      return store.getCvrContestTag(input);
     },
 
     async deleteAllManualResults(): Promise<void> {

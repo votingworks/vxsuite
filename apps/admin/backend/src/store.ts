@@ -2695,6 +2695,7 @@ export class Store {
     cvrId: Id;
     contestId: ContestId;
   }): void {
+    console.log('RESOLVING');
     this.client.run(
       `
         update cvr_contest_tags
