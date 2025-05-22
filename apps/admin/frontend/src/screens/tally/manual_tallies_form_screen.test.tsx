@@ -187,24 +187,24 @@ test('entering initial ballot count and contest tallies', async () => {
     expect(screen.getButton(saveButtonLabel)).toBeEnabled();
 
     const ballotCountInput = screen.getByLabelText('Total Ballots Cast');
-    expect(ballotCountInput).toHaveValue(mockValidResults.ballotCount);
+    expect(ballotCountInput).toHaveValue(`${mockValidResults.ballotCount}`);
     expect(ballotCountInput).toBeDisabled();
 
     const overvotesInput = screen.getByLabelText('Overvotes');
-    expect(overvotesInput).toHaveValue(null);
+    expect(overvotesInput).toHaveValue('');
     userEvent.type(overvotesInput, contestResults.overvotes.toString());
     screen.getByText('Incomplete tallies');
     expect(screen.getButton(saveButtonLabel)).toBeDisabled();
 
     const undervotesInput = screen.getByLabelText('Undervotes');
-    expect(undervotesInput).toHaveValue(null);
+    expect(undervotesInput).toHaveValue('');
     userEvent.type(undervotesInput, contestResults.undervotes.toString());
 
     if (contest.type === 'candidate') {
       assert(contestResults.contestType === 'candidate');
       for (const candidate of contest.candidates) {
         const candidateInput = screen.getByLabelText(candidate.name);
-        expect(candidateInput).toHaveValue(null);
+        expect(candidateInput).toHaveValue('');
         userEvent.type(
           candidateInput,
           contestResults.tallies[candidate.id].tally.toString()
@@ -213,10 +213,10 @@ test('entering initial ballot count and contest tallies', async () => {
     } else {
       assert(contestResults.contestType === 'yesno');
       const yesInput = screen.getByLabelText(contest.yesOption.label);
-      expect(yesInput).toHaveValue(null);
+      expect(yesInput).toHaveValue('');
       userEvent.type(yesInput, contestResults.yesTally.toString());
       const noInput = screen.getByLabelText(contest.noOption.label);
-      expect(noInput).toHaveValue(null);
+      expect(noInput).toHaveValue('');
       userEvent.type(noInput, contestResults.noTally.toString());
     }
     screen.getByText('Entered tallies are valid');
@@ -259,7 +259,7 @@ test('editing existing tallies', async () => {
 
   // Edit ballot count
   const ballotCountInput = screen.getByLabelText('Total Ballots Cast');
-  expect(ballotCountInput).toHaveValue(mockValidResults.ballotCount);
+  expect(ballotCountInput).toHaveValue(`${mockValidResults.ballotCount}`);
   userEvent.clear(ballotCountInput);
   expect(screen.getButton('Save & Next')).toBeDisabled();
   userEvent.type(
@@ -302,7 +302,7 @@ test('editing existing tallies', async () => {
   for (const [label, value] of inputs) {
     screen.getByText('Entered tallies do not match total ballots cast');
     const input = screen.getByLabelText(label);
-    expect(input).toHaveValue(value);
+    expect(input).toHaveValue(`${value}`);
     userEvent.clear(input);
     screen.getByText('Incomplete tallies');
     expect(screen.getButton('Save & Next')).toBeDisabled();
@@ -334,6 +334,26 @@ test('editing existing tallies', async () => {
   apiMock.expectGetWriteInCandidates([]);
   userEvent.click(screen.getButton('Save & Next'));
   await screen.findByText(`2 of ${contests.length}`);
+});
+
+test('cannot add negative or decimal tallies', async () => {
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetManualResults(identifier, undefined);
+  renderScreen();
+
+  await screen.findByRole('heading', { name: 'Edit Tallies' });
+  screen.getByText(hasTextAcrossElements(/Ballot StylePrecinct 1 - Mammal/));
+  screen.getByText(hasTextAcrossElements(/Voting MethodAbsentee/));
+
+  // Enter ballot count
+  const ballotCountInput = screen.getByLabelText('Total Ballots Cast');
+
+  userEvent.type(ballotCountInput, '-100');
+  expect(ballotCountInput).toHaveValue('100');
+
+  userEvent.clear(ballotCountInput);
+  userEvent.type(ballotCountInput, '10.2');
+  expect(ballotCountInput).toHaveValue('102');
 });
 
 test('adding new write-in candidates', async () => {
@@ -455,11 +475,11 @@ test('loads adjudicated write-in candidates', async () => {
   // Adjudicated value should be in the form and not be removable
   const writeInInput = await screen.findByLabelText('Chimera (write-in)');
   expect(screen.queryByText('Remove')).not.toBeInTheDocument();
-  expect(writeInInput).toHaveValue(null);
+  expect(writeInInput).toHaveValue('');
 
   // Can edit
   userEvent.type(writeInInput, '30');
-  expect(writeInInput).toHaveValue(30);
+  expect(writeInInput).toHaveValue('30');
 
   const contestResults = mockValidResults.contestResults['zoo-council-mammal'];
   assert(contestResults.contestType === 'candidate');
@@ -536,7 +556,7 @@ test('overriding ballot count for a contest', async () => {
 
   await screen.findByRole('heading', { name: contests[0].title });
   let ballotCountInput = screen.getByLabelText('Total Ballots Cast');
-  expect(ballotCountInput).toHaveValue(mockValidResults.ballotCount);
+  expect(ballotCountInput).toHaveValue(`${mockValidResults.ballotCount}`);
   expect(ballotCountInput).toBeDisabled();
 
   userEvent.click(screen.getButton('Override'));
@@ -576,11 +596,11 @@ test('overriding ballot count for a contest', async () => {
 
   await screen.findByRole('heading', { name: contests[0].title });
   ballotCountInput = screen.getByLabelText('Total Ballots Cast');
-  expect(ballotCountInput).toHaveValue(mockValidResults.ballotCount * 2);
+  expect(ballotCountInput).toHaveValue(`${mockValidResults.ballotCount * 2}`);
   expect(ballotCountInput).toBeEnabled();
 
   userEvent.click(screen.getButton('Remove Override'));
-  expect(ballotCountInput).toHaveValue(mockValidResults.ballotCount);
+  expect(ballotCountInput).toHaveValue(`${mockValidResults.ballotCount}`);
   expect(ballotCountInput).toBeDisabled();
   screen.getByText('Entered tallies are valid');
 
@@ -609,7 +629,7 @@ test('changing overall ballot count when there are overrides', async () => {
   renderScreen();
 
   const ballotCountInput = await screen.findByLabelText('Total Ballots Cast');
-  expect(ballotCountInput).toHaveValue(mockValidResults.ballotCount);
+  expect(ballotCountInput).toHaveValue(`${mockValidResults.ballotCount}`);
   screen.getByText(
     'Changing the total ballots cast will remove contest overrides.'
   );
@@ -640,7 +660,7 @@ test('changing overall ballot count when there are overrides', async () => {
 
   await screen.findByRole('heading', { name: contests[0].title });
   expect(screen.getByLabelText('Total Ballots Cast')).toHaveValue(
-    mockValidResults.ballotCount + 1
+    `${mockValidResults.ballotCount + 1}`
   );
   expect(screen.getByLabelText('Total Ballots Cast')).toBeDisabled();
 });
