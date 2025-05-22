@@ -271,6 +271,7 @@ test('undo check-in', async () => {
       identificationMethod: { type: 'default' },
       timestamp: new Date().toISOString(),
       isAbsentee: false,
+      receiptNumber: 0,
       machineId: 'test-machine-01',
     },
   };
