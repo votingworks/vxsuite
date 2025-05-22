@@ -422,7 +422,6 @@ export interface AamvaDocument {
   middleName: string;
   lastName: string;
   nameSuffix: string;
-  expiration: Date | null;
 }
 
 export const AamvaDocumentSchema: z.ZodSchema<AamvaDocument> = z
@@ -433,13 +432,5 @@ export const AamvaDocumentSchema: z.ZodSchema<AamvaDocument> = z
     middleName: z.string(),
     lastName: z.string(),
     nameSuffix: z.string(),
-
-    expiration: z.preprocess((value) => {
-      if (typeof value === 'string' && value !== '') {
-        const date = new Date(value);
-        return isNaN(date.valueOf()) ? null : date;
-      }
-      return null;
-    }, z.date().nullable()),
   })
   .strict() as z.ZodSchema<AamvaDocument>;

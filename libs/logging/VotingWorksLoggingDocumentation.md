@@ -590,3 +590,7 @@ IDs are logged with each log to identify the log being written.
 **Type:** [application-status](#application-status)
 **Description:** An error was reported by a socket server.
 **Machines:** All
+### barcode-scanner-data-received
+**Type:** [application-status](#application-status)
+**Description:** Data was received from the barcode scanner.
+**Machines:** All

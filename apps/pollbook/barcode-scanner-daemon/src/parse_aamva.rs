@@ -1,4 +1,3 @@
-use chrono::{prelude::*, ParseError};
 use serde::ser::Serializer;
 use serde::Serialize;
 use std::convert::TryFrom;
@@ -23,9 +22,6 @@ pub enum AamvaParseError {
 
     #[error("Unknown issuing jurisdiction ID: {0}")]
     UnknownIssuingJurisdictionId(String),
-
-    #[error("Could not parse {0} as date: {1}")]
-    DateParse(String, ParseError),
 }
 
 /// Serialize `Option<String>` or `Option<NaiveDate>` as a JSON string,
@@ -98,9 +94,6 @@ pub struct AamvaDocument {
 
     #[serde(serialize_with = "empty_string_for_none")]
     pub name_suffix: Option<String>,
-
-    #[serde(serialize_with = "empty_string_for_none")]
-    pub expiration: Option<NaiveDate>,
 }
 
 impl TryFrom<&str> for AamvaDocument {
@@ -120,7 +113,6 @@ impl TryFrom<&str> for AamvaDocument {
             middle_name: None,
             last_name: None,
             name_suffix: None,
-            expiration: None,
         };
 
         for line in lines {
@@ -136,13 +128,6 @@ impl TryFrom<&str> for AamvaDocument {
                 "DAD" => document.middle_name = Some(value.to_owned()),
                 "DCS" => document.last_name = Some(value.to_owned()),
                 "DCU" => document.name_suffix = Some(value.to_owned()),
-
-                // DBA is expiration in MMDDYYYY
-                "DBA" => match NaiveDate::parse_from_str(value, "%m%d%Y") {
-                    Ok(date) => document.expiration = Some(date),
-                    Err(e) => return Err(Self::Error::DateParse(value.to_owned(), e)),
-                },
-
                 _ => {} // ignore other fields
             }
         }
@@ -162,7 +147,6 @@ DACFIRST
 DADMIDDLE
 DCSLAST
 DCUJR
-DBA01012030
 ";
 
     #[test]
@@ -174,11 +158,6 @@ DBA01012030
         assert_eq!(doc.middle_name, Some("MIDDLE".to_string()));
         assert_eq!(doc.last_name, Some("LAST".to_string()));
         assert_eq!(doc.name_suffix, Some("JR".to_string()));
-
-        assert_eq!(
-            doc.expiration,
-            Some(NaiveDate::from_ymd_opt(2030, 1, 1).unwrap())
-        );
     }
 
     #[test]
@@ -194,7 +173,6 @@ DACJANE
         assert!(doc.middle_name.is_none());
         assert!(doc.last_name.is_none());
         assert!(doc.name_suffix.is_none());
-        assert!(doc.expiration.is_none());
     }
 
     #[test]
@@ -204,36 +182,16 @@ DACJANE
     }
 
     #[test]
-    fn date_parse_error_bubbles_up() {
-        // Invalid DBA line
-        let blob = "\
-ANSI 636039090001DL00310485DLDAQNHL12345678
-DBA111012030
-";
-        let err = AamvaDocument::try_from(blob).unwrap_err();
-        assert!(matches!(
-            err,
-            AamvaParseError::DateParse(ref s, _)
-                if s == "111012030"
-        ));
-    }
-
-    #[test]
     fn ignore_extra_lines() {
         let blob = "\
             ANSI 636039090001DL00310485DLDAQNHL12345678
 XYZEXTRAVALUE
 DACFIRST
 DCSLAST
-DBA12312030
 ";
         let doc = AamvaDocument::try_from(blob).unwrap();
         assert_eq!(doc.first_name, Some("FIRST".to_string()));
         assert_eq!(doc.last_name, Some("LAST".to_string()));
-        assert_eq!(
-            doc.expiration,
-            Some(NaiveDate::from_ymd_opt(2030, 12, 31).unwrap())
-        );
     }
 
     #[test]

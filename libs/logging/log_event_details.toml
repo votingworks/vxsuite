@@ -938,3 +938,8 @@ documentationMessage = "A socket server is awaiting a client."
 eventId = "socket-server-error"
 eventType = "application-status"
 documentationMessage = "An error was reported by a socket server."
+
+[Events.BarcodeScannerDataReceived]
+eventId = "barcode-scanner-data-received"
+eventType = "application-status"
+documentationMessage = "Data was received from the barcode scanner."
