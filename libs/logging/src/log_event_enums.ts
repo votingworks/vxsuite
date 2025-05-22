@@ -199,8 +199,9 @@ export enum LogEventId {
   BackgroundTaskCancelled = 'background-task-cancelled',
   BackgroundTaskStatus = 'background-task-status',
   ApiCall = 'api-call',
-  SocketClientConnect = 'socket-client-connect',
-  SocketClientDisconnect = 'socket-client-disconnect',
+  SocketClientConnectInit = 'socket-client-connect-init',
+  SocketClientConnected = 'socket-client-connected',
+  SocketClientDisconnected = 'socket-client-disconnected',
   SocketClientError = 'socket-client-error',
   SocketServerBind = 'socket-server-bind',
   SocketServerClose = 'socket-server-close',
@@ -1214,14 +1215,22 @@ const ApiCall: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxDesign],
 };
 
-const SocketClientConnect: LogDetails = {
-  eventId: LogEventId.SocketClientConnect,
-  eventType: LogEventType.ApplicationStatus,
-  documentationMessage: 'A socket client attempted to connect to the socket.',
+const SocketClientConnectInit: LogDetails = {
+  eventId: LogEventId.SocketClientConnectInit,
+  eventType: LogEventType.ApplicationAction,
+  documentationMessage:
+    'An application attempted to connect a client to a socket.',
 };
 
-const SocketClientDisconnect: LogDetails = {
-  eventId: LogEventId.SocketClientDisconnect,
+const SocketClientConnected: LogDetails = {
+  eventId: LogEventId.SocketClientConnected,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'An attempt by an application to connect to a socket was resolved.',
+};
+
+const SocketClientDisconnected: LogDetails = {
+  eventId: LogEventId.SocketClientDisconnected,
   eventType: LogEventType.ApplicationStatus,
   documentationMessage: 'A socket client was disconnected.',
 };
@@ -1530,10 +1539,12 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return BackgroundTaskStatus;
     case LogEventId.ApiCall:
       return ApiCall;
-    case LogEventId.SocketClientConnect:
-      return SocketClientConnect;
-    case LogEventId.SocketClientDisconnect:
-      return SocketClientDisconnect;
+    case LogEventId.SocketClientConnectInit:
+      return SocketClientConnectInit;
+    case LogEventId.SocketClientConnected:
+      return SocketClientConnected;
+    case LogEventId.SocketClientDisconnected:
+      return SocketClientDisconnected;
     case LogEventId.SocketClientError:
       return SocketClientError;
     case LogEventId.SocketServerBind:

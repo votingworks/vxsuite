@@ -381,10 +381,12 @@ pub enum EventId {
     BackgroundTaskStatus,
     #[serde(rename = "api-call")]
     ApiCall,
-    #[serde(rename = "socket-client-connect")]
-    SocketClientConnect,
-    #[serde(rename = "socket-client-disconnect")]
-    SocketClientDisconnect,
+    #[serde(rename = "socket-client-connect-init")]
+    SocketClientConnectInit,
+    #[serde(rename = "socket-client-connected")]
+    SocketClientConnected,
+    #[serde(rename = "socket-client-disconnected")]
+    SocketClientDisconnected,
     #[serde(rename = "socket-client-error")]
     SocketClientError,
     #[serde(rename = "socket-server-bind")]
