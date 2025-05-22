@@ -398,40 +398,19 @@ async fn main() -> color_eyre::Result<()> {
                     // another scan immediately starts. We want to have time to handle the results
                     // of this scan safely.
                     c.set_feeder_mode(FeederMode::Disabled)?;
-                    match raw_image_data.try_decode_scan(DEFAULT_IMAGE_WIDTH, ScanSideMode::Duplex)
-                    {
-                        Ok(Sheet::Duplex(top, bottom)) => {
-                            match (top.to_cropped_image(), bottom.to_cropped_image()) {
-                                (Some(top_image), Some(bottom_image)) => {
-                                    send_event(Event::ScanComplete {
-                                        image_data: (
-                                            STANDARD.encode(top_image.as_bytes()),
-                                            STANDARD.encode(bottom_image.as_bytes()),
-                                        ),
-                                    })?;
-                                }
-                                (Some(_), None) => {
-                                    send_event(Event::Error {
-                                        code: ErrorCode::ScanFailed,
-                                        message: Some("bottom image is entirely black".to_owned()),
-                                    })?;
-                                }
-                                (None, Some(_)) => {
-                                    send_event(Event::Error {
-                                        code: ErrorCode::ScanFailed,
-                                        message: Some("top image is entirely black".to_owned()),
-                                    })?;
-                                }
-                                (None, None) => {
-                                    send_event(Event::Error {
-                                        code: ErrorCode::ScanFailed,
-                                        message: Some(
-                                            "top and bottom images are entirely black".to_owned(),
-                                        ),
-                                    })?;
-                                }
-                            }
-                        }
+                    match raw_image_data.try_decode_scan(
+                        DEFAULT_IMAGE_WIDTH,
+                        ScanSideMode::Duplex,
+                        &image_calibration_tables
+                            .clone()
+                            .expect("image calibration tables not set"),
+                    ) {
+                        Ok(Sheet::Duplex(top, bottom)) => send_event(Event::ScanComplete {
+                            image_data: (
+                                STANDARD.encode(top.as_bytes()),
+                                STANDARD.encode(bottom.as_bytes()),
+                            ),
+                        })?,
                         Ok(_) => unreachable!(
                             "try_decode_scan called with {:?} returned non-duplex sheet",
                             ScanSideMode::Duplex

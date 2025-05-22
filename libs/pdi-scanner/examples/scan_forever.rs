@@ -112,41 +112,25 @@ async fn main() -> color_eyre::Result<()> {
                         ScanSideMode::Duplex,
                         &image_calibration_tables,
                     ) {
-                        Ok(Sheet::Duplex(top, bottom)) => {
-                            match (top.to_cropped_image(), bottom.to_cropped_image()) {
-                                (Some(top_image), Some(bottom_image)) => {
-                                    let top_path =
-                                        PathBuf::from(format!("scan-{scan_index:04}-top.png"));
-                                    let bottom_path =
-                                        PathBuf::from(format!("scan-{scan_index:04}-bottom.png"));
-                                    top_image.save(&top_path)?;
-                                    bottom_image.save(&bottom_path)?;
-                                    println!(
+                        Ok(Sheet::Duplex(top_image, bottom_image)) => {
+                            let top_path = PathBuf::from(format!("scan-{scan_index:04}-top.png"));
+                            let bottom_path =
+                                PathBuf::from(format!("scan-{scan_index:04}-bottom.png"));
+                            top_image.save(&top_path)?;
+                            bottom_image.save(&bottom_path)?;
+                            println!(
                                         "Saved images from scan:\n- Top: {top_path}\n- Bottom: {bottom_path}",
                                         top_path = top_path.display(),
                                         bottom_path = bottom_path.display(),
                                     );
-                                    scan_index += 1;
+                            scan_index += 1;
 
-                                    if let Ok(status) =
-                                        client.get_scanner_status(Duration::from_secs(1))
-                                    {
-                                        if status.rear_sensors_covered() {
-                                            client.eject_document(EjectMotion::ToFront)?;
-                                            // ejecting the document will disable the feeder,
-                                            // so we need to re-enable it
-                                            client.set_feeder_mode(FeederMode::AutoScanSheets)?;
-                                        }
-                                    }
-                                }
-                                (Some(_), None) => {
-                                    eprintln!("failed to decode bottom image");
-                                }
-                                (None, Some(_)) => {
-                                    eprintln!("failed to decode top image");
-                                }
-                                (None, None) => {
-                                    eprintln!("failed to decode top & bottom images");
+                            if let Ok(status) = client.get_scanner_status(Duration::from_secs(1)) {
+                                if status.rear_sensors_covered() {
+                                    client.eject_document(EjectMotion::ToFront)?;
+                                    // ejecting the document will disable the feeder,
+                                    // so we need to re-enable it
+                                    client.set_feeder_mode(FeederMode::AutoScanSheets)?;
                                 }
                             }
                         }

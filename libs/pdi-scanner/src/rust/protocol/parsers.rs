@@ -1095,6 +1095,9 @@ pub fn get_calibration_information_response(input: &[u8]) -> IResult<&[u8], (Vec
     let (input, _) = packet_start(input)?;
     let (input, _) = tag(b"W")(input)?;
     let (input, pixel_count) = le_u16(input)?;
+    // The first nibble is side (0 for top, 1 for bottom)
+    // The second nibble is bits per pixel (e.g. 1 or 8)
+    let (input, _side_and_bits_per_pixel_metadata) = take(1usize)(input)?;
     let (input, white_calibration_table) = take(pixel_count)(input)?;
     let (input, _white_calibration_table_checksum) = le_u16(input)?;
     // dbg!(
@@ -1110,9 +1113,6 @@ pub fn get_calibration_information_response(input: &[u8]) -> IResult<&[u8], (Vec
     //     _black_calibration_table_checksum,
     //     input
     // );
-    // The scanner seems to return an extra byte at the end of the packet that's
-    // not included in the documentation. We just ignore it for now.
-    let input = &input[1..];
     let (input, _) = packet_end(input)?;
 
     Ok((
