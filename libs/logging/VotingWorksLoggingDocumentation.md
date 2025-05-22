@@ -558,11 +558,15 @@ IDs are logged with each log to identify the log being written.
 **Type:** [application-action](#application-action)
 **Description:** An API call was made.
 **Machines:** vx-design
-### socket-client-connect
-**Type:** [application-status](#application-status)
-**Description:** A socket client attempted to connect to the socket.
+### socket-client-connect-init
+**Type:** [application-action](#application-action)
+**Description:** An application attempted to connect a client to a socket.
 **Machines:** All
-### socket-client-disconnect
+### socket-client-connected
+**Type:** [application-status](#application-status)
+**Description:** An attempt by an application to connect to a socket was resolved.
+**Machines:** All
+### socket-client-disconnected
 **Type:** [application-status](#application-status)
 **Description:** A socket client was disconnected.
 **Machines:** All

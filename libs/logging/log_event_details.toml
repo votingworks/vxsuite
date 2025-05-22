@@ -899,13 +899,18 @@ eventType = "application-action"
 documentationMessage = "An API call was made."
 restrictInDocumentationToApps = ["vx-design"]
 
-[Events.SocketClientConnect]
-eventId = "socket-client-connect"
-eventType = "application-status"
-documentationMessage = "A socket client attempted to connect to the socket."
+[Events.SocketClientConnectInit]
+eventId = "socket-client-connect-init"
+eventType = "application-action"
+documentationMessage = "An application attempted to connect a client to a socket."
 
-[Events.SocketClientDisconnect]
-eventId = "socket-client-disconnect"
+[Events.SocketClientConnected]
+eventId = "socket-client-connected"
+eventType = "application-status"
+documentationMessage = "An attempt by an application to connect to a socket was resolved."
+
+[Events.SocketClientDisconnected]
+eventId = "socket-client-disconnected"
 eventType = "application-status"
 documentationMessage = "A socket client was disconnected."
 
