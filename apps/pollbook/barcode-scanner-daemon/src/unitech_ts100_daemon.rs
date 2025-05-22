@@ -1,6 +1,6 @@
 use color_eyre::eyre::Context;
 use parse_aamva::AamvaDocument;
-use rusb::{DeviceHandle, UsbContext};
+use rusb::UsbContext;
 use serde_json;
 use serialport::{DataBits, FlowControl, Parity, StopBits};
 use std::fs;
@@ -118,7 +118,7 @@ fn accept_with_timeout(
     loop {
         match listener.accept() {
             Ok((stream, _)) => {
-                log!(event_id: EventId::SocketClientConnect, message: "Accepted UDS client".to_string(), disposition: Disposition::Success);
+                log!(event_id: EventId::SocketClientConnected, message: "Accepted UDS client".to_string(), disposition: Disposition::Success);
                 return Ok(stream);
             }
             Err(e) if e.kind() == ErrorKind::WouldBlock => {
@@ -239,11 +239,10 @@ fn main() -> color_eyre::Result<()> {
                 match from_utf8(&buf) {
                     Ok(s) => match AamvaDocument::try_from(s) {
                         Ok(document) => {
-                            let serialized = serde_json::to_string_pretty(&document)
+                            let mut serialized = serde_json::to_string(&document)
                                 .context("Failed to serialize AAMVA document to JSON")?;
-                            let _ = uds_client
-                                .write_all(serialized.as_bytes())
-                                .context("Failed to write data to UDS client")?;
+                            serialized.push('\n');
+                            let _ = uds_client.write_all(serialized.as_bytes())?;
                         }
                         Err(e) => {
                             log!(
