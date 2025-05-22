@@ -10,7 +10,7 @@ import {
   DEV_JURISDICTION,
   DippedSmartCardAuthMachineState,
 } from '@votingworks/auth';
-import { withApp } from '../test/app';
+import { TEST_MACHINE_ID, withApp } from '../test/app';
 import {
   parseValidStreetsFromCsvString,
   parseVotersFromCsvString,
@@ -94,7 +94,8 @@ test('check in a voter', async () => {
       identificationMethod: { type: 'default' },
       isAbsentee: false,
       timestamp: expect.any(String),
-      machineId: 'test',
+      machineId: TEST_MACHINE_ID,
+      receiptNumber: 1,
     });
 
     const receiptPdfPath = mockPrinterHandler.getLastPrintPath();
@@ -115,7 +116,8 @@ test('check in a voter', async () => {
       identificationMethod: { type: 'outOfStateLicense', state: 'CA' },
       isAbsentee: false,
       timestamp: expect.any(String),
-      machineId: 'test',
+      machineId: TEST_MACHINE_ID,
+      receiptNumber: 2,
     });
 
     const receiptPdfPathOos = mockPrinterHandler.getLastPrintPath();
@@ -182,7 +184,8 @@ test('register a voter', async () => {
       identificationMethod: { type: 'default' },
       isAbsentee: false,
       timestamp: expect.any(String),
-      machineId: 'test',
+      receiptNumber: 2,
+      machineId: TEST_MACHINE_ID,
     });
 
     const checkInReceiptPdfPath = mockPrinterHandler.getLastPrintPath();
@@ -205,7 +208,7 @@ test('register a voter', async () => {
         identificationMethod: { type: 'default' },
         isAbsentee: false,
         timestamp: expect.any(String),
-        machineId: 'test',
+        machineId: TEST_MACHINE_ID,
       },
     });
   });
@@ -534,7 +537,8 @@ test('register a voter, change name and address, and check in', async () => {
           identificationMethod: { type: 'default' },
           isAbsentee: false,
           timestamp: expect.any(String),
-          machineId: 'test',
+          receiptNumber: 6,
+          machineId: TEST_MACHINE_ID,
         },
       });
 
@@ -648,7 +652,8 @@ test('check in, change name, undo check-in, change address, and check in again',
       identificationMethod: { type: 'default' },
       isAbsentee: true,
       timestamp: expect.any(String),
-      machineId: 'test',
+      receiptNumber: 5,
+      machineId: TEST_MACHINE_ID,
     });
 
     const finalReceiptPdfPath = mockPrinterHandler.getLastPrintPath();

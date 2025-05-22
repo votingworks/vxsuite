@@ -12,7 +12,6 @@ import {
 
 export function NameChangeReceipt({
   voter,
-  machineId,
   ...metadata
 }: {
   voter: Voter;
@@ -37,12 +36,10 @@ export function NameChangeReceipt({
           <div>
             {format.localeNumericDateAndTime(new Date(nameChange.timestamp))}
           </div>
-          <div>Pollbook: {machineId}</div>
         </div>
 
         <ReceiptIcon icon="Edit" />
       </div>
-      <br />
       <div>
         <strong>Updated Voter</strong>
         <div>

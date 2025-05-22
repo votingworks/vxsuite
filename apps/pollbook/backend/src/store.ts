@@ -262,17 +262,15 @@ export abstract class Store {
           event_id,
           machine_id,
           voter_id,
-          receipt_number,
           event_type,
           physical_time,
           logical_counter,
           event_data
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)
       `,
-        pollbookEvent.localEventId,
+        pollbookEvent.receiptNumber,
         pollbookEvent.machineId,
         pollbookEvent.voterId,
-        pollbookEvent.receiptNumber,
         pollbookEvent.type,
         pollbookEvent.timestamp.physical,
         pollbookEvent.timestamp.logical,
@@ -476,5 +474,16 @@ export abstract class Store {
       `,
       status ?? null
     );
+  }
+
+  getMostRecentEventIdPerMachine(): Record<string, number> {
+    const rows = this.client.all(
+      `SELECT machine_id, max(event_id) as max_event_id FROM event_log GROUP BY machine_id`
+    ) as Array<{ machine_id: string; max_event_id: number }>;
+    const lastEventSyncedPerNode: Record<string, number> = {};
+    for (const row of rows) {
+      lastEventSyncedPerNode[row.machine_id] = row.max_event_id;
+    }
+    return lastEventSyncedPerNode;
   }
 }

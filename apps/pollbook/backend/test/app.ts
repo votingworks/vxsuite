@@ -35,6 +35,8 @@ import { LocalWorkspace, PeerWorkspace } from '../src';
 import { getUserRole } from '../src/auth';
 import { buildPeerApp, PeerApi } from '../src/peer_app';
 
+export const TEST_MACHINE_ID = '0102';
+
 interface TestContext {
   auth: DippedSmartCardAuthApi;
   workspace: LocalWorkspace;
@@ -104,15 +106,16 @@ export async function withApp(
 ): Promise<void> {
   const auth = buildMockDippedSmartCardAuth(vi.fn);
   const workspacePath = tmp.dirSync().name;
+  const machineId = process.env.VX_MACHINE_ID || TEST_MACHINE_ID;
   const peerWorkspace = createPeerWorkspace(
     workspacePath,
     mockBaseLogger({ fn: vi.fn }),
-    process.env.VX_MACHINE_ID || 'test'
+    machineId
   );
   const peerApp = buildPeerApp({
     auth,
     workspace: peerWorkspace,
-    machineId: process.env.VX_MACHINE_ID || 'test',
+    machineId,
     codeVersion: process.env.VX_CODE_VERSION || 'test',
   });
 
@@ -124,7 +127,7 @@ export async function withApp(
     workspacePath,
     mockBaseLogger({ fn: vi.fn }),
     peerPort,
-    process.env.VX_MACHINE_ID || 'test'
+    machineId
   );
   const logger = buildMockLogger(auth, workspace);
 
@@ -139,7 +142,7 @@ export async function withApp(
       workspace,
       usbDrive: mockUsbDrive.usbDrive,
       printer: mockPrinterHandler.printer,
-      machineId: process.env.VX_MACHINE_ID || 'test',
+      machineId,
       codeVersion: process.env.VX_CODE_VERSION || 'test',
     },
     logger,

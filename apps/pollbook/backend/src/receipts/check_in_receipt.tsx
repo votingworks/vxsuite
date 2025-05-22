@@ -14,7 +14,6 @@ import {
 
 export function CheckInReceipt({
   voter,
-  machineId,
   ...metadata
 }: {
   voter: Voter;
@@ -43,13 +42,10 @@ export function CheckInReceipt({
           <div>
             {format.localeNumericDateAndTime(new Date(checkIn.timestamp))}
           </div>
-          <div>Pollbook: {machineId}</div>
         </div>
 
         <ReceiptIcon icon={checkIn.isAbsentee ? 'Envelope' : 'Done'} />
       </div>
-
-      <br />
 
       <div>
         <strong>Voter</strong>

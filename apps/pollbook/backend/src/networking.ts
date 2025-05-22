@@ -121,7 +121,7 @@ export function fetchEventsFromConnectedPollbooks({
               let syncMoreEvents = true;
               while (syncMoreEvents) {
                 const lastEventSyncedPerNode =
-                  workspace.store.getLastEventSyncedPerNode();
+                  workspace.store.getMostRecentEventIdPerMachine();
                 const { events, hasMore } = await apiClient.getEvents({
                   lastEventSyncedPerNode,
                 });

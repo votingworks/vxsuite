@@ -117,20 +117,6 @@ export class LocalStore extends Store {
     return applyPollbookEventsToVoters(votersMap, orderedEvents);
   }
 
-  getNextReceiptNumber(): number {
-    const row = this.client.one(
-      'SELECT count(*) as eventCount FROM event_log'
-    ) as { eventCount: number };
-    return row.eventCount + 1;
-  }
-
-  getLastReceiptNumber(): number {
-    const row = this.client.one(
-      'SELECT max(receipt_number) as maxReceiptNumber FROM event_log'
-    ) as { maxReceiptNumber: number };
-    return row.maxReceiptNumber;
-  }
-
   getConfigurationStatus(): ConfigurationStatus | undefined {
     const row = this.client.one(
       `
@@ -280,25 +266,23 @@ export class LocalStore extends Store {
     debug(`Recording check-in for voter ${voterId}`);
     const voter = this.getVoter(voterId);
     const isoTimestamp = new Date(getCurrentTime()).toISOString();
-    // TODO: Should we check if there is a check in and throw an error if so?
+    const receiptNumber = this.getNextEventId();
     voter.checkIn = {
       identificationMethod,
       isAbsentee: this.getIsAbsenteeMode(),
       machineId: this.machineId,
+      receiptNumber,
       timestamp: isoTimestamp, // human readable timestamp for paper backup
     };
-    const receiptNumber = this.getNextReceiptNumber();
     const timestamp = this.incrementClock();
-    const localEventId = this.getNextEventId();
     this.client.transaction(() => {
       assert(voter.checkIn);
       this.saveEvent(
         typedAs<VoterCheckInEvent>({
           type: EventType.VoterCheckIn,
           machineId: this.machineId,
-          localEventId,
-          voterId,
           receiptNumber,
+          voterId,
           timestamp,
           checkInData: voter.checkIn,
         })
@@ -317,9 +301,8 @@ export class LocalStore extends Store {
     debug(`Undoing check-in for voter ${voterId}`);
     const voter = this.getVoter(voterId);
     voter.checkIn = undefined;
-    const receiptNumber = this.getNextReceiptNumber();
     const timestamp = this.incrementClock();
-    const localEventId = this.getNextEventId();
+    const receiptNumber = this.getNextEventId();
     this.client.transaction(() => {
       this.saveEvent(
         typedAs<UndoVoterCheckInEvent>({
@@ -327,9 +310,8 @@ export class LocalStore extends Store {
           machineId: this.machineId,
           voterId,
           reason,
-          receiptNumber,
           timestamp,
-          localEventId,
+          receiptNumber,
         })
       );
     });
@@ -359,18 +341,16 @@ export class LocalStore extends Store {
       district: streetInfo.district,
     };
     const newVoter = createVoterFromRegistrationData(registrationEvent);
-    const receiptNumber = this.getNextReceiptNumber();
     const timestamp = this.incrementClock();
-    const localEventId = this.getNextEventId();
+    const receiptNumber = this.getNextEventId();
     this.client.transaction(() => {
       this.saveEvent(
         typedAs<VoterRegistrationEvent>({
           type: EventType.VoterRegistration,
           machineId: this.machineId,
           voterId: newVoter.voterId,
-          receiptNumber,
           timestamp,
-          localEventId,
+          receiptNumber,
           registrationData: registrationEvent,
         })
       );
@@ -399,18 +379,16 @@ export class LocalStore extends Store {
       addressChange: addressChangeData,
     };
 
-    const receiptNumber = this.getNextReceiptNumber();
     const timestamp = this.incrementClock();
-    const localEventId = this.getNextEventId();
+    const receiptNumber = this.getNextEventId();
     this.client.transaction(() => {
       this.saveEvent(
         typedAs<VoterAddressChangeEvent>({
           type: EventType.VoterAddressChange,
           machineId: this.machineId,
           voterId,
-          receiptNumber,
           timestamp,
-          localEventId,
+          receiptNumber,
           addressChangeData,
         })
       );
@@ -437,18 +415,16 @@ export class LocalStore extends Store {
       nameChange: nameChangeData,
     };
 
-    const receiptNumber = this.getNextReceiptNumber();
     const timestamp = this.incrementClock();
-    const localEventId = this.getNextEventId();
+    const receiptNumber = this.getNextEventId();
     this.client.transaction(() => {
       this.saveEvent(
         typedAs<VoterNameChangeEvent>({
           type: EventType.VoterNameChange,
           machineId: this.machineId,
           voterId,
-          receiptNumber,
           timestamp,
-          localEventId,
+          receiptNumber,
           nameChangeData,
         })
       );
