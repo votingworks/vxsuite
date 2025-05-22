@@ -23,7 +23,6 @@ import {
   isIntegrationTest,
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
-import { stringify } from 'csv-stringify/sync';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { Logger } from '@votingworks/logging';
 import {
@@ -38,7 +37,6 @@ import {
   SummaryStatistics,
   ThroughputStat,
   VoterNameChangeRequest,
-  VoterAddressChange,
   LocalAppContext,
   LocalWorkspace,
   ConfigurationError,
@@ -56,6 +54,7 @@ import { resetNetworkSetup } from './networking';
 import { UndoCheckInReceipt } from './receipts/undo_check_in_receipt';
 import { renderAndPrintReceipt } from './receipts/printing';
 import { UNCONFIGURE_LOCKOUT_TIMEOUT } from './globals';
+import { generateVoterHistoryCsvContent } from './voter_history';
 
 const debug = rootDebug.extend('local_app');
 
@@ -342,66 +341,9 @@ function buildApi({ context, logger }: BuildAppParams) {
       const fileName = `voter_history_${machineId}_${generateFileTimeSuffix(
         new Date()
       )}.csv`;
-
-      function joinNonEmpty(parts: string[]): string {
-        return parts.filter((part) => part !== '').join(' ');
-      }
-
-      function voterName(name: VoterNameChangeRequest): string {
-        return joinNonEmpty([
-          name.firstName,
-          name.middleName,
-          name.lastName,
-          name.suffix,
-        ]);
-      }
-
-      function voterAddress(address: VoterAddressChange | Voter): string {
-        if ('zipCode' in address) {
-          return `${
-            joinNonEmpty([
-              `${address.streetNumber}${address.streetSuffix}`,
-              address.streetName,
-              address.apartmentUnitNumber,
-            ]) + (address.addressLine2 ? `, ${address.addressLine2}` : '')
-          }, ${address.city}, ${address.state} ${address.zipCode}`;
-        }
-        return `${
-          joinNonEmpty([
-            `${address.streetNumber}${address.addressSuffix}`,
-            address.houseFractionNumber,
-            address.streetName,
-            address.apartmentUnitNumber,
-          ]) + (address.addressLine2 ? `, ${address.addressLine2}` : '')
-        }, ${address.postalCityTown}, ${address.state} ${address.postalZip5}`;
-      }
-
-      const voterActivity = store
-        .getAllVotersSorted()
-        .filter(
-          (voter) =>
-            voter.checkIn ||
-            voter.addressChange ||
-            voter.nameChange ||
-            voter.registrationEvent
-        )
-        .map((voter) => ({
-          'Voter ID': voter.voterId,
-          Party: voter.party,
-          'Full Name': voterName(voter.nameChange ?? voter),
-          'Full Address': voterAddress(voter.addressChange ?? voter),
-          'Check-In': voter.checkIn ? 'Y' : 'N',
-          Absentee: voter.checkIn?.isAbsentee ? 'Y' : 'N',
-          'Address Change': voter.addressChange ? 'Y' : 'N',
-          'Name Change': voter.nameChange ? 'Y' : 'N',
-          'New Registration': voter.registrationEvent ? 'Y' : 'N',
-          OOSDL:
-            voter.checkIn?.identificationMethod.type === 'outOfStateLicense'
-              ? voter.checkIn.identificationMethod.state
-              : '',
-        }));
-
-      const csvContents = stringify(voterActivity, { header: true });
+      const csvContents = generateVoterHistoryCsvContent(
+        store.getAllVotersSorted()
+      );
       const result = await exporter.exportDataToUsbDrive(
         '',
         fileName,

@@ -1,0 +1,10 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`getNewEvents returns events for unknown machines 1`] = `
+"Voter ID,Party,Full Name,Full Address,Check-In,Absentee,Address Change,Name Change,New Registration,OOSDL
+abigail,UND,Abigail Adams,"123 Main St, line 2, , NH 12345",Y,N,N,N,N,
+charlie,UND,Bella The Beauty II,"10I MAIN 1, line 2, Somewhere, NH 00000",N,N,Y,Y,N,
+test-random-id-1,UND,Eevee The Enchanting Sr,"10I 2 MAIN 1, line 2, Somewhere, NH 00000",N,N,N,N,Y,
+bob,UND,Bob Smith,"123 Main St, line 2, , NH 12345",Y,Y,N,N,N,CA
+"
+`;
