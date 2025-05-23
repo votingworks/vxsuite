@@ -654,11 +654,17 @@ pub fn find_timing_mark_shapes(
                     -PixelPosition::from(BORDER_SIZE),
                     -PixelPosition::from(BORDER_SIZE),
                 );
-                if rect_could_be_timing_mark(geometry, &contour_bounds) {
-                    return Some(CandidateTimingMark::new(
-                        contour_bounds,
-                        score_timing_mark_geometry_match(ballot_image, &contour_bounds, geometry),
-                    ));
+
+                match refine_candidate_timing_mark(ballot_image, contour_bounds, geometry) {
+                    Ok(refined_mark) => {
+                        if rect_could_be_timing_mark(geometry, &refined_mark.rect) {
+                            return Some((contour_bounds, Ok(refined_mark)));
+                        }
+                        return Some((contour_bounds, Err(refined_mark.rect)));
+                    }
+                    Err(bounds) => {
+                        return Some((contour_bounds, Err(bounds)));
+                    }
                 }
             }
             None
@@ -675,6 +681,54 @@ pub fn find_timing_mark_shapes(
     });
 
     candidate_timing_marks
+        .into_iter()
+        .filter_map(|(_, mark)| mark.ok())
+        .collect_vec()
+}
+
+fn refine_candidate_timing_mark(
+    ballot_image: &BallotImage,
+    bounds: Rect,
+    geometry: &Geometry,
+) -> Result<CandidateTimingMark, Rect> {
+    fn cmp_scores(a: TimingMarkScore, b: TimingMarkScore) -> Ordering {
+        let a_score = a.mark_score().0 + a.padding_score().0 / 2.0;
+        let b_score = b.mark_score().0 + b.padding_score().0 / 2.0;
+        a_score.partial_cmp(&b_score).unwrap_or(Ordering::Equal)
+    }
+
+    // Don't bother refining anything that's way outside the range.
+    if !(0.0..=geometry.timing_mark_size.width * 3.0).contains(&(bounds.width() as f32))
+        || !(0.0..=geometry.timing_mark_size.height * 3.0).contains(&(bounds.height() as f32))
+    {
+        return Err(bounds);
+    }
+
+    // Use `floor` here to maximize the values to try.
+    let x_values_to_try =
+        bounds.width() as PixelPosition - geometry.timing_mark_size.width.floor() as PixelPosition;
+    let y_values_to_try = bounds.height() as PixelPosition
+        - geometry.timing_mark_size.height.floor() as PixelPosition;
+
+    let best_candidate_timing_mark = (0..x_values_to_try)
+        .flat_map(|dx| {
+            (0..y_values_to_try).map(move |dy| {
+                CandidateTimingMark::scored(
+                    ballot_image,
+                    geometry,
+                    Rect::new(
+                        bounds.left() + dx,
+                        bounds.top() + dy,
+                        // Use `ceil` here to maximize the area we inspect.
+                        geometry.timing_mark_size.width.ceil() as PixelUnit,
+                        geometry.timing_mark_size.height.ceil() as PixelUnit,
+                    ),
+                )
+            })
+        })
+        .max_by(|a, b| cmp_scores(a.scores(), b.scores()));
+
+    best_candidate_timing_mark.map_or_else(|| Err(bounds), Ok)
 }
 
 const MAX_BEST_FIT_LINE_ERROR: Degrees = Degrees::new(5.0);
@@ -707,6 +761,13 @@ pub struct CandidateTimingMark {
 impl CandidateTimingMark {
     pub const fn new(rect: Rect, scores: TimingMarkScore) -> Self {
         Self { rect, scores }
+    }
+
+    pub fn scored(ballot_image: &BallotImage, geometry: &Geometry, rect: Rect) -> Self {
+        Self {
+            scores: score_timing_mark_geometry_match(ballot_image, &rect, geometry),
+            rect,
+        }
     }
 
     pub const fn scores(&self) -> TimingMarkScore {
@@ -1197,6 +1258,8 @@ pub struct FindCompleteTimingMarksFromPartialTimingMarksOptions<'a> {
     pub debug: &'a ImageDebugWriter,
 }
 
+const MINIMUM_MARK_SCORE_FOR_DETECTED_MARKS: UnitIntervalScore = UnitIntervalScore(0.5);
+
 #[allow(clippy::too_many_lines)]
 pub fn find_complete_from_partial(
     ballot_image: &BallotImage,
@@ -1313,57 +1376,77 @@ pub fn find_complete_from_partial(
     let median_horizontal_distance = horizontal_distances[horizontal_distances.len() / 2];
     let median_vertical_distance = vertical_distances[vertical_distances.len() / 2];
 
-    let complete_top_line_marks = infer_missing_timing_marks_on_segment(
-        ballot_image,
-        Border::Top,
-        top_line_marks,
-        &Segment::new(
-            partial_timing_marks.top_left_corner,
-            partial_timing_marks.top_right_corner,
-        ),
-        median_horizontal_distance,
-        geometry.grid_size.width,
-        geometry,
-    );
+    let complete_top_line_marks = if top_line_marks.len() != geometry.grid_size.width as usize
+        || top_line_marks
+            .iter()
+            .any(|m| m.scores().mark_score() < MINIMUM_MARK_SCORE_FOR_DETECTED_MARKS)
+    {
+        infer_missing_timing_marks_on_segment(
+            ballot_image,
+            Border::Top,
+            top_line_marks,
+            &partial_timing_marks.top_line_segment_from_corners(),
+            median_horizontal_distance,
+            geometry.grid_size.width,
+            geometry,
+        )
+    } else {
+        top_line_marks.clone()
+    };
 
-    let complete_bottom_line_marks = infer_missing_timing_marks_on_segment(
-        ballot_image,
-        Border::Bottom,
-        bottom_line_marks,
-        &Segment::new(
-            partial_timing_marks.bottom_left_corner,
-            partial_timing_marks.bottom_right_corner,
-        ),
-        median_horizontal_distance,
-        geometry.grid_size.width,
-        geometry,
-    );
+    let complete_bottom_line_marks = if bottom_line_marks.len() != geometry.grid_size.width as usize
+        || bottom_line_marks
+            .iter()
+            .any(|m| m.scores().mark_score() < MINIMUM_MARK_SCORE_FOR_DETECTED_MARKS)
+    {
+        infer_missing_timing_marks_on_segment(
+            ballot_image,
+            Border::Bottom,
+            bottom_line_marks,
+            &partial_timing_marks.bottom_line_segment_from_corners(),
+            median_horizontal_distance,
+            geometry.grid_size.width,
+            geometry,
+        )
+    } else {
+        bottom_line_marks.clone()
+    };
 
-    let complete_left_line_marks = infer_missing_timing_marks_on_segment(
-        ballot_image,
-        Border::Left,
-        left_line_marks,
-        &Segment::new(
-            partial_timing_marks.top_left_corner,
-            partial_timing_marks.bottom_left_corner,
-        ),
-        median_vertical_distance,
-        geometry.grid_size.height,
-        geometry,
-    );
+    let complete_left_line_marks = if left_line_marks.len() != geometry.grid_size.height as usize
+        || left_line_marks
+            .iter()
+            .any(|m| m.scores().mark_score() < MINIMUM_MARK_SCORE_FOR_DETECTED_MARKS)
+    {
+        infer_missing_timing_marks_on_segment(
+            ballot_image,
+            Border::Left,
+            left_line_marks,
+            &partial_timing_marks.left_line_segment_from_corners(),
+            median_vertical_distance,
+            geometry.grid_size.height,
+            geometry,
+        )
+    } else {
+        left_line_marks.clone()
+    };
 
-    let complete_right_line_marks = infer_missing_timing_marks_on_segment(
-        ballot_image,
-        Border::Right,
-        right_line_marks,
-        &Segment::new(
-            partial_timing_marks.top_right_corner,
-            partial_timing_marks.bottom_right_corner,
-        ),
-        median_vertical_distance,
-        geometry.grid_size.height,
-        geometry,
-    );
+    let complete_right_line_marks = if right_line_marks.len() != geometry.grid_size.height as usize
+        || right_line_marks
+            .iter()
+            .any(|m| m.scores().mark_score() < MINIMUM_MARK_SCORE_FOR_DETECTED_MARKS)
+    {
+        infer_missing_timing_marks_on_segment(
+            ballot_image,
+            Border::Right,
+            right_line_marks,
+            &partial_timing_marks.right_line_segment_from_corners(),
+            median_vertical_distance,
+            geometry.grid_size.height,
+            geometry,
+        )
+    } else {
+        right_line_marks.clone()
+    };
 
     if complete_top_line_marks.len() != complete_bottom_line_marks.len()
         || complete_left_line_marks.len() != complete_right_line_marks.len()
@@ -1479,6 +1562,39 @@ pub fn find_complete_from_partial(
         }
         return Err(FindCompleteTimingMarksError::MissingCorners { missing_corners });
     };
+
+    assert!(
+        complete_top_line_marks.contains(&top_left_rect),
+        "Top-left mark is not contained by top line marks"
+    );
+    assert!(
+        complete_top_line_marks.contains(&top_right_rect),
+        "Top-right mark is not contained by top line marks"
+    );
+    assert!(
+        complete_bottom_line_marks.contains(&bottom_left_rect),
+        "Bottom-left mark is not contained by bottom line marks"
+    );
+    assert!(
+        complete_bottom_line_marks.contains(&bottom_right_rect),
+        "Bottom-right mark is not contained by bottom line marks"
+    );
+    assert!(
+        complete_left_line_marks.contains(&top_left_rect),
+        "Top-left mark is not contained by left line marks"
+    );
+    assert!(
+        complete_right_line_marks.contains(&top_right_rect),
+        "Top-right mark is not contained by right line marks"
+    );
+    assert!(
+        complete_left_line_marks.contains(&bottom_left_rect),
+        "Bottom-left mark is not contained by left line marks"
+    );
+    assert!(
+        complete_right_line_marks.contains(&bottom_right_rect),
+        "Bottom-right mark is not contained by right line marks"
+    );
 
     let complete_timing_marks = Complete {
         geometry: *geometry,
@@ -1634,10 +1750,7 @@ fn infer_missing_timing_marks_on_segment(
                 geometry.timing_mark_size.width.round() as u32,
                 geometry.timing_mark_size.height.round() as u32,
             );
-            inferred_timing_marks.push(CandidateTimingMark::new(
-                rect,
-                score_timing_mark_geometry_match(ballot_image, &rect, geometry),
-            ));
+            inferred_timing_marks.push(CandidateTimingMark::scored(ballot_image, geometry, rect));
             current_timing_mark_center += next_point_vector;
         }
     }

@@ -165,7 +165,7 @@ pub fn draw_contours_debug_image_mut(canvas: &mut RgbImage, contour_rects: &[Rec
 /// Draws a debug image of the rectangles found using the contour algorithm.
 pub fn draw_candidate_timing_marks_debug_image_mut(
     canvas: &mut RgbImage,
-    candidate_timing_marks: &[CandidateTimingMark],
+    candidate_timing_marks: &[(Rect, Result<CandidateTimingMark, Rect>)],
     minimum_mark_score: UnitIntervalScore,
     minimum_padding_score: UnitIntervalScore,
 ) {
@@ -174,48 +174,58 @@ pub fn draw_candidate_timing_marks_debug_image_mut(
     let scale = PxScale::from(font_scale);
     let mut text_rects = vec![];
 
-    for (mark, color) in candidate_timing_marks.iter().zip(rainbow()) {
-        if mark.scores().mark_score() < minimum_mark_score
-            || mark.scores().padding_score() < minimum_padding_score
-        {
-            draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), color);
-        } else {
-            draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), color);
+    for ((original, mark), color) in candidate_timing_marks.iter().zip(rainbow()) {
+        draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(original), DARK_RED);
+
+        match mark {
+            Ok(mark) => {
+                if mark.scores().mark_score() < minimum_mark_score
+                    || mark.scores().padding_score() < minimum_padding_score
+                {
+                    draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), color);
+                } else {
+                    draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), color);
+                }
+
+                let center = mark.rect().center();
+                let score_text = format!(
+                    "({:.0}, {:.0})",
+                    mark.scores().mark_score(),
+                    mark.scores().padding_score()
+                );
+                let (score_text_width, score_text_height) = text_size(scale, font, &score_text);
+                let score_left = (center.x - score_text_width as f32 / 2.0)
+                    .round()
+                    .max(0.0)
+                    .min((canvas.width() - score_text_width) as f32)
+                    as i32;
+                let mut score_rect = Rect::new(
+                    score_left,
+                    mark.rect().bottom() + 2,
+                    score_text_width,
+                    score_text_height,
+                );
+
+                while text_rects.iter().any(|r: &Rect| r.overlaps(&score_rect)) {
+                    score_rect = score_rect.offset(0, score_text_height as i32);
+                }
+
+                draw_text_mut(
+                    canvas,
+                    color,
+                    score_rect.left(),
+                    score_rect.top(),
+                    scale,
+                    font,
+                    &score_text,
+                );
+
+                text_rects.push(score_rect);
+            }
+            Err(rect) => {
+                draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(rect), RED);
+            }
         }
-
-        let center = mark.rect().center();
-        let score_text = format!(
-            "({:.0}, {:.0})",
-            mark.scores().mark_score(),
-            mark.scores().padding_score()
-        );
-        let (score_text_width, score_text_height) = text_size(scale, font, &score_text);
-        let score_left = (center.x - score_text_width as f32 / 2.0)
-            .round()
-            .max(0.0)
-            .min((canvas.width() - score_text_width) as f32) as i32;
-        let mut score_rect = Rect::new(
-            score_left,
-            mark.rect().bottom() + 2,
-            score_text_width,
-            score_text_height,
-        );
-
-        while text_rects.iter().any(|r: &Rect| r.overlaps(&score_rect)) {
-            score_rect = score_rect.offset(0, score_text_height as i32);
-        }
-
-        draw_text_mut(
-            canvas,
-            color,
-            score_rect.left(),
-            score_rect.top(),
-            scale,
-            font,
-            &score_text,
-        );
-
-        text_rects.push(score_rect);
     }
 
     draw_legend(
@@ -295,34 +305,66 @@ pub fn draw_timing_mark_debug_image_mut(
     let font_scale = 15.0;
     let scale = PxScale::from(font_scale);
 
+    let mut text_rects = vec![];
     for (i, mark) in partial_timing_marks.top_marks.iter().enumerate() {
         let center = mark.rect().center();
-        let text = format!("{i}");
+        let text = format!(
+            "{i} ({m:.0}, {p:.0})",
+            m = mark.scores().mark_score(),
+            p = mark.scores().padding_score()
+        );
         let (text_width, text_height) = text_size(scale, font, text.as_str());
+        let mut text_rect = Rect::new(
+            (center.x - text_width as SubPixelUnit / 2.0) as PixelPosition,
+            (mark.rect().bottom() as SubPixelUnit + text_height as SubPixelUnit / 4.0)
+                as PixelPosition,
+            text_width,
+            text_height,
+        );
+        while text_rects.iter().any(|r: &Rect| r.overlaps(&text_rect)) {
+            text_rect = text_rect.offset(0, text_height as i32);
+        }
+        text_rects.push(text_rect);
+
         draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), TOP_COLOR);
         draw_text_mut(
             canvas,
             DARK_GREEN,
-            (center.x - text_width as SubPixelUnit / 2.0) as PixelPosition,
-            (mark.rect().bottom() as SubPixelUnit + text_height as SubPixelUnit / 4.0)
-                as PixelPosition,
+            text_rect.left(),
+            text_rect.top(),
             scale,
             font,
             text.as_str(),
         );
     }
 
+    let mut text_rects = vec![];
     for (i, mark) in partial_timing_marks.bottom_marks.iter().enumerate() {
         let center = mark.rect().center();
-        let text = format!("{i}");
+        let text = format!(
+            "{i} ({m:.0}, {p:.0})",
+            m = mark.scores().mark_score(),
+            p = mark.scores().padding_score()
+        );
         let (text_width, text_height) = text_size(scale, font, text.as_str());
+        let mut text_rect = Rect::new(
+            (center.x - text_width as SubPixelUnit / 2.0) as PixelPosition,
+            (mark.rect().top() as SubPixelUnit - text_height as SubPixelUnit * 5.0 / 4.0)
+                as PixelPosition,
+            text_width,
+            text_height,
+        );
+        while text_rects.iter().any(|r: &Rect| r.overlaps(&text_rect)) {
+            text_rect = text_rect.offset(0, -(text_height as i32));
+        }
+        text_rects.push(text_rect);
+
         draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), BOTTOM_COLOR);
         draw_text_mut(
             canvas,
             DARK_BLUE,
-            (center.x - text_width as SubPixelUnit / 2.0) as PixelPosition,
-            (mark.rect().top() as SubPixelUnit - text_height as SubPixelUnit * 5.0 / 4.0)
-                as PixelPosition,
+            text_rect.left(),
+            text_rect.top(),
             scale,
             font,
             text.as_str(),
@@ -331,7 +373,11 @@ pub fn draw_timing_mark_debug_image_mut(
 
     for (i, mark) in partial_timing_marks.left_marks.iter().enumerate() {
         let center = mark.rect().center();
-        let text = format!("{i}");
+        let text = format!(
+            "{i} ({m:.0}, {p:.0})",
+            m = mark.scores().mark_score(),
+            p = mark.scores().padding_score()
+        );
         let (_, text_height) = text_size(scale, font, text.as_str());
         draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), LEFT_COLOR);
         draw_text_mut(
@@ -348,7 +394,11 @@ pub fn draw_timing_mark_debug_image_mut(
 
     for (i, mark) in partial_timing_marks.right_marks.iter().enumerate() {
         let center = mark.rect().center();
-        let text = format!("{i}");
+        let text = format!(
+            "{i} ({m:.0}, {p:.0})",
+            m = mark.scores().mark_score(),
+            p = mark.scores().padding_score()
+        );
         let (text_width, text_height) = text_size(scale, font, text.as_str());
         draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), RIGHT_COLOR);
         draw_text_mut(
@@ -563,7 +613,7 @@ pub fn draw_timing_mark_debug_image_mut(
                 .as_str(),
             ),
         ],
-        Point::new(140, 140),
+        Point::new(180, 140),
     );
 }
 
