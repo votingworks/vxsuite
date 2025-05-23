@@ -1,4 +1,3 @@
-use serde::ser::Serializer;
 use serde::Serialize;
 use std::convert::TryFrom;
 use thiserror::Error;
@@ -22,18 +21,6 @@ pub enum AamvaParseError {
 
     #[error("Unknown issuing jurisdiction ID: {0}")]
     UnknownIssuingJurisdictionId(String),
-}
-
-/// Serialize `Option<String>` or `Option<NaiveDate>` as a JSON string,
-/// using `""` when it’s `None`.
-fn empty_string_for_none<S>(opt: &Option<impl ToString>, ser: S) -> Result<S::Ok, S::Error>
-where
-    S: Serializer,
-{
-    match opt {
-        Some(v) => ser.serialize_str(&v.to_string()),
-        None => ser.serialize_str(""),
-    }
 }
 
 /// Partial definition of AAMVA header limited to the fields needed
@@ -78,22 +65,31 @@ impl TryFrom<&str> for AamvaHeader {
 
 /// Partial definition of the AAMVA document (eg. Driver's License) structure.
 /// Limited to the fields needed for pollbook check-in.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct AamvaDocument {
     pub issuing_jurisdiction: String,
 
-    #[serde(serialize_with = "empty_string_for_none")]
-    pub first_name: Option<String>,
+    #[serde(default)]
+    pub first_name: String,
 
-    #[serde(serialize_with = "empty_string_for_none")]
-    pub middle_name: Option<String>,
+    #[serde(default)]
+    pub middle_name: String,
 
-    #[serde(serialize_with = "empty_string_for_none")]
-    pub last_name: Option<String>,
+    #[serde(default)]
+    pub last_name: String,
 
-    #[serde(serialize_with = "empty_string_for_none")]
-    pub name_suffix: Option<String>,
+    #[serde(default)]
+    pub name_suffix: String,
+}
+
+impl AamvaDocument {
+    pub fn new_from_jurisdiction(issuing_jurisdiction: String) -> Self {
+        Self {
+            issuing_jurisdiction,
+            ..Default::default()
+        }
+    }
 }
 
 impl TryFrom<&str> for AamvaDocument {
@@ -107,13 +103,8 @@ impl TryFrom<&str> for AamvaDocument {
             None => return Err(Self::Error::NoLine),
         };
 
-        let mut document = Self {
-            issuing_jurisdiction: header.issuing_jurisdiction.as_str().to_owned(),
-            first_name: None,
-            middle_name: None,
-            last_name: None,
-            name_suffix: None,
-        };
+        let mut document =
+            Self::new_from_jurisdiction(header.issuing_jurisdiction.as_str().to_owned());
 
         for line in lines {
             if line.len() < 3 {
@@ -124,10 +115,11 @@ impl TryFrom<&str> for AamvaDocument {
             let value = data.trim();
 
             match id {
-                "DAC" => document.first_name = Some(value.to_owned()),
-                "DAD" => document.middle_name = Some(value.to_owned()),
-                "DCS" => document.last_name = Some(value.to_owned()),
-                "DCU" => document.name_suffix = Some(value.to_owned()),
+                // "DAC" => document.first_name = value.to_owned(),
+                "DAC" => value.clone_into(&mut document.first_name),
+                "DAD" => value.clone_into(&mut document.middle_name),
+                "DCS" => value.clone_into(&mut document.last_name),
+                "DCU" => value.clone_into(&mut document.name_suffix),
                 _ => {} // ignore other fields
             }
         }
@@ -139,7 +131,6 @@ impl TryFrom<&str> for AamvaDocument {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chrono::NaiveDate;
 
     const VALID_BLOB: &str = "\
         ANSI 636039090001DL00310485DLDAQNHL12345678
@@ -154,10 +145,10 @@ DCUJR
         let doc = AamvaDocument::try_from(VALID_BLOB).unwrap();
 
         assert_eq!(doc.issuing_jurisdiction, "NH");
-        assert_eq!(doc.first_name, Some("FIRST".to_string()));
-        assert_eq!(doc.middle_name, Some("MIDDLE".to_string()));
-        assert_eq!(doc.last_name, Some("LAST".to_string()));
-        assert_eq!(doc.name_suffix, Some("JR".to_string()));
+        assert_eq!(doc.first_name, "FIRST".to_owned());
+        assert_eq!(doc.middle_name, "MIDDLE".to_owned());
+        assert_eq!(doc.last_name, "LAST".to_owned());
+        assert_eq!(doc.name_suffix, "JR".to_owned());
     }
 
     #[test]
@@ -165,14 +156,14 @@ DCUJR
         // Only header + first name
         let blob = "\
 ANSI 636039090001DL00310485DLDAQNHL12345678
-DACJANE
+DACFIRST
 ";
         let doc = AamvaDocument::try_from(blob).unwrap();
-        assert_eq!(doc.first_name, Some("JANE".to_string()));
-        // Everything else is still None
-        assert!(doc.middle_name.is_none());
-        assert!(doc.last_name.is_none());
-        assert!(doc.name_suffix.is_none());
+        assert_eq!(doc.first_name, "FIRST".to_owned());
+        // Everything else is still empty string
+        assert!(doc.middle_name.is_empty());
+        assert!(doc.last_name.is_empty());
+        assert!(doc.name_suffix.is_empty());
     }
 
     #[test]
@@ -190,8 +181,8 @@ DACFIRST
 DCSLAST
 ";
         let doc = AamvaDocument::try_from(blob).unwrap();
-        assert_eq!(doc.first_name, Some("FIRST".to_string()));
-        assert_eq!(doc.last_name, Some("LAST".to_string()));
+        assert_eq!(doc.first_name, "FIRST".to_owned());
+        assert_eq!(doc.last_name, "LAST".to_owned());
     }
 
     #[test]

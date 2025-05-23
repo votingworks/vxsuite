@@ -1,7 +1,6 @@
 use color_eyre::eyre::Context;
 use nusb::Error;
 use parse_aamva::AamvaDocument;
-use serde_json;
 use serialport::{DataBits, FlowControl, Parity, StopBits};
 use std::fs;
 use std::io::{self, BufRead, BufReader, ErrorKind, Write};
@@ -37,7 +36,7 @@ const UDS_CLIENT_CONNECTION_TIMEOUT: Duration = Duration::from_secs(30);
 const UNITECH_VENDOR_ID: u16 = 0x2745;
 const TS100_PRODUCT_ID: u16 = 0x300a;
 const TS100_PORT_NAME: &str = "/dev/ttyACM0";
-const TS100_BAUD_RATE: u32 = 115200;
+const TS100_BAUD_RATE: u32 = 115_200;
 const TS100_DATA_TERMINATOR: u8 = b'\r';
 
 // The string denoting the start of an AAMVA-encoded document.
@@ -56,10 +55,7 @@ fn reset_scanner() -> Result<(), Error> {
         }
         None => Err(Error::new(
             ErrorKind::NotConnected,
-            format!(
-                "No USB device found at {}:{}",
-                UNITECH_VENDOR_ID, TS100_PRODUCT_ID
-            ),
+            format!("No USB device found at {UNITECH_VENDOR_ID}:{TS100_PRODUCT_ID}"),
         )),
     }
 }
@@ -73,13 +69,13 @@ fn init_port(
     // is stopped and started multiple times. Resetting the scanner solves the issue.
     // Configuration such as USB COM Port Emulation persists between resets.
     match reset_scanner() {
-        Ok(_) => {
+        Ok(()) => {
             log!(
                 event_id: EventId::UsbDeviceReconnectAttempted,
-                message: "Barcode scanner reset succeeded".to_string(),
+                message: "Barcode scanner reset succeeded".to_owned(),
                 event_type: EventType::SystemAction,
                 disposition: Disposition::Success
-            )
+            );
         }
         Err(e) => {
             log!(
@@ -123,7 +119,7 @@ fn accept_with_timeout(
     loop {
         match listener.accept() {
             Ok((stream, _)) => {
-                log!(event_id: EventId::SocketClientConnected, message: "Accepted UDS client".to_string(), disposition: Disposition::Success);
+                log!(event_id: EventId::SocketClientConnected, message: "Accepted UDS client".to_owned(), disposition: Disposition::Success);
                 return Ok(stream);
             }
             Err(e) if e.kind() == ErrorKind::WouldBlock => {
@@ -190,7 +186,7 @@ fn main() -> color_eyre::Result<()> {
     fs::set_permissions(UDS_PATH, fs::Permissions::from_mode(0o666))?;
     log!(
         event_id: EventId::SocketServerBind,
-        message: format!("UDS bound on {}", UDS_PATH),
+        message: format!("UDS bound on {UDS_PATH}"),
         disposition: Disposition::Success
     );
 
@@ -231,7 +227,7 @@ fn main() -> color_eyre::Result<()> {
                     buf.pop();
                 }
 
-                if buf.len() == 0 {
+                if buf.is_empty() {
                     continue;
                 }
 
@@ -244,11 +240,15 @@ fn main() -> color_eyre::Result<()> {
                 match from_utf8(&buf) {
                     Ok(s) => match AamvaDocument::try_from(s) {
                         Ok(document) => {
-                            let mut serialized = serde_json::to_string(&document)
-                                .context("Failed to serialize AAMVA document to JSON")?;
-                            serialized.push('\n');
-                            let _ = uds_client.write_all(serialized.as_bytes())?;
-                            log!(EventId::BarcodeScannerDataReceived);
+                            let success = serde_json::to_writer(&uds_client, &document)
+                                .is_ok_and(|()| uds_client.write_all(b"\n").is_ok());
+
+                            if !success {
+                                log!(
+                                    EventId::SocketServerError,
+                                    "Failed to write serialized document to UDS client"
+                                );
+                            }
                         }
                         Err(e) => {
                             log!(
@@ -263,7 +263,7 @@ fn main() -> color_eyre::Result<()> {
                         log!(
                             event_id: EventId::ParseError,
                             message: format!("Error parsing scanned bytes as UTF-8: {e}")
-                        )
+                        );
                     }
                 }
             }
