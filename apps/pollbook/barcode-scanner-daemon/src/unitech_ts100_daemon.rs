@@ -109,6 +109,7 @@ fn init_port(
 // Returns a Result containing a UnixStream to write to the client or
 // a TimedOut error if no client was accepted.
 fn accept_with_timeout(
+    running: &Arc<AtomicBool>,
     listener: &UnixListener,
     timeout: Duration,
 ) -> color_eyre::Result<UnixStream, io::Error> {
@@ -117,6 +118,14 @@ fn accept_with_timeout(
     let start = Instant::now();
     log!(EventId::SocketServerAwaitingClient);
     loop {
+        if !running.load(Ordering::SeqCst) {
+            log!(
+                EventId::ProcessTerminated;
+                EventType::SystemAction
+            );
+            exit(1);
+        }
+
         match listener.accept() {
             Ok((stream, _)) => {
                 log!(event_id: EventId::SocketClientConnected, message: "Accepted UDS client".to_owned(), disposition: Disposition::Success);
@@ -140,44 +149,7 @@ fn accept_with_timeout(
     }
 }
 
-fn main() -> color_eyre::Result<()> {
-    color_eyre::install()?;
-
-    set_source(SOURCE);
-    log!(
-        EventId::ProcessStarted;
-        EventType::SystemAction
-    );
-
-    // Connect to barcode scanner device
-    let port = match init_port(TS100_PORT_NAME, TS100_BAUD_RATE) {
-        Ok(p) => p,
-        Err(e) => {
-            log!(
-                event_id: EventId::DeviceAttached,
-                message: format!("Failed to connect to USB barcode scanner: {e}"),
-                event_type: EventType::SystemStatus,
-                disposition: Disposition::Failure
-            );
-
-            // Exit and allow systemctl config to restart daemon
-            log!(
-                EventId::ProcessTerminated;
-                EventType::SystemAction
-            );
-            exit(1);
-        }
-    };
-    // Reader to read from the barcode scanner
-    let mut scanner_reader = BufReader::new(port);
-
-    log!(
-        event_id: EventId::DeviceAttached,
-        message: format!("Connected to TS100 barcode scanner at {TS100_PORT_NAME}..."),
-        event_type: EventType::SystemStatus,
-        disposition: Disposition::Success
-    );
-
+fn open_socket() -> Result<UnixListener, std::io::Error> {
     // Unlink old socket if it exists
     let _ = fs::remove_file(UDS_PATH);
     // Assign address to socket
@@ -190,27 +162,18 @@ fn main() -> color_eyre::Result<()> {
         disposition: Disposition::Success
     );
 
-    // Wait for socket client (eg. pollbook backend) to connect. Simultaneous clients are not supported.
-    let mut uds_client = accept_with_timeout(&listener, UDS_CLIENT_CONNECTION_TIMEOUT)?;
+    Ok(listener)
+}
 
-    // Set up ctrl+c handler
-    let running = Arc::new(AtomicBool::new(true));
-    ctrlc::set_handler({
-        let running = running.clone();
-        move || {
-            running.store(false, Ordering::SeqCst);
-        }
-    })?;
-
+fn read_scanner(
+    running: &Arc<AtomicBool>,
+    scanner_reader: &mut BufReader<Box<dyn serialport::SerialPort>>,
+    uds_client: &mut UnixStream,
+) {
     let mut buf = Vec::new();
     let mut start = Instant::now();
 
-    // Poll for barcode scan data
-    loop {
-        if !running.load(Ordering::SeqCst) {
-            break;
-        }
-
+    while running.load(Ordering::SeqCst) {
         if start.elapsed() > HEARTBEAT_LOG_INTERVAL {
             start = Instant::now();
             log!(
@@ -240,7 +203,7 @@ fn main() -> color_eyre::Result<()> {
                 match from_utf8(&buf) {
                     Ok(s) => match AamvaDocument::from_str(s) {
                         Ok(document) => {
-                            let success = serde_json::to_writer(&uds_client, &document)
+                            let success = serde_json::to_writer(&mut *uds_client, &document)
                                 .is_ok_and(|()| uds_client.write_all(b"\n").is_ok());
 
                             if !success {
@@ -279,6 +242,61 @@ fn main() -> color_eyre::Result<()> {
             }
         }
     }
+}
+
+fn main() -> color_eyre::Result<()> {
+    color_eyre::install()?;
+
+    set_source(SOURCE);
+    log!(
+        EventId::ProcessStarted;
+        EventType::SystemAction
+    );
+
+    // Set up ctrl+c handler
+    let running = Arc::new(AtomicBool::new(true));
+    ctrlc::set_handler({
+        let running = running.clone();
+        move || {
+            running.store(false, Ordering::SeqCst);
+        }
+    })?;
+
+    // Connect to barcode scanner device
+    let port = match init_port(TS100_PORT_NAME, TS100_BAUD_RATE) {
+        Ok(p) => p,
+        Err(e) => {
+            log!(
+                event_id: EventId::DeviceAttached,
+                message: format!("Failed to connect to USB barcode scanner: {e}"),
+                event_type: EventType::SystemStatus,
+                disposition: Disposition::Failure
+            );
+
+            // Exit and allow systemctl config to restart daemon
+            log!(
+                EventId::ProcessTerminated;
+                EventType::SystemAction
+            );
+            exit(1);
+        }
+    };
+    log!(
+        event_id: EventId::DeviceAttached,
+        message: format!("Connected to TS100 barcode scanner at {TS100_PORT_NAME}..."),
+        event_type: EventType::SystemStatus,
+        disposition: Disposition::Success
+    );
+
+    // Reader to read from the barcode scanner
+    let mut scanner_reader = BufReader::new(port);
+    // Open Unix domain socket and get back a handle to the socket
+    let listener = open_socket()?;
+
+    // Wait for socket client (eg. pollbook backend) to connect. Simultaneous clients are not supported.
+    let mut uds_client = accept_with_timeout(&running, &listener, UDS_CLIENT_CONNECTION_TIMEOUT)?;
+
+    read_scanner(&running, &mut scanner_reader, &mut uds_client);
 
     // Close port and unlink socket
     let mut port = scanner_reader.into_inner();
@@ -312,6 +330,7 @@ mod tests {
 
     #[test]
     fn accept_with_client_succeeds() {
+        let running = Arc::new(AtomicBool::new(true));
         set_source(SOURCE);
         let socket_path = make_socket_path("accept_success.sock");
         let _ = fs::remove_file(&socket_path);
@@ -322,7 +341,7 @@ mod tests {
         sleep(Duration::from_millis(50));
         let _ = UnixStream::connect(&socket_path).expect("client connect should succeed");
 
-        let stream = accept_with_timeout(&listener, Duration::from_secs(1))
+        let stream = accept_with_timeout(&running, &listener, Duration::from_secs(1))
             .expect("should accept within timeout");
         assert!(stream.peer_addr().is_ok());
         let _ = fs::remove_file(&socket_path);
@@ -330,13 +349,14 @@ mod tests {
 
     #[test]
     fn accept_with_timeout_errors_if_no_client() {
+        let running = Arc::new(AtomicBool::new(true));
         set_source(SOURCE);
         let socket_path = make_socket_path("accept_timeout.sock");
         let _ = fs::remove_file(&socket_path);
 
         let listener = UnixListener::bind(&socket_path).expect("could not bind listener");
 
-        let err = accept_with_timeout(&listener, Duration::from_millis(100))
+        let err = accept_with_timeout(&running, &listener, Duration::from_millis(100))
             .expect_err("expected connection timeout");
         assert_eq!(err.kind(), ErrorKind::TimedOut);
         let _ = fs::remove_file(&socket_path);
