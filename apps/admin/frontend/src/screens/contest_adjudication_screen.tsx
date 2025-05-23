@@ -49,6 +49,7 @@ import {
   getVoteAdjudications,
   adjudicateCvrContest,
   getMarginalMarks,
+  getCvrContestTag,
 } from '../api';
 import { AppContext } from '../contexts/app_context';
 import { ContestAdjudicationScreenParams } from '../config/types';
@@ -141,7 +142,7 @@ function isPendingWriteIn(
   return status?.type === 'pending';
 }
 
-export type MarginalMarkStatus = 'flagged' | 'dismissed';
+export type MarginalMarkStatus = 'pending' | 'resolved';
 type MarginalMarkStatusByOptionId = Record<ContestOptionId, MarginalMarkStatus>;
 
 const DEFAULT_PADDING = '0.75rem';
@@ -301,10 +302,10 @@ function renderBallotOptionButtonCaption({
   let originalValueStr: string | undefined;
   let newValueStr: string | undefined;
 
-  if (marginalMarkStatus && currentVote) {
+  if (marginalMarkStatus === 'resolved' && currentVote) {
     originalValueStr = 'Marginal Mark';
     newValueStr = 'Valid Mark';
-  } else if (marginalMarkStatus === 'dismissed' && !currentVote) {
+  } else if (marginalMarkStatus === 'resolved' && !currentVote) {
     originalValueStr = 'Marginal Mark';
     newValueStr = 'Invalid Mark';
   } else if (isWriteIn) {
@@ -375,6 +376,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const marginalMarksQuery = getMarginalMarks.useQuery(
     maybeCurrentCvrId ? { cvrId: maybeCurrentCvrId, contestId } : undefined
   );
+  const cvrContestTagQuery = getCvrContestTag.useQuery(
+    maybeCurrentCvrId ? { cvrId: maybeCurrentCvrId, contestId } : undefined
+  );
 
   const adjudicateCvrContestMutation = adjudicateCvrContest.useMutation();
   const officialOptions = useMemo(
@@ -421,10 +425,14 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const [marginalMarks, setMarginalMarks] =
     useState<MarginalMarkStatusByOptionId>({});
   function resolveMarginalMark(optionId: ContestOptionId) {
-    setMarginalMarks((prev) => ({
-      ...prev,
-      [optionId]: 'dismissed',
-    }));
+    setMarginalMarks((prev) =>
+      optionId in prev
+        ? {
+            ...prev,
+            [optionId]: 'resolved',
+          }
+        : prev
+    );
   }
 
   function clearBallotState() {
@@ -453,7 +461,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
       voteAdjudicationsQuery.isSuccess &&
       !voteAdjudicationsQuery.isStale &&
       marginalMarksQuery.isSuccess &&
-      !marginalMarksQuery.isStale
+      !marginalMarksQuery.isStale &&
+      cvrContestTagQuery.isSuccess &&
+      !cvrContestTagQuery.isStale
     ) {
       const originalVotes = cvrVoteInfoQuery.data.votes[contestId];
       const newHasVoteByOptionId: HasVoteByOptionId = {};
@@ -471,8 +481,11 @@ export function ContestAdjudicationScreen(): JSX.Element {
       }
       const newMarginalMarkStatusByOptionId: MarginalMarkStatusByOptionId = {};
       for (const optionId of marginalMarksQuery.data) {
-        newMarginalMarkStatusByOptionId[optionId] = 'flagged';
-      };
+        const isContestAdjudicated = cvrContestTagQuery.data?.isResolved;
+        newMarginalMarkStatusByOptionId[optionId] = isContestAdjudicated
+          ? 'resolved'
+          : 'pending';
+      }
       let areAllWriteInsAdjudicated = true;
       for (const writeIn of writeInsQuery.data) {
         const { optionId } = writeIn;
@@ -533,6 +546,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
     cvrVoteInfoQuery.data,
     cvrVoteInfoQuery.isStale,
     cvrVoteInfoQuery.isSuccess,
+    cvrContestTagQuery.data,
+    cvrContestTagQuery.isStale,
+    cvrContestTagQuery.isSuccess,
     marginalMarksQuery.data,
     marginalMarksQuery.isStale,
     marginalMarksQuery.isSuccess,
@@ -583,7 +599,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
   useEffect(() => {
     function handler(e: KeyboardEvent) {
       return (
-        e.key === 'Escape' && (document.activeElement as HTMLElement)?.blur()
+        (e.key === 'Escape' &&
+          (document.activeElement as HTMLElement)?.blur()) ||
+        setFocusedOptionId(undefined)
       );
     }
     window.addEventListener('keydown', handler);
@@ -645,6 +663,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
     .filter((optionId) => isPendingWriteIn(writeInStatusByOptionId[optionId]))
     .count();
   const allWriteInsAdjudicated = numPendingWriteIns === 0;
+  const allMarginalMarksAdjudicated = !Object.values(marginalMarks).some(
+    (status) => status !== 'resolved'
+  );
 
   const isHmpb = ballotImage.type === 'hmpb';
   const isBmd = ballotImage.type === 'bmd';
@@ -889,7 +910,15 @@ export function ContestAdjudicationScreen(): JSX.Element {
                       marginalMarkStatus,
                     })}
                     marginalMarkStatus={marginalMarkStatus}
-                    onDismissFlag={() => resolveMarginalMark(officialOption.id)}
+                    onClickFlag={() => {
+                      console.log(officialOption.id, 'clicked flag');
+                      setFocusedOptionId(officialOption.id);
+                    }}
+                    onDismissFlag={() => {
+                      resolveMarginalMark(officialOption.id);
+                      setFocusedOptionId(undefined);
+                    }}
+                    isFocused={focusedOptionId === officialOption.id}
                   />
                 );
               })}
@@ -927,7 +956,12 @@ export function ContestAdjudicationScreen(): JSX.Element {
                         marginalMarkStatus,
                       })}
                       marginalMarkStatus={marginalMarkStatus}
+                      onClickFlag={() => {
+                        console.log(optionId, 'clicked flag');
+                        setFocusedOptionId(optionId);
+                      }}
                       onDismissFlag={() => resolveMarginalMark(optionId)}
+                      isFocused={focusedOptionId === optionId}
                     />
                   );
                 }
@@ -1018,7 +1052,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 Skip
               </SecondaryNavButton>
               <PrimaryNavButton
-                disabled={!allWriteInsAdjudicated}
+                disabled={
+                  !allWriteInsAdjudicated || !allMarginalMarksAdjudicated
+                }
                 icon="Done"
                 onPress={saveAndNext}
                 variant="primary"
