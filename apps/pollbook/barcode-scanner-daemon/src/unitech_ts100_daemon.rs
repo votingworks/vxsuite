@@ -7,7 +7,7 @@ use std::io::{self, BufRead, BufReader, ErrorKind, Write};
 use std::os::unix::fs::PermissionsExt;
 use std::os::unix::net::{UnixListener, UnixStream};
 use std::process::exit;
-use std::str::from_utf8;
+use std::str::{from_utf8, FromStr};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::thread::sleep;
@@ -238,7 +238,7 @@ fn main() -> color_eyre::Result<()> {
                 }
 
                 match from_utf8(&buf) {
-                    Ok(s) => match AamvaDocument::try_from(s) {
+                    Ok(s) => match AamvaDocument::from_str(s) {
                         Ok(document) => {
                             let success = serde_json::to_writer(&uds_client, &document)
                                 .is_ok_and(|()| uds_client.write_all(b"\n").is_ok());

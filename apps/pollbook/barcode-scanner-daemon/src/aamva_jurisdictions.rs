@@ -1,4 +1,6 @@
-use std::fmt;
+use std::{fmt, str::FromStr};
+
+use crate::parse_aamva::AamvaParseError;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum AamvaIssuingJurisdiction {
@@ -60,7 +62,6 @@ pub enum AamvaIssuingJurisdiction {
     PR, // Puerto Rico
     GU, // Guam
     StateDept,
-    None,
 }
 
 impl AamvaIssuingJurisdiction {
@@ -122,7 +123,6 @@ impl AamvaIssuingJurisdiction {
             Self::PR => "PR",
             Self::GU => "GU",
             Self::StateDept => "StateDept",
-            Self::None => "None",
         }
     }
 }
@@ -133,70 +133,73 @@ impl fmt::Display for AamvaIssuingJurisdiction {
     }
 }
 
-/// Lookup a six-digit IIN string and return its jurisdiction enum.
-pub fn iin_to_issuing_jurisdiction(iin: &str) -> AamvaIssuingJurisdiction {
-    match iin {
-        // States
-        "636000" => AamvaIssuingJurisdiction::VA,
-        "636001" => AamvaIssuingJurisdiction::NY,
-        "636002" => AamvaIssuingJurisdiction::MA,
-        "636003" => AamvaIssuingJurisdiction::MD,
-        "636004" => AamvaIssuingJurisdiction::NC,
-        "636005" => AamvaIssuingJurisdiction::SC,
-        "636006" => AamvaIssuingJurisdiction::CT,
-        "636007" => AamvaIssuingJurisdiction::LA,
-        "636008" => AamvaIssuingJurisdiction::MT,
-        "636009" => AamvaIssuingJurisdiction::NM,
-        "636010" => AamvaIssuingJurisdiction::FL,
-        "636011" => AamvaIssuingJurisdiction::DE,
-        "636014" => AamvaIssuingJurisdiction::CA,
-        "636015" => AamvaIssuingJurisdiction::TX,
-        "636018" => AamvaIssuingJurisdiction::IA,
-        "636019" => AamvaIssuingJurisdiction::GU,
-        "636020" => AamvaIssuingJurisdiction::CO,
-        "636021" => AamvaIssuingJurisdiction::AR,
-        "636023" => AamvaIssuingJurisdiction::OH,
-        "636024" => AamvaIssuingJurisdiction::VT,
-        "636025" => AamvaIssuingJurisdiction::PA,
-        "636026" => AamvaIssuingJurisdiction::AZ,
-        "636029" => AamvaIssuingJurisdiction::OR,
-        "636030" => AamvaIssuingJurisdiction::MO,
-        "636031" => AamvaIssuingJurisdiction::WI,
-        "636032" => AamvaIssuingJurisdiction::MI,
-        "636033" => AamvaIssuingJurisdiction::AL,
-        "636034" => AamvaIssuingJurisdiction::ND,
-        "636035" => AamvaIssuingJurisdiction::IL,
-        "636036" => AamvaIssuingJurisdiction::NJ,
-        "636037" => AamvaIssuingJurisdiction::IN,
-        "636038" => AamvaIssuingJurisdiction::MN,
-        "636039" => AamvaIssuingJurisdiction::NH,
-        "636040" => AamvaIssuingJurisdiction::UT,
-        "636041" => AamvaIssuingJurisdiction::ME,
-        "636042" => AamvaIssuingJurisdiction::SD,
-        "636043" => AamvaIssuingJurisdiction::DC,
-        "636045" => AamvaIssuingJurisdiction::WA,
-        "636046" => AamvaIssuingJurisdiction::KY,
-        "636047" => AamvaIssuingJurisdiction::HI,
-        "636049" => AamvaIssuingJurisdiction::NV,
-        "636050" => AamvaIssuingJurisdiction::ID,
-        "636051" => AamvaIssuingJurisdiction::MS,
-        "636052" => AamvaIssuingJurisdiction::RI,
-        "636053" => AamvaIssuingJurisdiction::TN,
-        "636054" => AamvaIssuingJurisdiction::NE,
-        "636055" => AamvaIssuingJurisdiction::GA,
-        "636058" => AamvaIssuingJurisdiction::OK,
-        "636059" => AamvaIssuingJurisdiction::AK,
-        "636060" => AamvaIssuingJurisdiction::WY,
-        "636061" => AamvaIssuingJurisdiction::WV,
-        "636062" => AamvaIssuingJurisdiction::VI,
+impl FromStr for AamvaIssuingJurisdiction {
+    type Err = AamvaParseError;
 
-        // U.S. territories
-        "604427" => AamvaIssuingJurisdiction::AS,
-        "604430" => AamvaIssuingJurisdiction::MP,
-        "604431" => AamvaIssuingJurisdiction::PR,
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            // States
+            "636000" => Ok(Self::VA),
+            "636001" => Ok(Self::NY),
+            "636002" => Ok(Self::MA),
+            "636003" => Ok(Self::MD),
+            "636004" => Ok(Self::NC),
+            "636005" => Ok(Self::SC),
+            "636006" => Ok(Self::CT),
+            "636007" => Ok(Self::LA),
+            "636008" => Ok(Self::MT),
+            "636009" => Ok(Self::NM),
+            "636010" => Ok(Self::FL),
+            "636011" => Ok(Self::DE),
+            "636014" => Ok(Self::CA),
+            "636015" => Ok(Self::TX),
+            "636018" => Ok(Self::IA),
+            "636019" => Ok(Self::GU),
+            "636020" => Ok(Self::CO),
+            "636021" => Ok(Self::AR),
+            "636023" => Ok(Self::OH),
+            "636024" => Ok(Self::VT),
+            "636025" => Ok(Self::PA),
+            "636026" => Ok(Self::AZ),
+            "636029" => Ok(Self::OR),
+            "636030" => Ok(Self::MO),
+            "636031" => Ok(Self::WI),
+            "636032" => Ok(Self::MI),
+            "636033" => Ok(Self::AL),
+            "636034" => Ok(Self::ND),
+            "636035" => Ok(Self::IL),
+            "636036" => Ok(Self::NJ),
+            "636037" => Ok(Self::IN),
+            "636038" => Ok(Self::MN),
+            "636039" => Ok(Self::NH),
+            "636040" => Ok(Self::UT),
+            "636041" => Ok(Self::ME),
+            "636042" => Ok(Self::SD),
+            "636043" => Ok(Self::DC),
+            "636045" => Ok(Self::WA),
+            "636046" => Ok(Self::KY),
+            "636047" => Ok(Self::HI),
+            "636049" => Ok(Self::NV),
+            "636050" => Ok(Self::ID),
+            "636051" => Ok(Self::MS),
+            "636052" => Ok(Self::RI),
+            "636053" => Ok(Self::TN),
+            "636054" => Ok(Self::NE),
+            "636055" => Ok(Self::GA),
+            "636058" => Ok(Self::OK),
+            "636059" => Ok(Self::AK),
+            "636060" => Ok(Self::WY),
+            "636061" => Ok(Self::WV),
+            "636062" => Ok(Self::VI),
 
-        "636027" => AamvaIssuingJurisdiction::StateDept,
+            // U.S. territories
+            "604427" => Ok(Self::AS),
+            "604430" => Ok(Self::MP),
+            "604431" => Ok(Self::PR),
 
-        _ => AamvaIssuingJurisdiction::None,
+            "636027" => Ok(Self::StateDept),
+
+            _ => Err(Self::Err::UnknownIssuingJurisdictionId(s.to_owned())),
+        }
     }
 }

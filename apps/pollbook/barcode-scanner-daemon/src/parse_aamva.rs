@@ -1,8 +1,8 @@
 use serde::Serialize;
-use std::convert::TryFrom;
+use std::str::FromStr;
 use thiserror::Error;
 
-use crate::aamva_jurisdictions::{iin_to_issuing_jurisdiction, AamvaIssuingJurisdiction};
+use crate::aamva_jurisdictions::AamvaIssuingJurisdiction;
 
 const EXPECTED_PREFIX: &str = "ANSI ";
 const ISSUER_SIZE: usize = 6;
@@ -32,16 +32,16 @@ pub struct AamvaHeader {
     pub issuing_jurisdiction: AamvaIssuingJurisdiction,
 }
 
-impl TryFrom<&str> for AamvaHeader {
-    type Error = AamvaParseError;
+impl FromStr for AamvaHeader {
+    type Err = AamvaParseError;
 
-    fn try_from(input: &str) -> Result<Self, Self::Error> {
-        if input.len() < MIN_HEADER_LENGTH {
-            return Err(Self::Error::HeaderTooShort(input.to_string()));
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if s.len() < MIN_HEADER_LENGTH {
+            return Err(Self::Err::HeaderTooShort(s.to_string()));
         }
 
         // 1) Validate prefix
-        let actual_prefix = &input[..EXPECTED_PREFIX.len()];
+        let actual_prefix = &s[..EXPECTED_PREFIX.len()];
         if actual_prefix != EXPECTED_PREFIX {
             return Err(AamvaParseError::UnexpectedHeaderPrefix(
                 actual_prefix.to_string(),
@@ -49,17 +49,12 @@ impl TryFrom<&str> for AamvaHeader {
         }
 
         // 2) Validate issuer ID
-        let issuer_id = &input[EXPECTED_PREFIX.len()..][..ISSUER_SIZE];
-
-        match iin_to_issuing_jurisdiction(issuer_id) {
-            AamvaIssuingJurisdiction::None => Err(Self::Error::UnknownIssuingJurisdictionId(
-                issuer_id.to_string(),
-            )),
-            issuer => Ok(AamvaHeader {
-                raw: input.to_string(),
-                issuing_jurisdiction: issuer,
-            }),
-        }
+        Ok(AamvaHeader {
+            raw: s.to_owned(),
+            issuing_jurisdiction: AamvaIssuingJurisdiction::from_str(
+                &s[EXPECTED_PREFIX.len()..][..ISSUER_SIZE],
+            )?,
+        })
     }
 }
 
@@ -92,15 +87,15 @@ impl AamvaDocument {
     }
 }
 
-impl TryFrom<&str> for AamvaDocument {
-    type Error = AamvaParseError;
+impl FromStr for AamvaDocument {
+    type Err = AamvaParseError;
 
-    fn try_from(input: &str) -> Result<Self, Self::Error> {
-        let mut lines = input.lines();
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut lines = s.lines();
 
         let header = match lines.next() {
-            Some(next_line) => AamvaHeader::try_from(next_line)?,
-            None => return Err(Self::Error::NoLine),
+            Some(next_line) => AamvaHeader::from_str(next_line)?,
+            None => return Err(Self::Err::NoLine),
         };
 
         let mut document =
@@ -112,15 +107,13 @@ impl TryFrom<&str> for AamvaDocument {
             }
 
             let (id, data) = line.split_at(3);
-            let value = data.trim();
 
             match id {
-                // "DAC" => document.first_name = value.to_owned(),
-                "DAC" => value.clone_into(&mut document.first_name),
-                "DAD" => value.clone_into(&mut document.middle_name),
-                "DCS" => value.clone_into(&mut document.last_name),
-                "DCU" => value.clone_into(&mut document.name_suffix),
-                _ => {} // ignore other fields
+                "DAC" => data.clone_into(&mut document.first_name),
+                "DAD" => data.clone_into(&mut document.middle_name),
+                "DCS" => data.clone_into(&mut document.last_name),
+                "DCU" => data.clone_into(&mut document.name_suffix),
+                _ => {}
             }
         }
 
@@ -142,7 +135,7 @@ DCUJR
 
     #[test]
     fn parse_complete_document() {
-        let doc = AamvaDocument::try_from(VALID_BLOB).unwrap();
+        let doc = AamvaDocument::from_str(VALID_BLOB).unwrap();
 
         assert_eq!(doc.issuing_jurisdiction, "NH");
         assert_eq!(doc.first_name, "FIRST".to_owned());
@@ -158,7 +151,7 @@ DCUJR
 ANSI 636039090001DL00310485DLDAQNHL12345678
 DACFIRST
 ";
-        let doc = AamvaDocument::try_from(blob).unwrap();
+        let doc = AamvaDocument::from_str(blob).unwrap();
         assert_eq!(doc.first_name, "FIRST".to_owned());
         // Everything else is still empty string
         assert!(doc.middle_name.is_empty());
@@ -168,7 +161,7 @@ DACFIRST
 
     #[test]
     fn empty_string_errors() {
-        let err = AamvaDocument::try_from("").unwrap_err();
+        let err = AamvaDocument::from_str("").unwrap_err();
         assert!(matches!(err, AamvaParseError::NoLine));
     }
 
@@ -180,7 +173,7 @@ XYZEXTRAVALUE
 DACFIRST
 DCSLAST
 ";
-        let doc = AamvaDocument::try_from(blob).unwrap();
+        let doc = AamvaDocument::from_str(blob).unwrap();
         assert_eq!(doc.first_name, "FIRST".to_owned());
         assert_eq!(doc.last_name, "LAST".to_owned());
     }
@@ -188,7 +181,7 @@ DCSLAST
     #[test]
     fn parse_header() {
         let line = "ANSI 636039100001DL00310485DLDAQNHL12345678";
-        let h = AamvaHeader::try_from(line).unwrap();
+        let h = AamvaHeader::from_str(line).unwrap();
         assert_eq!(
             h,
             AamvaHeader {
@@ -201,14 +194,14 @@ DCSLAST
     #[test]
     fn unexpected_prefix() {
         let bad_prefix = "1234 636039100001DL00310485DLDAQNHL12345678";
-        let err = AamvaHeader::try_from(bad_prefix).unwrap_err();
+        let err = AamvaHeader::from_str(bad_prefix).unwrap_err();
 
         assert!(matches!(err, AamvaParseError::UnexpectedHeaderPrefix(_)));
     }
 
     #[test]
     fn too_short() {
-        let err = AamvaHeader::try_from("ANSI 123").unwrap_err();
+        let err = AamvaHeader::from_str("ANSI 123").unwrap_err();
         assert!(matches!(
             err,
             AamvaParseError::HeaderTooShort(ref s) if s == "ANSI 123"
@@ -218,7 +211,7 @@ DCSLAST
     #[test]
     fn invalid_number() {
         let invalid_jurisdiction_id = "999999";
-        let err = AamvaHeader::try_from(
+        let err = AamvaHeader::from_str(
             format!("ANSI {invalid_jurisdiction_id}100001DL00310485DLDAQNHL12345678").as_str(),
         )
         .unwrap_err();
