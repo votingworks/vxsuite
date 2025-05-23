@@ -140,7 +140,6 @@ fn accept_with_timeout(
                 }
 
                 sleep(Duration::from_millis(200));
-                continue;
             }
             Err(e) => {
                 return Err(e);
