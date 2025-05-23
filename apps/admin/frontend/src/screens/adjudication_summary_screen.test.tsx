@@ -5,7 +5,7 @@ import { sleep } from '@votingworks/basics';
 import { createMemoryHistory } from 'history';
 import { act, screen } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import { WriteInsSummaryScreen } from './write_ins_summary_screen';
+import { AdjudicationSummaryScreen } from './adjudication_summary_screen';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 
 vi.setConfig({
@@ -35,7 +35,7 @@ beforeEach(() => {
 test('No CVRs loaded', async () => {
   apiMock.expectGetAdjudicationQueueMetadata([]);
   apiMock.expectGetCastVoteRecordFiles([]);
-  renderInAppContext(<WriteInsSummaryScreen />, {
+  renderInAppContext(<AdjudicationSummaryScreen />, {
     electionDefinition,
     apiMock,
   });
@@ -59,7 +59,7 @@ test('Tally results already marked as official', async () => {
     },
   ]);
   apiMock.expectGetCastVoteRecordFiles([]);
-  renderInAppContext(<WriteInsSummaryScreen />, {
+  renderInAppContext(<AdjudicationSummaryScreen />, {
     electionDefinition,
     isOfficialResults: true,
     apiMock,
@@ -83,7 +83,7 @@ test('CVRs with write-ins loaded', async () => {
   ]);
   apiMock.expectGetCastVoteRecordFiles([]);
   const history = createMemoryHistory();
-  renderInAppContext(<WriteInsSummaryScreen />, {
+  renderInAppContext(<AdjudicationSummaryScreen />, {
     electionDefinition,
     apiMock,
     history,

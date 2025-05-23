@@ -306,18 +306,18 @@ export const getWriteIns = {
   },
 } as const;
 
-type GetWriteInImageViewsInput = QueryInput<'getWriteInImageViews'>;
-export const getWriteInImageViews = {
-  queryKey(input?: GetWriteInImageViewsInput): QueryKey {
-    return input ? ['getWriteInImageViews', input] : ['getWriteInImageViews'];
+type GetBallotImageViewInput = QueryInput<'getBallotImageView'>;
+export const getBallotImageView = {
+  queryKey(input?: GetBallotImageViewInput): QueryKey {
+    return input ? ['getBallotImageView', input] : ['getBallotImageView'];
   },
-  useQuery(input?: GetWriteInImageViewsInput) {
+  useQuery(input?: GetBallotImageViewInput) {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(input),
       input
         ? () =>
-            apiClient.getWriteInImageViews({
+            apiClient.getBallotImageView({
               cvrId: input.cvrId,
               contestId: input.contestId,
             })
@@ -329,10 +329,10 @@ export const getWriteInImageViews = {
   usePrefetch() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return (input: GetWriteInImageViewsInput) =>
+    return (input: GetBallotImageViewInput) =>
       queryClient.prefetchQuery({
-        queryKey: getWriteInImageViews.queryKey(input),
-        queryFn: () => apiClient.getWriteInImageViews(input),
+        queryKey: getBallotImageView.queryKey(input),
+        queryFn: () => apiClient.getBallotImageView(input),
       });
   },
 } as const;
@@ -370,6 +370,42 @@ export const getVoteAdjudications = {
       this.queryKey(input),
       input
         ? () => apiClient.getVoteAdjudications(input)
+        : /* istanbul ignore next - @preserve */
+          () => fail('input is required'),
+      { enabled: !!input, keepPreviousData: true }
+    );
+  },
+} as const;
+
+type GetMarginalMarksInput = QueryInput<'getMarginalMarks'>;
+export const getMarginalMarks = {
+  queryKey(input?: GetMarginalMarksInput): QueryKey {
+    return input ? ['getMarginalMarks', input] : ['getMarginalMarks'];
+  },
+  useQuery(input?: GetMarginalMarksInput) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(input),
+      input
+        ? () => apiClient.getMarginalMarks(input)
+        : /* istanbul ignore next - @preserve */
+          () => fail('input is required'),
+      { enabled: !!input, keepPreviousData: true }
+    );
+  },
+} as const;
+
+type GetCvrContestTagInput = QueryInput<'getCvrContestTag'>;
+export const getCvrContestTag = {
+  queryKey(input?: GetCvrContestTagInput): QueryKey {
+    return input ? ['getCvrContestTag', input] : ['getCvrContestTag'];
+  },
+  useQuery(input?: GetCvrContestTagInput) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(input),
+      input
+        ? () => apiClient.getCvrContestTag(input)
         : /* istanbul ignore next - @preserve */
           () => fail('input is required'),
       { enabled: !!input, keepPreviousData: true }
@@ -731,6 +767,7 @@ export const adjudicateCvrContest = {
     return useMutation(apiClient.adjudicateCvrContest, {
       async onSuccess() {
         await queryClient.invalidateQueries(getVoteAdjudications.queryKey());
+        await queryClient.invalidateQueries(getCvrContestTag.queryKey());
         await invalidateWriteInQueries(queryClient);
       },
     });

@@ -3,7 +3,7 @@ import { Button } from './button';
 
 export interface CheckboxButtonProps {
   label: string;
-  isChecked: boolean;
+  isChecked: boolean | 'indeterminate';
   onChange: (isChecked: boolean) => void;
   disabled?: boolean;
   className?: string;
@@ -41,7 +41,13 @@ export function CheckboxButton({
       fill={isChecked ? 'tinted' : 'outlined'}
       color={isChecked ? 'primary' : 'neutral'}
       onPress={() => onChange(!isChecked)}
-      icon={isChecked ? 'Checkbox' : 'Square'}
+      icon={
+        isChecked === 'indeterminate'
+          ? 'Question'
+          : isChecked
+          ? 'Checkbox'
+          : 'Square'
+      }
       className={className}
     >
       {label}

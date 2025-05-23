@@ -1,6 +1,12 @@
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { LogEventId, BaseLogger } from '@votingworks/logging';
 import {
+  AdjudicationReason,
+  ContestId,
+  ContestOptionId,
+  Id,
+} from '@votingworks/types';
+import {
   AdjudicatedCvrContest,
   VoteAdjudication,
   WriteInAdjudicationAction,
@@ -320,4 +326,48 @@ export function adjudicateCvrContest(
     }
     store.resolveCvrContestTag({ cvrId, contestId });
   });
+}
+
+/**
+ * Returns a list of option ids for a cvr-contest
+ * that are below the definite threshold and above
+ * the marginal threshold
+ */
+export function getMarginalMarks({
+  store,
+  cvrId,
+  contestId,
+}: {
+  store: Store;
+  cvrId: Id;
+  contestId: ContestId;
+}): ContestOptionId[] {
+  const electionId = assertDefined(store.getCurrentElectionId());
+  const { adminAdjudicationReasons, markThresholds } =
+    store.getSystemSettings(electionId);
+  if (!adminAdjudicationReasons.includes(AdjudicationReason.MarginalMark)) {
+    return [];
+  }
+
+  const [cvr] = store.getCastVoteRecords({ electionId, cvrId, filter: {} });
+  assert(cvr !== undefined);
+  const isBmd = cvr.markScores === undefined;
+  if (isBmd) {
+    return [];
+  }
+
+  const contestMarkScores = cvr.markScores[contestId];
+  if (!contestMarkScores) {
+    return [];
+  }
+  const marginallyMarkedOptionIds = [];
+  for (const [optionId, optionMarkScore] of Object.entries(contestMarkScores)) {
+    const hasMarginalMark =
+      optionMarkScore >= markThresholds.marginal &&
+      optionMarkScore < markThresholds.definite;
+    if (hasMarginalMark) {
+      marginallyMarkedOptionIds.push(optionId);
+    }
+  }
+  return marginallyMarkedOptionIds;
 }

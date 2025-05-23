@@ -111,7 +111,7 @@ describe('hmpb write-in adjudication', () => {
     );
     apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
     apiMock.expectGetWriteIns({ contestId, cvrId }, [writeInRecord]);
-    apiMock.expectGetWriteInImageViews({ contestId, cvrId }, false);
+    apiMock.expectGetBallotImageView({ contestId, cvrId }, false);
     apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
   });
 
@@ -425,7 +425,7 @@ describe('bmd write-in adjudication', () => {
     );
     apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
     apiMock.expectGetWriteIns({ contestId, cvrId }, writeInRecords);
-    apiMock.expectGetWriteInImageViews({ contestId, cvrId }, true);
+    apiMock.expectGetBallotImageView({ contestId, cvrId }, true);
     apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
   });
 
@@ -531,8 +531,8 @@ describe('vote adjudication', () => {
     );
     apiMock.expectGetVoteAdjudications({ contestId, cvrId }, voteAdjudications);
     apiMock.expectGetWriteIns({ contestId, cvrId }, []);
-    apiMock.expectGetWriteInImageViews({ contestId, cvrId }, false);
-    apiMock.expectGetWriteInImageViews({ contestId, cvrId: cvrId2 }, false);
+    apiMock.expectGetBallotImageView({ contestId, cvrId }, false);
+    apiMock.expectGetBallotImageView({ contestId, cvrId: cvrId2 }, false);
     apiMock.expectGetWriteInCandidates([], contestId);
 
     renderScreen(contestId, {
@@ -625,7 +625,7 @@ describe('vote adjudication', () => {
     );
     apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
     apiMock.expectGetWriteIns({ contestId, cvrId }, []);
-    apiMock.expectGetWriteInImageViews({ contestId, cvrId }, true);
+    apiMock.expectGetBallotImageView({ contestId, cvrId }, true);
     apiMock.expectGetWriteInCandidates([], contestId);
 
     renderScreen(contestId, {
@@ -687,7 +687,7 @@ describe('unmarked and undetected write-ins', () => {
     );
     apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
     apiMock.expectGetWriteIns({ contestId, cvrId }, writeInRecords);
-    apiMock.expectGetWriteInImageViews({ contestId, cvrId }, false);
+    apiMock.expectGetBallotImageView({ contestId, cvrId }, false);
     apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
   });
 
@@ -896,12 +896,12 @@ describe('ballot navigation', () => {
       { contestId, cvrId: firstPendingCvrId },
       pendingWriteInRecords175
     );
-    apiMock.expectGetWriteInImageViews(
+    apiMock.expectGetBallotImageView(
       { contestId, cvrId: firstPendingCvrId },
       false
     );
-    apiMock.expectGetWriteInImageViews({ contestId, cvrId: cvrIds[2] }, false);
-    apiMock.expectGetWriteInImageViews({ contestId, cvrId: cvrIds[0] }, false);
+    apiMock.expectGetBallotImageView({ contestId, cvrId: cvrIds[2] }, false);
+    apiMock.expectGetBallotImageView({ contestId, cvrId: cvrIds[0] }, false);
     apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
   });
   test('opens to pending cvr, loads previous adjudications, and enables/disables navigation buttons based on remaining queue', async () => {
@@ -1027,9 +1027,9 @@ describe('ballot image viewer', () => {
     );
     apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
     apiMock.expectGetWriteIns({ contestId, cvrId }, writeInRecords);
-    apiMock.expectGetWriteInImageViews({ contestId, cvrId }, false);
+    apiMock.expectGetBallotImageView({ contestId, cvrId }, false);
     // Prefetch
-    apiMock.expectGetWriteInImageViews({ contestId, cvrId: cvrId2 }, false);
+    apiMock.expectGetBallotImageView({ contestId, cvrId: cvrId2 }, false);
     apiMock.expectGetWriteInCandidates([], contestId);
 
     renderScreen(contestId, {
@@ -1161,9 +1161,9 @@ describe('ballot image viewer', () => {
     );
     apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
     apiMock.expectGetWriteIns({ contestId, cvrId }, []);
-    apiMock.expectGetWriteInImageViews({ contestId, cvrId }, true);
+    apiMock.expectGetBallotImageView({ contestId, cvrId }, true);
     // Prefetch
-    apiMock.expectGetWriteInImageViews({ contestId, cvrId: cvrId2 }, true);
+    apiMock.expectGetBallotImageView({ contestId, cvrId: cvrId2 }, true);
     apiMock.expectGetWriteInCandidates([], contestId);
 
     renderScreen(contestId, {
@@ -1236,7 +1236,7 @@ describe('double votes', () => {
     apiMock.expectGetCastVoteRecordVoteInfo({ cvrId }, { [contestId]: votes });
     apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
     apiMock.expectGetWriteIns({ contestId, cvrId }, writeInRecords);
-    apiMock.expectGetWriteInImageViews({ contestId, cvrId }, false);
+    apiMock.expectGetBallotImageView({ contestId, cvrId }, false);
     apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
   });
 
@@ -1383,8 +1383,8 @@ describe('unsaved changes', () => {
     apiMock.expectGetCastVoteRecordVoteInfo({ cvrId }, { [contestId]: votes });
     apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
     apiMock.expectGetWriteIns({ contestId, cvrId }, [writeInRecord]);
-    apiMock.expectGetWriteInImageViews({ contestId, cvrId }, false);
-    apiMock.expectGetWriteInImageViews({ contestId, cvrId: cvrId2 }, false);
+    apiMock.expectGetBallotImageView({ contestId, cvrId }, false);
+    apiMock.expectGetBallotImageView({ contestId, cvrId: cvrId2 }, false);
     apiMock.expectGetWriteInCandidates([], contestId);
   });
 
