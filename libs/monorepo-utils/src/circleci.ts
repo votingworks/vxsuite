@@ -135,7 +135,7 @@ export function generateConfig(
     return memo.set(pkg, jobLines);
   }, new Map<PnpmPackageInfo, string[]>());
   const rustJobs = rustPackageIds.map(generateTestJobForRustCrate);
-  const jobIds = [
+  const testJobIds = [
     ...[...pnpmJobs.keys()].map(jobIdForPackage),
     ...rustPackageIds.map(jobIdForRustPackageId),
     // hardcoded jobs
@@ -191,10 +191,27 @@ ${rustJobs
           command: |
             ./script/validate-monorepo
 
+  report-flaky-ci-test-run:
+    executor: nodejs
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir script build
+      - run:
+          name: Report
+          command: |
+            ./script/report-flaky-ci-test-run
+
 workflows:
   test:
     jobs:
-${jobIds.map((jobId) => `      - ${jobId}`).join('\n')}
+${testJobIds.map((jobId) => `      - ${jobId}`).join('\n')}
+      - report-flaky-ci-test-run:
+          requires:
+${testJobIds.map((jobId) => `            - ${jobId}`).join('\n')}
 
 commands:
   checkout-and-install:
@@ -241,7 +258,7 @@ commands:
           command: pnpm --recursive install:rust-addon
       - save_cache:
           name: Save Cargo Cache
-          key: 
+          key:
             cargo-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
             "Cargo.lock" }}
           paths:

@@ -1598,6 +1598,20 @@ jobs:
           command: |
             ./script/validate-monorepo
 
+  report-flaky-ci-test-run:
+    executor: nodejs
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir script build
+      - run:
+          name: Report
+          command: |
+            ./script/report-flaky-ci-test-run
+
 workflows:
   test:
     jobs:
@@ -1667,6 +1681,74 @@ workflows:
       - test-crate-types-rs
       - test-crate-vx-logging
       - validate-monorepo
+      - report-flaky-ci-test-run:
+          requires:
+            - test-apps-admin-backend
+            - test-apps-admin-frontend
+            - test-apps-admin-integration-testing
+            - test-apps-central-scan-backend
+            - test-apps-central-scan-frontend
+            - test-apps-central-scan-integration-testing
+            - test-apps-design-backend
+            - test-apps-design-frontend
+            - test-apps-mark-scan-backend
+            - test-apps-mark-scan-frontend
+            - test-apps-mark-scan-integration-testing
+            - test-apps-mark-backend
+            - test-apps-mark-frontend
+            - test-apps-mark-integration-testing
+            - test-apps-pollbook-backend
+            - test-apps-pollbook-frontend
+            - test-apps-scan-backend
+            - test-apps-scan-frontend
+            - test-docs-exercises
+            - test-libs-api
+            - test-libs-auth
+            - test-libs-backend
+            - test-libs-ballot-encoder
+            - test-libs-ballot-interpreter
+            - test-libs-basics
+            - test-libs-bmd-ballot-fixtures
+            - test-libs-cdf-schema-builder
+            - test-libs-custom-paper-handler
+            - test-libs-custom-scanner
+            - test-libs-db
+            - test-libs-dev-dock-backend
+            - test-libs-dev-dock-frontend
+            - test-libs-eslint-plugin-vx
+            - test-libs-fixture-generators
+            - test-libs-fixtures
+            - test-libs-fs
+            - test-libs-fujitsu-thermal-printer
+            - test-libs-grout
+            - test-libs-grout-test-utils
+            - test-libs-hardware-scan-diagnostic
+            - test-libs-hmpb
+            - test-libs-image-utils
+            - test-libs-logging
+            - test-libs-logging-utils
+            - test-libs-mark-flow-ui
+            - test-libs-message-coder
+            - test-libs-monorepo-utils
+            - test-libs-pdi-scanner
+            - test-libs-printing
+            - test-libs-test-utils
+            - test-libs-types
+            - test-libs-types-rs
+            - test-libs-ui
+            - test-libs-usb-drive
+            - test-libs-utils
+            - test-crate-ballot-interpreter
+            - test-crate-controllerd
+            - test-crate-daemon-utils
+            - test-crate-fai100-controllerd
+            - test-crate-hardware-scan-diagnostic
+            - test-crate-logging-utils
+            - test-crate-patinputd
+            - test-crate-pdi-scanner
+            - test-crate-types-rs
+            - test-crate-vx-logging
+            - validate-monorepo
 
 commands:
   checkout-and-install:
@@ -1713,7 +1795,7 @@ commands:
           command: pnpm --recursive install:rust-addon
       - save_cache:
           name: Save Cargo Cache
-          key: 
+          key:
             cargo-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
             "Cargo.lock" }}
           paths:
