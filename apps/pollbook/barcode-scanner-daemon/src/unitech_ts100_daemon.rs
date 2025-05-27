@@ -164,6 +164,13 @@ fn open_socket() -> Result<UnixListener, std::io::Error> {
     Ok(listener)
 }
 
+fn write_doc(writer: &mut dyn Write, doc: &AamvaDocument) -> serde_json::Result<()> {
+    serde_json::to_writer(&mut *writer, doc)?;
+    writer.write_all(b"\n").map_err(serde_json::Error::io)?;
+    writer.flush().map_err(serde_json::Error::io)?;
+    Ok(())
+}
+
 /// Reads from any `BufRead`, parses AAMVA documents, and writes JSON+"\n" to any Write.
 pub fn run_read_write_loop(
     running: &Arc<AtomicBool>,
@@ -189,7 +196,8 @@ pub fn run_read_write_loop(
                     continue;
                 }
                 // We expect the input sequence to start with the compliance indicator
-                // on its own line so we just ignore it and skip to the next line
+                // on its own line so we just ignore it and skip to the next line.
+                // Existence of the compliance indicator is not enforced.
                 if buf.as_slice() == COMPLIANCE_INDICATOR {
                     continue;
                 }
@@ -197,12 +205,7 @@ pub fn run_read_write_loop(
                 match from_utf8(&buf) {
                     Ok(s) => match AamvaDocument::from_str(s) {
                         Ok(doc) => {
-                            if let Err(err) = serde_json::to_writer(&mut *writer, &doc)
-                                .and_then(|()| {
-                                    writer.write_all(b"\n").map_err(serde_json::Error::io)
-                                })
-                                .and_then(|()| writer.flush().map_err(serde_json::Error::io))
-                            {
+                            if let Err(err) = write_doc(writer, &doc) {
                                 log!(
                                     EventId::SocketServerError,
                                     "Failed to write scan to socket: {err}"
