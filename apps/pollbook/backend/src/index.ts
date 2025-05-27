@@ -74,7 +74,7 @@ async function main(): Promise<number> {
     peerPort,
     machineId
   );
-  await localServer.start({
+  localServer.start({
     workspace: localWorkspace,
     auth,
     usbDrive,
