@@ -3,7 +3,7 @@ use nusb::Error;
 use parse_aamva::AamvaDocument;
 use serialport::{DataBits, FlowControl, Parity, StopBits};
 use std::fs;
-use std::io::{self, BufRead, BufReader, ErrorKind, Write};
+use std::io::{self, BufRead, BufReader, BufWriter, ErrorKind, Write};
 use std::os::unix::fs::PermissionsExt;
 use std::os::unix::net::{UnixListener, UnixStream};
 use std::process::exit;
@@ -167,10 +167,11 @@ fn open_socket() -> Result<UnixListener, std::io::Error> {
     Ok(listener)
 }
 
-fn read_scanner(
+/// Reads from any BufRead, parses AAMVA documents, and writes JSON+"\n" to any Write.
+pub fn run_read_write_loop(
     running: &Arc<AtomicBool>,
-    scanner_reader: &mut BufReader<Box<dyn serialport::SerialPort>>,
-    uds_client: &mut UnixStream,
+    reader: &mut dyn BufRead,
+    writer: &mut dyn Write,
 ) {
     let mut buf = Vec::new();
     let mut start = Instant::now();
@@ -178,68 +179,55 @@ fn read_scanner(
     while running.load(Ordering::SeqCst) {
         if start.elapsed() > HEARTBEAT_LOG_INTERVAL {
             start = Instant::now();
-            log!(
-                EventId::Heartbeat;
-                EventType::SystemStatus
-            );
+            log!(EventId::Heartbeat; EventType::SystemStatus);
         }
 
         buf.clear();
-
-        match scanner_reader.read_until(TS100_DATA_TERMINATOR, &mut buf) {
+        match reader.read_until(TS100_DATA_TERMINATOR, &mut buf) {
             Ok(_) => {
                 if buf.ends_with(&[TS100_DATA_TERMINATOR]) {
                     buf.pop();
                 }
-
                 if buf.is_empty() {
                     continue;
                 }
-
                 // We expect the input sequence to start with the compliance indicator
                 // on its own line so we just ignore it and skip to the next line
                 if buf.as_slice() == COMPLIANCE_INDICATOR {
                     continue;
                 }
-
+                // Parse and emit JSON
                 match from_utf8(&buf) {
                     Ok(s) => match AamvaDocument::from_str(s) {
-                        Ok(document) => {
-                            let success = serde_json::to_writer(&mut *uds_client, &document)
-                                .is_ok_and(|()| uds_client.write_all(b"\n").is_ok());
-
-                            if !success {
+                        Ok(doc) => {
+                            if let Err(err) = serde_json::to_writer(&mut *writer, &doc)
+                                .and_then(|()| {
+                                    writer
+                                        .write_all(b"\n")
+                                        .map(|_| ())
+                                        .map_err(serde_json::Error::io)
+                                })
+                                .and_then(|()| writer.flush().map_err(serde_json::Error::io))
+                            {
                                 log!(
                                     EventId::SocketServerError,
-                                    "Failed to write serialized document to UDS client"
+                                    "Failed to write scan to socket: {err}"
                                 );
                             }
                         }
                         Err(e) => {
-                            log!(
-                                event_id: EventId::ParseError,
-                                message: format!("Scanned data was not in AAMVA format: {e}"),
-                                event_type: EventType::SystemAction,
-                                disposition: Disposition::Failure
-                            );
+                            log!(event_id: EventId::ParseError, message: format!("Read data was not in AAMVA format: {e}"), event_type: EventType::SystemAction, disposition: Disposition::Failure);
                         }
                     },
                     Err(e) => {
-                        log!(
-                            event_id: EventId::ParseError,
-                            message: format!("Error parsing scanned bytes as UTF-8: {e}")
-                        );
+                        log!(event_id: EventId::ParseError, message: format!("Error parsing read bytes as UTF-8: {e}"));
                     }
                 }
             }
             // no data in this interval; no-op
-            Err(ref e) if e.kind() == ErrorKind::TimedOut => {}
-            // any other error is fatal
+            Err(ref e) if e.kind() == std::io::ErrorKind::TimedOut => {}
             Err(e) => {
-                log!(
-                    event_id: EventId::UnknownError,
-                    message: format!("Error reading from USB device: {e}")
-                );
+                log!(event_id: EventId::UnknownError, message: format!("Error reading from USB device: {e}"));
                 running.store(false, Ordering::SeqCst);
             }
         }
@@ -296,9 +284,13 @@ fn main() -> color_eyre::Result<()> {
     let listener = open_socket()?;
 
     // Wait for socket client (eg. pollbook backend) to connect. Simultaneous clients are not supported.
-    let mut uds_client = accept_with_timeout(&running, &listener, UDS_CLIENT_CONNECTION_TIMEOUT)?;
+    let mut uds_client = BufWriter::new(accept_with_timeout(
+        &running,
+        &listener,
+        UDS_CLIENT_CONNECTION_TIMEOUT,
+    )?);
 
-    read_scanner(&running, &mut scanner_reader, &mut uds_client);
+    run_read_write_loop(&running, &mut scanner_reader, &mut uds_client);
 
     // Close port and unlink socket
     let mut port = scanner_reader.into_inner();
