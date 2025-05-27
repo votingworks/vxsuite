@@ -310,16 +310,81 @@ fn main() -> color_eyre::Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde_json::{self, json};
     use std::env::temp_dir;
     use std::io::ErrorKind;
+    use std::io::{BufReader, Cursor, Write};
+    use std::os::unix::fs::FileTypeExt;
     use std::os::unix::net::UnixStream;
     use std::path::PathBuf;
+    use std::sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc,
+    };
     use std::time::Duration;
 
     fn make_socket_path(name: &str) -> PathBuf {
         let mut path = temp_dir();
         path.push(name);
         path
+    }
+
+    /// A small writer that captures exactly one write, then flips `running` false
+    /// so the loop will exit immediately.
+    struct TestWriter {
+        buf: Vec<u8>,
+        running: Arc<AtomicBool>,
+    }
+
+    impl Write for TestWriter {
+        fn write(&mut self, bytes: &[u8]) -> std::io::Result<usize> {
+            let n = self.buf.write(bytes)?;
+            self.running.store(false, Ordering::SeqCst);
+            Ok(n)
+        }
+        fn flush(&mut self) -> std::io::Result<()> {
+            Ok(())
+        }
+    }
+
+    #[test]
+    fn run_read_write_loop_emits_expected_json() {
+        let running = Arc::new(AtomicBool::new(true));
+        set_source(SOURCE);
+        let sample_aamva: &str = "@\n\x1E\rANSI 636039090001DL00310485DLDAQNHL12345678
+DACFIRST
+DADMIDDLE
+DCSLAST
+DCUJR\r";
+        let mut raw_bytes = sample_aamva.as_bytes().to_vec();
+        raw_bytes.push(TS100_DATA_TERMINATOR);
+
+        let mut reader = BufReader::new(Cursor::new(raw_bytes));
+
+        let mut test_writer = TestWriter {
+            buf: Vec::new(),
+            running: running.clone(),
+        };
+
+        run_read_write_loop(&running, &mut reader, &mut test_writer);
+
+        let json_str = String::from_utf8(test_writer.buf.clone())
+            .expect("valid UTF-8")
+            .trim_end()
+            .to_string();
+
+        let parsed: serde_json::Value =
+            serde_json::from_str(&json_str).expect("should parse JSON output");
+
+        let expected = json!({
+            "issuingJurisdiction": "NH",
+            "firstName": "FIRST",
+            "middleName": "MIDDLE",
+            "lastName": "LAST",
+            "nameSuffix": "JR"
+        });
+
+        assert_eq!(parsed, expected);
     }
 
     #[test]
@@ -350,9 +415,59 @@ mod tests {
 
         let listener = UnixListener::bind(&socket_path).expect("could not bind listener");
 
-        let err = accept_with_timeout(&running, &listener, Duration::from_millis(100))
+        let err = accept_with_timeout(&running, &listener, Duration::from_millis(10))
             .expect_err("expected connection timeout");
         assert_eq!(err.kind(), ErrorKind::TimedOut);
         let _ = fs::remove_file(&socket_path);
+    }
+
+    // #[test]
+    // fn reset_scanner_no_device_returns_not_connected_error() {
+    //     println!("reset scanner");
+    //     let err = reset_scanner().expect_err("should get Err when no device found");
+
+    //     println!("checking error");
+    //     assert_eq!(
+    //         err.kind(),
+    //         ErrorKind::NotConnected,
+    //         "Expected NotConnected error kind, got {:?}",
+    //         err.kind()
+    //     );
+
+    //     let expected = format!("No USB device found at {UNITECH_VENDOR_ID}:{TS100_PRODUCT_ID}");
+    //     println!("checking error 2");
+    //     assert!(err.to_string().contains(&expected));
+    // }
+
+    // #[test]
+    // fn open_socket_creates_uds() {
+    //     // Ensure no pre-existing socket file
+    //     let _ = fs::remove_file(UDS_PATH);
+    //     let listener = open_socket().expect("open_socket should succeed");
+    //     let meta = fs::metadata(UDS_PATH).expect("socket file should exist");
+    //     assert!(meta.file_type().is_socket(), "Expected a socket file");
+    //     drop(listener);
+    //     let _ = fs::remove_file(UDS_PATH);
+    // }
+
+    #[test]
+    fn open_socket_rebinds_existing_file() {
+        set_source(SOURCE);
+        // Create a pre-existing dummy file at UDS_PATH
+        let _ = fs::remove_file(UDS_PATH);
+        fs::write(UDS_PATH, b"dummy").expect("failed to create dummy file");
+        let meta = fs::metadata(UDS_PATH).expect("socket file must exist after bind");
+        assert!(
+            meta.file_type().is_socket() == false,
+            "Expected rebound socket file"
+        );
+
+        // open_socket should remove and rebind the socket path
+        let listener = open_socket().expect("open_socket should succeed and rebind");
+
+        let meta = fs::metadata(UDS_PATH).expect("socket file must exist after bind");
+        assert!(meta.file_type().is_socket(), "Expected rebound socket file");
+        drop(listener);
+        let _ = fs::remove_file(UDS_PATH);
     }
 }
