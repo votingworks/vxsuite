@@ -664,3 +664,33 @@ test('changing overall ballot count when there are overrides', async () => {
   );
   expect(screen.getByLabelText('Total Ballots Cast')).toBeDisabled();
 });
+
+test('leaving overrides as is when passing through overall ballot count without an update', async () => {
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetManualResults(identifier, {
+    ...mockValidResults,
+    contestResults: {
+      ...mockValidResults.contestResults,
+      [contests[0].id]: {
+        ...mockValidResults.contestResults[contests[0].id],
+        ballots: mockValidResults.ballotCount * 2,
+      },
+    },
+  });
+  renderScreen();
+
+  const ballotCountInput = await screen.findByLabelText('Total Ballots Cast');
+  expect(ballotCountInput).toHaveValue(`${mockValidResults.ballotCount}`);
+  screen.getByText(
+    'Changing the total ballots cast will remove contest overrides.'
+  );
+
+  // No API calls are expected since we didn't change the overall ballot count
+  userEvent.click(screen.getButton('Save & Next'));
+
+  await screen.findByRole('heading', { name: contests[0].title });
+  expect(screen.getByLabelText('Total Ballots Cast')).toHaveValue(
+    `${mockValidResults.ballotCount * 2}`
+  );
+  expect(screen.getByLabelText('Total Ballots Cast')).toBeEnabled();
+});
