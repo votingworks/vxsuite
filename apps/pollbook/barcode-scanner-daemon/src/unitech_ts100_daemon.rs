@@ -55,7 +55,10 @@ fn reset_scanner() -> Result<(), Error> {
         }
         None => Err(Error::new(
             ErrorKind::NotConnected,
-            format!("No USB device found at {UNITECH_VENDOR_ID}:{TS100_PRODUCT_ID}"),
+            format!(
+                "No USB device found at {:#X}:{:#X}",
+                UNITECH_VENDOR_ID, TS100_PRODUCT_ID
+            ),
         )),
     }
 }
