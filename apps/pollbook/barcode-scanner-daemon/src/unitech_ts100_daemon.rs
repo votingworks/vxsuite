@@ -55,10 +55,7 @@ fn reset_scanner() -> Result<(), Error> {
         }
         None => Err(Error::new(
             ErrorKind::NotConnected,
-            format!(
-                "No USB device found at {:#X}:{:#X}",
-                UNITECH_VENDOR_ID, TS100_PRODUCT_ID
-            ),
+            format!("No USB device found at {UNITECH_VENDOR_ID:#X}:{TS100_PRODUCT_ID:#X}"),
         )),
     }
 }
@@ -167,7 +164,7 @@ fn open_socket() -> Result<UnixListener, std::io::Error> {
     Ok(listener)
 }
 
-/// Reads from any BufRead, parses AAMVA documents, and writes JSON+"\n" to any Write.
+/// Reads from any `BufRead`, parses AAMVA documents, and writes JSON+"\n" to any Write.
 pub fn run_read_write_loop(
     running: &Arc<AtomicBool>,
     reader: &mut dyn BufRead,
@@ -202,10 +199,7 @@ pub fn run_read_write_loop(
                         Ok(doc) => {
                             if let Err(err) = serde_json::to_writer(&mut *writer, &doc)
                                 .and_then(|()| {
-                                    writer
-                                        .write_all(b"\n")
-                                        .map(|_| ())
-                                        .map_err(serde_json::Error::io)
+                                    writer.write_all(b"\n").map_err(serde_json::Error::io)
                                 })
                                 .and_then(|()| writer.flush().map_err(serde_json::Error::io))
                             {
