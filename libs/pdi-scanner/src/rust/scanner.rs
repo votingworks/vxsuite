@@ -91,8 +91,6 @@ impl Scanner {
 
         self.stop_tx = Some(stop_tx);
 
-        // let mut transfer_pool = rusb_async::TransferPool::new(self.device_handle.clone());
-        // let mut out_queue = self.device_handle.bulk_out_queue(ENDPOINT_OUT);
         let mut in_primary_queue = self.scanner_interface.bulk_in_queue(ENDPOINT_IN_PRIMARY);
         let mut in_image_data_queue = self.scanner_interface.bulk_in_queue(ENDPOINT_IN_IMAGE_DATA);
         let device_handle = self.scanner_interface.clone();

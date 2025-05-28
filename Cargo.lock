@@ -1816,7 +1816,6 @@ dependencies = [
  "psutil",
  "rand",
  "rayon",
- "rusb",
  "serde",
  "serde_bytes",
  "serde_json",

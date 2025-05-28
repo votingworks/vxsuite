@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::{
     collections::VecDeque,
+    io,
     sync::mpsc,
     time::{Duration, Instant},
 };
@@ -109,13 +110,18 @@ impl<T> Client<T> {
     fn send(&mut self, packet: Outgoing) -> Result<()> {
         let id = self.id;
         self.id = self.id.wrapping_add(1);
-        self.host_to_scanner_tx
-            .send((id, packet))
-            .map_err(|_| Error::Usb(UsbError::Rusb(rusb::Error::Io)))?;
-        let ack_id = self
-            .host_to_scanner_ack_rx
-            .recv()
-            .map_err(|_| Error::Usb(UsbError::Rusb(rusb::Error::Io)))?;
+        self.host_to_scanner_tx.send((id, packet)).map_err(|_| {
+            Error::Usb(UsbError::Nusb(nusb::Error::new(
+                io::ErrorKind::ConnectionAborted,
+                "failed to send packet to scanner (host to scanner channel closed)",
+            )))
+        })?;
+        let ack_id = self.host_to_scanner_ack_rx.recv().map_err(|_| {
+            Error::Usb(UsbError::Nusb(nusb::Error::new(
+                io::ErrorKind::ConnectionAborted,
+                "failed to receive ack from scanner (host to scanner ack channel closed)",
+            )))
+        })?;
         assert_eq!(id, ack_id);
         Ok(())
     }

@@ -1,17 +1,12 @@
 use std::sync::mpsc::{RecvTimeoutError, TryRecvError};
 
-use crate::rusb_async;
-
 #[derive(Debug, thiserror::Error)]
 pub enum UsbError {
-    #[error("rusb error: {0}")]
-    Rusb(rusb::Error),
-
-    #[error("rusb_async error: {0}")]
-    RusbAsync(rusb_async::Error),
-
     #[error("nusb error: {0}")]
     Nusb(nusb::Error),
+
+    #[error("nusb transfer error: {0}")]
+    NusbTransfer(nusb::transfer::TransferError),
 
     #[error("device not found")]
     DeviceNotFound,
@@ -35,26 +30,14 @@ pub enum Error {
     Utf8(#[from] std::str::Utf8Error),
 }
 
-impl From<rusb::Error> for Error {
-    fn from(err: rusb::Error) -> Self {
-        Self::Usb(UsbError::Rusb(err))
-    }
-}
-
-impl From<rusb_async::Error> for Error {
-    fn from(err: rusb_async::Error) -> Self {
-        Self::Usb(UsbError::RusbAsync(err))
-    }
-}
-
 impl From<nusb::Error> for Error {
     fn from(err: nusb::Error) -> Self {
-        Self::Usb(UsbError::Nusb(err.into()))
+        Self::Usb(UsbError::Nusb(err))
     }
 }
 impl From<nusb::transfer::TransferError> for Error {
     fn from(err: nusb::transfer::TransferError) -> Self {
-        Self::Usb(UsbError::Nusb(err.into()))
+        Self::Usb(UsbError::NusbTransfer(err))
     }
 }
 
