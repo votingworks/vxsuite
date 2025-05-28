@@ -402,8 +402,8 @@ pub fn ballot_card(
     // We'll find the appropriate metadata, use it to normalize the image and
     // grid orientation, and extract the ballot style from it.
     let (
-        (front_grid, front_image, front_metadata, front_debug),
-        (back_grid, back_image, back_metadata, back_debug),
+        (front_grid, front_image, front_threshold, front_metadata, front_debug),
+        (back_grid, back_image, back_threshold, back_metadata, back_debug),
         ballot_style_id,
     ) = match options.election.ballot_layout.metadata_encoding {
         MetadataEncoding::QrCode => {
@@ -512,12 +512,14 @@ pub fn ballot_card(
                 (
                     side_a_normalized_grid,
                     side_a_normalized_image,
+                    side_a.threshold,
                     BallotPageMetadata::QrCode(side_a_metadata.clone()),
                     side_a_debug,
                 ),
                 (
                     side_b_normalized_grid,
                     side_b_normalized_image,
+                    side_b.threshold,
                     BallotPageMetadata::QrCode(side_b_metadata),
                     side_b_debug,
                 ),
@@ -554,12 +556,14 @@ pub fn ballot_card(
                 (
                     side_a_normalized_grid,
                     side_a_normalized_image.image,
+                    side_a.threshold,
                     BallotPageMetadata::TimingMarks(side_a_metadata.clone()),
                     side_a_debug,
                 ),
                 (
                     side_b_normalized_grid,
                     side_b_normalized_image.image,
+                    side_b.threshold,
                     BallotPageMetadata::TimingMarks(side_b_metadata.clone()),
                     side_b_debug,
                 ),
@@ -612,11 +616,24 @@ pub fn ballot_card(
     };
 
     let (front_scored_bubble_marks, back_scored_bubble_marks) = par_map_pair(
-        (&front_image, &front_grid, BallotSide::Front, &front_debug),
-        (&back_image, &back_grid, BallotSide::Back, &back_debug),
-        |(image, grid, side, debug)| {
+        (
+            &front_image,
+            front_threshold,
+            &front_grid,
+            BallotSide::Front,
+            &front_debug,
+        ),
+        (
+            &back_image,
+            back_threshold,
+            &back_grid,
+            BallotSide::Back,
+            &back_debug,
+        ),
+        |(image, threshold, grid, side, debug)| {
             score_bubble_marks_from_grid_layout(
                 image,
+                threshold,
                 &options.bubble_template,
                 grid,
                 grid_layout,
@@ -642,10 +659,30 @@ pub fn ballot_card(
         .score_write_ins
         .then(|| {
             par_map_pair(
-                (&front_image, &front_grid, BallotSide::Front, &front_debug),
-                (&back_image, &back_grid, BallotSide::Back, &back_debug),
-                |(image, grid, side, debug)| {
-                    score_write_in_areas(image, grid, grid_layout, sheet_number, side, debug)
+                (
+                    &front_image,
+                    front_threshold,
+                    &front_grid,
+                    BallotSide::Front,
+                    &front_debug,
+                ),
+                (
+                    &back_image,
+                    back_threshold,
+                    &back_grid,
+                    BallotSide::Back,
+                    &back_debug,
+                ),
+                |(image, threshold, grid, side, debug)| {
+                    score_write_in_areas(
+                        image,
+                        threshold,
+                        grid,
+                        grid_layout,
+                        sheet_number,
+                        side,
+                        debug,
+                    )
                 },
             )
         })
