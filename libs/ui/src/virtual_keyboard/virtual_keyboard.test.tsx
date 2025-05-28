@@ -135,6 +135,33 @@ test("doesn't fire key events for disabled keys", () => {
   expect(onKeyPress).not.toHaveBeenCalled();
 });
 
+test('never disables action/delete keys', () => {
+  const onKeyPress = vi.fn();
+  const onBackspace = vi.fn();
+  const onCancel = vi.fn();
+  const onAccept = vi.fn();
+
+  render(
+    <VirtualKeyboard
+      onBackspace={onBackspace}
+      onKeyPress={onKeyPress}
+      keyDisabled={() => true}
+      onCancel={onCancel}
+      onAccept={onAccept}
+      enableWriteInAtiControllerNavigation
+    />
+  );
+
+  userEvent.click(screen.getButton(/delete/));
+  expect(onBackspace).toHaveBeenCalled();
+
+  userEvent.click(screen.getButton(/Accept/));
+  expect(onAccept).toHaveBeenCalled();
+
+  userEvent.click(screen.getButton(/Cancel/));
+  expect(onCancel).toHaveBeenCalled();
+});
+
 test('custom keymap', () => {
   const onKeyPress = vi.fn();
   const onBackspace = vi.fn();

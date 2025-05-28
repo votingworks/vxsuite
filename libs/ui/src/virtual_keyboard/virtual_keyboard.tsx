@@ -463,7 +463,6 @@ export function VirtualKeyboard({
     const buttonProps: ButtonProps<string> = {
       value,
       onPress: onKeyPress,
-      disabled: keyDisabled(value),
       style: {
         flexBasis: getFlexBasis(key.columnSpan),
       },
@@ -481,7 +480,7 @@ export function VirtualKeyboard({
         buttonProps.onPress = onCancel;
         break;
       default:
-      // no override
+        buttonProps.disabled = keyDisabled(value);
     }
 
     const button = (
