@@ -57,7 +57,7 @@ macro_rules! send_and_recv {
 pub struct Client<T> {
     id: usize,
     unhandled_packets: VecDeque<Incoming>,
-    host_to_scanner_tx: mpsc::Sender<(usize, Outgoing)>,
+    host_to_scanner_tx: tokio::sync::mpsc::UnboundedSender<(usize, Outgoing)>,
     host_to_scanner_ack_rx: mpsc::Receiver<usize>,
     scanner_to_host_rx: mpsc::Receiver<Result<Incoming>>,
 
@@ -69,7 +69,7 @@ pub struct Client<T> {
 impl<T> Client<T> {
     #[must_use]
     pub fn new(
-        host_to_scanner_tx: mpsc::Sender<(usize, Outgoing)>,
+        host_to_scanner_tx: tokio::sync::mpsc::UnboundedSender<(usize, Outgoing)>,
         host_to_scanner_ack_rx: mpsc::Receiver<usize>,
         scanner_to_host_rx: mpsc::Receiver<Result<Incoming>>,
         scanner_handle: Option<T>,

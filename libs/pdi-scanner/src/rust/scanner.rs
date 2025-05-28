@@ -1,6 +1,6 @@
 use std::{
     sync::{
-        mpsc::{self, Receiver, Sender},
+        mpsc::{self, Receiver},
         Arc,
     },
     time::Duration,
@@ -13,7 +13,7 @@ use crate::{protocol::parsers, Result, UsbError};
 use super::protocol::packets::{self, Incoming};
 
 type ScannerChannels = (
-    Sender<(usize, packets::Outgoing)>,
+    tokio::sync::mpsc::UnboundedSender<(usize, packets::Outgoing)>,
     Receiver<usize>,
     Receiver<Result<packets::Incoming>>,
 );
@@ -21,7 +21,7 @@ type ScannerChannels = (
 pub struct Scanner {
     scanner_interface: Arc<nusb::Interface>,
     default_timeout: Duration,
-    stop_tx: Option<mpsc::Sender<()>>,
+    stop_tx: Option<tokio::sync::oneshot::Sender<()>>,
 }
 
 impl Scanner {
@@ -83,11 +83,11 @@ impl Scanner {
         /// a dent in available memory.
         const IMAGE_BUFFER_SIZE: usize = 4_194_304;
 
-        let (host_to_scanner_tx, host_to_scanner_rx) =
-            mpsc::channel::<(usize, packets::Outgoing)>();
+        let (host_to_scanner_tx, mut host_to_scanner_rx) =
+            tokio::sync::mpsc::unbounded_channel::<(usize, packets::Outgoing)>();
         let (host_to_scanner_ack_tx, host_to_scanner_ack_rx) = mpsc::channel::<usize>();
         let (scanner_to_host_tx, scanner_to_host_rx) = mpsc::channel();
-        let (stop_tx, stop_rx) = mpsc::channel();
+        let (stop_tx, mut stop_rx) = tokio::sync::oneshot::channel();
 
         self.stop_tx = Some(stop_tx);
 
@@ -111,43 +111,32 @@ impl Scanner {
             in_image_data_queue.submit(RequestBuffer::new(IMAGE_BUFFER_SIZE));
 
             loop {
-                if let Ok(()) = stop_rx.try_recv() {
-                    tracing::debug!("Scanner thread received stop signal");
-                    break;
-                }
+                tokio::select! {
+                    biased;
 
-                match host_to_scanner_rx.try_recv() {
-                    Ok((id, packet)) => {
-                        let bytes = packet.to_bytes();
-                        tracing::debug!(
-                            "sending packet: {packet:?} (data: {data:?})",
-                            data = String::from_utf8_lossy(&bytes)
-                        );
-
-                        let completion = tokio::time::timeout(
-                            default_timeout,
-                            device_handle.bulk_out(ENDPOINT_OUT, bytes),
-                        )
-                        .await
-                        .unwrap();
-                        completion.status.expect("Error sending outgoing packet");
-
-                        host_to_scanner_ack_tx.send(id).unwrap();
-                    }
-                    Err(mpsc::TryRecvError::Empty) => {}
-                    Err(e) => {
-                        tracing::error!("Error receiving outgoing packet: {e}");
+                    _ = &mut stop_rx => {
+                        tracing::debug!("Scanner thread received stop signal");
                         break;
                     }
-                }
 
-                match tokio::time::timeout(
-                    Duration::from_millis(1),
-                    in_primary_queue.next_complete(),
-                )
-                .await
-                {
-                    Ok(completion) => {
+                    completion = in_image_data_queue.next_complete() => {
+                        if completion.status.is_err() {
+                            let err = completion.status.unwrap_err();
+                            tracing::error!("Error while polling image data endpoint: {err:?}");
+                            scanner_to_host_tx.send(Err(err.into())).unwrap();
+                            break;
+                        }
+                        let data = completion.data;
+                        tracing::debug!("Received image data: {len} bytes", len = data.len());
+                        scanner_to_host_tx
+                            .send(Ok(packets::Incoming::ImageData(data.clone())))
+                            .unwrap();
+
+                        // resubmit the transfer to receive more data
+                        in_image_data_queue.submit(RequestBuffer::reuse(data, IMAGE_BUFFER_SIZE));
+                    }
+
+                    completion = in_primary_queue.next_complete() => {
                         if completion.status.is_err() {
                             let err = completion.status.unwrap_err();
                             tracing::error!("Error while polling primary IN endpoint: {err:?}");
@@ -188,32 +177,25 @@ impl Scanner {
                         // resubmit the transfer to receive more data
                         in_primary_queue.submit(RequestBuffer::reuse(data, DEFAULT_BUFFER_SIZE));
                     }
-                    Err(_) => {}
-                }
 
-                match tokio::time::timeout(
-                    Duration::from_millis(10),
-                    in_image_data_queue.next_complete(),
-                )
-                .await
-                {
-                    Ok(completion) => {
-                        if completion.status.is_err() {
-                            let err = completion.status.unwrap_err();
-                            tracing::error!("Error while polling image data endpoint: {err:?}");
-                            scanner_to_host_tx.send(Err(err.into())).unwrap();
-                            break;
-                        }
-                        let data = completion.data;
-                        tracing::debug!("Received image data: {len} bytes", len = data.len());
-                        scanner_to_host_tx
-                            .send(Ok(packets::Incoming::ImageData(data.clone())))
-                            .unwrap();
+                    Some((id, packet)) = host_to_scanner_rx.recv() => {
+                        let bytes = packet.to_bytes();
+                        tracing::debug!(
+                            "sending packet: {packet:?} (data: {data:?})",
+                            data = String::from_utf8_lossy(&bytes)
+                        );
 
-                        // resubmit the transfer to receive more data
-                        in_image_data_queue.submit(RequestBuffer::reuse(data, IMAGE_BUFFER_SIZE));
+                        let completion = tokio::time::timeout(
+                            default_timeout,
+                            device_handle.bulk_out(ENDPOINT_OUT, bytes),
+                        )
+                        .await
+                        .unwrap();
+                        completion.status.expect("Error sending outgoing packet");
+
+                        host_to_scanner_ack_tx.send(id).unwrap();
                     }
-                    Err(_) => {}
+
                 }
             }
         });
