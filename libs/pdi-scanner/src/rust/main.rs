@@ -386,11 +386,6 @@ fn main() -> color_eyre::Result<()> {
                     send_event(Event::ScanStart)?;
                 }
                 Ok(Incoming::EndScanEvent) => {
-                    // Disable the feeder to prevent another scan from beginning. We've seen cases
-                    // where a scan fails (e.g. if the paper isn't caught by the rollers) and then
-                    // another scan immediately starts. We want to have time to handle the results
-                    // of this scan safely.
-                    c.set_feeder_mode(FeederMode::Disabled)?;
                     match raw_image_data.try_decode_scan(DEFAULT_IMAGE_WIDTH, ScanSideMode::Duplex)
                     {
                         Ok(Sheet::Duplex(top, bottom)) => {

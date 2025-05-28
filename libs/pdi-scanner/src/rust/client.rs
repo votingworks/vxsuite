@@ -810,8 +810,10 @@ impl<T> Client<T> {
         self.set_scan_side_mode(ScanSideMode::Duplex)?;
         // OUT Enable AutoScanStart
         self.send_command(&Command::new(b"g"))?;
-        // OUT DisablePickOnCommandModeRequest
-        self.set_pick_on_command_mode(PickOnCommandMode::FeederStaysEnabledBetweenScans)?;
+        // OUT EnablePickOnCommandModeRequest
+        // Ensure the next scan will not start until we explicitly enable the feeder.
+        // This ensures we can safely process the results of one scan before another starts.
+        self.set_pick_on_command_mode(PickOnCommandMode::FeederMustBeReenabledBetweenScans)?;
         // OUT SetDoubleFeedDetectionSensitivityRequest { percentage: 50 }
         self.set_double_feed_sensitivity(ClampedPercentage::new_unchecked(50))?;
         // OUT SetDoubleFeedDetectionMinimumDocumentLengthRequest { length_in_hundredths_of_an_inch: 100 }
