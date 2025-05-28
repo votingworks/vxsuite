@@ -811,7 +811,7 @@ impl<T> Client<T> {
         // OUT Enable AutoScanStart
         self.send_command(&Command::new(b"g"))?;
         // OUT DisablePickOnCommandModeRequest
-        self.set_pick_on_command_mode(PickOnCommandMode::FeederStaysEnabledBetweenScans)?;
+        self.set_pick_on_command_mode(PickOnCommandMode::FeederMustBeReenabledBetweenScans)?;
         // OUT SetDoubleFeedDetectionSensitivityRequest { percentage: 50 }
         self.set_double_feed_sensitivity(ClampedPercentage::new_unchecked(50))?;
         // OUT SetDoubleFeedDetectionMinimumDocumentLengthRequest { length_in_hundredths_of_an_inch: 100 }
