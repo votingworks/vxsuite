@@ -147,7 +147,7 @@ test('bmd 150 page is 13.25"', async () => {
     await renderToPdf({
       document: <ManyHeadings count={15} />,
       outputPath,
-      paperDimensions: PAPER_DIMENSIONS.Bmd150,
+      paperDimensions: PAPER_DIMENSIONS.Custom8x13pt25,
     })
   ).unsafeUnwrap();
 

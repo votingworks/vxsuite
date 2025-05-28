@@ -28,7 +28,9 @@ import {
   CandidateVote,
   DEFAULT_SYSTEM_SETTINGS,
   DEV_MACHINE_ID,
+  Election,
   ElectionDefinition,
+  HmpbBallotPaperSize,
   UiStringsPackage,
   VotesDict,
   convertVxfElectionToCdfBallotDefinition,
@@ -546,96 +548,116 @@ function expectVotesEqual(expected: VotesDict, actual: VotesDict) {
   expect(sortVotes(actual)).toEqual(sortVotes(expected));
 }
 
-test('printing ballots', async () => {
-  const printBallotSpy = vi.spyOn(stateMachine, 'printBallot');
+test.each([
+  { hmpbPaperSize: HmpbBallotPaperSize.Letter },
+  { hmpbPaperSize: HmpbBallotPaperSize.Legal },
+  { hmpbPaperSize: HmpbBallotPaperSize.Custom22 },
+])(
+  'printing BMDBs when HMPBs are on $hmpbPaperSize',
+  async ({ hmpbPaperSize }) => {
+    const printBallotSpy = vi.spyOn(stateMachine, 'printBallot');
 
-  const deferredEjection = deferred<boolean>();
-  const mockEject = vi.spyOn(driver, 'ejectBallotToRear');
-  mockEject.mockReturnValue(deferredEjection.promise);
+    const deferredEjection = deferred<boolean>();
+    const mockEject = vi.spyOn(driver, 'ejectBallotToRear');
+    mockEject.mockReturnValue(deferredEjection.promise);
 
-  const electionDefinition = getMockMultiLanguageElectionDefinition(
-    readElectionGeneralDefinition(),
-    ['en', 'zh-Hans']
-  );
-  await configureForTestElection(
-    electionDefinition,
-    electionGeneralFixtures.uiStrings
-  );
+    const baseElection = getMockMultiLanguageElectionDefinition(
+      readElectionGeneralDefinition(),
+      ['en', 'zh-Hans']
+    ).election;
+    const election: Election = {
+      ...baseElection,
+      ballotLayout: {
+        ...baseElection.ballotLayout,
+        paperSize: hmpbPaperSize,
+      },
+    };
+    const electionDefinition = safeParseElectionDefinition(
+      JSON.stringify(election)
+    ).unsafeUnwrap();
 
-  await expectElectionState({ ballotsPrintedCount: 0 });
+    await configureForTestElection(
+      electionDefinition,
+      electionGeneralFixtures.uiStrings
+    );
 
-  // vote a ballot in English
-  await mockLoadFlow(apiClient, driver);
-  const mockVotes = generateMockVotes(electionDefinition.election);
+    await expectElectionState({ ballotsPrintedCount: 0 });
 
-  // Add extreme-case write-in to track handling of long names with no breaks.
-  const maxWriteInChars = 40 - 'WRITEIN'.length;
-  const fillCharCount = maxWriteInChars - 'WRITEIN'.length;
-  const writeInName = `WRITEIN${'N'.repeat(fillCharCount)}`;
+    // vote a ballot in English
+    await mockLoadFlow(apiClient, driver);
+    const mockVotes = generateMockVotes(electionDefinition.election);
 
-  const writeInContest = find(
-    electionDefinition.election.contests,
-    (c) => c.type === 'candidate' && c.allowWriteIns && c.seats === 1
-  );
-  mockVotes[writeInContest.id] = [
-    {
-      id: `write-in-${writeInName}`,
-      isWriteIn: true,
-      name: writeInName,
-    },
-  ];
+    // Add extreme-case write-in to track handling of long names with no breaks.
+    const maxWriteInChars = 40 - 'WRITEIN'.length;
+    const fillCharCount = maxWriteInChars - 'WRITEIN'.length;
+    const writeInName = `WRITEIN${'N'.repeat(fillCharCount)}`;
 
-  await apiClient.printBallot({
-    precinctId: '21',
-    ballotStyleId: electionDefinition.election.ballotStyles.find(
-      (bs) => bs.languages?.includes('en')
-    )!.id,
-    votes: mockVotes,
-    languageCode: 'en',
-  });
+    const writeInContest = find(
+      electionDefinition.election.contests,
+      (c) => c.type === 'candidate' && c.allowWriteIns && c.seats === 1
+    );
+    mockVotes[writeInContest.id] = [
+      {
+        id: `write-in-${writeInName}`,
+        isWriteIn: true,
+        name: writeInName,
+      },
+    ];
 
-  await expectElectionState({ ballotsPrintedCount: 1 });
-  const pdfData = printBallotSpy.mock.calls[0][0];
-  await expect(pdfData).toMatchPdfSnapshot({ failureThreshold: 0.027 });
+    await apiClient.printBallot({
+      precinctId: '21',
+      ballotStyleId: electionDefinition.election.ballotStyles.find(
+        (bs) => bs.languages?.includes('en')
+      )!.id,
+      votes: mockVotes,
+      languageCode: 'en',
+    });
 
-  await waitForStatus('presenting_ballot');
-  const interpretation = await apiClient.getInterpretation();
-  assert(interpretation);
-  assert(interpretation.type === 'InterpretedBmdPage');
-  expectVotesEqual(interpretation.votes, mockVotes);
+    await expectElectionState({ ballotsPrintedCount: 1 });
+    const pdfData = printBallotSpy.mock.calls[0][0];
+    await expect(pdfData).toMatchPdfSnapshot({ failureThreshold: 0.027 });
 
-  await apiClient.validateBallot();
-  await waitForStatus('ejecting_to_rear');
-  deferredEjection.resolve(true);
-  driver.setMockStatus('noPaper');
-  clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
-  await waitForStatus('ballot_accepted');
+    await waitForStatus('presenting_ballot');
+    const interpretation = await apiClient.getInterpretation();
+    assert(interpretation);
+    assert(interpretation.type === 'InterpretedBmdPage');
+    expectVotesEqual(interpretation.votes, mockVotes);
 
-  clock.increment(delays.DELAY_NOTIFICATION_DURATION_MS);
-  await waitForStatus('not_accepting_paper');
-  mockPollWorkerAuth(mockAuth, electionDefinition);
+    await apiClient.validateBallot();
+    await waitForStatus('ejecting_to_rear');
+    deferredEjection.resolve(true);
+    driver.setMockStatus('noPaper');
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+    await waitForStatus('ballot_accepted');
 
-  // vote a ballot in Chinese
-  await mockLoadFlow(apiClient, driver);
-  await apiClient.printBallot({
-    precinctId: '21',
-    ballotStyleId: electionDefinition.election.ballotStyles.find(
-      (bs) => bs.languages?.includes('zh-Hans')
-    )!.id,
-    votes: mockVotes,
-    languageCode: 'zh-Hans',
-  });
+    clock.increment(delays.DELAY_NOTIFICATION_DURATION_MS);
+    await waitForStatus('not_accepting_paper');
+    mockPollWorkerAuth(mockAuth, electionDefinition);
 
-  await expectElectionState({ ballotsPrintedCount: 2 });
-  const pdfDataChinese = printBallotSpy.mock.calls[1][0];
-  await expect(pdfDataChinese).toMatchPdfSnapshot({ failureThreshold: 0.027 });
+    // vote a ballot in Chinese
+    await mockLoadFlow(apiClient, driver);
+    await apiClient.printBallot({
+      precinctId: '21',
+      ballotStyleId: electionDefinition.election.ballotStyles.find(
+        (bs) => bs.languages?.includes('zh-Hans')
+      )!.id,
+      votes: mockVotes,
+      languageCode: 'zh-Hans',
+    });
 
-  await waitForStatus('presenting_ballot');
-  const interpretationChinese = await apiClient.getInterpretation();
-  assert(interpretationChinese);
-  assert(interpretationChinese.type === 'InterpretedBmdPage');
-  expectVotesEqual(interpretationChinese.votes, mockVotes);
-});
+    await expectElectionState({ ballotsPrintedCount: 2 });
+    const pdfDataChinese = printBallotSpy.mock.calls[1][0];
+    await expect(pdfDataChinese).toMatchPdfSnapshot({
+      failureThreshold: 0.027,
+    });
+
+    await waitForStatus('presenting_ballot');
+    const interpretationChinese = await apiClient.getInterpretation();
+    assert(interpretationChinese);
+    assert(interpretationChinese.type === 'InterpretedBmdPage');
+    expectVotesEqual(interpretationChinese.votes, mockVotes);
+  }
+);
 
 test('addDiagnosticRecord', async () => {
   await apiClient.addDiagnosticRecord({
