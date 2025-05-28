@@ -42,4 +42,4 @@ tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 users = { workspace = true }
 nusb = "0.1.14"
-tokio = { workspace = true, features = ["full"] }
+tokio = { workspace = true, features = ["rt-multi-thread", "macros", "time", "sync"] }
