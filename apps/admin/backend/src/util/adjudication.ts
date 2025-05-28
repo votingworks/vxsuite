@@ -54,7 +54,7 @@ export async function getBallotImageView({
       y: 0,
     },
     contestCoordinates: contestLayout.bounds,
-    contestOptions: contestLayout.options,
+    optionLayouts: contestLayout.options,
     side,
   };
 }

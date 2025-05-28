@@ -392,34 +392,25 @@ export function createApiMock(
           }))
         );
       } else {
-        apiClient.getWriteInImageViews.expectCallWith(input).resolves(
-          Array.from({ length: numImages }).map((_, idx) => ({
-            cvrId,
-            optionId: `write-in-${idx}`,
-            writeInId: `write-in-${idx}`,
-            imageUrl: `mock-image-data-${cvrId}-${idx}`,
-            type: 'hmpb',
-            side: 'front',
-            ballotCoordinates: {
-              x: 0,
-              y: 0,
-              width: 1000,
-              height: 1000,
-            },
-            contestCoordinates: {
-              x: 200,
-              y: 200,
-              width: 600,
-              height: 600,
-            },
-            writeInCoordinates: {
-              x: 400,
-              y: 200,
-              width: 400,
-              height: 200,
-            },
-          }))
-        );
+        apiClient.getBallotImageView.expectCallWith(input).resolves({
+          cvrId,
+          imageUrl: `mock-image-data-${cvrId}-${1}`,
+          type: 'hmpb',
+          side: 'front',
+          ballotCoordinates: {
+            x: 0,
+            y: 0,
+            width: 1000,
+            height: 1000,
+          },
+          contestCoordinates: {
+            x: 200,
+            y: 200,
+            width: 600,
+            height: 600,
+          },
+          optionLayouts: [],
+        });
       }
     },
 

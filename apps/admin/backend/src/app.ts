@@ -77,7 +77,7 @@ import {
   WriteInAdjudicationAction,
   AdjudicationQueueMetadata,
   WriteInCandidateRecord,
-  WriteInImageView,
+  BallotImageView,
   ImportElectionResultsReportingError,
   ManualResultsMetadata,
   CastVoteRecordVoteInfo,
@@ -87,7 +87,7 @@ import {
 } from './types';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
-import { getWriteInImageViews } from './util/write_ins';
+import { getBallotImageView } from './util/adjudication';
 import {
   transformWriteInsAndSetManualResults,
   validateManualResults,
@@ -692,11 +692,11 @@ function buildApi({
       });
     },
 
-    getWriteInImageViews(input: {
+    getBallotImageView(input: {
       cvrId: Id;
       contestId: ContestId;
-    }): Promise<WriteInImageView[]> {
-      return getWriteInImageViews({
+    }): Promise<BallotImageView> {
+      return getBallotImageView({
         store: workspace.store,
         cvrId: input.cvrId,
         contestId: input.contestId,

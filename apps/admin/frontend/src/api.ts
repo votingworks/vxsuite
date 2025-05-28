@@ -306,18 +306,18 @@ export const getWriteIns = {
   },
 } as const;
 
-type GetWriteInImageViewsInput = QueryInput<'getWriteInImageViews'>;
-export const getWriteInImageViews = {
-  queryKey(input?: GetWriteInImageViewsInput): QueryKey {
-    return input ? ['getWriteInImageViews', input] : ['getWriteInImageViews'];
+type GetBallotImageViewInput = QueryInput<'getBallotImageView'>;
+export const getBallotImageView = {
+  queryKey(input?: GetBallotImageViewInput): QueryKey {
+    return input ? ['getBallotImageView', input] : ['getBallotImageView'];
   },
-  useQuery(input?: GetWriteInImageViewsInput) {
+  useQuery(input?: GetBallotImageViewInput) {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(input),
       input
         ? () =>
-            apiClient.getWriteInImageViews({
+            apiClient.getBallotImageView({
               cvrId: input.cvrId,
               contestId: input.contestId,
             })
@@ -329,10 +329,10 @@ export const getWriteInImageViews = {
   usePrefetch() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return (input: GetWriteInImageViewsInput) =>
+    return (input: GetBallotImageViewInput) =>
       queryClient.prefetchQuery({
-        queryKey: getWriteInImageViews.queryKey(input),
-        queryFn: () => apiClient.getWriteInImageViews(input),
+        queryKey: getBallotImageView.queryKey(input),
+        queryFn: () => apiClient.getBallotImageView(input),
       });
   },
 } as const;

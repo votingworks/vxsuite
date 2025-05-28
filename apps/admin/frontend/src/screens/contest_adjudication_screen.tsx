@@ -41,7 +41,7 @@ import { allContestOptions, format } from '@votingworks/utils';
 import { useHistory, useParams } from 'react-router-dom';
 import {
   getCastVoteRecordVoteInfo,
-  getWriteInImageViews,
+  getBallotImageView,
   getNextCvrIdForAdjudication,
   getWriteIns,
   getAdjudicationQueue,
@@ -354,7 +354,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const writeInsQuery = getWriteIns.useQuery(
     maybeCurrentCvrId ? { cvrId: maybeCurrentCvrId, contestId } : undefined
   );
-  const writeInImagesQuery = getWriteInImageViews.useQuery(
+  const ballotImageViewQuery = getBallotImageView.useQuery(
     maybeCurrentCvrId ? { cvrId: maybeCurrentCvrId, contestId } : undefined
   );
   const writeInCandidatesQuery = getWriteInCandidates.useQuery({
@@ -530,7 +530,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
   }, [firstPendingCvrIdQuery, cvrQueueQuery, maybeCvrQueueIndex]);
 
   // Prefetch the next and previous ballot images
-  const prefetchImageViews = getWriteInImageViews.usePrefetch();
+  const prefetchImageViews = getBallotImageView.usePrefetch();
   useEffect(() => {
     if (!cvrQueueQuery.isSuccess || maybeCvrQueueIndex === undefined) return;
     const nextCvrId = cvrQueueQuery.data[maybeCvrQueueIndex + 1];
@@ -559,7 +559,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
     cvrVoteInfoQuery.isFetching ||
     cvrQueueQuery.isFetching ||
     firstPendingCvrIdQuery.isFetching ||
-    writeInImagesQuery.isFetching ||
+    ballotImageViewQuery.isFetching ||
     writeInsQuery.isFetching ||
     writeInCandidatesQuery.isFetching ||
     voteAdjudicationsQuery.isFetching;
@@ -595,7 +595,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
 
   const originalVotes = cvrVoteInfoQuery.data.votes[contestId];
   const writeIns = writeInsQuery.data;
-  const writeInImages = writeInImagesQuery.data;
+  const ballotImage = ballotImageViewQuery.data;
   const writeInCandidates = writeInCandidatesQuery.data;
   const cvrQueueIndex = maybeCvrQueueIndex;
   const currentCvrId = maybeCurrentCvrId;
@@ -771,19 +771,15 @@ export function ContestAdjudicationScreen(): JSX.Element {
         <BallotPanel>
           {isHmpb && (
             <BallotZoomImageViewer
-              ballotBounds={firstWriteInImage.ballotCoordinates}
+              ballotBounds={ballotImage.ballotCoordinates}
               key={currentCvrId} // Reset zoom state for each write-in
-              imageUrl={firstWriteInImage.imageUrl}
+              imageUrl={ballotImage.imageUrl}
               zoomedInBounds={
-                focusedWriteInImage?.type === 'hmpb'
-                  ? focusedWriteInImage.writeInCoordinates
-                  : firstWriteInImage.contestCoordinates
+                focusedCoordinates || ballotImage.contestCoordinates
               }
             />
           )}
-          {isBmd && (
-            <BallotStaticImageViewer imageUrl={firstWriteInImage.imageUrl} />
-          )}
+          {isBmd && <BallotStaticImageViewer imageUrl={ballotImage.imageUrl} />}
         </BallotPanel>
         <AdjudicationPanel>
           {focusedOptionId && <AdjudicationPanelOverlay />}
@@ -859,9 +855,6 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 const writeInRecord = writeIns.find(
                   (writeIn) => writeIn.optionId === optionId
                 );
-                const writeInImage = writeInImages.find(
-                  (img) => img.optionId === optionId
-                );
                 const writeInStatus = writeInStatusByOptionId[optionId];
                 const isFocused = focusedOptionId === optionId;
                 const isSelected = hasVoteByOptionId[optionId];
@@ -897,11 +890,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                     isFocused={isFocused}
                     isSelected={isSelected}
                     hasInvalidEntry={doubleVoteAlert?.optionId === optionId}
-                    label={
-                      writeInImage?.type === 'bmd'
-                        ? writeInImage.machineMarkedText
-                        : undefined
-                    }
+                    label={writeInRecord?.machineMarkedText}
                     status={writeInStatus}
                     onInputFocus={() => setFocusedOptionId(optionId)}
                     onInputBlur={() => setFocusedOptionId(undefined)}

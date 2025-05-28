@@ -401,10 +401,19 @@ export async function importCastVoteRecords(
         addCastVoteRecordResult.ok();
 
       if (isCastVoteRecordNew) {
-        if (castVoteRecordWriteIns.length > 0) {
+        const castVoteRecordContestTags = determineCvrContestTags({
+          store,
+          cvrId: castVoteRecordId,
+          writeIns: castVoteRecordWriteIns,
+          markScores,
+        });
+        if (castVoteRecordContestTags.length > 0) {
+          for (const tag of castVoteRecordContestTags) {
+            store.addCvrContestTag(tag);
+          }
+
           // Guaranteed to be defined given validation in readCastVoteRecordExport
           assert(referencedFiles !== undefined);
-
           for (const i of [0, 1] as const) {
             const imageFileReadResult =
               await referencedFiles.imageFiles[i].read();
@@ -438,7 +447,8 @@ export async function importCastVoteRecords(
               });
             }
           }
-
+        }
+        if (castVoteRecordWriteIns.length > 0) {
           for (const castVoteRecordWriteIn of castVoteRecordWriteIns) {
             store.addWriteIn({
               castVoteRecordId,
@@ -450,15 +460,6 @@ export async function importCastVoteRecords(
               isUndetected: false,
               machineMarkedText: castVoteRecordWriteIn.text,
             });
-          }
-
-          for (const tag of determineCvrContestTags({
-            store,
-            cvrId: castVoteRecordId,
-            writeIns: castVoteRecordWriteIns,
-            markScores,
-          })) {
-            store.addCvrContestTag(tag);
           }
         }
       }
