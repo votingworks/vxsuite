@@ -271,7 +271,7 @@ export function BmdPaperBallot(
       }}
       {...rest}
       votes={filteredVotes}
-      sheetSize="bmd150"
+      sheetSize="custom8x13pt25"
     />
   );
 }

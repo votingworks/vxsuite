@@ -202,7 +202,7 @@ export function getLayout(
   return ok(possibleLayoutsDescending[finalLayoutIndex]);
 }
 
-export type BmdBallotSheetSize = 'letter' | 'bmd150';
+export type BmdBallotSheetSize = 'letter' | 'custom8x13pt25' | 'custom8x11';
 
 interface BallotProps {
   sheetSize?: BmdBallotSheetSize;
@@ -243,11 +243,12 @@ const Ballot = styled.div<BallotProps>`
     margin: 0.375in;
     size: ${(props) => {
       switch (props.sheetSize) {
-        case 'bmd150':
+        case 'custom8x13pt25':
           // Width of exactly 8in results in 1-3 dots of overflow. The overflowing dots print on a line of
           // their own, followed by a mostly blank line. This causes stripes in the printed page.
-          /* istanbul ignore next - hardware specs still in flux - @preserve */
           return '7.975in 13.25in';
+        case 'custom8x11':
+          return '7.975in 11in';
         case 'letter':
         default:
           return 'letter portrait';
