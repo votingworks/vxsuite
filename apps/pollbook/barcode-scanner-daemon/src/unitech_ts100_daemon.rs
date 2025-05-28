@@ -6,7 +6,6 @@ use std::fs;
 use std::io::{self, BufRead, BufReader, BufWriter, ErrorKind, Write};
 use std::os::unix::fs::PermissionsExt;
 use std::os::unix::net::{UnixListener, UnixStream};
-use std::process::exit;
 use std::str::{from_utf8, FromStr};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
@@ -35,7 +34,7 @@ const UDS_CLIENT_CONNECTION_TIMEOUT: Duration = Duration::from_secs(30);
  */
 const UNITECH_VENDOR_ID: u16 = 0x2745;
 const TS100_PRODUCT_ID: u16 = 0x300a;
-const TS100_PORT_NAME: &str = "/dev/ttyACM0";
+const TS100_PORT_NAME: &str = "/dev/barcode_scanner";
 const TS100_BAUD_RATE: u32 = 115_200;
 const TS100_DATA_TERMINATOR: u8 = b'\r';
 
@@ -77,19 +76,14 @@ fn init_port(
                 disposition: Disposition::Success
             );
         }
-        Err(e) => {
+        Err(err) => {
             log!(
                 event_id: EventId::UsbDeviceReconnectAttempted,
-                message: format!("Barcode scanner reset failed: {e}"),
+                message: format!("Barcode scanner reset failed: {err}"),
                 event_type: EventType::SystemAction,
                 disposition: Disposition::Failure
             );
-
-            log!(
-                EventId::ProcessTerminated;
-                EventType::SystemAction
-            );
-            exit(1);
+            return Err(err.into());
         }
     }
 
@@ -119,11 +113,10 @@ fn accept_with_timeout(
     log!(EventId::SocketServerAwaitingClient);
     loop {
         if !running.load(Ordering::SeqCst) {
-            log!(
-                EventId::ProcessTerminated;
-                EventType::SystemAction
-            );
-            exit(1);
+            return Err(io::Error::new(
+                ErrorKind::Interrupted,
+                "Interrupted by user",
+            ));
         }
 
         match listener.accept() {
@@ -250,8 +243,36 @@ fn main() -> color_eyre::Result<()> {
     })?;
 
     // Connect to barcode scanner device
-    let port = match init_port(TS100_PORT_NAME, TS100_BAUD_RATE) {
-        Ok(p) => p,
+    match init_port(TS100_PORT_NAME, TS100_BAUD_RATE) {
+        Ok(port) => {
+            log!(
+                event_id: EventId::DeviceAttached,
+                message: format!("Connected to TS100 barcode scanner at {TS100_PORT_NAME}..."),
+                event_type: EventType::SystemStatus,
+                disposition: Disposition::Success
+            );
+
+            // Reader to read from the barcode scanner
+            let mut scanner_reader = BufReader::new(port);
+            // Open Unix domain socket and get back a handle to the socket
+            let listener = open_socket()?;
+
+            // Wait for socket client (eg. pollbook backend) to connect. Simultaneous clients are not supported.
+            let mut uds_client = BufWriter::new(accept_with_timeout(
+                &running,
+                &listener,
+                UDS_CLIENT_CONNECTION_TIMEOUT,
+            )?);
+
+            run_read_write_loop(&running, &mut scanner_reader, &mut uds_client);
+
+            // Close port and unlink socket
+            let mut port = scanner_reader.into_inner();
+            let _ = port.write_data_terminal_ready(false);
+            drop(port);
+
+            let _ = fs::remove_file(UDS_PATH);
+        }
         Err(e) => {
             log!(
                 event_id: EventId::DeviceAttached,
@@ -259,42 +280,8 @@ fn main() -> color_eyre::Result<()> {
                 event_type: EventType::SystemStatus,
                 disposition: Disposition::Failure
             );
-
-            // Exit and allow systemctl config to restart daemon
-            log!(
-                EventId::ProcessTerminated;
-                EventType::SystemAction
-            );
-            exit(1);
         }
     };
-    log!(
-        event_id: EventId::DeviceAttached,
-        message: format!("Connected to TS100 barcode scanner at {TS100_PORT_NAME}..."),
-        event_type: EventType::SystemStatus,
-        disposition: Disposition::Success
-    );
-
-    // Reader to read from the barcode scanner
-    let mut scanner_reader = BufReader::new(port);
-    // Open Unix domain socket and get back a handle to the socket
-    let listener = open_socket()?;
-
-    // Wait for socket client (eg. pollbook backend) to connect. Simultaneous clients are not supported.
-    let mut uds_client = BufWriter::new(accept_with_timeout(
-        &running,
-        &listener,
-        UDS_CLIENT_CONNECTION_TIMEOUT,
-    )?);
-
-    run_read_write_loop(&running, &mut scanner_reader, &mut uds_client);
-
-    // Close port and unlink socket
-    let mut port = scanner_reader.into_inner();
-    let _ = port.write_data_terminal_ready(false);
-    drop(port);
-
-    let _ = fs::remove_file(UDS_PATH);
 
     log!(
         EventId::ProcessTerminated;
