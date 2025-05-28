@@ -490,21 +490,27 @@ function BallotCountForm({
 
   async function saveBallotCount() {
     assert(ballotCount !== '');
-    await setManualTallyMutation.mutateAsync({
-      precinctId,
-      ballotStyleGroupId,
-      votingMethod,
-      manualResults: convertFormResultsToTabulationResults({
-        ballotCount,
-        contestResults: mapObject(
-          initialManualResults.contestResults,
-          (contestResults) => ({
-            ...contestResults,
-            ballots: ballotCount,
-          })
-        ),
-      }),
-    });
+
+    // Only update if the overall ballot count was actually changed as this update will clear any
+    // contest overrides of ballot counts
+    if (ballotCount !== initialManualResults.ballotCount) {
+      await setManualTallyMutation.mutateAsync({
+        precinctId,
+        ballotStyleGroupId,
+        votingMethod,
+        manualResults: convertFormResultsToTabulationResults({
+          ballotCount,
+          contestResults: mapObject(
+            initialManualResults.contestResults,
+            (contestResults) => ({
+              ...contestResults,
+              ballots: ballotCount,
+            })
+          ),
+        }),
+      });
+    }
+
     history.push(
       routerPaths.tallyManualFormContest({
         precinctId,
