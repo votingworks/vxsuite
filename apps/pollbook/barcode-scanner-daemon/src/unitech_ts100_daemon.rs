@@ -242,6 +242,15 @@ fn main() -> color_eyre::Result<()> {
         }
     })?;
 
+    // Open Unix domain socket and get back a handle to the socket
+    let listener = open_socket()?;
+    // Wait for socket client (eg. pollbook backend) to connect. Simultaneous clients are not supported.
+    let mut uds_client = BufWriter::new(accept_with_timeout(
+        &running,
+        &listener,
+        UDS_CLIENT_CONNECTION_TIMEOUT,
+    )?);
+
     // Connect to barcode scanner device
     match init_port(TS100_PORT_NAME, TS100_BAUD_RATE) {
         Ok(port) => {
@@ -254,15 +263,6 @@ fn main() -> color_eyre::Result<()> {
 
             // Reader to read from the barcode scanner
             let mut scanner_reader = BufReader::new(port);
-            // Open Unix domain socket and get back a handle to the socket
-            let listener = open_socket()?;
-
-            // Wait for socket client (eg. pollbook backend) to connect. Simultaneous clients are not supported.
-            let mut uds_client = BufWriter::new(accept_with_timeout(
-                &running,
-                &listener,
-                UDS_CLIENT_CONNECTION_TIMEOUT,
-            )?);
 
             run_read_write_loop(&running, &mut scanner_reader, &mut uds_client);
 
@@ -270,8 +270,6 @@ fn main() -> color_eyre::Result<()> {
             let mut port = scanner_reader.into_inner();
             let _ = port.write_data_terminal_ready(false);
             drop(port);
-
-            let _ = fs::remove_file(UDS_PATH);
         }
         Err(e) => {
             log!(
@@ -282,6 +280,8 @@ fn main() -> color_eyre::Result<()> {
             );
         }
     };
+
+    let _ = fs::remove_file(UDS_PATH);
 
     log!(
         EventId::ProcessTerminated;
