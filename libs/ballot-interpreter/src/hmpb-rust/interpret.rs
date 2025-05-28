@@ -688,13 +688,16 @@ pub fn ballot_card(
         })
         .unwrap_or_default();
 
+    let normalized_front_image = imageproc::contrast::threshold(&front_image, front_threshold);
+    let normalized_back_image = imageproc::contrast::threshold(&back_image, back_threshold);
+
     Ok(InterpretedBallotCard {
         front: InterpretedBallotPage {
             grid: front_grid,
             metadata: front_metadata,
             marks: front_scored_bubble_marks,
             write_ins: front_write_in_area_scores,
-            normalized_image: front_image,
+            normalized_image: normalized_front_image,
             contest_layouts: front_contest_layouts,
         },
         back: InterpretedBallotPage {
@@ -702,7 +705,7 @@ pub fn ballot_card(
             metadata: back_metadata,
             marks: back_scored_bubble_marks,
             write_ins: back_write_in_area_scores,
-            normalized_image: back_image,
+            normalized_image: normalized_back_image,
             contest_layouts: back_contest_layouts,
         },
     })
