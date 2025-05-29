@@ -80,8 +80,9 @@ export class FujitsuThermalPrinter implements FujitsuThermalPrinterInterface {
       const status = await this.driver.getStatus();
       return summarizeRawStatus(status);
     } catch (error) {
-      // If we failed to initialize the driver or a status request fails, the
-      // device is likely not connected.
+      // If we failed to initialize the driver or a status request fails, the device is likely
+      // disconnected. Still explicitly call disconnect to clear any held resources.
+      await this.driver?.disconnect();
       this.driver = undefined;
       return {
         state: 'error',
