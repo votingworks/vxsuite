@@ -831,6 +831,13 @@ mod test {
         }
     }
 
+    fn is_binary_image(image: &GrayImage) -> bool {
+        image
+            .as_raw()
+            .iter()
+            .all(|&pixel| pixel == 0 || pixel == 255)
+    }
+
     #[test]
     fn test_par_map_pair() {
         assert_eq!(par_map_pair(1, 2, |n| n * 2), (2, 4));
@@ -840,7 +847,15 @@ mod test {
     fn test_interpret_ballot_card() {
         let (side_a_image, side_b_image, options) =
             load_ballot_card_fixture("ashland", ("scan-side-a.jpeg", "scan-side-b.jpeg"));
-        ballot_card(side_a_image, side_b_image, &options).unwrap();
+        let result = ballot_card(side_a_image, side_b_image, &options).unwrap();
+        assert!(
+            is_binary_image(&result.front.normalized_image),
+            "Front image is not binary"
+        );
+        assert!(
+            is_binary_image(&result.back.normalized_image),
+            "Back image is not binary"
+        );
 
         let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
             "ashland",
