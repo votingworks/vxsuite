@@ -23,6 +23,8 @@ use super::protocol::{
     },
 };
 
+const DEFAULT_RESOLUTION: Resolution = Resolution::Half;
+
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DoubleFeedDetectionCalibrationConfig {
@@ -30,6 +32,14 @@ pub struct DoubleFeedDetectionCalibrationConfig {
     single_sheet_calibration_value: u16,
     double_sheet_calibration_value: u16,
     threshold_value: u16,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ImageCalibrationTables {
+    pub front_white: Vec<u8>,
+    pub front_black: Vec<u8>,
+    pub back_white: Vec<u8>,
+    pub back_black: Vec<u8>,
 }
 
 macro_rules! recv {
@@ -773,6 +783,36 @@ impl<T> Client<T> {
         })
     }
 
+    pub fn get_image_calibration_tables(
+        &mut self,
+        timeout: Duration,
+    ) -> Result<ImageCalibrationTables> {
+        // Since we're using a duplex scanner, the request is followed by two
+        // responses, one for the front sensors and one for the back sensors.
+        let (front_white, front_black) = send_and_recv!(
+            self => Outgoing::GetCalibrationInformationRequest { resolution: Some(DEFAULT_RESOLUTION) },
+            Incoming::GetCalibrationInformationResponse { white_calibration_table, black_calibration_table } =>
+                (white_calibration_table, black_calibration_table),
+            timeout
+        )?;
+        let (mut back_white, mut back_black) = recv!(
+            self,
+            Incoming::GetCalibrationInformationResponse { white_calibration_table, black_calibration_table } =>
+                (white_calibration_table, black_calibration_table),
+            Instant::now() + timeout
+        )?;
+        // We reverse the back calibration tables because the image pixels are
+        // in the opposite order (due to the sensors being flipped upside down).
+        back_white.reverse();
+        back_black.reverse();
+        Ok(ImageCalibrationTables {
+            front_white,
+            front_black,
+            back_white,
+            back_black,
+        })
+    }
+
     /// Sends commands to make sure the scanner starts in the correct state after connecting.
     ///
     /// # Errors
@@ -811,7 +851,7 @@ impl<T> Client<T> {
         let timeout = Duration::from_secs(5);
 
         // OUT SetScannerImageDensityToHalfNativeResolutionRequest
-        self.set_scan_resolution(Resolution::Half)?;
+        self.set_scan_resolution(DEFAULT_RESOLUTION)?;
         // OUT SetScannerToDuplexModeRequest
         self.set_scan_side_mode(ScanSideMode::Duplex)?;
         // OUT Enable AutoScanStart
