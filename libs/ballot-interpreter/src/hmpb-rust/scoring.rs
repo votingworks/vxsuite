@@ -2,7 +2,6 @@ use std::fmt::{Display, Formatter};
 use std::ops::Add;
 
 use image::{GenericImageView, GrayImage};
-use imageproc::contrast::otsu_level;
 use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 use serde::Serialize;
 use types_rs::election::{GridLayout, GridLocation, GridPosition, UnitIntervalValue};
@@ -103,6 +102,7 @@ pub type ScoredBubbleMarks = Vec<(GridPosition, Option<ScoredBubbleMark>)>;
 
 pub fn score_bubble_marks_from_grid_layout(
     img: &GrayImage,
+    threshold: u8,
     bubble_template: &GrayImage,
     timing_mark_grid: &TimingMarkGrid,
     grid_layout: &GridLayout,
@@ -110,8 +110,6 @@ pub fn score_bubble_marks_from_grid_layout(
     side: BallotSide,
     debug: &ImageDebugWriter,
 ) -> ScoredBubbleMarks {
-    let threshold = otsu_level(img);
-
     let scored_bubbles = &grid_layout
         .grid_positions
         .par_iter()
@@ -265,14 +263,13 @@ pub type ScoredPositionAreas = Vec<ScoredPositionArea>;
 /// vote even if the bubble is not filled in.
 pub fn score_write_in_areas(
     img: &GrayImage,
+    threshold: u8,
     grid: &TimingMarkGrid,
     grid_layout: &GridLayout,
     sheet_number: u32,
     side: BallotSide,
     debug: &ImageDebugWriter,
 ) -> Vec<ScoredPositionArea> {
-    let threshold = otsu_level(img);
-
     let scored_write_in_areas = grid_layout
         .write_in_positions()
         .filter(|grid_position| {
