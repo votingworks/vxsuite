@@ -3,7 +3,7 @@ import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
-import { assert, find } from '@votingworks/basics';
+import { assert, assertDefined, find } from '@votingworks/basics';
 import { toDataUrl, loadImageData } from '@votingworks/image-utils';
 import { join } from 'node:path';
 import {
@@ -33,8 +33,7 @@ import {
 import {
   AdjudicatedContestOption,
   AdjudicatedCvrContest,
-  BmdWriteInImageView,
-  HmpbWriteInImageView,
+  HmpbImageView,
   VoteAdjudication,
   WriteInRecord,
 } from './types';
@@ -147,7 +146,7 @@ test('getAdjudicationQueueMetadata', async () => {
   );
 });
 
-test('getWriteInImageViews on hmpb', async () => {
+test('getBallotImageView on hmpb', async () => {
   const { auth, apiClient } = buildTestEnvironment();
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
@@ -171,21 +170,20 @@ test('getWriteInImageViews on hmpb', async () => {
   const [cvrId] = cvrIds;
   assert(cvrId !== undefined);
 
-  const [writeInImageViewA, writeInImageViewB] =
-    await apiClient.getWriteInImageViews({
-      cvrId,
-      contestId,
-    });
+  const ballotImageView = await apiClient.getBallotImageView({
+    cvrId,
+    contestId,
+  });
 
   // check first write-in image
-  assert(writeInImageViewA);
+  assert(ballotImageView);
 
   const {
     imageUrl: actualImageUrl,
-    ballotCoordinates: ballotCoordinatesA,
-    contestCoordinates: contestCoordinatesA,
-    writeInCoordinates: writeInCoordinatesA,
-  } = writeInImageViewA as HmpbWriteInImageView;
+    ballotCoordinates,
+    contestCoordinates,
+    optionLayouts,
+  } = ballotImageView as HmpbImageView;
 
   const expectedImage = await loadImageData(
     join(
@@ -203,15 +201,19 @@ test('getWriteInImageViews on hmpb', async () => {
     x: 0,
     y: 0,
   };
-  expect(ballotCoordinatesA).toEqual(expectedBallotCoordinates);
+  expect(ballotCoordinates).toEqual(expectedBallotCoordinates);
   const expectedContestCoordinates: Rect = {
     height: 374,
     width: 1161,
     x: 436,
     y: 1183,
   };
-  expect(contestCoordinatesA).toEqual(expectedContestCoordinates);
-  expect(writeInCoordinatesA).toMatchInlineSnapshot(`
+  expect(contestCoordinates).toEqual(expectedContestCoordinates);
+  const [writeIn] = await apiClient.getWriteIns({ cvrId, contestId });
+  const writeInOptionLayout = assertDefined(
+    optionLayouts.find((layout) => layout.definition?.id === writeIn?.optionId)
+  );
+  expect(writeInOptionLayout.bounds).toMatchInlineSnapshot(`
     {
       "height": 140,
       "width": 270,
@@ -219,27 +221,9 @@ test('getWriteInImageViews on hmpb', async () => {
       "y": 1274,
     }
   `);
-
-  // check the second write-in image view, which should have the same image
-  // but different writeInCoordinates
-  const {
-    ballotCoordinates: ballotCoordinatesB,
-    contestCoordinates: contestCoordinatesB,
-    writeInCoordinates: writeInCoordinatesB,
-  } = writeInImageViewB as HmpbWriteInImageView;
-  expect(ballotCoordinatesB).toEqual(expectedBallotCoordinates);
-  expect(contestCoordinatesB).toEqual(expectedContestCoordinates);
-  expect(writeInCoordinatesB).toMatchInlineSnapshot(`
-    {
-      "height": 138,
-      "width": 269,
-      "x": 1328,
-      "y": 1366,
-    }
-  `);
 });
 
-test('getWriteInImageViews on bmd', async () => {
+test('getBallotImageView on bmd', async () => {
   const { auth, apiClient } = buildTestEnvironment();
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
@@ -259,31 +243,14 @@ test('getWriteInImageViews on bmd', async () => {
     contestId,
   });
   expect(cvrIds).toHaveLength(24);
-  const [cvrId1, cvrId2] = cvrIds;
-  assert(cvrId1 !== undefined && cvrId2 !== undefined);
+  const [cvrId1] = cvrIds;
+  assert(cvrId1 !== undefined);
 
-  // check image of first write-in
-  const [writeInImageViewA] = await apiClient.getWriteInImageViews({
+  const ballotImageView = await apiClient.getBallotImageView({
     cvrId: cvrId1,
     contestId,
   });
-  assert(writeInImageViewA);
-
-  const { machineMarkedText: machineMarkedTextA } =
-    writeInImageViewA as BmdWriteInImageView;
-
-  expect(machineMarkedTextA).toEqual('Mock Write-In');
-
-  // check the second write-in image view, which should have the same image
-  // but different writeInCoordinates
-  const [writeInImageViewB] = await apiClient.getWriteInImageViews({
-    cvrId: cvrId2,
-    contestId,
-  });
-  assert(writeInImageViewB);
-  const { machineMarkedText: machineMarkedTextB } =
-    writeInImageViewB as BmdWriteInImageView;
-  expect(machineMarkedTextB).toEqual('Mock Write-In');
+  assert(ballotImageView);
 });
 
 test('getNextCvrIdForAdjudication', async () => {
