@@ -14,7 +14,7 @@ pub enum Resolution {
     Half,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub enum Side {
     Top,
     Bottom,
@@ -111,7 +111,7 @@ pub enum EjectMotion {
     ToFrontAndRescan,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Version {
     pub product_id: String,
     pub major: String,
@@ -243,7 +243,7 @@ impl Status {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Settings {
     pub dpi_setting: u16,
     pub bits_per_pixel: u16,
@@ -274,7 +274,7 @@ impl Settings {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub enum CalibrationStatus {
     CalibrationNeeded,
     CalibrationOk,

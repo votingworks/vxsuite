@@ -100,7 +100,18 @@ export type ScannerEvent =
   | { event: 'ejectPaused' }
   | { event: 'ejectResumed' }
   | { event: 'doubleFeedCalibrationComplete' }
-  | { event: 'doubleFeedCalibrationTimedOut' };
+  | { event: 'doubleFeedCalibrationTimedOut' }
+  | { event: 'imageSensorCalibrationComplete' }
+  | {
+      event: 'imageSensorCalibrationFailed';
+      /**
+       * There are a number of possible errors that can occur during image
+       * sensor calibration. The only one we explicitly care about handling with
+       * a user-facing message is `calibrationTimeoutError` - for the rest we
+       * can just show a generic message and log this error code.
+       */
+      error: 'calibrationTimeoutError' | string;
+    };
 
 /**
  * An event listener for any {@link ScannerEvent} emitted by the scanner.
@@ -154,7 +165,8 @@ type PdictlCommand =
       command: 'calibrateDoubleFeedDetection';
       calibrationType: DoubleFeedDetectionCalibrationType;
     }
-  | { command: 'getDoubleFeedDetectionCalibrationConfig' };
+  | { command: 'getDoubleFeedDetectionCalibrationConfig' }
+  | { command: 'calibrateImageSensors' };
 
 /**
  * Internal type to represent the JSON messages received from `pdictl` in
@@ -182,7 +194,9 @@ export type PdictlEvent =
   | { event: 'ejectPaused' }
   | { event: 'ejectResumed' }
   | { event: 'doubleFeedCalibrationComplete' }
-  | { event: 'doubleFeedCalibrationTimedOut' };
+  | { event: 'doubleFeedCalibrationTimedOut' }
+  | { event: 'imageSensorCalibrationComplete' }
+  | { event: 'imageSensorCalibrationFailed'; error: string };
 
 type PdictlMessage = PdictlResponse | PdictlEvent;
 
@@ -279,7 +293,9 @@ export function createPdiScannerClient() {
       case 'ejectPaused':
       case 'ejectResumed':
       case 'doubleFeedCalibrationComplete':
-      case 'doubleFeedCalibrationTimedOut': {
+      case 'doubleFeedCalibrationTimedOut':
+      case 'imageSensorCalibrationComplete':
+      case 'imageSensorCalibrationFailed': {
         emit(message);
         break;
       }
@@ -452,6 +468,10 @@ export function createPdiScannerClient() {
             message: `Unexpected response: ${result.response}`,
           });
       }
+    },
+
+    async calibrateImageSensors(): Promise<SimpleResult> {
+      return sendSimpleCommand({ command: 'calibrateImageSensors' });
     },
 
     /**
