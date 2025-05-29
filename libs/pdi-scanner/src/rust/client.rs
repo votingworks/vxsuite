@@ -874,7 +874,7 @@ impl<T> Client<T> {
         // OUT DisableDoubleFeedDetectionRequest
         self.set_double_feed_detection_mode(double_feed_detection_mode)?;
         // OUT TransmitInLowBitsPerPixelRequest
-        self.set_color_mode(ColorMode::LowColor)?;
+        self.set_color_mode(ColorMode::Native)?;
         // OUT DisableAutoRunOutAtEndOfScanRequest
         self.set_auto_run_out_at_end_of_scan_behavior(
             AutoRunOutAtEndOfScanBehavior::HoldPaperInEscrow,
