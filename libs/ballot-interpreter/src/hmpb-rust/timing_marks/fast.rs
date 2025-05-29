@@ -187,16 +187,19 @@ fn find_timing_marks(
                 .unwrap_or(Ordering::Equal),
             cmp => cmp,
         })
-        // Limit the number of pairs to search.
-        .take(options.pairs_to_search)
-        // We collect the candidates here because we may need to iterate over
-        // them twice in the event we do not find a best fit line.
         .collect_vec();
+
+    let mut remaining_pairs_to_try =
+        n_choose_2(options.pairs_to_search).expect("'pairs_to_search' option is too high");
 
     // Keep track of searched segments for debugging purposes.
     let mut searched = vec![];
 
     for (a, b) in candidates_to_pair.iter().tuple_combinations() {
+        if remaining_pairs_to_try == 0 {
+            break;
+        }
+
         let Some(segment) = Segment::new(a.rect().center(), b.rect().center())
             .extend_within_rect(candidates_extent)
         else {
@@ -209,12 +212,17 @@ fn find_timing_marks(
             continue;
         }
 
+        if searched.iter().contains(&segment) {
+            continue;
+        }
+
+        searched.push(segment.clone());
+        remaining_pairs_to_try -= 1;
+
         let mut marks = candidates
             .iter()
             .filter(|m| m.rect().intersects_line(&segment))
             .collect_vec();
-
-        searched.push(segment.clone());
 
         // Did we find the right number of marks?
         if marks.len() == expected_count {
@@ -251,14 +259,62 @@ fn find_timing_marks(
     // We didn't find a suitable line segment, so return the segments we tried
     // for debugging purposes.
     BestFitSearchResult::NotFound {
-        searched: candidates_to_pair
-            .iter()
-            .tuple_combinations()
-            .filter_map(|(a, b)| {
-                Segment::new(a.rect().center(), b.rect().center())
-                    .extend_within_rect(candidates_extent)
-            })
-            .collect(),
+        searched,
         duration: start.elapsed(),
+    }
+}
+
+fn n_choose_2(n: usize) -> Option<usize> {
+    match n {
+        0 | 1 | 2 => Some(1),
+        3 => Some(3),
+        4 => Some(6),
+        5 => Some(10),
+        6 => Some(15),
+        7 => Some(21),
+        8 => Some(28),
+        9 => Some(36),
+        10 => Some(45),
+        11 => Some(55),
+        12 => Some(66),
+        13 => Some(78),
+        14 => Some(91),
+        15 => Some(105),
+        16 => Some(120),
+        17 => Some(136),
+        18 => Some(153),
+        19 => Some(171),
+        20 => Some(190),
+        21 => Some(210),
+        22 => Some(231),
+        23 => Some(253),
+        24 => Some(276),
+        25 => Some(300),
+        26 => Some(325),
+        27 => Some(351),
+        28 => Some(378),
+        29 => Some(406),
+        30 => Some(435),
+        31 => Some(465),
+        32 => Some(496),
+        33 => Some(528),
+        34 => Some(561),
+        35 => Some(595),
+        36 => Some(630),
+        37 => Some(666),
+        38 => Some(703),
+        39 => Some(741),
+        40 => Some(780),
+        41 => Some(820),
+        42 => Some(861),
+        43 => Some(903),
+        44 => Some(946),
+        45 => Some(990),
+        46 => Some(1035),
+        47 => Some(1081),
+        48 => Some(1128),
+        49 => Some(1176),
+        50 => Some(1225),
+        _ => None,
     }
 }

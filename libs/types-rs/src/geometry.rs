@@ -383,7 +383,7 @@ pub struct Size<T> {
 
 /// A line segment from `start` to `end`.
 #[must_use]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Segment {
     pub start: Point<SubPixelUnit>,
     pub end: Point<SubPixelUnit>,
