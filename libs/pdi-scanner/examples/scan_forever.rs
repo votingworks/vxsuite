@@ -72,7 +72,14 @@ async fn main() -> color_eyre::Result<()> {
     let mut raw_image_data = RawImageData::new();
     let mut scan_index = 0;
 
-    client.send_initial_commands_after_connect(Duration::from_secs(3))?;
+    // Sometimes, after closing the previous scanner connection, a new connection will
+    // time out during these first commands. Until we get to the bottom of why that's
+    // happening, we just retry once, which seems to resolve it.
+    if let Err(_) = client.send_initial_commands_after_connect(Duration::from_millis(500)) {
+        client.send_initial_commands_after_connect(Duration::from_secs(3))?;
+    }
+    let image_calibration_tables = client.get_image_calibration_tables(Duration::from_secs(3))?;
+
     client.send_enable_scan_commands(
         config.bitonal_threshold,
         DoubleFeedDetectionMode::RejectDoubleFeeds,
