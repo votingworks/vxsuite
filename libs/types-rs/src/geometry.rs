@@ -343,6 +343,14 @@ impl Rect {
 
     // Returns the smallest rectangle that contains both `self` and `other`.
     pub fn union(&self, other: &Self) -> Self {
+        if self.width == 0 || self.height == 0 {
+            return *other;
+        }
+
+        if other.width == 0 || other.height == 0 {
+            return *self;
+        }
+
         let left = self.left.min(other.left);
         let top = self.top.min(other.top);
         let right = self.right().max(other.right());
@@ -784,5 +792,17 @@ mod test_quadrilateral {
         assert!(!quad.contains_subpixel(5.0, 15.0));
         assert!(!quad.contains_subpixel(-5.0, 5.0));
         assert!(!quad.contains_subpixel(5.0, -5.0));
+    }
+
+    #[test]
+    fn test_rect_union() {
+        assert_eq!(
+            Rect::new(0, 0, 1, 1).union(&Rect::new(1, 1, 1, 1)),
+            Rect::new(0, 0, 2, 2)
+        );
+        assert_eq!(
+            Rect::zero().union(&Rect::new(1, 1, 1, 1)),
+            Rect::new(1, 1, 1, 1)
+        );
     }
 }
