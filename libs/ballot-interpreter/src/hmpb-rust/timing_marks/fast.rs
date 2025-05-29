@@ -187,16 +187,19 @@ fn find_timing_marks(
                 .unwrap_or(Ordering::Equal),
             cmp => cmp,
         })
-        // Limit the number of pairs to search.
-        .take(options.pairs_to_search)
-        // We collect the candidates here because we may need to iterate over
-        // them twice in the event we do not find a best fit line.
         .collect_vec();
+
+    let mut remaining_pairs_to_try =
+        n_choose_2(options.pairs_to_search).expect("'pairs_to_search' option is too high");
 
     // Keep track of searched segments for debugging purposes.
     let mut searched = vec![];
 
     for (a, b) in candidates_to_pair.iter().tuple_combinations() {
+        if remaining_pairs_to_try == 0 {
+            break;
+        }
+
         let Some(segment) = Segment::new(a.rect().center(), b.rect().center())
             .extend_within_rect(candidates_extent)
         else {
@@ -209,12 +212,17 @@ fn find_timing_marks(
             continue;
         }
 
+        if searched.iter().contains(&segment) {
+            continue;
+        }
+
+        searched.push(segment.clone());
+        remaining_pairs_to_try -= 1;
+
         let mut marks = candidates
             .iter()
             .filter(|m| m.rect().intersects_line(&segment))
             .collect_vec();
-
-        searched.push(segment.clone());
 
         // Did we find the right number of marks?
         if marks.len() == expected_count {
@@ -251,14 +259,15 @@ fn find_timing_marks(
     // We didn't find a suitable line segment, so return the segments we tried
     // for debugging purposes.
     BestFitSearchResult::NotFound {
-        searched: candidates_to_pair
-            .iter()
-            .tuple_combinations()
-            .filter_map(|(a, b)| {
-                Segment::new(a.rect().center(), b.rect().center())
-                    .extend_within_rect(candidates_extent)
-            })
-            .collect(),
+        searched,
         duration: start.elapsed(),
+    }
+}
+
+fn n_choose_2(n: usize) -> Option<usize> {
+    if n < 2 {
+        None
+    } else {
+        Some(n * (n - 1) / 2)
     }
 }
