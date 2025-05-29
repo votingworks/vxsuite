@@ -438,11 +438,80 @@ fn any_event(input: &[u8]) -> IResult<&[u8], Incoming> {
                 Incoming::CalibrationSpeedBoxError,
                 calibration_speed_box_error,
             ),
+            map(image_sensor_calibration_unexpected_output, |message| {
+                Incoming::ImageSensorCalibrationUnexpectedOutput(message.to_owned())
+            }),
             value(Incoming::BeginScanEvent, begin_scan_event),
             value(Incoming::EndScanEvent, end_scan_event),
             value(Incoming::DoubleFeedEvent, double_feed_event),
             value(Incoming::EjectPauseEvent, eject_pause_event),
             value(Incoming::EjectResumeEvent, eject_resume_event),
+        )),
+        alt((
+            value(
+                Incoming::CalibrationFrontNotEnoughLightRedEvent,
+                calibration_front_not_enough_light_red_event,
+            ),
+            value(
+                Incoming::CalibrationFrontTooMuchLightRedEvent,
+                calibration_front_too_much_light_red_event,
+            ),
+            value(
+                Incoming::CalibrationFrontNotEnoughLightBlueEvent,
+                calibration_front_not_enough_light_blue_event,
+            ),
+            value(
+                Incoming::CalibrationFrontTooMuchLightBlueEvent,
+                calibration_front_too_much_light_blue_event,
+            ),
+            value(
+                Incoming::CalibrationFrontNotEnoughLightGreenEvent,
+                calibration_front_not_enough_light_green_event,
+            ),
+            value(
+                Incoming::CalibrationFrontTooMuchLightGreenEvent,
+                calibration_front_too_much_light_green_event,
+            ),
+            value(
+                Incoming::CalibrationFrontPixelsTooHighEvent,
+                calibration_front_pixels_too_high_event,
+            ),
+            value(
+                Incoming::CalibrationFrontPixelsTooLowEvent,
+                calibration_front_pixels_too_low_event,
+            ),
+            value(
+                Incoming::CalibrationBackNotEnoughLightRedEvent,
+                calibration_back_not_enough_light_red_event,
+            ),
+            value(
+                Incoming::CalibrationBackTooMuchLightRedEvent,
+                calibration_back_too_much_light_red_event,
+            ),
+            value(
+                Incoming::CalibrationBackNotEnoughLightBlueEvent,
+                calibration_back_not_enough_light_blue_event,
+            ),
+            value(
+                Incoming::CalibrationBackTooMuchLightBlueEvent,
+                calibration_back_too_much_light_blue_event,
+            ),
+            value(
+                Incoming::CalibrationBackNotEnoughLightGreenEvent,
+                calibration_back_not_enough_light_green_event,
+            ),
+            value(
+                Incoming::CalibrationBackTooMuchLightGreenEvent,
+                calibration_back_too_much_light_green_event,
+            ),
+            value(
+                Incoming::CalibrationBackPixelsTooHighEvent,
+                calibration_back_pixels_too_high_event,
+            ),
+            value(
+                Incoming::CalibrationBackPixelsTooLowEvent,
+                calibration_back_pixels_too_low_event,
+            ),
         )),
         alt((
             value(Incoming::CoverOpenEvent, cover_open_event_alternate),
@@ -1132,6 +1201,7 @@ simple_request!(enable_auto_run_out_at_end_of_scan_request, b"\x1be");
 simple_request!(disable_auto_run_out_at_end_of_scan_request, b"\x1bd");
 simple_request!(configure_motor_to_run_at_half_speed_request, b"j");
 simple_request!(configure_motor_to_run_at_full_speed_request, b"k");
+simple_request!(calibrate_image_sensors_request, b"C");
 
 /// Parses a request to set the bitonal threshold to a new value.
 ///
@@ -1248,6 +1318,25 @@ simple_response!(end_scan_event, b"#31");
 simple_response!(double_feed_event, b"#33");
 simple_response!(eject_pause_event, b"#36");
 simple_response!(eject_resume_event, b"#37");
+simple_response!(calibration_pixel_error_back_array_black_event, b"#51");
+simple_response!(calibration_pixel_error_back_array_white_event, b"#53");
+simple_response!(calibration_short_document_back_array_event, b"#54");
+simple_response!(calibration_front_not_enough_light_red_event, b"#71");
+simple_response!(calibration_front_too_much_light_red_event, b"#72");
+simple_response!(calibration_front_not_enough_light_blue_event, b"#73");
+simple_response!(calibration_front_too_much_light_blue_event, b"#74");
+simple_response!(calibration_front_not_enough_light_green_event, b"#75");
+simple_response!(calibration_front_too_much_light_green_event, b"#76");
+simple_response!(calibration_front_pixels_too_high_event, b"#77");
+simple_response!(calibration_front_pixels_too_low_event, b"#78");
+simple_response!(calibration_back_not_enough_light_red_event, b"#81");
+simple_response!(calibration_back_too_much_light_red_event, b"#82");
+simple_response!(calibration_back_not_enough_light_blue_event, b"#83");
+simple_response!(calibration_back_too_much_light_blue_event, b"#84");
+simple_response!(calibration_back_not_enough_light_green_event, b"#85");
+simple_response!(calibration_back_too_much_light_green_event, b"#86");
+simple_response!(calibration_back_pixels_too_high_event, b"#87");
+simple_response!(calibration_back_pixels_too_low_event, b"#88");
 
 // undocumented DFD-related events
 simple_response!(double_feed_calibration_complete_event, b"#90");
@@ -1256,6 +1345,12 @@ simple_response!(double_feed_calibration_timed_out_event, b"#9A");
 // Some responses don't match the documentation. These are what we've seen in practice.
 simple_response!(cover_open_event_alternate, b"#34");
 simple_response!(cover_closed_event_alternate, b"#35");
+
+pub fn image_sensor_calibration_unexpected_output(input: &[u8]) -> IResult<&[u8], &str> {
+    map_res(packet((tag(b"#L0"), packet_body)), |(_, test_string)| {
+        from_utf8(test_string)
+    })(input)
+}
 
 #[cfg(test)]
 mod tests {

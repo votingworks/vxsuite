@@ -813,6 +813,10 @@ impl<T> Client<T> {
         })
     }
 
+    pub fn calibrate_image_sensors(&mut self) -> Result<()> {
+        self.send(Outgoing::CalibrateImageSensorsRequest)
+    }
+
     /// Sends commands to make sure the scanner starts in the correct state after connecting.
     ///
     /// # Errors
