@@ -23,7 +23,7 @@ const ballotStyle = election.ballotStyles[0];
 const precinct = election.precincts[0];
 const contests = getContests({ ballotStyle, election });
 const votes = vote(contests, {
-  'judicial-robert-demergue': 'judicial-robert-demergue-option-yes'
+  'judicial-robert-demergue': 'judicial-robert-demergue-option-yes',
   'judicial-elmer-hull': 'judicial-elmer-hull-option-yes',
   'question-a': 'question-a-option-yes',
   'question-b': 'question-b-option-no',
