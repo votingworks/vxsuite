@@ -23,7 +23,7 @@ const ballotStyle = election.ballotStyles[0];
 const precinct = election.precincts[0];
 const contests = getContests({ ballotStyle, election });
 const votes = vote(contests, {
-  'judicial-robert-demergue': 'judicial-robert-demergue-option-yes'
+  'judicial-robert-demergue': 'judicial-robert-demergue-option-yes',
   'judicial-elmer-hull': 'judicial-elmer-hull-option-yes',
   'question-a': 'question-a-option-yes',
   'question-b': 'question-b-option-no',
@@ -112,10 +112,10 @@ is encoded as follows:
 
 - **Precinct Index:** A fixed-width number for the index of the precinct in the
   election's precinct list (`C.precinctId`).
-  - Size: 12 bits.
+  - Size: 13 bits.
 - **Ballot Style Index:** A fixed-width number for the index of the ballot style
   in the election's ballot style list (`C.ballotStyleId`).
-  - Size: 12 bits.
+  - Size: 13 bits.
 - **Page Number:** _(HMPB-only)_ A dynamic-width number for the 1-based page
   number up to a maximum number of pages (`C.pageNumber`).
   - Size: 5 bits.
