@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::{
     collections::VecDeque,
+    io,
     sync::mpsc,
     time::{Duration, Instant},
 };
@@ -57,7 +58,7 @@ macro_rules! send_and_recv {
 pub struct Client<T> {
     id: usize,
     unhandled_packets: VecDeque<Incoming>,
-    host_to_scanner_tx: mpsc::Sender<(usize, Outgoing)>,
+    host_to_scanner_tx: tokio::sync::mpsc::UnboundedSender<(usize, Outgoing)>,
     host_to_scanner_ack_rx: mpsc::Receiver<usize>,
     scanner_to_host_rx: mpsc::Receiver<Result<Incoming>>,
 
@@ -69,7 +70,7 @@ pub struct Client<T> {
 impl<T> Client<T> {
     #[must_use]
     pub fn new(
-        host_to_scanner_tx: mpsc::Sender<(usize, Outgoing)>,
+        host_to_scanner_tx: tokio::sync::mpsc::UnboundedSender<(usize, Outgoing)>,
         host_to_scanner_ack_rx: mpsc::Receiver<usize>,
         scanner_to_host_rx: mpsc::Receiver<Result<Incoming>>,
         scanner_handle: Option<T>,
@@ -109,13 +110,18 @@ impl<T> Client<T> {
     fn send(&mut self, packet: Outgoing) -> Result<()> {
         let id = self.id;
         self.id = self.id.wrapping_add(1);
-        self.host_to_scanner_tx
-            .send((id, packet))
-            .map_err(|_| Error::Usb(UsbError::Rusb(rusb::Error::Io)))?;
-        let ack_id = self
-            .host_to_scanner_ack_rx
-            .recv()
-            .map_err(|_| Error::Usb(UsbError::Rusb(rusb::Error::Io)))?;
+        self.host_to_scanner_tx.send((id, packet)).map_err(|_| {
+            Error::Usb(UsbError::Nusb(nusb::Error::new(
+                io::ErrorKind::ConnectionAborted,
+                "failed to send packet to scanner (host to scanner channel closed)",
+            )))
+        })?;
+        let ack_id = self.host_to_scanner_ack_rx.recv().map_err(|_| {
+            Error::Usb(UsbError::Nusb(nusb::Error::new(
+                io::ErrorKind::ConnectionAborted,
+                "failed to receive ack from scanner (host to scanner ack channel closed)",
+            )))
+        })?;
         assert_eq!(id, ack_id);
         Ok(())
     }

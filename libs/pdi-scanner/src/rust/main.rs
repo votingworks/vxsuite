@@ -20,7 +20,6 @@ use pdi_scanner::{
             EjectMotion, FeederMode, ScanSideMode, Status,
         },
     },
-    rusb_async,
     scanner::Scanner,
     Error, UsbError,
 };
@@ -173,10 +172,11 @@ fn send_to_stdout(message: Message) -> color_eyre::Result<()> {
 
 fn error_to_code_and_message(error: &Error) -> (ErrorCode, Option<String>) {
     match error {
-        Error::Usb(UsbError::Rusb(rusb::Error::NotFound))
-        | Error::Usb(UsbError::Rusb(rusb::Error::Io))
-        | Error::Usb(UsbError::RusbAsync(rusb_async::Error::TransferError))
-        | Error::Usb(UsbError::RusbAsync(rusb_async::Error::Stall)) => {
+        Error::Usb(UsbError::DeviceNotFound)
+        | Error::Usb(UsbError::NusbTransfer(nusb::transfer::TransferError::Disconnected))
+        | Error::Usb(UsbError::NusbTransfer(nusb::transfer::TransferError::Fault))
+        | Error::Usb(UsbError::NusbTransfer(nusb::transfer::TransferError::Cancelled))
+        | Error::Usb(UsbError::NusbTransfer(nusb::transfer::TransferError::Stall)) => {
             (ErrorCode::Disconnected, None)
         }
 
@@ -184,7 +184,8 @@ fn error_to_code_and_message(error: &Error) -> (ErrorCode, Option<String>) {
     }
 }
 
-fn main() -> color_eyre::Result<()> {
+#[tokio::main]
+async fn main() -> color_eyre::Result<()> {
     let config = Config::parse();
     setup(&config)?;
 
@@ -282,18 +283,6 @@ fn main() -> color_eyre::Result<()> {
                                 },
                             }
                             client = Some(c);
-                        }
-                        // We've seen this Other error in the logs a few times, and we think it might
-                        // be a blip, but we haven't been able to reproduce it. Let's try mapping it
-                        // to Disconnected to see if our auto-reconnecting logic (in the VxScan state
-                        // machine) can handle it. We map it here rather than in send_error_response
-                        // to keep the mitigation scoped to the connect command, where we saw this
-                        // error occur.
-                        Err(Error::Usb(UsbError::Rusb(rusb::Error::Other))) => {
-                            send_response(Response::Error {
-                                code: ErrorCode::Disconnected,
-                                message: Some("Unknown USB error during connect".to_owned()),
-                            })?;
                         }
                         Err(e) => send_error_response(&e)?,
                     },
