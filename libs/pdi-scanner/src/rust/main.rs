@@ -175,6 +175,7 @@ fn error_to_code_and_message(error: &Error) -> (ErrorCode, Option<String>) {
         Error::Usb(UsbError::DeviceNotFound)
         | Error::Usb(UsbError::NusbTransfer(nusb::transfer::TransferError::Disconnected))
         | Error::Usb(UsbError::NusbTransfer(nusb::transfer::TransferError::Fault))
+        | Error::Usb(UsbError::NusbTransfer(nusb::transfer::TransferError::Cancelled))
         | Error::Usb(UsbError::NusbTransfer(nusb::transfer::TransferError::Stall)) => {
             (ErrorCode::Disconnected, None)
         }
