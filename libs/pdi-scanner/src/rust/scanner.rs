@@ -67,7 +67,7 @@ impl Scanner {
         /// receive image data.
         const ENDPOINT_IN_IMAGE_DATA: u8 = 0x86;
 
-        /// For receving responses from the scanner (other than image data).
+        /// For receiving responses from the scanner (other than image data).
         const DEFAULT_BUFFER_SIZE: usize = 16_384;
 
         /// For receiving image data from the scanner.
