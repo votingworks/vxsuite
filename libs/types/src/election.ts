@@ -598,7 +598,7 @@ export const ElectionSchema: z.ZodSchema<Election> = z
     state: z.string().nonempty(),
     title: z.string().nonempty(),
     type: ElectionTypeSchema,
-    additionalHashInput: z.record(z.any()).optional(),
+    additionalHashInput: z.record(z.string(), z.any()).optional(),
   })
   .superRefine((election, ctx) => {
     for (const [
@@ -810,7 +810,10 @@ export type OptionalVote = Optional<Vote>;
 export const OptionalVoteSchema: z.ZodSchema<OptionalVote> =
   VoteSchema.optional();
 export type VotesDict = Dictionary<Vote>;
-export const VotesDictSchema: z.ZodSchema<VotesDict> = z.record(VoteSchema);
+export const VotesDictSchema: z.ZodSchema<VotesDict> = z.record(
+  z.string(),
+  VoteSchema
+);
 
 export interface MarginalMarkAdjudicationReasonInfo {
   type: AdjudicationReason.MarginalMark;

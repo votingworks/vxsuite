@@ -34,7 +34,7 @@ export async function translateAppStrings(
   );
   const appStringsCatalog = safeParseJson(
     appStringsCatalogFileContents,
-    z.record(z.string())
+    z.record(z.string(), z.string())
   ).unsafeUnwrap();
 
   const appStringKeys = Object.keys(appStringsCatalog).sort();

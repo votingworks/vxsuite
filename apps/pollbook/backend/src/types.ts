@@ -234,7 +234,10 @@ export interface MachineInformation extends PollbookInformation {
 
 export type VectorClock = Record<string, number>;
 
-export const VectorClockSchema: z.ZodSchema<VectorClock> = z.record(z.number());
+export const VectorClockSchema: z.ZodSchema<VectorClock> = z.record(
+  z.string(),
+  z.number()
+);
 
 export interface PollbookEventBase {
   type: EventType;
