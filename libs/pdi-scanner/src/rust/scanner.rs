@@ -70,18 +70,11 @@ impl Scanner {
         /// For receiving responses from the scanner (other than image data).
         const DEFAULT_BUFFER_SIZE: usize = 16_384;
 
-        /// For receiving image data from the scanner.
-        /// Make this big enough that we can receive just about any packet in one go.
-        ///
-        /// For letter size, we have ~1700 × 2200 pixels, which is ~3.7 million
-        /// pixels. Each pixel is a single bit with bitonal scanning (which is
-        /// what we use), so we need 3.7 million bits or ~470 KB. For duplex, we
-        /// need double that, so 940 KB. For a 22" ballot, we double that again,
-        /// so let's say 2 MB to be safe. In the event the rollers roll for a
-        /// bit trying to catch the paper, we might need a bit more. So for any
-        /// reasonable paper size, 4 MB should be plenty and doesn't really put
-        /// a dent in available memory.
-        const IMAGE_BUFFER_SIZE: usize = 4_194_304;
+        /// For receiving image data from the scanner. We need a slightly larger buffer
+        /// for image data than the primary endpoint, because we want to be able to receive
+        /// a big enough chunk of data to keep up with the scanner as it sends data,
+        /// otherwise we get a FifoOverflow error from the scanner.
+        const IMAGE_BUFFER_SIZE: usize = 1_048_576; // 1 MiB
 
         let (host_to_scanner_tx, mut host_to_scanner_rx) =
             tokio::sync::mpsc::unbounded_channel::<(usize, packets::Outgoing)>();
