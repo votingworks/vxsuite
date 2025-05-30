@@ -402,8 +402,8 @@ pub fn ballot_card(
     // We'll find the appropriate metadata, use it to normalize the image and
     // grid orientation, and extract the ballot style from it.
     let (
-        (front_grid, front_image, front_threshold, front_metadata, front_debug),
-        (back_grid, back_image, back_threshold, back_metadata, back_debug),
+        (front_grid, mut front_image, front_threshold, front_metadata, front_debug),
+        (back_grid, mut back_image, back_threshold, back_metadata, back_debug),
         ballot_style_id,
     ) = match options.election.ballot_layout.metadata_encoding {
         MetadataEncoding::QrCode => {
@@ -688,6 +688,9 @@ pub fn ballot_card(
         })
         .unwrap_or_default();
 
+    imageproc::contrast::threshold_mut(&mut front_image, front_threshold);
+    imageproc::contrast::threshold_mut(&mut back_image, back_threshold);
+
     Ok(InterpretedBallotCard {
         front: InterpretedBallotPage {
             grid: front_grid,
@@ -828,6 +831,13 @@ mod test {
         }
     }
 
+    fn is_binary_image(image: &GrayImage) -> bool {
+        image
+            .as_raw()
+            .iter()
+            .all(|&pixel| pixel == 0 || pixel == 255)
+    }
+
     #[test]
     fn test_par_map_pair() {
         assert_eq!(par_map_pair(1, 2, |n| n * 2), (2, 4));
@@ -837,7 +847,15 @@ mod test {
     fn test_interpret_ballot_card() {
         let (side_a_image, side_b_image, options) =
             load_ballot_card_fixture("ashland", ("scan-side-a.jpeg", "scan-side-b.jpeg"));
-        ballot_card(side_a_image, side_b_image, &options).unwrap();
+        let result = ballot_card(side_a_image, side_b_image, &options).unwrap();
+        assert!(
+            is_binary_image(&result.front.normalized_image),
+            "Front image is not binary"
+        );
+        assert!(
+            is_binary_image(&result.back.normalized_image),
+            "Back image is not binary"
+        );
 
         let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
             "ashland",
