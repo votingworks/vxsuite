@@ -175,7 +175,7 @@ encoded as follows:
       candidates. `W`'s maximum is calculated by subtracting the number of set
       bits in _Selections_ from `ED.election.contests[i].seats`.
       - Size:
-        `sizeof(W) + W * 8 + ∑(CV : V[ED.election.contests[i].id], CV.isWriteIn ? sizeof(CV.name) : 0)`
+        `sizeof(W) + W * 6 + ∑(CV : V[ED.election.contests[i].id], CV.isWriteIn ? sizeof(CV.name) : 0)`
         bits.
 - **Padding**: To ensure the encoded data is composed of whole bytes, 0 bits
   will be added to the end until the number of bits is a multiple of 8.
@@ -196,3 +196,10 @@ metadata `H` and election definition `ED`, `H` is encoded as follows:
   - Size: `20 * 4` bits.
 - **Ballot Config:** The encoding of a `BallotConfig` derived from `H` and `ED`
   goes here. Note: `ballotId` is never included in the config for HMPB.
+
+## Related Documentation
+
+A slightly more detailed description of the encoding format, and how one would
+decode it manually, can be found in the
+[VxSuite v4 Technical Data Package](https://docs.voting.works/vxsuite-tdp-v4/public-documents/ballot-qr-code-data-format).
+If you've made changes to the encoding format, please update the TDP as well.
