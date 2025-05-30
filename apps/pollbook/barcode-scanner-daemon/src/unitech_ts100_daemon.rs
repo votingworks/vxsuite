@@ -189,7 +189,7 @@ pub async fn run_read_write_loop(
                                 log!(
                                     EventId::SocketServerError,
                                     "Failed to write scan to clients: {err}"
-                                )
+                                );
                             }
                         }
                         Err(e) => {
@@ -241,10 +241,11 @@ async fn main() -> color_eyre::Result<()> {
             let clients = clients.clone();
             async move {
                 loop {
-                    let (stream, _addr) = listener.accept().await.unwrap();
-                    let mut guard = clients.lock().await;
-                    log!(EventId::SocketClientConnected);
-                    guard.push(stream);
+                    if let Ok((stream, _addr)) = listener.accept().await {
+                        let mut guard = clients.lock().await;
+                        log!(EventId::SocketClientConnected);
+                        guard.push(stream);
+                    }
                 }
             }
         });
@@ -278,7 +279,7 @@ async fn main() -> color_eyre::Result<()> {
                 disposition: Disposition::Failure
             );
         }
-    };
+    }
 
     let _ = fs::remove_file(UDS_PATH);
 
@@ -294,7 +295,6 @@ async fn main() -> color_eyre::Result<()> {
 mod tests {
     use super::*;
     use serde_json::json;
-    use serial_test::serial;
     use std::os::unix::fs::FileTypeExt;
     use std::sync::Arc;
     use tokio::{
