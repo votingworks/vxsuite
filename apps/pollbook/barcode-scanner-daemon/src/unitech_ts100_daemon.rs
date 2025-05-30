@@ -3,14 +3,16 @@ use nusb::Error;
 use parse_aamva::AamvaDocument;
 use serialport::{DataBits, FlowControl, Parity, StopBits};
 use std::fs;
-use std::io::{self, BufRead, BufReader, BufWriter, ErrorKind, Write};
+use std::io::{self, BufRead, BufReader, ErrorKind};
 use std::os::unix::fs::PermissionsExt;
-use std::os::unix::net::{UnixListener, UnixStream};
 use std::str::{from_utf8, FromStr};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::thread::sleep;
 use std::time::{Duration, Instant};
+use tokio::io::AsyncWriteExt;
+use tokio::net::{UnixListener, UnixStream};
+use tokio::sync::Mutex;
 use vx_logging::{log, set_source, Disposition, EventId, EventType, Source};
 
 mod aamva_jurisdictions;
@@ -26,8 +28,6 @@ const HEARTBEAT_LOG_INTERVAL: Duration = Duration::from_secs(60);
  * Unix domain socket config
  */
 const UDS_PATH: &str = "/tmp/barcodescannerd.sock";
-// How long to wait for a UDS client (the pollbook node backend) to connect
-const UDS_CLIENT_CONNECTION_TIMEOUT: Duration = Duration::from_secs(30);
 
 /*
  * Barcode scanner config
@@ -99,46 +99,40 @@ fn init_port(
     Ok(port)
 }
 
-// Waits for and accepts a socket client until `timeout` has elapsed.
-// Returns a Result containing a UnixStream to write to the client or
-// a TimedOut error if no client was accepted.
-fn accept_with_timeout(
-    running: &Arc<AtomicBool>,
-    listener: &UnixListener,
-    timeout: Duration,
-) -> color_eyre::Result<UnixStream, io::Error> {
-    listener.set_nonblocking(true)?;
+async fn write_doc(stream: &mut tokio::net::UnixStream, doc: &AamvaDocument) -> io::Result<()> {
+    let mut buf = Vec::new();
+    serde_json::to_writer(&mut buf, doc)?;
+    buf.push(b'\n');
 
-    let start = Instant::now();
-    log!(EventId::SocketServerAwaitingClient);
-    loop {
-        if !running.load(Ordering::SeqCst) {
-            return Err(io::Error::new(
-                ErrorKind::Interrupted,
-                "Interrupted by user",
-            ));
-        }
+    stream.write_all(&buf).await?;
+    stream.flush().await?;
+    Ok(())
+}
 
-        match listener.accept() {
-            Ok((stream, _)) => {
-                log!(event_id: EventId::SocketClientConnected, message: "Accepted UDS client".to_owned(), disposition: Disposition::Success);
-                return Ok(stream);
-            }
-            Err(e) if e.kind() == ErrorKind::WouldBlock => {
-                if start.elapsed() >= timeout {
-                    return Err(io::Error::new(
-                        ErrorKind::TimedOut,
-                        "Timed out waiting for UDS client",
-                    ));
-                }
+/// Writes data to every client in the mutex. Drops any connections that error.
+async fn broadcast_to_clients(
+    clients: &Arc<Mutex<Vec<UnixStream>>>,
+    doc: &AamvaDocument,
+) -> io::Result<()> {
+    let mut guard = clients.lock().await;
 
-                sleep(Duration::from_millis(200));
-            }
-            Err(e) => {
-                return Err(e);
-            }
+    let streams = std::mem::take(&mut *guard);
+    drop(guard);
+
+    let mut alive = Vec::with_capacity(streams.len());
+    for mut stream in streams {
+        match write_doc(&mut stream, doc).await {
+            Ok(()) => alive.push(stream),
+            Err(err) => log!(
+                EventId::SocketClientDisconnected,
+                "Dropping unreachable UDS client due to error: {err}",
+            ),
         }
     }
+
+    let mut guard = clients.lock().await;
+    *guard = alive;
+    Ok(())
 }
 
 fn open_socket() -> Result<UnixListener, std::io::Error> {
@@ -157,18 +151,11 @@ fn open_socket() -> Result<UnixListener, std::io::Error> {
     Ok(listener)
 }
 
-fn write_doc(writer: &mut dyn Write, doc: &AamvaDocument) -> serde_json::Result<()> {
-    serde_json::to_writer(&mut *writer, doc)?;
-    writer.write_all(b"\n").map_err(serde_json::Error::io)?;
-    writer.flush().map_err(serde_json::Error::io)?;
-    Ok(())
-}
-
 /// Reads from any `BufRead`, parses AAMVA documents, and writes JSON+"\n" to any Write.
-pub fn run_read_write_loop(
+pub async fn run_read_write_loop(
     running: &Arc<AtomicBool>,
     reader: &mut dyn BufRead,
-    writer: &mut dyn Write,
+    clients: Arc<Mutex<Vec<UnixStream>>>,
 ) {
     let mut buf = Vec::new();
     let mut start = Instant::now();
@@ -198,11 +185,11 @@ pub fn run_read_write_loop(
                 match from_utf8(&buf) {
                     Ok(s) => match AamvaDocument::from_str(s) {
                         Ok(doc) => {
-                            if let Err(err) = write_doc(writer, &doc) {
+                            if let Err(err) = broadcast_to_clients(&clients, &doc).await {
                                 log!(
                                     EventId::SocketServerError,
-                                    "Failed to write scan to socket: {err}"
-                                );
+                                    "Failed to write scan to clients: {err}"
+                                )
                             }
                         }
                         Err(e) => {
@@ -224,7 +211,8 @@ pub fn run_read_write_loop(
     }
 }
 
-fn main() -> color_eyre::Result<()> {
+#[tokio::main]
+async fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
 
     set_source(SOURCE);
@@ -244,12 +232,23 @@ fn main() -> color_eyre::Result<()> {
 
     // Open Unix domain socket and get back a handle to the socket
     let listener = open_socket()?;
-    // Wait for socket client (eg. pollbook backend) to connect. Simultaneous clients are not supported.
-    let mut uds_client = BufWriter::new(accept_with_timeout(
-        &running,
-        &listener,
-        UDS_CLIENT_CONNECTION_TIMEOUT,
-    )?);
+    // A thread‐safe list of all currently‐connected clients
+    let clients = Arc::new(Mutex::new(Vec::<UnixStream>::new()));
+
+    // Spawn thread to accept clients
+    {
+        tokio::spawn({
+            let clients = clients.clone();
+            async move {
+                loop {
+                    let (stream, _addr) = listener.accept().await.unwrap();
+                    let mut guard = clients.lock().await;
+                    log!(EventId::SocketClientConnected);
+                    guard.push(stream);
+                }
+            }
+        });
+    }
 
     // Connect to barcode scanner device
     match init_port(TS100_PORT_NAME, TS100_BAUD_RATE) {
@@ -264,7 +263,7 @@ fn main() -> color_eyre::Result<()> {
             // Reader to read from the barcode scanner
             let mut scanner_reader = BufReader::new(port);
 
-            run_read_write_loop(&running, &mut scanner_reader, &mut uds_client);
+            run_read_write_loop(&running, &mut scanner_reader, clients).await;
 
             // Close port and unlink socket
             let mut port = scanner_reader.into_inner();
@@ -294,148 +293,73 @@ fn main() -> color_eyre::Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use serde_json::{self, json};
-    use std::env::temp_dir;
-    use std::io::ErrorKind;
-    use std::io::{BufReader, Cursor, Write};
+    use serde_json::json;
+    use serial_test::serial;
     use std::os::unix::fs::FileTypeExt;
-    use std::os::unix::net::UnixStream;
-    use std::path::PathBuf;
-    use std::sync::{
-        atomic::{AtomicBool, Ordering},
-        Arc,
+    use std::sync::Arc;
+    use tokio::{
+        io::{AsyncBufReadExt, BufReader},
+        net::UnixStream,
+        sync::Mutex,
     };
-    use std::time::Duration;
 
-    fn make_socket_path(name: &str) -> PathBuf {
-        let mut path = temp_dir();
-        path.push(name);
-        path
-    }
-
-    /// A small writer that captures exactly one write, then flips `running` false
-    /// so the loop will exit immediately.
-    struct TestWriter {
-        buf: Vec<u8>,
-        running: Arc<AtomicBool>,
-    }
-
-    impl Write for TestWriter {
-        fn write(&mut self, bytes: &[u8]) -> std::io::Result<usize> {
-            let n = self.buf.write(bytes)?;
-            self.running.store(false, Ordering::SeqCst);
-            Ok(n)
-        }
-        fn flush(&mut self) -> std::io::Result<()> {
-            Ok(())
-        }
-    }
-
-    #[test]
-    fn run_read_write_loop_emits_expected_json() {
-        let running = Arc::new(AtomicBool::new(true));
-        set_source(SOURCE);
-        let sample_aamva: &str = "@\n\x1E\rANSI 636039090001DL00310485DLDAQNHL12345678
-DACFIRST
-DADMIDDLE
-DCSLAST
-DCUJR\r";
-        let mut raw_bytes = sample_aamva.as_bytes().to_vec();
-        raw_bytes.push(TS100_DATA_TERMINATOR);
-
-        let mut reader = BufReader::new(Cursor::new(raw_bytes));
-
-        let mut test_writer = TestWriter {
-            buf: Vec::new(),
-            running: running.clone(),
+    #[tokio::test]
+    async fn broadcast_to_clients_sends_valid_json() {
+        let doc = AamvaDocument {
+            issuing_jurisdiction: "NH".into(),
+            first_name: "FIRST".into(),
+            middle_name: "MIDDLE".into(),
+            last_name: "LAST".into(),
+            name_suffix: "JR".into(),
         };
 
-        run_read_write_loop(&running, &mut reader, &mut test_writer);
+        // Create an in-memory pair of UnixStreams to simulate both "ends" of the pipe
+        // mock_daemon_stream is the end we write into from the daemon
+        // mock_node_server_stream simulates the end we read from in the app's backend
+        let (mock_daemon_stream, mock_backend_stream) =
+            UnixStream::pair().expect("Couldn't open UnixStream pair");
+        let clients = Arc::new(Mutex::new(vec![mock_daemon_stream]));
 
-        let json_str = String::from_utf8(test_writer.buf.clone())
-            .expect("valid UTF-8")
-            .trim_end()
-            .to_string();
+        broadcast_to_clients(&clients, &doc)
+            .await
+            .expect("failed to write to clients");
 
-        let parsed: serde_json::Value =
-            serde_json::from_str(&json_str).expect("should parse JSON output");
+        // Simulate app backend reading from socket
+        let mut buf = Vec::new();
+        let mut client_reader = BufReader::new(mock_backend_stream);
+        client_reader.read_until(b'\n', &mut buf).await.unwrap();
+        let s = String::from_utf8(buf).unwrap();
 
-        let expected = json!({
-            "issuingJurisdiction": "NH",
-            "firstName": "FIRST",
-            "middleName": "MIDDLE",
-            "lastName": "LAST",
-            "nameSuffix": "JR"
+        // Validate data read from socket
+        let v: serde_json::Value = serde_json::from_str(s.as_str()).unwrap();
+        let expect = json!({
+          "issuingJurisdiction": "NH",
+          "firstName": "FIRST",
+          "middleName": "MIDDLE",
+          "lastName": "LAST",
+          "nameSuffix": "JR"
         });
-
-        assert_eq!(parsed, expected);
+        assert_eq!(v, expect);
     }
 
     #[test]
-    fn accept_with_client_succeeds() {
-        let running = Arc::new(AtomicBool::new(true));
-        set_source(SOURCE);
-        let socket_path = make_socket_path("accept_success.sock");
-        let _ = fs::remove_file(&socket_path);
+    fn reset_scanner_no_device_returns_not_connected_error() {
+        let err = reset_scanner().expect_err("Expected Err when no device found. Are you running this test with the device attached?");
 
-        // bind the listener
-        let listener = UnixListener::bind(&socket_path).expect("could not bind listener");
+        assert_eq!(
+            err.kind(),
+            ErrorKind::NotConnected,
+            "Expected NotConnected error kind, got {:?}",
+            err.kind()
+        );
 
-        sleep(Duration::from_millis(50));
-        let _ = UnixStream::connect(&socket_path).expect("client connect should succeed");
-
-        let stream = accept_with_timeout(&running, &listener, Duration::from_secs(1))
-            .expect("should accept within timeout");
-        assert!(stream.peer_addr().is_ok());
-        let _ = fs::remove_file(&socket_path);
+        let expected =
+            format!("No USB device found at {UNITECH_VENDOR_ID:#X}:{TS100_PRODUCT_ID:#X}");
+        assert_eq!(err.to_string(), expected);
     }
 
-    #[test]
-    fn accept_with_timeout_errors_if_no_client() {
-        let running = Arc::new(AtomicBool::new(true));
-        set_source(SOURCE);
-        let socket_path = make_socket_path("accept_timeout.sock");
-        let _ = fs::remove_file(&socket_path);
-
-        let listener = UnixListener::bind(&socket_path).expect("could not bind listener");
-
-        let err = accept_with_timeout(&running, &listener, Duration::from_millis(10))
-            .expect_err("expected connection timeout");
-        assert_eq!(err.kind(), ErrorKind::TimedOut);
-        let _ = fs::remove_file(&socket_path);
-    }
-
-    // #[test]
-    // fn reset_scanner_no_device_returns_not_connected_error() {
-    //     println!("reset scanner");
-    //     let err = reset_scanner().expect_err("should get Err when no device found");
-
-    //     println!("checking error");
-    //     assert_eq!(
-    //         err.kind(),
-    //         ErrorKind::NotConnected,
-    //         "Expected NotConnected error kind, got {:?}",
-    //         err.kind()
-    //     );
-
-    //     let expected = format!("No USB device found at {UNITECH_VENDOR_ID}:{TS100_PRODUCT_ID}");
-    //     println!("checking error 2");
-    //     assert!(err.to_string().contains(&expected));
-    // }
-
-    // #[test]
-    // fn open_socket_creates_uds() {
-    //     // Ensure no pre-existing socket file
-    //     let _ = fs::remove_file(UDS_PATH);
-    //     let listener = open_socket().expect("open_socket should succeed");
-    //     let meta = fs::metadata(UDS_PATH).expect("socket file should exist");
-    //     assert!(meta.file_type().is_socket(), "Expected a socket file");
-    //     drop(listener);
-    //     let _ = fs::remove_file(UDS_PATH);
-    // }
-
-    #[test]
-    fn open_socket_rebinds_existing_file() {
+    #[tokio::test(flavor = "current_thread")]
+    async fn open_socket_rebinds_existing_file() {
         set_source(SOURCE);
         // Create a pre-existing dummy file at UDS_PATH
         let _ = fs::remove_file(UDS_PATH);
