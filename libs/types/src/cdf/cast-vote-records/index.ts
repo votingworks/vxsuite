@@ -2,7 +2,7 @@
 
 /* eslint-disable */
 
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 import check8601 from '@antongolub/iso8601';
 

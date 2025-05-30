@@ -1,5 +1,5 @@
 import check8601 from '@antongolub/iso8601';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import {
   err,
   ok,

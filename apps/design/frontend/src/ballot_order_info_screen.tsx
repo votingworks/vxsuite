@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 import { ElectionId, ElectionIdSchema, unsafeParse } from '@votingworks/types';
 import {

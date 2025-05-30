@@ -1,6 +1,6 @@
 import { PrinterConfig, safeParse, safeParseJson } from '@votingworks/types';
 import { join } from 'node:path';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { readFileSync } from 'node:fs';
 import { find } from '@votingworks/basics';
 

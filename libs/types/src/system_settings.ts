@@ -1,5 +1,5 @@
 import { Result } from '@votingworks/basics';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { AdjudicationReason, AdjudicationReasonSchema } from './election';
 import {
   DEFAULT_INACTIVE_SESSION_TIME_LIMIT_MINUTES,

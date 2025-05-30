@@ -6,7 +6,7 @@ import {
   Contest,
   IdSchema,
 } from '@votingworks/types';
-import * as z from 'zod';
+import { z } from 'zod/v4';
 
 /**
  * @url /scan/hmpb/review/next-sheet

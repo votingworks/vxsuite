@@ -8,7 +8,7 @@ import {
   extractErrorMessage,
 } from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { safeParseCdfBallotDefinition } from './cdf/ballot-definition/convert';
 import * as Cdf from './cdf/ballot-definition';
 import {

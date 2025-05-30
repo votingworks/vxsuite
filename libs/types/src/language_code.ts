@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 /* IETF language tags for supported VxSuite languages.  */
 export enum LanguageCode {

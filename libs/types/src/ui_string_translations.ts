@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { mapObject, mergeObjects } from '@votingworks/basics';
 import { Dictionary } from './generic';
 

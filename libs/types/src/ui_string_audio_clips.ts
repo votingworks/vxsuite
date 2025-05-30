@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 /**
  * A single audio clip record in the audio clips JSONL file in an election package.

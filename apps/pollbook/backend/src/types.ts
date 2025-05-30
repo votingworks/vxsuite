@@ -1,5 +1,5 @@
 import * as grout from '@votingworks/grout';
-import z from 'zod';
+import z from 'zod/v4';
 import { PrinterStatus, ElectionDefinition } from '@votingworks/types';
 import { BatteryInfo } from '@votingworks/backend';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';

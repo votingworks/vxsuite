@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 export const SimpleStatusSchema = z.union([
   z.literal('accepting_paper'),
