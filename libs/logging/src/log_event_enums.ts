@@ -53,6 +53,7 @@ export enum LogSource {
   VxDevelopmentScript = 'vx-development-script',
   VxPollbookFrontend = 'vx-pollbook-frontend',
   VxPollbookBackend = 'vx-pollbook-backend',
+  VxPollbookBarcodeScannerDaemon = 'vx-pollbook-barcode-scanner-daemon',
 }
 export enum LogEventType {
   UserAction = 'user-action',
@@ -112,6 +113,7 @@ export enum LogEventId {
   MachineBootComplete = 'machine-boot-complete',
   MachineShutdownInit = 'machine-shutdown-init',
   MachineShutdownComplete = 'machine-shutdown-complete',
+  UsbDeviceReconnectAttempted = 'usb-device-reconnect-attempted',
   UsbDeviceChangeDetected = 'usb-device-change-detected',
   Info = 'info',
   Heartbeat = 'heartbeat',
@@ -197,6 +199,14 @@ export enum LogEventId {
   BackgroundTaskCancelled = 'background-task-cancelled',
   BackgroundTaskStatus = 'background-task-status',
   ApiCall = 'api-call',
+  SocketClientConnectInit = 'socket-client-connect-init',
+  SocketClientConnected = 'socket-client-connected',
+  SocketClientDisconnected = 'socket-client-disconnected',
+  SocketClientError = 'socket-client-error',
+  SocketServerBind = 'socket-server-bind',
+  SocketServerClose = 'socket-server-close',
+  SocketServerAwaitingClient = 'socket-server-awaiting-client',
+  SocketServerError = 'socket-server-error',
 }
 
 const ElectionConfigured: LogDetails = {
@@ -531,6 +541,13 @@ const MachineShutdownComplete: LogDetails = {
   eventType: LogEventType.SystemStatus,
   documentationMessage:
     'The machine has completed all the steps to shutdown and will now power down or reboot.',
+};
+
+const UsbDeviceReconnectAttempted: LogDetails = {
+  eventId: LogEventId.UsbDeviceReconnectAttempted,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'A message from the machine kernel about an application-initiated attempt to reconnect an externally-connected USB device.',
 };
 
 const UsbDeviceChangeDetected: LogDetails = {
@@ -1198,6 +1215,56 @@ const ApiCall: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxDesign],
 };
 
+const SocketClientConnectInit: LogDetails = {
+  eventId: LogEventId.SocketClientConnectInit,
+  eventType: LogEventType.ApplicationAction,
+  documentationMessage:
+    'An application attempted to connect a client to a socket.',
+};
+
+const SocketClientConnected: LogDetails = {
+  eventId: LogEventId.SocketClientConnected,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'An attempt by an application to connect to a socket was resolved.',
+};
+
+const SocketClientDisconnected: LogDetails = {
+  eventId: LogEventId.SocketClientDisconnected,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage: 'A socket client was disconnected.',
+};
+
+const SocketClientError: LogDetails = {
+  eventId: LogEventId.SocketClientError,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage: 'An error was reported by a socket client.',
+};
+
+const SocketServerBind: LogDetails = {
+  eventId: LogEventId.SocketServerBind,
+  eventType: LogEventType.ApplicationAction,
+  documentationMessage: 'A process attempted to bind a socket.',
+};
+
+const SocketServerClose: LogDetails = {
+  eventId: LogEventId.SocketServerClose,
+  eventType: LogEventType.ApplicationAction,
+  documentationMessage: 'A socket server was closed.',
+};
+
+const SocketServerAwaitingClient: LogDetails = {
+  eventId: LogEventId.SocketServerAwaitingClient,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage: 'A socket server is awaiting a client.',
+};
+
+const SocketServerError: LogDetails = {
+  eventId: LogEventId.SocketServerError,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage: 'An error was reported by a socket server.',
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -1300,6 +1367,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return MachineShutdownInit;
     case LogEventId.MachineShutdownComplete:
       return MachineShutdownComplete;
+    case LogEventId.UsbDeviceReconnectAttempted:
+      return UsbDeviceReconnectAttempted;
     case LogEventId.UsbDeviceChangeDetected:
       return UsbDeviceChangeDetected;
     case LogEventId.Info:
@@ -1470,6 +1539,22 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return BackgroundTaskStatus;
     case LogEventId.ApiCall:
       return ApiCall;
+    case LogEventId.SocketClientConnectInit:
+      return SocketClientConnectInit;
+    case LogEventId.SocketClientConnected:
+      return SocketClientConnected;
+    case LogEventId.SocketClientDisconnected:
+      return SocketClientDisconnected;
+    case LogEventId.SocketClientError:
+      return SocketClientError;
+    case LogEventId.SocketServerBind:
+      return SocketServerBind;
+    case LogEventId.SocketServerClose:
+      return SocketServerClose;
+    case LogEventId.SocketServerAwaitingClient:
+      return SocketServerAwaitingClient;
+    case LogEventId.SocketServerError:
+      return SocketServerError;
     default:
       throwIllegalValue(eventId);
   }

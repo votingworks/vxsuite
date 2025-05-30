@@ -23,7 +23,7 @@ export * from './types';
 
 loadEnvVarsFromDotenvFiles();
 
-function main(): Promise<number> {
+async function main(): Promise<number> {
   const baseLogger = new BaseLogger(LogSource.System);
 
   if (!WORKSPACE) {
