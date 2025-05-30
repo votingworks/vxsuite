@@ -14,7 +14,9 @@ export function getOptionCoordinates(
 ): Rect {
   const option = optionsLayout.find((opt) => opt.definition?.id === optionId);
   if (!option) {
-    throw new Error('unable to find option in layout');
+    throw new Error(
+      'unable to find option in layout when determining option ballot coordinates'
+    );
   }
   return option.bounds;
 }

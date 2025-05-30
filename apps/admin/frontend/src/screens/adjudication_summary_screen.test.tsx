@@ -39,7 +39,7 @@ test('No CVRs loaded', async () => {
     electionDefinition,
     apiMock,
   });
-  await screen.findByText('Load CVRs to begin adjudicating write-in votes.');
+  await screen.findByText('Load CVRs to begin adjudication.');
   expect(screen.queryAllByRole('button', { name: /Adjudicate/ })).toHaveLength(
     0
   );
@@ -93,7 +93,5 @@ test('CVRs with write-ins loaded', async () => {
   expect(adjudicateButton).not.toBeDisabled();
 
   userEvent.click(adjudicateButton);
-  expect(history.location.pathname).toEqual(
-    '/write-ins/adjudication/zoo-council-mammal'
-  );
+  expect(history.location.pathname).toEqual('/adjudication/zoo-council-mammal');
 });
