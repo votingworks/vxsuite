@@ -65,7 +65,7 @@ export function ContestOptionButton({
             Review marginal mark
           </IconTextContainer>
           <Button
-            aria-label="Close"
+            aria-label="Dismiss"
             icon="X"
             fill="transparent"
             onPress={onDismissFlag}

@@ -1747,3 +1747,115 @@ describe('unsaved changes', () => {
     });
   });
 });
+
+describe('marginal mark adjudication', () => {
+  test('hmpb ballot can have marginal marks adjudicated', async () => {
+    const contestId = 'zoo-council-mammal';
+    const cvrIds = ['id-174', 'id-175'];
+    const cvrId = cvrIds[0];
+    const cvrId2 = cvrIds[1];
+    const marginalMarks = ['kangaroo', 'elephant'];
+    const cvrContestTag: CvrContestTag = {
+      isResolved: false,
+      cvrId,
+      contestId,
+      hasMarginalMark: true,
+    };
+
+    apiMock.expectGetAdjudicationQueue({ contestId }, cvrIds);
+    apiMock.expectGetNextCvrIdForAdjudication({ contestId }, null);
+    apiMock.expectGetCastVoteRecordVoteInfo({ cvrId }, { [contestId]: [] });
+    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
+    apiMock.expectGetWriteIns({ contestId, cvrId }, []);
+    apiMock.expectGetBallotImageView({ contestId, cvrId }, false);
+    apiMock.expectGetBallotImageView({ contestId, cvrId: cvrId2 }, false);
+    apiMock.expectGetWriteInCandidates([], contestId);
+    apiMock.expectGetCvrContestTag({ cvrId, contestId }, cvrContestTag);
+    apiMock.expectGetMarginalMarks({ cvrId, contestId }, marginalMarks);
+
+    renderScreen(contestId, {
+      electionDefinition,
+      apiMock,
+    });
+
+    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
+    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
+    const kangarooCheckbox = screen.getByRole('checkbox', {
+      name: /kangaroo/i,
+    });
+    const elephantCheckbox = screen.getByRole('checkbox', {
+      name: /elephant/i,
+    });
+    expect(getButtonByName('save & next')).toBeDisabled();
+
+    // address one marginal mark by clicking it's checkbox, making it valid
+    expect(kangarooCheckbox).not.toBeChecked();
+    expect(screen.queryAllByText(/review marginal mark/i).length).toEqual(2);
+    expect(screen.queryByText(/valid mark/i)).toBeNull();
+    userEvent.click(kangarooCheckbox);
+    expect(kangarooCheckbox).toBeChecked();
+    // caption should now show
+    expect(screen.queryByText(/valid mark/i)).toBeInTheDocument();
+    // one less flag should be showing now
+    expect(screen.queryAllByText(/review marginal mark/i).length).toEqual(1);
+
+    // address the other by dismissing the flag, making it invalid
+    expect(elephantCheckbox).not.toBeChecked();
+    expect(screen.queryByText(/invalid mark/i)).toBeNull();
+    userEvent.click(getButtonByName('dismiss'));
+    expect(elephantCheckbox).not.toBeChecked();
+    // caption should now show
+    expect(screen.queryByText(/invalid mark/i)).toBeInTheDocument();
+
+    // both flags are now gone
+    expect(screen.queryByText(/review marginal mark/i)).toBeNull();
+
+    const primaryButton = screen.getByRole('button', { name: /save & next/i });
+    expect(primaryButton).toBeEnabled();
+
+    // adjudicate contest and move to next ballot
+    const adjudicatedCvrContest = formAdjudicatedCvrContest(cvrId, {
+      kangaroo: { type: 'candidate-option', hasVote: true },
+    });
+    apiMock.expectAdjudicateCvrContest(adjudicatedCvrContest);
+    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, [
+      {
+        electionId,
+        cvrId,
+        contestId,
+        optionId: 'kangaroo',
+        isVote: true,
+      },
+    ]);
+    apiMock.expectGetWriteIns({ contestId, cvrId }, []);
+    apiMock.expectGetWriteInCandidates([], contestId);
+    apiMock.expectGetCvrContestTag(
+      { cvrId, contestId },
+      { ...cvrContestTag, isResolved: true }
+    );
+
+    apiMock.expectGetCastVoteRecordVoteInfo(
+      { cvrId: cvrId2 },
+      { [contestId]: ['kangaroo'] }
+    );
+    apiMock.expectGetVoteAdjudications({ contestId, cvrId: cvrId2 }, []);
+    apiMock.expectGetWriteIns({ contestId, cvrId: cvrId2 }, []);
+    apiMock.expectGetCvrContestTag(
+      { cvrId: cvrId2, contestId },
+      { ...cvrContestTag, isResolved: true }
+    );
+    apiMock.expectGetMarginalMarks({ cvrId: cvrId2, contestId }, []);
+    userEvent.click(primaryButton);
+
+    await screen.findByTestId('transcribe:id-175');
+    userEvent.click(getButtonByName('back'));
+
+    // flags shouldn't be there anymore and captions should remain
+    await screen.findByTestId('transcribe:id-174');
+    expect(screen.queryByText(/review marginal mark/i)).toBeNull();
+    expect(screen.queryAllByText(/marginal mark/i).length).toEqual(2);
+    expect(screen.queryByText(/invalid mark/i)).toBeInTheDocument();
+    // there is only one valid marginal mark, but the text also exists within 'invalid mark'
+    expect(screen.queryAllByText(/valid mark/i).length).toEqual(2);
+  });
+});
