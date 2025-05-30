@@ -9,91 +9,134 @@ use crate::{
     scoring::UnitIntervalScore,
 };
 
-use super::{BestFit, BestFitSearchResult, CandidateTimingMark, TimingMarkScore};
+use super::{
+    validate::{validate_consecutive_timing_marks, ValidateConsecutiveTimingMarksOptions},
+    BestFit, BestFitSearchResult, Border, CandidateTimingMark, ConsecutiveMarkValidation,
+    TimingMarkScore,
+};
 
 /// Finds the best fit of timing marks on the left side of the ballot card. Must
 /// find exactly the expected number of timing marks.
-pub fn find_left_timing_marks<'a>(
+pub fn find_left_timing_marks(
     geometry: &Geometry,
-    candidates: &'a [CandidateTimingMark],
+    candidates: &[CandidateTimingMark],
     debug: &ImageDebugWriter,
-) -> BestFitSearchResult<'a> {
+) -> BestFitSearchResult {
+    let options = FindTimingMarkOptions::default_for_geometry(geometry);
     let find_result = find_timing_marks(
+        Border::Left,
         candidates,
         |a, b| b.rect().left().cmp(&a.rect().left()),
         geometry.grid_size.height as usize,
         Degrees::new(90.0),
-        FindTimingMarkOptions::default(),
+        &options,
+        debug,
     );
 
-    debug::draw_find_timing_mark_border_result_mut("border_find_left", debug, &find_result);
+    debug::draw_find_timing_mark_border_result_mut(
+        "border_find_left",
+        debug,
+        candidates,
+        &options,
+        &find_result,
+    );
 
     find_result
 }
 
 /// Finds the best fit of timing marks on the right side of the ballot card. Must
 /// find exactly the expected number of timing marks.
-pub fn find_right_timing_marks<'a>(
+pub fn find_right_timing_marks(
     geometry: &Geometry,
-    candidates: &'a [CandidateTimingMark],
+    candidates: &[CandidateTimingMark],
     debug: &ImageDebugWriter,
-) -> BestFitSearchResult<'a> {
+) -> BestFitSearchResult {
+    let options = FindTimingMarkOptions::default_for_geometry(geometry);
     let find_result = find_timing_marks(
+        Border::Right,
         candidates,
         |a, b| a.rect().right().cmp(&b.rect().right()),
         geometry.grid_size.height as usize,
         Degrees::new(90.0),
-        FindTimingMarkOptions::default(),
+        &options,
+        debug,
     );
 
-    debug::draw_find_timing_mark_border_result_mut("border_find_right", debug, &find_result);
+    debug::draw_find_timing_mark_border_result_mut(
+        "border_find_right",
+        debug,
+        candidates,
+        &options,
+        &find_result,
+    );
 
     find_result
 }
 
 /// Finds the best fit of timing marks on the top side of the ballot card. Must
 /// find exactly the expected number of timing marks.
-pub fn find_top_timing_marks<'a>(
+pub fn find_top_timing_marks(
     geometry: &Geometry,
-    candidates: &'a [CandidateTimingMark],
+    candidates: &[CandidateTimingMark],
     debug: &ImageDebugWriter,
-) -> BestFitSearchResult<'a> {
+) -> BestFitSearchResult {
+    let options = FindTimingMarkOptions::default_for_geometry(geometry);
     let find_result = find_timing_marks(
+        Border::Top,
         candidates,
         |a, b| b.rect().top().cmp(&a.rect().top()),
         geometry.grid_size.width as usize,
         Degrees::new(0.0),
-        FindTimingMarkOptions::default(),
+        &options,
+        debug,
     );
 
-    debug::draw_find_timing_mark_border_result_mut("border_find_top", debug, &find_result);
+    debug::draw_find_timing_mark_border_result_mut(
+        "border_find_top",
+        debug,
+        candidates,
+        &options,
+        &find_result,
+    );
 
     find_result
 }
 
 /// Finds the best fit of timing marks on the bottom side of the ballot card. Must
 /// find exactly the expected number of timing marks.
-pub fn find_bottom_timing_marks<'a>(
+pub fn find_bottom_timing_marks(
     geometry: &Geometry,
-    candidates: &'a [CandidateTimingMark],
+    candidates: &[CandidateTimingMark],
     debug: &ImageDebugWriter,
-) -> BestFitSearchResult<'a> {
+) -> BestFitSearchResult {
+    let options = FindTimingMarkOptions::default_for_geometry(geometry);
     let find_result = find_timing_marks(
+        Border::Bottom,
         candidates,
         |a, b| a.rect().bottom().cmp(&b.rect().bottom()),
         geometry.grid_size.width as usize,
         Degrees::new(0.0),
-        FindTimingMarkOptions::default(),
+        &options,
+        debug,
     );
 
-    debug::draw_find_timing_mark_border_result_mut("border_find_bottom", debug, &find_result);
+    debug::draw_find_timing_mark_border_result_mut(
+        "border_find_bottom",
+        debug,
+        candidates,
+        &options,
+        &find_result,
+    );
 
     find_result
 }
 
 /// Options for finding timing marks.
 #[derive(Debug, Clone, Copy)]
-struct FindTimingMarkOptions {
+pub struct FindTimingMarkOptions<'a> {
+    /// Geometry of the ballot being interpreted.
+    geometry: &'a Geometry,
+
     /// Minimum scores for a mark to be the starting point for a search.
     min_search_scores: TimingMarkScore,
 
@@ -118,27 +161,60 @@ struct FindTimingMarkOptions {
     angle_tolerance: Radians,
 }
 
-impl Default for FindTimingMarkOptions {
-    fn default() -> Self {
+impl<'a> FindTimingMarkOptions<'a> {
+    /// Returns the minimum scores for a mark to be the starting point for a
+    /// search.
+    pub fn min_search_scores(&self) -> TimingMarkScore {
+        self.min_search_scores
+    }
+
+    /// Returns the minimum scores for an interior mark to be considered a valid
+    /// timing mark.
+    pub fn min_interior_acceptance_scores(&self) -> TimingMarkScore {
+        self.min_interior_acceptance_scores
+    }
+
+    /// Returns the minimum scores for an exterior mark to be considered a valid
+    /// timing mark.
+    pub fn min_exterior_acceptance_scores(&self) -> TimingMarkScore {
+        self.min_exterior_acceptance_scores
+    }
+
+    /// Returns the maximum number of pairs to search.
+    pub fn pairs_to_search(&self) -> usize {
+        self.pairs_to_search
+    }
+
+    /// Returns the angle tolerance for the best fit line.
+    pub fn angle_tolerance(&self) -> Radians {
+        self.angle_tolerance
+    }
+
+    fn default_for_geometry(geometry: &'a Geometry) -> Self {
         Self {
+            geometry,
+
             // Set a higher threshold for the search scores to reduce the number
             // of bad line segments we try.
             min_search_scores: TimingMarkScore {
                 mark_score: UnitIntervalScore(0.8),
-                padding_score: UnitIntervalScore(0.8),
+                vertical_padding_score: UnitIntervalScore(0.4),
+                horizontal_padding_score: UnitIntervalScore(0.2),
             },
 
             // Interior marks are expected to have a higher score than exterior
             // marks since they are less likely to be cropped.
             min_interior_acceptance_scores: TimingMarkScore {
                 mark_score: UnitIntervalScore(0.7),
-                padding_score: UnitIntervalScore(0.7),
+                vertical_padding_score: UnitIntervalScore(0.65),
+                horizontal_padding_score: UnitIntervalScore(0.35),
             },
 
             // Exterior marks may be cropped, so we allow for a lower score.
             min_exterior_acceptance_scores: TimingMarkScore {
-                mark_score: UnitIntervalScore(0.33),
-                padding_score: UnitIntervalScore(0.33),
+                mark_score: UnitIntervalScore(0.55),
+                vertical_padding_score: UnitIntervalScore(0.45),
+                horizontal_padding_score: UnitIntervalScore(0.3),
             },
 
             // Pick a high enough number to have good odds of finding a best fit
@@ -159,11 +235,13 @@ impl Default for FindTimingMarkOptions {
 /// The `compare` function should sort candidate timing marks to be tried
 /// earlier as `Ordering::Less`.
 fn find_timing_marks(
+    border: Border,
     candidates: &[CandidateTimingMark],
     compare: impl Fn(&CandidateTimingMark, &CandidateTimingMark) -> Ordering,
     expected_count: usize,
     expected_angle: impl Into<Radians>,
-    options: FindTimingMarkOptions,
+    options: &FindTimingMarkOptions,
+    debug: &ImageDebugWriter,
 ) -> BestFitSearchResult {
     let expected_angle = expected_angle.into();
     let start = Instant::now();
@@ -177,15 +255,15 @@ fn find_timing_marks(
     let candidates_to_pair = candidates
         .iter()
         // Exclude lower-quality timing marks as search starting points.
-        .filter(|m| m.scores().mark_score() > options.min_search_scores.mark_score())
+        .filter(|m| m.scores().cmp(&options.min_search_scores) == Some(Ordering::Greater))
         // Sort by `compare`, then by score.
-        .sorted_by(|a, b| match compare(b, a) {
-            Ordering::Equal => b
-                .scores()
-                .mark_score()
-                .partial_cmp(&a.scores().mark_score())
-                .unwrap_or(Ordering::Equal),
-            cmp => cmp,
+        .sorted_by(|a, b| {
+            compare(b, a).then_with(|| {
+                b.scores()
+                    .mark_score()
+                    .partial_cmp(&a.scores().mark_score())
+                    .unwrap_or(Ordering::Equal)
+            })
         })
         .collect_vec();
 
@@ -194,6 +272,7 @@ fn find_timing_marks(
 
     // Keep track of searched segments for debugging purposes.
     let mut searched = vec![];
+    let mut failed_validations = vec![];
 
     for (a, b) in candidates_to_pair.iter().tuple_combinations() {
         if remaining_pairs_to_try == 0 {
@@ -221,6 +300,7 @@ fn find_timing_marks(
 
         let mut marks = candidates
             .iter()
+            .copied()
             .filter(|m| m.rect().intersects_line(&segment))
             .collect_vec();
 
@@ -236,22 +316,27 @@ fn find_timing_marks(
                 }
             }
 
-            if marks.iter().enumerate().all(|(i, m)| {
-                let min_scores = if i == 0 || i == marks.len() - 1 {
-                    options.min_exterior_acceptance_scores
-                } else {
-                    options.min_interior_acceptance_scores
-                };
+            let validation = validate_consecutive_timing_marks(
+                border,
+                marks,
+                &ValidateConsecutiveTimingMarksOptions::default_for_geometry(options.geometry),
+                debug,
+            );
 
-                m.scores().mark_score() >= min_scores.mark_score()
-                    && m.scores().padding_score() >= min_scores.padding_score()
-            }) {
-                // All the marks had high enough scores, so we found a good fit.
-                return BestFitSearchResult::Found {
-                    best_fit: BestFit { segment, marks },
-                    searched,
-                    duration: start.elapsed(),
-                };
+            match validation {
+                ConsecutiveMarkValidation::Valid { .. } => {
+                    // All the marks had high enough scores, so we found a good fit.
+                    return BestFitSearchResult::Found {
+                        best_fit: BestFit {
+                            segment,
+                            validation: Some(validation.clone()),
+                            marks: validation.into_candidate_marks(),
+                        },
+                        searched,
+                        duration: start.elapsed(),
+                    };
+                }
+                ConsecutiveMarkValidation::Invalid { .. } => failed_validations.push(validation),
             }
         }
     }
@@ -260,6 +345,7 @@ fn find_timing_marks(
     // for debugging purposes.
     BestFitSearchResult::NotFound {
         searched,
+        failed_validations,
         duration: start.elapsed(),
     }
 }

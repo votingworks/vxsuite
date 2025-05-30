@@ -1085,7 +1085,7 @@ mod test {
         match ballot_card(side_a_image.clone(), side_b_image, &options) {
             Err(Error::MissingTimingMarks { reason, .. }) => assert_eq!(
                         reason,
-                        "Unusually high rotation detected: top=2.40°, bottom=0.27°, left=0.47°, right=0.45°"
+                        "Unusually high rotation detected: top=2.39°, bottom=0.29°, left=0.45°, right=0.46°"
                     ),
             Err(err) => {
                 panic!("unexpected error: {err:?}");
@@ -1114,7 +1114,7 @@ mod test {
         match ballot_card(side_a_image, side_b_image, &options) {
             Err(Error::MissingTimingMarks { reason, .. }) => assert_eq!(
                         reason,
-                        "Unusually high skew detected: top-left=1.51°, top-right=1.45°, bottom-left=0.40°, bottom-right=0.46°"
+                        "Unusually high skew detected: top-left=1.51°, top-right=1.44°, bottom-left=0.42°, bottom-right=0.49°"
                     ),
             Err(err) => panic!("unexpected error: {err:?}"),
             Ok(_) => panic!("interpretation unexpectedly succeeded"),

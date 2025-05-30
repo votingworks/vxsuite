@@ -312,17 +312,18 @@ mod tests {
     #[test]
     fn test_get_scanned_ballot_card_geometry() {
         assert_eq!(
-            get_matching_paper_info_for_image_size((1696, 2200), &PaperInfo::scanned(),),
+            get_matching_paper_info_for_image_size((1696, 2200), &PaperInfo::scanned()),
             Some(PaperInfo::scanned_letter())
         );
         assert_eq!(
-            get_matching_paper_info_for_image_size((1696, 2800), &PaperInfo::scanned(),),
+            get_matching_paper_info_for_image_size((1696, 2800), &PaperInfo::scanned()),
             Some(PaperInfo::scanned_legal())
         );
         assert_eq!(
-            get_matching_paper_info_for_image_size((1500, 1500), &PaperInfo::scanned(),),
+            get_matching_paper_info_for_image_size((1500, 1500), &PaperInfo::scanned()),
             None
         );
+        dbg!(PaperInfo::scanned_letter().compute_geometry());
     }
 
     #[test]

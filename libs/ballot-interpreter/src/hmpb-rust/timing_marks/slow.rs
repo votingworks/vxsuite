@@ -34,10 +34,10 @@ pub fn find_top_timing_marks(candidates: &[CandidateTimingMark]) -> BestFitSearc
 
 /// Finds the best fit of timing marks along the left border of the ballot card,
 /// even if the number of timing marks is not equal to the expected number.
-pub fn find_left_timing_marks<'a>(
+pub fn find_left_timing_marks(
     geometry: &Geometry,
-    candidates: &'a [CandidateTimingMark],
-) -> BestFitSearchResult<'a> {
+    candidates: &[CandidateTimingMark],
+) -> BestFitSearchResult {
     find_best_fit_segment(
         candidates,
         VERTICAL_ANGLE,
@@ -59,10 +59,10 @@ pub fn find_left_timing_marks<'a>(
 
 /// Finds the best fit of timing marks along the right border of the ballot card,
 /// even if the number of timing marks is not equal to the expected number.
-pub fn find_right_timing_marks<'a>(
+pub fn find_right_timing_marks(
     geometry: &Geometry,
-    candidates: &'a [CandidateTimingMark],
-) -> BestFitSearchResult<'a> {
+    candidates: &[CandidateTimingMark],
+) -> BestFitSearchResult {
     find_best_fit_segment(
         candidates,
         VERTICAL_ANGLE,
@@ -109,8 +109,8 @@ pub fn find_bottom_timing_marks(candidates: &[CandidateTimingMark]) -> BestFitSe
 /// then by the sum of the mark and padding scores.
 fn cmp_vertical_border_candidates(
     geometry: &Geometry,
-    a: &[&CandidateTimingMark],
-    b: &[&CandidateTimingMark],
+    a: &[CandidateTimingMark],
+    b: &[CandidateTimingMark],
 ) -> Ordering {
     // compare by the difference from the expected number of timing marks.
     // we can do this because the side columns should be completely filled
@@ -122,11 +122,19 @@ fn cmp_vertical_border_candidates(
             // try to pick the one with the highest score sum
             let a_score_sum: f32 = a
                 .iter()
-                .map(|c| c.scores().mark_score() + c.scores().padding_score())
+                .map(|c| {
+                    c.scores().mark_score().0
+                        + c.scores().vertical_padding_score().0
+                        + c.scores().horizontal_padding_score().0
+                })
                 .sum();
             let b_score_sum: f32 = b
                 .iter()
-                .map(|c| c.scores().mark_score() + c.scores().padding_score())
+                .map(|c| {
+                    c.scores().mark_score().0
+                        + c.scores().vertical_padding_score().0
+                        + c.scores().horizontal_padding_score().0
+                })
                 .sum();
 
             a_score_sum
@@ -188,11 +196,13 @@ pub fn find_best_fit_segment(
         // Find all rectangles in line with the pair of rectangles.
         let best_fit_marks = marks
             .iter()
+            .copied()
             .filter(|r| r.rect().intersects_line(&segment))
             .collect_vec();
 
         let new_best_fit = BestFit {
             segment,
+            validation: None,
             marks: best_fit_marks,
         };
 
@@ -216,6 +226,7 @@ pub fn find_best_fit_segment(
         },
         None => BestFitSearchResult::NotFound {
             searched,
+            failed_validations: vec![],
             duration: start.elapsed(),
         },
     }
