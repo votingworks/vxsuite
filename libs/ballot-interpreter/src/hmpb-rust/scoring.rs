@@ -88,11 +88,12 @@ pub struct ScoredBubbleMark {
 
 impl std::fmt::Debug for ScoredBubbleMark {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        write!(
-            f,
-            "ScoredBubbleMark {{ location: {:?}, match_score: {}, fill_score: {}, matched_bounds: {:?} }}",
-            self.location, self.match_score, self.fill_score, self.matched_bounds
-        )
+        f.debug_struct("ScoredBubbleMark")
+            .field("location", &self.location)
+            .field("match_score", &self.match_score)
+            .field("fill_score", &self.fill_score)
+            .field("matched_bounds", &self.matched_bounds)
+            .finish()
     }
 }
 
@@ -110,7 +111,7 @@ pub fn score_bubble_marks_from_grid_layout(
     side: BallotSide,
     debug: &ImageDebugWriter,
 ) -> ScoredBubbleMarks {
-    let scored_bubbles = &grid_layout
+    let scored_bubbles = grid_layout
         .grid_positions
         .par_iter()
         .flat_map(|grid_position| {
@@ -142,10 +143,10 @@ pub fn score_bubble_marks_from_grid_layout(
         .collect::<ScoredBubbleMarks>();
 
     debug.write("scored_bubble_marks", |canvas| {
-        debug::draw_scored_bubble_marks_debug_image_mut(canvas, scored_bubbles);
+        debug::draw_scored_bubble_marks_debug_image_mut(canvas, &scored_bubbles);
     });
 
-    scored_bubbles.clone()
+    scored_bubbles
 }
 
 /// Scores a bubble mark within a scanned ballot image.
