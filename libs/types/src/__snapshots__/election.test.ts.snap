@@ -3,214 +3,196 @@
 exports[`safeParseElection shows VXF and CDF parsing errors 1`] = `
 [Error: Invalid election definition
 
-VXF error: [
+VXF error: ZodError: [
   {
+    "expected": "record",
     "code": "invalid_type",
-    "expected": "object",
-    "received": "undefined",
     "path": [
       "ballotStrings"
     ],
-    "message": "Required"
+    "message": "Invalid input: expected record, received undefined"
   },
   {
-    "code": "invalid_type",
     "expected": "array",
-    "received": "undefined",
+    "code": "invalid_type",
     "path": [
       "ballotStyles"
     ],
-    "message": "Required"
+    "message": "Invalid input: expected array, received undefined"
   },
   {
-    "code": "invalid_type",
     "expected": "array",
-    "received": "undefined",
+    "code": "invalid_type",
     "path": [
       "contests"
     ],
-    "message": "Required"
+    "message": "Invalid input: expected array, received undefined"
   },
   {
-    "code": "invalid_type",
     "expected": "object",
-    "received": "undefined",
+    "code": "invalid_type",
     "path": [
       "county"
     ],
-    "message": "Required"
+    "message": "Invalid input: expected object, received undefined"
   },
   {
     "code": "custom",
-    "message": "Input not instance of DateWithoutTime",
-    "fatal": true,
     "path": [
       "date"
-    ]
+    ],
+    "message": "Input not instance of DateWithoutTime"
   },
   {
-    "code": "invalid_type",
     "expected": "array",
-    "received": "undefined",
+    "code": "invalid_type",
     "path": [
       "districts"
     ],
-    "message": "Required"
+    "message": "Invalid input: expected array, received undefined"
   },
   {
-    "code": "invalid_type",
     "expected": "string",
-    "received": "undefined",
+    "code": "invalid_type",
     "path": [
       "id"
     ],
-    "message": "Required"
+    "message": "Invalid input: expected string, received undefined"
   },
   {
-    "code": "invalid_type",
     "expected": "array",
-    "received": "undefined",
+    "code": "invalid_type",
     "path": [
       "parties"
     ],
-    "message": "Required"
+    "message": "Invalid input: expected array, received undefined"
   },
   {
-    "code": "invalid_type",
     "expected": "array",
-    "received": "undefined",
+    "code": "invalid_type",
     "path": [
       "precincts"
     ],
-    "message": "Required"
+    "message": "Invalid input: expected array, received undefined"
   },
   {
-    "code": "invalid_type",
     "expected": "string",
-    "received": "undefined",
+    "code": "invalid_type",
     "path": [
       "state"
     ],
-    "message": "Required"
+    "message": "Invalid input: expected string, received undefined"
   },
   {
-    "code": "invalid_type",
     "expected": "string",
-    "received": "undefined",
+    "code": "invalid_type",
     "path": [
       "title"
     ],
-    "message": "Required"
+    "message": "Invalid input: expected string, received undefined"
   }
 ]
 
-CDF error: [
+CDF error: ZodError: [
   {
-    "code": "invalid_literal",
-    "expected": "BallotDefinition.BallotDefinition",
+    "code": "invalid_value",
+    "values": [
+      "BallotDefinition.BallotDefinition"
+    ],
     "path": [
       "@type"
     ],
-    "message": "Invalid literal value, expected \\"BallotDefinition.BallotDefinition\\""
+    "message": "Invalid input: expected \\"BallotDefinition.BallotDefinition\\""
   },
   {
-    "code": "invalid_type",
     "expected": "array",
-    "received": "undefined",
+    "code": "invalid_type",
     "path": [
       "BallotFormat"
     ],
-    "message": "Required"
+    "message": "Invalid input: expected array, received undefined"
   },
   {
-    "code": "invalid_type",
     "expected": "array",
-    "received": "undefined",
+    "code": "invalid_type",
     "path": [
       "Election"
     ],
-    "message": "Required"
+    "message": "Invalid input: expected array, received undefined"
   },
   {
-    "code": "invalid_type",
     "expected": "string",
-    "received": "undefined",
+    "code": "invalid_type",
     "path": [
       "GeneratedDate"
     ],
-    "message": "Required"
+    "message": "Invalid input: expected string, received undefined"
   },
   {
-    "code": "invalid_type",
     "expected": "array",
-    "received": "undefined",
+    "code": "invalid_type",
     "path": [
       "GpUnit"
     ],
-    "message": "Required"
+    "message": "Invalid input: expected array, received undefined"
   },
   {
-    "code": "invalid_type",
     "expected": "string",
-    "received": "undefined",
+    "code": "invalid_type",
     "path": [
       "Issuer"
     ],
-    "message": "Required"
+    "message": "Invalid input: expected string, received undefined"
   },
   {
-    "code": "invalid_type",
     "expected": "string",
-    "received": "undefined",
+    "code": "invalid_type",
     "path": [
       "IssuerAbbreviation"
     ],
-    "message": "Required"
+    "message": "Invalid input: expected string, received undefined"
   },
   {
-    "code": "invalid_type",
     "expected": "array",
-    "received": "undefined",
+    "code": "invalid_type",
     "path": [
       "Party"
     ],
-    "message": "Required"
+    "message": "Invalid input: expected array, received undefined"
   },
   {
-    "code": "invalid_type",
     "expected": "number",
-    "received": "undefined",
+    "code": "invalid_type",
     "path": [
       "SequenceEnd"
     ],
-    "message": "Required"
+    "message": "Invalid input: expected number, received undefined"
   },
   {
-    "code": "invalid_type",
     "expected": "number",
-    "received": "undefined",
+    "code": "invalid_type",
     "path": [
       "SequenceStart"
     ],
-    "message": "Required"
+    "message": "Invalid input: expected number, received undefined"
   },
   {
-    "code": "invalid_type",
     "expected": "string",
-    "received": "undefined",
+    "code": "invalid_type",
     "path": [
       "VendorApplicationId"
     ],
-    "message": "Required"
+    "message": "Invalid input: expected string, received undefined"
   },
   {
-    "expected": "'1.0.0'",
-    "received": "undefined",
-    "code": "invalid_type",
+    "code": "invalid_value",
+    "values": [
+      "1.0.0"
+    ],
     "path": [
       "Version"
     ],
-    "message": "Required"
+    "message": "Invalid input: expected \\"1.0.0\\""
   }
 ]]
 `;
