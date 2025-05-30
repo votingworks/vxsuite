@@ -183,7 +183,11 @@ test('adjudicateWriteIn', () => {
   });
   assert(cvrId !== undefined);
 
-  const [writeInId] = store.getWriteInIds({ cvrId, contestId });
+  const writeInId = store.getWriteInRecords({
+    castVoteRecordId: cvrId,
+    contestId,
+    electionId,
+  })[0]?.id;
   assert(writeInId !== undefined);
 
   function expectVotes(votes: Tabulation.Votes) {
@@ -373,7 +377,7 @@ test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
         },
       },
       votes: { 'zoo-council-mammal': initialVotes },
-      card: { type: 'bmd' },
+      card: { type: 'hmpb', sheetNumber: 1 },
       multiplier: 1,
     },
   ];

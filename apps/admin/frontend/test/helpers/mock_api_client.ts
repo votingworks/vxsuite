@@ -18,6 +18,7 @@ import type {
   ManualResultsMetadata,
   WriteInRecord,
   VoteAdjudication,
+  CvrContestTag,
 } from '@votingworks/admin-backend';
 import type { BatteryInfo, DiskSpaceSummary } from '@votingworks/backend';
 import { FileSystemEntry, FileSystemEntryType } from '@votingworks/fs';
@@ -373,53 +374,216 @@ export function createApiMock(
       apiClient.getWriteIns.expectCallWith(input).resolves(writeIns);
     },
 
-    expectGetWriteInImageViews(
+    expectGetBallotImageView(
       input: { contestId: ContestId; cvrId: Id },
-      isBmd: boolean,
-      numImages: number = 1
+      isBmd: boolean
     ) {
       const { cvrId } = input;
       if (isBmd) {
-        apiClient.getWriteInImageViews.expectCallWith(input).resolves(
-          Array.from({ length: numImages }).map((_, idx) => ({
-            cvrId,
-            imageUrl: `mock-image-data-${cvrId}-${idx}`,
-            machineMarkedText: 'machine-marked-mock-text',
-            type: 'bmd',
-            side: 'front',
-            optionId: `write-in-${idx}`,
-            writeInId: `write-in-${idx}`,
-          }))
-        );
+        apiClient.getBallotImageView.expectCallWith(input).resolves({
+          cvrId,
+          imageUrl: `mock-image-data-${cvrId}-${0}`,
+          type: 'bmd',
+          side: 'front',
+        });
       } else {
-        apiClient.getWriteInImageViews.expectCallWith(input).resolves(
-          Array.from({ length: numImages }).map((_, idx) => ({
-            cvrId,
-            optionId: `write-in-${idx}`,
-            writeInId: `write-in-${idx}`,
-            imageUrl: `mock-image-data-${cvrId}-${idx}`,
-            type: 'hmpb',
-            side: 'front',
-            ballotCoordinates: {
-              x: 0,
-              y: 0,
-              width: 1000,
-              height: 1000,
+        apiClient.getBallotImageView.expectCallWith(input).resolves({
+          cvrId,
+          imageUrl: `mock-image-data-${cvrId}-${0}`,
+          type: 'hmpb',
+          side: 'front',
+          ballotCoordinates: {
+            x: 0,
+            y: 0,
+            width: 1000,
+            height: 1000,
+          },
+          contestCoordinates: {
+            x: 200,
+            y: 200,
+            width: 600,
+            height: 600,
+          },
+          optionLayouts: [
+            {
+              definition: {
+                type: 'candidate',
+                id: 'elephant',
+                contestId: 'zoo-council-mammal',
+                name: 'Elephant',
+                isWriteIn: false,
+              },
+              bounds: {
+                x: 200,
+                y: 100,
+                width: 50,
+                height: 30,
+              },
+              target: {
+                bounds: {
+                  x: 205,
+                  y: 105,
+                  width: 10,
+                  height: 10,
+                },
+                inner: {
+                  x: 207,
+                  y: 107,
+                  width: 6,
+                  height: 6,
+                },
+              },
             },
-            contestCoordinates: {
-              x: 200,
-              y: 200,
-              width: 600,
-              height: 600,
+            {
+              definition: {
+                type: 'candidate',
+                id: 'lion',
+                contestId: 'zoo-council-mammal',
+                name: 'Lion',
+                isWriteIn: false,
+              },
+              bounds: {
+                x: 200,
+                y: 100,
+                width: 50,
+                height: 30,
+              },
+              target: {
+                bounds: {
+                  x: 205,
+                  y: 105,
+                  width: 10,
+                  height: 10,
+                },
+                inner: {
+                  x: 207,
+                  y: 107,
+                  width: 6,
+                  height: 6,
+                },
+              },
             },
-            writeInCoordinates: {
-              x: 400,
-              y: 200,
-              width: 400,
-              height: 200,
+            {
+              definition: {
+                type: 'candidate',
+                id: 'kangaroo',
+                contestId: 'zoo-council-mammal',
+                name: 'Kangaroo',
+                isWriteIn: false,
+              },
+              bounds: {
+                x: 200,
+                y: 100,
+                width: 50,
+                height: 30,
+              },
+              target: {
+                bounds: {
+                  x: 205,
+                  y: 105,
+                  width: 10,
+                  height: 10,
+                },
+                inner: {
+                  x: 207,
+                  y: 107,
+                  width: 6,
+                  height: 6,
+                },
+              },
             },
-          }))
-        );
+            {
+              definition: {
+                type: 'candidate',
+                id: 'write-in-0',
+                contestId: 'zoo-council-mammal',
+                name: 'Write-In Option 0',
+                isWriteIn: true,
+                writeInIndex: 0,
+              },
+              bounds: {
+                x: 400,
+                y: 200,
+                width: 400,
+                height: 200,
+              },
+              target: {
+                bounds: {
+                  x: 205,
+                  y: 155,
+                  width: 10,
+                  height: 10,
+                },
+                inner: {
+                  x: 207,
+                  y: 157,
+                  width: 6,
+                  height: 6,
+                },
+              },
+            },
+            {
+              definition: {
+                type: 'candidate',
+                id: 'write-in-1',
+                contestId: 'zoo-council-mammal',
+                name: 'Write-In Option 1',
+                isWriteIn: true,
+                writeInIndex: 0,
+              },
+              bounds: {
+                x: 400,
+                y: 200,
+                width: 400,
+                height: 200,
+              },
+              target: {
+                bounds: {
+                  x: 205,
+                  y: 155,
+                  width: 10,
+                  height: 10,
+                },
+                inner: {
+                  x: 207,
+                  y: 157,
+                  width: 6,
+                  height: 6,
+                },
+              },
+            },
+            {
+              definition: {
+                type: 'candidate',
+                id: 'write-in-2',
+                contestId: 'zoo-council-mammal',
+                name: 'Write-In Option 2',
+                isWriteIn: true,
+                writeInIndex: 2,
+              },
+              bounds: {
+                x: 400,
+                y: 200,
+                width: 400,
+                height: 200,
+              },
+              target: {
+                bounds: {
+                  x: 205,
+                  y: 155,
+                  width: 10,
+                  height: 10,
+                },
+                inner: {
+                  x: 207,
+                  y: 157,
+                  width: 6,
+                  height: 6,
+                },
+              },
+            },
+          ],
+        });
       }
     },
 
@@ -430,6 +594,20 @@ export function createApiMock(
       apiClient.getVoteAdjudications
         .expectCallWith(input)
         .resolves(voteAdjudications);
+    },
+
+    expectGetMarginalMarks(
+      input: { contestId: ContestId; cvrId: Id },
+      marginalMarks: ContestOptionId[]
+    ) {
+      apiClient.getMarginalMarks.expectCallWith(input).resolves(marginalMarks);
+    },
+
+    expectGetCvrContestTag(
+      input: { contestId: ContestId; cvrId: Id },
+      cvrContestTag: CvrContestTag
+    ) {
+      apiClient.getCvrContestTag.expectCallWith(input).resolves(cvrContestTag);
     },
 
     expectAdjudicateCvrContest(input: AdjudicatedCvrContest) {

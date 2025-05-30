@@ -34,11 +34,10 @@ export const routerPaths = {
   ballotCountReportPrecinct: '/reports/ballot-count/precinct',
   ballotCountReportVotingMethod: '/reports/ballot-count/voting-method',
   tallyWriteInReport: '/reports/tally-reports/writein',
-  writeIns: '/write-ins',
-  writeInAdjudication: ({
+  adjudication: '/adjudication',
+  contestAdjudication: ({
     contestId,
-  }: ContestAdjudicationScreenParams): string =>
-    `/write-ins/adjudication/${contestId}`,
+  }: ContestAdjudicationScreenParams): string => `/adjudication/${contestId}`,
   settings: '/settings',
   hardwareDiagnostics: '/hardware-diagnostics',
   system: '/system',

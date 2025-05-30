@@ -7,7 +7,12 @@ import React, {
   useState,
 } from 'react';
 import styled from 'styled-components';
-import { ContestOptionId, getContestDistrictName } from '@votingworks/types';
+import {
+  Candidate,
+  ContestOptionId,
+  getContestDistrictName,
+  YesNoOption,
+} from '@votingworks/types';
 import {
   Button,
   Main,
@@ -21,6 +26,7 @@ import {
 } from '@votingworks/ui';
 import {
   assert,
+  assertDefined,
   deepEqual,
   find,
   iter,
@@ -35,13 +41,15 @@ import { allContestOptions, format } from '@votingworks/utils';
 import { useHistory, useParams } from 'react-router-dom';
 import {
   getCastVoteRecordVoteInfo,
-  getWriteInImageViews,
+  getBallotImageView,
   getNextCvrIdForAdjudication,
   getWriteIns,
   getAdjudicationQueue,
   getWriteInCandidates,
   getVoteAdjudications,
   adjudicateCvrContest,
+  getMarginalMarks,
+  getCvrContestTag,
 } from '../api';
 import { AppContext } from '../contexts/app_context';
 import { ContestAdjudicationScreenParams } from '../config/types';
@@ -52,8 +60,11 @@ import {
 } from '../components/adjudication_ballot_image_viewer';
 import { WriteInAdjudicationButton } from '../components/write_in_adjudication_button';
 import { NavigationScreen } from '../components/navigation_screen';
-import { CandidateButton } from '../components/candidate_button';
-import { normalizeWriteInName } from '../utils/write_ins';
+import { ContestOptionButton } from '../components/contest_option_button';
+import {
+  getOptionCoordinates,
+  normalizeWriteInName,
+} from '../utils/adjudication';
 import {
   DoubleVoteAlert,
   DoubleVoteAlertModal,
@@ -130,6 +141,9 @@ function isPendingWriteIn(
 ): status is PendingWriteIn {
   return status?.type === 'pending';
 }
+
+export type MarginalMarkStatus = 'pending' | 'resolved';
+type MarginalMarkStatusByOptionId = Record<ContestOptionId, MarginalMarkStatus>;
 
 const DEFAULT_PADDING = '0.75rem';
 const ADJUDICATION_PANEL_WIDTH = '23.5rem';
@@ -209,7 +223,7 @@ const BallotNavigation = styled(BaseRow)`
   }
 `;
 
-const CandidateButtonList = styled.div`
+const ContestOptionButtonList = styled.div`
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -220,7 +234,7 @@ const CandidateButtonList = styled.div`
   overflow-y: scroll;
 `;
 
-const CandidateButtonCaption = styled.span`
+const ContestOptionButtonCaption = styled.span`
   color: ${(p) => p.theme.colors.neutral};
   font-size: 0.75rem;
   margin: 0.25rem 0 0.25rem 0.125rem;
@@ -270,23 +284,31 @@ const SecondaryNavButton = styled(Button)`
   width: 5.5rem;
 `;
 
-function renderCandidateButtonCaption({
+function renderContestOptionButtonCaption({
   originalVote,
   currentVote,
   isWriteIn,
   writeInStatus,
   writeInRecord,
+  marginalMarkStatus,
 }: {
   originalVote: boolean;
   currentVote: boolean;
   isWriteIn: boolean;
   writeInStatus?: WriteInAdjudicationStatus;
   writeInRecord?: WriteInRecord;
+  marginalMarkStatus?: MarginalMarkStatus;
 }) {
   let originalValueStr: string | undefined;
   let newValueStr: string | undefined;
 
-  if (isWriteIn) {
+  if (marginalMarkStatus === 'resolved' && currentVote) {
+    originalValueStr = 'Marginal Mark';
+    newValueStr = 'Valid Mark';
+  } else if (marginalMarkStatus === 'resolved' && !currentVote) {
+    originalValueStr = 'Marginal Mark';
+    newValueStr = 'Invalid Mark';
+  } else if (isWriteIn) {
     if (writeInRecord?.isUnmarked && isInvalidWriteIn(writeInStatus)) {
       originalValueStr = 'Unmarked Write-in';
       newValueStr = 'Invalid Mark';
@@ -307,10 +329,10 @@ function renderCandidateButtonCaption({
   }
 
   return (
-    <CandidateButtonCaption>
+    <ContestOptionButtonCaption>
       <Font weight="semiBold">{originalValueStr} </Font>adjudicated as
       <Font weight="semiBold"> {newValueStr}</Font>
-    </CandidateButtonCaption>
+    </ContestOptionButtonCaption>
   );
 }
 
@@ -321,7 +343,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
   assert(electionDefinition);
   const { election } = electionDefinition;
   const contest = find(election.contests, (c) => c.id === contestId);
-  assert(contest.type === 'candidate', 'contest must be a candidate contest');
+  const isCandidateContest = contest.type === 'candidate';
 
   // Queries and mutations
   const cvrQueueQuery = getAdjudicationQueue.useQuery({ contestId });
@@ -345,24 +367,35 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const writeInsQuery = getWriteIns.useQuery(
     maybeCurrentCvrId ? { cvrId: maybeCurrentCvrId, contestId } : undefined
   );
-  const writeInImagesQuery = getWriteInImageViews.useQuery(
+  const ballotImageViewQuery = getBallotImageView.useQuery(
     maybeCurrentCvrId ? { cvrId: maybeCurrentCvrId, contestId } : undefined
   );
   const writeInCandidatesQuery = getWriteInCandidates.useQuery({
     contestId,
   });
+  const marginalMarksQuery = getMarginalMarks.useQuery(
+    maybeCurrentCvrId ? { cvrId: maybeCurrentCvrId, contestId } : undefined
+  );
+  const cvrContestTagQuery = getCvrContestTag.useQuery(
+    maybeCurrentCvrId ? { cvrId: maybeCurrentCvrId, contestId } : undefined
+  );
 
   const adjudicateCvrContestMutation = adjudicateCvrContest.useMutation();
-  const officialCandidates = useMemo(
-    () => contest.candidates.filter((c) => !c.isWriteIn),
-    [contest.candidates]
+  const officialOptions = useMemo(
+    () =>
+      isCandidateContest
+        ? contest.candidates.filter((c) => !c.isWriteIn)
+        : [contest.yesOption, contest.noOption],
+    [contest, isCandidateContest]
   );
   const writeInOptionIds = useMemo(
     () =>
-      iter(allContestOptions(contest))
-        .filterMap((option) => (option.isWriteIn ? option.id : undefined))
-        .toArray(),
-    [contest]
+      isCandidateContest
+        ? iter(allContestOptions(contest))
+            .filterMap((option) => (option.isWriteIn ? option.id : undefined))
+            .toArray()
+        : [],
+    [contest, isCandidateContest]
   );
 
   // Vote and write-in state for adjudication management
@@ -388,9 +421,26 @@ export function ContestAdjudicationScreen(): JSX.Element {
       [optionId]: status,
     }));
   }
+
+  const [marginalMarkStatusByOptionId, setMarginalMarkStatusByOptionId] =
+    useState<MarginalMarkStatusByOptionId>({});
+  const initialMarginalMarkStatusByOptionId =
+    useRef<MarginalMarkStatusByOptionId>();
+  function resolveMarginalMark(optionId: ContestOptionId) {
+    setMarginalMarkStatusByOptionId((prev) =>
+      optionId in prev
+        ? {
+            ...prev,
+            [optionId]: 'resolved',
+          }
+        : prev
+    );
+  }
+
   function clearBallotState() {
     setHasVoteByOptionId({});
     setWriteInStatusByOptionId({});
+    setMarginalMarkStatusByOptionId({});
   }
   const isVoteStateReady = Object.keys(hasVoteByOptionId).length > 0;
 
@@ -411,12 +461,16 @@ export function ContestAdjudicationScreen(): JSX.Element {
       writeInCandidatesQuery.isSuccess &&
       !writeInCandidatesQuery.isStale &&
       voteAdjudicationsQuery.isSuccess &&
-      !voteAdjudicationsQuery.isStale
+      !voteAdjudicationsQuery.isStale &&
+      marginalMarksQuery.isSuccess &&
+      !marginalMarksQuery.isStale &&
+      cvrContestTagQuery.isSuccess &&
+      !cvrContestTagQuery.isStale
     ) {
       const originalVotes = cvrVoteInfoQuery.data.votes[contestId];
       const newHasVoteByOptionId: HasVoteByOptionId = {};
-      for (const c of officialCandidates) {
-        newHasVoteByOptionId[c.id] = originalVotes.includes(c.id);
+      for (const o of officialOptions) {
+        newHasVoteByOptionId[o.id] = originalVotes.includes(o.id);
       }
 
       const newWriteInStatusByOptionId: WriteInStatusByOptionId = {};
@@ -426,6 +480,13 @@ export function ContestAdjudicationScreen(): JSX.Element {
       }
       for (const adjudication of voteAdjudicationsQuery.data) {
         newHasVoteByOptionId[adjudication.optionId] = adjudication.isVote;
+      }
+      const newMarginalMarkStatusByOptionId: MarginalMarkStatusByOptionId = {};
+      for (const optionId of marginalMarksQuery.data) {
+        const isContestAdjudicated = cvrContestTagQuery.data?.isResolved;
+        newMarginalMarkStatusByOptionId[optionId] = isContestAdjudicated
+          ? 'resolved'
+          : 'pending';
       }
       let areAllWriteInsAdjudicated = true;
       for (const writeIn of writeInsQuery.data) {
@@ -437,10 +498,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
         }
         switch (writeIn.adjudicationType) {
           case 'official-candidate': {
-            const candidate = officialCandidates.find(
-              (c) => c.id === writeIn.candidateId
-            );
-            assert(candidate !== undefined);
+            const candidate = assertDefined(
+              officialOptions.find((c) => c.id === writeIn.candidateId)
+            ) as Candidate;
             newWriteInStatusByOptionId[optionId] = {
               ...candidate,
               type: 'existing-official',
@@ -449,10 +509,11 @@ export function ContestAdjudicationScreen(): JSX.Element {
             break;
           }
           case 'write-in-candidate': {
-            const candidate = writeInCandidatesQuery.data.find(
-              (c) => c.id === writeIn.candidateId
+            const candidate = assertDefined(
+              writeInCandidatesQuery.data.find(
+                (c) => c.id === writeIn.candidateId
+              )
             );
-            assert(candidate !== undefined);
             newWriteInStatusByOptionId[optionId] = {
               ...candidate,
               type: 'existing-write-in',
@@ -473,19 +534,28 @@ export function ContestAdjudicationScreen(): JSX.Element {
       }
       setFocusedOptionId(undefined);
       setHasVoteByOptionId(newHasVoteByOptionId);
-      initialHasVoteByOptionIdRef.current = newHasVoteByOptionId;
       setWriteInStatusByOptionId(newWriteInStatusByOptionId);
+      setMarginalMarkStatusByOptionId(newMarginalMarkStatusByOptionId);
+      initialHasVoteByOptionIdRef.current = newHasVoteByOptionId;
       initialWriteInStatusByOptionIdRef.current = newWriteInStatusByOptionId;
+      initialMarginalMarkStatusByOptionId.current =
+        newMarginalMarkStatusByOptionId;
       if (!areAllWriteInsAdjudicated) {
         setShouldScrollToWriteIns(true);
       }
     }
   }, [
     contestId,
-    officialCandidates,
+    officialOptions,
     cvrVoteInfoQuery.data,
     cvrVoteInfoQuery.isStale,
     cvrVoteInfoQuery.isSuccess,
+    cvrContestTagQuery.data,
+    cvrContestTagQuery.isStale,
+    cvrContestTagQuery.isSuccess,
+    marginalMarksQuery.data,
+    marginalMarksQuery.isStale,
+    marginalMarksQuery.isSuccess,
     voteAdjudicationsQuery.data,
     voteAdjudicationsQuery.isStale,
     voteAdjudicationsQuery.isSuccess,
@@ -516,7 +586,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
   }, [firstPendingCvrIdQuery, cvrQueueQuery, maybeCvrQueueIndex]);
 
   // Prefetch the next and previous ballot images
-  const prefetchImageViews = getWriteInImageViews.usePrefetch();
+  const prefetchImageViews = getBallotImageView.usePrefetch();
   useEffect(() => {
     if (!cvrQueueQuery.isSuccess || maybeCvrQueueIndex === undefined) return;
     const nextCvrId = cvrQueueQuery.data[maybeCvrQueueIndex + 1];
@@ -545,19 +615,20 @@ export function ContestAdjudicationScreen(): JSX.Element {
     cvrVoteInfoQuery.isFetching ||
     cvrQueueQuery.isFetching ||
     firstPendingCvrIdQuery.isFetching ||
-    writeInImagesQuery.isFetching ||
+    ballotImageViewQuery.isFetching ||
     writeInsQuery.isFetching ||
     writeInCandidatesQuery.isFetching ||
-    voteAdjudicationsQuery.isFetching;
-  const candidateListRef = useRef<HTMLDivElement>(null);
+    voteAdjudicationsQuery.isFetching ||
+    marginalMarksQuery.isFetching;
+  const contestOptionListRef = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
     if (
       !areQueriesFetching &&
       shouldScrollToWriteIns &&
-      candidateListRef.current
+      contestOptionListRef.current
     ) {
-      candidateListRef.current.scrollTop =
-        candidateListRef.current.scrollHeight;
+      contestOptionListRef.current.scrollTop =
+        contestOptionListRef.current.scrollHeight;
       setShouldScrollToWriteIns(false);
     }
   }, [shouldScrollToWriteIns, areQueriesFetching]);
@@ -570,7 +641,8 @@ export function ContestAdjudicationScreen(): JSX.Element {
     !writeInCandidatesQuery.data ||
     !writeInsQuery.data ||
     !voteAdjudicationsQuery.data ||
-    !writeInImagesQuery.data
+    !ballotImageViewQuery.data ||
+    !marginalMarksQuery.data
   ) {
     return (
       <NavigationScreen title="Contest Adjudication">
@@ -581,47 +653,53 @@ export function ContestAdjudicationScreen(): JSX.Element {
 
   const originalVotes = cvrVoteInfoQuery.data.votes[contestId];
   const writeIns = writeInsQuery.data;
-  const writeInImages = writeInImagesQuery.data;
+  const ballotImage = ballotImageViewQuery.data;
   const writeInCandidates = writeInCandidatesQuery.data;
   const cvrQueueIndex = maybeCvrQueueIndex;
   const currentCvrId = maybeCurrentCvrId;
 
   const voteCount = Object.values(hasVoteByOptionId).filter(Boolean).length;
-  const seatCount = contest.seats;
+  const seatCount = isCandidateContest ? contest.seats : 1;
   const isOvervote = voteCount > seatCount;
   const numPendingWriteIns = iter(writeInOptionIds)
     .filter((optionId) => isPendingWriteIn(writeInStatusByOptionId[optionId]))
     .count();
   const allWriteInsAdjudicated = numPendingWriteIns === 0;
+  const allMarginalMarksAdjudicated = !Object.values(
+    marginalMarkStatusByOptionId
+  ).some((status) => status !== 'resolved');
 
-  const firstWriteInImage = writeInImages[0];
-  const focusedWriteInImage = focusedOptionId
-    ? writeInImages.find((item) => item.optionId === focusedOptionId)
-    : undefined;
-  const isHmpb = firstWriteInImage.type === 'hmpb';
-  const isBmd = firstWriteInImage.type === 'bmd';
-  const { side } = firstWriteInImage;
+  const isHmpb = ballotImage.type === 'hmpb';
+  const isBmd = ballotImage.type === 'bmd';
+  const { side } = ballotImage;
+  const focusedCoordinates =
+    focusedOptionId && isHmpb
+      ? getOptionCoordinates(ballotImage.optionLayouts, focusedOptionId)
+      : undefined;
 
   const numBallots = cvrQueueQuery.data.length;
   const onLastBallot = cvrQueueIndex + 1 === numBallots;
 
-  const selectedCandidateNames = Object.entries(hasVoteByOptionId)
-    .filter(([, hasVote]) => hasVote)
-    .map(([optionId]) => {
-      if (writeInOptionIds.includes(optionId)) {
-        const writeInStatus = writeInStatusByOptionId[optionId];
-        if (isValidCandidate(writeInStatus)) {
-          return writeInStatus.name;
-        }
-        // Pending write-in so there is no name yet
-        return undefined;
-      }
-      // Must be official candidate
-      const official = officialCandidates.find((c) => c.id === optionId);
-      assert(official !== undefined);
-      return official.name;
-    })
-    .filter(Boolean);
+  const selectedCandidateNames = isCandidateContest
+    ? Object.entries(hasVoteByOptionId)
+        .filter(([, hasVote]) => hasVote)
+        .map(([optionId]) => {
+          if (writeInOptionIds.includes(optionId)) {
+            const writeInStatus = writeInStatusByOptionId[optionId];
+            if (isValidCandidate(writeInStatus)) {
+              return writeInStatus.name;
+            }
+            // Pending write-in so there is no name yet
+            return undefined;
+          }
+          // Must be official candidate
+          const official = assertDefined(
+            officialOptions.find((c) => c.id === optionId)
+          ) as Candidate;
+          return official.name;
+        })
+        .filter(Boolean)
+    : [];
 
   function checkForDoubleVote({
     name,
@@ -631,7 +709,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
     optionId: ContestOptionId;
   }): DoubleVoteAlert | undefined {
     const normalizedName = normalizeWriteInName(name);
-    const existingCandidate = officialCandidates.find(
+    const existingCandidate = (officialOptions as Candidate[]).find(
       (c) => normalizeWriteInName(c.name) === normalizedName
     );
     if (existingCandidate && hasVoteByOptionId[existingCandidate.id]) {
@@ -669,8 +747,8 @@ export function ContestAdjudicationScreen(): JSX.Element {
       cvrId: currentCvrId,
       side,
     };
-    const officialCandidateOptionIds = officialCandidates.map((c) => c.id);
-    for (const optionId of officialCandidateOptionIds) {
+    const officialOptionIds = officialOptions.map((o) => o.id);
+    for (const optionId of officialOptionIds) {
       const hasVote = hasVoteByOptionId[optionId];
       adjudicatedContestOptionById[optionId] = {
         type: 'candidate-option',
@@ -705,7 +783,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
     try {
       await adjudicateCvrContestMutation.mutateAsync(adjudicatedCvrContest);
       if (onLastBallot) {
-        history.push(routerPaths.writeIns);
+        history.push(routerPaths.adjudication);
       } else {
         setMaybeCvrQueueIndex(cvrQueueIndex + 1);
         clearBallotState();
@@ -720,6 +798,10 @@ export function ContestAdjudicationScreen(): JSX.Element {
     !deepEqual(
       writeInStatusByOptionId,
       initialWriteInStatusByOptionIdRef.current
+    ) ||
+    !deepEqual(
+      marginalMarkStatusByOptionId,
+      initialMarginalMarkStatusByOptionId.current
     );
 
   function onSkip(): void {
@@ -745,7 +827,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
       setDiscardChangesNextAction('close');
       return;
     }
-    history.push(routerPaths.writeIns);
+    history.push(routerPaths.adjudication);
   }
 
   return (
@@ -754,19 +836,15 @@ export function ContestAdjudicationScreen(): JSX.Element {
         <BallotPanel>
           {isHmpb && (
             <BallotZoomImageViewer
-              ballotBounds={firstWriteInImage.ballotCoordinates}
+              ballotBounds={ballotImage.ballotCoordinates}
               key={currentCvrId} // Reset zoom state for each write-in
-              imageUrl={firstWriteInImage.imageUrl}
+              imageUrl={ballotImage.imageUrl}
               zoomedInBounds={
-                focusedWriteInImage?.type === 'hmpb'
-                  ? focusedWriteInImage.writeInCoordinates
-                  : firstWriteInImage.contestCoordinates
+                focusedCoordinates || ballotImage.contestCoordinates
               }
             />
           )}
-          {isBmd && (
-            <BallotStaticImageViewer imageUrl={firstWriteInImage.imageUrl} />
-          )}
+          {isBmd && <BallotStaticImageViewer imageUrl={ballotImage.imageUrl} />}
         </BallotPanel>
         <AdjudicationPanel>
           {focusedOptionId && <AdjudicationPanelOverlay />}
@@ -800,32 +878,47 @@ export function ContestAdjudicationScreen(): JSX.Element {
             )}
           </BallotVoteCount>
           {!isVoteStateReady ? (
-            <CandidateButtonList style={{ justifyContent: 'center' }}>
+            <ContestOptionButtonList style={{ justifyContent: 'center' }}>
               <Icons.Loading />
-            </CandidateButtonList>
+            </ContestOptionButtonList>
           ) : (
-            <CandidateButtonList ref={candidateListRef}>
-              {officialCandidates.map((candidate) => {
-                const originalVote = originalVotes.includes(candidate.id);
-                const currentVote = hasVoteByOptionId[candidate.id];
+            <ContestOptionButtonList ref={contestOptionListRef}>
+              {officialOptions.map((officialOption) => {
+                const originalVote = originalVotes.includes(officialOption.id);
+                const currentVote = hasVoteByOptionId[officialOption.id];
+                const optionLabel = isCandidateContest
+                  ? (officialOption as Candidate).name
+                  : (officialOption as YesNoOption).label;
+                const marginalMarkStatus =
+                  marginalMarkStatusByOptionId[officialOption.id];
                 return (
-                  <CandidateButton
-                    key={candidate.id + currentCvrId}
-                    candidate={candidate}
+                  <ContestOptionButton
+                    key={officialOption.id + currentCvrId}
+                    option={{
+                      id: officialOption.id,
+                      label: optionLabel,
+                    }}
                     isSelected={currentVote}
-                    onSelect={() => setOptionHasVote(candidate.id, true)}
-                    onDeselect={() => setOptionHasVote(candidate.id, false)}
+                    onSelect={() => setOptionHasVote(officialOption.id, true)}
+                    onDeselect={() =>
+                      setOptionHasVote(officialOption.id, false)
+                    }
                     disabled={
                       isBmd ||
                       // Disabled when there is a write-in selection for the candidate
                       (!currentVote &&
-                        selectedCandidateNames.includes(candidate.name))
+                        selectedCandidateNames.includes(optionLabel))
                     }
-                    caption={renderCandidateButtonCaption({
+                    caption={renderContestOptionButtonCaption({
                       originalVote,
                       currentVote,
                       isWriteIn: false,
+                      marginalMarkStatus,
                     })}
+                    marginalMarkStatus={marginalMarkStatus}
+                    onDismissFlag={() => {
+                      resolveMarginalMark(officialOption.id);
+                    }}
                   />
                 );
               })}
@@ -834,21 +927,17 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 const writeInRecord = writeIns.find(
                   (writeIn) => writeIn.optionId === optionId
                 );
-                const writeInImage = writeInImages.find(
-                  (img) => img.optionId === optionId
-                );
                 const writeInStatus = writeInStatusByOptionId[optionId];
                 const isFocused = focusedOptionId === optionId;
                 const isSelected = hasVoteByOptionId[optionId];
+                const marginalMarkStatus =
+                  marginalMarkStatusByOptionId[optionId];
                 if (!writeInStatus || isInvalidWriteIn(writeInStatus)) {
                   return (
-                    <CandidateButton
-                      candidate={{
+                    <ContestOptionButton
+                      option={{
                         id: optionId,
-                        name:
-                          writeInImage?.type === 'bmd'
-                            ? writeInImage.machineMarkedText
-                            : 'Write-in',
+                        label: writeInRecord?.machineMarkedText ?? 'Write-in',
                       }}
                       // bmd ballots can only toggle-on write-ins that were
                       // previously marked invalid
@@ -859,13 +948,16 @@ export function ContestAdjudicationScreen(): JSX.Element {
                         setOptionHasVote(optionId, true);
                         setOptionWriteInStatus(optionId, { type: 'pending' });
                       }}
-                      caption={renderCandidateButtonCaption({
+                      caption={renderContestOptionButtonCaption({
                         originalVote,
                         currentVote: false,
                         isWriteIn: true,
                         writeInRecord,
                         writeInStatus,
+                        marginalMarkStatus,
                       })}
+                      marginalMarkStatus={marginalMarkStatus}
+                      onDismissFlag={() => resolveMarginalMark(optionId)}
                     />
                   );
                 }
@@ -875,11 +967,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                     isFocused={isFocused}
                     isSelected={isSelected}
                     hasInvalidEntry={doubleVoteAlert?.optionId === optionId}
-                    label={
-                      writeInImage?.type === 'bmd'
-                        ? writeInImage.machineMarkedText
-                        : undefined
-                    }
+                    label={writeInRecord?.machineMarkedText}
                     status={writeInStatus}
                     onInputFocus={() => setFocusedOptionId(optionId)}
                     onInputBlur={() => setFocusedOptionId(undefined)}
@@ -912,7 +1000,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                       setOptionWriteInStatus(optionId, newStatus);
                       setOptionHasVote(optionId, true);
                     }}
-                    officialCandidates={officialCandidates.filter(
+                    officialCandidates={(officialOptions as Candidate[]).filter(
                       (c) =>
                         !selectedCandidateNames.includes(c.name) ||
                         (isValidCandidate(writeInStatus) &&
@@ -924,17 +1012,18 @@ export function ContestAdjudicationScreen(): JSX.Element {
                         (isValidCandidate(writeInStatus) &&
                           writeInStatus.name === c.name)
                     )}
-                    caption={renderCandidateButtonCaption({
+                    caption={renderContestOptionButtonCaption({
                       originalVote,
                       currentVote: isSelected,
                       isWriteIn: true,
                       writeInRecord,
                       writeInStatus,
+                      marginalMarkStatus,
                     })}
                   />
                 );
               })}
-            </CandidateButtonList>
+            </ContestOptionButtonList>
           )}
           <BallotFooter>
             <BallotMetadata>
@@ -959,7 +1048,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 Skip
               </SecondaryNavButton>
               <PrimaryNavButton
-                disabled={!allWriteInsAdjudicated}
+                disabled={
+                  !allWriteInsAdjudicated || !allMarginalMarksAdjudicated
+                }
                 icon="Done"
                 onPress={saveAndNext}
                 variant="primary"
