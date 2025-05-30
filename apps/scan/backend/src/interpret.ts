@@ -123,6 +123,16 @@ export function combinePageInterpretationsForSheet(
   }
 
   if (
+    frontType === 'BmdBallotScanningDisabled' ||
+    backType === 'BmdBallotScanningDisabled'
+  ) {
+    return {
+      type: 'InvalidSheet',
+      reason: 'bmd_ballot_scanning_disabled',
+    };
+  }
+
+  if (
     (front.interpretation.type === 'UnreadablePage' &&
       front.interpretation.reason === 'verticalStreaksDetected') ||
     (back.interpretation.type === 'UnreadablePage' &&

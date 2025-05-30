@@ -1415,6 +1415,12 @@ export const appStrings = {
     </UiString>
   ),
 
+  titleScannerBmdBallotScanningDisabled: () => (
+    <UiString uiStringKey='titleScannerBmdBallotScanningDisabled'>
+      BMD Ballot Scanning Disabled
+    </UiString>
+  ),
+
   titleScannerNeedsCleaning: () => (
     <UiString uiStringKey="titleScannerNeedsCleaning">
       Scanner Needs Cleaning
@@ -1561,6 +1567,12 @@ export const appStrings = {
   warningScannerMismatchedPrecinct: () => (
     <UiString uiStringKey="warningScannerMismatchedPrecinct">
       The scanner is configured for a precinct that does not match the ballot.
+    </UiString>
+  ),
+
+  warningScannerBmdBallotScanningDisabled: () => (
+    <UiString uiStringKey="warningBmdBallotScanningDisabled">
+      The scanner cannot scan BMD ballots.
     </UiString>
   ),
 

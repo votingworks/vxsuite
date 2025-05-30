@@ -118,6 +118,14 @@ export const UnreadablePageSchema: z.ZodSchema<UnreadablePage> = z.object({
   reason: z.string().optional(),
 });
 
+export interface BmdBallotScanningDisabled {
+  type: 'BmdBallotScanningDisabled';
+}
+export const BmdBallotScanningDisabledSchema: z.ZodSchema<BmdBallotScanningDisabled> =
+  z.object({
+    type: z.literal('BmdBallotScanningDisabled'),
+  });
+
 export interface ImageInfo {
   url: string;
 }
@@ -132,7 +140,8 @@ export type PageInterpretation =
   | InvalidBallotHashPage
   | InvalidTestModePage
   | InvalidPrecinctPage
-  | UnreadablePage;
+  | UnreadablePage
+  | BmdBallotScanningDisabled;
 export const PageInterpretationSchema: z.ZodSchema<PageInterpretation> =
   z.union([
     BlankPageSchema,
@@ -142,6 +151,7 @@ export const PageInterpretationSchema: z.ZodSchema<PageInterpretation> =
     InvalidTestModePageSchema,
     InvalidPrecinctPageSchema,
     UnreadablePageSchema,
+    BmdBallotScanningDisabledSchema,
   ]);
 
 export type PageInterpretationType = PageInterpretation['type'];
@@ -186,7 +196,8 @@ export type InvalidInterpretationReason =
   | 'invalid_precinct'
   | 'vertical_streaks_detected'
   | 'unreadable'
-  | 'unknown';
+  | 'unknown'
+  | 'bmd_ballot_scanning_disabled';
 
 export type SheetInterpretation =
   | {

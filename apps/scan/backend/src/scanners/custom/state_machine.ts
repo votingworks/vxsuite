@@ -303,9 +303,11 @@ async function interpretSheet(
   assert(scannedSheet);
   const sheetId = uuid();
   const { store } = workspace;
-  const { disableVerticalStreakDetection, markThresholds } = assertDefined(
-    store.getSystemSettings()
-  );
+  const {
+    disableVerticalStreakDetection,
+    markThresholds,
+    precinctScanDisableBmdBallotScanning,
+  } = assertDefined(store.getSystemSettings());
   const interpretation = (
     await interpret(sheetId, scannedSheet, {
       electionDefinition: assertDefined(store.getElectionRecord())
@@ -316,6 +318,7 @@ async function interpretSheet(
       ballotImagesPath: workspace.ballotImagesPath,
       markThresholds,
       adjudicationReasons: store.getAdjudicationReasons(),
+      disableBmdBallotScanning: precinctScanDisableBmdBallotScanning,
     })
   ).unsafeUnwrap();
   return {
