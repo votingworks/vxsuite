@@ -213,6 +213,7 @@ function parseElectionDate(value: unknown): Result<unknown, z.ZodError> {
             code: 'custom',
             message: extractErrorMessage(error),
             path: ['date'],
+            input: election.date,
           },
         ])
       );
