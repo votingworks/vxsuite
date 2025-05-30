@@ -369,6 +369,13 @@ test('handling unmarked write-ins', async () => {
   });
   assert(cvrId !== undefined);
 
+  const cvrContestTag = await apiClient.getCvrContestTag({
+    cvrId,
+    contestId: WRITE_IN_CONTEST_ID,
+  });
+  assert(cvrContestTag !== undefined);
+  assert(cvrContestTag.hasUnmarkedWriteIn);
+
   async function expectContestResults(
     contestSummary: ContestResultsSummary
   ): Promise<void> {
@@ -625,6 +632,13 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
     totalTally: 2,
   });
 
+  let cvrContestTag = await apiClient.getCvrContestTag({
+    cvrId,
+    contestId,
+  });
+  assert(cvrContestTag !== undefined);
+  assert(cvrContestTag.hasWriteIn && !cvrContestTag.isResolved);
+
   // check the write-in being marked as invalid (false)
   await apiClient.adjudicateCvrContest(
     formAdjudicatedCvrContest({
@@ -634,6 +648,15 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
       },
     })
   );
+
+  // check that adjudicating the contest marked the tag as resolved
+  cvrContestTag = await apiClient.getCvrContestTag({
+    cvrId,
+    contestId,
+  });
+  assert(cvrContestTag !== undefined);
+  assert(cvrContestTag.hasWriteIn && cvrContestTag.isResolved);
+
   await expectWriteInRecord(writeInId, {
     adjudicationType: 'invalid',
     status: 'adjudicated',
@@ -829,4 +852,192 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
     pendingTally: 1,
     totalTally: 2,
   });
+});
+
+test('getMarginalMarks on an hmpb', async () => {
+  const { auth, apiClient } = buildTestEnvironment();
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { manualCastVoteRecordExport } =
+    electionGridLayoutNewHampshireTestBallotFixtures;
+  const systemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    adminAdjudicationReasons: [AdjudicationReason.MarginalMark],
+    markThresholds: {
+      marginal: 0.05,
+      definite: 0.1,
+    },
+  };
+  await configureMachine(apiClient, auth, electionDefinition, systemSettings);
+
+  // modify the cvr for a contest to include mark scores
+  const contestId = 'State-Representatives-Hillsborough-District-34-b1012d38';
+  let marginallyMarkedOptionId: string | undefined;
+
+  const exportDirectoryPath = await modifyCastVoteRecordExport(
+    manualCastVoteRecordExport.asDirectoryPath(),
+    {
+      castVoteRecordModifier: (cvr) => {
+        const snapshot = find(
+          cvr.CVRSnapshot,
+          (s) => s.Type === CVR.CVRType.Original
+        );
+
+        const contest = snapshot.CVRContest.find(
+          (c) => c.ContestId === contestId
+        );
+        if (contest) {
+          const option0 = assertDefined(
+            contest.CVRContestSelection[0]?.SelectionPosition[0]
+          );
+          option0.MarkMetricValue = ['0.01'];
+
+          const option1 = assertDefined(
+            contest.CVRContestSelection[1]?.SelectionPosition[0]
+          );
+          option1.MarkMetricValue = ['0.08'];
+          marginallyMarkedOptionId =
+            contest.CVRContestSelection[1]?.ContestSelectionId;
+
+          const option2 = assertDefined(
+            contest.CVRContestSelection[2]?.SelectionPosition[0]
+          );
+          option2.MarkMetricValue = ['0.10'];
+        }
+        return cvr;
+      },
+    }
+  );
+
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: exportDirectoryPath,
+    })
+  ).unsafeUnwrap();
+
+  const [cvrId] = await apiClient.getAdjudicationQueue({
+    contestId,
+  });
+  assert(cvrId !== undefined);
+
+  const cvrContestTag = await apiClient.getCvrContestTag({
+    cvrId,
+    contestId,
+  });
+  expect(cvrContestTag?.hasMarginalMark).toEqual(true);
+
+  const marginalMarks = await apiClient.getMarginalMarks({ cvrId, contestId });
+  expect(marginalMarks).toHaveLength(1);
+  expect(marginalMarks[0]).toEqual(marginallyMarkedOptionId);
+});
+
+test('getMarginalMarks returns nothing if AdjudicationReason.MarginalMark systemSetting is unset', async () => {
+  const { auth, apiClient } = buildTestEnvironment();
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { manualCastVoteRecordExport } =
+    electionGridLayoutNewHampshireTestBallotFixtures;
+  const systemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    adminAdjudicationReasons: [],
+    markThresholds: {
+      marginal: 0.05,
+      definite: 0.1,
+    },
+  };
+  await configureMachine(apiClient, auth, electionDefinition, systemSettings);
+
+  // modify the cvr for a contest to include mark scores
+  const contestId = 'State-Representatives-Hillsborough-District-34-b1012d38';
+  let marginallyMarkedCvrId: string | undefined;
+
+  const exportDirectoryPath = await modifyCastVoteRecordExport(
+    manualCastVoteRecordExport.asDirectoryPath(),
+    {
+      castVoteRecordModifier: (cvr) => {
+        marginallyMarkedCvrId = cvr.UniqueId;
+        const snapshot = find(
+          cvr.CVRSnapshot,
+          (s) => s.Type === CVR.CVRType.Original
+        );
+
+        const contest = snapshot.CVRContest.find(
+          (c) => c.ContestId === contestId
+        );
+        if (contest) {
+          const option0 = assertDefined(
+            contest.CVRContestSelection[0]?.SelectionPosition[0]
+          );
+          option0.MarkMetricValue = ['0.01'];
+
+          const option1 = assertDefined(
+            contest.CVRContestSelection[1]?.SelectionPosition[0]
+          );
+          option1.MarkMetricValue = ['0.08'];
+
+          const option2 = assertDefined(
+            contest.CVRContestSelection[2]?.SelectionPosition[0]
+          );
+          option2.MarkMetricValue = ['0.10'];
+        }
+        return cvr;
+      },
+    }
+  );
+
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: exportDirectoryPath,
+    })
+  ).unsafeUnwrap();
+
+  assert(marginallyMarkedCvrId !== undefined);
+  const marginalMarks = await apiClient.getMarginalMarks({
+    cvrId: marginallyMarkedCvrId,
+    contestId,
+  });
+  expect(marginalMarks).toHaveLength(0);
+
+  const cvrContestTag = await apiClient.getCvrContestTag({
+    cvrId: marginallyMarkedCvrId,
+    contestId,
+  });
+  expect(cvrContestTag).toBeUndefined();
+});
+
+test('getMarginalMarks returns an empty list for a bmd without mark scores', async () => {
+  const { auth, apiClient } = buildTestEnvironment();
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
+  const systemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    adminAdjudicationReasons: [AdjudicationReason.MarginalMark],
+    markThresholds: {
+      marginal: 0.05,
+      definite: 0.1,
+    },
+  };
+  await configureMachine(apiClient, auth, electionDefinition, systemSettings);
+
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: castVoteRecordExport.asDirectoryPath(),
+    })
+  ).unsafeUnwrap();
+
+  // look at a contest that can have multiple write-ins per ballot
+  const contestId = 'zoo-council-mammal';
+  const cvrIds = await apiClient.getAdjudicationQueue({
+    contestId,
+  });
+  expect(cvrIds).toHaveLength(24);
+  const [cvrId1] = cvrIds;
+  assert(cvrId1 !== undefined);
+
+  const marginalMarks = await apiClient.getMarginalMarks({
+    cvrId: cvrId1,
+    contestId,
+  });
+  expect(marginalMarks).toHaveLength(0);
 });

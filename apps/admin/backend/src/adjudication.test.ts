@@ -377,7 +377,7 @@ test('adjudicateCvrContest adjudicates contest and resolves tags', () => {
         },
       },
       votes: { 'zoo-council-mammal': initialVotes },
-      card: { type: 'bmd' },
+      card: { type: 'hmpb', sheetNumber: 1 },
       multiplier: 1,
     },
   ];

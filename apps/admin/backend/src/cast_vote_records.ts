@@ -202,11 +202,13 @@ export function determineCvrContestTags({
   store,
   cvrId,
   writeIns,
+  isHmpb,
   markScores,
 }: {
   store: Store;
   cvrId: Id;
   writeIns: CastVoteRecordWriteIn[];
+  isHmpb: boolean;
   markScores?: MarkScores;
 }): CvrContestTag[] {
   const electionId = assertDefined(store.getCurrentElectionId());
@@ -223,10 +225,13 @@ export function determineCvrContestTags({
     }
   }
 
-  if (adminAdjudicationReasons.includes(AdjudicationReason.MarginalMark)) {
+  if (
+    adminAdjudicationReasons.includes(AdjudicationReason.MarginalMark) &&
+    isHmpb
+  ) {
     assert(
       markScores !== undefined,
-      `mark scores expected with 'MarginalMark' 
+      `mark scores expected for hmpb with 'MarginalMark' 
        adjudication reason set in system settings`
     );
     for (const [contestId, contestMarkScores] of Object.entries(markScores)) {
@@ -405,6 +410,7 @@ export async function importCastVoteRecords(
           store,
           cvrId: castVoteRecordId,
           writeIns: castVoteRecordWriteIns,
+          isHmpb,
           markScores,
         });
         if (castVoteRecordContestTags.length > 0) {

@@ -1232,6 +1232,7 @@ export class Store {
         }
       }
     }
+    /* istanbul ignore next - @preserve */
     throw new Error(`No matching ballot layout found for contest ${contestId}`);
   }
 

@@ -351,15 +351,16 @@ export function getMarginalMarks({
 
   const [cvr] = store.getCastVoteRecords({ electionId, cvrId, filter: {} });
   assert(cvr !== undefined);
-  const isBmd = cvr.markScores === undefined;
+
+  const isBmd = !cvr.markScores;
   if (isBmd) {
     return [];
   }
 
-  const contestMarkScores = cvr.markScores[contestId];
-  if (!contestMarkScores) {
-    return [];
-  }
+  const contestMarkScores = assertDefined(
+    cvr.markScores[contestId],
+    `no mark scores found for cvr Id ${cvrId} for contest Id ${contestId}`
+  );
   const marginallyMarkedOptionIds = [];
   for (const [optionId, optionMarkScore] of Object.entries(contestMarkScores)) {
     const hasMarginalMark =
