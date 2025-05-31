@@ -2,8 +2,8 @@ import { safeParseJson } from '@votingworks/types';
 import { readFileSync } from 'node:fs';
 import { assertDefined } from '@votingworks/basics';
 import {
+  DeepPartialGenerateElectionConfigSchema,
   generateElection,
-  GenerateElectionConfigSchema,
 } from '../../generate-election';
 
 interface IO {
@@ -23,7 +23,7 @@ export function main(argv: readonly string[], { stdout, stderr }: IO): number {
   const configContents = readFileSync(configPath, 'utf8');
   const config = safeParseJson(
     configContents,
-    GenerateElectionConfigSchema.deepPartial()
+    DeepPartialGenerateElectionConfigSchema
   ).unsafeUnwrap();
 
   const election = generateElection(config);
