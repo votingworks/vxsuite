@@ -16,11 +16,11 @@ test('safeParseNumber', () => {
   ]);
 
   expect(safeParseNumber(Infinity).unsafeUnwrapErr().issues).toEqual([
-    expect.objectContaining({ message: 'Infinity is not allowed' }),
+    expect.objectContaining({ expected: 'number', received: 'Infinity' }),
   ]);
 
   expect(safeParseNumber(-Infinity).unsafeUnwrapErr().issues).toEqual([
-    expect.objectContaining({ message: 'Infinity is not allowed' }),
+    expect.objectContaining({ expected: 'number', received: 'Infinity' }),
   ]);
 
   fc.assert(
@@ -76,11 +76,11 @@ test('safeParseInt', () => {
   ]);
 
   expect(safeParseInt(Infinity).unsafeUnwrapErr().issues).toContainEqual(
-    expect.objectContaining({ message: 'Infinity is not allowed' })
+    expect.objectContaining({ expected: 'number', received: 'Infinity' })
   );
 
   expect(safeParseInt(-Infinity).unsafeUnwrapErr().issues).toContainEqual(
-    expect.objectContaining({ message: 'Infinity is not allowed' })
+    expect.objectContaining({ expected: 'number', received: 'Infinity' })
   );
 
   fc.assert(
@@ -93,7 +93,7 @@ test('safeParseInt', () => {
       (number) => {
         expect(safeParseInt(number).unsafeUnwrapErr().issues).toEqual([
           expect.objectContaining({
-            message: 'Expected integer, received float',
+            message: 'Invalid input: expected int, received number',
           }),
         ]);
       }

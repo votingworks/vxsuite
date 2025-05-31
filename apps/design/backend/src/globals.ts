@@ -1,7 +1,7 @@
 import { assert } from '@votingworks/basics';
 import { unsafeParse } from '@votingworks/types';
 import { join } from 'node:path';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 /**
  * Default port for the server.

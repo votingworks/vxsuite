@@ -1,4 +1,4 @@
-import * as z from 'zod';
+import { z } from 'zod/v4';
 
 export type OkResponse<Props = Record<string, unknown>> = {
   status: 'ok';

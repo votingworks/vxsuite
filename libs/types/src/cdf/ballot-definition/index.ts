@@ -2,7 +2,7 @@
 
 /* eslint-disable */
 
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 import check8601 from '@antongolub/iso8601';
 
@@ -100,7 +100,7 @@ export enum BallotDefinitionVersion {
 /**
  * Schema for {@link BallotDefinitionVersion}.
  */
-export const BallotDefinitionVersionSchema = z.nativeEnum(BallotDefinitionVersion);
+export const BallotDefinitionVersionSchema = z.enum(BallotDefinitionVersion);
 
 /**
  * The side of a ballot sheet.
@@ -120,7 +120,7 @@ export enum BallotSideType {
 /**
  * Schema for {@link BallotSideType}.
  */
-export const BallotSideTypeSchema = z.nativeEnum(BallotSideType);
+export const BallotSideTypeSchema = z.enum(BallotSideType);
 
 /**
  * Enumeration for the type of election in the BallotDefinition class.
@@ -140,7 +140,7 @@ export enum ElectionType {
 /**
  * Schema for {@link ElectionType}.
  */
-export const ElectionTypeSchema = z.nativeEnum(ElectionType);
+export const ElectionTypeSchema = z.enum(ElectionType);
 
 /**
  * Enumeration for election data-related codes in the ExternalIdentifier class .
@@ -180,7 +180,7 @@ export enum IdentifierType {
 /**
  * Schema for {@link IdentifierType}.
  */
-export const IdentifierTypeSchema = z.nativeEnum(IdentifierType);
+export const IdentifierTypeSchema = z.enum(IdentifierType);
 
 /**
  * The measurement unit for describing the location of content on a ballot.
@@ -210,7 +210,7 @@ export enum MeasurementUnitType {
 /**
  * Schema for {@link MeasurementUnitType}.
  */
-export const MeasurementUnitTypeSchema = z.nativeEnum(MeasurementUnitType);
+export const MeasurementUnitTypeSchema = z.enum(MeasurementUnitType);
 
 /**
  * The orientation of a ballot sheet.
@@ -230,7 +230,7 @@ export enum OrientationType {
 /**
  * Schema for {@link OrientationType}.
  */
-export const OrientationTypeSchema = z.nativeEnum(OrientationType);
+export const OrientationTypeSchema = z.enum(OrientationType);
 
 /**
  * Enumeration for the type of geopolitical unit in the ReportingUnit class.
@@ -265,7 +265,7 @@ export enum ReportingUnitType {
 /**
  * Schema for {@link ReportingUnitType}.
  */
-export const ReportingUnitTypeSchema = z.nativeEnum(ReportingUnitType);
+export const ReportingUnitTypeSchema = z.enum(ReportingUnitType);
 
 export enum SelectionCaptureMethod {
   /**
@@ -282,7 +282,7 @@ export enum SelectionCaptureMethod {
 /**
  * Schema for {@link SelectionCaptureMethod}.
  */
-export const SelectionCaptureMethodSchema = z.nativeEnum(SelectionCaptureMethod);
+export const SelectionCaptureMethodSchema = z.enum(SelectionCaptureMethod);
 
 export enum ShapeType {
   /**
@@ -299,7 +299,7 @@ export enum ShapeType {
 /**
  * Schema for {@link ShapeType}.
  */
-export const ShapeTypeSchema = z.nativeEnum(ShapeType);
+export const ShapeTypeSchema = z.enum(ShapeType);
 
 /**
  * For defining items pertaining to the issuer and version of the definition and when it was generated.

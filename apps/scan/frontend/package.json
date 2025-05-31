@@ -69,7 +69,7 @@
     "use-interval": "1.4.0",
     "use-sound": "^4.0.1",
     "util": "^0.12.4",
-    "zod": "3.23.5"
+    "zod": "3.25.42"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.17.0",

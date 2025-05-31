@@ -3,9 +3,8 @@
 exports[`disallows invalid adjudication reasons 1`] = `
 [ZodError: [
   {
-    "received": "abcdefg",
-    "code": "invalid_enum_value",
-    "options": [
+    "code": "invalid_value",
+    "values": [
       "UninterpretableBallot",
       "MarginalMark",
       "Overvote",
@@ -17,12 +16,11 @@ exports[`disallows invalid adjudication reasons 1`] = `
       "adminAdjudicationReasons",
       0
     ],
-    "message": "Invalid enum value. Expected 'UninterpretableBallot' | 'MarginalMark' | 'Overvote' | 'Undervote' | 'BlankBallot' | 'UnmarkedWriteIn', received 'abcdefg'"
+    "message": "Invalid option: expected one of \\"UninterpretableBallot\\"|\\"MarginalMark\\"|\\"Overvote\\"|\\"Undervote\\"|\\"BlankBallot\\"|\\"UnmarkedWriteIn\\""
   },
   {
-    "received": "abcdefg",
-    "code": "invalid_enum_value",
-    "options": [
+    "code": "invalid_value",
+    "values": [
       "UninterpretableBallot",
       "MarginalMark",
       "Overvote",
@@ -34,12 +32,11 @@ exports[`disallows invalid adjudication reasons 1`] = `
       "centralScanAdjudicationReasons",
       0
     ],
-    "message": "Invalid enum value. Expected 'UninterpretableBallot' | 'MarginalMark' | 'Overvote' | 'Undervote' | 'BlankBallot' | 'UnmarkedWriteIn', received 'abcdefg'"
+    "message": "Invalid option: expected one of \\"UninterpretableBallot\\"|\\"MarginalMark\\"|\\"Overvote\\"|\\"Undervote\\"|\\"BlankBallot\\"|\\"UnmarkedWriteIn\\""
   },
   {
-    "received": "abcdefg",
-    "code": "invalid_enum_value",
-    "options": [
+    "code": "invalid_value",
+    "values": [
       "UninterpretableBallot",
       "MarginalMark",
       "Overvote",
@@ -51,7 +48,7 @@ exports[`disallows invalid adjudication reasons 1`] = `
       "precinctScanAdjudicationReasons",
       0
     ],
-    "message": "Invalid enum value. Expected 'UninterpretableBallot' | 'MarginalMark' | 'Overvote' | 'Undervote' | 'BlankBallot' | 'UnmarkedWriteIn', received 'abcdefg'"
+    "message": "Invalid option: expected one of \\"UninterpretableBallot\\"|\\"MarginalMark\\"|\\"Overvote\\"|\\"Undervote\\"|\\"BlankBallot\\"|\\"UnmarkedWriteIn\\""
   }
 ]]
 `;
@@ -59,13 +56,12 @@ exports[`disallows invalid adjudication reasons 1`] = `
 exports[`disallows invalid adjudication reasons 2`] = `
 [ZodError: [
   {
-    "code": "invalid_type",
     "expected": "array",
-    "received": "string",
+    "code": "invalid_type",
     "path": [
       "centralScanAdjudicationReasons"
     ],
-    "message": "Expected array, received string"
+    "message": "Invalid input: expected array, received string"
   }
 ]]
 `;
@@ -74,10 +70,10 @@ exports[`disallows invalid mark thresholds 1`] = `
 [ZodError: [
   {
     "code": "custom",
-    "message": "marginal mark threshold must be less than or equal to definite mark threshold",
     "path": [
       "markThresholds"
-    ]
+    ],
+    "message": "marginal mark threshold must be less than or equal to definite mark threshold"
   }
 ]]
 `;
@@ -85,14 +81,13 @@ exports[`disallows invalid mark thresholds 1`] = `
 exports[`disallows invalid mark thresholds 2`] = `
 [ZodError: [
   {
-    "code": "invalid_type",
     "expected": "number",
-    "received": "undefined",
+    "code": "invalid_type",
     "path": [
       "markThresholds",
       "definite"
     ],
-    "message": "Required"
+    "message": "Invalid input: expected number, received undefined"
   }
 ]]
 `;
@@ -100,16 +95,15 @@ exports[`disallows invalid mark thresholds 2`] = `
 exports[`disallows invalid mark thresholds 3`] = `
 [ZodError: [
   {
+    "origin": "number",
     "code": "too_big",
     "maximum": 1,
-    "type": "number",
     "inclusive": true,
-    "exact": false,
-    "message": "Number must be less than or equal to 1",
     "path": [
       "markThresholds",
       "definite"
-    ]
+    ],
+    "message": "Too big: expected number to be <=1"
   }
 ]]
 `;

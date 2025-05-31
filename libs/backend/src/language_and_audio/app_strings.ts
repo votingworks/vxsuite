@@ -1,6 +1,6 @@
 import * as fs from 'node:fs/promises';
 import path from 'node:path';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import {
   MachineVersion,
   safeParseJson,
@@ -34,7 +34,7 @@ export async function translateAppStrings(
   );
   const appStringsCatalog = safeParseJson(
     appStringsCatalogFileContents,
-    z.record(z.string())
+    z.record(z.string(), z.string())
   ).unsafeUnwrap();
 
   const appStringKeys = Object.keys(appStringsCatalog).sort();

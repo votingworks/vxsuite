@@ -314,7 +314,7 @@ test('specifying all write-in candidates is required if any are specified', () =
 
   expect(
     safeParse(t.CandidateContestSchema, candidateContest).unsafeUnwrapErr()
-      .errors[0].message
+      .issues[0].message
   ).toEqual(
     'Contest has 1 write-in candidate(s), but 2 seat(s) are available.'
   );
@@ -343,6 +343,6 @@ test('no write-in candidates may be specified if write-ins are not allowed', () 
 
   expect(
     safeParse(t.CandidateContestSchema, candidateContest).unsafeUnwrapErr()
-      .errors[0].message
+      .issues[0].message
   ).toEqual(`Contest 'CC' does not allow write-ins.`);
 });

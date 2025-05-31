@@ -90,7 +90,7 @@
     "sanitize-html": "^2.13.0",
     "styled-components": "^5.3.11",
     "util": "^0.12.4",
-    "zod": "3.23.5"
+    "zod": "3.25.42"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.17.0",

@@ -1,5 +1,5 @@
 /* eslint-disable vx/gts-jsdoc */
-import z from 'zod';
+import z from 'zod/v4';
 
 const positiveInt = z.number().int().min(1);
 
@@ -60,3 +60,13 @@ export const defaultConfig: GenerateElectionConfig = {
     contestBallotMeasureOptionLabel: 100,
   },
 };
+
+/**
+ * Zod's `deepPartial` is not available in v4, so we manually create a
+ * schema in which all properties, including nested properties, are optional.
+ */
+export const DeepPartialGenerateElectionConfigSchema = z.object({
+  ...GenerateElectionConfigSchema.partial().shape,
+  maxStringLengths:
+    GenerateElectionConfigSchema.shape.maxStringLengths.partial(),
+});

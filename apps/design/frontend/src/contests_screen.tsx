@@ -40,7 +40,7 @@ import {
 import { Result, throwIllegalValue } from '@votingworks/basics';
 import styled from 'styled-components';
 import { Flipper, Flipped } from 'react-flip-toolkit';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import {
   FieldName,
   Form,

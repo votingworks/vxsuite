@@ -28,7 +28,7 @@ test('empty', () => {
 
     /* eslint-disable */
 
-    import { z } from 'zod';
+    import { z } from 'zod/v4';
 
     import check8601 from '@antongolub/iso8601';
 
@@ -157,7 +157,7 @@ test('enum type', () => {
 
     /* eslint-disable */
 
-    import { z } from 'zod';
+    import { z } from 'zod/v4';
 
     import check8601 from '@antongolub/iso8601';
 
@@ -233,7 +233,7 @@ test('enum type', () => {
     /**
      * Schema for {@link YesNo}.
      */
-    export const YesNoSchema = z.nativeEnum(YesNo);
+    export const YesNoSchema = z.enum(YesNo);
 
     "
   `);
@@ -306,7 +306,7 @@ test('object type', () => {
 
     /* eslint-disable */
 
-    import { z } from 'zod';
+    import { z } from 'zod/v4';
 
     import check8601 from '@antongolub/iso8601';
 
@@ -477,7 +477,7 @@ test('object type property types', () => {
 
     /* eslint-disable */
 
-    import { z } from 'zod';
+    import { z } from 'zod/v4';
 
     import check8601 from '@antongolub/iso8601';
 
@@ -625,7 +625,7 @@ test('object type references', () => {
 
     /* eslint-disable */
 
-    import { z } from 'zod';
+    import { z } from 'zod/v4';
 
     import check8601 from '@antongolub/iso8601';
 
@@ -749,7 +749,7 @@ test('string aliases', () => {
 
     /* eslint-disable */
 
-    import { z } from 'zod';
+    import { z } from 'zod/v4';
 
     import check8601 from '@antongolub/iso8601';
 
@@ -913,7 +913,7 @@ test('documentation from JSON schema', () => {
 
     /* eslint-disable */
 
-    import { z } from 'zod';
+    import { z } from 'zod/v4';
 
     import check8601 from '@antongolub/iso8601';
 
@@ -1000,7 +1000,7 @@ test('documentation from JSON schema', () => {
     /**
      * Schema for {@link YesNo}.
      */
-    export const YesNoSchema = z.nativeEnum(YesNo);
+    export const YesNoSchema = z.enum(YesNo);
 
     export enum UndocumentedEnum {
       Yes = 'yes',
@@ -1011,7 +1011,7 @@ test('documentation from JSON schema', () => {
     /**
      * Schema for {@link UndocumentedEnum}.
      */
-    export const UndocumentedEnumSchema = z.nativeEnum(UndocumentedEnum);
+    export const UndocumentedEnumSchema = z.enum(UndocumentedEnum);
 
     /**
      * An object.

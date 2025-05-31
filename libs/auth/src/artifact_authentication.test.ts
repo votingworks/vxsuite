@@ -2,7 +2,7 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import * as fs from 'node:fs';
 import path from 'node:path';
 import { dirSync } from 'tmp';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { assert, err, ok } from '@votingworks/basics';
 import {
   CastVoteRecordExportFileName,

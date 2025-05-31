@@ -12,7 +12,7 @@ import {
 import { Buffer } from 'node:buffer';
 import React, { useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import {
   Button,
   Callout,

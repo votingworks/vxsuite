@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 /* IETF language tags for supported VxSuite languages.  */
 export enum LanguageCode {
@@ -8,8 +8,7 @@ export enum LanguageCode {
   SPANISH = 'es-US',
 }
 
-export const LanguageCodeSchema: z.ZodType<LanguageCode> =
-  z.nativeEnum(LanguageCode);
+export const LanguageCodeSchema: z.ZodType<LanguageCode> = z.enum(LanguageCode);
 
 export type NonEnglishLanguageCode = Exclude<
   LanguageCode,

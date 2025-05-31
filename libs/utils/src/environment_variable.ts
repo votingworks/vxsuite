@@ -1,4 +1,4 @@
-import { ZodSchema } from 'zod';
+import { ZodSchema } from 'zod/v4';
 import { throwIllegalValue } from '@votingworks/basics';
 import { asBoolean } from './as_boolean';
 

@@ -50,7 +50,7 @@
     "react-modal": "^3.16.1",
     "react-router-dom": "^5.3.4",
     "use-interval": "1.4.0",
-    "zod": "3.23.5"
+    "zod": "3.25.42"
   },
   "devDependencies": {
     "@storybook/cli": "^7.2.2",

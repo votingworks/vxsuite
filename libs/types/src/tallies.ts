@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 const nonnegativeInteger = z.number().nonnegative().int();
 

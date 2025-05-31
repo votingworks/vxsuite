@@ -34,7 +34,7 @@ import {
   SystemSettings,
   unsafeParse,
 } from '@votingworks/types';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import type { BallotTemplateId } from '@votingworks/design-backend';
 import { Form, Column, Row, FormActionsRow, InputGroup } from './layout';
 import { ElectionNavScreen } from './nav_screen';

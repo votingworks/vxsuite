@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { mapObject, mergeObjects } from '@votingworks/basics';
 import { Dictionary } from './generic';
 
@@ -40,7 +40,7 @@ export type UiStringTranslations = Dictionary<string | Dictionary<string>>;
  * See: https://www.i18next.com/misc/json-format
  */
 export const UiStringTranslationsSchema: z.ZodType<UiStringTranslations> =
-  z.record(z.union([z.string(), z.record(z.string())]));
+  z.record(z.string(), z.union([z.string(), z.record(z.string(), z.string())]));
 
 /**
  * Map of language code to {@link UiStringTranslations}.

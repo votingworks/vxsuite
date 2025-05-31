@@ -18,7 +18,7 @@ import {
   BallotStyleGroupId,
   Side,
 } from '@votingworks/types';
-import * as z from 'zod';
+import { z } from 'zod/v4';
 
 export type { ExportDataResult, ExportDataError } from '@votingworks/backend';
 
