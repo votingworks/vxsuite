@@ -133,7 +133,7 @@ export enum BallotMeasureType {
 /**
  * Schema for {@link BallotMeasureType}.
  */
-export const BallotMeasureTypeSchema = z.nativeEnum(BallotMeasureType);
+export const BallotMeasureTypeSchema = z.enum(BallotMeasureType);
 
 /**
  * Enumeration for various post-election statuses applicable to a candidate in the Candidate element.
@@ -168,7 +168,7 @@ export enum CandidatePostElectionStatus {
 /**
  * Schema for {@link CandidatePostElectionStatus}.
  */
-export const CandidatePostElectionStatusSchema = z.nativeEnum(CandidatePostElectionStatus);
+export const CandidatePostElectionStatusSchema = z.enum(CandidatePostElectionStatus);
 
 /**
  * Enumeration for various pre-election statuses applicable to a candidate
@@ -195,7 +195,7 @@ export enum CandidatePreElectionStatus {
 /**
  * Schema for {@link CandidatePreElectionStatus}.
  */
-export const CandidatePreElectionStatusSchema = z.nativeEnum(CandidatePreElectionStatus);
+export const CandidatePreElectionStatusSchema = z.enum(CandidatePreElectionStatus);
 
 /**
  * Enumeration for various counting-related statuses for types of ballots or write-ins, used in the CountStatus class.
@@ -225,7 +225,7 @@ export enum CountItemStatus {
 /**
  * Schema for {@link CountItemStatus}.
  */
-export const CountItemStatusSchema = z.nativeEnum(CountItemStatus);
+export const CountItemStatusSchema = z.enum(CountItemStatus);
 
 /**
  * Enumeration for the items that are counted during the course of an election and for which the status of the counts is of interest. Used in the Counts and CountStatus classes.
@@ -295,7 +295,7 @@ export enum CountItemType {
 /**
  * Schema for {@link CountItemType}.
  */
-export const CountItemTypeSchema = z.nativeEnum(CountItemType);
+export const CountItemTypeSchema = z.enum(CountItemType);
 
 /**
  * Enumeration for the day(s) in a schedule in the Schedule element.
@@ -355,7 +355,7 @@ export enum DayType {
 /**
  * Schema for {@link DayType}.
  */
-export const DayTypeSchema = z.nativeEnum(DayType);
+export const DayTypeSchema = z.enum(DayType);
 
 /**
  * Enumeration for the type of device in the DeviceClass class.
@@ -400,7 +400,7 @@ export enum DeviceType {
 /**
  * Schema for {@link DeviceType}.
  */
-export const DeviceTypeSchema = z.nativeEnum(DeviceType);
+export const DeviceTypeSchema = z.enum(DeviceType);
 
 /**
  * Enumeration for the type of election in the ElectionReport class.
@@ -445,7 +445,7 @@ export enum ElectionType {
 /**
  * Schema for {@link ElectionType}.
  */
-export const ElectionTypeSchema = z.nativeEnum(ElectionType);
+export const ElectionTypeSchema = z.enum(ElectionType);
 
 /**
  * Enumeration for geospatial vector data formats used in Geographic Information System (GIS) software, used in the SpatialExtent class.
@@ -480,7 +480,7 @@ export enum GeoSpatialFormat {
 /**
  * Schema for {@link GeoSpatialFormat}.
  */
-export const GeoSpatialFormatSchema = z.nativeEnum(GeoSpatialFormat);
+export const GeoSpatialFormatSchema = z.enum(GeoSpatialFormat);
 
 /**
  * Enumeration for election data-related codes in the ExternalIdentifier class .
@@ -520,7 +520,7 @@ export enum IdentifierType {
 /**
  * Schema for {@link IdentifierType}.
  */
-export const IdentifierTypeSchema = z.nativeEnum(IdentifierType);
+export const IdentifierTypeSchema = z.enum(IdentifierType);
 
 /**
  * Enumeration for the office term type in the Office class.
@@ -540,7 +540,7 @@ export enum OfficeTermType {
 /**
  * Schema for {@link OfficeTermType}.
  */
-export const OfficeTermTypeSchema = z.nativeEnum(OfficeTermType);
+export const OfficeTermTypeSchema = z.enum(OfficeTermType);
 
 /**
  * Enumeration for the detail level of the election results report in the Election class.
@@ -560,7 +560,7 @@ export enum ReportDetailLevel {
 /**
  * Schema for {@link ReportDetailLevel}.
  */
-export const ReportDetailLevelSchema = z.nativeEnum(ReportDetailLevel);
+export const ReportDetailLevelSchema = z.enum(ReportDetailLevel);
 
 /**
  * Enumeration for the type of geopolitical unit in the ReportingUnit class.
@@ -715,7 +715,7 @@ export enum ReportingUnitType {
 /**
  * Schema for {@link ReportingUnitType}.
  */
-export const ReportingUnitTypeSchema = z.nativeEnum(ReportingUnitType);
+export const ReportingUnitTypeSchema = z.enum(ReportingUnitType);
 
 /**
  * Enumeration for the status of the election results in the ElectionReport class.
@@ -755,7 +755,7 @@ export enum ResultsStatus {
 /**
  * Schema for {@link ResultsStatus}.
  */
-export const ResultsStatusSchema = z.nativeEnum(ResultsStatus);
+export const ResultsStatusSchema = z.enum(ResultsStatus);
 
 /**
  * Enumeration for contest decision algorithm or rules in the Contest element.
@@ -820,7 +820,7 @@ export enum VoteVariation {
 /**
  * Schema for {@link VoteVariation}.
  */
-export const VoteVariationSchema = z.nativeEnum(VoteVariation);
+export const VoteVariationSchema = z.enum(VoteVariation);
 
 /**
  * Used as a type for character strings; it adds a 32-character annotation to a character string.

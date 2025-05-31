@@ -93,7 +93,7 @@ export enum AllocationStatus {
 /**
  * Schema for {@link AllocationStatus}.
  */
-export const AllocationStatusSchema = z.nativeEnum(AllocationStatus);
+export const AllocationStatusSchema = z.enum(AllocationStatus);
 
 /**
  * Used in CVRSnapshot::Status to identify the status of the CVR.
@@ -113,7 +113,7 @@ export enum CVRStatus {
 /**
  * Schema for {@link CVRStatus}.
  */
-export const CVRStatusSchema = z.nativeEnum(CVRStatus);
+export const CVRStatusSchema = z.enum(CVRStatus);
 
 /**
  * Used in CVRSnapshot::Type to indicate the type of snapshot.
@@ -138,7 +138,7 @@ export enum CVRType {
 /**
  * Schema for {@link CVRType}.
  */
-export const CVRTypeSchema = z.nativeEnum(CVRType);
+export const CVRTypeSchema = z.enum(CVRType);
 
 /**
  * To identify the version of the CVR specification being used, i.e., version 1.0.0.  This will need to be updated for different versions of the specification.
@@ -153,7 +153,7 @@ export enum CastVoteRecordVersion {
 /**
  * Schema for {@link CastVoteRecordVersion}.
  */
-export const CastVoteRecordVersionSchema = z.nativeEnum(CastVoteRecordVersion);
+export const CastVoteRecordVersionSchema = z.enum(CastVoteRecordVersion);
 
 /**
  * Used in CVRContestSelection::Status to identify the status of a contest selection in the CVR.
@@ -183,7 +183,7 @@ export enum ContestSelectionStatus {
 /**
  * Schema for {@link ContestSelectionStatus}.
  */
-export const ContestSelectionStatusSchema = z.nativeEnum(ContestSelectionStatus);
+export const ContestSelectionStatusSchema = z.enum(ContestSelectionStatus);
 
 /**
  * Used in CVRContest::Status to identify the status of a contest in which contest selection(s) were made.
@@ -218,7 +218,7 @@ export enum ContestStatus {
 /**
  * Schema for {@link ContestStatus}.
  */
-export const ContestStatusSchema = z.nativeEnum(ContestStatus);
+export const ContestStatusSchema = z.enum(ContestStatus);
 
 /**
  * Used in Hash::Type to indicate the type of hash being used for an image file.
@@ -248,7 +248,7 @@ export enum HashType {
 /**
  * Schema for {@link HashType}.
  */
-export const HashTypeSchema = z.nativeEnum(HashType);
+export const HashTypeSchema = z.enum(HashType);
 
 /**
  * Used in Code::Type to indicate the type of code/identifier being used.
@@ -288,7 +288,7 @@ export enum IdentifierType {
 /**
  * Schema for {@link IdentifierType}.
  */
-export const IdentifierTypeSchema = z.nativeEnum(IdentifierType);
+export const IdentifierTypeSchema = z.enum(IdentifierType);
 
 /**
  * Used in SelectionPosition::HasIndication to identify whether a selection indication is present.
@@ -313,7 +313,7 @@ export enum IndicationStatus {
 /**
  * Schema for {@link IndicationStatus}.
  */
-export const IndicationStatusSchema = z.nativeEnum(IndicationStatus);
+export const IndicationStatusSchema = z.enum(IndicationStatus);
 
 /**
  * Used in SelectionPosition::Status to identify the status of a selection indication.
@@ -343,7 +343,7 @@ export enum PositionStatus {
 /**
  * Schema for {@link PositionStatus}.
  */
-export const PositionStatusSchema = z.nativeEnum(PositionStatus);
+export const PositionStatusSchema = z.enum(PositionStatus);
 
 /**
  * Used in CastVoteRecordReport::ReportType to indicate the type of the CVR report.
@@ -378,7 +378,7 @@ export enum ReportType {
 /**
  * Schema for {@link ReportType}.
  */
-export const ReportTypeSchema = z.nativeEnum(ReportType);
+export const ReportTypeSchema = z.enum(ReportType);
 
 /**
  * Used in GpUnit::Type to indicate a type of political geography.
@@ -418,7 +418,7 @@ export enum ReportingUnitType {
 /**
  * Schema for {@link ReportingUnitType}.
  */
-export const ReportingUnitTypeSchema = z.nativeEnum(ReportingUnitType);
+export const ReportingUnitTypeSchema = z.enum(ReportingUnitType);
 
 /**
  * Used in Contest::VoteVariation to indicate the vote variation (vote method) used to tabulate the contest.
@@ -483,7 +483,7 @@ export enum VoteVariation {
 /**
  * Schema for {@link VoteVariation}.
  */
-export const VoteVariationSchema = z.nativeEnum(VoteVariation);
+export const VoteVariationSchema = z.enum(VoteVariation);
 
 /**
  * Annotation is used to record annotations made by one or more adjudicators.CVRSnapshot includes Annotation.

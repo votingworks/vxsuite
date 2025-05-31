@@ -52,7 +52,7 @@ function writeEnumType(enumeration: Enum, out: NodeJS.WritableStream): void {
 
   writeDocumentation(`Schema for {@link ${enumeration.name}}.`, out);
   out.write(
-    `export const ${enumeration.name}Schema = z.nativeEnum(${enumeration.name});\n\n`
+    `export const ${enumeration.name}Schema = z.enum(${enumeration.name});\n\n`
   );
 }
 

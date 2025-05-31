@@ -233,7 +233,7 @@ test('enum type', () => {
     /**
      * Schema for {@link YesNo}.
      */
-    export const YesNoSchema = z.nativeEnum(YesNo);
+    export const YesNoSchema = z.enum(YesNo);
 
     "
   `);
@@ -1000,7 +1000,7 @@ test('documentation from JSON schema', () => {
     /**
      * Schema for {@link YesNo}.
      */
-    export const YesNoSchema = z.nativeEnum(YesNo);
+    export const YesNoSchema = z.enum(YesNo);
 
     export enum UndocumentedEnum {
       Yes = 'yes',
@@ -1011,7 +1011,7 @@ test('documentation from JSON schema', () => {
     /**
      * Schema for {@link UndocumentedEnum}.
      */
-    export const UndocumentedEnumSchema = z.nativeEnum(UndocumentedEnum);
+    export const UndocumentedEnumSchema = z.enum(UndocumentedEnum);
 
     /**
      * An object.

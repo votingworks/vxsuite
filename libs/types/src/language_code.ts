@@ -8,8 +8,7 @@ export enum LanguageCode {
   SPANISH = 'es-US',
 }
 
-export const LanguageCodeSchema: z.ZodType<LanguageCode> =
-  z.nativeEnum(LanguageCode);
+export const LanguageCodeSchema: z.ZodType<LanguageCode> = z.enum(LanguageCode);
 
 export type NonEnglishLanguageCode = Exclude<
   LanguageCode,

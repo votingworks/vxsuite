@@ -31,12 +31,11 @@ export interface LogLine extends Dictionary<string> {
   timeLogInitiated?: string;
 }
 
-export const LogSourceSchema: z.ZodSchema<LogSource> = z.nativeEnum(LogSource);
-export const AppNameSchema: z.ZodSchema<AppName> = z.nativeEnum(AppName);
-export const LogEventIdSchema: z.ZodSchema<LogEventId> =
-  z.nativeEnum(LogEventId);
+export const LogSourceSchema: z.ZodSchema<LogSource> = z.enum(LogSource);
+export const AppNameSchema: z.ZodSchema<AppName> = z.enum(AppName);
+export const LogEventIdSchema: z.ZodSchema<LogEventId> = z.enum(LogEventId);
 export const LogEventTypeSchema: z.ZodSchema<LogEventType> =
-  z.nativeEnum(LogEventType);
+  z.enum(LogEventType);
 export const LoggingUserRoleSchema: z.ZodSchema<LoggingUserRole> = z.union([
   UserRoleSchema,
   z.literal('vx-staff'),
