@@ -953,6 +953,7 @@
   "precincts": [
     {
       "id": "town-id-00701-precinct-id-default",
+      "districtIds": [],
       "name": "Test Ballot"
     }
   ],
