@@ -9,6 +9,7 @@
   "ballotStyles": [
     {
       "id": "card-number-5",
+      "groupId": "card-number-5",
       "precincts": ["town-id-01001-precinct-id-default"],
       "districts": ["town-id-01001-precinct-id-default"]
     }
@@ -812,6 +813,7 @@
   "precincts": [
     {
       "id": "town-id-01001-precinct-id-default",
+      "districtIds": [],
       "name": "Ashland"
     }
   ],
