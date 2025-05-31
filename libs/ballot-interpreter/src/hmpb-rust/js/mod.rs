@@ -1,6 +1,6 @@
 #![allow(clippy::similar_names)]
 
-use image::{DynamicImage, GrayImage, Luma};
+use image::{DynamicImage, GrayImage};
 use imageproc::contrast::{otsu_level, threshold};
 use neon::prelude::*;
 use neon::types::JsObject;

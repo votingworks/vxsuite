@@ -738,7 +738,11 @@ mod test {
         contrast::threshold,
         geometric_transformations::{self, Interpolation, Projection},
     };
-    use types_rs::geometry::{Degrees, PixelPosition, Radians, Rect};
+    use itertools::Itertools;
+    use types_rs::{
+        election::ContestId,
+        geometry::{Degrees, PixelPosition, Radians, Rect},
+    };
 
     use crate::{
         ballot_card::load_ballot_scan_bubble_image,
@@ -1094,7 +1098,7 @@ mod test {
         match ballot_card(side_a_image.clone(), side_b_image, &options) {
             Err(Error::MissingTimingMarks { reason, .. }) => assert_eq!(
                         reason,
-                        "Unusually high rotation detected: top=2.40°, bottom=0.27°, left=0.47°, right=0.45°"
+                        "Unusually high rotation detected: top=2.39°, bottom=0.29°, left=0.45°, right=0.46°"
                     ),
             Err(err) => {
                 panic!("unexpected error: {err:?}");
@@ -1123,7 +1127,7 @@ mod test {
         match ballot_card(side_a_image, side_b_image, &options) {
             Err(Error::MissingTimingMarks { reason, .. }) => assert_eq!(
                         reason,
-                        "Unusually high skew detected: top-left=1.51°, top-right=1.45°, bottom-left=0.40°, bottom-right=0.46°"
+                        "Unusually high skew detected: top-left=1.51°, top-right=1.44°, bottom-left=0.42°, bottom-right=0.49°"
                     ),
             Err(err) => panic!("unexpected error: {err:?}"),
             Ok(_) => panic!("interpretation unexpectedly succeeded"),
@@ -1152,6 +1156,37 @@ mod test {
             ),
         );
         ballot_card(side_a_image, side_b_image, &options).unwrap();
+    }
+
+    #[test]
+    fn test_imprinting_over_timing_marks() {
+        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
+            "104h-2025-04",
+            ("imprinter-front.png", "imprinter-back.png"),
+        );
+        let InterpretedBallotCard {
+            front: InterpretedBallotPage { marks, .. },
+            ..
+        } = ballot_card(side_a_image, side_b_image, &options).unwrap();
+
+        let contest_one_marks = marks
+            .into_iter()
+            .filter_map(|(grid_position, scored_bubble)| {
+                (grid_position.contest_id() == ContestId::from("2z8wwfkv1pqe".to_owned()))
+                    .then(|| scored_bubble)
+            })
+            .collect_vec();
+        assert_eq!(contest_one_marks.len(), 4);
+        if let [Some(austin), Some(beatrice), Some(cary), Some(dominica)] =
+            contest_one_marks.as_slice()
+        {
+            assert!(austin.fill_score < UnitIntervalScore(0.1));
+            assert!(beatrice.fill_score < UnitIntervalScore(0.1));
+            assert!(cary.fill_score > UnitIntervalScore(0.4));
+            assert!(dominica.fill_score < UnitIntervalScore(0.1));
+        } else {
+            panic!("expected marks to all have scores: {contest_one_marks:?}");
+        }
     }
 
     /// Wraps a debug image file that is automatically deleted when the struct

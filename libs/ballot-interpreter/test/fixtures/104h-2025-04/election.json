@@ -1,0 +1,367 @@
+{
+  "ballotLayout": {
+    "paperSize": "letter",
+    "metadataEncoding": "qr-code"
+  },
+  "ballotStrings": {
+    "en": {
+      "ballotStyleId": {
+        "1_en": "1"
+      },
+      "candidateName": {
+        "e5svlnablxhr": "Austin Abrams",
+        "kt67jeq7posc": "Beatrice Baggins",
+        "sh6brr6z1qnl": "Cary Comiskey",
+        "zfmlpijs312z": "Dominica Dan",
+        "5un9orlkr8mv": "Wilhelmina Wu",
+        "y30abp7zt1br": "Xavier Ximenez",
+        "5g7phaxg7hp1": "Yvette Young",
+        "c6j1gtllibb5": "Zara Ziegler"
+      },
+      "contestDescription": {
+        "autxsj0cdzod": "<p>This is the description of Proposition 1. The quick brown fox jumps over the lazy dog.</p>",
+        "klhpdgrdszt0": "<p>This is Proposition 2. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. </p>"
+      },
+      "contestOptionLabel": {
+        "11a0rk2efv1l": "Yes",
+        "ardy4snjybl0": "No",
+        "wkogyhxjb778": "Yes",
+        "altkrzty6a94": "No"
+      },
+      "contestTerm": {
+        "2z8wwfkv1pqe": "1 year",
+        "fgim6l2uk3nb": "2 years"
+      },
+      "contestTitle": {
+        "2z8wwfkv1pqe": "Contest One (1)",
+        "fgim6l2uk3nb": "Contest Two (2)",
+        "autxsj0cdzod": "Proposition One (1)",
+        "klhpdgrdszt0": "Proposition Two (2)"
+      },
+      "countyName": "Longmont",
+      "districtName": {
+        "so8zqmh2y2r5": "Test District"
+      },
+      "electionTitle": "104hr Test",
+      "partyFullName": {
+        "wij0mmzu7gho": "Test Party"
+      },
+      "partyName": {
+        "wij0mmzu7gho": "Test"
+      },
+      "precinctName": {
+        "j6ydtpkgvwyz": "Test Precinct"
+      },
+      "stateName": "Colorado",
+      "ballotLanguage": "English",
+      "electionDate": "March 31, 2025",
+      "hmpb10WillBeElected": "10 will be elected",
+      "hmpb2WillBeElected": "2 will be elected",
+      "hmpb3WillBeElected": "3 will be elected",
+      "hmpb4WillBeElected": "4 will be elected",
+      "hmpb5WillBeElected": "5 will be elected",
+      "hmpb6WillBeElected": "6 will be elected",
+      "hmpb7WillBeElected": "7 will be elected",
+      "hmpb8WillBeElected": "8 will be elected",
+      "hmpb9WillBeElected": "9 will be elected",
+      "hmpbContinueVotingOnBack": "Turn ballot over and continue voting",
+      "hmpbContinueVotingOnNextSheet": "Continue voting on next ballot sheet",
+      "hmpbInstructions": "Instructions",
+      "hmpbInstructionsToVoteText": "To vote, completely fill in the oval next to your choice.",
+      "hmpbInstructionsToVoteTitle": "To Vote:",
+      "hmpbInstructionsWriteInText": "To vote for a person whose name is not on the ballot, write the person’s name on the \"Write-in\" line and completely fill in the oval next to the line.",
+      "hmpbInstructionsWriteInTitle": "To Vote for a Write-in:",
+      "hmpbOfficialAbsenteeBallot": "Official Absentee Ballot",
+      "hmpbOfficialBallot": "Official Ballot",
+      "hmpbOfficialProvisionalBallot": "Official Provisional Ballot",
+      "hmpbPage": "Page",
+      "hmpbPageIntentionallyBlank": "This page intentionally left blank",
+      "hmpbSampleAbsenteeBallot": "Sample Absentee Ballot",
+      "hmpbSampleBallot": "Sample Ballot",
+      "hmpbSampleProvisionalBallot": "Sample Provisional Ballot",
+      "hmpbTestAbsenteeBallot": "Test Absentee Ballot",
+      "hmpbTestBallot": "Test Ballot",
+      "hmpbTestProvisionalBallot": "Test Provisional Ballot",
+      "hmpbVoteFor1": "Vote for 1",
+      "hmpbVoteFor10": "Vote for up to 10",
+      "hmpbVoteFor2": "Vote for up to 2",
+      "hmpbVoteFor3": "Vote for up to 3",
+      "hmpbVoteFor4": "Vote for up to 4",
+      "hmpbVoteFor5": "Vote for up to 5",
+      "hmpbVoteFor6": "Vote for up to 6",
+      "hmpbVoteFor7": "Vote for up to 7",
+      "hmpbVoteFor8": "Vote for up to 8",
+      "hmpbVoteFor9": "Vote for up to 9",
+      "hmpbVoteForNotMoreThan1": "Vote for not more than 1",
+      "hmpbVotingComplete": "You have completed voting.",
+      "hmpbWriteIn": "Write-in"
+    }
+  },
+  "ballotStyles": [
+    {
+      "id": "1_en",
+      "groupId": "1",
+      "precincts": ["j6ydtpkgvwyz"],
+      "districts": ["so8zqmh2y2r5"],
+      "languages": ["en"]
+    }
+  ],
+  "contests": [
+    {
+      "id": "2z8wwfkv1pqe",
+      "districtId": "so8zqmh2y2r5",
+      "title": "Contest One (1)",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "e5svlnablxhr",
+          "name": "Austin Abrams",
+          "firstName": "Austin",
+          "lastName": "Abrams"
+        },
+        {
+          "id": "kt67jeq7posc",
+          "name": "Beatrice Baggins",
+          "firstName": "Beatrice",
+          "lastName": "Baggins"
+        },
+        {
+          "id": "sh6brr6z1qnl",
+          "name": "Cary Comiskey",
+          "firstName": "Cary",
+          "lastName": "Comiskey"
+        },
+        {
+          "id": "zfmlpijs312z",
+          "name": "Dominica Dan",
+          "firstName": "Dominica",
+          "lastName": "Dan"
+        }
+      ],
+      "allowWriteIns": false,
+      "termDescription": "1 year"
+    },
+    {
+      "id": "fgim6l2uk3nb",
+      "districtId": "so8zqmh2y2r5",
+      "title": "Contest Two (2)",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "5un9orlkr8mv",
+          "name": "Wilhelmina Wu",
+          "firstName": "Wilhelmina",
+          "lastName": "Wu"
+        },
+        {
+          "id": "y30abp7zt1br",
+          "name": "Xavier Ximenez",
+          "firstName": "Xavier",
+          "lastName": "Ximenez"
+        },
+        {
+          "id": "5g7phaxg7hp1",
+          "name": "Yvette Young",
+          "firstName": "Yvette",
+          "lastName": "Young"
+        },
+        {
+          "id": "c6j1gtllibb5",
+          "name": "Zara Ziegler",
+          "firstName": "Zara",
+          "lastName": "Ziegler"
+        }
+      ],
+      "allowWriteIns": false,
+      "termDescription": "2 years"
+    },
+    {
+      "id": "autxsj0cdzod",
+      "districtId": "so8zqmh2y2r5",
+      "title": "Proposition One (1)",
+      "type": "yesno",
+      "description": "<p>This is the description of Proposition 1. The quick brown fox jumps over the lazy dog.</p>",
+      "yesOption": {
+        "id": "11a0rk2efv1l",
+        "label": "Yes"
+      },
+      "noOption": {
+        "id": "ardy4snjybl0",
+        "label": "No"
+      }
+    },
+    {
+      "id": "klhpdgrdszt0",
+      "districtId": "so8zqmh2y2r5",
+      "title": "Proposition Two (2)",
+      "type": "yesno",
+      "description": "<p>This is Proposition 2. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. </p>",
+      "yesOption": {
+        "id": "wkogyhxjb778",
+        "label": "Yes"
+      },
+      "noOption": {
+        "id": "altkrzty6a94",
+        "label": "No"
+      }
+    }
+  ],
+  "gridLayouts": [
+    {
+      "ballotStyleId": "1_en",
+      "optionBoundsFromTargetMark": {
+        "top": 0,
+        "right": 0,
+        "bottom": 0,
+        "left": 0
+      },
+      "gridPositions": [
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 14.158276031434186,
+          "contestId": "2z8wwfkv1pqe",
+          "optionId": "e5svlnablxhr"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 15.423010805500983,
+          "contestId": "2z8wwfkv1pqe",
+          "optionId": "kt67jeq7posc"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 16.687745579567782,
+          "contestId": "2z8wwfkv1pqe",
+          "optionId": "sh6brr6z1qnl"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 17.952480353634577,
+          "contestId": "2z8wwfkv1pqe",
+          "optionId": "zfmlpijs312z"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 14.158276031434186,
+          "contestId": "fgim6l2uk3nb",
+          "optionId": "5un9orlkr8mv"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 15.423010805500983,
+          "contestId": "fgim6l2uk3nb",
+          "optionId": "y30abp7zt1br"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 16.687745579567782,
+          "contestId": "fgim6l2uk3nb",
+          "optionId": "5g7phaxg7hp1"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 12.284622024910593,
+          "row": 17.952480353634577,
+          "contestId": "fgim6l2uk3nb",
+          "optionId": "c6j1gtllibb5"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 23.67325638506876,
+          "contestId": "autxsj0cdzod",
+          "optionId": "11a0rk2efv1l"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 1.7187076088296955,
+          "row": 24.93799115913556,
+          "contestId": "autxsj0cdzod",
+          "optionId": "ardy4snjybl0"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 17.567579232951044,
+          "row": 25.181114931237722,
+          "contestId": "klhpdgrdszt0",
+          "optionId": "wkogyhxjb778"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 17.567579232951044,
+          "row": 26.445849705304518,
+          "contestId": "klhpdgrdszt0",
+          "optionId": "altkrzty6a94"
+        }
+      ]
+    }
+  ],
+  "county": {
+    "id": "county-id",
+    "name": "Longmont"
+  },
+  "date": "2025-03-31",
+  "districts": [
+    {
+      "id": "so8zqmh2y2r5",
+      "name": "Test District"
+    }
+  ],
+  "id": "m1lxmaurjvt6",
+  "parties": [
+    {
+      "id": "wij0mmzu7gho",
+      "name": "Test",
+      "fullName": "Test Party",
+      "abbrev": "TP"
+    }
+  ],
+  "precincts": [
+    {
+      "id": "j6ydtpkgvwyz",
+      "name": "Test Precinct",
+      "districtIds": []
+    }
+  ],
+  "seal": "\n\n<svg version=\"1.1\" id=\"Layer_1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" x=\"0px\" y=\"0px\" viewBox=\"0 0 900 1000\" style=\"enable-background:new 0 0 900 1000\" xml:space=\"preserve\">\n<g>\n\t<path d=\"M471.7,1000c-6.5,0-13.1-1.3-19.5-4c-25.7-10.8-37.7-40.4-26.9-66.1l348.4-828.6H667.9L303,969.1\n\t\tc-7.9,18.7-26.2,30.9-46.5,30.9s-38.6-12.2-46.5-30.9L4,478.9c-6.6-15.6-4.9-33.4,4.5-47.5c9.3-14.1,25.1-22.5,42-22.5H252\n\t\tc27.8,0,50.4,22.6,50.4,50.5c0,27.9-22.6,50.5-50.4,50.5H126.4l130.2,309.6L587.9,31.3c7.9-18.7,26.2-30.9,46.5-30.9h215.2\n\t\tc16.9,0,32.7,8.5,42,22.5c9.3,14.1,11,31.9,4.5,47.5L518.2,969.1C510.1,988.4,491.4,1000,471.7,1000z M442.2,181.7\n\t\tC442.2,81.5,371.1,0,283.8,0S125.3,81.5,125.3,181.7s71.1,181.7,158.4,181.7S442.2,281.9,442.2,181.7z M341.4,181.7\n\t\tc0,43.8-26.4,80.8-57.6,80.8s-57.6-37-57.6-80.8s26.4-80.8,57.6-80.8S341.4,137.9,341.4,181.7z\"></path>\n</g>\n</svg>\n",
+  "state": "Colorado",
+  "title": "104hr Test",
+  "type": "general",
+  "additionalHashInput": {
+    "precinctSplitSeals": {},
+    "precinctSplitSignatureImages": {}
+  }
+}

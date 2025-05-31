@@ -21,12 +21,12 @@ fn imageproc_rect_from_rect(rect: &Rect) -> imageproc::rect::Rect {
     imageproc::rect::Rect::at(rect.left(), rect.top()).of_size(rect.width(), rect.height())
 }
 
-use crate::image_utils::{dark_rainbow, rainbow};
+use crate::image_utils::{dark_rainbow, rainbow, BLACK};
 use crate::layout::InterpretedContestLayout;
 use crate::scoring::UnitIntervalScore;
 use crate::timing_marks::{
-    BestFit, BestFitSearchResult, CandidateTimingMark, Corner, FilteredMarks,
-    ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH,
+    BestFit, BestFitSearchResult, CandidateTimingMark, CandidateTimingMarkRefinement, Corner,
+    FilteredMarks, ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH,
 };
 use crate::{
     image_utils::{
@@ -165,7 +165,7 @@ pub fn draw_contours_debug_image_mut(canvas: &mut RgbImage, contour_rects: &[Rec
 /// Draws a debug image of the rectangles found using the contour algorithm.
 pub fn draw_candidate_timing_marks_debug_image_mut(
     canvas: &mut RgbImage,
-    candidate_timing_marks: &[CandidateTimingMark],
+    candidate_timing_mark_refinements: &[CandidateTimingMarkRefinement],
     minimum_mark_score: UnitIntervalScore,
     minimum_padding_score: UnitIntervalScore,
 ) {
@@ -174,53 +174,70 @@ pub fn draw_candidate_timing_marks_debug_image_mut(
     let scale = PxScale::from(font_scale);
     let mut text_rects = vec![];
 
-    for (mark, color) in candidate_timing_marks.iter().zip(rainbow()) {
-        if mark.scores().mark_score() < minimum_mark_score
-            || mark.scores().padding_score() < minimum_padding_score
+    for (refinement, color) in candidate_timing_mark_refinements.iter().zip(rainbow()) {
+        let original = refinement.original_rect();
+        let best_attempt = refinement.best_attempt_rect();
+
+        draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(original), DARK_RED);
+        draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(best_attempt), PINK);
+
+        if let CandidateTimingMarkRefinement::Refined {
+            candidate_timing_mark: mark,
+            ..
+        } = refinement
         {
-            draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), color);
-        } else {
-            draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), color);
+            if mark.scores().mark_score() < minimum_mark_score
+                || mark.scores().padding_score() < minimum_padding_score
+            {
+                draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), color);
+            } else {
+                draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), color);
+            }
+
+            let center = mark.rect().center();
+            let score_text = format!(
+                "({:.0}, {:.0})",
+                mark.scores().mark_score(),
+                mark.scores().padding_score()
+            );
+            let (score_text_width, score_text_height) = text_size(scale, font, &score_text);
+            let score_left = (center.x - score_text_width as f32 / 2.0)
+                .round()
+                .max(0.0)
+                .min((canvas.width() - score_text_width) as f32)
+                as i32;
+            let mut score_rect = Rect::new(
+                score_left,
+                mark.rect().bottom() + 2,
+                score_text_width,
+                score_text_height,
+            );
+
+            while text_rects.iter().any(|r: &Rect| r.overlaps(&score_rect)) {
+                score_rect = score_rect.offset(0, score_text_height as i32);
+            }
+
+            draw_text_mut(
+                canvas,
+                color,
+                score_rect.left(),
+                score_rect.top(),
+                scale,
+                font,
+                &score_text,
+            );
+
+            text_rects.push(score_rect);
         }
-
-        let center = mark.rect().center();
-        let score_text = format!(
-            "({:.0}, {:.0})",
-            mark.scores().mark_score(),
-            mark.scores().padding_score()
-        );
-        let (score_text_width, score_text_height) = text_size(scale, font, &score_text);
-        let score_left = (center.x - score_text_width as f32 / 2.0)
-            .round()
-            .max(0.0)
-            .min((canvas.width() - score_text_width) as f32) as i32;
-        let mut score_rect = Rect::new(
-            score_left,
-            mark.rect().bottom() + 2,
-            score_text_width,
-            score_text_height,
-        );
-
-        while text_rects.iter().any(|r: &Rect| r.overlaps(&score_rect)) {
-            score_rect = score_rect.offset(0, score_text_height as i32);
-        }
-
-        draw_text_mut(
-            canvas,
-            color,
-            score_rect.left(),
-            score_rect.top(),
-            scale,
-            font,
-            &score_text,
-        );
-
-        text_rects.push(score_rect);
     }
 
     draw_legend(
         canvas,
-        &[(DARK_BLUE, "(MARK SCORE, PADDING SCORE)")],
+        &[
+            (DARK_BLUE, "(MARK SCORE, PADDING SCORE)"),
+            (DARK_RED, "Original contour rect"),
+            (PINK, "Best (failed) mark refinement attempt"),
+        ],
         Point::new(0, 0),
     );
 }
