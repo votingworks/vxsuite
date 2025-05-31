@@ -62,7 +62,7 @@ impl Add for UnitIntervalScore {
     }
 }
 
-#[derive(Clone, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ScoredBubbleMark {
     /// The location of the bubble mark in the grid. Uses side/column/row, not
@@ -86,21 +86,11 @@ pub struct ScoredBubbleMark {
     pub matched_bounds: Rect,
 }
 
-impl std::fmt::Debug for ScoredBubbleMark {
-    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        f.debug_struct("ScoredBubbleMark")
-            .field("location", &self.location)
-            .field("match_score", &self.match_score)
-            .field("fill_score", &self.fill_score)
-            .field("matched_bounds", &self.matched_bounds)
-            .finish()
-    }
-}
-
 pub const DEFAULT_MAXIMUM_SEARCH_DISTANCE: u32 = 7;
 
 pub type ScoredBubbleMarks = Vec<(GridPosition, Option<ScoredBubbleMark>)>;
 
+#[allow(clippy::too_many_arguments)]
 pub fn score_bubble_marks_from_grid_layout(
     img: &GrayImage,
     threshold: u8,
