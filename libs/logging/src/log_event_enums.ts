@@ -203,7 +203,7 @@ const ElectionConfigured: LogDetails = {
   eventId: LogEventId.ElectionConfigured,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'The user has configured current machine to a new election definition.',
+    'The user has configured the machine with a new election definition (or failed to do so). Success or failure indicated by disposition.',
   defaultMessage: 'Application has been configured for a new election.',
 };
 
@@ -211,7 +211,7 @@ const ElectionUnconfigured: LogDetails = {
   eventId: LogEventId.ElectionUnconfigured,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'The user has unconfigured current machine to remove the current election definition, and all other data.',
+    'The user has unconfigured the machine, removing the current election definition and all other data (or failed to do so). Success or failure indicated by disposition.',
   defaultMessage:
     'Application has been unconfigured from the previous election.',
 };
@@ -646,7 +646,7 @@ const ImportCastVoteRecordsComplete: LogDetails = {
   eventId: LogEventId.ImportCastVoteRecordsComplete,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'Cast vote records have been imported from a USB drive (or failed to be imported).',
+    'Cast vote records have been imported from a USB drive (or failed to be imported). Success or failure indicated by disposition.',
   restrictInDocumentationToApps: [AppName.VxAdmin],
 };
 
@@ -661,7 +661,7 @@ const ClearImportedCastVoteRecordsComplete: LogDetails = {
   eventId: LogEventId.ClearImportedCastVoteRecordsComplete,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'Imported cast vote records have been cleared (or failed to be cleared).',
+    'Imported cast vote records have been cleared (or failed to be cleared). Success or failure indicated by disposition.',
   restrictInDocumentationToApps: [AppName.VxAdmin],
 };
 
