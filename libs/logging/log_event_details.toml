@@ -125,13 +125,13 @@ documentationMessage = "Action taken by the votingworks application automaticall
 eventId = "election-configured"
 eventType = "user-action"
 defaultMessage = "Application has been configured for a new election."
-documentationMessage = "The user has configured current machine to a new election definition."
+documentationMessage = "The user has configured the machine with a new election definition (or failed to do so). Success or failure indicated by disposition."
 
 [Events.ElectionUnconfigured]
 eventId = "election-unconfigured"
 eventType = "user-action"
 defaultMessage = "Application has been unconfigured from the previous election."
-documentationMessage = "The user has unconfigured current machine to remove the current election definition, and all other data."
+documentationMessage = "The user has unconfigured the machine, removing the current election definition and all other data (or failed to do so). Success or failure indicated by disposition."
 
 [Events.AuthPinEntry]
 eventId = "auth-pin-entry"
@@ -467,7 +467,7 @@ restrictInDocumentationToApps = ["vx-admin"]
 [Events.ImportCastVoteRecordsComplete]
 eventId = "import-cast-vote-records-complete"
 eventType = "user-action"
-documentationMessage = "Cast vote records have been imported from a USB drive (or failed to be imported)."
+documentationMessage = "Cast vote records have been imported from a USB drive (or failed to be imported). Success or failure indicated by disposition."
 restrictInDocumentationToApps = ["vx-admin"]
 
 [Events.ClearImportedCastVoteRecordsInit]
@@ -479,7 +479,7 @@ restrictInDocumentationToApps = ["vx-admin"]
 [Events.ClearImportedCastVoteRecordsComplete]
 eventId = "clear-imported-cast-vote-records-complete"
 eventType = "user-action"
-documentationMessage = "Imported cast vote records have been cleared (or failed to be cleared)."
+documentationMessage = "Imported cast vote records have been cleared (or failed to be cleared). Success or failure indicated by disposition."
 restrictInDocumentationToApps = ["vx-admin"]
 
 [Events.ManualTallyDataEdited]
