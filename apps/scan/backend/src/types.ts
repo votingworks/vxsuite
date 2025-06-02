@@ -59,6 +59,9 @@ export interface PrecinctScannerStateMachine {
   beginDoubleFeedCalibration: () => void;
   endDoubleFeedCalibration: () => void;
 
+  beginImageSensorCalibration: () => void;
+  endImageSensorCalibration: () => void;
+
   beginScannerDiagnostic: () => void;
   endScannerDiagnostic: () => void;
 

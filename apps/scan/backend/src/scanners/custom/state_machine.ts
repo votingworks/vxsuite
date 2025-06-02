@@ -1385,6 +1385,14 @@ export function createPrecinctScannerStateMachine({
       throw new Error('Not supported');
     },
     /* istanbul ignore next - @preserve */
+    beginImageSensorCalibration() {
+      throw new Error('Not supported');
+    },
+    /* istanbul ignore next - @preserve */
+    endImageSensorCalibration() {
+      throw new Error('Not supported');
+    },
+    /* istanbul ignore next - @preserve */
     beginScannerDiagnostic() {
       throw new Error('Not supported');
     },

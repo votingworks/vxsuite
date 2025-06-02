@@ -413,6 +413,14 @@ export function buildApi({
       machine.endDoubleFeedCalibration();
     },
 
+    beginImageSensorCalibration(): void {
+      machine.beginImageSensorCalibration();
+    },
+
+    endImageSensorCalibration(): void {
+      machine.endImageSensorCalibration();
+    },
+
     beginScannerDiagnostic(): void {
       void logger.logAsCurrentRole(LogEventId.DiagnosticInit, {
         message: `User initiated a scanner diagnostic.`,
