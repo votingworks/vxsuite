@@ -41,11 +41,11 @@ test('general election, all precincts, polls open, test mode', () => {
   );
   const eventDate = screen.getByText('Polls Opened:');
   expect(eventDate.parentNode).toHaveTextContent(
-    'Polls Opened: Oct 31, 2022, 4:23 PM'
+    'Polls Opened: Oct 31, 2022, 4:23:00 PM'
   );
   const printedAt = screen.getByText('Report Printed:');
   expect(printedAt.parentElement).toHaveTextContent(
-    'Report Printed: Oct 31, 2022, 4:24 PM'
+    'Report Printed: Oct 31, 2022, 4:24:00 PM'
   );
   const scannerId = screen.getByText('Scanner ID:');
   expect(scannerId.parentElement).toHaveTextContent('Scanner ID: SC-01-000');
@@ -82,11 +82,11 @@ test('primary election, single precinct, polls closed, live mode', () => {
   );
   const eventDate = screen.getByText('Polls Closed:');
   expect(eventDate.parentNode).toHaveTextContent(
-    'Polls Closed: Oct 31, 2022, 4:23 PM'
+    'Polls Closed: Oct 31, 2022, 4:23:00 PM'
   );
   const printedAt = screen.getByText('Report Printed:');
   expect(printedAt.parentElement).toHaveTextContent(
-    'Report Printed: Oct 31, 2022, 4:24 PM'
+    'Report Printed: Oct 31, 2022, 4:24:00 PM'
   );
   const scannerId = screen.getByText('Scanner ID:');
   expect(scannerId.parentElement).toHaveTextContent('Scanner ID: SC-01-000');

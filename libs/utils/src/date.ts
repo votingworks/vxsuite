@@ -53,7 +53,11 @@ export function formatTimeZoneName(date: DateTime): string {
 
 export function formatFullDateTimeZone(
   date: DateTime,
-  { includeTimezone = false, includeWeekday = true } = {}
+  {
+    includeTimezone = false,
+    includeWeekday = true,
+    includeSeconds = false,
+  } = {}
 ): string | undefined {
   return new Intl.DateTimeFormat(undefined, {
     timeZone: date.zoneName,
@@ -63,6 +67,7 @@ export function formatFullDateTimeZone(
     year: 'numeric',
     hour: 'numeric',
     minute: 'numeric',
+    second: includeSeconds ? 'numeric' : undefined,
     timeZoneName: includeTimezone ? 'short' : undefined,
   }).format(date.toJSDate());
 }

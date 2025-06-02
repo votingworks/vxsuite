@@ -39,7 +39,7 @@ test('general election, full election report', () => {
     'Lincoln Municipal General Election, Jun 6, 2021, Franklin County, State of Hamilton'
   );
   screen.getByText(
-    hasTextAcrossElements('Report Generated: Jan 1, 2020, 12:00 AM')
+    hasTextAcrossElements('Report Generated: Jan 1, 2020, 12:00:00 AM')
   );
 
   expect(screen.getByTestId('total-ballot-count')).toHaveTextContent('15');
@@ -79,7 +79,7 @@ test('general election, precinct report with manual results', () => {
     'Lincoln Municipal General Election, Jun 6, 2021, Franklin County, State of Hamilton'
   );
   screen.getByText(
-    hasTextAcrossElements('Report Generated: Jan 1, 2020, 12:00 AM')
+    hasTextAcrossElements('Report Generated: Jan 1, 2020, 12:00:00 AM')
   );
 
   expect(screen.getByTestId('total-ballot-count')).toHaveTextContent('16');

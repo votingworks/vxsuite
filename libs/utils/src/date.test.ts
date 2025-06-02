@@ -58,6 +58,12 @@ test('formatFullDateTimeZone', () => {
       { includeTimezone: true }
     )
   ).toEqual('Sat, Jul 31, 2021, 12:00 AM PDT');
+  expect(
+    formatFullDateTimeZone(
+      DateTime.fromISO('2021-01-01', { zone: 'America/Los_Angeles' }),
+      { includeSeconds: true }
+    )
+  ).toEqual('Fri, Jan 1, 2021, 12:00:00 AM');
 });
 
 test('formatLongDate', () => {
