@@ -688,13 +688,16 @@ pub fn ballot_card(
         })
         .unwrap_or_default();
 
+    let normalized_front_image = imageproc::contrast::threshold(&front_image, front_threshold);
+    let normalized_back_image = imageproc::contrast::threshold(&back_image, back_threshold);
+
     Ok(InterpretedBallotCard {
         front: InterpretedBallotPage {
             grid: front_grid,
             metadata: front_metadata,
             marks: front_scored_bubble_marks,
             write_ins: front_write_in_area_scores,
-            normalized_image: front_image,
+            normalized_image: normalized_front_image,
             contest_layouts: front_contest_layouts,
         },
         back: InterpretedBallotPage {
@@ -702,7 +705,7 @@ pub fn ballot_card(
             metadata: back_metadata,
             marks: back_scored_bubble_marks,
             write_ins: back_write_in_area_scores,
-            normalized_image: back_image,
+            normalized_image: normalized_back_image,
             contest_layouts: back_contest_layouts,
         },
     })
@@ -828,6 +831,13 @@ mod test {
         }
     }
 
+    fn is_binary_image(image: &GrayImage) -> bool {
+        image
+            .as_raw()
+            .iter()
+            .all(|&pixel| pixel == 0 || pixel == 255)
+    }
+
     #[test]
     fn test_par_map_pair() {
         assert_eq!(par_map_pair(1, 2, |n| n * 2), (2, 4));
@@ -837,7 +847,15 @@ mod test {
     fn test_interpret_ballot_card() {
         let (side_a_image, side_b_image, options) =
             load_ballot_card_fixture("ashland", ("scan-side-a.jpeg", "scan-side-b.jpeg"));
-        ballot_card(side_a_image, side_b_image, &options).unwrap();
+        let result = ballot_card(side_a_image, side_b_image, &options).unwrap();
+        assert!(
+            is_binary_image(&result.front.normalized_image),
+            "Front image is not binary"
+        );
+        assert!(
+            is_binary_image(&result.back.normalized_image),
+            "Back image is not binary"
+        );
 
         let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
             "ashland",
