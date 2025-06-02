@@ -98,6 +98,45 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
     return new AsyncIteratorPlusImpl(result);
   }
 
+  chunksExact(chunkSize: 1): AsyncIteratorPlus<[T]>;
+  chunksExact(chunkSize: 2): AsyncIteratorPlus<[T, T]>;
+  chunksExact(chunkSize: 3): AsyncIteratorPlus<[T, T, T]>;
+  chunksExact(chunkSize: 4): AsyncIteratorPlus<[T, T, T, T]>;
+  chunksExact(chunkSize: number): AsyncIteratorPlus<T[]>;
+  chunksExact(chunkSize: number): AsyncIteratorPlus<T[]> {
+    assert(
+      chunkSize > 0 && Math.floor(chunkSize) === chunkSize,
+      'groupSize must be an integer greater than 0'
+    );
+    const iterable = this.intoInner();
+    const iterator = iterable[Symbol.asyncIterator]();
+
+    const result: AsyncIterableIterator<T[]> = {
+      [Symbol.asyncIterator](): AsyncIterableIterator<T[]> {
+        return result;
+      },
+      async next() {
+        const chunk: T[] = [];
+        while (chunk.length < chunkSize) {
+          const { value, done } = await iterator.next();
+          if (done) {
+            break;
+          }
+          chunk.push(value);
+        }
+        if (chunk.length === 0) {
+          return { done: true, value: undefined };
+        }
+        if (chunk.length !== chunkSize) {
+          throw new Error('Chunk size is not a multiple of the iterator size');
+        }
+        return { value: chunk, done: false };
+      },
+    };
+
+    return new AsyncIteratorPlusImpl(result);
+  }
+
   async count(): Promise<number> {
     let count = 0;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

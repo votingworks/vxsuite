@@ -1,8 +1,9 @@
-import { expect, test, vi } from 'vitest';
 import * as fc from 'fast-check';
+import { expect, expectTypeOf, test, vi } from 'vitest';
 import { integers } from './integers';
 import { iter } from './iter';
 import { naturals } from './naturals';
+import { IteratorPlus } from './types';
 
 test('map', () => {
   expect(iter([]).map(Boolean).toArray()).toEqual([]);
@@ -142,6 +143,16 @@ test('zipMin', () => {
   ]);
 });
 
+test('chunks types', () => {
+  expectTypeOf(iter([0]).chunks(1)).toEqualTypeOf<IteratorPlus<[number]>>();
+  expectTypeOf(iter([0]).chunks(2)).toEqualTypeOf<
+    IteratorPlus<[number] | [number, number]>
+  >();
+  expectTypeOf(iter([0]).chunks(3)).toEqualTypeOf<
+    IteratorPlus<[number] | [number, number] | [number, number, number]>
+  >();
+});
+
 test('chunks without remainder', () => {
   expect(iter([1, 2, 3, 4, 5, 6, 7, 8, 9]).chunks(3).toArray()).toEqual([
     [1, 2, 3],
@@ -173,6 +184,68 @@ test('chunks with infinite iterator', () => {
     [10, 11, 12],
     [13, 14, 15],
   ]);
+});
+
+test('chunksExact types', () => {
+  expectTypeOf(iter([0]).chunksExact(1)).toEqualTypeOf<
+    IteratorPlus<[number]>
+  >();
+  expectTypeOf(iter([0]).chunksExact(2)).toEqualTypeOf<
+    IteratorPlus<[number, number]>
+  >();
+  expectTypeOf(iter([0]).chunksExact(3)).toEqualTypeOf<
+    IteratorPlus<[number, number, number]>
+  >();
+});
+
+test('chunksExact without remainder', () => {
+  expect(iter([1, 2, 3, 4, 5, 6, 7, 8, 9]).chunksExact(3).toArray()).toEqual([
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9],
+  ]);
+});
+
+test('chunksExact with remainder', () => {
+  expect(() =>
+    iter([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).chunksExact(3).toArray()
+  ).toThrow();
+});
+
+test('chunksExact invalid group size', () => {
+  expect(() =>
+    iter([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).chunksExact(0).toArray()
+  ).toThrow();
+});
+
+test('chunksExact with infinite iterator', () => {
+  expect(integers().skip(1).chunksExact(3).take(5).toArray()).toEqual([
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9],
+    [10, 11, 12],
+    [13, 14, 15],
+  ]);
+});
+
+test('chunksExact must have element count as a multiple of chunkSize', () => {
+  fc.assert(
+    fc.property(
+      fc.integer({ min: 1 }),
+      fc.array(fc.constant(0)),
+      (chunkSize, elements) => {
+        if (elements.length % chunkSize !== 0) {
+          expect(() =>
+            iter(elements).chunksExact(chunkSize).toArray()
+          ).toThrow();
+        } else {
+          expect(iter(elements).chunksExact(chunkSize).toArray()).toHaveLength(
+            elements.length / chunkSize
+          );
+        }
+      }
+    )
+  );
 });
 
 test('rev', () => {
