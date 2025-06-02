@@ -413,9 +413,12 @@ jobs:
           command: |
             pnpm --dir apps/pollbook/backend lint
       - run:
-          name: Test
+          name: Test 10 Times
           command: |
-            pnpm --dir apps/pollbook/backend test
+            for i in $(seq 1 10); do
+              echo "Run #$i"
+              pnpm --dir apps/pollbook/backend test || exit 1
+            done
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -1713,7 +1716,7 @@ commands:
           command: pnpm --recursive install:rust-addon
       - save_cache:
           name: Save Cargo Cache
-          key: 
+          key:
             cargo-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
             "Cargo.lock" }}
           paths:
