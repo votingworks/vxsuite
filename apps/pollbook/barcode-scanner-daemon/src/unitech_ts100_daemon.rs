@@ -161,8 +161,7 @@ fn open_socket() -> Result<UnixListener, std::io::Error> {
     let _ = fs::remove_file(UDS_PATH);
     // Assign address to socket
     let listener = UnixListener::bind(UDS_PATH)?;
-    // TODO(Kevin) run server and daemon as same user so we can avoid lax permissions
-    fs::set_permissions(UDS_PATH, fs::Permissions::from_mode(0o666))?;
+    fs::set_permissions(UDS_PATH, fs::Permissions::from_mode(0o660))?;
     log!(
         event_id: EventId::SocketServerBind,
         message: format!("UDS bound on {UDS_PATH}"),
