@@ -184,14 +184,8 @@ async function writeNormalizedImages({
     prefix: 'normalized-back',
     postfix: '.png',
   });
-  await writeImageData(frontPath, {
-    ...front.normalizedImage,
-    data: new Uint8ClampedArray(front.normalizedImage.data),
-  });
-  await writeImageData(backPath, {
-    ...back.normalizedImage,
-    data: new Uint8ClampedArray(back.normalizedImage.data),
-  });
+  await writeImageData(frontPath, front.normalizedImage);
+  await writeImageData(backPath, back.normalizedImage);
   return { front: frontPath, back: backPath };
 }
 
