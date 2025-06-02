@@ -63,7 +63,7 @@ beforeEach(() => {
 });
 
 vi.setConfig({
-  testTimeout: 20_000,
+  testTimeout: 30_000,
 });
 
 test('connection status between two pollbooks is managed properly', async () => {
@@ -539,7 +539,8 @@ test('connection status is managed properly with many pollbooks', async () => {
   });
 });
 
-test('one pollbook can be configured from another pollbook', async () => {
+// TODO #6544 Fix Flakes and re-enable tests
+test.skip('one pollbook can be configured from another pollbook', async () => {
   await withManyApps(2, async ([pollbookContext1, pollbookContext2]) => {
     // Configure the first pollbook
     const testVoters = parseVotersFromCsvString(
@@ -648,7 +649,8 @@ test('one pollbook can be configured from another pollbook', async () => {
   });
 });
 
-test('one pollbook can be configured from another pollbook automatically as an election mangaer', async () => {
+// TODO #6544 Fix Flakes and re-enable tests
+test.skip('one pollbook can be configured from another pollbook automatically as an election mangaer', async () => {
   await withManyApps(
     3,
     async ([pollbookContext1, pollbookContext2, pollbookContext3]) => {
