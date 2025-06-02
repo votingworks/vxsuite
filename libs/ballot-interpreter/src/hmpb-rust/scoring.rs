@@ -62,7 +62,7 @@ impl Add for UnitIntervalScore {
     }
 }
 
-#[derive(Clone, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ScoredBubbleMark {
     /// The location of the bubble mark in the grid. Uses side/column/row, not
@@ -90,20 +90,11 @@ pub struct ScoredBubbleMark {
     pub fill_diff_image: GrayImage,
 }
 
-impl std::fmt::Debug for ScoredBubbleMark {
-    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        write!(
-            f,
-            "ScoredBubbleMark {{ location: {:?}, match_score: {}, fill_score: {}, matched_bounds: {:?} }}",
-            self.location, self.match_score, self.fill_score, self.matched_bounds
-        )
-    }
-}
-
 pub const DEFAULT_MAXIMUM_SEARCH_DISTANCE: u32 = 7;
 
 pub type ScoredBubbleMarks = Vec<(GridPosition, Option<ScoredBubbleMark>)>;
 
+#[allow(clippy::too_many_arguments)]
 pub fn score_bubble_marks_from_grid_layout(
     img: &GrayImage,
     threshold: u8,
@@ -114,7 +105,7 @@ pub fn score_bubble_marks_from_grid_layout(
     side: BallotSide,
     debug: &ImageDebugWriter,
 ) -> ScoredBubbleMarks {
-    let scored_bubbles = &grid_layout
+    let scored_bubbles = grid_layout
         .grid_positions
         .par_iter()
         .flat_map(|grid_position| {
@@ -146,10 +137,10 @@ pub fn score_bubble_marks_from_grid_layout(
         .collect::<ScoredBubbleMarks>();
 
     debug.write("scored_bubble_marks", |canvas| {
-        debug::draw_scored_bubble_marks_debug_image_mut(canvas, scored_bubbles);
+        debug::draw_scored_bubble_marks_debug_image_mut(canvas, &scored_bubbles);
     });
 
-    scored_bubbles.clone()
+    scored_bubbles
 }
 
 /// Scores a bubble mark within a scanned ballot image.
