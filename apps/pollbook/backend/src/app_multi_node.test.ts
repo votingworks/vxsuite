@@ -57,17 +57,17 @@ vi.mock('./avahi.js', () => ({
 }));
 
 beforeEach(() => {
-  vi.useFakeTimers();
+  vi.useFakeTimers({ shouldAdvanceTime: true });
   mockNodeEnv = 'test';
   vi.clearAllMocks();
 });
 
-vi.setConfig({
+/* vi.setConfig( {
   testTimeout: 30_000,
-});
+} ); */
 
 function extendedWaitFor(fn: () => void | Promise<void>) {
-  return vi.waitFor(fn, { timeout: 3000 });
+  return vi.waitFor(fn);
 }
 
 test('connection status between two pollbooks is managed properly', async () => {
