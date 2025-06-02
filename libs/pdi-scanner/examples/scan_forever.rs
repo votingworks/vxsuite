@@ -5,7 +5,7 @@ use std::{
         atomic::{AtomicBool, Ordering},
         Arc,
     },
-    time::Duration,
+    time::{Duration, Instant},
 };
 use tracing_subscriber::prelude::*;
 
@@ -72,7 +72,14 @@ async fn main() -> color_eyre::Result<()> {
     let mut raw_image_data = RawImageData::new();
     let mut scan_index = 0;
 
-    client.send_initial_commands_after_connect(Duration::from_secs(3))?;
+    // Sometimes, after closing the previous scanner connection, a new connection will
+    // time out during these first commands. Until we get to the bottom of why that's
+    // happening, we just retry once, which seems to resolve it.
+    if let Err(_) = client.send_initial_commands_after_connect(Duration::from_millis(500)) {
+        client.send_initial_commands_after_connect(Duration::from_secs(3))?;
+    }
+    let image_calibration_tables = client.get_image_calibration_tables(Duration::from_secs(3))?;
+
     client.send_enable_scan_commands(
         config.bitonal_threshold,
         DoubleFeedDetectionMode::RejectDoubleFeeds,
@@ -89,6 +96,7 @@ async fn main() -> color_eyre::Result<()> {
             running.store(false, Ordering::SeqCst);
         }
     })?;
+    let mut start: Option<Instant> = None;
 
     loop {
         if !running.load(Ordering::SeqCst) {
@@ -100,46 +108,38 @@ async fn main() -> color_eyre::Result<()> {
             println!("event: {event:?}");
             match event {
                 Incoming::BeginScanEvent => {
+                    start = Some(Instant::now());
                     raw_image_data = RawImageData::new();
                 }
                 Incoming::EndScanEvent => {
-                    match raw_image_data.try_decode_scan(DEFAULT_IMAGE_WIDTH, ScanSideMode::Duplex)
-                    {
-                        Ok(Sheet::Duplex(top, bottom)) => {
-                            match (top.to_cropped_image(), bottom.to_cropped_image()) {
-                                (Some(top_image), Some(bottom_image)) => {
-                                    let top_path =
-                                        PathBuf::from(format!("scan-{scan_index:04}-top.png"));
-                                    let bottom_path =
-                                        PathBuf::from(format!("scan-{scan_index:04}-bottom.png"));
-                                    top_image.save(&top_path)?;
-                                    bottom_image.save(&bottom_path)?;
-                                    println!(
-                                        "Saved images from scan:\n- Top: {top_path}\n- Bottom: {bottom_path}",
-                                        top_path = top_path.display(),
-                                        bottom_path = bottom_path.display(),
-                                    );
-                                    scan_index += 1;
+                    match raw_image_data.try_decode_scan(
+                        DEFAULT_IMAGE_WIDTH,
+                        ScanSideMode::Duplex,
+                        &image_calibration_tables,
+                    ) {
+                        Ok(Sheet::Duplex(top_image, bottom_image)) => {
+                            println!(
+                                "scanned duplex sheet in {:?}",
+                                start.unwrap_or_else(|| Instant::now())
+                            );
+                            let top_path = PathBuf::from(format!("scan-{scan_index:04}-top.png"));
+                            let bottom_path =
+                                PathBuf::from(format!("scan-{scan_index:04}-bottom.png"));
+                            top_image.save(&top_path)?;
+                            bottom_image.save(&bottom_path)?;
+                            println!(
+                                "Saved images from scan:\n- Top: {top_path}\n- Bottom: {bottom_path}",
+                                top_path = top_path.display(),
+                                bottom_path = bottom_path.display(),
+                            );
+                            scan_index += 1;
 
-                                    if let Ok(status) =
-                                        client.get_scanner_status(Duration::from_secs(1))
-                                    {
-                                        if status.rear_sensors_covered() {
-                                            client.eject_document(EjectMotion::ToFront)?;
-                                            // ejecting the document will disable the feeder,
-                                            // so we need to re-enable it
-                                            client.set_feeder_mode(FeederMode::AutoScanSheets)?;
-                                        }
-                                    }
-                                }
-                                (Some(_), None) => {
-                                    eprintln!("failed to decode bottom image");
-                                }
-                                (None, Some(_)) => {
-                                    eprintln!("failed to decode top image");
-                                }
-                                (None, None) => {
-                                    eprintln!("failed to decode top & bottom images");
+                            if let Ok(status) = client.get_scanner_status(Duration::from_secs(1)) {
+                                if status.rear_sensors_covered() {
+                                    client.eject_document(EjectMotion::ToFront)?;
+                                    // ejecting the document will disable the feeder,
+                                    // so we need to re-enable it
+                                    client.set_feeder_mode(FeederMode::AutoScanSheets)?;
                                 }
                             }
                         }

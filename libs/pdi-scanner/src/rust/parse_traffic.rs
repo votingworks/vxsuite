@@ -2,11 +2,14 @@ use std::{fmt, io};
 
 use serde::Deserialize;
 
-use pdi_scanner::protocol::{
-    self,
-    image::{RawImageData, Sheet, DEFAULT_IMAGE_WIDTH},
-    packets::{Incoming, Packet},
-    types::{ScanSideMode, Side},
+use pdi_scanner::{
+    client::ImageCalibrationTables,
+    protocol::{
+        self,
+        image::{RawImageData, Sheet, DEFAULT_IMAGE_WIDTH},
+        packets::{Incoming, Packet},
+        types::{ScanSideMode, Side},
+    },
 };
 
 const ENDPOINT_OUT: u8 = 0x05;
@@ -143,6 +146,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             continue;
         }
 
+        // Placeholder image calibration tables
+        let image_calibration_tables = ImageCalibrationTables {
+            front_white: vec![0; DEFAULT_IMAGE_WIDTH as usize],
+            back_white: vec![0; DEFAULT_IMAGE_WIDTH as usize],
+            front_black: vec![0; DEFAULT_IMAGE_WIDTH as usize],
+            back_black: vec![0; DEFAULT_IMAGE_WIDTH as usize],
+        };
+
         match protocol::parse_packet(&packet.data.0) {
             Ok(([], Packet::Incoming(Incoming::BeginScanEvent))) => {
                 println!(
@@ -157,17 +168,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     incoming = Incoming::EndScanEvent
                 );
 
-                let Sheet::Duplex(top_page, bottom_page) =
-                    raw_image_data.try_decode_scan(DEFAULT_IMAGE_WIDTH, ScanSideMode::Duplex)?
+                let Sheet::Duplex(top_page, bottom_page) = raw_image_data.try_decode_scan(
+                    DEFAULT_IMAGE_WIDTH,
+                    ScanSideMode::Duplex,
+                    &image_calibration_tables,
+                )?
                 else {
                     eprintln!("skipping non-duplex scan");
                     continue;
                 };
 
                 for (side, page) in [(Side::Top, top_page), (Side::Bottom, bottom_page)] {
-                    page.to_cropped_image()
-                        .unwrap()
-                        .save(format!("image-{side:?}.png"))?;
+                    page.save(format!("image-{side:?}.png"))?;
                 }
             }
             Ok(([], Packet::Incoming(incoming))) => {
