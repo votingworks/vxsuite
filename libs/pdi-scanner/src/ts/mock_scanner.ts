@@ -377,6 +377,10 @@ export function createMockPdiScanner(): MockScanner {
       throw new Error('Not implemented');
     },
 
+    calibrateImageSensors() {
+      throw new Error('Not implemented');
+    },
+
     async disconnect() {
       await simulateCommandDelay();
       mockScanner.send('DISCONNECT');
