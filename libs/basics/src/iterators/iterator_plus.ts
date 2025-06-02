@@ -106,6 +106,45 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
     return new IteratorPlusImpl(result);
   }
 
+  chunksExact(chunkSize: 1): IteratorPlus<[T]>;
+  chunksExact(chunkSize: 2): IteratorPlus<[T, T]>;
+  chunksExact(chunkSize: 3): IteratorPlus<[T, T, T]>;
+  chunksExact(chunkSize: 4): IteratorPlus<[T, T, T, T]>;
+  chunksExact(chunkSize: number): IteratorPlus<T[]>;
+  chunksExact(chunkSize: number): IteratorPlus<T[]> {
+    assert(
+      chunkSize > 0 && Math.floor(chunkSize) === chunkSize,
+      'groupSize must be an integer greater than 0'
+    );
+    const iterable = this.intoInner();
+    const iterator = iterable[Symbol.iterator]();
+
+    const result: IterableIterator<T[]> = {
+      [Symbol.iterator](): IterableIterator<T[]> {
+        return result;
+      },
+      next() {
+        const chunk: T[] = [];
+        while (chunk.length < chunkSize) {
+          const { value, done } = iterator.next();
+          if (done) {
+            break;
+          }
+          chunk.push(value);
+        }
+        if (chunk.length === 0) {
+          return { done: true, value: undefined };
+        }
+        if (chunk.length !== chunkSize) {
+          throw new Error('Chunk size is not a multiple of the iterator size');
+        }
+        return { value: chunk, done: false };
+      },
+    };
+
+    return new IteratorPlusImpl(result);
+  }
+
   count(): number {
     let count = 0;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

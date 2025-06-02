@@ -1,9 +1,10 @@
-import { expect, test, vi } from 'vitest';
 import * as fc from 'fast-check';
+import { expect, expectTypeOf, test, vi } from 'vitest';
+import { typedAs } from '../typed_as';
 import { integers } from './integers';
 import { iter } from './iter';
 import { naturals } from './naturals';
-import { typedAs } from '../typed_as';
+import { AsyncIteratorPlus } from './types';
 
 test('async', async () => {
   const it = iter([]).async();
@@ -213,6 +214,18 @@ test('zipMin', async () => {
   ]);
 });
 
+test('chunks types', () => {
+  expectTypeOf(iter([0]).async().chunks(1)).toEqualTypeOf<
+    AsyncIteratorPlus<[number]>
+  >();
+  expectTypeOf(iter([0]).async().chunks(2)).toEqualTypeOf<
+    AsyncIteratorPlus<[number] | [number, number]>
+  >();
+  expectTypeOf(iter([0]).async().chunks(3)).toEqualTypeOf<
+    AsyncIteratorPlus<[number] | [number, number] | [number, number, number]>
+  >();
+});
+
 test('chunks without remainder', async () => {
   expect(
     await iter([1, 2, 3, 4, 5, 6, 7, 8, 9]).async().chunks(3).toArray()
@@ -247,6 +260,71 @@ test('chunks with infinite iterator', async () => {
   ]);
 });
 
+test('chunksExact types', () => {
+  expectTypeOf(iter([0]).async().chunksExact(1)).toEqualTypeOf<
+    AsyncIteratorPlus<[number]>
+  >();
+  expectTypeOf(iter([0]).async().chunksExact(2)).toEqualTypeOf<
+    AsyncIteratorPlus<[number, number]>
+  >();
+  expectTypeOf(iter([0]).async().chunksExact(3)).toEqualTypeOf<
+    AsyncIteratorPlus<[number, number, number]>
+  >();
+});
+
+test('chunksExact without remainder', async () => {
+  expect(
+    await iter([1, 2, 3, 4, 5, 6, 7, 8, 9]).async().chunksExact(3).toArray()
+  ).toEqual([
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9],
+  ]);
+});
+
+test('chunksExact with remainder', async () => {
+  await expect(
+    iter([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).async().chunksExact(3).toArray()
+  ).rejects.toThrow();
+});
+
+test('chunksExact invalid group size', () => {
+  expect(() =>
+    iter([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).async().chunksExact(0).toArray()
+  ).toThrow();
+});
+
+test('chunksExact with infinite iterator', async () => {
+  expect(
+    await iter(integers()).async().skip(1).chunksExact(3).take(5).toArray()
+  ).toEqual([
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9],
+    [10, 11, 12],
+    [13, 14, 15],
+  ]);
+});
+
+test('chunksExact must have element count as a multiple of chunkSize', async () => {
+  await fc.assert(
+    fc.asyncProperty(
+      fc.integer({ min: 1 }),
+      fc.array(fc.constant(0)),
+      async (chunkSize, elements) => {
+        if (elements.length % chunkSize !== 0) {
+          await expect(
+            iter(elements).async().chunksExact(chunkSize).toArray()
+          ).rejects.toThrow();
+        } else {
+          expect(
+            await iter(elements).async().chunksExact(chunkSize).toArray()
+          ).toHaveLength(elements.length / chunkSize);
+        }
+      }
+    )
+  );
+});
 test('rev', async () => {
   expect(await iter([]).async().rev().toArray()).toEqual([]);
   expect(await iter([1]).async().rev().toArray()).toEqual([1]);
