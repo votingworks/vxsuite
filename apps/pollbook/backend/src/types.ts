@@ -436,3 +436,22 @@ export interface DuplicateVoterError {
   message: string;
   matchingVoters: Voter[];
 }
+
+export interface AamvaDocument {
+  issuingJurisdiction: string;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  nameSuffix: string;
+}
+
+export const AamvaDocumentSchema: z.ZodSchema<AamvaDocument> = z
+  .object({
+    issuingJurisdiction: z.string(),
+
+    firstName: z.string(),
+    middleName: z.string(),
+    lastName: z.string(),
+    nameSuffix: z.string(),
+  })
+  .strict() as z.ZodSchema<AamvaDocument>;
