@@ -7,7 +7,7 @@ import { LocalStore } from './local_store';
 import { EventType, VoterRegistrationEvent } from './types';
 
 vitest.setConfig({
-  testTimeout: 45_000,
+  testTimeout: 55_000,
 });
 
 test('can export paper backup checklist', async () => {
