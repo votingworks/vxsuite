@@ -22,10 +22,9 @@ fn apply_image_calibration(
     );
 
     row.iter()
-        .enumerate()
-        .map(|(index, &pixel)| {
-            let white_calibration = white_calibration_table[index];
-            let black_calibration = black_calibration_table[index];
+        .zip(white_calibration_table.iter())
+        .zip(black_calibration_table.iter())
+        .map(|((&pixel, &white_calibration), &black_calibration)| {
             let denominator = white_calibration.saturating_sub(black_calibration);
             let numerator = pixel.saturating_sub(black_calibration);
             if denominator == 0 {
