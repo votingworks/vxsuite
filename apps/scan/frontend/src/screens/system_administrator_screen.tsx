@@ -16,6 +16,8 @@ import {
   getPrinterStatus,
   useApiClient,
   getConfig,
+  getScannerStatus,
+  beginImageSensorCalibration,
 } from '../api';
 import { DiagnosticsScreen } from './diagnostics_screen';
 
@@ -37,6 +39,9 @@ export function SystemAdministratorScreen({
   const unconfigureMutation = unconfigureElection.useMutation();
   const logOutMutation = logOut.useMutation();
   const printerStatusQuery = getPrinterStatus.useQuery();
+  const scannerStatusQuery = getScannerStatus.useQuery();
+  const beginImageSensorCalibrationMutation =
+    beginImageSensorCalibration.useMutation();
 
   if (isDiagnosticsScreenOpen) {
     return (
@@ -78,6 +83,15 @@ export function SystemAdministratorScreen({
                 Diagnostics
               </Button>
             )}
+            <Button
+              disabled={
+                !scannerStatusQuery.isSuccess ||
+                scannerStatusQuery.data.state === 'disconnected'
+              }
+              onPress={() => beginImageSensorCalibrationMutation.mutate()}
+            >
+              Calibrate Image Sensors
+            </Button>
             <SignedHashValidationButton apiClient={apiClient} />
             <PowerDownButton />
           </React.Fragment>

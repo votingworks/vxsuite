@@ -42,6 +42,7 @@ import { ScannerCoverOpenScreen } from './screens/scanner_cover_open_screen';
 import { PrinterCoverOpenScreen } from './screens/printer_cover_open_screen';
 import { ScannerDoubleFeedCalibrationScreen } from './screens/scanner_double_feed_calibration_screen';
 import { useSessionSettingsManager } from './utils/use_session_settings_manager';
+import { ScannerImageSensorCalibrationScreen } from './screens/scanner_image_sensor_calibration_screen';
 
 export function AppRoot(): JSX.Element | null {
   const [
@@ -163,6 +164,13 @@ export function AppRoot(): JSX.Element | null {
     return (
       <VendorScreen rebootToVendorMenu={() => apiClient.rebootToVendorMenu()} />
     );
+  }
+
+  if (
+    scannerStatus.state === 'calibrating_image_sensors.calibrating' ||
+    scannerStatus.state === 'calibrating_image_sensors.done'
+  ) {
+    return <ScannerImageSensorCalibrationScreen />;
   }
 
   if (isSystemAdministratorAuth(authStatus)) {

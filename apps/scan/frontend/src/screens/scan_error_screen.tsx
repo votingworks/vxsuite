@@ -28,6 +28,8 @@ export function ScanErrorScreen({
 }: Props): JSX.Element {
   assert(
     error !== 'double_feed_calibration_timed_out' && // Only used in double feed calibration
+      error !== 'image_sensor_calibration_timed_out' && // Only used in image sensor calibration
+      error !== 'image_sensor_calibration_failed' && // Only used in image sensor calibration
       error !== 'scanner_diagnostic_failed' && // Only used in ScannerDiagnosticScreen
       error !== 'outfeed_blocked' // Only used in ScanJamScreen
   );
