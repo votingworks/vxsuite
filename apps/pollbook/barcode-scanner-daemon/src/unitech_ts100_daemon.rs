@@ -5,6 +5,7 @@ use serialport::{DataBits, FlowControl, Parity, StopBits};
 use std::fs;
 use std::io::{self, BufRead, BufReader, ErrorKind};
 use std::os::unix::fs::PermissionsExt;
+use std::process::exit;
 use std::str::{from_utf8, FromStr};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
@@ -14,6 +15,8 @@ use tokio::io::AsyncWriteExt;
 use tokio::net::{UnixListener, UnixStream};
 use tokio::sync::Mutex;
 use vx_logging::{log, set_source, Disposition, EventId, EventType, Source};
+
+use crate::parse_aamva::AamvaParseError;
 
 mod aamva_jurisdictions;
 mod parse_aamva;
@@ -213,23 +216,46 @@ pub async fn run_read_write_loop(
                 }
 
                 // Parse and emit JSON
-                match from_utf8(&buf) {
-                    Ok(s) => match AamvaDocument::from_str(s) {
-                        Ok(doc) => {
-                            if let Err(err) = broadcast_to_clients(&clients, &doc).await {
-                                log!(
-                                    EventId::SocketServerError,
-                                    "Failed to write scan to clients: {err}"
-                                );
-                            }
-                        }
-                        Err(e) => {
-                            log!(event_id: EventId::ParseError, message: format!("Read data was not in AAMVA format: {e}"), event_type: EventType::SystemAction, disposition: Disposition::Failure);
-                        }
-                    },
+                let str = match from_utf8(&buf) {
+                    Ok(str) => str,
                     Err(e) => {
-                        log!(event_id: EventId::ParseError, message: format!("Error parsing read bytes as UTF-8: {e}"));
+                        log!(
+                            event_id: EventId::ParseError,
+                            message: format!("Error parsing read bytes as UTF-8: {e}")
+                        );
+                        continue;
                     }
+                };
+
+                let doc = match AamvaDocument::from_str(str) {
+                    Ok(doc) => doc,
+                    Err(err @ AamvaParseError::DataTooLong(_, _)) => {
+                        // Exit if data is in AAMVA format but doesn't follow AAMVA spec
+                        log!(
+                            event_id: EventId::ParseError,
+                            message: format!("Unexpected data in AAMVA format. Error was: {err}"),
+                            event_type: EventType::SystemAction,
+                            disposition: Disposition::Failure
+                        );
+                        exit(1);
+                    }
+                    Err(err) => {
+                        // Don't exit if this could have been a scan of a non-AAMVA document
+                        log!(
+                            event_id: EventId::ParseError,
+                            message: format!("Read data was not in AAMVA format: {err}"),
+                            event_type: EventType::SystemAction,
+                            disposition: Disposition::Failure
+                        );
+                        return;
+                    }
+                };
+
+                if let Err(err) = broadcast_to_clients(&clients, &doc).await {
+                    log!(
+                        EventId::SocketServerError,
+                        "Failed to write scan to clients: {err}"
+                    );
                 }
             }
             // no data in this interval; no-op
