@@ -172,6 +172,6 @@ function diffImagesSolution({
   return iter(image1)
     .zip(image2)
     .map(([pixel1, pixel2]) => pixel1 === pixel2)
-    .chunks(dimensions.width)
+    .chunksExact(dimensions.width)
     .toArray();
 }

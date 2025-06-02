@@ -324,9 +324,8 @@ for (const spec of vxGeneralElectionFixtures.fixtureSpecs) {
 
       const ballotImagePaths = pdfToPageImages(markedBallotPath);
       for await (const [sheetIndex, sheetImages] of iter(ballotImagePaths)
-        .chunks(2)
+        .chunksExact(2)
         .enumerate()) {
-        assert(sheetImages.length === 2);
         const [frontResult, backResult] = await interpretSheet(
           {
             electionDefinition,
@@ -563,9 +562,8 @@ for (const spec of nhGeneralElectionFixtures.fixtureSpecs) {
 
       const ballotImagePaths = pdfToPageImages(markedBallotPath);
       for await (const [sheetIndex, sheetImages] of iter(ballotImagePaths)
-        .chunks(2)
+        .chunksExact(2)
         .enumerate()) {
-        assert(sheetImages.length === 2);
         const [frontResult, backResult] = await interpretSheet(
           {
             electionDefinition,

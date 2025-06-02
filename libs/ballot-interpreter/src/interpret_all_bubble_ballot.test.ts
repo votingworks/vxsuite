@@ -91,7 +91,7 @@ describe('Interpret - HMPB - All bubble ballot', () => {
     } as const;
 
     const ballotImagePaths = pdfToPageImages(cyclingTestDeckPath);
-    for await (const sheetImages of ballotImagePaths.chunks(2)) {
+    for await (const sheetImages of ballotImagePaths.chunksExact(2)) {
       const [frontResult, backResult] = await interpretSheet(
         {
           electionDefinition,
@@ -100,7 +100,7 @@ describe('Interpret - HMPB - All bubble ballot', () => {
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [AdjudicationReason.Overvote],
         },
-        asSheet(sheetImages)
+        sheetImages
       );
 
       assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
