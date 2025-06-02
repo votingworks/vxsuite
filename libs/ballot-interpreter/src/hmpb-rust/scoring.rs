@@ -84,6 +84,10 @@ pub struct ScoredBubbleMark {
     /// The bounds of the bubble mark in the scanned source image that was
     /// determined to be the best match.
     pub matched_bounds: Rect,
+
+    /// The diff image that was used to produce `fill_score`.
+    #[serde(skip)]
+    pub fill_diff_image: GrayImage,
 }
 
 impl std::fmt::Debug for ScoredBubbleMark {
@@ -245,6 +249,7 @@ pub fn score_bubble_mark(
         fill_score,
         expected_bounds,
         matched_bounds: best_match.bounds,
+        fill_diff_image: diff_image,
     })
 }
 

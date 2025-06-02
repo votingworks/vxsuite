@@ -21,7 +21,7 @@ fn imageproc_rect_from_rect(rect: &Rect) -> imageproc::rect::Rect {
     imageproc::rect::Rect::at(rect.left(), rect.top()).of_size(rect.width(), rect.height())
 }
 
-use crate::image_utils::{dark_rainbow, rainbow};
+use crate::image_utils::{dark_rainbow, rainbow, BLACK};
 use crate::layout::InterpretedContestLayout;
 use crate::scoring::UnitIntervalScore;
 use crate::timing_marks::{
@@ -1145,6 +1145,16 @@ pub fn draw_scored_bubble_marks_debug_image_mut(
                 fill_score_color,
                 WHITE_RGB,
             );
+
+            for (x, y, &luma) in scored_bubble_mark.fill_diff_image.enumerate_pixels() {
+                if luma == BLACK {
+                    let x = scored_bubble_mark.matched_bounds.left() + x as i32;
+                    let y = scored_bubble_mark.matched_bounds.top() + y as i32;
+                    if let (Ok(x), Ok(y)) = (x.try_into(), y.try_into()) {
+                        *canvas.get_pixel_mut(x, y) = PINK;
+                    }
+                }
+            }
 
             draw_hollow_rect_mut(
                 canvas,
