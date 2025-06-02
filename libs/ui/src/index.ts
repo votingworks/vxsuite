@@ -19,7 +19,7 @@ export * from './cast_vote_records';
 export * from './checkbox_group';
 export * from './checkbox_button';
 export * from './contest_choice_button';
-export * from './double_feed_calibration_images';
+export * from './scanner_calibration_images';
 export * from './voter_settings';
 export * from './voter_settings_manager_context';
 export * from './diagnostics';

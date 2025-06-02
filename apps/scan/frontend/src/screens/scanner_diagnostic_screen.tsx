@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   Button,
-  DoubleFeedCalibrationSingleSheetIllustration,
+  CalibrationInsertSingleSheetIllustration,
   FullScreenIconWrapper,
   FullScreenMessage,
   H3,
@@ -42,7 +42,7 @@ export function ScannerDiagnosticScreen({
         <DiagnosticScreen>
           <FullScreenMessage
             title="Insert Blank Sheet"
-            image={<DoubleFeedCalibrationSingleSheetIllustration />}
+            image={<CalibrationInsertSingleSheetIllustration />}
           >
             <P>Insert a blank sheet into the scanner.</P>
           </FullScreenMessage>

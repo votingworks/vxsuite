@@ -1,7 +1,7 @@
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
   Button,
-  DoubleFeedCalibrationSingleSheetIllustration,
+  CalibrationInsertSingleSheetIllustration,
   FullScreenIconWrapper,
   FullScreenMessage,
   H3,
@@ -55,7 +55,7 @@ export function ScannerImageSensorCalibrationScreen(): JSX.Element | null {
         <CalibrationScreen>
           <FullScreenMessage
             title="Insert One Blank Sheet"
-            image={<DoubleFeedCalibrationSingleSheetIllustration />}
+            image={<CalibrationInsertSingleSheetIllustration />}
           >
             <P>Feed a single blank calibration sheet into the scanner.</P>
           </FullScreenMessage>

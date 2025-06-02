@@ -1,8 +1,8 @@
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
   Button,
-  DoubleFeedCalibrationDoubleSheetIllustration,
-  DoubleFeedCalibrationSingleSheetIllustration,
+  CalibrationInsertDoubleSheetIllustration,
+  CalibrationInsertSingleSheetIllustration,
   FullScreenIconWrapper,
   FullScreenMessage,
   H3,
@@ -57,7 +57,7 @@ export function ScannerDoubleFeedCalibrationScreen(): JSX.Element | null {
         <CalibrationScreen>
           <FullScreenMessage
             title="Insert Two Blank Sheets"
-            image={<DoubleFeedCalibrationDoubleSheetIllustration />}
+            image={<CalibrationInsertDoubleSheetIllustration />}
           >
             <P>
               Stack two blank sheets on top of each other and feed them into the
@@ -73,7 +73,7 @@ export function ScannerDoubleFeedCalibrationScreen(): JSX.Element | null {
         <CalibrationScreen>
           <FullScreenMessage
             title="Insert One Blank Sheet"
-            image={<DoubleFeedCalibrationSingleSheetIllustration />}
+            image={<CalibrationInsertSingleSheetIllustration />}
           >
             <P>Feed a single blank calibration sheet into the scanner.</P>
           </FullScreenMessage>

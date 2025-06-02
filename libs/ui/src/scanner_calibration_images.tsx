@@ -1,6 +1,6 @@
 import { Svg } from './svg';
 
-export function DoubleFeedCalibrationSingleSheetIllustration(): JSX.Element {
+export function CalibrationInsertSingleSheetIllustration(): JSX.Element {
   return (
     <Svg.FullScreenSvg
       width="500"
@@ -20,7 +20,7 @@ export function DoubleFeedCalibrationSingleSheetIllustration(): JSX.Element {
   );
 }
 
-export function DoubleFeedCalibrationDoubleSheetIllustration(): JSX.Element {
+export function CalibrationInsertDoubleSheetIllustration(): JSX.Element {
   return (
     <Svg.FullScreenSvg
       width="500"
