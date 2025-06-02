@@ -119,8 +119,8 @@ async fn main() -> color_eyre::Result<()> {
                     ) {
                         Ok(Sheet::Duplex(top_image, bottom_image)) => {
                             println!(
-                                "scanned duplex sheet in {} ms",
-                                start.map_or(0, |s| s.elapsed().as_millis())
+                                "scanned duplex sheet in {:?}",
+                                start.unwrap_or_else(|| Instant::now())
                             );
                             let top_path = PathBuf::from(format!("scan-{scan_index:04}-top.png"));
                             let bottom_path =
