@@ -58,7 +58,7 @@ export function formatFullDateTimeZone(
     includeWeekday = true,
     includeSeconds = false,
   } = {}
-): string | undefined {
+): string {
   return new Intl.DateTimeFormat(undefined, {
     timeZone: date.zoneName,
     weekday: includeWeekday ? 'short' : undefined,

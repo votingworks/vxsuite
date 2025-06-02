@@ -1,6 +1,5 @@
 import { expect, test } from 'vitest';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import { format } from '@votingworks/utils';
 import { render, screen } from '../../test/react_testing_library';
 import { ReadinessReportHeader } from './report_header';
 
@@ -20,11 +19,7 @@ test('ReadinessReportHeader', () => {
     screen.getByText(hasTextAcrossElements('Machine ID: MOCK'))
   ).toBeInTheDocument();
   expect(
-    screen.getByText(
-      hasTextAcrossElements(
-        'Date: Saturday, January 1, 2022 at 12:00:00 AM AKST'
-      )
-    )
+    screen.getByText(hasTextAcrossElements('Date: Jan 1, 2022, 12:00:00 AM'))
   ).toBeInTheDocument();
 });
 
@@ -39,7 +34,7 @@ test('no machine ID', () => {
   );
 
   screen.getByRole('heading', { name: 'Ballot Style Readiness Report' });
-  screen.getByText(format.localeLongDateAndTime(generatedAtTime));
+  screen.getByText(hasTextAcrossElements('Date: Jan 1, 2022, 12:00:00 AM'));
   expect(screen.queryByText('Machine ID')).not.toBeInTheDocument();
 });
 
@@ -58,7 +53,7 @@ test('with additional metadata', () => {
   );
 
   screen.getByRole('heading', { name: 'Ballot Style Readiness Report' });
-  screen.getByText(format.localeLongDateAndTime(generatedAtTime));
+  screen.getByText(hasTextAcrossElements('Date: Jan 1, 2022, 12:00:00 AM'));
   screen.getByText(hasTextAcrossElements('Election: Primary Election, a1b2c3'));
   screen.getByText(hasTextAcrossElements('User: System Administrator'));
 });

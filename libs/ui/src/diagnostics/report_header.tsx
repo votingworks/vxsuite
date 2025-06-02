@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import React from 'react';
-import { format } from '@votingworks/utils';
+import { DateTime } from 'luxon';
+import { formatFullDateTimeZone } from '@votingworks/utils';
 import { LogoMark } from '../logo_mark';
 import { P, H1, Font } from '../typography';
 
@@ -43,7 +44,10 @@ export function ReadinessReportHeader({
   machineId,
   additionalMetadata = [],
 }: ReadinessReportHeaderProps): JSX.Element {
-  const generatedAt = format.localeLongDateAndTime(generatedAtTime);
+  const generatedAt = formatFullDateTimeZone(
+    DateTime.fromJSDate(generatedAtTime),
+    { includeWeekday: false, includeSeconds: true }
+  );
 
   return (
     <React.Fragment>
