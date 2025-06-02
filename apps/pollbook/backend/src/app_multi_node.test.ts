@@ -506,35 +506,30 @@ test('connection status is managed properly with many pollbooks', async () => {
       i += 1;
     }
     vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
-    await extendedWaitFor(
-      async () => {
-        vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
-        for (const context of pollbookContexts) {
-          expect(
-            await context.localApiClient.getDeviceStatuses()
-          ).toMatchObject({
-            network: {
-              isOnline: true,
-              pollbooks: [
-                expect.objectContaining({
-                  status: PollbookConnectionStatus.WrongElection,
-                }),
-                expect.objectContaining({
-                  status: PollbookConnectionStatus.WrongElection,
-                }),
-                expect.objectContaining({
-                  status: PollbookConnectionStatus.WrongElection,
-                }),
-                expect.objectContaining({
-                  status: PollbookConnectionStatus.WrongElection,
-                }),
-              ],
-            },
-          });
-        }
-      },
-      { timeout: 3000 }
-    );
+    await extendedWaitFor(async () => {
+      vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+      for (const context of pollbookContexts) {
+        expect(await context.localApiClient.getDeviceStatuses()).toMatchObject({
+          network: {
+            isOnline: true,
+            pollbooks: [
+              expect.objectContaining({
+                status: PollbookConnectionStatus.WrongElection,
+              }),
+              expect.objectContaining({
+                status: PollbookConnectionStatus.WrongElection,
+              }),
+              expect.objectContaining({
+                status: PollbookConnectionStatus.WrongElection,
+              }),
+              expect.objectContaining({
+                status: PollbookConnectionStatus.WrongElection,
+              }),
+            ],
+          },
+        });
+      }
+    });
   });
 });
 
