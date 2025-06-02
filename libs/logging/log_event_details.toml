@@ -95,6 +95,9 @@ source = 'vx-pollbook-frontend'
 [LogSources.VxPollbookBackend]
 source = 'vx-pollbook-backend'
 
+[LogSources.VxPollbookBarcodeScannerDaemon]
+source = 'vx-pollbook-barcode-scanner-daemon'
+
 
 [EventTypes.UserAction]
 eventType = "user-action"
@@ -377,6 +380,11 @@ documentationMessage = "The machine is beginning the shutdown process to power d
 eventId = "machine-shutdown-complete"
 eventType = "system-status"
 documentationMessage = "The machine has completed all the steps to shutdown and will now power down or reboot."
+
+[Events.UsbDeviceReconnectAttempted]
+eventId = "usb-device-reconnect-attempted"
+eventType = "system-action"
+documentationMessage = "A message from the machine kernel about an application-initiated attempt to reconnect an externally-connected USB device."
 
 [Events.UsbDeviceChangeDetected]
 eventId = "usb-device-change-detected"
@@ -890,3 +898,43 @@ eventId = "api-call"
 eventType = "application-action"
 documentationMessage = "An API call was made."
 restrictInDocumentationToApps = ["vx-design"]
+
+[Events.SocketClientConnectInit]
+eventId = "socket-client-connect-init"
+eventType = "application-action"
+documentationMessage = "An application attempted to connect a client to a socket."
+
+[Events.SocketClientConnected]
+eventId = "socket-client-connected"
+eventType = "application-status"
+documentationMessage = "An attempt by an application to connect to a socket was resolved."
+
+[Events.SocketClientDisconnected]
+eventId = "socket-client-disconnected"
+eventType = "application-status"
+documentationMessage = "A socket client was disconnected."
+
+[Events.SocketClientError]
+eventId = "socket-client-error"
+eventType = "application-status"
+documentationMessage = "An error was reported by a socket client."
+
+[Events.SocketServerBind]
+eventId = "socket-server-bind"
+eventType = "application-action"
+documentationMessage = "A process attempted to bind a socket."
+
+[Events.SocketServerClose]
+eventId = "socket-server-close"
+eventType = "application-action"
+documentationMessage = "A socket server was closed."
+
+[Events.SocketServerAwaitingClient]
+eventId = "socket-server-awaiting-client"
+eventType = "application-status"
+documentationMessage = "A socket server is awaiting a client."
+
+[Events.SocketServerError]
+eventId = "socket-server-error"
+eventType = "application-status"
+documentationMessage = "An error was reported by a socket server."
