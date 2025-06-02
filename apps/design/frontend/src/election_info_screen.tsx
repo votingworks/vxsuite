@@ -16,7 +16,7 @@ import {
 } from '@votingworks/ui';
 import type { ElectionInfo } from '@votingworks/design-backend';
 import { useHistory, useParams } from 'react-router-dom';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { DateWithoutTime } from '@votingworks/basics';
 import {
   deleteElection,

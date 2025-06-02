@@ -31,7 +31,7 @@
     "@votingworks/basics": "workspace:*",
     "jsdom": "20.0.1",
     "json-schema": "^0.4.0",
-    "zod": "3.23.5"
+    "zod": "3.25.42"
   },
   "devDependencies": {
     "@types/jsdom": "20.0.0",

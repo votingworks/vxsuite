@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import {
   safeParse,
   NonEnglishLanguageCode,
@@ -16,9 +16,9 @@ export type VendoredTranslations = Record<
 >;
 
 const VendoredTranslationsSchema: z.ZodSchema<VendoredTranslations> = z.object({
-  [LanguageCode.CHINESE_SIMPLIFIED]: z.record(z.string()),
-  [LanguageCode.CHINESE_TRADITIONAL]: z.record(z.string()),
-  [LanguageCode.SPANISH]: z.record(z.string()),
+  [LanguageCode.CHINESE_SIMPLIFIED]: z.record(z.string(), z.string()),
+  [LanguageCode.CHINESE_TRADITIONAL]: z.record(z.string(), z.string()),
+  [LanguageCode.SPANISH]: z.record(z.string(), z.string()),
 });
 
 /**

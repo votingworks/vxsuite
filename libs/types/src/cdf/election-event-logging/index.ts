@@ -2,7 +2,7 @@
 
 /* eslint-disable */
 
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 import check8601 from '@antongolub/iso8601';
 
@@ -148,7 +148,7 @@ export enum DeviceType {
 /**
  * Schema for {@link DeviceType}.
  */
-export const DeviceTypeSchema = z.nativeEnum(DeviceType);
+export const DeviceTypeSchema = z.enum(DeviceType);
 
 /**
  * Used in Event::Disposition for types of event dispositions.
@@ -178,7 +178,7 @@ export enum EventDispositionType {
 /**
  * Schema for {@link EventDispositionType}.
  */
-export const EventDispositionTypeSchema = z.nativeEnum(EventDispositionType);
+export const EventDispositionTypeSchema = z.enum(EventDispositionType);
 
 /**
  * Used in Hash::Type to indicate the type of hash being used for an image file.
@@ -208,7 +208,7 @@ export enum HashType {
 /**
  * Schema for {@link HashType}.
  */
-export const HashTypeSchema = z.nativeEnum(HashType);
+export const HashTypeSchema = z.enum(HashType);
 
 /**
  * Device contains information about the device generating election event logs. Id is the only required attribute, all other attributes are optional.  If the device type is not found in the DeviceType enumeration, Type is 'other' and OtherType contains the appropriate type.

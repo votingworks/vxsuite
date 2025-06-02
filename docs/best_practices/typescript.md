@@ -28,7 +28,7 @@ project or root level. To generate a `.env.local` file properly run the
 describes an object's structure:
 
 ```ts
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 const Point2dSchema = z.object({
   x: z.number(),
@@ -60,7 +60,7 @@ The type of `parsed.ok()` in the example above will be
 this instead to get a more descriptive name:
 
 ```ts
-import { z, ZodSchema } from 'zod';
+import { z, ZodSchema } from 'zod/v4';
 
 interface Point2d {
   readonly x: number;

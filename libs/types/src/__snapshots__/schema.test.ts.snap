@@ -4,107 +4,89 @@ exports[`contest IDs cannot start with an underscore 1`] = `
 [ZodError: [
   {
     "code": "custom",
-    "message": "IDs may not start with an underscore",
     "path": [
       "id"
-    ]
+    ],
+    "message": "IDs may not start with an underscore"
   }
 ]]
 `;
 
 exports[`ensures election date is YYYY-MM-DD 1`] = `
-[ZodError: [
+ZodError {
+  "message": "[
   {
     "code": "custom",
     "message": "Date must be in the format YYYY-MM-DD",
     "path": [
       "date"
-    ]
+    ],
+    "input": "not ISO"
   }
-]]
+]",
+  "name": "ZodError",
+}
 `;
 
 exports[`parsing gives specific errors for nested objects 1`] = `
 [ZodError: [
   {
     "code": "invalid_union",
-    "unionErrors": [
-      {
-        "issues": [
-          {
-            "code": "invalid_type",
-            "expected": "string",
-            "received": "number",
-            "path": [
-              "contests",
-              1,
-              "title"
-            ],
-            "message": "Expected string, received number"
-          }
-        ],
-        "name": "ZodError"
-      },
-      {
-        "issues": [
-          {
-            "code": "invalid_type",
-            "expected": "string",
-            "received": "number",
-            "path": [
-              "contests",
-              1,
-              "title"
-            ],
-            "message": "Expected string, received number"
-          },
-          {
-            "received": "candidate",
-            "code": "invalid_literal",
-            "expected": "yesno",
-            "path": [
-              "contests",
-              1,
-              "type"
-            ],
-            "message": "Invalid literal value, expected \\"yesno\\""
-          },
-          {
-            "code": "invalid_type",
-            "expected": "string",
-            "received": "undefined",
-            "path": [
-              "contests",
-              1,
-              "description"
-            ],
-            "message": "Required"
-          },
-          {
-            "code": "invalid_type",
-            "expected": "object",
-            "received": "undefined",
-            "path": [
-              "contests",
-              1,
-              "yesOption"
-            ],
-            "message": "Required"
-          },
-          {
-            "code": "invalid_type",
-            "expected": "object",
-            "received": "undefined",
-            "path": [
-              "contests",
-              1,
-              "noOption"
-            ],
-            "message": "Required"
-          }
-        ],
-        "name": "ZodError"
-      }
+    "errors": [
+      [
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "title"
+          ],
+          "message": "Invalid input: expected string, received number"
+        }
+      ],
+      [
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "title"
+          ],
+          "message": "Invalid input: expected string, received number"
+        },
+        {
+          "code": "invalid_value",
+          "values": [
+            "yesno"
+          ],
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input: expected \\"yesno\\""
+        },
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "description"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        },
+        {
+          "expected": "object",
+          "code": "invalid_type",
+          "path": [
+            "yesOption"
+          ],
+          "message": "Invalid input: expected object, received undefined"
+        },
+        {
+          "expected": "object",
+          "code": "invalid_type",
+          "path": [
+            "noOption"
+          ],
+          "message": "Invalid input: expected object, received undefined"
+        }
+      ]
     ],
     "path": [
       "contests",
@@ -179,9 +161,8 @@ exports[`parsing validates precinct references 1`] = `
 exports[`supports ballot layout paper size 1`] = `
 [ZodError: [
   {
-    "received": "A4",
-    "code": "invalid_enum_value",
-    "options": [
+    "code": "invalid_value",
+    "values": [
       "letter",
       "legal",
       "custom-8.5x17",
@@ -192,7 +173,7 @@ exports[`supports ballot layout paper size 1`] = `
       "ballotLayout",
       "paperSize"
     ],
-    "message": "Invalid enum value. Expected 'letter' | 'legal' | 'custom-8.5x17' | 'custom-8.5x19' | 'custom-8.5x22', received 'A4'"
+    "message": "Invalid option: expected one of \\"letter\\"|\\"legal\\"|\\"custom-8.5x17\\"|\\"custom-8.5x19\\"|\\"custom-8.5x22\\""
   }
 ]]
 `;
@@ -200,13 +181,12 @@ exports[`supports ballot layout paper size 1`] = `
 exports[`supports ballot layout paper size 2`] = `
 [ZodError: [
   {
-    "code": "invalid_type",
     "expected": "object",
-    "received": "string",
+    "code": "invalid_type",
     "path": [
       "ballotLayout"
     ],
-    "message": "Expected object, received string"
+    "message": "Invalid input: expected object, received string"
   }
 ]]
 `;

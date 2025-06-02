@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 import { Dictionary } from './generic';
 
@@ -23,7 +23,8 @@ const AudioIdListSchema: z.ZodType<AudioIdList> = z.array(z.string());
  * See: https://www.i18next.com/misc/json-format
  */
 export const UiStringAudioIdsSchema: z.ZodType<UiStringAudioIds> = z.record(
-  z.union([AudioIdListSchema, z.record(AudioIdListSchema)])
+  z.string(),
+  z.union([AudioIdListSchema, z.record(z.string(), AudioIdListSchema)])
 );
 
 /**

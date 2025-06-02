@@ -1,6 +1,6 @@
 import { unsafeParse } from '@votingworks/types';
 import { join } from 'node:path';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 const NodeEnvSchema = z.union([
   z.literal('development'),

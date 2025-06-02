@@ -49,7 +49,7 @@ import {
 } from '@votingworks/hmpb';
 import { translateBallotStrings } from '@votingworks/backend';
 import { readFileSync } from 'node:fs';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { LogEventId } from '@votingworks/logging';
 import { BackgroundTaskMetadata } from './store';
 import {

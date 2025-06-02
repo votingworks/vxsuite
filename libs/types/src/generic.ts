@@ -1,5 +1,5 @@
 import check8601 from '@antongolub/iso8601';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import {
   err,
   ok,
@@ -49,7 +49,7 @@ export function safeParseJson(text: string): Result<unknown, SyntaxError>;
  */
 export function safeParseJson<T>(
   text: string,
-  parser: z.ZodType<T, z.ZodTypeDef, unknown>
+  parser: z.ZodType<T>
 ): Result<T, z.ZodError | SyntaxError>;
 export function safeParseJson<T>(
   text: string,

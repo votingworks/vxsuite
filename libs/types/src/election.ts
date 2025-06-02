@@ -1,6 +1,6 @@
 import { Optional, DateWithoutTime } from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
-import * as z from 'zod';
+import { z } from 'zod/v4';
 import {
   Dictionary,
   Sha256Hash,
@@ -58,12 +58,14 @@ export const PartySchema: z.ZodSchema<Party> = z.object({
 export type Parties = readonly Party[];
 export const PartiesSchema: z.ZodSchema<Parties> = z
   .array(PartySchema)
-  .superRefine((parties, ctx) => {
+  .check((ctx) => {
+    const parties = ctx.value;
     for (const [index, id] of findDuplicateIds(parties)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+      ctx.issues.push({
+        code: 'custom',
         path: [index, 'id'],
         message: `Duplicate party '${id}' found.`,
+        input: parties,
       });
     }
   });
@@ -81,12 +83,14 @@ export const DistrictSchema: z.ZodSchema<District> = z.object({
 export const DistrictsSchema = z
   .array(DistrictSchema)
   .nonempty()
-  .superRefine((districts, ctx) => {
+  .check((ctx) => {
+    const districts = ctx.value;
     for (const [index, id] of findDuplicateIds(districts)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+      ctx.issues.push({
+        code: 'custom',
         path: [index, 'id'],
         message: `Duplicate district '${id}' found.`,
+        input: districts,
       });
     }
   });
@@ -206,22 +210,25 @@ export const CandidateContestSchema: z.ZodSchema<CandidateContest> =
       partyId: PartyIdSchema.optional(),
       termDescription: z.string().nonempty().optional(),
     })
-  ).superRefine((contest, ctx) => {
+  ).check((ctx) => {
+    const contest = ctx.value;
     for (const [index, id] of findDuplicateIds(contest.candidates)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+      ctx.issues.push({
+        code: 'custom',
         path: ['candidates', index, 'id'],
         message: `Duplicate candidate '${id}' found.`,
+        input: contest,
       });
     }
 
     if (!contest.allowWriteIns) {
       for (const [index, candidate] of contest.candidates.entries()) {
         if (candidate.isWriteIn) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+          ctx.issues.push({
+            code: 'custom',
             path: ['candidates', index, 'isWriteIn'],
             message: `Contest '${contest.id}' does not allow write-ins.`,
+            input: contest,
           });
         }
       }
@@ -230,10 +237,11 @@ export const CandidateContestSchema: z.ZodSchema<CandidateContest> =
         (c) => c.isWriteIn
       ).length;
       if (writeInsCount > 0 && writeInsCount !== contest.seats) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+        ctx.issues.push({
+          code: 'custom',
           path: ['candidates'],
           message: `Contest has ${writeInsCount} write-in candidate(s), but ${contest.seats} seat(s) are available.`,
+          input: contest,
         });
       }
     }
@@ -271,28 +279,29 @@ export const AnyContestSchema: z.ZodSchema<AnyContest> = z.union([
 ]);
 
 export type Contests = readonly AnyContest[];
-export const ContestsSchema = z
-  .array(AnyContestSchema)
-  .superRefine((contests, ctx) => {
-    for (const [index, id] of findDuplicateIds(contests)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: [index, 'id'],
-        message: `Duplicate contest '${id}' found.`,
-      });
-    }
-    for (const [index, id] of findDuplicateIds(
-      contests.flatMap((c) =>
-        c.type === 'yesno' ? [c.yesOption, c.noOption] : []
-      )
-    )) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: [index, 'yes/noOption', 'id'],
-        message: `Duplicate yes/no contest option '${id}' found.`,
-      });
-    }
-  });
+export const ContestsSchema = z.array(AnyContestSchema).check((ctx) => {
+  const contests = ctx.value;
+  for (const [index, id] of findDuplicateIds(contests)) {
+    ctx.issues.push({
+      code: 'custom',
+      path: [index, 'id'],
+      message: `Duplicate contest '${id}' found.`,
+      input: contests,
+    });
+  }
+  for (const [index, id] of findDuplicateIds(
+    contests.flatMap((c) =>
+      c.type === 'yesno' ? [c.yesOption, c.noOption] : []
+    )
+  )) {
+    ctx.issues.push({
+      code: 'custom',
+      path: [index, 'yes/noOption', 'id'],
+      message: `Duplicate yes/no contest option '${id}' found.`,
+      input: contests,
+    });
+  }
+});
 
 // Election
 export type ElectionId = string;
@@ -380,12 +389,14 @@ export const PrecinctSchema: z.ZodSchema<Precinct> = z.union([
 export const PrecinctsSchema = z
   .array(PrecinctSchema)
   .nonempty()
-  .superRefine((precincts, ctx) => {
+  .check((ctx) => {
+    const precincts = ctx.value;
     for (const [index, id] of findDuplicateIds(precincts)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+      ctx.issues.push({
+        code: 'custom',
         path: [index, 'id'],
         message: `Duplicate precinct '${id}' found.`,
+        input: precincts,
       });
     }
   });
@@ -426,12 +437,14 @@ export const BallotStyleSchema: z.ZodSchema<BallotStyle> = z.object({
 export const BallotStylesSchema = z
   .array(BallotStyleSchema)
   .nonempty()
-  .superRefine((ballotStyles, ctx) => {
+  .check((ctx) => {
+    const ballotStyles = ctx.value;
     for (const [index, id] of findDuplicateIds(ballotStyles)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+      ctx.issues.push({
+        code: 'custom',
         path: [index, 'id'],
         message: `Duplicate ballot style '${id}' found.`,
+        input: ballotStyles,
       });
     }
   });
@@ -455,13 +468,13 @@ export enum HmpbBallotPaperSize {
   Custom22 = 'custom-8.5x22',
 }
 export const HmpbBallotPaperSizeSchema: z.ZodSchema<HmpbBallotPaperSize> =
-  z.nativeEnum(HmpbBallotPaperSize);
+  z.enum(HmpbBallotPaperSize);
 
 export enum BmdBallotPaperSize {
   Vsap150Thermal = 'vsap-150-thermal',
 }
 export const BmdBallotPaperSizeSchema: z.ZodSchema<BmdBallotPaperSize> =
-  z.nativeEnum(BmdBallotPaperSize);
+  z.enum(BmdBallotPaperSize);
 
 export type BallotPaperSize = HmpbBallotPaperSize | BmdBallotPaperSize;
 
@@ -488,7 +501,7 @@ export enum AdjudicationReason {
   UnmarkedWriteIn = 'UnmarkedWriteIn',
 }
 export const AdjudicationReasonSchema: z.ZodSchema<AdjudicationReason> =
-  z.nativeEnum(AdjudicationReason);
+  z.enum(AdjudicationReason);
 
 export interface GridPositionOption {
   readonly type: 'option';
@@ -598,17 +611,18 @@ export const ElectionSchema: z.ZodSchema<Election> = z
     state: z.string().nonempty(),
     title: z.string().nonempty(),
     type: ElectionTypeSchema,
-    additionalHashInput: z.record(z.any()).optional(),
+    additionalHashInput: z.record(z.string(), z.any()).optional(),
   })
-  .superRefine((election, ctx) => {
+  .check((ctx) => {
+    const election = ctx.value;
     for (const [
       ballotStyleIndex,
       { id, districts, precincts },
     ] of election.ballotStyles.entries()) {
       for (const [districtIndex, districtId] of districts.entries()) {
         if (!election.districts.some((d) => d.id === districtId)) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+          ctx.issues.push({
+            code: 'custom',
             path: [
               'ballotStyles',
               ballotStyleIndex,
@@ -618,14 +632,15 @@ export const ElectionSchema: z.ZodSchema<Election> = z
             message: `Ballot style '${id}' has district '${districtId}', but no such district is defined. Districts defined: [${election.districts
               .map((d) => d.id)
               .join(', ')}].`,
+            input: election,
           });
         }
       }
 
       for (const [precinctIndex, precinctId] of precincts.entries()) {
         if (!election.precincts.some((p) => p.id === precinctId)) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+          ctx.issues.push({
+            code: 'custom',
             path: [
               'ballotStyles',
               ballotStyleIndex,
@@ -635,6 +650,7 @@ export const ElectionSchema: z.ZodSchema<Election> = z
             message: `Ballot style '${id}' has precinct '${precinctId}', but no such precinct is defined. Precincts defined: [${election.precincts
               .map((p) => p.id)
               .join(', ')}].`,
+            input: election,
           });
         }
       }
@@ -646,14 +662,15 @@ export const ElectionSchema: z.ZodSchema<Election> = z
           contest.partyId &&
           !election.parties.some(({ id }) => id === contest.partyId)
         ) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+          ctx.issues.push({
+            code: 'custom',
             path: ['contests', contestIndex, 'partyId'],
             message: `Contest '${contest.id}' has party '${
               contest.partyId
             }', but no such party is defined. Parties defined: [${election.parties
               .map(({ id }) => id)
               .join(', ')}].`,
+            input: election,
           });
         }
 
@@ -663,8 +680,8 @@ export const ElectionSchema: z.ZodSchema<Election> = z
         ] of contest.candidates.entries()) {
           for (const [i, partyId] of (candidate.partyIds ?? []).entries()) {
             if (!election.parties.some((p) => p.id === partyId)) {
-              ctx.addIssue({
-                code: z.ZodIssueCode.custom,
+              ctx.issues.push({
+                code: 'custom',
                 path: [
                   'contests',
                   contestIndex,
@@ -678,6 +695,7 @@ export const ElectionSchema: z.ZodSchema<Election> = z
                 }' has party '${partyId}', but no such party is defined. Parties defined: [${election.parties
                   .map(({ id }) => id)
                   .join(', ')}].`,
+                input: election,
               });
             }
           }
@@ -709,14 +727,16 @@ export const ElectionDefinitionSchema: z.ZodSchema<ElectionDefinition> = z
     electionData: z.string().nonempty(),
     ballotHash: Sha256Hash,
   })
-  .superRefine((electionDefinition, ctx) => {
+  .check((ctx) => {
+    const electionDefinition = ctx.value;
     const { electionData, ballotHash } = electionDefinition;
     const electionDataHash = sha256(electionData);
     if (electionDataHash !== ballotHash) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+      ctx.issues.push({
+        code: 'custom',
         path: ['ballotHash'],
         message: `Election data hash '${electionDataHash}' does not match ballot hash '${ballotHash}'.`,
+        input: electionDefinition,
       });
     }
   });
@@ -735,8 +755,7 @@ export enum BallotType {
   Absentee = 'absentee',
   Provisional = 'provisional',
 }
-export const BallotTypeSchema: z.ZodSchema<BallotType> =
-  z.nativeEnum(BallotType);
+export const BallotTypeSchema: z.ZodSchema<BallotType> = z.enum(BallotType);
 
 // Updating this value is a breaking change.
 export const BallotTypeMaximumValue = 2 ** 4 - 1;
@@ -810,7 +829,10 @@ export type OptionalVote = Optional<Vote>;
 export const OptionalVoteSchema: z.ZodSchema<OptionalVote> =
   VoteSchema.optional();
 export type VotesDict = Dictionary<Vote>;
-export const VotesDictSchema: z.ZodSchema<VotesDict> = z.record(VoteSchema);
+export const VotesDictSchema: z.ZodSchema<VotesDict> = z.record(
+  z.string(),
+  VoteSchema
+);
 
 export interface MarginalMarkAdjudicationReasonInfo {
   type: AdjudicationReason.MarginalMark;

@@ -58,7 +58,7 @@
     "react": "18.3.1",
     "styled-components": "^5.3.11",
     "uuid": "9.0.1",
-    "zod": "3.23.5"
+    "zod": "3.25.42"
   },
   "devDependencies": {
     "@testing-library/react": "^15.0.7",

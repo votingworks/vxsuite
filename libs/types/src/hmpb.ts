@@ -1,5 +1,5 @@
 import { assert, assertDefined } from '@votingworks/basics';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import {
   ContestId,
   ContestOption,
@@ -75,8 +75,7 @@ export enum MarkStatus {
   Unmarked = 'unmarked',
   Marginal = 'marginal',
 }
-export const MarkStatusSchema: z.ZodSchema<MarkStatus> =
-  z.nativeEnum(MarkStatus);
+export const MarkStatusSchema: z.ZodSchema<MarkStatus> = z.enum(MarkStatus);
 
 export enum WriteInAreaStatus {
   Filled = 'filled',
@@ -84,7 +83,7 @@ export enum WriteInAreaStatus {
   Ignored = 'ignored',
 }
 export const WriteInAreaStatusSchema: z.ZodSchema<WriteInAreaStatus> =
-  z.nativeEnum(WriteInAreaStatus);
+  z.enum(WriteInAreaStatus);
 
 export type SheetOf<T> = readonly [T, T];
 

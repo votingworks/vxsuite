@@ -1,5 +1,5 @@
 import { unsafeParse } from '@votingworks/types';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 export const TIME_FORMAT = 'MM/dd/yyyy hh:mm:ss a';
 
