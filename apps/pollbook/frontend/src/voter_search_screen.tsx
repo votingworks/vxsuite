@@ -35,6 +35,7 @@ import {
   VoterAddress,
   VoterName,
 } from './shared_components';
+import { SOCKET_IO_SERVER_ADDRESS } from './globals';
 
 const VoterTableWrapper = styled(Card)`
   overflow: hidden;
@@ -94,7 +95,7 @@ export function VoterSearch({
 
   useEffect(() => {
     // TODO use a global
-    const socket = io('http://localhost:3002');
+    const socket = io(SOCKET_IO_SERVER_ADDRESS);
     socket.on('barcode-scan', (data: AamvaDocument) => {
       setDebouncedSearch({
         firstName: data.firstName,
