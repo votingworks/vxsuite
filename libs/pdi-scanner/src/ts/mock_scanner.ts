@@ -377,6 +377,11 @@ export function createMockPdiScanner(): MockScanner {
       throw new Error('Not implemented');
     },
 
+    /* istanbul ignore next - @preserve */
+    calibrateImageSensors() {
+      throw new Error('Not implemented');
+    },
+
     async disconnect() {
       await simulateCommandDelay();
       mockScanner.send('DISCONNECT');

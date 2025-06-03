@@ -1067,6 +1067,93 @@ test('double feed detection calibration failure', async () => {
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
 });
 
+test('image sensor calibration success', async () => {
+  apiMock.expectGetConfig();
+  apiMock.expectGetPollsInfo('polls_closed_initial');
+  apiMock.expectGetUsbDriveStatus('mounted');
+  apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatusV3({ connected: true });
+  renderApp();
+
+  apiMock.authenticateAsSystemAdministrator();
+
+  apiMock.mockApiClient.beginImageSensorCalibration.expectCallWith().resolves();
+  userEvent.click(await screen.findButton('Calibrate Image Sensors'));
+
+  apiMock.expectGetScannerStatus({
+    state: 'calibrating_image_sensors.calibrating',
+    ballotsCounted: 0,
+  });
+  await screen.findByRole('heading', {
+    name: 'Image Sensor Calibration',
+  });
+  screen.getByText('Insert One Blank Sheet');
+
+  // Removing the card shouldn't exit calibration - the only way out is through
+  apiMock.removeCard();
+
+  apiMock.expectGetScannerStatus({
+    state: 'calibrating_image_sensors.done',
+    ballotsCounted: 0,
+  });
+  await screen.findByText('Calibration Complete');
+
+  apiMock.mockApiClient.endImageSensorCalibration.expectCallWith().resolves();
+  userEvent.click(await screen.findByRole('button', { name: 'Close' }));
+
+  apiMock.expectGetScannerStatus({
+    state: 'paused',
+    ballotsCounted: 0,
+  });
+  await screen.findByRole('heading', { name: 'Polls Closed' });
+});
+
+test('image sensor calibration failure', async () => {
+  apiMock.expectGetConfig();
+  apiMock.expectGetPollsInfo('polls_closed_initial');
+  apiMock.expectGetUsbDriveStatus('mounted');
+  apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatusV3({ connected: true });
+  renderApp();
+
+  apiMock.authenticateAsSystemAdministrator();
+
+  apiMock.mockApiClient.beginImageSensorCalibration.expectCallWith().resolves();
+  userEvent.click(await screen.findButton('Calibrate Image Sensors'));
+
+  apiMock.expectGetScannerStatus({
+    state: 'calibrating_image_sensors.calibrating',
+    ballotsCounted: 0,
+  });
+  await screen.findByRole('heading', {
+    name: 'Image Sensor Calibration',
+  });
+  screen.getByText('Insert One Blank Sheet');
+
+  apiMock.expectGetScannerStatus({
+    state: 'calibrating_image_sensors.done',
+    error: 'image_sensor_calibration_timed_out',
+    ballotsCounted: 0,
+  });
+  await screen.findByText('Calibration Timed Out');
+
+  apiMock.expectGetScannerStatus({
+    state: 'calibrating_image_sensors.done',
+    error: 'unexpected_event',
+    ballotsCounted: 0,
+  });
+  await screen.findByText('Calibration Failed');
+
+  apiMock.mockApiClient.endImageSensorCalibration.expectCallWith().resolves();
+  userEvent.click(await screen.findByRole('button', { name: 'Close' }));
+
+  apiMock.expectGetScannerStatus({
+    state: 'paused',
+    ballotsCounted: 0,
+  });
+  await screen.findByRole('heading', { name: 'System Administrator Menu' });
+});
+
 test('vendor screen', async () => {
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo('polls_closed_initial');

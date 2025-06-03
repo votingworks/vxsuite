@@ -1,5 +1,7 @@
 use std::time::Duration;
 
+use serde::Serialize;
+
 use super::{
     parsers,
     types::{
@@ -271,6 +273,26 @@ pub enum Outgoing {
     /// bytes are inserted to indicate the value of the last default
     /// (calibration) threshold.
     AdjustBitonalThresholdBy1Request(BitonalAdjustment),
+
+    /// This command used in conjunction with the scanner’s calibration plaque, allows
+    /// the terminal to automatically normalize (calibrate) the scanner’s threshold levels.
+    ///
+    /// Image calibration makes sure that all pixels report the same value for black, white
+    /// and in between. A white reference sheet is scanned to define the white values. Black
+    /// values are defined by switching off the scanner light.
+    ///
+    /// Calibration will fail if the scanner is set to run in both half speed and half step
+    /// modes simultaneously.
+    ///
+    /// `ASCII character C = (43H)`
+    ///
+    /// # Response Format
+    /// Response (after calibration) = `# <Type Byte><ID Byte>`
+    ///
+    /// For example:
+    /// A good calibration would return `#10 = (23H) (31H) (30H)`
+    /// A bad calibration may return `#19 = (23H) (31H) (39H)`
+    CalibrateImageSensorsRequest,
 
     /// The ‘W’ command returns the present scanner calibration information.
     ///
@@ -635,6 +657,9 @@ impl Outgoing {
                     parsers::adjust_bitonal_threshold_by_1_request
                 )
             }
+            Self::CalibrateImageSensorsRequest => {
+                checked!(Command::new(b"C"), parsers::calibrate_image_sensors_request)
+            }
             Self::GetCalibrationInformationRequest { resolution } => checked!(
                 Command::new(match resolution {
                     Some(Resolution::Half) => b"W1",
@@ -792,7 +817,8 @@ impl Outgoing {
 
 /// All possible incoming data from the scanner, including responses to commands
 /// and unsolicited messages.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub enum Incoming {
     /// This command requests a hard-coded test string from the scanner.
     ///
@@ -1076,6 +1102,22 @@ pub enum Incoming {
     CalibrationTimeoutError,
     CalibrationSpeedValueError,
     CalibrationSpeedBoxError,
+    CalibrationFrontNotEnoughLightRedEvent,
+    CalibrationFrontTooMuchLightRedEvent,
+    CalibrationFrontNotEnoughLightBlueEvent,
+    CalibrationFrontTooMuchLightBlueEvent,
+    CalibrationFrontNotEnoughLightGreenEvent,
+    CalibrationFrontTooMuchLightGreenEvent,
+    CalibrationFrontPixelsTooHighEvent,
+    CalibrationFrontPixelsTooLowEvent,
+    CalibrationBackNotEnoughLightRedEvent,
+    CalibrationBackTooMuchLightRedEvent,
+    CalibrationBackNotEnoughLightBlueEvent,
+    CalibrationBackTooMuchLightBlueEvent,
+    CalibrationBackNotEnoughLightGreenEvent,
+    CalibrationBackTooMuchLightGreenEvent,
+    CalibrationBackPixelsTooHighEvent,
+    CalibrationBackPixelsTooLowEvent,
 
     /// An unsolicited message from the scanner indicating that the scanner is
     /// initiating a scan.
@@ -1110,6 +1152,20 @@ pub enum Incoming {
 
     ImageData(Vec<u8>),
 
+    /// When running image sensor calibration, the scanner sends back a few
+    /// lines of undocumented output that seems to describe the calibration
+    /// process. We don't need it for anything, but we need to parse it to avoid
+    /// errors.
+    ///
+    /// Example output:
+    ///
+    /// ```plaintext
+    /// Dac Ref Top 72 bot 74
+    /// section first  384 length 384
+    /// CIS TOP RANGE 181 (3708) 66 (1978)
+    /// ```
+    ImageSensorCalibrationUnexpectedOutput(String),
+
     /// Incoming data of an unknown type.
     Unknown(Vec<u8>),
 }
@@ -1132,11 +1188,6 @@ impl Incoming {
                 | Self::CommandPacketCrcErrorEvent
                 | Self::FpgaOutOfDateEvent
                 | Self::CalibrationOkEvent
-                | Self::CalibrationShortCalibrationDocumentEvent
-                | Self::CalibrationDocumentRemovedEvent
-                | Self::CalibrationPixelErrorFrontArrayBlack
-                | Self::CalibrationPixelErrorFrontArrayWhite
-                | Self::CalibrationTimeoutError
                 | Self::CalibrationSpeedValueError
                 | Self::CalibrationSpeedBoxError
                 | Self::BeginScanEvent
@@ -1146,6 +1197,33 @@ impl Incoming {
                 | Self::EjectResumeEvent
                 | Self::DoubleFeedCalibrationCompleteEvent
                 | Self::DoubleFeedCalibrationTimedOutEvent
+        ) || self.is_image_sensor_calibration_error()
+    }
+
+    pub const fn is_image_sensor_calibration_error(&self) -> bool {
+        matches!(
+            self,
+            Self::CalibrationShortCalibrationDocumentEvent
+                | Self::CalibrationDocumentRemovedEvent
+                | Self::CalibrationPixelErrorFrontArrayBlack
+                | Self::CalibrationPixelErrorFrontArrayWhite
+                | Self::CalibrationTimeoutError
+                | Self::CalibrationFrontNotEnoughLightRedEvent
+                | Self::CalibrationFrontTooMuchLightRedEvent
+                | Self::CalibrationFrontNotEnoughLightBlueEvent
+                | Self::CalibrationFrontTooMuchLightBlueEvent
+                | Self::CalibrationFrontNotEnoughLightGreenEvent
+                | Self::CalibrationFrontTooMuchLightGreenEvent
+                | Self::CalibrationFrontPixelsTooHighEvent
+                | Self::CalibrationFrontPixelsTooLowEvent
+                | Self::CalibrationBackNotEnoughLightRedEvent
+                | Self::CalibrationBackTooMuchLightRedEvent
+                | Self::CalibrationBackNotEnoughLightBlueEvent
+                | Self::CalibrationBackTooMuchLightBlueEvent
+                | Self::CalibrationBackNotEnoughLightGreenEvent
+                | Self::CalibrationBackTooMuchLightGreenEvent
+                | Self::CalibrationBackPixelsTooHighEvent
+                | Self::CalibrationBackPixelsTooLowEvent
         )
     }
 }

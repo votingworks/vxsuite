@@ -25,6 +25,8 @@ export const PRECINCT_SCANNER_STATES = [
   'calibrating_double_feed_detection.double_sheet',
   'calibrating_double_feed_detection.single_sheet',
   'calibrating_double_feed_detection.done',
+  'calibrating_image_sensors.calibrating',
+  'calibrating_image_sensors.done',
   'scanner_diagnostic.running',
   'scanner_diagnostic.done',
 ] as const;
@@ -46,6 +48,8 @@ export type PrecinctScannerErrorType =
   | 'unexpected_event'
   | 'client_error'
   | 'double_feed_calibration_timed_out'
+  | 'image_sensor_calibration_timed_out'
+  | 'image_sensor_calibration_failed'
   | 'scanner_diagnostic_failed';
 
 /* istanbul ignore next - @preserve */

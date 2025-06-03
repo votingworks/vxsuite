@@ -50,7 +50,9 @@ export function VoterScreen({
     scannerStatus.state !== 'calibrating_double_feed_detection.double_sheet' &&
       scannerStatus.state !==
         'calibrating_double_feed_detection.single_sheet' &&
-      scannerStatus.state !== 'calibrating_double_feed_detection.done'
+      scannerStatus.state !== 'calibrating_double_feed_detection.done' &&
+      scannerStatus.state !== 'calibrating_image_sensors.calibrating' &&
+      scannerStatus.state !== 'calibrating_image_sensors.done'
   );
 
   const sharedScreenProps = {

@@ -1,7 +1,6 @@
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
   Button,
-  CalibrationInsertDoubleSheetIllustration,
   CalibrationInsertSingleSheetIllustration,
   FullScreenIconWrapper,
   FullScreenMessage,
@@ -14,7 +13,7 @@ import {
   Screen,
 } from '@votingworks/ui';
 import React from 'react';
-import { endDoubleFeedCalibration, getScannerStatus } from '../api';
+import { endImageSensorCalibration, getScannerStatus } from '../api';
 import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from '../config/globals';
 
 function CalibrationScreen({ children }: { children: React.ReactNode }) {
@@ -22,7 +21,7 @@ function CalibrationScreen({ children }: { children: React.ReactNode }) {
     <Screen>
       <Main flexColumn>
         <MainHeader>
-          <H3>Double Sheet Detection Calibration</H3>
+          <H3>Image Sensor Calibration</H3>
         </MainHeader>
         <MainContent style={{ display: 'flex', justifyContent: 'center' }}>
           {children}
@@ -32,12 +31,12 @@ function CalibrationScreen({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function ScannerDoubleFeedCalibrationScreen(): JSX.Element | null {
+export function ScannerImageSensorCalibrationScreen(): JSX.Element | null {
   const scannerStatusQuery = getScannerStatus.useQuery({
     refetchInterval: POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
   });
-  const endDoubleFeedCalibrationMutation =
-    endDoubleFeedCalibration.useMutation();
+  const endImageSensorCalibrationMutation =
+    endImageSensorCalibration.useMutation();
 
   /* istanbul ignore next - @preserve */
   if (!scannerStatusQuery.isSuccess) return null;
@@ -45,30 +44,12 @@ export function ScannerDoubleFeedCalibrationScreen(): JSX.Element | null {
 
   /* istanbul ignore next - @preserve */
   assert(
-    status.state === 'calibrating_double_feed_detection.double_sheet' ||
-      status.state === 'calibrating_double_feed_detection.single_sheet' ||
-      status.state === 'calibrating_double_feed_detection.done' ||
-      status.state === 'paused'
+    status.state === 'calibrating_image_sensors.calibrating' ||
+      status.state === 'calibrating_image_sensors.done'
   );
 
   switch (status.state) {
-    case 'calibrating_double_feed_detection.double_sheet': {
-      return (
-        <CalibrationScreen>
-          <FullScreenMessage
-            title="Insert Two Blank Sheets"
-            image={<CalibrationInsertDoubleSheetIllustration />}
-          >
-            <P>
-              Stack two blank sheets on top of each other and feed them into the
-              scanner.
-            </P>
-          </FullScreenMessage>
-        </CalibrationScreen>
-      );
-    }
-
-    case 'calibrating_double_feed_detection.single_sheet': {
+    case 'calibrating_image_sensors.calibrating': {
       return (
         <CalibrationScreen>
           <FullScreenMessage
@@ -81,14 +62,11 @@ export function ScannerDoubleFeedCalibrationScreen(): JSX.Element | null {
       );
     }
 
-    // After hitting the close button, the scanner goes back to the paused state
-    // momentarily before this screen unmounts
-    case 'paused':
-    case 'calibrating_double_feed_detection.done': {
+    case 'calibrating_image_sensors.done': {
       const closeButton = (
         <Button
           onPress={() => {
-            endDoubleFeedCalibrationMutation.mutate();
+            endImageSensorCalibrationMutation.mutate();
           }}
         >
           Close
@@ -99,7 +77,7 @@ export function ScannerDoubleFeedCalibrationScreen(): JSX.Element | null {
           <CalibrationScreen>
             <FullScreenMessage
               title={
-                status.error === 'double_feed_calibration_timed_out'
+                status.error === 'image_sensor_calibration_timed_out'
                   ? 'Calibration Timed Out'
                   : 'Calibration Failed'
               }

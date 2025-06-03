@@ -107,6 +107,7 @@ export function createMockPdiScannerClient(): MockPdiScannerClient {
       getDoubleFeedDetectionCalibrationConfig: vi
         .fn()
         .mockRejectedValue(new Error('Not used')),
+      calibrateImageSensors: vi.fn().mockResolvedValue(ok()),
       disconnect: vi.fn().mockResolvedValue(ok()),
       exit: vi.fn().mockResolvedValue(ok()),
     },

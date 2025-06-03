@@ -92,6 +92,8 @@ enum Command {
     },
 
     GetDoubleFeedDetectionCalibrationConfig,
+
+    CalibrateImageSensors,
 }
 
 #[derive(Debug, serde::Serialize)]
@@ -154,6 +156,11 @@ enum Event {
 
     DoubleFeedCalibrationComplete,
     DoubleFeedCalibrationTimedOut,
+
+    ImageSensorCalibrationComplete,
+    ImageSensorCalibrationFailed {
+        error: Incoming,
+    },
 }
 
 #[derive(Debug, serde::Serialize)]
@@ -357,6 +364,12 @@ async fn main() -> color_eyre::Result<()> {
                             Err(e) => send_error_response(&e)?,
                         }
                     }
+                    (Some(client), Command::CalibrateImageSensors) => {
+                        match client.calibrate_image_sensors() {
+                            Ok(()) => send_response(Response::Ok)?,
+                            Err(e) => send_error_response(&e)?,
+                        }
+                    }
                     (None, _) => {
                         send_response(Response::Error {
                             code: ErrorCode::Disconnected,
@@ -431,6 +444,12 @@ async fn main() -> color_eyre::Result<()> {
                 }
                 Ok(Incoming::DoubleFeedCalibrationTimedOutEvent) => {
                     send_event(Event::DoubleFeedCalibrationTimedOut)?;
+                }
+                Ok(Incoming::CalibrationOkEvent) => {
+                    send_event(Event::ImageSensorCalibrationComplete)?;
+                }
+                Ok(event) if event.is_image_sensor_calibration_error() => {
+                    send_event(Event::ImageSensorCalibrationFailed { error: event })?;
                 }
                 Ok(event) => {
                     tracing::info!("unhandled event: {event:?}");

@@ -407,6 +407,20 @@ export const endDoubleFeedCalibration = {
   },
 } as const;
 
+export const beginImageSensorCalibration = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.beginImageSensorCalibration);
+  },
+} as const;
+
+export const endImageSensorCalibration = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.endImageSensorCalibration);
+  },
+} as const;
+
 export const getMostRecentScannerDiagnostic = {
   queryKey(): QueryKey {
     return ['getMostRecentScannerDiagnostic'];

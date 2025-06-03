@@ -194,6 +194,13 @@ test('getDoubleFeedDetectionCalibrationConfig', async () => {
   );
 });
 
+test('calibrateImageSensors', async () => {
+  const client = createPdiScannerClient();
+  mockStdoutResponse({ response: 'ok' });
+  expect(await client.calibrateImageSensors()).toEqual(ok());
+  expectStdinCommand({ command: 'calibrateImageSensors' });
+});
+
 test('disconnect', async () => {
   const client = createPdiScannerClient();
   mockStdoutResponse({ response: 'ok' });

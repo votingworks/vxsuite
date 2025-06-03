@@ -151,6 +151,8 @@ type Event =
   | { type: 'SCANNING_DISABLED' }
   | { type: 'BEGIN_DOUBLE_FEED_CALIBRATION' }
   | { type: 'END_DOUBLE_FEED_CALIBRATION' }
+  | { type: 'BEGIN_IMAGE_SENSOR_CALIBRATION' }
+  | { type: 'END_IMAGE_SENSOR_CALIBRATION' }
   | { type: 'BEGIN_SCANNER_DIAGNOSTIC' }
   | { type: 'END_SCANNER_DIAGNOSTIC' }
   | { type: 'AUTH_STATUS'; status: InsertedSmartCardAuth.AuthStatus };
@@ -167,6 +169,8 @@ function isEventUserAction(event: EventObject): boolean {
     'RETURN',
     'BEGIN_DOUBLE_FEED_CALIBRATION',
     'END_DOUBLE_FEED_CALIBRATION',
+    'BEGIN_IMAGE_SENSOR_CALIBRATION',
+    'END_IMAGE_SENSOR_CALIBRATION',
     'BEGIN_SCANNER_DIAGNOSTIC',
     'END_SCANNER_DIAGNOSTIC',
   ].includes(event.type);
@@ -644,6 +648,7 @@ function buildMachine({
           on: {
             SCANNING_ENABLED: 'waitingForBallot',
             BEGIN_DOUBLE_FEED_CALIBRATION: 'calibratingDoubleFeedDetection',
+            BEGIN_IMAGE_SENSOR_CALIBRATION: 'calibratingImageSensors',
             BEGIN_SCANNER_DIAGNOSTIC: 'scannerDiagnostic',
           },
         },
@@ -919,6 +924,56 @@ function buildMachine({
             done: {
               on: {
                 END_DOUBLE_FEED_CALIBRATION: '#paused',
+              },
+              exit: assign({ error: undefined }),
+            },
+          },
+        },
+
+        calibratingImageSensors: {
+          on: {
+            SCANNER_EVENT: {
+              cond: (_, { event }) =>
+                event.event === 'imageSensorCalibrationFailed',
+              target: '.done',
+              actions: assign({
+                error: (_context, { event }) => {
+                  assert(event.event === 'imageSensorCalibrationFailed');
+                  return event.error === 'calibrationTimeoutError'
+                    ? new PrecinctScannerError(
+                        'image_sensor_calibration_timed_out'
+                      )
+                    : new PrecinctScannerError(
+                        'image_sensor_calibration_failed',
+                        event.error
+                      );
+                },
+              }),
+            },
+          },
+          initial: 'calibrating',
+          states: {
+            calibrating: {
+              invoke: {
+                src: async () => {
+                  (await scannerClient.calibrateImageSensors()).unsafeUnwrap();
+                },
+                onError: {
+                  target: '#error',
+                  actions: assign({ error: (_, event) => event.data }),
+                },
+              },
+              on: {
+                SCANNER_EVENT: {
+                  cond: (_, { event }) =>
+                    event.event === 'imageSensorCalibrationComplete',
+                  target: 'done',
+                },
+              },
+            },
+            done: {
+              on: {
+                END_IMAGE_SENSOR_CALIBRATION: '#paused',
               },
               exit: assign({ error: undefined }),
             },
@@ -1297,6 +1352,10 @@ export function createPrecinctScannerStateMachine({
             return 'calibrating_double_feed_detection.single_sheet';
           case state.matches('calibratingDoubleFeedDetection.done'):
             return 'calibrating_double_feed_detection.done';
+          case state.matches('calibratingImageSensors.calibrating'):
+            return 'calibrating_image_sensors.calibrating';
+          case state.matches('calibratingImageSensors.done'):
+            return 'calibrating_image_sensors.done';
           case state.matches('shoeshineModeRescanningBallot'):
             return 'accepted';
           case state.matches('scannerDiagnostic.done'):
@@ -1338,6 +1397,7 @@ export function createPrecinctScannerStateMachine({
         'rejected',
         'jammed',
         'calibrating_double_feed_detection.done',
+        'calibrating_image_sensors.done',
         'scanner_diagnostic.done',
       ].includes(scannerState);
       const errorDetails =
@@ -1371,6 +1431,14 @@ export function createPrecinctScannerStateMachine({
 
     endDoubleFeedCalibration: () => {
       machineService.send('END_DOUBLE_FEED_CALIBRATION');
+    },
+
+    beginImageSensorCalibration: () => {
+      machineService.send('BEGIN_IMAGE_SENSOR_CALIBRATION');
+    },
+
+    endImageSensorCalibration: () => {
+      machineService.send('END_IMAGE_SENSOR_CALIBRATION');
     },
 
     beginScannerDiagnostic: () => {

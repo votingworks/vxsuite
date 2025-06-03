@@ -155,6 +155,8 @@ export function createPrecinctScannerStateMachineMock(): Mocked<PrecinctScannerS
     stop: vi.fn(),
     beginDoubleFeedCalibration: vi.fn(),
     endDoubleFeedCalibration: vi.fn(),
+    beginImageSensorCalibration: vi.fn(),
+    endImageSensorCalibration: vi.fn(),
     beginScannerDiagnostic: vi.fn(),
     endScannerDiagnostic: vi.fn(),
   };
