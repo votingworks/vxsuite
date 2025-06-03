@@ -361,6 +361,24 @@ export function createApiMock() {
         .resolves();
     },
 
+    expectReprintReceipt(voter: Voter) {
+      mockApiClient.reprintVoterReceipt.reset();
+      mockApiClient.reprintVoterReceipt
+        .expectCallWith({
+          voterId: voter.voterId,
+        })
+        .resolves(ok());
+    },
+
+    expectReprintReceiptError(voter: Voter) {
+      mockApiClient.reprintVoterReceipt.reset();
+      mockApiClient.reprintVoterReceipt
+        .expectCallWith({
+          voterId: voter.voterId,
+        })
+        .resolves(err('not_checked_in'));
+    },
+
     expectGetValidStreetInfo(streetInfo: ValidStreetInfo[]) {
       mockApiClient.getValidStreetInfo.reset();
       mockApiClient.getValidStreetInfo.expectCallWith().resolves(streetInfo);
