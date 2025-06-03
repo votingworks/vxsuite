@@ -112,8 +112,9 @@ export function ScannerImageSensorCalibrationScreen(): JSX.Element | null {
       );
     }
 
-    /* istanbul ignore next - @preserve */
-    default:
+    default: {
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(status.state);
+    }
   }
 }
