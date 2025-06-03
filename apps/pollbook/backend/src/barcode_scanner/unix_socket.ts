@@ -13,24 +13,32 @@ const UDS_PATH = '/tmp/barcodescannerd.sock';
  */
 export function tryConnect(logger: Logger): Promise<net.Socket> {
   return new Promise((resolve, reject) => {
-    let isConnected = false;
-    const client = net.createConnection({
-      path: UDS_PATH,
-    });
+    const client = net.createConnection(
+      {
+        path: UDS_PATH,
+      },
+      () => {
+        client.setEncoding('utf8');
 
-    client.on('error', (err) => {
-      if (isConnected) {
-        logger.log(LogEventId.SocketClientError, 'system', {
-          message: 'Pollbook UDS client received an error',
-          error: err.message,
-          disposition: LogDispositionStandardTypes.Failure,
+        client.on('error', (err) => {
+          logger.log(LogEventId.SocketClientError, 'system', {
+            message: 'Pollbook UDS client received an error',
+            error: err.message,
+            disposition: LogDispositionStandardTypes.Failure,
+          });
         });
 
-        return;
-      }
+        logger.log(LogEventId.SocketClientConnected, 'system', {
+          message: 'Pollbook backend connected to barcode scanner Unix socket',
+          disposition: LogDispositionStandardTypes.Success,
+        });
 
-      const message =
-        'Pollbook backend failed to connect to barcode scanner Unix socket';
+        resolve(client);
+      }
+    );
+
+    client.once('error', (err) => {
+      const message = `Pollbook backend failed to connect to barcode scanner Unix socket: ${err.message}`;
       logger.log(LogEventId.SocketClientConnected, 'system', {
         message,
         disposition: LogDispositionStandardTypes.Failure,
@@ -38,18 +46,6 @@ export function tryConnect(logger: Logger): Promise<net.Socket> {
 
       client.destroy();
       reject(new Error(message));
-    });
-
-    client.on('connect', () => {
-      isConnected = true;
-      client.setEncoding('utf8');
-
-      logger.log(LogEventId.SocketClientConnected, 'system', {
-        message: 'Pollbook backend connected to barcode scanner Unix socket',
-        disposition: LogDispositionStandardTypes.Success,
-      });
-
-      resolve(client);
     });
   });
 }
