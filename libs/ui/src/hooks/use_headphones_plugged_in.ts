@@ -32,9 +32,17 @@ export function useHeadphonesPluggedIn(): boolean {
   );
 
   const audioInfoQuery = getAudioInfo.useQuery();
-  const headphonesPluggedIn = audioInfoQuery.isSuccess
-    ? audioInfoQuery.data.headphonesActive
-    : false;
+  if (!audioInfoQuery.isSuccess) return false;
 
-  return headphonesPluggedIn;
+  // VxScan: headphone audio provided via always-connected USB tactile
+  // controller.
+  if (audioInfoQuery.data.usb) return true;
+
+  // VxMark (v4): headphone audio provided through headphone port on builtin
+  // audio card.
+  if (audioInfoQuery.data.builtin) {
+    return audioInfoQuery.data.builtin.headphonesActive;
+  }
+
+  return false;
 }

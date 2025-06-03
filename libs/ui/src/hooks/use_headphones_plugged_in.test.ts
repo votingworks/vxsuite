@@ -41,16 +41,32 @@ beforeEach(() => {
 
 test('uses getAudioInfo system call API', async () => {
   const { mockApiClient, renderHook } = createTestContext();
-  mockApiClient.getAudioInfo.mockResolvedValueOnce({ headphonesActive: false });
+  mockApiClient.getAudioInfo.mockResolvedValueOnce({});
 
   const { result, unmount } = renderHook(useHeadphonesPluggedIn);
   await waitFor(() => expect(result.current).toEqual(false));
 
-  mockApiClient.getAudioInfo.mockResolvedValueOnce({ headphonesActive: true });
+  mockApiClient.getAudioInfo.mockResolvedValueOnce({
+    usb: { name: 'alsa_output.usb-Generic.analog-stereo' },
+  });
   vi.advanceTimersByTime(AUDIO_INFO_POLLING_INTERVAL_MS);
   await waitFor(() => expect(result.current).toEqual(true));
 
-  mockApiClient.getAudioInfo.mockResolvedValueOnce({ headphonesActive: false });
+  mockApiClient.getAudioInfo.mockResolvedValueOnce({
+    builtin: {
+      headphonesActive: true,
+      name: 'alsa_output.pci.analog-stereo',
+    },
+  });
+  vi.advanceTimersByTime(AUDIO_INFO_POLLING_INTERVAL_MS);
+  await waitFor(() => expect(result.current).toEqual(true));
+
+  mockApiClient.getAudioInfo.mockResolvedValueOnce({
+    builtin: {
+      headphonesActive: false,
+      name: 'alsa_output.pci.analog-stereo',
+    },
+  });
   vi.advanceTimersByTime(AUDIO_INFO_POLLING_INTERVAL_MS);
   await waitFor(() => expect(result.current).toEqual(false));
 
@@ -63,7 +79,7 @@ test('always returns true if headphones restriction flag is disabled', async () 
   );
 
   const { mockApiClient, renderHook } = createTestContext();
-  mockApiClient.getAudioInfo.mockResolvedValue({ headphonesActive: false });
+  mockApiClient.getAudioInfo.mockResolvedValue({});
 
   const { result } = renderHook(useHeadphonesPluggedIn);
 
