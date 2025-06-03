@@ -311,7 +311,7 @@ pub fn crop_ballot_page_image_borders(image: GrayImage) -> Option<BallotImage> {
 
 /// Prepare a ballot page image for interpretation by cropping the black border.
 #[allow(clippy::result_large_err)]
-pub fn prepare_ballot_page_image(
+fn prepare_ballot_page_image(
     label: &str,
     image: GrayImage,
     possible_paper_infos: &[PaperInfo],

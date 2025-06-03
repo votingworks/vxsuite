@@ -85,7 +85,7 @@ pub fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
     //   let infer_timing_marks =
     //     typeof options.inferTimingMarks === 'boolean'
     //     ? options.inferTimingMarks
-    //     : false;
+    //     : true;
     let infer_timing_marks = options
         .get_value(&mut cx, "inferTimingMarks")?
         .downcast::<JsBoolean, _>(&mut cx)
