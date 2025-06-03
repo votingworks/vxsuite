@@ -15,6 +15,7 @@ import {
   ScanPanelVirtualKeyboard,
   US_ENGLISH_SCAN_PANEL_KEYMAP,
 } from './scan_panel_virtual_keyboard';
+import { ActionKey } from './common';
 
 vi.mock(import('../ui_strings/audio_only.js'), async (importActual) => ({
   ...(await importActual()),
@@ -180,6 +181,36 @@ test('supports tab and enter keypresses to navigate the keyboard', () => {
   expect(onKeyPress).toHaveBeenCalledWith('T');
 });
 
+test('allows row/panel selection if at least one key is enabled', () => {
+  const onKeyPress = vi.fn();
+  const onBackspace = vi.fn();
+
+  render(
+    <ScanPanelVirtualKeyboard
+      onBackspace={onBackspace}
+      onKeyPress={onKeyPress}
+      keyDisabled={(k) => k.action !== ActionKey.DELETE}
+    />
+  );
+
+  const firstRowButton = screen.getButton('Q W E R T Y U I O P');
+  expect(firstRowButton).toBeDisabled();
+
+  const spaceDelRowButton = screen.getButton(fourthRow);
+  expect(spaceDelRowButton).not.toBeDisabled();
+
+  // Click to activate the "space"/"delete" row:
+  userEvent.click(spaceDelRowButton);
+
+  // Click again to activate the "space"/"delete" panel:
+  // [TODO] This UX could be improved to require only one click to split
+  // the row, since there are only 2 keys here.
+  userEvent.click(screen.getButton('space delete'));
+
+  expect(screen.getButton(/space/)).toBeDisabled();
+  expect(screen.getButton(/delete/)).not.toBeDisabled();
+});
+
 test("doesn't fire key events for disabled keys", () => {
   const mPanel = 'BNM';
 
@@ -190,7 +221,7 @@ test("doesn't fire key events for disabled keys", () => {
     <ScanPanelVirtualKeyboard
       onBackspace={onBackspace}
       onKeyPress={onKeyPress}
-      keyDisabled={(k) => k === 'M'}
+      keyDisabled={(k) => k.value === 'M'}
     />
   );
 
@@ -209,7 +240,7 @@ test('custom keymap', () => {
     <ScanPanelVirtualKeyboard
       onBackspace={onBackspace}
       onKeyPress={onKeyPress}
-      keyDisabled={(k) => k === 'M'}
+      keyDisabled={(k) => k.value === 'M'}
       keyMap={{
         rows: [
           [

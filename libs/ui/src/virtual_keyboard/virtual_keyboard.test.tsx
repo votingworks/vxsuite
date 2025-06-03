@@ -125,7 +125,7 @@ test("doesn't fire key events for disabled keys", () => {
     <VirtualKeyboard
       onBackspace={onBackspace}
       onKeyPress={onKeyPress}
-      keyDisabled={(k) => k === 'M'}
+      keyDisabled={(k) => k.value === 'M'}
       onCancel={onCancel}
       onAccept={onAccept}
     />
@@ -133,33 +133,6 @@ test("doesn't fire key events for disabled keys", () => {
 
   userEvent.click(screen.getButton(/\bM\b/));
   expect(onKeyPress).not.toHaveBeenCalled();
-});
-
-test('never disables action/delete keys', () => {
-  const onKeyPress = vi.fn();
-  const onBackspace = vi.fn();
-  const onCancel = vi.fn();
-  const onAccept = vi.fn();
-
-  render(
-    <VirtualKeyboard
-      onBackspace={onBackspace}
-      onKeyPress={onKeyPress}
-      keyDisabled={() => true}
-      onCancel={onCancel}
-      onAccept={onAccept}
-      enableWriteInAtiControllerNavigation
-    />
-  );
-
-  userEvent.click(screen.getButton(/delete/));
-  expect(onBackspace).toHaveBeenCalled();
-
-  userEvent.click(screen.getButton(/Accept/));
-  expect(onAccept).toHaveBeenCalled();
-
-  userEvent.click(screen.getButton(/Cancel/));
-  expect(onCancel).toHaveBeenCalled();
 });
 
 test('custom keymap', () => {
@@ -174,7 +147,7 @@ test('custom keymap', () => {
       onKeyPress={onKeyPress}
       onCancel={onCancel}
       onAccept={onAccept}
-      keyDisabled={(k) => k === 'M'}
+      keyDisabled={(k) => k.value === 'M'}
       keyMap={{
         rows: [
           [

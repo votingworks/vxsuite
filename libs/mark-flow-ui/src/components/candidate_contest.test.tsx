@@ -9,8 +9,13 @@ import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import {
+  ACCEPT_KEY,
   AccessibilityMode,
+  CANCEL_KEY,
+  DELETE_KEY,
+  SPACE_BAR_KEY,
   VirtualKeyboard,
+  virtualKeyboardCommon,
   VirtualKeyboardProps,
 } from '@votingworks/ui';
 import { screen, within, render, act } from '../../test/react_testing_library';
@@ -26,7 +31,7 @@ vi.mock('@votingworks/ui', async () => {
 });
 
 function setUpMockVirtualKeyboard() {
-  let checkIsKeyDisabled: (key: string) => boolean;
+  let checkIsKeyDisabled: (key: virtualKeyboardCommon.Key) => boolean;
   let fireBackspaceEvent: () => void;
   let fireKeyPressEvent: (key: string) => void;
 
@@ -43,7 +48,8 @@ function setUpMockVirtualKeyboard() {
     });
 
   return {
-    checkIsKeyDisabled: (key: string) => checkIsKeyDisabled(key),
+    checkIsKeyDisabled: (key: virtualKeyboardCommon.Key) =>
+      checkIsKeyDisabled(key),
     fireBackspaceEvent: () => act(() => fireBackspaceEvent()),
     fireKeyPressEvents: (chars: string) =>
       act(() => {
@@ -502,7 +508,10 @@ describe('supports write-in candidates', () => {
     fireKeyPressEvents(writeInCandidate);
     modal.getByText(hasTextAcrossElements(/characters remaining: 0/i));
 
-    expect(checkIsKeyDisabled(' ')).toEqual(true);
+    expect(checkIsKeyDisabled(SPACE_BAR_KEY)).toEqual(true);
+    expect(checkIsKeyDisabled(DELETE_KEY)).toEqual(false);
+    expect(checkIsKeyDisabled(CANCEL_KEY)).toEqual(false);
+    expect(checkIsKeyDisabled(ACCEPT_KEY)).toEqual(false);
     userEvent.click(modal.getByText('Accept'));
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
