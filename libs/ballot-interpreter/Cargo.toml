@@ -8,6 +8,10 @@ exclude = ["build/addon.node"]
 crate-type = ["cdylib", "rlib"]
 path = "src/hmpb-rust/lib.rs"
 
+[[bin]]
+name = "interpret"
+path = "bin/interpret.rs"
+
 [[bench]]
 name = "main"
 harness = false
