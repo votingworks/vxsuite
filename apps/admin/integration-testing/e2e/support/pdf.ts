@@ -20,7 +20,7 @@ export async function pdfToText(pdfPath: string): Promise<string> {
 export function replaceReportDates(text: string): string {
   return text.replaceAll(
     /Report Generated:[^\n]*\n/g,
-    'Report Generated: Jan 1, 2024, 12:00 PM\n'
+    'Report Generated: Jan 1, 2024, 12:00:00 PM\n'
   );
 }
 

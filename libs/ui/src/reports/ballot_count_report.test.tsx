@@ -515,7 +515,7 @@ test('election info, metadata, and custom filters', () => {
     'Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
   );
   screen.getByText(
-    hasTextAcrossElements('Report Generated: Jan 1, 2020, 12:00 AM')
+    hasTextAcrossElements('Report Generated: Jan 1, 2020, 12:00:00 AM')
   );
   screen.getByText(
     hasTextAcrossElements(

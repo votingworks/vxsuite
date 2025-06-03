@@ -34,11 +34,11 @@ test('renders info properly', () => {
   );
   const eventDate = screen.getByText('Voting Paused:');
   expect(eventDate.parentNode).toHaveTextContent(
-    'Voting Paused: Sep 19, 2021, 11:05 AM'
+    'Voting Paused: Sep 19, 2021, 11:05:00 AM'
   );
   const printedAt = screen.getByText('Report Printed:');
   expect(printedAt.parentElement).toHaveTextContent(
-    'Report Printed: Sep 19, 2021, 11:06 AM'
+    'Report Printed: Sep 19, 2021, 11:06:00 AM'
   );
   const scannerId = screen.getByText('Scanner ID:');
   expect(scannerId.parentElement).toHaveTextContent('Scanner ID: SC-01-000');
@@ -62,6 +62,6 @@ test('renders info properly', () => {
 
   const timePollsPaused = screen.getByText('Time Voting Paused');
   expect(timePollsPaused.parentElement).toHaveTextContent(
-    'Time Voting PausedSun, Sep 19, 2021, 11:05 AM'
+    'Time Voting PausedSun, Sep 19, 2021, 11:05:00 AM'
   );
 });

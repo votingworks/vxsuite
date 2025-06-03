@@ -95,7 +95,8 @@ export function PrecinctScannerBallotCountReport({
               <dt>Time {getPollsTransitionActionPastTense(pollsTransition)}</dt>
               <dd>
                 {formatFullDateTimeZone(
-                  DateTime.fromMillis(pollsTransitionedTime)
+                  DateTime.fromMillis(pollsTransitionedTime),
+                  { includeSeconds: true }
                 )}
               </dd>
             </div>

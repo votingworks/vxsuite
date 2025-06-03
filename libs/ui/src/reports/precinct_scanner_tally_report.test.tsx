@@ -70,11 +70,11 @@ test('renders as expected for a single precinct in a general election', () => {
   );
   const eventDate = screen.getByText('Polls Opened:');
   expect(eventDate.parentNode).toHaveTextContent(
-    'Polls Opened: Sep 19, 2021, 11:05 AM'
+    'Polls Opened: Sep 19, 2021, 11:05:00 AM'
   );
   const printedAt = screen.getByText('Report Printed:');
   expect(printedAt.parentElement).toHaveTextContent(
-    'Report Printed: Sep 19, 2021, 11:06 AM'
+    'Report Printed: Sep 19, 2021, 11:06:00 AM'
   );
   const scannerId = screen.getByText('Scanner ID:');
   expect(scannerId.parentElement).toHaveTextContent('Scanner ID: SC-01-000');
@@ -147,11 +147,11 @@ test('renders as expected for all precincts in a primary election', () => {
   );
   const eventDate = screen.getByText('Polls Opened:');
   expect(eventDate.parentNode).toHaveTextContent(
-    'Polls Opened: Sep 19, 2021, 11:05 AM'
+    'Polls Opened: Sep 19, 2021, 11:05:00 AM'
   );
   const printedAt = screen.getByText('Report Printed:');
   expect(printedAt.parentElement).toHaveTextContent(
-    'Report Printed: Sep 19, 2021, 11:06 AM'
+    'Report Printed: Sep 19, 2021, 11:06:00 AM'
   );
   expect(screen.queryByTestId('results-table-best-animal-fish')).toBeNull();
   const scannerId = screen.getByText('Scanner ID:');

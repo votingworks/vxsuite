@@ -22,6 +22,7 @@ export function AdminReportMetadata({
         label="Report Generated"
         value={formatFullDateTimeZone(DateTime.fromJSDate(generatedAtTime), {
           includeWeekday: false,
+          includeSeconds: true,
         })}
       />
       <LabeledValue

@@ -35,9 +35,7 @@ test('ScanReadinessReport', () => {
 
   screen.getByText('VxScan Readiness Report');
   screen.getByText(hasTextAcrossElements('Machine ID: MOCK'));
-  screen.getByText(
-    hasTextAcrossElements('Date: Saturday, January 1, 2022 at 12:00:00 AM AKST')
-  );
+  screen.getByText(hasTextAcrossElements('Date: Jan 1, 2022, 12:00:00 AM'));
 
   screen.getByText(/Example Primary Election/);
 

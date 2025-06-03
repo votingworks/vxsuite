@@ -56,7 +56,7 @@ test('primary', () => {
     'Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
   );
   within(mammalSection).getByText(
-    hasTextAcrossElements('Report Generated: Jan 1, 2020, 12:00 AM')
+    hasTextAcrossElements('Report Generated: Jan 1, 2020, 12:00:00 AM')
   );
   within(mammalSection).getByText(
     hasTextAcrossElements(
@@ -84,7 +84,7 @@ test('primary', () => {
     'Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
   );
   within(fishSection).getByText(
-    hasTextAcrossElements('Report Generated: Jan 1, 2020, 12:00 AM')
+    hasTextAcrossElements('Report Generated: Jan 1, 2020, 12:00:00 AM')
   );
   within(fishSection).getByText(
     hasTextAcrossElements(
@@ -130,7 +130,7 @@ test('general', () => {
     'Lincoln Municipal General Election, Jun 6, 2021, Franklin County, State of Hamilton'
   );
   screen.getByText(
-    hasTextAcrossElements('Report Generated: Sep 30, 2020, 4:00 PM')
+    hasTextAcrossElements('Report Generated: Sep 30, 2020, 4:00:00 PM')
   );
   screen.getByText(
     hasTextAcrossElements(
