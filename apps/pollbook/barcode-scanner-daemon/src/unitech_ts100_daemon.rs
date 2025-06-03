@@ -3,7 +3,7 @@ use nusb::Error;
 use parse_aamva::AamvaDocument;
 use serialport::{DataBits, FlowControl, Parity, StopBits};
 use std::fs;
-use std::io::{self, BufRead, BufReader, ErrorKind};
+use std::io::{self, BufRead, BufReader, ErrorKind, Read};
 use std::os::unix::fs::PermissionsExt;
 use std::process::exit;
 use std::str::{from_utf8, FromStr};
@@ -60,11 +60,18 @@ const MAX_NUM_ELEMENTS: usize = 50;
 // Sum of all maximum sizes of data for all elements, excluding element ID; different for each element so this is just hard coded.
 // eg. document expiry = `DBAMMDDCCYY`
 //     address state   = `DAJNH`
-// So we sum "MMDDCCYY".len() + "NH".len() + ... for all fields
+// So we manually sum "MMDDCCYY".len() + "NH".len() + ... for all fields
 const SUM_ALL_ELEMENTS_SIZE: usize = 535;
 // Jurisdiction-specific fields are not supported by this calculation, but could be with real-world examples.
 const MAX_AAMVA_DOCUMENT_SIZE: usize =
     (NON_DATA_BYTES + 1) * MAX_NUM_ELEMENTS + SUM_ALL_ELEMENTS_SIZE;
+
+// The maximum number of bytes that can be read from the scanner before exiting with failure code.
+// This protects against very large inputs that might cause the daemon to hang or infinite loop.
+// Set to QR code max per https://en.wikipedia.org/wiki/QR_code. We don't support QR code but
+// anticipate accidental scans of QR codes. QR codes can encode more data than PDF417 so we take the greater
+// limit of the 2.
+const SCANNER_READ_BUFFER_SIZE: usize = 2953;
 
 // Resets the TS100 barcode scanner
 fn reset_scanner() -> Result<(), Error> {
@@ -175,13 +182,23 @@ fn open_socket() -> Result<UnixListener, std::io::Error> {
 }
 
 /// Reads from any `BufRead`, parses AAMVA documents, and writes JSON+"\n" to any Write.
-pub async fn run_read_write_loop(
+pub async fn run_read_write_loop<R: Read>(
     running: &Arc<AtomicBool>,
-    reader: &mut dyn BufRead,
+    mut raw_port: R,
     clients: Arc<Mutex<Vec<UnixStream>>>,
 ) {
     let mut buf = Vec::with_capacity(MAX_AAMVA_DOCUMENT_SIZE);
     let mut start = Instant::now();
+
+    // Use `Take` so we don't unquestioningly read large amounts of data. `Take`
+    // wraps the raw serialport reader and protects against reading a dangerously
+    // large amount of data. It returns EOF if its limit is reached.
+    let take_capped_port = raw_port
+        .by_ref()
+        .take((SCANNER_READ_BUFFER_SIZE + 1) as u64);
+    // Use BufReader::with_capacity to wrap the lower-level `Take`. The capacity of the
+    // BufReader is just a performance hint and doesn't protect against large inputs.
+    let mut limited_reader = BufReader::with_capacity(MAX_AAMVA_DOCUMENT_SIZE, take_capped_port);
 
     while running.load(Ordering::SeqCst) {
         if start.elapsed() > HEARTBEAT_LOG_INTERVAL {
@@ -190,28 +207,39 @@ pub async fn run_read_write_loop(
         }
 
         buf.clear();
-        match reader.read_until(TS100_DATA_TERMINATOR, &mut buf) {
-            Ok(_) => {
-                if buf.len() > MAX_AAMVA_DOCUMENT_SIZE {
+
+        // Attempt to read one line up to the terminator, but never more than MAX+1 bytes.
+        match limited_reader.read_until(TS100_DATA_TERMINATOR, &mut buf) {
+            Ok(n) => {
+                if !buf.ends_with(&[TS100_DATA_TERMINATOR]) {
+                    // If the buffer does not end with the delimiter (terminator) then the underlying reader hit EOF.
+                    // If EOF, `Take` encountered a dangerous amount of data (more than would fit in a QR or PDF417 code).
+                    // If no data, we shouldn't have triggered this arm at all, so it's an unknown error.
+                    log!(EventId::ParseError, "Hit EOF while reading for terminator character {TS100_DATA_TERMINATOR}. Take limit: {SCANNER_READ_BUFFER_SIZE}. Bytes read: {n}");
+                    exit(1);
+                }
+
+                if n > MAX_AAMVA_DOCUMENT_SIZE {
                     log!(
                         EventId::ParseError,
-                        "Scan data size of {} exceeded limit of {}",
-                        buf.len(),
-                        MAX_AAMVA_DOCUMENT_SIZE
+                        "Scan data size of {n} exceeded limit of {MAX_AAMVA_DOCUMENT_SIZE}",
                     );
                     continue;
                 }
 
-                if buf.ends_with(&[TS100_DATA_TERMINATOR]) {
-                    buf.pop();
-                }
+                // Now we know the buffer ends with the terminator, so check that we have other data that needs to be parsed
+                buf.pop();
                 if buf.is_empty() {
+                    // Expected at the end of the document
+                    log!(EventId::Info, "No data preceding terminator character");
                     continue;
                 }
+
                 // We expect the input sequence to start with the compliance indicator
                 // on its own line so we just ignore it and skip to the next line.
                 // Existence of the compliance indicator is not enforced.
                 if buf.as_slice() == COMPLIANCE_INDICATOR {
+                    log!(EventId::Info, "Skipping compliance indicator");
                     continue;
                 }
 
@@ -241,13 +269,15 @@ pub async fn run_read_write_loop(
                     }
                     Err(err) => {
                         // Don't exit if this could have been a scan of a non-AAMVA document
+                        // or we tried to parse an unsupported subfile type (as is common on
+                        // non-NH licenses)
                         log!(
                             event_id: EventId::ParseError,
-                            message: format!("Read data was not in AAMVA format: {err}"),
+                            message: format!("Read data that was not in the supported subset of AAMVA or was not AAMVA at all: {err}"),
                             event_type: EventType::SystemAction,
                             disposition: Disposition::Failure
                         );
-                        return;
+                        continue;
                     }
                 };
 
@@ -264,7 +294,7 @@ pub async fn run_read_write_loop(
                 log!(event_id: EventId::UnknownError, message: format!("Error reading from USB device: {e}"));
                 running.store(false, Ordering::SeqCst);
             }
-        }
+        };
     }
 }
 
@@ -317,16 +347,7 @@ async fn main() -> color_eyre::Result<()> {
                 event_type: EventType::SystemStatus,
                 disposition: Disposition::Success
             );
-
-            // Reader to read from the barcode scanner
-            let mut scanner_reader = BufReader::new(port);
-
-            run_read_write_loop(&running, &mut scanner_reader, clients).await;
-
-            // Close port and unlink socket
-            let mut port = scanner_reader.into_inner();
-            let _ = port.write_data_terminal_ready(false);
-            drop(port);
+            run_read_write_loop(&running, port, clients).await;
         }
         Err(e) => {
             log!(
