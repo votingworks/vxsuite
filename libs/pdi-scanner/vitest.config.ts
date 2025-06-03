@@ -5,7 +5,7 @@ export default defineConfig({
     coverage: {
       exclude: ['src/ts/index.ts', 'src/ts/demo.ts'],
       thresholds: {
-        lines: 99,
+        lines: 100,
         branches: 93,
       },
     },

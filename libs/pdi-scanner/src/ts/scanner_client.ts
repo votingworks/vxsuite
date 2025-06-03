@@ -299,15 +299,16 @@ export function createPdiScannerClient() {
         emit(message);
         break;
       }
-      /* istanbul ignore next */
-      default:
+      default: {
+        /* istanbul ignore next - @preserve */
         throwIllegalValue(message, 'event');
+      }
     }
   });
 
   pdictl.stderr.on(
     'data',
-    /* istanbul ignore next */
+    /* istanbul ignore next - @preserve */
     (data) => {
       debug('pdictl stderr:', data.toString('utf-8'));
     }
