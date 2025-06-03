@@ -55,6 +55,7 @@ import { UndoCheckInReceipt } from './receipts/undo_check_in_receipt';
 import { renderAndPrintReceipt } from './receipts/printing';
 import { UNCONFIGURE_LOCKOUT_TIMEOUT } from './globals';
 import { generateVoterHistoryCsvContent } from './voter_history';
+import { getCurrentTime } from './get_current_time';
 
 const debug = rootDebug.extend('local_app');
 
@@ -262,6 +263,27 @@ function buildApi({ context, logger }: BuildAppParams) {
       });
       debug('Printing check-in receipt for voter %s', voter.voterId);
       await renderAndPrintReceipt(printer, receipt);
+    },
+
+    async reprintVoterReceipt(input: {
+      voterId: string;
+    }): Promise<Result<void, 'not_checked_in'>> {
+      const election = assertDefined(store.getElection());
+      const voter: Voter = store.getVoter(input.voterId);
+      if (!voter.checkIn) {
+        return err('not_checked_in');
+      }
+
+      const receipt = React.createElement(CheckInReceipt, {
+        voter,
+        machineId,
+        receiptNumber: voter.checkIn?.receiptNumber,
+        election,
+        reprintTimestamp: new Date(getCurrentTime()),
+      });
+      debug('Reprinting check-in receipt for voter %s', voter.voterId);
+      await renderAndPrintReceipt(printer, receipt);
+      return ok();
     },
 
     async changeVoterAddress(input: {
