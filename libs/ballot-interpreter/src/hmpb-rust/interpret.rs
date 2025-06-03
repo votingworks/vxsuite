@@ -182,8 +182,8 @@ impl ScanInterpreter {
             election,
             score_write_ins,
             disable_vertical_streak_detection,
-            bubble_template_image,
             infer_timing_marks,
+            bubble_template_image,
         })
     }
 
@@ -311,7 +311,7 @@ pub fn crop_ballot_page_image_borders(image: GrayImage) -> Option<BallotImage> {
 
 /// Prepare a ballot page image for interpretation by cropping the black border.
 #[allow(clippy::result_large_err)]
-fn prepare_ballot_page_image(
+pub fn prepare_ballot_page_image(
     label: &str,
     image: GrayImage,
     possible_paper_infos: &[PaperInfo],

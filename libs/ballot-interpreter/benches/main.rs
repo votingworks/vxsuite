@@ -32,7 +32,7 @@ impl InterpretFixture {
         let election_path = fixture_path.join(self.election).join("election.json");
         let election: types_rs::election::Election =
             serde_json::from_reader(BufReader::new(File::open(election_path)?))?;
-        let interpreter = ScanInterpreter::new(election, true, false)?;
+        let interpreter = ScanInterpreter::new(election, true, false, true)?;
         let side_a_path = fixture_path
             .join(self.election)
             .join(format!("{}-front{}", self.name, self.extension));

@@ -90,8 +90,7 @@ pub fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
         .get_value(&mut cx, "inferTimingMarks")?
         .downcast::<JsBoolean, _>(&mut cx)
         .ok()
-        .and_then(|b| Some(b.value(&mut cx)))
-        .unwrap_or(true);
+        .is_none_or(|b| b.value(&mut cx));
 
     let side_a_label = side_a_image_or_path.as_label_or(SIDE_A_LABEL);
     let side_b_label = side_b_image_or_path.as_label_or(SIDE_B_LABEL);
