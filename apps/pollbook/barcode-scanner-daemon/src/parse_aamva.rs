@@ -42,7 +42,7 @@ impl FromStr for AamvaHeader {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if s.len() < MIN_HEADER_LENGTH {
-            return Err(Self::Err::HeaderTooShort(s.to_string()));
+            return Err(Self::Err::HeaderTooShort(s.to_owned()));
         }
 
         // 1) Validate prefix
