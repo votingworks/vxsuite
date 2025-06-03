@@ -415,6 +415,7 @@ impl TimingMarkGrid {
 pub struct FindTimingMarkGridOptions<'a> {
     pub allowed_timing_mark_inset_percentage_of_width: UnitIntervalValue,
     pub debug: &'a mut ImageDebugWriter,
+    pub infer_timing_marks: bool,
 }
 
 /// Finds the timing marks in the given image and computes the grid of timing
@@ -448,6 +449,7 @@ pub fn find_timing_mark_grid(
         &FindCompleteTimingMarksFromPartialTimingMarksOptions {
             allowed_timing_mark_inset_percentage_of_width: options
                 .allowed_timing_mark_inset_percentage_of_width,
+            infer_timing_marks: options.infer_timing_marks,
             debug,
         },
     ) {
@@ -1195,6 +1197,7 @@ pub const MAX_ALLOWED_TIMING_MARK_DISTANCE_ERROR: UnitIntervalValue = 0.2;
 pub struct FindCompleteTimingMarksFromPartialTimingMarksOptions<'a> {
     pub allowed_timing_mark_inset_percentage_of_width: UnitIntervalValue,
     pub debug: &'a ImageDebugWriter,
+    pub infer_timing_marks: bool,
 }
 
 #[allow(clippy::too_many_lines)]
@@ -1313,57 +1316,75 @@ pub fn find_complete_from_partial(
     let median_horizontal_distance = horizontal_distances[horizontal_distances.len() / 2];
     let median_vertical_distance = vertical_distances[vertical_distances.len() / 2];
 
-    let complete_top_line_marks = infer_missing_timing_marks_on_segment(
-        ballot_image,
-        Border::Top,
-        top_line_marks,
-        &Segment::new(
-            partial_timing_marks.top_left_corner,
-            partial_timing_marks.top_right_corner,
-        ),
-        median_horizontal_distance,
-        geometry.grid_size.width,
-        geometry,
-    );
+    let should_infer_timing_marks = options.infer_timing_marks;
 
-    let complete_bottom_line_marks = infer_missing_timing_marks_on_segment(
-        ballot_image,
-        Border::Bottom,
-        bottom_line_marks,
-        &Segment::new(
-            partial_timing_marks.bottom_left_corner,
-            partial_timing_marks.bottom_right_corner,
-        ),
-        median_horizontal_distance,
-        geometry.grid_size.width,
-        geometry,
-    );
+    let complete_top_line_marks = if should_infer_timing_marks {
+        infer_missing_timing_marks_on_segment(
+            ballot_image,
+            Border::Top,
+            top_line_marks,
+            &Segment::new(
+                partial_timing_marks.top_left_corner,
+                partial_timing_marks.top_right_corner,
+            ),
+            median_horizontal_distance,
+            geometry.grid_size.width,
+            geometry,
+        )
+    } else {
+        top_line_marks.clone()
+    };
 
-    let complete_left_line_marks = infer_missing_timing_marks_on_segment(
-        ballot_image,
-        Border::Left,
-        left_line_marks,
-        &Segment::new(
-            partial_timing_marks.top_left_corner,
-            partial_timing_marks.bottom_left_corner,
-        ),
-        median_vertical_distance,
-        geometry.grid_size.height,
-        geometry,
-    );
+    let complete_bottom_line_marks = if should_infer_timing_marks {
+        infer_missing_timing_marks_on_segment(
+            ballot_image,
+            Border::Bottom,
+            bottom_line_marks,
+            &Segment::new(
+                partial_timing_marks.bottom_left_corner,
+                partial_timing_marks.bottom_right_corner,
+            ),
+            median_horizontal_distance,
+            geometry.grid_size.width,
+            geometry,
+        )
+    } else {
+        bottom_line_marks.clone()
+    };
 
-    let complete_right_line_marks = infer_missing_timing_marks_on_segment(
-        ballot_image,
-        Border::Right,
-        right_line_marks,
-        &Segment::new(
-            partial_timing_marks.top_right_corner,
-            partial_timing_marks.bottom_right_corner,
-        ),
-        median_vertical_distance,
-        geometry.grid_size.height,
-        geometry,
-    );
+    let complete_left_line_marks = if should_infer_timing_marks {
+        infer_missing_timing_marks_on_segment(
+            ballot_image,
+            Border::Left,
+            left_line_marks,
+            &Segment::new(
+                partial_timing_marks.top_left_corner,
+                partial_timing_marks.bottom_left_corner,
+            ),
+            median_vertical_distance,
+            geometry.grid_size.height,
+            geometry,
+        )
+    } else {
+        left_line_marks.clone()
+    };
+
+    let complete_right_line_marks = if should_infer_timing_marks {
+        infer_missing_timing_marks_on_segment(
+            ballot_image,
+            Border::Right,
+            right_line_marks,
+            &Segment::new(
+                partial_timing_marks.top_right_corner,
+                partial_timing_marks.bottom_right_corner,
+            ),
+            median_vertical_distance,
+            geometry.grid_size.height,
+            geometry,
+        )
+    } else {
+        right_line_marks.clone()
+    };
 
     if complete_top_line_marks.len() != complete_bottom_line_marks.len()
         || complete_left_line_marks.len() != complete_right_line_marks.len()
@@ -1855,6 +1876,7 @@ mod tests {
             &partial_timing_marks,
             &FindCompleteTimingMarksFromPartialTimingMarksOptions {
                 allowed_timing_mark_inset_percentage_of_width: 0.1,
+                infer_timing_marks: true,
                 debug: &ImageDebugWriter::disabled(),
             },
         )

@@ -81,6 +81,18 @@ pub fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
         .ok()
         .is_some_and(|b| b.value(&mut cx));
 
+    // Equivalent to:
+    //   let infer_timing_marks =
+    //     typeof options.inferTimingMarks === 'boolean'
+    //     ? options.inferTimingMarks
+    //     : false;
+    let infer_timing_marks = options
+        .get_value(&mut cx, "inferTimingMarks")?
+        .downcast::<JsBoolean, _>(&mut cx)
+        .ok()
+        .and_then(|b| Some(b.value(&mut cx)))
+        .unwrap_or(true);
+
     let side_a_label = side_a_image_or_path.as_label_or(SIDE_A_LABEL);
     let side_b_label = side_b_image_or_path.as_label_or(SIDE_B_LABEL);
     let (side_a_image, side_b_image) = rayon::join(
@@ -110,6 +122,7 @@ pub fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
             debug_side_b_base,
             score_write_ins,
             disable_vertical_streak_detection,
+            infer_timing_marks,
         },
     );
 

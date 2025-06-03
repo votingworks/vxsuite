@@ -55,6 +55,7 @@ pub struct Options {
     pub debug_side_b_base: Option<PathBuf>,
     pub score_write_ins: bool,
     pub disable_vertical_streak_detection: bool,
+    pub infer_timing_marks: bool,
 }
 
 #[derive(Debug, Serialize)]
@@ -160,6 +161,7 @@ pub struct ScanInterpreter {
     election: Election,
     score_write_ins: bool,
     disable_vertical_streak_detection: bool,
+    infer_timing_marks: bool,
     bubble_template_image: GrayImage,
 }
 
@@ -173,6 +175,7 @@ impl ScanInterpreter {
         election: Election,
         score_write_ins: bool,
         disable_vertical_streak_detection: bool,
+        infer_timing_marks: bool,
     ) -> Result<Self, image::ImageError> {
         let bubble_template_image = load_ballot_scan_bubble_image()?;
         Ok(Self {
@@ -180,6 +183,7 @@ impl ScanInterpreter {
             score_write_ins,
             disable_vertical_streak_detection,
             bubble_template_image,
+            infer_timing_marks,
         })
     }
 
@@ -203,6 +207,7 @@ impl ScanInterpreter {
             debug_side_b_base: debug_side_b_base.into(),
             score_write_ins: self.score_write_ins,
             disable_vertical_streak_detection: self.disable_vertical_streak_detection,
+            infer_timing_marks: self.infer_timing_marks,
         };
         ballot_card(side_a_image, side_b_image, &options)
     }
@@ -398,6 +403,7 @@ pub fn ballot_card(
                 FindTimingMarkGridOptions {
                     allowed_timing_mark_inset_percentage_of_width:
                         ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH,
+                    infer_timing_marks: options.infer_timing_marks,
                     debug,
                 },
             )
@@ -787,6 +793,7 @@ mod test {
             election,
             score_write_ins: true,
             disable_vertical_streak_detection: false,
+            infer_timing_marks: true,
         };
         (side_a_image, side_b_image, options)
     }
@@ -814,6 +821,7 @@ mod test {
             election,
             score_write_ins: true,
             disable_vertical_streak_detection: false,
+            infer_timing_marks: true,
         };
         (side_a_image, side_b_image, options)
     }
