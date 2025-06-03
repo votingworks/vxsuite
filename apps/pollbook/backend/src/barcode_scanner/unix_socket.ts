@@ -12,7 +12,7 @@ const UDS_PATH = '/tmp/barcodescannerd.sock';
  * the socket client if successful or rejects with an error.
  */
 export function tryConnect(logger: Logger): Promise<net.Socket> {
-  return new Promise<net.Socket>((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     let isConnected = false;
     const client = net.createConnection({
       path: UDS_PATH,

@@ -427,13 +427,10 @@ export interface AamvaDocument {
   nameSuffix: string;
 }
 
-export const AamvaDocumentSchema: z.ZodSchema<AamvaDocument> = z
-  .object({
-    issuingJurisdiction: z.string(),
-
-    firstName: z.string(),
-    middleName: z.string(),
-    lastName: z.string(),
-    nameSuffix: z.string(),
-  })
-  .strict() as z.ZodSchema<AamvaDocument>;
+export const AamvaDocumentSchema: z.ZodSchema<AamvaDocument> = z.strictObject({
+  issuingJurisdiction: z.string(),
+  firstName: z.string(),
+  middleName: z.string(),
+  lastName: z.string(),
+  nameSuffix: z.string(),
+});

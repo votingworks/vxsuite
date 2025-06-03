@@ -50,21 +50,27 @@ const COMPLIANCE_INDICATOR: &[u8] = b"@\n\x1E";
  * from scanning.
  */
 // The number of non-data bytes in a data element ID.
-// Calculated as (elementID.len() + data separator.len()) = (3 + 1)
-// eg. "DBA" + "\n"
-const NON_DATA_BYTES: usize = 4;
-// Maximum possible number of data elements encoded on an AAMVA document.
-// This is an overestimate because not all fields are available on all document types.
-// Includes both required and optional elements.
-const MAX_NUM_ELEMENTS: usize = 50;
-// Sum of all maximum sizes of data for all elements, excluding element ID; different for each element so this is just hard coded.
-// eg. document expiry = `DBAMMDDCCYY`
-//     address state   = `DAJNH`
-// So we manually sum "MMDDCCYY".len() + "NH".len() + ... for all fields
-const SUM_ALL_ELEMENTS_SIZE: usize = 535;
-// Jurisdiction-specific fields are not supported by this calculation, but could be with real-world examples.
-const MAX_AAMVA_DOCUMENT_SIZE: usize =
-    (NON_DATA_BYTES + 1) * MAX_NUM_ELEMENTS + SUM_ALL_ELEMENTS_SIZE;
+/*
+ * Calculation of maximum data size of a valid AAMVA document to protect against absurdly large data resulting
+ * from scanning.
+ */
+const MAX_AAMVA_DOCUMENT_SIZE: usize = {
+    // The number of non-data bytes in a data element ID.
+    // Calculated as (elementID.len() + data separator.len()) = (3 + 1)
+    // eg. "DBA" + "\n"
+    const NON_DATA_BYTES: usize = 4;
+    // Maximum possible number of data elements encoded on an AAMVA document.
+    // This is an overestimate because not all fields are available on all document types.
+    // Includes both required and optional elements.
+    const MAX_NUM_ELEMENTS: usize = 50;
+    // Sum of all maximum sizes of data for all elements, excluding element ID; different for each element so this is just hard coded.
+    // eg. document expiry = `DBAMMDDCCYY`
+    //     address state   = `DAJNH`
+    // So we manually sum "MMDDCCYY".len() + "NH".len() + ... for all fields
+    const SUM_ALL_ELEMENTS_SIZE: usize = 535;
+    // Jurisdiction-specific fields are not supported by this calculation, but could be with real-world examples.
+    (NON_DATA_BYTES + 1) * MAX_NUM_ELEMENTS + SUM_ALL_ELEMENTS_SIZE
+};
 
 // The maximum number of bytes that can be read from the scanner before exiting with failure code.
 // This protects against very large inputs that might cause the daemon to hang or infinite loop.
@@ -215,7 +221,7 @@ pub async fn run_read_write_loop<R: Read>(
                     // If the buffer does not end with the delimiter (terminator) then the underlying reader hit EOF.
                     // If EOF, `Take` encountered a dangerous amount of data (more than would fit in a QR or PDF417 code).
                     // If no data, we shouldn't have triggered this arm at all, so it's an unknown error.
-                    log!(EventId::ParseError, "Hit EOF while reading for terminator character {TS100_DATA_TERMINATOR}. Take limit: {SCANNER_READ_BUFFER_SIZE}. Bytes read: {n}");
+                    log!(EventId::ParseError, "Hit EOF while reading for terminator character {TS100_DATA_TERMINATOR:?}. Take limit: {SCANNER_READ_BUFFER_SIZE}. Bytes read: {n}");
                     exit(1);
                 }
 
@@ -238,7 +244,7 @@ pub async fn run_read_write_loop<R: Read>(
                 // We expect the input sequence to start with the compliance indicator
                 // on its own line so we just ignore it and skip to the next line.
                 // Existence of the compliance indicator is not enforced.
-                if buf.as_slice() == COMPLIANCE_INDICATOR {
+                if buf == COMPLIANCE_INDICATOR {
                     log!(EventId::Info, "Skipping compliance indicator");
                     continue;
                 }
@@ -255,7 +261,7 @@ pub async fn run_read_write_loop<R: Read>(
                     }
                 };
 
-                let doc = match AamvaDocument::from_str(str) {
+                let doc: AamvaDocument = match str.parse() {
                     Ok(doc) => doc,
                     Err(err @ AamvaParseError::DataTooLong(_, _)) => {
                         // Exit if data is in AAMVA format but doesn't follow AAMVA spec
@@ -291,7 +297,7 @@ pub async fn run_read_write_loop<R: Read>(
             // no data in this interval; no-op
             Err(ref e) if e.kind() == std::io::ErrorKind::TimedOut => {}
             Err(e) => {
-                log!(event_id: EventId::UnknownError, message: format!("Error reading from USB device: {e}"));
+                log!(EventId::UnknownError, "Error reading from USB device: {e}");
                 running.store(false, Ordering::SeqCst);
             }
         };
@@ -323,20 +329,18 @@ async fn main() -> color_eyre::Result<()> {
     let clients = Arc::new(Mutex::new(Vec::<UnixStream>::new()));
 
     // Spawn thread to accept clients
-    {
-        tokio::spawn({
-            let clients = clients.clone();
-            async move {
-                loop {
-                    if let Ok((stream, _addr)) = listener.accept().await {
-                        let mut guard = clients.lock().await;
-                        log!(EventId::SocketClientConnected);
-                        guard.push(stream);
-                    }
+    tokio::spawn({
+        let clients = clients.clone();
+        async move {
+            loop {
+                if let Ok((stream, _addr)) = listener.accept().await {
+                    let mut guard = clients.lock().await;
+                    log!(EventId::SocketClientConnected);
+                    guard.push(stream);
                 }
             }
-        });
-    }
+        }
+    });
 
     // Connect to barcode scanner device
     match init_port(TS100_PORT_NAME, TS100_BAUD_RATE) {

@@ -49,16 +49,14 @@ impl FromStr for AamvaHeader {
         let actual_prefix = &s[..EXPECTED_PREFIX.len()];
         if actual_prefix != EXPECTED_PREFIX {
             return Err(AamvaParseError::UnexpectedHeaderPrefix(
-                actual_prefix.to_string(),
+                actual_prefix.to_owned(),
             ));
         }
 
         // 2) Validate issuer ID
         Ok(AamvaHeader {
             raw: s.to_owned(),
-            issuing_jurisdiction: AamvaIssuingJurisdiction::from_str(
-                &s[EXPECTED_PREFIX.len()..][..ISSUER_SIZE],
-            )?,
+            issuing_jurisdiction: s[EXPECTED_PREFIX.len()..][..ISSUER_SIZE].parse()?,
         })
     }
 }
@@ -98,8 +96,8 @@ impl FromStr for AamvaDocument {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut lines = s.lines();
 
-        let header = match lines.next() {
-            Some(next_line) => AamvaHeader::from_str(next_line)?,
+        let header: AamvaHeader = match lines.next() {
+            Some(next_line) => next_line.parse()?,
             None => return Err(Self::Err::NoLine),
         };
 
@@ -118,7 +116,7 @@ impl FromStr for AamvaDocument {
                     if data.len() > MAX_NAME_LENGTH {
                         return Err(Self::Err::DataTooLong(id.to_string(), data.to_string()));
                     }
-                    data.clone_into(&mut document.first_name);
+                    document.first_name = data.to_owned();
                 }
                 "DAD" => {
                     if data.len() > MAX_NAME_LENGTH {
@@ -163,10 +161,10 @@ DCUJR
         let doc = AamvaDocument::from_str(VALID_BLOB).unwrap();
 
         assert_eq!(doc.issuing_jurisdiction, "NH");
-        assert_eq!(doc.first_name, "FIRST".to_owned());
-        assert_eq!(doc.middle_name, "MIDDLE".to_owned());
-        assert_eq!(doc.last_name, "LAST".to_owned());
-        assert_eq!(doc.name_suffix, "JR".to_owned());
+        assert_eq!(&doc.first_name, "FIRST");
+        assert_eq!(&doc.middle_name, "MIDDLE");
+        assert_eq!(&doc.last_name, "LAST");
+        assert_eq!(&doc.name_suffix, "JR");
     }
 
     #[test]
@@ -176,8 +174,8 @@ DCUJR
 ANSI 636039090001DL00310485DLDAQNHL12345678
 DACFIRST
 ";
-        let doc = AamvaDocument::from_str(blob).unwrap();
-        assert_eq!(doc.first_name, "FIRST".to_owned());
+        let doc: AamvaDocument = blob.parse().unwrap();
+        assert_eq!(&doc.first_name, "FIRST");
         // Everything else is still empty string
         assert!(doc.middle_name.is_empty());
         assert!(doc.last_name.is_empty());
