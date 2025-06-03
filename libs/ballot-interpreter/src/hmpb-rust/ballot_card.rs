@@ -1,12 +1,13 @@
 use std::{cmp::Ordering, io, ops::Range};
 
 use image::GrayImage;
+use imageproc::contrast::{otsu_level, threshold};
 use serde::Serialize;
 use types_rs::geometry::PixelUnit;
 
 pub use types_rs::ballot_card::*;
 
-use crate::image_utils::Inset;
+use crate::image_utils::{bleed, Inset, BLACK};
 
 use types_rs::geometry::{GridUnit, Inch, PixelPosition, Rect, Size, SubPixelUnit};
 
@@ -301,7 +302,8 @@ pub fn get_matching_paper_info_for_image_size(
 pub fn load_ballot_scan_bubble_image() -> Result<GrayImage, image::ImageError> {
     let bubble_image_bytes = include_bytes!("../../data/bubble_scan.png");
     let inner = io::Cursor::new(bubble_image_bytes);
-    image::load(inner, image::ImageFormat::Png).map(|image| image.to_luma8())
+    let image = image::load(inner, image::ImageFormat::Png).map(|image| image.to_luma8())?;
+    Ok(bleed(&threshold(&image, otsu_level(&image)), BLACK))
 }
 
 #[cfg(test)]

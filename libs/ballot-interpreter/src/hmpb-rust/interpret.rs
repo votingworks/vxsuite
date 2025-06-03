@@ -748,16 +748,11 @@ mod test {
     };
 
     use image::Luma;
-    use imageproc::{
-        contrast::threshold,
-        geometric_transformations::{self, Interpolation, Projection},
-    };
+    use imageproc::geometric_transformations::{self, Interpolation, Projection};
     use types_rs::geometry::{Degrees, PixelPosition, Radians, Rect};
 
     use crate::{
-        ballot_card::load_ballot_scan_bubble_image,
-        image_utils::{bleed, BLACK},
-        scoring::UnitIntervalScore,
+        ballot_card::load_ballot_scan_bubble_image, scoring::UnitIntervalScore,
         timing_marks::Complete,
     };
 
@@ -782,10 +777,6 @@ mod test {
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
         let bubble_template = load_ballot_scan_bubble_image().unwrap();
-        let bubble_template = bleed(
-            &threshold(&bubble_template, otsu_level(&bubble_template)),
-            BLACK,
-        );
         let side_a_path = fixture_path.join(fixture_name).join(side_a_name);
         let side_b_path = fixture_path.join(fixture_name).join(side_b_name);
         let (side_a_image, side_b_image) = load_ballot_card_images(&side_a_path, &side_b_path);

@@ -1,12 +1,10 @@
 #![allow(clippy::similar_names)]
 
-use image::{DynamicImage, GrayImage, Luma};
-use imageproc::contrast::{otsu_level, threshold};
+use image::{DynamicImage, GrayImage};
 use neon::prelude::*;
 use neon::types::JsObject;
 
 use crate::ballot_card::load_ballot_scan_bubble_image;
-use crate::image_utils::{bleed, BLACK};
 use crate::interpret::{ballot_card, Options, SIDE_A_LABEL, SIDE_B_LABEL};
 
 use self::args::{
@@ -102,10 +100,6 @@ pub fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
         };
 
     let bubble_template = load_ballot_scan_bubble_image().expect("failed to load bubble template");
-    let bubble_template = bleed(
-        &threshold(&bubble_template, otsu_level(&bubble_template)),
-        BLACK,
-    );
     let interpret_result = ballot_card(
         side_a_image,
         side_b_image,
