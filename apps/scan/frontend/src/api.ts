@@ -393,6 +393,13 @@ export const returnBallot = {
   },
 } as const;
 
+export const readyForNextBallot = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.readyForNextBallot);
+  },
+} as const;
+
 export const beginDoubleFeedCalibration = {
   useMutation() {
     const apiClient = useApiClient();

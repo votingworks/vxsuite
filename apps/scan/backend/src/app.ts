@@ -405,6 +405,10 @@ export function buildApi({
       machine.return();
     },
 
+    readyForNextBallot(): void {
+      machine.readyForNextBallot();
+    },
+
     beginDoubleFeedCalibration(): void {
       machine.beginDoubleFeedCalibration();
     },
