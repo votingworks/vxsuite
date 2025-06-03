@@ -10,6 +10,7 @@ export const base: vitest.ViteUserConfig = {
         lines: 100,
         branches: 100,
       },
+      reportOnFailure: true,
       provider: 'istanbul',
       include: ['src/**/*.ts', 'src/**/*.tsx'],
       exclude: ['**/*.test.ts', '**/*.test.tsx'],
