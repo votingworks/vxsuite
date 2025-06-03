@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import styled, { DefaultTheme, StyledComponent } from 'styled-components';
 import { Icons } from '../icons';
 import { appStrings } from '../ui_strings';
-import { SPACE_BAR_KEY } from './virtual_keyboard';
+import { DELETE_KEY, SPACE_BAR_KEY } from './virtual_keyboard';
 import { Key } from './common';
 import { ScanPanelRow } from './scan_panels/scan_panel_row';
 import { KeyButton } from './scan_panels/key_button';
@@ -36,6 +36,7 @@ const SpaceBarDisplay = styled.span`
 `;
 
 const DeleteKey = styled.div`
+  align-items: center;
   display: flex;
 
   & svg {
@@ -55,7 +56,7 @@ const SpaceBarButton = styled.span`
 export interface ScanPanelVirtualKeyboardProps {
   onKeyPress: (key: string) => void;
   onBackspace: () => void;
-  keyDisabled(key: string): boolean;
+  keyDisabled(key: Key): boolean;
   keyMap?: ScanPanelKeyMap;
 }
 
@@ -286,8 +287,7 @@ export const US_ENGLISH_SCAN_PANEL_KEYMAP: ScanPanelKeyMap = {
             },
           },
           {
-            value: 'delete',
-            renderAudioString: () => appStrings.labelKeyboardDelete(),
+            ...DELETE_KEY,
             renderLabel: () => (
               <DeleteKey>
                 <Icons.Backspace /> {appStrings.labelKeyboardDelete()}
@@ -360,7 +360,8 @@ export function ScanPanelVirtualKeyboard({
 
   function getScanPanelRenderOption(
     rowIndex: number,
-    panelIndex: number
+    panelIndex: number,
+    keys: KeyWithRenderSpec[]
   ): ScanPanelRenderOption {
     // 3 cases:
     // 1. Render as enabled button (parent row selected, no scan panel selected)
@@ -373,7 +374,12 @@ export function ScanPanelVirtualKeyboard({
           ? 'container'
           : 'button-disabled';
       }
-      return 'button-enabled';
+
+      for (const key of keys) {
+        if (!keyDisabled(key)) return 'button-enabled';
+      }
+
+      return 'button-disabled';
     }
 
     /* istanbul ignore next - scan panel is currently never rendered unless the parent row is selected - @preserve */
@@ -431,7 +437,7 @@ export function ScanPanelVirtualKeyboard({
         key={value}
         keySpec={keySpec}
         onKeyPress={onSelectKey}
-        disabled={keyDisabled(value)}
+        disabled={keyDisabled(keySpec)}
         selectable={selectable}
       />
     );
@@ -452,13 +458,23 @@ export function ScanPanelVirtualKeyboard({
       .map((panel) => panel.keys.map((keySpec) => keySpec))
       .reduce((acc, r) => acc.concat(r));
 
+    let containsEnabledKey = false;
+    for (const key of keySpecs) {
+      if (!keyDisabled(key)) {
+        containsEnabledKey = true;
+        break;
+      }
+    }
+
     // Render a Row of KeyButtons without the intermediate ScanPanels
     return (
       <ScanPanelRow
         ref={getFocusRefForRow(rowIndex)}
         onSelect={() => onSelectRow(rowIndex)}
         key={`row-${keySpecs.map((spec) => spec.value).join()}`}
-        selectable={selectionLevel === SelectionLevel.Rows}
+        selectable={
+          selectionLevel === SelectionLevel.Rows && containsEnabledKey
+        }
         selected={selectedRowIndex === rowIndex}
       >
         {keySpecs.map((keySpec, keyIndex) =>
@@ -477,7 +493,11 @@ export function ScanPanelVirtualKeyboard({
               ref={getFocusRefForScanPanel(panelIndex)}
               numKeys={panel.keys.length}
               key={panel.keys.map((k) => k.value).join()}
-              renderAs={getScanPanelRenderOption(rowIndex, panelIndex)}
+              renderAs={getScanPanelRenderOption(
+                rowIndex,
+                panelIndex,
+                panel.keys
+              )}
               onSelect={() => onSelectScanPanel(panelIndex)}
             >
               {panel.keys.map((keySpec, keyIndex) =>

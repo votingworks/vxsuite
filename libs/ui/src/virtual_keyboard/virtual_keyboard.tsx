@@ -41,7 +41,7 @@ export interface VirtualKeyboardProps {
   onBackspace: () => void;
   onCancel: () => void;
   onAccept: () => void;
-  keyDisabled(key: string): boolean;
+  keyDisabled(key: Key): boolean;
   keyMap?: KeyMap;
   enableWriteInAtiControllerNavigation?: boolean;
 }
@@ -467,6 +467,7 @@ export function VirtualKeyboard({
         flexBasis: getFlexBasis(key.columnSpan),
       },
       icon: key.icon,
+      disabled: keyDisabled(key),
     };
 
     switch (key.action) {
@@ -475,12 +476,12 @@ export function VirtualKeyboard({
         break;
       case ActionKey.ACCEPT:
         buttonProps.onPress = onAccept;
+        buttonProps.variant = 'primary';
         break;
       case ActionKey.CANCEL:
         buttonProps.onPress = onCancel;
         break;
-      default:
-        buttonProps.disabled = keyDisabled(value);
+      default: // no-op
     }
 
     const button = (
