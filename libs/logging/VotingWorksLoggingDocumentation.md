@@ -16,11 +16,11 @@ Types are logged with each log line to categorize the log.
 IDs are logged with each log to identify the log being written.
 ### election-configured
 **Type:** [user-action](#user-action)
-**Description:** The user has configured current machine to a new election definition.
+**Description:** The user has configured the machine with a new election definition (or failed to do so). Success or failure indicated by disposition.
 **Machines:** All
 ### election-unconfigured
 **Type:** [user-action](#user-action)
-**Description:** The user has unconfigured current machine to remove the current election definition, and all other data.
+**Description:** The user has unconfigured the machine, removing the current election definition and all other data (or failed to do so). Success or failure indicated by disposition.
 **Machines:** All
 ### auth-pin-entry
 **Type:** [user-action](#user-action)
@@ -276,7 +276,7 @@ IDs are logged with each log to identify the log being written.
 **Machines:** vx-admin
 ### import-cast-vote-records-complete
 **Type:** [user-action](#user-action)
-**Description:** Cast vote records have been imported from a USB drive (or failed to be imported).
+**Description:** Cast vote records have been imported from a USB drive (or failed to be imported). Success or failure indicated by disposition.
 **Machines:** vx-admin
 ### clear-imported-cast-vote-records-init
 **Type:** [user-action](#user-action)
@@ -284,7 +284,7 @@ IDs are logged with each log to identify the log being written.
 **Machines:** vx-admin
 ### clear-imported-cast-vote-records-complete
 **Type:** [user-action](#user-action)
-**Description:** Imported cast vote records have been cleared (or failed to be cleared).
+**Description:** Imported cast vote records have been cleared (or failed to be cleared). Success or failure indicated by disposition.
 **Machines:** vx-admin
 ### manual-tally-data-edited
 **Type:** [user-action](#user-action)
