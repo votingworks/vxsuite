@@ -33,6 +33,7 @@ import {
   ScanPanelVirtualKeyboard,
   AccessibilityMode,
   Font,
+  virtualKeyboardCommon,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 
@@ -227,8 +228,20 @@ export function CandidateContest({
   const writeInCharsRemaining =
     WRITE_IN_CANDIDATE_MAX_LENGTH - writeInCandidateName.length;
 
-  function keyDisabled() {
-    return writeInCharsRemaining === 0;
+  function keyDisabled(key: virtualKeyboardCommon.Key) {
+    switch (key.action) {
+      case virtualKeyboardCommon.ActionKey.ACCEPT:
+        return writeInCandidateName.length === 0;
+
+      case virtualKeyboardCommon.ActionKey.CANCEL:
+        return false;
+
+      case virtualKeyboardCommon.ActionKey.DELETE:
+        return false;
+
+      default:
+        return writeInCharsRemaining === 0;
+    }
   }
 
   function handleDisabledAddWriteInClick() {
