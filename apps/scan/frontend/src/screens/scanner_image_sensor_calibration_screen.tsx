@@ -45,8 +45,7 @@ export function ScannerImageSensorCalibrationScreen(): JSX.Element | null {
   /* istanbul ignore next - @preserve */
   assert(
     status.state === 'calibrating_image_sensors.calibrating' ||
-      status.state === 'calibrating_image_sensors.done' ||
-      status.state === 'paused'
+      status.state === 'calibrating_image_sensors.done'
   );
 
   switch (status.state) {
@@ -63,9 +62,6 @@ export function ScannerImageSensorCalibrationScreen(): JSX.Element | null {
       );
     }
 
-    // After hitting the close button, the scanner goes back to the paused state
-    // momentarily before this screen unmounts
-    case 'paused':
     case 'calibrating_image_sensors.done': {
       const closeButton = (
         <Button
