@@ -6,7 +6,6 @@ export default defineConfig({
     setupFiles: ['test/setupTests.ts'],
     clearMocks: true,
     coverage: {
-      reportOnFailure: true,
       thresholds: {
         lines: 85,
         branches: 79,
