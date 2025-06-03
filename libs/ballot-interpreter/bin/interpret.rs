@@ -22,6 +22,10 @@ struct Options {
     /// Determines whether to disable vertical streak detection.
     #[clap(long, default_value = "false")]
     disable_vertical_streak_detection: bool,
+
+    /// Determines whether to disable timing mark inference.
+    #[clap(long, default_value = "false")]
+    disable_timing_mark_inference: bool,
 }
 
 impl Options {
@@ -47,6 +51,7 @@ fn main() -> color_eyre::Result<()> {
         options.load_election()?,
         options.score_write_ins,
         options.disable_vertical_streak_detection,
+        !options.disable_timing_mark_inference,
     )?;
 
     let start = Instant::now();
@@ -57,7 +62,7 @@ fn main() -> color_eyre::Result<()> {
         None,
     );
     let duration = start.elapsed();
-    let exit_code = if result.is_ok() { 0 } else { 1 };
+    let exit_code = i32::from(!result.is_ok());
 
     match result {
         Ok(interpretation) => {

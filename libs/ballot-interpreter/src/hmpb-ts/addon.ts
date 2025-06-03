@@ -45,6 +45,7 @@ export function interpret(
   options?: {
     scoreWriteIns?: boolean;
     disableVerticalStreakDetection?: boolean;
+    inferTimingMarks?: boolean;
   }
 ): BridgeInterpretResult {
   return addon.interpret(

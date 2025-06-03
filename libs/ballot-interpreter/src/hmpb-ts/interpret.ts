@@ -41,11 +41,13 @@ function normalizeArgumentsForBridge(
     | {
         scoreWriteIns?: boolean;
         disableVerticalStreakDetection?: boolean;
+        inferTimingMarks?: boolean;
         debug?: boolean;
       }
     | {
         scoreWriteIns?: boolean;
         disableVerticalStreakDetection?: boolean;
+        inferTimingMarks?: boolean;
         debugBasePaths?: SheetOf<string>;
       } = {}
 ): Parameters<typeof interpretImpl> {
@@ -77,6 +79,7 @@ function normalizeArgumentsForBridge(
     {
       scoreWriteIns: options.scoreWriteIns,
       disableVerticalStreakDetection: options.disableVerticalStreakDetection,
+      inferTimingMarks: options.inferTimingMarks,
     },
   ];
 }
@@ -90,6 +93,7 @@ export function interpret(
   options?: {
     scoreWriteIns?: boolean;
     disableVerticalStreakDetection?: boolean;
+    inferTimingMarks?: boolean;
     debug?: boolean;
   }
 ): HmpbInterpretResult;
@@ -102,6 +106,7 @@ export function interpret(
   options?: {
     scoreWriteIns?: boolean;
     disableVerticalStreakDetection?: boolean;
+    inferTimingMarks?: boolean;
     debugBasePaths?: SheetOf<string>;
   }
 ): HmpbInterpretResult;
@@ -115,11 +120,13 @@ export function interpret(
     | {
         scoreWriteIns?: boolean;
         disableVerticalStreakDetection?: boolean;
+        inferTimingMarks?: boolean;
         debug?: boolean;
       }
     | {
         scoreWriteIns?: boolean;
         disableVerticalStreakDetection?: boolean;
+        inferTimingMarks?: boolean;
         debugBasePaths?: SheetOf<string>;
       }
 ): HmpbInterpretResult {

@@ -55,6 +55,7 @@ pub struct Options {
     pub debug_side_b_base: Option<PathBuf>,
     pub score_write_ins: bool,
     pub disable_vertical_streak_detection: bool,
+    pub infer_timing_marks: bool,
 }
 
 #[derive(Debug, Serialize)]
@@ -160,6 +161,7 @@ pub struct ScanInterpreter {
     election: Election,
     score_write_ins: bool,
     disable_vertical_streak_detection: bool,
+    infer_timing_marks: bool,
     bubble_template_image: GrayImage,
 }
 
@@ -173,12 +175,14 @@ impl ScanInterpreter {
         election: Election,
         score_write_ins: bool,
         disable_vertical_streak_detection: bool,
+        infer_timing_marks: bool,
     ) -> Result<Self, image::ImageError> {
         let bubble_template_image = load_ballot_scan_bubble_image()?;
         Ok(Self {
             election,
             score_write_ins,
             disable_vertical_streak_detection,
+            infer_timing_marks,
             bubble_template_image,
         })
     }
@@ -203,6 +207,7 @@ impl ScanInterpreter {
             debug_side_b_base: debug_side_b_base.into(),
             score_write_ins: self.score_write_ins,
             disable_vertical_streak_detection: self.disable_vertical_streak_detection,
+            infer_timing_marks: self.infer_timing_marks,
         };
         ballot_card(side_a_image, side_b_image, &options)
     }
@@ -398,6 +403,7 @@ pub fn ballot_card(
                 FindTimingMarkGridOptions {
                     allowed_timing_mark_inset_percentage_of_width:
                         ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH,
+                    infer_timing_marks: options.infer_timing_marks,
                     debug,
                 },
             )
@@ -748,16 +754,11 @@ mod test {
     };
 
     use image::Luma;
-    use imageproc::{
-        contrast::threshold,
-        geometric_transformations::{self, Interpolation, Projection},
-    };
+    use imageproc::geometric_transformations::{self, Interpolation, Projection};
     use types_rs::geometry::{Degrees, PixelPosition, Radians, Rect};
 
     use crate::{
-        ballot_card::load_ballot_scan_bubble_image,
-        image_utils::{bleed, BLACK},
-        scoring::UnitIntervalScore,
+        ballot_card::load_ballot_scan_bubble_image, scoring::UnitIntervalScore,
         timing_marks::Complete,
     };
 
@@ -782,10 +783,6 @@ mod test {
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
         let bubble_template = load_ballot_scan_bubble_image().unwrap();
-        let bubble_template = bleed(
-            &threshold(&bubble_template, otsu_level(&bubble_template)),
-            BLACK,
-        );
         let side_a_path = fixture_path.join(fixture_name).join(side_a_name);
         let side_b_path = fixture_path.join(fixture_name).join(side_b_name);
         let (side_a_image, side_b_image) = load_ballot_card_images(&side_a_path, &side_b_path);
@@ -796,6 +793,7 @@ mod test {
             election,
             score_write_ins: true,
             disable_vertical_streak_detection: false,
+            infer_timing_marks: true,
         };
         (side_a_image, side_b_image, options)
     }
@@ -823,6 +821,7 @@ mod test {
             election,
             score_write_ins: true,
             disable_vertical_streak_detection: false,
+            infer_timing_marks: true,
         };
         (side_a_image, side_b_image, options)
     }

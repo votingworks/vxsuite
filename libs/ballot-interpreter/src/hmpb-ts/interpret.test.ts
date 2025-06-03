@@ -1,8 +1,10 @@
-import { expect, test } from 'vitest';
 import { assertDefined, iter, ok, unique } from '@votingworks/basics';
-import { ImageData } from 'canvas';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
+import { loadImageData } from '@votingworks/image-utils';
 import { Election, ElectionDefinition, SheetOf } from '@votingworks/types';
+import { ImageData } from 'canvas';
+import { join } from 'node:path';
+import { expect, test } from 'vitest';
 import { interpret } from './interpret';
 
 const electionGridLayoutNewHampshireTestBallotDefinition =
@@ -717,6 +719,32 @@ test('score write in areas', async () => {
 
   expect(front.writeIns).toMatchSnapshot();
   expect(back.writeIns).toMatchSnapshot();
+});
+
+test('disable timing mark inference', async () => {
+  const electionDefinition = electionGridLayoutNewHampshireTestBallotDefinition;
+  const ballotImages: SheetOf<ImageData> = [
+    await loadImageData(
+      join(
+        __dirname,
+        '../../test/fixtures/m17-backup/1d8eb82c-43bb-454d-a85b-1ffaf65c2b72-front.jpg'
+      )
+    ),
+    await loadImageData(
+      join(
+        __dirname,
+        '../../test/fixtures/m17-backup/1d8eb82c-43bb-454d-a85b-1ffaf65c2b72-back.jpg'
+      )
+    ),
+  ];
+
+  const result = interpret(electionDefinition, ballotImages, {
+    scoreWriteIns: true,
+    inferTimingMarks: false,
+  });
+  expect(result.assertErr('interpret unexpectedly succeeded').type).toEqual(
+    'missingTimingMarks'
+  );
 });
 
 test('interpret with grainy timing marks', async () => {
