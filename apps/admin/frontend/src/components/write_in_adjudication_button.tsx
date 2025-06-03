@@ -3,7 +3,7 @@ import styled, { useTheme } from 'styled-components';
 import { CheckboxButton, Icons, SearchSelect } from '@votingworks/ui';
 import { Candidate } from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { normalizeWriteInName } from '../utils/write_ins';
+import { normalizeWriteInName } from '../utils/adjudication';
 import type {
   InvalidWriteIn,
   WriteInAdjudicationStatus,

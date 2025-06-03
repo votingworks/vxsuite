@@ -61,7 +61,7 @@ import {
   getWriteInCandidates,
   setManualResults,
 } from '../../api';
-import { normalizeWriteInName } from '../../utils/write_ins';
+import { normalizeWriteInName } from '../../utils/adjudication';
 import {
   ManualTallyFormContestParams,
   ManualTallyFormParams,

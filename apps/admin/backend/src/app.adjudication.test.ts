@@ -3,7 +3,7 @@ import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
-import { assert, find } from '@votingworks/basics';
+import { assert, assertDefined, find } from '@votingworks/basics';
 import { toDataUrl, loadImageData } from '@votingworks/image-utils';
 import { join } from 'node:path';
 import {
@@ -33,8 +33,7 @@ import {
 import {
   AdjudicatedContestOption,
   AdjudicatedCvrContest,
-  BmdWriteInImageView,
-  HmpbWriteInImageView,
+  HmpbImageView,
   VoteAdjudication,
   WriteInRecord,
 } from './types';
@@ -147,7 +146,7 @@ test('getAdjudicationQueueMetadata', async () => {
   );
 });
 
-test('getWriteInImageViews on hmpb', async () => {
+test('getBallotImageView on hmpb', async () => {
   const { auth, apiClient } = buildTestEnvironment();
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
@@ -171,21 +170,20 @@ test('getWriteInImageViews on hmpb', async () => {
   const [cvrId] = cvrIds;
   assert(cvrId !== undefined);
 
-  const [writeInImageViewA, writeInImageViewB] =
-    await apiClient.getWriteInImageViews({
-      cvrId,
-      contestId,
-    });
+  const ballotImageView = await apiClient.getBallotImageView({
+    cvrId,
+    contestId,
+  });
 
   // check first write-in image
-  assert(writeInImageViewA);
+  assert(ballotImageView);
 
   const {
     imageUrl: actualImageUrl,
-    ballotCoordinates: ballotCoordinatesA,
-    contestCoordinates: contestCoordinatesA,
-    writeInCoordinates: writeInCoordinatesA,
-  } = writeInImageViewA as HmpbWriteInImageView;
+    ballotCoordinates,
+    contestCoordinates,
+    optionLayouts,
+  } = ballotImageView as HmpbImageView;
 
   const expectedImage = await loadImageData(
     join(
@@ -203,15 +201,19 @@ test('getWriteInImageViews on hmpb', async () => {
     x: 0,
     y: 0,
   };
-  expect(ballotCoordinatesA).toEqual(expectedBallotCoordinates);
+  expect(ballotCoordinates).toEqual(expectedBallotCoordinates);
   const expectedContestCoordinates: Rect = {
     height: 374,
     width: 1161,
     x: 436,
     y: 1183,
   };
-  expect(contestCoordinatesA).toEqual(expectedContestCoordinates);
-  expect(writeInCoordinatesA).toMatchInlineSnapshot(`
+  expect(contestCoordinates).toEqual(expectedContestCoordinates);
+  const [writeIn] = await apiClient.getWriteIns({ cvrId, contestId });
+  const writeInOptionLayout = assertDefined(
+    optionLayouts.find((layout) => layout.definition?.id === writeIn?.optionId)
+  );
+  expect(writeInOptionLayout.bounds).toMatchInlineSnapshot(`
     {
       "height": 140,
       "width": 270,
@@ -219,27 +221,9 @@ test('getWriteInImageViews on hmpb', async () => {
       "y": 1274,
     }
   `);
-
-  // check the second write-in image view, which should have the same image
-  // but different writeInCoordinates
-  const {
-    ballotCoordinates: ballotCoordinatesB,
-    contestCoordinates: contestCoordinatesB,
-    writeInCoordinates: writeInCoordinatesB,
-  } = writeInImageViewB as HmpbWriteInImageView;
-  expect(ballotCoordinatesB).toEqual(expectedBallotCoordinates);
-  expect(contestCoordinatesB).toEqual(expectedContestCoordinates);
-  expect(writeInCoordinatesB).toMatchInlineSnapshot(`
-    {
-      "height": 138,
-      "width": 269,
-      "x": 1328,
-      "y": 1366,
-    }
-  `);
 });
 
-test('getWriteInImageViews on bmd', async () => {
+test('getBallotImageView on bmd', async () => {
   const { auth, apiClient } = buildTestEnvironment();
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
@@ -259,31 +243,14 @@ test('getWriteInImageViews on bmd', async () => {
     contestId,
   });
   expect(cvrIds).toHaveLength(24);
-  const [cvrId1, cvrId2] = cvrIds;
-  assert(cvrId1 !== undefined && cvrId2 !== undefined);
+  const [cvrId1] = cvrIds;
+  assert(cvrId1 !== undefined);
 
-  // check image of first write-in
-  const [writeInImageViewA] = await apiClient.getWriteInImageViews({
+  const ballotImageView = await apiClient.getBallotImageView({
     cvrId: cvrId1,
     contestId,
   });
-  assert(writeInImageViewA);
-
-  const { machineMarkedText: machineMarkedTextA } =
-    writeInImageViewA as BmdWriteInImageView;
-
-  expect(machineMarkedTextA).toEqual('Mock Write-In');
-
-  // check the second write-in image view, which should have the same image
-  // but different writeInCoordinates
-  const [writeInImageViewB] = await apiClient.getWriteInImageViews({
-    cvrId: cvrId2,
-    contestId,
-  });
-  assert(writeInImageViewB);
-  const { machineMarkedText: machineMarkedTextB } =
-    writeInImageViewB as BmdWriteInImageView;
-  expect(machineMarkedTextB).toEqual('Mock Write-In');
+  assert(ballotImageView);
 });
 
 test('getNextCvrIdForAdjudication', async () => {
@@ -401,6 +368,13 @@ test('handling unmarked write-ins', async () => {
     contestId: WRITE_IN_CONTEST_ID,
   });
   assert(cvrId !== undefined);
+
+  const cvrContestTag = await apiClient.getCvrContestTag({
+    cvrId,
+    contestId: WRITE_IN_CONTEST_ID,
+  });
+  assert(cvrContestTag !== undefined);
+  assert(cvrContestTag.hasUnmarkedWriteIn);
 
   async function expectContestResults(
     contestSummary: ContestResultsSummary
@@ -658,6 +632,13 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
     totalTally: 2,
   });
 
+  let cvrContestTag = await apiClient.getCvrContestTag({
+    cvrId,
+    contestId,
+  });
+  assert(cvrContestTag !== undefined);
+  assert(cvrContestTag.hasWriteIn && !cvrContestTag.isResolved);
+
   // check the write-in being marked as invalid (false)
   await apiClient.adjudicateCvrContest(
     formAdjudicatedCvrContest({
@@ -667,6 +648,15 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
       },
     })
   );
+
+  // check that adjudicating the contest marked the tag as resolved
+  cvrContestTag = await apiClient.getCvrContestTag({
+    cvrId,
+    contestId,
+  });
+  assert(cvrContestTag !== undefined);
+  assert(cvrContestTag.hasWriteIn && cvrContestTag.isResolved);
+
   await expectWriteInRecord(writeInId, {
     adjudicationType: 'invalid',
     status: 'adjudicated',
@@ -862,4 +852,192 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
     pendingTally: 1,
     totalTally: 2,
   });
+});
+
+test('getMarginalMarks on an hmpb', async () => {
+  const { auth, apiClient } = buildTestEnvironment();
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { manualCastVoteRecordExport } =
+    electionGridLayoutNewHampshireTestBallotFixtures;
+  const systemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    adminAdjudicationReasons: [AdjudicationReason.MarginalMark],
+    markThresholds: {
+      marginal: 0.05,
+      definite: 0.1,
+    },
+  };
+  await configureMachine(apiClient, auth, electionDefinition, systemSettings);
+
+  // modify the cvr for a contest to include mark scores
+  const contestId = 'State-Representatives-Hillsborough-District-34-b1012d38';
+  let marginallyMarkedOptionId: string | undefined;
+
+  const exportDirectoryPath = await modifyCastVoteRecordExport(
+    manualCastVoteRecordExport.asDirectoryPath(),
+    {
+      castVoteRecordModifier: (cvr) => {
+        const snapshot = find(
+          cvr.CVRSnapshot,
+          (s) => s.Type === CVR.CVRType.Original
+        );
+
+        const contest = snapshot.CVRContest.find(
+          (c) => c.ContestId === contestId
+        );
+        if (contest) {
+          const option0 = assertDefined(
+            contest.CVRContestSelection[0]?.SelectionPosition[0]
+          );
+          option0.MarkMetricValue = ['0.01'];
+
+          const option1 = assertDefined(
+            contest.CVRContestSelection[1]?.SelectionPosition[0]
+          );
+          option1.MarkMetricValue = ['0.08'];
+          marginallyMarkedOptionId =
+            contest.CVRContestSelection[1]?.ContestSelectionId;
+
+          const option2 = assertDefined(
+            contest.CVRContestSelection[2]?.SelectionPosition[0]
+          );
+          option2.MarkMetricValue = ['0.10'];
+        }
+        return cvr;
+      },
+    }
+  );
+
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: exportDirectoryPath,
+    })
+  ).unsafeUnwrap();
+
+  const [cvrId] = await apiClient.getAdjudicationQueue({
+    contestId,
+  });
+  assert(cvrId !== undefined);
+
+  const cvrContestTag = await apiClient.getCvrContestTag({
+    cvrId,
+    contestId,
+  });
+  expect(cvrContestTag?.hasMarginalMark).toEqual(true);
+
+  const marginalMarks = await apiClient.getMarginalMarks({ cvrId, contestId });
+  expect(marginalMarks).toHaveLength(1);
+  expect(marginalMarks[0]).toEqual(marginallyMarkedOptionId);
+});
+
+test('getMarginalMarks returns nothing if AdjudicationReason.MarginalMark systemSetting is unset', async () => {
+  const { auth, apiClient } = buildTestEnvironment();
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { manualCastVoteRecordExport } =
+    electionGridLayoutNewHampshireTestBallotFixtures;
+  const systemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    adminAdjudicationReasons: [],
+    markThresholds: {
+      marginal: 0.05,
+      definite: 0.1,
+    },
+  };
+  await configureMachine(apiClient, auth, electionDefinition, systemSettings);
+
+  // modify the cvr for a contest to include mark scores
+  const contestId = 'State-Representatives-Hillsborough-District-34-b1012d38';
+  let marginallyMarkedCvrId: string | undefined;
+
+  const exportDirectoryPath = await modifyCastVoteRecordExport(
+    manualCastVoteRecordExport.asDirectoryPath(),
+    {
+      castVoteRecordModifier: (cvr) => {
+        marginallyMarkedCvrId = cvr.UniqueId;
+        const snapshot = find(
+          cvr.CVRSnapshot,
+          (s) => s.Type === CVR.CVRType.Original
+        );
+
+        const contest = snapshot.CVRContest.find(
+          (c) => c.ContestId === contestId
+        );
+        if (contest) {
+          const option0 = assertDefined(
+            contest.CVRContestSelection[0]?.SelectionPosition[0]
+          );
+          option0.MarkMetricValue = ['0.01'];
+
+          const option1 = assertDefined(
+            contest.CVRContestSelection[1]?.SelectionPosition[0]
+          );
+          option1.MarkMetricValue = ['0.08'];
+
+          const option2 = assertDefined(
+            contest.CVRContestSelection[2]?.SelectionPosition[0]
+          );
+          option2.MarkMetricValue = ['0.10'];
+        }
+        return cvr;
+      },
+    }
+  );
+
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: exportDirectoryPath,
+    })
+  ).unsafeUnwrap();
+
+  assert(marginallyMarkedCvrId !== undefined);
+  const marginalMarks = await apiClient.getMarginalMarks({
+    cvrId: marginallyMarkedCvrId,
+    contestId,
+  });
+  expect(marginalMarks).toHaveLength(0);
+
+  const cvrContestTag = await apiClient.getCvrContestTag({
+    cvrId: marginallyMarkedCvrId,
+    contestId,
+  });
+  expect(cvrContestTag).toBeUndefined();
+});
+
+test('getMarginalMarks returns an empty list for a bmd without mark scores', async () => {
+  const { auth, apiClient } = buildTestEnvironment();
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
+  const systemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    adminAdjudicationReasons: [AdjudicationReason.MarginalMark],
+    markThresholds: {
+      marginal: 0.05,
+      definite: 0.1,
+    },
+  };
+  await configureMachine(apiClient, auth, electionDefinition, systemSettings);
+
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: castVoteRecordExport.asDirectoryPath(),
+    })
+  ).unsafeUnwrap();
+
+  // look at a contest that can have multiple write-ins per ballot
+  const contestId = 'zoo-council-mammal';
+  const cvrIds = await apiClient.getAdjudicationQueue({
+    contestId,
+  });
+  expect(cvrIds).toHaveLength(24);
+  const [cvrId1] = cvrIds;
+  assert(cvrId1 !== undefined);
+
+  const marginalMarks = await apiClient.getMarginalMarks({
+    cvrId: cvrId1,
+    contestId,
+  });
+  expect(marginalMarks).toHaveLength(0);
 });

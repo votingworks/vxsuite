@@ -73,6 +73,7 @@ export function addMockCvrFileToStore({
   const { electionDefinition } = assertDefined(store.getElection(electionId));
   const cvrIds = [];
   for (const mockCastVoteRecord of mockCastVoteRecordFile) {
+    const isHmpb = mockCastVoteRecord.card.type === 'hmpb';
     for (let i = 0; i < (mockCastVoteRecord.multiplier ?? 1); i += 1) {
       const addCastVoteRecordResult = store.addCastVoteRecordFileEntry({
         electionId,
@@ -133,6 +134,7 @@ export function addMockCvrFileToStore({
         store,
         cvrId,
         writeIns,
+        isHmpb,
         markScores: mockCastVoteRecord.markScores,
       })) {
         store.addCvrContestTag(tag);

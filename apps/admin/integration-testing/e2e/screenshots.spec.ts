@@ -18,12 +18,15 @@ import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
-import { assertDefined } from '@votingworks/basics';
+import { assertDefined, find } from '@votingworks/basics';
 import { zipFile } from '@votingworks/test-utils';
 import {
+  AdjudicationReason,
   CVR,
+  DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
   ElectionPackageFileName,
+  SystemSettings,
 } from '@votingworks/types';
 import {
   mockBlankCard,
@@ -312,14 +315,17 @@ async function configureMachine({
   page,
   usbHandler,
   electionDefinition,
+  systemSettings = DEFAULT_SYSTEM_SETTINGS,
 }: {
   page: Page;
   usbHandler: MockFileUsbDriveHandler;
   electionDefinition: ElectionDefinition;
+  systemSettings?: SystemSettings;
 }): Promise<void> {
   const { election, electionData } = electionDefinition;
   const electionPackage = await zipFile({
     [ElectionPackageFileName.ELECTION]: electionData,
+    [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(systemSettings),
   });
   const electionPackageFileName = 'election-package.zip';
 
@@ -416,9 +422,9 @@ test('results', async ({ page }) => {
   await page.getByText('Total CVR Count: 184').waitFor();
   await screenshot('tally-screen-with-cvrs');
 
-  await page.getByText('Write-Ins').click();
-  await page.getByText('Write-In Adjudication').waitFor();
-  await screenshot('write-in-screen-pre-adjudication');
+  await page.getByText('Adjudication').click();
+  await page.getByText('Adjudication Queue').waitFor();
+  await screenshot('adjudication-screen-pre-adjudication');
 
   // iterate through all the adjudication queues
   const numWriteInContests = await getAdjudicateButtons(page).count();
@@ -470,7 +476,7 @@ test('results', async ({ page }) => {
       await expect(getPrimaryButton(page)).toBeEnabled();
       if (await page.getByText('Finish').isVisible()) {
         await page.getByText('Finish').click();
-        await page.getByText('Write-In Adjudication').waitFor();
+        await page.getByText('Adjudication Queue').waitFor();
         hasFinishedWriteInsForContest = true;
       } else {
         await page.getByText('Save & Next').click();
@@ -479,8 +485,8 @@ test('results', async ({ page }) => {
     }
   }
 
-  await page.getByText('Write-In Adjudication').waitFor();
-  await screenshot('write-in-screen-post-adjudication');
+  await page.getByText('Adjudication Queue').waitFor();
+  await screenshot('adjudication-screen-post-adjudication');
 
   await page.getByText('Reports').click();
   await page.getByText('Unofficial Tally Reports').waitFor();
@@ -569,7 +575,7 @@ test('results', async ({ page }) => {
   await screenshot('tally-screen-official');
 });
 
-test('wia', async ({ page }) => {
+test('adjudication', async ({ page }) => {
   const usbHandler = getMockFileUsbDriveHandler();
   const printerHandler = getMockFilePrinterHandler();
   printerHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
@@ -578,14 +584,46 @@ test('wia', async ({ page }) => {
   const { manualCastVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
+  const systemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    adminAdjudicationReasons: [AdjudicationReason.MarginalMark],
+    markThresholds: {
+      marginal: 0.05,
+      definite: 0.1,
+    },
+  };
+  // modify the cvr for the first contest to include mark scores so we have a single marginal mark
+  const contestId = 'Governor-061a401b';
+  const exportDirectoryPath = await modifyCastVoteRecordExport(
+    manualCastVoteRecordExport.asDirectoryPath(),
+    {
+      castVoteRecordModifier: (cvr) => {
+        const snapshot = find(
+          cvr.CVRSnapshot,
+          (s) => s.Type === CVR.CVRType.Original
+        );
+        const contest = snapshot.CVRContest.find(
+          (c) => c.ContestId === contestId
+        );
+        if (contest) {
+          const option0 = assertDefined(
+            contest.CVRContestSelection[0]?.SelectionPosition[0]
+          );
+          option0.MarkMetricValue = ['0.08'];
+        }
+        return cvr;
+      },
+    }
+  );
 
-  const { screenshot } = makeScreenshotHelpers(page, 'wia');
+  const { screenshot } = makeScreenshotHelpers(page, 'adjudication');
 
   await page.goto('/');
   await configureMachine({
     page,
     usbHandler,
     electionDefinition,
+    systemSettings,
   });
 
   await logInAsElectionManager(page, election);
@@ -594,7 +632,7 @@ test('wia', async ({ page }) => {
   await page.getByText('Cast Vote Records (CVRs)').waitFor();
 
   await insertUsbDriveWithCvrs({
-    cvrPath: manualCastVoteRecordExport.asDirectoryPath(),
+    cvrPath: exportDirectoryPath,
     convertToOfficial: true,
     usbHandler,
     electionDefinition,
@@ -605,22 +643,24 @@ test('wia', async ({ page }) => {
   await page.getByRole('button', { name: 'Close' }).click();
   await page.getByText('Total CVR Count: 1').waitFor();
 
-  await page.getByText('Write-Ins').click();
-  await page.getByText('Write-In Adjudication').waitFor();
+  await page.getByText('Adjudication').click();
+  await page.getByText('Adjudication Queue').waitFor();
 
   await page.getByText('Adjudicate 1').first().click();
   await page.getByText('Zoom Out').waitFor();
-  await screenshot('write-in-adjudication-view');
+  await screenshot('adjudication-view');
   await page.getByText('Zoom Out').click();
   await expect(page.getByText('Zoom In')).toBeEnabled();
-  await screenshot('write-in-adjudication-view-zoomed-out');
+  await screenshot('adjudication-view-zoomed-out');
   await page.getByRole('combobox').click();
-  await screenshot('write-in-adjudication-view-write-in-focused');
+  await screenshot('adjudication-write-in-focused');
   await page.getByRole('combobox').fill('New Candidate');
   await page.keyboard.press('Enter');
-  await screenshot('write-in-adjudication-new-candidate-adjudicated');
+  await screenshot('adjudication-write-in-new-candidate-adjudicated');
+  await page.getByRole('button', { name: 'Dismiss' }).click();
+  await screenshot('adjudication-marginal-mark-adjudicated');
   await page.getByText('Finish').click();
-  await page.getByText('Write-In Adjudication').waitFor();
+  await page.getByText('Adjudication Queue').waitFor();
 });
 
 test('manual results', async ({ page }) => {

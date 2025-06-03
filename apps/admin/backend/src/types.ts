@@ -17,6 +17,7 @@ import {
   Sha256Hash,
   BallotStyleGroupId,
   Side,
+  BallotPageContestOptionLayout,
 } from '@votingworks/types';
 import { z } from 'zod/v4';
 
@@ -162,6 +163,7 @@ interface WriteInRecordBase {
   readonly electionId: Id;
   readonly isUnmarked?: boolean;
   readonly isUndetected?: boolean;
+  readonly machineMarkedText?: string;
 }
 
 /**
@@ -399,35 +401,30 @@ export type WriteInAdjudicationAction =
   | WriteInAdjudicationActionReset;
 
 /**
- * Information necessary to display a write-in on the frontend.
+ * Information necessary to display a ballot on the frontend.
  */
-export type WriteInImageView = HmpbWriteInImageView | BmdWriteInImageView;
+export type BallotImageView = HmpbImageView | BmdImageView;
 
 /**
- * Information necessary to display a hmpb write-in on the frontend.
+ * Information necessary to display an hmpb ballot on the frontend.
  */
-export interface HmpbWriteInImageView {
+export interface HmpbImageView {
   readonly type: 'hmpb';
-  readonly writeInId: Id;
   readonly cvrId: Id;
-  readonly optionId: Id;
   readonly imageUrl: string;
   readonly ballotCoordinates: Rect;
   readonly contestCoordinates: Rect;
-  readonly writeInCoordinates: Rect;
+  readonly optionLayouts: readonly BallotPageContestOptionLayout[];
   readonly side: Side;
 }
 
 /**
- * Information necessary to display a bmd write-in on the frontend.
+ * Information necessary to display a bmd ballot on the frontend.
  */
-export interface BmdWriteInImageView {
+export interface BmdImageView {
   readonly type: 'bmd';
-  readonly writeInId: Id;
   readonly cvrId: Id;
-  readonly optionId: Id;
   readonly imageUrl: string;
-  readonly machineMarkedText: string;
   readonly side: 'front'; // bmd ballots are always on the front.
 }
 

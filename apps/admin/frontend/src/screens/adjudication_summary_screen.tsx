@@ -12,7 +12,6 @@ import {
   TH,
 } from '@votingworks/ui';
 import {
-  CandidateContest,
   getContestDistrictName,
   getPartyAbbreviationByPartyId,
 } from '@votingworks/types';
@@ -32,37 +31,33 @@ const ContentWrapper = styled.div`
   }
 `;
 
-export function WriteInsSummaryScreen(): JSX.Element {
+export function AdjudicationSummaryScreen(): JSX.Element {
   const { electionDefinition, isOfficialResults } = useContext(AppContext);
 
-  const writeInAdjudicationCvrQueueMetadataQuery =
+  const adjudicationQueueMetadataQuery =
     getAdjudicationQueueMetadata.useQuery();
   const castVoteRecordFilesQuery = getCastVoteRecordFiles.useQuery();
 
   const election = electionDefinition?.election;
   if (!election) {
     return (
-      <NavigationScreen title="Write-In Adjudication">
+      <NavigationScreen title="Adjudication">
         <P>Election must be defined.</P>
       </NavigationScreen>
     );
   }
 
   if (
-    !writeInAdjudicationCvrQueueMetadataQuery.isSuccess ||
+    !adjudicationQueueMetadataQuery.isSuccess ||
     !castVoteRecordFilesQuery.isSuccess
   ) {
     return (
-      <NavigationScreen title="Write-In Adjudication">
+      <NavigationScreen title="Adjudication">
         <Loading isFullscreen />
       </NavigationScreen>
     );
   }
 
-  const contestsWithWriteIns = election.contests.filter(
-    (contest): contest is CandidateContest =>
-      contest.type === 'candidate' && contest.allowWriteIns
-  );
   function renderHeaderText() {
     if (isOfficialResults) {
       return (
@@ -78,7 +73,7 @@ export function WriteInsSummaryScreen(): JSX.Element {
     ) {
       return (
         <Callout icon="Info" color="neutral" style={{ marginBottom: '1rem' }}>
-          Load CVRs to begin adjudicating write-in votes.
+          Load CVRs to begin adjudication.
         </Callout>
       );
     }
@@ -87,7 +82,7 @@ export function WriteInsSummaryScreen(): JSX.Element {
   }
 
   return (
-    <NavigationScreen title="Write-In Adjudication">
+    <NavigationScreen title="Adjudication">
       <ContentWrapper>
         <div>
           {renderHeaderText()}
@@ -101,13 +96,13 @@ export function WriteInsSummaryScreen(): JSX.Element {
               </tr>
             </thead>
             <tbody>
-              {contestsWithWriteIns.map((contest) => {
-                const contestCvrQueueMetadata =
-                  writeInAdjudicationCvrQueueMetadataQuery.data.find(
+              {election.contests.map((contest) => {
+                const contestQueueMetadata =
+                  adjudicationQueueMetadataQuery.data.find(
                     (m) => m.contestId === contest.id
                   );
-                const totalCount = contestCvrQueueMetadata?.totalTally ?? 0;
-                const pendingCount = contestCvrQueueMetadata?.pendingTally ?? 0;
+                const totalCount = contestQueueMetadata?.totalTally ?? 0;
+                const pendingCount = contestQueueMetadata?.pendingTally ?? 0;
                 const adjudicatedCount = totalCount - pendingCount;
 
                 const hasWriteIns = totalCount > 0;
@@ -122,7 +117,8 @@ export function WriteInsSummaryScreen(): JSX.Element {
                     {election.type === 'primary' && (
                       <TD nowrap>
                         <Font weight={hasWriteIns ? 'semiBold' : 'regular'}>
-                          {contest.partyId &&
+                          {contest.type === 'candidate' &&
+                            contest.partyId &&
                             `(${getPartyAbbreviationByPartyId({
                               partyId: contest.partyId,
                               election,
@@ -137,7 +133,7 @@ export function WriteInsSummaryScreen(): JSX.Element {
                         <LinkButton
                           disabled={isOfficialResults}
                           variant={pendingCount ? 'primary' : 'neutral'}
-                          to={routerPaths.writeInAdjudication({
+                          to={routerPaths.contestAdjudication({
                             contestId: contest.id,
                           })}
                         >
