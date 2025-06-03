@@ -80,16 +80,14 @@ export function PrecinctScannerReportHeader({
             label={getPollsTransitionActionPastTense(pollsTransition)}
             value={formatFullDateTimeZone(
               DateTime.fromMillis(pollsTransitionedTime),
-              { includeWeekday: false,
-                includeSeconds: true,}
+              { includeWeekday: false, includeSeconds: true }
             )}
           />
           <LabeledValue
             label="Report Printed"
             value={formatFullDateTimeZone(
               DateTime.fromMillis(reportPrintedTime),
-              { includeWeekday: false,       
-                includeSeconds: true,}
+              { includeWeekday: false, includeSeconds: true }
             )}
           />
           <LabeledValue label="Scanner ID" value={precinctScannerMachineId} />
