@@ -62,9 +62,9 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-vi.setConfig({
-  testTimeout: 30_000,
-});
+function extendedWaitFor(fn: () => void | Promise<void>) {
+  return vi.waitFor(fn, { timeout: 3000 });
+}
 
 test('connection status between two pollbooks is managed properly', async () => {
   await withManyApps(2, async ([pollbookContext1, pollbookContext2]) => {
@@ -113,7 +113,7 @@ test('connection status between two pollbooks is managed properly', async () => 
       },
     ]);
 
-    await vi.waitFor(async () => {
+    await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
 
       expect(
@@ -152,7 +152,7 @@ test('connection status between two pollbooks is managed properly', async () => 
     ]);
     vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
 
-    await vi.waitFor(async () => {
+    await extendedWaitFor(async () => {
       expect(
         await pollbookContext1.localApiClient.getDeviceStatuses()
       ).toMatchObject({
@@ -179,7 +179,7 @@ test('connection status between two pollbooks is managed properly', async () => 
 
     vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
 
-    await vi.waitFor(async () => {
+    await extendedWaitFor(async () => {
       expect(
         await pollbookContext2.localApiClient.getDeviceStatuses()
       ).toMatchObject({
@@ -215,7 +215,7 @@ test('connection status between two pollbooks is managed properly', async () => 
       testVoters
     );
 
-    await vi.waitFor(async () => {
+    await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
         await pollbookContext1.localApiClient.getDeviceStatuses()
@@ -254,7 +254,7 @@ test('connection status between two pollbooks is managed properly', async () => 
     // Unconfigure one machine and they should update to wrong election.
     pollbookContext1.mockUsbDrive.usbDrive.eject.expectCallWith().resolves();
     await pollbookContext1.localApiClient.unconfigure();
-    await vi.waitFor(async () => {
+    await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
         await pollbookContext1.localApiClient.getDeviceStatuses()
@@ -290,7 +290,7 @@ test('connection status between two pollbooks is managed properly', async () => 
         port: port1.toString(),
       },
     ]);
-    await vi.waitFor(async () => {
+    await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
         await pollbookContext1.localApiClient.getDeviceStatuses()
@@ -349,7 +349,7 @@ test('connection status between two pollbooks is managed properly', async () => 
       hasMore: false,
     });
     vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
-    await vi.waitFor(async () => {
+    await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
         await pollbookContext1.localApiClient.getDeviceStatuses()
@@ -417,7 +417,7 @@ test('connection status is managed properly with many pollbooks', async () => {
       }))
     );
 
-    await vi.waitFor(async () => {
+    await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       for (const context of pollbookContexts) {
         expect(await context.localApiClient.getDeviceStatuses()).toMatchObject({
@@ -456,38 +456,33 @@ test('connection status is managed properly with many pollbooks', async () => {
     }
 
     vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
-    await vi.waitFor(
-      async () => {
-        vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
-        for (const context of pollbookContexts) {
-          expect(
-            await context.localApiClient.getDeviceStatuses()
-          ).toMatchObject({
-            network: {
-              isOnline: true,
-              pollbooks: [
-                expect.objectContaining({
-                  status: PollbookConnectionStatus.Connected,
-                }),
-                expect.objectContaining({
-                  status: PollbookConnectionStatus.Connected,
-                }),
-                expect.objectContaining({
-                  status: PollbookConnectionStatus.Connected,
-                }),
-                expect.objectContaining({
-                  status: PollbookConnectionStatus.Connected,
-                }),
-              ],
-            },
-          });
-        }
-      },
-      { timeout: 3000 }
-    );
+    await extendedWaitFor(async () => {
+      vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+      for (const context of pollbookContexts) {
+        expect(await context.localApiClient.getDeviceStatuses()).toMatchObject({
+          network: {
+            isOnline: true,
+            pollbooks: [
+              expect.objectContaining({
+                status: PollbookConnectionStatus.Connected,
+              }),
+              expect.objectContaining({
+                status: PollbookConnectionStatus.Connected,
+              }),
+              expect.objectContaining({
+                status: PollbookConnectionStatus.Connected,
+              }),
+              expect.objectContaining({
+                status: PollbookConnectionStatus.Connected,
+              }),
+            ],
+          },
+        });
+      }
+    });
 
     // Now that the pollbooks are connected they should be querying for each others events
-    await vi.waitFor(() => {
+    await extendedWaitFor(() => {
       vi.advanceTimersByTime(EVENT_POLLING_INTERVAL);
       for (const context of pollbookContexts) {
         expect(context.peerWorkspace.store.getNewEvents).toHaveBeenCalled();
@@ -507,40 +502,35 @@ test('connection status is managed properly with many pollbooks', async () => {
       i += 1;
     }
     vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
-    await vi.waitFor(
-      async () => {
-        vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
-        for (const context of pollbookContexts) {
-          expect(
-            await context.localApiClient.getDeviceStatuses()
-          ).toMatchObject({
-            network: {
-              isOnline: true,
-              pollbooks: [
-                expect.objectContaining({
-                  status: PollbookConnectionStatus.WrongElection,
-                }),
-                expect.objectContaining({
-                  status: PollbookConnectionStatus.WrongElection,
-                }),
-                expect.objectContaining({
-                  status: PollbookConnectionStatus.WrongElection,
-                }),
-                expect.objectContaining({
-                  status: PollbookConnectionStatus.WrongElection,
-                }),
-              ],
-            },
-          });
-        }
-      },
-      { timeout: 3000 }
-    );
+    await extendedWaitFor(async () => {
+      vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+      for (const context of pollbookContexts) {
+        expect(await context.localApiClient.getDeviceStatuses()).toMatchObject({
+          network: {
+            isOnline: true,
+            pollbooks: [
+              expect.objectContaining({
+                status: PollbookConnectionStatus.WrongElection,
+              }),
+              expect.objectContaining({
+                status: PollbookConnectionStatus.WrongElection,
+              }),
+              expect.objectContaining({
+                status: PollbookConnectionStatus.WrongElection,
+              }),
+              expect.objectContaining({
+                status: PollbookConnectionStatus.WrongElection,
+              }),
+            ],
+          },
+        });
+      }
+    });
   });
 });
 
 // TODO #6544 Fix Flakes and re-enable tests
-test.skip('one pollbook can be configured from another pollbook', async () => {
+test('one pollbook can be configured from another pollbook', async () => {
   await withManyApps(2, async ([pollbookContext1, pollbookContext2]) => {
     // Configure the first pollbook
     const testVoters = parseVotersFromCsvString(
@@ -585,7 +575,7 @@ test.skip('one pollbook can be configured from another pollbook', async () => {
         port: port2.toString(),
       },
     ]);
-    await vi.waitFor(async () => {
+    await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
         await pollbookContext1.localApiClient.getDeviceStatuses()
@@ -650,7 +640,7 @@ test.skip('one pollbook can be configured from another pollbook', async () => {
 });
 
 // TODO #6544 Fix Flakes and re-enable tests
-test.skip('one pollbook can be configured from another pollbook automatically as an election mangaer', async () => {
+test('one pollbook can be configured from another pollbook automatically as an election mangaer', async () => {
   await withManyApps(
     3,
     async ([pollbookContext1, pollbookContext2, pollbookContext3]) => {
@@ -685,14 +675,14 @@ test.skip('one pollbook can be configured from another pollbook automatically as
         pollbookContext2.auth,
         electionDefinition.election
       );
-      await vi.waitFor(async () => {
+      await extendedWaitFor(async () => {
         vitest.advanceTimersByTime(100);
         expect(
           (await pollbookContext2.localApiClient.getElection()).err()
         ).toEqual('not-found-network');
       });
       mockLoggedOut(pollbookContext2.auth);
-      await vi.waitFor(async () => {
+      await extendedWaitFor(async () => {
         vitest.advanceTimersByTime(100);
         expect(
           (await pollbookContext2.localApiClient.getElection()).err()
@@ -723,7 +713,7 @@ test.skip('one pollbook can be configured from another pollbook automatically as
           port: port2.toString(),
         },
       ]);
-      await vi.waitFor(async () => {
+      await extendedWaitFor(async () => {
         vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
         expect(
           await pollbookContext2.localApiClient.getDeviceStatuses()
@@ -744,7 +734,7 @@ test.skip('one pollbook can be configured from another pollbook automatically as
         pollbookContext2.auth,
         electionGeneralFixtures.readElection()
       );
-      await vi.waitFor(async () => {
+      await extendedWaitFor(async () => {
         vitest.advanceTimersByTime(100);
         expect(
           (await pollbookContext2.localApiClient.getElection()).err()
@@ -774,7 +764,7 @@ test.skip('one pollbook can be configured from another pollbook automatically as
           port: port3.toString(),
         },
       ]);
-      await vi.waitFor(async () => {
+      await extendedWaitFor(async () => {
         vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
         expect(
           await pollbookContext2.localApiClient.getDeviceStatuses()
@@ -796,7 +786,7 @@ test.skip('one pollbook can be configured from another pollbook automatically as
         pollbookContext2.auth,
         electionDefinition.election
       );
-      await vi.waitFor(async () => {
+      await extendedWaitFor(async () => {
         vitest.advanceTimersByTime(100);
         expect(
           (await pollbookContext2.localApiClient.getElection()).err()
@@ -819,7 +809,7 @@ test.skip('one pollbook can be configured from another pollbook automatically as
           port: port2.toString(),
         },
       ]);
-      await vi.waitFor(async () => {
+      await extendedWaitFor(async () => {
         vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
         expect(
           await pollbookContext2.localApiClient.getDeviceStatuses()
@@ -844,7 +834,7 @@ test.skip('one pollbook can be configured from another pollbook automatically as
         pollbookContext2.auth,
         electionDefinition.election
       );
-      await vi.waitFor(async () => {
+      await extendedWaitFor(async () => {
         vitest.advanceTimersByTime(100);
         expect(
           (await pollbookContext2.localApiClient.getElection()).err()
@@ -857,7 +847,7 @@ test.skip('one pollbook can be configured from another pollbook automatically as
       });
 
       mockLoggedOut(pollbookContext2.auth);
-      await vi.waitFor(async () => {
+      await extendedWaitFor(async () => {
         vitest.advanceTimersByTime(100);
         expect(
           (await pollbookContext2.localApiClient.getElection()).err()
@@ -874,7 +864,7 @@ test.skip('one pollbook can be configured from another pollbook automatically as
         pollbookContext2.auth,
         electionDefinition.election
       );
-      await vi.waitFor(async () => {
+      await extendedWaitFor(async () => {
         vitest.advanceTimersByTime(100);
         expect(
           await pollbookContext2.peerApiClient.getMachineInformation()
