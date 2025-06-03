@@ -52,6 +52,12 @@ pub struct Inset {
     pub right: PixelUnit,
 }
 
+impl Inset {
+    pub fn is_zero(&self) -> bool {
+        self.top == 0 && self.bottom == 0 && self.left == 0 && self.right == 0
+    }
+}
+
 /// Bleed the given luma value outwards from any pixels that match it.
 pub fn bleed(img: &GrayImage, luma: Luma<u8>) -> GrayImage {
     let mut out = img.clone();
