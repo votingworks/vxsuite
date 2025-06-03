@@ -1,12 +1,11 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { mockKiosk } from '@votingworks/test-utils';
 
-import { ElectronFile, mockUsbDriveStatus } from '@votingworks/ui';
+import { mockUsbDriveStatus } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
 import { ok } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import {
-  fireEvent,
   getByText as domGetByText,
   getByTestId as domGetByTestId,
   screen,
@@ -59,7 +58,8 @@ test('when USB is not present or valid', async () => {
 
 describe('when USB is properly mounted', () => {
   test('no files found screen & manual load', async () => {
-    window.kiosk = mockKiosk(vi.fn);
+    const kiosk = mockKiosk(vi.fn);
+    window.kiosk = kiosk;
     const closeFn = vi.fn();
     apiMock.expectGetCastVoteRecordFileMode('unlocked');
     apiMock.expectGetCastVoteRecordFiles([]);
@@ -83,13 +83,11 @@ describe('when USB is properly mounted', () => {
       .resolves(ok(mockCastVoteRecordImportInfo));
 
     // You can still manually load files
-    const file: ElectronFile = {
-      ...new File([''], 'cast-vote-record.jsonl'),
-      path: '/tmp/cast-vote-record.jsonl',
-    };
-    fireEvent.change(screen.getByTestId('manual-input'), {
-      target: { files: [file] },
+    kiosk.showOpenDialog.mockResolvedValue({
+      canceled: false,
+      filePaths: ['/tmp/cast-vote-record.jsonl'],
     });
+    userEvent.click(screen.getByText('Select CVR Export Manually…'));
 
     // modal refetches after adding cast vote record
     apiMock.expectGetCastVoteRecordFileMode('test');

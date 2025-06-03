@@ -95,7 +95,6 @@ export * from './unconfigure_machine_button';
 export * from './change_precinct_button';
 export * from './export_logs_modal';
 export * from './task_screen';
-export * from './types';
 export * from './unconfigured_election_screen';
 export * from './format_usb_modal';
 export * from './usb_drive';

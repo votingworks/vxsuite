@@ -1,20 +1,12 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 
-import {
-  Modal,
-  ModalWidth,
-  Button,
-  ElectronFile,
-  P,
-  FileInputButton,
-  Loading,
-} from '@votingworks/ui';
+import { Modal, ModalWidth, Button, P, Loading } from '@votingworks/ui';
 import {
   isElectionManagerAuth,
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 
 import type {
   ImportElectionResultsReportingError,
@@ -22,7 +14,6 @@ import type {
 } from '@votingworks/admin-backend';
 import { BallotStyleGroupId } from '@votingworks/types';
 import { AppContext } from '../../contexts/app_context';
-import { InputEventFunction } from '../../config/types';
 import { importElectionResultsReportingFile } from '../../api';
 
 const Content = styled.div`
@@ -74,22 +65,25 @@ export function ImportElectionsResultReportingFileModal({
     });
   }
 
-  const processElectionResultReportingFileFromFilePicker: InputEventFunction = (
-    event
-  ) => {
-    // electron adds a path field to the File object
-    assert(window.kiosk, 'No window.kiosk');
-    const input = event.currentTarget;
-    const files = Array.from(input.files || []);
-    const file = files[0] as ElectronFile;
-
-    if (!file) {
+  async function onSelectFile(): Promise<void> {
+    const dialogResult = await assertDefined(window.kiosk).showOpenDialog({
+      properties: ['openFile'],
+      filters: [
+        {
+          name: '',
+          extensions: 'json',
+        },
+      ],
+    });
+    if (dialogResult.canceled) {
       onClose();
       return;
     }
-
-    handleImportElectionResultReportingFile(file.path);
-  };
+    const selectedPath = dialogResult.filePaths[0];
+    if (selectedPath) {
+      handleImportElectionResultReportingFile(selectedPath);
+    }
+  }
 
   function errorContents(message: string) {
     return (
@@ -133,21 +127,7 @@ export function ImportElectionsResultReportingFileModal({
         title="No USB Drive Detected"
         content={<P>Insert a USB drive in order to import a results file.</P>}
         onOverlayClick={onClose}
-        actions={
-          <React.Fragment>
-            {window.kiosk && (
-              <FileInputButton
-                data-testid="manual-input"
-                onChange={processElectionResultReportingFileFromFilePicker}
-                accept=".json"
-                disabled
-              >
-                Select File…
-              </FileInputButton>
-            )}
-            <Button onPress={onClose}>Cancel</Button>
-          </React.Fragment>
-        }
+        actions={<Button onPress={onClose}>Cancel</Button>}
       />
     );
   }
@@ -168,13 +148,7 @@ export function ImportElectionsResultReportingFileModal({
         onOverlayClick={onClose}
         actions={
           <React.Fragment>
-            <FileInputButton
-              data-testid="manual-input"
-              onChange={processElectionResultReportingFileFromFilePicker}
-              accept=".json"
-            >
-              Select File…
-            </FileInputButton>
+            <Button onPress={onSelectFile}>Select File…</Button>
             <Button onPress={onClose}>Cancel</Button>
           </React.Fragment>
         }
