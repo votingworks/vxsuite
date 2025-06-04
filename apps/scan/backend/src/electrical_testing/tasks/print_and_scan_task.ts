@@ -7,13 +7,13 @@ import { DateTime } from 'luxon';
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { inspect } from 'node:util';
-import { delays } from '../../scanners/pdi/state_machine';
 import { writeScanPageAnalyses } from '../analysis/scan';
 import { type ServerContext } from '../context';
 import { resultToString } from '../utils';
 
 export const LOOP_INTERVAL_MS = 100;
 export const PRINT_INTERVAL_SECONDS = 5 * 60;
+export const DELAY_AFTER_ACCEPT_MS = 2_500;
 
 function createPrinterTestImage(): ImageData {
   const canvas = createCanvas(200, 50);
@@ -194,7 +194,7 @@ export async function runPrintAndScanTask({
       if (
         lastScanTime &&
         DateTime.now().diff(lastScanTime).as('milliseconds') >
-          delays.DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT
+          DELAY_AFTER_ACCEPT_MS
       ) {
         await scannerClient.ejectAndRescanPaperIfPresent();
 
