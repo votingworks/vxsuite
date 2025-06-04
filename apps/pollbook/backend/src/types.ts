@@ -295,6 +295,7 @@ export type PollbookEvent =
 export interface VoterSearchParams {
   lastName: string;
   firstName: string;
+  includeInactiveVoters: boolean;
 }
 
 export type StreetSide = 'even' | 'odd' | 'all';

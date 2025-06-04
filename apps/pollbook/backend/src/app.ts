@@ -212,7 +212,7 @@ function buildApi({ context, logger }: BuildAppParams) {
       searchParams: VoterSearchParams;
     }): Voter[] | number | null {
       const { searchParams } = input;
-      if (Object.values(searchParams).every((value) => value === '')) {
+      if (searchParams.firstName === '' && searchParams.lastName === '') {
         return null;
       }
 
