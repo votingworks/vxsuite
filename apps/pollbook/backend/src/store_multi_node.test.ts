@@ -143,7 +143,11 @@ test('offline undo with later real time check in', async () => {
   expect(localB.getCheckInCount()).toEqual(3);
 
   // Verify Sue's check-in is from PollbookA with NH id.
-  const voters = localA.searchVoters({ firstName: 'Sue', lastName: '' });
+  const voters = localA.searchVoters({
+    firstName: 'Sue',
+    lastName: '',
+    includeInactiveVoters: true,
+  });
   expect((voters as Voter[]).length).toEqual(1);
   expect((voters as Voter[])[0].checkIn).toEqual({
     timestamp: expect.any(String),
@@ -226,8 +230,16 @@ test('bad system time nodes should be able to undo', () => {
   expect(localB.getCheckInCount()).toEqual(0);
 
   // Verify Bob's status specifically
-  const votersA = localA.searchVoters({ firstName: 'Bob', lastName: '' });
-  const votersB = localB.searchVoters({ firstName: 'Bob', lastName: '' });
+  const votersA = localA.searchVoters({
+    firstName: 'Bob',
+    lastName: '',
+    includeInactiveVoters: true,
+  });
+  const votersB = localB.searchVoters({
+    firstName: 'Bob',
+    lastName: '',
+    includeInactiveVoters: true,
+  });
   expect((votersA as Voter[])[0].checkIn).toBeUndefined();
   expect((votersB as Voter[])[0].checkIn).toBeUndefined();
 
@@ -361,7 +373,13 @@ test("getting a offline machines events when I've synced with the online machine
   // Verify PollbookA has Carl's check-in from PollbookC
   expect(localA.getCheckInCount()).toEqual(6);
   expect(localC.getCheckInCount()).toEqual(6);
-  expect(localA.searchVoters({ firstName: 'Carl', lastName: '' })).toEqual([
+  expect(
+    localA.searchVoters({
+      firstName: 'Carl',
+      lastName: '',
+      includeInactiveVoters: true,
+    })
+  ).toEqual([
     expect.objectContaining({
       voterId: 'carl',
       checkIn: expect.objectContaining({
@@ -382,7 +400,13 @@ test("getting a offline machines events when I've synced with the online machine
 
   // Verify PollbookB has Carl's check-in from PollbookA
   expect(localB.getCheckInCount()).toEqual(6);
-  expect(localB.searchVoters({ firstName: 'Carl', lastName: '' })).toEqual([
+  expect(
+    localB.searchVoters({
+      firstName: 'Carl',
+      lastName: '',
+      includeInactiveVoters: true,
+    })
+  ).toEqual([
     expect.objectContaining({
       voterId: 'carl',
       checkIn: expect.objectContaining({
@@ -444,7 +468,13 @@ test('last write wins on double check ins', async () => {
   // Verify the last write wins
   expect(localA.getCheckInCount()).toEqual(1);
   expect(localB.getCheckInCount()).toEqual(1);
-  expect(localA.searchVoters({ firstName: 'Bob', lastName: '' })).toEqual([
+  expect(
+    localA.searchVoters({
+      firstName: 'Bob',
+      lastName: '',
+      includeInactiveVoters: true,
+    })
+  ).toEqual([
     expect.objectContaining({
       voterId: 'bob',
       checkIn: expect.objectContaining({
@@ -455,7 +485,13 @@ test('last write wins on double check ins', async () => {
       }),
     }),
   ]);
-  expect(localB.searchVoters({ firstName: 'Bob', lastName: '' })).toEqual([
+  expect(
+    localB.searchVoters({
+      firstName: 'Bob',
+      lastName: '',
+      includeInactiveVoters: true,
+    })
+  ).toEqual([
     expect.objectContaining({
       voterId: 'bob',
       checkIn: expect.objectContaining({
@@ -521,7 +557,13 @@ test('last write wins even when there is bad system time after a sync', () => {
     identificationMethod: { type: 'default' },
   });
   expect(localA.getCheckInCount()).toEqual(1);
-  expect(localA.searchVoters({ firstName: 'Bob', lastName: '' })).toEqual([
+  expect(
+    localA.searchVoters({
+      firstName: 'Bob',
+      lastName: '',
+      includeInactiveVoters: true,
+    })
+  ).toEqual([
     expect.objectContaining({
       voterId: 'bob',
       checkIn: expect.objectContaining({
@@ -538,7 +580,13 @@ test('last write wins even when there is bad system time after a sync', () => {
   expect(localA.getCheckInCount()).toEqual(1);
   expect(localB.getCheckInCount()).toEqual(1);
 
-  expect(localA.searchVoters({ firstName: 'Bob', lastName: '' })).toEqual([
+  expect(
+    localA.searchVoters({
+      firstName: 'Bob',
+      lastName: '',
+      includeInactiveVoters: true,
+    })
+  ).toEqual([
     expect.objectContaining({
       voterId: 'bob',
       checkIn: expect.objectContaining({
@@ -549,7 +597,13 @@ test('last write wins even when there is bad system time after a sync', () => {
       }),
     }),
   ]);
-  expect(localB.searchVoters({ firstName: 'Bob', lastName: '' })).toEqual([
+  expect(
+    localB.searchVoters({
+      firstName: 'Bob',
+      lastName: '',
+      includeInactiveVoters: true,
+    })
+  ).toEqual([
     expect.objectContaining({
       voterId: 'bob',
       checkIn: expect.objectContaining({
@@ -730,16 +784,40 @@ test('late-arriving older event with a more recent undo', () => {
   expect(localC.getCheckInCount()).toEqual(1);
 
   // Verify Oscar is undone and Penny is checked in
-  const oscarA = localA.searchVoters({ firstName: 'Oscar', lastName: '' });
-  const oscarB = localB.searchVoters({ firstName: 'Oscar', lastName: '' });
-  const oscarC = localC.searchVoters({ firstName: 'Oscar', lastName: '' });
+  const oscarA = localA.searchVoters({
+    firstName: 'Oscar',
+    lastName: '',
+    includeInactiveVoters: true,
+  });
+  const oscarB = localB.searchVoters({
+    firstName: 'Oscar',
+    lastName: '',
+    includeInactiveVoters: true,
+  });
+  const oscarC = localC.searchVoters({
+    firstName: 'Oscar',
+    lastName: '',
+    includeInactiveVoters: true,
+  });
   expect((oscarA as Voter[])[0].checkIn).toBeUndefined();
   expect((oscarB as Voter[])[0].checkIn).toBeUndefined();
   expect((oscarC as Voter[])[0].checkIn).toBeUndefined();
 
-  const pennyA = localA.searchVoters({ firstName: 'Penny', lastName: '' });
-  const pennyB = localB.searchVoters({ firstName: 'Penny', lastName: '' });
-  const pennyC = localC.searchVoters({ firstName: 'Penny', lastName: '' });
+  const pennyA = localA.searchVoters({
+    firstName: 'Penny',
+    lastName: '',
+    includeInactiveVoters: true,
+  });
+  const pennyB = localB.searchVoters({
+    firstName: 'Penny',
+    lastName: '',
+    includeInactiveVoters: true,
+  });
+  const pennyC = localC.searchVoters({
+    firstName: 'Penny',
+    lastName: '',
+    includeInactiveVoters: true,
+  });
   expect((pennyA as Voter[])[0].checkIn).toBeDefined();
   expect((pennyB as Voter[])[0].checkIn).toBeDefined();
   expect((pennyC as Voter[])[0].checkIn).toBeDefined();
@@ -1243,10 +1321,191 @@ test('simultaneous name/address changes, last write wins', async () => {
   }
 });
 
-// TODO add tests for marking inactive.
-// Test if there ia check in event on an offline machine BEFORE the mark inactive
-// Test if there is a check in event on an offline machine AFTER the mark inactive
-// Test name/address change AFTER mark inactive on another machine
-// Test name/address change BEFORE mark inactive on same/or other machine
-// Test that once event is synced you can not check in after a mark inactive event.
-// Test that searching works as it should.
+test('check in event on an offline machine BEFORE the mark inactive', async () => {
+  const [localA, peerA] = setupFileStores('pollbook-a');
+  const [localB, peerB] = setupFileStores('pollbook-b');
+  const testElectionDefinition = getTestElectionDefinition();
+  const voter = createVoter('mia', 'Mia', 'Inactive');
+  localA.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    [],
+    [voter]
+  );
+  localB.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    [],
+    [voter]
+  );
+  peerA.setOnlineStatus(true);
+  peerB.setOnlineStatus(true);
+  // Sync initial state
+  syncEventsForAllPollbooks([peerA, peerB]);
+  // PollbookB goes offline
+  peerB.setOnlineStatus(false);
+  // Check in on B while offline
+  localB.recordVoterCheckIn({
+    voterId: 'mia',
+    identificationMethod: { type: 'default' },
+  });
+  // Wait a bit to ensure the last event is before the next event.
+  await sleep(10);
+  // Mark inactive on A
+  localA.markVoterInactive('mia');
+  // Bring B online and sync
+  peerB.setOnlineStatus(true);
+  syncEventsForAllPollbooks([peerA, peerB]);
+  // Both should see voter as inactive and NOT checked in
+  for (const store of [localA, localB]) {
+    const v = store.getVoter('mia');
+    expect(v.isInactive).toEqual(true);
+    expect(v.checkIn).toBeUndefined();
+    expect(store.getCheckInCount()).toEqual(0);
+  }
+});
+
+test('check in event on an offline machine AFTER the mark inactive', async () => {
+  const [localA, peerA] = setupFileStores('pollbook-a');
+  const [localB, peerB] = setupFileStores('pollbook-b');
+  const testElectionDefinition = getTestElectionDefinition();
+  const voter = createVoter('nia', 'Nia', 'Inactive');
+  localA.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    [],
+    [voter]
+  );
+  localB.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    [],
+    [voter]
+  );
+  peerA.setOnlineStatus(true);
+  peerB.setOnlineStatus(true);
+  syncEventsForAllPollbooks([peerA, peerB]);
+
+  // PollbookB goes offline
+  peerB.setOnlineStatus(false);
+  // Mark inactive on A
+  localA.markVoterInactive('nia');
+  // Wait a bit of time.
+  await sleep(10);
+  // Check in on B while offline (should be ignored after sync)
+  localB.recordVoterCheckIn({
+    voterId: 'nia',
+    identificationMethod: { type: 'default' },
+  });
+  // Bring B online and sync
+  peerB.setOnlineStatus(true);
+  syncEventsForAllPollbooks([peerA, peerB]);
+  // Both should see voter as inactive and NOT checked in
+  for (const store of [localA, localB]) {
+    const v = store.getVoter('nia');
+    expect(v.isInactive).toEqual(true);
+    expect(v.checkIn).toBeUndefined();
+    expect(store.getCheckInCount()).toEqual(0);
+  }
+});
+
+test('name/address change AFTER mark inactive on another machine get processed', async () => {
+  const streets = [createValidStreetInfo('INACTIVE', 'all', 0, 100)];
+  const [localA, peerA] = setupFileStores('pollbook-a');
+  const [localB, peerB] = setupFileStores('pollbook-b');
+  const testElectionDefinition = getTestElectionDefinition();
+  const voter = createVoter('kai', 'Kai', 'Inactive');
+  localA.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    streets,
+    [voter]
+  );
+  localB.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    streets,
+    [voter]
+  );
+  peerA.setOnlineStatus(true);
+  peerB.setOnlineStatus(true);
+  syncEventsForAllPollbooks([peerA, peerB]);
+
+  // Pollbook B offline
+  peerB.setOnlineStatus(false);
+
+  // Mark inactive on A
+  localA.markVoterInactive('kai');
+
+  // Wait a bit of time.
+  await sleep(10);
+  // Name/address change on B after mark inactive
+  localB.changeVoterName('kai', {
+    firstName: 'Kaiser',
+    middleName: '',
+    lastName: 'Inactive',
+    suffix: '',
+  });
+  localB.changeVoterAddress('kai', {
+    streetNumber: '99',
+    streetSuffix: '',
+    streetName: 'INACTIVE',
+    apartmentUnitNumber: '',
+    houseFractionNumber: '',
+    addressLine2: '',
+    addressLine3: '',
+    city: 'Nowhere',
+    state: 'NH',
+    zipCode: '00000',
+  });
+
+  peerB.setOnlineStatus(true);
+  syncEventsForAllPollbooks([peerA, peerB]);
+  // Both should see voter as inactive, with name/address change
+  for (const store of [localA, localB]) {
+    const v = store.getVoter('kai');
+    expect(v.isInactive).toEqual(true);
+    expect(v.nameChange).toMatchObject({ firstName: 'Kaiser' });
+    expect(v.addressChange).toMatchObject({
+      streetName: 'INACTIVE',
+      streetNumber: '99',
+    });
+  }
+});
+
+test('cannot check in after mark inactive event is synced', () => {
+  const [localA, peerA] = setupFileStores('pollbook-a');
+  const [localB, peerB] = setupFileStores('pollbook-b');
+  const testElectionDefinition = getTestElectionDefinition();
+  const voter = createVoter('ina', 'Ina', 'Active');
+  localA.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    [],
+    [voter]
+  );
+  localB.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    [],
+    [voter]
+  );
+  peerA.setOnlineStatus(true);
+  peerB.setOnlineStatus(true);
+  syncEventsForAllPollbooks([peerA, peerB]);
+  // Mark inactive on A
+  localA.markVoterInactive('ina');
+  syncEventsForAllPollbooks([peerA, peerB]);
+  // Try to check in on B (should not be allowed)
+  localB.recordVoterCheckIn({
+    voterId: 'ina',
+    identificationMethod: { type: 'default' },
+  });
+  syncEventsForAllPollbooks([peerA, peerB]);
+  // Both should see voter as inactive and NOT checked in
+  for (const store of [localA, localB]) {
+    const v = store.getVoter('ina');
+    expect(v.isInactive).toEqual(true);
+    expect(v.checkIn).toBeUndefined();
+  }
+});

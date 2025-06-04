@@ -81,7 +81,7 @@ export function createVoterCheckInEvent(
 
 export function createValidStreetInfo(
   streetName: string,
-  side: 'even' | 'odd',
+  side: 'even' | 'odd' | 'all',
   lowRange: number,
   highRange: number,
   postalCity?: string,
