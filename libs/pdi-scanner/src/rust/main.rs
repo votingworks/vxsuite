@@ -275,7 +275,8 @@ async fn main() -> color_eyre::Result<()> {
                         Ok(mut c) => {
                             match c.send_initial_commands_after_connect(Duration::from_millis(500))
                             {
-                                Ok(()) => {
+                                Ok(calibration_tables) => {
+                                    image_calibration_tables = Some(calibration_tables);
                                     send_response(Response::Ok)?;
                                 }
                                 // Sometimes, after closing the previous scanner
@@ -286,11 +287,9 @@ async fn main() -> color_eyre::Result<()> {
                                 Err(_) => match c
                                     .send_initial_commands_after_connect(Duration::from_secs(3))
                                 {
-                                    Ok(()) => {
+                                    Ok(calibration_tables) => {
+                                        image_calibration_tables = Some(calibration_tables);
                                         send_response(Response::Ok)?;
-                                        image_calibration_tables = Some(
-                                            c.get_image_calibration_tables(Duration::from_secs(1))?,
-                                        );
                                     }
                                     Err(e) => send_error_response(&e)?,
                                 },

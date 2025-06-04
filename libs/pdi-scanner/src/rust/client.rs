@@ -823,7 +823,10 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if any of the commands fail to
     /// validate or if the response is not received within the timeout.
-    pub fn send_initial_commands_after_connect(&mut self, timeout: Duration) -> Result<()> {
+    pub fn send_initial_commands_after_connect(
+        &mut self,
+        timeout: Duration,
+    ) -> Result<ImageCalibrationTables> {
         self.get_test_string(timeout)?;
         self.set_feeder_mode(FeederMode::Disabled)?;
 
@@ -835,7 +838,7 @@ impl<T> Client<T> {
         // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 1b 4b 03 1b> } (string: "\u{2}\u{1b}K\u{3}\u{1b}") (length: 5)
         self.send_command(&Command::new(b"\x1bK"))?;
 
-        Ok(())
+        self.get_image_calibration_tables(timeout)
     }
 
     /// Sends the same commands to enable scanning that were captured by
