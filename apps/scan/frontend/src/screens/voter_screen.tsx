@@ -35,7 +35,14 @@ export function VoterScreen({
   isSoundMuted,
 }: VoterScreenProps): JSX.Element | null {
   const scannerStatusQuery = getScannerStatus.useQuery({
-    refetchInterval: POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
+    refetchInterval: (status) =>
+      // In order to make the perceived speed of scanning as fast as possible,
+      // we poll more frequently when a scan is in progress so we can find out
+      // promptly when it's done. Experimentally, 100ms hit a sweet spot between
+      // finding out quickly and adding too much overhead.
+      status?.state === 'scanning'
+        ? 100
+        : POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
   });
 
   useScanFeedbackAudio({
