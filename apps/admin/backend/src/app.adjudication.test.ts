@@ -25,6 +25,7 @@ import {
 } from '@votingworks/types';
 import { modifyCastVoteRecordExport } from '@votingworks/backend';
 import { ContestWriteInSummary } from '@votingworks/types/src/tabulation';
+import { IndicationStatus } from '@votingworks/types/src/cdf/cast-vote-records';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -64,36 +65,70 @@ afterEach(() => {
   featureFlagMock.resetFeatureFlags();
 });
 
-test('getAdjudicationQueue', async () => {
+test('getAdjudicationQueue returns a properly ordered queue', async () => {
   const { auth, apiClient } = buildTestEnvironment();
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
-  const { castVoteRecordExport } =
+  const { manualCastVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
-  await configureMachine(apiClient, auth, electionDefinition);
+  const systemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    adminAdjudicationReasons: [AdjudicationReason.MarginalMark],
+    markThresholds: {
+      marginal: 0.05,
+      definite: 0.1,
+    },
+  };
+  await configureMachine(apiClient, auth, electionDefinition, systemSettings);
 
-  const reportDirectoryPath = castVoteRecordExport.asDirectoryPath();
+  const contestId = 'State-Representatives-Hillsborough-District-34-b1012d38';
+
+  // create a cvr with a write-in and marginal mark (write-in is already set in fixture)
+  const firstReportPath = await modifyCastVoteRecordExport(
+    manualCastVoteRecordExport.asDirectoryPath(),
+    {
+      castVoteRecordModifier: (cvr) => {
+        const snapshot = find(
+          cvr.CVRSnapshot,
+          (s) => s.Type === CVR.CVRType.Original
+        );
+
+        const contest = snapshot.CVRContest.find(
+          (c) => c.ContestId === contestId
+        );
+        if (contest) {
+          const option0 = assertDefined(
+            contest.CVRContestSelection[0]?.SelectionPosition[0]
+          );
+          option0.MarkMetricValue = ['0.08'];
+        }
+        return cvr;
+      },
+    }
+  );
   (
     await apiClient.addCastVoteRecordFile({
-      path: reportDirectoryPath,
+      path: firstReportPath,
     })
   ).unsafeUnwrap();
 
-  const contestId = 'Sheriff-4243fe0b';
-  const contestCvrIds = await apiClient.getAdjudicationQueue({
+  const firstQueue = await apiClient.getAdjudicationQueue({
     contestId,
   });
-  expect(contestCvrIds).toHaveLength(2);
-  const initialNextForAdjudication =
-    await apiClient.getNextCvrIdForAdjudication({ contestId });
+  expect(firstQueue).toHaveLength(1);
+  const firstCvrId = firstQueue[0];
+  const firstNextForAdjudication = await apiClient.getNextCvrIdForAdjudication({
+    contestId,
+  });
 
-  // add another file, whose write-ins should end up at the end of the queue
+  // create a second cvr with write-in and no marginal mark (write-in is already set in fixture).
+  // this should appear first
   const secondReportPath = await modifyCastVoteRecordExport(
-    castVoteRecordExport.asDirectoryPath(),
+    manualCastVoteRecordExport.asDirectoryPath(),
     {
-      castVoteRecordModifier: (castVoteRecord) => ({
-        ...castVoteRecord,
-        UniqueId: `x-${castVoteRecord.UniqueId}`,
+      castVoteRecordModifier: (cvr) => ({
+        ...cvr,
+        UniqueId: `x-${cvr.UniqueId}`,
       }),
     }
   );
@@ -103,16 +138,71 @@ test('getAdjudicationQueue', async () => {
     })
   ).unsafeUnwrap();
 
-  const contestCvrIdsDouble = await apiClient.getAdjudicationQueue({
+  const secondQueue = await apiClient.getAdjudicationQueue({
     contestId,
   });
-  expect(contestCvrIdsDouble).toHaveLength(4);
-  expect(contestCvrIdsDouble.slice(0, 2)).toEqual(contestCvrIds);
-  const updatedNextForAdjudication =
-    await apiClient.getNextCvrIdForAdjudication({ contestId });
 
-  // since no cvrs were adjudicated, the next pending one should be unchanged
-  expect(initialNextForAdjudication).toEqual(updatedNextForAdjudication);
+  expect(secondQueue).toHaveLength(2);
+  expect(secondQueue[1]).toEqual(firstCvrId);
+  const secondNextForAdjudication = await apiClient.getNextCvrIdForAdjudication(
+    { contestId }
+  );
+
+  // the first pending cvr should now be different
+  expect(firstNextForAdjudication).not.toEqual(secondNextForAdjudication);
+
+  // add a third file with only a marginal mark and no write-in.
+  // This should appear at the end of the queue
+  const thirdReportPath = await modifyCastVoteRecordExport(
+    manualCastVoteRecordExport.asDirectoryPath(),
+    {
+      castVoteRecordModifier: (cvr) => {
+        const snapshot = find(
+          cvr.CVRSnapshot,
+          (s) => s.Type === CVR.CVRType.Original
+        );
+        const contest = snapshot.CVRContest.find(
+          (c) => c.ContestId === contestId
+        );
+        if (contest) {
+          const option0 = assertDefined(
+            contest.CVRContestSelection[0]?.SelectionPosition[0]
+          );
+          option0.MarkMetricValue = ['0.08'];
+          // mark all remaining options as unmarked, removing the pre-existing write-in
+          for (const option of contest.CVRContestSelection.slice(1)) {
+            assertDefined(option?.SelectionPosition[0]).MarkMetricValue = [
+              '0.0',
+            ];
+            assertDefined(option?.SelectionPosition[0]).HasIndication =
+              IndicationStatus.No;
+          }
+        }
+        return {
+          ...cvr,
+          UniqueId: `x-2-${cvr.UniqueId}`,
+        };
+      },
+    }
+  );
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: thirdReportPath,
+    })
+  ).unsafeUnwrap();
+
+  const thirdQueue = await apiClient.getAdjudicationQueue({
+    contestId,
+  });
+
+  expect(thirdQueue).toHaveLength(3);
+  expect(thirdQueue.slice(0, 2)).toEqual(secondQueue);
+  const thirdNextForAdjudication = await apiClient.getNextCvrIdForAdjudication({
+    contestId,
+  });
+
+  // the first pending cvr ID should not have changed this time
+  expect(thirdNextForAdjudication).toEqual(secondNextForAdjudication);
 });
 
 test('getAdjudicationQueueMetadata', async () => {

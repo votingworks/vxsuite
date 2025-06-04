@@ -104,7 +104,15 @@ type StoreCastVoteRecordAttributes = Omit<
   readonly partyId: string | null;
 };
 
-const ADJUDICATION_QUEUE_ORDER_BY = `order by sequence_id`;
+const ADJUDICATION_QUEUE_ORDER_BY = `
+  order by
+    case
+      when (has_write_in = 1 or has_unmarked_write_in = 1) and has_marginal_mark = 0 then 1
+      when (has_write_in = 1 or has_unmarked_write_in = 1) and has_marginal_mark = 1 then 2
+      else 3
+    end,
+    sequence_id
+`;
 
 /**
  * Path to the store's schema file, i.e. the file that defines the database.
