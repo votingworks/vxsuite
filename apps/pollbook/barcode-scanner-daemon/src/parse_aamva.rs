@@ -174,10 +174,21 @@ DACFIRST
 ";
         let doc: AamvaDocument = blob.parse().unwrap();
         assert_eq!(&doc.first_name, "FIRST");
-        // Everything else is still empty string
-        assert!(doc.middle_name.is_empty());
-        assert!(doc.last_name.is_empty());
-        assert!(doc.name_suffix.is_empty());
+        assert!(
+            doc.middle_name.is_empty(),
+            "Middle name not empty: {}",
+            doc.middle_name
+        );
+        assert!(
+            doc.last_name.is_empty(),
+            "Last name not empty: {}",
+            doc.last_name
+        );
+        assert!(
+            doc.name_suffix.is_empty(),
+            "Suffix not empty: {}",
+            doc.name_suffix
+        );
     }
 
     #[test]
