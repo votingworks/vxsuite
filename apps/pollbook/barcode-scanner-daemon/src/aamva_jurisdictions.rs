@@ -1,8 +1,9 @@
+use serde::Serialize;
 use std::{fmt, str::FromStr};
 
 use crate::parse_aamva::AamvaParseError;
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize)]
 pub enum AamvaIssuingJurisdiction {
     // US States
     VA,
