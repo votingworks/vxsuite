@@ -31,6 +31,9 @@ let apiMock: ApiMock;
 
 beforeEach(() => {
   apiMock = createApiMock();
+  // JSDOM does not implement scrollIntoView, so we define it as a no-op
+  // to prevent tests from throwing when components attempt to scroll elements.
+  window.HTMLElement.prototype.scrollIntoView = function () {};
 });
 
 afterEach(() => {
