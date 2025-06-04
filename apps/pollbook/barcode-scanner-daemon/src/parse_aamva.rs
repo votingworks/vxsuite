@@ -4,10 +4,17 @@ use thiserror::Error;
 
 use crate::aamva_jurisdictions::AamvaIssuingJurisdiction;
 
+/// Prefix expected in AAMVA header
 const EXPECTED_PREFIX: &str = "ANSI ";
+/// Number of bytes used for issuer code eg "636039" for New Hampshire
 const ISSUER_SIZE: usize = 6;
+/// Number of bytes used for element ID eg. "DAC" for first name
+pub const ELEMENT_ID_SIZE: usize = 3;
+/// Minimum number of bytes expected in a valid AAMVA header
 const MIN_HEADER_LENGTH: usize = 17;
+/// Maximum length of name elements
 const MAX_NAME_LENGTH: usize = 40;
+/// Maximum length of name suffix element
 const MAX_NAME_SUFFIX_LENGTH: usize = 5;
 
 #[derive(Debug, Error)]
@@ -103,11 +110,11 @@ impl FromStr for AamvaDocument {
         let mut document = Self::new_from_jurisdiction(header.issuing_jurisdiction);
 
         for line in lines {
-            if line.len() < 3 {
+            if line.len() < ELEMENT_ID_SIZE {
                 continue;
             }
 
-            let (id, data) = line.split_at(3);
+            let (id, data) = line.split_at(ELEMENT_ID_SIZE);
 
             match id {
                 "DAC" => {

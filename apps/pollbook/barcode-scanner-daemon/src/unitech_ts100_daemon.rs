@@ -15,7 +15,7 @@ use tokio::net::{UnixListener, UnixStream};
 use tokio::sync::Mutex;
 use vx_logging::{log, set_source, Disposition, EventId, EventType, Source};
 
-use crate::parse_aamva::AamvaParseError;
+use crate::parse_aamva::{AamvaParseError, ELEMENT_ID_SIZE};
 
 mod aamva_jurisdictions;
 mod parse_aamva;
@@ -58,7 +58,7 @@ const MAX_AAMVA_DOCUMENT_SIZE: usize = {
     /// The number of non-data bytes in a data element ID.
     /// Calculated as (elementID.len() + data separator.len()) = (3 + 1)
     /// eg. "DBA" + "\n"
-    const NON_DATA_BYTES: usize = 4;
+    const NON_DATA_BYTES: usize = ELEMENT_ID_SIZE + 1;
     /// Maximum possible number of data elements encoded on an AAMVA document.
     /// This is an overestimate because not all fields are available on all document types.
     /// Includes both required and optional elements.
@@ -319,10 +319,10 @@ async fn main() -> color_eyre::Result<()> {
 
     // Open Unix domain socket and get back a handle to the socket
     let listener = open_socket()?;
-    // A thread‐safe list of all currently‐connected clients
+    // A task-safe list of all currently-connected clients
     let clients = Arc::new(Mutex::new(Vec::<UnixStream>::new()));
 
-    // Spawn thread to accept clients
+    // Spawn task to accept clients
     tokio::spawn({
         let clients = clients.clone();
         async move {
@@ -369,6 +369,8 @@ async fn main() -> color_eyre::Result<()> {
 
 #[cfg(test)]
 mod tests {
+    use crate::aamva_jurisdictions::AamvaIssuingJurisdiction;
+
     use super::*;
     use serde_json::json;
     use std::os::unix::fs::FileTypeExt;
@@ -382,7 +384,7 @@ mod tests {
     #[tokio::test]
     async fn broadcast_to_clients_sends_valid_json() {
         let doc = AamvaDocument {
-            issuing_jurisdiction: "NH".into(),
+            issuing_jurisdiction: AamvaIssuingJurisdiction::NH,
             first_name: "FIRST".into(),
             middle_name: "MIDDLE".into(),
             last_name: "LAST".into(),
