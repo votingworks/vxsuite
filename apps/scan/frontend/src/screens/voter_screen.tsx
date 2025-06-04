@@ -35,7 +35,10 @@ export function VoterScreen({
   isSoundMuted,
 }: VoterScreenProps): JSX.Element | null {
   const scannerStatusQuery = getScannerStatus.useQuery({
-    refetchInterval: POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
+    refetchInterval: (status) =>
+      status?.state === 'scanning'
+        ? 50
+        : POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
   });
 
   useScanFeedbackAudio({
