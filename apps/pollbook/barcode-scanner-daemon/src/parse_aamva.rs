@@ -116,6 +116,7 @@ impl FromStr for AamvaDocument {
 
             let (id, data) = line.split_at(ELEMENT_ID_SIZE);
 
+            #[allow(clippy::assigning_clones)]
             match id {
                 "DAC" => {
                     if data.len() > MAX_NAME_LENGTH {

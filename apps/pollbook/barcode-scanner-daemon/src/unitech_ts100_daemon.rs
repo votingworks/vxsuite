@@ -56,7 +56,7 @@ const COMPLIANCE_INDICATOR: &[u8] = b"@\n\x1E";
 /// Jurisdiction-specific subdocuments are not supported by this calculation, but could be added later.
 const MAX_AAMVA_DOCUMENT_SIZE: usize = {
     /// The number of non-data bytes in a data element ID.
-    /// Calculated as (elementID.len() + data separator.len()) = (3 + 1)
+    /// Calculated as (`elementID.len()` + `data_separator.len()`) = (3 + 1)
     /// eg. "DBA" + "\n"
     const NON_DATA_BYTES: usize = ELEMENT_ID_SIZE + 1;
     /// Maximum possible number of data elements encoded on an AAMVA document.
@@ -66,14 +66,14 @@ const MAX_AAMVA_DOCUMENT_SIZE: usize = {
     /// Sum of all maximum sizes of data for all elements, excluding element ID; different for each element so this is just hard coded.
     /// eg. document expiry = `DBAMMDDCCYY`
     ///     address state   = `DAJNH`
-    /// So we manually sum "MMDDCCYY".len() + "NH".len() + ... for all fields
+    /// So we manually sum `"MMDDCCYY".len()` + `"NH".len()` + ... for all fields
     const SUM_ALL_ELEMENTS_SIZE: usize = 535;
     (NON_DATA_BYTES + 1) * MAX_NUM_ELEMENTS + SUM_ALL_ELEMENTS_SIZE
 };
 
 /// The maximum number of bytes that can be read from the scanner before exiting with failure code.
 /// This protects against very large inputs that might cause the daemon to hang or infinite loop.
-/// Set to QR code max per https://en.wikipedia.org/wiki/QR_code. We don't support QR code but
+/// Set to QR code max data size. We don't support QR code but
 /// anticipate accidental scans of QR codes. QR codes can encode more data than PDF417 so we take the greater
 /// limit of the 2.
 const SCANNER_READ_BUFFER_SIZE: usize = 2953;
