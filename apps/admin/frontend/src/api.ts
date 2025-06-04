@@ -678,6 +678,20 @@ export const markResultsOfficial = {
   },
 } as const;
 
+export const revertResultsToUnofficial = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.revertResultsToUnofficial, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(
+          getCurrentElectionMetadata.queryKey()
+        );
+      },
+    });
+  },
+} as const;
+
 export const clearCastVoteRecordFiles = {
   useMutation() {
     const apiClient = useApiClient();
