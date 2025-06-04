@@ -1049,7 +1049,9 @@ export function ContestAdjudicationScreen(): JSX.Element {
               </SecondaryNavButton>
               <PrimaryNavButton
                 disabled={
-                  !allWriteInsAdjudicated || !allMarginalMarksAdjudicated
+                  !allWriteInsAdjudicated ||
+                  !allMarginalMarksAdjudicated ||
+                  !isModified
                 }
                 icon="Done"
                 onPress={saveAndNext}

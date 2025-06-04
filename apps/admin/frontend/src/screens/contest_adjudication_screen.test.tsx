@@ -633,12 +633,14 @@ describe('vote adjudication', () => {
     expect(kangarooCheckbox).toBeChecked();
     expect(screen.queryByText(/invalid mark/i)).toBeNull();
 
+    // add vote for kangaroo so there is some change, enabling the primary button
+    userEvent.click(kangarooCheckbox);
+
     const primaryButton = screen.getByRole('button', { name: /save & next/i });
     expect(primaryButton).toBeEnabled();
 
     const adjudicatedCvrContest = formAdjudicatedCvrContest(cvrId, {
       lion: { type: 'candidate-option', hasVote: true },
-      kangaroo: { type: 'candidate-option', hasVote: true },
     });
     apiMock.expectAdjudicateCvrContest(adjudicatedCvrContest);
     apiMock.expectGetVoteAdjudications({ contestId, cvrId }, voteAdjudications);
@@ -660,7 +662,7 @@ describe('vote adjudication', () => {
 
     userEvent.click(primaryButton);
     await waitFor(() => {
-      expect(screen.queryByTestId('transcribe:id-174')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('transcribe:id-175')).toBeInTheDocument();
     });
   });
 
@@ -1043,50 +1045,9 @@ describe('ballot navigation', () => {
     backButton = getButtonByName('back');
     expect(backButton).toBeDisabled();
     primaryButton = getButtonByName('save & next');
-    // primary button should be enabled as this cvr already has write-ins resolved
-    expect(primaryButton).toBeEnabled();
-
-    // save & next, which will require refetching as we adjudicate a ballot, invalidating the current queries
-    const adjudicatedCvrContest = formAdjudicatedCvrContest(cvrIds[0], {
-      kangaroo: { type: 'candidate-option', hasVote: true },
-      'write-in-1': {
-        type: 'write-in-option',
-        hasVote: true,
-        candidateType: 'official-candidate',
-        candidateId: 'lion',
-      },
-      'write-in-2': {
-        type: 'write-in-option',
-        hasVote: true,
-        candidateType: 'write-in-candidate',
-        candidateName: 'oliver',
-      },
-    });
-    apiMock.expectAdjudicateCvrContest(adjudicatedCvrContest);
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId: cvrIds[0] }, []);
-    apiMock.expectGetWriteIns(
-      { contestId, cvrId: cvrIds[0] },
-      completedWriteInRecords174
-    );
-    apiMock.expectGetWriteInCandidates(writeInCandidates, contestId);
-    apiMock.expectGetCvrContestTag(
-      { cvrId: cvrIds[0], contestId },
-      cvrContestTag0
-    );
-
-    apiMock.expectGetVoteAdjudications(
-      { contestId, cvrId: firstPendingCvrId },
-      []
-    );
-    apiMock.expectGetWriteIns(
-      { contestId, cvrId: firstPendingCvrId },
-      pendingWriteInRecords175
-    );
-    apiMock.expectGetCvrContestTag(
-      { cvrId: firstPendingCvrId, contestId },
-      cvrContestTag1
-    );
-    userEvent.click(primaryButton);
+    // primary button should be disabled because there have been no modifications
+    expect(primaryButton).toBeDisabled();
+    userEvent.click(skipButton);
     await screen.findByTestId('transcribe:id-175');
 
     // Skip to last ballot
