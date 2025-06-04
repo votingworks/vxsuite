@@ -5,7 +5,6 @@ use serialport::{DataBits, FlowControl, Parity, StopBits};
 use std::fs;
 use std::io::{self, BufRead, BufReader, ErrorKind, Read};
 use std::os::unix::fs::PermissionsExt;
-use std::process::exit;
 use std::str::from_utf8;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
@@ -25,58 +24,58 @@ mod parse_aamva;
  * Logging config
  */
 const SOURCE: Source = Source::VxPollbookBarcodeScannerDaemon;
+/// How often the daemon logs its heartbeat.
 const HEARTBEAT_LOG_INTERVAL: Duration = Duration::from_secs(60);
 
 /*
  * Unix domain socket config
  */
+/// Path of the Unix domain socket used to communicate data between daemon and app backend.
 const UDS_PATH: &str = "/tmp/barcodescannerd.sock";
 
 /*
  * Barcode scanner config
  */
+/// Vendor ID for TS100 barcode scanner manufacturer
 const UNITECH_VENDOR_ID: u16 = 0x2745;
+/// Product ID for TS100 barcode scanner
 const TS100_PRODUCT_ID: u16 = 0x300a;
+/// Path to serialport device as set by udev rule
 const TS100_PORT_NAME: &str = "/dev/barcode_scanner";
+/// Default baud rate, used for connecting to serialport device
 const TS100_BAUD_RATE: u32 = 115_200;
+/// Character at the end of each data chunk sent by the TS100
 const TS100_DATA_TERMINATOR: u8 = b'\r';
 
-// The string denoting the start of an AAMVA-encoded document.
-// 3 ASCII chars '@', 'line feed', 'record separator' expected per "D.12.3 Header" AAMVA 2020 p.50
+/// The string denoting the start of an AAMVA-encoded document.
+/// 3 ASCII chars '@', 'line feed', 'record separator' expected per "D.12.3 Header" AAMVA 2020 p.50
 const COMPLIANCE_INDICATOR: &[u8] = b"@\n\x1E";
 
-/*
- * Calculation of maximum data size of a valid AAMVA document to protect against absurdly large data resulting
- * from scanning.
- */
-// The number of non-data bytes in a data element ID.
-/*
- * Calculation of maximum data size of a valid AAMVA document to protect against absurdly large data resulting
- * from scanning.
- */
+/// Calculation of maximum data size of a valid AAMVA document. This helps with avoiding parsing of
+/// data that is obviously not AAMVA-formatted.
+/// Jurisdiction-specific subdocuments are not supported by this calculation, but could be added later.
 const MAX_AAMVA_DOCUMENT_SIZE: usize = {
-    // The number of non-data bytes in a data element ID.
-    // Calculated as (elementID.len() + data separator.len()) = (3 + 1)
-    // eg. "DBA" + "\n"
+    /// The number of non-data bytes in a data element ID.
+    /// Calculated as (elementID.len() + data separator.len()) = (3 + 1)
+    /// eg. "DBA" + "\n"
     const NON_DATA_BYTES: usize = 4;
-    // Maximum possible number of data elements encoded on an AAMVA document.
-    // This is an overestimate because not all fields are available on all document types.
-    // Includes both required and optional elements.
+    /// Maximum possible number of data elements encoded on an AAMVA document.
+    /// This is an overestimate because not all fields are available on all document types.
+    /// Includes both required and optional elements.
     const MAX_NUM_ELEMENTS: usize = 50;
-    // Sum of all maximum sizes of data for all elements, excluding element ID; different for each element so this is just hard coded.
-    // eg. document expiry = `DBAMMDDCCYY`
-    //     address state   = `DAJNH`
-    // So we manually sum "MMDDCCYY".len() + "NH".len() + ... for all fields
+    /// Sum of all maximum sizes of data for all elements, excluding element ID; different for each element so this is just hard coded.
+    /// eg. document expiry = `DBAMMDDCCYY`
+    ///     address state   = `DAJNH`
+    /// So we manually sum "MMDDCCYY".len() + "NH".len() + ... for all fields
     const SUM_ALL_ELEMENTS_SIZE: usize = 535;
-    // Jurisdiction-specific fields are not supported by this calculation, but could be with real-world examples.
     (NON_DATA_BYTES + 1) * MAX_NUM_ELEMENTS + SUM_ALL_ELEMENTS_SIZE
 };
 
-// The maximum number of bytes that can be read from the scanner before exiting with failure code.
-// This protects against very large inputs that might cause the daemon to hang or infinite loop.
-// Set to QR code max per https://en.wikipedia.org/wiki/QR_code. We don't support QR code but
-// anticipate accidental scans of QR codes. QR codes can encode more data than PDF417 so we take the greater
-// limit of the 2.
+/// The maximum number of bytes that can be read from the scanner before exiting with failure code.
+/// This protects against very large inputs that might cause the daemon to hang or infinite loop.
+/// Set to QR code max per https://en.wikipedia.org/wiki/QR_code. We don't support QR code but
+/// anticipate accidental scans of QR codes. QR codes can encode more data than PDF417 so we take the greater
+/// limit of the 2.
 const SCANNER_READ_BUFFER_SIZE: usize = 2953;
 
 // Resets the TS100 barcode scanner
@@ -196,15 +195,13 @@ pub async fn run_read_write_loop<R: Read>(
     let mut buf = Vec::with_capacity(MAX_AAMVA_DOCUMENT_SIZE);
     let mut start = Instant::now();
 
-    // Use `Take` so we don't unquestioningly read large amounts of data. `Take`
-    // wraps the raw serialport reader and protects against reading a dangerously
-    // large amount of data. It returns EOF if its limit is reached.
-    let take_capped_port = raw_port
-        .by_ref()
-        .take((SCANNER_READ_BUFFER_SIZE + 1) as u64);
+    // `Take` wraps the raw serialport reader and protects against reading a dangerously
+    // large amount of data. In practice this shouldn't come up because 2D barcode encoding
+    // formats can't fit > ~3 KB. It returns EOF if its limit is reached.
+    let take_capped_port = raw_port.by_ref().take((SCANNER_READ_BUFFER_SIZE) as u64);
     // Use BufReader::with_capacity to wrap the lower-level `Take`. The capacity of the
     // BufReader is just a performance hint and doesn't protect against large inputs.
-    let mut limited_reader = BufReader::with_capacity(MAX_AAMVA_DOCUMENT_SIZE, take_capped_port);
+    let mut limited_reader = BufReader::new(take_capped_port);
 
     while running.load(Ordering::SeqCst) {
         if start.elapsed() > HEARTBEAT_LOG_INTERVAL {
@@ -214,15 +211,12 @@ pub async fn run_read_write_loop<R: Read>(
 
         buf.clear();
 
-        // Attempt to read one line up to the terminator, but never more than MAX+1 bytes.
         match limited_reader.read_until(TS100_DATA_TERMINATOR, &mut buf) {
             Ok(n) => {
                 if !buf.ends_with(&[TS100_DATA_TERMINATOR]) {
                     // If the buffer does not end with the delimiter (terminator) then the underlying reader hit EOF.
-                    // If EOF, `Take` encountered a dangerous amount of data (more than would fit in a QR or PDF417 code).
-                    // If no data, we shouldn't have triggered this arm at all, so it's an unknown error.
                     log!(EventId::ParseError, "Hit EOF while reading for terminator character {TS100_DATA_TERMINATOR:?}. Take limit: {SCANNER_READ_BUFFER_SIZE}. Bytes read: {n}");
-                    exit(1);
+                    continue;
                 }
 
                 if n > MAX_AAMVA_DOCUMENT_SIZE {
@@ -271,7 +265,7 @@ pub async fn run_read_write_loop<R: Read>(
                             event_type: EventType::SystemAction,
                             disposition: Disposition::Failure
                         );
-                        exit(1);
+                        continue;
                     }
                     Err(err) => {
                         // Don't exit if this could have been a scan of a non-AAMVA document
