@@ -123,6 +123,16 @@ test('check in a voter', async () => {
     const receiptPdfPathOos = mockPrinterHandler.getLastPrintPath();
     expect(receiptPdfPathOos).toBeDefined();
     await expect(receiptPdfPathOos).toMatchPdfSnapshot();
+
+    // Test reprinting the receipt
+    const result = await localApiClient.reprintVoterReceipt({
+      voterId: secondVoter.voterId,
+    });
+    expect(result.ok()).toEqual(undefined);
+
+    const receiptReprint = mockPrinterHandler.getLastPrintPath();
+    expect(receiptReprint).toBeDefined();
+    await expect(receiptReprint).toMatchPdfSnapshot();
   });
 });
 

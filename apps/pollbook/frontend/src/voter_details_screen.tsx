@@ -6,6 +6,7 @@ import {
   H2,
   H3,
   LabelledText,
+  Loading,
   LoadingAnimation,
   MainContent,
   MainHeader,
@@ -15,9 +16,15 @@ import {
 import { useHistory, useParams } from 'react-router-dom';
 import React, { useCallback, useState } from 'react';
 import type { Voter } from '@votingworks/pollbook-backend';
-import { assertDefined } from '@votingworks/basics';
+import { assertDefined, sleep } from '@votingworks/basics';
+import { PrinterStatus } from '@votingworks/types';
 import { electionManagerRoutes, NoNavScreen } from './nav_screen';
-import { getDeviceStatuses, getVoter, undoVoterCheckIn } from './api';
+import {
+  getDeviceStatuses,
+  getVoter,
+  reprintVoterReceipt,
+  undoVoterCheckIn,
+} from './api';
 import { Column, Row } from './layout';
 import {
   AddressChange,
@@ -28,6 +35,7 @@ import {
 import { UpdateAddressFlow } from './update_address_flow';
 import { UpdateNameFlow } from './update_name_flow';
 import { CheckInDetails } from './voter_search_screen';
+import { PRINTING_INDICATOR_DELAY_MS } from './globals';
 
 interface Params {
   voterId: string;
@@ -134,18 +142,14 @@ function VoterDetailsScreenLayout({
 }
 
 interface PrinterRequiredProps {
+  printer: PrinterStatus;
   onClose: () => void;
 }
 function PrinterRequired({
+  printer,
   children,
   onClose,
 }: PrinterRequiredProps & React.PropsWithChildren) {
-  const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
-  if (!getDeviceStatusesQuery.isSuccess) {
-    return null;
-  }
-
-  const { printer } = getDeviceStatusesQuery.data;
   if (!printer.connected) {
     return (
       <Modal
@@ -166,6 +170,31 @@ export function VoterDetailsScreen(): JSX.Element | null {
   const [showUpdateAddressFlow, setShowUpdateAddressFlow] = useState(false);
   const [showUpdateNameFlow, setShowUpdateNameFlow] = useState(false);
   const [showUndoCheckinFlow, setShowUndoCheckinFlow] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
+  const [reprintErrorMessage, setReprintErrorMessage] = useState('');
+  const reprintVoterReceiptMutation = reprintVoterReceipt.useMutation();
+  const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
+
+  async function reprintReceipt() {
+    setIsPrinting(true);
+    const result = await reprintVoterReceiptMutation.mutateAsync({
+      voterId,
+    });
+    if (result.isOk()) {
+      await sleep(PRINTING_INDICATOR_DELAY_MS);
+      setIsPrinting(false);
+      setReprintErrorMessage('');
+    } else if (result.isErr()) {
+      setIsPrinting(false);
+      setReprintErrorMessage(result.err());
+    }
+  }
+
+  if (!getDeviceStatusesQuery.isSuccess) {
+    return null;
+  }
+
+  const { printer } = getDeviceStatusesQuery.data;
 
   if (!voterQuery.isSuccess) {
     return (
@@ -179,7 +208,10 @@ export function VoterDetailsScreen(): JSX.Element | null {
 
   if (showUpdateAddressFlow) {
     return (
-      <PrinterRequired onClose={() => setShowUpdateAddressFlow(false)}>
+      <PrinterRequired
+        printer={printer}
+        onClose={() => setShowUpdateAddressFlow(false)}
+      >
         <UpdateAddressFlow
           voter={voter}
           returnToPreviousScreen={() => setShowUpdateAddressFlow(false)}
@@ -191,7 +223,10 @@ export function VoterDetailsScreen(): JSX.Element | null {
 
   if (showUpdateNameFlow) {
     return (
-      <PrinterRequired onClose={() => setShowUpdateNameFlow(false)}>
+      <PrinterRequired
+        printer={printer}
+        onClose={() => setShowUpdateNameFlow(false)}
+      >
         <UpdateNameFlow
           voter={voter}
           returnToDetailsScreen={() => setShowUpdateNameFlow(false)}
@@ -202,7 +237,10 @@ export function VoterDetailsScreen(): JSX.Element | null {
 
   if (showUndoCheckinFlow) {
     return (
-      <PrinterRequired onClose={() => setShowUndoCheckinFlow(false)}>
+      <PrinterRequired
+        printer={printer}
+        onClose={() => setShowUndoCheckinFlow(false)}
+      >
         <ConfirmUndoCheckInModal
           voter={voter}
           onClose={() => setShowUndoCheckinFlow(false)}
@@ -210,9 +248,19 @@ export function VoterDetailsScreen(): JSX.Element | null {
       </PrinterRequired>
     );
   }
-
   return (
     <VoterDetailsScreenLayout>
+      {isPrinting && <Modal content={<Loading>Printing</Loading>} />}
+      {reprintErrorMessage && (
+        <Modal
+          title="Error Reprinting"
+          onOverlayClick={() => setReprintErrorMessage('')}
+          actions={
+            <Button onPress={() => setReprintErrorMessage('')}>Close</Button>
+          }
+          content="Voter is not currently checked in."
+        />
+      )}
       <React.Fragment>
         <Column style={{ gap: '1rem', flex: 1, flexBasis: 1 }}>
           <Card color="neutral">
@@ -293,12 +341,21 @@ export function VoterDetailsScreen(): JSX.Element | null {
                       </LabelledText>
                     </React.Fragment>
                   )}
-                  <Button
-                    icon="Delete"
-                    onPress={() => setShowUndoCheckinFlow(true)}
-                  >
-                    Undo check-in
-                  </Button>
+                  <Row style={{ gap: '1rem' }}>
+                    <Button
+                      icon="Print"
+                      onPress={() => reprintReceipt()}
+                      disabled={!printer.connected}
+                    >
+                      Reprint Receipt
+                    </Button>
+                    <Button
+                      icon="Delete"
+                      onPress={() => setShowUndoCheckinFlow(true)}
+                    >
+                      Undo Check-In
+                    </Button>
+                  </Row>
                 </React.Fragment>
               )}
             </Column>

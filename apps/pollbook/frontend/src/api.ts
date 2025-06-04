@@ -301,6 +301,13 @@ export const undoVoterCheckIn = {
   },
 } as const;
 
+export const reprintVoterReceipt = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.reprintVoterReceipt);
+  },
+} as const;
+
 export const resetNetwork = {
   useMutation() {
     const apiClient = useApiClient();

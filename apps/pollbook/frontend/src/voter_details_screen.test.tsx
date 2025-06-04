@@ -284,7 +284,7 @@ test('undo check-in', async () => {
 
   const undoCheckInReason = 'accidental check-in';
   apiMock.expectUndoVoterCheckIn(checkedInVoter, undoCheckInReason);
-  userEvent.click(await screen.findButton('Undo check-in'));
+  userEvent.click(await screen.findButton('Undo Check-In'));
 
   await screen.findByRole('heading', { name: 'Undo Check-In' });
   screen.getByText('Record the reason for undoing the check-in:');
@@ -301,4 +301,76 @@ test('undo check-in', async () => {
   userEvent.click(screen.getButton('Undo Check-In'));
 
   await screen.findByText('Not checked in');
+});
+
+test('reprint check-in receipt', async () => {
+  const checkedInVoter: Voter = {
+    ...voter,
+    checkIn: {
+      identificationMethod: { type: 'default' },
+      timestamp: new Date().toISOString(),
+      isAbsentee: false,
+      receiptNumber: 0,
+      machineId: 'test-machine-01',
+    },
+  };
+  apiMock.expectGetVoter(checkedInVoter);
+  apiMock.expectGetDeviceStatuses();
+  apiMock.setPrinterStatus(true);
+
+  await renderComponent();
+
+  const reprintButton = screen.getButton('Reprint Receipt');
+  expect(reprintButton).not.toBeDisabled();
+  apiMock.expectReprintReceipt(checkedInVoter);
+  userEvent.click(reprintButton);
+
+  screen.getByText('Printing');
+});
+
+test('reprint check-in receipt - no printer', async () => {
+  const checkedInVoter: Voter = {
+    ...voter,
+    checkIn: {
+      identificationMethod: { type: 'default' },
+      timestamp: new Date().toISOString(),
+      isAbsentee: false,
+      receiptNumber: 0,
+      machineId: 'test-machine-01',
+    },
+  };
+  apiMock.expectGetVoter(checkedInVoter);
+  apiMock.expectGetDeviceStatuses();
+  apiMock.setPrinterStatus(false);
+
+  await renderComponent();
+
+  const reprintButton = screen.getButton('Reprint Receipt');
+  expect(reprintButton).toBeDisabled();
+});
+
+test('reprint check-in receipt - error path', async () => {
+  const checkedInVoter: Voter = {
+    ...voter,
+    checkIn: {
+      identificationMethod: { type: 'default' },
+      timestamp: new Date().toISOString(),
+      isAbsentee: false,
+      receiptNumber: 0,
+      machineId: 'test-machine-01',
+    },
+  };
+  apiMock.expectGetVoter(checkedInVoter);
+  apiMock.expectGetDeviceStatuses();
+  apiMock.setPrinterStatus(true);
+
+  await renderComponent();
+
+  const reprintButton = screen.getButton('Reprint Receipt');
+  apiMock.expectReprintReceiptError(checkedInVoter);
+  userEvent.click(reprintButton);
+
+  await vi.waitFor(() => {
+    screen.getByText('Error Reprinting');
+  });
 });
