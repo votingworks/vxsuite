@@ -1,11 +1,11 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, Mocked, test, vi } from 'vitest';
 import {
   ManualResultsIdentifier,
   ImportElectionResultsReportingError,
 } from '@votingworks/admin-backend';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { assertDefined, deferred, err, ok, Result } from '@votingworks/basics';
-import { ElectronFile, mockUsbDriveStatus } from '@votingworks/ui';
+import { mockUsbDriveStatus } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
 import {
   mockKiosk,
@@ -18,15 +18,17 @@ import { BallotStyleGroupId, DippedSmartCardAuth } from '@votingworks/types';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { ImportElectionsResultReportingFileModal } from './import_election_results_reporting_file_modal';
-import { fireEvent, screen } from '../../../test/react_testing_library';
+import { screen, waitFor } from '../../../test/react_testing_library';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 
 let apiMock: ApiMock;
+let kiosk: Mocked<KioskBrowser.Kiosk>;
 
 beforeEach(() => {
   apiMock = createApiMock();
-  window.kiosk = mockKiosk(vi.fn);
+  kiosk = mockKiosk(vi.fn);
+  window.kiosk = kiosk;
 });
 
 afterEach(() => {
@@ -35,7 +37,6 @@ afterEach(() => {
 });
 
 function getTestConfig(): {
-  filename: string;
   filepath: string;
   ballotStyleGroupId: BallotStyleGroupId;
   precinctId: string;
@@ -58,7 +59,6 @@ function getTestConfig(): {
   };
 
   return {
-    filename,
     filepath,
     ballotStyleGroupId,
     precinctId,
@@ -67,7 +67,7 @@ function getTestConfig(): {
 }
 
 test('can upload an ERR file and close modal', async () => {
-  const { filename, filepath, ballotStyleGroupId, precinctId, identifier } =
+  const { filepath, ballotStyleGroupId, precinctId, identifier } =
     getTestConfig();
 
   apiMock.expectImportElectionResultReportingFileMutation({
@@ -94,13 +94,11 @@ test('can upload an ERR file and close modal', async () => {
     'Results may be imported as an Election Results Reporting Common Data Format (ERR CDF) file. Choose an ERR CDF file to import.'
   );
 
-  const file: ElectronFile = {
-    ...new File([''], filename),
-    path: filepath,
-  };
-  fireEvent.change(screen.getByTestId('manual-input'), {
-    target: { files: [file] },
+  kiosk.showOpenDialog.mockResolvedValue({
+    canceled: false,
+    filePaths: [filepath],
   });
+  userEvent.click(screen.getByText('Select File…'));
 
   await screen.findByText('Results Imported');
 
@@ -145,7 +143,7 @@ test.each(usbStatuses)(
 );
 
 test('loading state', async () => {
-  const { filename, filepath, ballotStyleGroupId, precinctId, identifier } =
+  const { filepath, ballotStyleGroupId, precinctId, identifier } =
     getTestConfig();
 
   const { promise, resolve } =
@@ -175,13 +173,11 @@ test('loading state', async () => {
     'Results may be imported as an Election Results Reporting Common Data Format (ERR CDF) file. Choose an ERR CDF file to import.'
   );
 
-  const file: ElectronFile = {
-    ...new File([''], filename),
-    path: filepath,
-  };
-  fireEvent.change(screen.getByTestId('manual-input'), {
-    target: { files: [file] },
+  kiosk.showOpenDialog.mockResolvedValue({
+    canceled: false,
+    filePaths: [filepath],
   });
+  userEvent.click(screen.getByText('Select File…'));
 
   await screen.findByText('Importing Results');
 
@@ -212,7 +208,7 @@ const errorTests: ErrorTestSpec[] = [
 test.each(errorTests)(
   'handles error returned by API: $error.type',
   async ({ error, message }) => {
-    const { filename, filepath, ballotStyleGroupId, precinctId, identifier } =
+    const { filepath, ballotStyleGroupId, precinctId, identifier } =
       getTestConfig();
 
     apiMock.apiClient.importElectionResultsReportingFile
@@ -240,13 +236,11 @@ test.each(errorTests)(
       'Results may be imported as an Election Results Reporting Common Data Format (ERR CDF) file. Choose an ERR CDF file to import.'
     );
 
-    const file: ElectronFile = {
-      ...new File([''], filename),
-      path: filepath,
-    };
-    fireEvent.change(screen.getByTestId('manual-input'), {
-      target: { files: [file] },
+    kiosk.showOpenDialog.mockResolvedValue({
+      canceled: false,
+      filePaths: [filepath],
     });
+    userEvent.click(screen.getByText('Select File…'));
 
     await screen.findByText('Failed to Import Results');
     screen.getByText(message);
@@ -280,10 +274,12 @@ test('handles no file input', async () => {
   );
 
   expect(closeFn).toHaveBeenCalledTimes(0);
-  fireEvent.change(screen.getByTestId('manual-input'), {
-    target: { files: null },
+  kiosk.showOpenDialog.mockResolvedValue({
+    canceled: true,
+    filePaths: [],
   });
-  expect(closeFn).toHaveBeenCalledTimes(1);
+  userEvent.click(screen.getByText('Select File…'));
+  await waitFor(() => expect(closeFn).toHaveBeenCalledTimes(1));
 });
 
 test('can render with system admin auth', async () => {

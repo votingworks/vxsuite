@@ -9,19 +9,17 @@ import {
   Table,
   TD,
   Button,
-  ElectronFile,
   useExternalStateChangeListener,
   P,
   Font,
   Icons,
-  FileInputButton,
 } from '@votingworks/ui';
 import {
   format,
   isElectionManagerAuth,
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 
 import type {
   CvrFileImportInfo,
@@ -29,10 +27,7 @@ import type {
 } from '@votingworks/admin-backend';
 import { AppContext } from '../../contexts/app_context';
 import { Loading } from '../../components/loading';
-import {
-  CastVoteRecordFilePreprocessedData,
-  InputEventFunction,
-} from '../../config/types';
+import { CastVoteRecordFilePreprocessedData } from '../../config/types';
 import { NODE_ENV, TIME_FORMAT } from '../../config/globals';
 import {
   addCastVoteRecordFile,
@@ -229,22 +224,25 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
     importCastVoteRecordFile(fileData.path);
   }
 
-  const processCastVoteRecordFileFromFilePicker: InputEventFunction = (
-    event
-  ) => {
-    // electron adds a path field to the File object
-    assert(window.kiosk);
-    const input = event.currentTarget;
-    const files = Array.from(input.files || []);
-    const file = files[0] as ElectronFile;
-
-    if (!file) {
+  async function onSelectFileManually(): Promise<void> {
+    const dialogResult = await assertDefined(window.kiosk).showOpenDialog({
+      properties: ['openFile'],
+      filters: [
+        {
+          name: '',
+          extensions: 'json',
+        },
+      ],
+    });
+    if (dialogResult.canceled) {
       onClose();
       return;
     }
-
-    importCastVoteRecordFile(file.path);
-  };
+    const selectedPath = dialogResult.filePaths[0];
+    if (selectedPath) {
+      importCastVoteRecordFile(selectedPath);
+    }
+  }
 
   // TODO: Rather than explicitly refetching, which is outside of the standard
   // React Query pattern, we should invalidate the query on USB drive status
@@ -358,13 +356,9 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
         actions={
           <React.Fragment>
             {window.kiosk && NODE_ENV === 'development' && (
-              <FileInputButton
-                data-testid="manual-input"
-                onChange={processCastVoteRecordFileFromFilePicker}
-                accept=".json"
-              >
+              <Button onPress={onSelectFileManually}>
                 Select CVR Export Manually…
-              </FileInputButton>
+              </Button>
             )}
             <Button onPress={onClose}>Cancel</Button>
           </React.Fragment>
@@ -499,13 +493,9 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
         onOverlayClick={onClose}
         actions={
           <React.Fragment>
-            <FileInputButton
-              data-testid="manual-input"
-              onChange={processCastVoteRecordFileFromFilePicker}
-              accept=".json"
-            >
+            <Button onPress={onSelectFileManually}>
               Select CVR Export Manually…
-            </FileInputButton>
+            </Button>
             <Button onPress={onClose}>Cancel</Button>
           </React.Fragment>
         }
