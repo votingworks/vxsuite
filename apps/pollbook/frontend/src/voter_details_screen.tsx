@@ -5,6 +5,7 @@ import {
   H1,
   H2,
   H3,
+  Icons,
   LabelledText,
   Loading,
   LoadingAnimation,
@@ -16,13 +17,14 @@ import {
 import { useHistory, useParams } from 'react-router-dom';
 import React, { useCallback, useState } from 'react';
 import type { Voter } from '@votingworks/pollbook-backend';
-import { assertDefined, sleep } from '@votingworks/basics';
+import { assertDefined, sleep, assert } from '@votingworks/basics';
 import { PrinterStatus } from '@votingworks/types';
 import { electionManagerRoutes, NoNavScreen } from './nav_screen';
 import {
   getDeviceStatuses,
   getVoter,
   reprintVoterReceipt,
+  markVoterInactive,
   undoVoterCheckIn,
 } from './api';
 import { Column, Row } from './layout';
@@ -113,6 +115,57 @@ function ConfirmUndoCheckInModal({
   );
 }
 
+function ConfirmMarkInactiveModal({
+  voter,
+  onClose,
+}: {
+  voter: Voter;
+  onClose: () => void;
+}): JSX.Element {
+  const markInactiveMutation = markVoterInactive.useMutation();
+  const [errorMessage, setErrorMessage] = useState('');
+
+  if (errorMessage) {
+    assert(errorMessage === 'voter_checked_in');
+    return (
+      <Modal
+        title={<React.Fragment>Error Marking Inactive</React.Fragment>}
+        content="This voter is already checked in and can not be marked as inactive."
+        actions={<Button onPress={onClose}>Cancel</Button>}
+        onOverlayClick={onClose}
+      />
+    );
+  }
+  return (
+    <Modal
+      title={<React.Fragment>Mark Voter as Inactive</React.Fragment>}
+      content="After the voter is marked as inactive, it will not be possible to check them in. This action cannot be undone."
+      actions={
+        <React.Fragment>
+          <Button
+            icon="Delete"
+            variant="danger"
+            onPress={async () => {
+              const result = await markInactiveMutation.mutateAsync({
+                voterId: voter.voterId,
+              });
+              if (result.isOk()) {
+                onClose();
+              } else {
+                setErrorMessage(result.err());
+              }
+            }}
+          >
+            Mark Inactive
+          </Button>
+          <Button onPress={onClose}>Cancel</Button>
+        </React.Fragment>
+      }
+      onOverlayClick={onClose}
+    />
+  );
+}
+
 function VoterDetailsScreenLayout({
   children,
 }: React.PropsWithChildren): JSX.Element {
@@ -170,6 +223,7 @@ export function VoterDetailsScreen(): JSX.Element | null {
   const [showUpdateAddressFlow, setShowUpdateAddressFlow] = useState(false);
   const [showUpdateNameFlow, setShowUpdateNameFlow] = useState(false);
   const [showUndoCheckinFlow, setShowUndoCheckinFlow] = useState(false);
+  const [showMarkInactiveFlow, setShowMarkInactiveFlow] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
   const [reprintErrorMessage, setReprintErrorMessage] = useState('');
   const reprintVoterReceiptMutation = reprintVoterReceipt.useMutation();
@@ -248,6 +302,16 @@ export function VoterDetailsScreen(): JSX.Element | null {
       </PrinterRequired>
     );
   }
+
+  if (showMarkInactiveFlow) {
+    return (
+      <ConfirmMarkInactiveModal
+        voter={voter}
+        onClose={() => setShowMarkInactiveFlow(false)}
+      />
+    );
+  }
+
   return (
     <VoterDetailsScreenLayout>
       {isPrinting && <Modal content={<Loading>Printing</Loading>} />}
@@ -307,21 +371,34 @@ export function VoterDetailsScreen(): JSX.Element | null {
             </Column>
           </Card>
           <Row style={{ gap: '0.5rem' }}>
-            <Button icon="Edit" onPress={() => setShowUpdateNameFlow(true)}>
+            <Button
+              icon="Edit"
+              disabled={voter.isInactive}
+              onPress={() => setShowUpdateNameFlow(true)}
+            >
               Update Name
             </Button>
-            <Button icon="Edit" onPress={() => setShowUpdateAddressFlow(true)}>
+            <Button
+              icon="Edit"
+              disabled={voter.isInactive}
+              onPress={() => setShowUpdateAddressFlow(true)}
+            >
               Update Address
             </Button>
           </Row>
         </Column>
-        <Column style={{ flex: 1, flexBasis: 1 }}>
+        <Column style={{ flex: 1, flexBasis: 1, gap: '1rem' }}>
           <Card color="neutral">
             <Column style={{ gap: '1rem' }}>
-              {!voter.checkIn && (
+              {voter.isInactive && (
+                <H2 style={{ marginTop: 0 }}>
+                  <Icons.Disabled /> Inactive
+                </H2>
+              )}
+              {!voter.checkIn && !voter.isInactive && (
                 <H2 style={{ marginTop: 0 }}>Not checked in</H2>
               )}
-              {voter.checkIn && (
+              {voter.checkIn && !voter.isInactive && (
                 <React.Fragment>
                   <H2 style={{ marginTop: 0 }}>Checked in</H2>
                   <LabelledText label="Time">
@@ -341,25 +418,36 @@ export function VoterDetailsScreen(): JSX.Element | null {
                       </LabelledText>
                     </React.Fragment>
                   )}
-                  <Row style={{ gap: '1rem' }}>
-                    <Button
-                      icon="Print"
-                      onPress={() => reprintReceipt()}
-                      disabled={!printer.connected}
-                    >
-                      Reprint Receipt
-                    </Button>
-                    <Button
-                      icon="Delete"
-                      onPress={() => setShowUndoCheckinFlow(true)}
-                    >
-                      Undo Check-In
-                    </Button>
-                  </Row>
                 </React.Fragment>
               )}
             </Column>
           </Card>
+          {!voter.checkIn && !voter.isInactive && (
+            <Button
+              icon="Delete"
+              color="danger"
+              onPress={() => setShowMarkInactiveFlow(true)}
+            >
+              Mark Voter as Inactive
+            </Button>
+          )}
+          {voter.checkIn && !voter.isInactive && (
+            <Row style={{ gap: '1rem' }}>
+              <Button
+                icon="Print"
+                onPress={() => reprintReceipt()}
+                disabled={!printer.connected}
+              >
+                Reprint Receipt
+              </Button>
+              <Button
+                icon="Delete"
+                onPress={() => setShowUndoCheckinFlow(true)}
+              >
+                Undo Check-In
+              </Button>
+            </Row>
+          )}
         </Column>
       </React.Fragment>
     </VoterDetailsScreenLayout>

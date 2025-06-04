@@ -70,6 +70,7 @@ export function createMockVoter(
     mailingZip4: '6789',
     party: 'UND',
     district: 'District',
+    isInactive: false,
   };
 }
 
