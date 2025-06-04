@@ -41,6 +41,7 @@ import {
   LocalWorkspace,
   ConfigurationError,
   MachineInformation,
+  VoterCheckInError,
 } from './types';
 import { rootDebug } from './debug';
 import {
@@ -226,14 +227,13 @@ function buildApi({ context, logger }: BuildAppParams) {
     async checkInVoter(input: {
       voterId: string;
       identificationMethod: VoterIdentificationMethod;
-    }): Promise<Result<void, 'already_checked_in' | 'voter_inactive'>> {
+    }): Promise<Result<void, VoterCheckInError>> {
       const election = assertDefined(store.getElection());
       const { checkIn, isInactive } = store.getVoter(input.voterId);
       if (checkIn) {
         return err('already_checked_in');
       }
       if (isInactive) {
-        // TODO(CARO) - Future Commit handle in fe
         return err('voter_inactive');
       }
       const { voter, receiptNumber } = store.recordVoterCheckIn(input);

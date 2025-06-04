@@ -428,3 +428,5 @@ export type ConfigurationStatus =
   | 'network-configuration-error'
   | 'recently-unconfigured'
   | 'network-conflicting-pollbook-packages-match-card';
+
+export type VoterCheckInError = 'already_checked_in' | 'voter_inactive';
