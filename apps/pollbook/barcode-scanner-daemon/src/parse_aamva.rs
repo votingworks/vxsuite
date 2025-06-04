@@ -8,7 +8,7 @@ const EXPECTED_PREFIX: &str = "ANSI ";
 const ISSUER_SIZE: usize = 6;
 const MIN_HEADER_LENGTH: usize = 17;
 const MAX_NAME_LENGTH: usize = 40;
-const MAX_NAME_SUFFIX_LENGTH: usize = 40;
+const MAX_NAME_SUFFIX_LENGTH: usize = 5;
 
 #[derive(Debug, Error)]
 pub enum AamvaParseError {
@@ -63,29 +63,28 @@ impl FromStr for AamvaHeader {
 
 /// Partial definition of the AAMVA document (eg. Driver's License) structure.
 /// Limited to the fields needed for pollbook check-in.
-#[derive(Debug, Serialize, Default)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AamvaDocument {
-    pub issuing_jurisdiction: String,
+    pub issuing_jurisdiction: AamvaIssuingJurisdiction,
 
-    #[serde(default)]
     pub first_name: String,
 
-    #[serde(default)]
     pub middle_name: String,
 
-    #[serde(default)]
     pub last_name: String,
 
-    #[serde(default)]
     pub name_suffix: String,
 }
 
 impl AamvaDocument {
-    pub fn new_from_jurisdiction(issuing_jurisdiction: String) -> Self {
+    pub fn new_from_jurisdiction(issuing_jurisdiction: AamvaIssuingJurisdiction) -> Self {
         Self {
             issuing_jurisdiction,
-            ..Default::default()
+            first_name: String::new(),
+            middle_name: String::new(),
+            last_name: String::new(),
+            name_suffix: String::new(),
         }
     }
 }
@@ -101,8 +100,7 @@ impl FromStr for AamvaDocument {
             None => return Err(Self::Err::NoLine),
         };
 
-        let mut document =
-            Self::new_from_jurisdiction(header.issuing_jurisdiction.as_str().to_owned());
+        let mut document = Self::new_from_jurisdiction(header.issuing_jurisdiction);
 
         for line in lines {
             if line.len() < 3 {
@@ -122,19 +120,19 @@ impl FromStr for AamvaDocument {
                     if data.len() > MAX_NAME_LENGTH {
                         return Err(Self::Err::DataTooLong(id.to_string(), data.to_string()));
                     }
-                    data.clone_into(&mut document.middle_name);
+                    document.middle_name = data.to_owned();
                 }
                 "DCS" => {
                     if data.len() > MAX_NAME_LENGTH {
                         return Err(Self::Err::DataTooLong(id.to_string(), data.to_string()));
                     }
-                    data.clone_into(&mut document.last_name);
+                    document.last_name = data.to_owned();
                 }
                 "DCU" => {
                     if data.len() > MAX_NAME_SUFFIX_LENGTH {
                         return Err(Self::Err::DataTooLong(id.to_string(), data.to_string()));
                     }
-                    data.clone_into(&mut document.name_suffix);
+                    document.name_suffix = data.to_owned();
                 }
                 _ => {}
             }
@@ -160,7 +158,7 @@ DCUJR
     fn parse_complete_document() {
         let doc = AamvaDocument::from_str(VALID_BLOB).unwrap();
 
-        assert_eq!(doc.issuing_jurisdiction, "NH");
+        assert_eq!(doc.issuing_jurisdiction, AamvaIssuingJurisdiction::NH);
         assert_eq!(&doc.first_name, "FIRST");
         assert_eq!(&doc.middle_name, "MIDDLE");
         assert_eq!(&doc.last_name, "LAST");
