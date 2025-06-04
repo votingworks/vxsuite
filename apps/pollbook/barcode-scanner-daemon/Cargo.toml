@@ -17,8 +17,8 @@ nix = { workspace = true }
 nusb = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
-serialport = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
+tokio-serial = { workspace = true }
 thiserror = { workspace = true }
 vx-logging = { workspace = true }
 

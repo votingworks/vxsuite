@@ -1,7 +1,6 @@
 use color_eyre::eyre::Context;
 use nusb::Error;
 use parse_aamva::AamvaDocument;
-use serialport::{DataBits, FlowControl, Parity, StopBits};
 use std::fs;
 use std::io::{self, BufRead, BufReader, ErrorKind, Read};
 use std::os::unix::fs::PermissionsExt;
@@ -13,6 +12,7 @@ use std::time::{Duration, Instant};
 use tokio::io::AsyncWriteExt;
 use tokio::net::{UnixListener, UnixStream};
 use tokio::sync::Mutex;
+use tokio_serial::{DataBits, FlowControl, Parity, SerialPort, StopBits};
 use vx_logging::{log, set_source, Disposition, EventId, EventType, Source};
 
 use crate::parse_aamva::{AamvaParseError, ELEMENT_ID_SIZE};
@@ -96,10 +96,7 @@ fn reset_scanner() -> Result<(), Error> {
 }
 
 // Connects to TS100 barcode scanner
-fn init_port(
-    port_name: &str,
-    baud_rate: u32,
-) -> color_eyre::Result<Box<dyn serialport::SerialPort>> {
+fn init_port(port_name: &str, baud_rate: u32) -> color_eyre::Result<Box<dyn SerialPort>> {
     // We have experienced difficulty reconnecting the scanner when the daemon
     // is stopped and started multiple times. Resetting the scanner solves the issue.
     // Configuration such as USB COM Port Emulation persists between resets.
@@ -123,7 +120,7 @@ fn init_port(
         }
     }
 
-    let port = serialport::new(port_name, baud_rate)
+    let port = tokio_serial::new(port_name, baud_rate)
         .data_bits(DataBits::Eight)
         .parity(Parity::None)
         .stop_bits(StopBits::One)
