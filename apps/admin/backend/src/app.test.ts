@@ -187,6 +187,7 @@ test('managing the current election', async () => {
     'election_manager',
     expect.objectContaining({
       disposition: 'success',
+      official: true,
     })
   );
   expect(await apiClient.getCurrentElectionMetadata()).toMatchObject({
@@ -195,11 +196,29 @@ test('managing the current election', async () => {
     electionDefinition,
   });
 
+  // revert results to unofficial as system administrator
+  mockSystemAdministratorAuth(auth);
+  await apiClient.revertResultsToUnofficial();
+  expect(logger.log).toHaveBeenNthCalledWith(
+    6,
+    LogEventId.MarkedTallyResultsOfficial,
+    'system_administrator',
+    expect.objectContaining({
+      disposition: 'success',
+      official: false,
+    })
+  );
+  expect(await apiClient.getCurrentElectionMetadata()).toMatchObject({
+    isOfficialResults: false,
+    id: electionId,
+    electionDefinition,
+  });
+
   // unconfigure as system administrator
   mockSystemAdministratorAuth(auth);
   await apiClient.unconfigure();
   expect(logger.log).toHaveBeenNthCalledWith(
-    6,
+    7,
     LogEventId.ElectionUnconfigured,
     'system_administrator',
     expect.objectContaining({
