@@ -246,7 +246,7 @@ DCSLAST
         let element_ids = ["DAC", "DAD", "DCS", "DCU"];
         for id in element_ids {
             let too_long: &str =
-                &format!("ANSI 636039090001DL00310485DLDAQNHL12345678\n{id}{long_data}").to_owned();
+                &format!("ANSI 636039090001DL00310485DLDAQNHL12345678\n{id}{long_data}");
             let _ = AamvaDocument::from_str(too_long).expect_err(
                 &format!(
                     "Data in element {id} too long: FORTY-ONE-CHARS-STRING-IS-TOOOOOOOOO-LONG"
@@ -259,9 +259,9 @@ DCSLAST
     #[test]
     fn invalid_number() {
         let invalid_jurisdiction_id = "999999";
-        let err = AamvaHeader::from_str(
-            format!("ANSI {invalid_jurisdiction_id}100001DL00310485DLDAQNHL12345678").as_str(),
-        )
+        let err = AamvaHeader::from_str(&format!(
+            "ANSI {invalid_jurisdiction_id}100001DL00310485DLDAQNHL12345678"
+        ))
         .unwrap_err();
         assert!(matches!(
             err,
