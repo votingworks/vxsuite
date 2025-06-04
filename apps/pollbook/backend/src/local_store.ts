@@ -22,6 +22,7 @@ import {
   VoterCheckInEvent,
   VoterGroup,
   VoterIdentificationMethod,
+  VoterInactivatedEvent,
   VoterNameChange,
   VoterNameChangeEvent,
   VoterNameChangeRequest,
@@ -136,6 +137,7 @@ export class LocalStore extends Store {
     this.client.transaction(() => {
       this.client.run('delete from elections');
       this.client.run('delete from voters');
+      this.client.run('delete from check_in_status');
       this.client.run('delete from event_log');
     });
     this.currentClock = new HybridLogicalClock(this.machineId);
@@ -426,6 +428,33 @@ export class LocalStore extends Store {
           timestamp,
           receiptNumber,
           nameChangeData,
+        })
+      );
+    });
+
+    return { voter: updatedVoter, receiptNumber };
+  }
+
+  markVoterInactive(voterId: string): { voter: Voter; receiptNumber: number } {
+    debug(`Marking ${voterId} as inactive`);
+    const voter = this.getVoter(voterId);
+    assert(voter);
+
+    const updatedVoter: Voter = {
+      ...voter,
+      isInactive: true,
+    };
+
+    const timestamp = this.incrementClock();
+    const receiptNumber = this.getNextEventId();
+    this.client.transaction(() => {
+      this.saveEvent(
+        typedAs<VoterInactivatedEvent>({
+          type: EventType.MarkInactive,
+          machineId: this.machineId,
+          voterId,
+          timestamp,
+          receiptNumber,
         })
       );
     });

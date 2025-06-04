@@ -56,6 +56,7 @@ import { renderAndPrintReceipt } from './receipts/printing';
 import { UNCONFIGURE_LOCKOUT_TIMEOUT } from './globals';
 import { generateVoterHistoryCsvContent } from './voter_history';
 import { getCurrentTime } from './get_current_time';
+import { MarkInactiveReceipt } from './receipts/mark_inactive_receipt';
 
 const debug = rootDebug.extend('local_app');
 
@@ -225,11 +226,15 @@ function buildApi({ context, logger }: BuildAppParams) {
     async checkInVoter(input: {
       voterId: string;
       identificationMethod: VoterIdentificationMethod;
-    }): Promise<Result<void, 'already_checked_in'>> {
+    }): Promise<Result<void, 'already_checked_in' | 'voter_inactive'>> {
       const election = assertDefined(store.getElection());
-      const { checkIn } = store.getVoter(input.voterId);
+      const { checkIn, isInactive } = store.getVoter(input.voterId);
       if (checkIn) {
         return err('already_checked_in');
+      }
+      if (isInactive) {
+        // TODO(CARO) - Future Commit handle in fe
+        return err('voter_inactive');
       }
       const { voter, receiptNumber } = store.recordVoterCheckIn(input);
       debug('Checked in voter %s', voter.voterId);
@@ -342,6 +347,31 @@ function buildApi({ context, logger }: BuildAppParams) {
       debug('Printing registration receipt for voter %s', voter.voterId);
       await renderAndPrintReceipt(printer, receipt);
       return voter;
+    },
+
+    async markVoterInactive(input: {
+      voterId: string;
+    }): Promise<Result<void, 'voter_checked_in'>> {
+      const election = assertDefined(store.getElection());
+      const originalVoter: Voter = store.getVoter(input.voterId);
+      if (originalVoter.checkIn) {
+        return err('voter_checked_in');
+      }
+      const { voter, receiptNumber } = store.markVoterInactive(input.voterId);
+      const printerStatus = await printer.status();
+      // This flow does not require a printer to be connected, only print a receipt opportunistically.
+      if (!printerStatus.connected) {
+        return ok();
+      }
+      const receipt = React.createElement(MarkInactiveReceipt, {
+        voter,
+        machineId,
+        receiptNumber,
+        election,
+      });
+      debug('Printing marked inactive receipt for voter %s', voter.voterId);
+      await renderAndPrintReceipt(printer, receipt);
+      return ok();
     },
 
     getValidStreetInfo(): ValidStreetInfo[] {

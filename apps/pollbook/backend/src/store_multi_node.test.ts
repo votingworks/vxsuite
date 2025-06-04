@@ -1242,3 +1242,11 @@ test('simultaneous name/address changes, last write wins', async () => {
     });
   }
 });
+
+// TODO add tests for marking inactive.
+// Test if there ia check in event on an offline machine BEFORE the mark inactive
+// Test if there is a check in event on an offline machine AFTER the mark inactive
+// Test name/address change AFTER mark inactive on another machine
+// Test name/address change BEFORE mark inactive on same/or other machine
+// Test that once event is synced you can not check in after a mark inactive event.
+// Test that searching works as it should.

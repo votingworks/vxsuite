@@ -223,6 +223,8 @@ export abstract class Store {
             return pollbookEvent.checkInData;
           case EventType.UndoVoterCheckIn:
             return {};
+          case EventType.MarkInactive:
+            return {};
           case EventType.VoterAddressChange:
             return pollbookEvent.addressChangeData;
           case EventType.VoterNameChange:
@@ -280,20 +282,24 @@ export abstract class Store {
       // Update any materialized views necessary for the given event. Refetching the voter ensures
       // that the event is handled in proper order by hlc timestamp with other events.
       switch (pollbookEvent.type) {
+        // MarkInactive is included here as it can theoretically cause an "undo" of a check in a rare syncing race condition.
+        case EventType.MarkInactive:
         case EventType.UndoVoterCheckIn:
         case EventType.VoterCheckIn: {
           // If we are saving a check in or undo update the materialized check_in_status table.
           const voter = this.getVoter(pollbookEvent.voterId);
           this.client.run(
             `
-          INSERT INTO check_in_status (voter_id, machine_id, is_checked_in)
-          VALUES (?, ?, 1)
-          ON CONFLICT(voter_id) DO UPDATE SET 
-          machine_id = ?,
-          is_checked_in = ?
-          `,
+            INSERT INTO check_in_status (voter_id, machine_id, is_checked_in)
+            VALUES (?, ?, ?)
+            ON CONFLICT(voter_id) DO UPDATE SET 
+            is_checked_in = EXCLUDED.is_checked_in,
+            machine_id = CASE
+              WHEN check_in_status.is_checked_in != EXCLUDED.is_checked_in THEN EXCLUDED.machine_id
+              ELSE check_in_status.machine_id
+            END
+            `,
             pollbookEvent.voterId,
-            pollbookEvent.machineId,
             pollbookEvent.machineId,
             voter.checkIn ? '1' : '0'
           );
