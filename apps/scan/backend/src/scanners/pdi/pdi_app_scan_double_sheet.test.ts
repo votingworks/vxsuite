@@ -268,7 +268,7 @@ test('insert second ballot after accept, should be scanned', async () => {
       // Simulate inserting a second ballot
       mockScanner.setScannerStatus(mockScannerStatus.documentInFront);
 
-      clock.increment(delays.DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT);
+      await apiClient.readyForNextBallot();
       await waitForStatus(apiClient, {
         state: 'no_paper',
         ballotsCounted,

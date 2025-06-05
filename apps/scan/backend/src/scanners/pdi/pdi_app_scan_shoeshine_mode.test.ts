@@ -68,7 +68,7 @@ test('shoeshine mode scans the same ballot repeatedly', async () => {
       });
       expect(mockScanner.client.ejectDocument).not.toHaveBeenCalled();
 
-      clock.increment(delays.DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT);
+      await apiClient.readyForNextBallot();
       await waitForStatus(apiClient, {
         state: 'accepted',
         ballotsCounted: 1,
@@ -122,7 +122,7 @@ test('handles error on eject for rescan', async () => {
       mockScanner.client.ejectDocument.mockRejectedValue(
         new Error('eject failed')
       );
-      clock.increment(delays.DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT);
+      await apiClient.readyForNextBallot();
       await waitForStatus(apiClient, {
         state: 'unrecoverable_error',
         ballotsCounted: 1,
