@@ -14,7 +14,12 @@ import {
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
 import { constructElectionKey, formatElectionHashes } from '@votingworks/types';
-import { fireEvent, screen, within } from '../test/react_testing_library';
+import {
+  fireEvent,
+  screen,
+  waitFor,
+  within,
+} from '../test/react_testing_library';
 
 import { eitherNeitherElectionDefinition } from '../test/render_in_app_context';
 import { buildApp } from '../test/helpers/build_app';
@@ -253,6 +258,39 @@ test('marking results as official', async () => {
   // official on reports screen
   await screen.findByRole('heading', { name: 'Official Tally Reports' });
   screen.getByRole('heading', { name: 'Official Ballot Count Reports' });
+});
+
+test('reverting results to unofficial', async () => {
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
+  const { renderApp } = buildApp(apiMock);
+  apiMock.expectGetCurrentElectionMetadata({
+    electionDefinition,
+    isOfficialResults: true,
+  });
+
+  renderApp();
+
+  await apiMock.authenticateAsSystemAdministrator();
+  screen.getByText('Election Results are Official');
+
+  // revert results to unofficial
+  apiMock.apiClient.revertResultsToUnofficial.expectCallWith().resolves();
+  apiMock.expectGetCurrentElectionMetadata({
+    electionDefinition,
+    isOfficialResults: false,
+  });
+  userEvent.click(screen.getButton('Revert Election Results to Unofficial'));
+  const confirmModal = await screen.findByRole('alertdialog');
+  userEvent.click(
+    within(confirmModal).getButton('Revert Election Results to Unofficial')
+  );
+
+  await waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
+  expect(
+    screen.queryByText('Election Results are Official')
+  ).not.toBeInTheDocument();
 });
 
 test('unconfiguring clears all cached data', async () => {

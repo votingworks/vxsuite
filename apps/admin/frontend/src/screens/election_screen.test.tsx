@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import {
   mockSystemAdministratorUser,
@@ -6,9 +6,10 @@ import {
   mockElectionManagerUser,
 } from '@votingworks/test-utils';
 import { constructElectionKey, DippedSmartCardAuth } from '@votingworks/types';
+import userEvent from '@testing-library/user-event';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import { screen } from '../../test/react_testing_library';
+import { screen, waitFor, within } from '../../test/react_testing_library';
 import { ElectionScreen } from './election_screen';
 
 const electionDefinition = readElectionGeneralDefinition();
@@ -53,6 +54,39 @@ describe('as System Admin', () => {
 
     screen.getButton('Save Election Package');
     screen.getButton('Unconfigure Machine');
+    expect(
+      screen.queryByText('Revert Results to Unofficial')
+    ).not.toBeInTheDocument();
+  });
+
+  test('has button to revert results to unofficial', async () => {
+    renderInAppContext(<ElectionScreen />, {
+      apiMock,
+      auth,
+      electionDefinition,
+      isOfficialResults: true,
+    });
+
+    userEvent.click(screen.getButton('Revert Election Results to Unofficial'));
+    let confirmModal = await screen.findByRole('alertdialog');
+    within(confirmModal).getByRole('heading', {
+      name: 'Revert Election Results to Unofficial',
+    });
+
+    userEvent.click(within(confirmModal).getButton('Cancel'));
+    await waitFor(() => {
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    });
+
+    apiMock.apiClient.revertResultsToUnofficial.expectCallWith().resolves();
+    userEvent.click(screen.getButton('Revert Election Results to Unofficial'));
+    confirmModal = await screen.findByRole('alertdialog');
+    userEvent.click(
+      within(confirmModal).getButton('Revert Election Results to Unofficial')
+    );
+    await waitFor(() => {
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    });
   });
 });
 

@@ -514,6 +514,20 @@ function buildApi({
         message:
           'User has marked the tally results as official, no more cast vote record files can be loaded.',
         disposition: 'success',
+        official: true,
+      });
+    },
+
+    async revertResultsToUnofficial(): Promise<void> {
+      store.setElectionResultsOfficial(
+        loadCurrentElectionIdOrThrow(workspace),
+        false
+      );
+
+      await logger.logAsCurrentRole(LogEventId.MarkedTallyResultsOfficial, {
+        message: 'User reverted the tally results to unofficial.',
+        disposition: 'success',
+        official: false,
       });
     },
 
