@@ -16,10 +16,9 @@ use crate::{
     ballot_card::{BallotImage, Geometry, Orientation},
     debug::{self, draw_timing_mark_debug_image_mut, ImageDebugWriter},
     image_utils::{expand_image, WHITE},
-    interpret::{self, Error, Result},
+    interpret::{Error, Result},
     metadata::hmpb,
     scoring::UnitIntervalScore,
-    timing_mark_metadata::BallotPageTimingMarkMetadata,
 };
 
 mod fast;
@@ -281,7 +280,6 @@ impl Complete {
 #[derive(Debug, Serialize, Clone)]
 #[serde(tag = "source", rename_all = "kebab-case")]
 pub enum BallotPageMetadata {
-    TimingMarks(BallotPageTimingMarkMetadata),
     QrCode(hmpb::Metadata),
 }
 
@@ -561,48 +559,6 @@ fn score_timing_mark_geometry_match(
             padding_pixel_match_count as f32 / (search_area - timing_mark_area) as f32,
         ),
     }
-}
-
-/// Filters the bottom timing marks by using the candidate timing mark scores to
-/// determine whether timing marks are actually present.
-pub fn find_actual_bottom_marks(
-    complete_timing_marks: &Complete,
-) -> Vec<Option<CandidateTimingMark>> {
-    // allow marks at the exterior (i.e. corners) to be substantially cropped
-    const MIN_REQUIRED_EXTERIOR_MARK_SCORE: UnitIntervalScore = UnitIntervalScore(0.33);
-    const MIN_REQUIRED_EXTERIOR_PADDING_SCORE: UnitIntervalScore = UnitIntervalScore(0.5);
-
-    // interior marks could be cropped too, but less dramatically
-    const MIN_REQUIRED_INTERIOR_MARK_SCORE: UnitIntervalScore = UnitIntervalScore(0.7);
-    const MIN_REQUIRED_INTERIOR_PADDING_SCORE: UnitIntervalScore = UnitIntervalScore(0.7);
-
-    complete_timing_marks
-        .bottom_marks
-        .iter()
-        .enumerate()
-        .map(|(i, mark)| {
-            let (min_mark_score, min_padding_score) =
-                if i == 0 || i == complete_timing_marks.bottom_marks.len() - 1 {
-                    (
-                        MIN_REQUIRED_EXTERIOR_MARK_SCORE,
-                        MIN_REQUIRED_EXTERIOR_PADDING_SCORE,
-                    )
-                } else {
-                    (
-                        MIN_REQUIRED_INTERIOR_MARK_SCORE,
-                        MIN_REQUIRED_INTERIOR_PADDING_SCORE,
-                    )
-                };
-
-            if mark.scores().mark_score() >= min_mark_score
-                && mark.scores().padding_score() >= min_padding_score
-            {
-                Some(*mark)
-            } else {
-                None
-            }
-        })
-        .collect()
 }
 
 /// Returns the bounding rectangle of the given contour such that the rectangle
@@ -1706,17 +1662,6 @@ pub fn rect_could_be_timing_mark(geometry: &Geometry, rect: &Rect) -> bool {
         && rect.height() <= max_timing_mark_height
 }
 
-pub fn detect_orientation_from_grid(grid: &TimingMarkGrid) -> Orientation {
-    // For Accuvote-style ballots, assume that we will find most of
-    // the timing marks and that there will be more missing on the bottom than
-    // the top. If that's not the case, then we'll need to rotate the image.
-    if grid.partial_timing_marks.top_marks.len() >= grid.partial_timing_marks.bottom_marks.len() {
-        Orientation::Portrait
-    } else {
-        Orientation::PortraitReversed
-    }
-}
-
 /// Gets all the distances between adjacent marks in a list of marks.
 pub fn distances_between_marks(marks: &[CandidateTimingMark]) -> Vec<f32> {
     let mut distances = marks
@@ -1762,41 +1707,6 @@ pub fn normalize_orientation(
         ..grid
     };
     (grid, normalized_image)
-}
-
-#[allow(clippy::result_large_err)]
-pub fn detect_metadata_and_normalize_orientation(
-    label: &str,
-    geometry: &Geometry,
-    grid: TimingMarkGrid,
-    ballot_image: &BallotImage,
-    debug: &mut ImageDebugWriter,
-) -> interpret::Result<(TimingMarkGrid, BallotImage, BallotPageTimingMarkMetadata)> {
-    let orientation = detect_orientation_from_grid(&grid);
-    let (normalized_grid, normalized_image) =
-        normalize_orientation(geometry, grid, &ballot_image.image, orientation, debug);
-    let normalized_ballot_image = BallotImage {
-        image: normalized_image,
-        threshold: ballot_image.threshold,
-        border_inset: ballot_image.border_inset,
-    };
-    let bottom_timing_marks = find_actual_bottom_marks(&normalized_grid.complete_timing_marks);
-
-    debug.write("bottom_timing_marks", |canvas| {
-        debug::draw_bottom_timing_mark_detection_debug_image_mut(
-            canvas,
-            &bottom_timing_marks,
-            &normalized_grid.complete_timing_marks.bottom_marks,
-        );
-    });
-
-    let metadata =
-        BallotPageTimingMarkMetadata::decode_from_timing_marks(geometry, &bottom_timing_marks)
-            .map_err(|error| Error::InvalidTimingMarkMetadata {
-                label: label.to_string(),
-                error,
-            })?;
-    Ok((normalized_grid, normalized_ballot_image, metadata))
 }
 
 #[cfg(test)]
