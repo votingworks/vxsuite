@@ -10,7 +10,7 @@ import {
   UDS_CONNECTION_ATTEMPT_DELAY_MS,
 } from './socket_server';
 import { tryConnect } from './unix_socket';
-import { MockSocket } from './mock_socket';
+import { MockSocket } from '../../test/mock_socket';
 
 vi.mock('./unix_socket');
 vi.mock('socket.io', () => ({
