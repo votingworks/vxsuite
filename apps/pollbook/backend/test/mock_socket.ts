@@ -1,4 +1,3 @@
-/* istanbul ignore next */
 /* eslint-disable vx/gts-no-public-class-fields */
 import { assert } from 'node:console';
 import { vi } from 'vitest';

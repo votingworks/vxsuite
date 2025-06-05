@@ -8,7 +8,7 @@ import {
 } from '@votingworks/logging';
 import * as net from 'node:net';
 import { tryConnect } from './unix_socket';
-import { MockSocket } from './mock_socket';
+import { MockSocket } from '../../test/mock_socket';
 
 vi.mock('node:net', async () => {
   const actual = await vi.importActual<typeof import('node:net')>('node:net');
