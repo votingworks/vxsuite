@@ -19,6 +19,7 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 tokio-serial = { workspace = true }
+tokio-test = { workspace = true }
 thiserror = { workspace = true }
 vx-logging = { workspace = true }
 

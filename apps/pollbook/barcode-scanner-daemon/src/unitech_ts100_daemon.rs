@@ -1,18 +1,17 @@
 use color_eyre::eyre::Context;
-use nusb::Error;
 use parse_aamva::AamvaDocument;
 use std::fs;
-use std::io::{self, BufRead, BufReader, ErrorKind, Read};
+use std::io::{self, Error, ErrorKind};
 use std::os::unix::fs::PermissionsExt;
 use std::str::from_utf8;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::thread::sleep;
-use std::time::{Duration, Instant};
-use tokio::io::AsyncWriteExt;
+use tokio::io::{AsyncBufReadExt, AsyncRead, AsyncWriteExt, BufReader};
 use tokio::net::{UnixListener, UnixStream};
 use tokio::sync::Mutex;
-use tokio_serial::{DataBits, FlowControl, Parity, SerialPort, StopBits};
+use tokio::time::{timeout, Duration, Instant};
+use tokio_serial::{DataBits, FlowControl, Parity, SerialPortBuilderExt, SerialStream, StopBits};
 use vx_logging::{log, set_source, Disposition, EventId, EventType, Source};
 
 use crate::parse_aamva::{AamvaParseError, ELEMENT_ID_SIZE};
@@ -71,15 +70,14 @@ const MAX_AAMVA_DOCUMENT_SIZE: usize = {
     (NON_DATA_BYTES + 1) * MAX_NUM_ELEMENTS + SUM_ALL_ELEMENTS_SIZE
 };
 
-/// The maximum number of bytes that can be read from the scanner before exiting with failure code.
-/// This protects against very large inputs that might cause the daemon to hang or infinite loop.
-/// Set to QR code max data size. We don't support QR code but
-/// anticipate accidental scans of QR codes. QR codes can encode more data than PDF417 so we take the greater
-/// limit of the 2.
-const SCANNER_READ_BUFFER_SIZE: usize = 2953;
+/*
+ * Read loop config
+ */
+/// How long the read loop will wait before declaring a timeout and trying again.
+const READ_LOOP_INTERVAL: Duration = Duration::from_millis(1000);
 
 // Resets the TS100 barcode scanner
-fn reset_scanner() -> Result<(), Error> {
+fn reset_scanner() -> Result<(), nusb::Error> {
     match nusb::list_devices()?
         .find(|dev| dev.vendor_id() == UNITECH_VENDOR_ID && dev.product_id() == TS100_PRODUCT_ID)
     {
@@ -96,7 +94,7 @@ fn reset_scanner() -> Result<(), Error> {
 }
 
 // Connects to TS100 barcode scanner
-fn init_port(port_name: &str, baud_rate: u32) -> color_eyre::Result<Box<dyn SerialPort>> {
+fn init_port(port_name: &str, baud_rate: u32) -> color_eyre::Result<SerialStream> {
     // We have experienced difficulty reconnecting the scanner when the daemon
     // is stopped and started multiple times. Resetting the scanner solves the issue.
     // Configuration such as USB COM Port Emulation persists between resets.
@@ -120,16 +118,14 @@ fn init_port(port_name: &str, baud_rate: u32) -> color_eyre::Result<Box<dyn Seri
         }
     }
 
-    let port = tokio_serial::new(port_name, baud_rate)
+    tokio_serial::new(port_name, baud_rate)
         .data_bits(DataBits::Eight)
         .parity(Parity::None)
         .stop_bits(StopBits::One)
         .flow_control(FlowControl::None)
         .timeout(Duration::from_millis(500))
-        .open()
-        .with_context(|| format!("Failed to open serial port {port_name}"))?;
-
-    Ok(port)
+        .open_native_async()
+        .with_context(|| format!("Failed to open serial port {port_name}"))
 }
 
 async fn write_doc(stream: &mut tokio::net::UnixStream, doc: &AamvaDocument) -> io::Result<()> {
@@ -137,7 +133,7 @@ async fn write_doc(stream: &mut tokio::net::UnixStream, doc: &AamvaDocument) -> 
     serde_json::to_writer(&mut buf, doc)?;
     buf.push(b'\n');
 
-    stream.write_all(&buf).await?;
+    stream.write_all(&buf.clone()).await?;
     stream.flush().await?;
     Ok(())
 }
@@ -168,7 +164,7 @@ async fn broadcast_to_clients(
     Ok(())
 }
 
-fn open_socket() -> Result<UnixListener, std::io::Error> {
+fn open_socket() -> Result<UnixListener, Error> {
     // Unlink old socket if it exists
     let _ = fs::remove_file(UDS_PATH);
     // Assign address to socket
@@ -184,21 +180,21 @@ fn open_socket() -> Result<UnixListener, std::io::Error> {
 }
 
 /// Reads from any `BufRead`, parses AAMVA documents, and writes JSON+"\n" to any Write.
-pub async fn run_read_write_loop<R: Read>(
+/// # Errors
+///
+/// Will return `Err` if an error occurs while reading from USB device.
+pub async fn run_read_write_loop<R>(
     running: &Arc<AtomicBool>,
-    mut raw_port: R,
+    raw_port: R,
     clients: Arc<Mutex<Vec<UnixStream>>>,
-) {
-    let mut buf = Vec::with_capacity(MAX_AAMVA_DOCUMENT_SIZE);
+) -> Result<(), Error>
+where
+    R: AsyncRead + Unpin + Send + 'static,
+{
+    let max_data_size = MAX_AAMVA_DOCUMENT_SIZE + 1; // + 1 for length of data terminator
+    let mut buf = Vec::with_capacity(max_data_size);
     let mut start = Instant::now();
-
-    // `Take` wraps the raw serialport reader and protects against reading a dangerously
-    // large amount of data. In practice this shouldn't come up because 2D barcode encoding
-    // formats can't fit > ~3 KB. It returns EOF if its limit is reached.
-    let take_capped_port = raw_port.by_ref().take((SCANNER_READ_BUFFER_SIZE) as u64);
-    // Use BufReader::with_capacity to wrap the lower-level `Take`. The capacity of the
-    // BufReader is just a performance hint and doesn't protect against large inputs.
-    let mut limited_reader = BufReader::new(take_capped_port);
+    let mut reader = BufReader::new(raw_port);
 
     while running.load(Ordering::SeqCst) {
         if start.elapsed() > HEARTBEAT_LOG_INTERVAL {
@@ -208,91 +204,100 @@ pub async fn run_read_write_loop<R: Read>(
 
         buf.clear();
 
-        match limited_reader.read_until(TS100_DATA_TERMINATOR, &mut buf) {
-            Ok(n) => {
-                if !buf.ends_with(&[TS100_DATA_TERMINATOR]) {
-                    // If the buffer does not end with the delimiter (terminator) then the underlying reader hit EOF.
-                    log!(EventId::ParseError, "Hit EOF while reading for terminator character {TS100_DATA_TERMINATOR:?}. Take limit: {SCANNER_READ_BUFFER_SIZE}. Bytes read: {n}");
-                    continue;
-                }
+        let timeout_result = timeout(
+            READ_LOOP_INTERVAL,
+            reader.read_until(TS100_DATA_TERMINATOR, &mut buf),
+        )
+        .await;
+        // An `Elapsed` error just means no data came in from the scanner during the interval.
+        // This error can be ignored.
+        if let Ok(read_result) = timeout_result {
+            match read_result {
+                Ok(n) => {
+                    buf.pop();
 
-                if n > MAX_AAMVA_DOCUMENT_SIZE {
-                    log!(
-                        EventId::ParseError,
-                        "Scan data size of {n} exceeded limit of {MAX_AAMVA_DOCUMENT_SIZE}",
-                    );
-                    continue;
-                }
+                    if buf.is_empty() {
+                        // Expected at the end of the document
+                        log!(EventId::Info, "No data preceding terminator character");
+                        continue;
+                    }
 
-                // Now we know the buffer ends with the terminator, so check that we have other data that needs to be parsed
-                buf.pop();
-                if buf.is_empty() {
-                    // Expected at the end of the document
-                    log!(EventId::Info, "No data preceding terminator character");
-                    continue;
-                }
-
-                // We expect the input sequence to start with the compliance indicator
-                // on its own line so we just ignore it and skip to the next line.
-                // Existence of the compliance indicator is not enforced.
-                if buf == COMPLIANCE_INDICATOR {
-                    log!(EventId::Info, "Skipping compliance indicator");
-                    continue;
-                }
-
-                // Parse and emit JSON
-                let str = match from_utf8(&buf) {
-                    Ok(str) => str,
-                    Err(e) => {
+                    if n > max_data_size + 1 {
                         log!(
-                            event_id: EventId::ParseError,
-                            message: format!("Error parsing read bytes as UTF-8: {e}")
+                            EventId::ParseError,
+                            "Scan data size of {n} exceeded limit of {max_data_size}",
                         );
                         continue;
                     }
-                };
 
-                let doc: AamvaDocument = match str.parse() {
-                    Ok(doc) => doc,
-                    Err(err @ AamvaParseError::DataTooLong(_, _)) => {
-                        // Exit if data is in AAMVA format but doesn't follow AAMVA spec
-                        log!(
-                            event_id: EventId::ParseError,
-                            message: format!("Unexpected data in AAMVA format. Error was: {err}"),
-                            event_type: EventType::SystemAction,
-                            disposition: Disposition::Failure
-                        );
+                    // We expect the input sequence to start with the compliance indicator
+                    // on its own line so we just ignore it and skip to the next line.
+                    // Existence of the compliance indicator is not enforced.
+                    if buf == COMPLIANCE_INDICATOR {
+                        log!(EventId::Info, "Skipping compliance indicator");
                         continue;
                     }
-                    Err(err) => {
-                        // Don't exit if this could have been a scan of a non-AAMVA document
-                        // or we tried to parse an unsupported subfile type (as is common on
-                        // non-NH licenses)
-                        log!(
-                            event_id: EventId::ParseError,
-                            message: format!("Read data that was not in the supported subset of AAMVA or was not AAMVA at all: {err}"),
-                            event_type: EventType::SystemAction,
-                            disposition: Disposition::Failure
-                        );
-                        continue;
-                    }
-                };
 
-                if let Err(err) = broadcast_to_clients(&clients, &doc).await {
-                    log!(
-                        EventId::SocketServerError,
-                        "Failed to write scan to clients: {err}"
-                    );
+                    // Parse and emit JSON
+                    let str = match from_utf8(&buf) {
+                        Ok(str) => str,
+                        Err(e) => {
+                            log!(
+                                event_id: EventId::ParseError,
+                                message: format!("Error parsing read bytes as UTF-8: {e}")
+                            );
+                            continue;
+                        }
+                    };
+
+                    let doc: AamvaDocument = match str.parse() {
+                        Ok(doc) => doc,
+                        Err(err @ AamvaParseError::DataTooLong(_, _)) => {
+                            // Exit if data is in AAMVA format but doesn't follow AAMVA spec
+                            log!(
+                                event_id: EventId::ParseError,
+                                message: format!("Unexpected data in AAMVA format. Error was: {err}"),
+                                event_type: EventType::SystemAction,
+                                disposition: Disposition::Failure
+                            );
+                            continue;
+                        }
+                        Err(err) => {
+                            // Don't exit if this could have been a scan of a non-AAMVA document
+                            // or we tried to parse an unsupported subfile type (as is common on
+                            // non-NH licenses)
+                            log!(
+                                event_id: EventId::ParseError,
+                                message: format!("Read data that was not in the supported subset of AAMVA or was not AAMVA at all: {err}"),
+                                event_type: EventType::SystemAction,
+                                disposition: Disposition::Failure
+                            );
+                            continue;
+                        }
+                    };
+
+                    if let Err(err) = broadcast_to_clients(&clients, &doc).await {
+                        log!(
+                            EventId::SocketServerError,
+                            "Failed to write scan to clients: {err}"
+                        );
+                    }
+
+                    log!(EventId::Info, "Successfully parsed and sent document data");
+                }
+                Err(e) => {
+                    // `running` isn't read after the loop exits, but we set it to be correct
+                    running.store(false, Ordering::SeqCst);
+
+                    return Err(std::io::Error::new(
+                        e.kind(),
+                        format!("Error reading from USB device: {e}"),
+                    ));
                 }
             }
-            // no data in this interval; no-op
-            Err(ref e) if e.kind() == std::io::ErrorKind::TimedOut => {}
-            Err(e) => {
-                log!(EventId::UnknownError, "Error reading from USB device: {e}");
-                running.store(false, Ordering::SeqCst);
-            }
-        };
+        }
     }
+    Ok(())
 }
 
 #[tokio::main]
@@ -342,7 +347,9 @@ async fn main() -> color_eyre::Result<()> {
                 event_type: EventType::SystemStatus,
                 disposition: Disposition::Success
             );
-            run_read_write_loop(&running, port, clients).await;
+            if let Err(err) = run_read_write_loop(&running, port, clients).await {
+                log!(EventId::UnknownError, "Error in read/write loop: {err}");
+            }
         }
         Err(e) => {
             log!(
@@ -377,6 +384,150 @@ mod tests {
         net::UnixStream,
         sync::Mutex,
     };
+    use tokio_test::io::Builder;
+
+    #[tokio::test]
+    async fn run_read_write_loop_skips_compliance_indicator() {
+        set_source(SOURCE);
+
+        let mut compliance_bytes = COMPLIANCE_INDICATOR.to_vec();
+        compliance_bytes.push(TS100_DATA_TERMINATOR);
+
+        let mock_reader = Builder::new()
+            .read(&compliance_bytes)
+            // This error triggers the loop to exit
+            .read_error(io::Error::new(io::ErrorKind::Other, "Mock error"))
+            .build();
+
+        let reader = BufReader::new(mock_reader);
+
+        let running = Arc::new(AtomicBool::new(true));
+
+        let (daemon_end, _client_end) =
+            UnixStream::pair().expect("failed to create UnixStream pair");
+        let clients: Arc<Mutex<Vec<UnixStream>>> = Arc::new(Mutex::new(vec![daemon_end]));
+
+        // If the loop exits with "Mock error" we know the first call to `read` (the one
+        // that contains the data we want to test) was called
+        run_read_write_loop(&running, reader, clients)
+            .await
+            .expect_err("Error reading from USB device: Mock error");
+    }
+
+    #[tokio::test]
+    async fn run_read_write_loop_skips_oversized_input() {
+        set_source(SOURCE);
+
+        let mut oversized_buf = vec![0u8; MAX_AAMVA_DOCUMENT_SIZE + 1];
+        oversized_buf.push(TS100_DATA_TERMINATOR);
+
+        let mock_reader = Builder::new()
+            .read(&oversized_buf)
+            // This error triggers the loop to exit
+            .read_error(io::Error::new(io::ErrorKind::Other, "Mock error"))
+            .build();
+
+        let reader = BufReader::new(mock_reader);
+
+        let running = Arc::new(AtomicBool::new(true));
+
+        let (daemon_end, _client_end) =
+            UnixStream::pair().expect("failed to create UnixStream pair");
+        let clients: Arc<Mutex<Vec<UnixStream>>> = Arc::new(Mutex::new(vec![daemon_end]));
+
+        // If the loop exits with "Mock error" we know the first call to `read` (the one
+        // that contains the data we want to test) was called
+        run_read_write_loop(&running, reader, clients)
+            .await
+            .expect_err("Error reading from USB device: Mock error");
+    }
+
+    #[tokio::test]
+    async fn run_read_write_loop_skips_empty_input() {
+        set_source(SOURCE);
+
+        let empty_buf = vec![TS100_DATA_TERMINATOR];
+
+        let mock_reader = Builder::new()
+            .read(&empty_buf)
+            // This error triggers the loop to exit
+            .read_error(io::Error::new(io::ErrorKind::Other, "Mock error"))
+            .build();
+
+        let reader = BufReader::new(mock_reader);
+
+        let running = Arc::new(AtomicBool::new(true));
+
+        let (daemon_end, _client_end) =
+            UnixStream::pair().expect("failed to create UnixStream pair");
+        let clients: Arc<Mutex<Vec<UnixStream>>> = Arc::new(Mutex::new(vec![daemon_end]));
+
+        // If the loop exits with "Mock error" we know the first call to `read` (the one
+        // that contains the data we want to test) was called
+        run_read_write_loop(&running, reader, clients)
+            .await
+            .expect_err("Error reading from USB device: Mock error");
+    }
+
+    #[tokio::test]
+    async fn run_read_write_loop_parses_complete_document() {
+        set_source(SOURCE);
+
+        let mut compliance_bytes = COMPLIANCE_INDICATOR.to_vec();
+        compliance_bytes.push(TS100_DATA_TERMINATOR);
+
+        let mut valid_aamva = "\
+ANSI 636039090001DL00310485DLDAQNHL12345678
+DACFIRST
+DADMIDDLE
+DCSLAST
+DCUJR
+"
+        .as_bytes()
+        .to_vec();
+        valid_aamva.push(TS100_DATA_TERMINATOR);
+
+        let mock_reader = Builder::new()
+            .read(&compliance_bytes)
+            .read(&valid_aamva)
+            // This error triggers the loop to exit
+            .read_error(io::Error::new(io::ErrorKind::Other, "Mock error"))
+            .build();
+
+        let reader = BufReader::new(mock_reader);
+
+        let running = Arc::new(AtomicBool::new(true));
+
+        let (daemon_end, client_end) =
+            UnixStream::pair().expect("failed to create UnixStream pair");
+        let clients: Arc<Mutex<Vec<UnixStream>>> = Arc::new(Mutex::new(vec![daemon_end]));
+
+        run_read_write_loop(&running, reader, clients)
+            .await
+            .expect_err("Error reading from USB device: Mock error");
+
+        let mut client_buf = Vec::new();
+        let mut client_reader = BufReader::new(client_end);
+        let _ = client_reader
+            .read_until(b'\n', &mut client_buf)
+            .await
+            .expect("failed to read from client");
+        let s = from_utf8(&client_buf).expect("non-UTF8 JSON from broadcast");
+        let parsed: serde_json::Value =
+            serde_json::from_str(s.trim_end()).expect("unparsable data from test reader");
+
+        let expected = serde_json::json!({
+            "issuingJurisdiction": "NH",
+            "firstName": "FIRST",
+            "middleName": "MIDDLE",
+            "lastName": "LAST",
+            "nameSuffix": "JR"
+        });
+        assert_eq!(
+            parsed, expected,
+            "JSON received by test did not match that expected from initial blob"
+        );
+    }
 
     #[tokio::test]
     async fn broadcast_to_clients_sends_valid_json() {
