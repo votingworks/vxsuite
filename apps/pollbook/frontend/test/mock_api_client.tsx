@@ -289,20 +289,29 @@ export function createApiMock() {
       });
     },
 
-    expectSearchVotersNull(input: { firstName?: string; lastName?: string }) {
+    expectSearchVotersNull(input: {
+      firstName?: string;
+      lastName?: string;
+      includeInactiveVoters?: boolean;
+    }) {
       mockApiClient.searchVoters.reset();
       mockApiClient.searchVoters
         .expectRepeatedCallsWith({
           searchParams: {
             firstName: input.firstName || '',
             lastName: input.lastName || '',
+            includeInactiveVoters: input.includeInactiveVoters || false,
           },
         })
         .resolves(null);
     },
 
     expectSearchVotersTooMany(
-      input: { firstName?: string; lastName?: string },
+      input: {
+        firstName?: string;
+        lastName?: string;
+        includeInactiveVoters?: boolean;
+      },
       excessVoters: number
     ) {
       mockApiClient.searchVoters.reset();
@@ -311,13 +320,18 @@ export function createApiMock() {
           searchParams: {
             firstName: input.firstName || '',
             lastName: input.lastName || '',
+            includeInactiveVoters: input.includeInactiveVoters || false,
           },
         })
         .resolves(excessVoters);
     },
 
     expectSearchVotersWithResults(
-      input: { firstName?: string; lastName?: string },
+      input: {
+        firstName?: string;
+        lastName?: string;
+        includeInactiveVoters?: boolean;
+      },
       voters: Voter[]
     ) {
       mockApiClient.searchVoters.reset();
@@ -326,6 +340,7 @@ export function createApiMock() {
           searchParams: {
             firstName: input.firstName || '',
             lastName: input.lastName || '',
+            includeInactiveVoters: input.includeInactiveVoters || false,
           },
         })
         .resolves(voters);
