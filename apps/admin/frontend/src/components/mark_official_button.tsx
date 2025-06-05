@@ -118,7 +118,7 @@ export function RevertResultsToUnofficialButton(): JSX.Element {
           content={
             <P>
               After reverting, election managers will be able to modify election
-              data. Void any previously exported official reports.
+              data. Previously exported official reports should be voided.
             </P>
           }
           actions={
