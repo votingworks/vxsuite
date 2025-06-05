@@ -35,7 +35,6 @@ pub struct Election {
 #[serde(rename_all = "kebab-case")]
 pub enum MetadataEncoding {
     QrCode,
-    TimingMarks,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
