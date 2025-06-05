@@ -147,6 +147,7 @@ type Event =
     }
   | { type: 'ACCEPT' }
   | { type: 'RETURN' }
+  | { type: 'READY_FOR_NEXT_BALLOT' }
   | { type: 'SCANNING_ENABLED' }
   | { type: 'SCANNING_DISABLED' }
   | { type: 'BEGIN_DOUBLE_FEED_CALIBRATION' }
@@ -186,10 +187,6 @@ export interface Delays {
    */
   DELAY_SCANNER_STATUS_POLLING_INTERVAL: number;
   /**
-   * Time to wait after a ballot is accepted before scanning the next one.
-   */
-  DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: number;
-  /**
    * Time to wait after disconnection before attempting to reconnect (either on
    * unplug or on reconnecting after an error).
    */
@@ -214,7 +211,6 @@ export interface Delays {
 export const delays = {
   DELAY_SCANNING_ENABLED_POLLING_INTERVAL: 500,
   DELAY_SCANNER_STATUS_POLLING_INTERVAL: 500,
-  DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 2_500,
   DELAY_RECONNECT: 500,
   DELAY_SCANNING_TIMEOUT: 5_000,
   DELAY_ACCEPTING_TIMEOUT: 5_000,
@@ -804,14 +800,12 @@ function buildMachine({
             scanAndInterpretTimer?.end();
             scanAndInterpretTimer = undefined;
           },
-          after: {
-            // We wait a bit in the accepted state in order to make sure the
-            // voter has time to view the success message. In addition, it's
-            // important to wait at least 2 seconds before scanning another
-            // ballot because there is a limit to how many scan cycles the
-            // scanner can perform per minute without overheating and damaging
-            // the hardware. This is particularly relevant in shoeshine mode.
-            DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: [
+          // We wait for the frontend to tell us that it is ready for the next
+          // ballot. That way we can ensure that we showed the user confirmation
+          // that their ballot was accepted before we re-enable scanning for the
+          // next ballot.
+          on: {
+            READY_FOR_NEXT_BALLOT: [
               {
                 cond: isShoeshineModeEnabled,
                 target: 'shoeshineModeRescanningBallot',
@@ -1423,6 +1417,10 @@ export function createPrecinctScannerStateMachine({
       /* istanbul ignore next - @preserve */
       scanAndInterpretTimer?.checkpoint('RETURN');
       machineService.send('RETURN');
+    },
+
+    readyForNextBallot: () => {
+      machineService.send('READY_FOR_NEXT_BALLOT');
     },
 
     beginDoubleFeedCalibration: () => {

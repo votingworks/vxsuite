@@ -1377,6 +1377,10 @@ export function createPrecinctScannerStateMachine({
     },
 
     /* istanbul ignore next - @preserve */
+    readyForNextBallot() {
+      throw new Error('Not supported');
+    },
+    /* istanbul ignore next - @preserve */
     beginDoubleFeedCalibration() {
       throw new Error('Not supported');
     },

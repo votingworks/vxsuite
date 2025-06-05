@@ -55,6 +55,7 @@ export interface PrecinctScannerStateMachine {
   // in the status.
   accept: () => void;
   return: () => void;
+  readyForNextBallot: () => void;
 
   beginDoubleFeedCalibration: () => void;
   endDoubleFeedCalibration: () => void;

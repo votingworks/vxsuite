@@ -1,6 +1,8 @@
 import { ElectionDefinition, SystemSettings } from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { getScannerStatus } from '../api';
+import { useQueryChangeListener } from '@votingworks/ui';
+import { useEffect, useRef, useState } from 'react';
+import { getScannerStatus, readyForNextBallot } from '../api';
 import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from '../config/globals';
 import { InsertBallotScreen } from './insert_ballot_screen';
 import { ScanBusyScreen } from './scan_busy_screen';
@@ -12,6 +14,12 @@ import { ScanSuccessScreen } from './scan_success_screen';
 import { ScanWarningScreen } from './scan_warning_screen';
 import { ScanDoubleSheetScreen } from './scan_double_sheet_screen';
 import { useScanFeedbackAudio } from '../utils/use_scan_feedback_audio';
+
+/**
+ * How long to show the accepted screen after a ballot is accepted before
+ * resetting to the insert ballot screen.
+ */
+export const DELAY_ACCEPTED_SCREEN_MS = 3_000;
 
 export interface VoterScreenProps {
   electionDefinition: ElectionDefinition;
@@ -34,6 +42,36 @@ export function VoterScreen({
     currentState: scannerStatusQuery.data?.state,
     isSoundMuted,
   });
+
+  // When a ballot is accepted, show the accepted screen for a few seconds.
+  // Once we're sure that the accepted screen is shown, tell the backend to
+  // re-enable scanning (in case a user wants to insert another ballot right
+  // away). This will transition the scanner to the `no_paper` state, so we use
+  // a separate local state variable to track how long to show the accepted
+  // screen.
+  const readyForNextBallotMutation = readyForNextBallot.useMutation();
+  const [isShowingAcceptedScreen, setIsShowingAcceptedScreen] = useState(false);
+  const acceptedScreenTimeoutRef = useRef<number>();
+  function clearTimeout() {
+    if (acceptedScreenTimeoutRef.current) {
+      window.clearTimeout(acceptedScreenTimeoutRef.current);
+    }
+  }
+  useQueryChangeListener(scannerStatusQuery, {
+    select: (status) => status.state,
+    onChange: (newState) => {
+      if (newState === 'accepted') {
+        setIsShowingAcceptedScreen(true);
+        clearTimeout();
+        acceptedScreenTimeoutRef.current = window.setTimeout(
+          () => setIsShowingAcceptedScreen(false),
+          DELAY_ACCEPTED_SCREEN_MS
+        );
+        readyForNextBallotMutation.mutate();
+      }
+    },
+  });
+  useEffect(() => clearTimeout, []); // Cleanup on unmount
 
   if (!scannerStatusQuery.isSuccess) {
     return null;
@@ -71,8 +109,12 @@ export function VoterScreen({
     case 'paused':
     case 'scanner_diagnostic.running':
     case 'scanner_diagnostic.done':
-    case 'no_paper':
+    case 'no_paper': {
+      if (isShowingAcceptedScreen) {
+        return <ScanSuccessScreen {...sharedScreenProps} />;
+      }
       return <InsertBallotScreen {...sharedScreenProps} />;
+    }
     case 'hardware_ready_to_scan':
     case 'scanning':
     case 'accepting':

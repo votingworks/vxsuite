@@ -1,8 +1,10 @@
 import { createImageData } from 'canvas';
 import { afterEach, beforeEach, expect, vi } from 'vitest';
 import { test } from '../../../test/helpers/test';
-import { delays } from '../../scanners/pdi/state_machine';
-import { runPrintAndScanTask } from './print_and_scan_task';
+import {
+  DELAY_AFTER_ACCEPT_MS,
+  runPrintAndScanTask,
+} from './print_and_scan_task';
 
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
@@ -46,9 +48,7 @@ test.electrical(
     });
 
     // Wait long enough that we eject the paper.
-    await vi.advanceTimersByTimeAsync(
-      delays.DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT
-    );
+    await vi.advanceTimersByTimeAsync(DELAY_AFTER_ACCEPT_MS);
 
     await vi.waitFor(() => {
       expect(

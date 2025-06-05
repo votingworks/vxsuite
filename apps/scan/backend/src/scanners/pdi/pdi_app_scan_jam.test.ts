@@ -108,7 +108,7 @@ test('jam while accepting', async () => {
         interpretation,
         ballotsCounted: 1,
       });
-      clock.increment(delays.DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT);
+      await apiClient.readyForNextBallot();
       await waitForStatus(apiClient, {
         state: 'jammed',
         error: 'outfeed_blocked',
@@ -154,7 +154,7 @@ test('timeout while accepting', async () => {
         ballotsCounted: 1,
       });
 
-      clock.increment(delays.DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT);
+      await apiClient.readyForNextBallot();
       await waitForStatus(apiClient, {
         state: 'jammed',
         error: 'outfeed_blocked',

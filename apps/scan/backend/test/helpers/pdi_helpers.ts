@@ -286,7 +286,7 @@ export async function scanBallot(
     interpretation: { type: 'ValidSheet' },
     ballotsCounted: initialBallotsCounted + 1,
   });
-  clock.increment(delays.DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT);
+  await apiClient.readyForNextBallot();
   await waitForStatus(apiClient, {
     state: 'no_paper',
     ballotsCounted: initialBallotsCounted + 1,

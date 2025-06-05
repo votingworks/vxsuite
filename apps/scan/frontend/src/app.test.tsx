@@ -25,6 +25,7 @@ import {
 } from '../test/helpers/mock_api_client';
 import { App, AppProps } from './app';
 import { useSessionSettingsManager } from './utils/use_session_settings_manager';
+import { DELAY_ACCEPTED_SCREEN_MS } from './screens/voter_screen';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const electionGeneral = electionGeneralDefinition.election;
@@ -321,11 +322,12 @@ async function scanBallot() {
   vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
 
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'accepted' }));
+  apiMock.mockApiClient.readyForNextBallot.expectCallWith().resolves();
   vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText('Your ballot was counted!');
 
   apiMock.expectGetScannerStatus(statusBallotCounted);
-  vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
+  vi.advanceTimersByTime(DELAY_ACCEPTED_SCREEN_MS);
   await screen.findByText(/Insert Your Ballot/i);
   expect(screen.getByTestId('ballot-count').textContent).toEqual('1');
 }
@@ -444,9 +446,11 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   apiMock.expectGetScannerStatus(
     scannerStatus({ state: 'accepted', interpretation })
   );
+  apiMock.mockApiClient.readyForNextBallot.expectCallWith().resolves();
   userEvent.click(screen.getByRole('button', { name: 'Cast Ballot' }));
   await screen.findByText('Your ballot was counted!');
 
+  vi.advanceTimersByTime(DELAY_ACCEPTED_SCREEN_MS);
   apiMock.expectGetScannerStatus(
     scannerStatus({ state: 'no_paper', ballotsCounted: 1 })
   );
@@ -497,18 +501,16 @@ test('voter can cast another ballot while the success screen is showing', async 
   apiMock.expectGetScannerStatus(
     scannerStatus({ state: 'accepted', ballotsCounted: 1 })
   );
+  apiMock.mockApiClient.readyForNextBallot.expectCallWith().resolves();
   apiMock.setPrinterStatusV4();
   renderApp();
   await screen.findByText('Your ballot was counted!');
   expect(screen.getByTestId('ballot-count').textContent).toEqual('1');
 
-  apiMock.expectGetScannerStatus(
-    scannerStatus({ state: 'hardware_ready_to_scan' })
-  );
+  apiMock.expectGetScannerStatus(scannerStatus({ state: 'scanning' }));
   vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText(/Please wait/);
 
-  apiMock.expectGetScannerStatus(scannerStatus({ state: 'scanning' }));
   apiMock.expectGetScannerStatus(
     scannerStatus({
       state: 'needs_review',
@@ -752,13 +754,14 @@ test('ballot mode banner consistently displayed in voter screens', async () => {
   vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
 
   // banner after successful scan
+  apiMock.mockApiClient.readyForNextBallot.expectCallWith().resolves();
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'accepted' }));
   vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText('Your ballot was counted!');
   screen.getByText('Test Ballot Mode');
 
   apiMock.expectGetScannerStatus(statusBallotCounted);
-  vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
+  vi.advanceTimersByTime(DELAY_ACCEPTED_SCREEN_MS);
   await screen.findByText(/Insert Your Ballot/i);
 
   // close polls
@@ -1176,12 +1179,13 @@ test('"Test" voter settings are cleared when a voter finishes', async () => {
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.setPrinterStatusV4();
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'accepted' }));
+  apiMock.mockApiClient.readyForNextBallot.expectCallWith().resolves();
 
   renderApp();
   await screen.findByText('Your ballot was counted!');
 
   apiMock.expectGetScannerStatus(statusBallotCounted);
-  vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
+  vi.advanceTimersByTime(DELAY_ACCEPTED_SCREEN_MS);
   await screen.findByText(/Insert Your Ballot/i);
 
   expect(startNewSessionMock).toBeCalled();

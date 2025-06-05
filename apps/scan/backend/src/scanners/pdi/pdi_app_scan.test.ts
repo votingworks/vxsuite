@@ -83,8 +83,7 @@ test('configure and scan hmpb', async () => {
         ballotsCounted: 1,
       });
 
-      // Test waiting for automatic transition back to no_paper
-      clock.increment(delays.DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT);
+      await apiClient.readyForNextBallot();
       await waitForStatus(apiClient, { state: 'no_paper', ballotsCounted: 1 });
 
       // Do some basic logging checks to ensure that we're logging state machine changes

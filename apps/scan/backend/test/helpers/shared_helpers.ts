@@ -152,6 +152,7 @@ export function createPrecinctScannerStateMachineMock(): Mocked<PrecinctScannerS
     status: vi.fn(),
     accept: vi.fn(),
     return: vi.fn(),
+    readyForNextBallot: vi.fn(),
     stop: vi.fn(),
     beginDoubleFeedCalibration: vi.fn(),
     endDoubleFeedCalibration: vi.fn(),
