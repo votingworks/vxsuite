@@ -1,6 +1,7 @@
 import { Buffer } from 'node:buffer';
 import { z } from 'zod/v4';
 import { throwIllegalValue } from '@votingworks/basics';
+import { asBoolean } from '@votingworks/utils';
 
 /**
  * An SSL key stored in a file
@@ -63,9 +64,14 @@ export const TpmKeySchema: z.ZodSchema<TpmKey> = z.object({
 });
 
 /**
- * The ID of the TPM signing key, distinct from the TPM primary key
+ * The ID of the TPM key used for auth operations
  */
 const TPM_KEY_ID = '0x81000001';
+
+/**
+ * The ID of the TPM key used to secure strongSwan on VxPollBook
+ */
+const STRONGSWAN_TPM_KEY_ID = '0x81010003';
 
 /**
  * The name of the OpenSSL provider that we're using to interface with the TPM
@@ -87,9 +93,12 @@ export function opensslKeyParams(
       return [opensslParam, Buffer.from(key.content, 'utf-8')];
     }
     case 'tpm': {
+      const tpmKeyId = asBoolean(process.env.USE_STRONGSWAN_TPM_KEY)
+        ? STRONGSWAN_TPM_KEY_ID
+        : TPM_KEY_ID;
       return [
         opensslParam,
-        `handle:${TPM_KEY_ID}`,
+        `handle:${tpmKeyId}`,
         // This propquery tells OpenSSL to prefer the TPM provider but fall back to the default
         // provider for operations outside the scope of the TPM provider, like reading files.
         '-propquery',

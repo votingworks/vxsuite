@@ -41,6 +41,8 @@ let nextTempFileName = 0;
 const tempFileRemoveCallbacks: Mock[] = [];
 
 beforeEach(() => {
+  (process.env.USE_STRONGSWAN_TPM_KEY as undefined) = undefined;
+
   vi.clearAllMocks();
   mockChildProcess = newMockChildProcess();
   vi.mocked(spawn).mockImplementation(() => mockChildProcess);
@@ -260,6 +262,33 @@ test('createCertSigningRequest', async () => {
     '-new',
     '-key',
     'handle:0x81000001',
+    '-propquery',
+    '?provider=tpm2',
+    '-subj',
+    '//',
+  ]);
+});
+
+test('createCertSigningRequest with strongSwan TPM key', async () => {
+  (process.env.USE_STRONGSWAN_TPM_KEY as string) = 'true';
+
+  setTimeout(() => {
+    mockChildProcess.emit('close', successExitCode);
+  });
+
+  await createCertSigningRequest({
+    certKey: { source: 'tpm' },
+    certSubject: '//',
+  });
+
+  expect(spawn).toHaveBeenCalledTimes(1);
+  expect(spawn).toHaveBeenNthCalledWith(1, 'openssl', [
+    'req',
+    '-config',
+    expect.stringContaining('/config/openssl.vx-tpm.cnf'),
+    '-new',
+    '-key',
+    'handle:0x81010003',
     '-propquery',
     '?provider=tpm2',
     '-subj',
