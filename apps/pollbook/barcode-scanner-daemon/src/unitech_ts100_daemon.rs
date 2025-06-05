@@ -584,7 +584,7 @@ DCUJR
         assert_eq!(err.to_string(), expected);
     }
 
-    #[tokio::test(flavor = "current_thread")]
+    #[tokio::test]
     async fn open_socket_rebinds_existing_file() {
         set_source(SOURCE);
         // Create a pre-existing dummy file at UDS_PATH
