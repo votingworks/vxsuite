@@ -652,6 +652,7 @@ function buildMachine({
         scanning: {
           id: 'scanning',
           initial: 'waitingForScanComplete',
+          entry: () => console.time('scan'),
           states: {
             waitingForScanComplete: {
               on: {

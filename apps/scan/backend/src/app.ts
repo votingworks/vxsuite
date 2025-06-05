@@ -406,6 +406,7 @@ export function buildApi({
     },
 
     readyForNextBallot(): void {
+      console.timeEnd('scan');
       machine.readyForNextBallot();
     },
 
