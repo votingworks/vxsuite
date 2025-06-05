@@ -65,14 +65,14 @@ describe('unix socket utils', () => {
     mockSocket.emitError(new Error('test error'));
 
     await expect(promise).rejects.toThrow(
-      'Pollbook backend failed to connect to barcode scanner Unix socket'
+      'Pollbook backend failed to connect to barcode scanner Unix socket: test error'
     );
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.SocketClientConnected,
       'system',
       expect.objectContaining({
         message:
-          'Pollbook backend failed to connect to barcode scanner Unix socket',
+          'Pollbook backend failed to connect to barcode scanner Unix socket: test error',
         disposition: LogDispositionStandardTypes.Failure,
       })
     );

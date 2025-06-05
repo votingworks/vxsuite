@@ -13,29 +13,28 @@ const UDS_PATH = '/tmp/barcodescannerd.sock';
  */
 export function tryConnect(logger: Logger): Promise<net.Socket> {
   return new Promise((resolve, reject) => {
-    const client = net.createConnection(
-      {
-        path: UDS_PATH,
-      },
-      () => {
-        client.setEncoding('utf8');
+    const client = net.createConnection({
+      path: UDS_PATH,
+    });
 
-        client.on('error', (err) => {
-          logger.log(LogEventId.SocketClientError, 'system', {
-            message: 'Pollbook UDS client received an error',
-            error: err.message,
-            disposition: LogDispositionStandardTypes.Failure,
-          });
+    client.once('connect', () => {
+      client.setEncoding('utf8');
+
+      client.on('error', (err) => {
+        logger.log(LogEventId.SocketClientError, 'system', {
+          message: 'Pollbook UDS client received an error',
+          error: err.message,
+          disposition: LogDispositionStandardTypes.Failure,
         });
+      });
 
-        logger.log(LogEventId.SocketClientConnected, 'system', {
-          message: 'Pollbook backend connected to barcode scanner Unix socket',
-          disposition: LogDispositionStandardTypes.Success,
-        });
+      logger.log(LogEventId.SocketClientConnected, 'system', {
+        message: 'Pollbook backend connected to barcode scanner Unix socket',
+        disposition: LogDispositionStandardTypes.Success,
+      });
 
-        resolve(client);
-      }
-    );
+      resolve(client);
+    });
 
     client.once('error', (err) => {
       const message = `Pollbook backend failed to connect to barcode scanner Unix socket: ${err.message}`;
