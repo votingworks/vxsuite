@@ -161,6 +161,7 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
           // changes. `hasInvalidEntry` as the key forces a re-render
           key={`${hasInvalidEntry}-${value}`}
           menuPortalTarget={document.body}
+          maxMenuHeight={450} // 6 options, 75px each
           options={allOptions}
           onBlur={onInputBlur}
           onFocus={onInputFocus}
