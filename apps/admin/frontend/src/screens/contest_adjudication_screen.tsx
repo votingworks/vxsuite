@@ -235,7 +235,7 @@ const ContestOptionButtonList = styled.div`
 `;
 
 const ContestOptionButtonCaption = styled.span`
-  color: ${(p) => p.theme.colors.neutral};
+  color: ${(p) => p.theme.colors.primary};
   font-size: 0.75rem;
   margin: 0.25rem 0 0.25rem 0.125rem;
 `;
