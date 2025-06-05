@@ -78,6 +78,7 @@ interface SearchSelectBaseProps<T = string> {
   onInputChange?: (value?: T) => void;
   menuPortalTarget?: HTMLElement;
   minMenuHeight?: number;
+  maxMenuHeight?: number;
   noOptionsMessage?: () => React.ReactNode;
 }
 
@@ -123,6 +124,7 @@ export function SearchSelect<T = string>({
   menuPortalTarget,
   minMenuHeight,
   noOptionsMessage,
+  maxMenuHeight = 600, // in px, 1/2 admin's vh
   style = {},
 }: SearchSelectSingleProps<T> | SearchSelectMultiProps<T>): JSX.Element {
   const theme = useTheme();
@@ -158,10 +160,10 @@ export function SearchSelect<T = string>({
       unstyled
       components={{ DropdownIndicator, MultiValueRemove }}
       className="search-select"
-      maxMenuHeight="50vh"
       menuPlacement="auto"
       menuPortalTarget={menuPortalTarget}
       minMenuHeight={minMenuHeight}
+      maxMenuHeight={maxMenuHeight}
       noOptionsMessage={noOptionsMessage}
       styles={typedAs<StylesConfig>({
         container: (baseStyles) => ({
