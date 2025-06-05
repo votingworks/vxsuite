@@ -1,27 +1,86 @@
 import type {
+  PartyAbbreviation,
   Voter,
   VoterRegistrationRequest,
 } from '@votingworks/pollbook-backend';
-import { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   Button,
   ButtonBar,
+  Callout,
   FullScreenIconWrapper,
   FullScreenMessage,
   H1,
   Icons,
+  MainContent,
   MainHeader,
+  Modal,
+  SearchSelect,
 } from '@votingworks/ui';
 import { throwIllegalValue } from '@votingworks/basics';
 import { getDeviceStatuses, registerVoter } from './api';
-import { AddVoterScreen } from './add_voter_screen';
 import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals';
 import { ElectionManagerNavScreen, NoNavScreen } from './nav_screen';
-import { Column } from './layout';
-import { VoterName } from './shared_components';
+import { Column, FieldName, Row } from './layout';
+import { RequiredStaticInput, VoterName } from './shared_components';
+import { AddressInputGroup } from './address_input_group';
+import { NameInputGroup } from './name_input_group';
+
+function createBlankVoter(): VoterRegistrationRequest {
+  return {
+    firstName: '',
+    lastName: '',
+    middleName: '',
+    suffix: '',
+    party: '',
+    streetNumber: '',
+    streetName: '',
+    streetSuffix: '',
+    houseFractionNumber: '',
+    apartmentUnitNumber: '',
+    addressLine2: '',
+    addressLine3: '',
+    city: '',
+    state: 'NH',
+    zipCode: '',
+  };
+}
+
+function RegistrationDuplicateNameMessage({
+  inputtedVoter,
+  matchingVoterInformation,
+}: {
+  inputtedVoter: VoterRegistrationRequest;
+  matchingVoterInformation: Voter | number;
+}): JSX.Element | null {
+  const inputtedNameParts: string[] = [
+    inputtedVoter.firstName,
+    inputtedVoter.middleName,
+    inputtedVoter.lastName,
+    inputtedVoter.suffix,
+  ];
+  const inputtedName = inputtedNameParts.filter(Boolean).join(' ');
+  if (typeof matchingVoterInformation === 'number') {
+    return (
+      <span>
+        There are already {matchingVoterInformation} voters with the name{' '}
+        {inputtedName}. Please check the list of voters to confirm that the new
+        voter registration is not a duplicate.
+      </span>
+    );
+  }
+  return (
+    <span>
+      There is already a voter with the name {inputtedName}. The existing voter
+      has the voter ID {matchingVoterInformation.voterId}. Please confirm that
+      the new voter registration is not a duplicate.
+    </span>
+  );
+}
 
 type RegistrationFlowState =
   | { step: 'register' }
+  | { step: 'has-name-match'; matchingVoterInformation: Voter | number }
   | { step: 'printing'; registrationData: VoterRegistrationRequest }
   | { step: 'success'; voter: Voter };
 
@@ -37,6 +96,21 @@ export function VoterRegistrationScreen(): JSX.Element | null {
     clearTimeout(timeoutIdForFlowStateReset);
     setFlowState({ step: 'register' });
   }, [timeoutIdForFlowStateReset]);
+  const [voter, setVoter] = useState<VoterRegistrationRequest>(
+    createBlankVoter()
+  );
+
+  const isAddressValid = !(voter.city === '' || voter.zipCode === '');
+
+  const isSubmitDisabled = useMemo(
+    () =>
+      voter.firstName.trim() === '' ||
+      voter.lastName.trim() === '' ||
+      voter.streetName.trim() === '' ||
+      voter.party.trim() === '' ||
+      !isAddressValid,
+    [voter, isAddressValid]
+  );
 
   if (!getDeviceStatusesQuery.isSuccess) {
     return null;
@@ -64,28 +138,137 @@ export function VoterRegistrationScreen(): JSX.Element | null {
 
   switch (flowState.step) {
     case 'register':
+    case 'has-name-match':
       return (
-        <AddVoterScreen
-          onSubmit={(registrationData) => {
-            setFlowState({ step: 'printing', registrationData });
-            registerVoterMutation.mutate(
-              { registrationData },
-              {
-                onSuccess: (voter) => {
-                  setFlowState({ step: 'success', voter });
-                  setTimeoutIdForFlowStateReset(
-                    setTimeout(
-                      resetFlowState,
-                      AUTOMATIC_FLOW_STATE_RESET_DELAY_MS
-                    )
-                  );
-                },
+        <ElectionManagerNavScreen title="Voter Registration">
+          <MainContent>
+            <Column style={{ gap: '1rem' }}>
+              <NameInputGroup
+                name={voter}
+                onChange={(name) => setVoter({ ...voter, ...name })}
+              />
+              <AddressInputGroup
+                address={voter}
+                onChange={(address) => setVoter({ ...voter, ...address })}
+              />
+              <Row style={{ gap: '1rem' }}>
+                <RequiredStaticInput>
+                  <FieldName>Party Affiliation</FieldName>
+                  <SearchSelect<PartyAbbreviation>
+                    id="party"
+                    aria-label="Party Affiliation"
+                    style={{ width: '20rem' }}
+                    value={voter.party || undefined}
+                    onChange={(value) =>
+                      setVoter({ ...voter, party: value || '' })
+                    }
+                    menuPortalTarget={document.body}
+                    options={[
+                      { value: 'REP', label: 'Republican' },
+                      { value: 'DEM', label: 'Democrat' },
+                      { value: 'UND', label: 'Undeclared' },
+                    ]}
+                  />
+                </RequiredStaticInput>
+              </Row>
+              {voter.streetNumber.trim() !== '' &&
+                voter.streetName !== '' &&
+                !isAddressValid && (
+                  <Callout icon="Danger" color="danger">
+                    Invalid address. Make sure the street number and name match
+                    a valid address for this jurisdiction.
+                  </Callout>
+                )}
+            </Column>
+          </MainContent>
+          <ButtonBar>
+            <Button
+              icon="Add"
+              variant="primary"
+              onPress={() => {
+                setFlowState({ step: 'printing', registrationData: voter });
+                registerVoterMutation.mutate(
+                  { registrationData: voter, overrideNameMatchWarning: false },
+                  {
+                    onSuccess: (result) => {
+                      if (result.isOk()) {
+                        setFlowState({ step: 'success', voter: result.ok() });
+                        setVoter(createBlankVoter());
+                        setTimeoutIdForFlowStateReset(
+                          setTimeout(
+                            resetFlowState,
+                            AUTOMATIC_FLOW_STATE_RESET_DELAY_MS
+                          )
+                        );
+                      } else {
+                        setFlowState({
+                          step: 'has-name-match',
+                          matchingVoterInformation: result.err(),
+                        });
+                      }
+                    },
+                  }
+                );
+              }}
+              style={{ flex: 1 }}
+              disabled={isSubmitDisabled}
+            >
+              Add Voter
+            </Button>
+            <div />
+          </ButtonBar>
+          {flowState.step === 'has-name-match' && (
+            <Modal
+              title="Duplicate Name Detected"
+              content={
+                <RegistrationDuplicateNameMessage
+                  inputtedVoter={voter}
+                  matchingVoterInformation={flowState.matchingVoterInformation}
+                />
               }
-            );
-          }}
-        />
+              actions={
+                <React.Fragment>
+                  <Button
+                    color="primary"
+                    onPress={() => {
+                      setFlowState({
+                        step: 'printing',
+                        registrationData: voter,
+                      });
+                      registerVoterMutation.mutate(
+                        {
+                          registrationData: voter,
+                          overrideNameMatchWarning: true,
+                        },
+                        {
+                          onSuccess: (result) => {
+                            setFlowState({
+                              step: 'success',
+                              voter: result.unsafeUnwrap(),
+                            });
+                            setVoter(createBlankVoter());
+                            setTimeoutIdForFlowStateReset(
+                              setTimeout(
+                                resetFlowState,
+                                AUTOMATIC_FLOW_STATE_RESET_DELAY_MS
+                              )
+                            );
+                          },
+                        }
+                      );
+                    }}
+                  >
+                    Add Voter
+                  </Button>
+                  <Button onPress={() => setFlowState({ step: 'register' })}>
+                    Close
+                  </Button>
+                </React.Fragment>
+              }
+            />
+          )}
+        </ElectionManagerNavScreen>
       );
-
     case 'printing':
       return (
         <NoNavScreen>
