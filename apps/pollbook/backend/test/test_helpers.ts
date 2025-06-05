@@ -54,6 +54,7 @@ export function createVoter(
     mailingZip4: '6789',
     party: 'UND',
     district: 'District',
+    isInactive: false,
   };
 }
 export function createVoterCheckInEvent(
