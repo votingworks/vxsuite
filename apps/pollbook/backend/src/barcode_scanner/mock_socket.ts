@@ -1,11 +1,26 @@
 /* istanbul ignore next */
 /* eslint-disable vx/gts-no-public-class-fields */
+import { assert } from 'node:console';
 import { vi } from 'vitest';
 
-export class MockSocket {
-  private handlers: Record<string, (arg?: unknown) => void> = {};
+type MockSocketEventName = 'connect' | 'error';
 
-  on = vi.fn((event: string, cb: (arg?: unknown) => void) => {
+export class MockSocket {
+  private handlers: Record<MockSocketEventName, (arg?: unknown) => void> = {
+    connect: () => {
+      throw new Error("'connect' is unmocked");
+    },
+    error: () => {
+      throw new Error("'error' is unmocked");
+    },
+  };
+
+  on = vi.fn((event: MockSocketEventName, cb: (arg?: unknown) => void) => {
+    this.handlers[event] = cb;
+    return this;
+  });
+
+  once = vi.fn((event: MockSocketEventName, cb: (arg?: unknown) => void) => {
     this.handlers[event] = cb;
     return this;
   });
@@ -14,10 +29,14 @@ export class MockSocket {
   destroy = vi.fn();
 
   emitConnect(): void {
-    this.handlers['connect']?.();
+    const handler = this.handlers['connect'];
+    assert(handler, "Could not find handler for 'connect'");
+    handler();
   }
 
   emitError(err: Error): void {
-    this.handlers['error']?.(err);
+    const handler = this.handlers['error'];
+    assert(handler, "Could not find handler for 'error'");
+    handler(err);
   }
 }
