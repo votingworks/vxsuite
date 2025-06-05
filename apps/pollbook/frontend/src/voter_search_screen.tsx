@@ -94,7 +94,6 @@ export function VoterSearch({
   const searchVotersQuery = searchVoters.useQuery(debouncedSearch);
 
   useEffect(() => {
-    // TODO use a global
     const socket = io(SOCKET_IO_SERVER_ADDRESS);
     socket.on('barcode-scan', (data: AamvaDocument) => {
       setDebouncedSearch({
