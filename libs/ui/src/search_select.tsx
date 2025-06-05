@@ -60,7 +60,7 @@ function MultiValueRemove(
 
 export interface SelectOption<T = string> {
   value: T;
-  label: string;
+  label: React.ReactNode;
 }
 
 interface SearchSelectBaseProps<T = string> {

@@ -75,7 +75,7 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
         )
       : candidateNames;
 
-    const options = filteredNames.map((name) => ({
+    const candidateOptions = filteredNames.map((name) => ({
       label: name,
       value: name,
     }));
@@ -99,27 +99,51 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
     }
 
     // If value has been entered and it is a new entry, add it the dropdown
-    if (value && !options.some((option) => option.label === value)) {
-      options.unshift({ label: value, value });
+    if (value && !candidateOptions.some((option) => option.label === value)) {
+      candidateOptions.unshift({ label: value, value });
     }
 
     // 'Press enter to add: NEW_CANDIDATE' entry if there is no exact match
+    let newCandidateOption:
+      | { label: React.ReactNode; value: string }
+      | undefined;
     if (
       inputValue &&
       inputValue.length < MAX_WRITE_IN_NAME_LENGTH &&
-      !options.some(
+      !candidateOptions.some(
         (item) => normalizeWriteInName(item.label) === normalizedInputValue
       )
     ) {
-      options.push({
-        label: `Press enter to add: ${inputValue}`,
+      newCandidateOption = {
+        label: (
+          <span>
+            <Icons.Add style={{ marginRight: '.125rem' }} /> Press enter to add:{' '}
+            {inputValue}
+          </span>
+        ),
         value: inputValue,
-      });
+      };
     }
 
+    let invalidMarkOption:
+      | { label: React.ReactNode; value: string }
+      | undefined;
     if (!inputValue) {
-      options.unshift({ label: 'Invalid mark', value: INVALID_KEY });
+      invalidMarkOption = {
+        label: (
+          <span>
+            <Icons.Disabled style={{ marginRight: '.125rem' }} /> Invalid mark
+          </span>
+        ),
+        value: INVALID_KEY,
+      };
     }
+
+    const allOptions: Array<{ label: React.ReactNode; value: string }> = [
+      ...(invalidMarkOption ? [invalidMarkOption] : []),
+      ...candidateOptions,
+      ...(newCandidateOption ? [newCandidateOption] : []),
+    ];
 
     return (
       <Container ref={ref} style={{ zIndex: isFocused ? 10 : 0 }}>
@@ -137,7 +161,7 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
           // changes. `hasInvalidEntry` as the key forces a re-render
           key={`${hasInvalidEntry}-${value}`}
           menuPortalTarget={document.body}
-          options={options}
+          options={allOptions}
           onBlur={onInputBlur}
           onFocus={onInputFocus}
           onInputChange={onInputChange}
