@@ -44,6 +44,7 @@ export enum EventType {
   VoterAddressChange = 'VoterAddressChange',
   VoterNameChange = 'VoterNameChange',
   VoterRegistration = 'VoterRegistration',
+  MarkInactive = 'MarkInactive',
 }
 
 export type VoterIdentificationMethod =
@@ -112,6 +113,7 @@ export interface Voter {
   addressChange?: VoterAddressChange;
   registrationEvent?: VoterRegistration;
   checkIn?: VoterCheckIn;
+  isInactive: boolean;
 }
 
 export interface VoterAddressChangeRequest {
@@ -225,6 +227,7 @@ export const VoterSchema: z.ZodSchema<Voter> = z.object({
   registrationEvent: VoterRegistrationSchema.optional(),
   addressChange: VoterAddressChangeSchema.optional(),
   nameChange: VoterNameChangeSchema.optional(),
+  isInactive: z.boolean().default(false),
 });
 
 export interface MachineInformation extends PollbookInformation {
@@ -276,16 +279,23 @@ export interface VoterRegistrationEvent extends PollbookEventBase {
   registrationData: VoterRegistration;
 }
 
+export interface VoterInactivatedEvent extends PollbookEventBase {
+  type: EventType.MarkInactive;
+  voterId: string;
+}
+
 export type PollbookEvent =
   | VoterCheckInEvent
   | UndoVoterCheckInEvent
   | VoterAddressChangeEvent
   | VoterNameChangeEvent
+  | VoterInactivatedEvent
   | VoterRegistrationEvent;
 
 export interface VoterSearchParams {
   lastName: string;
   firstName: string;
+  includeInactiveVoters: boolean;
 }
 
 export type StreetSide = 'even' | 'odd' | 'all';
@@ -418,3 +428,5 @@ export type ConfigurationStatus =
   | 'network-configuration-error'
   | 'recently-unconfigured'
   | 'network-conflicting-pollbook-packages-match-card';
+
+export type VoterCheckInError = 'already_checked_in' | 'voter_inactive';

@@ -72,6 +72,7 @@ test('check in a voter', async () => {
       searchParams: {
         firstName: 'Abigail',
         lastName: 'Adams',
+        includeInactiveVoters: true,
       },
     });
 
@@ -206,6 +207,7 @@ test('register a voter', async () => {
       searchParams: {
         firstName: 'H',
         lastName: 'Eagen',
+        includeInactiveVoters: true,
       },
     });
     expect(votersEagen as Voter[]).toHaveLength(1);
@@ -285,6 +287,7 @@ test('change a voter name', async () => {
       searchParams: {
         firstName: 'Abigail',
         lastName: 'Adams',
+        includeInactiveVoters: true,
       },
     });
 
@@ -318,6 +321,7 @@ test('change a voter name', async () => {
       searchParams: {
         firstName: 'Abigail',
         lastName: 'Adams',
+        includeInactiveVoters: true,
       },
     });
     assert(votersAbigail2 !== null);
@@ -332,6 +336,7 @@ test('change a voter name', async () => {
       searchParams: {
         firstName: 'Barbara',
         lastName: 'Bee',
+        includeInactiveVoters: true,
       },
     });
     assert(votersBarbara !== null);
@@ -361,6 +366,7 @@ test('undo a voter check-in', async () => {
       searchParams: {
         firstName: 'Abigail',
         lastName: 'Adams',
+        includeInactiveVoters: true,
       },
     });
 
@@ -589,6 +595,7 @@ test('check in, change name, undo check-in, change address, and check in again',
       searchParams: {
         firstName: 'Abigail',
         lastName: 'Adams',
+        includeInactiveVoters: true,
       },
     });
 
@@ -692,6 +699,7 @@ test('change a voter address with various formats', async () => {
       searchParams: {
         firstName: 'Abigail',
         lastName: 'Adams',
+        includeInactiveVoters: true,
       },
     });
 
@@ -815,27 +823,33 @@ test('voter search ignores punctuation', async () => {
       {
         firstName: 'george-washington',
         lastName: 'carver-farmer',
+        includeInactiveVoters: true,
       },
       {
         firstName: "george'washington",
         lastName: "carver'farmer",
+        includeInactiveVoters: true,
       },
       {
         firstName: 'mar tha',
         lastName: 'wash ington',
+        includeInactiveVoters: true,
       },
       // Test punctuation and whitespace in db column are ignored
       {
         firstName: 'georgewashington',
         lastName: 'carverfar',
+        includeInactiveVoters: true,
       },
       {
         firstName: 'george',
         lastName: 'washington',
+        includeInactiveVoters: true,
       },
       {
         firstName: 'martha',
         lastName: 'washington',
+        includeInactiveVoters: true,
       },
     ];
 
@@ -896,5 +910,125 @@ test('programCard and unprogramCard', async () => {
       electionKey,
       ...auth,
     });
+  });
+});
+
+test('mark a voter inactive', async () => {
+  await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
+    const testVoters = parseVotersFromCsvString(
+      electionFamousNames2021Fixtures.pollbookVoters.asText()
+    );
+    const testStreets = parseValidStreetsFromCsvString(
+      electionFamousNames2021Fixtures.pollbookStreetNames.asText()
+    );
+    workspace.store.setElectionAndVoters(
+      electionDefinition,
+      'fake-package-hash',
+      testStreets,
+      testVoters
+    );
+    mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+
+    const votersAbigail = await localApiClient.searchVoters({
+      searchParams: {
+        firstName: 'Abigail',
+        lastName: 'Adams',
+        includeInactiveVoters: true,
+      },
+    });
+
+    assert(votersAbigail !== null);
+    assert(Array.isArray(votersAbigail));
+    expect(votersAbigail).toHaveLength(3);
+    const firstVoter = (votersAbigail as Voter[])[0];
+    const secondVoter = (votersAbigail as Voter[])[1];
+    const thirdVoter = (votersAbigail as Voter[])[2];
+
+    // Mark the first voter as inactive
+    const markInactiveResult = await localApiClient.markVoterInactive({
+      voterId: firstVoter.voterId,
+    });
+    expect(markInactiveResult.ok()).toEqual(undefined);
+
+    const receiptPdfPath = mockPrinterHandler.getLastPrintPath();
+    expect(receiptPdfPath).toBeDefined();
+    await expect(receiptPdfPath).toMatchPdfSnapshot();
+
+    // We should not be able to check in this voter.
+    const checkInErr = await localApiClient.checkInVoter({
+      voterId: firstVoter.voterId,
+      identificationMethod: { type: 'default' },
+    });
+    expect(checkInErr.err()).toEqual('voter_inactive');
+
+    // Check in a different voter
+    const checkIn = await localApiClient.checkInVoter({
+      voterId: secondVoter.voterId,
+      identificationMethod: { type: 'default' },
+    });
+    expect(checkIn.ok()).toEqual(undefined);
+    // Trying to mark this voter as inactive should return an error.
+    const markInactiveErr = await localApiClient.markVoterInactive({
+      voterId: secondVoter.voterId,
+    });
+    expect(markInactiveErr.err()).toEqual('voter_checked_in');
+
+    // Changing the name before marking inactive is fine
+    await localApiClient.changeVoterName({
+      voterId: thirdVoter.voterId,
+      nameChangeData: {
+        firstName: 'Abigail',
+        lastName: 'Adams',
+        middleName: 'CHANGED',
+        suffix: '',
+      },
+    });
+    const nameChangeReceiptPath = mockPrinterHandler.getLastPrintPath();
+
+    // We should still succeed marking inactive on voter3 with no printer connected.
+    mockPrinterHandler.disconnectPrinter();
+    const markInactiveResult2 = await localApiClient.markVoterInactive({
+      voterId: thirdVoter.voterId,
+    });
+    expect(markInactiveResult2.ok()).toEqual(undefined);
+
+    // The check in receipt should still be the last thing printed.
+    expect(mockPrinterHandler.getLastPrintPath()).toEqual(
+      nameChangeReceiptPath
+    );
+
+    // Search for the voter again with inacative voters included
+    const votersAbigail2 = await localApiClient.searchVoters({
+      searchParams: {
+        firstName: 'Abigail',
+        lastName: 'Adams',
+        includeInactiveVoters: true,
+      },
+    });
+    assert(votersAbigail2 !== null);
+    assert(Array.isArray(votersAbigail2));
+    expect(votersAbigail2).toHaveLength(3);
+    // The thirdVoter gets reordered due to the name change.
+    expect((votersAbigail2 as Voter[])[0].voterId).toEqual(thirdVoter.voterId);
+    expect((votersAbigail2 as Voter[])[0].isInactive).toEqual(true);
+    expect((votersAbigail2 as Voter[])[0].nameChange).toBeDefined();
+    expect((votersAbigail2 as Voter[])[1].voterId).toEqual(firstVoter.voterId);
+    expect((votersAbigail2 as Voter[])[1].isInactive).toEqual(true);
+    expect((votersAbigail2 as Voter[])[2].voterId).toEqual(secondVoter.voterId);
+    expect((votersAbigail2 as Voter[])[2].isInactive).toEqual(false);
+
+    // Searching without inactive voters included should filter properly
+    const votersAbigail3 = await localApiClient.searchVoters({
+      searchParams: {
+        firstName: 'Abigail',
+        lastName: 'Adams',
+        includeInactiveVoters: false,
+      },
+    });
+    assert(votersAbigail3 !== null);
+    assert(Array.isArray(votersAbigail3));
+    expect(votersAbigail3).toHaveLength(1);
+    expect((votersAbigail3 as Voter[])[0].isInactive).toEqual(false);
+    expect((votersAbigail3 as Voter[])[0].voterId).toEqual(secondVoter.voterId);
   });
 });

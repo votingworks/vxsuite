@@ -17,6 +17,7 @@ import {
   PollbookEventBase,
   Voter,
   VoterRegistration,
+  VoterInactivatedEvent,
 } from './types';
 
 const debug = rootDebug.extend('store');
@@ -81,6 +82,11 @@ export function convertDbRowsToPollbookEvents(
               VoterRegistrationSchema
             ).unsafeUnwrap(),
           });
+        case EventType.MarkInactive:
+          return typedAs<VoterInactivatedEvent>({
+            ...eventBase,
+            type: EventType.MarkInactive,
+          });
         default: {
           /* istanbul ignore next - @preserve */
           throwIllegalValue(event.event_type);
@@ -125,6 +131,7 @@ export function createVoterFromRegistrationData(
     mailingZip5: '',
     mailingZip4: '',
     district: registrationEvent.district || '',
+    isInactive: false,
     registrationEvent,
   };
 }
@@ -142,6 +149,12 @@ export function applyPollbookEventsToVoters(
         // If we get the VoterRegistration event for that voter later, this event will get reprocessed.
         if (!voter) {
           debug('Voter %s not found', event.voterId);
+          continue;
+        }
+        // If we receive a check in event for a voter that was marked as inactive it should not be processed.
+        // This can only occur if there are offline machines or in rare race conditions. Inactivated voters can
+        // not be checked in.
+        if (voter.isInactive) {
           continue;
         }
         updatedVoters[event.voterId] = {
@@ -183,6 +196,21 @@ export function applyPollbookEventsToVoters(
           event.registrationData
         );
         updatedVoters[newVoter.voterId] = newVoter;
+        break;
+      }
+      case EventType.MarkInactive: {
+        const voter = updatedVoters[event.voterId];
+        if (!voter) {
+          debug('Voter %s not found', event.voterId);
+          continue;
+        }
+        updatedVoters[event.voterId] = {
+          ...voter,
+          // If there was a check in it should be removed, checks in are not allowed on inactivated voters. This can only occur
+          // in rare edge conditions with race conditions // offline machines
+          checkIn: undefined,
+          isInactive: true,
+        };
         break;
       }
       default: {

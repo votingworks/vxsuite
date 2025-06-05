@@ -15,6 +15,7 @@ import type {
   ValidStreetInfo,
   Voter,
   VoterAddressChangeRequest,
+  VoterCheckInError,
   VoterNameChangeRequest,
   VoterRegistrationRequest,
 } from '@votingworks/pollbook-backend';
@@ -70,6 +71,7 @@ export function createMockVoter(
     mailingZip4: '6789',
     party: 'UND',
     district: 'District',
+    isInactive: false,
   };
 }
 
@@ -288,20 +290,29 @@ export function createApiMock() {
       });
     },
 
-    expectSearchVotersNull(input: { firstName?: string; lastName?: string }) {
+    expectSearchVotersNull(input: {
+      firstName?: string;
+      lastName?: string;
+      includeInactiveVoters?: boolean;
+    }) {
       mockApiClient.searchVoters.reset();
       mockApiClient.searchVoters
         .expectRepeatedCallsWith({
           searchParams: {
             firstName: input.firstName || '',
             lastName: input.lastName || '',
+            includeInactiveVoters: input.includeInactiveVoters || false,
           },
         })
         .resolves(null);
     },
 
     expectSearchVotersTooMany(
-      input: { firstName?: string; lastName?: string },
+      input: {
+        firstName?: string;
+        lastName?: string;
+        includeInactiveVoters?: boolean;
+      },
       excessVoters: number
     ) {
       mockApiClient.searchVoters.reset();
@@ -310,13 +321,18 @@ export function createApiMock() {
           searchParams: {
             firstName: input.firstName || '',
             lastName: input.lastName || '',
+            includeInactiveVoters: input.includeInactiveVoters || false,
           },
         })
         .resolves(excessVoters);
     },
 
     expectSearchVotersWithResults(
-      input: { firstName?: string; lastName?: string },
+      input: {
+        firstName?: string;
+        lastName?: string;
+        includeInactiveVoters?: boolean;
+      },
       voters: Voter[]
     ) {
       mockApiClient.searchVoters.reset();
@@ -325,6 +341,7 @@ export function createApiMock() {
           searchParams: {
             firstName: input.firstName || '',
             lastName: input.lastName || '',
+            includeInactiveVoters: input.includeInactiveVoters || false,
           },
         })
         .resolves(voters);
@@ -349,6 +366,18 @@ export function createApiMock() {
           },
         })
         .resolves(ok());
+    },
+
+    expectCheckInVoterError(voter: Voter, error: VoterCheckInError) {
+      mockApiClient.checkInVoter.reset();
+      mockApiClient.checkInVoter
+        .expectCallWith({
+          voterId: voter.voterId,
+          identificationMethod: {
+            type: 'default',
+          },
+        })
+        .resolves(err(error));
     },
 
     expectUndoVoterCheckIn(voter: Voter, reason: string) {
@@ -377,6 +406,24 @@ export function createApiMock() {
           voterId: voter.voterId,
         })
         .resolves(err('not_checked_in'));
+    },
+
+    expectMarkInactive(voter: Voter) {
+      mockApiClient.markVoterInactive.reset();
+      mockApiClient.markVoterInactive
+        .expectCallWith({
+          voterId: voter.voterId,
+        })
+        .resolves(ok());
+    },
+
+    expectMarkInactiveError(voter: Voter) {
+      mockApiClient.markVoterInactive.reset();
+      mockApiClient.markVoterInactive
+        .expectCallWith({
+          voterId: voter.voterId,
+        })
+        .resolves(err('voter_checked_in'));
     },
 
     expectGetValidStreetInfo(streetInfo: ValidStreetInfo[]) {

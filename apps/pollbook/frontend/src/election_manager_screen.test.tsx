@@ -36,14 +36,15 @@ describe('Voters tab', () => {
     });
     unmount = renderResult.unmount;
 
-    apiMock.expectSearchVotersNull({});
+    // Election Manager search should include inactive voters
+    apiMock.expectSearchVotersNull({ includeInactiveVoters: true });
     userEvent.click(await screen.findButton('Voters'));
 
     await screen.findByRole('heading', { name: 'Voters' });
 
     const voter = createMockVoter('123', 'Abigail', 'Adams');
     apiMock.expectSearchVotersWithResults(
-      { firstName: 'ABI', lastName: 'AD' },
+      { firstName: 'ABI', lastName: 'AD', includeInactiveVoters: true },
       [voter]
     );
 
