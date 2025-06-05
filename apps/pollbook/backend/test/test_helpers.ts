@@ -22,14 +22,16 @@ import { PeerStore } from '../src/peer_store';
 export function createVoter(
   voterId: string,
   firstName: string,
-  lastName: string
+  lastName: string,
+  middleName: string = '',
+  suffix: string = ''
 ): Voter {
   return {
     voterId,
     firstName,
     lastName,
-    middleName: '',
-    suffix: '',
+    middleName,
+    suffix,
     streetNumber: '123',
     addressSuffix: '',
     houseFractionNumber: '',
