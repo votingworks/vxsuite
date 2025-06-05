@@ -320,6 +320,9 @@ test('reprint check-in receipt', async () => {
 
   await renderComponent();
 
+  // Check that we do not see the ability to Mark as Inactive
+  expect(screen.queryByText('Mark Voter as Inactive')).toBeNull();
+
   const reprintButton = screen.getButton('Reprint Receipt');
   expect(reprintButton).not.toBeDisabled();
   apiMock.expectReprintReceipt(checkedInVoter);
@@ -373,4 +376,42 @@ test('reprint check-in receipt - error path', async () => {
   await vi.waitFor(() => {
     screen.getByText('Error Reprinting');
   });
+});
+
+test('mark inactive - happy path', async () => {
+  apiMock.expectGetVoter(voter);
+  apiMock.expectGetDeviceStatuses();
+
+  await renderComponent();
+
+  const markInactiveButton = screen.getButton('Mark Voter as Inactive');
+  userEvent.click(markInactiveButton);
+  await screen.findByText(/After the voter is marked as inactive/);
+
+  apiMock.expectMarkInactive(voter);
+  apiMock.expectGetVoter({
+    ...voter,
+    isInactive: true,
+  });
+
+  const confirmButton = screen.getButton('Mark Inactive');
+  userEvent.click(confirmButton);
+});
+
+test('mark inactive - error path', async () => {
+  apiMock.expectGetVoter(voter);
+  apiMock.expectGetDeviceStatuses();
+
+  await renderComponent();
+
+  const markInactiveButton = screen.getButton('Mark Voter as Inactive');
+  userEvent.click(markInactiveButton);
+  await screen.findByText(/After the voter is marked as inactive/);
+
+  apiMock.expectMarkInactiveError(voter);
+  apiMock.expectGetVoter(voter);
+  const confirmButton = screen.getButton('Mark Inactive');
+  userEvent.click(confirmButton);
+
+  await screen.findByText('Error Marking Inactive');
 });

@@ -408,6 +408,24 @@ export function createApiMock() {
         .resolves(err('not_checked_in'));
     },
 
+    expectMarkInactive(voter: Voter) {
+      mockApiClient.markVoterInactive.reset();
+      mockApiClient.markVoterInactive
+        .expectCallWith({
+          voterId: voter.voterId,
+        })
+        .resolves(ok());
+    },
+
+    expectMarkInactiveError(voter: Voter) {
+      mockApiClient.markVoterInactive.reset();
+      mockApiClient.markVoterInactive
+        .expectCallWith({
+          voterId: voter.voterId,
+        })
+        .resolves(err('voter_checked_in'));
+    },
+
     expectGetValidStreetInfo(streetInfo: ValidStreetInfo[]) {
       mockApiClient.getValidStreetInfo.reset();
       mockApiClient.getValidStreetInfo.expectCallWith().resolves(streetInfo);
