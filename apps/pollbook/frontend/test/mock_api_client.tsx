@@ -15,6 +15,7 @@ import type {
   ValidStreetInfo,
   Voter,
   VoterAddressChangeRequest,
+  VoterCheckInError,
   VoterNameChangeRequest,
   VoterRegistrationRequest,
 } from '@votingworks/pollbook-backend';
@@ -365,6 +366,18 @@ export function createApiMock() {
           },
         })
         .resolves(ok());
+    },
+
+    expectCheckInVoterError(voter: Voter, error: VoterCheckInError) {
+      mockApiClient.checkInVoter.reset();
+      mockApiClient.checkInVoter
+        .expectCallWith({
+          voterId: voter.voterId,
+          identificationMethod: {
+            type: 'default',
+          },
+        })
+        .resolves(err(error));
     },
 
     expectUndoVoterCheckIn(voter: Voter, reason: string) {
