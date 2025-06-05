@@ -5,7 +5,7 @@ import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import { LogEventId, MockLogger, mockLogger } from '@votingworks/logging';
 import { SystemCallApiMethods, createSystemCallApi } from './api';
 import { execFile } from '../exec';
-import { getAudioInfo } from './get_audio_info';
+import { AudioInfo, getAudioInfo } from './get_audio_info';
 import { LogsExportError } from './export_logs_to_usb';
 
 vi.mock(import('node:fs/promises'), async (importActual) => ({
@@ -123,6 +123,15 @@ test('setClock', async () => {
 });
 
 test('getAudioInfo', async () => {
-  vi.mocked(getAudioInfo).mockResolvedValue({ headphonesActive: true });
-  await expect(api.getAudioInfo()).resolves.toEqual({ headphonesActive: true });
+  const audioInfo: AudioInfo = {
+    builtin: {
+      headphonesActive: false,
+      name: 'alsa_output.pci.analog-stereo',
+    },
+    usb: {
+      name: 'alsa_output.usb.stereo',
+    },
+  };
+  vi.mocked(getAudioInfo).mockResolvedValue(audioInfo);
+  await expect(api.getAudioInfo()).resolves.toEqual(audioInfo);
 });

@@ -11,25 +11,43 @@ const mockExecFile = vi.mocked(execFile);
 test('command successful - headphones active', async () => {
   mockExecFile.mockResolvedValue({
     stderr: '',
-    stdout: `
-      Sink #972
-        Name: alsa_output.pci-0000_00_01.0.analog-stereo
-        Description: Built-in Audio Analog Stereo
-        Properties:
-          alsa.card = "0"
-          alsa.card_name = "HDA Intel"
-        Ports:
-          analog-output-speaker: Speakers (type: Speaker, priority: 10000, availability group: Legacy 2, available)
-          analog-output-headphones: Headphones (type: Headphones, priority: 9900, availability group: Legacy 2, available)
-        Active Port: analog-output-headphones
-        Formats:
-          pcm
-    `,
+    stdout: JSON.stringify([
+      {
+        index: 52,
+        state: 'SUSPENDED',
+        name: 'alsa_output.pci-0000_00_01.0.analog-stereo',
+        driver: 'PipeWire',
+        // ...
+        ports: [
+          {
+            name: 'analog-output-speaker',
+            description: 'Speaker',
+            type: 'Speaker',
+            priority: 10000,
+            availability_group: '',
+            availability: 'availability unknown',
+          },
+          {
+            name: 'analog-output-headphones',
+            description: 'Headphones',
+            type: 'Headphones',
+            priority: 20000,
+            availability_group: 'Headphone',
+            availability: 'available',
+          },
+        ],
+        active_port: 'analog-output-headphones',
+        formats: ['pcm'],
+      },
+    ]),
   });
 
   const logger = mockLogger({ fn: vi.fn });
   expect(await getAudioInfo(logger)).toEqual<AudioInfo>({
-    headphonesActive: true,
+    builtin: {
+      headphonesActive: true,
+      name: 'alsa_output.pci-0000_00_01.0.analog-stereo',
+    },
   });
 
   expect(logger.log).not.toHaveBeenCalled();
@@ -38,25 +56,133 @@ test('command successful - headphones active', async () => {
 test('command successful - speakers active', async () => {
   mockExecFile.mockResolvedValue({
     stderr: '',
-    stdout: `
-      Sink #972
-        Name: alsa_output.pci-0000_00_01.0.analog-stereo
-        Description: Built-in Audio Analog Stereo
-        Properties:
-          alsa.card = "0"
-          alsa.card_name = "HDA Intel"
-        Ports:
-          analog-output-speaker: Speakers (type: Speaker, priority: 10000, availability group: Legacy 2, available)
-          analog-output-headphones: Headphones (type: Headphones, priority: 9900, availability group: Legacy 2, available)
-        Active Port: analog-output-speaker
-        Formats:
-          pcm
-    `,
+    stdout: JSON.stringify([
+      {
+        index: 52,
+        state: 'SUSPENDED',
+        name: 'alsa_output.pci-0000_00_01.0.analog-stereo',
+        driver: 'PipeWire',
+        // ...
+        ports: [
+          {
+            name: 'analog-output-speaker',
+            description: 'Speaker',
+            type: 'Speaker',
+            priority: 10000,
+            availability_group: '',
+            availability: 'availability unknown',
+          },
+          {
+            name: 'analog-output-headphones',
+            description: 'Headphones',
+            type: 'Headphones',
+            priority: 20000,
+            availability_group: 'Headphone',
+            availability: 'not available',
+          },
+        ],
+        active_port: 'analog-output-speaker',
+        formats: ['pcm'],
+      },
+
+      {
+        index: 482,
+        state: 'SUSPENDED',
+        name: 'alsa_output.hdmi.stereo',
+        description: 'HDMI Audio',
+        driver: 'PipeWire',
+        // ...
+        ports: [
+          {
+            name: '[Out] HDMI1',
+            description: 'HDMI/DisplayPort 1 Output',
+            type: 'HDMI',
+            priority: 9900,
+            availability_group: 'HDMI/DP,pcm=4',
+            availability: 'not available',
+          },
+        ],
+        active_port: 'HDMI1',
+        formats: ['pcm'],
+      },
+    ]),
   });
 
   const logger = mockLogger({ fn: vi.fn });
   expect(await getAudioInfo(logger)).toEqual<AudioInfo>({
-    headphonesActive: false,
+    builtin: {
+      headphonesActive: false,
+      name: 'alsa_output.pci-0000_00_01.0.analog-stereo',
+    },
+  });
+
+  expect(logger.logAsCurrentRole).not.toHaveBeenCalled();
+});
+
+test('command successful - USB audio connected', async () => {
+  mockExecFile.mockResolvedValue({
+    stderr: '',
+    stdout: JSON.stringify([
+      {
+        index: 52,
+        state: 'SUSPENDED',
+        name: 'alsa_output.pci-0000_00_01.0.analog-stereo',
+        driver: 'PipeWire',
+        // ...
+        ports: [
+          {
+            name: 'analog-output-speaker',
+            description: 'Speaker',
+            type: 'Speaker',
+            priority: 10000,
+            availability_group: '',
+            availability: 'availability unknown',
+          },
+          {
+            name: 'analog-output-headphones',
+            description: 'Headphones',
+            type: 'Headphones',
+            priority: 20000,
+            availability_group: 'Headphone',
+            availability: 'not available',
+          },
+        ],
+        active_port: null,
+        formats: ['pcm'],
+      },
+
+      {
+        index: 482,
+        state: 'SUSPENDED',
+        name: 'alsa_output.usb-Generic_USB_Audio-00.analog-stereo',
+        description: 'USB Audio Analog Stereo',
+        driver: 'PipeWire',
+        // ...
+        ports: [
+          {
+            name: 'analog-output-speaker',
+            description: 'Speaker',
+            type: 'Speaker',
+            priority: 9900,
+            availability_group: 'Legacy 2',
+            availability: 'available',
+          },
+        ],
+        active_port: 'analog-output-speaker',
+        formats: ['pcm'],
+      },
+    ]),
+  });
+
+  const logger = mockLogger({ fn: vi.fn });
+  expect(await getAudioInfo(logger)).toEqual<AudioInfo>({
+    builtin: {
+      headphonesActive: false,
+      name: 'alsa_output.pci-0000_00_01.0.analog-stereo',
+    },
+    usb: {
+      name: 'alsa_output.usb-Generic_USB_Audio-00.analog-stereo',
+    },
   });
 
   expect(logger.logAsCurrentRole).not.toHaveBeenCalled();
@@ -66,9 +192,7 @@ test('execFile error', async () => {
   mockExecFile.mockRejectedValue('execFile failed');
 
   const logger = mockLogger({ fn: vi.fn });
-  expect(await getAudioInfo(logger)).toEqual<AudioInfo>({
-    headphonesActive: false,
-  });
+  expect(await getAudioInfo(logger)).toEqual<AudioInfo>({});
 
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
     LogEventId.HeadphonesDetectionError,
@@ -83,14 +207,27 @@ test('pactl error', async () => {
   mockExecFile.mockResolvedValue({ stderr: 'access denied', stdout: '' });
 
   const logger = mockLogger({ fn: vi.fn });
-  expect(await getAudioInfo(logger)).toEqual<AudioInfo>({
-    headphonesActive: false,
-  });
+  expect(await getAudioInfo(logger)).toEqual<AudioInfo>({});
 
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
     LogEventId.HeadphonesDetectionError,
     {
       message: expect.stringContaining('access denied'),
+      disposition: 'failure',
+    }
+  );
+});
+
+test('pactl output parse error', async () => {
+  mockExecFile.mockResolvedValue({ stderr: '', stdout: '[{"not":"valid"}]' });
+
+  const logger = mockLogger({ fn: vi.fn });
+  expect(await getAudioInfo(logger)).toEqual<AudioInfo>({});
+
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+    LogEventId.HeadphonesDetectionError,
+    {
+      message: expect.stringContaining('ZodError'),
       disposition: 'failure',
     }
   );
