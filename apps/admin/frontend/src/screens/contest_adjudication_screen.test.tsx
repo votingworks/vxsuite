@@ -61,6 +61,22 @@ function getDropdownItemByLabel(label: string) {
     .find((el) => el.getAttribute('aria-disabled') === 'false');
 }
 
+function getInvalidMarkItem() {
+  return screen.getByText(
+    (_, node) =>
+      (node?.textContent ?? '').includes('Invalid mark') &&
+      node?.getAttribute('aria-disabled') === 'false'
+  );
+}
+
+function getAddCandidateItem() {
+  return screen.getByText(
+    (_, node) =>
+      (node?.textContent ?? '').includes('Press enter to add:') &&
+      node?.getAttribute('aria-disabled') === 'false'
+  );
+}
+
 function getButtonByName(name: string) {
   return screen.getByRole('button', { name: new RegExp(name, 'i') });
 }
@@ -372,7 +388,7 @@ describe('hmpb write-in adjudication', () => {
     expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
 
     expect(screen.queryByText(/press enter to add:/i)).not.toBeInTheDocument();
-    expect(screen.queryAllByText(/invalid mark/i)).toHaveLength(2);
+    expect(screen.queryByText(/invalid mark/i)).toBeInTheDocument();
     expect(screen.queryByText(/oliver/i)).toBeInTheDocument();
 
     userEvent.type(writeInSearchSelect, 'siena');
@@ -381,8 +397,8 @@ describe('hmpb write-in adjudication', () => {
     expect(screen.queryByText(/oliver/i)).not.toBeInTheDocument();
 
     // add new candidate
-    const addNewItem = getDropdownItemByLabel('Press enter to add: siena');
-    userEvent.click(addNewItem!);
+    const addNewItem = getAddCandidateItem();
+    userEvent.click(addNewItem);
 
     // once that candidate is added, they should be included in the next dropdown search
     writeInSearchSelect = screen.getByRole('combobox');
@@ -494,8 +510,8 @@ describe('bmd write-in adjudication', () => {
     writeInSearchSelect = screen.getByRole('combobox');
     expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
 
-    const invalidMarkItem = getDropdownItemByLabel('Invalid mark');
-    userEvent.click(invalidMarkItem!);
+    const invalidMarkItem = getInvalidMarkItem();
+    userEvent.click(invalidMarkItem);
 
     expect(screen.queryByText(/invalid mark/i)).toBeInTheDocument();
 
