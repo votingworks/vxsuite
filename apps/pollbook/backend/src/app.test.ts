@@ -21,6 +21,7 @@ import {
   VoterNameChangeRequest,
   VoterRegistrationRequest,
 } from './types';
+import { createVoter } from '../test/test_helpers';
 
 let mockNodeEnv: 'production' | 'test' = 'test';
 
@@ -170,8 +171,10 @@ test('register a voter', async () => {
 
     const registerResult = await localApiClient.registerVoter({
       registrationData,
+      overrideNameMatchWarning: false,
     });
-    expect(registerResult).toMatchObject({
+    const registerOk = registerResult.unsafeUnwrap();
+    expect(registerOk).toMatchObject({
       firstName: 'Helena',
       lastName: 'Eagen',
       party: 'REP',
@@ -183,13 +186,13 @@ test('register a voter', async () => {
 
     // Check in the registered voter
     const checkInResult = await localApiClient.checkInVoter({
-      voterId: registerResult.voterId,
+      voterId: registerOk.voterId,
       identificationMethod: { type: 'default' },
     });
     expect(checkInResult.ok()).toEqual(undefined);
 
     const updatedVoter = await localApiClient.getVoter({
-      voterId: registerResult.voterId,
+      voterId: registerOk.voterId,
     });
     expect(updatedVoter.checkIn).toEqual({
       identificationMethod: { type: 'default' },
@@ -223,6 +226,60 @@ test('register a voter', async () => {
         machineId: TEST_MACHINE_ID,
       },
     });
+  });
+});
+
+test('register a voter - duplicate name', async () => {
+  await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
+    const testStreets = parseValidStreetsFromCsvString(
+      electionFamousNames2021Fixtures.pollbookStreetNames.asText()
+    );
+    workspace.store.setElectionAndVoters(
+      electionDefinition,
+      'fake-package-hash',
+      testStreets,
+      [createVoter('original', 'Dylan', `O'Brien`, 'Darren', 'I')]
+    );
+    mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+
+    const registrationData: VoterRegistrationRequest = {
+      firstName: 'DYLAN',
+      lastName: 'OBRIEN',
+      middleName: 'Dar-ren',
+      suffix: 'I',
+      streetNumber: '15',
+      streetName: 'MAIN ST',
+      streetSuffix: '',
+      apartmentUnitNumber: '',
+      houseFractionNumber: '',
+      addressLine2: '',
+      addressLine3: '',
+      city: 'Manchester',
+      state: 'NH',
+      zipCode: '03101',
+      party: 'REP',
+    };
+
+    const registerResult = await localApiClient.registerVoter({
+      registrationData,
+      overrideNameMatchWarning: false,
+    });
+    expect(registerResult.err()).toMatchObject({
+      voterId: 'original',
+    });
+
+    const result2 = await localApiClient.registerVoter({
+      registrationData,
+      overrideNameMatchWarning: true,
+    });
+    const registerOk = result2.ok();
+    expect(registerOk).toMatchObject({
+      firstName: 'DYLAN',
+      lastName: 'OBRIEN',
+      middleName: 'Dar-ren',
+      suffix: 'I',
+    });
+    expect(registerOk?.voterId).not.toEqual('original');
   });
 });
 
@@ -262,6 +319,7 @@ test('register a voter - invalid address', async () => {
     await expect(() =>
       localApiClient.registerVoter({
         registrationData,
+        overrideNameMatchWarning: false,
       })
     ).rejects.toThrow('Invalid voter registration');
   });
@@ -436,8 +494,10 @@ test('register a voter, change name and address, and check in', async () => {
 
       const registerResult = await localApiClient.registerVoter({
         registrationData,
+        overrideNameMatchWarning: false,
       });
-      expect(registerResult).toMatchObject({
+      const registerOk = registerResult.unsafeUnwrap();
+      expect(registerOk).toMatchObject({
         firstName: 'Harmony',
         lastName: 'Cobel',
         party: 'DEM',
@@ -454,7 +514,7 @@ test('register a voter, change name and address, and check in', async () => {
       };
 
       const nameChangeResult = await localApiClient.changeVoterName({
-        voterId: registerResult.voterId,
+        voterId: registerOk.voterId,
         nameChangeData,
       });
       expect(nameChangeResult.nameChange).toEqual({
@@ -474,7 +534,7 @@ test('register a voter, change name and address, and check in', async () => {
       };
 
       const nameChangeResult2 = await localApiClient.changeVoterName({
-        voterId: registerResult.voterId,
+        voterId: registerOk.voterId,
         nameChangeData: nameChangeData2,
       });
       expect(nameChangeResult2.nameChange).toEqual({
@@ -499,7 +559,7 @@ test('register a voter, change name and address, and check in', async () => {
       };
 
       const addressChangeResult = await localApiClient.changeVoterAddress({
-        voterId: registerResult.voterId,
+        voterId: registerOk.voterId,
         addressChangeData,
       });
       expect(addressChangeResult.addressChange).toEqual({
@@ -518,7 +578,7 @@ test('register a voter, change name and address, and check in', async () => {
         addressLine2: 'this is a second line',
       };
       const addressChange2Result = await localApiClient.changeVoterAddress({
-        voterId: registerResult.voterId,
+        voterId: registerOk.voterId,
         addressChangeData: addressChangeData2,
       });
       expect(addressChange2Result.addressChange).toEqual({
@@ -531,16 +591,16 @@ test('register a voter, change name and address, and check in', async () => {
 
       // Check in the voter after changes
       const checkInResult = await localApiClient.checkInVoter({
-        voterId: registerResult.voterId,
+        voterId: registerOk.voterId,
         identificationMethod: { type: 'default' },
       });
       expect(checkInResult.ok()).toEqual(undefined);
 
       const updatedVoter = await localApiClient.getVoter({
-        voterId: registerResult.voterId,
+        voterId: registerOk.voterId,
       });
       expect(updatedVoter).toEqual({
-        ...registerResult,
+        ...registerOk,
         nameChange: {
           ...nameChangeData2,
           timestamp: expect.any(String),
@@ -810,8 +870,9 @@ test('voter search ignores punctuation', async () => {
     for (const registrationData of registrationRequests) {
       const registerResult = await localApiClient.registerVoter({
         registrationData,
+        overrideNameMatchWarning: false,
       });
-      expect(registerResult).toMatchObject({
+      expect(registerResult.ok()).toMatchObject({
         firstName: registrationData.firstName,
         lastName: registrationData.lastName,
         party: 'UND',

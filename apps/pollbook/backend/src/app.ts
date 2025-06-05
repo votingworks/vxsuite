@@ -333,8 +333,15 @@ function buildApi({ context, logger }: BuildAppParams) {
 
     async registerVoter(input: {
       registrationData: VoterRegistrationRequest;
-    }): Promise<Voter> {
+      overrideNameMatchWarning: boolean;
+    }): Promise<Result<Voter, Voter>> {
       const election = assertDefined(store.getElection());
+      if (!input.overrideNameMatchWarning) {
+        const hasNameMatch = store.findVoterWithName(input.registrationData);
+        if (hasNameMatch) {
+          return err(hasNameMatch);
+        }
+      }
       const { voter, receiptNumber } = store.registerVoter(
         input.registrationData
       );
@@ -346,7 +353,7 @@ function buildApi({ context, logger }: BuildAppParams) {
       });
       debug('Printing registration receipt for voter %s', voter.voterId);
       await renderAndPrintReceipt(printer, receipt);
-      return voter;
+      return ok(voter);
     },
 
     async markVoterInactive(input: {

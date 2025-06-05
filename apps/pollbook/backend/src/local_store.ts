@@ -55,10 +55,16 @@ function escapeRegex(str: string): string {
 // Takes a raw string input eg. search string for voter name
 // and turns it into a pattern to pass to sqlite3. The pattern
 // ignores apostrophes, dashes, and whitespace
-function toPattern(raw: string): string {
+function toPatternStartsWith(raw: string): string {
   const clean = raw.trim().replace(/[\s'-]/g, '');
   const parts = clean.split('').map((ch) => escapeRegex(ch));
   return `^${parts.join(`[\\s'\\-]*`)}.*$`;
+}
+
+function toPatternMatches(raw: string): string {
+  const clean = raw.trim().replace(/[\s'-]/g, '');
+  const parts = clean.split('').map((ch) => escapeRegex(ch));
+  return `^${parts.join(`[\\s'\\-]*`)}[\\s'\\-]*$`;
 }
 
 export class LocalStore extends Store {
@@ -205,8 +211,8 @@ export class LocalStore extends Store {
     const { lastName, firstName, includeInactiveVoters } = searchParams;
     const MAX_VOTER_SEARCH_RESULTS = 100;
 
-    const lastNamePattern = toPattern(lastName);
-    const firstNamePattern = toPattern(firstName);
+    const lastNamePattern = toPatternStartsWith(lastName);
+    const firstNamePattern = toPatternStartsWith(firstName);
 
     // Query the database for voters matching the search criteria
     const voterRows = this.client.all(
@@ -327,6 +333,69 @@ export class LocalStore extends Store {
       );
     });
     return { voter, receiptNumber };
+  }
+
+  findVoterWithName(nameData: VoterNameChangeRequest): Voter | undefined {
+    const lastNamePattern = toPatternMatches(nameData.lastName);
+    const firstNamePattern = toPatternMatches(nameData.firstName);
+    const middleNamePattern = toPatternMatches(nameData.middleName);
+    const suffixPattern = toPatternMatches(nameData.suffix);
+    // Query the database for voters matching the first and last name criteria, we don't track the updated suffix/middle name
+    // columns in the database so we will filter those from the results later.
+    const voterRows = this.client.all(
+      `
+            SELECT v.voter_id, v.voter_data
+            FROM voters v
+            WHERE updated_last_name REGEXP ?
+              AND updated_first_name REGEXP ?
+            `,
+      `${lastNamePattern}`,
+      `${firstNamePattern}`
+    ) as Array<{ voter_id: string; voter_data: string }>;
+
+    if (voterRows.length === 0) {
+      return undefined;
+    }
+
+    // Map voter rows to voter objects
+    const voters: Record<string, Voter> = {};
+    for (const row of voterRows) {
+      voters[row.voter_id] = safeParseJson(
+        row.voter_data,
+        VoterSchema
+      ).unsafeUnwrap();
+    }
+
+    // Query the database for events related to the matched voters
+    const voterIds = voterRows.map((row) => row.voter_id);
+    const placeholders = voterIds.map(() => '?').join(', ');
+    const eventRows = this.client.all(
+      `
+            SELECT *
+            FROM event_log
+            WHERE voter_id IN (${placeholders})
+            ORDER BY physical_time, logical_counter, machine_id
+            `,
+      ...voterIds
+    ) as EventDbRow[];
+
+    // Convert event rows to pollbook events and apply them to the voters
+    const events = convertDbRowsToPollbookEvents(eventRows);
+    const updatedVoters = applyPollbookEventsToVoters(voters, events);
+    for (const voter of Object.values(updatedVoters)) {
+      // Get the current name (from nameChange if present, otherwise from voter)
+      const currentName = voter.nameChange ?? voter;
+      const suffixMatches = new RegExp(suffixPattern, 'i').test(
+        currentName.suffix ?? ''
+      );
+      const middleNameMatches = new RegExp(middleNamePattern, 'i').test(
+        currentName.middleName ?? ''
+      );
+      if (suffixMatches && middleNameMatches) {
+        return voter;
+      }
+    }
+    return undefined;
   }
 
   registerVoter(voterRegistration: VoterRegistrationRequest): {
