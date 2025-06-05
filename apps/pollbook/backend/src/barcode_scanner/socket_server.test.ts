@@ -2,7 +2,6 @@
 
 import { describe, test, beforeEach, afterEach, expect, vi } from 'vitest';
 import type { MockedFunction } from 'vitest';
-
 import * as net from 'node:net';
 import { mockLogger, LogSource, MockLogger } from '@votingworks/logging';
 import {
