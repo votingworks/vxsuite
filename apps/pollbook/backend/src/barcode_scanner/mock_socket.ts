@@ -20,6 +20,13 @@ export class MockSocket {
     return this;
   });
 
+  /**
+   * Binds an event handler for mock socket but does NOT implement 'once' behavior.
+   * ie. handlers bound by `once` behave exactly the same as handlers bound by `on`
+   * and are not cleared after being called.
+   * Current tests don't need that functionality but clearing handlers can be
+   * implemented if future tests require it.
+   */
   once = vi.fn((event: MockSocketEventName, cb: (arg?: unknown) => void) => {
     this.handlers[event] = cb;
     return this;
