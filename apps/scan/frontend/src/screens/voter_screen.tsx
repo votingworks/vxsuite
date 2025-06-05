@@ -1,7 +1,7 @@
 import { ElectionDefinition, SystemSettings } from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { useQueryChangeListener } from '@votingworks/ui';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getScannerStatus, readyForNextBallot } from '../api';
 import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from '../config/globals';
 import { InsertBallotScreen } from './insert_ballot_screen';
@@ -52,14 +52,17 @@ export function VoterScreen({
   const readyForNextBallotMutation = readyForNextBallot.useMutation();
   const [isShowingAcceptedScreen, setIsShowingAcceptedScreen] = useState(false);
   const acceptedScreenTimeoutRef = useRef<number>();
+  function clearTimeout() {
+    if (acceptedScreenTimeoutRef.current) {
+      window.clearTimeout(acceptedScreenTimeoutRef.current);
+    }
+  }
   useQueryChangeListener(scannerStatusQuery, {
     select: (status) => status.state,
     onChange: (newState) => {
       if (newState === 'accepted') {
         setIsShowingAcceptedScreen(true);
-        if (acceptedScreenTimeoutRef.current) {
-          window.clearTimeout(acceptedScreenTimeoutRef.current);
-        }
+        clearTimeout();
         acceptedScreenTimeoutRef.current = window.setTimeout(
           () => setIsShowingAcceptedScreen(false),
           DELAY_ACCEPTED_SCREEN_MS
@@ -68,6 +71,7 @@ export function VoterScreen({
       }
     },
   });
+  useEffect(() => clearTimeout, []); // Cleanup on unmount
 
   if (!scannerStatusQuery.isSuccess) {
     return null;
