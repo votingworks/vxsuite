@@ -7,6 +7,7 @@ import { powerDown } from './power_down';
 import { setClock } from './set_clock';
 import { getBatteryInfo } from './get_battery_info';
 import { getAudioInfo } from './get_audio_info';
+import { NODE_ENV } from '../scan_globals';
 
 function buildApi({
   usbDrive,
@@ -32,7 +33,7 @@ function buildApi({
     powerDown: async () => powerDown(logger),
     setClock,
     getBatteryInfo,
-    getAudioInfo: async () => getAudioInfo(logger),
+    getAudioInfo: async () => getAudioInfo({ logger, nodeEnv: NODE_ENV }),
   };
 }
 

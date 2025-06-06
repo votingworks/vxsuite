@@ -8,6 +8,53 @@ vi.mock(import('../exec.js'));
 
 const mockExecFile = vi.mocked(execFile);
 
+test('NODE_ENV=production - runs app script via sudo', async () => {
+  mockExecFile.mockResolvedValue({
+    stderr: '',
+    stdout: JSON.stringify([
+      {
+        name: 'alsa_output.pci-0000_00_01.0.analog-stereo',
+        active_port: 'analog-output-headphones',
+      },
+    ]),
+  });
+
+  await getAudioInfo({
+    logger: mockLogger({ fn: vi.fn }),
+    nodeEnv: 'production',
+  });
+
+  expect(mockExecFile).toHaveBeenCalledExactlyOnceWith('sudo', [
+    '/vx/code/app-scripts/pactl.sh',
+    '-fjson',
+    'list',
+    'sinks',
+  ]);
+});
+
+test('NODE_ENV=development - runs pactl directly', async () => {
+  mockExecFile.mockResolvedValue({
+    stderr: '',
+    stdout: JSON.stringify([
+      {
+        name: 'alsa_output.pci-0000_00_01.0.analog-stereo',
+        active_port: 'analog-output-headphones',
+      },
+    ]),
+  });
+
+  await getAudioInfo({
+    logger: mockLogger({ fn: vi.fn }),
+    nodeEnv: 'development',
+  });
+
+  expect(mockExecFile).toHaveBeenCalledExactlyOnceWith('pactl', [
+    '-fjson',
+    'list',
+    'sinks',
+  ]);
+});
+
 test('command successful - headphones active', async () => {
   mockExecFile.mockResolvedValue({
     stderr: '',
@@ -43,7 +90,8 @@ test('command successful - headphones active', async () => {
   });
 
   const logger = mockLogger({ fn: vi.fn });
-  expect(await getAudioInfo(logger)).toEqual<AudioInfo>({
+  const nodeEnv = 'production';
+  expect(await getAudioInfo({ logger, nodeEnv })).toEqual<AudioInfo>({
     builtin: {
       headphonesActive: true,
       name: 'alsa_output.pci-0000_00_01.0.analog-stereo',
@@ -109,7 +157,8 @@ test('command successful - speakers active', async () => {
   });
 
   const logger = mockLogger({ fn: vi.fn });
-  expect(await getAudioInfo(logger)).toEqual<AudioInfo>({
+  const nodeEnv = 'production';
+  expect(await getAudioInfo({ logger, nodeEnv })).toEqual<AudioInfo>({
     builtin: {
       headphonesActive: false,
       name: 'alsa_output.pci-0000_00_01.0.analog-stereo',
@@ -175,7 +224,8 @@ test('command successful - USB audio connected', async () => {
   });
 
   const logger = mockLogger({ fn: vi.fn });
-  expect(await getAudioInfo(logger)).toEqual<AudioInfo>({
+  const nodeEnv = 'production';
+  expect(await getAudioInfo({ logger, nodeEnv })).toEqual<AudioInfo>({
     builtin: {
       headphonesActive: false,
       name: 'alsa_output.pci-0000_00_01.0.analog-stereo',
@@ -192,7 +242,8 @@ test('execFile error', async () => {
   mockExecFile.mockRejectedValue('execFile failed');
 
   const logger = mockLogger({ fn: vi.fn });
-  expect(await getAudioInfo(logger)).toEqual<AudioInfo>({});
+  const nodeEnv = 'production';
+  expect(await getAudioInfo({ logger, nodeEnv })).toEqual<AudioInfo>({});
 
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
     LogEventId.HeadphonesDetectionError,
@@ -207,7 +258,8 @@ test('pactl error', async () => {
   mockExecFile.mockResolvedValue({ stderr: 'access denied', stdout: '' });
 
   const logger = mockLogger({ fn: vi.fn });
-  expect(await getAudioInfo(logger)).toEqual<AudioInfo>({});
+  const nodeEnv = 'production';
+  expect(await getAudioInfo({ logger, nodeEnv })).toEqual<AudioInfo>({});
 
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
     LogEventId.HeadphonesDetectionError,
@@ -222,7 +274,8 @@ test('pactl output parse error', async () => {
   mockExecFile.mockResolvedValue({ stderr: '', stdout: '[{"not":"valid"}]' });
 
   const logger = mockLogger({ fn: vi.fn });
-  expect(await getAudioInfo(logger)).toEqual<AudioInfo>({});
+  const nodeEnv = 'production';
+  expect(await getAudioInfo({ logger, nodeEnv })).toEqual<AudioInfo>({});
 
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
     LogEventId.HeadphonesDetectionError,
