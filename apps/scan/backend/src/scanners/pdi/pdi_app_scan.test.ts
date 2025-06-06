@@ -1,18 +1,18 @@
-import { beforeEach, expect, test, vi } from 'vitest';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
-import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { err, typedAs } from '@votingworks/basics';
+import { DEFAULT_FAMOUS_NAMES_PRECINCT_ID } from '@votingworks/bmd-ballot-fixtures';
+import { vxFamousNamesFixtures } from '@votingworks/hmpb';
+import { mockScannerStatus } from '@votingworks/pdi-scanner';
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
   DEFAULT_SYSTEM_SETTINGS,
   SheetInterpretation,
 } from '@votingworks/types';
-import { DEFAULT_FAMOUS_NAMES_PRECINCT_ID } from '@votingworks/bmd-ballot-fixtures';
-import { mockScannerStatus } from '@votingworks/pdi-scanner';
+import {
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
+} from '@votingworks/utils';
+import { beforeEach, expect, test, vi } from 'vitest';
 import {
   ballotImages,
   simulateScan,
@@ -51,8 +51,10 @@ test('configure and scan hmpb', async () => {
       clock,
     }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        electionPackage:
-          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(),
+        testMode: true,
+        electionPackage: {
+          electionDefinition: vxFamousNamesFixtures.electionDefinition,
+        },
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -175,13 +177,14 @@ test('ballot needs review - return', async () => {
       clock,
     }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        electionPackage:
-          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(
-            {
-              ...DEFAULT_SYSTEM_SETTINGS,
-              precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
-            }
-          ),
+        testMode: true,
+        electionPackage: {
+          electionDefinition: vxFamousNamesFixtures.electionDefinition,
+          systemSettings: {
+            ...DEFAULT_SYSTEM_SETTINGS,
+            precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
+          },
+        },
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -195,13 +198,13 @@ test('ballot needs review - return', async () => {
 
       const interpretation: SheetInterpretation = {
         type: 'NeedsReviewSheet',
-        reasons: [
+        reasons: expect.arrayContaining([
           expect.objectContaining(
             typedAs<Partial<AdjudicationReasonInfo>>({
               type: AdjudicationReason.Overvote,
             })
           ),
-        ],
+        ]),
       };
       await waitForStatus(apiClient, { state: 'needs_review', interpretation });
 
@@ -230,13 +233,14 @@ test('ballot needs review - accept', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        electionPackage:
-          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(
-            {
-              ...DEFAULT_SYSTEM_SETTINGS,
-              precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
-            }
-          ),
+        testMode: true,
+        electionPackage: {
+          electionDefinition: vxFamousNamesFixtures.electionDefinition,
+          systemSettings: {
+            ...DEFAULT_SYSTEM_SETTINGS,
+            precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
+          },
+        },
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -250,13 +254,13 @@ test('ballot needs review - accept', async () => {
 
       const interpretation: SheetInterpretation = {
         type: 'NeedsReviewSheet',
-        reasons: [
+        reasons: expect.arrayContaining([
           expect.objectContaining(
             typedAs<Partial<AdjudicationReasonInfo>>({
               type: AdjudicationReason.Overvote,
             })
           ),
-        ],
+        ]),
       };
       await waitForStatus(apiClient, { state: 'needs_review', interpretation });
 

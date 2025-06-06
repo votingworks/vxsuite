@@ -40,6 +40,7 @@
     "@types/node": "20.17.31",
     "@vitest/coverage-istanbul": "^2.1.8",
     "@votingworks/fixtures": "workspace:*",
+    "@votingworks/hmpb": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "express": "4.18.2",

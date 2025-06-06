@@ -16,10 +16,9 @@ use crate::{
     ballot_card::{BallotImage, Geometry, Orientation},
     debug::{self, draw_timing_mark_debug_image_mut, ImageDebugWriter},
     image_utils::{expand_image, WHITE},
-    interpret::{self, Error, Result},
+    interpret::{Error, Result},
     metadata::hmpb,
     scoring::UnitIntervalScore,
-    timing_mark_metadata::BallotPageTimingMarkMetadata,
 };
 
 mod fast;
@@ -281,7 +280,6 @@ impl Complete {
 #[derive(Debug, Serialize, Clone)]
 #[serde(tag = "source", rename_all = "kebab-case")]
 pub enum BallotPageMetadata {
-    TimingMarks(BallotPageTimingMarkMetadata),
     QrCode(hmpb::Metadata),
 }
 
@@ -561,48 +559,6 @@ fn score_timing_mark_geometry_match(
             padding_pixel_match_count as f32 / (search_area - timing_mark_area) as f32,
         ),
     }
-}
-
-/// Filters the bottom timing marks by using the candidate timing mark scores to
-/// determine whether timing marks are actually present.
-pub fn find_actual_bottom_marks(
-    complete_timing_marks: &Complete,
-) -> Vec<Option<CandidateTimingMark>> {
-    // allow marks at the exterior (i.e. corners) to be substantially cropped
-    const MIN_REQUIRED_EXTERIOR_MARK_SCORE: UnitIntervalScore = UnitIntervalScore(0.33);
-    const MIN_REQUIRED_EXTERIOR_PADDING_SCORE: UnitIntervalScore = UnitIntervalScore(0.5);
-
-    // interior marks could be cropped too, but less dramatically
-    const MIN_REQUIRED_INTERIOR_MARK_SCORE: UnitIntervalScore = UnitIntervalScore(0.7);
-    const MIN_REQUIRED_INTERIOR_PADDING_SCORE: UnitIntervalScore = UnitIntervalScore(0.7);
-
-    complete_timing_marks
-        .bottom_marks
-        .iter()
-        .enumerate()
-        .map(|(i, mark)| {
-            let (min_mark_score, min_padding_score) =
-                if i == 0 || i == complete_timing_marks.bottom_marks.len() - 1 {
-                    (
-                        MIN_REQUIRED_EXTERIOR_MARK_SCORE,
-                        MIN_REQUIRED_EXTERIOR_PADDING_SCORE,
-                    )
-                } else {
-                    (
-                        MIN_REQUIRED_INTERIOR_MARK_SCORE,
-                        MIN_REQUIRED_INTERIOR_PADDING_SCORE,
-                    )
-                };
-
-            if mark.scores().mark_score() >= min_mark_score
-                && mark.scores().padding_score() >= min_padding_score
-            {
-                Some(*mark)
-            } else {
-                None
-            }
-        })
-        .collect()
 }
 
 /// Returns the bounding rectangle of the given contour such that the rectangle
@@ -1706,17 +1662,6 @@ pub fn rect_could_be_timing_mark(geometry: &Geometry, rect: &Rect) -> bool {
         && rect.height() <= max_timing_mark_height
 }
 
-pub fn detect_orientation_from_grid(grid: &TimingMarkGrid) -> Orientation {
-    // For Accuvote-style ballots, assume that we will find most of
-    // the timing marks and that there will be more missing on the bottom than
-    // the top. If that's not the case, then we'll need to rotate the image.
-    if grid.partial_timing_marks.top_marks.len() >= grid.partial_timing_marks.bottom_marks.len() {
-        Orientation::Portrait
-    } else {
-        Orientation::PortraitReversed
-    }
-}
-
 /// Gets all the distances between adjacent marks in a list of marks.
 pub fn distances_between_marks(marks: &[CandidateTimingMark]) -> Vec<f32> {
     let mut distances = marks
@@ -1764,131 +1709,10 @@ pub fn normalize_orientation(
     (grid, normalized_image)
 }
 
-#[allow(clippy::result_large_err)]
-pub fn detect_metadata_and_normalize_orientation(
-    label: &str,
-    geometry: &Geometry,
-    grid: TimingMarkGrid,
-    ballot_image: &BallotImage,
-    debug: &mut ImageDebugWriter,
-) -> interpret::Result<(TimingMarkGrid, BallotImage, BallotPageTimingMarkMetadata)> {
-    let orientation = detect_orientation_from_grid(&grid);
-    let (normalized_grid, normalized_image) =
-        normalize_orientation(geometry, grid, &ballot_image.image, orientation, debug);
-    let normalized_ballot_image = BallotImage {
-        image: normalized_image,
-        threshold: ballot_image.threshold,
-        border_inset: ballot_image.border_inset,
-    };
-    let bottom_timing_marks = find_actual_bottom_marks(&normalized_grid.complete_timing_marks);
-
-    debug.write("bottom_timing_marks", |canvas| {
-        debug::draw_bottom_timing_mark_detection_debug_image_mut(
-            canvas,
-            &bottom_timing_marks,
-            &normalized_grid.complete_timing_marks.bottom_marks,
-        );
-    });
-
-    let metadata =
-        BallotPageTimingMarkMetadata::decode_from_timing_marks(geometry, &bottom_timing_marks)
-            .map_err(|error| Error::InvalidTimingMarkMetadata {
-                label: label.to_string(),
-                error,
-            })?;
-    Ok((normalized_grid, normalized_ballot_image, metadata))
-}
-
 #[cfg(test)]
 #[allow(clippy::unwrap_used, clippy::similar_names)]
 mod tests {
-    use std::path::{Path, PathBuf};
-
-    use image::GrayImage;
-
-    use crate::{
-        ballot_card::{BallotCard, PaperInfo},
-        debug::ImageDebugWriter,
-        interpret::{par_map_pair, prepare_ballot_card_images},
-    };
-
     use super::*;
-
-    /// Loads a ballot page image from disk as grayscale.
-    pub fn load_ballot_page_image(image_path: &Path) -> GrayImage {
-        image::open(image_path).unwrap().into_luma8()
-    }
-
-    /// Loads images for both sides of a ballot card and returns them.
-    pub fn load_ballot_card_images(
-        side_a_path: &Path,
-        side_b_path: &Path,
-    ) -> (GrayImage, GrayImage) {
-        par_map_pair(side_a_path, side_b_path, load_ballot_page_image)
-    }
-
-    #[test]
-    fn test_ignore_smudged_timing_mark() {
-        let fixture_path =
-            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures/nh-test-ballot");
-        let side_a_path = fixture_path.join("timing-mark-smudge-front.jpeg");
-        let side_b_path = fixture_path.join("timing-mark-smudge-back.jpeg");
-        let (side_a_image, side_b_image) = load_ballot_card_images(&side_a_path, &side_b_path);
-
-        let BallotCard {
-            side_a: _,
-            side_b,
-            geometry,
-        } = prepare_ballot_card_images(side_a_image, side_b_image, &PaperInfo::scanned()).unwrap();
-
-        let rects = find_timing_mark_shapes(&geometry, &side_b, &ImageDebugWriter::disabled());
-        let partial_timing_marks = find_partial_timing_marks_from_candidates(
-            &geometry,
-            &rects,
-            &ImageDebugWriter::disabled(),
-        )
-        .unwrap();
-
-        // we're working with letter sized paper, so the grid size should be 34x41
-        assert_eq!(
-            geometry.grid_size,
-            Size {
-                width: 34,
-                height: 41
-            }
-        );
-
-        // verify that the smudged timing mark is not detected. this isn't
-        // required if we someday find a way to correct it, but for now we're
-        // operating under the assumption that it's better to ignore the smudged
-        // mark and infer its real position from the other timing marks.
-        assert_eq!(partial_timing_marks.right_marks.len(), 40);
-
-        // also verify the other sides are detected correctly. notably, the
-        // bottom only has 20 because it's encoding metadata.
-        assert_eq!(partial_timing_marks.left_marks.len(), 41);
-        assert_eq!(partial_timing_marks.top_marks.len(), 34);
-        assert_eq!(partial_timing_marks.bottom_marks.len(), 20);
-
-        let complete_timing_marks = find_complete_from_partial(
-            &side_b,
-            &geometry,
-            &partial_timing_marks,
-            &FindCompleteTimingMarksFromPartialTimingMarksOptions {
-                allowed_timing_mark_inset_percentage_of_width: 0.1,
-                infer_timing_marks: true,
-                debug: &ImageDebugWriter::disabled(),
-            },
-        )
-        .unwrap();
-
-        // once we've inferred the missing timing marks, we should have the
-        // correct number of timing marks on each side.
-        assert_eq!(complete_timing_marks.top_marks.len(), 34);
-        assert_eq!(complete_timing_marks.bottom_marks.len(), 34);
-        assert_eq!(complete_timing_marks.left_marks.len(), 41);
-        assert_eq!(complete_timing_marks.right_marks.len(), 41);
-    }
 
     #[test]
     fn test_filter_size_outlier_rects() {

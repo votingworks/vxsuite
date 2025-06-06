@@ -1,10 +1,13 @@
-import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
+import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { err } from '@votingworks/basics';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   readElectionGeneralDefinition,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
+import { vxFamousNamesFixtures } from '@votingworks/hmpb';
+import { LogEventId } from '@votingworks/logging';
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
   BallotMetadata,
   BallotStyleId,
@@ -16,16 +19,14 @@ import {
   SheetOf,
   TEST_JURISDICTION,
 } from '@votingworks/types';
-import { v4 as uuid } from 'uuid';
-import { LogEventId } from '@votingworks/logging';
-import { suppressingConsoleOutput } from '@votingworks/test-utils';
-import { mockElectionPackageFileTree } from '@votingworks/backend';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { withApp } from '../test/helpers/setup_app';
+import { v4 as uuid } from 'uuid';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 import { mockElectionManagerAuth } from '../test/helpers/auth';
+import { withApp } from '../test/helpers/setup_app';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const electionGeneral = electionGeneralDefinition.election;
@@ -46,15 +47,11 @@ let backImagePath: string;
 let sheet: SheetOf<PageInterpretationWithFiles>;
 
 beforeAll(() => {
-  frontImagePath =
-    electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedFront.asFilePath();
-  backImagePath =
-    electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asFilePath();
+  frontImagePath = 'not a real path';
+  backImagePath = 'not a real path';
   sheet = (() => {
     const metadata: BallotMetadata = {
-      ballotHash:
-        electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
-          .ballotHash,
+      ballotHash: vxFamousNamesFixtures.electionDefinition.ballotHash,
       ballotType: BallotType.Precinct,
       ballotStyleId: '12' as BallotStyleId,
       precinctId: '23',

@@ -1,11 +1,10 @@
-import { beforeEach, expect, test, vi } from 'vitest';
 import { deferred, err, ok, Result } from '@votingworks/basics';
 import {
   ErrorCode,
   ImageFromScanner,
   mocks,
 } from '@votingworks/custom-scanner';
-import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
+import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
@@ -17,6 +16,7 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
+import { beforeEach, expect, test, vi } from 'vitest';
 import {
   ballotImages,
   simulateScan,
@@ -131,22 +131,23 @@ test('insert second ballot while first ballot is accepting', async () => {
 test('insert second ballot while first ballot needs review', async () => {
   const interpretation: SheetInterpretation = {
     type: 'NeedsReviewSheet',
-    reasons: [
+    reasons: expect.arrayContaining([
       expect.objectContaining<Partial<AdjudicationReasonInfo>>({
         type: AdjudicationReason.Overvote,
       }),
-    ],
+    ]),
   };
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        electionPackage:
-          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(
-            {
-              ...DEFAULT_SYSTEM_SETTINGS,
-              precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
-            }
-          ),
+        testMode: true,
+        electionPackage: {
+          electionDefinition: vxFamousNamesFixtures.electionDefinition,
+          systemSettings: {
+            ...DEFAULT_SYSTEM_SETTINGS,
+            precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
+          },
+        },
       });
 
       // set up deferred scan result

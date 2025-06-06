@@ -12,17 +12,8 @@ import { Optional, Result } from '@votingworks/basics';
  * IF YOU CHANGE ANYTHING HERE, YOU MUST ALSO CHANGE IT THERE.
  */
 
-/** Rust u8 mapped to TypeScript. */
-export type u8 = number;
-
-/** Rust u16 mapped to TypeScript. */
-export type u16 = number;
-
 /** Rust u32 mapped to TypeScript. */
 export type u32 = number;
-
-/** Rust usize mapped to TypeScript. */
-export type usize = number;
 
 /** Rust i32 mapped to TypeScript. */
 export type i32 = number;
@@ -155,83 +146,12 @@ export interface TimingMarkGrid {
 }
 
 /** Metadata from the ballot card. */
-export type BallotPageMetadata =
-  | BallotPageTimingMarkMetadata
-  | BallotPageQrCodeMetadata;
+export type BallotPageMetadata = BallotPageQrCodeMetadata;
 
 /** Metadata from a ballot card QR code. */
 export interface BallotPageQrCodeMetadata extends HmpbBallotPageMetadata {
   source: 'qr-code';
 }
-
-/** Metadata from the ballot card bottom timing marks. */
-export type BallotPageTimingMarkMetadata = (BallotConfig | ElectionInfo) & {
-  source: 'timing-marks';
-};
-
-/** Metadata encoded on the front side of a ballot card. */
-export interface BallotConfig {
-  side: 'front';
-
-  /** Batch or precinct number from bits 2-14 (13 bits). */
-  batchOrPrecinct: u16;
-
-  /** Card number (CardRotID) from bits 15-27 (13 bits). */
-  card: u16;
-
-  /** Sequence number (always 0) from bits 28-30 (3 bits). */
-  sequence: u8;
-}
-
-/** Metadata encoded on the front side of a ballot card. */
-export interface ElectionInfo {
-  side: 'back';
-
-  /** Election day of month (1..31) from bits 0-4 (5 bits). */
-  day: u8;
-
-  /** Election month (1..12) from bits 5-8 (4 bits). */
-  month: u8;
-
-  /** Election year (2 digits) from bits 9-15 (7 bits). */
-  year: u8;
-
-  /**
-   * Election type from bits 16-20 (5 bits).
-   *
-   * @example "G" for general election
-   */
-  typeCode: IndexedCapitalLetter;
-}
-
-/** Represents a single capital letter from A-Z. */
-export type IndexedCapitalLetter =
-  | 'A'
-  | 'B'
-  | 'C'
-  | 'D'
-  | 'E'
-  | 'F'
-  | 'G'
-  | 'H'
-  | 'I'
-  | 'J'
-  | 'K'
-  | 'L'
-  | 'M'
-  | 'N'
-  | 'O'
-  | 'P'
-  | 'Q'
-  | 'R'
-  | 'S'
-  | 'T'
-  | 'U'
-  | 'V'
-  | 'W'
-  | 'X'
-  | 'Y'
-  | 'Z';
 
 /** Represents partial timing marks found in a ballot card. */
 export interface PartialTimingMarks {
@@ -397,20 +317,9 @@ export type InterpretError =
   | { type: 'imageOpenFailure'; path: string }
   | { type: 'borderInsetNotFound'; path: string }
   | {
-      type: 'invalidCardMetadata';
-      side_a: BallotPageTimingMarkMetadata;
-      side_b: BallotPageTimingMarkMetadata;
-    }
-  | { type: 'invalidMetadata'; path: string; error: BallotPageMetadataError }
-  | {
       type: 'mismatchedBallotCardGeometries';
       side_a: BallotPagePathAndGeometry;
       side_b: BallotPagePathAndGeometry;
-    }
-  | {
-      type: 'missingGridLayout';
-      front: BallotPageTimingMarkMetadata;
-      back: BallotPageTimingMarkMetadata;
     }
   | { type: 'missingTimingMarks'; rects: Rect[]; reason: string }
   | { type: 'unexpectedDimensions'; path: string; dimensions: Size<PixelUnit> }
@@ -427,24 +336,3 @@ export interface BallotPagePathAndGeometry {
   path: string;
   geometry: Geometry;
 }
-
-/**
- * Possible metadata decode errors.
- */
-export type BallotPageMetadataError =
-  | {
-      type: 'valueOutOfRange';
-      field: string;
-      value: u32;
-      min: u32;
-      max: u32;
-      metadata: BallotPageTimingMarkMetadata;
-    }
-  | { type: 'invalidChecksum'; metadata: BallotConfig }
-  | { type: 'invalidEnderCode'; metadata: ElectionInfo }
-  | { type: 'invalidTimingMarkCount'; expected: usize; actual: usize }
-  | {
-      type: 'ambiguousMetadata';
-      front_metadata: BallotConfig;
-      back_metadata: ElectionInfo;
-    };

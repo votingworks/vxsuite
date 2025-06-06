@@ -3,7 +3,7 @@
   "ballotLayout": {
     "paperSize": "letter",
     "targetMarkPosition": "right",
-    "metadataEncoding": "timing-marks"
+    "metadataEncoding": "qr-code"
   },
   "ballotStrings": {},
   "ballotStyles": [

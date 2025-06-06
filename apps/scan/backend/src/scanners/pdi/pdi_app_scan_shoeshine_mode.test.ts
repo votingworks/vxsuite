@@ -1,13 +1,14 @@
-import { beforeEach, expect, test, vi } from 'vitest';
-import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
-import {
-  getFeatureFlagMock,
-  BooleanEnvironmentVariableName,
-} from '@votingworks/utils';
+import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import {
   DEFAULT_SYSTEM_SETTINGS,
+  ElectionPackage,
   SheetInterpretation,
 } from '@votingworks/types';
+import {
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
+} from '@votingworks/utils';
+import { beforeEach, expect, test, vi } from 'vitest';
 import {
   ballotImages,
   simulateScan,
@@ -34,18 +35,19 @@ beforeEach(() => {
   );
 });
 
-const electionPackage =
-  electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(
-    {
-      ...DEFAULT_SYSTEM_SETTINGS,
-      precinctScanEnableShoeshineMode: true,
-    }
-  );
+const electionPackage: ElectionPackage = {
+  electionDefinition: vxFamousNamesFixtures.electionDefinition,
+  systemSettings: {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    precinctScanEnableShoeshineMode: true,
+  },
+};
 
 test('shoeshine mode scans the same ballot repeatedly', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        testMode: true,
         electionPackage,
       });
 
@@ -97,6 +99,7 @@ test('handles error on eject for rescan', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        testMode: true,
         electionPackage,
       });
 

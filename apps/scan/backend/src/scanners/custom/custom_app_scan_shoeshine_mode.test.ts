@@ -1,24 +1,24 @@
-import { beforeEach, test, vi } from 'vitest';
 import { ok } from '@votingworks/basics';
 import { mocks } from '@votingworks/custom-scanner';
-import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
+import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   SheetInterpretation,
 } from '@votingworks/types';
 import {
-  getFeatureFlagMock,
   BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
 } from '@votingworks/utils';
-import {
-  configureApp,
-  waitForStatus,
-} from '../../../test/helpers/shared_helpers';
+import { beforeEach, test, vi } from 'vitest';
 import {
   ballotImages,
   simulateScan,
   withApp,
 } from '../../../test/helpers/custom_helpers';
+import {
+  configureApp,
+  waitForStatus,
+} from '../../../test/helpers/shared_helpers';
 import { delays } from './state_machine';
 
 vi.setConfig({ testTimeout: 20_000 });
@@ -42,13 +42,14 @@ test('shoeshine mode scans the same ballot repeatedly', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        electionPackage:
-          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(
-            {
-              ...DEFAULT_SYSTEM_SETTINGS,
-              precinctScanEnableShoeshineMode: true,
-            }
-          ),
+        testMode: true,
+        electionPackage: {
+          electionDefinition: vxFamousNamesFixtures.electionDefinition,
+          systemSettings: {
+            ...DEFAULT_SYSTEM_SETTINGS,
+            precinctScanEnableShoeshineMode: true,
+          },
+        },
       });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));

@@ -1,22 +1,22 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { typedAs } from '@votingworks/basics';
+import { vxFamousNamesFixtures } from '@votingworks/hmpb';
+import { LogEventId } from '@votingworks/logging';
+import { mockScannerStatus } from '@votingworks/pdi-scanner';
 import {
-  getFeatureFlagMock,
-  BooleanEnvironmentVariableName,
-} from '@votingworks/utils';
-import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
+  mockElectionManagerUser,
+  mockSessionExpiresAt,
+} from '@votingworks/test-utils';
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
   DEFAULT_SYSTEM_SETTINGS,
   SheetInterpretation,
 } from '@votingworks/types';
-import { typedAs } from '@votingworks/basics';
 import {
-  mockElectionManagerUser,
-  mockSessionExpiresAt,
-} from '@votingworks/test-utils';
-import { LogEventId } from '@votingworks/logging';
-import { mockScannerStatus } from '@votingworks/pdi-scanner';
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
+} from '@votingworks/utils';
+import { beforeEach, expect, test, vi } from 'vitest';
 import {
   ballotImages,
   simulateScan,
@@ -48,8 +48,10 @@ test('insert second ballot after scan', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        electionPackage:
-          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(),
+        testMode: true,
+        electionPackage: {
+          electionDefinition: vxFamousNamesFixtures.electionDefinition,
+        },
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -98,8 +100,10 @@ test('insert second ballot before accept', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        electionPackage:
-          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(),
+        testMode: true,
+        electionPackage: {
+          electionDefinition: vxFamousNamesFixtures.electionDefinition,
+        },
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -138,8 +142,10 @@ test('insert second ballot during accept', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        electionPackage:
-          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(),
+        testMode: true,
+        electionPackage: {
+          electionDefinition: vxFamousNamesFixtures.electionDefinition,
+        },
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -181,13 +187,14 @@ test('insert second ballot before accept after review', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        electionPackage:
-          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(
-            {
-              ...DEFAULT_SYSTEM_SETTINGS,
-              precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
-            }
-          ),
+        testMode: true,
+        electionPackage: {
+          electionDefinition: vxFamousNamesFixtures.electionDefinition,
+          systemSettings: {
+            ...DEFAULT_SYSTEM_SETTINGS,
+            precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
+          },
+        },
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -201,13 +208,13 @@ test('insert second ballot before accept after review', async () => {
 
       const interpretation: SheetInterpretation = {
         type: 'NeedsReviewSheet',
-        reasons: [
+        reasons: expect.arrayContaining([
           expect.objectContaining(
             typedAs<Partial<AdjudicationReasonInfo>>({
               type: AdjudicationReason.Overvote,
             })
           ),
-        ],
+        ]),
       };
       await waitForStatus(apiClient, { state: 'needs_review', interpretation });
 
@@ -234,8 +241,10 @@ test('insert second ballot after accept, should be scanned', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        electionPackage:
-          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(),
+        testMode: true,
+        electionPackage: {
+          electionDefinition: vxFamousNamesFixtures.electionDefinition,
+        },
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
