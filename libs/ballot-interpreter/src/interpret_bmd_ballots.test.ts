@@ -23,6 +23,7 @@ import {
   PageInterpretation,
   PrecinctId,
   SheetOf,
+  UnreadablePage,
   VotesDict,
   asSheet,
   getBallotStyle,
@@ -382,7 +383,7 @@ describe('VX BMD interpretation', () => {
       {
         electionDefinition,
         precinctSelection: ALL_PRECINCTS_SELECTION,
-        testMode: false, // this is the test mode
+        testMode: false,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
       },
@@ -453,6 +454,59 @@ describe('VX BMD interpretation', () => {
       expectedBallotHash: 'd34db33f',
     });
   });
+
+  test.each([
+    {
+      description: 'when ballot is valid',
+      interpreterOptionOverrides: {},
+    },
+    {
+      description: 'when mode is mismatched',
+      interpreterOptionOverrides: {
+        testMode: false,
+      },
+    },
+    {
+      description: 'when precinct is wrong',
+      interpreterOptionOverrides: {
+        precinctSelection: singlePrecinctSelectionFor('20'),
+      },
+    },
+    {
+      description: 'when ballot hash is wrong',
+      interpreterOptionOverrides: {
+        electionDefinition: {
+          ...electionGeneralDefinition,
+          ballotHash: 'd34db33f',
+        },
+      },
+    },
+  ])(
+    'properly flags that BMD ballot scanning is disabled - $description',
+    async ({ interpreterOptionOverrides }) => {
+      const interpretationResult = await interpretSheet(
+        {
+          electionDefinition,
+          testMode: true,
+          precinctSelection: singlePrecinctSelectionFor(precinctId),
+          markThresholds: DEFAULT_MARK_THRESHOLDS,
+          adjudicationReasons: [],
+          disableBmdBallotScanning: true,
+          ...interpreterOptionOverrides,
+        },
+        validBmdSheet
+      );
+
+      expect(interpretationResult[0].interpretation).toEqual<UnreadablePage>({
+        type: 'UnreadablePage',
+        reason: 'bmdBallotScanningDisabled',
+      });
+      expect(interpretationResult[1].interpretation).toEqual<UnreadablePage>({
+        type: 'UnreadablePage',
+        reason: 'bmdBallotScanningDisabled',
+      });
+    }
+  );
 
   test('properly identifies blank sheets', async () => {
     const interpretationResult = await interpretSheet(
