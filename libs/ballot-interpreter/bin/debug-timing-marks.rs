@@ -170,13 +170,16 @@ fn main() -> color_eyre::Result<()> {
     let mut output = options.open_output()?;
     let expected_failure_manifest = options.expected_failure_manifest()?;
 
-    let mut success_count = 0;
+    let mut expected_success_count = 0;
+    let mut unexpected_success_count = 0;
     let mut expected_failure_count = 0;
     let mut load_image_duration = Duration::ZERO;
     let mut prepare_image_duration = Duration::ZERO;
     let mut find_timing_marks_duration = Duration::ZERO;
 
     for path in &options.scanned_page_paths {
+        let expected_failure = expected_failure_manifest.contains(&path.canonicalize()?);
+
         match process_path(
             path,
             &options,
@@ -185,16 +188,26 @@ fn main() -> color_eyre::Result<()> {
             &mut find_timing_marks_duration,
         ) {
             Ok(_) => {
-                success_count += 1;
-                let _ = writeln!(
-                    &mut output,
-                    "{}: {path}",
-                    "OK".bold(),
-                    path = path.display()
-                );
+                if expected_failure {
+                    unexpected_success_count += 1;
+                    let _ = writeln!(
+                        &mut output,
+                        "{}: {path} (not expected)",
+                        "OK".bold(),
+                        path = path.display().red()
+                    );
+                } else {
+                    expected_success_count += 1;
+                    let _ = writeln!(
+                        &mut output,
+                        "{}: {path}",
+                        "OK".bold(),
+                        path = path.display()
+                    );
+                }
             }
             Err(e) => {
-                if expected_failure_manifest.contains(path) {
+                if expected_failure {
                     expected_failure_count += 1;
                     let _ = writeln!(
                         &mut output,
@@ -230,13 +243,15 @@ fn main() -> color_eyre::Result<()> {
     );
     println!();
     println!(
-        "Unexpected failures: {}, expected failures: {}, success: {}",
-        (file_count - expected_failure_count - success_count).red(),
+        "Unexpected failures: {}, expected failures: {}, unexpected successes: {}, successes: {}",
+        (file_count - expected_failure_count - expected_success_count - unexpected_success_count)
+            .red(),
         expected_failure_count.yellow(),
-        success_count.green()
+        unexpected_success_count.yellow(),
+        expected_success_count.green()
     );
 
     process::exit(i32::from(
-        success_count + expected_failure_count != file_count,
+        expected_success_count + unexpected_success_count + expected_failure_count != file_count,
     ))
 }
