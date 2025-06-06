@@ -389,6 +389,12 @@ pub struct Size<T> {
     pub height: T,
 }
 
+impl From<(u32, u32)> for Size<u32> {
+    fn from((width, height): (u32, u32)) -> Self {
+        Self { width, height }
+    }
+}
+
 /// A line segment from `start` to `end`.
 #[must_use]
 #[derive(Debug, Clone, PartialEq)]

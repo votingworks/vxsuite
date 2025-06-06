@@ -1,6 +1,6 @@
 use std::{path::PathBuf, process, time::Instant};
 
-use ballot_interpreter::interpret::ScanInterpreter;
+use ballot_interpreter::interpret::{ScanInterpreter, TimingMarkAlgorithm};
 use clap::Parser;
 use types_rs::election::Election;
 
@@ -15,6 +15,10 @@ struct Options {
     /// Path to an image of side B of the scanned ballot.
     side_b_path: PathBuf,
 
+    /// Output debug images.
+    #[clap(long, default_value = "false")]
+    debug: bool,
+
     /// Determines whether to score write ins.
     #[clap(long, default_value = "false")]
     score_write_ins: bool,
@@ -26,6 +30,10 @@ struct Options {
     /// Determines whether to disable timing mark inference.
     #[clap(long, default_value = "false")]
     disable_timing_mark_inference: bool,
+
+    /// Which timing mark finding algorithm to use.
+    #[clap(long, short = 'a', default_value_t = Default::default())]
+    timing_mark_algorithm: TimingMarkAlgorithm,
 }
 
 impl Options {
@@ -52,17 +60,18 @@ fn main() -> color_eyre::Result<()> {
         options.score_write_ins,
         options.disable_vertical_streak_detection,
         !options.disable_timing_mark_inference,
+        options.timing_mark_algorithm,
     )?;
 
     let start = Instant::now();
     let result = interpreter.interpret(
         options.load_side_a_image()?.into_luma8(),
         options.load_side_b_image()?.into_luma8(),
-        None,
-        None,
+        options.debug.then(|| options.side_a_path),
+        options.debug.then(|| options.side_b_path),
     );
     let duration = start.elapsed();
-    let exit_code = i32::from(!result.is_ok());
+    let exit_code = i32::from(result.is_err());
 
     match result {
         Ok(interpretation) => {

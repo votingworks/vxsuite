@@ -5,8 +5,8 @@
 
 use neon::prelude::*;
 
-mod ballot_card;
-mod debug;
+pub mod ballot_card;
+pub mod debug;
 mod diagnostic;
 mod image_utils;
 pub mod interpret;
@@ -15,7 +15,7 @@ mod layout;
 pub mod metadata;
 mod qr_code;
 mod scoring;
-mod timing_marks;
+pub mod timing_marks;
 
 /// Entry point for the Neon module. Exports values to JavaScript.
 #[neon::main]
