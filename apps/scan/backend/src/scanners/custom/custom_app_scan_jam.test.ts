@@ -1,25 +1,25 @@
-import { beforeEach, test, vi } from 'vitest';
+import { ok } from '@votingworks/basics';
+import { mocks } from '@votingworks/custom-scanner';
+import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import {
   AdjudicationReason,
   DEFAULT_SYSTEM_SETTINGS,
   SheetInterpretation,
 } from '@votingworks/types';
-import { ok } from '@votingworks/basics';
-import { mocks } from '@votingworks/custom-scanner';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
-import {
-  configureApp,
-  waitForStatus,
-} from '../../../test/helpers/shared_helpers';
+import { beforeEach, test, vi } from 'vitest';
 import {
   ballotImages,
   simulateScan,
   withApp,
 } from '../../../test/helpers/custom_helpers';
+import {
+  configureApp,
+  waitForStatus,
+} from '../../../test/helpers/shared_helpers';
 import { delays } from './state_machine';
 
 vi.setConfig({ testTimeout: 20_000 });
@@ -113,13 +113,14 @@ test('jam on return', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        electionPackage:
-          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(
-            {
-              ...DEFAULT_SYSTEM_SETTINGS,
-              precinctScanAdjudicationReasons: [AdjudicationReason.BlankBallot],
-            }
-          ),
+        testMode: true,
+        electionPackage: {
+          electionDefinition: vxFamousNamesFixtures.electionDefinition,
+          systemSettings: {
+            ...DEFAULT_SYSTEM_SETTINGS,
+            precinctScanAdjudicationReasons: [AdjudicationReason.BlankBallot],
+          },
+        },
       });
 
       simulateScan(mockScanner, await ballotImages.unmarkedHmpb(), clock);

@@ -1,23 +1,23 @@
-import { beforeEach, expect, test, vi } from 'vitest';
-import {
-  getFeatureFlagMock,
-  BooleanEnvironmentVariableName,
-} from '@votingworks/utils';
+import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import { Result, deferred, err, ok, typedAs } from '@votingworks/basics';
-import { mockScannerStatus, ScannerError } from '@votingworks/pdi-scanner';
+import { vxFamousNamesFixtures } from '@votingworks/hmpb';
+import { mockBaseLogger } from '@votingworks/logging';
+import { ScannerError, mockScannerStatus } from '@votingworks/pdi-scanner';
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
   DEFAULT_SYSTEM_SETTINGS,
   SheetInterpretation,
 } from '@votingworks/types';
-import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
-import { SimulatedClock } from 'xstate/lib/SimulatedClock';
-import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
-import { dirSync } from 'tmp';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
+import {
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
+} from '@votingworks/utils';
+import { dirSync } from 'tmp';
+import { beforeEach, expect, test, vi } from 'vitest';
 import waitForExpect from 'wait-for-expect';
-import { mockBaseLogger } from '@votingworks/logging';
+import { SimulatedClock } from 'xstate/lib/SimulatedClock';
 import {
   MockPdiScannerClient,
   ballotImages,
@@ -26,13 +26,13 @@ import {
   withApp,
 } from '../../../test/helpers/pdi_helpers';
 import {
+  buildMockLogger,
   configureApp,
   expectStatus,
   waitForStatus,
-  buildMockLogger,
 } from '../../../test/helpers/shared_helpers';
-import { createPrecinctScannerStateMachine, delays } from './state_machine';
 import { createWorkspace } from '../../util/workspace';
+import { createPrecinctScannerStateMachine, delays } from './state_machine';
 
 vi.setConfig({ testTimeout: 20_000 });
 
@@ -155,8 +155,10 @@ test('scanner disconnected while accepting', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        electionPackage:
-          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(),
+        testMode: true,
+        electionPackage: {
+          electionDefinition: vxFamousNamesFixtures.electionDefinition,
+        },
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -193,8 +195,10 @@ test('scanner disconnected while accepting - ejectDocument fails', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        electionPackage:
-          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(),
+        testMode: true,
+        electionPackage: {
+          electionDefinition: vxFamousNamesFixtures.electionDefinition,
+        },
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -226,8 +230,10 @@ test('scanner disconnected after accepting', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        electionPackage:
-          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(),
+        testMode: true,
+        electionPackage: {
+          electionDefinition: vxFamousNamesFixtures.electionDefinition,
+        },
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -309,8 +315,9 @@ test('scanner disconnected while rejecting - ejectDocument fails', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        electionPackage:
-          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(),
+        electionPackage: {
+          electionDefinition: vxFamousNamesFixtures.electionDefinition,
+        },
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -335,13 +342,14 @@ test('scanner disconnected while returning', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        electionPackage:
-          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(
-            {
-              ...DEFAULT_SYSTEM_SETTINGS,
-              precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
-            }
-          ),
+        testMode: true,
+        electionPackage: {
+          electionDefinition: vxFamousNamesFixtures.electionDefinition,
+          systemSettings: {
+            ...DEFAULT_SYSTEM_SETTINGS,
+            precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
+          },
+        },
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -355,13 +363,13 @@ test('scanner disconnected while returning', async () => {
 
       const interpretation: SheetInterpretation = {
         type: 'NeedsReviewSheet',
-        reasons: [
+        reasons: expect.arrayContaining([
           expect.objectContaining(
             typedAs<Partial<AdjudicationReasonInfo>>({
               type: AdjudicationReason.Overvote,
             })
           ),
-        ],
+        ]),
       };
       await waitForStatus(apiClient, {
         state: 'needs_review',

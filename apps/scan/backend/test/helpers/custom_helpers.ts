@@ -1,10 +1,14 @@
-import { Mocked, vi } from 'vitest';
-import { Buffer } from 'node:buffer';
 import {
   InsertedSmartCardAuthApi,
   buildMockInsertedSmartCardAuth,
 } from '@votingworks/auth';
 import { Result, assert, deferred, ok } from '@votingworks/basics';
+import {
+  DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
+  DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
+  DEFAULT_FAMOUS_NAMES_VOTES,
+  renderBmdBallotFixture,
+} from '@votingworks/bmd-ballot-fixtures';
 import {
   CustomScanner,
   ErrorCode,
@@ -16,47 +20,49 @@ import {
 } from '@votingworks/custom-scanner';
 import {
   electionFamousNames2021Fixtures,
-  electionGridLayoutNewHampshireTestBallotFixtures,
   readElectionGeneralDefinition,
   sampleBallotImages,
 } from '@votingworks/fixtures';
+import {
+  MemoryFujitsuPrinterHandler,
+  createMockFujitsuPrinterHandler,
+} from '@votingworks/fujitsu-thermal-printer';
 import * as grout from '@votingworks/grout';
+import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import {
   ImageData,
   RGBA_CHANNEL_COUNT,
   isRgba,
 } from '@votingworks/image-utils';
 import { Logger, mockBaseLogger } from '@votingworks/logging';
-import { SheetOf, mapSheet } from '@votingworks/types';
-import { Application } from 'express';
-import { Server } from 'node:http';
-import { AddressInfo } from 'node:net';
-import tmp from 'tmp';
-import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
 import {
   MemoryPrinterHandler,
   createMockPrinterHandler,
 } from '@votingworks/printing';
-import {
-  MemoryFujitsuPrinterHandler,
-  createMockFujitsuPrinterHandler,
-} from '@votingworks/fujitsu-thermal-printer';
+import { SheetOf, mapSheet } from '@votingworks/types';
+import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
+import { Application } from 'express';
+import { Buffer } from 'node:buffer';
+import { readFile } from 'node:fs/promises';
+import { Server } from 'node:http';
+import { AddressInfo } from 'node:net';
+import tmp from 'tmp';
+import { Mocked, vi } from 'vitest';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock';
-import {
-  DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
-  DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
-  DEFAULT_FAMOUS_NAMES_VOTES,
-  renderBmdBallotFixture,
-} from '@votingworks/bmd-ballot-fixtures';
 import { Api, buildApp } from '../../src/app';
+import {
+  wrapFujitsuThermalPrinter,
+  wrapLegacyPrinter,
+} from '../../src/printing/printer';
 import {
   createPrecinctScannerStateMachine,
   delays,
 } from '../../src/scanners/custom/state_machine';
+import { Store } from '../../src/store';
 import { Workspace, createWorkspace } from '../../src/util/workspace';
 import {
   buildMockLogger,
@@ -209,10 +215,11 @@ function customSheetOfImagesFromScannerFromBallotImageData(
 
 export const ballotImages = {
   completeHmpb: async () =>
-    customSheetOfImagesFromScannerFromBallotImageData([
-      await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedFront.asImageData(),
-      await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asImageData(),
-    ]),
+    customSheetOfImagesFromScannerFromBallotImageData(
+      await pdfToImageSheet(
+        await readFile(vxFamousNamesFixtures.blankBallotPath)
+      )
+    ),
   completeBmd: async () =>
     customSheetOfImagesFromScannerFromBallotImageData(
       await pdfToImageSheet(
@@ -226,15 +233,17 @@ export const ballotImages = {
       )
     ),
   overvoteHmpb: async () =>
-    customSheetOfImagesFromScannerFromBallotImageData([
-      await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedOvervoteFront.asImageData(),
-      await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedOvervoteBack.asImageData(),
-    ]),
+    customSheetOfImagesFromScannerFromBallotImageData(
+      await pdfToImageSheet(
+        await readFile(vxFamousNamesFixtures.markedBallotPath)
+      )
+    ),
   unmarkedHmpb: async () =>
-    customSheetOfImagesFromScannerFromBallotImageData([
-      await electionGridLayoutNewHampshireTestBallotFixtures.scanUnmarkedFront.asImageData(),
-      await electionGridLayoutNewHampshireTestBallotFixtures.scanUnmarkedBack.asImageData(),
-    ]),
+    customSheetOfImagesFromScannerFromBallotImageData(
+      await pdfToImageSheet(
+        await readFile(vxFamousNamesFixtures.blankBallotPath)
+      )
+    ),
   wrongElection: async () =>
     customSheetOfImagesFromScannerFromBallotImageData(
       await pdfToImageSheet(

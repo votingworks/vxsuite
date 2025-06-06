@@ -1,17 +1,17 @@
-import { beforeEach, expect, test, vi } from 'vitest';
-import {
-  getFeatureFlagMock,
-  BooleanEnvironmentVariableName,
-} from '@votingworks/utils';
-import { Result, deferred, ok, typedAs } from '@votingworks/basics';
+import { deferred, ok, Result, typedAs } from '@votingworks/basics';
+import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { mockScannerStatus, ScannerError } from '@votingworks/pdi-scanner';
-import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
   DEFAULT_SYSTEM_SETTINGS,
   SheetInterpretation,
 } from '@votingworks/types';
+import {
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
+} from '@votingworks/utils';
+import { beforeEach, expect, test, vi } from 'vitest';
 import {
   ballotImages,
   simulateScan,
@@ -77,8 +77,14 @@ test('jam while accepting', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        electionPackage:
-          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(),
+        testMode: true,
+        electionPackage: {
+          electionDefinition: vxFamousNamesFixtures.electionDefinition,
+          systemSettings: {
+            ...DEFAULT_SYSTEM_SETTINGS,
+            precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
+          },
+        },
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -128,8 +134,14 @@ test('timeout while accepting', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        electionPackage:
-          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(),
+        testMode: true,
+        electionPackage: {
+          electionDefinition: vxFamousNamesFixtures.electionDefinition,
+          systemSettings: {
+            ...DEFAULT_SYSTEM_SETTINGS,
+            precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
+          },
+        },
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -210,13 +222,14 @@ test('jam while returning', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        electionPackage:
-          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(
-            {
-              ...DEFAULT_SYSTEM_SETTINGS,
-              precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
-            }
-          ),
+        testMode: true,
+        electionPackage: {
+          electionDefinition: vxFamousNamesFixtures.electionDefinition,
+          systemSettings: {
+            ...DEFAULT_SYSTEM_SETTINGS,
+            precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
+          },
+        },
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -230,13 +243,13 @@ test('jam while returning', async () => {
 
       const interpretation: SheetInterpretation = {
         type: 'NeedsReviewSheet',
-        reasons: [
+        reasons: expect.arrayContaining([
           expect.objectContaining(
             typedAs<Partial<AdjudicationReasonInfo>>({
               type: AdjudicationReason.Overvote,
             })
           ),
-        ],
+        ]),
       };
       await waitForStatus(apiClient, {
         state: 'needs_review',

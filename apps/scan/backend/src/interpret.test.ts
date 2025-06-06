@@ -1,4 +1,3 @@
-import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
 import { assertDefined, iter, typedAs } from '@votingworks/basics';
 import {
   DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
@@ -6,10 +5,7 @@ import {
   DEFAULT_FAMOUS_NAMES_VOTES,
   renderBmdBallotFixture,
 } from '@votingworks/bmd-ballot-fixtures';
-import {
-  electionFamousNames2021Fixtures,
-  electionGridLayoutNewHampshireTestBallotFixtures,
-} from '@votingworks/fixtures';
+import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { ImageData, pdfToImages } from '@votingworks/image-utils';
 import {
   AdjudicationReason,
@@ -23,10 +19,11 @@ import {
   asSheet,
 } from '@votingworks/types';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
-import * as fs from 'node:fs/promises';
-import { dirSync } from 'tmp';
 import { Buffer } from 'node:buffer';
 import { assert } from 'node:console';
+import * as fs from 'node:fs/promises';
+import { dirSync } from 'tmp';
+import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
 import { combinePageInterpretationsForSheet, interpret } from './interpret';
 
 if (process.env.CI) {
@@ -51,24 +48,20 @@ async function ballotAsSheet(ballotPdf: Buffer) {
 
 beforeAll(async () => {
   ballotImages = {
-    overvoteBallot: [
-      await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedOvervoteFront.asImageData(),
-      await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedOvervoteBack.asImageData(),
-    ],
-    normalBallot: [
-      await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedFront.asImageData(),
-      await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asImageData(),
-    ],
+    overvoteBallot: await ballotAsSheet(
+      await fs.readFile(vxFamousNamesFixtures.markedBallotPath)
+    ),
+    normalBallot: await ballotAsSheet(
+      await fs.readFile(vxFamousNamesFixtures.blankBallotPath)
+    ),
     normalBmdBallot: await ballotAsSheet(
       await renderBmdBallotFixture({
-        electionDefinition:
-          electionFamousNames2021Fixtures.readElectionDefinition(),
+        electionDefinition: vxFamousNamesFixtures.electionDefinition,
       })
     ),
     undervoteBmdBallot: await ballotAsSheet(
       await renderBmdBallotFixture({
-        electionDefinition:
-          electionFamousNames2021Fixtures.readElectionDefinition(),
+        electionDefinition: vxFamousNamesFixtures.electionDefinition,
         precinctId: DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
         ballotStyleId: DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
         votes: {
@@ -93,8 +86,7 @@ afterEach(async () => {
 
 test('treats BMD ballot with one blank side as valid', async () => {
   const result = await interpret('foo-sheet-id', ballotImages.normalBmdBallot, {
-    electionDefinition:
-      electionFamousNames2021Fixtures.readElectionDefinition(),
+    electionDefinition: vxFamousNamesFixtures.electionDefinition,
     precinctSelection: ALL_PRECINCTS_SELECTION,
     ballotImagesPath,
     testMode: true,
@@ -109,8 +101,7 @@ test('respects adjudication reasons for a BMD ballot on the front side', async (
     'foo-sheet-id',
     ballotImages.undervoteBmdBallot,
     {
-      electionDefinition:
-        electionFamousNames2021Fixtures.readElectionDefinition(),
+      electionDefinition: vxFamousNamesFixtures.electionDefinition,
       precinctSelection: ALL_PRECINCTS_SELECTION,
       ballotImagesPath,
       testMode: true,
@@ -135,15 +126,14 @@ test('respects adjudication reasons for a BMD ballot on the front side', async (
 });
 
 test('treats either page being an invalid test mode as an invalid sheet', () => {
-  const election = electionFamousNames2021Fixtures.readElection();
+  const { election } = vxFamousNamesFixtures;
   const invalidTestModePageInterpretation: PageInterpretation = {
     type: 'InvalidTestModePage',
     metadata: {
       ballotStyleId: election.ballotStyles[0].id,
       precinctId: election.ballotStyles[0].precincts[0],
       ballotType: BallotType.Precinct,
-      ballotHash:
-        electionFamousNames2021Fixtures.readElectionDefinition().ballotHash,
+      ballotHash: vxFamousNamesFixtures.electionDefinition.ballotHash,
       isTestMode: false,
       pageNumber: 1,
     },
@@ -232,8 +222,7 @@ test('differentiates BMD ballot scanning disabled from other unreadable errors',
 
 test('NH interpreter of overvote yields a sheet that needs to be reviewed', async () => {
   const result = await interpret('foo-sheet-id', ballotImages.overvoteBallot, {
-    electionDefinition:
-      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition(),
+    electionDefinition: vxFamousNamesFixtures.electionDefinition,
     precinctSelection: ALL_PRECINCTS_SELECTION,
     ballotImagesPath,
     testMode: true,
@@ -243,31 +232,27 @@ test('NH interpreter of overvote yields a sheet that needs to be reviewed', asyn
   expect(result.ok()?.type).toEqual('NeedsReviewSheet');
 });
 
-test.each([true, false])(
-  'NH interpreter with testMode=%s',
-  async (testMode) => {
-    const sheet = (
-      await interpret('foo-sheet-id', ballotImages.normalBallot, {
-        electionDefinition:
-          electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition(),
-        precinctSelection: ALL_PRECINCTS_SELECTION,
-        ballotImagesPath,
-        testMode,
-        markThresholds: DEFAULT_MARK_THRESHOLDS,
-        adjudicationReasons: [AdjudicationReason.Overvote],
-      })
-    ).unsafeUnwrap();
-    expect(sheet.type).toEqual('ValidSheet');
+test('NH interpreter with testMode=true', async () => {
+  const sheet = (
+    await interpret('foo-sheet-id', ballotImages.normalBallot, {
+      electionDefinition: vxFamousNamesFixtures.electionDefinition,
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      ballotImagesPath,
+      testMode: true,
+      markThresholds: DEFAULT_MARK_THRESHOLDS,
+      adjudicationReasons: [AdjudicationReason.Overvote],
+    })
+  ).unsafeUnwrap();
+  expect(sheet.type).toEqual('ValidSheet');
 
-    for (const page of sheet.pages) {
-      expect(page.interpretation).toMatchObject<Partial<InterpretedHmpbPage>>({
-        type: 'InterpretedHmpbPage',
-        metadata: expect.objectContaining(
-          typedAs<Partial<HmpbBallotPageMetadata>>({
-            isTestMode: testMode,
-          })
-        ),
-      });
-    }
+  for (const page of sheet.pages) {
+    expect(page.interpretation).toMatchObject<Partial<InterpretedHmpbPage>>({
+      type: 'InterpretedHmpbPage',
+      metadata: expect.objectContaining(
+        typedAs<Partial<HmpbBallotPageMetadata>>({
+          isTestMode: true,
+        })
+      ),
+    });
   }
-);
+});

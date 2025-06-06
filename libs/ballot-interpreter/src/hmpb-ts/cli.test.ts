@@ -1,15 +1,21 @@
-import { expect, test } from 'vitest';
-import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
-import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
-import { dirSync, fileSync } from 'tmp';
-import { mkdir, writeFile } from 'node:fs/promises';
 import { integers, iter } from '@votingworks/basics';
-import { randomUUID } from 'node:crypto';
-import { join } from 'node:path';
+import { vxFamousNamesFixtures } from '@votingworks/hmpb';
+import { writeImageData } from '@votingworks/image-utils';
 import { mockWritable } from '@votingworks/test-utils';
+import { asSheet, DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
+import { randomUUID } from 'node:crypto';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { dirSync, fileSync } from 'tmp';
+import { expect, test } from 'vitest';
+import { pdfToPageImages } from '../../test/helpers/interpretation';
 import { main } from './cli';
 
 test('interpret CVRs', async () => {
+  const ballotImages = asSheet(
+    await pdfToPageImages(vxFamousNamesFixtures.blankBallotPath).toArray()
+  );
+
   const rootDir = dirSync().name;
   const ids = integers()
     .take(3)
@@ -20,18 +26,15 @@ test('interpret CVRs', async () => {
   for (const [id, cvrDir] of iter(ids).zip(cvrDirs)) {
     await mkdir(cvrDir, { recursive: true });
     await writeFile(join(cvrDir, `${id}.json`), JSON.stringify({}));
-    await writeFile(
-      join(cvrDir, `${id}-front.jpeg`),
-      electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedFront.asBuffer()
-    );
-    await writeFile(
-      join(cvrDir, `${id}-back.jpeg`),
-      electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asBuffer()
-    );
+    await writeImageData(join(cvrDir, `${id}-front.jpeg`), ballotImages[0]);
+    await writeImageData(join(cvrDir, `${id}-back.jpeg`), ballotImages[1]);
   }
 
-  const electionFilePath =
-    electionGridLayoutNewHampshireTestBallotFixtures.electionJson.asFilePath();
+  const electionFilePath = fileSync().name;
+  await writeFile(
+    electionFilePath,
+    vxFamousNamesFixtures.electionDefinition.electionData
+  );
   const systemSettingsPath = fileSync().name;
   await writeFile(systemSettingsPath, JSON.stringify(DEFAULT_SYSTEM_SETTINGS));
 
@@ -48,7 +51,7 @@ test('interpret CVRs', async () => {
     stderr: stderr.toString(),
   }).toEqual({
     exitCode: 0,
-    stdout: expect.stringContaining('Governor'),
+    stdout: expect.stringContaining('Sherlock'),
     stderr: '',
   });
 });

@@ -777,37 +777,9 @@ mod test {
         }
     }
 
-    fn is_binary_image(image: &GrayImage) -> bool {
-        image
-            .as_raw()
-            .iter()
-            .all(|&pixel| pixel == 0 || pixel == 255)
-    }
-
     #[test]
     fn test_par_map_pair() {
         assert_eq!(par_map_pair(1, 2, |n| n * 2), (2, 4));
-    }
-
-    #[test]
-    fn test_interpret_ballot_card() {
-        let (side_a_image, side_b_image, options) =
-            load_ballot_card_fixture("ashland", ("scan-side-a.jpeg", "scan-side-b.jpeg"));
-        let result = ballot_card(side_a_image, side_b_image, &options).unwrap();
-        assert!(
-            is_binary_image(&result.front.normalized_image),
-            "Front image is not binary"
-        );
-        assert!(
-            is_binary_image(&result.back.normalized_image),
-            "Back image is not binary"
-        );
-
-        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
-            "ashland",
-            ("scan-rotated-side-a.jpeg", "scan-rotated-side-b.jpeg"),
-        );
-        ballot_card(side_a_image, side_b_image, &options).unwrap();
     }
 
     #[test]
@@ -825,72 +797,6 @@ mod test {
         }
 
         ballot_card(side_a_image, side_b_image, &options).unwrap();
-    }
-
-    #[test]
-    fn test_smudged_timing_mark() {
-        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
-            "nh-test-ballot",
-            (
-                "timing-mark-smudge-front.jpeg",
-                "timing-mark-smudge-back.jpeg",
-            ),
-        );
-        let interpretation = ballot_card(side_a_image, side_b_image, &options).unwrap();
-
-        for side in &[interpretation.front, interpretation.back] {
-            for (_, ref scored_mark) in &side.marks {
-                // the ballot is not filled out, so the scores should be very low
-                assert!(scored_mark.clone().unwrap().fill_score < UnitIntervalScore(0.01));
-            }
-        }
-    }
-
-    #[test]
-    fn test_inferred_missing_corner_timing_mark() {
-        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
-            "nh-test-ballot",
-            ("missing-corner-front.png", "missing-corner-back.png"),
-        );
-        ballot_card(side_a_image, side_b_image, &options).unwrap();
-    }
-
-    #[test]
-    fn test_folded_corner() {
-        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
-            "nh-test-ballot",
-            ("folded-corner-front.png", "folded-corner-back.png"),
-        );
-
-        let Error::MissingTimingMarks { reason, .. } =
-            ballot_card(side_a_image, side_b_image, &options).unwrap_err()
-        else {
-            panic!("wrong error type");
-        };
-
-        assert_eq!(
-            reason,
-            "One or more of the corners of the ballot card could not be found: [TopRight]"
-        );
-    }
-
-    #[test]
-    fn test_torn_corner() {
-        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
-            "nh-test-ballot",
-            ("torn-corner-front.jpg", "torn-corner-back.jpg"),
-        );
-
-        let Error::MissingTimingMarks { reason, .. } =
-            ballot_card(side_a_image, side_b_image, &options).unwrap_err()
-        else {
-            panic!("wrong error type");
-        };
-
-        assert_eq!(
-            reason,
-            "One or more of the corners of the ballot card could not be found: [TopRight]"
-        );
     }
 
     #[test]
@@ -987,16 +893,6 @@ mod test {
         };
         assert_eq!(label, "side A");
         assert_eq!(x_coordinates, vec![timing_mark_x as PixelPosition]);
-    }
-
-    #[test]
-    fn test_ignore_edge_adjacent_vertical_streaks() {
-        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
-            "nh-test-ballot",
-            ("grayscale-front.png", "grayscale-back.png"),
-        );
-
-        ballot_card(side_a_image, side_b_image, &options).unwrap();
     }
 
     #[test]

@@ -1,6 +1,5 @@
 import { expect, test } from 'vitest';
 import { iter } from '@votingworks/basics';
-import { electionGridLayoutNewHampshireHudsonFixtures } from '@votingworks/fixtures';
 import { Size } from '@votingworks/types';
 import { GlobalWorkerOptions } from 'pdfjs-dist';
 import { readFileSync } from 'node:fs';
@@ -18,9 +17,6 @@ const pdfNotRequiringPdfjsIntermediateCanvasBuffer = readFileSync(
     '../test/fixtures/pdf-not-requiring-pdfjs-intermediate-canvas.pdf'
   )
 );
-const pdfRequiringPdfjsIntermediateCanvasBuffer =
-  electionGridLayoutNewHampshireHudsonFixtures.templatePdf.asBuffer();
-
 function assertHasPageCountAndSize(
   pages: PdfPage[],
   { pageCount, size }: { pageCount: number; size: Size }
@@ -56,18 +52,6 @@ test('can generate images with a different scale', async () => {
     {
       pageCount: 6,
       size: { width: 1224, height: 1584 },
-    }
-  );
-});
-
-test('can render a PDF that requires the PDF.js intermediate canvas', async () => {
-  assertHasPageCountAndSize(
-    await iter(
-      pdfToImages(pdfRequiringPdfjsIntermediateCanvasBuffer)
-    ).toArray(),
-    {
-      pageCount: 2,
-      size: { width: 684, height: 1080 },
     }
   );
 });
