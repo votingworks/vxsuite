@@ -12,6 +12,10 @@ path = "src/hmpb-rust/lib.rs"
 name = "interpret"
 path = "bin/interpret.rs"
 
+[[bin]]
+name = "debug-timing-marks"
+path = "bin/debug-timing-marks.rs"
+
 [[bench]]
 name = "main"
 harness = false

@@ -2,6 +2,7 @@
 
 use std::io::Cursor;
 use std::path::PathBuf;
+use std::str::FromStr;
 
 use bitstream_io::BigEndian;
 use bitstream_io::BitReader;
@@ -36,11 +37,9 @@ use crate::scoring::score_bubble_marks_from_grid_layout;
 use crate::scoring::score_write_in_areas;
 use crate::scoring::ScoredBubbleMarks;
 use crate::scoring::ScoredPositionAreas;
-use crate::timing_marks::contours::find_timing_mark_grid;
-use crate::timing_marks::contours::FindTimingMarkGridOptions;
-use crate::timing_marks::contours::ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH;
+use crate::timing_marks::contours;
+use crate::timing_marks::corners;
 use crate::timing_marks::normalize_orientation;
-use crate::timing_marks::scoring::CandidateTimingMark;
 use crate::timing_marks::BallotPageMetadata;
 use crate::timing_marks::TimingMarkGrid;
 
@@ -53,6 +52,40 @@ pub struct Options {
     pub score_write_ins: bool,
     pub disable_vertical_streak_detection: bool,
     pub infer_timing_marks: bool,
+    pub timing_mark_algorithm: TimingMarkAlgorithm,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum TimingMarkAlgorithm {
+    Contours,
+    Corners,
+}
+
+impl Default for TimingMarkAlgorithm {
+    fn default() -> Self {
+        Self::Contours
+    }
+}
+
+impl ToString for TimingMarkAlgorithm {
+    fn to_string(&self) -> String {
+        match self {
+            Self::Contours => "contours".to_owned(),
+            Self::Corners => "corners".to_owned(),
+        }
+    }
+}
+
+impl FromStr for TimingMarkAlgorithm {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "contours" => Ok(Self::Contours),
+            "corners" => Ok(Self::Corners),
+            _ => Err(format!("Unexpected algorithm: {s}")),
+        }
+    }
 }
 
 #[derive(Debug, Serialize)]
@@ -124,11 +157,8 @@ pub enum Error {
         front: BallotPageMetadata,
         back: BallotPageMetadata,
     },
-    #[error("missing timing marks: {candidates:?}, reason: {reason}")]
-    MissingTimingMarks {
-        candidates: Vec<CandidateTimingMark>,
-        reason: String,
-    },
+    #[error("missing timing marks: {reason}")]
+    MissingTimingMarks { reason: String },
     #[error("unexpected dimensions for {label}: {dimensions:?}")]
     UnexpectedDimensions {
         label: String,
@@ -155,6 +185,7 @@ pub struct ScanInterpreter {
     disable_vertical_streak_detection: bool,
     infer_timing_marks: bool,
     bubble_template_image: GrayImage,
+    timing_mark_algorithm: TimingMarkAlgorithm,
 }
 
 impl ScanInterpreter {
@@ -168,6 +199,7 @@ impl ScanInterpreter {
         score_write_ins: bool,
         disable_vertical_streak_detection: bool,
         infer_timing_marks: bool,
+        timing_mark_algorithm: TimingMarkAlgorithm,
     ) -> Result<Self, image::ImageError> {
         let bubble_template_image = load_ballot_scan_bubble_image()?;
         Ok(Self {
@@ -176,6 +208,7 @@ impl ScanInterpreter {
             disable_vertical_streak_detection,
             infer_timing_marks,
             bubble_template_image,
+            timing_mark_algorithm,
         })
     }
 
@@ -200,6 +233,7 @@ impl ScanInterpreter {
             score_write_ins: self.score_write_ins,
             disable_vertical_streak_detection: self.disable_vertical_streak_detection,
             infer_timing_marks: self.infer_timing_marks,
+            timing_mark_algorithm: self.timing_mark_algorithm,
         };
         ballot_card(side_a_image, side_b_image, &options)
     }
@@ -303,7 +337,7 @@ pub fn crop_ballot_page_image_borders(image: GrayImage) -> Option<BallotImage> {
 
 /// Prepare a ballot page image for interpretation by cropping the black border.
 #[allow(clippy::result_large_err)]
-fn prepare_ballot_page_image(
+pub fn prepare_ballot_page_image(
     label: &str,
     image: GrayImage,
     possible_paper_infos: &[PaperInfo],
@@ -388,17 +422,20 @@ pub fn ballot_card(
     let (side_a_grid_result, side_b_grid_result) = par_map_pair(
         (&side_a, &mut side_a_debug),
         (&side_b, &mut side_b_debug),
-        |(ballot_image, debug)| {
-            find_timing_mark_grid(
+        |(ballot_image, debug)| match options.timing_mark_algorithm {
+            TimingMarkAlgorithm::Contours => contours::find_timing_mark_grid(
                 &geometry,
                 ballot_image,
-                FindTimingMarkGridOptions {
+                contours::FindTimingMarkGridOptions {
                     allowed_timing_mark_inset_percentage_of_width:
-                        ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH,
+                        contours::ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH,
                     infer_timing_marks: options.infer_timing_marks,
                     debug,
                 },
-            )
+            ),
+            TimingMarkAlgorithm::Corners => {
+                corners::find_timing_mark_grid(ballot_image, &geometry, debug)
+            }
         },
     );
 
@@ -682,7 +719,11 @@ mod test {
 
     use image::Luma;
     use imageproc::geometric_transformations::{self, Interpolation, Projection};
-    use types_rs::geometry::{Degrees, PixelPosition, Radians, Rect};
+    use itertools::Itertools;
+    use types_rs::{
+        election::{ContestId, OptionId},
+        geometry::{Degrees, PixelPosition, Radians, Rect},
+    };
 
     use crate::{
         ballot_card::load_ballot_scan_bubble_image, scoring::UnitIntervalScore,
@@ -721,6 +762,7 @@ mod test {
             score_write_ins: true,
             disable_vertical_streak_detection: false,
             infer_timing_marks: true,
+            timing_mark_algorithm: Default::default(),
         };
         (side_a_image, side_b_image, options)
     }
@@ -749,6 +791,7 @@ mod test {
             score_write_ins: true,
             disable_vertical_streak_detection: false,
             infer_timing_marks: true,
+            timing_mark_algorithm: Default::default(),
         };
         (side_a_image, side_b_image, options)
     }
@@ -995,6 +1038,62 @@ mod test {
             Err(err) => panic!("unexpected error: {err:?}"),
             Ok(_) => panic!("interpretation unexpectedly succeeded"),
         }
+    }
+
+    #[test]
+    fn test_imprinting_over_timing_marks() {
+        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
+            "104h-2025-04",
+            ("imprinter-front.png", "imprinter-back.png"),
+        );
+        let interpretation = ballot_card(
+            side_a_image.clone(),
+            side_b_image.clone(),
+            &Options {
+                timing_mark_algorithm: TimingMarkAlgorithm::Corners,
+                ..options
+            },
+        )
+        .unwrap();
+
+        let marked_grid_positions = interpretation
+            .front
+            .marks
+            .iter()
+            .filter_map(|(grid_position, scored_bubble)| {
+                if let Some(scored_bubble) = scored_bubble {
+                    if scored_bubble.fill_score > UnitIntervalScore(0.1) {
+                        return Some(grid_position);
+                    }
+                }
+                None
+            })
+            .collect_vec();
+
+        assert_eq!(
+            marked_grid_positions
+                .iter()
+                .map(|position| { (position.contest_id(), position.option_id()) })
+                .collect_vec(),
+            vec![
+                (
+                    ContestId::from("2z8wwfkv1pqe".to_owned()),
+                    OptionId::from("sh6brr6z1qnl".to_owned())
+                ),
+                (
+                    ContestId::from("fgim6l2uk3nb".to_owned()),
+                    OptionId::from("5g7phaxg7hp1".to_owned())
+                ),
+                (
+                    ContestId::from("autxsj0cdzod".to_owned()),
+                    OptionId::from("11a0rk2efv1l".to_owned())
+                ),
+                (
+                    ContestId::from("klhpdgrdszt0".to_owned()),
+                    OptionId::from("wkogyhxjb778".to_owned())
+                )
+            ]
+        );
     }
 
     #[test]

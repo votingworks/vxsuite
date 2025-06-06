@@ -17,7 +17,7 @@ use types_rs::geometry::{
 
 use crate::ballot_card::Geometry;
 
-fn imageproc_rect_from_rect(rect: &Rect) -> imageproc::rect::Rect {
+pub fn imageproc_rect_from_rect(rect: &Rect) -> imageproc::rect::Rect {
     imageproc::rect::Rect::at(rect.left(), rect.top()).of_size(rect.width(), rect.height())
 }
 
@@ -989,7 +989,7 @@ pub fn draw_corner_match_info_debug_image_mut(
     }
 }
 
-fn monospace_font() -> FontRef<'static> {
+pub fn monospace_font() -> FontRef<'static> {
     FontRef::try_from_slice(include_bytes!("../../data/fonts/Inconsolata-Regular.ttf"))
         .expect("font is valid")
 }

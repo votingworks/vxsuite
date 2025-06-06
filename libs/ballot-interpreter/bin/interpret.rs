@@ -1,6 +1,6 @@
 use std::{path::PathBuf, process, time::Instant};
 
-use ballot_interpreter::interpret::ScanInterpreter;
+use ballot_interpreter::interpret::{ScanInterpreter, TimingMarkAlgorithm};
 use clap::Parser;
 use types_rs::election::Election;
 
@@ -26,6 +26,10 @@ struct Options {
     /// Determines whether to disable timing mark inference.
     #[clap(long, default_value = "false")]
     disable_timing_mark_inference: bool,
+
+    /// Which timing mark finding algorithm to use.
+    #[clap(long, short = 'a', default_value_t = Default::default())]
+    timing_mark_algorithm: TimingMarkAlgorithm,
 }
 
 impl Options {
@@ -52,6 +56,7 @@ fn main() -> color_eyre::Result<()> {
         options.score_write_ins,
         options.disable_vertical_streak_detection,
         !options.disable_timing_mark_inference,
+        options.timing_mark_algorithm,
     )?;
 
     let start = Instant::now();
