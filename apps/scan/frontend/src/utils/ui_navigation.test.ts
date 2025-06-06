@@ -1,0 +1,94 @@
+import { expect, Mock, test, vi } from 'vitest';
+import {
+  advanceElementFocus,
+  Keybinding,
+  PageNavigationButtonId,
+  triggerPageNavigationButton,
+} from '@votingworks/ui';
+import { handleKeyboardEvent } from './ui_navigation';
+
+vi.mock('@votingworks/ui');
+
+function createEvent(key: Keybinding): {
+  event: KeyboardEvent;
+  mockPreventDefault: Mock<() => void>;
+} {
+  const mockPreventDefault = vi.fn();
+  const event = {
+    key,
+    preventDefault: mockPreventDefault,
+  } as unknown as KeyboardEvent;
+
+  return { event, mockPreventDefault };
+}
+
+const mockAdvanceFocus = vi.mocked(advanceElementFocus);
+const mockTriggerPageNavButton = vi.mocked(triggerPageNavigationButton);
+
+test('focus next', () => {
+  const { event, mockPreventDefault } = createEvent(Keybinding.FOCUS_NEXT);
+  handleKeyboardEvent(event);
+
+  expect(mockAdvanceFocus).toHaveBeenCalledTimes(1);
+  expect(mockAdvanceFocus).toHaveBeenCalledWith(1);
+
+  expect(mockPreventDefault).toHaveBeenCalledTimes(1);
+
+  expect(mockTriggerPageNavButton).not.toHaveBeenCalled();
+});
+
+test('focus previous', () => {
+  const { event, mockPreventDefault } = createEvent(Keybinding.FOCUS_PREVIOUS);
+  handleKeyboardEvent(event);
+
+  expect(mockAdvanceFocus).toHaveBeenCalledTimes(1);
+  expect(mockAdvanceFocus).toHaveBeenCalledWith(-1);
+
+  expect(mockPreventDefault).toHaveBeenCalledTimes(1);
+
+  expect(mockTriggerPageNavButton).not.toHaveBeenCalled();
+});
+
+test('page previous', () => {
+  const { event, mockPreventDefault } = createEvent(Keybinding.PAGE_PREVIOUS);
+  handleKeyboardEvent(event);
+
+  expect(mockTriggerPageNavButton).toHaveBeenCalledTimes(1);
+  expect(mockTriggerPageNavButton).toHaveBeenCalledWith(
+    PageNavigationButtonId.PREVIOUS
+  );
+
+  expect(mockAdvanceFocus).not.toHaveBeenCalled();
+  expect(mockPreventDefault).not.toHaveBeenCalled();
+});
+
+test('page next', () => {
+  const { event, mockPreventDefault } = createEvent(Keybinding.PAGE_NEXT);
+  handleKeyboardEvent(event);
+
+  expect(mockTriggerPageNavButton).toHaveBeenCalledTimes(1);
+  expect(mockTriggerPageNavButton).toHaveBeenCalledWith(
+    PageNavigationButtonId.NEXT,
+    PageNavigationButtonId.NEXT_AFTER_CONFIRM
+  );
+
+  expect(mockAdvanceFocus).not.toHaveBeenCalled();
+  expect(mockPreventDefault).not.toHaveBeenCalled();
+});
+
+test('select', () => {
+  const { event, mockPreventDefault } = createEvent(Keybinding.SELECT);
+  handleKeyboardEvent(event);
+
+  // We rely on default browser handling of the `SELECT` button (`Enter` key).
+  expect(mockTriggerPageNavButton).not.toHaveBeenCalled();
+  expect(mockAdvanceFocus).not.toHaveBeenCalled();
+  expect(mockPreventDefault).not.toHaveBeenCalled();
+});
+
+test('miscellaneous ignored key', () => {
+  handleKeyboardEvent({ key: 'G' } as unknown as KeyboardEvent);
+
+  expect(mockTriggerPageNavButton).not.toHaveBeenCalled();
+  expect(mockAdvanceFocus).not.toHaveBeenCalled();
+});
