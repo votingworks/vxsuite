@@ -17,4 +17,5 @@ export interface InterpreterOptions {
   markThresholds: MarkThresholds;
   precinctSelection: PrecinctSelection;
   testMode: boolean;
+  disableBmdBallotScanning?: boolean;
 }
