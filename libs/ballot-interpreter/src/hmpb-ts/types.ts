@@ -124,25 +124,14 @@ export interface ScoredPositionArea {
 
 /**
  * Represents a grid of timing marks and provides access to the expected
- * location of bubbles in the grid. Note that all coordinates are based in an
- * image that may have been rotated, cropped, and scaled. To recreate the image
- * that corresponds to the grid, follow these steps starting with the original:
- *   1. rotate 180 degrees if `orientation` is `PortraitReversed`.
- *   2. crop the image edges by `borderInset`.
- *   3. scale the image to `scaledSize`.
+ * location of bubbles in the grid.
  */
 export interface TimingMarkGrid {
   /** The geometry of the ballot card. */
   geometry: Geometry;
 
-  /** Timing marks found by examining the image. */
-  partialTimingMarks: PartialTimingMarks;
-
   /** Timing marks inferred from the partial timing marks. */
   completeTimingMarks: CompleteTimingMarks;
-
-  /** Areas of the ballot card that contain shapes that may be timing marks. */
-  candidateTimingMarks: Rect[];
 }
 
 /** Metadata from the ballot card. */

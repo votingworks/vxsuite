@@ -235,8 +235,7 @@ pub fn find_timing_mark_grid(
         }
     };
 
-    let timing_mark_grid =
-        TimingMarkGrid::new(*geometry, complete_timing_marks, candidate_timing_marks);
+    let timing_mark_grid = TimingMarkGrid::new(*geometry, complete_timing_marks);
 
     debug.write("timing_mark_grid", |canvas| {
         debug::draw_timing_mark_grid_debug_image_mut(canvas, &timing_mark_grid, geometry);
