@@ -107,6 +107,24 @@ test('render correct invalid ballot hash screen', async () => {
   await screen.findByText('Please ask a poll worker for help.');
 });
 
+test('render correct BMD ballot scanning disabled screen', async () => {
+  render(
+    provideApi(
+      apiMock,
+      <ScanErrorScreen
+        error="bmd_ballot_scanning_disabled"
+        isTestMode={false}
+        scannedBallotCount={42}
+      />
+    )
+  );
+  await screen.findByText('BMD Ballot');
+  await screen.findByText(
+    'The scanner cannot scan BMD ballots. Use a central scanner instead.'
+  );
+  await screen.findByText('Please ask a poll worker for help.');
+});
+
 test('warning when scanner needs cleaning', async () => {
   render(
     provideApi(

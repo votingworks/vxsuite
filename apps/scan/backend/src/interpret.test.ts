@@ -207,6 +207,29 @@ test('differentiates vertical streaks detected from other unreadable errors', ()
   });
 });
 
+test('differentiates BMD ballot scanning disabled other unreadable errors', () => {
+  const bmdPageWhenBmdBallotScanningDisabledInterpretation: PageInterpretation =
+    {
+      type: 'UnreadablePage',
+      reason: 'bmdBallotScanningDisabled',
+    };
+  expect(
+    combinePageInterpretationsForSheet([
+      {
+        imagePath: 'front.jpeg',
+        interpretation: bmdPageWhenBmdBallotScanningDisabledInterpretation,
+      },
+      {
+        imagePath: 'back.jpeg',
+        interpretation: bmdPageWhenBmdBallotScanningDisabledInterpretation,
+      },
+    ])
+  ).toEqual<SheetInterpretation>({
+    type: 'InvalidSheet',
+    reason: 'bmd_ballot_scanning_disabled',
+  });
+});
+
 test('NH interpreter of overvote yields a sheet that needs to be reviewed', async () => {
   const result = await interpret('foo-sheet-id', ballotImages.overvoteBallot, {
     electionDefinition:
