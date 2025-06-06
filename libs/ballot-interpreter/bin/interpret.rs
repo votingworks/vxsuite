@@ -15,6 +15,10 @@ struct Options {
     /// Path to an image of side B of the scanned ballot.
     side_b_path: PathBuf,
 
+    /// Output debug images.
+    #[clap(long, default_value = "false")]
+    debug: bool,
+
     /// Determines whether to score write ins.
     #[clap(long, default_value = "false")]
     score_write_ins: bool,
@@ -63,8 +67,8 @@ fn main() -> color_eyre::Result<()> {
     let result = interpreter.interpret(
         options.load_side_a_image()?.into_luma8(),
         options.load_side_b_image()?.into_luma8(),
-        None,
-        None,
+        options.debug.then(|| options.side_a_path),
+        options.debug.then(|| options.side_b_path),
     );
     let duration = start.elapsed();
     let exit_code = i32::from(result.is_err());
