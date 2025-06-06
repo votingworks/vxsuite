@@ -122,21 +122,13 @@ pub struct TimingMarkGrid {
 
     /// Timing marks inferred from the partial timing marks.
     pub complete_timing_marks: Complete,
-
-    /// Areas of the ballot card that contain shapes that may be timing marks.
-    pub candidate_timing_marks: Vec<CandidateTimingMark>,
 }
 
 impl TimingMarkGrid {
-    pub const fn new(
-        geometry: Geometry,
-        complete_timing_marks: Complete,
-        candidate_timing_marks: Vec<CandidateTimingMark>,
-    ) -> Self {
+    pub const fn new(geometry: Geometry, complete_timing_marks: Complete) -> Self {
         Self {
             geometry,
             complete_timing_marks,
-            candidate_timing_marks,
         }
     }
 
