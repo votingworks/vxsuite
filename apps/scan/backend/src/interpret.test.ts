@@ -207,7 +207,7 @@ test('differentiates vertical streaks detected from other unreadable errors', ()
   });
 });
 
-test('differentiates BMD ballot scanning disabled other unreadable errors', () => {
+test('differentiates BMD ballot scanning disabled from other unreadable errors', () => {
   const bmdPageWhenBmdBallotScanningDisabledInterpretation: PageInterpretation =
     {
       type: 'UnreadablePage',
