@@ -1339,12 +1339,16 @@ impl ImageDebugWriter {
         self.input_image.is_none()
     }
 
-    pub fn write(&self, label: &str, draw: impl FnOnce(&mut RgbImage)) -> Option<PathBuf> {
+    pub fn write(
+        &self,
+        label: impl AsRef<str>,
+        draw: impl FnOnce(&mut RgbImage),
+    ) -> Option<PathBuf> {
         self.input_image.as_ref().map(|input_image| {
             let mut output_image = DynamicImage::ImageLuma8(input_image.clone()).into_rgb8();
             draw(&mut output_image);
 
-            let output_path = output_path_from_original(&self.input_path, label);
+            let output_path = output_path_from_original(&self.input_path, label.as_ref());
             output_image.save(&output_path).expect("image is saved");
             debug!("{}", output_path.display());
             output_path
