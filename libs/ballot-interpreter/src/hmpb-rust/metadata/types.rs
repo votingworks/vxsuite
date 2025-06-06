@@ -100,7 +100,12 @@ pub mod tests {
 
     use proptest::{prelude::Strategy, proptest};
 
-    use super::PageNumber;
+    use super::*;
+
+    #[test]
+    fn test_bit_counts() {
+        assert_eq!(PrecinctIndex::BITS, 13);
+    }
 
     #[test]
     fn test_page_number() {
