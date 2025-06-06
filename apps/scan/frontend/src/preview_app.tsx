@@ -2,6 +2,7 @@
 /* eslint-disable vx/gts-direct-module-export-access-only */
 /* istanbul ignore file - @preserve */
 
+import React from 'react';
 import { PreviewDashboard } from './preview_dashboard';
 import * as CardErrorScreen from './screens/card_error_screen';
 import * as ElectionManagerScreen from './screens/election_manager_screen';
@@ -23,8 +24,15 @@ import * as SetupScannerScreen from './screens/internal_connection_problem_scree
 import * as UnconfiguredElectionScreenWrapper from './screens/unconfigured_election_screen_wrapper';
 import * as UnconfiguredPrecinctScreen from './screens/unconfigured_precinct_screen';
 import { ScanAppBase } from './scan_app_base';
+import { handleKeyboardEvent } from './utils/ui_navigation';
 
 export function PreviewApp(): JSX.Element {
+  // Handle navigation key events from the tactile controller/keyboard.
+  React.useEffect(() => {
+    document.addEventListener('keydown', handleKeyboardEvent);
+    return () => document.removeEventListener('keydown', handleKeyboardEvent);
+  }, []);
+
   return (
     <ScanAppBase>
       <PreviewDashboard

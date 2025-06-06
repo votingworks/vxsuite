@@ -3,6 +3,7 @@ import { BrowserRouter, Route } from 'react-router-dom';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { QueryClient } from '@tanstack/react-query';
 import { AppErrorBoundary } from '@votingworks/ui';
+import React from 'react';
 import { AppRoot } from './app_root';
 import { ApiClient, createApiClient, createQueryClient } from './api';
 import { ScanAppBase } from './scan_app_base';
@@ -10,6 +11,7 @@ import { SessionTimeLimitTracker } from './components/session_time_limit_tracker
 import { Paths } from './constants';
 import { VoterSettingsScreen } from './screens/voter_settings_screen';
 import { ApiProvider } from './api_provider';
+import { handleKeyboardEvent } from './utils/ui_navigation';
 
 export interface AppProps {
   logger?: BaseLogger;
@@ -28,6 +30,12 @@ export function App({
   enableStringTranslation,
   noAudio,
 }: AppProps): JSX.Element {
+  // Handle navigation key events from the tactile controller/keyboard.
+  React.useEffect(() => {
+    document.addEventListener('keydown', handleKeyboardEvent);
+    return () => document.removeEventListener('keydown', handleKeyboardEvent);
+  }, []);
+
   return (
     <ScanAppBase>
       <BrowserRouter>
