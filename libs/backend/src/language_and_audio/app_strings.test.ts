@@ -37,7 +37,7 @@ describe('translateAppStrings', () => {
     const englishResults = result[LanguageCode.ENGLISH];
     assert(englishResults);
     // This number may need to be updated if you are adding a new app string
-    expect(Object.keys(englishResults)).toHaveLength(436);
+    expect(Object.keys(englishResults)).toHaveLength(438);
   });
 
   test('should extract and translate app strings correctly for multiple languages', async () => {
@@ -62,7 +62,7 @@ describe('translateAppStrings', () => {
       const subResults = result[languageCode];
       assert(subResults);
       // This number may need to be updated if you are adding a new app string
-      expect(Object.keys(subResults)).toHaveLength(436);
+      expect(Object.keys(subResults)).toHaveLength(438);
     }
   });
 });
