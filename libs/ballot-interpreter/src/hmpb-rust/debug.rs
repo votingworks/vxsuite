@@ -296,34 +296,66 @@ pub fn draw_timing_mark_debug_image_mut(
     let font_scale = 15.0;
     let scale = PxScale::from(font_scale);
 
+    let mut text_rects = vec![];
     for (i, mark) in partial_timing_marks.top_marks.iter().enumerate() {
         let center = mark.rect().center();
-        let text = format!("{i}");
+        let text = format!(
+            "{i} ({m:.0}, {p:.0})",
+            m = mark.scores().mark_score(),
+            p = mark.scores().padding_score(),
+        );
         let (text_width, text_height) = text_size(scale, font, text.as_str());
+        let mut text_rect = Rect::new(
+            (center.x - text_width as SubPixelUnit / 2.0) as PixelPosition,
+            (mark.rect().bottom() as SubPixelUnit + text_height as SubPixelUnit / 4.0)
+                as PixelPosition,
+            text_width,
+            text_height,
+        );
+        while text_rects.iter().any(|r: &Rect| r.overlaps(&text_rect)) {
+            text_rect = text_rect.offset(0, text_height as i32);
+        }
+        text_rects.push(text_rect);
+
         draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), TOP_COLOR);
         draw_text_mut(
             canvas,
             DARK_GREEN,
-            (center.x - text_width as SubPixelUnit / 2.0) as PixelPosition,
-            (mark.rect().bottom() as SubPixelUnit + text_height as SubPixelUnit / 4.0)
-                as PixelPosition,
+            text_rect.left(),
+            text_rect.top(),
             scale,
             font,
             text.as_str(),
         );
     }
 
+    let mut text_rects = vec![];
     for (i, mark) in partial_timing_marks.bottom_marks.iter().enumerate() {
         let center = mark.rect().center();
-        let text = format!("{i}");
+        let text = format!(
+            "{i} ({m:.0}, {p:.0})",
+            m = mark.scores().mark_score(),
+            p = mark.scores().padding_score(),
+        );
         let (text_width, text_height) = text_size(scale, font, text.as_str());
+        let mut text_rect = Rect::new(
+            (center.x - text_width as SubPixelUnit / 2.0) as PixelPosition,
+            (mark.rect().top() as SubPixelUnit - text_height as SubPixelUnit * 5.0 / 4.0)
+                as PixelPosition,
+            text_width,
+            text_height,
+        );
+        while text_rects.iter().any(|r: &Rect| r.overlaps(&text_rect)) {
+            text_rect = text_rect.offset(0, -(text_height as i32));
+        }
+        text_rects.push(text_rect);
+
         draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), BOTTOM_COLOR);
         draw_text_mut(
             canvas,
             DARK_BLUE,
-            (center.x - text_width as SubPixelUnit / 2.0) as PixelPosition,
-            (mark.rect().top() as SubPixelUnit - text_height as SubPixelUnit * 5.0 / 4.0)
-                as PixelPosition,
+            text_rect.left(),
+            text_rect.top(),
             scale,
             font,
             text.as_str(),
