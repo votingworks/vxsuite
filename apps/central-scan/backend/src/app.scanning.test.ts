@@ -1,14 +1,16 @@
+import { iter } from '@votingworks/basics';
+import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import { vxFamousNamesFixtures } from '@votingworks/hmpb';
+import { pdfToImages, writeImageData } from '@votingworks/image-utils';
 import {
-  electionFamousNames2021Fixtures,
-  electionGridLayoutNewHampshireTestBallotFixtures,
-} from '@votingworks/fixtures';
-import { loadImageData, writeImageData } from '@votingworks/image-utils';
-import {
+  asSheet,
   BallotPageInfo,
   BatchInfo,
   DEFAULT_SYSTEM_SETTINGS,
   TEST_JURISDICTION,
 } from '@votingworks/types';
+import { readFile } from 'node:fs/promises';
+import { fileSync } from 'tmp';
 import { expect, test } from 'vitest';
 import { mockElectionManagerAuth } from '../test/helpers/auth';
 import { generateBmdBallotFixture } from '../test/helpers/ballots';
@@ -121,16 +123,16 @@ test('continueScanning after invalid ballot', async () => {
 });
 
 test('scanBatch with streaked page', async () => {
-  const electionDefinition =
-    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
-  const { scanMarkedFront, scanMarkedBack } =
-    electionGridLayoutNewHampshireTestBallotFixtures;
-
-  const frontPath = scanMarkedFront.asFilePath();
-  const backPath = scanMarkedBack.asFilePath();
-
-  const frontImageData = await loadImageData(frontPath);
-
+  const { electionDefinition } = vxFamousNamesFixtures;
+  const [frontImageData, backImageData] = asSheet(
+    await iter(
+      pdfToImages(await readFile(vxFamousNamesFixtures.markedBallotPath), {
+        scale: 200 / 72,
+      })
+    )
+      .map(({ page }) => page)
+      .toArray()
+  );
   // add a vertical streak
   for (
     let offset = 500;
@@ -143,7 +145,10 @@ test('scanBatch with streaked page', async () => {
     frontImageData.data[offset + 3] = 255;
   }
 
+  const frontPath = fileSync().name;
+  const backPath = fileSync().name;
   await writeImageData(frontPath, frontImageData);
+  await writeImageData(backPath, backImageData);
 
   const scannedBallot: ScannedSheetInfo = {
     frontPath,

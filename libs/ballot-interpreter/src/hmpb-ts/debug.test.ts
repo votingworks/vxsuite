@@ -1,11 +1,12 @@
-import { beforeAll, expect, test, vi } from 'vitest';
+import { vxFamousNamesFixtures } from '@votingworks/hmpb';
+import { asSheet } from '@votingworks/types';
 import { ImageData } from 'canvas';
-import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
+import { beforeAll, expect, test, vi } from 'vitest';
+import { pdfToPageImages } from '../../test/helpers/interpretation';
 import * as addon from './addon';
 import { interpret } from './interpret';
 
-const electionDefinition =
-  electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+const { electionDefinition } = vxFamousNamesFixtures;
 
 vi.mock('./addon');
 
@@ -14,10 +15,9 @@ let frontImageData!: ImageData;
 let backImageData!: ImageData;
 
 beforeAll(async () => {
-  frontImageData =
-    await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedFront.asImageData();
-  backImageData =
-    await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asImageData();
+  [frontImageData, backImageData] = asSheet(
+    await pdfToPageImages(vxFamousNamesFixtures.markedBallotPath).toArray()
+  );
 });
 
 test('no debug', () => {

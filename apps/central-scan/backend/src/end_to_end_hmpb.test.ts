@@ -1,12 +1,14 @@
-import { expect, test, vi } from 'vitest';
 import {
   getCastVoteRecordExportDirectoryPaths,
   isTestReport,
   mockElectionPackageFileTree,
   readCastVoteRecordExport,
 } from '@votingworks/backend';
-import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
+import { iter, ok } from '@votingworks/basics';
+import { vxFamousNamesFixtures } from '@votingworks/hmpb';
+import { pdfToImages, writeImageData } from '@votingworks/image-utils';
 import {
+  asSheet,
   BallotType,
   CVR,
   DEFAULT_SYSTEM_SETTINGS,
@@ -18,9 +20,11 @@ import {
   getCastVoteRecordBallotType,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { ok } from '@votingworks/basics';
-import { withApp } from '../test/helpers/setup_app';
+import { readFile } from 'node:fs/promises';
+import { fileSync } from 'tmp';
+import { expect, test, vi } from 'vitest';
 import { mockElectionManagerAuth } from '../test/helpers/auth';
+import { withApp } from '../test/helpers/setup_app';
 
 // we need more time for ballot interpretation
 vi.setConfig({
@@ -41,40 +45,49 @@ test('going through the whole process works - HMPB', async () => {
 
   await withApp(
     async ({ apiClient, auth, scanner, importer, mockUsbDrive }) => {
-      const electionDefinition =
-        electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+      const { electionDefinition } = vxFamousNamesFixtures;
 
       mockElectionManagerAuth(auth, electionDefinition);
       mockUsbDrive.insertUsbDrive(
-        await mockElectionPackageFileTree(
-          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(
-            {
-              ...DEFAULT_SYSTEM_SETTINGS,
-              markThresholds: {
-                definite: 0.08,
-                marginal: 0.05,
-              },
-            }
-          )
-        )
+        await mockElectionPackageFileTree({
+          electionDefinition: vxFamousNamesFixtures.electionDefinition,
+          systemSettings: {
+            ...DEFAULT_SYSTEM_SETTINGS,
+            markThresholds: {
+              definite: 0.08,
+              marginal: 0.05,
+            },
+          },
+        })
       );
       expect(await apiClient.configureFromElectionPackageOnUsbDrive()).toEqual(
         ok(electionDefinition)
       );
       mockUsbDrive.removeUsbDrive();
 
-      await apiClient.setTestMode({ testMode: false });
+      await apiClient.setTestMode({ testMode: true });
 
       {
         // define the next scanner session
         const nextSession = scanner.withNextScannerSession();
 
         // scan some sample ballots
+        const [frontImageData, backImageData] = asSheet(
+          await iter(
+            pdfToImages(await readFile(vxFamousNamesFixtures.blankBallotPath), {
+              scale: 200 / 72,
+            })
+          )
+            .map(({ page }) => page)
+            .toArray()
+        );
+        const frontPath = fileSync().name;
+        const backPath = fileSync().name;
+        await writeImageData(frontPath, frontImageData);
+        await writeImageData(backPath, backImageData);
         nextSession.sheet({
-          frontPath:
-            electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedFront.asFilePath(),
-          backPath:
-            electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asFilePath(),
+          frontPath,
+          backPath,
           ballotAuditId: 'fake-ballot-audit-id',
         });
 
@@ -113,64 +126,26 @@ test('going through the whole process works - HMPB', async () => {
           isTestReport(
             castVoteRecordExportMetadata.castVoteRecordReportMetadata
           )
-        ).toBeFalsy();
-        expect(cvr.BallotStyleId).toEqual('card-number-3');
-        expect(cvr.BallotStyleUnitId).toEqual(
-          'town-id-00701-precinct-id-default'
-        );
+        ).toBeTruthy();
+        expect(cvr.BallotStyleId).toEqual('1');
+        expect(cvr.BallotStyleUnitId).toEqual('20');
         expect(cvr.CreatingDeviceId).toEqual(DEV_MACHINE_ID);
         expect(cvr.BallotSheetId).toEqual('1');
         expect(cvr.BallotAuditId).toEqual('fake-ballot-audit-id');
         expect(getCastVoteRecordBallotType(cvr)).toEqual(BallotType.Precinct);
         expect(convertCastVoteRecordVotesToTabulationVotes(cvr.CVRSnapshot[0]))
           .toMatchInlineSnapshot(`
-      {
-        "County-Attorney-133f910f": [
-          "Mary-Woolson-dc0b854a",
-        ],
-        "County-Commissioner-d6feed25": [
-          "write-in-0",
-        ],
-        "County-Treasurer-87d25a31": [
-          "write-in-0",
-        ],
-        "Executive-Councilor-bb22557f": [
-          "write-in-0",
-        ],
-        "Governor-061a401b": [
-          "Josiah-Bartlett-1bb99985",
-        ],
-        "Register-of-Deeds-a1278df2": [
-          "John-Mann-b56bbdd3",
-        ],
-        "Register-of-Probate-a4117da8": [
-          "Claire-Cutts-07a436e7",
-        ],
-        "Representative-in-Congress-24683b44": [
-          "Richard-Coote-b9095636",
-        ],
-        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
-          "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
-        ],
-        "Sheriff-4243fe0b": [
-          "Edward-Randolph-bf4c848a",
-        ],
-        "State-Representative-Hillsborough-District-37-f3bde894": [
-          "Charles-H-Hersey-096286a4",
-        ],
-        "State-Representatives-Hillsborough-District-34-b1012d38": [
-          "Samuel-Bell-17973275",
-          "Samuel-Livermore-f927fef1",
-          "Jacob-Freese-b5146505",
-        ],
-        "State-Senator-391381f8": [
-          "James-Poole-db5ef4bd",
-        ],
-        "United-States-Senator-d3f1c75b": [
-          "William-Preston-3778fcd5",
-        ],
-      }
-    `);
+            {
+              "attorney": [],
+              "board-of-alderman": [],
+              "chief-of-police": [],
+              "city-council": [],
+              "controller": [],
+              "mayor": [],
+              "parks-and-recreation-director": [],
+              "public-works-director": [],
+            }
+          `);
       }
     }
   );

@@ -1,10 +1,13 @@
-import { beforeEach, expect, test, vi } from 'vitest';
-import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
-import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
+import { iter } from '@votingworks/basics';
+import { vxFamousNamesFixtures } from '@votingworks/hmpb';
+import { pdfToImages } from '@votingworks/image-utils';
+import { asSheet, DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
+import { readFile } from 'node:fs/promises';
+import { beforeEach, expect, test, vi } from 'vitest';
 import { simulateScan, withApp } from '../test/helpers/pdi_helpers';
 import { configureApp, waitForStatus } from '../test/helpers/shared_helpers';
 import { delays } from './scanners/pdi/state_machine';
@@ -24,11 +27,15 @@ beforeEach(() => {
 });
 
 test('scanBatch with streaked page', async () => {
-  const { scanMarkedFront, scanMarkedBack } =
-    electionGridLayoutNewHampshireTestBallotFixtures;
-
-  const frontImageData = await scanMarkedFront.asImageData();
-  const backImageData = await scanMarkedBack.asImageData();
+  const [frontImageData, backImageData] = asSheet(
+    await iter(
+      pdfToImages(await readFile(vxFamousNamesFixtures.markedBallotPath), {
+        scale: 200 / 72,
+      })
+    )
+      .map(({ page }) => page)
+      .toArray()
+  );
 
   // add a vertical streak
   for (
@@ -53,8 +60,9 @@ test('scanBatch with streaked page', async () => {
       workspace,
     }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        electionPackage:
-          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(),
+        electionPackage: {
+          electionDefinition: vxFamousNamesFixtures.electionDefinition,
+        },
         testMode: true,
       });
 
@@ -98,8 +106,9 @@ test('scanBatch with streaked page', async () => {
       workspace,
     }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        electionPackage:
-          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(),
+        electionPackage: {
+          electionDefinition: vxFamousNamesFixtures.electionDefinition,
+        },
         testMode: true,
       });
 
