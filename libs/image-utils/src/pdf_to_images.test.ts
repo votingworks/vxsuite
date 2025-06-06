@@ -17,6 +17,13 @@ const pdfNotRequiringPdfjsIntermediateCanvasBuffer = readFileSync(
     '../test/fixtures/pdf-not-requiring-pdfjs-intermediate-canvas.pdf'
   )
 );
+const pdfRequiringPdfjsIntermediateCanvasBuffer = readFileSync(
+  join(
+    __dirname,
+    '../test/fixtures/pdf-requiring-pdfjs-intermediate-canvas.pdf'
+  )
+);
+
 function assertHasPageCountAndSize(
   pages: PdfPage[],
   { pageCount, size }: { pageCount: number; size: Size }
@@ -52,6 +59,18 @@ test('can generate images with a different scale', async () => {
     {
       pageCount: 6,
       size: { width: 1224, height: 1584 },
+    }
+  );
+});
+
+test('can render a PDF that requires the PDF.js intermediate canvas', async () => {
+  assertHasPageCountAndSize(
+    await iter(
+      pdfToImages(pdfRequiringPdfjsIntermediateCanvasBuffer)
+    ).toArray(),
+    {
+      pageCount: 1,
+      size: { width: 612, height: 792 },
     }
   );
 });
