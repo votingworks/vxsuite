@@ -181,6 +181,7 @@ export const BallotSheetInfoSchema: z.ZodSchema<BallotSheetInfo> = z.object({
 });
 
 export type InvalidInterpretationReason =
+  | 'bmd_ballot_scanning_disabled'
   | 'invalid_test_mode'
   | 'invalid_ballot_hash'
   | 'invalid_precinct'
