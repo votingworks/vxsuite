@@ -23,6 +23,7 @@ use crate::{
 mod fast;
 mod slow;
 
+#[must_use]
 pub enum BestFitSearchResult<'a> {
     Found {
         searched: Vec<Segment>,
@@ -46,6 +47,7 @@ impl<'a> BestFitSearchResult<'a> {
         }
     }
 
+    #[must_use]
     pub fn found(self) -> Option<BestFit<'a>> {
         match self {
             BestFitSearchResult::Found { best_fit, .. } => Some(best_fit),
@@ -54,6 +56,7 @@ impl<'a> BestFitSearchResult<'a> {
     }
 }
 
+#[must_use]
 pub struct BestFit<'a> {
     pub segment: Segment,
     pub marks: Vec<&'a CandidateTimingMark>,
@@ -193,6 +196,10 @@ pub struct FindTimingMarkGridOptions<'a> {
 
 /// Finds the timing marks in the given image and computes the grid of timing
 /// marks, i.e. the locations of all the possible bubbles.
+///
+/// # Errors
+///
+/// If the timing marks cannot be found, an error is returned.
 #[allow(clippy::result_large_err)]
 pub fn find_timing_mark_grid(
     geometry: &Geometry,
@@ -233,7 +240,7 @@ pub fn find_timing_mark_grid(
         }
     };
 
-    let timing_mark_grid = TimingMarkGrid::new(*geometry, complete_timing_marks);
+    let timing_mark_grid = TimingMarkGrid::new(geometry.clone(), complete_timing_marks);
 
     debug.write("timing_mark_grid", |canvas| {
         debug::draw_timing_mark_grid_debug_image_mut(canvas, &timing_mark_grid, geometry);
@@ -348,6 +355,7 @@ const BORDER_SIZE: u8 = 1;
 
 /// Looks for possible timing mark shapes in the image without trying to
 /// determine if they are actually timing marks.
+#[must_use]
 pub fn find_timing_mark_shapes(
     geometry: &Geometry,
     ballot_image: &BallotImage,
@@ -619,7 +627,7 @@ pub fn find_partial_timing_marks_from_candidates(
         )?;
 
     let partial_timing_marks = Partial {
-        geometry: *geometry,
+        geometry: geometry.clone(),
         top_left_corner: top_left_intersection,
         top_right_corner: top_right_intersection,
         bottom_left_corner: bottom_left_intersection,
@@ -829,6 +837,13 @@ pub struct FindCompleteTimingMarksFromPartialTimingMarksOptions<'a> {
     pub infer_timing_marks: bool,
 }
 
+/// Finds complete timing marks from partial timing marks.
+///
+/// # Errors
+///
+/// Returns an error if the partial timing marks are not enough to construct
+/// a set of complete timing marks or if the inferred timing marks are not
+/// valid.
 #[allow(clippy::too_many_lines)]
 pub fn find_complete_from_partial(
     ballot_image: &BallotImage,
@@ -1131,7 +1146,7 @@ pub fn find_complete_from_partial(
     };
 
     let complete_timing_marks = Complete {
-        geometry: *geometry,
+        geometry: geometry.clone(),
         top_marks: complete_top_line_marks,
         bottom_marks: complete_bottom_line_marks,
         left_marks: complete_left_line_marks,
@@ -1295,6 +1310,7 @@ fn infer_missing_timing_marks_on_segment(
 }
 
 /// Gets all the distances between adjacent marks in a list of marks.
+#[must_use]
 pub fn distances_between_marks(marks: &[CandidateTimingMark]) -> Vec<f32> {
     let mut distances = marks
         .windows(2)

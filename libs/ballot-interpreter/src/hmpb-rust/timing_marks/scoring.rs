@@ -94,6 +94,7 @@ fn score_timing_mark_geometry_match(
 }
 
 #[derive(Debug, Clone, Copy, Serialize, PartialEq)]
+#[must_use]
 pub struct TimingMarkScore {
     mark_score: UnitIntervalScore,
     padding_score: UnitIntervalScore,
@@ -117,6 +118,7 @@ impl TimingMarkScore {
 }
 
 #[derive(Debug, Clone, Copy, Serialize, PartialEq)]
+#[must_use]
 pub struct CandidateTimingMark {
     rect: Rect,
     scores: TimingMarkScore,

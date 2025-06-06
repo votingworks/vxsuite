@@ -1,5 +1,6 @@
 #![allow(clippy::similar_names)]
 
+use std::fmt::Display;
 use std::io::Cursor;
 use std::path::PathBuf;
 use std::str::FromStr;
@@ -67,11 +68,11 @@ impl Default for TimingMarkAlgorithm {
     }
 }
 
-impl ToString for TimingMarkAlgorithm {
-    fn to_string(&self) -> String {
+impl Display for TimingMarkAlgorithm {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Contours => "contours".to_owned(),
-            Self::Corners => "corners".to_owned(),
+            Self::Contours => write!(f, "contours"),
+            Self::Corners => write!(f, "corners"),
         }
     }
 }
@@ -336,6 +337,11 @@ pub fn crop_ballot_page_image_borders(image: GrayImage) -> Option<BallotImage> {
 }
 
 /// Prepare a ballot page image for interpretation by cropping the black border.
+///
+/// # Errors
+///
+/// Returns an error if the image cannot be cropped or if the paper information
+/// cannot be determined.
 #[allow(clippy::result_large_err)]
 pub fn prepare_ballot_page_image(
     label: &str,
@@ -762,7 +768,7 @@ mod test {
             score_write_ins: true,
             disable_vertical_streak_detection: false,
             infer_timing_marks: true,
-            timing_mark_algorithm: Default::default(),
+            timing_mark_algorithm: TimingMarkAlgorithm::default(),
         };
         (side_a_image, side_b_image, options)
     }
@@ -791,7 +797,7 @@ mod test {
             score_write_ins: true,
             disable_vertical_streak_detection: false,
             infer_timing_marks: true,
-            timing_mark_algorithm: Default::default(),
+            timing_mark_algorithm: TimingMarkAlgorithm::default(),
         };
         (side_a_image, side_b_image, options)
     }

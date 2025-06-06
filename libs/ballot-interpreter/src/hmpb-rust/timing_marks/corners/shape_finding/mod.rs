@@ -58,7 +58,7 @@ impl BallotGridBorderShapes {
         ];
 
         search_areas.par_map_edgewise(|search_area| {
-            find_timing_mark_shapes(&image, threshold, &geometry, search_area)
+            find_timing_mark_shapes(image, threshold, geometry, search_area)
         })
     }
 
@@ -195,19 +195,14 @@ impl TimingMarkShape {
 
         let width = self.y_ranges.len() as u32;
 
-        Rect::new(
-            self.x as i32,
-            min_y as i32,
-            width as u32,
-            (max_y - min_y + 1) as u32,
-        )
+        Rect::new(self.x as i32, min_y as i32, width, max_y - min_y + 1)
     }
 
     /// Builds a new `TimingMarkShape` with the same range of `x` values but
     /// with the `y` values smoothed using a median filter whose window size
     /// scales with the size of the timing mark's width.
     ///
-    /// See https://en.wikipedia.org/wiki/Median_filter
+    /// See <https://en.wikipedia.org/wiki/Median_filter>
     pub fn smoothed(&self, geometry: &Geometry) -> Self {
         fn median_filter(values: &[u32], window_size: usize) -> Vec<u32> {
             let half = window_size / 2;
@@ -216,7 +211,7 @@ impl TimingMarkShape {
                     let start = i.saturating_sub(half);
                     let end = (i + half + 1).min(values.len());
                     let mut window = values[start..end].to_vec();
-                    window.sort();
+                    window.sort_unstable();
                     window[window.len() / 2]
                 })
                 .collect()
@@ -227,13 +222,18 @@ impl TimingMarkShape {
             &self
                 .y_ranges
                 .iter()
-                .map(|r| r.start())
+                .map(RangeInclusive::start)
                 .copied()
                 .collect_vec(),
             window_size,
         );
         let bottom = median_filter(
-            &self.y_ranges.iter().map(|r| r.end()).copied().collect_vec(),
+            &self
+                .y_ranges
+                .iter()
+                .map(RangeInclusive::end)
+                .copied()
+                .collect_vec(),
             window_size,
         );
 

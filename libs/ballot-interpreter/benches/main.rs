@@ -60,9 +60,7 @@ impl Display for InterpretFixture {
         write!(
             f,
             "{}/{} ({})",
-            self.election,
-            self.name,
-            self.timing_mark_algorithm.to_string()
+            self.election, self.name, self.timing_mark_algorithm
         )
     }
 }

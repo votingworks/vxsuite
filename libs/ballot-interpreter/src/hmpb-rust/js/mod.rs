@@ -5,7 +5,7 @@ use neon::prelude::*;
 use neon::types::JsObject;
 
 use crate::ballot_card::load_ballot_scan_bubble_image;
-use crate::interpret::{ballot_card, Options, SIDE_A_LABEL, SIDE_B_LABEL};
+use crate::interpret::{ballot_card, Options, TimingMarkAlgorithm, SIDE_A_LABEL, SIDE_B_LABEL};
 
 use self::args::{
     get_election_definition_from_arg, get_image_data_or_path_from_arg, get_path_from_arg_opt,
@@ -122,7 +122,7 @@ pub fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
             score_write_ins,
             disable_vertical_streak_detection,
             infer_timing_marks,
-            timing_mark_algorithm: Default::default(),
+            timing_mark_algorithm: TimingMarkAlgorithm::default(),
         },
     );
 
