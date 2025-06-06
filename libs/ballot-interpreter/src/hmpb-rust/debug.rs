@@ -24,17 +24,18 @@ fn imageproc_rect_from_rect(rect: &Rect) -> imageproc::rect::Rect {
 use crate::image_utils::{dark_rainbow, rainbow, BLACK};
 use crate::layout::InterpretedContestLayout;
 use crate::scoring::UnitIntervalScore;
-use crate::timing_marks::{
-    BestFit, BestFitSearchResult, CandidateTimingMark, Corner, FilteredMarks,
+use crate::timing_marks::contours::{
+    BestFit, BestFitSearchResult, FilteredMarks, Partial,
     ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH,
 };
+use crate::timing_marks::scoring::CandidateTimingMark;
+use crate::timing_marks::{Corner, TimingMarkGrid};
 use crate::{
     image_utils::{
         BLUE, CYAN, DARK_BLUE, DARK_CYAN, DARK_GREEN, DARK_RED, GREEN, ORANGE, PINK, RED, WHITE_RGB,
     },
     qr_code::Detected,
     scoring::{ScoredBubbleMark, ScoredPositionAreas},
-    timing_marks::{Partial, TimingMarkGrid},
 };
 
 const TOP_COLOR: Rgb<u8> = GREEN;

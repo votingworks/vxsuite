@@ -123,23 +123,20 @@ impl Default for FindTimingMarkOptions {
         Self {
             // Set a higher threshold for the search scores to reduce the number
             // of bad line segments we try.
-            min_search_scores: TimingMarkScore {
-                mark_score: UnitIntervalScore(0.8),
-                padding_score: UnitIntervalScore(0.8),
-            },
+            min_search_scores: TimingMarkScore::new(UnitIntervalScore(0.8), UnitIntervalScore(0.8)),
 
             // Interior marks are expected to have a higher score than exterior
             // marks since they are less likely to be cropped.
-            min_interior_acceptance_scores: TimingMarkScore {
-                mark_score: UnitIntervalScore(0.7),
-                padding_score: UnitIntervalScore(0.7),
-            },
+            min_interior_acceptance_scores: TimingMarkScore::new(
+                UnitIntervalScore(0.7),
+                UnitIntervalScore(0.7),
+            ),
 
             // Exterior marks may be cropped, so we allow for a lower score.
-            min_exterior_acceptance_scores: TimingMarkScore {
-                mark_score: UnitIntervalScore(0.33),
-                padding_score: UnitIntervalScore(0.33),
-            },
+            min_exterior_acceptance_scores: TimingMarkScore::new(
+                UnitIntervalScore(0.33),
+                UnitIntervalScore(0.33),
+            ),
 
             // Pick a high enough number to have good odds of finding a best fit
             // line if one exists that meets the criteria.
