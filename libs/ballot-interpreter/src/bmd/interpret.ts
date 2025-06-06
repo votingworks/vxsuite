@@ -34,6 +34,9 @@ export type InterpretError =
       type: 'mismatched-election';
       expectedBallotHash: string;
       actualBallotHash: string;
+    }
+  | {
+      type: 'bmd-ballot-scanning-disabled';
     };
 
 export type InterpretResult = Result<Interpretation, InterpretError>;
@@ -43,7 +46,8 @@ export type InterpretResult = Result<Interpretation, InterpretError>;
  */
 export async function interpret(
   electionDefinition: ElectionDefinition,
-  card: SheetOf<ImageData>
+  card: SheetOf<ImageData>,
+  disableBmdBallotScanning: boolean = false
 ): Promise<InterpretResult> {
   const [frontResult, backResult] = await mapSheet(card, detectInBallot);
 
@@ -58,6 +62,14 @@ export async function interpret(
     return err({
       type: 'multiple-qr-codes',
       source: [frontResult.ok(), backResult.ok()],
+    });
+  }
+
+  // A BMD ballot QR code was found
+
+  if (disableBmdBallotScanning) {
+    return err({
+      type: 'bmd-ballot-scanning-disabled',
     });
   }
 

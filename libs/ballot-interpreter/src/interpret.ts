@@ -632,38 +632,37 @@ async function interpretBmdBallot(
   ballotImages: SheetOf<ImageData>,
   options: InterpreterOptions
 ): Promise<SheetOf<InterpretFileResult>> {
-  const { electionDefinition } = options;
+  const { electionDefinition, disableBmdBallotScanning } = options;
   const interpretResult = await interpretVxBmdBallotSheet(
     electionDefinition,
-    ballotImages
+    ballotImages,
+    disableBmdBallotScanning
   );
 
   if (interpretResult.isErr()) {
     const error = interpretResult.err();
-    if (error.type === 'mismatched-election') {
-      return [
-        {
-          interpretation: {
-            type: 'InvalidBallotHashPage',
-            expectedBallotHash: error.expectedBallotHash,
-            actualBallotHash: error.actualBallotHash,
-          },
-          normalizedImage: ballotImages[0],
-        },
-        {
-          interpretation: {
-            type: 'InvalidBallotHashPage',
-            expectedBallotHash: error.expectedBallotHash,
-            actualBallotHash: error.actualBallotHash,
-          },
-          normalizedImage: ballotImages[1],
-        },
-      ];
-    }
-
-    const [frontReason, backReason] = error.source;
     switch (error.type) {
-      case 'votes-not-found':
+      case 'mismatched-election': {
+        return [
+          {
+            interpretation: {
+              type: 'InvalidBallotHashPage',
+              expectedBallotHash: error.expectedBallotHash,
+              actualBallotHash: error.actualBallotHash,
+            },
+            normalizedImage: ballotImages[0],
+          },
+          {
+            interpretation: {
+              type: 'InvalidBallotHashPage',
+              expectedBallotHash: error.expectedBallotHash,
+              actualBallotHash: error.actualBallotHash,
+            },
+            normalizedImage: ballotImages[1],
+          },
+        ];
+      }
+      case 'votes-not-found': {
         return [
           {
             interpretation: {
@@ -678,8 +677,9 @@ async function interpretBmdBallot(
             normalizedImage: ballotImages[1],
           },
         ];
-
-      case 'multiple-qr-codes':
+      }
+      case 'multiple-qr-codes': {
+        const [frontReason, backReason] = error.source;
         return [
           {
             interpretation: {
@@ -696,6 +696,25 @@ async function interpretBmdBallot(
             normalizedImage: ballotImages[1],
           },
         ];
+      }
+      case 'bmd-ballot-scanning-disabled': {
+        return [
+          {
+            interpretation: {
+              type: 'UnreadablePage',
+              reason: 'bmdBallotScanningDisabled',
+            },
+            normalizedImage: ballotImages[0],
+          },
+          {
+            interpretation: {
+              type: 'UnreadablePage',
+              reason: 'bmdBallotScanningDisabled',
+            },
+            normalizedImage: ballotImages[1],
+          },
+        ];
+      }
 
       /* istanbul ignore next - compile-time check */
       default:
@@ -763,6 +782,9 @@ function scoreInterpretFileResult(
   result: SheetOf<InterpretFileResult>
 ): number {
   const [frontType, backType] = mapSheet(result, (r) => r.interpretation.type);
+  const [frontReason, backReason] = mapSheet(result, (r) =>
+    'reason' in r.interpretation ? r.interpretation.reason : undefined
+  );
 
   if (
     (frontType === 'InterpretedBmdPage' && backType === 'BlankPage') ||
@@ -783,6 +805,12 @@ function scoreInterpretFileResult(
   }
 
   if (frontType === 'UnreadablePage' || backType === 'UnreadablePage') {
+    if (
+      frontReason === 'bmdBallotScanningDisabled' ||
+      backReason === 'bmdBallotScanningDisabled'
+    ) {
+      return -85;
+    }
     return -90;
   }
 

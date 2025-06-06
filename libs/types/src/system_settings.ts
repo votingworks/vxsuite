@@ -66,11 +66,13 @@ export interface SystemSettings {
   readonly precinctScanAdjudicationReasons: readonly AdjudicationReason[];
   readonly disallowCastingOvervotes: boolean;
   readonly precinctScanEnableShoeshineMode?: boolean;
+
   /**
    * Includes redundant metadata in cast vote record reports, increasing export size and
    * import/export time (required for CDF).
    */
   readonly castVoteRecordsIncludeRedundantMetadata?: boolean;
+
   /**
    * Disables vertical streak detection when scanning. This should only be used
    * as a workaround in case the ballots have a design that triggers false
@@ -79,7 +81,7 @@ export interface SystemSettings {
   readonly disableVerticalStreakDetection?: boolean;
 
   /**
-   * Enables quick results reporting and provides the server URL to post results to
+   * Enables quick results reporting and provides the server URL to post results to.
    */
   readonly quickResultsReportingUrl?: string;
 
@@ -88,6 +90,11 @@ export interface SystemSettings {
    * them, and export them to CVRs (to be used for post-election auditing).
    */
   readonly precinctScanEnableBallotAuditIds?: boolean;
+
+  /**
+   * Enables BMD ballot scanning on VxScan. If unspecified, BMD ballots will be rejected on VxScan.
+   */
+  readonly precinctScanEnableBmdBallotScanning?: boolean;
 }
 
 export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
@@ -108,6 +115,7 @@ export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
   disableVerticalStreakDetection: z.boolean().optional(),
   quickResultsReportingUrl: z.string().optional(),
   precinctScanEnableBallotAuditIds: z.boolean().optional(),
+  precinctScanEnableBmdBallotScanning: z.boolean().optional(),
 });
 
 /**
@@ -147,4 +155,5 @@ export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
   disallowCastingOvervotes: false,
   centralScanAdjudicationReasons: [],
   adminAdjudicationReasons: [],
+  precinctScanEnableBmdBallotScanning: true,
 };

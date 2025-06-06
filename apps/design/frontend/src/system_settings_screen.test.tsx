@@ -202,7 +202,8 @@ test('adjudication reasons', async () => {
     expect(option).toBeDisabled();
     if (
       option.textContent === 'Overvote' ||
-      option.textContent === 'Disallow Casting Overvotes'
+      option.textContent === 'Disallow Casting Overvotes' ||
+      option.textContent === 'Enable BMD Ballot Scanning on VxScan'
     ) {
       expect(option).toBeChecked();
     } else {
@@ -509,7 +510,7 @@ test('all controls are disabled until clicking "Edit"', async () => {
   const allCheckboxes = document.body.querySelectorAll('[role=checkbox]');
   const allControls = [...allTextBoxes, ...allCheckboxes];
 
-  expect(allControls).toHaveLength(24);
+  expect(allControls).toHaveLength(25);
 
   for (const control of allControls) {
     expect(control).toBeDisabled();

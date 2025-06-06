@@ -523,6 +523,23 @@ export function SystemSettingsForm({
                     }
                     disabled={!isEditing}
                   />
+                  {features.ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_TOGGLE && (
+                    <CheckboxButton
+                      label="Enable BMD Ballot Scanning on VxScan"
+                      isChecked={Boolean(
+                        systemSettings.precinctScanEnableBmdBallotScanning
+                      )}
+                      onChange={(isChecked) =>
+                        setSystemSettings({
+                          ...systemSettings,
+                          precinctScanEnableBmdBallotScanning: isChecked
+                            ? true
+                            : undefined, // Completely omit when unchecked
+                        })
+                      }
+                      disabled={!isEditing}
+                    />
+                  )}
                   <CheckboxGroup
                     label="CVR"
                     options={cvrOptions}

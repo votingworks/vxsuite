@@ -124,6 +124,18 @@ export function combinePageInterpretationsForSheet(
 
   if (
     (front.interpretation.type === 'UnreadablePage' &&
+      front.interpretation.reason === 'bmdBallotScanningDisabled') ||
+    (back.interpretation.type === 'UnreadablePage' &&
+      back.interpretation.reason === 'bmdBallotScanningDisabled')
+  ) {
+    return {
+      type: 'InvalidSheet',
+      reason: 'bmd_ballot_scanning_disabled',
+    };
+  }
+
+  if (
+    (front.interpretation.type === 'UnreadablePage' &&
       front.interpretation.reason === 'verticalStreaksDetected') ||
     (back.interpretation.type === 'UnreadablePage' &&
       back.interpretation.reason === 'verticalStreaksDetected')
