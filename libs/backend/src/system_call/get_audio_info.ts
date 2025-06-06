@@ -1,6 +1,7 @@
 import { LogEventId, Logger } from '@votingworks/logging';
 import { z } from 'zod/v4';
 import { execFile } from '../exec';
+import { NODE_ENV } from '../scan_globals';
 
 /** System audio info. */
 export interface AudioInfo {
@@ -31,17 +32,28 @@ const PactlSinkListSchema = z.array(
 );
 
 /** Get current system audio status. */
-export async function getAudioInfo(logger: Logger): Promise<AudioInfo> {
+export async function getAudioInfo(ctx: {
+  logger: Logger;
+  nodeEnv: typeof NODE_ENV;
+}): Promise<AudioInfo> {
+  const { logger, nodeEnv } = ctx;
   let errorOutput: string;
   let commandOutput: string;
 
   try {
-    ({ stderr: errorOutput, stdout: commandOutput } = await execFile('sudo', [
-      '/vx/code/app-scripts/pactl.sh',
-      '-fjson',
-      'list',
-      'sinks',
-    ]));
+    if (nodeEnv === 'production') {
+      ({ stderr: errorOutput, stdout: commandOutput } = await execFile('sudo', [
+        '/vx/code/app-scripts/pactl.sh',
+        '-fjson',
+        'list',
+        'sinks',
+      ]));
+    } else {
+      ({ stderr: errorOutput, stdout: commandOutput } = await execFile(
+        'pactl',
+        ['-fjson', 'list', 'sinks']
+      ));
+    }
   } catch (error) {
     // [TODO] Update log event ID to something more general.
     void logger.logAsCurrentRole(LogEventId.HeadphonesDetectionError, {
@@ -76,9 +88,6 @@ export async function getAudioInfo(logger: Logger): Promise<AudioInfo> {
         continue;
       }
 
-      // [TODO] Placeholder, based on a few test devices. Verify this sink name
-      // is consistent with the tactile controller  we're using for VxScan and
-      // update, if necessary.
       if (audioSink.name.startsWith('alsa_output.usb')) {
         audioInfo.usb = {
           name: audioSink.name,
