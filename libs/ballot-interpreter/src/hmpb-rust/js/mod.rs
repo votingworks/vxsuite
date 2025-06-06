@@ -122,6 +122,7 @@ pub fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
             score_write_ins,
             disable_vertical_streak_detection,
             infer_timing_marks,
+            timing_mark_algorithm: Default::default(),
         },
     );
 
