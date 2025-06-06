@@ -29,10 +29,11 @@ pub struct BallotGridBorders {
 impl_edgewise!(BallotGridBorders, GridBorder);
 
 impl BallotGridBorders {
+    #[allow(clippy::result_large_err)]
     pub fn find_all(
         geometry: &Geometry,
         corners: &BallotGridCorners,
-        candidates: BallotGridCandidateMarks,
+        candidates: &BallotGridCandidateMarks,
     ) -> Result<Self, Error> {
         let (top_left, top_right, bottom_left, bottom_right) = corners.corner_marks();
 
@@ -118,7 +119,7 @@ impl BallotGridBorders {
             .chain(self.bottom.marks.iter())
             .zip(rainbow())
         {
-            draw_filled_rect_mut(canvas, imageproc_rect_from_rect(&mark.rect()), color);
+            draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), color);
         }
     }
 }
@@ -133,6 +134,7 @@ impl GridBorder {
     /// Find the set of marks along a border by moving along the space between
     /// two corners, finding timing marks that are close enough to the expected
     /// location to be counted.
+    #[allow(clippy::result_large_err)]
     pub fn find_between_corners(
         geometry: &Geometry,
         border: Border,
@@ -148,19 +150,16 @@ impl GridBorder {
             "Ending corner must be a candidate timing mark"
         );
 
-        let border = border;
-        let (corner1, corner2) = corners;
+        let (starting_mark, ending_mark) = corners;
         let timing_mark_center_to_center_distance =
             geometry.timing_mark_size.width + geometry.timing_mark_size.height;
 
         let corner_to_corner_segment =
-            Segment::new(corner1.rect().center(), corner2.rect().center());
+            Segment::new(starting_mark.rect().center(), ending_mark.rect().center());
         let unit_segment =
             corner_to_corner_segment.with_length(timing_mark_center_to_center_distance);
         let unit_vector = unit_segment.vector();
 
-        let starting_mark = corner1;
-        let ending_mark = corner2;
         let mut last_expected_mark_center = starting_mark.rect().center();
         let mut marks = vec![*starting_mark];
 

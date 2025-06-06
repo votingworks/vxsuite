@@ -17,6 +17,7 @@ use types_rs::geometry::{
 
 use crate::ballot_card::Geometry;
 
+#[must_use]
 pub fn imageproc_rect_from_rect(rect: &Rect) -> imageproc::rect::Rect {
     imageproc::rect::Rect::at(rect.left(), rect.top()).of_size(rect.width(), rect.height())
 }
@@ -611,7 +612,7 @@ pub fn draw_find_timing_mark_border_result_mut(
             searched,
             duration,
         } => {
-            debug.write(&format!("{label}_success").to_lowercase(), |canvas| {
+            debug.write(format!("{label}_success").to_lowercase(), |canvas| {
                 for (mark, color) in marks.iter().zip(rainbow()) {
                     draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), color);
                 }
@@ -637,7 +638,7 @@ pub fn draw_find_timing_mark_border_result_mut(
             });
         }
         BestFitSearchResult::NotFound { searched, duration } => {
-            debug.write(&format!("{label}_failure").to_lowercase(), |canvas| {
+            debug.write(format!("{label}_failure").to_lowercase(), |canvas| {
                 for (segment, color) in searched.iter().zip(rainbow()) {
                     draw_line_segment_mut(canvas, segment.start.into(), segment.end.into(), color);
                 }
@@ -934,6 +935,11 @@ pub fn draw_filtered_timing_marks_debug_image_mut(
 }
 
 /// Draws a debug image showing all the points of the timing mark grid.
+///
+/// # Panics
+///
+/// Panics if the given timing mark grid does not correspond to the given
+/// geometry in terms of grid size.
 pub fn draw_timing_mark_grid_debug_image_mut(
     canvas: &mut RgbImage,
     timing_mark_grid: &TimingMarkGrid,
@@ -989,6 +995,12 @@ pub fn draw_corner_match_info_debug_image_mut(
     }
 }
 
+/// Returns a monospace font for use in debug images.
+///
+/// # Panics
+///
+/// Panics if the font data is invalid.
+#[must_use]
 pub fn monospace_font() -> FontRef<'static> {
     FontRef::try_from_slice(include_bytes!("../../data/fonts/Inconsolata-Regular.ttf"))
         .expect("font is valid")
@@ -1143,6 +1155,7 @@ pub fn draw_scored_bubble_marks_debug_image_mut(
     }
 }
 
+/// Draw bounds around the scored write-in areas.
 pub fn draw_scored_write_in_areas(
     canvas: &mut RgbImage,
     scored_write_in_areas: &ScoredPositionAreas,
@@ -1173,9 +1186,7 @@ pub fn draw_scored_write_in_areas(
         draw_text_with_background_mut(
             canvas,
             &option_text,
-            bounds.left()
-                - i32::try_from(option_text_width).expect("option_text_width fits within i32")
-                - 5,
+            bounds.left() - i32ify!(option_text_width) - 5,
             (bounds.top() + bounds.bottom()) / 2 - i32ify!(option_text_height / 2),
             scale,
             font,
@@ -1333,6 +1344,7 @@ pub fn draw_diagnostic_cells(canvas: &mut RgbImage, passed_cells: &[Rect], faile
 }
 
 #[derive(Debug)]
+#[must_use]
 pub struct ImageDebugWriter {
     input_path: PathBuf,
     input_image: Option<GrayImage>,
@@ -1367,10 +1379,17 @@ impl ImageDebugWriter {
         }
     }
 
+    #[must_use]
     pub const fn is_disabled(&self) -> bool {
         self.input_image.is_none()
     }
 
+    /// Calls the provided function to draw on the debug image, then writes the
+    /// image to the specified path.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the image cannot be saved.
     pub fn write(
         &self,
         label: impl AsRef<str>,

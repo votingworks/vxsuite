@@ -43,10 +43,10 @@ impl BallotGridCorners {
         &CandidateTimingMark,
     ) {
         (
-            &self.top_left.best_corner_grouping.corner_mark,
-            &self.top_right.best_corner_grouping.corner_mark,
-            &self.bottom_left.best_corner_grouping.corner_mark,
-            &self.bottom_right.best_corner_grouping.corner_mark,
+            &self.top_left.best_corner_grouping.corner,
+            &self.top_right.best_corner_grouping.corner,
+            &self.bottom_left.best_corner_grouping.corner,
+            &self.bottom_right.best_corner_grouping.corner,
         )
     }
 
@@ -72,6 +72,7 @@ impl BallotGridCorners {
 
     /// Find all corners of the ballot grid. Searches based on the left and
     /// right edges rather than the top and bottom ones.
+    #[allow(clippy::result_large_err)]
     pub fn find_all(
         image_size: Size<u32>,
         geometry: &Geometry,
@@ -88,7 +89,7 @@ impl BallotGridCorners {
         );
 
         let top_left_corner_candidates =
-            CandidateCornerGrouping::find_all_within_border_candidate_marks(
+            CandidateCornerMarkGrouping::find_all_within_border_candidate_marks(
                 geometry,
                 &candidates.left,
                 ballot_top_left,
@@ -96,7 +97,7 @@ impl BallotGridCorners {
                 Point::new(0.0, timing_mark_center_to_center_distance),
             );
         let top_right_corner_candidates =
-            CandidateCornerGrouping::find_all_within_border_candidate_marks(
+            CandidateCornerMarkGrouping::find_all_within_border_candidate_marks(
                 geometry,
                 &candidates.right,
                 ballot_top_right,
@@ -104,7 +105,7 @@ impl BallotGridCorners {
                 Point::new(0.0, timing_mark_center_to_center_distance),
             );
         let bottom_left_corner_candidates =
-            CandidateCornerGrouping::find_all_within_border_candidate_marks(
+            CandidateCornerMarkGrouping::find_all_within_border_candidate_marks(
                 geometry,
                 &candidates.left,
                 ballot_bottom_left,
@@ -112,7 +113,7 @@ impl BallotGridCorners {
                 Point::new(0.0, -timing_mark_center_to_center_distance),
             );
         let bottom_right_corner_candidates =
-            CandidateCornerGrouping::find_all_within_border_candidate_marks(
+            CandidateCornerMarkGrouping::find_all_within_border_candidate_marks(
                 geometry,
                 &candidates.right,
                 ballot_bottom_right,
@@ -190,34 +191,34 @@ impl BallotGridCorners {
 
 #[derive(Debug, Clone)]
 pub struct BallotGridCorner {
-    best_corner_grouping: CandidateCornerGrouping,
-    all_possible_corner_groupings: Vec<CandidateCornerGrouping>,
+    best_corner_grouping: CandidateCornerMarkGrouping,
+    all_possible_corner_groupings: Vec<CandidateCornerMarkGrouping>,
 }
 
 impl BallotGridCorner {
-    pub const fn best_corner_grouping(&self) -> &CandidateCornerGrouping {
+    pub const fn best_corner_grouping(&self) -> &CandidateCornerMarkGrouping {
         &self.best_corner_grouping
     }
 
-    pub fn all_possible_corner_groupings(&self) -> &[CandidateCornerGrouping] {
+    pub fn all_possible_corner_groupings(&self) -> &[CandidateCornerMarkGrouping] {
         &self.all_possible_corner_groupings
     }
 }
 
 #[derive(Debug, Clone)]
-pub struct CandidateCornerGrouping {
-    corner_mark: CandidateTimingMark,
-    row_mark: CandidateTimingMark,
-    column_mark: CandidateTimingMark,
+pub struct CandidateCornerMarkGrouping {
+    corner: CandidateTimingMark,
+    row: CandidateTimingMark,
+    column: CandidateTimingMark,
 }
 
-impl CandidateCornerGrouping {
+impl CandidateCornerMarkGrouping {
     pub const fn corner_mark(&self) -> &CandidateTimingMark {
-        &self.corner_mark
+        &self.corner
     }
 
     pub fn iter(&self) -> impl Iterator<Item = &CandidateTimingMark> {
-        [&self.corner_mark, &self.row_mark, &self.column_mark].into_iter()
+        [&self.corner, &self.row, &self.column].into_iter()
     }
 
     pub fn find_all_within_border_candidate_marks(
@@ -226,7 +227,7 @@ impl CandidateCornerGrouping {
         closest_to_point: Point<f32>,
         expected_horizontal_offset: Point<f32>,
         expected_vertical_offset: Point<f32>,
-    ) -> Vec<CandidateCornerGrouping> {
+    ) -> Vec<CandidateCornerMarkGrouping> {
         mark_distances_to_point(candidate_timing_marks, closest_to_point)
             .sorted_by(|(a, _), (b, _)| a.total_cmp(b))
             .filter_map(|(_, corner_mark)| {
@@ -234,39 +235,33 @@ impl CandidateCornerGrouping {
 
                 let expected_row_mark_center =
                     corner_mark.rect().center() + expected_horizontal_offset;
-                let Some((_, row_mark)) =
+                let (_, row_mark) =
                     mark_distances_to_point(candidate_timing_marks, expected_row_mark_center)
                         .filter(|(distance, _)| distance <= &error_tolerance)
-                        .min_by(|(a, _), (b, _)| a.total_cmp(b))
-                else {
-                    return None;
-                };
+                        .min_by(|(a, _), (b, _)| a.total_cmp(b))?;
 
                 let expected_column_mark_center =
                     corner_mark.rect().center() + expected_vertical_offset;
-                let Some((_, column_mark)) =
+                let (_, column_mark) =
                     mark_distances_to_point(candidate_timing_marks, expected_column_mark_center)
                         .filter(|(distance, _)| distance <= &error_tolerance)
-                        .min_by(|(a, _), (b, _)| a.total_cmp(b))
-                else {
-                    return None;
-                };
+                        .min_by(|(a, _), (b, _)| a.total_cmp(b))?;
 
-                Some(CandidateCornerGrouping {
-                    corner_mark: *corner_mark,
-                    row_mark: *row_mark,
-                    column_mark: *column_mark,
+                Some(CandidateCornerMarkGrouping {
+                    corner: *corner_mark,
+                    row: *row_mark,
+                    column: *column_mark,
                 })
             })
             .collect_vec()
     }
 }
 
-impl IntoIterator for CandidateCornerGrouping {
+impl IntoIterator for CandidateCornerMarkGrouping {
     type Item = CandidateTimingMark;
     type IntoIter = core::array::IntoIter<Self::Item, 3>;
 
     fn into_iter(self) -> Self::IntoIter {
-        [self.corner_mark, self.row_mark, self.column_mark].into_iter()
+        [self.corner, self.row, self.column].into_iter()
     }
 }

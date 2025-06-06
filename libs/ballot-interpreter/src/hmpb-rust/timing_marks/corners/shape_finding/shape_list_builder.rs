@@ -22,7 +22,7 @@ impl ShapeListBuilder {
                 && shape
                     .y_ranges
                     .first()
-                    .map_or(false, |r| ranges_overlap(r, &y_range))
+                    .is_some_and(|r| ranges_overlap(r, &y_range))
         });
 
         let shape_to_the_left = self.shapes.iter().find_position(|shape| {
@@ -30,7 +30,7 @@ impl ShapeListBuilder {
                 && shape
                     .y_ranges
                     .last()
-                    .map_or(false, |r| ranges_overlap(r, &y_range))
+                    .is_some_and(|r| ranges_overlap(r, &y_range))
         });
 
         match (shape_to_the_left, shape_to_the_right) {
@@ -101,7 +101,7 @@ mod tests {
                 x: 0,
                 y_ranges: vec![0..=2]
             }]
-        )
+        );
     }
 
     #[test]
@@ -121,7 +121,7 @@ mod tests {
                     y_ranges: vec![0..=2]
                 }
             ]
-        )
+        );
     }
 
     #[test]
@@ -141,7 +141,7 @@ mod tests {
                     y_ranges: vec![6..=9]
                 }
             ]
-        )
+        );
     }
 
     #[test]
@@ -155,7 +155,7 @@ mod tests {
                 x: 0,
                 y_ranges: vec![0..=2, 0..=2]
             },]
-        )
+        );
     }
 
     #[test]
@@ -169,7 +169,7 @@ mod tests {
                 x: 0,
                 y_ranges: vec![0..=2, 0..=2]
             },]
-        )
+        );
     }
 
     #[test]
@@ -184,6 +184,6 @@ mod tests {
                 x: 0,
                 y_ranges: vec![0..=2, 0..=2, 0..=2]
             },]
-        )
+        );
     }
 }

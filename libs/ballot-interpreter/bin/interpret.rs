@@ -67,7 +67,7 @@ fn main() -> color_eyre::Result<()> {
         None,
     );
     let duration = start.elapsed();
-    let exit_code = i32::from(!result.is_ok());
+    let exit_code = i32::from(result.is_err());
 
     match result {
         Ok(interpretation) => {

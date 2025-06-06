@@ -28,6 +28,11 @@ struct Options {
 }
 
 /// Find the timing mark grid in a ballot image.
+///
+/// # Errors
+///
+/// Returns an error if the timing mark grid cannot be found.
+#[allow(clippy::result_large_err)]
 pub fn find_timing_mark_grid(
     ballot_image: &BallotImage,
     geometry: &Geometry,
@@ -62,7 +67,7 @@ pub fn find_timing_mark_grid(
         corners.debug_draw(canvas);
     });
 
-    let borders = BallotGridBorders::find_all(geometry, &corners, candidates)?;
+    let borders = BallotGridBorders::find_all(geometry, &corners, &candidates)?;
 
     debug.write("04-borders", |canvas| {
         borders.debug_draw(canvas);
@@ -85,7 +90,7 @@ pub fn find_timing_mark_grid(
     .map_cornerwise(|mark| mark.rect().center());
 
     let complete_timing_marks = Complete {
-        geometry: *geometry,
+        geometry: geometry.clone(),
         top_left_corner,
         top_right_corner,
         bottom_left_corner,

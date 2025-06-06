@@ -117,6 +117,7 @@ pub enum BallotPageMetadata {
 /// location of bubbles in the grid.
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
+#[must_use]
 pub struct TimingMarkGrid {
     /// The geometry of the ballot card.
     pub geometry: Geometry,
@@ -154,6 +155,7 @@ impl TimingMarkGrid {
     ///    the marks being cropped during scanning or border removal
     /// 3. Interpolating horizontally between the left/right timing mark
     ///    positions based on the given column index.
+    #[must_use]
     pub fn point_for_location(
         &self,
         column: SubGridUnit,
@@ -286,6 +288,7 @@ pub enum Border {
 }
 
 /// Determines whether a rect could be a timing mark based on its rect.
+#[must_use]
 pub fn rect_could_be_timing_mark(geometry: &Geometry, rect: &Rect) -> bool {
     let timing_mark_size = geometry.timing_mark_size;
 

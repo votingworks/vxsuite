@@ -1,6 +1,11 @@
+#![allow(clippy::cast_precision_loss)]
+#![allow(clippy::cast_possible_truncation)]
+#![allow(clippy::cast_sign_loss)]
+#![allow(clippy::cast_possible_wrap)]
+
 use std::{
     io::{stdout, BufRead, BufReader, BufWriter, Write},
-    path::PathBuf,
+    path::{Path, PathBuf},
     process,
     str::FromStr,
     time::{Duration, Instant},
@@ -9,8 +14,8 @@ use std::{
 use ballot_interpreter::{
     ballot_card::PaperInfo,
     debug,
-    interpret::{prepare_ballot_page_image, TimingMarkAlgorithm},
-    timing_marks::{contours, corners},
+    interpret::{self, prepare_ballot_page_image, Error, TimingMarkAlgorithm},
+    timing_marks::{contours, corners, TimingMarkGrid},
 };
 use clap::Parser;
 use color_eyre::owo_colors::OwoColorize;
@@ -70,7 +75,7 @@ impl Options {
                     .open(expected_failure_manifest)?,
             )
             .lines()
-            .flatten()
+            .map_while(Result::ok)
             .filter_map(|line| {
                 let line = line.trim();
                 if line.is_empty() {
@@ -98,6 +103,67 @@ impl Options {
     }
 }
 
+#[allow(clippy::result_large_err)]
+fn process_path(
+    path: &Path,
+    options: &Options,
+    load_image_duration: &mut Duration,
+    prepare_image_duration: &mut Duration,
+    find_timing_marks_duration: &mut Duration,
+) -> interpret::Result<TimingMarkGrid> {
+    let start = Instant::now();
+    let image = image::open(path)
+        .map_err(|e| Error::MissingTimingMarks {
+            reason: format!("Unable to load image: {e}"),
+        })?
+        .to_luma8();
+    *load_image_duration += start.elapsed();
+
+    let start = Instant::now();
+    let ballot_page = prepare_ballot_page_image("image", image, &PaperInfo::scanned())?;
+    *prepare_image_duration += start.elapsed();
+
+    let debug = if options.debug {
+        debug::ImageDebugWriter::new(path.to_path_buf(), ballot_page.ballot_image.image.clone())
+    } else {
+        debug::ImageDebugWriter::disabled()
+    };
+
+    let start = Instant::now();
+    let find_result = match options.timing_mark_algorithm {
+        TimingMarkAlgorithm::Contours => contours::find_timing_mark_grid(
+            &ballot_page.geometry,
+            &ballot_page.ballot_image,
+            contours::FindTimingMarkGridOptions {
+                allowed_timing_mark_inset_percentage_of_width:
+                    contours::ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH,
+                infer_timing_marks: matches!(options.inference, Inference::Infer),
+                debug: &mut debug::ImageDebugWriter::disabled(),
+            },
+        ),
+        TimingMarkAlgorithm::Corners => {
+            corners::find_timing_mark_grid(&ballot_page.ballot_image, &ballot_page.geometry, &debug)
+        }
+    };
+    *find_timing_marks_duration += start.elapsed();
+
+    match find_result {
+        Ok(grid) => {
+            debug.write("complete_timing_marks", |canvas| {
+                debug::draw_timing_mark_debug_image_mut(
+                    canvas,
+                    &ballot_page.geometry,
+                    &grid.complete_timing_marks.clone().into(),
+                );
+            });
+
+            Ok(grid)
+        }
+        Err(e) => Err(e),
+    }
+}
+
+#[allow(clippy::too_many_lines)]
 fn main() -> color_eyre::Result<()> {
     let options = Options::parse();
     let file_count = options.scanned_page_paths.len() as u32;
@@ -110,50 +176,15 @@ fn main() -> color_eyre::Result<()> {
     let mut prepare_image_duration = Duration::ZERO;
     let mut find_timing_marks_duration = Duration::ZERO;
 
-    for path in options.scanned_page_paths {
-        let start = Instant::now();
-        let image = image::open(&path)?.to_luma8();
-        load_image_duration += start.elapsed();
-
-        let start = Instant::now();
-        let ballot_page = prepare_ballot_page_image("image", image, &PaperInfo::scanned())?;
-        prepare_image_duration += start.elapsed();
-
-        let debug = if options.debug {
-            debug::ImageDebugWriter::new(path.clone(), ballot_page.ballot_image.image.clone())
-        } else {
-            debug::ImageDebugWriter::disabled()
-        };
-
-        let start = Instant::now();
-        let find_result = match options.timing_mark_algorithm {
-            TimingMarkAlgorithm::Contours => contours::find_timing_mark_grid(
-                &ballot_page.geometry,
-                &ballot_page.ballot_image,
-                contours::FindTimingMarkGridOptions {
-                    allowed_timing_mark_inset_percentage_of_width:
-                        contours::ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH,
-                    infer_timing_marks: matches!(options.inference, Inference::Infer),
-                    debug: &mut debug::ImageDebugWriter::disabled(),
-                },
-            ),
-            TimingMarkAlgorithm::Corners => corners::find_timing_mark_grid(
-                &ballot_page.ballot_image,
-                &ballot_page.geometry,
-                &debug,
-            ),
-        };
-
-        match find_result {
-            Ok(grid) => {
-                debug.write("complete_timing_marks", |canvas| {
-                    debug::draw_timing_mark_debug_image_mut(
-                        canvas,
-                        &ballot_page.geometry,
-                        &grid.complete_timing_marks.into(),
-                    );
-                });
-
+    for path in &options.scanned_page_paths {
+        match process_path(
+            path,
+            &options,
+            &mut load_image_duration,
+            &mut prepare_image_duration,
+            &mut find_timing_marks_duration,
+        ) {
+            Ok(_) => {
                 success_count += 1;
                 let _ = writeln!(
                     &mut output,
@@ -163,25 +194,24 @@ fn main() -> color_eyre::Result<()> {
                 );
             }
             Err(e) => {
-                let _ = if expected_failure_manifest.contains(&path.canonicalize()?) {
+                if expected_failure_manifest.contains(path) {
                     expected_failure_count += 1;
-                    writeln!(
+                    let _ = writeln!(
                         &mut output,
                         "{}",
                         format!("NOT OK: {path} (expected)", path = path.display()).dimmed(),
-                    )
+                    );
                 } else {
-                    writeln!(
+                    let _ = writeln!(
                         &mut output,
                         "{}: {path}: {e}",
                         "NOT OK".bold(),
-                        path = path.display()
-                    )
-                };
+                        path = path.display(),
+                        e = e.red()
+                    );
+                }
             }
         }
-
-        find_timing_marks_duration += start.elapsed();
     }
 
     drop(output);
@@ -206,9 +236,7 @@ fn main() -> color_eyre::Result<()> {
         success_count.green()
     );
 
-    process::exit(if success_count + expected_failure_count != file_count {
-        1
-    } else {
-        0
-    })
+    process::exit(i32::from(
+        success_count + expected_failure_count != file_count,
+    ))
 }

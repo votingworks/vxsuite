@@ -18,6 +18,7 @@ use crate::{
 };
 
 #[derive(Clone, Copy, Serialize)]
+#[must_use]
 pub struct UnitIntervalScore(pub UnitIntervalValue);
 
 impl Display for UnitIntervalScore {

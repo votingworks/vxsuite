@@ -55,8 +55,9 @@ pub enum Orientation {
     PortraitReversed,
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
+#[must_use]
 pub struct Geometry {
     pub ballot_paper_size: BallotPaperSize,
     pub pixels_per_inch: PixelUnit,
@@ -85,6 +86,7 @@ const BALLOT_CARD_SCAN_MARGINS: Size<Inch> = Size {
 };
 
 #[derive(Debug, Copy, Clone, PartialEq)]
+#[must_use]
 pub struct PaperInfo {
     pub size: BallotPaperSize,
     pub margins: Size<Inch>,
@@ -256,6 +258,7 @@ impl PaperInfo {
     }
 }
 
+#[must_use]
 pub fn get_matching_paper_info_for_image_size(
     size: (PixelUnit, PixelUnit),
     possible_paper_info: &[PaperInfo],
@@ -299,6 +302,11 @@ pub fn get_matching_paper_info_for_image_size(
         .map(|(paper_info, _)| *paper_info)
 }
 
+/// Load the ballot scan bubble image.
+///
+/// # Errors
+///
+/// Returns an error if the image cannot be loaded or converted to grayscale.
 pub fn load_ballot_scan_bubble_image() -> Result<GrayImage, image::ImageError> {
     let bubble_image_bytes = include_bytes!("../../data/bubble_scan.png");
     let inner = io::Cursor::new(bubble_image_bytes);
