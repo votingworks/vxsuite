@@ -14,5 +14,6 @@
   "centralScanAdjudicationReasons": [],
   "precinctScanAdjudicationReasons": [],
   "adminAdjudicationReasons": [],
-  "disallowCastingOvervotes": false
+  "disallowCastingOvervotes": false,
+  "precinctScanEnableBmdBallotScanning": true
 }
