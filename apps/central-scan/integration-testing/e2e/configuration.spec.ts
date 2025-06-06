@@ -3,7 +3,7 @@ import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
 import {
   clearTemporaryRootDir,
-  electionGridLayoutNewHampshireTestBallotFixtures,
+  electionFamousNames2021Fixtures,
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
 import { logInAsElectionManager, forceReset } from './helpers';
@@ -23,12 +23,12 @@ test('configure + scan', async ({ page }) => {
 
   await logInAsElectionManager(
     page,
-    electionGridLayoutNewHampshireTestBallotFixtures.readElection()
+    electionFamousNames2021Fixtures.readElection()
   );
 
   usbHandler.insert(
     await mockElectionPackageFileTree(
-      electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage()
+      electionFamousNames2021Fixtures.electionJson.toElectionPackage()
     )
   );
   await page.getByText('No ballots have been scanned').waitFor();
