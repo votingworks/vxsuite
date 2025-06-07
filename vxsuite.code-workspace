@@ -89,6 +89,10 @@
       "path": "apps/pollbook/frontend"
     },
     {
+      "name": "apps/pollbook/barcode-scanner-daemon",
+      "path": "apps/pollbook/barcode-scanner-daemon"
+    },
+    {
       "name": "libs/api",
       "path": "libs/api"
     },

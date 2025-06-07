@@ -85,6 +85,8 @@ pub enum Source {
     VxPollbookFrontend,
     #[serde(rename = "vx-pollbook-backend")]
     VxPollbookBackend,
+    #[serde(rename = "vx-pollbook-barcode-scanner-daemon")]
+    VxPollbookBarcodeScannerDaemon,
 }
 derive_display!(Source);
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
@@ -207,6 +209,8 @@ pub enum EventId {
     MachineShutdownInit,
     #[serde(rename = "machine-shutdown-complete")]
     MachineShutdownComplete,
+    #[serde(rename = "usb-device-reconnect-attempted")]
+    UsbDeviceReconnectAttempted,
     #[serde(rename = "usb-device-change-detected")]
     UsbDeviceChangeDetected,
     #[serde(rename = "info")]
@@ -377,5 +381,21 @@ pub enum EventId {
     BackgroundTaskStatus,
     #[serde(rename = "api-call")]
     ApiCall,
+    #[serde(rename = "socket-client-connect-init")]
+    SocketClientConnectInit,
+    #[serde(rename = "socket-client-connected")]
+    SocketClientConnected,
+    #[serde(rename = "socket-client-disconnected")]
+    SocketClientDisconnected,
+    #[serde(rename = "socket-client-error")]
+    SocketClientError,
+    #[serde(rename = "socket-server-bind")]
+    SocketServerBind,
+    #[serde(rename = "socket-server-close")]
+    SocketServerClose,
+    #[serde(rename = "socket-server-awaiting-client")]
+    SocketServerAwaitingClient,
+    #[serde(rename = "socket-server-error")]
+    SocketServerError,
 }
 derive_display!(EventId);
