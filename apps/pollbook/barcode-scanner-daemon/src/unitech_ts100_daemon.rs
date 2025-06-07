@@ -6,11 +6,10 @@ use std::os::unix::fs::PermissionsExt;
 use std::str::from_utf8;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
-use std::thread::sleep;
 use tokio::io::{AsyncBufReadExt, AsyncRead, AsyncWriteExt, BufReader};
 use tokio::net::{UnixListener, UnixStream};
 use tokio::sync::Mutex;
-use tokio::time::{timeout, Duration, Instant};
+use tokio::time::{sleep, timeout, Duration};
 use tokio_serial::{DataBits, FlowControl, Parity, SerialPortBuilderExt, SerialStream, StopBits};
 use vx_logging::{log, set_source, Disposition, EventId, EventType, Source};
 
@@ -77,13 +76,13 @@ const MAX_AAMVA_DOCUMENT_SIZE: usize = {
 const READ_LOOP_INTERVAL: Duration = Duration::from_millis(1000);
 
 // Resets the TS100 barcode scanner
-fn reset_scanner() -> Result<(), nusb::Error> {
+async fn reset_scanner() -> Result<(), nusb::Error> {
     match nusb::list_devices()?
         .find(|dev| dev.vendor_id() == UNITECH_VENDOR_ID && dev.product_id() == TS100_PRODUCT_ID)
     {
         Some(device) => {
             device.open()?.reset()?;
-            sleep(std::time::Duration::from_millis(500));
+            sleep(std::time::Duration::from_millis(500)).await;
             Ok(())
         }
         None => Err(Error::new(
@@ -94,11 +93,11 @@ fn reset_scanner() -> Result<(), nusb::Error> {
 }
 
 // Connects to TS100 barcode scanner
-fn init_port(port_name: &str, baud_rate: u32) -> color_eyre::Result<SerialStream> {
+async fn init_port(port_name: &str, baud_rate: u32) -> color_eyre::Result<SerialStream> {
     // We have experienced difficulty reconnecting the scanner when the daemon
     // is stopped and started multiple times. Resetting the scanner solves the issue.
     // Configuration such as USB COM Port Emulation persists between resets.
-    match reset_scanner() {
+    match reset_scanner().await {
         Ok(()) => {
             log!(
                 event_id: EventId::UsbDeviceReconnectAttempted,
@@ -193,15 +192,16 @@ where
 {
     let max_data_size = MAX_AAMVA_DOCUMENT_SIZE + 1; // + 1 for length of data terminator
     let mut buf = Vec::with_capacity(max_data_size);
-    let mut start = Instant::now();
     let mut reader = BufReader::new(raw_port);
 
-    while running.load(Ordering::SeqCst) {
-        if start.elapsed() > HEARTBEAT_LOG_INTERVAL {
-            start = Instant::now();
+    tokio::spawn(async move {
+        loop {
+            tokio::time::sleep(HEARTBEAT_LOG_INTERVAL).await;
             log!(EventId::Heartbeat; EventType::SystemStatus);
         }
+    });
 
+    while running.load(Ordering::SeqCst) {
         buf.clear();
 
         let timeout_result = timeout(
@@ -339,7 +339,7 @@ async fn main() -> color_eyre::Result<()> {
     });
 
     // Connect to barcode scanner device
-    match init_port(TS100_PORT_NAME, TS100_BAUD_RATE) {
+    match init_port(TS100_PORT_NAME, TS100_BAUD_RATE).await {
         Ok(port) => {
             log!(
                 event_id: EventId::DeviceAttached,
@@ -568,9 +568,9 @@ DCUJR
         assert_eq!(v, expect);
     }
 
-    #[test]
-    fn reset_scanner_no_device_returns_not_connected_error() {
-        let err = reset_scanner().expect_err("Expected Err when no device found. Are you running this test with the device attached?");
+    #[tokio::test]
+    async fn reset_scanner_no_device_returns_not_connected_error() {
+        let err = reset_scanner().await.expect_err("Expected Err when no device found. Are you running this test with the device attached?");
 
         assert_eq!(
             err.kind(),
