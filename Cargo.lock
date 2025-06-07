@@ -283,6 +283,7 @@ dependencies = [
  "ctrlc",
  "nix 0.26.4",
  "nusb",
+ "proptest",
  "serde",
  "serde_json",
  "thiserror",
