@@ -297,12 +297,13 @@ async fn main() -> color_eyre::Result<()> {
 
     // Set up ctrl+c handler
     let running = Arc::new(AtomicBool::new(true));
-    ctrlc::set_handler({
+    tokio::spawn({
         let running = running.clone();
-        move || {
+        async move {
+            let _ = tokio::signal::ctrl_c().await;
             running.store(false, Ordering::SeqCst);
         }
-    })?;
+    });
 
     // Open Unix domain socket and get back a handle to the socket
     let listener = open_socket()?;

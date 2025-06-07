@@ -12,7 +12,6 @@ path = "src/unitech_ts100_daemon.rs"
 [dependencies]
 chrono = { workspace = true, features = ["serde"] }
 color-eyre = { workspace = true }
-ctrlc = { workspace = true }
 nix = { workspace = true }
 nusb = { workspace = true }
 proptest = { workspace = true }
