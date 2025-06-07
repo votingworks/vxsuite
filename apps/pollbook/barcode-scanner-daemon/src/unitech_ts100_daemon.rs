@@ -9,7 +9,7 @@ use std::sync::Arc;
 use tokio::io::{AsyncBufReadExt, AsyncRead, AsyncWriteExt, BufReader};
 use tokio::net::{UnixListener, UnixStream};
 use tokio::sync::Mutex;
-use tokio::time::{sleep, timeout, Duration};
+use tokio::time::{sleep, Duration};
 use tokio_serial::{DataBits, FlowControl, Parity, SerialPortBuilderExt, SerialStream, StopBits};
 use vx_logging::{log, set_source, Disposition, EventId, EventType, Source};
 
@@ -68,12 +68,6 @@ const MAX_AAMVA_DOCUMENT_SIZE: usize = {
     const SUM_ALL_ELEMENTS_SIZE: usize = 535;
     (NON_DATA_BYTES + 1) * MAX_NUM_ELEMENTS + SUM_ALL_ELEMENTS_SIZE
 };
-
-/*
- * Read loop config
- */
-/// How long the read loop will wait before declaring a timeout and trying again.
-const READ_LOOP_INTERVAL: Duration = Duration::from_millis(1000);
 
 // Resets the TS100 barcode scanner
 async fn reset_scanner() -> Result<(), nusb::Error> {
@@ -204,96 +198,87 @@ where
     while running.load(Ordering::SeqCst) {
         buf.clear();
 
-        let timeout_result = timeout(
-            READ_LOOP_INTERVAL,
-            reader.read_until(TS100_DATA_TERMINATOR, &mut buf),
-        )
-        .await;
-        // An `Elapsed` error just means no data came in from the scanner during the interval.
-        // This error can be ignored.
-        if let Ok(read_result) = timeout_result {
-            match read_result {
-                Ok(n) => {
-                    buf.pop();
+        match reader.read_until(TS100_DATA_TERMINATOR, &mut buf).await {
+            Ok(n) => {
+                buf.pop();
 
-                    if buf.is_empty() {
-                        // Expected at the end of the document
-                        log!(EventId::Info, "No data preceding terminator character");
-                        continue;
-                    }
+                if buf.is_empty() {
+                    // Expected at the end of the document
+                    log!(EventId::Info, "No data preceding terminator character");
+                    continue;
+                }
 
-                    if n > max_data_size + 1 {
+                if n > max_data_size + 1 {
+                    log!(
+                        EventId::ParseError,
+                        "Scan data size of {n} exceeded limit of {max_data_size}",
+                    );
+                    continue;
+                }
+
+                // We expect the input sequence to start with the compliance indicator
+                // on its own line so we just ignore it and skip to the next line.
+                // Existence of the compliance indicator is not enforced.
+                if buf == COMPLIANCE_INDICATOR {
+                    log!(EventId::Info, "Skipping compliance indicator");
+                    continue;
+                }
+
+                // Parse and emit JSON
+                let str = match from_utf8(&buf) {
+                    Ok(str) => str,
+                    Err(e) => {
                         log!(
-                            EventId::ParseError,
-                            "Scan data size of {n} exceeded limit of {max_data_size}",
+                            event_id: EventId::ParseError,
+                            message: format!("Error parsing read bytes as UTF-8: {e}")
                         );
                         continue;
                     }
+                };
 
-                    // We expect the input sequence to start with the compliance indicator
-                    // on its own line so we just ignore it and skip to the next line.
-                    // Existence of the compliance indicator is not enforced.
-                    if buf == COMPLIANCE_INDICATOR {
-                        log!(EventId::Info, "Skipping compliance indicator");
+                let doc: AamvaDocument = match str.parse() {
+                    Ok(doc) => doc,
+                    Err(err @ AamvaParseError::DataTooLong(_, _)) => {
+                        // Exit if data is in AAMVA format but doesn't follow AAMVA spec
+                        log!(
+                            event_id: EventId::ParseError,
+                            message: format!("Unexpected data in AAMVA format. Error was: {err}"),
+                            event_type: EventType::SystemAction,
+                            disposition: Disposition::Failure
+                        );
                         continue;
                     }
-
-                    // Parse and emit JSON
-                    let str = match from_utf8(&buf) {
-                        Ok(str) => str,
-                        Err(e) => {
-                            log!(
-                                event_id: EventId::ParseError,
-                                message: format!("Error parsing read bytes as UTF-8: {e}")
-                            );
-                            continue;
-                        }
-                    };
-
-                    let doc: AamvaDocument = match str.parse() {
-                        Ok(doc) => doc,
-                        Err(err @ AamvaParseError::DataTooLong(_, _)) => {
-                            // Exit if data is in AAMVA format but doesn't follow AAMVA spec
-                            log!(
-                                event_id: EventId::ParseError,
-                                message: format!("Unexpected data in AAMVA format. Error was: {err}"),
-                                event_type: EventType::SystemAction,
-                                disposition: Disposition::Failure
-                            );
-                            continue;
-                        }
-                        Err(err) => {
-                            // Don't exit if this could have been a scan of a non-AAMVA document
-                            // or we tried to parse an unsupported subfile type (as is common on
-                            // non-NH licenses)
-                            log!(
-                                event_id: EventId::ParseError,
-                                message: format!("Read data that was not in the supported subset of AAMVA or was not AAMVA at all: {err}"),
-                                event_type: EventType::SystemAction,
-                                disposition: Disposition::Failure
-                            );
-                            continue;
-                        }
-                    };
-
-                    if let Err(err) = broadcast_to_clients(&clients, &doc).await {
+                    Err(err) => {
+                        // Don't exit if this could have been a scan of a non-AAMVA document
+                        // or we tried to parse an unsupported subfile type (as is common on
+                        // non-NH licenses)
                         log!(
-                            EventId::SocketServerError,
-                            "Failed to write scan to clients: {err}"
+                            event_id: EventId::ParseError,
+                            message: format!("Read data that was not in the supported subset of AAMVA or was not AAMVA at all: {err}"),
+                            event_type: EventType::SystemAction,
+                            disposition: Disposition::Failure
                         );
+                        continue;
                     }
+                };
 
-                    log!(EventId::Info, "Successfully parsed and sent document data");
+                if let Err(err) = broadcast_to_clients(&clients, &doc).await {
+                    log!(
+                        EventId::SocketServerError,
+                        "Failed to write scan to clients: {err}"
+                    );
                 }
-                Err(e) => {
-                    // `running` isn't read after the loop exits, but we set it to be correct
-                    running.store(false, Ordering::SeqCst);
 
-                    return Err(std::io::Error::new(
-                        e.kind(),
-                        format!("Error reading from USB device: {e}"),
-                    ));
-                }
+                log!(EventId::Info, "Successfully parsed and sent document data");
+            }
+            Err(e) => {
+                // `running` isn't read after the loop exits, but we set it to be correct
+                running.store(false, Ordering::SeqCst);
+
+                return Err(std::io::Error::new(
+                    e.kind(),
+                    format!("Error reading from USB device: {e}"),
+                ));
             }
         }
     }
