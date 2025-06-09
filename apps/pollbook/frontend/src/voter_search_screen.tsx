@@ -97,6 +97,7 @@ export function VoterSearch({
     const socket = io(SOCKET_IO_SERVER_ADDRESS);
     socket.on('barcode-scan', (data: AamvaDocument) => {
       setDebouncedSearch({
+        ...search,
         firstName: data.firstName,
         lastName: data.lastName,
       });
@@ -104,7 +105,7 @@ export function VoterSearch({
     return () => {
       socket.disconnect();
     };
-  }, []);
+  }, [search]);
 
   return (
     <Column style={{ gap: '1rem', height: '100%' }}>
