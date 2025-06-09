@@ -130,7 +130,7 @@ function ConfirmMarkInactiveModal({
     return (
       <Modal
         title={<React.Fragment>Error Marking Inactive</React.Fragment>}
-        content="This voter is already checked in and can not be marked as inactive."
+        content="This voter is already checked in and cannot be marked as inactive."
         actions={<Button onPress={onClose}>Cancel</Button>}
         onOverlayClick={onClose}
       />
