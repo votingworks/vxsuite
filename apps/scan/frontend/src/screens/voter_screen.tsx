@@ -37,7 +37,7 @@ export function VoterScreen({
   const scannerStatusQuery = getScannerStatus.useQuery({
     refetchInterval: (status) =>
       status?.state === 'scanning'
-        ? 50
+        ? 100
         : POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
   });
 
