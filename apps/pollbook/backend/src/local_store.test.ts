@@ -21,7 +21,8 @@ test('findVoterWithName works as expected - voters without name changes', () => 
     createVoter('11', 'Ella-', `Smith`, 'Stephanie', ''),
     createVoter('12', 'Ariel', `Farmer`, 'Cassie', 'I'),
     createVoter('13', 'Ariel', `Farmer`, 'Cassie', 'II '),
-    createVoter('14', 'Ariel', `Farmer`, 'Samantha', 'II'),
+    createVoter('14', 'Ariel', `Farmer`, 'Samantha', 'II '),
+    createVoter('15', 'ariel', `Farm'er`, 'Samantha', 'II'),
   ];
   const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
   localStore.setElectionAndVoters(
@@ -100,4 +101,13 @@ test('findVoterWithName works as expected - voters without name changes', () => 
       suffix: 'ii',
     })
   ).toMatchObject({ voterId: voters[3].voterId });
+
+  expect(
+    localStore.findVoterWithName({
+      firstName: 'ariel',
+      lastName: 'FARMER',
+      middleName: 'saman-tha',
+      suffix: 'ii',
+    })
+  ).toEqual(2);
 });

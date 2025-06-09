@@ -334,7 +334,7 @@ function buildApi({ context, logger }: BuildAppParams) {
     async registerVoter(input: {
       registrationData: VoterRegistrationRequest;
       overrideNameMatchWarning: boolean;
-    }): Promise<Result<Voter, Voter>> {
+    }): Promise<Result<Voter, Voter | number>> {
       const election = assertDefined(store.getElection());
       if (!input.overrideNameMatchWarning) {
         const hasNameMatch = store.findVoterWithName(input.registrationData);

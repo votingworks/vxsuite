@@ -335,7 +335,9 @@ export class LocalStore extends Store {
     return { voter, receiptNumber };
   }
 
-  findVoterWithName(nameData: VoterNameChangeRequest): Voter | undefined {
+  findVoterWithName(
+    nameData: VoterNameChangeRequest
+  ): Voter | number | undefined {
     const lastNamePattern = toPatternMatches(nameData.lastName);
     const firstNamePattern = toPatternMatches(nameData.firstName);
     const middleNamePattern = toPatternMatches(nameData.middleName);
@@ -382,6 +384,7 @@ export class LocalStore extends Store {
     // Convert event rows to pollbook events and apply them to the voters
     const events = convertDbRowsToPollbookEvents(eventRows);
     const updatedVoters = applyPollbookEventsToVoters(voters, events);
+    const matchedVoters: Voter[] = [];
     for (const voter of Object.values(updatedVoters)) {
       // Get the current name (from nameChange if present, otherwise from voter)
       const currentName = voter.nameChange ?? voter;
@@ -392,10 +395,13 @@ export class LocalStore extends Store {
         currentName.middleName ?? ''
       );
       if (suffixMatches && middleNameMatches) {
-        return voter;
+        matchedVoters.push(voter);
       }
     }
-    return undefined;
+    if (matchedVoters.length === 1) {
+      return matchedVoters[0];
+    }
+    return matchedVoters.length || undefined;
   }
 
   registerVoter(voterRegistration: VoterRegistrationRequest): {
