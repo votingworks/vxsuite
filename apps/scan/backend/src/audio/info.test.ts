@@ -49,7 +49,6 @@ test('retries with increasing delays', async () => {
   // Attempt #4: should succeed if builtin audio detected.
   mockGetAudioInfo.mockResolvedValueOnce({
     builtin: { headphonesActive: false, name: 'pci.stereo' },
-    usb: { name: 'usb.stereo' },
   });
   await vi.advanceTimersByTimeAsync(baseRetryDelayMs * 3);
   expect(await deferredAudioInfo).toEqual({
