@@ -433,12 +433,24 @@ export function createApiMock() {
 
     expectRegisterVoter(
       registrationData: VoterRegistrationRequest,
+      overrideNameMatchWarning: boolean,
       voter: Voter
     ) {
       mockApiClient.registerVoter.reset();
       mockApiClient.registerVoter
-        .expectCallWith({ registrationData })
-        .resolves(voter);
+        .expectCallWith({ registrationData, overrideNameMatchWarning })
+        .resolves(ok(voter));
+    },
+
+    expectRegisterVoterError(
+      registrationData: VoterRegistrationRequest,
+      overrideNameMatchWarning: boolean,
+      errorInfo: Voter | number
+    ) {
+      mockApiClient.registerVoter.reset();
+      mockApiClient.registerVoter
+        .expectCallWith({ registrationData, overrideNameMatchWarning })
+        .resolves(err(errorInfo));
     },
 
     // The caller is responsible for updating expectGetVoter or other API mocks

@@ -185,6 +185,7 @@ export function VoterRegistrationScreen(): JSX.Element | null {
             <Button
               icon="Add"
               variant="primary"
+              data-testid="add-voter-btn"
               onPress={() => {
                 setFlowState({ step: 'printing', registrationData: voter });
                 registerVoterMutation.mutate(
@@ -230,6 +231,7 @@ export function VoterRegistrationScreen(): JSX.Element | null {
                 <React.Fragment>
                   <Button
                     color="primary"
+                    data-testid="confirm-duplicate-btn"
                     onPress={() => {
                       setFlowState({
                         step: 'printing',
