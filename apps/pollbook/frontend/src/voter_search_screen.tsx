@@ -59,10 +59,13 @@ const VoterTable = styled(Table)`
   }
 `;
 
-export function createEmptySearchParams(): VoterSearchParams {
+export function createEmptySearchParams(
+  includeInactiveVoters: boolean
+): VoterSearchParams {
   return {
     lastName: '',
     firstName: '',
+    includeInactiveVoters,
   };
 }
 

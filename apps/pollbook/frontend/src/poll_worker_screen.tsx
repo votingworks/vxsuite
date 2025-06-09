@@ -1,6 +1,9 @@
 import { useCallback, useState } from 'react';
 import { throwIllegalValue } from '@votingworks/basics';
-import type { VoterSearchParams } from '@votingworks/pollbook-backend';
+import type {
+  VoterCheckInError,
+  VoterSearchParams,
+} from '@votingworks/pollbook-backend';
 import {
   Button,
   ButtonBar,
@@ -36,7 +39,7 @@ type CheckInFlowState =
   | { step: 'confirm'; voterId: string; search: VoterSearchParams }
   | { step: 'printing' }
   | { step: 'success'; voterId: string }
-  | { step: 'error' };
+  | { step: 'error'; errorType: VoterCheckInError };
 
 export function VoterCheckInSuccessScreen({
   voterId,
@@ -89,7 +92,7 @@ export function VoterCheckInSuccessScreen({
 export function VoterCheckInScreen(): JSX.Element | null {
   const [flowState, setFlowState] = useState<CheckInFlowState>({
     step: 'search',
-    search: createEmptySearchParams(),
+    search: createEmptySearchParams(false),
   });
   const [timeoutIdForFlowStateReset, setTimeoutIdForFlowStateReset] =
     useState<ReturnType<typeof setTimeout>>();
@@ -98,7 +101,7 @@ export function VoterCheckInScreen(): JSX.Element | null {
 
   const resetFlowState = useCallback(() => {
     clearTimeout(timeoutIdForFlowStateReset);
-    setFlowState({ step: 'search', search: createEmptySearchParams() });
+    setFlowState({ step: 'search', search: createEmptySearchParams(false) });
   }, [timeoutIdForFlowStateReset]);
 
   if (!getIsAbsenteeModeQuery.isSuccess) {
@@ -146,7 +149,7 @@ export function VoterCheckInScreen(): JSX.Element | null {
                       )
                     );
                   } else {
-                    setFlowState({ step: 'error' });
+                    setFlowState({ step: 'error', errorType: result.err() });
                   }
                 },
               }
@@ -186,7 +189,18 @@ export function VoterCheckInScreen(): JSX.Element | null {
         />
       );
 
-    case 'error':
+    case 'error': {
+      let errorMessage = '';
+      switch (flowState.errorType) {
+        case 'already_checked_in':
+          errorMessage = 'Voter Already Checked In';
+          break;
+        case 'voter_inactive':
+          errorMessage = 'Voter Inactive';
+          break;
+        default:
+          throwIllegalValue(flowState.errorType);
+      }
       return (
         <NoNavScreen>
           <MainHeader>
@@ -197,7 +211,7 @@ export function VoterCheckInScreen(): JSX.Element | null {
           </MainHeader>
           <Column style={{ justifyContent: 'center', flex: 1 }}>
             <FullScreenMessage
-              title="Voter Already Checked In"
+              title={errorMessage}
               image={
                 <FullScreenIconWrapper>
                   <Icons.Danger color="danger" />
@@ -210,7 +224,7 @@ export function VoterCheckInScreen(): JSX.Element | null {
           </ButtonBar>
         </NoNavScreen>
       );
-
+    }
     default:
       throwIllegalValue(flowState);
   }

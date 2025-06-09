@@ -22,6 +22,7 @@ import {
   VoterCheckInEvent,
   VoterGroup,
   VoterIdentificationMethod,
+  VoterInactivatedEvent,
   VoterNameChange,
   VoterNameChangeEvent,
   VoterNameChangeRequest,
@@ -136,6 +137,7 @@ export class LocalStore extends Store {
     this.client.transaction(() => {
       this.client.run('delete from elections');
       this.client.run('delete from voters');
+      this.client.run('delete from check_in_status');
       this.client.run('delete from event_log');
     });
     this.currentClock = new HybridLogicalClock(this.machineId);
@@ -200,7 +202,7 @@ export class LocalStore extends Store {
   }
 
   searchVoters(searchParams: VoterSearchParams): Voter[] | number {
-    const { lastName, firstName } = searchParams;
+    const { lastName, firstName, includeInactiveVoters } = searchParams;
     const MAX_VOTER_SEARCH_RESULTS = 100;
 
     const lastNamePattern = toPattern(lastName);
@@ -222,6 +224,7 @@ export class LocalStore extends Store {
       return [];
     }
 
+    // TODO - This might be wrong if we are filtering out inactive voters, see if its a perf hit to always get the db events.
     if (voterRows.length > MAX_VOTER_SEARCH_RESULTS) {
       return voterRows.length;
     }
@@ -251,6 +254,14 @@ export class LocalStore extends Store {
     // Convert event rows to pollbook events and apply them to the voters
     const events = convertDbRowsToPollbookEvents(eventRows);
     const updatedVoters = applyPollbookEventsToVoters(voters, events);
+
+    // Filter out inactive voters if includeInactiveVoters is false
+    if (!includeInactiveVoters) {
+      const filteredVoters = Object.values(updatedVoters).filter(
+        (v) => !v.isInactive
+      );
+      return sortedByVoterName(filteredVoters);
+    }
 
     // Return the sorted list of voters
     return sortedByVoterName(Object.values(updatedVoters));
@@ -426,6 +437,33 @@ export class LocalStore extends Store {
           timestamp,
           receiptNumber,
           nameChangeData,
+        })
+      );
+    });
+
+    return { voter: updatedVoter, receiptNumber };
+  }
+
+  markVoterInactive(voterId: string): { voter: Voter; receiptNumber: number } {
+    debug(`Marking ${voterId} as inactive`);
+    const voter = this.getVoter(voterId);
+    assert(voter);
+
+    const updatedVoter: Voter = {
+      ...voter,
+      isInactive: true,
+    };
+
+    const timestamp = this.incrementClock();
+    const receiptNumber = this.getNextEventId();
+    this.client.transaction(() => {
+      this.saveEvent(
+        typedAs<VoterInactivatedEvent>({
+          type: EventType.MarkInactive,
+          machineId: this.machineId,
+          voterId,
+          timestamp,
+          receiptNumber,
         })
       );
     });
