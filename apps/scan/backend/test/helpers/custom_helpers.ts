@@ -70,11 +70,15 @@ import {
   wrapFujitsuThermalPrinter,
   wrapLegacyPrinter,
 } from '../../src/printing/printer';
+import { Player as AudioPlayer } from '../../src/audio/player';
+
+vi.mock('./audio/player');
 
 export async function withApp(
   fn: (context: {
     apiClient: grout.Client<Api>;
     app: Application;
+    mockAudioPlayer: Mocked<AudioPlayer>;
     mockAuth: InsertedSmartCardAuthApi;
     mockScanner: Mocked<CustomScanner>;
     workspace: Workspace;
@@ -122,7 +126,13 @@ export async function withApp(
   )
     ? wrapLegacyPrinter(mockPrinterHandler.printer)
     : wrapFujitsuThermalPrinter(mockFujitsuPrinterHandler.printer);
+
+  const mockAudioPlayer = vi.mocked(
+    new AudioPlayer('development', logger, 'pci.stereo')
+  );
+
   const app = buildApp({
+    audioPlayer: mockAudioPlayer,
     auth: mockAuth,
     machine: precinctScannerMachine,
     workspace,
@@ -145,6 +155,7 @@ export async function withApp(
     await fn({
       apiClient,
       app,
+      mockAudioPlayer,
       mockAuth,
       mockScanner,
       workspace,

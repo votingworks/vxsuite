@@ -64,6 +64,9 @@ import {
   waitForStatus,
 } from './shared_helpers';
 import { Store } from '../../src/store';
+import { Player as AudioPlayer } from '../../src/audio/player';
+
+vi.mock('./audio/player');
 
 export interface MockPdiScannerClient {
   emitEvent: (event: ScannerEvent) => void;
@@ -132,6 +135,7 @@ export async function simulateScan(
 export interface AppContext {
   apiClient: grout.Client<Api>;
   app: Application;
+  mockAudioPlayer: Mocked<AudioPlayer>;
   mockAuth: Mocked<InsertedSmartCardAuthApi>;
   mockScanner: MockPdiScannerClient;
   workspace: Workspace;
@@ -175,7 +179,12 @@ export async function withApp(
     clock,
   });
 
+  const mockAudioPlayer = vi.mocked(
+    new AudioPlayer('development', logger, 'pci.stereo')
+  );
+
   const app = buildApp({
+    audioPlayer: mockAudioPlayer,
     auth: mockAuth,
     machine: precinctScannerMachine,
     workspace,
@@ -199,6 +208,7 @@ export async function withApp(
     await fn({
       apiClient,
       app,
+      mockAudioPlayer,
       mockAuth,
       mockScanner,
       workspace,
