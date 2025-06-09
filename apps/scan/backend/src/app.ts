@@ -68,11 +68,13 @@ import {
   testPrintFailureDiagnosticMessage,
 } from './util/diagnostics';
 import { saveReadinessReport } from './printing/readiness_report';
+import { Player as AudioPlayer, SoundName } from './audio/player';
 
 export const BALLOT_AUDIT_ID_FILE_NAME = 'ballot-audit-id-secret-key.txt';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi({
+  audioPlayer,
   auth,
   machine,
   workspace,
@@ -80,6 +82,7 @@ export function buildApi({
   printer,
   logger,
 }: {
+  audioPlayer: AudioPlayer;
   auth: InsertedSmartCardAuthApi;
   machine: PrecinctScannerStateMachine;
   workspace: Workspace;
@@ -562,6 +565,10 @@ export function buildApi({
       return exportResult;
     },
 
+    playSound(input: { name: SoundName }): Promise<void> {
+      return audioPlayer.play(input.name);
+    },
+
     ...createUiStringsApi({
       logger,
       store: workspace.store.getUiStringsStore(),
@@ -579,6 +586,7 @@ export function buildApi({
 export type Api = ReturnType<typeof buildApi>;
 
 export function buildApp({
+  audioPlayer,
   auth,
   machine,
   workspace,
@@ -586,6 +594,7 @@ export function buildApp({
   printer,
   logger,
 }: {
+  audioPlayer: AudioPlayer;
   auth: InsertedSmartCardAuthApi;
   machine: PrecinctScannerStateMachine;
   workspace: Workspace;
@@ -594,7 +603,15 @@ export function buildApp({
   logger: Logger;
 }): Application {
   const app: Application = express();
-  const api = buildApi({ auth, machine, workspace, usbDrive, printer, logger });
+  const api = buildApi({
+    audioPlayer,
+    auth,
+    machine,
+    workspace,
+    usbDrive,
+    printer,
+    logger,
+  });
   app.use('/api', grout.buildRouter(api, express));
   return app;
 }

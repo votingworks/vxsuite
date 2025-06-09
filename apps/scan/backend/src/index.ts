@@ -61,7 +61,7 @@ function resolveWorkspace(): Workspace {
   return createWorkspace(workspacePath, baseLogger);
 }
 
-function main(): number {
+async function main(): Promise<number> {
   handleUncaughtExceptions(baseLogger);
 
   const auth = new InsertedSmartCardAuth({
@@ -98,7 +98,7 @@ function main(): number {
     return 0;
   }
 
-  server.start({
+  await server.start({
     auth,
     workspace,
     usbDrive,
@@ -109,14 +109,16 @@ function main(): number {
 }
 
 if (require.main === module) {
-  try {
-    process.exitCode = main();
-  } catch (error) {
-    assert(error instanceof Error);
-    baseLogger.log(LogEventId.ApplicationStartup, 'system', {
-      message: `Error in starting VxScan backend: ${error.stack}`,
-      disposition: 'failure',
+  void main()
+    .then((code) => {
+      process.exitCode = code;
+    })
+    .catch((error) => {
+      assert(error instanceof Error);
+      baseLogger.log(LogEventId.ApplicationStartup, 'system', {
+        message: `Error in starting VxScan backend: ${error.stack}`,
+        disposition: 'failure',
+      });
+      process.exitCode = 1;
     });
-    process.exitCode = 1;
-  }
 }
