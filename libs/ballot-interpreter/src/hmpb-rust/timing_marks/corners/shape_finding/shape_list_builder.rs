@@ -1,4 +1,4 @@
-use std::ops::RangeInclusive;
+use std::{borrow::Borrow, ops::RangeInclusive};
 
 use itertools::Itertools;
 
@@ -78,13 +78,56 @@ impl IntoIterator for ShapeListBuilder {
 }
 
 /// Determines whether the given ranges share at least one value.
-fn ranges_overlap(a: &RangeInclusive<u32>, b: &RangeInclusive<u32>) -> bool {
+fn ranges_overlap(
+    a: impl Borrow<RangeInclusive<u32>>,
+    b: impl Borrow<RangeInclusive<u32>>,
+) -> bool {
+    let a = a.borrow();
+    let b = b.borrow();
     a.contains(b.start()) || a.contains(b.end()) || b.contains(a.start()) || b.contains(a.end())
 }
 
 #[cfg(test)]
 mod tests {
+    use proptest::proptest;
+
     use super::*;
+
+    proptest! {
+        #[test]
+        fn test_ranges_overlap_with_self(n: u32) {
+            assert!(ranges_overlap(n..=n, n..=n));
+        }
+
+        #[test]
+        fn test_ranges_overlap_arguments_are_associative(a: u32, b: u32, c: u32, d: u32) {
+            assert_eq!(ranges_overlap(a..=b, c..=d), ranges_overlap(c..=d, a..=b));
+        }
+
+        #[test]
+        fn test_ranges_do_not_overlap_with_adjacent_ranges(n: u32) {
+            assert!(!ranges_overlap(n..=n, n - 1..=n - 1));
+            assert!(!ranges_overlap(n..=n, n + 1..=n + 1));
+        }
+    }
+
+    #[test]
+    fn test_ranges_overlap_one_before_the_other() {
+        assert!(!ranges_overlap(0..=2, 3..=5));
+        assert!(!ranges_overlap(3..=5, 0..=2));
+    }
+
+    #[test]
+    fn test_ranges_overlap_one_starts_but_does_not_end_within_the_other() {
+        assert!(ranges_overlap(0..=2, 1..=3));
+        assert!(ranges_overlap(1..=3, 0..=2));
+    }
+
+    #[test]
+    fn test_ranges_overlap_one_is_contained_within_the_other() {
+        assert!(ranges_overlap(0..=3, 1..=2));
+        assert!(ranges_overlap(1..=2, 0..=3));
+    }
 
     #[test]
     fn test_empty_state() {
