@@ -2,6 +2,7 @@ import { expect, test, vi } from 'vitest';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { electionGeneralFixtures } from '@votingworks/fixtures';
 import { PrecinctScannerStatus } from '@votingworks/scan-backend';
+import { sleep } from '@votingworks/basics';
 import { render, waitFor } from '../../test/react_testing_library';
 import { VoterScreen, VoterScreenProps } from './voter_screen';
 import {
@@ -50,11 +51,17 @@ function renderScreen(
 test('renders useScanFeedbackAudio hook', async () => {
   const { apiMock } = renderScreen(statusNoPaper, { isSoundMuted: false });
 
+  let playSound: UseScanFeedbackAudioInput['playSound'] | undefined;
+  useScanFeedbackAudioMock.mockImplementation((input) => {
+    playSound = input.playSound;
+  });
+
   expect(useScanFeedbackAudioMock).toHaveBeenLastCalledWith<
     [UseScanFeedbackAudioInput]
   >({
     currentState: undefined,
     isSoundMuted: false,
+    playSound: expect.anything(),
   });
 
   apiMock.mockApiClient.assertComplete();
@@ -65,6 +72,16 @@ test('renders useScanFeedbackAudio hook', async () => {
     >({
       currentState: 'no_paper',
       isSoundMuted: false,
+      playSound: expect.anything(),
     })
   );
+
+  // Verify playSound API is passed to the hook:
+
+  apiMock.expectPlaySound('error');
+
+  playSound?.({ name: 'error' });
+  await sleep(0);
+
+  apiMock.mockApiClient.playSound.assertComplete();
 });

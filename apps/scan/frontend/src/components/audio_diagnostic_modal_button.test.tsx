@@ -1,5 +1,6 @@
 import { vi, test, expect } from 'vitest';
 import userEvent from '@testing-library/user-event';
+import { sleep } from '@votingworks/basics';
 import {
   render as baseRender,
   screen,
@@ -7,53 +8,37 @@ import {
   within,
 } from '../../test/react_testing_library';
 import { AudioDiagnosticModalButton } from './audio_diagnostic_modal_button';
-import { useSound } from '../utils/use_sound';
 import { createApiMock, provideApi } from '../../test/helpers/mock_api_client';
 
 vi.mock('../utils/use_sound');
 
-const mockUseSound = vi.mocked(useSound);
-
 function setUp() {
-  // const mockLogOutcome = vi.fn();
-  // const apiMock: vi.Mocked<Partial<ApiClient>> = {
-  //   logAudioDiagnosticOutcome: mockLogOutcome,
-  // };
-
   const apiMock = createApiMock();
-
-  const mockPlaySound = vi.fn();
-  mockUseSound.mockReturnValue(mockPlaySound);
 
   return {
     apiMock,
-    mockPlaySound,
     render: (ui: React.ReactNode) => baseRender(provideApi(apiMock, ui)),
   };
 }
 
-test('shows modal on press', () => {
-  const { render } = setUp();
+test('shows modal and plays sound on press', async () => {
+  const { apiMock, render } = setUp();
 
   render(<AudioDiagnosticModalButton />);
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
+  apiMock.expectPlaySound('success');
+
   userEvent.click(screen.getButton('Test Sound'));
   within(screen.getByRole('alertdialog')).getByText(/did you hear/i);
-});
 
-test('plays sound on open', () => {
-  const { mockPlaySound, render } = setUp();
-
-  render(<AudioDiagnosticModalButton />);
-  expect(mockPlaySound).not.toHaveBeenCalled();
-
-  userEvent.click(screen.getButton('Test Sound'));
-  expect(mockPlaySound).toHaveBeenCalled();
+  await sleep(0);
+  apiMock.mockApiClient.assertComplete();
 });
 
 test('logs outcomes & closes modal on user confirmation', async () => {
   const { apiMock, render } = setUp();
+  apiMock.expectPlaySoundRepeated('success');
 
   render(<AudioDiagnosticModalButton />);
 

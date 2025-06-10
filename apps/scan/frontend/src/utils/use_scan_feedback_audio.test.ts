@@ -1,42 +1,17 @@
-import { beforeEach, expect, Mock, test, vi } from 'vitest';
+import { expect, test, vi } from 'vitest';
 import {
   PRECINCT_SCANNER_STATES,
   PrecinctScannerState,
 } from '@votingworks/types';
-import { assertDefined } from '@votingworks/basics';
-import { useHeadphonesPluggedIn } from '@votingworks/ui';
-import { SoundType, useSound } from './use_sound';
+import { SoundName } from '@votingworks/scan-backend';
 import { renderHook } from '../../test/react_testing_library';
 import { useScanFeedbackAudio } from './use_scan_feedback_audio';
 
-vi.mock('../utils/use_sound');
-vi.mock('@votingworks/ui');
-
-const useSoundMock = vi.mocked(useSound);
-const mockSounds: Partial<Record<SoundType, Mock<() => void>>> = {
-  error: vi.fn(),
-  warning: vi.fn(),
-  success: vi.fn(),
-};
-
-const useHeadphonesPluggedInMock = vi.mocked(useHeadphonesPluggedIn);
-
-function throwOnAllMockSounds() {
-  for (const [type, mockSound] of Object.entries(mockSounds)) {
-    mockSound.mockImplementation(() => {
-      throw new Error(`Unexpected sound played: ${type}`);
-    });
-  }
-}
-
-beforeEach(() => {
-  throwOnAllMockSounds();
-  useSoundMock.mockImplementation((type) => assertDefined(mockSounds[type]));
-});
+const playSound = vi.fn<(params: { name: SoundName }) => void>();
 
 const STATE_SOUND_MAPPING: Array<{
   state: PrecinctScannerState;
-  sound: SoundType;
+  sound: SoundName;
 }> = [
   { state: 'accepted', sound: 'success' },
   { state: 'needs_review', sound: 'warning' },
@@ -50,62 +25,49 @@ const STATE_SOUND_MAPPING: Array<{
 test.each(STATE_SOUND_MAPPING)(
   '$state state change plays $expected sound',
   ({ sound, state }) => {
-    useHeadphonesPluggedInMock.mockReturnValue(false);
-    throwOnAllMockSounds();
-
     const result = renderHook(useScanFeedbackAudio, {
-      initialProps: { currentState: 'no_paper', isSoundMuted: false },
+      initialProps: {
+        currentState: 'no_paper',
+        isSoundMuted: false,
+        playSound,
+      },
     });
+    expect(playSound).not.toHaveBeenCalled();
 
-    const expectedSoundMock = assertDefined(mockSounds[sound]);
-    expectedSoundMock.mockImplementation(() => {});
+    playSound.mockResolvedValueOnce(undefined);
 
-    result.rerender({ currentState: state, isSoundMuted: false });
-    expect(expectedSoundMock).toHaveBeenCalledOnce();
+    result.rerender({ currentState: state, isSoundMuted: false, playSound });
+    expect(playSound).toHaveBeenCalledWith({ name: sound });
 
-    expectedSoundMock.mockClear();
+    playSound.mockClear();
 
     // No sound if state is unchanged:
-    result.rerender({ currentState: state, isSoundMuted: false });
-    expect(expectedSoundMock).not.toHaveBeenCalled();
+    result.rerender({ currentState: state, isSoundMuted: false, playSound });
+    expect(playSound).not.toHaveBeenCalled();
   }
 );
 
 const STATES_WITH_SOUND = STATE_SOUND_MAPPING.map((m) => m.state);
 
-test.each(STATES_WITH_SOUND)("no '%s' sound over headphones", (state) => {
-  useHeadphonesPluggedInMock.mockReturnValue(true);
-  throwOnAllMockSounds();
-
-  const result = renderHook(useScanFeedbackAudio, {
-    initialProps: { currentState: 'no_paper', isSoundMuted: false },
-  });
-
-  result.rerender({ currentState: state, isSoundMuted: false });
-});
-
 test.each(STATES_WITH_SOUND)("no '%s' sound when system is muted", (state) => {
-  useHeadphonesPluggedInMock.mockReturnValue(false);
-  throwOnAllMockSounds();
-
   const result = renderHook(useScanFeedbackAudio, {
-    initialProps: { currentState: 'no_paper', isSoundMuted: false },
+    initialProps: { currentState: 'no_paper', isSoundMuted: false, playSound },
   });
 
-  result.rerender({ currentState: state, isSoundMuted: true });
+  result.rerender({ currentState: state, isSoundMuted: true, playSound });
+  expect(playSound).not.toHaveBeenCalled();
 });
 
 test('no sound for all other states', () => {
-  useHeadphonesPluggedInMock.mockReturnValue(false);
-  throwOnAllMockSounds();
-
   const result = renderHook(useScanFeedbackAudio, {
-    initialProps: { currentState: 'no_paper', isSoundMuted: false },
+    initialProps: { currentState: 'no_paper', isSoundMuted: false, playSound },
   });
 
   for (const state of PRECINCT_SCANNER_STATES) {
     if (STATES_WITH_SOUND.includes(state)) continue;
 
-    result.rerender({ currentState: state, isSoundMuted: false });
+    result.rerender({ currentState: state, isSoundMuted: false, playSound });
   }
+
+  expect(playSound).not.toHaveBeenCalled();
 });

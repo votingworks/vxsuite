@@ -343,6 +343,7 @@ test('shows instructions to restart when the scanner client crashed', async () =
     ...statusNoPaper,
     state: 'unrecoverable_error',
   });
+  apiMock.expectPlaySound('error');
   apiMock.setPrinterStatusV4();
   renderApp();
   await screen.findByRole('heading', { name: 'Scanner Error' });

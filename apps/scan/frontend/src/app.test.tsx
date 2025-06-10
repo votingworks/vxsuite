@@ -80,6 +80,7 @@ test('shows insert USB Drive screen when there is no USB drive', async () => {
   apiMock.expectGetUsbDriveStatus('no_drive');
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.setPrinterStatusV4();
+  apiMock.expectPlaySound('alarm');
   renderApp();
   await screen.findByText('No USB Drive Detected');
 });
@@ -322,6 +323,7 @@ async function scanBallot() {
   vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
 
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'accepted' }));
+  apiMock.expectPlaySound('success');
   apiMock.mockApiClient.readyForNextBallot.expectCallWith().resolves();
   vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText('Your ballot was counted!');
@@ -434,6 +436,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   apiMock.expectGetScannerStatus(
     scannerStatus({ state: 'needs_review', interpretation })
   );
+  apiMock.expectPlaySound('warning');
   vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText('No votes were found when scanning this ballot.');
   userEvent.click(screen.getByRole('button', { name: 'Cast Ballot' }));
@@ -446,6 +449,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   apiMock.expectGetScannerStatus(
     scannerStatus({ state: 'accepted', interpretation })
   );
+  apiMock.expectPlaySound('success');
   apiMock.mockApiClient.readyForNextBallot.expectCallWith().resolves();
   userEvent.click(screen.getByRole('button', { name: 'Cast Ballot' }));
   await screen.findByText('Your ballot was counted!');
@@ -501,6 +505,7 @@ test('voter can cast another ballot while the success screen is showing', async 
   apiMock.expectGetScannerStatus(
     scannerStatus({ state: 'accepted', ballotsCounted: 1 })
   );
+  apiMock.expectPlaySound('success');
   apiMock.mockApiClient.readyForNextBallot.expectCallWith().resolves();
   apiMock.setPrinterStatusV4();
   renderApp();
@@ -520,6 +525,7 @@ test('voter can cast another ballot while the success screen is showing', async 
       },
     })
   );
+  apiMock.expectPlaySound('warning');
   vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText('No votes were found when scanning this ballot.');
 });
@@ -756,6 +762,7 @@ test('ballot mode banner consistently displayed in voter screens', async () => {
   // banner after successful scan
   apiMock.mockApiClient.readyForNextBallot.expectCallWith().resolves();
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'accepted' }));
+  apiMock.expectPlaySound('success');
   vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText('Your ballot was counted!');
   screen.getByText('Test Ballot Mode');
@@ -1179,6 +1186,7 @@ test('"Test" voter settings are cleared when a voter finishes', async () => {
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.setPrinterStatusV4();
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'accepted' }));
+  apiMock.expectPlaySound('success');
   apiMock.mockApiClient.readyForNextBallot.expectCallWith().resolves();
 
   renderApp();
