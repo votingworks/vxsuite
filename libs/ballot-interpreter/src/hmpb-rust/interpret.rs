@@ -36,13 +36,13 @@ use crate::scoring::score_bubble_marks_from_grid_layout;
 use crate::scoring::score_write_in_areas;
 use crate::scoring::ScoredBubbleMarks;
 use crate::scoring::ScoredPositionAreas;
-use crate::timing_marks::find_timing_mark_grid;
+use crate::timing_marks::contours::find_timing_mark_grid;
+use crate::timing_marks::contours::FindTimingMarkGridOptions;
+use crate::timing_marks::contours::ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH;
 use crate::timing_marks::normalize_orientation;
+use crate::timing_marks::scoring::CandidateTimingMark;
 use crate::timing_marks::BallotPageMetadata;
-use crate::timing_marks::CandidateTimingMark;
-use crate::timing_marks::FindTimingMarkGridOptions;
 use crate::timing_marks::TimingMarkGrid;
-use crate::timing_marks::ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH;
 
 #[derive(Debug, Clone)]
 pub struct Options {
