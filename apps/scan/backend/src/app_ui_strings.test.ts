@@ -23,7 +23,7 @@ import {
   testCdfBallotDefinition,
 } from '@votingworks/types';
 import { createMockPrinterHandler } from '@votingworks/printing';
-import { mockBaseLogger } from '@votingworks/logging';
+import { mockBaseLogger, mockLogger } from '@votingworks/logging';
 import { Store } from './store';
 import { buildApi } from './app';
 import { createWorkspace } from './util/workspace';
@@ -32,6 +32,7 @@ import {
   buildMockLogger,
   createPrecinctScannerStateMachineMock,
 } from '../test/helpers/shared_helpers';
+import { Player as AudioPlayer } from './audio/player';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
@@ -39,6 +40,12 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
   ...(await importActual()),
   isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
 }));
+
+vi.mock('./audio/player');
+
+const mockAudioPlayer = vi.mocked(
+  new AudioPlayer('development', mockLogger({ fn: vi.fn() }), 'pci.stereo')
+);
 
 const store = Store.memoryStore();
 const workspace = createWorkspace(
@@ -61,6 +68,7 @@ afterEach(() => {
 
 runUiStringApiTests({
   api: buildApi({
+    audioPlayer: mockAudioPlayer,
     auth: mockAuth,
     machine: createPrecinctScannerStateMachineMock(),
     workspace,
@@ -94,6 +102,7 @@ describe('configureFromElectionPackageOnUsbDrive', () => {
   });
 
   const api = buildApi({
+    audioPlayer: mockAudioPlayer,
     auth: mockAuth,
     machine: createPrecinctScannerStateMachineMock(),
     workspace,
@@ -115,6 +124,7 @@ describe('configureFromElectionPackageOnUsbDrive', () => {
 
 describe('unconfigureElection', () => {
   const api = buildApi({
+    audioPlayer: mockAudioPlayer,
     auth: mockAuth,
     machine: createPrecinctScannerStateMachineMock(),
     workspace,

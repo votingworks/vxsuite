@@ -15,11 +15,13 @@ import {
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import { buildApp } from './app';
-import { PORT } from './globals';
+import { NODE_ENV, PORT } from './globals';
 import { Workspace } from './util/workspace';
 import { Printer, getPrinter } from './printing/printer';
 import * as customStateMachine from './scanners/custom/state_machine';
 import * as pdiStateMachine from './scanners/pdi/state_machine';
+import { Player as AudioPlayer } from './audio/player';
+import { getAudioInfo } from './audio/info';
 
 export interface StartOptions {
   auth: InsertedSmartCardAuthApi;
@@ -33,13 +35,13 @@ export interface StartOptions {
 /**
  * Starts the server.
  */
-export function start({
+export async function start({
   auth,
   workspace,
   logger,
   usbDrive,
   printer,
-}: StartOptions): void {
+}: StartOptions): Promise<void> {
   detectDevices({ logger });
   const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
   const resolvedPrinter = printer ?? getPrinter(logger);
@@ -74,7 +76,19 @@ export function start({
   // Clear any cached data
   workspace.clearUploads();
 
+  const audioInfo = await getAudioInfo({
+    baseRetryDelayMs: 500,
+    logger,
+    maxAttempts: 4,
+    nodeEnv: NODE_ENV,
+  });
+
+  // [TODO] Set the USB audio device as the default PulseAudio output.
+
+  const audioPlayer = new AudioPlayer(NODE_ENV, logger, audioInfo.builtin.name);
+
   const app = buildApp({
+    audioPlayer,
     auth,
     machine: precinctScannerStateMachine,
     workspace,
