@@ -1,7 +1,6 @@
 import React from 'react';
 import { DiagnosticOutcome } from '@votingworks/types';
 import { Button, Icons, Modal, P } from '@votingworks/ui';
-import { useSound } from '../utils/use_sound';
 import * as api from '../api';
 
 export interface AudioDiagnosticModalProps {
@@ -12,8 +11,8 @@ export function AudioDiagnosticModal(
   props: AudioDiagnosticModalProps
 ): JSX.Element {
   const { setVisible } = props;
-  const playSound = useSound('success');
-  React.useEffect(playSound, [playSound]);
+  const playSound = api.playSound.useMutation().mutate;
+  React.useEffect(() => playSound({ name: 'success' }), [playSound]);
 
   const { isLoading, mutate: logOutcome } =
     api.logAudioDiagnosticOutcome.useMutation();

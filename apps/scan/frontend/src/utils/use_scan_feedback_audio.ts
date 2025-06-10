@@ -1,37 +1,32 @@
 import React from 'react';
 
 import { PrecinctScannerState } from '@votingworks/types';
-import { useHeadphonesPluggedIn } from '@votingworks/ui';
 
-import { useSound } from './use_sound';
+import { SoundName } from '@votingworks/scan-backend';
 
 export interface UseScanFeedbackAudioInput {
   // eslint-disable-next-line vx/gts-use-optionals
   currentState: PrecinctScannerState | undefined;
   isSoundMuted: boolean;
+  playSound: (params: { name: SoundName }) => void;
 }
 
 export function useScanFeedbackAudio(input: UseScanFeedbackAudioInput): void {
-  const { currentState, isSoundMuted } = input;
+  const { currentState, isSoundMuted, playSound } = input;
   const previousState = React.useRef<PrecinctScannerState | undefined>();
 
-  const headphonesPluggedIn = useHeadphonesPluggedIn();
-  const playSuccess = useSound('success');
-  const playWarning = useSound('warning');
-  const playError = useSound('error');
-
-  if (isSoundMuted || headphonesPluggedIn) return;
+  if (isSoundMuted) return;
   if (previousState.current === currentState) return;
 
   switch (currentState) {
     case 'accepted': {
-      playSuccess();
+      playSound({ name: 'success' });
       break;
     }
 
     case 'needs_review':
     case 'both_sides_have_paper': {
-      playWarning();
+      playSound({ name: 'warning' });
       break;
     }
 
@@ -39,7 +34,7 @@ export function useScanFeedbackAudio(input: UseScanFeedbackAudioInput): void {
     case 'jammed':
     case 'double_sheet_jammed':
     case 'unrecoverable_error': {
-      playError();
+      playSound({ name: 'error' });
       break;
     }
 
