@@ -259,27 +259,8 @@ pub fn rect_could_be_timing_mark(geometry: &Geometry, rect: &Rect) -> bool {
     let timing_mark_width = geometry.timing_mark_width_pixels();
     let timing_mark_height = geometry.timing_mark_height_pixels();
 
-    let is_near_left_or_right_edge = rect.left() < timing_mark_width.ceil() as i32
-        || rect.right() > (geometry.canvas_width_pixels() - timing_mark_width.ceil()) as i32;
-    let is_near_top_or_bottom_edge = rect.top() < timing_mark_height.ceil() as i32
-        || rect.bottom() > (geometry.canvas_height_pixels() - timing_mark_height.ceil()) as i32;
-
-    // allow timing marks near an edge to be substantially clipped
-    let min_timing_mark_width_multiplier = if is_near_left_or_right_edge {
-        0.20
-    } else {
-        0.5
-    };
-    let min_timing_mark_height_multiplier = if is_near_top_or_bottom_edge {
-        0.20
-    } else {
-        0.5
-    };
-
-    let min_timing_mark_width =
-        (timing_mark_width * min_timing_mark_width_multiplier).floor() as u32;
-    let min_timing_mark_height =
-        (timing_mark_height * min_timing_mark_height_multiplier).floor() as u32;
+    let min_timing_mark_width = (timing_mark_width * 0.5).floor() as u32;
+    let min_timing_mark_height = (timing_mark_height * 0.5).floor() as u32;
 
     // Skew/rotation can cause the height of timing marks to be slightly larger
     // than expected, so allow for a small amount of extra height when
