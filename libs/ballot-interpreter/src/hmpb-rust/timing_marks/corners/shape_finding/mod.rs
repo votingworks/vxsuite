@@ -136,7 +136,7 @@ fn find_timing_mark_shapes(
         .into_iter()
         .filter_map(|shape| {
             // Smooth out peaks caused by stray marks or debris.
-            let shape = shape.smoothed(geometry);
+            let shape = shape.smoothed();
             let bounds = shape.bounds();
 
             // Filter out anything that is not vaguely timing mark size & shape.
@@ -199,13 +199,17 @@ impl TimingMarkShape {
     }
 
     /// Builds a new `TimingMarkShape` with the same range of `x` values but
-    /// with the `y` values smoothed using a median filter whose window size
-    /// scales with the size of the timing mark's width.
+    /// with the `y` values smoothed using a median filter.
     ///
     /// See <https://en.wikipedia.org/wiki/Median_filter>
-    pub fn smoothed(&self, geometry: &Geometry) -> Self {
-        fn median_filter(values: &[u32], window_size: usize) -> Vec<u32> {
-            let half = window_size / 2;
+    pub fn smoothed(&self) -> Self {
+        /// This window size was chosen to be wide enough to smooth out bumps
+        /// of 3-4px wide, which is the maximum I saw that I wanted to be able
+        /// to recover from in the TRR corpus.
+        const WINDOW_SIZE: usize = 8;
+
+        fn median_filter(values: &[u32]) -> Vec<u32> {
+            let half = WINDOW_SIZE / 2;
             (0..values.len())
                 .map(|i| {
                     let start = i.saturating_sub(half);
@@ -217,7 +221,6 @@ impl TimingMarkShape {
                 .collect()
         }
 
-        let window_size = (geometry.timing_mark_size.width / 5.0).ceil() as usize;
         let top = median_filter(
             &self
                 .y_ranges
@@ -225,7 +228,6 @@ impl TimingMarkShape {
                 .map(RangeInclusive::start)
                 .copied()
                 .collect_vec(),
-            window_size,
         );
         let bottom = median_filter(
             &self
@@ -234,7 +236,6 @@ impl TimingMarkShape {
                 .map(RangeInclusive::end)
                 .copied()
                 .collect_vec(),
-            window_size,
         );
 
         Self {
