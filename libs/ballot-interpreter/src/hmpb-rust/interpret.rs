@@ -777,9 +777,25 @@ mod test {
         }
     }
 
+    fn is_binary_image(image: &GrayImage) -> bool {
+        image
+            .as_raw()
+            .iter()
+            .all(|&pixel| pixel == 0 || pixel == 255)
+    }
+
     #[test]
     fn test_par_map_pair() {
         assert_eq!(par_map_pair(1, 2, |n| n * 2), (2, 4));
+    }
+
+    #[test]
+    fn test_interpret_returns_binarized_images() {
+        let (side_a_image, side_b_image, options) =
+            load_hmpb_fixture("vx-general-election/letter", 1);
+        let card = ballot_card(side_a_image, side_b_image, &options).unwrap();
+        assert!(is_binary_image(&card.front.normalized_image));
+        assert!(is_binary_image(&card.back.normalized_image));
     }
 
     #[test]
