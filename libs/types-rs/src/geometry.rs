@@ -1,4 +1,7 @@
-use std::ops::{Add, AddAssign, Sub};
+use std::{
+    fmt::Display,
+    ops::{Add, AddAssign, Sub},
+};
 
 use serde::{Deserialize, Serialize};
 
@@ -121,11 +124,20 @@ pub enum Direction {
     Right,
 }
 
-/// Fractional number of inches.
-///
-/// Because this is just a type alias it does not enforce that another type
-/// with the same underlying representation is not used.
-pub type Inch = f32;
+f32_newtype!(Inch);
+
+impl Inch {
+    #[must_use]
+    pub fn pixels(self, ppi: u32) -> SubPixelUnit {
+        self.0 * ppi as SubPixelUnit
+    }
+}
+
+impl Display for Inch {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} in", self.0)
+    }
+}
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
 #[must_use]

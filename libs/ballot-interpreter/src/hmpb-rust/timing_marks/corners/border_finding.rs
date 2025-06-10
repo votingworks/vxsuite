@@ -15,7 +15,7 @@ use crate::{
 };
 use image::RgbImage;
 use imageproc::drawing::draw_filled_rect_mut;
-use types_rs::geometry::Segment;
+use types_rs::geometry::{Segment, SubPixelUnit};
 
 /// Represents the four borders of a ballot grid.
 #[derive(Debug, Clone)]
@@ -37,15 +37,21 @@ impl BallotGridBorders {
     ) -> Result<Self, Error> {
         let (top_left, top_right, bottom_left, bottom_right) = corners.corner_marks();
 
+        let horizontal_timing_mark_center_to_center_distance =
+            geometry.horizontal_timing_mark_center_to_center_pixel_distance();
+        let maximum_timing_mark_center_distance_error = geometry.timing_mark_width_pixels() / 2.0;
+
         let left = GridBorder::find_between_corners(
-            geometry,
+            horizontal_timing_mark_center_to_center_distance,
+            maximum_timing_mark_center_distance_error,
             Border::Left,
             &candidates.left,
             (top_left, bottom_left),
         )?;
 
         let right = GridBorder::find_between_corners(
-            geometry,
+            horizontal_timing_mark_center_to_center_distance,
+            maximum_timing_mark_center_distance_error,
             Border::Right,
             &candidates.right,
             (top_right, bottom_right),
@@ -59,15 +65,21 @@ impl BallotGridBorders {
         top_candidates.extend_from_slice(&[*top_left, *top_right]);
         bottom_candidates.extend_from_slice(&[*bottom_left, *bottom_right]);
 
+        let vertical_timing_mark_center_to_center_distance =
+            geometry.vertical_timing_mark_center_to_center_pixel_distance();
+        let maximum_timing_mark_center_distance_error = geometry.timing_mark_width_pixels() / 2.0;
+
         let top = GridBorder::find_between_corners(
-            geometry,
+            vertical_timing_mark_center_to_center_distance,
+            maximum_timing_mark_center_distance_error,
             Border::Top,
             &top_candidates,
             (top_left, top_right),
         )?;
 
         let bottom = GridBorder::find_between_corners(
-            geometry,
+            vertical_timing_mark_center_to_center_distance,
+            maximum_timing_mark_center_distance_error,
             Border::Bottom,
             &bottom_candidates,
             (bottom_left, bottom_right),
@@ -136,7 +148,8 @@ impl GridBorder {
     /// location to be counted.
     #[allow(clippy::result_large_err)]
     pub fn find_between_corners(
-        geometry: &Geometry,
+        timing_mark_center_to_center_distance: SubPixelUnit,
+        maximum_timing_mark_center_distance_error: SubPixelUnit,
         border: Border,
         candidate_timing_marks: &[CandidateTimingMark],
         corners: (&CandidateTimingMark, &CandidateTimingMark),
@@ -151,8 +164,6 @@ impl GridBorder {
         );
 
         let (starting_mark, ending_mark) = corners;
-        let timing_mark_center_to_center_distance =
-            geometry.timing_mark_size.width + geometry.timing_mark_size.height;
 
         let corner_to_corner_segment =
             Segment::new(starting_mark.rect().center(), ending_mark.rect().center());
@@ -167,7 +178,7 @@ impl GridBorder {
             let next_expected_mark_center = last_expected_mark_center + unit_vector;
             let Some((_, closest_mark_to_expected_center)) =
                 mark_distances_to_point(candidate_timing_marks, next_expected_mark_center)
-                    .filter(|(distance, _)| *distance <= geometry.timing_mark_size.width / 2.0)
+                    .filter(|(distance, _)| *distance <= maximum_timing_mark_center_distance_error)
                     .min_by(|(a, _), (b, _)| a.total_cmp(b))
             else {
                 return Err(Error::MissingTimingMarks {

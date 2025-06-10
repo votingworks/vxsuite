@@ -95,10 +95,11 @@ fn find_timing_mark_shapes(
     geometry: &Geometry,
     search_area: Rect,
 ) -> Vec<TimingMarkShape> {
-    let allowed_timing_mark_height_range = (geometry.timing_mark_size.height
+    let allowed_timing_mark_height_range = (geometry.timing_mark_height_pixels()
         * TIMING_MARK_HEIGHT_RATIO_RANGE.start())
     .floor() as u32
-        ..=(geometry.timing_mark_size.height * TIMING_MARK_HEIGHT_RATIO_RANGE.end()).ceil() as u32;
+        ..=(geometry.timing_mark_height_pixels() * TIMING_MARK_HEIGHT_RATIO_RANGE.end()).ceil()
+            as u32;
     let mut shape_list_builder = ShapeListBuilder::new();
     let image_bounds = Rect::new(0, 0, image.width(), image.height());
 

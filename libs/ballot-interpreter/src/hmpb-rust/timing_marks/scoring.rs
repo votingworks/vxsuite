@@ -43,8 +43,8 @@ fn score_timing_mark_geometry_match(
     let image = &ballot_image.image;
     let threshold = ballot_image.threshold;
     let image_rect = Rect::new(0, 0, image.width(), image.height());
-    let expected_width = geometry.timing_mark_size.width as PixelUnit;
-    let expected_height = geometry.timing_mark_size.height as PixelUnit;
+    let expected_width = geometry.timing_mark_width_pixels() as PixelUnit;
+    let expected_height = geometry.timing_mark_height_pixels() as PixelUnit;
     let expected_timing_mark_rect = Rect::new(
         timing_mark.left(),
         timing_mark.top(),

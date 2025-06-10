@@ -36,25 +36,31 @@ pub fn dark_rainbow() -> impl Iterator<Item = Rgb<u8>> {
     DARK_RAINBOW.iter().copied().cycle()
 }
 
-/// An inset is a set of pixel offsets from the edges of an image.
+/// An inset is a set of offsets from the edges of an image.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
-pub struct Inset {
-    /// The number of pixels to remove from the top of the image.
-    pub top: PixelUnit,
+pub struct Inset<T = PixelUnit> {
+    /// The number of units to remove from the top of the image.
+    pub top: T,
 
-    /// The number of pixels to remove from the bottom of the image.
-    pub bottom: PixelUnit,
+    /// The number of units to remove from the bottom of the image.
+    pub bottom: T,
 
-    /// The number of pixels to remove from the left of the image.
-    pub left: PixelUnit,
+    /// The number of units to remove from the left of the image.
+    pub left: T,
 
-    /// The number of pixels to remove from the right of the image.
-    pub right: PixelUnit,
+    /// The number of units to remove from the right of the image.
+    pub right: T,
 }
 
-impl Inset {
+impl<T> Inset<T>
+where
+    T: Default + PartialEq,
+{
     pub fn is_zero(&self) -> bool {
-        self.top == 0 && self.bottom == 0 && self.left == 0 && self.right == 0
+        self.top == T::default()
+            && self.bottom == T::default()
+            && self.left == T::default()
+            && self.right == T::default()
     }
 }
 

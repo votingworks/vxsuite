@@ -234,10 +234,10 @@ pub fn draw_timing_mark_debug_image_mut(
     partial_timing_marks: &Partial,
 ) {
     let allowed_inset =
-        (ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH * geometry.canvas_size.width as f32) as i32;
+        (ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH * geometry.canvas_width_pixels()) as i32;
     let inset_rect = imageproc::rect::Rect::at(allowed_inset, allowed_inset).of_size(
-        geometry.canvas_size.width - (allowed_inset * 2) as u32,
-        geometry.canvas_size.height - (allowed_inset * 2) as u32,
+        geometry.canvas_width_pixels() as PixelUnit - (allowed_inset * 2) as PixelUnit,
+        geometry.canvas_height_pixels() as PixelUnit - (allowed_inset * 2) as PixelUnit,
     );
     draw_hollow_rect_mut(canvas, inset_rect, DARK_RED);
 

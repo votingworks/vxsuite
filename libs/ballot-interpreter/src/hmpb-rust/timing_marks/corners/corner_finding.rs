@@ -79,7 +79,7 @@ impl BallotGridCorners {
         candidates: &BallotGridCandidateMarks,
     ) -> Result<Self, Error> {
         let timing_mark_center_to_center_distance =
-            geometry.timing_mark_size.width + geometry.timing_mark_size.height;
+            geometry.vertical_timing_mark_center_to_center_pixel_distance();
         let ballot_top_left = Point::new(0.0, 0.0);
         let ballot_top_right = Point::new(image_size.width as f32 - 1.0, 0.0);
         let ballot_bottom_left = Point::new(0.0, image_size.height as f32 - 1.0);
@@ -231,7 +231,7 @@ impl CandidateCornerMarkGrouping {
         mark_distances_to_point(candidate_timing_marks, closest_to_point)
             .sorted_by(|(a, _), (b, _)| a.total_cmp(b))
             .filter_map(|(_, corner_mark)| {
-                let error_tolerance = geometry.timing_mark_size.height;
+                let error_tolerance = geometry.timing_mark_height_pixels();
 
                 let expected_row_mark_center =
                     corner_mark.rect().center() + expected_horizontal_offset;

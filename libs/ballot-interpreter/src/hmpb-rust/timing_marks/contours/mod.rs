@@ -284,8 +284,8 @@ fn score_timing_mark_geometry_match(
     let image = &ballot_image.image;
     let threshold = ballot_image.threshold;
     let image_rect = Rect::new(0, 0, image.width(), image.height());
-    let expected_width = geometry.timing_mark_size.width as PixelUnit;
-    let expected_height = geometry.timing_mark_size.height as PixelUnit;
+    let expected_width = geometry.timing_mark_width_pixels() as PixelUnit;
+    let expected_height = geometry.timing_mark_height_pixels() as PixelUnit;
     let expected_timing_mark_rect = Rect::new(
         timing_mark.left(),
         timing_mark.top(),
@@ -424,8 +424,8 @@ pub fn find_partial_timing_marks_from_candidates(
     candidates: &[CandidateTimingMark],
     debug: &debug::ImageDebugWriter,
 ) -> Option<Partial> {
-    let half_height = (geometry.canvas_size.height / 2) as PixelPosition;
-    let half_width = (geometry.canvas_size.width / 2) as PixelPosition;
+    let half_height = geometry.canvas_height_pixels() as PixelPosition / 2;
+    let half_width = geometry.canvas_width_pixels() as PixelPosition / 2;
     let top_half_candidates = candidates
         .iter()
         .filter(|m| m.rect().top() < half_height)
@@ -851,7 +851,7 @@ pub fn find_complete_from_partial(
 ) -> FindGridResult {
     let debug = options.debug;
     let allowed_inset =
-        geometry.canvas_size.width as f32 * options.allowed_timing_mark_inset_percentage_of_width;
+        geometry.canvas_width_pixels() * options.allowed_timing_mark_inset_percentage_of_width;
 
     let is_top_line_invalid = {
         let top_line_segment = partial_timing_marks.top_line_segment_from_corners();
@@ -872,7 +872,7 @@ pub fn find_complete_from_partial(
     let is_bottom_line_invalid = {
         let bottom_line_segment = partial_timing_marks.bottom_line_segment_from_corners();
         let max_y = bottom_line_segment.start.y.max(bottom_line_segment.end.y);
-        max_y < geometry.canvas_size.height as f32 - allowed_inset
+        max_y < geometry.canvas_height_pixels() - allowed_inset
     };
 
     if is_bottom_line_invalid {
@@ -904,7 +904,7 @@ pub fn find_complete_from_partial(
     let is_right_line_invalid = {
         let right_line_segment = partial_timing_marks.right_line_segment_from_corners();
         let max_x = right_line_segment.start.x.max(right_line_segment.end.x);
-        max_x < geometry.canvas_size.width as f32 - allowed_inset
+        max_x < geometry.canvas_width_pixels() - allowed_inset
     };
 
     if is_right_line_invalid {
@@ -1290,12 +1290,12 @@ fn infer_missing_timing_marks_on_segment(
         } else {
             // otherwise, we need to fill in a point
             let rect = Rect::new(
-                (current_timing_mark_center.x - geometry.timing_mark_size.width / 2.0).round()
+                (current_timing_mark_center.x - geometry.timing_mark_width_pixels() / 2.0).round()
                     as PixelPosition,
-                (current_timing_mark_center.y - geometry.timing_mark_size.height / 2.0).round()
+                (current_timing_mark_center.y - geometry.timing_mark_height_pixels() / 2.0).round()
                     as PixelPosition,
-                geometry.timing_mark_size.width.round() as u32,
-                geometry.timing_mark_size.height.round() as u32,
+                geometry.timing_mark_width_pixels().round() as u32,
+                geometry.timing_mark_height_pixels().round() as u32,
             );
             inferred_timing_marks.push(CandidateTimingMark::new(
                 rect,
