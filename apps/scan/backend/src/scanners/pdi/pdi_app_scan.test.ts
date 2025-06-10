@@ -1,5 +1,6 @@
 import { err, typedAs } from '@votingworks/basics';
 import { DEFAULT_FAMOUS_NAMES_PRECINCT_ID } from '@votingworks/bmd-ballot-fixtures';
+import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { mockScannerStatus } from '@votingworks/pdi-scanner';
 import {

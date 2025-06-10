@@ -48,6 +48,7 @@ import * as tmp from 'tmp';
 import { Mocked, expect, vi } from 'vitest';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock';
 import { Api, buildApp } from '../../src/app';
+import { Player as AudioPlayer } from '../../src/audio/player';
 import {
   wrapFujitsuThermalPrinter,
   wrapLegacyPrinter,
@@ -65,8 +66,6 @@ import {
   waitForContinuousExportToUsbDrive,
   waitForStatus,
 } from './shared_helpers';
-import { Store } from '../../src/store';
-import { Player as AudioPlayer } from '../../src/audio/player';
 
 vi.mock('./audio/player');
 
