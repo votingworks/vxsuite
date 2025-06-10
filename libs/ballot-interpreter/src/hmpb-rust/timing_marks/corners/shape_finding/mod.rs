@@ -87,6 +87,8 @@ const TIMING_MARK_HEIGHT_RATIO_RANGE: RangeInclusive<f32> = 0.6..=(1.0 + 2.0 / 3
 /// Finds all shapes in an image that have roughly timing-mark size, shape, and
 /// location in the given search area. Note that this does not try to filter
 /// shapes based on their positions relative to each other.
+///
+/// See [`ShapeListBuilder::add_slice`] for details on how this works.
 fn find_timing_mark_shapes(
     image: &GrayImage,
     threshold: u8,

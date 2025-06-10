@@ -16,6 +16,53 @@ impl ShapeListBuilder {
 
     /// Adds a vertical slice that may be part of a timing mark's shape. If this
     /// slice is adjacent to any existing shapes, it is added to them.
+    ///
+    /// When scanning the image column-by-column we look for contiguous vertical
+    /// slices of black pixels in each column. When we find such a slice that is
+    /// approximately the height of a timing mark, we call this method to add it
+    /// and either join it to one or more existing shapes or create a new shape
+    /// for it.
+    ///
+    /// # Example
+    ///
+    /// In the portion of an image shown below, two shapes are found using a
+    /// left-to-right scan of each image column.
+    ///
+    /// ```text
+    /// ┌──────────────────────────────────────────────────────────────────────┐
+    /// │                                                                      │
+    /// │      x=6 slice found, new shape `S` added.                           │
+    /// │      ↓                                                               │
+    /// │      ↓  x=8 slice found, added to `S` as with x=7.                   │
+    /// │      ↓  ↓                                                            │
+    /// │      ↓  ↓      Unevenness is ok,  x=33 slice found, last one added   │
+    /// │      ↓  ↓      given overlap.     to shape `S2`.                     │
+    /// │      ↓  ↓      ↓                  ↓                                  │
+    /// │      ↓  ↓      ████               ↓                                  │
+    /// │      ██████████████  ██████████████                                  │
+    /// │      ██████████████  ██████████████                                  │
+    /// │      ██████████████  ██████████████                                  │
+    /// │      ██████████████  ██████████████                                  │
+    /// │      ██████████████  ██████████████                                  │
+    /// │      ██████████████  ██████████████                                  │
+    /// │      ██████████████  ██████████████                                  │
+    /// │      ██████████████  ██████████████                                  │
+    /// │      ██████████████  ██████████████                                  │
+    /// │      ██████████████  ██████████████                                  │
+    /// │      ████████        ██████████████                                  │
+    /// │       ↑              ↑                                               │
+    /// │       ↑              x=20 slice found, no adjacent shapes found,     │
+    /// │       ↑              so new shape `S2` added for this slice.         │
+    /// │       ↑                                                              │
+    /// │       x=7 slice found, finds `S` to the left and adds this           │
+    /// │       new slice to the shape.                                        │
+    /// │                                                                      │
+    /// └──────────────────────────────────────────────────────────────────────┘
+    /// ```
+    ///
+    /// Note that this method supports scanning columns in an arbitrary order,
+    /// including an essentially random order, and will stitch shapes together
+    /// as they become adjacent.
     pub fn add_slice(&mut self, x: u32, y_range: RangeInclusive<u32>) {
         let shape_to_the_right = self.shapes.iter().find_position(|shape| {
             shape.x == x + 1
