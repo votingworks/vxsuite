@@ -4,7 +4,6 @@ use std::fs;
 use std::io::{self, Error, ErrorKind};
 use std::os::unix::fs::PermissionsExt;
 use std::str::from_utf8;
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use tokio::io::{AsyncBufReadExt, AsyncRead, AsyncWriteExt, BufReader};
 use tokio::net::{UnixListener, UnixStream};
@@ -177,7 +176,6 @@ fn open_socket() -> Result<UnixListener, Error> {
 ///
 /// Will return `Err` if an error occurs while reading from USB device.
 pub async fn run_read_write_loop<R>(
-    running: &Arc<AtomicBool>,
     raw_port: R,
     clients: Arc<Mutex<Vec<UnixStream>>>,
 ) -> Result<(), Error>
@@ -195,7 +193,7 @@ where
         }
     });
 
-    while running.load(Ordering::SeqCst) {
+    loop {
         buf.clear();
 
         match reader.read_until(TS100_DATA_TERMINATOR, &mut buf).await {
@@ -272,9 +270,6 @@ where
                 log!(EventId::Info, "Successfully parsed and sent document data");
             }
             Err(e) => {
-                // `running` isn't read after the loop exits, but we set it to be correct
-                running.store(false, Ordering::SeqCst);
-
                 return Err(std::io::Error::new(
                     e.kind(),
                     format!("Error reading from USB device: {e}"),
@@ -282,7 +277,6 @@ where
             }
         }
     }
-    Ok(())
 }
 
 #[tokio::main]
@@ -294,16 +288,6 @@ async fn main() -> color_eyre::Result<()> {
         EventId::ProcessStarted;
         EventType::SystemAction
     );
-
-    // Set up ctrl+c handler
-    let running = Arc::new(AtomicBool::new(true));
-    tokio::spawn({
-        let running = running.clone();
-        async move {
-            let _ = tokio::signal::ctrl_c().await;
-            running.store(false, Ordering::SeqCst);
-        }
-    });
 
     // Open Unix domain socket and get back a handle to the socket
     let listener = open_socket()?;
@@ -333,8 +317,23 @@ async fn main() -> color_eyre::Result<()> {
                 event_type: EventType::SystemStatus,
                 disposition: Disposition::Success
             );
-            if let Err(err) = run_read_write_loop(&running, port, clients).await {
-                log!(EventId::UnknownError, "Error in read/write loop: {err}");
+
+            let signal = tokio::signal::ctrl_c();
+            let read_loop = run_read_write_loop(port, clients);
+
+            tokio::pin!(signal);
+            tokio::pin!(read_loop);
+
+            tokio::select! {
+                Err(err) = &mut read_loop => {
+                    log!(EventId::UnknownError, "Error in read/write loop: {err}");
+                }
+                _ = &mut signal => {
+                    log!(
+                        EventId::ProcessTerminated;
+                        EventType::SystemAction
+                    );
+                }
             }
         }
         Err(e) => {
@@ -387,15 +386,13 @@ mod tests {
 
         let reader = BufReader::new(mock_reader);
 
-        let running = Arc::new(AtomicBool::new(true));
-
         let (daemon_end, _client_end) =
             UnixStream::pair().expect("failed to create UnixStream pair");
         let clients: Arc<Mutex<Vec<UnixStream>>> = Arc::new(Mutex::new(vec![daemon_end]));
 
         // If the loop exits with "Mock error" we know the first call to `read` (the one
         // that contains the data we want to test) was called
-        run_read_write_loop(&running, reader, clients)
+        run_read_write_loop(reader, clients)
             .await
             .expect_err("Error reading from USB device: Mock error");
     }
@@ -415,15 +412,13 @@ mod tests {
 
         let reader = BufReader::new(mock_reader);
 
-        let running = Arc::new(AtomicBool::new(true));
-
         let (daemon_end, _client_end) =
             UnixStream::pair().expect("failed to create UnixStream pair");
         let clients: Arc<Mutex<Vec<UnixStream>>> = Arc::new(Mutex::new(vec![daemon_end]));
 
         // If the loop exits with "Mock error" we know the first call to `read` (the one
         // that contains the data we want to test) was called
-        run_read_write_loop(&running, reader, clients)
+        run_read_write_loop(reader, clients)
             .await
             .expect_err("Error reading from USB device: Mock error");
     }
@@ -442,15 +437,13 @@ mod tests {
 
         let reader = BufReader::new(mock_reader);
 
-        let running = Arc::new(AtomicBool::new(true));
-
         let (daemon_end, _client_end) =
             UnixStream::pair().expect("failed to create UnixStream pair");
         let clients: Arc<Mutex<Vec<UnixStream>>> = Arc::new(Mutex::new(vec![daemon_end]));
 
         // If the loop exits with "Mock error" we know the first call to `read` (the one
         // that contains the data we want to test) was called
-        run_read_write_loop(&running, reader, clients)
+        run_read_write_loop(reader, clients)
             .await
             .expect_err("Error reading from USB device: Mock error");
     }
@@ -482,13 +475,11 @@ DCUJR
 
         let reader = BufReader::new(mock_reader);
 
-        let running = Arc::new(AtomicBool::new(true));
-
         let (daemon_end, client_end) =
             UnixStream::pair().expect("failed to create UnixStream pair");
         let clients: Arc<Mutex<Vec<UnixStream>>> = Arc::new(Mutex::new(vec![daemon_end]));
 
-        run_read_write_loop(&running, reader, clients)
+        run_read_write_loop(reader, clients)
             .await
             .expect_err("Error reading from USB device: Mock error");
 
