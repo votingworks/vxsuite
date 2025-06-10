@@ -42,7 +42,7 @@ use crate::timing_marks::contours;
 use crate::timing_marks::corners;
 use crate::timing_marks::normalize_orientation;
 use crate::timing_marks::BallotPageMetadata;
-use crate::timing_marks::TimingMarkGrid;
+use crate::timing_marks::TimingMarks;
 
 #[derive(Debug, Clone)]
 pub struct Options {
@@ -92,7 +92,7 @@ impl FromStr for TimingMarkAlgorithm {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InterpretedBallotPage {
-    pub grid: TimingMarkGrid,
+    pub timing_marks: TimingMarks,
     pub metadata: BallotPageMetadata,
     pub marks: ScoredBubbleMarks,
     pub write_ins: ScoredPositionAreas,
@@ -425,7 +425,7 @@ pub fn ballot_card(
         .collect::<Result<(), _>>()?;
     }
 
-    let (side_a_grid_result, side_b_grid_result) = par_map_pair(
+    let (side_a_timing_marks_result, side_b_timing_marks_result) = par_map_pair(
         (&side_a, &mut side_a_debug),
         (&side_b, &mut side_b_debug),
         |(ballot_image, debug)| match options.timing_mark_algorithm {
@@ -445,14 +445,14 @@ pub fn ballot_card(
         },
     );
 
-    let side_a_grid = side_a_grid_result?;
-    let side_b_grid = side_b_grid_result?;
+    let side_a_grid = side_a_timing_marks_result?;
+    let side_b_timing_marks = side_b_timing_marks_result?;
 
     // We'll find the appropriate metadata, use it to normalize the image and
     // grid orientation, and extract the ballot style from it.
     let (
-        (front_grid, front_image, front_threshold, front_metadata, front_debug),
-        (back_grid, back_image, back_threshold, back_metadata, back_debug),
+        (front_timing_marks, front_image, front_threshold, front_metadata, front_debug),
+        (back_timing_marks, back_image, back_threshold, back_metadata, back_debug),
         ballot_style_id,
     ) = match options.election.ballot_layout.metadata_encoding {
         MetadataEncoding::QrCode => {
@@ -528,7 +528,7 @@ pub fn ballot_card(
                     &mut side_a_debug,
                 ),
                 (
-                    side_b_grid,
+                    side_b_timing_marks,
                     &side_b.image,
                     side_b_orientation,
                     &mut side_b_debug,
@@ -606,23 +606,23 @@ pub fn ballot_card(
         (
             &front_image,
             front_threshold,
-            &front_grid,
+            &front_timing_marks,
             BallotSide::Front,
             &front_debug,
         ),
         (
             &back_image,
             back_threshold,
-            &back_grid,
+            &back_timing_marks,
             BallotSide::Back,
             &back_debug,
         ),
-        |(image, threshold, grid, side, debug)| {
+        |(image, threshold, timing_marks, side, debug)| {
             score_bubble_marks_from_grid_layout(
                 image,
                 threshold,
                 &options.bubble_template,
-                grid,
+                timing_marks,
                 grid_layout,
                 sheet_number,
                 side,
@@ -632,8 +632,8 @@ pub fn ballot_card(
     );
 
     let (front_contest_layouts, back_contest_layouts) = map_pair(
-        (&front_grid, BallotSide::Front, &front_debug),
-        (&back_grid, BallotSide::Back, &back_debug),
+        (&front_timing_marks, BallotSide::Front, &front_debug),
+        (&back_timing_marks, BallotSide::Back, &back_debug),
         |(grid, side, debug)| {
             build_interpreted_page_layout(grid, grid_layout, sheet_number, side, debug)
                 .ok_or(Error::CouldNotComputeLayout { side })
@@ -649,14 +649,14 @@ pub fn ballot_card(
                 (
                     &front_image,
                     front_threshold,
-                    &front_grid,
+                    &front_timing_marks,
                     BallotSide::Front,
                     &front_debug,
                 ),
                 (
                     &back_image,
                     back_threshold,
-                    &back_grid,
+                    &back_timing_marks,
                     BallotSide::Back,
                     &back_debug,
                 ),
@@ -680,7 +680,7 @@ pub fn ballot_card(
 
     Ok(InterpretedBallotCard {
         front: InterpretedBallotPage {
-            grid: front_grid,
+            timing_marks: front_timing_marks,
             metadata: front_metadata,
             marks: front_scored_bubble_marks,
             write_ins: front_write_in_area_scores,
@@ -688,7 +688,7 @@ pub fn ballot_card(
             contest_layouts: front_contest_layouts,
         },
         back: InterpretedBallotPage {
-            grid: back_grid,
+            timing_marks: back_timing_marks,
             metadata: back_metadata,
             marks: back_scored_bubble_marks,
             write_ins: back_write_in_area_scores,
@@ -733,7 +733,7 @@ mod test {
 
     use crate::{
         ballot_card::load_ballot_scan_bubble_image, scoring::UnitIntervalScore,
-        timing_marks::Complete,
+        timing_marks::TimingMarks,
     };
 
     use super::*;
@@ -802,7 +802,7 @@ mod test {
         (side_a_image, side_b_image, options)
     }
 
-    fn deface_ballot_by_removing_side_timing_marks(image: &mut GrayImage, marks: &Complete) {
+    fn deface_ballot_by_removing_side_timing_marks(image: &mut GrayImage, marks: &TimingMarks) {
         const PADDING: u32 = 10;
         let image_rect = Rect::new(0, 0, image.width(), image.height());
         let left_side_mark_to_deface = marks.left_marks[marks.left_marks.len() / 2];
@@ -1001,7 +1001,7 @@ mod test {
         // remove timing marks to trigger rotation limiting
         deface_ballot_by_removing_side_timing_marks(
             &mut side_a_image,
-            &interpretation.front.grid.complete_timing_marks,
+            &interpretation.front.timing_marks,
         );
 
         let _debug_image =
@@ -1030,7 +1030,7 @@ mod test {
 
         deface_ballot_by_removing_side_timing_marks(
             &mut side_a_image,
-            &interpretation.front.grid.complete_timing_marks,
+            &interpretation.front.timing_marks,
         );
 
         let _debug_image =

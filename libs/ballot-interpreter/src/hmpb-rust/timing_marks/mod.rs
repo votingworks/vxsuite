@@ -17,7 +17,7 @@ pub mod scoring;
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Complete {
+pub struct TimingMarks {
     pub geometry: Geometry,
     pub top_left_corner: Point<f32>,
     pub top_right_corner: Point<f32>,
@@ -33,7 +33,7 @@ pub struct Complete {
     pub bottom_right_mark: CandidateTimingMark,
 }
 
-impl Complete {
+impl TimingMarks {
     fn rotate(self, image_size: Size<u32>) -> Self {
         let Self {
             geometry,
@@ -105,34 +105,6 @@ impl Complete {
             right_marks: rotated_left_marks,
         }
     }
-}
-
-#[derive(Debug, Serialize, Clone)]
-#[serde(tag = "source", rename_all = "kebab-case")]
-pub enum BallotPageMetadata {
-    QrCode(hmpb::Metadata),
-}
-
-/// Represents a grid of timing marks and provides access to the expected
-/// location of bubbles in the grid.
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
-#[must_use]
-pub struct TimingMarkGrid {
-    /// The geometry of the ballot card.
-    pub geometry: Geometry,
-
-    /// Timing marks inferred from the partial timing marks.
-    pub complete_timing_marks: Complete,
-}
-
-impl TimingMarkGrid {
-    pub const fn new(geometry: Geometry, complete_timing_marks: Complete) -> Self {
-        Self {
-            geometry,
-            complete_timing_marks,
-        }
-    }
 
     /// Returns the center of the grid position at the given coordinates. Timing
     /// marks are at the edges of the grid, and the inside of the grid is where
@@ -172,22 +144,10 @@ impl TimingMarkGrid {
         let row_before = row.floor() as GridUnit;
         let row_after = row.ceil() as GridUnit;
         let distance_percentage_between_rows = row - row_before as f32;
-        let left_before = self
-            .complete_timing_marks
-            .left_marks
-            .get(row_before as usize)?;
-        let right_before = self
-            .complete_timing_marks
-            .right_marks
-            .get(row_before as usize)?;
-        let left_after = self
-            .complete_timing_marks
-            .left_marks
-            .get(row_after as usize)?;
-        let right_after = self
-            .complete_timing_marks
-            .right_marks
-            .get(row_after as usize)?;
+        let left_before = self.left_marks.get(row_before as usize)?;
+        let right_before = self.right_marks.get(row_before as usize)?;
+        let left_after = self.left_marks.get(row_after as usize)?;
+        let right_after = self.right_marks.get(row_after as usize)?;
         let left = Rect::new(
             left_before.rect().left(),
             left_before.rect().top()
@@ -226,6 +186,12 @@ impl TimingMarkGrid {
         } = horizontal_segment.with_length(horizontal_segment.length() * distance_percentage);
         Some(expected_timing_mark_center)
     }
+}
+
+#[derive(Debug, Serialize, Clone)]
+#[serde(tag = "source", rename_all = "kebab-case")]
+pub enum BallotPageMetadata {
+    QrCode(hmpb::Metadata),
 }
 
 struct Rotator180 {
@@ -331,19 +297,19 @@ pub fn rect_could_be_timing_mark(geometry: &Geometry, rect: &Rect) -> bool {
 
 pub fn normalize_orientation(
     geometry: &Geometry,
-    grid: TimingMarkGrid,
+    timing_marks: TimingMarks,
     image: &GrayImage,
     orientation: Orientation,
     debug: &mut ImageDebugWriter,
-) -> (TimingMarkGrid, GrayImage) {
+) -> (TimingMarks, GrayImage) {
     // Handle rotating the image and our timing marks if necessary.
-    let (complete_timing_marks, normalized_image) = if orientation == Orientation::Portrait {
-        (grid.complete_timing_marks, image.clone())
+    let (timing_marks, normalized_image) = if orientation == Orientation::Portrait {
+        (timing_marks, image.clone())
     } else {
         let (width, height) = image.dimensions();
         debug.rotate180();
         (
-            grid.complete_timing_marks.rotate(Size { width, height }),
+            timing_marks.rotate(Size { width, height }),
             rotate180(image),
         )
     };
@@ -351,17 +317,9 @@ pub fn normalize_orientation(
     debug.write(
         "complete_timing_marks_after_orientation_correction",
         |canvas| {
-            draw_timing_mark_debug_image_mut(
-                canvas,
-                geometry,
-                &complete_timing_marks.clone().into(),
-            );
+            draw_timing_mark_debug_image_mut(canvas, geometry, &timing_marks.clone().into());
         },
     );
 
-    let grid = TimingMarkGrid {
-        complete_timing_marks,
-        ..grid
-    };
-    (grid, normalized_image)
+    (timing_marks, normalized_image)
 }

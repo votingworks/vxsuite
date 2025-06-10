@@ -3,8 +3,9 @@ use serde::Serialize;
 use types_rs::election::{ContestId, GridLayout, GridLocation, GridPosition, OptionId};
 use types_rs::geometry::{Point, Rect, SubGridUnit};
 
-use crate::debug::{self, ImageDebugWriter};
-use crate::{ballot_card::BallotSide, timing_marks::TimingMarkGrid};
+use crate::ballot_card::BallotSide;
+use crate::debug;
+use crate::timing_marks::TimingMarks;
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -25,7 +26,7 @@ pub struct InterpretedContestLayout {
 }
 
 fn build_option_layout(
-    grid: &TimingMarkGrid,
+    timing_marks: &TimingMarks,
     grid_layout: &GridLayout,
     grid_position: &GridPosition,
 ) -> Option<InterpretedContestOptionLayout> {
@@ -38,10 +39,16 @@ fn build_option_layout(
         + grid_layout.option_bounds_from_target_mark.bottom;
 
     let clamp_row = |row: SubGridUnit| -> SubGridUnit {
-        row.clamp(0.0, grid.geometry.grid_size.height as SubGridUnit - 1.0)
+        row.clamp(
+            0.0,
+            timing_marks.geometry.grid_size.height as SubGridUnit - 1.0,
+        )
     };
     let clamp_column = |column: SubGridUnit| -> SubGridUnit {
-        column.clamp(0.0, grid.geometry.grid_size.width as SubGridUnit - 1.0)
+        column.clamp(
+            0.0,
+            timing_marks.geometry.grid_size.width as SubGridUnit - 1.0,
+        )
     };
 
     let bubble_location = grid_position.location();
@@ -63,12 +70,14 @@ fn build_option_layout(
         clamp_row(bubble_location.row + row_offset + height),
     );
 
-    let top_left_point = grid.point_for_location(top_left_location.x, top_left_location.y)?;
+    let top_left_point =
+        timing_marks.point_for_location(top_left_location.x, top_left_location.y)?;
     let bottom_left_point =
-        grid.point_for_location(bottom_left_location.x, bottom_left_location.y)?;
-    let top_right_point = grid.point_for_location(top_right_location.x, top_right_location.y)?;
+        timing_marks.point_for_location(bottom_left_location.x, bottom_left_location.y)?;
+    let top_right_point =
+        timing_marks.point_for_location(top_right_location.x, top_right_location.y)?;
     let bottom_right_point =
-        grid.point_for_location(bottom_right_location.x, bottom_right_location.y)?;
+        timing_marks.point_for_location(bottom_right_location.x, bottom_right_location.y)?;
 
     // We use the furthest points to determine the bounding box so we enclose
     // content that may have moved further away when skewed.
@@ -89,11 +98,11 @@ fn build_option_layout(
 
 #[allow(clippy::module_name_repetitions)]
 pub fn build_interpreted_page_layout(
-    grid: &TimingMarkGrid,
+    timing_marks: &TimingMarks,
     grid_layout: &GridLayout,
     sheet_number: u32,
     side: BallotSide,
-    debug: &ImageDebugWriter,
+    debug: &debug::ImageDebugWriter,
 ) -> Option<Vec<InterpretedContestLayout>> {
     let contest_ids_in_grid_layout_order = grid_layout
         .grid_positions
@@ -116,7 +125,7 @@ pub fn build_interpreted_page_layout(
 
             let options = grid_positions
                 .iter()
-                .map(|grid_position| build_option_layout(grid, grid_layout, grid_position))
+                .map(|grid_position| build_option_layout(timing_marks, grid_layout, grid_position))
                 .collect::<Option<Vec<_>>>()?;
 
             // Use the union of the option bounds as an approximation of the contest bounds

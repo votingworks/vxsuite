@@ -11,7 +11,7 @@ use crate::{
             mark_finding::BallotGridCandidateMarks, shape_finding::BallotGridBorderShapes,
             util::CornerWise,
         },
-        Complete, TimingMarkGrid,
+        TimingMarks,
     },
 };
 use clap::Parser;
@@ -37,7 +37,7 @@ pub fn find_timing_mark_grid(
     ballot_image: &BallotImage,
     geometry: &Geometry,
     debug: &ImageDebugWriter,
-) -> Result<TimingMarkGrid, Error> {
+) -> Result<TimingMarks, Error> {
     let search_inset = Inset {
         left: geometry.pixels_per_inch,
         right: geometry.pixels_per_inch,
@@ -89,7 +89,7 @@ pub fn find_timing_mark_grid(
     ]
     .map_cornerwise(|mark| mark.rect().center());
 
-    let complete_timing_marks = Complete {
+    let timing_marks = TimingMarks {
         geometry: geometry.clone(),
         top_left_corner,
         top_right_corner,
@@ -105,8 +105,5 @@ pub fn find_timing_mark_grid(
         bottom_right_mark: *bottom_right_mark,
     };
 
-    Ok(TimingMarkGrid {
-        geometry: geometry.clone(),
-        complete_timing_marks,
-    })
+    Ok(timing_marks)
 }

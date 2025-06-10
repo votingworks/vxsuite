@@ -15,7 +15,7 @@ use ballot_interpreter::{
     ballot_card::PaperInfo,
     debug,
     interpret::{self, prepare_ballot_page_image, Error, TimingMarkAlgorithm},
-    timing_marks::{contours, corners, TimingMarkGrid},
+    timing_marks::{contours, corners, TimingMarks},
 };
 use clap::Parser;
 use color_eyre::owo_colors::OwoColorize;
@@ -110,7 +110,7 @@ fn process_path(
     load_image_duration: &mut Duration,
     prepare_image_duration: &mut Duration,
     find_timing_marks_duration: &mut Duration,
-) -> interpret::Result<TimingMarkGrid> {
+) -> interpret::Result<TimingMarks> {
     let start = Instant::now();
     let image = image::open(path)
         .map_err(|e| Error::MissingTimingMarks {
@@ -148,16 +148,16 @@ fn process_path(
     *find_timing_marks_duration += start.elapsed();
 
     match find_result {
-        Ok(grid) => {
-            debug.write("complete_timing_marks", |canvas| {
+        Ok(timing_marks) => {
+            debug.write("timing_marks", |canvas| {
                 debug::draw_timing_mark_debug_image_mut(
                     canvas,
                     &ballot_page.geometry,
-                    &grid.complete_timing_marks.clone().into(),
+                    &timing_marks.clone().into(),
                 );
             });
 
-            Ok(grid)
+            Ok(timing_marks)
         }
         Err(e) => Err(e),
     }

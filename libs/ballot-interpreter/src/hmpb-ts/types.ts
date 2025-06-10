@@ -89,7 +89,7 @@ export interface InterpretedBallotCard {
 
 /** A successfully imported ballot page. */
 export interface InterpretedBallotPage {
-  grid: TimingMarkGrid;
+  timingMarks: TimingMarks;
   metadata: BallotPageMetadata;
   marks: ScoredBubbleMarks;
   writeIns: ScoredPositionArea[];
@@ -122,18 +122,6 @@ export interface ScoredPositionArea {
   score: UnitIntervalScore;
 }
 
-/**
- * Represents a grid of timing marks and provides access to the expected
- * location of bubbles in the grid.
- */
-export interface TimingMarkGrid {
-  /** The geometry of the ballot card. */
-  geometry: Geometry;
-
-  /** Timing marks inferred from the partial timing marks. */
-  completeTimingMarks: CompleteTimingMarks;
-}
-
 /** Metadata from the ballot card. */
 export type BallotPageMetadata = BallotPageQrCodeMetadata;
 
@@ -160,7 +148,7 @@ export interface PartialTimingMarks {
 }
 
 /** Represents complete, possibly inferred timing marks found in a ballot card. */
-export interface CompleteTimingMarks {
+export interface TimingMarks {
   geometry: Geometry;
   topLeftCorner: Point<SubPixelUnit>;
   topRightCorner: Point<SubPixelUnit>;

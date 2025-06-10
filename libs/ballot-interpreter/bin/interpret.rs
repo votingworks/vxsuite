@@ -5,6 +5,7 @@ use clap::Parser;
 use types_rs::election::Election;
 
 #[derive(Debug, clap::Parser)]
+#[allow(clippy::struct_excessive_bools)]
 struct Options {
     /// Path to an election definition file.
     election_path: PathBuf,
@@ -67,8 +68,8 @@ fn main() -> color_eyre::Result<()> {
     let result = interpreter.interpret(
         options.load_side_a_image()?.into_luma8(),
         options.load_side_b_image()?.into_luma8(),
-        options.debug.then(|| options.side_a_path),
-        options.debug.then(|| options.side_b_path),
+        options.debug.then_some(options.side_a_path),
+        options.debug.then_some(options.side_b_path),
     );
     let duration = start.elapsed();
     let exit_code = i32::from(result.is_err());

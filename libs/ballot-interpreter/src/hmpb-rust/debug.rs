@@ -30,7 +30,7 @@ use crate::timing_marks::contours::{
     ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH,
 };
 use crate::timing_marks::scoring::CandidateTimingMark;
-use crate::timing_marks::{Corner, TimingMarkGrid};
+use crate::timing_marks::{Corner, TimingMarks};
 use crate::{
     image_utils::{
         BLUE, CYAN, DARK_BLUE, DARK_CYAN, DARK_GREEN, DARK_RED, GREEN, ORANGE, PINK, RED, WHITE_RGB,
@@ -942,12 +942,12 @@ pub fn draw_filtered_timing_marks_debug_image_mut(
 /// geometry in terms of grid size.
 pub fn draw_timing_mark_grid_debug_image_mut(
     canvas: &mut RgbImage,
-    timing_mark_grid: &TimingMarkGrid,
+    timing_marks: &TimingMarks,
     geometry: &Geometry,
 ) {
     for column in 0..geometry.grid_size.width {
         for row in 0..geometry.grid_size.height {
-            let point = timing_mark_grid
+            let point = timing_marks
                 .point_for_location(column as SubGridUnit, row as SubGridUnit)
                 .expect("grid point is defined");
             draw_cross_mut(

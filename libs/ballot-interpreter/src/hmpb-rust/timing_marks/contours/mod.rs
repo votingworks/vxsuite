@@ -11,10 +11,10 @@ use types_rs::geometry::{
 use types_rs::{election::UnitIntervalValue, geometry::IntersectionBounds};
 
 use crate::timing_marks::scoring::{CandidateTimingMark, TimingMarkScore};
-use crate::timing_marks::{rect_could_be_timing_mark, Border, Complete, Corner, TimingMarkGrid};
+use crate::timing_marks::{rect_could_be_timing_mark, Border, Corner, TimingMarks};
 use crate::{
     ballot_card::{BallotImage, Geometry},
-    debug::{self, ImageDebugWriter},
+    debug,
     image_utils::{expand_image, WHITE},
     interpret::{Error, Result},
     scoring::UnitIntervalScore,
@@ -167,22 +167,22 @@ impl Partial {
     }
 }
 
-impl From<Complete> for Partial {
-    fn from(complete_timing_marks: Complete) -> Self {
+impl From<TimingMarks> for Partial {
+    fn from(timing_marks: TimingMarks) -> Self {
         Self {
-            geometry: complete_timing_marks.geometry,
-            top_left_corner: complete_timing_marks.top_left_mark.rect().center(),
-            top_right_corner: complete_timing_marks.top_right_mark.rect().center(),
-            bottom_left_corner: complete_timing_marks.bottom_left_mark.rect().center(),
-            bottom_right_corner: complete_timing_marks.bottom_right_mark.rect().center(),
-            top_marks: complete_timing_marks.top_marks,
-            bottom_marks: complete_timing_marks.bottom_marks,
-            left_marks: complete_timing_marks.left_marks,
-            right_marks: complete_timing_marks.right_marks,
-            top_left_mark: Some(complete_timing_marks.top_left_mark),
-            top_right_mark: Some(complete_timing_marks.top_right_mark),
-            bottom_left_mark: Some(complete_timing_marks.bottom_left_mark),
-            bottom_right_mark: Some(complete_timing_marks.bottom_right_mark),
+            geometry: timing_marks.geometry,
+            top_left_corner: timing_marks.top_left_mark.rect().center(),
+            top_right_corner: timing_marks.top_right_mark.rect().center(),
+            bottom_left_corner: timing_marks.bottom_left_mark.rect().center(),
+            bottom_right_corner: timing_marks.bottom_right_mark.rect().center(),
+            top_marks: timing_marks.top_marks,
+            bottom_marks: timing_marks.bottom_marks,
+            left_marks: timing_marks.left_marks,
+            right_marks: timing_marks.right_marks,
+            top_left_mark: Some(timing_marks.top_left_mark),
+            top_right_mark: Some(timing_marks.top_right_mark),
+            bottom_left_mark: Some(timing_marks.bottom_left_mark),
+            bottom_right_mark: Some(timing_marks.bottom_right_mark),
         }
     }
 }
@@ -190,7 +190,7 @@ impl From<Complete> for Partial {
 #[derive(Debug)]
 pub struct FindTimingMarkGridOptions<'a> {
     pub allowed_timing_mark_inset_percentage_of_width: UnitIntervalValue,
-    pub debug: &'a mut ImageDebugWriter,
+    pub debug: &'a mut debug::ImageDebugWriter,
     pub infer_timing_marks: bool,
 }
 
@@ -205,7 +205,7 @@ pub fn find_timing_mark_grid(
     geometry: &Geometry,
     ballot_image: &BallotImage,
     options: FindTimingMarkGridOptions,
-) -> Result<TimingMarkGrid> {
+) -> Result<TimingMarks> {
     let debug = options.debug;
     // Find shapes that look like timing marks but may not be.
     let candidate_timing_marks = find_timing_mark_shapes(geometry, ballot_image, debug);
@@ -221,7 +221,7 @@ pub fn find_timing_mark_grid(
         });
     };
 
-    let complete_timing_marks = match find_complete_from_partial(
+    let timing_marks = match find_complete_from_partial(
         ballot_image,
         geometry,
         &partial_timing_marks,
@@ -240,13 +240,11 @@ pub fn find_timing_mark_grid(
         }
     };
 
-    let timing_mark_grid = TimingMarkGrid::new(geometry.clone(), complete_timing_marks);
-
-    debug.write("timing_mark_grid", |canvas| {
-        debug::draw_timing_mark_grid_debug_image_mut(canvas, &timing_mark_grid, geometry);
+    debug.write("timing_marks", |canvas| {
+        debug::draw_timing_mark_grid_debug_image_mut(canvas, &timing_marks, geometry);
     });
 
-    Ok(timing_mark_grid)
+    Ok(timing_marks)
 }
 
 /// Scores the given timing mark against its expected geometry. The score is
@@ -359,7 +357,7 @@ const BORDER_SIZE: u8 = 1;
 pub fn find_timing_mark_shapes(
     geometry: &Geometry,
     ballot_image: &BallotImage,
-    debug: &ImageDebugWriter,
+    debug: &debug::ImageDebugWriter,
 ) -> Vec<CandidateTimingMark> {
     // `find_contours_with_threshold` does not consider timing marks on the edge
     // of the image to be contours, so we expand the image and add whitespace
@@ -424,7 +422,7 @@ const TIMING_MARK_SIZE_COMPARISON_ERROR_TOLERANCE: f32 = 4.0;
 pub fn find_partial_timing_marks_from_candidates(
     geometry: &Geometry,
     candidates: &[CandidateTimingMark],
-    debug: &ImageDebugWriter,
+    debug: &debug::ImageDebugWriter,
 ) -> Option<Partial> {
     let half_height = (geometry.canvas_size.height / 2) as PixelPosition;
     let half_width = (geometry.canvas_size.width / 2) as PixelPosition;
@@ -810,7 +808,7 @@ pub enum SideMarks {
     },
 }
 
-pub type FindGridResult = Result<Complete, FindCompleteTimingMarksError>;
+pub type FindGridResult = Result<TimingMarks, FindCompleteTimingMarksError>;
 
 pub const ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH: UnitIntervalValue = 0.1;
 
@@ -833,7 +831,7 @@ pub const MAX_ALLOWED_TIMING_MARK_DISTANCE_ERROR: UnitIntervalValue = 0.2;
 
 pub struct FindCompleteTimingMarksFromPartialTimingMarksOptions<'a> {
     pub allowed_timing_mark_inset_percentage_of_width: UnitIntervalValue,
-    pub debug: &'a ImageDebugWriter,
+    pub debug: &'a debug::ImageDebugWriter,
     pub infer_timing_marks: bool,
 }
 
@@ -1145,7 +1143,7 @@ pub fn find_complete_from_partial(
         return Err(FindCompleteTimingMarksError::MissingCorners { missing_corners });
     };
 
-    let complete_timing_marks = Complete {
+    let complete_timing_marks = TimingMarks {
         geometry: geometry.clone(),
         top_marks: complete_top_line_marks,
         bottom_marks: complete_bottom_line_marks,
