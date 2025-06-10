@@ -547,3 +547,10 @@ export const saveBallotAuditIdSecretKey = {
 } as const;
 
 export const systemCallApi = createSystemCallApi(useApiClient);
+
+export const playSound = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.playSound);
+  },
+} as const;

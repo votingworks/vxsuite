@@ -2852,6 +2852,9 @@ importers:
       '@votingworks/logging':
         specifier: workspace:*
         version: link:../../../libs/logging
+      '@votingworks/scan-backend':
+        specifier: workspace:*
+        version: link:../backend
       '@votingworks/types':
         specifier: workspace:*
         version: link:../../../libs/types
@@ -2988,9 +2991,6 @@ importers:
       '@votingworks/printing':
         specifier: workspace:*
         version: link:../../../libs/printing
-      '@votingworks/scan-backend':
-        specifier: workspace:*
-        version: link:../backend
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../../../libs/test-utils

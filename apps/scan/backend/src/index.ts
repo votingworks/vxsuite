@@ -40,6 +40,7 @@ export type {
   FujitsuPrintResult,
 } from './printing/printer';
 export type { OpenPollsResult } from './polls';
+export type { SoundName } from './audio/player';
 export * from './types';
 
 loadEnvVarsFromDotenvFiles();

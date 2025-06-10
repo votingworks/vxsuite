@@ -2,7 +2,7 @@ import { ElectionDefinition, SystemSettings } from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { useQueryChangeListener } from '@votingworks/ui';
 import { useEffect, useRef, useState } from 'react';
-import { getScannerStatus, readyForNextBallot } from '../api';
+import { getScannerStatus, readyForNextBallot, playSound } from '../api';
 import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from '../config/globals';
 import { InsertBallotScreen } from './insert_ballot_screen';
 import { ScanBusyScreen } from './scan_busy_screen';
@@ -37,10 +37,12 @@ export function VoterScreen({
   const scannerStatusQuery = getScannerStatus.useQuery({
     refetchInterval: POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
   });
+  const playSoundMutate = playSound.useMutation().mutate;
 
   useScanFeedbackAudio({
     currentState: scannerStatusQuery.data?.state,
     isSoundMuted,
+    playSound: playSoundMutate,
   });
 
   // When a ballot is accepted, show the accepted screen for a few seconds.

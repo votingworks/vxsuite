@@ -23,6 +23,7 @@ import type {
   PrecinctScannerConfig,
   PrecinctScannerStatus,
   PrintResult,
+  SoundName,
 } from '@votingworks/scan-backend';
 import { deferred, err, ok } from '@votingworks/basics';
 import {
@@ -201,6 +202,14 @@ export function createApiMock() {
 
     expectClosePolls(): void {
       mockApiClient.closePolls.expectCallWith().resolves();
+    },
+
+    expectPlaySound(name: SoundName): void {
+      mockApiClient.playSound.expectCallWith({ name }).resolves();
+    },
+
+    expectPlaySoundRepeated(name: SoundName): void {
+      mockApiClient.playSound.expectRepeatedCallsWith({ name }).resolves();
     },
 
     expectPauseVoting(): void {
