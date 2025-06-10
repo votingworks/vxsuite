@@ -1,6 +1,5 @@
 import { Buffer } from 'node:buffer';
 import CombinedStream from 'combined-stream';
-import { Stream } from 'node:stream';
 
 const MESSAGE_FORMAT_VERSION = 1;
 const MESSAGE_SEPARATOR = '//';
@@ -16,11 +15,11 @@ export function constructPrefixedMessage(
 export function constructPrefixedMessage( // eslint-disable-line vx/gts-jsdoc
   messageType: string,
   messagePayload: Buffer | NodeJS.ReadableStream
-): Stream;
+): CombinedStream;
 export function constructPrefixedMessage( // eslint-disable-line vx/gts-jsdoc
   messageType: string,
   messagePayload: string | Buffer | NodeJS.ReadableStream
-): string | Stream {
+): string | CombinedStream {
   const messagePrefix = [
     MESSAGE_FORMAT_VERSION,
     MESSAGE_SEPARATOR,
