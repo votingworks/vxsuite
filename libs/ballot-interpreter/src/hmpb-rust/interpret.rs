@@ -36,9 +36,6 @@ use crate::scoring::score_bubble_marks_from_grid_layout;
 use crate::scoring::score_write_in_areas;
 use crate::scoring::ScoredBubbleMarks;
 use crate::scoring::ScoredPositionAreas;
-use crate::timing_mark_metadata::BallotPageTimingMarkMetadata;
-use crate::timing_mark_metadata::BallotPageTimingMarkMetadataError;
-use crate::timing_marks::detect_metadata_and_normalize_orientation;
 use crate::timing_marks::find_timing_mark_grid;
 use crate::timing_marks::normalize_orientation;
 use crate::timing_marks::BallotPageMetadata;
@@ -94,11 +91,6 @@ pub enum Error {
     InvalidCardMetadata {
         side_a: BallotPageMetadata,
         side_b: BallotPageMetadata,
-    },
-    #[error("invalid timing mark metadata for {label}: {error:?}")]
-    InvalidTimingMarkMetadata {
-        label: String,
-        error: BallotPageTimingMarkMetadataError,
     },
     #[error("invalid QR code metadata for {label}: {message}")]
     InvalidQrCodeMetadata { label: String, message: String },
@@ -413,9 +405,6 @@ pub fn ballot_card(
     let side_a_grid = side_a_grid_result?;
     let side_b_grid = side_b_grid_result?;
 
-    // Branch for VX-style ballots (with QR code metadata) vs. Accuvote-style
-    // ballots (with timing mark encoded metadata).
-    //
     // We'll find the appropriate metadata, use it to normalize the image and
     // grid orientation, and extract the ballot style from it.
     let (
@@ -550,67 +539,6 @@ pub fn ballot_card(
                 (side_b, side_a, ballot_style_id)
             }
         }
-
-        MetadataEncoding::TimingMarks => {
-            let (side_a_result, side_b_result) = par_map_pair(
-                (SIDE_A_LABEL, side_a_grid, &side_a, &mut side_a_debug),
-                (SIDE_B_LABEL, side_b_grid, &side_b, &mut side_b_debug),
-                |(label, grid, ballot_image, debug)| {
-                    detect_metadata_and_normalize_orientation(
-                        label,
-                        &geometry,
-                        grid,
-                        ballot_image,
-                        debug,
-                    )
-                },
-            );
-
-            let (side_a_normalized_grid, side_a_normalized_image, side_a_metadata) = side_a_result?;
-            let (side_b_normalized_grid, side_b_normalized_image, side_b_metadata) = side_b_result?;
-
-            let (side_a, side_b) = (
-                (
-                    side_a_normalized_grid,
-                    side_a_normalized_image.image,
-                    side_a.threshold,
-                    BallotPageMetadata::TimingMarks(side_a_metadata.clone()),
-                    side_a_debug,
-                ),
-                (
-                    side_b_normalized_grid,
-                    side_b_normalized_image.image,
-                    side_b.threshold,
-                    BallotPageMetadata::TimingMarks(side_b_metadata.clone()),
-                    side_b_debug,
-                ),
-            );
-
-            match (&side_a_metadata, &side_b_metadata) {
-                (
-                    BallotPageTimingMarkMetadata::Front(front_metadata),
-                    BallotPageTimingMarkMetadata::Back(_),
-                ) => (
-                    side_a,
-                    side_b,
-                    BallotStyleId::from(format!("card-number-{}", front_metadata.card)),
-                ),
-                (
-                    BallotPageTimingMarkMetadata::Back(_),
-                    BallotPageTimingMarkMetadata::Front(front_metadata),
-                ) => (
-                    side_b,
-                    side_a,
-                    BallotStyleId::from(format!("card-number-{}", front_metadata.card)),
-                ),
-                _ => {
-                    return Err(Error::InvalidCardMetadata {
-                        side_a: BallotPageMetadata::TimingMarks(side_a_metadata),
-                        side_b: BallotPageMetadata::TimingMarks(side_b_metadata),
-                    })
-                }
-            }
-        }
     };
 
     let Some(grid_layout) = options
@@ -629,7 +557,6 @@ pub fn ballot_card(
         BallotPageMetadata::QrCode(metadata) => {
             u32::from(metadata.page_number.sheet_number().get())
         }
-        BallotPageMetadata::TimingMarks(_) => 1,
     };
 
     let (front_scored_bubble_marks, back_scored_bubble_marks) = par_map_pair(
@@ -863,24 +790,12 @@ mod test {
     }
 
     #[test]
-    fn test_interpret_ballot_card() {
+    fn test_interpret_returns_binarized_images() {
         let (side_a_image, side_b_image, options) =
-            load_ballot_card_fixture("ashland", ("scan-side-a.jpeg", "scan-side-b.jpeg"));
-        let result = ballot_card(side_a_image, side_b_image, &options).unwrap();
-        assert!(
-            is_binary_image(&result.front.normalized_image),
-            "Front image is not binary"
-        );
-        assert!(
-            is_binary_image(&result.back.normalized_image),
-            "Back image is not binary"
-        );
-
-        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
-            "ashland",
-            ("scan-rotated-side-a.jpeg", "scan-rotated-side-b.jpeg"),
-        );
-        ballot_card(side_a_image, side_b_image, &options).unwrap();
+            load_hmpb_fixture("vx-general-election/letter", 1);
+        let card = ballot_card(side_a_image, side_b_image, &options).unwrap();
+        assert!(is_binary_image(&card.front.normalized_image));
+        assert!(is_binary_image(&card.back.normalized_image));
     }
 
     #[test]
@@ -898,72 +813,6 @@ mod test {
         }
 
         ballot_card(side_a_image, side_b_image, &options).unwrap();
-    }
-
-    #[test]
-    fn test_smudged_timing_mark() {
-        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
-            "nh-test-ballot",
-            (
-                "timing-mark-smudge-front.jpeg",
-                "timing-mark-smudge-back.jpeg",
-            ),
-        );
-        let interpretation = ballot_card(side_a_image, side_b_image, &options).unwrap();
-
-        for side in &[interpretation.front, interpretation.back] {
-            for (_, ref scored_mark) in &side.marks {
-                // the ballot is not filled out, so the scores should be very low
-                assert!(scored_mark.clone().unwrap().fill_score < UnitIntervalScore(0.01));
-            }
-        }
-    }
-
-    #[test]
-    fn test_inferred_missing_corner_timing_mark() {
-        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
-            "nh-test-ballot",
-            ("missing-corner-front.png", "missing-corner-back.png"),
-        );
-        ballot_card(side_a_image, side_b_image, &options).unwrap();
-    }
-
-    #[test]
-    fn test_folded_corner() {
-        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
-            "nh-test-ballot",
-            ("folded-corner-front.png", "folded-corner-back.png"),
-        );
-
-        let Error::MissingTimingMarks { reason, .. } =
-            ballot_card(side_a_image, side_b_image, &options).unwrap_err()
-        else {
-            panic!("wrong error type");
-        };
-
-        assert_eq!(
-            reason,
-            "One or more of the corners of the ballot card could not be found: [TopRight]"
-        );
-    }
-
-    #[test]
-    fn test_torn_corner() {
-        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
-            "nh-test-ballot",
-            ("torn-corner-front.jpg", "torn-corner-back.jpg"),
-        );
-
-        let Error::MissingTimingMarks { reason, .. } =
-            ballot_card(side_a_image, side_b_image, &options).unwrap_err()
-        else {
-            panic!("wrong error type");
-        };
-
-        assert_eq!(
-            reason,
-            "One or more of the corners of the ballot card could not be found: [TopRight]"
-        );
     }
 
     #[test]
@@ -1060,16 +909,6 @@ mod test {
         };
         assert_eq!(label, "side A");
         assert_eq!(x_coordinates, vec![timing_mark_x as PixelPosition]);
-    }
-
-    #[test]
-    fn test_ignore_edge_adjacent_vertical_streaks() {
-        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
-            "nh-test-ballot",
-            ("grayscale-front.png", "grayscale-back.png"),
-        );
-
-        ballot_card(side_a_image, side_b_image, &options).unwrap();
     }
 
     #[test]

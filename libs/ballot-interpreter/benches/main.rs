@@ -55,7 +55,6 @@ impl Display for InterpretFixture {
 
 #[divan::bench(args = [
     InterpretFixture::new("all-bubble-ballot", "blank", ".jpg"),
-    InterpretFixture::new("nh-test-ballot", "grayscale", ".png"),
     InterpretFixture::new("vxqa-2024-10", "skew", ".png"),
 ])]
 fn interpret(bencher: Bencher, fixture: InterpretFixture) {

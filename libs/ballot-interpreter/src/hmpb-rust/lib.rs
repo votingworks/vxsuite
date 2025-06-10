@@ -15,7 +15,6 @@ mod layout;
 pub mod metadata;
 mod qr_code;
 mod scoring;
-mod timing_mark_metadata;
 mod timing_marks;
 
 /// Entry point for the Neon module. Exports values to JavaScript.

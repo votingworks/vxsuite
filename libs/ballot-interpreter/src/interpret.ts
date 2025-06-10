@@ -29,7 +29,6 @@ import {
   getBallotStyle,
   getContests,
   GridPosition,
-  HmpbBallotPageMetadata,
   Id,
   InterpretedHmpbPage,
   InvalidBallotHashPage,
@@ -60,7 +59,6 @@ import {
 } from './adjudication_reasons';
 import { interpret as interpretVxBmdBallotSheet } from './bmd';
 import {
-  BallotConfig,
   Geometry,
   InterpretedBallotCard,
   InterpretedContestLayout,
@@ -342,34 +340,6 @@ export function determineAdjudicationInfoFromScoredContestOptions(
   };
 }
 
-function buildInterpretedHmpbPageMetadata(
-  electionDefinition: ElectionDefinition,
-  options: InterpreterOptions,
-  ballotConfig: BallotConfig,
-  side: 'front' | 'back'
-): HmpbBallotPageMetadata {
-  const { election } = electionDefinition;
-  const ballotStyle = getBallotStyle({
-    election,
-    ballotStyleId: `card-number-${ballotConfig.card}`,
-  });
-  assert(ballotStyle, `Ballot style ${ballotConfig.card} not found`);
-  const precinctId = ballotStyle.precincts[0];
-  assert(
-    precinctId !== undefined,
-    `Precinct ${ballotConfig.batchOrPrecinct} not found`
-  );
-
-  return {
-    ballotStyleId: ballotStyle.id,
-    precinctId,
-    ballotType: BallotType.Precinct,
-    ballotHash: electionDefinition.ballotHash,
-    isTestMode: options.testMode,
-    pageNumber: side === 'front' ? 1 : 2,
-  };
-}
-
 function convertContestLayouts(
   contests: Contests,
   contestLayouts: InterpretedContestLayout[]
@@ -434,18 +404,7 @@ function convertInterpretedBallotPage(
   interpretedBallotCard: InterpretedBallotCard,
   side: 'front' | 'back'
 ): InterpretFileResult {
-  const sideMetadata = interpretedBallotCard[side].metadata;
-  const metadata =
-    sideMetadata.source === 'qr-code'
-      ? sideMetadata
-      : buildInterpretedHmpbPageMetadata(
-          electionDefinition,
-          options,
-          // For timing mark metadata, always use the front, since it contains
-          // the info we need
-          interpretedBallotCard.front.metadata as BallotConfig,
-          side
-        );
+  const { metadata } = interpretedBallotCard[side];
 
   const interpretation = interpretedBallotCard[side];
   const contestOptionScores: ScoredContestOption[] =

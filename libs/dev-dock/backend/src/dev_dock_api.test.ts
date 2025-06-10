@@ -2,6 +2,7 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import express from 'express';
 import * as fs from 'node:fs';
 import * as grout from '@votingworks/grout';
+import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { AddressInfo } from 'node:net';
 import {
   BooleanEnvironmentVariableName,
@@ -16,7 +17,6 @@ import {
 import { DEV_JURISDICTION } from '@votingworks/auth';
 import {
   electionFamousNames2021Fixtures,
-  electionGridLayoutNewHampshireTestBallotFixtures,
   readElectionGeneral,
 } from '@votingworks/fixtures';
 import { Server } from 'node:http';
@@ -319,7 +319,7 @@ test('mock PDI scanner', async () => {
     });
   });
   await apiClient.pdiScannerInsertSheet({
-    path: electionGridLayoutNewHampshireTestBallotFixtures.templatePdf.asFilePath(),
+    path: vxFamousNamesFixtures.markedBallotPath,
   });
   expect(await apiClient.pdiScannerGetSheetStatus()).toEqual('sheetInserted');
   await scanCompletePromise;

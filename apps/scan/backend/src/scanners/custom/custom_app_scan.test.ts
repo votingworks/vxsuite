@@ -1,14 +1,3 @@
-import { beforeEach, expect, test, vi } from 'vitest';
-import * as fc from 'fast-check';
-import {
-  AdjudicationReason,
-  AdjudicationReasonInfo,
-  DEFAULT_SYSTEM_SETTINGS,
-  constructElectionKey,
-  SheetInterpretation,
-  SheetOf,
-} from '@votingworks/types';
-import waitForExpect from 'wait-for-expect';
 import {
   Result,
   assertDefined,
@@ -18,8 +7,6 @@ import {
   sleep,
   typedAs,
 } from '@votingworks/basics';
-import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
-import { BaseLogger } from '@votingworks/logging';
 import {
   ErrorCode,
   FormMovement,
@@ -27,32 +14,46 @@ import {
   ScannerStatus,
   mocks,
 } from '@votingworks/custom-scanner';
-import {
-  ALL_PRECINCTS_SELECTION,
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
+import { vxFamousNamesFixtures } from '@votingworks/hmpb';
+import { BaseLogger } from '@votingworks/logging';
 import {
   mockElectionManagerUser,
   mockPollWorkerUser,
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
 import {
-  MAX_FAILED_SCAN_ATTEMPTS,
-  ScannerStatusEvent,
-  delays,
-  scannerStatusToEvent,
-} from './state_machine';
+  AdjudicationReason,
+  AdjudicationReasonInfo,
+  DEFAULT_SYSTEM_SETTINGS,
+  ElectionPackage,
+  SheetInterpretation,
+  SheetOf,
+  constructElectionKey,
+} from '@votingworks/types';
+import {
+  ALL_PRECINCTS_SELECTION,
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
+} from '@votingworks/utils';
+import * as fc from 'fast-check';
+import { beforeEach, expect, test, vi } from 'vitest';
+import waitForExpect from 'wait-for-expect';
+import {
+  ballotImages,
+  simulateScan,
+  withApp,
+} from '../../../test/helpers/custom_helpers';
 import {
   configureApp,
   expectStatus,
   waitForStatus,
 } from '../../../test/helpers/shared_helpers';
 import {
-  ballotImages,
-  simulateScan,
-  withApp,
-} from '../../../test/helpers/custom_helpers';
+  MAX_FAILED_SCAN_ATTEMPTS,
+  ScannerStatusEvent,
+  delays,
+  scannerStatusToEvent,
+} from './state_machine';
 
 vi.setConfig({ testTimeout: 20_000 });
 
@@ -117,8 +118,10 @@ test('configure and scan hmpb', async () => {
       clock,
     }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        electionPackage:
-          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(),
+        testMode: true,
+        electionPackage: {
+          electionDefinition: vxFamousNamesFixtures.electionDefinition,
+        },
       });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
@@ -211,24 +214,25 @@ test('ballot needs review - return', async () => {
       clock,
     }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        electionPackage:
-          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(
-            {
-              ...DEFAULT_SYSTEM_SETTINGS,
-              precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
-            }
-          ),
+        testMode: true,
+        electionPackage: {
+          electionDefinition: vxFamousNamesFixtures.electionDefinition,
+          systemSettings: {
+            ...DEFAULT_SYSTEM_SETTINGS,
+            precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
+          },
+        },
       });
 
       const interpretation: SheetInterpretation = {
         type: 'NeedsReviewSheet',
-        reasons: [
+        reasons: expect.arrayContaining([
           expect.objectContaining(
             typedAs<Partial<AdjudicationReasonInfo>>({
               type: AdjudicationReason.Overvote,
             })
           ),
-        ],
+        ]),
       };
 
       const scanDeferred =
@@ -544,9 +548,11 @@ test("scannerStatusToEvent's cases are exhaustive and can all be reached", () =>
 test('scanning paused when election manager card is inserted', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
-      const electionPackage =
-        electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage();
+      const electionPackage: ElectionPackage = {
+        electionDefinition: vxFamousNamesFixtures.electionDefinition,
+      };
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        testMode: true,
         electionPackage,
       });
 
@@ -593,9 +599,11 @@ test('scanning paused when election manager card is inserted', async () => {
 test('scanning paused when poll worker card is inserted', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
-      const electionPackage =
-        electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage();
+      const electionPackage: ElectionPackage = {
+        electionDefinition: vxFamousNamesFixtures.electionDefinition,
+      };
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        testMode: true,
         electionPackage,
       });
 

@@ -1,4 +1,4 @@
-import { assert, assertDefined, iter } from '@votingworks/basics';
+import { assert, assertDefined, iter, Optional } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import {
   electionFamousNames2021Fixtures,
@@ -16,7 +16,7 @@ import {
 } from '@votingworks/types';
 import { join } from 'node:path';
 import makeDebug from 'debug';
-import { pdfToImages } from '@votingworks/image-utils';
+import { ImageData, pdfToImages } from '@votingworks/image-utils';
 import { createTestVotes, markBallotDocument } from './mark_ballot';
 import {
   BaseBallotProps,
@@ -59,6 +59,7 @@ export const vxFamousNamesFixtures = (() => {
 
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
+
   return {
     dir,
     electionDefinition,
@@ -68,7 +69,10 @@ export const vxFamousNamesFixtures = (() => {
     ...blankBallotProps,
     votes,
 
-    async generate(renderer: Renderer, { markedOnly = false } = {}) {
+    async generate(
+      renderer: Renderer,
+      { markedOnly = false, generatePageImages = false } = {}
+    ) {
       debug(`Generating: ${blankBallotPath}`);
       const rendered = await renderAllBallotsAndCreateElectionDefinition(
         renderer,
@@ -96,10 +100,34 @@ export const vxFamousNamesFixtures = (() => {
       );
       const markedBallotPdf = await markedBallot.renderToPdf();
 
+      let blankBallotPageImages: Optional<ImageData[]>;
+      let markedBallotPageImages: Optional<ImageData[]>;
+      if (generatePageImages) {
+        [blankBallotPageImages, markedBallotPageImages] = await Promise.all(
+          [
+            { path: blankBallotPath, pdf: blankBallotPdf },
+            { path: markedBallotPath, pdf: markedBallotPdf },
+          ].map(async ({ path, pdf }) => {
+            debug(`Generating page images for: ${path}`);
+            return await iter(
+              pdfToImages(pdf, {
+                scale: 200 / 72,
+              })
+            )
+              .map(({ page }) => page)
+              .toArray();
+          })
+        );
+      }
+
       return {
         electionDefinition: rendered.electionDefinition,
+        blankBallotPath,
+        markedBallotPath,
         blankBallotPdf,
         markedBallotPdf,
+        blankBallotPageImages,
+        markedBallotPageImages,
       };
     },
   };
