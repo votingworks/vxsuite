@@ -6,11 +6,10 @@ use std::os::unix::fs::PermissionsExt;
 use std::str::from_utf8;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
-use std::thread::sleep;
 use tokio::io::{AsyncBufReadExt, AsyncRead, AsyncWriteExt, BufReader};
 use tokio::net::{UnixListener, UnixStream};
 use tokio::sync::Mutex;
-use tokio::time::{timeout, Duration, Instant};
+use tokio::time::{sleep, Duration};
 use tokio_serial::{DataBits, FlowControl, Parity, SerialPortBuilderExt, SerialStream, StopBits};
 use vx_logging::{log, set_source, Disposition, EventId, EventType, Source};
 
@@ -70,20 +69,14 @@ const MAX_AAMVA_DOCUMENT_SIZE: usize = {
     (NON_DATA_BYTES + 1) * MAX_NUM_ELEMENTS + SUM_ALL_ELEMENTS_SIZE
 };
 
-/*
- * Read loop config
- */
-/// How long the read loop will wait before declaring a timeout and trying again.
-const READ_LOOP_INTERVAL: Duration = Duration::from_millis(1000);
-
 // Resets the TS100 barcode scanner
-fn reset_scanner() -> Result<(), nusb::Error> {
+async fn reset_scanner() -> Result<(), nusb::Error> {
     match nusb::list_devices()?
         .find(|dev| dev.vendor_id() == UNITECH_VENDOR_ID && dev.product_id() == TS100_PRODUCT_ID)
     {
         Some(device) => {
             device.open()?.reset()?;
-            sleep(std::time::Duration::from_millis(500));
+            sleep(std::time::Duration::from_millis(500)).await;
             Ok(())
         }
         None => Err(Error::new(
@@ -94,11 +87,11 @@ fn reset_scanner() -> Result<(), nusb::Error> {
 }
 
 // Connects to TS100 barcode scanner
-fn init_port(port_name: &str, baud_rate: u32) -> color_eyre::Result<SerialStream> {
+async fn init_port(port_name: &str, baud_rate: u32) -> color_eyre::Result<SerialStream> {
     // We have experienced difficulty reconnecting the scanner when the daemon
     // is stopped and started multiple times. Resetting the scanner solves the issue.
     // Configuration such as USB COM Port Emulation persists between resets.
-    match reset_scanner() {
+    match reset_scanner().await {
         Ok(()) => {
             log!(
                 event_id: EventId::UsbDeviceReconnectAttempted,
@@ -193,107 +186,99 @@ where
 {
     let max_data_size = MAX_AAMVA_DOCUMENT_SIZE + 1; // + 1 for length of data terminator
     let mut buf = Vec::with_capacity(max_data_size);
-    let mut start = Instant::now();
     let mut reader = BufReader::new(raw_port);
 
-    while running.load(Ordering::SeqCst) {
-        if start.elapsed() > HEARTBEAT_LOG_INTERVAL {
-            start = Instant::now();
+    tokio::spawn(async move {
+        loop {
+            tokio::time::sleep(HEARTBEAT_LOG_INTERVAL).await;
             log!(EventId::Heartbeat; EventType::SystemStatus);
         }
+    });
 
+    while running.load(Ordering::SeqCst) {
         buf.clear();
 
-        let timeout_result = timeout(
-            READ_LOOP_INTERVAL,
-            reader.read_until(TS100_DATA_TERMINATOR, &mut buf),
-        )
-        .await;
-        // An `Elapsed` error just means no data came in from the scanner during the interval.
-        // This error can be ignored.
-        if let Ok(read_result) = timeout_result {
-            match read_result {
-                Ok(n) => {
-                    buf.pop();
+        match reader.read_until(TS100_DATA_TERMINATOR, &mut buf).await {
+            Ok(n) => {
+                buf.pop();
 
-                    if buf.is_empty() {
-                        // Expected at the end of the document
-                        log!(EventId::Info, "No data preceding terminator character");
-                        continue;
-                    }
+                if buf.is_empty() {
+                    // Expected at the end of the document
+                    log!(EventId::Info, "No data preceding terminator character");
+                    continue;
+                }
 
-                    if n > max_data_size + 1 {
+                if n > max_data_size + 1 {
+                    log!(
+                        EventId::ParseError,
+                        "Scan data size of {n} exceeded limit of {max_data_size}",
+                    );
+                    continue;
+                }
+
+                // We expect the input sequence to start with the compliance indicator
+                // on its own line so we just ignore it and skip to the next line.
+                // Existence of the compliance indicator is not enforced.
+                if buf == COMPLIANCE_INDICATOR {
+                    log!(EventId::Info, "Skipping compliance indicator");
+                    continue;
+                }
+
+                // Parse and emit JSON
+                let str = match from_utf8(&buf) {
+                    Ok(str) => str,
+                    Err(e) => {
                         log!(
-                            EventId::ParseError,
-                            "Scan data size of {n} exceeded limit of {max_data_size}",
+                            event_id: EventId::ParseError,
+                            message: format!("Error parsing read bytes as UTF-8: {e}")
                         );
                         continue;
                     }
+                };
 
-                    // We expect the input sequence to start with the compliance indicator
-                    // on its own line so we just ignore it and skip to the next line.
-                    // Existence of the compliance indicator is not enforced.
-                    if buf == COMPLIANCE_INDICATOR {
-                        log!(EventId::Info, "Skipping compliance indicator");
+                let doc: AamvaDocument = match str.parse() {
+                    Ok(doc) => doc,
+                    Err(err @ AamvaParseError::DataTooLong(_, _)) => {
+                        // Exit if data is in AAMVA format but doesn't follow AAMVA spec
+                        log!(
+                            event_id: EventId::ParseError,
+                            message: format!("Unexpected data in AAMVA format. Error was: {err}"),
+                            event_type: EventType::SystemAction,
+                            disposition: Disposition::Failure
+                        );
                         continue;
                     }
-
-                    // Parse and emit JSON
-                    let str = match from_utf8(&buf) {
-                        Ok(str) => str,
-                        Err(e) => {
-                            log!(
-                                event_id: EventId::ParseError,
-                                message: format!("Error parsing read bytes as UTF-8: {e}")
-                            );
-                            continue;
-                        }
-                    };
-
-                    let doc: AamvaDocument = match str.parse() {
-                        Ok(doc) => doc,
-                        Err(err @ AamvaParseError::DataTooLong(_, _)) => {
-                            // Exit if data is in AAMVA format but doesn't follow AAMVA spec
-                            log!(
-                                event_id: EventId::ParseError,
-                                message: format!("Unexpected data in AAMVA format. Error was: {err}"),
-                                event_type: EventType::SystemAction,
-                                disposition: Disposition::Failure
-                            );
-                            continue;
-                        }
-                        Err(err) => {
-                            // Don't exit if this could have been a scan of a non-AAMVA document
-                            // or we tried to parse an unsupported subfile type (as is common on
-                            // non-NH licenses)
-                            log!(
-                                event_id: EventId::ParseError,
-                                message: format!("Read data that was not in the supported subset of AAMVA or was not AAMVA at all: {err}"),
-                                event_type: EventType::SystemAction,
-                                disposition: Disposition::Failure
-                            );
-                            continue;
-                        }
-                    };
-
-                    if let Err(err) = broadcast_to_clients(&clients, &doc).await {
+                    Err(err) => {
+                        // Don't exit if this could have been a scan of a non-AAMVA document
+                        // or we tried to parse an unsupported subfile type (as is common on
+                        // non-NH licenses)
                         log!(
-                            EventId::SocketServerError,
-                            "Failed to write scan to clients: {err}"
+                            event_id: EventId::ParseError,
+                            message: format!("Read data that was not in the supported subset of AAMVA or was not AAMVA at all: {err}"),
+                            event_type: EventType::SystemAction,
+                            disposition: Disposition::Failure
                         );
+                        continue;
                     }
+                };
 
-                    log!(EventId::Info, "Successfully parsed and sent document data");
+                if let Err(err) = broadcast_to_clients(&clients, &doc).await {
+                    log!(
+                        EventId::SocketServerError,
+                        "Failed to write scan to clients: {err}"
+                    );
                 }
-                Err(e) => {
-                    // `running` isn't read after the loop exits, but we set it to be correct
-                    running.store(false, Ordering::SeqCst);
 
-                    return Err(std::io::Error::new(
-                        e.kind(),
-                        format!("Error reading from USB device: {e}"),
-                    ));
-                }
+                log!(EventId::Info, "Successfully parsed and sent document data");
+            }
+            Err(e) => {
+                // `running` isn't read after the loop exits, but we set it to be correct
+                running.store(false, Ordering::SeqCst);
+
+                return Err(std::io::Error::new(
+                    e.kind(),
+                    format!("Error reading from USB device: {e}"),
+                ));
             }
         }
     }
@@ -312,12 +297,13 @@ async fn main() -> color_eyre::Result<()> {
 
     // Set up ctrl+c handler
     let running = Arc::new(AtomicBool::new(true));
-    ctrlc::set_handler({
+    tokio::spawn({
         let running = running.clone();
-        move || {
+        async move {
+            let _ = tokio::signal::ctrl_c().await;
             running.store(false, Ordering::SeqCst);
         }
-    })?;
+    });
 
     // Open Unix domain socket and get back a handle to the socket
     let listener = open_socket()?;
@@ -339,7 +325,7 @@ async fn main() -> color_eyre::Result<()> {
     });
 
     // Connect to barcode scanner device
-    match init_port(TS100_PORT_NAME, TS100_BAUD_RATE) {
+    match init_port(TS100_PORT_NAME, TS100_BAUD_RATE).await {
         Ok(port) => {
             log!(
                 event_id: EventId::DeviceAttached,
@@ -568,9 +554,9 @@ DCUJR
         assert_eq!(v, expect);
     }
 
-    #[test]
-    fn reset_scanner_no_device_returns_not_connected_error() {
-        let err = reset_scanner().expect_err("Expected Err when no device found. Are you running this test with the device attached?");
+    #[tokio::test]
+    async fn reset_scanner_no_device_returns_not_connected_error() {
+        let err = reset_scanner().await.expect_err("Expected Err when no device found. Are you running this test with the device attached?");
 
         assert_eq!(
             err.kind(),

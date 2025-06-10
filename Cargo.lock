@@ -280,9 +280,9 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "color-eyre",
- "ctrlc",
  "nix 0.26.4",
  "nusb",
+ "proptest",
  "serde",
  "serde_json",
  "thiserror",

@@ -10,8 +10,6 @@ const EXPECTED_PREFIX: &str = "ANSI ";
 const ISSUER_SIZE: usize = 6;
 /// Number of bytes used for element ID eg. "DAC" for first name
 pub const ELEMENT_ID_SIZE: usize = 3;
-/// Minimum number of bytes expected in a valid AAMVA header
-const MIN_HEADER_LENGTH: usize = 17;
 /// Maximum length of name elements
 const MAX_NAME_LENGTH: usize = 40;
 /// Maximum length of name suffix element
@@ -48,12 +46,10 @@ impl FromStr for AamvaHeader {
     type Err = AamvaParseError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if s.len() < MIN_HEADER_LENGTH {
-            return Err(Self::Err::HeaderTooShort(s.to_owned()));
-        }
-
         // 1) Validate prefix
-        let actual_prefix = &s[..EXPECTED_PREFIX.len()];
+        let Some((actual_prefix, rest)) = s.split_at_checked(EXPECTED_PREFIX.len()) else {
+            return Err(AamvaParseError::UnexpectedHeaderPrefix(s.to_owned()));
+        };
         if actual_prefix != EXPECTED_PREFIX {
             return Err(AamvaParseError::UnexpectedHeaderPrefix(
                 actual_prefix.to_owned(),
@@ -61,9 +57,12 @@ impl FromStr for AamvaHeader {
         }
 
         // 2) Validate issuer ID
+        let Some((issuer_id, _)) = rest.split_at_checked(ISSUER_SIZE) else {
+            return Err(AamvaParseError::HeaderTooShort(s.to_owned()));
+        };
         Ok(AamvaHeader {
             raw: s.to_owned(),
-            issuing_jurisdiction: s[EXPECTED_PREFIX.len()..][..ISSUER_SIZE].parse()?,
+            issuing_jurisdiction: issuer_id.parse()?,
         })
     }
 }
@@ -110,11 +109,9 @@ impl FromStr for AamvaDocument {
         let mut document = Self::new_from_jurisdiction(header.issuing_jurisdiction);
 
         for line in lines {
-            if line.len() < ELEMENT_ID_SIZE {
+            let Some((id, data)) = line.split_at_checked(ELEMENT_ID_SIZE) else {
                 continue;
-            }
-
-            let (id, data) = line.split_at(ELEMENT_ID_SIZE);
+            };
 
             #[allow(clippy::assigning_clones)]
             match id {
@@ -152,6 +149,8 @@ impl FromStr for AamvaDocument {
 
 #[cfg(test)]
 mod tests {
+    use proptest::proptest;
+
     use super::*;
 
     const VALID_BLOB: &str = "\
@@ -167,10 +166,10 @@ DCUJR
         let doc = AamvaDocument::from_str(VALID_BLOB).unwrap();
 
         assert_eq!(doc.issuing_jurisdiction, AamvaIssuingJurisdiction::NH);
-        assert_eq!(&doc.first_name, "FIRST");
-        assert_eq!(&doc.middle_name, "MIDDLE");
-        assert_eq!(&doc.last_name, "LAST");
-        assert_eq!(&doc.name_suffix, "JR");
+        assert_eq!(doc.first_name, "FIRST");
+        assert_eq!(doc.middle_name, "MIDDLE");
+        assert_eq!(doc.last_name, "LAST");
+        assert_eq!(doc.name_suffix, "JR");
     }
 
     #[test]
@@ -181,7 +180,7 @@ ANSI 636039090001DL00310485DLDAQNHL12345678
 DACFIRST
 ";
         let doc: AamvaDocument = blob.parse().unwrap();
-        assert_eq!(&doc.first_name, "FIRST");
+        assert_eq!(doc.first_name, "FIRST");
         assert!(
             doc.middle_name.is_empty(),
             "Middle name not empty: {}",
@@ -275,5 +274,17 @@ DCSLAST
             err,
             AamvaParseError::UnknownIssuingJurisdictionId(_)
         ));
+    }
+
+    proptest! {
+        #[test]
+        fn header_no_panic_on_arbitrary_strings(input: String) {
+            let _ = AamvaHeader::from_str(&input);
+        }
+
+        #[test]
+        fn document_no_panic_on_arbitrary_strings(input: String) {
+            let _ = AamvaDocument::from_str(&input);
+        }
     }
 }
