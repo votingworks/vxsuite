@@ -2,7 +2,7 @@ import express from 'express';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { UsbDrive, detectUsbDrive } from '@votingworks/usb-drive';
-import { detectDevices } from '@votingworks/backend';
+import { detectDevices, setDefaultAudio } from '@votingworks/backend';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { BROTHER_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
 import * as customScanner from '@votingworks/custom-scanner';
@@ -83,7 +83,19 @@ export async function start({
     nodeEnv: NODE_ENV,
   });
 
-  // [TODO] Set the USB audio device as the default PulseAudio output.
+  if (audioInfo.usb) {
+    const result = await setDefaultAudio(audioInfo.usb.name, {
+      logger,
+      nodeEnv: NODE_ENV,
+    });
+    result.assertOk('unable to set USB audio as default output');
+  } else {
+    // [TODO] Update log event ID to something more specific.
+    void logger.logAsCurrentRole(LogEventId.UnknownError, {
+      message: 'USB audio device not detected.',
+      disposition: 'failure',
+    });
+  }
 
   const audioPlayer = new AudioPlayer(NODE_ENV, logger, audioInfo.builtin.name);
 
