@@ -36,10 +36,28 @@ async function generateAllBubbleBallotFixtures(
 
 async function generateVxFamousNamesFixtures(renderer: Renderer) {
   const fixtures = vxFamousNamesFixtures;
-  const generated = await fixtures.generate(renderer);
+  const generated = await fixtures.generate(renderer, {
+    generatePageImages: true,
+  });
   await mkdir(fixtures.dir, { recursive: true });
   await writeFile(fixtures.blankBallotPath, generated.blankBallotPdf);
   await writeFile(fixtures.markedBallotPath, generated.markedBallotPdf);
+  for (const { pdfPath, images } of [
+    {
+      pdfPath: generated.blankBallotPath,
+      images: generated.blankBallotPageImages,
+    },
+    {
+      pdfPath: generated.markedBallotPath,
+      images: generated.markedBallotPageImages,
+    },
+  ]) {
+    if (images) {
+      for (const [i, image] of images.entries()) {
+        await writeImageData(pdfPath.replace('.pdf', `-p${i + 1}.jpg`), image);
+      }
+    }
+  }
 }
 
 async function generateVxGeneralElectionFixtures(renderer: Renderer) {
