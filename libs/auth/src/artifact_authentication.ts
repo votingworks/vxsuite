@@ -2,7 +2,7 @@ import { Buffer } from 'node:buffer';
 import { createReadStream } from 'node:fs';
 import * as fs from 'node:fs/promises';
 import path from 'node:path';
-import { Readable, Stream } from 'node:stream';
+import { Readable } from 'node:stream';
 import {
   assert,
   err,
@@ -18,6 +18,7 @@ import {
 } from '@votingworks/types';
 import { parseCastVoteRecordReportExportDirectoryName } from '@votingworks/utils';
 
+import CombinedStream from 'combined-stream';
 import { computeCastVoteRecordRootHashFromScratch } from './cast_vote_record_hashes';
 import { MachineCustomCertFields, parseCert } from './certs';
 import {
@@ -81,10 +82,13 @@ interface ArtifactSignatureBundle {
 // Helpers
 //
 
-function constructMessage(artifact: Artifact): Stream {
+function constructMessage(artifact: Artifact): {
+  artifactStream: Readable;
+  message: CombinedStream;
+} {
   switch (artifact.type) {
     case 'cast_vote_records': {
-      let metadataFileContents: NodeJS.ReadableStream;
+      let metadataFileContents: Readable;
       switch (artifact.context) {
         case 'export': {
           metadataFileContents = Readable.from(artifact.metadataFileContents);
@@ -104,11 +108,17 @@ function constructMessage(artifact: Artifact): Stream {
           throwIllegalValue(artifact, 'context');
         }
       }
-      return constructPrefixedMessage(artifact.type, metadataFileContents);
+      return {
+        artifactStream: metadataFileContents,
+        message: constructPrefixedMessage(artifact.type, metadataFileContents),
+      };
     }
     case 'election_package': {
       const fileContents = createReadStream(artifact.filePath);
-      return constructPrefixedMessage(artifact.type, fileContents);
+      return {
+        artifactStream: fileContents,
+        message: constructPrefixedMessage(artifact.type, fileContents),
+      };
     }
     /* istanbul ignore next: Compile-time check for completeness - @preserve */
     default: {
@@ -121,7 +131,7 @@ async function constructArtifactSignatureBundle(
   config: ArtifactAuthenticationConfig,
   artifact: Artifact
 ): Promise<ArtifactSignatureBundle> {
-  const message = constructMessage(artifact);
+  const { message } = constructMessage(artifact);
   const messageSignature = await signMessage({
     message,
     signingPrivateKey: config.signingMachinePrivateKey,
@@ -184,21 +194,28 @@ async function authenticateArtifactUsingArtifactSignatureBundle(
   artifact: ArtifactToImport,
   artifactSignatureBundle: ArtifactSignatureBundle
 ): Promise<MachineCustomCertFields> {
-  const message = constructMessage(artifact);
-  const { signature: messageSignature, signingMachineCert } =
-    artifactSignatureBundle;
-  const signingMachineCertDetails = await validateSigningMachineCert(
-    config,
-    signingMachineCert
-  );
-  const signingMachinePublicKey =
-    await extractPublicKeyFromCert(signingMachineCert);
-  await verifySignature({
-    message,
-    messageSignature,
-    publicKey: signingMachinePublicKey,
-  });
-  return signingMachineCertDetails;
+  const { artifactStream, message } = constructMessage(artifact);
+  try {
+    const { signature: messageSignature, signingMachineCert } =
+      artifactSignatureBundle;
+    const signingMachineCertDetails = await validateSigningMachineCert(
+      config,
+      signingMachineCert
+    );
+    const signingMachinePublicKey =
+      await extractPublicKeyFromCert(signingMachineCert);
+    await verifySignature({
+      message,
+      messageSignature,
+      publicKey: signingMachinePublicKey,
+    });
+    return signingMachineCertDetails;
+  } finally {
+    // If authentication fails, we still need to destroy the message stream
+    // to avoid keeping an open file handle, which would prevent the USB drive
+    // holding the file from being unmounted.
+    artifactStream.destroy();
+  }
 }
 
 function constructSignatureFileName(artifact: ArtifactToExport): string {
