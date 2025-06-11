@@ -4,7 +4,7 @@
 #![allow(clippy::cast_possible_wrap)]
 
 use std::{
-    io::{stdout, BufRead, BufReader, BufWriter, Write},
+    io::{BufRead, BufReader},
     path::{Path, PathBuf},
     process,
     str::FromStr,
@@ -49,10 +49,6 @@ struct Options {
     #[clap(long)]
     expected_failure_manifest: Option<PathBuf>,
 
-    /// Path to write output results to for later comparison.
-    #[clap(long, short)]
-    output: Option<PathBuf>,
-
     /// Determine how to infer timing marks.
     #[clap(long, default_value = "infer")]
     inference: Inference,
@@ -86,19 +82,6 @@ impl Options {
             })
             .collect_vec()),
             None => Ok(vec![]),
-        }
-    }
-
-    fn open_output(&self) -> color_eyre::Result<Box<dyn Write>> {
-        match &self.output {
-            Some(output_snapshot) => Ok(Box::new(BufWriter::new(
-                std::fs::OpenOptions::new()
-                    .write(true)
-                    .truncate(true)
-                    .create(true)
-                    .open(output_snapshot)?,
-            ))),
-            None => Ok(Box::new(stdout().lock())),
         }
     }
 }
@@ -167,7 +150,6 @@ fn process_path(
 fn main() -> color_eyre::Result<()> {
     let options = Options::parse();
     let file_count = options.scanned_page_paths.len() as u32;
-    let mut output = options.open_output()?;
     let expected_failure_manifest = options.expected_failure_manifest()?;
 
     let mut expected_success_count = 0;
@@ -190,33 +172,25 @@ fn main() -> color_eyre::Result<()> {
             Ok(_) => {
                 if expected_failure {
                     unexpected_success_count += 1;
-                    let _ = writeln!(
-                        &mut output,
+                    println!(
                         "{}: {path} (not expected)",
                         "OK".bold(),
                         path = path.display().red()
                     );
                 } else {
                     expected_success_count += 1;
-                    let _ = writeln!(
-                        &mut output,
-                        "{}: {path}",
-                        "OK".bold(),
-                        path = path.display()
-                    );
+                    println!("{}: {path}", "OK".bold(), path = path.display());
                 }
             }
             Err(e) => {
                 if expected_failure {
                     expected_failure_count += 1;
-                    let _ = writeln!(
-                        &mut output,
+                    println!(
                         "{}",
                         format!("NOT OK: {path} (expected)", path = path.display()).dimmed(),
                     );
                 } else {
-                    let _ = writeln!(
-                        &mut output,
+                    println!(
                         "{}: {path}: {e}",
                         "NOT OK".bold(),
                         path = path.display(),
@@ -226,8 +200,6 @@ fn main() -> color_eyre::Result<()> {
             }
         }
     }
-
-    drop(output);
 
     println!(
         "⚡ Load images: {load_image_duration:.2?} ({avg:.2?} avg.)",
