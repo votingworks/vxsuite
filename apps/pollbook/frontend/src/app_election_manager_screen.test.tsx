@@ -109,7 +109,7 @@ test('basic e2e registration flow works', async () => {
   userEvent.click(screen.getByLabelText('Party Affiliation'));
   userEvent.keyboard('[Enter]');
 
-  apiMock.expectRegisterVoter(registrationData, voter);
+  apiMock.expectRegisterVoter(registrationData, false, voter);
 
   userEvent.click(screen.getByRole('button', { name: 'Add Voter' }));
 

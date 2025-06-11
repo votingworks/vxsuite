@@ -42,6 +42,7 @@ import {
   ConfigurationError,
   MachineInformation,
   VoterCheckInError,
+  DuplicateVoterError,
 } from './types';
 import { rootDebug } from './debug';
 import {
@@ -333,8 +334,19 @@ function buildApi({ context, logger }: BuildAppParams) {
 
     async registerVoter(input: {
       registrationData: VoterRegistrationRequest;
-    }): Promise<Voter> {
+      overrideNameMatchWarning: boolean;
+    }): Promise<Result<Voter, DuplicateVoterError>> {
       const election = assertDefined(store.getElection());
+      if (!input.overrideNameMatchWarning) {
+        const matchingVoters = store.findVotersWithName(input.registrationData);
+        if (matchingVoters.length > 0) {
+          return err({
+            type: 'duplicate-voter',
+            message: 'Possible duplicate voter(s) detected.',
+            matchingVoters,
+          });
+        }
+      }
       const { voter, receiptNumber } = store.registerVoter(
         input.registrationData
       );
@@ -346,7 +358,7 @@ function buildApi({ context, logger }: BuildAppParams) {
       });
       debug('Printing registration receipt for voter %s', voter.voterId);
       await renderAndPrintReceipt(printer, receipt);
-      return voter;
+      return ok(voter);
     },
 
     async markVoterInactive(input: {
