@@ -11,10 +11,10 @@ use types_rs::geometry::{
 use types_rs::{election::UnitIntervalValue, geometry::IntersectionBounds};
 
 use crate::timing_marks::scoring::{CandidateTimingMark, TimingMarkScore};
-use crate::timing_marks::{Border, Complete, Corner, TimingMarkGrid};
+use crate::timing_marks::{rect_could_be_timing_mark, Border, Corner, TimingMarks};
 use crate::{
     ballot_card::{BallotImage, Geometry},
-    debug::{self, ImageDebugWriter},
+    debug,
     image_utils::{expand_image, WHITE},
     interpret::{Error, Result},
     scoring::UnitIntervalScore,
@@ -23,6 +23,7 @@ use crate::{
 mod fast;
 mod slow;
 
+#[must_use]
 pub enum BestFitSearchResult<'a> {
     Found {
         searched: Vec<Segment>,
@@ -46,6 +47,7 @@ impl<'a> BestFitSearchResult<'a> {
         }
     }
 
+    #[must_use]
     pub fn found(self) -> Option<BestFit<'a>> {
         match self {
             BestFitSearchResult::Found { best_fit, .. } => Some(best_fit),
@@ -54,6 +56,7 @@ impl<'a> BestFitSearchResult<'a> {
     }
 }
 
+#[must_use]
 pub struct BestFit<'a> {
     pub segment: Segment,
     pub marks: Vec<&'a CandidateTimingMark>,
@@ -164,22 +167,22 @@ impl Partial {
     }
 }
 
-impl From<Complete> for Partial {
-    fn from(complete_timing_marks: Complete) -> Self {
+impl From<TimingMarks> for Partial {
+    fn from(timing_marks: TimingMarks) -> Self {
         Self {
-            geometry: complete_timing_marks.geometry,
-            top_left_corner: complete_timing_marks.top_left_mark.rect().center(),
-            top_right_corner: complete_timing_marks.top_right_mark.rect().center(),
-            bottom_left_corner: complete_timing_marks.bottom_left_mark.rect().center(),
-            bottom_right_corner: complete_timing_marks.bottom_right_mark.rect().center(),
-            top_marks: complete_timing_marks.top_marks,
-            bottom_marks: complete_timing_marks.bottom_marks,
-            left_marks: complete_timing_marks.left_marks,
-            right_marks: complete_timing_marks.right_marks,
-            top_left_mark: Some(complete_timing_marks.top_left_mark),
-            top_right_mark: Some(complete_timing_marks.top_right_mark),
-            bottom_left_mark: Some(complete_timing_marks.bottom_left_mark),
-            bottom_right_mark: Some(complete_timing_marks.bottom_right_mark),
+            geometry: timing_marks.geometry,
+            top_left_corner: timing_marks.top_left_mark.rect().center(),
+            top_right_corner: timing_marks.top_right_mark.rect().center(),
+            bottom_left_corner: timing_marks.bottom_left_mark.rect().center(),
+            bottom_right_corner: timing_marks.bottom_right_mark.rect().center(),
+            top_marks: timing_marks.top_marks,
+            bottom_marks: timing_marks.bottom_marks,
+            left_marks: timing_marks.left_marks,
+            right_marks: timing_marks.right_marks,
+            top_left_mark: Some(timing_marks.top_left_mark),
+            top_right_mark: Some(timing_marks.top_right_mark),
+            bottom_left_mark: Some(timing_marks.bottom_left_mark),
+            bottom_right_mark: Some(timing_marks.bottom_right_mark),
         }
     }
 }
@@ -187,18 +190,22 @@ impl From<Complete> for Partial {
 #[derive(Debug)]
 pub struct FindTimingMarkGridOptions<'a> {
     pub allowed_timing_mark_inset_percentage_of_width: UnitIntervalValue,
-    pub debug: &'a mut ImageDebugWriter,
+    pub debug: &'a mut debug::ImageDebugWriter,
     pub infer_timing_marks: bool,
 }
 
 /// Finds the timing marks in the given image and computes the grid of timing
 /// marks, i.e. the locations of all the possible bubbles.
+///
+/// # Errors
+///
+/// If the timing marks cannot be found, an error is returned.
 #[allow(clippy::result_large_err)]
 pub fn find_timing_mark_grid(
     geometry: &Geometry,
     ballot_image: &BallotImage,
     options: FindTimingMarkGridOptions,
-) -> Result<TimingMarkGrid> {
+) -> Result<TimingMarks> {
     let debug = options.debug;
     // Find shapes that look like timing marks but may not be.
     let candidate_timing_marks = find_timing_mark_shapes(geometry, ballot_image, debug);
@@ -210,12 +217,11 @@ pub fn find_timing_mark_grid(
         find_partial_timing_marks_from_candidates(geometry, &candidate_timing_marks, debug)
     else {
         return Err(Error::MissingTimingMarks {
-            candidates: candidate_timing_marks,
             reason: "No partial timing marks found".to_owned(),
         });
     };
 
-    let complete_timing_marks = match find_complete_from_partial(
+    let timing_marks = match find_complete_from_partial(
         ballot_image,
         geometry,
         &partial_timing_marks,
@@ -229,20 +235,16 @@ pub fn find_timing_mark_grid(
         Ok(complete_timing_marks) => complete_timing_marks,
         Err(find_complete_timing_marks_error) => {
             return Err(Error::MissingTimingMarks {
-                candidates: candidate_timing_marks,
                 reason: find_complete_timing_marks_error.to_string(),
             });
         }
     };
 
-    let timing_mark_grid =
-        TimingMarkGrid::new(*geometry, complete_timing_marks, candidate_timing_marks);
-
-    debug.write("timing_mark_grid", |canvas| {
-        debug::draw_timing_mark_grid_debug_image_mut(canvas, &timing_mark_grid, geometry);
+    debug.write("timing_marks", |canvas| {
+        debug::draw_timing_mark_grid_debug_image_mut(canvas, &timing_marks, geometry);
     });
 
-    Ok(timing_mark_grid)
+    Ok(timing_marks)
 }
 
 /// Scores the given timing mark against its expected geometry. The score is
@@ -282,8 +284,8 @@ fn score_timing_mark_geometry_match(
     let image = &ballot_image.image;
     let threshold = ballot_image.threshold;
     let image_rect = Rect::new(0, 0, image.width(), image.height());
-    let expected_width = geometry.timing_mark_size.width as PixelUnit;
-    let expected_height = geometry.timing_mark_size.height as PixelUnit;
+    let expected_width = geometry.timing_mark_width_pixels() as PixelUnit;
+    let expected_height = geometry.timing_mark_height_pixels() as PixelUnit;
     let expected_timing_mark_rect = Rect::new(
         timing_mark.left(),
         timing_mark.top(),
@@ -351,10 +353,11 @@ const BORDER_SIZE: u8 = 1;
 
 /// Looks for possible timing mark shapes in the image without trying to
 /// determine if they are actually timing marks.
+#[must_use]
 pub fn find_timing_mark_shapes(
     geometry: &Geometry,
     ballot_image: &BallotImage,
-    debug: &ImageDebugWriter,
+    debug: &debug::ImageDebugWriter,
 ) -> Vec<CandidateTimingMark> {
     // `find_contours_with_threshold` does not consider timing marks on the edge
     // of the image to be contours, so we expand the image and add whitespace
@@ -419,10 +422,10 @@ const TIMING_MARK_SIZE_COMPARISON_ERROR_TOLERANCE: f32 = 4.0;
 pub fn find_partial_timing_marks_from_candidates(
     geometry: &Geometry,
     candidates: &[CandidateTimingMark],
-    debug: &ImageDebugWriter,
+    debug: &debug::ImageDebugWriter,
 ) -> Option<Partial> {
-    let half_height = (geometry.canvas_size.height / 2) as PixelPosition;
-    let half_width = (geometry.canvas_size.width / 2) as PixelPosition;
+    let half_height = geometry.canvas_height_pixels() as PixelPosition / 2;
+    let half_width = geometry.canvas_width_pixels() as PixelPosition / 2;
     let top_half_candidates = candidates
         .iter()
         .filter(|m| m.rect().top() < half_height)
@@ -622,7 +625,7 @@ pub fn find_partial_timing_marks_from_candidates(
         )?;
 
     let partial_timing_marks = Partial {
-        geometry: *geometry,
+        geometry: geometry.clone(),
         top_left_corner: top_left_intersection,
         top_right_corner: top_right_intersection,
         bottom_left_corner: bottom_left_intersection,
@@ -805,7 +808,7 @@ pub enum SideMarks {
     },
 }
 
-pub type FindGridResult = Result<Complete, FindCompleteTimingMarksError>;
+pub type FindGridResult = Result<TimingMarks, FindCompleteTimingMarksError>;
 
 pub const ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH: UnitIntervalValue = 0.1;
 
@@ -828,10 +831,17 @@ pub const MAX_ALLOWED_TIMING_MARK_DISTANCE_ERROR: UnitIntervalValue = 0.2;
 
 pub struct FindCompleteTimingMarksFromPartialTimingMarksOptions<'a> {
     pub allowed_timing_mark_inset_percentage_of_width: UnitIntervalValue,
-    pub debug: &'a ImageDebugWriter,
+    pub debug: &'a debug::ImageDebugWriter,
     pub infer_timing_marks: bool,
 }
 
+/// Finds complete timing marks from partial timing marks.
+///
+/// # Errors
+///
+/// Returns an error if the partial timing marks are not enough to construct
+/// a set of complete timing marks or if the inferred timing marks are not
+/// valid.
 #[allow(clippy::too_many_lines)]
 pub fn find_complete_from_partial(
     ballot_image: &BallotImage,
@@ -841,7 +851,7 @@ pub fn find_complete_from_partial(
 ) -> FindGridResult {
     let debug = options.debug;
     let allowed_inset =
-        geometry.canvas_size.width as f32 * options.allowed_timing_mark_inset_percentage_of_width;
+        geometry.canvas_width_pixels() * options.allowed_timing_mark_inset_percentage_of_width;
 
     let is_top_line_invalid = {
         let top_line_segment = partial_timing_marks.top_line_segment_from_corners();
@@ -862,7 +872,7 @@ pub fn find_complete_from_partial(
     let is_bottom_line_invalid = {
         let bottom_line_segment = partial_timing_marks.bottom_line_segment_from_corners();
         let max_y = bottom_line_segment.start.y.max(bottom_line_segment.end.y);
-        max_y < geometry.canvas_size.height as f32 - allowed_inset
+        max_y < geometry.canvas_height_pixels() - allowed_inset
     };
 
     if is_bottom_line_invalid {
@@ -894,7 +904,7 @@ pub fn find_complete_from_partial(
     let is_right_line_invalid = {
         let right_line_segment = partial_timing_marks.right_line_segment_from_corners();
         let max_x = right_line_segment.start.x.max(right_line_segment.end.x);
-        max_x < geometry.canvas_size.width as f32 - allowed_inset
+        max_x < geometry.canvas_width_pixels() - allowed_inset
     };
 
     if is_right_line_invalid {
@@ -1133,8 +1143,8 @@ pub fn find_complete_from_partial(
         return Err(FindCompleteTimingMarksError::MissingCorners { missing_corners });
     };
 
-    let complete_timing_marks = Complete {
-        geometry: *geometry,
+    let complete_timing_marks = TimingMarks {
+        geometry: geometry.clone(),
         top_marks: complete_top_line_marks,
         bottom_marks: complete_bottom_line_marks,
         left_marks: complete_left_line_marks,
@@ -1280,12 +1290,12 @@ fn infer_missing_timing_marks_on_segment(
         } else {
             // otherwise, we need to fill in a point
             let rect = Rect::new(
-                (current_timing_mark_center.x - geometry.timing_mark_size.width / 2.0).round()
+                (current_timing_mark_center.x - geometry.timing_mark_width_pixels() / 2.0).round()
                     as PixelPosition,
-                (current_timing_mark_center.y - geometry.timing_mark_size.height / 2.0).round()
+                (current_timing_mark_center.y - geometry.timing_mark_height_pixels() / 2.0).round()
                     as PixelPosition,
-                geometry.timing_mark_size.width.round() as u32,
-                geometry.timing_mark_size.height.round() as u32,
+                geometry.timing_mark_width_pixels().round() as u32,
+                geometry.timing_mark_height_pixels().round() as u32,
             );
             inferred_timing_marks.push(CandidateTimingMark::new(
                 rect,
@@ -1297,48 +1307,8 @@ fn infer_missing_timing_marks_on_segment(
     inferred_timing_marks
 }
 
-/// Determines whether a rect could be a timing mark based on its rect.
-pub fn rect_could_be_timing_mark(geometry: &Geometry, rect: &Rect) -> bool {
-    let timing_mark_size = geometry.timing_mark_size;
-
-    let is_near_left_or_right_edge = rect.left() < timing_mark_size.width.ceil() as i32
-        || rect.right()
-            > (geometry.canvas_size.width as f32 - timing_mark_size.width.ceil()) as i32;
-    let is_near_top_or_bottom_edge = rect.top() < timing_mark_size.height.ceil() as i32
-        || rect.bottom()
-            > (geometry.canvas_size.height as f32 - timing_mark_size.height.ceil()) as i32;
-
-    // allow timing marks near an edge to be substantially clipped
-    let min_timing_mark_width_multiplier = if is_near_left_or_right_edge {
-        0.20
-    } else {
-        0.5
-    };
-    let min_timing_mark_height_multiplier = if is_near_top_or_bottom_edge {
-        0.20
-    } else {
-        0.5
-    };
-
-    let min_timing_mark_width =
-        (timing_mark_size.width * min_timing_mark_width_multiplier).floor() as u32;
-    let min_timing_mark_height =
-        (timing_mark_size.height * min_timing_mark_height_multiplier).floor() as u32;
-
-    // Skew/rotation can cause the height of timing marks to be slightly larger
-    // than expected, so allow for a small amount of extra height when
-    // determining if a rect could be a timing mark. This applies to width as
-    // well, but to a lesser extent.
-    let max_timing_mark_width = (timing_mark_size.width * 1.80).round() as u32;
-    let max_timing_mark_height = (timing_mark_size.height * 1.80).round() as u32;
-
-    rect.width() >= min_timing_mark_width
-        && rect.width() <= max_timing_mark_width
-        && rect.height() >= min_timing_mark_height
-        && rect.height() <= max_timing_mark_height
-}
-
 /// Gets all the distances between adjacent marks in a list of marks.
+#[must_use]
 pub fn distances_between_marks(marks: &[CandidateTimingMark]) -> Vec<f32> {
     let mut distances = marks
         .windows(2)

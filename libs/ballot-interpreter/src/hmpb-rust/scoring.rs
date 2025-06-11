@@ -10,14 +10,15 @@ use types_rs::geometry::{
 };
 
 use crate::image_utils::{count_pixels, count_pixels_in_shape};
+use crate::timing_marks::TimingMarks;
 use crate::{
     ballot_card::BallotSide,
-    debug::{self, ImageDebugWriter},
+    debug,
     image_utils::{diff, BLACK, WHITE},
-    timing_marks::TimingMarkGrid,
 };
 
 #[derive(Clone, Copy, Serialize)]
+#[must_use]
 pub struct UnitIntervalScore(pub UnitIntervalValue);
 
 impl Display for UnitIntervalScore {
@@ -99,11 +100,11 @@ pub fn score_bubble_marks_from_grid_layout(
     img: &GrayImage,
     threshold: u8,
     bubble_template: &GrayImage,
-    timing_mark_grid: &TimingMarkGrid,
+    timing_marks: &TimingMarks,
     grid_layout: &GridLayout,
     sheet_number: u32,
     side: BallotSide,
-    debug: &ImageDebugWriter,
+    debug: &debug::ImageDebugWriter,
 ) -> ScoredBubbleMarks {
     let scored_bubbles = grid_layout
         .grid_positions
@@ -115,7 +116,7 @@ pub fn score_bubble_marks_from_grid_layout(
                 return vec![];
             }
 
-            timing_mark_grid
+            timing_marks
                 .point_for_location(location.column as SubGridUnit, location.row as SubGridUnit)
                 .map_or_else(
                     || vec![(grid_position.clone(), None)],
@@ -258,13 +259,13 @@ pub type ScoredPositionAreas = Vec<ScoredPositionArea>;
 /// be used to determine which write-in areas are most likely to contain a write-in
 /// vote even if the bubble is not filled in.
 pub fn score_write_in_areas(
-    img: &GrayImage,
+    image: &GrayImage,
     threshold: u8,
-    grid: &TimingMarkGrid,
+    timing_marks: &TimingMarks,
     grid_layout: &GridLayout,
     sheet_number: u32,
     side: BallotSide,
-    debug: &ImageDebugWriter,
+    debug: &debug::ImageDebugWriter,
 ) -> Vec<ScoredPositionArea> {
     let scored_write_in_areas = grid_layout
         .write_in_positions()
@@ -272,7 +273,9 @@ pub fn score_write_in_areas(
             let location = grid_position.location();
             grid_position.sheet_number() == sheet_number && location.side == side
         })
-        .filter_map(|grid_position| score_write_in_area(img, grid, grid_position, threshold))
+        .filter_map(|grid_position| {
+            score_write_in_area(image, timing_marks, grid_position, threshold)
+        })
         .collect();
 
     debug.write("scored_write_in_areas", |canvas| {
@@ -284,7 +287,7 @@ pub fn score_write_in_areas(
 
 fn score_write_in_area(
     img: &GrayImage,
-    grid: &TimingMarkGrid,
+    timing_marks: &TimingMarks,
     grid_position: &GridPosition,
     threshold: u8,
 ) -> Option<ScoredPositionArea> {
@@ -292,12 +295,12 @@ fn score_write_in_area(
         return None;
     };
 
-    let top_left_corner = grid.point_for_location(write_in_area.x, write_in_area.y)?;
+    let top_left_corner = timing_marks.point_for_location(write_in_area.x, write_in_area.y)?;
     let top_right_corner =
-        grid.point_for_location(write_in_area.x + write_in_area.width, write_in_area.y)?;
+        timing_marks.point_for_location(write_in_area.x + write_in_area.width, write_in_area.y)?;
     let bottom_left_corner =
-        grid.point_for_location(write_in_area.x, write_in_area.y + write_in_area.height)?;
-    let bottom_right_corner = grid.point_for_location(
+        timing_marks.point_for_location(write_in_area.x, write_in_area.y + write_in_area.height)?;
+    let bottom_right_corner = timing_marks.point_for_location(
         write_in_area.x + write_in_area.width,
         write_in_area.y + write_in_area.height,
     )?;

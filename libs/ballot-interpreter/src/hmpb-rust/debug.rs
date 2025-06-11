@@ -17,7 +17,8 @@ use types_rs::geometry::{
 
 use crate::ballot_card::Geometry;
 
-fn imageproc_rect_from_rect(rect: &Rect) -> imageproc::rect::Rect {
+#[must_use]
+pub fn imageproc_rect_from_rect(rect: &Rect) -> imageproc::rect::Rect {
     imageproc::rect::Rect::at(rect.left(), rect.top()).of_size(rect.width(), rect.height())
 }
 
@@ -29,7 +30,7 @@ use crate::timing_marks::contours::{
     ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH,
 };
 use crate::timing_marks::scoring::CandidateTimingMark;
-use crate::timing_marks::{Corner, TimingMarkGrid};
+use crate::timing_marks::{Corner, TimingMarks};
 use crate::{
     image_utils::{
         BLUE, CYAN, DARK_BLUE, DARK_CYAN, DARK_GREEN, DARK_RED, GREEN, ORANGE, PINK, RED, WHITE_RGB,
@@ -233,10 +234,10 @@ pub fn draw_timing_mark_debug_image_mut(
     partial_timing_marks: &Partial,
 ) {
     let allowed_inset =
-        (ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH * geometry.canvas_size.width as f32) as i32;
+        (ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH * geometry.canvas_width_pixels()) as i32;
     let inset_rect = imageproc::rect::Rect::at(allowed_inset, allowed_inset).of_size(
-        geometry.canvas_size.width - (allowed_inset * 2) as u32,
-        geometry.canvas_size.height - (allowed_inset * 2) as u32,
+        geometry.canvas_width_pixels() as PixelUnit - (allowed_inset * 2) as PixelUnit,
+        geometry.canvas_height_pixels() as PixelUnit - (allowed_inset * 2) as PixelUnit,
     );
     draw_hollow_rect_mut(canvas, inset_rect, DARK_RED);
 
@@ -296,34 +297,66 @@ pub fn draw_timing_mark_debug_image_mut(
     let font_scale = 15.0;
     let scale = PxScale::from(font_scale);
 
+    let mut text_rects = vec![];
     for (i, mark) in partial_timing_marks.top_marks.iter().enumerate() {
         let center = mark.rect().center();
-        let text = format!("{i}");
+        let text = format!(
+            "{i} ({m:.0}, {p:.0})",
+            m = mark.scores().mark_score(),
+            p = mark.scores().padding_score(),
+        );
         let (text_width, text_height) = text_size(scale, font, text.as_str());
+        let mut text_rect = Rect::new(
+            (center.x - text_width as SubPixelUnit / 2.0) as PixelPosition,
+            (mark.rect().bottom() as SubPixelUnit + text_height as SubPixelUnit / 4.0)
+                as PixelPosition,
+            text_width,
+            text_height,
+        );
+        while text_rects.iter().any(|r: &Rect| r.overlaps(&text_rect)) {
+            text_rect = text_rect.offset(0, text_height as i32);
+        }
+        text_rects.push(text_rect);
+
         draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), TOP_COLOR);
         draw_text_mut(
             canvas,
             DARK_GREEN,
-            (center.x - text_width as SubPixelUnit / 2.0) as PixelPosition,
-            (mark.rect().bottom() as SubPixelUnit + text_height as SubPixelUnit / 4.0)
-                as PixelPosition,
+            text_rect.left(),
+            text_rect.top(),
             scale,
             font,
             text.as_str(),
         );
     }
 
+    let mut text_rects = vec![];
     for (i, mark) in partial_timing_marks.bottom_marks.iter().enumerate() {
         let center = mark.rect().center();
-        let text = format!("{i}");
+        let text = format!(
+            "{i} ({m:.0}, {p:.0})",
+            m = mark.scores().mark_score(),
+            p = mark.scores().padding_score(),
+        );
         let (text_width, text_height) = text_size(scale, font, text.as_str());
+        let mut text_rect = Rect::new(
+            (center.x - text_width as SubPixelUnit / 2.0) as PixelPosition,
+            (mark.rect().top() as SubPixelUnit - text_height as SubPixelUnit * 5.0 / 4.0)
+                as PixelPosition,
+            text_width,
+            text_height,
+        );
+        while text_rects.iter().any(|r: &Rect| r.overlaps(&text_rect)) {
+            text_rect = text_rect.offset(0, -(text_height as i32));
+        }
+        text_rects.push(text_rect);
+
         draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), BOTTOM_COLOR);
         draw_text_mut(
             canvas,
             DARK_BLUE,
-            (center.x - text_width as SubPixelUnit / 2.0) as PixelPosition,
-            (mark.rect().top() as SubPixelUnit - text_height as SubPixelUnit * 5.0 / 4.0)
-                as PixelPosition,
+            text_rect.left(),
+            text_rect.top(),
             scale,
             font,
             text.as_str(),
@@ -579,7 +612,7 @@ pub fn draw_find_timing_mark_border_result_mut(
             searched,
             duration,
         } => {
-            debug.write(&format!("{label}_success").to_lowercase(), |canvas| {
+            debug.write(format!("{label}_success").to_lowercase(), |canvas| {
                 for (mark, color) in marks.iter().zip(rainbow()) {
                     draw_filled_rect_mut(canvas, imageproc_rect_from_rect(mark.rect()), color);
                 }
@@ -605,7 +638,7 @@ pub fn draw_find_timing_mark_border_result_mut(
             });
         }
         BestFitSearchResult::NotFound { searched, duration } => {
-            debug.write(&format!("{label}_failure").to_lowercase(), |canvas| {
+            debug.write(format!("{label}_failure").to_lowercase(), |canvas| {
                 for (segment, color) in searched.iter().zip(rainbow()) {
                     draw_line_segment_mut(canvas, segment.start.into(), segment.end.into(), color);
                 }
@@ -902,14 +935,19 @@ pub fn draw_filtered_timing_marks_debug_image_mut(
 }
 
 /// Draws a debug image showing all the points of the timing mark grid.
+///
+/// # Panics
+///
+/// Panics if the given timing mark grid does not correspond to the given
+/// geometry in terms of grid size.
 pub fn draw_timing_mark_grid_debug_image_mut(
     canvas: &mut RgbImage,
-    timing_mark_grid: &TimingMarkGrid,
+    timing_marks: &TimingMarks,
     geometry: &Geometry,
 ) {
     for column in 0..geometry.grid_size.width {
         for row in 0..geometry.grid_size.height {
-            let point = timing_mark_grid
+            let point = timing_marks
                 .point_for_location(column as SubGridUnit, row as SubGridUnit)
                 .expect("grid point is defined");
             draw_cross_mut(
@@ -957,7 +995,13 @@ pub fn draw_corner_match_info_debug_image_mut(
     }
 }
 
-fn monospace_font() -> FontRef<'static> {
+/// Returns a monospace font for use in debug images.
+///
+/// # Panics
+///
+/// Panics if the font data is invalid.
+#[must_use]
+pub fn monospace_font() -> FontRef<'static> {
     FontRef::try_from_slice(include_bytes!("../../data/fonts/Inconsolata-Regular.ttf"))
         .expect("font is valid")
 }
@@ -1111,6 +1155,7 @@ pub fn draw_scored_bubble_marks_debug_image_mut(
     }
 }
 
+/// Draw bounds around the scored write-in areas.
 pub fn draw_scored_write_in_areas(
     canvas: &mut RgbImage,
     scored_write_in_areas: &ScoredPositionAreas,
@@ -1141,9 +1186,7 @@ pub fn draw_scored_write_in_areas(
         draw_text_with_background_mut(
             canvas,
             &option_text,
-            bounds.left()
-                - i32::try_from(option_text_width).expect("option_text_width fits within i32")
-                - 5,
+            bounds.left() - i32ify!(option_text_width) - 5,
             (bounds.top() + bounds.bottom()) / 2 - i32ify!(option_text_height / 2),
             scale,
             font,
@@ -1301,6 +1344,7 @@ pub fn draw_diagnostic_cells(canvas: &mut RgbImage, passed_cells: &[Rect], faile
 }
 
 #[derive(Debug)]
+#[must_use]
 pub struct ImageDebugWriter {
     input_path: PathBuf,
     input_image: Option<GrayImage>,
@@ -1335,16 +1379,27 @@ impl ImageDebugWriter {
         }
     }
 
+    #[must_use]
     pub const fn is_disabled(&self) -> bool {
         self.input_image.is_none()
     }
 
-    pub fn write(&self, label: &str, draw: impl FnOnce(&mut RgbImage)) -> Option<PathBuf> {
+    /// Calls the provided function to draw on the debug image, then writes the
+    /// image to the specified path.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the image cannot be saved.
+    pub fn write(
+        &self,
+        label: impl AsRef<str>,
+        draw: impl FnOnce(&mut RgbImage),
+    ) -> Option<PathBuf> {
         self.input_image.as_ref().map(|input_image| {
             let mut output_image = DynamicImage::ImageLuma8(input_image.clone()).into_rgb8();
             draw(&mut output_image);
 
-            let output_path = output_path_from_original(&self.input_path, label);
+            let output_path = output_path_from_original(&self.input_path, label.as_ref());
             output_image.save(&output_path).expect("image is saved");
             debug!("{}", output_path.display());
             output_path

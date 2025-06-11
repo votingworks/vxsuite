@@ -415,7 +415,7 @@ function convertInterpretedBallotPage(
       options,
     });
   const markInfo = convertScoredContestOptionsToMarkInfo(
-    interpretation.grid.geometry,
+    interpretation.timingMarks.geometry,
     contestOptionScores
   );
   return {
@@ -437,7 +437,7 @@ function convertInterpretedBallotPage(
         ? getUnmarkedWriteInsFromScoredContestOptions(contestOptionScores)
         : undefined,
       layout: {
-        pageSize: interpretation.grid.geometry.canvasSize,
+        pageSize: interpretation.timingMarks.geometry.canvasSize,
         metadata,
         contests: convertContestLayouts(
           electionDefinition.election.contests,

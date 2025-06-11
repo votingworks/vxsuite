@@ -12,11 +12,12 @@ use crate::{
 };
 
 pub mod contours;
+pub mod corners;
 pub mod scoring;
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Complete {
+pub struct TimingMarks {
     pub geometry: Geometry,
     pub top_left_corner: Point<f32>,
     pub top_right_corner: Point<f32>,
@@ -32,7 +33,7 @@ pub struct Complete {
     pub bottom_right_mark: CandidateTimingMark,
 }
 
-impl Complete {
+impl TimingMarks {
     fn rotate(self, image_size: Size<u32>) -> Self {
         let Self {
             geometry,
@@ -104,41 +105,6 @@ impl Complete {
             right_marks: rotated_left_marks,
         }
     }
-}
-
-#[derive(Debug, Serialize, Clone)]
-#[serde(tag = "source", rename_all = "kebab-case")]
-pub enum BallotPageMetadata {
-    QrCode(hmpb::Metadata),
-}
-
-/// Represents a grid of timing marks and provides access to the expected
-/// location of bubbles in the grid.
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct TimingMarkGrid {
-    /// The geometry of the ballot card.
-    pub geometry: Geometry,
-
-    /// Timing marks inferred from the partial timing marks.
-    pub complete_timing_marks: Complete,
-
-    /// Areas of the ballot card that contain shapes that may be timing marks.
-    pub candidate_timing_marks: Vec<CandidateTimingMark>,
-}
-
-impl TimingMarkGrid {
-    pub const fn new(
-        geometry: Geometry,
-        complete_timing_marks: Complete,
-        candidate_timing_marks: Vec<CandidateTimingMark>,
-    ) -> Self {
-        Self {
-            geometry,
-            complete_timing_marks,
-            candidate_timing_marks,
-        }
-    }
 
     /// Returns the center of the grid position at the given coordinates. Timing
     /// marks are at the edges of the grid, and the inside of the grid is where
@@ -161,6 +127,7 @@ impl TimingMarkGrid {
     ///    the marks being cropped during scanning or border removal
     /// 3. Interpolating horizontally between the left/right timing mark
     ///    positions based on the given column index.
+    #[must_use]
     pub fn point_for_location(
         &self,
         column: SubGridUnit,
@@ -177,22 +144,10 @@ impl TimingMarkGrid {
         let row_before = row.floor() as GridUnit;
         let row_after = row.ceil() as GridUnit;
         let distance_percentage_between_rows = row - row_before as f32;
-        let left_before = self
-            .complete_timing_marks
-            .left_marks
-            .get(row_before as usize)?;
-        let right_before = self
-            .complete_timing_marks
-            .right_marks
-            .get(row_before as usize)?;
-        let left_after = self
-            .complete_timing_marks
-            .left_marks
-            .get(row_after as usize)?;
-        let right_after = self
-            .complete_timing_marks
-            .right_marks
-            .get(row_after as usize)?;
+        let left_before = self.left_marks.get(row_before as usize)?;
+        let right_before = self.right_marks.get(row_before as usize)?;
+        let left_after = self.left_marks.get(row_after as usize)?;
+        let right_after = self.right_marks.get(row_after as usize)?;
         let left = Rect::new(
             left_before.rect().left(),
             left_before.rect().top()
@@ -213,7 +168,7 @@ impl TimingMarkGrid {
         );
 
         // account for marks being cropped during scanning or border removal
-        let timing_mark_width = self.geometry.timing_mark_size.width.round() as PixelUnit;
+        let timing_mark_width = self.geometry.timing_mark_width_pixels().round() as PixelUnit;
         let corrected_left = Rect::new(
             left.right() - timing_mark_width as PixelPosition,
             left.top(),
@@ -231,6 +186,12 @@ impl TimingMarkGrid {
         } = horizontal_segment.with_length(horizontal_segment.length() * distance_percentage);
         Some(expected_timing_mark_center)
     }
+}
+
+#[derive(Debug, Serialize, Clone)]
+#[serde(tag = "source", rename_all = "kebab-case")]
+pub enum BallotPageMetadata {
+    QrCode(hmpb::Metadata),
 }
 
 struct Rotator180 {
@@ -292,21 +253,43 @@ pub enum Border {
     Bottom,
 }
 
+/// Determines whether a rect could be a timing mark based on its rect.
+#[must_use]
+pub fn rect_could_be_timing_mark(geometry: &Geometry, rect: &Rect) -> bool {
+    let timing_mark_width = geometry.timing_mark_width_pixels();
+    let timing_mark_height = geometry.timing_mark_height_pixels();
+
+    let min_timing_mark_width = (timing_mark_width * 0.5).floor() as u32;
+    let min_timing_mark_height = (timing_mark_height * 0.5).floor() as u32;
+
+    // Skew/rotation can cause the height of timing marks to be slightly larger
+    // than expected, so allow for a small amount of extra height when
+    // determining if a rect could be a timing mark. This applies to width as
+    // well, but to a lesser extent.
+    let max_timing_mark_width = (timing_mark_width * 1.80).round() as u32;
+    let max_timing_mark_height = (timing_mark_height * 1.80).round() as u32;
+
+    rect.width() >= min_timing_mark_width
+        && rect.width() <= max_timing_mark_width
+        && rect.height() >= min_timing_mark_height
+        && rect.height() <= max_timing_mark_height
+}
+
 pub fn normalize_orientation(
     geometry: &Geometry,
-    grid: TimingMarkGrid,
+    timing_marks: TimingMarks,
     image: &GrayImage,
     orientation: Orientation,
     debug: &mut ImageDebugWriter,
-) -> (TimingMarkGrid, GrayImage) {
+) -> (TimingMarks, GrayImage) {
     // Handle rotating the image and our timing marks if necessary.
-    let (complete_timing_marks, normalized_image) = if orientation == Orientation::Portrait {
-        (grid.complete_timing_marks, image.clone())
+    let (timing_marks, normalized_image) = if orientation == Orientation::Portrait {
+        (timing_marks, image.clone())
     } else {
         let (width, height) = image.dimensions();
         debug.rotate180();
         (
-            grid.complete_timing_marks.rotate(Size { width, height }),
+            timing_marks.rotate(Size { width, height }),
             rotate180(image),
         )
     };
@@ -314,17 +297,13 @@ pub fn normalize_orientation(
     debug.write(
         "complete_timing_marks_after_orientation_correction",
         |canvas| {
-            draw_timing_mark_debug_image_mut(
-                canvas,
-                geometry,
-                &complete_timing_marks.clone().into(),
-            );
+            draw_timing_mark_debug_image_mut(canvas, geometry, &timing_marks.clone().into());
         },
     );
 
-    let grid = TimingMarkGrid {
-        complete_timing_marks,
-        ..grid
-    };
-    (grid, normalized_image)
+    (timing_marks, normalized_image)
+}
+
+pub trait DefaultForGeometry {
+    fn default_for_geometry(geometry: &Geometry) -> Self;
 }
