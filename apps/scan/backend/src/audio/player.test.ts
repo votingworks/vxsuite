@@ -54,7 +54,7 @@ test('with execFile error', async () => {
   await player.play('alarm');
 
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
-    LogEventId.UnknownError,
+    LogEventId.AudioPlaybackError,
     {
       message: expect.stringContaining('execFile failed'),
       disposition: 'failure',
@@ -74,7 +74,7 @@ test('with paplay error', async () => {
   await player.play('warning');
 
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
-    LogEventId.UnknownError,
+    LogEventId.AudioPlaybackError,
     {
       message: expect.stringContaining('No such file or directory'),
       disposition: 'failure',

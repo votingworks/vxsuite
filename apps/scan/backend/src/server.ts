@@ -90,8 +90,7 @@ export async function start({
     });
     result.assertOk('unable to set USB audio as default output');
   } else {
-    // [TODO] Update log event ID to something more specific.
-    void logger.logAsCurrentRole(LogEventId.UnknownError, {
+    void logger.logAsCurrentRole(LogEventId.AudioDeviceMissing, {
       message: 'USB audio device not detected.',
       disposition: 'failure',
     });

@@ -175,8 +175,16 @@ pub enum EventId {
     ReadinessReportPrinted,
     #[serde(rename = "readiness-report-saved")]
     ReadinessReportSaved,
-    #[serde(rename = "headphones-detection-errors")]
-    HeadphonesDetectionError,
+    #[serde(rename = "audio-device-detection-error")]
+    AudioDeviceDetectionError,
+    #[serde(rename = "audio-device-missing")]
+    AudioDeviceMissing,
+    #[serde(rename = "audio-device-selected")]
+    AudioDeviceSelected,
+    #[serde(rename = "audio-device-selection-error")]
+    AudioDeviceSelectionError,
+    #[serde(rename = "audio-playback-error")]
+    AudioPlaybackError,
     #[serde(rename = "unknown-error")]
     UnknownError,
     #[serde(rename = "permission-denied")]

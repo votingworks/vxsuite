@@ -246,7 +246,7 @@ test('execFile error', async () => {
   expect(await getAudioInfo({ logger, nodeEnv })).toEqual<AudioInfo>({});
 
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
-    LogEventId.HeadphonesDetectionError,
+    LogEventId.AudioDeviceDetectionError,
     {
       message: expect.stringContaining('execFile failed'),
       disposition: 'failure',
@@ -262,7 +262,7 @@ test('pactl error', async () => {
   expect(await getAudioInfo({ logger, nodeEnv })).toEqual<AudioInfo>({});
 
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
-    LogEventId.HeadphonesDetectionError,
+    LogEventId.AudioDeviceDetectionError,
     {
       message: expect.stringContaining('access denied'),
       disposition: 'failure',
@@ -278,7 +278,7 @@ test('pactl output parse error', async () => {
   expect(await getAudioInfo({ logger, nodeEnv })).toEqual<AudioInfo>({});
 
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
-    LogEventId.HeadphonesDetectionError,
+    LogEventId.AudioDeviceDetectionError,
     {
       message: expect.stringContaining('ZodError'),
       disposition: 'failure',

@@ -55,8 +55,7 @@ export async function getAudioInfo(ctx: {
       ));
     }
   } catch (error) {
-    // [TODO] Update log event ID to something more general.
-    void logger.logAsCurrentRole(LogEventId.HeadphonesDetectionError, {
+    void logger.logAsCurrentRole(LogEventId.AudioDeviceDetectionError, {
       message: `Unable to run pactl command: ${error}}`,
       disposition: 'failure',
     });
@@ -65,7 +64,7 @@ export async function getAudioInfo(ctx: {
   }
 
   if (errorOutput) {
-    void logger.logAsCurrentRole(LogEventId.HeadphonesDetectionError, {
+    void logger.logAsCurrentRole(LogEventId.AudioDeviceDetectionError, {
       message: `pactl command failed: ${errorOutput}}`,
       disposition: 'failure',
     });
@@ -95,7 +94,7 @@ export async function getAudioInfo(ctx: {
       }
     }
   } catch (error) {
-    void logger.logAsCurrentRole(LogEventId.HeadphonesDetectionError, {
+    void logger.logAsCurrentRole(LogEventId.AudioDeviceDetectionError, {
       message: `unable to parse pactl output: ${error}}`,
       disposition: 'failure',
     });

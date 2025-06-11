@@ -154,7 +154,7 @@ test('logs if unable to detect USB audio device', async () => {
   });
 
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
-    LogEventId.UnknownError,
+    LogEventId.AudioDeviceMissing,
     {
       message: 'USB audio device not detected.',
       disposition: 'failure',

@@ -45,9 +45,8 @@ export async function setDefaultAudio(
       ]));
     }
   } catch (error) {
-    // [TODO] Update log event ID to something more specific.
-    void logger.logAsCurrentRole(LogEventId.UnknownError, {
-      message: `Unable to run pactl set-default-sink command: ${error}}`,
+    void logger.logAsCurrentRole(LogEventId.AudioDeviceSelectionError, {
+      message: `Unable to run pactl set-default-sink command: ${error}`,
       disposition: 'failure',
     });
 
@@ -55,14 +54,18 @@ export async function setDefaultAudio(
   }
 
   if (errorOutput) {
-    // [TODO] Update log event ID to something more specific.
-    void logger.logAsCurrentRole(LogEventId.UnknownError, {
-      message: `pactl set-default-sink command failed: ${errorOutput}}`,
+    void logger.logAsCurrentRole(LogEventId.AudioDeviceSelectionError, {
+      message: `pactl set-default-sink command failed: ${errorOutput}`,
       disposition: 'failure',
     });
 
     return err({ code: 'pactlError', error: errorOutput });
   }
+
+  void logger.logAsCurrentRole(LogEventId.AudioDeviceSelected, {
+    message: `Selected default audio output: ${sinkName}`,
+    disposition: 'success',
+  });
 
   return ok();
 }

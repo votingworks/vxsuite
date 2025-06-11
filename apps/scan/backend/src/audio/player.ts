@@ -35,8 +35,7 @@ export class Player {
         ]));
       }
     } catch (error) {
-      // [TODO] Add log event ID for audio playback errors.
-      void this.logger.logAsCurrentRole(LogEventId.UnknownError, {
+      void this.logger.logAsCurrentRole(LogEventId.AudioPlaybackError, {
         message: `Unable to run 'paplay' command: ${error}}`,
         disposition: 'failure',
       });
@@ -45,8 +44,7 @@ export class Player {
     }
 
     if (errorOutput) {
-      // [TODO] Add log event ID for audio playback errors.
-      void this.logger.logAsCurrentRole(LogEventId.UnknownError, {
+      void this.logger.logAsCurrentRole(LogEventId.AudioPlaybackError, {
         message: `'paplay' command failed: ${errorOutput}}`,
         disposition: 'failure',
       });

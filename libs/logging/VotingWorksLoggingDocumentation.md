@@ -150,9 +150,25 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)
 **Description:** The user has saved an equipment readiness report.
 **Machines:** All
-### headphones-detection-errors
+### audio-device-detection-error
 **Type:** [application-status](#application-status)
-**Description:** Error while attempting to detect headphones.
+**Description:** Error while attempting to detect audio devices.
+**Machines:** All
+### audio-device-missing
+**Type:** [application-status](#application-status)
+**Description:** An expected audio device was not detected.
+**Machines:** All
+### audio-device-selected
+**Type:** [application-status](#application-status)
+**Description:** A default audio output device was selected.
+**Machines:** All
+### audio-device-selection-error
+**Type:** [application-status](#application-status)
+**Description:** Error while attempting to select a default audio output device.
+**Machines:** All
+### audio-playback-error
+**Type:** [application-status](#application-status)
+**Description:** Error while attempting to play audio.
 **Machines:** All
 ### unknown-error
 **Type:** [application-status](#application-status)

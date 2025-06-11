@@ -13,8 +13,9 @@ test('NODE_ENV=production - runs app script via sudo', async () => {
   mockExecFile.mockResolvedValue({ stderr: '', stdout: '' });
 
   const sinkName = 'usb.stereo';
+  const logger = mockLogger({ fn: vi.fn });
   const result = await setDefaultAudio(sinkName, {
-    logger: mockLogger({ fn: vi.fn }),
+    logger,
     nodeEnv: 'production',
   });
   expect(result).toEqual(ok());
@@ -24,14 +25,20 @@ test('NODE_ENV=production - runs app script via sudo', async () => {
     'set-default-sink',
     sinkName,
   ]);
+
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+    LogEventId.AudioDeviceSelected,
+    { message: expect.stringContaining(sinkName), disposition: 'success' }
+  );
 });
 
 test('NODE_ENV=development - runs pactl directly', async () => {
   mockExecFile.mockResolvedValue({ stderr: '', stdout: '' });
 
   const sinkName = 'usb.stereo';
+  const logger = mockLogger({ fn: vi.fn });
   const result = await setDefaultAudio(sinkName, {
-    logger: mockLogger({ fn: vi.fn }),
+    logger,
     nodeEnv: 'development',
   });
   expect(result).toEqual(ok());
@@ -40,6 +47,11 @@ test('NODE_ENV=development - runs pactl directly', async () => {
     'set-default-sink',
     sinkName,
   ]);
+
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+    LogEventId.AudioDeviceSelected,
+    { message: expect.stringContaining(sinkName), disposition: 'success' }
+  );
 });
 
 test('execFile error', async () => {
@@ -52,7 +64,7 @@ test('execFile error', async () => {
   ).toEqual<SetDefaultAudioResult>(err({ code: 'execFileError', error }));
 
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
-    LogEventId.UnknownError,
+    LogEventId.AudioDeviceSelectionError,
     {
       message: expect.stringContaining(error),
       disposition: 'failure',
@@ -71,7 +83,7 @@ test('pactl error', async () => {
   ).toEqual<SetDefaultAudioResult>(err({ code: 'pactlError', error }));
 
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
-    LogEventId.UnknownError,
+    LogEventId.AudioDeviceSelectionError,
     {
       message: expect.stringContaining(error),
       disposition: 'failure',
