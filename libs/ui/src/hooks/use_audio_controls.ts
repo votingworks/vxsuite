@@ -15,6 +15,7 @@ export function useAudioControls(): AudioControls {
   const screenReaderContext = useUiStringScreenReaderContext();
 
   return {
+    cycleVolume: screenReaderContext?.cycleVolume || noOp,
     decreasePlaybackRate: audioContext?.decreasePlaybackRate || noOp,
     decreaseVolume: screenReaderContext?.decreaseVolume || noOp,
     increasePlaybackRate: audioContext?.increasePlaybackRate || noOp,

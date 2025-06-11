@@ -274,6 +274,8 @@ test('volume control API', async () => {
     newTestContext();
 
   const mockAudioIds: Partial<Record<AppStringKey, string[]>> = {
+    audioFeedbackMinimumVolume: ['min-volume'],
+    audioFeedback10PercentVolume: ['10%-volume'],
     audioFeedback90PercentVolume: ['90%-volume'],
     audioFeedbackMaximumVolume: ['max-volume'],
     titleBmdReviewScreen: ['screen-title'],
@@ -321,12 +323,24 @@ test('volume control API', async () => {
     getMockClipOutput({ audioId: 'max-volume', languageCode: ENGLISH })
   );
 
+  // Simulate cycling volume level (for single-button volume-control devices):
+  act(() => getAudioControls()?.cycleVolume());
+  expect(getAudioContext()?.volume).toEqual(AudioVolume.MINIMUM);
+  expect(await screen.findByTestId('mockClipOutput')).toHaveTextContent(
+    getMockClipOutput({ audioId: 'min-volume', languageCode: ENGLISH })
+  );
+  act(() => getAudioControls()?.cycleVolume());
+  expect(getAudioContext()?.volume).toEqual(AudioVolume.TEN_PERCENT);
+  expect(await screen.findByTestId('mockClipOutput')).toHaveTextContent(
+    getMockClipOutput({ audioId: '10%-volume', languageCode: ENGLISH })
+  );
+
   // Decreasing volume while no screen reader audio is active should play
   // appropriate feedback:
   act(() => getAudioControls()?.decreaseVolume());
-  expect(getAudioContext()?.volume).toEqual(AudioVolume.NINETY_PERCENT);
+  expect(getAudioContext()?.volume).toEqual(AudioVolume.MINIMUM);
   expect(await screen.findByTestId('mockClipOutput')).toHaveTextContent(
-    getMockClipOutput({ audioId: '90%-volume', languageCode: ENGLISH })
+    getMockClipOutput({ audioId: 'min-volume', languageCode: ENGLISH })
   );
 
   // Simulate screen reader audio ending:

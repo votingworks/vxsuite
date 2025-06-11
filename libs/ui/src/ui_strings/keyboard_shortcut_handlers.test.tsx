@@ -73,6 +73,7 @@ test.each([
     expectedFnCall: audioControls.increasePlaybackRate,
   },
   { key: Keybinding.TOGGLE_PAUSE, expectedFnCall: audioControls.togglePause },
+  { key: Keybinding.VOLUME_CYCLE, expectedFnCall: audioControls.cycleVolume },
   { key: Keybinding.VOLUME_DOWN, expectedFnCall: audioControls.decreaseVolume },
   { key: Keybinding.VOLUME_UP, expectedFnCall: audioControls.increaseVolume },
 ])(
@@ -81,7 +82,8 @@ test.each([
     render(<KeyboardShortcutHandlers />);
 
     await act(async () => {
-      userEvent.keyboard(key);
+      const input = key.length === 1 ? key : `{${key}}`;
+      userEvent.keyboard(input);
       await advancePromises();
     });
 

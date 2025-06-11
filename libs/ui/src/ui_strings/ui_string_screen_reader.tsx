@@ -42,6 +42,7 @@ interface UiStringParams {
 }
 
 export interface UiStringScreenReaderContextInterface {
+  cycleVolume: () => void;
   decreaseVolume: () => void;
   increaseVolume: () => void;
   /** Replays audio for any `UiString`s currently under focus. */
@@ -82,6 +83,15 @@ function useVolumeControls(params: {
     [baseSetVolume, currentLanguageCode, playVolumeChangeFeedback]
   );
 
+  const cycleVolume = React.useCallback(() => {
+    if (volume === AudioVolume.MAXIMUM) {
+      setVolume(AudioVolume.MINIMUM);
+      return;
+    }
+
+    setVolume(getIncreasedVolume(volume));
+  }, [setVolume, volume]);
+
   const increaseVolume = React.useCallback(
     () => setVolume(getIncreasedVolume(volume)),
     [setVolume, volume]
@@ -92,7 +102,7 @@ function useVolumeControls(params: {
     [setVolume, volume]
   );
 
-  return { decreaseVolume, increaseVolume };
+  return { cycleVolume, decreaseVolume, increaseVolume };
 }
 
 /**
@@ -108,7 +118,7 @@ export function UiStringScreenReader(
   const [audioFeedbackQueue, setAudioFeedbackQueue] =
     React.useState<UiStringParams[]>();
 
-  const { decreaseVolume, increaseVolume } = useVolumeControls({
+  const { cycleVolume, decreaseVolume, increaseVolume } = useVolumeControls({
     playVolumeChangeFeedback: setAudioFeedbackQueue,
   });
 
@@ -282,7 +292,7 @@ export function UiStringScreenReader(
 
   return (
     <UiStringScreenReaderContext.Provider
-      value={{ decreaseVolume, increaseVolume, replay }}
+      value={{ cycleVolume, decreaseVolume, increaseVolume, replay }}
     >
       {isEnabled && (
         <PlayAudioClips clips={memoizedClipQueue} onDone={onDone} />

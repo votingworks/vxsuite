@@ -17,6 +17,7 @@ export enum Keybinding {
   TOGGLE_AUDIO = 'M',
   TOGGLE_HELP = 'R',
   TOGGLE_PAUSE = 'P',
+  VOLUME_CYCLE = 'F17', // Storm-Interface tactile controller
   VOLUME_DOWN = '-',
   VOLUME_UP = '=',
 
