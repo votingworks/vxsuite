@@ -714,8 +714,8 @@ export function ContestAdjudicationScreen(): JSX.Element {
   useLayoutEffect(() => {
     if (
       !areQueriesFetching &&
-      shouldScrollToOption &&
-      firstRequiringAdjudicationId
+      firstRequiringAdjudicationId &&
+      shouldScrollToOption
     ) {
       const index = allOptionsIds.findIndex(
         (id) => id === firstRequiringAdjudicationId
@@ -730,10 +730,10 @@ export function ContestAdjudicationScreen(): JSX.Element {
       setShouldScrollToOption(false);
     }
   }, [
-    shouldScrollToOption,
-    areQueriesFetching,
     allOptionsIds,
+    areQueriesFetching,
     firstRequiringAdjudicationId,
+    shouldScrollToOption,
   ]);
 
   // Only show full loading screen on initial load to mitigate screen flicker on scroll
@@ -1004,21 +1004,25 @@ export function ContestAdjudicationScreen(): JSX.Element {
                   : (officialOption as YesNoOption).label;
                 const marginalMarkStatus =
                   marginalMarkStatusByOptionId[officialOption.id];
-                function ref(el: HTMLDivElement | null) {
+                function getRef(el: HTMLDivElement | null) {
                   optionRefs.current[idx] = el;
                 }
+                const { id: optionId } = officialOption;
                 return (
                   <ContestOptionButton
-                    key={officialOption.id + currentCvrId}
+                    key={optionId + currentCvrId}
+                    isSelected={currentVote}
+                    marginalMarkStatus={marginalMarkStatus}
+                    ref={getRef}
                     option={{
-                      id: officialOption.id,
+                      id: optionId,
                       label: optionLabel,
                     }}
-                    isSelected={currentVote}
-                    onSelect={() => setOptionHasVote(officialOption.id, true)}
-                    onDeselect={() =>
-                      setOptionHasVote(officialOption.id, false)
-                    }
+                    onSelect={() => setOptionHasVote(optionId, true)}
+                    onDeselect={() => setOptionHasVote(optionId, false)}
+                    onDismissFlag={() => {
+                      resolveMarginalMark(optionId);
+                    }}
                     disabled={
                       isBmd ||
                       // Disabled when there is a write-in selection for the candidate
@@ -1031,17 +1035,12 @@ export function ContestAdjudicationScreen(): JSX.Element {
                       isWriteIn: false,
                       marginalMarkStatus,
                     })}
-                    marginalMarkStatus={marginalMarkStatus}
-                    onDismissFlag={() => {
-                      resolveMarginalMark(officialOption.id);
-                    }}
-                    ref={ref}
                     tabIndex={
                       // make the first option requiring adjudication
                       // accessible via tab; if none require adjudication,
                       // make the first contest option accessible via tab
                       firstRequiringAdjudicationId !== undefined
-                        ? officialOption.id === firstRequiringAdjudicationId
+                        ? optionId === firstRequiringAdjudicationId
                           ? 0
                           : -1
                         : idx === 0
@@ -1061,25 +1060,29 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 const isSelected = hasVoteByOptionId[optionId];
                 const marginalMarkStatus =
                   marginalMarkStatusByOptionId[optionId];
-                function ref(el: HTMLDivElement | null) {
-                  optionRefs.current[idx + officialOptions.length] = el;
+                function getRef(el: HTMLDivElement | null) {
+                  optionRefs.current[officialOptions.length + idx] = el;
                 }
                 return (
                   <WriteInAdjudicationButton
                     key={optionId + currentCvrId}
+                    label={writeInRecord?.machineMarkedText}
                     optionId={optionId}
-                    // bmd ballots can only toggle-on write-ins that were
-                    // previously detected, meaning that status would be defined
-                    disabled={isBmd && writeInStatus === undefined}
+                    writeInStatus={writeInStatus}
                     marginalMarkStatus={marginalMarkStatus}
-                    onDismissFlag={() => resolveMarginalMark(optionId)}
                     isFocused={isFocused}
                     isSelected={isSelected}
                     hasInvalidEntry={doubleVoteAlert?.optionId === optionId}
-                    label={writeInRecord?.machineMarkedText}
-                    status={writeInStatus}
+                    // bmd ballots can only toggle-on write-ins that were
+                    // previously detected, meaning the status would be defined
+                    disabled={isBmd && writeInStatus === undefined}
                     onInputFocus={() => setFocusedOptionId(optionId)}
                     onInputBlur={() => setFocusedOptionId(undefined)}
+                    onDismissFlag={() => resolveMarginalMark(optionId)}
+                    ref={getRef}
+                    tabIndex={
+                      optionId === firstRequiringAdjudicationId ? 0 : -1
+                    }
                     onChange={(newStatus) => {
                       setFocusedOptionId(undefined);
                       if (isPendingWriteIn(newStatus)) {
@@ -1135,10 +1138,6 @@ export function ContestAdjudicationScreen(): JSX.Element {
                       writeInStatus,
                       marginalMarkStatus,
                     })}
-                    ref={ref}
-                    tabIndex={
-                      optionId === firstRequiringAdjudicationId ? 0 : -1
-                    }
                   />
                 );
               })}

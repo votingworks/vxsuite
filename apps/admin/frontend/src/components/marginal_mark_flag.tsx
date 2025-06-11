@@ -16,6 +16,8 @@ const Container = styled.div`
 
   button {
     gap: 0.25rem;
+    padding: 0 0.5rem;
+    line-height: 1.4;
   }
 `;
 
@@ -41,7 +43,6 @@ export function MarginalMarkFlag({
         icon="X"
         fill="transparent"
         onPress={onDismissFlag}
-        style={{ padding: '0' }}
         value={undefined}
         tabIndex={-1}
       >

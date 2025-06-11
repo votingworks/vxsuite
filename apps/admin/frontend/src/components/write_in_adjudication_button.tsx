@@ -33,14 +33,13 @@ const StyledCheckboxButton = styled(CheckboxButton)<{
     if (roundTop && roundBottom) return '0.5rem';
     if (roundTop) return '0.5rem 0.5rem 0 0';
     if (roundBottom) return '0 0 0.5rem 0.5rem';
-    return '0';
   }};
 `;
 
 interface Props {
   isFocused: boolean;
   isSelected: boolean;
-  status: WriteInAdjudicationStatus;
+  writeInStatus: WriteInAdjudicationStatus;
   onChange: (newStatus: Exclude<WriteInAdjudicationStatus, undefined>) => void;
   onInputBlur: () => void;
   onInputFocus: () => void;
@@ -61,7 +60,7 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
     {
       isFocused,
       isSelected,
-      status,
+      writeInStatus,
       onChange,
       onInputFocus,
       onInputBlur,
@@ -85,14 +84,15 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
       setInputValue(val);
     }
 
+    // Only show marginal mark flag if the write-in has not been adjudicated
     const showMarginalMarkFlag =
-      status === undefined &&
+      writeInStatus === undefined &&
       marginalMarkStatus === 'pending' &&
       onDismissFlag !== undefined;
 
     let showSearchSelect = true;
     let value: string | undefined;
-    switch (status?.type) {
+    switch (writeInStatus?.type) {
       case 'invalid':
       case undefined: {
         showSearchSelect = false;
@@ -105,12 +105,12 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
       case 'new-write-in':
       case 'existing-official':
       case 'existing-write-in': {
-        value = status.name;
+        value = writeInStatus.name;
         break;
       }
       default: {
         /* istanbul ignore next - @preserve */
-        throwIllegalValue(status, 'type');
+        throwIllegalValue(writeInStatus, 'type');
       }
     }
 
@@ -121,7 +121,6 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
           normalizeWriteInName(name).includes(normalizedInputValue)
         )
       : candidateNames;
-
     const candidateOptions = filteredNames.map((name) => ({
       label: name,
       value: name,
@@ -145,9 +144,10 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
     ) {
       newCandidateOption = {
         label: (
-          <span>
-            <Icons.Add style={{ marginRight: '.125rem' }} /> Press enter to add:{' '}
-            {inputValue}
+          <span
+            style={{ display: 'flex', alignItems: 'center', gap: '.25rem' }}
+          >
+            <Icons.Add /> Press enter to add: {inputValue}
           </span>
         ),
         value: inputValue,
@@ -160,8 +160,10 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
     if (!inputValue) {
       invalidMarkOption = {
         label: (
-          <span>
-            <Icons.Disabled style={{ marginRight: '.125rem' }} /> Invalid mark
+          <span
+            style={{ display: 'flex', alignItems: 'center', gap: '.25rem' }}
+          >
+            <Icons.Disabled /> Invalid mark
           </span>
         ),
         value: INVALID_KEY,
@@ -178,7 +180,6 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
       <Container
         ref={ref}
         data-option-id={optionId}
-        data-has-combobox="true"
         tabIndex={tabIndex}
         style={{ zIndex: isFocused ? 10 : 0 }}
       >
