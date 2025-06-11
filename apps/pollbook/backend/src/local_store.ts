@@ -335,9 +335,7 @@ export class LocalStore extends Store {
     return { voter, receiptNumber };
   }
 
-  findVoterWithName(
-    nameData: VoterNameChangeRequest
-  ): Voter | number | undefined {
+  findVotersWithName(nameData: VoterNameChangeRequest): Voter[] {
     const lastNamePattern = toPatternMatches(nameData.lastName);
     const firstNamePattern = toPatternMatches(nameData.firstName);
     const middleNamePattern = toPatternMatches(nameData.middleName);
@@ -356,7 +354,7 @@ export class LocalStore extends Store {
     ) as Array<{ voter_id: string; voter_data: string }>;
 
     if (voterRows.length === 0) {
-      return undefined;
+      return [];
     }
 
     // Map voter rows to voter objects
@@ -398,10 +396,7 @@ export class LocalStore extends Store {
         matchedVoters.push(voter);
       }
     }
-    if (matchedVoters.length === 1) {
-      return matchedVoters[0];
-    }
-    return matchedVoters.length || undefined;
+    return matchedVoters;
   }
 
   registerVoter(voterRegistration: VoterRegistrationRequest): {

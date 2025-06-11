@@ -119,11 +119,9 @@ test('shows duplicate name modal and allows override', async () => {
   userEvent.keyboard('[ArrowDown][Enter]');
 
   // Simulate duplicate name error
-  apiMock.expectRegisterVoterError(
-    mockRegistrationData,
-    false,
-    createMockVoter('test-duplicate-id', 'Jane', 'Smith')
-  );
+  apiMock.expectRegisterVoterError(mockRegistrationData, false, [
+    createMockVoter('test-duplicate-id', 'Jane', 'Smith'),
+  ]);
 
   userEvent.click(screen.getByTestId('add-voter-btn'));
   await screen.findByText('Duplicate Name Detected');
@@ -159,11 +157,15 @@ test('shows duplicate name modal and allows override - many matches', async () =
   userEvent.keyboard('[ArrowDown][Enter]');
 
   // Simulate duplicate name error
-  apiMock.expectRegisterVoterError(mockRegistrationData, false, 75);
+  apiMock.expectRegisterVoterError(mockRegistrationData, false, [
+    createMockVoter('created', 'Jane', 'Smith'),
+    createMockVoter('created2', 'Jane', 'Smith'),
+    createMockVoter('created3', 'Jane', 'Smith'),
+  ]);
 
   userEvent.click(screen.getButton('Add Voter'));
   await screen.findByText('Duplicate Name Detected');
-  screen.getByText(/There are already 75 voters with the name JANE SMITH/);
+  screen.getByText(/There are already 3 voters with the name JANE SMITH/);
 
   // Simulate override
   apiMock.expectRegisterVoter(

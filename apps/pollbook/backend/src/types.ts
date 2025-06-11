@@ -430,3 +430,9 @@ export type ConfigurationStatus =
   | 'network-conflicting-pollbook-packages-match-card';
 
 export type VoterCheckInError = 'already_checked_in' | 'voter_inactive';
+
+export interface DuplicateVoterError {
+  type: 'duplicate-voter';
+  message: string;
+  matchingVoters: Voter[];
+}

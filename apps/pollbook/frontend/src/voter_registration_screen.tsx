@@ -1,4 +1,5 @@
 import type {
+  DuplicateVoterError,
   PartyAbbreviation,
   Voter,
   VoterRegistrationRequest,
@@ -17,7 +18,7 @@ import {
   Modal,
   SearchSelect,
 } from '@votingworks/ui';
-import { throwIllegalValue } from '@votingworks/basics';
+import { throwIllegalValue, assert } from '@votingworks/basics';
 import { getDeviceStatuses, registerVoter } from './api';
 import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals';
 import { ElectionManagerNavScreen, NoNavScreen } from './nav_screen';
@@ -48,10 +49,10 @@ function createBlankVoter(): VoterRegistrationRequest {
 
 function RegistrationDuplicateNameMessage({
   inputtedVoter,
-  matchingVoterInformation,
+  duplicateError,
 }: {
   inputtedVoter: VoterRegistrationRequest;
-  matchingVoterInformation: Voter | number;
+  duplicateError: DuplicateVoterError;
 }): JSX.Element | null {
   const inputtedNameParts: string[] = [
     inputtedVoter.firstName,
@@ -60,27 +61,29 @@ function RegistrationDuplicateNameMessage({
     inputtedVoter.suffix,
   ];
   const inputtedName = inputtedNameParts.filter(Boolean).join(' ');
-  if (typeof matchingVoterInformation === 'number') {
+  if (duplicateError.matchingVoters.length > 1) {
     return (
       <span>
-        There are already {matchingVoterInformation} voters with the name{' '}
-        {inputtedName}. Please check the list of voters to confirm that the new
-        voter registration is not a duplicate.
+        There are already {duplicateError.matchingVoters.length} voters with the
+        name {inputtedName}. Please check the list of voters to confirm that the
+        new voter registration is not a duplicate.
       </span>
     );
   }
+  assert(duplicateError.matchingVoters.length === 1);
+  const voter = duplicateError.matchingVoters[0];
   return (
     <span>
       There is already a voter with the name {inputtedName}. The existing voter
-      has the voter ID {matchingVoterInformation.voterId}. Please confirm that
-      the new voter registration is not a duplicate.
+      has the voter ID {voter.voterId}. Please confirm that the new voter
+      registration is not a duplicate.
     </span>
   );
 }
 
 type RegistrationFlowState =
   | { step: 'register' }
-  | { step: 'has-name-match'; matchingVoterInformation: Voter | number }
+  | { step: 'has-name-match'; duplicateError: DuplicateVoterError }
   | { step: 'printing'; registrationData: VoterRegistrationRequest }
   | { step: 'success'; voter: Voter };
 
@@ -204,7 +207,7 @@ export function VoterRegistrationScreen(): JSX.Element | null {
                       } else {
                         setFlowState({
                           step: 'has-name-match',
-                          matchingVoterInformation: result.err(),
+                          duplicateError: result.err(),
                         });
                       }
                     },
@@ -224,7 +227,7 @@ export function VoterRegistrationScreen(): JSX.Element | null {
               content={
                 <RegistrationDuplicateNameMessage
                   inputtedVoter={voter}
-                  matchingVoterInformation={flowState.matchingVoterInformation}
+                  duplicateError={flowState.duplicateError}
                 />
               }
               actions={

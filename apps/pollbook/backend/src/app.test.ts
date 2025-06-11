@@ -265,7 +265,13 @@ test('register a voter - duplicate name', async () => {
       overrideNameMatchWarning: false,
     });
     expect(registerResult.err()).toMatchObject({
-      voterId: 'original',
+      type: 'duplicate-voter',
+      message: expect.anything(),
+      matchingVoters: expect.arrayContaining([
+        expect.objectContaining({
+          voterId: 'original',
+        }),
+      ]),
     });
 
     const result2 = await localApiClient.registerVoter({

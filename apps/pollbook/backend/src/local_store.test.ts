@@ -9,7 +9,7 @@ import {
 import { LocalStore } from './local_store';
 import { VoterRegistrationRequest } from './types';
 
-test('findVoterWithName works as expected - voters without name changes', () => {
+test('findVotersWithName works as expected - voters without name changes', () => {
   const workspacePath = tmp.dirSync().name;
   const localStore = LocalStore.fileStore(
     workspacePath,
@@ -55,62 +55,86 @@ test('findVoterWithName works as expected - voters without name changes', () => 
     },
   ];
   for (const testCase of expectingUndefinedResult) {
-    expect(localStore.findVoterWithName(testCase)).toBeUndefined();
+    expect(localStore.findVotersWithName(testCase)).toEqual([]);
   }
-
   expect(
-    localStore.findVoterWithName({
+    localStore.findVotersWithName({
       firstName: 'Dylan',
       lastName: 'obrien',
       middleName: 'mid',
       suffix: 'i',
     })
-  ).toMatchObject({ voterId: voters[0].voterId });
+  ).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ voterId: voters[0].voterId }),
+    ])
+  );
 
   expect(
-    localStore.findVoterWithName({
+    localStore.findVotersWithName({
       firstName: 'dy-lan',
       lastName: 'obrien',
       middleName: 'm id',
       suffix: '-i',
     })
-  ).toMatchObject({ voterId: voters[0].voterId });
+  ).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ voterId: voters[0].voterId }),
+    ])
+  );
 
   expect(
-    localStore.findVoterWithName({
+    localStore.findVotersWithName({
       firstName: 'ella',
       lastName: 'smith',
       middleName: 'stephan ie',
       suffix: ' ',
     })
-  ).toMatchObject({ voterId: voters[1].voterId });
+  ).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ voterId: voters[1].voterId }),
+    ])
+  );
 
   expect(
-    localStore.findVoterWithName({
+    localStore.findVotersWithName({
       firstName: 'ariel',
       lastName: 'FARMER',
       middleName: 'CaSsie',
       suffix: 'i',
     })
-  ).toMatchObject({ voterId: voters[2].voterId });
+  ).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ voterId: voters[2].voterId }),
+    ])
+  );
 
   expect(
-    localStore.findVoterWithName({
+    localStore.findVotersWithName({
       firstName: 'ariel',
       lastName: 'FARMER',
       middleName: 'CaSsie',
       suffix: 'ii',
     })
-  ).toMatchObject({ voterId: voters[3].voterId });
+  ).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ voterId: voters[3].voterId }),
+    ])
+  );
 
   expect(
-    localStore.findVoterWithName({
+    localStore.findVotersWithName({
       firstName: 'ariel',
       lastName: 'FARMER',
       middleName: 'saman-tha',
       suffix: 'ii',
     })
-  ).toEqual(2);
+  ).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ voterId: voters[4].voterId }),
+      expect.objectContaining({ voterId: voters[5].voterId }),
+    ])
+  );
 });
 
 test('findVoterWithName works as expected - voters with name changes', () => {
@@ -135,13 +159,17 @@ test('findVoterWithName works as expected - voters with name changes', () => {
 
   // Before name change, should match original name
   expect(
-    localStore.findVoterWithName({
+    localStore.findVotersWithName({
       firstName: 'John',
       lastName: 'Doe',
       middleName: 'Allen',
       suffix: 'Sr',
     })
-  ).toMatchObject({ voterId: voters[0].voterId });
+  ).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ voterId: voters[0].voterId }),
+    ])
+  );
 
   // Change name for John Doe
   localStore.changeVoterName(voters[0].voterId, {
@@ -153,33 +181,37 @@ test('findVoterWithName works as expected - voters with name changes', () => {
 
   // Should not match old name anymore
   expect(
-    localStore.findVoterWithName({
+    localStore.findVotersWithName({
       firstName: 'John',
       lastName: 'Doe',
       middleName: 'Allen',
       suffix: 'Sr',
     })
-  ).toBeUndefined();
+  ).toEqual([]);
 
   // Should match new name
   expect(
-    localStore.findVoterWithName({
+    localStore.findVotersWithName({
       firstName: 'Jonathan',
       lastName: 'Dough',
       middleName: 'a.',
       suffix: 'Jr-',
     })
-  ).toMatchObject({ voterId: voters[0].voterId });
+  ).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ voterId: voters[0].voterId }),
+    ])
+  );
 
   // Should not match Jane Smith with new name
   expect(
-    localStore.findVoterWithName({
+    localStore.findVotersWithName({
       firstName: 'Jane',
       lastName: 'Dough',
       middleName: 'Marie',
       suffix: '',
     })
-  ).toBeUndefined();
+  ).toEqual([]);
 
   // Change name for Jane Smith
   localStore.changeVoterName(voters[1].voterId, {
@@ -191,23 +223,27 @@ test('findVoterWithName works as expected - voters with name changes', () => {
 
   // Should match Janet Smythe
   expect(
-    localStore.findVoterWithName({
+    localStore.findVotersWithName({
       firstName: 'Janet',
       lastName: 'Smythe',
       middleName: 'M.',
       suffix: '',
     })
-  ).toMatchObject({ voterId: voters[1].voterId });
+  ).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ voterId: voters[1].voterId }),
+    ])
+  );
 
   // Should not match Jane Smith anymore
   expect(
-    localStore.findVoterWithName({
+    localStore.findVotersWithName({
       firstName: 'Jane',
       lastName: 'Smith',
       middleName: 'Marie',
       suffix: '',
     })
-  ).toBeUndefined();
+  ).toEqual([]);
 });
 
 test('registerVoter and findVoterWithName integration', () => {
@@ -248,11 +284,15 @@ test('registerVoter and findVoterWithName integration', () => {
 
   // Should be able to find the voter by their registered name
   expect(
-    localStore.findVoterWithName({
+    localStore.findVotersWithName({
       firstName: 'Alice',
       lastName: 'Wonderland',
       middleName: 'L',
       suffix: 'III',
     })
-  ).toMatchObject({ voterId: voter.voterId });
+  ).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ voterId: voter.voterId }),
+    ])
+  );
 });
