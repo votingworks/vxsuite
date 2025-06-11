@@ -1,4 +1,5 @@
 import { parse } from 'csv-parse/sync';
+import { v4 as uuid } from 'uuid';
 
 export function parseCsv(fileContents: string): {
   headers: string[];
@@ -18,4 +19,8 @@ export async function iterableToString(
     result += chunk;
   }
   return result;
+}
+
+export function mockFileName(extension = 'csv'): string {
+  return `${uuid()}.${extension}`;
 }

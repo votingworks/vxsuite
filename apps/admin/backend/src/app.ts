@@ -95,7 +95,6 @@ import {
   validateManualResults,
 } from './util/manual_results';
 import { addFileToZipStream } from './util/zip';
-import { exportFile } from './util/export_file';
 import { generateTallyReportCsv } from './exports/csv_tally_report';
 import { tabulateFullCardCounts } from './tabulation/card_counts';
 import { getOverallElectionWriteInSummary } from './tabulation/write_ins';
@@ -140,6 +139,7 @@ import { printTestPage } from './reports/test_print';
 import { saveReadinessReport } from './reports/readiness';
 import { constructAuthMachineState } from './util/auth';
 import { parseElectionResultsReportingFile } from './tabulation/election_results_reporting';
+import { generateReportsDirectoryPath } from './util/filenames';
 
 const debug = rootDebug.extend('app');
 
@@ -932,50 +932,60 @@ function buildApi({
     },
 
     async exportTallyReportPdf(
-      input: TallyReportSpec & { path: string }
+      input: TallyReportSpec & { filename: string }
     ): Promise<ExportDataResult> {
       return await exportTallyReportPdf({
         store,
         allTallyReportResults: await getTallyReportResults(input),
-        ...input,
+        usbDrive,
         logger,
+        ...input,
       });
     },
 
     async exportTallyReportCsv(
       input: Pick<TallyReportSpec, 'filter' | 'groupBy'> & {
-        path: string;
+        filename: string;
       }
     ): Promise<ExportDataResult> {
       debug('exporting tally report CSV file: %o', input);
-      const exportFileResult = await exportFile({
-        path: input.path,
-        data: generateTallyReportCsv({
+      const electionRecord = assertDefined(getCurrentElectionRecord(workspace));
+      const { electionDefinition } = electionRecord;
+
+      const exporter = buildExporter(usbDrive);
+      const reportsDirectoryPath =
+        generateReportsDirectoryPath(electionDefinition);
+      const exportFileResult = await exporter.exportDataToUsbDrive(
+        reportsDirectoryPath,
+        input.filename,
+        generateTallyReportCsv({
           store,
           filter: convertFrontendFilter(input.filter),
           groupBy: input.groupBy,
-        }),
-      });
+        })
+      );
 
+      const reportPath = join(reportsDirectoryPath, input.filename);
       await logger.logAsCurrentRole(LogEventId.FileSaved, {
         disposition: exportFileResult.isOk() ? 'success' : 'failure',
         message: `${
           exportFileResult.isOk() ? 'Saved' : 'Failed to save'
-        } tally report CSV file to ${input.path} on the USB drive.`,
-        filename: input.path,
+        } tally report CSV file to ${reportPath} on the USB drive.`,
+        path: reportPath,
       });
 
       return exportFileResult;
     },
 
     async exportCdfElectionResultsReport(input: {
-      path: string;
+      filename: string;
     }): Promise<ExportDataResult> {
       const electionId = loadCurrentElectionIdOrThrow(workspace);
       const electionRecord = store.getElection(electionId);
       assert(electionRecord);
       const {
         isOfficialResults,
+        electionDefinition,
         electionDefinition: { election },
       } = electionRecord;
 
@@ -995,9 +1005,13 @@ function buildApi({
 
       debug('exporting CDF election results report JSON file: %o', input);
 
-      const exportFileResult = await exportFile({
-        path: input.path,
-        data: JSON.stringify(
+      const exporter = buildExporter(usbDrive);
+      const reportsDirectoryPath =
+        generateReportsDirectoryPath(electionDefinition);
+      const exportFileResult = await exporter.exportDataToUsbDrive(
+        reportsDirectoryPath,
+        input.filename,
+        JSON.stringify(
           buildElectionResultsReport({
             election,
             electionResults,
@@ -1006,17 +1020,16 @@ function buildApi({
             writeInCandidates,
             machineConfig: getMachineConfig(),
           })
-        ),
-      });
+        )
+      );
 
+      const reportPath = join(reportsDirectoryPath, input.filename);
       await logger.logAsCurrentRole(LogEventId.FileSaved, {
         disposition: exportFileResult.isOk() ? 'success' : 'failure',
         message: `${
           exportFileResult.isOk() ? 'Saved' : 'Failed to save'
-        } CDF election results report JSON file to ${
-          input.path
-        } on the USB drive.`,
-        filename: input.path,
+        } CDF election results report JSON file to ${reportPath} on the USB drive.`,
+        path: reportPath,
       });
 
       return exportFileResult;
@@ -1059,38 +1072,47 @@ function buildApi({
     },
 
     async exportBallotCountReportPdf(
-      input: BallotCountReportSpec & { path: string }
+      input: BallotCountReportSpec & { filename: string }
     ): Promise<ExportDataResult> {
       return exportBallotCountReportPdf({
         store,
         allCardCounts: getCardCounts(input),
-        ...input,
+        usbDrive,
         logger,
+        ...input,
       });
     },
 
     async exportBallotCountReportCsv(
       input: BallotCountReportSpec & {
-        path: string;
+        filename: string;
       }
     ): Promise<ExportDataResult> {
       debug('exporting ballot count report CSV file: %o', input);
-      const exportFileResult = await exportFile({
-        path: input.path,
-        data: generateBallotCountReportCsv({
+      const electionRecord = assertDefined(getCurrentElectionRecord(workspace));
+      const { electionDefinition } = electionRecord;
+
+      const exporter = buildExporter(usbDrive);
+      const reportsDirectoryPath =
+        generateReportsDirectoryPath(electionDefinition);
+      const exportFileResult = await exporter.exportDataToUsbDrive(
+        reportsDirectoryPath,
+        input.filename,
+        generateBallotCountReportCsv({
           store,
           filter: convertFrontendFilter(input.filter),
           groupBy: input.groupBy,
           includeSheetCounts: input.includeSheetCounts,
-        }),
-      });
+        })
+      );
 
+      const reportPath = join(reportsDirectoryPath, input.filename);
       await logger.logAsCurrentRole(LogEventId.FileSaved, {
         disposition: exportFileResult.isOk() ? 'success' : 'failure',
         message: `${
           exportFileResult.isOk() ? 'Saved' : 'Failed to save'
-        } ballot count report CSV file to ${input.path} on the USB drive.`,
-        filename: input.path,
+        } ballot count report CSV file to ${reportPath} on the USB drive.`,
+        path: reportPath,
       });
 
       return exportFileResult;
@@ -1118,13 +1140,14 @@ function buildApi({
     },
 
     async exportWriteInAdjudicationReportPdf(input: {
-      path: string;
+      filename: string;
     }): Promise<ExportDataResult> {
       return exportWriteInAdjudicationReportPdf({
         store,
         electionWriteInSummary: getElectionWriteInSummary(),
+        usbDrive,
         logger,
-        path: input.path,
+        ...input,
       });
     },
 

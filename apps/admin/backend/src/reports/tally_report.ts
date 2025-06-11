@@ -6,12 +6,15 @@ import { AdminTallyReportByParty } from '@votingworks/ui';
 import { Buffer } from 'node:buffer';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { Printer, renderToPdf } from '@votingworks/printing';
+import { UsbDrive } from '@votingworks/usb-drive';
+import { join } from 'node:path';
 import { generateTitleForReport } from './titles';
 import { Store } from '../store';
 import { getCurrentTime } from '../util/get_current_time';
 import { TallyReportWarning, getTallyReportWarning } from './warnings';
-import { exportFile } from '../util/export_file';
 import { ExportDataResult } from '../types';
+import { generateReportsDirectoryPath } from '../util/filenames';
+import { buildExporter } from '../util/exporter';
 
 /**
  * Parameters that define a tally report.
@@ -179,25 +182,41 @@ export async function printTallyReport({
  * the USB drive.
  */
 export async function exportTallyReportPdf({
-  path,
+  filename,
+  usbDrive,
   logger,
-
   ...reportProps
 }: TallyReportPreviewProps & {
-  path: string;
+  filename: string;
+  usbDrive: UsbDrive;
 }): Promise<ExportDataResult> {
   const report = buildTallyReport(reportProps);
   // Printing is disabled on the frontend if the report preview is too large,
   // so rendering the PDF shouldn't error
   const data = (await renderToPdf({ document: report })).unsafeUnwrap();
-  const exportFileResult = await exportFile({ path, data });
 
+  const { store } = reportProps;
+  const electionId = store.getCurrentElectionId();
+  assert(electionId !== undefined);
+  const electionRecord = store.getElection(electionId);
+  assert(electionRecord);
+  const { electionDefinition } = electionRecord;
+  const reportsDirectoryPath = generateReportsDirectoryPath(electionDefinition);
+
+  const exporter = buildExporter(usbDrive);
+  const exportFileResult = await exporter.exportDataToUsbDrive(
+    reportsDirectoryPath,
+    filename,
+    data
+  );
+
+  const reportPath = join(reportsDirectoryPath, filename);
   await logger.logAsCurrentRole(LogEventId.FileSaved, {
     disposition: exportFileResult.isOk() ? 'success' : 'failure',
     message: `${
       exportFileResult.isOk() ? 'Saved' : 'Failed to save'
-    } tally report PDF file to ${path} on the USB drive.`,
-    filename: path,
+    } tally report PDF file to ${reportPath} on the USB drive.`,
+    path: reportPath,
   });
 
   return exportFileResult;
