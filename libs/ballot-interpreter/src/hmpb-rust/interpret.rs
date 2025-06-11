@@ -42,6 +42,7 @@ use crate::timing_marks::contours;
 use crate::timing_marks::corners;
 use crate::timing_marks::normalize_orientation;
 use crate::timing_marks::BallotPageMetadata;
+use crate::timing_marks::DefaultForGeometry;
 use crate::timing_marks::TimingMarks;
 
 #[derive(Debug, Clone)]
@@ -440,7 +441,13 @@ pub fn ballot_card(
                 },
             ),
             TimingMarkAlgorithm::Corners => {
-                corners::find_timing_mark_grid(ballot_image, &geometry, debug)
+                let default_geometry = PaperInfo::scanned_letter().compute_geometry();
+                corners::find_timing_mark_grid(
+                    ballot_image,
+                    &geometry,
+                    debug,
+                    &corners::Options::default_for_geometry(&default_geometry),
+                )
             }
         },
     );

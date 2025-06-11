@@ -303,3 +303,7 @@ pub fn normalize_orientation(
 
     (timing_marks, normalized_image)
 }
+
+pub trait DefaultForGeometry {
+    fn default_for_geometry(geometry: &Geometry) -> Self;
+}

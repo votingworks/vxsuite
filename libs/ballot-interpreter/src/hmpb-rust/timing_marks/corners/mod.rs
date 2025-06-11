@@ -1,15 +1,10 @@
 use crate::{
     ballot_card::{BallotImage, Geometry},
     debug::ImageDebugWriter,
-    image_utils::Inset,
     interpret::Error,
     timing_marks::{
-        corners::{
-            border_finding::BallotGridBorders, corner_finding::BallotGridCorners,
-            mark_finding::BallotGridCandidateMarks, shape_finding::BallotGridBorderShapes,
-            util::CornerWise,
-        },
-        TimingMarks,
+        corners::{mark_finding::BallotGridCandidateMarks, util::CornerWise},
+        DefaultForGeometry, TimingMarks,
     },
 };
 
@@ -18,6 +13,22 @@ mod corner_finding;
 mod mark_finding;
 mod shape_finding;
 mod util;
+
+pub struct Options {
+    shape_finding_options: shape_finding::Options,
+    corner_finding_options: corner_finding::Options,
+    border_finding_options: border_finding::Options,
+}
+
+impl DefaultForGeometry for Options {
+    fn default_for_geometry(geometry: &Geometry) -> Self {
+        Self {
+            shape_finding_options: shape_finding::Options::default_for_geometry(geometry),
+            corner_finding_options: corner_finding::Options::default_for_geometry(geometry),
+            border_finding_options: border_finding::Options::default_for_geometry(geometry),
+        }
+    }
+}
 
 /// Find the timing mark grid in a ballot image.
 ///
@@ -29,37 +40,42 @@ pub fn find_timing_mark_grid(
     ballot_image: &BallotImage,
     geometry: &Geometry,
     debug: &ImageDebugWriter,
+    options: &Options,
 ) -> Result<TimingMarks, Error> {
-    let search_inset = Inset {
-        left: geometry.pixels_per_inch,
-        right: geometry.pixels_per_inch,
-        top: geometry.pixels_per_inch,
-        bottom: geometry.pixels_per_inch,
-    };
-
-    let shapes = BallotGridBorderShapes::from_ballot_image(ballot_image, geometry, search_inset);
+    let shapes = shape_finding::BallotGridBorderShapes::from_ballot_image(
+        ballot_image,
+        geometry,
+        &options.shape_finding_options,
+    );
 
     debug.write("01-shapes", |canvas| {
         shapes.debug_draw(canvas);
     });
 
-    let candidates = BallotGridCandidateMarks::from_shapes(ballot_image, geometry, shapes);
+    let candidates =
+        mark_finding::BallotGridCandidateMarks::from_shapes(ballot_image, geometry, shapes);
 
     debug.write("02-candidate_marks", |canvas| {
         candidates.debug_draw(canvas);
     });
 
-    let corners = BallotGridCorners::find_all(
+    let corners = corner_finding::BallotGridCorners::find_all(
         ballot_image.image.dimensions().into(),
         geometry,
         &candidates,
+        &options.corner_finding_options,
     )?;
 
     debug.write("03-corners", |canvas| {
         corners.debug_draw(canvas);
     });
 
-    let borders = BallotGridBorders::find_all(geometry, &corners, &candidates)?;
+    let borders = border_finding::BallotGridBorders::find_all(
+        geometry,
+        &corners,
+        &candidates,
+        &options.border_finding_options,
+    )?;
 
     debug.write("04-borders", |canvas| {
         borders.debug_draw(canvas);

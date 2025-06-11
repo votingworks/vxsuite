@@ -15,7 +15,7 @@ use ballot_interpreter::{
     ballot_card::PaperInfo,
     debug,
     interpret::{self, prepare_ballot_page_image, Error, TimingMarkAlgorithm},
-    timing_marks::{contours, corners, TimingMarks},
+    timing_marks::{contours, corners, DefaultForGeometry, TimingMarks},
 };
 use clap::Parser;
 use color_eyre::owo_colors::OwoColorize;
@@ -125,7 +125,13 @@ fn process_path(
             },
         ),
         TimingMarkAlgorithm::Corners => {
-            corners::find_timing_mark_grid(&ballot_page.ballot_image, &ballot_page.geometry, &debug)
+            let default_geometry = PaperInfo::scanned_legal().compute_geometry();
+            corners::find_timing_mark_grid(
+                &ballot_page.ballot_image,
+                &ballot_page.geometry,
+                &debug,
+                &corners::Options::default_for_geometry(&default_geometry),
+            )
         }
     };
     *find_timing_marks_duration += start.elapsed();

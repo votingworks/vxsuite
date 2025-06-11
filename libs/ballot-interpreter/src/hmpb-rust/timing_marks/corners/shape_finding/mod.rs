@@ -10,7 +10,7 @@ use crate::{
     impl_edgewise,
     timing_marks::{
         corners::{shape_finding::shape_list_builder::ShapeListBuilder, util::EdgeWise},
-        rect_could_be_timing_mark, CandidateTimingMark,
+        rect_could_be_timing_mark, CandidateTimingMark, DefaultForGeometry,
     },
 };
 
@@ -34,8 +34,10 @@ impl BallotGridBorderShapes {
     pub fn from_ballot_image(
         ballot_image: &BallotImage,
         geometry: &Geometry,
-        search_inset: Inset,
+        options: &Options,
     ) -> Self {
+        let search_inset = options.search_inset;
+
         let image = &ballot_image.image;
         let (width, height) = image.dimensions();
         let threshold = ballot_image.threshold;
@@ -58,7 +60,7 @@ impl BallotGridBorderShapes {
         ];
 
         search_areas.par_map_edgewise(|search_area| {
-            find_timing_mark_shapes(image, threshold, geometry, search_area)
+            find_timing_mark_shapes(image, threshold, geometry, search_area, options)
         })
     }
 
@@ -78,12 +80,6 @@ impl BallotGridBorderShapes {
     }
 }
 
-/// Ratio range of a timing mark's expected height that we'll allow a possible
-/// vertical slice of a timing mark to be within. Note that we later smooth out
-/// slice `y` values, so this is intentionally wider than seems wise in order to
-/// capture some outliers.
-const TIMING_MARK_HEIGHT_RATIO_RANGE: RangeInclusive<f32> = 0.6..=(1.0 + 2.0 / 3.0);
-
 /// Finds all shapes in an image that have roughly timing-mark size, shape, and
 /// location in the given search area. Note that this does not try to filter
 /// shapes based on their positions relative to each other.
@@ -94,12 +90,9 @@ fn find_timing_mark_shapes(
     threshold: u8,
     geometry: &Geometry,
     search_area: Rect,
+    options: &Options,
 ) -> Vec<TimingMarkShape> {
-    let allowed_timing_mark_height_range = (geometry.timing_mark_height_pixels()
-        * TIMING_MARK_HEIGHT_RATIO_RANGE.start())
-    .floor() as u32
-        ..=(geometry.timing_mark_height_pixels() * TIMING_MARK_HEIGHT_RATIO_RANGE.end()).ceil()
-            as u32;
+    let allowed_timing_mark_height_range = options.timing_mark_height_range(geometry);
     let mut shape_list_builder = ShapeListBuilder::new();
     let image_bounds = Rect::new(0, 0, image.width(), image.height());
 
@@ -259,5 +252,41 @@ impl TimingMarkShape {
         geometry: &Geometry,
     ) -> CandidateTimingMark {
         CandidateTimingMark::scored(ballot_image, geometry, self.bounds())
+    }
+}
+
+pub struct Options {
+    /// Ratio range of a timing mark's expected height that we'll allow a
+    /// possible vertical slice of a timing mark to be within.
+    pub timing_mark_height_ratio_range: RangeInclusive<f32>,
+
+    /// How far into the ballots should we look for shapes?
+    pub search_inset: Inset,
+}
+
+impl Options {
+    pub fn timing_mark_height_range(&self, geometry: &Geometry) -> RangeInclusive<PixelUnit> {
+        (geometry.timing_mark_height_pixels() * self.timing_mark_height_ratio_range.start()).floor()
+            as PixelUnit
+            ..=(geometry.timing_mark_height_pixels() * self.timing_mark_height_ratio_range.end())
+                .ceil() as PixelUnit
+    }
+}
+
+impl DefaultForGeometry for Options {
+    fn default_for_geometry(geometry: &Geometry) -> Self {
+        Self {
+            // Note that we later smooth out slice `y` values, so this is intentionally
+            // wider than seems wise in order to capture some outliers.
+            timing_mark_height_ratio_range: 0.6..=(1.0 + 2.0 / 3.0),
+
+            // 1 inch on each side.
+            search_inset: Inset {
+                left: geometry.pixels_per_inch,
+                right: geometry.pixels_per_inch,
+                top: geometry.pixels_per_inch,
+                bottom: geometry.pixels_per_inch,
+            },
+        }
     }
 }

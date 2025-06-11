@@ -10,7 +10,7 @@ use crate::{
             util::{mark_distances_to_point, EdgeWise},
             BallotGridCandidateMarks,
         },
-        Border, CandidateTimingMark,
+        Border, CandidateTimingMark, DefaultForGeometry,
     },
 };
 use image::RgbImage;
@@ -34,13 +34,15 @@ impl BallotGridBorders {
         geometry: &Geometry,
         corners: &BallotGridCorners,
         candidates: &BallotGridCandidateMarks,
+        options: &Options,
     ) -> Result<Self, Error> {
         let (top_left, top_right, bottom_left, bottom_right) = corners.corner_marks();
 
         let vertical_timing_mark_center_to_center_distance =
             geometry.vertical_timing_mark_center_to_center_pixel_distance();
         let maximum_timing_mark_center_distance_error =
-            vertical_timing_mark_center_to_center_distance / 2.0;
+            vertical_timing_mark_center_to_center_distance
+                * options.maximum_vertical_timing_mark_center_distance_error_ratio;
 
         let left = GridBorder::find_between_corners(
             vertical_timing_mark_center_to_center_distance,
@@ -69,7 +71,8 @@ impl BallotGridBorders {
         let horizontal_timing_mark_center_to_center_distance =
             geometry.horizontal_timing_mark_center_to_center_pixel_distance();
         let maximum_timing_mark_center_distance_error =
-            horizontal_timing_mark_center_to_center_distance / 2.0;
+            horizontal_timing_mark_center_to_center_distance
+                * options.maximum_horizontal_timing_mark_center_distance_error_ratio;
 
         let top = GridBorder::find_between_corners(
             horizontal_timing_mark_center_to_center_distance,
@@ -210,5 +213,19 @@ impl GridBorder {
 
     pub fn into_marks(self) -> Vec<CandidateTimingMark> {
         self.marks
+    }
+}
+
+pub struct Options {
+    pub maximum_vertical_timing_mark_center_distance_error_ratio: f32,
+    pub maximum_horizontal_timing_mark_center_distance_error_ratio: f32,
+}
+
+impl DefaultForGeometry for Options {
+    fn default_for_geometry(_geometry: &Geometry) -> Self {
+        Self {
+            maximum_vertical_timing_mark_center_distance_error_ratio: 0.5,
+            maximum_horizontal_timing_mark_center_distance_error_ratio: 0.5,
+        }
     }
 }

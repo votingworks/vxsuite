@@ -15,7 +15,7 @@ use crate::{
             util::{mark_distances_to_point, CornerWise, EdgeWise},
             BallotGridCandidateMarks,
         },
-        CandidateTimingMark, Corner,
+        CandidateTimingMark, Corner, DefaultForGeometry,
     },
 };
 
@@ -29,8 +29,6 @@ pub struct BallotGridCorners {
 }
 
 impl_cornerwise!(BallotGridCorners, BallotGridCorner);
-
-const MIN_CORNER_TIMING_MARK_SCORE: UnitIntervalScore = UnitIntervalScore(0.8);
 
 impl BallotGridCorners {
     /// Get the four corner candidate timing marks for the ballot grid.
@@ -77,6 +75,7 @@ impl BallotGridCorners {
         image_size: Size<u32>,
         geometry: &Geometry,
         candidates: &BallotGridCandidateMarks,
+        options: &Options,
     ) -> Result<Self, Error> {
         let vertical_timing_mark_center_to_center_distance =
             geometry.vertical_timing_mark_center_to_center_pixel_distance();
@@ -133,9 +132,9 @@ impl BallotGridCorners {
             corner_candidates
                 .into_iter()
                 .find(|grouping| {
-                    grouping
-                        .iter()
-                        .all(|mark| mark.scores().mark_score() >= MIN_CORNER_TIMING_MARK_SCORE)
+                    grouping.iter().all(|mark| {
+                        mark.scores().mark_score() >= options.min_corner_timing_mark_score
+                    })
                 })
                 .ok_or_else(|| Error::MissingTimingMarks {
                     reason: format!("Could not find corner: {corner:?}"),
@@ -265,5 +264,17 @@ impl IntoIterator for CandidateCornerMarkGrouping {
 
     fn into_iter(self) -> Self::IntoIter {
         [self.corner, self.row, self.column].into_iter()
+    }
+}
+
+pub struct Options {
+    pub min_corner_timing_mark_score: UnitIntervalScore,
+}
+
+impl DefaultForGeometry for Options {
+    fn default_for_geometry(_geometry: &Geometry) -> Self {
+        Self {
+            min_corner_timing_mark_score: UnitIntervalScore(0.8),
+        }
     }
 }
