@@ -6,6 +6,7 @@ export function mockUseAudioControls(
   fn: typeof vi.fn
 ): Record<keyof AudioControls, any> {
   return {
+    cycleVolume: fn(),
     decreasePlaybackRate: fn(),
     decreaseVolume: fn(),
     increasePlaybackRate: fn(),

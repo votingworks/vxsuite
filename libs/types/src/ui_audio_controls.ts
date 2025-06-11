@@ -1,4 +1,5 @@
 export interface AudioControls {
+  cycleVolume: () => void;
   decreasePlaybackRate: () => void;
   decreaseVolume: () => void;
   increasePlaybackRate: () => void;

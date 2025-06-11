@@ -39,6 +39,9 @@ export function KeyboardShortcutHandlers(): React.ReactNode {
         case Keybinding.TOGGLE_PAUSE:
           audioControls.togglePause();
           break;
+        case Keybinding.VOLUME_CYCLE:
+          audioControls.cycleVolume();
+          break;
         case Keybinding.VOLUME_DOWN:
           audioControls.decreaseVolume();
           break;

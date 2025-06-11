@@ -25,6 +25,7 @@ test('returns external-facing audio context API', () => {
   } as const;
 
   const mockScreenReaderContextControls = {
+    cycleVolume: vi.fn(),
     decreaseVolume: vi.fn(),
     increaseVolume: vi.fn(),
     replay: vi.fn(),
