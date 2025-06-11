@@ -237,7 +237,7 @@ where
                 let doc: AamvaDocument = match str.parse() {
                     Ok(doc) => doc,
                     Err(err @ AamvaParseError::DataTooLong(_, _)) => {
-                        // Exit if data is in AAMVA format but doesn't follow AAMVA spec
+                        // Log special case if data is in AAMVA format but doesn't follow AAMVA spec
                         log!(
                             event_id: EventId::ParseError,
                             message: format!("Unexpected data in AAMVA format. Error was: {err}"),
@@ -247,7 +247,7 @@ where
                         continue;
                     }
                     Err(err) => {
-                        // Don't exit if this could have been a scan of a non-AAMVA document
+                        // General parse error - could have been a scan of a non-AAMVA document
                         // or we tried to parse an unsupported subfile type (as is common on
                         // non-NH licenses)
                         log!(
