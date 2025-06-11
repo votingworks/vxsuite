@@ -125,7 +125,7 @@ async fn write_doc(stream: &mut tokio::net::UnixStream, doc: &AamvaDocument) -> 
     serde_json::to_writer(&mut buf, doc)?;
     buf.push(b'\n');
 
-    stream.write_all(&buf.clone()).await?;
+    stream.write_all(&buf).await?;
     stream.flush().await?;
     Ok(())
 }
