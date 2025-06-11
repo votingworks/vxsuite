@@ -78,8 +78,10 @@ impl BallotGridCorners {
         geometry: &Geometry,
         candidates: &BallotGridCandidateMarks,
     ) -> Result<Self, Error> {
-        let timing_mark_center_to_center_distance =
+        let vertical_timing_mark_center_to_center_distance =
             geometry.vertical_timing_mark_center_to_center_pixel_distance();
+        let horizontal_timing_mark_center_to_center_distance =
+            geometry.horizontal_timing_mark_center_to_center_pixel_distance();
         let ballot_top_left = Point::new(0.0, 0.0);
         let ballot_top_right = Point::new(image_size.width as f32 - 1.0, 0.0);
         let ballot_bottom_left = Point::new(0.0, image_size.height as f32 - 1.0);
@@ -93,32 +95,32 @@ impl BallotGridCorners {
                 geometry,
                 &candidates.left,
                 ballot_top_left,
-                Point::new(timing_mark_center_to_center_distance, 0.0),
-                Point::new(0.0, timing_mark_center_to_center_distance),
+                Point::new(horizontal_timing_mark_center_to_center_distance, 0.0),
+                Point::new(0.0, vertical_timing_mark_center_to_center_distance),
             );
         let top_right_corner_candidates =
             CandidateCornerMarkGrouping::find_all_within_border_candidate_marks(
                 geometry,
                 &candidates.right,
                 ballot_top_right,
-                Point::new(-timing_mark_center_to_center_distance, 0.0),
-                Point::new(0.0, timing_mark_center_to_center_distance),
+                Point::new(-horizontal_timing_mark_center_to_center_distance, 0.0),
+                Point::new(0.0, vertical_timing_mark_center_to_center_distance),
             );
         let bottom_left_corner_candidates =
             CandidateCornerMarkGrouping::find_all_within_border_candidate_marks(
                 geometry,
                 &candidates.left,
                 ballot_bottom_left,
-                Point::new(timing_mark_center_to_center_distance, 0.0),
-                Point::new(0.0, -timing_mark_center_to_center_distance),
+                Point::new(horizontal_timing_mark_center_to_center_distance, 0.0),
+                Point::new(0.0, -vertical_timing_mark_center_to_center_distance),
             );
         let bottom_right_corner_candidates =
             CandidateCornerMarkGrouping::find_all_within_border_candidate_marks(
                 geometry,
                 &candidates.right,
                 ballot_bottom_right,
-                Point::new(-timing_mark_center_to_center_distance, 0.0),
-                Point::new(0.0, -timing_mark_center_to_center_distance),
+                Point::new(-horizontal_timing_mark_center_to_center_distance, 0.0),
+                Point::new(0.0, -vertical_timing_mark_center_to_center_distance),
             );
 
         let [top_left_result, top_right_result, bottom_left_result, bottom_right_result] = [

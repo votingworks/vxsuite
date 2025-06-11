@@ -445,7 +445,7 @@ pub fn ballot_card(
         },
     );
 
-    let side_a_grid = side_a_timing_marks_result?;
+    let side_a_timing_marks = side_a_timing_marks_result?;
     let side_b_timing_marks = side_b_timing_marks_result?;
 
     // We'll find the appropriate metadata, use it to normalize the image and
@@ -522,7 +522,7 @@ pub fn ballot_card(
                 (side_b_normalized_grid, side_b_normalized_image),
             ) = par_map_pair(
                 (
-                    side_a_grid,
+                    side_a_timing_marks,
                     &side_a.image,
                     side_a_orientation,
                     &mut side_a_debug,

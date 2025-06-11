@@ -37,12 +37,13 @@ impl BallotGridBorders {
     ) -> Result<Self, Error> {
         let (top_left, top_right, bottom_left, bottom_right) = corners.corner_marks();
 
-        let horizontal_timing_mark_center_to_center_distance =
-            geometry.horizontal_timing_mark_center_to_center_pixel_distance();
-        let maximum_timing_mark_center_distance_error = geometry.timing_mark_width_pixels() / 2.0;
+        let vertical_timing_mark_center_to_center_distance =
+            geometry.vertical_timing_mark_center_to_center_pixel_distance();
+        let maximum_timing_mark_center_distance_error =
+            vertical_timing_mark_center_to_center_distance / 2.0;
 
         let left = GridBorder::find_between_corners(
-            horizontal_timing_mark_center_to_center_distance,
+            vertical_timing_mark_center_to_center_distance,
             maximum_timing_mark_center_distance_error,
             Border::Left,
             &candidates.left,
@@ -50,7 +51,7 @@ impl BallotGridBorders {
         )?;
 
         let right = GridBorder::find_between_corners(
-            horizontal_timing_mark_center_to_center_distance,
+            vertical_timing_mark_center_to_center_distance,
             maximum_timing_mark_center_distance_error,
             Border::Right,
             &candidates.right,
@@ -65,12 +66,13 @@ impl BallotGridBorders {
         top_candidates.extend_from_slice(&[*top_left, *top_right]);
         bottom_candidates.extend_from_slice(&[*bottom_left, *bottom_right]);
 
-        let vertical_timing_mark_center_to_center_distance =
-            geometry.vertical_timing_mark_center_to_center_pixel_distance();
-        let maximum_timing_mark_center_distance_error = geometry.timing_mark_width_pixels() / 2.0;
+        let horizontal_timing_mark_center_to_center_distance =
+            geometry.horizontal_timing_mark_center_to_center_pixel_distance();
+        let maximum_timing_mark_center_distance_error =
+            horizontal_timing_mark_center_to_center_distance / 2.0;
 
         let top = GridBorder::find_between_corners(
-            vertical_timing_mark_center_to_center_distance,
+            horizontal_timing_mark_center_to_center_distance,
             maximum_timing_mark_center_distance_error,
             Border::Top,
             &top_candidates,
@@ -78,7 +80,7 @@ impl BallotGridBorders {
         )?;
 
         let bottom = GridBorder::find_between_corners(
-            vertical_timing_mark_center_to_center_distance,
+            horizontal_timing_mark_center_to_center_distance,
             maximum_timing_mark_center_distance_error,
             Border::Bottom,
             &bottom_candidates,
