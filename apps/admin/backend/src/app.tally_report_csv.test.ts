@@ -9,19 +9,20 @@ import {
   buildManualResultsFixture,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { tmpNameSync } from 'tmp';
 import { readFileSync } from 'node:fs';
 import { LogEventId } from '@votingworks/logging';
 import { Tabulation } from '@votingworks/types';
 import { Client } from '@votingworks/grout';
-import { err, ok } from '@votingworks/basics';
-import { parseCsv } from '../test/csv';
+import { assertDefined, err, ok } from '@votingworks/basics';
+import { MockUsbDrive } from '@votingworks/usb-drive';
+import { mockFileName, parseCsv } from '../test/csv';
 import {
   buildTestEnvironment,
   configureMachine,
   mockElectionManagerAuth,
 } from '../test/app';
 import { Api } from './app';
+import { generateReportPath } from './util/filenames';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -51,21 +52,24 @@ afterEach(() => {
 
 async function getParsedExport({
   apiClient,
+  mockUsbDrive,
   groupBy,
   filter,
 }: {
   apiClient: Client<Api>;
+  mockUsbDrive: MockUsbDrive;
   groupBy: Tabulation.GroupBy;
   filter: Tabulation.Filter;
 }): Promise<ReturnType<typeof parseCsv>> {
-  const path = tmpNameSync();
+  const filename = mockFileName();
+  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
   const exportResult = await apiClient.exportTallyReportCsv({
-    path,
+    filename,
     groupBy,
     filter,
   });
-  expect(exportResult).toEqual(ok(expect.anything()));
-  return parseCsv(readFileSync(path, 'utf-8').toString());
+  const [filePath] = exportResult.unsafeUnwrap();
+  return parseCsv(readFileSync(filePath!, 'utf-8').toString());
 }
 
 test('exports expected results for full election', async () => {
@@ -73,33 +77,41 @@ test('exports expected results for full election', async () => {
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
 
-  const { apiClient, auth, logger } = buildTestEnvironment();
+  const { apiClient, auth, logger, mockUsbDrive } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
+
+  mockUsbDrive.insertUsbDrive({});
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
     path: castVoteRecordExport.asDirectoryPath(),
   });
   loadFileResult.assertOk('load file failed');
 
-  const path = tmpNameSync();
+  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+  const filename = mockFileName();
   const exportResult = await apiClient.exportTallyReportCsv({
     filter: {},
     groupBy: {},
-    path,
+    filename,
   });
   expect(exportResult).toEqual(ok(expect.anything()));
+  const usbRelativeReportPath = generateReportPath(
+    electionDefinition,
+    filename
+  );
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.FileSaved,
     'election_manager',
     {
       disposition: 'success',
-      filename: path,
-      message: `Saved tally report CSV file to ${path} on the USB drive.`,
+      path: usbRelativeReportPath,
+      message: `Saved tally report CSV file to ${usbRelativeReportPath} on the USB drive.`,
     }
   );
 
-  const fileContent = readFileSync(path, 'utf-8').toString();
+  const [filePath] = exportResult.unsafeUnwrap();
+  const fileContent = readFileSync(filePath!, 'utf-8').toString();
   const { headers, rows } = parseCsv(fileContent);
   expect(headers).toEqual([
     'Contest',
@@ -144,29 +156,36 @@ test('logs failure if export fails for some reason', async () => {
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
 
-  const { apiClient, auth, logger } = buildTestEnvironment();
+  const { apiClient, auth, logger, mockUsbDrive } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
+
+  mockUsbDrive.insertUsbDrive({});
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
     path: castVoteRecordExport.asDirectoryPath(),
   });
   loadFileResult.assertOk('load file failed');
 
-  const offLimitsPath = '/root/hidden';
+  mockUsbDrive.removeUsbDrive();
+  const filename = mockFileName();
   const failedExportResult = await apiClient.exportTallyReportCsv({
     filter: {},
     groupBy: {},
-    path: offLimitsPath,
+    filename,
   });
   expect(failedExportResult).toEqual(err(expect.anything()));
+  const usbRelativeReportPath = generateReportPath(
+    electionDefinition,
+    filename
+  );
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.FileSaved,
     'election_manager',
     {
       disposition: 'failure',
-      filename: offLimitsPath,
-      message: `Failed to save tally report CSV file to ${offLimitsPath} on the USB drive.`,
+      path: usbRelativeReportPath,
+      message: `Failed to save tally report CSV file to ${usbRelativeReportPath} on the USB drive.`,
     }
   );
 });
@@ -178,9 +197,11 @@ test('incorporates wia and manual data (grouping by voting method)', async () =>
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth, mockUsbDrive } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
+
+  mockUsbDrive.insertUsbDrive({});
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
     path: castVoteRecordExport.asDirectoryPath(),
@@ -227,6 +248,7 @@ test('incorporates wia and manual data (grouping by voting method)', async () =>
   // check initial export, without wia and manual data
   const { headers: headersInitial, rows: rowsInitial } = await getParsedExport({
     apiClient,
+    mockUsbDrive,
     filter: {},
     groupBy,
   });
@@ -330,6 +352,7 @@ test('incorporates wia and manual data (grouping by voting method)', async () =>
   // check final export, with wia and manual data
   const { headers: headersFinal, rows: rowsFinal } = await getParsedExport({
     apiClient,
+    mockUsbDrive,
     filter: {},
     groupBy,
   });
@@ -415,33 +438,41 @@ test('exports ballot styles grouped by language agnostic parent in multi-languag
     electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
   const { castVoteRecordExport } = electionPrimaryPrecinctSplitsFixtures;
 
-  const { apiClient, auth, logger } = buildTestEnvironment();
+  const { apiClient, auth, logger, mockUsbDrive } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
+
+  mockUsbDrive.insertUsbDrive({});
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
     path: castVoteRecordExport.asDirectoryPath(),
   });
   loadFileResult.assertOk('load file failed');
 
-  const path = tmpNameSync();
+  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+  const filename = mockFileName();
   const exportResult = await apiClient.exportTallyReportCsv({
     filter: {},
     groupBy: { groupByBallotStyle: true },
-    path,
+    filename,
   });
   expect(exportResult).toEqual(ok(expect.anything()));
+  const usbRelativeReportPath = generateReportPath(
+    electionDefinition,
+    filename
+  );
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.FileSaved,
     'election_manager',
     {
       disposition: 'success',
-      filename: path,
-      message: `Saved tally report CSV file to ${path} on the USB drive.`,
+      path: usbRelativeReportPath,
+      message: `Saved tally report CSV file to ${usbRelativeReportPath} on the USB drive.`,
     }
   );
 
-  const fileContent = readFileSync(path, 'utf-8').toString();
+  const [filePath] = exportResult.unsafeUnwrap();
+  const fileContent = readFileSync(assertDefined(filePath), 'utf-8').toString();
   const { headers, rows } = parseCsv(fileContent);
   expect(headers).toEqual([
     'Party',

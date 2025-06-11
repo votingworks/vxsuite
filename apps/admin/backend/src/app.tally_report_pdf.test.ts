@@ -14,10 +14,10 @@ import {
   renderToPdf,
 } from '@votingworks/printing';
 import { assert, err } from '@votingworks/basics';
-import { tmpNameSync } from 'tmp';
 import { Client } from '@votingworks/grout';
 import { LogEventId } from '@votingworks/logging';
 import { BallotStyleGroupId } from '@votingworks/types';
+import { MockUsbDrive } from '@votingworks/usb-drive';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -25,6 +25,8 @@ import {
 } from '../test/app';
 import { Api } from './app';
 import { TallyReportSpec } from './reports/tally_report';
+import { mockFileName } from '../test/csv';
+import { generateReportPath } from './util/filenames';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -68,11 +70,13 @@ afterEach(() => {
 async function expectIdenticalSnapshotsAcrossExportMethods({
   apiClient,
   mockPrinterHandler,
+  mockUsbDrive,
   reportSpec,
   customSnapshotIdentifier,
 }: {
   apiClient: Client<Api>;
   mockPrinterHandler: MemoryPrinterHandler;
+  mockUsbDrive: MockUsbDrive;
   reportSpec: TallyReportSpec;
   customSnapshotIdentifier: string;
 }) {
@@ -90,13 +94,14 @@ async function expectIdenticalSnapshotsAcrossExportMethods({
     customSnapshotIdentifier,
   });
 
-  const exportPath = tmpNameSync();
+  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+  const filename = mockFileName('pdf');
   const exportResult = await apiClient.exportTallyReportPdf({
     ...reportSpec,
-    path: exportPath,
+    filename,
   });
-  exportResult.assertOk('export failed');
-  await expect(exportPath).toMatchPdfSnapshot({
+  const [filePath] = exportResult.unsafeUnwrap();
+  await expect(filePath).toMatchPdfSnapshot({
     failureThreshold: 0.0001,
     customSnapshotIdentifier,
   });
@@ -107,11 +112,13 @@ test('general election tally report PDF - Part 1', async () => {
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
-  const { apiClient, auth, mockPrinterHandler } = buildTestEnvironment();
+  const { apiClient, auth, mockPrinterHandler, mockUsbDrive } =
+    buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockUsbDrive.insertUsbDrive({});
 
   function snapshotReport({
     spec,
@@ -123,6 +130,7 @@ test('general election tally report PDF - Part 1', async () => {
     return expectIdenticalSnapshotsAcrossExportMethods({
       apiClient,
       mockPrinterHandler,
+      mockUsbDrive,
       reportSpec: spec,
       customSnapshotIdentifier: identifier,
     });
@@ -156,11 +164,13 @@ test('general election tally report PDF - Part 2', async () => {
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
-  const { apiClient, auth, mockPrinterHandler } = buildTestEnvironment();
+  const { apiClient, auth, mockPrinterHandler, mockUsbDrive } =
+    buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockUsbDrive.insertUsbDrive({});
 
   function snapshotReport({
     spec,
@@ -172,6 +182,7 @@ test('general election tally report PDF - Part 2', async () => {
     return expectIdenticalSnapshotsAcrossExportMethods({
       apiClient,
       mockPrinterHandler,
+      mockUsbDrive,
       reportSpec: spec,
       customSnapshotIdentifier: identifier,
     });
@@ -263,11 +274,13 @@ test('tally report PDF - primary', async () => {
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
 
-  const { apiClient, auth, mockPrinterHandler } = buildTestEnvironment();
+  const { apiClient, auth, mockPrinterHandler, mockUsbDrive } =
+    buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockUsbDrive.insertUsbDrive({});
 
   function snapshotReport({
     spec,
@@ -279,6 +292,7 @@ test('tally report PDF - primary', async () => {
     return expectIdenticalSnapshotsAcrossExportMethods({
       apiClient,
       mockPrinterHandler,
+      mockUsbDrive,
       reportSpec: spec,
       customSnapshotIdentifier: identifier,
     });
@@ -360,11 +374,13 @@ test('tally report logging', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
 
-  const { apiClient, auth, logger, mockPrinterHandler } =
+  const { apiClient, auth, logger, mockPrinterHandler, mockUsbDrive } =
     buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
+
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockUsbDrive.insertUsbDrive({});
 
   const MOCK_REPORT_SPEC: TallyReportSpec = {
     filter: {},
@@ -373,29 +389,39 @@ test('tally report logging', async () => {
   };
 
   // successful file export
-  const validTmpFilePath = tmpNameSync();
+  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+  const validFilename = mockFileName('pdf');
   const validExportResult = await apiClient.exportTallyReportPdf({
     ...MOCK_REPORT_SPEC,
-    path: validTmpFilePath,
+    filename: validFilename,
   });
   validExportResult.assertOk('export failed');
+  const validUsbRelativeFilePath = generateReportPath(
+    electionDefinition,
+    validFilename
+  );
   expect(logger.log).lastCalledWith(LogEventId.FileSaved, 'election_manager', {
     disposition: 'success',
-    message: `Saved tally report PDF file to ${validTmpFilePath} on the USB drive.`,
-    filename: validTmpFilePath,
+    message: `Saved tally report PDF file to ${validUsbRelativeFilePath} on the USB drive.`,
+    path: validUsbRelativeFilePath,
   });
 
   // failed file export
-  const invalidFilePath = '/invalid/path';
+  mockUsbDrive.removeUsbDrive();
+  const invalidFilename = mockFileName('pdf');
   const invalidExportResult = await apiClient.exportTallyReportPdf({
     ...MOCK_REPORT_SPEC,
-    path: invalidFilePath,
+    filename: invalidFilename,
   });
   invalidExportResult.assertErr('export should have failed');
+  const invalidUsbRelativeFilePath = generateReportPath(
+    electionDefinition,
+    invalidFilename
+  );
   expect(logger.log).lastCalledWith(LogEventId.FileSaved, 'election_manager', {
     disposition: 'failure',
-    message: `Failed to save tally report PDF file to ${invalidFilePath} on the USB drive.`,
-    filename: invalidFilePath,
+    message: `Failed to save tally report PDF file to ${invalidUsbRelativeFilePath} on the USB drive.`,
+    path: invalidUsbRelativeFilePath,
   });
 
   // successful print

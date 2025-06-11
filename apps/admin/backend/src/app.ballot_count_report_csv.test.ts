@@ -8,19 +8,20 @@ import {
   buildManualResultsFixture,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { tmpNameSync } from 'tmp';
 import { readFileSync } from 'node:fs';
 import { LogEventId } from '@votingworks/logging';
 import { Tabulation } from '@votingworks/types';
 import { Client } from '@votingworks/grout';
 import { err, ok } from '@votingworks/basics';
-import { parseCsv } from '../test/csv';
+import { MockUsbDrive } from '@votingworks/usb-drive';
+import { mockFileName, parseCsv } from '../test/csv';
 import {
   buildTestEnvironment,
   configureMachine,
   mockElectionManagerAuth,
 } from '../test/app';
 import { Api } from './app';
+import { generateReportPath } from './util/filenames';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -48,45 +49,12 @@ afterEach(() => {
   featureFlagMock.resetFeatureFlags();
 });
 
-test('logs success if export succeeds', async () => {
-  const electionDefinition =
-    electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
-
-  const { apiClient, auth, logger } = buildTestEnvironment();
-  await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.election);
-
-  const loadFileResult = await apiClient.addCastVoteRecordFile({
-    path: castVoteRecordExport.asDirectoryPath(),
-  });
-  loadFileResult.assertOk('load file failed');
-
-  const offLimitsPath = '/root/hidden';
-  const failedExportResult = await apiClient.exportBallotCountReportCsv({
-    path: offLimitsPath,
-    filter: {},
-    groupBy: {},
-    includeSheetCounts: false,
-  });
-  expect(failedExportResult).toEqual(err(expect.anything()));
-  expect(logger.log).toHaveBeenLastCalledWith(
-    LogEventId.FileSaved,
-    'election_manager',
-    {
-      disposition: 'failure',
-      filename: offLimitsPath,
-      message: `Failed to save ballot count report CSV file to ${offLimitsPath} on the USB drive.`,
-    }
-  );
-});
-
 test('logs failure if export fails', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
 
-  const { apiClient, auth, logger } = buildTestEnvironment();
+  const { apiClient, auth, logger, mockUsbDrive } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
@@ -95,43 +63,86 @@ test('logs failure if export fails', async () => {
   });
   loadFileResult.assertOk('load file failed');
 
-  const path = tmpNameSync();
+  mockUsbDrive.insertUsbDrive({});
+  mockUsbDrive.removeUsbDrive();
+
+  const filename = mockFileName();
+  const failedExportResult = await apiClient.exportBallotCountReportCsv({
+    filename,
+    filter: {},
+    groupBy: {},
+    includeSheetCounts: false,
+  });
+  expect(failedExportResult).toEqual(err(expect.anything()));
+  const usbRelativeFilePath = generateReportPath(electionDefinition, filename);
+  expect(logger.log).toHaveBeenLastCalledWith(
+    LogEventId.FileSaved,
+    'election_manager',
+    {
+      disposition: 'failure',
+      path: usbRelativeFilePath,
+      message: `Failed to save ballot count report CSV file to ${usbRelativeFilePath} on the USB drive.`,
+    }
+  );
+});
+
+test('logs success if export succeeds', async () => {
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
+
+  const { apiClient, auth, logger, mockUsbDrive } = buildTestEnvironment();
+  await configureMachine(apiClient, auth, electionDefinition);
+  mockElectionManagerAuth(auth, electionDefinition.election);
+
+  const loadFileResult = await apiClient.addCastVoteRecordFile({
+    path: castVoteRecordExport.asDirectoryPath(),
+  });
+  loadFileResult.assertOk('load file failed');
+
+  mockUsbDrive.insertUsbDrive({});
+  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+  const filename = mockFileName();
   const exportResult = await apiClient.exportBallotCountReportCsv({
-    path,
+    filename,
     filter: {},
     groupBy: {},
     includeSheetCounts: false,
   });
   expect(exportResult).toEqual(ok(expect.anything()));
+  const usbRelativeFilePath = generateReportPath(electionDefinition, filename);
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.FileSaved,
     'election_manager',
     {
       disposition: 'success',
-      filename: path,
-      message: `Saved ballot count report CSV file to ${path} on the USB drive.`,
+      path: usbRelativeFilePath,
+      message: `Saved ballot count report CSV file to ${usbRelativeFilePath} on the USB drive.`,
     }
   );
 });
 
 async function getParsedExport({
   apiClient,
+  mockUsbDrive,
   groupBy = {},
   filter = {},
 }: {
   apiClient: Client<Api>;
+  mockUsbDrive: MockUsbDrive;
   groupBy?: Tabulation.GroupBy;
   filter?: Tabulation.Filter;
 }): Promise<ReturnType<typeof parseCsv>> {
-  const path = tmpNameSync();
+  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+  const filename = mockFileName();
   const exportResult = await apiClient.exportBallotCountReportCsv({
-    path,
+    filename,
     groupBy,
     filter,
     includeSheetCounts: false,
   });
-  expect(exportResult).toEqual(ok(expect.anything()));
-  return parseCsv(readFileSync(path, 'utf-8').toString());
+  const [filePath] = exportResult.unsafeUnwrap();
+  return parseCsv(readFileSync(filePath!).toString());
 }
 
 test('creates accurate ballot count reports', async () => {
@@ -141,7 +152,7 @@ test('creates accurate ballot count reports', async () => {
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth, mockUsbDrive } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
@@ -163,9 +174,11 @@ test('creates accurate ballot count reports', async () => {
     }),
   });
 
+  mockUsbDrive.insertUsbDrive({});
   expect(
     await getParsedExport({
       apiClient,
+      mockUsbDrive,
       groupBy: { groupByVotingMethod: true },
     })
   ).toEqual({
@@ -191,6 +204,7 @@ test('creates accurate ballot count reports', async () => {
   expect(
     await getParsedExport({
       apiClient,
+      mockUsbDrive,
       groupBy: { groupByPrecinct: true, groupByVotingMethod: true },
     })
   ).toEqual({
