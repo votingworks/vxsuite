@@ -1,11 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { Button } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
-import { join } from 'node:path';
-import {
-  REPORT_FOLDER,
-  generateElectionBasedSubfolderName,
-} from '@votingworks/utils';
 import { UseMutationResult } from '@tanstack/react-query';
 import type { ExportDataResult } from '@votingworks/admin-backend';
 import { Election } from '@votingworks/types';
@@ -26,7 +21,7 @@ export function ExportFileButton<T extends { [key: string]: unknown }>({
   exportMutation: UseMutationResult<
     ExportDataResult,
     unknown,
-    T & { path: string },
+    T & { filename: string },
     unknown
   >;
   exportParameters: T;
@@ -60,21 +55,12 @@ export function ExportFileButton<T extends { [key: string]: unknown }>({
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
   const isTestMode = castVoteRecordFileModeQuery.data === 'test';
 
-  const defaultFilename = generateFilename({
+  const filename = generateFilename({
     election,
     isTestMode,
     isOfficialResults,
     time: exportDate ?? new Date(),
   });
-
-  const defaultFilePath = join(
-    generateElectionBasedSubfolderName(
-      electionDefinition.election,
-      electionDefinition.ballotHash
-    ),
-    REPORT_FOLDER,
-    defaultFilename
-  );
 
   return (
     <React.Fragment>
@@ -84,9 +70,9 @@ export function ExportFileButton<T extends { [key: string]: unknown }>({
       {isSaveModalOpen && (
         <SaveBackendFileModal
           saveFileStatus={exportMutation.status}
-          saveFile={({ path: savePath }) =>
+          saveFile={({ filename: saveFilename }) =>
             exportMutation.mutate({
-              path: savePath,
+              filename: saveFilename,
               // eslint-disable-next-line vx/gts-spread-like-types
               ...exportParameters,
             })
@@ -96,7 +82,7 @@ export function ExportFileButton<T extends { [key: string]: unknown }>({
           onClose={closeModal}
           fileType={fileType}
           fileTypeTitle={fileTypeTitle}
-          defaultRelativePath={defaultFilePath}
+          filename={filename}
         />
       )}
     </React.Fragment>

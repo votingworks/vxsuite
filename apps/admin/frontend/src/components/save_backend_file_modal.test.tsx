@@ -38,7 +38,7 @@ test('render no usb found screen when there is not a valid mounted usb drive', (
         saveFileResult={undefined}
         resetSaveFileResult={vi.fn()}
         onClose={closeFn}
-        defaultRelativePath=""
+        filename="export.csv"
         fileTypeTitle="Batch Export"
         fileType="batch export"
       />,
@@ -66,7 +66,7 @@ test('happy usb path - save to default location', async () => {
       saveFileResult={undefined}
       resetSaveFileResult={vi.fn()}
       onClose={vi.fn()}
-      defaultRelativePath="exports/batch-export.csv"
+      filename="export.csv"
       fileTypeTitle="Batch Export"
       fileType="batch export"
     />,
@@ -83,7 +83,7 @@ test('happy usb path - save to default location', async () => {
   userEvent.click(screen.getButton('Save'));
   await vi.waitFor(() => {
     expect(saveFile).toHaveBeenCalledWith({
-      path: 'test-mount-point/exports/batch-export.csv',
+      filename: 'export.csv',
     });
   });
 });
@@ -96,7 +96,7 @@ test('renders saving modal when mutation is loading', () => {
       saveFileResult={undefined}
       resetSaveFileResult={vi.fn()}
       onClose={vi.fn()}
-      defaultRelativePath=""
+      filename="export.csv"
       fileTypeTitle="Batch Export"
       fileType="batch export"
     />,
@@ -116,7 +116,7 @@ test('shows success screen if success and resets mutation on close', async () =>
       saveFileResult={ok([])}
       resetSaveFileResult={resetSaveFileResult}
       onClose={vi.fn()}
-      defaultRelativePath=""
+      filename="export.csv"
       fileTypeTitle="Batch Export"
       fileType="batch export"
     />,
@@ -139,7 +139,7 @@ test('shows error screen if mutation has error status', () => {
       saveFileResult={undefined}
       resetSaveFileResult={vi.fn()}
       onClose={vi.fn()}
-      defaultRelativePath=""
+      filename="export.csv"
       fileTypeTitle="Batch Export"
       fileType="batch export"
     />,
@@ -158,7 +158,7 @@ test('shows error screen if saving file failed on backend', () => {
       saveFileResult={err({ type: 'permission-denied', message: 'any' })}
       resetSaveFileResult={vi.fn()}
       onClose={vi.fn()}
-      defaultRelativePath=""
+      filename="export.csv"
       fileTypeTitle="Batch Export"
       fileType="batch export"
     />,

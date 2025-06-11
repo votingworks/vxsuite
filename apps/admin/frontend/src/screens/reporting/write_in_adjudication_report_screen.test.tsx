@@ -54,7 +54,8 @@ test('renders provided data', async () => {
   vi.setSystemTime(new Date('2021-01-01T00:00:00'));
   apiMock.apiClient.exportWriteInAdjudicationReportPdf
     .expectCallWith({
-      path: 'test-mount-point/test-ballot_general-election_83f37cf965/reports/unofficial-full-election-write-in-adjudication-report__2021-01-01_00-00-00.pdf',
+      filename:
+        'unofficial-full-election-write-in-adjudication-report__2021-01-01_00-00-00.pdf',
     })
     .resolves(ok([]));
   userEvent.click(screen.getButton('Export Report PDF'));
