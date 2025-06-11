@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-
 use crate::{
     ballot_card::{BallotImage, Geometry},
     debug::ImageDebugWriter,
@@ -14,18 +12,12 @@ use crate::{
         TimingMarks,
     },
 };
-use clap::Parser;
 
 mod border_finding;
 mod corner_finding;
 mod mark_finding;
 mod shape_finding;
 mod util;
-
-#[derive(Debug, Parser)]
-struct Options {
-    image_paths: Vec<PathBuf>,
-}
 
 /// Find the timing mark grid in a ballot image.
 ///
