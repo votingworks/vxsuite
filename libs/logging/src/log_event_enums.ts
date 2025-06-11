@@ -96,7 +96,11 @@ export enum LogEventId {
   DiagnosticComplete = 'diagnostic-complete',
   ReadinessReportPrinted = 'readiness-report-printed',
   ReadinessReportSaved = 'readiness-report-saved',
-  HeadphonesDetectionError = 'headphones-detection-errors',
+  AudioDeviceDetectionError = 'audio-device-detection-error',
+  AudioDeviceMissing = 'audio-device-missing',
+  AudioDeviceSelected = 'audio-device-selected',
+  AudioDeviceSelectionError = 'audio-device-selection-error',
+  AudioPlaybackError = 'audio-playback-error',
   UnknownError = 'unknown-error',
   PermissionDenied = 'permission-denied',
   ParseError = 'parse-error',
@@ -431,10 +435,35 @@ const ReadinessReportSaved: LogDetails = {
   documentationMessage: 'The user has saved an equipment readiness report.',
 };
 
-const HeadphonesDetectionError: LogDetails = {
-  eventId: LogEventId.HeadphonesDetectionError,
+const AudioDeviceDetectionError: LogDetails = {
+  eventId: LogEventId.AudioDeviceDetectionError,
   eventType: LogEventType.ApplicationStatus,
-  documentationMessage: 'Error while attempting to detect headphones.',
+  documentationMessage: 'Error while attempting to detect audio devices.',
+};
+
+const AudioDeviceMissing: LogDetails = {
+  eventId: LogEventId.AudioDeviceMissing,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage: 'An expected audio device was not detected.',
+};
+
+const AudioDeviceSelected: LogDetails = {
+  eventId: LogEventId.AudioDeviceSelected,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage: 'A default audio output device was selected.',
+};
+
+const AudioDeviceSelectionError: LogDetails = {
+  eventId: LogEventId.AudioDeviceSelectionError,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'Error while attempting to select a default audio output device.',
+};
+
+const AudioPlaybackError: LogDetails = {
+  eventId: LogEventId.AudioPlaybackError,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage: 'Error while attempting to play audio.',
 };
 
 const UnknownError: LogDetails = {
@@ -1268,8 +1297,16 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ReadinessReportPrinted;
     case LogEventId.ReadinessReportSaved:
       return ReadinessReportSaved;
-    case LogEventId.HeadphonesDetectionError:
-      return HeadphonesDetectionError;
+    case LogEventId.AudioDeviceDetectionError:
+      return AudioDeviceDetectionError;
+    case LogEventId.AudioDeviceMissing:
+      return AudioDeviceMissing;
+    case LogEventId.AudioDeviceSelected:
+      return AudioDeviceSelected;
+    case LogEventId.AudioDeviceSelectionError:
+      return AudioDeviceSelectionError;
+    case LogEventId.AudioPlaybackError:
+      return AudioPlaybackError;
     case LogEventId.UnknownError:
       return UnknownError;
     case LogEventId.PermissionDenied:

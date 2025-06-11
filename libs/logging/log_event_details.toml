@@ -16,7 +16,6 @@ name = 'vx-central-scan'
 [Apps.VxDesign]
 name = 'vx-design'
 
-
 [LogSources.System]
 source = 'system'
 
@@ -95,7 +94,6 @@ source = 'vx-pollbook-frontend'
 [LogSources.VxPollbookBackend]
 source = 'vx-pollbook-backend'
 
-
 [EventTypes.UserAction]
 eventType = "user-action"
 documentationMessage = "A log that results from a user taking an action, i.e. an election admin uploading an election definition to a machine."
@@ -115,7 +113,6 @@ documentationMessage = "Status update or message that the application took witho
 [EventTypes.ApplicationAction]
 eventType = "application-action"
 documentationMessage = "Action taken by the votingworks application automatically when a certain condition is met. Example: When a new USB drive is detected, the application will automatically mount it."
-
 
 # Configuration for log event details, general logs are defined first
 # followed by application specific logs for VxAdmin, VxCentralScan, VxMark, VxScan, and VxMarkScan
@@ -297,10 +294,30 @@ eventId = "readiness-report-saved"
 eventType = "user-action"
 documentationMessage = "The user has saved an equipment readiness report."
 
-[Events.HeadphonesDetectionError]
-eventId = "headphones-detection-errors"
+[Events.AudioDeviceDetectionError]
+eventId = "audio-device-detection-error"
 eventType = "application-status"
-documentationMessage = "Error while attempting to detect headphones."
+documentationMessage = "Error while attempting to detect audio devices."
+
+[Events.AudioDeviceMissing]
+eventId = "audio-device-missing"
+eventType = "application-status"
+documentationMessage = "An expected audio device was not detected."
+
+[Events.AudioDeviceSelected]
+eventId = "audio-device-selected"
+eventType = "application-status"
+documentationMessage = "A default audio output device was selected."
+
+[Events.AudioDeviceSelectionError]
+eventId = "audio-device-selection-error"
+eventType = "application-status"
+documentationMessage = "Error while attempting to select a default audio output device."
+
+[Events.AudioPlaybackError]
+eventId = "audio-playback-error"
+eventType = "application-status"
+documentationMessage = "Error while attempting to play audio."
 
 [Events.UnknownError]
 eventId = "unknown-error"
