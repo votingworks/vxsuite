@@ -44,7 +44,6 @@ export function MarginalMarkFlag({
         fill="transparent"
         onPress={onDismissFlag}
         value={undefined}
-        tabIndex={-1}
       >
         Dismiss
       </Button>

@@ -258,6 +258,7 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
                 ? undefined
                 : theme.colors.warningContainer,
               borderRadius: '0 0 0.5rem 0.5rem',
+              marginTop: '-2px',
             }}
           />
         )}
