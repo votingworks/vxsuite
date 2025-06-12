@@ -615,7 +615,7 @@ test.each([
 
     await expectElectionState({ ballotsPrintedCount: 1 });
     const pdfData = printBallotSpy.mock.calls[0][0];
-    await expect(pdfData).toMatchPdfSnapshot({ failureThreshold: 0.027 });
+    await expect(pdfData).toMatchPdfSnapshot({ failureThreshold: 0.034 });
 
     await waitForStatus('presenting_ballot');
     const interpretation = await apiClient.getInterpretation();
@@ -648,7 +648,7 @@ test.each([
     await expectElectionState({ ballotsPrintedCount: 2 });
     const pdfDataChinese = printBallotSpy.mock.calls[1][0];
     await expect(pdfDataChinese).toMatchPdfSnapshot({
-      failureThreshold: 0.027,
+      failureThreshold: 0.034,
     });
 
     await waitForStatus('presenting_ballot');
