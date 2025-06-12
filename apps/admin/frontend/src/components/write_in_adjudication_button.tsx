@@ -36,23 +36,30 @@ const StyledCheckboxButton = styled(CheckboxButton)<{
   }};
 `;
 
+interface SearchOption { label: React.ReactNode; value: string }
+const OptionWithIcon = styled.span`
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+`;
+
 interface Props {
   isFocused: boolean;
   isSelected: boolean;
+  optionId: string;
   writeInStatus: WriteInAdjudicationStatus;
+  marginalMarkStatus?: MarginalMarkStatus;
   onChange: (newStatus: Exclude<WriteInAdjudicationStatus, undefined>) => void;
   onInputBlur: () => void;
   onInputFocus: () => void;
+  onDismissFlag?: () => void;
   officialCandidates: Candidate[];
   writeInCandidates: Candidate[];
   hasInvalidEntry: boolean;
   caption?: React.ReactNode;
+  disabled?: boolean;
   label?: string;
   tabIndex?: number;
-  optionId: string;
-  disabled?: boolean;
-  marginalMarkStatus?: MarginalMarkStatus;
-  onDismissFlag?: () => void;
 }
 
 export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
@@ -60,20 +67,20 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
     {
       isFocused,
       isSelected,
+      optionId,
       writeInStatus,
+      marginalMarkStatus,
       onChange,
       onInputFocus,
       onInputBlur,
+      onDismissFlag,
       officialCandidates,
       writeInCandidates,
       hasInvalidEntry,
       caption,
+      disabled,
       label,
       tabIndex,
-      optionId,
-      disabled,
-      marginalMarkStatus,
-      onDismissFlag,
     },
     ref
   ) => {
@@ -84,11 +91,8 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
       setInputValue(val);
     }
 
-    // Only show marginal mark flag if the write-in has not been adjudicated
     const showMarginalMarkFlag =
-      writeInStatus === undefined &&
-      marginalMarkStatus === 'pending' &&
-      onDismissFlag !== undefined;
+      marginalMarkStatus === 'pending' && onDismissFlag !== undefined;
 
     let showSearchSelect = true;
     let value: string | undefined;
@@ -132,9 +136,7 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
     }
 
     // 'Press enter to add: NEW_CANDIDATE' entry if there is no exact match
-    let newCandidateOption:
-      | { label: React.ReactNode; value: string }
-      | undefined;
+    let addCandidateOption: SearchOption | undefined;
     if (
       inputValue &&
       inputValue.length < MAX_WRITE_IN_NAME_LENGTH &&
@@ -142,73 +144,68 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
         (item) => normalizeWriteInName(item.label) === normalizedInputValue
       )
     ) {
-      newCandidateOption = {
+      addCandidateOption = {
         label: (
-          <span
-            style={{ display: 'flex', alignItems: 'center', gap: '.25rem' }}
-          >
+          <OptionWithIcon>
             <Icons.Add /> Press enter to add: {inputValue}
-          </span>
+          </OptionWithIcon>
         ),
         value: inputValue,
       };
     }
 
-    let invalidMarkOption:
-      | { label: React.ReactNode; value: string }
-      | undefined;
+    let invalidMarkOption: SearchOption | undefined;
     if (!inputValue) {
       invalidMarkOption = {
         label: (
-          <span
-            style={{ display: 'flex', alignItems: 'center', gap: '.25rem' }}
-          >
+          <OptionWithIcon>
             <Icons.Disabled /> Invalid mark
-          </span>
+          </OptionWithIcon>
         ),
         value: INVALID_KEY,
       };
     }
 
-    const allOptions: Array<{ label: React.ReactNode; value: string }> = [
+    const allOptions: SearchOption[] = [
       ...(invalidMarkOption ? [invalidMarkOption] : []),
       ...candidateOptions,
-      ...(newCandidateOption ? [newCandidateOption] : []),
+      ...(addCandidateOption ? [addCandidateOption] : []),
     ];
 
     return (
       <Container
-        ref={ref}
         data-option-id={optionId}
-        tabIndex={tabIndex}
         style={{ zIndex: isFocused ? 10 : 0 }}
+        ref={ref}
+        tabIndex={tabIndex}
       >
         {showMarginalMarkFlag && (
           <MarginalMarkFlag onDismissFlag={onDismissFlag} />
         )}
         <StyledCheckboxButton
+          isChecked={isSelected}
+          disabled={disabled}
+          label={label ?? 'Write-in'}
           roundTop={!showMarginalMarkFlag}
           roundBottom={!showSearchSelect}
-          disabled={disabled}
           tabIndex={-1}
-          isChecked={isSelected}
-          label={label ?? 'Write-in'}
           onChange={() => {
             onChange({ type: isSelected ? 'invalid' : 'pending' });
           }}
         />
         {showSearchSelect && (
           <SearchSelect
-            disabled={disabled}
-            // tabIndex={-1}
             aria-label="Select or add write-in candidate"
+            disabled={disabled}
+            options={allOptions}
+            value={value}
             // The inner input does not clear the previous value when a
             // double vote entry is detected because the `value` prop never
             // changes. `hasInvalidEntry` as the key forces a re-render
             key={`${hasInvalidEntry}`}
-            menuPortalTarget={document.body}
             maxMenuHeight={450} // 6 options, 75px each
-            options={allOptions}
+            minMenuHeight={300}
+            menuPortalTarget={document.body}
             onBlur={onInputBlur}
             onFocus={onInputFocus}
             onInputChange={onInputChange}
@@ -233,11 +230,9 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
                 onChange({ type: 'new-write-in', name: val });
               }
             }}
-            minMenuHeight={300}
             noOptionsMessage={() =>
               `Entry exceeds max character length of ${MAX_WRITE_IN_NAME_LENGTH}`
             }
-            value={value}
             placeholder={
               isFocused ? (
                 'Type to search or add candidate…'
@@ -258,7 +253,7 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
                 ? undefined
                 : theme.colors.warningContainer,
               borderRadius: '0 0 0.5rem 0.5rem',
-              marginTop: '-2px',
+              marginTop: '-2px', // helps minor spacing gap
             }}
           />
         )}

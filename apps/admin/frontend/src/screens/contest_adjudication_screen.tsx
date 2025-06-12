@@ -1,5 +1,4 @@
 import React, {
-  useCallback,
   useContext,
   useEffect,
   useLayoutEffect,
@@ -454,15 +453,6 @@ export function ContestAdjudicationScreen(): JSX.Element {
     'close' | 'back' | 'skip'
   >();
 
-  const clearBallotState = useCallback(() => {
-    setHasVoteByOptionId({});
-    setWriteInStatusByOptionId({});
-    setMarginalMarkStatusByOptionId({});
-    setDiscardChangesNextAction(undefined);
-    setFocusedOptionId(undefined);
-    setDoubleVoteAlert(undefined);
-  }, []);
-
   // Initialize vote and write-in management; reset on cvr scroll
   useEffect(() => {
     if (
@@ -611,84 +601,21 @@ export function ContestAdjudicationScreen(): JSX.Element {
     }
   }, [contestId, maybeCvrQueueIndex, cvrQueueQuery, prefetchImageViews]);
 
-  const isModified =
-    !deepEqual(hasVoteByOptionId, initialHasVoteByOptionIdRef.current) ||
-    !deepEqual(
-      writeInStatusByOptionId,
-      initialWriteInStatusByOptionIdRef.current
-    ) ||
-    !deepEqual(
-      marginalMarkStatusByOptionId,
-      initialMarginalMarkStatusByOptionId.current
-    );
-  const numBallots = cvrQueueQuery.data?.length ?? 0;
-  const onFirstBallot = maybeCvrQueueIndex === 0;
-  const onLastBallot =
-    maybeCvrQueueIndex !== undefined && maybeCvrQueueIndex + 1 === numBallots;
-
-  const onSkip = useCallback(() => {
-    if (onLastBallot || maybeCvrQueueIndex === undefined) return;
-    if (isModified && !discardChangesNextAction) {
-      setDiscardChangesNextAction('skip');
-      return;
-    }
-    setMaybeCvrQueueIndex(maybeCvrQueueIndex + 1);
-    clearBallotState();
-  }, [
-    onLastBallot,
-    maybeCvrQueueIndex,
-    isModified,
-    discardChangesNextAction,
-    clearBallotState,
-  ]);
-
-  const onBack = useCallback(() => {
-    if (onFirstBallot || maybeCvrQueueIndex === undefined) return;
-    if (isModified && !discardChangesNextAction) {
-      setDiscardChangesNextAction('back');
-      return;
-    }
-    setMaybeCvrQueueIndex(maybeCvrQueueIndex - 1);
-    clearBallotState();
-  }, [
-    onFirstBallot,
-    maybeCvrQueueIndex,
-    isModified,
-    discardChangesNextAction,
-    clearBallotState,
-  ]);
-
-  function onClose(): void {
-    if (isModified && !discardChangesNextAction) {
-      setDiscardChangesNextAction('close');
-      return;
-    }
-    history.push(routerPaths.adjudication);
-  }
-
   useEffect(() => {
-    function handler(e: KeyboardEvent) {
-      switch (e.key) {
-        case 'Escape':
+    function handleEscape(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        if (focusedOptionId) {
           (document.activeElement as HTMLElement)?.blur();
-          break;
-        case 'ArrowLeft':
-          if (!doubleVoteAlert && !discardChangesNextAction) {
-            onBack();
-          }
-          break;
-        case 'ArrowRight':
-          if (!doubleVoteAlert && !discardChangesNextAction) {
-            onSkip();
-          }
-          break;
-        default: // no-op
+          setFocusedOptionId(undefined);
+        }
+        setDiscardChangesNextAction(undefined);
+        setDoubleVoteAlert(undefined);
       }
     }
-
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [onBack, onSkip, doubleVoteAlert, discardChangesNextAction]);
+    window.addEventListener('keydown', handleEscape, { capture: true });
+    return () =>
+      window.removeEventListener('keydown', handleEscape, { capture: true });
+  }, [doubleVoteAlert, discardChangesNextAction, focusedOptionId]);
 
   // On initial load or ballot navigation, autoscroll the user after queries succeed
   const areQueriesFetching =
@@ -837,6 +764,30 @@ export function ContestAdjudicationScreen(): JSX.Element {
     return undefined;
   }
 
+  const numBallots = cvrQueueQuery.data.length;
+  const onFirstBallot = cvrQueueIndex === 0;
+  const onLastBallot = cvrQueueIndex + 1 === numBallots;
+
+  const isModified =
+    !deepEqual(hasVoteByOptionId, initialHasVoteByOptionIdRef.current) ||
+    !deepEqual(
+      writeInStatusByOptionId,
+      initialWriteInStatusByOptionIdRef.current
+    ) ||
+    !deepEqual(
+      marginalMarkStatusByOptionId,
+      initialMarginalMarkStatusByOptionId.current
+    );
+
+  function clearBallotState(): void {
+    setHasVoteByOptionId({});
+    setWriteInStatusByOptionId({});
+    setMarginalMarkStatusByOptionId({});
+    setDiscardChangesNextAction(undefined);
+    setFocusedOptionId(undefined);
+    setDoubleVoteAlert(undefined);
+  }
+
   async function saveAndNext(): Promise<void> {
     const adjudicatedContestOptionById: Record<
       ContestOptionId,
@@ -892,6 +843,34 @@ export function ContestAdjudicationScreen(): JSX.Element {
     } catch {
       // Handled by default query client error handling
     }
+  }
+
+  function onSkip(): void {
+    if (onLastBallot) return;
+    if (isModified && !discardChangesNextAction) {
+      setDiscardChangesNextAction('skip');
+      return;
+    }
+    setMaybeCvrQueueIndex(cvrQueueIndex + 1);
+    clearBallotState();
+  }
+
+  function onBack(): void {
+    if (onFirstBallot) return;
+    if (isModified && !discardChangesNextAction) {
+      setDiscardChangesNextAction('back');
+      return;
+    }
+    setMaybeCvrQueueIndex(cvrQueueIndex - 1);
+    clearBallotState();
+  }
+
+  function onClose(): void {
+    if (isModified && !discardChangesNextAction) {
+      setDiscardChangesNextAction('close');
+      return;
+    }
+    history.push(routerPaths.adjudication);
   }
 
   function handleListboxKeyDown(e: React.KeyboardEvent) {
