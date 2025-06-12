@@ -18,6 +18,7 @@ import {
   Modal,
   ModalWidth,
   P,
+  PageNavigationButtonId,
   WithScrollButtons,
   appStrings,
 } from '@votingworks/ui';
@@ -49,6 +50,7 @@ function ConfirmModal({ content, onConfirm, onCancel }: ConfirmModalProps) {
       actions={
         <React.Fragment>
           <Button
+            id={PageNavigationButtonId.NEXT_AFTER_CONFIRM}
             variant="primary"
             icon="Done"
             onPress={() => {
@@ -59,7 +61,11 @@ function ConfirmModal({ content, onConfirm, onCancel }: ConfirmModalProps) {
           >
             {appStrings.buttonCastBallot()}
           </Button>
-          <Button onPress={onCancel} disabled={confirmed}>
+          <Button
+            id={PageNavigationButtonId.PREVIOUS_AFTER_CONFIRM}
+            onPress={onCancel}
+            disabled={confirmed}
+          >
             {appStrings.buttonCancel()}
           </Button>
         </React.Fragment>
@@ -136,6 +142,7 @@ function MisvoteWarningScreen({
       actionButtons={
         <React.Fragment>
           <Button
+            id={PageNavigationButtonId.PREVIOUS_AFTER_CONFIRM}
             variant="primary"
             onPress={() => returnBallotMutation.mutate()}
           >
@@ -143,7 +150,10 @@ function MisvoteWarningScreen({
           </Button>
 
           {(allowCastingOvervotes || overvoteContests.length === 0) && (
-            <Button onPress={() => setConfirmTabulate(true)}>
+            <Button
+              id={PageNavigationButtonId.NEXT_AFTER_CONFIRM}
+              onPress={() => setConfirmTabulate(true)}
+            >
               {appStrings.buttonCastBallot()}
             </Button>
           )}
@@ -198,12 +208,16 @@ function BlankBallotWarningScreen({
       actionButtons={
         <React.Fragment>
           <Button
+            id={PageNavigationButtonId.PREVIOUS_AFTER_CONFIRM}
             variant="primary"
             onPress={() => returnBallotMutation.mutate()}
           >
             {appStrings.buttonReturnBallot()}
           </Button>
-          <Button onPress={() => setConfirmTabulate(true)}>
+          <Button
+            id={PageNavigationButtonId.NEXT_AFTER_CONFIRM}
+            onPress={() => setConfirmTabulate(true)}
+          >
             {appStrings.buttonCastBallot()}
           </Button>
         </React.Fragment>
@@ -250,12 +264,16 @@ function OtherReasonWarningScreen({
       actionButtons={
         <React.Fragment>
           <Button
+            id={PageNavigationButtonId.PREVIOUS_AFTER_CONFIRM}
             variant="primary"
             onPress={() => returnBallotMutation.mutate()}
           >
             {appStrings.buttonReturnBallot()}
           </Button>
-          <Button onPress={() => setConfirmTabulate(true)}>
+          <Button
+            id={PageNavigationButtonId.NEXT_AFTER_CONFIRM}
+            onPress={() => setConfirmTabulate(true)}
+          >
             {appStrings.buttonCastBallot()}
           </Button>
         </React.Fragment>
