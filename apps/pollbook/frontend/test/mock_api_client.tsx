@@ -251,12 +251,14 @@ export function createApiMock() {
 
     setElection(
       electionDefinition?: ElectionDefinition,
+      configuredPrecinctId?: string | null,
       pollbookPackageHash: string = 'test-package-hash'
     ) {
       mockApiClient.getElection.reset();
+      mockApiClient.getPollbookConfigurationInformation.reset();
       if (!electionDefinition) {
         mockApiClient.getElection
-          .expectRepeatedCallsWith()
+          .expectOptionalRepeatedCallsWith()
           .resolves(err('unconfigured'));
         mockApiClient.getPollbookConfigurationInformation
           .expectOptionalRepeatedCallsWith()
@@ -264,15 +266,16 @@ export function createApiMock() {
         return;
       }
       mockApiClient.getElection
-        .expectRepeatedCallsWith()
+        .expectOptionalRepeatedCallsWith()
         .resolves(ok(electionDefinition.election));
       mockApiClient.getPollbookConfigurationInformation
         .expectOptionalRepeatedCallsWith()
         .resolves({
+          ...machineConfig,
           electionId: electionDefinition.election.id,
           electionBallotHash: electionDefinition.ballotHash,
           pollbookPackageHash,
-          ...machineConfig,
+          configuredPrecinctId: configuredPrecinctId ?? undefined,
         });
     },
 
@@ -280,16 +283,6 @@ export function createApiMock() {
       mockApiClient.setConfiguredPrecinct
         .expectCallWith({ precinctId: configuredPrecinctId })
         .resolves();
-      mockApiClient.getPollbookConfigurationInformation.reset();
-      mockApiClient.getPollbookConfigurationInformation
-        .expectOptionalRepeatedCallsWith()
-        .resolves({
-          ...machineConfig,
-          configuredPrecinctId,
-        });
-    },
-
-    setConfiguredPrecinct(configuredPrecinctId: string) {
       mockApiClient.getPollbookConfigurationInformation.reset();
       mockApiClient.getPollbookConfigurationInformation
         .expectOptionalRepeatedCallsWith()

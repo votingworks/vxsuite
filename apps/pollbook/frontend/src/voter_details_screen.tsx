@@ -26,6 +26,7 @@ import {
   reprintVoterReceipt,
   markVoterInactive,
   undoVoterCheckIn,
+  getPollbookConfigurationInformation,
 } from './api';
 import { Column, Row } from './layout';
 import {
@@ -228,6 +229,8 @@ export function VoterDetailsScreen(): JSX.Element | null {
   const [reprintErrorMessage, setReprintErrorMessage] = useState('');
   const reprintVoterReceiptMutation = reprintVoterReceipt.useMutation();
   const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
+  const getPollbookConfigurationInformationQuery =
+    getPollbookConfigurationInformation.useQuery();
 
   async function reprintReceipt() {
     setIsPrinting(true);
@@ -244,11 +247,16 @@ export function VoterDetailsScreen(): JSX.Element | null {
     }
   }
 
-  if (!getDeviceStatusesQuery.isSuccess) {
+  if (
+    !getDeviceStatusesQuery.isSuccess ||
+    !getPollbookConfigurationInformationQuery.isSuccess
+  ) {
     return null;
   }
 
   const { printer } = getDeviceStatusesQuery.data;
+  const { configuredPrecinctId } =
+    getPollbookConfigurationInformationQuery.data;
 
   if (!voterQuery.isSuccess) {
     return (
@@ -373,14 +381,14 @@ export function VoterDetailsScreen(): JSX.Element | null {
           <Row style={{ gap: '0.5rem' }}>
             <Button
               icon="Edit"
-              disabled={voter.isInactive}
+              disabled={voter.isInactive || !configuredPrecinctId}
               onPress={() => setShowUpdateNameFlow(true)}
             >
               Update Name
             </Button>
             <Button
               icon="Edit"
-              disabled={voter.isInactive}
+              disabled={voter.isInactive || !configuredPrecinctId}
               onPress={() => setShowUpdateAddressFlow(true)}
             >
               Update Address
@@ -426,6 +434,7 @@ export function VoterDetailsScreen(): JSX.Element | null {
             <Button
               icon="Delete"
               color="danger"
+              disabled={!configuredPrecinctId}
               onPress={() => setShowMarkInactiveFlow(true)}
             >
               Mark Voter as Inactive

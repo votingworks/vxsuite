@@ -77,7 +77,7 @@ test('renders MachineLockedScreen when machine is locked - configured', async ()
     status: 'logged_out',
     reason: 'machine_locked',
   });
-  apiMock.setElection(famousNamesElection, 'FAKEHASH');
+  apiMock.setElection(famousNamesElection, undefined, 'FAKEHASH');
   render(<App apiClient={apiMock.mockApiClient} />);
   await screen.findByText('VxPollbook Locked');
   await screen.findByText('Insert card to unlock.');
