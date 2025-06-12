@@ -39,8 +39,13 @@ describe('PollWorkerScreen', () => {
 
     apiMock.setPrinterStatus(true);
     apiMock.setIsAbsenteeMode(false);
+    await screen.findByText('No Precinct Selected');
+
+    apiMock.setConfiguredPrecinct(famousNamesElection.precincts[0].id);
     apiMock.expectGetCheckInCounts({ allMachines: 25, thisMachine: 5 });
-    await screen.findByText('Check-In');
+    await vi.waitFor(() => {
+      screen.getByText('Check-In');
+    });
     apiMock.expectSearchVotersNull({});
 
     await screen.findByText('Total Check-ins');
@@ -104,6 +109,7 @@ describe('PollWorkerScreen', () => {
       apiMock.expectGetDeviceStatuses();
       apiMock.authenticateAsPollWorker(famousNamesElection);
       apiMock.setElection(famousNamesElectionDefinition);
+      apiMock.setConfiguredPrecinct(famousNamesElection.precincts[0].id);
       const { unmount } = render(<App apiClient={apiMock.mockApiClient} />);
       await screen.findByText('Connect printer to continue.');
 
