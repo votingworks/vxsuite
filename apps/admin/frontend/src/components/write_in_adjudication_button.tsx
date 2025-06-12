@@ -28,12 +28,24 @@ const Container = styled.div`
 const StyledCheckboxButton = styled(CheckboxButton)<{
   roundTop?: boolean;
   roundBottom?: boolean;
+  isSelected?: boolean;
+  isFocused?: boolean;
 }>`
   border-radius: ${({ roundTop, roundBottom }) => {
     if (roundTop && roundBottom) return '0.5rem';
     if (roundTop) return '0.5rem 0.5rem 0 0';
     if (roundBottom) return '0 0 0.5rem 0.5rem';
   }};
+
+  ${({ isSelected, isFocused, theme }) =>
+    !isSelected &&
+    isFocused &&
+    `
+      &:hover {
+        /* the default hover color blends in with the background overlay */
+        background-color: ${theme.colors.primaryContainer} !important;
+      }
+    `}
 `;
 
 interface SearchOption {
@@ -181,6 +193,7 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
         )}
         <StyledCheckboxButton
           isChecked={isSelected}
+          isFocused={isFocused}
           disabled={disabled}
           label={label ?? 'Write-in'}
           roundTop={!showMarginalMarkFlag}
@@ -195,10 +208,10 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
             disabled={disabled}
             options={allOptions}
             value={value}
-            // The inner input does not clear the previous value when a
-            // double vote entry is detected because the `value` prop never
-            // changes. `hasInvalidEntry` as the key forces a re-render
-            key={`${hasInvalidEntry}`}
+            // The inner input does not consistently clear the previous value
+            // when a double vote entry is detected because the `value` prop never
+            // changes, or when scrolling cvrs. The key is used to force a re-render
+            key={String(hasInvalidEntry) + value}
             maxMenuHeight={450} // 6 options, 75px each
             minMenuHeight={300}
             menuPortalTarget={document.body}
