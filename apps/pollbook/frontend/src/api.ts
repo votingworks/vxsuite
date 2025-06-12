@@ -54,15 +54,19 @@ export function createQueryClient(): QueryClient {
   });
 }
 
-export const getMachineInformation = {
+export const getPollbookConfigurationInformation = {
   queryKey(): QueryKey {
-    return ['getMachineInformation'];
+    return ['ionInformation'];
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getMachineInformation(), {
-      refetchInterval: 1000,
-    });
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getPollbookConfigurationInformation(),
+      {
+        refetchInterval: 1000,
+      }
+    );
   },
 } as const;
 

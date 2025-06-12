@@ -31,8 +31,8 @@ const debug = rootDebug.extend('store:peer');
 export class PeerStore extends Store {
   private readonly connectedPollbooks: Record<string, PollbookService> = {};
 
-  constructor(client: DbClient, machineId: string) {
-    super(client, machineId);
+  constructor(client: DbClient, machineId: string, codeVersion: string) {
+    super(client, machineId, codeVersion);
 
     // Reset knowledge of connected pollbook
     this.client.run(`DELETE FROM machines`);
@@ -44,19 +44,28 @@ export class PeerStore extends Store {
   static fileStore(
     dbPath: string,
     logger: BaseLogger,
-    machineId: string
+    machineId: string,
+    codeVersion: string
   ): PeerStore {
     return new PeerStore(
       DbClient.fileClient(dbPath, logger, SchemaPath),
-      machineId
+      machineId,
+      codeVersion
     );
   }
 
   /**
    * Builds and returns a new store whose data is kept in memory.
    */
-  static memoryStore(machineId: string = 'test-machine'): PeerStore {
-    return new PeerStore(DbClient.memoryClient(SchemaPath), machineId);
+  static memoryStore(
+    machineId: string = 'test-machine',
+    codeVersion: string = 'test-v1'
+  ): PeerStore {
+    return new PeerStore(
+      DbClient.memoryClient(SchemaPath),
+      machineId,
+      codeVersion
+    );
   }
 
   setOnlineStatus(isOnline: boolean): void {
@@ -201,6 +210,8 @@ export class PeerStore extends Store {
         electionBallotHash: pollbookService.electionBallotHash,
         pollbookPackageHash: pollbookService.pollbookPackageHash,
         electionTitle: pollbookService.electionTitle,
+        codeVersion: pollbookService.codeVersion,
+        machineId: pollbookService.machineId,
       })
     );
   }

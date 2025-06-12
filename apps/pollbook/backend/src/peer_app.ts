@@ -3,10 +3,10 @@ import express, { Application } from 'express';
 import { join } from 'node:path';
 import { Result } from '@votingworks/basics';
 import {
-  MachineInformation,
   PollbookEvent,
   PeerAppContext,
   ConfigurationError,
+  PollbookConfigurationInformation,
 } from './types';
 import {
   fetchEventsFromConnectedPollbooks,
@@ -16,23 +16,12 @@ import { pollNetworkForPollbookPackage } from './pollbook_package';
 import { POLLBOOK_PACKAGE_ASSET_FILE_NAME } from './globals';
 
 function buildApi(context: PeerAppContext) {
-  const { workspace, machineId, codeVersion } = context;
+  const { workspace } = context;
   const { store } = workspace;
 
   return grout.createApi({
-    getMachineInformation(): MachineInformation {
-      const pollbookInformation = store.getMachineInformation();
-      if (!pollbookInformation) {
-        return {
-          codeVersion,
-          machineId,
-        };
-      }
-      return {
-        ...pollbookInformation,
-        codeVersion,
-        machineId,
-      };
+    getPollbookConfigurationInformation(): PollbookConfigurationInformation {
+      return store.getPollbookConfigurationInformation();
     },
 
     getEvents(input: { lastEventSyncedPerNode: Record<string, number> }): {

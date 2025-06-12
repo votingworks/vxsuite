@@ -76,19 +76,27 @@ export class LocalStore extends Store {
   static fileStore(
     dbPath: string,
     logger: BaseLogger,
-    machineId: string
+    machineId: string,
+    codeVersion: string
   ): LocalStore {
     const client = DbClient.fileClient(dbPath, logger, SchemaPath, {
       registerRegexpFn: true,
     });
-    return new LocalStore(client, machineId);
+    return new LocalStore(client, machineId, codeVersion);
   }
 
   /**
    * Builds and returns a new store whose data is kept in memory.
    */
-  static memoryStore(machineId: string = 'test-machine'): LocalStore {
-    return new LocalStore(DbClient.memoryClient(SchemaPath), machineId);
+  static memoryStore(
+    machineId: string = 'test-machine',
+    codeVersion: string = 'test-v1'
+  ): LocalStore {
+    return new LocalStore(
+      DbClient.memoryClient(SchemaPath),
+      machineId,
+      codeVersion
+    );
   }
 
   private getNextEventId(): number {
@@ -643,10 +651,11 @@ export class LocalStore extends Store {
         status: row.status as PollbookConnectionStatus,
         lastSeen: new Date(row.last_seen),
         numCheckIns: this.getCheckInCount(row.machine_id),
-        electionBallotHash: pollbookInfo?.electionBallotHash,
-        pollbookPackageHash: pollbookInfo?.pollbookPackageHash,
-        electionId: pollbookInfo?.electionId,
-        electionTitle: pollbookInfo?.electionTitle,
+        electionBallotHash: pollbookInfo.electionBallotHash,
+        pollbookPackageHash: pollbookInfo.pollbookPackageHash,
+        electionId: pollbookInfo.electionId,
+        electionTitle: pollbookInfo.electionTitle,
+        codeVersion: pollbookInfo.codeVersion,
       };
     });
   }

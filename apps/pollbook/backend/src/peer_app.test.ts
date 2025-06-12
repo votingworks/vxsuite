@@ -30,9 +30,11 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-test('getMachineInformation', async () => {
+test('getPollbookConfigurationInformation', async () => {
   await withApp(async ({ peerApiClient, workspace }) => {
-    expect(await peerApiClient.getMachineInformation()).toMatchObject({
+    expect(
+      await peerApiClient.getPollbookConfigurationInformation()
+    ).toMatchObject({
       machineId: '0102',
     });
 
@@ -49,7 +51,9 @@ test('getMachineInformation', async () => {
       testVoters
     );
 
-    expect(await peerApiClient.getMachineInformation()).toMatchObject({
+    expect(
+      await peerApiClient.getPollbookConfigurationInformation()
+    ).toMatchObject({
       electionBallotHash: electionDefinition.ballotHash,
       electionId: electionDefinition.election.id,
       electionTitle: electionDefinition.election.title,

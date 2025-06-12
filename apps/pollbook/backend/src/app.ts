@@ -40,9 +40,9 @@ import {
   LocalAppContext,
   LocalWorkspace,
   ConfigurationError,
-  MachineInformation,
   VoterCheckInError,
   DuplicateVoterError,
+  PollbookConfigurationInformation,
 } from './types';
 import { rootDebug } from './debug';
 import {
@@ -93,19 +93,8 @@ function buildApi({ context, logger }: BuildAppParams) {
   const { store } = workspace;
 
   return grout.createApi({
-    getMachineInformation(): MachineInformation {
-      const pollbookInformation = store.getMachineInformation();
-      if (!pollbookInformation) {
-        return {
-          machineId,
-          codeVersion,
-        };
-      }
-      return {
-        ...pollbookInformation,
-        machineId,
-        codeVersion,
-      };
+    getPollbookConfigurationInformation(): PollbookConfigurationInformation {
+      return store.getPollbookConfigurationInformation();
     },
 
     getAuthStatus() {

@@ -22,6 +22,7 @@ const mockPollbookService: PollbookServiceInfo = {
   lastSeen: new Date('2025-01-01'),
   status: PollbookConnectionStatus.WrongElection,
   numCheckIns: 0,
+  codeVersion: 'test',
 };
 
 let apiMock: ApiMock;
