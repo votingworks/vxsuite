@@ -9,6 +9,10 @@ import {
 } from '../test/app';
 import { mockPollbookPackageFileTree } from '../test/pollbook_package';
 import { CONFIGURATION_POLLING_INTERVAL } from './globals';
+import { parseValidStreetsFromCsvString } from './pollbook_package';
+
+const electionDefinition =
+  electionFamousNames2021Fixtures.readElectionDefinition();
 
 let mockNodeEnv: 'production' | 'test' = 'test';
 
@@ -175,5 +179,39 @@ test('app config - polling usb from backend does trigger with system admin auth'
         electionFamousNames2021Fixtures.electionJson.readElection().id
       );
     });
+  });
+});
+
+test('setConfiguredPrecinct sets and getPollbookConfigurationInformation returns the configured precinct', async () => {
+  await withApp(async ({ localApiClient, workspace }) => {
+    // Initially, no configured precinct
+    let config = await localApiClient.getPollbookConfigurationInformation();
+    const testStreets = parseValidStreetsFromCsvString(
+      electionFamousNames2021Fixtures.pollbookStreetNames.asText()
+    );
+    workspace.store.setElectionAndVoters(
+      electionDefinition,
+      'fake-package-hash',
+      testStreets,
+      []
+    );
+    expect(config.configuredPrecinctId).toBeUndefined();
+
+    // Try to set a non-existent precinct and expect an error
+    await expect(
+      localApiClient.setConfiguredPrecinct({ precinctId: 'precinct-xyz' })
+    ).rejects.toThrow(
+      'Precinct with id precinct-xyz does not exist in the election'
+    );
+
+    await localApiClient.setConfiguredPrecinct({
+      precinctId: electionDefinition.election.precincts[0].id,
+    });
+
+    // Now it should be returned
+    config = await localApiClient.getPollbookConfigurationInformation();
+    expect(config.configuredPrecinctId).toEqual(
+      electionDefinition.election.precincts[0].id
+    );
   });
 });

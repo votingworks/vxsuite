@@ -170,6 +170,7 @@ export class LocalStore extends Store {
   }
 
   setIsAbsenteeMode(isAbsenteeMode: boolean): void {
+    assert(this.getElection() !== undefined);
     this.client.run(
       `
             update elections
@@ -178,6 +179,23 @@ export class LocalStore extends Store {
       asSqliteBool(isAbsenteeMode)
     );
   }
+
+  setConfiguredPrecinct(precinctId: string): void {
+    const election = this.getElection();
+    assert(election !== undefined);
+    assert(
+      election.precincts.some((precinct) => precinct.id === precinctId),
+      `Precinct with id ${precinctId} does not exist in the election`
+    );
+    this.client.run(
+      `
+            update elections
+            set configured_precinct_id = ?
+          `,
+      precinctId
+    );
+  }
+
   groupVotersAlphabeticallyByLastName(): Map<string, VoterGroup> {
     const voters = this.getAllVoters();
     assert(voters);
