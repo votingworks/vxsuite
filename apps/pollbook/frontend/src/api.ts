@@ -248,6 +248,22 @@ export const getThroughputStatistics = {
   },
 } as const;
 
+export const getHaveElectionEventsOccurred = {
+  queryKey(): QueryKey {
+    return ['haveElectionEventsOccurred'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.haveElectionEventsOccurred(),
+      {
+        refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
+      }
+    );
+  },
+} as const;
+
 async function invalidateCheckInQueries(queryClient: QueryClient) {
   await queryClient.invalidateQueries(getCheckInCounts.queryKey());
   await queryClient.invalidateQueries(getSummaryStatistics.queryKey());

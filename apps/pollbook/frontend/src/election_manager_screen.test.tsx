@@ -25,6 +25,7 @@ beforeEach(() => {
   apiMock.setIsAbsenteeMode(false);
   apiMock.setElection(electionDefFamousNames);
   apiMock.expectGetDeviceStatuses();
+  apiMock.expectHaveElectionEventsOccurred(false);
 });
 
 afterEach(() => {
@@ -69,11 +70,7 @@ describe('Voters tab', () => {
 describe('SettingsScreen precinct selection', () => {
   test('shows precinct select and allows changing configured precinct', async () => {
     // Setup election with multiple precincts
-    const electionDef =
-      electionFamousNames2021Fixtures.readElectionDefinition();
-    const { precincts } = electionDef.election;
-    apiMock.setElection(electionDef);
-    apiMock.expectGetDeviceStatuses();
+    const { precincts } = electionDefFamousNames.election;
     // Render
     const renderResult = renderInAppContext(<ElectionManagerScreen />, {
       apiMock,
@@ -83,6 +80,7 @@ describe('SettingsScreen precinct selection', () => {
     // Wait for the SearchSelect to appear with the correct value
     const select = await screen.findByLabelText('Select Precinct');
     expect(select).toBeInTheDocument();
+    expect(select.ariaDisabled).toBeFalsy();
     // Should have the correct initial value
     expect((select as HTMLSelectElement).value).toEqual('');
 
@@ -98,6 +96,24 @@ describe('SettingsScreen precinct selection', () => {
     await vi.waitFor(() => {
       screen.getByText(precincts[1].name);
     });
+  });
+
+  test('does not allow changing precinct once events have occurred', async () => {
+    // Setup election with multiple precincts
+    apiMock.expectHaveElectionEventsOccurred(true);
+    // Render
+    const renderResult = renderInAppContext(<ElectionManagerScreen />, {
+      apiMock,
+    });
+    unmount = renderResult.unmount;
+
+    // Wait for the SearchSelect to appear with the correct value
+    const select = await screen.findByLabelText('Select Precinct');
+    expect(select).toBeInTheDocument();
+    expect((select as HTMLSelectElement).disabled).toBeTruthy();
+    screen.getByText(
+      /The precinct setting cannot be changed because a voter was checked-in or voter data was updated/
+    );
   });
 
   test('does not show precinct select for single precinct election', () => {

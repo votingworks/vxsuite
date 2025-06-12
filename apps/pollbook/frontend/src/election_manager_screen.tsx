@@ -7,6 +7,7 @@ import {
   SegmentedButton,
   UnconfigureMachineButton,
   SearchSelect,
+  Caption,
 } from '@votingworks/ui';
 import { format } from '@votingworks/utils';
 import { Redirect, Route, Switch } from 'react-router-dom';
@@ -18,6 +19,7 @@ import {
   setConfiguredPrecinct,
   unconfigure,
   getPollbookConfigurationInformation,
+  getHaveElectionEventsOccurred,
 } from './api';
 import { Column, FieldName, Row } from './layout';
 import { StatisticsScreen } from './statistics_screen';
@@ -32,13 +34,16 @@ export function SettingsScreen(): JSX.Element | null {
     getPollbookConfigurationInformation.useQuery();
   const unconfigureMutation = unconfigure.useMutation();
   const getIsAbsenteeModeQuery = getIsAbsenteeMode.useQuery();
+  const getHaveElectionEventsOccurredQuery =
+    getHaveElectionEventsOccurred.useQuery();
   const setIsAbsenteeModeMutation = setIsAbsenteeMode.useMutation();
   const setConfiguredPrecinctMutation = setConfiguredPrecinct.useMutation();
 
   if (
     !getIsAbsenteeModeQuery.isSuccess ||
     !getElectionQuery.isSuccess ||
-    !getPollbookConfigurationInformationQuery.isSuccess
+    !getPollbookConfigurationInformationQuery.isSuccess ||
+    !getHaveElectionEventsOccurredQuery.isSuccess
   ) {
     return null;
   }
@@ -55,6 +60,7 @@ export function SettingsScreen(): JSX.Element | null {
   // Find currently configured precinct (if any)
   const { configuredPrecinctId } =
     getPollbookConfigurationInformationQuery.data;
+  const haveElectionEventsOccurred = getHaveElectionEventsOccurredQuery.data;
 
   return (
     <ElectionManagerNavScreen title="Settings">
@@ -106,6 +112,7 @@ export function SettingsScreen(): JSX.Element | null {
                 }}
                 placeholder="Select Precinct…"
                 style={{ minWidth: '16rem' }}
+                disabled={haveElectionEventsOccurred}
                 isSearchable
               />
             )}
@@ -114,6 +121,12 @@ export function SettingsScreen(): JSX.Element | null {
               isMachineConfigured
             />
           </Row>
+          {precinctOptions.length > 1 && haveElectionEventsOccurred && (
+            <Caption>
+              The precinct setting cannot be changed because a voter was
+              checked-in or voter data was updated.
+            </Caption>
+          )}
         </Column>
       </MainContent>
     </ElectionManagerNavScreen>
