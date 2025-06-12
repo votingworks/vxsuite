@@ -986,7 +986,6 @@ export function ContestAdjudicationScreen(): JSX.Element {
                   <WriteInAdjudicationButton
                     key={optionId + currentCvrId}
                     label={writeInRecord?.machineMarkedText}
-                    optionId={optionId}
                     writeInStatus={writeInStatus}
                     marginalMarkStatus={marginalMarkStatus}
                     isFocused={isFocused}

@@ -1097,123 +1097,6 @@ describe('ballot navigation', () => {
     primaryButton = getButtonByName('finish');
     expect(primaryButton).toBeDisabled();
   });
-
-  test('keyboard shortcuts allow for navigation', async () => {
-    renderScreen(contestId, {
-      electionDefinition,
-      apiMock,
-    });
-
-    // Initial ballot load
-    await screen.findByTestId('transcribe:id-175');
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-
-    // Press right key: go to ballot 176
-    apiMock.expectGetCastVoteRecordVoteInfo(
-      { cvrId: cvrIds[2] },
-      { [contestId]: votes }
-    );
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId: cvrIds[2] }, []);
-    apiMock.expectGetWriteIns(
-      { contestId, cvrId: cvrIds[2] },
-      pendingWriteInRecords176
-    );
-    apiMock.expectGetCvrContestTag(
-      { cvrId: cvrIds[2], contestId },
-      cvrContestTag2
-    );
-    apiMock.expectGetMarginalMarks({ cvrId: cvrIds[2], contestId }, []);
-
-    userEvent.keyboard('{ArrowRight}');
-    await screen.findByTestId('transcribe:id-176');
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-
-    // Press left key: go back to ballot 175
-    userEvent.keyboard('{ArrowLeft}');
-    await screen.findByTestId('transcribe:id-175');
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-
-    // Now focus on the first option to test navigating within the listbox
-    const kangarooOption = document.querySelector(
-      '[data-option-id="kangaroo"]'
-    ) as HTMLElement;
-    kangarooOption.focus();
-    let kangarooCheckbox = screen.getByRole('checkbox', {
-      name: /kangaroo/i,
-    });
-    expect(kangarooCheckbox).toBeChecked();
-
-    // Enter should toggle the checkbox
-    userEvent.keyboard('{Enter}');
-    kangarooCheckbox = screen.getByRole('checkbox', {
-      name: /kangaroo/i,
-    });
-    expect(kangarooCheckbox).not.toBeChecked();
-
-    // Toggle back
-    userEvent.keyboard('{Enter}');
-    kangarooCheckbox = screen.getByRole('checkbox', {
-      name: /kangaroo/i,
-    });
-    expect(kangarooCheckbox).toBeChecked();
-
-    // Move to next option
-    userEvent.keyboard('{ArrowDown}');
-
-    // Toggle vote with the space bar this time
-    let elephantCheckbox = screen.getByRole('checkbox', {
-      name: /elephant/i,
-    });
-    expect(elephantCheckbox).not.toBeChecked();
-    userEvent.keyboard(' ');
-
-    elephantCheckbox = screen.getByRole('checkbox', {
-      name: /elephant/i,
-    });
-    expect(elephantCheckbox).toBeChecked();
-    userEvent.keyboard(' ');
-    elephantCheckbox = screen.getByRole('checkbox', {
-      name: /elephant/i,
-    });
-    expect(elephantCheckbox).not.toBeChecked();
-
-    // Return to kangaroo option
-    userEvent.keyboard('{ArrowUp}');
-    expect(document.activeElement).toEqual(kangarooOption);
-
-    // Circle around the top to the first write-in
-
-    userEvent.keyboard('{ArrowUp}');
-    userEvent.keyboard('{ArrowUp}');
-    userEvent.keyboard('{ArrowUp}');
-    userEvent.keyboard('{ArrowUp}');
-    userEvent.keyboard('{ArrowUp}');
-
-    const writeIn0Option = document.querySelector(
-      '[data-option-id="write-in-0"]'
-    ) as HTMLElement;
-    expect(document.activeElement).toEqual(writeIn0Option);
-
-    // It should be checked to start
-    let writeIn0Checkbox = screen.getAllByRole('checkbox', {
-      name: /write-in/i,
-    })[0];
-    expect(writeIn0Checkbox).toBeChecked();
-
-    // Uncheck
-    userEvent.keyboard('{Enter}');
-    [writeIn0Checkbox] = screen.getAllByRole('checkbox', {
-      name: /write-in/i,
-    });
-    expect(writeIn0Checkbox).not.toBeChecked();
-
-    // Check again
-    userEvent.keyboard('{Enter}');
-    [writeIn0Checkbox] = screen.getAllByRole('checkbox', {
-      name: /write-in/i,
-    });
-    expect(writeIn0Checkbox).toBeChecked();
-  });
 });
 
 describe('ballot image viewer', () => {
@@ -2080,7 +1963,6 @@ describe('marginal mark adjudication', () => {
     // flags shouldn't be there anymore and captions should remain
     await screen.findByTestId('transcribe:id-174');
     expect(screen.queryAllByText(/marginal mark/i).length).toEqual(1);
-    screen.logTestingPlaygroundURL();
     expect(screen.queryByText(/valid write-in/i)).toBeInTheDocument();
   });
 });

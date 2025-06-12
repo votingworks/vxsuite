@@ -49,7 +49,6 @@ const OptionWithIcon = styled.span`
 interface Props {
   isFocused: boolean;
   isSelected: boolean;
-  optionId: string;
   writeInStatus: WriteInAdjudicationStatus;
   marginalMarkStatus?: MarginalMarkStatus;
   onChange: (newStatus: Exclude<WriteInAdjudicationStatus, undefined>) => void;
@@ -69,7 +68,6 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
     {
       isFocused,
       isSelected,
-      optionId,
       writeInStatus,
       marginalMarkStatus,
       onChange,
@@ -91,9 +89,6 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
     function onInputChange(val: string = '') {
       setInputValue(val);
     }
-
-    const showMarginalMarkFlag =
-      marginalMarkStatus === 'pending' && onDismissFlag !== undefined;
 
     let showSearchSelect = true;
     let value: string | undefined;
@@ -118,6 +113,12 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
         throwIllegalValue(writeInStatus, 'type');
       }
     }
+
+    // Only show flag if the searchSelect is not visible
+    const showMarginalMarkFlag =
+      !showSearchSelect &&
+      marginalMarkStatus === 'pending' &&
+      onDismissFlag !== undefined;
 
     const allCandidates = writeInCandidates.concat(officialCandidates);
     const candidateNames = allCandidates.map((c) => c.name);
@@ -174,11 +175,7 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
     ];
 
     return (
-      <Container
-        data-option-id={optionId}
-        style={{ zIndex: isFocused ? 10 : 0 }}
-        ref={ref}
-      >
+      <Container style={{ zIndex: isFocused ? 10 : 0 }} ref={ref}>
         {showMarginalMarkFlag && (
           <MarginalMarkFlag onDismissFlag={onDismissFlag} />
         )}

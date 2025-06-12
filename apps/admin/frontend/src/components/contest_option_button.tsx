@@ -41,11 +41,7 @@ export const ContestOptionButton = forwardRef<HTMLDivElement, Props>(
       marginalMarkStatus === 'pending' && onDismissFlag !== undefined;
 
     return (
-      <div
-        data-option-id={option.id}
-        style={{ display: 'flex', flexDirection: 'column' }}
-        ref={ref}
-      >
+      <div style={{ display: 'flex', flexDirection: 'column' }} ref={ref}>
         {showMarginalMarkFlag && (
           <MarginalMarkFlag onDismissFlag={onDismissFlag} />
         )}
