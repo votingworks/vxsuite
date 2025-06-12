@@ -186,7 +186,7 @@ test('interpret `ImageData` objects', async () => {
       {
         "contestId": "chief-of-police",
         "optionId": "andy-warhol",
-        "score": 0.0019230769,
+        "score": 0,
       },
       {
         "contestId": "chief-of-police",
@@ -211,17 +211,17 @@ test('interpret `ImageData` objects', async () => {
       {
         "contestId": "parks-and-recreation-director",
         "optionId": "johan-sebastian-bach",
-        "score": 0.0019230769,
+        "score": 0,
       },
       {
         "contestId": "parks-and-recreation-director",
         "optionId": "alexander-graham-bell",
-        "score": 0.0028846154,
+        "score": 0,
       },
       {
         "contestId": "parks-and-recreation-director",
         "optionId": "write-in-0",
-        "score": 0.0028846154,
+        "score": 0,
       },
       {
         "contestId": "board-of-alderman",
@@ -251,7 +251,7 @@ test('interpret `ImageData` objects', async () => {
       {
         "contestId": "board-of-alderman",
         "optionId": "wolfgang-amadeus-mozart",
-        "score": 0.0019230769,
+        "score": 0,
       },
       {
         "contestId": "board-of-alderman",
@@ -301,7 +301,7 @@ test('interpret `ImageData` objects', async () => {
       {
         "contestId": "city-council",
         "optionId": "mark-antony",
-        "score": 0.00096153846,
+        "score": 0,
       },
       {
         "contestId": "city-council",
@@ -331,7 +331,7 @@ test('interpret `ImageData` objects', async () => {
       {
         "contestId": "city-council",
         "optionId": "write-in-2",
-        "score": 0.00096153846,
+        "score": 0,
       },
       {
         "contestId": "city-council",
@@ -495,7 +495,7 @@ test('interpret images from paths', async () => {
       {
         "contestId": "chief-of-police",
         "optionId": "andy-warhol",
-        "score": 0.0019230769,
+        "score": 0,
       },
       {
         "contestId": "chief-of-police",
@@ -520,17 +520,17 @@ test('interpret images from paths', async () => {
       {
         "contestId": "parks-and-recreation-director",
         "optionId": "johan-sebastian-bach",
-        "score": 0.0019230769,
+        "score": 0,
       },
       {
         "contestId": "parks-and-recreation-director",
         "optionId": "alexander-graham-bell",
-        "score": 0.0028846154,
+        "score": 0,
       },
       {
         "contestId": "parks-and-recreation-director",
         "optionId": "write-in-0",
-        "score": 0.0028846154,
+        "score": 0,
       },
       {
         "contestId": "board-of-alderman",
@@ -560,7 +560,7 @@ test('interpret images from paths', async () => {
       {
         "contestId": "board-of-alderman",
         "optionId": "wolfgang-amadeus-mozart",
-        "score": 0.0019230769,
+        "score": 0,
       },
       {
         "contestId": "board-of-alderman",
@@ -610,7 +610,7 @@ test('interpret images from paths', async () => {
       {
         "contestId": "city-council",
         "optionId": "mark-antony",
-        "score": 0.00096153846,
+        "score": 0,
       },
       {
         "contestId": "city-council",
@@ -640,7 +640,7 @@ test('interpret images from paths', async () => {
       {
         "contestId": "city-council",
         "optionId": "write-in-2",
-        "score": 0.00096153846,
+        "score": 0,
       },
       {
         "contestId": "city-council",
