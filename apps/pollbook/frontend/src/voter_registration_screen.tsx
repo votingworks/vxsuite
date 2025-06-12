@@ -19,7 +19,11 @@ import {
   SearchSelect,
 } from '@votingworks/ui';
 import { throwIllegalValue, assert } from '@votingworks/basics';
-import { getDeviceStatuses, registerVoter } from './api';
+import {
+  getDeviceStatuses,
+  getPollbookConfigurationInformation,
+  registerVoter,
+} from './api';
 import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals';
 import { ElectionManagerNavScreen, NoNavScreen } from './nav_screen';
 import { Column, FieldName, Row } from './layout';
@@ -90,6 +94,8 @@ type RegistrationFlowState =
 export function VoterRegistrationScreen(): JSX.Element | null {
   const registerVoterMutation = registerVoter.useMutation();
   const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
+  const getPollbookConfigurationInformationQuery =
+    getPollbookConfigurationInformation.useQuery();
   const [flowState, setFlowState] = useState<RegistrationFlowState>({
     step: 'register',
   });
@@ -115,7 +121,10 @@ export function VoterRegistrationScreen(): JSX.Element | null {
     [voter, isAddressValid]
   );
 
-  if (!getDeviceStatusesQuery.isSuccess) {
+  if (
+    !getDeviceStatusesQuery.isSuccess ||
+    !getPollbookConfigurationInformationQuery.isSuccess
+  ) {
     return null;
   }
 
@@ -134,6 +143,25 @@ export function VoterRegistrationScreen(): JSX.Element | null {
           >
             <p>Connect printer to continue.</p>
           </FullScreenMessage>
+        </Column>
+      </ElectionManagerNavScreen>
+    );
+  }
+
+  const { configuredPrecinctId } =
+    getPollbookConfigurationInformationQuery.data;
+  if (!configuredPrecinctId) {
+    return (
+      <ElectionManagerNavScreen>
+        <Column>
+          <FullScreenMessage
+            title="No Precinct Selected"
+            image={
+              <FullScreenIconWrapper>
+                <Icons.Disabled />
+              </FullScreenIconWrapper>
+            }
+          />
         </Column>
       </ElectionManagerNavScreen>
     );

@@ -7,6 +7,7 @@ import {
 } from '@votingworks/pollbook-backend';
 import { Route, Switch } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
+import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { screen, waitFor } from '../test/react_testing_library';
 import {
   ApiMock,
@@ -27,6 +28,10 @@ beforeEach(() => {
   vi.clearAllMocks();
   apiMock = createApiMock();
   apiMock.expectGetVoter(voter);
+  apiMock.setElection(
+    electionFamousNames2021Fixtures.readElectionDefinition(),
+    'precinct-1'
+  );
 });
 
 afterEach(() => {
@@ -414,4 +419,21 @@ test('mark inactive - error path', async () => {
   userEvent.click(confirmButton);
 
   await screen.findByText('Error Marking Inactive');
+});
+
+test('actions are disabled when precinct not configured', async () => {
+  apiMock.expectGetVoter(voter);
+  apiMock.setElection(electionFamousNames2021Fixtures.readElectionDefinition());
+  apiMock.expectGetDeviceStatuses();
+
+  await renderComponent();
+
+  const markInactiveButton = screen.getButton('Mark Voter as Inactive');
+  expect(markInactiveButton).toBeDisabled();
+
+  const updateNameButton = screen.getButton('Update Name');
+  expect(updateNameButton).toBeDisabled();
+
+  const updateAddressButton = screen.getButton('Update Address');
+  expect(updateAddressButton).toBeDisabled();
 });

@@ -69,7 +69,7 @@ test('basic e2e registration flow works', async () => {
 
   apiMock.expectGetDeviceStatuses();
   apiMock.authenticateAsElectionManager(famousNamesElection);
-  apiMock.setElection(famousNamesElectionDef);
+  apiMock.setElection(famousNamesElectionDef, 'precinct-1');
   const { unmount } = render(<App apiClient={apiMock.mockApiClient} />);
 
   apiMock.expectGetValidStreetInfo([validStreetInfo]);
