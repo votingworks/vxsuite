@@ -369,7 +369,7 @@ async fn main() -> color_eyre::Result<()> {
                 log!(EventId::UnknownError, "Error in read/write loop: {err}");
             }
             None => break,
-        };
+        }
     }
 
     let _ = fs::remove_file(UDS_PATH);
