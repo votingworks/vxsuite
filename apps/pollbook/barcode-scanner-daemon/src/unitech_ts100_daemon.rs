@@ -1,4 +1,5 @@
 use color_eyre::eyre::Context;
+use nusb::DeviceInfo;
 use parse_aamva::AamvaDocument;
 use std::fs;
 use std::io::{self, Error, ErrorKind};
@@ -23,6 +24,8 @@ mod parse_aamva;
 const SOURCE: Source = Source::VxPollbookBarcodeScannerDaemon;
 /// How often the daemon logs its heartbeat.
 const HEARTBEAT_LOG_INTERVAL: Duration = Duration::from_secs(60);
+/// Interval for general polling
+const POLLING_INTERVAL: Duration = Duration::from_millis(1000);
 
 /*
  * Unix domain socket config
@@ -69,55 +72,54 @@ const MAX_AAMVA_DOCUMENT_SIZE: usize = {
 };
 
 // Resets the TS100 barcode scanner
-async fn reset_scanner() -> Result<(), nusb::Error> {
-    match nusb::list_devices()?
-        .find(|dev| dev.vendor_id() == UNITECH_VENDOR_ID && dev.product_id() == TS100_PRODUCT_ID)
-    {
-        Some(device) => {
-            device.open()?.reset()?;
-            sleep(std::time::Duration::from_millis(500)).await;
-            Ok(())
-        }
-        None => Err(Error::new(
-            ErrorKind::NotConnected,
-            format!("No USB device found at {UNITECH_VENDOR_ID:#X}:{TS100_PRODUCT_ID:#X}"),
-        )),
-    }
+async fn reset_scanner(device: DeviceInfo) -> Result<(), nusb::Error> {
+    device.open()?.reset()?;
+    sleep(std::time::Duration::from_millis(500)).await;
+    Ok(())
 }
 
 // Connects to TS100 barcode scanner
 async fn init_port(port_name: &str, baud_rate: u32) -> color_eyre::Result<SerialStream> {
-    // We have experienced difficulty reconnecting the scanner when the daemon
-    // is stopped and started multiple times. Resetting the scanner solves the issue.
-    // Configuration such as USB COM Port Emulation persists between resets.
-    match reset_scanner().await {
-        Ok(()) => {
-            log!(
-                event_id: EventId::UsbDeviceReconnectAttempted,
-                message: "Barcode scanner reset succeeded".to_owned(),
-                event_type: EventType::SystemAction,
-                disposition: Disposition::Success
-            );
-        }
-        Err(err) => {
-            log!(
-                event_id: EventId::UsbDeviceReconnectAttempted,
-                message: format!("Barcode scanner reset failed: {err}"),
-                event_type: EventType::SystemAction,
-                disposition: Disposition::Failure
-            );
-            return Err(err.into());
-        }
-    }
+    match nusb::list_devices()?
+        .find(|dev| dev.vendor_id() == UNITECH_VENDOR_ID && dev.product_id() == TS100_PRODUCT_ID)
+    {
+        Some(device) => {
+            // We have experienced difficulty reconnecting the scanner when the daemon
+            // is stopped and started multiple times. Resetting the scanner solves the issue.
+            // Configuration such as USB COM Port Emulation persists between resets.
+            // Wait because attempting reset immediately after connection can fail.
+            sleep(std::time::Duration::from_millis(1000)).await;
+            match reset_scanner(device).await {
+                Ok(()) => {
+                    log!(
+                        event_id: EventId::UsbDeviceReconnectAttempted,
+                        message: "Barcode scanner reset succeeded".to_owned(),
+                        event_type: EventType::SystemAction,
+                        disposition: Disposition::Success
+                    );
+                }
+                Err(err) => {
+                    log!(
+                        event_id: EventId::UsbDeviceReconnectAttempted,
+                        message: format!("Barcode scanner reset failed: {err}"),
+                        event_type: EventType::SystemAction,
+                        disposition: Disposition::Failure
+                    );
+                    return Err(err.into());
+                }
+            }
 
-    tokio_serial::new(port_name, baud_rate)
-        .data_bits(DataBits::Eight)
-        .parity(Parity::None)
-        .stop_bits(StopBits::One)
-        .flow_control(FlowControl::None)
-        .timeout(Duration::from_millis(500))
-        .open_native_async()
-        .with_context(|| format!("Failed to open serial port {port_name}"))
+            tokio_serial::new(port_name, baud_rate)
+                .data_bits(DataBits::Eight)
+                .parity(Parity::None)
+                .stop_bits(StopBits::One)
+                .flow_control(FlowControl::None)
+                .timeout(Duration::from_millis(500))
+                .open_native_async()
+                .with_context(|| format!("Failed to open serial port {port_name}"))
+        }
+        None => Err(Error::new(ErrorKind::NotFound, "No device found").into()),
+    }
 }
 
 async fn write_doc(stream: &mut tokio::net::UnixStream, doc: &AamvaDocument) -> io::Result<()> {
@@ -188,7 +190,7 @@ where
 
     tokio::spawn(async move {
         loop {
-            tokio::time::sleep(HEARTBEAT_LOG_INTERVAL).await;
+            sleep(HEARTBEAT_LOG_INTERVAL).await;
             log!(EventId::Heartbeat; EventType::SystemStatus);
         }
     });
@@ -197,6 +199,10 @@ where
         buf.clear();
 
         match reader.read_until(TS100_DATA_TERMINATOR, &mut buf).await {
+            Ok(0) => {
+                // EOF; it's possible connection to scanner was lost
+                return Err(Error::new(ErrorKind::BrokenPipe, "Scanner disconnected"));
+            }
             Ok(n) => {
                 buf.pop();
 
@@ -308,42 +314,62 @@ async fn main() -> color_eyre::Result<()> {
         }
     });
 
+    let signal = tokio::signal::ctrl_c();
+    tokio::pin!(signal);
+
     // Connect to barcode scanner device
-    match init_port(TS100_PORT_NAME, TS100_BAUD_RATE).await {
-        Ok(port) => {
-            log!(
-                event_id: EventId::DeviceAttached,
-                message: format!("Connected to TS100 barcode scanner at {TS100_PORT_NAME}..."),
-                event_type: EventType::SystemStatus,
-                disposition: Disposition::Success
-            );
-
-            let signal = tokio::signal::ctrl_c();
-            let read_loop = run_read_write_loop(port, clients);
-
-            tokio::pin!(signal);
-            tokio::pin!(read_loop);
-
-            tokio::select! {
-                Err(err) = &mut read_loop => {
-                    log!(EventId::UnknownError, "Error in read/write loop: {err}");
-                }
-                _ = &mut signal => {
-                    log!(
-                        EventId::ProcessTerminated;
-                        EventType::SystemAction
-                    );
-                }
+    loop {
+        // Race opening the port against user hitting ctrl+c
+        let maybe_port = tokio::select! {
+            port_result = init_port(TS100_PORT_NAME, TS100_BAUD_RATE) => {
+                Some(port_result)
             }
-        }
-        Err(e) => {
-            log!(
-                event_id: EventId::DeviceAttached,
-                message: format!("Failed to connect to USB barcode scanner: {e}"),
-                event_type: EventType::SystemStatus,
-                disposition: Disposition::Failure
-            );
-        }
+            _ = &mut signal => None,
+        };
+
+        let port = match maybe_port {
+            // If ctrl+c, exit
+            None => break,
+            // If couldn't get device, retry
+            Some(Err(e)) => {
+                // TODO handle unexpected errors
+                log!(
+                    event_id: EventId::DeviceAttached,
+                    message: format!("Failed to connect to USB barcode scanner: {e}"),
+                    event_type: EventType::SystemStatus,
+                    disposition: Disposition::Failure
+                );
+                sleep(POLLING_INTERVAL).await;
+                continue;
+            }
+            // Successfully got device
+            Some(Ok(p)) => p,
+        };
+
+        log!(
+            event_id: EventId::DeviceAttached,
+            message: format!("Connected to TS100 barcode scanner at {TS100_PORT_NAME}..."),
+            event_type: EventType::SystemStatus,
+            disposition: Disposition::Success
+        );
+
+        // Race infinite read/write loop against ctrl+c
+        let read_result = tokio::select! {
+            result = run_read_write_loop(port, clients.clone()) => Some(result),
+            _ = &mut signal => None,
+        };
+
+        match read_result {
+            Some(Ok(())) => log!(EventId::Info, "Read/write loop ended without error"),
+            Some(Err(err)) => {
+                // Wait if we error due to scanner disconnection, giving the OS time to clean up the device node.
+                // Reconnecting too quickly may result in attempting to open the stale serial port path of the device
+                // we just disconnected.
+                sleep(POLLING_INTERVAL).await;
+                log!(EventId::UnknownError, "Error in read/write loop: {err}");
+            }
+            None => break,
+        };
     }
 
     let _ = fs::remove_file(UDS_PATH);
@@ -543,22 +569,6 @@ DCUJR
           "nameSuffix": "JR"
         });
         assert_eq!(v, expect);
-    }
-
-    #[tokio::test]
-    async fn reset_scanner_no_device_returns_not_connected_error() {
-        let err = reset_scanner().await.expect_err("Expected Err when no device found. Are you running this test with the device attached?");
-
-        assert_eq!(
-            err.kind(),
-            ErrorKind::NotConnected,
-            "Expected NotConnected error kind, got {:?}",
-            err.kind()
-        );
-
-        let expected =
-            format!("No USB device found at {UNITECH_VENDOR_ID:#X}:{TS100_PRODUCT_ID:#X}");
-        assert_eq!(err.to_string(), expected);
     }
 
     #[tokio::test]
