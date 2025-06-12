@@ -20,8 +20,13 @@ export function MachineLockedScreen(): JSX.Element | null {
     return null;
   }
   const election = getElectionQuery.data.ok();
-  const { machineId, codeVersion, electionBallotHash, pollbookPackageHash } =
-    getMachineInfoQuery.data;
+  const {
+    machineId,
+    codeVersion,
+    electionBallotHash,
+    pollbookPackageHash,
+    configuredPrecinctId,
+  } = getMachineInfoQuery.data;
 
   return (
     <Screen>
@@ -47,6 +52,7 @@ export function MachineLockedScreen(): JSX.Element | null {
         pollbookPackageHash={pollbookPackageHash}
         machineId={machineId}
         codeVersion={codeVersion}
+        configuredPrecinctId={configuredPrecinctId}
       />
     </Screen>
   );
