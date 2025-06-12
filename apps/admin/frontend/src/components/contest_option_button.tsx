@@ -21,7 +21,6 @@ interface Props {
   onDismissFlag?: () => void;
   caption?: React.ReactNode;
   disabled?: boolean;
-  tabIndex?: number;
 }
 
 export const ContestOptionButton = forwardRef<HTMLDivElement, Props>(
@@ -35,7 +34,6 @@ export const ContestOptionButton = forwardRef<HTMLDivElement, Props>(
       onDismissFlag,
       caption,
       disabled,
-      tabIndex,
     },
     ref
   ) => {
@@ -47,7 +45,6 @@ export const ContestOptionButton = forwardRef<HTMLDivElement, Props>(
         data-option-id={option.id}
         style={{ display: 'flex', flexDirection: 'column' }}
         ref={ref}
-        tabIndex={tabIndex}
       >
         {showMarginalMarkFlag && (
           <MarginalMarkFlag onDismissFlag={onDismissFlag} />
@@ -57,7 +54,6 @@ export const ContestOptionButton = forwardRef<HTMLDivElement, Props>(
           label={option.label}
           isChecked={isSelected}
           disabled={disabled}
-          tabIndex={-1}
           onlyRoundBottom={showMarginalMarkFlag}
           onChange={() => {
             if (!isSelected) {

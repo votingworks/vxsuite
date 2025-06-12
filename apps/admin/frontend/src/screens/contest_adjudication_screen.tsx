@@ -630,13 +630,14 @@ export function ContestAdjudicationScreen(): JSX.Element {
     cvrContestTagQuery.isFetching;
 
   const optionRefs = useRef<Array<HTMLDivElement | null>>([]);
-  const firstRequiringAdjudicationId = cvrContestTagQuery.data?.isResolved
-    ? undefined
-    : allOptionsIds.find(
-        (id) =>
-          marginalMarkStatusByOptionId[id] === 'pending' ||
-          isPendingWriteIn(writeInStatusByOptionId[id])
-      );
+  const firstRequiringAdjudicationId =
+    cvrContestTagQuery.data === undefined || cvrContestTagQuery.data.isResolved
+      ? undefined
+      : allOptionsIds.find(
+          (id) =>
+            marginalMarkStatusByOptionId[id] === 'pending' ||
+            isPendingWriteIn(writeInStatusByOptionId[id])
+        );
 
   useLayoutEffect(() => {
     if (
@@ -873,52 +874,6 @@ export function ContestAdjudicationScreen(): JSX.Element {
     history.push(routerPaths.adjudication);
   }
 
-  function handleListboxKeyDown(e: React.KeyboardEvent) {
-    const activeElement = document.activeElement as HTMLElement | null;
-    const activeIndex = optionRefs.current.findIndex(
-      (el) => el === activeElement
-    );
-
-    if (activeIndex === -1) return;
-
-    function moveFocus(index: number) {
-      optionRefs.current[index]?.focus();
-    }
-
-    switch (e.key) {
-      case 'ArrowDown':
-        e.preventDefault();
-        moveFocus((activeIndex + 1) % optionRefs.current.length);
-        break;
-
-      case 'ArrowUp':
-        e.preventDefault();
-        moveFocus(
-          (activeIndex - 1 + optionRefs.current.length) %
-            optionRefs.current.length
-        );
-        break;
-      case 'Enter':
-      case ' ': {
-        e.preventDefault();
-        const optionId = activeElement?.dataset['optionId'];
-        if (optionId) {
-          const hasVote = hasVoteByOptionId[optionId];
-          setOptionHasVote(optionId, !hasVote);
-          resolveMarginalMark(optionId);
-          if (optionId.startsWith('write-in')) {
-            setOptionWriteInStatus(
-              optionId,
-              hasVote ? { type: 'invalid' } : { type: 'pending' }
-            );
-          }
-        }
-        break;
-      }
-      default: // no-op
-    }
-  }
-
   return (
     <Screen>
       <Main flexRow data-testid={`transcribe:${currentCvrId}`}>
@@ -971,10 +926,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
               <Icons.Loading />
             </ContestOptionButtonList>
           ) : (
-            <ContestOptionButtonList
-              role="listbox"
-              onKeyDown={handleListboxKeyDown}
-            >
+            <ContestOptionButtonList role="listbox">
               {officialOptions.map((officialOption, idx) => {
                 const originalVote = originalVotes.includes(officialOption.id);
                 const currentVote = hasVoteByOptionId[officialOption.id];
@@ -1014,18 +966,6 @@ export function ContestAdjudicationScreen(): JSX.Element {
                       isWriteIn: false,
                       marginalMarkStatus,
                     })}
-                    tabIndex={
-                      // make the first option requiring adjudication
-                      // accessible via tab; if none require adjudication,
-                      // make the first contest option accessible via tab
-                      firstRequiringAdjudicationId !== undefined
-                        ? optionId === firstRequiringAdjudicationId
-                          ? 0
-                          : -1
-                        : idx === 0
-                        ? 0
-                        : -1
-                    }
                   />
                 );
               })}
@@ -1059,9 +999,6 @@ export function ContestAdjudicationScreen(): JSX.Element {
                     onInputBlur={() => setFocusedOptionId(undefined)}
                     onDismissFlag={() => resolveMarginalMark(optionId)}
                     ref={getRef}
-                    tabIndex={
-                      optionId === firstRequiringAdjudicationId ? 0 : -1
-                    }
                     onChange={(newStatus) => {
                       setFocusedOptionId(undefined);
                       if (isPendingWriteIn(newStatus)) {

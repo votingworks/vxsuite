@@ -36,7 +36,10 @@ const StyledCheckboxButton = styled(CheckboxButton)<{
   }};
 `;
 
-interface SearchOption { label: React.ReactNode; value: string }
+interface SearchOption {
+  label: React.ReactNode;
+  value: string;
+}
 const OptionWithIcon = styled.span`
   display: flex;
   align-items: center;
@@ -59,7 +62,6 @@ interface Props {
   caption?: React.ReactNode;
   disabled?: boolean;
   label?: string;
-  tabIndex?: number;
 }
 
 export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
@@ -80,7 +82,6 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
       caption,
       disabled,
       label,
-      tabIndex,
     },
     ref
   ) => {
@@ -177,7 +178,6 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
         data-option-id={optionId}
         style={{ zIndex: isFocused ? 10 : 0 }}
         ref={ref}
-        tabIndex={tabIndex}
       >
         {showMarginalMarkFlag && (
           <MarginalMarkFlag onDismissFlag={onDismissFlag} />
@@ -188,7 +188,6 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
           label={label ?? 'Write-in'}
           roundTop={!showMarginalMarkFlag}
           roundBottom={!showSearchSelect}
-          tabIndex={-1}
           onChange={() => {
             onChange({ type: isSelected ? 'invalid' : 'pending' });
           }}
