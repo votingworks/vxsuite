@@ -20,7 +20,8 @@ CREATE TABLE elections (
     ballot_hash TEXT not null,
     package_hash TEXT not null,
     valid_street_data TEXT,
-    is_absentee_mode BOOLEAN NOT NULL
+    is_absentee_mode BOOLEAN NOT NULL,
+    configured_precinct_id TEXT
 );
 
 CREATE TABLE event_log (

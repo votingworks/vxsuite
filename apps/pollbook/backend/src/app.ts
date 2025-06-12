@@ -199,6 +199,10 @@ function buildApi({ context, logger }: BuildAppParams) {
       store.setIsAbsenteeMode(input.isAbsenteeMode);
     },
 
+    setConfiguredPrecinct(input: { precinctId: string }): void {
+      store.setConfiguredPrecinct(input.precinctId);
+    },
+
     searchVoters(input: {
       searchParams: VoterSearchParams;
     }): Voter[] | number | null {

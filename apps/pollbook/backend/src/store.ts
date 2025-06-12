@@ -359,12 +359,17 @@ export abstract class Store {
   getPollbookConfigurationInformation(): PollbookConfigurationInformation {
     const row = this.client.one(
       `
-          select election_data, ballot_hash, package_hash
+          select election_data, ballot_hash, package_hash, configured_precinct_id
           from elections
           order by rowid desc
           limit 1
         `
-    ) as { election_data: string; ballot_hash: string; package_hash: string };
+    ) as {
+      election_data: string;
+      ballot_hash: string;
+      package_hash: string;
+      configured_precinct_id: string;
+    };
     if (!row) {
       return {
         machineId: this.machineId,
@@ -381,6 +386,7 @@ export abstract class Store {
       pollbookPackageHash: row.package_hash,
       machineId: this.machineId,
       codeVersion: this.codeVersion,
+      configuredPrecinctId: row.configured_precinct_id,
     };
   }
 

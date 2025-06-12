@@ -14,8 +14,7 @@ test('findVotersWithName works as expected - voters without name changes', () =>
   const localStore = LocalStore.fileStore(
     workspacePath,
     mockBaseLogger({ fn: vi.fn }),
-    '0000',
-    'test'
+    '0000'
   );
   const testElectionDefinition = getTestElectionDefinition();
   const voters = [
@@ -143,8 +142,7 @@ test('findVoterWithName works as expected - voters with name changes', () => {
   const localStore = LocalStore.fileStore(
     workspacePath,
     mockBaseLogger({ fn: vi.fn }),
-    '0001',
-    'test'
+    '0001'
   );
   const testElectionDefinition = getTestElectionDefinition();
   const voters = [
@@ -253,8 +251,7 @@ test('registerVoter and findVoterWithName integration', () => {
   const localStore = LocalStore.fileStore(
     workspacePath,
     mockBaseLogger({ fn: vi.fn }),
-    '0002',
-    'test'
+    '0002'
   );
   const testElectionDefinition = getTestElectionDefinition();
   const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
