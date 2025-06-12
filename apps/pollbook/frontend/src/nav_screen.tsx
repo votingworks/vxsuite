@@ -293,8 +293,13 @@ export function NavScreen({
   }
 
   const election = getElectionQuery.data.ok();
-  const { machineId, codeVersion, electionBallotHash, pollbookPackageHash } =
-    getMachineInfoQuery.data;
+  const {
+    configuredPrecinctId,
+    machineId,
+    codeVersion,
+    electionBallotHash,
+    pollbookPackageHash,
+  } = getMachineInfoQuery.data;
 
   return (
     <Screen flexDirection="row">
@@ -310,6 +315,7 @@ export function NavScreen({
             pollbookPackageHash={pollbookPackageHash}
             machineId={machineId}
             codeVersion={codeVersion}
+            configuredPrecinctId={configuredPrecinctId}
             inverse
           />
         </div>

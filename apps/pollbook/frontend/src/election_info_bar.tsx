@@ -37,6 +37,7 @@ export interface ElectionInfoBarProps {
   pollbookPackageHash?: string;
   codeVersion?: string;
   machineId?: string;
+  configuredPrecinctId?: string;
   inverse?: boolean;
 }
 export function ElectionInfoBar({
@@ -45,6 +46,7 @@ export function ElectionInfoBar({
   pollbookPackageHash,
   codeVersion,
   machineId,
+  configuredPrecinctId,
   inverse,
 }: ElectionInfoBarProps): JSX.Element {
   const codeVersionInfo = codeVersion ? (
@@ -103,6 +105,19 @@ export function ElectionInfoBar({
     </Caption>
   );
 
+  const setPrecinct = configuredPrecinctId
+    ? election.precincts.find((p) => p.id === configuredPrecinctId)
+    : undefined;
+  const showPrecinct =
+    election.precincts.length > 1 && setPrecinct !== undefined;
+  const configuredPrecinctInfo = showPrecinct && (
+    <Caption>
+      <LabelledText label="Precinct">
+        <Font weight="bold">{setPrecinct.name}</Font>
+      </LabelledText>
+    </Caption>
+  );
+
   return (
     <Bar data-testid="electionInfoBar" inverse={inverse}>
       <ElectionInfoContainer>
@@ -113,6 +128,7 @@ export function ElectionInfoBar({
         {codeVersionInfo}
         {machineIdInfo}
         {electionIdInfo}
+        {configuredPrecinctInfo}
       </SystemInfoContainer>
     </Bar>
   );
@@ -132,6 +148,7 @@ export function VerticalElectionInfoBar({
   pollbookPackageHash,
   codeVersion,
   machineId,
+  configuredPrecinctId,
   inverse,
 }: ElectionInfoBarProps): JSX.Element {
   if (!election || !electionBallotHash || !pollbookPackageHash) {
@@ -153,6 +170,12 @@ export function VerticalElectionInfoBar({
       </VerticalBar>
     );
   }
+
+  const setPrecinct = configuredPrecinctId
+    ? election.precincts.find((p) => p.id === configuredPrecinctId)
+    : undefined;
+  const showPrecinct =
+    election.precincts.length > 1 && setPrecinct !== undefined;
 
   return (
     <VerticalBar inverse={inverse}>
@@ -193,6 +216,11 @@ export function VerticalElectionInfoBar({
             {formatElectionHashes(electionBallotHash, pollbookPackageHash)}
           </Font>
         </div>
+        {showPrecinct && (
+          <div>
+            Precinct: <Font weight="semiBold">{setPrecinct.name}</Font>
+          </div>
+        )}
       </Caption>
     </VerticalBar>
   );
