@@ -19,7 +19,7 @@ import {
   Voter,
   VoterSchema,
   PollbookConnectionStatus,
-  PollbookInformation,
+  PollbookConfigurationInformation,
   ConfigurationError,
   ConfigurationStatus,
 } from './types';
@@ -71,7 +71,8 @@ export abstract class Store {
 
   protected constructor(
     protected readonly client: DbClient,
-    protected readonly machineId: string
+    protected readonly machineId: string,
+    protected readonly codeVersion: string
   ) {}
 
   protected incrementClock(): HlcTimestamp {
@@ -338,7 +339,7 @@ export abstract class Store {
   getElection(): Election | undefined {
     const row = this.client.one(
       `
-          select election_data, valid_street_data
+          select election_data 
           from elections
           order by rowid desc
           limit 1
@@ -352,15 +353,10 @@ export abstract class Store {
     ).unsafeUnwrap();
     this.election = election;
 
-    const validStreetInfo: ValidStreetInfo[] = safeParseJson(
-      row.valid_street_data,
-      ValidStreetInfoSchema
-    ).unsafeUnwrap();
-    this.validStreetInfo = validStreetInfo;
     return this.election;
   }
 
-  getMachineInformation(): PollbookInformation | undefined {
+  getPollbookConfigurationInformation(): PollbookConfigurationInformation {
     const row = this.client.one(
       `
           select election_data, ballot_hash, package_hash
@@ -370,7 +366,10 @@ export abstract class Store {
         `
     ) as { election_data: string; ballot_hash: string; package_hash: string };
     if (!row) {
-      return undefined;
+      return {
+        machineId: this.machineId,
+        codeVersion: this.codeVersion,
+      };
     }
     const election: Election = safeParseElection(
       row.election_data
@@ -380,6 +379,8 @@ export abstract class Store {
       electionTitle: election.title,
       electionBallotHash: row.ballot_hash,
       pollbookPackageHash: row.package_hash,
+      machineId: this.machineId,
+      codeVersion: this.codeVersion,
     };
   }
 
@@ -451,6 +452,26 @@ export abstract class Store {
   // Returns the valid street info. Used when registering a voter to populate address typeahead options.
   // TODO the frontend doesn't need to know everything in the ValidStreetInfo object. This could be pared down.
   getStreetInfo(): ValidStreetInfo[] {
+    if (this.validStreetInfo) {
+      return this.validStreetInfo;
+    }
+    const row = this.client.one(
+      `
+          select valid_street_info 
+          from elections
+          order by rowid desc
+          limit 1
+        `
+    ) as { election_data: string; valid_street_data: string };
+    if (!row) {
+      return [];
+    }
+
+    const validStreetInfo: ValidStreetInfo[] = safeParseJson(
+      row.valid_street_data,
+      ValidStreetInfoSchema
+    ).unsafeUnwrap();
+    this.validStreetInfo = validStreetInfo;
     return this.validStreetInfo || [];
   }
 

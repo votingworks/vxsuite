@@ -154,7 +154,7 @@ export function createApiMock() {
     },
 
     expectGetMachineInformation(): void {
-      mockApiClient.getMachineInformation
+      mockApiClient.getPollbookConfigurationInformation
         .expectRepeatedCallsWith()
         .resolves(machineConfig);
     },
@@ -251,7 +251,7 @@ export function createApiMock() {
         mockApiClient.getElection
           .expectRepeatedCallsWith()
           .resolves(err('unconfigured'));
-        mockApiClient.getMachineInformation
+        mockApiClient.getPollbookConfigurationInformation
           .expectOptionalRepeatedCallsWith()
           .resolves(machineConfig);
         return;
@@ -259,7 +259,7 @@ export function createApiMock() {
       mockApiClient.getElection
         .expectRepeatedCallsWith()
         .resolves(ok(electionDefinition.election));
-      mockApiClient.getMachineInformation
+      mockApiClient.getPollbookConfigurationInformation
         .expectOptionalRepeatedCallsWith()
         .resolves({
           electionId: electionDefinition.election.id,

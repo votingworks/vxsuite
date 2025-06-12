@@ -22,12 +22,14 @@ function setupFileStores(machineId: string): [LocalStore, PeerStore] {
   const localStore = LocalStore.fileStore(
     workspacePath,
     mockBaseLogger({ fn: vi.fn }),
-    machineId
+    machineId,
+    'test'
   );
   const peerStore = PeerStore.fileStore(
     workspacePath,
     mockBaseLogger({ fn: vi.fn }),
-    machineId
+    machineId,
+    'test'
   );
   return [localStore, peerStore];
 }

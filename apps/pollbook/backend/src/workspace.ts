@@ -12,7 +12,8 @@ export function createLocalWorkspace(
   workspacePath: string,
   logger: BaseLogger,
   peerPort: number,
-  machineId: string
+  machineId: string,
+  codeVersion: string
 ): LocalWorkspace {
   ensureDirSync(workspacePath);
 
@@ -20,7 +21,7 @@ export function createLocalWorkspace(
   ensureDirSync(assetDirectoryPath);
 
   const dbPath = join(workspacePath, 'pollbook-backend.db');
-  const store = LocalStore.fileStore(dbPath, logger, machineId);
+  const store = LocalStore.fileStore(dbPath, logger, machineId, codeVersion);
   const peerApiClient = grout.createClient<PeerApi>({
     baseUrl: `http://localhost:${peerPort}/api`,
   });
@@ -31,14 +32,15 @@ export function createLocalWorkspace(
 export function createPeerWorkspace(
   workspacePath: string,
   logger: BaseLogger,
-  machineId: string
+  machineId: string,
+  codeVersion: string
 ): PeerWorkspace {
   ensureDirSync(workspacePath);
 
   const assetDirectoryPath = join(workspacePath, 'assets');
   ensureDirSync(assetDirectoryPath);
   const dbPath = join(workspacePath, 'pollbook-backend.db');
-  const store = PeerStore.fileStore(dbPath, logger, machineId);
+  const store = PeerStore.fileStore(dbPath, logger, machineId, codeVersion);
 
   return { assetDirectoryPath, store };
 }

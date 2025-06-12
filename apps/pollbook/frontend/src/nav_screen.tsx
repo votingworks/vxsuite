@@ -28,7 +28,7 @@ import {
   resetNetwork,
   logOut,
   getElection,
-  getMachineInformation,
+  getPollbookConfigurationInformation,
 } from './api';
 import { PollbookConnectionStatus } from './types';
 import { VerticalElectionInfoBar } from './election_info_bar';
@@ -286,7 +286,7 @@ export function NavScreen({
   children?: React.ReactNode;
 }): JSX.Element | null {
   const getElectionQuery = getElection.useQuery();
-  const getMachineInfoQuery = getMachineInformation.useQuery();
+  const getMachineInfoQuery = getPollbookConfigurationInformation.useQuery();
 
   if (!(getElectionQuery.isSuccess && getMachineInfoQuery.isSuccess)) {
     return null;

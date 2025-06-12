@@ -107,16 +107,18 @@ export async function withApp(
   const auth = buildMockDippedSmartCardAuth(vi.fn);
   const workspacePath = tmp.dirSync().name;
   const machineId = process.env.VX_MACHINE_ID || TEST_MACHINE_ID;
+  const codeVersion = process.env.VX_CODE_VERSION || 'test';
   const peerWorkspace = createPeerWorkspace(
     workspacePath,
     mockBaseLogger({ fn: vi.fn }),
-    machineId
+    machineId,
+    codeVersion
   );
   const peerApp = buildPeerApp({
     auth,
     workspace: peerWorkspace,
     machineId,
-    codeVersion: process.env.VX_CODE_VERSION || 'test',
+    codeVersion,
   });
 
   const peerServer = peerApp.listen();
@@ -127,7 +129,8 @@ export async function withApp(
     workspacePath,
     mockBaseLogger({ fn: vi.fn }),
     peerPort,
-    machineId
+    machineId,
+    codeVersion
   );
   const logger = buildMockLogger(auth, workspace);
 
@@ -143,7 +146,7 @@ export async function withApp(
       usbDrive: mockUsbDrive.usbDrive,
       printer: mockPrinterHandler.printer,
       machineId,
-      codeVersion: process.env.VX_CODE_VERSION || 'test',
+      codeVersion,
     },
     logger,
   });
@@ -190,6 +193,7 @@ export async function withManyApps(
   fn: (contexts: TestContext[]) => Promise<void>
 ): Promise<void> {
   const contexts: TestContext[] = [];
+  const codeVersion = process.env.VX_CODE_VERSION || 'test';
 
   try {
     for (let i = 0; i < n; i += 1) {
@@ -198,14 +202,15 @@ export async function withManyApps(
       const peerWorkspace = createPeerWorkspace(
         workspacePath,
         mockBaseLogger({ fn: vi.fn }),
-        `test-${i}`
+        `test-${i}`,
+        codeVersion
       );
 
       const peerApp = buildPeerApp({
         auth,
         workspace: peerWorkspace,
         machineId: `test-${i}`,
-        codeVersion: process.env.VX_CODE_VERSION || 'test',
+        codeVersion,
       });
 
       const peerServer = peerApp.listen();
@@ -221,7 +226,8 @@ export async function withManyApps(
         workspacePath,
         mockBaseLogger({ fn: vi.fn }),
         peerPort,
-        `test-${i}`
+        `test-${i}`,
+        codeVersion
       );
       const logger = buildMockLogger(auth, workspace);
 
@@ -232,7 +238,7 @@ export async function withManyApps(
           usbDrive: mockUsbDrive.usbDrive,
           printer: mockPrinterHandler.printer,
           machineId: `test-${i}`,
-          codeVersion: process.env.VX_CODE_VERSION || 'test',
+          codeVersion,
         },
         logger,
       });

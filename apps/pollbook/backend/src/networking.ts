@@ -67,7 +67,8 @@ export function fetchEventsFromConnectedPollbooks({
         }
 
         const previouslyConnected = workspace.store.getPollbookServicesByName();
-        const myMachineInformation = workspace.store.getMachineInformation();
+        const myMachineInformation =
+          workspace.store.getPollbookConfigurationInformation();
 
         // Maintain a queue of pollbooks to visit, refill and shuffle when empty
         const pollbookNames = Object.keys(previouslyConnected).filter(
@@ -184,7 +185,8 @@ export function setupMachineNetworking({
           return;
         }
 
-        const myMachineInformation = workspace.store.getMachineInformation();
+        const myMachineInformation =
+          workspace.store.getPollbookConfigurationInformation();
         const services = await AvahiService.discoverHttpServices();
         if (!services.length) {
           debug('No services found on the network');
@@ -237,7 +239,8 @@ export function setupMachineNetworking({
               debug('No api client found for %s', name);
               continue;
             }
-            const machineInformation = await apiClient.getMachineInformation();
+            const machineInformation =
+              await apiClient.getPollbookConfigurationInformation();
             if (name === currentNodeServiceName) {
               // current machine, if we got here the network is working
               if (workspace.store.getIsOnline() === false) {
