@@ -1,0 +1,27 @@
+[package]
+name = "barcode-scanner-daemon"
+version = "0.1.0"
+edition = "2021"
+license.workspace = true
+license-file.workspace = true
+
+[[bin]]
+name = "barcodescannerd"
+path = "src/unitech_ts100_daemon.rs"
+
+[dependencies]
+chrono = { workspace = true, features = ["serde"] }
+color-eyre = { workspace = true }
+nix = { workspace = true }
+nusb = { workspace = true }
+proptest = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+tokio-serial = { workspace = true }
+tokio-test = { workspace = true }
+thiserror = { workspace = true }
+vx-logging = { workspace = true }
+
+[lints]
+workspace = true

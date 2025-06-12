@@ -13,9 +13,11 @@ import {
   LabelledText,
   Caption,
 } from '@votingworks/ui';
+import { io } from 'socket.io-client';
 import debounce from 'lodash.debounce';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import type {
+  AamvaDocument,
   Voter,
   VoterCheckIn,
   VoterSearchParams,
@@ -33,6 +35,7 @@ import {
   VoterAddress,
   VoterName,
 } from './shared_components';
+import { SOCKET_IO_SERVER_ADDRESS } from './globals';
 
 const VoterTableWrapper = styled(Card)`
   overflow: hidden;
@@ -89,6 +92,20 @@ export function VoterSearch({
     updateDebouncedSearch({ ...search, ...newSearch });
   }
   const searchVotersQuery = searchVoters.useQuery(debouncedSearch);
+
+  useEffect(() => {
+    const socket = io(SOCKET_IO_SERVER_ADDRESS);
+    socket.on('barcode-scan', (data: AamvaDocument) => {
+      setDebouncedSearch({
+        ...search,
+        firstName: data.firstName,
+        lastName: data.lastName,
+      });
+    });
+    return () => {
+      socket.disconnect();
+    };
+  }, [search]);
 
   return (
     <Column style={{ gap: '1rem', height: '100%' }}>

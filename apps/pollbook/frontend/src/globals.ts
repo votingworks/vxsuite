@@ -1,2 +1,3 @@
 export const AUTOMATIC_FLOW_STATE_RESET_DELAY_MS = 3000;
 export const PRINTING_INDICATOR_DELAY_MS = 2000;
+export const SOCKET_IO_SERVER_ADDRESS = 'http://localhost:3002';

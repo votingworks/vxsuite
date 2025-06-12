@@ -230,6 +230,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [system-status](#system-status)
 **Description:** The machine has completed all the steps to shutdown and will now power down or reboot.
 **Machines:** All
+### usb-device-reconnect-attempted
+**Type:** [system-action](#system-action)
+**Description:** A message from the machine kernel about an application-initiated attempt to reconnect an externally-connected USB device.
+**Machines:** All
 ### usb-device-change-detected
 **Type:** [system-status](#system-status)
 **Description:** A message from the machine kernel about an externally-connected USB device, usually when a new device is connected or disconnected.
@@ -570,3 +574,35 @@ IDs are logged with each log to identify the log being written.
 **Type:** [application-action](#application-action)
 **Description:** An API call was made.
 **Machines:** vx-design
+### socket-client-connect-init
+**Type:** [application-action](#application-action)
+**Description:** An application attempted to connect a client to a socket.
+**Machines:** All
+### socket-client-connected
+**Type:** [application-status](#application-status)
+**Description:** An attempt by an application to connect to a socket was resolved.
+**Machines:** All
+### socket-client-disconnected
+**Type:** [application-status](#application-status)
+**Description:** A socket client was disconnected.
+**Machines:** All
+### socket-client-error
+**Type:** [application-status](#application-status)
+**Description:** An error was reported by a socket client.
+**Machines:** All
+### socket-server-bind
+**Type:** [application-action](#application-action)
+**Description:** A process attempted to bind a socket.
+**Machines:** All
+### socket-server-close
+**Type:** [application-action](#application-action)
+**Description:** A socket server was closed.
+**Machines:** All
+### socket-server-awaiting-client
+**Type:** [application-status](#application-status)
+**Description:** A socket server is awaiting a client.
+**Machines:** All
+### socket-server-error
+**Type:** [application-status](#application-status)
+**Description:** An error was reported by a socket server.
+**Machines:** All
