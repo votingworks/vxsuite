@@ -12,6 +12,7 @@ import {
   H1,
   Icons,
   MainHeader,
+  P,
 } from '@votingworks/ui';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import {
@@ -30,6 +31,7 @@ import {
   getDeviceStatuses,
   getIsAbsenteeMode,
   getVoter,
+  getPollbookConfigurationInformation,
 } from './api';
 import { AbsenteeModeCallout, VoterName } from './shared_components';
 import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals';
@@ -232,12 +234,20 @@ export function VoterCheckInScreen(): JSX.Element | null {
 
 export function PollWorkerScreen(): JSX.Element | null {
   const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
+  const getPollbookConfigurationInformationQuery =
+    getPollbookConfigurationInformation.useQuery();
 
-  if (!getDeviceStatusesQuery.isSuccess) {
+  if (
+    !getDeviceStatusesQuery.isSuccess ||
+    !getPollbookConfigurationInformationQuery.isSuccess
+  ) {
     return null;
   }
 
   const { printer } = getDeviceStatusesQuery.data;
+
+  const { configuredPrecinctId } =
+    getPollbookConfigurationInformationQuery.data;
   if (!printer.connected) {
     return (
       <PollWorkerNavScreen>
@@ -251,6 +261,25 @@ export function PollWorkerScreen(): JSX.Element | null {
             title="No Printer Detected"
           >
             <p>Connect printer to continue.</p>
+          </FullScreenMessage>
+        </Column>
+      </PollWorkerNavScreen>
+    );
+  }
+
+  if (!configuredPrecinctId) {
+    return (
+      <PollWorkerNavScreen>
+        <Column>
+          <FullScreenMessage
+            title="No Precinct Selected"
+            image={
+              <FullScreenIconWrapper>
+                <Icons.Disabled />
+              </FullScreenIconWrapper>
+            }
+          >
+            <P>Insert an election manager card to select a precinct.</P>
           </FullScreenMessage>
         </Column>
       </PollWorkerNavScreen>

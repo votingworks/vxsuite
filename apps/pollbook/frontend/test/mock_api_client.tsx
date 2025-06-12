@@ -276,10 +276,20 @@ export function createApiMock() {
         });
     },
 
-    setConfiguredPrecinct(configuredPrecinctId: string) {
+    expectSetConfiguredPrecinct(configuredPrecinctId: string) {
       mockApiClient.setConfiguredPrecinct
         .expectCallWith({ precinctId: configuredPrecinctId })
         .resolves();
+      mockApiClient.getPollbookConfigurationInformation.reset();
+      mockApiClient.getPollbookConfigurationInformation
+        .expectOptionalRepeatedCallsWith()
+        .resolves({
+          ...machineConfig,
+          configuredPrecinctId,
+        });
+    },
+
+    setConfiguredPrecinct(configuredPrecinctId: string) {
       mockApiClient.getPollbookConfigurationInformation.reset();
       mockApiClient.getPollbookConfigurationInformation
         .expectOptionalRepeatedCallsWith()

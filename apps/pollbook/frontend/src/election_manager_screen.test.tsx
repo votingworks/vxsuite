@@ -87,7 +87,7 @@ describe('SettingsScreen precinct selection', () => {
     // Simulate changing the precinct
     const newPrecinctId = precincts[1].id;
 
-    apiMock.setConfiguredPrecinct(newPrecinctId);
+    apiMock.expectSetConfiguredPrecinct(newPrecinctId);
 
     userEvent.click(screen.getByText('Select Precinct…'));
     userEvent.click(screen.getByText(precincts[1].name));
