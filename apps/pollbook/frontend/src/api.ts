@@ -1,5 +1,4 @@
 import React from 'react';
-// import type { Api, BallotMode } from '@votingworks/design-backend';
 import * as grout from '@votingworks/grout';
 import {
   QueryClient,
@@ -395,6 +394,20 @@ export const setIsAbsenteeMode = {
     return useMutation(apiClient.setIsAbsenteeMode, {
       async onSuccess() {
         await queryClient.invalidateQueries(getIsAbsenteeMode.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const setConfiguredPrecinct = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setConfiguredPrecinct, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(
+          getPollbookConfigurationInformation.queryKey()
+        );
       },
     });
   },
