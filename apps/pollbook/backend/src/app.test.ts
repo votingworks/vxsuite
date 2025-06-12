@@ -69,6 +69,7 @@ test('check in a voter', async () => {
       testVoters
     );
     mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+    expect(await localApiClient.haveElectionEventsOccurred()).toEqual(false);
     const votersAbigail = await localApiClient.searchVoters({
       searchParams: {
         firstName: 'Abigail',
@@ -88,6 +89,7 @@ test('check in a voter', async () => {
       identificationMethod: { type: 'default' },
     });
     expect(checkInResult.ok()).toEqual(undefined);
+    expect(await localApiClient.haveElectionEventsOccurred()).toEqual(true);
 
     const updatedFirstVoter = await localApiClient.getVoter({
       voterId: firstVoter.voterId,
@@ -150,6 +152,7 @@ test('register a voter', async () => {
       []
     );
     mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+    expect(await localApiClient.haveElectionEventsOccurred()).toEqual(false);
 
     const registrationData: VoterRegistrationRequest = {
       firstName: 'Helena',
@@ -179,6 +182,7 @@ test('register a voter', async () => {
       lastName: 'Eagen',
       party: 'REP',
     });
+    expect(await localApiClient.haveElectionEventsOccurred()).toEqual(true);
 
     const receiptPdfPath = mockPrinterHandler.getLastPrintPath();
     expect(receiptPdfPath).toBeDefined();
@@ -345,7 +349,9 @@ test('change a voter name', async () => {
       testStreets,
       testVoters
     );
+
     mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+    expect(await localApiClient.haveElectionEventsOccurred()).toEqual(false);
 
     const votersAbigail = await localApiClient.searchVoters({
       searchParams: {
@@ -375,6 +381,7 @@ test('change a voter name', async () => {
       ...nameChangeData,
       timestamp: expect.any(String),
     });
+    expect(await localApiClient.haveElectionEventsOccurred()).toEqual(true);
 
     const receiptPdfPath = mockPrinterHandler.getLastPrintPath();
     expect(receiptPdfPath).toBeDefined();

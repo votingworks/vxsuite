@@ -165,6 +165,13 @@ export function createApiMock() {
         .resolves(usbDriveStatus || { status: 'no_drive' });
     },
 
+    expectHaveElectionEventsOccurred(hasEvents: boolean = false): void {
+      mockApiClient.haveElectionEventsOccurred.reset();
+      mockApiClient.haveElectionEventsOccurred
+        .expectCallWith()
+        .resolves(hasEvents);
+    },
+
     expectGetDeviceStatuses(): void {
       mockApiClient.getDeviceStatuses
         .expectOptionalRepeatedCallsWith()

@@ -142,6 +142,7 @@ test('renders ElectionManagerScreen when logged in as election manager', async (
   apiMock.authenticateAsElectionManager(famousNamesElection.election);
   apiMock.setElection(famousNamesElection);
   apiMock.setIsAbsenteeMode(false);
+  apiMock.expectHaveElectionEventsOccurred(false);
   render(<App apiClient={apiMock.mockApiClient} />);
   await screen.findByText('Voters');
   await screen.findByText('Statistics');

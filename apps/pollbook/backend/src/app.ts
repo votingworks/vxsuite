@@ -174,6 +174,10 @@ function buildApi({ context, logger }: BuildAppParams) {
       return election ? ok(election) : err('unconfigured');
     },
 
+    haveElectionEventsOccurred(): boolean {
+      return store.hasEvents();
+    },
+
     async unconfigure(): Promise<void> {
       store.deleteElectionAndVoters();
       await usbDrive.eject();

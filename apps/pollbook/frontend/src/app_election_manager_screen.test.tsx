@@ -30,6 +30,7 @@ beforeEach(() => {
   apiMock = createApiMock();
   apiMock.setElection(undefined);
   apiMock.setIsAbsenteeMode(false);
+  apiMock.expectHaveElectionEventsOccurred();
 });
 
 afterEach(() => {
