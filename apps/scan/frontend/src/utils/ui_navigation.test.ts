@@ -55,7 +55,8 @@ test('page previous', () => {
 
   expect(mockTriggerPageNavButton).toHaveBeenCalledTimes(1);
   expect(mockTriggerPageNavButton).toHaveBeenCalledWith(
-    PageNavigationButtonId.PREVIOUS
+    PageNavigationButtonId.PREVIOUS,
+    PageNavigationButtonId.PREVIOUS_AFTER_CONFIRM
   );
 
   expect(mockAdvanceFocus).not.toHaveBeenCalled();

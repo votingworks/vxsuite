@@ -2,6 +2,7 @@ import {
   Button,
   Modal,
   ModalWidth,
+  PageNavigationButtonId,
   WithScrollButtons,
   appStrings,
 } from '@votingworks/ui';
@@ -29,7 +30,12 @@ export function WarningDetailsModalButton(
           </WithScrollButtons>
         }
         actions={
-          <Button onPress={setIsModalOpen} value={false} variant="primary">
+          <Button
+            id={PageNavigationButtonId.NEXT_AFTER_CONFIRM}
+            onPress={setIsModalOpen}
+            value={false}
+            variant="primary"
+          >
             {appStrings.buttonClose()}
           </Button>
         }

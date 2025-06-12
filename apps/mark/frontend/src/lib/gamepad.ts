@@ -48,7 +48,10 @@ export function handleGamepadKeyboardEvent(event: KeyboardEvent): void {
       advanceElementFocus(1);
       break;
     case Keybinding.PAGE_PREVIOUS:
-      triggerPageNavigationButton(PageNavigationButtonId.PREVIOUS);
+      triggerPageNavigationButton(
+        PageNavigationButtonId.PREVIOUS,
+        PageNavigationButtonId.PREVIOUS_AFTER_CONFIRM
+      );
       break;
     case Keybinding.PAGE_NEXT:
       triggerPageNavigationButton(

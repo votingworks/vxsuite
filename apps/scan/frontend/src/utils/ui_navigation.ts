@@ -20,7 +20,10 @@ function preventBrowserScroll(event: KeyboardEvent) {
 export function handleKeyboardEvent(event: KeyboardEvent): void {
   switch (event.key) {
     case Keybinding.PAGE_PREVIOUS:
-      triggerPageNavigationButton(PageNavigationButtonId.PREVIOUS);
+      triggerPageNavigationButton(
+        PageNavigationButtonId.PREVIOUS,
+        PageNavigationButtonId.PREVIOUS_AFTER_CONFIRM
+      );
       break;
 
     case Keybinding.PAGE_NEXT:

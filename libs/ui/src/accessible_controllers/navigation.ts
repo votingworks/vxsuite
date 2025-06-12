@@ -2,6 +2,7 @@ export enum PageNavigationButtonId {
   NEXT = 'next',
   NEXT_AFTER_CONFIRM = 'next_after_confirm',
   PREVIOUS = 'previous',
+  PREVIOUS_AFTER_CONFIRM = 'previous_after_confirm',
 }
 
 const TAB_ENABLED_ELEMENT_SELECTORS = [
@@ -54,9 +55,11 @@ export function advanceElementFocus(direction: 1 | -1): void {
 }
 
 /**
- * Looks for all page navigation elements with the specified {@link navigationId} or
- * {@link nagivationOnConfirmId} (if provided). If a visible {@link navigationId} is found, the first element is clicked.
- * Otherwise if a visible {@link navigationOnConfirmId} is found, the first element is focused.
+ * Looks for all page navigation elements with the specified
+ * {@link navigationId} or {@link nagivationOnConfirmId} (if provided). If a
+ * visible {@link navigationId} is found, the first element is clicked.
+ * Otherwise if a visible {@link navigationOnConfirmId} is found, the first
+ * element is focused.
  */
 export function triggerPageNavigationButton(
   navigationId: PageNavigationButtonId,
