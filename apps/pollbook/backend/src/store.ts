@@ -441,6 +441,11 @@ export abstract class Store {
             JSON.stringify(voter)
           );
         }
+        if (electionDefinition.election.precincts.length === 1) {
+          this.setConfiguredPrecinct(
+            electionDefinition.election.precincts[0].id
+          );
+        }
       });
     } catch (error) {
       debug('Failed to set election and voters: %s', error);
@@ -453,6 +458,22 @@ export abstract class Store {
       }
       throw error;
     }
+  }
+
+  setConfiguredPrecinct(precinctId: string): void {
+    const election = this.getElection();
+    assert(election !== undefined);
+    assert(
+      election.precincts.some((precinct) => precinct.id === precinctId),
+      `Precinct with id ${precinctId} does not exist in the election`
+    );
+    this.client.run(
+      `
+              update elections
+              set configured_precinct_id = ?
+            `,
+      precinctId
+    );
   }
 
   // Returns the valid street info. Used when registering a voter to populate address typeahead options.

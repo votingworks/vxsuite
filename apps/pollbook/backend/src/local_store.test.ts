@@ -1,6 +1,7 @@
 import { test, expect, vi } from 'vitest';
 import tmp from 'tmp';
 import { mockBaseLogger } from '@votingworks/logging';
+import { Election, ElectionDefinition } from '@votingworks/types';
 import {
   createValidStreetInfo,
   createVoter,
@@ -295,4 +296,45 @@ test('registerVoter and findVoterWithName integration', () => {
       expect.objectContaining({ voterId: voter.voterId }),
     ])
   );
+});
+
+// Test that setElectionAndVoters sets configuredPrecinctId only when there is one precinct
+test('setElectionAndVoters sets configuredPrecinctId only when there is one precinct', () => {
+  const store = LocalStore.memoryStore('machine-1');
+
+  // Test with a normal test election (multiple precincts)
+  const testElectionDefinition = getTestElectionDefinition();
+  store.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    [],
+    []
+  );
+  let configInfo = store.getPollbookConfigurationInformation();
+  expect(configInfo.configuredPrecinctId).toBeNull();
+
+  // Test with an election with only one precinct
+  const singlePrecinctElection: Election = {
+    ...testElectionDefinition.election,
+    precincts: [
+      {
+        id: 'precinct-1',
+        name: 'Precinct 1',
+        districtIds: [],
+      },
+    ],
+  };
+  const singlePrecinctElectionDefinition: ElectionDefinition = {
+    ...testElectionDefinition,
+    election: singlePrecinctElection,
+  };
+  store.deleteElectionAndVoters();
+  store.setElectionAndVoters(
+    singlePrecinctElectionDefinition,
+    'fake-package-hash',
+    [],
+    []
+  );
+  configInfo = store.getPollbookConfigurationInformation();
+  expect(configInfo.configuredPrecinctId).toEqual('precinct-1');
 });
