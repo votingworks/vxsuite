@@ -1,32 +1,9 @@
 import React, { forwardRef } from 'react';
 import { Id } from '@votingworks/types';
-import { Button, CheckboxButton, Icons } from '@votingworks/ui';
+import { CheckboxButton } from '@votingworks/ui';
 import styled from 'styled-components';
 import type { MarginalMarkStatus } from '../screens/contest_adjudication_screen';
-
-const MarginalMarkFlag = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: ${(p) => p.theme.colors.warningContainer};
-  border: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
-    ${(p) => p.theme.colors.outline};
-  border-bottom: 0;
-  border-radius: 0.5rem 0.5rem 0 0;
-  color: ${(p) => p.theme.colors.neutral};
-  font-weight: 500;
-  padding: 0.25rem 0.5rem;
-
-  button {
-    gap: 0.25rem;
-  }
-`;
-
-const IconTextContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-`;
+import { MarginalMarkFlag } from './marginal_mark_flag';
 
 const StyledCheckboxButton = styled(CheckboxButton)<{
   onlyRoundBottom?: boolean;
@@ -38,12 +15,12 @@ const StyledCheckboxButton = styled(CheckboxButton)<{
 interface Props {
   option: { id: Id; label: string };
   isSelected: boolean;
+  marginalMarkStatus?: MarginalMarkStatus;
   onSelect: () => void;
   onDeselect?: () => void;
+  onDismissFlag?: () => void;
   caption?: React.ReactNode;
   disabled?: boolean;
-  marginalMarkStatus?: MarginalMarkStatus;
-  onDismissFlag?: () => void;
 }
 
 export const ContestOptionButton = forwardRef<HTMLDivElement, Props>(
@@ -51,12 +28,12 @@ export const ContestOptionButton = forwardRef<HTMLDivElement, Props>(
     {
       option,
       isSelected,
+      marginalMarkStatus,
       onSelect,
       onDeselect,
+      onDismissFlag,
       caption,
       disabled,
-      marginalMarkStatus,
-      onDismissFlag,
     },
     ref
   ) => {
@@ -64,31 +41,16 @@ export const ContestOptionButton = forwardRef<HTMLDivElement, Props>(
       marginalMarkStatus === 'pending' && onDismissFlag !== undefined;
 
     return (
-      <div ref={ref} style={{ display: 'flex', flexDirection: 'column' }}>
+      <div style={{ display: 'flex', flexDirection: 'column' }} ref={ref}>
         {showMarginalMarkFlag && (
-          <MarginalMarkFlag>
-            <IconTextContainer>
-              <Icons.Warning color="warning" />
-              Review marginal mark
-            </IconTextContainer>
-            <Button
-              aria-label="Dismiss"
-              icon="X"
-              fill="transparent"
-              onPress={onDismissFlag}
-              style={{ padding: '0' }}
-              value={undefined}
-            >
-              Dismiss
-            </Button>
-          </MarginalMarkFlag>
+          <MarginalMarkFlag onDismissFlag={onDismissFlag} />
         )}
         <StyledCheckboxButton
-          disabled={disabled}
-          onlyRoundBottom={showMarginalMarkFlag}
-          isChecked={isSelected}
           key={option.id}
           label={option.label}
+          isChecked={isSelected}
+          disabled={disabled}
+          onlyRoundBottom={showMarginalMarkFlag}
           onChange={() => {
             if (!isSelected) {
               onSelect();

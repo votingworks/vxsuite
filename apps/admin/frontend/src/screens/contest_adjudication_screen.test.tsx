@@ -1729,7 +1729,7 @@ describe('unsaved changes', () => {
 });
 
 describe('marginal mark adjudication', () => {
-  test('hmpb ballot can have marginal marks adjudicated', async () => {
+  test('hmpb ballot can have marginally marked official option adjudicated', async () => {
     const contestId = 'zoo-council-mammal';
     const cvrIds = ['id-174', 'id-175'];
     const cvrId = cvrIds[0];
@@ -1837,5 +1837,132 @@ describe('marginal mark adjudication', () => {
     expect(screen.queryByText(/invalid mark/i)).toBeInTheDocument();
     // there is only one valid marginal mark, but the text also exists within 'invalid mark'
     expect(screen.queryAllByText(/valid mark/i).length).toEqual(2);
+  });
+
+  test('hmpb ballot can have marginally marked write-in adjudicated', async () => {
+    const contestId = 'zoo-council-mammal';
+    const cvrIds = ['id-174', 'id-175'];
+    const cvrId = cvrIds[0];
+    const cvrId2 = cvrIds[1];
+    const marginalMarks = ['write-in-0'];
+    const cvrContestTag: CvrContestTag = {
+      isResolved: false,
+      cvrId,
+      contestId,
+      hasMarginalMark: true,
+      hasWriteIn: true,
+    };
+    const writeInRecord: WriteInRecord = {
+      status: 'pending',
+      id: '1',
+      cvrId,
+      contestId,
+      electionId,
+      optionId: 'write-in-0',
+      isUnmarked: true,
+    };
+
+    apiMock.expectGetAdjudicationQueue({ contestId }, cvrIds);
+    apiMock.expectGetNextCvrIdForAdjudication({ contestId }, cvrId);
+    apiMock.expectGetCastVoteRecordVoteInfo({ cvrId }, { [contestId]: [] });
+    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
+    apiMock.expectGetWriteIns({ contestId, cvrId }, [writeInRecord]);
+    apiMock.expectGetBallotImageView({ contestId, cvrId }, false);
+    apiMock.expectGetBallotImageView({ contestId, cvrId: cvrId2 }, false);
+    apiMock.expectGetWriteInCandidates([], contestId);
+    apiMock.expectGetCvrContestTag({ cvrId, contestId }, cvrContestTag);
+    apiMock.expectGetMarginalMarks({ cvrId, contestId }, marginalMarks);
+
+    renderScreen(contestId, {
+      electionDefinition,
+      apiMock,
+    });
+
+    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
+    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
+    const writeIn0Checkbox = screen.getAllByRole('checkbox', {
+      name: /write-in/i,
+    })[0];
+    expect(writeIn0Checkbox).not.toBeChecked();
+    expect(getButtonByName('save & next')).toBeDisabled();
+
+    // The marginal mark flag should not show since write-in adjudication is showing
+    expect(screen.queryAllByText(/marginal mark/i).length).toEqual(0);
+    expect(screen.queryByText(/valid mark/i)).toBeNull();
+    userEvent.click(writeIn0Checkbox);
+    expect(writeIn0Checkbox).toBeChecked();
+
+    // Click again to adjudicate as invalid
+    userEvent.click(writeIn0Checkbox);
+    expect(writeIn0Checkbox).not.toBeChecked();
+    // caption should now show as it is adjudicated
+    expect(screen.queryByText(/invalid write-in/i)).toBeInTheDocument();
+    expect(screen.queryByText(/marginal mark/i)).toBeInTheDocument();
+
+    // Click again to bring back the select to adjudicate as candidate
+    userEvent.click(writeIn0Checkbox);
+    let writeInSearchSelect = screen.getByRole('combobox');
+    expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.keyDown(writeInSearchSelect, { key: 'ArrowDown' });
+    writeInSearchSelect = screen.getByRole('combobox');
+    expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
+    const elephantDropdownItem = getDropdownItemByLabel('Elephant');
+    userEvent.click(elephantDropdownItem!);
+
+    expect(getButtonByName('save & next')).toBeEnabled();
+
+    // adjudicate contest and move to next ballot
+    const adjudicatedCvrContest = formAdjudicatedCvrContest(cvrId, {
+      'write-in-0': {
+        type: 'write-in-option',
+        hasVote: true,
+        candidateType: 'official-candidate',
+        candidateId: 'elephant',
+      },
+    });
+    apiMock.expectAdjudicateCvrContest(adjudicatedCvrContest);
+    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, [
+      {
+        electionId,
+        cvrId,
+        contestId,
+        optionId: 'write-in-0',
+        isVote: true,
+      },
+    ]);
+    apiMock.expectGetWriteIns({ contestId, cvrId }, []);
+    apiMock.expectGetWriteInCandidates([], contestId);
+    apiMock.expectGetCvrContestTag(
+      { cvrId, contestId },
+      { ...cvrContestTag, isResolved: true }
+    );
+
+    apiMock.expectGetCastVoteRecordVoteInfo(
+      { cvrId: cvrId2 },
+      { [contestId]: ['write-in-0'] }
+    );
+    apiMock.expectGetVoteAdjudications({ contestId, cvrId: cvrId2 }, []);
+    apiMock.expectGetWriteIns({ contestId, cvrId: cvrId2 }, [
+      {
+        ...writeInRecord,
+        status: 'adjudicated',
+        adjudicationType: 'official-candidate',
+        candidateId: 'elephant',
+      },
+    ]);
+    apiMock.expectGetCvrContestTag(
+      { cvrId: cvrId2, contestId },
+      { ...cvrContestTag, isResolved: true }
+    );
+    apiMock.expectGetMarginalMarks({ cvrId: cvrId2, contestId }, []);
+    userEvent.click(getButtonByName('save & next'));
+
+    await screen.findByTestId('transcribe:id-175');
+    userEvent.click(getButtonByName('back'));
+
+    // flags shouldn't be there anymore and captions should remain
+    await screen.findByTestId('transcribe:id-174');
+    expect(screen.queryAllByText(/marginal mark/i).length).toEqual(1);
+    expect(screen.queryByText(/valid write-in/i)).toBeInTheDocument();
   });
 });
