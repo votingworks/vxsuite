@@ -156,6 +156,7 @@ test('getNewEvents returns hasMore when there are more events from unknown machi
     [],
     voters
   );
+
   const theirClock = new HybridLogicalClock(otherMachineId);
   const events = Array.from({ length: 7 }, (_, i) =>
     createVoterCheckInEvent(i, otherMachineId, `voter-${i}`, theirClock.tick())
