@@ -162,9 +162,6 @@ export class LocalStore extends Store {
     const row = this.client.one(
       'SELECT EXISTS(SELECT 1 FROM event_log LIMIT 1) as hasEvents'
     ) as { hasEvents: number };
-    if (!row) {
-      return false;
-    }
     return row.hasEvents > 0;
   }
 
