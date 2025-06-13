@@ -92,6 +92,20 @@ pub fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
         .ok()
         .is_none_or(|b| b.value(&mut cx));
 
+    let timing_mark_algorithm = options.get_value(&mut cx, "timingMarkAlgorithm")?;
+    let timing_mark_algorithm: TimingMarkAlgorithm = if let Ok(timing_mark_algorithm) =
+        timing_mark_algorithm.downcast::<JsString, _>(&mut cx)
+    {
+        match timing_mark_algorithm.value(&mut cx).parse() {
+            Ok(timing_mark_algorithm) => timing_mark_algorithm,
+            Err(e) => return cx.throw_type_error(format!("Invalid timing mark algorithm: {e}")),
+        }
+    } else if timing_mark_algorithm.is_a::<JsUndefined, _>(&mut cx) {
+        TimingMarkAlgorithm::default()
+    } else {
+        return cx.throw_type_error(format!("Invalid or missing timing mark algorithm"));
+    };
+
     let side_a_label = side_a_image_or_path.as_label_or(SIDE_A_LABEL);
     let side_b_label = side_b_image_or_path.as_label_or(SIDE_B_LABEL);
     let (side_a_image, side_b_image) = rayon::join(
@@ -122,7 +136,7 @@ pub fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
             score_write_ins,
             disable_vertical_streak_detection,
             infer_timing_marks,
-            timing_mark_algorithm: TimingMarkAlgorithm::default(),
+            timing_mark_algorithm,
         },
     );
 

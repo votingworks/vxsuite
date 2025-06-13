@@ -45,6 +45,7 @@ export function interpret(
   options?: {
     scoreWriteIns?: boolean;
     disableVerticalStreakDetection?: boolean;
+    timingMarkAlgorithm?: 'contours' | 'corners';
     inferTimingMarks?: boolean;
   }
 ): BridgeInterpretResult {

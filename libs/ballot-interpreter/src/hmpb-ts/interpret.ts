@@ -41,12 +41,14 @@ function normalizeArgumentsForBridge(
     | {
         scoreWriteIns?: boolean;
         disableVerticalStreakDetection?: boolean;
+        timingMarkAlgorithm?: 'contours' | 'corners';
         inferTimingMarks?: boolean;
         debug?: boolean;
       }
     | {
         scoreWriteIns?: boolean;
         disableVerticalStreakDetection?: boolean;
+        timingMarkAlgorithm?: 'contours' | 'corners';
         inferTimingMarks?: boolean;
         debugBasePaths?: SheetOf<string>;
       } = {}
@@ -78,6 +80,7 @@ function normalizeArgumentsForBridge(
     debugBasePathSideB,
     {
       scoreWriteIns: options.scoreWriteIns,
+      timingMarkAlgorithm: options.timingMarkAlgorithm,
       disableVerticalStreakDetection: options.disableVerticalStreakDetection,
       inferTimingMarks: options.inferTimingMarks,
     },
@@ -93,6 +96,7 @@ export function interpret(
   options?: {
     scoreWriteIns?: boolean;
     disableVerticalStreakDetection?: boolean;
+    timingMarkAlgorithm?: 'contours' | 'corners';
     inferTimingMarks?: boolean;
     debug?: boolean;
   }
@@ -106,6 +110,7 @@ export function interpret(
   options?: {
     scoreWriteIns?: boolean;
     disableVerticalStreakDetection?: boolean;
+    timingMarkAlgorithm?: 'contours' | 'corners';
     inferTimingMarks?: boolean;
     debugBasePaths?: SheetOf<string>;
   }
@@ -120,12 +125,14 @@ export function interpret(
     | {
         scoreWriteIns?: boolean;
         disableVerticalStreakDetection?: boolean;
+        timingMarkAlgorithm?: 'contours' | 'corners';
         inferTimingMarks?: boolean;
         debug?: boolean;
       }
     | {
         scoreWriteIns?: boolean;
         disableVerticalStreakDetection?: boolean;
+        timingMarkAlgorithm?: 'contours' | 'corners';
         inferTimingMarks?: boolean;
         debugBasePaths?: SheetOf<string>;
       }

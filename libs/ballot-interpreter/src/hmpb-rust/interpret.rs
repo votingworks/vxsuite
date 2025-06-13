@@ -65,7 +65,7 @@ pub enum TimingMarkAlgorithm {
 
 impl Default for TimingMarkAlgorithm {
     fn default() -> Self {
-        Self::Contours
+        Self::Corners
     }
 }
 
@@ -1016,15 +1016,15 @@ mod test {
 
         match ballot_card(side_a_image.clone(), side_b_image, &options) {
             Err(Error::MissingTimingMarks { reason, .. }) => assert_eq!(
-                        reason,
-                        "Unusually high rotation detected: top=2.40°, bottom=0.27°, left=0.47°, right=0.45°"
-                    ),
+                reason,
+                "Unable to find mark along Left border at index 20; no marks close enough?"
+            ),
             Err(err) => {
                 panic!("unexpected error: {err:?}");
-            },
+            }
             Ok(_) => {
                 panic!("interpretation unexpectedly succeeded");
-            },
+            }
         }
     }
 
@@ -1045,9 +1045,9 @@ mod test {
 
         match ballot_card(side_a_image, side_b_image, &options) {
             Err(Error::MissingTimingMarks { reason, .. }) => assert_eq!(
-                        reason,
-                        "Unusually high skew detected: top-left=1.51°, top-right=1.45°, bottom-left=0.40°, bottom-right=0.46°"
-                    ),
+                reason,
+                "Unable to find mark along Left border at index 20; no marks close enough?"
+            ),
             Err(err) => panic!("unexpected error: {err:?}"),
             Ok(_) => panic!("interpretation unexpectedly succeeded"),
         }
