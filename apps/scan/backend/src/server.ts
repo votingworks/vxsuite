@@ -77,7 +77,7 @@ export async function start({
   workspace.clearUploads();
 
   const audioInfo = await getAudioInfo({
-    baseRetryDelayMs: 500,
+    baseRetryDelayMs: 2000,
     logger,
     maxAttempts: 4,
     nodeEnv: NODE_ENV,
