@@ -1,15 +1,24 @@
 /* eslint-disable vx/gts-no-public-class-fields */
 
-import { describe, test, beforeEach, afterEach, expect, vi } from 'vitest';
-import type { MockedFunction } from 'vitest';
+import {
+  describe,
+  test,
+  beforeEach,
+  afterEach,
+  vi,
+  MockedFunction,
+  expect,
+} from 'vitest';
+import { PassThrough } from 'node:stream';
+import type { Server as HttpServer } from 'node:http';
 import * as net from 'node:net';
 import { mockLogger, LogSource, MockLogger } from '@votingworks/logging';
+import { tryConnect } from './unix_socket';
 import {
   connectToBarcodeScannerSocket,
+  SocketServer,
   UDS_CONNECTION_ATTEMPT_DELAY_MS,
 } from './socket_server';
-import { tryConnect } from './unix_socket';
-import { MockSocket } from '../../test/mock_socket';
 
 vi.mock('./unix_socket');
 vi.mock('socket.io', () => ({
@@ -19,19 +28,61 @@ vi.mock('socket.io', () => ({
   },
 }));
 
+let mockSocket: net.Socket;
+let logger: MockLogger;
+
 const mockedTryConnect = tryConnect as unknown as MockedFunction<
   typeof tryConnect
 >;
 
-let mockSocket: MockSocket;
-let logger: MockLogger;
+describe('SocketServer.listen event handling', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    mockSocket = new PassThrough() as unknown as net.Socket;
+    logger = mockLogger({
+      source: LogSource.VxPollbookBackend,
+      getCurrentRole: vi.fn().mockResolvedValue('system'),
+      fn: vi.fn,
+    });
+  });
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.useRealTimers();
+  });
 
-beforeEach(() => {
-  mockSocket = new MockSocket();
-  logger = mockLogger({
-    source: LogSource.VxPollbookBackend,
-    getCurrentRole: vi.fn().mockResolvedValue('system'),
-    fn: vi.fn,
+  test('schedules reconnect on "end" event', async () => {
+    const onSpy = vi.spyOn(mockSocket, 'on');
+
+    mockedTryConnect.mockResolvedValue(mockSocket as unknown as net.Socket);
+
+    const mockHttpServer = {
+      address() {
+        return { address: '127.0.0.1', port: 4000, family: 'IPv4' };
+      },
+    } as unknown as HttpServer;
+    const server = new SocketServer(mockHttpServer, logger);
+    expect(mockedTryConnect).toHaveBeenCalledTimes(0);
+    const listenPromise = server.listen();
+
+    // Wait for listener to be bound
+    await vi.waitFor(() =>
+      expect(onSpy).toHaveBeenCalledWith('error', expect.any(Function))
+    );
+
+    expect(mockedTryConnect).toHaveBeenCalledTimes(1);
+
+    // End the socket to trigger reconnection
+    mockSocket.end();
+
+    // Allow the first call to listen() to finish
+    await listenPromise;
+
+    // Allow scheduled setTimeout callbacks to run
+    vi.advanceTimersByTime(UDS_CONNECTION_ATTEMPT_DELAY_MS);
+    await vi.runOnlyPendingTimersAsync();
+
+    // Expect that we have now tried to reconnect
+    expect(mockedTryConnect).toHaveBeenCalledTimes(2);
   });
 });
 

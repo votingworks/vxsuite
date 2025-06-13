@@ -72,6 +72,10 @@ export class SocketServer {
     });
   }
 
+  private scheduleReconnect(): void {
+    setTimeout(() => this.listen(), UDS_CONNECTION_ATTEMPT_DELAY_MS);
+  }
+
   /**
    * Opens the UDS connection, reads scan lines, and re-emits them over Socket.IO.
    */
@@ -80,6 +84,15 @@ export class SocketServer {
     if (!udsClient) {
       return;
     }
+
+    // 'close' event covers both clean socket shutdown and close due to error
+    udsClient.on('close', () => {
+      this.logger.log(LogEventId.SocketClientDisconnected, 'system', {
+        message: 'UDS socket closed',
+        disposition: LogDispositionStandardTypes.Success,
+      });
+      this.scheduleReconnect();
+    });
 
     for await (const line of lines(udsClient)) {
       try {
