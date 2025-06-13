@@ -2,6 +2,7 @@ import { beforeEach, afterEach, expect, test, vi, vitest } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { err } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
   mockElectionManagerAuth,
   mockSystemAdministratorAuth,
@@ -198,11 +199,13 @@ test('setConfiguredPrecinct sets and getPollbookConfigurationInformation returns
     expect(config.configuredPrecinctId).toBeUndefined();
 
     // Try to set a non-existent precinct and expect an error
-    await expect(
-      localApiClient.setConfiguredPrecinct({ precinctId: 'precinct-xyz' })
-    ).rejects.toThrow(
-      'Precinct with id precinct-xyz does not exist in the election'
-    );
+    await suppressingConsoleOutput(async () => {
+      await expect(
+        localApiClient.setConfiguredPrecinct({ precinctId: 'precinct-xyz' })
+      ).rejects.toThrow(
+        'Precinct with id precinct-xyz does not exist in the election'
+      );
+    });
 
     await localApiClient.setConfiguredPrecinct({
       precinctId: electionDefinition.election.precincts[0].id,
