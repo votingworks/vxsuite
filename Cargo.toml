@@ -40,6 +40,7 @@ libc = "0.2.153"
 log = "0.4.17"
 vx-logging = { path = "libs/logging" }
 daemon-utils = { path = "apps/mark-scan/daemon-utils" }
+mockall = "0.13.1"
 napi = { version = "2.16.17", default-features = false, features = [
     "napi4",
     "async",

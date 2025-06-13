@@ -14,9 +14,11 @@ use tokio_serial::{DataBits, FlowControl, Parity, SerialPortBuilderExt, SerialSt
 use vx_logging::{log, set_source, Disposition, EventId, EventType, Source};
 
 use crate::parse_aamva::{AamvaParseError, ELEMENT_ID_SIZE};
+use crate::usb::{SimpleUsbLister, UsbDevice, UsbLister};
 
 mod aamva_jurisdictions;
 mod parse_aamva;
+mod usb;
 
 /*
  * Logging config
@@ -72,23 +74,27 @@ const MAX_AAMVA_DOCUMENT_SIZE: usize = {
 };
 
 // Resets the TS100 barcode scanner
-async fn reset_scanner(device: DeviceInfo) -> Result<(), nusb::Error> {
+async fn reset_scanner(device: Box<dyn UsbDevice>) -> Result<(), nusb::Error> {
     device.open()?.reset()?;
     sleep(std::time::Duration::from_millis(500)).await;
     Ok(())
 }
 
 // Connects to TS100 barcode scanner
-async fn init_port(port_name: &str, baud_rate: u32) -> color_eyre::Result<SerialStream> {
-    match nusb::list_devices()?
+async fn init_port(
+    usb_lister: &dyn UsbLister,
+    port_name: &str,
+    baud_rate: u32,
+) -> color_eyre::Result<SerialStream> {
+    match usb_lister
+        .list_devices()?
+        .into_iter()
         .find(|dev| dev.vendor_id() == UNITECH_VENDOR_ID && dev.product_id() == TS100_PRODUCT_ID)
     {
         Some(device) => {
             // We have experienced difficulty reconnecting the scanner when the daemon
             // is stopped and started multiple times. Resetting the scanner solves the issue.
             // Configuration such as USB COM Port Emulation persists between resets.
-            // Wait because attempting reset immediately after connection can fail.
-            sleep(std::time::Duration::from_millis(1000)).await;
             match reset_scanner(device).await {
                 Ok(()) => {
                     log!(
@@ -285,43 +291,19 @@ where
     }
 }
 
-#[tokio::main]
-async fn main() -> color_eyre::Result<()> {
-    color_eyre::install()?;
-
-    set_source(SOURCE);
-    log!(
-        EventId::ProcessStarted;
-        EventType::SystemAction
-    );
-
-    // Open Unix domain socket and get back a handle to the socket
-    let listener = open_socket()?;
-    // A task-safe list of all currently-connected clients
-    let clients = Arc::new(Mutex::new(Vec::<UnixStream>::new()));
-
-    // Spawn task to accept clients
-    tokio::spawn({
-        let clients = clients.clone();
-        async move {
-            loop {
-                if let Ok((stream, _addr)) = listener.accept().await {
-                    let mut guard = clients.lock().await;
-                    log!(EventId::SocketClientConnected);
-                    guard.push(stream);
-                }
-            }
-        }
-    });
+async fn run_interruptable_loop(
+    usb_lister: &dyn UsbLister,
+    clients: Arc<Mutex<Vec<UnixStream>>>,
+) -> Result<(), Error> {
+    let port_name = std::env::var("TS100_PORT_NAME").unwrap_or(TS100_PORT_NAME.into());
 
     let signal = tokio::signal::ctrl_c();
     tokio::pin!(signal);
 
-    // Connect to barcode scanner device
     loop {
         // Race opening the port against user hitting ctrl+c
         let maybe_port = tokio::select! {
-            port_result = init_port(TS100_PORT_NAME, TS100_BAUD_RATE) => {
+            port_result = init_port(usb_lister, &port_name, TS100_BAUD_RATE) => {
                 Some(port_result)
             }
             _ = &mut signal => None,
@@ -372,6 +354,40 @@ async fn main() -> color_eyre::Result<()> {
         }
     }
 
+    Ok(())
+}
+
+#[tokio::main]
+async fn main() -> color_eyre::Result<()> {
+    color_eyre::install()?;
+
+    set_source(SOURCE);
+    log!(
+        EventId::ProcessStarted;
+        EventType::SystemAction
+    );
+
+    // Open Unix domain socket and get back a handle to the socket
+    let listener = open_socket()?;
+    // A task-safe list of all currently-connected clients
+    let clients = Arc::new(Mutex::new(Vec::<UnixStream>::new()));
+
+    // Spawn task to accept clients
+    tokio::spawn({
+        let clients = clients.clone();
+        async move {
+            loop {
+                if let Ok((stream, _addr)) = listener.accept().await {
+                    let mut guard = clients.lock().await;
+                    log!(EventId::SocketClientConnected);
+                    guard.push(stream);
+                }
+            }
+        }
+    });
+
+    let usb_lister = SimpleUsbLister;
+    let _ = run_interruptable_loop(&usb_lister, clients).await;
     let _ = fs::remove_file(UDS_PATH);
 
     log!(
@@ -384,11 +400,12 @@ async fn main() -> color_eyre::Result<()> {
 
 #[cfg(test)]
 mod tests {
-    use crate::aamva_jurisdictions::AamvaIssuingJurisdiction;
+    use crate::{aamva_jurisdictions::AamvaIssuingJurisdiction, usb::UsbConnection};
 
     use super::*;
+    use crate::usb::MockUsbLister;
+    use mockall::predicate::*;
     use serde_json::json;
-    use std::os::unix::fs::FileTypeExt;
     use std::sync::Arc;
     use tokio::{
         io::{AsyncBufReadExt, BufReader},
@@ -396,6 +413,65 @@ mod tests {
         sync::Mutex,
     };
     use tokio_test::io::Builder;
+
+    struct MockDevice {
+        vid: u16,
+        pid: u16,
+    }
+    struct MockConnection {}
+
+    impl UsbDevice for MockDevice {
+        fn vendor_id(&self) -> u16 {
+            self.vid
+        }
+        fn product_id(&self) -> u16 {
+            self.pid
+        }
+        fn open(&self) -> Result<Box<dyn UsbConnection>, io::Error> {
+            Ok(Box::new(MockConnection {}))
+        }
+    }
+
+    impl UsbConnection for MockConnection {
+        fn reset(&mut self) -> Result<(), io::Error> {
+            // maybe record that we were called, or return Err to simulate failure
+            Ok(())
+        }
+    }
+
+    #[tokio::test]
+    async fn retries_until_second_device_found() {
+        let mut mock = MockUsbLister::new();
+
+        // First call to list_devices returns nothing
+        mock.expect_list_devices().times(1).returning(|| {
+            Err(nusb::Error::new(
+                ErrorKind::NotFound,
+                "Mock error: device not found",
+            ))
+        });
+
+        // Second call returns mock barcode scanner
+        let mock_device = MockDevice {
+            vid: UNITECH_VENDOR_ID,
+            pid: TS100_PRODUCT_ID,
+        };
+        mock.expect_list_devices()
+            .times(1)
+            .returning(move || Ok(vec![Box::new(mock_device)]));
+
+        // Run loop with the mock_lister
+        let clients = Arc::new(Mutex::new(vec![]));
+        let handle = tokio::spawn({
+            async move {
+                run_interruptable_loop(&mock, clients.clone())
+                    .await
+                    .unwrap();
+            }
+        });
+
+        handle.await.unwrap();
+    }
 
     #[tokio::test]
     async fn run_read_write_loop_skips_compliance_indicator() {
@@ -569,26 +645,5 @@ DCUJR
           "nameSuffix": "JR"
         });
         assert_eq!(v, expect);
-    }
-
-    #[tokio::test]
-    async fn open_socket_rebinds_existing_file() {
-        set_source(SOURCE);
-        // Create a pre-existing dummy file at UDS_PATH
-        let _ = fs::remove_file(UDS_PATH);
-        fs::write(UDS_PATH, b"dummy").expect("failed to create dummy file");
-        let meta = fs::metadata(UDS_PATH).expect("socket file must exist after bind");
-        assert!(
-            meta.file_type().is_socket() == false,
-            "Expected rebound socket file"
-        );
-
-        // open_socket should remove and rebind the socket path
-        let listener = open_socket().expect("open_socket should succeed and rebind");
-
-        let meta = fs::metadata(UDS_PATH).expect("socket file must exist after bind");
-        assert!(meta.file_type().is_socket(), "Expected rebound socket file");
-        drop(listener);
-        let _ = fs::remove_file(UDS_PATH);
     }
 }

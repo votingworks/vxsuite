@@ -17,11 +17,15 @@ nusb = { workspace = true }
 proptest = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+tempfile = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 tokio-serial = { workspace = true }
 tokio-test = { workspace = true }
 thiserror = { workspace = true }
 vx-logging = { workspace = true }
+
+[dev-dependencies]
+mockall = { workspace = true }
 
 [lints]
 workspace = true
