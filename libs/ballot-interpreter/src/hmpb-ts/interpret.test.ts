@@ -655,6 +655,40 @@ test('interpret images from paths', async () => {
   expect(back.writeIns).toHaveLength(0);
 });
 
+test('interpret with old timing mark algorithm', async () => {
+  const { electionDefinition } = vxFamousNamesFixtures;
+  const ballotImages = asSheet(
+    await pdfToPageImages(vxFamousNamesFixtures.markedBallotPath).toArray()
+  );
+  const ballotImagePaths = await mapSheet(ballotImages, async (imageData) => {
+    const path = fileSync({ postfix: '.png' }).name;
+    await writeImageData(path, imageData);
+    return path;
+  });
+
+  const contoursInterpretedCard = interpret(
+    electionDefinition,
+    ballotImagePaths,
+    {
+      timingMarkAlgorithm: 'contours',
+    }
+  ).unsafeUnwrap();
+  const cornersInterpretedCard = interpret(
+    electionDefinition,
+    ballotImagePaths,
+    {
+      timingMarkAlgorithm: 'corners',
+    }
+  ).unsafeUnwrap();
+
+  expect(contoursInterpretedCard.front.marks).not.toEqual(
+    cornersInterpretedCard.front.marks
+  );
+  expect(contoursInterpretedCard.back.marks).not.toEqual(
+    cornersInterpretedCard.back.marks
+  );
+});
+
 test('score write in areas', async () => {
   const { electionDefinition } = vxFamousNamesFixtures;
   const ballotImages = asSheet(
