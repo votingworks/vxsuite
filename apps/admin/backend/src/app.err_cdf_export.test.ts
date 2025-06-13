@@ -8,7 +8,6 @@ import {
   buildManualResultsFixture,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { tmpNameSync } from 'tmp';
 import { readFileSync } from 'node:fs';
 import { LogEventId } from '@votingworks/logging';
 import {
@@ -22,12 +21,15 @@ import {
 import { assert, assertDefined, err, find, ok } from '@votingworks/basics';
 import { Client } from '@votingworks/grout';
 import { modifyCastVoteRecordExport } from '@votingworks/backend';
+import { MockUsbDrive } from '@votingworks/usb-drive';
 import {
   buildTestEnvironment,
   configureMachine,
   mockElectionManagerAuth,
 } from '../test/app';
 import { Api } from '.';
+import { mockFileName } from '../test/csv';
+import { generateReportPath } from './util/filenames';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -55,63 +57,76 @@ afterEach(() => {
   featureFlagMock.resetFeatureFlags();
 });
 
-test('logs success if export succeeds', async () => {
+test('logs failure if export fails', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
 
-  const { apiClient, auth, logger } = buildTestEnvironment();
+  const { apiClient, auth, logger, mockUsbDrive } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  const offLimitsPath = '/root/hidden';
+  mockUsbDrive.insertUsbDrive({});
+  mockUsbDrive.removeUsbDrive();
+
+  const filename = mockFileName('json');
   const failedExportResult = await apiClient.exportCdfElectionResultsReport({
-    path: offLimitsPath,
+    filename,
   });
   expect(failedExportResult).toEqual(err(expect.anything()));
+  const usbRelativeFilePath = generateReportPath(electionDefinition, filename);
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.FileSaved,
     'election_manager',
     {
       disposition: 'failure',
-      filename: offLimitsPath,
-      message: `Failed to save CDF election results report JSON file to ${offLimitsPath} on the USB drive.`,
+      path: usbRelativeFilePath,
+      message: `Failed to save CDF election results report JSON file to ${usbRelativeFilePath} on the USB drive.`,
     }
   );
 });
 
-test('logs failure if export fails', async () => {
+test('logs success if export succeeds', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
 
-  const { apiClient, auth, logger } = buildTestEnvironment();
+  const { apiClient, auth, logger, mockUsbDrive } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
-  const path = tmpNameSync();
+  mockUsbDrive.insertUsbDrive({});
+  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+
+  const filename = mockFileName('json');
   const exportResult = await apiClient.exportCdfElectionResultsReport({
-    path,
+    filename,
   });
   expect(exportResult).toEqual(ok(expect.anything()));
+  const usbRelativeFilePath = generateReportPath(electionDefinition, filename);
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.FileSaved,
     'election_manager',
     {
       disposition: 'success',
-      filename: path,
-      message: `Saved CDF election results report JSON file to ${path} on the USB drive.`,
+      path: usbRelativeFilePath,
+      message: `Saved CDF election results report JSON file to ${usbRelativeFilePath} on the USB drive.`,
     }
   );
 });
 
 async function getCurrentReport(
-  apiClient: Client<Api>
+  apiClient: Client<Api>,
+  mockUsbDrive: MockUsbDrive
 ): Promise<ResultsReporting.ElectionReport> {
-  const path = tmpNameSync();
+  const filename = mockFileName('json');
 
-  const exportResult = await apiClient.exportCdfElectionResultsReport({ path });
+  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+  const exportResult = await apiClient.exportCdfElectionResultsReport({
+    filename,
+  });
   exportResult.assertOk('CDF results report export failed');
+  const [filePath] = exportResult.unsafeUnwrap();
 
-  const json = readFileSync(path, 'utf-8').toString();
+  const json = readFileSync(filePath!, 'utf-8').toString();
 
   return safeParse(
     ResultsReporting.ElectionReportSchema,
@@ -126,9 +141,11 @@ test('exports results and metadata accurately', async () => {
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth, mockUsbDrive } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
+
+  mockUsbDrive.insertUsbDrive({});
 
   // add CVR data
   const loadFileResult = await apiClient.addCastVoteRecordFile({
@@ -196,8 +213,10 @@ test('exports results and metadata accurately', async () => {
     }),
   });
 
-  const { Party, Election, GpUnit, ...reportMetadata } =
-    await getCurrentReport(apiClient);
+  const { Party, Election, GpUnit, ...reportMetadata } = await getCurrentReport(
+    apiClient,
+    mockUsbDrive
+  );
 
   expect(reportMetadata).toMatchObject({
     '@type': 'ElectionResults.ElectionReport',
@@ -389,9 +408,11 @@ test('marks report as certified when official, as primary when primary, and as n
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
 
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth, mockUsbDrive } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
+
+  mockUsbDrive.insertUsbDrive({});
 
   // add CVR data, as non-test file
   const loadFileResult = await apiClient.addCastVoteRecordFile({
@@ -412,7 +433,10 @@ test('marks report as certified when official, as primary when primary, and as n
 
   await apiClient.markResultsOfficial();
 
-  const { IsTest, Election, Status } = await getCurrentReport(apiClient);
+  const { IsTest, Election, Status } = await getCurrentReport(
+    apiClient,
+    mockUsbDrive
+  );
 
   expect(IsTest).toEqual(false);
   expect(Election?.[0]?.Type).toEqual(ResultsReporting.ElectionType.Primary);

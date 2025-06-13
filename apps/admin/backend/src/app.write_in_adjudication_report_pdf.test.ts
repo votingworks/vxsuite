@@ -10,7 +10,6 @@ import {
 } from '@votingworks/utils';
 import { HP_LASER_PRINTER_CONFIG, renderToPdf } from '@votingworks/printing';
 import { assert, err } from '@votingworks/basics';
-import { tmpNameSync } from 'tmp';
 import { LogEventId } from '@votingworks/logging';
 import { BallotStyleGroupId } from '@votingworks/types';
 import {
@@ -18,6 +17,8 @@ import {
   configureMachine,
   mockElectionManagerAuth,
 } from '../test/app';
+import { mockFileName } from '../test/csv';
+import { generateReportPath } from './util/filenames';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -65,7 +66,8 @@ test('write-in adjudication report', async () => {
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
-  const { apiClient, auth, mockPrinterHandler } = buildTestEnvironment();
+  const { apiClient, auth, mockPrinterHandler, mockUsbDrive } =
+    buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
@@ -78,6 +80,7 @@ test('write-in adjudication report', async () => {
     'State-Representatives-Hillsborough-District-34-b1012d38';
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockUsbDrive.insertUsbDrive({});
 
   async function expectIdenticalSnapshotsAcrossExportMethods(
     customSnapshotIdentifier: string
@@ -97,12 +100,13 @@ test('write-in adjudication report', async () => {
       customSnapshotIdentifier,
     });
 
-    const exportPath = tmpNameSync();
+    mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+    const filename = mockFileName('pdf');
     const exportResult = await apiClient.exportWriteInAdjudicationReportPdf({
-      path: exportPath,
+      filename,
     });
-    exportResult.assertOk('export failed');
-    await expect(exportPath).toMatchPdfSnapshot({
+    const [filePath] = exportResult.unsafeUnwrap();
+    await expect(filePath).toMatchPdfSnapshot({
       failureThreshold: 0.0001,
       customSnapshotIdentifier,
     });
@@ -189,35 +193,46 @@ test('write-in adjudication report logging', async () => {
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
-  const { apiClient, auth, logger, mockPrinterHandler } =
+  const { apiClient, auth, logger, mockPrinterHandler, mockUsbDrive } =
     buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockUsbDrive.insertUsbDrive({});
+  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
 
   // successful file export
-  const validTmpFilePath = tmpNameSync();
+  const validFileName = mockFileName('pdf');
   const validExportResult = await apiClient.exportWriteInAdjudicationReportPdf({
-    path: validTmpFilePath,
+    filename: validFileName,
   });
-  validExportResult.assertOk('export failed');
+  validExportResult.assertOk('export should have succeeded');
+  const usbRelativeFilePath = generateReportPath(
+    electionDefinition,
+    validFileName
+  );
   expect(logger.log).lastCalledWith(LogEventId.FileSaved, 'election_manager', {
     disposition: 'success',
-    message: `Saved write-in adjudication report PDF file to ${validTmpFilePath} on the USB drive.`,
-    filename: validTmpFilePath,
+    message: `Saved write-in adjudication report PDF file to ${usbRelativeFilePath} on the USB drive.`,
+    path: usbRelativeFilePath,
   });
 
   // failed file export
-  const invalidFilePath = '/invalid/path';
+  mockUsbDrive.removeUsbDrive();
+  const invalidFilename = mockFileName('pdf');
   const invalidExportResult =
     await apiClient.exportWriteInAdjudicationReportPdf({
-      path: invalidFilePath,
+      filename: invalidFilename,
     });
   invalidExportResult.assertErr('export should have failed');
+  const invalidUsbRelativeFilePath = generateReportPath(
+    electionDefinition,
+    invalidFilename
+  );
   expect(logger.log).lastCalledWith(LogEventId.FileSaved, 'election_manager', {
     disposition: 'failure',
-    message: `Failed to save write-in adjudication report PDF file to ${invalidFilePath} on the USB drive.`,
-    filename: invalidFilePath,
+    message: `Failed to save write-in adjudication report PDF file to ${invalidUsbRelativeFilePath} on the USB drive.`,
+    path: invalidUsbRelativeFilePath,
   });
 
   // successful print

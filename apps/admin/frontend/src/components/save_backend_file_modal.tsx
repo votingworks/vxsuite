@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-import { basename, join } from 'node:path';
 import { assert, throwIllegalValue, assertDefined } from '@votingworks/basics';
 import {
   isElectionManagerAuth,
@@ -15,7 +14,7 @@ import { Loading } from './loading';
 
 export interface SaveBackendFileModalProps {
   saveFileStatus: MutationStatus;
-  saveFile: (input: { path: string }) => void;
+  saveFile: (input: { filename: string }) => void;
   saveFileResult?: ExportDataResult;
   resetSaveFileResult: () => void;
   onClose: () => void;
@@ -28,9 +27,9 @@ export interface SaveBackendFileModalProps {
    */
   fileType: string;
   /**
-   * Relative to the root of the USB drive.
+   * The name of the file to be saved.
    */
-  defaultRelativePath: string;
+  filename: string;
 }
 
 export function SaveBackendFileModal({
@@ -41,7 +40,7 @@ export function SaveBackendFileModal({
   onClose: onCloseProp,
   fileTypeTitle,
   fileType,
-  defaultRelativePath,
+  filename,
 }: SaveBackendFileModalProps): JSX.Element {
   const { usbDriveStatus, auth } = useContext(AppContext);
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
@@ -74,8 +73,7 @@ export function SaveBackendFileModal({
             title={`Save ${fileTypeTitle}`}
             content={
               <P>
-                Save the {fileType} as{' '}
-                <Font weight="bold">{basename(defaultRelativePath)}</Font> on
+                Save the {fileType} as <Font weight="bold">{filename}</Font> on
                 the inserted USB drive?
               </P>
             }
@@ -86,10 +84,7 @@ export function SaveBackendFileModal({
                   variant="primary"
                   onPress={() =>
                     saveFile({
-                      path: join(
-                        usbDriveStatus.mountPoint,
-                        defaultRelativePath
-                      ),
+                      filename,
                     })
                   }
                 >

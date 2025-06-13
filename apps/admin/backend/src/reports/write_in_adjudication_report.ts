@@ -4,10 +4,13 @@ import { PdfError, Printer, renderToPdf } from '@votingworks/printing';
 import { Buffer } from 'node:buffer';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { Tabulation } from '@votingworks/types';
+import { UsbDrive } from '@votingworks/usb-drive';
+import { join } from 'node:path';
 import { Store } from '../store';
 import { getCurrentTime } from '../util/get_current_time';
-import { exportFile } from '../util/export_file';
 import { ExportDataResult } from '../types';
+import { buildExporter } from '../util/exporter';
+import { generateReportsDirectoryPath } from '../util/filenames';
 
 function buildWriteInAdjudicationReport({
   store,
@@ -57,7 +60,6 @@ export interface WriteInAdjudicationReportPreview {
  */
 export async function generateWriteInAdjudicationReportPreview({
   logger,
-
   ...reportProps
 }: WriteInAdjudicationReportPreviewProps): Promise<WriteInAdjudicationReportPreview> {
   const result = await (async () => {
@@ -114,25 +116,41 @@ export async function printWriteInAdjudicationReport({
  * the USB drive.
  */
 export async function exportWriteInAdjudicationReportPdf({
-  path,
+  filename,
+  usbDrive,
   logger,
-
   ...reportProps
 }: WriteInAdjudicationReportPreviewProps & {
-  path: string;
+  filename: string;
+  usbDrive: UsbDrive;
 }): Promise<ExportDataResult> {
   const report = buildWriteInAdjudicationReport(reportProps);
   // Printing is disabled on the frontend if the report preview is too large,
   // so rendering the PDF shouldn't error
   const data = (await renderToPdf({ document: report })).unsafeUnwrap();
-  const exportFileResult = await exportFile({ path, data });
 
+  const { store } = reportProps;
+  const electionId = store.getCurrentElectionId();
+  assert(electionId !== undefined);
+  const electionRecord = store.getElection(electionId);
+  assert(electionRecord);
+  const { electionDefinition } = electionRecord;
+  const reportsDirectoryPath = generateReportsDirectoryPath(electionDefinition);
+
+  const exporter = buildExporter(usbDrive);
+  const exportFileResult = await exporter.exportDataToUsbDrive(
+    reportsDirectoryPath,
+    filename,
+    data
+  );
+
+  const reportPath = join(reportsDirectoryPath, filename);
   await logger.logAsCurrentRole(LogEventId.FileSaved, {
     disposition: exportFileResult.isOk() ? 'success' : 'failure',
     message: `${
       exportFileResult.isOk() ? 'Saved' : 'Failed to save'
-    } write-in adjudication report PDF file to ${path} on the USB drive.`,
-    filename: path,
+    } write-in adjudication report PDF file to ${reportPath} on the USB drive.`,
+    path: reportPath,
   });
 
   return exportFileResult;

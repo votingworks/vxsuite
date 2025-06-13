@@ -11,10 +11,10 @@ import {
   renderToPdf,
 } from '@votingworks/printing';
 import { assert, err } from '@votingworks/basics';
-import { tmpNameSync } from 'tmp';
 import { LogEventId } from '@votingworks/logging';
 import { Client } from '@votingworks/grout';
 import { BallotStyleGroupId } from '@votingworks/types';
+import { MockUsbDrive } from '@votingworks/usb-drive';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -22,6 +22,8 @@ import {
 } from '../test/app';
 import { Api } from './app';
 import { BallotCountReportSpec } from './reports/ballot_count_report';
+import { mockFileName } from '../test/csv';
+import { generateReportPath } from './util/filenames';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -65,11 +67,13 @@ afterEach(() => {
 async function expectIdenticalSnapshotsAcrossExportMethods({
   apiClient,
   mockPrinterHandler,
+  mockUsbDrive,
   reportSpec,
   customSnapshotIdentifier,
 }: {
   apiClient: Client<Api>;
   mockPrinterHandler: MemoryPrinterHandler;
+  mockUsbDrive: MockUsbDrive;
   reportSpec: BallotCountReportSpec;
   customSnapshotIdentifier: string;
 }) {
@@ -87,13 +91,15 @@ async function expectIdenticalSnapshotsAcrossExportMethods({
     failureThreshold: 0.0001,
   });
 
-  const exportPath = tmpNameSync();
+  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+  const filename = mockFileName('pdf');
   const exportResult = await apiClient.exportBallotCountReportPdf({
     ...reportSpec,
-    path: exportPath,
+    filename,
   });
   exportResult.assertOk('export failed');
-  await expect(exportPath).toMatchPdfSnapshot({
+  const [filePath] = exportResult.unsafeUnwrap();
+  await expect(filePath).toMatchPdfSnapshot({
     customSnapshotIdentifier,
     failureThreshold: 0.0001,
   });
@@ -105,11 +111,13 @@ test('ballot count report PDF', async () => {
   const { castVoteRecordExport } = electionTwoPartyPrimaryFixtures;
   const { election } = electionDefinition;
 
-  const { apiClient, auth, mockPrinterHandler } = buildTestEnvironment();
+  const { apiClient, auth, mockPrinterHandler, mockUsbDrive } =
+    buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockUsbDrive.insertUsbDrive({});
 
   function snapshotReport({
     spec,
@@ -121,6 +129,7 @@ test('ballot count report PDF', async () => {
     return expectIdenticalSnapshotsAcrossExportMethods({
       apiClient,
       mockPrinterHandler,
+      mockUsbDrive,
       reportSpec: spec,
       customSnapshotIdentifier: identifier,
     });
@@ -254,11 +263,13 @@ test('ballot count report logging', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
 
-  const { apiClient, auth, logger, mockPrinterHandler } =
+  const { apiClient, auth, logger, mockPrinterHandler, mockUsbDrive } =
     buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.election);
+
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  mockUsbDrive.insertUsbDrive({});
 
   const MOCK_REPORT_SPEC: BallotCountReportSpec = {
     filter: {},
@@ -267,29 +278,39 @@ test('ballot count report logging', async () => {
   };
 
   // successful file export
-  const validTmpFilePath = tmpNameSync();
+  mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
+  const validFilename = mockFileName('pdf');
   const validExportResult = await apiClient.exportBallotCountReportPdf({
     ...MOCK_REPORT_SPEC,
-    path: validTmpFilePath,
+    filename: validFilename,
   });
   validExportResult.assertOk('export failed');
+  const usbRelativeValidFilePath = generateReportPath(
+    electionDefinition,
+    validFilename
+  );
   expect(logger.log).lastCalledWith(LogEventId.FileSaved, 'election_manager', {
     disposition: 'success',
-    message: `Saved ballot count report PDF file to ${validTmpFilePath} on the USB drive.`,
-    filename: validTmpFilePath,
+    message: `Saved ballot count report PDF file to ${usbRelativeValidFilePath} on the USB drive.`,
+    path: usbRelativeValidFilePath,
   });
 
   // failed file export
-  const invalidFilePath = '/invalid/path';
+  mockUsbDrive.removeUsbDrive();
+  const invalidFilename = mockFileName('pdf');
   const invalidExportResult = await apiClient.exportBallotCountReportPdf({
     ...MOCK_REPORT_SPEC,
-    path: invalidFilePath,
+    filename: invalidFilename,
   });
   invalidExportResult.assertErr('export should have failed');
+  const usbRelativeInvalidFilePath = generateReportPath(
+    electionDefinition,
+    invalidFilename
+  );
   expect(logger.log).lastCalledWith(LogEventId.FileSaved, 'election_manager', {
     disposition: 'failure',
-    message: `Failed to save ballot count report PDF file to ${invalidFilePath} on the USB drive.`,
-    filename: invalidFilePath,
+    message: `Failed to save ballot count report PDF file to ${usbRelativeInvalidFilePath} on the USB drive.`,
+    path: usbRelativeInvalidFilePath,
   });
 
   // successful print

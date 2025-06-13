@@ -15,13 +15,13 @@ import { generateReportFilename } from '../../utils/reporting';
 let apiMock: ApiMock;
 
 function mockMutate({
-  path,
+  filename,
   echo,
 }: {
-  path: string;
+  filename: string;
   echo: string;
 }): Promise<ExportDataResult> {
-  return Promise.resolve(ok([path, echo]));
+  return Promise.resolve(ok([filename, echo]));
 }
 
 const vitestMockMutate = vi.fn(mockMutate);
@@ -119,7 +119,7 @@ test('overall flow', async () => {
 
   expect(vitestMockMutate).toHaveBeenCalledTimes(1);
   expect(vitestMockMutate).toHaveBeenCalledWith({
-    path: 'test-mount-point/choctaw-county_mock-general-election-choctaw-2020_3cbb92f5c9/reports/unofficial-full-election-success__2021-01-01_00-00-00.txt',
+    filename: 'unofficial-full-election-success__2021-01-01_00-00-00.txt',
     echo: 'success',
   });
 
