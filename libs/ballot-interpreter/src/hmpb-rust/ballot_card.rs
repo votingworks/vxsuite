@@ -19,10 +19,8 @@ pub enum BallotPaperSize {
     Legal,
     #[serde(rename = "custom-8.5x17")]
     Custom17,
-    #[serde(rename = "custom-8.5x18")]
-    Custom18,
-    #[serde(rename = "custom-8.5x21")]
-    Custom21,
+    #[serde(rename = "custom-8.5x19")]
+    Custom19,
     #[serde(rename = "custom-8.5x22")]
     Custom22,
 }
@@ -42,13 +40,9 @@ impl BallotPaperSize {
                 width: Inch::new(8.5),
                 height: Inch::new(17.0),
             },
-            BallotPaperSize::Custom18 => Size {
+            BallotPaperSize::Custom19 => Size {
                 width: Inch::new(8.5),
-                height: Inch::new(18.0),
-            },
-            BallotPaperSize::Custom21 => Size {
-                width: Inch::new(8.5),
-                height: Inch::new(21.0),
+                height: Inch::new(19.0),
             },
             BallotPaperSize::Custom22 => Size {
                 width: Inch::new(8.5),
@@ -195,17 +189,9 @@ impl PaperInfo {
         }
     }
 
-    pub const fn scanned_custom18() -> Self {
+    pub const fn scanned_custom19() -> Self {
         Self {
-            size: BallotPaperSize::Custom18,
-            margins: BALLOT_CARD_SCAN_MARGINS,
-            pixels_per_inch: SCAN_PIXELS_PER_INCH,
-        }
-    }
-
-    pub const fn scanned_custom21() -> Self {
-        Self {
-            size: BallotPaperSize::Custom21,
+            size: BallotPaperSize::Custom19,
             margins: BALLOT_CARD_SCAN_MARGINS,
             pixels_per_inch: SCAN_PIXELS_PER_INCH,
         }
@@ -220,13 +206,12 @@ impl PaperInfo {
     }
 
     /// Returns info for all supported scanned paper sizes.
-    pub const fn scanned() -> [Self; 6] {
+    pub const fn scanned() -> [Self; 5] {
         [
             Self::scanned_letter(),
             Self::scanned_legal(),
             Self::scanned_custom17(),
-            Self::scanned_custom18(),
-            Self::scanned_custom21(),
+            Self::scanned_custom19(),
             Self::scanned_custom22(),
         ]
     }
@@ -367,6 +352,17 @@ mod tests {
                 expected_timing_mark_spacing,
             );
         }
+    }
+
+    #[test]
+    fn test_compute_geometry_custom_8_5_x_19() {
+        assert_eq!(
+            PaperInfo::scanned_custom19().compute_geometry().grid_size,
+            Size {
+                width: 34,
+                height: 73
+            },
+        );
     }
 
     #[test]
