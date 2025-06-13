@@ -3,7 +3,6 @@ name = "barcode-scanner-daemon"
 version = "0.1.0"
 edition = "2021"
 license.workspace = true
-license-file.workspace = true
 
 [[bin]]
 name = "barcodescannerd"
