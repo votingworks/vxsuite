@@ -24,7 +24,6 @@
     "test": "is-ci test:ci test:watch",
     "test:ci": "TZ=America/Anchorage  pnpm build && pnpm test:coverage --run",
     "test:coverage": "TZ=America/Anchorage vitest --coverage",
-    "test:perf": "vitest --testMatch 'perf/**/*.test.ts'",
     "test:watch": "TZ=America/Anchorage vitest",
     "type-check": "tsc --build"
   },
