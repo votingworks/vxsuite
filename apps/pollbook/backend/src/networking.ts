@@ -2,7 +2,11 @@ import { execFile } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
 import { sleep } from '@votingworks/basics';
 import { rootDebug } from './debug';
-import { PeerAppContext, PollbookConnectionStatus } from './types';
+import {
+  PeerAppContext,
+  PollbookConfigurationInformation,
+  PollbookConnectionStatus,
+} from './types';
 import { AvahiService, hasOnlineInterface } from './avahi';
 import {
   EVENT_POLLING_INTERVAL,
@@ -45,6 +49,20 @@ export function createPeerApiClientForAddress(
     baseUrl: `${address}/api`,
     timeout: NETWORK_REQUEST_TIMEOUT,
   });
+}
+
+/* Checks that two pollbooks have compatible configurations to connect and share events */
+export function shouldPollbooksConnect(
+  pollbook1: PollbookConfigurationInformation,
+  pollbook2: PollbookConfigurationInformation
+): boolean {
+  return (
+    pollbook1.electionBallotHash === pollbook2.electionBallotHash &&
+    pollbook1.pollbookPackageHash === pollbook2.pollbookPackageHash &&
+    !!pollbook1.configuredPrecinctId &&
+    pollbook1.configuredPrecinctId === pollbook2.configuredPrecinctId &&
+    pollbook1.codeVersion === pollbook2.codeVersion
+  );
 }
 
 export function fetchEventsFromConnectedPollbooks({
@@ -100,16 +118,15 @@ export function fetchEventsFromConnectedPollbooks({
               return;
             }
             if (
-              !myMachineInformation?.electionBallotHash ||
-              myMachineInformation.electionBallotHash !==
-                currentPollbookService.electionBallotHash ||
-              myMachineInformation.pollbookPackageHash !==
-                currentPollbookService.pollbookPackageHash
+              !shouldPollbooksConnect(
+                myMachineInformation,
+                currentPollbookService
+              )
             ) {
               workspace.store.setPollbookServiceForName(currentName, {
                 ...currentPollbookService,
                 lastSeen: new Date(),
-                status: PollbookConnectionStatus.WrongElection,
+                status: PollbookConnectionStatus.MismatchedConfiguration,
               });
               return;
             }
@@ -250,19 +267,14 @@ export function setupMachineNetworking({
               continue;
             }
             if (
-              !myMachineInformation?.electionBallotHash ||
-              myMachineInformation.electionBallotHash !==
-                machineInformation.electionBallotHash ||
-              myMachineInformation.pollbookPackageHash !==
-                machineInformation.pollbookPackageHash
+              !shouldPollbooksConnect(myMachineInformation, machineInformation)
             ) {
-              // Only connect if the two machines are configured for the same election.
               workspace.store.setPollbookServiceForName(name, {
                 ...machineInformation,
                 apiClient,
                 address: `http://${resolvedIp}:${port}`,
                 lastSeen: new Date(),
-                status: PollbookConnectionStatus.WrongElection,
+                status: PollbookConnectionStatus.MismatchedConfiguration,
               });
               continue;
             }

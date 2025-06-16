@@ -23,7 +23,7 @@ const mockPollbookService: PollbookServiceInfo = {
   electionTitle: 'Test Election',
   machineId: 'TEST',
   lastSeen: new Date('2025-01-01'),
-  status: PollbookConnectionStatus.WrongElection,
+  status: PollbookConnectionStatus.MismatchedConfiguration,
   numCheckIns: 0,
   codeVersion: 'test',
 };
@@ -93,7 +93,7 @@ describe('Election tab', () => {
       {
         ...mockPollbookService,
         machineId: 'TEST-01',
-        status: PollbookConnectionStatus.WrongElection,
+        status: PollbookConnectionStatus.MismatchedConfiguration,
       },
       {
         ...mockPollbookService,
@@ -108,7 +108,7 @@ describe('Election tab', () => {
       {
         ...mockPollbookService,
         machineId: 'TEST-04',
-        status: PollbookConnectionStatus.WrongElection,
+        status: PollbookConnectionStatus.MismatchedConfiguration,
         pollbookPackageHash: 'different-pollbook-hash',
         electionTitle: 'Bad Election',
       },

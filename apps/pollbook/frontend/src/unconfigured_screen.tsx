@@ -120,7 +120,9 @@ export function UnconfiguredSystemAdminScreen(): JSX.Element {
     : getDevicesQuery.data.network;
 
   const configuredPollbooks = pollbooks.filter(
-    (p) => p.electionId && p.status === PollbookConnectionStatus.WrongElection
+    (p) =>
+      p.electionId &&
+      p.status === PollbookConnectionStatus.MismatchedConfiguration
   );
   const hasError =
     hadConfigurationError || electionResult.err() === 'usb-configuration-error';
