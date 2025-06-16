@@ -3,10 +3,11 @@ import userEvent from '@testing-library/user-event';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { sleep } from '@votingworks/basics';
 import { createMemoryHistory } from 'history';
-import { act, screen } from '../../test/react_testing_library';
+import { act, screen, within } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { AdjudicationSummaryScreen } from './adjudication_summary_screen';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
+import { mockCastVoteRecordFileRecord } from '../../test/api_mock_data';
 
 vi.setConfig({
   testTimeout: 20000,
@@ -45,7 +46,7 @@ test('No CVRs loaded', async () => {
   );
 });
 
-test('Tally results already marked as official', async () => {
+test('When tally results already marked as official, buttons are disabled', async () => {
   apiMock.expectGetAdjudicationQueueMetadata([
     {
       contestId: 'zoo-council-mammal',
@@ -53,12 +54,12 @@ test('Tally results already marked as official', async () => {
       totalTally: 3,
     },
     {
-      contestId: 'zoo-council-mammal',
+      contestId: 'aquarium-council-fish',
       pendingTally: 5,
       totalTally: 5,
     },
   ]);
-  apiMock.expectGetCastVoteRecordFiles([]);
+  apiMock.expectGetCastVoteRecordFiles([mockCastVoteRecordFileRecord]);
   renderInAppContext(<AdjudicationSummaryScreen />, {
     electionDefinition,
     isOfficialResults: true,
@@ -73,15 +74,25 @@ test('Tally results already marked as official', async () => {
   }
 });
 
-test('CVRs with write-ins loaded', async () => {
+test('When CVRs need adjudication, shows a table of contests', async () => {
   apiMock.expectGetAdjudicationQueueMetadata([
     {
       contestId: 'zoo-council-mammal',
       pendingTally: 3,
       totalTally: 3,
     },
+    {
+      contestId: 'aquarium-council-fish',
+      pendingTally: 0,
+      totalTally: 5,
+    },
+    {
+      contestId: 'fishing',
+      pendingTally: 3,
+      totalTally: 5,
+    },
   ]);
-  apiMock.expectGetCastVoteRecordFiles([]);
+  apiMock.expectGetCastVoteRecordFiles([mockCastVoteRecordFileRecord]);
   const history = createMemoryHistory();
   renderInAppContext(<AdjudicationSummaryScreen />, {
     electionDefinition,
@@ -89,9 +100,45 @@ test('CVRs with write-ins loaded', async () => {
     history,
   });
 
-  const adjudicateButton = await screen.findButton('Adjudicate 3');
-  expect(adjudicateButton).not.toBeDisabled();
+  expect(
+    screen.queryByText('Load CVRs to begin adjudication.')
+  ).not.toBeInTheDocument();
 
-  userEvent.click(adjudicateButton);
+  const contestTable = await screen.findByRole('table');
+  expect(
+    within(contestTable)
+      .getAllByRole('columnheader')
+      .map((th) => th.textContent)
+  ).toEqual(['Contest', 'Party', 'Adjudication Queue', 'Completed']);
+  const rows = within(contestTable).getAllByRole('row');
+  expect(rows).toHaveLength(electionDefinition.election.contests.length + 1);
+
+  const [zooCouncilMammalRow, zooCouncilFishRow, fishingRow] = screen
+    .getAllByRole('cell', { name: /Adjudicate/ })
+    .map((cell) => cell.closest('tr')!);
+  expect(
+    within(zooCouncilMammalRow)
+      .getAllByRole('cell')
+      .map((cell) => cell.textContent)
+  ).toEqual(['District 1, Zoo Council', 'Ma', 'Adjudicate 3', '0']);
+  expect(
+    within(zooCouncilFishRow)
+      .getAllByRole('cell')
+      .map((cell) => cell.textContent)
+  ).toEqual(['District 1, Zoo Council', 'F', 'Adjudicate', '5']);
+  expect(
+    within(fishingRow)
+      .getAllByRole('cell')
+      .map((cell) => cell.textContent)
+  ).toEqual(['District 1, Ballot Measure 3', '', 'Adjudicate 3', '2']);
+
+  const adjudicateButtons = await screen.findAllByRole('button', {
+    name: /Adjudicate/,
+  });
+  for (const adjudicateButton of adjudicateButtons) {
+    expect(adjudicateButton).toBeEnabled();
+  }
+
+  userEvent.click(adjudicateButtons[0]);
   expect(history.location.pathname).toEqual('/adjudication/zoo-council-mammal');
 });
