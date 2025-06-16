@@ -2,6 +2,7 @@ import styled, { ThemeProvider } from 'styled-components';
 import { H1 } from './typography';
 import { makeTheme, TouchscreenPalette } from './themes/make_theme';
 import { Icons } from './icons';
+import { TextOnly } from './ui_strings';
 
 const TestingModeContainer = styled.div`
   /* https://stripesgenerator.com/stripe/5302 */
@@ -65,26 +66,28 @@ const TestModeCard = styled.div`
 
 export function TestModeCallout(): JSX.Element {
   return (
-    <ThemeProvider
-      theme={(theme) =>
-        // Lock to "medium" size mode to keep things from getting out of hand at
-        // larger text sizes.
-        makeTheme({
-          ...theme,
-          sizeMode: 'touchMedium',
-        })
-      }
-    >
-      <TestModeCard>
-        <Icons.Warning
-          style={{
-            // We always want a bright orange, even if the color mode is
-            // different, so we harcode instead of using the theme.
-            color: TouchscreenPalette.Orange50,
-          }}
-        />{' '}
-        Test Ballot Mode
-      </TestModeCard>
-    </ThemeProvider>
+    <TextOnly>
+      <ThemeProvider
+        theme={(theme) =>
+          // Lock to "medium" size mode to keep things from getting out of hand at
+          // larger text sizes.
+          makeTheme({
+            ...theme,
+            sizeMode: 'touchMedium',
+          })
+        }
+      >
+        <TestModeCard>
+          <Icons.Warning
+            style={{
+              // We always want a bright orange, even if the color mode is
+              // different, so we harcode instead of using the theme.
+              color: TouchscreenPalette.Orange50,
+            }}
+          />{' '}
+          Test Ballot Mode
+        </TestModeCard>
+      </ThemeProvider>
+    </TextOnly>
   );
 }
