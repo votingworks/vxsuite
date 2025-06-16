@@ -20,7 +20,7 @@ const mockPollbookService: PollbookServiceInfo = {
   electionTitle: 'Test Election',
   machineId: 'TEST',
   lastSeen: new Date('2025-01-01'),
-  status: PollbookConnectionStatus.WrongElection,
+  status: PollbookConnectionStatus.MismatchedConfiguration,
   numCheckIns: 0,
   codeVersion: 'test',
 };
@@ -77,7 +77,7 @@ test('renders network status as expected', async () => {
     },
     {
       ...mockPollbookService,
-      status: PollbookConnectionStatus.WrongElection,
+      status: PollbookConnectionStatus.MismatchedConfiguration,
       machineId: '0004',
     },
     {

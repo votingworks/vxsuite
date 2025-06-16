@@ -326,7 +326,8 @@ export function pollNetworkForPollbookPackage({
         const pollbooksOnNetwork = workspace.store.getPollbookServicesByName();
         const configuredPollbooks = Object.values(pollbooksOnNetwork).filter(
           (pollbook) =>
-            pollbook.status === PollbookConnectionStatus.WrongElection &&
+            pollbook.status ===
+              PollbookConnectionStatus.MismatchedConfiguration &&
             pollbook.electionId
         );
         if (configuredPollbooks.length === 0) {
