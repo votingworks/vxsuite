@@ -2,7 +2,11 @@ import express from 'express';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { UsbDrive, detectUsbDrive } from '@votingworks/usb-drive';
-import { detectDevices, setDefaultAudio } from '@votingworks/backend';
+import {
+  detectDevices,
+  setAudioVolume,
+  setDefaultAudio,
+} from '@votingworks/backend';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { BROTHER_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
 import * as customScanner from '@votingworks/custom-scanner';
@@ -84,11 +88,21 @@ export async function start({
   });
 
   if (audioInfo.usb) {
-    const result = await setDefaultAudio(audioInfo.usb.name, {
+    const resultDefaultAudio = await setDefaultAudio(audioInfo.usb.name, {
       logger,
       nodeEnv: NODE_ENV,
     });
-    result.assertOk('unable to set USB audio as default output');
+    resultDefaultAudio.assertOk('unable to set USB audio as default output');
+
+    // Screen reader volume levels are calibrated against a maximum system
+    // volume setting:
+    const resultVolume = await setAudioVolume({
+      logger,
+      nodeEnv: NODE_ENV,
+      sinkName: audioInfo.usb.name,
+      volumePct: 100,
+    });
+    resultVolume.assertOk('unable to set USB audio volume');
   } else {
     void logger.logAsCurrentRole(LogEventId.AudioDeviceMissing, {
       message: 'USB audio device not detected.',

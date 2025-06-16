@@ -10,7 +10,11 @@ import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import { Application } from 'express';
 import { dirSync } from 'tmp';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
-import { setDefaultAudio, testDetectDevices } from '@votingworks/backend';
+import {
+  setAudioVolume,
+  setDefaultAudio,
+  testDetectDevices,
+} from '@votingworks/backend';
 import { err, ok } from '@votingworks/basics';
 import { buildApp } from './app';
 import { NODE_ENV, PORT } from './globals';
@@ -26,12 +30,14 @@ vi.mock('./audio/player');
 
 vi.mock('@votingworks/backend', async (importActual) => ({
   ...(await importActual()),
+  setAudioVolume: vi.fn(),
   setDefaultAudio: vi.fn(),
 }));
 
 const buildAppMock = buildApp as MockedFunction<typeof buildApp>;
 const mockGetAudioInfo = vi.mocked(getAudioInfo);
 const mockAudioPlayerClass = vi.mocked(AudioPlayer);
+const mockSetAudioVolume = vi.mocked(setAudioVolume);
 const mockSetDefaultAudio = vi.mocked(setDefaultAudio);
 
 let workspace!: Workspace;
@@ -112,7 +118,7 @@ test('start passes context to `buildApp`', async () => {
   );
 });
 
-test('sets USB audio device as default, if present', async () => {
+test('configures USB audio device, if present', async () => {
   const listen = vi.fn<(port: number, callback: () => unknown) => void>();
   const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const logger = buildMockLogger(auth, workspace);
@@ -124,6 +130,7 @@ test('sets USB audio device as default, if present', async () => {
   });
 
   mockSetDefaultAudio.mockResolvedValueOnce(ok());
+  mockSetAudioVolume.mockResolvedValueOnce(ok());
 
   await start({
     auth: buildMockInsertedSmartCardAuth(vi.fn),
@@ -134,6 +141,12 @@ test('sets USB audio device as default, if present', async () => {
   expect(mockSetDefaultAudio).toHaveBeenCalledWith('usb.stereo', {
     logger,
     nodeEnv: NODE_ENV,
+  });
+  expect(mockSetAudioVolume).toHaveBeenCalledWith({
+    logger,
+    nodeEnv: NODE_ENV,
+    sinkName: 'usb.stereo',
+    volumePct: 100,
   });
 });
 
@@ -183,7 +196,34 @@ test('throws if unable to set USB audio as default', async () => {
       workspace,
       logger,
     })
-  ).rejects.toThrow(/unable to set usb/i);
+  ).rejects.toThrow(/unable to set usb audio as default/i);
+
+  expect(mockSetAudioVolume).not.toHaveBeenCalled();
+});
+
+test('throws if unable to set USB volume', async () => {
+  const listen = vi.fn<(port: number, callback: () => unknown) => void>();
+  const auth = buildMockInsertedSmartCardAuth(vi.fn);
+  const logger = buildMockLogger(auth, workspace);
+  buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
+
+  mockGetAudioInfo.mockResolvedValueOnce({
+    builtin: { headphonesActive: false, name: 'pci.stereo' },
+    usb: { name: 'telepathy.stereo' },
+  });
+
+  mockSetDefaultAudio.mockResolvedValueOnce(ok());
+  mockSetAudioVolume.mockResolvedValueOnce(
+    err({ code: 'pactlError', error: 'output unavailable' })
+  );
+
+  await expect(async () =>
+    start({
+      auth: buildMockInsertedSmartCardAuth(vi.fn),
+      workspace,
+      logger,
+    })
+  ).rejects.toThrow(/unable to set usb audio volume/i);
 });
 
 test('logs device attach/unattach events', async () => {

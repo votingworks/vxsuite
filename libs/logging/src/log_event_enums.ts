@@ -101,6 +101,8 @@ export enum LogEventId {
   AudioDeviceMissing = 'audio-device-missing',
   AudioDeviceSelected = 'audio-device-selected',
   AudioDeviceSelectionError = 'audio-device-selection-error',
+  AudioVolumeChanged = 'audio-volume-changed',
+  AudioVolumeChangeError = 'audio-volume-change-error',
   AudioPlaybackError = 'audio-playback-error',
   UnknownError = 'unknown-error',
   PermissionDenied = 'permission-denied',
@@ -468,6 +470,20 @@ const AudioDeviceSelectionError: LogDetails = {
   eventType: LogEventType.ApplicationStatus,
   documentationMessage:
     'Error while attempting to select a default audio output device.',
+};
+
+const AudioVolumeChanged: LogDetails = {
+  eventId: LogEventId.AudioVolumeChanged,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'The volume level for an audio output device was changed.',
+};
+
+const AudioVolumeChangeError: LogDetails = {
+  eventId: LogEventId.AudioVolumeChangeError,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'Error while attempting to change the volume of an audio output device.',
 };
 
 const AudioPlaybackError: LogDetails = {
@@ -1372,6 +1388,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return AudioDeviceSelected;
     case LogEventId.AudioDeviceSelectionError:
       return AudioDeviceSelectionError;
+    case LogEventId.AudioVolumeChanged:
+      return AudioVolumeChanged;
+    case LogEventId.AudioVolumeChangeError:
+      return AudioVolumeChangeError;
     case LogEventId.AudioPlaybackError:
       return AudioPlaybackError;
     case LogEventId.UnknownError:
