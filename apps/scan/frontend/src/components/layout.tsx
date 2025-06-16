@@ -4,12 +4,12 @@ import {
   Main,
   ElectionInfoBar,
   InfoBarMode,
-  TestMode,
   H1,
   LanguageSettingsButton,
   LanguageSettingsScreen,
   ReadOnLoad,
   AudioOnly,
+  TestModeCallout,
 } from '@votingworks/ui';
 import styled, { DefaultTheme, ThemeContext } from 'styled-components';
 import { SizeMode } from '@votingworks/types';
@@ -76,27 +76,23 @@ const VoterHeader = styled.div`
   display: flex;
   gap: ${(p) => getSpacingValueRem(p)}rem;
   padding: ${(p) => getSpacingValueRem(p)}rem;
+  justify-content: space-between;
+`;
+
+const SettingsButtons = styled.div`
+  display: flex;
+  gap: ${(p) => getSpacingValueRem(p)}rem;
 `;
 
 const TitleBar = styled.div`
   display: flex;
   gap: ${(p) => getSpacingValueRem(p)}rem;
   padding: ${(p) => getSpacingValueRem(p)}rem;
+  justify-content: space-between;
 `;
 
 const TitleContainer = styled.div`
-  display: flex;
-  flex-grow: 1;
-`;
-
-const BallotCountContainer = styled.div`
-  display: flex;
-  flex-grow: 1;
-  justify-content: end;
-`;
-
-const Spacer = styled.div`
-  flex-grow: 1;
+  min-width: 5rem;
 `;
 
 export function Screen(props: ScreenProps): JSX.Element | null {
@@ -149,27 +145,25 @@ export function Screen(props: ScreenProps): JSX.Element | null {
         ELECTION_BAR_HIDDEN_SIZE_MODES.has(currentTheme.sizeMode)));
 
   const ballotCountElement = !hideBallotCountFromProps &&
-    ballotCount !== undefined && (
-      <BallotCountContainer>
-        <ScannedBallotCount count={ballotCount} />
-      </BallotCountContainer>
-    );
+    ballotCount !== undefined && <ScannedBallotCount count={ballotCount} />;
 
   return (
     <ScreenBase>
-      {showTestModeBanner && <TestMode />}
       {voterFacing && (
         <VoterHeader>
-          <LanguageSettingsButton
-            onPress={() => setShouldShowLanguageSettings(true)}
-          />
-          <VoterSettingsButton />
-          <Spacer />
+          <SettingsButtons>
+            <LanguageSettingsButton
+              onPress={() => setShouldShowLanguageSettings(true)}
+            />
+            <VoterSettingsButton />
+          </SettingsButtons>
+          {showTestModeBanner && <TestModeCallout />}
           {ballotCountElement}
         </VoterHeader>
       )}
       <TitleBar>
         <TitleContainer>{title && <H1>{title}</H1>}</TitleContainer>
+        {!voterFacing && showTestModeBanner && <TestModeCallout />}
         {!voterFacing && ballotCountElement}
       </TitleBar>
       {voterFacing ? (
