@@ -196,13 +196,17 @@ test('connection status between two pollbooks is managed properly', async () => 
         },
       });
     });
-    // Before connecting the pollbooks should not have queried one another for events
-    expect(
-      pollbookContext1.peerWorkspace.store.getNewEvents
-    ).not.toHaveBeenCalled();
-    expect(
-      pollbookContext2.peerWorkspace.store.getNewEvents
-    ).not.toHaveBeenCalled();
+
+    await extendedWaitFor(() => {
+      vi.advanceTimersByTime(EVENT_POLLING_INTERVAL);
+      // Before connecting the pollbooks should not have queried one another for events
+      expect(
+        pollbookContext1.peerWorkspace.store.getNewEvents
+      ).not.toHaveBeenCalled();
+      expect(
+        pollbookContext2.peerWorkspace.store.getNewEvents
+      ).not.toHaveBeenCalled();
+    });
 
     // Set the pollbooks for the same election
     pollbookContext1.workspace.store.setElectionAndVoters(
