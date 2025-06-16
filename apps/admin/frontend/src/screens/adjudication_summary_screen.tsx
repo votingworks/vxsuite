@@ -119,10 +119,10 @@ export function AdjudicationSummaryScreen(): JSX.Element {
                         <Font weight={hasWriteIns ? 'semiBold' : 'regular'}>
                           {contest.type === 'candidate' &&
                             contest.partyId &&
-                            `(${getPartyAbbreviationByPartyId({
+                            getPartyAbbreviationByPartyId({
                               partyId: contest.partyId,
                               election,
-                            })})`}
+                            })}
                         </Font>
                       </TD>
                     )}
