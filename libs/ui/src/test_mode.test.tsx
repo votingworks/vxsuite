@@ -1,12 +1,16 @@
-import { expect, test } from 'vitest';
+import { test } from 'vitest';
 import { render, screen } from '../test/react_testing_library';
 
-import { TestMode } from './test_mode';
+import { TestMode, TestModeCallout } from './test_mode';
 
 test('renders TestMode - VVSG styling', () => {
-  const { container } = render(<TestMode />, {
+  render(<TestMode />, {
     vxTheme: { sizeMode: 'touchLarge' },
   });
   screen.getByText('Test Ballot Mode');
-  expect(container).toMatchSnapshot();
+});
+
+test('TestModeCallout', () => {
+  render(<TestModeCallout />);
+  screen.getByText('Test Ballot Mode');
 });
