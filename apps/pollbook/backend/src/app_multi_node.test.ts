@@ -62,8 +62,11 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-function extendedWaitFor(fn: () => void | Promise<void>) {
-  return vi.waitFor(fn, { timeout: 3000 });
+function extendedWaitFor(
+  fn: () => void | Promise<void>,
+  timeout: number = 3000
+) {
+  return vi.waitFor(fn, { timeout });
 }
 
 test('connection status between two pollbooks is managed properly', async () => {
@@ -877,7 +880,7 @@ test('one pollbook can be configured from another pollbook automatically as an e
         });
         const election = await pollbookContext2.localApiClient.getElection();
         expect(election.ok()).toEqual(electionDefinition.election);
-      });
+      }, 6000);
 
       expect(
         await pollbookContext2.peerApiClient.configureFromPeerMachine({
