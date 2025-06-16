@@ -9,7 +9,6 @@ import {
   Screen,
   SegmentedButton,
   SetClockButton,
-  TestMode,
   UsbControllerButton,
   Caption,
   Icons,
@@ -63,7 +62,6 @@ export function AdminScreen({
 
   return (
     <Screen>
-      {election && isTestMode && <TestMode />}
       <Main padded>
         <H3 as="h1">Election Manager Settings</H3>
         <Caption weight="bold">

@@ -64,7 +64,11 @@ const TestModeCard = styled.div`
   background-color: ${(p) => p.theme.colors.background};
 `;
 
-export function TestModeCallout(): JSX.Element {
+export function TestModeCallout({
+  style,
+}: {
+  style?: React.CSSProperties;
+}): JSX.Element {
   return (
     <TextOnly>
       <ThemeProvider
@@ -77,7 +81,7 @@ export function TestModeCallout(): JSX.Element {
           })
         }
       >
-        <TestModeCard>
+        <TestModeCard style={style}>
           <Icons.Warning
             style={{
               // We always want a bright orange, even if the color mode is

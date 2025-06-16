@@ -17,7 +17,6 @@ import {
   Modal,
   Screen,
   ElectionInfoBar,
-  TestMode,
   H1,
   H2,
   P,
@@ -28,6 +27,7 @@ import {
   FullScreenIconWrapper,
   H3,
   H6,
+  TestModeCallout,
 } from '@votingworks/ui';
 
 import {
@@ -277,15 +277,18 @@ export function PollWorkerScreen({
 
   return (
     <Screen>
-      {!isLiveMode && <TestMode />}
       <Main padded>
         <div>
-          <H2 as="h1">
-            VxMark{' '}
-            <Font weight="light" noWrap>
-              Poll Worker Actions
-            </Font>
-          </H2>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'start',
+            }}
+          >
+            <H2 as="h1">Poll Worker Menu</H2>
+            {!isLiveMode && <TestModeCallout />}
+          </div>
           <H4 as="h2">
             <Font noWrap>
               <Font weight="light">Ballots Printed:</Font> {ballotsPrintedCount}

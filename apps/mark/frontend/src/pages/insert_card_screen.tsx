@@ -7,7 +7,6 @@ import {
 import {
   Main,
   Screen,
-  TestMode,
   ElectionInfoBar,
   InsertCardImage,
   H1,
@@ -15,6 +14,7 @@ import {
   Caption,
   Icons,
   Font,
+  TestModeCallout,
 } from '@votingworks/ui';
 
 import { throwIllegalValue } from '@votingworks/basics';
@@ -72,7 +72,9 @@ export function InsertCardScreen({
 
   return (
     <Screen>
-      {!isLiveMode && <TestMode />}
+      {!isLiveMode && (
+        <TestModeCallout style={{ alignSelf: 'center', marginTop: '0.5rem' }} />
+      )}
       <Main centerChild>
         {showNoChargerAttachedWarning && (
           <Caption>

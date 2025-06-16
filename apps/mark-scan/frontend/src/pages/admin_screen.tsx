@@ -8,7 +8,6 @@ import {
   Screen,
   SegmentedButton,
   SetClockButton,
-  TestMode,
   Font,
   H3,
   UnconfigureMachineButton,
@@ -115,7 +114,6 @@ export function AdminScreen({
 
   return (
     <Screen>
-      {isTestMode && <TestMode />}
       <Main padded>
         <H2 as="h1">Election Manager Menu</H2>
         <P>Remove the election manager card to leave this screen.</P>
