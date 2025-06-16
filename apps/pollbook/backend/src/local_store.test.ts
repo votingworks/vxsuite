@@ -341,3 +341,34 @@ test('setElectionAndVoters sets configuredPrecinctId only when there is one prec
   configInfo = store.getPollbookConfigurationInformation();
   expect(configInfo.configuredPrecinctId).toEqual('precinct-1');
 });
+
+test('store can load data from database on restart', () => {
+  const workspacePath = tmp.dirSync().name;
+  const localStore = LocalStore.fileStore(
+    workspacePath,
+    mockBaseLogger({ fn: vi.fn }),
+    '0001',
+    'test'
+  );
+
+  const testElectionDefinition = getTestElectionDefinition();
+  const voters = [createVoter('10', 'Dylan', `O'Brien`, 'MiD', 'I')];
+  const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
+  localStore.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    streets,
+    voters
+  );
+  expect(localStore.getElection()).toEqual(testElectionDefinition.election);
+  expect(localStore.getStreetInfo()).toHaveLength(1);
+
+  const reloadedStore = LocalStore.fileStore(
+    workspacePath,
+    mockBaseLogger({ fn: vi.fn }),
+    '0001',
+    'test'
+  );
+  expect(reloadedStore.getElection()).toEqual(testElectionDefinition.election);
+  expect(reloadedStore.getStreetInfo()).toHaveLength(1);
+});

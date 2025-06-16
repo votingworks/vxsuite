@@ -484,7 +484,7 @@ export abstract class Store {
     }
     const row = this.client.one(
       `
-          select valid_street_info 
+          select valid_street_data 
           from elections
           order by rowid desc
           limit 1
