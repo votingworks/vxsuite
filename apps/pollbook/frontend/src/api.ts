@@ -55,7 +55,7 @@ export function createQueryClient(): QueryClient {
 
 export const getPollbookConfigurationInformation = {
   queryKey(): QueryKey {
-    return ['ionInformation'];
+    return ['getPollbookConfigurationInformation'];
   },
   useQuery() {
     const apiClient = useApiClient();

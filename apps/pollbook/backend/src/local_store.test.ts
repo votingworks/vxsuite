@@ -301,7 +301,6 @@ test('registerVoter and findVoterWithName integration', () => {
   );
 });
 
-// Test that setElectionAndVoters sets configuredPrecinctId only when there is one precinct
 test('setElectionAndVoters sets configuredPrecinctId only when there is one precinct', () => {
   const store = LocalStore.memoryStore('machine-1');
 

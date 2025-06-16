@@ -99,7 +99,6 @@ describe('SettingsScreen precinct selection', () => {
   });
 
   test('does not allow changing precinct once events have occurred', async () => {
-    // Setup election with multiple precincts
     apiMock.expectHaveElectionEventsOccurred(true);
     // Render
     const renderResult = renderInAppContext(<ElectionManagerScreen />, {
@@ -116,7 +115,7 @@ describe('SettingsScreen precinct selection', () => {
     );
   });
 
-  test('does not show precinct select for single precinct election', () => {
+  test('does not show precinct select for single precinct election', async () => {
     // Setup election with multiple precincts
     const singlePrecinctElection =
       electionGridLayoutNewHampshireHudsonFixtures.readElectionDefinition();
@@ -129,6 +128,7 @@ describe('SettingsScreen precinct selection', () => {
     unmount = renderResult.unmount;
 
     // There should be no select precinct option shown
+    await screen.findAllByText('Settings');
     const select = screen.queryByLabelText('Select Precinct');
     expect(select).toBeNull();
   });
