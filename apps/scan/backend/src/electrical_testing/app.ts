@@ -3,7 +3,7 @@ import { iter } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import { SheetOf } from '@votingworks/types';
 import express, { Application } from 'express';
-import { readdir } from 'node:fs/promises';
+import { mkdir, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { getMachineConfig } from '../machine_config';
 import { type ServerContext } from './context';
@@ -104,6 +104,7 @@ function buildApi({
         usbDriveStatus.status === 'mounted'
           ? join(usbDriveStatus.mountPoint, 'ballot-images')
           : workspace.ballotImagesPath;
+      await mkdir(basedir, { recursive: true });
       const allFileNames = await readdir(basedir);
       const allScannedImageNames = allFileNames.filter((name) =>
         /^electrical-testing.*\.(jpe?g|png)$/.test(name)

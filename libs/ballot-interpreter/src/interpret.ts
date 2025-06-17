@@ -575,6 +575,7 @@ function interpretHmpb(
     scoreWriteIns: shouldScoreWriteIns(options),
     disableVerticalStreakDetection: options.disableVerticalStreakDetection,
     inferTimingMarks: options.inferTimingMarks,
+    minimumDetectedScale: options.minimumDetectedScale,
   });
 
   return validateInterpretResults(

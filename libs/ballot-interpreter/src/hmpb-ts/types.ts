@@ -3,6 +3,9 @@ import {
   HmpbBallotPaperSize,
   GridPosition,
   HmpbBallotPageMetadata,
+  PrecinctId,
+  BallotStyleId,
+  Side,
 } from '@votingworks/types';
 import { Optional, Result } from '@votingworks/basics';
 
@@ -291,15 +294,34 @@ export interface Size<T> {
  * Possible errors that can occur when interpreting a ballot card.
  */
 export type InterpretError =
-  | { type: 'imageOpenFailure'; path: string }
   | { type: 'borderInsetNotFound'; path: string }
+  | {
+      type: 'invalidCardMetadata';
+      sideA: BallotPageMetadata;
+      sideB: BallotPageMetadata;
+    }
+  | { type: 'invalidQrCodeMetadata'; label: string; message: string }
+  | { type: 'mismatchedPrecincts'; sideA: PrecinctId; sideB: PrecinctId }
+  | {
+      type: 'mismatchedBallotStyles';
+      sideA: BallotStyleId;
+      sideB: BallotStyleId;
+    }
+  | { type: 'nonConsecutivePageNumbers'; sideA: number; sideB: number }
   | {
       type: 'mismatchedBallotCardGeometries';
       side_a: BallotPagePathAndGeometry;
       side_b: BallotPagePathAndGeometry;
     }
-  | { type: 'missingTimingMarks'; rects: Rect[]; reason: string }
-  | { type: 'unexpectedDimensions'; path: string; dimensions: Size<PixelUnit> }
+  | {
+      type: 'missingGridLayout';
+      front: BallotPageMetadata;
+      back: BallotPageMetadata;
+    }
+  | { type: 'missingTimingMarks'; reason: string }
+  | { type: 'unexpectedDimensions'; label: string; dimensions: Size<PixelUnit> }
+  | { type: 'invalidScale'; label: string; scale: number }
+  | { type: 'couldNotComputeLayout'; side: Side }
   | {
       type: 'verticalStreaksDetected';
       label: string;

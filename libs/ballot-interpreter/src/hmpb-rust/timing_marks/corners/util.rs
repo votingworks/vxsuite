@@ -18,7 +18,7 @@ pub fn mark_distances_to_point(
 #[macro_export]
 macro_rules! impl_edgewise {
     ($name:ident, $element:ty) => {
-        impl EdgeWise<$element> for $name {
+        impl $crate::timing_marks::corners::util::EdgeWise<$element> for $name {
             fn from_array([left, right, top, bottom]: [$element; 4]) -> Self {
                 Self {
                     left,

@@ -38,10 +38,12 @@ use crate::scoring::score_bubble_marks_from_grid_layout;
 use crate::scoring::score_write_in_areas;
 use crate::scoring::ScoredBubbleMarks;
 use crate::scoring::ScoredPositionAreas;
+use crate::scoring::UnitIntervalScore;
 use crate::timing_marks::contours;
 use crate::timing_marks::corners;
 use crate::timing_marks::normalize_orientation;
 use crate::timing_marks::BallotPageMetadata;
+use crate::timing_marks::Border;
 use crate::timing_marks::DefaultForGeometry;
 use crate::timing_marks::TimingMarks;
 
@@ -55,6 +57,7 @@ pub struct Options {
     pub disable_vertical_streak_detection: bool,
     pub infer_timing_marks: bool,
     pub timing_mark_algorithm: TimingMarkAlgorithm,
+    pub minimum_detected_scale: Option<UnitIntervalScore>,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -121,31 +124,37 @@ pub struct BallotPageAndGeometry {
 pub enum Error {
     #[error("could not find border inset for {label}")]
     BorderInsetNotFound { label: String },
+
     #[error("invalid card metadata: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}")]
     #[serde(rename_all = "camelCase")]
     InvalidCardMetadata {
         side_a: BallotPageMetadata,
         side_b: BallotPageMetadata,
     },
+
     #[error("invalid QR code metadata for {label}: {message}")]
     InvalidQrCodeMetadata { label: String, message: String },
+
     #[error("mismatched precincts: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}")]
     #[serde(rename_all = "camelCase")]
     MismatchedPrecincts {
         side_a: PrecinctId,
         side_b: PrecinctId,
     },
+
     #[error("mismatched ballot styles: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}")]
     #[serde(rename_all = "camelCase")]
     MismatchedBallotStyles {
         side_a: BallotStyleId,
         side_b: BallotStyleId,
     },
+
     #[error(
         "non-consecutive page numbers: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}"
     )]
     #[serde(rename_all = "camelCase")]
     NonConsecutivePageNumbers { side_a: u8, side_b: u8 },
+
     #[error(
         "mismatched ballot card geometries: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}"
     )]
@@ -154,20 +163,31 @@ pub enum Error {
         side_a: BallotPageAndGeometry,
         side_b: BallotPageAndGeometry,
     },
+
     #[error("missing grid layout: front: {front:?}, back: {back:?}")]
     MissingGridLayout {
         front: BallotPageMetadata,
         back: BallotPageMetadata,
     },
+
     #[error("missing timing marks: {reason}")]
     MissingTimingMarks { reason: String },
+
     #[error("unexpected dimensions for {label}: {dimensions:?}")]
     UnexpectedDimensions {
         label: String,
         dimensions: Size<PixelUnit>,
     },
+
+    #[error("invalid detected ballot scale: {scale}")]
+    InvalidScale {
+        label: String,
+        scale: UnitIntervalScore,
+    },
+
     #[error("could not compute layout for {side:?}")]
     CouldNotComputeLayout { side: BallotSide },
+
     #[error("vertical streaks detected on {label:?}")]
     #[serde(rename_all = "camelCase")]
     VerticalStreaksDetected {
@@ -188,6 +208,7 @@ pub struct ScanInterpreter {
     infer_timing_marks: bool,
     bubble_template_image: GrayImage,
     timing_mark_algorithm: TimingMarkAlgorithm,
+    minimum_detected_scale: Option<f32>,
 }
 
 impl ScanInterpreter {
@@ -202,6 +223,7 @@ impl ScanInterpreter {
         disable_vertical_streak_detection: bool,
         infer_timing_marks: bool,
         timing_mark_algorithm: TimingMarkAlgorithm,
+        minimum_detected_scale: Option<f32>,
     ) -> Result<Self, image::ImageError> {
         let bubble_template_image = load_ballot_scan_bubble_image()?;
         Ok(Self {
@@ -211,6 +233,7 @@ impl ScanInterpreter {
             infer_timing_marks,
             bubble_template_image,
             timing_mark_algorithm,
+            minimum_detected_scale,
         })
     }
 
@@ -236,6 +259,7 @@ impl ScanInterpreter {
             disable_vertical_streak_detection: self.disable_vertical_streak_detection,
             infer_timing_marks: self.infer_timing_marks,
             timing_mark_algorithm: self.timing_mark_algorithm,
+            minimum_detected_scale: self.minimum_detected_scale.map(UnitIntervalScore),
         };
         ballot_card(side_a_image, side_b_image, &options)
     }
@@ -454,6 +478,27 @@ pub fn ballot_card(
 
     let side_a_timing_marks = side_a_timing_marks_result?;
     let side_b_timing_marks = side_b_timing_marks_result?;
+
+    if let Some(minimum_detected_scale) = options.minimum_detected_scale {
+        for (label, timing_marks) in [
+            (SIDE_A_LABEL, &side_a_timing_marks),
+            (SIDE_B_LABEL, &side_b_timing_marks),
+        ] {
+            // We use the bottom border here because:
+            // - there should be little to no stretching along the horizontal axis (we assume it's perpendicular to the scan direction)
+            // - any stretch/skew tends to occur at the start of scan/top
+            // - the detected scale vs. printed scale delta is smaller compared to the other measures we've tried
+            // See https://votingworks.slack.com/archives/CEL6D3GAD/p1750095447642289 for more context.
+            if let Some(scale) = timing_marks.compute_scale_based_on_border(Border::Bottom) {
+                if scale < minimum_detected_scale {
+                    return Err(Error::InvalidScale {
+                        label: label.to_owned(),
+                        scale,
+                    });
+                }
+            }
+        }
+    }
 
     // We'll find the appropriate metadata, use it to normalize the image and
     // grid orientation, and extract the ballot style from it.
@@ -730,7 +775,7 @@ mod test {
         path::{Path, PathBuf},
     };
 
-    use image::Luma;
+    use image::{imageops::FilterType, GenericImage, Luma};
     use imageproc::geometric_transformations::{self, Interpolation, Projection};
     use itertools::Itertools;
     use types_rs::{
@@ -776,6 +821,7 @@ mod test {
             disable_vertical_streak_detection: false,
             infer_timing_marks: true,
             timing_mark_algorithm: TimingMarkAlgorithm::default(),
+            minimum_detected_scale: None,
         };
         (side_a_image, side_b_image, options)
     }
@@ -805,6 +851,7 @@ mod test {
             disable_vertical_streak_detection: false,
             infer_timing_marks: true,
             timing_mark_algorithm: TimingMarkAlgorithm::default(),
+            minimum_detected_scale: None,
         };
         (side_a_image, side_b_image, options)
     }
@@ -1131,6 +1178,56 @@ mod test {
             ),
         );
         ballot_card(side_a_image, side_b_image, &options).unwrap();
+    }
+
+    #[test]
+    fn test_reject_scaled_down_ballots() {
+        let (side_a_image, side_b_image, options) =
+            load_hmpb_fixture("vx-general-election/letter", 3);
+        // Set a minimum scale of 98.5%.
+        let minimum_detected_scale = UnitIntervalScore(0.985);
+        let options = Options {
+            minimum_detected_scale: Some(minimum_detected_scale),
+            ..options
+        };
+
+        // Ensure it's not rejected before we scale it.
+        ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap();
+
+        // Scale side A down and ensure it gets rejected.
+        let artificial_scale = minimum_detected_scale.0 - 0.01;
+        let (width, height) = side_a_image.dimensions();
+        let scaled_down_side_a_image = image::imageops::resize(
+            &side_a_image,
+            (width as f32 * artificial_scale) as u32,
+            (height as f32 * artificial_scale) as u32,
+            FilterType::Nearest,
+        );
+
+        // Create an image of the original size with a white background,
+        // then draw the scaled image in its center.
+        let mut side_a_image = GrayImage::from_pixel(width, height, Luma([0xff]));
+        let _debug_side_a_image = DebugImage::write(
+            "test_reject_scaled_down_ballots__side_a_image.png",
+            &side_a_image,
+        );
+        let x = (width - scaled_down_side_a_image.width()) / 2;
+        let y = (height - scaled_down_side_a_image.height()) / 2;
+        side_a_image
+            .copy_from(&scaled_down_side_a_image, x, y)
+            .unwrap();
+
+        // Interpret the scaled down side A and normal side B.
+        let error = ballot_card(side_a_image, side_b_image, &options).unwrap_err();
+        let Error::InvalidScale {
+            scale: detected_scale,
+            ..
+        } = error
+        else {
+            panic!("Unexpected error variant: {error:?}");
+        };
+
+        assert!((detected_scale.0 - artificial_scale).abs() < 0.01, "Detected scale was not close to artificial scale: detected={detected_scale}, artificial={artificial_scale}");
     }
 
     /// Wraps a debug image file that is automatically deleted when the struct

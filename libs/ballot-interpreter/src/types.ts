@@ -18,4 +18,5 @@ export interface InterpreterOptions {
   precinctSelection: PrecinctSelection;
   testMode: boolean;
   disableBmdBallotScanning?: boolean;
+  minimumDetectedScale?: number;
 }

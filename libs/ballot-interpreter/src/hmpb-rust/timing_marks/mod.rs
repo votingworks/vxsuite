@@ -1,9 +1,11 @@
 use image::{imageops::rotate180, GrayImage};
+use itertools::Itertools;
 use serde::Serialize;
 use types_rs::geometry::{
     GridUnit, PixelPosition, PixelUnit, Point, Rect, Segment, Size, SubGridUnit, SubPixelUnit,
 };
 
+use crate::scoring::UnitIntervalScore;
 use crate::timing_marks::scoring::CandidateTimingMark;
 use crate::{
     ballot_card::{Geometry, Orientation},
@@ -185,6 +187,57 @@ impl TimingMarks {
             end: expected_timing_mark_center,
         } = horizontal_segment.with_length(horizontal_segment.length() * distance_percentage);
         Some(expected_timing_mark_center)
+    }
+
+    /// Computes a ballot page scale by examining the timing marks along one of
+    /// the borders. We don't try to compute by averaging multiple borders
+    /// together because two of the four are in the direction of scan for a
+    /// roller-based scanner and there may be stretching in that direction as a
+    /// result, leading to unreliable scale values for the purposes of detecting
+    /// mis-scaled ballots.
+    ///
+    /// Note that, for now, we assume that the direction of scan is vertical
+    /// from top to bottom or bottom to top. This function does not bake in that
+    /// assumption, but its caller likely does.
+    #[must_use]
+    pub fn compute_scale_based_on_border(&self, border: Border) -> Option<UnitIntervalScore> {
+        let marks = match border {
+            Border::Top => &self.top_marks,
+            Border::Bottom => &self.bottom_marks,
+            Border::Left => &self.left_marks,
+            Border::Right => &self.right_marks,
+        };
+
+        let actual_mark_period = median(
+            marks
+                .iter()
+                .tuple_windows()
+                .map(|(a, b)| a.rect().center().distance_to(&b.rect().center())),
+        )?;
+        let expected_mark_period = match border {
+            Border::Top | Border::Bottom => self
+                .geometry
+                .horizontal_timing_mark_center_to_center_pixel_distance(),
+            Border::Left | Border::Right => self
+                .geometry
+                .vertical_timing_mark_center_to_center_pixel_distance(),
+        };
+
+        Some(UnitIntervalScore(actual_mark_period / expected_mark_period))
+    }
+}
+
+fn median(values: impl IntoIterator<Item = SubPixelUnit>) -> Option<SubPixelUnit> {
+    let values = values.into_iter().sorted_by(f32::total_cmp).collect_vec();
+
+    if values.is_empty() {
+        None
+    } else if values.len() % 2 == 0 {
+        let left = values[values.len() / 2 - 1];
+        let right = values[values.len() / 2];
+        Some(left.midpoint(right))
+    } else {
+        Some(values[(values.len() - 1) / 2])
     }
 }
 

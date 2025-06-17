@@ -6,8 +6,7 @@ use crate::{
     interpret::Error,
     timing_marks::{
         corners::{
-            corner_finding::BallotGridCorners,
-            util::{mark_distances_to_point, EdgeWise},
+            corner_finding::BallotGridCorners, util::mark_distances_to_point,
             BallotGridCandidateMarks,
         },
         Border, CandidateTimingMark, DefaultForGeometry,
