@@ -124,31 +124,37 @@ pub struct BallotPageAndGeometry {
 pub enum Error {
     #[error("could not find border inset for {label}")]
     BorderInsetNotFound { label: String },
+
     #[error("invalid card metadata: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}")]
     #[serde(rename_all = "camelCase")]
     InvalidCardMetadata {
         side_a: BallotPageMetadata,
         side_b: BallotPageMetadata,
     },
+
     #[error("invalid QR code metadata for {label}: {message}")]
     InvalidQrCodeMetadata { label: String, message: String },
+
     #[error("mismatched precincts: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}")]
     #[serde(rename_all = "camelCase")]
     MismatchedPrecincts {
         side_a: PrecinctId,
         side_b: PrecinctId,
     },
+
     #[error("mismatched ballot styles: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}")]
     #[serde(rename_all = "camelCase")]
     MismatchedBallotStyles {
         side_a: BallotStyleId,
         side_b: BallotStyleId,
     },
+
     #[error(
         "non-consecutive page numbers: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}"
     )]
     #[serde(rename_all = "camelCase")]
     NonConsecutivePageNumbers { side_a: u8, side_b: u8 },
+
     #[error(
         "mismatched ballot card geometries: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}"
     )]
@@ -157,25 +163,31 @@ pub enum Error {
         side_a: BallotPageAndGeometry,
         side_b: BallotPageAndGeometry,
     },
+
     #[error("missing grid layout: front: {front:?}, back: {back:?}")]
     MissingGridLayout {
         front: BallotPageMetadata,
         back: BallotPageMetadata,
     },
+
     #[error("missing timing marks: {reason}")]
     MissingTimingMarks { reason: String },
+
     #[error("unexpected dimensions for {label}: {dimensions:?}")]
     UnexpectedDimensions {
         label: String,
         dimensions: Size<PixelUnit>,
     },
+
     #[error("invalid detected ballot scale: {scale}")]
     InvalidScale {
         label: String,
         scale: UnitIntervalScore,
     },
+
     #[error("could not compute layout for {side:?}")]
     CouldNotComputeLayout { side: BallotSide },
+
     #[error("vertical streaks detected on {label:?}")]
     #[serde(rename_all = "camelCase")]
     VerticalStreaksDetected {
