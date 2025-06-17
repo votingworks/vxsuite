@@ -58,9 +58,15 @@ export const TIMING_MARK_DIMENSIONS: InchDimensions = {
   height: 0.0625,
 };
 
+const PPI = 96;
+
+function inToPx(inches: number): number {
+  return Math.round(inches * PPI);
+}
+
 const StyledTimingMark = styled.div`
-  width: ${TIMING_MARK_DIMENSIONS.width}in;
-  height: ${TIMING_MARK_DIMENSIONS.height}in;
+  width: ${inToPx(TIMING_MARK_DIMENSIONS.width)}px;
+  height: ${inToPx(TIMING_MARK_DIMENSIONS.height)}px;
   background-color: black;
 `;
 
@@ -108,8 +114,8 @@ export function TimingMarkGrid({
           flexDirection: 'column',
           justifyContent: 'space-between',
           position: 'absolute',
-          top: `-${TIMING_MARK_DIMENSIONS.height}in`,
-          height: `calc(100% + ${2 * TIMING_MARK_DIMENSIONS.height}in)`,
+          top: `-${inToPx(TIMING_MARK_DIMENSIONS.height)}px`,
+          height: `calc(100% + ${2 * inToPx(TIMING_MARK_DIMENSIONS.height)}px)`,
           ...style,
         }}
       >
@@ -135,7 +141,7 @@ export function TimingMarkGrid({
           flex: 1,
           position: 'relative',
           display: 'flex',
-          padding: `0 ${TIMING_MARK_DIMENSIONS.width}in`,
+          padding: `0 ${inToPx(TIMING_MARK_DIMENSIONS.width)}px`,
         }}
       >
         <TimingMarkColumn style={{ left: 0 }} />
@@ -294,12 +300,12 @@ export function Page({
       className={PAGE_CLASS}
       data-page-number={pageNumber}
       style={{
-        width: `${dimensions.width}in`,
-        height: `${dimensions.height}in`,
-        paddingTop: `${margins.top}in`,
-        paddingRight: `${margins.right}in`,
-        paddingBottom: `${margins.bottom}in`,
-        paddingLeft: `${margins.left}in`,
+        width: `${inToPx(dimensions.width)}px`,
+        height: `${inToPx(dimensions.height)}px`,
+        paddingTop: `${inToPx(margins.top)}px`,
+        paddingRight: `${inToPx(margins.right)}px`,
+        paddingBottom: `${inToPx(margins.bottom)}px`,
+        paddingLeft: `${inToPx(margins.left)}px`,
         backgroundColor: 'white',
         position: 'relative',
       }}
