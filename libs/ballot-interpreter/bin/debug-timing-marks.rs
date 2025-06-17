@@ -164,8 +164,14 @@ fn process_path<W: Write>(
 
         writeln!(
             stats,
-            "{},{},{},{},{}",
+            "{},{},{},{},{},{},{}",
             path.display(),
+            ballot_page
+                .geometry
+                .horizontal_timing_mark_center_to_center_pixel_distance(),
+            ballot_page
+                .geometry
+                .vertical_timing_mark_center_to_center_pixel_distance(),
             top_edge_median_period,
             bottom_edge_median_period,
             left_edge_median_period,
@@ -205,7 +211,7 @@ fn main() -> color_eyre::Result<()> {
     if let Some(stats) = &mut stats {
         writeln!(
             stats,
-           "path,expected horizontal edge length,expected vertical edge length,expected horizontal timing mark period,expected vertical timing mark period,top edge length,bottom edge length,left edge length,right edge length,top edge median period,bottom edge median period,left edge median period,right edge median period,median left to right length"
+           "path,expected horizontal timing mark period,expected vertical timing mark period,top edge median period,bottom edge median period,left edge median period,right edge median period"
         )?;
     }
 
