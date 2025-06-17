@@ -26,7 +26,7 @@ import {
 import { rootDebug } from './debug';
 import { SchemaPath, Store } from './store';
 import { readPollbookPackage } from './pollbook_package';
-import { shouldPollbooksConnect } from './networking';
+import { shouldPollbooksShareEvents } from './networking';
 
 const debug = rootDebug.extend('store:peer');
 
@@ -110,7 +110,9 @@ export class PeerStore extends Store {
   ): void {
     this.client.transaction(() => {
       const localInformation = this.getPollbookConfigurationInformation();
-      if (!shouldPollbooksConnect(localInformation, remoteMachineInformation)) {
+      if (
+        !shouldPollbooksShareEvents(localInformation, remoteMachineInformation)
+      ) {
         debug(
           'Events from remote machine do not match the current machines configuration, not syncing.'
         );
@@ -255,7 +257,13 @@ export class PeerStore extends Store {
     const peer = Object.values(pollbooks).find(
       (pb) => pb.machineId === machineId && pb.apiClient
     );
-    if (!peer || !peer.apiClient || !peer.address) {
+    if (
+      !peer ||
+      !peer.apiClient ||
+      !peer.address ||
+      // The status below indicates the pollbook has a compatible configuration
+      peer.status !== PollbookConnectionStatus.MismatchedConfiguration
+    ) {
       return err('pollbook-connection-problem');
     }
     const tempPath = `${tmpdir()}/pollbook-package-${randomUUID()}.zip`;
