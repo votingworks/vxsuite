@@ -93,7 +93,7 @@ export class LocalStore extends Store {
     codeVersion: string = 'test-v1'
   ): LocalStore {
     return new LocalStore(
-      DbClient.memoryClient(SchemaPath),
+      DbClient.memoryClient(SchemaPath, { registerRegexpFn: true }),
       machineId,
       codeVersion
     );
@@ -225,11 +225,14 @@ export class LocalStore extends Store {
   }
 
   searchVoters(searchParams: VoterSearchParams): Voter[] | number {
-    const { lastName, firstName, includeInactiveVoters } = searchParams;
+    const { lastName, firstName, middleName, suffix, includeInactiveVoters } =
+      searchParams;
     const MAX_VOTER_SEARCH_RESULTS = 100;
 
     const lastNamePattern = toPatternStartsWith(lastName);
+    const middleNamePattern = toPatternStartsWith(middleName);
     const firstNamePattern = toPatternStartsWith(firstName);
+    const suffixPattern = toPatternStartsWith(suffix);
 
     // Query the database for voters matching the search criteria
     const voterRows = this.client.all(
@@ -237,10 +240,14 @@ export class LocalStore extends Store {
             SELECT v.voter_id, v.voter_data
             FROM voters v
             WHERE updated_last_name REGEXP ?
+              AND updated_middle_name REGEXP ?
               AND updated_first_name REGEXP ?
+              AND updated_suffix REGEXP ?
             `,
       `${lastNamePattern}`,
-      `${firstNamePattern}`
+      `${middleNamePattern}`,
+      `${firstNamePattern}`,
+      `${suffixPattern}`
     ) as Array<{ voter_id: string; voter_data: string }>;
 
     if (voterRows.length === 0) {
@@ -364,10 +371,14 @@ export class LocalStore extends Store {
             SELECT v.voter_id, v.voter_data
             FROM voters v
             WHERE updated_last_name REGEXP ?
+              AND updated_middle_name REGEXP ?
               AND updated_first_name REGEXP ?
+              AND updated_suffix REGEXP ?
             `,
       `${lastNamePattern}`,
-      `${firstNamePattern}`
+      `${middleNamePattern}`,
+      `${firstNamePattern}`,
+      `${suffixPattern}`
     ) as Array<{ voter_id: string; voter_data: string }>;
 
     if (voterRows.length === 0) {
@@ -398,22 +409,7 @@ export class LocalStore extends Store {
 
     // Convert event rows to pollbook events and apply them to the voters
     const events = convertDbRowsToPollbookEvents(eventRows);
-    const updatedVoters = applyPollbookEventsToVoters(voters, events);
-    const matchedVoters: Voter[] = [];
-    for (const voter of Object.values(updatedVoters)) {
-      // Get the current name (from nameChange if present, otherwise from voter)
-      const currentName = voter.nameChange ?? voter;
-      const suffixMatches = new RegExp(suffixPattern, 'i').test(
-        currentName.suffix ?? ''
-      );
-      const middleNameMatches = new RegExp(middleNamePattern, 'i').test(
-        currentName.middleName ?? ''
-      );
-      if (suffixMatches && middleNameMatches) {
-        matchedVoters.push(voter);
-      }
-    }
-    return matchedVoters;
+    return Object.values(applyPollbookEventsToVoters(voters, events));
   }
 
   registerVoter(voterRegistration: VoterRegistrationRequest): {

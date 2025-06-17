@@ -34,7 +34,9 @@ async function searchVoterByInitials(firstName: string, lastName: string) {
     const response = await api.searchVoters({
       searchParams: {
         firstName: firstName[0],
+        middleName: '',
         lastName: lastName[0],
+        suffix: '',
         includeInactiveVoters: false,
       },
     });
@@ -45,12 +47,19 @@ async function searchVoterByInitials(firstName: string, lastName: string) {
   }
 }
 
-async function searchVoterByFullName(firstName: string, lastName: string) {
+async function searchVoterByFullName(
+  firstName: string,
+  middleName: string,
+  lastName: string,
+  suffix: string
+) {
   try {
     const response = await api.searchVoters({
       searchParams: {
         firstName,
+        middleName,
         lastName,
+        suffix,
         includeInactiveVoters: false,
       },
     });
@@ -109,7 +118,12 @@ async function checkInAllVotersOnCurrentMachine(
       );
 
       const startSearchByFullName = performance.now();
-      await searchVoterByFullName(voter.firstName, voter.lastName);
+      await searchVoterByFullName(
+        voter.firstName,
+        voter.middleName,
+        voter.lastName,
+        voter.suffix
+      );
       const endSearchByFullName = performance.now();
       durations.searchByFullName.push(
         endSearchByFullName - startSearchByFullName

@@ -67,7 +67,9 @@ export function createEmptySearchParams(
 ): VoterSearchParams {
   return {
     lastName: '',
+    middleName: '',
     firstName: '',
+    suffix: '',
     includeInactiveVoters,
   };
 }

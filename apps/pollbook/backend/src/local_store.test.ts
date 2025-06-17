@@ -11,13 +11,7 @@ import { LocalStore } from './local_store';
 import { VoterRegistrationRequest } from './types';
 
 test('findVotersWithName works as expected - voters without name changes', () => {
-  const workspacePath = tmp.dirSync().name;
-  const localStore = LocalStore.fileStore(
-    workspacePath,
-    mockBaseLogger({ fn: vi.fn }),
-    '0000',
-    'test'
-  );
+  const localStore = LocalStore.memoryStore();
   const testElectionDefinition = getTestElectionDefinition();
   const voters = [
     createVoter('10', 'Dylan', `O'Brien`, 'MiD', 'I'),
@@ -140,13 +134,7 @@ test('findVotersWithName works as expected - voters without name changes', () =>
 });
 
 test('findVoterWithName works as expected - voters with name changes', () => {
-  const workspacePath = tmp.dirSync().name;
-  const localStore = LocalStore.fileStore(
-    workspacePath,
-    mockBaseLogger({ fn: vi.fn }),
-    '0001',
-    'test'
-  );
+  const localStore = LocalStore.memoryStore();
   const testElectionDefinition = getTestElectionDefinition();
   const voters = [
     createVoter('20', 'John', 'Doe', 'Allen', 'Sr'),
@@ -173,6 +161,26 @@ test('findVoterWithName works as expected - voters with name changes', () => {
       expect.objectContaining({ voterId: voters[0].voterId }),
     ])
   );
+
+  // Should not match because middle name is excluded
+  expect(
+    localStore.findVotersWithName({
+      firstName: 'John',
+      lastName: 'Doe',
+      middleName: '',
+      suffix: 'Sr',
+    })
+  ).toEqual([]);
+
+  // Should not match because suffix is excluded
+  expect(
+    localStore.findVotersWithName({
+      firstName: 'John',
+      lastName: 'Doe',
+      middleName: 'Allen',
+      suffix: '',
+    })
+  ).toEqual([]);
 
   // Change name for John Doe
   localStore.changeVoterName(voters[0].voterId, {
@@ -250,13 +258,7 @@ test('findVoterWithName works as expected - voters with name changes', () => {
 });
 
 test('registerVoter and findVoterWithName integration', () => {
-  const workspacePath = tmp.dirSync().name;
-  const localStore = LocalStore.fileStore(
-    workspacePath,
-    mockBaseLogger({ fn: vi.fn }),
-    '0002',
-    'test'
-  );
+  const localStore = LocalStore.memoryStore();
   const testElectionDefinition = getTestElectionDefinition();
   const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
   localStore.setElectionAndVoters(

@@ -147,7 +147,9 @@ test('offline undo with later real time check in', async () => {
   // Verify Sue's check-in is from PollbookA with NH id.
   const voters = localA.searchVoters({
     firstName: 'Sue',
+    middleName: '',
     lastName: '',
+    suffix: '',
     includeInactiveVoters: true,
   });
   expect((voters as Voter[]).length).toEqual(1);
@@ -234,12 +236,16 @@ test('bad system time nodes should be able to undo', () => {
   // Verify Bob's status specifically
   const votersA = localA.searchVoters({
     firstName: 'Bob',
+    middleName: '',
     lastName: '',
+    suffix: '',
     includeInactiveVoters: true,
   });
   const votersB = localB.searchVoters({
     firstName: 'Bob',
+    middleName: '',
     lastName: '',
+    suffix: '',
     includeInactiveVoters: true,
   });
   expect((votersA as Voter[])[0].checkIn).toBeUndefined();
@@ -378,7 +384,9 @@ test("getting a offline machines events when I've synced with the online machine
   expect(
     localA.searchVoters({
       firstName: 'Carl',
+      middleName: '',
       lastName: '',
+      suffix: '',
       includeInactiveVoters: true,
     })
   ).toEqual([
@@ -405,7 +413,9 @@ test("getting a offline machines events when I've synced with the online machine
   expect(
     localB.searchVoters({
       firstName: 'Carl',
+      middleName: '',
       lastName: '',
+      suffix: '',
       includeInactiveVoters: true,
     })
   ).toEqual([
@@ -473,7 +483,9 @@ test('last write wins on double check ins', async () => {
   expect(
     localA.searchVoters({
       firstName: 'Bob',
+      middleName: '',
       lastName: '',
+      suffix: '',
       includeInactiveVoters: true,
     })
   ).toEqual([
@@ -490,7 +502,9 @@ test('last write wins on double check ins', async () => {
   expect(
     localB.searchVoters({
       firstName: 'Bob',
+      middleName: '',
       lastName: '',
+      suffix: '',
       includeInactiveVoters: true,
     })
   ).toEqual([
@@ -562,7 +576,9 @@ test('last write wins even when there is bad system time after a sync', () => {
   expect(
     localA.searchVoters({
       firstName: 'Bob',
+      middleName: '',
       lastName: '',
+      suffix: '',
       includeInactiveVoters: true,
     })
   ).toEqual([
@@ -585,7 +601,9 @@ test('last write wins even when there is bad system time after a sync', () => {
   expect(
     localA.searchVoters({
       firstName: 'Bob',
+      middleName: '',
       lastName: '',
+      suffix: '',
       includeInactiveVoters: true,
     })
   ).toEqual([
@@ -602,7 +620,9 @@ test('last write wins even when there is bad system time after a sync', () => {
   expect(
     localB.searchVoters({
       firstName: 'Bob',
+      middleName: '',
       lastName: '',
+      suffix: '',
       includeInactiveVoters: true,
     })
   ).toEqual([
@@ -788,17 +808,23 @@ test('late-arriving older event with a more recent undo', () => {
   // Verify Oscar is undone and Penny is checked in
   const oscarA = localA.searchVoters({
     firstName: 'Oscar',
+    middleName: '',
     lastName: '',
+    suffix: '',
     includeInactiveVoters: true,
   });
   const oscarB = localB.searchVoters({
     firstName: 'Oscar',
+    middleName: '',
     lastName: '',
+    suffix: '',
     includeInactiveVoters: true,
   });
   const oscarC = localC.searchVoters({
     firstName: 'Oscar',
+    middleName: '',
     lastName: '',
+    suffix: '',
     includeInactiveVoters: true,
   });
   expect((oscarA as Voter[])[0].checkIn).toBeUndefined();
@@ -807,17 +833,23 @@ test('late-arriving older event with a more recent undo', () => {
 
   const pennyA = localA.searchVoters({
     firstName: 'Penny',
+    middleName: '',
     lastName: '',
+    suffix: '',
     includeInactiveVoters: true,
   });
   const pennyB = localB.searchVoters({
     firstName: 'Penny',
+    middleName: '',
     lastName: '',
+    suffix: '',
     includeInactiveVoters: true,
   });
   const pennyC = localC.searchVoters({
     firstName: 'Penny',
+    middleName: '',
     lastName: '',
+    suffix: '',
     includeInactiveVoters: true,
   });
   expect((pennyA as Voter[])[0].checkIn).toBeDefined();

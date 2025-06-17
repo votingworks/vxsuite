@@ -1,9 +1,13 @@
 CREATE TABLE voters (
     voter_id TEXT PRIMARY KEY,
     original_first_name TEXT,
+    original_middle_name TEXT,
     original_last_name TEXT,
+    original_suffix TEXT,
     updated_first_name TEXT,
+    updated_middle_name TEXT,
     updated_last_name TEXT,
+    updated_suffix TEXT,
     voter_data TEXT not null
 );
 
