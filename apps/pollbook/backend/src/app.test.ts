@@ -10,6 +10,7 @@ import {
   DEV_JURISDICTION,
   DippedSmartCardAuthMachineState,
 } from '@votingworks/auth';
+import { BatteryInfo } from '@votingworks/backend';
 import { TEST_MACHINE_ID, withApp } from '../test/app';
 import {
   parseValidStreetsFromCsvString,
@@ -45,13 +46,69 @@ vi.mock(import('./get_current_time.js'), async (importActual) => ({
   getCurrentTime: () => reportPrintedTime.getTime(),
 }));
 
+let batteryInfo: BatteryInfo | null = null;
+vi.mock(import('@votingworks/backend'), async (importActual) => ({
+  ...(await importActual()),
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async getBatteryInfo(): Promise<BatteryInfo | null> {
+    return batteryInfo;
+  },
+}));
+
 beforeEach(() => {
   mockNodeEnv = 'test';
   vi.clearAllMocks();
+  batteryInfo = null;
 });
 
 vi.setConfig({
   testTimeout: 20_000,
+});
+
+test('getDeviceStatuses()', async () => {
+  await withApp(
+    async ({ localApiClient, workspace, mockUsbDrive, mockPrinterHandler }) => {
+      const testVoters = parseVotersFromCsvString(
+        electionFamousNames2021Fixtures.pollbookVoters.asText()
+      );
+      const testStreets = parseValidStreetsFromCsvString(
+        electionFamousNames2021Fixtures.pollbookStreetNames.asText()
+      );
+      workspace.store.setElectionAndVoters(
+        electionDefinition,
+        'fake-package-hash',
+        testStreets,
+        testVoters
+      );
+      mockUsbDrive.usbDrive.status
+        .expectRepeatedCallsWith()
+        .resolves({ status: 'no_drive' });
+      const result = await localApiClient.getDeviceStatuses();
+      expect(result).toMatchObject({
+        usbDrive: { status: 'no_drive' },
+        printer: { connected: false },
+        network: {
+          isOnline: false,
+          pollbooks: [],
+        },
+      });
+
+      mockUsbDrive.insertUsbDrive({});
+      mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+      batteryInfo = { level: 52, discharging: true };
+
+      const result2 = await localApiClient.getDeviceStatuses();
+      expect(result2).toMatchObject({
+        usbDrive: { status: 'mounted' },
+        printer: { connected: true },
+        battery: { discharging: true, level: 52 },
+        network: {
+          isOnline: false,
+          pollbooks: [],
+        },
+      });
+    }
+  );
 });
 
 test('check in a voter', async () => {
