@@ -18,6 +18,9 @@ function preventBrowserScroll(event: KeyboardEvent) {
 
 /* istanbul ignore next - @preserve */
 export function handleKeyboardEvent(event: KeyboardEvent): void {
+  // VVSG 2.0 7.2-M – No repetitive activation
+  if (event.repeat) return;
+
   switch (event.key) {
     case Keybinding.PAGE_PREVIOUS:
       triggerPageNavigationButton(
