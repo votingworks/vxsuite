@@ -16,6 +16,13 @@ export function KeyboardShortcutHandlers(): React.ReactNode {
 
   React.useEffect(() => {
     function onKeyPress(event: KeyboardEvent) {
+      /*
+       * istanbul ignore next - testing-library's keyboard simulation
+       * doesn't property set the `repeat` field for repeated events @preserve
+       */
+      // VVSG 2.0 7.2-M – No repetitive activation
+      if (event.repeat) return;
+
       switch (event.key) {
         case Keybinding.SWITCH_LANGUAGE: {
           const currentLanguageIndex = availableLanguages.findIndex(
@@ -53,9 +60,9 @@ export function KeyboardShortcutHandlers(): React.ReactNode {
       }
     }
 
-    document.addEventListener('keyup', onKeyPress);
+    document.addEventListener('keydown', onKeyPress);
 
-    return () => document.removeEventListener('keyup', onKeyPress);
+    return () => document.removeEventListener('keydown', onKeyPress);
   }, [availableLanguages, currentLanguageCode, setLanguage, audioControls]);
 
   return null;

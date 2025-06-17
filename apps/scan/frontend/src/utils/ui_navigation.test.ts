@@ -9,13 +9,13 @@ import { handleKeyboardEvent } from './ui_navigation';
 
 vi.mock('@votingworks/ui');
 
-function createEvent(key: Keybinding): {
+function createEvent(params: { key: Keybinding; repeat?: boolean }): {
   event: KeyboardEvent;
   mockPreventDefault: Mock<() => void>;
 } {
   const mockPreventDefault = vi.fn();
   const event = {
-    key,
+    ...params,
     preventDefault: mockPreventDefault,
   } as unknown as KeyboardEvent;
 
@@ -26,7 +26,9 @@ const mockAdvanceFocus = vi.mocked(advanceElementFocus);
 const mockTriggerPageNavButton = vi.mocked(triggerPageNavigationButton);
 
 test('focus next', () => {
-  const { event, mockPreventDefault } = createEvent(Keybinding.FOCUS_NEXT);
+  const { event, mockPreventDefault } = createEvent({
+    key: Keybinding.FOCUS_NEXT,
+  });
   handleKeyboardEvent(event);
 
   expect(mockAdvanceFocus).toHaveBeenCalledTimes(1);
@@ -38,7 +40,9 @@ test('focus next', () => {
 });
 
 test('focus previous', () => {
-  const { event, mockPreventDefault } = createEvent(Keybinding.FOCUS_PREVIOUS);
+  const { event, mockPreventDefault } = createEvent({
+    key: Keybinding.FOCUS_PREVIOUS,
+  });
   handleKeyboardEvent(event);
 
   expect(mockAdvanceFocus).toHaveBeenCalledTimes(1);
@@ -50,7 +54,9 @@ test('focus previous', () => {
 });
 
 test('page previous', () => {
-  const { event, mockPreventDefault } = createEvent(Keybinding.PAGE_PREVIOUS);
+  const { event, mockPreventDefault } = createEvent({
+    key: Keybinding.PAGE_PREVIOUS,
+  });
   handleKeyboardEvent(event);
 
   expect(mockTriggerPageNavButton).toHaveBeenCalledTimes(1);
@@ -64,7 +70,9 @@ test('page previous', () => {
 });
 
 test('page next', () => {
-  const { event, mockPreventDefault } = createEvent(Keybinding.PAGE_NEXT);
+  const { event, mockPreventDefault } = createEvent({
+    key: Keybinding.PAGE_NEXT,
+  });
   handleKeyboardEvent(event);
 
   expect(mockTriggerPageNavButton).toHaveBeenCalledTimes(1);
@@ -78,7 +86,7 @@ test('page next', () => {
 });
 
 test('select', () => {
-  const { event, mockPreventDefault } = createEvent(Keybinding.SELECT);
+  const { event, mockPreventDefault } = createEvent({ key: Keybinding.SELECT });
   handleKeyboardEvent(event);
 
   // We rely on default browser handling of the `SELECT` button (`Enter` key).
@@ -89,6 +97,17 @@ test('select', () => {
 
 test('miscellaneous ignored key', () => {
   handleKeyboardEvent({ key: 'G' } as unknown as KeyboardEvent);
+
+  expect(mockTriggerPageNavButton).not.toHaveBeenCalled();
+  expect(mockAdvanceFocus).not.toHaveBeenCalled();
+});
+
+test('ignores repeated keydown events', () => {
+  const { event } = createEvent({
+    key: Keybinding.FOCUS_NEXT,
+    repeat: true,
+  });
+  handleKeyboardEvent(event);
 
   expect(mockTriggerPageNavButton).not.toHaveBeenCalled();
   expect(mockAdvanceFocus).not.toHaveBeenCalled();
