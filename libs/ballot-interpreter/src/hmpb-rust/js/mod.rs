@@ -6,6 +6,7 @@ use neon::types::JsObject;
 
 use crate::ballot_card::load_ballot_scan_bubble_image;
 use crate::interpret::{ballot_card, Options, TimingMarkAlgorithm, SIDE_A_LABEL, SIDE_B_LABEL};
+use crate::scoring::UnitIntervalScore;
 
 use self::args::{
     get_election_definition_from_arg, get_image_data_or_path_from_arg, get_path_from_arg_opt,
@@ -106,6 +107,19 @@ pub fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
         return cx.throw_type_error(format!("Invalid or missing timing mark algorithm"));
     };
 
+    let minimum_detected_scale = options.get_value(&mut cx, "minimumDetectedScale")?;
+    let minimum_detected_scale = if let Ok(minimum_detected_scale) =
+        minimum_detected_scale.downcast::<JsNumber, _>(&mut cx)
+    {
+        Some(UnitIntervalScore(
+            minimum_detected_scale.value(&mut cx) as f32
+        ))
+    } else if minimum_detected_scale.is_a::<JsUndefined, _>(&mut cx) {
+        None
+    } else {
+        return cx.throw_type_error(format!("Invalid minimum detected scale"));
+    };
+
     let side_a_label = side_a_image_or_path.as_label_or(SIDE_A_LABEL);
     let side_b_label = side_b_image_or_path.as_label_or(SIDE_B_LABEL);
     let (side_a_image, side_b_image) = rayon::join(
@@ -137,6 +151,7 @@ pub fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
             disable_vertical_streak_detection,
             infer_timing_marks,
             timing_mark_algorithm,
+            minimum_detected_scale,
         },
     );
 

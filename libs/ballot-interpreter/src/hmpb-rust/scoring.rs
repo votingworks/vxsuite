@@ -63,6 +63,12 @@ impl Add for UnitIntervalScore {
     }
 }
 
+impl Default for UnitIntervalScore {
+    fn default() -> Self {
+        Self(f32::default())
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ScoredBubbleMark {

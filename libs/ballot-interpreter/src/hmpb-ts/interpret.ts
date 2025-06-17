@@ -43,6 +43,7 @@ function normalizeArgumentsForBridge(
         disableVerticalStreakDetection?: boolean;
         timingMarkAlgorithm?: 'contours' | 'corners';
         inferTimingMarks?: boolean;
+        minimumDetectedScale?: number;
         debug?: boolean;
       }
     | {
@@ -50,6 +51,7 @@ function normalizeArgumentsForBridge(
         disableVerticalStreakDetection?: boolean;
         timingMarkAlgorithm?: 'contours' | 'corners';
         inferTimingMarks?: boolean;
+        minimumDetectedScale?: number;
         debugBasePaths?: SheetOf<string>;
       } = {}
 ): Parameters<typeof interpretImpl> {
@@ -83,6 +85,7 @@ function normalizeArgumentsForBridge(
       timingMarkAlgorithm: options.timingMarkAlgorithm,
       disableVerticalStreakDetection: options.disableVerticalStreakDetection,
       inferTimingMarks: options.inferTimingMarks,
+      minimumDetectedScale: options.minimumDetectedScale,
     },
   ];
 }
@@ -98,6 +101,7 @@ export function interpret(
     disableVerticalStreakDetection?: boolean;
     timingMarkAlgorithm?: 'contours' | 'corners';
     inferTimingMarks?: boolean;
+    minimumDetectedScale?: number;
     debug?: boolean;
   }
 ): HmpbInterpretResult;
@@ -112,6 +116,7 @@ export function interpret(
     disableVerticalStreakDetection?: boolean;
     timingMarkAlgorithm?: 'contours' | 'corners';
     inferTimingMarks?: boolean;
+    minimumDetectedScale?: number;
     debugBasePaths?: SheetOf<string>;
   }
 ): HmpbInterpretResult;
@@ -127,6 +132,7 @@ export function interpret(
         disableVerticalStreakDetection?: boolean;
         timingMarkAlgorithm?: 'contours' | 'corners';
         inferTimingMarks?: boolean;
+        minimumDetectedScale?: number;
         debug?: boolean;
       }
     | {
@@ -134,6 +140,7 @@ export function interpret(
         disableVerticalStreakDetection?: boolean;
         timingMarkAlgorithm?: 'contours' | 'corners';
         inferTimingMarks?: boolean;
+        minimumDetectedScale?: number;
         debugBasePaths?: SheetOf<string>;
       }
 ): HmpbInterpretResult {

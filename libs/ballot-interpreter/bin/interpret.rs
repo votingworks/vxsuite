@@ -35,6 +35,10 @@ struct Options {
     /// Which timing mark finding algorithm to use.
     #[clap(long, short = 'a', default_value_t = Default::default())]
     timing_mark_algorithm: TimingMarkAlgorithm,
+
+    /// Detect and reject timing mark grid scales less than this value.
+    #[clap(long)]
+    minimum_detected_scale: Option<f32>,
 }
 
 impl Options {
@@ -62,6 +66,7 @@ fn main() -> color_eyre::Result<()> {
         options.disable_vertical_streak_detection,
         !options.disable_timing_mark_inference,
         options.timing_mark_algorithm,
+        options.minimum_detected_scale,
     )?;
 
     let start = Instant::now();

@@ -19,6 +19,7 @@ import {
   SheetOf,
   SystemSettings,
   safeParseSystemSettings,
+  safeParseNumber,
 } from '@votingworks/types';
 import { jsonStream } from '@votingworks/utils';
 import Sqlite3 from 'better-sqlite3';
@@ -61,6 +62,9 @@ function usage(out: NodeJS.WritableStream): void {
   );
   out.write(
     '  --disable-vertical-streak-detection Disable vertical streak detection.\n'
+  );
+  out.write(
+    '  --minimum-detected-scale SCALE      Reject ballots with detected scale less than SCALE.\n'
   );
   out.write(`\n`);
   out.write(chalk.bold('Examples:\n'));
@@ -198,6 +202,7 @@ async function interpretFiles(
     stderr,
     scoreWriteIns,
     disableVerticalStreakDetection,
+    minimumDetectedScale,
     json = false,
     debug = false,
     useDefaultMarkThresholds = false,
@@ -206,6 +211,7 @@ async function interpretFiles(
     stderr: NodeJS.WritableStream;
     scoreWriteIns?: boolean;
     disableVerticalStreakDetection?: boolean;
+    minimumDetectedScale?: number;
     json?: boolean;
     debug?: boolean;
     useDefaultMarkThresholds?: boolean;
@@ -219,6 +225,7 @@ async function interpretFiles(
       disableVerticalStreakDetection:
         disableVerticalStreakDetection ??
         systemSettings?.disableVerticalStreakDetection,
+      minimumDetectedScale,
       debug,
     }
   );
@@ -354,6 +361,7 @@ async function interpretWorkspace(
     sheetIds,
     scoreWriteIns = false,
     disableVerticalStreakDetection,
+    minimumDetectedScale,
     json = false,
     debug = false,
     useDefaultMarkThresholds = false,
@@ -363,6 +371,7 @@ async function interpretWorkspace(
     sheetIds: Iterable<string>;
     scoreWriteIns?: boolean;
     disableVerticalStreakDetection?: boolean;
+    minimumDetectedScale?: number;
     json?: boolean;
     debug?: boolean;
     useDefaultMarkThresholds?: boolean;
@@ -465,6 +474,7 @@ async function interpretWorkspace(
         stderr,
         scoreWriteIns,
         disableVerticalStreakDetection,
+        minimumDetectedScale,
         json,
         debug,
         useDefaultMarkThresholds,
@@ -495,6 +505,7 @@ async function interpretCastVoteRecordFolder(
     stderr,
     scoreWriteIns = false,
     disableVerticalStreakDetection,
+    minimumDetectedScale,
     json = false,
     debug = false,
     useDefaultMarkThresholds = false,
@@ -503,6 +514,7 @@ async function interpretCastVoteRecordFolder(
     stderr: NodeJS.WritableStream;
     scoreWriteIns?: boolean;
     disableVerticalStreakDetection?: boolean;
+    minimumDetectedScale?: number;
     json?: boolean;
     debug?: boolean;
     useDefaultMarkThresholds?: boolean;
@@ -532,6 +544,7 @@ async function interpretCastVoteRecordFolder(
             stderr,
             scoreWriteIns,
             disableVerticalStreakDetection,
+            minimumDetectedScale,
             json,
             debug,
             useDefaultMarkThresholds,
@@ -556,11 +569,14 @@ export async function main(args: string[], io: IO = process): Promise<number> {
   let ballotPathSideB: string | undefined;
   let scoreWriteIns: boolean | undefined;
   let disableVerticalStreakDetection: boolean | undefined;
+  let minimumDetectedScale: number | undefined;
   let json = false;
   let debug = false;
   let useDefaultMarkThresholds = false;
 
-  for (const arg of args) {
+  for (let i = 0; i < args.length; i += 1) {
+    const arg = args[i] as string;
+
     if (arg === '-h' || arg === '--help') {
       usage(io.stdout);
       return 0;
@@ -588,6 +604,21 @@ export async function main(args: string[], io: IO = process): Promise<number> {
 
     if (arg === '--disable-vertical-streak-detection') {
       disableVerticalStreakDetection = true;
+      continue;
+    }
+
+    if (arg === '--minimum-detected-scale') {
+      i += 1;
+      const rawScale = args[i];
+      const parseScaleResult = safeParseNumber(rawScale);
+      if (parseScaleResult.isErr()) {
+        io.stderr.write(
+          `Expected scale value after ${arg} but got ${rawScale}`
+        );
+        usage(io.stderr);
+        return 1;
+      }
+      minimumDetectedScale = parseScaleResult.ok();
       continue;
     }
 
@@ -654,6 +685,7 @@ export async function main(args: string[], io: IO = process): Promise<number> {
       json,
       scoreWriteIns,
       disableVerticalStreakDetection,
+      minimumDetectedScale,
       debug,
       useDefaultMarkThresholds,
     });
@@ -702,6 +734,7 @@ export async function main(args: string[], io: IO = process): Promise<number> {
           stderr: io.stderr,
           scoreWriteIns,
           disableVerticalStreakDetection,
+          minimumDetectedScale,
           json,
           debug,
           useDefaultMarkThresholds,
@@ -718,6 +751,7 @@ export async function main(args: string[], io: IO = process): Promise<number> {
           stderr: io.stderr,
           scoreWriteIns,
           disableVerticalStreakDetection,
+          minimumDetectedScale,
           json,
           debug,
           useDefaultMarkThresholds,

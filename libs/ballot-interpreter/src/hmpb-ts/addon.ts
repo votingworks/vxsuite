@@ -47,6 +47,7 @@ export function interpret(
     disableVerticalStreakDetection?: boolean;
     timingMarkAlgorithm?: 'contours' | 'corners';
     inferTimingMarks?: boolean;
+    minimumDetectedScale?: number;
   }
 ): BridgeInterpretResult {
   return addon.interpret(

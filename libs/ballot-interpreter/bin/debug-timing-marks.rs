@@ -16,14 +16,11 @@ use ballot_interpreter::{
     ballot_card::PaperInfo,
     debug,
     interpret::{prepare_ballot_page_image, Error, TimingMarkAlgorithm},
-    timing_marks::{
-        contours, corners, scoring::CandidateTimingMark, DefaultForGeometry, TimingMarks,
-    },
+    timing_marks::{contours, corners, Border, DefaultForGeometry, TimingMarks},
 };
 use clap::Parser;
 use color_eyre::owo_colors::OwoColorize;
 use itertools::Itertools;
-use types_rs::geometry::SubPixelUnit;
 
 #[derive(Debug, Clone, Copy)]
 enum Inference {
@@ -152,90 +149,27 @@ fn process_path<W: Write>(
     });
 
     if let Some(stats) = stats {
-        let top_edge_length = timing_marks
-            .top_left_corner
-            .distance_to(&timing_marks.top_right_corner);
-        let bottom_edge_length = timing_marks
-            .bottom_left_corner
-            .distance_to(&timing_marks.bottom_right_corner);
-        let left_edge_length = timing_marks
-            .top_left_corner
-            .distance_to(&timing_marks.bottom_left_corner);
-        let right_edge_length = timing_marks
-            .top_right_corner
-            .distance_to(&timing_marks.bottom_right_corner);
-
-        let expected_horizontal_timing_mark_period = ballot_page
-            .geometry
-            .horizontal_timing_mark_center_to_center_pixel_distance();
-        let expected_vertical_timing_mark_period = ballot_page
-            .geometry
-            .vertical_timing_mark_center_to_center_pixel_distance();
-
-        let expected_horizontal_edge_length = expected_horizontal_timing_mark_period
-            * (ballot_page.geometry.grid_size.width - 1) as SubPixelUnit;
-        let expected_vertical_edge_length = expected_vertical_timing_mark_period
-            * (ballot_page.geometry.grid_size.height - 1) as SubPixelUnit;
-
-        fn median(values: impl IntoIterator<Item = SubPixelUnit>) -> Option<SubPixelUnit> {
-            let values = values
-                .into_iter()
-                .sorted_by(|a, b| a.total_cmp(b))
-                .collect_vec();
-
-            if values.is_empty() {
-                None
-            } else if values.len() % 2 == 0 {
-                let left = values[values.len() / 2 - 1];
-                let right = values[values.len() / 2];
-                Some(left.midpoint(right))
-            } else {
-                Some(values[(values.len() - 1) / 2])
-            }
-        }
-
-        fn median_timing_mark_period<'a>(
-            marks: impl Iterator<Item = &'a CandidateTimingMark>,
-        ) -> SubPixelUnit {
-            median(
-                marks
-                    .tuple_windows()
-                    .map(|(a, b)| a.rect().center().distance_to(&b.rect().center())),
-            )
-            .unwrap_or_default()
-        }
-
-        let top_edge_median_period = median_timing_mark_period(timing_marks.top_marks.iter());
-        let bottom_edge_median_period = median_timing_mark_period(timing_marks.bottom_marks.iter());
-        let left_edge_median_period = median_timing_mark_period(timing_marks.left_marks.iter());
-        let right_edge_median_period = median_timing_mark_period(timing_marks.right_marks.iter());
-
-        let median_left_to_right_length = median(
-            timing_marks
-                .left_marks
-                .iter()
-                .zip_eq(&timing_marks.right_marks)
-                .map(|(a, b)| a.rect().center().distance_to(&b.rect().center())),
-        )
-        .unwrap_or_default();
+        let top_edge_median_period = timing_marks
+            .compute_scale_based_on_border(Border::Top)
+            .unwrap_or_default();
+        let bottom_edge_median_period = timing_marks
+            .compute_scale_based_on_border(Border::Bottom)
+            .unwrap_or_default();
+        let left_edge_median_period = timing_marks
+            .compute_scale_based_on_border(Border::Left)
+            .unwrap_or_default();
+        let right_edge_median_period = timing_marks
+            .compute_scale_based_on_border(Border::Right)
+            .unwrap_or_default();
 
         writeln!(
             stats,
-            "{},{},{},{},{},{},{},{},{},{},{},{},{},{}",
+            "{},{},{},{},{}",
             path.display(),
-            expected_horizontal_edge_length,
-            expected_vertical_edge_length,
-            expected_horizontal_timing_mark_period,
-            expected_vertical_timing_mark_period,
-            top_edge_length,
-            bottom_edge_length,
-            left_edge_length,
-            right_edge_length,
             top_edge_median_period,
             bottom_edge_median_period,
             left_edge_median_period,
             right_edge_median_period,
-            median_left_to_right_length,
         )?;
     }
 

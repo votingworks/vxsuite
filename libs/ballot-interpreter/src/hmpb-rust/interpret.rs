@@ -38,10 +38,12 @@ use crate::scoring::score_bubble_marks_from_grid_layout;
 use crate::scoring::score_write_in_areas;
 use crate::scoring::ScoredBubbleMarks;
 use crate::scoring::ScoredPositionAreas;
+use crate::scoring::UnitIntervalScore;
 use crate::timing_marks::contours;
 use crate::timing_marks::corners;
 use crate::timing_marks::normalize_orientation;
 use crate::timing_marks::BallotPageMetadata;
+use crate::timing_marks::Border;
 use crate::timing_marks::DefaultForGeometry;
 use crate::timing_marks::TimingMarks;
 
@@ -55,6 +57,7 @@ pub struct Options {
     pub disable_vertical_streak_detection: bool,
     pub infer_timing_marks: bool,
     pub timing_mark_algorithm: TimingMarkAlgorithm,
+    pub minimum_detected_scale: Option<UnitIntervalScore>,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -166,6 +169,11 @@ pub enum Error {
         label: String,
         dimensions: Size<PixelUnit>,
     },
+    #[error("invalid detected ballot scale: {scale}")]
+    InvalidScale {
+        label: String,
+        scale: UnitIntervalScore,
+    },
     #[error("could not compute layout for {side:?}")]
     CouldNotComputeLayout { side: BallotSide },
     #[error("vertical streaks detected on {label:?}")]
@@ -188,6 +196,7 @@ pub struct ScanInterpreter {
     infer_timing_marks: bool,
     bubble_template_image: GrayImage,
     timing_mark_algorithm: TimingMarkAlgorithm,
+    minimum_detected_scale: Option<f32>,
 }
 
 impl ScanInterpreter {
@@ -202,6 +211,7 @@ impl ScanInterpreter {
         disable_vertical_streak_detection: bool,
         infer_timing_marks: bool,
         timing_mark_algorithm: TimingMarkAlgorithm,
+        minimum_detected_scale: Option<f32>,
     ) -> Result<Self, image::ImageError> {
         let bubble_template_image = load_ballot_scan_bubble_image()?;
         Ok(Self {
@@ -211,6 +221,7 @@ impl ScanInterpreter {
             infer_timing_marks,
             bubble_template_image,
             timing_mark_algorithm,
+            minimum_detected_scale,
         })
     }
 
@@ -236,6 +247,7 @@ impl ScanInterpreter {
             disable_vertical_streak_detection: self.disable_vertical_streak_detection,
             infer_timing_marks: self.infer_timing_marks,
             timing_mark_algorithm: self.timing_mark_algorithm,
+            minimum_detected_scale: self.minimum_detected_scale.map(UnitIntervalScore),
         };
         ballot_card(side_a_image, side_b_image, &options)
     }
@@ -454,6 +466,27 @@ pub fn ballot_card(
 
     let side_a_timing_marks = side_a_timing_marks_result?;
     let side_b_timing_marks = side_b_timing_marks_result?;
+
+    if let Some(minimum_detected_scale) = options.minimum_detected_scale {
+        for (label, timing_marks) in [
+            (SIDE_A_LABEL, &side_a_timing_marks),
+            (SIDE_A_LABEL, &side_b_timing_marks),
+        ] {
+            // We use the bottom border here because:
+            // - there should be little to no stretching along the horizontal axis (we assume it's perpendicular to the scan direction)
+            // - any stretch/skew tends to occur at the start of scan/top
+            // - the detected scale vs. printed scale delta is smaller compared to the other measures we've tried
+            // See https://votingworks.slack.com/archives/CEL6D3GAD/p1750095447642289 for more context.
+            if let Some(scale) = timing_marks.compute_scale_based_on_border(Border::Bottom) {
+                if scale < minimum_detected_scale {
+                    return Err(Error::InvalidScale {
+                        label: label.to_owned(),
+                        scale,
+                    });
+                }
+            }
+        }
+    }
 
     // We'll find the appropriate metadata, use it to normalize the image and
     // grid orientation, and extract the ballot style from it.
@@ -776,6 +809,7 @@ mod test {
             disable_vertical_streak_detection: false,
             infer_timing_marks: true,
             timing_mark_algorithm: TimingMarkAlgorithm::default(),
+            minimum_detected_scale: None,
         };
         (side_a_image, side_b_image, options)
     }
@@ -805,6 +839,7 @@ mod test {
             disable_vertical_streak_detection: false,
             infer_timing_marks: true,
             timing_mark_algorithm: TimingMarkAlgorithm::default(),
+            minimum_detected_scale: None,
         };
         (side_a_image, side_b_image, options)
     }
