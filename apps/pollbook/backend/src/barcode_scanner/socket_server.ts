@@ -12,7 +12,7 @@ import { AamvaDocumentSchema } from '../types';
 import { tryConnect } from './unix_socket';
 
 export const UDS_CONNECTION_ATTEMPT_DELAY_MS = 1000;
-export const UDS_CONNECTION_TIMEOUT_MS = 60 * 1000;
+export const UDS_CONNECTION_TIMEOUT_MS = 60 * 60 * 1000; // 1 hour
 
 /**
  * Attempts to connect to the barcode scanner Unix socket within a retry loop.
