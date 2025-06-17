@@ -199,6 +199,7 @@ impl TimingMarks {
     /// Note that, for now, we assume that the direction of scan is vertical
     /// from top to bottom or bottom to top. This function does not bake in that
     /// assumption, but its caller likely does.
+    #[must_use]
     pub fn compute_scale_based_on_border(&self, border: Border) -> Option<UnitIntervalScore> {
         let marks = match border {
             Border::Top => &self.top_marks,
@@ -227,10 +228,7 @@ impl TimingMarks {
 }
 
 fn median(values: impl IntoIterator<Item = SubPixelUnit>) -> Option<SubPixelUnit> {
-    let values = values
-        .into_iter()
-        .sorted_by(|a, b| a.total_cmp(b))
-        .collect_vec();
+    let values = values.into_iter().sorted_by(f32::total_cmp).collect_vec();
 
     if values.is_empty() {
         None

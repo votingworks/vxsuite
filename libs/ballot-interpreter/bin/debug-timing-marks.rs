@@ -221,7 +221,7 @@ fn main() -> color_eyre::Result<()> {
         .transpose(),
         None => Ok(None),
     }?;
-    let mut stats = stats_file.map(|stats_file| BufWriter::new(stats_file));
+    let mut stats = stats_file.map(BufWriter::new);
 
     if let Some(stats) = &mut stats {
         writeln!(

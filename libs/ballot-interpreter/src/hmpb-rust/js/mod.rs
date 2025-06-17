@@ -46,6 +46,7 @@ fn make_interpret_result<'a>(
 /// value cannot be serialized to JSON, a `Throw` will result.
 ///
 /// Once interpretation starts, errors are returned as structured data.
+#[allow(clippy::too_many_lines)]
 pub fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
     let election = get_election_definition_from_arg(&mut cx, 0)?;
     let side_a_image_or_path = get_image_data_or_path_from_arg(&mut cx, 1)?;
@@ -104,7 +105,7 @@ pub fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
     } else if timing_mark_algorithm.is_a::<JsUndefined, _>(&mut cx) {
         TimingMarkAlgorithm::default()
     } else {
-        return cx.throw_type_error(format!("Invalid or missing timing mark algorithm"));
+        return cx.throw_type_error("Invalid or missing timing mark algorithm");
     };
 
     let minimum_detected_scale = options.get_value(&mut cx, "minimumDetectedScale")?;
@@ -117,7 +118,7 @@ pub fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
     } else if minimum_detected_scale.is_a::<JsUndefined, _>(&mut cx) {
         None
     } else {
-        return cx.throw_type_error(format!("Invalid minimum detected scale"));
+        return cx.throw_type_error("Invalid minimum detected scale");
     };
 
     let side_a_label = side_a_image_or_path.as_label_or(SIDE_A_LABEL);

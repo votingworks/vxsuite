@@ -17,7 +17,7 @@ use crate::{
     image_utils::{diff, BLACK, WHITE},
 };
 
-#[derive(Clone, Copy, Serialize)]
+#[derive(Clone, Copy, Serialize, Default)]
 #[must_use]
 pub struct UnitIntervalScore(pub UnitIntervalValue);
 
@@ -60,12 +60,6 @@ impl Add for UnitIntervalScore {
 
     fn add(self, rhs: Self) -> Self::Output {
         self.0 + rhs.0
-    }
-}
-
-impl Default for UnitIntervalScore {
-    fn default() -> Self {
-        Self(f32::default())
     }
 }
 
