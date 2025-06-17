@@ -93,7 +93,7 @@ export class LocalStore extends Store {
     codeVersion: string = 'test-v1'
   ): LocalStore {
     return new LocalStore(
-      DbClient.memoryClient(SchemaPath),
+      DbClient.memoryClient(SchemaPath, { registerRegexpFn: true }),
       machineId,
       codeVersion
     );

@@ -81,11 +81,19 @@ export class Client {
   /**
    * Builds and returns a new client whose data is kept in memory.
    */
-  static memoryClient(schemaPath?: string): Client {
+  static memoryClient(
+    schemaPath?: string,
+    connectionOptions?: DbConnectionOptions
+  ): Client {
+    debug(
+      'creating memory client with connectionOptions: %o',
+      connectionOptions
+    );
     const client = new Client(
       MEMORY_DB_PATH,
       new BaseLogger(LogSource.System),
-      schemaPath
+      schemaPath,
+      connectionOptions
     );
     client.create();
     return client;
@@ -102,7 +110,7 @@ export class Client {
   ): Client {
     const client = new Client(dbPath, logger, schemaPath, connectionOptions);
 
-    debug('creating client with connectionOptions: %o', connectionOptions);
+    debug('creating file client with connectionOptions: %o', connectionOptions);
 
     if (!schemaPath) {
       return client;

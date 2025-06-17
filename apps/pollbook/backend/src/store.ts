@@ -213,8 +213,7 @@ export abstract class Store {
       events
     );
 
-    const value = updatedVoters[voterId];
-    return value;
+    return updatedVoters[voterId];
   }
 
   saveEvent(pollbookEvent: PollbookEvent): boolean {
