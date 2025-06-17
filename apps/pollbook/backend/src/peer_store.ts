@@ -18,6 +18,7 @@ import { convertDbRowsToPollbookEvents } from './event_helpers';
 import {
   ConfigurationError,
   EventDbRow,
+  PollbookConfigurationInformation,
   PollbookConnectionStatus,
   PollbookEvent,
   PollbookService,
@@ -25,6 +26,7 @@ import {
 import { rootDebug } from './debug';
 import { SchemaPath, Store } from './store';
 import { readPollbookPackage } from './pollbook_package';
+import { shouldPollbooksConnect } from './networking';
 
 const debug = rootDebug.extend('store:peer');
 
@@ -102,11 +104,17 @@ export class PeerStore extends Store {
   }
 
   // Saves all events received from a remote machine. Returning the last event's timestamp.
-  saveRemoteEvents(pollbookEvents: PollbookEvent[]): void {
+  saveRemoteEvents(
+    pollbookEvents: PollbookEvent[],
+    remoteMachineInformation: PollbookConfigurationInformation
+  ): void {
     this.client.transaction(() => {
-      if (this.getElection() === undefined) {
-        debug('No election set, not saving events');
-        return;
+      const localInformation = this.getPollbookConfigurationInformation();
+      if (!shouldPollbooksConnect(localInformation, remoteMachineInformation)) {
+        debug(
+          'Events from remote machine do not match the current machines configuration, not syncing.'
+        );
+        throw new Error('mismatched-configuration');
       }
       for (const pollbookEvent of pollbookEvents) {
         this.saveEvent(pollbookEvent);

@@ -1,6 +1,6 @@
 import { execFile } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
-import { sleep } from '@votingworks/basics';
+import { assert, sleep } from '@votingworks/basics';
 import { rootDebug } from './debug';
 import {
   PeerAppContext,
@@ -37,6 +37,7 @@ export async function resetNetworkSetup(machineId: string): Promise<void> {
     AvahiService.advertiseHttpService(currentNodeServiceName, PEER_PORT);
     debug('Network restarted');
   } catch (error) {
+    /* istanbul ignore next - for safety @preserve */
     debug(`Error restarting network: ${error}`);
   }
 }
@@ -57,6 +58,7 @@ export function shouldPollbooksConnect(
   pollbook2: PollbookConfigurationInformation
 ): boolean {
   return (
+    !!pollbook1.electionBallotHash &&
     pollbook1.electionBallotHash === pollbook2.electionBallotHash &&
     pollbook1.pollbookPackageHash === pollbook2.pollbookPackageHash &&
     !!pollbook1.configuredPrecinctId &&
@@ -112,12 +114,6 @@ export function fetchEventsFromConnectedPollbooks({
           pollbooksToQuery.map(async (currentName) => {
             const currentPollbookService = previouslyConnected[currentName];
             if (
-              currentPollbookService.status !==
-              PollbookConnectionStatus.Connected
-            ) {
-              return;
-            }
-            if (
               !shouldPollbooksConnect(
                 myMachineInformation,
                 currentPollbookService
@@ -131,6 +127,7 @@ export function fetchEventsFromConnectedPollbooks({
               return;
             }
             const { apiClient } = currentPollbookService;
+            /* istanbul ignore next: rare edge case handling @preserve */
             if (!apiClient) {
               return;
             }
@@ -140,10 +137,14 @@ export function fetchEventsFromConnectedPollbooks({
               while (syncMoreEvents) {
                 const lastEventSyncedPerNode =
                   workspace.store.getMostRecentEventIdPerMachine();
-                const { events, hasMore } = await apiClient.getEvents({
-                  lastEventSyncedPerNode,
-                });
-                workspace.store.saveRemoteEvents(events);
+                const { events, configurationInformation, hasMore } =
+                  await apiClient.getEvents({
+                    lastEventSyncedPerNode,
+                  });
+                workspace.store.saveRemoteEvents(
+                  events,
+                  configurationInformation
+                );
                 syncMoreEvents = hasMore;
               }
 
@@ -154,6 +155,15 @@ export function fetchEventsFromConnectedPollbooks({
                 status: PollbookConnectionStatus.Connected,
               });
             } catch (error) {
+              assert(error instanceof Error);
+              if (error.message === 'mismatched-configuration') {
+                workspace.store.setPollbookServiceForName(currentName, {
+                  ...currentPollbookService,
+                  apiClient,
+                  lastSeen: new Date(),
+                  status: PollbookConnectionStatus.MismatchedConfiguration,
+                });
+              }
               debug(
                 `Failed to sync events from ${currentPollbookService.machineId}: ${error}`
               );
@@ -252,10 +262,6 @@ export function setupMachineNetworking({
               : createPeerApiClientForAddress(`http://${resolvedIp}:${port}`);
 
           try {
-            if (!apiClient) {
-              debug('No api client found for %s', name);
-              continue;
-            }
             const machineInformation =
               await apiClient.getPollbookConfigurationInformation();
             if (name === currentNodeServiceName) {
@@ -309,6 +315,7 @@ export function setupMachineNetworking({
         // Clean up stale machines
         workspace.store.cleanupStalePollbookServices();
       } catch (error) {
+        /* istanbul ignore next - for safety @preserve */
         debug(`Previously uncaught error in network polling: ${error}`);
       } finally {
         isPolling = false;
