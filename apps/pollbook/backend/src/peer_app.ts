@@ -26,9 +26,13 @@ function buildApi(context: PeerAppContext) {
 
     getEvents(input: { lastEventSyncedPerNode: Record<string, number> }): {
       events: PollbookEvent[];
+      configurationInformation: PollbookConfigurationInformation;
       hasMore: boolean;
     } {
-      return store.getNewEvents(input.lastEventSyncedPerNode);
+      return {
+        ...store.getNewEvents(input.lastEventSyncedPerNode),
+        configurationInformation: store.getPollbookConfigurationInformation(),
+      };
     },
 
     unconfigure() {
