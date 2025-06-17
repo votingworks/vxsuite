@@ -57,7 +57,7 @@ test('feature flag to hide marginal mark thresholds', async () => {
   renderScreen();
   await screen.findByRole('heading', { name: 'System Settings' });
 
-  screen.getByRole('heading', { name: 'Mark Thresholds' });
+  screen.getByRole('heading', { name: 'Scanner Thresholds' });
 
   expect(
     screen.queryByRole('spinbutton', {
@@ -74,7 +74,7 @@ test('mark thresholds', async () => {
   renderScreen();
   await screen.findByRole('heading', { name: 'System Settings' });
 
-  screen.getByRole('heading', { name: 'Mark Thresholds' });
+  screen.getByRole('heading', { name: 'Scanner Thresholds' });
 
   const definiteInput = screen.getByRole('spinbutton', {
     name: 'Definite Mark Threshold',
@@ -138,6 +138,41 @@ test('mark thresholds', async () => {
     updatedSystemSettings.bitonalThreshold
   );
   expect(bitonalThresholdInput).toBeDisabled();
+});
+
+test('minimum detected scale', async () => {
+  apiMock.getUser.expectCallWith().resolves(user);
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves(electionRecord.systemSettings);
+  renderScreen();
+  await screen.findByRole('heading', { name: 'System Settings' });
+
+  screen.getByRole('heading', { name: 'Scanner Thresholds' });
+
+  const minimumDetectedScaleInput = screen.getByRole('spinbutton', {
+    name: 'Minimum Detected Scale',
+  });
+  expect(minimumDetectedScaleInput).toBeDisabled();
+  expect(minimumDetectedScaleInput).toHaveValue(0.985);
+
+  userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+
+  userEvent.type(minimumDetectedScaleInput, '{selectall}0.975');
+
+  const updatedSystemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    minimumDetectedScale: 0.975,
+  };
+  apiMock.updateSystemSettings
+    .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
+    .resolves();
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves(updatedSystemSettings);
+  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+  await screen.findByRole('button', { name: 'Edit' });
 });
 
 test('adjudication reasons', async () => {
@@ -510,7 +545,7 @@ test('all controls are disabled until clicking "Edit"', async () => {
   const allCheckboxes = document.body.querySelectorAll('[role=checkbox]');
   const allControls = [...allTextBoxes, ...allCheckboxes];
 
-  expect(allControls).toHaveLength(25);
+  expect(allControls).toHaveLength(26);
 
   for (const control of allControls) {
     expect(control).toBeDisabled();

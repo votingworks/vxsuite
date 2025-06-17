@@ -245,7 +245,7 @@ export function SystemSettingsForm({
           </Column>
         </Card>
         <Card style={{ minWidth: '16rem' }}>
-          <H2>Mark Thresholds</H2>
+          <H2>Scanner Thresholds</H2>
           <Column style={{ gap: '1.5rem' }}>
             <InputGroup label="Definite Mark Threshold">
               <input
@@ -349,6 +349,33 @@ export function SystemSettingsForm({
                 step={1}
                 min={0}
                 max={100}
+                disabled={!isEditing}
+              />
+            </InputGroup>
+            <InputGroup label="Minimum Detected Scale">
+              <input
+                type="number"
+                value={systemSettings.minimumDetectedScale ?? ''}
+                onChange={(e) => {
+                  const minimumDetectedScale = e.target.valueAsNumber;
+                  setSystemSettings({
+                    ...systemSettings,
+                    minimumDetectedScale: Number.isNaN(minimumDetectedScale)
+                      ? undefined
+                      : minimumDetectedScale,
+                  });
+                }}
+                onBlur={(e) => {
+                  if (e.target.value === '') {
+                    setSystemSettings({
+                      ...systemSettings,
+                      minimumDetectedScale: undefined,
+                    });
+                  }
+                }}
+                step={0.005}
+                min={0}
+                max={1}
                 disabled={!isEditing}
               />
             </InputGroup>

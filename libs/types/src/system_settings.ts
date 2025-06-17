@@ -95,6 +95,13 @@ export interface SystemSettings {
    * Enables BMD ballot scanning on VxScan. If unspecified, BMD ballots will be rejected on VxScan.
    */
   readonly precinctScanEnableBmdBallotScanning?: boolean;
+
+  /**
+   * Reject ballots with a detected scale less than this value. This can
+   * prevent issues with bubble scoring on ballots that are printed at too low
+   * of a scale. In practice, this value should be between 0.9 and 1.0.
+   */
+  readonly minimumDetectedScale?: number;
 }
 
 export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
@@ -116,6 +123,7 @@ export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
   quickResultsReportingUrl: z.string().optional(),
   precinctScanEnableBallotAuditIds: z.boolean().optional(),
   precinctScanEnableBmdBallotScanning: z.boolean().optional(),
+  minimumDetectedScale: z.number().min(0.0).max(1.0).optional(),
 });
 
 /**
@@ -156,4 +164,10 @@ export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
   centralScanAdjudicationReasons: [],
   adminAdjudicationReasons: [],
   precinctScanEnableBmdBallotScanning: true,
+
+  // Determined by analyzing ballots printed at scale levels from 94-100%,
+  // then measuring the timing mark grid against the expected size.
+  //
+  // See https://votingworks.slack.com/archives/CEL6D3GAD/p1750140685476599?thread_ts=1750095447.642289&cid=CEL6D3GAD.
+  minimumDetectedScale: 0.985,
 };
