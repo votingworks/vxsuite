@@ -53,9 +53,9 @@ export function KeyboardShortcutHandlers(): React.ReactNode {
       }
     }
 
-    document.addEventListener('keydown', onKeyPress);
+    document.addEventListener('keyup', onKeyPress);
 
-    return () => document.removeEventListener('keydown', onKeyPress);
+    return () => document.removeEventListener('keyup', onKeyPress);
   }, [availableLanguages, currentLanguageCode, setLanguage, audioControls]);
 
   return null;

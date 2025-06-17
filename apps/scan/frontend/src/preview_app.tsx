@@ -29,8 +29,8 @@ import { handleKeyboardEvent } from './utils/ui_navigation';
 export function PreviewApp(): JSX.Element {
   // Handle navigation key events from the tactile controller/keyboard.
   React.useEffect(() => {
-    document.addEventListener('keydown', handleKeyboardEvent);
-    return () => document.removeEventListener('keydown', handleKeyboardEvent);
+    document.addEventListener('keyup', handleKeyboardEvent);
+    return () => document.removeEventListener('keyup', handleKeyboardEvent);
   }, []);
 
   return (
