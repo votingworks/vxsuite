@@ -317,6 +317,16 @@ eventId = "audio-device-selection-error"
 eventType = "application-status"
 documentationMessage = "Error while attempting to select a default audio output device."
 
+[Events.AudioVolumeChanged]
+eventId = "audio-volume-changed"
+eventType = "application-status"
+documentationMessage = "The volume level for an audio output device was changed."
+
+[Events.AudioVolumeChangeError]
+eventId = "audio-volume-change-error"
+eventType = "application-status"
+documentationMessage = "Error while attempting to change the volume of an audio output device."
+
 [Events.AudioPlaybackError]
 eventId = "audio-playback-error"
 eventType = "application-status"

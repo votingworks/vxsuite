@@ -185,6 +185,10 @@ pub enum EventId {
     AudioDeviceSelected,
     #[serde(rename = "audio-device-selection-error")]
     AudioDeviceSelectionError,
+    #[serde(rename = "audio-volume-changed")]
+    AudioVolumeChanged,
+    #[serde(rename = "audio-volume-change-error")]
+    AudioVolumeChangeError,
     #[serde(rename = "audio-playback-error")]
     AudioPlaybackError,
     #[serde(rename = "unknown-error")]

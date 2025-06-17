@@ -166,6 +166,14 @@ IDs are logged with each log to identify the log being written.
 **Type:** [application-status](#application-status)
 **Description:** Error while attempting to select a default audio output device.
 **Machines:** All
+### audio-volume-changed
+**Type:** [application-status](#application-status)
+**Description:** The volume level for an audio output device was changed.
+**Machines:** All
+### audio-volume-change-error
+**Type:** [application-status](#application-status)
+**Description:** Error while attempting to change the volume of an audio output device.
+**Machines:** All
 ### audio-playback-error
 **Type:** [application-status](#application-status)
 **Description:** Error while attempting to play audio.
