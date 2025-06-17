@@ -385,9 +385,31 @@ export class LocalStore extends Store {
       return [];
     }
 
-    return voterRows.map((row) =>
-      safeParseJson(row.voter_data, VoterSchema).unsafeUnwrap()
-    );
+    // Map voter rows to voter objects
+    const voters: Record<string, Voter> = {};
+    for (const row of voterRows) {
+      voters[row.voter_id] = safeParseJson(
+        row.voter_data,
+        VoterSchema
+      ).unsafeUnwrap();
+    }
+
+    // Query the database for events related to the matched voters
+    const voterIds = voterRows.map((row) => row.voter_id);
+    const placeholders = voterIds.map(() => '?').join(', ');
+    const eventRows = this.client.all(
+      `
+            SELECT *
+            FROM event_log
+            WHERE voter_id IN (${placeholders})
+            ORDER BY physical_time, logical_counter, machine_id
+            `,
+      ...voterIds
+    ) as EventDbRow[];
+
+    // Convert event rows to pollbook events and apply them to the voters
+    const events = convertDbRowsToPollbookEvents(eventRows);
+    return Object.values(applyPollbookEventsToVoters(voters, events));
   }
 
   registerVoter(voterRegistration: VoterRegistrationRequest): {
