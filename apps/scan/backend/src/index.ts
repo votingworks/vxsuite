@@ -84,7 +84,7 @@ async function main(): Promise<number> {
       BooleanEnvironmentVariableName.ENABLE_ELECTRICAL_TESTING_MODE
     )
   ) {
-    startElectricalTestingServer({
+    await startElectricalTestingServer({
       auth,
       cardTask: TaskController.started<string>(),
       usbDriveTask: TaskController.started<string>(),

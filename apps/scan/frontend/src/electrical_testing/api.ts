@@ -144,3 +144,10 @@ export const getLatestScannedSheet = {
     );
   },
 } as const;
+
+export const playSound = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.playSound);
+  },
+} as const;

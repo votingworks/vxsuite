@@ -5,10 +5,17 @@ import { SheetOf } from '@votingworks/types';
 import express, { Application } from 'express';
 import { mkdir, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
+import { LogEventId } from '@votingworks/logging';
 import { getMachineConfig } from '../machine_config';
 import { type ServerContext } from './context';
+import { SoundName, Player as AudioPlayer } from '../audio/player';
+
+type ApiContext = ServerContext & {
+  audioPlayer?: AudioPlayer;
+};
 
 function buildApi({
+  audioPlayer,
   workspace,
   cardTask,
   usbDriveTask,
@@ -16,7 +23,7 @@ function buildApi({
   scannerTask,
   usbDrive,
   logger,
-}: ServerContext) {
+}: ApiContext) {
   const { store } = workspace;
 
   return grout.createApi({
@@ -48,6 +55,10 @@ function buildApi({
           ? { ...scannerMessage, taskStatus: scannerTask.getStatus() }
           : undefined,
       };
+    },
+
+    async playSound(input: { name: SoundName }): Promise<void> {
+      await audioPlayer?.play(input.name);
     },
 
     setCardReaderTaskRunning(input: { running: boolean }) {
@@ -149,7 +160,7 @@ function buildApi({
 
 export type ElectricalTestingApi = ReturnType<typeof buildApi>;
 
-export function buildApp(context: ServerContext): Application {
+export function buildApp(context: ApiContext): Application {
   const app: Application = express();
   const api = buildApi(context);
   app.use('/api/images', async (req, res) => {
