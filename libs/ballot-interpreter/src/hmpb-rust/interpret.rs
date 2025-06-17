@@ -482,7 +482,7 @@ pub fn ballot_card(
     if let Some(minimum_detected_scale) = options.minimum_detected_scale {
         for (label, timing_marks) in [
             (SIDE_A_LABEL, &side_a_timing_marks),
-            (SIDE_A_LABEL, &side_b_timing_marks),
+            (SIDE_B_LABEL, &side_b_timing_marks),
         ] {
             // We use the bottom border here because:
             // - there should be little to no stretching along the horizontal axis (we assume it's perpendicular to the scan direction)
