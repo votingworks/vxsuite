@@ -1184,8 +1184,8 @@ mod test {
     fn test_reject_scaled_down_ballots() {
         let (side_a_image, side_b_image, options) =
             load_hmpb_fixture("vx-general-election/letter", 3);
-        // Set a minimum scale of 98%.
-        let minimum_detected_scale = UnitIntervalScore(0.98);
+        // Set a minimum scale of 98.5%.
+        let minimum_detected_scale = UnitIntervalScore(0.985);
         let options = Options {
             minimum_detected_scale: Some(minimum_detected_scale),
             ..options
