@@ -43,14 +43,6 @@ export class AvahiService {
     ]);
 
     this.runningProcess = process;
-
-    process.stdout?.on('data', (data) => {
-      debug(`avahi-publish-service successful stdout: ${data}`);
-    });
-
-    process.stderr?.on('data', (data) => {
-      debug(`avahi-publish-service stderr: ${data}`);
-    });
   }
 
   /**

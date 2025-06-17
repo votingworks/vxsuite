@@ -9,6 +9,7 @@ import { err, ok } from '@votingworks/basics';
 import { existsSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { sha256 } from 'js-sha256';
+import { CITIZEN_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
 import {
   mockElectionManagerAuth,
   mockLoggedOut,
@@ -41,6 +42,14 @@ vi.mock(
   })
 );
 
+vi.mock(import('@votingworks/printing'), async (importActual) => {
+  const original = await importActual();
+  return {
+    ...original,
+    renderToPdf: vi.fn().mockResolvedValue(ok([])),
+  } as unknown as typeof import('@votingworks/printing');
+});
+
 const reportPrintedTime = new Date('2021-01-01T00:00:00.000');
 vi.mock(import('./get_current_time.js'), async (importActual) => ({
   ...(await importActual()),
@@ -69,6 +78,10 @@ function extendedWaitFor(
   return vi.waitFor(fn, { timeout });
 }
 
+vitest.setConfig({
+  testTimeout: 10_000,
+});
+
 test('connection status between two pollbooks is managed properly', async () => {
   await withManyApps(2, async ([pollbookContext1, pollbookContext2]) => {
     const testVoters = parseVotersFromCsvString(
@@ -87,26 +100,10 @@ test('connection status between two pollbooks is managed properly', async () => 
         },
       });
     }
-    // Mock hasOnlineInterface to always return true
-    vi.mocked(hasOnlineInterface).mockResolvedValue(true);
+    vi.mocked(hasOnlineInterface).mockResolvedValue(false);
+
     const { port: port1 } =
       pollbookContext1.peerServer.address() as AddressInfo;
-
-    vi.spyOn(
-      pollbookContext1.peerWorkspace.store,
-      'getNewEvents'
-    ).mockResolvedValue({
-      events: [],
-      hasMore: false,
-    });
-    vi.spyOn(
-      pollbookContext2.peerWorkspace.store,
-      'getNewEvents'
-    ).mockResolvedValue({
-      events: [],
-      hasMore: false,
-    });
-
     vi.spyOn(AvahiService, 'discoverHttpServices').mockResolvedValue([
       {
         name: 'Pollbook-test-0',
@@ -115,7 +112,33 @@ test('connection status between two pollbooks is managed properly', async () => 
         port: port1.toString(),
       },
     ]);
+    await extendedWaitFor(async () => {
+      vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
 
+      expect(
+        await pollbookContext1.localApiClient.getDeviceStatuses()
+      ).toMatchObject({
+        network: {
+          isOnline: false,
+          pollbooks: [],
+        },
+      });
+      expect(
+        await pollbookContext2.localApiClient.getDeviceStatuses()
+      ).toMatchObject({
+        network: {
+          isOnline: false,
+          pollbooks: [],
+        },
+      });
+    });
+
+    // Mock hasOnlineInterface to always return true
+    vi.mocked(hasOnlineInterface).mockResolvedValue(true);
+
+    vi.spyOn(pollbookContext1.peerWorkspace.store, 'getNewEvents');
+
+    vi.spyOn(pollbookContext2.peerWorkspace.store, 'getNewEvents');
     await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
 
@@ -218,6 +241,16 @@ test('connection status between two pollbooks is managed properly', async () => 
     pollbookContext1.workspace.store.setConfiguredPrecinct(
       electionDefinition.election.precincts[0].id
     );
+    pollbookContext1.mockPrinterHandler.connectPrinter(
+      CITIZEN_THERMAL_PRINTER_CONFIG
+    );
+    // Check in a voter on pollbook 1
+    const checkIn = await pollbookContext1.localApiClient.checkInVoter({
+      voterId: testVoters[0].voterId,
+      identificationMethod: { type: 'default' },
+    });
+    expect(checkIn.ok()).toEqual(undefined);
+
     pollbookContext2.workspace.store.setElectionAndVoters(
       electionDefinition,
       'fake-package-hash',
@@ -256,13 +289,29 @@ test('connection status between two pollbooks is managed properly', async () => 
       });
     });
 
-    // Now that the pollbooks are connected they should be querying for each others events
-    expect(
-      pollbookContext1.peerWorkspace.store.getNewEvents
-    ).toHaveBeenCalled();
-    expect(
-      pollbookContext2.peerWorkspace.store.getNewEvents
-    ).toHaveBeenCalled();
+    await extendedWaitFor(async () => {
+      vi.advanceTimersByTime(EVENT_POLLING_INTERVAL);
+      // Now that the pollbooks are connected they should be querying for each others events
+      expect(
+        pollbookContext1.peerWorkspace.store.getNewEvents
+      ).toHaveBeenCalled();
+      expect(
+        pollbookContext2.peerWorkspace.store.getNewEvents
+      ).toHaveBeenCalled();
+
+      // Pollbook 2 should now have the check in event for the test voter
+      expect(
+        await pollbookContext2.localApiClient.getVoter({
+          voterId: testVoters[0].voterId,
+        })
+      ).toEqual(
+        expect.objectContaining({
+          checkIn: expect.objectContaining({
+            identificationMethod: { type: 'default' },
+          }),
+        })
+      );
+    });
 
     // Unconfigure one machine and they should update to wrong election.
     pollbookContext1.mockUsbDrive.usbDrive.eject.expectCallWith().resolves();

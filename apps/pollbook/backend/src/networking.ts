@@ -215,10 +215,6 @@ export function setupMachineNetworking({
         const myMachineInformation =
           workspace.store.getPollbookConfigurationInformation();
         const services = await AvahiService.discoverHttpServices();
-        if (!services.length) {
-          debug('No services found on the network');
-          return;
-        }
         const previouslyConnected = workspace.store.getPollbookServicesByName();
         // If there are any services that were previously connected that no longer show up in avahi
         // Mark them as shut down
