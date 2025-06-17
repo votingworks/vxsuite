@@ -38,10 +38,12 @@ export function tryConnect(logger: Logger): Promise<net.Socket> {
 
     client.once('error', (err) => {
       const message = `Pollbook backend failed to connect to barcode scanner Unix socket: ${err.message}`;
-      logger.log(LogEventId.SocketClientConnected, 'system', {
-        message,
-        disposition: LogDispositionStandardTypes.Failure,
-      });
+      if (!err.message.match(/ECONNREFUSED/)) {
+        logger.log(LogEventId.SocketClientConnected, 'system', {
+          message,
+          disposition: LogDispositionStandardTypes.Failure,
+        });
+      }
 
       client.destroy();
       reject(new Error(message));
