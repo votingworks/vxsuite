@@ -289,7 +289,9 @@ export type PollbookEvent =
 
 export interface VoterSearchParams {
   lastName: string;
+  middleName: string;
   firstName: string;
+  suffix: string;
   includeInactiveVoters: boolean;
 }
 

@@ -139,7 +139,7 @@ test('findVotersWithName works as expected - voters without name changes', () =>
   );
 });
 
-test('findVoterWithName works as expected - voters with name changes', () => {
+test('findVoterWithName works as expected - voters with name changes', async () => {
   const workspacePath = tmp.dirSync().name;
   const localStore = LocalStore.fileStore(
     workspacePath,
@@ -161,18 +161,20 @@ test('findVoterWithName works as expected - voters with name changes', () => {
   );
 
   // Before name change, should match original name
-  expect(
-    localStore.findVotersWithName({
-      firstName: 'John',
-      lastName: 'Doe',
-      middleName: 'Allen',
-      suffix: 'Sr',
-    })
-  ).toEqual(
-    expect.arrayContaining([
-      expect.objectContaining({ voterId: voters[0].voterId }),
-    ])
-  );
+  await vi.waitFor(() => {
+    expect(
+      localStore.findVotersWithName({
+        firstName: 'John',
+        lastName: 'Doe',
+        middleName: 'Allen',
+        suffix: 'Sr',
+      })
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ voterId: voters[0].voterId }),
+      ])
+    );
+  });
 
   // Change name for John Doe
   localStore.changeVoterName(voters[0].voterId, {

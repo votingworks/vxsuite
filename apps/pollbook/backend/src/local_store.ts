@@ -225,11 +225,14 @@ export class LocalStore extends Store {
   }
 
   searchVoters(searchParams: VoterSearchParams): Voter[] | number {
-    const { lastName, firstName, includeInactiveVoters } = searchParams;
+    const { lastName, firstName, middleName, suffix, includeInactiveVoters } =
+      searchParams;
     const MAX_VOTER_SEARCH_RESULTS = 100;
 
     const lastNamePattern = toPatternStartsWith(lastName);
+    const middleNamePattern = toPatternStartsWith(middleName);
     const firstNamePattern = toPatternStartsWith(firstName);
+    const suffixPattern = toPatternStartsWith(suffix);
 
     // Query the database for voters matching the search criteria
     const voterRows = this.client.all(
@@ -237,10 +240,14 @@ export class LocalStore extends Store {
             SELECT v.voter_id, v.voter_data
             FROM voters v
             WHERE updated_last_name REGEXP ?
+              AND updated_middle_name REGEXP ?
               AND updated_first_name REGEXP ?
+              AND updated_suffix REGEXP ?
             `,
       `${lastNamePattern}`,
-      `${firstNamePattern}`
+      `${middleNamePattern}`,
+      `${firstNamePattern}`,
+      `${suffixPattern}`
     ) as Array<{ voter_id: string; voter_data: string }>;
 
     if (voterRows.length === 0) {
@@ -364,56 +371,23 @@ export class LocalStore extends Store {
             SELECT v.voter_id, v.voter_data
             FROM voters v
             WHERE updated_last_name REGEXP ?
+              AND updated_middle_name REGEXP ?
               AND updated_first_name REGEXP ?
+              AND updated_suffix REGEXP ?
             `,
       `${lastNamePattern}`,
-      `${firstNamePattern}`
+      `${middleNamePattern}`,
+      `${firstNamePattern}`,
+      `${suffixPattern}`
     ) as Array<{ voter_id: string; voter_data: string }>;
 
     if (voterRows.length === 0) {
       return [];
     }
 
-    // Map voter rows to voter objects
-    const voters: Record<string, Voter> = {};
-    for (const row of voterRows) {
-      voters[row.voter_id] = safeParseJson(
-        row.voter_data,
-        VoterSchema
-      ).unsafeUnwrap();
-    }
-
-    // Query the database for events related to the matched voters
-    const voterIds = voterRows.map((row) => row.voter_id);
-    const placeholders = voterIds.map(() => '?').join(', ');
-    const eventRows = this.client.all(
-      `
-            SELECT *
-            FROM event_log
-            WHERE voter_id IN (${placeholders})
-            ORDER BY physical_time, logical_counter, machine_id
-            `,
-      ...voterIds
-    ) as EventDbRow[];
-
-    // Convert event rows to pollbook events and apply them to the voters
-    const events = convertDbRowsToPollbookEvents(eventRows);
-    const updatedVoters = applyPollbookEventsToVoters(voters, events);
-    const matchedVoters: Voter[] = [];
-    for (const voter of Object.values(updatedVoters)) {
-      // Get the current name (from nameChange if present, otherwise from voter)
-      const currentName = voter.nameChange ?? voter;
-      const suffixMatches = new RegExp(suffixPattern, 'i').test(
-        currentName.suffix ?? ''
-      );
-      const middleNameMatches = new RegExp(middleNamePattern, 'i').test(
-        currentName.middleName ?? ''
-      );
-      if (suffixMatches && middleNameMatches) {
-        matchedVoters.push(voter);
-      }
-    }
-    return matchedVoters;
+    return voterRows.map((row) =>
+      safeParseJson(row.voter_data, VoterSchema).unsafeUnwrap()
+    );
   }
 
   registerVoter(voterRegistration: VoterRegistrationRequest): {

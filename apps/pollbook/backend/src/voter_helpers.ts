@@ -7,11 +7,25 @@ export function getUpdatedVoterFirstName(voter: Voter): string {
   return voter.firstName;
 }
 
+export function getUpdatedVoterMiddleName(voter: Voter): string {
+  if (voter.nameChange) {
+    return voter.nameChange.middleName;
+  }
+  return voter.middleName;
+}
+
 export function getUpdatedVoterLastName(voter: Voter): string {
   if (voter.nameChange) {
     return voter.nameChange.lastName;
   }
   return voter.lastName;
+}
+
+export function getUpdatedVoterSuffix(voter: Voter): string {
+  if (voter.nameChange) {
+    return voter.nameChange.suffix;
+  }
+  return voter.suffix;
 }
 
 export function isVoterNameChangeValid(

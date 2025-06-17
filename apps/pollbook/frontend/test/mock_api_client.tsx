@@ -18,6 +18,7 @@ import type {
   VoterCheckInError,
   VoterNameChangeRequest,
   VoterRegistrationRequest,
+  VoterSearchParams,
 } from '@votingworks/pollbook-backend';
 import {
   mockElectionManagerUser,
@@ -72,6 +73,18 @@ export function createMockVoter(
     party: 'UND',
     district: 'District',
     isInactive: false,
+  };
+}
+
+function getDefaultExpectedVoterSearchParams(
+  input: Partial<VoterSearchParams>
+): VoterSearchParams {
+  return {
+    firstName: input.firstName || '',
+    middleName: input.middleName || '',
+    lastName: input.lastName || '',
+    suffix: input.suffix || '',
+    includeInactiveVoters: input.includeInactiveVoters || false,
   };
 }
 
@@ -313,59 +326,35 @@ export function createApiMock() {
       });
     },
 
-    expectSearchVotersNull(input: {
-      firstName?: string;
-      lastName?: string;
-      includeInactiveVoters?: boolean;
-    }) {
+    expectSearchVotersNull(input: Partial<VoterSearchParams>) {
       mockApiClient.searchVoters.reset();
       mockApiClient.searchVoters
         .expectRepeatedCallsWith({
-          searchParams: {
-            firstName: input.firstName || '',
-            lastName: input.lastName || '',
-            includeInactiveVoters: input.includeInactiveVoters || false,
-          },
+          searchParams: getDefaultExpectedVoterSearchParams(input),
         })
         .resolves(null);
     },
 
     expectSearchVotersTooMany(
-      input: {
-        firstName?: string;
-        lastName?: string;
-        includeInactiveVoters?: boolean;
-      },
+      input: Partial<VoterSearchParams>,
       excessVoters: number
     ) {
       mockApiClient.searchVoters.reset();
       mockApiClient.searchVoters
         .expectRepeatedCallsWith({
-          searchParams: {
-            firstName: input.firstName || '',
-            lastName: input.lastName || '',
-            includeInactiveVoters: input.includeInactiveVoters || false,
-          },
+          searchParams: getDefaultExpectedVoterSearchParams(input),
         })
         .resolves(excessVoters);
     },
 
     expectSearchVotersWithResults(
-      input: {
-        firstName?: string;
-        lastName?: string;
-        includeInactiveVoters?: boolean;
-      },
+      input: Partial<VoterSearchParams>,
       voters: Voter[]
     ) {
       mockApiClient.searchVoters.reset();
       mockApiClient.searchVoters
         .expectRepeatedCallsWith({
-          searchParams: {
-            firstName: input.firstName || '',
-            lastName: input.lastName || '',
-            includeInactiveVoters: input.includeInactiveVoters || false,
-          },
+          searchParams: getDefaultExpectedVoterSearchParams(input),
         })
         .resolves(voters);
     },

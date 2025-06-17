@@ -32,6 +32,8 @@ import {
 import {
   getUpdatedVoterFirstName,
   getUpdatedVoterLastName,
+  getUpdatedVoterMiddleName,
+  getUpdatedVoterSuffix,
 } from './voter_helpers';
 
 const debug = rootDebug.extend('store');
@@ -189,6 +191,7 @@ export abstract class Store {
     ) as Array<{ voter_data: string }>;
 
     assert(voterRows.length === 1, `Voter with ID ${voterId} not found.`);
+
     const voter = safeParseJson(
       voterRows[0].voter_data,
       VoterSchema
@@ -210,7 +213,8 @@ export abstract class Store {
       events
     );
 
-    return updatedVoters[voterId];
+    const value = updatedVoters[voterId];
+    return value;
   }
 
   saveEvent(pollbookEvent: PollbookEvent): boolean {
@@ -239,17 +243,25 @@ export abstract class Store {
               INSERT INTO voters (
                 voter_id,
                 original_first_name,
+                original_middle_name,
                 original_last_name,
+                original_suffix,
                 updated_first_name,
+                updated_middle_name,
                 updated_last_name,
+                updated_suffix,
                 voter_data
-              ) VALUES (?, ?, ?, ?, ?, ?)
+              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
               `,
               voter.voterId,
               voter.firstName.toUpperCase(),
+              voter.middleName.toUpperCase(),
               voter.lastName.toUpperCase(),
+              voter.suffix.toUpperCase(),
               getUpdatedVoterFirstName(voter).toUpperCase(),
+              getUpdatedVoterMiddleName(voter).toUpperCase(),
               getUpdatedVoterLastName(voter).toUpperCase(),
+              getUpdatedVoterSuffix(voter).toUpperCase(),
               JSON.stringify(voter)
             );
             return pollbookEvent.registrationData;
@@ -316,11 +328,13 @@ export abstract class Store {
             this.client.run(
               `
                 UPDATE voters
-                SET updated_first_name = ?, updated_last_name = ?
+                SET updated_first_name = ?, updated_middle_name = ?, updated_last_name = ?, updated_suffix = ?
                 WHERE voter_id = ?
                 `,
               voter.nameChange.firstName.toUpperCase(),
+              voter.nameChange.middleName.toUpperCase(),
               voter.nameChange.lastName.toUpperCase(),
+              voter.nameChange.suffix.toUpperCase(),
               pollbookEvent.voterId
             );
           }
@@ -425,19 +439,27 @@ export abstract class Store {
               insert into voters (
                 voter_id,
                 original_first_name,
+                original_middle_name,
                 original_last_name,
+                original_suffix,
                 updated_first_name,
+                updated_middle_name,
                 updated_last_name,
+                updated_suffix,
                 voter_data
               ) values (
-                ?, ?, ?, ?, ?, ?
+                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
               )
             `,
             voter.voterId,
             voter.firstName.toUpperCase(),
+            voter.middleName.toUpperCase(),
             voter.lastName.toUpperCase(),
+            voter.suffix.toUpperCase(),
             getUpdatedVoterFirstName(voter).toUpperCase(),
+            getUpdatedVoterMiddleName(voter).toUpperCase(),
             getUpdatedVoterLastName(voter).toUpperCase(),
+            getUpdatedVoterSuffix(voter).toUpperCase(),
             JSON.stringify(voter)
           );
         }

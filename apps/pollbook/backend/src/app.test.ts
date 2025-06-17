@@ -73,7 +73,9 @@ test('check in a voter', async () => {
     const votersAbigail = await localApiClient.searchVoters({
       searchParams: {
         firstName: 'Abigail',
+        middleName: '',
         lastName: 'Adams',
+        suffix: '',
         includeInactiveVoters: true,
       },
     });
@@ -213,7 +215,9 @@ test('register a voter', async () => {
     const votersEagen = await localApiClient.searchVoters({
       searchParams: {
         firstName: 'H',
+        middleName: '',
         lastName: 'Eagen',
+        suffix: '',
         includeInactiveVoters: true,
       },
     });
@@ -356,7 +360,9 @@ test('change a voter name', async () => {
     const votersAbigail = await localApiClient.searchVoters({
       searchParams: {
         firstName: 'Abigail',
+        middleName: '',
         lastName: 'Adams',
+        suffix: '',
         includeInactiveVoters: true,
       },
     });
@@ -391,7 +397,9 @@ test('change a voter name', async () => {
     const votersAbigail2 = await localApiClient.searchVoters({
       searchParams: {
         firstName: 'Abigail',
+        middleName: '',
         lastName: 'Adams',
+        suffix: '',
         includeInactiveVoters: true,
       },
     });
@@ -406,7 +414,9 @@ test('change a voter name', async () => {
     const votersBarbara = await localApiClient.searchVoters({
       searchParams: {
         firstName: 'Barbara',
+        middleName: '',
         lastName: 'Bee',
+        suffix: '',
         includeInactiveVoters: true,
       },
     });
@@ -436,7 +446,9 @@ test('undo a voter check-in', async () => {
     const votersAbigail = await localApiClient.searchVoters({
       searchParams: {
         firstName: 'Abigail',
+        middleName: '',
         lastName: 'Adams',
+        suffix: '',
         includeInactiveVoters: true,
       },
     });
@@ -667,7 +679,9 @@ test('check in, change name, undo check-in, change address, and check in again',
     const votersAbigail = await localApiClient.searchVoters({
       searchParams: {
         firstName: 'Abigail',
+        middleName: '',
         lastName: 'Adams',
+        suffix: '',
         includeInactiveVoters: true,
       },
     });
@@ -771,7 +785,9 @@ test('change a voter address with various formats', async () => {
     const votersAbigail = await localApiClient.searchVoters({
       searchParams: {
         firstName: 'Abigail',
+        middleName: '',
         lastName: 'Adams',
+        suffix: '',
         includeInactiveVoters: true,
       },
     });
@@ -896,33 +912,45 @@ test('voter search ignores punctuation', async () => {
       // Test puncutation and whitespace in input are ignored
       {
         firstName: 'george-washington',
+        middleName: '',
         lastName: 'carver-farmer',
+        suffix: '',
         includeInactiveVoters: true,
       },
       {
         firstName: "george'washington",
+        middleName: '',
         lastName: "carver'farmer",
+        suffix: '',
         includeInactiveVoters: true,
       },
       {
         firstName: 'mar tha',
+        middleName: '',
         lastName: 'wash ington',
+        suffix: '',
         includeInactiveVoters: true,
       },
       // Test punctuation and whitespace in db column are ignored
       {
         firstName: 'georgewashington',
+        middleName: '',
         lastName: 'carverfar',
+        suffix: '',
         includeInactiveVoters: true,
       },
       {
         firstName: 'george',
+        middleName: '',
         lastName: 'washington',
+        suffix: '',
         includeInactiveVoters: true,
       },
       {
         firstName: 'martha',
+        middleName: '',
         lastName: 'washington',
+        suffix: '',
         includeInactiveVoters: true,
       },
     ];
@@ -1006,7 +1034,9 @@ test('mark a voter inactive', async () => {
     const votersAbigail = await localApiClient.searchVoters({
       searchParams: {
         firstName: 'Abigail',
+        middleName: '',
         lastName: 'Adams',
+        suffix: '',
         includeInactiveVoters: true,
       },
     });
@@ -1075,7 +1105,9 @@ test('mark a voter inactive', async () => {
     const votersAbigail2 = await localApiClient.searchVoters({
       searchParams: {
         firstName: 'Abigail',
+        middleName: '',
         lastName: 'Adams',
+        suffix: '',
         includeInactiveVoters: true,
       },
     });
@@ -1095,7 +1127,9 @@ test('mark a voter inactive', async () => {
     const votersAbigail3 = await localApiClient.searchVoters({
       searchParams: {
         firstName: 'Abigail',
+        middleName: '',
         lastName: 'Adams',
+        suffix: '',
         includeInactiveVoters: false,
       },
     });
