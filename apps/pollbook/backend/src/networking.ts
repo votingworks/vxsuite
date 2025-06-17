@@ -120,6 +120,7 @@ export function fetchEventsFromConnectedPollbooks({
         await Promise.all(
           pollbooksToQuery.map(async (currentName) => {
             const currentPollbookService = previouslyConnected[currentName];
+            /* istanbul ignore next - extremely unlikely scenario, a machine would need to change code versions to trigger included for defense in depth - @preserve */
             if (
               !arePollbooksCompatible(
                 myMachineInformation,
