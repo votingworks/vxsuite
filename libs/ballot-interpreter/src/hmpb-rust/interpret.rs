@@ -763,7 +763,7 @@ mod test {
         path::{Path, PathBuf},
     };
 
-    use image::Luma;
+    use image::{imageops::FilterType, GenericImage, Luma};
     use imageproc::geometric_transformations::{self, Interpolation, Projection};
     use itertools::Itertools;
     use types_rs::{
@@ -1166,6 +1166,56 @@ mod test {
             ),
         );
         ballot_card(side_a_image, side_b_image, &options).unwrap();
+    }
+
+    #[test]
+    fn test_reject_scaled_down_ballots() {
+        let (side_a_image, side_b_image, options) =
+            load_hmpb_fixture("vx-general-election/letter", 3);
+        // Set a minimum scale of 98%.
+        let minimum_detected_scale = UnitIntervalScore(0.98);
+        let options = Options {
+            minimum_detected_scale: Some(minimum_detected_scale),
+            ..options
+        };
+
+        // Ensure it's not rejected before we scale it.
+        ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap();
+
+        // Scale side A down and ensure it gets rejected.
+        let artificial_scale = minimum_detected_scale.0 - 0.01;
+        let (width, height) = side_a_image.dimensions();
+        let scaled_down_side_a_image = image::imageops::resize(
+            &side_a_image,
+            (width as f32 * artificial_scale) as u32,
+            (height as f32 * artificial_scale) as u32,
+            FilterType::Nearest,
+        );
+
+        // Create an image of the original size with a white background,
+        // then draw the scaled image in its center.
+        let mut side_a_image = GrayImage::from_pixel(width, height, Luma([0xff]));
+        let _debug_side_a_image = DebugImage::write(
+            "test_reject_scaled_down_ballots__side_a_image.png",
+            &side_a_image,
+        );
+        let x = (width - scaled_down_side_a_image.width()) / 2;
+        let y = (height - scaled_down_side_a_image.height()) / 2;
+        side_a_image
+            .copy_from(&scaled_down_side_a_image, x, y)
+            .unwrap();
+
+        // Interpret the scaled down side A and normal side B.
+        let error = ballot_card(side_a_image, side_b_image, &options).unwrap_err();
+        let Error::InvalidScale {
+            scale: detected_scale,
+            ..
+        } = error
+        else {
+            panic!("Unexpected error variant: {error:?}");
+        };
+
+        assert!((detected_scale.0 - artificial_scale).abs() < 0.01, "Detected scale was not close to artificial scale: detected={detected_scale}, artificial={artificial_scale}");
     }
 
     /// Wraps a debug image file that is automatically deleted when the struct
