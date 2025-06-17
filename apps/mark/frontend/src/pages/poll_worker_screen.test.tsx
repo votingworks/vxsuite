@@ -90,7 +90,7 @@ function renderScreen(
 
 test('renders PollWorkerScreen', () => {
   renderScreen(undefined, undefined, undefined);
-  screen.getByText('Poll Worker Actions');
+  screen.getByText('Poll Worker Menu');
   expect(
     screen.getByText('Ballots Printed:').parentElement!.textContent
   ).toEqual('Ballots Printed: 0');

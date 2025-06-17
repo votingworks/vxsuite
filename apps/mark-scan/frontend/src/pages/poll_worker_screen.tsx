@@ -22,7 +22,6 @@ import {
   Modal,
   Screen,
   ElectionInfoBar,
-  TestMode,
   H2,
   P,
   Caption,
@@ -34,6 +33,7 @@ import {
   SignedHashValidationButton,
   RemoveCardImage,
   electionStrings,
+  TestModeCallout,
 } from '@votingworks/ui';
 
 import {
@@ -566,10 +566,18 @@ export function PollWorkerScreen({
 
   return (
     <Screen>
-      {!isLiveMode && <TestMode />}
       <Main padded>
         <div>
-          <H2 as="h1">Poll Worker Menu</H2>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'start',
+            }}
+          >
+            <H2 as="h1">Poll Worker Menu</H2>
+            {!isLiveMode && <TestModeCallout />}
+          </div>
           <P>Remove the poll worker card to leave this screen.</P>
           <P style={{ fontSize: '1.2em' }}>
             <Font weight="bold">Ballots Printed:</Font>{' '}
