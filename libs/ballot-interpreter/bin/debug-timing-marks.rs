@@ -55,7 +55,7 @@ struct Options {
     inference: Inference,
 
     /// Choose which timing mark finding algorithm to use.
-    #[clap(long, default_value = "current")]
+    #[clap(long, default_value_t = TimingMarkAlgorithm::default())]
     timing_mark_algorithm: TimingMarkAlgorithm,
 
     /// Should debug images be produced?
