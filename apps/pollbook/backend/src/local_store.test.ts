@@ -176,6 +176,30 @@ test('findVoterWithName works as expected - voters with name changes', async () 
     );
   });
 
+  // Should not match because middle name is excluded
+  await vi.waitFor(() => {
+    expect(
+      localStore.findVotersWithName({
+        firstName: 'John',
+        lastName: 'Doe',
+        middleName: '',
+        suffix: 'Sr',
+      })
+    ).toEqual([]);
+  });
+
+  // Should not match because suffix is excluded
+  await vi.waitFor(() => {
+    expect(
+      localStore.findVotersWithName({
+        firstName: 'John',
+        lastName: 'Doe',
+        middleName: 'Allen',
+        suffix: '',
+      })
+    ).toEqual([]);
+  });
+
   // Change name for John Doe
   localStore.changeVoterName(voters[0].voterId, {
     firstName: 'Jonathan',
