@@ -8,6 +8,7 @@ import {
   ElectionId,
   HmpbBallotPaperSize,
 } from '@votingworks/types';
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { HlcTimestamp } from '../src/hybrid_logical_clock';
 import { Store } from '../src/store';
 import {
@@ -111,9 +112,15 @@ export function syncEventsFromTo(
   while (keepSyncing) {
     const lastSyncHeads = to.getMostRecentEventIdPerMachine();
     const { events, hasMore } = from.getNewEvents(lastSyncHeads);
-    to.saveRemoteEvents(events);
-    allEvents.push(...events);
-    keepSyncing = hasMore;
+    try {
+      suppressingConsoleOutput(() => {
+        to.saveRemoteEvents(events, from.getPollbookConfigurationInformation());
+      });
+      allEvents.push(...events);
+      keepSyncing = hasMore;
+    } catch (error) {
+      break;
+    }
   }
   return allEvents;
 }
