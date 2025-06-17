@@ -4,7 +4,8 @@
 #![allow(clippy::cast_possible_wrap)]
 
 use std::{
-    io::{BufRead, BufReader},
+    fs::OpenOptions,
+    io::{BufRead, BufReader, BufWriter, Write},
     path::{Path, PathBuf},
     process,
     str::FromStr,
@@ -14,12 +15,15 @@ use std::{
 use ballot_interpreter::{
     ballot_card::PaperInfo,
     debug,
-    interpret::{self, prepare_ballot_page_image, Error, TimingMarkAlgorithm},
-    timing_marks::{contours, corners, DefaultForGeometry, TimingMarks},
+    interpret::{prepare_ballot_page_image, Error, TimingMarkAlgorithm},
+    timing_marks::{
+        contours, corners, scoring::CandidateTimingMark, DefaultForGeometry, TimingMarks,
+    },
 };
 use clap::Parser;
 use color_eyre::owo_colors::OwoColorize;
 use itertools::Itertools;
+use types_rs::geometry::SubPixelUnit;
 
 #[derive(Debug, Clone, Copy)]
 enum Inference {
@@ -60,6 +64,10 @@ struct Options {
     /// Should debug images be produced?
     #[clap(long)]
     debug: bool,
+
+    /// Path for a CSV with various timing mark stats.
+    #[clap(long)]
+    stats_path: Option<PathBuf>,
 }
 
 impl Options {
@@ -87,13 +95,14 @@ impl Options {
 }
 
 #[allow(clippy::result_large_err)]
-fn process_path(
+fn process_path<W: Write>(
     path: &Path,
     options: &Options,
     load_image_duration: &mut Duration,
     prepare_image_duration: &mut Duration,
     find_timing_marks_duration: &mut Duration,
-) -> interpret::Result<TimingMarks> {
+    stats: &mut Option<W>,
+) -> color_eyre::Result<TimingMarks> {
     let start = Instant::now();
     let image = image::open(path)
         .map_err(|e| Error::MissingTimingMarks {
@@ -124,32 +133,113 @@ fn process_path(
                 debug: &mut debug::ImageDebugWriter::disabled(),
             },
         ),
-        TimingMarkAlgorithm::Corners => {
-            let default_geometry = PaperInfo::scanned_legal().compute_geometry();
-            corners::find_timing_mark_grid(
-                &ballot_page.ballot_image,
-                &ballot_page.geometry,
-                &debug,
-                &corners::Options::default_for_geometry(&default_geometry),
-            )
-        }
+        TimingMarkAlgorithm::Corners => corners::find_timing_mark_grid(
+            &ballot_page.ballot_image,
+            &ballot_page.geometry,
+            &debug,
+            &corners::Options::default_for_geometry(&ballot_page.geometry),
+        ),
     };
     *find_timing_marks_duration += start.elapsed();
 
-    match find_result {
-        Ok(timing_marks) => {
-            debug.write("timing_marks", |canvas| {
-                debug::draw_timing_mark_debug_image_mut(
-                    canvas,
-                    &ballot_page.geometry,
-                    &timing_marks.clone().into(),
-                );
-            });
+    let timing_marks = find_result?;
+    debug.write("timing_marks", |canvas| {
+        debug::draw_timing_mark_debug_image_mut(
+            canvas,
+            &ballot_page.geometry,
+            &timing_marks.clone().into(),
+        );
+    });
 
-            Ok(timing_marks)
+    if let Some(stats) = stats {
+        let top_edge_length = timing_marks
+            .top_left_corner
+            .distance_to(&timing_marks.top_right_corner);
+        let bottom_edge_length = timing_marks
+            .bottom_left_corner
+            .distance_to(&timing_marks.bottom_right_corner);
+        let left_edge_length = timing_marks
+            .top_left_corner
+            .distance_to(&timing_marks.bottom_left_corner);
+        let right_edge_length = timing_marks
+            .top_right_corner
+            .distance_to(&timing_marks.bottom_right_corner);
+
+        let expected_horizontal_timing_mark_period = ballot_page
+            .geometry
+            .horizontal_timing_mark_center_to_center_pixel_distance();
+        let expected_vertical_timing_mark_period = ballot_page
+            .geometry
+            .vertical_timing_mark_center_to_center_pixel_distance();
+
+        let expected_horizontal_edge_length = expected_horizontal_timing_mark_period
+            * (ballot_page.geometry.grid_size.width - 1) as SubPixelUnit;
+        let expected_vertical_edge_length = expected_vertical_timing_mark_period
+            * (ballot_page.geometry.grid_size.height - 1) as SubPixelUnit;
+
+        fn median(values: impl IntoIterator<Item = SubPixelUnit>) -> Option<SubPixelUnit> {
+            let values = values
+                .into_iter()
+                .sorted_by(|a, b| a.total_cmp(b))
+                .collect_vec();
+
+            if values.is_empty() {
+                None
+            } else if values.len() % 2 == 0 {
+                let left = values[values.len() / 2 - 1];
+                let right = values[values.len() / 2];
+                Some(left.midpoint(right))
+            } else {
+                Some(values[(values.len() - 1) / 2])
+            }
         }
-        Err(e) => Err(e),
+
+        fn median_timing_mark_period<'a>(
+            marks: impl Iterator<Item = &'a CandidateTimingMark>,
+        ) -> SubPixelUnit {
+            median(
+                marks
+                    .tuple_windows()
+                    .map(|(a, b)| a.rect().center().distance_to(&b.rect().center())),
+            )
+            .unwrap_or_default()
+        }
+
+        let top_edge_median_period = median_timing_mark_period(timing_marks.top_marks.iter());
+        let bottom_edge_median_period = median_timing_mark_period(timing_marks.bottom_marks.iter());
+        let left_edge_median_period = median_timing_mark_period(timing_marks.left_marks.iter());
+        let right_edge_median_period = median_timing_mark_period(timing_marks.right_marks.iter());
+
+        let median_left_to_right_length = median(
+            timing_marks
+                .left_marks
+                .iter()
+                .zip_eq(&timing_marks.right_marks)
+                .map(|(a, b)| a.rect().center().distance_to(&b.rect().center())),
+        )
+        .unwrap_or_default();
+
+        writeln!(
+            stats,
+            "{},{},{},{},{},{},{},{},{},{},{},{},{},{}",
+            path.display(),
+            expected_horizontal_edge_length,
+            expected_vertical_edge_length,
+            expected_horizontal_timing_mark_period,
+            expected_vertical_timing_mark_period,
+            top_edge_length,
+            bottom_edge_length,
+            left_edge_length,
+            right_edge_length,
+            top_edge_median_period,
+            bottom_edge_median_period,
+            left_edge_median_period,
+            right_edge_median_period,
+            median_left_to_right_length,
+        )?;
     }
+
+    Ok(timing_marks)
 }
 
 #[allow(clippy::too_many_lines)]
@@ -165,6 +255,26 @@ fn main() -> color_eyre::Result<()> {
     let mut prepare_image_duration = Duration::ZERO;
     let mut find_timing_marks_duration = Duration::ZERO;
 
+    let stats_file = match &options.stats_path {
+        Some(stats_path) => Some(
+            OpenOptions::new()
+                .create(true)
+                .truncate(true)
+                .write(true)
+                .open(stats_path),
+        )
+        .transpose(),
+        None => Ok(None),
+    }?;
+    let mut stats = stats_file.map(|stats_file| BufWriter::new(stats_file));
+
+    if let Some(stats) = &mut stats {
+        writeln!(
+            stats,
+           "path,expected horizontal edge length,expected vertical edge length,expected horizontal timing mark period,expected vertical timing mark period,top edge length,bottom edge length,left edge length,right edge length,top edge median period,bottom edge median period,left edge median period,right edge median period,median left to right length"
+        )?;
+    }
+
     for path in &options.scanned_page_paths {
         let expected_failure = expected_failure_manifest.contains(&path.canonicalize()?);
 
@@ -174,6 +284,7 @@ fn main() -> color_eyre::Result<()> {
             &mut load_image_duration,
             &mut prepare_image_duration,
             &mut find_timing_marks_duration,
+            &mut stats,
         ) {
             Ok(_) => {
                 if expected_failure {
@@ -228,6 +339,10 @@ fn main() -> color_eyre::Result<()> {
         unexpected_success_count.yellow(),
         expected_success_count.green()
     );
+
+    if let Some(mut stats) = stats {
+        stats.flush()?;
+    }
 
     process::exit(i32::from(
         expected_success_count + unexpected_success_count + expected_failure_count != file_count,
