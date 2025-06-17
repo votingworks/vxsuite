@@ -19,7 +19,7 @@ use ballot_interpreter::{
     timing_marks::{contours, corners, Border, DefaultForGeometry, TimingMarks},
 };
 use clap::Parser;
-use color_eyre::owo_colors::OwoColorize;
+use color_eyre::{eyre::bail, owo_colors::OwoColorize};
 use itertools::Itertools;
 
 #[derive(Debug, Clone, Copy)]
@@ -61,6 +61,10 @@ struct Options {
     /// Should debug images be produced?
     #[clap(long)]
     debug: bool,
+
+    /// Detect and reject timing mark grid scales less than this value.
+    #[clap(long)]
+    minimum_detected_scale: Option<f32>,
 
     /// Path for a CSV with various timing mark stats.
     #[clap(long)]
@@ -147,6 +151,17 @@ fn process_path<W: Write>(
             &timing_marks.clone().into(),
         );
     });
+
+    if let Some(minimum_detected_scale) = options.minimum_detected_scale {
+        if let Some(detected_scale) = timing_marks.compute_scale_based_on_border(Border::Bottom) {
+            if detected_scale.0 < minimum_detected_scale {
+                bail!(
+                    "Detected scale is too low: {detected_scale} is less than {minimum_detected_scale}",
+                    detected_scale = detected_scale.0
+                );
+            }
+        }
+    }
 
     if let Some(stats) = stats {
         let top_edge_median_period = timing_marks
