@@ -40,9 +40,9 @@ import {
   LocalAppContext,
   LocalWorkspace,
   ConfigurationError,
-  MachineInformation,
   VoterCheckInError,
   DuplicateVoterError,
+  PollbookConfigurationInformation,
 } from './types';
 import { rootDebug } from './debug';
 import {
@@ -93,19 +93,8 @@ function buildApi({ context, logger }: BuildAppParams) {
   const { store } = workspace;
 
   return grout.createApi({
-    getMachineInformation(): MachineInformation {
-      const pollbookInformation = store.getMachineInformation();
-      if (!pollbookInformation) {
-        return {
-          machineId,
-          codeVersion,
-        };
-      }
-      return {
-        ...pollbookInformation,
-        machineId,
-        codeVersion,
-      };
+    getPollbookConfigurationInformation(): PollbookConfigurationInformation {
+      return store.getPollbookConfigurationInformation();
     },
 
     getAuthStatus() {
@@ -185,6 +174,10 @@ function buildApi({ context, logger }: BuildAppParams) {
       return election ? ok(election) : err('unconfigured');
     },
 
+    haveElectionEventsOccurred(): boolean {
+      return store.hasEvents();
+    },
+
     async unconfigure(): Promise<void> {
       store.deleteElectionAndVoters();
       await usbDrive.eject();
@@ -208,6 +201,10 @@ function buildApi({ context, logger }: BuildAppParams) {
 
     setIsAbsenteeMode(input: { isAbsenteeMode: boolean }): void {
       store.setIsAbsenteeMode(input.isAbsenteeMode);
+    },
+
+    setConfiguredPrecinct(input: { precinctId: string }): void {
+      store.setConfiguredPrecinct(input.precinctId);
     },
 
     searchVoters(input: {

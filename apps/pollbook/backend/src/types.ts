@@ -230,11 +230,6 @@ export const VoterSchema: z.ZodSchema<Voter> = z.object({
   isInactive: z.boolean().default(false),
 });
 
-export interface MachineInformation extends PollbookInformation {
-  machineId: string;
-  codeVersion: string;
-}
-
 export type VectorClock = Record<string, number>;
 
 export const VectorClockSchema: z.ZodSchema<VectorClock> = z.record(
@@ -331,11 +326,14 @@ export interface PollbookPackage {
   validStreets: ValidStreetInfo[];
 }
 
-export interface PollbookInformation {
+export interface PollbookConfigurationInformation {
   electionId?: string;
   electionBallotHash?: string;
   pollbookPackageHash?: string;
   electionTitle?: string;
+  configuredPrecinctId?: string;
+  machineId: string;
+  codeVersion: string;
 }
 
 export type ConfigurationError =
@@ -343,15 +341,18 @@ export type ConfigurationError =
   | 'already-configured'
   | 'invalid-pollbook-package';
 
-export const PollbookInformationSchema: z.ZodSchema<PollbookInformation> =
+export const PollbookInformationSchema: z.ZodSchema<PollbookConfigurationInformation> =
   z.object({
     electionId: z.string().optional(),
     electionBallotHash: z.string().optional(),
     pollbookPackageHash: z.string().optional(),
     electionTitle: z.string().optional(),
+    configuredPrecinctId: z.string().optional(),
+    machineId: z.string(),
+    codeVersion: z.string(),
   });
 
-export interface PollbookService extends PollbookInformation {
+export interface PollbookService extends PollbookConfigurationInformation {
   apiClient?: grout.Client<PeerApi>;
   address?: string;
   machineId: string;

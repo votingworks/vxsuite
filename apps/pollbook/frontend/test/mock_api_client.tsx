@@ -154,7 +154,7 @@ export function createApiMock() {
     },
 
     expectGetMachineInformation(): void {
-      mockApiClient.getMachineInformation
+      mockApiClient.getPollbookConfigurationInformation
         .expectRepeatedCallsWith()
         .resolves(machineConfig);
     },
@@ -163,6 +163,13 @@ export function createApiMock() {
       mockApiClient.getUsbDriveStatus
         .expectOptionalRepeatedCallsWith()
         .resolves(usbDriveStatus || { status: 'no_drive' });
+    },
+
+    expectHaveElectionEventsOccurred(hasEvents: boolean = false): void {
+      mockApiClient.haveElectionEventsOccurred.reset();
+      mockApiClient.haveElectionEventsOccurred
+        .expectCallWith()
+        .resolves(hasEvents);
     },
 
     expectGetDeviceStatuses(): void {
@@ -244,28 +251,44 @@ export function createApiMock() {
 
     setElection(
       electionDefinition?: ElectionDefinition,
+      configuredPrecinctId?: string | null,
       pollbookPackageHash: string = 'test-package-hash'
     ) {
       mockApiClient.getElection.reset();
+      mockApiClient.getPollbookConfigurationInformation.reset();
       if (!electionDefinition) {
         mockApiClient.getElection
-          .expectRepeatedCallsWith()
+          .expectOptionalRepeatedCallsWith()
           .resolves(err('unconfigured'));
-        mockApiClient.getMachineInformation
+        mockApiClient.getPollbookConfigurationInformation
           .expectOptionalRepeatedCallsWith()
           .resolves(machineConfig);
         return;
       }
       mockApiClient.getElection
-        .expectRepeatedCallsWith()
+        .expectOptionalRepeatedCallsWith()
         .resolves(ok(electionDefinition.election));
-      mockApiClient.getMachineInformation
+      mockApiClient.getPollbookConfigurationInformation
         .expectOptionalRepeatedCallsWith()
         .resolves({
+          ...machineConfig,
           electionId: electionDefinition.election.id,
           electionBallotHash: electionDefinition.ballotHash,
           pollbookPackageHash,
+          configuredPrecinctId: configuredPrecinctId ?? undefined,
+        });
+    },
+
+    expectSetConfiguredPrecinct(configuredPrecinctId: string) {
+      mockApiClient.setConfiguredPrecinct
+        .expectCallWith({ precinctId: configuredPrecinctId })
+        .resolves();
+      mockApiClient.getPollbookConfigurationInformation.reset();
+      mockApiClient.getPollbookConfigurationInformation
+        .expectOptionalRepeatedCallsWith()
+        .resolves({
           ...machineConfig,
+          configuredPrecinctId,
         });
     },
 

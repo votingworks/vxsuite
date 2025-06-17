@@ -54,7 +54,7 @@ let unmount: () => void;
 beforeEach(() => {
   vi.clearAllMocks();
   apiMock = createApiMock();
-  apiMock.setElection(famousNamesElectionDef);
+  apiMock.setElection(famousNamesElectionDef, 'precinct-1');
 });
 
 afterEach(() => {
@@ -98,9 +98,23 @@ test('renders and disables submit until required fields are filled', async () =>
 test('shows printer warning if no printer is attached', async () => {
   apiMock.setPrinterStatus(false);
   apiMock.expectGetDeviceStatuses();
-  renderInAppContext(<VoterRegistrationScreen />, { apiMock });
+  const renderResult = renderInAppContext(<VoterRegistrationScreen />, {
+    apiMock,
+  });
+  unmount = renderResult.unmount;
   await screen.findByRole('heading', { name: 'No Printer Detected' });
   screen.getByText('Connect printer to continue.');
+});
+
+test('shows no precinct warning if no precinct is configured', async () => {
+  apiMock.setElection(famousNamesElectionDef);
+  apiMock.setPrinterStatus(true);
+  apiMock.expectGetDeviceStatuses();
+  const renderResult = renderInAppContext(<VoterRegistrationScreen />, {
+    apiMock,
+  });
+  unmount = renderResult.unmount;
+  await screen.findByRole('heading', { name: 'No Precinct Selected' });
 });
 
 test('shows duplicate name modal and allows override', async () => {

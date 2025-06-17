@@ -1,6 +1,7 @@
 import { test, expect, vi } from 'vitest';
 import tmp from 'tmp';
 import { mockBaseLogger } from '@votingworks/logging';
+import { Election, ElectionDefinition } from '@votingworks/types';
 import {
   createValidStreetInfo,
   createVoter,
@@ -14,7 +15,8 @@ test('findVotersWithName works as expected - voters without name changes', () =>
   const localStore = LocalStore.fileStore(
     workspacePath,
     mockBaseLogger({ fn: vi.fn }),
-    '0000'
+    '0000',
+    'test'
   );
   const testElectionDefinition = getTestElectionDefinition();
   const voters = [
@@ -142,7 +144,8 @@ test('findVoterWithName works as expected - voters with name changes', () => {
   const localStore = LocalStore.fileStore(
     workspacePath,
     mockBaseLogger({ fn: vi.fn }),
-    '0001'
+    '0001',
+    'test'
   );
   const testElectionDefinition = getTestElectionDefinition();
   const voters = [
@@ -251,7 +254,8 @@ test('registerVoter and findVoterWithName integration', () => {
   const localStore = LocalStore.fileStore(
     workspacePath,
     mockBaseLogger({ fn: vi.fn }),
-    '0002'
+    '0002',
+    'test'
   );
   const testElectionDefinition = getTestElectionDefinition();
   const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
@@ -295,4 +299,75 @@ test('registerVoter and findVoterWithName integration', () => {
       expect.objectContaining({ voterId: voter.voterId }),
     ])
   );
+});
+
+test('setElectionAndVoters sets configuredPrecinctId only when there is one precinct', () => {
+  const store = LocalStore.memoryStore('machine-1');
+
+  // Test with a normal test election (multiple precincts)
+  const testElectionDefinition = getTestElectionDefinition();
+  store.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    [],
+    []
+  );
+  let configInfo = store.getPollbookConfigurationInformation();
+  expect(configInfo.configuredPrecinctId).toBeNull();
+
+  // Test with an election with only one precinct
+  const singlePrecinctElection: Election = {
+    ...testElectionDefinition.election,
+    precincts: [
+      {
+        id: 'precinct-1',
+        name: 'Precinct 1',
+        districtIds: [],
+      },
+    ],
+  };
+  const singlePrecinctElectionDefinition: ElectionDefinition = {
+    ...testElectionDefinition,
+    election: singlePrecinctElection,
+  };
+  store.deleteElectionAndVoters();
+  store.setElectionAndVoters(
+    singlePrecinctElectionDefinition,
+    'fake-package-hash',
+    [],
+    []
+  );
+  configInfo = store.getPollbookConfigurationInformation();
+  expect(configInfo.configuredPrecinctId).toEqual('precinct-1');
+});
+
+test('store can load data from database on restart', () => {
+  const workspacePath = tmp.dirSync().name;
+  const localStore = LocalStore.fileStore(
+    workspacePath,
+    mockBaseLogger({ fn: vi.fn }),
+    '0001',
+    'test'
+  );
+
+  const testElectionDefinition = getTestElectionDefinition();
+  const voters = [createVoter('10', 'Dylan', `O'Brien`, 'MiD', 'I')];
+  const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
+  localStore.setElectionAndVoters(
+    testElectionDefinition,
+    'fake-package-hash',
+    streets,
+    voters
+  );
+  expect(localStore.getElection()).toEqual(testElectionDefinition.election);
+  expect(localStore.getStreetInfo()).toHaveLength(1);
+
+  const reloadedStore = LocalStore.fileStore(
+    workspacePath,
+    mockBaseLogger({ fn: vi.fn }),
+    '0001',
+    'test'
+  );
+  expect(reloadedStore.getElection()).toEqual(testElectionDefinition.election);
+  expect(reloadedStore.getStreetInfo()).toHaveLength(1);
 });

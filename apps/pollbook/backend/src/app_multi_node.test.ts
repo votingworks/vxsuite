@@ -629,13 +629,14 @@ test('one pollbook can be configured from another pollbook', async () => {
       })
     ).toEqual(ok());
     expect(
-      await pollbookContext2.peerApiClient.getMachineInformation()
+      await pollbookContext2.peerApiClient.getPollbookConfigurationInformation()
     ).toMatchObject({
       electionBallotHash: electionDefinition.ballotHash,
       electionId: electionDefinition.election.id,
       electionTitle: electionDefinition.election.title,
       pollbookPackageHash: sha256(new Uint8Array(validZip)),
       machineId: 'test-1',
+      codeVersion: 'test',
     });
 
     expect(
@@ -874,7 +875,7 @@ test('one pollbook can be configured from another pollbook automatically as an e
       await extendedWaitFor(async () => {
         vitest.advanceTimersByTime(100);
         expect(
-          await pollbookContext2.peerApiClient.getMachineInformation()
+          await pollbookContext2.peerApiClient.getPollbookConfigurationInformation()
         ).toMatchObject({
           electionBallotHash: electionDefinition.ballotHash,
           electionId: electionDefinition.election.id,

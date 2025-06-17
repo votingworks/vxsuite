@@ -1,5 +1,4 @@
 import React from 'react';
-// import type { Api, BallotMode } from '@votingworks/design-backend';
 import * as grout from '@votingworks/grout';
 import {
   QueryClient,
@@ -54,15 +53,19 @@ export function createQueryClient(): QueryClient {
   });
 }
 
-export const getMachineInformation = {
+export const getPollbookConfigurationInformation = {
   queryKey(): QueryKey {
-    return ['getMachineInformation'];
+    return ['getPollbookConfigurationInformation'];
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getMachineInformation(), {
-      refetchInterval: 1000,
-    });
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getPollbookConfigurationInformation(),
+      {
+        refetchInterval: 1000,
+      }
+    );
   },
 } as const;
 
@@ -245,6 +248,22 @@ export const getThroughputStatistics = {
   },
 } as const;
 
+export const getHaveElectionEventsOccurred = {
+  queryKey(): QueryKey {
+    return ['haveElectionEventsOccurred'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.haveElectionEventsOccurred(),
+      {
+        refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
+      }
+    );
+  },
+} as const;
+
 async function invalidateCheckInQueries(queryClient: QueryClient) {
   await queryClient.invalidateQueries(getCheckInCounts.queryKey());
   await queryClient.invalidateQueries(getSummaryStatistics.queryKey());
@@ -391,6 +410,20 @@ export const setIsAbsenteeMode = {
     return useMutation(apiClient.setIsAbsenteeMode, {
       async onSuccess() {
         await queryClient.invalidateQueries(getIsAbsenteeMode.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const setConfiguredPrecinct = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setConfiguredPrecinct, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(
+          getPollbookConfigurationInformation.queryKey()
+        );
       },
     });
   },

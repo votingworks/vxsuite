@@ -76,19 +76,27 @@ export class LocalStore extends Store {
   static fileStore(
     dbPath: string,
     logger: BaseLogger,
-    machineId: string
+    machineId: string,
+    codeVersion: string
   ): LocalStore {
     const client = DbClient.fileClient(dbPath, logger, SchemaPath, {
       registerRegexpFn: true,
     });
-    return new LocalStore(client, machineId);
+    return new LocalStore(client, machineId, codeVersion);
   }
 
   /**
    * Builds and returns a new store whose data is kept in memory.
    */
-  static memoryStore(machineId: string = 'test-machine'): LocalStore {
-    return new LocalStore(DbClient.memoryClient(SchemaPath), machineId);
+  static memoryStore(
+    machineId: string = 'test-machine',
+    codeVersion: string = 'test-v1'
+  ): LocalStore {
+    return new LocalStore(
+      DbClient.memoryClient(SchemaPath),
+      machineId,
+      codeVersion
+    );
   }
 
   private getNextEventId(): number {
@@ -150,6 +158,13 @@ export class LocalStore extends Store {
     this.nextEventId = 0;
   }
 
+  hasEvents(): boolean {
+    const row = this.client.one(
+      'SELECT EXISTS(SELECT 1 FROM event_log LIMIT 1) as hasEvents'
+    ) as { hasEvents: number };
+    return row.hasEvents > 0;
+  }
+
   getIsAbsenteeMode(): boolean {
     const result = this.client.one(
       `
@@ -162,6 +177,7 @@ export class LocalStore extends Store {
   }
 
   setIsAbsenteeMode(isAbsenteeMode: boolean): void {
+    assert(this.getElection() !== undefined);
     this.client.run(
       `
             update elections
@@ -170,6 +186,7 @@ export class LocalStore extends Store {
       asSqliteBool(isAbsenteeMode)
     );
   }
+
   groupVotersAlphabeticallyByLastName(): Map<string, VoterGroup> {
     const voters = this.getAllVoters();
     assert(voters);
@@ -643,10 +660,11 @@ export class LocalStore extends Store {
         status: row.status as PollbookConnectionStatus,
         lastSeen: new Date(row.last_seen),
         numCheckIns: this.getCheckInCount(row.machine_id),
-        electionBallotHash: pollbookInfo?.electionBallotHash,
-        pollbookPackageHash: pollbookInfo?.pollbookPackageHash,
-        electionId: pollbookInfo?.electionId,
-        electionTitle: pollbookInfo?.electionTitle,
+        electionBallotHash: pollbookInfo.electionBallotHash,
+        pollbookPackageHash: pollbookInfo.pollbookPackageHash,
+        electionId: pollbookInfo.electionId,
+        electionTitle: pollbookInfo.electionTitle,
+        codeVersion: pollbookInfo.codeVersion,
       };
     });
   }

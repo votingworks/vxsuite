@@ -59,7 +59,8 @@ function main(): Promise<number> {
   const peerWorkspace = createPeerWorkspace(
     workspacePath,
     baseLogger,
-    machineId
+    machineId,
+    codeVersion
   );
   const peerPort = peerServer.start({
     workspace: peerWorkspace,
@@ -72,7 +73,8 @@ function main(): Promise<number> {
     workspacePath,
     baseLogger,
     peerPort,
-    machineId
+    machineId,
+    codeVersion
   );
   localServer.start({
     workspace: localWorkspace,

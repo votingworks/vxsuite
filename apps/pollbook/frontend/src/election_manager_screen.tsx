@@ -6,34 +6,61 @@ import {
   Seal,
   SegmentedButton,
   UnconfigureMachineButton,
+  SearchSelect,
+  Caption,
 } from '@votingworks/ui';
 import { format } from '@votingworks/utils';
 import { Redirect, Route, Switch } from 'react-router-dom';
-import { ElectionManagerNavScreen, electionManagerRoutes } from './nav_screen';
+import { Precinct } from '@votingworks/types';
 import {
   getElection,
   getIsAbsenteeMode,
   setIsAbsenteeMode,
+  setConfiguredPrecinct,
   unconfigure,
+  getPollbookConfigurationInformation,
+  getHaveElectionEventsOccurred,
 } from './api';
 import { Column, FieldName, Row } from './layout';
 import { StatisticsScreen } from './statistics_screen';
 import { ElectionManagerVotersScreen } from './voters_screen';
 import { VoterDetailsScreen } from './voter_details_screen';
 import { VoterRegistrationScreen } from './voter_registration_screen';
+import { ElectionManagerNavScreen, electionManagerRoutes } from './nav_screen';
 
 export function SettingsScreen(): JSX.Element | null {
   const getElectionQuery = getElection.useQuery();
+  const getPollbookConfigurationInformationQuery =
+    getPollbookConfigurationInformation.useQuery();
   const unconfigureMutation = unconfigure.useMutation();
   const getIsAbsenteeModeQuery = getIsAbsenteeMode.useQuery();
+  const getHaveElectionEventsOccurredQuery =
+    getHaveElectionEventsOccurred.useQuery();
   const setIsAbsenteeModeMutation = setIsAbsenteeMode.useMutation();
+  const setConfiguredPrecinctMutation = setConfiguredPrecinct.useMutation();
 
-  if (!getIsAbsenteeModeQuery.isSuccess || !getElectionQuery.isSuccess) {
+  if (
+    !getIsAbsenteeModeQuery.isSuccess ||
+    !getElectionQuery.isSuccess ||
+    !getPollbookConfigurationInformationQuery.isSuccess ||
+    !getHaveElectionEventsOccurredQuery.isSuccess
+  ) {
     return null;
   }
 
   const election = getElectionQuery.data.unsafeUnwrap();
   const isAbsenteeMode = getIsAbsenteeModeQuery.data;
+
+  // Get precinct options for SearchSelect
+  const precinctOptions = election.precincts.map((precinct: Precinct) => ({
+    value: precinct.id,
+    label: precinct.name,
+  }));
+
+  // Find currently configured precinct (if any)
+  const { configuredPrecinctId } =
+    getPollbookConfigurationInformationQuery.data;
+  const haveElectionEventsOccurred = getHaveElectionEventsOccurredQuery.data;
 
   return (
     <ElectionManagerNavScreen title="Settings">
@@ -72,12 +99,34 @@ export function SettingsScreen(): JSX.Element | null {
               </Row>
             </Card>
           </div>
-          <div>
+          <Row style={{ alignItems: 'center', gap: '1rem' }}>
+            {precinctOptions.length > 1 && (
+              <SearchSelect
+                aria-label="Select Precinct"
+                options={precinctOptions}
+                value={configuredPrecinctId}
+                onChange={(precinctId) => {
+                  if (precinctId) {
+                    setConfiguredPrecinctMutation.mutate({ precinctId });
+                  }
+                }}
+                placeholder="Select Precinct…"
+                style={{ minWidth: '16rem' }}
+                disabled={haveElectionEventsOccurred}
+                isSearchable
+              />
+            )}
             <UnconfigureMachineButton
               unconfigureMachine={() => unconfigureMutation.mutateAsync()}
               isMachineConfigured
             />
-          </div>
+          </Row>
+          {precinctOptions.length > 1 && haveElectionEventsOccurred && (
+            <Caption>
+              The precinct setting cannot be changed because a voter was
+              checked-in or voter data was updated.
+            </Caption>
+          )}
         </Column>
       </MainContent>
     </ElectionManagerNavScreen>

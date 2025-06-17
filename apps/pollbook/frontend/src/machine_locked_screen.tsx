@@ -2,7 +2,7 @@ import { H1, H3, Main, Screen } from '@votingworks/ui';
 import styled from 'styled-components';
 import React from 'react';
 import { ElectionInfoBar } from './election_info_bar';
-import { getElection, getMachineInformation } from './api';
+import { getElection, getPollbookConfigurationInformation } from './api';
 import { DeviceStatusBar } from './nav_screen';
 
 const LockedImage = styled.img`
@@ -13,15 +13,20 @@ const LockedImage = styled.img`
 `;
 
 export function MachineLockedScreen(): JSX.Element | null {
-  const getMachineInfoQuery = getMachineInformation.useQuery();
+  const getMachineInfoQuery = getPollbookConfigurationInformation.useQuery();
   const getElectionQuery = getElection.useQuery();
 
   if (!getMachineInfoQuery.isSuccess || !getElectionQuery.isSuccess) {
     return null;
   }
   const election = getElectionQuery.data.ok();
-  const { machineId, codeVersion, electionBallotHash, pollbookPackageHash } =
-    getMachineInfoQuery.data;
+  const {
+    machineId,
+    codeVersion,
+    electionBallotHash,
+    pollbookPackageHash,
+    configuredPrecinctId,
+  } = getMachineInfoQuery.data;
 
   return (
     <Screen>
@@ -47,6 +52,7 @@ export function MachineLockedScreen(): JSX.Element | null {
         pollbookPackageHash={pollbookPackageHash}
         machineId={machineId}
         codeVersion={codeVersion}
+        configuredPrecinctId={configuredPrecinctId}
       />
     </Screen>
   );
