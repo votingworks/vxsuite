@@ -3,4 +3,5 @@ export enum PollbookConnectionStatus {
   ShutDown = 'ShutDown',
   LostConnection = 'LostConnection',
   MismatchedConfiguration = 'MismatchedConfiguration',
+  IncompatibleSoftwareVersion = 'IncompatibleSoftwareVersion',
 }
