@@ -150,3 +150,94 @@ test('going through the whole process works - HMPB', async () => {
     }
   );
 });
+
+test('ballots printed with invalid scale are rejected', async () => {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  );
+
+  await withApp(
+    async ({ apiClient, auth, scanner, importer, mockUsbDrive }) => {
+      const { electionDefinition } = vxFamousNamesFixtures;
+
+      mockElectionManagerAuth(auth, electionDefinition);
+      const minimumDetectedScale = 1.0;
+      mockUsbDrive.insertUsbDrive(
+        await mockElectionPackageFileTree({
+          electionDefinition: vxFamousNamesFixtures.electionDefinition,
+          systemSettings: {
+            ...DEFAULT_SYSTEM_SETTINGS,
+            minimumDetectedScale,
+          },
+        })
+      );
+      expect(await apiClient.configureFromElectionPackageOnUsbDrive()).toEqual(
+        ok(electionDefinition)
+      );
+      mockUsbDrive.removeUsbDrive();
+
+      await apiClient.setTestMode({ testMode: true });
+
+      {
+        // define the next scanner session
+        const nextSession = scanner.withNextScannerSession();
+
+        // scan a mis-scaled ballot
+        const scale = minimumDetectedScale - 0.1;
+        const [frontImageData, backImageData] = asSheet(
+          await iter(
+            pdfToImages(await readFile(vxFamousNamesFixtures.blankBallotPath), {
+              scale: (200 / 72) * scale,
+            })
+          )
+            .map(({ page }) => page)
+            .toArray()
+        );
+        const frontPath = fileSync().name;
+        const backPath = fileSync().name;
+        await writeImageData(frontPath, frontImageData);
+        await writeImageData(backPath, backImageData);
+        nextSession.sheet({
+          frontPath,
+          backPath,
+          ballotAuditId: 'fake-ballot-audit-id',
+        });
+
+        nextSession.end();
+
+        await apiClient.scanBatch();
+        await importer.waitForEndOfBatchOrScanningPause();
+
+        // check the latest batch has the expected counts
+        const status = await apiClient.getStatus();
+        expect(status.batches.length).toEqual(1);
+        expect(status.batches[0].count).toEqual(1);
+        expect(status.adjudicationsRemaining).toEqual(1);
+
+        // Reject the ballot
+        await apiClient.continueScanning({ forceAccept: false });
+      }
+
+      {
+        mockUsbDrive.insertUsbDrive({});
+        mockUsbDrive.usbDrive.sync.expectRepeatedCallsWith().resolves();
+
+        expect(await apiClient.exportCastVoteRecordsToUsbDrive()).toEqual(ok());
+
+        const cvrReportDirectoryPath = (
+          await getCastVoteRecordExportDirectoryPaths(mockUsbDrive.usbDrive)
+        )[0];
+        expect(cvrReportDirectoryPath).toContain('machine_0000__');
+
+        const { castVoteRecordIterator } = (
+          await readCastVoteRecordExport(cvrReportDirectoryPath)
+        ).unsafeUnwrap();
+        const cvrs: CVR.CVR[] = (await castVoteRecordIterator.toArray()).map(
+          (castVoteRecordResult) =>
+            castVoteRecordResult.unsafeUnwrap().castVoteRecord
+        );
+        expect(cvrs).toHaveLength(0);
+      }
+    }
+  );
+});

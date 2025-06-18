@@ -124,6 +124,18 @@ export function combinePageInterpretationsForSheet(
 
   if (
     (front.interpretation.type === 'UnreadablePage' &&
+      front.interpretation.reason === 'invalidScale') ||
+    (back.interpretation.type === 'UnreadablePage' &&
+      back.interpretation.reason === 'invalidScale')
+  ) {
+    return {
+      type: 'InvalidSheet',
+      reason: 'invalid_scale',
+    };
+  }
+
+  if (
+    (front.interpretation.type === 'UnreadablePage' &&
       front.interpretation.reason === 'bmdBallotScanningDisabled') ||
     (back.interpretation.type === 'UnreadablePage' &&
       back.interpretation.reason === 'bmdBallotScanningDisabled')

@@ -708,3 +708,47 @@ test('says the scanner needs cleaning if a streak is detected', async () => {
   apiMock.expectContinueScanning({ forceAccept: false });
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
 });
+
+test('ballot with invalid scale', async () => {
+  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'front' });
+  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'back' });
+  apiMock.expectGetNextReviewSheet(
+    buildNextReviewSheet({
+      id: 'mock-sheet-id',
+      front: {
+        interpretation: {
+          type: 'UnreadablePage',
+          reason: 'invalidScale',
+        },
+      },
+      back: {
+        interpretation: {
+          type: 'UnreadablePage',
+          reason: 'invalidScale',
+        },
+      },
+    })
+  );
+
+  const logger = mockBaseLogger({ fn: vi.fn });
+
+  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock, logger });
+
+  await screen.findByText('Invalid Scale');
+  screen.getByText('The last scanned ballot was printed at an invalid scale.');
+  screen.getByText('Ballots must be printed full-scale.');
+  expect(screen.getByRole('button').textContent).toEqual(
+    'Confirm Ballot Removed'
+  );
+
+  expect(logger.log).toHaveBeenCalledTimes(1);
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.ScanAdjudicationInfo,
+    'election_manager',
+    expect.objectContaining({
+      adjudicationTypes: 'UnreadablePage',
+    })
+  );
+  apiMock.expectContinueScanning({ forceAccept: false });
+  userEvent.click(screen.getByText('Confirm Ballot Removed'));
+});

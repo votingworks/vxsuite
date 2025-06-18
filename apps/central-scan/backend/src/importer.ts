@@ -211,6 +211,7 @@ export class Importer {
       allowOfficialBallotsInTestMode,
       disableVerticalStreakDetection,
       markThresholds,
+      minimumDetectedScale,
     } = assertDefined(store.getSystemSettings());
 
     return ok(
@@ -223,6 +224,7 @@ export class Importer {
           adjudicationReasons: store.getAdjudicationReasons(),
           markThresholds,
           allowOfficialBallotsInTestMode,
+          minimumDetectedScale,
         },
         [frontImageData, backImageData],
         sheetId,

@@ -1421,6 +1421,12 @@ export const appStrings = {
     </UiString>
   ),
 
+  titleScannerBallotScaleError: () => (
+    <UiString uiStringKey="titleScannerBallotScaleError">
+      Ballot Scale Error
+    </UiString>
+  ),
+
   titleScannerBallotUnreadable: () => (
     <UiString uiStringKey="titleScannerBallotUnreadable">
       Ballot Scan Failed
@@ -1589,6 +1595,13 @@ export const appStrings = {
   warningScannerBmdBallotScanningDisabled: () => (
     <UiString uiStringKey="warningScannerBmdBallotScanningDisabled">
       The scanner cannot scan BMD ballots. Use a central scanner instead.
+    </UiString>
+  ),
+
+  warningBallotPrintedAtInvalidScale: () => (
+    <UiString uiStringKey="warningBallotPrintedAtInvalidScale">
+      The ballot is printed at the wrong scale. Ballots must be printed
+      full-scale.
     </UiString>
   ),
 } as const;
