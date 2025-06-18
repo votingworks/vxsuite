@@ -5,7 +5,6 @@ import { SheetOf } from '@votingworks/types';
 import express, { Application } from 'express';
 import { mkdir, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
-import { LogEventId } from '@votingworks/logging';
 import { getMachineConfig } from '../machine_config';
 import { type ServerContext } from './context';
 import { SoundName, Player as AudioPlayer } from '../audio/player';
