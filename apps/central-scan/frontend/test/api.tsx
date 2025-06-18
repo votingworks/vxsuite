@@ -131,14 +131,16 @@ export function createApiMock(
     ) {
       apiClient.getNextReviewSheet
         .expectRepeatedCallsWith()
-        .resolves(reviewSheetInfo);
+        .resolves(reviewSheetInfo ?? null);
     },
 
     expectGetSheetImage(
       input: { sheetId: Id; side: Side },
       imageBuffer?: Buffer
     ) {
-      apiClient.getSheetImage.expectCallWith(input).resolves(imageBuffer);
+      apiClient.getSheetImage
+        .expectCallWith(input)
+        .resolves(imageBuffer ?? null);
     },
 
     expectContinueScanning(input: { forceAccept: boolean }) {

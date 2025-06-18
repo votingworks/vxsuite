@@ -21,12 +21,14 @@ import {
   ContestId,
   Id,
   Side,
+  BallotSheetInfo,
 } from '@votingworks/types';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import express, { Application } from 'express';
 import * as grout from '@votingworks/grout';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
+import { Buffer } from 'node:buffer';
 import { readFile } from 'node:fs/promises';
 import { Importer } from './importer';
 import { Workspace } from './util/workspace';
@@ -208,50 +210,67 @@ function buildApi({
       }
     },
 
-    getNextReviewSheet() {
+    getNextReviewSheet(): {
+      interpreted: BallotSheetInfo;
+      layouts: {
+        front?: BallotPageLayout;
+        back?: BallotPageLayout;
+      };
+      definitions: {
+        front?: { contestIds: readonly ContestId[] };
+        back?: { contestIds: readonly ContestId[] };
+      };
+    } | null {
       const sheet = store.getNextAdjudicationSheet();
 
-      if (sheet) {
-        let frontLayout: BallotPageLayout | undefined;
-        let backLayout: BallotPageLayout | undefined;
-        let frontDefinition: Optional<{ contestIds: readonly ContestId[] }>;
-        let backDefinition: Optional<{ contestIds: readonly ContestId[] }>;
-
-        if (sheet.front.interpretation.type === 'InterpretedHmpbPage') {
-          const front = sheet.front.interpretation;
-          frontLayout = front.layout;
-          const contestIds = Object.keys(front.votes);
-          frontDefinition = { contestIds };
-        }
-
-        if (sheet.back.interpretation.type === 'InterpretedHmpbPage') {
-          const back = sheet.back.interpretation;
-          const contestIds = Object.keys(back.votes);
-
-          backLayout = back.layout;
-          backDefinition = { contestIds };
-        }
-
-        return {
-          interpreted: sheet,
-          layouts: {
-            front: frontLayout,
-            back: backLayout,
-          },
-          definitions: {
-            front: frontDefinition,
-            back: backDefinition,
-          },
-        };
+      if (!sheet) {
+        return null;
       }
+
+      let frontLayout: BallotPageLayout | undefined;
+      let backLayout: BallotPageLayout | undefined;
+      let frontDefinition: Optional<{ contestIds: readonly ContestId[] }>;
+      let backDefinition: Optional<{ contestIds: readonly ContestId[] }>;
+
+      if (sheet.front.interpretation.type === 'InterpretedHmpbPage') {
+        const front = sheet.front.interpretation;
+        frontLayout = front.layout;
+        const contestIds = Object.keys(front.votes);
+        frontDefinition = { contestIds };
+      }
+
+      if (sheet.back.interpretation.type === 'InterpretedHmpbPage') {
+        const back = sheet.back.interpretation;
+        const contestIds = Object.keys(back.votes);
+
+        backLayout = back.layout;
+        backDefinition = { contestIds };
+      }
+
+      return {
+        interpreted: sheet,
+        layouts: {
+          front: frontLayout,
+          back: backLayout,
+        },
+        definitions: {
+          front: frontDefinition,
+          back: backDefinition,
+        },
+      };
     },
 
-    async getSheetImage(input: { sheetId: Id; side: Side }) {
+    async getSheetImage(input: {
+      sheetId: Id;
+      side: Side;
+    }): Promise<Buffer | null> {
       const imagePath = store.getBallotImagePath(input.sheetId, input.side);
 
-      if (imagePath) {
-        return await readFile(imagePath);
+      if (!imagePath) {
+        return null;
       }
+
+      return await readFile(imagePath);
     },
 
     async continueScanning(input: { forceAccept: boolean }): Promise<void> {

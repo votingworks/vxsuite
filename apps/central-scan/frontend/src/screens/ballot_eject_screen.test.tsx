@@ -96,6 +96,8 @@ afterEach(() => {
 });
 
 test('says the sheet is unreadable if it is', async () => {
+  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'front' });
+  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'back' });
   apiMock.expectGetNextReviewSheet(
     buildNextReviewSheet({
       id: 'mock-sheet-id',
@@ -135,6 +137,8 @@ test('says the sheet is unreadable if it is', async () => {
 });
 
 test('says the ballot sheet is overvoted if it is', async () => {
+  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'front' });
+  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'back' });
   apiMock.expectGetNextReviewSheet(
     buildNextReviewSheet({
       id: 'mock-sheet-id',
@@ -221,6 +225,8 @@ test('says the ballot sheet is overvoted if it is', async () => {
 });
 
 test('says the ballot sheet is undervoted if it is', async () => {
+  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'front' });
+  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'back' });
   apiMock.expectGetNextReviewSheet(
     buildNextReviewSheet({
       id: 'mock-sheet-id',
@@ -307,6 +313,8 @@ test('says the ballot sheet is undervoted if it is', async () => {
 });
 
 test('says the ballot sheet is blank if it is', async () => {
+  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'front' });
+  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'back' });
   apiMock.expectGetNextReviewSheet(
     buildNextReviewSheet({
       id: 'mock-sheet-id',
@@ -400,6 +408,8 @@ test('says the ballot sheet is blank if it is', async () => {
 });
 
 test('calls out official ballot sheets in test mode', async () => {
+  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'front' });
+  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'back' });
   apiMock.expectGetNextReviewSheet(
     buildNextReviewSheet({
       id: 'mock-sheet-id',
@@ -451,6 +461,8 @@ test('calls out official ballot sheets in test mode', async () => {
 });
 
 test('calls out test ballot sheets in live mode', async () => {
+  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'front' });
+  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'back' });
   apiMock.expectGetNextReviewSheet(
     buildNextReviewSheet({
       id: 'mock-sheet-id',
@@ -505,6 +517,8 @@ test('calls out test ballot sheets in live mode', async () => {
 });
 
 test('shows invalid election screen when appropriate', async () => {
+  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'front' });
+  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'back' });
   apiMock.expectGetNextReviewSheet(
     buildNextReviewSheet({
       id: 'mock-sheet-id',
@@ -552,6 +566,8 @@ test('shows invalid election screen when appropriate', async () => {
 
 test('does not allow tabulating the overvote if disallowCastingOvervotes is set', async () => {
   apiMock.apiClient.getSystemSettings.reset();
+  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'front' });
+  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'back' });
   apiMock.expectGetSystemSettings({
     ...DEFAULT_SYSTEM_SETTINGS,
     disallowCastingOvervotes: true,
@@ -648,6 +664,8 @@ test('does not allow tabulating the overvote if disallowCastingOvervotes is set'
 });
 
 test('says the scanner needs cleaning if a streak is detected', async () => {
+  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'front' });
+  apiMock.expectGetSheetImage({ sheetId: 'mock-sheet-id', side: 'back' });
   apiMock.expectGetNextReviewSheet(
     buildNextReviewSheet({
       id: 'mock-sheet-id',
