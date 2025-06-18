@@ -8,7 +8,6 @@ import type {
   MarginalMarkStatus,
   WriteInAdjudicationStatus,
 } from '../screens/contest_adjudication_screen';
-import { MarginalMarkFlag } from './marginal_mark_flag';
 
 export const MAX_WRITE_IN_NAME_LENGTH = 200;
 const INVALID_KEY = '\0invalid';
@@ -26,15 +25,13 @@ const Container = styled.div`
 `;
 
 const StyledCheckboxButton = styled(CheckboxButton)<{
-  roundTop?: boolean;
   roundBottom?: boolean;
   isSelected?: boolean;
   isFocused?: boolean;
 }>`
-  border-radius: ${({ roundTop, roundBottom }) => {
-    if (roundTop && roundBottom) return '0.5rem';
-    if (roundTop) return '0.5rem 0.5rem 0 0';
-    if (roundBottom) return '0 0 0.5rem 0.5rem';
+  border-radius: ${({ roundBottom }) => {
+    if (roundBottom) return '0.5rem';
+    return '0.5rem 0.5rem 0 0';
   }};
 
   ${({ isSelected, isFocused, theme }) =>
@@ -62,11 +59,10 @@ interface Props {
   isFocused: boolean;
   isSelected: boolean;
   writeInStatus: WriteInAdjudicationStatus;
-  marginalMarkStatus?: MarginalMarkStatus;
+  marginalMarkStatus: MarginalMarkStatus;
   onChange: (newStatus: Exclude<WriteInAdjudicationStatus, undefined>) => void;
   onInputBlur: () => void;
   onInputFocus: () => void;
-  onDismissFlag?: () => void;
   officialCandidates: Candidate[];
   writeInCandidates: Candidate[];
   hasInvalidEntry: boolean;
@@ -85,7 +81,6 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
       onChange,
       onInputFocus,
       onInputBlur,
-      onDismissFlag,
       officialCandidates,
       writeInCandidates,
       hasInvalidEntry,
@@ -105,8 +100,11 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
     let showSearchSelect = true;
     let value: string | undefined;
     switch (writeInStatus?.type) {
-      case 'invalid':
       case undefined: {
+        showSearchSelect = marginalMarkStatus === 'pending';
+        break;
+      }
+      case 'invalid': {
         showSearchSelect = false;
         break;
       }
@@ -125,12 +123,6 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
         throwIllegalValue(writeInStatus, 'type');
       }
     }
-
-    // Only show flag if the searchSelect is not visible
-    const showMarginalMarkFlag =
-      !showSearchSelect &&
-      marginalMarkStatus === 'pending' &&
-      onDismissFlag !== undefined;
 
     const allCandidates = writeInCandidates.concat(officialCandidates);
     const candidateNames = allCandidates.map((c) => c.name);
@@ -173,7 +165,7 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
       invalidMarkOption = {
         label: (
           <OptionWithIcon>
-            <Icons.Disabled /> Invalid mark
+            <Icons.Disabled /> Invalid
           </OptionWithIcon>
         ),
         value: INVALID_KEY,
@@ -188,15 +180,11 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
 
     return (
       <Container style={{ zIndex: isFocused ? 10 : 0 }} ref={ref}>
-        {showMarginalMarkFlag && (
-          <MarginalMarkFlag onDismissFlag={onDismissFlag} />
-        )}
         <StyledCheckboxButton
           isChecked={isSelected}
           isFocused={isFocused}
           disabled={disabled}
-          label={label ?? 'Write-in'}
-          roundTop={!showMarginalMarkFlag}
+          label={label ?? 'Write-In'}
           roundBottom={!showSearchSelect}
           onChange={() => {
             onChange({ type: isSelected ? 'invalid' : 'pending' });
@@ -251,9 +239,7 @@ export const WriteInAdjudicationButton = forwardRef<HTMLDivElement, Props>(
                     color="warning"
                     style={{ marginRight: '0.5rem' }}
                   />
-                  {isSelected
-                    ? 'Click to adjudicate write-in'
-                    : 'Click to adjudicate unmarked write-in'}
+                  Click to adjudicate
                 </React.Fragment>
               )
             }

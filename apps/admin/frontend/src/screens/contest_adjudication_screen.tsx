@@ -303,34 +303,28 @@ function renderContestOptionButtonCaption({
   marginalMarkStatus?: MarginalMarkStatus;
 }) {
   let originalValueStr: string | undefined;
-  let newValueStr: string | undefined;
-
-  if (marginalMarkStatus === 'resolved' && currentVote) {
-    originalValueStr = 'Marginal Mark';
-    newValueStr = isWriteIn ? 'Valid Write-in' : 'Valid Mark';
-  } else if (marginalMarkStatus === 'resolved' && !currentVote) {
-    originalValueStr = 'Marginal Mark';
-    newValueStr = isWriteIn ? 'Invalid Write-in' : 'Invalid Mark';
-  } else if (isWriteIn) {
-    if (writeInRecord?.isUnmarked && isInvalidWriteIn(writeInStatus)) {
-      originalValueStr = 'Unmarked Write-in';
-      newValueStr = 'Invalid Mark';
+  if (isWriteIn) {
+    const isAmbiguousAndAdjudicated =
+      (!writeInRecord && isValidCandidate(writeInStatus)) || // No write in detected by scanner but adjudicated as vote
+      ((writeInRecord?.isUnmarked ||
+        writeInRecord?.isUndetected ||
+        marginalMarkStatus === 'resolved') &&
+        !isPendingWriteIn(writeInStatus));
+    if (isAmbiguousAndAdjudicated) {
+      originalValueStr = 'Ambiguous Write-In';
     } else if (originalVote && isInvalidWriteIn(writeInStatus)) {
-      originalValueStr = 'Mark';
-      newValueStr = 'Invalid Mark';
-    } else if ((!writeInRecord || writeInRecord?.isUnmarked) && currentVote) {
-      originalValueStr = 'Unmarked Write-in';
-      newValueStr = 'Valid Write-In';
+      originalValueStr = 'Write-In';
     }
+  } else if (marginalMarkStatus === 'resolved') {
+    originalValueStr = 'Marginal Mark';
   } else if (originalVote !== currentVote) {
     originalValueStr = originalVote ? 'Mark' : 'Undetected Mark';
-    newValueStr = currentVote ? 'Valid Mark' : 'Invalid Mark';
   }
 
-  if (!originalValueStr || !newValueStr) {
+  if (!originalValueStr) {
     return null;
   }
-
+  const newValueStr = currentVote ? 'Valid' : 'Invalid';
   return (
     <ContestOptionButtonCaption>
       <Font weight="semiBold">{originalValueStr} </Font>adjudicated as
@@ -996,7 +990,6 @@ export function ContestAdjudicationScreen(): JSX.Element {
                     disabled={isBmd && writeInStatus === undefined}
                     onInputFocus={() => setFocusedOptionId(optionId)}
                     onInputBlur={() => setFocusedOptionId(undefined)}
-                    onDismissFlag={() => resolveMarginalMark(optionId)}
                     ref={getRef}
                     onChange={(newStatus) => {
                       setFocusedOptionId(undefined);
@@ -1079,11 +1072,10 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 {onLastBallot ? 'Finish' : 'Save & Next'}
               </PrimaryNavButton>
               <SecondaryNavButton
-                disabled={onLastBallot}
-                onPress={onSkip}
+                onPress={onLastBallot ? onClose : onSkip}
                 rightIcon="Next"
               >
-                Skip
+                {onLastBallot ? 'Exit' : 'Skip'}
               </SecondaryNavButton>
               <SecondaryNavButton
                 disabled={onFirstBallot}

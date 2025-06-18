@@ -64,7 +64,7 @@ function getDropdownItemByLabel(label: string) {
 function getInvalidMarkItem() {
   return screen.getByText(
     (_, node) =>
-      (node?.textContent ?? '').includes('Invalid mark') &&
+      (node?.textContent ?? '').includes('Invalid') &&
       node?.getAttribute('aria-disabled') === 'false'
   );
 }
@@ -167,10 +167,10 @@ describe('hmpb write-in adjudication', () => {
 
     writeInSearchSelect = screen.getByRole('combobox');
     expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
-    const item = await screen.findByText(/invalid mark/i);
+    const item = await screen.findByText(/invalid/i);
     fireEvent.click(item);
 
-    expect(screen.queryByText(/invalid mark/i)).toBeInTheDocument();
+    expect(screen.queryByText(/invalid/i)).toBeInTheDocument();
     expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
 
     finishButton = screen.getByRole('button', { name: /finish/i });
@@ -292,7 +292,7 @@ describe('hmpb write-in adjudication', () => {
 
     // review dropdown options
     expect(screen.queryByText(/press enter to add:/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/invalid mark/i)).toBeInTheDocument();
+    expect(screen.queryByText(/invalid/i)).toBeInTheDocument();
     expect(screen.getAllByText(/elephant/i)).toHaveLength(2);
     expect(screen.getAllByText(/lion/i)).toHaveLength(2);
     expect(screen.getAllByText(/kangaroo/i)).toHaveLength(1);
@@ -301,7 +301,7 @@ describe('hmpb write-in adjudication', () => {
     userEvent.type(writeInSearchSelect, 'e');
 
     expect(screen.queryByText(/press enter to add: e/i)).toBeInTheDocument();
-    expect(screen.queryByText(/invalid mark/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/invalid/i)).not.toBeInTheDocument();
     expect(screen.getAllByText(/elephant/i)).toHaveLength(2);
     expect(screen.getAllByText(/lion/i)).toHaveLength(1);
 
@@ -310,7 +310,7 @@ describe('hmpb write-in adjudication', () => {
     userEvent.type(writeInSearchSelect, 'OLIVER');
 
     expect(screen.queryByText(/press enter to add:/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/invalid mark/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/invalid/i)).not.toBeInTheDocument();
     expect(screen.getAllByText(/elephant/i)).toHaveLength(1);
     expect(screen.getAllByText(/oliver/i)).toHaveLength(2);
 
@@ -388,12 +388,12 @@ describe('hmpb write-in adjudication', () => {
     expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
 
     expect(screen.queryByText(/press enter to add:/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/invalid mark/i)).toBeInTheDocument();
+    expect(screen.queryByText(/invalid/i)).toBeInTheDocument();
     expect(screen.queryByText(/oliver/i)).toBeInTheDocument();
 
     userEvent.type(writeInSearchSelect, 'siena');
 
-    expect(screen.queryByText(/invalid mark/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/invalid/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/oliver/i)).not.toBeInTheDocument();
 
     // add new candidate
@@ -513,7 +513,7 @@ describe('bmd write-in adjudication', () => {
     const invalidMarkItem = getInvalidMarkItem();
     userEvent.click(invalidMarkItem);
 
-    expect(screen.queryByText(/invalid mark/i)).toBeInTheDocument();
+    expect(screen.queryByText(/invalid/i)).toBeInTheDocument();
 
     [writeInCheckbox] = screen
       .getAllByRole('checkbox', { name: /machine-marked-mock-text/i })
@@ -642,15 +642,15 @@ describe('vote adjudication', () => {
 
     // check caption for new vote adjudication from true to false
     expect(kangarooCheckbox).toBeChecked();
-    expect(screen.queryByText(/invalid mark/i)).toBeNull();
+    expect(screen.queryByText(/invalid/i)).toBeNull();
     userEvent.click(kangarooCheckbox);
     expect(kangarooCheckbox).not.toBeChecked();
-    expect(screen.queryByText(/invalid mark/i)).toBeInTheDocument();
+    expect(screen.queryByText(/invalid/i)).toBeInTheDocument();
 
     // caption disappears when undone
     userEvent.click(kangarooCheckbox);
     expect(kangarooCheckbox).toBeChecked();
-    expect(screen.queryByText(/invalid mark/i)).toBeNull();
+    expect(screen.queryByText(/invalid/i)).toBeNull();
 
     // add vote for kangaroo so there is some change, enabling the primary button
     userEvent.click(kangarooCheckbox);
@@ -788,7 +788,6 @@ describe('unmarked and undetected write-ins', () => {
 
     await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
     expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
-    expect(screen.queryByText(/unmarked write-in/i)).toBeInTheDocument();
     expect(
       screen
         .getAllByRole('checkbox', { name: /write-in/i })
@@ -809,11 +808,6 @@ describe('unmarked and undetected write-ins', () => {
     checkboxes = screen.getAllByRole('checkbox', { name: /write-in/i });
     for (const box of checkboxes) expect(box).toBeChecked();
     expect(screen.queryByText(/overvote/i)).toBeInTheDocument();
-    // check the captions for the unmarked and undetected write-ins being marked valid
-    expect(screen.queryByText(/invalid mark/i)).not.toBeInTheDocument();
-    // we call both 'unmarked' in the ui for simplicity
-    expect(screen.getAllByText(/unmarked write-in/i)).toHaveLength(3);
-    expect(screen.getAllByText(/valid write-in/i)).toHaveLength(3);
 
     // now, test un-marking them all via the checkbox
     for (const box of checkboxes) userEvent.click(box);
@@ -821,8 +815,8 @@ describe('unmarked and undetected write-ins', () => {
     for (const box of checkboxes) expect(box).not.toBeChecked();
     expect(screen.queryByText(/overvote/i)).not.toBeInTheDocument();
     // check the caption for the UWI being marked invalid
-    expect(screen.queryByText(/unmarked write-in/i)).toBeInTheDocument();
-    expect(screen.queryByText(/invalid mark/i)).toBeInTheDocument();
+    expect(screen.queryByText(/ambiguous write-in/i)).toBeInTheDocument();
+    expect(screen.queryByText(/invalid/i)).toBeInTheDocument();
 
     // toggle back on, and then enter values via searchSelects
     for (const box of checkboxes) userEvent.click(box);
@@ -836,6 +830,12 @@ describe('unmarked and undetected write-ins', () => {
       const dropdownItem = getDropdownItemByLabel(selections[i]);
       userEvent.click(dropdownItem!);
     }
+
+    // check the captions for the unmarked and undetected write-ins being marked valid.
+    // we call both 'ambiguous' in the ui for simplicity
+    expect(screen.queryByText(/invalid/i)).not.toBeInTheDocument();
+    expect(screen.getAllByText(/ambiguous write-in/i)).toHaveLength(3);
+    expect(screen.getAllByText(/valid/i)).toHaveLength(3);
 
     finishButton = getButtonByName('finish');
     expect(finishButton).toBeEnabled();
@@ -1021,6 +1021,7 @@ describe('ballot navigation', () => {
     );
     apiMock.expectGetMarginalMarks({ cvrId: cvrIds[1], contestId }, []);
   });
+
   test('opens to pending cvr, loads previous adjudications, and enables/disables navigation buttons based on remaining queue', async () => {
     renderScreen(contestId, {
       electionDefinition,
@@ -1090,12 +1091,17 @@ describe('ballot navigation', () => {
 
     // verify buttons are enabled/disabled
     await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-    skipButton = getButtonByName('skip');
-    expect(skipButton).toBeDisabled();
+    const exitButton = getButtonByName('exit');
+    expect(exitButton).toBeEnabled();
     backButton = getButtonByName('back');
     expect(backButton).toBeEnabled();
     primaryButton = getButtonByName('finish');
     expect(primaryButton).toBeDisabled();
+
+    userEvent.click(exitButton);
+    await waitFor(() => {
+      expect(screen.queryByTestId('transcribe:id-176')).not.toBeInTheDocument();
+    });
   });
 });
 
@@ -1771,21 +1777,21 @@ describe('marginal mark adjudication', () => {
     // address one marginal mark by clicking it's checkbox, making it valid
     expect(kangarooCheckbox).not.toBeChecked();
     expect(screen.queryAllByText(/review marginal mark/i).length).toEqual(2);
-    expect(screen.queryByText(/valid mark/i)).toBeNull();
+    expect(screen.queryByText(/valid/i)).toBeNull();
     userEvent.click(kangarooCheckbox);
     expect(kangarooCheckbox).toBeChecked();
     // caption should now show
-    expect(screen.queryByText(/valid mark/i)).toBeInTheDocument();
+    expect(screen.queryByText(/valid/i)).toBeInTheDocument();
     // one less flag should be showing now
     expect(screen.queryAllByText(/review marginal mark/i).length).toEqual(1);
 
     // address the other by dismissing the flag, making it invalid
     expect(elephantCheckbox).not.toBeChecked();
-    expect(screen.queryByText(/invalid mark/i)).toBeNull();
+    expect(screen.queryByText(/invalid/i)).toBeNull();
     userEvent.click(getButtonByName('dismiss'));
     expect(elephantCheckbox).not.toBeChecked();
     // caption should now show
-    expect(screen.queryByText(/invalid mark/i)).toBeInTheDocument();
+    expect(screen.queryByText(/invalid/i)).toBeInTheDocument();
 
     // both flags are now gone
     expect(screen.queryByText(/review marginal mark/i)).toBeNull();
@@ -1834,9 +1840,9 @@ describe('marginal mark adjudication', () => {
     await screen.findByTestId('transcribe:id-174');
     expect(screen.queryByText(/review marginal mark/i)).toBeNull();
     expect(screen.queryAllByText(/marginal mark/i).length).toEqual(2);
-    expect(screen.queryByText(/invalid mark/i)).toBeInTheDocument();
+    expect(screen.queryByText(/invalid/i)).toBeInTheDocument();
     // there is only one valid marginal mark, but the text also exists within 'invalid mark'
-    expect(screen.queryAllByText(/valid mark/i).length).toEqual(2);
+    expect(screen.queryAllByText(/valid/i).length).toEqual(2);
   });
 
   test('hmpb ballot can have marginally marked write-in adjudicated', async () => {
@@ -1888,7 +1894,8 @@ describe('marginal mark adjudication', () => {
 
     // The marginal mark flag should not show since write-in adjudication is showing
     expect(screen.queryAllByText(/marginal mark/i).length).toEqual(0);
-    expect(screen.queryByText(/valid mark/i)).toBeNull();
+    expect(screen.queryByText(/ambiguous write-in/i)).toBeNull();
+    expect(screen.queryByText(/valid/i)).toBeNull();
     userEvent.click(writeIn0Checkbox);
     expect(writeIn0Checkbox).toBeChecked();
 
@@ -1896,8 +1903,8 @@ describe('marginal mark adjudication', () => {
     userEvent.click(writeIn0Checkbox);
     expect(writeIn0Checkbox).not.toBeChecked();
     // caption should now show as it is adjudicated
-    expect(screen.queryByText(/invalid write-in/i)).toBeInTheDocument();
-    expect(screen.queryByText(/marginal mark/i)).toBeInTheDocument();
+    expect(screen.queryByText(/ambiguous write-in/i)).toBeInTheDocument();
+    expect(screen.queryByText(/invalid/i)).toBeInTheDocument();
 
     // Click again to bring back the select to adjudicate as candidate
     userEvent.click(writeIn0Checkbox);
@@ -1962,7 +1969,7 @@ describe('marginal mark adjudication', () => {
 
     // flags shouldn't be there anymore and captions should remain
     await screen.findByTestId('transcribe:id-174');
-    expect(screen.queryAllByText(/marginal mark/i).length).toEqual(1);
-    expect(screen.queryByText(/valid write-in/i)).toBeInTheDocument();
+    expect(screen.queryAllByText(/ambiguous write-in/i).length).toEqual(1);
+    expect(screen.queryByText(/valid/i)).toBeInTheDocument();
   });
 });
