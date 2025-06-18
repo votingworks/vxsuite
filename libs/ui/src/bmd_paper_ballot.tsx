@@ -8,6 +8,7 @@ import {
   BallotType,
   CandidateContest,
   CandidateVote,
+  Contests,
   Election,
   ElectionDefinition,
   getBallotStyle,
@@ -25,7 +26,7 @@ import {
 } from '@votingworks/utils';
 
 import { assert, err, find, ok, Result } from '@votingworks/basics';
-import { QrCode } from './qrcode';
+import { QrCode, QrCodeLevel } from './qrcode';
 import { Font, H4, H5, P } from './typography';
 import { VxThemeProvider } from './themes/vx_theme_provider';
 import { VX_DEFAULT_FONT_FAMILY_DECLARATION } from './fonts/font_family';
@@ -62,6 +63,21 @@ export const MAX_MARK_SCAN_TOP_MARGIN = '1.75in';
  * is partially covered by the VSAP infeed hood.
  */
 export const MIN_MARK_SCAN_TOP_MARGIN = '0.5625in';
+
+/**
+ * Max number of combined write-in characters we can fit in a QR code at the
+ * highest error correction level[1] (i.e. more built-in redundancy, denser QR
+ * code) without hurting our ability to decode it after printing and scanning.
+ * Past this point, we reduce the level to `M`.
+ *
+ * Rough limit determined by testing a 25-contest ballot (all candidate
+ * contests - some single-seat, some multi-seat) with a 0.55px SVG blur filter
+ * on the QR code to mimic (not very accurately) the pixel bleed on thermal
+ * prints. Can/should be tweaked as needed, with more testing.
+ *
+ * [1] https://www.qrcode.com/en/about/error_correction.html
+ */
+export const MAX_WRITE_IN_CHARS_FOR_HIGH_DENSITY_QR = 120;
 
 export interface Layout {
   /**
@@ -552,6 +568,28 @@ function withPrintTheme(ballot: JSX.Element): JSX.Element {
   );
 }
 
+function qrCodeLevelOverride(
+  contests: Contests,
+  votes: VotesDict
+): QrCodeLevel | undefined {
+  let writeInCharCount = 0;
+  for (const contest of contests) {
+    if (contest.type !== 'candidate' || !contest.allowWriteIns) continue;
+
+    const vote = votes[contest.id];
+    if (!vote) continue;
+
+    for (const selection of vote) {
+      if (typeof selection === 'string' || !selection.isWriteIn) continue;
+      writeInCharCount += selection.name.length;
+    }
+  }
+
+  if (writeInCharCount > MAX_WRITE_IN_CHARS_FOR_HIGH_DENSITY_QR) return 'M';
+
+  return undefined;
+}
+
 /**
  * Renders a paper ballot as printed by a ballot-marking device
  */
@@ -674,7 +712,10 @@ export function BmdPaperBallot({
                 </div>
               </div>
             </div>
-            <QrCode value={fromByteArray(encodedBallot)} />
+            <QrCode
+              level={qrCodeLevelOverride(contests, votes)}
+              value={fromByteArray(encodedBallot)}
+            />
           </QrCodeContainer>
         </Header>
         <Content layout={ballotLayout}>

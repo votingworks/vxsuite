@@ -31,6 +31,7 @@ import {
   Layout,
   getLayout,
   NoLayoutOptionError,
+  MAX_WRITE_IN_CHARS_FOR_HIGH_DENSITY_QR,
 } from './bmd_paper_ballot';
 import * as QrCodeModule from './qrcode';
 
@@ -314,7 +315,47 @@ test('BmdPaperBallot passes expected data to encodeBallot for use in QR code', (
   );
 
   expect(QrCodeSpy).toBeCalledWith(
-    expect.objectContaining({
+    expect.objectContaining<QrCodeModule.QrCodeProps>({
+      level: undefined,
+      value: fromByteArray(mockEncodedBallotData),
+    }),
+    expect.anything()
+  );
+});
+
+test('reduces QR code error correction for lots of write-ins', () => {
+  const QrCodeSpy = vi.spyOn(QrCodeModule, 'QrCode');
+  const minCombinedChars = MAX_WRITE_IN_CHARS_FOR_HIGH_DENSITY_QR;
+
+  const { contests } = electionGeneralDefinition.election;
+  const votes: { [key: string]: Candidate } = {};
+
+  let totalWriteInChars = 0;
+  for (const contest of contests) {
+    if (contest.type !== 'candidate' || !contest.allowWriteIns) continue;
+
+    votes[contest.id] = {
+      name: 'A'.repeat(40),
+      id: `${contest.id}-writein`,
+      isWriteIn: true,
+    };
+
+    totalWriteInChars += 40;
+    if (totalWriteInChars > minCombinedChars) break;
+  }
+
+  expect(totalWriteInChars).toBeGreaterThan(minCombinedChars);
+
+  renderBmdPaperBallot({
+    electionDefinition: electionGeneralDefinition,
+    ballotStyleId: '12' as BallotStyleId,
+    precinctId: '21',
+    votes,
+  });
+
+  expect(QrCodeSpy).toBeCalledWith(
+    expect.objectContaining<QrCodeModule.QrCodeProps>({
+      level: 'M',
       value: fromByteArray(mockEncodedBallotData),
     }),
     expect.anything()

@@ -9,9 +9,11 @@ const ResponsiveSvgWrapper = styled.div`
   }
 `;
 
+export type QrCodeLevel = 'L' | 'M' | 'Q' | 'H';
+
 export interface QrCodeProps {
   value: string;
-  level?: 'L' | 'M' | 'Q' | 'H';
+  level?: QrCodeLevel;
 }
 
 export function QrCode({ level = 'H', value }: QrCodeProps): JSX.Element {
