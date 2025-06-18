@@ -132,4 +132,30 @@ describe('SettingsScreen precinct selection', () => {
     const select = screen.queryByLabelText('Select Precinct');
     expect(select).toBeNull();
   });
+
+  test('handles error when setting precinct by disabling', async () => {
+    const { precincts } = electionDefFamousNames.election;
+    // Render
+    const renderResult = renderInAppContext(<ElectionManagerScreen />, {
+      apiMock,
+    });
+    unmount = renderResult.unmount;
+
+    // Wait for the SearchSelect to appear with the correct value
+    const select = await screen.findByLabelText('Select Precinct');
+    expect(select).toBeInTheDocument();
+    expect((select as HTMLSelectElement).disabled).toBeFalsy();
+
+    apiMock.expectSetConfiguredPrecinct(precincts[1].id, new Error('test'));
+
+    userEvent.click(screen.getByText('Select Precinct…'));
+    userEvent.click(screen.getByText(precincts[1].name));
+
+    const selectDisabled = await screen.findByLabelText('Select Precinct');
+    expect(selectDisabled).toBeInTheDocument();
+    expect((selectDisabled as HTMLSelectElement).disabled).toBeTruthy();
+    screen.getByText(
+      /The precinct setting cannot be changed because a voter was checked-in or voter data was updated/
+    );
+  });
 });

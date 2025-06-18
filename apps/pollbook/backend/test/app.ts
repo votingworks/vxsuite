@@ -190,13 +190,17 @@ export async function withApp(
  */
 export async function withManyApps(
   n: number,
-  fn: (contexts: TestContext[]) => Promise<void>
+  fn: (contexts: TestContext[]) => Promise<void>,
+  setUniqueCodeVersions: boolean = false
 ): Promise<void> {
   const contexts: TestContext[] = [];
-  const codeVersion = process.env.VX_CODE_VERSION || 'test';
 
   try {
     for (let i = 0; i < n; i += 1) {
+      const codeVersion = setUniqueCodeVersions
+        ? `test-${i}`
+        : process.env.VX_CODE_VERSION || 'test';
+
       const auth = buildMockDippedSmartCardAuth(vi.fn);
       const workspacePath = tmp.dirSync().name;
       const peerWorkspace = createPeerWorkspace(

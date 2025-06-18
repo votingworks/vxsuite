@@ -369,6 +369,13 @@ export abstract class Store {
     return this.election;
   }
 
+  hasEvents(): boolean {
+    const row = this.client.one(
+      'SELECT EXISTS(SELECT 1 FROM event_log LIMIT 1) as hasEvents'
+    ) as { hasEvents: number };
+    return row.hasEvents > 0;
+  }
+
   getPollbookConfigurationInformation(): PollbookConfigurationInformation {
     const row = this.client.one(
       `
@@ -463,7 +470,11 @@ export abstract class Store {
           );
         }
         if (electionDefinition.election.precincts.length === 1) {
-          this.setConfiguredPrecinct(
+          this.client.run(
+            `
+              update elections
+              set configured_precinct_id = ?
+            `,
             electionDefinition.election.precincts[0].id
           );
         }
@@ -484,17 +495,30 @@ export abstract class Store {
   setConfiguredPrecinct(precinctId: string): void {
     const election = this.getElection();
     assert(election !== undefined);
-    assert(
-      election.precincts.some((precinct) => precinct.id === precinctId),
-      `Precinct with id ${precinctId} does not exist in the election`
-    );
-    this.client.run(
+    this.client.transaction(() => {
+      // Check that there are no events
+      const eventCount = this.client.one(
+        `
+        SELECT COUNT(*) as count
+        FROM event_log
       `
-              update elections
-              set configured_precinct_id = ?
-            `,
-      precinctId
-    );
+      ) as { count: number };
+      if (eventCount.count !== 0) {
+        throw new Error('Can not change precinct when there are events.');
+      }
+
+      assert(
+        election.precincts.some((precinct) => precinct.id === precinctId),
+        `Precinct with id ${precinctId} does not exist in the election`
+      );
+      this.client.run(
+        `
+          update elections
+          set configured_precinct_id = ?
+          `,
+        precinctId
+      );
+    });
   }
 
   // Returns the valid street info. Used when registering a voter to populate address typeahead options.

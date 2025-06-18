@@ -107,8 +107,9 @@ describe('AvahiService.discoverHttpServices', () => {
     expect(services).toEqual([]);
   });
 
-  it('ignores lines that are not resolved services', async () => {
-    const stdout = '+;lo;IPv4;something;Web Site;local\n';
+  it('ignores lines that are not resolved services or incomplete', async () => {
+    const stdout =
+      '+;lo;IPv4;something;Web Site;local\n=;host1.local;192.168.1.2;8080;';
     mockExecFileFn.mockResolvedValue({ stdout, stderr: '' });
     const result = await AvahiService.discoverHttpServices();
     expect(result).toEqual([]);

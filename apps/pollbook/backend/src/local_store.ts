@@ -158,13 +158,6 @@ export class LocalStore extends Store {
     this.nextEventId = 0;
   }
 
-  hasEvents(): boolean {
-    const row = this.client.one(
-      'SELECT EXISTS(SELECT 1 FROM event_log LIMIT 1) as hasEvents'
-    ) as { hasEvents: number };
-    return row.hasEvents > 0;
-  }
-
   getIsAbsenteeMode(): boolean {
     const result = this.client.one(
       `
