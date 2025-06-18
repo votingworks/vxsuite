@@ -158,6 +158,7 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
   let isBackBlank = false;
   let isInvalidTestModeSheet = false;
   let isInvalidBallotHashSheet = false;
+  let isInvalidScale = false;
 
   let actualBallotHash: string | undefined;
 
@@ -187,6 +188,11 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
       reviewPageInfo.interpretation.reason === 'verticalStreaksDetected'
     ) {
       verticalStreaksDetected = true;
+    } else if (
+      reviewPageInfo.interpretation.type === 'UnreadablePage' &&
+      reviewPageInfo.interpretation.reason === 'invalidScale'
+    ) {
+      isInvalidScale = true;
     } else if (reviewPageInfo.interpretation.type === 'InvalidTestModePage') {
       isInvalidTestModeSheet = true;
     } else if (reviewPageInfo.interpretation.type === 'InvalidBallotHashPage') {
@@ -244,6 +250,19 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
               needs to be cleaned.
             </P>
             <P>Clean the scanner before continuing to scan ballots.</P>
+          </React.Fragment>
+        ),
+        allowBallotDuplication: false,
+      };
+    }
+
+    if (isInvalidScale) {
+      return {
+        header: 'Invalid Scale',
+        body: (
+          <React.Fragment>
+            <P>The last scanned ballot was printed at an invalid scale.</P>
+            <P>Ballots must be printed full-scale.</P>
           </React.Fragment>
         ),
         allowBallotDuplication: false,

@@ -34,7 +34,7 @@ import {
   MemoryPrinterHandler,
   createMockPrinterHandler,
 } from '@votingworks/printing';
-import { SheetOf } from '@votingworks/types';
+import { mapSheet, SheetOf } from '@votingworks/types';
 import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import {
   BooleanEnvironmentVariableName,
@@ -47,6 +47,7 @@ import { AddressInfo } from 'node:net';
 import * as tmp from 'tmp';
 import { Mocked, expect, vi } from 'vitest';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock';
+import { createCanvas } from 'canvas';
 import { Api, buildApp } from '../../src/app';
 import { Player as AudioPlayer } from '../../src/audio/player';
 import {
@@ -234,6 +235,30 @@ export async function withApp(
 export const ballotImages = {
   completeHmpb: async () =>
     pdfToImageSheet(await readFile(vxFamousNamesFixtures.blankBallotPath)),
+  completeHmpbInvalidScale: async () => {
+    const scale = 0.9;
+    const sheet = await pdfToImageSheet(
+      await readFile(vxFamousNamesFixtures.blankBallotPath),
+      {
+        scale: (200 / 72) * scale,
+      }
+    );
+    const canvas = createCanvas(
+      sheet[0].width / scale,
+      sheet[0].height / scale
+    );
+    return mapSheet(sheet, (page) => {
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.putImageData(
+        page,
+        Math.round((canvas.width - page.width) / 2),
+        Math.round((canvas.height - page.height) / 2)
+      );
+      return ctx.getImageData(0, 0, canvas.width, canvas.height);
+    });
+  },
   completeBmd: async () =>
     pdfToImageSheet(
       await renderBmdBallotFixture({

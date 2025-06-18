@@ -164,10 +164,11 @@ export function createPrecinctScannerStateMachineMock(): Mocked<PrecinctScannerS
 }
 
 export async function pdfToImageSheet(
-  pdf: Buffer
+  pdf: Buffer,
+  { scale = 200 / 72 }: { scale?: number } = {}
 ): Promise<SheetOf<ImageData>> {
   return asSheet(
-    await iter(pdfToImages(pdf, { scale: 200 / 72 }))
+    await iter(pdfToImages(pdf, { scale }))
       .map(({ page }) => page)
       .toArray()
   );

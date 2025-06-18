@@ -400,6 +400,45 @@ test('BMD ballot rejected when BMD ballot scanning disabled', async () => {
   );
 });
 
+test('ballot printed at an invalid scale is rejected', async () => {
+  await withApp(
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        electionPackage: {
+          electionDefinition:
+            electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition(),
+          systemSettings: {
+            ...DEFAULT_SYSTEM_SETTINGS,
+            minimumDetectedScale: 1.0,
+          },
+        },
+      });
+
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'no_paper' });
+
+      await simulateScan(
+        apiClient,
+        mockScanner,
+        await ballotImages.completeHmpbInvalidScale()
+      );
+
+      const interpretation: SheetInterpretation = {
+        type: 'InvalidSheet',
+        reason: 'invalid_scale',
+      };
+      await waitForStatus(apiClient, { state: 'rejecting', interpretation });
+      expect(mockScanner.client.ejectDocument).toHaveBeenCalledWith(
+        'toFrontAndHold'
+      );
+      mockScanner.setScannerStatus(mockScannerStatus.documentInFront);
+      clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
+
+      await waitForStatus(apiClient, { state: 'rejected', interpretation });
+    }
+  );
+});
+
 test('blank sheet rejected', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {

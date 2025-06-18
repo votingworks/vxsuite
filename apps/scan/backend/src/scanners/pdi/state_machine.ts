@@ -68,6 +68,7 @@ async function interpretSheet(
     disableVerticalStreakDetection,
     markThresholds,
     precinctScanEnableBmdBallotScanning,
+    minimumDetectedScale,
   } = assertDefined(store.getSystemSettings());
   const interpretation = (
     await interpret(sheetId, scanImages, {
@@ -81,6 +82,7 @@ async function interpretSheet(
       adjudicationReasons: store.getAdjudicationReasons(),
       allowOfficialBallotsInTestMode,
       disableBmdBallotScanning: !precinctScanEnableBmdBallotScanning,
+      minimumDetectedScale,
     })
   ).unsafeUnwrap();
   interpretTimer.end();

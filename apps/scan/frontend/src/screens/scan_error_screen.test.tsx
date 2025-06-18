@@ -143,6 +143,23 @@ test('warning when scanner needs cleaning', async () => {
   await screen.findByText('Please ask a poll worker for help.');
 });
 
+test('warning when ballot was printed with the wrong scale', async () => {
+  render(
+    provideApi(
+      apiMock,
+      <ScanErrorScreen
+        error="invalid_scale"
+        isTestMode
+        scannedBallotCount={42}
+      />
+    )
+  );
+  await screen.findByText('Ballot Scale Error');
+  await screen.findByText(
+    'The ballot is printed at the wrong scale. Ballots must be printed full-scale.'
+  );
+});
+
 test('double feed error screen', async () => {
   render(
     provideApi(

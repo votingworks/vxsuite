@@ -121,6 +121,11 @@ export function ScanErrorScreen({
           errorMessage: appStrings.instructionsScannerRemoveBallotToContinue(),
           pollWorkerMessage: appStrings.noteAskPollWorkerForHelp(),
         };
+      case 'invalid_scale':
+        return {
+          title: appStrings.titleScannerBallotScaleError(),
+          errorMessage: appStrings.warningBallotPrintedAtInvalidScale(),
+        };
       default: {
         /* istanbul ignore next - @preserve */
         throwIllegalValue(error);
