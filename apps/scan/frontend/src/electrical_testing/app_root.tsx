@@ -9,15 +9,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import useInterval from 'use-interval';
 import { useSound } from '../utils/use_sound';
-import {
-  getElectricalTestingStatuses,
-  getLatestScannedSheet,
-  setCardReaderTaskRunning,
-  setPrinterTaskRunning,
-  setScannerTaskRunning,
-  setUsbDriveTaskRunning,
-  systemCallApi,
-} from './api';
+import * as api from './api';
 import { SheetImagesModal } from './sheet_images_modal';
 
 const SOUND_INTERVAL_SECONDS = 5;
@@ -52,18 +44,23 @@ function formatTimestamp(timestamp: DateTime): string {
 
 export function AppRoot(): JSX.Element {
   const getElectricalTestingStatusMessagesQuery =
-    getElectricalTestingStatuses.useQuery();
+    api.getElectricalTestingStatuses.useQuery();
   const setCardReaderTaskRunningMutation =
-    setCardReaderTaskRunning.useMutation();
-  const setUsbDriveTaskRunningMutation = setUsbDriveTaskRunning.useMutation();
-  const setPrinterTaskRunningMutation = setPrinterTaskRunning.useMutation();
-  const setScannerTaskRunningMutation = setScannerTaskRunning.useMutation();
-  const getLatestScannedSheetQuery = getLatestScannedSheet.useQuery();
-  const powerDownMutation = systemCallApi.powerDown.useMutation();
+    api.setCardReaderTaskRunning.useMutation();
+  const setUsbDriveTaskRunningMutation =
+    api.setUsbDriveTaskRunning.useMutation();
+  const setPrinterTaskRunningMutation = api.setPrinterTaskRunning.useMutation();
+  const setScannerTaskRunningMutation = api.setScannerTaskRunning.useMutation();
+  const getLatestScannedSheetQuery = api.getLatestScannedSheet.useQuery();
+  const powerDownMutation = api.systemCallApi.powerDown.useMutation();
   const [isShowingLatestSheet, setIsShowingLatestSheet] = useState(false);
 
-  const [isSoundEnabled, setIsSoundEnabled] = useState(true);
-  const playSound = useSound('success');
+  const [speakerEnabled, setSpeakerEnabled] = useState(true);
+  const [headphonesEnabled, setHeadphonesEnabled] = useState(true);
+
+  const playSoundHeadphones = useSound('success');
+  const playSoundSpeaker = api.playSound.useMutation().mutate;
+
   const [lastKeyPress, setLastKeyPress] = useState<{
     key: string;
     pressedAt: DateTime;
@@ -111,15 +108,26 @@ export function AppRoot(): JSX.Element {
     );
   }
 
-  function toggleSoundEnabled() {
-    setIsSoundEnabled((prev) => !prev);
+  function toggleHeadphonesEnabled() {
+    setHeadphonesEnabled((prev) => !prev);
+  }
+
+  function toggleSpeakerEnabled() {
+    setSpeakerEnabled((prev) => !prev);
   }
 
   function powerDown() {
     powerDownMutation.mutate();
   }
 
-  useInterval(playSound, isSoundEnabled ? SOUND_INTERVAL_SECONDS * 1000 : null);
+  useInterval(
+    () => playSoundSpeaker({ name: 'success' }),
+    speakerEnabled ? SOUND_INTERVAL_SECONDS * 1000 : null
+  );
+  useInterval(
+    playSoundHeadphones,
+    headphonesEnabled ? SOUND_INTERVAL_SECONDS * 1000 : null
+  );
 
   const cardStatus = getElectricalTestingStatusMessagesQuery.data?.card;
   const usbDriveStatus = getElectricalTestingStatusMessagesQuery.data?.usbDrive;
@@ -194,12 +202,20 @@ export function AppRoot(): JSX.Element {
           updatedAt: usbDriveStatus?.updatedAt,
         },
         {
-          id: 'sound',
-          icon: isSoundEnabled ? <Icons.VolumeUp /> : <Icons.VolumeMute />,
-          title: 'Sound',
-          body: isSoundEnabled ? 'Enabled' : 'Disabled',
-          isRunning: isSoundEnabled,
-          toggleIsRunning: toggleSoundEnabled,
+          id: 'speaker',
+          icon: speakerEnabled ? <Icons.VolumeUp /> : <Icons.VolumeMute />,
+          title: 'Speaker',
+          body: speakerEnabled ? 'Enabled' : 'Disabled',
+          isRunning: speakerEnabled,
+          toggleIsRunning: toggleSpeakerEnabled,
+        },
+        {
+          id: 'headphones',
+          icon: headphonesEnabled ? <Icons.VolumeUp /> : <Icons.VolumeMute />,
+          title: 'Headphones',
+          body: headphonesEnabled ? 'Enabled' : 'Disabled',
+          isRunning: headphonesEnabled,
+          toggleIsRunning: toggleHeadphonesEnabled,
         },
         {
           id: 'inputs',
