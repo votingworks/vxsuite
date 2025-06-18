@@ -747,23 +747,15 @@ export class Store {
         }
       | undefined;
 
-    // TODO: these URLs and others in this file probably don't belong
-    //       in this file, which shouldn't deal with the URL API.
     if (row) {
       debug('got next review sheet requiring adjudication (id=%s)', row.id);
       return {
         id: row.id,
         front: {
-          image: {
-            url: `/central-scanner/scan/hmpb/ballot/${row.id}/front/image`,
-          },
           interpretation: JSON.parse(row.frontInterpretationJson),
           adjudicationFinishedAt: row.finishedAdjudicationAt ?? undefined,
         },
         back: {
-          image: {
-            url: `/central-scanner/scan/hmpb/ballot/${row.id}/back/image`,
-          },
           interpretation: JSON.parse(row.backInterpretationJson),
           adjudicationFinishedAt: row.finishedAdjudicationAt ?? undefined,
         },

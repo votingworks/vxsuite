@@ -1,9 +1,11 @@
-import { BallotPageLayout, Contest } from '@votingworks/types';
+import { BallotPageLayout, Contest, Id, Side } from '@votingworks/types';
 import { iter } from '@votingworks/basics';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { getSheetImage } from '../api';
 
 export interface Props {
-  imageUrl: string;
+  sheetId: Id;
+  side: Side;
   layout?: BallotPageLayout;
   contestIds?: ReadonlyArray<Contest['id']>;
   styleForContest?(contestId: Contest['id']): React.CSSProperties;
@@ -12,13 +14,15 @@ export interface Props {
 }
 
 export function BallotSheetImage({
-  imageUrl,
+  sheetId,
+  side,
   layout,
   contestIds,
   styleForContest,
   onMouseEnterContest,
   onMouseLeaveContest,
 }: Props): JSX.Element {
+  const getSheetImageQuery = getSheetImage.useQuery({ sheetId, side });
   const imageRef = useRef<HTMLImageElement>(null);
 
   const [xScaleValue, setXScaleValue] = useState(0);
@@ -70,11 +74,19 @@ export function BallotSheetImage({
     [onMouseLeaveContest]
   );
 
+  const imageSrc = useMemo(() => {
+    const imageBuffer = getSheetImageQuery.data;
+    if (imageBuffer) {
+      const blob = new Blob([imageBuffer]);
+      return URL.createObjectURL(blob);
+    }
+  }, [getSheetImageQuery.data]);
+
   return (
     <div style={{ position: 'relative' }}>
       <img
         ref={imageRef}
-        src={imageUrl}
+        src={imageSrc}
         alt="front"
         onLoad={recalculateScale}
         style={{ maxWidth: '100%', maxHeight: '82vh' }}

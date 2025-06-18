@@ -3,14 +3,13 @@ import { mockBaseLogger, LogEventId } from '@votingworks/logging';
 import {
   AdjudicationReason,
   BallotMetadata,
+  BallotPageMetadata,
+  BallotSheetInfo,
   BallotStyleId,
   BallotType,
   DEFAULT_SYSTEM_SETTINGS,
   formatBallotHash,
 } from '@votingworks/types';
-import { Scan } from '@votingworks/api';
-import { typedAs } from '@votingworks/basics';
-import fetchMock from 'fetch-mock';
 import userEvent from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { screen } from '../../test/react_testing_library';
@@ -19,6 +18,73 @@ import { BallotEjectScreen } from './ballot_eject_screen';
 import { createApiMock, ApiMock } from '../../test/api';
 
 let apiMock: ApiMock;
+
+type NextReviewSheet = Awaited<
+  ReturnType<(typeof apiMock.apiClient)['getNextReviewSheet']>
+>;
+
+function buildBmdMetadata(): BallotMetadata {
+  return {
+    ballotStyleId: '1',
+    precinctId: '1',
+    ballotType: BallotType.Precinct,
+    ballotHash: 'abcde',
+    isTestMode: false,
+  };
+}
+
+function buildHmpMetadataWithPage(pageNumber: number): BallotPageMetadata {
+  return {
+    ballotStyleId: '1',
+    precinctId: '1',
+    ballotType: BallotType.Precinct,
+    ballotHash: 'abcde',
+    isTestMode: false,
+    pageNumber,
+  };
+}
+
+function buildNextReviewSheet(
+  ballotSheetInfo: BallotSheetInfo
+): NextReviewSheet {
+  const frontMetadata: BallotMetadata | BallotPageMetadata =
+    'metadata' in ballotSheetInfo.front.interpretation
+      ? ballotSheetInfo.front.interpretation.metadata
+      : buildHmpMetadataWithPage(1);
+  const backMetadata: BallotMetadata | BallotPageMetadata =
+    'metadata' in ballotSheetInfo.back.interpretation
+      ? ballotSheetInfo.back.interpretation.metadata
+      : buildHmpMetadataWithPage(2);
+  return {
+    interpreted: ballotSheetInfo,
+    layouts: {
+      front:
+        'pageNumber' in frontMetadata
+          ? {
+              contests: [],
+              metadata: frontMetadata as BallotPageMetadata,
+              pageSize: { width: 1, height: 1 },
+            }
+          : undefined,
+      back:
+        'pageNumber' in backMetadata
+          ? {
+              contests: [],
+              metadata: backMetadata as BallotPageMetadata,
+              pageSize: { width: 1, height: 1 },
+            }
+          : undefined,
+    },
+    definitions: {
+      front: {
+        contestIds: [],
+      },
+      back: {
+        contestIds: [],
+      },
+    },
+  };
+}
 
 beforeEach(() => {
   apiMock = createApiMock();
@@ -30,22 +96,15 @@ afterEach(() => {
 });
 
 test('says the sheet is unreadable if it is', async () => {
-  fetchMock.getOnce(
-    '/central-scanner/scan/hmpb/review/next-sheet',
-    typedAs<Scan.GetNextReviewSheetResponse>({
-      interpreted: {
-        id: 'mock-sheet-id',
-        front: {
-          image: { url: '/front/url' },
-          interpretation: { type: 'BlankPage' },
-        },
-        back: {
-          image: { url: '/back/url' },
-          interpretation: { type: 'BlankPage' },
-        },
+  apiMock.expectGetNextReviewSheet(
+    buildNextReviewSheet({
+      id: 'mock-sheet-id',
+      front: {
+        interpretation: { type: 'BlankPage' },
       },
-      layouts: {},
-      definitions: {},
+      back: {
+        interpretation: { type: 'BlankPage' },
+      },
     })
   );
 
@@ -76,86 +135,60 @@ test('says the sheet is unreadable if it is', async () => {
 });
 
 test('says the ballot sheet is overvoted if it is', async () => {
-  const metadata: BallotMetadata = {
-    ballotStyleId: '1' as BallotStyleId,
-    precinctId: '1',
-    ballotType: BallotType.Precinct,
-    ballotHash: 'abcde',
-    isTestMode: false,
-  };
-  fetchMock.getOnce(
-    '/central-scanner/scan/hmpb/review/next-sheet',
-    typedAs<Scan.GetNextReviewSheetResponse>({
-      interpreted: {
-        id: 'mock-sheet-id',
-        front: {
-          image: { url: '/front/url' },
-          interpretation: {
-            type: 'InterpretedHmpbPage',
-            markInfo: {
-              ballotSize: { width: 1, height: 1 },
-              marks: [],
-            },
-            metadata: {
-              ...metadata,
-              pageNumber: 1,
-            },
-            adjudicationInfo: {
-              requiresAdjudication: true,
-              enabledReasonInfos: [
-                {
-                  type: AdjudicationReason.Overvote,
-                  contestId: '1',
-                  optionIds: ['1', '2'],
-                  expected: 1,
-                },
-              ],
-              ignoredReasonInfos: [],
-              enabledReasons: [AdjudicationReason.Overvote],
-            },
-            votes: {},
-            layout: {
-              pageSize: { width: 1, height: 1 },
-              metadata: {
-                ...metadata,
-                pageNumber: 1,
-              },
-              contests: [],
-            },
+  apiMock.expectGetNextReviewSheet(
+    buildNextReviewSheet({
+      id: 'mock-sheet-id',
+      front: {
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          markInfo: {
+            ballotSize: { width: 1, height: 1 },
+            marks: [],
           },
-        },
-        back: {
-          image: { url: '/back/url' },
-          interpretation: {
-            type: 'InterpretedHmpbPage',
-            markInfo: {
-              ballotSize: { width: 1, height: 1 },
-              marks: [],
-            },
-            metadata: {
-              ...metadata,
-              pageNumber: 2,
-            },
-            adjudicationInfo: {
-              requiresAdjudication: false,
-              enabledReasonInfos: [],
-              ignoredReasonInfos: [],
-              enabledReasons: [AdjudicationReason.Overvote],
-            },
-            votes: {},
-            layout: {
-              pageSize: { width: 1, height: 1 },
-              metadata: {
-                ...metadata,
-                pageNumber: 2,
+          metadata: buildHmpMetadataWithPage(1),
+          adjudicationInfo: {
+            requiresAdjudication: true,
+            enabledReasonInfos: [
+              {
+                type: AdjudicationReason.Overvote,
+                contestId: '1',
+                optionIds: ['1', '2'],
+                expected: 1,
               },
-              contests: [],
-            },
+            ],
+            ignoredReasonInfos: [],
+            enabledReasons: [AdjudicationReason.Overvote],
+          },
+          votes: {},
+          layout: {
+            pageSize: { width: 1, height: 1 },
+            metadata: buildHmpMetadataWithPage(1),
+            contests: [],
           },
         },
       },
-      layouts: {},
-      definitions: {},
+      back: {
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          markInfo: {
+            ballotSize: { width: 1, height: 1 },
+            marks: [],
+          },
+          metadata: buildHmpMetadataWithPage(2),
+          adjudicationInfo: {
+            requiresAdjudication: false,
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
+            enabledReasons: [AdjudicationReason.Overvote],
+          },
+          votes: {},
+          layout: {
+            pageSize: { width: 1, height: 1 },
+            metadata: buildHmpMetadataWithPage(2),
+            contests: [],
+          },
+        },
+      },
     })
   );
 
@@ -188,86 +221,60 @@ test('says the ballot sheet is overvoted if it is', async () => {
 });
 
 test('says the ballot sheet is undervoted if it is', async () => {
-  const metadata: BallotMetadata = {
-    ballotStyleId: '1' as BallotStyleId,
-    precinctId: '1',
-    ballotType: BallotType.Precinct,
-    ballotHash: 'abcde',
-    isTestMode: false,
-  };
-  fetchMock.getOnce(
-    '/central-scanner/scan/hmpb/review/next-sheet',
-    typedAs<Scan.GetNextReviewSheetResponse>({
-      interpreted: {
-        id: 'mock-sheet-id',
-        front: {
-          image: { url: '/front/url' },
-          interpretation: {
-            type: 'InterpretedHmpbPage',
-            markInfo: {
-              ballotSize: { width: 1, height: 1 },
-              marks: [],
-            },
-            metadata: {
-              ...metadata,
-              pageNumber: 1,
-            },
-            adjudicationInfo: {
-              requiresAdjudication: true,
-              enabledReasonInfos: [
-                {
-                  type: AdjudicationReason.Undervote,
-                  contestId: '1',
-                  optionIds: [],
-                  expected: 1,
-                },
-              ],
-              ignoredReasonInfos: [],
-              enabledReasons: [AdjudicationReason.Undervote],
-            },
-            votes: {},
-            layout: {
-              pageSize: { width: 1, height: 1 },
-              metadata: {
-                ...metadata,
-                pageNumber: 1,
-              },
-              contests: [],
-            },
+  apiMock.expectGetNextReviewSheet(
+    buildNextReviewSheet({
+      id: 'mock-sheet-id',
+      front: {
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          markInfo: {
+            ballotSize: { width: 1, height: 1 },
+            marks: [],
           },
-        },
-        back: {
-          image: { url: '/back/url' },
-          interpretation: {
-            type: 'InterpretedHmpbPage',
-            markInfo: {
-              ballotSize: { width: 1, height: 1 },
-              marks: [],
-            },
-            metadata: {
-              ...metadata,
-              pageNumber: 2,
-            },
-            adjudicationInfo: {
-              requiresAdjudication: false,
-              enabledReasonInfos: [],
-              ignoredReasonInfos: [],
-              enabledReasons: [AdjudicationReason.Overvote],
-            },
-            votes: {},
-            layout: {
-              pageSize: { width: 1, height: 1 },
-              metadata: {
-                ...metadata,
-                pageNumber: 2,
+          metadata: buildHmpMetadataWithPage(1),
+          adjudicationInfo: {
+            requiresAdjudication: true,
+            enabledReasonInfos: [
+              {
+                type: AdjudicationReason.Undervote,
+                contestId: '1',
+                optionIds: [],
+                expected: 1,
               },
-              contests: [],
-            },
+            ],
+            ignoredReasonInfos: [],
+            enabledReasons: [AdjudicationReason.Undervote],
+          },
+          votes: {},
+          layout: {
+            pageSize: { width: 1, height: 1 },
+            metadata: buildHmpMetadataWithPage(1),
+            contests: [],
           },
         },
       },
-      layouts: {},
-      definitions: {},
+      back: {
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          markInfo: {
+            ballotSize: { width: 1, height: 1 },
+            marks: [],
+          },
+          metadata: buildHmpMetadataWithPage(2),
+          adjudicationInfo: {
+            requiresAdjudication: false,
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
+            enabledReasons: [AdjudicationReason.Overvote],
+          },
+          votes: {},
+          layout: {
+            pageSize: { width: 1, height: 1 },
+            metadata: buildHmpMetadataWithPage(2),
+            contests: [],
+          },
+        },
+      },
     })
   );
 
@@ -300,93 +307,67 @@ test('says the ballot sheet is undervoted if it is', async () => {
 });
 
 test('says the ballot sheet is blank if it is', async () => {
-  const metadata: BallotMetadata = {
-    ballotStyleId: '1' as BallotStyleId,
-    precinctId: '1',
-    ballotType: BallotType.Precinct,
-    ballotHash: 'abcde',
-    isTestMode: false,
-  };
-  fetchMock.getOnce(
-    '/central-scanner/scan/hmpb/review/next-sheet',
-    typedAs<Scan.GetNextReviewSheetResponse>({
-      interpreted: {
-        id: 'mock-sheet-id',
-        front: {
-          image: { url: '/front/url' },
-          interpretation: {
-            type: 'InterpretedHmpbPage',
-            markInfo: {
-              ballotSize: { width: 1, height: 1 },
-              marks: [],
-            },
-            metadata: {
-              ...metadata,
-              pageNumber: 1,
-            },
-            adjudicationInfo: {
-              requiresAdjudication: true,
-              enabledReasonInfos: [
-                {
-                  type: AdjudicationReason.Undervote,
-                  contestId: '1',
-                  expected: 1,
-                  optionIds: [],
-                },
-                { type: AdjudicationReason.BlankBallot },
-              ],
-              ignoredReasonInfos: [],
-              enabledReasons: [
-                AdjudicationReason.BlankBallot,
-                AdjudicationReason.Undervote,
-              ],
-            },
-            votes: {},
-            layout: {
-              pageSize: { width: 1, height: 1 },
-              metadata: {
-                ...metadata,
-                pageNumber: 1,
-              },
-              contests: [],
-            },
+  apiMock.expectGetNextReviewSheet(
+    buildNextReviewSheet({
+      id: 'mock-sheet-id',
+      front: {
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          markInfo: {
+            ballotSize: { width: 1, height: 1 },
+            marks: [],
           },
-        },
-        back: {
-          image: { url: '/back/url' },
-          interpretation: {
-            type: 'InterpretedHmpbPage',
-            markInfo: {
-              ballotSize: { width: 1, height: 1 },
-              marks: [],
-            },
-            metadata: {
-              ...metadata,
-              pageNumber: 2,
-            },
-            adjudicationInfo: {
-              requiresAdjudication: true,
-              enabledReasonInfos: [{ type: AdjudicationReason.BlankBallot }],
-              ignoredReasonInfos: [],
-              enabledReasons: [
-                AdjudicationReason.BlankBallot,
-                AdjudicationReason.Undervote,
-              ],
-            },
-            votes: {},
-            layout: {
-              pageSize: { width: 1, height: 1 },
-              metadata: {
-                ...metadata,
-                pageNumber: 2,
+          metadata: buildHmpMetadataWithPage(1),
+          adjudicationInfo: {
+            requiresAdjudication: true,
+            enabledReasonInfos: [
+              {
+                type: AdjudicationReason.Undervote,
+                contestId: '1',
+                expected: 1,
+                optionIds: [],
               },
-              contests: [],
-            },
+              { type: AdjudicationReason.BlankBallot },
+            ],
+            ignoredReasonInfos: [],
+            enabledReasons: [
+              AdjudicationReason.BlankBallot,
+              AdjudicationReason.Undervote,
+            ],
+          },
+          votes: {},
+          layout: {
+            pageSize: { width: 1, height: 1 },
+            metadata: buildHmpMetadataWithPage(1),
+            contests: [],
           },
         },
       },
-      layouts: {},
-      definitions: {},
+      back: {
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          markInfo: {
+            ballotSize: { width: 1, height: 1 },
+            marks: [],
+          },
+          metadata: buildHmpMetadataWithPage(2),
+          adjudicationInfo: {
+            requiresAdjudication: true,
+            enabledReasonInfos: [{ type: AdjudicationReason.BlankBallot }],
+            ignoredReasonInfos: [],
+            enabledReasons: [
+              AdjudicationReason.BlankBallot,
+              AdjudicationReason.Undervote,
+            ],
+          },
+          votes: {},
+          layout: {
+            pageSize: { width: 1, height: 1 },
+            metadata: buildHmpMetadataWithPage(2),
+            contests: [],
+          },
+        },
+      },
     })
   );
 
@@ -419,42 +400,27 @@ test('says the ballot sheet is blank if it is', async () => {
 });
 
 test('calls out official ballot sheets in test mode', async () => {
-  fetchMock.getOnce(
-    '/central-scanner/scan/hmpb/review/next-sheet',
-    typedAs<Scan.GetNextReviewSheetResponse>({
-      interpreted: {
-        id: 'mock-sheet-id',
-        front: {
-          image: { url: '/front/url' },
-          interpretation: {
-            type: 'InvalidTestModePage',
-            metadata: {
-              ballotStyleId: '1' as BallotStyleId,
-              precinctId: '1',
-              ballotType: BallotType.Precinct,
-              ballotHash: 'abcde',
-              isTestMode: false,
-              pageNumber: 1,
-            },
-          },
-        },
-        back: {
-          image: { url: '/back/url' },
-          interpretation: {
-            type: 'InvalidTestModePage',
-            metadata: {
-              ballotStyleId: '1' as BallotStyleId,
-              precinctId: '1',
-              ballotType: BallotType.Precinct,
-              ballotHash: 'abcde',
-              isTestMode: false,
-              pageNumber: 2,
-            },
+  apiMock.expectGetNextReviewSheet(
+    buildNextReviewSheet({
+      id: 'mock-sheet-id',
+      front: {
+        interpretation: {
+          type: 'InvalidTestModePage',
+          metadata: {
+            ...buildBmdMetadata(),
+            isTestMode: false,
           },
         },
       },
-      layouts: {},
-      definitions: {},
+      back: {
+        interpretation: {
+          type: 'InvalidTestModePage',
+          metadata: {
+            ...buildBmdMetadata(),
+            isTestMode: false,
+          },
+        },
+      },
     })
   );
 
@@ -485,42 +451,27 @@ test('calls out official ballot sheets in test mode', async () => {
 });
 
 test('calls out test ballot sheets in live mode', async () => {
-  fetchMock.getOnce(
-    '/central-scanner/scan/hmpb/review/next-sheet',
-    typedAs<Scan.GetNextReviewSheetResponse>({
-      interpreted: {
-        id: 'mock-sheet-id',
-        front: {
-          image: { url: '/front/url' },
-          interpretation: {
-            type: 'InvalidTestModePage',
-            metadata: {
-              ballotStyleId: '1' as BallotStyleId,
-              precinctId: '1',
-              ballotType: BallotType.Precinct,
-              ballotHash: 'abcde',
-              isTestMode: false,
-              pageNumber: 1,
-            },
-          },
-        },
-        back: {
-          image: { url: '/back/url' },
-          interpretation: {
-            type: 'InvalidTestModePage',
-            metadata: {
-              ballotStyleId: '1' as BallotStyleId,
-              precinctId: '1',
-              ballotType: BallotType.Precinct,
-              ballotHash: 'abcde',
-              isTestMode: false,
-              pageNumber: 2,
-            },
+  apiMock.expectGetNextReviewSheet(
+    buildNextReviewSheet({
+      id: 'mock-sheet-id',
+      front: {
+        interpretation: {
+          type: 'InvalidTestModePage',
+          metadata: {
+            ...buildBmdMetadata(),
+            isTestMode: true,
           },
         },
       },
-      layouts: {},
-      definitions: {},
+      back: {
+        interpretation: {
+          type: 'InvalidTestModePage',
+          metadata: {
+            ...buildBmdMetadata(),
+            isTestMode: true,
+          },
+        },
+      },
     })
   );
 
@@ -554,26 +505,19 @@ test('calls out test ballot sheets in live mode', async () => {
 });
 
 test('shows invalid election screen when appropriate', async () => {
-  fetchMock.getOnce(
-    '/central-scanner/scan/hmpb/review/next-sheet',
-    typedAs<Scan.GetNextReviewSheetResponse>({
-      interpreted: {
-        id: 'mock-sheet-id',
-        front: {
-          image: { url: '/front/url' },
-          interpretation: {
-            type: 'InvalidBallotHashPage',
-            actualBallotHash: 'this-is-a-hash-hooray',
-            expectedBallotHash: 'something',
-          },
-        },
-        back: {
-          image: { url: '/back/url' },
-          interpretation: { type: 'BlankPage' },
+  apiMock.expectGetNextReviewSheet(
+    buildNextReviewSheet({
+      id: 'mock-sheet-id',
+      front: {
+        interpretation: {
+          type: 'InvalidBallotHashPage',
+          actualBallotHash: 'this-is-a-hash-hooray',
+          expectedBallotHash: 'something',
         },
       },
-      layouts: {},
-      definitions: {},
+      back: {
+        interpretation: { type: 'BlankPage' },
+      },
     })
   );
 
@@ -619,79 +563,72 @@ test('does not allow tabulating the overvote if disallowCastingOvervotes is set'
     ballotHash: 'abcde',
     isTestMode: false,
   };
-  fetchMock.getOnce(
-    '/central-scanner/scan/hmpb/review/next-sheet',
-    typedAs<Scan.GetNextReviewSheetResponse>({
-      interpreted: {
-        id: 'mock-sheet-id',
-        front: {
-          image: { url: '/front/url' },
-          interpretation: {
-            type: 'InterpretedHmpbPage',
-            markInfo: {
-              ballotSize: { width: 1, height: 1 },
-              marks: [],
-            },
+  apiMock.expectGetNextReviewSheet(
+    buildNextReviewSheet({
+      id: 'mock-sheet-id',
+      front: {
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          markInfo: {
+            ballotSize: { width: 1, height: 1 },
+            marks: [],
+          },
+          metadata: {
+            ...metadata,
+            pageNumber: 1,
+          },
+          adjudicationInfo: {
+            requiresAdjudication: true,
+            enabledReasonInfos: [
+              {
+                type: AdjudicationReason.Overvote,
+                contestId: '1',
+                optionIds: ['1', '2'],
+                expected: 1,
+              },
+            ],
+            ignoredReasonInfos: [],
+            enabledReasons: [AdjudicationReason.Overvote],
+          },
+          votes: {},
+          layout: {
+            pageSize: { width: 1, height: 1 },
             metadata: {
               ...metadata,
               pageNumber: 1,
             },
-            adjudicationInfo: {
-              requiresAdjudication: true,
-              enabledReasonInfos: [
-                {
-                  type: AdjudicationReason.Overvote,
-                  contestId: '1',
-                  optionIds: ['1', '2'],
-                  expected: 1,
-                },
-              ],
-              ignoredReasonInfos: [],
-              enabledReasons: [AdjudicationReason.Overvote],
-            },
-            votes: {},
-            layout: {
-              pageSize: { width: 1, height: 1 },
-              metadata: {
-                ...metadata,
-                pageNumber: 1,
-              },
-              contests: [],
-            },
+            contests: [],
           },
         },
-        back: {
-          image: { url: '/back/url' },
-          interpretation: {
-            type: 'InterpretedHmpbPage',
-            markInfo: {
-              ballotSize: { width: 1, height: 1 },
-              marks: [],
-            },
+      },
+      back: {
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          markInfo: {
+            ballotSize: { width: 1, height: 1 },
+            marks: [],
+          },
+          metadata: {
+            ...metadata,
+            pageNumber: 2,
+          },
+          adjudicationInfo: {
+            requiresAdjudication: false,
+            enabledReasonInfos: [],
+            ignoredReasonInfos: [],
+            enabledReasons: [AdjudicationReason.Overvote],
+          },
+          votes: {},
+          layout: {
+            pageSize: { width: 1, height: 1 },
             metadata: {
               ...metadata,
               pageNumber: 2,
             },
-            adjudicationInfo: {
-              requiresAdjudication: false,
-              enabledReasonInfos: [],
-              ignoredReasonInfos: [],
-              enabledReasons: [AdjudicationReason.Overvote],
-            },
-            votes: {},
-            layout: {
-              pageSize: { width: 1, height: 1 },
-              metadata: {
-                ...metadata,
-                pageNumber: 2,
-              },
-              contests: [],
-            },
+            contests: [],
           },
         },
       },
-      layouts: {},
-      definitions: {},
     })
   );
 
@@ -711,28 +648,21 @@ test('does not allow tabulating the overvote if disallowCastingOvervotes is set'
 });
 
 test('says the scanner needs cleaning if a streak is detected', async () => {
-  fetchMock.getOnce(
-    '/central-scanner/scan/hmpb/review/next-sheet',
-    typedAs<Scan.GetNextReviewSheetResponse>({
-      interpreted: {
-        id: 'mock-sheet-id',
-        front: {
-          image: { url: '/front/url' },
-          interpretation: {
-            type: 'UnreadablePage',
-            reason: 'verticalStreaksDetected',
-          },
-        },
-        back: {
-          image: { url: '/back/url' },
-          interpretation: {
-            type: 'UnreadablePage',
-            reason: 'verticalStreaksDetected',
-          },
+  apiMock.expectGetNextReviewSheet(
+    buildNextReviewSheet({
+      id: 'mock-sheet-id',
+      front: {
+        interpretation: {
+          type: 'UnreadablePage',
+          reason: 'verticalStreaksDetected',
         },
       },
-      layouts: {},
-      definitions: {},
+      back: {
+        interpretation: {
+          type: 'UnreadablePage',
+          reason: 'verticalStreaksDetected',
+        },
+      },
     })
   );
 

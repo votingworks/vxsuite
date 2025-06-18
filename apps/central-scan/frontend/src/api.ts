@@ -15,6 +15,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import * as grout from '@votingworks/grout';
+import { Id, Side } from '@votingworks/types';
 
 export type ApiClient = grout.Client<Api>;
 
@@ -163,6 +164,30 @@ export const getMostRecentScannerDiagnostic = {
   },
 } as const;
 
+export const getNextReviewSheet = {
+  queryKey(): QueryKey {
+    return ['getNextReviewSheet'];
+  },
+
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getNextReviewSheet());
+  },
+} as const;
+
+export const getSheetImage = {
+  queryKey({ sheetId, side }: { sheetId: Id; side: Side }): QueryKey {
+    return ['getSheetImage', sheetId, side];
+  },
+
+  useQuery({ sheetId, side }: { sheetId: Id; side: Side }) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey({ sheetId, side }), () =>
+      apiClient.getSheetImage({ sheetId, side })
+    );
+  },
+} as const;
+
 // Mutations
 
 export const setTestMode = {
@@ -231,6 +256,7 @@ export const continueScanning = {
     return useMutation(apiClient.continueScanning, {
       async onSuccess() {
         await queryClient.invalidateQueries(getStatus.queryKey());
+        await queryClient.invalidateQueries(getNextReviewSheet.queryKey());
       },
     });
   },
