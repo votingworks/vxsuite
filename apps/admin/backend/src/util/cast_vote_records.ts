@@ -134,7 +134,7 @@ export function formatMarkScoreDistributionForLog(
 ): string {
   return JSON.stringify(
     Object.fromEntries(
-      [...distribution].map(([start, count]) => [`${start.toFixed(2)}`, count])
+      [...distribution].map(([start, count]) => [start.toFixed(2), count])
     )
   );
 }
