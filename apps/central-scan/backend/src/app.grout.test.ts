@@ -516,6 +516,6 @@ test('getSheetImage with a fake sheet ID', async () => {
         sheetId: 'not a real sheet ID',
         side: 'front',
       })
-    ).toBeUndefined();
+    ).toBeNull();
   });
 });
