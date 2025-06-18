@@ -1,6 +1,6 @@
 import { BallotPageLayout, Contest, Id, Side } from '@votingworks/types';
 import { iter } from '@votingworks/basics';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { getSheetImage } from '../api';
 
 export interface Props {
@@ -74,12 +74,23 @@ export function BallotSheetImage({
     [onMouseLeaveContest]
   );
 
-  const imageSrc = useMemo(() => {
+  const [imageSrc, setImageSrc] = useState<string>();
+
+  useEffect(() => {
     const imageBuffer = getSheetImageQuery.data;
-    if (imageBuffer) {
-      const blob = new Blob([imageBuffer]);
-      return URL.createObjectURL(blob);
+
+    if (!imageBuffer) {
+      setImageSrc(undefined);
+      return;
     }
+
+    const blob = new Blob([imageBuffer]);
+    const objectUrl = URL.createObjectURL(blob);
+    setImageSrc(objectUrl);
+
+    return () => {
+      URL.revokeObjectURL(objectUrl);
+    };
   }, [getSheetImageQuery.data]);
 
   return (
