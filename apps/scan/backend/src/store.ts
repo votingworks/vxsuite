@@ -6,7 +6,6 @@ import { Client as DbClient } from '@votingworks/db';
 import {
   AdjudicationStatus,
   HmpbBallotPaperSize,
-  BallotSheetInfo,
   BatchInfo,
   Iso8601Timestamp,
   mapSheet,
@@ -730,56 +729,6 @@ export class Store {
         clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult();
       });
     }
-  }
-
-  getNextAdjudicationSheet(): BallotSheetInfo | undefined {
-    const row = this.client.one(
-      `
-      select
-        id,
-        front_interpretation_json as frontInterpretationJson,
-        back_interpretation_json as backInterpretationJson,
-        finished_adjudication_at as finishedAdjudicationAt
-      from sheets
-      where
-        requires_adjudication = 1 and
-        finished_adjudication_at is null and
-        deleted_at is null
-      order by created_at asc
-      limit 1
-      `
-    ) as
-      | {
-          id: string;
-          frontInterpretationJson: string;
-          backInterpretationJson: string;
-          finishedAdjudicationAt: string | null;
-        }
-      | undefined;
-
-    // TODO: these URLs and others in this file probably don't belong
-    //       in this file, which shouldn't deal with the URL API.
-    if (row) {
-      debug('got next review sheet requiring adjudication (id=%s)', row.id);
-      return {
-        id: row.id,
-        front: {
-          image: {
-            url: `/central-scanner/scan/hmpb/ballot/${row.id}/front/image`,
-          },
-          interpretation: JSON.parse(row.frontInterpretationJson),
-          adjudicationFinishedAt: row.finishedAdjudicationAt ?? undefined,
-        },
-        back: {
-          image: {
-            url: `/central-scanner/scan/hmpb/ballot/${row.id}/back/image`,
-          },
-          interpretation: JSON.parse(row.backInterpretationJson),
-          adjudicationFinishedAt: row.finishedAdjudicationAt ?? undefined,
-        },
-      };
-    }
-    debug('no review sheets requiring adjudication');
   }
 
   adjudicateSheet(sheetId: string): boolean {

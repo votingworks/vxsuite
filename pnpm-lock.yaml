@@ -657,9 +657,6 @@ importers:
 
   apps/central-scan/backend:
     dependencies:
-      '@votingworks/api':
-        specifier: workspace:*
-        version: link:../../../libs/api
       '@votingworks/auth':
         specifier: workspace:*
         version: link:../../../libs/auth
@@ -817,9 +814,6 @@ importers:
       '@tanstack/react-query':
         specifier: 4.32.1
         version: 4.32.1(react-dom@18.3.1)(react@18.3.1)
-      '@votingworks/api':
-        specifier: workspace:*
-        version: link:../../../libs/api
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
@@ -3096,40 +3090,6 @@ importers:
         specifier: workspace:*
         version: link:../compress-commons
 
-  libs/api:
-    dependencies:
-      '@votingworks/basics':
-        specifier: workspace:*
-        version: link:../basics
-      '@votingworks/types':
-        specifier: workspace:*
-        version: link:../types
-      '@votingworks/utils':
-        specifier: workspace:*
-        version: link:../utils
-      zod:
-        specifier: 3.25.42
-        version: 3.25.42
-    devDependencies:
-      '@vitest/coverage-istanbul':
-        specifier: ^2.1.8
-        version: 2.1.8(vitest@2.1.8)
-      eslint-plugin-vx:
-        specifier: workspace:*
-        version: link:../eslint-plugin-vx
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
-      lint-staged:
-        specifier: 11.0.0
-        version: 11.0.0
-      sort-package-json:
-        specifier: ^1.50.0
-        version: 1.53.1
-      vitest:
-        specifier: ^2.1.8
-        version: 2.1.8(jsdom@20.0.1)
-
   libs/auth:
     dependencies:
       '@votingworks/basics':
@@ -3703,9 +3663,6 @@ importers:
 
   libs/custom-paper-handler:
     dependencies:
-      '@votingworks/api':
-        specifier: workspace:*
-        version: link:../api
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics

@@ -6,17 +6,19 @@ import {
   Side,
   formatBallotHash,
 } from '@votingworks/types';
-import { Scan } from '@votingworks/api';
 import { assert } from '@votingworks/basics';
 import { Button, H1, H2, H6, Icons, Main, P, Screen } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext } from 'react';
 import styled from 'styled-components';
-import { fetchNextBallotSheetToReview } from '../api/hmpb';
 import { BallotSheetImage } from '../components/ballot_sheet_image';
 import { AppContext } from '../contexts/app_context';
 import { Header } from '../navigation_screen';
-import { continueScanning, getSystemSettings } from '../api';
+import {
+  continueScanning,
+  getNextReviewSheet,
+  getSystemSettings,
+} from '../api';
 
 const AdjudicationHeader = styled(Header)`
   position: static;
@@ -72,13 +74,12 @@ const SHEET_ADJUDICATION_ERRORS: ReadonlyArray<PageInterpretation['type']> = [
 
 export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
   const { auth, logger, electionDefinition } = useContext(AppContext);
-  const [reviewInfo, setReviewInfo] =
-    useState<Scan.GetNextReviewSheetResponse>();
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
 
   const systemSettingsQuery = getSystemSettings.useQuery();
+  const getNextReviewSheetQuery = getNextReviewSheet.useQuery();
   const continueScanningMutation = continueScanning.useMutation();
 
   function removeBallotAndContinueScanning() {
@@ -88,12 +89,6 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
   function acceptBallotAndContinueScanning() {
     continueScanningMutation.mutate({ forceAccept: true });
   }
-
-  useEffect(() => {
-    void (async () => {
-      setReviewInfo(await fetchNextBallotSheetToReview());
-    })();
-  }, []);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const highlightedContestIds = new Set<Contest['id']>();
@@ -105,6 +100,8 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
         : {},
     [highlightedContestIds]
   );
+
+  const reviewInfo = getNextReviewSheetQuery.data;
 
   // with new reviewInfo, mark each side done if nothing to actually adjudicate
   if (reviewInfo) {
@@ -170,7 +167,6 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
   for (const reviewPageInfo of [
     {
       side: 'front' as Side,
-      imageUrl: reviewInfo.interpreted.front.image.url,
       interpretation: reviewInfo.interpreted.front.interpretation,
       layout: reviewInfo.layouts.front,
       contestIds: reviewInfo.definitions.front?.contestIds,
@@ -179,7 +175,6 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
     },
     {
       side: 'back' as Side,
-      imageUrl: reviewInfo.interpreted.back.image.url,
       interpretation: reviewInfo.interpreted.back.interpretation,
       layout: reviewInfo.layouts.back,
       contestIds: reviewInfo.definitions.back?.contestIds,
@@ -411,13 +406,15 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
         </AdjudicationExplanation>
         <RectoVerso>
           <BallotSheetImage
-            imageUrl={reviewInfo.interpreted.front.image.url}
+            sheetId={reviewInfo.interpreted.id}
+            side="front"
             layout={reviewInfo.layouts.front}
             contestIds={reviewInfo.definitions.front?.contestIds}
             styleForContest={styleForContest}
           />
           <BallotSheetImage
-            imageUrl={reviewInfo.interpreted.back.image.url}
+            sheetId={reviewInfo.interpreted.id}
+            side="back"
             layout={reviewInfo.layouts.back}
             contestIds={reviewInfo.definitions.back?.contestIds}
             styleForContest={styleForContest}

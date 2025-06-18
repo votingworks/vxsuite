@@ -22,7 +22,6 @@
     "type-check": "tsc --build"
   },
   "dependencies": {
-    "@votingworks/api": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/custom-scanner": "workspace:*",
     "@votingworks/image-utils": "workspace:*",

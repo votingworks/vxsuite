@@ -17,7 +17,6 @@
   "exclude": ["src/setupProxy.js"],
   "include": ["src", "prodserver", "script", "test", "types"],
   "references": [
-    { "path": "../../../libs/api/tsconfig.build.json" },
     { "path": "../../../libs/basics/tsconfig.build.json" },
     { "path": "../../../libs/dev-dock/frontend/tsconfig.build.json" },
     { "path": "../../../libs/eslint-plugin-vx/tsconfig.build.json" },

@@ -521,30 +521,6 @@ jobs:
       - store_test_results:
           path: docs/exercises/reports/
 
-  # @votingworks/api
-  test-libs-api:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install:
-          is_node_package: true
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/api build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/api lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/api test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: libs/api/reports/
-
   # @votingworks/auth
   test-libs-auth:
     executor: nodejs
@@ -1639,7 +1615,6 @@ workflows:
       - test-apps-scan-backend
       - test-apps-scan-frontend
       - test-docs-exercises
-      - test-libs-api
       - test-libs-auth
       - test-libs-backend
       - test-libs-ballot-encoder

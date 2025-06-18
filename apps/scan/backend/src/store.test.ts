@@ -14,14 +14,12 @@ import {
   BallotMetadata,
   BallotStyleId,
   BallotType,
-  CandidateContest,
   InterpretedHmpbPage,
   mapSheet,
   PageInterpretationWithFiles,
   safeParseSystemSettings,
   SheetOf,
   TEST_JURISDICTION,
-  YesNoContest,
 } from '@votingworks/types';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import {
@@ -34,7 +32,7 @@ import { DateTime } from 'luxon';
 import * as tmp from 'tmp';
 import { v4 as uuid } from 'uuid';
 import { expect, test, vi } from 'vitest';
-import { zeroRect } from '../test/fixtures/zero_rect';
+
 import { Store } from './store';
 
 // We pause in some of these tests so we need to increase the timeout
@@ -405,118 +403,6 @@ test('getBatches', () => {
   store.deleteBatch(batchId);
   batches = store.getBatches();
   expect(batches).toHaveLength(0);
-});
-
-test('adjudication', () => {
-  const election =
-    electionGridLayoutNewHampshireTestBallotFixtures.readElection();
-  const candidateContests = election.contests.filter(
-    (contest): contest is CandidateContest => contest.type === 'candidate'
-  );
-  const yesnoContests = election.contests.filter(
-    (contest): contest is YesNoContest => contest.type === 'yesno'
-  );
-
-  const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
-  store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
-        .electionData,
-    jurisdiction,
-    electionPackageHash,
-  });
-  function mockPage(i: 0 | 1): PageInterpretationWithFiles {
-    const metadata: BallotMetadata = {
-      ballotHash:
-        electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
-          .ballotHash,
-      ballotStyleId: 'card-number-3' as BallotStyleId,
-      precinctId: 'town-id-00701-precinct-id-default',
-      isTestMode: false,
-      ballotType: BallotType.Precinct,
-    };
-    return {
-      imagePath: i === 0 ? '/front.png' : '/back.png',
-      interpretation: {
-        type: 'InterpretedHmpbPage',
-        votes: {},
-        markInfo: {
-          ballotSize: { width: 800, height: 1000 },
-          marks: [
-            {
-              type: 'candidate',
-              contestId: candidateContests[i].id,
-              optionId: candidateContests[i].candidates[0].id,
-              score: 0.12, // marginal
-              scoredOffset: { x: 0, y: 0 },
-              bounds: zeroRect,
-              target: {
-                bounds: zeroRect,
-                inner: zeroRect,
-              },
-            },
-            ...(yesnoContests[i]
-              ? ([
-                  {
-                    type: 'yesno',
-                    contestId: yesnoContests[i].id,
-                    optionId: yesnoContests[i].yesOption.id,
-                    score: 1, // definite
-                    scoredOffset: { x: 0, y: 0 },
-                    bounds: zeroRect,
-                    target: {
-                      bounds: zeroRect,
-                      inner: zeroRect,
-                    },
-                  },
-                ] as const)
-              : []),
-          ],
-        },
-        metadata: {
-          ...metadata,
-          pageNumber: 1,
-        },
-        adjudicationInfo: {
-          requiresAdjudication: true,
-          enabledReasons: [AdjudicationReason.MarginalMark],
-          enabledReasonInfos: [
-            {
-              type: AdjudicationReason.MarginalMark,
-              contestId: candidateContests[i].id,
-              optionId: candidateContests[i].candidates[0].id,
-            },
-            {
-              type: AdjudicationReason.Undervote,
-              contestId: candidateContests[i].id,
-              expected: 1,
-              optionIds: [],
-            },
-          ],
-          ignoredReasonInfos: [],
-        },
-        layout: {
-          pageSize: { width: 0, height: 0 },
-          metadata: {
-            ...metadata,
-            pageNumber: 1,
-          },
-          contests: [],
-        },
-      },
-    };
-  }
-  const batchId = store.addBatch();
-  const ballotId = store.addSheet(uuid(), batchId, [mockPage(0), mockPage(1)]);
-
-  // check the review paths
-  const reviewSheet = store.getNextAdjudicationSheet();
-  expect(reviewSheet?.id).toEqual(ballotId);
-
-  store.finishBatch({ batchId });
-
-  // cleaning up batches now should have no impact
-  store.cleanupIncompleteBatches();
 });
 
 test('iterating over sheets', () => {

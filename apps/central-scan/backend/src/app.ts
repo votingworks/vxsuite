@@ -1,9 +1,8 @@
-import { Scan } from '@votingworks/api';
 import {
   DippedSmartCardAuthApi,
   generateSignedHashValidationQrCodeValue,
 } from '@votingworks/auth';
-import { Result, assert, ok } from '@votingworks/basics';
+import { Optional, Result, assert, ok } from '@votingworks/basics';
 import {
   createSystemCallApi,
   DiskSpaceSummary,
@@ -19,12 +18,18 @@ import {
   SystemSettings,
   ExportCastVoteRecordsToUsbDriveError,
   DiagnosticRecord,
+  ContestId,
+  Id,
+  Side,
+  BallotSheetInfo,
 } from '@votingworks/types';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import express, { Application } from 'express';
 import * as grout from '@votingworks/grout';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
+import { Buffer } from 'node:buffer';
+import { readFile } from 'node:fs/promises';
 import { Importer } from './importer';
 import { Workspace } from './util/workspace';
 import { MachineConfig, ScanStatus } from './types';
@@ -39,8 +44,6 @@ import {
 import { saveReadinessReport } from './readiness_report';
 import { performScanDiagnostic, ScanDiagnosticOutcome } from './diagnostic';
 import { BatchScanner } from './fujitsu_scanner';
-
-type NoParams = never;
 
 export interface AppOptions {
   auth: DippedSmartCardAuthApi;
@@ -207,6 +210,69 @@ function buildApi({
       }
     },
 
+    getNextReviewSheet(): {
+      interpreted: BallotSheetInfo;
+      layouts: {
+        front?: BallotPageLayout;
+        back?: BallotPageLayout;
+      };
+      definitions: {
+        front?: { contestIds: readonly ContestId[] };
+        back?: { contestIds: readonly ContestId[] };
+      };
+    } | null {
+      const sheet = store.getNextAdjudicationSheet();
+
+      if (!sheet) {
+        return null;
+      }
+
+      let frontLayout: BallotPageLayout | undefined;
+      let backLayout: BallotPageLayout | undefined;
+      let frontDefinition: Optional<{ contestIds: readonly ContestId[] }>;
+      let backDefinition: Optional<{ contestIds: readonly ContestId[] }>;
+
+      if (sheet.front.interpretation.type === 'InterpretedHmpbPage') {
+        const front = sheet.front.interpretation;
+        frontLayout = front.layout;
+        const contestIds = Object.keys(front.votes);
+        frontDefinition = { contestIds };
+      }
+
+      if (sheet.back.interpretation.type === 'InterpretedHmpbPage') {
+        const back = sheet.back.interpretation;
+        const contestIds = Object.keys(back.votes);
+
+        backLayout = back.layout;
+        backDefinition = { contestIds };
+      }
+
+      return {
+        interpreted: sheet,
+        layouts: {
+          front: frontLayout,
+          back: backLayout,
+        },
+        definitions: {
+          front: frontDefinition,
+          back: backDefinition,
+        },
+      };
+    },
+
+    async getSheetImage(input: {
+      sheetId: Id;
+      side: Side;
+    }): Promise<Buffer | null> {
+      const imagePath = store.getBallotImagePath(input.sheetId, input.side);
+
+      if (!imagePath) {
+        return null;
+      }
+
+      return await readFile(imagePath);
+    },
+
     async continueScanning(input: { forceAccept: boolean }): Promise<void> {
       try {
         const { forceAccept } = input;
@@ -337,8 +403,6 @@ export function buildCentralScannerApp({
   logger,
   usbDrive,
 }: AppOptions): Application {
-  const { store } = workspace;
-
   const app: Application = express();
   const api = buildApi({
     auth,
@@ -349,84 +413,6 @@ export function buildCentralScannerApp({
     importer,
   });
   app.use('/api', grout.buildRouter(api, express));
-
-  const deprecatedApiRouter = express.Router();
-  deprecatedApiRouter.use(express.raw());
-  deprecatedApiRouter.use(
-    express.json({ limit: '5mb', type: 'application/json' })
-  );
-  deprecatedApiRouter.use(express.urlencoded({ extended: false }));
-
-  deprecatedApiRouter.get(
-    '/scan/hmpb/ballot/:sheetId/:side/image',
-    (request, response) => {
-      const { sheetId, side } = request.params;
-
-      if (
-        typeof sheetId !== 'string' ||
-        (side !== 'front' && side !== 'back')
-      ) {
-        response.status(404);
-        return;
-      }
-      const imagePath = store.getBallotImagePath(sheetId, side);
-
-      if (imagePath) {
-        response.sendFile(imagePath);
-      } else {
-        response.status(404).end();
-      }
-    }
-  );
-
-  deprecatedApiRouter.get<NoParams, Scan.GetNextReviewSheetResponse>(
-    '/scan/hmpb/review/next-sheet',
-    (_request, response) => {
-      const sheet = store.getNextAdjudicationSheet();
-
-      if (sheet) {
-        let frontLayout: BallotPageLayout | undefined;
-        let backLayout: BallotPageLayout | undefined;
-        let frontDefinition:
-          | Scan.GetNextReviewSheetResponse['definitions']['front']
-          | undefined;
-        let backDefinition:
-          | Scan.GetNextReviewSheetResponse['definitions']['back']
-          | undefined;
-
-        if (sheet.front.interpretation.type === 'InterpretedHmpbPage') {
-          const front = sheet.front.interpretation;
-          frontLayout = front.layout;
-          const contestIds = Object.keys(front.votes);
-          frontDefinition = { contestIds };
-        }
-
-        if (sheet.back.interpretation.type === 'InterpretedHmpbPage') {
-          const back = sheet.back.interpretation;
-          const contestIds = Object.keys(back.votes);
-
-          backLayout = back.layout;
-          backDefinition = { contestIds };
-        }
-
-        response.json({
-          interpreted: sheet,
-          layouts: {
-            front: frontLayout,
-            back: backLayout,
-          },
-          definitions: {
-            front: frontDefinition,
-            back: backDefinition,
-          },
-        });
-      } else {
-        response.status(404).end();
-      }
-    }
-  );
-
-  app.use('/central-scanner', deprecatedApiRouter);
 
   return app;
 }

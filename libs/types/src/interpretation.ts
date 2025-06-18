@@ -118,13 +118,6 @@ export const UnreadablePageSchema: z.ZodSchema<UnreadablePage> = z.object({
   reason: z.string().optional(),
 });
 
-export interface ImageInfo {
-  url: string;
-}
-export const ImageInfoSchema: z.ZodSchema<ImageInfo> = z.object({
-  url: z.string(),
-});
-
 export type PageInterpretation =
   | BlankPage
   | InterpretedBmdPage
@@ -157,12 +150,10 @@ export const PageInterpretationWithFilesSchema: z.ZodSchema<PageInterpretationWi
   });
 
 export interface BallotPageInfo {
-  image: ImageInfo;
   interpretation: PageInterpretation;
   adjudicationFinishedAt?: Iso8601Timestamp;
 }
 export const BallotPageInfoSchema: z.ZodSchema<BallotPageInfo> = z.object({
-  image: ImageInfoSchema,
   interpretation: PageInterpretationSchema,
   adjudicationFinishedAt: Iso8601TimestampSchema.optional(),
 });

@@ -9,11 +9,13 @@ import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { LogEventId } from '@votingworks/logging';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
+  AdjudicationReason,
   BallotMetadata,
   BallotStyleId,
   BallotType,
   convertVxfElectionToCdfBallotDefinition,
   DEV_MACHINE_ID,
+  InterpretedHmpbPage,
   PageInterpretationWithFiles,
   safeParseElectionDefinition,
   SheetOf,
@@ -23,10 +25,12 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
+import { readFile } from 'node:fs/promises';
 import { v4 as uuid } from 'uuid';
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 import { mockElectionManagerAuth } from '../test/helpers/auth';
 import { withApp } from '../test/helpers/setup_app';
+import { generateHmpbFixture } from '../test/helpers/ballots';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const electionGeneral = electionGeneralDefinition.election;
@@ -46,9 +50,9 @@ let frontImagePath: string;
 let backImagePath: string;
 let sheet: SheetOf<PageInterpretationWithFiles>;
 
-beforeAll(() => {
-  frontImagePath = 'not a real path';
-  backImagePath = 'not a real path';
+beforeAll(async () => {
+  const hmpbFixture = await generateHmpbFixture();
+  [frontImagePath, backImagePath] = hmpbFixture.sheet;
   sheet = (() => {
     const metadata: BallotMetadata = {
       ballotHash: vxFamousNamesFixtures.electionDefinition.ballotHash,
@@ -378,5 +382,140 @@ test('configure with invalid file', async () => {
         disposition: 'failure',
       })
     );
+  });
+});
+
+test('get next sheet', async () => {
+  await withApp(async ({ apiClient, workspace }) => {
+    vi.spyOn(workspace.store, 'getNextAdjudicationSheet').mockReturnValueOnce({
+      id: 'mock-review-sheet',
+      front: {
+        interpretation: { type: 'BlankPage' },
+      },
+      back: {
+        interpretation: { type: 'BlankPage' },
+      },
+    });
+
+    expect(await apiClient.getNextReviewSheet()).toEqual({
+      interpreted: {
+        id: 'mock-review-sheet',
+        front: {
+          interpretation: { type: 'BlankPage' },
+        },
+        back: {
+          interpretation: { type: 'BlankPage' },
+        },
+      },
+      layouts: {},
+      definitions: {},
+    });
+  });
+});
+
+test('get next sheet layouts', async () => {
+  await withApp(async ({ apiClient, workspace }) => {
+    const metadata: BallotMetadata = {
+      ballotHash: 'abcdef',
+      ballotType: BallotType.Precinct,
+      ballotStyleId: 'card-number-3' as BallotStyleId,
+      precinctId: 'town-id-00701-precinct-id-default',
+      isTestMode: false,
+    };
+    const frontInterpretation: InterpretedHmpbPage = {
+      type: 'InterpretedHmpbPage',
+      metadata: {
+        ...metadata,
+        pageNumber: 1,
+      },
+      markInfo: {
+        ballotSize: { width: 1, height: 1 },
+        marks: [],
+      },
+      adjudicationInfo: {
+        requiresAdjudication: true,
+        enabledReasons: [AdjudicationReason.Overvote],
+        enabledReasonInfos: [
+          {
+            type: AdjudicationReason.Overvote,
+            contestId: 'contest-id',
+            expected: 1,
+            optionIds: ['option-id', 'option-id-2'],
+          },
+        ],
+        ignoredReasonInfos: [],
+      },
+      votes: {},
+      layout: {
+        pageSize: { width: 1, height: 1 },
+        metadata: {
+          ...metadata,
+          pageNumber: 1,
+        },
+        contests: [],
+      },
+    };
+    const backInterpretation: InterpretedHmpbPage = {
+      ...frontInterpretation,
+      metadata: {
+        ...frontInterpretation.metadata,
+        pageNumber: 2,
+      },
+    };
+    vi.spyOn(workspace.store, 'getNextAdjudicationSheet').mockReturnValueOnce({
+      id: 'mock-review-sheet',
+      front: {
+        interpretation: frontInterpretation,
+      },
+      back: {
+        interpretation: backInterpretation,
+      },
+    });
+
+    expect(await apiClient.getNextReviewSheet()).toEqual({
+      interpreted: {
+        id: 'mock-review-sheet',
+        front: {
+          interpretation: frontInterpretation,
+        },
+        back: {
+          interpretation: backInterpretation,
+        },
+      },
+      layouts: {
+        front: frontInterpretation.layout,
+        back: backInterpretation.layout,
+      },
+      definitions: {
+        front: { contestIds: expect.any(Array) },
+        back: { contestIds: expect.any(Array) },
+      },
+    });
+  });
+});
+
+test('getSheetImage with a real sheet ID', async () => {
+  await withApp(async ({ apiClient, workspace }) => {
+    const batchId = workspace.store.addBatch();
+    const sheetId = workspace.store.addSheet(uuid(), batchId, sheet);
+    workspace.store.finishBatch({ batchId });
+
+    expect(await apiClient.getSheetImage({ sheetId, side: 'front' })).toEqual(
+      await readFile(frontImagePath)
+    );
+    expect(await apiClient.getSheetImage({ sheetId, side: 'back' })).toEqual(
+      await readFile(backImagePath)
+    );
+  });
+});
+
+test('getSheetImage with a fake sheet ID', async () => {
+  await withApp(async ({ apiClient }) => {
+    expect(
+      await apiClient.getSheetImage({
+        sheetId: 'not a real sheet ID',
+        side: 'front',
+      })
+    ).toBeNull();
   });
 });
