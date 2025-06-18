@@ -42,6 +42,7 @@ import {
 } from '@votingworks/utils';
 
 import { MarkScores } from '@votingworks/types/src/tabulation';
+import { LogEventId, BaseLogger } from '@votingworks/logging';
 import { Store } from './store';
 import {
   CastVoteRecordElectionDefinitionValidationError,
@@ -53,7 +54,10 @@ import {
 } from './types';
 import {
   CvrContestTagList,
+  formatMarkScoreDistributionForLog,
   getCastVoteRecordAdjudicationFlags,
+  MarkScoreDistribution,
+  updateMarkScoreDistributionFromMarkScores,
 } from './util/cast_vote_records';
 
 /**
@@ -256,7 +260,8 @@ export function determineCvrContestTags({
  */
 export async function importCastVoteRecords(
   store: Store,
-  exportDirectoryPath: string
+  exportDirectoryPath: string,
+  logger: BaseLogger
 ): Promise<Result<CvrFileImportInfo, ImportCastVoteRecordsError>> {
   const electionId = assertDefined(store.getCurrentElectionId());
   const { electionDefinition } = assertDefined(store.getElection(electionId));
@@ -325,6 +330,15 @@ export async function importCastVoteRecords(
       scannerIds,
       sha256Hash: exportHash,
     });
+
+    // Create a mark score distribution map with 0.1 increment buckets for logging
+    const markScoreDistribution: MarkScoreDistribution = {
+      distribution: new Map<number, number>(),
+      total: 0,
+    };
+    for (let i = 1; i <= 20; i += 1) {
+      markScoreDistribution.distribution.set(i / 100, 0);
+    }
 
     let castVoteRecordIndex = 0;
     let newlyAdded = 0;
@@ -468,6 +482,12 @@ export async function importCastVoteRecords(
             });
           }
         }
+        if (isHmpb && markScores) {
+          updateMarkScoreDistributionFromMarkScores(
+            markScoreDistribution,
+            markScores
+          );
+        }
       }
 
       if (isCastVoteRecordNew) {
@@ -479,6 +499,19 @@ export async function importCastVoteRecords(
 
       castVoteRecordIndex += 1;
     }
+
+    logger.log(
+      LogEventId.ImportCastVoteRecordsMarkScoreDistribution,
+      'election_manager',
+      {
+        disposition: 'success',
+        message: 'Mark score distribution (0.01–0.20) from CVR import.',
+        totalMarks: markScoreDistribution.total,
+        distribution: formatMarkScoreDistributionForLog(
+          markScoreDistribution.distribution
+        ),
+      }
+    );
 
     // TODO: Calculate the precinct list before iterating through cast vote records, once there is
     // only one geopolitical unit per batch

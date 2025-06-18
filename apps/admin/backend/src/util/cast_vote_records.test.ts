@@ -1,7 +1,12 @@
 import { expect, test } from 'vitest';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { Tabulation } from '@votingworks/types';
-import { getCastVoteRecordAdjudicationFlags } from './cast_vote_records';
+import {
+  formatMarkScoreDistributionForLog,
+  getCastVoteRecordAdjudicationFlags,
+  MarkScoreDistribution,
+  updateMarkScoreDistributionFromMarkScores,
+} from './cast_vote_records';
 import { CastVoteRecordAdjudicationFlags } from '..';
 
 const electionDefinition =
@@ -141,5 +146,50 @@ test('multiple flags', () => {
     hasUndervote: true,
     hasOvervote: true,
     hasWriteIn: true,
+  });
+});
+
+test('updateMarkScoreDistributionFromMarkScores adds scores below 0.2 to correct buckets and ignores 0.0', () => {
+  const dist: MarkScoreDistribution = {
+    distribution: new Map<number, number>(),
+    total: 0,
+  };
+
+  const markScores: Tabulation.MarkScores = {
+    'contest-a': {
+      'option-1': 0.01,
+      'option-2': 0.15,
+      'option-3': 0.0, // should be ignored
+      'option-4': 0.21, // should not go in a bucket, but counts toward total
+    },
+  };
+
+  updateMarkScoreDistributionFromMarkScores(dist, markScores);
+
+  expect(dist.total).toEqual(3);
+  expect(dist.distribution.get(0.01)).toEqual(1);
+  expect(dist.distribution.get(0.15)).toEqual(1);
+  expect(dist.distribution.get(0.0)).toBeUndefined();
+  expect(dist.distribution.get(0.21)).toBeUndefined();
+
+  updateMarkScoreDistributionFromMarkScores(dist, markScores);
+  expect(dist.total).toEqual(6);
+  expect(dist.distribution.get(0.01)).toEqual(2);
+  expect(dist.distribution.get(0.15)).toEqual(2);
+  expect(dist.distribution.get(0.0)).toBeUndefined();
+  expect(dist.distribution.get(0.21)).toBeUndefined();
+});
+
+test('formatMarkScoreDistributionForLog formats a map of scores into readable bucket strings', () => {
+  const map = new Map<number, number>([
+    [0.01, 3],
+    [0.15, 5],
+  ]);
+
+  const formatted = formatMarkScoreDistributionForLog(map);
+
+  expect(JSON.parse(formatted)).toEqual({
+    '0.01': 3,
+    '0.15': 5,
   });
 });

@@ -253,6 +253,8 @@ pub enum EventId {
     ListCastVoteRecordExportsOnUsbDrive,
     #[serde(rename = "import-cast-vote-records-init")]
     ImportCastVoteRecordsInit,
+    #[serde(rename = "import-cast-vote-records-mark-score-distribution")]
+    ImportCastVoteRecordsMarkScoreDistribution,
     #[serde(rename = "import-cast-vote-records-complete")]
     ImportCastVoteRecordsComplete,
     #[serde(rename = "clear-imported-cast-vote-records-init")]

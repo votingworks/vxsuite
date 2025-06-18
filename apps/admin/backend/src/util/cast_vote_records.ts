@@ -91,3 +91,50 @@ export class CvrContestTagList {
     return Array.from(this.byContestId.values());
   }
 }
+
+/**
+ * For logging, used to track mark score distribution on cvr import
+ */
+export interface MarkScoreDistribution {
+  distribution: Map<number, number>;
+  total: number;
+}
+
+/**
+ * Updates the score distribution with a new set of cvr mark scores.
+ * Buckets are 0.01 increments, only recording marks with score <= 0.2.
+ */
+export function updateMarkScoreDistributionFromMarkScores(
+  scoreDist: MarkScoreDistribution,
+  markScores: Tabulation.MarkScores
+): void {
+  for (const contestMarkScores of Object.values(markScores)) {
+    for (const score of Object.values(contestMarkScores)) {
+      if (score > 0.0) {
+        // eslint-disable-next-line no-param-reassign
+        scoreDist.total += 1;
+        if (score <= 0.2) {
+          const bucket = Math.floor(score * 100) / 100;
+          scoreDist.distribution.set(
+            bucket,
+            (scoreDist.distribution.get(bucket) ?? 0) + 1
+          );
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Formats the score distribution for logging.
+ * i.e. "0.01": 15, "0.02": 100...
+ */
+export function formatMarkScoreDistributionForLog(
+  distribution: Map<number, number>
+): string {
+  return JSON.stringify(
+    Object.fromEntries(
+      [...distribution].map(([start, count]) => [`${start.toFixed(2)}`, count])
+    )
+  );
+}

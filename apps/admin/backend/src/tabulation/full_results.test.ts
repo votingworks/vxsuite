@@ -311,7 +311,8 @@ test('tabulateElectionResults - write-in handling', async () => {
 
   const importResult = await importCastVoteRecords(
     store,
-    castVoteRecordExport.asDirectoryPath()
+    castVoteRecordExport.asDirectoryPath(),
+    logger
   );
   const { id: fileId } = importResult.unsafeUnwrap();
   expect(store.getCastVoteRecordCountByFileId(fileId)).toEqual(184);
@@ -720,7 +721,8 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
   store.setCurrentElectionId(electionId);
   const importResult = await importCastVoteRecords(
     store,
-    castVoteRecordExport.asDirectoryPath()
+    castVoteRecordExport.asDirectoryPath(),
+    logger
   );
   const { id: fileId } = importResult.unsafeUnwrap();
   expect(store.getCastVoteRecordCountByFileId(fileId)).toEqual(184);
