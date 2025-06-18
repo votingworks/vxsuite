@@ -331,7 +331,7 @@ export function buildApi({
     },
 
     async pauseVoting(): Promise<void> {
-      return pauseVoting({ store, logger });
+      return pauseVoting({ workspace, logger });
     },
 
     async resumeVoting(): Promise<void> {

@@ -69,6 +69,12 @@ export async function closePolls({
     message: 'User closed the polls.',
   });
 
+  // Wait for the continuous export queue to clear
+  const isContinuousExportEnabled = store.getIsContinuousExportEnabled();
+  if (isContinuousExportEnabled) {
+    await workspace.continuousExportMutex.withLock(() => {});
+  }
+
   if (previousPollsState === 'polls_open') {
     const ongoingBatchId = store.getOngoingBatchId();
     assert(ongoingBatchId !== undefined);
@@ -80,7 +86,6 @@ export async function closePolls({
     });
   }
 
-  const isContinuousExportEnabled = store.getIsContinuousExportEnabled();
   const ballotsCounted = store.getBallotsCounted();
   if (isContinuousExportEnabled && ballotsCounted > 0) {
     const exportResult = await exportCastVoteRecordsToUsbDrive({
@@ -96,12 +101,14 @@ export async function closePolls({
 }
 
 export async function pauseVoting({
-  store,
+  workspace,
   logger,
 }: {
-  store: Store;
+  workspace: Workspace;
   logger: Logger;
 }): Promise<void> {
+  const { store } = workspace;
+
   const previousPollsState = store.getPollsState();
   assert(previousPollsState === 'polls_open');
 
@@ -110,6 +117,12 @@ export async function pauseVoting({
     disposition: 'success',
     message: 'User paused voting.',
   });
+
+  // Wait for the continuous export queue to clear
+  const isContinuousExportEnabled = store.getIsContinuousExportEnabled();
+  if (isContinuousExportEnabled) {
+    await workspace.continuousExportMutex.withLock(() => {});
+  }
 
   const ongoingBatchId = store.getOngoingBatchId();
   assert(ongoingBatchId !== undefined);

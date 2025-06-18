@@ -3,6 +3,7 @@ import {
   assert,
   assertDefined,
   extractErrorMessage,
+  ok,
   Optional,
   Result,
 } from '@votingworks/basics';
@@ -57,6 +58,17 @@ async function exportCastVoteRecordToUsbDriveWithLogging(
   let exportResult: Result<void, ExportCastVoteRecordsToUsbDriveError>;
   try {
     exportResult = await continuousExportMutex.withLock(async () => {
+      // If continuous export is disabled while pending operations are still in the queue, pause
+      // them. This early return will still leave the operations in the queue in case continuous
+      // export is re-enabled.
+      if (!store.getIsContinuousExportEnabled()) {
+        logger.log(LogEventId.ExportCastVoteRecordsInit, 'system', {
+          message: 'Pausing pending continuous export operation.',
+          operationId,
+        });
+        return ok();
+      }
+
       logger.log(LogEventId.ExportCastVoteRecordsInit, 'system', {
         message: `Exporting cast vote record for ${acceptedOrRejected} sheet to USB drive...`,
         operationId,
