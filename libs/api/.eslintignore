@@ -1,5 +1,0 @@
-*.js
-*.d.ts
-build
-coverage
-vitest.config.ts

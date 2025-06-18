@@ -30,7 +30,6 @@
     "type-check": "tsc --build"
   },
   "dependencies": {
-    "@votingworks/api": "workspace:*",
     "@votingworks/auth": "workspace:*",
     "@votingworks/backend": "workspace:*",
     "@votingworks/ballot-interpreter": "workspace:*",
