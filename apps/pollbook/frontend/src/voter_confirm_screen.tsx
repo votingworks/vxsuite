@@ -68,6 +68,10 @@ export function VoterConfirmScreen({
 
   const voter = getVoterQuery.data;
 
+  function closeInactiveVoterModal() {
+    setShowInactiveVoterModal(false);
+  }
+
   if (showUpdateAddressFlow) {
     return (
       <UpdateAddressFlow
@@ -228,12 +232,10 @@ export function VoterConfirmScreen({
               >
                 Confirm Check-In
               </Button>
-              <Button onPress={() => setShowInactiveVoterModal(false)}>
-                Close
-              </Button>
+              <Button onPress={closeInactiveVoterModal}>Close</Button>
             </React.Fragment>
           }
-          onOverlayClick={() => setShowInactiveVoterModal(false)}
+          onOverlayClick={closeInactiveVoterModal}
         />
       )}
     </NoNavScreen>
