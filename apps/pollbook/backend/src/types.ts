@@ -292,7 +292,6 @@ export interface VoterSearchParams {
   middleName: string;
   firstName: string;
   suffix: string;
-  includeInactiveVoters: boolean;
 }
 
 export type StreetSide = 'even' | 'odd' | 'all';
