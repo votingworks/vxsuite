@@ -143,6 +143,10 @@ export function SystemSettingsForm({
     { label: 'Unmarked Write-In', value: AdjudicationReason.UnmarkedWriteIn },
   ];
 
+  const scannerAdjudicationReasonOptions = adjudicationReasonOptions.filter(
+    (option) => option.value !== AdjudicationReason.MarginalMark
+  );
+
   enum CvrOption {
     RedudantMetadata = 'Redundant Metadata',
   }
@@ -177,7 +181,7 @@ export function SystemSettingsForm({
           <Column style={{ gap: '1.5rem' }}>
             <CheckboxGroup
               label="VxScan"
-              options={adjudicationReasonOptions}
+              options={scannerAdjudicationReasonOptions}
               value={
                 (systemSettings.precinctScanAdjudicationReasons ??
                   []) as string[]
@@ -206,7 +210,7 @@ export function SystemSettingsForm({
             />
             <CheckboxGroup
               label="VxCentralScan"
-              options={adjudicationReasonOptions}
+              options={scannerAdjudicationReasonOptions}
               value={
                 (systemSettings.centralScanAdjudicationReasons ??
                   []) as string[]
