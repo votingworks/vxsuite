@@ -325,8 +325,8 @@ test('reprint check-in receipt', async () => {
 
   await renderComponent();
 
-  // Check that we do not see the ability to Mark as Inactive
-  expect(screen.queryByText('Mark Voter as Inactive')).toBeNull();
+  // Check that we do not see the ability to Flag as Inactive
+  expect(screen.queryByText('Flag Voter as Inactive')).toBeNull();
 
   const reprintButton = screen.getButton('Reprint Receipt');
   expect(reprintButton).not.toBeDisabled();
@@ -383,15 +383,15 @@ test('reprint check-in receipt - error path', async () => {
   });
 });
 
-test('mark inactive - happy path', async () => {
+test('flag inactive - happy path', async () => {
   apiMock.expectGetVoter(voter);
   apiMock.expectGetDeviceStatuses();
 
   await renderComponent();
 
-  const markInactiveButton = screen.getButton('Mark Voter as Inactive');
-  userEvent.click(markInactiveButton);
-  await screen.findByText(/After the voter is marked as inactive/);
+  const flagInactiveButton = screen.getButton('Flag Voter as Inactive');
+  userEvent.click(flagInactiveButton);
+  await screen.findByText(/After a voter is flagged as inactive/);
 
   apiMock.expectMarkInactive(voter);
   apiMock.expectGetVoter({
@@ -399,26 +399,26 @@ test('mark inactive - happy path', async () => {
     isInactive: true,
   });
 
-  const confirmButton = screen.getButton('Mark Inactive');
+  const confirmButton = screen.getButton('Flag Inactive');
   userEvent.click(confirmButton);
 });
 
-test('mark inactive - error path', async () => {
+test('flag inactive - error path', async () => {
   apiMock.expectGetVoter(voter);
   apiMock.expectGetDeviceStatuses();
 
   await renderComponent();
 
-  const markInactiveButton = screen.getButton('Mark Voter as Inactive');
-  userEvent.click(markInactiveButton);
-  await screen.findByText(/After the voter is marked as inactive/);
+  const flagInactiveButton = screen.getButton('Flag Voter as Inactive');
+  userEvent.click(flagInactiveButton);
+  await screen.findByText(/After a voter is flagged as inactive/);
 
   apiMock.expectMarkInactiveError(voter);
   apiMock.expectGetVoter(voter);
-  const confirmButton = screen.getButton('Mark Inactive');
+  const confirmButton = screen.getButton('Flag Inactive');
   userEvent.click(confirmButton);
 
-  await screen.findByText('Error Marking Inactive');
+  await screen.findByText('Error Flagging Inactive');
 });
 
 test('actions are disabled when precinct not configured', async () => {
@@ -428,8 +428,8 @@ test('actions are disabled when precinct not configured', async () => {
 
   await renderComponent();
 
-  const markInactiveButton = screen.getButton('Mark Voter as Inactive');
-  expect(markInactiveButton).toBeDisabled();
+  const flagInactiveButton = screen.getButton('Flag Voter as Inactive');
+  expect(flagInactiveButton).toBeDisabled();
 
   const updateNameButton = screen.getButton('Update Name');
   expect(updateNameButton).toBeDisabled();
