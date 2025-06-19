@@ -302,6 +302,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)
 **Description:** Cast vote records are being imported from a USB drive.
 **Machines:** vx-admin
+### import-cast-vote-records-mark-score-distribution
+**Type:** [user-action](#user-action)
+**Description:** Cast vote records have been imported and the associated mark scores have been consolidated into a distribution map.
+**Machines:** vx-admin
 ### import-cast-vote-records-complete
 **Type:** [user-action](#user-action)
 **Description:** Cast vote records have been imported from a USB drive (or failed to be imported). Success or failure indicated by disposition.

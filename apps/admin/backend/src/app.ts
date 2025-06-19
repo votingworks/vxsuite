@@ -579,7 +579,8 @@ function buildApi({
           : input.path;
       const importResult = await importCastVoteRecords(
         store,
-        exportDirectoryPath
+        exportDirectoryPath,
+        logger
       );
       if (importResult.isErr()) {
         await logger.logAsCurrentRole(

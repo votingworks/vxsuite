@@ -499,6 +499,12 @@ eventType = "user-action"
 documentationMessage = "Cast vote records are being imported from a USB drive."
 restrictInDocumentationToApps = ["vx-admin"]
 
+[Events.ImportCastVoteRecordsMarkScoreDistribution]
+eventId = "import-cast-vote-records-mark-score-distribution"
+eventType = "user-action"
+documentationMessage = "Cast vote records have been imported and the associated mark scores have been consolidated into a distribution map."
+restrictInDocumentationToApps = ["vx-admin"]
+
 [Events.ImportCastVoteRecordsComplete]
 eventId = "import-cast-vote-records-complete"
 eventType = "user-action"

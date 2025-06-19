@@ -135,6 +135,7 @@ export enum LogEventId {
   SmartCardUnprogramComplete = 'smart-card-unprogram-complete',
   ListCastVoteRecordExportsOnUsbDrive = 'list-cast-vote-record-exports-on-usb-drive',
   ImportCastVoteRecordsInit = 'import-cast-vote-records-init',
+  ImportCastVoteRecordsMarkScoreDistribution = 'import-cast-vote-records-mark-score-distribution',
   ImportCastVoteRecordsComplete = 'import-cast-vote-records-complete',
   ClearImportedCastVoteRecordsInit = 'clear-imported-cast-vote-records-init',
   ClearImportedCastVoteRecordsComplete = 'clear-imported-cast-vote-records-complete',
@@ -701,6 +702,14 @@ const ImportCastVoteRecordsInit: LogDetails = {
   eventType: LogEventType.UserAction,
   documentationMessage:
     'Cast vote records are being imported from a USB drive.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
+const ImportCastVoteRecordsMarkScoreDistribution: LogDetails = {
+  eventId: LogEventId.ImportCastVoteRecordsMarkScoreDistribution,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'Cast vote records have been imported and the associated mark scores have been consolidated into a distribution map.',
   restrictInDocumentationToApps: [AppName.VxAdmin],
 };
 
@@ -1456,6 +1465,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ListCastVoteRecordExportsOnUsbDrive;
     case LogEventId.ImportCastVoteRecordsInit:
       return ImportCastVoteRecordsInit;
+    case LogEventId.ImportCastVoteRecordsMarkScoreDistribution:
+      return ImportCastVoteRecordsMarkScoreDistribution;
     case LogEventId.ImportCastVoteRecordsComplete:
       return ImportCastVoteRecordsComplete;
     case LogEventId.ClearImportedCastVoteRecordsInit:
