@@ -240,12 +240,9 @@ function buildApi({ context, logger }: BuildAppParams) {
       identificationMethod: VoterIdentificationMethod;
     }): Promise<Result<void, VoterCheckInError>> {
       const election = assertDefined(store.getElection());
-      const { checkIn, isInactive } = store.getVoter(input.voterId);
+      const { checkIn } = store.getVoter(input.voterId);
       if (checkIn) {
         return err('already_checked_in');
-      }
-      if (isInactive) {
-        return err('voter_inactive');
       }
       const { voter, receiptNumber } = store.recordVoterCheckIn(input);
       debug('Checked in voter %s', voter.voterId);

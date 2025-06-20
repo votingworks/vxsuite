@@ -103,10 +103,6 @@ describe('PollWorkerScreen', () => {
       error: 'already_checked_in' as VoterCheckInError,
       expectedMessage: 'Voter Already Checked In',
     },
-    {
-      error: 'voter_inactive' as VoterCheckInError,
-      expectedMessage: 'Voter Inactive',
-    },
   ]) {
     test(`check in flow handles ${testCase.error} error path`, async () => {
       apiMock.expectGetDeviceStatuses();

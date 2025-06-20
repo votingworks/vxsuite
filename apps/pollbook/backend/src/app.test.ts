@@ -133,7 +133,6 @@ test('check in a voter', async () => {
         middleName: '',
         lastName: 'Adams',
         suffix: '',
-        includeInactiveVoters: true,
       },
     });
 
@@ -275,7 +274,6 @@ test('register a voter', async () => {
         middleName: '',
         lastName: 'Eagen',
         suffix: '',
-        includeInactiveVoters: true,
       },
     });
     expect(votersEagen as Voter[]).toHaveLength(1);
@@ -420,7 +418,6 @@ test('change a voter name', async () => {
         middleName: '',
         lastName: 'Adams',
         suffix: '',
-        includeInactiveVoters: true,
       },
     });
 
@@ -457,7 +454,6 @@ test('change a voter name', async () => {
         middleName: '',
         lastName: 'Adams',
         suffix: '',
-        includeInactiveVoters: true,
       },
     });
     assert(votersAbigail2 !== null);
@@ -474,7 +470,6 @@ test('change a voter name', async () => {
         middleName: '',
         lastName: 'Bee',
         suffix: '',
-        includeInactiveVoters: true,
       },
     });
     assert(votersBarbara !== null);
@@ -506,7 +501,6 @@ test('undo a voter check-in', async () => {
         middleName: '',
         lastName: 'Adams',
         suffix: '',
-        includeInactiveVoters: true,
       },
     });
 
@@ -739,7 +733,6 @@ test('check in, change name, undo check-in, change address, and check in again',
         middleName: '',
         lastName: 'Adams',
         suffix: '',
-        includeInactiveVoters: true,
       },
     });
 
@@ -845,7 +838,6 @@ test('change a voter address with various formats', async () => {
         middleName: '',
         lastName: 'Adams',
         suffix: '',
-        includeInactiveVoters: true,
       },
     });
 
@@ -972,21 +964,18 @@ test('voter search ignores punctuation', async () => {
         middleName: '',
         lastName: 'carver-farmer',
         suffix: '',
-        includeInactiveVoters: true,
       },
       {
         firstName: "george'washington",
         middleName: '',
         lastName: "carver'farmer",
         suffix: '',
-        includeInactiveVoters: true,
       },
       {
         firstName: 'mar tha',
         middleName: '',
         lastName: 'wash ington',
         suffix: '',
-        includeInactiveVoters: true,
       },
       // Test punctuation and whitespace in db column are ignored
       {
@@ -994,21 +983,18 @@ test('voter search ignores punctuation', async () => {
         middleName: '',
         lastName: 'carverfar',
         suffix: '',
-        includeInactiveVoters: true,
       },
       {
         firstName: 'george',
         middleName: '',
         lastName: 'washington',
         suffix: '',
-        includeInactiveVoters: true,
       },
       {
         firstName: 'martha',
         middleName: '',
         lastName: 'washington',
         suffix: '',
-        includeInactiveVoters: true,
       },
     ];
 
@@ -1094,7 +1080,6 @@ test('mark a voter inactive', async () => {
         middleName: '',
         lastName: 'Adams',
         suffix: '',
-        includeInactiveVoters: true,
       },
     });
 
@@ -1115,12 +1100,12 @@ test('mark a voter inactive', async () => {
     expect(receiptPdfPath).toBeDefined();
     await expect(receiptPdfPath).toMatchPdfSnapshot();
 
-    // We should not be able to check in this voter.
-    const checkInErr = await localApiClient.checkInVoter({
+    // We should now be able to check in this voter even though they are marked inactive.
+    const checkInResult = await localApiClient.checkInVoter({
       voterId: firstVoter.voterId,
       identificationMethod: { type: 'default' },
     });
-    expect(checkInErr.err()).toEqual('voter_inactive');
+    expect(checkInResult.ok()).toEqual(undefined);
 
     // Check in a different voter
     const checkIn = await localApiClient.checkInVoter({
@@ -1165,7 +1150,6 @@ test('mark a voter inactive', async () => {
         middleName: '',
         lastName: 'Adams',
         suffix: '',
-        includeInactiveVoters: true,
       },
     });
     assert(votersAbigail2 !== null);
@@ -1187,7 +1171,6 @@ test('mark a voter inactive', async () => {
         middleName: '',
         lastName: 'Adams',
         suffix: '',
-        includeInactiveVoters: false,
       },
     });
     assert(votersAbigail3 !== null);
