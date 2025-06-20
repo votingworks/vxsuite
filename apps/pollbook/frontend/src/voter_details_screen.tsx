@@ -297,29 +297,6 @@ export function VoterDetailsScreen(): JSX.Element | null {
     );
   }
 
-  if (showUndoCheckinFlow) {
-    return (
-      <PrinterRequired
-        printer={printer}
-        onClose={() => setShowUndoCheckinFlow(false)}
-      >
-        <ConfirmUndoCheckInModal
-          voter={voter}
-          onClose={() => setShowUndoCheckinFlow(false)}
-        />
-      </PrinterRequired>
-    );
-  }
-
-  if (showMarkInactiveFlow) {
-    return (
-      <ConfirmMarkInactiveModal
-        voter={voter}
-        onClose={() => setShowMarkInactiveFlow(false)}
-      />
-    );
-  }
-
   return (
     <VoterDetailsScreenLayout>
       {isPrinting && <Modal content={<Loading>Printing</Loading>} />}
@@ -332,6 +309,23 @@ export function VoterDetailsScreen(): JSX.Element | null {
           }
           content="Voter is not currently checked in."
         />
+      )}
+      {showMarkInactiveFlow && (
+        <ConfirmMarkInactiveModal
+          voter={voter}
+          onClose={() => setShowMarkInactiveFlow(false)}
+        />
+      )}
+      {showUndoCheckinFlow && (
+        <PrinterRequired
+          printer={printer}
+          onClose={() => setShowUndoCheckinFlow(false)}
+        >
+          <ConfirmUndoCheckInModal
+            voter={voter}
+            onClose={() => setShowUndoCheckinFlow(false)}
+          />
+        </PrinterRequired>
       )}
       <React.Fragment>
         <Column style={{ gap: '1rem', flex: 1, flexBasis: 1 }}>
