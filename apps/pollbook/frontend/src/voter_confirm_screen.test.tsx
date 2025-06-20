@@ -96,8 +96,8 @@ test('shows flag callout for inactive voters', async () => {
   const inactiveVoter: Voter = { ...voter, isInactive: true };
   await renderComponent({ voterOverride: inactiveVoter });
 
-  screen.getByText(/This voter was flagged as inactive by an election manager/);
-  screen.getByText(/Notify an election manager before proceeding/);
+  screen.getByText(/This voter was flagged as inactive/);
+  screen.getByText(/Notify an election manager if anyone attempts to check in/);
 });
 
 test('happy path - active voter check-in with default identification', async () => {
@@ -158,14 +158,15 @@ test('inactive voter confirmation modal - confirm check-in', async () => {
   const inactiveVoter: Voter = { ...voter, isInactive: true };
   await renderComponent({ voterOverride: inactiveVoter });
 
-  // Button should have neutral variant for inactive voters
   const confirmButton = screen.getButton('Confirm Check-In');
   userEvent.click(confirmButton);
 
   // Modal should appear
-  await screen.findByRole('heading', { name: 'Confirm Check-In' });
+  await screen.findByRole('heading', {
+    name: 'Confirm Check-In',
+  });
   screen.getByText(
-    /This voter is flagged as inactive. Confirm with an election manager/
+    /This voter was flagged as inactive. Continue only if you have confirmed/
   );
 
   // Find the modal and click confirm button within it
@@ -185,11 +186,13 @@ test('inactive voter confirmation modal - close modal', async () => {
   userEvent.click(confirmButton);
 
   // Modal should appear
-  await screen.findByRole('heading', { name: 'Confirm Check-In' });
+  await screen.findByRole('heading', {
+    name: 'Confirm Check-In',
+  });
 
   // Find the modal and click close button within it
   const modal = screen.getByRole('alertdialog');
-  const closeButton = within(modal).getButton('Close');
+  const closeButton = within(modal).getButton('Cancel');
   userEvent.click(closeButton);
 
   // Modal should close and onConfirm should not be called
