@@ -194,7 +194,6 @@ test('offline undo with later real time check in', async () => {
     middleName: '',
     lastName: '',
     suffix: '',
-    includeInactiveVoters: true,
   });
   expect((voters as Voter[]).length).toEqual(1);
   expect((voters as Voter[])[0].checkIn).toEqual({
@@ -277,14 +276,12 @@ test('bad system time nodes should be able to undo', () => {
     middleName: '',
     lastName: '',
     suffix: '',
-    includeInactiveVoters: true,
   });
   const votersB = localB.searchVoters({
     firstName: 'Bob',
     middleName: '',
     lastName: '',
     suffix: '',
-    includeInactiveVoters: true,
   });
   expect((votersA as Voter[])[0].checkIn).toBeUndefined();
   expect((votersB as Voter[])[0].checkIn).toBeUndefined();
@@ -412,7 +409,6 @@ test("getting a offline machines events when I've synced with the online machine
       middleName: '',
       lastName: '',
       suffix: '',
-      includeInactiveVoters: true,
     })
   ).toEqual([
     expect.objectContaining({
@@ -441,7 +437,6 @@ test("getting a offline machines events when I've synced with the online machine
       middleName: '',
       lastName: '',
       suffix: '',
-      includeInactiveVoters: true,
     })
   ).toEqual([
     expect.objectContaining({
@@ -507,7 +502,6 @@ test('last write wins on double check ins', async () => {
       middleName: '',
       lastName: '',
       suffix: '',
-      includeInactiveVoters: true,
     })
   ).toEqual([
     expect.objectContaining({
@@ -526,7 +520,6 @@ test('last write wins on double check ins', async () => {
       middleName: '',
       lastName: '',
       suffix: '',
-      includeInactiveVoters: true,
     })
   ).toEqual([
     expect.objectContaining({
@@ -594,7 +587,6 @@ test('last write wins even when there is bad system time after a sync', () => {
       middleName: '',
       lastName: '',
       suffix: '',
-      includeInactiveVoters: true,
     })
   ).toEqual([
     expect.objectContaining({
@@ -619,7 +611,6 @@ test('last write wins even when there is bad system time after a sync', () => {
       middleName: '',
       lastName: '',
       suffix: '',
-      includeInactiveVoters: true,
     })
   ).toEqual([
     expect.objectContaining({
@@ -638,7 +629,6 @@ test('last write wins even when there is bad system time after a sync', () => {
       middleName: '',
       lastName: '',
       suffix: '',
-      includeInactiveVoters: true,
     })
   ).toEqual([
     expect.objectContaining({
@@ -801,21 +791,18 @@ test('late-arriving older event with a more recent undo', () => {
     middleName: '',
     lastName: '',
     suffix: '',
-    includeInactiveVoters: true,
   });
   const oscarB = localB.searchVoters({
     firstName: 'Oscar',
     middleName: '',
     lastName: '',
     suffix: '',
-    includeInactiveVoters: true,
   });
   const oscarC = localC.searchVoters({
     firstName: 'Oscar',
     middleName: '',
     lastName: '',
     suffix: '',
-    includeInactiveVoters: true,
   });
   expect((oscarA as Voter[])[0].checkIn).toBeUndefined();
   expect((oscarB as Voter[])[0].checkIn).toBeUndefined();
@@ -826,21 +813,18 @@ test('late-arriving older event with a more recent undo', () => {
     middleName: '',
     lastName: '',
     suffix: '',
-    includeInactiveVoters: true,
   });
   const pennyB = localB.searchVoters({
     firstName: 'Penny',
     middleName: '',
     lastName: '',
     suffix: '',
-    includeInactiveVoters: true,
   });
   const pennyC = localC.searchVoters({
     firstName: 'Penny',
     middleName: '',
     lastName: '',
     suffix: '',
-    includeInactiveVoters: true,
   });
   expect((pennyA as Voter[])[0].checkIn).toBeDefined();
   expect((pennyB as Voter[])[0].checkIn).toBeDefined();
