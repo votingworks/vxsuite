@@ -140,7 +140,7 @@ function ConfirmMarkInactiveModal({
   return (
     <Modal
       title={<React.Fragment>Flag Voter as Inactive</React.Fragment>}
-      content="After a voter is flagged as inactive, any attempt to check them in will generate a warning."
+      content="After a voter is flagged as inactive, any attempt to check them in will produce a warning."
       actions={
         <React.Fragment>
           <Button
