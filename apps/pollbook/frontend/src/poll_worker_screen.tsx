@@ -197,9 +197,6 @@ export function VoterCheckInScreen(): JSX.Element | null {
         case 'already_checked_in':
           errorMessage = 'Voter Already Checked In';
           break;
-        case 'voter_inactive':
-          errorMessage = 'Voter Inactive';
-          break;
         default:
           throwIllegalValue(flowState.errorType);
       }
