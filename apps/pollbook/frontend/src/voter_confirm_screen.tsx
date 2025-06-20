@@ -100,8 +100,8 @@ export function VoterConfirmScreen({
           {voter.isInactive && (
             <Callout icon="Flag" color="danger">
               <strong>
-                This voter was flagged as inactive by an election manager.
-                Notify an election manager before proceeding.
+                This voter was flagged as inactive. Notify an election manager
+                if anyone attempts to check in with this identity.
               </strong>
             </Callout>
           )}
@@ -200,7 +200,7 @@ export function VoterConfirmScreen({
       <ButtonBar>
         <Button
           rightIcon="Next"
-          variant={voter.isInactive ? 'neutral' : 'primary'}
+          variant={voter.isInactive ? 'danger' : 'primary'}
           disabled={!isIdentificationMethodComplete(identificationMethod)}
           onPress={() => {
             assert(isIdentificationMethodComplete(identificationMethod));
@@ -221,10 +221,12 @@ export function VoterConfirmScreen({
       {showInactiveVoterModal && (
         <Modal
           title="Confirm Check-In"
-          content="This voter is flagged as inactive. Confirm with an election manager that this voter is eligible to vote."
+          content="This voter was flagged as inactive. Continue only if you have confirmed with an election manager that the voter was flagged as inactive in error."
           actions={
             <React.Fragment>
               <Button
+                rightIcon="Next"
+                variant="danger"
                 onPress={() => {
                   assert(isIdentificationMethodComplete(identificationMethod));
                   onConfirm(identificationMethod);
@@ -232,7 +234,7 @@ export function VoterConfirmScreen({
               >
                 Confirm Check-In
               </Button>
-              <Button onPress={closeInactiveVoterModal}>Close</Button>
+              <Button onPress={closeInactiveVoterModal}>Cancel</Button>
             </React.Fragment>
           }
           onOverlayClick={closeInactiveVoterModal}
