@@ -92,24 +92,15 @@ test('mark thresholds', async () => {
     electionRecord.systemSettings.markThresholds.marginal
   );
 
-  const bitonalThresholdInput = screen.getByRole('spinbutton', {
-    name: 'Scanner Bitonal Threshold',
-  });
-  expect(bitonalThresholdInput).toBeDisabled();
-  expect(bitonalThresholdInput).toHaveValue(null);
-
   userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
   // change from 0.07 to 0.08
   userEvent.type(definiteInput, '{backspace}8');
   // change from 0.05 to 0.06
   userEvent.type(marginalInput, '{backspace}6');
-  // change from unset to 50
-  userEvent.type(bitonalThresholdInput, '50');
 
   const updatedSystemSettings: SystemSettings = {
     ...DEFAULT_SYSTEM_SETTINGS,
-    bitonalThreshold: 50,
     markThresholds: {
       ...DEFAULT_SYSTEM_SETTINGS.markThresholds,
       definite: 0.08,
@@ -134,10 +125,6 @@ test('mark thresholds', async () => {
     updatedSystemSettings.markThresholds.marginal
   );
   expect(marginalInput).toBeDisabled();
-  expect(bitonalThresholdInput).toHaveValue(
-    updatedSystemSettings.bitonalThreshold
-  );
-  expect(bitonalThresholdInput).toBeDisabled();
 });
 
 test('minimum detected scale', async () => {
@@ -193,15 +180,14 @@ test('adjudication reasons', async () => {
   for (const machine of ['VxScan', 'VxCentralScan']) {
     const select = screen.getByRole('group', { name: machine });
     const options = within(select).getAllByRole('checkbox');
-    expect(options).toHaveLength(5);
+    expect(options).toHaveLength(4);
     for (const option of options) {
       expect(option).not.toBeChecked();
     }
     expect(options[0]).toHaveTextContent('Overvote');
     expect(options[1]).toHaveTextContent('Undervote');
-    expect(options[2]).toHaveTextContent('Marginal Mark');
-    expect(options[3]).toHaveTextContent('Blank Ballot');
-    expect(options[4]).toHaveTextContent('Unmarked Write-In');
+    expect(options[2]).toHaveTextContent('Blank Ballot');
+    expect(options[3]).toHaveTextContent('Unmarked Write-In');
 
     userEvent.click(options[0]);
     expect(options[0]).toBeChecked();
@@ -545,7 +531,7 @@ test('all controls are disabled until clicking "Edit"', async () => {
   const allCheckboxes = document.body.querySelectorAll('[role=checkbox]');
   const allControls = [...allTextBoxes, ...allCheckboxes];
 
-  expect(allControls).toHaveLength(26);
+  expect(allControls).toHaveLength(23);
 
   for (const control of allControls) {
     expect(control).toBeDisabled();
