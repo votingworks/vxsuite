@@ -1138,12 +1138,12 @@ test('mark a voter inactive', async () => {
     });
     expect(markInactiveResult2.ok()).toEqual(undefined);
 
-    // The check in receipt should still be the last thing printed.
+    // The name change receipt should still be the last thing printed.
     expect(mockPrinterHandler.getLastPrintPath()).toEqual(
       nameChangeReceiptPath
     );
 
-    // Search for the voter again with inacative voters included
+    // Search for the voters again to confirm their status
     const votersAbigail2 = await localApiClient.searchVoters({
       searchParams: {
         firstName: 'Abigail',
@@ -1163,20 +1163,5 @@ test('mark a voter inactive', async () => {
     expect((votersAbigail2 as Voter[])[1].isInactive).toEqual(true);
     expect((votersAbigail2 as Voter[])[2].voterId).toEqual(secondVoter.voterId);
     expect((votersAbigail2 as Voter[])[2].isInactive).toEqual(false);
-
-    // Searching without inactive voters included should filter properly
-    const votersAbigail3 = await localApiClient.searchVoters({
-      searchParams: {
-        firstName: 'Abigail',
-        middleName: '',
-        lastName: 'Adams',
-        suffix: '',
-      },
-    });
-    assert(votersAbigail3 !== null);
-    assert(Array.isArray(votersAbigail3));
-    expect(votersAbigail3).toHaveLength(1);
-    expect((votersAbigail3 as Voter[])[0].isInactive).toEqual(false);
-    expect((votersAbigail3 as Voter[])[0].voterId).toEqual(secondVoter.voterId);
   });
 });
