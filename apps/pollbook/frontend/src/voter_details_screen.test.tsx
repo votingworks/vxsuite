@@ -8,7 +8,7 @@ import {
 import { Route, Switch } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { screen, waitFor } from '../test/react_testing_library';
+import { screen, waitFor, within } from '../test/react_testing_library';
 import {
   ApiMock,
   createApiMock,
@@ -53,8 +53,8 @@ async function renderComponent() {
   );
   unmount = renderResult.unmount;
 
-  await screen.findByRole('heading', { name: 'Voter Details' });
-  await screen.findByRole('heading', { name: 'ABIGAIL ADAMS' });
+  // Wait for the main voter details content to load - wait for a button that's always present
+  await screen.findByRole('button', { name: 'Update Name' });
 }
 
 test.each([['Update Name'], ['Update Address']])(
@@ -303,7 +303,12 @@ test('undo check-in', async () => {
   const updatedVoter: Voter = { ...checkedInVoter, checkIn: undefined };
   apiMock.expectGetVoter(updatedVoter);
 
-  userEvent.click(screen.getButton('Undo Check-In'));
+  // Get the modal and find the button within it
+  const modal = screen.getByRole('alertdialog');
+  const undoButton = within(modal).getByRole('button', {
+    name: 'Undo Check-In',
+  });
+  userEvent.click(undoButton);
 
   await screen.findByText('Not checked in');
 });
@@ -325,8 +330,8 @@ test('reprint check-in receipt', async () => {
 
   await renderComponent();
 
-  // Check that we do not see the ability to Mark as Inactive
-  expect(screen.queryByText('Mark Voter as Inactive')).toBeNull();
+  // Check that we do not see the ability to Flag as Inactive
+  expect(screen.queryByText('Flag Voter as Inactive')).toBeNull();
 
   const reprintButton = screen.getButton('Reprint Receipt');
   expect(reprintButton).not.toBeDisabled();
@@ -383,15 +388,15 @@ test('reprint check-in receipt - error path', async () => {
   });
 });
 
-test('mark inactive - happy path', async () => {
+test('flag inactive - happy path', async () => {
   apiMock.expectGetVoter(voter);
   apiMock.expectGetDeviceStatuses();
 
   await renderComponent();
 
-  const markInactiveButton = screen.getButton('Mark Voter as Inactive');
-  userEvent.click(markInactiveButton);
-  await screen.findByText(/After the voter is marked as inactive/);
+  const flagInactiveButton = screen.getButton('Flag Voter as Inactive');
+  userEvent.click(flagInactiveButton);
+  await screen.findByText(/After a voter is flagged as inactive/);
 
   apiMock.expectMarkInactive(voter);
   apiMock.expectGetVoter({
@@ -399,26 +404,34 @@ test('mark inactive - happy path', async () => {
     isInactive: true,
   });
 
-  const confirmButton = screen.getButton('Mark Inactive');
+  // Get the modal and find the button within it
+  const modal = screen.getByRole('alertdialog');
+  const confirmButton = within(modal).getByRole('button', {
+    name: 'Flag Inactive',
+  });
   userEvent.click(confirmButton);
 });
 
-test('mark inactive - error path', async () => {
+test('flag inactive - error path', async () => {
   apiMock.expectGetVoter(voter);
   apiMock.expectGetDeviceStatuses();
 
   await renderComponent();
 
-  const markInactiveButton = screen.getButton('Mark Voter as Inactive');
-  userEvent.click(markInactiveButton);
-  await screen.findByText(/After the voter is marked as inactive/);
+  const flagInactiveButton = screen.getButton('Flag Voter as Inactive');
+  userEvent.click(flagInactiveButton);
+  await screen.findByText(/After a voter is flagged as inactive/);
 
   apiMock.expectMarkInactiveError(voter);
   apiMock.expectGetVoter(voter);
-  const confirmButton = screen.getButton('Mark Inactive');
+  // Get the modal and find the button within it
+  const modal = screen.getByRole('alertdialog');
+  const confirmButton = within(modal).getByRole('button', {
+    name: 'Flag Inactive',
+  });
   userEvent.click(confirmButton);
 
-  await screen.findByText('Error Marking Inactive');
+  await screen.findByText('Error Flagging Inactive');
 });
 
 test('actions are disabled when precinct not configured', async () => {
@@ -428,12 +441,24 @@ test('actions are disabled when precinct not configured', async () => {
 
   await renderComponent();
 
-  const markInactiveButton = screen.getButton('Mark Voter as Inactive');
-  expect(markInactiveButton).toBeDisabled();
+  const flagInactiveButtons = screen.getAllByRole('button', {
+    name: 'Flag Voter as Inactive',
+  });
+  // Find the first button (should be from main screen, not modal)
+  const flagButton = flagInactiveButtons[0];
+  expect(flagButton).toBeDisabled();
 
-  const updateNameButton = screen.getButton('Update Name');
-  expect(updateNameButton).toBeDisabled();
+  const updateNameButtons = screen.getAllByRole('button', {
+    name: 'Update Name',
+  });
+  // Find the first button (should be from main screen, not modal)
+  const nameButton = updateNameButtons[0];
+  expect(nameButton).toBeDisabled();
 
-  const updateAddressButton = screen.getButton('Update Address');
-  expect(updateAddressButton).toBeDisabled();
+  const updateAddressButtons = screen.getAllByRole('button', {
+    name: 'Update Address',
+  });
+  // Find the first button (should be from main screen, not modal)
+  const addressButton = updateAddressButtons[0];
+  expect(addressButton).toBeDisabled();
 });

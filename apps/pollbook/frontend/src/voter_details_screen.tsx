@@ -130,8 +130,8 @@ function ConfirmMarkInactiveModal({
     assert(errorMessage === 'voter_checked_in');
     return (
       <Modal
-        title={<React.Fragment>Error Marking Inactive</React.Fragment>}
-        content="This voter is already checked in and cannot be marked as inactive."
+        title={<React.Fragment>Error Flagging Inactive</React.Fragment>}
+        content="This voter is already checked in and cannot be flagged as inactive."
         actions={<Button onPress={onClose}>Cancel</Button>}
         onOverlayClick={onClose}
       />
@@ -139,12 +139,12 @@ function ConfirmMarkInactiveModal({
   }
   return (
     <Modal
-      title={<React.Fragment>Mark Voter as Inactive</React.Fragment>}
-      content="After the voter is marked as inactive, it will not be possible to check them in. This action cannot be undone."
+      title={<React.Fragment>Flag Voter as Inactive</React.Fragment>}
+      content="After a voter is flagged as inactive, any attempt to check them in will produce a warning."
       actions={
         <React.Fragment>
           <Button
-            icon="Delete"
+            icon="Flag"
             variant="danger"
             onPress={async () => {
               const result = await markInactiveMutation.mutateAsync({
@@ -157,7 +157,7 @@ function ConfirmMarkInactiveModal({
               }
             }}
           >
-            Mark Inactive
+            Flag Inactive
           </Button>
           <Button onPress={onClose}>Cancel</Button>
         </React.Fragment>
@@ -297,29 +297,6 @@ export function VoterDetailsScreen(): JSX.Element | null {
     );
   }
 
-  if (showUndoCheckinFlow) {
-    return (
-      <PrinterRequired
-        printer={printer}
-        onClose={() => setShowUndoCheckinFlow(false)}
-      >
-        <ConfirmUndoCheckInModal
-          voter={voter}
-          onClose={() => setShowUndoCheckinFlow(false)}
-        />
-      </PrinterRequired>
-    );
-  }
-
-  if (showMarkInactiveFlow) {
-    return (
-      <ConfirmMarkInactiveModal
-        voter={voter}
-        onClose={() => setShowMarkInactiveFlow(false)}
-      />
-    );
-  }
-
   return (
     <VoterDetailsScreenLayout>
       {isPrinting && <Modal content={<Loading>Printing</Loading>} />}
@@ -332,6 +309,23 @@ export function VoterDetailsScreen(): JSX.Element | null {
           }
           content="Voter is not currently checked in."
         />
+      )}
+      {showMarkInactiveFlow && (
+        <ConfirmMarkInactiveModal
+          voter={voter}
+          onClose={() => setShowMarkInactiveFlow(false)}
+        />
+      )}
+      {showUndoCheckinFlow && (
+        <PrinterRequired
+          printer={printer}
+          onClose={() => setShowUndoCheckinFlow(false)}
+        >
+          <ConfirmUndoCheckInModal
+            voter={voter}
+            onClose={() => setShowUndoCheckinFlow(false)}
+          />
+        </PrinterRequired>
       )}
       <React.Fragment>
         <Column style={{ gap: '1rem', flex: 1, flexBasis: 1 }}>
@@ -400,7 +394,7 @@ export function VoterDetailsScreen(): JSX.Element | null {
             <Column style={{ gap: '1rem' }}>
               {voter.isInactive && (
                 <H2 style={{ marginTop: 0 }}>
-                  <Icons.Disabled /> Inactive
+                  <Icons.Flag /> Inactive
                 </H2>
               )}
               {!voter.checkIn && !voter.isInactive && (
@@ -432,12 +426,12 @@ export function VoterDetailsScreen(): JSX.Element | null {
           </Card>
           {!voter.checkIn && !voter.isInactive && (
             <Button
-              icon="Delete"
+              icon="Flag"
               color="danger"
               disabled={!configuredPrecinctId}
               onPress={() => setShowMarkInactiveFlow(true)}
             >
-              Mark Voter as Inactive
+              Flag Voter as Inactive
             </Button>
           )}
           {voter.checkIn && !voter.isInactive && (

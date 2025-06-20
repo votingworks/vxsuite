@@ -37,7 +37,6 @@ async function searchVoterByInitials(firstName: string, lastName: string) {
         middleName: '',
         lastName: lastName[0],
         suffix: '',
-        includeInactiveVoters: false,
       },
     });
     return response;
@@ -60,7 +59,6 @@ async function searchVoterByFullName(
         middleName,
         lastName,
         suffix,
-        includeInactiveVoters: false,
       },
     });
     return response;

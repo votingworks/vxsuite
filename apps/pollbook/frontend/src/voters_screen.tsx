@@ -9,7 +9,7 @@ import { ExportVoterActivityButton } from './export_voter_activity';
 
 export function ElectionManagerVotersScreen(): JSX.Element | null {
   const [search, setSearch] = useState<VoterSearchParams>(
-    createEmptySearchParams(true)
+    createEmptySearchParams()
   );
   const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
 

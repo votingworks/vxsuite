@@ -32,14 +32,14 @@ export function MarkInactiveReceipt({
       >
         <div>
           <div>
-            <strong>Voter Marked as Inactive</strong>
+            <strong>Voter Flagged as Inactive</strong>
           </div>
           <div>
             {format.localeNumericDateAndTime(new Date(getCurrentTime()))}
           </div>
         </div>
 
-        <ReceiptIcon icon={'Disabled'} />
+        <ReceiptIcon icon={'Flag'} />
       </div>
 
       <div>
