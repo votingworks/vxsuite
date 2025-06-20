@@ -454,18 +454,6 @@ test('handling unmarked write-ins', async () => {
     })
   ).unsafeUnwrap();
 
-  const [cvrId] = await apiClient.getAdjudicationQueue({
-    contestId: WRITE_IN_CONTEST_ID,
-  });
-  assert(cvrId !== undefined);
-
-  const cvrContestTag = await apiClient.getCvrContestTag({
-    cvrId,
-    contestId: WRITE_IN_CONTEST_ID,
-  });
-  assert(cvrContestTag !== undefined);
-  assert(cvrContestTag.hasUnmarkedWriteIn);
-
   async function expectContestResults(
     contestSummary: ContestResultsSummary
   ): Promise<void> {
@@ -512,6 +500,20 @@ test('handling unmarked write-ins', async () => {
     },
   });
 
+  // check contest tag
+  const [cvrId] = await apiClient.getAdjudicationQueue({
+    contestId: WRITE_IN_CONTEST_ID,
+  });
+  assert(cvrId !== undefined);
+
+  let cvrContestTag = await apiClient.getCvrContestTag({
+    cvrId,
+    contestId: WRITE_IN_CONTEST_ID,
+  });
+  expect(cvrContestTag).toBeDefined();
+  expect(cvrContestTag?.hasUnmarkedWriteIn).toEqual(true);
+  expect(cvrContestTag?.isResolved).toEqual(false);
+
   // a UWI should be reflected in tallies if we mark it as valid
   const [writeIn] = await apiClient.getWriteIns({
     cvrId,
@@ -519,11 +521,21 @@ test('handling unmarked write-ins', async () => {
   });
   assert(writeIn !== undefined);
   expect(writeIn.isUnmarked).toEqual(true);
-  await apiClient.adjudicateWriteIn({
-    writeInId: writeIn.id,
-    type: 'official-candidate',
-    candidateId: OFFICIAL_CANDIDATE_ID,
+
+  await apiClient.adjudicateCvrContest({
+    cvrId,
+    contestId: WRITE_IN_CONTEST_ID,
+    side: 'front',
+    adjudicatedContestOptionById: {
+      [writeIn.optionId]: {
+        type: 'write-in-option',
+        hasVote: true,
+        candidateId: OFFICIAL_CANDIDATE_ID,
+        candidateType: 'official-candidate',
+      },
+    },
   });
+
   await expectWriteInSummary({
     pendingTally: 1,
     invalidTally: 0,
@@ -549,10 +561,18 @@ test('handling unmarked write-ins', async () => {
   });
 
   // an invalid UWI should appear the same as unadjudicated in tallies
-  await apiClient.adjudicateWriteIn({
-    writeInId: writeIn.id,
-    type: 'invalid',
+  await apiClient.adjudicateCvrContest({
+    cvrId,
+    contestId: WRITE_IN_CONTEST_ID,
+    side: 'front',
+    adjudicatedContestOptionById: {
+      [writeIn.optionId]: {
+        type: 'write-in-option',
+        hasVote: false,
+      },
+    },
   });
+
   await expectWriteInSummary({
     pendingTally: 1,
     invalidTally: 1,
@@ -569,6 +589,14 @@ test('handling unmarked write-ins', async () => {
       'Josiah-Bartlett-1bb99985': 2,
     },
   });
+
+  // Contest tag should be resolved
+  cvrContestTag = await apiClient.getCvrContestTag({
+    cvrId,
+    contestId: WRITE_IN_CONTEST_ID,
+  });
+  expect(cvrContestTag).toBeDefined();
+  expect(cvrContestTag?.isResolved).toEqual(true);
 });
 
 test('adjudicating write-ins changes their status and is reflected in tallies', async () => {
