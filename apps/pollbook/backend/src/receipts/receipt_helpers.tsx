@@ -16,7 +16,7 @@ export function VoterName({ voter }: { voter: Voter }): JSX.Element {
   const name = voter.nameChange ?? voter;
   return (
     <span>
-      {name.firstName} {name.middleName} {name.lastName} {name.suffix}
+      {name.lastName}, {name.firstName} {name.middleName} {name.suffix}
     </span>
   );
 }
