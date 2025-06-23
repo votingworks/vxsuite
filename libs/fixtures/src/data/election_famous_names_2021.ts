@@ -20,13 +20,6 @@ export const baseElection_DEPRECATED = builders.election(
   'data/electionFamousNames2021/electionBase.json'
 );
 
-export const pollbookVoters = builders.file(
-  'data/electionFamousNames2021/voters.csv'
-);
-export const pollbookStreetNames = builders.file(
-  'data/electionFamousNames2021/streetNames.csv'
-);
-
 const partialMockGridPosition = {
   type: 'option',
   side: 'front',
