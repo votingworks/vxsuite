@@ -46,7 +46,7 @@ test('getPollbookConfigurationInformation', async () => {
     );
     workspace.store.setElectionAndVoters(
       electionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       testStreets,
       testVoters
     );
@@ -57,7 +57,7 @@ test('getPollbookConfigurationInformation', async () => {
       electionBallotHash: electionDefinition.ballotHash,
       electionId: electionDefinition.election.id,
       electionTitle: electionDefinition.election.title,
-      pollbookPackageHash: 'fake-package-hash',
+      pollbookPackageHash: 'mock-package-hash',
       machineId: '0102',
     });
   });
@@ -87,7 +87,7 @@ test('GET /file/pollbook-package returns 404 if file does not exist, 200 if it d
 
     workspace.store.setElectionAndVoters(
       electionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       testStreets,
       testVoters
     );

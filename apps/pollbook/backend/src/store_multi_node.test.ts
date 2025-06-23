@@ -50,13 +50,13 @@ test('stores will not sync when not configured properly', () => {
   // Initialize both pollbooks with same election data
   localA.setElectionAndVoters(
     testElectionDefinition,
-    'fake-package-hash',
+    'mock-package-hash',
     [],
     testVoters
   );
   localB.setElectionAndVoters(
     testElectionDefinition,
-    'fake-package-hash',
+    'mock-package-hash',
     [],
     testVoters
   );
@@ -116,7 +116,7 @@ test('offline undo with later real time check in', async () => {
   for (const store of [localA, localB]) {
     store.setElectionAndVoters(
       testElectionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       [],
       testVoters
     );
@@ -227,7 +227,7 @@ test('bad system time nodes should be able to undo', () => {
   for (const store of [localA, localB]) {
     store.setElectionAndVoters(
       testElectionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       [],
       testVoters
     );
@@ -322,7 +322,7 @@ test("getting a offline machines events when I've synced with the online machine
   for (const store of [localA, localB, localC]) {
     store.setElectionAndVoters(
       testElectionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       [],
       testVoters
     );
@@ -471,7 +471,7 @@ test('last write wins on double check ins', async () => {
   for (const store of [localA, localB]) {
     store.setElectionAndVoters(
       testElectionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       [],
       testVoters
     );
@@ -555,7 +555,7 @@ test('last write wins even when there is bad system time after a sync', () => {
   for (const store of [localA, localB]) {
     store.setElectionAndVoters(
       testElectionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       [],
       testVoters
     );
@@ -676,7 +676,7 @@ test('simultaneous events are handled properly', () => {
   for (const store of [localA, localB, localC]) {
     store.setElectionAndVoters(
       testElectionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       [],
       testVoters
     );
@@ -734,7 +734,7 @@ test('late-arriving older event with a more recent undo', () => {
   for (const store of [localA, localB, localC]) {
     store.setElectionAndVoters(
       testElectionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       [],
       testVoters
     );
@@ -863,7 +863,7 @@ test('all possible events are synced', () => {
   for (const store of [localA, localB]) {
     store.setElectionAndVoters(
       testElectionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       streets,
       testVoters
     );
@@ -993,7 +993,7 @@ test('register on A, check in on B, name/address change on C, sync all', () => {
   for (const store of [localA, localB, localC]) {
     store.setElectionAndVoters(
       testElectionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       streets,
       []
     );
@@ -1077,7 +1077,7 @@ test('last write wins for name/address changes with bad system time after sync',
   for (const store of [localA, localB]) {
     store.setElectionAndVoters(
       testElectionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       streets,
       voters
     );
@@ -1188,7 +1188,7 @@ test('register, check in, then change name/address, sync', () => {
   for (const store of [localA, localB]) {
     store.setElectionAndVoters(
       testElectionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       streets,
       []
     );
@@ -1263,7 +1263,7 @@ test('simultaneous name/address changes, last write wins', async () => {
   for (const store of [localA, localB]) {
     store.setElectionAndVoters(
       testElectionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       streets,
       [voter]
     );
@@ -1334,7 +1334,7 @@ test('check in event on an offline machine BEFORE the mark inactive', async () =
   for (const store of [localA, localB]) {
     store.setElectionAndVoters(
       testElectionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       [],
       [voter]
     );
@@ -1376,7 +1376,7 @@ test('check in event on an offline machine AFTER the mark inactive', async () =>
   for (const store of [localA, localB]) {
     store.setElectionAndVoters(
       testElectionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       [],
       [voter]
     );
@@ -1419,7 +1419,7 @@ test('name/address change AFTER mark inactive on another machine get processed',
   for (const store of [localA, localB]) {
     store.setElectionAndVoters(
       testElectionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       streets,
       [voter]
     );
@@ -1480,7 +1480,7 @@ test('cannot check in after mark inactive event is synced', () => {
   for (const store of [localA, localB]) {
     store.setElectionAndVoters(
       testElectionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       [],
       [voter]
     );

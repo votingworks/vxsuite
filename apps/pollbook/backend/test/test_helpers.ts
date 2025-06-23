@@ -208,7 +208,7 @@ export function setupTestElectionAndVoters(store: Store): void {
   ];
   store.setElectionAndVoters(
     testElectionDefinition,
-    'fake-package-hash',
+    'mock-package-hash',
     testStreetInfo,
     testVoters
   );

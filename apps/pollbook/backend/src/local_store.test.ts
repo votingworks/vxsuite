@@ -24,7 +24,7 @@ test('findVotersWithName works as expected - voters without name changes', () =>
   const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
   localStore.setElectionAndVoters(
     testElectionDefinition,
-    'fake-package-hash',
+    'mock-package-hash',
     streets,
     voters
   );
@@ -143,7 +143,7 @@ test('findVoterWithName works as expected - voters with name changes', () => {
   const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
   localStore.setElectionAndVoters(
     testElectionDefinition,
-    'fake-package-hash',
+    'mock-package-hash',
     streets,
     voters
   );
@@ -263,7 +263,7 @@ test('registerVoter and findVoterWithName integration', () => {
   const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
   localStore.setElectionAndVoters(
     testElectionDefinition,
-    'fake-package-hash',
+    'mock-package-hash',
     streets,
     []
   );
@@ -310,7 +310,7 @@ test('setElectionAndVoters sets configuredPrecinctId only when there is one prec
   const testElectionDefinition = getTestElectionDefinition();
   store.setElectionAndVoters(
     testElectionDefinition,
-    'fake-package-hash',
+    'mock-package-hash',
     [],
     []
   );
@@ -335,7 +335,7 @@ test('setElectionAndVoters sets configuredPrecinctId only when there is one prec
   store.deleteElectionAndVoters();
   store.setElectionAndVoters(
     singlePrecinctElectionDefinition,
-    'fake-package-hash',
+    'mock-package-hash',
     [],
     []
   );
@@ -357,7 +357,7 @@ test('store can load data from database on restart', () => {
   const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
   localStore.setElectionAndVoters(
     testElectionDefinition,
-    'fake-package-hash',
+    'mock-package-hash',
     streets,
     voters
   );

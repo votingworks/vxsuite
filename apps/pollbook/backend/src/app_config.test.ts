@@ -191,7 +191,7 @@ test('setConfiguredPrecinct sets and getPollbookConfigurationInformation returns
     );
     workspace.store.setElectionAndVoters(
       electionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       testStreets,
       []
     );

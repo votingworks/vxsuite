@@ -234,7 +234,7 @@ test('connection status between two pollbooks is managed properly', async () => 
     // Set the pollbooks for the same election and precinct
     pollbookContext1.workspace.store.setElectionAndVoters(
       electionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       testStreets,
       testVoters
     );
@@ -253,7 +253,7 @@ test('connection status between two pollbooks is managed properly', async () => 
 
     pollbookContext2.workspace.store.setElectionAndVoters(
       electionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       testStreets,
       testVoters
     );
@@ -511,7 +511,7 @@ test('connection status is managed properly with many pollbooks', async () => {
     for (const context of pollbookContexts) {
       context.workspace.store.setElectionAndVoters(
         electionDefinition,
-        'fake-package-hash',
+        'mock-package-hash',
         testStreets,
         testVoters
       );
@@ -560,7 +560,7 @@ test('connection status is managed properly with many pollbooks', async () => {
       context.workspace.store.deleteElectionAndVoters();
       context.workspace.store.setElectionAndVoters(
         electionDefinition,
-        `fake-package-hash-${i}`,
+        `mock-package-hash-${i}`,
         testStreets,
         testVoters
       );
@@ -695,7 +695,7 @@ test('pollbooks with different code versions can not connect', async () => {
       // Set the pollbooks for the same election and precinct
       pollbookContext1.workspace.store.setElectionAndVoters(
         electionDefinition,
-        'fake-package-hash',
+        'mock-package-hash',
         testStreets,
         testVoters
       );
@@ -704,7 +704,7 @@ test('pollbooks with different code versions can not connect', async () => {
       );
       pollbookContext2.workspace.store.setElectionAndVoters(
         electionDefinition,
-        'fake-package-hash',
+        'mock-package-hash',
         testStreets,
         testVoters
       );
@@ -844,7 +844,7 @@ test('pollbooks with different pollbook package hash values can not connect', as
     // Set the election with different pollbook package hash values
     pollbookContext1.workspace.store.setElectionAndVoters(
       electionDefinition,
-      'fake-package-hash-1',
+      'mock-package-hash-1',
       testStreets,
       testVoters
     );
@@ -853,7 +853,7 @@ test('pollbooks with different pollbook package hash values can not connect', as
     );
     pollbookContext2.workspace.store.setElectionAndVoters(
       electionDefinition,
-      'fake-package-hash-2',
+      'mock-package-hash-2',
       testStreets,
       testVoters
     );
@@ -991,13 +991,13 @@ test('pollbooks with different configured precinct values can not connect', asyn
     // Set the election without setting configured precinct should not connect
     pollbookContext1.workspace.store.setElectionAndVoters(
       electionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       testStreets,
       testVoters
     );
     pollbookContext2.workspace.store.setElectionAndVoters(
       electionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       testStreets,
       testVoters
     );
@@ -1114,7 +1114,7 @@ test('one pollbook can be configured from another pollbook', async () => {
     );
     pollbookContext1.workspace.store.setElectionAndVoters(
       electionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       testStreets,
       testVoters
     );
@@ -1227,7 +1227,7 @@ test('one pollbook can be configured from another pollbook automatically as an e
       );
       pollbookContext1.workspace.store.setElectionAndVoters(
         electionDefinition,
-        'fake-package-hash',
+        'mock-package-hash',
         testStreets,
         testVoters
       );

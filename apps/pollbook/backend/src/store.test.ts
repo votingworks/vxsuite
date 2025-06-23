@@ -19,7 +19,7 @@ function setupTwoStores(): [PeerStore, PeerStore] {
   );
   const testElection = getTestElectionDefinition();
   for (const store of [store1, store2]) {
-    store.setElectionAndVoters(testElection, 'fake-package-hash', [], voters);
+    store.setElectionAndVoters(testElection, 'mock-package-hash', [], voters);
     store.setConfiguredPrecinct(testElection.election.precincts[0].id);
   }
   return [store1, store2];
