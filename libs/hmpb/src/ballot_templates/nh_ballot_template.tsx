@@ -671,7 +671,6 @@ async function BallotPageContent(
     .filter((section) => section.length > 0);
 
   // Add as many contests on this page as will fit.
-  const contestSectionsLeftToLayout = contestSections;
   const pageSections: JSX.Element[] = [];
   let heightUsed = 0;
 
@@ -680,7 +679,7 @@ async function BallotPageContent(
   const horizontalGapPx = (compact ? 0.5 : 0.75) * 16; // Assuming 16px per 1rem
   const verticalGapPx = horizontalGapPx;
   while (contestSections.length > 0 && heightUsed < dimensions.height) {
-    const section = assertDefined(contestSectionsLeftToLayout.shift());
+    const section = assertDefined(contestSections.shift());
     const contestElements = section.map((contest) => (
       <Contest
         key={contest.id}
@@ -725,7 +724,7 @@ async function BallotPageContent(
     // Put contests we didn't lay out back on the front of the queue
     const numElementsUsed = columns.flat().length;
     if (numElementsUsed < section.length) {
-      contestSectionsLeftToLayout.unshift(section.slice(numElementsUsed));
+      contestSections.unshift(section.slice(numElementsUsed));
     }
 
     // If there wasn't enough room left for any contests, go to the next page
@@ -757,11 +756,8 @@ async function BallotPageContent(
     );
   }
 
-  const contestsLeftToLayout = contestSectionsLeftToLayout.flat();
-  if (
-    contests.length > 0 &&
-    contestsLeftToLayout.flat().length === contests.length
-  ) {
+  const contestsLeftToLayout = contestSections.flat();
+  if (contests.length > 0 && contestsLeftToLayout.length === contests.length) {
     const tooLongContest = assertDefined(contestsLeftToLayout.shift());
     if (tooLongContest.type === 'yesno') {
       const { firstContestElement, restContest } =

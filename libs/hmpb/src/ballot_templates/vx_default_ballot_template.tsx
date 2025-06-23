@@ -452,7 +452,6 @@ async function BallotPageContent(
     .filter((section) => section.length > 0);
 
   // Add as many contests on this page as will fit.
-  const contestSectionsLeftToLayout = contestSections;
   const pageSections: JSX.Element[] = [];
   let heightUsed = 0;
 
@@ -461,7 +460,7 @@ async function BallotPageContent(
   const horizontalGapPx = 0.75 * 16; // Assuming 16px per 1rem
   const verticalGapPx = horizontalGapPx;
   while (contestSections.length > 0 && heightUsed < dimensions.height) {
-    const section = assertDefined(contestSectionsLeftToLayout.shift());
+    const section = assertDefined(contestSections.shift());
     const contestElements = section.map((contest) => (
       <Contest key={contest.id} contest={contest} election={election} />
     ));
@@ -500,7 +499,7 @@ async function BallotPageContent(
     // Put contests we didn't lay out back on the front of the queue
     const numElementsUsed = columns.flat().length;
     if (numElementsUsed < section.length) {
-      contestSectionsLeftToLayout.unshift(section.slice(numElementsUsed));
+      contestSections.unshift(section.slice(numElementsUsed));
     }
 
     // If there wasn't enough room left for any contests, go to the next page
@@ -532,11 +531,8 @@ async function BallotPageContent(
     );
   }
 
-  const contestsLeftToLayout = contestSectionsLeftToLayout.flat();
-  if (
-    contests.length > 0 &&
-    contestsLeftToLayout.flat().length === contests.length
-  ) {
+  const contestsLeftToLayout = contestSections.flat();
+  if (contests.length > 0 && contestsLeftToLayout.length === contests.length) {
     return err({
       error: 'contestTooLong',
       contest: contestsLeftToLayout[0],
@@ -558,13 +554,13 @@ async function BallotPageContent(
       <BlankPageMessage />
     );
   const nextPageProps =
-    contestSectionsLeftToLayout.length > 0
+    contestsLeftToLayout.length > 0
       ? {
           ...restProps,
           ballotStyleId,
           election: {
             ...election,
-            contests: contestSectionsLeftToLayout.flat(),
+            contests: contestsLeftToLayout,
           },
         }
       : undefined;
