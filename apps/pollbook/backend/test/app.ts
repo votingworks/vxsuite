@@ -37,7 +37,7 @@ import { buildPeerApp, PeerApi } from '../src/peer_app';
 
 export const TEST_MACHINE_ID = '0102';
 
-interface TestContext {
+export interface TestContext {
   auth: DippedSmartCardAuthApi;
   workspace: LocalWorkspace;
   peerWorkspace: PeerWorkspace;
