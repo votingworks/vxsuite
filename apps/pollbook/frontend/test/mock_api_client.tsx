@@ -71,7 +71,7 @@ export function createMockVoter(
     mailingZip5: '12345',
     mailingZip4: '6789',
     party: 'UND',
-    district: 'District',
+    precinct: 'District',
     isInactive: false,
   };
 }

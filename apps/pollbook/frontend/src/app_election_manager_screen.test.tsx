@@ -43,10 +43,10 @@ test('basic e2e registration flow works', async () => {
     side: 'even',
     lowRange: 1000,
     highRange: 2000,
-    postalCity: 'CITYVILLE',
+    postalCityTown: 'CITYVILLE',
     zip5: '12345',
     zip4: '6789',
-    district: 'District',
+    precinct: 'District',
   };
   const voter = createMockVoter('123', 'Abigail', 'Adams');
   const registrationData: VoterRegistrationRequest = {

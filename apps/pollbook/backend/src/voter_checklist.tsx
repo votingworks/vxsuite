@@ -251,7 +251,7 @@ export function VoterChecklistTable({
                 </div>
               )}
             </td>
-            <td>{voter.district}</td>
+            <td>{voter.precinct}</td>
             <td>{voter.voterId}</td>
             <td>
               <img src={generateBarcode(voter.voterId)} />
@@ -307,7 +307,7 @@ export function NewRegistrationsVoterChecklistTable({
             <td>
               <VoterDomicileAddress voter={voter} />
             </td>
-            <td>{voter.district}</td>
+            <td>{voter.precinct}</td>
           </tr>
         ))}
         {Array.from({ length: emptyRows }).map((_, index) => (

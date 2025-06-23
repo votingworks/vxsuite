@@ -151,10 +151,10 @@ test('invalid address change', async () => {
       side: 'all',
       lowRange: 1,
       highRange: 100,
-      postalCity: 'CONCORD',
+      postalCityTown: 'CONCORD',
       zip5: '03301',
       zip4: '1111',
-      district: '',
+      precinct: '',
     },
   ];
   apiMock.expectGetValidStreetInfo(validStreetInfo);
@@ -187,10 +187,10 @@ test('valid address change', async () => {
       side: 'all',
       lowRange: 1,
       highRange: 100,
-      postalCity: 'CONCORD',
+      postalCityTown: 'CONCORD',
       zip5: '03301',
       zip4: '1111',
-      district: '',
+      precinct: '',
     },
   ];
   apiMock.expectGetValidStreetInfo(validStreetInfo);

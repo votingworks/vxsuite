@@ -22,10 +22,10 @@ const validStreetInfo: ValidStreetInfo = {
   side: 'even',
   lowRange: 0,
   highRange: 100,
-  postalCity: 'Concord',
+  postalCityTown: 'Concord',
   zip5: '03301',
   zip4: '6789',
-  district: 'District',
+  precinct: 'District',
 };
 
 const mockRegistrationData: VoterRegistrationRequest = {

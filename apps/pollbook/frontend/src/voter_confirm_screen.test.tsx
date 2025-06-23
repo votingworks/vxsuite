@@ -219,10 +219,10 @@ test('update address button opens address flow', async () => {
       side: 'all',
       lowRange: 1,
       highRange: 100,
-      postalCity: 'CONCORD',
+      postalCityTown: 'CONCORD',
       zip5: '03301',
       zip4: '1111',
-      district: '',
+      precinct: '',
     },
   ];
   apiMock.expectGetValidStreetInfo(validStreetInfo);

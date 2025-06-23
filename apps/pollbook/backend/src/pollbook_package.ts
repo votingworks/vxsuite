@@ -64,11 +64,14 @@ export function parseValidStreetsFromCsvString(
         return null;
       }
       const street: ValidStreetInfo = record;
+      const postalCityTown = record.postalCityTown ?? record.postalCity;
       return {
         ...street,
         lowRange: safeParseInt(street.lowRange).unsafeUnwrap(),
         highRange: safeParseInt(street.highRange).unsafeUnwrap(),
         side: street.side.toLowerCase() as StreetSide,
+        postalCityTown,
+        precinct: record.ward ?? record.district,
       };
     },
   });
@@ -88,6 +91,7 @@ export function parseVotersFromCsvString(csvString: string): Voter[] {
       const voter: Voter = record;
       return {
         ...voter,
+        precinct: record.ward ?? record.district,
         // Add leading zeros to zip codes if necessary
         postalZip5: postalZip5 && postalZip5.padStart(5, '0'),
         zip4: voter.zip4 && voter.zip4.padStart(4, '0'),

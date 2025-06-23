@@ -130,7 +130,7 @@ export function createVoterFromRegistrationData(
     mailingState: '',
     mailingZip5: '',
     mailingZip4: '',
-    district: registrationEvent.district || '',
+    precinct: registrationEvent.precinct || '',
     isInactive: false,
     registrationEvent,
   };

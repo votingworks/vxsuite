@@ -36,7 +36,7 @@ function findCityAndZipCodeFromStreetAddress(
 
   // Populate city and zipCode from the first matching street info
   return {
-    city: streetInfo?.postalCity.toLocaleUpperCase() || '',
+    city: streetInfo?.postalCityTown.toLocaleUpperCase() || '',
     zipCode: streetInfo?.zip5.padStart(5, '0') || '',
   };
 }
