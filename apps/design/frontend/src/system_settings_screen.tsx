@@ -14,7 +14,6 @@ import { useParams } from 'react-router-dom';
 import {
   AdjudicationReason,
   AdjudicationReasonSchema,
-  DEFAULT_BITONAL_THRESHOLD,
   DEFAULT_INACTIVE_SESSION_TIME_LIMIT_MINUTES,
   DEFAULT_MARK_THRESHOLDS,
   DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT,
@@ -144,6 +143,10 @@ export function SystemSettingsForm({
     { label: 'Unmarked Write-In', value: AdjudicationReason.UnmarkedWriteIn },
   ];
 
+  const scannerAdjudicationReasonOptions = adjudicationReasonOptions.filter(
+    (option) => option.value !== AdjudicationReason.MarginalMark
+  );
+
   enum CvrOption {
     RedudantMetadata = 'Redundant Metadata',
   }
@@ -178,7 +181,7 @@ export function SystemSettingsForm({
           <Column style={{ gap: '1.5rem' }}>
             <CheckboxGroup
               label="VxScan"
-              options={adjudicationReasonOptions}
+              options={scannerAdjudicationReasonOptions}
               value={
                 (systemSettings.precinctScanAdjudicationReasons ??
                   []) as string[]
@@ -207,7 +210,7 @@ export function SystemSettingsForm({
             />
             <CheckboxGroup
               label="VxCentralScan"
-              options={adjudicationReasonOptions}
+              options={scannerAdjudicationReasonOptions}
               value={
                 (systemSettings.centralScanAdjudicationReasons ??
                   []) as string[]
@@ -325,33 +328,6 @@ export function SystemSettingsForm({
                 />
               </InputGroup>
             )}
-            <InputGroup label="Scanner Bitonal Threshold">
-              <input
-                type="number"
-                value={systemSettings.bitonalThreshold ?? ''}
-                onChange={(e) => {
-                  const bitonalThreshold = e.target.valueAsNumber;
-                  setSystemSettings({
-                    ...systemSettings,
-                    bitonalThreshold: Number.isNaN(bitonalThreshold)
-                      ? undefined
-                      : bitonalThreshold,
-                  });
-                }}
-                onBlur={(e) => {
-                  if (e.target.value === '') {
-                    setSystemSettings({
-                      ...systemSettings,
-                      bitonalThreshold: DEFAULT_BITONAL_THRESHOLD,
-                    });
-                  }
-                }}
-                step={1}
-                min={0}
-                max={100}
-                disabled={!isEditing}
-              />
-            </InputGroup>
             <InputGroup label="Minimum Detected Scale">
               <input
                 type="number"
