@@ -6,7 +6,7 @@ import { parse } from 'csv-parse/sync';
 import {
   openZip,
   getEntries,
-  getFileByName,
+  getFilePrefixedByName,
   readTextEntry,
   isSystemAdministratorAuth,
   isElectionManagerAuth,
@@ -47,9 +47,9 @@ function toCamelCase(str: string) {
 }
 
 export enum PollbookPackageFileName {
-  ELECTION = 'election.json',
-  VOTERS = 'voters.csv',
-  STREET_NAMES = 'streetNames.csv',
+  ELECTION = 'election',
+  VOTERS = 'voters',
+  STREET_NAMES = 'streetNames',
 }
 
 export function parseValidStreetsFromCsvString(
@@ -126,9 +126,10 @@ export async function readPollbookPackage(
     const entries = getEntries(zipFile);
     const packageHash = sha256(fileContents);
 
-    const electionEntry = getFileByName(
+    const electionEntry = getFilePrefixedByName(
       entries,
       PollbookPackageFileName.ELECTION,
+      'json',
       zipName
     );
     const electionJsonString = await readTextEntry(electionEntry);
@@ -144,17 +145,19 @@ export async function readPollbookPackage(
     }
     const electionDefinition = electionResult.ok();
 
-    const votersEntry = getFileByName(
+    const votersEntry = getFilePrefixedByName(
       entries,
       PollbookPackageFileName.VOTERS,
+      'csv',
       zipName
     );
     const votersCsvString = await readTextEntry(votersEntry);
     const voters = parseVotersFromCsvString(votersCsvString);
 
-    const streetsEntry = getFileByName(
+    const streetsEntry = getFilePrefixedByName(
       entries,
       PollbookPackageFileName.STREET_NAMES,
+      'csv',
       zipName
     );
     const streetCsvString = await readTextEntry(streetsEntry);
