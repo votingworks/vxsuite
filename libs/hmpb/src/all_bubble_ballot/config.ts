@@ -26,9 +26,9 @@ export function allBubbleBallotConfig(
     pageDimensions: ballotPaperDimensions(paperSize),
     columnsPerInch,
     rowsPerInch,
-    gridRows: ballotPaperDimensions(paperSize).height * rowsPerInch - 3,
-    gridColumns: ballotPaperDimensions(paperSize).width * columnsPerInch,
-    footerRowHeight: 2,
-    numPages: 2,
+    gridRows: 20, // ballotPaperDimensions(paperSize).height * rowsPerInch - 3,
+    gridColumns: 5, // ballotPaperDimensions(paperSize).width * columnsPerInch,
+    footerRowHeight: 0,
+    numPages: 1,
   };
 }

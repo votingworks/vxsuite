@@ -7,6 +7,7 @@ import {
   ContentComponentResult,
 } from '../render_ballot';
 import {
+  BlankPageMessage,
   Bubble,
   Page,
   pageMarginsInches,
@@ -74,6 +75,12 @@ export function allBubbleBallotTemplate(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _scratchpad: RenderScratchpad
   ): Promise<ContentComponentResult<BaseBallotProps>> {
+    if (!props) {
+      return ok({
+        currentPageElement: <BlankPageMessage />,
+        nextPageProps: undefined,
+      });
+    }
     const { election, ...restProps } = assertDefined(props);
     const pageNumber = numPages - election.contests.length + 1;
     const bubbles = (
@@ -83,24 +90,32 @@ export function allBubbleBallotTemplate(
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          paddingTop: '0.12in',
-          paddingBottom: '0.055in',
+          padding: '1rem',
         }}
       >
-        {range(1, gridRows - footerRowHeight - 1).flatMap((row) => (
+        {range(1, gridRows + 1).flatMap((row) => (
           <div
             key={`row-${row}`}
             style={{ display: 'flex', justifyContent: 'space-between' }}
           >
-            {range(1, gridColumns - 1).map((column) => (
-              <Bubble
+            {range(1, gridColumns + 1).map((column) => (
+              <div
+                style={{ display: 'flex', gap: '0.25rem', width: '5rem' }}
                 key={`bubble-${row}-${column}`}
-                optionInfo={{
-                  type: 'option',
-                  contestId: contestId(pageNumber),
-                  optionId: candidateId(pageNumber, row, column),
-                }}
-              />
+              >
+                <div>
+                  <Bubble
+                    optionInfo={{
+                      type: 'option',
+                      contestId: contestId(pageNumber),
+                      optionId: candidateId(pageNumber, row, column),
+                    }}
+                  />
+                </div>
+                <div>
+                  ({row}, {column})
+                </div>
+              </div>
             ))}
           </div>
         ))}

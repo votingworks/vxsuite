@@ -28,8 +28,8 @@ export function createElection({
   const precinctId = 'test-precinct';
 
   const gridPositions = range(1, numPages + 1).flatMap((page) =>
-    range(1, gridRows - footerRowHeight - 1).flatMap((row) =>
-      range(1, gridColumns - 1).map((column) => ({
+    range(1, gridRows + 1).flatMap((row) =>
+      range(1, gridColumns + 1).map((column) => ({
         page,
         row,
         column,
@@ -39,7 +39,7 @@ export function createElection({
   const ballotStyleId = 'sheet-1' as BallotStyleId;
   const ballotStyleGroupId = 'sheet-1' as BallotStyleGroupId;
 
-  const contests: CandidateContest[] = range(1, 3).map((page) => {
+  const contests: CandidateContest[] = range(1, numPages + 1).map((page) => {
     const pageGridPositions = gridPositions.filter(
       (position) => position.page === page
     );
@@ -53,7 +53,7 @@ export function createElection({
         name: `Page ${page}, Row ${row}, Column ${column}`,
       })),
       allowWriteIns: false,
-      seats: pageGridPositions.length,
+      seats: 50,
     };
   });
 
