@@ -147,6 +147,7 @@ export function createBallotPropsForTemplate(
     }
 
     case 'NhPrimaryBallot':
+    case 'NhStateBallot':
     case 'NhBallotCompact':
     case 'NhBallotV3Compact': {
       return baseBallotProps
