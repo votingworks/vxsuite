@@ -9,10 +9,12 @@ import * as builders from '../builders';
 export const electionSinglePrecinctBase = builders.election(
   'data/electionSimpleSinglePrecinct/election.json'
 );
+export const { readElection, readElectionDefinition } =
+  electionSinglePrecinctBase;
 
 export const pollbookTownVoters = builders.file(
-  'data/electionFamousNames2021/voters.csv'
+  'data/electionSimpleSinglePrecinct/voters.csv'
 );
 export const pollbookTownStreetNames = builders.file(
-  'data/electionFamousNames2021/streetNames.csv'
+  'data/electionSimpleSinglePrecinct/streetNames.csv'
 );

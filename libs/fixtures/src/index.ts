@@ -8,6 +8,7 @@ export * as electionMultiPartyPrimaryFixtures from './data/election_multi_party_
 export * as electionTwoPartyPrimaryFixtures from './data/election_two_party_primary';
 export * as electionPrimaryPrecinctSplitsFixtures from './data/election_primary_precinct_splits';
 export * as electionWithMsEitherNeitherFixtures from './data/election_with_ms_either_neither';
+export * as electionSimpleSinglePrecinctFixtures from './data/election_simple_single_precinct';
 export * as sampleBallotImages from './data/sample_ballot_images';
 export {
   readElectionDefinition as readElectionGeneralDefinition,
