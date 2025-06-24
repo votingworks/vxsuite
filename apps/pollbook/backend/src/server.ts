@@ -6,7 +6,7 @@ import { buildLocalApp } from './app';
 import { LOCAL_PORT } from './globals';
 import { LocalAppContext } from './types';
 import { getUserRole } from './auth';
-import { SocketServer } from './barcode_scanner/socket_server';
+import { BarcodeScannerClient } from './barcode_scanner/client';
 
 /**
  * Starts the server.
@@ -17,12 +17,14 @@ export function start(context: LocalAppContext): void {
     getUserRole(context.auth, context.workspace)
   );
 
-  // Set up intermediary server between barcode scanner and frontend
-  // TODO(kevin) rename this now that it's not serving any sockets
-  const socketServer = new SocketServer(logger);
-  void socketServer.listen();
+  const barcodeScannerClient = new BarcodeScannerClient(logger);
+  void barcodeScannerClient.listen();
 
-  const app = buildLocalApp({ context, logger, socketServer });
+  const app = buildLocalApp({
+    context,
+    logger,
+    barcodeScannerClient,
+  });
 
   useDevDockRouter(app, express, {
     printerConfig: CITIZEN_THERMAL_PRINTER_CONFIG,

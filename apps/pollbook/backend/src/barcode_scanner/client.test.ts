@@ -15,9 +15,9 @@ import { mockLogger, LogSource, MockLogger } from '@votingworks/logging';
 import { tryConnect } from './unix_socket';
 import {
   connectToBarcodeScannerSocket,
-  SocketServer,
+  BarcodeScannerClient,
   UDS_CONNECTION_ATTEMPT_DELAY_MS,
-} from './socket_server';
+} from './client';
 
 vi.mock('./unix_socket');
 vi.mock('socket.io', () => ({
@@ -54,9 +54,9 @@ describe('SocketServer.listen event handling', () => {
 
     mockedTryConnect.mockResolvedValue(mockSocket as unknown as net.Socket);
 
-    const server = new SocketServer(logger);
+    const barcodeScannerClient = new BarcodeScannerClient(logger);
     expect(mockedTryConnect).toHaveBeenCalledTimes(0);
-    const listenPromise = server.listen();
+    const listenPromise = barcodeScannerClient.listen();
 
     // Wait for listener to be bound
     await vi.waitFor(() =>

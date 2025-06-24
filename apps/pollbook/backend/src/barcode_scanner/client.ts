@@ -41,9 +41,9 @@ export async function connectToBarcodeScannerSocket(
 }
 
 /**
- * Encapsulates 2 different socket connections for interacting with the barcode scanner.
+ * Manages the connection to the barcode scanner daemon.
  */
-export class SocketServer {
+export class BarcodeScannerClient {
   constructor(
     private readonly logger: Logger,
     private scannedDocument: Optional<AamvaDocument> = undefined
@@ -54,7 +54,6 @@ export class SocketServer {
   readScannedValue(): Optional<AamvaDocument> {
     const value = this.scannedDocument;
     if (value) {
-      console.log('unsetting scanned document');
       this.scannedDocument = undefined;
     }
     return value;
@@ -91,7 +90,6 @@ export class SocketServer {
             error: result.err().message,
           });
         } else {
-          console.log('setting scanned document');
           this.scannedDocument = result.ok();
         }
       } catch (error) {

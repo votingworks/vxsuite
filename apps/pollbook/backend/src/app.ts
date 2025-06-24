@@ -68,13 +68,13 @@ import { UNCONFIGURE_LOCKOUT_TIMEOUT } from './globals';
 import { generateVoterHistoryCsvContent } from './voter_history';
 import { getCurrentTime } from './get_current_time';
 import { MarkInactiveReceipt } from './receipts/mark_inactive_receipt';
-import { SocketServer } from './barcode_scanner/socket_server';
+import { BarcodeScannerClient } from './barcode_scanner/client';
 
 const debug = rootDebug.extend('local_app');
 
 interface BuildAppParams {
   context: LocalAppContext;
-  socketServer: SocketServer;
+  barcodeScannerClient: BarcodeScannerClient;
   logger: Logger;
 }
 
@@ -98,7 +98,7 @@ function constructAuthMachineState(
   };
 }
 
-function buildApi({ context, logger, socketServer }: BuildAppParams) {
+function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
   const { workspace, auth, usbDrive, printer, machineId, codeVersion } =
     context;
   const { store } = workspace;
@@ -174,7 +174,7 @@ function buildApi({ context, logger, socketServer }: BuildAppParams) {
 
     // Gets the latest scanned ID document
     getScannedIdDocument(): Result<Optional<AamvaDocument>, Error> {
-      return ok(socketServer.readScannedValue());
+      return ok(barcodeScannerClient.readScannedValue());
     },
 
     getPrinterStatus(): Promise<PrinterStatus> {
@@ -481,10 +481,10 @@ export type LocalApi = ReturnType<typeof buildApi>;
 export function buildLocalApp({
   context,
   logger,
-  socketServer,
+  barcodeScannerClient,
 }: BuildAppParams): Application {
   const app: Application = express();
-  const api = buildApi({ context, logger, socketServer });
+  const api = buildApi({ context, logger, barcodeScannerClient });
   app.use('/api', grout.buildRouter(api, express));
 
   pollUsbDriveForPollbookPackage(context);
