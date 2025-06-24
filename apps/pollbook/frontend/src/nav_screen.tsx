@@ -9,6 +9,7 @@ import {
   Main,
   MainHeader,
   Modal,
+  ModalWidth,
   NavLink,
   NavList,
   NavListItem,
@@ -16,12 +17,18 @@ import {
   Table,
 } from '@votingworks/ui';
 import { Link, useRouteMatch } from 'react-router-dom';
+import { DateTime } from 'luxon';
 import styled from 'styled-components';
-import type { PrinterStatus } from '@votingworks/types';
-import type { NetworkStatus } from '@votingworks/pollbook-backend';
+import { formatElectionHashes, type PrinterStatus } from '@votingworks/types';
+import type {
+  NetworkStatus,
+  PollbookConfigurationInformation,
+  PollbookServiceInfo,
+} from '@votingworks/pollbook-backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import type { BatteryInfo } from '@votingworks/backend';
 import { format } from '@votingworks/utils';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import { Row } from './layout';
 import {
   getDeviceStatuses,
@@ -41,36 +48,100 @@ export const Header = styled(MainHeader)`
   gap: 0.5rem;
 `;
 
-function NetworkStatus({ status }: { status: NetworkStatus }) {
+function isCurrentMachineConfigured(
+  currentMachineConfiguration: PollbookConfigurationInformation
+): boolean {
+  return (
+    !!currentMachineConfiguration.electionBallotHash &&
+    !!currentMachineConfiguration.configuredPrecinctId
+  );
+}
+
+function getIconAndLabelForPollbookConnection(
+  pollbook: PollbookServiceInfo,
+  currentMachineConfiguration: PollbookConfigurationInformation
+): [React.ReactNode, string] {
+  const typedStatus = pollbook.status;
+  switch (typedStatus) {
+    case PollbookConnectionStatus.Connected: {
+      assert(isCurrentMachineConfigured(currentMachineConfiguration));
+      return [
+        <Icons.Checkmark key={pollbook.machineId} color="success" />,
+        'Connected',
+      ];
+    }
+    case PollbookConnectionStatus.LostConnection: {
+      return [
+        <Icons.Warning key={pollbook.machineId} color="warning" />,
+        'Lost Connection',
+      ];
+    }
+    case PollbookConnectionStatus.ShutDown: {
+      return [
+        <Icons.Info key={pollbook.machineId} color="neutral" />,
+        'Powered Off',
+      ];
+    }
+    case PollbookConnectionStatus.IncompatibleSoftwareVersion: {
+      return [
+        <Icons.Danger key={pollbook.machineId} color="danger" />,
+        'Incompatible Machine',
+      ];
+    }
+    case PollbookConnectionStatus.MismatchedConfiguration: {
+      if (!isCurrentMachineConfigured(currentMachineConfiguration)) {
+        return [
+          <Icons.Info key={pollbook.machineId} color="neutral" />,
+          'Connected',
+        ];
+      }
+      if (
+        currentMachineConfiguration.electionBallotHash !==
+          pollbook.electionBallotHash ||
+        currentMachineConfiguration.pollbookPackageHash !==
+          pollbook.pollbookPackageHash
+      ) {
+        return [
+          <Icons.Info key={pollbook.machineId} color="neutral" />,
+          'Different Election',
+        ];
+      }
+      return [
+        <Icons.Info key={pollbook.machineId} color="neutral" />,
+        'Different Precinct',
+      ];
+    }
+    default: {
+      /* istanbul ignore next - @preserve */
+      throwIllegalValue(typedStatus as never);
+    }
+  }
+}
+
+function NetworkStatus({
+  status,
+  currentMachineConfiguration,
+}: {
+  status: NetworkStatus;
+  currentMachineConfiguration: PollbookConfigurationInformation;
+}) {
   const [showModal, setShowModal] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
+  const connectionStatusOrder = [
+    PollbookConnectionStatus.Connected,
+    PollbookConnectionStatus.MismatchedConfiguration,
+    PollbookConnectionStatus.LostConnection,
+    PollbookConnectionStatus.ShutDown,
+    PollbookConnectionStatus.IncompatibleSoftwareVersion,
+  ];
 
   const sortedPollbooks = [...status.pollbooks].sort((a, b) => {
-    if (
-      a.status === PollbookConnectionStatus.Connected &&
-      b.status !== PollbookConnectionStatus.Connected
-    ) {
-      return -1;
+    const statusA = connectionStatusOrder.indexOf(a.status);
+    const statusB = connectionStatusOrder.indexOf(b.status);
+    if (statusA !== statusB) {
+      return statusA - statusB;
     }
-    if (
-      a.status !== PollbookConnectionStatus.Connected &&
-      b.status === PollbookConnectionStatus.Connected
-    ) {
-      return 1;
-    }
-    if (
-      a.status === PollbookConnectionStatus.LostConnection ||
-      a.status === PollbookConnectionStatus.ShutDown
-    ) {
-      return -1;
-    }
-    if (
-      b.status === PollbookConnectionStatus.LostConnection ||
-      b.status === PollbookConnectionStatus.ShutDown
-    ) {
-      return 1;
-    }
-    return 0;
+    return a.machineId.localeCompare(b.machineId);
   });
 
   const resetNetworkMutation = resetNetwork.useMutation();
@@ -95,7 +166,11 @@ function NetworkStatus({ status }: { status: NetworkStatus }) {
         // Add one for the current machine
         1 +
         status.pollbooks.filter(
-          (pollbook) => pollbook.status === PollbookConnectionStatus.Connected
+          (pollbook) =>
+            pollbook.status ===
+            (isCurrentMachineConfigured(currentMachineConfiguration)
+              ? PollbookConnectionStatus.Connected
+              : PollbookConnectionStatus.MismatchedConfiguration)
         ).length
       ) : isResetting ? (
         <Icons.Loading />
@@ -104,15 +179,10 @@ function NetworkStatus({ status }: { status: NetworkStatus }) {
       )}
       {showModal && (
         <Modal
+          modalWidth={ModalWidth.Wide}
           title="Network Details"
           content={
-            <div
-            // style={{
-            //   padding: '1rem',
-            //   borderRadius: '0.25rem',
-            //   boxShadow: '0 0.5rem 1rem rgba(0, 0, 0, 0.1)',
-            // }}
-            >
+            <div>
               {!status.isOnline && !isResetting && (
                 <div>Network is offline.</div>
               )}
@@ -123,7 +193,7 @@ function NetworkStatus({ status }: { status: NetworkStatus }) {
                 </div>
               )}
               {sortedPollbooks.length === 0 && status.isOnline && (
-                <span>No pollbooks found</span>
+                <span>No pollbooks found.</span>
               )}
               {status.isOnline &&
                 !isResetting &&
@@ -131,38 +201,49 @@ function NetworkStatus({ status }: { status: NetworkStatus }) {
                   <Table>
                     <thead>
                       <tr>
+                        <th />
                         <th>Status</th>
                         <th>Machine ID</th>
+                        <th>Election</th>
                         <th>Last Seen</th>
                         <th># Check-ins</th>
                       </tr>
                     </thead>
-                    {sortedPollbooks.map((pollbook) => (
-                      <tr
-                        key={pollbook.machineId}
-                        style={{ gap: '0.5rem', alignItems: 'center' }}
-                      >
-                        <td>
-                          {pollbook.status ===
-                            PollbookConnectionStatus.Connected && (
-                            <Icons.Checkmark color="primary" />
-                          )}
-                          {(pollbook.status ===
-                            PollbookConnectionStatus.LostConnection ||
-                            pollbook.status ===
-                              PollbookConnectionStatus.ShutDown) && (
-                            <Icons.Warning color="inverseWarning" />
-                          )}
-                          {pollbook.status ===
-                            PollbookConnectionStatus.MismatchedConfiguration && (
-                            <Icons.X color="danger" />
-                          )}
-                        </td>
-                        <td>{pollbook.machineId}</td>
-                        <td>{new Date(pollbook.lastSeen).toLocaleString()}</td>
-                        <td>{pollbook.numCheckIns} check-ins</td>
-                      </tr>
-                    ))}
+                    <tbody>
+                      {sortedPollbooks.map((pollbook) => {
+                        const [icon, label] =
+                          getIconAndLabelForPollbookConnection(
+                            pollbook,
+                            currentMachineConfiguration
+                          );
+                        return (
+                          <tr
+                            data-testid="pollbook-row"
+                            key={pollbook.machineId}
+                            style={{ gap: '0.5rem', alignItems: 'center' }}
+                          >
+                            <td>{icon}</td>
+                            <td>{label}</td>
+                            <td>{pollbook.machineId}</td>
+                            <td>
+                              {pollbook.electionBallotHash &&
+                              pollbook.pollbookPackageHash
+                                ? formatElectionHashes(
+                                    pollbook.electionBallotHash,
+                                    pollbook.pollbookPackageHash
+                                  )
+                                : ' - '}
+                            </td>
+                            <td>
+                              {DateTime.fromJSDate(
+                                new Date(pollbook.lastSeen)
+                              ).toRelative()}
+                            </td>
+                            <td>{pollbook.numCheckIns} check-ins</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
                   </Table>
                 )}
             </div>
@@ -258,16 +339,25 @@ export function DeviceStatusBar({
   showLogOutButton = true,
 } = {}): JSX.Element | null {
   const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
+  const getPollbookConfigurationInformationQuery =
+    getPollbookConfigurationInformation.useQuery();
   const currentDate = useCurrentDate();
-  if (!getDeviceStatusesQuery.isSuccess) {
+  if (
+    !getDeviceStatusesQuery.isSuccess ||
+    !getPollbookConfigurationInformationQuery.isSuccess
+  ) {
     return null;
   }
   const { network, battery, usbDrive, printer } = getDeviceStatusesQuery.data;
+  const pollbookConfiguration = getPollbookConfigurationInformationQuery.data;
 
   return (
     <DeviceInfoBar>
       <Row style={{ gap: '1.25rem', alignItems: 'center' }}>
-        <NetworkStatus status={network} />
+        <NetworkStatus
+          status={network}
+          currentMachineConfiguration={pollbookConfiguration}
+        />
         <PrinterStatus status={printer} />
         <UsbStatus status={usbDrive} />
         <BatteryStatus status={battery} />
