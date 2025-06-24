@@ -48,17 +48,23 @@ export const Header = styled(MainHeader)`
   gap: 0.5rem;
 `;
 
+function isCurrentMachineConfigured(
+  currentMachineConfiguration: PollbookConfigurationInformation
+): boolean {
+  return (
+    !!currentMachineConfiguration.electionBallotHash &&
+    !!currentMachineConfiguration.configuredPrecinctId
+  );
+}
+
 function getIconAndLabelForPollbookConnection(
   pollbook: PollbookServiceInfo,
   currentMachineConfiguration: PollbookConfigurationInformation
 ): [React.ReactNode, string] {
-  const isCurrentMachineConfigured =
-    !!currentMachineConfiguration.electionBallotHash &&
-    !!currentMachineConfiguration.configuredPrecinctId;
   const typedStatus = pollbook.status;
   switch (typedStatus) {
     case PollbookConnectionStatus.Connected: {
-      assert(isCurrentMachineConfigured);
+      assert(isCurrentMachineConfigured(currentMachineConfiguration));
       return [
         <Icons.Checkmark key={pollbook.machineId} color="success" />,
         'Connected',
@@ -83,7 +89,7 @@ function getIconAndLabelForPollbookConnection(
       ];
     }
     case PollbookConnectionStatus.MismatchedConfiguration: {
-      if (!isCurrentMachineConfigured) {
+      if (!isCurrentMachineConfigured(currentMachineConfiguration)) {
         return [
           <Icons.Info key={pollbook.machineId} color="neutral" />,
           'Connected',
@@ -148,9 +154,6 @@ function NetworkStatus({
       },
     });
   }
-  const isCurrentMachineConfigured =
-    !!currentMachineConfiguration.electionBallotHash &&
-    !!currentMachineConfiguration.configuredPrecinctId;
 
   return (
     <Row
@@ -165,7 +168,7 @@ function NetworkStatus({
         status.pollbooks.filter(
           (pollbook) =>
             pollbook.status ===
-            (isCurrentMachineConfigured
+            (isCurrentMachineConfigured(currentMachineConfiguration)
               ? PollbookConnectionStatus.Connected
               : PollbookConnectionStatus.MismatchedConfiguration)
         ).length
