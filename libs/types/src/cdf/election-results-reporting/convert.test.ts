@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { assert, assertDefined, err } from '@votingworks/basics';
+import { assert, assertDefined, err, ok } from '@votingworks/basics';
 import { ResultsReporting } from '../..';
 import {
   findBallotMeasureSelectionWithContent,
@@ -408,18 +408,42 @@ describe('getManualResultsFromErrElectionResults', () => {
     );
   });
 
-  test('when total ballot count computation results in a non-integer result', () => {
+  test('when total ballot count computation results in a non-integer result, rounds up', () => {
+    const expected: ManualElectionResults = {
+      ballotCount: 5,
+      contestResults: {
+        'best-animal-mammal': {
+          ballots: 5,
+          contestId: 'best-animal-mammal',
+          contestType: 'candidate',
+          overvotes: 0,
+          tallies: {
+            gazelle: {
+              id: 'gazelle',
+              name: 'Gazelle',
+              tally: 3,
+            },
+            ibex: {
+              id: 'ibex',
+              name: 'Ibex',
+              tally: 3,
+            },
+            zebra: {
+              id: 'zebra',
+              name: 'Zebra',
+              tally: 3,
+            },
+          },
+          undervotes: 0,
+          votesAllowed: 2,
+        },
+      },
+    };
     expect(
       convertElectionResultsReportingReportToVxManualResults(
         testElectionReportInvalidBallotTotal,
         getValidCandidateIds(testElectionReportInvalidBallotTotal)
       )
-    ).toEqual(
-      err(
-        expect.objectContaining({
-          message: 'Expected an integer value for total ballots but got 4.5',
-        })
-      )
-    );
+    ).toEqual(ok(expected));
   });
 });

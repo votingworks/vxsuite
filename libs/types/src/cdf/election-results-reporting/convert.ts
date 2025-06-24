@@ -148,14 +148,11 @@ function convertToYesNoContest(
  * @param contest An ERR-formatted contest.
  * @returns Overvotes, undervotes, and total votes for all ballots.
  */
-function getBallotCounts(contest: ResultsReporting.CandidateContest): Result<
-  {
-    overvotes: number;
-    undervotes: number;
-    total: number;
-  },
-  Error
-> {
+function getBallotCounts(contest: ResultsReporting.CandidateContest): {
+  overvotes: number;
+  undervotes: number;
+  total: number;
+} {
   const otherCounts = contest.OtherCounts && contest.OtherCounts[0];
 
   let totalCandidateVotes = 0;
@@ -166,25 +163,21 @@ function getBallotCounts(contest: ResultsReporting.CandidateContest): Result<
     totalCandidateVotes += totalCount;
   }
 
-  const totalBallots =
-    (totalCandidateVotes +
-      (otherCounts?.Overvotes || 0) +
-      (otherCounts?.Undervotes || 0)) /
-    contest.VotesAllowed;
+  const overvotes = otherCounts?.Overvotes || 0;
+  const undervotes = otherCounts?.Undervotes || 0;
 
-  if (!Number.isInteger(totalBallots)) {
-    return err(
-      new Error(
-        `Expected an integer value for total ballots but got ${totalBallots}`
-      )
-    );
-  }
+  // If the votes don't divide evenly, round up. Likely this indicates a
+  // clerical error. This will ensure that the results are flagged as invalid on
+  // screen after import, but not block the import entirely.
+  const totalBallots = Math.ceil(
+    (totalCandidateVotes + overvotes + undervotes) / contest.VotesAllowed
+  );
 
-  return ok({
-    overvotes: otherCounts?.Overvotes || 0,
-    undervotes: otherCounts?.Undervotes || 0,
+  return {
+    overvotes,
+    undervotes,
     total: totalBallots,
-  });
+  };
 }
 
 /**
@@ -292,15 +285,9 @@ function getCandidateTallies(
 function convertCandidateContest(
   contest: ResultsReporting.CandidateContest,
   candidateNameRecord: CandidateNameRecord
-): Result<VxTabulation.CandidateContestResults, Error> {
-  const result = getBallotCounts(contest);
-  if (result.isErr()) {
-    return err(result.err());
-  }
-
-  const { overvotes, undervotes, total } = result.ok();
-
-  return ok({
+): VxTabulation.CandidateContestResults {
+  const { overvotes, undervotes, total } = getBallotCounts(contest);
+  return {
     contestId: trimVxIdPrefix(contest['@id']),
     contestType: 'candidate',
     votesAllowed: contest.VotesAllowed,
@@ -308,7 +295,7 @@ function convertCandidateContest(
     undervotes,
     ballots: total,
     tallies: getCandidateTallies(contest, candidateNameRecord),
-  });
+  };
 }
 
 /**
@@ -327,16 +314,8 @@ function convertContestsListToVxResultsRecord(
     {};
   for (const contest of contestList) {
     if (isCandidateContest(contest)) {
-      const vxFormattedResult = convertCandidateContest(
-        contest,
-        candidateNameRecord
-      );
-      if (vxFormattedResult.isErr()) {
-        return err(vxFormattedResult.err());
-      }
-
       vxFormattedContests[trimVxIdPrefix(contest['@id'])] =
-        vxFormattedResult.ok();
+        convertCandidateContest(contest, candidateNameRecord);
     } else if (isBallotMeasureContest(contest) || isRetentionContest(contest)) {
       vxFormattedContests[trimVxIdPrefix(contest['@id'])] =
         convertToYesNoContest(contest);
