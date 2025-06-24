@@ -17,20 +17,21 @@ export function start(context: LocalAppContext): void {
     getUserRole(context.auth, context.workspace)
   );
 
-  const app = buildLocalApp({ context, logger });
+  // Set up intermediary server between barcode scanner and frontend
+  // TODO(kevin) rename this now that it's not serving any sockets
+  const socketServer = new SocketServer(logger);
+  void socketServer.listen();
+
+  const app = buildLocalApp({ context, logger, socketServer });
 
   useDevDockRouter(app, express, {
     printerConfig: CITIZEN_THERMAL_PRINTER_CONFIG,
   });
 
-  const server = app.listen(LOCAL_PORT, () => {
+  app.listen(LOCAL_PORT, () => {
     // eslint-disable-next-line no-console
     console.log(
       `VxPollbook backend running at http://localhost:${LOCAL_PORT}/`
     );
   });
-
-  // Set up intermediary server between barcode scanner and frontend
-  const socketServer = new SocketServer(server, logger);
-  void socketServer.listen();
 }

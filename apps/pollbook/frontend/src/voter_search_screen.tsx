@@ -13,11 +13,9 @@ import {
   LabelledText,
   Caption,
 } from '@votingworks/ui';
-import { io } from 'socket.io-client';
 import debounce from 'lodash.debounce';
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import type {
-  AamvaDocument,
   Voter,
   VoterCheckIn,
   VoterSearchParams,
@@ -27,7 +25,7 @@ import { format } from '@votingworks/utils';
 import { throwIllegalValue } from '@votingworks/basics';
 import { Column, Form, Row, InputGroup } from './layout';
 import { PollWorkerNavScreen } from './nav_screen';
-import { getCheckInCounts, searchVoters } from './api';
+import { getCheckInCounts, getScannedIdDocument, searchVoters } from './api';
 import {
   AbsenteeModeCallout,
   AddressChange,
@@ -35,7 +33,6 @@ import {
   VoterAddress,
   VoterName,
 } from './shared_components';
-import { SOCKET_IO_SERVER_ADDRESS } from './globals';
 
 const VoterTableWrapper = styled(Card)`
   overflow: hidden;
@@ -74,37 +71,77 @@ export function createEmptySearchParams(): VoterSearchParams {
 export function VoterSearch({
   search,
   setSearch,
+  // Function to call when exactly one voter is matched by scanning an ID
+  onBarcodeScanMatch,
   renderAction,
+  includeInactiveVoters,
 }: {
   search: VoterSearchParams;
   setSearch: (search: VoterSearchParams) => void;
+  onBarcodeScanMatch: (voter: Voter) => void;
   renderAction: (voter: Voter) => React.ReactNode;
+  includeInactiveVoters: boolean;
 }): JSX.Element {
-  const [debouncedSearch, setDebouncedSearch] =
+  const [voterSearchParams, setVoterSearchParams] =
     useState<VoterSearchParams>(search);
   const updateDebouncedSearch = useMemo(
-    () => debounce(setDebouncedSearch, 500),
+    () => debounce(setVoterSearchParams, 500),
     []
   );
-  function updateSearch(newSearch: Partial<VoterSearchParams>) {
-    setSearch({ ...search, ...newSearch });
-    updateDebouncedSearch({ ...search, ...newSearch });
+  function updateManuallyEnteredSearch(newSearch: Partial<VoterSearchParams>) {
+    const merged: VoterSearchParams = {
+      ...search,
+      ...newSearch,
+      exactMatch: false,
+    };
+    setSearch(merged);
+    updateDebouncedSearch(merged);
   }
-  const searchVotersQuery = searchVoters.useQuery(debouncedSearch);
+
+  const searchVotersQuery = searchVoters.useQuery(voterSearchParams);
+  const getScannedIdDocumentQuery = getScannedIdDocument.useQuery();
+
+  const scannedIdDocument = getScannedIdDocumentQuery.data?.isOk()
+    ? getScannedIdDocumentQuery.data.ok()
+    : undefined;
+
+  // Update the search input and query if we got a scanned document
+  useEffect(() => {
+    if (scannedIdDocument) {
+      const merged: VoterSearchParams = {
+        firstName: scannedIdDocument.firstName,
+        middleName: scannedIdDocument.middleName,
+        lastName: scannedIdDocument.lastName,
+        suffix: scannedIdDocument.nameSuffix,
+        includeInactiveVoters,
+        exactMatch: true,
+      };
+      setSearch(merged);
+      setVoterSearchParams(merged);
+    }
+  }, [scannedIdDocument, includeInactiveVoters, setSearch]);
 
   useEffect(() => {
-    const socket = io(SOCKET_IO_SERVER_ADDRESS);
-    socket.on('barcode-scan', (data: AamvaDocument) => {
-      setDebouncedSearch({
-        ...search,
-        firstName: data.firstName,
-        lastName: data.lastName,
-      });
-    });
-    return () => {
-      socket.disconnect();
-    };
-  }, [search]);
+    if (
+      scannedIdDocument &&
+      searchVotersQuery.isSuccess &&
+      searchVotersQuery.data &&
+      voterSearchParams.exactMatch
+    ) {
+      const searchResult = searchVotersQuery.data;
+      if (typeof searchResult === 'object') {
+        if (searchResult.length === 1) {
+          onBarcodeScanMatch(searchResult[0]);
+        }
+      }
+    }
+  }, [
+    onBarcodeScanMatch,
+    voterSearchParams.exactMatch,
+    scannedIdDocument,
+    searchVotersQuery.data,
+    searchVotersQuery.isSuccess,
+  ]);
 
   return (
     <Column style={{ gap: '1rem', height: '100%' }}>
@@ -115,7 +152,7 @@ export function VoterSearch({
               value={search.lastName}
               data-testid="last-name-input"
               onChange={(e) =>
-                updateSearch({
+                updateManuallyEnteredSearch({
                   lastName: e.target.value.toUpperCase(),
                 })
               }
@@ -130,7 +167,7 @@ export function VoterSearch({
               value={search.firstName}
               data-testid="first-name-input"
               onChange={(e) =>
-                updateSearch({
+                updateManuallyEnteredSearch({
                   firstName: e.target.value.toUpperCase(),
                 })
               }
@@ -224,17 +261,27 @@ export function CheckInDetails({
 }
 
 export function VoterSearchScreen({
+  includeInactiveVoters,
   search,
   setSearch,
   isAbsenteeMode,
   onSelect,
 }: {
+  includeInactiveVoters: boolean;
   search: VoterSearchParams;
   setSearch: (search: VoterSearchParams) => void;
   isAbsenteeMode: boolean;
   onSelect: (voterId: string) => void;
 }): JSX.Element | null {
   const getCheckInCountsQuery = getCheckInCounts.useQuery();
+
+  const onBarcodeScanMatch = useCallback(
+    (voter: Voter) => {
+      setSearch(createEmptySearchParams(false));
+      onSelect(voter.voterId);
+    },
+    [onSelect, setSearch]
+  );
 
   return (
     <PollWorkerNavScreen>
@@ -267,8 +314,10 @@ export function VoterSearchScreen({
         </MainHeader>
         <MainContent>
           <VoterSearch
+            includeInactiveVoters={includeInactiveVoters}
             search={search}
             setSearch={setSearch}
+            onBarcodeScanMatch={onBarcodeScanMatch}
             renderAction={(voter) =>
               voter.checkIn ? (
                 <CheckInDetails checkIn={voter.checkIn} />

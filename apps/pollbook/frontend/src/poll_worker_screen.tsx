@@ -106,6 +106,25 @@ export function VoterCheckInScreen(): JSX.Element | null {
     setFlowState({ step: 'search', search: createEmptySearchParams() });
   }, [timeoutIdForFlowStateReset]);
 
+  const setSearch = useCallback((search: VoterSearchParams) => {
+    setFlowState({ step: 'search', search });
+  }, []);
+
+  const onSelect = useCallback(
+    (voterId: string) => {
+      if (flowState.step !== 'search') {
+        return;
+      }
+
+      setFlowState({
+        step: 'confirm',
+        voterId,
+        search: flowState.search,
+      });
+    },
+    [flowState]
+  );
+
   if (!getIsAbsenteeModeQuery.isSuccess) {
     return null;
   }
@@ -116,12 +135,11 @@ export function VoterCheckInScreen(): JSX.Element | null {
     case 'search':
       return (
         <VoterSearchScreen
+          includeInactiveVoters={false}
           search={flowState.search}
-          setSearch={(search) => setFlowState({ step: 'search', search })}
+          setSearch={setSearch}
           isAbsenteeMode={isAbsenteeMode}
-          onSelect={(voterId) =>
-            setFlowState({ step: 'confirm', voterId, search: flowState.search })
-          }
+          onSelect={onSelect}
         />
       );
 

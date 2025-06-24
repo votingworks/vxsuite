@@ -1,13 +1,19 @@
 import { MainContent, Font, H1, LinkButton } from '@votingworks/ui';
 import { useState } from 'react';
-import type { VoterSearchParams } from '@votingworks/pollbook-backend';
+import type { Voter, VoterSearchParams } from '@votingworks/pollbook-backend';
+import { useHistory } from 'react-router-dom';
 import { getDeviceStatuses } from './api';
 import { Row } from './layout';
 import { ElectionManagerNavScreen } from './nav_screen';
 import { VoterSearch, createEmptySearchParams } from './voter_search_screen';
 import { ExportVoterActivityButton } from './export_voter_activity';
 
+function getDetailsPageUrl(voter: Voter): string {
+  return `/voters/${voter.voterId}`;
+}
+
 export function ElectionManagerVotersScreen(): JSX.Element | null {
+  const history = useHistory();
   const [search, setSearch] = useState<VoterSearchParams>(
     createEmptySearchParams()
   );
@@ -28,12 +34,17 @@ export function ElectionManagerVotersScreen(): JSX.Element | null {
     >
       <MainContent>
         <VoterSearch
+          includeInactiveVoters
           search={search}
           setSearch={setSearch}
+          onBarcodeScanMatch={(voter) => {
+            setSearch(createEmptySearchParams());
+            history.push(getDetailsPageUrl(voter));
+          }}
           renderAction={(voter) => (
             <LinkButton
               style={{ flexWrap: 'nowrap' }}
-              to={`/voters/${voter.voterId}`}
+              to={getDetailsPageUrl(voter)}
             >
               <Font noWrap>View Details</Font>
             </LinkButton>

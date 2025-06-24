@@ -1,4 +1,3 @@
-import { Server as IoServer } from 'socket.io';
 import * as net from 'node:net';
 import { lines, Optional, sleep } from '@votingworks/basics';
 import { safeParseJson } from '@votingworks/types';
@@ -7,8 +6,7 @@ import {
   LogEventId,
   LogDispositionStandardTypes,
 } from '@votingworks/logging';
-import type { Server as HttpServer } from 'node:http';
-import { AamvaDocumentSchema } from '../types';
+import { AamvaDocument, AamvaDocumentSchema } from '../types';
 import { tryConnect } from './unix_socket';
 
 export const UDS_CONNECTION_ATTEMPT_DELAY_MS = 1000;
@@ -46,30 +44,20 @@ export async function connectToBarcodeScannerSocket(
  * Encapsulates 2 different socket connections for interacting with the barcode scanner.
  */
 export class SocketServer {
-  private readonly io: IoServer;
-
   constructor(
-    httpServer: HttpServer,
-    private readonly logger: Logger
-  ) {
-    this.io = new IoServer(httpServer, {
-      cors: { origin: 'http://localhost:3000' },
-    });
+    private readonly logger: Logger,
+    private scannedDocument: Optional<AamvaDocument> = undefined
+  ) {}
 
-    this.io.on('connection', (socket) => {
-      const addressInfo = httpServer.address() as net.AddressInfo;
-      this.logger.log(LogEventId.SocketClientConnected, 'system', {
-        message: `Pollbook socket.io client connected to [${addressInfo.address}]:${addressInfo.port}`,
-        disposition: LogDispositionStandardTypes.Success,
-      });
-
-      socket.on('disconnect', () => {
-        this.logger.log(LogEventId.SocketClientDisconnected, 'system', {
-          message: `Pollbook socket.io client disconnected from [${addressInfo.address}]:${addressInfo.port}`,
-          disposition: LogDispositionStandardTypes.Success,
-        });
-      });
-    });
+  // Returns the latest scanned AAMVA document, consuming it in the process,
+  // or undefined if there isn't one.
+  readScannedValue(): Optional<AamvaDocument> {
+    const value = this.scannedDocument;
+    if (value) {
+      console.log('unsetting scanned document');
+      this.scannedDocument = undefined;
+    }
+    return value;
   }
 
   private scheduleReconnect(): void {
@@ -103,7 +91,8 @@ export class SocketServer {
             error: result.err().message,
           });
         } else {
-          this.io.emit('barcode-scan', result.ok());
+          console.log('setting scanned document');
+          this.scannedDocument = result.ok();
         }
       } catch (error) {
         await this.logger.logAsCurrentRole(LogEventId.ParseError, {

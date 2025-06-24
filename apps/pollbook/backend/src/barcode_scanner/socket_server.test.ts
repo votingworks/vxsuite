@@ -10,7 +10,6 @@ import {
   expect,
 } from 'vitest';
 import { PassThrough } from 'node:stream';
-import type { Server as HttpServer } from 'node:http';
 import * as net from 'node:net';
 import { mockLogger, LogSource, MockLogger } from '@votingworks/logging';
 import { tryConnect } from './unix_socket';
@@ -55,12 +54,7 @@ describe('SocketServer.listen event handling', () => {
 
     mockedTryConnect.mockResolvedValue(mockSocket as unknown as net.Socket);
 
-    const mockHttpServer = {
-      address() {
-        return { address: '127.0.0.1', port: 4000, family: 'IPv4' };
-      },
-    } as unknown as HttpServer;
-    const server = new SocketServer(mockHttpServer, logger);
+    const server = new SocketServer(logger);
     expect(mockedTryConnect).toHaveBeenCalledTimes(0);
     const listenPromise = server.listen();
 

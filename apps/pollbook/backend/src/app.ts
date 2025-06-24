@@ -5,6 +5,7 @@ import {
   assertDefined,
   err,
   ok,
+  Optional,
   Result,
   sleep,
 } from '@votingworks/basics';
@@ -50,6 +51,7 @@ import {
   VoterCheckInError,
   DuplicateVoterError,
   PollbookConfigurationInformation,
+  AamvaDocument,
 } from './types';
 import { rootDebug } from './debug';
 import {
@@ -66,11 +68,13 @@ import { UNCONFIGURE_LOCKOUT_TIMEOUT } from './globals';
 import { generateVoterHistoryCsvContent } from './voter_history';
 import { getCurrentTime } from './get_current_time';
 import { MarkInactiveReceipt } from './receipts/mark_inactive_receipt';
+import { SocketServer } from './barcode_scanner/socket_server';
 
 const debug = rootDebug.extend('local_app');
 
 interface BuildAppParams {
   context: LocalAppContext;
+  socketServer: SocketServer;
   logger: Logger;
 }
 
@@ -94,7 +98,7 @@ function constructAuthMachineState(
   };
 }
 
-function buildApi({ context, logger }: BuildAppParams) {
+function buildApi({ context, logger, socketServer }: BuildAppParams) {
   const { workspace, auth, usbDrive, printer, machineId, codeVersion } =
     context;
   const { store } = workspace;
@@ -168,6 +172,11 @@ function buildApi({ context, logger }: BuildAppParams) {
       return await workspace.peerApiClient.configureFromPeerMachine(input);
     },
 
+    // Gets the latest scanned ID document
+    getScannedIdDocument(): Result<Optional<AamvaDocument>, Error> {
+      return ok(socketServer.readScannedValue());
+    },
+
     getPrinterStatus(): Promise<PrinterStatus> {
       return printer.status();
     },
@@ -226,6 +235,10 @@ function buildApi({ context, logger }: BuildAppParams) {
       const { searchParams } = input;
       if (searchParams.firstName === '' && searchParams.lastName === '') {
         return null;
+      }
+
+      if (searchParams.exactMatch) {
+        return store.findVotersWithName(searchParams);
       }
 
       return store.searchVoters(searchParams);
@@ -468,9 +481,10 @@ export type LocalApi = ReturnType<typeof buildApi>;
 export function buildLocalApp({
   context,
   logger,
+  socketServer,
 }: BuildAppParams): Application {
   const app: Application = express();
-  const api = buildApi({ context, logger });
+  const api = buildApi({ context, logger, socketServer });
   app.use('/api', grout.buildRouter(api, express));
 
   pollUsbDriveForPollbookPackage(context);
