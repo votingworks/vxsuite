@@ -2,7 +2,10 @@ import { Result, assert, err, ok } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { Store } from './store';
-import { exportCastVoteRecordsToUsbDrive } from './export';
+import {
+  exportCastVoteRecordsToUsbDrive,
+  waitForContinuousExportToCatchUp,
+} from './export';
 import { Workspace } from './util/workspace';
 import { getCurrentTime } from './util/get_current_time';
 
@@ -69,6 +72,8 @@ export async function closePolls({
     message: 'User closed the polls.',
   });
 
+  await waitForContinuousExportToCatchUp(workspace);
+
   if (previousPollsState === 'polls_open') {
     const ongoingBatchId = store.getOngoingBatchId();
     assert(ongoingBatchId !== undefined);
@@ -96,12 +101,14 @@ export async function closePolls({
 }
 
 export async function pauseVoting({
-  store,
+  workspace,
   logger,
 }: {
-  store: Store;
+  workspace: Workspace;
   logger: Logger;
 }): Promise<void> {
+  const { store } = workspace;
+
   const previousPollsState = store.getPollsState();
   assert(previousPollsState === 'polls_open');
 
@@ -110,6 +117,8 @@ export async function pauseVoting({
     disposition: 'success',
     message: 'User paused voting.',
   });
+
+  await waitForContinuousExportToCatchUp(workspace);
 
   const ongoingBatchId = store.getOngoingBatchId();
   assert(ongoingBatchId !== undefined);

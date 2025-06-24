@@ -184,3 +184,10 @@ export async function exportCastVoteRecordsToUsbDrive({
   }
   return exportResult;
 }
+
+export async function waitForContinuousExportToCatchUp(
+  workspace: Workspace
+): Promise<void> {
+  const { continuousExportMutex } = workspace;
+  return await continuousExportMutex.withLock(() => {});
+}
