@@ -1,8 +1,8 @@
 import { beforeEach, expect, test, vi, vitest } from 'vitest';
 
 import {
-  electionFamousNames2021Fixtures,
-  electionGeneralFixtures,
+  electionSimpleSinglePrecinctFixtures,
+  electionMultiPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import { AddressInfo } from 'node:net';
 import { err, ok } from '@votingworks/basics';
@@ -30,13 +30,16 @@ import { AvahiService, hasOnlineInterface } from './avahi';
 import { mockPollbookPackageZip } from '../test/pollbook_package';
 
 let mockNodeEnv: 'production' | 'test' = 'test';
-const electionDefinition =
-  electionFamousNames2021Fixtures.readElectionDefinition();
+const singlePrecinctElectionDefinition =
+  electionSimpleSinglePrecinctFixtures.readElectionDefinition();
+const multiPrecinctElectionDefinition =
+  electionMultiPartyPrimaryFixtures.readElectionDefinition();
+
 const testVoters = parseVotersFromCsvString(
-  electionFamousNames2021Fixtures.pollbookVoters.asText()
+  electionSimpleSinglePrecinctFixtures.pollbookTownVoters.asText()
 );
 const testStreets = parseValidStreetsFromCsvString(
-  electionFamousNames2021Fixtures.pollbookStreetNames.asText()
+  electionSimpleSinglePrecinctFixtures.pollbookTownStreetNames.asText()
 );
 
 vi.mock(
@@ -220,13 +223,13 @@ test('connection status between two pollbooks is managed properly', async () => 
 
     // Set the pollbooks for the same election and precinct
     pollbookContext1.workspace.store.setElectionAndVoters(
-      electionDefinition,
+      singlePrecinctElectionDefinition,
       'mock-package-hash',
       testStreets,
       testVoters
     );
     pollbookContext1.workspace.store.setConfiguredPrecinct(
-      electionDefinition.election.precincts[0].id
+      singlePrecinctElectionDefinition.election.precincts[0].id
     );
     pollbookContext1.mockPrinterHandler.connectPrinter(
       CITIZEN_THERMAL_PRINTER_CONFIG
@@ -239,13 +242,13 @@ test('connection status between two pollbooks is managed properly', async () => 
     expect(checkIn.ok()).toEqual(undefined);
 
     pollbookContext2.workspace.store.setElectionAndVoters(
-      electionDefinition,
+      singlePrecinctElectionDefinition,
       'mock-package-hash',
       testStreets,
       testVoters
     );
     pollbookContext2.workspace.store.setConfiguredPrecinct(
-      electionDefinition.election.precincts[0].id
+      singlePrecinctElectionDefinition.election.precincts[0].id
     );
 
     await extendedWaitFor(async () => {
@@ -438,13 +441,13 @@ test('connection status is managed properly with many pollbooks', async () => {
     // Set all the pollbooks to the same election package and pollbook package
     for (const context of pollbookContexts) {
       context.workspace.store.setElectionAndVoters(
-        electionDefinition,
+        singlePrecinctElectionDefinition,
         'mock-package-hash',
         testStreets,
         testVoters
       );
       context.workspace.store.setConfiguredPrecinct(
-        electionDefinition.election.precincts[0].id
+        singlePrecinctElectionDefinition.election.precincts[0].id
       );
     }
 
@@ -487,7 +490,7 @@ test('connection status is managed properly with many pollbooks', async () => {
     for (const context of pollbookContexts) {
       context.workspace.store.deleteElectionAndVoters();
       context.workspace.store.setElectionAndVoters(
-        electionDefinition,
+        singlePrecinctElectionDefinition,
         `mock-package-hash-${i}`,
         testStreets,
         testVoters
@@ -589,22 +592,22 @@ test('pollbooks with different code versions can not connect', async () => {
       });
       // Set the pollbooks for the same election and precinct
       pollbookContext1.workspace.store.setElectionAndVoters(
-        electionDefinition,
+        singlePrecinctElectionDefinition,
         'mock-package-hash',
         testStreets,
         testVoters
       );
       pollbookContext1.workspace.store.setConfiguredPrecinct(
-        electionDefinition.election.precincts[0].id
+        singlePrecinctElectionDefinition.election.precincts[0].id
       );
       pollbookContext2.workspace.store.setElectionAndVoters(
-        electionDefinition,
+        singlePrecinctElectionDefinition,
         'mock-package-hash',
         testStreets,
         testVoters
       );
       pollbookContext2.workspace.store.setConfiguredPrecinct(
-        electionDefinition.election.precincts[0].id
+        singlePrecinctElectionDefinition.election.precincts[0].id
       );
 
       // The pollbooks should be listing each other as mismatching configuration.
@@ -659,22 +662,22 @@ test('pollbooks with different pollbook package hash values can not connect', as
 
     // Set the election with different pollbook package hash values
     pollbookContext1.workspace.store.setElectionAndVoters(
-      electionDefinition,
+      singlePrecinctElectionDefinition,
       'mock-package-hash-1',
       testStreets,
       testVoters
     );
     pollbookContext1.workspace.store.setConfiguredPrecinct(
-      electionDefinition.election.precincts[0].id
+      singlePrecinctElectionDefinition.election.precincts[0].id
     );
     pollbookContext2.workspace.store.setElectionAndVoters(
-      electionDefinition,
+      singlePrecinctElectionDefinition,
       'mock-package-hash-2',
       testStreets,
       testVoters
     );
     pollbookContext2.workspace.store.setConfiguredPrecinct(
-      electionDefinition.election.precincts[0].id
+      singlePrecinctElectionDefinition.election.precincts[0].id
     );
 
     // The pollbooks should be listing each other as mismatching configuration.
@@ -725,15 +728,19 @@ test('pollbooks with different configured precinct values can not connect', asyn
       pollbookContext2,
     ]);
 
-    // Set the election without setting configured precinct should not connect
+    // Setting to multi-precinct election without setting configured precinct should not connect
     pollbookContext1.workspace.store.setElectionAndVoters(
-      electionDefinition,
+      multiPrecinctElectionDefinition,
       'mock-package-hash',
-      testStreets,
-      testVoters
+      parseValidStreetsFromCsvString(
+        electionMultiPartyPrimaryFixtures.pollbookCityStreetNames.asText()
+      ),
+      parseVotersFromCsvString(
+        electionMultiPartyPrimaryFixtures.pollbookCityVoters.asText()
+      )
     );
     pollbookContext2.workspace.store.setElectionAndVoters(
-      electionDefinition,
+      multiPrecinctElectionDefinition,
       'mock-package-hash',
       testStreets,
       testVoters
@@ -770,10 +777,10 @@ test('pollbooks with different configured precinct values can not connect', asyn
 
     // Configure for different precincts
     pollbookContext1.workspace.store.setConfiguredPrecinct(
-      electionDefinition.election.precincts[0].id
+      multiPrecinctElectionDefinition.election.precincts[0].id
     );
     pollbookContext2.workspace.store.setConfiguredPrecinct(
-      electionDefinition.election.precincts[1].id
+      multiPrecinctElectionDefinition.election.precincts[1].id
     );
 
     // Status should still be mismatched configuration
@@ -807,7 +814,7 @@ test('pollbooks with different configured precinct values can not connect', asyn
 
     // Configure for the same precinct and it should connect
     pollbookContext1.workspace.store.setConfiguredPrecinct(
-      electionDefinition.election.precincts[1].id
+      multiPrecinctElectionDefinition.election.precincts[1].id
     );
     await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
@@ -846,7 +853,7 @@ test('one pollbook can be configured from another pollbook', async () => {
       pollbookContext2,
     ]);
     pollbookContext1.workspace.store.setElectionAndVoters(
-      electionDefinition,
+      singlePrecinctElectionDefinition,
       'mock-package-hash',
       testStreets,
       testVoters
@@ -878,9 +885,9 @@ test('one pollbook can be configured from another pollbook', async () => {
       })
     ).toEqual(err('invalid-pollbook-package'));
     const validZip = await mockPollbookPackageZip(
-      electionFamousNames2021Fixtures.electionJson.asBuffer(),
-      electionFamousNames2021Fixtures.pollbookVoters.asText(),
-      electionFamousNames2021Fixtures.pollbookStreetNames.asText()
+      electionSimpleSinglePrecinctFixtures.electionSinglePrecinctBase.asBuffer(),
+      electionSimpleSinglePrecinctFixtures.pollbookTownVoters.asText(),
+      electionSimpleSinglePrecinctFixtures.pollbookTownStreetNames.asText()
     );
 
     writeFileSync(zipPath, new Uint8Array(validZip));
@@ -892,9 +899,9 @@ test('one pollbook can be configured from another pollbook', async () => {
     expect(
       await pollbookContext2.peerApiClient.getPollbookConfigurationInformation()
     ).toMatchObject({
-      electionBallotHash: electionDefinition.ballotHash,
-      electionId: electionDefinition.election.id,
-      electionTitle: electionDefinition.election.title,
+      electionBallotHash: singlePrecinctElectionDefinition.ballotHash,
+      electionId: singlePrecinctElectionDefinition.election.id,
+      electionTitle: singlePrecinctElectionDefinition.election.title,
       pollbookPackageHash: sha256(new Uint8Array(validZip)),
       machineId: 'test-1',
       codeVersion: 'test',
@@ -914,7 +921,7 @@ test('pollbooks can not configure if code version does not match', async () => {
     async ([pollbookContext1, pollbookContext2]) => {
       // Configure the first pollbook
       pollbookContext1.workspace.store.setElectionAndVoters(
-        electionDefinition,
+        singlePrecinctElectionDefinition,
         'fake-package-hash',
         testStreets,
         testVoters
@@ -928,9 +935,9 @@ test('pollbooks can not configure if code version does not match', async () => {
       }
 
       const validZip = await mockPollbookPackageZip(
-        electionFamousNames2021Fixtures.electionJson.asBuffer(),
-        electionFamousNames2021Fixtures.pollbookVoters.asText(),
-        electionFamousNames2021Fixtures.pollbookStreetNames.asText()
+        electionSimpleSinglePrecinctFixtures.electionSinglePrecinctBase.asBuffer(),
+        electionSimpleSinglePrecinctFixtures.pollbookTownVoters.asText(),
+        electionSimpleSinglePrecinctFixtures.pollbookTownStreetNames.asText()
       );
 
       writeFileSync(zipPath, new Uint8Array(validZip));
@@ -986,14 +993,15 @@ test('one pollbook can be configured from another pollbook automatically as an e
   await withManyApps(
     3,
     async ([pollbookContext1, pollbookContext2, pollbookContext3]) => {
+      // Configure the first pollbook
       pollbookContext1.workspace.store.setElectionAndVoters(
-        electionDefinition,
+        singlePrecinctElectionDefinition,
         'mock-package-hash',
         testStreets,
         testVoters
       );
       pollbookContext3.workspace.store.setElectionAndVoters(
-        electionDefinition,
+        singlePrecinctElectionDefinition,
         'not-the-same-package-hash',
         testStreets,
         testVoters
@@ -1008,7 +1016,7 @@ test('one pollbook can be configured from another pollbook automatically as an e
 
       mockElectionManagerAuth(
         pollbookContext2.auth,
-        electionDefinition.election
+        singlePrecinctElectionDefinition.election
       );
       await extendedWaitFor(async () => {
         vitest.advanceTimersByTime(100);
@@ -1031,7 +1039,7 @@ test('one pollbook can be configured from another pollbook automatically as an e
       // use the wrong election manager card
       mockElectionManagerAuth(
         pollbookContext2.auth,
-        electionGeneralFixtures.readElection()
+        electionMultiPartyPrimaryFixtures.readElection()
       );
       await extendedWaitFor(async () => {
         vitest.advanceTimersByTime(100);
@@ -1054,7 +1062,7 @@ test('one pollbook can be configured from another pollbook automatically as an e
 
       mockElectionManagerAuth(
         pollbookContext2.auth,
-        electionDefinition.election
+        singlePrecinctElectionDefinition.election
       );
       await extendedWaitFor(async () => {
         vitest.advanceTimersByTime(100);
@@ -1102,7 +1110,7 @@ test('one pollbook can be configured from another pollbook automatically as an e
       writeFileSync(zipPath, 'fakecontent');
       mockElectionManagerAuth(
         pollbookContext2.auth,
-        electionDefinition.election
+        singlePrecinctElectionDefinition.election
       );
       await extendedWaitFor(async () => {
         vitest.advanceTimersByTime(100);
@@ -1125,28 +1133,30 @@ test('one pollbook can be configured from another pollbook automatically as an e
       });
 
       const validZip = await mockPollbookPackageZip(
-        electionFamousNames2021Fixtures.electionJson.asBuffer(),
-        electionFamousNames2021Fixtures.pollbookVoters.asText(),
-        electionFamousNames2021Fixtures.pollbookStreetNames.asText()
+        electionSimpleSinglePrecinctFixtures.electionSinglePrecinctBase.asBuffer(),
+        electionSimpleSinglePrecinctFixtures.pollbookTownVoters.asText(),
+        electionSimpleSinglePrecinctFixtures.pollbookTownStreetNames.asText()
       );
       writeFileSync(zipPath, new Uint8Array(validZip));
       mockElectionManagerAuth(
         pollbookContext2.auth,
-        electionDefinition.election
+        singlePrecinctElectionDefinition.election
       );
       await extendedWaitFor(async () => {
         vitest.advanceTimersByTime(100);
         expect(
           await pollbookContext2.peerApiClient.getPollbookConfigurationInformation()
         ).toMatchObject({
-          electionBallotHash: electionDefinition.ballotHash,
-          electionId: electionDefinition.election.id,
-          electionTitle: electionDefinition.election.title,
+          electionBallotHash: singlePrecinctElectionDefinition.ballotHash,
+          electionId: singlePrecinctElectionDefinition.election.id,
+          electionTitle: singlePrecinctElectionDefinition.election.title,
           pollbookPackageHash: sha256(new Uint8Array(validZip)),
           machineId: 'test-1',
         });
         const election = await pollbookContext2.localApiClient.getElection();
-        expect(election.ok()).toEqual(electionDefinition.election);
+        expect(election.ok()).toEqual(
+          singlePrecinctElectionDefinition.election
+        );
       }, 6000);
 
       expect(

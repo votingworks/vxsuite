@@ -2,7 +2,7 @@ import { test, describe, expect, afterEach } from 'vitest';
 import { screen } from '@testing-library/react';
 import {
   electionFamousNames2021Fixtures,
-  electionGridLayoutNewHampshireHudsonFixtures,
+  electionSimpleSinglePrecinctFixtures,
 } from '@votingworks/fixtures';
 import { ElectionInfoBar, VerticalElectionInfoBar } from './election_info_bar';
 import { renderInAppContext } from '../test/render_in_app_context';
@@ -10,7 +10,7 @@ import { renderInAppContext } from '../test/render_in_app_context';
 const electionDef = electionFamousNames2021Fixtures.readElectionDefinition();
 const { election, ballotHash } = electionDef;
 const singlePrecinctElectionDef =
-  electionGridLayoutNewHampshireHudsonFixtures.readElectionDefinition();
+  electionSimpleSinglePrecinctFixtures.readElectionDefinition();
 const singlePrecinctElection = singlePrecinctElectionDef.election;
 const packageHash = 'test-package-hash';
 const codeVersion = '1.2.3';

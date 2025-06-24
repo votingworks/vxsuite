@@ -1,5 +1,5 @@
 import { beforeEach, expect, test, vi } from 'vitest';
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import { electionSimpleSinglePrecinctFixtures } from '@votingworks/fixtures';
 import { assert } from 'node:console';
 import { CITIZEN_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
 import {
@@ -27,8 +27,14 @@ import { createVoter } from '../test/test_helpers';
 let mockNodeEnv: 'production' | 'test' = 'test';
 
 const electionDefinition =
-  electionFamousNames2021Fixtures.readElectionDefinition();
+  electionSimpleSinglePrecinctFixtures.readElectionDefinition();
 const electionKey = constructElectionKey(electionDefinition.election);
+const townStreetNames = parseValidStreetsFromCsvString(
+  electionSimpleSinglePrecinctFixtures.pollbookTownStreetNames.asText()
+);
+const townVoters = parseVotersFromCsvString(
+  electionSimpleSinglePrecinctFixtures.pollbookTownVoters.asText()
+);
 
 vi.mock(
   './globals.js',
@@ -68,17 +74,11 @@ vi.setConfig({
 test('getDeviceStatuses()', async () => {
   await withApp(
     async ({ localApiClient, workspace, mockUsbDrive, mockPrinterHandler }) => {
-      const testVoters = parseVotersFromCsvString(
-        electionFamousNames2021Fixtures.pollbookVoters.asText()
-      );
-      const testStreets = parseValidStreetsFromCsvString(
-        electionFamousNames2021Fixtures.pollbookStreetNames.asText()
-      );
       workspace.store.setElectionAndVoters(
         electionDefinition,
         'mock-package-hash',
-        testStreets,
-        testVoters
+        townStreetNames,
+        townVoters
       );
       mockUsbDrive.usbDrive.status
         .expectRepeatedCallsWith()
@@ -113,17 +113,11 @@ test('getDeviceStatuses()', async () => {
 
 test('check in a voter', async () => {
   await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
-    const testVoters = parseVotersFromCsvString(
-      electionFamousNames2021Fixtures.pollbookVoters.asText()
-    );
-    const testStreets = parseValidStreetsFromCsvString(
-      electionFamousNames2021Fixtures.pollbookStreetNames.asText()
-    );
     workspace.store.setElectionAndVoters(
       electionDefinition,
       'mock-package-hash',
-      testStreets,
-      testVoters
+      townStreetNames,
+      townVoters
     );
     mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
     expect(await localApiClient.haveElectionEventsOccurred()).toEqual(false);
@@ -200,13 +194,10 @@ test('check in a voter', async () => {
 
 test('register a voter', async () => {
   await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
-    const testStreets = parseValidStreetsFromCsvString(
-      electionFamousNames2021Fixtures.pollbookStreetNames.asText()
-    );
     workspace.store.setElectionAndVoters(
       electionDefinition,
       'mock-package-hash',
-      testStreets,
+      townStreetNames,
       []
     );
     mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
@@ -294,13 +285,10 @@ test('register a voter', async () => {
 
 test('register a voter - duplicate name', async () => {
   await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
-    const testStreets = parseValidStreetsFromCsvString(
-      electionFamousNames2021Fixtures.pollbookStreetNames.asText()
-    );
     workspace.store.setElectionAndVoters(
       electionDefinition,
       'mock-package-hash',
-      testStreets,
+      townStreetNames,
       [createVoter('original', 'Dylan', `O'Brien`, 'Darren', 'I')]
     );
     mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
@@ -354,13 +342,10 @@ test('register a voter - duplicate name', async () => {
 
 test('register a voter - invalid address', async () => {
   await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
-    const testStreets = parseValidStreetsFromCsvString(
-      electionFamousNames2021Fixtures.pollbookStreetNames.asText()
-    );
     workspace.store.setElectionAndVoters(
       electionDefinition,
       'mock-package-hash',
-      testStreets,
+      townStreetNames,
       []
     );
     mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
@@ -370,7 +355,7 @@ test('register a voter - invalid address', async () => {
       lastName: 'Doe',
       middleName: 'A',
       suffix: '',
-      streetNumber: '150', // not in street names
+      streetNumber: '170', // not in street names
       streetName: 'MAIN ST',
       streetSuffix: '',
       apartmentUnitNumber: '',
@@ -396,17 +381,11 @@ test('register a voter - invalid address', async () => {
 
 test('change a voter name', async () => {
   await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
-    const testVoters = parseVotersFromCsvString(
-      electionFamousNames2021Fixtures.pollbookVoters.asText()
-    );
-    const testStreets = parseValidStreetsFromCsvString(
-      electionFamousNames2021Fixtures.pollbookStreetNames.asText()
-    );
     workspace.store.setElectionAndVoters(
       electionDefinition,
       'mock-package-hash',
-      testStreets,
-      testVoters
+      townStreetNames,
+      townVoters
     );
 
     mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
@@ -481,17 +460,11 @@ test('change a voter name', async () => {
 
 test('undo a voter check-in', async () => {
   await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
-    const testVoters = parseVotersFromCsvString(
-      electionFamousNames2021Fixtures.pollbookVoters.asText()
-    );
-    const testStreets = parseValidStreetsFromCsvString(
-      electionFamousNames2021Fixtures.pollbookStreetNames.asText()
-    );
     workspace.store.setElectionAndVoters(
       electionDefinition,
       'mock-package-hash',
-      testStreets,
-      testVoters
+      townStreetNames,
+      townVoters
     );
     mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
 
@@ -539,13 +512,10 @@ test('register a voter, change name and address, and check in', async () => {
       workspace,
       mockPrinterHandler,
     }) => {
-      const testStreets = parseValidStreetsFromCsvString(
-        electionFamousNames2021Fixtures.pollbookStreetNames.asText()
-      );
       workspace.store.setElectionAndVoters(
         electionDefinition,
         'mock-package-hash',
-        testStreets,
+        townStreetNames,
         []
       );
       mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
@@ -709,17 +679,11 @@ test('register a voter, change name and address, and check in', async () => {
 
 test('check in, change name, undo check-in, change address, and check in again', async () => {
   await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
-    const testVoters = parseVotersFromCsvString(
-      electionFamousNames2021Fixtures.pollbookVoters.asText()
-    );
-    const testStreets = parseValidStreetsFromCsvString(
-      electionFamousNames2021Fixtures.pollbookStreetNames.asText()
-    );
     workspace.store.setElectionAndVoters(
       electionDefinition,
       'mock-package-hash',
-      testStreets,
-      testVoters
+      townStreetNames,
+      townVoters
     );
     mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
 
@@ -818,17 +782,11 @@ test('check in, change name, undo check-in, change address, and check in again',
 
 test('change a voter address with various formats', async () => {
   await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
-    const testVoters = parseVotersFromCsvString(
-      electionFamousNames2021Fixtures.pollbookVoters.asText()
-    );
-    const testStreets = parseValidStreetsFromCsvString(
-      electionFamousNames2021Fixtures.pollbookStreetNames.asText()
-    );
     workspace.store.setElectionAndVoters(
       electionDefinition,
       'mock-package-hash',
-      testStreets,
-      testVoters
+      townStreetNames,
+      townVoters
     );
     mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
 
@@ -891,17 +849,11 @@ test('change a voter address with various formats', async () => {
 
 test('voter search ignores punctuation', async () => {
   await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
-    const testVoters = parseVotersFromCsvString(
-      electionFamousNames2021Fixtures.pollbookVoters.asText()
-    );
-    const testStreets = parseValidStreetsFromCsvString(
-      electionFamousNames2021Fixtures.pollbookStreetNames.asText()
-    );
     workspace.store.setElectionAndVoters(
       electionDefinition,
       'mock-package-hash',
-      testStreets,
-      testVoters
+      townStreetNames,
+      townVoters
     );
     mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
 
@@ -1060,17 +1012,11 @@ test('programCard and unprogramCard', async () => {
 
 test('mark a voter inactive', async () => {
   await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
-    const testVoters = parseVotersFromCsvString(
-      electionFamousNames2021Fixtures.pollbookVoters.asText()
-    );
-    const testStreets = parseValidStreetsFromCsvString(
-      electionFamousNames2021Fixtures.pollbookStreetNames.asText()
-    );
     workspace.store.setElectionAndVoters(
       electionDefinition,
       'mock-package-hash',
-      testStreets,
-      testVoters
+      townStreetNames,
+      townVoters
     );
     mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
 

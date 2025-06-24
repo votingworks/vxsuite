@@ -1,7 +1,7 @@
 import { describe, test, beforeEach, afterEach, vi, expect } from 'vitest';
 import {
   electionFamousNames2021Fixtures,
-  electionGridLayoutNewHampshireHudsonFixtures,
+  electionSimpleSinglePrecinctFixtures,
 } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { screen } from '../test/react_testing_library';
@@ -118,7 +118,7 @@ describe('SettingsScreen precinct selection', () => {
   test('does not show precinct select for single precinct election', async () => {
     // Setup election with multiple precincts
     const singlePrecinctElection =
-      electionGridLayoutNewHampshireHudsonFixtures.readElectionDefinition();
+      electionSimpleSinglePrecinctFixtures.readElectionDefinition();
     apiMock.setElection(singlePrecinctElection);
     apiMock.expectGetDeviceStatuses();
     // Render

@@ -1,5 +1,5 @@
 import { beforeEach, expect, test, vi } from 'vitest';
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import { electionMultiPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { join } from 'node:path';
 import fetch from 'node-fetch';
 import { writeFileSync, unlinkSync, existsSync } from 'node:fs';
@@ -13,7 +13,7 @@ import { withApp } from '../test/app';
 let mockNodeEnv: 'production' | 'test' = 'test';
 
 const electionDefinition =
-  electionFamousNames2021Fixtures.readElectionDefinition();
+  electionMultiPartyPrimaryFixtures.readElectionDefinition();
 
 vi.mock(
   './globals.js',
@@ -39,10 +39,10 @@ test('getPollbookConfigurationInformation', async () => {
     });
 
     const testVoters = parseVotersFromCsvString(
-      electionFamousNames2021Fixtures.pollbookVoters.asText()
+      electionMultiPartyPrimaryFixtures.pollbookCityVoters.asText()
     );
     const testStreets = parseValidStreetsFromCsvString(
-      electionFamousNames2021Fixtures.pollbookStreetNames.asText()
+      electionMultiPartyPrimaryFixtures.pollbookCityStreetNames.asText()
     );
     workspace.store.setElectionAndVoters(
       electionDefinition,
@@ -66,10 +66,10 @@ test('getPollbookConfigurationInformation', async () => {
 test('GET /file/pollbook-package returns 404 if file does not exist, 200 if it does', async () => {
   await withApp(async ({ peerServer, workspace }) => {
     const testVoters = parseVotersFromCsvString(
-      electionFamousNames2021Fixtures.pollbookVoters.asText()
+      electionMultiPartyPrimaryFixtures.pollbookCityVoters.asText()
     );
     const testStreets = parseValidStreetsFromCsvString(
-      electionFamousNames2021Fixtures.pollbookStreetNames.asText()
+      electionMultiPartyPrimaryFixtures.pollbookCityStreetNames.asText()
     );
     // Ensure no file exists
     const zipPath = join(workspace.assetDirectoryPath, 'pollbook-package.zip');
