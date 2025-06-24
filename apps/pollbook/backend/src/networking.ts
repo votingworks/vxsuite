@@ -52,8 +52,15 @@ export function createPeerApiClientForAddress(
   });
 }
 
+export function arePollbooksCompatible(
+  pollbook1: PollbookConfigurationInformation,
+  pollbook2: PollbookConfigurationInformation
+): boolean {
+  return pollbook1.codeVersion === pollbook2.codeVersion;
+}
+
 /* Checks that two pollbooks have compatible configurations to connect and share events */
-export function shouldPollbooksConnect(
+export function shouldPollbooksShareEvents(
   pollbook1: PollbookConfigurationInformation,
   pollbook2: PollbookConfigurationInformation
 ): boolean {
@@ -63,7 +70,7 @@ export function shouldPollbooksConnect(
     pollbook1.pollbookPackageHash === pollbook2.pollbookPackageHash &&
     !!pollbook1.configuredPrecinctId &&
     pollbook1.configuredPrecinctId === pollbook2.configuredPrecinctId &&
-    pollbook1.codeVersion === pollbook2.codeVersion
+    arePollbooksCompatible(pollbook1, pollbook2)
   );
 }
 
@@ -113,8 +120,22 @@ export function fetchEventsFromConnectedPollbooks({
         await Promise.all(
           pollbooksToQuery.map(async (currentName) => {
             const currentPollbookService = previouslyConnected[currentName];
+            /* istanbul ignore next - extremely unlikely scenario, a machine would need to change code versions to trigger included for defense in depth - @preserve */
             if (
-              !shouldPollbooksConnect(
+              !arePollbooksCompatible(
+                myMachineInformation,
+                currentPollbookService
+              )
+            ) {
+              workspace.store.setPollbookServiceForName(currentName, {
+                ...currentPollbookService,
+                lastSeen: new Date(),
+                status: PollbookConnectionStatus.IncompatibleSoftwareVersion,
+              });
+              return;
+            }
+            if (
+              !shouldPollbooksShareEvents(
                 myMachineInformation,
                 currentPollbookService
               )
@@ -269,7 +290,22 @@ export function setupMachineNetworking({
               continue;
             }
             if (
-              !shouldPollbooksConnect(myMachineInformation, machineInformation)
+              !arePollbooksCompatible(myMachineInformation, machineInformation)
+            ) {
+              workspace.store.setPollbookServiceForName(name, {
+                ...machineInformation,
+                apiClient,
+                address: `http://${resolvedIp}:${port}`,
+                lastSeen: new Date(),
+                status: PollbookConnectionStatus.IncompatibleSoftwareVersion,
+              });
+              continue;
+            }
+            if (
+              !shouldPollbooksShareEvents(
+                myMachineInformation,
+                machineInformation
+              )
             ) {
               workspace.store.setPollbookServiceForName(name, {
                 ...machineInformation,

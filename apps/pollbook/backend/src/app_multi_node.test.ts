@@ -536,11 +536,57 @@ test('pollbooks with different code versions can not connect', async () => {
           },
         });
       }
-      await setupUnconfiguredPollbooksOnNetwork([
-        pollbookContext1,
-        pollbookContext2,
-      ]);
 
+      const { port: port1 } =
+        pollbookContext1.peerServer.address() as AddressInfo;
+      const { port: port2 } =
+        pollbookContext2.peerServer.address() as AddressInfo;
+
+      pollbookContext1.mockUsbDrive.removeUsbDrive();
+      vi.mocked(hasOnlineInterface).mockResolvedValue(true);
+      vi.spyOn(AvahiService, 'discoverHttpServices').mockResolvedValue([
+        {
+          name: 'Pollbook-test-0',
+          host: 'local',
+          resolvedIp: 'localhost',
+          port: port1.toString(),
+        },
+        {
+          name: 'Pollbook-test-1',
+          host: 'local',
+          resolvedIp: 'localhost',
+          port: port2.toString(),
+        },
+      ]);
+      await extendedWaitFor(async () => {
+        vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+        expect(
+          await pollbookContext1.localApiClient.getDeviceStatuses()
+        ).toMatchObject({
+          network: {
+            isOnline: true,
+            pollbooks: [
+              expect.objectContaining({
+                status: PollbookConnectionStatus.IncompatibleSoftwareVersion,
+              }),
+            ],
+          },
+        });
+      });
+      await extendedWaitFor(async () => {
+        expect(
+          await pollbookContext2.localApiClient.getDeviceStatuses()
+        ).toMatchObject({
+          network: {
+            isOnline: true,
+            pollbooks: [
+              expect.objectContaining({
+                status: PollbookConnectionStatus.IncompatibleSoftwareVersion,
+              }),
+            ],
+          },
+        });
+      });
       // Set the pollbooks for the same election and precinct
       pollbookContext1.workspace.store.setElectionAndVoters(
         electionDefinition,
@@ -571,7 +617,7 @@ test('pollbooks with different code versions can not connect', async () => {
             isOnline: true,
             pollbooks: [
               expect.objectContaining({
-                status: PollbookConnectionStatus.MismatchedConfiguration,
+                status: PollbookConnectionStatus.IncompatibleSoftwareVersion,
               }),
             ],
           },
@@ -583,7 +629,7 @@ test('pollbooks with different code versions can not connect', async () => {
             isOnline: true,
             pollbooks: [
               expect.objectContaining({
-                status: PollbookConnectionStatus.MismatchedConfiguration,
+                status: PollbookConnectionStatus.IncompatibleSoftwareVersion,
               }),
             ],
           },
@@ -860,6 +906,80 @@ test('one pollbook can be configured from another pollbook', async () => {
       })
     ).toEqual(err('already-configured'));
   });
+});
+
+test('pollbooks can not configure if code version does not match', async () => {
+  await withManyApps(
+    2,
+    async ([pollbookContext1, pollbookContext2]) => {
+      // Configure the first pollbook
+      pollbookContext1.workspace.store.setElectionAndVoters(
+        electionDefinition,
+        'fake-package-hash',
+        testStreets,
+        testVoters
+      );
+      const zipPath = join(
+        pollbookContext1.workspace.assetDirectoryPath,
+        'pollbook-package.zip'
+      );
+      if (existsSync(zipPath)) {
+        unlinkSync(zipPath);
+      }
+
+      const validZip = await mockPollbookPackageZip(
+        electionFamousNames2021Fixtures.electionJson.asBuffer(),
+        electionFamousNames2021Fixtures.pollbookVoters.asText(),
+        electionFamousNames2021Fixtures.pollbookStreetNames.asText()
+      );
+
+      writeFileSync(zipPath, new Uint8Array(validZip));
+
+      // Set both pollbooks so they are online and can see one another.
+      const { port: port1 } =
+        pollbookContext1.peerServer.address() as AddressInfo;
+      const { port: port2 } =
+        pollbookContext2.peerServer.address() as AddressInfo;
+
+      pollbookContext1.mockUsbDrive.removeUsbDrive();
+      vi.mocked(hasOnlineInterface).mockResolvedValue(true);
+      vi.spyOn(AvahiService, 'discoverHttpServices').mockResolvedValue([
+        {
+          name: 'Pollbook-test-0',
+          host: 'local',
+          resolvedIp: 'localhost',
+          port: port1.toString(),
+        },
+        {
+          name: 'Pollbook-test-1',
+          host: 'local',
+          resolvedIp: 'localhost',
+          port: port2.toString(),
+        },
+      ]);
+      await extendedWaitFor(async () => {
+        vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+        expect(
+          await pollbookContext1.localApiClient.getDeviceStatuses()
+        ).toMatchObject({
+          network: {
+            isOnline: true,
+            pollbooks: [
+              expect.objectContaining({
+                status: PollbookConnectionStatus.IncompatibleSoftwareVersion,
+              }),
+            ],
+          },
+        });
+      });
+      expect(
+        await pollbookContext2.peerApiClient.configureFromPeerMachine({
+          machineId: pollbookContext1.workspace.store.getMachineId(),
+        })
+      ).toEqual(err('pollbook-connection-problem'));
+    },
+    true
+  );
 });
 
 test('one pollbook can be configured from another pollbook automatically as an election mangaer', async () => {
