@@ -10,8 +10,8 @@ export default defineConfig({
     ],
     coverage: {
       thresholds: {
-        lines: -54,
-        branches: -58,
+        lines: -53,
+        branches: -56,
       },
       exclude: [
         '**/node_modules/**',

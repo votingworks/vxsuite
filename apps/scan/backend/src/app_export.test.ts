@@ -23,6 +23,7 @@ import { decryptAes256 } from '@votingworks/auth';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { LogEventId } from '@votingworks/logging';
+import waitForExpect from 'wait-for-expect';
 import { scanBallot, withApp } from '../test/helpers/pdi_helpers';
 import { configureApp, pdfToImageSheet } from '../test/helpers/shared_helpers';
 import { BALLOT_AUDIT_ID_FILE_NAME } from './app';
@@ -384,6 +385,192 @@ test('CVR export error handling', async () => {
           mode: 'full_export',
         })
       ).toEqual(err({ type: 'missing-usb-drive' }));
+    }
+  );
+});
+
+test.each<{ action: 'close' | 'pause' }>([
+  { action: 'close' },
+  { action: 'pause' },
+])(
+  'closing/pausing polls while there is a continuous export backlog - $action',
+  async ({ action }) => {
+    await withApp(
+      async ({
+        apiClient,
+        clock,
+        mockAuth,
+        mockScanner,
+        mockUsbDrive,
+        workspace,
+      }) => {
+        await configureApp(apiClient, mockAuth, mockUsbDrive, {
+          testMode: true,
+        });
+
+        // Lock the continuous export mutex to simulate a continuous export backlog
+        const { unlock } = assertDefined(
+          workspace.continuousExportMutex.lock()
+        );
+
+        await scanBallot(mockScanner, clock, apiClient, workspace.store, 0, {
+          waitForContinuousExportToUsbDrive: false,
+        });
+        await scanBallot(mockScanner, clock, apiClient, workspace.store, 1, {
+          waitForContinuousExportToUsbDrive: false,
+        });
+
+        setTimeout(() => unlock(), 1000);
+
+        if (action === 'close') {
+          await apiClient.closePolls();
+        } else if (action === 'pause') {
+          await apiClient.pauseVoting();
+        }
+
+        const exportDirectoryPaths =
+          await getCastVoteRecordExportDirectoryPaths(mockUsbDrive.usbDrive);
+        expect(exportDirectoryPaths).toHaveLength(1);
+        const exportDirectoryPath = exportDirectoryPaths[0];
+
+        const { castVoteRecordIterator } = (
+          await readCastVoteRecordExport(exportDirectoryPath)
+        ).unsafeUnwrap();
+        const castVoteRecords: CVR.CVR[] = (
+          await castVoteRecordIterator.toArray()
+        ).map(
+          (castVoteRecordResult) =>
+            castVoteRecordResult.unsafeUnwrap().castVoteRecord
+        );
+        expect(castVoteRecords).toHaveLength(2);
+      }
+    );
+  }
+);
+
+test.each<{ action: 'close' | 'pause' }>([
+  { action: 'close' },
+  { action: 'pause' },
+])(
+  'closing/pausing polls while continuous export is paused - $action',
+  async ({ action }) => {
+    await withApp(
+      async ({
+        apiClient,
+        clock,
+        mockAuth,
+        mockScanner,
+        mockUsbDrive,
+        workspace,
+      }) => {
+        await configureApp(apiClient, mockAuth, mockUsbDrive, {
+          testMode: true,
+        });
+
+        await apiClient.setIsContinuousExportEnabled({
+          isContinuousExportEnabled: false,
+        });
+
+        await scanBallot(mockScanner, clock, apiClient, workspace.store, 0, {
+          waitForContinuousExportToUsbDrive: false,
+        });
+        await scanBallot(mockScanner, clock, apiClient, workspace.store, 1, {
+          waitForContinuousExportToUsbDrive: false,
+        });
+
+        if (action === 'close') {
+          await apiClient.closePolls();
+        } else if (action === 'pause') {
+          await apiClient.pauseVoting();
+        }
+
+        expect(
+          await apiClient.exportCastVoteRecordsToUsbDrive({
+            mode: 'full_export',
+          })
+        ).toEqual(ok());
+
+        const exportDirectoryPaths =
+          await getCastVoteRecordExportDirectoryPaths(mockUsbDrive.usbDrive);
+        expect(exportDirectoryPaths).toHaveLength(1);
+        const exportDirectoryPath = exportDirectoryPaths[0];
+
+        const { castVoteRecordIterator } = (
+          await readCastVoteRecordExport(exportDirectoryPath)
+        ).unsafeUnwrap();
+        const castVoteRecords: CVR.CVR[] = (
+          await castVoteRecordIterator.toArray()
+        ).map(
+          (castVoteRecordResult) =>
+            castVoteRecordResult.unsafeUnwrap().castVoteRecord
+        );
+        expect(castVoteRecords).toHaveLength(2);
+      }
+    );
+  }
+);
+
+test('pausing continuous export while there is a continuous export backlog', async () => {
+  await withApp(
+    async ({
+      apiClient,
+      clock,
+      logger,
+      mockAuth,
+      mockScanner,
+      mockUsbDrive,
+      workspace,
+    }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
+
+      // Lock the continuous export mutex to simulate a continuous export backlog
+      const { unlock } = assertDefined(workspace.continuousExportMutex.lock());
+
+      await scanBallot(mockScanner, clock, apiClient, workspace.store, 0, {
+        waitForContinuousExportToUsbDrive: false,
+      });
+      await scanBallot(mockScanner, clock, apiClient, workspace.store, 1, {
+        waitForContinuousExportToUsbDrive: false,
+      });
+
+      await apiClient.setIsContinuousExportEnabled({
+        isContinuousExportEnabled: false,
+      });
+
+      unlock();
+
+      await waitForExpect(() =>
+        expect(logger.log).toHaveBeenCalledWith(
+          LogEventId.ExportCastVoteRecordsInit,
+          'system',
+          expect.objectContaining({
+            message: 'Pausing pending continuous export operation.',
+          })
+        )
+      );
+
+      expect(
+        await apiClient.exportCastVoteRecordsToUsbDrive({
+          mode: 'recovery_export',
+        })
+      ).toEqual(ok());
+
+      const exportDirectoryPaths = await getCastVoteRecordExportDirectoryPaths(
+        mockUsbDrive.usbDrive
+      );
+      expect(exportDirectoryPaths).toHaveLength(1);
+      const exportDirectoryPath = exportDirectoryPaths[0];
+
+      const { castVoteRecordIterator } = (
+        await readCastVoteRecordExport(exportDirectoryPath)
+      ).unsafeUnwrap();
+      const castVoteRecords: CVR.CVR[] = (
+        await castVoteRecordIterator.toArray()
+      ).map(
+        (castVoteRecordResult) =>
+          castVoteRecordResult.unsafeUnwrap().castVoteRecord
+      );
+      expect(castVoteRecords).toHaveLength(2);
     }
   );
 });
