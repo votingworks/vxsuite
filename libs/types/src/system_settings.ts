@@ -164,10 +164,4 @@ export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
   centralScanAdjudicationReasons: [],
   adminAdjudicationReasons: [],
   precinctScanEnableBmdBallotScanning: true,
-
-  // Determined by analyzing ballots printed at scale levels from 94-100%,
-  // then measuring the timing mark grid against the expected size.
-  //
-  // See https://votingworks.slack.com/archives/CEL6D3GAD/p1750140685476599?thread_ts=1750095447.642289&cid=CEL6D3GAD.
-  minimumDetectedScale: 0.985,
 };

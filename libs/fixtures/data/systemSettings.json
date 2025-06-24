@@ -15,6 +15,5 @@
   "precinctScanAdjudicationReasons": [],
   "adminAdjudicationReasons": [],
   "disallowCastingOvervotes": false,
-  "precinctScanEnableBmdBallotScanning": true,
-  "minimumDetectedScale": 0.985
+  "precinctScanEnableBmdBallotScanning": true
 }
