@@ -292,17 +292,19 @@ export function createApiMock() {
         });
     },
 
-    expectSetConfiguredPrecinct(configuredPrecinctId: string) {
+    expectSetConfiguredPrecinct(configuredPrecinctId: string, error?: Error) {
       mockApiClient.setConfiguredPrecinct
         .expectCallWith({ precinctId: configuredPrecinctId })
-        .resolves();
-      mockApiClient.getPollbookConfigurationInformation.reset();
-      mockApiClient.getPollbookConfigurationInformation
-        .expectOptionalRepeatedCallsWith()
-        .resolves({
-          ...machineConfig,
-          configuredPrecinctId,
-        });
+        .resolves(error === undefined ? ok() : err(error));
+      if (error === undefined) {
+        mockApiClient.getPollbookConfigurationInformation.reset();
+        mockApiClient.getPollbookConfigurationInformation
+          .expectOptionalRepeatedCallsWith()
+          .resolves({
+            ...machineConfig,
+            configuredPrecinctId,
+          });
+      }
     },
 
     setElectionConfiguration(status: ConfigurationStatus) {

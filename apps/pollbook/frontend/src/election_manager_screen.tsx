@@ -12,6 +12,7 @@ import {
 import { format } from '@votingworks/utils';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { Precinct } from '@votingworks/types';
+import { useState } from 'react';
 import {
   getElection,
   getIsAbsenteeMode,
@@ -38,6 +39,7 @@ export function SettingsScreen(): JSX.Element | null {
     getHaveElectionEventsOccurred.useQuery();
   const setIsAbsenteeModeMutation = setIsAbsenteeMode.useMutation();
   const setConfiguredPrecinctMutation = setConfiguredPrecinct.useMutation();
+  const [hadErrorSettingPrecinct, setHadErrorSettingPrecinct] = useState(false);
 
   if (
     !getIsAbsenteeModeQuery.isSuccess ||
@@ -60,7 +62,8 @@ export function SettingsScreen(): JSX.Element | null {
   // Find currently configured precinct (if any)
   const { configuredPrecinctId } =
     getPollbookConfigurationInformationQuery.data;
-  const haveElectionEventsOccurred = getHaveElectionEventsOccurredQuery.data;
+  const haveElectionEventsOccurred =
+    getHaveElectionEventsOccurredQuery.data || hadErrorSettingPrecinct;
 
   return (
     <ElectionManagerNavScreen title="Settings">
@@ -105,9 +108,15 @@ export function SettingsScreen(): JSX.Element | null {
                 aria-label="Select Precinct"
                 options={precinctOptions}
                 value={configuredPrecinctId}
-                onChange={(precinctId) => {
+                onChange={async (precinctId) => {
                   if (precinctId) {
-                    setConfiguredPrecinctMutation.mutate({ precinctId });
+                    const result =
+                      await setConfiguredPrecinctMutation.mutateAsync({
+                        precinctId,
+                      });
+                    if (result.isErr()) {
+                      setHadErrorSettingPrecinct(true);
+                    }
                   }
                 }}
                 placeholder="Select Precinct…"

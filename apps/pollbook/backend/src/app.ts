@@ -1,6 +1,13 @@
 import * as grout from '@votingworks/grout';
 import express, { Application } from 'express';
-import { assertDefined, err, ok, Result, sleep } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  err,
+  ok,
+  Result,
+  sleep,
+} from '@votingworks/basics';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   Election,
@@ -203,8 +210,14 @@ function buildApi({ context, logger }: BuildAppParams) {
       store.setIsAbsenteeMode(input.isAbsenteeMode);
     },
 
-    setConfiguredPrecinct(input: { precinctId: string }): void {
-      store.setConfiguredPrecinct(input.precinctId);
+    setConfiguredPrecinct(input: { precinctId: string }): Result<void, Error> {
+      try {
+        store.setConfiguredPrecinct(input.precinctId);
+        return ok();
+      } catch (error) {
+        assert(error instanceof Error);
+        return err(error);
+      }
     },
 
     searchVoters(input: {

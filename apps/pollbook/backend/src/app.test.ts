@@ -76,7 +76,7 @@ test('getDeviceStatuses()', async () => {
       );
       workspace.store.setElectionAndVoters(
         electionDefinition,
-        'fake-package-hash',
+        'mock-package-hash',
         testStreets,
         testVoters
       );
@@ -121,7 +121,7 @@ test('check in a voter', async () => {
     );
     workspace.store.setElectionAndVoters(
       electionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       testStreets,
       testVoters
     );
@@ -206,7 +206,7 @@ test('register a voter', async () => {
     );
     workspace.store.setElectionAndVoters(
       electionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       testStreets,
       []
     );
@@ -301,7 +301,7 @@ test('register a voter - duplicate name', async () => {
     );
     workspace.store.setElectionAndVoters(
       electionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       testStreets,
       [createVoter('original', 'Dylan', `O'Brien`, 'Darren', 'I')]
     );
@@ -361,7 +361,7 @@ test('register a voter - invalid address', async () => {
     );
     workspace.store.setElectionAndVoters(
       electionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       testStreets,
       []
     );
@@ -406,7 +406,7 @@ test('change a voter name', async () => {
     );
     workspace.store.setElectionAndVoters(
       electionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       testStreets,
       testVoters
     );
@@ -494,7 +494,7 @@ test('undo a voter check-in', async () => {
     );
     workspace.store.setElectionAndVoters(
       electionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       testStreets,
       testVoters
     );
@@ -550,7 +550,7 @@ test('register a voter, change name and address, and check in', async () => {
       );
       workspace.store.setElectionAndVoters(
         electionDefinition,
-        'fake-package-hash',
+        'mock-package-hash',
         testStreets,
         []
       );
@@ -723,7 +723,7 @@ test('check in, change name, undo check-in, change address, and check in again',
     );
     workspace.store.setElectionAndVoters(
       electionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       testStreets,
       testVoters
     );
@@ -833,7 +833,7 @@ test('change a voter address with various formats', async () => {
     );
     workspace.store.setElectionAndVoters(
       electionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       testStreets,
       testVoters
     );
@@ -907,7 +907,7 @@ test('voter search ignores punctuation', async () => {
     );
     workspace.store.setElectionAndVoters(
       electionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       testStreets,
       testVoters
     );
@@ -1025,7 +1025,7 @@ test('programCard and unprogramCard', async () => {
   await withApp(async ({ localApiClient, auth: authApi, workspace }) => {
     workspace.store.setElectionAndVoters(
       electionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       [],
       []
     );
@@ -1082,7 +1082,7 @@ test('mark a voter inactive', async () => {
     );
     workspace.store.setElectionAndVoters(
       electionDefinition,
-      'fake-package-hash',
+      'mock-package-hash',
       testStreets,
       testVoters
     );

@@ -11,6 +11,20 @@ import { PeerStore } from './peer_store';
 export const myMachineId = 'machine-1';
 const otherMachineId = 'machine-2';
 
+function setupTwoStores(): [PeerStore, PeerStore] {
+  const store1 = PeerStore.memoryStore(myMachineId);
+  const store2 = PeerStore.memoryStore(otherMachineId);
+  const voters = Array.from({ length: 7 }, (_, i) =>
+    createVoter(`voter-${i}`, 'firstname', 'lastname')
+  );
+  const testElection = getTestElectionDefinition();
+  for (const store of [store1, store2]) {
+    store.setElectionAndVoters(testElection, 'mock-package-hash', [], voters);
+    store.setConfiguredPrecinct(testElection.election.precincts[0].id);
+  }
+  return [store1, store2];
+}
+
 test('getNewEvents returns events for unknown machines', () => {
   const store = PeerStore.memoryStore(myMachineId);
   const myHlcClock = new HybridLogicalClock(myMachineId);
@@ -145,17 +159,7 @@ test('getNewEvents returns no events for known machines and unknown machines', a
 });
 
 test('getNewEvents returns hasMore when there are more events from unknown machines', () => {
-  const store = PeerStore.memoryStore(myMachineId);
-  const store2 = PeerStore.memoryStore('machine-2');
-  const voters = Array.from({ length: 7 }, (_, i) =>
-    createVoter(`voter-${i}`, 'firstname', 'lastname')
-  );
-  store2.setElectionAndVoters(
-    getTestElectionDefinition(),
-    'fake-package-hash',
-    [],
-    voters
-  );
+  const [store, store2] = setupTwoStores();
 
   const theirClock = new HybridLogicalClock(otherMachineId);
   const events = Array.from({ length: 7 }, (_, i) =>
@@ -170,7 +174,10 @@ test('getNewEvents returns hasMore when there are more events from unknown machi
     store2.getMostRecentEventIdPerMachine(), // empty
     5
   );
-  store2.saveRemoteEvents(firstBatch);
+  store2.saveRemoteEvents(
+    firstBatch,
+    store.getPollbookConfigurationInformation()
+  );
 
   assert(firstBatch.length === 5);
   expect(firstBatch).toEqual(events.slice(0, 5));
@@ -191,17 +198,7 @@ test('getNewEvents returns hasMore when there are more events from unknown machi
 });
 
 test('getNewEvents returns hasMore when there are more events from known machines (no unknown machines)', () => {
-  const store = PeerStore.memoryStore(myMachineId);
-  const store2 = PeerStore.memoryStore('machine-2');
-  const voters = Array.from({ length: 7 }, (_, i) =>
-    createVoter(`voter-${i}`, 'firstname', 'lastname')
-  );
-  store2.setElectionAndVoters(
-    getTestElectionDefinition(),
-    'fake-package-hash',
-    [],
-    voters
-  );
+  const [store, store2] = setupTwoStores();
   const myClock = new HybridLogicalClock(myMachineId);
   const events = Array.from({ length: 7 }, (_, i) =>
     createVoterCheckInEvent(i, myMachineId, `voter-${i + 1}`, myClock.tick())
@@ -212,7 +209,10 @@ test('getNewEvents returns hasMore when there are more events from known machine
   }
 
   // Set up store2 to have synced the first event only from myMachineId
-  store2.saveRemoteEvents([events[0]]);
+  store2.saveRemoteEvents(
+    [events[0]],
+    store.getPollbookConfigurationInformation()
+  );
   expect(store2.getMostRecentEventIdPerMachine()).toEqual({ [myMachineId]: 0 });
 
   const { events: firstBatch, hasMore: firstHasMore } = store.getNewEvents(
@@ -224,7 +224,10 @@ test('getNewEvents returns hasMore when there are more events from known machine
   expect(firstBatch).toEqual(events.slice(1, 6));
   expect(firstHasMore).toEqual(true);
 
-  store2.saveRemoteEvents(firstBatch);
+  store2.saveRemoteEvents(
+    firstBatch,
+    store.getPollbookConfigurationInformation()
+  );
   expect(store2.getMostRecentEventIdPerMachine()).toEqual({ [myMachineId]: 5 });
 
   const { events: secondBatch, hasMore: secondHasMore } = store.getNewEvents(
@@ -238,17 +241,7 @@ test('getNewEvents returns hasMore when there are more events from known machine
 });
 
 test('getNewEvents returns hasMore when there are more events from known machines and unknown machines combined', () => {
-  const store = PeerStore.memoryStore(myMachineId);
-  const store2 = PeerStore.memoryStore('test-machine');
-  const voters = Array.from({ length: 10 }, (_, i) =>
-    createVoter(`voter-${i}`, 'firstname', 'lastname')
-  );
-  store2.setElectionAndVoters(
-    getTestElectionDefinition(),
-    'fake-package-hash',
-    [],
-    voters
-  );
+  const [store, store2] = setupTwoStores();
   const myClock = new HybridLogicalClock(myMachineId);
   const theirClock = new HybridLogicalClock(otherMachineId);
   const machine1Events = Array.from({ length: 4 }, (_, i) =>
@@ -271,7 +264,10 @@ test('getNewEvents returns hasMore when there are more events from known machine
   }
 
   // Set up store2 to have synced the first event only from myMachineId
-  store2.saveRemoteEvents([machine1Events[0]]);
+  store2.saveRemoteEvents(
+    [machine1Events[0]],
+    store.getPollbookConfigurationInformation()
+  );
   expect(store2.getMostRecentEventIdPerMachine()).toEqual({ [myMachineId]: 0 });
   const { events: firstBatch, hasMore: firstHasMore } = store.getNewEvents(
     store2.getMostRecentEventIdPerMachine(),
@@ -285,7 +281,10 @@ test('getNewEvents returns hasMore when there are more events from known machine
   ]);
   expect(firstHasMore).toEqual(true);
 
-  store2.saveRemoteEvents(firstBatch);
+  store2.saveRemoteEvents(
+    firstBatch,
+    store.getPollbookConfigurationInformation()
+  );
   expect(store2.getMostRecentEventIdPerMachine()).toEqual({
     [myMachineId]: 2,
     [otherMachineId]: 2,

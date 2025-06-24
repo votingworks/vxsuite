@@ -154,7 +154,7 @@ function NetworkStatus({ status }: { status: NetworkStatus }) {
                             <Icons.Warning color="inverseWarning" />
                           )}
                           {pollbook.status ===
-                            PollbookConnectionStatus.WrongElection && (
+                            PollbookConnectionStatus.MismatchedConfiguration && (
                             <Icons.X color="danger" />
                           )}
                         </td>
