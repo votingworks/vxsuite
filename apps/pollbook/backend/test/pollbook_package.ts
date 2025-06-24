@@ -9,9 +9,9 @@ export async function mockPollbookPackageZip(
   streetNameData: string | Buffer
 ): Promise<Buffer> {
   const zipContents: Record<string, Buffer | string> = {
-    [PollbookPackageFileName.ELECTION]: electionData,
-    [PollbookPackageFileName.VOTERS]: votersData,
-    [PollbookPackageFileName.STREET_NAMES]: streetNameData,
+    [`${PollbookPackageFileName.ELECTION}.json`]: electionData,
+    [`${PollbookPackageFileName.VOTERS}.csv`]: votersData,
+    [`${PollbookPackageFileName.STREET_NAMES}.csv`]: streetNameData,
   };
   return await zipFile(zipContents);
 }
