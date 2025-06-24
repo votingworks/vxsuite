@@ -49,7 +49,7 @@ function renderScreen() {
 }
 
 test('feature flag to hide marginal mark thresholds', async () => {
-  mockUserFeatures(apiMock, user, { MARGINAL_MARK_THRESHOLD: false });
+  mockUserFeatures(apiMock, user, { MARGINAL_MARK_THRESHOLD_OPTION: false });
   apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
@@ -141,7 +141,7 @@ test('minimum detected scale', async () => {
     name: 'Minimum Detected Scale',
   });
   expect(minimumDetectedScaleInput).toBeDisabled();
-  expect(minimumDetectedScaleInput).toHaveValue(0.985);
+  expect(minimumDetectedScaleInput).toHaveValue(null);
 
   userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
@@ -512,7 +512,7 @@ test('cancelling', async () => {
 });
 
 test('all controls are disabled until clicking "Edit"', async () => {
-  mockUserFeatures(apiMock, user, { MARGINAL_MARK_THRESHOLD: true });
+  mockUserFeatures(apiMock, user, { MARGINAL_MARK_THRESHOLD_OPTION: true });
   const { systemSettings } = electionRecord;
   apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getSystemSettings

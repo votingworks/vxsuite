@@ -24,12 +24,17 @@ enum UserFeature {
    * Show the System Settings "Marginal Mark Threshold" option.
    * If enabled, also requires SYSTEM_SETTINGS_SCREEN.
    */
-  MARGINAL_MARK_THRESHOLD = 'MARGINAL_MARK_THRESHOLD',
+  MARGINAL_MARK_THRESHOLD_OPTION = 'MARGINAL_MARK_THRESHOLD_OPTION',
   /**
    * Show the System Settings "Enable BMD Ballot Scanning on VxScan" option.
    * If enabled, also requires SYSTEM_SETTINGS_SCREEN.
    */
-  ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_TOGGLE = 'ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_TOGGLE',
+  ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION = 'ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION',
+  /**
+   * Show the System Settings "Minimum Detected Scale" option.
+   * If enabled, also requires SYSTEM_SETTINGS_SCREEN.
+   */
+  MINIMUM_DETECTED_SCALE_OPTION = 'MINIMUM_DETECTED_SCALE_OPTION',
   /**
    * Show the export screen.
    */
@@ -113,8 +118,9 @@ export const userFeatureConfigs = {
     EXPORT_SCREEN: true,
     CHOOSE_BALLOT_TEMPLATE: true,
     EXPORT_TEST_DECKS: true,
-    MARGINAL_MARK_THRESHOLD: true,
-    ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_TOGGLE: true,
+    MARGINAL_MARK_THRESHOLD_OPTION: true,
+    ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: true,
+    MINIMUM_DETECTED_SCALE_OPTION: true,
     ONLY_LETTER_AND_LEGAL_PAPER_SIZES: false,
     CREATE_ELECTION: true,
     DELETE_ELECTION: true,
@@ -127,8 +133,9 @@ export const userFeatureConfigs = {
   sli: {
     ACCESS_ALL_ORGS: false,
     SYSTEM_SETTINGS_SCREEN: true,
-    MARGINAL_MARK_THRESHOLD: false,
-    ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_TOGGLE: false,
+    MARGINAL_MARK_THRESHOLD_OPTION: false,
+    ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: false,
+    MINIMUM_DETECTED_SCALE_OPTION: false,
     EXPORT_SCREEN: true,
     CHOOSE_BALLOT_TEMPLATE: false,
     EXPORT_TEST_DECKS: false,
@@ -144,8 +151,9 @@ export const userFeatureConfigs = {
   demos: {
     ACCESS_ALL_ORGS: false,
     SYSTEM_SETTINGS_SCREEN: true,
-    MARGINAL_MARK_THRESHOLD: false,
-    ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_TOGGLE: false,
+    MARGINAL_MARK_THRESHOLD_OPTION: false,
+    ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: false,
+    MINIMUM_DETECTED_SCALE_OPTION: false,
     EXPORT_SCREEN: true,
     CHOOSE_BALLOT_TEMPLATE: true,
     EXPORT_TEST_DECKS: true,
@@ -161,8 +169,9 @@ export const userFeatureConfigs = {
   nh: {
     ACCESS_ALL_ORGS: false,
     SYSTEM_SETTINGS_SCREEN: false,
-    MARGINAL_MARK_THRESHOLD: false,
-    ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_TOGGLE: false,
+    MARGINAL_MARK_THRESHOLD_OPTION: false,
+    ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: false,
+    MINIMUM_DETECTED_SCALE_OPTION: false,
     EXPORT_SCREEN: false,
     CHOOSE_BALLOT_TEMPLATE: false,
     // EXPORT_TEST_DECKS is currently a no-op because export screen is off, but NH users should be able

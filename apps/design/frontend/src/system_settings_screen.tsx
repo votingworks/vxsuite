@@ -273,7 +273,7 @@ export function SystemSettingsForm({
                 required
               />
             </InputGroup>
-            {features.MARGINAL_MARK_THRESHOLD && (
+            {features.MARGINAL_MARK_THRESHOLD_OPTION && (
               <InputGroup label="Marginal Mark Threshold">
                 <input
                   type="number"
@@ -328,33 +328,35 @@ export function SystemSettingsForm({
                 />
               </InputGroup>
             )}
-            <InputGroup label="Minimum Detected Scale">
-              <input
-                type="number"
-                value={systemSettings.minimumDetectedScale ?? ''}
-                onChange={(e) => {
-                  const minimumDetectedScale = e.target.valueAsNumber;
-                  setSystemSettings({
-                    ...systemSettings,
-                    minimumDetectedScale: Number.isNaN(minimumDetectedScale)
-                      ? undefined
-                      : minimumDetectedScale,
-                  });
-                }}
-                onBlur={(e) => {
-                  if (e.target.value === '') {
+            {features.MINIMUM_DETECTED_SCALE_OPTION && (
+              <InputGroup label="Minimum Detected Scale">
+                <input
+                  type="number"
+                  value={systemSettings.minimumDetectedScale ?? ''}
+                  onChange={(e) => {
+                    const minimumDetectedScale = e.target.valueAsNumber;
                     setSystemSettings({
                       ...systemSettings,
-                      minimumDetectedScale: undefined,
+                      minimumDetectedScale: Number.isNaN(minimumDetectedScale)
+                        ? undefined
+                        : minimumDetectedScale,
                     });
-                  }
-                }}
-                step={0.005}
-                min={0}
-                max={1}
-                disabled={!isEditing}
-              />
-            </InputGroup>
+                  }}
+                  onBlur={(e) => {
+                    if (e.target.value === '') {
+                      setSystemSettings({
+                        ...systemSettings,
+                        minimumDetectedScale: undefined,
+                      });
+                    }
+                  }}
+                  step={0.005}
+                  min={0}
+                  max={1}
+                  disabled={!isEditing}
+                />
+              </InputGroup>
+            )}
           </Column>
         </Card>
         {ballotTemplateId !== 'NhBallotV3' &&
@@ -526,7 +528,7 @@ export function SystemSettingsForm({
                     }
                     disabled={!isEditing}
                   />
-                  {features.ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_TOGGLE && (
+                  {features.ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION && (
                     <CheckboxButton
                       label="Enable BMD Ballot Scanning on VxScan"
                       isChecked={Boolean(
