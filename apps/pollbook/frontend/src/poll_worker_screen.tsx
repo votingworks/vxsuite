@@ -139,7 +139,6 @@ export function VoterCheckInScreen(): JSX.Element | null {
     case 'search':
       return (
         <VoterSearchScreen
-          includeInactiveVoters={false}
           search={flowState.search}
           setSearch={setSearch}
           isAbsenteeMode={isAbsenteeMode}

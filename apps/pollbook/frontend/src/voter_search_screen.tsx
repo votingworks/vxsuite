@@ -77,13 +77,11 @@ export function VoterSearch({
   // Function to call when exactly one voter is matched by scanning an ID
   onBarcodeScanMatch,
   renderAction,
-  includeInactiveVoters,
 }: {
   search: VoterSearchParams;
   setSearch: (search: VoterSearchParams) => void;
   onBarcodeScanMatch: (voter: Voter) => void;
   renderAction: (voter: Voter) => React.ReactNode;
-  includeInactiveVoters: boolean;
 }): JSX.Element {
   const [voterSearchParams, setVoterSearchParams] =
     useState<VoterSearchParams>(search);
@@ -121,7 +119,7 @@ export function VoterSearch({
       setSearch(merged);
       setVoterSearchParams(merged);
     }
-  }, [scannedIdDocument, includeInactiveVoters, setSearch]);
+  }, [scannedIdDocument, setSearch]);
 
   useEffect(() => {
     if (
@@ -264,13 +262,11 @@ export function CheckInDetails({
 }
 
 export function VoterSearchScreen({
-  includeInactiveVoters,
   search,
   setSearch,
   isAbsenteeMode,
   onSelect,
 }: {
-  includeInactiveVoters: boolean;
   search: VoterSearchParams;
   setSearch: (search: VoterSearchParams) => void;
   isAbsenteeMode: boolean;
@@ -317,7 +313,6 @@ export function VoterSearchScreen({
         </MainHeader>
         <MainContent>
           <VoterSearch
-            includeInactiveVoters={includeInactiveVoters}
             search={search}
             setSearch={setSearch}
             onBarcodeScanMatch={onBarcodeScanMatch}

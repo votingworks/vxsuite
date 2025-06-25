@@ -35,7 +35,6 @@ export function ElectionManagerVotersScreen(): JSX.Element | null {
     >
       <MainContent>
         <VoterSearch
-          includeInactiveVoters
           search={search}
           setSearch={setSearch}
           onBarcodeScanMatch={(voter) => {
