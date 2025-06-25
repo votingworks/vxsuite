@@ -88,6 +88,7 @@ export function parseVotersFromCsvString(csvString: string): Voter[] {
       }
       const postalZip5 = record.postalZip5 ?? record.zip5;
       const mailingCityTown = record.mailingCityTown ?? record.mailingTown;
+      const postalCityTown = record.postalCityTown ?? record.postalCity;
       const voter: Voter = record;
       return {
         ...voter,
@@ -98,6 +99,7 @@ export function parseVotersFromCsvString(csvString: string): Voter[] {
         mailingZip5: voter.mailingZip5 && voter.mailingZip5.padStart(5, '0'),
         mailingZip4: voter.mailingZip4 && voter.mailingZip4.padStart(4, '0'),
         mailingCityTown,
+        postalCityTown,
       };
     },
   });
