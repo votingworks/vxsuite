@@ -34,6 +34,14 @@ import { createLocalWorkspace, createPeerWorkspace } from '../src/workspace';
 import { LocalWorkspace, PeerWorkspace } from '../src';
 import { getUserRole } from '../src/auth';
 import { buildPeerApp, PeerApi } from '../src/peer_app';
+import { BarcodeScannerClient } from '../src/barcode_scanner/client';
+
+vi.mock('../barcode_scanner/client', () => ({
+  BarcodeScannerClient: vi.fn().mockImplementation(() => ({
+    listen: vi.fn().mockResolvedValue(undefined),
+    readScannedValue: vi.fn().mockReturnValue(undefined),
+  })),
+}));
 
 export const TEST_MACHINE_ID = '0102';
 
@@ -133,6 +141,7 @@ export async function withApp(
     codeVersion
   );
   const logger = buildMockLogger(auth, workspace);
+  const barcodeScannerClient = new BarcodeScannerClient(logger);
 
   const mockUsbDrive = createMockUsbDrive();
   mockUsbDrive.usbDrive.sync.expectOptionalRepeatedCallsWith().resolves(); // Called by paper backup export
@@ -149,6 +158,7 @@ export async function withApp(
       codeVersion,
     },
     logger,
+    barcodeScannerClient,
   });
 
   const localServer = app.listen();
@@ -234,6 +244,7 @@ export async function withManyApps(
         codeVersion
       );
       const logger = buildMockLogger(auth, workspace);
+      const barcodeScannerClient = new BarcodeScannerClient(logger);
 
       const app = buildLocalApp({
         context: {
@@ -245,6 +256,7 @@ export async function withManyApps(
           codeVersion,
         },
         logger,
+        barcodeScannerClient,
       });
 
       const localServer = app.listen();

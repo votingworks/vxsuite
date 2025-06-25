@@ -2,7 +2,12 @@ import { describe, expect, test, beforeEach, afterEach, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { Election, ElectionDefinition } from '@votingworks/types';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { VoterCheckInError } from '@votingworks/pollbook-backend';
+import {
+  AamvaDocument,
+  Voter,
+  VoterCheckInError,
+  VoterSearchParams,
+} from '@votingworks/pollbook-backend';
 import { act, render, screen, within } from '../test/react_testing_library';
 import { App } from './app';
 import {
@@ -11,6 +16,7 @@ import {
   createMockVoter,
 } from '../test/mock_api_client';
 import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals';
+import { DEFAULT_QUERY_REFETCH_INTERVAL } from './api';
 
 let apiMock: ApiMock;
 const famousNamesElection: Election =
@@ -49,6 +55,7 @@ describe('PollWorkerScreen', () => {
     await vi.waitFor(() => {
       screen.getByText('Check-In');
     });
+    apiMock.expectGetScannedIdDocument();
     apiMock.expectSearchVotersNull({});
 
     await screen.findByText('Total Check-ins');
@@ -60,7 +67,9 @@ describe('PollWorkerScreen', () => {
     apiMock.expectSearchVotersTooMany({ firstName: '', lastName: 'SM' }, 153);
     const lastNameInput = screen.getByLabelText('Last Name');
     userEvent.type(lastNameInput, 'SM');
-    vi.advanceTimersByTime(1000);
+    act(() => {
+      vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
+    });
     await screen.findByText(
       'Voters matched: 153. Refine your search further to view results.'
     );
@@ -75,7 +84,9 @@ describe('PollWorkerScreen', () => {
     userEvent.type(lastNameInput, 'AD');
     const firstNameInput = screen.getByLabelText('First Name');
     userEvent.type(firstNameInput, 'ABI');
-    vi.advanceTimersByTime(1000);
+    act(() => {
+      vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
+    });
     await screen.findByText(/Adams, Abigail/i);
     const checkInButton = screen.getByTestId('check-in-button#123');
     within(checkInButton).getByText('Start Check-In');
@@ -94,6 +105,62 @@ describe('PollWorkerScreen', () => {
       vi.advanceTimersByTime(AUTOMATIC_FLOW_STATE_RESET_DELAY_MS);
     });
     expect(screen.queryByText('Voter Checked In')).toBeNull();
+
+    unmount();
+  });
+
+  test('exactly 1 match for barcode scan navigates to check in screen', async () => {
+    apiMock.authenticateAsPollWorker(famousNamesElection);
+    apiMock.setElection(famousNamesElectionDefinition);
+    apiMock.setPrinterStatus(true);
+    apiMock.setIsAbsenteeMode(false);
+    apiMock.setElection(
+      famousNamesElectionDefinition,
+      famousNamesElection.precincts[0].id
+    );
+    apiMock.expectGetCheckInCounts({ allMachines: 25, thisMachine: 5 });
+    apiMock.expectGetScannedIdDocument();
+    apiMock.expectSearchVotersNull({});
+
+    // Render empty voter search screen
+    const { unmount } = render(<App apiClient={apiMock.mockApiClient} />);
+    await vi.waitFor(() => {
+      screen.getByText('Check-In');
+    });
+
+    const document: AamvaDocument = {
+      firstName: 'Aaron',
+      middleName: 'Danger',
+      lastName: 'Burr',
+      nameSuffix: 'Jr',
+      issuingJurisdiction: 'NH',
+    };
+    const searchParams: VoterSearchParams = {
+      firstName: document.firstName,
+      middleName: document.middleName,
+      lastName: document.lastName,
+      suffix: document.nameSuffix,
+      includeInactiveVoters: false,
+      exactMatch: true,
+    };
+    const mockVoter: Voter = {
+      ...createMockVoter('123', document.firstName, document.lastName),
+      middleName: document.middleName,
+      suffix: document.nameSuffix,
+    };
+
+    // API returns a new barcode scan so we expect search and the getVoter endpoint
+    // to be queried with the new voter
+    apiMock.expectGetScannedIdDocument(document);
+    apiMock.expectSearchVotersWithResults(searchParams, [mockVoter]);
+    apiMock.expectGetVoter(mockVoter);
+
+    act(() => {
+      vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
+    });
+
+    // Expect voter check-in screen to be rendered
+    await screen.findByRole('heading', { name: 'Confirm Voter Identity' });
 
     unmount();
   });
@@ -119,6 +186,7 @@ describe('PollWorkerScreen', () => {
       apiMock.expectGetCheckInCounts({ allMachines: 25, thisMachine: 5 });
       await screen.findByText('Check-In');
       apiMock.expectSearchVotersNull({});
+      apiMock.expectGetScannedIdDocument();
 
       await screen.findByText('Total Check-ins');
       const total = screen.getByTestId('total-check-ins');
@@ -129,7 +197,9 @@ describe('PollWorkerScreen', () => {
       apiMock.expectSearchVotersTooMany({ firstName: '', lastName: 'SM' }, 153);
       const lastNameInput = screen.getByLabelText('Last Name');
       userEvent.type(lastNameInput, 'SM');
-      vi.advanceTimersByTime(1000);
+      act(() => {
+        vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
+      });
       await screen.findByText(
         'Voters matched: 153. Refine your search further to view results.'
       );
@@ -144,7 +214,9 @@ describe('PollWorkerScreen', () => {
       userEvent.type(lastNameInput, 'AD');
       const firstNameInput = screen.getByLabelText('First Name');
       userEvent.type(firstNameInput, 'ABI');
-      vi.advanceTimersByTime(1000);
+      act(() => {
+        vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
+      });
       await screen.findByText(/Adams, Abigail/i);
       const checkInButton = screen.getByTestId('check-in-button#123');
       within(checkInButton).getByText('Start Check-In');

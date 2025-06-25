@@ -94,7 +94,7 @@ export function VoterCheckInSuccessScreen({
 export function VoterCheckInScreen(): JSX.Element | null {
   const [flowState, setFlowState] = useState<CheckInFlowState>({
     step: 'search',
-    search: createEmptySearchParams(),
+    search: createEmptySearchParams(false),
   });
   const [timeoutIdForFlowStateReset, setTimeoutIdForFlowStateReset] =
     useState<ReturnType<typeof setTimeout>>();
@@ -103,7 +103,10 @@ export function VoterCheckInScreen(): JSX.Element | null {
 
   const resetFlowState = useCallback(() => {
     clearTimeout(timeoutIdForFlowStateReset);
-    setFlowState({ step: 'search', search: createEmptySearchParams() });
+    setFlowState({
+      step: 'search',
+      search: createEmptySearchParams(false),
+    });
   }, [timeoutIdForFlowStateReset]);
 
   const setSearch = useCallback((search: VoterSearchParams) => {

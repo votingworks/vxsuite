@@ -15,7 +15,7 @@ function getDetailsPageUrl(voter: Voter): string {
 export function ElectionManagerVotersScreen(): JSX.Element | null {
   const history = useHistory();
   const [search, setSearch] = useState<VoterSearchParams>(
-    createEmptySearchParams()
+    createEmptySearchParams(false)
   );
   const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
 
@@ -38,7 +38,7 @@ export function ElectionManagerVotersScreen(): JSX.Element | null {
           search={search}
           setSearch={setSearch}
           onBarcodeScanMatch={(voter) => {
-            setSearch(createEmptySearchParams());
+            setSearch(createEmptySearchParams(true));
             history.push(getDetailsPageUrl(voter));
           }}
           renderAction={(voter) => (

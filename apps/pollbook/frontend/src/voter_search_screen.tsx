@@ -59,12 +59,15 @@ const VoterTable = styled(Table)`
   }
 `;
 
-export function createEmptySearchParams(): VoterSearchParams {
+export function createEmptySearchParams(
+  exactMatch: boolean
+): VoterSearchParams {
   return {
     lastName: '',
     middleName: '',
     firstName: '',
     suffix: '',
+    exactMatch,
   };
 }
 
@@ -113,7 +116,6 @@ export function VoterSearch({
         middleName: scannedIdDocument.middleName,
         lastName: scannedIdDocument.lastName,
         suffix: scannedIdDocument.nameSuffix,
-        includeInactiveVoters,
         exactMatch: true,
       };
       setSearch(merged);
