@@ -161,9 +161,21 @@ test('election fixture references', async () => {
     },
     {
       path: expect.stringContaining(
+        'fixtures/data/electionMultiPartyPrimary/election.json'
+      ),
+      title: 'electionMultiPartyPrimary',
+    },
+    {
+      path: expect.stringContaining(
         'fixtures/data/electionPrimaryPrecinctSplits/electionGeneratedWithGridLayoutsMultiLang.json'
       ),
       title: 'electionPrimaryPrecinctSplits',
+    },
+    {
+      path: expect.stringContaining(
+        'fixtures/data/electionSimpleSinglePrecinct/election.json'
+      ),
+      title: 'electionSimpleSinglePrecinct',
     },
     {
       path: expect.stringContaining(
