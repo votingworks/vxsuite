@@ -246,7 +246,6 @@ export class LocalStore extends Store {
       return [];
     }
 
-    // TODO - This might be wrong if we are filtering out inactive voters, see if its a perf hit to always get the db events.
     if (voterRows.length > MAX_VOTER_SEARCH_RESULTS) {
       return voterRows.length;
     }
