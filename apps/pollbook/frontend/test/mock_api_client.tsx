@@ -84,7 +84,6 @@ function getDefaultExpectedVoterSearchParams(
     middleName: input.middleName || '',
     lastName: input.lastName || '',
     suffix: input.suffix || '',
-    includeInactiveVoters: input.includeInactiveVoters || false,
   };
 }
 

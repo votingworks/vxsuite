@@ -292,7 +292,6 @@ export interface VoterSearchParams {
   middleName: string;
   firstName: string;
   suffix: string;
-  includeInactiveVoters: boolean;
 }
 
 export type StreetSide = 'even' | 'odd' | 'all';
@@ -433,7 +432,7 @@ export type ConfigurationStatus =
   | 'recently-unconfigured'
   | 'network-conflicting-pollbook-packages-match-card';
 
-export type VoterCheckInError = 'already_checked_in' | 'voter_inactive';
+export type VoterCheckInError = 'already_checked_in';
 
 export interface DuplicateVoterError {
   type: 'duplicate-voter';

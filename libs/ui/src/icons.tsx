@@ -70,6 +70,7 @@ import {
   faTowerBroadcast,
   faRotate,
   faEnvelope,
+  faFlag,
   faSortUp,
   faSpinner,
   faStrikethrough,
@@ -328,6 +329,10 @@ export const Icons = {
 
   File(props) {
     return <FaIcon {...props} type={faFile} />;
+  },
+
+  Flag(props) {
+    return <FaIcon {...props} type={faFlag} />;
   },
 
   Globe(props) {

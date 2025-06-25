@@ -218,8 +218,7 @@ export class LocalStore extends Store {
   }
 
   searchVoters(searchParams: VoterSearchParams): Voter[] | number {
-    const { lastName, firstName, middleName, suffix, includeInactiveVoters } =
-      searchParams;
+    const { lastName, firstName, middleName, suffix } = searchParams;
     const MAX_VOTER_SEARCH_RESULTS = 100;
 
     const lastNamePattern = toPatternStartsWith(lastName);
@@ -247,7 +246,6 @@ export class LocalStore extends Store {
       return [];
     }
 
-    // TODO - This might be wrong if we are filtering out inactive voters, see if its a perf hit to always get the db events.
     if (voterRows.length > MAX_VOTER_SEARCH_RESULTS) {
       return voterRows.length;
     }
@@ -278,15 +276,6 @@ export class LocalStore extends Store {
     const events = convertDbRowsToPollbookEvents(eventRows);
     const updatedVoters = applyPollbookEventsToVoters(voters, events);
 
-    // Filter out inactive voters if includeInactiveVoters is false
-    if (!includeInactiveVoters) {
-      const filteredVoters = Object.values(updatedVoters).filter(
-        (v) => !v.isInactive
-      );
-      return sortedByVoterName(filteredVoters);
-    }
-
-    // Return the sorted list of voters
     return sortedByVoterName(Object.values(updatedVoters));
   }
 

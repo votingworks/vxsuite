@@ -10,9 +10,10 @@ import {
   LabelledText,
   MainContent,
   MainHeader,
+  Modal,
   SearchSelect,
 } from '@votingworks/ui';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import type { VoterIdentificationMethod } from '@votingworks/pollbook-backend';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { Column, Row } from './layout';
@@ -56,6 +57,7 @@ export function VoterConfirmScreen({
 }): JSX.Element | null {
   const getVoterQuery = getVoter.useQuery(voterId);
   const [showUpdateAddressFlow, setShowUpdateAddressFlow] = useState(false);
+  const [showInactiveVoterModal, setShowInactiveVoterModal] = useState(false);
   const [identificationMethod, setIdentificationMethod] = useState<
     Partial<VoterIdentificationMethod>
   >({ type: 'default' });
@@ -65,6 +67,10 @@ export function VoterConfirmScreen({
   }
 
   const voter = getVoterQuery.data;
+
+  function closeInactiveVoterModal() {
+    setShowInactiveVoterModal(false);
+  }
 
   if (showUpdateAddressFlow) {
     return (
@@ -86,9 +92,17 @@ export function VoterConfirmScreen({
       </MainHeader>
       <MainContent style={{ display: 'flex', flexDirection: 'column' }}>
         <Column style={{ gap: '0.5rem', flex: 1 }}>
-          {!isAbsenteeMode && (
+          {!isAbsenteeMode && !voter.isInactive && (
             <Callout icon="Danger" color="warning">
               Read the voter&apos;s information aloud to confirm their identity.
+            </Callout>
+          )}
+          {voter.isInactive && (
+            <Callout icon="Flag" color="danger">
+              <strong>
+                This voter was flagged as inactive. Notify an election manager
+                if anyone attempts to check in with this identity.
+              </strong>
             </Callout>
           )}
           <Card color="neutral">
@@ -186,11 +200,15 @@ export function VoterConfirmScreen({
       <ButtonBar>
         <Button
           rightIcon="Next"
-          variant="primary"
+          variant={voter.isInactive ? 'danger' : 'primary'}
           disabled={!isIdentificationMethodComplete(identificationMethod)}
           onPress={() => {
             assert(isIdentificationMethodComplete(identificationMethod));
-            onConfirm(identificationMethod);
+            if (voter.isInactive) {
+              setShowInactiveVoterModal(true);
+            } else {
+              onConfirm(identificationMethod);
+            }
           }}
           style={{ flex: 1 }}
         >
@@ -200,6 +218,28 @@ export function VoterConfirmScreen({
           Cancel
         </Button>
       </ButtonBar>
+      {showInactiveVoterModal && (
+        <Modal
+          title="Confirm Check-In"
+          content="This voter was flagged as inactive. Continue only if you have confirmed with an election manager that the voter was flagged as inactive in error."
+          actions={
+            <React.Fragment>
+              <Button
+                rightIcon="Next"
+                variant="danger"
+                onPress={() => {
+                  assert(isIdentificationMethodComplete(identificationMethod));
+                  onConfirm(identificationMethod);
+                }}
+              >
+                Confirm Check-In
+              </Button>
+              <Button onPress={closeInactiveVoterModal}>Cancel</Button>
+            </React.Fragment>
+          }
+          onOverlayClick={closeInactiveVoterModal}
+        />
+      )}
     </NoNavScreen>
   );
 }
