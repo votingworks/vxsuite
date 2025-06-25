@@ -116,6 +116,7 @@ export function VoterCheckInScreen(): JSX.Element | null {
   const onSelect = useCallback(
     (voterId: string) => {
       if (flowState.step !== 'search') {
+        /* istanbul ignore next - @preserve */
         return;
       }
 
@@ -219,6 +220,7 @@ export function VoterCheckInScreen(): JSX.Element | null {
           errorMessage = 'Voter Already Checked In';
           break;
         default:
+          /* istanbul ignore next - @preserve */
           throwIllegalValue(flowState.errorType);
       }
       return (
@@ -246,6 +248,7 @@ export function VoterCheckInScreen(): JSX.Element | null {
       );
     }
     default:
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(flowState);
   }
 }

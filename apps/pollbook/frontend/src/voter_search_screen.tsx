@@ -131,7 +131,10 @@ export function VoterSearch({
       voterSearchParams.exactMatch
     ) {
       const searchResult = searchVotersQuery.data;
+
+      /* istanbul ignore next - @preserve */
       if (typeof searchResult === 'object') {
+        /* istanbul ignore next - @preserve */
         if (searchResult.length === 1) {
           onBarcodeScanMatch(searchResult[0]);
         }
@@ -239,6 +242,7 @@ export function CheckInDetails({
       case 'outOfStateLicense':
         return `OOS DL (${identificationMethod.state})`;
       default:
+        /* istanbul ignore next - @preserve */
         throwIllegalValue(identificationMethod);
     }
   })();

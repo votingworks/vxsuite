@@ -140,7 +140,6 @@ describe('PollWorkerScreen', () => {
       middleName: document.middleName,
       lastName: document.lastName,
       suffix: document.nameSuffix,
-      includeInactiveVoters: false,
       exactMatch: true,
     };
     const mockVoter: Voter = {
