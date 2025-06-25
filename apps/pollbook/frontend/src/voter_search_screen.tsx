@@ -133,11 +133,8 @@ export function VoterSearch({
       const searchResult = searchVotersQuery.data;
 
       /* istanbul ignore next - @preserve */
-      if (typeof searchResult === 'object') {
-        /* istanbul ignore next - @preserve */
-        if (searchResult.length === 1) {
-          onBarcodeScanMatch(searchResult[0]);
-        }
+      if (typeof searchResult === 'object' && searchResult.length === 1) {
+        onBarcodeScanMatch(searchResult[0]);
       }
     }
   }, [
