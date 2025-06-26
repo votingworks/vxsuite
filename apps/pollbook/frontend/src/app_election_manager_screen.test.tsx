@@ -5,7 +5,7 @@ import {
   VoterRegistrationRequest,
 } from '@votingworks/pollbook-backend';
 import { Election, ElectionDefinition } from '@votingworks/types';
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import { electionMultiPartyPrimaryFixtures } from '@votingworks/fixtures';
 
 import userEvent from '@testing-library/user-event';
 import {
@@ -19,10 +19,9 @@ import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals';
 import { DEFAULT_QUERY_REFETCH_INTERVAL } from './api';
 
 let apiMock: ApiMock;
-const famousNamesElection: Election =
-  electionFamousNames2021Fixtures.readElection();
-const famousNamesElectionDef: ElectionDefinition =
-  electionFamousNames2021Fixtures.readElectionDefinition();
+const election: Election = electionMultiPartyPrimaryFixtures.readElection();
+const electionDef: ElectionDefinition =
+  electionMultiPartyPrimaryFixtures.readElectionDefinition();
 
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
@@ -38,16 +37,28 @@ afterEach(() => {
 });
 
 test('basic e2e registration flow works', async () => {
-  const validStreetInfo: ValidStreetInfo = {
-    streetName: 'Main St',
-    side: 'even',
-    lowRange: 1000,
-    highRange: 2000,
-    postalCityTown: 'CITYVILLE',
-    zip5: '12345',
-    zip4: '6789',
-    precinct: 'District',
-  };
+  const validStreetInfos: ValidStreetInfo[] = [
+    {
+      streetName: 'Main St',
+      side: 'even',
+      lowRange: 1000,
+      highRange: 2000,
+      postalCityTown: 'CITYVILLE',
+      zip5: '12345',
+      zip4: '6789',
+      precinct: 'precinct-1',
+    },
+    {
+      streetName: 'Main St',
+      side: 'even',
+      lowRange: 2000,
+      highRange: 3000,
+      postalCityTown: 'CITYVILLE',
+      zip5: '12345',
+      zip4: '6789',
+      precinct: 'precinct-2',
+    },
+  ];
   const voter = createMockVoter('123', 'Abigail', 'Adams');
   const registrationData: VoterRegistrationRequest = {
     streetNumber: '1000',
@@ -65,14 +76,15 @@ test('basic e2e registration flow works', async () => {
     addressLine3: '',
     suffix: '',
     middleName: '',
+    precinct: 'precinct-1',
   };
 
   apiMock.expectGetDeviceStatuses();
-  apiMock.authenticateAsElectionManager(famousNamesElection);
-  apiMock.setElection(famousNamesElectionDef, 'precinct-1');
+  apiMock.authenticateAsElectionManager(election);
+  apiMock.setElection(electionDef, 'precinct-1');
   const { unmount } = render(<App apiClient={apiMock.mockApiClient} />);
 
-  apiMock.expectGetValidStreetInfo([validStreetInfo]);
+  apiMock.expectGetValidStreetInfo(validStreetInfos);
   await screen.findByText('Registration');
 
   const registrationTab = await screen.findByRole('button', {
@@ -97,10 +109,15 @@ test('basic e2e registration flow works', async () => {
 
   // Set invalid street address
   const streetNumberInput = screen.getByLabelText('Street Number');
-  userEvent.type(streetNumberInput, '3000');
+  userEvent.type(streetNumberInput, '4000');
   userEvent.click(screen.getByLabelText('Street Name'));
   userEvent.keyboard('[Enter]');
   await screen.findByText(/Invalid address/);
+
+  // Set street address for a different precinct
+  userEvent.clear(streetNumberInput);
+  userEvent.type(streetNumberInput, '2500');
+  await screen.findByText(/This address is not in the current precinct/);
 
   // Set valid street address
   userEvent.clear(streetNumberInput);

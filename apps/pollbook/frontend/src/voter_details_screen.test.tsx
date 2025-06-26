@@ -7,7 +7,10 @@ import {
 } from '@votingworks/pollbook-backend';
 import { Route, Switch } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  electionMultiPartyPrimaryFixtures,
+} from '@votingworks/fixtures';
 import { screen, waitFor, within } from '../test/react_testing_library';
 import {
   ApiMock,
@@ -154,7 +157,7 @@ test('invalid address change', async () => {
       postalCityTown: 'CONCORD',
       zip5: '03301',
       zip4: '1111',
-      precinct: '',
+      precinct: 'precinct-1',
     },
   ];
   apiMock.expectGetValidStreetInfo(validStreetInfo);
@@ -178,6 +181,47 @@ test('invalid address change', async () => {
   );
 });
 
+test('invalid address change for precinct', async () => {
+  apiMock.setPrinterStatus(true);
+  apiMock.expectGetDeviceStatuses();
+  apiMock.setElection(
+    electionMultiPartyPrimaryFixtures.readElectionDefinition(),
+    'precinct-1'
+  );
+  const validStreetInfo: ValidStreetInfo[] = [
+    {
+      streetName: 'MAIN ST',
+      side: 'all',
+      lowRange: 1,
+      highRange: 100,
+      postalCityTown: 'CONCORD',
+      zip5: '03301',
+      zip4: '1111',
+      precinct: 'precinct-2',
+    },
+  ];
+  apiMock.expectGetValidStreetInfo(validStreetInfo);
+
+  await renderComponent();
+
+  userEvent.click(screen.getButton('Update Address'));
+
+  await screen.findByRole('heading', { name: 'Update Voter Address' });
+
+  userEvent.click(screen.getByLabelText('Street Name'));
+  userEvent.keyboard('[Enter]');
+
+  const partInput = await screen.findByRole('textbox', {
+    name: 'Street Number',
+  });
+  userEvent.type(partInput, '42');
+
+  await vi.waitFor(
+    async () =>
+      await screen.findByText(/This address is not in the current precinct./)
+  );
+});
+
 test('valid address change', async () => {
   apiMock.setPrinterStatus(true);
   apiMock.expectGetDeviceStatuses();
@@ -190,7 +234,7 @@ test('valid address change', async () => {
       postalCityTown: 'CONCORD',
       zip5: '03301',
       zip4: '1111',
-      precinct: '',
+      precinct: 'precinct-1',
     },
   ];
   apiMock.expectGetValidStreetInfo(validStreetInfo);
@@ -236,6 +280,7 @@ test('valid address change', async () => {
     streetSuffix: '',
     houseFractionNumber: '',
     state: 'NH',
+    precinct: 'precinct-1',
   };
   const expectation = {
     voterId: mockVoterId,

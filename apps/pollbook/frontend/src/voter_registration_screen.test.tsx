@@ -25,7 +25,7 @@ const validStreetInfo: ValidStreetInfo = {
   postalCityTown: 'Concord',
   zip5: '03301',
   zip4: '6789',
-  precinct: 'District',
+  precinct: 'precinct-1',
 };
 
 const mockRegistrationData: VoterRegistrationRequest = {
@@ -44,6 +44,7 @@ const mockRegistrationData: VoterRegistrationRequest = {
   city: 'CONCORD',
   state: 'NH',
   zipCode: '03301',
+  precinct: 'precinct-1',
 };
 
 const famousNamesElectionDef: ElectionDefinition =
