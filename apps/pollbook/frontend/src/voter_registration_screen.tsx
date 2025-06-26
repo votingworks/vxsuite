@@ -48,6 +48,7 @@ function createBlankVoter(): VoterRegistrationRequest {
     city: '',
     state: 'NH',
     zipCode: '',
+    precinct: '',
   };
 }
 
@@ -111,14 +112,30 @@ export function VoterRegistrationScreen(): JSX.Element | null {
 
   const isAddressValid = !(voter.city === '' || voter.zipCode === '');
 
+  const isAddressInWrongPrecinct = useMemo(
+    () =>
+      isAddressValid &&
+      getPollbookConfigurationInformationQuery.data !== undefined &&
+      getPollbookConfigurationInformationQuery.data.configuredPrecinctId !==
+        undefined &&
+      voter.precinct !==
+        getPollbookConfigurationInformationQuery.data.configuredPrecinctId,
+    [
+      isAddressValid,
+      voter.precinct,
+      getPollbookConfigurationInformationQuery.data,
+    ]
+  );
+
   const isSubmitDisabled = useMemo(
     () =>
       voter.firstName.trim() === '' ||
       voter.lastName.trim() === '' ||
       voter.streetName.trim() === '' ||
       voter.party.trim() === '' ||
-      !isAddressValid,
-    [voter, isAddressValid]
+      !isAddressValid ||
+      isAddressInWrongPrecinct,
+    [voter, isAddressValid, isAddressInWrongPrecinct]
   );
 
   if (
@@ -210,6 +227,12 @@ export function VoterRegistrationScreen(): JSX.Element | null {
                     a valid address for this jurisdiction.
                   </Callout>
                 )}
+              {isAddressInWrongPrecinct && (
+                <Callout icon="Danger" color="danger">
+                  This address is not in the current precinct. Voters can only
+                  be registered to addresses within the configured precinct.
+                </Callout>
+              )}
             </Column>
           </MainContent>
           <ButtonBar>

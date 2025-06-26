@@ -15,12 +15,12 @@ import {
   Callout,
   H4,
 } from '@votingworks/ui';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Column, Row } from './layout';
 import { NoNavScreen } from './nav_screen';
 import { TitledCard, VoterName } from './shared_components';
 import { AddressInputGroup } from './address_input_group';
-import { changeVoterAddress } from './api';
+import { changeVoterAddress, getPollbookConfigurationInformation } from './api';
 import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals';
 
 type UpdateAddressFlowState =
@@ -40,6 +40,7 @@ function createBlankAddress(): VoterAddressChangeRequest {
     city: '',
     state: 'NH',
     zipCode: '',
+    precinct: '',
   };
 }
 
@@ -52,10 +53,31 @@ function UpdateAddressScreen({
   onConfirm: (address: VoterAddressChangeRequest) => void;
   onCancel: () => void;
 }): JSX.Element {
+  const configurationQuery = getPollbookConfigurationInformation.useQuery();
   const [address, setAddress] = useState<VoterAddressChangeRequest>(
     createBlankAddress()
   );
   const isAddressValid = !(address.city === '' || address.zipCode === '');
+
+  const isAddressInWrongPrecinct = useMemo(
+    () =>
+      isAddressValid &&
+      configurationQuery.data !== undefined &&
+      configurationQuery.data.configuredPrecinctId !== undefined &&
+      address.precinct !== configurationQuery.data.configuredPrecinctId,
+    [isAddressValid, address.precinct, configurationQuery.data]
+  );
+
+  const isSubmitDisabled = useMemo(
+    () =>
+      voter.firstName.trim() === '' ||
+      voter.lastName.trim() === '' ||
+      voter.streetName.trim() === '' ||
+      voter.party.trim() === '' ||
+      !isAddressValid ||
+      isAddressInWrongPrecinct,
+    [voter, isAddressValid, isAddressInWrongPrecinct]
+  );
 
   return (
     <NoNavScreen>
@@ -83,20 +105,19 @@ function UpdateAddressScreen({
                 valid address for this jurisdiction.
               </Callout>
             )}
+          {isAddressInWrongPrecinct && (
+            <Callout icon="Danger" color="danger">
+              This address is not in the current precinct. Voters can only have
+              their address changed to addresses within the configured precinct.
+            </Callout>
+          )}
         </Column>
       </MainContent>
       <ButtonBar>
         <Button
           rightIcon="Next"
           variant="primary"
-          disabled={
-            !(
-              address.streetNumber &&
-              address.streetName &&
-              address.city &&
-              address.zipCode
-            )
-          }
+          disabled={isSubmitDisabled}
           onPress={() => onConfirm(address)}
           style={{ flex: 1 }}
         >
