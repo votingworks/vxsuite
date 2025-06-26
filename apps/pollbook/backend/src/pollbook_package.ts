@@ -6,7 +6,7 @@ import { parse } from 'csv-parse/sync';
 import {
   openZip,
   getEntries,
-  getFileByName,
+  getFilePrefixedByName,
   readTextEntry,
   isSystemAdministratorAuth,
   isElectionManagerAuth,
@@ -47,9 +47,9 @@ function toCamelCase(str: string) {
 }
 
 export enum PollbookPackageFileName {
-  ELECTION = 'election.json',
-  VOTERS = 'voters.csv',
-  STREET_NAMES = 'streetNames.csv',
+  ELECTION = 'election',
+  VOTERS = 'voters',
+  STREET_NAMES = 'streetNames',
 }
 
 export function parseValidStreetsFromCsvString(
@@ -64,11 +64,14 @@ export function parseValidStreetsFromCsvString(
         return null;
       }
       const street: ValidStreetInfo = record;
+      const postalCityTown = record.postalCityTown ?? record.postalCity;
       return {
         ...street,
         lowRange: safeParseInt(street.lowRange).unsafeUnwrap(),
         highRange: safeParseInt(street.highRange).unsafeUnwrap(),
         side: street.side.toLowerCase() as StreetSide,
+        postalCityTown,
+        precinct: record.ward ?? record.district,
       };
     },
   });
@@ -85,15 +88,18 @@ export function parseVotersFromCsvString(csvString: string): Voter[] {
       }
       const postalZip5 = record.postalZip5 ?? record.zip5;
       const mailingCityTown = record.mailingCityTown ?? record.mailingTown;
+      const postalCityTown = record.postalCityTown ?? record.postalCity;
       const voter: Voter = record;
       return {
         ...voter,
+        precinct: record.ward ?? record.district,
         // Add leading zeros to zip codes if necessary
         postalZip5: postalZip5 && postalZip5.padStart(5, '0'),
         zip4: voter.zip4 && voter.zip4.padStart(4, '0'),
         mailingZip5: voter.mailingZip5 && voter.mailingZip5.padStart(5, '0'),
         mailingZip4: voter.mailingZip4 && voter.mailingZip4.padStart(4, '0'),
         mailingCityTown,
+        postalCityTown,
       };
     },
   });
@@ -126,9 +132,10 @@ export async function readPollbookPackage(
     const entries = getEntries(zipFile);
     const packageHash = sha256(fileContents);
 
-    const electionEntry = getFileByName(
+    const electionEntry = getFilePrefixedByName(
       entries,
       PollbookPackageFileName.ELECTION,
+      'json',
       zipName
     );
     const electionJsonString = await readTextEntry(electionEntry);
@@ -144,17 +151,19 @@ export async function readPollbookPackage(
     }
     const electionDefinition = electionResult.ok();
 
-    const votersEntry = getFileByName(
+    const votersEntry = getFilePrefixedByName(
       entries,
       PollbookPackageFileName.VOTERS,
+      'csv',
       zipName
     );
     const votersCsvString = await readTextEntry(votersEntry);
     const voters = parseVotersFromCsvString(votersCsvString);
 
-    const streetsEntry = getFileByName(
+    const streetsEntry = getFilePrefixedByName(
       entries,
       PollbookPackageFileName.STREET_NAMES,
+      'csv',
       zipName
     );
     const streetCsvString = await readTextEntry(streetsEntry);

@@ -1,7 +1,10 @@
 import { beforeEach, afterEach, expect, test, vi, vitest } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { err } from '@votingworks/basics';
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import {
+  electionMultiPartyPrimaryFixtures,
+  electionSimpleSinglePrecinctFixtures,
+} from '@votingworks/fixtures';
 import {
   mockElectionManagerAuth,
   mockSystemAdministratorAuth,
@@ -11,8 +14,8 @@ import { mockPollbookPackageFileTree } from '../test/pollbook_package';
 import { CONFIGURATION_POLLING_INTERVAL } from './globals';
 import { parseValidStreetsFromCsvString } from './pollbook_package';
 
-const electionDefinition =
-  electionFamousNames2021Fixtures.readElectionDefinition();
+const singlePrecinctElectionDefinition =
+  electionSimpleSinglePrecinctFixtures.readElectionDefinition();
 
 let mockNodeEnv: 'production' | 'test' = 'test';
 
@@ -129,7 +132,7 @@ test('app config - polling usb from backend does not trigger with election manag
 
     mockElectionManagerAuth(
       auth,
-      electionFamousNames2021Fixtures.readElection()
+      electionSimpleSinglePrecinctFixtures.readElection()
     );
     vitest.advanceTimersByTime(CONFIGURATION_POLLING_INTERVAL);
     expect(await localApiClient.getElection()).toEqual(
@@ -139,9 +142,9 @@ test('app config - polling usb from backend does not trigger with election manag
     // Add a valid pollbook package to the USB drive
     mockUsbDrive.insertUsbDrive(
       await mockPollbookPackageFileTree(
-        electionFamousNames2021Fixtures.electionJson.asBuffer(),
-        electionFamousNames2021Fixtures.pollbookVoters.asText(),
-        electionFamousNames2021Fixtures.pollbookStreetNames.asText()
+        electionSimpleSinglePrecinctFixtures.electionSinglePrecinctBase.asBuffer(),
+        electionSimpleSinglePrecinctFixtures.pollbookTownVoters.asText(),
+        electionSimpleSinglePrecinctFixtures.pollbookTownStreetNames.asText()
       )
     );
     // We don't actually expect the usb drive status to be called
@@ -164,9 +167,9 @@ test('app config - polling usb from backend does trigger with system admin auth'
     // Add a valid pollbook package to the USB drive
     mockUsbDrive.insertUsbDrive(
       await mockPollbookPackageFileTree(
-        electionFamousNames2021Fixtures.electionJson.asBuffer(),
-        electionFamousNames2021Fixtures.pollbookVoters.asText(),
-        electionFamousNames2021Fixtures.pollbookStreetNames.asText()
+        electionSimpleSinglePrecinctFixtures.electionSinglePrecinctBase.asBuffer(),
+        electionSimpleSinglePrecinctFixtures.pollbookTownVoters.asText(),
+        electionSimpleSinglePrecinctFixtures.pollbookTownStreetNames.asText()
       )
     );
     vitest.advanceTimersByTime(CONFIGURATION_POLLING_INTERVAL);
@@ -176,7 +179,8 @@ test('app config - polling usb from backend does trigger with system admin auth'
       const result = await localApiClient.getElection();
       // Configured for proper election
       expect(result.unsafeUnwrap().id).toEqual(
-        electionFamousNames2021Fixtures.electionJson.readElection().id
+        electionSimpleSinglePrecinctFixtures.electionSinglePrecinctBase.readElection()
+          .id
       );
     });
   });
@@ -184,18 +188,20 @@ test('app config - polling usb from backend does trigger with system admin auth'
 
 test('setConfiguredPrecinct sets and getPollbookConfigurationInformation returns the configured precinct', async () => {
   await withApp(async ({ localApiClient, workspace }) => {
-    // Initially, no configured precinct
-    let config = await localApiClient.getPollbookConfigurationInformation();
+    // Initially, no configured precinct on a multi precinct election
     const testStreets = parseValidStreetsFromCsvString(
-      electionFamousNames2021Fixtures.pollbookStreetNames.asText()
+      electionMultiPartyPrimaryFixtures.pollbookCityStreetNames.asText()
     );
+    const multiPrecinctElection =
+      electionMultiPartyPrimaryFixtures.readElectionDefinition();
     workspace.store.setElectionAndVoters(
-      electionDefinition,
+      multiPrecinctElection,
       'mock-package-hash',
       testStreets,
       []
     );
-    expect(config.configuredPrecinctId).toBeUndefined();
+    let config = await localApiClient.getPollbookConfigurationInformation();
+    expect(config.configuredPrecinctId).toBeNull();
 
     const result = await localApiClient.setConfiguredPrecinct({
       precinctId: 'precinct-xyz',
@@ -205,14 +211,33 @@ test('setConfiguredPrecinct sets and getPollbookConfigurationInformation returns
     );
 
     const ok = await localApiClient.setConfiguredPrecinct({
-      precinctId: electionDefinition.election.precincts[0].id,
+      precinctId: multiPrecinctElection.election.precincts[0].id,
     });
     expect(ok.ok()).toEqual(undefined);
 
     // Now it should be returned
     config = await localApiClient.getPollbookConfigurationInformation();
     expect(config.configuredPrecinctId).toEqual(
-      electionDefinition.election.precincts[0].id
+      multiPrecinctElection.election.precincts[0].id
+    );
+  });
+});
+
+test('setting a single precinct election automatically sets the configured precinct', async () => {
+  await withApp(async ({ localApiClient, workspace }) => {
+    // Initially, no configured precinct on a multi precinct election
+    const testStreets = parseValidStreetsFromCsvString(
+      electionSimpleSinglePrecinctFixtures.pollbookTownStreetNames.asText()
+    );
+    workspace.store.setElectionAndVoters(
+      singlePrecinctElectionDefinition,
+      'mock-package-hash',
+      testStreets,
+      []
+    );
+    const config = await localApiClient.getPollbookConfigurationInformation();
+    expect(config.configuredPrecinctId).toEqual(
+      singlePrecinctElectionDefinition.election.precincts[0].id
     );
   });
 });

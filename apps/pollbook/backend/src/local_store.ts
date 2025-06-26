@@ -414,7 +414,7 @@ export class LocalStore extends Store {
       party: voterRegistration.party as 'DEM' | 'REP' | 'UND', // this is already validated
       timestamp: new Date(getCurrentTime()).toISOString(),
       voterId: generateId(),
-      district: streetInfo.district,
+      precinct: streetInfo.precinct,
     };
     const newVoter = createVoterFromRegistrationData(registrationEvent);
     const timestamp = this.incrementClock();

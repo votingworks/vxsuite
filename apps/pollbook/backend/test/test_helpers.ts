@@ -56,7 +56,7 @@ export function createVoter(
     mailingZip5: '12345',
     mailingZip4: '6789',
     party: 'UND',
-    district: 'District',
+    precinct: 'Precinct',
     isInactive: false,
   };
 }
@@ -88,7 +88,7 @@ export function createValidStreetInfo(
   side: 'even' | 'odd' | 'all',
   lowRange: number,
   highRange: number,
-  postalCity?: string,
+  postalCityTown?: string,
   zip5?: string
 ): ValidStreetInfo {
   return {
@@ -96,10 +96,10 @@ export function createValidStreetInfo(
     side,
     lowRange,
     highRange,
-    postalCity: postalCity || 'Manchester',
+    postalCityTown: postalCityTown || 'Manchester',
     zip5: zip5 || '03101',
     zip4: '0000',
-    district: 'NH',
+    precinct: '1',
   };
 }
 
@@ -200,10 +200,10 @@ export function setupTestElectionAndVoters(store: Store): void {
       side: 'even',
       lowRange: 2,
       highRange: 100,
-      postalCity: 'Somewhere',
+      postalCityTown: 'Somewhere',
       zip5: '12345',
       zip4: '6789',
-      district: 'Somewhere',
+      precinct: 'Somewhere',
     },
   ];
   store.setElectionAndVoters(

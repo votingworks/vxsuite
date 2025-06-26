@@ -108,7 +108,7 @@ export interface Voter {
   mailingZip5: string;
   mailingZip4: string;
   party: PartyAbbreviation;
-  district: string;
+  precinct: string;
   nameChange?: VoterNameChange;
   addressChange?: VoterAddressChange;
   registrationEvent?: VoterRegistration;
@@ -182,7 +182,7 @@ export interface VoterRegistration extends VoterRegistrationRequest {
   party: PartyAbbreviation;
   timestamp: string;
   voterId: string;
-  district: string;
+  precinct: string;
 }
 
 export const VoterRegistrationSchema: z.ZodSchema<VoterRegistration> =
@@ -190,7 +190,7 @@ export const VoterRegistrationSchema: z.ZodSchema<VoterRegistration> =
     party: z.union([z.literal('DEM'), z.literal('REP'), z.literal('UND')]),
     timestamp: z.string(),
     voterId: z.string(),
-    district: z.string(),
+    precinct: z.string(),
   });
 
 export const VoterSchema: z.ZodSchema<Voter> = z.object({
@@ -222,7 +222,7 @@ export const VoterSchema: z.ZodSchema<Voter> = z.object({
   mailingZip5: z.string(),
   mailingZip4: z.string(),
   party: z.union([z.literal('DEM'), z.literal('REP'), z.literal('UND')]),
-  district: z.string(),
+  precinct: z.string(),
   checkIn: VoterCheckInSchema.optional(),
   registrationEvent: VoterRegistrationSchema.optional(),
   addressChange: VoterAddressChangeSchema.optional(),
@@ -302,10 +302,11 @@ export interface ValidStreetInfo {
   side: StreetSide;
   lowRange: number;
   highRange: number;
-  postalCity: string;
+  postalCityTown: string;
+  precinct: string;
+  city?: string;
   zip5: string;
   zip4: string;
-  district: string;
 }
 
 export const ValidStreetInfoSchema: z.ZodSchema<ValidStreetInfo[]> = z.array(
@@ -314,10 +315,10 @@ export const ValidStreetInfoSchema: z.ZodSchema<ValidStreetInfo[]> = z.array(
     side: z.union([z.literal('even'), z.literal('odd'), z.literal('all')]),
     lowRange: z.number(),
     highRange: z.number(),
-    postalCity: z.string(),
+    postalCityTown: z.string(),
     zip5: z.string(),
     zip4: z.string(),
-    district: z.string(),
+    precinct: z.string(),
   })
 );
 

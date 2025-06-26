@@ -8,6 +8,7 @@ exports[`has various election definitions 1`] = `
   "electionGridLayoutNewHampshireTestBallotFixtures",
   "electionMultiPartyPrimaryFixtures",
   "electionPrimaryPrecinctSplitsFixtures",
+  "electionSimpleSinglePrecinctFixtures",
   "electionTwoPartyPrimaryFixtures",
   "electionWithMsEitherNeitherFixtures",
   "sampleBallotImages",

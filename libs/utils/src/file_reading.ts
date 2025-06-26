@@ -64,7 +64,45 @@ export async function readJsonEntry(entry: JSZipObject): Promise<unknown> {
 }
 
 /**
+ * Finds the most recently modified file in the entries that matches the given prefix and extension.
  * @param entries - represents the entries of a zip file
+ * @param prefix - the prefix the file name should start with
+ * @param extension - the file extension (including the dot, e.g. ".json")
+ * @param zipName - human-readable name of the zip file for use in error handling
+ * @returns the JSZipObject of the most recently modified matching file
+ * @throws if no matching file is found
+ */
+export function getFilePrefixedByName(
+  entries: JSZipObject[],
+  prefix: string,
+  extension: string,
+  zipName = 'Zip object'
+): JSZipObject {
+  const matching = entries.filter(
+    (entry) => entry.name.startsWith(prefix) && entry.name.endsWith(extension)
+  );
+  if (matching.length === 0) {
+    throw new Error(
+      `${zipName} does not have a file starting with '${prefix}' and ending with '${extension}'`
+    );
+  }
+  // Choose the most recently modified file (by date, fallback to last in list)
+  const sortedMatching = matching.slice().sort((a, b) => {
+    const aDate = a.date?.getTime?.() ?? 0;
+    const bDate = b.date?.getTime?.() ?? 0;
+    return bDate - aDate;
+  });
+  if (sortedMatching[0] === undefined) {
+    throw new Error(
+      `${zipName} does not have a file starting with '${prefix}' and ending with '${extension}'`
+    );
+  }
+
+  return sortedMatching[0];
+}
+
+/**
+ * Finds a file in the entries by its name.
  * @param name - the target file to find in the entries
  * @param [zipName] - human-readable name zip file for use in error handling
  * @returns contents of the target file as a JSZipObject

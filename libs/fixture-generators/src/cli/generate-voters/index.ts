@@ -292,25 +292,32 @@ interface StreetMapping {
   high: number;
   city: string;
   zip: string;
+  district: string;
 }
 
 // Generate an array of street mappings from streetNames
-function generateStreetMappings(): StreetMapping[] {
+function generateStreetMappings(
+  mode: 'town' | 'city',
+  numPrecincts?: number
+): StreetMapping[] {
   const mappings: StreetMapping[] = [];
   for (const street of streetNames) {
     const option = randomInt(1, 4);
+    const district =
+      mode === 'town' ? '1' : randomInt(1, numPrecincts || 1).toString();
+
     if (option === 3) {
       for (const side of ['ODD', 'EVEN'] as Array<'ODD' | 'EVEN'>) {
         const { low, high } = generateRangeForSide(side);
         const { city, zip } = getRandomCity();
-        mappings.push({ street, side, low, high, city, zip });
+        mappings.push({ street, side, low, high, city, zip, district });
       }
     } else {
       const side: 'ODD' | 'EVEN' | 'ALL' =
         option === 1 ? 'ODD' : option === 2 ? 'EVEN' : 'ALL';
       const { low, high } = generateRangeForSide(side);
       const { city, zip } = getRandomCity();
-      mappings.push({ street, side, low, high, city, zip });
+      mappings.push({ street, side, low, high, city, zip, district });
     }
   }
   return mappings;
@@ -327,14 +334,15 @@ function getValidStreetNumber(mapping: StreetMapping): number {
   return num;
 }
 
-// Update generateVoter to accept a mappings array.
+// Update generateVoter to accept a mappings array and mode.
 function generateVoter(
   id: number,
-  mappings: StreetMapping[]
+  mappings: StreetMapping[],
+  mode: 'town' | 'city'
 ): Record<string, string> {
   const mapping = mappings[randomInt(0, mappings.length - 1)]!;
   const streetNumber = getValidStreetNumber(mapping);
-  return {
+  const baseVoter: Record<string, string> = {
     'Voter ID': id.toString(),
     'Last Name': getRandomElement(lastNames).toUpperCase(),
     Suffix: '',
@@ -363,30 +371,39 @@ function generateVoter(
     'Mailing Zip 5': '',
     'Mailing Zip +4': '',
     Party: 'UND',
-    District: '0',
   };
+
+  // Add either District or Ward column based on mode
+  if (mode === 'town') {
+    return { ...baseVoter, District: mapping.district };
+  }
+  return { ...baseVoter, Ward: mapping.district };
 }
 
-// Update generateVoters to accept mappings as a second parameter.
+// Update generateVoters to accept mappings and mode as parameters.
 function generateVoters(
   numVoters: number,
-  mappings: StreetMapping[]
+  mappings: StreetMapping[],
+  mode: 'town' | 'city'
 ): Array<Record<string, string>> {
   const voters = [];
   for (let i = 1; i <= numVoters; i += 1) {
-    voters.push(generateVoter(i, mappings));
+    voters.push(generateVoter(i, mappings, mode));
   }
   return voters;
 }
 
-// Update generateStreetCsv to use the mappings array.
-function generateStreetCsv(mappings: StreetMapping[]): string {
-  const header =
-    'Low Range,High Range,Side,Street Name,Postal City,Zip 5,Zip 4,District,School Dist,Village Dist,US Cong,Exec Counc,State Sen,State Rep,State Rep Flot,County Name,County Comm Dist';
+// Update generateStreetCsv to use the mappings array and mode.
+function generateStreetCsv(
+  mappings: StreetMapping[],
+  mode: 'town' | 'city'
+): string {
+  const districtColumnName = mode === 'town' ? 'District' : 'Ward';
+  const header = `Low Range,High Range,Side,Street Name,Postal City,Zip 5,Zip 4,${districtColumnName},School Dist,Village Dist,US Cong,Exec Counc,State Sen,State Rep,State Rep Flot,County Name,County Comm Dist`;
   const rows: string[] = [header];
   for (const m of mappings) {
     rows.push(
-      `${m.low},${m.high},${m.side},"${m.street}",${m.city},${m.zip},,"0",40,N/A,2,5,11,43,37,HILLSBOROUGH,"3RD HILLSBRGH"`
+      `${m.low},${m.high},${m.side},"${m.street}",${m.city},${m.zip},,${m.district},40,N/A,2,5,11,43,37,HILLSBOROUGH,"3RD HILLSBRGH"`
     );
   }
   return rows.join('\n');
@@ -394,15 +411,14 @@ function generateStreetCsv(mappings: StreetMapping[]): string {
 
 // eslint-disable-next-line vx/gts-jsdoc
 export function main(argv: readonly string[], { stdout, stderr }: IO): number {
-  if (argv.length < 4 || argv.length > 5) {
+  if (argv.length < 5 || argv.length > 7) {
     stderr.write(
-      'Usage: generate-voters NUM_VOTERS <output-path> [outputStreetPath]\n'
+      'Usage: generate-voters NUM_VOTERS MODE <output-path> [outputStreetPath] [numPrecincts]\n' +
+        'MODE: "town" (District=1) or "city" (Ward=random 1-numPrecincts)\n' +
+        'numPrecincts: Required for city mode, ignored for town mode\n'
     );
     return 1;
   }
-
-  // Generate street mappings from streetNames.
-  const streetMappings = generateStreetMappings();
 
   const numVotersToGenerate = safeParseInt(assertDefined(argv[2])).okOrElse(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -411,9 +427,39 @@ export function main(argv: readonly string[], { stdout, stderr }: IO): number {
       return 1;
     }
   );
-  const outputPath = assertDefined(argv[3]);
 
-  const voters = generateVoters(numVotersToGenerate, streetMappings);
+  const mode = assertDefined(argv[3]);
+  if (mode !== 'town' && mode !== 'city') {
+    stderr.write('MODE must be "town" or "city"\n');
+    return 1;
+  }
+
+  const outputPath = assertDefined(argv[4]);
+
+  let numPrecincts: number | undefined;
+  if (mode === 'city') {
+    if (argv.length < 6) {
+      stderr.write('numPrecincts is required for city mode\n');
+      return 1;
+    }
+    const precinctsArg = argv.length === 6 ? argv[5] : argv[6];
+    numPrecincts = safeParseInt(assertDefined(precinctsArg)).okOrElse(
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      (_) => {
+        stderr.write('numPrecincts must be a number\n');
+        return 1;
+      }
+    );
+    if (numPrecincts < 1) {
+      stderr.write('numPrecincts must be at least 1\n');
+      return 1;
+    }
+  }
+
+  // Generate street mappings with mode and optional numPrecincts.
+  const streetMappings = generateStreetMappings(mode, numPrecincts);
+
+  const voters = generateVoters(numVotersToGenerate, streetMappings, mode);
   const csvData = stringify(voters, { header: true });
   fs.writeFileSync(outputPath, csvData);
   stdout.write(
@@ -421,9 +467,15 @@ export function main(argv: readonly string[], { stdout, stderr }: IO): number {
   );
 
   // If outputStreetPath is provided, generate and write the street names CSV.
-  if (argv.length === 5) {
-    const outputStreetPath = assertDefined(argv[4]);
-    const streetCsv = generateStreetCsv(streetMappings);
+  const outputStreetPath =
+    argv.length >= 6 && (mode === 'town' || argv.length === 7)
+      ? mode === 'town'
+        ? argv[5]
+        : argv[5]
+      : undefined;
+
+  if (outputStreetPath) {
+    const streetCsv = generateStreetCsv(streetMappings, mode);
     fs.writeFileSync(outputStreetPath, streetCsv);
     stdout.write(
       `Generated street names CSV and saved to ${outputStreetPath}\n`
