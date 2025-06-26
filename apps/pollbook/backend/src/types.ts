@@ -459,3 +459,30 @@ export const AamvaDocumentSchema: z.ZodSchema<AamvaDocument> = z.strictObject({
   lastName: z.string(),
   nameSuffix: z.string(),
 });
+
+export interface BarcodeScannerError {
+  error: string;
+}
+
+export const BarcodeScannerErrorSchema: z.ZodSchema<BarcodeScannerError> =
+  z.strictObject({
+    error: z.string(),
+  });
+
+export type BarcodeScannerPayload = AamvaDocument | BarcodeScannerError;
+
+export const BarcodeScannerPayloadSchema = AamvaDocumentSchema.or(
+  BarcodeScannerErrorSchema
+);
+
+export function isAamvaDocument(
+  payload: BarcodeScannerPayload
+): payload is AamvaDocument {
+  return AamvaDocumentSchema.safeParse(payload).success;
+}
+
+export function isBarcodeScannerError(
+  payload?: BarcodeScannerPayload
+): payload is BarcodeScannerError {
+  return BarcodeScannerErrorSchema.safeParse(payload).success;
+}
