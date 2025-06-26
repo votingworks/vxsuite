@@ -97,6 +97,7 @@ describe('PollWorkerScreen', () => {
 
     const confirmButton = screen.getByText('Confirm Check-In');
     apiMock.expectCheckInVoter(voter);
+    apiMock.expectGetVoter(voter);
     userEvent.click(confirmButton);
     await screen.findByText('Voter Checked In');
 
@@ -187,7 +188,7 @@ describe('PollWorkerScreen', () => {
       apiMock.expectSearchVotersNull({});
       apiMock.expectGetScannedIdDocument();
 
-      await screen.findByText('Total Check-ins');
+      await vi.waitFor(async () => await screen.findByText('Total Check-ins'));
       const total = screen.getByTestId('total-check-ins');
       within(total).getByText('25');
       const machine = screen.getByTestId('machine-check-ins');

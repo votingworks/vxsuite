@@ -8,10 +8,10 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import type { Api, VoterSearchParams } from '@votingworks/pollbook-backend';
-import { deepEqual } from '@votingworks/basics';
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
   createSystemCallApi,
+  QUERY_CLIENT_DEFAULT_OPTIONS,
 } from '@votingworks/ui';
 
 export const DEFAULT_QUERY_REFETCH_INTERVAL = 1000;
@@ -19,7 +19,9 @@ export const DEFAULT_QUERY_REFETCH_INTERVAL = 1000;
 export type ApiClient = grout.Client<Api>;
 
 export function createApiClient(): ApiClient {
-  return grout.createClient<Api>({ baseUrl: '/api' });
+  return grout.createClient<Api>({
+    baseUrl: '/api',
+  });
 }
 
 export const ApiClientContext = React.createContext<ApiClient | undefined>(
@@ -36,20 +38,7 @@ export function useApiClient(): ApiClient {
 
 export function createQueryClient(): QueryClient {
   return new QueryClient({
-    defaultOptions: {
-      queries: {
-        networkMode: 'always',
-        refetchOnWindowFocus: false,
-        // In test, we only want to refetch when we explicitly invalidate. In
-        // dev/prod, it's fine to refetch more aggressively.
-        refetchOnMount: process.env.NODE_ENV !== 'test',
-        useErrorBoundary: true,
-      },
-      mutations: {
-        networkMode: 'always',
-        useErrorBoundary: true,
-      },
-    },
+    defaultOptions: QUERY_CLIENT_DEFAULT_OPTIONS,
   });
 }
 
@@ -78,15 +67,6 @@ export const getAuthStatus = {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getAuthStatus(), {
       refetchInterval: AUTH_STATUS_POLLING_INTERVAL_MS,
-      structuralSharing(oldData, newData) {
-        if (!oldData) {
-          return newData;
-        }
-
-        // Prevent infinite re-renders of the app tree:
-        const isUnchanged = deepEqual(oldData, newData);
-        return isUnchanged ? oldData : newData;
-      },
     });
   },
 } as const;

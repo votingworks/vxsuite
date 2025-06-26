@@ -46,7 +46,7 @@ function AppRoot(): JSX.Element | null {
   const getAuthStatusQuery = getAuthStatus.useQuery();
   const getElectionQuery = getElection.useQuery({ refetchInterval: 100 });
 
-  if (!getAuthStatusQuery.isSuccess) {
+  if (!getAuthStatusQuery.isSuccess || !getElectionQuery.isSuccess) {
     return null;
   }
   const auth = getAuthStatusQuery.data;
@@ -114,7 +114,7 @@ function AppRoot(): JSX.Element | null {
   }
 
   if (isElectionManagerAuth(auth)) {
-    if (!getElectionQuery.isSuccess || getElectionQuery.data.isErr()) {
+    if (getElectionQuery.data.isErr()) {
       return <UnconfiguredElectionManagerScreen />;
     }
     return <ElectionManagerScreen />;

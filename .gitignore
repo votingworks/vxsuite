@@ -23,6 +23,7 @@ junit.xml
 .env.production.local
 .vscode
 *.local
+*.github/instructions/**
 
 *.log
 *~
