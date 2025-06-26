@@ -26,6 +26,7 @@ beforeEach(() => {
   apiMock.setElection(electionDefFamousNames);
   apiMock.expectGetDeviceStatuses();
   apiMock.expectHaveElectionEventsOccurred(false);
+  apiMock.expectGetScannedIdDocument();
 });
 
 afterEach(() => {
@@ -48,7 +49,11 @@ describe('Voters tab', () => {
 
     const voter = createMockVoter('123', 'Abigail', 'Adams');
     apiMock.expectSearchVotersWithResults(
-      { firstName: 'ABI', lastName: 'AD' },
+      {
+        firstName: 'ABI',
+        lastName: 'AD',
+        exactMatch: false,
+      },
       [voter]
     );
 

@@ -6,7 +6,7 @@ import { buildLocalApp } from './app';
 import { LOCAL_PORT } from './globals';
 import { LocalAppContext } from './types';
 import { getUserRole } from './auth';
-import { SocketServer } from './barcode_scanner/socket_server';
+import { BarcodeScannerClient } from './barcode_scanner/client';
 
 /**
  * Starts the server.
@@ -17,20 +17,23 @@ export function start(context: LocalAppContext): void {
     getUserRole(context.auth, context.workspace)
   );
 
-  const app = buildLocalApp({ context, logger });
+  const barcodeScannerClient = new BarcodeScannerClient(logger);
+  void barcodeScannerClient.listen();
+
+  const app = buildLocalApp({
+    context,
+    logger,
+    barcodeScannerClient,
+  });
 
   useDevDockRouter(app, express, {
     printerConfig: CITIZEN_THERMAL_PRINTER_CONFIG,
   });
 
-  const server = app.listen(LOCAL_PORT, () => {
+  app.listen(LOCAL_PORT, () => {
     // eslint-disable-next-line no-console
     console.log(
       `VxPollbook backend running at http://localhost:${LOCAL_PORT}/`
     );
   });
-
-  // Set up intermediary server between barcode scanner and frontend
-  const socketServer = new SocketServer(server, logger);
-  void socketServer.listen();
 }

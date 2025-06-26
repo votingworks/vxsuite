@@ -10,15 +10,14 @@ import {
   expect,
 } from 'vitest';
 import { PassThrough } from 'node:stream';
-import type { Server as HttpServer } from 'node:http';
 import * as net from 'node:net';
 import { mockLogger, LogSource, MockLogger } from '@votingworks/logging';
 import { tryConnect } from './unix_socket';
 import {
   connectToBarcodeScannerSocket,
-  SocketServer,
+  BarcodeScannerClient,
   UDS_CONNECTION_ATTEMPT_DELAY_MS,
-} from './socket_server';
+} from './client';
 
 vi.mock('./unix_socket');
 vi.mock('socket.io', () => ({
@@ -55,14 +54,9 @@ describe('SocketServer.listen event handling', () => {
 
     mockedTryConnect.mockResolvedValue(mockSocket as unknown as net.Socket);
 
-    const mockHttpServer = {
-      address() {
-        return { address: '127.0.0.1', port: 4000, family: 'IPv4' };
-      },
-    } as unknown as HttpServer;
-    const server = new SocketServer(mockHttpServer, logger);
+    const barcodeScannerClient = new BarcodeScannerClient(logger);
     expect(mockedTryConnect).toHaveBeenCalledTimes(0);
-    const listenPromise = server.listen();
+    const listenPromise = barcodeScannerClient.listen();
 
     // Wait for listener to be bound
     await vi.waitFor(() =>

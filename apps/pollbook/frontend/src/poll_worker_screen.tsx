@@ -94,7 +94,7 @@ export function VoterCheckInSuccessScreen({
 export function VoterCheckInScreen(): JSX.Element | null {
   const [flowState, setFlowState] = useState<CheckInFlowState>({
     step: 'search',
-    search: createEmptySearchParams(),
+    search: createEmptySearchParams(false),
   });
   const [timeoutIdForFlowStateReset, setTimeoutIdForFlowStateReset] =
     useState<ReturnType<typeof setTimeout>>();
@@ -103,8 +103,31 @@ export function VoterCheckInScreen(): JSX.Element | null {
 
   const resetFlowState = useCallback(() => {
     clearTimeout(timeoutIdForFlowStateReset);
-    setFlowState({ step: 'search', search: createEmptySearchParams() });
+    setFlowState({
+      step: 'search',
+      search: createEmptySearchParams(false),
+    });
   }, [timeoutIdForFlowStateReset]);
+
+  const setSearch = useCallback((search: VoterSearchParams) => {
+    setFlowState({ step: 'search', search });
+  }, []);
+
+  const onSelect = useCallback(
+    (voterId: string) => {
+      if (flowState.step !== 'search') {
+        /* istanbul ignore next - @preserve */
+        return;
+      }
+
+      setFlowState({
+        step: 'confirm',
+        voterId,
+        search: flowState.search,
+      });
+    },
+    [flowState]
+  );
 
   if (!getIsAbsenteeModeQuery.isSuccess) {
     return null;
@@ -117,11 +140,9 @@ export function VoterCheckInScreen(): JSX.Element | null {
       return (
         <VoterSearchScreen
           search={flowState.search}
-          setSearch={(search) => setFlowState({ step: 'search', search })}
+          setSearch={setSearch}
           isAbsenteeMode={isAbsenteeMode}
-          onSelect={(voterId) =>
-            setFlowState({ step: 'confirm', voterId, search: flowState.search })
-          }
+          onSelect={onSelect}
         />
       );
 
@@ -198,6 +219,7 @@ export function VoterCheckInScreen(): JSX.Element | null {
           errorMessage = 'Voter Already Checked In';
           break;
         default:
+          /* istanbul ignore next - @preserve */
           throwIllegalValue(flowState.errorType);
       }
       return (
@@ -225,6 +247,7 @@ export function VoterCheckInScreen(): JSX.Element | null {
       );
     }
     default:
+      /* istanbul ignore next - @preserve */
       throwIllegalValue(flowState);
   }
 }

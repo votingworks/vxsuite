@@ -6,6 +6,7 @@ import {
 } from '@votingworks/types';
 import { createMockClient } from '@votingworks/grout-test-utils';
 import type {
+  AamvaDocument,
   Api,
   ConfigurationError,
   ConfigurationStatus,
@@ -84,6 +85,7 @@ function getDefaultExpectedVoterSearchParams(
     middleName: input.middleName || '',
     lastName: input.lastName || '',
     suffix: input.suffix || '',
+    exactMatch: input.exactMatch || false,
   };
 }
 
@@ -522,6 +524,12 @@ export function createApiMock() {
           .expectCallWith({ machineId })
           .resolves(ok());
       }
+    },
+
+    expectGetScannedIdDocument(document?: AamvaDocument) {
+      mockApiClient.getScannedIdDocument
+        .expectOptionalRepeatedCallsWith()
+        .resolves(ok(document));
     },
   };
 }

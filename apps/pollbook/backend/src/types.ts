@@ -292,6 +292,7 @@ export interface VoterSearchParams {
   middleName: string;
   firstName: string;
   suffix: string;
+  exactMatch?: boolean;
 }
 
 export type StreetSide = 'even' | 'odd' | 'all';
