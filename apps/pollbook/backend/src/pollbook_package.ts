@@ -1,7 +1,11 @@
 import { Result, assertDefined, err, iter, ok } from '@votingworks/basics';
 import { readFile, ReadFileError } from '@votingworks/fs';
 import { sha256 } from 'js-sha256';
-import { safeParseElectionDefinition, safeParseInt } from '@votingworks/types';
+import {
+  Election,
+  safeParseElectionDefinition,
+  safeParseInt,
+} from '@votingworks/types';
 import { parse } from 'csv-parse/sync';
 import {
   openZip,
@@ -52,9 +56,29 @@ export enum PollbookPackageFileName {
   STREET_NAMES = 'streetNames',
 }
 
+export function getExternalPrecinctIdMappingFromElection(
+  election: Election
+): Record<string, string> {
+  const externalIdToPrecinctId: Record<string, string> = {};
+  for (const precinct of election.precincts) {
+    const nameParts = precinct.name.split(/[\s-]+/);
+    const externalId = nameParts[nameParts.length - 1];
+    if (!externalId) {
+      throw new Error(
+        `Invalid precinct external identifier for precinct "${precinct.name}"`
+      );
+    }
+    externalIdToPrecinctId[externalId] = precinct.id;
+  }
+  return externalIdToPrecinctId;
+}
+
 export function parseValidStreetsFromCsvString(
-  csvString: string
+  csvString: string,
+  election: Election
 ): ValidStreetInfo[] {
+  const externalIdToPrecinctId =
+    getExternalPrecinctIdMappingFromElection(election);
   return parse(csvString, {
     columns: (header) => header.map(toCamelCase),
     skipEmptyLines: true,
@@ -71,13 +95,18 @@ export function parseValidStreetsFromCsvString(
         highRange: safeParseInt(street.highRange).unsafeUnwrap(),
         side: street.side.toLowerCase() as StreetSide,
         postalCityTown,
-        precinct: record.ward ?? record.district,
+        precinct: externalIdToPrecinctId[record.ward ?? record.district] || '',
       };
     },
   });
 }
 
-export function parseVotersFromCsvString(csvString: string): Voter[] {
+export function parseVotersFromCsvString(
+  csvString: string,
+  election: Election
+): Voter[] {
+  const externalIdToPrecinctId =
+    getExternalPrecinctIdMappingFromElection(election);
   let voters: Voter[] = parse(csvString, {
     columns: (header) => header.map(toCamelCase),
     skipEmptyLines: true,
@@ -92,7 +121,7 @@ export function parseVotersFromCsvString(csvString: string): Voter[] {
       const voter: Voter = record;
       return {
         ...voter,
-        precinct: record.ward ?? record.district,
+        precinct: externalIdToPrecinctId[record.ward ?? record.district] || '',
         // Add leading zeros to zip codes if necessary
         postalZip5: postalZip5 && postalZip5.padStart(5, '0'),
         zip4: voter.zip4 && voter.zip4.padStart(4, '0'),
@@ -158,7 +187,10 @@ export async function readPollbookPackage(
       zipName
     );
     const votersCsvString = await readTextEntry(votersEntry);
-    const voters = parseVotersFromCsvString(votersCsvString);
+    const voters = parseVotersFromCsvString(
+      votersCsvString,
+      electionDefinition.election
+    );
 
     const streetsEntry = getFilePrefixedByName(
       entries,
@@ -167,7 +199,10 @@ export async function readPollbookPackage(
       zipName
     );
     const streetCsvString = await readTextEntry(streetsEntry);
-    const validStreets = parseValidStreetsFromCsvString(streetCsvString);
+    const validStreets = parseValidStreetsFromCsvString(
+      streetCsvString,
+      electionDefinition.election
+    );
 
     return ok({ electionDefinition, voters, validStreets, packageHash });
   } catch (error) {
