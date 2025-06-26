@@ -39,10 +39,12 @@ test('getPollbookConfigurationInformation', async () => {
     });
 
     const testVoters = parseVotersFromCsvString(
-      electionMultiPartyPrimaryFixtures.pollbookCityVoters.asText()
+      electionMultiPartyPrimaryFixtures.pollbookCityVoters.asText(),
+      electionDefinition.election
     );
     const testStreets = parseValidStreetsFromCsvString(
-      electionMultiPartyPrimaryFixtures.pollbookCityStreetNames.asText()
+      electionMultiPartyPrimaryFixtures.pollbookCityStreetNames.asText(),
+      electionDefinition.election
     );
     workspace.store.setElectionAndVoters(
       electionDefinition,
@@ -66,10 +68,12 @@ test('getPollbookConfigurationInformation', async () => {
 test('GET /file/pollbook-package returns 404 if file does not exist, 200 if it does', async () => {
   await withApp(async ({ peerServer, workspace }) => {
     const testVoters = parseVotersFromCsvString(
-      electionMultiPartyPrimaryFixtures.pollbookCityVoters.asText()
+      electionMultiPartyPrimaryFixtures.pollbookCityVoters.asText(),
+      electionDefinition.election
     );
     const testStreets = parseValidStreetsFromCsvString(
-      electionMultiPartyPrimaryFixtures.pollbookCityStreetNames.asText()
+      electionMultiPartyPrimaryFixtures.pollbookCityStreetNames.asText(),
+      electionDefinition.election
     );
     // Ensure no file exists
     const zipPath = join(workspace.assetDirectoryPath, 'pollbook-package.zip');

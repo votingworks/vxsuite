@@ -89,7 +89,8 @@ export function createValidStreetInfo(
   lowRange: number,
   highRange: number,
   postalCityTown?: string,
-  zip5?: string
+  zip5?: string,
+  precinctId: string = 'precinct-1'
 ): ValidStreetInfo {
   return {
     streetName,
@@ -99,7 +100,7 @@ export function createValidStreetInfo(
     postalCityTown: postalCityTown || 'Manchester',
     zip5: zip5 || '03101',
     zip4: '0000',
-    precinct: '1',
+    precinct: precinctId,
   };
 }
 
@@ -203,7 +204,7 @@ export function setupTestElectionAndVoters(store: Store): void {
       postalCityTown: 'Somewhere',
       zip5: '12345',
       zip4: '6789',
-      precinct: 'Somewhere',
+      precinct: 'precinct-1',
     },
   ];
   store.setElectionAndVoters(
