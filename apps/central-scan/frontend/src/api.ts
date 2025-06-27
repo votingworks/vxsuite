@@ -172,6 +172,9 @@ export const getNextReviewSheet = {
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getNextReviewSheet(), {
+      // Always refetch - using cached data could result in flashes of old data or even blank
+      // screens, as getNextReviewSheet intentionally returns null when there are no sheets left to
+      // review
       cacheTime: 0,
       staleTime: 0,
     });
@@ -185,8 +188,14 @@ export const getSheetImage = {
 
   useQuery({ sheetId, side }: { sheetId: Id; side: Side }) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey({ sheetId, side }), () =>
-      apiClient.getSheetImage({ sheetId, side })
+    return useQuery(
+      this.queryKey({ sheetId, side }),
+      () => apiClient.getSheetImage({ sheetId, side }),
+      // Don't let cached images take up memory - there's no benefit to caching them
+      {
+        cacheTime: 0,
+        staleTime: 0,
+      }
     );
   },
 } as const;
