@@ -531,6 +531,12 @@ export function createApiMock() {
         .expectOptionalRepeatedCallsWith()
         .resolves(ok(document));
     },
+
+    expectGetScannedIdDocumentUnknownType() {
+      mockApiClient.getScannedIdDocument
+        .expectOptionalRepeatedCallsWith()
+        .resolves(err(new Error('unknown_document_type')));
+    },
   };
 }
 
