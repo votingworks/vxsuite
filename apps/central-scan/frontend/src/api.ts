@@ -171,7 +171,10 @@ export const getNextReviewSheet = {
 
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getNextReviewSheet());
+    return useQuery(this.queryKey(), () => apiClient.getNextReviewSheet(), {
+      cacheTime: 0,
+      staleTime: 0,
+    });
   },
 } as const;
 
