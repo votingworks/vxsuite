@@ -12,6 +12,7 @@ import {
   Icons,
   LabelledText,
   Caption,
+  Modal,
 } from '@votingworks/ui';
 import debounce from 'lodash.debounce';
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
@@ -86,6 +87,7 @@ export function VoterSearch({
 }): JSX.Element {
   const [voterSearchParams, setVoterSearchParams] =
     useState<VoterSearchParams>(search);
+  const [displayUnknownScanError, setDisplayUnknownScanError] = useState(false);
   const updateDebouncedSearch = useMemo(
     () => debounce(setVoterSearchParams, 500),
     []
@@ -109,9 +111,14 @@ export function VoterSearch({
   let barcodeScannerError: Optional<Error>;
   if (barcodeScannerResponse) {
     scannedIdDocument = barcodeScannerResponse.ok();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     barcodeScannerError = barcodeScannerResponse.err();
   }
+
+  useEffect(() => {
+    if (barcodeScannerError?.message === 'unknown_document_type') {
+      setDisplayUnknownScanError(true);
+    }
+  }, [barcodeScannerError]);
 
   // Update the search input and query if we got a scanned document
   useEffect(() => {
@@ -123,6 +130,7 @@ export function VoterSearch({
         suffix: scannedIdDocument.nameSuffix,
         exactMatch: true,
       };
+      setDisplayUnknownScanError(false);
       setSearch(merged);
       setVoterSearchParams(merged);
     }
@@ -137,7 +145,6 @@ export function VoterSearch({
     ) {
       const searchResult = searchVotersQuery.data;
 
-      /* istanbul ignore next - @preserve */
       if (typeof searchResult === 'object' && searchResult.length === 1) {
         onBarcodeScanMatch(searchResult[0]);
       }
@@ -183,8 +190,8 @@ export function VoterSearch({
           </InputGroup>
         </Row>
       </Form>
-      {searchVotersQuery.data &&
-        (typeof searchVotersQuery.data === 'number' ? (
+      {searchVotersQuery.data ? (
+        typeof searchVotersQuery.data === 'number' ? (
           <Callout icon="Info" color="neutral">
             <div>
               Voters matched: {searchVotersQuery.data}. Refine your search
@@ -226,7 +233,28 @@ export function VoterSearch({
               </VoterTable>
             </VoterTableWrapper>
           </React.Fragment>
-        ))}
+        )
+      ) : (
+        displayUnknownScanError && (
+          <Modal
+            title="ID Not Recognized"
+            content={
+              <div>
+                Unable to read the scanned barcode. Please try scanning again or
+                enter the name manually.
+              </div>
+            }
+            actions={
+              <Button
+                onPress={() => setDisplayUnknownScanError(false)}
+                variant="primary"
+              >
+                Close
+              </Button>
+            }
+          />
+        )
+      )}
     </Column>
   );
 }
