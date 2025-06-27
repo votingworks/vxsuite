@@ -52,6 +52,7 @@ import {
   DuplicateVoterError,
   PollbookConfigurationInformation,
   AamvaDocument,
+  isBarcodeScannerError,
 } from './types';
 import { rootDebug } from './debug';
 import {
@@ -174,7 +175,12 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
 
     // Gets the latest scanned ID document
     getScannedIdDocument(): Result<Optional<AamvaDocument>, Error> {
-      return ok(barcodeScannerClient.readScannedValue());
+      const payload = barcodeScannerClient.readPayload();
+      if (isBarcodeScannerError(payload)) {
+        return err(new Error(payload.error));
+      }
+
+      return ok(payload);
     },
 
     getPrinterStatus(): Promise<PrinterStatus> {

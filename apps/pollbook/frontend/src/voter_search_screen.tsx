@@ -16,13 +16,14 @@ import {
 import debounce from 'lodash.debounce';
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import type {
+  AamvaDocument,
   Voter,
   VoterCheckIn,
   VoterSearchParams,
 } from '@votingworks/pollbook-backend';
 import styled from 'styled-components';
 import { format } from '@votingworks/utils';
-import { throwIllegalValue } from '@votingworks/basics';
+import { Optional, throwIllegalValue } from '@votingworks/basics';
 import { Column, Form, Row, InputGroup } from './layout';
 import { PollWorkerNavScreen } from './nav_screen';
 import { getCheckInCounts, getScannedIdDocument, searchVoters } from './api';
@@ -102,9 +103,15 @@ export function VoterSearch({
   const searchVotersQuery = searchVoters.useQuery(voterSearchParams);
   const getScannedIdDocumentQuery = getScannedIdDocument.useQuery();
 
-  const scannedIdDocument = getScannedIdDocumentQuery.data?.isOk()
-    ? getScannedIdDocumentQuery.data.ok()
-    : undefined;
+  const barcodeScannerResponse = getScannedIdDocumentQuery.data;
+
+  let scannedIdDocument: Optional<AamvaDocument>;
+  let barcodeScannerError: Optional<Error>;
+  if (barcodeScannerResponse) {
+    scannedIdDocument = barcodeScannerResponse.ok();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    barcodeScannerError = barcodeScannerResponse.err();
+  }
 
   // Update the search input and query if we got a scanned document
   useEffect(() => {

@@ -6,7 +6,13 @@ import {
   LogEventId,
   LogDispositionStandardTypes,
 } from '@votingworks/logging';
-import { AamvaDocument, AamvaDocumentSchema } from '../types';
+import {
+  AamvaDocument,
+  BarcodeScannerError,
+  BarcodeScannerPayload,
+  BarcodeScannerPayloadSchema,
+  isAamvaDocument,
+} from '../types';
 import { tryConnect } from './unix_socket';
 
 export const UDS_CONNECTION_ATTEMPT_DELAY_MS = 1000;
@@ -47,20 +53,24 @@ export async function connectToBarcodeScannerSocket(
 export class BarcodeScannerClient {
   constructor(
     private readonly logger: Logger,
-    private scannedDocument: Optional<AamvaDocument> = undefined
+    private scannedDocument: Optional<AamvaDocument> = undefined,
+    private error: Optional<BarcodeScannerError> = undefined
   ) {}
 
-  // Returns the latest scanned AAMVA document, consuming it in the process,
+  // Returns the latest payload from the barcode scanner daemon, consuming it in the process,
   // or undefined if there isn't one.
-  readScannedValue(): Optional<AamvaDocument> {
+  readPayload(): Optional<BarcodeScannerPayload> {
     /* istanbul ignore next - @preserve */
-    const value = this.scannedDocument;
-    if (value) {
+    const payload = this.scannedDocument ?? this.error ?? undefined;
+    /* istanbul ignore next - @preserve */
+    if (payload) {
       /* istanbul ignore next - @preserve */
       this.scannedDocument = undefined;
+      /* istanbul ignore next - @preserve */
+      this.error = undefined;
     }
     /* istanbul ignore next - @preserve */
-    return value;
+    return payload;
   }
 
   private scheduleReconnect(): void {
@@ -72,6 +82,7 @@ export class BarcodeScannerClient {
    */
   async listen(): Promise<void> {
     const udsClient = await connectToBarcodeScannerSocket(this.logger);
+    /* istanbul ignore next - @preserve */
     if (!udsClient) {
       /* istanbul ignore next - @preserve */
       return;
@@ -88,15 +99,22 @@ export class BarcodeScannerClient {
 
     for await (const line of lines(udsClient)) {
       try {
-        const result = safeParseJson(line, AamvaDocumentSchema);
+        const result = safeParseJson(line, BarcodeScannerPayloadSchema);
         /* istanbul ignore next - @preserve */
         if (result.isErr()) {
           await this.logger.logAsCurrentRole(LogEventId.ParseError, {
-            message: 'Could not parse barcode scan as AAMVA Document',
+            message: 'Could not parse barcode scanner message',
             error: result.err().message,
           });
+          continue;
+        }
+
+        const parsed = result.ok();
+        if (isAamvaDocument(parsed)) {
+          this.scannedDocument = parsed;
         } else {
-          this.scannedDocument = result.ok();
+          /* istanbul ignore next - @preserve */
+          this.error = parsed;
         }
       } catch (error) {
         /* istanbul ignore next - @preserve */
