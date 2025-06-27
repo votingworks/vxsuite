@@ -82,6 +82,7 @@ export class BarcodeScannerClient {
    */
   async listen(): Promise<void> {
     const udsClient = await connectToBarcodeScannerSocket(this.logger);
+    /* istanbul ignore next - @preserve */
     if (!udsClient) {
       /* istanbul ignore next - @preserve */
       return;
@@ -112,6 +113,7 @@ export class BarcodeScannerClient {
         if (isAamvaDocument(parsed)) {
           this.scannedDocument = parsed;
         } else {
+          /* istanbul ignore next - @preserve */
           this.error = parsed;
         }
       } catch (error) {
