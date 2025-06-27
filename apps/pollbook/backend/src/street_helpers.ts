@@ -37,39 +37,73 @@ export function maybeGetStreetInfoForAddress(
   return undefined;
 }
 
-export function isVoterRegistrationValid(
+/**
+ * Validates voter registration and returns street info only if the address is valid
+ * and from the correct precinct. Returns undefined if validation fails or if no
+ * precinct is configured.
+ */
+export function maybeGetStreetInfoForVoterRegistration(
   voterRegistration: VoterRegistrationRequest,
   streetInfo: ValidStreetInfo[]
-): boolean {
+): ValidStreetInfo | undefined {
+  // Basic field validation
+  if (
+    !isVoterNameChangeValid(voterRegistration) ||
+    voterRegistration.streetNumber.length === 0 ||
+    voterRegistration.city.length === 0 ||
+    voterRegistration.zipCode.length !== 5 ||
+    voterRegistration.party.length === 0 ||
+    !['DEM', 'REP', 'UND'].includes(voterRegistration.party)
+  ) {
+    return undefined;
+  }
+
+  // Get street info for the address
   const validStreetInfo = maybeGetStreetInfoForAddress(
     voterRegistration.streetName,
     voterRegistration.streetNumber,
     streetInfo
   );
-  return (
-    isVoterNameChangeValid(voterRegistration) &&
-    validStreetInfo !== undefined &&
-    voterRegistration.streetNumber.length > 0 &&
-    voterRegistration.city.length > 0 &&
-    voterRegistration.zipCode.length === 5 &&
-    voterRegistration.party.length > 0 &&
-    ['DEM', 'REP', 'UND'].includes(voterRegistration.party)
-  );
+
+  // Return street info only if it's valid and from the correct precinct
+  if (
+    validStreetInfo &&
+    validStreetInfo.precinct === voterRegistration.precinct
+  ) {
+    return validStreetInfo;
+  }
+  return undefined;
 }
 
-export function isVoterAddressChangeValid(
+/**
+ * Validates address change and returns street info only if the address is valid
+ * and from the correct precinct. Returns undefined if validation fails or if no
+ * precinct is configured.
+ */
+export function maybeGetStreetInfoForAddressChange(
   addressChange: VoterAddressChangeRequest,
   streetInfo: ValidStreetInfo[]
-): boolean {
+): ValidStreetInfo | undefined {
+  // Basic field validation
+  if (
+    addressChange.streetNumber.length === 0 ||
+    addressChange.city.length === 0 ||
+    addressChange.zipCode.length !== 5
+  ) {
+    return undefined;
+  }
+
+  // Get street info for the address
   const validStreetInfo = maybeGetStreetInfoForAddress(
     addressChange.streetName,
     addressChange.streetNumber,
     streetInfo
   );
-  return (
-    validStreetInfo !== undefined &&
-    addressChange.streetNumber.length > 0 &&
-    addressChange.city.length > 0 &&
-    addressChange.zipCode.length === 5
-  );
+
+  // Return street info only if it's valid and from the correct precinct
+  if (validStreetInfo && validStreetInfo.precinct === addressChange.precinct) {
+    return validStreetInfo;
+  }
+
+  return undefined;
 }

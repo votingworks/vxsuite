@@ -189,11 +189,12 @@ test('app config - polling usb from backend does trigger with system admin auth'
 test('setConfiguredPrecinct sets and getPollbookConfigurationInformation returns the configured precinct', async () => {
   await withApp(async ({ localApiClient, workspace }) => {
     // Initially, no configured precinct on a multi precinct election
-    const testStreets = parseValidStreetsFromCsvString(
-      electionMultiPartyPrimaryFixtures.pollbookCityStreetNames.asText()
-    );
     const multiPrecinctElection =
       electionMultiPartyPrimaryFixtures.readElectionDefinition();
+    const testStreets = parseValidStreetsFromCsvString(
+      electionMultiPartyPrimaryFixtures.pollbookCityStreetNames.asText(),
+      multiPrecinctElection.election
+    );
     workspace.store.setElectionAndVoters(
       multiPrecinctElection,
       'mock-package-hash',
@@ -227,7 +228,8 @@ test('setting a single precinct election automatically sets the configured preci
   await withApp(async ({ localApiClient, workspace }) => {
     // Initially, no configured precinct on a multi precinct election
     const testStreets = parseValidStreetsFromCsvString(
-      electionSimpleSinglePrecinctFixtures.pollbookTownStreetNames.asText()
+      electionSimpleSinglePrecinctFixtures.pollbookTownStreetNames.asText(),
+      singlePrecinctElectionDefinition.election
     );
     workspace.store.setElectionAndVoters(
       singlePrecinctElectionDefinition,

@@ -127,6 +127,7 @@ export interface VoterAddressChangeRequest {
   city: string;
   state: string;
   zipCode: string;
+  precinct: string;
 }
 
 export interface VoterAddressChange extends VoterAddressChangeRequest {
@@ -145,6 +146,7 @@ const VoterAddressChangeSchemaInternal = z.object({
   state: z.string(),
   zipCode: z.string(),
   timestamp: z.string(),
+  precinct: z.string(),
 });
 
 export const VoterAddressChangeSchema: z.ZodSchema<VoterAddressChange> =
