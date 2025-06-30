@@ -16,6 +16,7 @@ import {
 import React, { useState } from 'react';
 import type { VoterIdentificationMethod } from '@votingworks/pollbook-backend';
 import { assert, throwIllegalValue } from '@votingworks/basics';
+import { Election } from '@votingworks/types';
 import { Column, Row } from './layout';
 import { NoNavScreen } from './nav_screen';
 import { usStates } from './us_states';
@@ -23,11 +24,13 @@ import {
   AbsenteeModeCallout,
   AddressChange,
   PartyName,
+  PrecinctName,
   VoterAddress,
   VoterName,
 } from './shared_components';
 import { UpdateAddressFlow } from './update_address_flow';
 import { getVoter } from './api';
+import { getVoterPrecinct } from './types';
 
 function isIdentificationMethodComplete(
   identificationMethod: Partial<VoterIdentificationMethod>
@@ -49,11 +52,15 @@ export function VoterConfirmScreen({
   isAbsenteeMode,
   onCancel,
   onConfirm,
+  election,
+  configuredPrecinctId,
 }: {
   voterId: string;
   isAbsenteeMode: boolean;
   onCancel: () => void;
   onConfirm: (identificationMethod: VoterIdentificationMethod) => void;
+  election: Election;
+  configuredPrecinctId: string;
 }): JSX.Element | null {
   const getVoterQuery = getVoter.useQuery(voterId);
   const [showUpdateAddressFlow, setShowUpdateAddressFlow] = useState(false);
@@ -67,6 +74,8 @@ export function VoterConfirmScreen({
   }
 
   const voter = getVoterQuery.data;
+  const isVoterInWrongPrecinct =
+    configuredPrecinctId !== getVoterPrecinct(voter);
 
   function closeInactiveVoterModal() {
     setShowInactiveVoterModal(false);
@@ -105,6 +114,14 @@ export function VoterConfirmScreen({
               </strong>
             </Callout>
           )}
+          {isVoterInWrongPrecinct && (
+            <Callout icon="Flag" color="danger">
+              <strong>
+                The voter cannot be checked in because their address is in
+                another precinct.
+              </strong>
+            </Callout>
+          )}
           <Card color="neutral">
             {voter.nameChange && (
               <div>
@@ -126,6 +143,14 @@ export function VoterConfirmScreen({
               <LabelledText label="Party">
                 <PartyName party={voter.party} />
               </LabelledText>
+              {election.precincts.length > 1 && (
+                <LabelledText label="Precinct">
+                  <PrecinctName
+                    precinctId={getVoterPrecinct(voter)}
+                    election={election}
+                  />
+                </LabelledText>
+              )}
               <Row style={{ gap: '1.5rem' }}>
                 <LabelledText
                   label={voter.addressChange ? <s>Address</s> : 'Address'}
@@ -155,6 +180,7 @@ export function VoterConfirmScreen({
               <Row style={{ gap: '0.5rem' }}>
                 <CheckboxButton
                   label="Out-of-State ID"
+                  disabled={isVoterInWrongPrecinct}
                   onChange={(checked) => {
                     setIdentificationMethod(
                       checked
@@ -201,7 +227,10 @@ export function VoterConfirmScreen({
         <Button
           rightIcon="Next"
           variant={voter.isInactive ? 'danger' : 'primary'}
-          disabled={!isIdentificationMethodComplete(identificationMethod)}
+          disabled={
+            isVoterInWrongPrecinct ||
+            !isIdentificationMethodComplete(identificationMethod)
+          }
           onPress={() => {
             assert(isIdentificationMethodComplete(identificationMethod));
             if (voter.isInactive) {

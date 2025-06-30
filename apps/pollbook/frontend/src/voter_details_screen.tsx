@@ -27,11 +27,13 @@ import {
   markVoterInactive,
   undoVoterCheckIn,
   getPollbookConfigurationInformation,
+  getElection,
 } from './api';
 import { Column, Row } from './layout';
 import {
   AddressChange,
   PartyName,
+  PrecinctName,
   VoterAddress,
   VoterName,
 } from './shared_components';
@@ -39,6 +41,7 @@ import { UpdateAddressFlow } from './update_address_flow';
 import { UpdateNameFlow } from './update_name_flow';
 import { CheckInDetails } from './voter_search_screen';
 import { PRINTING_INDICATOR_DELAY_MS } from './globals';
+import { getVoterPrecinct } from './types';
 
 interface Params {
   voterId: string;
@@ -231,6 +234,7 @@ export function VoterDetailsScreen(): JSX.Element | null {
   const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
   const getPollbookConfigurationInformationQuery =
     getPollbookConfigurationInformation.useQuery();
+  const getElectionQuery = getElection.useQuery();
 
   async function reprintReceipt() {
     setIsPrinting(true);
@@ -249,7 +253,8 @@ export function VoterDetailsScreen(): JSX.Element | null {
 
   if (
     !getDeviceStatusesQuery.isSuccess ||
-    !getPollbookConfigurationInformationQuery.isSuccess
+    !getPollbookConfigurationInformationQuery.isSuccess ||
+    !getElectionQuery.isSuccess
   ) {
     return null;
   }
@@ -257,6 +262,7 @@ export function VoterDetailsScreen(): JSX.Element | null {
   const { printer } = getDeviceStatusesQuery.data;
   const { configuredPrecinctId } =
     getPollbookConfigurationInformationQuery.data;
+  const election = assertDefined(getElectionQuery.data.unsafeUnwrap());
 
   if (!voterQuery.isSuccess) {
     return (
@@ -350,6 +356,14 @@ export function VoterDetailsScreen(): JSX.Element | null {
               <LabelledText label="Party">
                 <PartyName party={voter.party} />
               </LabelledText>
+              {election.precincts.length > 1 && (
+                <LabelledText label="Precinct">
+                  <PrecinctName
+                    precinctId={getVoterPrecinct(voter)}
+                    election={election}
+                  />
+                </LabelledText>
+              )}
               <Row style={{ gap: '1.5rem' }}>
                 <LabelledText
                   label={voter.addressChange ? <s>Address</s> : 'Address'}
@@ -375,7 +389,11 @@ export function VoterDetailsScreen(): JSX.Element | null {
           <Row style={{ gap: '0.5rem' }}>
             <Button
               icon="Edit"
-              disabled={voter.isInactive || !configuredPrecinctId}
+              disabled={
+                voter.isInactive ||
+                !configuredPrecinctId ||
+                configuredPrecinctId !== getVoterPrecinct(voter)
+              }
               onPress={() => setShowUpdateNameFlow(true)}
             >
               Update Name
@@ -428,7 +446,10 @@ export function VoterDetailsScreen(): JSX.Element | null {
             <Button
               icon="Flag"
               color="danger"
-              disabled={!configuredPrecinctId}
+              disabled={
+                !configuredPrecinctId ||
+                configuredPrecinctId !== getVoterPrecinct(voter)
+              }
               onPress={() => setShowMarkInactiveFlow(true)}
             >
               Flag Voter as Inactive

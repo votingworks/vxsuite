@@ -25,6 +25,7 @@ import type {
 import styled from 'styled-components';
 import { format } from '@votingworks/utils';
 import { Optional, throwIllegalValue } from '@votingworks/basics';
+import { Election } from '@votingworks/types';
 import { Column, Form, Row, InputGroup } from './layout';
 import { PollWorkerNavScreen } from './nav_screen';
 import { getCheckInCounts, getScannedIdDocument, searchVoters } from './api';
@@ -32,9 +33,11 @@ import {
   AbsenteeModeCallout,
   AddressChange,
   PartyName,
+  PrecinctName,
   VoterAddress,
   VoterName,
 } from './shared_components';
+import { getVoterPrecinct } from './types';
 
 const VoterTableWrapper = styled(Card)`
   overflow: hidden;
@@ -79,11 +82,13 @@ export function VoterSearch({
   // Function to call when exactly one voter is matched by scanning an ID
   onBarcodeScanMatch,
   renderAction,
+  election,
 }: {
   search: VoterSearchParams;
   setSearch: (search: VoterSearchParams) => void;
   onBarcodeScanMatch: (voter: Voter) => void;
   renderAction: (voter: Voter) => React.ReactNode;
+  election: Election;
 }): JSX.Element {
   const [voterSearchParams, setVoterSearchParams] =
     useState<VoterSearchParams>(search);
@@ -216,6 +221,15 @@ export function VoterSearch({
                           <VoterName voter={voter} lastNameFirst />
                         </H2>
                         <PartyName party={voter.party} />
+                        {election.precincts.length > 1 && (
+                          <span>
+                            {' • '}
+                            <PrecinctName
+                              precinctId={getVoterPrecinct(voter)}
+                              election={election}
+                            />
+                          </span>
+                        )}
                       </td>
                       <td>
                         {voter.addressChange ? (
@@ -301,11 +315,15 @@ export function VoterSearchScreen({
   setSearch,
   isAbsenteeMode,
   onSelect,
+  election,
+  configuredPrecinctId,
 }: {
   search: VoterSearchParams;
   setSearch: (search: VoterSearchParams) => void;
   isAbsenteeMode: boolean;
   onSelect: (voterId: string) => void;
+  election: Election;
+  configuredPrecinctId?: string;
 }): JSX.Element | null {
   const getCheckInCountsQuery = getCheckInCounts.useQuery();
 
@@ -351,6 +369,7 @@ export function VoterSearchScreen({
             search={search}
             setSearch={setSearch}
             onBarcodeScanMatch={onBarcodeScanMatch}
+            election={election}
             renderAction={(voter) =>
               voter.checkIn ? (
                 <CheckInDetails checkIn={voter.checkIn} />
@@ -362,7 +381,12 @@ export function VoterSearchScreen({
                   data-testid={`check-in-button#${voter.voterId}`}
                   onPress={() => onSelect(voter.voterId)}
                 >
-                  <Font noWrap>Start Check-In</Font>
+                  <Font noWrap>
+                    {configuredPrecinctId &&
+                    configuredPrecinctId === getVoterPrecinct(voter)
+                      ? 'Start Check-In'
+                      : 'View Details'}
+                  </Font>
                 </Button>
               )
             }
