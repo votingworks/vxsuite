@@ -46,7 +46,7 @@ export const Colors = {
   WHITE: '#FFFFFF',
   LIGHT_GRAY: '#EDEDED',
   DARK_GRAY: '#DADADA',
-  DARKER_GRAY: '#B0B0B0',
+  DARKER_GRAY: 'rgb(71, 71, 71)',
   INVERSE_GRAY: '#4A4A4A',
 } as const;
 
