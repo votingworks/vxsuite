@@ -71,9 +71,9 @@ const ButtonBar = styled.div`
   }
 `;
 
-const VoterHeader = styled.div`
-  align-items: start;
+const HeaderRow = styled.div`
   display: flex;
+  align-items: start;
   gap: ${(p) => getSpacingValueRem(p)}rem;
   padding: ${(p) => getSpacingValueRem(p)}rem;
   justify-content: space-between;
@@ -82,13 +82,6 @@ const VoterHeader = styled.div`
 const SettingsButtons = styled.div`
   display: flex;
   gap: ${(p) => getSpacingValueRem(p)}rem;
-`;
-
-const TitleBar = styled.div`
-  display: flex;
-  gap: ${(p) => getSpacingValueRem(p)}rem;
-  padding: ${(p) => getSpacingValueRem(p)}rem;
-  justify-content: space-between;
 `;
 
 const TitleContainer = styled.div`
@@ -150,7 +143,7 @@ export function Screen(props: ScreenProps): JSX.Element | null {
   return (
     <ScreenBase>
       {voterFacing && (
-        <VoterHeader>
+        <HeaderRow>
           <SettingsButtons>
             <LanguageSettingsButton
               onPress={() => setShouldShowLanguageSettings(true)}
@@ -159,13 +152,13 @@ export function Screen(props: ScreenProps): JSX.Element | null {
           </SettingsButtons>
           {showTestModeBanner && <TestModeCallout />}
           {ballotCountElement}
-        </VoterHeader>
+        </HeaderRow>
       )}
-      <TitleBar>
+      <HeaderRow>
         <TitleContainer>{title && <H1>{title}</H1>}</TitleContainer>
         {!voterFacing && showTestModeBanner && <TestModeCallout />}
         {!voterFacing && ballotCountElement}
-      </TitleBar>
+      </HeaderRow>
       {voterFacing ? (
         <ReadOnLoad as={Main} centerChild={centerContent} padded={padded}>
           {title && <AudioOnly>{title}</AudioOnly>}
