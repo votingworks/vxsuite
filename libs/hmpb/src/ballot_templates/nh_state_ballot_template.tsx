@@ -11,7 +11,6 @@ import {
 import {
   AnyContest,
   ballotPaperDimensions,
-  BallotStyleId,
   BallotType,
   Candidate,
   CandidateContest as CandidateContestStruct,
@@ -19,13 +18,11 @@ import {
   Election,
   getBallotStyle,
   getContests,
-  getPartyForBallotStyle,
   Party,
   YesNoContest,
 } from '@votingworks/types';
 import {
   BackendLanguageContextProvider,
-  Box,
   electionStrings,
   RichText,
 } from '@votingworks/ui';
@@ -44,6 +41,8 @@ import {
   OptionInfo,
   AlignedBubble,
   WRITE_IN_OPTION_CLASS,
+  Box,
+  ContestHeader,
 } from '../ballot_components';
 import {
   BaseBallotProps,
@@ -56,15 +55,14 @@ import { hmpbStrings } from '../hmpb_strings';
 import { layOutInColumns } from '../layout_in_columns';
 import { RenderScratchpad } from '../renderer';
 import { Instructions } from './nh_primary_ballot_template';
+import { signatureImage } from './nh_sos_signature_image';
 
 function Header({
   election,
-  ballotStyleId,
   ballotType,
   ballotMode,
 }: {
   election: Election;
-  ballotStyleId: BallotStyleId;
   ballotType: BallotType;
   ballotMode: BallotMode;
 }) {
@@ -87,35 +85,31 @@ function Header({
   };
   const ballotTitle = ballotTitles[ballotMode][ballotType];
 
-  const party =
-    election.type === 'primary'
-      ? assertDefined(getPartyForBallotStyle({ election, ballotStyleId }))
-      : undefined;
-
   return (
-    <Box
+    <div
       style={{
-        display: 'flex',
+        fontFamily: 'Roboto Condensed',
+        display: 'grid',
+        gridTemplateColumns: '2.3fr 1fr 1fr',
         gap: '1rem',
         alignItems: 'center',
       }}
     >
-      <div style={{ flex: 1 }}>
+      <div>
         <Instructions />
       </div>
-      <div style={{ flex: 1 }}>
+      <div>
         <DualLanguageText>
           <div
             style={{
               textAlign: 'center',
               display: 'flex',
-              gap: '0.5rem',
+              gap: '0.25rem',
               flexDirection: 'column',
             }}
           >
             <h4>{ballotTitle}</h4>
             <h1>{electionStrings.countyName(election.county)}</h1>
-            {party && <h1>{electionStrings.partyFullName(party)}</h1>}
             <h4>{electionStrings.electionTitle(election)}</h4>
             <h4>{electionStrings.electionDate(election)}</h4>
           </div>
@@ -123,7 +117,6 @@ function Header({
       </div>
       <div
         style={{
-          flex: 1,
           display: 'flex',
           flexDirection: 'column',
           gap: '0.5rem',
@@ -132,44 +125,38 @@ function Header({
       >
         <div
           style={{
-            height: '5rem',
+            height: '4.5rem',
             aspectRatio: '1 / 1',
             backgroundImage: `url(data:image/svg+xml;base64,${Buffer.from(
               election.seal
             ).toString('base64')})`,
             backgroundSize: 'contain',
             backgroundRepeat: 'no-repeat',
-            marginTop: '0.125rem',
           }}
         />
-        {/* <div style={{ textAlign: 'center' }}>
-          {clerkSignatureImage && (
-            <div
-              style={{
-                height: '3rem',
-                backgroundImage: `url(data:image/svg+xml;base64,${Buffer.from(
-                  clerkSignatureImage
-                ).toString('base64')})`,
-                backgroundSize: 'contain',
-                backgroundRepeat: 'no-repeat',
-                marginTop: '0.125rem',
-                marginBottom: '-0.5rem',
-                visibility: ballotMode === 'sample' ? 'hidden' : 'visible',
-              }}
-            />
-          )}
-          {clerkSignatureCaption && (
-            <div
-              style={{
-                visibility: ballotMode === 'sample' ? 'hidden' : 'visible',
-              }}
-            >
-              {clerkSignatureCaption}
-            </div>
-          )}
-        </div> */}
+        <div style={{ textAlign: 'center' }}>
+          <div
+            style={{
+              height: '2rem',
+              width: '7rem',
+              backgroundImage: `url(data:image/png;base64,${signatureImage})`,
+              backgroundSize: 'contain',
+              backgroundRepeat: 'no-repeat',
+              marginBottom: '-0.125rem',
+              visibility: ballotMode === 'sample' ? 'hidden' : 'visible',
+            }}
+          />
+          <div
+            style={{
+              visibility: ballotMode === 'sample' ? 'hidden' : 'visible',
+              fontSize: '0.8rem',
+            }}
+          >
+            Secretary of State
+          </div>
+        </div>
       </div>
-    </Box>
+    </div>
   );
 }
 
@@ -203,7 +190,7 @@ function BallotPageFrame({
         dimensions={pageDimensions}
         margins={pageMarginsInches}
       >
-        {/* {watermark && <Watermark>{watermark}</Watermark>} */}
+        {watermark && <Watermark>{watermark}</Watermark>}
         <TimingMarkGrid pageDimensions={pageDimensions}>
           <div
             style={{
@@ -218,7 +205,6 @@ function BallotPageFrame({
               <>
                 <Header
                   election={election}
-                  ballotStyleId={ballotStyleId}
                   ballotType={ballotType}
                   ballotMode={ballotMode}
                 />
@@ -251,13 +237,13 @@ function BallotPageFrame({
 const rowStyles = css`
   font-family: 'Roboto Condensed';
   display: grid;
-  grid-template-columns: 0.85fr repeat(3, 1fr) 0.8fr;
+  grid-template-columns: 0.75fr repeat(3, 1fr) 0.8fr;
 `;
 
 const CandidateContestSectionHeaderContainer = styled.div`
   ${rowStyles}
   border: 1px solid ${Colors.BLACK};
-  border-width: 2px 0 1px 0;
+  border-width: 0 0 0px 0;
   > div {
     background-color: rgb(71, 71, 71);
     color: ${Colors.WHITE};
@@ -266,6 +252,7 @@ const CandidateContestSectionHeaderContainer = styled.div`
     }
     padding: 0.5rem;
     font-weight: 500;
+    font-size: 1.1rem;
   }
 `;
 
@@ -290,14 +277,14 @@ const CandidateContestRow = styled.div`
 `;
 
 const CandidateListCell = styled.div`
-  border-bottom: 2px solid ${Colors.BLACK};
+  border-bottom: 2px solid ${Colors.DARKER_GRAY};
   border-right: 1px solid ${Colors.DARK_GRAY};
 `;
 
-const ContestHeader = styled.div`
+const ContestTitleCell = styled.div`
   min-width: 0;
   background-color: ${Colors.LIGHT_GRAY};
-  border-bottom: 2px solid ${Colors.BLACK};
+  border-bottom: 2px solid ${Colors.DARKER_GRAY};
   border-right: 1px solid ${Colors.DARK_GRAY};
   padding: 0.5rem;
 `;
@@ -306,14 +293,25 @@ function CandidateList({
   contestId,
   candidates,
   party,
+  offset,
 }: {
   contestId: ContestId;
   candidates: Candidate[];
   party?: Party;
+  offset?: boolean;
 }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      {candidates.map((candidate, i) => {
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        paddingTop: offset && candidates.length > 1 ? '1.375rem' : undefined,
+        justifyContent: candidates.length === 1 ? 'center' : 'start',
+        gap: '0.25rem',
+      }}
+    >
+      {candidates.map((candidate) => {
         const optionInfo: OptionInfo = {
           type: 'option',
           contestId,
@@ -323,15 +321,14 @@ function CandidateList({
           <div
             key={candidate.id}
             style={{
-              flex: 1,
               padding: '0.375rem 0.375rem',
-              borderTop: i !== 0 ? `1px solid ${Colors.DARK_GRAY}` : undefined,
+              height: '2rem',
             }}
           >
             <div
               style={{
                 display: 'flex',
-                gap: '0.5rem',
+                gap: '0.375rem',
                 justifyContent: 'end',
                 textAlign: 'right',
               }}
@@ -378,6 +375,18 @@ function CandidateContest({
     );
   }
 
+  const willBeElectedText = {
+    2: hmpbStrings.hmpb2WillBeElected,
+    3: hmpbStrings.hmpb3WillBeElected,
+    4: hmpbStrings.hmpb4WillBeElected,
+    5: hmpbStrings.hmpb5WillBeElected,
+    6: hmpbStrings.hmpb6WillBeElected,
+    7: hmpbStrings.hmpb7WillBeElected,
+    8: hmpbStrings.hmpb8WillBeElected,
+    9: hmpbStrings.hmpb9WillBeElected,
+    10: hmpbStrings.hmpb10WillBeElected,
+  }[contest.seats];
+
   const candidatesByParty = groupBy(
     [...contest.candidates],
     (candidate) => candidate.partyIds?.[0]
@@ -399,23 +408,22 @@ function CandidateContest({
 
   return (
     <CandidateContestRow>
-      <ContestHeader>
-        <DualLanguageText delimiter="/">
-          <h3>{electionStrings.contestTitle(contest)}</h3>
-        </DualLanguageText>
-        <DualLanguageText delimiter="/">
-          <div style={{ fontSize: '0.9em' }}>{voteForText}</div>
-        </DualLanguageText>
-        {contest.termDescription && (
-          <DualLanguageText delimiter="/">
-            <div>{electionStrings.contestTerm(contest)}</div>
-          </DualLanguageText>
+      <ContestTitleCell>
+        <div style={{ fontSize: '0.7rem' }}>For</div>
+        <h4>{electionStrings.contestTitle(contest)}</h4>
+        <div style={{ fontSize: '0.9rem' }}>{voteForText}</div>
+        {willBeElectedText && (
+          <div style={{ fontSize: '0.9rem' }}>{willBeElectedText}</div>
         )}
-      </ContestHeader>
+        {contest.termDescription && (
+          <div>{electionStrings.contestTerm(contest)}</div>
+        )}
+      </ContestTitleCell>
       <CandidateListCell>
         <CandidateList
           contestId={contest.id}
           candidates={democraticCandidates}
+          offset
         />
       </CandidateListCell>
       <CandidateListCell>
@@ -425,12 +433,13 @@ function CandidateContest({
         />
       </CandidateListCell>
       <CandidateListCell>
-        {otherCandidateGroups.map(([partyId, candidates]) => (
-          <div key={partyId}>
+        {otherCandidateGroups.map(([partyId, candidates], i) => (
+          <div key={partyId} style={{ height: '100%' }}>
             <CandidateList
               contestId={contest.id}
               candidates={candidates}
               party={find(parties, (p) => p.id === partyId)}
+              offset={i === 0}
             />
           </div>
         ))}
@@ -483,18 +492,44 @@ function CandidateContest({
   );
 }
 
+function BallotMeasureContestSectionHeader() {
+  return (
+    <div
+      style={{
+        borderTop: `2px solid ${Colors.DARKER_GRAY}`,
+        borderBottom: `2px solid ${Colors.DARKER_GRAY}`,
+      }}
+    >
+      <ContestHeader
+        style={{
+          fontFamily: 'Roboto Condensed',
+          backgroundColor: Colors.DARKER_GRAY,
+          color: Colors.WHITE,
+        }}
+      >
+        <h3>Constitutional Amendment Questions</h3>
+        <div>Constitutional Amendments Proposed by the General Court </div>
+      </ContestHeader>
+    </div>
+  );
+}
+
 function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
   return (
-    <Box style={{ padding: 0 }}>
-      <ContestHeader>
-        <DualLanguageText delimiter="/">
-          <h2>{electionStrings.contestTitle(contest)}</h2>
-        </DualLanguageText>
-      </ContestHeader>
+    <Box
+      style={{
+        padding: 0,
+        fontFamily: 'Roboto Condensed',
+        borderTopWidth: '0',
+      }}
+    >
+      {/* <ContestHeader>
+        <h4>{electionStrings.contestTitle(contest)}</h4>
+      </ContestHeader> */}
       <div
         style={{
           display: 'flex',
-          flexDirection: 'column',
+          flexDirection: 'row',
           justifyContent: 'space-between',
           gap: '0.25rem',
         }}
@@ -507,15 +542,13 @@ function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
             gap: '0.5rem',
           }}
         >
-          <DualLanguageText>
-            <RichText
-              tableBorderWidth={'1px'}
-              tableBorderColor={Colors.DARKER_GRAY}
-              tableHeaderBackgroundColor={Colors.LIGHT_GRAY}
-            >
-              {electionStrings.contestDescription(contest)}
-            </RichText>
-          </DualLanguageText>
+          <RichText
+            tableBorderWidth={'1px'}
+            tableBorderColor={Colors.DARKER_GRAY}
+            tableHeaderBackgroundColor={Colors.LIGHT_GRAY}
+          >
+            1. {contest.description}
+          </RichText>
         </div>
         <ul
           style={{
@@ -530,6 +563,7 @@ function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
               style={{
                 padding: '0.375rem 0.5rem',
                 borderTop: `1px solid ${Colors.LIGHT_GRAY}`,
+                borderLeft: `1px solid ${Colors.LIGHT_GRAY}`,
               }}
             >
               <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -540,11 +574,7 @@ function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
                     optionId: option.id,
                   }}
                 />
-                <strong>
-                  <DualLanguageText delimiter="/">
-                    {electionStrings.contestOptionLabel(option)}
-                  </DualLanguageText>
-                </strong>
+                <strong>{electionStrings.contestOptionLabel(option)}</strong>
               </div>
             </li>
           ))}
@@ -606,10 +636,13 @@ async function BallotPageContent(
     const contestElements = section.map((contest) => (
       <Contest key={contest.id} contest={contest} election={election} />
     ));
-    if (section[0].type === 'candidate') {
-      // Add a section header for candidate contests
-      contestElements.unshift(<CandidateContestSectionHeader />);
-    }
+    const sectionHeader =
+      section[0].type === 'candidate' ? (
+        <CandidateContestSectionHeader />
+      ) : (
+        <BallotMeasureContestSectionHeader />
+      );
+    contestElements.unshift(sectionHeader);
     const contestMeasurements = await scratchpad.measureElements(
       <BackendLanguageContextProvider
         currentLanguageCode={primaryLanguageCode(ballotStyle)}
@@ -639,7 +672,10 @@ async function BallotPageContent(
     });
 
     // Put contests we didn't lay out back on the front of the queue
-    const numElementsUsed = columns.flat().length;
+    const numElementsUsed = Math.max(
+      0,
+      columns.flat().length - 1 // -1 for the header
+    );
     if (numElementsUsed < section.length) {
       contestSections.unshift(section.slice(numElementsUsed));
     }
@@ -647,7 +683,7 @@ async function BallotPageContent(
     // If there wasn't enough room left for any contests, go to the next page
     if (
       height === 0 ||
-      numElementsUsed === 1 // Only the header fit
+      numElementsUsed === 0 // Only the header fit
     ) {
       break;
     }
