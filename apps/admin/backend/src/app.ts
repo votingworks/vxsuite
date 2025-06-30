@@ -14,6 +14,7 @@ import {
   Tabulation,
   convertElectionResultsReportingReportToVxManualResults,
   ContestOptionId,
+  getContests,
 } from '@votingworks/types';
 import {
   assert,
@@ -39,6 +40,7 @@ import {
   generateElectionBasedSubfolderName,
   generateFilenameForElectionPackage,
   getBallotCount,
+  getBallotStyleGroup,
   groupMapToGroupList,
   isIntegrationTest,
   isSystemAdministratorAuth,
@@ -834,11 +836,12 @@ function buildApi({
       const electionRecord = store.getElection(electionId);
       assert(electionRecord);
       const { electionDefinition } = electionRecord;
+      const { election } = electionDefinition;
 
       // Get the set of valid candidate IDs. File conversion will error
       // if it encounters a non-write-in candidate ID not in this list.
       const candidateIds = new Set<string>();
-      for (const contest of electionDefinition.election.contests) {
+      for (const contest of election.contests) {
         if (contest.type === 'candidate') {
           for (const candidate of contest.candidates) {
             candidateIds.add(candidate.id);
@@ -873,8 +876,45 @@ function buildApi({
 
       const manualResults = wrappedManualResults.ok();
 
+      // Filter down to the contests for the specified ballot style group
+      const contestsForBallotStyleGroup = getContests({
+        election,
+        ballotStyle: assertDefined(
+          getBallotStyleGroup({
+            election,
+            ballotStyleGroupId: input.ballotStyleGroupId,
+          })
+        ),
+      });
+      const contestIdsForBallotStyleGroup = new Set(
+        contestsForBallotStyleGroup.map((contest) => contest.id)
+      );
+      const contestResultsForBallotStyleGroup = Object.fromEntries(
+        Object.entries(manualResults.contestResults).filter(([contestId]) =>
+          contestIdsForBallotStyleGroup.has(contestId)
+        )
+      );
+
+      // The manual tally entry schema includes an overall ballot count for a ballot style group
+      // and contest-level overrides. For most CDF ERR imports, we expect the ballot counts to be
+      // the same for all contests in the ballot style group. One known exception is when we have a
+      // non-partisan contest in a primary. The ballot count for this contest will be double others
+      // if there are two parties, triple if there are three, etc. It's for this case that we opt
+      // for the minimum for the overall ballot count for the ballot style group.
+      const ballotCountForBallotStyleGroup = Math.min(
+        ...Object.entries(contestResultsForBallotStyleGroup).map(
+          ([, contestResults]) => contestResults.ballots
+        )
+      );
+
+      const manualResultsForBallotStyleGroup: Tabulation.ManualElectionResults =
+        {
+          ballotCount: ballotCountForBallotStyleGroup,
+          contestResults: contestResultsForBallotStyleGroup,
+        };
+
       await transformWriteInsAndSetManualResults({
-        manualResults,
+        manualResults: manualResultsForBallotStyleGroup,
         electionId,
         store,
         precinctId: input.precinctId,
@@ -888,7 +928,7 @@ function buildApi({
           disposition: 'success',
           message:
             'User imported an Election Results Reporting file with tally data for a particular ballot style, precinct, and voting method.',
-          ballotCount: manualResults.ballotCount,
+          ballotCount: manualResultsForBallotStyleGroup.ballotCount,
           ballotStyleGroupId: input.ballotStyleGroupId,
           precinctId: input.precinctId,
           ballotType: input.votingMethod,

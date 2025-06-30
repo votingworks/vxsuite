@@ -154,8 +154,8 @@ describe('getManualResultsFromErrElectionResults', () => {
   test('converting an ERR election', () => {
     const expected: ManualElectionResults = {
       contestResults: {
-        fishing: {
-          contestId: 'fishing',
+        'question-a': {
+          contestId: 'question-a',
           contestType: 'yesno',
           yesOptionId: 'fishing-yes',
           noOptionId: 'fishing-no',
@@ -176,8 +176,8 @@ describe('getManualResultsFromErrElectionResults', () => {
           undervotes: 0,
           ballots: 65,
         },
-        council: {
-          contestId: 'council',
+        'city-council': {
+          contestId: 'city-council',
           contestType: 'candidate',
           votesAllowed: 2,
           overvotes: 8,
