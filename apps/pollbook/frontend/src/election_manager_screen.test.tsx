@@ -17,6 +17,8 @@ let apiMock: ApiMock;
 const electionDefFamousNames =
   electionFamousNames2021Fixtures.readElectionDefinition();
 
+const precinct1 = electionDefFamousNames.election.precincts[0].id;
+
 let unmount: () => void;
 
 beforeEach(() => {
@@ -36,6 +38,7 @@ afterEach(() => {
 
 describe('Voters tab', () => {
   test('view voter details from voter search', async () => {
+    apiMock.setElection(electionDefFamousNames, precinct1);
     const renderResult = renderInAppContext(<ElectionManagerScreen />, {
       apiMock,
     });
@@ -47,7 +50,7 @@ describe('Voters tab', () => {
 
     await screen.findByRole('heading', { name: 'Voters' });
 
-    const voter = createMockVoter('123', 'Abigail', 'Adams');
+    const voter = createMockVoter('123', 'Abigail', 'Adams', precinct1);
     apiMock.expectSearchVotersWithResults(
       {
         firstName: 'ABI',
@@ -124,7 +127,10 @@ describe('SettingsScreen precinct selection', () => {
     // Setup election with multiple precincts
     const singlePrecinctElection =
       electionSimpleSinglePrecinctFixtures.readElectionDefinition();
-    apiMock.setElection(singlePrecinctElection);
+    apiMock.setElection(
+      singlePrecinctElection,
+      singlePrecinctElection.election.precincts[0].id
+    );
     apiMock.expectGetDeviceStatuses();
     // Render
     const renderResult = renderInAppContext(<ElectionManagerScreen />, {

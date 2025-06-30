@@ -5,7 +5,7 @@ import {
   VoterIdentificationMethod,
 } from '@votingworks/pollbook-backend';
 import userEvent from '@testing-library/user-event';
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import { electionMultiPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { screen, waitFor, within } from '../test/react_testing_library';
 import {
   ApiMock,
@@ -22,6 +22,10 @@ let voter: Voter;
 let onCancel: ReturnType<typeof vi.fn>;
 let onConfirm: ReturnType<typeof vi.fn>;
 
+const electionDefinition =
+  electionMultiPartyPrimaryFixtures.readElectionDefinition();
+const precinct = electionDefinition.election.precincts[0].id;
+
 beforeEach(() => {
   voter = createMockVoter(mockVoterId, 'ABIGAIL', 'ADAMS');
   vi.clearAllMocks();
@@ -29,10 +33,7 @@ beforeEach(() => {
   onConfirm = vi.fn();
   apiMock = createApiMock();
   apiMock.expectGetVoter(voter);
-  apiMock.setElection(
-    electionFamousNames2021Fixtures.readElectionDefinition(),
-    'precinct-1'
-  );
+  apiMock.setElection(electionDefinition, precinct);
 });
 
 afterEach(() => {
@@ -42,9 +43,11 @@ afterEach(() => {
 
 async function renderComponent({
   isAbsenteeMode = false,
+  configuredPrecinctId = precinct,
   voterOverride,
 }: {
   isAbsenteeMode?: boolean;
+  configuredPrecinctId?: string;
   voterOverride?: Voter;
 } = {}) {
   if (voterOverride) {
@@ -57,6 +60,8 @@ async function renderComponent({
       isAbsenteeMode={isAbsenteeMode}
       onCancel={onCancel}
       onConfirm={onConfirm}
+      election={electionDefinition.election}
+      configuredPrecinctId={configuredPrecinctId}
     />,
     {
       apiMock,
@@ -295,6 +300,8 @@ test('returns null when voter query is not successful', () => {
       isAbsenteeMode={false}
       onCancel={onCancel}
       onConfirm={onConfirm}
+      election={electionDefinition.election}
+      configuredPrecinctId={precinct}
     />,
     {
       apiMock,

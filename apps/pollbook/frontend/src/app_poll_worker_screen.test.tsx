@@ -23,6 +23,7 @@ const famousNamesElection: Election =
   electionFamousNames2021Fixtures.readElection();
 const famousNamesElectionDefinition: ElectionDefinition =
   electionFamousNames2021Fixtures.readElectionDefinition();
+const precinct1 = famousNamesElection.precincts[0].id;
 
 describe('PollWorkerScreen', () => {
   beforeEach(() => {
@@ -74,7 +75,7 @@ describe('PollWorkerScreen', () => {
       'Voters matched: 153. Refine your search further to view results.'
     );
 
-    const voter = createMockVoter('123', 'Abigail', 'Adams');
+    const voter = createMockVoter('123', 'Abigail', 'Adams', precinct1);
 
     apiMock.expectSearchVotersWithResults(
       { firstName: 'ABI', lastName: 'AD' },
@@ -144,7 +145,12 @@ describe('PollWorkerScreen', () => {
       exactMatch: true,
     };
     const mockVoter: Voter = {
-      ...createMockVoter('123', document.firstName, document.lastName),
+      ...createMockVoter(
+        '123',
+        document.firstName,
+        document.lastName,
+        precinct1
+      ),
       middleName: document.middleName,
       suffix: document.nameSuffix,
     };
@@ -174,10 +180,7 @@ describe('PollWorkerScreen', () => {
     test(`check in flow handles ${testCase.error} error path`, async () => {
       apiMock.expectGetDeviceStatuses();
       apiMock.authenticateAsPollWorker(famousNamesElection);
-      apiMock.setElection(
-        famousNamesElectionDefinition,
-        famousNamesElection.precincts[0].id
-      );
+      apiMock.setElection(famousNamesElectionDefinition, precinct1);
       const { unmount } = render(<App apiClient={apiMock.mockApiClient} />);
       await screen.findByText('Connect printer to continue.');
 
@@ -204,7 +207,7 @@ describe('PollWorkerScreen', () => {
         'Voters matched: 153. Refine your search further to view results.'
       );
 
-      const voter = createMockVoter('123', 'Abigail', 'Adams');
+      const voter = createMockVoter('123', 'Abigail', 'Adams', precinct1);
 
       apiMock.expectSearchVotersWithResults(
         { firstName: 'ABI', lastName: 'AD' },
