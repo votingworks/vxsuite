@@ -59,13 +59,15 @@ import { Watermark } from './watermark';
 
 const BubbleDiagram = styled(BubbleShape)`
   display: inline-block;
+  vertical-align: top;
+  transform: scale(0.8);
 `;
 
 export function Instructions(): JSX.Element {
   return (
     <div
       style={{
-        fontSize: '8pt',
+        fontSize: '0.75rem',
         textAlign: 'justify',
         lineHeight: '1.1',
       }}
@@ -74,7 +76,7 @@ export function Instructions(): JSX.Element {
       <div>
         <strong>1. To Vote:</strong> Completely fill in the oval{' '}
         <BubbleDiagram /> to the right of your choice like this{' '}
-        <BubbleDiagram />. For each office vote for up to the number of
+        <BubbleDiagram isFilled />. For each office vote for up to the number of
         candidates stated in the sentences: “Vote for not more than 1;” or “Vote
         for up to X;” “X will be elected.” If you vote for more than the stated
         number of candidates, your vote for that office will not be counted.
@@ -83,7 +85,7 @@ export function Instructions(): JSX.Element {
         <strong>2. To Vote by Write-in:</strong> To vote for a person whose name
         is not printed on the ballot, write the name of the person in the
         “write-in” space and completely fill in the oval <BubbleDiagram /> to
-        the right of the “write-in” space like this <BubbleDiagram />.
+        the right of the “write-in” space like this <BubbleDiagram isFilled />.
       </div>
     </div>
   );
@@ -142,24 +144,22 @@ function Header({
         <Instructions />
       </div>
       <div style={{ flex: 1 }}>
-        <DualLanguageText>
-          <div
-            style={{
-              textAlign: 'center',
-              display: 'flex',
-              gap: '0.5rem',
-              flexDirection: 'column',
-            }}
-          >
-            <h4>{ballotTitle}</h4>
-            <h1>{electionStrings.countyName(election.county)}</h1>
-            {party && <h1>{electionStrings.partyFullName(party)}</h1>}
-            <h4>
-              {electionTitleOverride ?? electionStrings.electionTitle(election)}
-            </h4>
-            <h4>{electionStrings.electionDate(election)}</h4>
-          </div>
-        </DualLanguageText>
+        <div
+          style={{
+            textAlign: 'center',
+            display: 'flex',
+            gap: '0.5rem',
+            flexDirection: 'column',
+          }}
+        >
+          <h4>{ballotTitle}</h4>
+          <h1>{electionStrings.countyName(election.county)}</h1>
+          {party && <h1>{electionStrings.partyFullName(party)}</h1>}
+          <h4>
+            {electionTitleOverride ?? electionStrings.electionTitle(election)}
+          </h4>
+          <h4>{electionStrings.electionDate(election)}</h4>
+        </div>
       </div>
       <div
         style={{
