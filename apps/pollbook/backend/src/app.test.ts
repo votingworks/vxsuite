@@ -1123,3 +1123,263 @@ test('mark a voter inactive', async () => {
     expect((votersAbigail2 as Voter[])[2].isInactive).toEqual(false);
   });
 });
+
+test('voter search results prioritize voters from configured precinct', async () => {
+  await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
+    // Set up election with voters from different precincts
+    const testVoters: Voter[] = [
+      // These voters will be in a different precinct than the configured one
+      {
+        ...createVoter('voter-1', 'Alice', 'Johnson'),
+        precinct: 'precinct-2',
+      },
+      {
+        ...createVoter('voter-2', 'Bob', 'Johnson'),
+        precinct: 'precinct-2',
+      },
+      // These voters will be in the configured precinct
+      {
+        ...createVoter('voter-3', 'Charlie', 'Johnson'),
+        precinct: currentPrecinctId,
+      },
+      {
+        ...createVoter('voter-4', 'David', 'Johnson'),
+        precinct: currentPrecinctId,
+      },
+    ];
+
+    workspace.store.setElectionAndVoters(
+      electionDefinition,
+      'mock-package-hash',
+      [],
+      testVoters
+    );
+    workspace.store.setConfiguredPrecinct(currentPrecinctId);
+    mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+
+    // Search for Johnson voters
+    const searchResult = await localApiClient.searchVoters({
+      searchParams: {
+        firstName: '',
+        middleName: '',
+        lastName: 'Johnson',
+        suffix: '',
+      },
+    });
+
+    assert(searchResult !== null);
+    assert(Array.isArray(searchResult));
+    expect(searchResult).toHaveLength(4);
+
+    const voterResults = searchResult as Voter[];
+
+    // Verify that voters from the configured precinct come first
+    expect(voterResults[0].precinct).toEqual(currentPrecinctId);
+    expect(voterResults[0].firstName).toEqual('Charlie');
+    expect(voterResults[1].precinct).toEqual(currentPrecinctId);
+    expect(voterResults[1].firstName).toEqual('David');
+
+    // Verify that voters from other precincts come after
+    expect(voterResults[2].precinct).toEqual('precinct-2');
+    expect(voterResults[2].firstName).toEqual('Alice');
+    expect(voterResults[3].precinct).toEqual('precinct-2');
+    expect(voterResults[3].firstName).toEqual('Bob');
+  });
+});
+
+test('voter search results consider address changes for precinct prioritization', async () => {
+  await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
+    // Set up election with voters from different precincts
+    const testVoters: Voter[] = [
+      // This voter originally from a different precinct
+      {
+        ...createVoter('voter-1', 'Alice', 'Smith'),
+        precinct: 'precinct-2',
+      },
+      // This voter originally from the configured precinct
+      {
+        ...createVoter('voter-2', 'Bob', 'Smith'),
+        precinct: currentPrecinctId,
+      },
+    ];
+
+    workspace.store.setElectionAndVoters(
+      electionDefinition,
+      'mock-package-hash',
+      townStreetNames,
+      testVoters
+    );
+    workspace.store.setConfiguredPrecinct(currentPrecinctId);
+    mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+
+    // Change Alice's address to move her to the configured precinct
+    const addressChangeResult = await localApiClient.changeVoterAddress({
+      voterId: 'voter-1',
+      addressChangeData: {
+        streetNumber: '15',
+        streetName: 'MAIN ST',
+        streetSuffix: '',
+        apartmentUnitNumber: '',
+        houseFractionNumber: '',
+        addressLine2: '',
+        addressLine3: '',
+        city: 'Manchester',
+        state: 'NH',
+        zipCode: '03101',
+        precinct: currentPrecinctId,
+      },
+    });
+    expect(addressChangeResult.addressChange).toBeDefined();
+
+    // Search for Smith voters
+    const searchResult = await localApiClient.searchVoters({
+      searchParams: {
+        firstName: '',
+        middleName: '',
+        lastName: 'Smith',
+        suffix: '',
+      },
+    });
+
+    assert(searchResult !== null);
+    assert(Array.isArray(searchResult));
+    expect(searchResult).toHaveLength(2);
+
+    const voterResults = searchResult as Voter[];
+
+    // Verify that Alice (with address change) comes first due to effective precinct
+    expect(voterResults[0].firstName).toEqual('Alice');
+    expect(voterResults[0].addressChange?.precinct).toEqual(currentPrecinctId);
+
+    // Verify that Bob comes second (also in configured precinct, but alphabetically after Alice)
+    expect(voterResults[1].firstName).toEqual('Bob');
+    expect(voterResults[1].precinct).toEqual(currentPrecinctId);
+  });
+});
+
+test('searchVoters sorts voters with matching precinct first', async () => {
+  await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
+    // Create test voters from different precincts
+    const testVoters = [
+      { ...createVoter('voter-1', 'Alice', 'Adams'), precinct: 'precinct-2' },
+      {
+        ...createVoter('voter-2', 'Alice', 'Brown'),
+        precinct: currentPrecinctId,
+      },
+      {
+        ...createVoter('voter-3', 'Bob', 'Adams'),
+        precinct: currentPrecinctId,
+      },
+      { ...createVoter('voter-4', 'Charlie', 'Adams'), precinct: 'precinct-2' },
+    ];
+
+    workspace.store.setElectionAndVoters(
+      electionDefinition,
+      'mock-package-hash',
+      townStreetNames,
+      testVoters
+    );
+
+    mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+
+    // Search for all Adams voters
+    const votersAdams = await localApiClient.searchVoters({
+      searchParams: {
+        firstName: '',
+        middleName: '',
+        lastName: 'AdAMS',
+        suffix: '',
+      },
+    });
+
+    assert(votersAdams !== null);
+    assert(Array.isArray(votersAdams));
+    expect((votersAdams as Voter[]).length).toEqual(3);
+
+    // Verify that voters from the configured precinct come first
+    const result = votersAdams as Voter[];
+
+    // Bob Adams (current precinct) should come first
+    expect(result[0].firstName).toEqual('Bob');
+    expect(result[0].lastName).toEqual('Adams');
+    expect(result[0].precinct).toEqual(currentPrecinctId);
+
+    // Then Alice Adams (precinct-2)
+    expect(result[1].firstName).toEqual('Alice');
+    expect(result[1].lastName).toEqual('Adams');
+    expect(result[1].precinct).toEqual('precinct-2');
+
+    // Then Charlie Adams (precinct-2)
+    expect(result[2].firstName).toEqual('Charlie');
+    expect(result[2].lastName).toEqual('Adams');
+    expect(result[2].precinct).toEqual('precinct-2');
+  });
+});
+
+test('searchVoters considers address changes for precinct matching', async () => {
+  await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
+    // Create test voters - Charlie starts in precinct-2
+    const testVoters = [
+      {
+        ...createVoter('voter-1', 'Alice', 'Adams'),
+        precinct: currentPrecinctId,
+      },
+      { ...createVoter('voter-2', 'Charlie', 'Adams'), precinct: 'precinct-2' },
+    ];
+
+    workspace.store.setElectionAndVoters(
+      electionDefinition,
+      'mock-package-hash',
+      townStreetNames,
+      testVoters
+    );
+
+    mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+
+    // Change Charlie's address to move them to current precinct
+    const addressChangeResult = await localApiClient.changeVoterAddress({
+      voterId: testVoters[1].voterId,
+      addressChangeData: {
+        streetName: 'OAK ST',
+        streetNumber: '25',
+        streetSuffix: '',
+        apartmentUnitNumber: '',
+        houseFractionNumber: '',
+        addressLine2: '',
+        addressLine3: '',
+        city: 'Manchester',
+        state: 'NH',
+        zipCode: '03101',
+        precinct: currentPrecinctId,
+      },
+    });
+    expect(addressChangeResult.addressChange).toBeDefined();
+
+    // Search for all Adams voters
+    const votersAdams = await localApiClient.searchVoters({
+      searchParams: {
+        firstName: '',
+        middleName: '',
+        lastName: 'Adams',
+        suffix: '',
+      },
+    });
+
+    assert(votersAdams !== null);
+    assert(Array.isArray(votersAdams));
+    expect((votersAdams as Voter[]).length).toEqual(2);
+
+    const result = votersAdams as Voter[];
+
+    // Both voters should now be in current precinct, sorted alphabetically
+    // Alice Adams should come first
+    expect(result[0].firstName).toEqual('Alice');
+    expect(result[0].lastName).toEqual('Adams');
+    expect(result[0].precinct).toEqual(currentPrecinctId);
+
+    // Charlie Adams should come second (moved to current precinct via address change)
+    expect(result[1].firstName).toEqual('Charlie');
+    expect(result[1].lastName).toEqual('Adams');
+    expect(result[1].addressChange?.precinct).toEqual(currentPrecinctId);
+  });
+});

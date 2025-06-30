@@ -7,6 +7,10 @@ import {
   getTestElectionDefinition,
 } from '../test/test_helpers';
 import { PeerStore } from './peer_store';
+import {
+  sortedByVoterName,
+  sortedByVoterNameAndMatchingPrecinct,
+} from './store';
 
 export const myMachineId = 'machine-1';
 const otherMachineId = 'machine-2';
@@ -298,4 +302,151 @@ test('getNewEvents returns hasMore when there are more events from known machine
   assert(secondBatch.length === 1);
   expect(secondBatch).toEqual(machine1Events.slice(3));
   expect(secondHasMore).toEqual(false);
+});
+
+test('sortedByVoterName sorts voters alphabetically by last name, then first name', () => {
+  const voters = [
+    createVoter('voter-1', 'Charlie', 'Brown'),
+    createVoter('voter-2', 'Alice', 'Brown'),
+    createVoter('voter-3', 'Bob', 'Adams'),
+    createVoter('voter-4', 'Alice', 'Adams'),
+  ];
+
+  const sorted = sortedByVoterName(voters);
+
+  expect(sorted.map((v) => `${v.firstName} ${v.lastName}`)).toEqual([
+    'Alice Adams',
+    'Bob Adams',
+    'Alice Brown',
+    'Charlie Brown',
+  ]);
+});
+
+test('sortedByVoterName respects useOriginalName option', () => {
+  const voters = [
+    createVoter('voter-1', 'Charlie', 'Brown'),
+    createVoter('voter-2', 'Alice', 'Brown'),
+  ];
+
+  // Add name change to first voter
+  voters[0].nameChange = {
+    firstName: 'Charles',
+    lastName: 'Smith',
+    middleName: '',
+    suffix: '',
+    timestamp: '2025-01-01T00:00:00.000Z',
+  };
+
+  // Sort with changed names (default behavior)
+  const sortedWithChanges = sortedByVoterName(voters);
+  expect(sortedWithChanges.map((v) => `${v.firstName} ${v.lastName}`)).toEqual([
+    'Alice Brown',
+    'Charlie Brown', // Shows original name since we're displaying original
+  ]);
+
+  // Sort with original names only
+  const sortedOriginal = sortedByVoterName(voters, { useOriginalName: true });
+  expect(sortedOriginal.map((v) => `${v.firstName} ${v.lastName}`)).toEqual([
+    'Alice Brown',
+    'Charlie Brown',
+  ]);
+});
+
+test('sortedByVoterNameAndMatchingPrecinct returns regular sort when no configured precinct', () => {
+  const voters = [
+    createVoter('voter-1', 'Charlie', 'Brown'),
+    createVoter('voter-2', 'Alice', 'Brown'),
+    createVoter('voter-3', 'Bob', 'Adams'),
+  ];
+
+  const sorted = sortedByVoterNameAndMatchingPrecinct(voters);
+  const regularSorted = sortedByVoterName(voters);
+
+  expect(sorted).toEqual(regularSorted);
+});
+
+test('sortedByVoterNameAndMatchingPrecinct puts matching precinct voters first', () => {
+  const voters = [
+    { ...createVoter('voter-1', 'Charlie', 'Brown'), precinct: 'precinct-2' },
+    { ...createVoter('voter-2', 'Alice', 'Brown'), precinct: 'precinct-1' },
+    { ...createVoter('voter-3', 'Bob', 'Adams'), precinct: 'precinct-2' },
+    { ...createVoter('voter-4', 'Dave', 'Adams'), precinct: 'precinct-1' },
+  ];
+
+  const sorted = sortedByVoterNameAndMatchingPrecinct(voters, 'precinct-1');
+
+  // Should get matching precinct voters first (sorted), then non-matching (sorted)
+  expect(
+    sorted.map((v) => `${v.firstName} ${v.lastName} (${v.precinct})`)
+  ).toEqual([
+    'Dave Adams (precinct-1)',
+    'Alice Brown (precinct-1)',
+    'Bob Adams (precinct-2)',
+    'Charlie Brown (precinct-2)',
+  ]);
+});
+
+test('sortedByVoterNameAndMatchingPrecinct considers address changes for precinct matching', () => {
+  const voters = [
+    { ...createVoter('voter-1', 'Charlie', 'Brown'), precinct: 'precinct-2' },
+    { ...createVoter('voter-2', 'Alice', 'Brown'), precinct: 'precinct-2' },
+    { ...createVoter('voter-3', 'Bob', 'Adams'), precinct: 'precinct-1' },
+  ];
+
+  // Add address change to first voter that changes their precinct
+  voters[0].addressChange = {
+    streetNumber: '456',
+    streetName: 'Oak St',
+    streetSuffix: '',
+    apartmentUnitNumber: '',
+    houseFractionNumber: '',
+    addressLine2: '',
+    addressLine3: '',
+    city: 'Manchester',
+    state: 'NH',
+    zipCode: '03101',
+    precinct: 'precinct-1',
+    timestamp: '2025-01-01T00:00:00.000Z',
+  };
+
+  const sorted = sortedByVoterNameAndMatchingPrecinct(voters, 'precinct-1');
+
+  // Charlie should be in matching group due to address change
+  expect(
+    sorted.map(
+      (v) =>
+        `${v.firstName} ${v.lastName} (${
+          v.addressChange?.precinct || v.precinct
+        })`
+    )
+  ).toEqual([
+    'Bob Adams (precinct-1)',
+    'Charlie Brown (precinct-1)',
+    'Alice Brown (precinct-2)',
+  ]);
+});
+
+test('sortedByVoterNameAndMatchingPrecinct respects useOriginalName option', () => {
+  const voters = [
+    { ...createVoter('voter-1', 'Charlie', 'Brown'), precinct: 'precinct-1' },
+    { ...createVoter('voter-2', 'Alice', 'Brown'), precinct: 'precinct-2' },
+  ];
+
+  // Add name change to first voter
+  voters[0].nameChange = {
+    firstName: 'Charles',
+    lastName: 'Smith',
+    middleName: '',
+    suffix: '',
+    timestamp: '2025-01-01T00:00:00.000Z',
+  };
+
+  const sorted = sortedByVoterNameAndMatchingPrecinct(voters, 'precinct-1', {
+    useOriginalName: true,
+  });
+
+  // Should still put matching precinct first, and use original names for sorting
+  expect(
+    sorted.map((v) => `${v.firstName} ${v.lastName} (${v.precinct})`)
+  ).toEqual(['Charlie Brown (precinct-1)', 'Alice Brown (precinct-2)']);
 });
