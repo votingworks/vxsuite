@@ -485,6 +485,7 @@ describe('ERR file import', () => {
   test('success', async () => {
     const { apiClient, auth } = buildTestEnvironment();
     await configureMachine(apiClient, auth, electionGeneralDefinition);
+    // TODO: Get this fixture back in sync with the election definition - it's fallen out of sync
     const errContents = testElectionReport;
     const filepath = tmpNameSync();
     await writeFile(filepath, JSON.stringify(errContents));
@@ -505,7 +506,7 @@ describe('ERR file import', () => {
       manualResultsIdentifier
     );
     const councilContest = assertDefined(
-      manualResults?.manualResults.contestResults['council']
+      manualResults?.manualResults.contestResults['city-council']
     ) as CandidateContestResults;
     const writeInTally = assertDefined(
       Object.values(councilContest.tallies).find(
@@ -522,8 +523,8 @@ describe('ERR file import', () => {
       manualResults: {
         ballotCount: 65,
         contestResults: {
-          fishing: {
-            contestId: 'fishing',
+          'question-a': {
+            contestId: 'question-a',
             contestType: 'yesno',
             yesOptionId: 'fishing-yes',
             noOptionId: 'fishing-no',
@@ -533,19 +534,8 @@ describe('ERR file import', () => {
             undervotes: 5,
             ballots: 65,
           },
-          judge: {
-            contestId: 'judge',
-            contestType: 'yesno',
-            yesOptionId: 'retain-yes',
-            noOptionId: 'retain-no',
-            yesTally: 55,
-            noTally: 10,
-            overvotes: 0,
-            undervotes: 0,
-            ballots: 65,
-          },
-          council: {
-            contestId: 'council',
+          'city-council': {
+            contestId: 'city-council',
             contestType: 'candidate',
             votesAllowed: 2,
             overvotes: 8,
