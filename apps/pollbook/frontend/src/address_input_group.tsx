@@ -15,10 +15,10 @@ import {
 } from './shared_components';
 import { getValidStreetInfo } from './api';
 
-function findCityAndZipCodeFromStreetAddress(
+function findDetailsFromStreetAddress(
   validStreetInfo: ValidStreetInfo[],
   address: VoterAddressChangeRequest
-): { city: string; zipCode: string } {
+): { city: string; zipCode: string; precinct: string } {
   const streetInfosForStreetName = validStreetInfo.filter(
     (info) => info.streetName.toLocaleUpperCase() === address.streetName
   );
@@ -38,6 +38,7 @@ function findCityAndZipCodeFromStreetAddress(
   return {
     city: streetInfo?.postalCityTown.toLocaleUpperCase() || '',
     zipCode: streetInfo?.zip5.padStart(5, '0') || '',
+    precinct: streetInfo?.precinct || '',
   };
 }
 
@@ -74,7 +75,7 @@ export function AddressInputGroup({
   );
 
   function handleChange(newAddress: VoterAddressChangeRequest) {
-    const { city, zipCode } = findCityAndZipCodeFromStreetAddress(
+    const { city, zipCode, precinct } = findDetailsFromStreetAddress(
       validStreetInfoQuery.data || [],
       newAddress
     );
@@ -82,6 +83,7 @@ export function AddressInputGroup({
       ...newAddress,
       city,
       zipCode,
+      precinct,
     });
   }
 

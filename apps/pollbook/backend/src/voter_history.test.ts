@@ -15,11 +15,13 @@ const mockAddressDetails: VoterAddressChangeRequest = {
   zipCode: '00000',
   houseFractionNumber: '2',
   city: 'Somewhere',
+  precinct: 'precinct-1',
 };
 
 test('getNewEvents returns events for unknown machines', () => {
   const store = LocalStore.memoryStore();
   setupTestElectionAndVoters(store);
+  store.setConfiguredPrecinct('precinct-1');
   // Check in with a default ID method
   store.recordVoterCheckIn({
     voterId: 'abigail',

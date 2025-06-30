@@ -1,7 +1,7 @@
 import { BaseLogger } from '@votingworks/logging';
 import { Client as DbClient } from '@votingworks/db';
 import { safeParseJson } from '@votingworks/types';
-import { assert, groupBy, typedAs } from '@votingworks/basics';
+import { assert, assertDefined, groupBy, typedAs } from '@votingworks/basics';
 import { SqliteBool, fromSqliteBool, asSqliteBool } from '@votingworks/utils';
 import makeDebug from 'debug';
 import { generateId, SchemaPath, sortedByVoterName, Store } from './store';
@@ -40,9 +40,8 @@ import {
 import { HybridLogicalClock } from './hybrid_logical_clock';
 import { getCurrentTime } from './get_current_time';
 import {
-  isVoterAddressChangeValid,
-  isVoterRegistrationValid,
-  maybeGetStreetInfoForAddress,
+  maybeGetStreetInfoForVoterRegistration,
+  maybeGetStreetInfoForAddressChange,
 } from './street_helpers';
 import { isVoterNameChangeValid } from './voter_helpers';
 
@@ -399,16 +398,26 @@ export class LocalStore extends Store {
     receiptNumber: number;
   } {
     debug(`Registering voter: ${JSON.stringify(voterRegistration)}`);
+
+    // Get configured precinct for validation
+    const { configuredPrecinctId } = this.getPollbookConfigurationInformation();
     assert(
-      isVoterRegistrationValid(voterRegistration, this.getStreetInfo()),
-      'Invalid voter registration'
+      configuredPrecinctId !== undefined,
+      'Can not register voter without configured precinct'
     );
-    const streetInfo = maybeGetStreetInfoForAddress(
-      voterRegistration.streetName,
-      voterRegistration.streetNumber,
+    assert(
+      configuredPrecinctId === voterRegistration.precinct,
+      'Voter registration precinct does not match configured precinct'
+    );
+
+    // Use precinct-aware validation
+    const streetInfo = maybeGetStreetInfoForVoterRegistration(
+      voterRegistration,
       this.getStreetInfo()
     );
-    assert(streetInfo);
+
+    assert(streetInfo, 'Invalid voter registration');
+
     const registrationEvent: VoterRegistration = {
       ...voterRegistration,
       party: voterRegistration.party as 'DEM' | 'REP' | 'UND', // this is already validated
@@ -439,10 +448,24 @@ export class LocalStore extends Store {
     addressChange: VoterAddressChangeRequest
   ): { voter: Voter; receiptNumber: number } {
     debug(`Changing address for voter ${voterId}`);
-    assert(
-      isVoterAddressChangeValid(addressChange, this.getStreetInfo()),
-      'Invalid address change'
+
+    // Get configured precinct for validation
+    const { configuredPrecinctId } = this.getPollbookConfigurationInformation();
+    assertDefined(
+      configuredPrecinctId,
+      'No configured precinct for address change'
     );
+    assert(
+      configuredPrecinctId === addressChange.precinct,
+      'Address change precinct does not match configured precinct'
+    );
+
+    const streetInfo = maybeGetStreetInfoForAddressChange(
+      addressChange,
+      this.getStreetInfo()
+    );
+
+    assert(streetInfo, 'Invalid address change');
     const voter = this.getVoter(voterId);
     assert(voter);
 

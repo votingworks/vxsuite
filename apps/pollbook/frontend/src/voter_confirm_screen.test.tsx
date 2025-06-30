@@ -273,6 +273,7 @@ test('displays voter with address change', async () => {
       state: 'IL',
       zipCode: '62701-2345',
       timestamp: new Date().toISOString(),
+      precinct: 'precinct-1',
     },
   };
 

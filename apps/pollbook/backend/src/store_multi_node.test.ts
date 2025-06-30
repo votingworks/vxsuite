@@ -842,7 +842,9 @@ test('all possible events are synced', () => {
     createVoter('oscar', 'Oscar', 'Wilde'),
     createVoter('penny', 'Penny', 'Lane'),
   ];
-  const streets = [createValidStreetInfo('MAIN ST', 'odd', 1, 15)];
+  const streets = [
+    createValidStreetInfo('MAIN ST', 'odd', 1, 15, '', '', 'precinct-0'),
+  ];
 
   for (const store of [localA, localB]) {
     store.setElectionAndVoters(
@@ -877,6 +879,7 @@ test('all possible events are synced', () => {
     city: 'Manchester',
     state: 'NH',
     zipCode: '03101',
+    precinct: 'precinct-0',
   };
   // Pollbook A changes address for Penny
   localA.changeVoterAddress('penny', addressChangeData);
@@ -898,6 +901,7 @@ test('all possible events are synced', () => {
     city: 'Manchester',
     state: 'NH',
     zipCode: '03101',
+    precinct: 'precinct-0',
   });
   // Pollbook A syncs with Pollbook B
   syncEventsForAllPollbooks([peerA, peerB]);
@@ -972,7 +976,9 @@ test('register on A, check in on B, name/address change on C, sync all', () => {
   const [localB, peerB] = setupFileStores('pollbook-b');
   const [localC, peerC] = setupFileStores('pollbook-c');
   const testElectionDefinition = getTestElectionDefinition();
-  const streets = [createValidStreetInfo('MAIN', 'even', 2, 10)];
+  const streets = [
+    createValidStreetInfo('MAIN', 'even', 2, 10, '', '', 'precinct-0'),
+  ];
 
   for (const store of [localA, localB, localC]) {
     store.setElectionAndVoters(
@@ -1003,6 +1009,7 @@ test('register on A, check in on B, name/address change on C, sync all', () => {
     state: 'NH',
     zipCode: '03101',
     party: 'DEM',
+    precinct: 'precinct-0',
   });
   syncEventsForAllPollbooks([peerA, peerB, peerC]);
   // Check in on B
@@ -1029,6 +1036,7 @@ test('register on A, check in on B, name/address change on C, sync all', () => {
     city: 'Manchester',
     state: 'NH',
     zipCode: '03101',
+    precinct: 'precinct-0',
   });
   syncEventsForAllPollbooks([peerA, peerB, peerC]);
   // All pollbooks should see all changes
@@ -1056,7 +1064,9 @@ test('last write wins for name/address changes with bad system time after sync',
     createVoter('tim', 'Tim', 'Traveler'),
     createVoter('tia', 'Tia', 'Traveler'),
   ];
-  const streets = [createValidStreetInfo('MAPLE', 'even', 2, 400)];
+  const streets = [
+    createValidStreetInfo('MAPLE', 'even', 2, 400, '', '', 'precinct-0'),
+  ];
 
   for (const store of [localA, localB]) {
     store.setElectionAndVoters(
@@ -1130,6 +1140,7 @@ test('last write wins for name/address changes with bad system time after sync',
     city: 'Manchester',
     state: 'NH',
     zipCode: '03101',
+    precinct: 'precinct-0',
   });
   // Address change on B at 7am (bad clock, but after sync)
   const sevenAm = new Date('2024-01-01T07:00:00Z').getTime();
@@ -1148,6 +1159,7 @@ test('last write wins for name/address changes with bad system time after sync',
     city: 'Manchester',
     state: 'NH',
     zipCode: '03101',
+    precinct: 'precinct-0',
   });
   // Sync again
   syncEventsForAllPollbooks([peerA, peerB]);
@@ -1167,7 +1179,9 @@ test('register, check in, then change name/address, sync', () => {
   const [localA, peerA] = setupFileStores('pollbook-a');
   const [localB, peerB] = setupFileStores('pollbook-b');
   const testElectionDefinition = getTestElectionDefinition();
-  const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
+  const streets = [
+    createValidStreetInfo('PEGASUS', 'odd', 5, 15, '', '', 'precinct-0'),
+  ];
 
   for (const store of [localA, localB]) {
     store.setElectionAndVoters(
@@ -1197,6 +1211,7 @@ test('register, check in, then change name/address, sync', () => {
     state: 'NH',
     zipCode: '03101',
     party: 'DEM',
+    precinct: 'precinct-0',
   });
   syncEventsForAllPollbooks([peerA, peerB]);
   // Check in on A
@@ -1222,6 +1237,7 @@ test('register, check in, then change name/address, sync', () => {
     city: 'Manchester',
     state: 'NH',
     zipCode: '03101',
+    precinct: 'precinct-0',
   });
   syncEventsForAllPollbooks([peerA, peerB]);
   // Both should see all changes
@@ -1242,7 +1258,9 @@ test('simultaneous name/address changes, last write wins', async () => {
   const [localB, peerB] = setupFileStores('pollbook-b');
   const testElectionDefinition = getTestElectionDefinition();
   const voter = createVoter('sim', 'Sim', 'Multi');
-  const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
+  const streets = [
+    createValidStreetInfo('PEGASUS', 'odd', 5, 15, '', '', 'precinct-0'),
+  ];
 
   for (const store of [localA, localB]) {
     store.setElectionAndVoters(
@@ -1282,6 +1300,7 @@ test('simultaneous name/address changes, last write wins', async () => {
     city: 'Manchester',
     state: 'NH',
     zipCode: '03101',
+    precinct: 'precinct-0',
   });
   // Address change on B (should win after sync)
   await sleep(10);
@@ -1296,6 +1315,7 @@ test('simultaneous name/address changes, last write wins', async () => {
     city: 'Manchester',
     state: 'NH',
     zipCode: '03101',
+    precinct: 'precinct-0',
   });
   syncEventsForAllPollbooks([peerA, peerB]);
   // Both should see last write for name and address
@@ -1394,7 +1414,9 @@ test('check in event on an offline machine AFTER the mark inactive', async () =>
 });
 
 test('name/address change AFTER mark inactive on another machine get processed', async () => {
-  const streets = [createValidStreetInfo('INACTIVE', 'all', 0, 100)];
+  const streets = [
+    createValidStreetInfo('INACTIVE', 'all', 0, 100, '', '', 'precinct-0'),
+  ];
   const [localA, peerA] = setupFileStores('pollbook-a');
   const [localB, peerB] = setupFileStores('pollbook-b');
   const testElectionDefinition = getTestElectionDefinition();
@@ -1440,6 +1462,7 @@ test('name/address change AFTER mark inactive on another machine get processed',
     city: 'Nowhere',
     state: 'NH',
     zipCode: '00000',
+    precinct: 'precinct-0',
   });
 
   peerB.setOnlineStatus(true);

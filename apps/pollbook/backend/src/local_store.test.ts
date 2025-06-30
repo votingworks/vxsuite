@@ -2,6 +2,7 @@ import { test, expect, vi } from 'vitest';
 import tmp from 'tmp';
 import { mockBaseLogger } from '@votingworks/logging';
 import { Election, ElectionDefinition } from '@votingworks/types';
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
   createValidStreetInfo,
   createVoter,
@@ -267,6 +268,7 @@ test('registerVoter and findVoterWithName integration', () => {
     streets,
     []
   );
+  localStore.setConfiguredPrecinct('precinct-1');
 
   // Register a new voter
   const registration: VoterRegistrationRequest = {
@@ -285,6 +287,7 @@ test('registerVoter and findVoterWithName integration', () => {
     city: 'Manchester',
     state: 'NH',
     zipCode: '03101',
+    precinct: 'precinct-1',
   };
   const { voter } = localStore.registerVoter(registration);
 
@@ -301,6 +304,77 @@ test('registerVoter and findVoterWithName integration', () => {
       expect.objectContaining({ voterId: voter.voterId }),
     ])
   );
+});
+
+test('registerVoter - fails when wrong precinct configured', () => {
+  const localStore = LocalStore.memoryStore();
+  const testElectionDefinition = getTestElectionDefinition();
+  const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
+  localStore.setElectionAndVoters(
+    testElectionDefinition,
+    'mock-package-hash',
+    streets,
+    []
+  );
+  localStore.setConfiguredPrecinct('precinct-2');
+
+  // Register a new voter
+  const registration: VoterRegistrationRequest = {
+    firstName: 'Alice',
+    lastName: 'Wonderland',
+    middleName: 'L',
+    suffix: 'III',
+    party: 'DEM',
+    streetNumber: '7',
+    streetName: 'PEGASUS',
+    streetSuffix: '',
+    houseFractionNumber: '',
+    apartmentUnitNumber: '',
+    addressLine2: '',
+    addressLine3: '',
+    city: 'Manchester',
+    state: 'NH',
+    zipCode: '03101',
+    precinct: 'precinct-1',
+  };
+  suppressingConsoleOutput(() => {
+    expect(() => localStore.registerVoter(registration)).toThrow();
+  });
+});
+
+test('registerVoter - fails when no precinct configured', () => {
+  const localStore = LocalStore.memoryStore();
+  const testElectionDefinition = getTestElectionDefinition();
+  const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
+  localStore.setElectionAndVoters(
+    testElectionDefinition,
+    'mock-package-hash',
+    streets,
+    []
+  );
+
+  // Register a new voter
+  const registration: VoterRegistrationRequest = {
+    firstName: 'Alice',
+    lastName: 'Wonderland',
+    middleName: 'L',
+    suffix: 'III',
+    party: 'DEM',
+    streetNumber: '7',
+    streetName: 'PEGASUS',
+    streetSuffix: '',
+    houseFractionNumber: '',
+    apartmentUnitNumber: '',
+    addressLine2: '',
+    addressLine3: '',
+    city: 'Manchester',
+    state: 'NH',
+    zipCode: '03101',
+    precinct: 'precinct-1',
+  };
+  suppressingConsoleOutput(() => {
+    expect(() => localStore.registerVoter(registration)).toThrow();
+  });
 });
 
 test('setElectionAndVoters sets configuredPrecinctId only when there is one precinct', () => {
@@ -341,6 +415,75 @@ test('setElectionAndVoters sets configuredPrecinctId only when there is one prec
   );
   configInfo = store.getPollbookConfigurationInformation();
   expect(configInfo.configuredPrecinctId).toEqual('precinct-1');
+});
+
+test('changeVoterAddress works as expected - when precinct is the properly configured one', () => {
+  const localStore = LocalStore.memoryStore();
+  const testElectionDefinition = getTestElectionDefinition();
+  const voters = [createVoter('20', 'John', 'Doe', 'Allen', 'Sr')];
+  const streets = [
+    createValidStreetInfo('PEGASUS', 'odd', 5, 15, '', '', 'precinct-1'),
+    createValidStreetInfo('UNICORN', 'odd', 5, 15, '', '', 'precinct-2'),
+  ];
+  localStore.setElectionAndVoters(
+    testElectionDefinition,
+    'mock-package-hash',
+    streets,
+    voters
+  );
+  // Can not change address if no precinct is configured
+  suppressingConsoleOutput(() => {
+    expect(() =>
+      localStore.changeVoterAddress(voters[0].voterId, {
+        streetNumber: '7',
+        streetName: 'PEGASUS',
+        streetSuffix: '',
+        houseFractionNumber: '',
+        apartmentUnitNumber: '',
+        addressLine2: '',
+        addressLine3: '',
+        city: 'Manchester',
+        state: 'NH',
+        zipCode: '03101',
+        precinct: 'precinct-1',
+      })
+    ).toThrow();
+  });
+
+  localStore.setConfiguredPrecinct('precinct-1');
+  const { voter } = localStore.changeVoterAddress(voters[0].voterId, {
+    streetNumber: '7',
+    streetName: 'PEGASUS',
+    streetSuffix: '',
+    houseFractionNumber: '',
+    apartmentUnitNumber: '',
+    addressLine2: '',
+    addressLine3: '',
+    city: 'Manchester',
+    state: 'NH',
+    zipCode: '03101',
+    precinct: 'precinct-1',
+  });
+  expect(voter.addressChange).toBeDefined();
+
+  // Changing the address to a street in the wrong precinct should throw an error
+  suppressingConsoleOutput(() => {
+    expect(() =>
+      localStore.changeVoterAddress(voters[0].voterId, {
+        streetNumber: '7',
+        streetName: 'UNICORN',
+        streetSuffix: '',
+        houseFractionNumber: '',
+        apartmentUnitNumber: '',
+        addressLine2: '',
+        addressLine3: '',
+        city: 'Manchester',
+        state: 'NH',
+        zipCode: '03101',
+        precinct: 'precinct-2', // Wrong precinct
+      })
+    ).toThrow();
+  });
 });
 
 test('store can load data from database on restart', () => {

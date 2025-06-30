@@ -1,17 +1,32 @@
 import { describe, test, expect } from 'vitest';
+import { Election } from '@votingworks/types';
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
   parseVotersFromCsvString,
   parseValidStreetsFromCsvString,
 } from './pollbook_package';
 import { StreetSide } from './types';
+import { getTestElection } from '../test/test_helpers';
+
+// Get test election and add precincts with external IDs for testing
+const baseElection = getTestElection();
+const mockElection: Election = {
+  ...baseElection,
+  precincts: [
+    { id: 'precinct-1', name: 'Precinct 1', districtIds: ['ds-1'] },
+    { id: 'precinct-2', name: 'Precinct 2', districtIds: ['ds-1'] },
+    { id: 'precinct-3', name: 'Ward 5', districtIds: ['ds-1'] },
+    { id: 'precinct-4', name: 'North Side - 10', districtIds: ['ds-1'] },
+  ],
+};
 
 describe('parseVotersFromCsvString', () => {
   test('parses basic voter CSV data correctly', () => {
     const csvString = `Voter ID,First Name,Last Name,Postal Zip5,Ward
-123,John,Doe,12345,Precinct 1
-456,Jane,Smith,67890,Precinct 2`;
+123,John,Doe,12345,1
+456,Jane,Smith,67890,2`;
 
-    const result = parseVotersFromCsvString(csvString);
+    const result = parseVotersFromCsvString(csvString, mockElection);
 
     expect(result).toHaveLength(2);
     expect(result[0]).toEqual(
@@ -20,7 +35,7 @@ describe('parseVotersFromCsvString', () => {
         firstName: 'John',
         lastName: 'Doe',
         postalZip5: '12345',
-        precinct: 'Precinct 1',
+        precinct: 'precinct-1',
       })
     );
     expect(result[1]).toEqual(
@@ -29,16 +44,31 @@ describe('parseVotersFromCsvString', () => {
         firstName: 'Jane',
         lastName: 'Smith',
         postalZip5: '67890',
-        precinct: 'Precinct 2',
+        precinct: 'precinct-2',
       })
     );
+  });
+
+  test('throws on invalid election precinct name', () => {
+    const csvString = `Voter ID,First Name,Last Name,Postal Zip5,Ward
+123,John,Doe,12345,1
+456,Jane,Smith,67890,2`;
+
+    suppressingConsoleOutput(() => {
+      expect(() =>
+        parseVotersFromCsvString(csvString, {
+          ...mockElection,
+          precincts: [{ id: 'precinct-1', name: '-', districtIds: ['ds-1'] }],
+        })
+      ).toThrow();
+    });
   });
 
   test('handles camelCase conversion for headers', () => {
     const csvString = `Voter ID,First Name,Last-Name,Postal_Zip5
 123,John,Doe,12345`;
 
-    const result = parseVotersFromCsvString(csvString);
+    const result = parseVotersFromCsvString(csvString, mockElection);
 
     expect(result[0]).toEqual(
       expect.objectContaining({
@@ -54,7 +84,7 @@ describe('parseVotersFromCsvString', () => {
     const csvString = `Voter ID,Postal Zip5,Zip4,Mailing Zip5,Mailing Zip4
 123,123,45,678,90`;
 
-    const result = parseVotersFromCsvString(csvString);
+    const result = parseVotersFromCsvString(csvString, mockElection);
 
     expect(result[0]).toEqual(
       expect.objectContaining({
@@ -73,7 +103,7 @@ describe('parseVotersFromCsvString', () => {
 123,Jane
 12345,Bob`;
 
-    const result = parseVotersFromCsvString(csvString);
+    const result = parseVotersFromCsvString(csvString, mockElection);
 
     expect(result[0].voterId).toEqual('00001');
     expect(result[1].voterId).toEqual('00123');
@@ -84,7 +114,7 @@ describe('parseVotersFromCsvString', () => {
     const csvString = `Voter ID,Postal City,Mailing Town,Zip5
 123,Springfield,Boston,12345`;
 
-    const result = parseVotersFromCsvString(csvString);
+    const result = parseVotersFromCsvString(csvString, mockElection);
 
     expect(result[0]).toEqual(
       expect.objectContaining({
@@ -100,7 +130,7 @@ describe('parseVotersFromCsvString', () => {
     const csvString = `Voter ID,Postal City Town,Postal City,Mailing City Town,Mailing Town
 123,Springfield Preferred,Springfield Alt,Boston Preferred,Boston Alt`;
 
-    const result = parseVotersFromCsvString(csvString);
+    const result = parseVotersFromCsvString(csvString, mockElection);
 
     expect(result[0]).toEqual(
       expect.objectContaining({
@@ -118,7 +148,7 @@ describe('parseVotersFromCsvString', () => {
 456,Bob
 ,Alice`;
 
-    const result = parseVotersFromCsvString(csvString);
+    const result = parseVotersFromCsvString(csvString, mockElection);
 
     expect(result).toHaveLength(2);
     expect(result[0].firstName).toEqual('John');
@@ -133,7 +163,7 @@ describe('parseVotersFromCsvString', () => {
 
 `;
 
-    const result = parseVotersFromCsvString(csvString);
+    const result = parseVotersFromCsvString(csvString, mockElection);
 
     expect(result).toHaveLength(2);
     expect(result[0].firstName).toEqual('John');
@@ -142,14 +172,14 @@ describe('parseVotersFromCsvString', () => {
 
   test('handles ward field mapped to precinct', () => {
     const csvString = `Voter ID,Ward
-123,Ward 5`;
+123,5`;
 
-    const result = parseVotersFromCsvString(csvString);
+    const result = parseVotersFromCsvString(csvString, mockElection);
 
     expect(result[0]).toEqual(
       expect.objectContaining({
         voterId: '123',
-        precinct: 'Ward 5',
+        precinct: 'precinct-3',
       })
     );
   });
@@ -158,7 +188,7 @@ describe('parseVotersFromCsvString', () => {
     const csvString = `Voter ID,First Name
 123,John`;
 
-    const result = parseVotersFromCsvString(csvString);
+    const result = parseVotersFromCsvString(csvString, mockElection);
 
     expect(result[0]).toEqual(
       expect.objectContaining({
@@ -177,7 +207,7 @@ describe('parseValidStreetsFromCsvString', () => {
 Main St,100,200,odd,Springfield
 Oak Ave,1,99,even,Boston`;
 
-    const result = parseValidStreetsFromCsvString(csvString);
+    const result = parseValidStreetsFromCsvString(csvString, mockElection);
 
     expect(result).toHaveLength(2);
     expect(result[0]).toEqual({
@@ -186,7 +216,7 @@ Oak Ave,1,99,even,Boston`;
       highRange: 200,
       side: 'odd' as StreetSide,
       postalCityTown: 'Springfield',
-      precinct: undefined,
+      precinct: '',
     });
     expect(result[1]).toEqual({
       streetName: 'Oak Ave',
@@ -194,7 +224,7 @@ Oak Ave,1,99,even,Boston`;
       highRange: 99,
       side: 'even' as StreetSide,
       postalCityTown: 'Boston',
-      precinct: undefined,
+      precinct: '',
     });
   });
 
@@ -202,7 +232,7 @@ Oak Ave,1,99,even,Boston`;
     const csvString = `Street Name,Low-Range,High_Range,Postal City/Town,side
 Main St,100,200,Springfield,all`;
 
-    const result = parseValidStreetsFromCsvString(csvString);
+    const result = parseValidStreetsFromCsvString(csvString, mockElection);
 
     expect(result[0]).toEqual(
       expect.objectContaining({
@@ -219,7 +249,7 @@ Main St,100,200,Springfield,all`;
     const csvString = `Street Name,Low Range,High Range,Side
 Main St,100,200,odd`;
 
-    const result = parseValidStreetsFromCsvString(csvString);
+    const result = parseValidStreetsFromCsvString(csvString, mockElection);
 
     expect(typeof result[0].lowRange).toEqual('number');
     expect(typeof result[0].highRange).toEqual('number');
@@ -232,7 +262,7 @@ Main St,100,200,odd`;
 Main St,100,200,ODD
 Oak Ave,1,99,EVEN`;
 
-    const result = parseValidStreetsFromCsvString(csvString);
+    const result = parseValidStreetsFromCsvString(csvString, mockElection);
 
     expect(result[0].side).toEqual('odd');
     expect(result[1].side).toEqual('even');
@@ -242,7 +272,7 @@ Oak Ave,1,99,EVEN`;
     const csvString = `Street Name,Low Range,High Range,Side,Postal City
 Main St,100,200,odd,Springfield`;
 
-    const result = parseValidStreetsFromCsvString(csvString);
+    const result = parseValidStreetsFromCsvString(csvString, mockElection);
 
     expect(result[0]).toEqual(
       expect.objectContaining({
@@ -256,7 +286,7 @@ Main St,100,200,odd,Springfield`;
     const csvString = `Street Name,Low Range,High Range,Side,Postal City/Town,Postal City
 Main St,100,200,odd,Springfield Preferred,Springfield Alt`;
 
-    const result = parseValidStreetsFromCsvString(csvString);
+    const result = parseValidStreetsFromCsvString(csvString, mockElection);
 
     expect(result[0].postalCityTown).toEqual('Springfield Preferred');
   });
@@ -265,12 +295,15 @@ Main St,100,200,odd,Springfield Preferred,Springfield Alt`;
     const csvString = `Street Name,Low Range,High Range,Side,Ward
 Main St,100,200,odd,5`;
 
-    const result = parseValidStreetsFromCsvString(csvString);
+    const result = parseValidStreetsFromCsvString(csvString, mockElection);
 
     expect(result[0]).toEqual(
       expect.objectContaining({
         streetName: 'Main St',
-        precinct: '5',
+        lowRange: 100,
+        highRange: 200,
+        side: 'odd',
+        precinct: 'precinct-3',
       })
     );
   });
@@ -282,7 +315,7 @@ Main St,100,200,odd
 Oak Ave,300,400,odd
 ,500,600,even`;
 
-    const result = parseValidStreetsFromCsvString(csvString);
+    const result = parseValidStreetsFromCsvString(csvString, mockElection);
 
     expect(result).toHaveLength(2);
     expect(result[0].streetName).toEqual('Main St');
@@ -297,7 +330,7 @@ Oak Ave,300,400,even
 
 `;
 
-    const result = parseValidStreetsFromCsvString(csvString);
+    const result = parseValidStreetsFromCsvString(csvString, mockElection);
 
     expect(result).toHaveLength(2);
     expect(result[0].streetName).toEqual('Main St');
@@ -308,7 +341,7 @@ Oak Ave,300,400,even
     const csvString = `Street Name,Low Range,High Range,Side,Postal City/Town,Ward
 Main Street,100,999,both,Springfield,1`;
 
-    const result = parseValidStreetsFromCsvString(csvString);
+    const result = parseValidStreetsFromCsvString(csvString, mockElection);
 
     expect(result[0]).toEqual(
       expect.objectContaining({
@@ -317,7 +350,7 @@ Main Street,100,999,both,Springfield,1`;
         highRange: 999,
         side: 'both' as StreetSide,
         postalCityTown: 'Springfield',
-        precinct: '1',
+        precinct: 'precinct-1',
       })
     );
   });
@@ -326,7 +359,7 @@ Main Street,100,999,both,Springfield,1`;
     const csvString = `Street Name,Low Range,High Range,Side
 Main St,100,200,odd`;
 
-    const result = parseValidStreetsFromCsvString(csvString);
+    const result = parseValidStreetsFromCsvString(csvString, mockElection);
 
     expect(result[0]).toEqual({
       streetName: 'Main St',
@@ -334,7 +367,7 @@ Main St,100,200,odd`;
       highRange: 200,
       side: 'odd' as StreetSide,
       postalCityTown: undefined,
-      precinct: undefined,
+      precinct: '',
     });
   });
 });

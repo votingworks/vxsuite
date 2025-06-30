@@ -30,11 +30,14 @@ const electionDefinition =
   electionSimpleSinglePrecinctFixtures.readElectionDefinition();
 const electionKey = constructElectionKey(electionDefinition.election);
 const townStreetNames = parseValidStreetsFromCsvString(
-  electionSimpleSinglePrecinctFixtures.pollbookTownStreetNames.asText()
+  electionSimpleSinglePrecinctFixtures.pollbookTownStreetNames.asText(),
+  electionDefinition.election
 );
 const townVoters = parseVotersFromCsvString(
-  electionSimpleSinglePrecinctFixtures.pollbookTownVoters.asText()
+  electionSimpleSinglePrecinctFixtures.pollbookTownVoters.asText(),
+  electionDefinition.election
 );
+const currentPrecinctId = electionDefinition.election.precincts[0].id;
 
 vi.mock(
   './globals.js',
@@ -219,6 +222,7 @@ test('register a voter', async () => {
       state: 'NH',
       zipCode: '03101',
       party: 'REP',
+      precinct: currentPrecinctId,
     };
 
     const registerResult = await localApiClient.registerVoter({
@@ -309,6 +313,7 @@ test('register a voter - duplicate name', async () => {
       state: 'NH',
       zipCode: '03101',
       party: 'REP',
+      precinct: currentPrecinctId,
     };
 
     const registerResult = await localApiClient.registerVoter({
@@ -366,6 +371,7 @@ test('register a voter - invalid address', async () => {
       state: 'NH',
       zipCode: '03101',
       party: 'REP',
+      precinct: currentPrecinctId,
     };
 
     // eslint-disable-next-line no-console
@@ -536,6 +542,7 @@ test('register a voter, change name and address, and check in', async () => {
         state: 'NH',
         zipCode: '03101',
         party: 'DEM',
+        precinct: currentPrecinctId,
       };
 
       const registerResult = await localApiClient.registerVoter({
@@ -602,6 +609,7 @@ test('register a voter, change name and address, and check in', async () => {
         city: 'Manchester',
         state: 'NH',
         zipCode: '03101',
+        precinct: currentPrecinctId,
       };
 
       const addressChangeResult = await localApiClient.changeVoterAddress({
@@ -745,6 +753,7 @@ test('check in, change name, undo check-in, change address, and check in again',
       city: 'Manchester',
       state: 'NH',
       zipCode: '03101',
+      precinct: currentPrecinctId,
     };
 
     const addressChangeResult = await localApiClient.changeVoterAddress({
@@ -815,6 +824,7 @@ test('change a voter address with various formats', async () => {
         city: 'MANCHESTER',
         state: 'NH',
         zipCode: '03101',
+        precinct: currentPrecinctId,
       },
       {
         streetName: 'OAK ST',
@@ -827,6 +837,7 @@ test('change a voter address with various formats', async () => {
         city: 'MANCHESTER',
         state: 'NH',
         zipCode: '03101',
+        precinct: currentPrecinctId,
       },
     ];
 
@@ -874,6 +885,7 @@ test('voter search ignores punctuation', async () => {
       state: 'NH',
       zipCode: '03101',
       party: 'UND',
+      precinct: currentPrecinctId,
     };
 
     const registrationRequests: VoterRegistrationRequest[] = [
