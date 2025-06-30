@@ -1,7 +1,7 @@
 import { BaseLogger } from '@votingworks/logging';
 import { Client as DbClient } from '@votingworks/db';
 import { safeParseJson } from '@votingworks/types';
-import { assert, groupBy, typedAs } from '@votingworks/basics';
+import { assert, assertDefined, groupBy, typedAs } from '@votingworks/basics';
 import { SqliteBool, fromSqliteBool, asSqliteBool } from '@votingworks/utils';
 import makeDebug from 'debug';
 import { generateId, SchemaPath, sortedByVoterName, Store } from './store';
@@ -451,8 +451,8 @@ export class LocalStore extends Store {
 
     // Get configured precinct for validation
     const { configuredPrecinctId } = this.getPollbookConfigurationInformation();
-    assert(
-      configuredPrecinctId !== undefined,
+    assertDefined(
+      configuredPrecinctId,
       'No configured precinct for address change'
     );
     assert(

@@ -1,4 +1,5 @@
 import { safeParseInt } from '@votingworks/types';
+import { Optional } from '@votingworks/basics';
 import {
   VoterAddressChangeRequest,
   ValidStreetInfo,
@@ -45,7 +46,7 @@ export function maybeGetStreetInfoForAddress(
 export function maybeGetStreetInfoForVoterRegistration(
   voterRegistration: VoterRegistrationRequest,
   streetInfo: ValidStreetInfo[]
-): ValidStreetInfo | undefined {
+): Optional<ValidStreetInfo> {
   // Basic field validation
   if (
     !isVoterNameChangeValid(voterRegistration) ||
