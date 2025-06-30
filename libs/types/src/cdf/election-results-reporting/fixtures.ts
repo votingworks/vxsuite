@@ -88,7 +88,7 @@ export const testElectionReport: ElectionReport = {
       Contest: [
         {
           '@type': 'ElectionResults.BallotMeasureContest',
-          '@id': 'fishing',
+          '@id': 'question-a',
           Name: 'Fishing Proposition',
           ElectionDistrictId: 'state-of-hamilton',
           ContestSelection: [
@@ -173,7 +173,7 @@ export const testElectionReport: ElectionReport = {
         },
         {
           '@type': 'ElectionResults.CandidateContest',
-          '@id': 'council',
+          '@id': 'city-council',
           Name: 'Council',
           ElectionDistrictId: 'state-of-hamilton',
           VotesAllowed: 2,
