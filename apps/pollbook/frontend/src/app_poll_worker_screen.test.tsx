@@ -1,7 +1,10 @@
 import { describe, expect, test, beforeEach, afterEach, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { Election, ElectionDefinition } from '@votingworks/types';
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  electionSimpleSinglePrecinctFixtures,
+} from '@votingworks/fixtures';
 import {
   AamvaDocument,
   Voter,
@@ -24,6 +27,10 @@ const famousNamesElection: Election =
 const famousNamesElectionDefinition: ElectionDefinition =
   electionFamousNames2021Fixtures.readElectionDefinition();
 const precinct1 = famousNamesElection.precincts[0].id;
+
+const singlePrecinctElectionDefinition: ElectionDefinition =
+  electionSimpleSinglePrecinctFixtures.readElectionDefinition();
+const singlePrecinct = singlePrecinctElectionDefinition.election.precincts[0];
 
 describe('PollWorkerScreen', () => {
   beforeEach(() => {
@@ -52,6 +59,7 @@ describe('PollWorkerScreen', () => {
       famousNamesElectionDefinition,
       famousNamesElection.precincts[0].id
     );
+
     apiMock.expectGetCheckInCounts({ allMachines: 25, thisMachine: 5 });
     await vi.waitFor(() => {
       screen.getByText('Check-In');
@@ -76,10 +84,16 @@ describe('PollWorkerScreen', () => {
     );
 
     const voter = createMockVoter('123', 'Abigail', 'Adams', precinct1);
+    const voterWrongPrecinct = createMockVoter(
+      '124',
+      'Abigail',
+      'Addams',
+      famousNamesElection.precincts[1].id
+    );
 
     apiMock.expectSearchVotersWithResults(
       { firstName: 'ABI', lastName: 'AD' },
-      [voter]
+      [voter, voterWrongPrecinct]
     );
     userEvent.clear(lastNameInput);
     userEvent.type(lastNameInput, 'AD');
@@ -88,9 +102,22 @@ describe('PollWorkerScreen', () => {
     act(() => {
       vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
     });
-    await screen.findByText(/Adams, Abigail/i);
+    const firstRow = await screen.findByTestId('voter-row#123');
+    within(firstRow).getByText(/Adams, Abigail/i);
+    within(firstRow).getByText(
+      new RegExp(famousNamesElection.precincts[0].name, 'i')
+    );
+    const secondRow = await screen.findByTestId('voter-row#124');
+    within(secondRow).getByText(/Addams, Abigail/i);
+    within(secondRow).getByText(
+      new RegExp(famousNamesElection.precincts[1].name, 'i')
+    );
     const checkInButton = screen.getByTestId('check-in-button#123');
+    const checkInButtonWrongPrecinct = screen.getByTestId(
+      'check-in-button#124'
+    );
     within(checkInButton).getByText('Start Check-In');
+    within(checkInButtonWrongPrecinct).getByText('View Details');
 
     apiMock.expectGetVoter(voter);
     userEvent.click(checkInButton);
@@ -107,6 +134,51 @@ describe('PollWorkerScreen', () => {
       vi.advanceTimersByTime(AUTOMATIC_FLOW_STATE_RESET_DELAY_MS);
     });
     expect(screen.queryByText('Voter Checked In')).toBeNull();
+
+    unmount();
+  });
+
+  test('single precinct election does not show precinct name', async () => {
+    apiMock.expectGetDeviceStatuses();
+    apiMock.authenticateAsPollWorker(singlePrecinctElectionDefinition.election);
+    apiMock.setElection(singlePrecinctElectionDefinition, singlePrecinct.id);
+    apiMock.setPrinterStatus(true);
+    apiMock.setIsAbsenteeMode(false);
+    apiMock.expectGetScannedIdDocument();
+    apiMock.expectSearchVotersNull({});
+    apiMock.expectGetCheckInCounts({ allMachines: 25, thisMachine: 5 });
+    const { unmount } = render(<App apiClient={apiMock.mockApiClient} />);
+
+    await vi.waitFor(() => {
+      screen.getByText('Check-In');
+    });
+
+    await screen.findByText('Total Check-ins');
+    const total = screen.getByTestId('total-check-ins');
+    within(total).getByText('25');
+    const machine = screen.getByTestId('machine-check-ins');
+    within(machine).getByText('5');
+
+    const voter = createMockVoter('123', 'Abigail', 'Adams', singlePrecinct.id);
+
+    apiMock.expectSearchVotersWithResults(
+      { firstName: 'ABI', lastName: 'AD' },
+      [voter]
+    );
+    const lastNameInput = screen.getByLabelText('Last Name');
+    userEvent.clear(lastNameInput);
+    userEvent.type(lastNameInput, 'AD');
+    const firstNameInput = screen.getByLabelText('First Name');
+    userEvent.type(firstNameInput, 'ABI');
+    act(() => {
+      vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
+    });
+    const firstRow = await screen.findByTestId('voter-row#123');
+    within(firstRow).getByText(/Adams, Abigail/i);
+
+    expect(
+      within(firstRow).queryByText(new RegExp(singlePrecinct.name, 'i'))
+    ).toBeNull();
 
     unmount();
   });

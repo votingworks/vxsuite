@@ -214,7 +214,10 @@ export function VoterSearch({
               <VoterTable>
                 <tbody>
                   {searchVotersQuery.data.map((voter) => (
-                    <tr key={voter.voterId}>
+                    <tr
+                      key={voter.voterId}
+                      data-testid={`voter-row#${voter.voterId}`}
+                    >
                       <td>
                         {voter.nameChange && <Caption>Updated Name</Caption>}
                         <H2 style={{ margin: 0 }}>
