@@ -35,6 +35,7 @@ import { LocalWorkspace, PeerWorkspace } from '../src';
 import { getUserRole } from '../src/auth';
 import { buildPeerApp, PeerApi } from '../src/peer_app';
 import { BarcodeScannerClient } from '../src/barcode_scanner/client';
+import { deleteTmpFileAfterTestSuiteCompletes } from './cleanup';
 
 vi.mock('../barcode_scanner/client', () => ({
   BarcodeScannerClient: vi.fn().mockImplementation(() => ({
@@ -114,6 +115,7 @@ export async function withApp(
 ): Promise<void> {
   const auth = buildMockDippedSmartCardAuth(vi.fn);
   const workspacePath = tmp.dirSync().name;
+  deleteTmpFileAfterTestSuiteCompletes(workspacePath);
   const machineId = process.env.VX_MACHINE_ID || TEST_MACHINE_ID;
   const codeVersion = process.env.VX_CODE_VERSION || 'test';
   const peerWorkspace = createPeerWorkspace(
@@ -213,6 +215,7 @@ export async function withManyApps(
 
       const auth = buildMockDippedSmartCardAuth(vi.fn);
       const workspacePath = tmp.dirSync().name;
+      deleteTmpFileAfterTestSuiteCompletes(workspacePath);
       const peerWorkspace = createPeerWorkspace(
         workspacePath,
         mockBaseLogger({ fn: vi.fn }),

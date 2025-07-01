@@ -16,9 +16,11 @@ import {
 } from './types';
 import { LocalStore } from './local_store';
 import { PeerStore } from './peer_store';
+import { deleteTmpFileAfterTestSuiteCompletes } from '../test/cleanup';
 
 function setupFileStores(machineId: string): [LocalStore, PeerStore] {
   const workspacePath = tmp.dirSync().name;
+  deleteTmpFileAfterTestSuiteCompletes(workspacePath);
   const localStore = LocalStore.fileStore(
     workspacePath,
     mockBaseLogger({ fn: vi.fn }),
