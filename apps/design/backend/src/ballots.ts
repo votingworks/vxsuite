@@ -142,12 +142,12 @@ export function createBallotPropsForTemplate(
   const baseBallotProps = allBaseBallotProps(election);
   switch (templateId) {
     case 'NhBallot':
+    case 'NhStateBallot':
+    case 'NhPrimaryBallot':
     case 'NhBallotV3': {
       return baseBallotProps.map(buildNhBallotProps);
     }
 
-    case 'NhPrimaryBallot':
-    case 'NhStateBallot':
     case 'NhBallotCompact':
     case 'NhBallotV3Compact': {
       return baseBallotProps

@@ -11,6 +11,7 @@ import {
 import {
   AnyContest,
   ballotPaperDimensions,
+  BallotStyleId,
   BallotType,
   Candidate,
   CandidateContest as CandidateContestStruct,
@@ -18,6 +19,7 @@ import {
   Election,
   getBallotStyle,
   getContests,
+  getPartyForBallotStyle,
   Party,
   YesNoContest,
 } from '@votingworks/types';
@@ -43,6 +45,7 @@ import {
   WRITE_IN_OPTION_CLASS,
   Box,
   ContestHeader,
+  BubbleShape,
 } from '../ballot_components';
 import {
   BaseBallotProps,
@@ -54,18 +57,53 @@ import { BallotMode, PixelDimensions } from '../types';
 import { hmpbStrings } from '../hmpb_strings';
 import { layOutInColumns } from '../layout_in_columns';
 import { RenderScratchpad } from '../renderer';
-import { Instructions } from './nh_primary_ballot_template';
-import { signatureImage } from './nh_sos_signature_image';
+import { handCountInsigniaImageData, sosSignatureImageData } from './nh_images';
 
-function Header({
+const BubbleDiagram = styled(BubbleShape)`
+  display: inline-block;
+  vertical-align: top;
+  transform: scale(0.8);
+`;
+
+export function Instructions(): JSX.Element {
+  return (
+    <div
+      style={{
+        fontSize: '0.75rem',
+        textAlign: 'justify',
+        lineHeight: '1.1',
+      }}
+    >
+      <h2>Instructions to Voters</h2>
+      <div>
+        <strong>1. To Vote:</strong> Completely fill in the oval{' '}
+        <BubbleDiagram /> to the right of your choice like this{' '}
+        <BubbleDiagram isFilled />. For each office vote for up to the number of
+        candidates stated in the sentences: “Vote for not more than 1;” or “Vote
+        for up to X;” “X will be elected.” If you vote for more than the stated
+        number of candidates, your vote for that office will not be counted.
+      </div>
+      <div>
+        <strong>2. To Vote by Write-in:</strong> To vote for a person whose name
+        is not printed on the ballot, write the name of the person in the
+        “write-in” space and completely fill in the oval <BubbleDiagram /> to
+        the right of the “write-in” space like this <BubbleDiagram isFilled />.
+      </div>
+    </div>
+  );
+}
+
+export function Header({
   election,
   ballotType,
   ballotMode,
+  ballotStyleId,
 }: {
   election: Election;
   ballotType: BallotType;
   ballotMode: BallotMode;
-}) {
+  ballotStyleId: BallotStyleId;
+}): JSX.Element {
   const ballotTitles: Record<BallotMode, Record<BallotType, JSX.Element>> = {
     official: {
       [BallotType.Precinct]: hmpbStrings.hmpbOfficialBallot,
@@ -85,12 +123,17 @@ function Header({
   };
   const ballotTitle = ballotTitles[ballotMode][ballotType];
 
+  const party =
+    election.type === 'primary'
+      ? assertDefined(getPartyForBallotStyle({ election, ballotStyleId }))
+      : undefined;
+
   return (
     <div
       style={{
         fontFamily: 'Roboto Condensed',
         display: 'grid',
-        gridTemplateColumns: '2.3fr 1fr 1fr',
+        gridTemplateColumns: '2.4fr 1fr 0.8fr',
         gap: '1rem',
         alignItems: 'center',
       }}
@@ -104,12 +147,13 @@ function Header({
             style={{
               textAlign: 'center',
               display: 'flex',
-              gap: '0.25rem',
+              gap: '0.125rem',
               flexDirection: 'column',
             }}
           >
             <h4>{ballotTitle}</h4>
             <h1>{electionStrings.countyName(election.county)}</h1>
+            {party && <h1>{electionStrings.partyFullName(party)}</h1>}
             <h4>{electionStrings.electionTitle(election)}</h4>
             <h4>{electionStrings.electionDate(election)}</h4>
           </div>
@@ -139,7 +183,7 @@ function Header({
             style={{
               height: '2rem',
               width: '7rem',
-              backgroundImage: `url(data:image/png;base64,${signatureImage})`,
+              backgroundImage: `url(${sosSignatureImageData})`,
               backgroundSize: 'contain',
               backgroundRepeat: 'no-repeat',
               marginBottom: '-0.125rem',
@@ -207,6 +251,7 @@ function BallotPageFrame({
                   election={election}
                   ballotType={ballotType}
                   ballotMode={ballotMode}
+                  ballotStyleId={ballotStyleId}
                 />
               </>
             )}
@@ -237,7 +282,7 @@ function BallotPageFrame({
 const rowStyles = css`
   font-family: 'Roboto Condensed';
   display: grid;
-  grid-template-columns: 0.75fr repeat(3, 1fr) 0.8fr;
+  grid-template-columns: 0.8fr repeat(3, 1fr) 0.85fr;
 `;
 
 const CandidateContestSectionHeaderContainer = styled.div`
@@ -286,7 +331,7 @@ const ContestTitleCell = styled.div`
   background-color: ${Colors.LIGHT_GRAY};
   border-bottom: 2px solid ${Colors.DARKER_GRAY};
   border-right: 1px solid ${Colors.DARK_GRAY};
-  padding: 0.5rem;
+  padding: 0.375rem 0.25rem;
 `;
 
 function CandidateList({
@@ -308,7 +353,7 @@ function CandidateList({
         height: '100%',
         paddingTop: offset && candidates.length > 1 ? '1.375rem' : undefined,
         justifyContent: candidates.length === 1 ? 'center' : 'start',
-        gap: '0.25rem',
+        gap: '0.5rem',
       }}
     >
       {candidates.map((candidate) => {
@@ -444,49 +489,62 @@ function CandidateContest({
           </div>
         ))}
       </CandidateListCell>
-      <CandidateListCell style={{ backgroundColor: Colors.LIGHT_GRAY }}>
+      <CandidateListCell>
         <div
           style={{
-            fontSize: '0.7rem',
-            padding: '0.125rem',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: contest.seats === 1 ? 'center' : 'start',
+            height: '100%',
+            gap: '0.5rem',
           }}
         >
-          {electionStrings.contestTitle(contest)}
+          {contest.allowWriteIns &&
+            range(0, contest.seats).map((writeInIndex) => {
+              const optionInfo: OptionInfo = {
+                type: 'write-in',
+                contestId: contest.id,
+                writeInIndex,
+                writeInArea: {
+                  top: 0.8,
+                  left: -0.9,
+                  bottom: 0.2,
+                  right: 8.7,
+                },
+              };
+              return (
+                <div
+                  key={writeInIndex}
+                  className={WRITE_IN_OPTION_CLASS}
+                  style={{
+                    display: 'flex',
+                    padding: '0.375rem 0.375rem',
+                    height: '2rem',
+                  }}
+                >
+                  <div
+                    style={{
+                      flex: 1,
+                      fontSize: '0.6rem',
+                      padding: '0.125rem',
+                      marginTop: '1rem',
+                      textAlign: 'right',
+                    }}
+                  >
+                    {electionStrings.contestTitle(contest)}
+                  </div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'end',
+                    }}
+                  >
+                    <AlignedBubble optionInfo={optionInfo} />
+                  </div>
+                </div>
+              );
+            })}
         </div>
-        {contest.allowWriteIns &&
-          range(0, contest.seats).map((writeInIndex) => {
-            const optionInfo: OptionInfo = {
-              type: 'write-in',
-              contestId: contest.id,
-              writeInIndex,
-              writeInArea: {
-                top: 0.8,
-                left: -0.9,
-                bottom: 0.2,
-                right: 8.7,
-              },
-            };
-            return (
-              <div
-                key={writeInIndex}
-                className={WRITE_IN_OPTION_CLASS}
-                style={{
-                  display: 'flex',
-                  gap: '0.5rem',
-                  padding: '0.5rem 0.375rem',
-                  justifyContent: 'end',
-                  textAlign: 'right',
-                  borderBottom:
-                    writeInIndex !== contest.seats - 1
-                      ? `1px solid ${Colors.DARK_GRAY}`
-                      : undefined,
-                  backgroundColor: Colors.WHITE,
-                }}
-              >
-                <AlignedBubble optionInfo={optionInfo} />
-              </div>
-            );
-          })}
       </CandidateListCell>
     </CandidateContestRow>
   );
@@ -713,6 +771,29 @@ async function BallotPageContent(
       error: 'contestTooLong',
       contest: contestsLeftToLayout[0],
     });
+  }
+
+  // Add hand-count insignia
+  if (contestsLeftToLayout.length === 0) {
+    pageSections.push(
+      <div
+        key="hand-count-insignia"
+        style={{
+          display: 'flex',
+          justifyContent: 'end',
+        }}
+      >
+        <div
+          style={{
+            backgroundImage: `url(${handCountInsigniaImageData})`,
+            backgroundSize: 'contain',
+            backgroundRepeat: 'no-repeat',
+            height: '20rem',
+            width: '15rem',
+          }}
+        />
+      </div>
+    );
   }
 
   const currentPageElement =
