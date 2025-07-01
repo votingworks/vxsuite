@@ -21,6 +21,7 @@ import { DateTime } from 'luxon';
 import styled from 'styled-components';
 import { formatElectionHashes, type PrinterStatus } from '@votingworks/types';
 import type {
+  BarcodeScannerStatus,
   NetworkStatus,
   PollbookConfigurationInformation,
   PollbookServiceInfo,
@@ -286,6 +287,15 @@ function UsbStatus({ status }: { status: UsbDriveStatus }) {
   );
 }
 
+function BarcodeScannerStatus({ status }: { status: BarcodeScannerStatus }) {
+  return (
+    <Row style={{ gap: '0.25rem', alignItems: 'center' }}>
+      <Icons.IdCard color="inverse" />
+      {!status.connected && <Icons.Warning color="inverseWarning" />}
+    </Row>
+  );
+}
+
 function PrinterStatus({ status }: { status: PrinterStatus }) {
   return (
     <Row style={{ gap: '0.25rem', alignItems: 'center' }}>
@@ -348,7 +358,8 @@ export function DeviceStatusBar({
   ) {
     return null;
   }
-  const { network, battery, usbDrive, printer } = getDeviceStatusesQuery.data;
+  const { network, battery, usbDrive, printer, barcodeScanner } =
+    getDeviceStatusesQuery.data;
   const pollbookConfiguration = getPollbookConfigurationInformationQuery.data;
 
   return (
@@ -359,6 +370,7 @@ export function DeviceStatusBar({
           currentMachineConfiguration={pollbookConfiguration}
         />
         <PrinterStatus status={printer} />
+        <BarcodeScannerStatus status={barcodeScanner} />
         <UsbStatus status={usbDrive} />
         <BatteryStatus status={battery} />
         {format.clockDateAndTime(currentDate)}

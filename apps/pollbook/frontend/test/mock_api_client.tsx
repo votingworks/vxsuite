@@ -99,6 +99,7 @@ export function createApiMock() {
 
   let currentDeviceStatus: DeviceStatuses = {
     usbDrive: mockUsbDriveStatus('no_drive'),
+    barcodeScanner: { connected: false },
     printer: { connected: false },
     battery: { level: 1, discharging: false },
     network: {

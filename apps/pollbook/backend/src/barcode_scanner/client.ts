@@ -6,6 +6,7 @@ import {
   LogEventId,
   LogDispositionStandardTypes,
 } from '@votingworks/logging';
+import { lstat } from 'node:fs/promises';
 import {
   AamvaDocument,
   BarcodeScannerError,
@@ -17,6 +18,7 @@ import { tryConnect } from './unix_socket';
 
 export const UDS_CONNECTION_ATTEMPT_DELAY_MS = 1000;
 export const UDS_CONNECTION_TIMEOUT_MS = 60 * 60 * 1000; // 1 hour
+const DEVICE_PATH = '/dev/barcode_scanner';
 
 /**
  * Attempts to connect to the barcode scanner Unix socket within a retry loop.
@@ -54,7 +56,8 @@ export class BarcodeScannerClient {
   constructor(
     private readonly logger: Logger,
     private scannedDocument: Optional<AamvaDocument> = undefined,
-    private error: Optional<BarcodeScannerError> = undefined
+    private error: Optional<BarcodeScannerError> = undefined,
+    private connectedToDaemon = false
   ) {}
 
   // Returns the latest payload from the barcode scanner daemon, consuming it in the process,
@@ -73,6 +76,23 @@ export class BarcodeScannerClient {
     return payload;
   }
 
+  async isConnected(): Promise<boolean> {
+    try {
+      const deviceFound = !!(await lstat(DEVICE_PATH));
+      return deviceFound && this.connectedToDaemon;
+    } catch (err: unknown) {
+      const typedError = err as NodeJS.ErrnoException;
+      if (typedError.code !== 'ENOENT') {
+        await this.logger.logAsCurrentRole(LogEventId.UnknownError, {
+          message: 'Unknown error trying to lstat barcode scanner',
+          error: (err as Error).message,
+        });
+      }
+
+      return false;
+    }
+  }
+
   private scheduleReconnect(): void {
     setTimeout(() => this.listen(), UDS_CONNECTION_ATTEMPT_DELAY_MS);
   }
@@ -88,12 +108,15 @@ export class BarcodeScannerClient {
       return;
     }
 
+    this.connectedToDaemon = true;
+
     // 'close' event covers both clean socket shutdown and close due to error
     udsClient.on('close', () => {
       this.logger.log(LogEventId.SocketClientDisconnected, 'system', {
         message: 'UDS socket closed',
         disposition: LogDispositionStandardTypes.Success,
       });
+      this.connectedToDaemon = false;
       this.scheduleReconnect();
     });
 

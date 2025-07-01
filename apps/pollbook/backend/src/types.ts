@@ -376,6 +376,10 @@ export interface PollbookServiceInfo
   numCheckIns: number;
 }
 
+export interface BarcodeScannerStatus {
+  connected: boolean;
+}
+
 export interface NetworkStatus {
   pollbooks: PollbookServiceInfo[];
   isOnline: boolean;
@@ -389,6 +393,7 @@ export interface DeviceStatuses {
     isOnline: boolean;
     pollbooks: PollbookServiceInfo[];
   };
+  barcodeScanner: BarcodeScannerStatus;
 }
 
 export enum PollbookConnectionStatus {
@@ -471,9 +476,10 @@ export const BarcodeScannerErrorSchema: z.ZodSchema<BarcodeScannerError> =
 
 export type BarcodeScannerPayload = AamvaDocument | BarcodeScannerError;
 
-export const BarcodeScannerPayloadSchema = AamvaDocumentSchema.or(
-  BarcodeScannerErrorSchema
-);
+export const BarcodeScannerPayloadSchema = z.union([
+  AamvaDocumentSchema,
+  BarcodeScannerErrorSchema,
+]);
 
 export function isAamvaDocument(
   payload: BarcodeScannerPayload
