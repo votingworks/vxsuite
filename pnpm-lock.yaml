@@ -5460,9 +5460,6 @@ importers:
       sanitize-html:
         specifier: ^2.13.0
         version: 2.13.0
-      tone:
-        specifier: ^14.7.77
-        version: 14.7.77
       use-interval:
         specifier: 1.4.0
         version: 1.4.0(react@18.3.1)
@@ -14944,14 +14941,6 @@ packages:
       uuid: 9.0.1
     dev: false
 
-  /automation-events@6.0.14:
-    resolution: {integrity: sha512-CoxZlKaVDGfjdfOULxd6ws8gQ/WLCw7JXub4qb0LM55otKQL9j2BnlN07lT/0V75SGzLMOElfXpTvWqzzIHx0w==}
-    engines: {node: '>=16.1.0'}
-    dependencies:
-      '@babel/runtime': 7.23.9
-      tslib: 2.6.2
-    dev: false
-
   /available-typed-arrays@1.0.7:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
@@ -24350,14 +24339,6 @@ packages:
   /stackback@0.0.2:
     resolution: {integrity: sha512-1XMJE5fQo1jGH6Y/7ebnwPOBEkIEnT4QF32d5R1+VXdXveM0IBMJt8zfaxX1P3QhVwrYe+576+jkANtSS2mBbw==}
 
-  /standardized-audio-context@25.3.63:
-    resolution: {integrity: sha512-6hB0GbZOx3Q0npxg1QMZTN/jioom3jMkVcr3EqZbwywytqykevtuCgZuaUJqntTzv7q2mEW9KsCUtFCpbWpCkw==}
-    dependencies:
-      '@babel/runtime': 7.23.9
-      automation-events: 6.0.14
-      tslib: 2.6.2
-    dev: false
-
   /static-extend@0.1.2:
     resolution: {integrity: sha512-72E9+uLc27Mt718pMHt9VMNiAL4LMsmDbBva8mxWUCkT07fSzEGMYUCk0XWY6lp0j6RBAG4cJ3mWuZv2OE3s0g==}
     engines: {node: '>=0.10.0'}
@@ -25099,13 +25080,6 @@ packages:
   /toidentifier@1.0.1:
     resolution: {integrity: sha512-o5sSPKEkg/DIQNmH43V0/uerLrpzVedkUh8tGNvaeXpfpuwjKenlSox/2O/BTlZUtEe+JG7s5YhEz608PlAHRA==}
     engines: {node: '>=0.6'}
-
-  /tone@14.7.77:
-    resolution: {integrity: sha512-tCfK73IkLHyzoKUvGq47gyDyxiKLFvKiVCOobynGgBB9Dl0NkxTM2p+eRJXyCYrjJwy9Y0XCMqD3uOYsYt2Fdg==}
-    dependencies:
-      standardized-audio-context: 25.3.63
-      tslib: 2.6.2
-    dev: false
 
   /touch@3.1.0:
     resolution: {integrity: sha512-WBx8Uy5TLtOSRtIq+M03/sKDrXCLHxwDcquSP2c43Le03/9serjQBIztjRz6FkJez9D/hleyAXTBGLwwZUw9lA==}
