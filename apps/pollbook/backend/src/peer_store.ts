@@ -27,7 +27,6 @@ import { rootDebug } from './debug';
 import { SchemaPath, Store } from './store';
 import { readPollbookPackage } from './pollbook_package';
 import { shouldPollbooksShareEvents } from './networking';
-import { deleteTmpFileAfterTestSuiteCompletes } from '../test/cleanup';
 
 const debug = rootDebug.extend('store:peer');
 
@@ -268,7 +267,6 @@ export class PeerStore extends Store {
       return err('pollbook-connection-problem');
     }
     const tempPath = `${tmpdir()}/pollbook-package-${randomUUID()}.zip`;
-    deleteTmpFileAfterTestSuiteCompletes(tempPath);
     // Download the pollbook package zip via streaming
     try {
       const pollbookUrl = `${peer.address}/file/pollbook-package`;
