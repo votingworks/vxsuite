@@ -96,6 +96,10 @@ export function UiStringsAudioContextProvider(
   const webAudioContextRef = React.useRef(getWebAudioContextInstance());
   const gainNodeRef = React.useRef(getGainNodeInstance());
 
+  if (gainNodeRef.current) {
+    gainNodeRef.current.gain.value = getAudioGainRatio(volume);
+  }
+
   const resetPlaybackSettings = React.useCallback(() => {
     setVolume(DEFAULT_AUDIO_VOLUME);
     setPlaybackRate(DEFAULT_PLAYBACK_RATE);
@@ -145,14 +149,6 @@ export function UiStringsAudioContextProvider(
       void webAudioContextRef.current.resume();
     }
   }, [isPaused]);
-
-  React.useEffect(() => {
-    if (!gainNodeRef.current) {
-      return;
-    }
-
-    gainNodeRef.current.gain.value = getAudioGainRatio(volume);
-  }, [volume]);
 
   const increasePlaybackRate = React.useCallback(() => {
     setPlaybackRate(
