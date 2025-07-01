@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import { waitFor } from '@testing-library/react';
 import {
   AudioVolume,
-  getAudioGainAmountDb,
+  getAudioGainRatio,
   getDecreasedVolume,
   getIncreasedVolume,
 } from './audio_volume';
@@ -10,6 +10,16 @@ import {
 const VVSG_MAX_INCREMENT_AMOUNT_DB = 10;
 const VVSG_REQUIRED_VOLUME_RANGE_DB = 80; // 20 to 100 dB SPL
 const { MAXIMUM, MINIMUM } = AudioVolume;
+
+function gainDbFromRatio(ratio: number): number {
+  // "20 log rule" for calculating amplitude from gain ratio:
+  // https://en.wikipedia.org/wiki/Gain_(electronics)#Voltage_gain
+  return 20 * Math.log10(ratio);
+}
+
+function gainDbFromVolume(volume: AudioVolume): number {
+  return gainDbFromRatio(getAudioGainRatio(volume));
+}
 
 test('getIncreasedVolume', () => {
   expect(getIncreasedVolume(MINIMUM)).not.toEqual(MINIMUM);
@@ -22,7 +32,7 @@ test('getDecreasedVolume', () => {
 });
 
 test('VVSG 2.0 volume range requirement', () => {
-  expect(getAudioGainAmountDb(MAXIMUM) - getAudioGainAmountDb(MINIMUM)).toEqual(
+  expect(gainDbFromVolume(MAXIMUM) - gainDbFromVolume(MINIMUM)).toEqual(
     VVSG_REQUIRED_VOLUME_RANGE_DB
   );
 });
@@ -38,8 +48,7 @@ test('VVSG 2.0 gain increments requirement', async () => {
 
     if (currentVolume !== previousVolume) {
       gainDeltas.push(
-        getAudioGainAmountDb(currentVolume) -
-          getAudioGainAmountDb(previousVolume)
+        gainDbFromVolume(currentVolume) - gainDbFromVolume(previousVolume)
       );
     }
 

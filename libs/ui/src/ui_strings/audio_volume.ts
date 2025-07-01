@@ -45,22 +45,28 @@ export enum AudioVolume {
  * set to its maximum output level.
  *
  * - Last VxMark Calibration: 2024-09-11 on VSAP 150 with Lorelei X6 Headphones.
- * - Last VxScan Calibration: 2025-06-16 on Storm Interface 1406-330023 with
+ * - Last VxScan Calibration: 2025-07-01 on Storm Interface 1406-330023 with
  *   Philips TAH2005 Headphones.
  *
- * TODO: Might be worth defining different offsets for different machines
- * (VxMark vs VxMarkScan), since audio hardware and output levels will likely
- * differ between the two.
+ * NOTE: Might be worth defining different offsets for different
+ * machines/hardware combinations if they end up having significant differences
+ * in output levels.
  */
 const GOOGLE_CLOUD_TTS_GAIN_OFFSET_FOR_MIN_VOLUME = -55;
 
-export function getAudioGainAmountDb(volume: AudioVolume): number {
+function getAudioGainAmountDb(volume: AudioVolume): number {
   // eslint-disable-next-line vx/gts-safe-number-parse
   const additionalGainPercentage = parseInt(volume, 10);
   const additionalGainDb =
     (MAX_VOLUME_DB_SPL - MIN_VOLUME_DB_SPL) * (additionalGainPercentage / 100);
 
   return GOOGLE_CLOUD_TTS_GAIN_OFFSET_FOR_MIN_VOLUME + additionalGainDb;
+}
+
+export function getAudioGainRatio(volume: AudioVolume): number {
+  // Inverse of the "20 log rule" for calculating amplitude from gain ratio:
+  // https://en.wikipedia.org/wiki/Gain_(electronics)#Voltage_gain
+  return 10 ** (getAudioGainAmountDb(volume) / 20);
 }
 
 export const DEFAULT_AUDIO_VOLUME: AudioVolume = AudioVolume.FIFTY_PERCENT;
