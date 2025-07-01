@@ -5,6 +5,7 @@ import { createVoter, setupTestElectionAndVoters } from '../test/test_helpers';
 import { getBackupPaperChecklistPdfs } from './backup_worker';
 import { LocalStore } from './local_store';
 import { EventType, VoterRegistrationEvent } from './types';
+import { deleteTmpFileAfterTestSuiteCompletes } from '../test/cleanup';
 
 vitest.setConfig({
   testTimeout: 55_000,
@@ -56,6 +57,8 @@ test('can export paper backup checklist', async () => {
 
   const pt1Path = tmpNameSync();
   const pt2Path = tmpNameSync();
+  deleteTmpFileAfterTestSuiteCompletes(pt1Path);
+  deleteTmpFileAfterTestSuiteCompletes(pt2Path);
   writeFileSync(pt1Path, pdfs[0]);
   writeFileSync(pt2Path, pdfs[1]);
   await expect(pt1Path).toMatchPdfSnapshot();

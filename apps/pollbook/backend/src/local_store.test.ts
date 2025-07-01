@@ -10,6 +10,7 @@ import {
 } from '../test/test_helpers';
 import { LocalStore } from './local_store';
 import { VoterRegistrationRequest } from './types';
+import { deleteTmpFileAfterTestSuiteCompletes } from '../test/cleanup';
 
 test('findVotersWithName works as expected - voters without name changes', () => {
   const localStore = LocalStore.memoryStore();
@@ -488,6 +489,7 @@ test('changeVoterAddress works as expected - when precinct is the properly confi
 
 test('store can load data from database on restart', () => {
   const workspacePath = tmp.dirSync().name;
+  deleteTmpFileAfterTestSuiteCompletes(workspacePath);
   const localStore = LocalStore.fileStore(
     workspacePath,
     mockBaseLogger({ fn: vi.fn }),
