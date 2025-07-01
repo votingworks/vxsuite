@@ -17,7 +17,7 @@ type PlayAudioClipProps = ClipParams & {
 function PlayAudioClip(props: PlayAudioClipProps) {
   const { audioId, languageCode, onDone } = props;
   const [audioPlayer, setAudioPlayer] = React.useState<AudioPlayer>();
-  const { api, playbackRate, volume, webAudioContext } = assertDefined(
+  const { api, output, playbackRate, webAudioContext } = assertDefined(
     useAudioContext()
   );
 
@@ -32,27 +32,22 @@ function PlayAudioClip(props: PlayAudioClipProps) {
   React.useEffect(() => {
     setAudioPlayer(undefined);
 
-    if (!hasClipLoaded || !clip || !webAudioContext) {
+    if (!hasClipLoaded || !clip || !webAudioContext || !output) {
       return;
     }
 
     // TODO(kofi): assert that the requested clip data exists in the backend.
 
-    void (async () => {
-      setAudioPlayer(await newAudioPlayer({ clip, webAudioContext }));
-    })();
-  }, [clip, hasClipLoaded, webAudioContext]);
+    setAudioPlayer(newAudioPlayer({ clip, output, webAudioContext }));
+  }, [clip, hasClipLoaded, output, webAudioContext]);
 
   //
-  // Set/update playback rate and volume when audio player is ready or when user
+  // Set/update playback rate when audio player is ready or when user
   // settings change:
   //
   React.useEffect(() => {
     audioPlayer?.setPlaybackRate(playbackRate);
   }, [audioPlayer, playbackRate]);
-  React.useEffect(() => {
-    audioPlayer?.setVolume(volume);
-  }, [audioPlayer, volume]);
 
   //
   // Store `onDone` callback ref to avoid re-running the "start playback" effect
