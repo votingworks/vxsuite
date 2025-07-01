@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   assertDefined,
   err,
@@ -7,19 +6,14 @@ import {
   range,
   throwIllegalValue,
 } from '@votingworks/basics';
-import { Buffer } from 'node:buffer';
 import {
   AnyContest,
-  BallotStyleId,
-  BallotType,
   CandidateContest as CandidateContestStruct,
   Election,
-  NhPrecinctSplitOptions,
   YesNoContest,
   ballotPaperDimensions,
   getBallotStyle,
   getContests,
-  getPartyForBallotStyle,
 } from '@votingworks/types';
 import {
   BackendLanguageContextProvider,
@@ -27,7 +21,6 @@ import {
   electionStrings,
   RichText,
 } from '@votingworks/ui';
-import styled from 'styled-components';
 import {
   BallotPageTemplate,
   BaseBallotProps,
@@ -50,168 +43,36 @@ import {
   primaryLanguageCode,
   WriteInLabel,
   ColorTint,
-  BubbleShape,
 } from '../ballot_components';
-import { BallotMode, PixelDimensions } from '../types';
+import { PixelDimensions } from '../types';
 import { hmpbStrings } from '../hmpb_strings';
 import { layOutInColumns } from '../layout_in_columns';
 import { Watermark } from './watermark';
+import { Header } from './nh_state_ballot_template';
+import { republicanHandCountInsigniaImageData } from './nh_images';
 
-const BubbleDiagram = styled(BubbleShape)`
-  display: inline-block;
-  vertical-align: top;
-  transform: scale(0.8);
-`;
-
-export function Instructions(): JSX.Element {
-  return (
+const blankPageWithHandCountInsignia = (
+  <div
+    style={{
+      height: '100%',
+      position: 'relative',
+    }}
+  >
+    <BlankPageMessage />
     <div
       style={{
-        fontSize: '0.75rem',
-        textAlign: 'justify',
-        lineHeight: '1.1',
+        backgroundImage: `url(${republicanHandCountInsigniaImageData})`,
+        backgroundSize: 'contain',
+        backgroundRepeat: 'no-repeat',
+        position: 'absolute',
+        bottom: 0,
+        right: 0,
+        height: '20rem',
+        width: '15rem',
       }}
-    >
-      <h2>Instructions to Voters</h2>
-      <div>
-        <strong>1. To Vote:</strong> Completely fill in the oval{' '}
-        <BubbleDiagram /> to the right of your choice like this{' '}
-        <BubbleDiagram isFilled />. For each office vote for up to the number of
-        candidates stated in the sentences: “Vote for not more than 1;” or “Vote
-        for up to X;” “X will be elected.” If you vote for more than the stated
-        number of candidates, your vote for that office will not be counted.
-      </div>
-      <div>
-        <strong>2. To Vote by Write-in:</strong> To vote for a person whose name
-        is not printed on the ballot, write the name of the person in the
-        “write-in” space and completely fill in the oval <BubbleDiagram /> to
-        the right of the “write-in” space like this <BubbleDiagram isFilled />.
-      </div>
-    </div>
-  );
-}
-
-function Header({
-  election,
-  ballotStyleId,
-  ballotType,
-  ballotMode,
-
-  electionTitleOverride,
-  electionSealOverride,
-  clerkSignatureImage,
-  clerkSignatureCaption,
-}: {
-  election: Election;
-  ballotStyleId: BallotStyleId;
-  ballotType: BallotType;
-  ballotMode: BallotMode;
-} & NhPrecinctSplitOptions) {
-  const ballotTitles: Record<BallotMode, Record<BallotType, JSX.Element>> = {
-    official: {
-      [BallotType.Precinct]: hmpbStrings.hmpbOfficialBallot,
-      [BallotType.Absentee]: hmpbStrings.hmpbOfficialAbsenteeBallot,
-      [BallotType.Provisional]: hmpbStrings.hmpbOfficialProvisionalBallot,
-    },
-    sample: {
-      [BallotType.Precinct]: hmpbStrings.hmpbSampleBallot,
-      [BallotType.Absentee]: hmpbStrings.hmpbSampleAbsenteeBallot,
-      [BallotType.Provisional]: hmpbStrings.hmpbSampleProvisionalBallot,
-    },
-    test: {
-      [BallotType.Precinct]: hmpbStrings.hmpbTestBallot,
-      [BallotType.Absentee]: hmpbStrings.hmpbTestAbsenteeBallot,
-      [BallotType.Provisional]: hmpbStrings.hmpbTestProvisionalBallot,
-    },
-  };
-  const ballotTitle = ballotTitles[ballotMode][ballotType];
-
-  const party =
-    election.type === 'primary'
-      ? assertDefined(getPartyForBallotStyle({ election, ballotStyleId }))
-      : undefined;
-
-  return (
-    <Box
-      fill="RED"
-      style={{
-        display: 'flex',
-        gap: '1rem',
-        alignItems: 'center',
-      }}
-    >
-      <div style={{ flex: 1 }}>
-        <Instructions />
-      </div>
-      <div style={{ flex: 1 }}>
-        <div
-          style={{
-            textAlign: 'center',
-            display: 'flex',
-            gap: '0.5rem',
-            flexDirection: 'column',
-          }}
-        >
-          <h4>{ballotTitle}</h4>
-          <h1>{electionStrings.countyName(election.county)}</h1>
-          {party && <h1>{electionStrings.partyFullName(party)}</h1>}
-          <h4>
-            {electionTitleOverride ?? electionStrings.electionTitle(election)}
-          </h4>
-          <h4>{electionStrings.electionDate(election)}</h4>
-        </div>
-      </div>
-      <div
-        style={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '0.5rem',
-          alignItems: 'center',
-        }}
-      >
-        <div
-          style={{
-            height: '5rem',
-            aspectRatio: '1 / 1',
-            backgroundImage: `url(data:image/svg+xml;base64,${Buffer.from(
-              electionSealOverride ?? election.seal
-            ).toString('base64')})`,
-            backgroundSize: 'contain',
-            backgroundRepeat: 'no-repeat',
-            marginTop: '0.125rem',
-          }}
-        />
-        <div style={{ textAlign: 'center' }}>
-          {clerkSignatureImage && (
-            <div
-              style={{
-                height: '3rem',
-                backgroundImage: `url(data:image/svg+xml;base64,${Buffer.from(
-                  clerkSignatureImage
-                ).toString('base64')})`,
-                backgroundSize: 'contain',
-                backgroundRepeat: 'no-repeat',
-                marginTop: '0.125rem',
-                marginBottom: '-0.5rem',
-                visibility: ballotMode === 'sample' ? 'hidden' : 'visible',
-              }}
-            />
-          )}
-          {clerkSignatureCaption && (
-            <div
-              style={{
-                visibility: ballotMode === 'sample' ? 'hidden' : 'visible',
-              }}
-            >
-              {clerkSignatureCaption}
-            </div>
-          )}
-        </div>
-      </div>
-    </Box>
-  );
-}
+    />
+  </div>
+);
 
 // Almost identical to vx_default_ballot_template BallotPageFrame except additional props are passed to Header.
 function BallotPageFrame({
@@ -224,13 +85,9 @@ function BallotPageFrame({
   pageNumber,
   totalPages,
   children,
-  electionTitleOverride,
-  electionSealOverride,
-  clerkSignatureImage,
-  clerkSignatureCaption,
   watermark,
   colorTint = 'RED',
-}: NhBallotProps & {
+}: NhPrimaryBallotProps & {
   pageNumber: number;
   totalPages?: number;
   children: JSX.Element;
@@ -254,6 +111,7 @@ function BallotPageFrame({
         <TimingMarkGrid pageDimensions={pageDimensions}>
           <div
             style={{
+              fontFamily: 'Roboto Condensed',
               flex: 1,
               display: 'flex',
               flexDirection: 'column',
@@ -262,18 +120,14 @@ function BallotPageFrame({
             }}
           >
             {pageNumber === 1 && (
-              <>
+              <Box fill={colorTint} style={{ padding: '0.5rem' }}>
                 <Header
                   election={election}
                   ballotStyleId={ballotStyleId}
                   ballotType={ballotType}
                   ballotMode={ballotMode}
-                  electionTitleOverride={electionTitleOverride}
-                  electionSealOverride={electionSealOverride}
-                  clerkSignatureImage={clerkSignatureImage}
-                  clerkSignatureCaption={clerkSignatureCaption}
                 />
-              </>
+              </Box>
             )}
             <div
               style={{
@@ -350,17 +204,11 @@ function CandidateContest({
       }}
     >
       <ContestHeader colorTint={colorTint}>
-        <DualLanguageText delimiter="/">
-          <h3>{electionStrings.contestTitle(contest)}</h3>
-        </DualLanguageText>
-        <DualLanguageText delimiter="/">
-          <div>{voteForText}</div>
-        </DualLanguageText>
-        {willBeElectedText && (
-          <DualLanguageText delimiter="/">
-            <div>{willBeElectedText}</div>
-          </DualLanguageText>
-        )}
+        <h3>{electionStrings.contestTitle(contest)}</h3>
+        <div>
+          {voteForText}
+          {willBeElectedText && <span>; {willBeElectedText}</span>}
+        </div>
         {contest.termDescription && (
           <DualLanguageText delimiter="/">
             <div>{electionStrings.contestTerm(contest)}</div>
@@ -430,19 +278,26 @@ function CandidateContest({
                   display: 'flex',
                   gap: '0.5rem',
                   padding: '0.25rem 0.5rem',
-                  paddingTop: '0.9rem',
+                  paddingTop: '0.375rem',
                   borderTop: `1px solid ${Colors.DARK_GRAY}`,
                   textAlign: 'right',
                 }}
               >
-                <div style={{ flex: 1 }}>
+                <div
+                  style={{
+                    flex: 1,
+                    display: 'flex',
+                    alignItems: 'end',
+                    justifyContent: 'end',
+                  }}
+                >
                   {/* <div
                     style={{
                       borderBottom: `1px solid ${Colors.BLACK}`,
                       height: '1.25rem',
                     }}
                   /> */}
-                  <div style={{ fontSize: '0.8rem' }}>
+                  <div style={{ fontSize: '0.7rem' }}>
                     <WriteInLabel />
                   </div>
                 </div>
@@ -575,12 +430,12 @@ function Contest({
 }
 
 async function BallotPageContent(
-  props: (NhBallotProps & { dimensions: PixelDimensions }) | undefined,
+  props: (NhPrimaryBallotProps & { dimensions: PixelDimensions }) | undefined,
   scratchpad: RenderScratchpad
-): Promise<ContentComponentResult<NhBallotProps>> {
+): Promise<ContentComponentResult<NhPrimaryBallotProps>> {
   if (!props) {
     return ok({
-      currentPageElement: <BlankPageMessage />,
+      currentPageElement: blankPageWithHandCountInsignia,
       nextPageProps: undefined,
     });
   }
@@ -631,7 +486,10 @@ async function BallotPageContent(
           <div
             className="contestWrapper"
             key={i}
-            style={{ width: `${columnWidthPx}px` }}
+            style={{
+              fontFamily: 'Roboto Condensed',
+              width: `${columnWidthPx}px`,
+            }}
           >
             {contest}
           </div>
@@ -709,7 +567,7 @@ async function BallotPageContent(
         {pageSections}
       </div>
     ) : (
-      <BlankPageMessage />
+      blankPageWithHandCountInsignia
     );
   const nextPageProps =
     contestSectionsLeftToLayout.length > 0
@@ -730,10 +588,10 @@ async function BallotPageContent(
   });
 }
 
-export type NhBallotProps = BaseBallotProps &
-  NhPrecinctSplitOptions & { colorTint?: ColorTint };
+export type NhPrimaryBallotProps = BaseBallotProps & { colorTint?: ColorTint };
 
-export const nhPrimaryBallotTemplate: BallotPageTemplate<NhBallotProps> = {
-  frameComponent: BallotPageFrame,
-  contentComponent: BallotPageContent,
-};
+export const nhPrimaryBallotTemplate: BallotPageTemplate<NhPrimaryBallotProps> =
+  {
+    frameComponent: BallotPageFrame,
+    contentComponent: BallotPageContent,
+  };

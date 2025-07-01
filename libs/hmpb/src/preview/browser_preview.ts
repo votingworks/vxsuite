@@ -33,7 +33,7 @@ function isBallotTemplateId(id: string): id is BallotTemplateId {
 
 function getTemplate(templateId: string | null) {
   if (!templateId) {
-    return ballotTemplates.VxDefaultBallot;
+    return ballotTemplates.NhPrimaryBallot;
   }
 
   if (!isBallotTemplateId(templateId)) {
@@ -52,7 +52,7 @@ interface Config {
 async function loadConfigFromSearchParams(url: URL): Promise<Config> {
   const electionUrl =
     url.searchParams.get('election-url') ??
-    '/hmpb-fixtures/vx-general-election/legal/election.json';
+    '/hmpb-fixtures/nh-primary-election.json';
   const paperSize = unsafeParse(
     HmpbBallotPaperSizeSchema,
     url.searchParams.get('paper-size') ?? HmpbBallotPaperSize.Legal
