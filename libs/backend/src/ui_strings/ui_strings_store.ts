@@ -73,9 +73,20 @@ export function createUiStringStore(dbClient: DbClient): UiStringsStore {
         ...audioIds
       ) as Array<{ id: string; dataBase64: string; languageCode: string }>;
 
-      return rows.map((row) =>
-        safeParse(UiStringAudioClipSchema, row).unsafeUnwrap()
-      );
+      return rows.map((row) => {
+        const clip = safeParse(UiStringAudioClipSchema, row).unsafeUnwrap();
+
+        if (!clip.dataBase64.startsWith('data:')) {
+          // TODO(https://github.com/votingworks/vxsuite/issues/6700):
+          // This is due to a switch from using plain base64 strings to using
+          // data URLs in the client. This can/should be moved upstream to when
+          // we synthesize audio in VxDesign - in the meantime, this provides
+          // backwards compatibility with existing election packages.
+          clip.dataBase64 = `data:audio/mp3;base64,${clip.dataBase64}`;
+        }
+
+        return clip;
+      });
     },
 
     getLanguages(): string[] {
@@ -147,7 +158,17 @@ export function createUiStringStore(dbClient: DbClient): UiStringsStore {
     },
 
     setAudioClip(input) {
-      const { dataBase64, id, languageCode } = input;
+      const { id, languageCode } = input;
+      let { dataBase64 } = input;
+
+      if (!dataBase64.startsWith('data:')) {
+        // TODO(https://github.com/votingworks/vxsuite/issues/6700):
+        // This is due to a switch from using plain base64 strings to using
+        // data URLs in the client. This can/should be moved upstream to when
+        // we synthesize audio in VxDesign - in the meantime, this provides
+        // backwards compatibility with existing election packages.
+        dataBase64 = `data:audio/mp3;base64,${dataBase64}`;
+      }
 
       dbClient.run(
         `
