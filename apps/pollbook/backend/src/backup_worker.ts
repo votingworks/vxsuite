@@ -53,7 +53,7 @@ async function* splitIntoBalancedChunks<T>(
   for await (const [i, item] of iter(items).enumerate()) {
     const weight = itemWeights[i];
     if (
-      currentChunkWeight + weight > targetWeight &&
+      currentChunkWeight + weight >= targetWeight &&
       numChunksYielded < numChunks - 1
     ) {
       yield currentChunk;
@@ -77,6 +77,10 @@ export async function getBackupPaperChecklistPdfs(
   const voterGroups = store.groupVotersAlphabeticallyByLastName();
   const totalCheckIns = store.getCheckInCount();
   const lastEventPerMachine = store.getMostRecentEventIdPerMachine();
+  const { configuredPrecinctId } = store.getPollbookConfigurationInformation();
+  const configuredPrecinct = configuredPrecinctId
+    ? election.precincts.find((p) => p.id === configuredPrecinctId)
+    : undefined;
   const marginDimensions: MarginDimensions = {
     top: 0.7, // Leave space for header
     right: 0.25,
@@ -89,6 +93,7 @@ export async function getBackupPaperChecklistPdfs(
     totalCheckIns,
     exportTime,
     lastEventPerMachine,
+    configuredPrecinct,
   });
   const coverPdf = (
     await renderToPdf({
@@ -107,6 +112,7 @@ export async function getBackupPaperChecklistPdfs(
       const headerElement = React.createElement(VoterChecklistHeader, {
         election,
         letter,
+        configuredPrecinct,
       });
       const tableElement = React.createElement(VoterChecklist, {
         voterGroup,
@@ -135,6 +141,7 @@ export async function getBackupPaperChecklistPdfs(
   const certificationPage = React.createElement(CertificationPage, {
     election,
     voterCountByParty,
+    configuredPrecinct,
   });
   const certificationPdf = (
     await renderToPdf({

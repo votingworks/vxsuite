@@ -11,7 +11,7 @@ import JsBarcode from 'jsbarcode';
 import { format } from '@votingworks/utils';
 import React from 'react';
 import { iter, range } from '@votingworks/basics';
-import { Election } from '@votingworks/types';
+import { Election, Precinct } from '@votingworks/types';
 import { Voter, VoterGroup } from './types';
 
 const ROWS_PER_PAGE = 16;
@@ -57,9 +57,11 @@ const StyledVoterChecklistHeader = styled.div`
 export function VoterChecklistHeader({
   election,
   letter,
+  configuredPrecinct,
 }: {
   election: Election;
   letter: string;
+  configuredPrecinct?: Precinct;
 }): JSX.Element {
   return (
     <StyledVoterChecklistHeader>
@@ -71,6 +73,9 @@ export function VoterChecklistHeader({
             election.date.toMidnightDatetimeWithSystemTimezone()
           )}{' '}
           &bull; {election.county.name}, {election.state}
+          {configuredPrecinct && election.precincts.length > 1 && (
+            <> &bull; {configuredPrecinct.name}</>
+          )}
         </h2>
       </div>
       <div
@@ -345,8 +350,10 @@ export function VoterChecklist({
 
 export function CertificationPageHeader({
   election,
+  configuredPrecinct,
 }: {
   election: Election;
+  configuredPrecinct?: Precinct;
 }): JSX.Element {
   return (
     <StyledVoterChecklistHeader style={{ padding: 0 }}>
@@ -358,6 +365,9 @@ export function CertificationPageHeader({
             election.date.toMidnightDatetimeWithSystemTimezone()
           )}{' '}
           &bull; {election.county.name}, {election.state}
+          {configuredPrecinct && election.precincts.length > 1 && (
+            <> &bull; {configuredPrecinct.name}</>
+          )}
         </h2>
       </div>
     </StyledVoterChecklistHeader>
@@ -367,9 +377,11 @@ export function CertificationPageHeader({
 export function CoverPageHeader({
   election,
   exportTime,
+  configuredPrecinct,
 }: {
   election: Election;
   exportTime: Date;
+  configuredPrecinct?: Precinct;
 }): JSX.Element {
   return (
     <StyledVoterChecklistHeader style={{ padding: 0 }}>
@@ -381,6 +393,9 @@ export function CoverPageHeader({
             election.date.toMidnightDatetimeWithSystemTimezone()
           )}{' '}
           &bull; {election.county.name}, {election.state}
+          {configuredPrecinct && election.precincts.length > 1 && (
+            <> &bull; {configuredPrecinct.name}</>
+          )}
         </h2>
       </div>
       <div
@@ -412,14 +427,20 @@ const StyledChecklistPage = styled.div`
 export function CertificationPage({
   election,
   voterCountByParty,
+  configuredPrecinct,
 }: {
   election: Election;
   voterCountByParty: Record<string, number>;
+  configuredPrecinct?: Precinct;
 }): JSX.Element {
   const totalVoterCount = iter(Object.values(voterCountByParty)).sum();
+
   return (
     <StyledChecklistPage>
-      <CertificationPageHeader election={election} />
+      <CertificationPageHeader
+        election={election}
+        configuredPrecinct={configuredPrecinct}
+      />
       <div
         style={{
           display: 'flex',
@@ -483,15 +504,21 @@ export function CoverPage({
   totalCheckIns,
   exportTime,
   lastEventPerMachine,
+  configuredPrecinct,
 }: {
   election: Election;
   totalCheckIns: number;
   exportTime: Date;
   lastEventPerMachine: Record<string, number>;
+  configuredPrecinct?: Precinct;
 }): JSX.Element {
   return (
     <StyledChecklistPage>
-      <CoverPageHeader exportTime={exportTime} election={election} />
+      <CoverPageHeader
+        exportTime={exportTime}
+        election={election}
+        configuredPrecinct={configuredPrecinct}
+      />
       <div
         style={{
           display: 'flex',
