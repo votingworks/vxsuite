@@ -47,7 +47,8 @@ export const ColorTints = {
   BLUE: 'hsl(209, 74%, 93%)',
   GREEN: 'hsl(129, 60%, 93%)',
   PINK: 'hsl(315, 58%, 93%)',
-  RED: 'hsl(0, 77.80%, 89.40%)',
+  // RED: 'hsl(0, 77.80%, 89.40%)',
+  RED: '#f7c2cb',
 } as const;
 
 export type ColorTint = keyof typeof ColorTints;
