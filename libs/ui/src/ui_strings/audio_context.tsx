@@ -9,7 +9,11 @@ import {
   MIN_PLAYBACK_RATE,
   PLAYBACK_RATE_INCREMENT_AMOUNT,
 } from './audio_playback_rate';
-import { AudioVolume, DEFAULT_AUDIO_VOLUME } from './audio_volume';
+import {
+  AudioVolume,
+  DEFAULT_AUDIO_VOLUME,
+  getAudioGainRatio,
+} from './audio_volume';
 import { useHeadphonesPluggedIn } from '../hooks/use_headphones_plugged_in';
 
 export const DEFAULT_AUDIO_ENABLED_STATE = true;
@@ -22,6 +26,7 @@ export interface UiStringsAudioContextInterface {
   increasePlaybackRate: () => void;
   isEnabled: boolean;
   isPaused: boolean;
+  output?: AudioNode;
   playbackRate: number;
   reset: () => void;
   setControlsEnabled: (enabled: boolean) => void;
@@ -59,6 +64,20 @@ function getWebAudioContextInstance() {
   return webAudioContext;
 }
 
+let gainNode: GainNode | undefined;
+function getGainNodeInstance() {
+  const ctx = getWebAudioContextInstance();
+
+  if (!ctx) return undefined;
+
+  if (!gainNode) {
+    gainNode = ctx.createGain();
+    gainNode.connect(ctx.destination);
+  }
+
+  return gainNode;
+}
+
 export function UiStringsAudioContextProvider(
   props: UiStringsAudioContextProviderProps
 ): JSX.Element {
@@ -75,6 +94,11 @@ export function UiStringsAudioContextProvider(
   const headphonesPluggedIn = useHeadphonesPluggedIn();
 
   const webAudioContextRef = React.useRef(getWebAudioContextInstance());
+  const gainNodeRef = React.useRef(getGainNodeInstance());
+
+  if (gainNodeRef.current) {
+    gainNodeRef.current.gain.value = getAudioGainRatio(volume);
+  }
 
   const resetPlaybackSettings = React.useCallback(() => {
     setVolume(DEFAULT_AUDIO_VOLUME);
@@ -112,7 +136,7 @@ export function UiStringsAudioContextProvider(
       setIsPaused(true);
       webAudioContextRef.current?.destination.disconnect();
     }
-  }, [isEnabled, resetPlaybackSettings]);
+  }, [isEnabled]);
 
   React.useEffect(() => {
     if (!webAudioContextRef.current) {
@@ -156,6 +180,7 @@ export function UiStringsAudioContextProvider(
         increasePlaybackRate: controlsEnabled ? increasePlaybackRate : noOp,
         isEnabled,
         isPaused,
+        output: gainNodeRef.current,
         playbackRate,
         reset,
         setControlsEnabled,

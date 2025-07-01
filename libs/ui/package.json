@@ -64,7 +64,6 @@
     "react-router-dom": "^5.3.4",
     "react-select": "^5.7.4",
     "sanitize-html": "^2.13.0",
-    "tone": "^14.7.77",
     "use-interval": "1.4.0"
   },
   "devDependencies": {

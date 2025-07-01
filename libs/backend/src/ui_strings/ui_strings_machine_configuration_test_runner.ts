@@ -161,8 +161,16 @@ export function runUiStringMachineConfigurationTests(
         languageCode: 'en',
       })
     ).toEqual([
-      { dataBase64: 'CAB==', id: 'dupeId', languageCode: 'en' },
-      { dataBase64: 'BAC==', id: 'en2', languageCode: 'en' },
+      {
+        dataBase64: 'data:audio/mp3;base64,CAB==',
+        id: 'dupeId',
+        languageCode: 'en',
+      },
+      {
+        dataBase64: 'data:audio/mp3;base64,BAC==',
+        id: 'en2',
+        languageCode: 'en',
+      },
     ]);
 
     expect(
@@ -171,8 +179,16 @@ export function runUiStringMachineConfigurationTests(
         languageCode: 'es-US',
       })
     ).toEqual([
-      { dataBase64: 'FED==', id: 'dupeId', languageCode: 'es-US' },
-      { dataBase64: 'DEF==', id: 'es1', languageCode: 'es-US' },
+      {
+        dataBase64: 'data:audio/mp3;base64,FED==',
+        id: 'dupeId',
+        languageCode: 'es-US',
+      },
+      {
+        dataBase64: 'data:audio/mp3;base64,DEF==',
+        id: 'es1',
+        languageCode: 'es-US',
+      },
     ]);
 
     expect(

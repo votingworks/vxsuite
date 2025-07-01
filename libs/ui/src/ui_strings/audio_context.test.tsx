@@ -7,7 +7,11 @@ import {
 } from './audio_context';
 import { createUiStringsApi } from '../hooks/ui_strings_api';
 import { renderHook } from '../../test/react_testing_library';
-import { AudioVolume, DEFAULT_AUDIO_VOLUME } from './audio_volume';
+import {
+  AudioVolume,
+  DEFAULT_AUDIO_VOLUME,
+  getAudioGainRatio,
+} from './audio_volume';
 import {
   DEFAULT_PLAYBACK_RATE,
   MAX_PLAYBACK_RATE,
@@ -46,6 +50,7 @@ function TestContextWrapper(props: { children: React.ReactNode }) {
 }
 
 const mockWebAudioContext = {
+  createGain: vi.fn(),
   resume: vi.fn(),
   suspend: vi.fn(),
   destination: {
@@ -53,9 +58,12 @@ const mockWebAudioContext = {
   },
 } as const;
 
+const mockGainNode = { gain: { value: 9000 } } as unknown as GainNode;
+
 beforeEach(() => {
   const mockAudioContextConstructor = vi.fn();
   mockAudioContextConstructor.mockReturnValue(mockWebAudioContext);
+  mockWebAudioContext.createGain.mockReturnValue(mockGainNode);
 
   window.AudioContext = mockAudioContextConstructor;
 });
@@ -88,12 +96,21 @@ test('setVolume', () => {
   });
 
   expect(result.current?.volume).toEqual(DEFAULT_AUDIO_VOLUME);
+  expect(mockGainNode.gain.value).toEqual(
+    getAudioGainRatio(DEFAULT_AUDIO_VOLUME)
+  );
 
   act(() => result.current?.setVolume(AudioVolume.MAXIMUM));
   expect(result.current?.volume).toEqual(AudioVolume.MAXIMUM);
+  expect(mockGainNode.gain.value).toEqual(
+    getAudioGainRatio(AudioVolume.MAXIMUM)
+  );
 
   act(() => result.current?.setVolume(AudioVolume.TWENTY_PERCENT));
   expect(result.current?.volume).toEqual(AudioVolume.TWENTY_PERCENT);
+  expect(mockGainNode.gain.value).toEqual(
+    getAudioGainRatio(AudioVolume.TWENTY_PERCENT)
+  );
 });
 
 describe('playback rate API', () => {

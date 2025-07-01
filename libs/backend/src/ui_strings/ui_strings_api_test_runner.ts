@@ -109,7 +109,11 @@ export function runUiStringApiTests(params: {
     const clips: UiStringAudioClips = [
       { dataBase64: 'ABC==', id: 'es1', languageCode: 'es-US' },
       { dataBase64: 'BAC==', id: 'es2', languageCode: 'es-US' },
-      { dataBase64: 'CAB==', id: 'es3', languageCode: 'es-US' },
+      {
+        dataBase64: 'data:audio/mp3;base64,CAB==',
+        id: 'es3',
+        languageCode: 'es-US',
+      },
     ];
     for (const clip of clips) {
       store.setAudioClip(clip);
@@ -121,8 +125,16 @@ export function runUiStringApiTests(params: {
         audioIds: ['es1', 'es3', 'missingClipId'],
       })
     ).toEqual([
-      { dataBase64: 'ABC==', id: 'es1', languageCode: 'es-US' },
-      { dataBase64: 'CAB==', id: 'es3', languageCode: 'es-US' },
+      {
+        dataBase64: 'data:audio/mp3;base64,ABC==',
+        id: 'es1',
+        languageCode: 'es-US',
+      },
+      {
+        dataBase64: 'data:audio/mp3;base64,CAB==',
+        id: 'es3',
+        languageCode: 'es-US',
+      },
     ]);
   });
 }
