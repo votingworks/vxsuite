@@ -5,6 +5,7 @@ import {
   Voter,
   VoterSearchParams,
 } from '@votingworks/pollbook-backend';
+import { electionSimpleSinglePrecinctFixtures } from '@votingworks/fixtures';
 import {
   ApiMock,
   createApiMock,
@@ -21,6 +22,7 @@ import { DEFAULT_QUERY_REFETCH_INTERVAL } from './api';
 
 let apiMock: ApiMock;
 let unmount: () => void;
+const election = electionSimpleSinglePrecinctFixtures.readElection();
 
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
@@ -49,6 +51,7 @@ test('shows a message when no voters are matched', async () => {
       // Function to call when exactly one voter is matched by scanning an ID
       onBarcodeScanMatch={vi.fn()}
       renderAction={() => null}
+      election={election}
     />,
     {
       apiMock,
@@ -71,6 +74,7 @@ test('shows a message when the barcode scanner client reports an unknown documen
       setSearch={vi.fn()}
       onBarcodeScanMatch={vi.fn()}
       renderAction={() => null}
+      election={election}
     />,
     {
       apiMock,
@@ -103,6 +107,7 @@ test('closes the error modal if a valid ID is scanned', async () => {
       setSearch={setSearchSpy}
       onBarcodeScanMatch={vi.fn()}
       renderAction={() => null}
+      election={election}
     />,
     {
       apiMock,
