@@ -289,7 +289,10 @@ function UsbStatus({ status }: { status: UsbDriveStatus }) {
 
 function BarcodeScannerStatus({ status }: { status: BarcodeScannerStatus }) {
   return (
-    <Row style={{ gap: '0.25rem', alignItems: 'center' }}>
+    <Row
+      data-testid="barcode-scanner-status"
+      style={{ gap: '0.25rem', alignItems: 'center' }}
+    >
       <Icons.IdCard color="inverse" />
       {!status.connected && <Icons.Warning color="inverseWarning" />}
     </Row>

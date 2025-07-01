@@ -236,6 +236,17 @@ export function createApiMock() {
         .resolves(currentDeviceStatus);
     },
 
+    setBarcodeScannerStatus(connected: boolean): void {
+      currentDeviceStatus = {
+        ...currentDeviceStatus,
+        barcodeScanner: { connected },
+      };
+      mockApiClient.getDeviceStatuses.reset();
+      mockApiClient.getDeviceStatuses
+        .expectRepeatedCallsWith()
+        .resolves(currentDeviceStatus);
+    },
+
     setNetworkOffline(): void {
       currentDeviceStatus = {
         ...currentDeviceStatus,

@@ -57,7 +57,8 @@ export class BarcodeScannerClient {
     private readonly logger: Logger,
     private scannedDocument: Optional<AamvaDocument> = undefined,
     private error: Optional<BarcodeScannerError> = undefined,
-    private connectedToDaemon = false
+    private connectedToDaemon = false,
+    private readonly devicePath = DEVICE_PATH
   ) {}
 
   // Returns the latest payload from the barcode scanner daemon, consuming it in the process,
@@ -78,7 +79,11 @@ export class BarcodeScannerClient {
 
   async isConnected(): Promise<boolean> {
     try {
-      const deviceFound = !!(await lstat(DEVICE_PATH));
+      // udev rule sets up an alias for the serial USB device. Each time the device
+      // is connected a symlink is created at this path and each time it's disconnected
+      // the symlink is deleted. Therefore we can check for existence of the symlink
+      // to know whether the device is plugged in.
+      const deviceFound = !!(await lstat(this.devicePath));
       return deviceFound && this.connectedToDaemon;
     } catch (err: unknown) {
       const typedError = err as NodeJS.ErrnoException;
