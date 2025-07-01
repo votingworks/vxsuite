@@ -52,7 +52,7 @@ export function RegistrationReceipt({
       <div>
         <PartyName party={voter.party} />
       </div>
-      <VoterAddress voter={voter} />
+      <VoterAddress voter={voter} election={metadata.election} />
 
       <ReceiptMetadata {...metadata} />
     </StyledReceipt>

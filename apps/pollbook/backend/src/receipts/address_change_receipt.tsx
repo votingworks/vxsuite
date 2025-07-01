@@ -54,12 +54,15 @@ export function AddressChangeReceipt({
       <br />
       <div>
         <strong>Previous Address</strong>
-        <VoterAddress voter={{ ...voter, addressChange: undefined }} />
+        <VoterAddress
+          voter={{ ...voter, addressChange: undefined }}
+          election={metadata.election}
+        />
       </div>
       <br />
       <div>
         <strong>Updated Address</strong>
-        <VoterAddress voter={voter} />
+        <VoterAddress voter={voter} election={metadata.election} />
       </div>
 
       <ReceiptMetadata {...metadata} />

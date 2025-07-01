@@ -21,7 +21,18 @@ export function VoterName({ voter }: { voter: Voter }): JSX.Element {
   );
 }
 
-export function VoterAddress({ voter }: { voter: Voter }): JSX.Element {
+function getPrecinctName(election: Election, precinctId: string): string {
+  const precinct = election.precincts.find((p) => p.id === precinctId);
+  return precinct?.name || precinctId;
+}
+
+export function VoterAddress({
+  voter,
+  election,
+}: {
+  voter: Voter;
+  election: Election;
+}): JSX.Element {
   if (voter.addressChange) {
     const address = voter.addressChange;
     return (
@@ -35,6 +46,12 @@ export function VoterAddress({ voter }: { voter: Voter }): JSX.Element {
         <div>
           {address.city}, {address.state} {address.zipCode}
         </div>
+        {election.precincts.length > 1 && (
+          <div>{`Precinct: ${getPrecinctName(
+            election,
+            address.precinct
+          )}`}</div>
+        )}
       </div>
     );
   }
@@ -49,6 +66,9 @@ export function VoterAddress({ voter }: { voter: Voter }): JSX.Element {
       <div>
         {voter.postalCityTown}, {voter.state} {voter.postalZip5}
       </div>
+      {election.precincts.length > 1 && (
+        <div>{`Precinct: ${getPrecinctName(election, voter.precinct)}`}</div>
+      )}
     </div>
   );
 }
