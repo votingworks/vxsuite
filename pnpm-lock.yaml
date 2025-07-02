@@ -2079,9 +2079,6 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
-      react-gamepad:
-        specifier: ^1.0.3
-        version: 1.0.3(react@18.3.1)
       react-idle-timer:
         specifier: ^5.7.2
         version: 5.7.2(react-dom@18.3.1)(react@18.3.1)
@@ -2137,9 +2134,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
-      '@types/react-gamepad':
-        specifier: ^1.0.3
-        version: 1.0.3
       '@types/react-router-dom':
         specifier: ^5.3.3
         version: 5.3.3
@@ -13582,12 +13576,6 @@ packages:
     dependencies:
       '@types/react': 18.3.3
 
-  /@types/react-gamepad@1.0.3:
-    resolution: {integrity: sha512-3nwhsEa0anwl7XlT/L8y6yXdUb/qXO/frDcFeFKGt5ydTi5ECXv14RbJdCe3/yokowszftM+CAAjVTvldJJRVg==}
-    dependencies:
-      '@types/react': 18.3.3
-    dev: true
-
   /@types/react-i18next@8.1.0(i18next@23.5.1)(react-dom@18.3.1)(react@18.3.1):
     resolution: {integrity: sha512-d4xhcjX5b3roNMObRNMfb1HinHQlQLPo8xlDj60dnHeeAw2bBymR2cy/l1giJpHzo/ZFgSvgVUvIWr4kCrenCg==}
     deprecated: This is a stub types definition. react-i18next provides its own type definitions, so you do not need this installed.
@@ -23044,14 +23032,6 @@ packages:
       prop-types: 15.8.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-    dev: false
-
-  /react-gamepad@1.0.3(react@18.3.1):
-    resolution: {integrity: sha512-gMwITmfoHtCaMFpDaEshcjeibHAgynXD28NnS2pa+dG+stwNoN66YDVizN7GfyIrYiW5Ft1ubRxs6/2xW9sRhQ==}
-    peerDependencies:
-      react: '>=15.0.0'
-    dependencies:
-      react: 18.3.1
     dev: false
 
   /react-i18next@13.2.2(i18next@23.5.1)(react-dom@18.3.1)(react@18.3.1):

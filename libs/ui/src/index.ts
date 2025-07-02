@@ -96,6 +96,7 @@ export * from './change_precinct_button';
 export * from './export_logs_modal';
 export * from './task_screen';
 export * from './unconfigured_election_screen';
+export * from './keyboard_navigation';
 export * from './format_usb_modal';
 export * from './usb_drive';
 export * from './usb_drive_image';

@@ -1,13 +1,13 @@
 import { expect, Mock, test, vi } from 'vitest';
+import { Keybinding } from './keybindings';
 import {
   advanceElementFocus,
-  Keybinding,
   PageNavigationButtonId,
   triggerPageNavigationButton,
-} from '@votingworks/ui';
-import { handleKeyboardEvent } from './ui_navigation';
+} from './accessible_controllers';
+import { handleKeyboardEvent } from './keyboard_navigation';
 
-vi.mock('@votingworks/ui');
+vi.mock('./accessible_controllers');
 
 function createEvent(params: { key: Keybinding; repeat?: boolean }): {
   event: KeyboardEvent;
