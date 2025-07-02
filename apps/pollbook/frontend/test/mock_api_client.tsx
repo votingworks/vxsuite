@@ -17,6 +17,7 @@ import type {
   Voter,
   VoterAddressChangeRequest,
   VoterCheckInError,
+  VoterMailingAddressChangeRequest,
   VoterNameChangeRequest,
   VoterRegistrationRequest,
   VoterSearchParams,
@@ -512,6 +513,22 @@ export function createApiMock() {
           addressChangeData: input.addressChangeData,
         })
         .resolves({ ...input.voterToUpdate, ...input.addressChangeData });
+    },
+
+    expectChangeVoterMailingAddress(input: {
+      voterId: string;
+      mailingAddressChangeData: VoterMailingAddressChangeRequest;
+      voterToUpdate: Voter;
+    }) {
+      mockApiClient.changeVoterMailingAddress
+        .expectCallWith({
+          voterId: input.voterId,
+          mailingAddressChangeData: input.mailingAddressChangeData,
+        })
+        .resolves({
+          ...input.voterToUpdate,
+          ...input.mailingAddressChangeData,
+        });
     },
 
     /**

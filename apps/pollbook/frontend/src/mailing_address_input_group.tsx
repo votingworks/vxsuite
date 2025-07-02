@@ -19,9 +19,11 @@ export function MailingAddressInputGroup({
   mailingAddress: VoterMailingAddressChangeRequest;
   onChange: (mailingAddress: VoterMailingAddressChangeRequest) => void;
 }): JSX.Element {
+  const [zipInput, setZipInput] = React.useState(
+    mailingAddress.mailingZip5 +
+      (mailingAddress.mailingZip4 ? `-${mailingAddress.mailingZip4}` : '')
+  );
   function handleChange(newMailingAddress: VoterMailingAddressChangeRequest) {
-    console.log(newMailingAddress);
-    console.log('onChange');
     onChange(newMailingAddress);
   }
 
@@ -130,13 +132,19 @@ export function MailingAddressInputGroup({
           <FieldName>Zip Code</FieldName>
           <TextField
             aria-label="Mailing Zip Code"
-            value={mailingAddress.mailingZip5}
-            onChange={(e) =>
+            value={zipInput}
+            onChange={(e) => {
+              const input = e.target.value
+                .replace(/[^0-9-]/g, '')
+                .toUpperCase();
+              setZipInput(input);
+              const [zip5, zip4] = input.split('-');
               handleChange({
                 ...mailingAddress,
-                mailingZip5: e.target.value,
-              })
-            }
+                mailingZip5: zip5.slice(0, 5),
+                mailingZip4: zip4 ? zip4.slice(0, 4) : '',
+              });
+            }}
           />
         </RequiredExpandableInput>
       </Row>

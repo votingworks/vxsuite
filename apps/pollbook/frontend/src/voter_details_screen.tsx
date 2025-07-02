@@ -304,7 +304,7 @@ export function VoterDetailsScreen(): JSX.Element | null {
         <UpdateMailingAddressFlow
           voter={voter}
           returnToPreviousScreen={() => setShowUpdateMailingAddressFlow(false)}
-          returnToPreviousScreenLabelText="Return to Check-In"
+          returnToPreviousScreenLabelText="Return to Voter Details"
         />
       </PrinterRequired>
     );
