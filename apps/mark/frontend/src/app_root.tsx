@@ -11,7 +11,6 @@ import {
   PrinterStatus,
 } from '@votingworks/types';
 
-import Gamepad from 'react-gamepad';
 import { useHistory } from 'react-router-dom';
 import {
   isElectionManagerAuth,
@@ -30,6 +29,7 @@ import {
   InvalidCardScreen,
   useQueryChangeListener,
   VendorScreen,
+  handleKeyboardEvent,
 } from '@votingworks/ui';
 
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
@@ -61,10 +61,6 @@ import {
 import { Ballot } from './components/ballot';
 import * as GLOBALS from './config/globals';
 import { BallotContext } from './contexts/ballot_context';
-import {
-  handleGamepadButtonDown,
-  handleGamepadKeyboardEvent,
-} from './lib/gamepad';
 import { AdminScreen } from './pages/admin_screen';
 import { InsertCardScreen } from './pages/insert_card_screen';
 import { PollWorkerScreen } from './pages/poll_worker_screen';
@@ -362,9 +358,9 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
       'data-useragent',
       navigator.userAgent
     );
-    document.addEventListener('keydown', handleGamepadKeyboardEvent);
+    document.addEventListener('keydown', handleKeyboardEvent);
     return () => {
-      document.removeEventListener('keydown', handleGamepadKeyboardEvent);
+      document.removeEventListener('keydown', handleKeyboardEvent);
     };
   }, []);
 
@@ -499,25 +495,23 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
     if (pollsState === 'polls_open') {
       if (isCardlessVoterAuth(authStatus)) {
         return (
-          <Gamepad onButtonDown={handleGamepadButtonDown}>
-            <BallotContext.Provider
-              value={{
-                machineConfig,
-                precinctId,
-                ballotStyleId,
-                contests,
-                electionDefinition,
-                isCardlessVoter: isCardlessVoterAuth(authStatus),
-                isLiveMode: !isTestMode,
-                endVoterSession,
-                resetBallot,
-                updateVote,
-                votes: votes ?? blankBallotVotes,
-              }}
-            >
-              <Ballot />
-            </BallotContext.Provider>
-          </Gamepad>
+          <BallotContext.Provider
+            value={{
+              machineConfig,
+              precinctId,
+              ballotStyleId,
+              contests,
+              electionDefinition,
+              isCardlessVoter: isCardlessVoterAuth(authStatus),
+              isLiveMode: !isTestMode,
+              endVoterSession,
+              resetBallot,
+              updateVote,
+              votes: votes ?? blankBallotVotes,
+            }}
+          >
+            <Ballot />
+          </BallotContext.Provider>
         );
       }
     }

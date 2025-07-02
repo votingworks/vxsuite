@@ -16,7 +16,7 @@ import { ContinueToReviewPage } from '../pages/continue_to_review_page';
 
 const USER_ACTIVITY_EVENT_TYPES: EventsType[] = (() => {
   const allEvents = new Set(DEFAULT_EVENTS);
-  // The IdlePage has an autofocus button to enable gamepad interaction,
+  // The IdlePage has an autofocus button to enable controller interaction,
   // which ends up triggering a focus event that would reset the idle timer.
   // Ignoring focus events here, since we expect that any user-triggered
   // focus event would be preceded by a touch/mouse/keyboard event.

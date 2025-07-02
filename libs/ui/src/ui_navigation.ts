@@ -1,9 +1,9 @@
+import { Keybinding } from './keybindings';
 import {
-  Keybinding,
   PageNavigationButtonId,
   advanceElementFocus,
   triggerPageNavigationButton,
-} from '@votingworks/ui';
+} from './accessible_controllers';
 
 /**
  * Prevents the default browser scroll behavior for the arrow keys, since we're
