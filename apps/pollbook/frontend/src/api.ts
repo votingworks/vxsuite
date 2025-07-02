@@ -163,8 +163,10 @@ export const searchVoters = {
   },
   useQuery(searchParams: VoterSearchParams) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(searchParams), () =>
-      apiClient.searchVoters({ searchParams })
+    return useQuery(
+      this.queryKey(searchParams),
+      () => apiClient.searchVoters({ searchParams }),
+      { refetchOnMount: 'always' }
     );
   },
 } as const;

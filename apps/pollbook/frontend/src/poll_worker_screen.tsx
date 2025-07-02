@@ -168,7 +168,17 @@ export function VoterCheckInScreen(): JSX.Element | null {
           configuredPrecinctId={configuredPrecinctId}
           election={election}
           onCancel={() =>
-            setFlowState({ step: 'search', search: flowState.search })
+            setFlowState({
+              step: 'search',
+              // Change the search query to match what is displayed in the user-editable inputs.
+              // This prevents confusion stemming from search params not actually being
+              // displayed to the user.
+              search: {
+                ...createEmptySearchParams(false),
+                firstName: flowState.search.firstName,
+                lastName: flowState.search.lastName,
+              },
+            })
           }
           onConfirm={(identificationMethod) => {
             setFlowState({ step: 'printing' });
