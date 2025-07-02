@@ -42,7 +42,7 @@ function findDetailsFromStreetAddress(
   };
 }
 
-function splitStreetNumberAndSuffix(input: string): {
+export function splitStreetNumberAndSuffix(input: string): {
   streetNumber: string;
   streetSuffix: string;
 } {

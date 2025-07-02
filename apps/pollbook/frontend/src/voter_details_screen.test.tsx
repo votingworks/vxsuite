@@ -61,7 +61,7 @@ async function renderComponent() {
   await screen.findByRole('button', { name: 'Update Name' });
 }
 
-test.each([['Update Name'], ['Update Address']])(
+test.each([['Update Name'], ['Update Domicile Address']])(
   '%s flow renders a warning when no printer is attached',
   async (buttonName) => {
     apiMock.setPrinterStatus(false);
@@ -168,9 +168,9 @@ test('invalid address change', async () => {
   // Precinct information should be shown in a multi-precinct election
   await screen.findByText(precinct1.name);
 
-  userEvent.click(screen.getButton('Update Address'));
+  userEvent.click(screen.getButton('Update Domicile Address'));
 
-  await screen.findByRole('heading', { name: 'Update Voter Address' });
+  await screen.findByRole('heading', { name: 'Update Voter Domicile Address' });
 
   userEvent.click(screen.getByLabelText('Street Name'));
   userEvent.keyboard('[Enter]');
@@ -205,9 +205,9 @@ test('invalid address change for precinct', async () => {
 
   await renderComponent();
 
-  userEvent.click(screen.getButton('Update Address'));
+  userEvent.click(screen.getButton('Update Domicile Address'));
 
-  await screen.findByRole('heading', { name: 'Update Voter Address' });
+  await screen.findByRole('heading', { name: 'Update Voter Domicile Address' });
 
   userEvent.click(screen.getByLabelText('Street Name'));
   userEvent.keyboard('[Enter]');
@@ -255,12 +255,12 @@ test('valid address change', async () => {
 
   await renderComponent();
 
-  userEvent.click(screen.getButton('Update Address'));
+  userEvent.click(screen.getButton('Update Domicile Address'));
 
   // Precinct information should NOT be shown in a single-precinct election
   expect(screen.queryByText(precinct1.name)).toBeNull();
 
-  await screen.findByRole('heading', { name: 'Update Voter Address' });
+  await screen.findByRole('heading', { name: 'Update Voter Domicile Address' });
 
   userEvent.click(screen.getByLabelText('Street Name'));
   userEvent.keyboard('[Enter]');
@@ -312,14 +312,14 @@ test('valid address change', async () => {
       timestamp: new Date().toISOString(),
     },
   };
-  const updateButton = screen.getButton('Confirm Address Update');
+  const updateButton = screen.getButton('Confirm Domicile Address Update');
   userEvent.click(updateButton);
 
   apiMock.expectGetVoter(updatedVoter);
   userEvent.click(await screen.findButton('Return to Voter Details'));
 
   await waitFor(() => {
-    expect(screen.queryByText('Update Voter Address')).toBeNull();
+    expect(screen.queryByText('Update Voter Domicile Address')).toBeNull();
   });
 
   await screen.findByText('99 MAIN ST #789');
@@ -518,7 +518,7 @@ test('actions are disabled when precinct not configured', async () => {
   expect(nameButton).toBeDisabled();
 
   const updateAddressButtons = screen.getAllByRole('button', {
-    name: 'Update Address',
+    name: 'Update Domicile Address',
   });
   // Find the first button (should be from main screen, not modal)
   const addressButton = updateAddressButtons[0];
@@ -553,7 +553,7 @@ test('actions are disabled when precinct does not match voter', async () => {
   expect(nameButton).toBeDisabled();
 
   const updateAddressButtons = screen.getAllByRole('button', {
-    name: 'Update Address',
+    name: 'Update Domicile Address',
   });
   // The address button should be enabled because it could be changed to the current precinct.
   const addressButton = updateAddressButtons[0];

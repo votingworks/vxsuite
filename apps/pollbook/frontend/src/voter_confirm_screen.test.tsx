@@ -222,7 +222,7 @@ test('cancel button calls onCancel', async () => {
   expect(onCancel).toHaveBeenCalled();
 });
 
-test('update address button opens address flow', async () => {
+test('update domicile address button opens address flow', async () => {
   // Mock the address update flow requirements
   const validStreetInfo: ValidStreetInfo[] = [
     {
@@ -240,11 +240,11 @@ test('update address button opens address flow', async () => {
 
   await renderComponent();
 
-  const updateAddressButton = screen.getButton('Update Address');
+  const updateAddressButton = screen.getButton('Update Domicile Address');
   userEvent.click(updateAddressButton);
 
   // Should show the address update flow
-  await screen.findByRole('heading', { name: 'Update Voter Address' });
+  await screen.findByRole('heading', { name: 'Update Voter Domicile Address' });
 });
 
 test('displays voter with name change', async () => {
@@ -383,6 +383,14 @@ test('disables confirm check-in and out-of-state ID checkbox if precincts do not
   // Confirm button should be disabled
   const confirmButton = screen.getButton('Confirm Check-In');
   expect(confirmButton).toBeDisabled();
+
+  // Update mailing address button should also be disabled
+  const mailingAddrButton = screen.getButton('Update Mailing Address');
+  expect(mailingAddrButton).toBeDisabled();
+
+  // Update domicle address button should NOT be disabled
+  const domicileAddrButton = screen.getButton('Update Domicile Address');
+  expect(domicileAddrButton).not.toBeDisabled();
 
   // Out-of-state ID checkbox should also be disabled
   const outOfStateCheckbox = screen.getByRole('checkbox', {
