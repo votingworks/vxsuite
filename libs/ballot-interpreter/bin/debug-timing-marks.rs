@@ -16,7 +16,7 @@ use ballot_interpreter::{
     ballot_card::PaperInfo,
     debug,
     interpret::{prepare_ballot_page_image, Error, TimingMarkAlgorithm},
-    timing_marks::{contours, corners, Border, DefaultForGeometry, TimingMarks},
+    timing_marks::{contours, corners, Border, BorderAxis, DefaultForGeometry, TimingMarks},
 };
 use clap::Parser;
 use color_eyre::{eyre::bail, owo_colors::OwoColorize};
@@ -65,6 +65,15 @@ struct Options {
     /// Detect and reject timing mark grid scales less than this value.
     #[clap(long)]
     minimum_detected_scale: Option<f32>,
+
+    /// Detect grid scales using the distance between borders along the given
+    /// axis.
+    #[clap(long)]
+    scale_axis: Option<BorderAxis>,
+
+    /// Detect grid scales using the given border.
+    #[clap(long)]
+    scale_border: Option<Border>,
 
     /// Path for a CSV with various timing mark stats.
     #[clap(long)]
@@ -153,7 +162,16 @@ fn process_path<W: Write>(
     });
 
     if let Some(minimum_detected_scale) = options.minimum_detected_scale {
-        if let Some(detected_scale) = timing_marks.compute_scale_based_on_border(Border::Bottom) {
+        if let Some(detected_scale) = match (options.scale_axis, options.scale_border) {
+            (None, Some(border)) => timing_marks.compute_scale_based_on_border(border),
+            (Some(axis), None) => timing_marks.compute_scale_based_on_axis(axis),
+            (None, None) => {
+                bail!("Warning: minimum scale set but no scale measurement strategy was provided (border vs. axis)");
+            }
+            (Some(_), Some(_)) => {
+                bail!("Warning: multiple scale measurement strategies were provided; please use only border or axis");
+            }
+        } {
             if detected_scale.0 < minimum_detected_scale {
                 bail!(
                     "Detected scale is too low: {detected_scale} is less than {minimum_detected_scale}",
@@ -176,21 +194,23 @@ fn process_path<W: Write>(
         let right_edge_median_period = timing_marks
             .compute_scale_based_on_border(Border::Right)
             .unwrap_or_default();
+        let horizontal_axis_scale = timing_marks
+            .compute_scale_based_on_axis(BorderAxis::Horizontal)
+            .unwrap_or_default();
+        let vertical_axis_scale = timing_marks
+            .compute_scale_based_on_axis(BorderAxis::Vertical)
+            .unwrap_or_default();
 
         writeln!(
             stats,
             "{},{},{},{},{},{},{}",
             path.display(),
-            ballot_page
-                .geometry
-                .horizontal_timing_mark_center_to_center_pixel_distance(),
-            ballot_page
-                .geometry
-                .vertical_timing_mark_center_to_center_pixel_distance(),
             top_edge_median_period,
             bottom_edge_median_period,
             left_edge_median_period,
             right_edge_median_period,
+            horizontal_axis_scale,
+            vertical_axis_scale,
         )?;
     }
 
@@ -226,7 +246,7 @@ fn main() -> color_eyre::Result<()> {
     if let Some(stats) = &mut stats {
         writeln!(
             stats,
-           "path,expected horizontal timing mark period,expected vertical timing mark period,top edge median period,bottom edge median period,left edge median period,right edge median period"
+           "path,top edge median period,bottom edge median period,left edge median period,right edge median period,horizontal axis scale,vertical axis scale"
         )?;
     }
 

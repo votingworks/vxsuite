@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use image::{imageops::rotate180, GrayImage};
 use itertools::Itertools;
 use serde::Serialize;
@@ -190,11 +192,28 @@ impl TimingMarks {
     }
 
     /// Computes a ballot page scale by examining the timing marks along one of
-    /// the borders. We don't try to compute by averaging multiple borders
-    /// together because two of the four are in the direction of scan for a
-    /// roller-based scanner and there may be stretching in that direction as a
-    /// result, leading to unreliable scale values for the purposes of detecting
-    /// mis-scaled ballots.
+    /// the borders, taking the median value of the distance from each timing
+    /// mark's center to the center of its neighbors.
+    ///
+    /// We don't try to compute by averaging multiple borders together because
+    /// two of the four are in the direction of scan for a roller-based scanner
+    /// and there may be stretching in that direction as a result, leading to
+    /// unreliable scale values for the purposes of detecting mis-scaled
+    /// ballots.
+    ///
+    /// ```text
+    ///       top (or bottom) center-to-center distance
+    ///        ┌───┴───┐
+    ///      █████   █████   █████   █████   …
+    ///
+    ///      █████ ┐
+    ///            ├ left (or right) center-to-center distance
+    ///      █████ ┘
+    ///
+    ///      █████
+    ///
+    ///      …
+    /// ```
     ///
     /// Note that, for now, we assume that the direction of scan is vertical
     /// from top to bottom or bottom to top. This function does not bake in that
@@ -224,6 +243,55 @@ impl TimingMarks {
         };
 
         Some(UnitIntervalScore(actual_mark_period / expected_mark_period))
+    }
+
+    /// Computes a ballot page scale by examining the distances between
+    /// corresponding timing marks along horizontal or vertical borders,
+    /// taking the median value of the distance from the center of one
+    /// mark to the center of the other.
+    ///
+    /// ```text
+    /// Horizontal:             Vertical:
+    /// ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃     ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃
+    /// ▃ ←─────────────→ ▃     ▃ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ▃
+    /// ▃ ←─────────────→ ▃     ▃ │ │ │ │ │ │ │ │ ▃
+    /// ▃ ←─────────────→ ▃     ▃ │ │ │ │ │ │ │ │ ▃
+    /// ▃ ←─────────────→ ▃     ▃ │ │ │ │ │ │ │ │ ▃
+    /// ▃ ←─────────────→ ▃     ▃ │ │ │ │ │ │ │ │ ▃
+    /// ▃ ←─────────────→ ▃     ▃ │ │ │ │ │ │ │ │ ▃
+    /// ▃ ←─────────────→ ▃     ▃ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ▃
+    /// ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃     ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃ ▃
+    /// ```
+    ///
+    /// We should only use the axis that is perpendicular to the direction of
+    /// scanning as there may be stretching in the direction of scanning,
+    /// leading to unreliable scale values for the purposes of detecting
+    /// mis-scaled ballots.
+    ///
+    /// Note that, for now, we assume that the direction of scan is vertical
+    /// from top to bottom or bottom to top. This function does not bake in that
+    /// assumption, but its caller likely does.
+    #[must_use]
+    pub fn compute_scale_based_on_axis(&self, axis: BorderAxis) -> Option<UnitIntervalScore> {
+        let marks = match axis {
+            BorderAxis::Horizontal => self.left_marks.iter().zip(&self.right_marks),
+            BorderAxis::Vertical => self.top_marks.iter().zip(&self.bottom_marks),
+        };
+
+        let actual_border_to_border_distance =
+            median(marks.map(|(a, b)| a.rect().center().distance_to(&b.rect().center())))?;
+        let expected_border_to_border_distance = match axis {
+            BorderAxis::Horizontal => self
+                .geometry
+                .left_to_right_center_to_center_pixel_distance(),
+            BorderAxis::Vertical => self
+                .geometry
+                .top_to_bottom_center_to_center_pixel_distance(),
+        };
+
+        Some(UnitIntervalScore(
+            actual_border_to_border_distance / expected_border_to_border_distance,
+        ))
     }
 }
 
@@ -304,6 +372,38 @@ pub enum Border {
     Right,
     Top,
     Bottom,
+}
+
+impl FromStr for Border {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "left" => Ok(Self::Left),
+            "right" => Ok(Self::Right),
+            "top" => Ok(Self::Top),
+            "bottom" => Ok(Self::Bottom),
+            _ => Err(format!("Invalid border: {s}")),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BorderAxis {
+    Horizontal,
+    Vertical,
+}
+
+impl FromStr for BorderAxis {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "horizontal" => Ok(Self::Horizontal),
+            "vertical" => Ok(Self::Vertical),
+            _ => Err(format!("Invalid axis: {s}")),
+        }
+    }
 }
 
 /// Determines whether a rect could be a timing mark based on its rect.
