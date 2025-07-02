@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { throwIllegalValue } from '@votingworks/basics';
+import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import type {
   VoterCheckInError,
   VoterSearchParams,
@@ -32,6 +32,7 @@ import {
   getIsAbsenteeMode,
   getVoter,
   getPollbookConfigurationInformation,
+  getElection,
 } from './api';
 import { AbsenteeModeCallout, VoterName } from './shared_components';
 import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals';
@@ -100,6 +101,9 @@ export function VoterCheckInScreen(): JSX.Element | null {
     useState<ReturnType<typeof setTimeout>>();
   const checkInVoterMutation = checkInVoter.useMutation();
   const getIsAbsenteeModeQuery = getIsAbsenteeMode.useQuery();
+  const getElectionQuery = getElection.useQuery();
+  const getPollbookConfigurationInformationQuery =
+    getPollbookConfigurationInformation.useQuery();
 
   const resetFlowState = useCallback(() => {
     clearTimeout(timeoutIdForFlowStateReset);
@@ -129,11 +133,19 @@ export function VoterCheckInScreen(): JSX.Element | null {
     [flowState]
   );
 
-  if (!getIsAbsenteeModeQuery.isSuccess) {
+  if (
+    !getIsAbsenteeModeQuery.isSuccess ||
+    !getElectionQuery.isSuccess ||
+    !getPollbookConfigurationInformationQuery.isSuccess
+  ) {
     return null;
   }
 
   const isAbsenteeMode = getIsAbsenteeModeQuery.data;
+  const election = assertDefined(getElectionQuery.data.unsafeUnwrap());
+  const configuredPrecinctId = assertDefined(
+    getPollbookConfigurationInformationQuery.data.configuredPrecinctId
+  );
 
   switch (flowState.step) {
     case 'search':
@@ -143,6 +155,8 @@ export function VoterCheckInScreen(): JSX.Element | null {
           setSearch={setSearch}
           isAbsenteeMode={isAbsenteeMode}
           onSelect={onSelect}
+          election={election}
+          configuredPrecinctId={configuredPrecinctId}
         />
       );
 
@@ -151,6 +165,8 @@ export function VoterCheckInScreen(): JSX.Element | null {
         <VoterConfirmScreen
           voterId={flowState.voterId}
           isAbsenteeMode={isAbsenteeMode}
+          configuredPrecinctId={configuredPrecinctId}
+          election={election}
           onCancel={() =>
             setFlowState({ step: 'search', search: flowState.search })
           }

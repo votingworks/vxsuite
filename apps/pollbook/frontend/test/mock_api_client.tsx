@@ -41,7 +41,8 @@ export const machineConfig: MachineConfig = {
 export function createMockVoter(
   voterId: string,
   firstName: string,
-  lastName: string
+  lastName: string,
+  precinctId: string = 'precinct-1'
 ): Voter {
   return {
     voterId,
@@ -72,7 +73,7 @@ export function createMockVoter(
     mailingZip5: '12345',
     mailingZip4: '6789',
     party: 'UND',
-    precinct: 'precinct-1',
+    precinct: precinctId,
     isInactive: false,
   };
 }

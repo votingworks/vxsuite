@@ -2,7 +2,8 @@ import { MainContent, Font, H1, LinkButton } from '@votingworks/ui';
 import { useState } from 'react';
 import type { Voter, VoterSearchParams } from '@votingworks/pollbook-backend';
 import { useHistory } from 'react-router-dom';
-import { getDeviceStatuses } from './api';
+import { assertDefined } from '@votingworks/basics';
+import { getDeviceStatuses, getElection } from './api';
 import { Row } from './layout';
 import { ElectionManagerNavScreen } from './nav_screen';
 import { VoterSearch, createEmptySearchParams } from './voter_search_screen';
@@ -18,11 +19,14 @@ export function ElectionManagerVotersScreen(): JSX.Element | null {
     createEmptySearchParams(false)
   );
   const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
+  const getElectionQuery = getElection.useQuery();
 
-  if (!getDeviceStatusesQuery.isSuccess) {
+  if (!getDeviceStatusesQuery.isSuccess || !getElectionQuery.isSuccess) {
     /* istanbul ignore next - @preserve */
     return null;
   }
+
+  const election = assertDefined(getElectionQuery.data.unsafeUnwrap());
 
   return (
     <ElectionManagerNavScreen
@@ -36,6 +40,7 @@ export function ElectionManagerVotersScreen(): JSX.Element | null {
       <MainContent>
         <VoterSearch
           search={search}
+          election={election}
           setSearch={setSearch}
           onBarcodeScanMatch={(voter) => {
             /* istanbul ignore next - @preserve */

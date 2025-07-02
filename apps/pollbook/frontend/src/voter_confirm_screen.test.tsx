@@ -5,7 +5,11 @@ import {
   VoterIdentificationMethod,
 } from '@votingworks/pollbook-backend';
 import userEvent from '@testing-library/user-event';
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import {
+  electionMultiPartyPrimaryFixtures,
+  electionSimpleSinglePrecinctFixtures,
+} from '@votingworks/fixtures';
+import { Election } from '@votingworks/types';
 import { screen, waitFor, within } from '../test/react_testing_library';
 import {
   ApiMock,
@@ -22,17 +26,18 @@ let voter: Voter;
 let onCancel: ReturnType<typeof vi.fn>;
 let onConfirm: ReturnType<typeof vi.fn>;
 
+const electionDefinition =
+  electionMultiPartyPrimaryFixtures.readElectionDefinition();
+const precinct = electionDefinition.election.precincts[0].id;
+
 beforeEach(() => {
-  voter = createMockVoter(mockVoterId, 'ABIGAIL', 'ADAMS');
+  voter = createMockVoter(mockVoterId, 'ABIGAIL', 'ADAMS', precinct);
   vi.clearAllMocks();
   onCancel = vi.fn();
   onConfirm = vi.fn();
   apiMock = createApiMock();
   apiMock.expectGetVoter(voter);
-  apiMock.setElection(
-    electionFamousNames2021Fixtures.readElectionDefinition(),
-    'precinct-1'
-  );
+  apiMock.setElection(electionDefinition, precinct);
 });
 
 afterEach(() => {
@@ -42,10 +47,14 @@ afterEach(() => {
 
 async function renderComponent({
   isAbsenteeMode = false,
+  configuredPrecinctId = precinct,
+  election = electionDefinition.election,
   voterOverride,
 }: {
   isAbsenteeMode?: boolean;
+  configuredPrecinctId?: string;
   voterOverride?: Voter;
+  election?: Election;
 } = {}) {
   if (voterOverride) {
     apiMock.expectGetVoter(voterOverride);
@@ -57,6 +66,8 @@ async function renderComponent({
       isAbsenteeMode={isAbsenteeMode}
       onCancel={onCancel}
       onConfirm={onConfirm}
+      election={election}
+      configuredPrecinctId={configuredPrecinctId}
     />,
     {
       apiMock,
@@ -222,7 +233,7 @@ test('update address button opens address flow', async () => {
       postalCityTown: 'CONCORD',
       zip5: '03301',
       zip4: '1111',
-      precinct: '',
+      precinct,
     },
   ];
   apiMock.expectGetValidStreetInfo(validStreetInfo);
@@ -273,7 +284,7 @@ test('displays voter with address change', async () => {
       state: 'IL',
       zipCode: '62701-2345',
       timestamp: new Date().toISOString(),
-      precinct: 'precinct-1',
+      precinct,
     },
   };
 
@@ -295,6 +306,8 @@ test('returns null when voter query is not successful', () => {
       isAbsenteeMode={false}
       onCancel={onCancel}
       onConfirm={onConfirm}
+      election={electionDefinition.election}
+      configuredPrecinctId={precinct}
     />,
     {
       apiMock,
@@ -312,6 +325,7 @@ test('returns null when voter query is not successful', () => {
 test('unchecking out-of-state ID returns to default identification', async () => {
   await renderComponent();
 
+  screen.getByText(electionDefinition.election.precincts[0].name);
   const outOfStateCheckbox = screen.getByRole('checkbox', {
     name: 'Out-of-State ID',
   });
@@ -335,4 +349,79 @@ test('unchecking out-of-state ID returns to default identification', async () =>
 
   const expectedIdentification: VoterIdentificationMethod = { type: 'default' };
   expect(onConfirm).toHaveBeenCalledWith(expectedIdentification);
+});
+
+test('displays updated precinct after address change', async () => {
+  const voterWithAddressChange: Voter = {
+    ...voter,
+    addressChange: {
+      streetNumber: '456',
+      streetName: 'OAK AVE',
+      streetSuffix: '',
+      apartmentUnitNumber: '#2B',
+      houseFractionNumber: '',
+      addressLine2: '',
+      addressLine3: '',
+      city: 'SPRINGFIELD',
+      state: 'IL',
+      zipCode: '62701-2345',
+      timestamp: new Date().toISOString(),
+      precinct: electionDefinition.election.precincts[1].id, // Use the same precinct for simplicity
+    },
+  };
+
+  await renderComponent({ voterOverride: voterWithAddressChange });
+
+  // Should display the updated precinct
+  screen.getByText(electionDefinition.election.precincts[1].name);
+});
+
+test('disables confirm check-in and out-of-state ID checkbox if precincts do not match', async () => {
+  const mismatchedPrecinct = electionDefinition.election.precincts[1].id;
+  await renderComponent({ configuredPrecinctId: mismatchedPrecinct });
+
+  // Confirm button should be disabled
+  const confirmButton = screen.getButton('Confirm Check-In');
+  expect(confirmButton).toBeDisabled();
+
+  // Out-of-state ID checkbox should also be disabled
+  const outOfStateCheckbox = screen.getByRole('checkbox', {
+    name: 'Out-of-State ID',
+  });
+  expect(outOfStateCheckbox).toBeDisabled();
+
+  screen.getByText(
+    /The voter cannot be checked in because their address is in another precinct/
+  );
+});
+
+test('precinct information not shown in single precinct election', async () => {
+  const singlePrecinctElection =
+    electionSimpleSinglePrecinctFixtures.readElectionDefinition();
+  const singlePrecinctId = singlePrecinctElection.election.precincts[0].id;
+  const newVoter = createMockVoter(
+    mockVoterId,
+    'ABIGAIL',
+    'ADAMS',
+    singlePrecinctId
+  );
+  apiMock = createApiMock();
+  apiMock.expectGetVoter(newVoter);
+  apiMock.setElection(singlePrecinctElection, singlePrecinctId);
+  await renderComponent({
+    configuredPrecinctId: singlePrecinctId,
+    election: singlePrecinctElection.election,
+  });
+
+  // Should not display "Precinct" label in single precinct election
+  expect(screen.queryByText('Precinct')).toBeNull();
+  expect(
+    screen.queryByText(singlePrecinctElection.election.precincts[0].name)
+  ).toBeNull();
+
+  // Checking in should be enabled.
+  const outOfStateCheckbox = screen.getByRole('checkbox', {
+    name: 'Out-of-State ID',
+  });
+  expect(outOfStateCheckbox).not.toBeDisabled();
 });
