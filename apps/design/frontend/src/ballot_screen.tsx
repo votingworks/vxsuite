@@ -37,7 +37,7 @@ import {
   listParties,
 } from './api';
 import { routes } from './routes';
-import { Column, FieldName as BaseFieldName, Row } from './layout';
+import { FieldName as BaseFieldName, Row } from './layout';
 
 // Worker file must be copied from pdfjs-dist into public directory
 pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
@@ -105,12 +105,10 @@ const PdfControls = styled.div`
 `;
 
 const ActionButtons = styled.div`
-  margin-top: 1rem;
-
-  & > * {
-    width: 100%;
-    margin-top: 0.5rem;
-  }
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 `;
 
 const ZOOM_STEP = 0.25;
@@ -353,71 +351,69 @@ export function BallotScreen(): JSX.Element | null {
         </TaskHeader>
 
         <Controls>
-          <Column style={{ gap: '1rem' }}>
+          <div>
+            <FieldName>Ballot Style</FieldName>
+            {ballotStyle.id}
+          </div>
+
+          <div>
+            <FieldName>Precinct</FieldName>
+            {precinct.name}
+          </div>
+
+          {electionInfo.type === 'primary' && (
             <div>
-              <FieldName>Ballot Style</FieldName>
-              {ballotStyle.id}
+              <FieldName>Party</FieldName>
+              {find(parties, (p) => p.id === ballotStyle.partyId).fullName}
             </div>
+          )}
 
-            <div>
-              <FieldName>Precinct</FieldName>
-              {precinct.name}
-            </div>
+          <div>
+            <FieldName>Page Size</FieldName>
+            {paperSizeLabels[paperSize]}{' '}
+          </div>
 
-            {electionInfo.type === 'primary' && (
-              <div>
-                <FieldName>Party</FieldName>
-                {find(parties, (p) => p.id === ballotStyle.partyId).fullName}
-              </div>
-            )}
+          <RadioGroup
+            label="Ballot Type"
+            options={[
+              { value: BallotType.Precinct, label: 'Precinct' },
+              { value: BallotType.Absentee, label: 'Absentee' },
+            ]}
+            value={ballotType}
+            onChange={setBallotType}
+            inverse
+          />
 
-            <div>
-              <FieldName>Page Size</FieldName>
-              {paperSizeLabels[paperSize]}{' '}
-            </div>
+          <RadioGroup
+            label="Tabulation Mode"
+            options={[
+              { value: 'official', label: 'Official Ballot' },
+              { value: 'test', label: 'L&A Test Ballot' },
+              { value: 'sample', label: 'Sample Ballot' },
+            ]}
+            value={ballotMode}
+            onChange={setBallotMode}
+            inverse
+          />
 
-            <RadioGroup
-              label="Ballot Type"
-              options={[
-                { value: BallotType.Precinct, label: 'Precinct' },
-                { value: BallotType.Absentee, label: 'Absentee' },
-              ]}
-              value={ballotType}
-              onChange={setBallotType}
-              inverse
-            />
-
-            <RadioGroup
-              label="Tabulation Mode"
-              options={[
-                { value: 'official', label: 'Official Ballot' },
-                { value: 'test', label: 'L&A Test Ballot' },
-                { value: 'sample', label: 'Sample Ballot' },
-              ]}
-              value={ballotMode}
-              onChange={setBallotMode}
-              inverse
-            />
-
-            <ActionButtons>
-              <Button
-                icon="Export"
-                variant="inverseNeutral"
-                onPress={onDownloadPdfPressed}
-                disabled={!pdfFile}
-              >
-                Download PDF
-              </Button>
-              <Button
-                icon="Print"
-                variant="inverseNeutral"
-                onPress={onPrintPdfPressed}
-                disabled={!pdfFile}
-              >
-                Print
-              </Button>
-            </ActionButtons>
-          </Column>
+          <ActionButtons>
+            <Button
+              icon="Export"
+              variant="inverseNeutral"
+              onPress={onDownloadPdfPressed}
+              disabled={!pdfFile}
+            >
+              Download PDF
+            </Button>
+            <Button
+              icon="Print"
+              variant="inverseNeutral"
+              onPress={onPrintPdfPressed}
+              disabled={!pdfFile}
+            >
+              Print
+            </Button>
+          </ActionButtons>
         </Controls>
       </TaskControls>
     </TaskScreen>
