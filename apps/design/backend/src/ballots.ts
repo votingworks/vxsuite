@@ -150,13 +150,6 @@ export function createBallotPropsForTemplate(
       return baseBallotProps.map(buildNhBallotProps);
     }
 
-    case 'NhBallotCompact':
-    case 'NhBallotV3Compact': {
-      return baseBallotProps
-        .map(buildNhBallotProps)
-        .map((p) => ({ ...p, compact: true }));
-    }
-
     case 'VxDefaultBallot':
       return baseBallotProps;
 

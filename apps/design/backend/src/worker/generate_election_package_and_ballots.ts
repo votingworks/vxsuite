@@ -202,10 +202,7 @@ export async function generateElectionPackageAndBallots(
     );
   }
 
-  const isV3Template =
-    ballotTemplateId === 'NhBallotV3' ||
-    ballotTemplateId === 'NhBallotV3Compact';
-  if (isV3Template) {
+  if (ballotTemplateId === 'NhBallotV3') {
     makeV3Compatible(electionPackageZip, systemSettings);
   }
 
