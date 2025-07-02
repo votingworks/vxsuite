@@ -53,6 +53,7 @@ import { BallotMode, PixelDimensions } from '../types';
 import { layOutInColumns } from '../layout_in_columns';
 import { hmpbStrings } from '../hmpb_strings';
 import { Watermark } from './watermark';
+import { BaseStyles } from '../base_styles';
 
 function Header({
   election,
@@ -572,6 +573,7 @@ async function BallotPageContent(
 }
 
 export const vxDefaultBallotTemplate: BallotPageTemplate<BaseBallotProps> = {
+  stylesComponent: BaseStyles,
   frameComponent: BallotPageFrame,
   contentComponent: BallotPageContent,
 };

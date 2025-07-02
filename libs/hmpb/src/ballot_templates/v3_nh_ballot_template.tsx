@@ -54,6 +54,7 @@ import { hmpbStrings } from '../hmpb_strings';
 import { layOutInColumns } from '../layout_in_columns';
 import { NhBallotProps } from './nh_ballot_template';
 import { Watermark } from './watermark';
+import { BaseStyles } from '../base_styles';
 
 const Colors = {
   BLACK: '#000000',
@@ -848,6 +849,7 @@ async function BallotPageContent(
 export const nhBallotTemplateV3: BallotPageTemplate<NhBallotProps> & {
   machineVersion: 'v3';
 } = {
+  stylesComponent: BaseStyles,
   frameComponent: BallotPageFrame,
   contentComponent: BallotPageContent,
   machineVersion: 'v3',

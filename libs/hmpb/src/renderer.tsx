@@ -6,7 +6,6 @@ import { ServerStyleSheet } from 'styled-components';
 import { assert } from '@votingworks/basics';
 import { PixelMeasurements } from './types';
 import { PAGE_CLASS } from './ballot_components';
-import { BaseStylesProps } from './base_styles';
 
 export type Page = Pick<
   PlaywrightPage,
@@ -178,7 +177,7 @@ export interface Renderer {
   /**
    * Creates a new {@link RenderScratchpad}.
    */
-  createScratchpad(props?: BaseStylesProps): Promise<RenderScratchpad>;
+  createScratchpad(styles: JSX.Element): Promise<RenderScratchpad>;
 
   /**
    * Given a {@link RenderDocument}, creates a new {@link RenderDocument} with the same content.

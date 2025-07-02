@@ -51,6 +51,8 @@ import {
 } from './types';
 import { BaseStylesProps } from './base_styles';
 
+export type StylesComponent<P> = (props: P) => JSX.Element;
+
 export type FrameComponent<P> = (
   props: P & { children: JSX.Element; pageNumber: number; totalPages?: number }
 ) => JSX.Element;
@@ -81,6 +83,7 @@ export type ContentComponent<P> = (
 
 /**
  * A page template consists of two interlocking pieces:
+ * - A styles component that defines the root styles to add to the page's head (e.g. fonts, sizes)
  * - A frame component (imagine it like a picture frame) that is rendered on each page
  * - A content component that knows how to render a page at a time of content
  * within the frame. Given a set of props (e.g. list of contests) the content component returns two items:
@@ -88,6 +91,7 @@ export type ContentComponent<P> = (
  *     - The props for the next page (e.g. the contests that didn't fit on this page)
  */
 export interface BallotPageTemplate<P extends object> {
+  stylesComponent: StylesComponent<P>;
   frameComponent: FrameComponent<P>;
   contentComponent: ContentComponent<P>;
 }
@@ -477,9 +481,9 @@ export async function renderBallotTemplate<P extends object>(
   template: BallotPageTemplate<P>,
   props: P & BaseStylesProps
 ): Promise<Result<RenderDocument, BallotLayoutError>> {
-  const scratchpad = await renderer.createScratchpad({
-    compact: props.compact,
-  });
+  const scratchpad = await renderer.createScratchpad(
+    template.stylesComponent(props)
+  );
   const pages = await paginateBallotContent(template, props, scratchpad);
   if (pages.isErr()) {
     return pages;

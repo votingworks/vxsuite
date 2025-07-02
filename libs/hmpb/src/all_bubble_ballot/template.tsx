@@ -17,6 +17,7 @@ import { RenderScratchpad } from '../renderer';
 import { allBubbleBallotConfig } from './config';
 import { candidateId, contestId } from './election';
 import { Footer } from './footer';
+import { BaseStyles } from '../base_styles';
 
 export function allBubbleBallotTemplate(
   paperSize: HmpbBallotPaperSize
@@ -123,6 +124,7 @@ export function allBubbleBallotTemplate(
   }
 
   return {
+    stylesComponent: BaseStyles,
     frameComponent: BallotPageFrame,
     contentComponent: BallotPageContent,
   };

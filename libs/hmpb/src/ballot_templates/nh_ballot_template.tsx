@@ -60,6 +60,7 @@ import { hmpbStrings } from '../hmpb_strings';
 import { layOutInColumns } from '../layout_in_columns';
 import { Watermark } from './watermark';
 import { ArrowRightCircle } from '../svg_assets';
+import { BaseStyles } from '../base_styles';
 
 function Header({
   election,
@@ -815,6 +816,7 @@ export type NhBallotProps = BaseBallotProps &
   NhPrecinctSplitOptions & { colorTint?: ColorTint };
 
 export const nhBallotTemplate: BallotPageTemplate<NhBallotProps> = {
+  stylesComponent: BaseStyles,
   frameComponent: BallotPageFrame,
   contentComponent: BallotPageContent,
 };
