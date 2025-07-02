@@ -124,7 +124,7 @@ test('v3-compatible NH ballot (compact) - letter', async () => {
   const electionDefinition =
     await renderMinimalBallotsToCreateElectionDefinition(
       renderer,
-      ballotTemplates.NhBallotV3Compact,
+      ballotTemplates.NhBallotV3,
       allBallotProps,
       'vxf'
     );
@@ -194,7 +194,7 @@ test('v3-compatible NH ballot (compact) - legal', async () => {
   const electionDefinition =
     await renderMinimalBallotsToCreateElectionDefinition(
       renderer,
-      ballotTemplates.NhBallotV3Compact,
+      ballotTemplates.NhBallotV3,
       allBallotProps,
       'vxf'
     );
@@ -249,7 +249,7 @@ test('v3-compatible NH ballot - custom yes/no labels fix', async () => {
   const electionDefinition =
     await renderMinimalBallotsToCreateElectionDefinition(
       renderer,
-      ballotTemplates.NhBallotV3Compact,
+      ballotTemplates.NhBallotV3,
       allBallotProps,
       'vxf'
     );
