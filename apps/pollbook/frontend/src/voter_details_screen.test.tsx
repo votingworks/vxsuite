@@ -9,7 +9,7 @@ import { Route, Switch } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import {
   electionFamousNames2021Fixtures,
-  electionMultiPartyPrimaryFixtures,
+  electionSimpleSinglePrecinctFixtures,
 } from '@votingworks/fixtures';
 import { screen, waitFor, within } from '../test/react_testing_library';
 import {
@@ -26,15 +26,16 @@ let unmount: () => void;
 const mockVoterId = '123';
 let voter: Voter;
 
+const electionFamousNames =
+  electionFamousNames2021Fixtures.readElectionDefinition();
+const precinct1 = electionFamousNames.election.precincts[0];
+
 beforeEach(() => {
-  voter = createMockVoter(mockVoterId, 'ABIGAIL', 'ADAMS');
+  voter = createMockVoter(mockVoterId, 'ABIGAIL', 'ADAMS', precinct1.id);
   vi.clearAllMocks();
   apiMock = createApiMock();
   apiMock.expectGetVoter(voter);
-  apiMock.setElection(
-    electionFamousNames2021Fixtures.readElectionDefinition(),
-    'precinct-1'
-  );
+  apiMock.setElection(electionFamousNames, precinct1.id);
 });
 
 afterEach(() => {
@@ -157,12 +158,15 @@ test('invalid address change', async () => {
       postalCityTown: 'CONCORD',
       zip5: '03301',
       zip4: '1111',
-      precinct: 'precinct-1',
+      precinct: precinct1.id,
     },
   ];
   apiMock.expectGetValidStreetInfo(validStreetInfo);
 
   await renderComponent();
+
+  // Precinct information should be shown in a multi-precinct election
+  await screen.findByText(precinct1.name);
 
   userEvent.click(screen.getButton('Update Address'));
 
@@ -184,10 +188,7 @@ test('invalid address change', async () => {
 test('invalid address change for precinct', async () => {
   apiMock.setPrinterStatus(true);
   apiMock.expectGetDeviceStatuses();
-  apiMock.setElection(
-    electionMultiPartyPrimaryFixtures.readElectionDefinition(),
-    'precinct-1'
-  );
+  apiMock.setElection(electionFamousNames, precinct1.id);
   const validStreetInfo: ValidStreetInfo[] = [
     {
       streetName: 'MAIN ST',
@@ -197,7 +198,7 @@ test('invalid address change for precinct', async () => {
       postalCityTown: 'CONCORD',
       zip5: '03301',
       zip4: '1111',
-      precinct: 'precinct-2',
+      precinct: electionFamousNames.election.precincts[1].id, // Different precinct
     },
   ];
   apiMock.expectGetValidStreetInfo(validStreetInfo);
@@ -223,6 +224,19 @@ test('invalid address change for precinct', async () => {
 });
 
 test('valid address change', async () => {
+  const electionSinglePrecinct =
+    electionSimpleSinglePrecinctFixtures.readElectionDefinition();
+  const precinct = electionSinglePrecinct.election.precincts[0];
+  const sampleVoter = createMockVoter(
+    mockVoterId,
+    'ABIGAIL',
+    'ADAMS',
+    precinct.id
+  );
+  // clear out the beforeEach setup as we are using a different election here.
+  apiMock = createApiMock();
+  apiMock.expectGetVoter(sampleVoter);
+  apiMock.setElection(electionSinglePrecinct, precinct.id);
   apiMock.setPrinterStatus(true);
   apiMock.expectGetDeviceStatuses();
   const validStreetInfo: ValidStreetInfo[] = [
@@ -234,7 +248,7 @@ test('valid address change', async () => {
       postalCityTown: 'CONCORD',
       zip5: '03301',
       zip4: '1111',
-      precinct: 'precinct-1',
+      precinct: precinct.id,
     },
   ];
   apiMock.expectGetValidStreetInfo(validStreetInfo);
@@ -242,6 +256,9 @@ test('valid address change', async () => {
   await renderComponent();
 
   userEvent.click(screen.getButton('Update Address'));
+
+  // Precinct information should NOT be shown in a single-precinct election
+  expect(screen.queryByText(precinct1.name)).toBeNull();
 
   await screen.findByRole('heading', { name: 'Update Voter Address' });
 
@@ -280,16 +297,16 @@ test('valid address change', async () => {
     streetSuffix: '',
     houseFractionNumber: '',
     state: 'NH',
-    precinct: 'precinct-1',
+    precinct: precinct.id,
   };
   const expectation = {
     voterId: mockVoterId,
     addressChangeData,
-    voterToUpdate: voter,
+    voterToUpdate: sampleVoter,
   } as const;
   apiMock.expectChangeVoterAddress(expectation);
   const updatedVoter: Voter = {
-    ...voter,
+    ...sampleVoter,
     addressChange: {
       ...addressChangeData,
       timestamp: new Date().toISOString(),
@@ -307,7 +324,7 @@ test('valid address change', async () => {
 
   await screen.findByText('99 MAIN ST #789');
   const oldAddress = await screen.findByText(
-    `${voter.streetNumber} ${voter.streetName}`
+    `${sampleVoter.streetNumber} ${sampleVoter.streetName}`
   );
   expect(oldAddress.parentElement?.style?.textDecoration).toEqual(
     'line-through'
@@ -506,4 +523,39 @@ test('actions are disabled when precinct not configured', async () => {
   // Find the first button (should be from main screen, not modal)
   const addressButton = updateAddressButtons[0];
   expect(addressButton).toBeDisabled();
+});
+
+test('actions are disabled when precinct does not match voter', async () => {
+  const otherPrecinct = electionFamousNames.election.precincts[1];
+  const changedVoter = createMockVoter(
+    mockVoterId,
+    'ABIGAIL',
+    'ADAMS',
+    otherPrecinct.id
+  );
+  apiMock.expectGetVoter(changedVoter);
+  apiMock.expectGetDeviceStatuses();
+
+  await renderComponent();
+
+  const flagInactiveButtons = screen.getAllByRole('button', {
+    name: 'Flag Voter as Inactive',
+  });
+  // Find the first button (should be from main screen, not modal)
+  const flagButton = flagInactiveButtons[0];
+  expect(flagButton).toBeDisabled();
+
+  const updateNameButtons = screen.getAllByRole('button', {
+    name: 'Update Name',
+  });
+  // Find the first button (should be from main screen, not modal)
+  const nameButton = updateNameButtons[0];
+  expect(nameButton).toBeDisabled();
+
+  const updateAddressButtons = screen.getAllByRole('button', {
+    name: 'Update Address',
+  });
+  // The address button should be enabled because it could be changed to the current precinct.
+  const addressButton = updateAddressButtons[0];
+  expect(addressButton).not.toBeDisabled();
 });

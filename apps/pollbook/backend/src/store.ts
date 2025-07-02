@@ -66,6 +66,30 @@ export function sortedByVoterName(
   });
 }
 
+export function sortedByVoterNameAndMatchingPrecinct(
+  voters: Voter[],
+  configuredPrecinctId?: string,
+  { useOriginalName = false } = {}
+): Voter[] {
+  if (!configuredPrecinctId) {
+    return sortedByVoterName(voters, { useOriginalName });
+  }
+  const matching = voters.filter(
+    (v) =>
+      (v.addressChange ? v.addressChange.precinct : v.precinct) ===
+      configuredPrecinctId
+  );
+  const nonMatching = voters.filter(
+    (v) =>
+      (v.addressChange ? v.addressChange.precinct : v.precinct) !==
+      configuredPrecinctId
+  );
+  return [
+    ...sortedByVoterName(matching, { useOriginalName }),
+    ...sortedByVoterName(nonMatching, { useOriginalName }),
+  ];
+}
+
 export abstract class Store {
   protected election?: Election;
   protected validStreetInfo?: ValidStreetInfo[];

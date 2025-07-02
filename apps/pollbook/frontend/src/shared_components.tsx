@@ -2,6 +2,7 @@ import type { Voter, VoterAddressChange } from '@votingworks/pollbook-backend';
 import { Callout, Card, H4 } from '@votingworks/ui';
 import styled from 'styled-components';
 import { throwIllegalValue } from '@votingworks/basics';
+import { Election } from '@votingworks/types';
 import { Column } from './layout';
 
 export const AbsenteeModeCallout = styled(Callout).attrs({
@@ -150,4 +151,18 @@ export function PartyName({ party }: { party: 'DEM' | 'REP' | 'UND' }): string {
     default:
       throwIllegalValue(party);
   }
+}
+
+export function PrecinctName({
+  precinctId,
+  election,
+}: {
+  precinctId: string;
+  election: Election;
+}): string {
+  const precinct = election.precincts.find((p) => p.id === precinctId);
+  if (!precinct) {
+    throw new Error(`Precinct with ID ${precinctId} not found in election.`);
+  }
+  return precinct.name;
 }

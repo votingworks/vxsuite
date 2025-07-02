@@ -4,7 +4,13 @@ import { safeParseJson } from '@votingworks/types';
 import { assert, assertDefined, groupBy, typedAs } from '@votingworks/basics';
 import { SqliteBool, fromSqliteBool, asSqliteBool } from '@votingworks/utils';
 import makeDebug from 'debug';
-import { generateId, SchemaPath, sortedByVoterName, Store } from './store';
+import {
+  generateId,
+  SchemaPath,
+  sortedByVoterName,
+  sortedByVoterNameAndMatchingPrecinct,
+  Store,
+} from './store';
 import {
   ConfigurationStatus,
   EventDbRow,
@@ -224,6 +230,7 @@ export class LocalStore extends Store {
     const middleNamePattern = toPatternStartsWith(middleName);
     const firstNamePattern = toPatternStartsWith(firstName);
     const suffixPattern = toPatternStartsWith(suffix);
+    const { configuredPrecinctId } = this.getPollbookConfigurationInformation();
 
     // Query the database for voters matching the search criteria
     const voterRows = this.client.all(
@@ -275,7 +282,10 @@ export class LocalStore extends Store {
     const events = convertDbRowsToPollbookEvents(eventRows);
     const updatedVoters = applyPollbookEventsToVoters(voters, events);
 
-    return sortedByVoterName(Object.values(updatedVoters));
+    return sortedByVoterNameAndMatchingPrecinct(
+      Object.values(updatedVoters),
+      configuredPrecinctId
+    );
   }
 
   recordVoterCheckIn({
