@@ -54,7 +54,7 @@ export function UndoCheckInReceipt({
       <div>
         <PartyName party={voter.party} />
       </div>
-      <VoterAddress voter={voter} />
+      <VoterAddress voter={voter} election={metadata.election} />
       <div>Voter ID: {voter.voterId}</div>
 
       <br />
