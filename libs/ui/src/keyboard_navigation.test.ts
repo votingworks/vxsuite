@@ -5,7 +5,7 @@ import {
   PageNavigationButtonId,
   triggerPageNavigationButton,
 } from './accessible_controllers';
-import { handleKeyboardEvent } from './ui_navigation';
+import { handleKeyboardEvent } from './keyboard_navigation';
 
 vi.mock('./accessible_controllers');
 
