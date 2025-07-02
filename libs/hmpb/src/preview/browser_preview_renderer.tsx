@@ -7,7 +7,6 @@ import {
   createDocument,
   createScratchpad,
 } from '../renderer';
-import { BaseStyles, BaseStylesProps } from '../base_styles';
 import { PAGE_CLASS } from '../ballot_components';
 
 function browserPage(): Page {
@@ -30,12 +29,10 @@ function browserPage(): Page {
   };
 }
 
-function createBrowserPreviewDocument(
-  props: BaseStylesProps = {}
-): RenderDocument {
+function createBrowserPreviewDocument(styles: JSX.Element): RenderDocument {
   document.head.innerHTML += ReactDomServer.renderToString(
     <>
-      <BaseStyles {...props} />
+      {styles}
       <style type="text/css">
         {`
         body {
@@ -57,14 +54,14 @@ function createBrowserPreviewDocument(
 }
 
 export function createBrowserPreviewRenderer(): Renderer {
+  let document: RenderDocument;
   return {
-    createScratchpad(props?: BaseStylesProps) {
-      return Promise.resolve(
-        createScratchpad(createBrowserPreviewDocument(props))
-      );
+    createScratchpad(styles) {
+      document = createBrowserPreviewDocument(styles);
+      return Promise.resolve(createScratchpad(document));
     },
     cloneDocument() {
-      return Promise.resolve(createBrowserPreviewDocument());
+      return Promise.resolve(document);
     },
     cleanup() {
       return Promise.resolve();

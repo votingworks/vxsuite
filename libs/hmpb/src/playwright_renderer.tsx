@@ -8,7 +8,6 @@ import {
   createDocument,
   createScratchpad,
 } from './renderer';
-import { BaseStyles } from './base_styles';
 
 export interface PlaywrightRenderer extends Renderer {
   getBrowser(): Browser;
@@ -27,14 +26,12 @@ export async function createPlaywrightRenderer(): Promise<PlaywrightRenderer> {
   });
   const context = await browser.newContext();
   return {
-    async createScratchpad(props = {}): Promise<RenderScratchpad> {
+    async createScratchpad(styles): Promise<RenderScratchpad> {
       const page = await context.newPage();
       await page.setContent(
         `<!DOCTYPE html>${ReactDomServer.renderToStaticMarkup(
           <html>
-            <head>
-              <BaseStyles {...props} />
-            </head>
+            <head>{styles}</head>
             <body />
           </html>
         )}`
