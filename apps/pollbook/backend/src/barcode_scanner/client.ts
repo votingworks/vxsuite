@@ -42,7 +42,6 @@ export async function connectToBarcodeScannerSocket(
     }
   }
 
-  /* istanbul ignore next - @preserve */
   await logger.logAsCurrentRole(LogEventId.SocketClientConnected, {
     message: 'Exhausted UDS connection attempts',
     disposition: LogDispositionStandardTypes.Failure,
@@ -64,16 +63,11 @@ export class BarcodeScannerClient {
   // Returns the latest payload from the barcode scanner daemon, consuming it in the process,
   // or undefined if there isn't one.
   readPayload(): Optional<BarcodeScannerPayload> {
-    /* istanbul ignore next - @preserve */
     const payload = this.scannedDocument ?? this.error ?? undefined;
-    /* istanbul ignore next - @preserve */
     if (payload) {
-      /* istanbul ignore next - @preserve */
       this.scannedDocument = undefined;
-      /* istanbul ignore next - @preserve */
       this.error = undefined;
     }
-    /* istanbul ignore next - @preserve */
     return payload;
   }
 
@@ -107,9 +101,7 @@ export class BarcodeScannerClient {
    */
   async listen(): Promise<void> {
     const udsClient = await connectToBarcodeScannerSocket(this.logger);
-    /* istanbul ignore next - @preserve */
     if (!udsClient) {
-      /* istanbul ignore next - @preserve */
       return;
     }
 
@@ -128,7 +120,6 @@ export class BarcodeScannerClient {
     for await (const line of lines(udsClient)) {
       try {
         const result = safeParseJson(line, BarcodeScannerPayloadSchema);
-        /* istanbul ignore next - @preserve */
         if (result.isErr()) {
           await this.logger.logAsCurrentRole(LogEventId.ParseError, {
             message: 'Could not parse barcode scanner message',
@@ -141,11 +132,9 @@ export class BarcodeScannerClient {
         if (isAamvaDocument(parsed)) {
           this.scannedDocument = parsed;
         } else {
-          /* istanbul ignore next - @preserve */
           this.error = parsed;
         }
       } catch (error) {
-        /* istanbul ignore next - @preserve */
         await this.logger.logAsCurrentRole(LogEventId.ParseError, {
           message: 'Could not read line from barcode scanner daemon UDS',
           error: (error as Error).message,
