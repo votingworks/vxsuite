@@ -261,7 +261,6 @@ export const getValidStreetInfo = {
 } as const;
 
 export const getScannedIdDocument = {
-  cacheTime: 0,
   queryKey(): QueryKey {
     return ['getScannedIdDocument'];
   },
