@@ -104,6 +104,7 @@ export async function generateElectionPackageAndBallots(
     orgId,
   } = electionRecord;
   let { systemSettings } = electionRecord;
+  const { compact } = await store.getBallotLayoutSettings(electionId);
 
   // This function makes separate zips for ballot package and election package
   // then wraps both in an outer zip for export.
@@ -137,7 +138,8 @@ export async function generateElectionPackageAndBallots(
   let allBallotProps = createBallotPropsForTemplate(
     ballotTemplateId,
     formattedElection,
-    ballotStyles
+    ballotStyles,
+    compact
   );
 
   // If we're exporting ballots with ballot audit IDs...

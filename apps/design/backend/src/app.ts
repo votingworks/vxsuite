@@ -539,6 +539,7 @@ function buildApi({ auth, logger, workspace, translator }: AppContext) {
         ballotStyles,
         ballotTemplateId,
       } = await store.getElection(input.electionId);
+      const { compact } = await store.getBallotLayoutSettings(input.electionId);
       const ballotStrings = await translateBallotStrings(
         translator,
         election,
@@ -552,7 +553,8 @@ function buildApi({ auth, logger, workspace, translator }: AppContext) {
       const allBallotProps = createBallotPropsForTemplate(
         ballotTemplateId,
         electionWithBallotStrings,
-        ballotStyles
+        ballotStyles,
+        compact
       );
       const ballotProps = find(
         allBallotProps,

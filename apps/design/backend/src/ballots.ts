@@ -104,7 +104,8 @@ const colorTints: ColorTintRecord[] = parse(colorTintsCsv, { columns: true });
 export function createBallotPropsForTemplate(
   templateId: BallotTemplateId,
   election: Election,
-  ballotStyles: BallotStyle[]
+  ballotStyles: BallotStyle[],
+  compact: boolean
 ): BaseBallotProps[] {
   function buildNhBallotProps(props: BaseBallotProps): NhBallotProps {
     const precinct = find(election.precincts, (p) => p.id === props.precinctId);
@@ -139,7 +140,10 @@ export function createBallotPropsForTemplate(
     };
   }
 
-  const baseBallotProps = allBaseBallotProps(election);
+  const baseBallotProps = allBaseBallotProps(election).map((props) => ({
+    ...props,
+    compact,
+  }));
   switch (templateId) {
     case 'NhBallot':
     case 'NhBallotV3': {
