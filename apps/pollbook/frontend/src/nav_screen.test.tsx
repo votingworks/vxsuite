@@ -324,3 +324,46 @@ test('renders network status as expected - when configured', async () => {
 
   userEvent.click(screen.getByText('Close'));
 });
+
+test('renders barcode scanner status warning when scanner is disconnected', async () => {
+  apiMock.setBarcodeScannerStatus(false);
+  apiMock.setElection(
+    electionFamousNames,
+    electionFamousNames.election.precincts[0].id
+  );
+  const result = renderInAppContext(<DeviceStatusBar />, {
+    apiMock,
+  });
+  unmount = result.unmount;
+  const barcodeScannerElement = await screen.findByTestId(
+    'barcode-scanner-status'
+  );
+
+  const icons = within(barcodeScannerElement).getAllByRole('img', {
+    hidden: true,
+  });
+  expect(icons.length).toEqual(2);
+  expect(icons[0].getAttribute('data-icon')).toEqual('id-card');
+  expect(icons[1].getAttribute('data-icon')).toEqual('triangle-exclamation');
+});
+
+test('renders barcode scanner status without warning when scanner is connected', async () => {
+  apiMock.setBarcodeScannerStatus(true);
+  apiMock.setElection(
+    electionFamousNames,
+    electionFamousNames.election.precincts[0].id
+  );
+  const result = renderInAppContext(<DeviceStatusBar />, {
+    apiMock,
+  });
+  unmount = result.unmount;
+  const barcodeScannerElement = await screen.findByTestId(
+    'barcode-scanner-status'
+  );
+
+  const icons = within(barcodeScannerElement).getAllByRole('img', {
+    hidden: true,
+  });
+  expect(icons.length).toEqual(1);
+  expect(icons[0].getAttribute('data-icon')).toEqual('id-card');
+});

@@ -100,6 +100,7 @@ export function createApiMock() {
 
   let currentDeviceStatus: DeviceStatuses = {
     usbDrive: mockUsbDriveStatus('no_drive'),
+    barcodeScanner: { connected: false },
     printer: { connected: false },
     battery: { level: 1, discharging: false },
     network: {
@@ -229,6 +230,17 @@ export function createApiMock() {
       currentDeviceStatus = {
         ...currentDeviceStatus,
         battery: { level, discharging },
+      };
+      mockApiClient.getDeviceStatuses.reset();
+      mockApiClient.getDeviceStatuses
+        .expectRepeatedCallsWith()
+        .resolves(currentDeviceStatus);
+    },
+
+    setBarcodeScannerStatus(connected: boolean): void {
+      currentDeviceStatus = {
+        ...currentDeviceStatus,
+        barcodeScanner: { connected },
       };
       mockApiClient.getDeviceStatuses.reset();
       mockApiClient.getDeviceStatuses

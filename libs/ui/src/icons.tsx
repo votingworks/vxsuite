@@ -47,6 +47,7 @@ import {
   faGripLines,
   faGripLinesVertical,
   faHardDrive,
+  faIdCard,
   faImage,
   faInfoCircle,
   faItalic,
@@ -341,6 +342,10 @@ export const Icons = {
 
   HardDrive(props) {
     return <FaIcon {...props} type={faHardDrive} />;
+  },
+
+  IdCard(props) {
+    return <FaIcon {...props} type={faIdCard} />;
   },
 
   Image(props) {

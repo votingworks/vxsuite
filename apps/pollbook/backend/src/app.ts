@@ -151,10 +151,16 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
     },
 
     async getDeviceStatuses(): Promise<DeviceStatuses> {
-      const [usbDriveStatus, printerStatus, batteryStatus] = await Promise.all([
+      const [
+        usbDriveStatus,
+        printerStatus,
+        batteryStatus,
+        barcodeScannerConnected,
+      ] = await Promise.all([
         usbDrive.status(),
         printer.status(),
         getBatteryInfo(),
+        barcodeScannerClient.isConnected(),
       ]);
       return {
         usbDrive: usbDriveStatus,
@@ -164,6 +170,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
           isOnline: store.getIsOnline(),
           pollbooks: store.getPollbookServiceInfo(),
         },
+        barcodeScanner: { connected: barcodeScannerConnected },
       };
     },
 

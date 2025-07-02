@@ -6,6 +6,7 @@ import {
   LogEventId,
   LogDispositionStandardTypes,
 } from '@votingworks/logging';
+import { lstat } from 'node:fs/promises';
 import {
   AamvaDocument,
   BarcodeScannerError,
@@ -17,6 +18,7 @@ import { tryConnect } from './unix_socket';
 
 export const UDS_CONNECTION_ATTEMPT_DELAY_MS = 1000;
 export const UDS_CONNECTION_TIMEOUT_MS = 60 * 60 * 1000; // 1 hour
+const DEVICE_PATH = '/dev/barcode_scanner';
 
 /**
  * Attempts to connect to the barcode scanner Unix socket within a retry loop.
@@ -40,7 +42,6 @@ export async function connectToBarcodeScannerSocket(
     }
   }
 
-  /* istanbul ignore next - @preserve */
   await logger.logAsCurrentRole(LogEventId.SocketClientConnected, {
     message: 'Exhausted UDS connection attempts',
     disposition: LogDispositionStandardTypes.Failure,
@@ -54,23 +55,41 @@ export class BarcodeScannerClient {
   constructor(
     private readonly logger: Logger,
     private scannedDocument: Optional<AamvaDocument> = undefined,
-    private error: Optional<BarcodeScannerError> = undefined
+    private error: Optional<BarcodeScannerError> = undefined,
+    private connectedToDaemon = false,
+    private readonly devicePath = DEVICE_PATH
   ) {}
 
   // Returns the latest payload from the barcode scanner daemon, consuming it in the process,
   // or undefined if there isn't one.
   readPayload(): Optional<BarcodeScannerPayload> {
-    /* istanbul ignore next - @preserve */
     const payload = this.scannedDocument ?? this.error ?? undefined;
-    /* istanbul ignore next - @preserve */
     if (payload) {
-      /* istanbul ignore next - @preserve */
       this.scannedDocument = undefined;
-      /* istanbul ignore next - @preserve */
       this.error = undefined;
     }
-    /* istanbul ignore next - @preserve */
     return payload;
+  }
+
+  async isConnected(): Promise<boolean> {
+    try {
+      // udev rule sets up an alias for the serial USB device. Each time the device
+      // is connected a symlink is created at this path and each time it's disconnected
+      // the symlink is deleted. Therefore we can check for existence of the symlink
+      // to know whether the device is plugged in.
+      const deviceFound = !!(await lstat(this.devicePath));
+      return deviceFound && this.connectedToDaemon;
+    } catch (err: unknown) {
+      const typedError = err as NodeJS.ErrnoException;
+      if (typedError.code !== 'ENOENT') {
+        await this.logger.logAsCurrentRole(LogEventId.UnknownError, {
+          message: 'Unknown error trying to lstat barcode scanner',
+          error: (err as Error).message,
+        });
+      }
+
+      return false;
+    }
   }
 
   private scheduleReconnect(): void {
@@ -82,11 +101,11 @@ export class BarcodeScannerClient {
    */
   async listen(): Promise<void> {
     const udsClient = await connectToBarcodeScannerSocket(this.logger);
-    /* istanbul ignore next - @preserve */
     if (!udsClient) {
-      /* istanbul ignore next - @preserve */
       return;
     }
+
+    this.connectedToDaemon = true;
 
     // 'close' event covers both clean socket shutdown and close due to error
     udsClient.on('close', () => {
@@ -94,13 +113,13 @@ export class BarcodeScannerClient {
         message: 'UDS socket closed',
         disposition: LogDispositionStandardTypes.Success,
       });
+      this.connectedToDaemon = false;
       this.scheduleReconnect();
     });
 
     for await (const line of lines(udsClient)) {
       try {
         const result = safeParseJson(line, BarcodeScannerPayloadSchema);
-        /* istanbul ignore next - @preserve */
         if (result.isErr()) {
           await this.logger.logAsCurrentRole(LogEventId.ParseError, {
             message: 'Could not parse barcode scanner message',
@@ -113,11 +132,9 @@ export class BarcodeScannerClient {
         if (isAamvaDocument(parsed)) {
           this.scannedDocument = parsed;
         } else {
-          /* istanbul ignore next - @preserve */
           this.error = parsed;
         }
       } catch (error) {
-        /* istanbul ignore next - @preserve */
         await this.logger.logAsCurrentRole(LogEventId.ParseError, {
           message: 'Could not read line from barcode scanner daemon UDS',
           error: (error as Error).message,
