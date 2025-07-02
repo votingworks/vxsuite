@@ -43,7 +43,7 @@ use crate::timing_marks::contours;
 use crate::timing_marks::corners;
 use crate::timing_marks::normalize_orientation;
 use crate::timing_marks::BallotPageMetadata;
-use crate::timing_marks::Border;
+use crate::timing_marks::BorderAxis;
 use crate::timing_marks::DefaultForGeometry;
 use crate::timing_marks::TimingMarks;
 
@@ -484,12 +484,11 @@ pub fn ballot_card(
             (SIDE_A_LABEL, &side_a_timing_marks),
             (SIDE_B_LABEL, &side_b_timing_marks),
         ] {
-            // We use the bottom border here because:
-            // - there should be little to no stretching along the horizontal axis (we assume it's perpendicular to the scan direction)
-            // - any stretch/skew tends to occur at the start of scan/top
-            // - the detected scale vs. printed scale delta is smaller compared to the other measures we've tried
+            // We use the horizontal axis here because it is perpendicular to
+            // the scan direction and therefore stretching should be minimal.
+            //
             // See https://votingworks.slack.com/archives/CEL6D3GAD/p1750095447642289 for more context.
-            if let Some(scale) = timing_marks.compute_scale_based_on_border(Border::Bottom) {
+            if let Some(scale) = timing_marks.compute_scale_based_on_axis(BorderAxis::Horizontal) {
                 if scale < minimum_detected_scale {
                     return Err(Error::InvalidScale {
                         label: label.to_owned(),

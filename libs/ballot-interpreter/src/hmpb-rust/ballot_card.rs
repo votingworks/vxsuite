@@ -134,6 +134,24 @@ impl Geometry {
         (self.timing_mark_vertical_spacing + self.timing_mark_size.height)
             .pixels(self.pixels_per_inch)
     }
+
+    /// Gets the distance from the center of a left border timing mark to the
+    /// center of its corresponding right border timing mark.
+    #[must_use]
+    pub fn left_to_right_center_to_center_pixel_distance(&self) -> SubPixelUnit {
+        ((self.timing_mark_horizontal_spacing + self.timing_mark_size.width)
+            * (self.grid_size.width - 1) as f32)
+            .pixels(self.pixels_per_inch)
+    }
+
+    /// Gets the distance from the center of a top border timing mark to the
+    /// center of its corresponding bottom border timing mark.
+    #[must_use]
+    pub fn top_to_bottom_center_to_center_pixel_distance(&self) -> SubPixelUnit {
+        ((self.timing_mark_vertical_spacing + self.timing_mark_size.height)
+            * (self.grid_size.height - 1) as f32)
+            .pixels(self.pixels_per_inch)
+    }
 }
 
 /// Expected PPI for scanned ballot cards.
