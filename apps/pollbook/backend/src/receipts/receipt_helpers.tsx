@@ -73,6 +73,71 @@ export function VoterAddress({
   );
 }
 
+export function VoterMailingAddress({ voter }: { voter: Voter }): JSX.Element {
+  if (voter.mailingAddressChange) {
+    const mailingAddress = voter.mailingAddressChange;
+    return (
+      <div>
+        <div>
+          {mailingAddress.mailingStreetNumber}
+          {mailingAddress.mailingSuffix}{' '}
+          {mailingAddress.mailingHouseFractionNumber}{' '}
+          {mailingAddress.mailingStreetName}{' '}
+          {mailingAddress.mailingApartmentUnitNumber}
+        </div>
+        {mailingAddress.mailingAddressLine2 === '' ? null : (
+          <div>{mailingAddress.mailingAddressLine2}</div>
+        )}
+        <div>
+          {mailingAddress.mailingCityTown}, {mailingAddress.mailingState}{' '}
+          {mailingAddress.mailingZip5}
+        </div>
+      </div>
+    );
+  }
+  const {
+    mailingStreetNumber,
+    mailingSuffix,
+    mailingHouseFractionNumber,
+    mailingStreetName,
+    mailingApartmentUnitNumber,
+    mailingAddressLine2,
+    mailingCityTown,
+    mailingState,
+    mailingZip5,
+  } = voter;
+
+  const allEmpty =
+    !mailingStreetNumber &&
+    !mailingSuffix &&
+    !mailingHouseFractionNumber &&
+    !mailingStreetName &&
+    !mailingApartmentUnitNumber &&
+    !mailingAddressLine2 &&
+    !mailingCityTown &&
+    !mailingState &&
+    !mailingZip5;
+
+  if (allEmpty) {
+    return <div>None</div>;
+  }
+  return (
+    <div>
+      <div>
+        {voter.mailingStreetNumber}
+        {voter.mailingSuffix} {voter.mailingHouseFractionNumber}{' '}
+        {voter.mailingStreetName} {voter.mailingApartmentUnitNumber}
+      </div>
+      {voter.mailingAddressLine2 === '' ? null : (
+        <div>{voter.mailingAddressLine2}</div>
+      )}
+      <div>
+        {voter.mailingCityTown}, {voter.mailingState} {voter.mailingZip5}
+      </div>
+    </div>
+  );
+}
+
 export function PartyName({ party }: { party: 'DEM' | 'REP' | 'UND' }): string {
   switch (party) {
     case 'DEM':

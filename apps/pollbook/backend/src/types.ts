@@ -42,6 +42,7 @@ export enum EventType {
   VoterCheckIn = 'VoterCheckIn',
   UndoVoterCheckIn = 'UndoVoterCheckIn',
   VoterAddressChange = 'VoterAddressChange',
+  VoterMailingAddressChange = 'VoterMailingAddressChange',
   VoterNameChange = 'VoterNameChange',
   VoterRegistration = 'VoterRegistration',
   MarkInactive = 'MarkInactive',
@@ -111,6 +112,7 @@ export interface Voter {
   precinct: string;
   nameChange?: VoterNameChange;
   addressChange?: VoterAddressChange;
+  mailingAddressChange?: VoterMailingAddressChange;
   registrationEvent?: VoterRegistration;
   checkIn?: VoterCheckIn;
   isInactive: boolean;
@@ -151,6 +153,43 @@ const VoterAddressChangeSchemaInternal = z.object({
 
 export const VoterAddressChangeSchema: z.ZodSchema<VoterAddressChange> =
   VoterAddressChangeSchemaInternal;
+
+export interface VoterMailingAddressChangeRequest {
+  mailingStreetNumber: string;
+  mailingStreetName: string;
+  mailingSuffix: string;
+  mailingApartmentUnitNumber: string;
+  mailingHouseFractionNumber: string;
+  mailingAddressLine2: string;
+  mailingAddressLine3: string;
+  mailingCityTown: string;
+  mailingState: string;
+  mailingZip5: string;
+  mailingZip4: string;
+}
+
+export interface VoterMailingAddressChange
+  extends VoterMailingAddressChangeRequest {
+  timestamp: string;
+}
+
+const VoterMailingAddressChangeSchemaInternal = z.object({
+  mailingStreetNumber: z.string(),
+  mailingStreetName: z.string(),
+  mailingSuffix: z.string(),
+  mailingApartmentUnitNumber: z.string(),
+  mailingHouseFractionNumber: z.string(),
+  mailingAddressLine2: z.string(),
+  mailingAddressLine3: z.string(),
+  mailingCityTown: z.string(),
+  mailingState: z.string(),
+  mailingZip5: z.string(),
+  mailingZip4: z.string(),
+  timestamp: z.string(),
+});
+
+export const VoterMailingAddressChangeSchema: z.ZodSchema<VoterMailingAddressChange> =
+  VoterMailingAddressChangeSchemaInternal;
 
 export interface VoterNameChangeRequest {
   lastName: string;
@@ -264,6 +303,12 @@ export interface VoterAddressChangeEvent extends PollbookEventBase {
   addressChangeData: VoterAddressChange;
 }
 
+export interface VoterMailingAddressChangeEvent extends PollbookEventBase {
+  type: EventType.VoterMailingAddressChange;
+  voterId: string;
+  mailingAddressChangeData: VoterMailingAddressChange;
+}
+
 export interface VoterNameChangeEvent extends PollbookEventBase {
   type: EventType.VoterNameChange;
   voterId: string;
@@ -285,6 +330,7 @@ export type PollbookEvent =
   | VoterCheckInEvent
   | UndoVoterCheckInEvent
   | VoterAddressChangeEvent
+  | VoterMailingAddressChangeEvent
   | VoterNameChangeEvent
   | VoterInactivatedEvent
   | VoterRegistrationEvent;

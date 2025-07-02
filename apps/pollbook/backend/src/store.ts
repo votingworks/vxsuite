@@ -255,6 +255,8 @@ export abstract class Store {
             return {};
           case EventType.VoterAddressChange:
             return pollbookEvent.addressChangeData;
+          case EventType.VoterMailingAddressChange:
+            return pollbookEvent.mailingAddressChangeData;
           case EventType.VoterNameChange:
             return pollbookEvent.nameChangeData;
           case EventType.VoterRegistration: {
@@ -342,6 +344,7 @@ export abstract class Store {
           break;
         }
         case EventType.VoterAddressChange:
+        case EventType.VoterMailingAddressChange:
         case EventType.VoterRegistration:
           // do nothing
           break;

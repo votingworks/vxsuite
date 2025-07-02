@@ -42,6 +42,7 @@ import {
   ValidStreetInfo,
   VoterRegistrationRequest,
   VoterAddressChangeRequest,
+  VoterMailingAddressChangeRequest,
   SummaryStatistics,
   ThroughputStat,
   VoterNameChangeRequest,
@@ -59,6 +60,7 @@ import {
   CheckInReceipt,
   RegistrationReceipt,
   AddressChangeReceipt,
+  MailingAddressChangeReceipt,
   NameChangeReceipt,
 } from './receipts';
 import { pollUsbDriveForPollbookPackage } from './pollbook_package';
@@ -341,6 +343,29 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
         election,
       });
       debug('Printing address change receipt for voter %s', voter.voterId);
+      await renderAndPrintReceipt(printer, receipt);
+      return voter;
+    },
+
+    async changeVoterMailingAddress(input: {
+      voterId: string;
+      mailingAddressChangeData: VoterMailingAddressChangeRequest;
+    }): Promise<Voter> {
+      const election = assertDefined(store.getElection());
+      const { voter, receiptNumber } = store.changeVoterMailingAddress(
+        input.voterId,
+        input.mailingAddressChangeData
+      );
+      const receipt = React.createElement(MailingAddressChangeReceipt, {
+        voter,
+        machineId,
+        receiptNumber,
+        election,
+      });
+      debug(
+        'Printing mailing address change receipt for voter %s',
+        voter.voterId
+      );
       await renderAndPrintReceipt(printer, receipt);
       return voter;
     },

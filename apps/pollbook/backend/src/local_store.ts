@@ -25,6 +25,9 @@ import {
   VoterAddressChange,
   VoterAddressChangeEvent,
   VoterAddressChangeRequest,
+  VoterMailingAddressChange,
+  VoterMailingAddressChangeEvent,
+  VoterMailingAddressChangeRequest,
   VoterCheckInEvent,
   VoterGroup,
   VoterIdentificationMethod,
@@ -499,6 +502,41 @@ export class LocalStore extends Store {
           timestamp,
           receiptNumber,
           addressChangeData,
+        })
+      );
+    });
+
+    return { voter: updatedVoter, receiptNumber };
+  }
+
+  changeVoterMailingAddress(
+    voterId: string,
+    mailingAddressChange: VoterMailingAddressChangeRequest
+  ): { voter: Voter; receiptNumber: number } {
+    debug(`Changing mailing address for voter ${voterId}`);
+    const voter = this.getVoter(voterId);
+    assert(voter);
+
+    const mailingAddressChangeData: VoterMailingAddressChange = {
+      ...mailingAddressChange,
+      timestamp: new Date(getCurrentTime()).toISOString(),
+    };
+    const updatedVoter: Voter = {
+      ...voter,
+      mailingAddressChange: mailingAddressChangeData,
+    };
+
+    const timestamp = this.incrementClock();
+    const receiptNumber = this.getNextEventId();
+    this.client.transaction(() => {
+      this.saveEvent(
+        typedAs<VoterMailingAddressChangeEvent>({
+          type: EventType.VoterMailingAddressChange,
+          machineId: this.machineId,
+          voterId,
+          timestamp,
+          receiptNumber,
+          mailingAddressChangeData,
         })
       );
     });

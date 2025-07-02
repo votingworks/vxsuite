@@ -12,6 +12,8 @@ import {
   PollbookEvent,
   VoterAddressChangeSchema,
   VoterAddressChangeEvent,
+  VoterMailingAddressChangeSchema,
+  VoterMailingAddressChangeEvent,
   VoterNameChangeEvent,
   VoterNameChangeSchema,
   PollbookEventBase,
@@ -62,6 +64,15 @@ export function convertDbRowsToPollbookEvents(
             addressChangeData: safeParseJson(
               event.event_data,
               VoterAddressChangeSchema
+            ).unsafeUnwrap(),
+          });
+        case EventType.VoterMailingAddressChange:
+          return typedAs<VoterMailingAddressChangeEvent>({
+            ...eventBase,
+            type: EventType.VoterMailingAddressChange,
+            mailingAddressChangeData: safeParseJson(
+              event.event_data,
+              VoterMailingAddressChangeSchema
             ).unsafeUnwrap(),
           });
         case EventType.VoterNameChange:
@@ -180,6 +191,14 @@ export function applyPollbookEventsToVoters(
         updatedVoters[voterId] = {
           ...updatedVoters[voterId],
           addressChange: addressChangeData,
+        };
+        break;
+      }
+      case EventType.VoterMailingAddressChange: {
+        const { voterId, mailingAddressChangeData } = event;
+        updatedVoters[voterId] = {
+          ...updatedVoters[voterId],
+          mailingAddressChange: mailingAddressChangeData,
         };
         break;
       }
