@@ -100,6 +100,7 @@ export function MailingAddressChange({
       )}
       <div>
         {address.mailingCityTown}, {address.mailingState} {address.mailingZip5}
+        {address.mailingZip4 ? `-${address.mailingZip4}` : ''}
       </div>
     </div>
   );
@@ -224,6 +225,7 @@ export function VoterMailingAddress({
       )}
       <div>
         {voter.mailingCityTown}, {voter.mailingState} {voter.mailingZip5}
+        {voter.mailingZip4 ? `-${voter.mailingZip4}` : ''}
       </div>
     </div>
   );
