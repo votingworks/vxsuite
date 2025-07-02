@@ -6,5 +6,4 @@ export {
 export * from './dependencies';
 export { getWorkspacePackageInfo, getWorkspacePackagePaths } from './pnpm';
 export * from './types';
-export * from './cargo';
 export * from './unused';

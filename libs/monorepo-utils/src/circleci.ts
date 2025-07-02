@@ -7,9 +7,7 @@ function jobIdForPackage(pkg: PnpmPackageInfo): string {
   return `test-${pkg.relativePath.replace(/\//g, '-')}`;
 }
 
-function jobIdForRustPackageId(pkgId: string): string {
-  return `test-crate-${pkgId}`;
-}
+const RUST_CRATES_JOB_ID = 'test-rust-crates';
 
 const POSTGRES_PACKAGES: string[] = ['apps/design/backend'];
 
@@ -78,9 +76,9 @@ function generateTestJobForNodeJsPackage(
   return lines;
 }
 
-function generateTestJobForRustCrate(pkgId: string): string[] {
+function generateTestJobForRustCrates(): string[] {
   return [
-    `${jobIdForRustPackageId(pkgId)}:`,
+    `${RUST_CRATES_JOB_ID}:`,
     // Executors are either nodejs or nodejs-browser. Both have Rust deps installed.
     `  executor: 'nodejs'`,
     `  resource_class: xlarge`,
@@ -90,15 +88,15 @@ function generateTestJobForRustCrate(pkgId: string): string[] {
     `    - run:`,
     `        name: Build`,
     `        command: |`,
-    `          cargo build -p ${pkgId}`,
+    `          cargo build`,
     `    - run:`,
     `        name: Lint`,
     `        command: |`,
-    `          cargo clippy -p ${pkgId}`,
+    `          cargo clippy`,
     `    - run:`,
     `        name: Test`,
     `        command: |`,
-    `          cargo test -p ${pkgId}`,
+    `          cargo test`,
   ];
 }
 
@@ -124,8 +122,7 @@ export const CIRCLECI_CONFIG_PATH = join(
  * Generate a CircleCI config file.
  */
 export function generateConfig(
-  pnpmPackages: ReadonlyMap<string, PnpmPackageInfo>,
-  rustPackageIds: string[]
+  pnpmPackages: ReadonlyMap<string, PnpmPackageInfo>
 ): string {
   const pnpmJobs = [...pnpmPackages.values()].reduce((memo, pkg) => {
     const jobLines = generateTestJobForPackage(pkg);
@@ -134,12 +131,13 @@ export function generateConfig(
     }
     return memo.set(pkg, jobLines);
   }, new Map<PnpmPackageInfo, string[]>());
-  const rustJobs = rustPackageIds.map(generateTestJobForRustCrate);
+  const rustJobLines = generateTestJobForRustCrates();
+
   const jobIds = [
     ...[...pnpmJobs.keys()].map(jobIdForPackage),
-    ...rustPackageIds.map(jobIdForRustPackageId),
     // hardcoded jobs
     'validate-monorepo',
+    RUST_CRATES_JOB_ID,
   ];
 
   return `
@@ -172,9 +170,7 @@ ${[...pnpmJobs.values()]
   .map((lines) => lines.map((line) => `  ${line}`).join('\n'))
   .join('\n\n')}
 
-${rustJobs
-  .map((lines) => lines.map((line) => `  ${line}`).join('\n'))
-  .join('\n\n')}
+${rustJobLines.map((line) => `  ${line}\n`).join('')}
 
   validate-monorepo:
     executor: nodejs
@@ -204,7 +200,7 @@ commands:
         type: boolean
     steps:
       - run:
-          name: Ensure rust is in the PATH variable
+          name: Ensure Rust tooling is in PATH
           command: |
             echo 'export PATH="/root/.cargo/bin:$PATH"' >> $BASH_ENV
       - checkout
@@ -218,32 +214,28 @@ commands:
             - restore_cache:
                 name: Restore Node.js Cache
                 key:
-                  pnpm-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
-                  "pnpm-lock.yaml" }}
+                  pnpm-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "pnpm-lock.yaml" }}
             - run:
                 name: Install Node.js Dependencies
                 command: pnpm install --frozen-lockfile
             - save_cache:
                 name: Save Node.js Cache
                 key:
-                  pnpm-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
-                  "pnpm-lock.yaml" }}
+                  pnpm-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "pnpm-lock.yaml" }}
                 paths:
                   - /root/.local/share/pnpm/store/v3
                   - /root/.cache/ms-playwright
       - restore_cache:
           name: Restore Cargo Cache
           key:
-            cargo-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
-            "Cargo.lock" }}
+            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}
       - run:
           name: Install Rust Dependencies
           command: pnpm --recursive install:rust-addon
       - save_cache:
           name: Save Cargo Cache
-          key: 
-            cargo-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
-            "Cargo.lock" }}
+          key:
+            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}
           paths:
             - /root/.cargo
 `.trim();
