@@ -44,8 +44,6 @@ export function ElectionManagerVotersScreen(): JSX.Element | null {
           setSearch={setSearch}
           onBarcodeScanMatch={(voter) => {
             /* istanbul ignore next - @preserve */
-            setSearch(createEmptySearchParams(true));
-            /* istanbul ignore next - @preserve */
             history.push(getDetailsPageUrl(voter));
           }}
           renderAction={(voter) => (
