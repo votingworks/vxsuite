@@ -27,11 +27,8 @@ function baseStyles(params: BaseStylesProps) {
     font-family: Vx Roboto;
     font-variant-ligatures: none;
     /*
-     * 12pt is the CCD minimum font size:
-     * https://civicdesign.org/typography-makes-ballots-easy-to-read/
-     *
-     * We drop this down to 10pt font for ballots with lots of contests to help
-     * reduce the total sheet count.
+     * 12pt is the Center for Civic Design's recommended default font size, and
+     * 10pt is their recommended minimum accessible font size.
      */
     font-size: ${compact ? 10 : 12}pt;
     line-height: ${baseLineHeight(compact)};
