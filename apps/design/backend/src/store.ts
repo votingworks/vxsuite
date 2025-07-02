@@ -1177,25 +1177,43 @@ export class Store {
     assert(rowCount === 1, 'Contest not found');
   }
 
-  async getBallotPaperSize(
+  async getBallotLayoutSettings(
     electionId: ElectionId
-  ): Promise<HmpbBallotPaperSize> {
-    const { election } = await this.getElection(electionId);
-    return election.ballotLayout.paperSize;
+  ): Promise<{ paperSize: HmpbBallotPaperSize; compact: boolean }> {
+    const row = (
+      await this.db.withClient((client) =>
+        client.query(
+          `
+            select
+              ballot_paper_size as "paperSize",
+              ballot_compact as "compact"
+            from elections
+            where id = $1
+          `,
+          electionId
+        )
+      )
+    ).rows[0];
+    assert(row, 'Election not found');
+    return row;
   }
 
-  async updateBallotPaperSize(
+  async updateBallotLayoutSettings(
     electionId: ElectionId,
-    paperSize: HmpbBallotPaperSize
+    paperSize: HmpbBallotPaperSize,
+    compact: boolean
   ): Promise<void> {
     const { rowCount } = await this.db.withClient((client) =>
       client.query(
         `
           update elections
-          set ballot_paper_size = $1
-          where id = $2
+          set
+            ballot_paper_size = $1,
+            ballot_compact = $2
+          where id = $3
         `,
         paperSize,
+        compact,
         electionId
       )
     );

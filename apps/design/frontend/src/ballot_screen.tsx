@@ -32,7 +32,7 @@ import {
   getBallotPreviewPdf,
   getElectionInfo,
   listPrecincts,
-  getBallotPaperSize,
+  getBallotLayoutSettings,
   listBallotStyles,
   listParties,
 } from './api';
@@ -240,7 +240,8 @@ export function BallotScreen(): JSX.Element | null {
   const listPrecinctsQuery = listPrecincts.useQuery(electionId);
   const listBallotStylesQuery = listBallotStyles.useQuery(electionId);
   const listPartiesQuery = listParties.useQuery(electionId);
-  const getBallotPaperSizeQuery = getBallotPaperSize.useQuery(electionId);
+  const getBallotLayoutSettingsQuery =
+    getBallotLayoutSettings.useQuery(electionId);
   const [ballotType, setBallotType] = useState<BallotType>(BallotType.Precinct);
   const [ballotMode, setBallotMode] = useState<BallotMode>('official');
   const printIframeRef = useRef<HTMLIFrameElement>(null);
@@ -278,7 +279,7 @@ export function BallotScreen(): JSX.Element | null {
       listPrecinctsQuery.isSuccess &&
       listBallotStylesQuery.isSuccess &&
       listPartiesQuery.isSuccess &&
-      getBallotPaperSizeQuery.isSuccess
+      getBallotLayoutSettingsQuery.isSuccess
     )
   ) {
     return null; // Initial loading state
@@ -288,7 +289,7 @@ export function BallotScreen(): JSX.Element | null {
   const precincts = listPrecinctsQuery.data;
   const ballotStyles = listBallotStylesQuery.data;
   const parties = listPartiesQuery.data;
-  const paperSize = getBallotPaperSizeQuery.data;
+  const { paperSize } = getBallotLayoutSettingsQuery.data;
   const precinct = find(precincts, (p) => p.id === precinctId);
   const ballotStyle = find(ballotStyles, (bs) => bs.id === ballotStyleId);
 

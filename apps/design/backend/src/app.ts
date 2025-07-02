@@ -447,18 +447,23 @@ function buildApi({ auth, logger, workspace, translator }: AppContext) {
       await store.deleteContest(input.electionId, input.contestId);
     },
 
-    async getBallotPaperSize(input: {
+    async getBallotLayoutSettings(input: {
       electionId: ElectionId;
-    }): Promise<HmpbBallotPaperSize> {
-      return store.getBallotPaperSize(input.electionId);
+    }): Promise<{ paperSize: HmpbBallotPaperSize; compact: boolean }> {
+      return store.getBallotLayoutSettings(input.electionId);
     },
 
-    async updateBallotPaperSize(input: {
+    async updateBallotLayoutSettings(input: {
       electionId: ElectionId;
       paperSize: HmpbBallotPaperSize;
+      compact: boolean;
     }): Promise<void> {
       const paperSize = unsafeParse(HmpbBallotPaperSizeSchema, input.paperSize);
-      await store.updateBallotPaperSize(input.electionId, paperSize);
+      await store.updateBallotLayoutSettings(
+        input.electionId,
+        paperSize,
+        input.compact
+      );
     },
 
     async getSystemSettings(input: {
