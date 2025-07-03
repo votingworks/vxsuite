@@ -1,13 +1,12 @@
 import { expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
-import { writeFileSync } from 'node:fs';
 import { err, ok, typedAs } from '@votingworks/basics';
+import { makeTemporaryFile, makeTemporaryPath } from '@votingworks/fixtures';
 import fc from 'fast-check';
 import { ReadFileError, readFile } from './read_file';
-import { makeTmpFile } from '../test/utils';
 
 test('file open error', async () => {
-  const path = makeTmpFile();
+  const path = makeTemporaryPath();
   expect(await readFile(path, { maxSize: 1024 })).toEqual(
     err(
       typedAs<ReadFileError>({
@@ -21,8 +20,7 @@ test('file open error', async () => {
 test('file exceeds max size', async () => {
   await fc.assert(
     fc.asyncProperty(fc.nat(1024 * 1024 * 10), async (maxSize) => {
-      const path = makeTmpFile();
-      writeFileSync(path, 'a'.repeat(maxSize + 1));
+      const path = makeTemporaryFile({ content: 'a'.repeat(maxSize + 1) });
       expect(await readFile(path, { maxSize })).toEqual(
         err(
           typedAs<ReadFileError>({
@@ -44,29 +42,26 @@ test('invalid maxSize', async () => {
 
 test('success', async () => {
   {
-    const path = makeTmpFile();
-    const contents = 'file contents';
-
-    writeFileSync(path, contents);
+    const content = 'file contents';
+    const path = makeTemporaryFile({ content });
 
     const buffer = (await readFile(path, { maxSize: 1024 })).unsafeUnwrap();
     expect(buffer).toBeInstanceOf(Buffer);
-    expect(buffer.toString('utf-8')).toEqual(contents);
+    expect(buffer.toString('utf-8')).toEqual(content);
 
     expect(await readFile(path, { maxSize: 1024, encoding: 'utf-8' })).toEqual(
-      ok(contents)
+      ok(content)
     );
   }
 
   await fc.assert(
-    fc.asyncProperty(fc.uint8Array(), async (contents) => {
-      const path = makeTmpFile();
-      writeFileSync(path, contents);
+    fc.asyncProperty(fc.uint8Array(), async (content) => {
+      const path = makeTemporaryFile({ content });
       expect(
         await readFile(path, {
-          maxSize: contents.byteLength,
+          maxSize: content.byteLength,
         })
-      ).toEqual(ok(Buffer.from(contents)));
+      ).toEqual(ok(Buffer.from(content)));
     })
   );
 });
