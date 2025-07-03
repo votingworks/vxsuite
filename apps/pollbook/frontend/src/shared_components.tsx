@@ -228,9 +228,7 @@ export function VoterMailingAddress({
       <div>
         {voter.mailingStreetNumber}
         {prependSpaceIfNeeded(voter.mailingHouseFractionNumber)}
-        {voter.mailingSuffix}
-        {}
-        {voter.mailingStreetName}
+        {voter.mailingSuffix} {voter.mailingStreetName}
         {prependSpaceIfNeeded(voter.mailingApartmentUnitNumber)}
       </div>
       {voter.mailingAddressLine2 === '' ? null : (
