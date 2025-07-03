@@ -41,9 +41,7 @@ import { useTitle } from './hooks/use_title';
 const ballotTemplateOptions = {
   VxDefaultBallot: 'VotingWorks Default Ballot',
   NhBallot: 'New Hampshire Ballot - V4',
-  NhBallotCompact: '[Compact] New Hampshire Ballot - V4',
   NhBallotV3: 'New Hampshire Ballot - V3',
-  NhBallotV3Compact: '[Compact] New Hampshire Ballot - V3',
 } satisfies Record<BallotTemplateId, string>;
 
 export function ExportScreen(): JSX.Element | null {
@@ -229,21 +227,20 @@ export function ExportScreen(): JSX.Element | null {
               <div>Order not submitted</div>
             )}
           </div>
-          {ballotTemplateId !== 'NhBallotV3' &&
-            ballotTemplateId !== 'NhBallotV3Compact' && (
-              <div>
-                <SegmentedButton
-                  label="Export Audio"
-                  selectedOptionId={shouldExportAudio ? 1 : 0}
-                  options={[
-                    { id: 1, label: 'On' },
-                    { id: 0, label: 'Off' },
-                  ]}
-                  onChange={(value) => setShouldExportAudio(value === 1)}
-                  disabled={isElectionPackageExportInProgress}
-                />
-              </div>
-            )}
+          {ballotTemplateId !== 'NhBallotV3' && (
+            <div>
+              <SegmentedButton
+                label="Export Audio"
+                selectedOptionId={shouldExportAudio ? 1 : 0}
+                options={[
+                  { id: 1, label: 'On' },
+                  { id: 0, label: 'Off' },
+                ]}
+                onChange={(value) => setShouldExportAudio(value === 1)}
+                disabled={isElectionPackageExportInProgress}
+              />
+            </div>
+          )}
         </Column>
 
         <H2>Export</H2>

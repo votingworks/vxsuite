@@ -224,13 +224,14 @@ describe('Ballot layout tab', () => {
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   });
 
-  test('has form to update paper size', async () => {
+  test('has form to update paper size and density', async () => {
     mockUserFeatures(apiMock, user, {
       ONLY_LETTER_AND_LEGAL_PAPER_SIZES: false,
     });
-    apiMock.getBallotPaperSize
-      .expectCallWith({ electionId })
-      .resolves(election.ballotLayout.paperSize);
+    apiMock.getBallotLayoutSettings.expectCallWith({ electionId }).resolves({
+      paperSize: election.ballotLayout.paperSize,
+      compact: false,
+    });
     renderScreen(electionId);
     await screen.findByRole('heading', { name: 'Proof Ballots' });
 
@@ -258,35 +259,55 @@ describe('Ballot layout tab', () => {
       within(paperSizeRadioGroup).getByLabelText('8.5 x 11 inches (Letter)')
     ).toBeChecked();
 
+    const densityRadioGroup = await screen.findByRole('radiogroup', {
+      name: 'Density',
+    });
+
+    // Density initial state
+    for (const optionName of ['Default', 'Compact']) {
+      expect(
+        within(densityRadioGroup).getByRole('radio', {
+          name: optionName,
+        })
+      ).toBeDisabled();
+    }
+    expect(within(densityRadioGroup).getByLabelText('Default')).toBeChecked();
+
     // Edit
     userEvent.click(screen.getByRole('button', { name: /Edit/ }));
 
     userEvent.click(screen.getByLabelText('8.5 x 17 inches'));
     expect(screen.getByLabelText('8.5 x 17 inches')).toBeChecked();
+    userEvent.click(screen.getByLabelText('Compact'));
+    expect(screen.getByLabelText('Compact')).toBeChecked();
 
     // Save
-    apiMock.updateBallotPaperSize
+    apiMock.updateBallotLayoutSettings
       .expectCallWith({
         electionId,
         paperSize: HmpbBallotPaperSize.Custom17,
+        compact: true,
       })
       .resolves();
-    apiMock.getBallotPaperSize
-      .expectCallWith({ electionId })
-      .resolves(HmpbBallotPaperSize.Custom17);
+    apiMock.getBallotLayoutSettings.expectCallWith({ electionId }).resolves({
+      paperSize: HmpbBallotPaperSize.Custom17,
+      compact: true,
+    });
     userEvent.click(screen.getByRole('button', { name: /Save/ }));
     await screen.findByRole('button', { name: /Edit/ });
 
     expect(screen.getByLabelText('8.5 x 17 inches')).toBeChecked();
+    expect(screen.getByLabelText('Compact')).toBeChecked();
   });
 
   test('with ONLY_LETTER_AND_LEGAL_PAPER_SIZES feature flag enabled', async () => {
     mockUserFeatures(apiMock, user, {
       ONLY_LETTER_AND_LEGAL_PAPER_SIZES: true,
     });
-    apiMock.getBallotPaperSize
-      .expectCallWith({ electionId })
-      .resolves(election.ballotLayout.paperSize);
+    apiMock.getBallotLayoutSettings.expectCallWith({ electionId }).resolves({
+      paperSize: election.ballotLayout.paperSize,
+      compact: false,
+    });
     renderScreen(electionId);
     await screen.findByRole('heading', { name: 'Proof Ballots' });
 
@@ -314,9 +335,10 @@ describe('Ballot layout tab', () => {
 
   test('cancelling', async () => {
     mockUserFeatures(apiMock, user, {});
-    apiMock.getBallotPaperSize
-      .expectCallWith({ electionId })
-      .resolves(election.ballotLayout.paperSize);
+    apiMock.getBallotLayoutSettings.expectCallWith({ electionId }).resolves({
+      paperSize: election.ballotLayout.paperSize,
+      compact: false,
+    });
     renderScreen(electionId);
     await screen.findByRole('heading', { name: 'Proof Ballots' });
 
@@ -325,10 +347,14 @@ describe('Ballot layout tab', () => {
     expect(screen.getByLabelText('8.5 x 11 inches (Letter)')).toBeChecked();
     userEvent.click(screen.getByLabelText('8.5 x 14 inches (Legal)'));
     expect(screen.getByLabelText('8.5 x 14 inches (Legal)')).toBeChecked();
+    userEvent.click(screen.getByLabelText('Compact'));
+    expect(screen.getByLabelText('Compact')).toBeChecked();
 
     userEvent.click(await screen.findByRole('button', { name: /Cancel/ }));
     screen.getByRole('button', { name: /Edit/ });
     expect(screen.getByLabelText('8.5 x 11 inches (Letter)')).toBeChecked();
     expect(screen.getByLabelText('8.5 x 14 inches (Legal)')).not.toBeChecked();
+    expect(screen.getByLabelText('Default')).toBeChecked();
+    expect(screen.getByLabelText('Compact')).not.toBeChecked();
   });
 });

@@ -77,9 +77,10 @@ beforeEach(() => {
   apiMock.listParties
     .expectCallWith({ electionId })
     .resolves(electionRecord.election.parties);
-  apiMock.getBallotPaperSize
-    .expectCallWith({ electionId })
-    .resolves(electionRecord.election.ballotLayout.paperSize);
+  apiMock.getBallotLayoutSettings.expectCallWith({ electionId }).resolves({
+    paperSize: electionRecord.election.ballotLayout.paperSize,
+    compact: false,
+  });
 });
 
 afterEach(() => {

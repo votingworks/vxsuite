@@ -345,8 +345,11 @@ test('create/list/delete elections', async () => {
     })
   );
   expect(
-    await apiClient.getBallotPaperSize({ electionId: electionId2 })
-  ).toEqual(election2.ballotLayout.paperSize);
+    await apiClient.getBallotLayoutSettings({ electionId: electionId2 })
+  ).toEqual({
+    paperSize: election2.ballotLayout.paperSize,
+    compact: false,
+  });
   expect(
     await apiClient.getSystemSettings({ electionId: electionId2 })
   ).toEqual(DEFAULT_SYSTEM_SETTINGS);
@@ -1205,25 +1208,29 @@ test('get/update ballot layout', async () => {
   ).unsafeUnwrap();
 
   // Default ballot layout
-  expect(await apiClient.getBallotPaperSize({ electionId })).toEqual(
-    HmpbBallotPaperSize.Letter
-  );
+  expect(await apiClient.getBallotLayoutSettings({ electionId })).toEqual({
+    paperSize: HmpbBallotPaperSize.Letter,
+    compact: false,
+  });
 
   // Update ballot layout
-  await apiClient.updateBallotPaperSize({
+  await apiClient.updateBallotLayoutSettings({
     electionId,
     paperSize: HmpbBallotPaperSize.Legal,
+    compact: true,
   });
-  expect(await apiClient.getBallotPaperSize({ electionId })).toEqual(
-    HmpbBallotPaperSize.Legal
-  );
+  expect(await apiClient.getBallotLayoutSettings({ electionId })).toEqual({
+    paperSize: HmpbBallotPaperSize.Legal,
+    compact: true,
+  });
 
   // Try to update with invalid values
   await suppressingConsoleOutput(() =>
     expect(
-      apiClient.updateBallotPaperSize({
+      apiClient.updateBallotLayoutSettings({
         electionId,
         paperSize: 'invalid' as HmpbBallotPaperSize,
+        compact: true,
       })
     ).rejects.toThrow()
   );
@@ -1529,8 +1536,11 @@ test('cloneElection', async () => {
     await apiClient.getBallotTemplate({ electionId: newElectionId })
   ).toEqual(await apiClient.getBallotTemplate({ electionId: srcElectionId }));
   expect(
-    await apiClient.getBallotPaperSize({ electionId: newElectionId })
-  ).toEqual(await apiClient.getBallotPaperSize({ electionId: srcElectionId }));
+    await apiClient.getBallotLayoutSettings({ electionId: newElectionId })
+  ).toEqual({
+    ...(await apiClient.getBallotLayoutSettings({ electionId: srcElectionId })),
+    compact: false, // compact is false by default, and isn't cloned
+  });
   expect(
     await apiClient.getBallotsFinalizedAt({ electionId: newElectionId })
   ).toBeNull();
@@ -1594,9 +1604,10 @@ test('Election package management', async () => {
 
   // Without mocking all the translations some ballot styles for non-English languages don't fit on a letter
   // page for this election. To get around this we use legal paper size for the purposes of this test.
-  await apiClient.updateBallotPaperSize({
+  await apiClient.updateBallotLayoutSettings({
     electionId,
     paperSize: HmpbBallotPaperSize.Legal,
+    compact: false,
   });
 
   const electionPackageBeforeExport = await apiClient.getElectionPackage({
@@ -1978,6 +1989,7 @@ test('Election package and ballots export', async () => {
             precinctId,
             ballotType,
             ballotMode,
+            compact: false,
           })
         )
       )
@@ -2046,6 +2058,7 @@ test('Export test decks', async () => {
       precinctId,
       ballotType: BallotType.Precinct,
       ballotMode: 'test',
+      compact: false,
     }))
   );
   expect(renderAllBallotsAndCreateElectionDefinition).toHaveBeenCalledWith(
@@ -2213,6 +2226,7 @@ test('export ballots with audit IDs', async () => {
       ballotMode: 'official',
       election: expect.any(Object),
       ballotAuditId: String(i),
+      compact: false,
     })
   );
   expect(renderAllBallotsAndCreateElectionDefinition).toHaveBeenCalledWith(
