@@ -1,6 +1,5 @@
 import { expect, Mocked, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
-import { createReadStream, ReadStream } from 'node:fs';
 
 import {
   BaseBallotProps,
@@ -25,7 +24,7 @@ test('renderBallotPdf - converts non-tinted ballots to grayscale', async () => {
     renderToPdf: vi.fn(() => mockColorPdf),
   } as unknown as Mocked<RenderDocument>;
 
-  const mockGrayscalePdfNh: ReadStream = createReadStream('/dev/null');
+  const mockGrayscalePdfNh = Buffer.of(0xca, 0xef);
   vi.mocked(convertPdfToGrayscale).mockResolvedValueOnce(mockGrayscalePdfNh);
 
   expect(await renderBallotPdf(nhProps, mockDocument)).toStrictEqual(
@@ -37,7 +36,7 @@ test('renderBallotPdf - converts non-tinted ballots to grayscale', async () => {
     precinctId: 'non-nh-precinct',
   } as unknown as BaseBallotProps;
 
-  const mockGrayscalePdfNonNh: ReadStream = createReadStream('/dev/null');
+  const mockGrayscalePdfNonNh = Buffer.of(0xac, 0xfe);
   vi.mocked(convertPdfToGrayscale).mockResolvedValueOnce(mockGrayscalePdfNonNh);
 
   expect(await renderBallotPdf(nonNhProps, mockDocument)).toStrictEqual(
