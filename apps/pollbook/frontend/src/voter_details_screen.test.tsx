@@ -372,7 +372,7 @@ test('undo check-in', async () => {
   });
   userEvent.click(undoButton);
 
-  await screen.findByText('Not checked in');
+  await screen.findByText('Not Checked In');
 });
 
 test('reprint check-in receipt', async () => {

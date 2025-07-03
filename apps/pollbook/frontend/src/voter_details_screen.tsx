@@ -194,7 +194,7 @@ function VoterDetailsScreenLayout({
         {children}
       </MainContent>
       <ButtonBar>
-        <Button icon="Delete" onPress={onClose} variant="primary">
+        <Button onPress={onClose} variant="primary">
           Close
         </Button>
       </ButtonBar>

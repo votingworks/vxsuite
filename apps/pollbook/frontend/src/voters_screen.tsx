@@ -1,13 +1,16 @@
 import { MainContent, Font, H1, LinkButton, Icons } from '@votingworks/ui';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import type { Voter, VoterSearchParams } from '@votingworks/pollbook-backend';
 import { useHistory } from 'react-router-dom';
 import { assertDefined } from '@votingworks/basics';
-import { DateTime } from 'luxon';
 import { getDeviceStatuses, getElection } from './api';
 import { Column, Row } from './layout';
 import { ElectionManagerNavScreen } from './nav_screen';
-import { VoterSearch, createEmptySearchParams } from './voter_search_screen';
+import {
+  CheckInDetails,
+  VoterSearch,
+  createEmptySearchParams,
+} from './voter_search_screen';
 import { ExportVoterActivityButton } from './export_voter_activity';
 
 function getDetailsPageUrl(voter: Voter): string {
@@ -52,17 +55,7 @@ export function ElectionManagerVotersScreen(): JSX.Element | null {
           renderAction={(voter) => (
             <Column style={{ gap: '0.5rem' }}>
               {voter.checkIn ? (
-                <React.Fragment>
-                  <span>
-                    <Icons.Done /> Checked In
-                  </span>
-                  <span>
-                    {DateTime.fromISO(voter.checkIn.timestamp).toLocaleString(
-                      DateTime.TIME_SIMPLE
-                    )}{' '}
-                    • {voter.checkIn.machineId}
-                  </span>
-                </React.Fragment>
+                <CheckInDetails checkIn={voter.checkIn} />
               ) : (
                 <span>
                   <Icons.Info /> Not Checked In
