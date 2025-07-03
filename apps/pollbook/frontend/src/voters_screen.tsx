@@ -1,10 +1,18 @@
-import { MainContent, Font, H1, LinkButton } from '@votingworks/ui';
-import { useState } from 'react';
+import {
+  MainContent,
+  Font,
+  H1,
+  LinkButton,
+  Icons,
+  Caption,
+} from '@votingworks/ui';
+import React, { useState } from 'react';
 import type { Voter, VoterSearchParams } from '@votingworks/pollbook-backend';
 import { useHistory } from 'react-router-dom';
 import { assertDefined } from '@votingworks/basics';
+import { format } from '@votingworks/utils';
 import { getDeviceStatuses, getElection } from './api';
-import { Row } from './layout';
+import { Column, Row } from './layout';
 import { ElectionManagerNavScreen } from './nav_screen';
 import { VoterSearch, createEmptySearchParams } from './voter_search_screen';
 import { ExportVoterActivityButton } from './export_voter_activity';
@@ -47,12 +55,30 @@ export function ElectionManagerVotersScreen(): JSX.Element | null {
             history.push(getDetailsPageUrl(voter));
           }}
           renderAction={(voter) => (
-            <LinkButton
-              style={{ flexWrap: 'nowrap' }}
-              to={getDetailsPageUrl(voter)}
-            >
-              <Font noWrap>View Details</Font>
-            </LinkButton>
+            <Column style={{ gap: '0.5rem' }}>
+              {voter.checkIn ? (
+                <React.Fragment>
+                  <Font noWrap>
+                    <Icons.Done /> Checked In
+                  </Font>
+                  <Caption noWrap>
+                    {format.localeTime(new Date(voter.checkIn.timestamp))}{' '}
+                    &bull; {voter.checkIn.machineId}
+                  </Caption>
+                </React.Fragment>
+              ) : (
+                <span>
+                  <Icons.Info /> Not Checked In
+                </span>
+              )}
+
+              <LinkButton
+                style={{ flexWrap: 'nowrap' }}
+                to={getDetailsPageUrl(voter)}
+              >
+                <Font noWrap>View Details</Font>
+              </LinkButton>
+            </Column>
           )}
         />
       </MainContent>
