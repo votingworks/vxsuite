@@ -1,9 +1,16 @@
-import { MainContent, Font, H1, LinkButton, Icons } from '@votingworks/ui';
+import {
+  MainContent,
+  Font,
+  H1,
+  LinkButton,
+  Icons,
+  Caption,
+} from '@votingworks/ui';
 import React, { useState } from 'react';
 import type { Voter, VoterSearchParams } from '@votingworks/pollbook-backend';
 import { useHistory } from 'react-router-dom';
 import { assertDefined } from '@votingworks/basics';
-import { DateTime } from 'luxon';
+import { format } from '@votingworks/utils';
 import { getDeviceStatuses, getElection } from './api';
 import { Column, Row } from './layout';
 import { ElectionManagerNavScreen } from './nav_screen';
@@ -53,15 +60,13 @@ export function ElectionManagerVotersScreen(): JSX.Element | null {
             <Column style={{ gap: '0.5rem' }}>
               {voter.checkIn ? (
                 <React.Fragment>
-                  <span>
+                  <Font noWrap>
                     <Icons.Done /> Checked In
-                  </span>
-                  <span>
-                    {DateTime.fromISO(voter.checkIn.timestamp).toLocaleString(
-                      DateTime.TIME_SIMPLE
-                    )}{' '}
-                    • {voter.checkIn.machineId}
-                  </span>
+                  </Font>
+                  <Caption noWrap>
+                    {format.localeTime(new Date(voter.checkIn.timestamp))}{' '}
+                    &bull; {voter.checkIn.machineId}
+                  </Caption>
                 </React.Fragment>
               ) : (
                 <span>
