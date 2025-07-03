@@ -10,7 +10,7 @@ import {
 } from './shared_components';
 import { usStates } from './us_states';
 import type { VoterMailingAddressChangeRequest } from './update_mailing_address_flow';
-import { splitStreetNumberAndSuffix } from './address_input_group';
+import { splitStreetNumberDetails } from './address_input_group';
 
 export function MailingAddressInputGroup({
   mailingAddress,
@@ -23,6 +23,8 @@ export function MailingAddressInputGroup({
     mailingAddress.mailingZip5 +
       (mailingAddress.mailingZip4 ? `-${mailingAddress.mailingZip4}` : '')
   );
+  const [useHouseFractionSeparator, setUseHouseFractionSeparator] =
+    React.useState(!!mailingAddress.mailingHouseFractionNumber);
   function handleChange(newMailingAddress: VoterMailingAddressChangeRequest) {
     onChange(newMailingAddress);
   }
@@ -36,17 +38,26 @@ export function MailingAddressInputGroup({
             aria-label="Mailing Street Number"
             id="mailingStreetNumber"
             value={
-              mailingAddress.mailingStreetNumber + mailingAddress.mailingSuffix
+              mailingAddress.mailingStreetNumber +
+              (useHouseFractionSeparator
+                ? ` ${mailingAddress.mailingHouseFractionNumber}`
+                : '') +
+              mailingAddress.mailingSuffix
             }
             style={{ width: '8rem' }}
             onChange={(e) => {
-              const { streetNumber, streetSuffix } = splitStreetNumberAndSuffix(
-                e.target.value.toLocaleUpperCase()
-              );
+              const {
+                streetNumber,
+                streetSuffix,
+                houseFractionNumber,
+                useHouseFractionSeparator: newUseHouseFractionSeparator,
+              } = splitStreetNumberDetails(e.target.value.toLocaleUpperCase());
+              setUseHouseFractionSeparator(newUseHouseFractionSeparator);
               handleChange({
                 ...mailingAddress,
                 mailingStreetNumber: streetNumber,
                 mailingSuffix: streetSuffix,
+                mailingHouseFractionNumber: houseFractionNumber,
               });
             }}
           />
