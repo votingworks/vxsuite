@@ -52,8 +52,9 @@ export function VoterAddress({
     <div style={style}>
       <div>
         {voter.streetNumber}
-        {voter.addressSuffix} {voter.houseFractionNumber} {voter.streetName}{' '}
-        {voter.apartmentUnitNumber}
+        {voter.houseFractionNumber ? ` ${voter.houseFractionNumber}` : ''}
+        {voter.addressSuffix ? ` ${voter.addressSuffix}` : ''}{' '}
+        {voter.streetName} {voter.apartmentUnitNumber}
       </div>
       {voter.addressLine2 === '' ? null : <div>{voter.addressLine2}</div>}
       <div>
@@ -72,8 +73,9 @@ export function AddressChange({
     <div>
       <div>
         {address.streetNumber}
-        {address.streetSuffix} {address.streetName}{' '}
-        {address.apartmentUnitNumber}
+        {address.houseFractionNumber ? ` ${address.houseFractionNumber}` : ''}
+        {address.streetSuffix ? ` ${address.streetSuffix}` : ''}{' '}
+        {address.streetName} {address.apartmentUnitNumber}
       </div>
       {address.addressLine2 === '' ? null : <div>{address.addressLine2}</div>}
       <div>
@@ -92,8 +94,11 @@ export function MailingAddressChange({
     <div>
       <div>
         {address.mailingStreetNumber}
-        {address.mailingSuffix} {address.mailingStreetName}{' '}
-        {address.mailingApartmentUnitNumber}
+        {address.mailingHouseFractionNumber
+          ? ` ${address.mailingHouseFractionNumber}`
+          : ''}
+        {address.mailingSuffix ? ` ${address.mailingSuffix}` : ''}{' '}
+        {address.mailingStreetName} {address.mailingApartmentUnitNumber}
       </div>
       {address.mailingAddressLine2 === '' ? null : (
         <div>{address.mailingAddressLine2}</div>
