@@ -1,6 +1,6 @@
 import { expect, test, vitest } from 'vitest';
-import { tmpNameSync } from 'tmp';
 import { writeFileSync } from 'node:fs';
+import { makeTemporaryPath } from '@votingworks/fixtures';
 import { ElectionDefinition, PrecinctId } from '@votingworks/types';
 import {
   createVoter,
@@ -10,7 +10,6 @@ import {
 import { getBackupPaperChecklistPdfs } from './backup_worker';
 import { LocalStore } from './local_store';
 import { EventType, VoterRegistrationEvent } from './types';
-import { deleteTmpFileAfterTestSuiteCompletes } from '../test/cleanup';
 
 vitest.setConfig({
   testTimeout: 55_000,
@@ -62,10 +61,8 @@ test('can export paper backup checklist for multi precinct election', async () =
   // The backup should be split into two files.
   expect(pdfs.length).toEqual(2);
 
-  const pt1Path = tmpNameSync();
-  const pt2Path = tmpNameSync();
-  deleteTmpFileAfterTestSuiteCompletes(pt1Path);
-  deleteTmpFileAfterTestSuiteCompletes(pt2Path);
+  const pt1Path = makeTemporaryPath();
+  const pt2Path = makeTemporaryPath();
   writeFileSync(pt1Path, pdfs[0]);
   writeFileSync(pt2Path, pdfs[1]);
   await expect(pt1Path).toMatchPdfSnapshot();
@@ -114,10 +111,8 @@ test('backup checklist works for single-precinct election', async () => {
   // Should generate PDFs successfully for single-precinct election
   expect(pdfs.length).toEqual(2);
 
-  const pt1Path = tmpNameSync();
-  const pt2Path = tmpNameSync();
-  deleteTmpFileAfterTestSuiteCompletes(pt1Path);
-  deleteTmpFileAfterTestSuiteCompletes(pt2Path);
+  const pt1Path = makeTemporaryPath();
+  const pt2Path = makeTemporaryPath();
   writeFileSync(pt1Path, pdfs[0]);
   writeFileSync(pt2Path, pdfs[1]);
   await expect(pt1Path).toMatchPdfSnapshot();

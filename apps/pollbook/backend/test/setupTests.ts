@@ -1,4 +1,3 @@
-import { afterAll, beforeAll, beforeEach, expect, vi } from 'vitest';
 import {
   clearTemporaryRootDir,
   setupTemporaryRootDir,
@@ -9,14 +8,13 @@ import {
 } from '@votingworks/image-utils';
 import { cleanupCachedBrowser } from '@votingworks/printing';
 import { toMatchImageSnapshot } from 'jest-image-snapshot';
+import { afterAll, beforeAll, beforeEach, expect, vi } from 'vitest';
 import { makeIdFactory } from './id_helpers';
-import { cleanupTestSuiteTmpFiles } from './cleanup';
 
 // Deterministic ID generation
 const idFactory = makeIdFactory();
 
 afterAll(async () => {
-  cleanupTestSuiteTmpFiles();
   await cleanupCachedBrowser();
 });
 

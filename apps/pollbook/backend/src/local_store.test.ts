@@ -1,5 +1,5 @@
 import { test, expect, vi } from 'vitest';
-import tmp from 'tmp';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { mockBaseLogger } from '@votingworks/logging';
 import { Election, ElectionDefinition } from '@votingworks/types';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
@@ -10,7 +10,6 @@ import {
 } from '../test/test_helpers';
 import { LocalStore } from './local_store';
 import { VoterRegistrationRequest } from './types';
-import { deleteTmpFileAfterTestSuiteCompletes } from '../test/cleanup';
 
 test('findVotersWithName works as expected - voters without name changes', () => {
   const localStore = LocalStore.memoryStore();
@@ -488,8 +487,7 @@ test('changeVoterAddress works as expected - when precinct is the properly confi
 });
 
 test('store can load data from database on restart', () => {
-  const workspacePath = tmp.dirSync().name;
-  deleteTmpFileAfterTestSuiteCompletes(workspacePath);
+  const workspacePath = makeTemporaryDirectory();
   const localStore = LocalStore.fileStore(
     workspacePath,
     mockBaseLogger({ fn: vi.fn }),
