@@ -210,6 +210,7 @@ test('invalid address change for precinct', async () => {
 
   await renderComponent();
 
+  await screen.findByText(`${voter.streetNumber} ${voter.streetName}`);
   userEvent.click(screen.getButton('Update Domicile Address'));
 
   await screen.findByRole('heading', { name: 'Update Voter Domicile Address' });
@@ -232,12 +233,13 @@ test('valid address change', async () => {
   const electionSinglePrecinct =
     electionSimpleSinglePrecinctFixtures.readElectionDefinition();
   const precinct = electionSinglePrecinct.election.precincts[0];
-  const sampleVoter = createMockVoter(
-    mockVoterId,
-    'ABIGAIL',
-    'ADAMS',
-    precinct.id
-  );
+  const sampleVoter: Voter = {
+    ...createMockVoter(mockVoterId, 'ABIGAIL', 'ADAMS', precinct.id),
+    houseFractionNumber: '1/2',
+    streetNumber: '200',
+    streetName: 'SOMETHING STREET',
+  };
+
   // clear out the beforeEach setup as we are using a different election here.
   apiMock = createApiMock();
   apiMock.expectGetVoter(sampleVoter);
@@ -260,6 +262,7 @@ test('valid address change', async () => {
 
   await renderComponent();
 
+  await screen.findByText('200 1/2 SOMETHING STREET');
   userEvent.click(screen.getButton('Update Domicile Address'));
 
   // Precinct information should NOT be shown in a single-precinct election
@@ -328,9 +331,7 @@ test('valid address change', async () => {
   });
 
   await screen.findByText('99 MAIN ST #789');
-  const oldAddress = await screen.findByText(
-    `${sampleVoter.streetNumber} ${sampleVoter.streetName}`
-  );
+  const oldAddress = await screen.findByText(`200 1/2 SOMETHING STREET`);
   expect(oldAddress.parentElement?.style?.textDecoration).toEqual(
     'line-through'
   );
@@ -604,7 +605,7 @@ test('update mailing address - no previous mailing address', async () => {
   const addressParts: InputElementChangeSpec[] = [
     {
       domElementText: 'Mailing Street Number',
-      newValue: '100',
+      newValue: '100 1/2',
     },
     {
       domElementText: 'Mailing Street Name',
@@ -644,7 +645,7 @@ test('update mailing address - no previous mailing address', async () => {
     mailingZip5: '12345',
     mailingZip4: '6789',
     mailingSuffix: '',
-    mailingHouseFractionNumber: '',
+    mailingHouseFractionNumber: '1/2',
     mailingState: 'AL',
   };
   const expectation = {
@@ -672,7 +673,7 @@ test('update mailing address - no previous mailing address', async () => {
   });
 
   await screen.findByText('Updated Mailing Address');
-  await screen.findByText('100 STREET STREET #1');
+  await screen.findByText('100 1/2 STREET STREET #1');
   await screen.findByText('SOMEWHERE, AL 12345-6789');
 });
 
@@ -695,7 +696,7 @@ test('update mailing address - has previous mailing address', async () => {
   await renderComponent();
 
   await screen.findByText('Mailing Address');
-  await screen.findByText('123B UNICORN ST Apt 4');
+  await screen.findByText(/123B UNICORN ST Apt 4/);
   await screen.findByText('FAIRYLAND, CA 12345');
 
   // Also, the "Update Mailing Address" button should still be present and enabled/disabled appropriately
@@ -714,7 +715,7 @@ test('update mailing address - has previous mailing address', async () => {
   const addressParts: InputElementChangeSpec[] = [
     {
       domElementText: 'Mailing Street Number',
-      newValue: '100',
+      newValue: '100 1/2A',
     },
     {
       domElementText: 'Mailing Street Name',
@@ -753,8 +754,8 @@ test('update mailing address - has previous mailing address', async () => {
     mailingCityTown: 'SOMEWHERE',
     mailingZip5: '12345',
     mailingZip4: '6789',
-    mailingSuffix: '',
-    mailingHouseFractionNumber: '',
+    mailingSuffix: 'A',
+    mailingHouseFractionNumber: '1/2',
     mailingState: 'AL',
   };
   const expectation = {
@@ -787,6 +788,6 @@ test('update mailing address - has previous mailing address', async () => {
   );
 
   await screen.findByText('Updated Mailing Address');
-  await screen.findByText('100 STREET STREET #1');
+  await screen.findByText('100 1/2A STREET STREET #1');
   await screen.findByText('SOMEWHERE, AL 12345-6789');
 });

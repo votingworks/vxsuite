@@ -348,7 +348,7 @@ test('displays voter with mailing address change - no previous mailing address',
     mailingAddressChange: {
       mailingStreetNumber: '456',
       mailingStreetName: 'OAK AVE',
-      mailingSuffix: '',
+      mailingSuffix: 'B',
       mailingApartmentUnitNumber: '#2B',
       mailingHouseFractionNumber: '',
       mailingAddressLine2: '',
@@ -370,7 +370,7 @@ test('displays voter with mailing address change - no previous mailing address',
   screen.getByText('Updated Mailing Address');
 
   // Should show new address
-  screen.getByText('456 OAK AVE #2B');
+  screen.getByText('456B OAK AVE #2B');
   screen.getByText('SPRINGFIELD, IL 62701-2345');
 });
 
@@ -386,9 +386,9 @@ test('displays voter with mailing address change - previous mailing address', as
     mailingAddressChange: {
       mailingStreetNumber: '456',
       mailingStreetName: 'OAK AVE',
-      mailingSuffix: '',
+      mailingSuffix: 'B',
       mailingApartmentUnitNumber: '#2B',
-      mailingHouseFractionNumber: '',
+      mailingHouseFractionNumber: '1/2',
       mailingAddressLine2: '',
       mailingAddressLine3: '',
       mailingCityTown: 'SPRINGFIELD',
@@ -410,7 +410,7 @@ test('displays voter with mailing address change - previous mailing address', as
   screen.getByText('Updated Mailing Address');
 
   // Should show new address
-  screen.getByText('456 OAK AVE #2B');
+  screen.getByText('456 1/2B OAK AVE #2B');
   screen.getByText('SPRINGFIELD, IL 62701-2345');
 });
 
@@ -475,7 +475,7 @@ test('displays updated precinct after address change', async () => {
       streetName: 'OAK AVE',
       streetSuffix: '',
       apartmentUnitNumber: '#2B',
-      houseFractionNumber: '',
+      houseFractionNumber: '1/2',
       addressLine2: '',
       addressLine3: '',
       city: 'SPRINGFIELD',
@@ -490,6 +490,7 @@ test('displays updated precinct after address change', async () => {
 
   // Should display the updated precinct
   screen.getByText(electionDefinition.election.precincts[1].name);
+  screen.getByText('456 1/2 OAK AVE #2B');
 });
 
 test('disables confirm check-in and out-of-state ID checkbox if precincts do not match', async () => {
