@@ -4,7 +4,7 @@ import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, normalize } from 'node:path';
-import Stream from 'node:stream';
+import { Stream } from 'node:stream';
 
 let temporaryRootDir: string | undefined;
 
