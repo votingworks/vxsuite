@@ -26,6 +26,7 @@ import styled from 'styled-components';
 import { format } from '@votingworks/utils';
 import { Optional, throwIllegalValue } from '@votingworks/basics';
 import { Election } from '@votingworks/types';
+import { useQueryClient } from '@tanstack/react-query';
 import { Column, Form, Row, InputGroup } from './layout';
 import { PollWorkerNavScreen } from './nav_screen';
 import { getCheckInCounts, getScannedIdDocument, searchVoters } from './api';
@@ -90,6 +91,7 @@ export function VoterSearch({
   renderAction: (voter: Voter) => React.ReactNode;
   election: Election;
 }): JSX.Element {
+  const queryClient = useQueryClient();
   const [voterSearchParams, setVoterSearchParams] =
     useState<VoterSearchParams>(search);
   const [displayUnknownScanError, setDisplayUnknownScanError] = useState(false);
@@ -150,11 +152,24 @@ export function VoterSearch({
     ) {
       const searchResult = searchVotersQuery.data;
 
+      // If we don't invalidate the query for scanned ID then this effect will fire
+      // immediately after the user navigates back to this component even though the
+      // scanned data has been consumed in the backend.
+      // This is because the query holds the stale data. Explicit query invalidation
+      // seems to be more reliable than setting `staleTime` on the query.
+      void queryClient.invalidateQueries({
+        queryKey: ['getScannedIdDocument'],
+        refetchType: 'all',
+      });
+
       if (typeof searchResult === 'object' && searchResult.length === 1) {
-        onBarcodeScanMatch(searchResult[0]);
+        onBarcodeScanMatch({ ...searchResult[0] });
       }
     }
   }, [
+    search,
+    setSearch,
+    queryClient,
     onBarcodeScanMatch,
     voterSearchParams.exactMatch,
     scannedIdDocument,
@@ -332,10 +347,9 @@ export function VoterSearchScreen({
 
   const onBarcodeScanMatch = useCallback(
     (voter: Voter) => {
-      setSearch(createEmptySearchParams(false));
       onSelect(voter.voterId);
     },
-    [onSelect, setSearch]
+    [onSelect]
   );
 
   return (
