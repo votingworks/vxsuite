@@ -9,6 +9,13 @@ import { throwIllegalValue } from '@votingworks/basics';
 import { Election } from '@votingworks/types';
 import { Column } from './layout';
 
+export function prependSpaceIfNeeded(text?: string): string {
+  if (!text) {
+    return '';
+  }
+  return ` ${text}`;
+}
+
 export const AbsenteeModeCallout = styled(Callout).attrs({
   color: 'warning',
   icon: 'Envelope',
@@ -52,9 +59,9 @@ export function VoterAddress({
     <div style={style}>
       <div>
         {voter.streetNumber}
-        {voter.houseFractionNumber ? ` ${voter.houseFractionNumber}` : ''}
-        {voter.addressSuffix ? ` ${voter.addressSuffix}` : ''}{' '}
-        {voter.streetName} {voter.apartmentUnitNumber}
+        {prependSpaceIfNeeded(voter.houseFractionNumber)}
+        {voter.addressSuffix} {voter.streetName}
+        {prependSpaceIfNeeded(voter.apartmentUnitNumber)}
       </div>
       {voter.addressLine2 === '' ? null : <div>{voter.addressLine2}</div>}
       <div>
@@ -73,9 +80,9 @@ export function AddressChange({
     <div>
       <div>
         {address.streetNumber}
-        {address.houseFractionNumber ? ` ${address.houseFractionNumber}` : ''}
-        {address.streetSuffix ? ` ${address.streetSuffix}` : ''}{' '}
-        {address.streetName} {address.apartmentUnitNumber}
+        {prependSpaceIfNeeded(address.houseFractionNumber)}
+        {address.streetSuffix} {address.streetName}
+        {prependSpaceIfNeeded(address.apartmentUnitNumber)}
       </div>
       {address.addressLine2 === '' ? null : <div>{address.addressLine2}</div>}
       <div>
@@ -94,11 +101,9 @@ export function MailingAddressChange({
     <div>
       <div>
         {address.mailingStreetNumber}
-        {address.mailingHouseFractionNumber
-          ? ` ${address.mailingHouseFractionNumber}`
-          : ''}
-        {address.mailingSuffix ? ` ${address.mailingSuffix}` : ''}{' '}
-        {address.mailingStreetName} {address.mailingApartmentUnitNumber}
+        {prependSpaceIfNeeded(address.mailingHouseFractionNumber)}
+        {address.mailingSuffix} {address.mailingStreetName}
+        {prependSpaceIfNeeded(address.mailingApartmentUnitNumber)}
       </div>
       {address.mailingAddressLine2 === '' ? null : (
         <div>{address.mailingAddressLine2}</div>
@@ -222,8 +227,11 @@ export function VoterMailingAddress({
     <div style={style}>
       <div>
         {voter.mailingStreetNumber}
-        {voter.mailingSuffix} {voter.mailingHouseFractionNumber}{' '}
-        {voter.mailingStreetName} {voter.mailingApartmentUnitNumber}
+        {prependSpaceIfNeeded(voter.mailingHouseFractionNumber)}
+        {voter.mailingSuffix}
+        {}
+        {voter.mailingStreetName}
+        {prependSpaceIfNeeded(voter.mailingApartmentUnitNumber)}
       </div>
       {voter.mailingAddressLine2 === '' ? null : (
         <div>{voter.mailingAddressLine2}</div>

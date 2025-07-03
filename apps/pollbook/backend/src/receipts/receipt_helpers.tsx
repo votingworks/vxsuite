@@ -21,6 +21,13 @@ export function VoterName({ voter }: { voter: Voter }): JSX.Element {
   );
 }
 
+export function prependSpaceIfNeeded(text?: string): string {
+  if (!text) {
+    return '';
+  }
+  return ` ${text}`;
+}
+
 function getPrecinctName(election: Election, precinctId: string): string {
   const precinct = election.precincts.find((p) => p.id === precinctId);
   return precinct?.name || precinctId;
@@ -39,8 +46,9 @@ export function VoterAddress({
       <div>
         <div>
           {address.streetNumber}
-          {address.streetSuffix} {address.streetName}{' '}
-          {address.apartmentUnitNumber}
+          {prependSpaceIfNeeded(address.houseFractionNumber)}
+          {address.streetSuffix} {address.streetName}
+          {prependSpaceIfNeeded(address.apartmentUnitNumber)}
         </div>
         {address.addressLine2 === '' ? null : <div>{address.addressLine2}</div>}
         <div>
@@ -59,8 +67,9 @@ export function VoterAddress({
     <div>
       <div>
         {voter.streetNumber}
-        {voter.addressSuffix} {voter.houseFractionNumber} {voter.streetName}{' '}
-        {voter.apartmentUnitNumber}
+        {prependSpaceIfNeeded(voter.houseFractionNumber)}
+        {voter.addressSuffix} {voter.streetName}
+        {prependSpaceIfNeeded(voter.apartmentUnitNumber)}
       </div>
       {voter.addressLine2 === '' ? null : <div>{voter.addressLine2}</div>}
       <div>
@@ -80,10 +89,9 @@ export function VoterMailingAddress({ voter }: { voter: Voter }): JSX.Element {
       <div>
         <div>
           {mailingAddress.mailingStreetNumber}
-          {mailingAddress.mailingSuffix}{' '}
-          {mailingAddress.mailingHouseFractionNumber}{' '}
-          {mailingAddress.mailingStreetName}{' '}
-          {mailingAddress.mailingApartmentUnitNumber}
+          {prependSpaceIfNeeded(mailingAddress.mailingHouseFractionNumber)}
+          {mailingAddress.mailingSuffix} {mailingAddress.mailingStreetName}
+          {prependSpaceIfNeeded(mailingAddress.mailingApartmentUnitNumber)}
         </div>
         {mailingAddress.mailingAddressLine2 === '' ? null : (
           <div>{mailingAddress.mailingAddressLine2}</div>
@@ -125,8 +133,9 @@ export function VoterMailingAddress({ voter }: { voter: Voter }): JSX.Element {
     <div>
       <div>
         {voter.mailingStreetNumber}
-        {voter.mailingSuffix} {voter.mailingHouseFractionNumber}{' '}
-        {voter.mailingStreetName} {voter.mailingApartmentUnitNumber}
+        {prependSpaceIfNeeded(voter.mailingHouseFractionNumber)}
+        {mailingSuffix} {voter.mailingStreetName}
+        {prependSpaceIfNeeded(voter.mailingApartmentUnitNumber)}
       </div>
       {voter.mailingAddressLine2 === '' ? null : (
         <div>{voter.mailingAddressLine2}</div>
