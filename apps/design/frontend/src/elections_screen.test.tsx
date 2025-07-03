@@ -82,20 +82,19 @@ function renderScreen() {
 test('with no elections, creating a new election', async () => {
   apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getAllOrgs.expectCallWith().resolves([VX_ORG]);
-  apiMock.listElections.expectCallWith({ user }).resolves([]);
+  apiMock.listElections.expectCallWith().resolves([]);
   const { history } = renderScreen();
   await screen.findByRole('heading', { name: 'Elections' });
 
   const electionRecord = blankElectionRecord(user.orgId);
   apiMock.createElection
     .expectCallWith({
-      user,
       orgId: user.orgId,
       id: ELECTION_ID,
     })
     .resolves(ok(ELECTION_ID));
   apiMock.listElections
-    .expectCallWith({ user })
+    .expectCallWith()
     .resolves([electionListing(electionRecord)]);
   const createElectionButton = screen.getByRole('button', {
     name: 'Create Election',
@@ -111,21 +110,20 @@ test('with no elections, creating a new election', async () => {
 test('with no elections, loading an election', async () => {
   const electionRecord = primaryElectionRecord(user.orgId);
   apiMock.getUser.expectCallWith().resolves(user);
-  apiMock.listElections.expectCallWith({ user }).resolves([]);
+  apiMock.listElections.expectCallWith().resolves([]);
   const { history } = renderScreen();
   await screen.findByRole('heading', { name: 'Elections' });
 
   const electionData = JSON.stringify(electionRecord.election);
   apiMock.loadElection
     .expectCallWith({
-      user,
       orgId: user.orgId,
       electionData,
       newId: ELECTION_ID,
     })
     .resolves(ok(electionRecord.election.id));
   apiMock.listElections
-    .expectCallWith({ user })
+    .expectCallWith()
     .resolves([electionListing(electionRecord)]);
   const loadElectionInput = screen.getByLabelText('Load Election');
   const file = new File([electionData], 'election.json', {
@@ -148,7 +146,7 @@ test('with elections', async () => {
   ];
   apiMock.getUser.expectCallWith().resolves(user);
   apiMock.listElections
-    .expectCallWith({ user })
+    .expectCallWith()
     .resolves([electionListing(general), electionListing(primary)]);
   const { history } = renderScreen();
   await screen.findByRole('heading', { name: 'Elections' });
@@ -206,7 +204,7 @@ describe('clone buttons', () => {
     ];
     apiMock.getUser.expectCallWith().resolves(user);
     apiMock.listElections
-      .expectCallWith({ user })
+      .expectCallWith()
       .resolves([electionListing(general), electionListing(primary)]);
 
     renderScreen();
@@ -232,7 +230,7 @@ describe('clone buttons', () => {
     ];
     apiMock.getUser.expectCallWith().resolves(user);
     apiMock.listElections
-      .expectCallWith({ user })
+      .expectCallWith()
       .resolves([electionListing(general), electionListing(primary)]);
 
     renderScreen();

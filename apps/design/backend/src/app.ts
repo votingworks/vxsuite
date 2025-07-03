@@ -32,6 +32,7 @@ import {
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
+  assert,
   assertDefined,
   DateWithoutTime,
   find,
@@ -61,7 +62,6 @@ import {
   Org,
   User,
   UsState,
-  WithUserInfo,
 } from './types';
 import { AppContext } from './context';
 import { rotateCandidates } from './candidate_rotation';
@@ -128,25 +128,100 @@ const UpdateElectionInfoInputSchema = z.object({
   languageCodes: z.array(LanguageCodeSchema),
 });
 
+interface ApiContext {
+  user: User;
+}
+
+export type AuthErrorCode = 'auth:unauthorized' | 'auth:forbidden';
+
+class AuthError extends Error {
+  // eslint-disable-next-line @typescript-eslint/no-useless-constructor
+  constructor(code: AuthErrorCode) {
+    super(code);
+  }
+}
+
 function buildApi({ auth, logger, workspace, translator }: AppContext) {
   const { store } = workspace;
 
-  type ApiContext = Record<string, never>; // No context for now
+  function requireOrgAccess(user: User, orgId: string) {
+    if (!auth.hasAccess(user, orgId)) {
+      throw new AuthError('auth:forbidden');
+    }
+  }
+
+  async function requireElectionAccess(user: User, electionId: ElectionId) {
+    const electionOrgId = await store.getElectionOrgId(electionId);
+    requireOrgAccess(user, electionOrgId);
+  }
+
   const middlewares: Array<grout.Middleware<ApiContext>> = [
-    async function logApiCall({ methodName, input }) {
-      // TODO: add relevant user info for debugging once we have middleware to
-      // load the user
+    async function loadUser({ request, context }) {
+      const auth0User = auth.userFromRequest(request);
+      if (!auth0User) {
+        throw new AuthError('auth:unauthorized');
+      }
+      const org = await auth.org(auth0User.org_id);
+      return {
+        ...context,
+        user: {
+          orgId: auth0User.org_id,
+          orgName: org.displayName,
+        },
+      };
+    },
+
+    // TODO(jonah) it might be nice to have a way to log the result of the API call,
+    // not just that the call was received. Potentially, we could pass
+    // middlewares a continuation callback so they could run code before and
+    // after the request handler.
+    async function logApiCall({ methodName, input, context }) {
       await logger.logAsCurrentRole(
         LogEventId.ApiCall,
-        { methodName, input: JSON.stringify(input) },
+        {
+          methodName,
+          input: JSON.stringify(input),
+          userOrgId: context.user?.orgId,
+        },
         debug
       );
+    },
+
+    /**
+     * All methods should check authorization. This middleware checks
+     * authorization automatically for methods that have either `electionId` or
+     * `orgId` in their input. If a method doesn't have either of or has some
+     * other reason to handle authorization separately, it must be listed in
+     * `methodsThatHandleAuthThemselves` within this function.
+     */
+    async function checkAuthorization({ methodName, input, context }) {
+      if (input) {
+        assert(context.user);
+        if ('electionId' in input) {
+          await requireElectionAccess(context.user, input.electionId as string);
+          return;
+        }
+        if ('orgId' in input) {
+          requireOrgAccess(context.user, input.orgId as string);
+          return;
+        }
+      }
+      const methodsThatHandleAuthThemselves = [
+        'listElections',
+        'getUser',
+        'getUserFeatures',
+        'getAllOrgs',
+      ];
+      assert(methodsThatHandleAuthThemselves.includes(methodName));
     },
   ];
 
   const methods = {
-    async listElections(input: WithUserInfo): Promise<ElectionListing[]> {
-      const { user } = input;
+    async listElections(
+      _input: undefined,
+      context: ApiContext
+    ): Promise<ElectionListing[]> {
+      const { user } = context;
       const elections = await store.listElections({
         orgId: user.orgId === votingWorksOrgId() ? undefined : user.orgId,
       });
@@ -160,18 +235,13 @@ function buildApi({ auth, logger, workspace, translator }: AppContext) {
     },
 
     async loadElection(
-      input: WithUserInfo<{
+      input: {
         electionData: string;
         newId: ElectionId;
         orgId: string;
-      }>
+      },
+      context: ApiContext
     ): Promise<Result<ElectionId, Error>> {
-      if (!auth.hasAccess(input.user, input.orgId)) {
-        throw new grout.GroutError('Access denied', {
-          cause: 'Cannot create election for another org',
-        });
-      }
-
       const parseResult = safeParseElection(input.electionData);
       if (parseResult.isErr()) return parseResult;
       const sourceElection = parseResult.ok();
@@ -217,58 +287,44 @@ function buildApi({ auth, logger, workspace, translator }: AppContext) {
       await store.createElection(
         input.orgId,
         election,
-        defaultBallotTemplate(election.state, input.user)
+        defaultBallotTemplate(election.state, context.user)
       );
       return ok(election.id);
     },
 
     async createElection(
-      input: WithUserInfo<{
+      input: {
         id: ElectionId;
         orgId: string;
-      }>
+      },
+      context: ApiContext
     ): Promise<Result<ElectionId, Error>> {
-      if (!auth.hasAccess(input.user, input.orgId)) {
-        throw new grout.GroutError('Access denied', {
-          cause: 'Cannot create election for another org',
-        });
-      }
-
       const election = createBlankElection(input.id);
       await store.createElection(
         input.orgId,
         election,
         // For now, default all elections to NH ballot template. In the future
         // we can make this a setting based on the user's organization.
-        defaultBallotTemplate(UsState.NEW_HAMPSHIRE, input.user)
+        defaultBallotTemplate(UsState.NEW_HAMPSHIRE, context.user)
       );
       return ok(election.id);
     },
 
     async cloneElection(
-      input: WithUserInfo<{
-        srcId: ElectionId;
-        destId: ElectionId;
+      input: {
+        electionId: ElectionId;
+        destElectionId: ElectionId;
         destOrgId: string;
-      }>
+      },
+      context: ApiContext
     ): Promise<ElectionId> {
       const {
         election: sourceElection,
         ballotTemplateId,
-        orgId,
         systemSettings,
-      } = await store.getElection(input.srcId);
+      } = await store.getElection(input.electionId);
 
-      if (!auth.hasAccess(input.user, orgId)) {
-        throw new grout.GroutError('Access denied', {
-          cause: 'Cannot clone election: invalid source organization.',
-        });
-      }
-      if (!auth.hasAccess(input.user, input.destOrgId)) {
-        throw new grout.GroutError('Access denied', {
-          cause: 'Cannot clone election: invalid destination organization.',
-        });
-      }
+      requireOrgAccess(context.user, input.destOrgId);
 
       const { districts, precincts, parties, contests } =
         regenerateElectionIds(sourceElection);
@@ -276,7 +332,7 @@ function buildApi({ auth, logger, workspace, translator }: AppContext) {
         input.destOrgId,
         {
           ...sourceElection,
-          id: input.destId,
+          id: input.destElectionId,
           title: `(Copy) ${sourceElection.title}`,
           districts,
           precincts,
@@ -286,7 +342,7 @@ function buildApi({ auth, logger, workspace, translator }: AppContext) {
         ballotTemplateId,
         systemSettings
       );
-      return input.destId;
+      return input.destElectionId;
     },
 
     async getElectionInfo(input: {
@@ -654,17 +710,19 @@ function buildApi({ auth, logger, workspace, translator }: AppContext) {
       await store.setBallotTemplate(input.electionId, input.ballotTemplateId);
     },
 
-    /* istanbul ignore next - @preserve */
-    getUser(): User {
-      throw new Error('getUser endpoint should be handled by auth middleware');
+    getUser(_input: undefined, context: ApiContext): User {
+      return context.user;
     },
 
-    /* istanbul ignore next - @preserve */
-    getAllOrgs(): Promise<Org[]> {
+    getAllOrgs(_input: undefined, context: ApiContext): Promise<Org[]> {
+      const userFeaturesConfig = getUserFeaturesConfig(context.user);
+      if (!userFeaturesConfig.ACCESS_ALL_ORGS) {
+        throw new AuthError('auth:forbidden');
+      }
       return auth.allOrgs();
     },
 
-    getUserFeatures(input: WithUserInfo): UserFeaturesConfig {
+    getUserFeatures(input: { user: User }): UserFeaturesConfig {
       return getUserFeaturesConfig(input.user);
     },
 
@@ -714,40 +772,7 @@ export function buildApp(context: AppContext): Application {
         },
       });
     });
-
-    // [TODO] Add API auth checks based on org ID.
-    app.use('/api', (req, res, next) => {
-      if (!req.oidc.isAuthenticated()) {
-        // [TODO] Detect API 401s on the client and refresh to trigger a
-        // login redirect.
-        res.sendStatus(401);
-        return;
-      }
-
-      next();
-    });
   }
-
-  // [TEMP] Until we update grout to provide API methods with the relevant
-  // context data needed to extract this info, we'll need to handle this
-  // endpoint outside of the grout API.
-  // Leaving a stub `Api.getUser` method in place to provide client-side
-  // typings.
-  /* istanbul ignore next - @preserve */
-  app.post('/api/getUser', async (req, res) => {
-    const user = assertDefined(context.auth.userFromRequest(req));
-    const org = await context.auth.org(user.org_id);
-
-    // A little convoluted, but this is just to form a typechecked link between
-    // this handler and the `getUser` API stub.
-    const userInfo: ReturnType<grout.inferApiMethods<Api>['getUser']> = {
-      orgId: user.org_id,
-      orgName: org.displayName,
-    };
-
-    res.set('Content-type', 'application/json');
-    res.send(grout.serialize(userInfo));
-  });
 
   app.get('/files/:orgId/:fileName', async (req, res) => {
     const user = assertDefined(context.auth.userFromRequest(req));

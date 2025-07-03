@@ -7,7 +7,9 @@ import { Main } from './main';
 import { H1, P } from './typography';
 
 type Props = React.PropsWithChildren<{
-  errorMessage: React.ReactNode | ((error: unknown) => React.ReactNode);
+  errorMessage:
+    | React.ReactNode
+    | (({ error }: { error: unknown }) => React.ReactNode);
   logger?: BaseLogger;
 }>;
 
@@ -91,7 +93,9 @@ export class ErrorBoundary extends React.Component<Props, State> {
     const { error } = this.state;
     const { errorMessage, children } = this.props;
     const errorMessageString =
-      typeof errorMessage === 'function' ? errorMessage(error) : errorMessage;
+      typeof errorMessage === 'function'
+        ? errorMessage({ error })
+        : errorMessage;
     if (error) {
       return (
         <Screen>
@@ -104,6 +108,15 @@ export class ErrorBoundary extends React.Component<Props, State> {
   }
 }
 
+function TestErrorMessage({ error }: { error: unknown }): React.ReactNode {
+  return (
+    <React.Fragment>
+      Test Error Boundary
+      {error ? <pre>{(error as Error).toString()}</pre> : undefined}
+    </React.Fragment>
+  );
+}
+
 /**
  * An error boundary designed to be used in tests. It shows the error message
  * from the caught error to aid in debugging.
@@ -114,17 +127,7 @@ export function TestErrorBoundary({
   children: React.ReactNode;
 }): JSX.Element {
   return (
-    <ErrorBoundary
-      // eslint-disable-next-line react/no-unstable-nested-components
-      errorMessage={(error) => (
-        <React.Fragment>
-          Test Error Boundary
-          {error ? <pre>{(error as Error).toString()}</pre> : undefined}
-        </React.Fragment>
-      )}
-    >
-      {children}
-    </ErrorBoundary>
+    <ErrorBoundary errorMessage={TestErrorMessage}>{children}</ErrorBoundary>
   );
 }
 

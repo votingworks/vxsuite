@@ -65,10 +65,9 @@ test('clones immediately when ACCESS_ALL_ORGS feature disabled', async () => {
   mockGenerateId.mockReturnValue(newElectionId);
   apiMock.cloneElection
     .expectCallWith({
-      destId: newElectionId,
+      electionId: election.id,
+      destElectionId: newElectionId,
       destOrgId: user.orgId,
-      srcId: election.id,
-      user,
     })
     .resolves(newElectionId);
 
@@ -109,10 +108,9 @@ test('shows org picker when ACCESS_ALL_ORGS feature enabled', async () => {
   mockGenerateId.mockReturnValue(newElectionId);
   apiMock.cloneElection
     .expectCallWith({
-      destId: newElectionId,
+      electionId: election.id,
+      destElectionId: newElectionId,
       destOrgId: NON_VX_ORG.id,
-      srcId: election.id,
-      user,
     })
     .resolves(newElectionId);
 
