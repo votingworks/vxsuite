@@ -1,10 +1,11 @@
-import { MainContent, Font, H1, LinkButton } from '@votingworks/ui';
-import { useState } from 'react';
+import { MainContent, Font, H1, LinkButton, Icons } from '@votingworks/ui';
+import React, { useState } from 'react';
 import type { Voter, VoterSearchParams } from '@votingworks/pollbook-backend';
 import { useHistory } from 'react-router-dom';
 import { assertDefined } from '@votingworks/basics';
+import { DateTime } from 'luxon';
 import { getDeviceStatuses, getElection } from './api';
-import { Row } from './layout';
+import { Column, Row } from './layout';
 import { ElectionManagerNavScreen } from './nav_screen';
 import { VoterSearch, createEmptySearchParams } from './voter_search_screen';
 import { ExportVoterActivityButton } from './export_voter_activity';
@@ -49,12 +50,32 @@ export function ElectionManagerVotersScreen(): JSX.Element | null {
             history.push(getDetailsPageUrl(voter));
           }}
           renderAction={(voter) => (
-            <LinkButton
-              style={{ flexWrap: 'nowrap' }}
-              to={getDetailsPageUrl(voter)}
-            >
-              <Font noWrap>View Details</Font>
-            </LinkButton>
+            <Column style={{ gap: '0.5rem' }}>
+              {voter.checkIn ? (
+                <React.Fragment>
+                  <span>
+                    <Icons.Done /> Checked In
+                  </span>
+                  <span>
+                    {DateTime.fromISO(voter.checkIn.timestamp).toLocaleString(
+                      DateTime.TIME_SIMPLE
+                    )}{' '}
+                    • {voter.checkIn.machineId}
+                  </span>
+                </React.Fragment>
+              ) : (
+                <span>
+                  <Icons.Info /> Not Checked In
+                </span>
+              )}
+
+              <LinkButton
+                style={{ flexWrap: 'nowrap' }}
+                to={getDetailsPageUrl(voter)}
+              >
+                <Font noWrap>View Details</Font>
+              </LinkButton>
+            </Column>
           )}
         />
       </MainContent>
