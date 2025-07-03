@@ -11,6 +11,7 @@ import {
 import {
   Voter,
   VoterAddressChangeRequest,
+  VoterMailingAddressChangeRequest,
   VoterNameChangeRequest,
   VoterRegistrationRequest,
 } from './types';
@@ -316,6 +317,64 @@ test('change a voter name', async () => {
     assert(Array.isArray(votersBarbara));
     expect(votersBarbara).toHaveLength(1); // the changed name now found
     expect((votersBarbara as Voter[])[0].voterId).toEqual(secondVoter.voterId);
+  });
+});
+
+test('change a voter mailing address - already has mailing address', async () => {
+  await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
+    workspace.store.setElectionAndVoters(
+      electionDefinition,
+      'mock-package-hash',
+      cityStreetNames,
+      cityVoters
+    );
+    workspace.store.setConfiguredPrecinct(currentPrecinctId);
+
+    mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+    expect(await localApiClient.haveElectionEventsOccurred()).toEqual(false);
+
+    // This voter has mailing address defined in the imported fixture.
+    const votersEvelyn = await localApiClient.searchVoters({
+      searchParams: {
+        firstName: 'Evelyn',
+        middleName: 'Laura',
+        lastName: 'Jenkins',
+        suffix: '',
+      },
+    });
+
+    assert(votersEvelyn !== null);
+    assert(Array.isArray(votersEvelyn));
+    expect(votersEvelyn).toHaveLength(1);
+    const voterEvelyn = (votersEvelyn as Voter[])[0];
+
+    const mailingAddressChangeData: VoterMailingAddressChangeRequest = {
+      mailingStreetNumber: '314',
+      mailingStreetName: 'Random Lane',
+      mailingSuffix: '',
+      mailingApartmentUnitNumber: '',
+      mailingHouseFractionNumber: '',
+      mailingAddressLine2: '',
+      mailingAddressLine3: '',
+      mailingCityTown: 'Manchester',
+      mailingState: 'NH',
+      mailingZip5: '03101',
+      mailingZip4: '',
+    };
+
+    const changeNameResult = await localApiClient.changeVoterMailingAddress({
+      voterId: voterEvelyn.voterId,
+      mailingAddressChangeData,
+    });
+    expect(changeNameResult.mailingAddressChange).toEqual({
+      ...mailingAddressChangeData,
+      timestamp: expect.any(String),
+    });
+    expect(await localApiClient.haveElectionEventsOccurred()).toEqual(true);
+
+    const receiptPdfPath = mockPrinterHandler.getLastPrintPath();
+    expect(receiptPdfPath).toBeDefined();
+    await expect(receiptPdfPath).toMatchPdfSnapshot();
   });
 });
 
