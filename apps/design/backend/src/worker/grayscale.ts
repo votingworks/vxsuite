@@ -1,28 +1,30 @@
 import { tmpNameSync } from 'tmp';
 import { promisify } from 'node:util';
-import { exec } from 'node:child_process';
-import { createReadStream, createWriteStream, ReadStream } from 'node:fs';
+import { execFile } from 'node:child_process';
 import { Buffer } from 'node:buffer';
+import { readFile, rm, writeFile } from 'node:fs/promises';
 
 /**
  * Given a PDF document, convert it to grayscale and return a read stream to
  * the resulting PDF.
  */
-export async function convertPdfToGrayscale(pdf: Buffer): Promise<ReadStream> {
+export async function convertPdfToGrayscale(pdf: Buffer): Promise<Buffer> {
   const tmpPdfFilePath = tmpNameSync();
-  const fileStream = createWriteStream(tmpPdfFilePath);
-  fileStream.write(pdf);
-  fileStream.end();
+  await writeFile(tmpPdfFilePath, pdf);
   const tmpGrayscalePdfFilePath = tmpNameSync();
-  await promisify(exec)(`
-    gs \
-      -sOutputFile=${tmpGrayscalePdfFilePath} \
-      -sDEVICE=pdfwrite \
-      -sColorConversionStrategy=Gray \
-      -dProcessColorModel=/DeviceGray \
-      -dNOPAUSE \
-      -dBATCH \
-      ${tmpPdfFilePath}
-  `);
-  return createReadStream(tmpGrayscalePdfFilePath);
+  await promisify(execFile)('gs', [
+    `-sOutputFile=${tmpGrayscalePdfFilePath}`,
+    '-sDEVICE=pdfwrite',
+    '-sColorConversionStrategy=Gray',
+    '-dProcessColorModel=/DeviceGray',
+    '-dNOPAUSE',
+    '-dBATCH',
+    tmpPdfFilePath,
+  ]);
+  try {
+    return await readFile(tmpGrayscalePdfFilePath);
+  } finally {
+    await rm(tmpGrayscalePdfFilePath);
+    await rm(tmpPdfFilePath);
+  }
 }
