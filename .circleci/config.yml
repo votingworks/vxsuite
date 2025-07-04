@@ -1273,30 +1273,6 @@ jobs:
       - store_test_results:
           path: libs/types/reports/
 
-  # @votingworks/types-rs
-  test-libs-types-rs:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install:
-          is_node_package: true
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/types-rs build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/types-rs lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/types-rs test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: libs/types-rs/reports/
-
   # @votingworks/ui
   test-libs-ui:
     executor: nodejs
@@ -1369,7 +1345,7 @@ jobs:
       - store_test_results:
           path: libs/utils/reports/
 
-  test-crate-ballot-interpreter:
+  test-rust-crates:
     executor: 'nodejs'
     resource_class: xlarge
     steps:
@@ -1378,205 +1354,16 @@ jobs:
       - run:
           name: Build
           command: |
-            cargo build -p ballot-interpreter
+            cargo build
       - run:
           name: Lint
           command: |
-            cargo clippy -p ballot-interpreter
+            cargo clippy
       - run:
           name: Test
           command: |
-            cargo test -p ballot-interpreter
+            cargo test
 
-  test-crate-barcode-scanner-daemon:
-    executor: 'nodejs'
-    resource_class: xlarge
-    steps:
-      - checkout-and-install:
-          is_node_package: false
-      - run:
-          name: Build
-          command: |
-            cargo build -p barcode-scanner-daemon
-      - run:
-          name: Lint
-          command: |
-            cargo clippy -p barcode-scanner-daemon
-      - run:
-          name: Test
-          command: |
-            cargo test -p barcode-scanner-daemon
-
-  test-crate-controllerd:
-    executor: 'nodejs'
-    resource_class: xlarge
-    steps:
-      - checkout-and-install:
-          is_node_package: false
-      - run:
-          name: Build
-          command: |
-            cargo build -p controllerd
-      - run:
-          name: Lint
-          command: |
-            cargo clippy -p controllerd
-      - run:
-          name: Test
-          command: |
-            cargo test -p controllerd
-
-  test-crate-daemon-utils:
-    executor: 'nodejs'
-    resource_class: xlarge
-    steps:
-      - checkout-and-install:
-          is_node_package: false
-      - run:
-          name: Build
-          command: |
-            cargo build -p daemon-utils
-      - run:
-          name: Lint
-          command: |
-            cargo clippy -p daemon-utils
-      - run:
-          name: Test
-          command: |
-            cargo test -p daemon-utils
-
-  test-crate-fai100-controllerd:
-    executor: 'nodejs'
-    resource_class: xlarge
-    steps:
-      - checkout-and-install:
-          is_node_package: false
-      - run:
-          name: Build
-          command: |
-            cargo build -p fai100-controllerd
-      - run:
-          name: Lint
-          command: |
-            cargo clippy -p fai100-controllerd
-      - run:
-          name: Test
-          command: |
-            cargo test -p fai100-controllerd
-
-  test-crate-hardware-scan-diagnostic:
-    executor: 'nodejs'
-    resource_class: xlarge
-    steps:
-      - checkout-and-install:
-          is_node_package: false
-      - run:
-          name: Build
-          command: |
-            cargo build -p hardware-scan-diagnostic
-      - run:
-          name: Lint
-          command: |
-            cargo clippy -p hardware-scan-diagnostic
-      - run:
-          name: Test
-          command: |
-            cargo test -p hardware-scan-diagnostic
-
-  test-crate-logging-utils:
-    executor: 'nodejs'
-    resource_class: xlarge
-    steps:
-      - checkout-and-install:
-          is_node_package: false
-      - run:
-          name: Build
-          command: |
-            cargo build -p logging-utils
-      - run:
-          name: Lint
-          command: |
-            cargo clippy -p logging-utils
-      - run:
-          name: Test
-          command: |
-            cargo test -p logging-utils
-
-  test-crate-patinputd:
-    executor: 'nodejs'
-    resource_class: xlarge
-    steps:
-      - checkout-and-install:
-          is_node_package: false
-      - run:
-          name: Build
-          command: |
-            cargo build -p patinputd
-      - run:
-          name: Lint
-          command: |
-            cargo clippy -p patinputd
-      - run:
-          name: Test
-          command: |
-            cargo test -p patinputd
-
-  test-crate-pdi-scanner:
-    executor: 'nodejs'
-    resource_class: xlarge
-    steps:
-      - checkout-and-install:
-          is_node_package: false
-      - run:
-          name: Build
-          command: |
-            cargo build -p pdi-scanner
-      - run:
-          name: Lint
-          command: |
-            cargo clippy -p pdi-scanner
-      - run:
-          name: Test
-          command: |
-            cargo test -p pdi-scanner
-
-  test-crate-types-rs:
-    executor: 'nodejs'
-    resource_class: xlarge
-    steps:
-      - checkout-and-install:
-          is_node_package: false
-      - run:
-          name: Build
-          command: |
-            cargo build -p types-rs
-      - run:
-          name: Lint
-          command: |
-            cargo clippy -p types-rs
-      - run:
-          name: Test
-          command: |
-            cargo test -p types-rs
-
-  test-crate-vx-logging:
-    executor: 'nodejs'
-    resource_class: xlarge
-    steps:
-      - checkout-and-install:
-          is_node_package: false
-      - run:
-          name: Build
-          command: |
-            cargo build -p vx-logging
-      - run:
-          name: Lint
-          command: |
-            cargo clippy -p vx-logging
-      - run:
-          name: Test
-          command: |
-            cargo test -p vx-logging
 
   validate-monorepo:
     executor: nodejs
@@ -1646,22 +1433,11 @@ workflows:
       - test-libs-printing
       - test-libs-test-utils
       - test-libs-types
-      - test-libs-types-rs
       - test-libs-ui
       - test-libs-usb-drive
       - test-libs-utils
-      - test-crate-ballot-interpreter
-      - test-crate-barcode-scanner-daemon
-      - test-crate-controllerd
-      - test-crate-daemon-utils
-      - test-crate-fai100-controllerd
-      - test-crate-hardware-scan-diagnostic
-      - test-crate-logging-utils
-      - test-crate-patinputd
-      - test-crate-pdi-scanner
-      - test-crate-types-rs
-      - test-crate-vx-logging
       - validate-monorepo
+      - test-rust-crates
 
 commands:
   checkout-and-install:
@@ -1671,7 +1447,7 @@ commands:
         type: boolean
     steps:
       - run:
-          name: Ensure rust is in the PATH variable
+          name: Ensure Rust tooling is in PATH
           command: |
             echo 'export PATH="/root/.cargo/bin:$PATH"' >> $BASH_ENV
       - checkout
@@ -1685,31 +1461,27 @@ commands:
             - restore_cache:
                 name: Restore Node.js Cache
                 key:
-                  pnpm-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
-                  "pnpm-lock.yaml" }}
+                  pnpm-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "pnpm-lock.yaml" }}
             - run:
                 name: Install Node.js Dependencies
                 command: pnpm install --frozen-lockfile
             - save_cache:
                 name: Save Node.js Cache
                 key:
-                  pnpm-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
-                  "pnpm-lock.yaml" }}
+                  pnpm-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "pnpm-lock.yaml" }}
                 paths:
                   - /root/.local/share/pnpm/store/v3
                   - /root/.cache/ms-playwright
       - restore_cache:
           name: Restore Cargo Cache
           key:
-            cargo-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
-            "Cargo.lock" }}
+            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}
       - run:
           name: Install Rust Dependencies
           command: pnpm --recursive install:rust-addon
       - save_cache:
           name: Save Cargo Cache
-          key: 
-            cargo-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
-            "Cargo.lock" }}
+          key:
+            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}
           paths:
             - /root/.cargo

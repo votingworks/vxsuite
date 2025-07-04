@@ -1,4 +1,8 @@
-import { CIRCLECI_CONFIG_PATH, PnpmPackageInfo, generateCircleCiConfig } from '@votingworks/monorepo-utils';
+import {
+  CIRCLECI_CONFIG_PATH,
+  PnpmPackageInfo,
+  generateCircleCiConfig,
+} from '@votingworks/monorepo-utils';
 import { readFileSync } from 'node:fs';
 
 /**
@@ -25,10 +29,9 @@ export interface OutdatedConfig {
  * Validates the CircleCI configuration.
  */
 export function* checkConfig(
-  workspacePackages: ReadonlyMap<string, PnpmPackageInfo>,
-  rustPackageIds: string[],
+  workspacePackages: ReadonlyMap<string, PnpmPackageInfo>
 ): Generator<ValidationIssue> {
-  const expectedCircleCiConfig = generateCircleCiConfig(workspacePackages, rustPackageIds)
+  const expectedCircleCiConfig = generateCircleCiConfig(workspacePackages);
   const actualConfig = readFileSync(CIRCLECI_CONFIG_PATH, 'utf-8');
 
   if (expectedCircleCiConfig !== actualConfig) {
