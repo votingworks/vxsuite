@@ -36,8 +36,12 @@ import {
   PrecinctName,
   VoterAddress,
   VoterName,
+  VoterMailingAddress,
+  hasMailingAddress,
+  MailingAddressChange,
 } from './shared_components';
 import { UpdateAddressFlow } from './update_address_flow';
+import { UpdateMailingAddressFlow } from './update_mailing_address_flow';
 import { UpdateNameFlow } from './update_name_flow';
 import { CheckInDetails } from './voter_search_screen';
 import { PRINTING_INDICATOR_DELAY_MS } from './globals';
@@ -225,6 +229,8 @@ export function VoterDetailsScreen(): JSX.Element | null {
   const { voterId } = useParams<Params>();
   const voterQuery = getVoter.useQuery(voterId);
   const [showUpdateAddressFlow, setShowUpdateAddressFlow] = useState(false);
+  const [showUpdateMailingAddressFlow, setShowUpdateMailingAddressFlow] =
+    useState(false);
   const [showUpdateNameFlow, setShowUpdateNameFlow] = useState(false);
   const [showUndoCheckinFlow, setShowUndoCheckinFlow] = useState(false);
   const [showMarkInactiveFlow, setShowMarkInactiveFlow] = useState(false);
@@ -283,6 +289,21 @@ export function VoterDetailsScreen(): JSX.Element | null {
         <UpdateAddressFlow
           voter={voter}
           returnToPreviousScreen={() => setShowUpdateAddressFlow(false)}
+          returnToPreviousScreenLabelText="Return to Voter Details"
+        />
+      </PrinterRequired>
+    );
+  }
+
+  if (showUpdateMailingAddressFlow) {
+    return (
+      <PrinterRequired
+        printer={printer}
+        onClose={() => setShowUpdateMailingAddressFlow(false)}
+      >
+        <UpdateMailingAddressFlow
+          voter={voter}
+          returnToPreviousScreen={() => setShowUpdateMailingAddressFlow(false)}
           returnToPreviousScreenLabelText="Return to Voter Details"
         />
       </PrinterRequired>
@@ -366,7 +387,13 @@ export function VoterDetailsScreen(): JSX.Element | null {
               )}
               <Row style={{ gap: '1.5rem' }}>
                 <LabelledText
-                  label={voter.addressChange ? <s>Address</s> : 'Address'}
+                  label={
+                    voter.addressChange ? (
+                      <s>Domicile Address</s>
+                    ) : (
+                      'Domicile Address'
+                    )
+                  }
                 >
                   <VoterAddress
                     voter={voter}
@@ -378,11 +405,36 @@ export function VoterDetailsScreen(): JSX.Element | null {
                   />
                 </LabelledText>
                 {voter.addressChange && (
-                  <LabelledText label="Updated Address">
+                  <LabelledText label="Updated Domicile Address">
                     <AddressChange address={voter.addressChange} />
                   </LabelledText>
                 )}
               </Row>
+              {hasMailingAddress(voter) && (
+                <LabelledText
+                  label={
+                    voter.mailingAddressChange ? (
+                      <s>Mailing Address</s>
+                    ) : (
+                      'Mailing Address'
+                    )
+                  }
+                >
+                  <VoterMailingAddress
+                    voter={voter}
+                    style={
+                      voter.mailingAddressChange && {
+                        textDecoration: 'line-through',
+                      }
+                    }
+                  />
+                </LabelledText>
+              )}
+              {voter.mailingAddressChange && (
+                <LabelledText label="Updated Mailing Address">
+                  <MailingAddressChange address={voter.mailingAddressChange} />
+                </LabelledText>
+              )}
               <LabelledText label="Voter ID">{voter.voterId}</LabelledText>
             </Column>
           </Card>
@@ -403,7 +455,20 @@ export function VoterDetailsScreen(): JSX.Element | null {
               disabled={voter.isInactive || !configuredPrecinctId}
               onPress={() => setShowUpdateAddressFlow(true)}
             >
-              Update Address
+              Update Domicile Address
+            </Button>
+          </Row>
+          <Row>
+            <Button
+              icon="Edit"
+              disabled={
+                voter.isInactive ||
+                !configuredPrecinctId ||
+                configuredPrecinctId !== getVoterPrecinct(voter)
+              }
+              onPress={() => setShowUpdateMailingAddressFlow(true)}
+            >
+              Update Mailing Address
             </Button>
           </Row>
         </Column>

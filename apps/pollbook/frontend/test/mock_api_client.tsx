@@ -17,6 +17,7 @@ import type {
   Voter,
   VoterAddressChangeRequest,
   VoterCheckInError,
+  VoterMailingAddressChangeRequest,
   VoterNameChangeRequest,
   VoterRegistrationRequest,
   VoterSearchParams,
@@ -61,17 +62,17 @@ export function createMockVoter(
     postalCityTown: '',
     postalZip5: '12345',
     zip4: '6789',
-    mailingStreetNumber: '123',
-    mailingSuffix: 'APT A',
+    mailingStreetNumber: '',
+    mailingSuffix: '',
     mailingHouseFractionNumber: '',
-    mailingStreetName: 'Main St',
+    mailingStreetName: '',
     mailingApartmentUnitNumber: '',
     mailingAddressLine2: '',
     mailingAddressLine3: '',
-    mailingCityTown: 'Somewhere',
-    mailingState: 'NH',
-    mailingZip5: '12345',
-    mailingZip4: '6789',
+    mailingCityTown: '',
+    mailingState: '',
+    mailingZip5: '',
+    mailingZip4: '',
     party: 'UND',
     precinct: precinctId,
     isInactive: false,
@@ -512,6 +513,22 @@ export function createApiMock() {
           addressChangeData: input.addressChangeData,
         })
         .resolves({ ...input.voterToUpdate, ...input.addressChangeData });
+    },
+
+    expectChangeVoterMailingAddress(input: {
+      voterId: string;
+      mailingAddressChangeData: VoterMailingAddressChangeRequest;
+      voterToUpdate: Voter;
+    }) {
+      mockApiClient.changeVoterMailingAddress
+        .expectCallWith({
+          voterId: input.voterId,
+          mailingAddressChangeData: input.mailingAddressChangeData,
+        })
+        .resolves({
+          ...input.voterToUpdate,
+          ...input.mailingAddressChangeData,
+        });
     },
 
     /**

@@ -87,6 +87,37 @@ test('renders voter information correctly', async () => {
   screen.getByText('Undeclared');
   screen.getByText(voter.voterId);
   screen.getByText(/123 Main St/);
+  // This voter does not have a mailing address so it should not be displayed
+  expect(screen.queryByText('Mailing Address')).toBeNull();
+  // There are no address updates yet.
+  expect(screen.queryByText('Updated Mailing Address')).toBeNull();
+  expect(screen.queryByText('Updated Domicile Address')).toBeNull();
+});
+
+test('renders voter information correctly - with mailing address', async () => {
+  const voterWithMailingAddress: Voter = {
+    ...voter,
+    mailingStreetNumber: '456',
+    mailingStreetName: 'OAK ST',
+    mailingCityTown: 'CONCORD',
+    mailingState: 'NH',
+    mailingZip5: '03301',
+  };
+  await renderComponent({
+    voterOverride: voterWithMailingAddress,
+  });
+
+  // Check voter details are displayed
+  screen.getByText('ABIGAIL ADAMS');
+  screen.getByText('Undeclared');
+  screen.getByText(voter.voterId);
+  screen.getByText(/123 Main St/);
+  // This voter does not have a mailing address so it should not be displayed
+  screen.getByText('Mailing Address');
+  screen.getByText(/456 OAK ST/);
+  // There are no address updates yet.
+  expect(screen.queryByText('Updated Mailing Address')).toBeNull();
+  expect(screen.queryByText('Updated Domicile Address')).toBeNull();
 });
 
 test('shows absentee mode callout when in absentee mode', async () => {
@@ -222,7 +253,7 @@ test('cancel button calls onCancel', async () => {
   expect(onCancel).toHaveBeenCalled();
 });
 
-test('update address button opens address flow', async () => {
+test('update domicile address button opens address flow', async () => {
   // Mock the address update flow requirements
   const validStreetInfo: ValidStreetInfo[] = [
     {
@@ -240,11 +271,24 @@ test('update address button opens address flow', async () => {
 
   await renderComponent();
 
-  const updateAddressButton = screen.getButton('Update Address');
+  const updateAddressButton = screen.getButton('Update Domicile Address');
   userEvent.click(updateAddressButton);
 
   // Should show the address update flow
-  await screen.findByRole('heading', { name: 'Update Voter Address' });
+  await screen.findByRole('heading', { name: 'Update Voter Domicile Address' });
+});
+
+test('update mailing address button opens address flow', async () => {
+  await renderComponent();
+
+  const updateAddressButton = screen.getButton('Update Mailing Address');
+  userEvent.click(updateAddressButton);
+
+  // Should show the address update flow
+  await screen.findByRole('heading', { name: 'Update Voter Mailing Address' });
+
+  // Mailing Address, unlike domicile address flow, should show a select for State
+  await screen.findByText('State');
 });
 
 test('displays voter with name change', async () => {
@@ -292,6 +336,78 @@ test('displays voter with address change', async () => {
 
   // Should show old address crossed out
   screen.getByText(/123 Main St/);
+
+  // Should show new address
+  screen.getByText('456 OAK AVE #2B');
+  screen.getByText('SPRINGFIELD, IL 62701-2345');
+});
+
+test('displays voter with mailing address change - no previous mailing address', async () => {
+  const voterWithMailingAddressChange: Voter = {
+    ...voter,
+    mailingAddressChange: {
+      mailingStreetNumber: '456',
+      mailingStreetName: 'OAK AVE',
+      mailingSuffix: '',
+      mailingApartmentUnitNumber: '#2B',
+      mailingHouseFractionNumber: '',
+      mailingAddressLine2: '',
+      mailingAddressLine3: '',
+      mailingCityTown: 'SPRINGFIELD',
+      mailingState: 'IL',
+      mailingZip5: '62701',
+      mailingZip4: '2345',
+      timestamp: new Date().toISOString(),
+    },
+  };
+
+  await renderComponent({ voterOverride: voterWithMailingAddressChange });
+
+  // Should not show old mailing address since it doesn't exist
+  expect(screen.queryByText('Mailing Address')).toBeNull();
+
+  // Should show new mailing address
+  screen.getByText('Updated Mailing Address');
+
+  // Should show new address
+  screen.getByText('456 OAK AVE #2B');
+  screen.getByText('SPRINGFIELD, IL 62701-2345');
+});
+
+test('displays voter with mailing address change - previous mailing address', async () => {
+  const voterWithMailingAddressChange: Voter = {
+    ...voter,
+    mailingStreetNumber: '100',
+    mailingStreetName: 'Original Ave',
+    mailingCityTown: 'Somewhere',
+    mailingState: 'CA',
+    mailingZip5: '12345',
+    mailingZip4: '6789',
+    mailingAddressChange: {
+      mailingStreetNumber: '456',
+      mailingStreetName: 'OAK AVE',
+      mailingSuffix: '',
+      mailingApartmentUnitNumber: '#2B',
+      mailingHouseFractionNumber: '',
+      mailingAddressLine2: '',
+      mailingAddressLine3: '',
+      mailingCityTown: 'SPRINGFIELD',
+      mailingState: 'IL',
+      mailingZip5: '62701',
+      mailingZip4: '2345',
+      timestamp: new Date().toISOString(),
+    },
+  };
+
+  await renderComponent({ voterOverride: voterWithMailingAddressChange });
+
+  // Should show old mailing address
+  screen.getByText('Mailing Address');
+  screen.getByText('100 Original Ave');
+  screen.getByText('Somewhere, CA 12345-6789');
+
+  // Should show new mailing address
+  screen.getByText('Updated Mailing Address');
 
   // Should show new address
   screen.getByText('456 OAK AVE #2B');
@@ -383,6 +499,14 @@ test('disables confirm check-in and out-of-state ID checkbox if precincts do not
   // Confirm button should be disabled
   const confirmButton = screen.getButton('Confirm Check-In');
   expect(confirmButton).toBeDisabled();
+
+  // Update mailing address button should also be disabled
+  const mailingAddrButton = screen.getButton('Update Mailing Address');
+  expect(mailingAddrButton).toBeDisabled();
+
+  // Update domicile address button should NOT be disabled
+  const domicileAddrButton = screen.getButton('Update Domicile Address');
+  expect(domicileAddrButton).not.toBeDisabled();
 
   // Out-of-state ID checkbox should also be disabled
   const outOfStateCheckbox = screen.getByRole('checkbox', {

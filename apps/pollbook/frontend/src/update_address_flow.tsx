@@ -82,7 +82,7 @@ function UpdateAddressScreen({
   return (
     <NoNavScreen>
       <MainHeader>
-        <H1>Update Voter Address</H1>
+        <H1>Update Voter Domicile Address</H1>
       </MainHeader>
       <MainContent>
         <Column style={{ gap: '1rem' }}>
@@ -121,7 +121,7 @@ function UpdateAddressScreen({
           onPress={() => onConfirm(address)}
           style={{ flex: 1 }}
         >
-          Confirm Address Update
+          Confirm Domicile Address Update
         </Button>
         <Button onPress={onCancel} style={{ flex: 1 }}>
           Cancel
@@ -182,7 +182,7 @@ export function UpdateAddressFlow({
       return (
         <NoNavScreen>
           <MainHeader>
-            <H1>Update Voter Address</H1>
+            <H1>Update Voter Domicile Address</H1>
           </MainHeader>
           <Column style={{ justifyContent: 'center', flex: 1 }}>
             <FullScreenMessage
@@ -202,7 +202,7 @@ export function UpdateAddressFlow({
         <NoNavScreen>
           <MainHeader>
             <Row style={{ justifyContent: 'space-between' }}>
-              <H1>Voter Address Updated</H1>
+              <H1>Voter Domicile Address Updated</H1>
             </Row>
           </MainHeader>
           <Column style={{ justifyContent: 'center', flex: 1 }}>
@@ -215,7 +215,7 @@ export function UpdateAddressFlow({
               }
             >
               <H1>
-                Address updated for <VoterName voter={voter} />
+                Domicile address updated for <VoterName voter={voter} />
               </H1>
               <p>Give the voter their receipt.</p>
             </FullScreenMessage>

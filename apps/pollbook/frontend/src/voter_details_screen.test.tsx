@@ -3,6 +3,7 @@ import {
   ValidStreetInfo,
   Voter,
   VoterAddressChangeRequest,
+  VoterMailingAddressChangeRequest,
   VoterNameChangeRequest,
 } from '@votingworks/pollbook-backend';
 import { Route, Switch } from 'react-router-dom';
@@ -61,7 +62,11 @@ async function renderComponent() {
   await screen.findByRole('button', { name: 'Update Name' });
 }
 
-test.each([['Update Name'], ['Update Address']])(
+test.each([
+  ['Update Name'],
+  ['Update Domicile Address'],
+  ['Update Mailing Address'],
+])(
   '%s flow renders a warning when no printer is attached',
   async (buttonName) => {
     apiMock.setPrinterStatus(false);
@@ -168,9 +173,9 @@ test('invalid address change', async () => {
   // Precinct information should be shown in a multi-precinct election
   await screen.findByText(precinct1.name);
 
-  userEvent.click(screen.getButton('Update Address'));
+  userEvent.click(screen.getButton('Update Domicile Address'));
 
-  await screen.findByRole('heading', { name: 'Update Voter Address' });
+  await screen.findByRole('heading', { name: 'Update Voter Domicile Address' });
 
   userEvent.click(screen.getByLabelText('Street Name'));
   userEvent.keyboard('[Enter]');
@@ -205,9 +210,9 @@ test('invalid address change for precinct', async () => {
 
   await renderComponent();
 
-  userEvent.click(screen.getButton('Update Address'));
+  userEvent.click(screen.getButton('Update Domicile Address'));
 
-  await screen.findByRole('heading', { name: 'Update Voter Address' });
+  await screen.findByRole('heading', { name: 'Update Voter Domicile Address' });
 
   userEvent.click(screen.getByLabelText('Street Name'));
   userEvent.keyboard('[Enter]');
@@ -255,12 +260,12 @@ test('valid address change', async () => {
 
   await renderComponent();
 
-  userEvent.click(screen.getButton('Update Address'));
+  userEvent.click(screen.getButton('Update Domicile Address'));
 
   // Precinct information should NOT be shown in a single-precinct election
   expect(screen.queryByText(precinct1.name)).toBeNull();
 
-  await screen.findByRole('heading', { name: 'Update Voter Address' });
+  await screen.findByRole('heading', { name: 'Update Voter Domicile Address' });
 
   userEvent.click(screen.getByLabelText('Street Name'));
   userEvent.keyboard('[Enter]');
@@ -312,14 +317,14 @@ test('valid address change', async () => {
       timestamp: new Date().toISOString(),
     },
   };
-  const updateButton = screen.getButton('Confirm Address Update');
+  const updateButton = screen.getButton('Confirm Domicile Address Update');
   userEvent.click(updateButton);
 
   apiMock.expectGetVoter(updatedVoter);
   userEvent.click(await screen.findButton('Return to Voter Details'));
 
   await waitFor(() => {
-    expect(screen.queryByText('Update Voter Address')).toBeNull();
+    expect(screen.queryByText('Update Voter Domicile Address')).toBeNull();
   });
 
   await screen.findByText('99 MAIN ST #789');
@@ -518,11 +523,18 @@ test('actions are disabled when precinct not configured', async () => {
   expect(nameButton).toBeDisabled();
 
   const updateAddressButtons = screen.getAllByRole('button', {
-    name: 'Update Address',
+    name: 'Update Domicile Address',
   });
   // Find the first button (should be from main screen, not modal)
   const addressButton = updateAddressButtons[0];
   expect(addressButton).toBeDisabled();
+
+  const updateMailingAddressButtons = screen.getAllByRole('button', {
+    name: 'Update Mailing Address',
+  });
+  // Find the first button (should be from main screen, not modal)
+  const updateMailingAddressButton = updateMailingAddressButtons[0];
+  expect(updateMailingAddressButton).toBeDisabled();
 });
 
 test('actions are disabled when precinct does not match voter', async () => {
@@ -553,9 +565,228 @@ test('actions are disabled when precinct does not match voter', async () => {
   expect(nameButton).toBeDisabled();
 
   const updateAddressButtons = screen.getAllByRole('button', {
-    name: 'Update Address',
+    name: 'Update Domicile Address',
   });
   // The address button should be enabled because it could be changed to the current precinct.
   const addressButton = updateAddressButtons[0];
   expect(addressButton).not.toBeDisabled();
+
+  const updateMailingAddressButtons = screen.getAllByRole('button', {
+    name: 'Update Mailing Address',
+  });
+  // Find the first button (should be from main screen, not modal)
+  const updateMailingAddressButton = updateMailingAddressButtons[0];
+  expect(updateMailingAddressButton).toBeDisabled();
+});
+
+test('update mailing address - no previous mailing address', async () => {
+  apiMock.expectGetDeviceStatuses();
+  apiMock.setPrinterStatus(true);
+  await renderComponent();
+
+  // Check that Mailing Address is not present when voter has no mailing address
+  // (hasMailingAddress returns false)
+  expect(screen.queryByText('Mailing Address')).toBeNull();
+
+  // Also, the "Update Mailing Address" button should still be present and enabled/disabled appropriately
+  const updateMailingAddressButtons = screen.getAllByRole('button', {
+    name: 'Update Mailing Address',
+  });
+  // Find the first button (should be from main screen, not modal)
+  const updateMailingAddressButton = updateMailingAddressButtons[0];
+  // Should be enabled if precinct is configured and matches voter
+  expect(updateMailingAddressButton).not.toBeDisabled();
+  userEvent.click(updateMailingAddressButton);
+
+  userEvent.click(screen.getByText('Select state...'));
+  userEvent.keyboard('[Enter]');
+
+  const addressParts: InputElementChangeSpec[] = [
+    {
+      domElementText: 'Mailing Street Number',
+      newValue: '100',
+    },
+    {
+      domElementText: 'Mailing Street Name',
+      newValue: 'Street Street',
+    },
+    {
+      domElementText: 'Mailing Apartment or Unit Number',
+      newValue: '#1',
+    },
+    {
+      domElementText: 'Mailing Address Line 2',
+      newValue: 'LINE 2',
+    },
+    {
+      domElementText: 'Mailing City',
+      newValue: 'Somewhere',
+    },
+    {
+      domElementText: 'Mailing Zip Code',
+      newValue: '12345-6789',
+    },
+  ];
+  for (const part of addressParts) {
+    const partInput = await screen.findByRole('textbox', {
+      name: part.domElementText,
+    });
+    userEvent.type(partInput, part.newValue);
+  }
+
+  const mailingData: VoterMailingAddressChangeRequest = {
+    mailingStreetNumber: '100',
+    mailingStreetName: 'STREET STREET',
+    mailingApartmentUnitNumber: '#1',
+    mailingAddressLine2: 'LINE 2',
+    mailingAddressLine3: '',
+    mailingCityTown: 'SOMEWHERE',
+    mailingZip5: '12345',
+    mailingZip4: '6789',
+    mailingSuffix: '',
+    mailingHouseFractionNumber: '',
+    mailingState: 'AL',
+  };
+  const expectation = {
+    voterId: mockVoterId,
+    mailingAddressChangeData: mailingData,
+    voterToUpdate: voter,
+  } as const;
+  apiMock.expectChangeVoterMailingAddress(expectation);
+  const updatedVoter: Voter = {
+    ...voter,
+    mailingAddressChange: {
+      ...mailingData,
+      timestamp: new Date().toISOString(),
+    },
+  };
+  const updateButton = screen.getButton('Confirm Mailing Address Update');
+  userEvent.click(updateButton);
+
+  apiMock.expectGetVoter(updatedVoter);
+  await screen.findByText('Voter Mailing Address Updated');
+  userEvent.click(await screen.findButton('Return to Voter Details'));
+
+  await waitFor(() => {
+    expect(screen.queryByText('Update Voter Mailing Address')).toBeNull();
+  });
+
+  await screen.findByText('Updated Mailing Address');
+  await screen.findByText('100 STREET STREET #1');
+  await screen.findByText('SOMEWHERE, AL 12345-6789');
+});
+
+test('update mailing address - has previous mailing address', async () => {
+  apiMock.expectGetDeviceStatuses();
+  apiMock.setPrinterStatus(true);
+  const voterWithMailingAddress: Voter = {
+    ...voter,
+    mailingStreetNumber: '123',
+    mailingStreetName: 'UNICORN ST',
+    mailingApartmentUnitNumber: 'Apt 4',
+    mailingAddressLine2: '',
+    mailingCityTown: 'FAIRYLAND',
+    mailingState: 'CA',
+    mailingZip5: '12345',
+    mailingZip4: '',
+    mailingSuffix: 'B',
+  };
+  apiMock.expectGetVoter(voterWithMailingAddress);
+  await renderComponent();
+
+  await screen.findByText('Mailing Address');
+  await screen.findByText('123B UNICORN ST Apt 4');
+  await screen.findByText('FAIRYLAND, CA 12345');
+
+  // Also, the "Update Mailing Address" button should still be present and enabled/disabled appropriately
+  const updateMailingAddressButtons = screen.getAllByRole('button', {
+    name: 'Update Mailing Address',
+  });
+  // Find the first button (should be from main screen, not modal)
+  const updateMailingAddressButton = updateMailingAddressButtons[0];
+  // Should be enabled if precinct is configured and matches voter
+  expect(updateMailingAddressButton).not.toBeDisabled();
+  userEvent.click(updateMailingAddressButton);
+
+  userEvent.click(screen.getByText('Select state...'));
+  userEvent.keyboard('[Enter]');
+
+  const addressParts: InputElementChangeSpec[] = [
+    {
+      domElementText: 'Mailing Street Number',
+      newValue: '100',
+    },
+    {
+      domElementText: 'Mailing Street Name',
+      newValue: 'Street Street',
+    },
+    {
+      domElementText: 'Mailing Apartment or Unit Number',
+      newValue: '#1',
+    },
+    {
+      domElementText: 'Mailing Address Line 2',
+      newValue: 'LINE 2',
+    },
+    {
+      domElementText: 'Mailing City',
+      newValue: 'Somewhere',
+    },
+    {
+      domElementText: 'Mailing Zip Code',
+      newValue: '12345-6789',
+    },
+  ];
+  for (const part of addressParts) {
+    const partInput = await screen.findByRole('textbox', {
+      name: part.domElementText,
+    });
+    userEvent.type(partInput, part.newValue);
+  }
+
+  const mailingData: VoterMailingAddressChangeRequest = {
+    mailingStreetNumber: '100',
+    mailingStreetName: 'STREET STREET',
+    mailingApartmentUnitNumber: '#1',
+    mailingAddressLine2: 'LINE 2',
+    mailingAddressLine3: '',
+    mailingCityTown: 'SOMEWHERE',
+    mailingZip5: '12345',
+    mailingZip4: '6789',
+    mailingSuffix: '',
+    mailingHouseFractionNumber: '',
+    mailingState: 'AL',
+  };
+  const expectation = {
+    voterId: mockVoterId,
+    mailingAddressChangeData: mailingData,
+    voterToUpdate: voterWithMailingAddress,
+  } as const;
+  apiMock.expectChangeVoterMailingAddress(expectation);
+  const updatedVoter: Voter = {
+    ...voterWithMailingAddress,
+    mailingAddressChange: {
+      ...mailingData,
+      timestamp: new Date().toISOString(),
+    },
+  };
+  const updateButton = screen.getButton('Confirm Mailing Address Update');
+  userEvent.click(updateButton);
+
+  apiMock.expectGetVoter(updatedVoter);
+  await screen.findByText('Voter Mailing Address Updated');
+  userEvent.click(await screen.findButton('Return to Voter Details'));
+
+  await waitFor(() => {
+    expect(screen.queryByText('Update Voter Mailing Address')).toBeNull();
+  });
+
+  const oldAddress = await screen.findByText('123B UNICORN ST Apt 4');
+  expect(oldAddress.parentElement?.style?.textDecoration).toEqual(
+    'line-through'
+  );
+
+  await screen.findByText('Updated Mailing Address');
+  await screen.findByText('100 STREET STREET #1');
+  await screen.findByText('SOMEWHERE, AL 12345-6789');
 });

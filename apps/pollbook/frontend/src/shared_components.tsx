@@ -1,4 +1,8 @@
-import type { Voter, VoterAddressChange } from '@votingworks/pollbook-backend';
+import type {
+  Voter,
+  VoterAddressChange,
+  VoterMailingAddressChange,
+} from '@votingworks/pollbook-backend';
 import { Callout, Card, H4 } from '@votingworks/ui';
 import styled from 'styled-components';
 import { throwIllegalValue } from '@votingworks/basics';
@@ -74,6 +78,29 @@ export function AddressChange({
       {address.addressLine2 === '' ? null : <div>{address.addressLine2}</div>}
       <div>
         {address.city}, {address.state} {address.zipCode}
+      </div>
+    </div>
+  );
+}
+
+export function MailingAddressChange({
+  address,
+}: {
+  address: VoterMailingAddressChange;
+}): JSX.Element {
+  return (
+    <div>
+      <div>
+        {address.mailingStreetNumber}
+        {address.mailingSuffix} {address.mailingStreetName}{' '}
+        {address.mailingApartmentUnitNumber}
+      </div>
+      {address.mailingAddressLine2 === '' ? null : (
+        <div>{address.mailingAddressLine2}</div>
+      )}
+      <div>
+        {address.mailingCityTown}, {address.mailingState} {address.mailingZip5}
+        {address.mailingZip4 ? `-${address.mailingZip4}` : ''}
       </div>
     </div>
   );
@@ -165,4 +192,41 @@ export function PrecinctName({
     throw new Error(`Precinct with ID ${precinctId} not found in election.`);
   }
   return precinct.name;
+}
+
+/**
+ * Checks if a voter has a non-empty mailing address
+ */
+export function hasMailingAddress(voter: Voter): boolean {
+  return !!(
+    voter.mailingStreetNumber?.trim() ||
+    voter.mailingStreetName?.trim() ||
+    voter.mailingCityTown?.trim() ||
+    voter.mailingZip5?.trim()
+  );
+}
+
+export function VoterMailingAddress({
+  voter,
+  style,
+}: {
+  voter: Voter;
+  style?: React.CSSProperties;
+}): JSX.Element {
+  return (
+    <div style={style}>
+      <div>
+        {voter.mailingStreetNumber}
+        {voter.mailingSuffix} {voter.mailingHouseFractionNumber}{' '}
+        {voter.mailingStreetName} {voter.mailingApartmentUnitNumber}
+      </div>
+      {voter.mailingAddressLine2 === '' ? null : (
+        <div>{voter.mailingAddressLine2}</div>
+      )}
+      <div>
+        {voter.mailingCityTown}, {voter.mailingState} {voter.mailingZip5}
+        {voter.mailingZip4 ? `-${voter.mailingZip4}` : ''}
+      </div>
+    </div>
+  );
 }

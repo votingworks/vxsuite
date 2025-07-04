@@ -27,8 +27,12 @@ import {
   PrecinctName,
   VoterAddress,
   VoterName,
+  VoterMailingAddress,
+  hasMailingAddress,
+  MailingAddressChange,
 } from './shared_components';
 import { UpdateAddressFlow } from './update_address_flow';
+import { UpdateMailingAddressFlow } from './update_mailing_address_flow';
 import { getVoter } from './api';
 import { getVoterPrecinct } from './types';
 
@@ -64,6 +68,8 @@ export function VoterConfirmScreen({
 }): JSX.Element | null {
   const getVoterQuery = getVoter.useQuery(voterId);
   const [showUpdateAddressFlow, setShowUpdateAddressFlow] = useState(false);
+  const [showUpdateMailingAddressFlow, setShowUpdateMailingAddressFlow] =
+    useState(false);
   const [showInactiveVoterModal, setShowInactiveVoterModal] = useState(false);
   const [identificationMethod, setIdentificationMethod] = useState<
     Partial<VoterIdentificationMethod>
@@ -86,6 +92,16 @@ export function VoterConfirmScreen({
       <UpdateAddressFlow
         voter={voter}
         returnToPreviousScreen={() => setShowUpdateAddressFlow(false)}
+        returnToPreviousScreenLabelText="Return to Check-In"
+      />
+    );
+  }
+
+  if (showUpdateMailingAddressFlow) {
+    return (
+      <UpdateMailingAddressFlow
+        voter={voter}
+        returnToPreviousScreen={() => setShowUpdateMailingAddressFlow(false)}
         returnToPreviousScreenLabelText="Return to Check-In"
       />
     );
@@ -153,7 +169,13 @@ export function VoterConfirmScreen({
               )}
               <Row style={{ gap: '1.5rem' }}>
                 <LabelledText
-                  label={voter.addressChange ? <s>Address</s> : 'Address'}
+                  label={
+                    voter.addressChange ? (
+                      <s>Domicile Address</s>
+                    ) : (
+                      'Domicile Address'
+                    )
+                  }
                 >
                   <VoterAddress
                     voter={voter}
@@ -165,11 +187,37 @@ export function VoterConfirmScreen({
                   />
                 </LabelledText>
                 {voter.addressChange && (
-                  <LabelledText label="Updated Address">
+                  <LabelledText label="Updated Domicile Address">
                     <AddressChange address={voter.addressChange} />
                   </LabelledText>
                 )}
               </Row>
+              {hasMailingAddress(voter) && (
+                <LabelledText
+                  label={
+                    voter.mailingAddressChange ? (
+                      <s>Mailing Address</s>
+                    ) : (
+                      'Mailing Address'
+                    )
+                  }
+                >
+                  <VoterMailingAddress
+                    voter={voter}
+                    style={
+                      voter.mailingAddressChange && {
+                        textDecoration: 'line-through',
+                      }
+                    }
+                  />
+                </LabelledText>
+              )}
+              {voter.mailingAddressChange && (
+                <LabelledText label="Updated Mailing Address">
+                  <MailingAddressChange address={voter.mailingAddressChange} />
+                </LabelledText>
+              )}
+
               <LabelledText label="Voter ID">{voter.voterId}</LabelledText>
             </Column>
           </Card>
@@ -217,9 +265,21 @@ export function VoterConfirmScreen({
                 )}
               </Row>
             )}
-            <Button icon="Edit" onPress={() => setShowUpdateAddressFlow(true)}>
-              Update Address
-            </Button>
+            <Row style={{ gap: '0.5rem' }}>
+              <Button
+                icon="Edit"
+                onPress={() => setShowUpdateAddressFlow(true)}
+              >
+                Update Domicile Address
+              </Button>
+              <Button
+                icon="Edit"
+                disabled={isVoterInWrongPrecinct}
+                onPress={() => setShowUpdateMailingAddressFlow(true)}
+              >
+                Update Mailing Address
+              </Button>
+            </Row>
           </Row>
         </Column>
       </MainContent>
