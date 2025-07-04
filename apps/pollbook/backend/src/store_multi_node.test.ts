@@ -1,6 +1,6 @@
 import { test, expect, vi } from 'vitest';
 import { sleep } from '@votingworks/basics';
-import tmp from 'tmp';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { mockBaseLogger } from '@votingworks/logging';
 import {
   createValidStreetInfo,
@@ -16,11 +16,9 @@ import {
 } from './types';
 import { LocalStore } from './local_store';
 import { PeerStore } from './peer_store';
-import { deleteTmpFileAfterTestSuiteCompletes } from '../test/cleanup';
 
 function setupFileStores(machineId: string): [LocalStore, PeerStore] {
-  const workspacePath = tmp.dirSync().name;
-  deleteTmpFileAfterTestSuiteCompletes(workspacePath);
+  const workspacePath = makeTemporaryDirectory();
   const localStore = LocalStore.fileStore(
     workspacePath,
     mockBaseLogger({ fn: vi.fn }),

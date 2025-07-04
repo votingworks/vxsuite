@@ -2382,9 +2382,6 @@ importers:
       '@types/styled-components':
         specifier: ^5.1.26
         version: 5.1.26
-      '@types/tmp':
-        specifier: 0.2.4
-        version: 0.2.4
       '@types/uuid':
         specifier: 9.0.5
         version: 9.0.5
@@ -2427,9 +2424,6 @@ importers:
       sort-package-json:
         specifier: ^1.50.0
         version: 1.50.0
-      tmp:
-        specifier: ^0.2.1
-        version: 0.2.1
       yargs:
         specifier: 17.7.1
         version: 17.7.1
