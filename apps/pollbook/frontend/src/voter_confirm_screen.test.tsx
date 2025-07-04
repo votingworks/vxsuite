@@ -504,7 +504,7 @@ test('disables confirm check-in and out-of-state ID checkbox if precincts do not
   const mailingAddrButton = screen.getButton('Update Mailing Address');
   expect(mailingAddrButton).toBeDisabled();
 
-  // Update domicle address button should NOT be disabled
+  // Update domicile address button should NOT be disabled
   const domicileAddrButton = screen.getButton('Update Domicile Address');
   expect(domicileAddrButton).not.toBeDisabled();
 

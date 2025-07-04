@@ -118,7 +118,7 @@ export function MailingAddressInputGroup({
             onChange={(value) =>
               handleChange({
                 ...mailingAddress,
-                mailingState: value || 'NH',
+                mailingState: value || '',
               })
             }
             options={Object.entries(usStates).map(([value, label]) => ({
