@@ -15,12 +15,12 @@ import {
 } from 'auth0';
 import crypto from 'node:crypto';
 import { Buffer } from 'node:buffer';
-import { AuthClient, ConnectionType } from './client';
-import { sliOrgId, votingWorksOrgId } from '../globals';
+import { Auth0Client, ConnectionType } from './auth0_client';
+import { sliOrgId, votingWorksOrgId } from './globals';
 
 vi.mock(import('auth0'));
 vi.mock(import('node:crypto'));
-vi.mock(import('../globals.js'));
+vi.mock(import('./globals.js'));
 
 const SLI_ORG_ID = 'sli';
 const VX_ORG_ID = 'vx';
@@ -55,7 +55,7 @@ function mockApiResponseVoid(): ApiResponse<void> {
 }
 
 function newClient() {
-  return new AuthClient(
+  return new Auth0Client(
     mockConnections,
     mockDatabase,
     mockOrganizations,

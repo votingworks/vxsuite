@@ -1,6 +1,6 @@
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import util from 'node:util';
-import { AuthClient } from '../src/auth/client';
+import { Auth0Client } from '../src/auth0_client';
 
 const USAGE = `Usage: pnpm send-welcome-email --orgId=<string> <email address>`;
 
@@ -21,7 +21,7 @@ async function main(): Promise<void> {
     process.exit(0);
   }
 
-  const auth = AuthClient.init();
+  const auth = Auth0Client.init();
   await auth.sendWelcomeEmail({ orgId, userEmail });
 
   console.log(`✅ Welcome email sent to ${userEmail}`);

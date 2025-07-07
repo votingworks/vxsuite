@@ -20,7 +20,7 @@ import * as tmp from 'tmp';
 import { vi } from 'vitest';
 import type { Api } from '../src/app';
 import { buildApp } from '../src/app';
-import { AuthClient, AuthClientInterface } from '../src/auth/client';
+import { Auth0Client, Auth0ClientInterface } from '../src/auth0_client';
 import {
   FileStorageClient,
   FileStorageClientError,
@@ -43,10 +43,10 @@ const vendoredTranslations: VendoredTranslations = {
   [LanguageCode.SPANISH]: {},
 };
 
-class MockAuthClient implements AuthClientInterface {
+class MockAuth0Client implements Auth0ClientInterface {
   private mockAllOrgs: readonly Org[] = [];
-  private mockHasAccess: AuthClient['hasAccess'] = () => true;
-  private mockUserFromRequest: AuthClient['userFromRequest'] = () => undefined;
+  private mockHasAccess: Auth0Client['hasAccess'] = () => true;
+  private mockUserFromRequest: Auth0Client['userFromRequest'] = () => undefined;
 
   constructor(
     allOrgs: readonly Org[] = [],
@@ -129,7 +129,7 @@ export function testSetupHelpers() {
 
     const workspace = createWorkspace(tmp.dirSync().name, baseLogger, store);
 
-    const auth = new MockAuthClient(opts.auth?.orgs, opts.auth?.hasAccess);
+    const auth0 = new MockAuth0Client(opts.auth?.orgs, opts.auth?.hasAccess);
     const fileStorageClient = new MockFileStorageClient();
     const speechSynthesizer = new GoogleCloudSpeechSynthesizerWithDbCache({
       store,
@@ -143,7 +143,7 @@ export function testSetupHelpers() {
       vendoredTranslations,
     });
     const app = buildApp({
-      auth,
+      auth0,
       fileStorageClient,
       logger,
       speechSynthesizer,
@@ -155,7 +155,7 @@ export function testSetupHelpers() {
     const { port } = server.address() as AddressInfo;
     const baseUrl = `http://localhost:${port}/api`;
     const apiClient = grout.createClient<Api>({ baseUrl });
-    return { apiClient, workspace, auth, fileStorageClient, logger };
+    return { apiClient, workspace, auth0, fileStorageClient, logger };
   }
 
   async function cleanup() {

@@ -15,8 +15,8 @@ import {
   auth0Secret,
   sliOrgId,
   votingWorksOrgId,
-} from '../globals';
-import { Auth0User, Org, User } from '../types';
+} from './globals';
+import { Auth0User, Org, User } from './types';
 
 export type ConnectionType =
   | 'Username-Password-Authentication'
@@ -27,18 +27,18 @@ export interface Connection {
   name: ConnectionType;
 }
 
-export interface AuthClientInterface {
+export interface Auth0ClientInterface {
   allOrgs(): Promise<Org[]>;
   hasAccess(user: User, orgId: string): boolean;
   org(id: string): Promise<Org>;
   userFromRequest(req: Express.Request): Auth0User | undefined;
 
-  // [TODO] `AuthClient` methods that are currently only used in the user
+  // [TODO] `Auth0Client` methods that are currently only used in the user
   // management scripts aren't included here yet. Flesh this out, along with
   // test mocks when we start to add support tooling to the app.
 }
 
-export class AuthClient implements AuthClientInterface {
+export class Auth0Client implements Auth0ClientInterface {
   constructor(
     private readonly connections: ConnectionsManager,
     private readonly database: Database,
@@ -47,7 +47,7 @@ export class AuthClient implements AuthClientInterface {
     private readonly usersByEmail: UsersByEmailManager
   ) {}
 
-  static init(): AuthClient {
+  static init(): Auth0Client {
     const clientId = assertDefined(auth0ClientId());
     const clientSecret = assertDefined(auth0Secret());
     const domain = assertDefined(auth0ClientDomain());
@@ -64,7 +64,7 @@ export class AuthClient implements AuthClientInterface {
       domain,
     });
 
-    return new AuthClient(
+    return new Auth0Client(
       apiManagement.connections,
       apiAuth.database,
       apiManagement.organizations,
@@ -278,7 +278,7 @@ export class AuthClient implements AuthClientInterface {
     }));
   }
 
-  static dev(): AuthClient {
+  static dev(): Auth0Client {
     // [TEMP] Just allows us to have a stub in place for dev without the need
     // for an Auth0 connection.
     return {
@@ -321,6 +321,6 @@ export class AuthClient implements AuthClientInterface {
           org_id: votingWorksOrgId(),
         } as const as Auth0User;
       },
-    } as const as AuthClient;
+    } as const as Auth0Client;
   }
 }

@@ -1,7 +1,7 @@
 import * as grout from '@votingworks/grout';
 import * as Sentry from '@sentry/node';
 import { Buffer } from 'node:buffer';
-import { auth as auth0, requiresAuth } from 'express-openid-connect';
+import { auth as auth0Middleware, requiresAuth } from 'express-openid-connect';
 import { join } from 'node:path';
 import {
   Election,
@@ -128,7 +128,7 @@ const UpdateElectionInfoInputSchema = z.object({
   languageCodes: z.array(LanguageCodeSchema),
 });
 
-function buildApi({ auth, logger, workspace, translator }: AppContext) {
+function buildApi({ auth0, logger, workspace, translator }: AppContext) {
   const { store } = workspace;
 
   type ApiContext = Record<string, never>; // No context for now
@@ -150,7 +150,7 @@ function buildApi({ auth, logger, workspace, translator }: AppContext) {
       const elections = await store.listElections({
         orgId: user.orgId === votingWorksOrgId() ? undefined : user.orgId,
       });
-      const orgs = await auth.allOrgs();
+      const orgs = await auth0.allOrgs();
       return elections.map((election) => ({
         ...election,
         orgName:
@@ -166,7 +166,7 @@ function buildApi({ auth, logger, workspace, translator }: AppContext) {
         orgId: string;
       }>
     ): Promise<Result<ElectionId, Error>> {
-      if (!auth.hasAccess(input.user, input.orgId)) {
+      if (!auth0.hasAccess(input.user, input.orgId)) {
         throw new grout.GroutError('Access denied', {
           cause: 'Cannot create election for another org',
         });
@@ -228,7 +228,7 @@ function buildApi({ auth, logger, workspace, translator }: AppContext) {
         orgId: string;
       }>
     ): Promise<Result<ElectionId, Error>> {
-      if (!auth.hasAccess(input.user, input.orgId)) {
+      if (!auth0.hasAccess(input.user, input.orgId)) {
         throw new grout.GroutError('Access denied', {
           cause: 'Cannot create election for another org',
         });
@@ -259,12 +259,12 @@ function buildApi({ auth, logger, workspace, translator }: AppContext) {
         systemSettings,
       } = await store.getElection(input.srcId);
 
-      if (!auth.hasAccess(input.user, orgId)) {
+      if (!auth0.hasAccess(input.user, orgId)) {
         throw new grout.GroutError('Access denied', {
           cause: 'Cannot clone election: invalid source organization.',
         });
       }
-      if (!auth.hasAccess(input.user, input.destOrgId)) {
+      if (!auth0.hasAccess(input.user, input.destOrgId)) {
         throw new grout.GroutError('Access denied', {
           cause: 'Cannot clone election: invalid destination organization.',
         });
@@ -661,7 +661,7 @@ function buildApi({ auth, logger, workspace, translator }: AppContext) {
 
     /* istanbul ignore next - @preserve */
     getAllOrgs(): Promise<Org[]> {
-      return auth.allOrgs();
+      return auth0.allOrgs();
     },
 
     getUserFeatures(input: WithUserInfo): UserFeaturesConfig {
@@ -686,7 +686,7 @@ export function buildApp(context: AppContext): Application {
   /* istanbul ignore next - @preserve */
   if (authEnabled()) {
     app.use(
-      auth0({
+      auth0Middleware({
         authRequired: false,
         // eslint-disable-next-line vx/gts-identifiers
         baseURL: baseUrl(),
@@ -724,8 +724,8 @@ export function buildApp(context: AppContext): Application {
   // typings.
   /* istanbul ignore next - @preserve */
   app.post('/api/getUser', async (req, res) => {
-    const user = assertDefined(context.auth.userFromRequest(req));
-    const org = await context.auth.org(user.org_id);
+    const user = assertDefined(context.auth0.userFromRequest(req));
+    const org = await context.auth0.org(user.org_id);
 
     // A little convoluted, but this is just to form a typechecked link between
     // this handler and the `getUser` API stub.
@@ -739,8 +739,8 @@ export function buildApp(context: AppContext): Application {
   });
 
   app.get('/files/:orgId/:fileName', async (req, res) => {
-    const user = assertDefined(context.auth.userFromRequest(req));
-    const userOrg = await context.auth.org(user.org_id);
+    const user = assertDefined(context.auth0.userFromRequest(req));
+    const userOrg = await context.auth0.org(user.org_id);
     if (!userOrg) {
       res.status(500).send('No org found for user');
       return;

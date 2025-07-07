@@ -1,10 +1,10 @@
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
-import { AuthClient } from '../src/auth/client';
+import { Auth0Client } from '../src/auth0_client';
 
 async function main(): Promise<void> {
   loadEnvVarsFromDotenvFiles();
 
-  const auth = AuthClient.init();
+  const auth = Auth0Client.init();
   const orgs = await auth.allOrgs();
 
   console.log('✅ Orgs:', orgs);
