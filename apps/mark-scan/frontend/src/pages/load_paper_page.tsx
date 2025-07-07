@@ -1,5 +1,5 @@
 import { Caption, Icons, LoadPaperAnimation, P } from '@votingworks/ui';
-import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
+import { CenteredCardPageLayout } from '@votingworks/mark-flow-ui';
 import { ResetVoterSessionButton } from '../components/deactivate_voter_session_button';
 
 export function LoadPaperPage(): JSX.Element {

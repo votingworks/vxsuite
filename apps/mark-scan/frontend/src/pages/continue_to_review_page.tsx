@@ -6,7 +6,7 @@ import {
   PageNavigationButtonId,
   Icons,
 } from '@votingworks/ui';
-import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
+import { CenteredCardPageLayout } from '@votingworks/mark-flow-ui';
 
 // This page is rendered as part of the blank ballot interpretation flow immediately after
 // the poll worker card is removed. To protect voter privacy, we render this screen first to

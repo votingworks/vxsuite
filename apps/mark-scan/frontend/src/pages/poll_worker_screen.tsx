@@ -61,6 +61,7 @@ import {
   throwIllegalValue,
 } from '@votingworks/basics';
 
+import { CenteredCardPageLayout } from '@votingworks/mark-flow-ui';
 import { LoadPaperPage } from './load_paper_page';
 import {
   getStateMachineState,
@@ -68,7 +69,6 @@ import {
   setPollsState,
   setTestMode,
 } from '../api';
-import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
 import * as api from '../api';
 import { InsertedInvalidNewSheetScreen } from './inserted_invalid_new_sheet_screen';
 import { InsertedPreprintedBallotScreen } from './inserted_preprinted_ballot_screen';

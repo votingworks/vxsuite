@@ -4,8 +4,8 @@ import { Button, Icons, P } from '@votingworks/ui';
 import { BallotStyleId, PrecinctId, VotesDict } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 
+import { CenteredCardPageLayout } from '@votingworks/mark-flow-ui';
 import * as api from '../api';
-import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
 
 export interface InsertedPreprintedBallotScreenProps {
   activateCardlessVoterSession: (

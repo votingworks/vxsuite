@@ -1,7 +1,7 @@
 import { Icons, P } from '@votingworks/ui';
 import { useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
+import { CenteredCardPageLayout } from '@votingworks/mark-flow-ui';
 
 export interface PaperReloadedPageProps {
   votesSelected: boolean;
