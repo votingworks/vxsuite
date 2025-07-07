@@ -23,7 +23,7 @@ let apiMock: MockApiClient;
 
 beforeEach(() => {
   apiMock = createMockApiClient();
-  mockUserFeatures(apiMock, user);
+  mockUserFeatures(apiMock);
 });
 
 afterEach(() => {
@@ -225,7 +225,7 @@ describe('Ballot layout tab', () => {
   });
 
   test('has form to update paper size and density', async () => {
-    mockUserFeatures(apiMock, user, {
+    mockUserFeatures(apiMock, {
       ONLY_LETTER_AND_LEGAL_PAPER_SIZES: false,
     });
     apiMock.getBallotLayoutSettings.expectCallWith({ electionId }).resolves({
@@ -301,7 +301,7 @@ describe('Ballot layout tab', () => {
   });
 
   test('with ONLY_LETTER_AND_LEGAL_PAPER_SIZES feature flag enabled', async () => {
-    mockUserFeatures(apiMock, user, {
+    mockUserFeatures(apiMock, {
       ONLY_LETTER_AND_LEGAL_PAPER_SIZES: true,
     });
     apiMock.getBallotLayoutSettings.expectCallWith({ electionId }).resolves({
@@ -334,7 +334,7 @@ describe('Ballot layout tab', () => {
   });
 
   test('cancelling', async () => {
-    mockUserFeatures(apiMock, user, {});
+    mockUserFeatures(apiMock, {});
     apiMock.getBallotLayoutSettings.expectCallWith({ electionId }).resolves({
       paperSize: election.ballotLayout.paperSize,
       compact: false,

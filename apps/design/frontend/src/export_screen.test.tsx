@@ -36,7 +36,7 @@ beforeEach(() => {
   apiMock.getBallotTemplate
     .expectCallWith({ electionId })
     .resolves('VxDefaultBallot');
-  mockUserFeatures(apiMock, user);
+  mockUserFeatures(apiMock);
 });
 
 afterEach(() => {
@@ -108,7 +108,7 @@ test('export test decks', async () => {
 });
 
 test('feature flag to hide export test decks', async () => {
-  mockUserFeatures(apiMock, user, { EXPORT_TEST_DECKS: false });
+  mockUserFeatures(apiMock, { EXPORT_TEST_DECKS: false });
   apiMock.getUser.expectCallWith().resolves(user);
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });
@@ -355,7 +355,7 @@ test('export ballots with audit ballot IDs', async () => {
 });
 
 test('feature flag to hide ballot template selector', async () => {
-  mockUserFeatures(apiMock, user, { CHOOSE_BALLOT_TEMPLATE: false });
+  mockUserFeatures(apiMock, { CHOOSE_BALLOT_TEMPLATE: false });
   apiMock.getUser.expectCallWith().resolves(user);
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });

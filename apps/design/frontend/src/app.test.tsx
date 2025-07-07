@@ -23,7 +23,7 @@ afterEach(() => {
 
 test('API errors show an error screen', async () => {
   await suppressingConsoleOutput(async () => {
-    mockUserFeatures(apiMock, user, {});
+    mockUserFeatures(apiMock, {});
     apiMock.getAllOrgs.expectCallWith().resolves([
       {
         id: user.orgId,
@@ -31,7 +31,7 @@ test('API errors show an error screen', async () => {
         displayName: 'Non-Vx Org',
       },
     ]);
-    apiMock.listElections.expectCallWith({ user }).resolves([]);
+    apiMock.listElections.expectCallWith().resolves([]);
     apiMock.getUser.expectCallWith().resolves(user);
     render(<App apiClient={apiMock} />);
 
@@ -40,7 +40,6 @@ test('API errors show an error screen', async () => {
     apiMock.createElection
       .expectCallWith({
         orgId: user.orgId,
-        user,
         id: 'test-random-id-1' as ElectionId,
       })
       .throws(new Error('API error'));

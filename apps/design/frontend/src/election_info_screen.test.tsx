@@ -27,7 +27,7 @@ let apiMock: MockApiClient;
 
 beforeEach(() => {
   apiMock = createMockApiClient();
-  mockUserFeatures(apiMock, user);
+  mockUserFeatures(apiMock);
 });
 
 afterEach(() => {
@@ -98,7 +98,7 @@ test('feature flag to hide delete election button', async () => {
   const electionRecord = generalElectionRecord(user.orgId);
   const electionId = electionRecord.election.id;
 
-  mockUserFeatures(apiMock, user, { DELETE_ELECTION: false });
+  mockUserFeatures(apiMock, { DELETE_ELECTION: false });
 
   apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getElectionInfo

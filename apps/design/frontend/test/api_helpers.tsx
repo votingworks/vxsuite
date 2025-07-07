@@ -44,13 +44,12 @@ const allElectionFeaturesOffConfig: ElectionFeaturesConfig = {
 
 export function mockUserFeatures(
   apiClient: MockApiClient,
-  user: User,
   features?: Partial<UserFeaturesConfig>
 ): void {
   if (features) {
     apiClient.getUserFeatures.reset();
   }
-  apiClient.getUserFeatures.expectCallWith({ user }).resolves({
+  apiClient.getUserFeatures.expectCallWith().resolves({
     ...allUserFeaturesOnConfig,
     ...(features ?? {}),
   });

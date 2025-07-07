@@ -54,7 +54,7 @@ afterEach(() => {
 });
 
 test('clones immediately when ACCESS_ALL_ORGS feature disabled', async () => {
-  mockUserFeatures(apiMock, user, { ACCESS_ALL_ORGS: false });
+  mockUserFeatures(apiMock, { ACCESS_ALL_ORGS: false });
   const electionRecord = generalElectionRecord(user.orgId);
   const { election } = electionRecord;
   const { history } = renderButton(
@@ -65,10 +65,9 @@ test('clones immediately when ACCESS_ALL_ORGS feature disabled', async () => {
   mockGenerateId.mockReturnValue(newElectionId);
   apiMock.cloneElection
     .expectCallWith({
-      destId: newElectionId,
+      electionId: election.id,
+      destElectionId: newElectionId,
       destOrgId: user.orgId,
-      srcId: election.id,
-      user,
     })
     .resolves(newElectionId);
 
@@ -90,7 +89,7 @@ const NON_VX_ORG = {
 } as const;
 
 test('shows org picker when ACCESS_ALL_ORGS feature enabled', async () => {
-  mockUserFeatures(apiMock, user, { ACCESS_ALL_ORGS: true });
+  mockUserFeatures(apiMock, { ACCESS_ALL_ORGS: true });
   const electionRecord = generalElectionRecord(user.orgId);
   const { election } = electionRecord;
   const { history, queryClient } = renderButton(
@@ -109,10 +108,9 @@ test('shows org picker when ACCESS_ALL_ORGS feature enabled', async () => {
   mockGenerateId.mockReturnValue(newElectionId);
   apiMock.cloneElection
     .expectCallWith({
-      destId: newElectionId,
+      electionId: election.id,
+      destElectionId: newElectionId,
       destOrgId: NON_VX_ORG.id,
-      srcId: election.id,
-      user,
     })
     .resolves(newElectionId);
 

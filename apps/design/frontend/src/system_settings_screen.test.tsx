@@ -26,7 +26,7 @@ let apiMock: MockApiClient;
 
 beforeEach(() => {
   apiMock = createMockApiClient();
-  mockUserFeatures(apiMock, user);
+  mockUserFeatures(apiMock);
   apiMock.getBallotTemplate
     .expectCallWith({ electionId })
     .resolves('VxDefaultBallot');
@@ -49,7 +49,7 @@ function renderScreen() {
 }
 
 test('feature flag to hide marginal mark thresholds', async () => {
-  mockUserFeatures(apiMock, user, { MARGINAL_MARK_THRESHOLD_OPTION: false });
+  mockUserFeatures(apiMock, { MARGINAL_MARK_THRESHOLD_OPTION: false });
   apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
@@ -512,7 +512,7 @@ test('cancelling', async () => {
 });
 
 test('all controls are disabled until clicking "Edit"', async () => {
-  mockUserFeatures(apiMock, user, { MARGINAL_MARK_THRESHOLD_OPTION: true });
+  mockUserFeatures(apiMock, { MARGINAL_MARK_THRESHOLD_OPTION: true });
   const { systemSettings } = electionRecord;
   apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getSystemSettings
