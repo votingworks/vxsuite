@@ -1,5 +1,9 @@
 import React from 'react';
-import type { Api, BallotMode } from '@votingworks/design-backend';
+import type {
+  Api,
+  BallotMode,
+  AuthErrorCode,
+} from '@votingworks/design-backend';
 import * as grout from '@votingworks/grout';
 import {
   QueryClient,
@@ -35,10 +39,26 @@ export function useApiClient(): ApiClient {
   return apiClient;
 }
 
+export function isApiError(error: unknown): error is { message: string } {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof error.message === 'string'
+  );
+}
+
+export function isAuthError(
+  error: unknown
+): error is { message: AuthErrorCode } {
+  return isApiError(error) && error.message.startsWith('auth');
+}
+
 export function createQueryClient(): QueryClient {
   return new QueryClient({
     defaultOptions: {
       queries: {
+        retry: (_, error) => !isAuthError(error),
         refetchOnWindowFocus: false,
         // In test, we only want to refetch when we explicitly invalidate. In
         // dev/prod, it's fine to refetch more aggressively.
@@ -46,6 +66,7 @@ export function createQueryClient(): QueryClient {
         useErrorBoundary: true,
       },
       mutations: {
+        retry: false,
         useErrorBoundary: true,
       },
     },
