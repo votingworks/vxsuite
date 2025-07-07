@@ -27,9 +27,8 @@ exports.up = async (pgm) => {
     const compact =
       ballotTemplateId === 'NhBallotCompact' ||
       ballotTemplateId === 'NhBallotV3Compact';
-    await pgm.db.query({
-      text: 'UPDATE elections SET ballot_compact = $1 WHERE id = $2',
-      values: [compact, electionId],
-    });
+    pgm.sql(
+      `UPDATE elections SET ballot_compact = ${compact} WHERE id = '${electionId}'`
+    );
   }
 };
