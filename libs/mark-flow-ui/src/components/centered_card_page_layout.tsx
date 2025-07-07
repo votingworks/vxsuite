@@ -1,3 +1,5 @@
+/* istanbul ignore file - @preserve - tested via apps. */
+
 import React from 'react';
 
 import { Card, FullScreenIconWrapper, H2 } from '@votingworks/ui';

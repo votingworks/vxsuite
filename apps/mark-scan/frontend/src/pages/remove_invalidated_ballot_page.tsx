@@ -1,8 +1,8 @@
 import { Button, Icons, P } from '@votingworks/ui';
 import { useHistory } from 'react-router-dom';
 import { useEffect } from 'react';
+import { CenteredCardPageLayout } from '@votingworks/mark-flow-ui';
 import { confirmInvalidateBallot } from '../api';
-import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
 
 interface Props {
   paperPresent: boolean;

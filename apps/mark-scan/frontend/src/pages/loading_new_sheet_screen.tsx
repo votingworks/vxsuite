@@ -1,7 +1,7 @@
 import { Icons } from '@votingworks/ui';
 
 import React from 'react';
-import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
+import { CenteredCardPageLayout } from '@votingworks/mark-flow-ui';
 
 export function LoadingNewSheetScreen(): JSX.Element {
   return (

@@ -1,5 +1,7 @@
 export * from './components/button_footer';
 export * from './components/contest';
+export * from './components/centered_card_page_layout';
+export * from './components/centered_page_layout';
 export * from './components/voter_settings_button';
 export * from './components/review';
 export * from './components/voter_screen';

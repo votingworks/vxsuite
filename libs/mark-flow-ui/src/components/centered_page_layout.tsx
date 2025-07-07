@@ -1,3 +1,5 @@
+/* istanbul ignore file - @preserve - tested via apps. */
+
 import React from 'react';
 import styled from 'styled-components';
 
@@ -8,7 +10,8 @@ import {
   ReadOnLoad as ReadOnLoadBase,
   Screen,
 } from '@votingworks/ui';
-import { VoterScreen, ButtonFooter } from '@votingworks/mark-flow-ui';
+import { ButtonFooter } from './button_footer';
+import { VoterScreen } from './voter_screen';
 
 export interface CenteredPageLayoutProps {
   buttons?: React.ReactNode;

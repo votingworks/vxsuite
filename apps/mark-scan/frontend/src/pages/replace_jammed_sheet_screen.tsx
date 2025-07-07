@@ -1,7 +1,7 @@
 import { Caption, Icons, P } from '@votingworks/ui';
 import type { SimpleServerStatus } from '@votingworks/mark-scan-backend';
 import React from 'react';
-import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
+import { CenteredCardPageLayout } from '@votingworks/mark-flow-ui';
 import { ResetVoterSessionButton } from '../components/deactivate_voter_session_button';
 
 export const JAM_CLEARED_STATES = [

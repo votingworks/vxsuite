@@ -1,6 +1,6 @@
 import { appStrings, Icons, P } from '@votingworks/ui';
 
-import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
+import { CenteredCardPageLayout } from '@votingworks/mark-flow-ui';
 
 export function LoadingReinsertedBallotScreen(): JSX.Element {
   return (

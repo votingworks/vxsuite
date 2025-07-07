@@ -1,5 +1,5 @@
 import { H2, InsertBallotImage, appStrings } from '@votingworks/ui';
-import { CenteredPageLayout } from '../components/centered_page_layout';
+import { CenteredPageLayout } from '@votingworks/mark-flow-ui';
 
 export function CastingBallotPage(): JSX.Element {
   return (

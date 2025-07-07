@@ -1,5 +1,5 @@
 import { Icons, P, appStrings } from '@votingworks/ui';
-import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
+import { CenteredCardPageLayout } from '@votingworks/mark-flow-ui';
 
 export function BallotSuccessfullyCastPage(): JSX.Element {
   return (
