@@ -1,4 +1,3 @@
-import { ReadStream } from 'node:fs';
 import { Buffer } from 'node:buffer';
 
 import { BaseBallotProps, RenderDocument } from '@votingworks/hmpb';
@@ -8,7 +7,7 @@ import { convertPdfToGrayscale } from './grayscale';
 export async function renderBallotPdf(
   props: BaseBallotProps,
   document: RenderDocument
-): Promise<Buffer | ReadStream> {
+): Promise<Buffer> {
   /**
    * Specific to NH V4 ballots with tinted headers/footers.
    * See `import('@votingworks/hmpb').NhBallotProps`.
@@ -20,5 +19,5 @@ export async function renderBallotPdf(
     return colorPdf;
   }
 
-  return convertPdfToGrayscale(colorPdf);
+  return await convertPdfToGrayscale(colorPdf);
 }
