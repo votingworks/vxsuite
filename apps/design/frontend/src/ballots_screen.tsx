@@ -27,8 +27,8 @@ import {
   getBallotsFinalizedAt,
   finalizeBallots,
   getUserFeatures,
-  getBallotPaperSize,
-  updateBallotPaperSize,
+  getBallotLayoutSettings,
+  updateBallotLayoutSettings,
   listBallotStyles,
   listPrecincts,
   getElectionInfo,
@@ -42,16 +42,21 @@ import { useTitle } from './hooks/use_title';
 
 function BallotDesignForm({
   electionId,
-  savedPaperSize,
+  savedLayoutSettings,
   ballotsFinalizedAt,
 }: {
   electionId: ElectionId;
-  savedPaperSize: HmpbBallotPaperSize;
+  savedLayoutSettings: {
+    paperSize: HmpbBallotPaperSize;
+    compact: boolean;
+  };
   ballotsFinalizedAt: Date | null;
 }): JSX.Element | null {
   const [isEditing, setIsEditing] = useState(false);
-  const [paperSize, setPaperSize] = useState(savedPaperSize);
-  const updateBallotPaperSizeMutation = updateBallotPaperSize.useMutation();
+  const [layoutSettings, setLayoutSettings] = useState(savedLayoutSettings);
+
+  const updateBallotLayoutSettingsMutation =
+    updateBallotLayoutSettings.useMutation();
   const getUserFeaturesQuery = getUserFeatures.useQuery();
 
   /* istanbul ignore next - @preserve */
@@ -61,8 +66,8 @@ function BallotDesignForm({
   const features = getUserFeaturesQuery.data;
 
   function onSubmit() {
-    updateBallotPaperSizeMutation.mutate(
-      { electionId, paperSize },
+    updateBallotLayoutSettingsMutation.mutate(
+      { electionId, ...layoutSettings },
       { onSuccess: () => setIsEditing(false) }
     );
   }
@@ -75,7 +80,7 @@ function BallotDesignForm({
       }}
       onReset={(e) => {
         e.preventDefault();
-        setPaperSize(savedPaperSize);
+        setLayoutSettings(savedLayoutSettings);
         setIsEditing(false);
       }}
     >
@@ -93,8 +98,36 @@ function BallotDesignForm({
               value,
               label,
             }))}
-          value={paperSize}
-          onChange={(value) => setPaperSize(value as HmpbBallotPaperSize)}
+          value={layoutSettings.paperSize}
+          onChange={(value) =>
+            setLayoutSettings({
+              ...layoutSettings,
+              paperSize: value as HmpbBallotPaperSize,
+            })
+          }
+          disabled={!isEditing}
+        />
+      </div>
+      <div style={{ maxWidth: '16.5rem' }}>
+        <RadioGroup
+          label="Density"
+          options={[
+            {
+              label: 'Default',
+              value: 'default',
+            },
+            {
+              label: 'Compact',
+              value: 'compact',
+            },
+          ]}
+          value={layoutSettings.compact ? 'compact' : 'default'}
+          onChange={(value) =>
+            setLayoutSettings({
+              ...layoutSettings,
+              compact: value === 'compact',
+            })
+          }
           disabled={!isEditing}
         />
       </div>
@@ -386,23 +419,27 @@ function BallotStylesTab(): JSX.Element | null {
 
 function BallotLayoutTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
-  const getBallotPaperSizeQuery = getBallotPaperSize.useQuery(electionId);
+  const getBallotLayoutSettingsQuery =
+    getBallotLayoutSettings.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
 
   if (
-    !(getBallotPaperSizeQuery.isSuccess && getBallotsFinalizedAtQuery.isSuccess)
+    !(
+      getBallotLayoutSettingsQuery.isSuccess &&
+      getBallotsFinalizedAtQuery.isSuccess
+    )
   ) {
     return null;
   }
 
-  const paperSize = getBallotPaperSizeQuery.data;
+  const layoutSettings = getBallotLayoutSettingsQuery.data;
   const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
 
   return (
     <TabPanel>
       <BallotDesignForm
         electionId={electionId}
-        savedPaperSize={paperSize}
+        savedLayoutSettings={layoutSettings}
         ballotsFinalizedAt={ballotsFinalizedAt}
       />
     </TabPanel>

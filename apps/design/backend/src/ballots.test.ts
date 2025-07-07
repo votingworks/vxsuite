@@ -3,6 +3,7 @@ import {
   DistrictId,
   Election,
   ElectionStringKey,
+  hasSplits,
   LanguageCode,
   Precinct,
   UiStringsPackage,
@@ -10,7 +11,7 @@ import {
 import { TestLanguageCode } from '@votingworks/test-utils';
 import { BallotTemplateId } from '@votingworks/hmpb';
 import { expect, test } from 'vitest';
-import { assertDefined } from '@votingworks/basics';
+import { assertDefined, find } from '@votingworks/basics';
 import {
   createBallotPropsForTemplate,
   formatElectionForExport,
@@ -29,35 +30,38 @@ const ballotStyles = election.ballotStyles.map((b) => ({
   precinctsOrSplits: [{ precinctId: election.precincts[0].id }],
 }));
 
-test('compact templates', () => {
-  const normalTemplates: BallotTemplateId[] = [
-    'NhBallot',
-    'NhBallotV3',
+test('createBallotPropsForTemplate', () => {
+  const vxDefaultBallotProps = createBallotPropsForTemplate(
     'VxDefaultBallot',
-  ];
-  for (const templateId of normalTemplates) {
-    const propLists = createBallotPropsForTemplate(
-      templateId,
-      election,
-      ballotStyles
-    );
-    for (const props of propLists) {
-      expect(props.compact).toBeUndefined();
-    }
+    election,
+    ballotStyles,
+    false
+  );
+  for (const props of vxDefaultBallotProps) {
+    expect(props.compact).toEqual(false);
   }
 
-  const compactTemplates: BallotTemplateId[] = [
-    'NhBallotCompact',
-    'NhBallotV3Compact',
-  ];
-  for (const templateId of compactTemplates) {
-    const propLists = createBallotPropsForTemplate(
+  const nhTemplates: BallotTemplateId[] = ['NhBallot', 'NhBallotV3'];
+  for (const templateId of nhTemplates) {
+    const nhBallotProps = createBallotPropsForTemplate(
       templateId,
       election,
-      ballotStyles
+      ballotStyles,
+      true
     );
-    for (const props of propLists) {
+    for (const props of nhBallotProps) {
       expect(props.compact).toEqual(true);
+      const precinct = find(
+        election.precincts,
+        (p) => p.id === props.precinctId
+      );
+      if (hasSplits(precinct)) {
+        expect('electionTitleOverride' in props).toEqual(true);
+        expect('electionSealOverride' in props).toEqual(true);
+        expect('clerkSignatureImage' in props).toEqual(true);
+        expect('clerkSignatureCaption' in props).toEqual(true);
+        expect('colorTint' in props).toEqual(true);
+      }
     }
   }
 });

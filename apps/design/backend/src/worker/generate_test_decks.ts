@@ -43,6 +43,7 @@ export async function generateTestDecks(
     ballotTemplateId,
     orgId,
   } = await store.getElection(electionId);
+  const { compact } = await store.getBallotLayoutSettings(electionId);
 
   const ballotStrings = await translateBallotStrings(
     translator,
@@ -54,7 +55,8 @@ export async function generateTestDecks(
   const allBallotProps = createBallotPropsForTemplate(
     ballotTemplateId,
     formattedElection,
-    ballotStyles
+    ballotStyles,
+    compact
   );
   const testBallotProps = allBallotProps.filter(
     (props) =>

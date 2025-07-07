@@ -162,14 +162,14 @@ export const listContests = {
   },
 } as const;
 
-export const getBallotPaperSize = {
+export const getBallotLayoutSettings = {
   queryKey(id: ElectionId): QueryKey {
-    return ['getBallotPaperSize', id];
+    return ['getBallotLayoutSettings', id];
   },
   useQuery(id: ElectionId) {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(id), () =>
-      apiClient.getBallotPaperSize({ electionId: id })
+      apiClient.getBallotLayoutSettings({ electionId: id })
     );
   },
 } as const;
@@ -221,7 +221,6 @@ async function invalidateElectionQueries(
   await queryClient.invalidateQueries(listBallotStyles.queryKey(electionId));
   await queryClient.invalidateQueries(listParties.queryKey(electionId));
   await queryClient.invalidateQueries(listContests.queryKey(electionId));
-  await queryClient.invalidateQueries(getBallotPaperSize.queryKey(electionId));
 }
 
 export const loadElection = {
@@ -459,13 +458,15 @@ export const deleteContest = {
   },
 } as const;
 
-export const updateBallotPaperSize = {
+export const updateBallotLayoutSettings = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.updateBallotPaperSize, {
+    return useMutation(apiClient.updateBallotLayoutSettings, {
       async onSuccess(_, { electionId }) {
-        await invalidateElectionQueries(queryClient, electionId);
+        await queryClient.invalidateQueries(
+          getBallotLayoutSettings.queryKey(electionId)
+        );
       },
     });
   },

@@ -10,9 +10,7 @@ export type { NhBallotProps } from './nh_ballot_template';
 export const ballotTemplates = {
   VxDefaultBallot: vxDefaultBallotTemplate,
   NhBallot: nhBallotTemplate,
-  NhBallotCompact: nhBallotTemplate,
   NhBallotV3: nhBallotTemplateV3,
-  NhBallotV3Compact: nhBallotTemplateV3,
 } as const;
 
 /**
