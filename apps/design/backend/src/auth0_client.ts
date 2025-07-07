@@ -16,7 +16,7 @@ import {
   sliOrgId,
   votingWorksOrgId,
 } from './globals';
-import { Auth0User, Org, User } from './types';
+import { Org, User } from './types';
 
 export type ConnectionType =
   | 'Username-Password-Authentication'
@@ -27,10 +27,22 @@ export interface Connection {
   name: ConnectionType;
 }
 
+export interface Auth0User {
+  email_verified: boolean;
+  email: string;
+  name: string;
+  nickname?: string;
+  org_id: string;
+  org_name: string;
+  picture?: string;
+  sid: string;
+  sub?: string;
+  updated_at: Date;
+}
+
 export interface Auth0ClientInterface {
   allOrgs(): Promise<Org[]>;
-  org(id: string): Promise<Org>;
-  userFromRequest(req: Express.Request): Auth0User | undefined;
+  userFromRequest(req: Express.Request): Promise<User | undefined>;
 
   // [TODO] `Auth0Client` methods that are currently only used in the user
   // management scripts aren't included here yet. Flesh this out, along with
@@ -245,8 +257,14 @@ export class Auth0Client implements Auth0ClientInterface {
     };
   }
 
-  userFromRequest(req: Express.Request): Auth0User | undefined {
-    return req.oidc.user as Auth0User | undefined;
+  async userFromRequest(req: Express.Request): Promise<User | undefined> {
+    const auth0User = req.oidc.user as unknown as Auth0User | undefined;
+    if (!auth0User) return;
+    const org = await this.org(auth0User.org_id);
+    return {
+      orgId: org.id,
+      orgName: org.displayName,
+    };
   }
 
   async userOrgs(userEmail: string): Promise<Org[]> {
@@ -299,10 +317,11 @@ export class Auth0Client implements Auth0ClientInterface {
       },
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      userFromRequest(_: Express.Request): Auth0User | undefined {
-        return {
-          org_id: votingWorksOrgId(),
-        } as const as Auth0User;
+      userFromRequest(_: Express.Request) {
+        return Promise.resolve({
+          orgId: votingWorksOrgId(),
+          orgName: 'VotingWorks',
+        });
       },
     } as const as Auth0Client;
   }

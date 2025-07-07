@@ -732,30 +732,15 @@ export function buildApp(context: AppContext): Application {
   // typings.
   /* istanbul ignore next - @preserve */
   app.post('/api/getUser', async (req, res) => {
-    const user = assertDefined(context.auth0.userFromRequest(req));
-    const org = await context.auth0.org(user.org_id);
-
-    // A little convoluted, but this is just to form a typechecked link between
-    // this handler and the `getUser` API stub.
-    const userInfo: ReturnType<grout.inferApiMethods<Api>['getUser']> = {
-      orgId: user.org_id,
-      orgName: org.displayName,
-    };
-
+    const user = assertDefined(await context.auth0.userFromRequest(req));
     res.set('Content-type', 'application/json');
-    res.send(grout.serialize(userInfo));
+    res.send(grout.serialize(user));
   });
 
   app.get('/files/:orgId/:fileName', async (req, res) => {
-    const user = assertDefined(context.auth0.userFromRequest(req));
-    const userOrg = await context.auth0.org(user.org_id);
-    if (!userOrg) {
-      res.status(500).send('No org found for user');
-      return;
-    }
-
+    const user = assertDefined(await context.auth0.userFromRequest(req));
     const { orgId, fileName } = req.params;
-    if (orgId !== userOrg.id && userOrg.id !== votingWorksOrgId()) {
+    if (orgId !== user.orgId && orgId !== votingWorksOrgId()) {
       res.status(404).send('File not found');
     }
 

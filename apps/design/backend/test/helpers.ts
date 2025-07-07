@@ -27,7 +27,7 @@ import {
 } from '../src/file_storage_client';
 import { GoogleCloudSpeechSynthesizerWithDbCache } from '../src/speech_synthesizer';
 import { GoogleCloudTranslatorWithDbCache } from '../src/translator';
-import { Auth0User, Org, User } from '../src/types';
+import { Org, User } from '../src/types';
 import * as worker from '../src/worker/worker';
 import { createWorkspace, Workspace } from '../src/workspace';
 import { TestStore } from './test_store';
@@ -45,7 +45,8 @@ const vendoredTranslations: VendoredTranslations = {
 
 class MockAuth0Client implements Auth0ClientInterface {
   private mockAllOrgs: readonly Org[] = [];
-  private mockUserFromRequest: Auth0Client['userFromRequest'] = () => undefined;
+  private mockUserFromRequest: Auth0Client['userFromRequest'] = async () =>
+    undefined;
 
   constructor(allOrgs: readonly Org[] = []) {
     this.mockAllOrgs = allOrgs;
@@ -65,7 +66,7 @@ class MockAuth0Client implements Auth0ClientInterface {
     throw new Error('org not found');
   }
 
-  userFromRequest(req: Request): Auth0User | undefined {
+  userFromRequest(req: Request) {
     return this.mockUserFromRequest(req);
   }
 }
