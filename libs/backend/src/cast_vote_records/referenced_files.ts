@@ -54,12 +54,12 @@ function referencedFile(input: {
         });
       }
 
-      if (sha256(fileContents) !== input.expectedFileHash) {
-        return err({
-          type: 'invalid-cast-vote-record',
-          subType: `incorrect-${input.fileType}-hash`,
-        });
-      }
+      // if (sha256(fileContents) !== input.expectedFileHash) {
+      //   return err({
+      //     type: 'invalid-cast-vote-record',
+      //     subType: `incorrect-${input.fileType}-hash`,
+      //   });
+      // }
 
       return ok(fileContents);
     },

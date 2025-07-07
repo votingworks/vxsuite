@@ -1,0 +1,1188 @@
+{
+  "pageSize": {
+    "width": 1696,
+    "height": 2200
+  },
+  "metadata": {
+    "ballotHash": "20bf89eed3f48b4cbbe29cfa42a126a31179316979915fb820456ee8ab79e9e1",
+    "precinctId": "town-id-00701-precinct-id-default",
+    "ballotStyleId": "card-number-3",
+    "pageNumber": 1,
+    "isTestMode": true,
+    "ballotType": "precinct"
+  },
+  "contests": [
+    {
+      "contestId": "Governor-061a401b",
+      "bounds": {
+        "x": 426,
+        "y": 510,
+        "width": 1162,
+        "height": 158
+      },
+      "corners": [
+        {
+          "x": 426,
+          "y": 510
+        },
+        {
+          "x": 1588,
+          "y": 510
+        },
+        {
+          "x": 426,
+          "y": 668
+        },
+        {
+          "x": 1588,
+          "y": 668
+        }
+      ],
+      "options": [
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "Josiah-Bartlett-1bb99985",
+            "contestId": "Governor-061a401b",
+            "name": "Josiah Bartlett",
+            "isWriteIn": false,
+            "optionIndex": 0
+          },
+          "bounds": {
+            "x": 426,
+            "y": 527,
+            "width": 315,
+            "height": 141
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "Hannah-Dustin-ab4ef7c8",
+            "contestId": "Governor-061a401b",
+            "name": "Hannah Dustin",
+            "isWriteIn": false,
+            "optionIndex": 1
+          },
+          "bounds": {
+            "x": 738,
+            "y": 520,
+            "width": 315,
+            "height": 142
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "John-Spencer-9ffb5970",
+            "contestId": "Governor-061a401b",
+            "name": "John Spencer",
+            "isWriteIn": false,
+            "optionIndex": 2
+          },
+          "bounds": {
+            "x": 1050,
+            "y": 514,
+            "width": 315,
+            "height": 142
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "write-in-0",
+            "contestId": "Governor-061a401b",
+            "name": "Write-In",
+            "isWriteIn": true,
+            "optionIndex": 3,
+            "writeInIndex": 0
+          },
+          "bounds": {
+            "x": 1317,
+            "y": 510,
+            "width": 271,
+            "height": 141
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "contestId": "United-States-Senator-d3f1c75b",
+      "bounds": {
+        "x": 428,
+        "y": 645,
+        "width": 1162,
+        "height": 157
+      },
+      "corners": [
+        {
+          "x": 428,
+          "y": 645
+        },
+        {
+          "x": 1590,
+          "y": 645
+        },
+        {
+          "x": 428,
+          "y": 802
+        },
+        {
+          "x": 1590,
+          "y": 802
+        }
+      ],
+      "options": [
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "John-Langdon-5951c8e1",
+            "contestId": "United-States-Senator-d3f1c75b",
+            "name": "John Langdon",
+            "isWriteIn": false,
+            "optionIndex": 0
+          },
+          "bounds": {
+            "x": 428,
+            "y": 661,
+            "width": 316,
+            "height": 141
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "William-Preston-3778fcd5",
+            "contestId": "United-States-Senator-d3f1c75b",
+            "name": "William Preston",
+            "isWriteIn": false,
+            "optionIndex": 1
+          },
+          "bounds": {
+            "x": 740,
+            "y": 655,
+            "width": 315,
+            "height": 141
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "write-in-0",
+            "contestId": "United-States-Senator-d3f1c75b",
+            "name": "Write-In",
+            "isWriteIn": true,
+            "optionIndex": 2,
+            "writeInIndex": 0
+          },
+          "bounds": {
+            "x": 1319,
+            "y": 645,
+            "width": 271,
+            "height": 139
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "contestId": "Representative-in-Congress-24683b44",
+      "bounds": {
+        "x": 431,
+        "y": 778,
+        "width": 1162,
+        "height": 157
+      },
+      "corners": [
+        {
+          "x": 431,
+          "y": 778
+        },
+        {
+          "x": 1593,
+          "y": 778
+        },
+        {
+          "x": 431,
+          "y": 935
+        },
+        {
+          "x": 1593,
+          "y": 935
+        }
+      ],
+      "options": [
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "Jeremiah-Smith-469560c9",
+            "contestId": "Representative-in-Congress-24683b44",
+            "name": "Jeremiah Smith",
+            "isWriteIn": false,
+            "optionIndex": 0
+          },
+          "bounds": {
+            "x": 431,
+            "y": 795,
+            "width": 315,
+            "height": 140
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "Nicholas-Gilman-1791aed7",
+            "contestId": "Representative-in-Congress-24683b44",
+            "name": "Nicholas Gilman",
+            "isWriteIn": false,
+            "optionIndex": 1
+          },
+          "bounds": {
+            "x": 743,
+            "y": 789,
+            "width": 315,
+            "height": 140
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "Richard-Coote-b9095636",
+            "contestId": "Representative-in-Congress-24683b44",
+            "name": "Richard Coote",
+            "isWriteIn": false,
+            "optionIndex": 2
+          },
+          "bounds": {
+            "x": 1054,
+            "y": 782,
+            "width": 316,
+            "height": 142
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "write-in-0",
+            "contestId": "Representative-in-Congress-24683b44",
+            "name": "Write-In",
+            "isWriteIn": true,
+            "optionIndex": 3,
+            "writeInIndex": 0
+          },
+          "bounds": {
+            "x": 1321,
+            "y": 778,
+            "width": 272,
+            "height": 141
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "contestId": "Executive-Councilor-bb22557f",
+      "bounds": {
+        "x": 433,
+        "y": 913,
+        "width": 1160,
+        "height": 155
+      },
+      "corners": [
+        {
+          "x": 433,
+          "y": 913
+        },
+        {
+          "x": 1593,
+          "y": 913
+        },
+        {
+          "x": 433,
+          "y": 1068
+        },
+        {
+          "x": 1593,
+          "y": 1068
+        }
+      ],
+      "options": [
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "Anne-Waldron-ee0cbc85",
+            "contestId": "Executive-Councilor-bb22557f",
+            "name": "Anne Waldron",
+            "isWriteIn": false,
+            "optionIndex": 0
+          },
+          "bounds": {
+            "x": 433,
+            "y": 928,
+            "width": 314,
+            "height": 140
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "Daniel-Webster-13f77b2d",
+            "contestId": "Executive-Councilor-bb22557f",
+            "name": "Daniel Webster",
+            "isWriteIn": false,
+            "optionIndex": 1
+          },
+          "bounds": {
+            "x": 745,
+            "y": 923,
+            "width": 314,
+            "height": 140
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "write-in-0",
+            "contestId": "Executive-Councilor-bb22557f",
+            "name": "Write-In",
+            "isWriteIn": true,
+            "optionIndex": 2,
+            "writeInIndex": 0
+          },
+          "bounds": {
+            "x": 1324,
+            "y": 913,
+            "width": 269,
+            "height": 140
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "contestId": "State-Senator-391381f8",
+      "bounds": {
+        "x": 434,
+        "y": 1048,
+        "width": 1162,
+        "height": 153
+      },
+      "corners": [
+        {
+          "x": 434,
+          "y": 1048
+        },
+        {
+          "x": 1596,
+          "y": 1048
+        },
+        {
+          "x": 434,
+          "y": 1201
+        },
+        {
+          "x": 1596,
+          "y": 1201
+        }
+      ],
+      "options": [
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "James-Poole-db5ef4bd",
+            "contestId": "State-Senator-391381f8",
+            "name": "James Poole",
+            "isWriteIn": false,
+            "optionIndex": 0
+          },
+          "bounds": {
+            "x": 434,
+            "y": 1062,
+            "width": 315,
+            "height": 139
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "Matthew-Thornton-f66fec5e",
+            "contestId": "State-Senator-391381f8",
+            "name": "Matthew Thornton",
+            "isWriteIn": false,
+            "optionIndex": 1
+          },
+          "bounds": {
+            "x": 746,
+            "y": 1057,
+            "width": 315,
+            "height": 139
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "write-in-0",
+            "contestId": "State-Senator-391381f8",
+            "name": "Write-In",
+            "isWriteIn": true,
+            "optionIndex": 2,
+            "writeInIndex": 0
+          },
+          "bounds": {
+            "x": 1325,
+            "y": 1048,
+            "width": 271,
+            "height": 140
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+      "bounds": {
+        "x": 436,
+        "y": 1183,
+        "width": 1161,
+        "height": 374
+      },
+      "corners": [
+        {
+          "x": 436,
+          "y": 1183
+        },
+        {
+          "x": 1597,
+          "y": 1183
+        },
+        {
+          "x": 436,
+          "y": 1557
+        },
+        {
+          "x": 1597,
+          "y": 1557
+        }
+      ],
+      "options": [
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "Obadiah-Carrigan-5c95145a",
+            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "name": "Obadiah Carrigan",
+            "isWriteIn": false,
+            "optionIndex": 0
+          },
+          "bounds": {
+            "x": 436,
+            "y": 1241,
+            "width": 314,
+            "height": 138
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "Mary-Baker-Eddy-350785d5",
+            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "name": "Mary Baker Eddy",
+            "isWriteIn": false,
+            "optionIndex": 1
+          },
+          "bounds": {
+            "x": 436,
+            "y": 1330,
+            "width": 314,
+            "height": 138
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "Samuel-Bell-17973275",
+            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "name": "Samuel Bell",
+            "isWriteIn": false,
+            "optionIndex": 2
+          },
+          "bounds": {
+            "x": 437,
+            "y": 1419,
+            "width": 314,
+            "height": 138
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "Samuel-Livermore-f927fef1",
+            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "name": "Samuel Livermore",
+            "isWriteIn": false,
+            "optionIndex": 3
+          },
+          "bounds": {
+            "x": 748,
+            "y": 1191,
+            "width": 313,
+            "height": 140
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "Elijah-Miller-a52e6988",
+            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "name": "Elijah Miller",
+            "isWriteIn": false,
+            "optionIndex": 4
+          },
+          "bounds": {
+            "x": 748,
+            "y": 1281,
+            "width": 314,
+            "height": 139
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "Isaac-Hill-d6c9deeb",
+            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "name": "Isaac Hill",
+            "isWriteIn": false,
+            "optionIndex": 5
+          },
+          "bounds": {
+            "x": 749,
+            "y": 1371,
+            "width": 313,
+            "height": 139
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "Abigail-Bartlett-4e46c9d4",
+            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "name": "Abigail Bartlett",
+            "isWriteIn": false,
+            "optionIndex": 6
+          },
+          "bounds": {
+            "x": 1060,
+            "y": 1232,
+            "width": 314,
+            "height": 140
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "Jacob-Freese-b5146505",
+            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "name": "Jacob Freese",
+            "isWriteIn": false,
+            "optionIndex": 7
+          },
+          "bounds": {
+            "x": 1060,
+            "y": 1322,
+            "width": 314,
+            "height": 140
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "write-in-0",
+            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "name": "Write-In",
+            "isWriteIn": true,
+            "optionIndex": 8,
+            "writeInIndex": 0
+          },
+          "bounds": {
+            "x": 1327,
+            "y": 1183,
+            "width": 269,
+            "height": 141
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "write-in-1",
+            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "name": "Write-In",
+            "isWriteIn": true,
+            "optionIndex": 9,
+            "writeInIndex": 1
+          },
+          "bounds": {
+            "x": 1327,
+            "y": 1274,
+            "width": 270,
+            "height": 140
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "write-in-2",
+            "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+            "name": "Write-In",
+            "isWriteIn": true,
+            "optionIndex": 10,
+            "writeInIndex": 2
+          },
+          "bounds": {
+            "x": 1328,
+            "y": 1366,
+            "width": 269,
+            "height": 138
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
+      "bounds": {
+        "x": 438,
+        "y": 1591,
+        "width": 1160,
+        "height": 144
+      },
+      "corners": [
+        {
+          "x": 438,
+          "y": 1591
+        },
+        {
+          "x": 1598,
+          "y": 1591
+        },
+        {
+          "x": 438,
+          "y": 1735
+        },
+        {
+          "x": 1598,
+          "y": 1735
+        }
+      ],
+      "options": [
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "Abeil-Foster-ded38e36",
+            "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
+            "name": "Abeil Foster",
+            "isWriteIn": false,
+            "optionIndex": 0
+          },
+          "bounds": {
+            "x": 438,
+            "y": 1598,
+            "width": 313,
+            "height": 137
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "Charles-H-Hersey-096286a4",
+            "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
+            "name": "Charles H. Hersey",
+            "isWriteIn": false,
+            "optionIndex": 1
+          },
+          "bounds": {
+            "x": 750,
+            "y": 1596,
+            "width": 313,
+            "height": 137
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "William-Lovejoy-fde3c2df",
+            "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
+            "name": "William Lovejoy",
+            "isWriteIn": false,
+            "optionIndex": 2
+          },
+          "bounds": {
+            "x": 1062,
+            "y": 1593,
+            "width": 313,
+            "height": 138
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "write-in-0",
+            "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
+            "name": "Write-In",
+            "isWriteIn": true,
+            "optionIndex": 3,
+            "writeInIndex": 0
+          },
+          "bounds": {
+            "x": 1329,
+            "y": 1591,
+            "width": 269,
+            "height": 138
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

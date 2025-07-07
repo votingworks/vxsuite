@@ -1,0 +1,823 @@
+{
+  "pageSize": {
+    "width": 1696,
+    "height": 2200
+  },
+  "metadata": {
+    "ballotHash": "20bf89eed3f48b4cbbe29cfa42a126a31179316979915fb820456ee8ab79e9e1",
+    "precinctId": "town-id-00701-precinct-id-default",
+    "ballotStyleId": "card-number-3",
+    "pageNumber": 2,
+    "isTestMode": true,
+    "ballotType": "precinct"
+  },
+  "contests": [
+    {
+      "contestId": "Sheriff-4243fe0b",
+      "bounds": {
+        "x": 436,
+        "y": 340,
+        "width": 1160,
+        "height": 153
+      },
+      "corners": [
+        {
+          "x": 436,
+          "y": 340
+        },
+        {
+          "x": 1596,
+          "y": 340
+        },
+        {
+          "x": 436,
+          "y": 493
+        },
+        {
+          "x": 1596,
+          "y": 493
+        }
+      ],
+      "options": [
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "Edward-Randolph-bf4c848a",
+            "contestId": "Sheriff-4243fe0b",
+            "name": "Edward Randolph",
+            "isWriteIn": false,
+            "optionIndex": 0
+          },
+          "bounds": {
+            "x": 436,
+            "y": 340,
+            "width": 315,
+            "height": 140
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "Edward-Randolph-bf4c848a",
+            "contestId": "Sheriff-4243fe0b",
+            "name": "Edward Randolph",
+            "isWriteIn": false,
+            "optionIndex": 0
+          },
+          "bounds": {
+            "x": 747,
+            "y": 345,
+            "width": 315,
+            "height": 140
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "write-in-0",
+            "contestId": "Sheriff-4243fe0b",
+            "name": "Write-In",
+            "isWriteIn": true,
+            "optionIndex": 1,
+            "writeInIndex": 0
+          },
+          "bounds": {
+            "x": 1326,
+            "y": 354,
+            "width": 270,
+            "height": 139
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "contestId": "County-Attorney-133f910f",
+      "bounds": {
+        "x": 434,
+        "y": 474,
+        "width": 1159,
+        "height": 153
+      },
+      "corners": [
+        {
+          "x": 434,
+          "y": 474
+        },
+        {
+          "x": 1593,
+          "y": 474
+        },
+        {
+          "x": 434,
+          "y": 627
+        },
+        {
+          "x": 1593,
+          "y": 627
+        }
+      ],
+      "options": [
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "Ezra-Bartlett-8f95223c",
+            "contestId": "County-Attorney-133f910f",
+            "name": "Ezra Bartlett",
+            "isWriteIn": false,
+            "optionIndex": 0
+          },
+          "bounds": {
+            "x": 434,
+            "y": 474,
+            "width": 314,
+            "height": 140
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "Mary-Woolson-dc0b854a",
+            "contestId": "County-Attorney-133f910f",
+            "name": "Mary Woolson",
+            "isWriteIn": false,
+            "optionIndex": 1
+          },
+          "bounds": {
+            "x": 745,
+            "y": 479,
+            "width": 315,
+            "height": 140
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "write-in-0",
+            "contestId": "County-Attorney-133f910f",
+            "name": "Write-In",
+            "isWriteIn": true,
+            "optionIndex": 2,
+            "writeInIndex": 0
+          },
+          "bounds": {
+            "x": 1324,
+            "y": 488,
+            "width": 269,
+            "height": 139
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "contestId": "County-Treasurer-87d25a31",
+      "bounds": {
+        "x": 432,
+        "y": 608,
+        "width": 1159,
+        "height": 153
+      },
+      "corners": [
+        {
+          "x": 432,
+          "y": 608
+        },
+        {
+          "x": 1591,
+          "y": 608
+        },
+        {
+          "x": 432,
+          "y": 761
+        },
+        {
+          "x": 1591,
+          "y": 761
+        }
+      ],
+      "options": [
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "John-Smith-ef61a579",
+            "contestId": "County-Treasurer-87d25a31",
+            "name": "John Smith",
+            "isWriteIn": false,
+            "optionIndex": 0
+          },
+          "bounds": {
+            "x": 432,
+            "y": 608,
+            "width": 314,
+            "height": 140
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "Jane-Jones-9caa141f",
+            "contestId": "County-Treasurer-87d25a31",
+            "name": "Jane Jones",
+            "isWriteIn": false,
+            "optionIndex": 1
+          },
+          "bounds": {
+            "x": 743,
+            "y": 613,
+            "width": 315,
+            "height": 140
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "write-in-0",
+            "contestId": "County-Treasurer-87d25a31",
+            "name": "Write-In",
+            "isWriteIn": true,
+            "optionIndex": 2,
+            "writeInIndex": 0
+          },
+          "bounds": {
+            "x": 1322,
+            "y": 622,
+            "width": 269,
+            "height": 139
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "contestId": "Register-of-Deeds-a1278df2",
+      "bounds": {
+        "x": 429,
+        "y": 742,
+        "width": 1160,
+        "height": 152
+      },
+      "corners": [
+        {
+          "x": 429,
+          "y": 742
+        },
+        {
+          "x": 1589,
+          "y": 742
+        },
+        {
+          "x": 429,
+          "y": 894
+        },
+        {
+          "x": 1589,
+          "y": 894
+        }
+      ],
+      "options": [
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "John-Mann-b56bbdd3",
+            "contestId": "Register-of-Deeds-a1278df2",
+            "name": "John Mann",
+            "isWriteIn": false,
+            "optionIndex": 0
+          },
+          "bounds": {
+            "x": 429,
+            "y": 742,
+            "width": 315,
+            "height": 139
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "Ellen-A-Stileman-14408737",
+            "contestId": "Register-of-Deeds-a1278df2",
+            "name": "Ellen A. Stileman",
+            "isWriteIn": false,
+            "optionIndex": 1
+          },
+          "bounds": {
+            "x": 741,
+            "y": 747,
+            "width": 315,
+            "height": 139
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "write-in-0",
+            "contestId": "Register-of-Deeds-a1278df2",
+            "name": "Write-In",
+            "isWriteIn": true,
+            "optionIndex": 2,
+            "writeInIndex": 0
+          },
+          "bounds": {
+            "x": 1319,
+            "y": 756,
+            "width": 270,
+            "height": 138
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "contestId": "Register-of-Probate-a4117da8",
+      "bounds": {
+        "x": 427,
+        "y": 876,
+        "width": 1161,
+        "height": 150
+      },
+      "corners": [
+        {
+          "x": 427,
+          "y": 876
+        },
+        {
+          "x": 1588,
+          "y": 876
+        },
+        {
+          "x": 427,
+          "y": 1026
+        },
+        {
+          "x": 1588,
+          "y": 1026
+        }
+      ],
+      "options": [
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "Nathaniel-Parker-56a06c29",
+            "contestId": "Register-of-Probate-a4117da8",
+            "name": "Nathaniel Parker",
+            "isWriteIn": false,
+            "optionIndex": 0
+          },
+          "bounds": {
+            "x": 427,
+            "y": 876,
+            "width": 315,
+            "height": 139
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "Claire-Cutts-07a436e7",
+            "contestId": "Register-of-Probate-a4117da8",
+            "name": "Claire Cutts",
+            "isWriteIn": false,
+            "optionIndex": 1
+          },
+          "bounds": {
+            "x": 739,
+            "y": 880,
+            "width": 314,
+            "height": 139
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "write-in-0",
+            "contestId": "Register-of-Probate-a4117da8",
+            "name": "Write-In",
+            "isWriteIn": true,
+            "optionIndex": 2,
+            "writeInIndex": 0
+          },
+          "bounds": {
+            "x": 1317,
+            "y": 889,
+            "width": 271,
+            "height": 137
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "contestId": "County-Commissioner-d6feed25",
+      "bounds": {
+        "x": 426,
+        "y": 1010,
+        "width": 1160,
+        "height": 148
+      },
+      "corners": [
+        {
+          "x": 426,
+          "y": 1010
+        },
+        {
+          "x": 1586,
+          "y": 1010
+        },
+        {
+          "x": 426,
+          "y": 1158
+        },
+        {
+          "x": 1586,
+          "y": 1158
+        }
+      ],
+      "options": [
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "Ichabod-Goodwin-55e8de1f",
+            "contestId": "County-Commissioner-d6feed25",
+            "name": "Ichabod Goodwin",
+            "isWriteIn": false,
+            "optionIndex": 0
+          },
+          "bounds": {
+            "x": 426,
+            "y": 1010,
+            "width": 314,
+            "height": 139
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "Valbe-Cady-ba3af3af",
+            "contestId": "County-Commissioner-d6feed25",
+            "name": "Valbe Cady",
+            "isWriteIn": false,
+            "optionIndex": 1
+          },
+          "bounds": {
+            "x": 737,
+            "y": 1014,
+            "width": 314,
+            "height": 138
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "candidate",
+            "id": "write-in-0",
+            "contestId": "County-Commissioner-d6feed25",
+            "name": "Write-In",
+            "isWriteIn": true,
+            "optionIndex": 2,
+            "writeInIndex": 0
+          },
+          "bounds": {
+            "x": 1316,
+            "y": 1021,
+            "width": 270,
+            "height": 137
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "contestId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc",
+      "bounds": {
+        "x": 1047,
+        "y": 1241,
+        "width": 536,
+        "height": 138
+      },
+      "corners": [
+        {
+          "x": 1047,
+          "y": 1241
+        },
+        {
+          "x": 1583,
+          "y": 1241
+        },
+        {
+          "x": 1047,
+          "y": 1379
+        },
+        {
+          "x": 1583,
+          "y": 1379
+        }
+      ],
+      "options": [
+        {
+          "definition": {
+            "type": "yesno",
+            "id": "yes",
+            "contestId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc",
+            "name": "Yes",
+            "optionIndex": 0
+          },
+          "bounds": {
+            "x": 1047,
+            "y": 1241,
+            "width": 313,
+            "height": 136
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        },
+        {
+          "definition": {
+            "type": "yesno",
+            "id": "no",
+            "contestId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc",
+            "name": "No",
+            "optionIndex": 1
+          },
+          "bounds": {
+            "x": 1314,
+            "y": 1243,
+            "width": 269,
+            "height": 136
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 1
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -23,6 +23,7 @@ import { unconfigure } from '../api';
 import { routerPaths } from '../router_paths';
 import { OfficialResultsCard } from '../components/official_results_card';
 import { RevertResultsToUnofficialButton } from '../components/mark_official_button';
+import { DoubleVoteAlertModal } from '../components/adjudication_double_vote_alert_modal';
 
 const ElectionCard = styled(Card).attrs({ color: 'neutral' })`
   margin: 1rem 0;
@@ -56,6 +57,14 @@ export function ElectionScreen(): JSX.Element {
 
   return (
     <NavigationScreen title="Election">
+      <DoubleVoteAlertModal
+        doubleVoteAlert={{
+          type: 'marked-official-candidate',
+          name: 'Josiah Bartlett',
+          optionId: '7',
+        }}
+        onClose={() => {}}
+      />
       {isSystemAdministratorAuth(auth) && isOfficialResults && (
         <OfficialResultsCard>
           <H3>

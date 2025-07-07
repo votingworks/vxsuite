@@ -18,7 +18,7 @@ import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
-import { assertDefined, find } from '@votingworks/basics';
+import { assertDefined, find, sleep } from '@votingworks/basics';
 import { zipFile } from '@votingworks/test-utils';
 import {
   AdjudicationReason,
@@ -343,11 +343,13 @@ async function insertUsbDriveWithCvrs({
   convertToOfficial,
   usbHandler,
   electionDefinition,
+  temp,
 }: {
   cvrPath: string;
   convertToOfficial: boolean;
   usbHandler: MockFileUsbDriveHandler;
   electionDefinition: ElectionDefinition;
+  temp?: boolean;
 }): Promise<void> {
   const cvrPath = !convertToOfficial
     ? cvrPathFromProps
@@ -366,7 +368,9 @@ async function insertUsbDriveWithCvrs({
     election,
     ballotHash
   );
-  const testReportDirectoryName = 'machine_VX-00-000__2023-08-16_17-02-24';
+  const testReportDirectoryName = temp
+    ? 'machine_VX-00-000__2023-08-16_17-02-25'
+    : 'machine_VX-00-000__2023-08-16_17-02-24';
   usbHandler.insert({
     [electionDirectory]: {
       [SCANNER_RESULTS_FOLDER]: {
@@ -399,6 +403,10 @@ test('results', async ({ page }) => {
   await logInAsElectionManager(page, election);
   await page.getByRole('heading', { name: 'Election', exact: true }).waitFor();
   await screenshot('election-screen');
+
+  await page.getByText('Settings').click();
+  await sleep(2000);
+  await screenshot('settings-screen');
 
   await page.getByText('Tally').click();
   await page.getByText('Cast Vote Records (CVRs)').waitFor();
@@ -550,6 +558,7 @@ test('results', async ({ page }) => {
     .getByRole('heading', { name: 'Write-In Adjudication Report' })
     .waitFor();
   await waitForReportToLoad(page);
+  await sleep(2000);
   await screenshot('write-in-adjudication-report');
   await printAndSaveReport({
     page,
@@ -570,12 +579,32 @@ test('results', async ({ page }) => {
   await page.getByText('Election Results are Official').waitFor();
   await screenshot('reports-screen-official');
 
+  await page
+    .getByRole('button', { name: 'Full Election Tally Report' })
+    .click();
+  await page
+    .getByRole('heading', { name: 'Full Election Tally Report' })
+    .waitFor();
+  await waitForReportToLoad(page);
+  await screenshot('full-election-report-official');
+  await printAndSaveReport({
+    page,
+    printerHandler,
+    dir: 'results',
+    filename: 'full-election-report-official.pdf',
+  });
+
   await page.getByRole('button', { name: 'Tally', exact: true }).click();
   await page.getByText('Cast Vote Records (CVRs)').waitFor();
   await screenshot('tally-screen-official');
+
+  await logOut(page);
+  await logInAsSystemAdministrator(page);
+  await page.getByText('Revert Election Results to Unofficial').waitFor();
+  await screenshot('tally-screen-official-system-administrator');
 });
 
-test('adjudication', async ({ page }) => {
+test.only('adjudication', async ({ page }) => {
   const usbHandler = getMockFileUsbDriveHandler();
   const printerHandler = getMockFilePrinterHandler();
   printerHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
@@ -639,28 +668,41 @@ test('adjudication', async ({ page }) => {
   });
   await page.getByText('Load CVRs').click();
   await page.getByRole('button', { name: 'Load' }).click();
-  await page.getByText('1 New CVR Loaded').waitFor();
+  await page.getByText('2 New CVRs Loaded').waitFor();
   await page.getByRole('button', { name: 'Close' }).click();
-  await page.getByText('Total CVR Count: 1').waitFor();
+  await page.getByText('Total CVR Count: 2').waitFor();
 
   await page.getByText('Adjudication').click();
   await page.getByText('Adjudication Queue').waitFor();
 
-  await page.getByText('Adjudicate 1').first().click();
+  await page.getByText('Adjudicate 2').first().click();
   await page.getByText('Zoom Out').waitFor();
   await screenshot('adjudication-view');
   await page.getByText('Zoom Out').click();
   await expect(page.getByText('Zoom In')).toBeEnabled();
   await screenshot('adjudication-view-zoomed-out');
+  await page.getByText('Zoom In').click();
   await page.getByRole('combobox').click();
   await screenshot('adjudication-write-in-focused');
-  await page.getByRole('combobox').fill('New Candidate');
+  await page.getByRole('combobox').fill('Boulder');
   await page.keyboard.press('Enter');
   await screenshot('adjudication-write-in-new-candidate-adjudicated');
   await page.getByRole('button', { name: 'Dismiss' }).click();
   await screenshot('adjudication-marginal-mark-adjudicated');
+  await page.getByText('Save & Next').click();
+  // await page.getByText('Adjudication Queue').waitFor();
+  await page.getByText('Zoom Out').waitFor();
+  await page.getByText('Zoom Out').click();
+  await expect(page.getByText('Zoom In')).toBeEnabled();
+  await page.getByText('Zoom In').click();
+  await page.getByRole('combobox').click();
+  await page.getByRole('combobox').fill('Boulder');
+  await page.keyboard.press('Enter');
+  await page.getByRole('button', { name: 'Dismiss' }).click();
+  await screenshot('adjudication-1-contest-done');
   await page.getByText('Finish').click();
   await page.getByText('Adjudication Queue').waitFor();
+  await screenshot('adjudication-1-contest-done-queue');
 });
 
 test('manual results', async ({ page }) => {
