@@ -82,6 +82,7 @@ export default defineConfig(async (env) => {
     // Configure the Vite dev server to proxy API requests to the dev backend server
     server: {
       proxy: {
+        '/auth': 'http://localhost:3002',
         '/api': 'http://localhost:3002',
         '/files': 'http://localhost:3002',
       },

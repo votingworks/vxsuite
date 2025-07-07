@@ -80,7 +80,7 @@ export function baseUrl(): string {
     return `https://${herokuAppName}.herokuapp.com`;
   }
 
-  return requiredProdEnvVar('BASE_URL', `http://localhost:${PORT}`);
+  return requiredProdEnvVar('BASE_URL', `http://localhost:3000`);
 }
 
 /* istanbul ignore next - @preserve */
