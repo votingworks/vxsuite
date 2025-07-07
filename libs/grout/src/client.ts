@@ -11,6 +11,8 @@ const debug = rootDebug.extend('client');
 export type AsyncRpcMethod<Method extends AnyRpcMethod> = (
   ...args: Parameters<Method> extends []
     ? []
+    : Parameters<Method> extends [input: undefined, ...rest: unknown[]]
+    ? []
     : Parameters<Method> extends [input: infer Input, ...rest: unknown[]]
     ? [input: Input]
     : Parameters<Method> extends [input?: infer Input, ...rest: unknown[]]
