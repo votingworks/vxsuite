@@ -704,17 +704,6 @@ export function buildApp(context: AppContext): Application {
       })
     );
 
-    app.get('/auth/start', async (req, res) => {
-      await res.oidc.login({
-        returnTo: '/',
-        authorizationParams: {
-          scope: 'openid profile email',
-          // Try to propagate org ID context if available.
-          organization: req.query['organization'],
-        },
-      });
-    });
-
     // [TODO] Add API auth checks based on org ID.
     app.use('/api', (req, res, next) => {
       if (!req.oidc.isAuthenticated()) {
