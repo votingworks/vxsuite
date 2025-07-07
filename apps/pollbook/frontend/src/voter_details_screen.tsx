@@ -1,5 +1,6 @@
 import {
   Button,
+  ButtonBar,
   Caption,
   Card,
   H1,
@@ -19,6 +20,7 @@ import React, { useCallback, useState } from 'react';
 import type { Voter } from '@votingworks/pollbook-backend';
 import { assertDefined, sleep, assert } from '@votingworks/basics';
 import { PrinterStatus } from '@votingworks/types';
+import { DateTime } from 'luxon';
 import { electionManagerRoutes, NoNavScreen } from './nav_screen';
 import {
   getDeviceStatuses,
@@ -188,9 +190,6 @@ function VoterDetailsScreenLayout({
       <MainHeader>
         <Row style={{ justifyContent: 'space-between' }}>
           <H1>Voter Details</H1>
-          <Button icon="Delete" onPress={onClose} variant="primary">
-            Close
-          </Button>
         </Row>
       </MainHeader>
       <MainContent
@@ -198,6 +197,11 @@ function VoterDetailsScreenLayout({
       >
         {children}
       </MainContent>
+      <ButtonBar>
+        <Button onPress={onClose} variant="primary">
+          Close
+        </Button>
+      </ButtonBar>
     </NoNavScreen>
   );
 }
@@ -474,22 +478,29 @@ export function VoterDetailsScreen(): JSX.Element | null {
         </Column>
         <Column style={{ flex: 1, flexBasis: 1, gap: '1rem' }}>
           <Card color="neutral">
-            <Column style={{ gap: '1rem' }}>
-              {voter.isInactive && (
+            {voter.isInactive && (
+              <H2 style={{ marginTop: 0 }}>
+                <Icons.Flag /> Inactive
+              </H2>
+            )}
+            {!voter.checkIn && !voter.isInactive && (
+              <H2 style={{ marginTop: 0 }}>
+                <Icons.Info /> Not Checked In
+              </H2>
+            )}
+            {voter.checkIn && !voter.isInactive && (
+              <React.Fragment>
                 <H2 style={{ marginTop: 0 }}>
-                  <Icons.Flag /> Inactive
+                  <Icons.Done /> Checked In
                 </H2>
-              )}
-              {!voter.checkIn && !voter.isInactive && (
-                <H2 style={{ marginTop: 0 }}>Not checked in</H2>
-              )}
-              {voter.checkIn && !voter.isInactive && (
-                <React.Fragment>
-                  <H2 style={{ marginTop: 0 }}>Checked in</H2>
+                <Column style={{ gap: '1rem' }}>
                   <LabelledText label="Time">
-                    {voter.checkIn.timestamp}
+                    {DateTime.fromISO(voter.checkIn.timestamp).toLocaleString({
+                      ...DateTime.DATETIME_SHORT,
+                      second: 'numeric',
+                    })}
                   </LabelledText>
-                  <LabelledText label="Machine">
+                  <LabelledText label="Poll Book">
                     {voter.checkIn.machineId}
                   </LabelledText>
                   {voter.checkIn.identificationMethod.type ===
@@ -503,9 +514,9 @@ export function VoterDetailsScreen(): JSX.Element | null {
                       </LabelledText>
                     </React.Fragment>
                   )}
-                </React.Fragment>
-              )}
-            </Column>
+                </Column>
+              </React.Fragment>
+            )}
           </Card>
           {!voter.checkIn && !voter.isInactive && (
             <Button
@@ -532,6 +543,8 @@ export function VoterDetailsScreen(): JSX.Element | null {
               <Button
                 icon="Delete"
                 onPress={() => setShowUndoCheckinFlow(true)}
+                color="danger"
+                fill="outlined"
               >
                 Undo Check-In
               </Button>
