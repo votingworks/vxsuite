@@ -54,6 +54,7 @@ import {
   PollbookConfigurationInformation,
   AamvaDocument,
   isBarcodeScannerError,
+  BallotPartyAbbreviation,
 } from './types';
 import { rootDebug } from './debug';
 import {
@@ -266,13 +267,34 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
     async checkInVoter(input: {
       voterId: string;
       identificationMethod: VoterIdentificationMethod;
+      ballotParty?: BallotPartyAbbreviation;
     }): Promise<Result<void, VoterCheckInError>> {
       const election = assertDefined(store.getElection());
-      const { checkIn } = store.getVoter(input.voterId);
+      const { checkIn, party: voterParty } = store.getVoter(input.voterId);
       if (checkIn) {
         return err('already_checked_in');
       }
-      const { voter, receiptNumber } = store.recordVoterCheckIn(input);
+
+      let ballotParty;
+      if (voterParty === 'UND') {
+        // If party is Undeclared then caller must specify a ballot party.
+        if (!input.ballotParty) {
+          return err('no_party_specified');
+        }
+        ballotParty = input.ballotParty;
+      } else {
+        // If voter party is declared then caller must specify the same party or no party.
+        if (input.ballotParty && input.ballotParty !== voterParty) {
+          return err('mismatched_party_selection');
+        }
+
+        ballotParty = voterParty;
+      }
+
+      const { voter, receiptNumber } = store.recordVoterCheckIn({
+        ...input,
+        ballotParty,
+      });
       debug('Checked in voter %s', voter.voterId);
 
       const receipt = React.createElement(CheckInReceipt, {

@@ -40,6 +40,7 @@ import {
   VoterRegistrationRequest,
   VoterSchema,
   VoterSearchParams,
+  BallotPartyAbbreviation,
 } from './types';
 import {
   applyPollbookEventsToVoters,
@@ -294,9 +295,11 @@ export class LocalStore extends Store {
   recordVoterCheckIn({
     voterId,
     identificationMethod,
+    ballotParty,
   }: {
     voterId: string;
     identificationMethod: VoterIdentificationMethod;
+    ballotParty: BallotPartyAbbreviation;
   }): { voter: Voter; receiptNumber: number } {
     debug(`Recording check-in for voter ${voterId}`);
     const voter = this.getVoter(voterId);
@@ -308,6 +311,7 @@ export class LocalStore extends Store {
       machineId: this.machineId,
       receiptNumber,
       timestamp: isoTimestamp, // human readable timestamp for paper backup
+      ballotParty,
     };
     const timestamp = this.incrementClock();
     this.client.transaction(() => {
