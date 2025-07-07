@@ -128,6 +128,14 @@ const UpdateElectionInfoInputSchema = z.object({
   languageCodes: z.array(LanguageCodeSchema),
 });
 
+function hasAccess(user: User, orgId: string): boolean {
+  if (user.orgId === votingWorksOrgId()) {
+    return true;
+  }
+
+  return user.orgId === orgId;
+}
+
 function buildApi({ auth0, logger, workspace, translator }: AppContext) {
   const { store } = workspace;
 
@@ -166,7 +174,7 @@ function buildApi({ auth0, logger, workspace, translator }: AppContext) {
         orgId: string;
       }>
     ): Promise<Result<ElectionId, Error>> {
-      if (!auth0.hasAccess(input.user, input.orgId)) {
+      if (!hasAccess(input.user, input.orgId)) {
         throw new grout.GroutError('Access denied', {
           cause: 'Cannot create election for another org',
         });
@@ -228,7 +236,7 @@ function buildApi({ auth0, logger, workspace, translator }: AppContext) {
         orgId: string;
       }>
     ): Promise<Result<ElectionId, Error>> {
-      if (!auth0.hasAccess(input.user, input.orgId)) {
+      if (!hasAccess(input.user, input.orgId)) {
         throw new grout.GroutError('Access denied', {
           cause: 'Cannot create election for another org',
         });
@@ -259,12 +267,12 @@ function buildApi({ auth0, logger, workspace, translator }: AppContext) {
         systemSettings,
       } = await store.getElection(input.srcId);
 
-      if (!auth0.hasAccess(input.user, orgId)) {
+      if (!hasAccess(input.user, orgId)) {
         throw new grout.GroutError('Access denied', {
           cause: 'Cannot clone election: invalid source organization.',
         });
       }
-      if (!auth0.hasAccess(input.user, input.destOrgId)) {
+      if (!hasAccess(input.user, input.destOrgId)) {
         throw new grout.GroutError('Access denied', {
           cause: 'Cannot clone election: invalid destination organization.',
         });

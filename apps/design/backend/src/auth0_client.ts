@@ -29,7 +29,6 @@ export interface Connection {
 
 export interface Auth0ClientInterface {
   allOrgs(): Promise<Org[]>;
-  hasAccess(user: User, orgId: string): boolean;
   org(id: string): Promise<Org>;
   userFromRequest(req: Express.Request): Auth0User | undefined;
 
@@ -236,14 +235,6 @@ export class Auth0Client implements Auth0ClientInterface {
     });
   }
 
-  hasAccess(user: User, orgId: string): boolean {
-    if (user.orgId === votingWorksOrgId()) {
-      return true;
-    }
-
-    return user.orgId === orgId;
-  }
-
   async org(id: string): Promise<Org> {
     const res = await this.organizations.get({ id });
 
@@ -300,14 +291,6 @@ export class Auth0Client implements Auth0ClientInterface {
             name: 'city-of-testerton',
           },
         ]);
-      },
-
-      hasAccess(user: User, orgId: string): boolean {
-        if (user.orgId === votingWorksOrgId()) {
-          return true;
-        }
-
-        return user.orgId === orgId;
       },
 
       async org(id: string): Promise<Org | undefined> {

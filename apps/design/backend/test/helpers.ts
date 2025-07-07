@@ -45,23 +45,14 @@ const vendoredTranslations: VendoredTranslations = {
 
 class MockAuth0Client implements Auth0ClientInterface {
   private mockAllOrgs: readonly Org[] = [];
-  private mockHasAccess: Auth0Client['hasAccess'] = () => true;
   private mockUserFromRequest: Auth0Client['userFromRequest'] = () => undefined;
 
-  constructor(
-    allOrgs: readonly Org[] = [],
-    hasAccess: (user: User, orgId: string) => boolean = () => true
-  ) {
+  constructor(allOrgs: readonly Org[] = []) {
     this.mockAllOrgs = allOrgs;
-    this.mockHasAccess = hasAccess;
   }
 
   public async allOrgs(): Promise<Org[]> {
     return this.mockAllOrgs.slice();
-  }
-
-  hasAccess(user: User, orgId: string): boolean {
-    return this.mockHasAccess(user, orgId);
   }
 
   async org(id: string): Promise<Org> {
@@ -120,7 +111,6 @@ export function testSetupHelpers() {
     opts: {
       auth?: {
         orgs?: readonly Org[];
-        hasAccess?: (user: User, orgId: string) => boolean;
       };
     } = {}
   ) {
@@ -129,7 +119,7 @@ export function testSetupHelpers() {
 
     const workspace = createWorkspace(tmp.dirSync().name, baseLogger, store);
 
-    const auth0 = new MockAuth0Client(opts.auth?.orgs, opts.auth?.hasAccess);
+    const auth0 = new MockAuth0Client(opts.auth?.orgs);
     const fileStorageClient = new MockFileStorageClient();
     const speechSynthesizer = new GoogleCloudSpeechSynthesizerWithDbCache({
       store,
