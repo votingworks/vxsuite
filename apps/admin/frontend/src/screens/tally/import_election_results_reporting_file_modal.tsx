@@ -71,7 +71,7 @@ export function ImportElectionsResultReportingFileModal({
       filters: [
         {
           name: '',
-          extensions: 'json',
+          extensions: ['json'],
         },
       ],
     });

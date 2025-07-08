@@ -230,7 +230,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
       filters: [
         {
           name: '',
-          extensions: 'json',
+          extensions: ['json'],
         },
       ],
     });
