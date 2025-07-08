@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
-import { ContestId, ContestOptionId } from '@votingworks/types';
+import { ContestId, ContestOptionId, Id } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { Route } from 'react-router-dom';
 import type {
@@ -53,6 +53,15 @@ function renderScreen(
       ...appContextParams,
     }
   );
+}
+
+async function waitForBallotById(id: Id) {
+  // First wait for the ballot ID, as we may have scrolled from another ballot
+  await expect(
+    screen.findByTestId(`transcribe:${id}`)
+  ).resolves.toBeInTheDocument();
+  // Then wait for the checkboxes to be rendered, indicating the ballot data is fully loaded
+  await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
 }
 
 function getDropdownItemByLabel(label: string) {
@@ -149,8 +158,7 @@ describe('hmpb write-in adjudication', () => {
       apiMock,
     });
 
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
+    await waitForBallotById('id-174');
 
     const writeInCheckbox = screen.getByRole('checkbox', {
       checked: true,
@@ -205,8 +213,7 @@ describe('hmpb write-in adjudication', () => {
       apiMock,
     });
 
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
+    await waitForBallotById('id-174');
 
     const writeInCheckbox = screen.getByRole('checkbox', {
       checked: true,
@@ -272,8 +279,7 @@ describe('hmpb write-in adjudication', () => {
       apiMock,
     });
 
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
+    await waitForBallotById('id-174');
     const writeInCheckbox = screen.getByRole('checkbox', {
       checked: true,
       name: /write-in/i,
@@ -357,8 +363,7 @@ describe('hmpb write-in adjudication', () => {
       apiMock,
     });
 
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
+    await waitForBallotById('id-174');
     const writeInCheckbox = screen.getByRole('checkbox', {
       checked: true,
       name: /write-in/i,
@@ -488,8 +493,7 @@ describe('bmd write-in adjudication', () => {
       apiMock,
     });
 
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
+    await waitForBallotById('id-174');
     let writeInCheckbox = screen.getByRole('checkbox', {
       name: /machine-marked-mock-text/i,
     });
@@ -605,8 +609,7 @@ describe('vote adjudication', () => {
       apiMock,
     });
 
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
+    await waitForBallotById('id-174');
     const kangarooCheckbox = screen.getByRole('checkbox', {
       name: /kangaroo/i,
     });
@@ -680,9 +683,7 @@ describe('vote adjudication', () => {
     apiMock.expectGetMarginalMarks({ cvrId: cvrId2, contestId }, []);
 
     userEvent.click(primaryButton);
-    await waitFor(() => {
-      expect(screen.queryByTestId('transcribe:id-175')).toBeInTheDocument();
-    });
+    await waitForBallotById('id-175');
   });
 
   test('bmd ballots cannot have votes adjudicated', async () => {
@@ -714,8 +715,7 @@ describe('vote adjudication', () => {
       apiMock,
     });
 
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
+    await waitForBallotById('id-174');
     const ballotImage = await screen.findByRole('img', {
       name: /full ballot/i,
     });
@@ -786,8 +786,7 @@ describe('unmarked and undetected write-ins', () => {
       apiMock,
     });
 
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
+    await waitForBallotById('id-174');
     expect(
       screen
         .getAllByRole('checkbox', { name: /write-in/i })
@@ -1028,8 +1027,7 @@ describe('ballot navigation', () => {
       apiMock,
     });
 
-    await screen.findByTestId('transcribe:id-175');
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
+    await waitForBallotById('id-175');
 
     // verify buttons are enabled/disabled
     let skipButton = getButtonByName('skip');
@@ -1056,8 +1054,7 @@ describe('ballot navigation', () => {
     apiMock.expectGetMarginalMarks({ cvrId: cvrIds[0], contestId }, []);
     userEvent.click(backButton);
 
-    await screen.findByTestId('transcribe:id-174');
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
+    await waitForBallotById('id-174');
 
     // verify buttons are enabled/disabled
     skipButton = getButtonByName('skip');
@@ -1087,10 +1084,9 @@ describe('ballot navigation', () => {
     apiMock.expectGetMarginalMarks({ cvrId: cvrIds[2], contestId }, []);
     skipButton = getButtonByName('skip');
     userEvent.click(skipButton);
-    await screen.findByTestId('transcribe:id-176');
+    await waitForBallotById('id-176');
 
     // verify buttons are enabled/disabled
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
     const exitButton = getButtonByName('exit');
     expect(exitButton).toBeEnabled();
     backButton = getButtonByName('back');
@@ -1148,8 +1144,7 @@ describe('ballot image viewer', () => {
       apiMock,
     });
 
-    await screen.findByTestId('transcribe:id-174');
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
+    await waitForBallotById('id-174');
 
     let ballotImage = await screen.findByRole('img', {
       name: /ballot with section highlighted/i,
@@ -1225,8 +1220,7 @@ describe('ballot image viewer', () => {
 
     // When switching to previous adjudication, resets to zoomed in
     userEvent.click(screen.getButton(/Back/));
-    await screen.findByTestId('transcribe:id-174');
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
+    await waitForBallotById('id-174');
     ballotImage = await screen.findByRole('img', {
       name: /ballot with section highlighted/i,
     });
@@ -1295,8 +1289,7 @@ describe('ballot image viewer', () => {
       apiMock,
     });
 
-    await screen.findByTestId('transcribe:id-174');
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
+    await waitForBallotById('id-174');
     let ballotImage = await screen.findByRole('img', {
       name: /Full ballot/i,
     });
@@ -1383,8 +1376,7 @@ describe('double votes', () => {
       apiMock,
     });
 
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
+    await waitForBallotById('id-174');
     const kangarooCheckbox = screen.getByRole('checkbox', {
       checked: true,
       name: /kangaroo/i,
@@ -1438,8 +1430,7 @@ describe('double votes', () => {
       apiMock,
     });
 
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
+    await waitForBallotById('id-174');
     const kangarooCheckbox = screen.getByRole('checkbox', {
       checked: true,
       name: /kangaroo/i,
@@ -1471,8 +1462,7 @@ describe('double votes', () => {
       apiMock,
     });
 
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
+    await waitForBallotById('id-174');
     const kangarooCheckbox = screen.getByRole('checkbox', {
       checked: true,
       name: /kangaroo/i,
@@ -1539,8 +1529,7 @@ describe('unsaved changes', () => {
       apiMock,
     });
 
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
+    await waitForBallotById('id-174');
 
     let elephantCheckbox = getCheckboxByName('elephant');
     expect(elephantCheckbox).not.toBeChecked();
@@ -1575,8 +1564,7 @@ describe('unsaved changes', () => {
       apiMock,
     });
 
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
+    await waitForBallotById('id-174');
 
     apiMock.expectGetCastVoteRecordVoteInfo(
       { cvrId: cvrId2 },
@@ -1592,8 +1580,7 @@ describe('unsaved changes', () => {
     const skipButton = screen.getByRole('button', { name: /skip/i });
     userEvent.click(skipButton);
 
-    await screen.findByTestId('transcribe:id-175');
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
+    await waitForBallotById('id-175');
 
     let elephantCheckbox = getCheckboxByName('elephant');
     expect(elephantCheckbox).not.toBeChecked();
@@ -1619,8 +1606,7 @@ describe('unsaved changes', () => {
       name: /discard changes/i,
     });
     userEvent.click(modalDiscardButton);
-    await screen.findByTestId('transcribe:id-174');
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
+    await waitForBallotById('id-174');
   });
 
   test('detects unsaved changes when navigating with the skip button', async () => {
@@ -1629,8 +1615,7 @@ describe('unsaved changes', () => {
       apiMock,
     });
 
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
+    await waitForBallotById('id-174');
 
     let elephantCheckbox = getCheckboxByName('elephant');
     expect(elephantCheckbox).not.toBeChecked();
@@ -1677,8 +1662,7 @@ describe('unsaved changes', () => {
       apiMock,
     });
 
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
+    await waitForBallotById('id-174');
 
     const closeButton = getButtonByName('close');
     const kangarooCheckbox = screen.getByRole('checkbox', {
@@ -1735,11 +1719,23 @@ describe('unsaved changes', () => {
 });
 
 describe('marginal mark adjudication', () => {
+  const contestId = 'zoo-council-mammal';
+  const cvrIds = ['id-174', 'id-175'];
+  const cvrId = cvrIds[0];
+  const cvrId2 = cvrIds[1];
+
+  beforeEach(() => {
+    apiMock.expectGetAdjudicationQueue({ contestId }, cvrIds);
+    apiMock.expectGetNextCvrIdForAdjudication({ contestId }, null);
+    apiMock.expectGetWriteInCandidates([], contestId);
+
+    apiMock.expectGetCastVoteRecordVoteInfo({ cvrId }, { [contestId]: [] });
+    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
+    apiMock.expectGetBallotImageView({ contestId, cvrId }, false);
+    apiMock.expectGetBallotImageView({ contestId, cvrId: cvrId2 }, false);
+  });
+
   test('hmpb ballot can have marginally marked official option adjudicated', async () => {
-    const contestId = 'zoo-council-mammal';
-    const cvrIds = ['id-174', 'id-175'];
-    const cvrId = cvrIds[0];
-    const cvrId2 = cvrIds[1];
     const marginalMarks = ['kangaroo', 'elephant'];
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
@@ -1748,15 +1744,8 @@ describe('marginal mark adjudication', () => {
       hasMarginalMark: true,
     };
 
-    apiMock.expectGetAdjudicationQueue({ contestId }, cvrIds);
-    apiMock.expectGetNextCvrIdForAdjudication({ contestId }, null);
-    apiMock.expectGetCastVoteRecordVoteInfo({ cvrId }, { [contestId]: [] });
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
-    apiMock.expectGetWriteIns({ contestId, cvrId }, []);
-    apiMock.expectGetBallotImageView({ contestId, cvrId }, false);
-    apiMock.expectGetBallotImageView({ contestId, cvrId: cvrId2 }, false);
-    apiMock.expectGetWriteInCandidates([], contestId);
     apiMock.expectGetCvrContestTag({ cvrId, contestId }, cvrContestTag);
+    apiMock.expectGetWriteIns({ contestId, cvrId }, []);
     apiMock.expectGetMarginalMarks({ cvrId, contestId }, marginalMarks);
 
     renderScreen(contestId, {
@@ -1764,46 +1753,43 @@ describe('marginal mark adjudication', () => {
       apiMock,
     });
 
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
-    const kangarooCheckbox = screen.getByRole('checkbox', {
-      name: /kangaroo/i,
-    });
-    const elephantCheckbox = screen.getByRole('checkbox', {
-      name: /elephant/i,
-    });
+    await waitForBallotById('id-174');
+    expect(screen.queryAllByText(/review marginal mark/i).length).toEqual(
+      marginalMarks.length
+    );
     expect(getButtonByName('save & next')).toBeDisabled();
 
     // address one marginal mark by clicking it's checkbox, making it valid
-    expect(kangarooCheckbox).not.toBeChecked();
-    expect(screen.queryAllByText(/review marginal mark/i).length).toEqual(2);
     expect(screen.queryByText(/valid/i)).toBeNull();
-    userEvent.click(kangarooCheckbox);
-    expect(kangarooCheckbox).toBeChecked();
-    // caption should now show
+    expect(getCheckboxByName('kangaroo')).not.toBeChecked();
+    userEvent.click(getCheckboxByName('kangaroo'));
+    expect(getCheckboxByName('kangaroo')).toBeChecked();
+
+    // check adjudication caption, removal of one flag
     expect(screen.queryByText(/valid/i)).toBeInTheDocument();
-    // one less flag should be showing now
     expect(screen.queryAllByText(/review marginal mark/i).length).toEqual(1);
 
     // address the other by dismissing the flag, making it invalid
-    expect(elephantCheckbox).not.toBeChecked();
     expect(screen.queryByText(/invalid/i)).toBeNull();
+    expect(getCheckboxByName('elephant')).not.toBeChecked();
     userEvent.click(getButtonByName('dismiss'));
-    expect(elephantCheckbox).not.toBeChecked();
-    // caption should now show
+    expect(getCheckboxByName('elephant')).not.toBeChecked();
+
+    // check adjudication caption, removal of last flag
     expect(screen.queryByText(/invalid/i)).toBeInTheDocument();
-
-    // both flags are now gone
     expect(screen.queryByText(/review marginal mark/i)).toBeNull();
+    expect(getButtonByName('save & next')).toBeEnabled();
 
-    const primaryButton = screen.getByRole('button', { name: /save & next/i });
-    expect(primaryButton).toBeEnabled();
-
-    // adjudicate contest and move to next ballot
-    const adjudicatedCvrContest = formAdjudicatedCvrContest(cvrId, {
-      kangaroo: { type: 'candidate-option', hasVote: true },
-    });
-    apiMock.expectAdjudicateCvrContest(adjudicatedCvrContest);
+    // adjudicate contest, reload invalidated queries
+    apiMock.expectAdjudicateCvrContest(
+      formAdjudicatedCvrContest(cvrId, {
+        kangaroo: { type: 'candidate-option', hasVote: true },
+      })
+    );
+    apiMock.expectGetCastVoteRecordVoteInfo(
+      { cvrId: cvrId2 },
+      { [contestId]: ['kangaroo'] }
+    );
     apiMock.expectGetVoteAdjudications({ contestId, cvrId }, [
       {
         electionId,
@@ -1813,43 +1799,35 @@ describe('marginal mark adjudication', () => {
         isVote: true,
       },
     ]);
-    apiMock.expectGetWriteIns({ contestId, cvrId }, []);
-    apiMock.expectGetWriteInCandidates([], contestId);
     apiMock.expectGetCvrContestTag(
       { cvrId, contestId },
       { ...cvrContestTag, isResolved: true }
     );
+    apiMock.expectGetWriteIns({ contestId, cvrId }, []);
+    apiMock.expectGetWriteInCandidates([], contestId);
 
-    apiMock.expectGetCastVoteRecordVoteInfo(
-      { cvrId: cvrId2 },
-      { [contestId]: ['kangaroo'] }
-    );
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId: cvrId2 }, []);
+    // Scroll to next cvr, and scroll back
     apiMock.expectGetWriteIns({ contestId, cvrId: cvrId2 }, []);
+    apiMock.expectGetVoteAdjudications({ contestId, cvrId: cvrId2 }, []);
+    apiMock.expectGetMarginalMarks({ cvrId: cvrId2, contestId }, []);
     apiMock.expectGetCvrContestTag(
       { cvrId: cvrId2, contestId },
-      { ...cvrContestTag, isResolved: true }
+      { ...cvrContestTag, cvrId: cvrId2 }
     );
-    apiMock.expectGetMarginalMarks({ cvrId: cvrId2, contestId }, []);
-    userEvent.click(primaryButton);
-
-    await screen.findByTestId('transcribe:id-175');
+    userEvent.click(getButtonByName('save & next'));
+    await waitForBallotById('id-175');
     userEvent.click(getButtonByName('back'));
 
-    // flags shouldn't be there anymore and captions should remain
-    await screen.findByTestId('transcribe:id-174');
+    // Flags shouldn't be there and captions should be
+    await waitForBallotById('id-174');
     expect(screen.queryByText(/review marginal mark/i)).toBeNull();
     expect(screen.queryAllByText(/marginal mark/i).length).toEqual(2);
     expect(screen.queryByText(/invalid/i)).toBeInTheDocument();
-    // there is only one valid marginal mark, but the text also exists within 'invalid mark'
+    // There is only one valid marginal mark, but the text also exists within 'invalid mark'
     expect(screen.queryAllByText(/valid/i).length).toEqual(2);
   });
 
   test('hmpb ballot can have marginally marked write-in adjudicated', async () => {
-    const contestId = 'zoo-council-mammal';
-    const cvrIds = ['id-174', 'id-175'];
-    const cvrId = cvrIds[0];
-    const cvrId2 = cvrIds[1];
     const marginalMarks = ['write-in-0'];
     const cvrContestTag: CvrContestTag = {
       isResolved: false,
@@ -1868,14 +1846,7 @@ describe('marginal mark adjudication', () => {
       isUnmarked: true,
     };
 
-    apiMock.expectGetAdjudicationQueue({ contestId }, cvrIds);
-    apiMock.expectGetNextCvrIdForAdjudication({ contestId }, cvrId);
-    apiMock.expectGetCastVoteRecordVoteInfo({ cvrId }, { [contestId]: [] });
-    apiMock.expectGetVoteAdjudications({ contestId, cvrId }, []);
     apiMock.expectGetWriteIns({ contestId, cvrId }, [writeInRecord]);
-    apiMock.expectGetBallotImageView({ contestId, cvrId }, false);
-    apiMock.expectGetBallotImageView({ contestId, cvrId: cvrId2 }, false);
-    apiMock.expectGetWriteInCandidates([], contestId);
     apiMock.expectGetCvrContestTag({ cvrId, contestId }, cvrContestTag);
     apiMock.expectGetMarginalMarks({ cvrId, contestId }, marginalMarks);
 
@@ -1884,50 +1855,65 @@ describe('marginal mark adjudication', () => {
       apiMock,
     });
 
-    await expect(screen.findAllByRole('checkbox')).resolves.not.toHaveLength(0);
-    expect(screen.queryByTestId('transcribe:id-174')).toBeInTheDocument();
+    await waitForBallotById('id-174');
+    expect(getButtonByName('save & next')).toBeDisabled();
+
     const writeIn0Checkbox = screen.getAllByRole('checkbox', {
       name: /write-in/i,
     })[0];
     expect(writeIn0Checkbox).not.toBeChecked();
-    expect(getButtonByName('save & next')).toBeDisabled();
 
-    // The marginal mark flag should not show since write-in adjudication is showing
+    // The marginal mark flag will not show since write-in adjudication is showing
+    expect(screen.getByRole('combobox')).toBeInTheDocument();
     expect(screen.queryAllByText(/marginal mark/i).length).toEqual(0);
     expect(screen.queryByText(/ambiguous write-in/i)).toBeNull();
-    expect(screen.queryByText(/valid/i)).toBeNull();
+
+    // Click the checkbox to adjudicate as valid vote
     userEvent.click(writeIn0Checkbox);
-    expect(writeIn0Checkbox).toBeChecked();
+    expect(
+      screen.getAllByRole('checkbox', {
+        name: /write-in/i,
+      })[0]
+    ).toBeChecked();
 
     // Click again to adjudicate as invalid
     userEvent.click(writeIn0Checkbox);
-    expect(writeIn0Checkbox).not.toBeChecked();
-    // caption should now show as it is adjudicated
+    expect(
+      screen.getAllByRole('checkbox', {
+        name: /write-in/i,
+      })[0]
+    ).not.toBeChecked();
+
+    // Caption should now show as it is fully adjudicated
     expect(screen.queryByText(/ambiguous write-in/i)).toBeInTheDocument();
     expect(screen.queryByText(/invalid/i)).toBeInTheDocument();
 
-    // Click again to bring back the select to adjudicate as candidate
+    // Click again to bring back the search select, adjudicate as candidate
     userEvent.click(writeIn0Checkbox);
-    let writeInSearchSelect = screen.getByRole('combobox');
-    expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'false');
-    fireEvent.keyDown(writeInSearchSelect, { key: 'ArrowDown' });
-    writeInSearchSelect = screen.getByRole('combobox');
-    expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
-    const elephantDropdownItem = getDropdownItemByLabel('Elephant');
-    userEvent.click(elephantDropdownItem!);
+    expect(screen.getByRole('combobox')).toHaveAttribute(
+      'aria-expanded',
+      'false'
+    );
+    fireEvent.keyDown(screen.getByRole('combobox'), { key: 'ArrowDown' });
+    expect(screen.getByRole('combobox')).toHaveAttribute(
+      'aria-expanded',
+      'true'
+    );
+    userEvent.click(getDropdownItemByLabel('Elephant')!);
 
     expect(getButtonByName('save & next')).toBeEnabled();
 
-    // adjudicate contest and move to next ballot
-    const adjudicatedCvrContest = formAdjudicatedCvrContest(cvrId, {
-      'write-in-0': {
-        type: 'write-in-option',
-        hasVote: true,
-        candidateType: 'official-candidate',
-        candidateId: 'elephant',
-      },
-    });
-    apiMock.expectAdjudicateCvrContest(adjudicatedCvrContest);
+    // Adjudicate contest, reload invalidated queries
+    apiMock.expectAdjudicateCvrContest(
+      formAdjudicatedCvrContest(cvrId, {
+        'write-in-0': {
+          type: 'write-in-option',
+          hasVote: true,
+          candidateType: 'official-candidate',
+          candidateId: 'elephant',
+        },
+      })
+    );
     apiMock.expectGetVoteAdjudications({ contestId, cvrId }, [
       {
         electionId,
@@ -1944,32 +1930,27 @@ describe('marginal mark adjudication', () => {
       { ...cvrContestTag, isResolved: true }
     );
 
+    // Scroll to next cvr, and scroll back
     apiMock.expectGetCastVoteRecordVoteInfo(
       { cvrId: cvrId2 },
-      { [contestId]: ['write-in-0'] }
+      { [contestId]: [] }
     );
     apiMock.expectGetVoteAdjudications({ contestId, cvrId: cvrId2 }, []);
-    apiMock.expectGetWriteIns({ contestId, cvrId: cvrId2 }, [
-      {
-        ...writeInRecord,
-        status: 'adjudicated',
-        adjudicationType: 'official-candidate',
-        candidateId: 'elephant',
-      },
-    ]);
+    apiMock.expectGetWriteIns({ contestId, cvrId: cvrId2 }, []);
     apiMock.expectGetCvrContestTag(
       { cvrId: cvrId2, contestId },
-      { ...cvrContestTag, isResolved: true }
+      { ...cvrContestTag, cvrId: cvrId2 }
     );
-    apiMock.expectGetMarginalMarks({ cvrId: cvrId2, contestId }, []);
+    apiMock.expectGetMarginalMarks({ cvrId: cvrId2, contestId }, [
+      'write-in-0',
+    ]);
     userEvent.click(getButtonByName('save & next'));
-
-    await screen.findByTestId('transcribe:id-175');
+    await waitForBallotById('id-175');
     userEvent.click(getButtonByName('back'));
 
-    // flags shouldn't be there anymore and captions should remain
-    await screen.findByTestId('transcribe:id-174');
-    expect(screen.queryAllByText(/ambiguous write-in/i).length).toEqual(1);
+    // Valid caption should be present
+    await waitForBallotById('id-174');
+    expect(screen.queryByText(/ambiguous write-in/i)).toBeInTheDocument();
     expect(screen.queryByText(/valid/i)).toBeInTheDocument();
   });
 });
