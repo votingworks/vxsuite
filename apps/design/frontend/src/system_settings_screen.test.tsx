@@ -50,7 +50,6 @@ function renderScreen() {
 
 test('feature flag to hide marginal mark thresholds', async () => {
   mockUserFeatures(apiMock, { MARGINAL_MARK_THRESHOLD_OPTION: false });
-  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(electionRecord.systemSettings);
@@ -67,7 +66,6 @@ test('feature flag to hide marginal mark thresholds', async () => {
 });
 
 test('mark thresholds', async () => {
-  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(electionRecord.systemSettings);
@@ -128,7 +126,6 @@ test('mark thresholds', async () => {
 });
 
 test('minimum detected scale', async () => {
-  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(electionRecord.systemSettings);
@@ -163,7 +160,6 @@ test('minimum detected scale', async () => {
 });
 
 test('adjudication reasons', async () => {
-  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(electionRecord.systemSettings);
@@ -234,7 +230,6 @@ test('adjudication reasons', async () => {
 });
 
 test('setting write-in text area threshold', async () => {
-  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(electionRecord.systemSettings);
@@ -343,7 +338,6 @@ function expectUncheckedThenCheck(container: HTMLElement, name: string) {
 }
 
 test('setting auth settings', async () => {
-  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(electionRecord.systemSettings);
@@ -424,7 +418,6 @@ test('setting auth settings', async () => {
 });
 
 test('setting "other" system settings', async () => {
-  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(electionRecord.systemSettings);
@@ -477,7 +470,6 @@ test('setting "other" system settings', async () => {
 
 test('cancelling', async () => {
   const { systemSettings } = electionRecord;
-  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(systemSettings);
@@ -514,7 +506,6 @@ test('cancelling', async () => {
 test('all controls are disabled until clicking "Edit"', async () => {
   mockUserFeatures(apiMock, { MARGINAL_MARK_THRESHOLD_OPTION: true });
   const { systemSettings } = electionRecord;
-  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(systemSettings);

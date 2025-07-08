@@ -101,7 +101,6 @@ async function exportTestDecksAndExpectDownload(
 }
 
 test('export test decks', async () => {
-  apiMock.getUser.expectCallWith().resolves(user);
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });
   await exportTestDecksAndExpectDownload('vxf');
@@ -109,7 +108,6 @@ test('export test decks', async () => {
 
 test('feature flag to hide export test decks', async () => {
   mockUserFeatures(apiMock, { EXPORT_TEST_DECKS: false });
-  apiMock.getUser.expectCallWith().resolves(user);
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });
 
@@ -117,7 +115,6 @@ test('feature flag to hide export test decks', async () => {
 });
 
 test('export election package and ballots', async () => {
-  apiMock.getUser.expectCallWith().resolves(user);
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });
 
@@ -176,7 +173,6 @@ test.each([
 ])(
   'when export audio toggle is $shouldExportAudio',
   async ({ shouldExportAudio, buttonText }) => {
-    apiMock.getUser.expectCallWith().resolves(user);
     renderScreen();
     await screen.findAllByRole('heading', { name: 'Export' });
 
@@ -214,7 +210,6 @@ test.each([
 );
 
 test('export election package error handling', async () => {
-  apiMock.getUser.expectCallWith().resolves(user);
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });
 
@@ -266,7 +261,6 @@ test('export election package error handling', async () => {
 });
 
 test('using CDF', async () => {
-  apiMock.getUser.expectCallWith().resolves(user);
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });
 
@@ -318,7 +312,6 @@ test('using CDF', async () => {
 });
 
 test('export ballots with audit ballot IDs', async () => {
-  apiMock.getUser.expectCallWith().resolves(user);
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });
 
@@ -356,7 +349,6 @@ test('export ballots with audit ballot IDs', async () => {
 
 test('feature flag to hide ballot template selector', async () => {
   mockUserFeatures(apiMock, { CHOOSE_BALLOT_TEMPLATE: false });
-  apiMock.getUser.expectCallWith().resolves(user);
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });
 
@@ -364,7 +356,6 @@ test('feature flag to hide ballot template selector', async () => {
 });
 
 test('set ballot template', async () => {
-  apiMock.getUser.expectCallWith().resolves(user);
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });
 
@@ -388,7 +379,6 @@ test('set ballot template', async () => {
 });
 
 test('view ballot proofing status and unfinalize ballots', async () => {
-  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getBallotsFinalizedAt.reset();
   const finalizedAt = '1/30/2025, 12:00 PM';
   apiMock.getBallotsFinalizedAt
@@ -412,7 +402,6 @@ test('view ballot proofing status and unfinalize ballots', async () => {
 });
 
 test('view ballot order status and unsubmit order', async () => {
-  apiMock.getUser.expectCallWith().resolves(user);
   const submittedAt = '1/30/2025, 12:00 PM';
   apiMock.getBallotOrderInfo.reset();
   apiMock.getBallotOrderInfo.expectCallWith({ electionId }).resolves({

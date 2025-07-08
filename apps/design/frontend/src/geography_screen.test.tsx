@@ -37,7 +37,6 @@ const electionGeneral = readElectionGeneral();
 beforeEach(() => {
   apiMock = createMockApiClient();
   idFactory.reset();
-  apiMock.getUser.expectCallWith().resolves(user);
   mockUserFeatures(apiMock);
 });
 

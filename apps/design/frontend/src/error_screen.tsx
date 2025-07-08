@@ -22,6 +22,7 @@ export function ErrorScreen({ error }: { error: unknown }): JSX.Element | null {
         break;
       }
       default: {
+        /* istanbul ignore next - @preserve */
         throwIllegalValue(error.message);
       }
     }

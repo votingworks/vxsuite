@@ -52,7 +52,6 @@ function renderScreen(electionId: ElectionId) {
 test('newly created election starts in edit mode', async () => {
   const electionRecord = blankElectionRecord(user.orgId);
   const electionId = electionRecord.election.id;
-  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getElectionInfo
     .expectCallWith({ electionId: electionRecord.election.id })
     .resolves(electionInfoFromElection(electionRecord.election));
@@ -100,7 +99,6 @@ test('feature flag to hide delete election button', async () => {
 
   mockUserFeatures(apiMock, { DELETE_ELECTION: false });
 
-  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getElectionInfo
     .expectCallWith({ electionId })
     .resolves(electionInfoFromElection(electionRecord.election));
@@ -117,7 +115,6 @@ test('edit and save election', async () => {
   const electionRecord = generalElectionRecord(user.orgId);
   const { election } = electionRecord;
   const electionId = election.id;
-  apiMock.getUser.expectRepeatedCallsWith().resolves(user);
   apiMock.getElectionInfo
     .expectCallWith({ electionId })
     .resolves(electionInfoFromElection(electionRecord.election));
@@ -219,7 +216,6 @@ test('edit and save election', async () => {
 test('cancel update', async () => {
   const electionRecord = generalElectionRecord(user.orgId);
   const electionId = electionRecord.election.id;
-  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getElectionInfo
     .expectCallWith({ electionId })
     .resolves(electionInfoFromElection(electionRecord.election));
@@ -241,7 +237,6 @@ test('cancel update', async () => {
 test('delete election', async () => {
   const electionRecord = generalElectionRecord(user.orgId);
   const electionId = electionRecord.election.id;
-  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getElectionInfo
     .expectCallWith({ electionId })
     .resolves(electionInfoFromElection(electionRecord.election));
@@ -267,7 +262,6 @@ test('delete election', async () => {
 test('edit election disabled when ballots are finalized', async () => {
   const electionRecord = generalElectionRecord(user.orgId);
   const electionId = electionRecord.election.id;
-  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getElectionInfo
     .expectCallWith({ electionId })
     .resolves(electionInfoFromElection(electionRecord.election));

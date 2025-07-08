@@ -62,7 +62,6 @@ describe('Ballot styles tab', () => {
   test('General election with splits', async () => {
     const electionRecord = generalElectionRecord(user.orgId);
     const electionId = electionRecord.election.id;
-    apiMock.getUser.expectCallWith().resolves(user);
     expectElectionApiCalls(electionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
@@ -98,7 +97,6 @@ describe('Ballot styles tab', () => {
   test('Primary election with splits', async () => {
     const electionRecord = primaryElectionRecord(user.orgId);
     const electionId = electionRecord.election.id;
-    apiMock.getUser.expectCallWith().resolves(user);
     expectElectionApiCalls(electionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
@@ -147,7 +145,6 @@ describe('Ballot styles tab', () => {
       ),
     };
     const electionId = electionRecord.election.id;
-    apiMock.getUser.expectCallWith().resolves(user);
     expectElectionApiCalls(electionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
@@ -175,7 +172,6 @@ describe('Ballot styles tab', () => {
   test('Finalizing ballots', async () => {
     const electionRecord = generalElectionRecord(user.orgId);
     const electionId = electionRecord.election.id;
-    apiMock.getUser.expectCallWith().resolves(user);
     expectElectionApiCalls(electionRecord);
     apiMock.getBallotsFinalizedAt
       .expectOptionalRepeatedCallsWith({ electionId })
@@ -219,7 +215,6 @@ describe('Ballot layout tab', () => {
   const electionId = election.id;
 
   beforeEach(() => {
-    apiMock.getUser.expectCallWith().resolves(user);
     expectElectionApiCalls(electionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   });
