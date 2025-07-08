@@ -503,7 +503,6 @@ export type ConfigurationStatus =
 
 export type VoterCheckInError =
   | 'already_checked_in'
-  | 'no_party_specified'
   | 'mismatched_party_selection';
 
 export interface DuplicateVoterError {

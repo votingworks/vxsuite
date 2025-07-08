@@ -14,8 +14,11 @@ import {
   SearchSelect,
 } from '@votingworks/ui';
 import React, { useState } from 'react';
-import type { VoterIdentificationMethod } from '@votingworks/pollbook-backend';
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import type {
+  BallotPartyAbbreviation,
+  VoterIdentificationMethod,
+} from '@votingworks/pollbook-backend';
+import { assert, Optional, throwIllegalValue } from '@votingworks/basics';
 import { Election } from '@votingworks/types';
 import { Column, Row } from './layout';
 import { NoNavScreen } from './nav_screen';
@@ -62,7 +65,10 @@ export function VoterConfirmScreen({
   voterId: string;
   isAbsenteeMode: boolean;
   onCancel: () => void;
-  onConfirm: (identificationMethod: VoterIdentificationMethod) => void;
+  onConfirm: (
+    identificationMethod: VoterIdentificationMethod,
+    ballotParty: BallotPartyAbbreviation
+  ) => void;
   election: Election;
   configuredPrecinctId: string;
 }): JSX.Element | null {
@@ -74,6 +80,9 @@ export function VoterConfirmScreen({
   const [identificationMethod, setIdentificationMethod] = useState<
     Partial<VoterIdentificationMethod>
   >({ type: 'default' });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [ballotParty, setBallotParty] =
+    useState<Optional<BallotPartyAbbreviation>>(undefined);
 
   if (!getVoterQuery.isSuccess) {
     return null;
@@ -296,7 +305,7 @@ export function VoterConfirmScreen({
             if (voter.isInactive) {
               setShowInactiveVoterModal(true);
             } else {
-              onConfirm(identificationMethod);
+              onConfirm(identificationMethod, ballotParty);
             }
           }}
           style={{ flex: 1 }}

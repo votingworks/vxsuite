@@ -180,10 +180,10 @@ export function VoterCheckInScreen(): JSX.Element | null {
               },
             })
           }
-          onConfirm={(identificationMethod) => {
+          onConfirm={(identificationMethod, ballotParty) => {
             setFlowState({ step: 'printing' });
             checkInVoterMutation.mutate(
-              { voterId: flowState.voterId, identificationMethod },
+              { voterId: flowState.voterId, identificationMethod, ballotParty },
               {
                 onSuccess: (result) => {
                   if (result.isOk()) {
@@ -243,9 +243,6 @@ export function VoterCheckInScreen(): JSX.Element | null {
       switch (flowState.errorType) {
         case 'already_checked_in':
           errorMessage = 'Voter Already Checked In';
-          break;
-        case 'no_party_specified':
-          errorMessage = 'Party Must Be Selected';
           break;
         case 'mismatched_party_selection':
           errorMessage =

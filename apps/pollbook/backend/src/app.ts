@@ -267,7 +267,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
     async checkInVoter(input: {
       voterId: string;
       identificationMethod: VoterIdentificationMethod;
-      ballotParty?: BallotPartyAbbreviation;
+      ballotParty: BallotPartyAbbreviation;
     }): Promise<Result<void, VoterCheckInError>> {
       const election = assertDefined(store.getElection());
       const { checkIn, party: voterParty } = store.getVoter(input.voterId);
@@ -275,25 +275,13 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
         return err('already_checked_in');
       }
 
-      let ballotParty;
-      if (voterParty === 'UND') {
-        // If party is Undeclared then caller must specify a ballot party.
-        if (!input.ballotParty) {
-          return err('no_party_specified');
-        }
-        ballotParty = input.ballotParty;
-      } else {
-        // If voter party is declared then caller must specify the same party or no party.
-        if (input.ballotParty && input.ballotParty !== voterParty) {
-          return err('mismatched_party_selection');
-        }
-
-        ballotParty = voterParty;
+      if (input.ballotParty !== voterParty) {
+        return err('mismatched_party_selection');
       }
 
       const { voter, receiptNumber } = store.recordVoterCheckIn({
         ...input,
-        ballotParty,
+        ballotParty: input.ballotParty,
       });
       debug('Checked in voter %s', voter.voterId);
 
