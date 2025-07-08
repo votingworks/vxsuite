@@ -439,7 +439,11 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
         resetPollsToPaused={
           pollsState === 'polls_closed_final' ? resetPollsToPaused : undefined
         }
+        machineConfig={machineConfig}
+        electionDefinition={electionDefinition}
+        electionPackageHash={electionPackageHash}
         usbDriveStatus={usbDriveStatus}
+        precinctSelection={appPrecinct}
       />
     );
   }

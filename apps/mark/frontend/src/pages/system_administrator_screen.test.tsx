@@ -1,7 +1,9 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import { screen } from '../../test/react_testing_library';
+import { formatElectionHashes } from '@votingworks/types';
+import { act, screen } from '../../test/react_testing_library';
+import { electionDefinition, election } from '../../test/helpers/election';
 
 import { render } from '../../test/test_utils';
 import {
@@ -10,6 +12,10 @@ import {
   provideApi,
 } from '../../test/helpers/mock_api_client';
 import { SystemAdministratorScreen } from './system_administrator_screen';
+import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
+import { DiagnosticsScreen } from './diagnostics_screen';
+
+vi.mock('./diagnostics_screen');
 
 let apiMock: ApiMock;
 
@@ -34,6 +40,12 @@ test('SystemAdministratorScreen renders expected contents', () => {
         unconfigureMachine={unconfigureMachine}
         isMachineConfigured
         usbDriveStatus={mockUsbDriveStatus('mounted')}
+        electionDefinition={electionDefinition}
+        electionPackageHash="test-election-package-hash"
+        machineConfig={mockMachineConfig({
+          codeVersion: 'test', // Override default
+        })}
+        precinctSelection={undefined}
       />
     )
   );
@@ -41,6 +53,14 @@ test('SystemAdministratorScreen renders expected contents', () => {
   // These buttons are further tested in libs/ui
   screen.getByRole('button', { name: 'Unconfigure Machine' });
   screen.getByRole('button', { name: 'Save Logs' });
+
+  screen.getByText(election.title);
+  screen.getByText(
+    formatElectionHashes(
+      electionDefinition.ballotHash,
+      'test-election-package-hash'
+    )
+  );
 });
 
 test('Can set date and time', async () => {
@@ -51,6 +71,12 @@ test('Can set date and time', async () => {
         unconfigureMachine={vi.fn()}
         isMachineConfigured
         usbDriveStatus={mockUsbDriveStatus('mounted')}
+        electionDefinition={electionDefinition}
+        electionPackageHash="test-election-package-hash"
+        machineConfig={mockMachineConfig({
+          codeVersion: 'test', // Override default
+        })}
+        precinctSelection={undefined}
       />
     )
   );
@@ -68,4 +94,41 @@ test('Can set date and time', async () => {
   await vi.waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
+});
+
+test('navigates to Diagnostics screen', () => {
+  let onBackButtonPress: (() => void) | undefined;
+  vi.mocked(DiagnosticsScreen).mockImplementation((props) => {
+    ({ onBackButtonPress } = props);
+    return <div data-testid="MockDiagnosticsScreen" />;
+  });
+
+  render(
+    provideApi(
+      apiMock,
+      <SystemAdministratorScreen
+        unconfigureMachine={vi.fn()}
+        isMachineConfigured
+        usbDriveStatus={mockUsbDriveStatus('mounted')}
+        electionDefinition={electionDefinition}
+        electionPackageHash="test-election-package-hash"
+        machineConfig={mockMachineConfig({
+          codeVersion: 'test', // Override default
+        })}
+        precinctSelection={undefined}
+      />
+    )
+  );
+
+  screen.getByText('System Administrator Menu');
+
+  userEvent.click(screen.getButton('Diagnostics'));
+  screen.getByTestId('MockDiagnosticsScreen');
+  expect(
+    screen.queryByText('System Administrator Menu')
+  ).not.toBeInTheDocument();
+
+  act(() => onBackButtonPress?.());
+  screen.getButton('Diagnostics');
+  expect(screen.queryByTestId('MockDiagnosticsScreen')).not.toBeInTheDocument();
 });
