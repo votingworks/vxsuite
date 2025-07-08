@@ -149,7 +149,8 @@ class AuthError extends Error {
   }
 }
 
-function buildApi({ auth0, logger, workspace, translator }: AppContext) {
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
   const { store } = workspace;
 
   function requireOrgAccess(user: User, orgId: string) {

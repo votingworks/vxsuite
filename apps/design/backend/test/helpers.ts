@@ -133,7 +133,15 @@ export function testSetupHelpers() {
     const { port } = server.address() as AddressInfo;
     const baseUrl = `http://localhost:${port}/api`;
     const apiClient = grout.createClient<Api>({ baseUrl });
-    return { apiClient, workspace, auth0, fileStorageClient, logger };
+    return {
+      apiClient,
+      workspace,
+      auth0,
+      fileStorageClient,
+      logger,
+      translator,
+      speechSynthesizer,
+    };
   }
 
   async function cleanup() {

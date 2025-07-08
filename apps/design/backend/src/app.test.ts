@@ -86,6 +86,7 @@ import {
   ElectionInfo,
   ElectionListing,
   ElectionStatus,
+  Org,
   User,
   convertToVxfBallotStyle,
 } from './types';
@@ -95,6 +96,7 @@ import { join } from 'node:path';
 import { electionFeatureConfigs, userFeatureConfigs } from './features';
 import { sliOrgId, vxDemosOrgId } from './globals';
 import { LogEventId } from '@votingworks/logging';
+import { buildApi } from './app';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -108,8 +110,30 @@ function compareName(a: { name: string }, b: { name: string }) {
   return a.name.localeCompare(b.name);
 }
 
-const vxUser: User = { orgId: 'votingworks' };
-const nonVxUser: User = { orgId: '123' };
+const vxUser: User = { orgId: 'votingworks', orgName: 'VotingWorks' };
+const nonVxUser: User = { orgId: '123', orgName: 'Other Org' };
+const anotherNonVxUser = {
+  ...nonVxUser,
+  orgId: 'another-org-id',
+  orgName: 'Another Org',
+};
+const sliUser: User = { orgId: sliOrgId(), orgName: 'SLI' };
+const vxDemosUser: User = { orgId: vxDemosOrgId(), orgName: 'VX Demos' };
+const orgs: Org[] = [
+  { id: vxUser.orgId, name: 'votingworks', displayName: vxUser.orgName! },
+  { id: nonVxUser.orgId, name: 'other', displayName: nonVxUser.orgName! },
+  {
+    id: anotherNonVxUser.orgId,
+    name: 'another',
+    displayName: anotherNonVxUser.orgName!,
+  },
+  { id: sliUser.orgId, name: 'sli', displayName: sliUser.orgName! },
+  {
+    id: vxDemosUser.orgId,
+    name: 'vx-demos',
+    displayName: vxDemosUser.orgName!,
+  },
+];
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
@@ -182,8 +206,26 @@ beforeEach(() => {
   mockFeatureFlagger.resetFeatureFlags();
 });
 
+test('all methods require authentication', async () => {
+  const { apiClient, ...context } = await setupApp();
+  const apiMethodNames = Object.keys(buildApi(context).methods());
+  await suppressingConsoleOutput(async () => {
+    for (const apiMethodName of apiMethodNames) {
+      // @ts-ignore - Don't pass any input to the API methods since we expect
+      // auth middleware to reject it before getting to the handler. A bit of a
+      // hack, but lets us test all the methods quickly without constructing
+      // bespoke input for each one.
+      await expect(apiClient[apiMethodName]()).rejects.toThrow(
+        'auth:unauthorized'
+      );
+    }
+  });
+});
+
 test('create/list/delete elections', async () => {
   const { apiClient, auth0 } = await setupApp();
+  auth0.setOrgs(orgs);
+
   auth0.setLoggedInUser(vxUser);
   expect(await apiClient.listElections()).toEqual([]);
 
@@ -198,7 +240,7 @@ test('create/list/delete elections', async () => {
 
   const expectedElectionListing: ElectionListing = {
     orgId: nonVxUser.orgId,
-    orgName: nonVxUser.orgId,
+    orgName: nonVxUser.orgName!,
     electionId: expectedElectionId,
     title: '',
     date: DateWithoutTime.today(),
@@ -229,7 +271,7 @@ test('create/list/delete elections', async () => {
 
   const expectedElection2Listing: ElectionListing = {
     orgId: vxUser.orgId,
-    orgName: vxUser.orgId,
+    orgName: vxUser.orgName!,
     electionId: importedElectionNewId,
     title: election2.title,
     date: election2.date,
@@ -242,9 +284,18 @@ test('create/list/delete elections', async () => {
     expectedElection2Listing,
     expectedElectionListing,
   ]);
-  // Check that elections are filtered to the user's org (for non-Vx users)
+
+  // Permissions should restrict accessing elections across orgs
   auth0.setLoggedInUser(nonVxUser);
   expect(await apiClient.listElections()).toEqual([expectedElectionListing]);
+  await suppressingConsoleOutput(async () => {
+    await expect(
+      apiClient.createElection({ id: 'id', orgId: vxUser.orgId })
+    ).rejects.toThrow('auth:forbidden');
+    await expect(
+      apiClient.deleteElection({ electionId: importedElectionNewId })
+    ).rejects.toThrow('auth:forbidden');
+  });
 
   auth0.setLoggedInUser(vxUser);
   await apiClient.deleteElection({ electionId });
@@ -406,7 +457,7 @@ test('update election info', async () => {
   );
 
   // Update election info
-  await apiClient.updateElectionInfo({
+  const electionInfoUpdate: ElectionInfo = {
     electionId,
     // trim text values
     title: '   Updated Election  ',
@@ -416,7 +467,8 @@ test('update election info', async () => {
     type: 'primary',
     date: new DateWithoutTime('2022-01-01'),
     languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
-  });
+  };
+  await apiClient.updateElectionInfo(electionInfoUpdate);
   expect(await apiClient.getElectionInfo({ electionId })).toEqual<ElectionInfo>(
     {
       electionId,
@@ -430,9 +482,9 @@ test('update election info', async () => {
     }
   );
 
-  // empty string values are rejected
-  await suppressingConsoleOutput(() =>
-    expect(
+  await suppressingConsoleOutput(async () => {
+    // Empty string values are rejected
+    await expect(
       apiClient.updateElectionInfo({
         electionId,
         type: 'primary',
@@ -443,8 +495,16 @@ test('update election info', async () => {
         date: new DateWithoutTime('2022-01-01'),
         languageCodes: [LanguageCode.ENGLISH],
       })
-    ).rejects.toThrow()
-  );
+    ).rejects.toThrow();
+    // Check permissions
+    auth0.setLoggedInUser(anotherNonVxUser);
+    await expect(apiClient.getElectionInfo({ electionId })).rejects.toThrow(
+      'auth:forbidden'
+    );
+    await expect(
+      apiClient.updateElectionInfo(electionInfoUpdate)
+    ).rejects.toThrow('auth:forbidden');
+  });
 });
 
 test('CRUD districts', async () => {
@@ -509,9 +569,9 @@ test('CRUD districts', async () => {
     updatedDistrict1,
   ]);
 
-  // Try to create an invalid district
-  await suppressingConsoleOutput(() =>
-    expect(
+  await suppressingConsoleOutput(async () => {
+    // Try to create an invalid district
+    await expect(
       apiClient.createDistrict({
         electionId,
         newDistrict: {
@@ -519,12 +579,10 @@ test('CRUD districts', async () => {
           name: '',
         },
       })
-    ).rejects.toThrow()
-  );
+    ).rejects.toThrow();
 
-  // Try to update a district that doesn't exist
-  await suppressingConsoleOutput(() =>
-    expect(
+    // Try to update a district that doesn't exist
+    await expect(
       apiClient.updateDistrict({
         electionId,
         updatedDistrict: {
@@ -532,18 +590,40 @@ test('CRUD districts', async () => {
           id: unsafeParse(DistrictIdSchema, 'invalid-id'),
         },
       })
-    ).rejects.toThrow()
-  );
+    ).rejects.toThrow();
 
-  // Try to delete a district that doesn't exist
-  await suppressingConsoleOutput(() =>
-    expect(
+    // Try to delete a district that doesn't exist
+    await expect(
       apiClient.deleteDistrict({
         electionId,
         districtId: unsafeParse(DistrictIdSchema, 'invalid-id'),
       })
-    ).rejects.toThrow()
-  );
+    ).rejects.toThrow();
+
+    // Check permissions
+    auth0.setLoggedInUser(anotherNonVxUser);
+    await expect(apiClient.listDistricts({ electionId })).rejects.toThrow(
+      'auth:forbidden'
+    );
+    await expect(
+      apiClient.createDistrict({
+        electionId,
+        newDistrict: district1,
+      })
+    ).rejects.toThrow('auth:forbidden');
+    await expect(
+      apiClient.updateDistrict({
+        electionId,
+        updatedDistrict: updatedDistrict1,
+      })
+    ).rejects.toThrow('auth:forbidden');
+    await expect(
+      apiClient.deleteDistrict({
+        electionId,
+        districtId: updatedDistrict1.id,
+      })
+    ).rejects.toThrow('auth:forbidden');
+  });
 });
 
 test('deleting a district updates associated precincts', async () => {
@@ -740,11 +820,9 @@ test('CRUD precincts', async () => {
         },
       })
     ).rejects.toThrow();
-  });
 
-  // Try to update a precinct that doesn't exist
-  await suppressingConsoleOutput(() =>
-    expect(
+    // Try to update a precinct that doesn't exist
+    await expect(
       apiClient.updatePrecinct({
         electionId,
         updatedPrecinct: {
@@ -752,18 +830,40 @@ test('CRUD precincts', async () => {
           id: 'invalid-id',
         },
       })
-    ).rejects.toThrow()
-  );
+    ).rejects.toThrow();
 
-  // Try to delete a precinct that doesn't exist
-  await suppressingConsoleOutput(() =>
-    expect(
+    // Try to delete a precinct that doesn't exist
+    await expect(
       apiClient.deletePrecinct({
         electionId,
         precinctId: 'invalid-id',
       })
-    ).rejects.toThrow()
-  );
+    ).rejects.toThrow();
+
+    // Check permissions
+    auth0.setLoggedInUser(anotherNonVxUser);
+    await expect(apiClient.listPrecincts({ electionId })).rejects.toThrow(
+      'auth:forbidden'
+    );
+    await expect(
+      apiClient.createPrecinct({
+        electionId,
+        newPrecinct: precinct1,
+      })
+    ).rejects.toThrow('auth:forbidden');
+    await expect(
+      apiClient.updatePrecinct({
+        electionId,
+        updatedPrecinct: updatedPrecinct1,
+      })
+    ).rejects.toThrow('auth:forbidden');
+    await expect(
+      apiClient.deletePrecinct({
+        electionId,
+        precinctId: updatedPrecinct1.id,
+      })
+    ).rejects.toThrow('auth:forbidden');
+  });
 });
 
 test('CRUD parties', async () => {
@@ -816,9 +916,9 @@ test('CRUD parties', async () => {
   await apiClient.deleteParty({ electionId, partyId: party2.id });
   expect(await apiClient.listParties({ electionId })).toEqual([updatedParty1]);
 
-  // Try to create an invalid party
-  await suppressingConsoleOutput(() =>
-    expect(
+  await suppressingConsoleOutput(async () => {
+    // Try to create an invalid party
+    await expect(
       apiClient.createParty({
         electionId,
         newParty: {
@@ -828,12 +928,10 @@ test('CRUD parties', async () => {
           fullName: '',
         },
       })
-    ).rejects.toThrow()
-  );
+    ).rejects.toThrow();
 
-  // Try to update a party that doesn't exist
-  await suppressingConsoleOutput(() =>
-    expect(
+    // Try to update a party that doesn't exist
+    await expect(
       apiClient.updateParty({
         electionId,
         updatedParty: {
@@ -841,18 +939,40 @@ test('CRUD parties', async () => {
           id: unsafeParse(PartyIdSchema, 'invalid-id'),
         },
       })
-    ).rejects.toThrow()
-  );
+    ).rejects.toThrow();
 
-  // Try to delete a party that doesn't exist
-  await suppressingConsoleOutput(() =>
-    expect(
+    // Try to delete a party that doesn't exist
+    await expect(
       apiClient.deleteParty({
         electionId,
         partyId: unsafeParse(PartyIdSchema, 'invalid-id'),
       })
-    ).rejects.toThrow()
-  );
+    ).rejects.toThrow();
+
+    // Check permissions
+    auth0.setLoggedInUser(anotherNonVxUser);
+    await expect(apiClient.listParties({ electionId })).rejects.toThrow(
+      'auth:forbidden'
+    );
+    await expect(
+      apiClient.createParty({
+        electionId,
+        newParty: party1,
+      })
+    ).rejects.toThrow('auth:forbidden');
+    await expect(
+      apiClient.updateParty({
+        electionId,
+        updatedParty: updatedParty1,
+      })
+    ).rejects.toThrow('auth:forbidden');
+    await expect(
+      apiClient.deleteParty({
+        electionId,
+        partyId: updatedParty1.id,
+      })
+    ).rejects.toThrow('auth:forbidden');
+  });
 });
 
 test('deleting a party updates associated contests', async () => {
@@ -1018,9 +1138,9 @@ test('CRUD contests', async () => {
     updatedContest2,
   ]);
 
-  // Try to create an invalid contest
-  await suppressingConsoleOutput(() =>
-    expect(
+  await suppressingConsoleOutput(async () => {
+    // Try to create an invalid contest
+    await expect(
       apiClient.createContest({
         electionId,
         newContest: {
@@ -1028,12 +1148,10 @@ test('CRUD contests', async () => {
           title: '',
         },
       })
-    ).rejects.toThrow()
-  );
+    ).rejects.toThrow();
 
-  // Try to update a contest that doesn't exist
-  await suppressingConsoleOutput(() =>
-    expect(
+    // Try to update a contest that doesn't exist
+    await expect(
       apiClient.updateContest({
         electionId,
         updatedContest: {
@@ -1041,18 +1159,40 @@ test('CRUD contests', async () => {
           id: 'invalid-id',
         },
       })
-    ).rejects.toThrow()
-  );
+    ).rejects.toThrow();
 
-  // Try to delete a contest that doesn't exist
-  await suppressingConsoleOutput(() =>
-    expect(
+    // Try to delete a contest that doesn't exist
+    await expect(
       apiClient.deleteContest({
         electionId,
         contestId: 'invalid-id',
       })
-    ).rejects.toThrow()
-  );
+    ).rejects.toThrow();
+
+    // Check permissions
+    auth0.setLoggedInUser(anotherNonVxUser);
+    await expect(apiClient.listContests({ electionId })).rejects.toThrow(
+      'auth:forbidden'
+    );
+    await expect(
+      apiClient.createContest({
+        electionId,
+        newContest: contest1,
+      })
+    ).rejects.toThrow('auth:forbidden');
+    await expect(
+      apiClient.updateContest({
+        electionId,
+        updatedContest: updatedContest1,
+      })
+    ).rejects.toThrow('auth:forbidden');
+    await expect(
+      apiClient.deleteContest({
+        electionId,
+        contestId: updatedContest1.id,
+      })
+    ).rejects.toThrow('auth:forbidden');
+  });
 });
 
 test('creating/updating contests with candidate rotation', async () => {
@@ -1174,25 +1314,32 @@ test('reordering contests', async () => {
     reversedContests
   );
 
-  // Try to reorder with an invalid contest ID
-  await suppressingConsoleOutput(() =>
-    expect(
+  await suppressingConsoleOutput(async () => {
+    // Try to reorder with an invalid contest ID
+    await expect(
       apiClient.reorderContests({
         electionId,
         contestIds: ['invalid-id'],
       })
-    ).rejects.toThrow()
-  );
+    ).rejects.toThrow();
 
-  // Try to reorder with a missing contest ID
-  await suppressingConsoleOutput(() =>
-    expect(
+    // Try to reorder with a missing contest ID
+    await expect(
       apiClient.reorderContests({
         electionId,
         contestIds: contests.slice(1).map((c) => c.id),
       })
-    ).rejects.toThrow()
-  );
+    ).rejects.toThrow();
+
+    // Check permissions
+    auth0.setLoggedInUser(anotherNonVxUser);
+    await expect(
+      apiClient.reorderContests({
+        electionId,
+        contestIds: contests.map((c) => c.id),
+      })
+    ).rejects.toThrow('auth:forbidden');
+  });
 });
 
 test('get/update ballot layout', async () => {
@@ -1223,16 +1370,29 @@ test('get/update ballot layout', async () => {
     compact: true,
   });
 
-  // Try to update with invalid values
-  await suppressingConsoleOutput(() =>
-    expect(
+  await suppressingConsoleOutput(async () => {
+    // Try to update with invalid values
+    await expect(
       apiClient.updateBallotLayoutSettings({
         electionId,
         paperSize: 'invalid' as HmpbBallotPaperSize,
         compact: true,
       })
-    ).rejects.toThrow()
-  );
+    ).rejects.toThrow();
+
+    // Check permissions
+    auth0.setLoggedInUser(anotherNonVxUser);
+    await expect(
+      apiClient.getBallotLayoutSettings({ electionId })
+    ).rejects.toThrow('auth:forbidden');
+    await expect(
+      apiClient.updateBallotLayoutSettings({
+        electionId,
+        paperSize: HmpbBallotPaperSize.Legal,
+        compact: true,
+      })
+    ).rejects.toThrow('auth:forbidden');
+  });
 });
 
 test('get/update system settings', async () => {
@@ -1274,9 +1434,9 @@ test('get/update system settings', async () => {
     updatedSystemSettings
   );
 
-  // Try to update with invalid values
-  await suppressingConsoleOutput(() =>
-    expect(
+  await suppressingConsoleOutput(async () => {
+    // Try to update with invalid values
+    await expect(
       apiClient.updateSystemSettings({
         electionId,
         systemSettings: {
@@ -1287,8 +1447,20 @@ test('get/update system settings', async () => {
           },
         },
       })
-    ).rejects.toThrow()
-  );
+    ).rejects.toThrow();
+
+    // Check permissions
+    auth0.setLoggedInUser(anotherNonVxUser);
+    await expect(apiClient.getSystemSettings({ electionId })).rejects.toThrow(
+      'auth:forbidden'
+    );
+    await expect(
+      apiClient.updateSystemSettings({
+        electionId,
+        systemSettings: updatedSystemSettings,
+      })
+    ).rejects.toThrow('auth:forbidden');
+  });
 });
 
 test('get/update ballot order info', async () => {
@@ -1322,9 +1494,9 @@ test('get/update ballot order info', async () => {
     updatedBallotOrderInfo
   );
 
-  // Try to update with invalid values
-  await suppressingConsoleOutput(() =>
-    expect(
+  await suppressingConsoleOutput(async () => {
+    // Try to update with invalid values
+    await expect(
       apiClient.updateBallotOrderInfo({
         electionId,
         ballotOrderInfo: {
@@ -1332,8 +1504,20 @@ test('get/update ballot order info', async () => {
           absenteeBallotCount: 1 as unknown as string,
         },
       })
-    ).rejects.toThrow()
-  );
+    ).rejects.toThrow();
+
+    // Check permissions
+    auth0.setLoggedInUser(anotherNonVxUser);
+    await expect(apiClient.getBallotOrderInfo({ electionId })).rejects.toThrow(
+      'auth:forbidden'
+    );
+    await expect(
+      apiClient.updateBallotOrderInfo({
+        electionId,
+        ballotOrderInfo: updatedBallotOrderInfo,
+      })
+    ).rejects.toThrow('auth:forbidden');
+  });
 });
 
 test('Finalize ballots', async () => {
@@ -1360,6 +1544,20 @@ test('Finalize ballots', async () => {
   await apiClient.unfinalizeBallots({ electionId });
 
   expect(await apiClient.getBallotsFinalizedAt({ electionId })).toEqual(null);
+
+  await suppressingConsoleOutput(async () => {
+    // Check permissions
+    auth0.setLoggedInUser(anotherNonVxUser);
+    await expect(
+      apiClient.getBallotsFinalizedAt({ electionId })
+    ).rejects.toThrow('auth:forbidden');
+    await expect(apiClient.finalizeBallots({ electionId })).rejects.toThrow(
+      'auth:forbidden'
+    );
+    await expect(apiClient.unfinalizeBallots({ electionId })).rejects.toThrow(
+      'auth:forbidden'
+    );
+  });
 });
 
 test('cloneElection', async () => {
@@ -1547,7 +1745,6 @@ test('cloneElection', async () => {
   ).resolves.toEqual('election-clone-2');
 
   // Non-VX user can't clone from another org:
-  const anotherNonVxUser = { ...nonVxUser, orgId: 'another-org-id' };
   auth0.setLoggedInUser(anotherNonVxUser);
   await suppressingConsoleOutput(() =>
     expect(
@@ -1675,6 +1872,21 @@ test('Election package management', async () => {
     electionPackageAfterInitiatingSecondExport.task
   ).id;
   expect(secondTaskId).not.toEqual(taskId);
+
+  await suppressingConsoleOutput(async () => {
+    // Check permissions
+    auth0.setLoggedInUser(anotherNonVxUser);
+    await expect(apiClient.getElectionPackage({ electionId })).rejects.toThrow(
+      'auth:forbidden'
+    );
+    await expect(
+      apiClient.exportElectionPackage({
+        electionId,
+        electionSerializationFormat: 'vxf',
+        shouldExportAudio: false,
+      })
+    ).rejects.toThrow('auth:forbidden');
+  });
 });
 
 test('Election package and ballots export', async () => {
@@ -2051,6 +2263,20 @@ test('Export test decks', async () => {
     expectedBallotProps,
     'vxf'
   );
+
+  await suppressingConsoleOutput(async () => {
+    // Check permissions
+    auth0.setLoggedInUser(anotherNonVxUser);
+    await expect(
+      exportTestDecks({
+        apiClient,
+        electionId,
+        fileStorageClient,
+        workspace,
+        electionSerializationFormat: 'vxf',
+      })
+    ).rejects.toThrow('auth:forbidden');
+  });
 });
 
 test('Consistency of ballot hash across exports', async () => {
@@ -2259,6 +2485,20 @@ test('getBallotPreviewPdf returns a ballot pdf for precinct with splits', async 
   ).unsafeUnwrap();
 
   await expect(result.pdfData).toMatchPdfSnapshot();
+
+  await suppressingConsoleOutput(async () => {
+    // Check permissions
+    auth0.setLoggedInUser(anotherNonVxUser);
+    await expect(
+      apiClient.getBallotPreviewPdf({
+        electionId,
+        precinctId: precinct.id,
+        ballotStyleId: ballotStyle.id,
+        ballotType: BallotType.Precinct,
+        ballotMode: 'test',
+      })
+    ).rejects.toThrow('auth:forbidden');
+  });
 });
 
 test('getBallotPreviewPdf returns a ballot pdf for NH election with split precincts and additional config options', async () => {
@@ -2412,6 +2652,17 @@ test('setBallotTemplate changes the ballot template used to render ballots', asy
     vi.mocked(renderAllBallotsAndCreateElectionDefinition).mock.calls[0][2]
   ).toHaveLength(props.length);
   vi.mocked(renderAllBallotsAndCreateElectionDefinition).mockRestore();
+
+  await suppressingConsoleOutput(async () => {
+    // Check permissions
+    auth0.setLoggedInUser(anotherNonVxUser);
+    await expect(
+      apiClient.setBallotTemplate({
+        electionId,
+        ballotTemplateId: 'NhBallot',
+      })
+    ).rejects.toThrow('auth:forbidden');
+  });
 });
 
 test('v3-compatible election package', async () => {
@@ -2487,10 +2738,40 @@ test('v3-compatible election package', async () => {
   expect(electionPackageAndBallotsZipEntries.length).toEqual(2);
 });
 
-test('feature configs', async () => {
-  const sliUser: User = { orgId: sliOrgId() };
-  const vxDemosUser: User = { orgId: vxDemosOrgId() };
+test('getUser', async () => {
+  const { apiClient, auth0 } = await setupApp();
+  await suppressingConsoleOutput(() =>
+    expect(apiClient.getUser()).rejects.toThrow('auth:unauthorized')
+  );
+  auth0.setLoggedInUser(vxUser);
+  expect(await apiClient.getUser()).toEqual(vxUser);
+  auth0.setLoggedInUser(nonVxUser);
+  expect(await apiClient.getUser()).toEqual(nonVxUser);
+});
 
+test('getAllOrgs', async () => {
+  const { apiClient, auth0 } = await setupApp();
+  await suppressingConsoleOutput(() =>
+    expect(apiClient.getAllOrgs()).rejects.toThrow('auth:unauthorized')
+  );
+  auth0.setOrgs(orgs);
+  auth0.setLoggedInUser(vxUser);
+  expect(await apiClient.getAllOrgs()).toEqual(orgs);
+  auth0.setLoggedInUser(nonVxUser);
+  await suppressingConsoleOutput(() =>
+    expect(apiClient.getAllOrgs()).rejects.toThrow('auth:forbidden')
+  );
+  auth0.setLoggedInUser(sliUser);
+  await suppressingConsoleOutput(() =>
+    expect(apiClient.getAllOrgs()).rejects.toThrow('auth:forbidden')
+  );
+  auth0.setLoggedInUser(vxDemosUser);
+  await suppressingConsoleOutput(() =>
+    expect(apiClient.getAllOrgs()).rejects.toThrow('auth:forbidden')
+  );
+});
+
+test('feature configs', async () => {
   const { apiClient, auth0 } = await setupApp();
   auth0.setLoggedInUser(vxUser);
   expect(await apiClient.getUserFeatures()).toEqual(userFeatureConfigs.vx);
