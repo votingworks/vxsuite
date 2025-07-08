@@ -5348,8 +5348,6 @@ importers:
         specifier: ^2.1.8
         version: 2.1.8(@types/node@20.17.31)(jsdom@20.0.1)
 
-  libs/types-rs: {}
-
   libs/ui:
     dependencies:
       '@fortawesome/fontawesome-svg-core':
