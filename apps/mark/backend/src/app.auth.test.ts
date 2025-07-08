@@ -1,4 +1,4 @@
-import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { DateTime } from 'luxon';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
@@ -7,12 +7,20 @@ import {
   SystemSettings,
   TEST_JURISDICTION,
   BallotStyleId,
+  SignedHashValidationQrCodeValue,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
+import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
+import { LogEventId } from '@votingworks/logging';
 import { configureApp, createApp } from '../test/app_helpers';
+
+vi.mock('@votingworks/auth', async (importActual) => ({
+  ...(await importActual()),
+  generateSignedHashValidationQrCodeValue: vi.fn(),
+}));
 
 const jurisdiction = TEST_JURISDICTION;
 const machineType = 'mark';
@@ -218,5 +226,51 @@ test('updateCardlessVoterBallotStyle', async () => {
   expect(mockAuth.updateCardlessVoterBallotStyle).toHaveBeenCalledTimes(1);
   expect(mockAuth.updateCardlessVoterBallotStyle).toHaveBeenLastCalledWith({
     ballotStyleId: '2_es-US' as BallotStyleId,
+  });
+});
+
+describe('generateSignedHashValidationQrCodeValue', () => {
+  test('pass', async () => {
+    const { apiClient, logger, mockAuth, mockUsbDrive } = createApp();
+    await configureApp(apiClient, mockAuth, mockUsbDrive, systemSettings);
+
+    const mockLogger = vi.mocked(logger.logAsCurrentRole);
+    mockLogger.mockReset();
+
+    vi.mocked(generateSignedHashValidationQrCodeValue).mockResolvedValueOnce({
+      qrCodeValue: 'qr code',
+    } as unknown as SignedHashValidationQrCodeValue);
+
+    const result = await apiClient.generateSignedHashValidationQrCodeValue();
+    expect(result).toEqual({ qrCodeValue: 'qr code' });
+
+    expect(mockLogger.mock.calls).toEqual([
+      [LogEventId.SignedHashValidationInit],
+      [LogEventId.SignedHashValidationComplete, { disposition: 'success' }],
+    ]);
+  });
+
+  test('fail', async () => {
+    const { apiClient, logger, mockAuth, mockUsbDrive } = createApp();
+    await configureApp(apiClient, mockAuth, mockUsbDrive, systemSettings);
+
+    const mockLogger = vi.mocked(logger.logAsCurrentRole);
+    mockLogger.mockReset();
+
+    vi.mocked(generateSignedHashValidationQrCodeValue).mockRejectedValueOnce(
+      new Error('oops')
+    );
+
+    await expect(
+      apiClient.generateSignedHashValidationQrCodeValue
+    ).rejects.toThrow();
+
+    expect(mockLogger.mock.calls).toEqual([
+      [LogEventId.SignedHashValidationInit],
+      [
+        LogEventId.SignedHashValidationComplete,
+        { disposition: 'failure', message: expect.stringContaining('oops') },
+      ],
+    ]);
   });
 });
