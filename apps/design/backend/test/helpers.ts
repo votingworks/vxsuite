@@ -18,9 +18,9 @@ import { AddressInfo } from 'node:net';
 import { Readable } from 'stream';
 import * as tmp from 'tmp';
 import { vi } from 'vitest';
-import type { Api } from '../src/app';
+import type { Api, ApiContext } from '../src/app';
 import { buildApp } from '../src/app';
-import { Auth0Client, Auth0ClientInterface } from '../src/auth0_client';
+import { Auth0ClientInterface } from '../src/auth0_client';
 import {
   FileStorageClient,
   FileStorageClientError,
@@ -44,30 +44,23 @@ const vendoredTranslations: VendoredTranslations = {
 };
 
 class MockAuth0Client implements Auth0ClientInterface {
-  private mockAllOrgs: readonly Org[] = [];
-  private mockUserFromRequest: Auth0Client['userFromRequest'] = async () =>
-    undefined;
+  private loggedInUser: User | undefined;
+  private orgs: readonly Org[] = [];
 
-  constructor(allOrgs: readonly Org[] = []) {
-    this.mockAllOrgs = allOrgs;
+  setLoggedInUser(user: User) {
+    this.loggedInUser = user;
   }
 
-  public async allOrgs(): Promise<Org[]> {
-    return this.mockAllOrgs.slice();
+  setOrgs(orgs: readonly Org[]) {
+    this.orgs = orgs;
   }
 
-  async org(id: string): Promise<Org> {
-    for (const org of this.mockAllOrgs) {
-      if (org.id === id) {
-        return org;
-      }
-    }
-
-    throw new Error('org not found');
+  async allOrgs(): Promise<Org[]> {
+    return this.orgs.slice();
   }
 
-  userFromRequest(req: Request) {
-    return this.mockUserFromRequest(req);
+  async userFromRequest(_req: Request) {
+    return this.loggedInUser;
   }
 }
 
@@ -108,19 +101,13 @@ export function testSetupHelpers() {
   });
   const testStore = new TestStore(baseLogger);
 
-  async function setupApp(
-    opts: {
-      auth?: {
-        orgs?: readonly Org[];
-      };
-    } = {}
-  ) {
+  async function setupApp() {
     const store = testStore.getStore();
     await testStore.init();
 
     const workspace = createWorkspace(tmp.dirSync().name, baseLogger, store);
 
-    const auth0 = new MockAuth0Client(opts.auth?.orgs);
+    const auth0 = new MockAuth0Client();
     const fileStorageClient = new MockFileStorageClient();
     const speechSynthesizer = new GoogleCloudSpeechSynthesizerWithDbCache({
       store,
