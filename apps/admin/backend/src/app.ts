@@ -77,7 +77,6 @@ import {
   ManualResultsIdentifier,
   ManualResultsRecord,
   ScannerBatch,
-  WriteInAdjudicationAction,
   AdjudicationQueueMetadata,
   WriteInCandidateRecord,
   BallotImageView,
@@ -108,11 +107,7 @@ import {
   listCastVoteRecordExportsOnUsbDrive,
 } from './cast_vote_records';
 import { generateBallotCountReportCsv } from './exports/csv_ballot_count_report';
-import {
-  adjudicateCvrContest,
-  adjudicateWriteIn,
-  getMarginalMarks,
-} from './adjudication';
+import { adjudicateCvrContest, getMarginalMarks } from './adjudication';
 import { convertFrontendFilter as convertFrontendFilterUtil } from './util/filters';
 import { buildElectionResultsReport } from './util/cdf_results';
 import { tabulateElectionResults } from './tabulation/full_results';
@@ -636,10 +631,6 @@ function buildApi({
       return store.getCurrentCvrFileModeForElection(
         loadCurrentElectionIdOrThrow(workspace)
       );
-    },
-
-    adjudicateWriteIn(input: WriteInAdjudicationAction): void {
-      adjudicateWriteIn(input, store, logger);
     },
 
     adjudicateCvrContest(input: AdjudicatedCvrContest): void {

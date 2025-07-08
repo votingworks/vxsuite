@@ -129,23 +129,46 @@ test('general, full election, write in adjudication', async () => {
   const NUM_OFFICIAL = 16;
   const NUM_UNOFFICIAL = 56 - NUM_INVALID - NUM_OFFICIAL;
   for (const [i, writeIn] of writeIns.entries()) {
-    const { id: writeInId } = writeIn;
+    const { cvrId, contestId, optionId } = writeIn;
     if (i < NUM_INVALID) {
-      await apiClient.adjudicateWriteIn({
-        writeInId,
-        type: 'invalid',
+      await apiClient.adjudicateCvrContest({
+        cvrId,
+        contestId,
+        side: 'front',
+        adjudicatedContestOptionById: {
+          [optionId]: {
+            type: 'write-in-option',
+            hasVote: false,
+          },
+        },
       });
     } else if (i < NUM_INVALID + NUM_OFFICIAL) {
-      await apiClient.adjudicateWriteIn({
-        writeInId,
-        type: 'official-candidate',
-        candidateId: officialCandidateId,
+      await apiClient.adjudicateCvrContest({
+        cvrId,
+        contestId,
+        side: 'front',
+        adjudicatedContestOptionById: {
+          [optionId]: {
+            type: 'write-in-option',
+            candidateId: officialCandidateId,
+            candidateType: 'official-candidate',
+            hasVote: true,
+          },
+        },
       });
     } else {
-      await apiClient.adjudicateWriteIn({
-        writeInId,
-        type: 'write-in-candidate',
-        candidateId: unofficialCandidate.id,
+      await apiClient.adjudicateCvrContest({
+        cvrId,
+        contestId,
+        side: 'front',
+        adjudicatedContestOptionById: {
+          [optionId]: {
+            type: 'write-in-option',
+            candidateName: unofficialCandidate.name,
+            candidateType: 'write-in-candidate',
+            hasVote: true,
+          },
+        },
       });
     }
   }
