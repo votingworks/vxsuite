@@ -1,5 +1,9 @@
+import util from 'node:util';
 import express, { Application } from 'express';
-import { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import {
+  generateSignedHashValidationQrCodeValue,
+  InsertedSmartCardAuthApi,
+} from '@votingworks/auth';
 import {
   assert,
   assertDefined,
@@ -270,6 +274,30 @@ export function buildApi(
         isTestMode: store.getTestMode(),
         pollsState: store.getPollsState(),
       };
+    },
+
+    async generateSignedHashValidationQrCodeValue() {
+      await logger.logAsCurrentRole(LogEventId.SignedHashValidationInit);
+
+      try {
+        const qrCodeValue = await generateSignedHashValidationQrCodeValue({
+          electionRecord: store.getElectionRecord(),
+          softwareVersion: getMachineConfig().codeVersion,
+        });
+
+        await logger.logAsCurrentRole(LogEventId.SignedHashValidationComplete, {
+          disposition: 'success',
+        });
+
+        return qrCodeValue;
+      } catch (err) {
+        await logger.logAsCurrentRole(LogEventId.SignedHashValidationComplete, {
+          disposition: 'failure',
+          message: util.inspect(err),
+        });
+
+        throw err;
+      }
     },
   });
 }
