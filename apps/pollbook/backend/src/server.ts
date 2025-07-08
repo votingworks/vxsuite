@@ -12,7 +12,7 @@ import { BarcodeScannerClient } from './barcode_scanner/client';
  * Starts the server.
  */
 export function start(context: LocalAppContext): void {
-  const baseLogger = new BaseLogger(LogSource.VxPollbookBackend);
+  const baseLogger = new BaseLogger(LogSource.VxPollBookBackend);
   const logger = Logger.from(baseLogger, () =>
     getUserRole(context.auth, context.workspace)
   );
@@ -33,7 +33,7 @@ export function start(context: LocalAppContext): void {
   app.listen(LOCAL_PORT, () => {
     // eslint-disable-next-line no-console
     console.log(
-      `VxPollbook backend running at http://localhost:${LOCAL_PORT}/`
+      `VxPollBook backend running at http://localhost:${LOCAL_PORT}/`
     );
   });
 }

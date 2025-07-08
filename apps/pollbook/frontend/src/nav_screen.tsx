@@ -410,7 +410,7 @@ export function NavScreen({
     <Screen flexDirection="row">
       <LeftNav style={{ width: '13rem' }}>
         <Link to="/">
-          <AppLogo appName="VxPollbook" />
+          <AppLogo appName="VxPollBook" />
         </Link>
         {navContent}
         <div style={{ marginTop: 'auto' }}>

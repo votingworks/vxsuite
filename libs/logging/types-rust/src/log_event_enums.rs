@@ -82,11 +82,11 @@ pub enum Source {
     #[serde(rename = "vx-development-script")]
     VxDevelopmentScript,
     #[serde(rename = "vx-pollbook-frontend")]
-    VxPollbookFrontend,
+    VxPollBookFrontend,
     #[serde(rename = "vx-pollbook-backend")]
-    VxPollbookBackend,
+    VxPollBookBackend,
     #[serde(rename = "vx-pollbook-barcode-scanner-daemon")]
-    VxPollbookBarcodeScannerDaemon,
+    VxPollBookBarcodeScannerDaemon,
 }
 derive_display!(Source);
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]

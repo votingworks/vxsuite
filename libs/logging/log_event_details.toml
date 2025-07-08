@@ -88,13 +88,13 @@ source = 'vx-scan-service'
 [LogSources.VxDevelopmentScript]
 source = 'vx-development-script'
 
-[LogSources.VxPollbookFrontend]
+[LogSources.VxPollBookFrontend]
 source = 'vx-pollbook-frontend'
 
-[LogSources.VxPollbookBackend]
+[LogSources.VxPollBookBackend]
 source = 'vx-pollbook-backend'
 
-[LogSources.VxPollbookBarcodeScannerDaemon]
+[LogSources.VxPollBookBarcodeScannerDaemon]
 source = 'vx-pollbook-barcode-scanner-daemon'
 
 [EventTypes.UserAction]

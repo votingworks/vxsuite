@@ -39,7 +39,7 @@ describe('SocketServer.listen event handling', () => {
     vi.useFakeTimers();
     mockSocket = new PassThrough() as unknown as net.Socket;
     logger = mockLogger({
-      source: LogSource.VxPollbookBackend,
+      source: LogSource.VxPollBookBackend,
       getCurrentRole: vi.fn().mockResolvedValue('system'),
       fn: vi.fn,
     });

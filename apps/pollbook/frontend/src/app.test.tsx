@@ -65,7 +65,7 @@ test('renders MachineLockedScreen when machine is locked - unconfigure', async (
     reason: 'machine_locked',
   });
   render(<App apiClient={apiMock.mockApiClient} />);
-  await screen.findByText('VxPollbook Locked');
+  await screen.findByText('VxPollBook Locked');
   await screen.findByText(
     'Insert system administrator or election manager card to unlock.'
   );
@@ -79,7 +79,7 @@ test('renders MachineLockedScreen when machine is locked - configured', async ()
   });
   apiMock.setElection(famousNamesElection, undefined, 'FAKEHASH');
   render(<App apiClient={apiMock.mockApiClient} />);
-  await screen.findByText('VxPollbook Locked');
+  await screen.findByText('VxPollBook Locked');
   await screen.findByText('Insert card to unlock.');
   await screen.findByText(
     `${famousNamesElection.ballotHash.slice(0, 7)}-FAKEHAS`
@@ -133,7 +133,7 @@ test('system administrator can unconfigure', async () => {
   userEvent.click(confirmButton);
 
   await screen.findByText(
-    'Insert a USB drive containing a pollbook package or power up another configured machine.'
+    'Insert a USB drive containing a poll book package or power up another configured machine.'
   );
 });
 
