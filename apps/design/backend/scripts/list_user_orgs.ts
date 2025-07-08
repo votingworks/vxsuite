@@ -1,6 +1,6 @@
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import util from 'node:util';
-import { AuthClient } from '../src/auth/client';
+import { Auth0Client } from '../src/auth0_client';
 
 const USAGE = `Usage: pnpm list-user-orgs <email address>`;
 
@@ -18,7 +18,7 @@ async function main(): Promise<void> {
     process.exit(0);
   }
 
-  const auth = AuthClient.init();
+  const auth = Auth0Client.init();
   const orgs = await auth.userOrgs(userEmail);
 
   console.log(`✅ Org memberships for ${userEmail}:`, orgs);

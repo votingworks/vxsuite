@@ -9,7 +9,7 @@ import * as server from './server';
 import { createWorkspace } from './workspace';
 import { GoogleCloudTranslatorWithDbCache } from './translator';
 import { GoogleCloudSpeechSynthesizerWithDbCache } from './speech_synthesizer';
-import { AuthClient } from './auth/client';
+import { Auth0Client } from './auth0_client';
 import {
   LocalFileStorageClient,
   S3FileStorageClient,
@@ -47,7 +47,7 @@ function main(): Promise<number> {
   const workspace = createWorkspace(workspacePath, baseLogger);
   const { store } = workspace;
 
-  const auth = authEnabled() ? AuthClient.init() : AuthClient.dev();
+  const auth0 = authEnabled() ? Auth0Client.init() : Auth0Client.dev();
 
   // We reuse the VxSuite logging library, but it doesn't matter if we meet VVSG
   // requirements in VxDesign, so we can use it a bit loosely. For example, the
@@ -66,7 +66,7 @@ function main(): Promise<number> {
   const translator = new GoogleCloudTranslatorWithDbCache({ store });
 
   server.start({
-    auth,
+    auth0,
     fileStorageClient,
     logger,
     speechSynthesizer,

@@ -20,14 +20,14 @@ import * as tmp from 'tmp';
 import { vi } from 'vitest';
 import type { Api } from '../src/app';
 import { buildApp } from '../src/app';
-import { AuthClient, AuthClientInterface } from '../src/auth/client';
+import { Auth0Client, Auth0ClientInterface } from '../src/auth0_client';
 import {
   FileStorageClient,
   FileStorageClientError,
 } from '../src/file_storage_client';
 import { GoogleCloudSpeechSynthesizerWithDbCache } from '../src/speech_synthesizer';
 import { GoogleCloudTranslatorWithDbCache } from '../src/translator';
-import { Auth0User, Org, User } from '../src/types';
+import { Org, User } from '../src/types';
 import * as worker from '../src/worker/worker';
 import { createWorkspace, Workspace } from '../src/workspace';
 import { TestStore } from './test_store';
@@ -43,25 +43,17 @@ const vendoredTranslations: VendoredTranslations = {
   [LanguageCode.SPANISH]: {},
 };
 
-class MockAuthClient implements AuthClientInterface {
+class MockAuth0Client implements Auth0ClientInterface {
   private mockAllOrgs: readonly Org[] = [];
-  private mockHasAccess: AuthClient['hasAccess'] = () => true;
-  private mockUserFromRequest: AuthClient['userFromRequest'] = () => undefined;
+  private mockUserFromRequest: Auth0Client['userFromRequest'] = async () =>
+    undefined;
 
-  constructor(
-    allOrgs: readonly Org[] = [],
-    hasAccess: (user: User, orgId: string) => boolean = () => true
-  ) {
+  constructor(allOrgs: readonly Org[] = []) {
     this.mockAllOrgs = allOrgs;
-    this.mockHasAccess = hasAccess;
   }
 
   public async allOrgs(): Promise<Org[]> {
     return this.mockAllOrgs.slice();
-  }
-
-  hasAccess(user: User, orgId: string): boolean {
-    return this.mockHasAccess(user, orgId);
   }
 
   async org(id: string): Promise<Org> {
@@ -74,7 +66,7 @@ class MockAuthClient implements AuthClientInterface {
     throw new Error('org not found');
   }
 
-  userFromRequest(req: Request): Auth0User | undefined {
+  userFromRequest(req: Request) {
     return this.mockUserFromRequest(req);
   }
 }
@@ -120,7 +112,6 @@ export function testSetupHelpers() {
     opts: {
       auth?: {
         orgs?: readonly Org[];
-        hasAccess?: (user: User, orgId: string) => boolean;
       };
     } = {}
   ) {
@@ -129,7 +120,7 @@ export function testSetupHelpers() {
 
     const workspace = createWorkspace(tmp.dirSync().name, baseLogger, store);
 
-    const auth = new MockAuthClient(opts.auth?.orgs, opts.auth?.hasAccess);
+    const auth0 = new MockAuth0Client(opts.auth?.orgs);
     const fileStorageClient = new MockFileStorageClient();
     const speechSynthesizer = new GoogleCloudSpeechSynthesizerWithDbCache({
       store,
@@ -143,7 +134,7 @@ export function testSetupHelpers() {
       vendoredTranslations,
     });
     const app = buildApp({
-      auth,
+      auth0,
       fileStorageClient,
       logger,
       speechSynthesizer,
@@ -155,7 +146,7 @@ export function testSetupHelpers() {
     const { port } = server.address() as AddressInfo;
     const baseUrl = `http://localhost:${port}/api`;
     const apiClient = grout.createClient<Api>({ baseUrl });
-    return { apiClient, workspace, auth, fileStorageClient, logger };
+    return { apiClient, workspace, auth0, fileStorageClient, logger };
   }
 
   async function cleanup() {

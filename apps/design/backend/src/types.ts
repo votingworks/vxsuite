@@ -84,19 +84,6 @@ export function normalizeState(state: string): UsState {
   }
 }
 
-export interface Auth0User {
-  email_verified: boolean;
-  email: string;
-  name: string;
-  nickname?: string;
-  org_id: string;
-  org_name: string;
-  picture?: string;
-  sid: string;
-  sub?: string;
-  updated_at: Date;
-}
-
 // [TODO] Flesh out as needed.
 export interface User {
   orgId: string;

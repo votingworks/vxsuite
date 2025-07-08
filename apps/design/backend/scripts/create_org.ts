@@ -1,6 +1,6 @@
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import util from 'node:util';
-import { AuthClient } from '../src/auth/client';
+import { Auth0Client } from '../src/auth0_client';
 
 const USAGE = `Usage: pnpm create-org [options...] "<display name>"
 
@@ -29,7 +29,7 @@ async function main(): Promise<void> {
     process.exit(0);
   }
 
-  const auth = AuthClient.init();
+  const auth = Auth0Client.init();
   const org = await auth.createOrg({
     displayName,
     enableGoogleAuth,

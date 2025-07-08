@@ -1364,17 +1364,7 @@ test('Finalize ballots', async () => {
 });
 
 test('cloneElection', async () => {
-  const { apiClient } = await setupApp({
-    auth: {
-      hasAccess(user: User, orgId: string): boolean {
-        if (user.orgId === vxUser.orgId) {
-          return true;
-        }
-
-        return user.orgId === orgId;
-      },
-    },
-  });
+  const { apiClient } = await setupApp();
 
   const srcElectionId = 'election-1' as ElectionId;
   const nonDefaultSystemSettings: SystemSettings = {

@@ -15,8 +15,8 @@ import {
   auth0Secret,
   sliOrgId,
   votingWorksOrgId,
-} from '../globals';
-import { Auth0User, Org, User } from '../types';
+} from './globals';
+import { Org, User } from './types';
 
 export type ConnectionType =
   | 'Username-Password-Authentication'
@@ -27,18 +27,29 @@ export interface Connection {
   name: ConnectionType;
 }
 
-export interface AuthClientInterface {
-  allOrgs(): Promise<Org[]>;
-  hasAccess(user: User, orgId: string): boolean;
-  org(id: string): Promise<Org>;
-  userFromRequest(req: Express.Request): Auth0User | undefined;
+export interface Auth0User {
+  email_verified: boolean;
+  email: string;
+  name: string;
+  nickname?: string;
+  org_id: string;
+  org_name: string;
+  picture?: string;
+  sid: string;
+  sub?: string;
+  updated_at: Date;
+}
 
-  // [TODO] `AuthClient` methods that are currently only used in the user
+export interface Auth0ClientInterface {
+  allOrgs(): Promise<Org[]>;
+  userFromRequest(req: Express.Request): Promise<User | undefined>;
+
+  // [TODO] `Auth0Client` methods that are currently only used in the user
   // management scripts aren't included here yet. Flesh this out, along with
   // test mocks when we start to add support tooling to the app.
 }
 
-export class AuthClient implements AuthClientInterface {
+export class Auth0Client implements Auth0ClientInterface {
   constructor(
     private readonly connections: ConnectionsManager,
     private readonly database: Database,
@@ -47,7 +58,7 @@ export class AuthClient implements AuthClientInterface {
     private readonly usersByEmail: UsersByEmailManager
   ) {}
 
-  static init(): AuthClient {
+  static init(): Auth0Client {
     const clientId = assertDefined(auth0ClientId());
     const clientSecret = assertDefined(auth0Secret());
     const domain = assertDefined(auth0ClientDomain());
@@ -64,7 +75,7 @@ export class AuthClient implements AuthClientInterface {
       domain,
     });
 
-    return new AuthClient(
+    return new Auth0Client(
       apiManagement.connections,
       apiAuth.database,
       apiManagement.organizations,
@@ -236,14 +247,6 @@ export class AuthClient implements AuthClientInterface {
     });
   }
 
-  hasAccess(user: User, orgId: string): boolean {
-    if (user.orgId === votingWorksOrgId()) {
-      return true;
-    }
-
-    return user.orgId === orgId;
-  }
-
   async org(id: string): Promise<Org> {
     const res = await this.organizations.get({ id });
 
@@ -254,8 +257,14 @@ export class AuthClient implements AuthClientInterface {
     };
   }
 
-  userFromRequest(req: Express.Request): Auth0User | undefined {
-    return req.oidc.user as Auth0User | undefined;
+  async userFromRequest(req: Express.Request): Promise<User | undefined> {
+    const auth0User = req.oidc.user as unknown as Auth0User | undefined;
+    if (!auth0User) return;
+    const org = await this.org(auth0User.org_id);
+    return {
+      orgId: org.id,
+      orgName: org.displayName,
+    };
   }
 
   async userOrgs(userEmail: string): Promise<Org[]> {
@@ -278,7 +287,7 @@ export class AuthClient implements AuthClientInterface {
     }));
   }
 
-  static dev(): AuthClient {
+  static dev(): Auth0Client {
     // [TEMP] Just allows us to have a stub in place for dev without the need
     // for an Auth0 connection.
     return {
@@ -302,25 +311,18 @@ export class AuthClient implements AuthClientInterface {
         ]);
       },
 
-      hasAccess(user: User, orgId: string): boolean {
-        if (user.orgId === votingWorksOrgId()) {
-          return true;
-        }
-
-        return user.orgId === orgId;
-      },
-
       async org(id: string): Promise<Org | undefined> {
         const orgs = await this.allOrgs();
         return orgs.find((o) => o.id === id);
       },
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      userFromRequest(_: Express.Request): Auth0User | undefined {
-        return {
-          org_id: votingWorksOrgId(),
-        } as const as Auth0User;
+      userFromRequest(_: Express.Request) {
+        return Promise.resolve({
+          orgId: votingWorksOrgId(),
+          orgName: 'VotingWorks',
+        });
       },
-    } as const as AuthClient;
+    } as const as Auth0Client;
   }
 }
