@@ -166,15 +166,33 @@ test('exports results and metadata accurately', async () => {
   });
   assert(writeIn1 !== undefined);
   assert(writeIn2 !== undefined);
-  await apiClient.adjudicateWriteIn({
-    writeInId: writeIn1.id,
-    type: 'write-in-candidate',
-    candidateId: writeInCandidate1.id,
+
+  await apiClient.adjudicateCvrContest({
+    adjudicatedContestOptionById: {
+      [writeIn1.optionId]: {
+        hasVote: true,
+        type: 'write-in-option',
+        candidateName: writeInCandidate1.name,
+        candidateType: 'write-in-candidate',
+      },
+    },
+    contestId: candidateContestId,
+    cvrId: writeIn1.cvrId,
+    side: 'front',
   });
-  await apiClient.adjudicateWriteIn({
-    writeInId: writeIn2.id,
-    type: 'official-candidate',
-    candidateId: officialCandidateId,
+
+  await apiClient.adjudicateCvrContest({
+    adjudicatedContestOptionById: {
+      [writeIn2.optionId]: {
+        hasVote: true,
+        type: 'write-in-option',
+        candidateId: officialCandidateId,
+        candidateType: 'official-candidate',
+      },
+    },
+    contestId: candidateContestId,
+    cvrId: writeIn2.cvrId,
+    side: 'front',
   });
 
   // add manual data

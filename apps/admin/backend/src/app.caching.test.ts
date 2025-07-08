@@ -128,12 +128,16 @@ test('uses and clears CVR tabulation cache appropriately', async () => {
   // adjudicating a mark as a non-vote (by invalidating a write-in) should clear the cache
   const contestId = 'State-Representatives-Hillsborough-District-34-b1012d38';
   const [cvrId] = await apiClient.getAdjudicationQueue({ contestId });
+  assert(cvrId !== undefined);
   const [writeIn] = await apiClient.getWriteIns({ cvrId, contestId });
   assert(writeIn !== undefined);
-  const { id: writeInId } = writeIn;
-  await apiClient.adjudicateWriteIn({
-    writeInId,
-    type: 'invalid',
+  await apiClient.adjudicateCvrContest({
+    adjudicatedContestOptionById: {
+      [writeIn.optionId]: { hasVote: false, type: 'write-in-option' },
+    },
+    contestId,
+    cvrId,
+    side: 'front',
   });
   const resultsExportAfterAdjudication = await getParsedExport({
     apiClient,
@@ -142,11 +146,19 @@ test('uses and clears CVR tabulation cache appropriately', async () => {
   expect(filterCallsWithoutCvrId(tabulationSpy).length).toEqual(4);
   expect(resultsExportAfterAdjudication).not.toEqual(doubledResultsExport);
 
-  // adjudicating a mark as a vote (by un-invalidating a write-in) should clear the cache
-  await apiClient.adjudicateWriteIn({
-    writeInId,
-    type: 'official-candidate',
-    candidateId: 'Obadiah-Carrigan-5c95145a',
+  // adjudicating a mark as a vote (by un-invalidating the write-in) should clear the cache
+  await apiClient.adjudicateCvrContest({
+    adjudicatedContestOptionById: {
+      [writeIn.optionId]: {
+        hasVote: true,
+        type: 'write-in-option',
+        candidateId: 'Obadiah-Carrigan-5c95145a',
+        candidateType: 'official-candidate',
+      },
+    },
+    contestId,
+    cvrId,
+    side: 'front',
   });
   const resultsExportAfterReAdjudication = await getParsedExport({
     apiClient,

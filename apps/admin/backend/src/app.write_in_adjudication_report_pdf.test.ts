@@ -125,23 +125,46 @@ test('write-in adjudication report', async () => {
 
   // generate some adjudication information
   for (const [i, writeIn] of writeIns.entries()) {
-    const { id: writeInId } = writeIn;
+    const { optionId, cvrId, contestId } = writeIn;
     if (i < 24) {
-      await apiClient.adjudicateWriteIn({
-        writeInId,
-        type: 'write-in-candidate',
-        candidateId: unofficialCandidate1.id,
+      await apiClient.adjudicateCvrContest({
+        cvrId,
+        contestId,
+        side: 'front',
+        adjudicatedContestOptionById: {
+          [optionId]: {
+            type: 'write-in-option',
+            candidateName: unofficialCandidate1.name,
+            candidateType: 'write-in-candidate',
+            hasVote: true,
+          },
+        },
       });
     } else if (i < 48) {
-      await apiClient.adjudicateWriteIn({
-        writeInId,
-        type: 'official-candidate',
-        candidateId: 'Obadiah-Carrigan-5c95145a',
+      await apiClient.adjudicateCvrContest({
+        cvrId,
+        contestId,
+        side: 'front',
+        adjudicatedContestOptionById: {
+          [optionId]: {
+            type: 'write-in-option',
+            candidateId: 'Obadiah-Carrigan-5c95145a',
+            candidateType: 'official-candidate',
+            hasVote: true,
+          },
+        },
       });
     } else {
-      await apiClient.adjudicateWriteIn({
-        writeInId,
-        type: 'invalid',
+      await apiClient.adjudicateCvrContest({
+        cvrId,
+        contestId,
+        side: 'front',
+        adjudicatedContestOptionById: {
+          [optionId]: {
+            type: 'write-in-option',
+            hasVote: false,
+          },
+        },
       });
     }
   }
