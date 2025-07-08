@@ -244,6 +244,13 @@ export function VoterCheckInScreen(): JSX.Element | null {
         case 'already_checked_in':
           errorMessage = 'Voter Already Checked In';
           break;
+        case 'no_party_specified':
+          errorMessage = 'Party Must Be Selected';
+          break;
+        case 'mismatched_party_selection':
+          errorMessage =
+            "Voter's Declared Party Differs From Ballot Party Selection";
+          break;
         default:
           /* istanbul ignore next - @preserve */
           throwIllegalValue(flowState.errorType);

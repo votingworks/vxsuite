@@ -26,6 +26,7 @@ test('getNewEvents returns events for unknown machines', () => {
   store.recordVoterCheckIn({
     voterId: 'abigail',
     identificationMethod: { type: 'default' },
+    ballotParty: 'REP',
   });
 
   store.setIsAbsenteeMode(true);
@@ -33,6 +34,7 @@ test('getNewEvents returns events for unknown machines', () => {
   store.recordVoterCheckIn({
     voterId: 'bob',
     identificationMethod: { type: 'outOfStateLicense', state: 'CA' },
+    ballotParty: 'DEM',
   });
 
   // Record a name change
