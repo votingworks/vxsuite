@@ -229,10 +229,9 @@ export class LocalStore extends Store {
     const { lastName, firstName, middleName, suffix } = searchParams;
     const MAX_VOTER_SEARCH_RESULTS = 100;
 
+    const givenName = `${firstName} ${middleName} ${suffix}`.trim();
     const lastNamePattern = toPatternStartsWith(lastName);
-    const middleNamePattern = toPatternStartsWith(middleName);
-    const firstNamePattern = toPatternStartsWith(firstName);
-    const suffixPattern = toPatternStartsWith(suffix);
+    const givenNamePattern = toPatternStartsWith(givenName);
     const { configuredPrecinctId } = this.getPollbookConfigurationInformation();
 
     // Query the database for voters matching the search criteria
@@ -241,14 +240,14 @@ export class LocalStore extends Store {
             SELECT v.voter_id, v.voter_data
             FROM voters v
             WHERE updated_last_name REGEXP ?
-              AND updated_middle_name REGEXP ?
-              AND updated_first_name REGEXP ?
-              AND updated_suffix REGEXP ?
+              AND TRIM(
+                CASE WHEN updated_first_name IS NOT NULL THEN updated_first_name || ' ' ELSE '' END ||
+                CASE WHEN updated_middle_name IS NOT NULL THEN updated_middle_name || ' ' ELSE '' END ||
+                CASE WHEN updated_suffix IS NOT NULL THEN updated_suffix ELSE '' END
+              ) REGEXP ?
             `,
       `${lastNamePattern}`,
-      `${middleNamePattern}`,
-      `${firstNamePattern}`,
-      `${suffixPattern}`
+      `${givenNamePattern}`
     ) as Array<{ voter_id: string; voter_data: string }>;
 
     if (voterRows.length === 0) {
