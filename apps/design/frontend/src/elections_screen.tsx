@@ -4,7 +4,6 @@ import {
   H1,
   Icons,
   MainContent,
-  MainHeader,
   FileInputButton,
   Table,
   Button,
@@ -26,7 +25,7 @@ import {
   getUserFeatures,
 } from './api';
 import { Column, Row } from './layout';
-import { NavScreen } from './nav_screen';
+import { Header, NavScreen } from './nav_screen';
 import { CreateElectionButton } from './create_election_button';
 import { useTitle } from './hooks/use_title';
 import { routes } from './routes';
@@ -398,9 +397,9 @@ export function ElectionsScreen(): JSX.Element | null {
 
   return (
     <NavScreen>
-      <MainHeader>
+      <Header>
         <H1>Elections</H1>
-      </MainHeader>
+      </Header>
       <MainContent>
         <Column style={{ gap: '1rem' }}>
           {features.ACCESS_ALL_ORGS ? (

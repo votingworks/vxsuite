@@ -12,7 +12,6 @@ import {
   H3,
   Icons,
   MainContent,
-  MainHeader,
   Modal,
   P,
 } from '@votingworks/ui';
@@ -23,7 +22,7 @@ import {
   updateBallotOrderInfo,
 } from './api';
 import { Form, FormActionsRow, InputGroup, Row } from './layout';
-import { ElectionNavScreen } from './nav_screen';
+import { ElectionNavScreen, Header } from './nav_screen';
 import { routes } from './routes';
 import { useTitle } from './hooks/use_title';
 
@@ -326,9 +325,9 @@ export function BallotOrderInfoScreen(): JSX.Element | null {
 
   return (
     <ElectionNavScreen electionId={electionId}>
-      <MainHeader>
+      <Header>
         <H1>Order Ballots</H1>
-      </MainHeader>
+      </Header>
       <MainContent>
         <BallotOrderInfoForm
           electionId={electionId}
