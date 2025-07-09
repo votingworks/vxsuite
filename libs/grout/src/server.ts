@@ -1,6 +1,11 @@
 /* eslint-disable no-underscore-dangle */
 import type Express from 'express';
-import { assert, isObject, isString } from '@votingworks/basics';
+import {
+  assert,
+  extractErrorMessage,
+  isObject,
+  isString,
+} from '@votingworks/basics';
 import { rootDebug } from './debug';
 import { serialize, deserialize } from './serialization';
 
@@ -257,7 +262,7 @@ export function buildRouter(
         response.status(200).send(jsonResult);
         next();
       } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
+        const message = extractErrorMessage(error);
         debug(`Error: ${message}`);
         // eslint-disable-next-line no-console
         console.error(error); // To aid debugging, log the full error with stack trace
