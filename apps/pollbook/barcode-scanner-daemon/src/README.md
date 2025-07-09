@@ -2,13 +2,19 @@
 
 ## Usage
 
-Running the first time requires [permission configuration](#Permission
-Configuration).
+Running the first time requires [device configuration](#Device Configuration)
+and [permission configuration](#Permission Configuration).
 
 ```
 make build
 make run
 ```
+
+## Device Configuration
+
+USB COM Port Emulation must be enabled on the device. You can enable it by
+scanning the barcode under "2.7 USB COM Port Emulation" in the
+[TS100 User Manual](https://www.ute.com/en/products/detail/TS100) v1.8.
 
 ## Permission Configuration
 
