@@ -30,7 +30,6 @@ test('API errors show an error screen', async () => {
       {
         id: user.orgId,
         name: 'Non-Vx Org',
-        displayName: 'Non-Vx Org',
       },
     ]);
     apiMock.listElections.expectCallWith().resolves([]);
@@ -75,7 +74,6 @@ test('API forbidden errors show a page not found error screen', async () => {
       {
         id: user.orgId,
         name: 'Non-Vx Org',
-        displayName: 'Non-Vx Org',
       },
     ]);
     apiMock.listElections.expectCallWith().resolves([]);

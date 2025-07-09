@@ -15,7 +15,7 @@ export function OrgSelect(props: OrgSelectProps): JSX.Element {
   const options = React.useMemo(
     () =>
       (orgs || []).map<SelectOption>((o) => ({
-        label: o.displayName,
+        label: o.name,
         value: o.id,
       })),
     [orgs]

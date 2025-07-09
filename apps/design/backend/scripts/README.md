@@ -32,9 +32,8 @@ pnpm create-org "City of Vx"
 # Output:
 
 ✅ Org created: {
-  displayName: 'City of Vx',
   id: 'org_TUPNZLFFyBgzxdeH',
-  name: 'city-of-vx'
+  name: 'City of Vx',
 }
 ```
 
@@ -49,14 +48,12 @@ pnpm list-orgs
 
 ✅ Orgs: [
   {
-    displayName: 'City of Vx',
     id: 'org_TUPNZLFFyBgzxdeH',
-    name: 'city-of-vx'
+    name: 'City of Vx',
   },
   {
-    displayName: 'VotingWorks',
     id: 'org_Ug9eDziiLfqKelKi',
-    name: 'votingworks'
+    name: 'VotingWorks',
   },
 ]
 ```
@@ -90,9 +87,8 @@ pnpm list-user-orgs "someone@example.com"
 
 ✅ Org memberships for someone@example.com: [
   {
-    displayName: 'City of Vx',
     id: 'org_TUPNZLFFyBgzxdeH',
-    name: 'city-of-vx'
+    name: 'City of Vx',
   }
 ]
 ```

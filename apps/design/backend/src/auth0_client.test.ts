@@ -83,14 +83,13 @@ test('createOrg', async () => {
   );
 
   const result = await newClient().createOrg({
-    displayName: 'City of Vx',
+    name: 'City of Vx',
     logoUrl: 'https://example.com/logo.png',
   });
 
   expect(result).toEqual({
-    displayName: 'City of Vx',
     id: 'new-org',
-    name: 'city-of-vx',
+    name: 'City of Vx',
   });
 
   expect(mockOrganizations.create).toHaveBeenCalledWith({
@@ -212,8 +211,8 @@ test('userOrgs', async () => {
   const client = newClient();
   const result = await client.userOrgs('alice@example.com');
   expect(result).toEqual([
-    { displayName: 'City of Vx', id: 'vx-city', name: 'city-of-vx' },
-    { displayName: 'VotingWorks', id: 'vx', name: 'votingworks' },
+    { name: 'City of Vx', id: 'vx-city' },
+    { name: 'VotingWorks', id: 'vx' },
   ]);
 
   expect(mockUsersByEmail.getByEmail).toHaveBeenCalledWith({

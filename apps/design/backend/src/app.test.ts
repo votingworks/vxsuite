@@ -120,19 +120,11 @@ const anotherNonVxUser = {
 const sliUser: User = { orgId: sliOrgId(), orgName: 'SLI' };
 const vxDemosUser: User = { orgId: vxDemosOrgId(), orgName: 'VX Demos' };
 const orgs: Org[] = [
-  { id: vxUser.orgId, name: 'votingworks', displayName: vxUser.orgName! },
-  { id: nonVxUser.orgId, name: 'other', displayName: nonVxUser.orgName! },
-  {
-    id: anotherNonVxUser.orgId,
-    name: 'another',
-    displayName: anotherNonVxUser.orgName!,
-  },
-  { id: sliUser.orgId, name: 'sli', displayName: sliUser.orgName! },
-  {
-    id: vxDemosUser.orgId,
-    name: 'vx-demos',
-    displayName: vxDemosUser.orgName!,
-  },
+  { id: vxUser.orgId, name: vxUser.orgName! },
+  { id: nonVxUser.orgId, name: nonVxUser.orgName! },
+  { id: anotherNonVxUser.orgId, name: anotherNonVxUser.orgName! },
+  { id: sliUser.orgId, name: sliUser.orgName! },
+  { id: vxDemosUser.orgId, name: vxDemosUser.orgName! },
 ];
 
 const mockFeatureFlagger = getFeatureFlagMock();
