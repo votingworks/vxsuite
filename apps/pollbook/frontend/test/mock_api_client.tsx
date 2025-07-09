@@ -12,6 +12,7 @@ import type {
   ConfigurationStatus,
   DeviceStatuses,
   MachineConfig,
+  PartyAbbreviation,
   PollbookServiceInfo,
   ValidStreetInfo,
   Voter,
@@ -43,7 +44,8 @@ export function createMockVoter(
   voterId: string,
   firstName: string,
   lastName: string,
-  precinctId: string = 'precinct-1'
+  precinctId: string = 'precinct-1',
+  party: PartyAbbreviation = 'UND'
 ): Voter {
   return {
     voterId,
@@ -73,7 +75,7 @@ export function createMockVoter(
     mailingState: '',
     mailingZip5: '',
     mailingZip4: '',
-    party: 'UND',
+    party,
     precinct: precinctId,
     isInactive: false,
   };
@@ -385,7 +387,7 @@ export function createApiMock() {
         .resolves(voter);
     },
 
-    expectCheckInVoter(voter: Voter) {
+    expectCheckInVoter(voter: Voter, ballotParty: PartyAbbreviation) {
       mockApiClient.checkInVoter.reset();
       mockApiClient.checkInVoter
         .expectCallWith({
@@ -393,11 +395,16 @@ export function createApiMock() {
           identificationMethod: {
             type: 'default',
           },
+          ballotParty,
         })
         .resolves(ok());
     },
 
-    expectCheckInVoterError(voter: Voter, error: VoterCheckInError) {
+    expectCheckInVoterError(
+      voter: Voter,
+      error: VoterCheckInError,
+      ballotParty: PartyAbbreviation
+    ) {
       mockApiClient.checkInVoter.reset();
       mockApiClient.checkInVoter
         .expectCallWith({
@@ -405,6 +412,7 @@ export function createApiMock() {
           identificationMethod: {
             type: 'default',
           },
+          ballotParty,
         })
         .resolves(err(error));
     },

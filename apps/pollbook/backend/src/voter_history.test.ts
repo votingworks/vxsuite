@@ -1,6 +1,10 @@
 import { expect, test } from 'vitest';
+import { readMultiPartyPrimaryElectionDefinition } from '@votingworks/fixtures';
 import { LocalStore } from './local_store';
-import { setupTestElectionAndVoters } from '../test/test_helpers';
+import {
+  getTestElectionDefinition,
+  setupTestElectionAndVoters,
+} from '../test/test_helpers';
 import { VoterAddressChangeRequest } from './types';
 import { generateVoterHistoryCsvContent } from './voter_history';
 
@@ -58,7 +62,37 @@ test('getNewEvents returns events for unknown machines', () => {
     suffix: 'Sr',
   });
 
+  const electionDef = getTestElectionDefinition();
   expect(
-    generateVoterHistoryCsvContent(store.getAllVotersSorted())
+    generateVoterHistoryCsvContent(
+      store.getAllVotersSorted(),
+      electionDef.election
+    )
+  ).toMatchSnapshot();
+});
+
+// Exclusion of "Party Choice" column for general elections is tested in the above test
+test('includes ballot party selection for primaries', () => {
+  const store = LocalStore.memoryStore();
+  const primaryElectionDef = readMultiPartyPrimaryElectionDefinition();
+  setupTestElectionAndVoters(store, primaryElectionDef);
+  store.setConfiguredPrecinct('precinct-1');
+  // Check in with a default ID method
+  store.recordVoterCheckIn({
+    voterId: 'abigail',
+    identificationMethod: { type: 'default' },
+    ballotParty: 'REP',
+  });
+  store.recordVoterCheckIn({
+    voterId: 'bob',
+    identificationMethod: { type: 'default' },
+    ballotParty: 'DEM',
+  });
+
+  expect(
+    generateVoterHistoryCsvContent(
+      store.getAllVotersSorted(),
+      primaryElectionDef.election
+    )
   ).toMatchSnapshot();
 });

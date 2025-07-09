@@ -514,6 +514,11 @@ export function VoterDetailsScreen(): JSX.Element | null {
                       </LabelledText>
                     </React.Fragment>
                   )}
+                  {election.type === 'primary' && (
+                    <LabelledText label="Ballot Party">
+                      {voter.checkIn.ballotParty}
+                    </LabelledText>
+                  )}
                 </Column>
               </React.Fragment>
             )}

@@ -62,19 +62,13 @@ export const PartyAbbreviationSchema = z.union([
   z.literal('UND'),
 ]);
 
-export type BallotPartyAbbreviation = 'DEM' | 'REP';
-export const BallotPartyAbbreviationSchema = z.union([
-  z.literal('DEM'),
-  z.literal('REP'),
-]);
-
 export interface VoterCheckIn {
   identificationMethod: VoterIdentificationMethod;
   isAbsentee: boolean;
   timestamp: string;
   machineId: string;
   receiptNumber: number;
-  ballotParty: BallotPartyAbbreviation;
+  ballotParty: PartyAbbreviation;
 }
 
 export const VoterCheckInSchema: z.ZodSchema<VoterCheckIn> = z.object({
@@ -91,7 +85,7 @@ export const VoterCheckInSchema: z.ZodSchema<VoterCheckIn> = z.object({
   timestamp: z.string(),
   machineId: z.string(),
   receiptNumber: z.number(),
-  ballotParty: BallotPartyAbbreviationSchema,
+  ballotParty: PartyAbbreviationSchema,
 });
 
 export interface Voter {
@@ -503,7 +497,9 @@ export type ConfigurationStatus =
 
 export type VoterCheckInError =
   | 'already_checked_in'
-  | 'mismatched_party_selection';
+  | 'undeclared_voter_missing_ballot_party'
+  | 'mismatched_party_selection'
+  | 'unknown_voter_party';
 
 export interface DuplicateVoterError {
   type: 'duplicate-voter';

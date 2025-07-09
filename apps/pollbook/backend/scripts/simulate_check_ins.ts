@@ -3,7 +3,7 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { safeParseInt } from '@votingworks/types';
 import type { LocalApi } from '../src/app';
-import { BallotPartyAbbreviation, Voter } from '../src';
+import { PartyAbbreviation, Voter } from '../src';
 
 const api = grout.createClient<LocalApi>({
   baseUrl: 'http://localhost:3002/api',
@@ -21,7 +21,7 @@ async function getAllVoters() {
 
 // Returns the voter's party, or if party is undeclared, deterministically
 // chooses a party based on voter last name.
-function getCheckInPartyForVoter(voter: Voter): BallotPartyAbbreviation {
+function getCheckInPartyForVoter(voter: Voter): PartyAbbreviation {
   if (voter.party !== 'UND') {
     return voter.party;
   }

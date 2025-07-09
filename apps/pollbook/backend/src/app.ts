@@ -36,7 +36,6 @@ import { Logger } from '@votingworks/logging';
 import {
   DeviceStatuses,
   Voter,
-  VoterIdentificationMethod,
   VoterSearchParams,
   ConfigurationStatus,
   ValidStreetInfo,
@@ -54,7 +53,8 @@ import {
   PollbookConfigurationInformation,
   AamvaDocument,
   isBarcodeScannerError,
-  BallotPartyAbbreviation,
+  VoterIdentificationMethod,
+  PartyAbbreviation,
 } from './types';
 import { rootDebug } from './debug';
 import {
@@ -267,16 +267,30 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
     async checkInVoter(input: {
       voterId: string;
       identificationMethod: VoterIdentificationMethod;
-      ballotParty: BallotPartyAbbreviation;
+      ballotParty: PartyAbbreviation;
     }): Promise<Result<void, VoterCheckInError>> {
       const election = assertDefined(store.getElection());
       const { checkIn, party: voterParty } = store.getVoter(input.voterId);
       if (checkIn) {
         return err('already_checked_in');
       }
-
-      if (input.ballotParty !== voterParty) {
-        return err('mismatched_party_selection');
+      if (election.type === 'primary') {
+        switch (voterParty) {
+          case 'UND':
+            if (!['REP', 'DEM'].includes(input.ballotParty)) {
+              return err('undeclared_voter_missing_ballot_party');
+            }
+            break;
+          case 'REP':
+          case 'DEM':
+            if (input.ballotParty !== voterParty) {
+              return err('mismatched_party_selection');
+            }
+            break;
+          default:
+            /* istanbul ignore next - @preserve */
+            return err('unknown_voter_party');
+        }
       }
 
       const { voter, receiptNumber } = store.recordVoterCheckIn({
@@ -466,6 +480,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
     },
 
     async exportVoterActivity(): Promise<void> {
+      const election = assertDefined(store.getElection());
       const exporter = new Exporter({
         allowedExportPatterns: ['**'], // TODO restrict allowed export paths
         usbDrive,
@@ -474,7 +489,8 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
         new Date()
       )}.csv`;
       const csvContents = generateVoterHistoryCsvContent(
-        store.getAllVotersSorted()
+        store.getAllVotersSorted(),
+        election
       );
       const result = await exporter.exportDataToUsbDrive(
         '',

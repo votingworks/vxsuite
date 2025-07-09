@@ -17,7 +17,7 @@ import {
   EventType,
   PollbookEventBase,
   ValidStreetInfo,
-  BallotPartyAbbreviation,
+  PartyAbbreviation,
 } from '../src/types';
 import { PeerStore } from '../src/peer_store';
 
@@ -69,7 +69,7 @@ export function createVoterCheckInEvent(
   hlcTimestamp: HlcTimestamp
 ): VoterCheckInEvent {
   const match = voterId.match(/voter-([0-9]+)/);
-  let ballotParty: BallotPartyAbbreviation;
+  let ballotParty: PartyAbbreviation;
   if (!match) {
     // eslint-disable-next-line no-console
     console.warn(
@@ -203,8 +203,10 @@ export function getTestElectionDefinition(): ElectionDefinition {
   return testElectionDefinition;
 }
 
-export function setupTestElectionAndVoters(store: Store): void {
-  const testElectionDefinition = getTestElectionDefinition();
+export function setupTestElectionAndVoters(
+  store: Store,
+  electionDefinition?: ElectionDefinition
+): void {
   const testVoters = [
     createVoter('abigail', 'Abigail', 'Adams'),
     createVoter('bob', 'Bob', 'Smith'),
@@ -224,7 +226,7 @@ export function setupTestElectionAndVoters(store: Store): void {
     },
   ];
   store.setElectionAndVoters(
-    testElectionDefinition,
+    electionDefinition ?? getTestElectionDefinition(),
     'mock-package-hash',
     testStreetInfo,
     testVoters
