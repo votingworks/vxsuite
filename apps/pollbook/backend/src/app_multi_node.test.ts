@@ -95,7 +95,8 @@ vitest.setConfig({
 });
 
 async function setupUnconfiguredPollbooksOnNetwork(
-  pollbookContexts: TestContext[]
+  pollbookContexts: TestContext[],
+  callerId?: string
 ): Promise<void> {
   for (const context of pollbookContexts) {
     context.mockUsbDrive.insertUsbDrive({});
@@ -104,9 +105,12 @@ async function setupUnconfiguredPollbooksOnNetwork(
   vi.mocked(hasOnlineInterface).mockResolvedValue(true);
 
   // Set up spies for all pollbook contexts
-  for (const context of pollbookContexts) {
-    vi.spyOn(context.peerWorkspace.store, 'getNewEvents');
-  }
+  // for (const context of pollbookContexts) {
+  //   vi.spyOn(context.peerWorkspace.store, 'getNewEvents');
+  // }
+  const spies = pollbookContexts.map((context) =>
+    vi.spyOn(context.peerWorkspace.store, 'getNewEvents')
+  );
 
   // Get ports for all pollbook contexts
   const ports = pollbookContexts.map((context) => {
@@ -163,10 +167,19 @@ async function setupUnconfiguredPollbooksOnNetwork(
 
   await extendedWaitFor(() => {
     vi.advanceTimersByTime(EVENT_POLLING_INTERVAL);
-    // Before connecting the pollbooks should not have queried one another for events
-    for (const context of pollbookContexts) {
-      expect(context.peerWorkspace.store.getNewEvents).not.toHaveBeenCalled();
+    for (const [i, spy] of spies.entries()) {
+      // Before connecting the pollbooks should not have queried one another for events
+      const calls = spy.mock.calls.length;
+      if (calls > 0) {
+        throw new Error(
+          `getNewEvents was called ${calls} times in context ${i}. Callsite: ${callerId}`
+        );
+      }
     }
+    // Before connecting the pollbooks should not have queried one another for events
+    // for (const context of pollbookContexts) {
+    //   expect(context.peerWorkspace.store.getNewEvents).not.toHaveBeenCalled();
+    // }
   });
 }
 
@@ -993,7 +1006,7 @@ test('pollbooks can not configure if code version does not match', async () => {
   );
 });
 
-test('one pollbook can be configured from another pollbook automatically as an election mangaer', async () => {
+test('one pollbook can be configured from another pollbook automatically as an election manager', async () => {
   await withManyApps(
     3,
     async ([pollbookContext1, pollbookContext2, pollbookContext3]) => {
@@ -1035,10 +1048,10 @@ test('one pollbook can be configured from another pollbook automatically as an e
           (await pollbookContext2.localApiClient.getElection()).err()
         ).toEqual('unconfigured');
       });
-      await setupUnconfiguredPollbooksOnNetwork([
-        pollbookContext1,
-        pollbookContext2,
-      ]);
+      await setupUnconfiguredPollbooksOnNetwork(
+        [pollbookContext1, pollbookContext2],
+        'set-up-contexts-1-2'
+      );
 
       // use the wrong election manager card
       mockElectionManagerAuth(
@@ -1054,11 +1067,10 @@ test('one pollbook can be configured from another pollbook automatically as an e
       mockLoggedOut(pollbookContext2.auth);
       vitest.advanceTimersByTime(100);
 
-      await setupUnconfiguredPollbooksOnNetwork([
-        pollbookContext1,
-        pollbookContext2,
-        pollbookContext3,
-      ]);
+      await setupUnconfiguredPollbooksOnNetwork(
+        [pollbookContext1, pollbookContext2, pollbookContext3],
+        'set-up-contexts-1-3'
+      );
       const { port: port1 } =
         pollbookContext1.peerServer.address() as AddressInfo;
       const { port: port2 } =
