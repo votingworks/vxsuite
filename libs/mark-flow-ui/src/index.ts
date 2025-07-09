@@ -1,3 +1,4 @@
+export * as pollWorkerComponents from './components/poll_worker';
 export * from './components/button_footer';
 export * from './components/contest';
 export * from './components/centered_card_page_layout';

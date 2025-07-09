@@ -9,11 +9,7 @@ import {
   InsertedSmartCardAuth,
   PrecinctSelection,
   VotesDict,
-  PrecinctOrSplit,
   getBallotStyle,
-  getAllPrecinctsAndSplits,
-  Election,
-  PrecinctSplitId,
   getPartyForBallotStyle,
 } from '@votingworks/types';
 import {
@@ -29,7 +25,6 @@ import {
   H4,
   Icons,
   H3,
-  SearchSelect,
   SignedHashValidationButton,
   RemoveCardImage,
   electionStrings,
@@ -45,23 +40,23 @@ import {
   BooleanEnvironmentVariableName,
   format,
   getPrecinctsAndSplitsForBallotStyle,
-  getBallotStyleGroupsForPrecinctOrSplit,
 } from '@votingworks/utils';
 
 import type {
   AcceptedPaperType,
   MachineConfig,
 } from '@votingworks/mark-scan-backend';
-import styled from 'styled-components';
 import {
-  assert,
   assertDefined,
   DateWithoutTime,
   find,
   throwIllegalValue,
 } from '@votingworks/basics';
 
-import { CenteredCardPageLayout } from '@votingworks/mark-flow-ui';
+import {
+  CenteredCardPageLayout,
+  pollWorkerComponents,
+} from '@votingworks/mark-flow-ui';
 import { LoadPaperPage } from './load_paper_page';
 import {
   getStateMachineState,
@@ -80,6 +75,8 @@ import {
 } from '../ballot_reinsertion_flow';
 import { ResetVoterSessionButton } from '../components/deactivate_voter_session_button';
 
+const { ButtonGrid, SectionSessionStart, VotingSession } = pollWorkerComponents;
+
 const ACCEPTING_ALL_PAPER_TYPES_PARAMS = {
   paperTypes: ['BlankPage', 'InterpretedBmdPage'] as AcceptedPaperType[],
 } as const;
@@ -87,35 +84,6 @@ const ACCEPTING_ALL_PAPER_TYPES_PARAMS = {
 const ACCEPTING_PREPRINTED_BALLOT_PARAMS = {
   paperTypes: ['InterpretedBmdPage'] as AcceptedPaperType[],
 } as const;
-
-const VotingSession = styled.div`
-  margin: 30px 0 60px;
-  border: 2px solid #000;
-  border-radius: 20px;
-  padding: 30px 40px;
-
-  & > *:first-child {
-    margin-top: 0;
-  }
-
-  & > *:last-child {
-    margin-bottom: 0;
-  }
-`;
-
-const ButtonGrid = styled.div`
-  display: grid;
-  grid-auto-rows: 1fr;
-  grid-gap: max(${(p) => p.theme.sizes.minTouchAreaSeparationPx}px, 0.25rem);
-  grid-template-columns: 1fr 1fr;
-
-  button {
-    flex-wrap: nowrap;
-    white-space: nowrap;
-  }
-
-  margin-top: 0.5rem;
-`;
 
 function UpdatePollsButton({
   pollsTransition,
@@ -180,167 +148,6 @@ function UpdatePollsButton({
       )}
     </React.Fragment>
   );
-}
-
-function SelectBallotStyle({
-  election,
-  configuredPrecinctsAndSplits,
-  onChooseBallotStyle,
-}: {
-  election: Election;
-  configuredPrecinctsAndSplits: PrecinctOrSplit[];
-  onChooseBallotStyle: (
-    precinctId: PrecinctId,
-    ballotStyleId: BallotStyleId
-  ) => void;
-}): JSX.Element {
-  // Only used for primary elections
-  const [selectedPrecinctOrSplitId, setSelectedPrecinctOrSplitId] = useState<
-    PrecinctId | PrecinctSplitId
-  >();
-
-  switch (election.type) {
-    case 'general': {
-      // eslint-disable-next-line no-inner-declarations
-      function getBallotStyleForPrecinctOrSplit(
-        precinctOrSplit: PrecinctOrSplit
-      ) {
-        const ballotStyleGroups = getBallotStyleGroupsForPrecinctOrSplit({
-          election,
-          precinctOrSplit,
-        });
-        assert(
-          ballotStyleGroups.length === 1,
-          'General elections should have exactly one ballot style group per precinct or split'
-        );
-        return ballotStyleGroups[0].defaultLanguageBallotStyle;
-      }
-
-      if (configuredPrecinctsAndSplits.length === 1) {
-        const [precinctOrSplit] = configuredPrecinctsAndSplits;
-        const { precinct } = precinctOrSplit;
-        return (
-          <Button
-            onPress={() =>
-              onChooseBallotStyle(
-                precinct.id,
-                getBallotStyleForPrecinctOrSplit(precinctOrSplit).id
-              )
-            }
-            rightIcon="Next"
-          >
-            Start Voting Session: {electionStrings.precinctName(precinct)}
-          </Button>
-        );
-      }
-      return (
-        <SearchSelect
-          placeholder="Select ballot style…"
-          options={configuredPrecinctsAndSplits.map((precinctOrSplit) =>
-            precinctOrSplit.split
-              ? {
-                  label: precinctOrSplit.split.name,
-                  value: precinctOrSplit.split.id,
-                }
-              : {
-                  label: precinctOrSplit.precinct.name,
-                  value: precinctOrSplit.precinct.id,
-                }
-          )}
-          value=""
-          onChange={(value) => {
-            const precinctOrSplit = find(
-              configuredPrecinctsAndSplits,
-              // eslint-disable-next-line @typescript-eslint/no-shadow
-              (precinctOrSplit) =>
-                value ===
-                (precinctOrSplit.split?.id ?? precinctOrSplit.precinct.id)
-            );
-            onChooseBallotStyle(
-              precinctOrSplit.precinct.id,
-              getBallotStyleForPrecinctOrSplit(precinctOrSplit).id
-            );
-          }}
-          style={{ width: '100%' }}
-        />
-      );
-    }
-
-    case 'primary': {
-      const selectedPrecinctOrSplit =
-        configuredPrecinctsAndSplits.length === 1
-          ? configuredPrecinctsAndSplits[0]
-          : selectedPrecinctOrSplitId &&
-            find(
-              configuredPrecinctsAndSplits,
-              (precinctOrSplit) =>
-                precinctOrSplit.split?.id === selectedPrecinctOrSplitId ||
-                precinctOrSplit.precinct.id === selectedPrecinctOrSplitId
-            );
-      return (
-        <div
-          style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}
-        >
-          {configuredPrecinctsAndSplits.length > 1 && (
-            <SearchSelect
-              placeholder="Select voter's precinct…"
-              options={configuredPrecinctsAndSplits.map((precinctOrSplit) =>
-                precinctOrSplit.split
-                  ? {
-                      label: precinctOrSplit.split.name,
-                      value: precinctOrSplit.split.id,
-                    }
-                  : {
-                      label: precinctOrSplit.precinct.name,
-                      value: precinctOrSplit.precinct.id,
-                    }
-              )}
-              value={selectedPrecinctOrSplitId}
-              onChange={setSelectedPrecinctOrSplitId}
-              style={{ width: '100%' }}
-            />
-          )}
-
-          {selectedPrecinctOrSplit && (
-            <P>
-              <Font weight="semiBold">Select ballot style:</Font>
-              <ButtonGrid>
-                {getBallotStyleGroupsForPrecinctOrSplit({
-                  election,
-                  precinctOrSplit: selectedPrecinctOrSplit,
-                }).map((ballotStyleGroup) => {
-                  const ballotStyleId =
-                    ballotStyleGroup.defaultLanguageBallotStyle.id;
-                  return (
-                    <Button
-                      key={ballotStyleId}
-                      onPress={() =>
-                        onChooseBallotStyle(
-                          selectedPrecinctOrSplit.precinct.id,
-                          ballotStyleId
-                        )
-                      }
-                    >
-                      {
-                        assertDefined(
-                          getPartyForBallotStyle({ election, ballotStyleId })
-                        ).name
-                      }
-                    </Button>
-                  );
-                })}
-              </ButtonGrid>
-            </P>
-          )}
-        </div>
-      );
-    }
-
-    default: {
-      /* istanbul ignore next - @preserve */
-      throwIllegalValue(election.type);
-    }
-  }
 }
 
 export interface PollworkerScreenProps {
@@ -555,15 +362,6 @@ export function PollWorkerScreen({
     return null;
   }
 
-  const configuredPrecinctsAndSplits = getAllPrecinctsAndSplits(
-    election
-  ).filter(
-    ({ precinct }) =>
-      precinctSelection.kind === 'AllPrecincts' ||
-      (precinctSelection.kind === 'SinglePrecinct' &&
-        precinctSelection.precinctId === precinct.id)
-  );
-
   return (
     <Screen>
       <Main padded>
@@ -586,14 +384,11 @@ export function PollWorkerScreen({
 
           {pollsState === 'polls_open' && (
             <React.Fragment>
-              <VotingSession>
-                <H4 as="h2">Start a New Voting Session</H4>
-                <SelectBallotStyle
-                  election={election}
-                  configuredPrecinctsAndSplits={configuredPrecinctsAndSplits}
-                  onChooseBallotStyle={onChooseBallotStyle}
-                />
-              </VotingSession>
+              <SectionSessionStart
+                election={election}
+                onChooseBallotStyle={onChooseBallotStyle}
+                precinctSelection={precinctSelection}
+              />
               <VotingSession>
                 <H4 as="h2">Cast a Previously Printed Ballot</H4>
                 <P>
@@ -669,7 +464,7 @@ export function PollWorkerScreen({
         />
       )}
       <ElectionInfoBar
-        mode="admin"
+        mode="pollworker"
         electionDefinition={electionDefinition}
         electionPackageHash={electionPackageHash}
         codeVersion={machineConfig.codeVersion}
