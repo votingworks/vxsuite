@@ -5,7 +5,6 @@ import {
   ElectionDefinition,
   PrecinctId,
   PollsState,
-  PollsTransitionType,
   InsertedSmartCardAuth,
   PrecinctSelection,
   VotesDict,
@@ -18,27 +17,18 @@ import {
   Modal,
   Screen,
   ElectionInfoBar,
-  H2,
   P,
   Caption,
   Font,
   H4,
   Icons,
-  H3,
-  SignedHashValidationButton,
   RemoveCardImage,
   electionStrings,
-  TestModeCallout,
 } from '@votingworks/ui';
 
 import {
-  getPollsTransitionDestinationState,
-  getPollsStateName,
-  getPollsTransitionAction,
-  getPollTransitionsFromState,
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
-  format,
   getPrecinctsAndSplitsForBallotStyle,
 } from '@votingworks/utils';
 
@@ -46,12 +36,7 @@ import type {
   AcceptedPaperType,
   MachineConfig,
 } from '@votingworks/mark-scan-backend';
-import {
-  assertDefined,
-  DateWithoutTime,
-  find,
-  throwIllegalValue,
-} from '@votingworks/basics';
+import { assertDefined, DateWithoutTime, find } from '@votingworks/basics';
 
 import {
   CenteredCardPageLayout,
@@ -75,7 +60,13 @@ import {
 } from '../ballot_reinsertion_flow';
 import { ResetVoterSessionButton } from '../components/deactivate_voter_session_button';
 
-const { ButtonGrid, SectionSessionStart, VotingSession } = pollWorkerComponents;
+const {
+  SectionHeader,
+  SectionPollsState,
+  SectionSessionStart,
+  SectionSystem,
+  VotingSession,
+} = pollWorkerComponents;
 
 const ACCEPTING_ALL_PAPER_TYPES_PARAMS = {
   paperTypes: ['BlankPage', 'InterpretedBmdPage'] as AcceptedPaperType[],
@@ -84,71 +75,6 @@ const ACCEPTING_ALL_PAPER_TYPES_PARAMS = {
 const ACCEPTING_PREPRINTED_BALLOT_PARAMS = {
   paperTypes: ['InterpretedBmdPage'] as AcceptedPaperType[],
 } as const;
-
-function UpdatePollsButton({
-  pollsTransition,
-  updatePollsState,
-  isPrimaryButton,
-}: {
-  pollsTransition: PollsTransitionType;
-  updatePollsState: (pollsState: PollsState) => void;
-  isPrimaryButton: boolean;
-}): JSX.Element {
-  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
-
-  function closeModal() {
-    setIsConfirmationModalOpen(false);
-  }
-
-  function confirmUpdate() {
-    updatePollsState(getPollsTransitionDestinationState(pollsTransition));
-    closeModal();
-  }
-
-  const action = getPollsTransitionAction(pollsTransition);
-  const explanationText = (() => {
-    switch (pollsTransition) {
-      case 'open_polls':
-        return `After polls are opened, voters will be able to mark and cast ballots.`;
-      case 'pause_voting':
-        return `After voting is paused, voters will not be able to mark and cast ballots until voting is resumed.`;
-      case 'resume_voting':
-        return `After voting is resumed, voters will be able to mark and cast ballots.`;
-      case 'close_polls':
-        return `After polls are closed, voters will no longer be able to mark and cast ballots. Polls cannot be opened again.`;
-      default: {
-        /* istanbul ignore next - @preserve */
-        throwIllegalValue(pollsTransition);
-      }
-    }
-  })();
-
-  return (
-    <React.Fragment>
-      <Button
-        variant={isPrimaryButton ? 'primary' : 'neutral'}
-        onPress={() => setIsConfirmationModalOpen(true)}
-      >
-        {action}
-      </Button>
-      {isConfirmationModalOpen && (
-        <Modal
-          title={`${action}`}
-          content={<P>{explanationText}</P>}
-          actions={
-            <React.Fragment>
-              <Button variant="primary" onPress={confirmUpdate}>
-                {action}
-              </Button>
-              <Button onPress={closeModal}>Cancel</Button>
-            </React.Fragment>
-          }
-          onOverlayClick={closeModal}
-        />
-      )}
-    </React.Fragment>
-  );
-}
 
 export interface PollworkerScreenProps {
   pollWorkerAuth: InsertedSmartCardAuth.PollWorkerLoggedIn;
@@ -366,22 +292,10 @@ export function PollWorkerScreen({
     <Screen>
       <Main padded>
         <div>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'start',
-            }}
-          >
-            <H2 as="h1">Poll Worker Menu</H2>
-            {!isLiveMode && <TestModeCallout />}
-          </div>
-          <P>Remove the poll worker card to leave this screen.</P>
-          <P style={{ fontSize: '1.2em' }}>
-            <Font weight="bold">Ballots Printed:</Font>{' '}
-            {format.count(ballotsPrintedCount)}
-          </P>
-
+          <SectionHeader
+            ballotsPrintedCount={ballotsPrintedCount}
+            liveMode={isLiveMode}
+          />
           {pollsState === 'polls_open' && (
             <React.Fragment>
               <SectionSessionStart
@@ -406,29 +320,15 @@ export function PollWorkerScreen({
               </VotingSession>
             </React.Fragment>
           )}
-          <P style={{ fontSize: '1.2em' }}>
-            <Font weight="bold">Polls:</Font> {getPollsStateName(pollsState)}
-          </P>
-          <ButtonGrid>
-            {getPollTransitionsFromState(pollsState).map(
-              (pollsTransition, index) => (
-                <UpdatePollsButton
-                  pollsTransition={pollsTransition}
-                  updatePollsState={(newPollsState) =>
-                    setPollsStateMutation.mutate({
-                      pollsState: newPollsState,
-                    })
-                  }
-                  isPrimaryButton={index === 0}
-                  key={`${pollsTransition}-button`}
-                />
-              )
-            )}
-          </ButtonGrid>
-          <H3>System</H3>
-          <ButtonGrid>
-            <SignedHashValidationButton apiClient={apiClient} />
-          </ButtonGrid>
+          <SectionPollsState
+            pollsState={pollsState}
+            updatePollsState={(newPollsState) =>
+              setPollsStateMutation.mutate({
+                pollsState: newPollsState,
+              })
+            }
+          />
+          <SectionSystem apiClient={apiClient} />
         </div>
       </Main>
       {isConfirmingEnableLiveMode && (
