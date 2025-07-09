@@ -10,7 +10,7 @@ import {
   mockUserFeatures,
   user,
 } from '../test/api_helpers';
-import { render, screen, waitFor } from '../test/react_testing_library';
+import { render, screen, waitFor, within } from '../test/react_testing_library';
 import { App } from './app';
 
 let apiMock: MockApiClient;
@@ -21,6 +21,24 @@ beforeEach(() => {
 
 afterEach(() => {
   apiMock.assertComplete();
+});
+
+test('Shows user info and logout button', async () => {
+  mockUserFeatures(apiMock, {});
+  apiMock.listElections.expectCallWith().resolves([]);
+  apiMock.getUser.expectCallWith().resolves(user);
+  render(<App apiClient={apiMock} />);
+
+  const header = (
+    await screen.findByRole('heading', { name: 'Elections' })
+  ).closest('header')!;
+  within(header).getByText(user.name);
+
+  Object.defineProperty(window, 'location', { value: { assign: vi.fn() } });
+  userEvent.click(within(header).getByRole('button', { name: 'Log Out' }));
+  await waitFor(() => {
+    expect(window.location.assign).toHaveBeenCalledWith('/auth/logout');
+  });
 });
 
 test('API errors show an error screen', async () => {

@@ -29,6 +29,7 @@ let apiMock: MockApiClient;
 
 beforeEach(() => {
   apiMock = createMockApiClient();
+  apiMock.getUser.expectCallWith().resolves(user);
   mockUserFeatures(apiMock);
 });
 
