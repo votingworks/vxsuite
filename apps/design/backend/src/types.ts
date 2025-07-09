@@ -90,11 +90,6 @@ export interface User {
   orgName?: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-export type WithUserInfo<T = {}> = T & {
-  user: User;
-};
-
 export interface Org {
   displayName: string;
   id: string;

@@ -750,6 +750,23 @@ export class Store {
     });
   }
 
+  async getElectionOrgId(electionId: ElectionId): Promise<string> {
+    const row = (
+      await this.db.withClient((client) =>
+        client.query(
+          `
+          select org_id as "orgId"
+          from elections
+          where id = $1
+        `,
+          electionId
+        )
+      )
+    ).rows[0];
+    assert(row, 'Election not found');
+    return row.orgId;
+  }
+
   async createElection(
     orgId: string,
     election: Election,

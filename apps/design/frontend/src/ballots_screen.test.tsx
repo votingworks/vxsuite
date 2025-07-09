@@ -23,7 +23,7 @@ let apiMock: MockApiClient;
 
 beforeEach(() => {
   apiMock = createMockApiClient();
-  mockUserFeatures(apiMock, user);
+  mockUserFeatures(apiMock);
 });
 
 afterEach(() => {
@@ -62,7 +62,6 @@ describe('Ballot styles tab', () => {
   test('General election with splits', async () => {
     const electionRecord = generalElectionRecord(user.orgId);
     const electionId = electionRecord.election.id;
-    apiMock.getUser.expectCallWith().resolves(user);
     expectElectionApiCalls(electionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
@@ -98,7 +97,6 @@ describe('Ballot styles tab', () => {
   test('Primary election with splits', async () => {
     const electionRecord = primaryElectionRecord(user.orgId);
     const electionId = electionRecord.election.id;
-    apiMock.getUser.expectCallWith().resolves(user);
     expectElectionApiCalls(electionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
@@ -147,7 +145,6 @@ describe('Ballot styles tab', () => {
       ),
     };
     const electionId = electionRecord.election.id;
-    apiMock.getUser.expectCallWith().resolves(user);
     expectElectionApiCalls(electionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
     renderScreen(electionId);
@@ -175,7 +172,6 @@ describe('Ballot styles tab', () => {
   test('Finalizing ballots', async () => {
     const electionRecord = generalElectionRecord(user.orgId);
     const electionId = electionRecord.election.id;
-    apiMock.getUser.expectCallWith().resolves(user);
     expectElectionApiCalls(electionRecord);
     apiMock.getBallotsFinalizedAt
       .expectOptionalRepeatedCallsWith({ electionId })
@@ -219,13 +215,12 @@ describe('Ballot layout tab', () => {
   const electionId = election.id;
 
   beforeEach(() => {
-    apiMock.getUser.expectCallWith().resolves(user);
     expectElectionApiCalls(electionRecord);
     apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   });
 
   test('has form to update paper size and density', async () => {
-    mockUserFeatures(apiMock, user, {
+    mockUserFeatures(apiMock, {
       ONLY_LETTER_AND_LEGAL_PAPER_SIZES: false,
     });
     apiMock.getBallotLayoutSettings.expectCallWith({ electionId }).resolves({
@@ -301,7 +296,7 @@ describe('Ballot layout tab', () => {
   });
 
   test('with ONLY_LETTER_AND_LEGAL_PAPER_SIZES feature flag enabled', async () => {
-    mockUserFeatures(apiMock, user, {
+    mockUserFeatures(apiMock, {
       ONLY_LETTER_AND_LEGAL_PAPER_SIZES: true,
     });
     apiMock.getBallotLayoutSettings.expectCallWith({ electionId }).resolves({
@@ -334,7 +329,7 @@ describe('Ballot layout tab', () => {
   });
 
   test('cancelling', async () => {
-    mockUserFeatures(apiMock, user, {});
+    mockUserFeatures(apiMock, {});
     apiMock.getBallotLayoutSettings.expectCallWith({ electionId }).resolves({
       paperSize: election.ballotLayout.paperSize,
       compact: false,

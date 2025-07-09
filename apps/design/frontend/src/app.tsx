@@ -90,7 +90,7 @@ export function App({
       defaultSizeMode="desktop"
       showScrollBars
     >
-      <ErrorBoundary errorMessage={<ErrorScreen />}>
+      <ErrorBoundary errorMessage={ErrorScreen}>
         <ApiClientContext.Provider value={apiClient}>
           <QueryClientProvider client={createQueryClient()}>
             <WaitForUserInfo>

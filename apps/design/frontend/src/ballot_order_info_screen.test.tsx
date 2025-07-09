@@ -29,7 +29,7 @@ let apiMock: MockApiClient;
 
 beforeEach(() => {
   apiMock = createMockApiClient();
-  mockUserFeatures(apiMock, user);
+  mockUserFeatures(apiMock);
 });
 
 afterEach(() => {
@@ -49,7 +49,6 @@ function renderScreen() {
 }
 
 test('submitting ballot order', async () => {
-  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getBallotOrderInfo.expectCallWith({ electionId }).resolves({});
   apiMock.getBallotsFinalizedAt
     .expectCallWith({ electionId })
@@ -153,7 +152,6 @@ test('submitting ballot order', async () => {
 });
 
 test('submitting ballot order with validation errors', async () => {
-  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getBallotOrderInfo.expectCallWith({ electionId }).resolves({});
   apiMock.getBallotsFinalizedAt
     .expectCallWith({ electionId })
@@ -189,7 +187,6 @@ test('submitting ballot order with validation errors', async () => {
 });
 
 test('ballot order submission required ballots to be proofed first', async () => {
-  apiMock.getUser.expectCallWith().resolves(user);
   apiMock.getBallotOrderInfo.expectCallWith({ electionId }).resolves({});
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
   renderScreen();

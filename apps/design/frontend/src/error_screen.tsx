@@ -5,9 +5,29 @@ import {
   Icons,
   LeftNav,
 } from '@votingworks/ui';
+import { throwIllegalValue } from '@votingworks/basics';
 import { Column, Row } from './layout';
+import { isAuthError } from './api';
 
-export function ErrorScreen(): JSX.Element {
+export function ErrorScreen({ error }: { error: unknown }): JSX.Element | null {
+  let errorMessage = 'Something went wrong';
+  if (isAuthError(error)) {
+    switch (error.message) {
+      case 'auth:unauthorized': {
+        window.location.replace('/auth/login');
+        return null;
+      }
+      case 'auth:forbidden': {
+        errorMessage = 'Page not found';
+        break;
+      }
+      default: {
+        /* istanbul ignore next - @preserve */
+        throwIllegalValue(error.message);
+      }
+    }
+  }
+
   return (
     <Row style={{ flex: 1, width: '100%' }}>
       <LeftNav style={{ width: '14rem' }}>
@@ -26,7 +46,7 @@ export function ErrorScreen(): JSX.Element {
         <FullScreenIconWrapper>
           <Icons.Danger />
         </FullScreenIconWrapper>
-        <H1>Something went wrong</H1>
+        <H1>{errorMessage}</H1>
       </Column>
     </Row>
   );
