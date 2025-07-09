@@ -32,7 +32,6 @@ import * as worker from '../src/worker/worker';
 import { createWorkspace, Workspace } from '../src/workspace';
 import { TestStore } from './test_store';
 import { getEntries, openZip, readEntry } from '@votingworks/utils/src';
-import { join } from 'node:path';
 
 tmp.setGracefulCleanup();
 
@@ -134,7 +133,7 @@ export function testSetupHelpers() {
     const { port } = server.address() as AddressInfo;
     const baseUrl = `http://localhost:${port}`;
     const apiClient = grout.createClient<Api>({
-      baseUrl: join(baseUrl, '/api'),
+      baseUrl: `${baseUrl}/api`,
     });
     return {
       baseUrl,

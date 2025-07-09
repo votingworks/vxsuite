@@ -225,9 +225,7 @@ test('all methods require authentication', async () => {
     }
 
     // Special case for the /files endpoint, which doesn't go through the Grout API
-    const response = await fetch(
-      join(baseUrl, '/files/some-org-id/some-file-path')
-    );
+    const response = await fetch(`${baseUrl}/files/some-org-id/some-file-path`);
     expect(response.status).toEqual(500);
     expect(await response.json()).toEqual({ message: 'auth:unauthorized' });
   });
@@ -1864,7 +1862,8 @@ test('Election package management', async () => {
   expect(electionPackageAfterExport.url).toContain(nonVxUser.orgId);
 
   // Check that the correct package was returned by the files API endpoint
-  const response = await fetch(join(baseUrl, electionPackageAfterExport.url!));
+  const electionPackageUrl = `${baseUrl}${electionPackageAfterExport.url}`;
+  const response = await fetch(electionPackageUrl);
   const body = Buffer.from(await response.arrayBuffer());
   const { electionPackageFileName } =
     await unzipElectionPackageAndBallots(body);
@@ -1876,9 +1875,7 @@ test('Election package management', async () => {
   // Check that other org users can't access the package
   await suppressingConsoleOutput(async () => {
     auth0.setLoggedInUser(anotherNonVxUser);
-    const otherOrgResponse = await fetch(
-      join(baseUrl, electionPackageAfterExport.url!)
-    );
+    const otherOrgResponse = await fetch(electionPackageUrl);
     expect(otherOrgResponse.status).toEqual(500);
     expect(await otherOrgResponse.json()).toEqual({
       message: 'auth:forbidden',
