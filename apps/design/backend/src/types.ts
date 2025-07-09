@@ -84,8 +84,13 @@ export function normalizeState(state: string): UsState {
   }
 }
 
-// [TODO] Flesh out as needed.
 export interface User {
+  /**
+   * The user's name is generally defaulted to their email address due to the
+   * way we create users, but we still use the name field to make it clear that
+   * this is what should be displayed as their identity.
+   */
+  name: string;
   orgId: string;
   orgName?: string;
 }
