@@ -234,8 +234,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
       return elections.map((election) => ({
         ...election,
         orgName:
-          orgs.find((org) => org.id === election.orgId)?.displayName ??
-          election.orgId,
+          orgs.find((org) => org.id === election.orgId)?.name ?? election.orgId,
       }));
     },
 

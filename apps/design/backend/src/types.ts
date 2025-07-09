@@ -91,9 +91,8 @@ export interface User {
 }
 
 export interface Org {
-  displayName: string;
-  id: string;
   name: string;
+  id: string;
 }
 
 export type ElectionStatus =

@@ -47,7 +47,6 @@ vi.mock(import('./clone_election_button.js'), async (importActual) => ({
 const VX_ORG = {
   id: user.orgId,
   name: 'VotingWorks',
-  displayName: 'VotingWorks',
 } as const;
 
 let apiMock: MockApiClient;

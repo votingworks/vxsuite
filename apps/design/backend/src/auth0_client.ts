@@ -107,7 +107,7 @@ export class Auth0Client implements Auth0ClientInterface {
 
     return {
       orgId,
-      orgName: (await deferredOrg).displayName,
+      orgName: (await deferredOrg).name,
     };
   }
 
@@ -126,9 +126,8 @@ export class Auth0Client implements Auth0ClientInterface {
     });
 
     return res.data.map<Org>((o) => ({
-      displayName: o.display_name,
       id: o.id,
-      name: o.name,
+      name: o.display_name,
     }));
   }
 
@@ -141,12 +140,12 @@ export class Auth0Client implements Auth0ClientInterface {
   }
 
   async createOrg(params: {
-    displayName: string;
+    name: string;
     enableGoogleAuth?: boolean;
     logoUrl?: string;
   }): Promise<Org> {
     const VX_PURPLE = '#8d24ce';
-    const { displayName, enableGoogleAuth, logoUrl } = params;
+    const { name: displayName, enableGoogleAuth, logoUrl } = params;
 
     // Org `name` in Auth0 is more of a single-slug shortname (`display_name`
     // holds the user-visible org name).
@@ -183,9 +182,8 @@ export class Auth0Client implements Auth0ClientInterface {
     });
 
     return {
-      displayName: org.data.display_name,
+      name: org.data.display_name,
       id: org.data.id,
-      name: org.data.name,
     };
   }
 
@@ -219,7 +217,7 @@ export class Auth0Client implements Auth0ClientInterface {
 
     return {
       orgId,
-      orgName: org.displayName,
+      orgName: org.name,
     };
   }
 
@@ -251,9 +249,8 @@ export class Auth0Client implements Auth0ClientInterface {
     const res = await this.organizations.get({ id });
 
     return {
-      displayName: res.data.display_name,
       id: res.data.id,
-      name: res.data.name,
+      name: res.data.display_name,
     };
   }
 
@@ -263,7 +260,7 @@ export class Auth0Client implements Auth0ClientInterface {
     const org = await this.org(auth0User.org_id);
     return {
       orgId: org.id,
-      orgName: org.displayName,
+      orgName: org.name,
     };
   }
 
@@ -280,10 +277,9 @@ export class Auth0Client implements Auth0ClientInterface {
       id: user.user_id,
     });
 
-    return res.data.map<Org>((org) => ({
-      displayName: org.display_name,
+    return res.data.map((org) => ({
       id: org.id,
-      name: org.name,
+      name: org.display_name,
     }));
   }
 
@@ -294,19 +290,16 @@ export class Auth0Client implements Auth0ClientInterface {
       allOrgs() {
         return Promise.resolve<Org[]>([
           {
-            displayName: 'VotingWorks',
             id: votingWorksOrgId(),
-            name: 'voting-works',
+            name: 'VotingWorks',
           },
           {
-            displayName: 'SLI',
             id: sliOrgId(),
-            name: 'sli',
+            name: 'SLI',
           },
           {
-            displayName: 'City of Testerton',
             id: 'testerton1',
-            name: 'city-of-testerton',
+            name: 'City of Testerton',
           },
         ]);
       },

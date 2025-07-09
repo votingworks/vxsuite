@@ -78,14 +78,12 @@ test('clones immediately when ACCESS_ALL_ORGS feature disabled', async () => {
 
 const VX_ORG = {
   id: 'votingworks-org',
-  name: 'votingworks',
-  displayName: 'VotingWorks',
+  name: 'VotingWorks',
 } as const;
 
 const NON_VX_ORG = {
   id: 'not-votingworks-org',
-  name: 'not-voting-works',
-  displayName: 'Not VotingWorks',
+  name: 'Not VotingWorks',
 } as const;
 
 test('shows org picker when ACCESS_ALL_ORGS feature enabled', async () => {
@@ -102,7 +100,7 @@ test('shows org picker when ACCESS_ALL_ORGS feature enabled', async () => {
   const modal = screen.getByRole('alertdialog');
 
   userEvent.click(within(modal).getByRole('combobox'));
-  userEvent.click(within(modal).getByText(NON_VX_ORG.displayName));
+  userEvent.click(within(modal).getByText(NON_VX_ORG.name));
 
   const newElectionId = 'new-election' as ElectionId;
   mockGenerateId.mockReturnValue(newElectionId);

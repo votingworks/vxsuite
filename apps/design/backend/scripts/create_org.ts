@@ -2,7 +2,7 @@ import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import util from 'node:util';
 import { Auth0Client } from '../src/auth0_client';
 
-const USAGE = `Usage: pnpm create-org [options...] "<display name>"
+const USAGE = `Usage: pnpm create-org [options...] "<name>"
 
 options:
     [--enableGoogleAuth]: Enables Google auth for this org, in addition to username/password logins.
@@ -12,7 +12,7 @@ options:
 async function main(): Promise<void> {
   loadEnvVarsFromDotenvFiles();
   const {
-    positionals: [displayName],
+    positionals: [name],
     values: { enableGoogleAuth, logoUrl },
   } = util.parseArgs({
     allowPositionals: true,
@@ -24,14 +24,14 @@ async function main(): Promise<void> {
       logoUrl: { type: 'string' },
     },
   });
-  if (!displayName) {
+  if (!name) {
     console.log(USAGE);
     process.exit(0);
   }
 
   const auth = Auth0Client.init();
   const org = await auth.createOrg({
-    displayName,
+    name,
     enableGoogleAuth,
     logoUrl,
   });
