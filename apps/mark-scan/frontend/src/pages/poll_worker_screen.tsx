@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import {
   BallotStyleId,
@@ -8,40 +8,28 @@ import {
   InsertedSmartCardAuth,
   PrecinctSelection,
   VotesDict,
-  getBallotStyle,
-  getPartyForBallotStyle,
 } from '@votingworks/types';
 import {
   Button,
   Main,
-  Modal,
   Screen,
   ElectionInfoBar,
   P,
-  Caption,
-  Font,
   H4,
   Icons,
-  RemoveCardImage,
-  electionStrings,
 } from '@votingworks/ui';
 
 import {
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
-  getPrecinctsAndSplitsForBallotStyle,
 } from '@votingworks/utils';
 
 import type {
   AcceptedPaperType,
   MachineConfig,
 } from '@votingworks/mark-scan-backend';
-import { assertDefined, DateWithoutTime, find } from '@votingworks/basics';
 
-import {
-  CenteredCardPageLayout,
-  pollWorkerComponents,
-} from '@votingworks/mark-flow-ui';
+import { pollWorkerComponents } from '@votingworks/mark-flow-ui';
 import { LoadPaperPage } from './load_paper_page';
 import {
   getStateMachineState,
@@ -61,6 +49,9 @@ import {
 import { ResetVoterSessionButton } from '../components/deactivate_voter_session_button';
 
 const {
+  EnableLiveModeModal,
+  ScreenBeginVoting,
+  ScreenVotingInProgress,
   SectionHeader,
   SectionPollsState,
   SectionSessionStart,
@@ -107,7 +98,6 @@ export function PollWorkerScreen({
   setVotes,
 }: PollworkerScreenProps): JSX.Element | null {
   const { election } = electionDefinition;
-  const isElectionDay = election.date.isEqual(DateWithoutTime.today());
 
   const apiClient = api.useApiClient();
 
@@ -118,21 +108,6 @@ export function PollWorkerScreen({
   const stateMachineState = getStateMachineStateQuery.data;
 
   const setAcceptingPaperStateMutation = setAcceptingPaperState.useMutation();
-
-  /*
-   * Various state parameters to handle controlling when certain modals on the page are open or not.
-   */
-  const [isConfirmingEnableLiveMode, setIsConfirmingEnableLiveMode] = useState(
-    !isLiveMode && isElectionDay
-  );
-  function cancelEnableLiveMode() {
-    return setIsConfirmingEnableLiveMode(false);
-  }
-
-  function confirmEnableLiveMode() {
-    setTestModeMutation.mutate({ isTestMode: false });
-    setIsConfirmingEnableLiveMode(false);
-  }
 
   const mutateAcceptingPaperState = setAcceptingPaperStateMutation.mutate;
   const onChooseBallotStyle = React.useCallback(
@@ -195,42 +170,6 @@ export function PollWorkerScreen({
   }
 
   if (pollWorkerAuth.cardlessVoterUser) {
-    const { precinctId, ballotStyleId } = pollWorkerAuth.cardlessVoterUser;
-    const ballotStyle = assertDefined(
-      getBallotStyle({ election, ballotStyleId })
-    );
-    const precinctOrSplit = find(
-      getPrecinctsAndSplitsForBallotStyle({ election, ballotStyle }),
-      ({ precinct }) => precinct.id === precinctId
-    );
-    const precinctOrSplitName = precinctOrSplit.split
-      ? electionStrings.precinctSplitName(precinctOrSplit.split)
-      : electionStrings.precinctName(precinctOrSplit.precinct);
-
-    const ballotStyleLabel =
-      election.type === 'general' ? (
-        <P>
-          <Font weight="semiBold">Ballot Style:</Font> {precinctOrSplitName}
-        </P>
-      ) : (
-        <React.Fragment>
-          <P>
-            <Font weight="semiBold">Precinct:</Font> {precinctOrSplitName}
-          </P>
-          <P>
-            <Font weight="semiBold">Ballot Style:</Font>{' '}
-            {
-              assertDefined(
-                getPartyForBallotStyle({
-                  election,
-                  ballotStyleId: ballotStyle.id,
-                })
-              ).name
-            }
-          </P>
-        </React.Fragment>
-      );
-
     if (
       hasVotes &&
       // It's expected there are votes in app state if the state machine reports a blank page after printing.
@@ -239,17 +178,13 @@ export function PollWorkerScreen({
       stateMachineState !== 'blank_page_interpretation'
     ) {
       return (
-        <CenteredCardPageLayout
-          title="Voting Session Paused"
-          icon={<Icons.Paused />}
-          voterFacing={false}
-        >
-          <P weight="bold">Remove card to continue voting session.</P>
-          {ballotStyleLabel}
-          <P>
+        <ScreenVotingInProgress
+          election={election}
+          resetVoterSessionButton={
             <ResetVoterSessionButton>Reset Ballot</ResetVoterSessionButton>
-          </P>
-        </CenteredCardPageLayout>
+          }
+          voter={pollWorkerAuth.cardlessVoterUser}
+        />
       );
     }
 
@@ -258,30 +193,15 @@ export function PollWorkerScreen({
       stateMachineState === 'waiting_for_voter_auth'
     ) {
       return (
-        <CenteredCardPageLayout
-          buttons={
+        <ScreenBeginVoting
+          election={election}
+          resetVoterSessionButton={
             <ResetVoterSessionButton>
               Cancel Voting Session
             </ResetVoterSessionButton>
           }
-          icon={
-            <div
-              style={{
-                height: '5rem',
-                margin: '0 0.5rem 0 1rem',
-                position: 'relative',
-                left: '-1rem',
-                top: '-6.5rem',
-              }}
-            >
-              <RemoveCardImage aria-hidden cardInsertionDirection="up" />
-            </div>
-          }
-          title="Remove Card to Begin Voting Session"
-          voterFacing={false}
-        >
-          {ballotStyleLabel}
-        </CenteredCardPageLayout>
+          voter={pollWorkerAuth.cardlessVoterUser}
+        />
       );
     }
 
@@ -331,38 +251,11 @@ export function PollWorkerScreen({
           <SectionSystem apiClient={apiClient} />
         </div>
       </Main>
-      {isConfirmingEnableLiveMode && (
-        <Modal
-          centerContent
-          title="Switch to Official Ballot Mode and reset the Ballots Printed count?"
-          content={
-            <div>
-              <P>
-                Today is election day and this machine is in{' '}
-                <Font noWrap weight="bold">
-                  Test Ballot Mode.
-                </Font>
-              </P>
-              <Caption>
-                Note: Switching back to Test Ballot Mode requires an{' '}
-                <Font noWrap>election manager card.</Font>
-              </Caption>
-            </div>
-          }
-          actions={
-            <React.Fragment>
-              <Button
-                variant="danger"
-                icon="Danger"
-                onPress={confirmEnableLiveMode}
-              >
-                Switch to Official Ballot Mode
-              </Button>
-              <Button onPress={cancelEnableLiveMode}>Cancel</Button>
-            </React.Fragment>
-          }
-        />
-      )}
+      <EnableLiveModeModal
+        election={election}
+        liveMode={isLiveMode}
+        setTestMode={setTestModeMutation.mutate}
+      />
       <ElectionInfoBar
         mode="pollworker"
         electionDefinition={electionDefinition}
