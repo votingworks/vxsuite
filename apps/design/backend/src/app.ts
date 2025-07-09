@@ -33,8 +33,8 @@ import {
 import express, { Application } from 'express';
 import {
   assert,
-  assertDefined,
   DateWithoutTime,
+  extractErrorMessage,
   find,
   ok,
   Result,
@@ -72,7 +72,6 @@ import {
   baseUrl,
   NODE_ENV,
   DEPLOY_ENV,
-  votingWorksOrgId,
   authEnabled,
 } from './globals';
 import { createBallotPropsForTemplate, defaultBallotTemplate } from './ballots';
@@ -149,16 +148,16 @@ class AuthError extends Error {
   }
 }
 
+function requireOrgAccess(user: User, orgId: string) {
+  const userFeatures = getUserFeaturesConfig(user);
+  if (!(user.orgId === orgId || userFeatures.ACCESS_ALL_ORGS)) {
+    throw new AuthError('auth:forbidden');
+  }
+}
+
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
   const { store } = workspace;
-
-  function requireOrgAccess(user: User, orgId: string) {
-    const userFeatures = getUserFeaturesConfig(user);
-    if (!(user.orgId === orgId || userFeatures.ACCESS_ALL_ORGS)) {
-      throw new AuthError('auth:forbidden');
-    }
-  }
 
   async function requireElectionAccess(user: User, electionId: ElectionId) {
     const electionOrgId = await store.getElectionOrgId(electionId);
@@ -772,18 +771,26 @@ export function buildApp(context: AppContext): Application {
     );
   }
 
-  app.get('/files/:orgId/:fileName', async (req, res) => {
-    const user = assertDefined(await context.auth0.userFromRequest(req));
-    const { orgId, fileName } = req.params;
-    if (orgId !== user.orgId && orgId !== votingWorksOrgId()) {
-      res.status(404).send('File not found');
-    }
+  app.get('/files/:orgId/:fileName', async (req, res, next) => {
+    try {
+      const user = await context.auth0.userFromRequest(req);
+      if (!user) {
+        throw new AuthError('auth:unauthorized');
+      }
+      const { orgId, fileName } = req.params;
+      requireOrgAccess(user, orgId);
 
-    const readResult = await context.fileStorageClient.readFile(
-      join(orgId, fileName)
-    );
-    const file = readResult.unsafeUnwrap();
-    file.pipe(res);
+      const readResult = await context.fileStorageClient.readFile(
+        join(orgId, fileName)
+      );
+      const file = readResult.unsafeUnwrap();
+      file.pipe(res);
+    } catch (error) {
+      // Mimic grout's error handling
+      console.error(error); // eslint-disable-line no-console
+      res.status(500).json({ message: extractErrorMessage(error) });
+      next(error);
+    }
   });
 
   const api = buildApi(context);
