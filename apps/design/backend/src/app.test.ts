@@ -1,4 +1,4 @@
-import { afterAll, beforeEach, expect, test, vi } from 'vitest';
+import { afterAll, afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import JsZip from 'jszip';
 import get from 'lodash.get';
@@ -206,10 +206,14 @@ beforeEach(() => {
   mockFeatureFlagger.resetFeatureFlags();
 });
 
+afterEach(() => {
+  vi.mocked(renderAllBallotsAndCreateElectionDefinition).mockRestore();
+});
+
 test('all methods require authentication', async () => {
-  const { apiClient, ...context } = await setupApp();
-  const apiMethodNames = Object.keys(buildApi(context).methods());
+  const { apiClient, baseUrl, ...context } = await setupApp();
   await suppressingConsoleOutput(async () => {
+    const apiMethodNames = Object.keys(buildApi(context).methods());
     for (const apiMethodName of apiMethodNames) {
       // @ts-ignore - Don't pass any input to the API methods since we expect
       // auth middleware to reject it before getting to the handler. A bit of a
@@ -219,6 +223,11 @@ test('all methods require authentication', async () => {
         'auth:unauthorized'
       );
     }
+
+    // Special case for the /files endpoint, which doesn't go through the Grout API
+    const response = await fetch(`${baseUrl}/files/some-org-id/some-file-path`);
+    expect(response.status).toEqual(500);
+    expect(await response.json()).toEqual({ message: 'auth:unauthorized' });
   });
 });
 
@@ -1772,7 +1781,8 @@ test('cloneElection', async () => {
 test('Election package management', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
-  const { apiClient, workspace, fileStorageClient, auth0 } = await setupApp();
+  const { apiClient, workspace, fileStorageClient, auth0, baseUrl } =
+    await setupApp();
 
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
@@ -1783,12 +1793,13 @@ test('Election package management', async () => {
     })
   ).unsafeUnwrap();
 
-  // Without mocking all the translations some ballot styles for non-English languages don't fit on a letter
-  // page for this election. To get around this we use legal paper size for the purposes of this test.
-  await apiClient.updateBallotLayoutSettings({
-    electionId,
-    paperSize: HmpbBallotPaperSize.Legal,
-    compact: false,
+  // Mock the ballot documents and election definition to speed up this test,
+  // since we are just testing the export task flows in this test. The next test
+  // checks the actual exported data.
+  const props = allBaseBallotProps(baseElectionDefinition.election);
+  vi.mocked(renderAllBallotsAndCreateElectionDefinition).mockResolvedValue({
+    ballotDocuments: props.map(mockBallotDocument),
+    electionDefinition: baseElectionDefinition,
   });
 
   const electionPackageBeforeExport = await apiClient.getElectionPackage({
@@ -1848,8 +1859,31 @@ test('Election package management', async () => {
     },
     url: expect.stringMatching(ELECTION_PACKAGE_FILE_NAME_REGEX),
   });
+  expect(electionPackageAfterExport.url).toContain(nonVxUser.orgId);
+
+  // Check that the correct package was returned by the files API endpoint
+  const electionPackageUrl = `${baseUrl}${electionPackageAfterExport.url}`;
+  const response = await fetch(electionPackageUrl);
+  const body = Buffer.from(await response.arrayBuffer());
+  const { electionPackageFileName } =
+    await unzipElectionPackageAndBallots(body);
+  const electionHashes = electionPackageFileName.match(
+    /^election-package-(.+)\.zip$/
+  )![1];
+  expect(electionPackageAfterExport.url).toContain(electionHashes);
+
+  // Check that other org users can't access the package
+  await suppressingConsoleOutput(async () => {
+    auth0.setLoggedInUser(anotherNonVxUser);
+    const otherOrgResponse = await fetch(electionPackageUrl);
+    expect(otherOrgResponse.status).toEqual(500);
+    expect(await otherOrgResponse.json()).toEqual({
+      message: 'auth:forbidden',
+    });
+  });
 
   // Check that initiating an export after a prior has completed does trigger a new background task
+  auth0.setLoggedInUser(nonVxUser);
   await apiClient.exportElectionPackage({
     electionId,
     electionSerializationFormat: 'vxf',
@@ -2651,7 +2685,6 @@ test('setBallotTemplate changes the ballot template used to render ballots', asy
   expect(
     vi.mocked(renderAllBallotsAndCreateElectionDefinition).mock.calls[0][2]
   ).toHaveLength(props.length);
-  vi.mocked(renderAllBallotsAndCreateElectionDefinition).mockRestore();
 
   await suppressingConsoleOutput(async () => {
     // Check permissions
