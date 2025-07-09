@@ -83,6 +83,8 @@ import {
   faVolumeUp,
   faVolumeXmark,
   faXmark,
+  faCircleUser,
+  faArrowRightFromBracket,
 } from '@fortawesome/free-solid-svg-icons';
 import { faUsb } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -219,6 +221,10 @@ export const Icons = {
 
   CircleDot(props) {
     return <FaIcon {...props} type={faCircleDot} />;
+  },
+
+  CircleUser(props) {
+    return <FaIcon {...props} type={faCircleUser} />;
   },
 
   Checkbox(props: IconProps & { filled?: boolean }) {
@@ -390,6 +396,10 @@ export const Icons = {
 
   Lock(props) {
     return <FaIcon {...props} type={faLock} />;
+  },
+
+  LogOut(props) {
+    return <FaIcon {...props} type={faArrowRightFromBracket} />;
   },
 
   Mouse(props) {

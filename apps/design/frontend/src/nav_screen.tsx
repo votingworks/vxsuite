@@ -10,10 +10,66 @@ import {
   NavLink,
   NavList,
   Screen,
+  Icons,
+  MainHeader,
+  Button,
 } from '@votingworks/ui';
 import { Link, useRouteMatch } from 'react-router-dom';
+import styled from 'styled-components';
 import { electionNavRoutes } from './routes';
-import { getUserFeatures } from './api';
+import { getUser, getUserFeatures } from './api';
+import { Row } from './layout';
+
+const UserInfo = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
+`;
+
+function UserInfoAndLogoutButton(): JSX.Element | null {
+  const getUserQuery = getUser.useQuery();
+  if (!getUserQuery.isSuccess) return null;
+  const user = getUserQuery.data;
+  return (
+    <Row style={{ alignItems: 'center', gap: '1rem' }}>
+      <UserInfo>
+        <Icons.CircleUser />
+        {user.name}
+      </UserInfo>
+      <Button
+        icon="LogOut"
+        onPress={() => {
+          window.location.assign('/auth/logout');
+        }}
+      >
+        Log Out
+      </Button>
+    </Row>
+  );
+}
+
+export function Header({
+  children,
+}: {
+  children: React.ReactNode;
+}): JSX.Element {
+  return (
+    <MainHeader
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+      }}
+    >
+      <div style={{ alignSelf: 'center' }}>{children}</div>
+      {/* Anchor the user info to the top of the page so it doesn't jump around
+      if different pages have different title heights (e.g. when using
+      breadcrumbs) */}
+      <div style={{ alignSelf: 'start' }}>
+        <UserInfoAndLogoutButton />
+      </div>
+    </MainHeader>
+  );
+}
 
 export function NavScreen({
   navContent,
