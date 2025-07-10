@@ -36,7 +36,7 @@ export interface Auth0User {
   org_name: string;
   picture?: string;
   sid: string;
-  sub?: string;
+  sub: string;
   updated_at: Date;
 }
 
@@ -107,6 +107,7 @@ export class Auth0Client implements Auth0ClientInterface {
 
     return {
       name: user.name,
+      auth0Id: user.user_id,
       orgId,
       orgName: (await deferredOrg).name,
     };
@@ -218,6 +219,7 @@ export class Auth0Client implements Auth0ClientInterface {
 
     return {
       name: user.name,
+      auth0Id: user.user_id,
       orgId,
       orgName: org.name,
     };
@@ -262,6 +264,7 @@ export class Auth0Client implements Auth0ClientInterface {
     const org = await this.org(auth0User.org_id);
     return {
       name: auth0User.name,
+      auth0Id: auth0User.sub,
       orgId: org.id,
       orgName: org.name,
     };

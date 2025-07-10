@@ -91,6 +91,7 @@ export interface User {
    * this is what should be displayed as their identity.
    */
   name: string;
+  auth0Id: string;
   orgId: string;
   orgName?: string;
 }

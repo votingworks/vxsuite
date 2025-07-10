@@ -183,8 +183,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
         {
           methodName,
           input: JSON.stringify(input),
-          // TODO(jonah): Do we want to log any other user info to the logs to
-          // help debugging (while maintaining privacy)?
+          userAuth0Id: context.user?.auth0Id,
           userOrgId: context.user?.orgId,
         },
         debug
