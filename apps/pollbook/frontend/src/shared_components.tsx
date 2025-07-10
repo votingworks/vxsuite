@@ -146,6 +146,8 @@ export const RequiredStaticInput = styled(StaticInput)`
 const TitleBar = styled.div`
   padding: 0.5rem 1rem;
   background-color: ${(p) => p.theme.colors.containerLow};
+  border-top-left-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
+  border-top-right-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
 `;
 
 const StyledTitledCard = styled(Card)`
