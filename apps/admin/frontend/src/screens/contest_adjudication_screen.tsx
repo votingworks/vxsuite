@@ -303,6 +303,17 @@ export function ContestAdjudicationScreen(): JSX.Element {
     maybeCurrentCvrId ? { cvrId: maybeCurrentCvrId, contestId } : undefined
   );
 
+  const areQueriesFetching =
+    cvrVoteInfoQuery.isFetching ||
+    cvrQueueQuery.isFetching ||
+    firstPendingCvrIdQuery.isFetching ||
+    ballotImageViewQuery.isFetching ||
+    writeInsQuery.isFetching ||
+    writeInCandidatesQuery.isFetching ||
+    voteAdjudicationsQuery.isFetching ||
+    marginalMarksQuery.isFetching ||
+    cvrContestTagQuery.isFetching;
+
   const adjudicateCvrContestMutation = adjudicateCvrContest.useMutation();
 
   const officialOptions = useMemo(
@@ -344,14 +355,16 @@ export function ContestAdjudicationScreen(): JSX.Element {
       numberOfWriteIns: isCandidateContest ? contest.seats : 0,
       officialOptions,
     },
-    {
-      votes: cvrVoteInfoQuery.data?.votes[contestId],
-      writeIns: writeInsQuery.data,
-      writeInCandidates: writeInCandidatesQuery.data,
-      voteAdjudications: voteAdjudicationsQuery.data,
-      marginalMarks: marginalMarksQuery.data,
-      contestTag: cvrContestTagQuery.data,
-    }
+    !maybeCurrentCvrId || areQueriesFetching
+      ? undefined
+      : {
+          votes: cvrVoteInfoQuery.data?.votes[contestId],
+          writeIns: writeInsQuery.data,
+          writeInCandidates: writeInCandidatesQuery.data,
+          voteAdjudications: voteAdjudicationsQuery.data,
+          marginalMarks: marginalMarksQuery.data,
+          contestTag: cvrContestTagQuery.data,
+        }
   );
 
   // Vote and write-in state for adjudication management
@@ -411,17 +424,6 @@ export function ContestAdjudicationScreen(): JSX.Element {
   }, [doubleVoteAlert, discardChangesNextAction, focusedOptionId]);
 
   // On initial load or ballot navigation, autoscroll the user after queries succeed
-  const areQueriesFetching =
-    cvrVoteInfoQuery.isFetching ||
-    cvrQueueQuery.isFetching ||
-    firstPendingCvrIdQuery.isFetching ||
-    ballotImageViewQuery.isFetching ||
-    writeInsQuery.isFetching ||
-    writeInCandidatesQuery.isFetching ||
-    voteAdjudicationsQuery.isFetching ||
-    marginalMarksQuery.isFetching ||
-    cvrContestTagQuery.isFetching;
-
   const optionRefs = useRef<Record<ContestOptionId, HTMLDivElement | null>>({});
   useLayoutEffect(() => {
     if (
