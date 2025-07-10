@@ -7,6 +7,10 @@ import { DateTime } from 'luxon';
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { inspect } from 'node:util';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { writeScanPageAnalyses } from '../analysis/scan';
 import { type ServerContext } from '../context';
 import { resultToString } from '../utils';
@@ -70,30 +74,42 @@ export async function runPrintAndScanTask({
         `Scanned sheet: front=${front.width}×${front.height}, back=${back.width}×${back.height}`
       );
 
-      const usbDriveStatus = await usbDrive.status();
-
-      const basedir =
-        usbDriveStatus.status === 'mounted'
-          ? join(usbDriveStatus.mountPoint, 'ballot-images')
-          : workspace.ballotImagesPath;
-      const basename = `electrical-testing-${lastScanTime
+      const sheetId = `electrical-testing-${lastScanTime
         .toISO()
         .replaceAll(':', '-')}`;
-
-      await mkdir(basedir, { recursive: true });
       await saveSheetImages({
-        sheetId: basename,
-        ballotImagesPath: basedir,
+        sheetId,
+        ballotImagesPath: workspace.ballotImagesPath,
         images: scannerEvent.images,
       });
 
-      await writeScanPageAnalyses(
-        logger,
-        lastScanTime,
-        [front, back],
-        basedir,
-        basename
-      );
+      if (
+        isFeatureFlagEnabled(
+          BooleanEnvironmentVariableName.ENABLE_HARDWARE_TEST_APP_INTERNAL_FUNCTIONS
+        )
+      ) {
+        const usbDriveStatus = await usbDrive.status();
+        if (usbDriveStatus.status === 'mounted') {
+          const usbDriveExportDirectory = join(
+            usbDriveStatus.mountPoint,
+            'ballot-images'
+          );
+          await mkdir(usbDriveExportDirectory, { recursive: true });
+
+          await saveSheetImages({
+            sheetId,
+            ballotImagesPath: usbDriveExportDirectory,
+            images: scannerEvent.images,
+          });
+          await writeScanPageAnalyses(
+            logger,
+            lastScanTime,
+            [front, back],
+            usbDriveExportDirectory,
+            sheetId
+          );
+        }
+      }
     }
 
     if (scannerEvent.event === 'error') {

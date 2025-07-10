@@ -51,7 +51,7 @@ async function main(): Promise<number> {
 
   if (
     isFeatureFlagEnabled(
-      BooleanEnvironmentVariableName.ENABLE_ELECTRICAL_TESTING_MODE
+      BooleanEnvironmentVariableName.ENABLE_HARDWARE_TEST_APP
     )
   ) {
     const auth = getDefaultAuth(baseLogger);

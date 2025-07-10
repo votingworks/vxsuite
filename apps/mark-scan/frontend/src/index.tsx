@@ -17,7 +17,7 @@ const root = createRoot(rootElement);
 root.render(
   <React.Fragment>
     {isFeatureFlagEnabled(
-      BooleanEnvironmentVariableName.ENABLE_ELECTRICAL_TESTING_MODE
+      BooleanEnvironmentVariableName.ENABLE_HARDWARE_TEST_APP
     ) ? (
       <ElectricalTestingApp />
     ) : (
