@@ -1,6 +1,5 @@
 import type * as vitest from 'vitest';
 import { readFile } from 'node:fs/promises';
-import { Buffer } from 'node:buffer';
 import { pdfToImages } from './pdf_to_images';
 import { toImageBuffer } from './image_data';
 
@@ -29,12 +28,14 @@ export interface ToMatchPdfSnapshotOptions {
 export function buildToMatchPdfSnapshot(
   expect: typeof vitest.expect
 ): (
-  received: string | Buffer,
+  received: string | Uint8Array,
   options?: ToMatchPdfSnapshotOptions
 ) => Promise<jest.CustomMatcherResult> {
   return async (received, options = {}) => {
     const pdfContents =
-      typeof received === 'string' ? await readFile(received) : received;
+      typeof received === 'string'
+        ? Uint8Array.from(await readFile(received))
+        : received;
     const pdfPages = pdfToImages(pdfContents, { scale: 200 / 72 });
     for await (const { page, pageNumber } of pdfPages) {
       const imageBuffer = toImageBuffer(page);

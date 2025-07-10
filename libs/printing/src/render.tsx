@@ -1,7 +1,7 @@
 import { Browser, Page, chromium } from 'playwright';
 import ReactDom from 'react-dom/server';
 import React from 'react';
-import { Buffer } from 'node:buffer';
+
 import { ServerStyleSheet } from 'styled-components';
 import {
   ROBOTO_REGULAR_FONT_DECLARATIONS,
@@ -113,22 +113,22 @@ export interface RenderSpec {
 export async function renderToPdf(
   spec: RenderSpec[],
   browserOverride?: Browser
-): Promise<Result<Buffer[], PdfError>>;
+): Promise<Result<Uint8Array[], PdfError>>;
 export async function renderToPdf(
   spec: RenderSpec,
   browserOverride?: Browser
-): Promise<Result<Buffer, PdfError>>;
+): Promise<Result<Uint8Array, PdfError>>;
 export async function renderToPdf(
   spec: RenderSpec | RenderSpec[],
   browserOverride?: Browser
-): Promise<Result<Buffer | Buffer[], PdfError>> {
+): Promise<Result<Uint8Array | Uint8Array[], PdfError>> {
   const specs = Array.isArray(spec) ? spec : [spec];
 
   const browser = browserOverride ?? (await getOrCreateCachedBrowser());
   const context = await browser.newContext();
   const page = await context.newPage();
 
-  const buffers: Buffer[] = [];
+  const buffers: Uint8Array[] = [];
 
   for (const {
     document,
@@ -239,29 +239,31 @@ export async function renderToPdf(
       })();
 
     buffers.push(
-      await page.pdf({
-        path: outputPath,
-        width: inchesToText(width),
-        height: inchesToText(
-          /* if printing on a roll remove any unneeded height but never be smaller than a standard page */
-          isLetterRoll
-            ? Math.min(
-                Math.max(contentHeight, PAPER_DIMENSIONS.Letter.height),
-                height
-              )
-            : height
-        ),
-        landscape,
-        margin: {
-          top: inchesToText(marginDimensions.top),
-          right: inchesToText(marginDimensions.right),
-          bottom: inchesToText(marginDimensions.bottom),
-          left: inchesToText(marginDimensions.left),
-        },
-        printBackground: true, // necessary to render shaded backgrounds
-        headerTemplate: headerHtml,
-        displayHeaderFooter: Boolean(headerHtml),
-      })
+      Uint8Array.from(
+        await page.pdf({
+          path: outputPath,
+          width: inchesToText(width),
+          height: inchesToText(
+            /* if printing on a roll remove any unneeded height but never be smaller than a standard page */
+            isLetterRoll
+              ? Math.min(
+                  Math.max(contentHeight, PAPER_DIMENSIONS.Letter.height),
+                  height
+                )
+              : height
+          ),
+          landscape,
+          margin: {
+            top: inchesToText(marginDimensions.top),
+            right: inchesToText(marginDimensions.right),
+            bottom: inchesToText(marginDimensions.bottom),
+            left: inchesToText(marginDimensions.left),
+          },
+          printBackground: true, // necessary to render shaded backgrounds
+          headerTemplate: headerHtml,
+          displayHeaderFooter: Boolean(headerHtml),
+        })
+      )
     );
   }
 

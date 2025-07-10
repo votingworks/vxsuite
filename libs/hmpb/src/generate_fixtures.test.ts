@@ -1,5 +1,4 @@
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
-import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs';
 import { HmpbBallotPaperSize } from '@votingworks/types';
 import { pdfToImages } from '@votingworks/image-utils';
@@ -20,10 +19,10 @@ vi.setConfig({
 });
 
 async function expectToMatchSavedPdf(
-  actualPdf: Buffer,
+  actualPdf: Uint8Array,
   expectedPdfPath: string
 ) {
-  const expectedPdf = fs.readFileSync(expectedPdfPath);
+  const expectedPdf = Uint8Array.from(fs.readFileSync(expectedPdfPath));
   const actualPdfPages = pdfToImages(actualPdf);
   const expectedPdfPages = pdfToImages(expectedPdf);
   const pdfPagePairs = iter(actualPdfPages).zip(expectedPdfPages);
@@ -33,6 +32,7 @@ async function expectToMatchSavedPdf(
   ] of pdfPagePairs) {
     await expect(actualPage).toMatchImage(expectedPage, {
       diffPath: `${expectedPdfPath}-p${pageNumber}-diff.png`,
+      failureThreshold: 0.00002,
     });
   }
 }

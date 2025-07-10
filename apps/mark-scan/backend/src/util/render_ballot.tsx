@@ -10,9 +10,8 @@ import {
   HmpbBallotPaperSize,
   VotesDict,
 } from '@votingworks/types';
-import { Buffer } from 'node:buffer';
 
-import { assert, assertDefined, iter } from '@votingworks/basics';
+import { assertDefined } from '@votingworks/basics';
 import {
   BmdPaperBallot,
   BackendLanguageContextProvider,
@@ -20,10 +19,9 @@ import {
   getLayout,
   MachineType,
 } from '@votingworks/ui';
-import { pdfToImages } from '@votingworks/image-utils';
+import { getPdfPageCount } from '@votingworks/image-utils';
 import { Store } from '../store';
 import { getMarkScanBmdModel } from './hardware';
-import { PRINT_DPI, SCAN_DPI } from '../custom-paper-handler/constants';
 
 export interface RenderBallotProps {
   store: Store;
@@ -58,7 +56,7 @@ export async function renderTestModeBallotWithoutLanguageContext(
   precinctId: string,
   ballotStyleId: BallotStyleId,
   votes: VotesDict
-): Promise<Buffer> {
+): Promise<Uint8Array> {
   const layout = getLayout(
     MACHINE_TYPE,
     ballotStyleId,
@@ -93,7 +91,7 @@ export async function renderBallot({
   ballotStyleId,
   votes,
   languageCode,
-}: RenderBallotProps): Promise<Buffer> {
+}: RenderBallotProps): Promise<Uint8Array> {
   const { electionDefinition } = assertDefined(store.getElectionRecord());
   const isLiveMode = !store.getTestMode();
 
@@ -140,15 +138,8 @@ export async function renderBallot({
       })
     ).unsafeUnwrap();
 
-    const pageInfo = await iter(
-      pdfToImages(pdfData, { scale: PRINT_DPI / SCAN_DPI })
-    ).first();
-
-    // A PDF must have at least 1 page but iter doesn't know this.
-    // `pdfData` of length 0 will fail in `pdfToImages`.
-    assert(pageInfo);
-
-    if (pageInfo.pageCount === 1) {
+    const numPages = await getPdfPageCount(Uint8Array.from(pdfData));
+    if (numPages === 1) {
       return pdfData;
     }
   }

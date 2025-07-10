@@ -19,7 +19,6 @@ import {
   asSheet,
 } from '@votingworks/types';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
-import { Buffer } from 'node:buffer';
 import { assert } from 'node:console';
 import * as fs from 'node:fs/promises';
 import { dirSync } from 'tmp';
@@ -38,7 +37,7 @@ let ballotImages: {
 };
 let ballotImagesPath!: string;
 
-async function ballotAsSheet(ballotPdf: Buffer) {
+async function ballotAsSheet(ballotPdf: Uint8Array) {
   return asSheet(
     await iter(pdfToImages(ballotPdf, { scale: 200 / 72 }))
       .map(({ page }) => page)
@@ -49,10 +48,10 @@ async function ballotAsSheet(ballotPdf: Buffer) {
 beforeAll(async () => {
   ballotImages = {
     overvoteBallot: await ballotAsSheet(
-      await fs.readFile(vxFamousNamesFixtures.markedBallotPath)
+      Uint8Array.from(await fs.readFile(vxFamousNamesFixtures.markedBallotPath))
     ),
     normalBallot: await ballotAsSheet(
-      await fs.readFile(vxFamousNamesFixtures.blankBallotPath)
+      Uint8Array.from(await fs.readFile(vxFamousNamesFixtures.blankBallotPath))
     ),
     normalBmdBallot: await ballotAsSheet(
       await renderBmdBallotFixture({

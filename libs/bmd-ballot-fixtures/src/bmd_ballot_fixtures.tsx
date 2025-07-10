@@ -9,7 +9,7 @@ import {
   vote,
 } from '@votingworks/types';
 import { BmdPaperBallot, BmdPaperBallotProps } from '@votingworks/ui';
-import { Buffer } from 'node:buffer';
+
 import {
   electionFamousNames2021Fixtures,
   readElectionGeneralDefinition,
@@ -25,7 +25,7 @@ export async function renderBmdBallotFixture(
     rotateImage?: boolean;
     frontPageOnly?: boolean;
   }
-): Promise<Buffer> {
+): Promise<Uint8Array> {
   // Set some default props that can be overridden by the caller
   const {
     electionDefinition: { election },
@@ -60,7 +60,7 @@ export async function renderBmdBallotFixture(
 // BMD ballots print on one side only. Consider libs/image-utils' `BLANK_PAGE_IMAGE_DATA`
 // for mocking the blank back in testing.
 export async function writeFirstBallotPageToImageFile(
-  pdfData: Buffer
+  pdfData: Uint8Array
 ): Promise<string> {
   const first = assertDefined(
     await iter(pdfToImages(pdfData, { scale: 200 / 72 })).first()

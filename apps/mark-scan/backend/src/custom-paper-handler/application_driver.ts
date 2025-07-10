@@ -1,6 +1,6 @@
 import { assert, iter, sleep } from '@votingworks/basics';
 import makeDebug from 'debug';
-import { Buffer } from 'node:buffer';
+
 import {
   ImageConversionOptions,
   PaperHandlerDriverInterface,
@@ -41,7 +41,7 @@ export async function setDefaults(
 
 export async function printBallotChunks(
   driver: PaperHandlerDriverInterface,
-  pdfData: Buffer,
+  pdfData: Uint8Array,
   options: Partial<ImageConversionOptions> = {}
 ): Promise<void> {
   debug('+printBallotChunks');

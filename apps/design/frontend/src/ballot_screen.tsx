@@ -9,7 +9,6 @@ import {
   BallotStyleIdSchema,
   PrecinctIdSchema,
 } from '@votingworks/types';
-import { Buffer } from 'node:buffer';
 import React, { useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { z } from 'zod/v4';
@@ -40,7 +39,7 @@ import { routes } from './routes';
 import { FieldName as BaseFieldName, Row } from './layout';
 
 // Worker file must be copied from pdfjs-dist into public directory
-pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.js';
 
 const FieldName = styled(BaseFieldName)`
   font-weight: ${(p) => p.theme.sizes.fontWeight.bold};
@@ -115,7 +114,7 @@ const ZOOM_STEP = 0.25;
 const MIN_ZOOM = 0.25;
 const MAX_ZOOM = 2;
 
-function PdfViewer({ pdfData }: { pdfData?: Buffer }) {
+function PdfViewer({ pdfData }: { pdfData?: Uint8Array }) {
   const [numPages, setNumPages] = useState<number>();
   const [zoom, setZoom] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
@@ -123,7 +122,7 @@ function PdfViewer({ pdfData }: { pdfData?: Buffer }) {
   const file = useMemo(
     // Copy the buffer since react-pdf drains it, which can cause an error on
     // re-render
-    () => pdfData && { data: Buffer.from(pdfData) },
+    () => pdfData && { data: Uint8Array.from(pdfData) },
     [pdfData]
   );
 

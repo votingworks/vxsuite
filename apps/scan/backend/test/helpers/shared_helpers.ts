@@ -24,7 +24,7 @@ import waitForExpect from 'wait-for-expect';
 import { MockUsbDrive } from '@votingworks/usb-drive';
 import { mockLogger, LogSource, MockLogger } from '@votingworks/logging';
 import { pdfToImages, ImageData } from '@votingworks/image-utils';
-import { Buffer } from 'node:buffer';
+
 import { Api } from '../../src/app';
 import {
   PrecinctScannerStateMachine,
@@ -164,7 +164,7 @@ export function createPrecinctScannerStateMachineMock(): Mocked<PrecinctScannerS
 }
 
 export async function pdfToImageSheet(
-  pdf: Buffer,
+  pdf: Uint8Array,
   { scale = 200 / 72 }: { scale?: number } = {}
 ): Promise<SheetOf<ImageData>> {
   return asSheet(

@@ -1,7 +1,6 @@
-import { Buffer } from 'node:buffer';
 import { PDFDocument } from 'pdf-lib';
 
-export async function concatenatePdfs(pdfs: Buffer[]): Promise<Buffer> {
+export async function concatenatePdfs(pdfs: Uint8Array[]): Promise<Uint8Array> {
   const combinedPdf = await PDFDocument.create();
   for (const pdf of pdfs) {
     const pdfDoc = await PDFDocument.load(pdf);
@@ -13,5 +12,5 @@ export async function concatenatePdfs(pdfs: Buffer[]): Promise<Buffer> {
       combinedPdf.addPage(page);
     }
   }
-  return Buffer.from(await combinedPdf.save());
+  return Uint8Array.from(await combinedPdf.save());
 }

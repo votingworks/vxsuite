@@ -1,5 +1,4 @@
 import React from 'react';
-import { Buffer } from 'node:buffer';
 import type { Page as PlaywrightPage } from 'playwright';
 import ReactDomServer from 'react-dom/server';
 import { ServerStyleSheet } from 'styled-components';
@@ -116,14 +115,15 @@ export function createDocument(page: Page) {
     /**
      * Returns a PDF Buffer of the current document.
      */
-    async renderToPdf(): Promise<Buffer> {
+    async renderToPdf(): Promise<Uint8Array> {
       const [pageDimensions] = await this.inspectElements(`.${PAGE_CLASS}`);
-      const pdf = await page.pdf({
-        width: `${pageDimensions.width}px`,
-        height: `${pageDimensions.height}px`,
-        printBackground: true,
-      });
-      return pdf;
+      return Uint8Array.from(
+        await page.pdf({
+          width: `${pageDimensions.width}px`,
+          height: `${pageDimensions.height}px`,
+          printBackground: true,
+        })
+      );
     },
   };
 }

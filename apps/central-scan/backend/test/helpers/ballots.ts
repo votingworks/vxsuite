@@ -9,11 +9,12 @@ import { getTemporaryRootDir } from '@votingworks/fixtures';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { pdfToImages, writeImageData } from '@votingworks/image-utils';
 import { ElectionDefinition, SheetOf, asSheet } from '@votingworks/types';
-import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs/promises';
 import { tmpNameSync } from 'tmp';
 
-async function generateSheetFromPdf(pdfData: Buffer): Promise<SheetOf<string>> {
+async function generateSheetFromPdf(
+  pdfData: Uint8Array
+): Promise<SheetOf<string>> {
   return asSheet(
     await iter(pdfToImages(pdfData, { scale: 200 / 72 }))
       .take(2)
@@ -54,7 +55,7 @@ export async function generateHmpbFixture(): Promise<{
   return {
     electionDefinition: vxFamousNamesFixtures.electionDefinition,
     sheet: await generateSheetFromPdf(
-      await fs.readFile(vxFamousNamesFixtures.markedBallotPath)
+      Uint8Array.from(await fs.readFile(vxFamousNamesFixtures.markedBallotPath))
     ),
   };
 }

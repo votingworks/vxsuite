@@ -49,6 +49,22 @@ test('exportData with string', async () => {
   expect(await readFile(path, 'utf-8')).toEqual('bar');
 });
 
+test('exportData with Buffer', async () => {
+  const tmpDir = createTmpDir();
+  const path = join(tmpDir, 'test.txt');
+  const result = await exporter.exportData(path, Buffer.of(1, 2, 3));
+  expect(result).toEqual(ok([path]));
+  expect(await readFile(path)).toEqual(Buffer.of(1, 2, 3));
+});
+
+test('exportData with Uint8Array', async () => {
+  const tmpDir = createTmpDir();
+  const path = join(tmpDir, 'test.txt');
+  const result = await exporter.exportData(path, Uint8Array.of(1, 2, 3));
+  expect(result).toEqual(ok([path]));
+  expect(await readFile(path)).toEqual(Buffer.of(1, 2, 3));
+});
+
 test('exportData relative path', async () => {
   expect((await exporter.exportData('test.txt', 'bar')).err()?.message).toMatch(
     /Path must be absolute/

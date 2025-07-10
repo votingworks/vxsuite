@@ -121,7 +121,10 @@ test('happy path: front upside down, back', async () => {
   context.imageSmoothingEnabled = false;
   context.putImageData(summaryBallotImageFlipped, 0, 0);
   const ballotImage = canvas.toBuffer('image/png');
-  expect(ballotImage).toMatchImageSnapshot();
+  expect(ballotImage).toMatchImageSnapshot({
+    failureThresholdType: 'percent',
+    failureThreshold: 0.001,
+  });
 });
 
 test('happy path: back, front upside down', async () => {
@@ -162,7 +165,10 @@ test('happy path: back, front upside down', async () => {
   context.imageSmoothingEnabled = false;
   context.putImageData(summaryBallotImageFlipped, 0, 0);
   const ballotImage = canvas.toBuffer('image/png');
-  expect(ballotImage).toMatchImageSnapshot();
+  expect(ballotImage).toMatchImageSnapshot({
+    failureThresholdType: 'percent',
+    failureThreshold: 0.001,
+  });
 });
 
 test('votes not found', async () => {

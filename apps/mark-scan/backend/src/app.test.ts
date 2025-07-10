@@ -555,7 +555,12 @@ test.each([
 ])(
   'printing BMDBs when HMPBs are on $hmpbPaperSize',
   async ({ hmpbPaperSize }) => {
-    const printBallotSpy = vi.spyOn(stateMachine, 'printBallot');
+    const pdfDatas: Uint8Array[] = [];
+    const originalPrintBallot = stateMachine.printBallot;
+    vi.spyOn(stateMachine, 'printBallot').mockImplementation((pdfData) => {
+      pdfDatas.push(Uint8Array.from(pdfData));
+      return originalPrintBallot(pdfData);
+    });
 
     const deferredEjection = deferred<boolean>();
     const mockEject = vi.spyOn(driver, 'ejectBallotToRear');
@@ -614,7 +619,7 @@ test.each([
     });
 
     await expectElectionState({ ballotsPrintedCount: 1 });
-    const pdfData = printBallotSpy.mock.calls[0][0];
+    const pdfData = pdfDatas[0];
     await expect(pdfData).toMatchPdfSnapshot({ failureThreshold: 0.034 });
 
     await waitForStatus('presenting_ballot');
@@ -646,7 +651,7 @@ test.each([
     });
 
     await expectElectionState({ ballotsPrintedCount: 2 });
-    const pdfDataChinese = printBallotSpy.mock.calls[1][0];
+    const pdfDataChinese = pdfDatas[1];
     await expect(pdfDataChinese).toMatchPdfSnapshot({
       failureThreshold: 0.034,
     });

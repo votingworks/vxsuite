@@ -1,4 +1,5 @@
 /build
+/public
 /config
 /coverage
 /prodserver

@@ -143,7 +143,7 @@ let machine: PaperHandlerStateMachine;
 let logger: MockLogger;
 let patConnectionStatusReader: PatConnectionStatusReaderInterface;
 let auth: InsertedSmartCardAuthApi;
-let ballotPdfData: Buffer;
+let ballotPdfData: Uint8Array;
 let scannedBallotFixtureFilepaths: string;
 let clock: SimulatedClock;
 
@@ -478,7 +478,7 @@ async function executeLoadPaper(
 
 // Sets up print and scan mocks. Executes the state machine from 'not_accepting_paper' to 'presenting_ballot'.
 async function executePrintBallotAndAssert(
-  printData: Buffer,
+  printData: Uint8Array,
   scanFixtureFilepath: string,
   interpretationResult: SheetOf<InterpretFileResult> = SUCCESSFUL_INTERPRETATION_MOCK
 ): Promise<void> {

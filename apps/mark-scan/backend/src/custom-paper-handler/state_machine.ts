@@ -28,7 +28,6 @@ import {
   sendParent,
   EventObject,
 } from 'xstate';
-import { Buffer } from 'node:buffer';
 import {
   Optional,
   assert,
@@ -147,7 +146,7 @@ export type PaperHandlerStatusEvent =
   | { type: 'PAPER_READY_TO_LOAD' }
   | { type: 'PAPER_PARKED' }
   | { type: 'PAPER_INSIDE_NO_JAM' }
-  | { type: 'VOTER_INITIATED_PRINT'; pdfData: Buffer }
+  | { type: 'VOTER_INITIATED_PRINT'; pdfData: Uint8Array }
   | { type: 'PAPER_IN_OUTPUT' }
   | { type: 'PAPER_IN_INPUT' }
   | { type: 'POLL_WORKER_CONFIRMED_INVALIDATED_BALLOT' }
@@ -198,7 +197,7 @@ export interface PaperHandlerStateMachine {
   getRawDeviceStatus(): Promise<PaperHandlerStatus>;
   getSimpleStatus(): SimpleServerStatus;
   setAcceptingPaper(paperTypes: AcceptedPaperType[]): void;
-  printBallot(pdfData: Buffer): void;
+  printBallot(pdfData: Uint8Array): void;
   getInterpretation(): Optional<SheetOf<InterpretFileResult>>;
   validateBallot(): void;
   invalidateBallot(): void;
@@ -1667,7 +1666,7 @@ export async function getPaperHandlerStateMachine({
       });
     },
 
-    printBallot(pdfData: Buffer): void {
+    printBallot(pdfData: Uint8Array): void {
       machineService.send({
         type: 'VOTER_INITIATED_PRINT',
         pdfData,

@@ -2,7 +2,7 @@ import { assert } from '@votingworks/basics';
 import { BallotCountReport } from '@votingworks/ui';
 import { Admin, Tabulation } from '@votingworks/types';
 import { LogEventId, Logger } from '@votingworks/logging';
-import { Buffer } from 'node:buffer';
+
 import { Printer, renderToPdf } from '@votingworks/printing';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { join } from 'node:path';
@@ -85,7 +85,7 @@ type BallotCountReportPreviewProps = BallotCountReportSpec & {
  * PDF data for a ballot count report alongside any potential warnings.
  */
 export interface BallotCountReportPreview {
-  pdf?: Buffer;
+  pdf?: Uint8Array;
   warning?: BallotCountReportWarning;
 }
 
