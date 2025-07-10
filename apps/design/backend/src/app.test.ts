@@ -112,26 +112,31 @@ function compareName(a: { name: string }, b: { name: string }) {
 
 const vxUser: User = {
   name: 'vx.user@example.com',
+  auth0Id: 'auth0|vx-user-id',
   orgId: 'votingworks',
   orgName: 'VotingWorks',
 };
 const nonVxUser: User = {
   name: 'non.vx.user@example.com',
+  auth0Id: 'auth0|non-vx-user-id',
   orgId: '123',
   orgName: 'Other Org',
 };
 const anotherNonVxUser = {
   ...nonVxUser,
+  auth0Id: 'auth0|another-non-vx-user-id',
   orgId: 'another-org-id',
   orgName: 'Another Org',
 };
 const sliUser: User = {
   name: 'sli.user@example.com',
+  auth0Id: 'auth0|sli-user-id',
   orgId: sliOrgId(),
   orgName: 'SLI',
 };
 const vxDemosUser: User = {
   name: 'vx.demos.user@example.com',
+  auth0Id: 'auth0|vx-demos-user-id',
   orgId: vxDemosOrgId(),
   orgName: 'VX Demos',
 };
@@ -2879,6 +2884,7 @@ test('api method logging', async () => {
         orgId: vxUser.orgId,
       }),
       userOrgId: vxUser.orgId,
+      userAuth0Id: vxUser.auth0Id,
     })
   );
 });

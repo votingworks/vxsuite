@@ -17,6 +17,7 @@ import crypto from 'node:crypto';
 import { Buffer } from 'node:buffer';
 import { Auth0Client, ConnectionType } from './auth0_client';
 import { sliOrgId, votingWorksOrgId } from './globals';
+import { User } from './types';
 
 vi.mock(import('auth0'));
 vi.mock(import('node:crypto'));
@@ -112,7 +113,10 @@ test('createUser', async () => {
   );
 
   mockUsers.create.mockResolvedValueOnce(
-    mockApiResponse<GetUsers200ResponseOneOfInner>({ user_id: 'new-user' })
+    mockApiResponse<GetUsers200ResponseOneOfInner>({
+      user_id: 'new-user',
+      name: 'alice@example.com',
+    })
   );
 
   mockOrganizations.addMembers.mockResolvedValueOnce(mockApiResponseVoid());
@@ -125,7 +129,9 @@ test('createUser', async () => {
     connectionType: 'Username-Password-Authentication',
   });
 
-  expect(result).toEqual({
+  expect(result).toEqual<User>({
+    name: 'alice@example.com',
+    auth0Id: 'new-user',
     orgName: 'VotingWorks',
     orgId: 'vx',
   });
@@ -147,7 +153,7 @@ test('createUser', async () => {
 test('addOrgMember', async () => {
   mockUsersByEmail.getByEmail.mockResolvedValueOnce(
     mockApiResponseRepeated<GetUsers200ResponseOneOfInner>([
-      { user_id: 'existing-user' },
+      { user_id: 'existing-user', name: 'someone@example.com' },
     ])
   );
 
@@ -166,7 +172,9 @@ test('addOrgMember', async () => {
     userEmail: 'someone@example.com',
   });
 
-  expect(result).toEqual({
+  expect(result).toEqual<User>({
+    name: 'someone@example.com',
+    auth0Id: 'existing-user',
     orgName: 'VotingWorks',
     orgId: 'vx',
   });
