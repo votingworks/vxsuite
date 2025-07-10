@@ -249,7 +249,7 @@ function makeEmptyState(
 
 export function useContestAdjudicationState(
   contestInfo: ContestInfo,
-  initialValues: Partial<InitialValues>
+  initialValues?: Partial<InitialValues>  
 ): {
   setOptionHasVote: (optionId: ContestOptionId, hasVote: boolean) => void;
   getOptionHasVote: (optionId: ContestOptionId) => boolean;
@@ -275,7 +275,7 @@ export function useContestAdjudicationState(
     optionId: ContestOptionId;
   }) => DoubleVoteAlert | undefined;
   allAdjudicationsCompleted: boolean;
-  firstOptionIdRequiringAdjudication?: ContestOptionId  ;
+  firstOptionIdRequiringAdjudication?: ContestOptionId;
   selectedCandidateNames: string[];
   voteCount: number;
 } {
@@ -297,6 +297,7 @@ export function useContestAdjudicationState(
   // Initialize state when initial values are loaded
   useEffect(() => {
     const isInputLoaded =
+      initialValues &&
       initialValues.votes &&
       initialValues.writeIns &&
       initialValues.writeInCandidates &&
@@ -416,7 +417,7 @@ export function useContestAdjudicationState(
     const officialCandidateMatch = (
       contestInfo.officialOptions as Candidate[]
     ).find((c) => normalizeWriteInName(c.name) === normalizedName);
-    if (officialCandidateMatch) {
+    if (officialCandidateMatch && getOptionHasVote(officialCandidateMatch.id)) {
       return {
         type: 'marked-official-candidate',
         name: officialCandidateMatch.name,
