@@ -18,7 +18,7 @@ const root = createRoot(rootElement);
 root.render(
   <React.StrictMode>
     {isFeatureFlagEnabled(
-      BooleanEnvironmentVariableName.ENABLE_ELECTRICAL_TESTING_MODE
+      BooleanEnvironmentVariableName.ENABLE_HARDWARE_TEST_APP
     ) ? (
       <ElectricalTestingApp />
     ) : process.env.NODE_ENV === 'development' &&
