@@ -60,7 +60,7 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
     pollsState: 'polls_open',
   });
 
-  render(<App apiClient={apiMock.mockApiClient} reload={vi.fn()} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
   await advanceTimersAndPromises();
 
   // Start voter session

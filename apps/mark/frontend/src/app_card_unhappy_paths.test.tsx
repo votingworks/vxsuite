@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, test, vi } from 'vitest';
+import { afterEach, beforeEach, test } from 'vitest';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { render, screen } from '../test/react_testing_library';
@@ -26,7 +26,7 @@ test('Shows card backwards screen when card connection error occurs', async () =
     pollsState: 'polls_open',
   });
 
-  render(<App apiClient={apiMock.mockApiClient} reload={vi.fn()} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
   await screen.findByText('Insert Card');
 
   apiMock.setAuthStatus({

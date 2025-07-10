@@ -45,7 +45,7 @@ test('Single Seat Contest', async () => {
     pollsState: 'polls_open',
   });
 
-  render(<App apiClient={apiMock.mockApiClient} reload={vi.fn()} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
 
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({

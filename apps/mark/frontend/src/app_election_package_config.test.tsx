@@ -27,7 +27,6 @@ test('renders an error if election package config endpoint returns an error', as
 
   render(
     <App
-      reload={vi.fn()}
       logger={mockBaseLogger({ fn: vi.fn })}
       apiClient={apiMock.mockApiClient}
     />

@@ -6,20 +6,15 @@ import { createApiMock } from './mock_api_client';
 
 export function buildApp(apiMock: ReturnType<typeof createApiMock>): {
   logger: BaseLogger;
-  reload: () => void;
   renderApp: () => RenderResult;
 } {
   const logger = mockBaseLogger({ fn: vi.fn });
-  const reload = vi.fn();
   function renderApp() {
-    return render(
-      <App reload={reload} logger={logger} apiClient={apiMock.mockApiClient} />
-    );
+    return render(<App logger={logger} apiClient={apiMock.mockApiClient} />);
   }
 
   return {
     logger,
-    reload,
     renderApp,
   };
 }

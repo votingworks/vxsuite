@@ -6,7 +6,8 @@ import {
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { BallotStyleId } from '@votingworks/types';
-import { render, screen, within } from '../test/react_testing_library';
+import { hasTextAcrossElements } from '@votingworks/test-utils';
+import { render, screen } from '../test/react_testing_library';
 import * as GLOBALS from './config/globals';
 
 import { App } from './app';
@@ -44,39 +45,31 @@ test('poll worker selects ballot style, voter votes', async () => {
     precinctSelection: CENTER_SPRINGFIELD_PRECINCT_SELECTION,
     pollsState: 'polls_open',
   });
-  render(<App apiClient={apiMock.mockApiClient} reload={vi.fn()} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
   const findByTextWithMarkup = withMarkup(screen.findByText);
-
-  await screen.findByText('Insert Card');
 
   // ---------------
 
   // Activate Voter Session for Cardless Voter
-  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
-  await screen.findByText('Select Voter’s Ballot Style');
-  apiMock.mockApiClient.startCardlessVoterSession
-    .expectCallWith({ ballotStyleId: '12' as BallotStyleId, precinctId: '23' })
-    .resolves();
-  userEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12' as BallotStyleId,
       precinctId: '23',
     },
   });
-  screen.getByText(/(12)/);
+  await screen.findByText('Remove Card to Begin Voting Session');
 
   // Poll worker deactivates ballot style
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
   userEvent.click(await screen.findByText('Deactivate Voting Session'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
-  await screen.findByText('Select Voter’s Ballot Style');
+  await screen.findByText('Start Voting Session:');
 
   // Poll worker reactivates ballot style
   apiMock.mockApiClient.startCardlessVoterSession
     .expectCallWith({ ballotStyleId: '12' as BallotStyleId, precinctId: '23' })
     .resolves();
-  userEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
+  userEvent.click(screen.getByText('Start Voting Session:'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12' as BallotStyleId,
@@ -106,7 +99,7 @@ test('poll worker selects ballot style, voter votes', async () => {
       precinctId: '23',
     },
   });
-  await screen.findByText('Ballot Contains Votes');
+  await screen.findByText('Voting Session Paused');
 
   // Poll worker resets ballot to remove votes
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
@@ -114,21 +107,20 @@ test('poll worker selects ballot style, voter votes', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
 
   // Back on poll worker screen
-  await screen.findByText('Select Voter’s Ballot Style');
+  await screen.findByText('Start Voting Session:');
 
   // Activates Ballot Style again
   apiMock.mockApiClient.startCardlessVoterSession
     .expectCallWith({ ballotStyleId: '12' as BallotStyleId, precinctId: '23' })
     .resolves();
-  userEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
+  userEvent.click(screen.getByText('Start Voting Session:'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12' as BallotStyleId,
       precinctId: '23',
     },
   });
-  await screen.findByText('Voting Session Active:');
-  await screen.findByText('Ballot Style 12 at Center Springfield');
+  await screen.findByText('Remove Card to Begin Voting Session');
 
   // Poll worker removes their card
   apiMock.setAuthStatusCardlessVoterLoggedIn({
@@ -197,7 +189,7 @@ test('in "All Precincts" mode, poll worker must select a precinct first', async 
     precinctSelection: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_open',
   });
-  render(<App apiClient={apiMock.mockApiClient} reload={vi.fn()} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
   const findByTextWithMarkup = withMarkup(screen.findByText);
 
   await screen.findByText('Insert Card');
@@ -205,24 +197,16 @@ test('in "All Precincts" mode, poll worker must select a precinct first', async 
   // ---------------
 
   // Activate Voter Session for Cardless Voter
-  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
-  await screen.findByText('1. Select Voter’s Precinct');
-  userEvent.click(
-    within(screen.getByTestId('precincts')).getByText('Center Springfield')
-  );
-  screen.getByText('2. Select Voter’s Ballot Style');
-  apiMock.mockApiClient.startCardlessVoterSession
-    .expectCallWith({ ballotStyleId: '12' as BallotStyleId, precinctId: '23' })
-    .resolves();
-  userEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12' as BallotStyleId,
       precinctId: '23',
     },
   });
-  await screen.findByText('Voting Session Active:');
-  await screen.findByText('Ballot Style 12 at Center Springfield');
+  await screen.findByText('Remove Card to Begin Voting Session');
+  await screen.findByText(
+    hasTextAcrossElements('Ballot Style: Center Springfield')
+  );
 
   // Poll worker removes their card
   apiMock.setAuthStatusCardlessVoterLoggedIn({

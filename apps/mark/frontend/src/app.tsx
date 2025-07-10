@@ -30,7 +30,6 @@ const RESTART_MESSAGE =
   'Ask a poll worker to restart the ballot marking device.';
 
 export interface Props {
-  reload?: VoidFunction;
   logger?: BaseLogger;
   apiClient?: ApiClient;
   queryClient?: QueryClient;
@@ -39,7 +38,6 @@ export interface Props {
 }
 
 export function App({
-  reload = () => window.location.reload(),
   logger = new BaseLogger(LogSource.VxMarkFrontend, window.kiosk),
   /* istanbul ignore next - @preserve */ apiClient = createApiClient(),
   queryClient = createQueryClient(),
@@ -64,7 +62,7 @@ export function App({
             noAudio={noAudio}
           >
             <VisualModeDisabledOverlay />
-            <AppRoot reload={reload} />
+            <AppRoot />
             <SessionTimeLimitTracker />
           </ApiProvider>
         </AppErrorBoundary>

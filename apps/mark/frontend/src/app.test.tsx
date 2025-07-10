@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import React from 'react';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
-import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import fetchMock from 'fetch-mock';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
@@ -9,7 +8,6 @@ import {
   useBallotStyleManager,
   useSessionSettingsManager,
 } from '@votingworks/mark-flow-ui';
-import userEvent from '@testing-library/user-event';
 import { BallotStyleId } from '@votingworks/types';
 import { screen } from '../test/react_testing_library';
 import { advanceTimersAndPromises } from '../test/helpers/timers';
@@ -64,7 +62,7 @@ test('Displays error boundary if the api returns an unexpected error', async () 
   apiMock.expectGetElectionState();
   apiMock.expectGetMachineConfigToError();
   await suppressingConsoleOutput(async () => {
-    render(<App apiClient={apiMock.mockApiClient} reload={vi.fn()} />);
+    render(<App apiClient={apiMock.mockApiClient} />);
     await screen.findByText('Something went wrong');
   });
 });
@@ -74,7 +72,7 @@ test('prevents context menus from appearing', async () => {
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
-  render(<App apiClient={apiMock.mockApiClient} reload={vi.fn()} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
 
   const { oncontextmenu } = window;
 
@@ -137,35 +135,4 @@ test('uses ballot style management hook', async () => {
       electionDefinition: electionGeneralDefinition,
     })
   );
-});
-
-// This test is only really here to provide coverage for the default value for
-// `App`'s `reload` prop.
-test('uses window.location.reload by default', async () => {
-  // Stub location in a way that's good enough for this test, but not good
-  // enough for general `window.location` use.
-  const reload = vi.fn();
-  apiMock.expectGetMachineConfig();
-  apiMock.expectGetSystemSettings();
-  vi.spyOn(window, 'location', 'get').mockReturnValue({
-    ...window.location,
-    reload,
-  });
-
-  // Set up in an already-configured state.
-  const electionDefinition = electionGeneralDefinition;
-  apiMock.expectGetElectionRecord(electionDefinition);
-  apiMock.expectGetElectionState({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
-  });
-
-  render(<App apiClient={apiMock.mockApiClient} />);
-
-  await advanceTimersAndPromises();
-
-  // Force refresh
-  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
-  await advanceTimersAndPromises();
-  userEvent.click(await screen.findByText('Reset Accessible Controller'));
-  expect(reload).toHaveBeenCalledTimes(1);
 });

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test } from 'vitest';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import { BallotStyleId, CandidateContest, Election } from '@votingworks/types';
@@ -54,7 +54,7 @@ test('Single Seat Contest', async () => {
     pollsState: 'polls_open',
   });
 
-  render(<App apiClient={apiMock.mockApiClient} reload={vi.fn()} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
 
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({
