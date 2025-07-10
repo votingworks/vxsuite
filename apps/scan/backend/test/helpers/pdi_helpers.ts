@@ -234,11 +234,13 @@ export async function withApp(
 
 export const ballotImages = {
   completeHmpb: async () =>
-    pdfToImageSheet(await readFile(vxFamousNamesFixtures.blankBallotPath)),
+    pdfToImageSheet(
+      Uint8Array.from(await readFile(vxFamousNamesFixtures.blankBallotPath))
+    ),
   completeHmpbInvalidScale: async () => {
     const scale = 0.9;
     const sheet = await pdfToImageSheet(
-      await readFile(vxFamousNamesFixtures.blankBallotPath),
+      Uint8Array.from(await readFile(vxFamousNamesFixtures.blankBallotPath)),
       {
         scale: (200 / 72) * scale,
       }
@@ -270,7 +272,9 @@ export const ballotImages = {
       })
     ),
   overvoteHmpb: async () =>
-    pdfToImageSheet(await readFile(vxFamousNamesFixtures.markedBallotPath)),
+    pdfToImageSheet(
+      Uint8Array.from(await readFile(vxFamousNamesFixtures.markedBallotPath))
+    ),
   wrongElectionBmd: async () =>
     pdfToImageSheet(
       await renderBmdBallotFixture({

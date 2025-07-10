@@ -1,5 +1,4 @@
 import { Result, err, ok } from '@votingworks/basics';
-import { Buffer } from 'node:buffer';
 import { spawn } from 'node:child_process';
 import makeDebug from 'debug';
 import { Readable } from 'node:stream';
@@ -61,10 +60,10 @@ export async function exec(
   args: readonly string[] = [],
   stdin?:
     | string
-    | Buffer
+    | Uint8Array
     | NodeJS.ReadableStream
-    | Iterable<Buffer | string>
-    | AsyncIterable<Buffer | string>
+    | Iterable<Uint8Array | string>
+    | AsyncIterable<Uint8Array | string>
 ): Promise<Result<{ stdout: string; stderr: string }, ExecError>> {
   const child = spawn(file, args);
   let stdout = '';

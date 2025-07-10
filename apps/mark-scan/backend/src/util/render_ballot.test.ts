@@ -1,12 +1,17 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import tmp from 'tmp';
+import * as assert from 'node:assert';
 import { mockBaseLogger } from '@votingworks/logging';
 import {
   readElectionGeneralDefinition,
   systemSettings,
 } from '@votingworks/fixtures';
 import { safeParseSystemSettings, TEST_JURISDICTION } from '@votingworks/types';
-import { PdfPage, pdfToImages } from '@votingworks/image-utils';
+import {
+  getPdfPageCount,
+  PdfPage,
+  pdfToImages,
+} from '@votingworks/image-utils';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { ImageData } from 'canvas';
 import { TestLanguageCode } from '@votingworks/test-utils';
@@ -36,7 +41,15 @@ async function* mockPdfToImages(pageCount: number): AsyncIterable<PdfPage> {
 
 vi.mock(import('@votingworks/image-utils'), async (importActual) => ({
   ...(await importActual()),
-  pdfToImages: vi.fn(),
+  pdfToImages: vi.fn().mockImplementation(() => {
+    throw new Error('Unexpected call to pdfToImages during this test');
+  }),
+  parsePdf: vi.fn().mockImplementation(() => {
+    throw new Error('Unexpected call to parsePdf during this test');
+  }),
+  getPdfPageCount: vi.fn().mockImplementation(() => {
+    throw new Error('Unexpected call to getPdfPageCount during this test');
+  }),
 }));
 
 vi.mock(import('@votingworks/ui'), async (importActual) => ({
@@ -70,20 +83,28 @@ test("throws an error if a single page can't be rendered after max retries", asy
   vi.mocked(getLayout).mockImplementation(() =>
     ok(ORDERED_BMD_BALLOT_LAYOUTS.mark[0])
   );
-  vi.mocked(pdfToImages).mockImplementation(() => mockPdfToImages(2));
+  vi.mocked(getPdfPageCount).mockImplementation(() => Promise.resolve(2));
 
   const { store } = workspace;
   const ballotStyleId = electionGeneral.ballotStyles[0].id;
 
-  await expect(
-    renderBallot({
+  let error: Error | undefined;
+  try {
+    await renderBallot({
       store,
       precinctId,
       ballotStyleId,
       votes: {},
       languageCode: TestLanguageCode.ENGLISH,
-    })
-  ).rejects.toThrow('Unable to render ballot contents in a single page');
+    });
+  } catch (e) {
+    assert.ok(e instanceof Error);
+    error = e;
+  }
+
+  expect(error?.message).toEqual(
+    'Unable to render ballot contents in a single page'
+  );
 });
 
 test('short circuits if getLayout returns an error', async () => {

@@ -19,7 +19,7 @@ export async function main(
     return 1;
   }
   const pdfPath = assertDefined(argv[0]);
-  const pdf = await fs.readFile(pdfPath);
+  const pdf = Uint8Array.from(await fs.readFile(pdfPath));
   const dir = dirname(pdfPath);
   const base = basename(pdfPath, extname(pdfPath));
   for await (const { page, pageNumber } of pdfToImages(pdf, {

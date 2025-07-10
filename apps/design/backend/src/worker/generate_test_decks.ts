@@ -90,12 +90,12 @@ export async function generateTestDecks(
 
     if (!testDeckPdf) continue;
     const fileName = `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`;
-    zip.file(fileName, new Uint8Array(testDeckPdf));
+    zip.file(fileName, testDeckPdf);
   }
 
   const tallyReport = await createTestDeckTallyReport({ electionDefinition });
 
-  zip.file(FULL_TEST_DECK_TALLY_REPORT_FILE_NAME, new Uint8Array(tallyReport));
+  zip.file(FULL_TEST_DECK_TALLY_REPORT_FILE_NAME, tallyReport);
   const zipContents = await zip.generateAsync({ type: 'nodebuffer' });
   const zipFilename = `test-decks-${formatBallotHash(
     electionDefinition.ballotHash

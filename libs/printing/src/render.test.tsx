@@ -90,7 +90,7 @@ test('by default, large content is split across multiple letter pages', async ()
     await renderToPdf({ document: <ManyHeadings count={25} /> })
   ).unsafeUnwrap();
 
-  const pdf = await parsePdf(pdfData);
+  const pdf = await parsePdf(Uint8Array.from(pdfData));
   expect(pdf.numPages).toEqual(2);
   for (let i = 1; i <= pdf.numPages; i += 1) {
     const page = await pdf.getPage(i);

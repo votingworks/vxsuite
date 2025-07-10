@@ -501,7 +501,7 @@ export async function renderBallotPreviewToPdf<P extends object>(
   renderer: Renderer,
   template: BallotPageTemplate<P>,
   props: P
-): Promise<Result<Buffer, BallotLayoutError>> {
+): Promise<Result<Uint8Array, BallotLayoutError>> {
   const document = await renderBallotTemplate(renderer, template, props);
   if (document.isErr()) {
     return document;

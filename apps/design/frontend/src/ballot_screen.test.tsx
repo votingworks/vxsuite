@@ -41,7 +41,9 @@ function MockDocument({
   return (
     <div>
       <div>Mock Document</div>
-      <div>{file && (file as { data: Buffer }).data.toString('utf-8')}</div>
+      <div>
+        {file && new TextDecoder().decode((file as { data: Uint8Array }).data)}
+      </div>
       {children}
     </div>
   );

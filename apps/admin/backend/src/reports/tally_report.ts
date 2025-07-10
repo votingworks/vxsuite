@@ -3,7 +3,7 @@ import React from 'react';
 import { combineGroupSpecifierAndFilter } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import { AdminTallyReportByParty } from '@votingworks/ui';
-import { Buffer } from 'node:buffer';
+
 import { LogEventId, Logger } from '@votingworks/logging';
 import { Printer, renderToPdf } from '@votingworks/printing';
 import { UsbDrive } from '@votingworks/usb-drive';
@@ -101,7 +101,7 @@ type TallyReportPreviewProps = TallyReportSpec & {
  * PDF data for a tally report alongside any potential warnings.
  */
 export interface TallyReportPreview {
-  pdf?: Buffer;
+  pdf?: Uint8Array;
   warning?: TallyReportWarning;
 }
 

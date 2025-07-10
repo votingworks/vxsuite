@@ -1,5 +1,4 @@
 import { PrinterStatus } from '@votingworks/types';
-import { Buffer } from 'node:buffer';
 
 export enum PrintSides {
   /**
@@ -30,10 +29,10 @@ export interface PrintOptions {
 
 export type PrintProps = PrintOptions & {
   data:
-    | Buffer
+    | Uint8Array
     | NodeJS.ReadableStream
-    | Iterable<Buffer>
-    | AsyncIterable<Buffer>;
+    | Iterable<Uint8Array>
+    | AsyncIterable<Uint8Array>;
 };
 
 export type PrintFunction = (props: PrintProps) => Promise<void>;

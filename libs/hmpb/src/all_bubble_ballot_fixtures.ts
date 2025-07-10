@@ -9,7 +9,7 @@ import {
   VotesDict,
 } from '@votingworks/types';
 import makeDebug from 'debug';
-import { Buffer } from 'node:buffer';
+
 import { join } from 'node:path';
 import { createElection } from './all_bubble_ballot/election';
 import { allBubbleBallotTemplate } from './all_bubble_ballot/template';
@@ -39,9 +39,9 @@ export interface AllBubbleBallotFixtures {
     options?: { blankOnly?: boolean }
   ): Promise<{
     electionDefinition: ElectionDefinition;
-    blankBallotPdf: Buffer;
-    filledBallotPdf: Buffer;
-    cyclingTestDeckPdf: Buffer;
+    blankBallotPdf: Uint8Array;
+    filledBallotPdf: Uint8Array;
+    cyclingTestDeckPdf: Uint8Array;
   }>;
 }
 
@@ -88,8 +88,8 @@ export function allBubbleBallotFixtures(
       const [blankBallot] = ballotDocuments;
       const blankBallotPdf = await blankBallot.renderToPdf();
 
-      let filledBallotPdf: Buffer<ArrayBufferLike> = Buffer.from('');
-      let cyclingTestDeckPdf: Buffer<ArrayBufferLike> = Buffer.from('');
+      let filledBallotPdf: Uint8Array<ArrayBufferLike> = Uint8Array.of();
+      let cyclingTestDeckPdf: Uint8Array<ArrayBufferLike> = Uint8Array.of();
       if (!blankOnly) {
         debug(`Generating: ${filledBallotPath}`);
         const filledVotes: VotesDict = Object.fromEntries(

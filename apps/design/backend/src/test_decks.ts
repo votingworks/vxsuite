@@ -21,7 +21,7 @@ import {
   TestDeckBallot as TestDeckBallotSpec,
 } from '@votingworks/utils';
 import { renderToPdf } from '@votingworks/printing';
-import { Buffer } from 'node:buffer';
+
 import { AdminTallyReportByParty } from '@votingworks/ui';
 import {
   BaseBallotProps,
@@ -49,7 +49,7 @@ export async function createPrecinctTestDeck({
   election: Election;
   precinctId: PrecinctId;
   ballots: Array<{ props: BaseBallotProps; document: RenderDocument }>;
-}): Promise<Buffer | undefined> {
+}): Promise<Uint8Array | undefined> {
   const ballotSpecs = generateTestDeckBallots({
     election,
     precinctId,
@@ -230,7 +230,7 @@ export async function createTestDeckTallyReport({
 }: {
   electionDefinition: ElectionDefinition;
   generatedAtTime?: Date;
-}): Promise<Buffer> {
+}): Promise<Uint8Array> {
   const { election } = electionDefinition;
 
   const tallyReportResults = await getTallyReportResults(election);

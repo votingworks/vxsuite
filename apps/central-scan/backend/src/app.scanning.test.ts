@@ -126,9 +126,10 @@ test('scanBatch with streaked page', async () => {
   const { electionDefinition } = vxFamousNamesFixtures;
   const [frontImageData, backImageData] = asSheet(
     await iter(
-      pdfToImages(await readFile(vxFamousNamesFixtures.markedBallotPath), {
-        scale: 200 / 72,
-      })
+      pdfToImages(
+        Uint8Array.from(await readFile(vxFamousNamesFixtures.markedBallotPath)),
+        { scale: 200 / 72 }
+      )
     )
       .map(({ page }) => page)
       .toArray()

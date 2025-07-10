@@ -1,11 +1,11 @@
 import { renderToPdf } from '@votingworks/printing';
 import { assert, assertDefined } from '@votingworks/basics';
+import { getPdfPageCount } from '@votingworks/image-utils';
 import { isPollsSuspensionTransition } from '@votingworks/utils';
 import {
   PrecinctScannerBallotCountReport,
   PrecinctScannerTallyReports,
 } from '@votingworks/ui';
-import { getDocument } from 'pdfjs-dist';
 import { Store } from '../store';
 import { rootDebug } from '../util/debug';
 import { getMachineConfig } from '../machine_config';
@@ -72,7 +72,5 @@ export async function printFullReport({
 
   const pdfData = (await renderToPdf({ document: report })).unsafeUnwrap();
   await printer.printPdf(pdfData);
-
-  const pdfDocument = await getDocument(pdfData).promise;
-  return pdfDocument.numPages;
+  return await getPdfPageCount(pdfData);
 }

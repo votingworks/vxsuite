@@ -74,9 +74,12 @@ test('going through the whole process works - HMPB', async () => {
         // scan some sample ballots
         const [frontImageData, backImageData] = asSheet(
           await iter(
-            pdfToImages(await readFile(vxFamousNamesFixtures.blankBallotPath), {
-              scale: 200 / 72,
-            })
+            pdfToImages(
+              Uint8Array.from(
+                await readFile(vxFamousNamesFixtures.blankBallotPath)
+              ),
+              { scale: 200 / 72 }
+            )
           )
             .map(({ page }) => page)
             .toArray()
@@ -186,9 +189,12 @@ test('ballots printed with invalid scale are rejected', async () => {
         const scale = minimumDetectedScale - 0.1;
         const [frontImageData, backImageData] = asSheet(
           await iter(
-            pdfToImages(await readFile(vxFamousNamesFixtures.blankBallotPath), {
-              scale: (200 / 72) * scale,
-            })
+            pdfToImages(
+              Uint8Array.from(
+                await readFile(vxFamousNamesFixtures.blankBallotPath)
+              ),
+              { scale: (200 / 72) * scale }
+            )
           )
             .map(({ page }) => page)
             .toArray()

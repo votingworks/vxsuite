@@ -61,7 +61,7 @@ export const Row = styled.div`
 const DEFAULT_ZOOM = 1.8;
 
 interface PdfViewerProps {
-  pdfData?: Buffer;
+  pdfData?: Uint8Array;
   loading?: boolean;
 }
 

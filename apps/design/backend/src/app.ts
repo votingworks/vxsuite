@@ -1,6 +1,5 @@
 import * as grout from '@votingworks/grout';
 import * as Sentry from '@sentry/node';
-import { Buffer } from 'node:buffer';
 import { auth as auth0Middleware, requiresAuth } from 'express-openid-connect';
 import { join } from 'node:path';
 import {
@@ -591,7 +590,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
       ballotType: BallotType;
       ballotMode: BallotMode;
     }): Promise<
-      Result<{ pdfData: Buffer; fileName: string }, BallotLayoutError>
+      Result<{ pdfData: Uint8Array; fileName: string }, BallotLayoutError>
     > {
       const {
         election,
@@ -625,7 +624,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
           props.ballotMode === input.ballotMode
       );
       const renderer = await createPlaywrightRenderer();
-      let ballotPdf: Result<Buffer, BallotLayoutError>;
+      let ballotPdf: Result<Uint8Array, BallotLayoutError>;
       try {
         ballotPdf = await renderBallotPreviewToPdf(
           renderer,

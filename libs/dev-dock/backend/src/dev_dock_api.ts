@@ -228,7 +228,7 @@ function buildApi(devDockFilePath: string, mockSpec: MockSpec) {
     },
 
     async pdiScannerInsertSheet(input: { path: string }): Promise<void> {
-      const pdfData = fs.readFileSync(input.path);
+      const pdfData = Uint8Array.from(fs.readFileSync(input.path));
       const images = await iter(pdfToImages(pdfData, { scale: 200 / 72 }))
         .map(({ page }) => page)
         .toArray();

@@ -212,7 +212,7 @@ export const ballotImages = {
   completeHmpb: async () =>
     customSheetOfImagesFromScannerFromBallotImageData(
       await pdfToImageSheet(
-        await readFile(vxFamousNamesFixtures.blankBallotPath)
+        Uint8Array.from(await readFile(vxFamousNamesFixtures.blankBallotPath))
       )
     ),
   completeBmd: async () =>
@@ -230,13 +230,13 @@ export const ballotImages = {
   overvoteHmpb: async () =>
     customSheetOfImagesFromScannerFromBallotImageData(
       await pdfToImageSheet(
-        await readFile(vxFamousNamesFixtures.markedBallotPath)
+        Uint8Array.from(await readFile(vxFamousNamesFixtures.markedBallotPath))
       )
     ),
   unmarkedHmpb: async () =>
     customSheetOfImagesFromScannerFromBallotImageData(
       await pdfToImageSheet(
-        await readFile(vxFamousNamesFixtures.blankBallotPath)
+        Uint8Array.from(await readFile(vxFamousNamesFixtures.blankBallotPath))
       )
     ),
   wrongElection: async () =>

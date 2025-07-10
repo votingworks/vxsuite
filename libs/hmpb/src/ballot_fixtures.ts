@@ -110,7 +110,7 @@ export const vxFamousNamesFixtures = (() => {
           ].map(async ({ path, pdf }) => {
             debug(`Generating page images for: ${path}`);
             return await iter(
-              pdfToImages(pdf, {
+              pdfToImages(Uint8Array.from(pdf), {
                 scale: 200 / 72,
               })
             )
@@ -251,7 +251,7 @@ export const vxGeneralElectionFixtures = (() => {
         if (spec.generatePageImages) {
           debug(`Generating page images for: ${spec.blankBallotPath}`);
           blankBallotPageImages = await iter(
-            pdfToImages(blankBallotPdf, {
+            pdfToImages(Uint8Array.from(blankBallotPdf), {
               scale: 200 / 72,
             })
           )

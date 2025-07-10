@@ -1,10 +1,10 @@
 import { err, ok, Result } from '@votingworks/basics';
+import { Buffer } from 'node:buffer';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { any } from 'micromatch';
 import { isAbsolute, join, normalize, parse } from 'node:path';
 import { Readable } from 'node:stream';
 import { createReadStream, lstatSync } from 'node:fs';
-import { Buffer } from 'node:buffer';
 import { ExportDataError as BaseExportDataError } from '@votingworks/types';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { splitToFiles } from './split';
@@ -21,9 +21,9 @@ const MAXIMUM_FAT32_FILE_SIZE = 2 ** 32 - 1;
  */
 export type ExportableData =
   | string
-  | Buffer
-  | Iterable<string | Buffer>
-  | AsyncIterable<string | Buffer>
+  | Uint8Array
+  | Iterable<string | Uint8Array>
+  | AsyncIterable<string | Uint8Array>
   | NodeJS.ReadableStream;
 
 /**
@@ -87,12 +87,45 @@ export class Exporter {
 
     await mkdir(pathParts.dir, { recursive: true });
 
-    const paths = await splitToFiles(Readable.from(data), {
-      size: maximumFileSize ?? Infinity,
-      nextPath: (index) =>
-        join(pathParts.dir, `${pathParts.base}-part-${index + 1}`),
-      singleFileName: pathParts.base,
-    });
+    const paths = await splitToFiles(
+      Readable.from(
+        // `Readable.from` doesn't handle `Uint8Array` the way we expect, so we
+        // convert it to a `Buffer` if it is a `Uint8Array` but not a `Buffer`.
+        //
+        // We expect the `Readable::read` to return bytes, strings, etc. but
+        // when given a `Uint8Array` it returns `number`. This breaks the
+        // expected behavior of `Readable::read` which should return a `Buffer`
+        // or `string` when reading from a stream:
+        //
+        // ```
+        // > r = Readable.from(Uint8Array.of(1, 2, 3));
+        // > r.read()
+        // 1
+        // > r.read()
+        // 2
+        // > r.read()
+        // 3
+        // > r.read()
+        // null
+        //
+        //
+        // > r = Readable.from(Buffer.of(1, 2, 3));
+        // > r.read()
+        // <Buffer 01, 02, 03>
+        // > r.read()
+        // null
+        // ```
+        data instanceof Uint8Array && !(data instanceof Buffer)
+          ? Buffer.from(data)
+          : data
+      ),
+      {
+        size: maximumFileSize ?? Infinity,
+        nextPath: (index) =>
+          join(pathParts.dir, `${pathParts.base}-part-${index + 1}`),
+        singleFileName: pathParts.base,
+      }
+    );
     // If the data was empty, splitToFiles won't create any files, but we still
     // want to create an empty file.
     if (paths.length === 0) {

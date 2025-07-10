@@ -13,13 +13,13 @@ import {
   Vote,
   VotesDict,
 } from '@votingworks/types';
-import { Buffer } from 'node:buffer';
 import { readFileSync } from 'node:fs';
 
 export function pdfToPageImages(
-  pdf: Buffer | string
+  pdf: Uint8Array | string
 ): AsyncIteratorPlus<ImageData> {
-  const pdfData = typeof pdf === 'string' ? readFileSync(pdf) : pdf;
+  const pdfData =
+    typeof pdf === 'string' ? Uint8Array.from(readFileSync(pdf)) : pdf;
   return iter(pdfToImages(pdfData, { scale: 200 / 72 })).map(
     ({ page }) => page
   );

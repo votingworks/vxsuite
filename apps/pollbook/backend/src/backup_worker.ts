@@ -8,7 +8,7 @@ import { MarginDimensions, renderToPdf } from '@votingworks/printing';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { assertDefined, iter } from '@votingworks/basics';
 import { PDFDocument } from 'pdf-lib';
-import { Buffer } from 'node:buffer';
+
 import { PartyAbbreviation, LocalWorkspace } from './types';
 import {
   CertificationPage,
@@ -20,7 +20,7 @@ import { LocalStore } from './local_store';
 
 const BACKUP_INTERVAL = 1_000 * 60; // 1 minute
 
-export async function concatenatePdfs(pdfs: Buffer[]): Promise<Buffer> {
+export async function concatenatePdfs(pdfs: Uint8Array[]): Promise<Uint8Array> {
   const combinedPdf = await PDFDocument.create();
   for (const pdf of pdfs) {
     const pdfDoc = await PDFDocument.load(pdf);
@@ -32,7 +32,7 @@ export async function concatenatePdfs(pdfs: Buffer[]): Promise<Buffer> {
       combinedPdf.addPage(page);
     }
   }
-  return Buffer.from(await combinedPdf.save());
+  return Uint8Array.from(await combinedPdf.save());
 }
 
 async function* splitIntoBalancedChunks<T>(
@@ -72,7 +72,7 @@ async function* splitIntoBalancedChunks<T>(
 export async function getBackupPaperChecklistPdfs(
   store: LocalStore,
   exportTime: Date = new Date()
-): Promise<Buffer[]> {
+): Promise<Uint8Array[]> {
   const election = assertDefined(store.getElection());
   const voterGroups = store.groupVotersAlphabeticallyByLastName();
   const totalCheckIns = store.getCheckInCount();
