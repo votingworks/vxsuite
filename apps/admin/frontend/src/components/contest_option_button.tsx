@@ -2,8 +2,8 @@ import React, { forwardRef } from 'react';
 import { Id } from '@votingworks/types';
 import { CheckboxButton } from '@votingworks/ui';
 import styled from 'styled-components';
-import type { MarginalMarkStatus } from '../screens/contest_adjudication_screen';
 import { MarginalMarkFlag } from './marginal_mark_flag';
+import type { MarginalMarkStatus } from '../hooks/use_contest_adjudication_state';
 
 const StyledCheckboxButton = styled(CheckboxButton)<{
   onlyRoundBottom?: boolean;

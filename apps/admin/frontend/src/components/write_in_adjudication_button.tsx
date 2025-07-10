@@ -7,7 +7,7 @@ import { normalizeWriteInName } from '../utils/adjudication';
 import type {
   MarginalMarkStatus,
   WriteInAdjudicationStatus,
-} from '../screens/contest_adjudication_screen';
+} from '../hooks/use_contest_adjudication_state';
 
 export const MAX_WRITE_IN_NAME_LENGTH = 200;
 const INVALID_KEY = '\0invalid';
