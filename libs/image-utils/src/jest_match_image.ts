@@ -1,7 +1,9 @@
 import { ImageData } from 'canvas';
-import pixelmatch from 'pixelmatch';
-import { format } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
+import { format } from '@votingworks/utils';
+import { mkdir } from 'node:fs/promises';
+import { dirname } from 'node:path';
+import pixelmatch from 'pixelmatch';
 import { writeImageData } from './image_data';
 
 /**
@@ -102,6 +104,7 @@ export async function toMatchImage(
   bitblt(diffImg, compositeImg, received.width, 0);
   bitblt(expected, compositeImg, 2 * received.width, 0);
 
+  await mkdir(dirname(options.diffPath), { recursive: true });
   await writeImageData(options.diffPath, compositeImg);
 
   return {
