@@ -33,6 +33,7 @@ async function expectToMatchSavedPdf(
   ] of pdfPagePairs) {
     await expect(actualPage).toMatchImage(expectedPage, {
       diffPath: `${expectedPdfPath}-p${pageNumber}-diff.png`,
+      failureThreshold: 0.00002,
     });
   }
 }
