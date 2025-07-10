@@ -189,8 +189,7 @@ function NetworkStatus({
               )}
               {isResetting && (
                 <div>
-                  <Icons.Loading /> <br />{' '}
-                  <div>Resetting network connection...</div>
+                  <Icons.Loading /> Resetting network connection...
                 </div>
               )}
               {sortedPollbooks.length === 0 && status.isOnline && (
