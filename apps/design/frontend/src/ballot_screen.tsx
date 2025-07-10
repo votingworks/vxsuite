@@ -40,7 +40,7 @@ import { routes } from './routes';
 import { FieldName as BaseFieldName, Row } from './layout';
 
 // Worker file must be copied from pdfjs-dist into public directory
-pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.js';
 
 const FieldName = styled(BaseFieldName)`
   font-weight: ${(p) => p.theme.sizes.fontWeight.bold};

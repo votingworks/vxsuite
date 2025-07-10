@@ -6,7 +6,7 @@ import { Buffer } from 'node:buffer';
 import { range } from '@votingworks/basics';
 
 // Worker file must be copied from pdfjs-dist into public directory
-pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.js';
 
 // Large PDFs can crash the page. We've seen this occur at ~100 pages, so set a
 // conservative limit to make sure it never happens in production.
