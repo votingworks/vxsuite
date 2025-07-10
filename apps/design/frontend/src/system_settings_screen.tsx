@@ -6,7 +6,6 @@ import {
   Card,
   CheckboxGroup,
   MainContent,
-  MainHeader,
   CheckboxButton,
   SearchSelect,
 } from '@votingworks/ui';
@@ -36,7 +35,7 @@ import {
 import { z } from 'zod/v4';
 import type { BallotTemplateId } from '@votingworks/design-backend';
 import { Form, Column, Row, FormActionsRow, InputGroup } from './layout';
-import { ElectionNavScreen } from './nav_screen';
+import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, routes } from './routes';
 import {
   updateSystemSettings,
@@ -613,9 +612,9 @@ export function SystemSettingsScreen(): JSX.Element | null {
 
   return (
     <ElectionNavScreen electionId={electionId}>
-      <MainHeader>
+      <Header>
         <H1>System Settings</H1>
-      </MainHeader>
+      </Header>
       <MainContent>
         <SystemSettingsForm
           ballotTemplateId={ballotTemplateId}

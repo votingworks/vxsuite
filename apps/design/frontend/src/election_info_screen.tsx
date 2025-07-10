@@ -9,7 +9,6 @@ import {
   CheckboxGroup,
   H1,
   MainContent,
-  MainHeader,
   Modal,
   P,
   SegmentedButton,
@@ -26,7 +25,7 @@ import {
   updateElectionInfo,
 } from './api';
 import { FieldName, Form, FormActionsRow, InputGroup } from './layout';
-import { ElectionNavScreen } from './nav_screen';
+import { ElectionNavScreen, Header } from './nav_screen';
 import { routes } from './routes';
 import { SealImageInput } from './seal_image_input';
 import { useTitle } from './hooks/use_title';
@@ -319,9 +318,9 @@ export function ElectionInfoScreen(): JSX.Element | null {
 
   return (
     <ElectionNavScreen electionId={electionId}>
-      <MainHeader>
+      <Header>
         <H1>Election Info</H1>
-      </MainHeader>
+      </Header>
       <MainContent>
         <ElectionInfoForm
           savedElectionInfo={getElectionInfoQuery.data}

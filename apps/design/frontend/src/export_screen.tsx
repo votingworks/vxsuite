@@ -4,7 +4,6 @@ import {
   P,
   Button,
   MainContent,
-  MainHeader,
   useQueryChangeListener,
   LoadingButton,
   Icons,
@@ -32,7 +31,7 @@ import {
   getBallotOrderInfo,
   getBallotTemplate,
 } from './api';
-import { ElectionNavScreen } from './nav_screen';
+import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, routes } from './routes';
 import { downloadFile } from './utils';
 import { Column, FieldName, InputGroup } from './layout';
@@ -146,9 +145,9 @@ export function ExportScreen(): JSX.Element | null {
 
   return (
     <ElectionNavScreen electionId={electionId}>
-      <MainHeader>
+      <Header>
         <H1>Export</H1>
-      </MainHeader>
+      </Header>
       <MainContent>
         <H2>Ballots</H2>
         <Column style={{ gap: '1rem' }}>

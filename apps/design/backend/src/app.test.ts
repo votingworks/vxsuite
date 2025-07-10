@@ -110,15 +110,31 @@ function compareName(a: { name: string }, b: { name: string }) {
   return a.name.localeCompare(b.name);
 }
 
-const vxUser: User = { orgId: 'votingworks', orgName: 'VotingWorks' };
-const nonVxUser: User = { orgId: '123', orgName: 'Other Org' };
+const vxUser: User = {
+  name: 'vx.user@example.com',
+  orgId: 'votingworks',
+  orgName: 'VotingWorks',
+};
+const nonVxUser: User = {
+  name: 'non.vx.user@example.com',
+  orgId: '123',
+  orgName: 'Other Org',
+};
 const anotherNonVxUser = {
   ...nonVxUser,
   orgId: 'another-org-id',
   orgName: 'Another Org',
 };
-const sliUser: User = { orgId: sliOrgId(), orgName: 'SLI' };
-const vxDemosUser: User = { orgId: vxDemosOrgId(), orgName: 'VX Demos' };
+const sliUser: User = {
+  name: 'sli.user@example.com',
+  orgId: sliOrgId(),
+  orgName: 'SLI',
+};
+const vxDemosUser: User = {
+  name: 'vx.demos.user@example.com',
+  orgId: vxDemosOrgId(),
+  orgName: 'VX Demos',
+};
 const orgs: Org[] = [
   { id: vxUser.orgId, name: vxUser.orgName! },
   { id: nonVxUser.orgId, name: nonVxUser.orgName! },

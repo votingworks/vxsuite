@@ -11,7 +11,6 @@ import {
   Card,
   CheckboxGroup,
   MainContent,
-  MainHeader,
   Breadcrumbs,
   TabPanel,
   RouterTabBar,
@@ -35,7 +34,7 @@ import {
 } from '@votingworks/types';
 import { assert, assertDefined } from '@votingworks/basics';
 import styled from 'styled-components';
-import { ElectionNavScreen } from './nav_screen';
+import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import {
   Form,
@@ -289,13 +288,13 @@ function AddDistrictForm(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <MainHeader>
+      <Header>
         <Breadcrumbs
           currentTitle={title}
           parentRoutes={[geographyRoutes.districts.root]}
         />
         <H1>{title}</H1>
-      </MainHeader>
+      </Header>
       <MainContent>
         <DistrictForm electionId={electionId} />
       </MainContent>
@@ -328,13 +327,13 @@ function EditDistrictForm(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <MainHeader>
+      <Header>
         <Breadcrumbs
           currentTitle={title}
           parentRoutes={[geographyRoutes.districts.root]}
         />
         <H1>{title}</H1>
-      </MainHeader>
+      </Header>
       <MainContent>
         <DistrictForm electionId={electionId} savedDistrict={savedDistrict} />
       </MainContent>
@@ -848,13 +847,13 @@ function AddPrecinctForm(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <MainHeader>
+      <Header>
         <Breadcrumbs
           currentTitle={title}
           parentRoutes={[geographyRoutes.districts.root]}
         />
         <H1>{title}</H1>
-      </MainHeader>
+      </Header>
       <MainContent>
         <PrecinctForm electionId={electionId} />
       </MainContent>
@@ -887,13 +886,13 @@ function EditPrecinctForm(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <MainHeader>
+      <Header>
         <Breadcrumbs
           currentTitle={title}
           parentRoutes={[geographyRoutes.districts.root]}
         />
         <H1>{title}</H1>
-      </MainHeader>
+      </Header>
       <MainContent>
         <PrecinctForm electionId={electionId} savedPrecinct={savedPrecinct} />
       </MainContent>
@@ -931,9 +930,9 @@ export function GeographyScreen(): JSX.Element {
           component={EditPrecinctForm}
         />
         <Route path={geographyParamRoutes.root.path}>
-          <MainHeader>
+          <Header>
             <H1>Geography</H1>
-          </MainHeader>
+          </Header>
           <MainContent>
             <RouterTabBar
               tabs={[

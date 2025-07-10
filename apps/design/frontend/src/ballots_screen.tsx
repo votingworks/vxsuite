@@ -7,7 +7,6 @@ import {
   P,
   Button,
   RadioGroup,
-  MainHeader,
   MainContent,
   TabPanel,
   RouterTabBar,
@@ -35,7 +34,7 @@ import {
   listParties,
 } from './api';
 import { Column, Form, FormActionsRow, NestedTr, Row } from './layout';
-import { ElectionNavScreen } from './nav_screen';
+import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { BallotScreen, paperSizeLabels } from './ballot_screen';
 import { useTitle } from './hooks/use_title';
@@ -463,9 +462,9 @@ export function BallotsScreen(): JSX.Element | null {
       />
       <Route path={ballotsParamRoutes.root.path}>
         <ElectionNavScreen electionId={electionId}>
-          <MainHeader>
+          <Header>
             <H1>Proof Ballots</H1>
-          </MainHeader>
+          </Header>
           <MainContent>
             <RouterTabBar
               tabs={[ballotsRoutes.ballotStyles, ballotsRoutes.ballotLayout]}

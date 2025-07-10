@@ -4,17 +4,16 @@ import {
   Table,
   TH,
   TD,
-  H1,
   LinkButton,
   P,
   SegmentedButton,
   SearchSelect,
   MainContent,
-  MainHeader,
   Breadcrumbs,
   TabPanel,
   RouterTabBar,
   Modal,
+  H1,
 } from '@votingworks/ui';
 import {
   Redirect,
@@ -49,7 +48,7 @@ import {
   Row,
   TableActionsRow,
 } from './layout';
-import { ElectionNavScreen } from './nav_screen';
+import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import {
   createContest,
@@ -960,13 +959,13 @@ function AddContestForm(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <MainHeader>
+      <Header>
         <Breadcrumbs
           currentTitle={title}
           parentRoutes={[contestRoutes.contests.root]}
         />
         <H1>{title}</H1>
-      </MainHeader>
+      </Header>
       <MainContent>
         <ContestForm electionId={electionId} />
       </MainContent>
@@ -1000,13 +999,13 @@ function EditContestForm(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <MainHeader>
+      <Header>
         <Breadcrumbs
           currentTitle={title}
           parentRoutes={[contestRoutes.contests.root]}
         />
         <H1>{title}</H1>
-      </MainHeader>
+      </Header>
       <MainContent>
         <ContestForm electionId={electionId} savedContest={savedContest} />
       </MainContent>
@@ -1238,10 +1237,10 @@ function AddPartyForm(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <MainHeader>
+      <Header>
         <Breadcrumbs currentTitle={title} parentRoutes={[partyRoutes.root]} />
         <H1>{title}</H1>
-      </MainHeader>
+      </Header>
       <MainContent>
         <PartyForm electionId={electionId} />
       </MainContent>
@@ -1274,10 +1273,10 @@ function EditPartyForm(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <MainHeader>
+      <Header>
         <Breadcrumbs currentTitle={title} parentRoutes={[partyRoutes.root]} />
         <H1>{title}</H1>
-      </MainHeader>
+      </Header>
       <MainContent>
         <PartyForm electionId={electionId} savedParty={savedParty} />
       </MainContent>
@@ -1314,9 +1313,9 @@ export function ContestsScreen(): JSX.Element {
           component={EditPartyForm}
         />
         <Route path={contestParamRoutes.root.path}>
-          <MainHeader>
+          <Header>
             <H1>Contests</H1>
-          </MainHeader>
+          </Header>
           <MainContent>
             <RouterTabBar
               tabs={[contestRoutes.contests.root, contestRoutes.parties.root]}

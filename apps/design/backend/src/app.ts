@@ -766,6 +766,10 @@ export function buildApp(context: AppContext): Application {
           logout: 'auth/logout',
         },
         secret: auth0Secret(),
+        // Log out the user from Auth0 when they log out of the app. This
+        // prevents a loop where the user gets automatically logged back in
+        // after logging out.
+        idpLogout: true,
       })
     );
   }

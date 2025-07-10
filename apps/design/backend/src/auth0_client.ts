@@ -106,6 +106,7 @@ export class Auth0Client implements Auth0ClientInterface {
     );
 
     return {
+      name: user.name,
       orgId,
       orgName: (await deferredOrg).name,
     };
@@ -216,6 +217,7 @@ export class Auth0Client implements Auth0ClientInterface {
     );
 
     return {
+      name: user.name,
       orgId,
       orgName: org.name,
     };
@@ -259,6 +261,7 @@ export class Auth0Client implements Auth0ClientInterface {
     if (!auth0User) return;
     const org = await this.org(auth0User.org_id);
     return {
+      name: auth0User.name,
       orgId: org.id,
       orgName: org.name,
     };

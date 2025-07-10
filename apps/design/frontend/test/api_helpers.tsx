@@ -83,5 +83,6 @@ export function provideApi(
 }
 
 export const user: User = {
+  name: 'Test User',
   orgId: 'org1',
 };
