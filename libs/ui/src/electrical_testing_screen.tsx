@@ -1,4 +1,5 @@
 import { iter } from '@votingworks/basics';
+import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { DateTime } from 'luxon';
 import React from 'react';
 import styled from 'styled-components';
@@ -8,6 +9,7 @@ import { Icons } from './icons';
 import { Main } from './main';
 import { Screen } from './screen';
 import { Caption, H6 } from './typography';
+import { ExportLogsModal } from './export_logs_modal';
 
 const Row = styled.div<{ gap?: string }>`
   display: flex;
@@ -141,12 +143,16 @@ export function ElectricalTestingScreen<Id extends React.Key>({
   perRow,
   modals,
   powerDown,
+  usbDriveStatus,
 }: {
   tasks: ReadonlyArray<Task<Id>>;
   perRow: number;
   modals?: React.ReactNode;
   powerDown: () => void;
+  usbDriveStatus?: UsbDriveStatus;
 }): JSX.Element {
+  const [isSaveLogsModalOpen, setIsSaveLogsModalOpen] = React.useState(false);
+
   return (
     <Screen>
       <Main centerChild>
@@ -182,11 +188,23 @@ export function ElectricalTestingScreen<Id extends React.Key>({
               .toArray()}
           </Column>
           <Row style={{ justifyContent: 'center' }}>
+            <SmallButton
+              icon={<Icons.Save />}
+              onPress={() => setIsSaveLogsModalOpen(true)}
+            >
+              Save Logs
+            </SmallButton>
             <SmallButton icon={<Icons.PowerOff />} onPress={powerDown}>
-              Power Off
+              Power Down
             </SmallButton>
           </Row>
         </Column>
+        {isSaveLogsModalOpen && usbDriveStatus && (
+          <ExportLogsModal
+            onClose={() => setIsSaveLogsModalOpen(false)}
+            usbDriveStatus={usbDriveStatus}
+          />
+        )}
         {modals}
       </Main>
     </Screen>

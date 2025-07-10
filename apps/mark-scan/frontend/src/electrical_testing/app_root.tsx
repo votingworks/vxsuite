@@ -170,6 +170,7 @@ export function AppRoot(): JSX.Element {
       ]}
       perRow={1}
       powerDown={powerDown}
+      usbDriveStatus={usbDriveStatus?.underlyingDeviceStatus}
     />
   );
 }

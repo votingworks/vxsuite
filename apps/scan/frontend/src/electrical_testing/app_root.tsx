@@ -251,6 +251,7 @@ export function AppRoot(): JSX.Element {
           />
         )
       }
+      usbDriveStatus={usbDriveStatus?.underlyingDeviceStatus}
     />
   );
 }

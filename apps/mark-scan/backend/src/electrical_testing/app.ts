@@ -15,7 +15,7 @@ function buildApi({
   const { store } = workspace;
 
   return grout.createApi({
-    getElectricalTestingStatuses() {
+    async getElectricalTestingStatuses() {
       const messages = store.getElectricalTestingStatusMessages();
       const cardMessage = messages.find(
         (message) => message.component === 'card'
@@ -34,7 +34,11 @@ function buildApi({
           ? { ...paperHandlerMessage, taskStatus: paperHandlerTask.getStatus() }
           : undefined,
         usbDrive: usbDriveMessage
-          ? { ...usbDriveMessage, taskStatus: usbDriveTask.getStatus() }
+          ? {
+              ...usbDriveMessage,
+              taskStatus: usbDriveTask.getStatus(),
+              underlyingDeviceStatus: await usbDrive.status(),
+            }
           : undefined,
       };
     },

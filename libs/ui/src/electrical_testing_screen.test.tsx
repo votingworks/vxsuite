@@ -1,10 +1,14 @@
 import userEvent from '@testing-library/user-event';
 import { DateTime } from 'luxon';
 import { expect, test, vi } from 'vitest';
-import { render, screen } from '../test/react_testing_library';
+import { assertDefined, ok } from '@votingworks/basics';
+import { screen } from '../test/react_testing_library';
 import { ElectricalTestingScreen } from './electrical_testing_screen';
 import { Icons } from './icons';
 import { P } from './typography';
+import { newTestContext } from '../test/test_context';
+
+const { mockApiClient, render } = newTestContext();
 
 test('single task', async () => {
   const powerDown = vi.fn();
@@ -31,8 +35,10 @@ test('single task', async () => {
   await screen.findByText(/06\/01\/2025/);
 
   const buttons = await screen.findAllByRole('button');
-  const powerOffButton = buttons.pop();
-  expect(powerOffButton).toHaveTextContent('Power Off');
+  const powerDownButton = buttons.pop();
+  expect(powerDownButton).toHaveTextContent('Power Down');
+  const saveLogsButton = buttons.pop();
+  expect(saveLogsButton).toHaveTextContent('Save Logs');
   expect(buttons).toHaveLength(1);
 
   // Toggle the task once.
@@ -75,8 +81,10 @@ test('multiple tasks', async () => {
   await screen.findByText('Body text.');
 
   const buttons = await screen.findAllByRole('button');
-  const powerOffButton = buttons.pop();
-  expect(powerOffButton).toHaveTextContent('Power Off');
+  const powerDownButton = buttons.pop();
+  expect(powerDownButton).toHaveTextContent('Power Down');
+  const saveLogsButton = buttons.pop();
+  expect(saveLogsButton).toHaveTextContent('Save Logs');
   expect(buttons).toHaveLength(2);
 
   // Toggle the second task once.
@@ -90,7 +98,7 @@ test('multiple tasks', async () => {
   expect(toggleIsRunning2).toHaveBeenCalledTimes(2);
 });
 
-test('power off', async () => {
+test('power down', async () => {
   const powerDown = vi.fn();
   const toggleIsRunning = vi.fn();
   render(
@@ -110,8 +118,38 @@ test('power off', async () => {
   );
 
   const buttons = await screen.findAllByRole('button');
-  const powerOffButton = buttons.pop()!;
-  expect(powerOffButton).toHaveTextContent('Power Off');
-  userEvent.click(powerOffButton);
+  const powerDownButton = buttons.pop()!;
+  expect(powerDownButton).toHaveTextContent('Power Down');
+  userEvent.click(powerDownButton);
   expect(powerDown).toHaveBeenCalledOnce();
+});
+
+test('save logs', async () => {
+  mockApiClient.exportLogsToUsb.mockResolvedValueOnce(ok());
+
+  render(
+    <ElectricalTestingScreen
+      tasks={[]}
+      powerDown={vi.fn()}
+      perRow={1}
+      usbDriveStatus={{ status: 'mounted', mountPoint: '/media/vx/usb-drive' }}
+    />
+  );
+
+  const buttons = await screen.findAllByRole('button');
+  const powerDownButton = buttons.pop();
+  expect(powerDownButton).toHaveTextContent('Power Down');
+  const saveLogsButton = buttons.pop();
+  expect(saveLogsButton).toHaveTextContent('Save Logs');
+
+  userEvent.click(assertDefined(saveLogsButton));
+  await screen.findByRole('heading', { name: 'Save Logs' });
+  userEvent.click(screen.getByText('Save'));
+  await screen.findByText('Logs Saved');
+
+  userEvent.click(screen.getByText('Close'));
+  expect(screen.queryByRole('alertdialog')).toBeFalsy();
+
+  expect(mockApiClient.exportLogsToUsb).toHaveBeenCalledTimes(1);
+  expect(mockApiClient.exportLogsToUsb).toHaveBeenCalledWith({ format: 'vxf' });
 });
