@@ -165,19 +165,8 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
   }
 
   const middlewares: Array<grout.Middleware<ApiContext>> = [
-    async function loadUser({ request, context }) {
-      const user = await auth0.userFromRequest(request);
-      if (!user) {
-        throw new AuthError('auth:unauthorized');
-      }
-      return { ...context, user };
-    },
-
-    // TODO(jonah): It might be nice to have a way to log the result of the API
-    // call, not just that the call was received. Potentially, we could pass
-    // middlewares a continuation callback so they could run code before and
-    // after the request handler.
-    async function logApiCall({ methodName, input, context }) {
+    async function logApiCall({ methodName, input, context }, next) {
+      const result = await next();
       await logger.logAsCurrentRole(
         LogEventId.ApiCall,
         {
@@ -185,9 +174,24 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
           input: JSON.stringify(input),
           userAuth0Id: context.user?.auth0Id,
           userOrgId: context.user?.orgId,
+          ...(result.isOk()
+            ? { disposition: 'success' }
+            : {
+                disposition: 'error',
+                error: extractErrorMessage(result.err()),
+              }),
         },
         debug
       );
+      return result;
+    },
+
+    async function loadUser({ request, context }, next) {
+      const user = await auth0.userFromRequest(request);
+      if (!user) {
+        throw new AuthError('auth:unauthorized');
+      }
+      return next({ ...context, user });
     },
 
     /**
@@ -197,16 +201,16 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
      * other reason to handle authorization separately, it must be listed in
      * `methodsThatHandleAuthThemselves` within this function.
      */
-    async function checkAuthorization({ methodName, input, context }) {
+    async function checkAuthorization({ methodName, input, context }, next) {
       if (input) {
         assert(context.user);
         if ('electionId' in input) {
           await requireElectionAccess(context.user, input.electionId as string);
-          return;
+          return next();
         }
         if ('orgId' in input) {
           requireOrgAccess(context.user, input.orgId as string);
-          return;
+          return next();
         }
       }
       const methodsThatHandleAuthThemselves = [
@@ -216,6 +220,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
         'getAllOrgs',
       ];
       assert(methodsThatHandleAuthThemselves.includes(methodName));
+      return next();
     },
   ];
 
