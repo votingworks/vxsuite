@@ -2,9 +2,13 @@
 import type Express from 'express';
 import {
   assert,
+  assertDefined,
+  err,
   extractErrorMessage,
   isObject,
   isString,
+  ok,
+  Result,
 } from '@votingworks/basics';
 import { rootDebug } from './debug';
 import { serialize, deserialize } from './serialization';
@@ -104,18 +108,31 @@ export interface MiddlewareMethodCall<Context extends AnyContext> {
 }
 
 /**
- * A function that can be run before the RPC method when it's called. Example applications:
+ * A function that wraps the RPC method when it's called. Example applications:
  * - Authentication/loading user data
  * - Logging
  *
- * Middleware functions are run in sequence. Each middleware can extend and
- * return the context object, which will be passed to the next middleware (and
- * eventually, to the RPC method). If a middleware function returns void, the
- * context will be unchanged.
+ * Each middleware function receives the method call information and a `next`
+ * function, which runs the next middleware in the chain (or at the end of the
+ * chain, the RPC method itself).
+ *
+ * **IMPORTANT:**
+ * The middleware function *must* call `next` and return its result in order for
+ * execution to continue. Alternatively, it can throw an error to short-circuit
+ * the chain and return an error response to the client.
+ *
+ * The result of `next` is `ok` (with the method's output) if the method call
+ * was successful, or `err` (with a caught error) if an error was thrown
+ * anywhere in the chain.
+ *
+ * Each middleware is passed a context object, which it can extend and pass on
+ * to subsequent middleware/the RPC method by passing it to `next`. If the
+ * middleware passes nothing to `next`, the context will remain unchanged.
  */
 export type Middleware<Context extends AnyContext> = (
-  methodCall: MiddlewareMethodCall<Context>
-) => Context | void | Promise<Context | void>;
+  methodCall: MiddlewareMethodCall<Context>,
+  next: (context?: Context) => Promise<Result<unknown, unknown>>
+) => Promise<Result<unknown, unknown>>;
 
 /**
  * Creates a Grout API definition from a dictionary of methods and array of
@@ -157,6 +174,40 @@ export function createApi<
  * than runtime issues in production.
  */
 export class GroutError extends Error {}
+
+async function runHandlerChain(
+  method: AnyRpcMethod,
+  methodCall: {
+    methodName: string;
+    input?: object;
+    request: Express.Request;
+  },
+  middlewares: Array<Middleware<AnyContext>>,
+  context: AnyContext
+): Promise<Result<unknown, unknown>> {
+  if (middlewares.length === 0) {
+    try {
+      return ok(await method(methodCall.input, context));
+    } catch (error) {
+      return err(error);
+    }
+  }
+  const [middleware, ...restMiddlewares] = middlewares;
+  try {
+    return await assertDefined(middleware)(
+      { ...methodCall, context },
+      (nextContext) =>
+        runHandlerChain(
+          method,
+          methodCall,
+          restMiddlewares,
+          nextContext ?? context
+        )
+    );
+  } catch (error) {
+    return err(error);
+  }
+}
 
 /**
  * Creates an express Router with a route handler for each RPC method in a Grout
@@ -236,22 +287,17 @@ export function buildRouter(
         }
 
         const durationStart = Date.now();
-        let context: AnyContext = {};
-        for (const middleware of api._middlewares ?? []) {
-          const result = await middleware({
-            methodName,
-            input,
-            request,
-            context,
-          });
-          if (result !== undefined) {
-            context = result;
-          }
-        }
 
-        const result = await method(input, context);
-        const jsonResult = serialize(result);
+        const result = await runHandlerChain(
+          method,
+          { methodName, input, request },
+          [...(api._middlewares ?? [])],
+          {}
+        );
+        if (result.isErr()) throw result.err();
+        const jsonResult = serialize(result.ok());
         debug(`Result: ${jsonResult}`);
+
         methodDebug(
           `Grout call to ${methodName} returned in ${
             Date.now() - durationStart
