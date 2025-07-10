@@ -313,37 +313,6 @@ export function ContestAdjudicationScreen(): JSX.Element {
     [contest, isCandidateContest]
   );
 
-  const {
-    getOptionHasVote,
-    setOptionHasVote,
-    getOptionMarginalMarkStatus,
-    resolveOptionMarginalMark,
-    checkWriteInNameForDoubleVote,
-    isModified,
-    isStateReady,
-    options,
-    voteCount,
-    allAdjudicationsCompleted,
-    selectedCandidateNames,
-    resetState,
-    getOptionWriteInStatus,
-    setOptionWriteInStatus,
-  } = useContestAdjudicationState(
-    {
-      numberOfWriteIns: isCandidateContest ? contest.seats : 0,
-      officialOptions,
-      isCandidateContest,
-    },
-    {
-      votes: cvrVoteInfoQuery.data?.votes[contestId],
-      writeIns: writeInsQuery.data,
-      writeInCandidates: writeInCandidatesQuery.data,
-      voteAdjudications: voteAdjudicationsQuery.data,
-      marginalMarks: marginalMarksQuery.data,
-      contestTag: cvrContestTagQuery.data,
-    }
-  );
-
   const writeInOptionIds = useMemo(
     () =>
       isCandidateContest
@@ -353,9 +322,36 @@ export function ContestAdjudicationScreen(): JSX.Element {
         : [],
     [contest, isCandidateContest]
   );
-  const allOptionsIds = useMemo(
-    () => [...officialOptions.map((o) => o.id), ...writeInOptionIds],
-    [officialOptions, writeInOptionIds]
+
+  const {
+    getOptionHasVote,
+    setOptionHasVote,
+    getOptionWriteInStatus,
+    setOptionWriteInStatus,
+    getOptionMarginalMarkStatus,
+    resolveOptionMarginalMark,
+    resetState,
+    isStateReady,
+    isModified,
+    checkWriteInNameForDoubleVote,
+    allAdjudicationsCompleted,
+    firstOptionIdRequiringAdjudication,
+    selectedCandidateNames,
+    voteCount,
+  } = useContestAdjudicationState(
+    {
+      isCandidateContest,
+      numberOfWriteIns: isCandidateContest ? contest.seats : 0,
+      officialOptions,
+    },
+    {
+      votes: cvrVoteInfoQuery.data?.votes[contestId],
+      writeIns: writeInsQuery.data,
+      writeInCandidates: writeInCandidatesQuery.data,
+      voteAdjudications: voteAdjudicationsQuery.data,
+      marginalMarks: marginalMarksQuery.data,
+      contestTag: cvrContestTagQuery.data,
+    }
   );
 
   // Vote and write-in state for adjudication management
@@ -397,6 +393,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
     }
   }, [contestId, maybeCvrQueueIndex, cvrQueueQuery, prefetchImageViews]);
 
+  // Allow escape key to dismiss focused option or modal
   useEffect(() => {
     function handleEscape(e: KeyboardEvent) {
       if (e.key === 'Escape') {
@@ -425,25 +422,14 @@ export function ContestAdjudicationScreen(): JSX.Element {
     marginalMarksQuery.isFetching ||
     cvrContestTagQuery.isFetching;
 
-  const optionRefs = useRef<Array<HTMLDivElement | null>>([]);
-  const firstRequiringAdjudicationId = isStateReady
-    ? options.find(
-        (o) =>
-          o.marginalMarkStatus === 'pending' ||
-          (o.isWriteIn && isPendingWriteIn(o.writeInAdjudicationStatus))
-      )?.optionId
-    : undefined;
-
+  const optionRefs = useRef<Record<ContestOptionId, HTMLDivElement | null>>({});
   useLayoutEffect(() => {
     if (
       !areQueriesFetching &&
-      firstRequiringAdjudicationId &&
+      firstOptionIdRequiringAdjudication &&
       shouldScrollToOption
     ) {
-      const index = allOptionsIds.findIndex(
-        (id) => id === firstRequiringAdjudicationId
-      );
-      const el = optionRefs.current[index];
+      const el = optionRefs.current[firstOptionIdRequiringAdjudication];
       if (el) {
         el.scrollIntoView({
           behavior: 'instant',
@@ -453,9 +439,8 @@ export function ContestAdjudicationScreen(): JSX.Element {
       setShouldScrollToOption(false);
     }
   }, [
-    allOptionsIds,
     areQueriesFetching,
-    firstRequiringAdjudicationId,
+    firstOptionIdRequiringAdjudication,
     shouldScrollToOption,
   ]);
 
@@ -657,7 +642,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
             </ContestOptionButtonList>
           ) : (
             <ContestOptionButtonList role="listbox">
-              {officialOptions.map((officialOption, idx) => {
+              {officialOptions.map((officialOption) => {
                 const originalVote = originalVotes.includes(officialOption.id);
                 const currentVote = getOptionHasVote(officialOption.id);
                 const optionLabel = isCandidateContest
@@ -667,7 +652,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 const marginalMarkStatus =
                   getOptionMarginalMarkStatus(optionId);
                 function getRef(el: HTMLDivElement | null) {
-                  optionRefs.current[idx] = el;
+                  optionRefs.current[optionId] = el;
                 }
                 return (
                   <ContestOptionButton
@@ -699,18 +684,18 @@ export function ContestAdjudicationScreen(): JSX.Element {
                   />
                 );
               })}
-              {writeInOptionIds.map((optionId, idx) => {
+              {writeInOptionIds.map((optionId) => {
                 const originalVote = originalVotes.includes(optionId);
+                const isSelected = getOptionHasVote(optionId);
+                const isFocused = focusedOptionId === optionId;
+                const writeInStatus = getOptionWriteInStatus(optionId);
                 const writeInRecord = writeIns.find(
                   (writeIn) => writeIn.optionId === optionId
                 );
-                const writeInStatus = getOptionWriteInStatus(optionId);
-                const isFocused = focusedOptionId === optionId;
-                const isSelected = getOptionHasVote(optionId);
                 const marginalMarkStatus =
                   getOptionMarginalMarkStatus(optionId);
                 function getRef(el: HTMLDivElement | null) {
-                  optionRefs.current[officialOptions.length + idx] = el;
+                  optionRefs.current[optionId] = el;
                 }
                 return (
                   <WriteInAdjudicationButton

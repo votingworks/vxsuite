@@ -146,7 +146,7 @@ function makeInitialState(
     };
   }
   for (let i = 0; i < contestInfo.numberOfWriteIns; i += 1) {
-    const writeInOptionId = `write-in-${i}` ;
+    const writeInOptionId = `write-in-${i}`;
     state[writeInOptionId] = {
       optionId: writeInOptionId,
       hasVote: false,
@@ -235,7 +235,7 @@ function makeEmptyState(
     };
   }
   for (let i = 0; i < contestInfo.numberOfWriteIns; i += 1) {
-    const writeInOptionId = `write-in-${i}` ;
+    const writeInOptionId = `write-in-${i}`;
     state[writeInOptionId] = {
       optionId: writeInOptionId,
       hasVote: false,
@@ -264,8 +264,7 @@ export function useContestAdjudicationState(
   getOptionMarginalMarkStatus: (
     optionId: ContestOptionId
   ) => MarginalMarkStatus;
-  options: readonly ContestOptionAdjudicationState[];
-  voteCount: number;
+  resetState: () => void;
   isStateReady: boolean;
   isModified: boolean;
   checkWriteInNameForDoubleVote: ({
@@ -275,16 +274,27 @@ export function useContestAdjudicationState(
     writeInName: string;
     optionId: ContestOptionId;
   }) => DoubleVoteAlert | undefined;
-  selectedCandidateNames: string[];
   allAdjudicationsCompleted: boolean;
-  resetState: () => void;
+  firstOptionIdRequiringAdjudication?: ContestOptionId  ;
+  selectedCandidateNames: string[];
+  voteCount: number;
 } {
   const [state, setState] = useState<ContestAdjudicationState>({
     optionState: makeEmptyState(contestInfo),
     isStateReady: false,
     isModified: false,
   });
+  const optionsList = Object.values(state.optionState);
 
+  function resetState() {
+    setState({
+      optionState: makeEmptyState(contestInfo),
+      isStateReady: false,
+      isModified: false,
+    });
+  }
+
+  // Initialize state when initial values are loaded
   useEffect(() => {
     const isInputLoaded =
       initialValues.votes &&
@@ -293,7 +303,6 @@ export function useContestAdjudicationState(
       initialValues.voteAdjudications &&
       initialValues.marginalMarks &&
       initialValues.contestTag;
-
     if (isInputLoaded && !state.isStateReady) {
       setState({
         optionState: makeInitialState(
@@ -324,6 +333,32 @@ export function useContestAdjudicationState(
     }));
   }
 
+  function getOptionWriteInStatus(
+    optionId: ContestOptionId
+  ): WriteInAdjudicationStatus | undefined {
+    const optionState = assertDefined(state.optionState[optionId]);
+    if (!optionState.isWriteIn) {
+      return undefined;
+    }
+    return optionState.writeInAdjudicationStatus;
+  }
+
+  function setOptionWriteInStatus(
+    optionId: ContestOptionId,
+    writeInAdjudicationStatus: WriteInAdjudicationStatus
+  ) {
+    setState((prev) => ({
+      ...prev,
+      optionState: {
+        ...prev.optionState,
+        [optionId]: {
+          ...prev.optionState[optionId],
+          writeInAdjudicationStatus,
+        },
+      },
+    }));
+  }
+
   function getOptionMarginalMarkStatus(
     optionId: ContestOptionId
   ): MarginalMarkStatus {
@@ -348,7 +383,7 @@ export function useContestAdjudicationState(
     if (!contestInfo.isCandidateContest) {
       return [];
     }
-    const contestOptionsWithVote = Object.values(state.optionState).filter(
+    const contestOptionsWithVote = optionsList.filter(
       (option) => option.hasVote
     );
     const names = [];
@@ -408,46 +443,21 @@ export function useContestAdjudicationState(
     return undefined;
   }
 
-  const allAdjudicationsCompleted = Object.values(state.optionState).every(
+  const allAdjudicationsCompleted = optionsList.every(
     (option) =>
       (!option.isWriteIn ||
         !isPendingWriteIn(option.writeInAdjudicationStatus)) &&
       option.marginalMarkStatus !== 'pending'
   );
 
-  function resetState() {
-    setState({
-      optionState: makeEmptyState(contestInfo),
-      isStateReady: false,
-      isModified: false,
-    });
-  }
-
-  function setOptionWriteInStatus(
-    optionId: ContestOptionId,
-    writeInAdjudicationStatus: WriteInAdjudicationStatus
-  ) {
-    setState((prev) => ({
-      ...prev,
-      optionState: {
-        ...prev.optionState,
-        [optionId]: {
-          ...prev.optionState[optionId],
-          writeInAdjudicationStatus,
-        },
-      },
-    }));
-  }
-
-  function getOptionWriteInStatus(
-    optionId: ContestOptionId
-  ): WriteInAdjudicationStatus | undefined {
-    const optionState = assertDefined(state.optionState[optionId]);
-    if (!optionState.isWriteIn) {
-      return undefined;
-    }
-    return optionState.writeInAdjudicationStatus;
-  }
+  const firstOptionIdRequiringAdjudication = state.isStateReady
+    ? optionsList.find(
+        (option) =>
+          option.marginalMarkStatus === 'pending' ||
+          (option.isWriteIn &&
+            isPendingWriteIn(option.writeInAdjudicationStatus))
+      )?.optionId
+    : undefined;
 
   return {
     setOptionHasVote,
@@ -456,13 +466,13 @@ export function useContestAdjudicationState(
     getOptionWriteInStatus,
     getOptionMarginalMarkStatus,
     resolveOptionMarginalMark,
-    options: Object.values(state.optionState),
-    selectedCandidateNames,
-    voteCount: Object.values(state.optionState).filter((o) => o.hasVote).length,
-    checkWriteInNameForDoubleVote,
+    resetState,
     isStateReady: state.isStateReady,
     isModified: state.isModified,
+    checkWriteInNameForDoubleVote,
     allAdjudicationsCompleted,
-    resetState,
+    firstOptionIdRequiringAdjudication,
+    selectedCandidateNames,
+    voteCount: optionsList.filter((o) => o.hasVote).length,
   };
 }
