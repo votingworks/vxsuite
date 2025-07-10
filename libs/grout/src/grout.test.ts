@@ -6,7 +6,7 @@ import express from 'express';
 import { assert, err, ok, Result, sleep } from '@votingworks/basics';
 import { expectTypeOf } from 'expect-type';
 import { createClient } from './client';
-import { AnyApi, buildRouter, createApi, MiddlewareMethodCall } from './server';
+import { AnyApi, buildRouter, createApi, Middleware } from './server';
 
 function createTestApp(api: AnyApi) {
   const app = express();
@@ -319,7 +319,7 @@ test('client handles other server errors', async () => {
   server.close();
 });
 
-test('middleware can add context that can be accessed in the method', async () => {
+test('middleware wraps method, adds context', async () => {
   interface User {
     id: string;
     name: string;
@@ -330,30 +330,35 @@ test('middleware can add context that can be accessed in the method', async () =
     user: User;
   }
 
-  function loadUserMiddleware(methodCall: MiddlewareMethodCall<Context>) {
-    expectTypeOf(methodCall).toEqualTypeOf<{
-      methodName: string;
-      input?: object;
-      request: express.Request;
-      context: Partial<Context>;
-    }>();
-    expect(methodCall.methodName).toEqual('getUserAttribute');
-    expect(methodCall.input).toEqual({ attribute: 'name' });
-    expect(methodCall.context).toEqual({});
-    return { user: mockUser };
-  }
+  const middleware: Array<Middleware<Context>> = [
+    function loadUserMiddleware(methodCall, next) {
+      expectTypeOf(methodCall).toEqualTypeOf<{
+        methodName: string;
+        input?: object;
+        request: express.Request;
+        context: Partial<Context>;
+      }>();
+      expect(methodCall.methodName).toEqual('getUserAttribute');
+      expect(methodCall.input).toEqual({ attribute: 'name' });
+      expect(methodCall.context).toEqual({});
+      return next({ user: mockUser });
+    },
 
-  function loggingMiddleware(methodCall: MiddlewareMethodCall<Context>) {
-    expectTypeOf(methodCall).toEqualTypeOf<{
-      methodName: string;
-      input?: object;
-      request: express.Request;
-      context: Partial<Context>;
-    }>();
-    expect(methodCall.methodName).toEqual('getUserAttribute');
-    expect(methodCall.input).toEqual({ attribute: 'name' });
-    expect(methodCall.context).toEqual({ user: mockUser });
-  }
+    async function loggingMiddleware(methodCall, next) {
+      expectTypeOf(methodCall).toEqualTypeOf<{
+        methodName: string;
+        input?: object;
+        request: express.Request;
+        context: Partial<Context>;
+      }>();
+      expect(methodCall.methodName).toEqual('getUserAttribute');
+      expect(methodCall.input).toEqual({ attribute: 'name' });
+      expect(methodCall.context).toEqual({ user: mockUser });
+      const result = await next();
+      expect(result).toEqual(ok(mockUser.name));
+      return result;
+    },
+  ];
 
   const api = createApi(
     {
@@ -364,11 +369,8 @@ test('middleware can add context that can be accessed in the method', async () =
         assert(context.user);
         return context.user[input.attribute];
       },
-      async getCurrentUser(_input: void, context: Context) {
-        return context.user;
-      },
     },
-    [loadUserMiddleware, loggingMiddleware]
+    middleware
   );
 
   const { server, baseUrl } = createTestApp(api);
@@ -376,6 +378,64 @@ test('middleware can add context that can be accessed in the method', async () =
   expect(await client.getUserAttribute({ attribute: 'name' })).toEqual(
     mockUser.name
   );
+  server.close();
+});
+
+test('middleware receives error if method throws', async () => {
+  interface Context {}
+  const middleware: Array<Middleware<Context>> = [
+    async function loggingMiddleware(_methodCall, next) {
+      const result = await next();
+      expect(result).toEqual(err(new Error('method failed')));
+      return result;
+    },
+  ];
+
+  const api = createApi(
+    {
+      async getStuff(): Promise<number> {
+        throw new Error('method failed');
+      },
+    },
+    middleware
+  );
+
+  const { server, baseUrl } = createTestApp(api);
+  const client = createClient<typeof api>({ baseUrl });
+  await expect(client.getStuff()).rejects.toThrow('method failed');
+  server.close();
+});
+
+test('middleware can throw error and prevent method handler from being called', async () => {
+  interface Context {}
+  const middleware: Array<Middleware<Context>> = [
+    async function logggingMiddleware(_methodCall, next) {
+      const result = await next();
+      expect(result).toEqual(err(new Error('unauthorized')));
+      return result;
+    },
+
+    function authMiddleware() {
+      throw new Error('unauthorized');
+    },
+
+    function laterMiddleware() {
+      throw new Error('This should not be called');
+    },
+  ];
+
+  const api = createApi(
+    {
+      async getStuff(): Promise<number> {
+        return 42;
+      },
+    },
+    middleware
+  );
+
+  const { server, baseUrl } = createTestApp(api);
+  const client = createClient<typeof api>({ baseUrl });
+  await expect(client.getStuff()).rejects.toThrow('unauthorized');
   server.close();
 });
 
