@@ -155,12 +155,12 @@ export function ElectionManagerScreen(): JSX.Element {
         component={ElectionManagerVotersScreen}
       />
       <Route
-        path={electionManagerRoutes.statistics.path}
-        component={StatisticsScreen}
-      />
-      <Route
         path={electionManagerRoutes.addVoter.path}
         component={VoterRegistrationScreen}
+      />
+      <Route
+        path={electionManagerRoutes.statistics.path}
+        component={StatisticsScreen}
       />
       <Route path="/voters/:voterId" component={VoterDetailsScreen} />
       <Redirect to={electionManagerRoutes.settings.path} />
