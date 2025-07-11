@@ -1,26 +1,28 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import {
   asElectionDefinition,
+  electionPrimaryPrecinctSplitsFixtures,
   readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
 import {
   constructElectionKey,
   ElectionDefinition,
+  formatElectionHashes,
+  hasSplits,
   InsertedSmartCardAuth,
 } from '@votingworks/types';
 
 import {
   singlePrecinctSelectionFor,
-  generateBallotStyleId,
+  ALL_PRECINCTS_SELECTION,
 } from '@votingworks/utils';
 import {
   mockPollWorkerUser,
   mockSessionExpiresAt,
-  hasTextAcrossElements,
 } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 
-import { DateWithoutTime } from '@votingworks/basics';
+import { assert, DateWithoutTime } from '@votingworks/basics';
 import { fireEvent, screen } from '../../test/react_testing_library';
 
 import { render } from '../../test/test_utils';
@@ -81,7 +83,6 @@ function renderScreen(
         pollsState="polls_open"
         ballotsPrintedCount={0}
         machineConfig={mockMachineConfig()}
-        reload={vi.fn()}
         {...props}
       />
     </ApiProvider>
@@ -135,69 +136,210 @@ test('live mode on election day', () => {
   ).toBeNull();
 });
 
-test('navigates to Diagnostics screen', () => {
-  const { unmount } = renderScreen();
+describe('start voter session: general election', () => {
+  test('single precinct configuration', () => {
+    const precinct = election.precincts[0];
+    const ballotStyle = election.ballotStyles[0];
+    const activateCardlessVoterSessionMock = vi.fn();
 
-  userEvent.click(screen.getByRole('button', { name: 'View More Actions' }));
-  userEvent.click(screen.getByRole('button', { name: 'Diagnostics' }));
-  screen.getByRole('heading', { name: 'Diagnostics' });
+    renderScreen({
+      electionDefinition: electionGeneralDefinition,
+      activateCardlessVoterSession: activateCardlessVoterSessionMock,
+      appPrecinct: singlePrecinctSelectionFor(precinct.id),
+    });
 
-  userEvent.click(
-    screen.getByRole('button', { name: 'Back to Poll Worker Actions' })
+    userEvent.click(screen.getButton(`Start Voting Session: ${precinct.name}`));
+    expect(activateCardlessVoterSessionMock).toHaveBeenCalledOnce();
+    expect(activateCardlessVoterSessionMock).toHaveBeenCalledWith(
+      precinct.id,
+      ballotStyle.id
+    );
+  });
+
+  test('single precinct configuration with splits', () => {
+    const precinct = election.precincts[1];
+    assert(hasSplits(precinct));
+    const [ballotStyle1, ballotStyle2] = election.ballotStyles;
+    const activateCardlessVoterSessionMock = vi.fn();
+
+    renderScreen({
+      electionDefinition: electionGeneralDefinition,
+      activateCardlessVoterSession: activateCardlessVoterSessionMock,
+      appPrecinct: singlePrecinctSelectionFor(precinct.id),
+    });
+
+    userEvent.click(screen.getByText('Select ballot style…'));
+    userEvent.click(screen.getByText(precinct.splits[0].name));
+    expect(activateCardlessVoterSessionMock).toHaveBeenCalledOnce();
+    expect(activateCardlessVoterSessionMock).toHaveBeenLastCalledWith(
+      precinct.id,
+      ballotStyle2.id
+    );
+
+    activateCardlessVoterSessionMock.mockClear();
+
+    userEvent.click(screen.getByText(precinct.splits[0].name));
+    userEvent.click(screen.getByText(precinct.splits[1].name));
+    expect(activateCardlessVoterSessionMock).toHaveBeenCalledOnce();
+    expect(activateCardlessVoterSessionMock).toHaveBeenLastCalledWith(
+      precinct.id,
+      ballotStyle1.id
+    );
+  });
+
+  test('all precincts configuration', () => {
+    const [precinct1, precinct2] = election.precincts;
+    assert(hasSplits(precinct2));
+    const [ballotStyle1, ballotStyle2] = election.ballotStyles;
+    const activateCardlessVoterSessionMock = vi.fn();
+    renderScreen({
+      electionDefinition: electionGeneralDefinition,
+      activateCardlessVoterSession: activateCardlessVoterSessionMock,
+      appPrecinct: ALL_PRECINCTS_SELECTION,
+    });
+    userEvent.click(screen.getByText('Select ballot style…'));
+    userEvent.click(screen.getByText(precinct1.name));
+    expect(activateCardlessVoterSessionMock).toHaveBeenCalledOnce();
+    expect(activateCardlessVoterSessionMock).toHaveBeenLastCalledWith(
+      precinct1.id,
+      ballotStyle1.id
+    );
+
+    activateCardlessVoterSessionMock.mockClear();
+
+    userEvent.click(screen.getByText(precinct1.name));
+    userEvent.click(screen.getByText(precinct2.splits[0].name));
+    expect(activateCardlessVoterSessionMock).toHaveBeenCalledOnce();
+    expect(activateCardlessVoterSessionMock).toHaveBeenLastCalledWith(
+      precinct2.id,
+      ballotStyle2.id
+    );
+
+    activateCardlessVoterSessionMock.mockClear();
+
+    userEvent.click(screen.getByText(precinct2.splits[0].name));
+    userEvent.click(screen.getByText(precinct2.splits[1].name));
+    expect(activateCardlessVoterSessionMock).toHaveBeenCalledOnce();
+    expect(activateCardlessVoterSessionMock).toHaveBeenLastCalledWith(
+      precinct2.id,
+      ballotStyle1.id
+    );
+  });
+});
+
+describe('start voter session with blank sheet: primary election', () => {
+  const electionDefinitionPrimary =
+    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
+  const electionPrimary = electionDefinitionPrimary.election;
+
+  test('single precinct configuration', () => {
+    const precinct = electionPrimary.precincts[0];
+    const activateCardlessVoterSessionMock = vi.fn();
+
+    renderScreen({
+      electionDefinition: electionDefinitionPrimary,
+      activateCardlessVoterSession: activateCardlessVoterSessionMock,
+      appPrecinct: singlePrecinctSelectionFor(precinct.id),
+    });
+
+    screen.getByText('Select ballot style:');
+    screen.getButton('Fish');
+    userEvent.click(screen.getButton('Mammal'));
+    expect(activateCardlessVoterSessionMock).toHaveBeenCalledOnce();
+    expect(activateCardlessVoterSessionMock).toHaveBeenCalledWith(
+      precinct.id,
+      '1-Ma_en'
+    );
+  });
+
+  test('single precinct configuration with splits', () => {
+    const [, , , precinct] = electionPrimary.precincts;
+    assert(hasSplits(precinct));
+
+    const activateCardlessVoterSessionMock = vi.fn();
+
+    renderScreen({
+      electionDefinition: electionDefinitionPrimary,
+      activateCardlessVoterSession: activateCardlessVoterSessionMock,
+      appPrecinct: singlePrecinctSelectionFor(precinct.id),
+    });
+
+    userEvent.click(screen.getByText("Select voter's precinct…"));
+    userEvent.click(screen.getByText(precinct.splits[0].name));
+    screen.getByText('Select ballot style:');
+    screen.getButton('Fish');
+    userEvent.click(screen.getButton('Mammal'));
+    expect(activateCardlessVoterSessionMock).toHaveBeenCalledOnce();
+    expect(activateCardlessVoterSessionMock).toHaveBeenLastCalledWith(
+      precinct.id,
+      '3-Ma_en'
+    );
+
+    activateCardlessVoterSessionMock.mockClear();
+
+    userEvent.click(screen.getByText(precinct.splits[0].name));
+    userEvent.click(screen.getByText(precinct.splits[1].name));
+    screen.getByText('Select ballot style:');
+    userEvent.click(screen.getButton('Fish'));
+    expect(activateCardlessVoterSessionMock).toHaveBeenCalledOnce();
+    expect(activateCardlessVoterSessionMock).toHaveBeenLastCalledWith(
+      precinct.id,
+      '4-F_en'
+    );
+  });
+
+  test('all precincts configuration', () => {
+    const [precinct1, , , precinct4] = electionPrimary.precincts;
+    assert(hasSplits(precinct4));
+
+    const activateCardlessVoterSessionMock = vi.fn();
+
+    renderScreen({
+      electionDefinition: electionDefinitionPrimary,
+      activateCardlessVoterSession: activateCardlessVoterSessionMock,
+      appPrecinct: ALL_PRECINCTS_SELECTION,
+    });
+
+    userEvent.click(screen.getByText("Select voter's precinct…"));
+    userEvent.click(screen.getByText(precinct1.name));
+    userEvent.click(screen.getButton('Mammal'));
+    expect(activateCardlessVoterSessionMock).toHaveBeenCalledOnce();
+    expect(activateCardlessVoterSessionMock).toHaveBeenLastCalledWith(
+      precinct1.id,
+      '1-Ma_en'
+    );
+
+    activateCardlessVoterSessionMock.mockClear();
+
+    userEvent.click(screen.getByText(precinct1.name));
+    userEvent.click(screen.getByText(precinct4.splits[0].name));
+    userEvent.click(screen.getButton('Mammal'));
+    expect(activateCardlessVoterSessionMock).toHaveBeenCalledOnce();
+    expect(activateCardlessVoterSessionMock).toHaveBeenLastCalledWith(
+      precinct4.id,
+      '3-Ma_en'
+    );
+
+    activateCardlessVoterSessionMock.mockClear();
+
+    userEvent.click(screen.getByText(precinct4.splits[0].name));
+    userEvent.click(screen.getByText(precinct4.splits[1].name));
+    userEvent.click(screen.getButton('Fish'));
+    expect(activateCardlessVoterSessionMock).toHaveBeenCalledOnce();
+    expect(activateCardlessVoterSessionMock).toHaveBeenLastCalledWith(
+      precinct4.id,
+      '4-F_en'
+    );
+  });
+});
+
+test('Shows election info', () => {
+  renderScreen();
+  screen.getByText(election.title);
+  screen.getByText(
+    formatElectionHashes(
+      electionGeneralDefinition.ballotHash,
+      'test-election-package-hash'
+    )
   );
-  screen.getByText(hasTextAcrossElements('Polls: Open'));
-
-  // Explicitly unmount before the printer status has resolved to verify that
-  // we properly cancel the request for printer status.
-  unmount();
-});
-
-test('can toggle between vote activation and "other actions" during polls open', async () => {
-  renderScreen({
-    pollsState: 'polls_open',
-    machineConfig: mockMachineConfig(),
-  });
-
-  // confirm we start with polls open
-  await screen.findByText(hasTextAcrossElements('Select Voter’s Ballot Style'));
-
-  // switch to other actions pane
-  userEvent.click(screen.getByText('View More Actions'));
-  screen.getByText('Diagnostics');
-
-  // switch back
-  userEvent.click(screen.getByText('Back to Ballot Style Selection'));
-  screen.getByText('Select Voter’s Ballot Style');
-});
-
-test('displays only default English ballot styles', async () => {
-  const baseElection = electionGeneralDefinition.election;
-
-  const ballotLanguages = ['en', 'es-US'];
-  const [ballotStyleEnglish, ballotStyleSpanish] = ballotLanguages.map((l) => ({
-    ...baseElection.ballotStyles[0],
-    id: generateBallotStyleId({ ballotStyleIndex: 1, languages: [l] }),
-    languages: [l],
-  }));
-
-  const electionDefinition: ElectionDefinition = {
-    ...electionGeneralDefinition,
-    election: {
-      ...baseElection,
-      ballotStyles: [ballotStyleEnglish, ballotStyleSpanish],
-    },
-  };
-  renderScreen({
-    pollsState: 'polls_open',
-    machineConfig: mockMachineConfig(),
-    pollWorkerAuth: mockPollWorkerAuth(electionDefinition),
-    electionDefinition,
-  });
-
-  await screen.findByText(hasTextAcrossElements('Select Voter’s Ballot Style'));
-
-  screen.getButton(ballotStyleEnglish.groupId);
-  expect(
-    screen.queryByRole('button', { name: ballotStyleSpanish.id })
-  ).not.toBeInTheDocument();
 });

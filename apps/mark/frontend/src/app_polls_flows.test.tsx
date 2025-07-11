@@ -52,7 +52,7 @@ test('full polls flow', async () => {
   await screen.findByText(hasTextAcrossElements('Polls: Closed'));
   userEvent.click(await screen.findByText('Open Polls'));
   const openModal = await screen.findByRole('alertdialog');
-  userEvent.click(within(openModal).getByText('Open Polls'));
+  userEvent.click(within(openModal).getButton('Open Polls'));
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Insert Card');
@@ -64,10 +64,9 @@ test('full polls flow', async () => {
     pollsState: 'polls_paused',
   });
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
-  userEvent.click(screen.getByText('View More Actions'));
   userEvent.click(await screen.findByText('Pause Voting'));
   const pauseModal = await screen.findByRole('alertdialog');
-  userEvent.click(within(pauseModal).getByText('Pause Voting'));
+  userEvent.click(within(pauseModal).getButton('Pause Voting'));
   await screen.findByText(hasTextAcrossElements('Polls: Paused'));
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Voting Paused');
@@ -81,7 +80,7 @@ test('full polls flow', async () => {
   await screen.findByText(hasTextAcrossElements('Polls: Paused'));
   userEvent.click(await screen.findByText('Resume Voting'));
   const resumeModal = await screen.findByRole('alertdialog');
-  userEvent.click(within(resumeModal).getByText('Resume Voting'));
+  userEvent.click(within(resumeModal).getButton('Resume Voting'));
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Insert Card');
@@ -93,10 +92,9 @@ test('full polls flow', async () => {
     pollsState: 'polls_closed_final',
   });
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
-  userEvent.click(screen.getByText('View More Actions'));
   userEvent.click(screen.getByText('Close Polls'));
   const closeModal = await screen.findByRole('alertdialog');
-  userEvent.click(within(closeModal).getByText('Close Polls'));
+  userEvent.click(within(closeModal).getButton('Close Polls'));
   await screen.findByText(hasTextAcrossElements('Polls: Closed'));
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Polls Closed');
@@ -124,7 +122,7 @@ test('can close polls from paused', async () => {
   await screen.findByText(hasTextAcrossElements('Polls: Paused'));
   userEvent.click(screen.getByText('Close Polls'));
   const closeModal = await screen.findByRole('alertdialog');
-  userEvent.click(within(closeModal).getByText('Close Polls'));
+  userEvent.click(within(closeModal).getButton('Close Polls'));
   await screen.findByText(hasTextAcrossElements('Polls: Closed'));
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Polls Closed');

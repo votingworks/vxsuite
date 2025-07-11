@@ -64,7 +64,7 @@ test('configure, open polls, and test contest scroll buttons', async ({
   // Election Manager: set precinct
   await page.getByText('Precinct', { exact: true }).waitFor();
   await page.getByText('Select a precinct…').click({ force: true });
-  await page.getByText('All Precincts', { exact: true }).click();
+  await page.getByText('Center Springfield', { exact: true }).click();
 
   mockCardRemoval();
 
@@ -77,9 +77,8 @@ test('configure, open polls, and test contest scroll buttons', async ({
   await confirmDialog.getByRole('button', { name: 'Open Polls' }).click();
 
   // Poll Worker: initiate voting session
-  await page.getByText('Center Springfield').click();
-  await page.getByText('12').click();
-  await page.getByText('Voting Session Active:').waitFor();
+  await page.getByText('Start Voting Session: Center Springfield').click();
+  await page.getByText('Remove Card to Begin Voting Session').waitFor();
   mockCardRemoval();
 
   await page

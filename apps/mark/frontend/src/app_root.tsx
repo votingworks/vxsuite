@@ -75,10 +75,6 @@ export interface VotingState {
   showPostVotingInstructions?: boolean;
 }
 
-export interface Props {
-  reload: VoidFunction;
-}
-
 export const stateStorageKey = 'state';
 export const blankBallotVotes: VotesDict = {};
 
@@ -132,7 +128,7 @@ function votingStateReducer(
   }
 }
 
-export function AppRoot({ reload }: Props): JSX.Element | null {
+export function AppRoot(): JSX.Element | null {
   const PostVotingInstructionsTimeout = useRef(0);
   const [votingState, dispatchVotingState] = useReducer(
     votingStateReducer,
@@ -485,7 +481,6 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
           ballotsPrintedCount={ballotsPrintedCount}
           machineConfig={machineConfig}
           hasVotes={!!votes}
-          reload={reload}
         />
       );
     }

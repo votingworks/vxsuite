@@ -10,8 +10,10 @@ import {
   BallotStyleId,
   constructElectionKey,
   getContestDistrictName,
+  getPrecinctById,
 } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
+import { assertDefined } from '@votingworks/basics';
 import { render, screen, within } from '../test/react_testing_library';
 import * as GLOBALS from './config/globals';
 
@@ -57,13 +59,10 @@ test('MarkAndPrint end-to-end flow', async () => {
     screenOrientation: 'portrait',
   });
   const expectedBallotHash = electionDefinition.ballotHash.substring(0, 10);
-  const reload = vi.fn();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
-  render(
-    <App reload={reload} logger={logger} apiClient={apiMock.mockApiClient} />
-  );
+  render(<App logger={logger} apiClient={apiMock.mockApiClient} />);
   const getByTextWithMarkup = withMarkup(screen.getByText);
   const findByTextWithMarkup = withMarkup(screen.findByText);
 
@@ -178,14 +177,9 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.expectGetElectionState({ pollsState: 'polls_open' });
   userEvent.click(await screen.findByText('Open Polls'));
   userEvent.click(
-    within(await screen.findByRole('alertdialog')).getByText('Open Polls')
+    within(await screen.findByRole('alertdialog')).getButton('Open Polls')
   );
-  await screen.findByText('Select Voter’s Ballot Style');
-  // Force refresh
-  userEvent.click(screen.getByText('View More Actions'));
-  userEvent.click(screen.getByText('Reset Accessible Controller'));
-  expect(reload).toHaveBeenCalledTimes(1);
-  await screen.findByText('Close Polls');
+  await screen.findButton('Close Polls');
 
   // Remove card
   apiMock.setAuthStatusLoggedOut();
@@ -200,7 +194,16 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.mockApiClient.startCardlessVoterSession
     .expectCallWith({ ballotStyleId: '12' as BallotStyleId, precinctId: '23' })
     .resolves();
-  userEvent.click(await screen.findByText('12'));
+
+  const precinctName = assertDefined(
+    getPrecinctById({
+      election: electionDefinition.election,
+      precinctId: precinctSelection.precinctId,
+    })
+  ).name;
+  userEvent.click(
+    await screen.findButton(`Start Voting Session: ${precinctName}`)
+  );
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12' as BallotStyleId,
@@ -306,10 +309,9 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   apiMock.expectSetPollsState('polls_closed_final');
   apiMock.expectGetElectionState({ pollsState: 'polls_closed_final' });
-  userEvent.click(await screen.findByText('View More Actions'));
-  userEvent.click(screen.getByText('Close Polls'));
+  userEvent.click(await screen.findByText('Close Polls'));
   const closeModal = await screen.findByRole('alertdialog');
-  userEvent.click(within(closeModal).getByText('Close Polls'));
+  userEvent.click(within(closeModal).getButton('Close Polls'));
 
   // Remove card
   apiMock.setAuthStatusLoggedOut();

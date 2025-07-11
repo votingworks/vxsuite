@@ -43,7 +43,7 @@ describe('Displays setup warning messages and errors screens', () => {
       pollsState: 'polls_open',
     });
 
-    render(<App apiClient={apiMock.mockApiClient} reload={vi.fn()} />);
+    render(<App apiClient={apiMock.mockApiClient} />);
     const accessibleControllerWarningText =
       'Voting with an accessible controller is not currently available.';
 
@@ -84,7 +84,7 @@ describe('Displays setup warning messages and errors screens', () => {
       pollsState: 'polls_open',
     });
 
-    render(<App apiClient={apiMock.mockApiClient} reload={vi.fn()} />);
+    render(<App apiClient={apiMock.mockApiClient} />);
 
     // Start on Insert Card screen
     await screen.findByText(insertCardScreenText);
@@ -108,7 +108,7 @@ describe('Displays setup warning messages and errors screens', () => {
       pollsState: 'polls_open',
     });
 
-    render(<App apiClient={apiMock.mockApiClient} reload={vi.fn()} />);
+    render(<App apiClient={apiMock.mockApiClient} />);
 
     await screen.findByText('Insert Card');
 
@@ -139,7 +139,7 @@ describe('Displays setup warning messages and errors screens', () => {
       pollsState: 'polls_open',
     });
 
-    render(<App apiClient={apiMock.mockApiClient} reload={vi.fn()} />);
+    render(<App apiClient={apiMock.mockApiClient} />);
 
     await screen.findByText('Insert Card');
 
@@ -165,7 +165,7 @@ describe('Displays setup warning messages and errors screens', () => {
       pollsState: 'polls_open',
     });
 
-    render(<App apiClient={apiMock.mockApiClient} reload={vi.fn()} />);
+    render(<App apiClient={apiMock.mockApiClient} />);
     const findByTextWithMarkup = withMarkup(screen.findByText);
 
     // Start on Insert Card screen
