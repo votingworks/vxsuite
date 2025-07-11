@@ -249,7 +249,7 @@ function makeEmptyState(
 
 export function useContestAdjudicationState(
   contestInfo: ContestInfo,
-  initialValues?: Partial<InitialValues>  
+  initialValues?: Partial<InitialValues>
 ): {
   setOptionHasVote: (optionId: ContestOptionId, hasVote: boolean) => void;
   getOptionHasVote: (optionId: ContestOptionId) => boolean;
@@ -367,17 +367,23 @@ export function useContestAdjudicationState(
   }
 
   function resolveOptionMarginalMark(optionId: ContestOptionId) {
-    setState((prev) => ({
-      ...prev,
-      isModified: true,
-      optionState: {
-        ...prev.optionState,
-        [optionId]: {
-          ...prev.optionState[optionId],
-          marginalMarkStatus: 'resolved',
+    setState((prev) => {
+      const currentOption = prev.optionState[optionId];
+      if (currentOption.marginalMarkStatus !== 'pending') {
+        return prev;
+      }
+      return {
+        ...prev,
+        isModified: true,
+        optionState: {
+          ...prev.optionState,
+          [optionId]: {
+            ...currentOption,
+            marginalMarkStatus: 'resolved',
+          },
         },
-      },
-    }));
+      };
+    });
   }
 
   const selectedCandidateNames: string[] = (function () {

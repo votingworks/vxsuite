@@ -54,7 +54,9 @@ export const ContestOptionButton = forwardRef<HTMLDivElement, Props>(
           onChange={() => {
             if (!isSelected) {
               onSelect();
-              onDismissFlag?.();
+              if (showMarginalMarkFlag) {
+                onDismissFlag();
+              }
             } else {
               onDeselect?.();
             }
