@@ -262,12 +262,6 @@ export const appStrings = {
     </UiString>
   ),
 
-  instructionsAskPollWorkerToPlugInPower: () => (
-    <UiString uiStringKey="instructionsAskPollWorkerToPlugInPower">
-      Please ask a poll worker to plug in the power cord.
-    </UiString>
-  ),
-
   instructionsAudioMuteButton: () => (
     <UiString uiStringKey="instructionsAudioMuteButton">
       Press the select button to mute all audio.
@@ -1297,10 +1291,6 @@ export const appStrings = {
     </UiString>
   ),
 
-  titleNoPowerDetected: () => (
-    <UiString uiStringKey="titleNoPowerDetected">No Power Detected</UiString>
-  ),
-
   titleOfficialBallot: () => (
     <UiString uiStringKey="titleOfficialBallot">Official Ballot</UiString>
   ),
@@ -1510,13 +1500,6 @@ export const appStrings = {
   warningOvervoteYesNoContest: () => (
     <UiString uiStringKey="warningOvervoteYesNoContest">
       To change your vote, first deselect your previous vote.
-    </UiString>
-  ),
-
-  warningNoPower: () => (
-    <UiString uiStringKey="warningNoPower">
-      <Font weight="bold">No Power Detected.</Font> Please ask a poll worker to
-      plug in the power cord.
     </UiString>
   ),
 

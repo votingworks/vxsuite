@@ -33,7 +33,6 @@ import {
 import { err, ok, Result } from '@votingworks/basics';
 import { TestErrorBoundary } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import type { BatteryInfo } from '@votingworks/backend';
 import { mockMachineConfig } from './mock_machine_config';
 import { initialElectionState } from '../../src/app_root';
 import { ApiProvider } from '../../src/api_provider';
@@ -58,13 +57,11 @@ type MockApiClient = Omit<
   | 'getAuthStatus'
   | 'getUsbDriveStatus'
   | 'getPrinterStatus'
-  | 'getBatteryInfo'
   | 'getAccessibleControllerConnected'
 > & {
   // Because this is polled so frequently, we opt for a standard vitest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
   getAuthStatus: Mock;
-  getBatteryInfo: Mock;
   getPrinterStatus: Mock;
   getUsbDriveStatus: Mock;
   getAccessibleControllerConnected: Mock;
@@ -76,9 +73,6 @@ function createMockApiClient(): MockApiClient {
   // of the mockApiClient, so we override like this instead
   (mockApiClient.getAuthStatus as unknown as Mock) = vi.fn(() =>
     Promise.resolve({ status: 'logged_out', reason: 'no_card' })
-  );
-  (mockApiClient.getBatteryInfo as unknown as Mock) = vi.fn(() =>
-    Promise.resolve(null)
   );
   (mockApiClient.getPrinterStatus as unknown as Mock) = vi.fn(() =>
     Promise.resolve({
@@ -109,10 +103,6 @@ export function createApiMock() {
     );
   }
 
-  function setBatteryInfo(batteryInfo?: BatteryInfo): void {
-    mockApiClient.getBatteryInfo.mockResolvedValue(batteryInfo ?? null);
-  }
-
   function setPrinterStatus(printerStatus: Partial<PrinterStatus> = {}): void {
     mockApiClient.getPrinterStatus.mockImplementation(() =>
       Promise.resolve({
@@ -141,8 +131,6 @@ export function createApiMock() {
 
   return {
     mockApiClient,
-
-    setBatteryInfo,
 
     setPrinterStatus,
 

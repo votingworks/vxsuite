@@ -12,8 +12,6 @@ import {
   H1,
   P,
   Caption,
-  Icons,
-  Font,
   TestModeCallout,
 } from '@votingworks/ui';
 
@@ -23,7 +21,6 @@ interface Props {
   appPrecinct: PrecinctSelection;
   electionDefinition: ElectionDefinition;
   electionPackageHash: string;
-  showNoChargerAttachedWarning: boolean;
   isLiveMode: boolean;
   pollsState: PollsState;
   showNoAccessibleControllerWarning: boolean;
@@ -33,7 +30,6 @@ export function InsertCardScreen({
   appPrecinct,
   electionDefinition,
   electionPackageHash,
-  showNoChargerAttachedWarning,
   isLiveMode,
   pollsState,
   showNoAccessibleControllerWarning,
@@ -76,13 +72,6 @@ export function InsertCardScreen({
         <TestModeCallout style={{ alignSelf: 'center', marginTop: '0.5rem' }} />
       )}
       <Main centerChild>
-        {showNoChargerAttachedWarning && (
-          <Caption>
-            <Icons.Warning color="warning" />{' '}
-            <Font weight="bold">No Power Detected.</Font> Please ask a poll
-            worker to plug in the power cord for this machine.
-          </Caption>
-        )}
         <P>
           <InsertCardImage />
         </P>
