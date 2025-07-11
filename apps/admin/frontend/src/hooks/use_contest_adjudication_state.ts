@@ -82,12 +82,12 @@ export function isWriteInPending(
 export type MarginalMarkStatus = 'pending' | 'resolved' | 'none';
 
 export function isMarginalMarkPending(
-  status?: MarginalMarkStatus  
+  status?: MarginalMarkStatus
 ): status is 'pending' {
   return status === 'pending';
 }
 
-interface InitialValues {
+export interface InitialValues {
   votes: string[];
   writeIns: WriteInRecord[];
   writeInCandidates: WriteInCandidateRecord[];
@@ -96,7 +96,7 @@ interface InitialValues {
   contestTag: CvrContestTag;
 }
 
-interface ContestInfo {
+export interface ContestInfo {
   officialOptions: Candidate[] | YesNoOption[];
   isCandidateContest: boolean;
   numberOfWriteIns: number;
@@ -138,7 +138,7 @@ function getWriteInOptions(
   return Object.values(state).filter((option) => option.isWriteIn);
 }
 
-function makeInitialState(
+export function makeInitialState(
   contestInfo: ContestInfo,
   initialValues: InitialValues
 ): ContestOptionAdjudicationStateById {
