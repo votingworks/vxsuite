@@ -132,8 +132,8 @@ export function SettingsScreen(): JSX.Element | null {
           </Row>
           {precinctOptions.length > 1 && haveElectionEventsOccurred && (
             <Caption>
-              The precinct setting cannot be changed because a voter was
-              checked-in or voter data was updated.
+              The precinct setting cannot be changed because a voter was checked
+              in or voter information was updated.
             </Caption>
           )}
         </Column>
@@ -155,12 +155,12 @@ export function ElectionManagerScreen(): JSX.Element {
         component={ElectionManagerVotersScreen}
       />
       <Route
-        path={electionManagerRoutes.statistics.path}
-        component={StatisticsScreen}
-      />
-      <Route
         path={electionManagerRoutes.addVoter.path}
         component={VoterRegistrationScreen}
+      />
+      <Route
+        path={electionManagerRoutes.statistics.path}
+        component={StatisticsScreen}
       />
       <Route path="/voters/:voterId" component={VoterDetailsScreen} />
       <Redirect to={electionManagerRoutes.settings.path} />

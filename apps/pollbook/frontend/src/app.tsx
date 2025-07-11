@@ -73,7 +73,7 @@ function AppRoot(): JSX.Element | null {
   if (auth.status === 'remove_card') {
     return (
       <RemoveCardScreen
-        productName="VxPollbook"
+        productName="VxPollBook"
         cardInsertionDirection="right"
       />
     );

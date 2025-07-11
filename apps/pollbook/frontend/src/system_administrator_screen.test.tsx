@@ -60,7 +60,7 @@ describe('Election tab', () => {
     unmount = renderResult.unmount;
     await screen.findByRole('heading', { name: 'Election' });
     await screen.findByText(
-      'Insert a USB drive containing a pollbook package or power up another configured machine.'
+      'Insert a USB drive containing a poll book package or power up another configured machine.'
     );
   });
 
@@ -72,12 +72,12 @@ describe('Election tab', () => {
     unmount = renderResult.unmount;
     await screen.findByRole('heading', { name: 'Election' });
     await screen.findByText(
-      'Insert a USB drive containing a pollbook package or power up another configured machine.'
+      'Insert a USB drive containing a poll book package or power up another configured machine.'
     );
 
     apiMock.setElectionConfiguration('not-found-usb');
     await screen.findByText(
-      'No pollbook package found on the inserted USB drive.'
+      'No poll book package found on the inserted USB drive.'
     );
 
     // There should be a error if there was an error in configuration from usb
@@ -85,7 +85,7 @@ describe('Election tab', () => {
     await screen.findByText('Failed to configure VxPollBook');
 
     apiMock.setElectionConfiguration('loading');
-    await screen.findByText('Configuring VxPollbook from USB drive…');
+    await screen.findByText('Configuring VxPollBook from USB drive…');
   });
 
   test('sys admin - can configure from networked machine', async () => {
@@ -133,13 +133,13 @@ describe('Election tab', () => {
       `${electionDefFamousNames.ballotHash.slice(0, 7)}-differe`
     );
     await screen.findByText(
-      /Insert a USB drive containing a pollbook package, or configure from another nearby machine listed below./
+      /Insert a USB drive containing a poll book package, or configure from another nearby machine listed below./
     );
 
     // If the usb drive is inserted without a package there is a warning.
     apiMock.setElectionConfiguration('not-found-usb');
     await screen.findByText(
-      /No pollbook package found on the inserted USB drive/
+      /No poll book package found on the inserted USB drive/
     );
 
     // There should be a warning if there was an error in configuration from usb
@@ -150,7 +150,7 @@ describe('Election tab', () => {
     apiMock.expectConfigureOverNetwork('TEST-04', 'invalid-pollbook-package');
     const configureBad = await within(rows[1]).findByText('Configure');
     userEvent.click(configureBad);
-    await screen.findByText(/Error during configuration, please try again./);
+    await screen.findByText(/Error during configuration. Please try again./);
 
     // Try to configure from the "good" election and mimic success
     apiMock.expectConfigureOverNetwork('TEST-01');

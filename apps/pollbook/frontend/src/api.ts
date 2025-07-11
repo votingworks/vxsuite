@@ -430,6 +430,9 @@ export const setConfiguredPrecinct = {
         await queryClient.invalidateQueries(
           getPollbookConfigurationInformation.queryKey()
         );
+        // because we sort the voters by placing those in the configured precinct
+        // first, changing the precinct actually changes the search results
+        await invalidateVoterQueries(queryClient);
       },
     });
   },

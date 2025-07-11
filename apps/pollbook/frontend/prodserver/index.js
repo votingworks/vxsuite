@@ -13,7 +13,7 @@ const { handleUncaughtExceptions } = require('@votingworks/backend');
 const proxy = require('./setupProxy');
 const app = express();
 const port = 3000;
-const logger = new Logger(LogSource.VxPollbookFrontendServer);
+const logger = new Logger(LogSource.VxPollBookFrontendServer);
 
 handleUncaughtExceptions(logger);
 

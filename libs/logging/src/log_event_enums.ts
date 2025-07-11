@@ -51,9 +51,9 @@ export enum LogSource {
   VxBallotActivationService = 'vx-ballot-activation-service',
   VxScanService = 'vx-scan-service',
   VxDevelopmentScript = 'vx-development-script',
-  VxPollbookFrontend = 'vx-pollbook-frontend',
-  VxPollbookBackend = 'vx-pollbook-backend',
-  VxPollbookBarcodeScannerDaemon = 'vx-pollbook-barcode-scanner-daemon',
+  VxPollBookFrontend = 'vx-pollbook-frontend',
+  VxPollBookBackend = 'vx-pollbook-backend',
+  VxPollBookBarcodeScannerDaemon = 'vx-pollbook-barcode-scanner-daemon',
 }
 export enum LogEventType {
   UserAction = 'user-action',

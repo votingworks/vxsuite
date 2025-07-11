@@ -122,12 +122,12 @@ export function SystemAdministratorScreen(): JSX.Element {
         component={ElectionScreen}
       />
       <Route
-        path={systemAdministratorRoutes.settings.path}
-        component={SettingsScreen}
-      />
-      <Route
         path={systemAdministratorRoutes.smartCards.path}
         component={SmartCardsScreen}
+      />
+      <Route
+        path={systemAdministratorRoutes.settings.path}
+        component={SettingsScreen}
       />
       <Redirect to={systemAdministratorRoutes.election.path} />
     </Switch>

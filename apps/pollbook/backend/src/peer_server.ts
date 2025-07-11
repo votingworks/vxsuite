@@ -11,7 +11,7 @@ export function start(context: PeerAppContext): number {
   app.listen(PEER_PORT, () => {
     // eslint-disable-next-line no-console
     console.log(
-      `VxPollbook p2p backend running at http://localhost:${PEER_PORT}/`
+      `VxPollBook p2p backend running at http://localhost:${PEER_PORT}/`
     );
   });
   return PEER_PORT;

@@ -110,7 +110,7 @@ if (require.main === module) {
   void main()
     .catch((error) => {
       // eslint-disable-next-line no-console
-      console.error(`Error starting VxPollbook backend: ${error.stack}`);
+      console.error(`Error starting VxPollBook backend: ${error.stack}`);
       return 1;
     })
     .then((code) => {

@@ -189,8 +189,7 @@ function NetworkStatus({
               )}
               {isResetting && (
                 <div>
-                  <Icons.Loading /> <br />{' '}
-                  <div>Resetting network connection...</div>
+                  <Icons.Loading /> Resetting network connection...
                 </div>
               )}
               {sortedPollbooks.length === 0 && status.isOnline && (
@@ -410,7 +409,7 @@ export function NavScreen({
     <Screen flexDirection="row">
       <LeftNav style={{ width: '13rem' }}>
         <Link to="/">
-          <AppLogo appName="VxPollbook" />
+          <AppLogo appName="VxPollBook" />
         </Link>
         {navContent}
         <div style={{ marginTop: 'auto' }}>
@@ -435,8 +434,8 @@ export function NavScreen({
 
 export const systemAdministratorRoutes = {
   election: { title: 'Election', path: '/election' },
-  settings: { title: 'Settings', path: '/settings' },
   smartCards: { title: 'Smart Cards', path: '/smart-cards' },
+  settings: { title: 'Settings', path: '/settings' },
 } satisfies Record<string, { title: string; path: string }>;
 
 export function SystemAdministratorNavScreen({
@@ -474,8 +473,8 @@ export function SystemAdministratorNavScreen({
 export const electionManagerRoutes = {
   settings: { title: 'Settings', path: '/settings' },
   voters: { title: 'Voters', path: '/voters' },
-  statistics: { title: 'Statistics', path: '/statistics' },
   addVoter: { title: 'Registration', path: '/registration' },
+  statistics: { title: 'Statistics', path: '/statistics' },
 } satisfies Record<string, { title: string; path: string }>;
 
 export function ElectionManagerNavScreen({

@@ -48,7 +48,7 @@ function createBlankMailingAddress(): VoterMailingAddressChangeRequest {
     mailingAddressLine2: '',
     mailingAddressLine3: '',
     mailingCityTown: '',
-    mailingState: 'NH',
+    mailingState: '',
     mailingZip5: '',
     mailingZip4: '',
   };

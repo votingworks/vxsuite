@@ -1,4 +1,4 @@
-# VxPollbook Frontend
+# VxPollBook Frontend
 
 ## Setup
 
