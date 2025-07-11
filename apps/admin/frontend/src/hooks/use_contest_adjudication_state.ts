@@ -15,28 +15,28 @@ import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { normalizeWriteInName } from '../utils/adjudication';
 import { DoubleVoteAlert } from '../components/adjudication_double_vote_alert_modal';
 
-export interface ExistingOfficialCandidate {
+interface ExistingOfficialCandidate {
   type: 'existing-official';
   id: string;
   name: string;
 }
 
-export interface ExistingWriteInCandidate {
+interface ExistingWriteInCandidate {
   type: 'existing-write-in';
   id: string;
   name: string;
 }
 
-export interface NewWriteInCandidate {
+interface NewWriteInCandidate {
   type: 'new-write-in';
   name: string;
 }
 
-export interface InvalidWriteIn {
+interface InvalidWriteIn {
   type: 'invalid';
 }
 
-export interface PendingWriteIn {
+interface PendingWriteIn {
   type: 'pending';
 }
 
@@ -47,8 +47,6 @@ export type WriteInAdjudicationStatus =
   | InvalidWriteIn
   | PendingWriteIn
   | undefined;
-
-export type MarginalMarkStatus = 'pending' | 'resolved' | 'none';
 
 export function isValidCandidate(
   status: WriteInAdjudicationStatus
@@ -75,10 +73,18 @@ export function isInvalidWriteIn(
   return status?.type === 'invalid';
 }
 
-export function isPendingWriteIn(
+export function isWriteInPending(
   status: WriteInAdjudicationStatus
 ): status is PendingWriteIn {
   return status?.type === 'pending';
+}
+
+export type MarginalMarkStatus = 'pending' | 'resolved' | 'none';
+
+export function isMarginalMarkPending(
+  status?: MarginalMarkStatus  
+): status is 'pending' {
+  return status === 'pending';
 }
 
 interface InitialValues {
@@ -368,21 +374,21 @@ export function useContestAdjudicationState(
 
   function resolveOptionMarginalMark(optionId: ContestOptionId) {
     setState((prev) => {
-      const currentOption = prev.optionState[optionId];
-      if (currentOption.marginalMarkStatus !== 'pending') {
-        return prev;
-      }
-      return {
-        ...prev,
-        isModified: true,
-        optionState: {
-          ...prev.optionState,
-          [optionId]: {
-            ...currentOption,
-            marginalMarkStatus: 'resolved',
+      const option = prev.optionState[optionId];
+      if (isMarginalMarkPending(option.marginalMarkStatus)) {
+        return {
+          ...prev,
+          isModified: true,
+          optionState: {
+            ...prev.optionState,
+            [optionId]: {
+              ...option,
+              marginalMarkStatus: 'resolved',
+            },
           },
-        },
-      };
+        };
+      }
+      return prev;
     });
   }
 
@@ -453,16 +459,16 @@ export function useContestAdjudicationState(
   const allAdjudicationsCompleted = optionsList.every(
     (option) =>
       (!option.isWriteIn ||
-        !isPendingWriteIn(option.writeInAdjudicationStatus)) &&
-      option.marginalMarkStatus !== 'pending'
+        !isWriteInPending(option.writeInAdjudicationStatus)) &&
+      !isMarginalMarkPending(option.marginalMarkStatus)
   );
 
   const firstOptionIdRequiringAdjudication = state.isStateReady
     ? optionsList.find(
         (option) =>
-          option.marginalMarkStatus === 'pending' ||
+          isMarginalMarkPending(option.marginalMarkStatus) ||
           (option.isWriteIn &&
-            isPendingWriteIn(option.writeInAdjudicationStatus))
+            isWriteInPending(option.writeInAdjudicationStatus))
       )?.optionId
     : undefined;
 

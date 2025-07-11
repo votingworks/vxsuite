@@ -3,7 +3,10 @@ import { Id } from '@votingworks/types';
 import { CheckboxButton } from '@votingworks/ui';
 import styled from 'styled-components';
 import { MarginalMarkFlag } from './marginal_mark_flag';
-import type { MarginalMarkStatus } from '../hooks/use_contest_adjudication_state';
+import {
+  isMarginalMarkPending,
+  type MarginalMarkStatus,
+} from '../hooks/use_contest_adjudication_state';
 
 const StyledCheckboxButton = styled(CheckboxButton)<{
   onlyRoundBottom?: boolean;
@@ -38,7 +41,7 @@ export const ContestOptionButton = forwardRef<HTMLDivElement, Props>(
     ref
   ) => {
     const showMarginalMarkFlag =
-      marginalMarkStatus === 'pending' && onDismissFlag !== undefined;
+      isMarginalMarkPending(marginalMarkStatus) && onDismissFlag !== undefined;
 
     return (
       <div style={{ display: 'flex', flexDirection: 'column' }} ref={ref}>
