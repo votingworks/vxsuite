@@ -62,8 +62,9 @@ import {
 import { DiscardChangesModal } from '../components/discard_changes_modal';
 import {
   isInvalidWriteIn,
+  isMarginalMarkPending,
   isOfficialCandidate,
-  isPendingWriteIn,
+  isWriteInPending,
   isValidCandidate,
   MarginalMarkStatus,
   useContestAdjudicationState,
@@ -234,7 +235,7 @@ function renderContestOptionButtonCaption({
       ((writeInRecord?.isUnmarked ||
         writeInRecord?.isUndetected ||
         marginalMarkStatus === 'resolved') &&
-        !isPendingWriteIn(writeInStatus));
+        !isWriteInPending(writeInStatus));
     if (isAmbiguousAndAdjudicated) {
       originalValueStr = 'Ambiguous Write-In';
     } else if (originalVote && isInvalidWriteIn(writeInStatus)) {
@@ -515,7 +516,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
     for (const optionId of writeInOptionIds) {
       const writeInStatus = getOptionWriteInStatus(optionId);
       // throw error if there is a pending write-in
-      assert(!isPendingWriteIn(writeInStatus));
+      assert(!isWriteInPending(writeInStatus));
       if (isInvalidWriteIn(writeInStatus) || !writeInStatus) {
         adjudicatedContestOptionById[optionId] = {
           type: 'write-in-option',
@@ -703,7 +704,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                     ref={getRef}
                     onChange={(newStatus) => {
                       setFocusedOptionId(undefined);
-                      if (isPendingWriteIn(newStatus)) {
+                      if (isWriteInPending(newStatus)) {
                         setOptionWriteInStatus(optionId, newStatus);
                         setOptionHasVote(optionId, true);
                         return;
@@ -716,7 +717,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                           writeInRecord ? newStatus : undefined
                         );
                         setOptionHasVote(optionId, false);
-                        if (marginalMarkStatus === 'pending') {
+                        if (isMarginalMarkPending(marginalMarkStatus)) {
                           resolveOptionMarginalMark(optionId);
                         }
                         return;
@@ -732,7 +733,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                       }
                       setOptionWriteInStatus(optionId, newStatus);
                       setOptionHasVote(optionId, true);
-                      if (marginalMarkStatus === 'pending') {
+                      if (isMarginalMarkPending(marginalMarkStatus)) {
                         resolveOptionMarginalMark(optionId);
                       }
                     }}
