@@ -16,7 +16,6 @@ import {
 } from '@votingworks/types';
 import {
   DiskSpaceSummary,
-  getBatteryInfo,
   initializeGetWorkspaceDiskSpaceSummary,
   pdfToText,
 } from '@votingworks/backend';
@@ -73,7 +72,6 @@ const MOCK_DISK_SPACE_SUMMARY: DiskSpaceSummary = {
 
 vi.mock(import('@votingworks/backend'), async (importActual) => ({
   ...(await importActual()),
-  getBatteryInfo: vi.fn(),
   initializeGetWorkspaceDiskSpaceSummary: vi.fn(),
 }));
 
@@ -219,10 +217,6 @@ test('saving the readiness report', async () => {
     outcome: 'pass',
   });
   vi.mocked(isAccessibleControllerDaemonRunning).mockResolvedValueOnce(true);
-  vi.mocked(getBatteryInfo).mockResolvedValue({
-    level: 0.5,
-    discharging: false,
-  });
   vi.useRealTimers();
 
   await configureApp(apiClient, auth, mockUsbDrive);
@@ -266,10 +260,6 @@ test('failure saving the readiness report', async () => {
     outcome: 'pass',
   });
   vi.mocked(isAccessibleControllerDaemonRunning).mockResolvedValueOnce(true);
-  vi.mocked(getBatteryInfo).mockResolvedValue({
-    level: 0.5,
-    discharging: false,
-  });
   vi.useRealTimers();
 
   mockUsbDrive.removeUsbDrive();

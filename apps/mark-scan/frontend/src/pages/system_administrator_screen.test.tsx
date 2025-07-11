@@ -111,7 +111,6 @@ test('navigates to Diagnostics screen', async () => {
 
   apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
-  apiMock.setBatteryInfo();
   apiMock.expectGetIsAccessibleControllerInputDetected();
   apiMock.expectGetMostRecentDiagnostic('mark-scan-accessible-controller');
   apiMock.expectGetMostRecentDiagnostic('mark-scan-paper-handler');

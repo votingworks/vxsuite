@@ -35,7 +35,7 @@ import {
   mockVendorUser,
 } from '@votingworks/test-utils';
 import { err, ok, Result } from '@votingworks/basics';
-import type { BatteryInfo, DiskSpaceSummary } from '@votingworks/backend';
+import type { DiskSpaceSummary } from '@votingworks/backend';
 import { TestErrorBoundary } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { mockMachineConfig } from './mock_machine_config';
@@ -52,7 +52,6 @@ type MockApiClient = Omit<
   | 'getAuthStatus'
   | 'getPaperHandlerState'
   | 'getUsbDriveStatus'
-  | 'getBatteryInfo'
   | 'isPatDeviceConnected'
 > & {
   // Because these are polled so frequently, we opt for a standard vitest mock instead of a
@@ -60,7 +59,6 @@ type MockApiClient = Omit<
   getAuthStatus: Mock;
   getPaperHandlerState: Mock;
   getUsbDriveStatus: Mock;
-  getBatteryInfo: Mock;
   getIsPatDeviceConnected: Mock;
 };
 
@@ -76,9 +74,6 @@ function createMockApiClient(): MockApiClient {
   );
   (mockApiClient.getUsbDriveStatus as unknown as Mock) = vi.fn(() =>
     Promise.resolve({ status: 'no_drive' })
-  );
-  (mockApiClient.getBatteryInfo as unknown as Mock) = vi.fn(() =>
-    Promise.resolve(null)
   );
   (mockApiClient.getIsPatDeviceConnected as unknown as Mock) = vi.fn(() =>
     Promise.resolve(false)
@@ -199,10 +194,6 @@ export function createApiMock() {
         status: 'logged_out',
         reason,
       });
-    },
-
-    setBatteryInfo(batteryInfo?: BatteryInfo): void {
-      mockApiClient.getBatteryInfo.mockResolvedValue(batteryInfo ?? null);
     },
 
     expectGetElectionRecord(electionDefinition: ElectionDefinition | null) {

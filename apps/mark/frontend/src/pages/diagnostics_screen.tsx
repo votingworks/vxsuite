@@ -11,20 +11,15 @@ import {
   Icons,
   PrinterStatusDisplay,
 } from '@votingworks/ui';
-import { format, formatTime } from '@votingworks/utils';
+import { formatTime } from '@votingworks/utils';
 import { useHistory, Switch, Route } from 'react-router-dom';
 import styled from 'styled-components';
 import { PrinterStatus } from '@votingworks/types';
-import type { BatteryInfo } from '@votingworks/backend';
 import {
   AccessibleControllerDiagnosticScreen,
   AccessibleControllerDiagnosticResults,
 } from './accessible_controller_diagnostic_screen';
-import {
-  getAccessibleControllerConnected,
-  getPrinterStatus,
-  systemCallApi,
-} from '../api';
+import { getAccessibleControllerConnected, getPrinterStatus } from '../api';
 
 const ButtonAndTimestamp = styled.div`
   display: flex;
@@ -39,26 +34,6 @@ const ButtonAndTimestamp = styled.div`
 const CHECKBOX_ICON = <Icons.Checkbox color="success" />;
 
 const WARNING_ICON = <Icons.Warning color="warning" />;
-
-interface ComputerStatusProps {
-  batteryInfo?: BatteryInfo;
-}
-
-function ComputerStatus({ batteryInfo }: ComputerStatusProps) {
-  return (
-    <React.Fragment>
-      <P>
-        {CHECKBOX_ICON} Battery:{' '}
-        {batteryInfo && `${format.percent(batteryInfo.level)}`}
-      </P>
-      {!batteryInfo?.discharging ? (
-        <P>{CHECKBOX_ICON} Power cord connected.</P>
-      ) : (
-        <P>{WARNING_ICON} No power cord connected. Connect power cord.</P>
-      )}
-    </React.Fragment>
-  );
-}
 
 interface AccessibleControllerStatusProps {
   accessibleControllerConnected: boolean;
@@ -105,8 +80,6 @@ export interface DiagnosticsScreenProps {
 export function DiagnosticsScreen({
   onBackButtonPress,
 }: DiagnosticsScreenProps): JSX.Element {
-  const batteryInfoQuery = systemCallApi.getBatteryInfo.useQuery();
-  const batteryInfo = batteryInfoQuery.data ?? undefined;
   const printerStatusQuery = getPrinterStatus.useQuery();
   const printerStatus: PrinterStatus = printerStatusQuery.isSuccess
     ? printerStatusQuery.data
@@ -142,8 +115,6 @@ export function DiagnosticsScreen({
               <span className="screen-reader-only">
                 To navigate through the available actions, use the down arrow.
               </span>
-              <H4 as="h2">Computer</H4>
-              <ComputerStatus batteryInfo={batteryInfo} />
               <H4 as="h2">Printer</H4>
               <PrinterStatusDisplay printerStatus={printerStatus} />
               <H4 as="h2">Accessible Controller</H4>

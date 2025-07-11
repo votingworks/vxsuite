@@ -54,7 +54,6 @@ beforeEach(() => {
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
   apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
-  apiMock.setBatteryInfo({ level: 0.5, discharging: true });
   apiMock.expectGetApplicationDiskSpaceSummary();
   apiMock.expectGetIsAccessibleControllerInputDetected();
   apiMock.expectGetMostRecentDiagnostic('mark-scan-accessible-controller');

@@ -68,43 +68,6 @@ beforeEach(() => {
   });
 });
 
-describe('Diagnostics screen: Computer section', () => {
-  test('shows the battery level and power cord status', async () => {
-    apiMock.setBatteryInfo({ level: 0.05, discharging: false });
-    const { unmount } = renderScreen();
-
-    screen.getByRole('heading', { name: 'Diagnostics' });
-
-    const batteryText = await screen.findByText('Battery: 5%');
-    // The battery level always has a success icon, even when it's low, since
-    // it's only an actionable problem if the computer is not connected to
-    // power, and that would trigger a full-screen alert
-    expectToHaveSuccessIcon(batteryText);
-    const powerCordText = screen.getByText('Power cord connected.');
-    expectToHaveSuccessIcon(powerCordText);
-
-    // Explicitly unmount before the printer status has resolved to verify that
-    // we properly cancel the request for printer status.
-    unmount();
-  });
-
-  test('shows a warning when the power cord is not connected', async () => {
-    apiMock.setBatteryInfo({ level: 0.8, discharging: true });
-    const { unmount } = renderScreen();
-
-    const batteryText = await screen.findByText('Battery: 80%');
-    expectToHaveSuccessIcon(batteryText);
-    const powerCordText = screen.getByText(
-      'No power cord connected. Connect power cord.'
-    );
-    expectToHaveWarningIcon(powerCordText);
-
-    // Explicitly unmount before the printer status has resolved to verify that
-    // we properly cancel the request for printer status.
-    unmount();
-  });
-});
-
 describe('Diagnostics screen: Printer section', () => {
   test('shows the current printer status', async () => {
     apiMock.setPrinterStatus({
