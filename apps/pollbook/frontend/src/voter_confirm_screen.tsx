@@ -14,7 +14,10 @@ import {
   SearchSelect,
 } from '@votingworks/ui';
 import React, { useState } from 'react';
-import type { VoterIdentificationMethod } from '@votingworks/pollbook-backend';
+import type {
+  PartyAbbreviation,
+  VoterIdentificationMethod,
+} from '@votingworks/pollbook-backend';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { Election } from '@votingworks/types';
 import { Column, Row } from './layout';
@@ -55,14 +58,23 @@ export function VoterConfirmScreen({
   voterId,
   isAbsenteeMode,
   onCancel,
-  onConfirm,
+  onConfirmVoterIdentity,
+  onConfirmCheckIn,
   election,
   configuredPrecinctId,
 }: {
   voterId: string;
   isAbsenteeMode: boolean;
   onCancel: () => void;
-  onConfirm: (identificationMethod: VoterIdentificationMethod) => void;
+  onConfirmVoterIdentity: (
+    voterId: string,
+    identificationMethod: VoterIdentificationMethod
+  ) => void;
+  onConfirmCheckIn: (
+    voterId: string,
+    identificationMethod: VoterIdentificationMethod,
+    ballotParty: PartyAbbreviation
+  ) => void;
   election: Election;
   configuredPrecinctId: string;
 }): JSX.Element | null {
@@ -107,6 +119,9 @@ export function VoterConfirmScreen({
     );
   }
 
+  const partySelectionRequired =
+    election.type === 'primary' && voter.party === 'UND';
+
   return (
     <NoNavScreen>
       <MainHeader>
@@ -115,13 +130,8 @@ export function VoterConfirmScreen({
           {isAbsenteeMode && <AbsenteeModeCallout />}
         </Row>
       </MainHeader>
-      <MainContent style={{ display: 'flex', flexDirection: 'column' }}>
+      <MainContent style={{ display: 'flex', flexDirection: 'row' }}>
         <Column style={{ gap: '0.5rem', flex: 1 }}>
-          {!isAbsenteeMode && !voter.isInactive && (
-            <Callout icon="Danger" color="warning">
-              Read the voter&apos;s information aloud to confirm their identity.
-            </Callout>
-          )}
           {voter.isInactive && (
             <Callout icon="Flag" color="danger">
               <strong>
@@ -155,71 +165,77 @@ export function VoterConfirmScreen({
             <H2 style={{ marginTop: 0 }}>
               <VoterName voter={voter} />
             </H2>
-            <Column style={{ gap: '1rem' }}>
-              <LabelledText label="Party">
-                <PartyName party={voter.party} />
-              </LabelledText>
-              {election.precincts.length > 1 && (
-                <LabelledText label="Precinct">
-                  <PrecinctName
-                    precinctId={getVoterPrecinct(voter)}
-                    election={election}
-                  />
-                </LabelledText>
-              )}
-              <Row style={{ gap: '1.5rem' }}>
-                <LabelledText
-                  label={
-                    voter.addressChange ? (
-                      <s>Domicile Address</s>
-                    ) : (
-                      'Domicile Address'
-                    )
-                  }
-                >
-                  <VoterAddress
-                    voter={voter}
-                    style={
-                      voter.addressChange && {
-                        textDecoration: 'line-through',
-                      }
+            <Row style={{ justifyContent: 'space-between' }}>
+              <Column style={{ width: '600px', gap: '1rem' }}>
+                <Row style={{ gap: '1.5rem' }}>
+                  <LabelledText label="Party">
+                    <PartyName party={voter.party} />
+                  </LabelledText>
+                  {election.precincts.length > 1 && (
+                    <LabelledText label="Precinct">
+                      <PrecinctName
+                        precinctId={getVoterPrecinct(voter)}
+                        election={election}
+                      />
+                    </LabelledText>
+                  )}
+                </Row>
+                <Row style={{ gap: '1.5rem' }}>
+                  <LabelledText
+                    label={
+                      voter.addressChange ? (
+                        <s>Domicile Address</s>
+                      ) : (
+                        'Domicile Address'
+                      )
                     }
-                  />
-                </LabelledText>
-                {voter.addressChange && (
-                  <LabelledText label="Updated Domicile Address">
-                    <AddressChange address={voter.addressChange} />
+                  >
+                    <VoterAddress
+                      voter={voter}
+                      style={
+                        voter.addressChange && {
+                          textDecoration: 'line-through',
+                        }
+                      }
+                    />
+                  </LabelledText>
+                  {voter.addressChange && (
+                    <LabelledText label="Updated Domicile Address">
+                      <AddressChange address={voter.addressChange} />
+                    </LabelledText>
+                  )}
+                </Row>
+                {hasMailingAddress(voter) && (
+                  <LabelledText
+                    label={
+                      voter.mailingAddressChange ? (
+                        <s>Mailing Address</s>
+                      ) : (
+                        'Mailing Address'
+                      )
+                    }
+                  >
+                    <VoterMailingAddress
+                      voter={voter}
+                      style={
+                        voter.mailingAddressChange && {
+                          textDecoration: 'line-through',
+                        }
+                      }
+                    />
                   </LabelledText>
                 )}
-              </Row>
-              {hasMailingAddress(voter) && (
-                <LabelledText
-                  label={
-                    voter.mailingAddressChange ? (
-                      <s>Mailing Address</s>
-                    ) : (
-                      'Mailing Address'
-                    )
-                  }
-                >
-                  <VoterMailingAddress
-                    voter={voter}
-                    style={
-                      voter.mailingAddressChange && {
-                        textDecoration: 'line-through',
-                      }
-                    }
-                  />
-                </LabelledText>
-              )}
-              {voter.mailingAddressChange && (
-                <LabelledText label="Updated Mailing Address">
-                  <MailingAddressChange address={voter.mailingAddressChange} />
-                </LabelledText>
-              )}
+                {voter.mailingAddressChange && (
+                  <LabelledText label="Updated Mailing Address">
+                    <MailingAddressChange
+                      address={voter.mailingAddressChange}
+                    />
+                  </LabelledText>
+                )}
 
-              <LabelledText label="Voter ID">{voter.voterId}</LabelledText>
-            </Column>
+                <LabelledText label="Voter ID">{voter.voterId}</LabelledText>
+              </Column>
+            </Row>
           </Card>
           <Row style={{ justifyContent: 'space-between' }}>
             {isAbsenteeMode ? (
@@ -295,13 +311,20 @@ export function VoterConfirmScreen({
             assert(isIdentificationMethodComplete(identificationMethod));
             if (voter.isInactive) {
               setShowInactiveVoterModal(true);
+            } else if (partySelectionRequired) {
+              onConfirmVoterIdentity(voterId, identificationMethod);
             } else {
-              onConfirm(identificationMethod);
+              onConfirmCheckIn(
+                voterId,
+                identificationMethod,
+                // No party selection required for voters with declared party
+                voter.party
+              );
             }
           }}
           style={{ flex: 1 }}
         >
-          Confirm Check-In
+          Confirm {partySelectionRequired ? 'Identity' : 'Check-In'}
         </Button>
         <Button onPress={onCancel} style={{ flex: 1 }}>
           Cancel
@@ -318,10 +341,19 @@ export function VoterConfirmScreen({
                 variant="danger"
                 onPress={() => {
                   assert(isIdentificationMethodComplete(identificationMethod));
-                  onConfirm(identificationMethod);
+                  if (partySelectionRequired) {
+                    onConfirmVoterIdentity(voterId, identificationMethod);
+                  } else {
+                    onConfirmCheckIn(
+                      voterId,
+                      identificationMethod,
+                      // No party selection required for voters with declared party
+                      voter.party
+                    );
+                  }
                 }}
               >
-                Confirm Check-In
+                Confirm {partySelectionRequired ? 'Identity' : 'Check-In'}
               </Button>
               <Button onPress={closeInactiveVoterModal}>Cancel</Button>
             </React.Fragment>

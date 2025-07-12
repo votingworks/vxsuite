@@ -55,12 +55,20 @@ export type VoterIdentificationMethod =
       state: string;
     };
 
+export type PartyAbbreviation = 'DEM' | 'REP' | 'UND';
+export const PartyAbbreviationSchema = z.union([
+  z.literal('DEM'),
+  z.literal('REP'),
+  z.literal('UND'),
+]);
+
 export interface VoterCheckIn {
   identificationMethod: VoterIdentificationMethod;
   isAbsentee: boolean;
   timestamp: string;
   machineId: string;
   receiptNumber: number;
+  ballotParty: PartyAbbreviation;
 }
 
 export const VoterCheckInSchema: z.ZodSchema<VoterCheckIn> = z.object({
@@ -77,9 +85,9 @@ export const VoterCheckInSchema: z.ZodSchema<VoterCheckIn> = z.object({
   timestamp: z.string(),
   machineId: z.string(),
   receiptNumber: z.number(),
+  ballotParty: PartyAbbreviationSchema,
 });
 
-export type PartyAbbreviation = 'DEM' | 'REP' | 'UND';
 export interface Voter {
   voterId: string;
   lastName: string;
@@ -228,7 +236,7 @@ export interface VoterRegistration extends VoterRegistrationRequest {
 
 export const VoterRegistrationSchema: z.ZodSchema<VoterRegistration> =
   VoterAddressChangeSchemaInternal.merge(VoterNameChangeSchemaInternal).extend({
-    party: z.union([z.literal('DEM'), z.literal('REP'), z.literal('UND')]),
+    party: PartyAbbreviationSchema,
     timestamp: z.string(),
     voterId: z.string(),
     precinct: z.string(),
@@ -262,7 +270,7 @@ export const VoterSchema: z.ZodSchema<Voter> = z.object({
   mailingState: z.string(),
   mailingZip5: z.string(),
   mailingZip4: z.string(),
-  party: z.union([z.literal('DEM'), z.literal('REP'), z.literal('UND')]),
+  party: PartyAbbreviationSchema,
   precinct: z.string(),
   checkIn: VoterCheckInSchema.optional(),
   registrationEvent: VoterRegistrationSchema.optional(),
@@ -487,7 +495,11 @@ export type ConfigurationStatus =
   | 'recently-unconfigured'
   | 'network-conflicting-pollbook-packages-match-card';
 
-export type VoterCheckInError = 'already_checked_in';
+export type VoterCheckInError =
+  | 'already_checked_in'
+  | 'undeclared_voter_missing_ballot_party'
+  | 'mismatched_party_selection'
+  | 'unknown_voter_party';
 
 export interface DuplicateVoterError {
   type: 'duplicate-voter';

@@ -1,9 +1,13 @@
 // Helper to generate the CSV contents for the Voter History export.
 
 import { stringify } from 'csv-stringify/sync';
+import { Election } from '@votingworks/types';
 import { Voter } from './types';
 
-export function generateVoterHistoryCsvContent(voters: Voter[]): string {
+export function generateVoterHistoryCsvContent(
+  voters: Voter[],
+  election: Election
+): string {
   const voterActivity = voters
     .filter(
       (voter) =>
@@ -49,6 +53,8 @@ export function generateVoterHistoryCsvContent(voters: Voter[]): string {
           voter.checkIn?.identificationMethod.type === 'outOfStateLicense'
             ? voter.checkIn.identificationMethod.state
             : '',
+        'Party Choice':
+          election.type === 'primary' ? voter.checkIn?.ballotParty || '' : '',
       };
     });
 

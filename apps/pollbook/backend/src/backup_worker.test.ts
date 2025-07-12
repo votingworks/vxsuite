@@ -23,10 +23,12 @@ test('can export paper backup checklist for multi precinct election', async () =
   store.recordVoterCheckIn({
     voterId: 'abigail',
     identificationMethod: { type: 'default' },
+    ballotParty: 'DEM',
   });
   store.recordVoterCheckIn({
     voterId: 'bob',
     identificationMethod: { type: 'outOfStateLicense', state: 'CA' },
+    ballotParty: 'REP',
   });
 
   // Create mock events from other pollbooks to simulate a populated cover page.

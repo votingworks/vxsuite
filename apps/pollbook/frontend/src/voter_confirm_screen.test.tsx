@@ -24,17 +24,19 @@ let unmount: () => void;
 const mockVoterId = '123';
 let voter: Voter;
 let onCancel: ReturnType<typeof vi.fn>;
-let onConfirm: ReturnType<typeof vi.fn>;
+let onConfirmCheckIn: ReturnType<typeof vi.fn>;
+let onConfirmVoterIdentity: ReturnType<typeof vi.fn>;
 
 const electionDefinition =
   electionMultiPartyPrimaryFixtures.readElectionDefinition();
 const precinct = electionDefinition.election.precincts[0].id;
 
 beforeEach(() => {
-  voter = createMockVoter(mockVoterId, 'ABIGAIL', 'ADAMS', precinct);
+  voter = createMockVoter(mockVoterId, 'ABIGAIL', 'ADAMS', precinct, 'REP');
   vi.clearAllMocks();
   onCancel = vi.fn();
-  onConfirm = vi.fn();
+  onConfirmCheckIn = vi.fn();
+  onConfirmVoterIdentity = vi.fn();
   apiMock = createApiMock();
   apiMock.expectGetVoter(voter);
   apiMock.setElection(electionDefinition, precinct);
@@ -65,7 +67,8 @@ async function renderComponent({
       voterId={mockVoterId}
       isAbsenteeMode={isAbsenteeMode}
       onCancel={onCancel}
-      onConfirm={onConfirm}
+      onConfirmCheckIn={onConfirmCheckIn}
+      onConfirmVoterIdentity={onConfirmVoterIdentity}
       election={election}
       configuredPrecinctId={configuredPrecinctId}
     />,
@@ -76,7 +79,8 @@ async function renderComponent({
   unmount = renderResult.unmount;
 
   await screen.findByRole('heading', { name: 'Confirm Voter Identity' });
-  await screen.findByText('ABIGAIL ADAMS');
+  const voterToCheck = voterOverride ?? voter;
+  await screen.findByText(`${voterToCheck.firstName} ${voterToCheck.lastName}`);
 }
 
 test('renders voter information correctly', async () => {
@@ -84,7 +88,7 @@ test('renders voter information correctly', async () => {
 
   // Check voter details are displayed
   screen.getByText('ABIGAIL ADAMS');
-  screen.getByText('Undeclared');
+  screen.getByText('Republican');
   screen.getByText(voter.voterId);
   screen.getByText(/123 Main St/);
   // This voter does not have a mailing address so it should not be displayed
@@ -109,7 +113,7 @@ test('renders voter information correctly - with mailing address', async () => {
 
   // Check voter details are displayed
   screen.getByText('ABIGAIL ADAMS');
-  screen.getByText('Undeclared');
+  screen.getByText('Republican');
   screen.getByText(voter.voterId);
   screen.getByText(/123 Main St/);
   // This voter does not have a mailing address so it should not be displayed
@@ -124,14 +128,6 @@ test('shows absentee mode callout when in absentee mode', async () => {
   await renderComponent({ isAbsenteeMode: true });
 
   screen.getByText('Absentee Mode');
-});
-
-test('shows warning callout for active voters in non-absentee mode', async () => {
-  await renderComponent({ isAbsenteeMode: false });
-
-  screen.getByText(
-    /Read the voter's information aloud to confirm their identity/
-  );
 });
 
 test('shows flag callout for inactive voters', async () => {
@@ -151,7 +147,12 @@ test('happy path - active voter check-in with default identification', async () 
   userEvent.click(confirmButton);
 
   const expectedIdentification: VoterIdentificationMethod = { type: 'default' };
-  expect(onConfirm).toHaveBeenCalledWith(expectedIdentification);
+  const expectedParty = voter.party;
+  expect(onConfirmCheckIn).toHaveBeenCalledWith(
+    mockVoterId,
+    expectedIdentification,
+    expectedParty
+  );
 });
 
 test('happy path - active voter check-in in absentee mode', async () => {
@@ -164,7 +165,12 @@ test('happy path - active voter check-in in absentee mode', async () => {
   userEvent.click(confirmButton);
 
   const expectedIdentification: VoterIdentificationMethod = { type: 'default' };
-  expect(onConfirm).toHaveBeenCalledWith(expectedIdentification);
+  const expectedParty = voter.party;
+  expect(onConfirmCheckIn).toHaveBeenCalledWith(
+    mockVoterId,
+    expectedIdentification,
+    expectedParty
+  );
 });
 
 test('out-of-state identification method', async () => {
@@ -193,7 +199,12 @@ test('out-of-state identification method', async () => {
     type: 'outOfStateLicense',
     state: 'CA',
   };
-  expect(onConfirm).toHaveBeenCalledWith(expectedIdentification);
+  const expectedParty = voter.party;
+  expect(onConfirmCheckIn).toHaveBeenCalledWith(
+    mockVoterId,
+    expectedIdentification,
+    expectedParty
+  );
 });
 
 test('inactive voter confirmation modal - confirm check-in', async () => {
@@ -217,7 +228,12 @@ test('inactive voter confirmation modal - confirm check-in', async () => {
   userEvent.click(modalConfirmButton);
 
   const expectedIdentification: VoterIdentificationMethod = { type: 'default' };
-  expect(onConfirm).toHaveBeenCalledWith(expectedIdentification);
+  const expectedParty = voter.party;
+  expect(onConfirmCheckIn).toHaveBeenCalledWith(
+    mockVoterId,
+    expectedIdentification,
+    expectedParty
+  );
 });
 
 test('inactive voter confirmation modal - close modal', async () => {
@@ -237,11 +253,11 @@ test('inactive voter confirmation modal - close modal', async () => {
   const closeButton = within(modal).getButton('Cancel');
   userEvent.click(closeButton);
 
-  // Modal should close and onConfirm should not be called
+  // Modal should close and onConfirmCheckIn should not be called
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).toBeNull();
   });
-  expect(onConfirm).not.toHaveBeenCalled();
+  expect(onConfirmCheckIn).not.toHaveBeenCalled();
 });
 
 test('cancel button calls onCancel', async () => {
@@ -421,7 +437,8 @@ test('returns null when voter query is not successful', () => {
       voterId={mockVoterId}
       isAbsenteeMode={false}
       onCancel={onCancel}
-      onConfirm={onConfirm}
+      onConfirmCheckIn={onConfirmCheckIn}
+      onConfirmVoterIdentity={onConfirmVoterIdentity}
       election={electionDefinition.election}
       configuredPrecinctId={precinct}
     />,
@@ -464,7 +481,12 @@ test('unchecking out-of-state ID returns to default identification', async () =>
   userEvent.click(confirmButton);
 
   const expectedIdentification: VoterIdentificationMethod = { type: 'default' };
-  expect(onConfirm).toHaveBeenCalledWith(expectedIdentification);
+  const expectedParty = voter.party;
+  expect(onConfirmCheckIn).toHaveBeenCalledWith(
+    mockVoterId,
+    expectedIdentification,
+    expectedParty
+  );
 });
 
 test('displays updated precinct after address change', async () => {
@@ -518,6 +540,24 @@ test('disables confirm check-in and out-of-state ID checkbox if precincts do not
   screen.getByText(
     /The voter cannot be checked in because their address is in another precinct/
   );
+});
+
+test('requires ballot party selection if voter party is undeclared', async () => {
+  const undeclaredVoter = createMockVoter(
+    mockVoterId,
+    'ULYSSES',
+    'UNDECLARED',
+    precinct,
+    'UND'
+  );
+  await renderComponent({ voterOverride: undeclaredVoter });
+
+  const confirmButton = screen.getButton('Confirm Identity');
+  userEvent.click(confirmButton);
+  expect(onConfirmVoterIdentity).toHaveBeenCalledOnce();
+  expect(onConfirmVoterIdentity).toHaveBeenLastCalledWith(mockVoterId, {
+    type: 'default',
+  });
 });
 
 test('precinct information not shown in single precinct election', async () => {
