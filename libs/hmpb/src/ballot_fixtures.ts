@@ -23,6 +23,7 @@ import {
   renderAllBallotsAndCreateElectionDefinition,
 } from './render_ballot';
 import { vxDefaultBallotTemplate } from './ballot_templates/vx_default_ballot_template';
+import * as timingMarkOnlyTemplate from './ballot_templates/timing_mark_only_template';
 import { Renderer } from './renderer';
 import {
   NhBallotProps,
@@ -539,6 +540,43 @@ export const nhGeneralElectionFixtures = (() => {
       }
 
       return await Promise.all(specs.map(generateFixtures));
+    },
+  };
+})();
+
+export const timingMarkGridOnlyFixtures = (() => {
+  function specPaths(spec: { paperSize: HmpbBallotPaperSize }): {
+    dir: string;
+    pdf: string;
+  } {
+    const dir = spec.paperSize;
+    return {
+      dir,
+      pdf: join(dir, 'timing-mark-grid-only.pdf'),
+    };
+  }
+
+  return {
+    fixtureSpecs: [
+      { paperSize: HmpbBallotPaperSize.Letter },
+      { paperSize: HmpbBallotPaperSize.Legal },
+      { paperSize: HmpbBallotPaperSize.Custom17 },
+      { paperSize: HmpbBallotPaperSize.Custom19 },
+      { paperSize: HmpbBallotPaperSize.Custom22 },
+    ],
+
+    specPaths,
+
+    async generate(
+      renderer: Renderer,
+      spec: { paperSize: HmpbBallotPaperSize }
+    ): Promise<{ pdf: Uint8Array }> {
+      const document = await timingMarkOnlyTemplate.render(
+        renderer,
+        spec.paperSize
+      );
+      debug(`Generating: timing-mark-grid-only@${spec.paperSize}`);
+      return { pdf: await document.renderToPdf() };
     },
   };
 })();
