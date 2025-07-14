@@ -239,7 +239,7 @@ test('all methods require authentication', async () => {
 
     // Special case for the /files endpoint, which doesn't go through the Grout API
     const response = await fetch(`${baseUrl}/files/some-org-id/some-file-path`);
-    expect(response.status).toEqual(500);
+    expect(response.status).toEqual(400);
     expect(await response.json()).toEqual({ message: 'auth:unauthorized' });
   });
 });
@@ -1885,11 +1885,20 @@ test('Election package management', async () => {
   )![1];
   expect(electionPackageAfterExport.url).toContain(electionHashes);
 
+  // Check that a bad URL returns an error
+  await suppressingConsoleOutput(async () => {
+    const badUrlResponse = await fetch(electionPackageUrl + 'whoops');
+    expect(badUrlResponse.status).toEqual(500);
+    expect(await badUrlResponse.json()).toEqual({
+      message: '{"type":"undefined-body"}',
+    });
+  });
+
   // Check that other org users can't access the package
   await suppressingConsoleOutput(async () => {
     auth0.setLoggedInUser(anotherNonVxUser);
     const otherOrgResponse = await fetch(electionPackageUrl);
-    expect(otherOrgResponse.status).toEqual(500);
+    expect(otherOrgResponse.status).toEqual(400);
     expect(await otherOrgResponse.json()).toEqual({
       message: 'auth:forbidden',
     });
