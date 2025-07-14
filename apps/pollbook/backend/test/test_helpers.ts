@@ -17,6 +17,7 @@ import {
   EventType,
   PollbookEventBase,
   ValidStreetInfo,
+  PartyAbbreviation,
 } from '../src/types';
 import { PeerStore } from '../src/peer_store';
 
@@ -60,12 +61,26 @@ export function createVoter(
     isInactive: false,
   };
 }
+
 export function createVoterCheckInEvent(
   receiptNumber: number,
   machineId: string,
   voterId: string,
   hlcTimestamp: HlcTimestamp
 ): VoterCheckInEvent {
+  const match = voterId.match(/voter-([0-9]+)/);
+  let ballotParty: PartyAbbreviation;
+  if (!match) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      'Unexpected voter ID format may result in uneven distribution of declared party in check-ins'
+    );
+    ballotParty = 'DEM';
+  } else {
+    const idNumber = Number.parseInt(match[0], 10);
+    ballotParty = idNumber % 2 === 0 ? 'DEM' : 'REP';
+  }
+
   const timestamp = new Date().toISOString();
   return {
     receiptNumber,
@@ -79,6 +94,7 @@ export function createVoterCheckInEvent(
       machineId,
       isAbsentee: false,
       receiptNumber,
+      ballotParty,
     },
   };
 }
@@ -187,8 +203,10 @@ export function getTestElectionDefinition(): ElectionDefinition {
   return testElectionDefinition;
 }
 
-export function setupTestElectionAndVoters(store: Store): void {
-  const testElectionDefinition = getTestElectionDefinition();
+export function setupTestElectionAndVoters(
+  store: Store,
+  electionDefinition?: ElectionDefinition
+): void {
   const testVoters = [
     createVoter('abigail', 'Abigail', 'Adams'),
     createVoter('bob', 'Bob', 'Smith'),
@@ -208,7 +226,7 @@ export function setupTestElectionAndVoters(store: Store): void {
     },
   ];
   store.setElectionAndVoters(
-    testElectionDefinition,
+    electionDefinition ?? getTestElectionDefinition(),
     'mock-package-hash',
     testStreetInfo,
     testVoters

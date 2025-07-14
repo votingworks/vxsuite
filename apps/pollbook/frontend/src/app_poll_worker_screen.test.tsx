@@ -4,6 +4,8 @@ import { Election, ElectionDefinition } from '@votingworks/types';
 import {
   electionFamousNames2021Fixtures,
   electionSimpleSinglePrecinctFixtures,
+  readMultiPartyPrimaryElection,
+  readMultiPartyPrimaryElectionDefinition,
 } from '@votingworks/fixtures';
 import {
   AamvaDocument,
@@ -32,6 +34,11 @@ const singlePrecinctElectionDefinition: ElectionDefinition =
   electionSimpleSinglePrecinctFixtures.readElectionDefinition();
 const singlePrecinct = singlePrecinctElectionDefinition.election.precincts[0];
 
+const multiPartyPrimaryElectionDefinition: ElectionDefinition =
+  readMultiPartyPrimaryElectionDefinition();
+const multiPartyPrimaryElection: Election = readMultiPartyPrimaryElection();
+const primaryPrecinct = multiPartyPrimaryElection.precincts[0];
+
 describe('PollWorkerScreen', () => {
   beforeEach(() => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
@@ -44,7 +51,7 @@ describe('PollWorkerScreen', () => {
     apiMock.mockApiClient.assertComplete();
   });
 
-  test('basic e2e check in flow works', async () => {
+  test('basic e2e check in flow works for general election', async () => {
     apiMock.expectGetDeviceStatuses();
     apiMock.authenticateAsPollWorker(famousNamesElection);
     apiMock.setElection(famousNamesElectionDefinition);
@@ -124,9 +131,117 @@ describe('PollWorkerScreen', () => {
     await screen.findByText('Confirm Voter Identity');
 
     const confirmButton = screen.getByText('Confirm Check-In');
-    apiMock.expectCheckInVoter(voter);
+    apiMock.expectCheckInVoter(voter, voter.party);
     apiMock.expectGetVoter(voter);
     userEvent.click(confirmButton);
+    await screen.findByText('Voter Checked In');
+
+    apiMock.expectSearchVotersWithResults({ firstName: '', lastName: '' }, []);
+    act(() => {
+      vi.advanceTimersByTime(AUTOMATIC_FLOW_STATE_RESET_DELAY_MS);
+    });
+    expect(screen.queryByText('Voter Checked In')).toBeNull();
+
+    unmount();
+  });
+
+  test('primary election e2e flow with party selection', async () => {
+    apiMock.expectGetDeviceStatuses();
+    apiMock.authenticateAsPollWorker(multiPartyPrimaryElection);
+    apiMock.setElection(multiPartyPrimaryElectionDefinition);
+    const { unmount } = render(<App apiClient={apiMock.mockApiClient} />);
+    await screen.findByText('Connect printer to continue.');
+
+    apiMock.setPrinterStatus(true);
+    apiMock.setIsAbsenteeMode(false);
+    await screen.findByText('No Precinct Selected');
+
+    apiMock.setElection(
+      multiPartyPrimaryElectionDefinition,
+      multiPartyPrimaryElection.precincts[0].id
+    );
+
+    apiMock.expectGetCheckInCounts({ allMachines: 25, thisMachine: 5 });
+    await vi.waitFor(() => {
+      screen.getByText('Check-In');
+    });
+    apiMock.expectGetScannedIdDocument();
+    apiMock.expectSearchVotersNull({});
+
+    await screen.findByText('Total Check-ins');
+    const total = screen.getByTestId('total-check-ins');
+    within(total).getByText('25');
+    const machine = screen.getByTestId('machine-check-ins');
+    within(machine).getByText('5');
+
+    apiMock.expectSearchVotersTooMany({ firstName: '', lastName: 'SM' }, 153);
+    const lastNameInput = screen.getByLabelText('Last Name');
+    userEvent.type(lastNameInput, 'SM');
+    act(() => {
+      vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
+    });
+    await screen.findByText(
+      'Voters matched: 153. Refine your search further to view results.'
+    );
+
+    const voter = createMockVoter(
+      '123',
+      'Abigail',
+      'Adams',
+      primaryPrecinct.id
+    );
+    const voterWrongPrecinct = createMockVoter(
+      '124',
+      'Abigail',
+      'Addams',
+      multiPartyPrimaryElection.precincts[1].id
+    );
+
+    apiMock.expectSearchVotersWithResults(
+      { firstName: 'ABI', lastName: 'AD' },
+      [voter, voterWrongPrecinct]
+    );
+    userEvent.clear(lastNameInput);
+    userEvent.type(lastNameInput, 'AD');
+    const firstNameInput = screen.getByLabelText('First Name');
+    userEvent.type(firstNameInput, 'ABI');
+    act(() => {
+      vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
+    });
+    const firstRow = await screen.findByTestId('voter-row#123');
+    within(firstRow).getByText(/Adams, Abigail/i);
+    within(firstRow).getByText(
+      new RegExp(multiPartyPrimaryElection.precincts[0].name, 'i')
+    );
+    const checkInButton = screen.getByTestId('check-in-button#123');
+    const checkInButtonWrongPrecinct = screen.getByTestId(
+      'check-in-button#124'
+    );
+    within(checkInButton).getByText('Start Check-In');
+    within(checkInButtonWrongPrecinct).getByText('View Details');
+
+    apiMock.expectGetVoter(voter);
+    userEvent.click(checkInButton);
+    await screen.findByRole('heading', { name: 'Confirm Voter Identity' });
+
+    const confirmIdentityButton = screen.getButton('Confirm Identity');
+    userEvent.click(confirmIdentityButton);
+
+    await screen.findByRole('heading', { name: 'Select Party' });
+
+    // Test back button
+    userEvent.click(screen.getButton('Back'));
+    await screen.findByRole('heading', { name: 'Confirm Voter Identity' });
+    userEvent.click(screen.getButton('Confirm Identity'));
+
+    const confirmCheckInButton = screen.getButton('Confirm Check-In');
+    expect(confirmCheckInButton).toBeDisabled();
+    userEvent.click(screen.getButton('Democratic'));
+    expect(confirmCheckInButton).not.toBeDisabled();
+
+    apiMock.expectCheckInVoter(voter, 'DEM');
+    apiMock.expectGetVoter(voter);
+    userEvent.click(confirmCheckInButton);
     await screen.findByText('Voter Checked In');
 
     apiMock.expectSearchVotersWithResults({ firstName: '', lastName: '' }, []);
@@ -301,7 +416,7 @@ describe('PollWorkerScreen', () => {
       await screen.findByText('Confirm Voter Identity');
 
       const confirmButton = screen.getByText('Confirm Check-In');
-      apiMock.expectCheckInVoterError(voter, testCase.error);
+      apiMock.expectCheckInVoterError(voter, testCase.error, voter.party);
       userEvent.click(confirmButton);
       await screen.findByText(testCase.expectedMessage);
 

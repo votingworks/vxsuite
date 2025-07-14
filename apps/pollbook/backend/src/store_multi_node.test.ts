@@ -67,6 +67,7 @@ test('stores will not sync when not configured properly', () => {
   localA.recordVoterCheckIn({
     voterId: 'bob',
     identificationMethod: { type: 'default' },
+    ballotParty: 'DEM',
   });
   expect(localA.getCheckInCount()).toEqual(1);
   expect(peerA.getCheckInCount()).toEqual(1);
@@ -129,6 +130,7 @@ test('offline undo with later real time check in', async () => {
   localA.recordVoterCheckIn({
     voterId: 'bob',
     identificationMethod: { type: 'default' },
+    ballotParty: 'DEM',
   });
   expect(localA.getCheckInCount()).toEqual(1);
   expect(peerA.getCheckInCount()).toEqual(1);
@@ -137,6 +139,7 @@ test('offline undo with later real time check in', async () => {
   localB.recordVoterCheckIn({
     voterId: 'charlie',
     identificationMethod: { type: 'outOfStateLicense', state: 'al' },
+    ballotParty: 'REP',
   });
   expect(localB.getCheckInCount()).toEqual(1);
   expect(peerB.getCheckInCount()).toEqual(1);
@@ -160,6 +163,7 @@ test('offline undo with later real time check in', async () => {
   localB.recordVoterCheckIn({
     voterId: 'sue',
     identificationMethod: { type: 'outOfStateLicense', state: 'ca' },
+    ballotParty: 'REP',
   });
   localB.recordUndoVoterCheckIn({ voterId: 'sue', reason: '' });
 
@@ -170,6 +174,7 @@ test('offline undo with later real time check in', async () => {
   localA.recordVoterCheckIn({
     voterId: 'sue',
     identificationMethod: { type: 'default' },
+    ballotParty: 'DEM',
   });
 
   // PollbookB comes back online
@@ -199,6 +204,7 @@ test('offline undo with later real time check in', async () => {
   expect((voters as Voter[])[0].checkIn).toEqual({
     timestamp: expect.any(String),
     identificationMethod: { type: 'default' },
+    ballotParty: 'DEM',
     machineId: 'pollbook-a',
     receiptNumber: 2,
     isAbsentee: false,
@@ -243,6 +249,7 @@ test('bad system time nodes should be able to undo', () => {
   localB.recordVoterCheckIn({
     voterId: 'bob',
     identificationMethod: { type: 'default' },
+    ballotParty: 'DEM',
   });
   expect(localB.getCheckInCount()).toEqual(1);
   expect(peerB.getCheckInCount()).toEqual(1);
@@ -332,6 +339,7 @@ test("getting a offline machines events when I've synced with the online machine
   localA.recordVoterCheckIn({
     voterId: 'alice',
     identificationMethod: { type: 'default' },
+    ballotParty: 'DEM',
   });
   expect(localA.getCheckInCount()).toEqual(1);
   expect(peerA.getCheckInCount()).toEqual(1);
@@ -340,6 +348,7 @@ test("getting a offline machines events when I've synced with the online machine
   localB.recordVoterCheckIn({
     voterId: 'bob',
     identificationMethod: { type: 'default' },
+    ballotParty: 'DEM',
   });
   expect(localB.getCheckInCount()).toEqual(1);
   expect(peerB.getCheckInCount()).toEqual(1);
@@ -348,6 +357,7 @@ test("getting a offline machines events when I've synced with the online machine
   localC.recordVoterCheckIn({
     voterId: 'carl',
     identificationMethod: { type: 'default' },
+    ballotParty: 'DEM',
   });
   expect(localC.getCheckInCount()).toEqual(1);
   expect(peerC.getCheckInCount()).toEqual(1);
@@ -370,6 +380,7 @@ test("getting a offline machines events when I've synced with the online machine
   localC.recordVoterCheckIn({
     voterId: 'sue',
     identificationMethod: { type: 'default' },
+    ballotParty: 'DEM',
   });
 
   // Wait a bit to ensure physical timestamps will be different
@@ -379,10 +390,12 @@ test("getting a offline machines events when I've synced with the online machine
   localA.recordVoterCheckIn({
     voterId: 'dave',
     identificationMethod: { type: 'default' },
+    ballotParty: 'DEM',
   });
   localB.recordVoterCheckIn({
     voterId: 'eve',
     identificationMethod: { type: 'default' },
+    ballotParty: 'DEM',
   });
 
   // Sync events between PollbookA and PollbookB, PollbookC is "offline" and does not sync
@@ -415,6 +428,7 @@ test("getting a offline machines events when I've synced with the online machine
       voterId: 'carl',
       checkIn: expect.objectContaining({
         identificationMethod: { type: 'default' },
+        ballotParty: 'DEM',
         machineId: 'pollbook-c',
       }),
     }),
@@ -443,6 +457,7 @@ test("getting a offline machines events when I've synced with the online machine
       voterId: 'carl',
       checkIn: expect.objectContaining({
         identificationMethod: { type: 'default' },
+        ballotParty: 'DEM',
         machineId: 'pollbook-c',
       }),
     }),
@@ -478,6 +493,7 @@ test('last write wins on double check ins', async () => {
   localA.recordVoterCheckIn({
     voterId: 'bob',
     identificationMethod: { type: 'default' },
+    ballotParty: 'DEM',
   });
   expect(localA.getCheckInCount()).toEqual(1);
 
@@ -487,6 +503,7 @@ test('last write wins on double check ins', async () => {
   localB.recordVoterCheckIn({
     voterId: 'bob',
     identificationMethod: { type: 'default' },
+    ballotParty: 'DEM',
   });
   expect(localB.getCheckInCount()).toEqual(1);
 
@@ -565,6 +582,7 @@ test('last write wins even when there is bad system time after a sync', () => {
   localB.recordVoterCheckIn({
     voterId: 'bob',
     identificationMethod: { type: 'default' },
+    ballotParty: 'DEM',
   });
   expect(localB.getCheckInCount()).toEqual(1);
 
@@ -579,6 +597,7 @@ test('last write wins even when there is bad system time after a sync', () => {
   localA.recordVoterCheckIn({
     voterId: 'bob',
     identificationMethod: { type: 'default' },
+    ballotParty: 'DEM',
   });
   expect(localA.getCheckInCount()).toEqual(1);
   expect(
@@ -679,6 +698,7 @@ test('simultaneous events are handled properly', () => {
   localA.recordVoterCheckIn({
     voterId: 'charlie',
     identificationMethod: { type: 'default' },
+    ballotParty: 'DEM',
   });
   expect(localA.getCheckInCount()).toEqual(1);
   localA.recordUndoVoterCheckIn({ voterId: 'charlie', reason: '' });
@@ -688,6 +708,7 @@ test('simultaneous events are handled properly', () => {
   localB.recordVoterCheckIn({
     voterId: 'bob',
     identificationMethod: { type: 'default' },
+    ballotParty: 'DEM',
   });
   expect(localB.getCheckInCount()).toEqual(1);
 
@@ -695,6 +716,7 @@ test('simultaneous events are handled properly', () => {
   localC.recordVoterCheckIn({
     voterId: 'sue',
     identificationMethod: { type: 'default' },
+    ballotParty: 'DEM',
   });
   expect(localC.getCheckInCount()).toEqual(1);
 
@@ -737,6 +759,7 @@ test('late-arriving older event with a more recent undo', () => {
   localB.recordVoterCheckIn({
     voterId: 'oscar',
     identificationMethod: { type: 'default' },
+    ballotParty: 'DEM',
   });
   expect(localB.getCheckInCount()).toEqual(1);
 
@@ -759,6 +782,7 @@ test('late-arriving older event with a more recent undo', () => {
   localC.recordVoterCheckIn({
     voterId: 'penny',
     identificationMethod: { type: 'default' },
+    ballotParty: 'DEM',
   });
   expect(localC.getCheckInCount()).toEqual(1);
 
@@ -960,6 +984,7 @@ test('all possible events are synced', () => {
     localA.recordVoterCheckIn({
       voterId: voter.voterId,
       identificationMethod: { type: 'default' },
+      ballotParty: 'DEM',
     });
   }
   // Sync events between all pollbooks
@@ -1016,6 +1041,7 @@ test('register on A, check in on B, name/address change on C, sync all', () => {
   localB.recordVoterCheckIn({
     voterId: voter.voterId,
     identificationMethod: { type: 'default' },
+    ballotParty: 'DEM',
   });
   syncEventsForAllPollbooks([peerA, peerB, peerC]);
   // Name and address change on C
@@ -1218,6 +1244,7 @@ test('register, check in, then change name/address, sync', () => {
   localA.recordVoterCheckIn({
     voterId: voter.voterId,
     identificationMethod: { type: 'default' },
+    ballotParty: 'DEM',
   });
   // Name and address change on B
   localB.changeVoterName(voter.voterId, {
@@ -1354,6 +1381,7 @@ test('check in event on an offline machine BEFORE the mark inactive', async () =
   localB.recordVoterCheckIn({
     voterId: 'mia',
     identificationMethod: { type: 'default' },
+    ballotParty: 'DEM',
   });
   // Wait a bit to ensure the last event is before the next event.
   await sleep(10);
@@ -1400,6 +1428,7 @@ test('check in event on an offline machine AFTER the mark inactive', async () =>
   localB.recordVoterCheckIn({
     voterId: 'nia',
     identificationMethod: { type: 'default' },
+    ballotParty: 'DEM',
   });
   // Bring B online and sync
   peerB.setOnlineStatus(true);
@@ -1503,6 +1532,7 @@ test('cannot check in after mark inactive event is synced', () => {
   localB.recordVoterCheckIn({
     voterId: 'ina',
     identificationMethod: { type: 'default' },
+    ballotParty: 'DEM',
   });
   syncEventsForAllPollbooks([peerA, peerB]);
   // Both should see voter as inactive and NOT checked in

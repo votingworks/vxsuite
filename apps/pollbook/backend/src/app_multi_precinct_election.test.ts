@@ -94,6 +94,7 @@ test('check in a voter', async () => {
     const checkInResult = await localApiClient.checkInVoter({
       voterId: firstVoter.voterId,
       identificationMethod: { type: 'default' },
+      ballotParty: 'DEM',
     });
     expect(checkInResult.ok()).toEqual(undefined);
     expect(await localApiClient.haveElectionEventsOccurred()).toEqual(true);
@@ -107,6 +108,7 @@ test('check in a voter', async () => {
       timestamp: expect.any(String),
       machineId: TEST_MACHINE_ID,
       receiptNumber: 1,
+      ballotParty: 'DEM',
     });
 
     const receiptPdfPath = mockPrinterHandler.getLastPrintPath();
@@ -117,6 +119,7 @@ test('check in a voter', async () => {
     const checkInResultOos = await localApiClient.checkInVoter({
       voterId: secondVoter.voterId,
       identificationMethod: { type: 'outOfStateLicense', state: 'CA' },
+      ballotParty: 'DEM',
     });
     expect(checkInResultOos.ok()).toEqual(undefined);
 
@@ -129,6 +132,7 @@ test('check in a voter', async () => {
       timestamp: expect.any(String),
       machineId: TEST_MACHINE_ID,
       receiptNumber: 2,
+      ballotParty: 'DEM',
     });
 
     const receiptPdfPathOos = mockPrinterHandler.getLastPrintPath();
@@ -198,6 +202,7 @@ test('register a voter', async () => {
     const checkInResult = await localApiClient.checkInVoter({
       voterId: registerOk.voterId,
       identificationMethod: { type: 'default' },
+      ballotParty: 'REP',
     });
     expect(checkInResult.ok()).toEqual(undefined);
 
@@ -210,6 +215,7 @@ test('register a voter', async () => {
       timestamp: expect.any(String),
       receiptNumber: 2,
       machineId: TEST_MACHINE_ID,
+      ballotParty: 'REP',
     });
 
     const checkInReceiptPdfPath = mockPrinterHandler.getLastPrintPath();
@@ -235,6 +241,7 @@ test('register a voter', async () => {
         isAbsentee: false,
         timestamp: expect.any(String),
         machineId: TEST_MACHINE_ID,
+        ballotParty: 'REP',
       },
     });
   });
@@ -405,6 +412,7 @@ test('undo a voter check-in', async () => {
     const checkInResult = await localApiClient.checkInVoter({
       voterId: firstVoter.voterId,
       identificationMethod: { type: 'default' },
+      ballotParty: 'REP',
     });
     expect(checkInResult.isOk()).toBeTruthy();
 
@@ -563,6 +571,7 @@ test('register a voter, change name and address, and check in', async () => {
       const checkInResult = await localApiClient.checkInVoter({
         voterId: registerOk.voterId,
         identificationMethod: { type: 'default' },
+        ballotParty: 'DEM',
       });
       expect(checkInResult.ok()).toEqual(undefined);
 
@@ -585,6 +594,7 @@ test('register a voter, change name and address, and check in', async () => {
           timestamp: expect.any(String),
           receiptNumber: 6,
           machineId: TEST_MACHINE_ID,
+          ballotParty: 'DEM',
         },
       });
 
@@ -599,4 +609,92 @@ test('register a voter, change name and address, and check in', async () => {
       expect(eventsResult.events).toHaveLength(6);
     }
   );
+});
+
+test('an undeclared voter cannot check in as undeclared', async () => {
+  await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
+    workspace.store.setElectionAndVoters(
+      electionDefinition,
+      'mock-package-hash',
+      cityStreetNames,
+      cityVoters
+    );
+    mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+    expect(await localApiClient.haveElectionEventsOccurred()).toEqual(false);
+
+    const votersAbigail = await localApiClient.searchVoters({
+      searchParams: {
+        firstName: 'Abigail',
+        middleName: '',
+        lastName: 'Adams',
+        suffix: '',
+      },
+    });
+
+    assert(votersAbigail !== null);
+    assert(Array.isArray(votersAbigail));
+    expect((votersAbigail as Voter[]).length).toEqual(4);
+    const firstVoter = (votersAbigail as Voter[])[0];
+
+    const checkInResult = await localApiClient.checkInVoter({
+      voterId: firstVoter.voterId,
+      identificationMethod: { type: 'default' },
+      ballotParty: 'UND',
+    });
+    expect(checkInResult.err()).toEqual(
+      'undeclared_voter_missing_ballot_party'
+    );
+  });
+});
+
+test('a declared voter must check in party selection matching the declared party', async () => {
+  await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
+    workspace.store.setElectionAndVoters(
+      electionDefinition,
+      'mock-package-hash',
+      cityStreetNames,
+      cityVoters
+    );
+    mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+    expect(await localApiClient.haveElectionEventsOccurred()).toEqual(false);
+
+    workspace.store.setConfiguredPrecinct(currentPrecinctId);
+
+    const registrationData: VoterRegistrationRequest = {
+      firstName: 'Helena',
+      lastName: 'Eagen',
+      middleName: 'A',
+      suffix: '',
+      streetNumber: '17',
+      streetName: 'MAPLE AVE',
+      streetSuffix: '',
+      apartmentUnitNumber: '',
+      houseFractionNumber: '',
+      addressLine2: '',
+      addressLine3: '',
+      city: 'Manchester',
+      state: 'NH',
+      zipCode: '03101',
+      party: 'REP',
+      precinct: currentPrecinctId,
+    };
+
+    const registerResult = await localApiClient.registerVoter({
+      registrationData,
+      overrideNameMatchWarning: false,
+    });
+    const registerOk = registerResult.unsafeUnwrap();
+    expect(registerOk).toMatchObject({
+      firstName: 'Helena',
+      lastName: 'Eagen',
+      party: 'REP',
+    });
+
+    const checkInResult = await localApiClient.checkInVoter({
+      voterId: registerOk.voterId,
+      identificationMethod: { type: 'default' },
+      ballotParty: 'DEM',
+    });
+    expect(checkInResult.err()).toEqual('mismatched_party_selection');
+  });
 });

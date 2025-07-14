@@ -2445,6 +2445,9 @@ importers:
       '@votingworks/logging':
         specifier: workspace:*
         version: link:../../../libs/logging
+      '@votingworks/pollbook-backend':
+        specifier: workspace:*
+        version: link:../backend
       '@votingworks/types':
         specifier: workspace:*
         version: link:../../../libs/types
@@ -2581,9 +2584,6 @@ importers:
       '@votingworks/monorepo-utils':
         specifier: workspace:*
         version: link:../../../libs/monorepo-utils
-      '@votingworks/pollbook-backend':
-        specifier: workspace:*
-        version: link:../backend
       '@votingworks/printing':
         specifier: workspace:*
         version: link:../../../libs/printing

@@ -346,6 +346,7 @@ test('undo check-in', async () => {
       isAbsentee: false,
       receiptNumber: 0,
       machineId: 'test-machine-01',
+      ballotParty: 'REP',
     },
   };
 
@@ -390,6 +391,7 @@ test('reprint check-in receipt', async () => {
       isAbsentee: false,
       receiptNumber: 0,
       machineId: 'test-machine-01',
+      ballotParty: 'DEM',
     },
   };
   apiMock.expectGetVoter(checkedInVoter);
@@ -418,6 +420,7 @@ test('reprint check-in receipt - no printer', async () => {
       isAbsentee: false,
       receiptNumber: 0,
       machineId: 'test-machine-01',
+      ballotParty: 'DEM',
     },
   };
   apiMock.expectGetVoter(checkedInVoter);
@@ -439,6 +442,7 @@ test('reprint check-in receipt - error path', async () => {
       isAbsentee: false,
       receiptNumber: 0,
       machineId: 'test-machine-01',
+      ballotParty: 'REP',
     },
   };
   apiMock.expectGetVoter(checkedInVoter);

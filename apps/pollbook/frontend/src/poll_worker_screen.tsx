@@ -1,7 +1,14 @@
 import { useCallback, useState } from 'react';
-import { assertDefined, throwIllegalValue } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  Result,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import type {
+  PartyAbbreviation,
   VoterCheckInError,
+  VoterIdentificationMethod,
   VoterSearchParams,
 } from '@votingworks/pollbook-backend';
 import {
@@ -27,19 +34,26 @@ import {
 } from './nav_screen';
 import { Column, Row } from './layout';
 import {
-  checkInVoter,
   getDeviceStatuses,
   getIsAbsenteeMode,
   getVoter,
   getPollbookConfigurationInformation,
   getElection,
+  checkInVoter,
 } from './api';
 import { AbsenteeModeCallout, VoterName } from './shared_components';
 import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals';
+import { SelectPartyScreen } from './select_party_screen';
 
 type CheckInFlowState =
   | { step: 'search'; search: VoterSearchParams }
-  | { step: 'confirm'; voterId: string; search: VoterSearchParams }
+  | { step: 'confirm_identity'; voterId: string; search: VoterSearchParams }
+  | {
+      step: 'select_party';
+      voterId: string;
+      identificationMethod: VoterIdentificationMethod;
+      search: VoterSearchParams;
+    }
   | { step: 'printing' }
   | { step: 'success'; voterId: string }
   | { step: 'error'; errorType: VoterCheckInError };
@@ -100,6 +114,7 @@ export function VoterCheckInScreen(): JSX.Element | null {
   const [timeoutIdForFlowStateReset, setTimeoutIdForFlowStateReset] =
     useState<ReturnType<typeof setTimeout>>();
   const checkInVoterMutation = checkInVoter.useMutation();
+  const checkInVoterMutate = checkInVoterMutation.mutate;
   const getIsAbsenteeModeQuery = getIsAbsenteeMode.useQuery();
   const getElectionQuery = getElection.useQuery();
   const getPollbookConfigurationInformationQuery =
@@ -117,20 +132,76 @@ export function VoterCheckInScreen(): JSX.Element | null {
     setFlowState({ step: 'search', search });
   }, []);
 
-  const onSelect = useCallback(
+  const setConfirmIdentity = useCallback(
     (voterId: string) => {
-      if (flowState.step !== 'search') {
+      if (flowState.step !== 'search' && flowState.step !== 'select_party') {
         /* istanbul ignore next - @preserve */
         return;
       }
 
       setFlowState({
-        step: 'confirm',
+        step: 'confirm_identity',
         voterId,
         search: flowState.search,
       });
     },
     [flowState]
+  );
+
+  const onCancel = useCallback(() => {
+    const search = createEmptySearchParams(false);
+    if (
+      flowState.step === 'confirm_identity' ||
+      flowState.step === 'select_party'
+    ) {
+      // Change the search query to match what is displayed in the user-editable inputs.
+      // This prevents confusion stemming from search params not actually being
+      // displayed to the user.
+      search.firstName = flowState.search.firstName;
+      search.lastName = flowState.search.lastName;
+    }
+
+    setFlowState({
+      step: 'search',
+      search,
+    });
+  }, [flowState]);
+
+  const onConfirmCheckIn = useCallback(
+    (
+      voterId: string,
+      identificationMethod: VoterIdentificationMethod,
+      ballotParty: PartyAbbreviation
+    ) => {
+      setFlowState({ step: 'printing' });
+      checkInVoterMutate(
+        {
+          voterId,
+          identificationMethod,
+          ballotParty,
+        },
+        {
+          onSuccess: (result: Result<void, VoterCheckInError>) => {
+            assert(
+              flowState.step === 'confirm_identity' ||
+                flowState.step === 'select_party'
+            );
+            if (result.isOk()) {
+              setFlowState({
+                step: 'success',
+                voterId: flowState.voterId,
+              });
+              setTimeoutIdForFlowStateReset(
+                setTimeout(resetFlowState, AUTOMATIC_FLOW_STATE_RESET_DELAY_MS)
+              );
+            } else {
+              setFlowState({ step: 'error', errorType: result.err() });
+            }
+          },
+        }
+      );
+    },
+    [checkInVoterMutate, flowState, resetFlowState]
   );
 
   if (
@@ -154,56 +225,50 @@ export function VoterCheckInScreen(): JSX.Element | null {
           search={flowState.search}
           setSearch={setSearch}
           isAbsenteeMode={isAbsenteeMode}
-          onSelect={onSelect}
+          onSelect={setConfirmIdentity}
           election={election}
           configuredPrecinctId={configuredPrecinctId}
         />
       );
 
-    case 'confirm':
+    // Check-in can be confirmed at this step unless
+    //   (1) election is a primary and
+    //   (2) the voter's party is undeclared
+    case 'confirm_identity':
       return (
         <VoterConfirmScreen
           voterId={flowState.voterId}
           isAbsenteeMode={isAbsenteeMode}
           configuredPrecinctId={configuredPrecinctId}
           election={election}
-          onCancel={() =>
+          onCancel={onCancel}
+          // Called when party must be selected in next step before check-in is completed
+          onConfirmVoterIdentity={(
+            voterId: string,
+            identificationMethod: VoterIdentificationMethod
+          ) => {
             setFlowState({
-              step: 'search',
-              // Change the search query to match what is displayed in the user-editable inputs.
-              // This prevents confusion stemming from search params not actually being
-              // displayed to the user.
-              search: {
-                ...createEmptySearchParams(false),
-                firstName: flowState.search.firstName,
-                lastName: flowState.search.lastName,
-              },
-            })
-          }
-          onConfirm={(identificationMethod) => {
-            setFlowState({ step: 'printing' });
-            checkInVoterMutation.mutate(
-              { voterId: flowState.voterId, identificationMethod },
-              {
-                onSuccess: (result) => {
-                  if (result.isOk()) {
-                    setFlowState({
-                      step: 'success',
-                      voterId: flowState.voterId,
-                    });
-                    setTimeoutIdForFlowStateReset(
-                      setTimeout(
-                        resetFlowState,
-                        AUTOMATIC_FLOW_STATE_RESET_DELAY_MS
-                      )
-                    );
-                  } else {
-                    setFlowState({ step: 'error', errorType: result.err() });
-                  }
-                },
-              }
-            );
+              step: 'select_party',
+              voterId,
+              identificationMethod,
+              search: flowState.search,
+            });
           }}
+          // Called when check-in can be completed in this step
+          onConfirmCheckIn={onConfirmCheckIn}
+        />
+      );
+
+    // Step displayed only when
+    //   (1) election is a primary and
+    //   (2) the voter's party is undeclared
+    case 'select_party':
+      return (
+        <SelectPartyScreen
+          voterId={flowState.voterId}
+          identificationMethod={flowState.identificationMethod}
+          onConfirmCheckIn={onConfirmCheckIn}
+          onBack={() => setConfirmIdentity(flowState.voterId)}
         />
       );
 
@@ -243,6 +308,16 @@ export function VoterCheckInScreen(): JSX.Element | null {
       switch (flowState.errorType) {
         case 'already_checked_in':
           errorMessage = 'Voter Already Checked In';
+          break;
+        case 'mismatched_party_selection':
+          errorMessage =
+            "Voter's Declared Party Differs From Ballot Party Selection";
+          break;
+        case 'undeclared_voter_missing_ballot_party':
+          errorMessage = 'Undeclared Primary Voters Must Choose a Party Ballot';
+          break;
+        case 'unknown_voter_party':
+          errorMessage = 'Voter Has No Declared Party';
           break;
         default:
           /* istanbul ignore next - @preserve */
