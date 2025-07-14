@@ -1,4 +1,3 @@
-/* eslint-disable max-classes-per-file */
 /* eslint-disable no-underscore-dangle */
 import type Express from 'express';
 import {
@@ -180,12 +179,6 @@ export function createApi<
 }
 
 /**
- * Errors that are intended to catch misuse of Grout during development, rather
- * than runtime issues in production.
- */
-class GroutError extends Error {}
-
-/**
  * Errors that are intended to be thrown by middleware/RPC methods to indicate a
  * user error. These errors will not be logged as unexpected errors like generic
  * thrown errors. In general, these should only be used for general API error
@@ -193,6 +186,12 @@ class GroutError extends Error {}
  * return Result objects for domain-specific errors.
  */
 export class UserError extends Error {}
+
+function exitWithError(message: string): never {
+  // eslint-disable-next-line no-console
+  console.error(new Error(`Grout error: ${message}`));
+  process.exit(1);
+}
 
 /**
  * Creates an express Router with a route handler for each RPC method in a Grout
@@ -259,7 +258,7 @@ export function buildRouter(
       try {
         debug(`Call: ${methodName}(${request.body})`);
         if (!isString(request.body)) {
-          throw new GroutError(
+          return exitWithError(
             'Request body was parsed as something other than a string.' +
               " Make sure you haven't added any other body parsers upstream" +
               ' of the Grout router - e.g. app.use(express.json()).' +
@@ -270,7 +269,7 @@ export function buildRouter(
         input = deserialize(request.body);
 
         if (!(isObject(input) || input === undefined)) {
-          throw new GroutError(
+          return exitWithError(
             'Grout methods must be called with an object or undefined as the sole argument.' +
               ` The argument received was: ${JSON.stringify(input)}`
           );

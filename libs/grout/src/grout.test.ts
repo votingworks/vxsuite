@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable no-unused-expressions */
 /* eslint-disable @typescript-eslint/require-await */
 import { expect, test, vi } from 'vitest';
@@ -189,6 +190,19 @@ test('errors if RPC method doesnt have the correct signature', async () => {
   });
   const { baseUrl, server } = createTestApp(api);
   const client = createClient<typeof api>({ baseUrl });
+  vi.spyOn(process, 'exit').mockReturnValue(undefined as never);
+  vi.spyOn(console, 'error').mockReturnValue();
+  void client.sqrt(4);
+  await waitForExpect(() => {
+    expect(process.exit).toHaveBeenCalledTimes(1);
+    expect(process.exit).toHaveBeenCalledWith(1);
+    expect(console.error).toHaveBeenCalledTimes(1);
+    expect(console.error).toHaveBeenCalledWith(
+      new Error(
+        'Grout error: Grout methods must be called with an object or undefined as the sole argument. The argument received was: 4'
+      )
+    );
+  });
 
   async () => {
     // We can catch the wrong number of arguments when calling a method at compile time
@@ -196,9 +210,6 @@ test('errors if RPC method doesnt have the correct signature', async () => {
     await client.sqrt(4, 5);
   };
 
-  await expect(client.sqrt(4)).rejects.toThrow(
-    'Grout methods must be called with an object or undefined as the sole argument. The argument received was: 4'
-  );
   server.close();
 });
 
@@ -218,9 +229,20 @@ test('errors if app has upstream body-parsing middleware', async () => {
   const baseUrl = `http://localhost:${port}/api`;
   const client = createClient<typeof api>({ baseUrl });
 
-  await expect(client.getStuff()).rejects.toThrow(
-    'Request body was parsed as something other than a string. Make sure you haven\'t added any other body parsers upstream of the Grout router - e.g. app.use(express.json()). Body: {"__grout_type":"undefined","__grout_value":"undefined"}'
-  );
+  vi.spyOn(process, 'exit').mockReturnValue(undefined as never);
+  vi.spyOn(console, 'error').mockReturnValue();
+  void client.getStuff();
+  await waitForExpect(() => {
+    expect(process.exit).toHaveBeenCalledTimes(1);
+    expect(process.exit).toHaveBeenCalledWith(1);
+    expect(console.error).toHaveBeenCalledTimes(1);
+    expect(console.error).toHaveBeenCalledWith(
+      new Error(
+        'Grout error: Request body was parsed as something other than a string. Make sure you haven\'t added any other body parsers upstream of the Grout router - e.g. app.use(express.json()). Body: {"__grout_type":"undefined","__grout_value":"undefined"}'
+      )
+    );
+  });
+
   server.close();
 });
 
