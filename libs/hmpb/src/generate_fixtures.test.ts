@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
 import * as fs from 'node:fs';
+import { join } from 'node:path';
 import { HmpbBallotPaperSize } from '@votingworks/types';
 import { pdfToImages } from '@votingworks/image-utils';
 import { iter } from '@votingworks/basics';
@@ -10,6 +11,8 @@ import {
   vxGeneralElectionFixtures,
   nhGeneralElectionFixtures,
   vxPrimaryElectionFixtures,
+  timingMarkPaperFixtures,
+  fixturesDir,
 } from './ballot_fixtures';
 import { createPlaywrightRenderer } from './playwright_renderer';
 import { Renderer } from './renderer';
@@ -103,7 +106,7 @@ describe('fixtures are up to date - run `pnpm generate-fixtures` if this test fa
     );
   });
 
-  test('general election fixtures', async () => {
+  test('VX general election fixtures', async () => {
     const allFixtures = vxGeneralElectionFixtures;
     // Speed up CI tests by only checking two paper sizes
     const paperSizesToTest = process.env.CI
@@ -135,7 +138,7 @@ describe('fixtures are up to date - run `pnpm generate-fixtures` if this test fa
     }
   });
 
-  test(`primary election fixtures`, async () => {
+  test('VX primary election fixtures', async () => {
     const fixtures = vxPrimaryElectionFixtures;
     const generated = await vxPrimaryElectionFixtures.generate(renderer, {
       markedOnly: Boolean(process.env.CI),
@@ -187,6 +190,21 @@ describe('fixtures are up to date - run `pnpm generate-fixtures` if this test fa
         generated.markedBallotPdf,
         spec.markedBallotPath
       );
+    }
+  });
+
+  test('timing mark paper fixtures', async () => {
+    const fixtures = timingMarkPaperFixtures;
+
+    for (const spec of fixtures.fixtureSpecs) {
+      const generated = await fixtures.generate(renderer, spec);
+      const paths = fixtures.specPaths(spec);
+      const actualPdfPath = join(
+        fixturesDir,
+        'timing-mark-paper',
+        paths.pdf
+      );
+      await expectToMatchSavedPdf(generated.pdf, actualPdfPath);
     }
   });
 });

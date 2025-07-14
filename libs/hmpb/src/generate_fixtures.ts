@@ -6,11 +6,15 @@ import {
   HmpbBallotPaperSizeSchema,
   unsafeParse,
 } from '@votingworks/types';
+import assert from 'node:assert';
+import { dirname, join, normalize, relative } from 'node:path';
 import {
   AllBubbleBallotFixtures,
   allBubbleBallotFixtures,
 } from './all_bubble_ballot_fixtures';
 import {
+  fixturesDir,
+  timingMarkPaperFixtures,
   vxFamousNamesFixtures,
   vxGeneralElectionFixtures,
   nhGeneralElectionFixtures,
@@ -123,6 +127,28 @@ async function generateNhGeneralElectionFixtures(renderer: Renderer) {
   }
 }
 
+async function generateTimingMarkPaperFixtures(
+  renderer: Renderer,
+  paperSize: HmpbBallotPaperSize,
+  fixtureDir: string
+) {
+  const outputDir = normalize(fixtureDir);
+  const specPaths = timingMarkPaperFixtures.specPaths({ paperSize });
+  const specDir = join(outputDir, specPaths.dir);
+  assert(relative(outputDir, specDir).startsWith(specPaths.dir));
+  await rm(specDir, {
+    recursive: true,
+    force: true,
+  });
+  const generated = await timingMarkPaperFixtures.generate(renderer, {
+    paperSize,
+  });
+  const pdfPath = join(outputDir, specPaths.pdf);
+  assert(pdfPath.startsWith(`${outputDir}/`));
+  await mkdir(dirname(pdfPath), { recursive: true });
+  await writeFile(pdfPath, generated.pdf);
+}
+
 interface FixtureSpec {
   fixtureName: string;
   paperSize: HmpbBallotPaperSize;
@@ -138,6 +164,26 @@ const ALL_FIXTURE_SPECS: readonly FixtureSpec[] = [
   { fixtureName: 'vx-general-election', paperSize: HmpbBallotPaperSize.Letter },
   { fixtureName: 'vx-primary-election', paperSize: HmpbBallotPaperSize.Letter },
   { fixtureName: 'nh-general-election', paperSize: HmpbBallotPaperSize.Letter },
+  {
+    fixtureName: 'timing-mark-paper',
+    paperSize: HmpbBallotPaperSize.Letter,
+  },
+  {
+    fixtureName: 'timing-mark-paper',
+    paperSize: HmpbBallotPaperSize.Legal,
+  },
+  {
+    fixtureName: 'timing-mark-paper',
+    paperSize: HmpbBallotPaperSize.Custom17,
+  },
+  {
+    fixtureName: 'timing-mark-paper',
+    paperSize: HmpbBallotPaperSize.Custom19,
+  },
+  {
+    fixtureName: 'timing-mark-paper',
+    paperSize: HmpbBallotPaperSize.Custom22,
+  },
 ];
 
 function usage(out: NodeJS.WriteStream) {
@@ -232,6 +278,15 @@ export async function main(): Promise<void> {
         });
         await generateNhGeneralElectionFixtures(renderer);
         break;
+
+      case 'timing-mark-paper': {
+        await generateTimingMarkPaperFixtures(
+          renderer,
+          paperSize,
+          join(fixturesDir, fixtureName)
+        );
+        break;
+      }
 
       default:
         process.stderr.write(`Unknown fixture: ${fixtureName}\n`);
