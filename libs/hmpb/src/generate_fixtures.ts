@@ -7,7 +7,7 @@ import {
   unsafeParse,
 } from '@votingworks/types';
 import assert from 'node:assert';
-import { dirname, join, normalize } from 'node:path';
+import { dirname, join, normalize, relative } from 'node:path';
 import {
   AllBubbleBallotFixtures,
   allBubbleBallotFixtures,
@@ -135,7 +135,7 @@ async function generateTimingMarkGridOnlyFixtures(
   const outputDir = normalize(fixtureDir);
   const specPaths = timingMarkGridOnlyFixtures.specPaths({ paperSize });
   const specDir = join(outputDir, specPaths.dir);
-  assert(path.relative(outputDir, specDir).startsWith(specPaths.dir));
+  assert(relative(outputDir, specDir).startsWith(specPaths.dir));
   await rm(specDir, {
     recursive: true,
     force: true,
