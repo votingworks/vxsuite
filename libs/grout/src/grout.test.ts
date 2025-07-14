@@ -5,6 +5,7 @@ import { AddressInfo } from 'node:net';
 import express from 'express';
 import { assert, err, ok, Result, sleep } from '@votingworks/basics';
 import { expectTypeOf } from 'expect-type';
+import waitForExpect from 'wait-for-expect';
 import { createClient, ServerError } from './client';
 import {
   AnyApi,
@@ -351,7 +352,7 @@ test('client handles other server errors', async () => {
   server.close();
 });
 
-test('middleware can add context that can be accessed in the method', async () => {
+test('middleware runs before and after RPC method, adding context that can be accessed in the method', async () => {
   interface User {
     id: string;
     name: string;
@@ -360,32 +361,43 @@ test('middleware can add context that can be accessed in the method', async () =
 
   interface Context {
     user: User;
+    isAuthorized: boolean;
   }
 
-  function loadUserMiddleware(methodCall: MiddlewareMethodCall<Context>) {
-    expectTypeOf(methodCall).toEqualTypeOf<{
-      methodName: string;
-      input?: object;
-      request: express.Request;
-      context: Partial<Context>;
-    }>();
-    expect(methodCall.methodName).toEqual('getUserAttribute');
-    expect(methodCall.input).toEqual({ attribute: 'name' });
-    expect(methodCall.context).toEqual({});
-    return { user: mockUser };
-  }
+  const loadUserMiddleware = vi.fn(
+    (methodCall: MiddlewareMethodCall<Context>) => {
+      expect(methodCall.methodName).toEqual('getUserAttribute');
+      expect(methodCall.input).toEqual({ attribute: 'name' });
+      expect(methodCall.context).toEqual({});
+      return { user: mockUser };
+    }
+  );
 
-  function loggingMiddleware(methodCall: MiddlewareMethodCall<Context>) {
-    expectTypeOf(methodCall).toEqualTypeOf<{
-      methodName: string;
-      input?: object;
-      request: express.Request;
-      context: Partial<Context>;
-    }>();
+  const passthroughMiddleware = vi.fn(() => {
+    // Doesn't return updated context
+  });
+
+  const authMiddleware = vi.fn((methodCall: MiddlewareMethodCall<Context>) => {
     expect(methodCall.methodName).toEqual('getUserAttribute');
     expect(methodCall.input).toEqual({ attribute: 'name' });
     expect(methodCall.context).toEqual({ user: mockUser });
-  }
+    return { user: mockUser, isAuthorized: true };
+  });
+
+  const loggingMiddleware = vi.fn(
+    (
+      methodCall: MiddlewareMethodCall<Context>,
+      result: Result<unknown, unknown>
+    ) => {
+      expect(methodCall.methodName).toEqual('getUserAttribute');
+      expect(methodCall.input).toEqual({ attribute: 'name' });
+      expect(methodCall.context).toEqual({
+        user: mockUser,
+        isAuthorized: true,
+      });
+      expect(result).toEqual(ok('Alice'));
+    }
+  );
 
   const api = createApi(
     {
@@ -396,11 +408,11 @@ test('middleware can add context that can be accessed in the method', async () =
         assert(context.user);
         return context.user[input.attribute];
       },
-      async getCurrentUser(_input: void, context: Context) {
-        return context.user;
-      },
     },
-    [loadUserMiddleware, loggingMiddleware]
+    {
+      before: [loadUserMiddleware, passthroughMiddleware, authMiddleware],
+      after: [loggingMiddleware],
+    }
   );
 
   const { server, baseUrl } = createTestApp(api);
@@ -408,6 +420,54 @@ test('middleware can add context that can be accessed in the method', async () =
   expect(await client.getUserAttribute({ attribute: 'name' })).toEqual(
     mockUser.name
   );
+  await waitForExpect(() => {
+    expect(loadUserMiddleware).toHaveBeenCalledTimes(1);
+    expect(authMiddleware).toHaveBeenCalledTimes(1);
+    expect(loggingMiddleware).toHaveBeenCalledTimes(1);
+  });
+
+  server.close();
+});
+
+test('before middleware errors are caught, returned to client, and passed to after middleware', async () => {
+  interface Context {}
+
+  const authMiddleware = vi.fn(() => {
+    throw new UserError('middleware error');
+  });
+
+  const loggingMiddleware = vi.fn(
+    (
+      methodCall: MiddlewareMethodCall<Context>,
+      result: Result<unknown, unknown>
+    ) => {
+      expect(methodCall.methodName).toEqual('getStuff');
+      expect(methodCall.input).toEqual(undefined);
+      expect(methodCall.context).toEqual({});
+      expect(result).toEqual(err(new ServerError('middleware error')));
+    }
+  );
+
+  const api = createApi(
+    {
+      async getStuff(): Promise<number> {
+        return 42;
+      },
+    },
+    {
+      before: [authMiddleware],
+      after: [loggingMiddleware],
+    }
+  );
+
+  const { server, baseUrl } = createTestApp(api);
+  const client = createClient<typeof api>({ baseUrl });
+  await expect(client.getStuff()).rejects.toThrow('middleware error');
+  await waitForExpect(() => {
+    expect(authMiddleware).toHaveBeenCalledTimes(1);
+    expect(loggingMiddleware).toHaveBeenCalledTimes(1);
+  });
+
   server.close();
 });
 

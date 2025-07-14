@@ -3,9 +3,12 @@
 import type Express from 'express';
 import {
   assert,
+  err,
   extractErrorMessage,
   isObject,
   isString,
+  ok,
+  Result,
 } from '@votingworks/basics';
 import { rootDebug } from './debug';
 import { serialize, deserialize } from './serialization';
@@ -65,7 +68,7 @@ export interface Api<
   _methods: Methods;
   // eslint-disable-next-line vx/gts-jsdoc
   /** @private Grout internal use only */
-  _middlewares?: Array<Middleware<Context>>;
+  _middlewares?: Middlewares<Context>;
   /**
    * Expose `methods()` for testing the API methods directly without having to
    * run a server. Note that using this approach will bypass any middleware, so
@@ -105,7 +108,10 @@ export interface MiddlewareMethodCall<Context extends AnyContext> {
 }
 
 /**
- * A function that can be run before the RPC method when it's called. Example applications:
+ * A function that runs before all RPC methods. Before middleware are passed the
+ * method call info (method name, input, request, and context).
+ *
+ * Example applications:
  * - Authentication/loading user data
  * - Logging
  *
@@ -114,9 +120,32 @@ export interface MiddlewareMethodCall<Context extends AnyContext> {
  * eventually, to the RPC method). If a middleware function returns void, the
  * context will be unchanged.
  */
-export type Middleware<Context extends AnyContext> = (
+export type BeforeMiddleware<Context extends AnyContext> = (
   methodCall: MiddlewareMethodCall<Context>
-) => Context | void | Promise<Context | void>;
+) => Partial<Context> | void | Promise<Partial<Context> | void>;
+
+/**
+ * A function that runs after all RPC methods. After middleware are passed the
+ * same method call info as {@link BeforeMiddleware}` as well as the result of
+ * the method call.
+ *
+ * Middleware functions are run in sequence. Each middleware can extend and
+ * return the context object, which will be passed to the next middleware.
+ * If a middleware function returns void, the context will be unchanged.
+ */
+export type AfterMiddleware<Context extends AnyContext> = (
+  methodCall: MiddlewareMethodCall<Context>,
+  result: Result<unknown, unknown>
+) => Partial<Context> | void | Promise<Partial<Context> | void>;
+
+/**
+ * Collection of {@link BeforeMiddleware} and {@link AfterMiddleware} functions
+ * for an API.
+ */
+export interface Middlewares<Context extends AnyContext> {
+  before?: Array<BeforeMiddleware<Context>>;
+  after?: Array<AfterMiddleware<Context>>;
+}
 
 /**
  * Creates a Grout API definition from a dictionary of methods and array of
@@ -136,10 +165,7 @@ export type Middleware<Context extends AnyContext> = (
 export function createApi<
   Methods extends AnyMethods,
   Context extends AnyContext,
->(
-  methods: Methods,
-  middlewares?: Array<Middleware<Context>>
-): Api<Methods, Context> {
+>(methods: Methods, middlewares?: Middlewares<Context>): Api<Methods, Context> {
   // Currently, we don't to actually need to do anything with the methods. By
   // calling createApi, we're able to infer their type into Methods, which the
   // client can use.
@@ -225,6 +251,11 @@ export function buildRouter(
     // some way to annotate RPC methods with the appropriate method, which is
     // more complexity for little practical gain.
     router.post(path, async (request, response, next) => {
+      let context: AnyContext = {};
+      let input;
+      let result;
+      let error;
+
       try {
         debug(`Call: ${methodName}(${request.body})`);
         if (!isString(request.body)) {
@@ -236,7 +267,7 @@ export function buildRouter(
           );
         }
 
-        const input = deserialize(request.body);
+        input = deserialize(request.body);
 
         if (!(isObject(input) || input === undefined)) {
           throw new GroutError(
@@ -246,20 +277,19 @@ export function buildRouter(
         }
 
         const durationStart = Date.now();
-        let context: AnyContext = {};
-        for (const middleware of api._middlewares ?? []) {
-          const result = await middleware({
-            methodName,
-            input,
-            request,
-            context,
-          });
-          if (result !== undefined) {
-            context = result;
-          }
+
+        for (const beforeMiddleware of api._middlewares?.before ?? []) {
+          context =
+            (await beforeMiddleware({
+              methodName,
+              input,
+              request,
+              context,
+            })) ?? context;
         }
 
-        const result = await method(input, context);
+        result = await method(input, context);
+
         const jsonResult = serialize(result);
         debug(`Result: ${jsonResult}`);
         methodDebug(
@@ -271,7 +301,8 @@ export function buildRouter(
         response.set('Content-type', 'application/json');
         response.status(200).send(jsonResult);
         next();
-      } catch (error) {
+      } catch (e) {
+        error = e;
         const message = extractErrorMessage(error);
         debug(`Error: ${message}`);
         const statusCode = error instanceof UserError ? 400 : 500;
@@ -280,6 +311,19 @@ export function buildRouter(
           // eslint-disable-next-line no-console
           console.error(error); // To aid debugging, log the full error with stack trace
           next(error);
+        }
+      } finally {
+        for (const afterMiddleware of api._middlewares?.after ?? []) {
+          context =
+            (await afterMiddleware(
+              {
+                methodName,
+                input: input as object | undefined,
+                request,
+                context,
+              },
+              error ? err(error) : ok(result)
+            )) ?? context;
         }
       }
     });

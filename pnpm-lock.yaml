@@ -4376,6 +4376,9 @@ importers:
       vitest:
         specifier: ^2.1.8
         version: 2.1.8(jsdom@20.0.1)
+      wait-for-expect:
+        specifier: ^3.0.2
+        version: 3.0.2
 
   libs/grout/test-utils:
     dependencies:
@@ -14013,7 +14016,7 @@ packages:
       magicast: 0.3.5
       test-exclude: 7.0.1
       tinyrainbow: 1.2.0
-      vitest: 2.1.8(@types/node@20.17.31)(jsdom@20.0.1)
+      vitest: 2.1.8(jsdom@20.0.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -24369,7 +24372,6 @@ packages:
       - sugarss
       - supports-color
       - terser
-    dev: true
 
   /vitest@3.1.1(@types/debug@4.1.8):
     resolution: {integrity: sha512-kiZc/IYmKICeBAZr9DQ5rT7/6bD9G7uqQEki4fxazi1jdVl2mWGzedtBs5s6llz59yQhVb7FFY2MbHzHCnT79Q==}
