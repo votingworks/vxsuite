@@ -48,6 +48,7 @@ import { UpdateNameFlow } from './update_name_flow';
 import { CheckInDetails } from './voter_search_screen';
 import { PRINTING_INDICATOR_DELAY_MS } from './globals';
 import { getVoterPrecinct } from './types';
+import { partyAbbreviationToString } from './strings';
 
 interface Params {
   voterId: string;
@@ -516,7 +517,7 @@ export function VoterDetailsScreen(): JSX.Element | null {
                   )}
                   {election.type === 'primary' && (
                     <LabelledText label="Ballot Party">
-                      {voter.checkIn.ballotParty}
+                      {partyAbbreviationToString(voter.checkIn.ballotParty)}
                     </LabelledText>
                   )}
                 </Column>
