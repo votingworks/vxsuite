@@ -114,6 +114,7 @@ export function VoterCheckInScreen(): JSX.Element | null {
   const [timeoutIdForFlowStateReset, setTimeoutIdForFlowStateReset] =
     useState<ReturnType<typeof setTimeout>>();
   const checkInVoterMutation = checkInVoter.useMutation();
+  const checkInVoterMutate = checkInVoterMutation.mutate;
   const getIsAbsenteeModeQuery = getIsAbsenteeMode.useQuery();
   const getElectionQuery = getElection.useQuery();
   const getPollbookConfigurationInformationQuery =
@@ -173,7 +174,7 @@ export function VoterCheckInScreen(): JSX.Element | null {
       ballotParty: PartyAbbreviation
     ) => {
       setFlowState({ step: 'printing' });
-      checkInVoterMutation.mutate(
+      checkInVoterMutate(
         {
           voterId,
           identificationMethod,
@@ -200,10 +201,7 @@ export function VoterCheckInScreen(): JSX.Element | null {
         }
       );
     },
-    // Disable exhaustive deps because the linter wants checkInVoterMutation as a dep
-    // which violates vx/no-react-hook-mutation-dependency
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [checkInVoterMutation.mutate, flowState, resetFlowState]
+    [checkInVoterMutate, flowState, resetFlowState]
   );
 
   if (
