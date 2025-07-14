@@ -140,7 +140,7 @@ export type AuthErrorCode =
    */
   | 'auth:forbidden';
 
-class AuthError extends Error {
+class AuthError extends grout.UserError {
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(code: AuthErrorCode) {
     super(code);
@@ -788,9 +788,14 @@ export function buildApp(context: AppContext): Application {
       file.pipe(res);
     } catch (error) {
       // Mimic grout's error handling
-      console.error(error); // eslint-disable-line no-console
-      res.status(500).json({ message: extractErrorMessage(error) });
-      next(error);
+      const message = extractErrorMessage(error);
+      const statusCode = error instanceof grout.UserError ? 400 : 500;
+      res.status(statusCode).json({ message });
+      if (!(error instanceof grout.UserError)) {
+        // eslint-disable-next-line no-console
+        console.error(error); // To aid debugging, log the full error with stack trace
+        next(error);
+      }
     }
   });
 

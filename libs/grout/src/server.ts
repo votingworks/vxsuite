@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 /* eslint-disable no-underscore-dangle */
 import type Express from 'express';
 import {
@@ -156,7 +157,16 @@ export function createApi<
  * Errors that are intended to catch misuse of Grout during development, rather
  * than runtime issues in production.
  */
-export class GroutError extends Error {}
+class GroutError extends Error {}
+
+/**
+ * Errors that are intended to be thrown by middleware/RPC methods to indicate a
+ * user error. These errors will not be logged as unexpected errors like generic
+ * thrown errors. In general, these should only be used for general API error
+ * cases like authentication or authorization errors. RPC methods should aim to
+ * return Result objects for domain-specific errors.
+ */
+export class UserError extends Error {}
 
 /**
  * Creates an express Router with a route handler for each RPC method in a Grout
@@ -264,10 +274,13 @@ export function buildRouter(
       } catch (error) {
         const message = extractErrorMessage(error);
         debug(`Error: ${message}`);
-        // eslint-disable-next-line no-console
-        console.error(error); // To aid debugging, log the full error with stack trace
-        response.status(500).json({ message });
-        next(error);
+        const statusCode = error instanceof UserError ? 400 : 500;
+        response.status(statusCode).json({ message });
+        if (!(error instanceof UserError)) {
+          // eslint-disable-next-line no-console
+          console.error(error); // To aid debugging, log the full error with stack trace
+          next(error);
+        }
       }
     });
   }

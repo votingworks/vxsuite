@@ -1,6 +1,7 @@
 import fetch from 'cross-fetch';
+import { extractErrorMessage } from '@votingworks/basics';
 import { deserialize, serialize } from './serialization';
-import { AnyApi, AnyRpcMethod, inferApiMethods } from './server';
+import { AnyApi, AnyRpcMethod, inferApiMethods, UserError } from './server';
 import { rootDebug } from './debug';
 
 const debug = rootDebug.extend('client');
@@ -101,7 +102,11 @@ export function createClient<Api extends AnyApi>(
           if (!response.ok) {
             if (hasJsonBody) {
               const { message } = await response.json();
-              throw new ServerError(message);
+              if (response.status === 400) {
+                throw new UserError(message);
+              } else {
+                throw new ServerError(message);
+              }
             }
             if (response.status === 404) {
               throw new ServerError(
@@ -122,12 +127,11 @@ export function createClient<Api extends AnyApi>(
           const result = deserialize(resultText);
           return result;
         } catch (error) {
-          const message =
-            error instanceof Error
-              ? error.message
-              : /* istanbul ignore next - no easy way to test throwing a non-Error */
-                String(error);
+          const message = extractErrorMessage(error);
           debug(`Error: ${message}`);
+          if (error instanceof UserError || error instanceof ServerError) {
+            throw error;
+          }
           throw new ServerError(message, {
             cause:
               error instanceof Error
