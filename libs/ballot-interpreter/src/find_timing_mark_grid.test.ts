@@ -7,7 +7,7 @@ import { loadImageData } from '@votingworks/image-utils';
 import { pdfToPageImages } from '../test/helpers/interpretation';
 import { findTimingMarkGrid } from './hmpb-ts/addon';
 
-test('letter-sized tiing mark paper', async () => {
+test('letter-sized timing mark paper', async () => {
   const { pdf } = timingMarkPaperFixtures.specPaths({
     paperSize: HmpbBallotPaperSize.Letter,
   });
