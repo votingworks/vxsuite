@@ -135,7 +135,7 @@ async function generateTimingMarkGridOnlyFixtures(
   const outputDir = normalize(fixtureDir);
   const specPaths = timingMarkGridOnlyFixtures.specPaths({ paperSize });
   const specDir = join(outputDir, specPaths.dir);
-  assert(specDir.startsWith(`${outputDir}/`));
+  assert(path.relative(outputDir, specDir).startsWith(specPaths.dir));
   await rm(specDir, {
     recursive: true,
     force: true,
