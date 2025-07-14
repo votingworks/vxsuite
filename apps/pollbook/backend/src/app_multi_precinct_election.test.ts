@@ -610,3 +610,91 @@ test('register a voter, change name and address, and check in', async () => {
     }
   );
 });
+
+test('an undeclared voter cannot check in as undeclared', async () => {
+  await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
+    workspace.store.setElectionAndVoters(
+      electionDefinition,
+      'mock-package-hash',
+      cityStreetNames,
+      cityVoters
+    );
+    mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+    expect(await localApiClient.haveElectionEventsOccurred()).toEqual(false);
+
+    const votersAbigail = await localApiClient.searchVoters({
+      searchParams: {
+        firstName: 'Abigail',
+        middleName: '',
+        lastName: 'Adams',
+        suffix: '',
+      },
+    });
+
+    assert(votersAbigail !== null);
+    assert(Array.isArray(votersAbigail));
+    expect((votersAbigail as Voter[]).length).toEqual(4);
+    const firstVoter = (votersAbigail as Voter[])[0];
+
+    const checkInResult = await localApiClient.checkInVoter({
+      voterId: firstVoter.voterId,
+      identificationMethod: { type: 'default' },
+      ballotParty: 'UND',
+    });
+    expect(checkInResult.err()).toEqual(
+      'undeclared_voter_missing_ballot_party'
+    );
+  });
+});
+
+test('a declared voter must check in party selection matching the declared party', async () => {
+  await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
+    workspace.store.setElectionAndVoters(
+      electionDefinition,
+      'mock-package-hash',
+      cityStreetNames,
+      cityVoters
+    );
+    mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+    expect(await localApiClient.haveElectionEventsOccurred()).toEqual(false);
+
+    workspace.store.setConfiguredPrecinct(currentPrecinctId);
+
+    const registrationData: VoterRegistrationRequest = {
+      firstName: 'Helena',
+      lastName: 'Eagen',
+      middleName: 'A',
+      suffix: '',
+      streetNumber: '17',
+      streetName: 'MAPLE AVE',
+      streetSuffix: '',
+      apartmentUnitNumber: '',
+      houseFractionNumber: '',
+      addressLine2: '',
+      addressLine3: '',
+      city: 'Manchester',
+      state: 'NH',
+      zipCode: '03101',
+      party: 'REP',
+      precinct: currentPrecinctId,
+    };
+
+    const registerResult = await localApiClient.registerVoter({
+      registrationData,
+      overrideNameMatchWarning: false,
+    });
+    const registerOk = registerResult.unsafeUnwrap();
+    expect(registerOk).toMatchObject({
+      firstName: 'Helena',
+      lastName: 'Eagen',
+      party: 'REP',
+    });
+
+    const checkInResult = await localApiClient.checkInVoter({
+      voterId: registerOk.voterId,
+      identificationMethod: { type: 'default' },
+      ballotParty: 'DEM',
+    });
+    expect(checkInResult.err()).toEqual('mismatched_party_selection');
+  });
+});
