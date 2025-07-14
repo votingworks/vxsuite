@@ -549,7 +549,8 @@ export const timingMarkPaperFixtures = (() => {
     dir: string;
     pdf: string;
   } {
-    const dir = spec.paperSize;
+    const { paperSize } = spec;
+    const dir = join(fixturesDir, 'timing-mark-paper', paperSize);
     return {
       dir,
       pdf: join(dir, 'timing-mark-paper.pdf'),

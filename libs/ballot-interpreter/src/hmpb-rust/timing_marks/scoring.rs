@@ -95,6 +95,7 @@ fn score_timing_mark_geometry_match(
 
 #[derive(Debug, Clone, Copy, Serialize, PartialEq)]
 #[must_use]
+#[serde(rename_all = "camelCase")]
 pub struct TimingMarkScore {
     mark_score: UnitIntervalScore,
     padding_score: UnitIntervalScore,

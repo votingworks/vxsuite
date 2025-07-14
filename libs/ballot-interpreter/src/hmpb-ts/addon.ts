@@ -2,6 +2,7 @@ import { Election } from '@votingworks/types';
 import { ImageData } from 'canvas';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
+import { TimingMarks } from './types';
 
 const addon = (() => {
   // NOTE: this only works because the build output can get to the root of the
@@ -65,4 +66,14 @@ export function runBlankPaperDiagnostic(
   debugBasePath?: string
 ): boolean {
   return addon.runBlankPaperDiagnostic(image, debugBasePath);
+}
+
+export function findTimingMarkGrid(
+  image: string | ImageData,
+  debugBasePath?: string,
+  options?: {
+    timingMarkAlgorithm?: 'contours' | 'corners';
+  }
+): TimingMarks {
+  return addon.findTimingMarkGrid(image, debugBasePath, options);
 }

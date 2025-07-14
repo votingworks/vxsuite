@@ -21,7 +21,7 @@ pub mod timing_marks;
 #[neon::main]
 fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("interpret", js::interpret)?;
-
+    cx.export_function("findTimingMarkGrid", js::find_timing_mark_grid)?;
     cx.export_function("runBlankPaperDiagnostic", js::run_blank_paper_diagnostic)?;
 
     Ok(())

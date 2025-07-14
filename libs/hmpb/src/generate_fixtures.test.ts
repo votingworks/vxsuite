@@ -1,18 +1,16 @@
-import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
-import * as fs from 'node:fs';
-import { join } from 'node:path';
-import { HmpbBallotPaperSize } from '@votingworks/types';
-import { pdfToImages } from '@votingworks/image-utils';
 import { iter } from '@votingworks/basics';
 import { readElection } from '@votingworks/fs';
+import { pdfToImages } from '@votingworks/image-utils';
+import { HmpbBallotPaperSize } from '@votingworks/types';
+import * as fs from 'node:fs';
+import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
 import { allBubbleBallotFixtures } from './all_bubble_ballot_fixtures';
 import {
+  nhGeneralElectionFixtures,
+  timingMarkPaperFixtures,
   vxFamousNamesFixtures,
   vxGeneralElectionFixtures,
-  nhGeneralElectionFixtures,
   vxPrimaryElectionFixtures,
-  timingMarkPaperFixtures,
-  fixturesDir,
 } from './ballot_fixtures';
 import { createPlaywrightRenderer } from './playwright_renderer';
 import { Renderer } from './renderer';
@@ -199,12 +197,7 @@ describe('fixtures are up to date - run `pnpm generate-fixtures` if this test fa
     for (const spec of fixtures.fixtureSpecs) {
       const generated = await fixtures.generate(renderer, spec);
       const paths = fixtures.specPaths(spec);
-      const actualPdfPath = join(
-        fixturesDir,
-        'timing-mark-paper',
-        paths.pdf
-      );
-      await expectToMatchSavedPdf(generated.pdf, actualPdfPath);
+      await expectToMatchSavedPdf(generated.pdf, paths.pdf);
     }
   });
 });

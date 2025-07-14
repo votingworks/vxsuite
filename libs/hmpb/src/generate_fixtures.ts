@@ -6,14 +6,12 @@ import {
   HmpbBallotPaperSizeSchema,
   unsafeParse,
 } from '@votingworks/types';
-import assert from 'node:assert';
-import { dirname, join, normalize, relative } from 'node:path';
+import { dirname } from 'node:path';
 import {
   AllBubbleBallotFixtures,
   allBubbleBallotFixtures,
 } from './all_bubble_ballot_fixtures';
 import {
-  fixturesDir,
   timingMarkPaperFixtures,
   vxFamousNamesFixtures,
   vxGeneralElectionFixtures,
@@ -129,22 +127,17 @@ async function generateNhGeneralElectionFixtures(renderer: Renderer) {
 
 async function generateTimingMarkPaperFixtures(
   renderer: Renderer,
-  paperSize: HmpbBallotPaperSize,
-  fixtureDir: string
+  paperSize: HmpbBallotPaperSize
 ) {
-  const outputDir = normalize(fixtureDir);
   const specPaths = timingMarkPaperFixtures.specPaths({ paperSize });
-  const specDir = join(outputDir, specPaths.dir);
-  assert(relative(outputDir, specDir).startsWith(specPaths.dir));
-  await rm(specDir, {
+  await rm(specPaths.dir, {
     recursive: true,
     force: true,
   });
   const generated = await timingMarkPaperFixtures.generate(renderer, {
     paperSize,
   });
-  const pdfPath = join(outputDir, specPaths.pdf);
-  assert(pdfPath.startsWith(`${outputDir}/`));
+  const pdfPath = specPaths.pdf;
   await mkdir(dirname(pdfPath), { recursive: true });
   await writeFile(pdfPath, generated.pdf);
 }
@@ -280,11 +273,7 @@ export async function main(): Promise<void> {
         break;
 
       case 'timing-mark-paper': {
-        await generateTimingMarkPaperFixtures(
-          renderer,
-          paperSize,
-          join(fixturesDir, fixtureName)
-        );
+        await generateTimingMarkPaperFixtures(renderer, paperSize);
         break;
       }
 
