@@ -515,35 +515,6 @@ export const pollWorkerRoutes = {
   checkIn: { title: 'Check-In', path: '/check-in' },
 } satisfies Record<string, { title: string; path: string }>;
 
-export function PollWorkerNavScreen({
-  children,
-}: {
-  children: React.ReactNode;
-}): JSX.Element {
-  const currentRoute = useRouteMatch();
-
-  return (
-    <NavScreen
-      navContent={
-        <NavList>
-          {Object.values(pollWorkerRoutes).map((route) => (
-            <NavListItem key={route.path}>
-              <NavLink
-                to={route.path}
-                isActive={route.path === currentRoute.url}
-              >
-                {route.title}
-              </NavLink>
-            </NavListItem>
-          ))}
-        </NavList>
-      }
-    >
-      {children}
-    </NavScreen>
-  );
-}
-
 export function NoNavScreen({
   children,
 }: {
