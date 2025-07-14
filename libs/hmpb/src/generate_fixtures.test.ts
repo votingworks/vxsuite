@@ -11,7 +11,7 @@ import {
   vxGeneralElectionFixtures,
   nhGeneralElectionFixtures,
   vxPrimaryElectionFixtures,
-  timingMarkGridOnlyFixtures,
+  timingMarkPaperFixtures,
   fixturesDir,
 } from './ballot_fixtures';
 import { createPlaywrightRenderer } from './playwright_renderer';
@@ -193,15 +193,15 @@ describe('fixtures are up to date - run `pnpm generate-fixtures` if this test fa
     }
   });
 
-  test('timing mark grid-only fixtures', async () => {
-    const fixtures = timingMarkGridOnlyFixtures;
+  test('timing mark paper fixtures', async () => {
+    const fixtures = timingMarkPaperFixtures;
 
     for (const spec of fixtures.fixtureSpecs) {
       const generated = await fixtures.generate(renderer, spec);
       const paths = fixtures.specPaths(spec);
       const actualPdfPath = join(
         fixturesDir,
-        'timing-mark-grid-only',
+        'timing-mark-paper',
         paths.pdf
       );
       await expectToMatchSavedPdf(generated.pdf, actualPdfPath);

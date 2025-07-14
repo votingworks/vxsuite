@@ -14,7 +14,7 @@ import {
 } from './all_bubble_ballot_fixtures';
 import {
   fixturesDir,
-  timingMarkGridOnlyFixtures,
+  timingMarkPaperFixtures,
   vxFamousNamesFixtures,
   vxGeneralElectionFixtures,
   nhGeneralElectionFixtures,
@@ -127,20 +127,20 @@ async function generateNhGeneralElectionFixtures(renderer: Renderer) {
   }
 }
 
-async function generateTimingMarkGridOnlyFixtures(
+async function generateTimingMarkPaperFixtures(
   renderer: Renderer,
   paperSize: HmpbBallotPaperSize,
   fixtureDir: string
 ) {
   const outputDir = normalize(fixtureDir);
-  const specPaths = timingMarkGridOnlyFixtures.specPaths({ paperSize });
+  const specPaths = timingMarkPaperFixtures.specPaths({ paperSize });
   const specDir = join(outputDir, specPaths.dir);
   assert(relative(outputDir, specDir).startsWith(specPaths.dir));
   await rm(specDir, {
     recursive: true,
     force: true,
   });
-  const generated = await timingMarkGridOnlyFixtures.generate(renderer, {
+  const generated = await timingMarkPaperFixtures.generate(renderer, {
     paperSize,
   });
   const pdfPath = join(outputDir, specPaths.pdf);
@@ -165,23 +165,23 @@ const ALL_FIXTURE_SPECS: readonly FixtureSpec[] = [
   { fixtureName: 'vx-primary-election', paperSize: HmpbBallotPaperSize.Letter },
   { fixtureName: 'nh-general-election', paperSize: HmpbBallotPaperSize.Letter },
   {
-    fixtureName: 'timing-mark-grid-only',
+    fixtureName: 'timing-mark-paper',
     paperSize: HmpbBallotPaperSize.Letter,
   },
   {
-    fixtureName: 'timing-mark-grid-only',
+    fixtureName: 'timing-mark-paper',
     paperSize: HmpbBallotPaperSize.Legal,
   },
   {
-    fixtureName: 'timing-mark-grid-only',
+    fixtureName: 'timing-mark-paper',
     paperSize: HmpbBallotPaperSize.Custom17,
   },
   {
-    fixtureName: 'timing-mark-grid-only',
+    fixtureName: 'timing-mark-paper',
     paperSize: HmpbBallotPaperSize.Custom19,
   },
   {
-    fixtureName: 'timing-mark-grid-only',
+    fixtureName: 'timing-mark-paper',
     paperSize: HmpbBallotPaperSize.Custom22,
   },
 ];
@@ -279,8 +279,8 @@ export async function main(): Promise<void> {
         await generateNhGeneralElectionFixtures(renderer);
         break;
 
-      case 'timing-mark-grid-only': {
-        await generateTimingMarkGridOnlyFixtures(
+      case 'timing-mark-paper': {
+        await generateTimingMarkPaperFixtures(
           renderer,
           paperSize,
           join(fixturesDir, fixtureName)
