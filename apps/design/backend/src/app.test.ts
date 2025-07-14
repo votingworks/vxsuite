@@ -2876,8 +2876,20 @@ test('feature configs', async () => {
   ).toEqual(electionFeatureConfigs.vx);
 });
 
-test('api method logging', async () => {
+test('api call logging', async () => {
   const { apiClient, logger, auth0 } = await setupApp();
+  await expect(apiClient.getUser()).rejects.toThrow('auth:unauthorized');
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.ApiCall,
+    'system',
+    expect.objectContaining({
+      methodName: 'getUser',
+      input: JSON.stringify(undefined),
+      disposition: 'failure',
+      error: 'auth:unauthorized',
+    })
+  );
+
   auth0.setLoggedInUser(vxUser);
   await apiClient.createElection({
     id: 'election-id' as ElectionId,
@@ -2894,6 +2906,7 @@ test('api method logging', async () => {
       }),
       userOrgId: vxUser.orgId,
       userAuth0Id: vxUser.auth0Id,
+      disposition: 'success',
     })
   );
 });
