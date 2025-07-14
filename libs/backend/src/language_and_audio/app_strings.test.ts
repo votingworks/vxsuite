@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
 import { describe, expect, test, vi } from 'vitest';
 import { LanguageCode, BallotLanguageConfigs } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
@@ -20,6 +23,19 @@ const allBallotLanguages: BallotLanguageConfigs = [
   },
 ];
 
+const appStringsCatalog = JSON.parse(
+  fs.readFileSync(
+    path.join(
+      __dirname,
+      `../../../ui/src/ui_strings/app_strings_catalog/latest.json`
+    ),
+    'utf-8'
+  )
+);
+assert(typeof appStringsCatalog === 'object');
+
+const appStringCount = Object.keys(appStringsCatalog).length;
+
 describe('translateAppStrings', () => {
   test('should extract and translate app strings correctly', async () => {
     const translationClient = makeMockGoogleCloudTranslationClient({
@@ -36,8 +52,7 @@ describe('translateAppStrings', () => {
     expect(Object.keys(result)).toEqual([LanguageCode.ENGLISH]);
     const englishResults = result[LanguageCode.ENGLISH];
     assert(englishResults);
-    // This number may need to be updated if you are adding a new app string
-    expect(Object.keys(englishResults)).toHaveLength(440);
+    expect(Object.keys(englishResults)).toHaveLength(appStringCount);
   });
 
   test('should extract and translate app strings correctly for multiple languages', async () => {
@@ -61,8 +76,7 @@ describe('translateAppStrings', () => {
     for (const languageCode of Object.keys(result)) {
       const subResults = result[languageCode];
       assert(subResults);
-      // This number may need to be updated if you are adding a new app string
-      expect(Object.keys(subResults)).toHaveLength(440);
+      expect(Object.keys(subResults)).toHaveLength(appStringCount);
     }
   });
 });

@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
 import { describe, expect, test, vi } from 'vitest';
 import { electionPrimaryPrecinctSplitsFixtures } from '@votingworks/fixtures';
 import { LanguageCode, BallotLanguageConfigs } from '@votingworks/types';
@@ -17,6 +20,18 @@ const allBallotLanguages: BallotLanguageConfigs = [
     ],
   },
 ];
+
+const appStringsCatalog = JSON.parse(
+  fs.readFileSync(
+    path.join(
+      __dirname,
+      `../../../ui/src/ui_strings/app_strings_catalog/latest.json`
+    ),
+    'utf-8'
+  )
+);
+
+const appStringCount = Object.keys(appStringsCatalog).length;
 
 describe('getAllStringsForElectionPackage', () => {
   test('should extract and translate election strings correctly for english only', async () => {
@@ -41,7 +56,9 @@ describe('getAllStringsForElectionPackage', () => {
       LanguageCode.SPANISH,
     ]);
     assert(appStrings[LanguageCode.ENGLISH]);
-    expect(Object.keys(appStrings[LanguageCode.ENGLISH])).toHaveLength(440);
+    expect(Object.keys(appStrings[LanguageCode.ENGLISH])).toHaveLength(
+      appStringCount
+    );
 
     expect(hmpbStrings).toBeDefined();
     expect(Object.keys(hmpbStrings)).toEqual([
