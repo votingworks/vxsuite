@@ -163,60 +163,70 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
     requireOrgAccess(user, electionOrgId);
   }
 
-  const middlewares: Array<grout.Middleware<ApiContext>> = [
-    async function loadUser({ request, context }) {
-      const user = await auth0.userFromRequest(request);
-      if (!user) {
-        throw new AuthError('auth:unauthorized');
-      }
-      return { ...context, user };
-    },
-
-    // TODO(jonah): It might be nice to have a way to log the result of the API
-    // call, not just that the call was received. Potentially, we could pass
-    // middlewares a continuation callback so they could run code before and
-    // after the request handler.
-    async function logApiCall({ methodName, input, context }) {
-      await logger.logAsCurrentRole(
-        LogEventId.ApiCall,
-        {
-          methodName,
-          input: JSON.stringify(input),
-          userAuth0Id: context.user?.auth0Id,
-          userOrgId: context.user?.orgId,
-        },
-        debug
-      );
-    },
-
-    /**
-     * All methods should check authorization. This middleware checks
-     * authorization automatically for methods that have either `electionId` or
-     * `orgId` in their input. If a method doesn't have either of or has some
-     * other reason to handle authorization separately, it must be listed in
-     * `methodsThatHandleAuthThemselves` within this function.
-     */
-    async function checkAuthorization({ methodName, input, context }) {
-      if (input) {
-        assert(context.user);
-        if ('electionId' in input) {
-          await requireElectionAccess(context.user, input.electionId as string);
-          return;
+  const middlewares: grout.Middlewares<ApiContext> = {
+    before: [
+      async function loadUser({ request, context }) {
+        const user = await auth0.userFromRequest(request);
+        if (!user) {
+          throw new AuthError('auth:unauthorized');
         }
-        if ('orgId' in input) {
-          requireOrgAccess(context.user, input.orgId as string);
-          return;
+        return { ...context, user };
+      },
+
+      /**
+       * All methods should check authorization. This middleware checks
+       * authorization automatically for methods that have either `electionId` or
+       * `orgId` in their input. If a method doesn't have either of or has some
+       * other reason to handle authorization separately, it must be listed in
+       * `methodsThatHandleAuthThemselves` within this function.
+       */
+      async function checkAuthorization({ methodName, input, context }) {
+        if (input) {
+          assert(context.user);
+          if ('electionId' in input) {
+            await requireElectionAccess(
+              context.user,
+              input.electionId as string
+            );
+            return;
+          }
+          if ('orgId' in input) {
+            requireOrgAccess(context.user, input.orgId as string);
+            return;
+          }
         }
-      }
-      const methodsThatHandleAuthThemselves = [
-        'listElections',
-        'getUser',
-        'getUserFeatures',
-        'getAllOrgs',
-      ];
-      assert(methodsThatHandleAuthThemselves.includes(methodName));
-    },
-  ];
+        const methodsThatHandleAuthThemselves = [
+          'listElections',
+          'getUser',
+          'getUserFeatures',
+          'getAllOrgs',
+        ];
+        assert(methodsThatHandleAuthThemselves.includes(methodName));
+      },
+    ],
+
+    after: [
+      async function logApiCall({ methodName, input, context }, result) {
+        const outcome = result.isOk()
+          ? { disposition: 'success' }
+          : {
+              disposition: 'failure',
+              error: extractErrorMessage(result.err()),
+            };
+        await logger.logAsCurrentRole(
+          LogEventId.ApiCall,
+          {
+            methodName,
+            input: JSON.stringify(input),
+            userAuth0Id: context.user?.auth0Id,
+            userOrgId: context.user?.orgId,
+            ...outcome,
+          },
+          debug
+        );
+      },
+    ],
+  };
 
   const methods = {
     async listElections(
