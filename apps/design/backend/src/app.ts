@@ -140,7 +140,7 @@ export type AuthErrorCode =
    */
   | 'auth:forbidden';
 
-class AuthError extends Error {
+class AuthError extends grout.UserError {
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(code: AuthErrorCode) {
     super(code);
