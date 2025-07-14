@@ -5,8 +5,14 @@ import { AddressInfo } from 'node:net';
 import express from 'express';
 import { assert, err, ok, Result, sleep } from '@votingworks/basics';
 import { expectTypeOf } from 'expect-type';
-import { createClient } from './client';
-import { AnyApi, buildRouter, createApi, MiddlewareMethodCall } from './server';
+import { createClient, ServerError } from './client';
+import {
+  AnyApi,
+  buildRouter,
+  createApi,
+  MiddlewareMethodCall,
+  UserError,
+} from './server';
 
 function createTestApp(api: AnyApi) {
   const app = express();
@@ -16,7 +22,7 @@ function createTestApp(api: AnyApi) {
   const server = app.listen();
   const { port } = server.address() as AddressInfo;
   const baseUrl = `http://localhost:${port}/api`;
-  return { server, baseUrl };
+  return { server, baseUrl, app };
 }
 
 test('registers Express routes for an API', async () => {
@@ -82,7 +88,7 @@ test('registers Express routes for an API', async () => {
   server.close();
 });
 
-test('sends a 500 for unexpected errors', async () => {
+test('client throws ServerError for unexpected RPC method errors', async () => {
   const consoleErrorSpy = vi.spyOn(console, 'error').mockReturnValue();
   const api = createApi({
     async getStuff(): Promise<number> {
@@ -98,11 +104,37 @@ test('sends a 500 for unexpected errors', async () => {
   const client = createClient<typeof api>({ baseUrl });
 
   await expect(client.getStuff()).rejects.toThrow('Unexpected error');
+  await expect(client.getStuff()).rejects.toThrow(ServerError);
   await expect(client.doStuff()).rejects.toThrow('Not even an Error');
+  await expect(client.doStuff()).rejects.toThrow(ServerError);
 
-  expect(consoleErrorSpy).toHaveBeenCalledTimes(2);
+  expect(consoleErrorSpy).toHaveBeenCalledTimes(4);
   expect(consoleErrorSpy).toHaveBeenCalledWith(new Error('Unexpected error'));
   expect(consoleErrorSpy).toHaveBeenCalledWith('Not even an Error');
+
+  server.close();
+});
+
+test('client throws UserError for expected errors', async () => {
+  const consoleErrorSpy = vi.spyOn(console, 'error').mockReturnValue();
+  const api = createApi({
+    async getStuff(): Promise<number> {
+      throw new UserError('Expected error');
+    },
+  });
+
+  const { server, baseUrl, app } = createTestApp(api);
+  const client = createClient<typeof api>({ baseUrl });
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const errorMiddlware = vi.fn((_err, _req, _res, _next) => {});
+  app.use(errorMiddlware);
+
+  await expect(client.getStuff()).rejects.toThrowError('Expected error');
+  await expect(client.getStuff()).rejects.toThrowError(UserError);
+
+  expect(consoleErrorSpy).not.toHaveBeenCalled();
+  expect(errorMiddlware).not.toHaveBeenCalled();
 
   server.close();
 });
