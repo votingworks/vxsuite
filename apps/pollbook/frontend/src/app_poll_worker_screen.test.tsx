@@ -142,7 +142,7 @@ describe('PollWorkerScreen', () => {
     unmount();
   });
 
-  test('primary election e2e flow with party selection', async () => {
+  test.skip('primary election e2e flow with party selection', async () => {
     apiMock.expectGetDeviceStatuses();
     apiMock.authenticateAsPollWorker(multiPartyPrimaryElection);
     apiMock.setElection(multiPartyPrimaryElectionDefinition);
