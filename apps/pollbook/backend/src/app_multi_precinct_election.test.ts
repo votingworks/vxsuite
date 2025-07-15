@@ -647,7 +647,7 @@ test('an undeclared voter cannot check in as undeclared', async () => {
   });
 });
 
-test('a declared voter must check in party selection matching the declared party', async () => {
+test('a declared voter must check in with a party selection matching the declared party', async () => {
   await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
     workspace.store.setElectionAndVoters(
       electionDefinition,

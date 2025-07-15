@@ -72,7 +72,7 @@ export function CheckInReceipt({
         <VoterName voter={voter} />
       </div>
       <div>
-        <PartyName party={voter.party} />
+        <PartyName party={voter.checkIn?.ballotParty ?? voter.party} />
       </div>
       <VoterAddress voter={voter} election={metadata.election} />
       <div>Voter ID: {voter.voterId}</div>

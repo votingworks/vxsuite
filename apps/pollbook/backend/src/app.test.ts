@@ -143,7 +143,7 @@ test('check in a voter', async () => {
     const checkInResult = await localApiClient.checkInVoter({
       voterId: firstVoter.voterId,
       identificationMethod: { type: 'default' },
-      ballotParty: 'DEM',
+      ballotParty: 'UND',
     });
     expect(checkInResult.ok()).toEqual(undefined);
     expect(await localApiClient.haveElectionEventsOccurred()).toEqual(true);
@@ -157,7 +157,7 @@ test('check in a voter', async () => {
       timestamp: expect.any(String),
       machineId: TEST_MACHINE_ID,
       receiptNumber: 1,
-      ballotParty: 'DEM',
+      ballotParty: 'UND',
     });
 
     const receiptPdfPath = mockPrinterHandler.getLastPrintPath();
@@ -168,7 +168,7 @@ test('check in a voter', async () => {
     const checkInResultOos = await localApiClient.checkInVoter({
       voterId: secondVoter.voterId,
       identificationMethod: { type: 'outOfStateLicense', state: 'CA' },
-      ballotParty: 'DEM',
+      ballotParty: 'UND',
     });
     expect(checkInResultOos.ok()).toEqual(undefined);
 
@@ -181,7 +181,7 @@ test('check in a voter', async () => {
       timestamp: expect.any(String),
       machineId: TEST_MACHINE_ID,
       receiptNumber: 2,
-      ballotParty: 'DEM',
+      ballotParty: 'UND',
     });
 
     const receiptPdfPathOos = mockPrinterHandler.getLastPrintPath();
@@ -553,7 +553,7 @@ test('undo a voter check-in', async () => {
     const checkInResult = await localApiClient.checkInVoter({
       voterId: firstVoter.voterId,
       identificationMethod: { type: 'default' },
-      ballotParty: 'REP',
+      ballotParty: 'UND',
     });
     expect(checkInResult.isOk()).toBeTruthy();
 
@@ -782,7 +782,7 @@ test('check in, change name, undo check-in, change address, and check in again',
     const checkInResult = await localApiClient.checkInVoter({
       voterId: firstVoter.voterId,
       identificationMethod: { type: 'default' },
-      ballotParty: 'DEM',
+      ballotParty: 'UND',
     });
     expect(checkInResult.ok()).toEqual(undefined);
 
@@ -836,7 +836,7 @@ test('check in, change name, undo check-in, change address, and check in again',
     const finalCheckInResult = await localApiClient.checkInVoter({
       voterId: firstVoter.voterId,
       identificationMethod: { type: 'default' },
-      ballotParty: 'DEM',
+      ballotParty: 'UND',
     });
     expect(finalCheckInResult.ok()).toEqual(undefined);
 
@@ -849,7 +849,7 @@ test('check in, change name, undo check-in, change address, and check in again',
       timestamp: expect.any(String),
       receiptNumber: 5,
       machineId: TEST_MACHINE_ID,
-      ballotParty: 'DEM',
+      ballotParty: 'UND',
     });
 
     const finalReceiptPdfPath = mockPrinterHandler.getLastPrintPath();
@@ -1131,7 +1131,7 @@ test('mark a voter inactive', async () => {
     const checkInResult = await localApiClient.checkInVoter({
       voterId: firstVoter.voterId,
       identificationMethod: { type: 'default' },
-      ballotParty: 'REP',
+      ballotParty: 'UND',
     });
     expect(checkInResult.ok()).toEqual(undefined);
 
@@ -1139,7 +1139,7 @@ test('mark a voter inactive', async () => {
     const checkIn = await localApiClient.checkInVoter({
       voterId: secondVoter.voterId,
       identificationMethod: { type: 'default' },
-      ballotParty: 'DEM',
+      ballotParty: 'UND',
     });
     expect(checkIn.ok()).toEqual(undefined);
     // Trying to mark this voter as inactive should return an error.

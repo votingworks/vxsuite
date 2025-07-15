@@ -274,7 +274,9 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       if (checkIn) {
         return err('already_checked_in');
       }
+
       if (election.type === 'primary') {
+        // Primary ballot party choice can't be undeclared
         switch (voterParty) {
           case 'UND':
             if (!['REP', 'DEM'].includes(input.ballotParty)) {
@@ -291,6 +293,8 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
             /* istanbul ignore next - @preserve */
             return err('unknown_voter_party');
         }
+      } else if (input.ballotParty !== voterParty) {
+        return err('mismatched_party_selection');
       }
 
       const { voter, receiptNumber } = store.recordVoterCheckIn({
