@@ -25,6 +25,19 @@ test('can export paper backup checklist for multi precinct election', async () =
     identificationMethod: { type: 'default' },
     ballotParty: 'DEM',
   });
+  store.changeVoterMailingAddress('bob', {
+    mailingStreetNumber: '221',
+    mailingAddressLine2: 'B',
+    mailingStreetName: 'BAKER ST',
+    mailingCityTown: 'LONDON',
+    mailingState: 'NH',
+    mailingZip5: '12345',
+    mailingSuffix: '',
+    mailingApartmentUnitNumber: '',
+    mailingHouseFractionNumber: '',
+    mailingAddressLine3: '',
+    mailingZip4: '',
+  });
   store.recordVoterCheckIn({
     voterId: 'bob',
     identificationMethod: { type: 'outOfStateLicense', state: 'CA' },
