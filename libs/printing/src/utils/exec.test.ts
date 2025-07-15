@@ -43,8 +43,14 @@ test.each([
     stdin: 'foobarbaz to print',
   },
   {
+    // Not explicitly supported, but type system won't stop anyone from passing
+    // one in, since `Buffer` is a subclass of `Uint8Array`:
     name: 'command with buffer stdin',
     stdin: Buffer.from('foobarbaz to print'),
+  },
+  {
+    name: 'command with Uint8Array stdin',
+    stdin: new TextEncoder().encode('foobarbaz to print'),
   },
   {
     name: 'command with stream stdin',
@@ -66,6 +72,16 @@ test.each([
       await sleep(1);
       yield 'baz';
       yield ' to print';
+    })(),
+  },
+  {
+    name: 'command with Uint8Array async iterable stdin',
+    stdin: (async function* gen() {
+      yield new TextEncoder().encode('foo');
+      yield new TextEncoder().encode('bar');
+      await sleep(1);
+      yield new TextEncoder().encode('baz');
+      yield new TextEncoder().encode(' to print');
     })(),
   },
   {
