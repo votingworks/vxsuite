@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { ElectionId, LanguageCode } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
 import { createMemoryHistory } from 'history';
-import { DateWithoutTime } from '@votingworks/basics';
+import { DateWithoutTime, err, ok } from '@votingworks/basics';
 import { ElectionInfo } from '@votingworks/design-backend';
 import {
   MockApiClient,
@@ -205,7 +205,7 @@ test('edit and save election', async () => {
     seal: '<svg>updated seal</svg>',
     languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
   };
-  apiMock.updateElectionInfo.expectCallWith(updatedElectionInfo).resolves();
+  apiMock.updateElectionInfo.expectCallWith(updatedElectionInfo).resolves(ok());
   apiMock.getElectionInfo
     .expectCallWith({ electionId })
     .resolves({ ...generalElectionInfo, ...updatedElectionInfo });
@@ -275,4 +275,30 @@ test('edit election disabled when ballots are finalized', async () => {
 
   const editButton = screen.getByRole('button', { name: 'Edit' });
   expect(editButton).toBeDisabled();
+});
+
+test('handles duplicate title+date error', async () => {
+  const electionRecord = generalElectionRecord(user.orgId);
+  const electionId = electionRecord.election.id;
+  apiMock.getElectionInfo
+    .expectCallWith({ electionId })
+    .resolves(electionInfoFromElection(electionRecord.election));
+  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+  renderScreen(electionId);
+  await screen.findByRole('heading', { name: 'Election Info' });
+
+  userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+
+  apiMock.updateElectionInfo
+    .expectCallWith(electionInfoFromElection(electionRecord.election))
+    .resolves(err('duplicate-title-and-date'));
+  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  const expectedMessage =
+    'An election with the same title and date already exists.';
+  await screen.findByText(expectedMessage);
+
+  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  expect(screen.queryByText(expectedMessage)).not.toBeInTheDocument();
+  userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+  expect(screen.queryByText(expectedMessage)).not.toBeInTheDocument();
 });
