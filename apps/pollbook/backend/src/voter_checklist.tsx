@@ -195,6 +195,40 @@ export function VoterDomicileAddress({ voter }: { voter: Voter }): JSX.Element {
   );
 }
 
+export function VoterMailingAddress({ voter }: { voter: Voter }): JSX.Element {
+  return (
+    <div>
+      {voter.mailingAddressChange && (
+        <div style={{ color: redTextColor }}>
+          {voter.mailingAddressChange.mailingStreetNumber}
+          {voter.mailingAddressChange.mailingSuffix}{' '}
+          {voter.mailingAddressChange.mailingHouseFractionNumber}{' '}
+          {voter.mailingAddressChange.mailingStreetName}{' '}
+          {voter.mailingAddressChange.mailingApartmentUnitNumber}
+          {voter.mailingAddressChange.mailingAddressLine2 && (
+            <div>{voter.mailingAddressChange.mailingAddressLine2}</div>
+          )}
+        </div>
+      )}
+      <div
+        style={{
+          textDecoration: voter.mailingAddressChange ? 'line-through' : 'none',
+        }}
+      >
+        {voter.mailingStreetNumber}
+        {voter.mailingSuffix} {voter.mailingHouseFractionNumber}{' '}
+        {voter.mailingStreetName} {voter.mailingApartmentUnitNumber}
+        {voter.mailingAddressLine2 && <div>{voter.mailingAddressLine2}</div>}
+        {voter.mailingCityTown && (
+          <div>
+            {voter.mailingCityTown}, {voter.mailingState} {voter.mailingZip5}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function VoterChecklistTable({
   voters,
 }: {
@@ -232,7 +266,14 @@ export function VoterChecklistTable({
                 <Icons.Square style={{ fontSize: '1.3em' }} />
               )}
             </td>
-            <td>{voter.party}</td>
+            <td>
+              {voter.checkIn && voter.checkIn.ballotParty !== voter.party && (
+                <div style={{ color: redTextColor }}>
+                  {voter.checkIn.ballotParty}
+                </div>
+              )}
+              {voter.party}
+            </td>
             <td>
               <VoterName voter={voter} />
             </td>
@@ -243,18 +284,7 @@ export function VoterChecklistTable({
               <VoterDomicileAddress voter={voter} />
             </td>
             <td>
-              {voter.mailingStreetNumber}
-              {voter.mailingSuffix} {voter.mailingHouseFractionNumber}{' '}
-              {voter.mailingStreetName} {voter.mailingApartmentUnitNumber}
-              {voter.mailingAddressLine2 && (
-                <div>{voter.mailingAddressLine2}</div>
-              )}
-              {voter.mailingCityTown && (
-                <div>
-                  {voter.mailingCityTown}, {voter.mailingState}{' '}
-                  {voter.mailingZip5}
-                </div>
-              )}
+              <VoterMailingAddress voter={voter} />
             </td>
             <td>{voter.precinct}</td>
             <td>{voter.voterId}</td>
