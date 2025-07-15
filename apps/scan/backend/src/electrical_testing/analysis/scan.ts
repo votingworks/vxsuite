@@ -1,8 +1,8 @@
-import { assert, extractErrorMessage } from '@votingworks/basics';
 import {
-  analyzeScannedPage,
-  grayImageFromRgbaImageData,
-} from '@votingworks/hardware-scan-diagnostic';
+  findTimingMarkGrid,
+  TimingMarks,
+} from '@votingworks/ballot-interpreter';
+import { assert, extractErrorMessage } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { mapSheet, SheetOf } from '@votingworks/types';
 import { ImageData } from 'canvas';
@@ -13,34 +13,72 @@ import { join } from 'node:path';
 
 const CSV_COLUMNS = [
   'Timestamp',
-  'Top Orientation',
   'Top Slope',
-  'Top Intercept',
   'Top Error Average',
-  'Bottom Orientation',
   'Bottom Slope',
-  'Bottom Intercept',
   'Bottom Error Average',
-  'Left Orientation',
   'Left Slope',
-  'Left Intercept',
   'Left Error Average',
-  'Right Orientation',
   'Right Slope',
-  'Right Intercept',
   'Right Error Average',
-  'Top Left Corner X',
-  'Top Left Corner Y',
-  'Top Right Corner X',
-  'Top Right Corner Y',
-  'Bottom Left Corner X',
-  'Bottom Left Corner Y',
-  'Bottom Right Corner X',
-  'Bottom Right Corner Y',
-  'Average Error',
   'Horizontal Lines Alignment Diff',
   'Vertical Lines Alignment Diff',
+  'Average Error',
 ];
+
+interface ScannedPageAnalysis {
+  topSlope: number;
+  topError: number;
+  bottomSlope: number;
+  bottomError: number;
+  leftSlope: number;
+  leftError: number;
+  rightSlope: number;
+  rightError: number;
+  horizontalAlignmentError: number;
+  verticalAlignmentError: number;
+  averageError: number;
+}
+
+function analyzeScannedPage(timingMarkGrid: TimingMarks): ScannedPageAnalysis {
+  const topSlope = Math.atan2(
+    timingMarkGrid.topLeftCorner.y - timingMarkGrid.topRightCorner.y,
+    timingMarkGrid.topRightCorner.x - timingMarkGrid.topLeftCorner.x
+  );
+  const topError = Math.abs(topSlope);
+  const bottomSlope = Math.atan2(
+    timingMarkGrid.bottomLeftCorner.y - timingMarkGrid.bottomRightCorner.y,
+    timingMarkGrid.bottomRightCorner.x - timingMarkGrid.bottomLeftCorner.x
+  );
+  const bottomError = Math.abs(bottomSlope);
+  const leftSlope = Math.atan2(
+    timingMarkGrid.bottomLeftCorner.y - timingMarkGrid.topLeftCorner.y,
+    timingMarkGrid.topLeftCorner.x - timingMarkGrid.bottomLeftCorner.x
+  );
+  const leftError = Math.abs(leftSlope - Math.PI / 2);
+  const rightSlope = Math.atan2(
+    timingMarkGrid.bottomRightCorner.y - timingMarkGrid.topRightCorner.y,
+    timingMarkGrid.topRightCorner.x - timingMarkGrid.bottomRightCorner.x
+  );
+  const rightError = Math.abs(rightSlope - Math.PI / 2);
+  const horizontalAlignmentError = Math.abs(bottomSlope - topSlope);
+  const verticalAlignmentError = Math.abs(leftSlope - rightSlope);
+  const averageError = (topError + bottomError + leftError + rightError) / 4;
+
+  return {
+    topSlope,
+    topError,
+    bottomSlope,
+    bottomError,
+    leftSlope,
+    leftError,
+    rightSlope,
+    rightError,
+    horizontalAlignmentError,
+    verticalAlignmentError,
+    averageError,
+  };
+}
 
 export async function writeScanPageAnalyses(
   logger: Logger,
@@ -50,19 +88,15 @@ export async function writeScanPageAnalyses(
   basename: string
 ): Promise<void> {
   try {
-    const analyses = await mapSheet(
-      [front, back],
-      async ({ width, height, data }, side) => {
-        const analysis = await analyzeScannedPage(
-          grayImageFromRgbaImageData(width, height, data)
-        );
-        await writeFile(
-          join(basedir, `${basename}-analysis-${side}.json`),
-          JSON.stringify(analysis, null, 2)
-        );
-        return analysis;
-      }
-    );
+    const analyses = await mapSheet([front, back], async (image, side) => {
+      const timingMarkGrid = findTimingMarkGrid(image);
+      const analysis = analyzeScannedPage(timingMarkGrid);
+      await writeFile(
+        join(basedir, `${basename}-analysis-${side}.json`),
+        JSON.stringify(analysis, null, 2)
+      );
+      return analysis;
+    });
 
     const analysisCsvPath = join(basedir, 'electrical-testing-analysis.csv');
     if (!(await exists(analysisCsvPath))) {
@@ -72,33 +106,17 @@ export async function writeScanPageAnalyses(
     for (const analysis of analyses) {
       const csvValues = [
         timestamp.toISO(),
-        analysis.topLine.orientation,
-        analysis.topLine.slope,
-        analysis.topLine.intercept,
-        analysis.topLine.errorAverage,
-        analysis.bottomLine.orientation,
-        analysis.bottomLine.slope,
-        analysis.bottomLine.intercept,
-        analysis.bottomLine.errorAverage,
-        analysis.leftLine.orientation,
-        analysis.leftLine.slope,
-        analysis.leftLine.intercept,
-        analysis.leftLine.errorAverage,
-        analysis.rightLine.orientation,
-        analysis.rightLine.slope,
-        analysis.rightLine.intercept,
-        analysis.rightLine.errorAverage,
-        analysis.topLeftCorner.x,
-        analysis.topLeftCorner.y,
-        analysis.topRightCorner.x,
-        analysis.topRightCorner.y,
-        analysis.bottomLeftCorner.x,
-        analysis.bottomLeftCorner.y,
-        analysis.bottomRightCorner.x,
-        analysis.bottomRightCorner.y,
-        analysis.averageLineError,
-        analysis.horizontalLinesAlignmentDiff,
-        analysis.verticalLinesAlignmentDiff,
+        analysis.topSlope,
+        analysis.topError,
+        analysis.bottomSlope,
+        analysis.bottomError,
+        analysis.leftSlope,
+        analysis.leftError,
+        analysis.rightSlope,
+        analysis.rightError,
+        analysis.horizontalAlignmentError,
+        analysis.verticalAlignmentError,
+        analysis.averageError,
       ];
       assert(
         csvValues.length === CSV_COLUMNS.length,

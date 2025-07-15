@@ -2668,9 +2668,6 @@ importers:
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../../../libs/grout
-      '@votingworks/hardware-scan-diagnostic':
-        specifier: workspace:*
-        version: link:../../../libs/hardware-scan-diagnostic
       '@votingworks/image-utils':
         specifier: workspace:*
         version: link:../../../libs/image-utils
@@ -4410,42 +4407,6 @@ importers:
       vitest:
         specifier: ^2.1.8
         version: 2.1.8(jsdom@20.0.1)
-
-  libs/hardware-scan-diagnostic:
-    devDependencies:
-      '@napi-rs/cli':
-        specifier: ^2.18.4
-        version: 2.18.4
-      '@types/jest-image-snapshot':
-        specifier: ^6.4.0
-        version: 6.4.0
-      '@types/node':
-        specifier: 20.17.31
-        version: 20.17.31
-      '@votingworks/fixtures':
-        specifier: workspace:*
-        version: link:../fixtures
-      '@votingworks/image-utils':
-        specifier: workspace:*
-        version: link:../image-utils
-      canvas:
-        specifier: 2.11.2
-        version: 2.11.2
-      eslint-plugin-vx:
-        specifier: workspace:*
-        version: link:../eslint-plugin-vx
-      is-ci-cli:
-        specifier: 2.2.0
-        version: 2.2.0
-      jest-image-snapshot:
-        specifier: ^6.4.0
-        version: 6.4.0
-      nodemon:
-        specifier: ^3.1.7
-        version: 3.1.7
-      vitest:
-        specifier: ^3.1.1
-        version: 3.1.1(@types/debug@4.1.8)(@types/node@20.17.31)
 
   libs/hmpb:
     dependencies:
@@ -14016,7 +13977,7 @@ packages:
       magicast: 0.3.5
       test-exclude: 7.0.1
       tinyrainbow: 1.2.0
-      vitest: 2.1.8(jsdom@20.0.1)
+      vitest: 2.1.8(@types/node@20.17.31)(jsdom@20.0.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -24372,6 +24333,7 @@ packages:
       - sugarss
       - supports-color
       - terser
+    dev: true
 
   /vitest@3.1.1(@types/debug@4.1.8):
     resolution: {integrity: sha512-kiZc/IYmKICeBAZr9DQ5rT7/6bD9G7uqQEki4fxazi1jdVl2mWGzedtBs5s6llz59yQhVb7FFY2MbHzHCnT79Q==}
