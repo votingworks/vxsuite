@@ -34,24 +34,24 @@ export const electricalTest = test.extend<{
   electricalAppContext: async (
     {
       mainAppContext: appContext,
-      cardTask: cardLoop,
+      cardTask,
       mockSimpleScannerClient,
-      printerTask: printerLoop,
-      scannerTask: scannerLoop,
-      usbDriveTask: usbDriveLoop,
+      printerTask,
+      scannerTask,
+      usbDriveTask,
     },
     use
   ) => {
     const testingContext: ServerContext = {
       auth: appContext.mockAuth,
-      cardTask: cardLoop,
+      cardTask,
       logger: appContext.logger,
       printer: wrapLegacyPrinter(appContext.mockPrinterHandler.printer),
-      printerTask: printerLoop,
+      printerTask,
       usbDrive: appContext.mockUsbDrive.usbDrive,
       scannerClient: mockSimpleScannerClient,
-      scannerTask: scannerLoop,
-      usbDriveTask: usbDriveLoop,
+      scannerTask,
+      usbDriveTask,
       workspace: appContext.workspace,
     };
 
@@ -64,22 +64,22 @@ export const electricalTest = test.extend<{
   },
 
   cardTask: async ({}, use) => {
-    const cardLoop = TaskController.started<string>();
-    await use(cardLoop);
+    const cardTask = TaskController.started<string>();
+    await use(cardTask);
   },
 
   printerTask: async ({}, use) => {
-    const printerLoop = TaskController.started<string>();
-    await use(printerLoop);
+    const printerTask = TaskController.started<string>();
+    await use(printerTask);
   },
 
   scannerTask: async ({}, use) => {
-    const scannerLoop = TaskController.started<string>();
-    await use(scannerLoop);
+    const scannerTask = TaskController.started<string>();
+    await use(scannerTask);
   },
 
   usbDriveTask: async ({}, use) => {
-    const usbDriveLoop = TaskController.started<string>();
-    await use(usbDriveLoop);
+    const usbDriveTask = TaskController.started<string>();
+    await use(usbDriveTask);
   },
 });

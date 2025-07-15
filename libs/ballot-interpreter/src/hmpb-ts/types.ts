@@ -157,14 +157,26 @@ export interface TimingMarks {
   topRightCorner: Point<SubPixelUnit>;
   bottomLeftCorner: Point<SubPixelUnit>;
   bottomRightCorner: Point<SubPixelUnit>;
-  topRects: Rect[];
-  bottomRects: Rect[];
-  leftRects: Rect[];
-  rightRects: Rect[];
-  topLeftRect: Rect;
-  topRightRect: Rect;
-  bottomLeftRect: Rect;
-  bottomRightRect: Rect;
+  topMarks: CandidateTimingMark[];
+  bottomMarks: CandidateTimingMark[];
+  leftMarks: CandidateTimingMark[];
+  rightMarks: CandidateTimingMark[];
+  topLeftMark: CandidateTimingMark;
+  topRightMark: CandidateTimingMark;
+  bottomLeftMark: CandidateTimingMark;
+  bottomRightMark: CandidateTimingMark;
+}
+
+/** A possible timing mark. */
+export interface CandidateTimingMark {
+  rect: Rect;
+  scores: TimingMarkScore;
+}
+
+/** Scores for how closely a timing mark matches the expected shape. */
+export interface TimingMarkScore {
+  markScore: f32;
+  paddingScore: f32;
 }
 
 /** Location and score information for a ballot contest option's bubble. */

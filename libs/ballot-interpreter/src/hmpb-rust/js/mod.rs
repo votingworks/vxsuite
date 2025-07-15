@@ -4,9 +4,15 @@ use image::{DynamicImage, GrayImage};
 use neon::prelude::*;
 use neon::types::JsObject;
 
-use crate::ballot_card::load_ballot_scan_bubble_image;
-use crate::interpret::{ballot_card, Options, TimingMarkAlgorithm, SIDE_A_LABEL, SIDE_B_LABEL};
+use crate::ballot_card::{load_ballot_scan_bubble_image, PaperInfo};
+use crate::debug::ImageDebugWriter;
+use crate::interpret::{
+    ballot_card, prepare_ballot_page_image, Options, TimingMarkAlgorithm, SIDE_A_LABEL,
+    SIDE_B_LABEL,
+};
 use crate::scoring::UnitIntervalScore;
+use crate::timing_marks::contours::FindTimingMarkGridOptions;
+use crate::timing_marks::{self, DefaultForGeometry};
 
 use self::args::{
     get_election_definition_from_arg, get_image_data_or_path_from_arg, get_path_from_arg_opt,
@@ -191,6 +197,89 @@ pub fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
     result_object.set(&mut cx, "backNormalizedImage", back_js_normalized_image_obj)?;
 
     Ok(result_object)
+}
+
+pub fn find_timing_mark_grid(mut cx: FunctionContext) -> JsResult<JsObject> {
+    let image_or_path = get_image_data_or_path_from_arg(&mut cx, 0)?;
+    let debug_base = get_path_from_arg_opt(&mut cx, 1);
+
+    // Equivalent to:
+    //   let options = typeof arguments[2] === 'object' ? arguments[2] : {};
+    let options = match cx.argument_opt(2) {
+        None => cx.empty_object(),
+        Some(arg) if arg.is_a::<JsUndefined, _>(&mut cx) => cx.empty_object(),
+        Some(arg) => arg.downcast_or_throw::<JsObject, _>(&mut cx)?,
+    };
+
+    let timing_mark_algorithm = options.get_value(&mut cx, "timingMarkAlgorithm")?;
+    let timing_mark_algorithm: TimingMarkAlgorithm = if let Ok(timing_mark_algorithm) =
+        timing_mark_algorithm.downcast::<JsString, _>(&mut cx)
+    {
+        match timing_mark_algorithm.value(&mut cx).parse() {
+            Ok(timing_mark_algorithm) => timing_mark_algorithm,
+            Err(e) => return cx.throw_type_error(format!("Invalid timing mark algorithm: {e}")),
+        }
+    } else if timing_mark_algorithm.is_a::<JsUndefined, _>(&mut cx) {
+        TimingMarkAlgorithm::default()
+    } else {
+        return cx.throw_type_error("Invalid or missing timing mark algorithm");
+    };
+
+    let label = image_or_path.as_label_or("image");
+    let Some(image) = load_ballot_image_from_image_or_path(image_or_path) else {
+        return cx.throw_error(format!("failed to load ballot card image: {label}"));
+    };
+
+    let mut debug = match debug_base {
+        Some(base) => ImageDebugWriter::new(base, image.clone()),
+        None => ImageDebugWriter::disabled(),
+    };
+
+    let ballot_page = match prepare_ballot_page_image("image", image, &PaperInfo::scanned()) {
+        Ok(ballot_page) => ballot_page,
+        Err(err) => {
+            return cx.throw_error(format!("failed to find timing mark grid: {err:?}"));
+        }
+    };
+
+    let find_timing_marks_result = match timing_mark_algorithm {
+        TimingMarkAlgorithm::Corners => timing_marks::corners::find_timing_mark_grid(
+            &ballot_page.ballot_image,
+            &ballot_page.geometry,
+            &debug,
+            &timing_marks::corners::Options::default_for_geometry(&ballot_page.geometry),
+        ),
+        TimingMarkAlgorithm::Contours => timing_marks::contours::find_timing_mark_grid(
+            &ballot_page.geometry,
+            &ballot_page.ballot_image,
+            FindTimingMarkGridOptions {
+                allowed_timing_mark_inset_percentage_of_width:
+                    timing_marks::contours::ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH,
+                infer_timing_marks: false,
+                debug: &mut debug,
+            },
+        ),
+    };
+
+    let timing_marks = match find_timing_marks_result {
+        Ok(timing_marks) => timing_marks,
+        Err(err) => {
+            return cx.throw_error(format!("failed to detect timing mark grid: {err:?}"));
+        }
+    };
+
+    let timing_marks_json = match serde_json::to_string(&timing_marks) {
+        Ok(json) => json,
+        Err(err) => return cx.throw_error(format!("failed to serialize JSON: {err:?}")),
+    };
+
+    let json = cx.global::<JsObject>("JSON")?;
+    let parse = json.get::<JsFunction, _, _>(&mut cx, "parse")?;
+    let timing_marks_json = cx.string(timing_marks_json);
+    let args = [timing_marks_json.as_value(&mut cx)];
+    parse
+        .call(&mut cx, json, args)?
+        .downcast_or_throw::<JsObject, _>(&mut cx)
 }
 
 fn load_ballot_image_from_image_or_path(image_or_path: ImageSource) -> Option<GrayImage> {
