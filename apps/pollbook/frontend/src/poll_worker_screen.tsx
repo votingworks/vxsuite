@@ -27,11 +27,7 @@ import {
   VoterSearchScreen,
 } from './voter_search_screen';
 import { VoterConfirmScreen } from './voter_confirm_screen';
-import {
-  NoNavScreen,
-  PollWorkerNavScreen,
-  pollWorkerRoutes,
-} from './nav_screen';
+import { NavScreen, NoNavScreen, pollWorkerRoutes } from './nav_screen';
 import { Column, Row } from './layout';
 import {
   getDeviceStatuses,
@@ -371,7 +367,7 @@ export function PollWorkerScreen(): JSX.Element | null {
     getPollbookConfigurationInformationQuery.data;
   if (!printer.connected) {
     return (
-      <PollWorkerNavScreen>
+      <NavScreen>
         <Column style={{ justifyContent: 'center', flex: 1 }}>
           <FullScreenMessage
             image={
@@ -384,13 +380,13 @@ export function PollWorkerScreen(): JSX.Element | null {
             <p>Connect printer to continue.</p>
           </FullScreenMessage>
         </Column>
-      </PollWorkerNavScreen>
+      </NavScreen>
     );
   }
 
   if (!configuredPrecinctId) {
     return (
-      <PollWorkerNavScreen>
+      <NavScreen>
         <Column>
           <FullScreenMessage
             title="No Precinct Selected"
@@ -403,7 +399,7 @@ export function PollWorkerScreen(): JSX.Element | null {
             <P>Insert an election manager card to select a precinct.</P>
           </FullScreenMessage>
         </Column>
-      </PollWorkerNavScreen>
+      </NavScreen>
     );
   }
 

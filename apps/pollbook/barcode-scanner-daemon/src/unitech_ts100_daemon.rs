@@ -21,7 +21,7 @@ mod parse_aamva;
 /*
  * Logging config
  */
-const SOURCE: Source = Source::VxPollbookBarcodeScannerDaemon;
+const SOURCE: Source = Source::VxPollBookBarcodeScannerDaemon;
 /// How often the daemon logs its heartbeat.
 const HEARTBEAT_LOG_INTERVAL: Duration = Duration::from_secs(60);
 /// Interval for general polling

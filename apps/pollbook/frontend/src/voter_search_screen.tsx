@@ -24,11 +24,11 @@ import type {
 } from '@votingworks/pollbook-backend';
 import styled from 'styled-components';
 import { format } from '@votingworks/utils';
-import { Optional, throwIllegalValue } from '@votingworks/basics';
+import { Optional } from '@votingworks/basics';
 import { Election } from '@votingworks/types';
 import { useQueryClient } from '@tanstack/react-query';
 import { Column, Form, Row, InputGroup } from './layout';
-import { PollWorkerNavScreen } from './nav_screen';
+import { NavScreen } from './nav_screen';
 import { getCheckInCounts, getScannedIdDocument, searchVoters } from './api';
 import {
   AbsenteeModeCallout,
@@ -296,18 +296,6 @@ export function CheckInDetails({
 }: {
   checkIn: VoterCheckIn;
 }): JSX.Element {
-  const { identificationMethod } = checkIn;
-  const identificationDetails = (() => {
-    switch (identificationMethod.type) {
-      case 'default':
-        return null;
-      case 'outOfStateLicense':
-        return `OOS DL (${identificationMethod.state})`;
-      default:
-        /* istanbul ignore next - @preserve */
-        throwIllegalValue(identificationMethod);
-    }
-  })();
   return (
     <Column>
       {checkIn.isAbsentee ? (
@@ -322,7 +310,6 @@ export function CheckInDetails({
       <Caption noWrap>
         {format.localeTime(new Date(checkIn.timestamp))} &bull;{' '}
         {checkIn.machineId}
-        {identificationDetails && <span> &bull; {identificationDetails}</span>}
       </Caption>
     </Column>
   );
@@ -353,7 +340,7 @@ export function VoterSearchScreen({
   );
 
   return (
-    <PollWorkerNavScreen>
+    <NavScreen>
       <Main flexColumn>
         <MainHeader>
           <Row
@@ -410,6 +397,6 @@ export function VoterSearchScreen({
           />
         </MainContent>
       </Main>
-    </PollWorkerNavScreen>
+    </NavScreen>
   );
 }

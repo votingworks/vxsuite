@@ -39,6 +39,9 @@ import { UpdateMailingAddressFlow } from './update_mailing_address_flow';
 import { getVoter } from './api';
 import { getVoterPrecinct } from './types';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const { NH, ...usStatesWithoutNewHampshire } = usStates;
+
 function isIdentificationMethodComplete(
   identificationMethod: Partial<VoterIdentificationMethod>
 ): identificationMethod is VoterIdentificationMethod {
@@ -258,10 +261,12 @@ export function VoterConfirmScreen({
                 {identificationMethod.type === 'outOfStateLicense' && (
                   <SearchSelect
                     id="state"
-                    options={Object.entries(usStates).map(([value, label]) => ({
-                      value,
-                      label: `${value} - ${label}`,
-                    }))}
+                    options={Object.entries(usStatesWithoutNewHampshire).map(
+                      ([value, label]) => ({
+                        value,
+                        label: `${value} - ${label}`,
+                      })
+                    )}
                     menuPortalTarget={document.body}
                     value={
                       identificationMethod.type === 'outOfStateLicense'

@@ -506,14 +506,10 @@ export function VoterDetailsScreen(): JSX.Element | null {
                   </LabelledText>
                   {voter.checkIn.identificationMethod.type ===
                     'outOfStateLicense' && (
-                    <React.Fragment>
-                      <LabelledText label="Identification method">
-                        Out of state driver&apos;s license
-                      </LabelledText>
-                      <LabelledText label="State">
-                        {voter.checkIn.identificationMethod.state}
-                      </LabelledText>
-                    </React.Fragment>
+                    <LabelledText label="Identification Method">
+                      Out-of-State ID (
+                      {voter.checkIn.identificationMethod.state})
+                    </LabelledText>
                   )}
                   {election.type === 'primary' && (
                     <LabelledText label="Ballot Party">

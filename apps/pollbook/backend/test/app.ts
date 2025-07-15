@@ -64,7 +64,7 @@ export function buildMockLogger(
   workspace: LocalWorkspace
 ): MockLogger {
   return mockLogger({
-    source: LogSource.VxPollbookBackend,
+    source: LogSource.VxPollBookBackend,
     getCurrentRole: () => getUserRole(auth, workspace),
     fn: vi.fn,
   });

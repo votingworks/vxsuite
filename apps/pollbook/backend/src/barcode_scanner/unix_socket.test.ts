@@ -28,7 +28,7 @@ describe('unix socket utils', () => {
       mockSocket as unknown as net.Socket
     );
     logger = mockLogger({
-      source: LogSource.VxPollbookBackend,
+      source: LogSource.VxPollBookBackend,
       getCurrentRole: vi.fn().mockResolvedValue('system'),
       fn: vi.fn,
     });

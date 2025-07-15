@@ -68,13 +68,10 @@ describe('PollWorkerScreen', () => {
     );
 
     apiMock.expectGetCheckInCounts({ allMachines: 25, thisMachine: 5 });
-    await vi.waitFor(() => {
-      screen.getByText('Check-In');
-    });
     apiMock.expectGetScannedIdDocument();
     apiMock.expectSearchVotersNull({});
 
-    await screen.findByText('Total Check-ins');
+    await vi.waitFor(() => screen.getByText('Total Check-ins'));
     const total = screen.getByTestId('total-check-ins');
     within(total).getByText('25');
     const machine = screen.getByTestId('machine-check-ins');
@@ -264,11 +261,7 @@ describe('PollWorkerScreen', () => {
     apiMock.expectGetCheckInCounts({ allMachines: 25, thisMachine: 5 });
     const { unmount } = render(<App apiClient={apiMock.mockApiClient} />);
 
-    await vi.waitFor(() => {
-      screen.getByText('Check-In');
-    });
-
-    await screen.findByText('Total Check-ins');
+    await vi.waitFor(() => screen.getByText('Total Check-ins'));
     const total = screen.getByTestId('total-check-ins');
     within(total).getByText('25');
     const machine = screen.getByTestId('machine-check-ins');
@@ -313,9 +306,7 @@ describe('PollWorkerScreen', () => {
 
     // Render empty voter search screen
     const { unmount } = render(<App apiClient={apiMock.mockApiClient} />);
-    await vi.waitFor(() => {
-      screen.getByText('Check-In');
-    });
+    await vi.waitFor(() => screen.getByText('Voter Check-In'));
 
     const document: AamvaDocument = {
       firstName: 'Aaron',
@@ -374,7 +365,6 @@ describe('PollWorkerScreen', () => {
       apiMock.setPrinterStatus(true);
       apiMock.setIsAbsenteeMode(false);
       apiMock.expectGetCheckInCounts({ allMachines: 25, thisMachine: 5 });
-      await screen.findByText('Check-In');
       apiMock.expectSearchVotersNull({});
       apiMock.expectGetScannedIdDocument();
 

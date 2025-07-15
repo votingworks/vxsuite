@@ -119,7 +119,7 @@ describe('SettingsScreen precinct selection', () => {
     expect(select).toBeInTheDocument();
     expect((select as HTMLSelectElement).disabled).toBeTruthy();
     screen.getByText(
-      /The precinct setting cannot be changed because a voter was checked-in or voter data was updated/
+      /The precinct setting cannot be changed because a voter was checked in or voter information was updated/
     );
   });
 
@@ -166,7 +166,7 @@ describe('SettingsScreen precinct selection', () => {
     expect(selectDisabled).toBeInTheDocument();
     expect((selectDisabled as HTMLSelectElement).disabled).toBeTruthy();
     screen.getByText(
-      /The precinct setting cannot be changed because a voter was checked-in or voter data was updated/
+      /The precinct setting cannot be changed because a voter was checked in or voter information was updated/
     );
   });
 });

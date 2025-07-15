@@ -94,7 +94,7 @@ function getDefaultExpectedVoterSearchParams(
 }
 
 /**
- * Creates a VxPollbook specific wrapper around commonly used methods from the Grout
+ * Creates a VxPollBook specific wrapper around commonly used methods from the Grout
  * mock API client to make it easier to use for our specific test needs
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types

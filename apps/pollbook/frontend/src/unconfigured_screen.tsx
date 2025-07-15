@@ -30,7 +30,7 @@ function PollbookConnectionTable({
   pollbooks: PollbookServiceInfo[];
   onConfigure: (pollbooks: PollbookServiceInfo[]) => void;
 }): JSX.Element {
-  // Group pollbooks by election hash (ballotHash-packageHash)
+  // Group poll books by election hash (ballotHash-packageHash)
   const groups = groupBy(
     pollbooks,
     (p) => `${p.electionBallotHash}-${p.pollbookPackageHash}`
@@ -94,7 +94,7 @@ export function UnconfiguredSystemAdminScreen(): JSX.Element {
   if (electionResult.isOk() || electionResult.err() === 'loading') {
     return (
       <FullScreenMessage
-        title="Configuring VxPollbook from USB drive…"
+        title="Configuring VxPollBook from USB drive…"
         image={
           <FullScreenIconWrapper>
             <Icons.Loading />
@@ -106,7 +106,7 @@ export function UnconfiguredSystemAdminScreen(): JSX.Element {
   if (isLoadingFromNetwork && electionResult.err() === 'unconfigured') {
     return (
       <FullScreenMessage
-        title="Configuring VxPollbook from network…"
+        title="Configuring VxPollBook from network…"
         image={
           <FullScreenIconWrapper>
             <Icons.Loading />
@@ -137,27 +137,27 @@ export function UnconfiguredSystemAdminScreen(): JSX.Element {
             </FullScreenIconWrapper>
           }
         >
-          Error configuring machine please try again.
+          Error configuring machine. Please try again.
         </FullScreenMessage>
       );
     }
     if (electionResult.err() === 'not-found-usb') {
       return (
         <FullScreenMessage
-          title="Failed to configure VxPollbook"
+          title="Failed to configure VxPollBook"
           image={
             <FullScreenIconWrapper>
               <Icons.Warning color="warning" />
             </FullScreenIconWrapper>
           }
         >
-          No pollbook package found on the inserted USB drive.
+          No poll book package found on the inserted USB drive.
         </FullScreenMessage>
       );
     }
     return (
       <FullScreenMessage
-        title="Insert a USB drive containing a pollbook package or power up another configured machine."
+        title="Insert a USB drive containing a poll book package or power up another configured machine."
         image={<UsbDriveImage />}
       />
     );
@@ -167,18 +167,18 @@ export function UnconfiguredSystemAdminScreen(): JSX.Element {
     <MainContent>
       {electionResult.err() === 'not-found-usb' && (
         <Card color="warning" style={{ marginBottom: '1rem' }}>
-          <Icons.Warning color="warning" /> No pollbook package found on the
+          <Icons.Warning color="warning" /> No poll book package found on the
           inserted USB drive.
         </Card>
       )}
       {hasError && (
         <Card color="warning" style={{ marginBottom: '1rem' }}>
-          <Icons.Warning color="warning" /> Error during configuration, please
+          <Icons.Warning color="warning" /> Error during configuration. Please
           try again.
         </Card>
       )}
       <P>
-        Insert a USB drive containing a pollbook package, or configure from
+        Insert a USB drive containing a poll book package, or configure from
         another nearby machine listed below.
       </P>
       <PollbookConnectionTable
@@ -222,7 +222,7 @@ export function UnconfiguredElectionManagerScreen(): JSX.Element {
     return (
       <Screen>
         <FullScreenMessage
-          title="Configuring VxPollbook from network…"
+          title="Configuring VxPollBook from network…"
           image={
             <FullScreenIconWrapper>
               <Icons.Loading />
@@ -258,7 +258,7 @@ export function UnconfiguredElectionManagerScreen(): JSX.Element {
     return (
       <Screen>
         <FullScreenMessage
-          title="Configuring VxPollbook from network…"
+          title="Configuring VxPollBook from network…"
           image={
             <FullScreenIconWrapper>
               <Icons.Loading />
@@ -335,8 +335,7 @@ export function UnconfiguredElectionManagerScreen(): JSX.Element {
           </FullScreenIconWrapper>
         }
       >
-        VxPollBook did not detect any other configured poll books on the
-        network.
+        VxPollBook did not detect any configured poll books on the network.
       </FullScreenMessage>
     </Screen>
   );

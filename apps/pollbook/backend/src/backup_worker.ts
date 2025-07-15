@@ -235,7 +235,7 @@ export function start({
   workspace: LocalWorkspace;
   usbDrive: UsbDrive;
 }): void {
-  console.log('Starting VxPollbook backup worker');
+  console.log('Starting VxPollBook backup worker');
   process.nextTick(async () => {
     await exportBackupVoterChecklist(workspace, usbDrive);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
