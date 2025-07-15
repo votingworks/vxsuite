@@ -87,7 +87,15 @@ export async function exec(
 
   if (stdin) {
     debug('stdin passed to exec, feeding it in now.');
-    Readable.from(stdin).pipe(child.stdin);
+
+    if (stdin instanceof Uint8Array) {
+      // `Readable.from` will chunk each byte in a `Uint8Array` individually, so
+      // a conversion to `Uint8Array[]` is necessary here. This mimics Node's
+      // special handling for `Readable.from(Buffer)`.
+      Readable.from([stdin]).pipe(child.stdin);
+    } else {
+      Readable.from(stdin).pipe(child.stdin);
+    }
   }
 
   return new Promise((resolve) => {

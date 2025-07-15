@@ -1,6 +1,5 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { ok } from '@votingworks/basics';
-import { Buffer } from 'node:buffer';
 import { exec } from '../utils/exec';
 import { DEFAULT_MANAGED_PRINTER_NAME } from './configure';
 import { print } from './print';
@@ -18,43 +17,49 @@ beforeEach(() => {
 test('prints with defaults', async () => {
   vi.mocked(exec).mockResolvedValueOnce(ok({ stdout: '', stderr: '' }));
 
-  await print({ data: Buffer.of() });
+  await print({ data: Uint8Array.of(0xca, 0xfe) });
 
   expect(exec).toHaveBeenCalledWith(
     'lpr',
     ['-P', DEFAULT_MANAGED_PRINTER_NAME, '-o', 'sides=one-sided'],
-    expect.anything()
+    Uint8Array.of(0xca, 0xfe)
   );
 });
 
 test('allows specifying other sided-ness', async () => {
   vi.mocked(exec).mockResolvedValueOnce(ok({ stdout: '', stderr: '' }));
 
-  await print({ data: Buffer.of(), sides: PrintSides.TwoSidedLongEdge });
+  await print({
+    data: Uint8Array.of(0xf0, 0x0d),
+    sides: PrintSides.TwoSidedLongEdge,
+  });
 
   expect(exec).toHaveBeenCalledWith(
     'lpr',
     ['-P', DEFAULT_MANAGED_PRINTER_NAME, '-o', 'sides=two-sided-long-edge'],
-    expect.anything()
+    Uint8Array.of(0xf0, 0x0d)
   );
 });
 
 test('prints a specified number of copies', async () => {
   vi.mocked(exec).mockResolvedValueOnce(ok({ stdout: '', stderr: '' }));
 
-  await print({ data: Buffer.of(), copies: 3 });
+  await print({ data: Uint8Array.of(0xca, 0xfe), copies: 3 });
 
   expect(exec).toHaveBeenCalledWith(
     'lpr',
     ['-P', DEFAULT_MANAGED_PRINTER_NAME, '-o', 'sides=one-sided', '-#', '3'],
-    expect.anything()
+    Uint8Array.of(0xca, 0xfe)
   );
 });
 
 test('passes through raw options', async () => {
   vi.mocked(exec).mockResolvedValueOnce(ok({ stdout: '', stderr: '' }));
 
-  await print({ data: Buffer.of(), raw: { 'fit-to-page': 'true' } });
+  await print({
+    data: Uint8Array.of(0xf0, 0x0d),
+    raw: { 'fit-to-page': 'true' },
+  });
 
   expect(exec).toHaveBeenCalledWith(
     'lpr',
@@ -66,7 +71,7 @@ test('passes through raw options', async () => {
       '-o',
       'fit-to-page=true',
     ],
-    expect.anything()
+    Uint8Array.of(0xf0, 0x0d)
   );
 });
 
@@ -74,7 +79,7 @@ test('rejects invalid raw options', async () => {
   vi.mocked(exec).mockResolvedValueOnce(ok({ stdout: '', stderr: '' }));
 
   await expect(
-    print({ data: Buffer.of(), raw: { 'fit to page': 'true' } })
+    print({ data: Uint8Array.of(), raw: { 'fit to page': 'true' } })
   ).rejects.toThrowError();
 
   expect(exec).not.toHaveBeenCalled();
