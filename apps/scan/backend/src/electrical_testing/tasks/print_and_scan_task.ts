@@ -190,8 +190,18 @@ export async function runPrintAndScanTask({
           if (scannerClient.isConnected()) {
             await scannerClient.disconnect();
           }
-          await scannerClient.connect(onScannerEvent);
-          await scannerClient.enableScanning();
+          await scannerClient.connect(async (event) => {
+            try {
+              await onScannerEvent(event);
+            } catch (error) {
+              workspace.store.setElectricalTestingStatusMessage(
+                'scanner',
+                `Error during scanner event (${
+                  event.event
+                }): ${extractErrorMessage(error)}`
+              );
+            }
+          });
           await scannerClient.ejectAndRescanPaperIfPresent();
 
           workspace.store.setElectricalTestingStatusMessage(
