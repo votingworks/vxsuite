@@ -1087,21 +1087,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "hardware-scan-diagnostic"
-version = "0.0.0"
-dependencies = [
- "anyhow",
- "image",
- "imageproc",
- "napi",
- "napi-build",
- "napi-derive",
- "thiserror",
- "tokio",
- "types-rs",
-]
-
-[[package]]
 name = "hashbrown"
 version = "0.14.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"

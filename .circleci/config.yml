@@ -981,30 +981,6 @@ jobs:
       - store_test_results:
           path: libs/grout/test-utils/reports/
 
-  # @votingworks/hardware-scan-diagnostic
-  test-libs-hardware-scan-diagnostic:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install:
-          is_node_package: true
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/hardware-scan-diagnostic build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/hardware-scan-diagnostic lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/hardware-scan-diagnostic test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: libs/hardware-scan-diagnostic/reports/
-
   # @votingworks/hmpb
   test-libs-hmpb:
     executor: nodejs
@@ -1421,7 +1397,6 @@ workflows:
       - test-libs-fujitsu-thermal-printer
       - test-libs-grout
       - test-libs-grout-test-utils
-      - test-libs-hardware-scan-diagnostic
       - test-libs-hmpb
       - test-libs-image-utils
       - test-libs-logging
