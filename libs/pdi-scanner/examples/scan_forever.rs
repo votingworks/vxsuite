@@ -75,7 +75,10 @@ async fn main() -> color_eyre::Result<()> {
     // Sometimes, after closing the previous scanner connection, a new connection will
     // time out during these first commands. Until we get to the bottom of why that's
     // happening, we just retry once, which seems to resolve it.
-    if let Err(_) = client.send_initial_commands_after_connect(Duration::from_millis(500)) {
+    if client
+        .send_initial_commands_after_connect(Duration::from_millis(500))
+        .is_err()
+    {
         client.send_initial_commands_after_connect(Duration::from_secs(3))?;
     }
     let image_calibration_tables = client.get_image_calibration_tables(Duration::from_secs(3))?;
@@ -120,7 +123,7 @@ async fn main() -> color_eyre::Result<()> {
                         Ok(Sheet::Duplex(top_image, bottom_image)) => {
                             println!(
                                 "scanned duplex sheet in {:?}",
-                                start.unwrap_or_else(|| Instant::now()).elapsed()
+                                start.unwrap_or_else(Instant::now).elapsed()
                             );
                             let top_path = PathBuf::from(format!("scan-{scan_index:04}-top.png"));
                             let bottom_path =
@@ -137,9 +140,6 @@ async fn main() -> color_eyre::Result<()> {
                             if let Ok(status) = client.get_scanner_status(Duration::from_secs(1)) {
                                 if status.rear_sensors_covered() {
                                     client.eject_document(EjectMotion::ToFront)?;
-                                    // ejecting the document will disable the feeder,
-                                    // so we need to re-enable it
-                                    client.set_feeder_mode(FeederMode::AutoScanSheets)?;
                                 }
                             }
                         }
@@ -152,6 +152,7 @@ async fn main() -> color_eyre::Result<()> {
                         }
                     }
 
+                    client.set_feeder_mode(FeederMode::AutoScanSheets)?;
                     println!("waiting for sheet…");
                 }
                 _ => {}
