@@ -94,6 +94,32 @@ test('diagnostic records', async () => {
   vi.useRealTimers();
 });
 
+test('unconfiguring clears diagnostic records', async () => {
+  vi.useFakeTimers();
+  const { apiClient, auth } = buildTestEnvironment();
+  mockSystemAdministratorAuth(auth);
+
+  expect(await apiClient.getMostRecentPrinterDiagnostic()).toEqual(null);
+
+  vi.setSystemTime(new Date(1000));
+  await apiClient.addDiagnosticRecord({
+    type: 'test-print',
+    outcome: 'pass',
+  });
+  expect(
+    await apiClient.getMostRecentPrinterDiagnostic()
+  ).toEqual<DiagnosticRecord>({
+    type: 'test-print',
+    outcome: 'pass',
+    timestamp: 1000,
+  });
+
+  await apiClient.unconfigure();
+  expect(await apiClient.getMostRecentPrinterDiagnostic()).toEqual(null);
+
+  vi.useRealTimers();
+});
+
 const reportPrintedTime = new Date('2021-01-01T00:00:00.000');
 vi.mock(import('./util/get_current_time.js'), async (importActual) => ({
   ...(await importActual()),

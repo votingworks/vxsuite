@@ -169,6 +169,13 @@ export class Store {
   }
 
   /**
+   * Resets the database, clearing any existing data.
+   */
+  reset(): void {
+    this.client.reset();
+  }
+
+  /**
    * Runs the given function in a transaction. If the function throws an error,
    * the transaction is rolled back. Otherwise, the transaction is committed.
    *
@@ -306,21 +313,6 @@ export class Store {
       electionId
     ) as { electionPackageFileContents: Buffer } | undefined;
     return result?.electionPackageFileContents;
-  }
-
-  /**
-   * Deletes an election record.
-   */
-  deleteElection(id: Id): void {
-    this.client.run(
-      'update settings set current_election_id = null where current_election_id = ?',
-      id
-    );
-    this.client.run('delete from elections where id = ?', id);
-
-    // there are many cascading deletes from elections, so there may be lots of
-    // disk space to reclaim
-    this.client.vacuum();
   }
 
   /**
