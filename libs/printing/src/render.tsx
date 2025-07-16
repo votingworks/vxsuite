@@ -11,7 +11,6 @@ import {
   FONT_AWESOME_STYLES,
 } from '@votingworks/ui';
 import { err, ok, Result } from '@votingworks/basics';
-import { OPTIONAL_EXECUTABLE_PATH_OVERRIDE } from './chromium';
 
 const PLAYWRIGHT_PIXELS_PER_INCH = 96;
 const MAX_HTML_CHARACTERS = 10_000_000;
@@ -73,7 +72,8 @@ export async function launchBrowser(): Promise<Browser> {
     // Font hinting (https://fonts.google.com/knowledge/glossary/hinting) is on by default, but
     // causes fonts to render awkwardly at higher resolutions, so we disable it
     args: ['--font-render-hinting=none'],
-    executablePath: OPTIONAL_EXECUTABLE_PATH_OVERRIDE,
+    // For consistency across environments, we use the system's Chromium.
+    executablePath: '/usr/bin/chromium',
   });
 }
 
@@ -111,20 +111,17 @@ export interface RenderSpec {
 }
 
 export async function renderToPdf(
-  spec: RenderSpec[],
-  browserOverride?: Browser
+  spec: RenderSpec[]
 ): Promise<Result<Uint8Array[], PdfError>>;
 export async function renderToPdf(
-  spec: RenderSpec,
-  browserOverride?: Browser
+  spec: RenderSpec
 ): Promise<Result<Uint8Array, PdfError>>;
 export async function renderToPdf(
-  spec: RenderSpec | RenderSpec[],
-  browserOverride?: Browser
+  spec: RenderSpec | RenderSpec[]
 ): Promise<Result<Uint8Array | Uint8Array[], PdfError>> {
   const specs = Array.isArray(spec) ? spec : [spec];
 
-  const browser = browserOverride ?? (await getOrCreateCachedBrowser());
+  const browser = await getOrCreateCachedBrowser();
   const context = await browser.newContext();
   const page = await context.newPage();
 

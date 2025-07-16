@@ -13,11 +13,9 @@ import {
 import { tmpNameSync } from 'tmp';
 import { parsePdf } from '@votingworks/image-utils';
 import { writeFileSync } from 'node:fs';
-import { chromium } from 'playwright';
 import { err, iter } from '@votingworks/basics';
 import styled from 'styled-components';
 import { PAPER_DIMENSIONS, RenderSpec, renderToPdf } from './render';
-import { OPTIONAL_EXECUTABLE_PATH_OVERRIDE } from './chromium';
 
 const electionDefinition =
   electionFamousNames2021Fixtures.readElectionDefinition();
@@ -260,30 +258,6 @@ test('readers header when specified', async () => {
   await expect(outputPath).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'header',
   });
-});
-
-test('with browser override', async () => {
-  const browserOverride = await chromium.launch({
-    args: ['--font-render-hinting=none'],
-    executablePath: OPTIONAL_EXECUTABLE_PATH_OVERRIDE,
-  });
-
-  const outputPath = tmpNameSync();
-  (
-    await renderToPdf(
-      {
-        document: <div>with browser override</div>,
-        outputPath,
-      },
-      browserOverride
-    )
-  ).unsafeUnwrap();
-
-  await expect(outputPath).toMatchPdfSnapshot({
-    customSnapshotIdentifier: 'with-browser-override',
-  });
-
-  await browserOverride.close();
 });
 
 test('uses print theme when specified', async () => {
