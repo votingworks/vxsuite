@@ -49,23 +49,6 @@ function renderScreen() {
   );
 }
 
-test('feature flag to hide marginal mark thresholds', async () => {
-  mockUserFeatures(apiMock, { MARGINAL_MARK_THRESHOLD_OPTION: false });
-  apiMock.getSystemSettings
-    .expectCallWith({ electionId })
-    .resolves(electionRecord.systemSettings);
-  renderScreen();
-  await screen.findByRole('heading', { name: 'System Settings' });
-
-  screen.getByRole('heading', { name: 'Scanner Thresholds' });
-
-  expect(
-    screen.queryByRole('spinbutton', {
-      name: 'Marginal Mark Threshold',
-    })
-  ).not.toBeInTheDocument();
-});
-
 test('mark thresholds', async () => {
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
@@ -505,7 +488,6 @@ test('cancelling', async () => {
 });
 
 test('all controls are disabled until clicking "Edit"', async () => {
-  mockUserFeatures(apiMock, { MARGINAL_MARK_THRESHOLD_OPTION: true });
   const { systemSettings } = electionRecord;
   apiMock.getSystemSettings
     .expectCallWith({ electionId })

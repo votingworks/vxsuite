@@ -21,11 +21,6 @@ enum UserFeature {
    */
   SYSTEM_SETTINGS_SCREEN = 'SYSTEM_SETTINGS_SCREEN',
   /**
-   * Show the System Settings "Marginal Mark Threshold" option.
-   * If enabled, also requires SYSTEM_SETTINGS_SCREEN.
-   */
-  MARGINAL_MARK_THRESHOLD_OPTION = 'MARGINAL_MARK_THRESHOLD_OPTION',
-  /**
    * Show the System Settings "Enable BMD Ballot Scanning on VxScan" option.
    * If enabled, also requires SYSTEM_SETTINGS_SCREEN.
    */
@@ -118,7 +113,6 @@ export const userFeatureConfigs = {
     EXPORT_SCREEN: true,
     CHOOSE_BALLOT_TEMPLATE: true,
     EXPORT_TEST_DECKS: true,
-    MARGINAL_MARK_THRESHOLD_OPTION: true,
     ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: true,
     MINIMUM_DETECTED_SCALE_OPTION: true,
     ONLY_LETTER_AND_LEGAL_PAPER_SIZES: false,
@@ -133,7 +127,6 @@ export const userFeatureConfigs = {
   sli: {
     ACCESS_ALL_ORGS: false,
     SYSTEM_SETTINGS_SCREEN: true,
-    MARGINAL_MARK_THRESHOLD_OPTION: false,
     ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: false,
     MINIMUM_DETECTED_SCALE_OPTION: false,
     EXPORT_SCREEN: true,
@@ -151,7 +144,6 @@ export const userFeatureConfigs = {
   demos: {
     ACCESS_ALL_ORGS: false,
     SYSTEM_SETTINGS_SCREEN: true,
-    MARGINAL_MARK_THRESHOLD_OPTION: false,
     ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: false,
     MINIMUM_DETECTED_SCALE_OPTION: false,
     EXPORT_SCREEN: true,
@@ -169,7 +161,6 @@ export const userFeatureConfigs = {
   nh: {
     ACCESS_ALL_ORGS: false,
     SYSTEM_SETTINGS_SCREEN: false,
-    MARGINAL_MARK_THRESHOLD_OPTION: false,
     ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: false,
     MINIMUM_DETECTED_SCALE_OPTION: false,
     EXPORT_SCREEN: false,

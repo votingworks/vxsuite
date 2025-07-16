@@ -272,33 +272,31 @@ export function SystemSettingsForm({
                 required
               />
             </InputGroup>
-            {features.MARGINAL_MARK_THRESHOLD_OPTION && (
-              <InputGroup label="Marginal Mark Threshold">
-                <input
-                  type="number"
-                  value={systemSettings.markThresholds.marginal}
-                  onChange={(e) => {
-                    const marginal = e.target.valueAsNumber;
-                    setSystemSettings({
-                      ...systemSettings,
-                      markThresholds: {
-                        ...(systemSettings.markThresholds || {
-                          definite: 0,
-                        }),
-                        marginal: Number.isNaN(marginal)
-                          ? DEFAULT_MARK_THRESHOLDS.marginal
-                          : marginal,
-                      },
-                    });
-                  }}
-                  step={0.01}
-                  min={0}
-                  max={1}
-                  disabled={!isEditing}
-                  required
-                />
-              </InputGroup>
-            )}
+            <InputGroup label="Marginal Mark Threshold">
+              <input
+                type="number"
+                value={systemSettings.markThresholds.marginal}
+                onChange={(e) => {
+                  const marginal = e.target.valueAsNumber;
+                  setSystemSettings({
+                    ...systemSettings,
+                    markThresholds: {
+                      ...(systemSettings.markThresholds || {
+                        definite: 0,
+                      }),
+                      marginal: Number.isNaN(marginal)
+                        ? DEFAULT_MARK_THRESHOLDS.marginal
+                        : marginal,
+                    },
+                  });
+                }}
+                step={0.01}
+                min={0}
+                max={1}
+                disabled={!isEditing}
+                required
+              />
+            </InputGroup>
             {isScoringUnmarkedWriteIns && (
               <InputGroup label="Write-In Area Threshold">
                 <input
