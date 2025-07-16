@@ -709,8 +709,8 @@ export function createApiMock(
       apiClient.addDiagnosticRecord.expectCallWith(record).resolves();
     },
 
-    expectGetApplicationDiskSpaceSummary(summary?: DiskSpaceSummary) {
-      apiClient.getApplicationDiskSpaceSummary.expectCallWith().resolves(
+    expectGetDiskSpaceSummary(summary?: DiskSpaceSummary) {
+      apiClient.getDiskSpaceSummary.expectCallWith().resolves(
         summary ?? {
           available: 1,
           used: 1,

@@ -9,7 +9,7 @@ import { NavigationScreen } from '../components/navigation_screen';
 import {
   getMostRecentPrinterDiagnostic,
   getPrinterStatus,
-  getApplicationDiskSpaceSummary,
+  getDiskSpaceSummary,
   systemCallApi,
   saveReadinessReport,
   getUsbDriveStatus,
@@ -29,7 +29,7 @@ export function DiagnosticsScreen(): JSX.Element {
   const { electionDefinition, electionPackageHash } = useContext(AppContext);
   const batteryInfoQuery = systemCallApi.getBatteryInfo.useQuery();
   const printerStatusQuery = getPrinterStatus.useQuery();
-  const diskSpaceQuery = getApplicationDiskSpaceSummary.useQuery();
+  const diskSpaceQuery = getDiskSpaceSummary.useQuery();
   const diagnosticRecordQuery = getMostRecentPrinterDiagnostic.useQuery();
   const saveReadinessReportMutation = saveReadinessReport.useMutation();
   const getUsbDriveStatusQuery = getUsbDriveStatus.useQuery();

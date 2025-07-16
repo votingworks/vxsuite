@@ -46,9 +46,7 @@ import {
   RejectedSheet,
   Sheet,
   addDiagnosticRecord,
-  getMaximumUsableDiskSpace,
   getMostRecentDiagnosticRecord,
-  updateMaximumUsableDiskSpace,
 } from '@votingworks/backend';
 import {
   clearCastVoteRecordHashes,
@@ -938,13 +936,5 @@ export class Store {
     type: DiagnosticType
   ): DiagnosticRecord | undefined {
     return getMostRecentDiagnosticRecord(this.client, type);
-  }
-
-  getMaximumUsableDiskSpace(): number {
-    return getMaximumUsableDiskSpace(this.client);
-  }
-
-  updateMaximumUsableDiskSpace(space: number): void {
-    updateMaximumUsableDiskSpace(this.client, space);
   }
 }

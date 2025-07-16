@@ -600,22 +600,3 @@ describe('getFilteredContests', () => {
     );
   });
 });
-
-test('deleteElection reclaims disk space (vacuums the database)', async () => {
-  const tmpDir = tmpNameSync();
-  await fs.mkdir(tmpDir);
-  const tmpDbPath = join(tmpDir, 'data.db');
-  const store = Store.fileStore(tmpDbPath, mockBaseLogger({ fn: vi.fn }));
-
-  const electionId = store.addElection({
-    electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageFileContents: Buffer.of(),
-    electionPackageHash: 'test-election-package-hash',
-  });
-
-  const beforeSize = (await fs.stat(tmpDbPath)).size;
-  store.deleteElection(electionId);
-  const afterSize = (await fs.stat(tmpDbPath)).size;
-  expect(afterSize).toBeLessThan(beforeSize);
-});

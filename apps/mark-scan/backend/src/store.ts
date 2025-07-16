@@ -6,9 +6,7 @@ import {
   UiStringsStore,
   addDiagnosticRecord,
   createUiStringStore,
-  getMaximumUsableDiskSpace,
   getMostRecentDiagnosticRecord,
-  updateMaximumUsableDiskSpace,
 } from '@votingworks/backend';
 import { assertDefined, DateWithoutTime, Optional } from '@votingworks/basics';
 import { Client as DbClient } from '@votingworks/db';
@@ -408,14 +406,6 @@ export class Store {
     type: DiagnosticType
   ): DiagnosticRecord | undefined {
     return getMostRecentDiagnosticRecord(this.client, type);
-  }
-
-  getMaximumUsableDiskSpace(): number {
-    return getMaximumUsableDiskSpace(this.client);
-  }
-
-  updateMaximumUsableDiskSpace(space: number): void {
-    updateMaximumUsableDiskSpace(this.client, space);
   }
 
   getElectricalTestingStatusMessages(): Array<{

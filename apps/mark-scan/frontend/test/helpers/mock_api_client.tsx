@@ -375,8 +375,8 @@ export function createApiMock() {
       mockApiClient.getMarkScanBmdModel.expectCallWith().resolves(model);
     },
 
-    expectGetApplicationDiskSpaceSummary(summary?: DiskSpaceSummary) {
-      mockApiClient.getApplicationDiskSpaceSummary.expectCallWith().resolves(
+    expectGetDiskSpaceSummary(summary?: DiskSpaceSummary) {
+      mockApiClient.getDiskSpaceSummary.expectCallWith().resolves(
         summary ?? {
           available: 1_000_000_000,
           used: 1_000_000_000,

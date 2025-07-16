@@ -173,10 +173,8 @@ export function createApiMock(
         .resolves(diagnostic ?? null);
     },
 
-    expectGetApplicationDiskSpaceSummary(summary: DiskSpaceSummary) {
-      apiClient.getApplicationDiskSpaceSummary
-        .expectCallWith()
-        .resolves(summary);
+    expectGetDiskSpaceSummary(summary: DiskSpaceSummary) {
+      apiClient.getDiskSpaceSummary.expectCallWith().resolves(summary);
     },
 
     expectRebootToVendorMenu() {

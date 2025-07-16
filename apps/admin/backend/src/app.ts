@@ -483,7 +483,7 @@ function buildApi({
     },
 
     async unconfigure(): Promise<void> {
-      store.deleteElection(loadCurrentElectionIdOrThrow(workspace));
+      store.reset();
       await logger.logAsCurrentRole(LogEventId.ElectionUnconfigured, {
         disposition: 'success',
       });
@@ -1211,7 +1211,7 @@ function buildApi({
       });
     },
 
-    async getApplicationDiskSpaceSummary(): Promise<DiskSpaceSummary> {
+    async getDiskSpaceSummary(): Promise<DiskSpaceSummary> {
       return workspace.getDiskSpaceSummary();
     },
 

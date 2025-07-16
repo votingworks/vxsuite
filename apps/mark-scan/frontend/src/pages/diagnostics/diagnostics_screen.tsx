@@ -11,7 +11,7 @@ import {
 import { useHistory, Switch, Route, Redirect } from 'react-router-dom';
 import { AccessibleControllerDiagnosticScreen } from './accessible_controller_diagnostic_screen';
 import {
-  getApplicationDiskSpaceSummary,
+  getDiskSpaceSummary,
   getElectionRecord,
   getElectionState,
   getIsAccessibleControllerInputDetected,
@@ -38,7 +38,7 @@ export function DiagnosticsScreen({
 }: DiagnosticsScreenProps): JSX.Element {
   const electionRecordQuery = getElectionRecord.useQuery();
   const electionStateQuery = getElectionState.useQuery();
-  const diskSpaceQuery = getApplicationDiskSpaceSummary.useQuery();
+  const diskSpaceQuery = getDiskSpaceSummary.useQuery();
   const isAccessibleControllerInputDetectedQuery =
     getIsAccessibleControllerInputDetected.useQuery();
   const isPatDeviceConnectedQuery = getIsPatDeviceConnected.useQuery();

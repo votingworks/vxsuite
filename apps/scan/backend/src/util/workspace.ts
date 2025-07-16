@@ -3,7 +3,7 @@ import { join, resolve } from 'node:path';
 import { Mutex } from '@votingworks/utils';
 import {
   DiskSpaceSummary,
-  initializeGetWorkspaceDiskSpaceSummary,
+  getDiskSpaceSummary as baseGetDiskSpaceSummary,
 } from '@votingworks/backend';
 import { BaseLogger } from '@votingworks/logging';
 import { Store } from '../store';
@@ -76,12 +76,6 @@ export function createWorkspace(
   const dbPath = join(resolvedRoot, 'ballots.db');
   const store = options.store || Store.fileStore(dbPath, logger);
 
-  // check disk space on startup to detect a new maximum available disk space
-  const getWorkspaceDiskSpaceSummary = initializeGetWorkspaceDiskSpaceSummary(
-    store,
-    [resolvedRoot]
-  );
-
   return {
     path: resolvedRoot,
     ballotImagesPath,
@@ -106,6 +100,6 @@ export function createWorkspace(
     clearUploads() {
       emptyDirSync(uploadsPath);
     },
-    getDiskSpaceSummary: getWorkspaceDiskSpaceSummary,
+    getDiskSpaceSummary: () => baseGetDiskSpaceSummary([resolvedRoot]),
   };
 }

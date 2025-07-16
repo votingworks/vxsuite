@@ -54,7 +54,7 @@ beforeEach(() => {
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
   apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
-  apiMock.expectGetApplicationDiskSpaceSummary();
+  apiMock.expectGetDiskSpaceSummary();
   apiMock.expectGetIsAccessibleControllerInputDetected();
   apiMock.expectGetMostRecentDiagnostic('mark-scan-accessible-controller');
   apiMock.expectGetMostRecentDiagnostic('mark-scan-paper-handler');
@@ -70,8 +70,8 @@ afterEach(() => {
 // screen contents fully tested in libs/ui
 test('data from API is passed to screen contents', async () => {
   apiMock.mockApiClient.getMostRecentDiagnostic.reset();
-  apiMock.mockApiClient.getApplicationDiskSpaceSummary.reset();
-  apiMock.expectGetApplicationDiskSpaceSummary({
+  apiMock.mockApiClient.getDiskSpaceSummary.reset();
+  apiMock.expectGetDiskSpaceSummary({
     available: 1_000_000,
     used: 1_000_000,
     total: 2_000_000,

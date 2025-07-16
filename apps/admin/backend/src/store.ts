@@ -56,9 +56,7 @@ import {
 } from '@votingworks/utils';
 import {
   addDiagnosticRecord,
-  getMaximumUsableDiskSpace,
   getMostRecentDiagnosticRecord,
-  updateMaximumUsableDiskSpace,
 } from '@votingworks/backend';
 import { BaseLogger } from '@votingworks/logging';
 import {
@@ -168,6 +166,13 @@ export class Store {
    */
   static fileStore(dbPath: string, logger: BaseLogger): Store {
     return new Store(DbClient.fileClient(dbPath, logger, SchemaPath));
+  }
+
+  /**
+   * Resets the database, clearing any existing data.
+   */
+  reset(): void {
+    this.client.reset();
   }
 
   /**
@@ -308,21 +313,6 @@ export class Store {
       electionId
     ) as { electionPackageFileContents: Buffer } | undefined;
     return result?.electionPackageFileContents;
-  }
-
-  /**
-   * Deletes an election record.
-   */
-  deleteElection(id: Id): void {
-    this.client.run(
-      'update settings set current_election_id = null where current_election_id = ?',
-      id
-    );
-    this.client.run('delete from elections where id = ?', id);
-
-    // there are many cascading deletes from elections, so there may be lots of
-    // disk space to reclaim
-    this.client.vacuum();
   }
 
   /**
@@ -2755,14 +2745,6 @@ export class Store {
     type: DiagnosticType
   ): DiagnosticRecord | undefined {
     return getMostRecentDiagnosticRecord(this.client, type);
-  }
-
-  getMaximumUsableDiskSpace(): number {
-    return getMaximumUsableDiskSpace(this.client);
-  }
-
-  updateMaximumUsableDiskSpace(space: number): void {
-    updateMaximumUsableDiskSpace(this.client, space);
   }
 
   /* istanbul ignore next - @preserve */

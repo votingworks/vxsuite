@@ -5,7 +5,7 @@ import {
 import styled from 'styled-components';
 import { NavigationScreen } from '../navigation_screen';
 import {
-  getApplicationDiskSpaceSummary,
+  getDiskSpaceSummary,
   getElectionRecord,
   getMostRecentScannerDiagnostic,
   getStatus,
@@ -27,7 +27,7 @@ export function DiagnosticsScreen(): JSX.Element {
   const statusQuery = getStatus.useQuery();
   const electionRecordQuery = getElectionRecord.useQuery();
   const batteryInfoQuery = systemCallApi.getBatteryInfo.useQuery();
-  const diskSpaceQuery = getApplicationDiskSpaceSummary.useQuery();
+  const diskSpaceQuery = getDiskSpaceSummary.useQuery();
   const scannerDiagnosticRecordQuery =
     getMostRecentScannerDiagnostic.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();

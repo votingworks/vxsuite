@@ -572,21 +572,17 @@ export const getMostRecentPrinterDiagnostic = {
   },
 } as const;
 
-export const getApplicationDiskSpaceSummary = {
+export const getDiskSpaceSummary = {
   queryKey(): QueryKey {
-    return ['getApplicationDiskSpaceSummary'];
+    return ['getDiskSpaceSummary'];
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(),
-      () => apiClient.getApplicationDiskSpaceSummary(),
-      {
-        // disk space availability could change between queries for a variety
-        // reasons, so always treat it as stale
-        staleTime: 0,
-      }
-    );
+    return useQuery(this.queryKey(), () => apiClient.getDiskSpaceSummary(), {
+      // disk space availability could change between queries for a variety
+      // reasons, so always treat it as stale
+      staleTime: 0,
+    });
   },
 } as const;
 

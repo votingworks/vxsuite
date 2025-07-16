@@ -16,7 +16,7 @@ import {
 } from '@votingworks/types';
 import {
   DiskSpaceSummary,
-  initializeGetWorkspaceDiskSpaceSummary,
+  getDiskSpaceSummary,
   pdfToText,
 } from '@votingworks/backend';
 import { MockUsbDrive } from '@votingworks/usb-drive';
@@ -72,7 +72,7 @@ const MOCK_DISK_SPACE_SUMMARY: DiskSpaceSummary = {
 
 vi.mock(import('@votingworks/backend'), async (importActual) => ({
   ...(await importActual()),
-  initializeGetWorkspaceDiskSpaceSummary: vi.fn(),
+  getDiskSpaceSummary: vi.fn(),
 }));
 
 vi.mock(import('./pat-input/connection_status_reader.js'));
@@ -115,9 +115,7 @@ beforeEach(async () => {
     false
   );
 
-  vi.mocked(initializeGetWorkspaceDiskSpaceSummary).mockReturnValue(() =>
-    Promise.resolve(MOCK_DISK_SPACE_SUMMARY)
-  );
+  vi.mocked(getDiskSpaceSummary).mockResolvedValue(MOCK_DISK_SPACE_SUMMARY);
 
   const result = await createApp({
     patConnectionStatusReader,
@@ -180,8 +178,8 @@ test('diagnostic records', async () => {
   vi.useRealTimers();
 });
 
-test('getApplicationDiskSpaceSummary', async () => {
-  expect(await apiClient.getApplicationDiskSpaceSummary()).toEqual(
+test('getDiskSpaceSummary', async () => {
+  expect(await apiClient.getDiskSpaceSummary()).toEqual(
     MOCK_DISK_SPACE_SUMMARY
   );
 });

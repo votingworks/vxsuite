@@ -88,15 +88,13 @@ export const getAuthStatus = {
   },
 } as const;
 
-export const getApplicationDiskSpaceSummary = {
+export const getDiskSpaceSummary = {
   queryKey(): QueryKey {
-    return ['getApplicationDiskSpaceSummary'];
+    return ['getDiskSpaceSummary'];
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () =>
-      apiClient.getApplicationDiskSpaceSummary()
-    );
+    return useQuery(this.queryKey(), () => apiClient.getDiskSpaceSummary());
   },
 } as const;
 
