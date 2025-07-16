@@ -377,9 +377,11 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
       };
     },
 
-    async updateElectionInfo(input: ElectionInfo) {
+    async updateElectionInfo(
+      input: ElectionInfo
+    ): Promise<Result<void, 'duplicate-title-and-date'>> {
       const electionInfo = unsafeParse(UpdateElectionInfoInputSchema, input);
-      await store.updateElectionInfo(electionInfo);
+      return store.updateElectionInfo(electionInfo);
     },
 
     async listDistricts(input: {

@@ -1,8 +1,11 @@
 import {
   DateWithoutTime,
   Optional,
+  Result,
   assert,
   assertDefined,
+  err,
+  ok,
   throwIllegalValue,
   typedAs,
 } from '@votingworks/basics';
@@ -908,10 +911,13 @@ export class Store {
     );
   }
 
-  async updateElectionInfo(electionInfo: ElectionInfo): Promise<void> {
-    const { rowCount } = await this.db.withClient((client) =>
-      client.query(
-        `
+  async updateElectionInfo(
+    electionInfo: ElectionInfo
+  ): Promise<Result<void, 'duplicate-title-and-date'>> {
+    try {
+      const { rowCount } = await this.db.withClient((client) =>
+        client.query(
+          `
           update elections
           set
             type = $1,
@@ -923,17 +929,25 @@ export class Store {
             ballot_language_codes = $7
           where id = $8
         `,
-        electionInfo.type,
-        electionInfo.title,
-        electionInfo.date.toISOString(),
-        electionInfo.jurisdiction,
-        electionInfo.state,
-        electionInfo.seal,
-        electionInfo.languageCodes,
-        electionInfo.electionId
-      )
-    );
-    assert(rowCount === 1, 'Election not found');
+          electionInfo.type,
+          electionInfo.title,
+          electionInfo.date.toISOString(),
+          electionInfo.jurisdiction,
+          electionInfo.state,
+          electionInfo.seal,
+          electionInfo.languageCodes,
+          electionInfo.electionId
+        )
+      );
+      assert(rowCount === 1, 'Election not found');
+      return ok();
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('duplicate key')) {
+        return err('duplicate-title-and-date');
+      }
+      /* istanbul ignore next - @preserve */
+      throw error;
+    }
   }
 
   async listDistricts(electionId: ElectionId): Promise<readonly District[]> {
