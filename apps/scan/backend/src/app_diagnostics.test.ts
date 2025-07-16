@@ -6,10 +6,7 @@ import {
 import { err } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import { DiagnosticRecord } from '@votingworks/types';
-import {
-  DiskSpaceSummary,
-  initializeGetWorkspaceDiskSpaceSummary,
-} from '@votingworks/backend';
+import { DiskSpaceSummary, getDiskSpaceSummary } from '@votingworks/backend';
 import { withApp } from '../test/helpers/pdi_helpers';
 import { TEST_PRINT_USER_FAIL_REASON } from './util/diagnostics';
 import { configureApp } from '../test/helpers/shared_helpers';
@@ -44,7 +41,7 @@ async function wrapWithFakeSystemTime<T>(fn: () => Promise<T>): Promise<T> {
 
 vi.mock(import('@votingworks/backend'), async (importActual) => ({
   ...(await importActual()),
-  initializeGetWorkspaceDiskSpaceSummary: vi.fn(),
+  getDiskSpaceSummary: vi.fn(),
 }));
 
 const MOCK_DISK_SPACE_SUMMARY: DiskSpaceSummary = {
@@ -54,9 +51,7 @@ const MOCK_DISK_SPACE_SUMMARY: DiskSpaceSummary = {
 };
 
 beforeEach(() => {
-  vi.mocked(initializeGetWorkspaceDiskSpaceSummary).mockReturnValue(() =>
-    Promise.resolve(MOCK_DISK_SPACE_SUMMARY)
-  );
+  vi.mocked(getDiskSpaceSummary).mockResolvedValue(MOCK_DISK_SPACE_SUMMARY);
 });
 
 test('can print test page', async () => {

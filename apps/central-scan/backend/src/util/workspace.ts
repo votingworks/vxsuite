@@ -2,7 +2,7 @@ import { emptyDirSync, ensureDirSync } from 'fs-extra';
 import { join, resolve } from 'node:path';
 import {
   DiskSpaceSummary,
-  initializeGetWorkspaceDiskSpaceSummary,
+  getDiskSpaceSummary as baseGetDiskSpaceSummary,
 } from '@votingworks/backend';
 import { BaseLogger } from '@votingworks/logging';
 import { Store } from '../store';
@@ -58,10 +58,6 @@ export function createWorkspace(root: string, logger: BaseLogger): Workspace {
 
   const dbPath = join(resolvedRoot, 'ballots.db');
   const store = Store.fileStore(dbPath, logger);
-  const getWorkspaceDiskSpaceSummary = initializeGetWorkspaceDiskSpaceSummary(
-    store,
-    [resolvedRoot]
-  );
 
   return {
     path: resolvedRoot,
@@ -81,6 +77,6 @@ export function createWorkspace(root: string, logger: BaseLogger): Workspace {
     clearUploads() {
       emptyDirSync(uploadsPath);
     },
-    getDiskSpaceSummary: getWorkspaceDiskSpaceSummary,
+    getDiskSpaceSummary: () => baseGetDiskSpaceSummary([resolvedRoot]),
   };
 }

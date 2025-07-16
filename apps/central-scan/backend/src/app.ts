@@ -358,7 +358,7 @@ function buildApi({
       return store.getMostRecentDiagnosticRecord('blank-sheet-scan') ?? null;
     },
 
-    async getApplicationDiskSpaceSummary(): Promise<DiskSpaceSummary> {
+    async getDiskSpaceSummary(): Promise<DiskSpaceSummary> {
       return workspace.getDiskSpaceSummary();
     },
 

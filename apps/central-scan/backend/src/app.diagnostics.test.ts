@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import {
   DiskSpaceSummary,
   getBatteryInfo,
-  initializeGetWorkspaceDiskSpaceSummary,
+  getDiskSpaceSummary,
   pdfToText,
 } from '@votingworks/backend';
 import { LogEventId } from '@votingworks/logging';
@@ -19,7 +19,7 @@ vi.setConfig({
 vi.mock(import('@votingworks/backend'), async (importActual) => ({
   ...(await importActual()),
   getBatteryInfo: vi.fn(),
-  initializeGetWorkspaceDiskSpaceSummary: vi.fn(),
+  getDiskSpaceSummary: vi.fn(),
 }));
 
 const MOCK_DISK_SPACE_SUMMARY: DiskSpaceSummary = {
@@ -33,14 +33,12 @@ beforeEach(() => {
     level: 0.5,
     discharging: false,
   });
-  vi.mocked(initializeGetWorkspaceDiskSpaceSummary).mockReturnValue(() =>
-    Promise.resolve(MOCK_DISK_SPACE_SUMMARY)
-  );
+  vi.mocked(getDiskSpaceSummary).mockResolvedValue(MOCK_DISK_SPACE_SUMMARY);
 });
 
 test('getDiskSpaceSummary', async () => {
   await withApp(async ({ apiClient }) => {
-    expect(await apiClient.getApplicationDiskSpaceSummary()).toEqual(
+    expect(await apiClient.getDiskSpaceSummary()).toEqual(
       MOCK_DISK_SPACE_SUMMARY
     );
   });

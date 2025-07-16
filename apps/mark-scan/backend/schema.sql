@@ -42,14 +42,6 @@ create table ui_string_audio_ids (
   foreign key (language_code) references languages(code)
 );
 
-create table system_information (
-  -- enforce singleton table
-  id integer primary key check (id = 1),
-  maximum_usable_disk_space integer not null default 1
-);
-
-insert into system_information default values;
-
 create table diagnostics (
   id integer primary key,
   type text not null,

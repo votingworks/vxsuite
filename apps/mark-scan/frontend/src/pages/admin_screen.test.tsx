@@ -145,7 +145,7 @@ test('Shows diagnostics button and renders screen after click', async () => {
   renderScreen();
   apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
-  apiMock.expectGetApplicationDiskSpaceSummary();
+  apiMock.expectGetDiskSpaceSummary();
   apiMock.expectGetIsAccessibleControllerInputDetected();
   apiMock.expectGetMostRecentDiagnostic('mark-scan-accessible-controller');
   apiMock.expectGetMostRecentDiagnostic('mark-scan-paper-handler');

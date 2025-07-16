@@ -422,7 +422,7 @@ export function buildApi(
       return stateMachine.isPatDeviceConnected();
     },
 
-    getApplicationDiskSpaceSummary(): Promise<DiskSpaceSummary> {
+    getDiskSpaceSummary(): Promise<DiskSpaceSummary> {
       return workspace.getDiskSpaceSummary();
     },
 
