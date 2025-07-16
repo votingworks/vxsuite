@@ -66,16 +66,22 @@ const StyledTimingMark = styled.div`
 
 export const TIMING_MARK_CLASS = 'timing-mark';
 
-export function TimingMark(): JSX.Element {
-  return <StyledTimingMark className={TIMING_MARK_CLASS} />;
+export function TimingMark({
+  style,
+}: {
+  style?: React.CSSProperties;
+}): JSX.Element {
+  return <StyledTimingMark className={TIMING_MARK_CLASS} style={style} />;
 }
 
 export function TimingMarkGrid({
   pageDimensions,
   children,
+  timingMarkStyle,
 }: {
   pageDimensions: InchDimensions;
   children: React.ReactNode;
+  timingMarkStyle?: React.CSSProperties;
 }): JSX.Element {
   // Corresponds to the NH Accuvote ballot grid, which we mimic so that our
   // interpreter can support both Accuvote-style ballots and our ballots.
@@ -94,7 +100,7 @@ export function TimingMarkGrid({
         }}
       >
         {range(0, gridColumns).map((i) => (
-          <TimingMark key={i} />
+          <TimingMark key={i} style={timingMarkStyle} />
         ))}
       </div>
     );
@@ -114,7 +120,7 @@ export function TimingMarkGrid({
         }}
       >
         {range(0, gridRows).map((i) => (
-          <TimingMark key={i} />
+          <TimingMark key={i} style={timingMarkStyle} />
         ))}
       </div>
     );

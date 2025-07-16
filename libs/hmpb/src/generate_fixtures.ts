@@ -1,25 +1,23 @@
-import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { iter } from '@votingworks/basics';
 import { writeImageData } from '@votingworks/image-utils';
-import {
-  HmpbBallotPaperSize,
-  HmpbBallotPaperSizeSchema,
-  unsafeParse,
-} from '@votingworks/types';
+import { HmpbBallotPaperSize } from '@votingworks/types';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import {
   AllBubbleBallotFixtures,
   allBubbleBallotFixtures,
 } from './all_bubble_ballot_fixtures';
 import {
+  nhGeneralElectionFixtures,
   timingMarkPaperFixtures,
   vxFamousNamesFixtures,
   vxGeneralElectionFixtures,
-  nhGeneralElectionFixtures,
   vxPrimaryElectionFixtures,
 } from './ballot_fixtures';
-import { Renderer } from './renderer';
+import { convertPdfToCmyk } from './pdf_conversion';
 import { createPlaywrightRenderer } from './playwright_renderer';
+import { Renderer } from './renderer';
+import { TimingMarkPaperType } from './timing_mark_paper/template';
 
 async function generateAllBubbleBallotFixtures(
   fixtures: AllBubbleBallotFixtures,
@@ -127,163 +125,136 @@ async function generateNhGeneralElectionFixtures(renderer: Renderer) {
 
 async function generateTimingMarkPaperFixtures(
   renderer: Renderer,
-  paperSize: HmpbBallotPaperSize
+  paperSize: HmpbBallotPaperSize,
+  paperType: TimingMarkPaperType
 ) {
-  const specPaths = timingMarkPaperFixtures.specPaths({ paperSize });
-  await rm(specPaths.dir, {
-    recursive: true,
-    force: true,
-  });
+  const specPaths = timingMarkPaperFixtures.specPaths({ paperSize, paperType });
+  await rm(specPaths.pdf, { force: true });
   const generated = await timingMarkPaperFixtures.generate(renderer, {
     paperSize,
+    paperType,
   });
   const pdfPath = specPaths.pdf;
   await mkdir(dirname(pdfPath), { recursive: true });
   await writeFile(pdfPath, generated.pdf);
 }
 
-interface FixtureSpec {
-  fixtureName: string;
-  paperSize: HmpbBallotPaperSize;
-}
-
-const ALL_FIXTURE_SPECS: readonly FixtureSpec[] = [
-  { fixtureName: 'all-bubble-ballot', paperSize: HmpbBallotPaperSize.Letter },
-  { fixtureName: 'all-bubble-ballot', paperSize: HmpbBallotPaperSize.Legal },
-  { fixtureName: 'all-bubble-ballot', paperSize: HmpbBallotPaperSize.Custom17 },
-  { fixtureName: 'all-bubble-ballot', paperSize: HmpbBallotPaperSize.Custom19 },
-  { fixtureName: 'all-bubble-ballot', paperSize: HmpbBallotPaperSize.Custom22 },
-  { fixtureName: 'vx-famous-names', paperSize: HmpbBallotPaperSize.Letter },
-  { fixtureName: 'vx-general-election', paperSize: HmpbBallotPaperSize.Letter },
-  { fixtureName: 'vx-primary-election', paperSize: HmpbBallotPaperSize.Letter },
-  { fixtureName: 'nh-general-election', paperSize: HmpbBallotPaperSize.Letter },
-  {
-    fixtureName: 'timing-mark-paper',
-    paperSize: HmpbBallotPaperSize.Letter,
-  },
-  {
-    fixtureName: 'timing-mark-paper',
-    paperSize: HmpbBallotPaperSize.Legal,
-  },
-  {
-    fixtureName: 'timing-mark-paper',
-    paperSize: HmpbBallotPaperSize.Custom17,
-  },
-  {
-    fixtureName: 'timing-mark-paper',
-    paperSize: HmpbBallotPaperSize.Custom19,
-  },
-  {
-    fixtureName: 'timing-mark-paper',
-    paperSize: HmpbBallotPaperSize.Custom22,
-  },
+const ALL_PAPER_SIZES: readonly HmpbBallotPaperSize[] = [
+  HmpbBallotPaperSize.Letter,
+  HmpbBallotPaperSize.Legal,
+  HmpbBallotPaperSize.Custom17,
+  HmpbBallotPaperSize.Custom19,
+  HmpbBallotPaperSize.Custom22,
 ];
 
 function usage(out: NodeJS.WriteStream) {
-  out.write(
-    `Usage: generate_fixtures.ts [--all | --spec <fixture> <paper-size> …]\n`
-  );
-  out.write(`\n`);
-  out.write(`Available specs:\n`);
-  out.write(`  --all\n`);
-  for (const { fixtureName, paperSize } of ALL_FIXTURE_SPECS) {
-    out.write(`  --spec ${fixtureName} ${paperSize}\n`);
-  }
+  out.write(`Usage: generate_fixtures.ts\n`);
 }
 
-export async function main(): Promise<void> {
-  const fixtureSpecs: FixtureSpec[] = [];
+type Fixture =
+  | 'all-bubble-ballot'
+  | 'timing-mark-paper'
+  | 'vx-famous-names'
+  | 'vx-general-election'
+  | 'vx-primary-election'
+  | 'nh-general-election';
+
+export async function main(): Promise<number> {
+  const renderer = await createPlaywrightRenderer();
+
+  const fixtures = new Set<Fixture>();
 
   for (let i = 2; i < process.argv.length; i += 1) {
-    const arg = process.argv[i];
+    const arg = process.argv[i] as string;
     switch (arg) {
-      case '--all':
-        fixtureSpecs.push(...ALL_FIXTURE_SPECS);
-        break;
+      case '-h':
+      case '--help': {
+        usage(process.stdout);
+        return 0;
+      }
 
-      case '-s':
-      case '--spec': {
-        i += 1;
-        const fixtureName = process.argv[i];
-        i += 1;
-        const paperSize = unsafeParse(
-          HmpbBallotPaperSizeSchema,
-          process.argv[i]
-        );
-
-        fixtureSpecs.push({ fixtureName, paperSize });
+      case '--all-bubble-ballot': {
+        fixtures.add('all-bubble-ballot');
         break;
       }
 
-      case '-h':
-      case '--help':
-        usage(process.stdout);
-        process.exit(0);
+      case '--timing-mark-paper': {
+        fixtures.add('timing-mark-paper');
         break;
+      }
 
-      default:
-        process.stderr.write(`Unknown argument: ${arg}\n`);
-        usage(process.stderr);
-        process.exit(1);
+      case '--vx-famous-names': {
+        fixtures.add('vx-famous-names');
         break;
+      }
+
+      case '--vx-general-election': {
+        fixtures.add('vx-general-election');
+        break;
+      }
+
+      case '--vx-primary-election': {
+        fixtures.add('vx-primary-election');
+        break;
+      }
+
+      case '--nh-general-election': {
+        fixtures.add('nh-general-election');
+        break;
+      }
+
+      default: {
+        usage(process.stderr);
+        return -1;
+      }
     }
   }
 
-  if (fixtureSpecs.length === 0) {
-    fixtureSpecs.push(...ALL_FIXTURE_SPECS);
+  if (fixtures.size === 0 || fixtures.has('all-bubble-ballot')) {
+    for (const paperSize of ALL_PAPER_SIZES) {
+      const fixtures = allBubbleBallotFixtures(paperSize);
+      await rm(fixtures.dir, { recursive: true, force: true });
+      await generateAllBubbleBallotFixtures(fixtures, renderer);
+    }
   }
 
-  const renderer = await createPlaywrightRenderer();
-  for (const { fixtureName, paperSize } of fixtureSpecs) {
-    switch (fixtureName) {
-      case 'all-bubble-ballot': {
-        const fixtures = allBubbleBallotFixtures(paperSize);
-        await rm(fixtures.dir, { recursive: true, force: true });
-        await generateAllBubbleBallotFixtures(fixtures, renderer);
-        break;
-      }
+  if (fixtures.size === 0 || fixtures.has('vx-famous-names')) {
+    await rm(vxFamousNamesFixtures.dir, { recursive: true, force: true });
+    await generateVxFamousNamesFixtures(renderer);
+  }
 
-      case 'vx-famous-names':
-        await rm(vxFamousNamesFixtures.dir, { recursive: true, force: true });
-        await generateVxFamousNamesFixtures(renderer);
-        break;
+  if (fixtures.size === 0 || fixtures.has('vx-general-election')) {
+    await rm(vxGeneralElectionFixtures.dir, {
+      recursive: true,
+      force: true,
+    });
+    await generateVxGeneralElectionFixtures(renderer);
+  }
 
-      case 'vx-general-election':
-        await rm(vxGeneralElectionFixtures.dir, {
-          recursive: true,
-          force: true,
-        });
-        await generateVxGeneralElectionFixtures(renderer);
-        break;
+  if (fixtures.size === 0 || fixtures.has('vx-primary-election')) {
+    await rm(vxPrimaryElectionFixtures.dir, {
+      recursive: true,
+      force: true,
+    });
+    await generateVxPrimaryElectionFixtures(renderer);
+  }
 
-      case 'vx-primary-election':
-        await rm(vxPrimaryElectionFixtures.dir, {
-          recursive: true,
-          force: true,
-        });
-        await generateVxPrimaryElectionFixtures(renderer);
-        break;
+  if (fixtures.size === 0 || fixtures.has('nh-general-election')) {
+    await rm(nhGeneralElectionFixtures.dir, {
+      recursive: true,
+      force: true,
+    });
+    await generateNhGeneralElectionFixtures(renderer);
+  }
 
-      case 'nh-general-election':
-        await rm(nhGeneralElectionFixtures.dir, {
-          recursive: true,
-          force: true,
-        });
-        await generateNhGeneralElectionFixtures(renderer);
-        break;
-
-      case 'timing-mark-paper': {
-        await generateTimingMarkPaperFixtures(renderer, paperSize);
-        break;
-      }
-
-      default:
-        process.stderr.write(`Unknown fixture: ${fixtureName}\n`);
-        usage(process.stderr);
-        process.exit(1);
-        break;
+  if (fixtures.size === 0 || fixtures.has('timing-mark-paper')) {
+    for (const paperSize of ALL_PAPER_SIZES) {
+      await generateTimingMarkPaperFixtures(renderer, paperSize, 'standard');
+      await generateTimingMarkPaperFixtures(renderer, paperSize, 'qa-overlay');
     }
   }
 
   await renderer.cleanup();
+
+  return 0;
 }

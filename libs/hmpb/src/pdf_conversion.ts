@@ -28,3 +28,28 @@ export async function convertPdfToGrayscale(
     await rm(tmpPdfFilePath);
   }
 }
+
+/**
+ * Given a PDF document, convert it to CMYK.
+ */
+export async function convertPdfToCmyk(pdf: Uint8Array): Promise<Uint8Array> {
+  const tmpPdfFilePath = tmpNameSync();
+  await writeFile(tmpPdfFilePath, pdf);
+  const tmpCmykPdfFilePath = tmpNameSync();
+  await promisify(execFile)('gs', [
+    `-sOutputFile=${tmpCmykPdfFilePath}`,
+    '-sDEVICE=pdfwrite',
+    '-sColorConversionStrategy=CMYK',
+    '-sColorConversionStrategyForImages=CMYK',
+    '-dProcessColorModel=/DeviceCMYK',
+    '-dNOPAUSE',
+    '-dBATCH',
+    tmpPdfFilePath,
+  ]);
+  try {
+    return Uint8Array.from(await readFile(tmpCmykPdfFilePath));
+  } finally {
+    await rm(tmpCmykPdfFilePath);
+    await rm(tmpPdfFilePath);
+  }
+}

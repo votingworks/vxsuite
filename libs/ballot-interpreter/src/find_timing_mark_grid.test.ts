@@ -10,6 +10,7 @@ import { findTimingMarkGrid } from './hmpb-ts/addon';
 test('letter-sized timing mark paper', async () => {
   const { pdf } = timingMarkPaperFixtures.specPaths({
     paperSize: HmpbBallotPaperSize.Letter,
+    paperType: 'standard',
   });
   const pdfBytes = Uint8Array.from(await readFile(pdf));
   const pdfPage = await pdfToPageImages(pdfBytes).first();

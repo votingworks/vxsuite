@@ -29,6 +29,7 @@ import {
   NhBallotProps,
   nhBallotTemplate,
 } from './ballot_templates/nh_ballot_template';
+import { convertPdfToCmyk } from './pdf_conversion';
 
 const debug = makeDebug('hmpb:ballot_fixtures');
 
@@ -545,39 +546,53 @@ export const nhGeneralElectionFixtures = (() => {
 })();
 
 export const timingMarkPaperFixtures = (() => {
-  function specPaths(spec: { paperSize: HmpbBallotPaperSize }): {
+  function specPaths(spec: {
+    paperSize: HmpbBallotPaperSize;
+    paperType: timingMarkPaperTemplate.TimingMarkPaperType;
+  }): {
     dir: string;
     pdf: string;
   } {
-    const { paperSize } = spec;
+    const { paperSize, paperType } = spec;
     const dir = join(fixturesDir, 'timing-mark-paper', paperSize);
     return {
       dir,
-      pdf: join(dir, 'timing-mark-paper.pdf'),
+      pdf: join(dir, `timing-mark-paper-${paperType}.pdf`),
     };
   }
 
   return {
     fixtureSpecs: [
-      { paperSize: HmpbBallotPaperSize.Letter },
-      { paperSize: HmpbBallotPaperSize.Legal },
-      { paperSize: HmpbBallotPaperSize.Custom17 },
-      { paperSize: HmpbBallotPaperSize.Custom19 },
-      { paperSize: HmpbBallotPaperSize.Custom22 },
-    ],
+      { paperSize: HmpbBallotPaperSize.Letter, paperType: 'standard' },
+      { paperSize: HmpbBallotPaperSize.Legal, paperType: 'standard' },
+      { paperSize: HmpbBallotPaperSize.Custom17, paperType: 'standard' },
+      { paperSize: HmpbBallotPaperSize.Custom19, paperType: 'standard' },
+      { paperSize: HmpbBallotPaperSize.Custom22, paperType: 'standard' },
+      { paperSize: HmpbBallotPaperSize.Letter, paperType: 'qa-overlay' },
+      { paperSize: HmpbBallotPaperSize.Legal, paperType: 'qa-overlay' },
+      { paperSize: HmpbBallotPaperSize.Custom17, paperType: 'qa-overlay' },
+      { paperSize: HmpbBallotPaperSize.Custom19, paperType: 'qa-overlay' },
+      { paperSize: HmpbBallotPaperSize.Custom22, paperType: 'qa-overlay' },
+    ] as const,
 
     specPaths,
 
     async generate(
       renderer: Renderer,
-      spec: { paperSize: HmpbBallotPaperSize }
+      spec: {
+        paperSize: HmpbBallotPaperSize;
+        paperType: timingMarkPaperTemplate.TimingMarkPaperType;
+      }
     ): Promise<{ pdf: Uint8Array }> {
       const document = await timingMarkPaperTemplate.render(
         renderer,
-        spec.paperSize
+        spec.paperSize,
+        spec.paperType
       );
-      debug(`Generating: timing-mark-paper@${spec.paperSize}`);
-      return { pdf: await document.renderToPdf() };
+      debug(
+        `Generating: timing-mark-paper@${spec.paperSize} (${spec.paperType})`
+      );
+      return { pdf: await convertPdfToCmyk(await document.renderToPdf()) };
     },
   };
 })();
