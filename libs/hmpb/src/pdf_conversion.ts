@@ -4,8 +4,7 @@ import { execFile } from 'node:child_process';
 import { readFile, rm, writeFile } from 'node:fs/promises';
 
 /**
- * Given a PDF document, convert it to grayscale and return a read stream to
- * the resulting PDF.
+ * Given a PDF document, convert it to grayscale.
  */
 export async function convertPdfToGrayscale(
   pdf: Uint8Array
@@ -23,7 +22,7 @@ export async function convertPdfToGrayscale(
     tmpPdfFilePath,
   ]);
   try {
-    return await readFile(tmpGrayscalePdfFilePath);
+    return Uint8Array.from(await readFile(tmpGrayscalePdfFilePath));
   } finally {
     await rm(tmpGrayscalePdfFilePath);
     await rm(tmpPdfFilePath);
