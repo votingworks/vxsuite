@@ -345,7 +345,6 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
         {
           ...sourceElection,
           id: input.destElectionId,
-          title: `(Copy) ${sourceElection.title}`,
           districts,
           precincts,
           parties,

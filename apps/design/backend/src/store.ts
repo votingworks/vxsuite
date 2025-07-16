@@ -770,6 +770,38 @@ export class Store {
     return row.orgId;
   }
 
+  private async generateUniqueElectionCopyTitle(
+    client: Client,
+    orgId: string,
+    election: Election
+  ): Promise<string> {
+    if (election.title === '') {
+      return election.title;
+    }
+    let electionTitle = election.title;
+    let copyIndex = 0;
+    while (
+      (
+        await client.query(
+          `
+          select exists(
+            select 1 from elections
+            where org_id = $1 and title = $2 and date = $3
+          )
+        `,
+          orgId,
+          electionTitle,
+          election.date.toISOString()
+        )
+      ).rows[0].exists
+    ) {
+      copyIndex += 1;
+      const copyPrefix = copyIndex > 1 ? `(Copy ${copyIndex})` : '(Copy)';
+      electionTitle = `${copyPrefix} ${election.title}`;
+    }
+    return electionTitle;
+  }
+
   async createElection(
     orgId: string,
     election: Election,
@@ -778,6 +810,11 @@ export class Store {
   ): Promise<void> {
     await this.db.withClient((client) =>
       client.withTransaction(async () => {
+        const electionTitle = await this.generateUniqueElectionCopyTitle(
+          client,
+          orgId,
+          election
+        );
         await client.query(
           `
           insert into elections (
@@ -814,7 +851,7 @@ export class Store {
           election.id,
           orgId,
           election.type,
-          election.title,
+          electionTitle,
           election.date.toISOString(),
           election.county.name,
           election.state,
