@@ -392,17 +392,17 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
     async createDistrict(input: {
       electionId: ElectionId;
       newDistrict: District;
-    }): Promise<void> {
+    }): Promise<Result<void, 'duplicate-name'>> {
       const district = unsafeParse(DistrictSchema, input.newDistrict);
-      await store.createDistrict(input.electionId, district);
+      return store.createDistrict(input.electionId, district);
     },
 
     async updateDistrict(input: {
       electionId: ElectionId;
       updatedDistrict: District;
-    }): Promise<void> {
+    }): Promise<Result<void, 'duplicate-name'>> {
       const district = unsafeParse(DistrictSchema, input.updatedDistrict);
-      await store.updateDistrict(input.electionId, district);
+      return store.updateDistrict(input.electionId, district);
     },
 
     async deleteDistrict(input: {

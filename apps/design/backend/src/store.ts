@@ -136,6 +136,12 @@ async function assertWithinTransaction(client: Client): Promise<void> {
   }
 }
 
+function isDuplicateKeyError(error: unknown): boolean {
+  return (
+    error instanceof Error && 'code' in error && error.code === '23505' // PostgreSQL unique violation error code
+  );
+}
+
 async function insertDistrict(
   client: Client,
   electionId: ElectionId,
@@ -979,7 +985,7 @@ export class Store {
       assert(rowCount === 1, 'Election not found');
       return ok();
     } catch (error) {
-      if (error instanceof Error && error.message.includes('duplicate key')) {
+      if (isDuplicateKeyError(error)) {
         return err('duplicate-title-and-date');
       }
       /* istanbul ignore next - @preserve */
@@ -995,29 +1001,47 @@ export class Store {
   async createDistrict(
     electionId: ElectionId,
     district: District
-  ): Promise<void> {
-    await this.db.withClient((client) =>
-      insertDistrict(client, electionId, district)
-    );
+  ): Promise<Result<void, 'duplicate-name'>> {
+    try {
+      await this.db.withClient(async (client) =>
+        insertDistrict(client, electionId, district)
+      );
+      return ok();
+    } catch (error) {
+      if (isDuplicateKeyError(error)) {
+        return err('duplicate-name');
+      }
+      /* istanbul ignore next - @preserve */
+      throw error;
+    }
   }
 
   async updateDistrict(
     electionId: ElectionId,
     district: District
-  ): Promise<void> {
-    const { rowCount } = await this.db.withClient((client) =>
-      client.query(
-        `
+  ): Promise<Result<void, 'duplicate-name'>> {
+    try {
+      const { rowCount } = await this.db.withClient((client) =>
+        client.query(
+          `
           update districts
           set name = $1
           where id = $2 and election_id = $3
         `,
-        district.name,
-        district.id,
-        electionId
-      )
-    );
-    assert(rowCount === 1, 'District not found');
+          district.name,
+          district.id,
+          electionId
+        )
+      );
+      assert(rowCount === 1, 'District not found');
+      return ok();
+    } catch (error) {
+      if (isDuplicateKeyError(error)) {
+        return err('duplicate-name');
+      }
+      /* istanbul ignore next - @preserve */
+      throw error;
+    }
   }
 
   async deleteDistrict(

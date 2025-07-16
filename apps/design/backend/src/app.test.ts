@@ -634,6 +634,17 @@ test('CRUD districts', async () => {
   });
   expect(await apiClient.listDistricts({ electionId })).toEqual([district1]);
 
+  // Can't create a district with an existing name
+  expect(
+    await apiClient.createDistrict({
+      electionId,
+      newDistrict: {
+        id: unsafeParse(DistrictIdSchema, 'district-3'),
+        name: 'District 1',
+      },
+    })
+  ).toEqual(err('duplicate-name'));
+
   // Create another district
   const district2: District = {
     id: unsafeParse(DistrictIdSchema, 'district-2'),
@@ -662,6 +673,17 @@ test('CRUD districts', async () => {
     district2,
     updatedDistrict1,
   ]);
+
+  // Can't update a district to an existing name
+  expect(
+    await apiClient.updateDistrict({
+      electionId,
+      updatedDistrict: {
+        ...district2,
+        name: 'Updated District 1',
+      },
+    })
+  ).toEqual(err('duplicate-name'));
 
   // Delete a district
   await apiClient.deleteDistrict({
