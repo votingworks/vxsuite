@@ -15,7 +15,6 @@ import {
   DEV_MACHINE_ID,
   Tabulation,
 } from '@votingworks/types';
-import { initializeGetWorkspaceDiskSpaceSummary } from '@votingworks/backend';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -34,14 +33,6 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
     featureFlagMock.isEnabled(flag),
 }));
 
-vi.mock(
-  import('@votingworks/backend'),
-  async (importActual): Promise<typeof import('@votingworks/backend')> => ({
-    ...(await importActual()),
-    initializeGetWorkspaceDiskSpaceSummary: vi.fn(),
-  })
-);
-
 beforeEach(() => {
   vi.clearAllMocks();
   featureFlagMock.enableFeatureFlag(
@@ -49,13 +40,6 @@ beforeEach(() => {
   );
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
-  );
-  vi.mocked(initializeGetWorkspaceDiskSpaceSummary).mockReturnValue(() =>
-    Promise.resolve({
-      total: 10 * 1_000_000,
-      used: 1 * 1_000_000,
-      available: 9 * 1_000_000,
-    })
   );
 });
 

@@ -4,7 +4,7 @@ import { HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
 import {
   DiskSpaceSummary,
   getBatteryInfo,
-  initializeGetWorkspaceDiskSpaceSummary,
+  getDiskSpaceSummary,
   pdfToText,
 } from '@votingworks/backend';
 import { DiagnosticRecord } from '@votingworks/types';
@@ -24,7 +24,7 @@ vi.mock(
   async (importActual): Promise<typeof import('@votingworks/backend')> => ({
     ...(await importActual()),
     getBatteryInfo: vi.fn(),
-    initializeGetWorkspaceDiskSpaceSummary: vi.fn(),
+    getDiskSpaceSummary: vi.fn(),
   })
 );
 
@@ -39,9 +39,7 @@ beforeEach(() => {
     level: 0.5,
     discharging: false,
   });
-  vi.mocked(initializeGetWorkspaceDiskSpaceSummary).mockReturnValue(() =>
-    Promise.resolve(MOCK_DISK_SPACE_SUMMARY)
-  );
+  vi.mocked(getDiskSpaceSummary).mockResolvedValue(MOCK_DISK_SPACE_SUMMARY);
 });
 
 test('diagnostic records', async () => {
@@ -206,10 +204,10 @@ test('save readiness report failure logging', async () => {
   );
 });
 
-test('getApplicationDiskSpaceSummary', async () => {
+test('getDiskSpaceSummary', async () => {
   const { apiClient } = buildTestEnvironment();
 
-  expect(await apiClient.getApplicationDiskSpaceSummary()).toEqual(
+  expect(await apiClient.getDiskSpaceSummary()).toEqual(
     MOCK_DISK_SPACE_SUMMARY
   );
 });

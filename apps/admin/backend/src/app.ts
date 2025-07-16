@@ -1211,7 +1211,7 @@ function buildApi({
       });
     },
 
-    async getApplicationDiskSpaceSummary(): Promise<DiskSpaceSummary> {
+    async getDiskSpaceSummary(): Promise<DiskSpaceSummary> {
       return workspace.getDiskSpaceSummary();
     },
 

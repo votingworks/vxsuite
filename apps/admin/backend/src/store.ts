@@ -56,9 +56,7 @@ import {
 } from '@votingworks/utils';
 import {
   addDiagnosticRecord,
-  getMaximumUsableDiskSpace,
   getMostRecentDiagnosticRecord,
-  updateMaximumUsableDiskSpace,
 } from '@votingworks/backend';
 import { BaseLogger } from '@votingworks/logging';
 import {
@@ -2755,14 +2753,6 @@ export class Store {
     type: DiagnosticType
   ): DiagnosticRecord | undefined {
     return getMostRecentDiagnosticRecord(this.client, type);
-  }
-
-  getMaximumUsableDiskSpace(): number {
-    return getMaximumUsableDiskSpace(this.client);
-  }
-
-  updateMaximumUsableDiskSpace(space: number): void {
-    updateMaximumUsableDiskSpace(this.client, space);
   }
 
   /* istanbul ignore next - @preserve */
