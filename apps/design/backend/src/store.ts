@@ -137,9 +137,14 @@ async function assertWithinTransaction(client: Client): Promise<void> {
   }
 }
 
-function isDuplicateKeyError(error: unknown): error is DatabaseError {
+function isDuplicateKeyError(
+  error: unknown,
+  constraint: string
+): error is DatabaseError {
   return (
-    error instanceof DatabaseError && error.code === '23505' // PostgreSQL unique violation error code
+    error instanceof DatabaseError &&
+    error.code === '23505' &&
+    error.constraint === constraint
   );
 }
 
@@ -986,7 +991,9 @@ export class Store {
       assert(rowCount === 1, 'Election not found');
       return ok();
     } catch (error) {
-      if (isDuplicateKeyError(error)) {
+      if (
+        isDuplicateKeyError(error, 'elections_org_id_title_date_unique_index')
+      ) {
         return err('duplicate-title-and-date');
       }
       /* istanbul ignore next - @preserve */
@@ -1009,7 +1016,9 @@ export class Store {
       );
       return ok();
     } catch (error) {
-      if (isDuplicateKeyError(error)) {
+      if (
+        isDuplicateKeyError(error, 'districts_election_id_name_unique_index')
+      ) {
         return err('duplicate-name');
       }
       /* istanbul ignore next - @preserve */
@@ -1037,7 +1046,9 @@ export class Store {
       assert(rowCount === 1, 'District not found');
       return ok();
     } catch (error) {
-      if (isDuplicateKeyError(error)) {
+      if (
+        isDuplicateKeyError(error, 'districts_election_id_name_unique_index')
+      ) {
         return err('duplicate-name');
       }
       /* istanbul ignore next - @preserve */
@@ -1067,13 +1078,21 @@ export class Store {
     return election.precincts;
   }
 
-  private convertPrecinctUniquenessError(error: DatabaseError) {
-    if (error.constraint === 'precincts_election_id_name_unique_index') {
-      return 'duplicate-precinct-name';
+  private handlePrecinctError(
+    error: unknown
+  ): Result<void, 'duplicate-precinct-name' | 'duplicate-split-name'> {
+    if (isDuplicateKeyError(error, 'precincts_election_id_name_unique_index')) {
+      return err('duplicate-precinct-name');
     }
-    if (error.constraint === 'precinct_splits_precinct_id_name_unique_index') {
-      return 'duplicate-split-name';
+    if (
+      isDuplicateKeyError(
+        error,
+        'precinct_splits_precinct_id_name_unique_index'
+      )
+    ) {
+      return err('duplicate-split-name');
     }
+    throw error;
   }
 
   async createPrecinct(
@@ -1089,12 +1108,7 @@ export class Store {
       );
       return ok();
     } catch (error) {
-      if (isDuplicateKeyError(error)) {
-        const errorType = this.convertPrecinctUniquenessError(error);
-        if (errorType) return err(errorType);
-      }
-      /* istanbul ignore next - @preserve */
-      throw error;
+      return this.handlePrecinctError(error);
     }
   }
 
@@ -1125,12 +1139,7 @@ export class Store {
       );
       return ok();
     } catch (error) {
-      if (isDuplicateKeyError(error)) {
-        const errorType = this.convertPrecinctUniquenessError(error);
-        if (errorType) return err(errorType);
-      }
-      /* istanbul ignore next - @preserve */
-      throw error;
+      return this.handlePrecinctError(error);
     }
   }
 
