@@ -823,6 +823,18 @@ test('CRUD precincts', async () => {
   });
   expect(await apiClient.listPrecincts({ electionId })).toEqual([precinct1]);
 
+  // Can't create a precinct with an existing name
+  expect(
+    await apiClient.createPrecinct({
+      electionId,
+      newPrecinct: {
+        id: 'precinct-2',
+        name: 'Precinct 1',
+        districtIds: [],
+      },
+    })
+  ).toEqual(err('duplicate-precinct-name'));
+
   // Add a district to the precinct
   const district1: District = {
     id: unsafeParse(DistrictIdSchema, 'district-1'),
@@ -870,6 +882,17 @@ test('CRUD precincts', async () => {
     precinct2,
   ]);
 
+  // Can't update a precinct name to an existing name
+  expect(
+    await apiClient.updatePrecinct({
+      electionId,
+      updatedPrecinct: {
+        ...updatedPrecinct1,
+        name: 'Precinct 2',
+      },
+    })
+  ).toEqual(err('duplicate-precinct-name'));
+
   // Update splits
   const district2: District = {
     id: unsafeParse(DistrictIdSchema, 'district-2'),
@@ -897,6 +920,46 @@ test('CRUD precincts', async () => {
     updatedPrecinct1,
     updatedPrecinct2,
   ]);
+
+  // Can't update a split name to an existing name within the precinct
+  expect(
+    await apiClient.updatePrecinct({
+      electionId,
+      updatedPrecinct: {
+        ...updatedPrecinct2,
+        splits: [
+          updatedPrecinct2.splits[0],
+          {
+            ...updatedPrecinct2.splits[1],
+            name: 'Split 1',
+          },
+        ],
+      },
+    })
+  ).toEqual(err('duplicate-split-name'));
+
+  // Can't create a precinct with splits with the same name
+  expect(
+    await apiClient.createPrecinct({
+      electionId,
+      newPrecinct: {
+        id: 'precinct-3',
+        name: 'Precinct 3',
+        splits: [
+          {
+            id: 'precinct-3-split-1',
+            name: 'Split 1',
+            districtIds: [district1.id],
+          },
+          {
+            id: 'precinct-3-split-2',
+            name: 'Split 1',
+            districtIds: [district2.id],
+          },
+        ],
+      },
+    })
+  ).toEqual(err('duplicate-split-name'));
 
   // Delete a precinct
   await apiClient.deletePrecinct({

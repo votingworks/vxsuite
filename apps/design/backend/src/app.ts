@@ -421,17 +421,21 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
     async createPrecinct(input: {
       electionId: ElectionId;
       newPrecinct: Precinct;
-    }): Promise<void> {
+    }): Promise<
+      Result<void, 'duplicate-precinct-name' | 'duplicate-split-name'>
+    > {
       const precinct = unsafeParse(PrecinctSchema, input.newPrecinct);
-      await store.createPrecinct(input.electionId, precinct);
+      return store.createPrecinct(input.electionId, precinct);
     },
 
     async updatePrecinct(input: {
       electionId: ElectionId;
       updatedPrecinct: Precinct;
-    }): Promise<void> {
+    }): Promise<
+      Result<void, 'duplicate-precinct-name' | 'duplicate-split-name'>
+    > {
       const precinct = unsafeParse(PrecinctSchema, input.updatedPrecinct);
-      await store.updatePrecinct(input.electionId, precinct);
+      return store.updatePrecinct(input.electionId, precinct);
     },
 
     async deletePrecinct(input: {
