@@ -2025,6 +2025,9 @@ importers:
       '@votingworks/logging':
         specifier: workspace:*
         version: link:../../../libs/logging
+      '@votingworks/mark-backend':
+        specifier: workspace:*
+        version: link:../backend
       '@votingworks/mark-flow-ui':
         specifier: workspace:*
         version: link:../../../libs/mark-flow-ui
@@ -2161,9 +2164,6 @@ importers:
       '@votingworks/grout-test-utils':
         specifier: workspace:*
         version: link:../../../libs/grout/test-utils
-      '@votingworks/mark-backend':
-        specifier: workspace:*
-        version: link:../backend
       '@votingworks/monorepo-utils':
         specifier: workspace:*
         version: link:../../../libs/monorepo-utils

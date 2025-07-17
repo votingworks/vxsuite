@@ -84,6 +84,11 @@ export enum BooleanEnvironmentVariableName {
    * ENABLE_HARDWARE_TEST_APP is also enabled.
    */
   ENABLE_HARDWARE_TEST_APP_INTERNAL_FUNCTIONS = 'REACT_APP_VX_ENABLE_HARDWARE_TEST_APP_INTERNAL_FUNCTIONS',
+  /**
+   * [In Development] Exposes an in-app toggle between printing BMD summary
+   * ballots and printing bubble marks on pre-printed HMPBs
+   */
+  MARK_ENABLE_BALLOT_PRINT_MODE_TOGGLE = 'REACT_APP_VX_MARK_ENABLE_BALLOT_PRINT_MODE_TOGGLE',
 }
 
 export interface BooleanEnvironmentConfig {
@@ -157,6 +162,8 @@ export function getEnvironmentVariable(
     case BooleanEnvironmentVariableName.ENABLE_HARDWARE_TEST_APP_INTERNAL_FUNCTIONS:
       return process.env
         .REACT_APP_VX_ENABLE_HARDWARE_TEST_APP_INTERNAL_FUNCTIONS;
+    case BooleanEnvironmentVariableName.MARK_ENABLE_BALLOT_PRINT_MODE_TOGGLE:
+      return process.env.REACT_APP_VX_MARK_ENABLE_BALLOT_PRINT_MODE_TOGGLE;
     /* istanbul ignore next */
     default:
       throwIllegalValue(name);
@@ -287,6 +294,12 @@ export function getBooleanEnvVarConfig(
         name,
         allowInProduction: true,
         autoEnableInDevelopment: false,
+      };
+    case BooleanEnvironmentVariableName.MARK_ENABLE_BALLOT_PRINT_MODE_TOGGLE:
+      return {
+        name,
+        allowInProduction: false,
+        autoEnableInDevelopment: true,
       };
     /* istanbul ignore next */
     default:

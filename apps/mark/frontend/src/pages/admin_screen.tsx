@@ -16,6 +16,7 @@ import {
   H6,
   UnconfigureMachineButton,
   ExportLogsButton,
+  SegmentedButtonOption,
 } from '@votingworks/ui';
 import {
   ElectionDefinition,
@@ -25,11 +26,18 @@ import {
 import type { MachineConfig } from '@votingworks/mark-backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
+import { PrintMode } from '@votingworks/mark-backend';
+import styled from 'styled-components';
+import {
   ejectUsbDrive,
   logOut,
   setPrecinctSelection,
   setTestMode,
 } from '../api';
+import * as api from '../api';
 
 export interface AdminScreenProps {
   appPrecinct?: PrecinctSelection;
@@ -42,6 +50,18 @@ export interface AdminScreenProps {
   pollsState: PollsState;
   usbDriveStatus: UsbDriveStatus;
 }
+
+const Section = styled.div`
+  &:not(:last-child) {
+    margin-bottom: 0.35rem;
+  }
+`;
+
+// [TODO] Finalize copy before turning on this feature.
+const PRINT_MODE_OPTIONS: Array<SegmentedButtonOption<PrintMode>> = [
+  { id: 'summary', label: 'Summary' },
+  { id: 'bubble_marks', label: 'Bubble Marks' },
+];
 
 export function AdminScreen({
   appPrecinct,
@@ -60,6 +80,9 @@ export function AdminScreen({
   const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
   const setTestModeMutation = setTestMode.useMutation();
 
+  const printMode = api.getPrintMode.useQuery().data;
+  const setPrintMode = api.setPrintMode.useMutation().mutate;
+
   return (
     <Screen>
       <Main padded>
@@ -76,7 +99,7 @@ export function AdminScreen({
             <H6 as="h2">
               <label htmlFor="selectPrecinct">Precinct</label>
             </H6>
-            <P>
+            <Section>
               <ChangePrecinctButton
                 appPrecinctSelection={appPrecinct}
                 updatePrecinctSelection={async (newPrecinctSelection) => {
@@ -109,9 +132,9 @@ export function AdminScreen({
                   </Caption>
                 </React.Fragment>
               )}
-            </P>
+            </Section>
             <H6 as="h2">Ballot Mode</H6>
-            <P>
+            <Section>
               <SegmentedButton
                 label="Ballot Mode"
                 hideLabel
@@ -128,7 +151,25 @@ export function AdminScreen({
               <Caption>
                 Switching the mode will reset the Ballots Printed count.
               </Caption>
-            </P>
+            </Section>
+            {isFeatureFlagEnabled(
+              BooleanEnvironmentVariableName.MARK_ENABLE_BALLOT_PRINT_MODE_TOGGLE
+            ) && (
+              <React.Fragment>
+                <H6 as="h2">Printing Mode</H6>
+                <Section>
+                  <SegmentedButton
+                    label="Ballot Mode"
+                    hideLabel
+                    disabled={!printMode}
+                    onChange={setPrintMode}
+                    options={PRINT_MODE_OPTIONS}
+                    // istanbul ignore next
+                    selectedOptionId={printMode || 'summary'}
+                  />
+                </Section>
+              </React.Fragment>
+            )}
           </React.Fragment>
         )}
         <H6 as="h2">Date and Time</H6>

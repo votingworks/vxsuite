@@ -5,6 +5,8 @@ import {
 } from '@votingworks/fixtures';
 import {
   ALL_PRECINCTS_SELECTION,
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
@@ -21,6 +23,14 @@ import {
   provideApi,
 } from '../../test/helpers/mock_api_client';
 
+const featureFlagMock = getFeatureFlagMock();
+
+vi.mock(import('@votingworks/utils'), async (importActual) => ({
+  ...(await importActual()),
+  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
+    featureFlagMock.isEnabled(flag),
+}));
+
 let apiMock: ApiMock;
 
 beforeEach(() => {
@@ -33,9 +43,13 @@ beforeEach(() => {
 
 afterEach(() => {
   apiMock.mockApiClient.assertComplete();
+  featureFlagMock.resetFeatureFlags();
 });
 
 function renderScreen(props: Partial<AdminScreenProps> = {}) {
+  apiMock.mockApiClient.getPrintMode.reset();
+  apiMock.mockApiClient.getPrintMode.expectCallWith().resolves('bubble_marks');
+
   return render(
     provideApi(
       apiMock,
@@ -146,4 +160,29 @@ test('USB button calls eject', async () => {
   const ejectButton = await screen.findByText('Eject USB');
   apiMock.expectEjectUsbDrive();
   userEvent.click(ejectButton);
+});
+
+test('print mode toggle - hidden without feature flag', () => {
+  renderScreen({ usbDriveStatus: mockUsbDriveStatus('mounted') });
+  expect(screen.queryButton('Bubble Marks')).not.toBeInTheDocument();
+});
+
+test('print mode toggle - persists to server', async () => {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.MARK_ENABLE_BALLOT_PRINT_MODE_TOGGLE
+  );
+
+  renderScreen({ usbDriveStatus: mockUsbDriveStatus('mounted') });
+  await screen.findByRole('option', { selected: true, name: 'Bubble Marks' });
+
+  apiMock.mockApiClient.setPrintMode
+    .expectCallWith({ mode: 'summary' })
+    .resolves();
+  apiMock.mockApiClient.getPrintMode.expectCallWith().resolves('summary');
+
+  userEvent.click(
+    screen.getByRole('option', { selected: false, name: 'Summary' })
+  );
+
+  await screen.findByRole('option', { selected: true, name: 'Summary' });
 });

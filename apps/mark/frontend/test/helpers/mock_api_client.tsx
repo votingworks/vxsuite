@@ -97,6 +97,10 @@ function createMockApiClient(): MockApiClient {
 export function createApiMock() {
   const mockApiClient = createMockApiClient();
 
+  mockApiClient.getPrintMode
+    .expectOptionalRepeatedCallsWith()
+    .resolves('summary');
+
   function setAuthStatus(authStatus: InsertedSmartCardAuth.AuthStatus): void {
     mockApiClient.getAuthStatus.mockImplementation(() =>
       Promise.resolve(authStatus)
