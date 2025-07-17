@@ -14,7 +14,6 @@ import {
   vxGeneralElectionFixtures,
   vxPrimaryElectionFixtures,
 } from './ballot_fixtures';
-import { convertPdfToCmyk } from './pdf_conversion';
 import { createPlaywrightRenderer } from './playwright_renderer';
 import { Renderer } from './renderer';
 import { TimingMarkPaperType } from './timing_mark_paper/template';
@@ -165,7 +164,7 @@ export async function main(): Promise<number> {
   const fixtures = new Set<Fixture>();
 
   for (let i = 2; i < process.argv.length; i += 1) {
-    const arg = process.argv[i] as string;
+    const arg = process.argv[i];
     switch (arg) {
       case '-h':
       case '--help': {
@@ -212,9 +211,9 @@ export async function main(): Promise<number> {
 
   if (fixtures.size === 0 || fixtures.has('all-bubble-ballot')) {
     for (const paperSize of ALL_PAPER_SIZES) {
-      const fixtures = allBubbleBallotFixtures(paperSize);
-      await rm(fixtures.dir, { recursive: true, force: true });
-      await generateAllBubbleBallotFixtures(fixtures, renderer);
+      const abbFixtures = allBubbleBallotFixtures(paperSize);
+      await rm(abbFixtures.dir, { recursive: true, force: true });
+      await generateAllBubbleBallotFixtures(abbFixtures, renderer);
     }
   }
 

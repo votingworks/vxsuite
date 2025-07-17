@@ -4464,6 +4464,9 @@ importers:
       styled-components:
         specifier: ^5.3.11
         version: 5.3.11(react-dom@18.3.1)(react-is@18.2.0)(react@18.3.1)
+      tmp:
+        specifier: ^0.2.1
+        version: 0.2.1
     devDependencies:
       '@types/debug':
         specifier: 4.1.8
@@ -4516,9 +4519,6 @@ importers:
       sort-package-json:
         specifier: ^1.50.0
         version: 1.50.0
-      tmp:
-        specifier: ^0.2.1
-        version: 0.2.1
       util:
         specifier: ^0.12.4
         version: 0.12.4
