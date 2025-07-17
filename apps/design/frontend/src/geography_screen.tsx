@@ -850,7 +850,7 @@ function AddPrecinctForm(): JSX.Element | null {
       <Header>
         <Breadcrumbs
           currentTitle={title}
-          parentRoutes={[geographyRoutes.districts.root]}
+          parentRoutes={[geographyRoutes.precincts.root]}
         />
         <H1>{title}</H1>
       </Header>
@@ -889,7 +889,7 @@ function EditPrecinctForm(): JSX.Element | null {
       <Header>
         <Breadcrumbs
           currentTitle={title}
-          parentRoutes={[geographyRoutes.districts.root]}
+          parentRoutes={[geographyRoutes.precincts.root]}
         />
         <H1>{title}</H1>
       </Header>
