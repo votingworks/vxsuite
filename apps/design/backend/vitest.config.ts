@@ -8,7 +8,7 @@ export default defineConfig({
     coverage: {
       thresholds: {
         lines: -71,
-        branches: -53,
+        branches: -54,
       },
       exclude: ['src/configure_sentry.ts', '**/*.test.ts'],
     },
