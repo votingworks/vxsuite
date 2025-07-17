@@ -82,6 +82,10 @@ describe('Districts tab', () => {
 
     userEvent.click(screen.getByRole('button', { name: 'Add District' }));
     await screen.findByRole('heading', { name: 'Add District' });
+    expect(screen.getByRole('link', { name: 'Districts' })).toHaveAttribute(
+      'href',
+      `/elections/${electionId}/geography/districts`
+    );
 
     userEvent.type(screen.getByLabelText('Name'), newDistrict.name);
 
@@ -133,6 +137,10 @@ describe('Districts tab', () => {
     );
 
     await screen.findByRole('heading', { name: 'Edit District' });
+    expect(screen.getByRole('link', { name: 'Districts' })).toHaveAttribute(
+      'href',
+      `/elections/${electionId}/geography/districts`
+    );
 
     const nameInput = screen.getByLabelText('Name');
     expect(nameInput).toHaveValue(savedDistrict.name);
@@ -276,6 +284,10 @@ describe('Precincts tab', () => {
 
     userEvent.click(screen.getByRole('button', { name: 'Add Precinct' }));
     await screen.findByRole('heading', { name: 'Add Precinct' });
+    expect(screen.getByRole('link', { name: 'Precincts' })).toHaveAttribute(
+      'href',
+      `/elections/${electionId}/geography/precincts`
+    );
 
     userEvent.type(screen.getByLabelText('Name'), newPrecinct.name);
 
@@ -400,6 +412,10 @@ describe('Precincts tab', () => {
       within(savedPrecinctRow).getByRole('button', { name: 'Edit' })
     );
     await screen.findByRole('heading', { name: 'Edit Precinct' });
+    expect(screen.getByRole('link', { name: 'Precincts' })).toHaveAttribute(
+      'href',
+      `/elections/${electionId}/geography/precincts`
+    );
 
     const nameInput = screen.getByLabelText('Name');
     expect(nameInput).toHaveValue(savedPrecinct.name);
