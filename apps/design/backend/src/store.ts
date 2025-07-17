@@ -1,8 +1,11 @@
 import {
   DateWithoutTime,
   Optional,
+  Result,
   assert,
   assertDefined,
+  err,
+  ok,
   throwIllegalValue,
   typedAs,
 } from '@votingworks/basics';
@@ -767,6 +770,38 @@ export class Store {
     return row.orgId;
   }
 
+  private async generateUniqueElectionCopyTitle(
+    client: Client,
+    orgId: string,
+    election: Election
+  ): Promise<string> {
+    if (election.title === '') {
+      return election.title;
+    }
+    let electionTitle = election.title;
+    let copyIndex = 0;
+    while (
+      (
+        await client.query(
+          `
+          select exists(
+            select 1 from elections
+            where org_id = $1 and title = $2 and date = $3
+          )
+        `,
+          orgId,
+          electionTitle,
+          election.date.toISOString()
+        )
+      ).rows[0].exists
+    ) {
+      copyIndex += 1;
+      const copyPrefix = copyIndex > 1 ? `(Copy ${copyIndex})` : '(Copy)';
+      electionTitle = `${copyPrefix} ${election.title}`;
+    }
+    return electionTitle;
+  }
+
   async createElection(
     orgId: string,
     election: Election,
@@ -775,6 +810,11 @@ export class Store {
   ): Promise<void> {
     await this.db.withClient((client) =>
       client.withTransaction(async () => {
+        const electionTitle = await this.generateUniqueElectionCopyTitle(
+          client,
+          orgId,
+          election
+        );
         await client.query(
           `
           insert into elections (
@@ -811,7 +851,7 @@ export class Store {
           election.id,
           orgId,
           election.type,
-          election.title,
+          electionTitle,
           election.date.toISOString(),
           election.county.name,
           election.state,
@@ -908,10 +948,13 @@ export class Store {
     );
   }
 
-  async updateElectionInfo(electionInfo: ElectionInfo): Promise<void> {
-    const { rowCount } = await this.db.withClient((client) =>
-      client.query(
-        `
+  async updateElectionInfo(
+    electionInfo: ElectionInfo
+  ): Promise<Result<void, 'duplicate-title-and-date'>> {
+    try {
+      const { rowCount } = await this.db.withClient((client) =>
+        client.query(
+          `
           update elections
           set
             type = $1,
@@ -923,17 +966,25 @@ export class Store {
             ballot_language_codes = $7
           where id = $8
         `,
-        electionInfo.type,
-        electionInfo.title,
-        electionInfo.date.toISOString(),
-        electionInfo.jurisdiction,
-        electionInfo.state,
-        electionInfo.seal,
-        electionInfo.languageCodes,
-        electionInfo.electionId
-      )
-    );
-    assert(rowCount === 1, 'Election not found');
+          electionInfo.type,
+          electionInfo.title,
+          electionInfo.date.toISOString(),
+          electionInfo.jurisdiction,
+          electionInfo.state,
+          electionInfo.seal,
+          electionInfo.languageCodes,
+          electionInfo.electionId
+        )
+      );
+      assert(rowCount === 1, 'Election not found');
+      return ok();
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('duplicate key')) {
+        return err('duplicate-title-and-date');
+      }
+      /* istanbul ignore next - @preserve */
+      throw error;
+    }
   }
 
   async listDistricts(electionId: ElectionId): Promise<readonly District[]> {

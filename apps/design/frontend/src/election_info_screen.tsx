@@ -6,6 +6,7 @@ import {
 } from '@votingworks/types';
 import {
   Button,
+  Callout,
   CheckboxGroup,
   H1,
   MainContent,
@@ -16,7 +17,7 @@ import {
 import type { ElectionInfo } from '@votingworks/design-backend';
 import { useHistory, useParams } from 'react-router-dom';
 import { z } from 'zod/v4';
-import { DateWithoutTime } from '@votingworks/basics';
+import { DateWithoutTime, throwIllegalValue } from '@votingworks/basics';
 import {
   deleteElection,
   getBallotsFinalizedAt,
@@ -66,8 +67,10 @@ function ElectionInfoForm({
 
   function onSubmit() {
     updateElectionInfoMutation.mutate(electionInfo, {
-      onSuccess: () => {
-        setIsEditing(false);
+      onSuccess: (result) => {
+        if (result.isOk()) {
+          setIsEditing(false);
+        }
       },
     });
   }
@@ -75,6 +78,7 @@ function ElectionInfoForm({
   function onReset() {
     setElectionInfo(savedElectionInfo);
     setIsEditing((prev) => !prev);
+    updateElectionInfoMutation.reset();
   }
 
   type TextProperties = Exclude<keyof ElectionInfo, 'date' | 'electionId'>;
@@ -114,6 +118,18 @@ function ElectionInfoForm({
           history.push(routes.root.path);
         },
       }
+    );
+  }
+
+  let errorMessage;
+  if (updateElectionInfoMutation.data?.isErr()) {
+    const error = updateElectionInfoMutation.data.err();
+    /* istanbul ignore next - @preserve */
+    if (error !== 'duplicate-title-and-date') throwIllegalValue(error);
+    errorMessage = (
+      <Callout icon="Danger" color="danger">
+        An election with the same title and date already exists.
+      </Callout>
     );
   }
 
@@ -227,6 +243,8 @@ function ElectionInfoForm({
           />
         </div>
       )}
+
+      {errorMessage}
 
       {isEditing ? (
         <FormActionsRow>

@@ -6,6 +6,7 @@ import {
   DateWithoutTime,
   assert,
   assertDefined,
+  err,
   find,
   range,
 } from '@votingworks/basics';
@@ -450,6 +451,70 @@ test('create/list/delete elections', async () => {
   expect((await apiClient.listElections())[0].status).toEqual<ElectionStatus>(
     'orderSubmitted'
   );
+
+  // Loading election with an existing title+date should add copy prefix to the title
+  const duplicateElectionId = (
+    await apiClient.loadElection({
+      newId: unsafeParse(ElectionIdSchema, 'duplicate-election-id'),
+      orgId: vxUser.orgId,
+      electionData: election2Definition.electionData,
+    })
+  ).unsafeUnwrap();
+  const duplicateElection = await apiClient.getElectionInfo({
+    electionId: duplicateElectionId,
+  });
+  expect(duplicateElection.title).toEqual(
+    `(Copy) ${election2Definition.election.title}`
+  );
+  const duplicateElectionId2 = (
+    await apiClient.loadElection({
+      newId: unsafeParse(ElectionIdSchema, 'duplicate-election-id-2'),
+      orgId: vxUser.orgId,
+      electionData: election2Definition.electionData,
+    })
+  ).unsafeUnwrap();
+  const duplicateElection2 = await apiClient.getElectionInfo({
+    electionId: duplicateElectionId2,
+  });
+  expect(duplicateElection2.title).toEqual(
+    `(Copy 2) ${election2Definition.election.title}`
+  );
+  const duplicateElectionId3 = (
+    await apiClient.loadElection({
+      newId: unsafeParse(ElectionIdSchema, 'duplicate-election-id-3'),
+      orgId: vxUser.orgId,
+      electionData: election2Definition.electionData,
+    })
+  ).unsafeUnwrap();
+  const duplicateElection3 = await apiClient.getElectionInfo({
+    electionId: duplicateElectionId3,
+  });
+  expect(duplicateElection3.title).toEqual(
+    `(Copy 3) ${election2Definition.election.title}`
+  );
+
+  // Creating a two blank elections with empty titles is allowed
+  const blankElectionId = (
+    await apiClient.createElection({
+      id: unsafeParse(ElectionIdSchema, 'blank-election-id'),
+      orgId: nonVxUser.orgId,
+    })
+  ).unsafeUnwrap();
+  const blankElection = await apiClient.getElectionInfo({
+    electionId: blankElectionId,
+  });
+  expect(blankElection.title).toEqual('');
+  const duplicateBlankElectionId = (
+    await apiClient.createElection({
+      id: unsafeParse(ElectionIdSchema, 'duplicate-blank-election-id'),
+      orgId: nonVxUser.orgId,
+    })
+  ).unsafeUnwrap();
+  const duplicateBlankElection = await apiClient.getElectionInfo({
+    electionId: duplicateBlankElectionId,
+  });
+  expect(duplicateBlankElection.date).toEqual(blankElection.date);
+  expect(duplicateBlankElection.title).toEqual(blankElection.title);
 });
 
 test('update election info', async () => {
@@ -504,6 +569,21 @@ test('update election info', async () => {
     }
   );
 
+  // Duplicate title + date should be rejected
+  const electionId2 = unsafeParse(ElectionIdSchema, 'election-2');
+  (
+    await apiClient.createElection({
+      orgId: nonVxUser.orgId,
+      id: electionId2,
+    })
+  ).unsafeUnwrap();
+  expect(
+    await apiClient.updateElectionInfo({
+      ...electionInfoUpdate,
+      electionId: electionId2,
+    })
+  ).toEqual(err('duplicate-title-and-date'));
+
   await suppressingConsoleOutput(async () => {
     // Empty string values are rejected
     await expect(
@@ -518,6 +598,7 @@ test('update election info', async () => {
         languageCodes: [LanguageCode.ENGLISH],
       })
     ).rejects.toThrow();
+
     // Check permissions
     auth0.setLoggedInUser(anotherNonVxUser);
     await expect(apiClient.getElectionInfo({ electionId })).rejects.toThrow(
@@ -1632,7 +1713,6 @@ test('cloneElection', async () => {
   expect(destElectionInfo).toEqual({
     ...srcElectionInfo,
     electionId: newElectionId,
-    title: `(Copy) ${srcElectionInfo.title}`,
   });
 
   const srcDistricts = await apiClient.listDistricts({
@@ -1765,6 +1845,23 @@ test('cloneElection', async () => {
       destOrgId: nonVxUser.orgId,
     })
   ).resolves.toEqual('election-clone-2');
+
+  // Election title has copy prefix if same org
+  expect(
+    (await apiClient.getElectionInfo({ electionId: 'election-clone-2' })).title
+  ).toEqual('(Copy) ' + srcElectionInfo.title);
+
+  // Can clone a cloned election and get an additional copy prefix
+  await expect(
+    apiClient.cloneElection({
+      electionId: 'election-clone-2' as ElectionId,
+      destElectionId: 'election-clone-3' as ElectionId,
+      destOrgId: nonVxUser.orgId,
+    })
+  ).resolves.toEqual('election-clone-3');
+  expect(
+    (await apiClient.getElectionInfo({ electionId: 'election-clone-3' })).title
+  ).toEqual('(Copy) (Copy) ' + srcElectionInfo.title);
 
   // Non-VX user can't clone from another org:
   auth0.setLoggedInUser(anotherNonVxUser);

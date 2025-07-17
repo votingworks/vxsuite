@@ -297,8 +297,10 @@ export const updateElectionInfo = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.updateElectionInfo, {
-      async onSuccess(_, { electionId }) {
-        await invalidateElectionQueries(queryClient, electionId);
+      async onSuccess(result, { electionId }) {
+        if (result.isOk()) {
+          await invalidateElectionQueries(queryClient, electionId);
+        }
       },
     });
   },
