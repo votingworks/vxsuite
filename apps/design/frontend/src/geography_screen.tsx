@@ -32,7 +32,7 @@ import {
   PrecinctSplit,
   Precinct,
 } from '@votingworks/types';
-import { assert, assertDefined } from '@votingworks/basics';
+import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import styled from 'styled-components';
 import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
@@ -175,12 +175,24 @@ function DistrictForm({
     if (savedDistrict) {
       updateDistrictMutation.mutate(
         { electionId, updatedDistrict: district },
-        { onSuccess: goBackToDistrictsList }
+        {
+          onSuccess: (result) => {
+            if (result.isOk()) {
+              goBackToDistrictsList();
+            }
+          },
+        }
       );
     } else {
       createDistrictMutation.mutate(
         { electionId, newDistrict: district },
-        { onSuccess: goBackToDistrictsList }
+        {
+          onSuccess: (result) => {
+            if (result.isOk()) {
+              goBackToDistrictsList();
+            }
+          },
+        }
       );
     }
   }
@@ -196,6 +208,24 @@ function DistrictForm({
     createDistrictMutation.isLoading ||
     updateDistrictMutation.isLoading ||
     deleteDistrictMutation.isLoading;
+
+  const errorMessage = (() => {
+    if (
+      createDistrictMutation.data?.isErr() ||
+      updateDistrictMutation.data?.isErr()
+    ) {
+      const error = assertDefined(
+        createDistrictMutation.data?.err() || updateDistrictMutation.data?.err()
+      );
+      /* istanbul ignore next - @preserve */
+      if (error !== 'duplicate-name') throwIllegalValue(error);
+      return (
+        <Callout icon="Danger" color="danger">
+          A district with the same name already exists.
+        </Callout>
+      );
+    }
+  })();
 
   return (
     <Form
@@ -220,6 +250,7 @@ function DistrictForm({
           required
         />
       </InputGroup>
+      {errorMessage}
       <div>
         <FormActionsRow>
           <Button type="reset">Cancel</Button>
@@ -517,12 +548,24 @@ function PrecinctForm({
     if (savedPrecinct) {
       updatePrecinctMutation.mutate(
         { electionId, updatedPrecinct: precinct },
-        { onSuccess: goBackToPrecinctsList }
+        {
+          onSuccess: (result) => {
+            if (result.isOk()) {
+              goBackToPrecinctsList();
+            }
+          },
+        }
       );
     } else {
       createPrecinctMutation.mutate(
         { electionId, newPrecinct: precinct },
-        { onSuccess: goBackToPrecinctsList }
+        {
+          onSuccess: (result) => {
+            if (result.isOk()) {
+              goBackToPrecinctsList();
+            }
+          },
+        }
       );
     }
   }
@@ -602,6 +645,35 @@ function PrecinctForm({
     createPrecinctMutation.isLoading ||
     updatePrecinctMutation.isLoading ||
     deletePrecinctMutation.isLoading;
+
+  const errorMessage = (() => {
+    if (
+      createPrecinctMutation.data?.isErr() ||
+      updatePrecinctMutation.data?.isErr()
+    ) {
+      const error = assertDefined(
+        createPrecinctMutation.data?.err() || updatePrecinctMutation.data?.err()
+      );
+      switch (error) {
+        case 'duplicate-precinct-name':
+          return (
+            <Callout icon="Danger" color="danger">
+              A precinct with the same name already exists.
+            </Callout>
+          );
+        case 'duplicate-split-name':
+          return (
+            <Callout icon="Danger" color="danger">
+              Precinct splits must have different names.
+            </Callout>
+          );
+        default: {
+          /* istanbul ignore next - @preserve */
+          throwIllegalValue(error);
+        }
+      }
+    }
+  })();
 
   return (
     <Form
@@ -779,6 +851,7 @@ function PrecinctForm({
           )}
         </Row>
       </div>
+      {errorMessage}
       <div>
         <FormActionsRow>
           <Button type="reset">Cancel</Button>

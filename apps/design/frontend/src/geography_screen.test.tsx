@@ -11,7 +11,7 @@ import {
   hasSplits,
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
-import { assert, assertDefined } from '@votingworks/basics';
+import { assert, assertDefined, err, ok } from '@votingworks/basics';
 import { readElectionGeneral } from '@votingworks/fixtures';
 import {
   MockApiClient,
@@ -91,7 +91,7 @@ describe('Districts tab', () => {
 
     apiMock.createDistrict
       .expectCallWith({ electionId, newDistrict })
-      .resolves();
+      .resolves(ok());
     apiMock.listDistricts
       .expectCallWith({ electionId })
       .resolves([newDistrict]);
@@ -149,7 +149,7 @@ describe('Districts tab', () => {
 
     apiMock.updateDistrict
       .expectCallWith({ electionId, updatedDistrict })
-      .resolves();
+      .resolves(ok());
     apiMock.listDistricts
       .expectCallWith({ electionId })
       .resolves([updatedDistrict, ...election.districts.slice(1)]);
@@ -252,6 +252,52 @@ describe('Districts tab', () => {
     await screen.findByRole('heading', { name: 'Geography' });
     screen.getByRole('tab', { name: 'Districts', selected: true });
   });
+
+  test('error message for duplicate district name', async () => {
+    apiMock.listDistricts
+      .expectCallWith({ electionId })
+      .resolves(election.districts);
+    renderScreen(electionId);
+    await screen.findByRole('heading', { name: 'Geography' });
+
+    userEvent.click(screen.getByRole('button', { name: 'Add District' }));
+    await screen.findByRole('heading', { name: 'Add District' });
+    userEvent.type(screen.getByLabelText('Name'), election.districts[0].name);
+
+    apiMock.createDistrict
+      .expectCallWith({
+        electionId,
+        newDistrict: {
+          id: idFactory.next(),
+          name: election.districts[0].name,
+        },
+      })
+      .resolves(err('duplicate-name'));
+    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await screen.findByText('A district with the same name already exists.');
+
+    userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    await screen.findByRole('heading', { name: 'Geography' });
+    userEvent.click(screen.getAllByRole('button', { name: 'Edit' })[0]);
+
+    await screen.findByRole('heading', { name: 'Edit District' });
+    const nameInput = screen.getByLabelText('Name');
+    expect(nameInput).toHaveValue(election.districts[0].name);
+    userEvent.clear(nameInput);
+    userEvent.type(nameInput, election.districts[1].name);
+
+    apiMock.updateDistrict
+      .expectCallWith({
+        electionId,
+        updatedDistrict: {
+          id: election.districts[0].id,
+          name: election.districts[1].name,
+        },
+      })
+      .resolves(err('duplicate-name'));
+    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await screen.findByText('A district with the same name already exists.');
+  });
 });
 
 describe('Precincts tab', () => {
@@ -304,7 +350,7 @@ describe('Precincts tab', () => {
         electionId,
         newPrecinct,
       })
-      .resolves();
+      .resolves(ok());
     apiMock.listPrecincts
       .expectCallWith({ electionId })
       .resolves([newPrecinct]);
@@ -530,7 +576,7 @@ describe('Precincts tab', () => {
 
     apiMock.updatePrecinct
       .expectCallWith({ electionId, updatedPrecinct: changedPrecinct })
-      .resolves();
+      .resolves(ok());
     apiMock.listPrecincts
       .expectCallWith({ electionId })
       .resolves([changedPrecinct, ...election.precincts.slice(1)]);
@@ -620,7 +666,7 @@ describe('Precincts tab', () => {
 
     apiMock.updatePrecinct
       .expectCallWith({ electionId, updatedPrecinct: changedPrecinct })
-      .resolves();
+      .resolves(ok());
     apiMock.listPrecincts
       .expectCallWith({ electionId })
       .resolves(
@@ -748,5 +794,151 @@ describe('Precincts tab', () => {
     userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     await screen.findByRole('heading', { name: 'Geography' });
     screen.getByRole('tab', { name: 'Precincts', selected: true });
+  });
+
+  test('error message for duplicate precinct name', async () => {
+    mockElectionFeatures(apiMock, electionId, {});
+    apiMock.listPrecincts
+      .expectCallWith({ electionId })
+      .resolves(election.precincts);
+    apiMock.listDistricts
+      .expectCallWith({ electionId })
+      .resolves(election.districts);
+    renderScreen(electionId);
+    await screen.findByRole('heading', { name: 'Geography' });
+
+    userEvent.click(screen.getByRole('tab', { name: 'Precincts' }));
+    userEvent.click(
+      await screen.findByRole('button', { name: 'Add Precinct' })
+    );
+    await screen.findByRole('heading', { name: 'Add Precinct' });
+    userEvent.type(screen.getByLabelText('Name'), election.precincts[0].name);
+
+    apiMock.createPrecinct
+      .expectCallWith({
+        electionId,
+        newPrecinct: {
+          id: idFactory.next(),
+          name: election.precincts[0].name,
+          districtIds: [],
+        },
+      })
+      .resolves(err('duplicate-precinct-name'));
+    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await screen.findByText('A precinct with the same name already exists.');
+
+    userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    await screen.findByRole('heading', { name: 'Geography' });
+    userEvent.click(
+      (await screen.findAllByRole('button', { name: 'Edit' }))[0]
+    );
+
+    await screen.findByRole('heading', { name: 'Edit Precinct' });
+    const nameInput = screen.getByLabelText('Name');
+    expect(nameInput).toHaveValue(election.precincts[0].name);
+    userEvent.clear(nameInput);
+    userEvent.type(nameInput, election.precincts[1].name);
+
+    apiMock.updatePrecinct
+      .expectCallWith({
+        electionId,
+        updatedPrecinct: {
+          ...election.precincts[0],
+          name: election.precincts[1].name,
+        },
+      })
+      .resolves(err('duplicate-precinct-name'));
+    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await screen.findByText('A precinct with the same name already exists.');
+  });
+
+  test('error message for duplicate precinct split name', async () => {
+    const savedPrecinct = election.precincts.find(hasSplits)!;
+    assert(savedPrecinct.splits.length === 2);
+
+    mockElectionFeatures(apiMock, electionId, {});
+    apiMock.listPrecincts
+      .expectCallWith({ electionId })
+      .resolves(election.precincts);
+    apiMock.listDistricts
+      .expectCallWith({ electionId })
+      .resolves(election.districts);
+    renderScreen(electionId);
+
+    await screen.findByRole('heading', { name: 'Geography' });
+    userEvent.click(screen.getByRole('tab', { name: 'Precincts' }));
+    userEvent.click(
+      await screen.findByRole('button', { name: 'Add Precinct' })
+    );
+    await screen.findByRole('heading', { name: 'Add Precinct' });
+    userEvent.type(screen.getByLabelText('Name'), 'New Precinct');
+    userEvent.click(screen.getByRole('button', { name: 'Add Split' }));
+    const splitCards = screen
+      .getAllByRole('button', { name: 'Remove Split' })
+      .map((button) => button.closest('div')!);
+    expect(splitCards).toHaveLength(2);
+    const [split1Card, split2Card] = splitCards;
+    userEvent.type(within(split1Card).getByLabelText('Name'), 'Split 1');
+    userEvent.type(within(split2Card).getByLabelText('Name'), 'Split 1');
+
+    apiMock.createPrecinct
+      .expectCallWith({
+        electionId,
+        newPrecinct: {
+          id: idFactory.next(),
+          name: 'New Precinct',
+          splits: [
+            {
+              id: idFactory.next(),
+              name: 'Split 1',
+              districtIds: [],
+            },
+            {
+              id: idFactory.next(),
+              name: 'Split 1',
+              districtIds: [],
+            },
+          ],
+        },
+      })
+      .resolves(err('duplicate-split-name'));
+    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await screen.findByText('Precinct splits must have different names.');
+
+    userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    const savedPrecinctRow = (
+      await screen.findByText(savedPrecinct.name)
+    ).closest('tr')!;
+    userEvent.click(
+      within(savedPrecinctRow).getByRole('button', { name: 'Edit' })
+    );
+    await screen.findByRole('heading', { name: 'Edit Precinct' });
+    const savedSplitCards = screen
+      .getAllByRole('button', { name: 'Remove Split' })
+      .map((button) => button.closest('div')!);
+    expect(savedSplitCards).toHaveLength(2);
+    const savedSplit1NameInput = within(savedSplitCards[0]).getByLabelText(
+      'Name'
+    );
+    userEvent.clear(savedSplit1NameInput);
+    userEvent.type(savedSplit1NameInput, savedPrecinct.splits[1].name);
+
+    apiMock.updatePrecinct
+      .expectCallWith({
+        electionId,
+        updatedPrecinct: {
+          ...savedPrecinct,
+          splits: [
+            {
+              ...savedPrecinct.splits[0],
+              name: savedPrecinct.splits[1].name,
+            },
+            savedPrecinct.splits[1],
+          ],
+        },
+      })
+      .resolves(err('duplicate-split-name'));
+    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await screen.findByText('Precinct splits must have different names.');
   });
 });

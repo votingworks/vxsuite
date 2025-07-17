@@ -311,9 +311,11 @@ export const createDistrict = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.createDistrict, {
-      async onSuccess(_, { electionId }) {
-        await invalidateElectionQueries(queryClient, electionId);
-        await queryClient.refetchQueries(listDistricts.queryKey(electionId));
+      async onSuccess(result, { electionId }) {
+        if (result.isOk()) {
+          await invalidateElectionQueries(queryClient, electionId);
+          await queryClient.refetchQueries(listDistricts.queryKey(electionId));
+        }
       },
     });
   },
@@ -324,8 +326,10 @@ export const updateDistrict = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.updateDistrict, {
-      async onSuccess(_, { electionId }) {
-        await invalidateElectionQueries(queryClient, electionId);
+      async onSuccess(result, { electionId }) {
+        if (result.isOk()) {
+          await invalidateElectionQueries(queryClient, electionId);
+        }
       },
     });
   },
@@ -348,9 +352,11 @@ export const createPrecinct = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.createPrecinct, {
-      async onSuccess(_, { electionId }) {
-        await invalidateElectionQueries(queryClient, electionId);
-        await queryClient.refetchQueries(listPrecincts.queryKey(electionId));
+      async onSuccess(result, { electionId }) {
+        if (result.isOk()) {
+          await invalidateElectionQueries(queryClient, electionId);
+          await queryClient.refetchQueries(listPrecincts.queryKey(electionId));
+        }
       },
     });
   },
@@ -361,8 +367,10 @@ export const updatePrecinct = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.updatePrecinct, {
-      async onSuccess(_, { electionId }) {
-        await invalidateElectionQueries(queryClient, electionId);
+      async onSuccess(result, { electionId }) {
+        if (result.isOk()) {
+          await invalidateElectionQueries(queryClient, electionId);
+        }
       },
     });
   },

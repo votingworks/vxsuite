@@ -41,6 +41,7 @@ import {
 import { v4 as uuid } from 'uuid';
 import { BaseLogger } from '@votingworks/logging';
 import { BallotTemplateId } from '@votingworks/hmpb';
+import { DatabaseError } from 'pg';
 import {
   BallotOrderInfo,
   BallotOrderInfoSchema,
@@ -134,6 +135,17 @@ async function assertWithinTransaction(client: Client): Promise<void> {
     ).rows[0];
     assert(isInTransaction, 'Expected to be within a transaction');
   }
+}
+
+function isDuplicateKeyError(
+  error: unknown,
+  constraint: string
+): error is DatabaseError {
+  return (
+    error instanceof DatabaseError &&
+    error.code === '23505' &&
+    error.constraint === constraint
+  );
 }
 
 async function insertDistrict(
@@ -979,7 +991,9 @@ export class Store {
       assert(rowCount === 1, 'Election not found');
       return ok();
     } catch (error) {
-      if (error instanceof Error && error.message.includes('duplicate key')) {
+      if (
+        isDuplicateKeyError(error, 'elections_org_id_title_date_unique_index')
+      ) {
         return err('duplicate-title-and-date');
       }
       /* istanbul ignore next - @preserve */
@@ -995,29 +1009,51 @@ export class Store {
   async createDistrict(
     electionId: ElectionId,
     district: District
-  ): Promise<void> {
-    await this.db.withClient((client) =>
-      insertDistrict(client, electionId, district)
-    );
+  ): Promise<Result<void, 'duplicate-name'>> {
+    try {
+      await this.db.withClient(async (client) =>
+        insertDistrict(client, electionId, district)
+      );
+      return ok();
+    } catch (error) {
+      if (
+        isDuplicateKeyError(error, 'districts_election_id_name_unique_index')
+      ) {
+        return err('duplicate-name');
+      }
+      /* istanbul ignore next - @preserve */
+      throw error;
+    }
   }
 
   async updateDistrict(
     electionId: ElectionId,
     district: District
-  ): Promise<void> {
-    const { rowCount } = await this.db.withClient((client) =>
-      client.query(
-        `
+  ): Promise<Result<void, 'duplicate-name'>> {
+    try {
+      const { rowCount } = await this.db.withClient((client) =>
+        client.query(
+          `
           update districts
           set name = $1
           where id = $2 and election_id = $3
         `,
-        district.name,
-        district.id,
-        electionId
-      )
-    );
-    assert(rowCount === 1, 'District not found');
+          district.name,
+          district.id,
+          electionId
+        )
+      );
+      assert(rowCount === 1, 'District not found');
+      return ok();
+    } catch (error) {
+      if (
+        isDuplicateKeyError(error, 'districts_election_id_name_unique_index')
+      ) {
+        return err('duplicate-name');
+      }
+      /* istanbul ignore next - @preserve */
+      throw error;
+    }
   }
 
   async deleteDistrict(
@@ -1042,42 +1078,69 @@ export class Store {
     return election.precincts;
   }
 
+  private handlePrecinctError(
+    error: unknown
+  ): Result<void, 'duplicate-precinct-name' | 'duplicate-split-name'> {
+    if (isDuplicateKeyError(error, 'precincts_election_id_name_unique_index')) {
+      return err('duplicate-precinct-name');
+    }
+    if (
+      isDuplicateKeyError(
+        error,
+        'precinct_splits_precinct_id_name_unique_index'
+      )
+    ) {
+      return err('duplicate-split-name');
+    }
+    throw error;
+  }
+
   async createPrecinct(
     electionId: ElectionId,
     precinct: Precinct
-  ): Promise<void> {
-    await this.db.withClient((client) =>
-      client.withTransaction(async () => {
-        await insertPrecinct(client, electionId, precinct);
-        return true;
-      })
-    );
+  ): Promise<Result<void, 'duplicate-precinct-name' | 'duplicate-split-name'>> {
+    try {
+      await this.db.withClient((client) =>
+        client.withTransaction(async () => {
+          await insertPrecinct(client, electionId, precinct);
+          return true;
+        })
+      );
+      return ok();
+    } catch (error) {
+      return this.handlePrecinctError(error);
+    }
   }
 
   async updatePrecinct(
     electionId: ElectionId,
     precinct: Precinct
-  ): Promise<void> {
-    await this.db.withClient((client) =>
-      client.withTransaction(async () => {
-        // It's safe to delete and re-insert the precinct because:
-        // 1. The IDs of precincts/splits are stable
-        // 2. Precincts/splits are leaf nodes. There are no other tables with
-        // foreign keys that reference precincts/splits, so we don't need to
-        // worry about ON DELETE triggers.
-        const { rowCount } = await client.query(
-          `
+  ): Promise<Result<void, 'duplicate-precinct-name' | 'duplicate-split-name'>> {
+    try {
+      await this.db.withClient((client) =>
+        client.withTransaction(async () => {
+          // It's safe to delete and re-insert the precinct because:
+          // 1. The IDs of precincts/splits are stable
+          // 2. Precincts/splits are leaf nodes. There are no other tables with
+          // foreign keys that reference precincts/splits, so we don't need to
+          // worry about ON DELETE triggers.
+          const { rowCount } = await client.query(
+            `
             delete from precincts
             where id = $1 and election_id = $2
           `,
-          precinct.id,
-          electionId
-        );
-        assert(rowCount === 1, 'Precinct not found');
-        await insertPrecinct(client, electionId, precinct);
-        return true;
-      })
-    );
+            precinct.id,
+            electionId
+          );
+          assert(rowCount === 1, 'Precinct not found');
+          await insertPrecinct(client, electionId, precinct);
+          return true;
+        })
+      );
+      return ok();
+    } catch (error) {
+      return this.handlePrecinctError(error);
+    }
   }
 
   async deletePrecinct(

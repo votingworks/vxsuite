@@ -392,17 +392,17 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
     async createDistrict(input: {
       electionId: ElectionId;
       newDistrict: District;
-    }): Promise<void> {
+    }): Promise<Result<void, 'duplicate-name'>> {
       const district = unsafeParse(DistrictSchema, input.newDistrict);
-      await store.createDistrict(input.electionId, district);
+      return store.createDistrict(input.electionId, district);
     },
 
     async updateDistrict(input: {
       electionId: ElectionId;
       updatedDistrict: District;
-    }): Promise<void> {
+    }): Promise<Result<void, 'duplicate-name'>> {
       const district = unsafeParse(DistrictSchema, input.updatedDistrict);
-      await store.updateDistrict(input.electionId, district);
+      return store.updateDistrict(input.electionId, district);
     },
 
     async deleteDistrict(input: {
@@ -421,17 +421,21 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
     async createPrecinct(input: {
       electionId: ElectionId;
       newPrecinct: Precinct;
-    }): Promise<void> {
+    }): Promise<
+      Result<void, 'duplicate-precinct-name' | 'duplicate-split-name'>
+    > {
       const precinct = unsafeParse(PrecinctSchema, input.newPrecinct);
-      await store.createPrecinct(input.electionId, precinct);
+      return store.createPrecinct(input.electionId, precinct);
     },
 
     async updatePrecinct(input: {
       electionId: ElectionId;
       updatedPrecinct: Precinct;
-    }): Promise<void> {
+    }): Promise<
+      Result<void, 'duplicate-precinct-name' | 'duplicate-split-name'>
+    > {
       const precinct = unsafeParse(PrecinctSchema, input.updatedPrecinct);
-      await store.updatePrecinct(input.electionId, precinct);
+      return store.updatePrecinct(input.electionId, precinct);
     },
 
     async deletePrecinct(input: {
