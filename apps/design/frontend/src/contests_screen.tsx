@@ -14,6 +14,7 @@ import {
   RouterTabBar,
   Modal,
   H1,
+  Callout,
 } from '@votingworks/ui';
 import {
   Redirect,
@@ -36,7 +37,7 @@ import {
   safeParse,
   YesNoContestSchema,
 } from '@votingworks/types';
-import { Result, throwIllegalValue } from '@votingworks/basics';
+import { assertDefined, Result, throwIllegalValue } from '@votingworks/basics';
 import styled from 'styled-components';
 import { Flipper, Flipped } from 'react-flip-toolkit';
 import { z } from 'zod/v4';
@@ -1111,12 +1112,24 @@ function PartyForm({
     if (savedParty) {
       updatePartyMutation.mutate(
         { electionId, updatedParty: party },
-        { onSuccess: goBackToPartiesList }
+        {
+          onSuccess: (result) => {
+            if (result.isOk()) {
+              goBackToPartiesList();
+            }
+          },
+        }
       );
     } else {
       createPartyMutation.mutate(
         { electionId, newParty: party },
-        { onSuccess: goBackToPartiesList }
+        {
+          onSuccess: (result) => {
+            if (result.isOk()) {
+              goBackToPartiesList();
+            }
+          },
+        }
       );
     }
   }
@@ -1132,6 +1145,41 @@ function PartyForm({
     createPartyMutation.isLoading ||
     updatePartyMutation.isLoading ||
     deletePartyMutation.isLoading;
+
+  const errorMessage = (() => {
+    if (
+      createPartyMutation.data?.isErr() ||
+      updatePartyMutation.data?.isErr()
+    ) {
+      const error = assertDefined(
+        createPartyMutation.data?.err() || updatePartyMutation.data?.err()
+      );
+
+      switch (error) {
+        case 'duplicate-name':
+          return (
+            <Callout icon="Danger" color="danger">
+              A party with the same short name already exists.
+            </Callout>
+          );
+        case 'duplicate-full-name':
+          return (
+            <Callout icon="Danger" color="danger">
+              A party with the same full name already exists.
+            </Callout>
+          );
+        case 'duplicate-abbrev':
+          return (
+            <Callout icon="Danger" color="danger">
+              A party with the same abbreviation already exists.
+            </Callout>
+          );
+        default:
+          /* istanbul ignore next - @preserve */
+          return throwIllegalValue(error);
+      }
+    }
+  })();
 
   return (
     <Form
@@ -1176,6 +1224,7 @@ function PartyForm({
           required
         />
       </InputGroup>
+      {errorMessage}
       <div>
         <FormActionsRow>
           <Button type="reset">Cancel</Button>

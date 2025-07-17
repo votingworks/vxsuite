@@ -15,7 +15,13 @@ import {
   unsafeParse,
   YesNoContest,
 } from '@votingworks/types';
-import { assert, assertDefined, DateWithoutTime } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  DateWithoutTime,
+  err,
+  ok,
+} from '@votingworks/basics';
 import { readElectionGeneral } from '@votingworks/fixtures';
 import {
   MockApiClient,
@@ -1177,7 +1183,7 @@ describe('Parties tab', () => {
     userEvent.type(screen.getByLabelText('Short Name'), newParty.name);
     userEvent.type(screen.getByLabelText('Abbreviation'), newParty.abbrev);
 
-    apiMock.createParty.expectCallWith({ electionId, newParty }).resolves();
+    apiMock.createParty.expectCallWith({ electionId, newParty }).resolves(ok());
     apiMock.listParties.expectCallWith({ electionId }).resolves([newParty]);
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
@@ -1238,7 +1244,9 @@ describe('Parties tab', () => {
     userEvent.clear(abbrevInput);
     userEvent.type(abbrevInput, updatedParty.abbrev);
 
-    apiMock.updateParty.expectCallWith({ electionId, updatedParty }).resolves();
+    apiMock.updateParty
+      .expectCallWith({ electionId, updatedParty })
+      .resolves(ok());
     apiMock.listParties
       .expectCallWith({ electionId })
       .resolves([updatedParty, ...election.parties.slice(1)]);
@@ -1333,5 +1341,94 @@ describe('Parties tab', () => {
     userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     await screen.findByRole('heading', { name: 'Contests' });
     screen.getByRole('tab', { name: 'Parties', selected: true });
+  });
+
+  test('error messages for duplicate party full name/short name/abbrev', async () => {
+    const [savedParty1, savedParty2] = election.parties;
+    apiMock.listParties
+      .expectCallWith({ electionId })
+      .resolves(election.parties);
+    renderScreen(electionId);
+
+    await screen.findByRole('heading', { name: 'Contests' });
+    userEvent.click(screen.getByRole('tab', { name: 'Parties' }));
+    userEvent.click(await screen.findByRole('button', { name: 'Add Party' }));
+
+    await screen.findByRole('heading', { name: 'Add Party' });
+    userEvent.type(screen.getByLabelText('Full Name'), savedParty1.fullName);
+    userEvent.type(screen.getByLabelText('Short Name'), savedParty1.name);
+    userEvent.type(screen.getByLabelText('Abbreviation'), savedParty1.abbrev);
+
+    const id = idFactory.next();
+    apiMock.createParty
+      .expectCallWith({
+        electionId,
+        newParty: { ...savedParty1, id },
+      })
+      .resolves(err('duplicate-full-name'));
+    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await screen.findByText('A party with the same full name already exists.');
+
+    apiMock.createParty
+      .expectCallWith({
+        electionId,
+        newParty: { ...savedParty1, id },
+      })
+      .resolves(err('duplicate-name'));
+    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await screen.findByText('A party with the same short name already exists.');
+
+    apiMock.createParty
+      .expectCallWith({
+        electionId,
+        newParty: { ...savedParty1, id },
+      })
+      .resolves(err('duplicate-abbrev'));
+    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await screen.findByText(
+      'A party with the same abbreviation already exists.'
+    );
+
+    userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    await screen.findByRole('heading', { name: 'Contests' });
+    const party2Row = screen.getByText(savedParty2.fullName).closest('tr')!;
+    userEvent.click(within(party2Row).getByRole('button', { name: 'Edit' }));
+    await screen.findByRole('heading', { name: 'Edit Party' });
+
+    userEvent.clear(screen.getByLabelText('Full Name'));
+    userEvent.type(screen.getByLabelText('Full Name'), savedParty1.fullName);
+    userEvent.clear(screen.getByLabelText('Short Name'));
+    userEvent.type(screen.getByLabelText('Short Name'), savedParty1.name);
+    userEvent.clear(screen.getByLabelText('Abbreviation'));
+    userEvent.type(screen.getByLabelText('Abbreviation'), savedParty1.abbrev);
+
+    apiMock.updateParty
+      .expectCallWith({
+        electionId,
+        updatedParty: { ...savedParty1, id: savedParty2.id },
+      })
+      .resolves(err('duplicate-full-name'));
+    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await screen.findByText('A party with the same full name already exists.');
+
+    apiMock.updateParty
+      .expectCallWith({
+        electionId,
+        updatedParty: { ...savedParty1, id: savedParty2.id },
+      })
+      .resolves(err('duplicate-name'));
+    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await screen.findByText('A party with the same short name already exists.');
+
+    apiMock.updateParty
+      .expectCallWith({
+        electionId,
+        updatedParty: { ...savedParty1, id: savedParty2.id },
+      })
+      .resolves(err('duplicate-abbrev'));
+    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await screen.findByText(
+      'A party with the same abbreviation already exists.'
+    );
   });
 });

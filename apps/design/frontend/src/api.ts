@@ -393,9 +393,11 @@ export const createParty = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.createParty, {
-      async onSuccess(_, { electionId }) {
-        await invalidateElectionQueries(queryClient, electionId);
-        await queryClient.refetchQueries(listParties.queryKey(electionId));
+      async onSuccess(result, { electionId }) {
+        if (result.isOk()) {
+          await invalidateElectionQueries(queryClient, electionId);
+          await queryClient.refetchQueries(listParties.queryKey(electionId));
+        }
       },
     });
   },
@@ -406,8 +408,10 @@ export const updateParty = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.updateParty, {
-      async onSuccess(_, { electionId }) {
-        await invalidateElectionQueries(queryClient, electionId);
+      async onSuccess(result, { electionId }) {
+        if (result.isOk()) {
+          await invalidateElectionQueries(queryClient, electionId);
+        }
       },
     });
   },

@@ -51,7 +51,13 @@ import { translateBallotStrings } from '@votingworks/backend';
 import { readFileSync } from 'node:fs';
 import { z } from 'zod/v4';
 import { LogEventId } from '@votingworks/logging';
-import { BackgroundTaskMetadata } from './store';
+import {
+  BackgroundTaskMetadata,
+  DuplicateDistrictError,
+  DuplicateElectionError,
+  DuplicatePartyError,
+  DuplicatePrecinctError,
+} from './store';
 import {
   BallotOrderInfo,
   BallotOrderInfoSchema,
@@ -378,7 +384,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
 
     async updateElectionInfo(
       input: ElectionInfo
-    ): Promise<Result<void, 'duplicate-title-and-date'>> {
+    ): Promise<Result<void, DuplicateElectionError>> {
       const electionInfo = unsafeParse(UpdateElectionInfoInputSchema, input);
       return store.updateElectionInfo(electionInfo);
     },
@@ -392,7 +398,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
     async createDistrict(input: {
       electionId: ElectionId;
       newDistrict: District;
-    }): Promise<Result<void, 'duplicate-name'>> {
+    }): Promise<Result<void, DuplicateDistrictError>> {
       const district = unsafeParse(DistrictSchema, input.newDistrict);
       return store.createDistrict(input.electionId, district);
     },
@@ -400,7 +406,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
     async updateDistrict(input: {
       electionId: ElectionId;
       updatedDistrict: District;
-    }): Promise<Result<void, 'duplicate-name'>> {
+    }): Promise<Result<void, DuplicateDistrictError>> {
       const district = unsafeParse(DistrictSchema, input.updatedDistrict);
       return store.updateDistrict(input.electionId, district);
     },
@@ -421,9 +427,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
     async createPrecinct(input: {
       electionId: ElectionId;
       newPrecinct: Precinct;
-    }): Promise<
-      Result<void, 'duplicate-precinct-name' | 'duplicate-split-name'>
-    > {
+    }): Promise<Result<void, DuplicatePrecinctError>> {
       const precinct = unsafeParse(PrecinctSchema, input.newPrecinct);
       return store.createPrecinct(input.electionId, precinct);
     },
@@ -431,9 +435,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
     async updatePrecinct(input: {
       electionId: ElectionId;
       updatedPrecinct: Precinct;
-    }): Promise<
-      Result<void, 'duplicate-precinct-name' | 'duplicate-split-name'>
-    > {
+    }): Promise<Result<void, DuplicatePrecinctError>> {
       const precinct = unsafeParse(PrecinctSchema, input.updatedPrecinct);
       return store.updatePrecinct(input.electionId, precinct);
     },
@@ -460,7 +462,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
     async createParty(input: {
       electionId: ElectionId;
       newParty: Party;
-    }): Promise<void> {
+    }): Promise<Result<void, DuplicatePartyError>> {
       const party = unsafeParse(PartySchema, input.newParty);
       return store.createParty(input.electionId, party);
     },
@@ -468,9 +470,9 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
     async updateParty(input: {
       electionId: ElectionId;
       updatedParty: Party;
-    }): Promise<void> {
+    }): Promise<Result<void, DuplicatePartyError>> {
       const party = unsafeParse(PartySchema, input.updatedParty);
-      await store.updateParty(input.electionId, party);
+      return store.updateParty(input.electionId, party);
     },
 
     async deleteParty(input: {
