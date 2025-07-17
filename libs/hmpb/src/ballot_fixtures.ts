@@ -71,10 +71,7 @@ export const vxFamousNamesFixtures = (() => {
     ...blankBallotProps,
     votes,
 
-    async generate(
-      renderer: Renderer,
-      { markedOnly = false, generatePageImages = false } = {}
-    ) {
+    async generate(renderer: Renderer, { generatePageImages = false } = {}) {
       debug(`Generating: ${blankBallotPath}`);
       const rendered = await renderAllBallotsAndCreateElectionDefinition(
         renderer,
@@ -90,9 +87,7 @@ export const vxFamousNamesFixtures = (() => {
       );
 
       const blankBallot = rendered.ballotDocuments[0];
-      const blankBallotPdf = markedOnly
-        ? Buffer.from('')
-        : await blankBallot.renderToPdf();
+      const blankBallotPdf = await blankBallot.renderToPdf();
 
       debug(`Generating: ${markedBallotPath}`);
       const markedBallot = await markBallotDocument(

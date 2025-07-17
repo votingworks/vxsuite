@@ -34,10 +34,7 @@ export interface AllBubbleBallotFixtures {
   blankBallotPath: string;
   filledBallotPath: string;
   cyclingTestDeckPath: string;
-  generate(
-    renderer: Renderer,
-    options?: { blankOnly?: boolean }
-  ): Promise<{
+  generate(renderer: Renderer): Promise<{
     electionDefinition: ElectionDefinition;
     blankBallotPdf: Uint8Array;
     filledBallotPdf: Uint8Array;
@@ -75,7 +72,7 @@ export function allBubbleBallotFixtures(
     filledBallotPath,
     cyclingTestDeckPath,
 
-    async generate(renderer: Renderer, { blankOnly = false } = {}) {
+    async generate(renderer: Renderer) {
       debug(`Generating: ${blankBallotPath}`);
       const { electionDefinition, ballotDocuments } =
         await renderAllBallotsAndCreateElectionDefinition(
@@ -90,68 +87,62 @@ export function allBubbleBallotFixtures(
 
       let filledBallotPdf: Uint8Array<ArrayBufferLike> = Uint8Array.of();
       let cyclingTestDeckPdf: Uint8Array<ArrayBufferLike> = Uint8Array.of();
-      if (!blankOnly) {
-        debug(`Generating: ${filledBallotPath}`);
-        const filledVotes: VotesDict = Object.fromEntries(
-          election.contests.map((contest) => [
-            contest.id,
-            (contest as CandidateContest).candidates,
-          ])
-        );
-        const filledBallot = await markBallotDocument(
-          renderer,
-          blankBallot,
-          filledVotes
-        );
-        filledBallotPdf = await filledBallot.renderToPdf();
+      debug(`Generating: ${filledBallotPath}`);
+      const filledVotes: VotesDict = Object.fromEntries(
+        election.contests.map((contest) => [
+          contest.id,
+          (contest as CandidateContest).candidates,
+        ])
+      );
+      const filledBallot = await markBallotDocument(
+        renderer,
+        blankBallot,
+        filledVotes
+      );
+      filledBallotPdf = await filledBallot.renderToPdf();
 
-        debug(`Generating: ${cyclingTestDeckPath}`);
-        const [gridLayout] = assertDefined(
-          electionDefinition.election.gridLayouts
-        );
-        const gridPositionByCandidateId = Object.fromEntries(
-          gridLayout.gridPositions.map((position) => [
-            (position as GridPositionOption).optionId,
-            position,
-          ])
-        );
-        const cyclingTestDeckSheetPdfs = await Promise.all(
-          range(0, 6).map(async (sheetNumber) => {
-            const votesForSheet: VotesDict = Object.fromEntries(
-              election.contests.map((contest) => [
-                contest.id,
-                (contest as CandidateContest).candidates.flatMap(
-                  (candidate) => {
-                    const { row, column } =
-                      gridPositionByCandidateId[candidate.id];
-                    // Bubbles aren't perfectly aligned with the grid, but they are
-                    // extremely close, so rounding is fine
-                    if (
-                      (Math.round(row) - Math.round(column) - sheetNumber) %
-                        6 ===
-                      0
-                    ) {
-                      return [candidate];
-                    }
-                    return [];
-                  }
-                ),
-              ])
-            );
-            const sheetDocument = await markBallotDocument(
-              renderer,
-              blankBallot,
-              votesForSheet
-            );
-            await injectFooterMetadata(sheetDocument, {
-              Election: formatBallotHash(electionDefinition.ballotHash),
-              'Cycle Index': sheetNumber + 1,
-            });
-            return await sheetDocument.renderToPdf();
-          })
-        );
-        cyclingTestDeckPdf = await concatenatePdfs(cyclingTestDeckSheetPdfs);
-      }
+      debug(`Generating: ${cyclingTestDeckPath}`);
+      const [gridLayout] = assertDefined(
+        electionDefinition.election.gridLayouts
+      );
+      const gridPositionByCandidateId = Object.fromEntries(
+        gridLayout.gridPositions.map((position) => [
+          (position as GridPositionOption).optionId,
+          position,
+        ])
+      );
+      const cyclingTestDeckSheetPdfs = await Promise.all(
+        range(0, 6).map(async (sheetNumber) => {
+          const votesForSheet: VotesDict = Object.fromEntries(
+            election.contests.map((contest) => [
+              contest.id,
+              (contest as CandidateContest).candidates.flatMap((candidate) => {
+                const { row, column } = gridPositionByCandidateId[candidate.id];
+                // Bubbles aren't perfectly aligned with the grid, but they are
+                // extremely close, so rounding is fine
+                if (
+                  (Math.round(row) - Math.round(column) - sheetNumber) % 6 ===
+                  0
+                ) {
+                  return [candidate];
+                }
+                return [];
+              }),
+            ])
+          );
+          const sheetDocument = await markBallotDocument(
+            renderer,
+            blankBallot,
+            votesForSheet
+          );
+          await injectFooterMetadata(sheetDocument, {
+            Election: formatBallotHash(electionDefinition.ballotHash),
+            'Cycle Index': sheetNumber + 1,
+          });
+          return await sheetDocument.renderToPdf();
+        })
+      );
+      cyclingTestDeckPdf = await concatenatePdfs(cyclingTestDeckSheetPdfs);
 
       return {
         electionDefinition,
