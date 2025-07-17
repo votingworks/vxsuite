@@ -1077,13 +1077,47 @@ test('CRUD parties', async () => {
   await apiClient.createParty({ electionId, newParty: party1 });
   expect(await apiClient.listParties({ electionId })).toEqual([party1]);
 
-  // Create another party
   const party2: Party = {
     id: unsafeParse(PartyIdSchema, 'party-2'),
     name: 'Party 2',
     abbrev: 'P2',
     fullName: 'Party 2 Full Name',
   };
+
+  // Can't create a party with an existing name
+  expect(
+    await apiClient.createParty({
+      electionId,
+      newParty: {
+        ...party2,
+        name: party1.name,
+      },
+    })
+  ).toEqual(err('duplicate-name'));
+
+  // Can't create a party with an existing full name
+  expect(
+    await apiClient.createParty({
+      electionId,
+      newParty: {
+        ...party2,
+        fullName: party1.fullName,
+      },
+    })
+  ).toEqual(err('duplicate-full-name'));
+
+  // Can't create a party with an existing abbrev
+  expect(
+    await apiClient.createParty({
+      electionId,
+      newParty: {
+        ...party2,
+        abbrev: party1.abbrev,
+      },
+    })
+  ).toEqual(err('duplicate-abbrev'));
+
+  // Create another party
   await apiClient.createParty({ electionId, newParty: party2 });
   expect(await apiClient.listParties({ electionId })).toEqual([party1, party2]);
 
@@ -1099,6 +1133,39 @@ test('CRUD parties', async () => {
     party2,
     updatedParty1,
   ]);
+
+  // Can't update a party to an existing name
+  expect(
+    await apiClient.updateParty({
+      electionId,
+      updatedParty: {
+        ...party2,
+        name: updatedParty1.name,
+      },
+    })
+  ).toEqual(err('duplicate-name'));
+
+  // Can't update a party to an existing full name
+  expect(
+    await apiClient.updateParty({
+      electionId,
+      updatedParty: {
+        ...party2,
+        fullName: updatedParty1.fullName,
+      },
+    })
+  ).toEqual(err('duplicate-full-name'));
+
+  // Can't update a party to an existing abbrev
+  expect(
+    await apiClient.updateParty({
+      electionId,
+      updatedParty: {
+        ...party2,
+        abbrev: updatedParty1.abbrev,
+      },
+    })
+  ).toEqual(err('duplicate-abbrev'));
 
   // Delete a party
   await apiClient.deleteParty({ electionId, partyId: party2.id });
