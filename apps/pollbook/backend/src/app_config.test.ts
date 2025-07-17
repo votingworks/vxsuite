@@ -175,14 +175,17 @@ test('app config - polling usb from backend does trigger with system admin auth'
     vitest.advanceTimersByTime(CONFIGURATION_POLLING_INTERVAL);
     expect(await localApiClient.getElection()).toEqual(err('loading'));
     // Allow time for the pollbook package to be read
-    await vi.waitFor(async () => {
-      const result = await localApiClient.getElection();
-      // Configured for proper election
-      expect(result.unsafeUnwrap().id).toEqual(
-        electionSimpleSinglePrecinctFixtures.electionSinglePrecinctBase.readElection()
-          .id
-      );
-    });
+    await vi.waitFor(
+      async () => {
+        const result = await localApiClient.getElection();
+        // Configured for proper election
+        expect(result.unsafeUnwrap().id).toEqual(
+          electionSimpleSinglePrecinctFixtures.electionSinglePrecinctBase.readElection()
+            .id
+        );
+      },
+      { timeout: 2000 }
+    );
   });
 });
 
