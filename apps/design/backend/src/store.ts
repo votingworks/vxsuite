@@ -157,6 +157,11 @@ export type DuplicatePartyError =
   | 'duplicate-full-name'
   | 'duplicate-abbrev';
 
+export type DuplicateContestError =
+  | 'duplicate-contest'
+  | 'duplicate-candidate'
+  | 'duplicate-option';
+
 async function insertDistrict(
   client: Client,
   electionId: ElectionId,
@@ -1235,44 +1240,78 @@ export class Store {
     return election.contests;
   }
 
+  private handleContestError(
+    error: unknown
+  ): Result<void, DuplicateContestError> {
+    if (isDuplicateKeyError(error, 'contests_unique_index')) {
+      return err('duplicate-contest');
+    }
+    if (isDuplicateKeyError(error, 'candidates_unique_index')) {
+      return err('duplicate-candidate');
+    }
+    throw error;
+  }
+
   async createContest(
     electionId: ElectionId,
     contest: AnyContest
-  ): Promise<void> {
-    await this.db.withClient((client) =>
-      client.withTransaction(async () => {
-        await insertContest(client, electionId, contest);
-        return true;
-      })
-    );
+  ): Promise<Result<void, DuplicateContestError>> {
+    if (
+      contest.type === 'yesno' &&
+      contest.yesOption.label === contest.noOption.label
+    ) {
+      return err('duplicate-option');
+    }
+    try {
+      await this.db.withClient((client) =>
+        client.withTransaction(async () => {
+          await insertContest(client, electionId, contest);
+          return true;
+        })
+      );
+      return ok();
+    } catch (error) {
+      return this.handleContestError(error);
+    }
   }
 
   async updateContest(
     electionId: ElectionId,
     contest: AnyContest
-  ): Promise<void> {
-    await this.db.withClient((client) =>
-      client.withTransaction(async () => {
-        // It's safe to delete and re-insert the contest because:
-        // 1. The IDs of contests/candidates are stable
-        // 2. Contests/candidates are leaf nodes. There are no other tables with
-        // foreign keys that reference contests/candidates, so we don't need to
-        // worry about ON DELETE triggers.
-        const { rowCount, rows } = await client.query(
-          `
+  ): Promise<Result<void, DuplicateContestError>> {
+    if (
+      contest.type === 'yesno' &&
+      contest.yesOption.label === contest.noOption.label
+    ) {
+      return err('duplicate-option');
+    }
+    try {
+      await this.db.withClient((client) =>
+        client.withTransaction(async () => {
+          // It's safe to delete and re-insert the contest because:
+          // 1. The IDs of contests/candidates are stable
+          // 2. Contests/candidates are leaf nodes. There are no other tables with
+          // foreign keys that reference contests/candidates, so we don't need to
+          // worry about ON DELETE triggers.
+          const { rowCount, rows } = await client.query(
+            `
             delete from contests
             where id = $1 and election_id = $2
             returning ballot_order as "ballotOrder"
           `,
-          contest.id,
-          electionId
-        );
-        assert(rowCount === 1, 'Contest not found');
-        const { ballotOrder } = rows[0] as { ballotOrder: number };
-        await insertContest(client, electionId, contest, ballotOrder);
-        return true;
-      })
-    );
+            contest.id,
+            electionId
+          );
+          assert(rowCount === 1, 'Contest not found');
+          const { ballotOrder } = rows[0] as { ballotOrder: number };
+          await insertContest(client, electionId, contest, ballotOrder);
+          return true;
+        })
+      );
+      return ok();
+    } catch (error) {
+      return this.handleContestError(error);
+    }
   }
 
   async reorderContests(

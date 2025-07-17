@@ -8,6 +8,7 @@ import {
   assertDefined,
   err,
   find,
+  ok,
   range,
 } from '@votingworks/basics';
 import { readFileSync } from 'node:fs';
@@ -1282,12 +1283,17 @@ test('CRUD contests', async () => {
   // No contests initially
   expect(await apiClient.listContests({ electionId })).toEqual([]);
 
-  // Create a candidate contest
+  // Create districts and parties
   const district1: District = {
     id: unsafeParse(DistrictIdSchema, 'district-1'),
     name: 'District 1',
   };
   await apiClient.createDistrict({ electionId, newDistrict: district1 });
+  const district2: District = {
+    id: unsafeParse(DistrictIdSchema, 'district-2'),
+    name: 'District 2',
+  };
+  await apiClient.createDistrict({ electionId, newDistrict: district2 });
   const party1: Party = {
     id: unsafeParse(PartyIdSchema, 'party-1'),
     name: 'Party 1',
@@ -1295,6 +1301,15 @@ test('CRUD contests', async () => {
     fullName: 'Party 1 Full Name',
   };
   await apiClient.createParty({ electionId, newParty: party1 });
+  const party2: Party = {
+    id: unsafeParse(PartyIdSchema, 'party-2'),
+    name: 'Party 2',
+    abbrev: 'P2',
+    fullName: 'Party 2 Full Name',
+  };
+  await apiClient.createParty({ electionId, newParty: party2 });
+
+  // Create a candidate contest
   const contest1: CandidateContest = {
     id: 'contest-1',
     title: 'Contest 1',
@@ -1431,6 +1446,257 @@ test('CRUD contests', async () => {
     contest3,
     updatedContest2,
   ]);
+
+  // Recreate the deleted contest
+  await apiClient.createContest({
+    electionId,
+    newContest: updatedContest1,
+  });
+
+  // Can't create a candidate contest with an existing title + seats + term
+  expect(
+    await apiClient.createContest({
+      electionId,
+      newContest: {
+        id: 'duplicate-contest',
+        type: 'candidate',
+        title: updatedContest1.title,
+        seats: updatedContest1.seats,
+        termDescription: updatedContest1.termDescription,
+        candidates: [],
+        allowWriteIns: true,
+        districtId: district1.id,
+      },
+    })
+  ).toEqual(err('duplicate-contest'));
+
+  // Can create a candidate contest with the same title + seats but different term
+  expect(
+    await apiClient.createContest({
+      electionId,
+      newContest: {
+        ...updatedContest1,
+        id: 'contest-4',
+        termDescription: 'New Term Description',
+        candidates: [],
+      },
+    })
+  ).toEqual(ok());
+
+  // Can create a candidate contest with the same title + term but different seats
+  expect(
+    await apiClient.createContest({
+      electionId,
+      newContest: {
+        ...updatedContest1,
+        id: 'contest-5',
+        seats: updatedContest1.seats + 1,
+        candidates: [],
+      },
+    })
+  ).toEqual(ok());
+
+  // Can create a candidate contest with the same title + term + seats but different district
+  expect(
+    await apiClient.createContest({
+      electionId,
+      newContest: {
+        ...updatedContest1,
+        id: 'contest-6',
+        districtId: district2.id,
+        candidates: [],
+      },
+    })
+  ).toEqual(ok());
+
+  // If contests have parties (e.g. in primaries), this is also part of the uniqueness check
+  // Can't create a candidate contest with an existing title + seats + term + party
+  await apiClient.updateContest({
+    electionId,
+    updatedContest: {
+      ...updatedContest1,
+      partyId: party1.id,
+    },
+  });
+  expect(
+    await apiClient.createContest({
+      electionId,
+      newContest: {
+        ...updatedContest1,
+        id: 'contest-with-party-1',
+        partyId: party1.id,
+        candidates: [],
+      },
+    })
+  ).toEqual(err('duplicate-contest'));
+  // Can create a candidate contest with the same title + seats + term but different party
+  expect(
+    await apiClient.createContest({
+      electionId,
+      newContest: {
+        ...updatedContest1,
+        id: 'contest-with-party-2',
+        partyId: party2.id,
+        candidates: [],
+      },
+    })
+  ).toEqual(ok());
+
+  // Can't create a ballot measure contest with an existing title
+  expect(
+    await apiClient.createContest({
+      electionId,
+      newContest: {
+        ...updatedContest2,
+        id: 'duplicate-contest',
+      },
+    })
+  ).toEqual(err('duplicate-contest'));
+
+  // Can't update a contest to an existing title + seats + term
+  expect(
+    await apiClient.updateContest({
+      electionId,
+      updatedContest: {
+        ...updatedContest1,
+        termDescription: 'New Term Description',
+      },
+    })
+  ).toEqual(err('duplicate-contest'));
+
+  // Can't update a ballot measure contest to an existing title
+  await apiClient.createContest({
+    electionId,
+    newContest: {
+      ...updatedContest2,
+      id: 'contest-7',
+      title: 'New Contest Title',
+    },
+  });
+  expect(
+    await apiClient.updateContest({
+      electionId,
+      updatedContest: {
+        ...updatedContest2,
+        title: 'New Contest Title',
+      },
+    })
+  ).toEqual(err('duplicate-contest'));
+
+  // Can't create a contest with duplicate candidates
+  expect(
+    await apiClient.createContest({
+      electionId,
+      newContest: {
+        ...contest1,
+        id: 'duplicate-contest',
+        candidates: [
+          {
+            id: 'dup-candidate-1',
+            firstName: 'Candidate',
+            middleName: 'M',
+            lastName: 'One',
+            name: 'Candidate M One',
+          },
+          {
+            id: 'dup-candidate-2',
+            firstName: 'Candidate',
+            middleName: 'M',
+            lastName: 'One',
+            name: 'Candidate M One',
+          },
+        ],
+      },
+    })
+  ).toEqual(err('duplicate-candidate'));
+
+  // Can't create a contest with duplicate candidates with undefined middleName
+  expect(
+    await apiClient.createContest({
+      electionId,
+      newContest: {
+        ...contest1,
+        id: 'duplicate-contest',
+        candidates: [
+          {
+            id: 'dup-candidate-1',
+            firstName: 'Candidate',
+            lastName: 'One',
+            name: 'Candidate One',
+          },
+          {
+            id: 'dup-candidate-2',
+            firstName: 'Candidate',
+            lastName: 'One',
+            name: 'Candidate One',
+          },
+        ],
+      },
+    })
+  ).toEqual(err('duplicate-candidate'));
+
+  // Can't update a contest to have duplicate candidates
+  expect(
+    await apiClient.updateContest({
+      electionId,
+      updatedContest: {
+        ...contest1,
+        candidates: [
+          {
+            id: 'dup-candidate-1',
+            firstName: 'Candidate',
+            middleName: 'M',
+            lastName: 'One',
+            name: 'Candidate M One',
+          },
+          {
+            id: 'dup-candidate-2',
+            firstName: 'Candidate',
+            middleName: 'M',
+            lastName: 'One',
+            name: 'Candidate M One',
+          },
+        ],
+      },
+    })
+  ).toEqual(err('duplicate-candidate'));
+
+  // Can't create a ballot measure contest with duplicate options
+  expect(
+    await apiClient.createContest({
+      electionId,
+      newContest: {
+        ...contest2,
+        id: 'duplicate-contest',
+        yesOption: {
+          id: 'dup-yes-option',
+          label: 'Yes',
+        },
+        noOption: {
+          id: 'dup-no-option',
+          label: 'Yes',
+        },
+      },
+    })
+  ).toEqual(err('duplicate-option'));
+
+  // Can't update a ballot measure contest to have duplicate options
+  expect(
+    await apiClient.updateContest({
+      electionId,
+      updatedContest: {
+        ...contest2,
+        yesOption: {
+          id: 'dup-yes-option',
+          label: 'Yes',
+        },
+        noOption: {
+          id: 'dup-no-option',
+          label: 'Yes',
+        },
+      },
+    })
+  ).toEqual(err('duplicate-option'));
 
   await suppressingConsoleOutput(async () => {
     // Try to create an invalid contest
