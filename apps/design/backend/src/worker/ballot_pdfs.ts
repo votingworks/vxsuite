@@ -1,6 +1,8 @@
-import { BaseBallotProps, RenderDocument } from '@votingworks/hmpb';
-
-import { convertPdfToGrayscale } from './grayscale';
+import {
+  convertPdfToGrayscale,
+  BaseBallotProps,
+  RenderDocument,
+} from '@votingworks/hmpb';
 
 export async function renderBallotPdf(
   props: BaseBallotProps,

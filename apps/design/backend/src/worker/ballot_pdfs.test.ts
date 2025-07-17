@@ -2,16 +2,19 @@ import { expect, Mocked, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 
 import {
-  BaseBallotProps,
+  convertPdfToGrayscale,
+  type BaseBallotProps,
   ColorTints,
-  NhBallotProps,
-  RenderDocument,
+  type NhBallotProps,
+  type RenderDocument,
 } from '@votingworks/hmpb';
 
 import { renderBallotPdf } from './ballot_pdfs';
-import { convertPdfToGrayscale } from './grayscale';
 
-vi.mock('./grayscale.js');
+vi.mock(import('@votingworks/hmpb'), async (importActual) => ({
+  ...(await importActual()),
+  convertPdfToGrayscale: vi.fn(),
+}));
 
 test('renderBallotPdf - converts non-tinted ballots to grayscale', async () => {
   const nhProps: NhBallotProps = {

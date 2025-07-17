@@ -5,6 +5,9 @@ require('esbuild-runner').install({
 });
 require('../src/generate_fixtures')
   .main()
+  .then((exitCode) => {
+    process.exitCode = exitCode;
+  })
   .catch((e) => {
     console.error(e);
     process.exit(1);

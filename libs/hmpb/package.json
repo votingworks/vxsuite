@@ -46,7 +46,8 @@
     "playwright": "^1.40.1",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "styled-components": "^5.3.11"
+    "styled-components": "^5.3.11",
+    "tmp": "^0.2.1"
   },
   "devDependencies": {
     "@types/debug": "4.1.8",
@@ -66,7 +67,6 @@
     "jest-image-snapshot": "^6.4.0",
     "lint-staged": "11.0.0",
     "sort-package-json": "^1.50.0",
-    "tmp": "^0.2.1",
     "util": "^0.12.4",
     "vite": "4.5.2",
     "vitest": "^2.1.8"
