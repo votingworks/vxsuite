@@ -208,6 +208,10 @@ describe('Contests tab', () => {
     // Add contest
     userEvent.click(screen.getByRole('button', { name: 'Add Contest' }));
     await screen.findByRole('heading', { name: 'Add Contest' });
+    expect(screen.getByRole('link', { name: 'Contests' })).toHaveAttribute(
+      'href',
+      `/elections/${electionId}/contests/contests`
+    );
 
     // Set title
     userEvent.type(screen.getByLabelText('Title'), newContest.title);
@@ -476,6 +480,10 @@ describe('Contests tab', () => {
     );
 
     await screen.findByRole('heading', { name: 'Edit Contest' });
+    expect(screen.getByRole('link', { name: 'Contests' })).toHaveAttribute(
+      'href',
+      `/elections/${electionId}/contests/contests`
+    );
 
     // Change title
     const titleInput = screen.getByLabelText('Title');
@@ -1160,6 +1168,10 @@ describe('Parties tab', () => {
 
     userEvent.click(screen.getByRole('button', { name: 'Add Party' }));
     await screen.findByRole('heading', { name: 'Add Party' });
+    expect(screen.getByRole('link', { name: 'Parties' })).toHaveAttribute(
+      'href',
+      `/elections/${electionId}/contests/parties`
+    );
 
     userEvent.type(screen.getByLabelText('Full Name'), newParty.fullName);
     userEvent.type(screen.getByLabelText('Short Name'), newParty.name);
@@ -1206,6 +1218,10 @@ describe('Parties tab', () => {
       within(savedPartyRow).getByRole('button', { name: 'Edit' })
     );
     await screen.findByRole('heading', { name: 'Edit Party' });
+    expect(screen.getByRole('link', { name: 'Parties' })).toHaveAttribute(
+      'href',
+      `/elections/${electionId}/contests/parties`
+    );
 
     const fullNameInput = screen.getByLabelText('Full Name');
     expect(fullNameInput).toHaveValue(savedParty.fullName);
