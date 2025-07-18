@@ -98,7 +98,7 @@ describe('printMode', () => {
     expect(newStore().getPrintMode()).toEqual<PrintMode>('summary');
   });
 
-  test('set and get rountrip', () => {
+  test('set and get roundtrip', () => {
     const store = newStore();
     store.setPrintMode('bubble_marks');
     expect(store.getPrintMode()).toEqual<PrintMode>('bubble_marks');
