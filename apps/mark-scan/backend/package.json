@@ -27,7 +27,6 @@
     "type-check": "tsc --build"
   },
   "dependencies": {
-    "@types/pdfkit": "^0.13.9",
     "@votingworks/auth": "workspace:*",
     "@votingworks/backend": "workspace:*",
     "@votingworks/ballot-interpreter": "workspace:*",
