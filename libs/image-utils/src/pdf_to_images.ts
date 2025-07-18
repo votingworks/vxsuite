@@ -1,4 +1,4 @@
-import { ImageData, createCanvas } from 'canvas';
+import { CanvasGradient, CanvasPattern, ImageData, createCanvas } from 'canvas';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 
 /**
@@ -10,6 +10,14 @@ export interface PdfPage {
   readonly page: ImageData;
 }
 
+/** Options for {@link pdfToImages}. */
+export interface PdfToImagesOptions {
+  background?: string | CanvasGradient | CanvasPattern;
+
+  /** @default 1 */
+  scale?: number;
+}
+
 /**
  * Renders PDF pages as images. This function consumes the data source, leaving
  * the caller with an empty `Uint8Array` when this function resolves. Be sure to
@@ -17,8 +25,9 @@ export interface PdfPage {
  */
 export async function* pdfToImages(
   pdfBytes: Uint8Array,
-  { scale = 1 } = {}
+  opts: PdfToImagesOptions = {}
 ): AsyncIterable<PdfPage> {
+  const { background, scale = 1 } = opts;
   const { default: pdfjs } = await import('pdfjs-dist/legacy/build/pdf.js');
   const canvas = createCanvas(0, 0);
   const context = canvas.getContext('2d');
@@ -38,6 +47,7 @@ export async function* pdfToImages(
     await page.render({
       canvasContext: context,
       viewport,
+      background,
     }).promise;
 
     yield {

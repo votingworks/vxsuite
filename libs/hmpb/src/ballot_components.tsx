@@ -191,9 +191,12 @@ export function BallotHashSlot(): JSX.Element {
   );
 }
 
+export const BUBBLE_HEIGHT_PX = 13;
+export const BUBBLE_WIDTH_PX = 19;
+
 export const BubbleShape = styled.div<{ isFilled?: boolean }>`
-  width: 19px;
-  height: 13px;
+  width: ${BUBBLE_WIDTH_PX}px;
+  height: ${BUBBLE_HEIGHT_PX}px;
   border-radius: 7px;
   border: 1px solid black;
   background-color: ${(p) => (p.isFilled ? 'black' : undefined)};
