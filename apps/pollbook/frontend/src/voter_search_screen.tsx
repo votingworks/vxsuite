@@ -145,6 +145,11 @@ export function VoterSearch({
     setVoterSearchParams(merged);
   }, [voterSearchParams, setSearch]);
 
+  const hiddenSearchParamsExist =
+    voterSearchParams.middleName ||
+    voterSearchParams.suffix ||
+    voterSearchParams.exactMatch;
+
   useEffect(() => {
     if (barcodeScannerError?.message === 'unknown_document_type') {
       setDisplayUnknownScanError(true);
@@ -191,24 +196,18 @@ export function VoterSearch({
       }
     }
   }, [
-    search,
-    setSearch,
     queryClient,
-    onBarcodeScanMatch,
-    voterSearchParams.exactMatch,
-    scannedIdDocument,
-    searchVotersQuery.data,
+    voterSearchParams,
     searchVotersQuery.isSuccess,
+    searchVotersQuery.data,
+    scannedIdDocument,
+    onBarcodeScanMatch,
   ]);
 
   return (
     <Column style={{ gap: '1rem', height: '100%' }}>
-      {voterSearchParams.middleName || voterSearchParams.suffix ? (
+      {hiddenSearchParamsExist ? (
         <Row style={{ gap: '5rem' }}>
-          {/* <Row>
-            <P weight="semiBold">Scanned ID:</P>&nbsp;
-            <P>{formatNameSearch(search)}</P>
-          </Row> */}
           <Column style={{ flexGrow: 2 }}>
             <Form>
               <InputGroup label="Scanned ID">
