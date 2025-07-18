@@ -1,6 +1,7 @@
 use color_eyre::eyre::Context;
 use nusb::DeviceInfo;
 use parse_aamva::AamvaDocument;
+use serde::Serialize;
 use std::fs;
 use std::io::{self, Error, ErrorKind};
 use std::os::unix::fs::PermissionsExt;
@@ -121,10 +122,14 @@ async fn init_port(port_name: &str, baud_rate: u32) -> color_eyre::Result<Serial
         None => Err(Error::new(ErrorKind::NotFound, "No device found").into()),
     }
 }
+#[derive(Serialize)]
+struct ErrorMessage {
+    error: String,
+}
 
-async fn write_doc(stream: &mut tokio::net::UnixStream, doc: &AamvaDocument) -> io::Result<()> {
+async fn write_json<T: Serialize>(stream: &mut UnixStream, value: &T) -> io::Result<()> {
     let mut buf = Vec::new();
-    serde_json::to_writer(&mut buf, doc)?;
+    serde_json::to_writer(&mut buf, value)?;
     buf.push(b'\n');
 
     stream.write_all(&buf).await?;
@@ -133,9 +138,9 @@ async fn write_doc(stream: &mut tokio::net::UnixStream, doc: &AamvaDocument) -> 
 }
 
 /// Writes data to every client in the mutex. Drops any connections that error.
-async fn broadcast_to_clients(
+async fn broadcast_to_clients<T: Serialize>(
     clients: &Arc<Mutex<Vec<UnixStream>>>,
-    doc: &AamvaDocument,
+    message: &T,
 ) -> io::Result<()> {
     let mut guard = clients.lock().await;
 
@@ -144,7 +149,7 @@ async fn broadcast_to_clients(
 
     let mut alive = Vec::with_capacity(streams.len());
     for mut stream in streams {
-        match write_doc(&mut stream, doc).await {
+        match write_json(&mut stream, message).await {
             Ok(()) => alive.push(stream),
             Err(err) => log!(
                 EventId::SocketClientDisconnected,
@@ -262,6 +267,15 @@ where
                             event_type: EventType::SystemAction,
                             disposition: Disposition::Failure
                         );
+                        let error = ErrorMessage {
+                            error: "unknown_document_type".to_owned(),
+                        };
+                        if let Err(err) = broadcast_to_clients(&clients, &error).await {
+                            log!(
+                                EventId::SocketServerError,
+                                "Failed to write parse error to clients: {err}"
+                            );
+                        }
                         continue;
                     }
                 };
