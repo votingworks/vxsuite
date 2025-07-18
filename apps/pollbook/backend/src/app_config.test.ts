@@ -16,6 +16,13 @@ import { parseValidStreetsFromCsvString } from './pollbook_package';
 
 const singlePrecinctElectionDefinition =
   electionSimpleSinglePrecinctFixtures.readElectionDefinition();
+const singlePrecinctElection = singlePrecinctElectionDefinition.election;
+const singlePrecinctElectionBuffer =
+  electionSimpleSinglePrecinctFixtures.electionSinglePrecinctBase.asBuffer();
+const singlePrecinctElectionTownVoters =
+  electionSimpleSinglePrecinctFixtures.pollbookTownVoters.asText();
+const singlePrecinctElectionTownStreetNames =
+  electionSimpleSinglePrecinctFixtures.pollbookTownStreetNames.asText();
 
 let mockNodeEnv: 'production' | 'test' = 'test';
 
@@ -142,9 +149,9 @@ test('app config - polling usb from backend does not trigger with election manag
     // Add a valid pollbook package to the USB drive
     mockUsbDrive.insertUsbDrive(
       await mockPollbookPackageFileTree(
-        electionSimpleSinglePrecinctFixtures.electionSinglePrecinctBase.asBuffer(),
-        electionSimpleSinglePrecinctFixtures.pollbookTownVoters.asText(),
-        electionSimpleSinglePrecinctFixtures.pollbookTownStreetNames.asText()
+        singlePrecinctElectionBuffer,
+        singlePrecinctElectionTownVoters,
+        singlePrecinctElectionTownStreetNames
       )
     );
     // We don't actually expect the usb drive status to be called
@@ -167,22 +174,22 @@ test('app config - polling usb from backend does trigger with system admin auth'
     // Add a valid pollbook package to the USB drive
     mockUsbDrive.insertUsbDrive(
       await mockPollbookPackageFileTree(
-        electionSimpleSinglePrecinctFixtures.electionSinglePrecinctBase.asBuffer(),
-        electionSimpleSinglePrecinctFixtures.pollbookTownVoters.asText(),
-        electionSimpleSinglePrecinctFixtures.pollbookTownStreetNames.asText()
+        singlePrecinctElectionBuffer,
+        singlePrecinctElectionTownVoters,
+        singlePrecinctElectionTownStreetNames
       )
     );
     vitest.advanceTimersByTime(CONFIGURATION_POLLING_INTERVAL);
     expect(await localApiClient.getElection()).toEqual(err('loading'));
     // Allow time for the pollbook package to be read
-    await vi.waitFor(async () => {
-      const result = await localApiClient.getElection();
-      // Configured for proper election
-      expect(result.unsafeUnwrap().id).toEqual(
-        electionSimpleSinglePrecinctFixtures.electionSinglePrecinctBase.readElection()
-          .id
-      );
-    });
+    await vi.waitFor(
+      async () => {
+        const result = await localApiClient.getElection();
+        // Configured for proper election
+        expect(result.unsafeUnwrap().id).toEqual(singlePrecinctElection.id);
+      },
+      { timeout: 2000 }
+    );
   });
 });
 
