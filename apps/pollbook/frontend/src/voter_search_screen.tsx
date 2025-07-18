@@ -265,8 +265,27 @@ export function VoterSearch({
           </Row>
         </Form>
       )}
-      {searchVotersQuery.data ? (
-        typeof searchVotersQuery.data === 'number' ? (
+      {displayUnknownScanError && (
+        <Modal
+          title="ID Not Recognized"
+          content={
+            <div>
+              Unable to read the scanned barcode. Please try scanning again or
+              enter the name manually.
+            </div>
+          }
+          actions={
+            <Button
+              onPress={() => setDisplayUnknownScanError(false)}
+              variant="primary"
+            >
+              Close
+            </Button>
+          }
+        />
+      )}
+      {searchVotersQuery.data &&
+        (typeof searchVotersQuery.data === 'number' ? (
           <Callout icon="Info" color="neutral">
             <div>
               Voters matched: {searchVotersQuery.data}. Refine your search
@@ -320,28 +339,7 @@ export function VoterSearch({
               </VoterTable>
             </VoterTableWrapper>
           </React.Fragment>
-        )
-      ) : (
-        displayUnknownScanError && (
-          <Modal
-            title="ID Not Recognized"
-            content={
-              <div>
-                Unable to read the scanned barcode. Please try scanning again or
-                enter the name manually.
-              </div>
-            }
-            actions={
-              <Button
-                onPress={() => setDisplayUnknownScanError(false)}
-                variant="primary"
-              >
-                Close
-              </Button>
-            }
-          />
-        )
-      )}
+        ))}
     </Column>
   );
 }
