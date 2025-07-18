@@ -145,16 +145,13 @@ export function VoterCheckInScreen(): JSX.Element | null {
   );
 
   const onCancel = useCallback(() => {
-    const search = createEmptySearchParams(false);
+    let search = createEmptySearchParams(false);
     if (
       flowState.step === 'confirm_identity' ||
       flowState.step === 'select_party'
     ) {
-      // Change the search query to match what is displayed in the user-editable inputs.
-      // This prevents confusion stemming from search params not actually being
-      // displayed to the user.
-      search.firstName = flowState.search.firstName;
-      search.lastName = flowState.search.lastName;
+      // Preserve the values in the search inputs
+      search = { ...flowState.search };
     }
 
     setFlowState({

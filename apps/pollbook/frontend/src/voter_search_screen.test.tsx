@@ -19,6 +19,10 @@ import {
 } from '../test/react_testing_library';
 import { createEmptySearchParams, VoterSearch } from './voter_search_screen';
 import { DEFAULT_QUERY_REFETCH_INTERVAL } from './api';
+import {
+  getMockAamvaDocument,
+  getMockExactSearchParams,
+} from '../test/aamva_fixtures';
 
 let apiMock: ApiMock;
 let unmount: () => void;
@@ -94,6 +98,88 @@ test('shows a message when the barcode scanner client reports an unknown documen
   await expect
     .poll(() => screen.queryByRole('heading', { name: 'ID Not Recognized' }))
     .not.toBeInTheDocument();
+});
+
+test('after an ID scan with "hidden" fields, shows full name and "Edit Search" button', async () => {
+  const mockDocument = getMockAamvaDocument();
+  const mockSearchParams = getMockExactSearchParams();
+  // Voter who exactly matches the scanned ID
+  const mockVoter: Voter = {
+    ...createMockVoter(
+      '123',
+      mockDocument.firstName,
+      mockDocument.lastName,
+      'precinct-id-01'
+    ),
+    middleName: mockDocument.middleName,
+    suffix: mockDocument.nameSuffix,
+  };
+  // Voter who matches only first and last name of the scanned ID
+  const otherMockVoter: Voter = {
+    ...createMockVoter(
+      '456',
+      mockDocument.firstName,
+      mockDocument.lastName,
+      'precinct-id-01'
+    ),
+    middleName: '',
+    suffix: '',
+  };
+
+  // Mock out search that happens when an ID is scanned
+  apiMock.expectGetScannedIdDocument(mockDocument);
+  apiMock.expectSearchVotersWithResults(mockSearchParams, [mockVoter]);
+
+  const result = renderInAppContext(
+    <VoterSearch
+      search={mockSearchParams}
+      setSearch={vi.fn()}
+      onBarcodeScanMatch={vi.fn()}
+      renderAction={() => null}
+      election={election}
+    />,
+    {
+      apiMock,
+    }
+  );
+  unmount = result.unmount;
+
+  await act(() => vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL));
+
+  await screen.findByText('Scanned ID');
+  const input = screen.getByTestId('scanned-id-input');
+  expect(input).toBeDisabled();
+  expect(input).toHaveValue(
+    `${mockDocument.firstName} ${mockDocument.middleName} ${mockDocument.lastName} ${mockDocument.nameSuffix}`
+  );
+
+  // Mock out search that happens when "Edit Search" is clicked
+  // and middle name/suffix are removed from the searchb
+  apiMock.expectGetScannedIdDocument();
+  apiMock.expectSearchVotersWithResults(
+    {
+      ...createEmptySearchParams(false),
+      firstName: mockDocument.firstName,
+      lastName: mockDocument.lastName,
+    },
+    [mockVoter, otherMockVoter]
+  );
+
+  userEvent.click(screen.getButton('Edit Search'));
+
+  // Full name input and "Edit Search" button should not be rendered
+  expect(screen.queryByTestId('scanned-id-input')).toBeNull();
+  expect(screen.queryByRole('button', { name: 'Edit Search' })).toBeNull();
+
+  // Individual first/last name inputs should be rendered
+  const lastNameInput = await screen.findByTestId('last-name-input');
+  const firstNameInput = screen.getByTestId('first-name-input');
+  expect(lastNameInput).toHaveValue(mockDocument.lastName);
+  expect(firstNameInput).toHaveValue(mockDocument.firstName);
+
+  // Voter search should display updated search results
+  expect(screen.getByTestId('voter-row#123')).toBeDefined();
+  expect(screen.getByTestId('voter-row#456')).toBeDefined();
 });
 
 test('closes the error modal if a valid ID is scanned', async () => {

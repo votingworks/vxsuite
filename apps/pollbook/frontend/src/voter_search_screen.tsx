@@ -65,6 +65,12 @@ const VoterTable = styled(Table)`
   }
 `;
 
+function formatNameSearch(search: VoterSearchParams): string {
+  return [search.firstName, search.middleName, search.lastName, search.suffix]
+    .filter((part) => !!part)
+    .join(' ');
+}
+
 export function createEmptySearchParams(
   exactMatch: boolean
 ): VoterSearchParams {
@@ -120,6 +126,24 @@ export function VoterSearch({
     scannedIdDocument = barcodeScannerResponse.ok();
     barcodeScannerError = barcodeScannerResponse.err();
   }
+
+  const onEditSearch = useCallback(() => {
+    const merged: VoterSearchParams = {
+      firstName:
+        voterSearchParams.firstName ||
+        /* istanbul ignore next - @preserve - voterSearchParams.firstName being falsy is extremely unlikely */
+        '',
+      middleName: '',
+      lastName:
+        voterSearchParams.lastName ||
+        /* istanbul ignore next - @preserve - voterSearchParams.lastName being falsy is extremely unlikely */
+        '',
+      suffix: '',
+      exactMatch: false,
+    };
+    setSearch(merged);
+    setVoterSearchParams(merged);
+  }, [voterSearchParams, setSearch]);
 
   useEffect(() => {
     if (barcodeScannerError?.message === 'unknown_document_type') {
@@ -179,37 +203,69 @@ export function VoterSearch({
 
   return (
     <Column style={{ gap: '1rem', height: '100%' }}>
-      <Form>
-        <Row style={{ gap: '1rem' }}>
-          <InputGroup label="Last Name">
-            <input
-              value={search.lastName}
-              data-testid="last-name-input"
-              onChange={(e) =>
-                updateManuallyEnteredSearch({
-                  lastName: e.target.value.toUpperCase(),
-                })
-              }
-              style={{ flex: 1 }}
-              type="text"
-              // eslint-disable-next-line jsx-a11y/no-autofocus
-              autoFocus
-            />
-          </InputGroup>
-          <InputGroup label="First Name">
-            <input
-              value={search.firstName}
-              data-testid="first-name-input"
-              onChange={(e) =>
-                updateManuallyEnteredSearch({
-                  firstName: e.target.value.toUpperCase(),
-                })
-              }
-              type="text"
-            />
-          </InputGroup>
+      {voterSearchParams.middleName || voterSearchParams.suffix ? (
+        <Row style={{ gap: '5rem' }}>
+          {/* <Row>
+            <P weight="semiBold">Scanned ID:</P>&nbsp;
+            <P>{formatNameSearch(search)}</P>
+          </Row> */}
+          <Column style={{ flexGrow: 2 }}>
+            <Form>
+              <InputGroup label="Scanned ID">
+                <input
+                  value={formatNameSearch(search)}
+                  data-testid="scanned-id-input"
+                  style={{ flexGrow: 1 }}
+                  disabled
+                  onChange={() => {}}
+                  type="text"
+                />
+              </InputGroup>
+            </Form>
+          </Column>
+          <Column style={{ marginTop: '1.5rem' }}>
+            <Button
+              style={{ justifySelf: 'end' }}
+              onPress={onEditSearch}
+              variant="primary"
+            >
+              Edit Search
+            </Button>
+          </Column>
         </Row>
-      </Form>
+      ) : (
+        <Form>
+          <Row style={{ gap: '1rem' }}>
+            <InputGroup label="Last Name">
+              <input
+                value={search.lastName}
+                data-testid="last-name-input"
+                onChange={(e) =>
+                  updateManuallyEnteredSearch({
+                    lastName: e.target.value.toUpperCase(),
+                  })
+                }
+                style={{ flex: 1 }}
+                type="text"
+                // eslint-disable-next-line jsx-a11y/no-autofocus
+                autoFocus
+              />
+            </InputGroup>
+            <InputGroup label="First Name">
+              <input
+                value={search.firstName}
+                data-testid="first-name-input"
+                onChange={(e) =>
+                  updateManuallyEnteredSearch({
+                    firstName: e.target.value.toUpperCase(),
+                  })
+                }
+                type="text"
+              />
+            </InputGroup>
+          </Row>
+        </Form>
+      )}
       {searchVotersQuery.data ? (
         typeof searchVotersQuery.data === 'number' ? (
           <Callout icon="Info" color="neutral">
