@@ -113,31 +113,39 @@ impl FromStr for AamvaDocument {
                 continue;
             };
 
+            let mut validated_data: String = data.to_owned();
+            // Per spec section "D.12.5 Data elements"
+            //   > Mandatory data elements for which no data exists for a given cardholder are to be encoded with the word "NONE".
+            //   > In the event data is not available for a mandatory data element, "unavl" is to be encoded.
+            if validated_data == "unavl" || validated_data == "NONE" {
+                validated_data = "".to_owned();
+            }
+
             #[allow(clippy::assigning_clones)]
             match id {
                 "DAC" => {
                     if data.len() > MAX_NAME_LENGTH {
                         return Err(Self::Err::DataTooLong(id.to_string(), data.to_string()));
                     }
-                    document.first_name = data.to_owned();
+                    document.first_name = validated_data;
                 }
                 "DAD" => {
                     if data.len() > MAX_NAME_LENGTH {
                         return Err(Self::Err::DataTooLong(id.to_string(), data.to_string()));
                     }
-                    document.middle_name = data.to_owned();
+                    document.middle_name = validated_data;
                 }
                 "DCS" => {
                     if data.len() > MAX_NAME_LENGTH {
                         return Err(Self::Err::DataTooLong(id.to_string(), data.to_string()));
                     }
-                    document.last_name = data.to_owned();
+                    document.last_name = validated_data;
                 }
                 "DCU" => {
                     if data.len() > MAX_NAME_SUFFIX_LENGTH {
                         return Err(Self::Err::DataTooLong(id.to_string(), data.to_string()));
                     }
-                    document.name_suffix = data.to_owned();
+                    document.name_suffix = validated_data;
                 }
                 _ => {}
             }
