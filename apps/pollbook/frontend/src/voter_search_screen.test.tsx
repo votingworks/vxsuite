@@ -130,11 +130,12 @@ test('after an ID scan with "hidden" fields, shows full name and "Edit Search" b
   apiMock.expectGetScannedIdDocument(mockDocument);
   apiMock.expectSearchVotersWithResults(mockSearchParams, [mockVoter]);
 
+  const onBarcodeScanMatch = vi.fn();
   const result = renderInAppContext(
     <VoterSearch
       search={mockSearchParams}
       setSearch={vi.fn()}
-      onBarcodeScanMatch={vi.fn()}
+      onBarcodeScanMatch={onBarcodeScanMatch}
       renderAction={() => null}
       election={election}
     />,
@@ -146,12 +147,17 @@ test('after an ID scan with "hidden" fields, shows full name and "Edit Search" b
 
   await act(() => vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL));
 
+  expect(onBarcodeScanMatch).toHaveBeenCalledOnce();
+  expect(onBarcodeScanMatch).toHaveBeenCalledWith(mockVoter);
+
+  // Expect to see disabled form input and Edit Search button
   await screen.findByText('Scanned ID');
   const input = screen.getByTestId('scanned-id-input');
   expect(input).toBeDisabled();
   expect(input).toHaveValue(
     `${mockDocument.firstName} ${mockDocument.middleName} ${mockDocument.lastName} ${mockDocument.nameSuffix}`
   );
+  const editSearchButton = screen.getButton('Edit Search');
 
   // Mock out search that happens when "Edit Search" is clicked
   // and middle name/suffix are removed from the search
@@ -164,10 +170,6 @@ test('after an ID scan with "hidden" fields, shows full name and "Edit Search" b
     },
     [mockVoter, otherMockVoter]
   );
-
-  // There's >1 match so we should have stayed on the search page and
-  // rendered the "Edit Search" button
-  const editSearchButton = screen.getButton('Edit Search');
 
   userEvent.click(editSearchButton);
 
@@ -191,8 +193,6 @@ test('an ID scan with first and last name only can still render "Edit Search" bu
   const mockDocument = getMockAamvaDocument(overrides);
   const mockSearchParams = getMockExactSearchParams(overrides);
   // Voters who exactly match first/last name of the scanned ID.
-  // We need 2 matches because exactly 1 match will automatically
-  // advance to the check-in page
   const mockVoters: Voter[] = ['123', '456'].map((id) => ({
     ...createMockVoter(
       id,
