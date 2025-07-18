@@ -7,12 +7,7 @@ import {
   readMultiPartyPrimaryElection,
   readMultiPartyPrimaryElectionDefinition,
 } from '@votingworks/fixtures';
-import {
-  AamvaDocument,
-  Voter,
-  VoterCheckInError,
-  VoterSearchParams,
-} from '@votingworks/pollbook-backend';
+import { Voter, VoterCheckInError } from '@votingworks/pollbook-backend';
 import { act, render, screen, within } from '../test/react_testing_library';
 import { App } from './app';
 import {
@@ -22,6 +17,10 @@ import {
 } from '../test/mock_api_client';
 import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals';
 import { DEFAULT_QUERY_REFETCH_INTERVAL } from './api';
+import {
+  getMockAamvaDocument,
+  getMockExactSearchParams,
+} from '../test/aamva_fixtures';
 
 let apiMock: ApiMock;
 const famousNamesElection: Election =
@@ -288,35 +287,24 @@ describe('PollWorkerScreen', () => {
     const { unmount } = render(<App apiClient={apiMock.mockApiClient} />);
     await vi.waitFor(() => screen.getByText('Voter Check-In'));
 
-    const document: AamvaDocument = {
-      firstName: 'Aaron',
-      middleName: 'Danger',
-      lastName: 'Burr',
-      nameSuffix: 'Jr',
-      issuingJurisdiction: 'NH',
-    };
-    const searchParams: VoterSearchParams = {
-      firstName: document.firstName,
-      middleName: document.middleName,
-      lastName: document.lastName,
-      suffix: document.nameSuffix,
-      exactMatch: true,
-    };
+    const mockAamvaDocument = getMockAamvaDocument();
+    const mockSearchParams = getMockExactSearchParams();
+
     const mockVoter: Voter = {
       ...createMockVoter(
         '123',
-        document.firstName,
-        document.lastName,
+        mockAamvaDocument.firstName,
+        mockAamvaDocument.lastName,
         precinct1
       ),
-      middleName: document.middleName,
-      suffix: document.nameSuffix,
+      middleName: mockAamvaDocument.middleName,
+      suffix: mockAamvaDocument.nameSuffix,
     };
 
     // API returns a new barcode scan so we expect search and the getVoter endpoint
     // to be queried with the new voter
-    apiMock.expectGetScannedIdDocument(document);
-    apiMock.expectSearchVotersWithResults(searchParams, [mockVoter]);
+    apiMock.expectGetScannedIdDocument(mockAamvaDocument);
+    apiMock.expectSearchVotersWithResults(mockSearchParams, [mockVoter]);
     apiMock.expectGetVoter(mockVoter);
 
     act(() => {
