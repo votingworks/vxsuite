@@ -165,9 +165,13 @@ test('after an ID scan with "hidden" fields, shows full name and "Edit Search" b
     [mockVoter, otherMockVoter]
   );
 
-  userEvent.click(screen.getButton('Edit Search'));
+  // There's >1 match so we should have stayed on the search page and
+  // rendered the "Edit Search" button
+  const editSearchButton = screen.getButton('Edit Search');
 
-  // Full name input and "Edit Search" button should not be rendered
+  userEvent.click(editSearchButton);
+
+  // After clicking button, full name input and "Edit Search" button should not be rendered
   expect(screen.queryByTestId('scanned-id-input')).toBeNull();
   expect(screen.queryByRole('button', { name: 'Edit Search' })).toBeNull();
 
