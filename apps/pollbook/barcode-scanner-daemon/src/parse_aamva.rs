@@ -118,7 +118,7 @@ impl FromStr for AamvaDocument {
             //   > Mandatory data elements for which no data exists for a given cardholder are to be encoded with the word "NONE".
             //   > In the event data is not available for a mandatory data element, "unavl" is to be encoded.
             if validated_data == "unavl" || validated_data == "NONE" {
-                validated_data = "".to_owned();
+                String::new().clone_into(&mut validated_data);
             }
 
             #[allow(clippy::assigning_clones)]
