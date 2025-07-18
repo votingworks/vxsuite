@@ -154,7 +154,7 @@ test('after an ID scan with "hidden" fields, shows full name and "Edit Search" b
   );
 
   // Mock out search that happens when "Edit Search" is clicked
-  // and middle name/suffix are removed from the searchb
+  // and middle name/suffix are removed from the search
   apiMock.expectGetScannedIdDocument();
   apiMock.expectSearchVotersWithResults(
     {
@@ -184,6 +184,54 @@ test('after an ID scan with "hidden" fields, shows full name and "Edit Search" b
   // Voter search should display updated search results
   expect(screen.getByTestId('voter-row#123')).toBeDefined();
   expect(screen.getByTestId('voter-row#456')).toBeDefined();
+});
+
+test('an ID scan with first and last name only can still render "Edit Search" button', async () => {
+  const overrides: Partial<VoterSearchParams> = { middleName: '', suffix: '' };
+  const mockDocument = getMockAamvaDocument(overrides);
+  const mockSearchParams = getMockExactSearchParams(overrides);
+  // Voters who exactly match first/last name of the scanned ID.
+  // We need 2 matches because exactly 1 match will automatically
+  // advance to the check-in page
+  const mockVoters: Voter[] = ['123', '456'].map((id) => ({
+    ...createMockVoter(
+      id,
+      mockDocument.firstName,
+      mockDocument.lastName,
+      'precinct-id-01'
+    ),
+    middleName: '',
+    suffix: '',
+  }));
+
+  // Mock out search that happens when an ID is scanned
+  apiMock.expectGetScannedIdDocument(mockDocument);
+  apiMock.expectSearchVotersWithResults(mockSearchParams, mockVoters);
+
+  const result = renderInAppContext(
+    <VoterSearch
+      search={mockSearchParams}
+      setSearch={vi.fn()}
+      onBarcodeScanMatch={vi.fn()}
+      renderAction={() => null}
+      election={election}
+    />,
+    {
+      apiMock,
+    }
+  );
+  unmount = result.unmount;
+
+  await act(() => vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL));
+
+  // Should render disabled input and "Edit Search" because `exactMatch` search param is set,
+  // even if we have no hidden name fields
+  await screen.findByText('Scanned ID');
+  const input = screen.getByTestId('scanned-id-input');
+  expect(input).toBeDisabled();
+  expect(input).toHaveValue(
+    `${mockDocument.firstName} ${mockDocument.lastName}`
+  );
 });
 
 test('closes the error modal if a valid ID is scanned', async () => {
