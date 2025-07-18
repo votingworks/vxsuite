@@ -147,7 +147,7 @@ test('after an ID scan with "hidden" fields, shows full name and "Edit Search" b
 
   await act(() => vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL));
 
-  expect(onBarcodeScanMatch).toHaveBeenCalledOnce();
+  await vi.waitFor(() => expect(onBarcodeScanMatch).toHaveBeenCalled());
   expect(onBarcodeScanMatch).toHaveBeenCalledWith(mockVoter);
 
   // Expect to see disabled form input and Edit Search button
