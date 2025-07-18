@@ -44,7 +44,7 @@ import { ElectionState, PrintBallotProps } from './types';
 import { printBallot } from './util/print_ballot';
 import { isAccessibleControllerAttached } from './util/accessible_controller';
 import { constructAuthMachineState } from './util/auth';
-import { ElectionRecord } from './store';
+import { ElectionRecord, PrintMode } from './store';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi(
@@ -298,6 +298,14 @@ export function buildApi(
 
         throw err;
       }
+    },
+
+    getPrintMode(): PrintMode {
+      return store.getPrintMode();
+    },
+
+    setPrintMode(input: { mode: PrintMode }) {
+      store.setPrintMode(input.mode);
     },
   });
 }

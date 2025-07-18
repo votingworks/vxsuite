@@ -3,7 +3,12 @@
 //
 
 import { UiStringsStore, createUiStringStore } from '@votingworks/backend';
-import { assertDefined, DateWithoutTime, Optional } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  DateWithoutTime,
+  Optional,
+} from '@votingworks/basics';
 import { Client as DbClient } from '@votingworks/db';
 import { BaseLogger } from '@votingworks/logging';
 import {
@@ -23,6 +28,9 @@ import {
 import { join } from 'node:path';
 
 const SchemaPath = join(__dirname, '../schema.sql');
+
+// [TODO] Fits better in ./types.ts, but this avoids a dependency cycle for now:
+export type PrintMode = 'bubble_marks' | 'summary';
 
 export interface ElectionRecord {
   electionDefinition: ElectionDefinition;
@@ -256,6 +264,26 @@ export class Store {
       'update election set precinct_selection = ?',
       JSON.stringify(precinctSelection)
     );
+  }
+
+  getPrintMode(): PrintMode {
+    if (!this.hasElection()) return 'summary';
+
+    const res = this.client.one('select print_mode as mode from election') as
+      | { mode: PrintMode }
+      | undefined;
+
+    return assertDefined(res?.mode);
+  }
+
+  setPrintMode(mode: PrintMode): void {
+    assert(this.hasElection(), 'Cannot set print mode without an election');
+    assert(
+      mode === 'bubble_marks' || mode === 'summary',
+      `invalid print mode: ${mode}`
+    );
+
+    this.client.run('update election set print_mode = ?', mode);
   }
 
   /**
