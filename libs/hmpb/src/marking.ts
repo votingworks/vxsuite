@@ -48,7 +48,7 @@ const writeInFontSizeReduced = 10;
  * Center of the top-left timing mark.
  *
  * [TODO] We may need to move this into the election definition, to support
- * marking 3rd part ballots
+ * marking 3rd party ballots.
  */
 const gridOrigin = [
   pageMargins[0] + 0.5 * timingMarkSize[0],
