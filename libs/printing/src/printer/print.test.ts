@@ -21,7 +21,14 @@ test('prints with defaults', async () => {
 
   expect(exec).toHaveBeenCalledWith(
     'lpr',
-    ['-P', DEFAULT_MANAGED_PRINTER_NAME, '-o', 'sides=one-sided'],
+    [
+      '-P',
+      DEFAULT_MANAGED_PRINTER_NAME,
+      '-o',
+      'sides=one-sided',
+      '-o',
+      'media=letter',
+    ],
     Uint8Array.of(0xca, 0xfe)
   );
 });
@@ -36,7 +43,14 @@ test('allows specifying other sided-ness', async () => {
 
   expect(exec).toHaveBeenCalledWith(
     'lpr',
-    ['-P', DEFAULT_MANAGED_PRINTER_NAME, '-o', 'sides=two-sided-long-edge'],
+    [
+      '-P',
+      DEFAULT_MANAGED_PRINTER_NAME,
+      '-o',
+      'sides=two-sided-long-edge',
+      '-o',
+      'media=letter',
+    ],
     Uint8Array.of(0xf0, 0x0d)
   );
 });
@@ -48,7 +62,16 @@ test('prints a specified number of copies', async () => {
 
   expect(exec).toHaveBeenCalledWith(
     'lpr',
-    ['-P', DEFAULT_MANAGED_PRINTER_NAME, '-o', 'sides=one-sided', '-#', '3'],
+    [
+      '-P',
+      DEFAULT_MANAGED_PRINTER_NAME,
+      '-o',
+      'sides=one-sided',
+      '-o',
+      'media=letter',
+      '-#',
+      '3',
+    ],
     Uint8Array.of(0xca, 0xfe)
   );
 });
@@ -69,6 +92,8 @@ test('passes through raw options', async () => {
       '-o',
       'sides=one-sided',
       '-o',
+      'media=letter',
+      '-o',
       'fit-to-page=true',
     ],
     Uint8Array.of(0xf0, 0x0d)
@@ -83,4 +108,23 @@ test('rejects invalid raw options', async () => {
   ).rejects.toThrowError();
 
   expect(exec).not.toHaveBeenCalled();
+});
+
+test('supports legal-sized paper option', async () => {
+  vi.mocked(exec).mockResolvedValueOnce(ok({ stdout: '', stderr: '' }));
+
+  await print({ data: Uint8Array.of(0xca, 0xfe), size: 'legal' });
+
+  expect(exec).toHaveBeenCalledWith(
+    'lpr',
+    [
+      '-P',
+      DEFAULT_MANAGED_PRINTER_NAME,
+      '-o',
+      'sides=one-sided',
+      '-o',
+      'media=legal',
+    ],
+    Uint8Array.of(0xca, 0xfe)
+  );
 });

@@ -10,6 +10,7 @@ export async function print({
   data,
   copies,
   sides = PrintSides.OneSided,
+  size = 'letter',
   raw = {},
 }: PrintProps): Promise<void> {
   const lprOptions: string[] = [];
@@ -17,6 +18,7 @@ export async function print({
   lprOptions.push('-P', DEFAULT_MANAGED_PRINTER_NAME);
 
   lprOptions.push('-o', `sides=${sides}`);
+  lprOptions.push('-o', `media=${size}`);
 
   // -o already pushed, can add options from raw
   for (const [key, value] of Object.entries(raw)) {
