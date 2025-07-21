@@ -10,7 +10,12 @@ import type {
   Candidate,
   YesNoOption,
 } from '@votingworks/types';
-import { assertDefined, throwIllegalValue } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  iter,
+  throwIllegalValue,
+} from '@votingworks/basics';
 
 import { normalizeWriteInName } from '../utils/adjudication';
 import { DoubleVoteAlert } from '../components/adjudication_double_vote_alert_modal';
@@ -121,7 +126,7 @@ type ContestOptionAdjudicationState =
   | OfficialOptionAdjudicationState
   | WriteInOptionAdjudicationState;
 
-type ContestOptionAdjudicationStateById = Record<
+type ContestOptionAdjudicationStateById = Map<
   ContestOptionId,
   ContestOptionAdjudicationState
 >;
@@ -135,42 +140,45 @@ interface ContestAdjudicationState {
 function getWriteInOptions(
   state: ContestOptionAdjudicationStateById
 ): WriteInOptionAdjudicationState[] {
-  return Object.values(state).filter((option) => option.isWriteIn);
+  return iter(state.values())
+    .filter((option) => option.isWriteIn)
+    .toArray();
 }
 
 export function makeInitialState(
   contestInfo: ContestInfo,
   initialValues: InitialValues
 ): ContestOptionAdjudicationStateById {
-  const state: ContestOptionAdjudicationStateById = {};
+  const state: ContestOptionAdjudicationStateById = new Map();
   for (const option of contestInfo.officialOptions) {
-    state[option.id] = {
+    state.set(option.id, {
       optionId: option.id,
       hasVote: false,
       isWriteIn: false,
       marginalMarkStatus: 'none',
-    };
+    });
   }
   for (let i = 0; i < contestInfo.numberOfWriteIns; i += 1) {
     const writeInOptionId = `write-in-${i}`;
-    state[writeInOptionId] = {
+    state.set(writeInOptionId, {
       optionId: writeInOptionId,
       hasVote: false,
       isWriteIn: true,
       marginalMarkStatus: 'none',
       writeInAdjudicationStatus: undefined,
-    };
+    });
   }
 
   for (const optionId of initialValues.votes) {
-    state[optionId].hasVote = true;
+    assertDefined(state.get(optionId)).hasVote = true;
   }
   for (const voteAdjudication of initialValues.voteAdjudications) {
     const { optionId, isVote } = voteAdjudication;
-    state[optionId].hasVote = isVote;
+    assertDefined(state.get(optionId)).hasVote = isVote;
   }
   for (const optionId of initialValues.marginalMarks) {
-    state[optionId].marginalMarkStatus = initialValues.contestTag.isResolved
+    assertDefined(state.get(optionId)).marginalMarkStatus = initialValues
+      .contestTag.isResolved
       ? 'resolved'
       : 'pending';
   }
@@ -231,24 +239,24 @@ export function makeInitialState(
 function makeEmptyState(
   contestInfo: ContestInfo
 ): ContestOptionAdjudicationStateById {
-  const state: ContestOptionAdjudicationStateById = {};
+  const state: ContestOptionAdjudicationStateById = new Map();
   for (const option of contestInfo.officialOptions) {
-    state[option.id] = {
+    state.set(option.id, {
       optionId: option.id,
       hasVote: false,
       isWriteIn: false,
       marginalMarkStatus: 'none',
-    };
+    });
   }
   for (let i = 0; i < contestInfo.numberOfWriteIns; i += 1) {
     const writeInOptionId = `write-in-${i}`;
-    state[writeInOptionId] = {
+    state.set(writeInOptionId, {
       optionId: writeInOptionId,
       hasVote: false,
       isWriteIn: true,
       marginalMarkStatus: 'none',
       writeInAdjudicationStatus: undefined,
-    };
+    });
   }
   return state;
 }
@@ -290,7 +298,7 @@ export function useContestAdjudicationState(
     isStateReady: false,
     isModified: false,
   });
-  const optionsList = Object.values(state.optionState);
+  const optionsList = [...state.optionState.values()];
 
   function resetState() {
     setState({
@@ -323,27 +331,27 @@ export function useContestAdjudicationState(
   }, [initialValues, state.isStateReady, contestInfo]);
 
   function getOptionHasVote(optionId: ContestOptionId): boolean {
-    return assertDefined(state.optionState[optionId]).hasVote;
+    return assertDefined(state.optionState.get(optionId)).hasVote;
   }
 
   function setOptionHasVote(optionId: ContestOptionId, hasVote: boolean) {
     setState((prev) => ({
       ...prev,
       isModified: true,
-      optionState: {
+      optionState: new Map([
         ...prev.optionState,
-        [optionId]: {
-          ...prev.optionState[optionId],
-          hasVote,
-        },
-      },
+        [
+          optionId,
+          { ...assertDefined(prev.optionState.get(optionId)), hasVote },
+        ],
+      ]),
     }));
   }
 
   function getOptionWriteInStatus(
     optionId: ContestOptionId
   ): WriteInAdjudicationStatus | undefined {
-    const optionState = assertDefined(state.optionState[optionId]);
+    const optionState = assertDefined(state.optionState.get(optionId));
     if (!optionState.isWriteIn) {
       return undefined;
     }
@@ -354,38 +362,36 @@ export function useContestAdjudicationState(
     optionId: ContestOptionId,
     writeInAdjudicationStatus: WriteInAdjudicationStatus
   ) {
-    setState((prev) => ({
-      ...prev,
-      optionState: {
-        ...prev.optionState,
-        [optionId]: {
-          ...prev.optionState[optionId],
-          writeInAdjudicationStatus,
-        },
-      },
-    }));
+    setState((prev) => {
+      const option = assertDefined(prev.optionState.get(optionId));
+      assert(option.isWriteIn);
+      return {
+        ...prev,
+        optionState: new Map([
+          ...prev.optionState,
+          [optionId, { ...option, writeInAdjudicationStatus }],
+        ]),
+      };
+    });
   }
 
   function getOptionMarginalMarkStatus(
     optionId: ContestOptionId
   ): MarginalMarkStatus {
-    return assertDefined(state.optionState[optionId]).marginalMarkStatus;
+    return assertDefined(state.optionState.get(optionId)).marginalMarkStatus;
   }
 
   function resolveOptionMarginalMark(optionId: ContestOptionId) {
     setState((prev) => {
-      const option = prev.optionState[optionId];
+      const option = assertDefined(prev.optionState.get(optionId));
       if (isMarginalMarkPending(option.marginalMarkStatus)) {
         return {
           ...prev,
           isModified: true,
-          optionState: {
+          optionState: new Map([
             ...prev.optionState,
-            [optionId]: {
-              ...option,
-              marginalMarkStatus: 'resolved',
-            },
-          },
+            [optionId, { ...option, marginalMarkStatus: 'resolved' }],
+          ]),
         };
       }
       return prev;

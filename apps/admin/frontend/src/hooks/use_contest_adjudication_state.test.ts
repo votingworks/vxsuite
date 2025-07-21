@@ -91,7 +91,9 @@ test('useContestAdjudicationState can manage adjudications', () => {
   expect(result.current.getOptionMarginalMarkStatus('bob')).toEqual('resolved');
 
   // Toggle write-in vote to true
-  expect(result.current.firstOptionIdRequiringAdjudication).toEqual('write-in-0');
+  expect(result.current.firstOptionIdRequiringAdjudication).toEqual(
+    'write-in-0'
+  );
   expect(result.current.getOptionHasVote('write-in-0')).toEqual(false);
   act(() => {
     result.current.setOptionHasVote('write-in-0', true);
@@ -133,7 +135,9 @@ test('useContestAdjudicationState can manage adjudications', () => {
   expect(result.current.selectedCandidateNames).toEqual(['Alice', 'Siena']);
 
   // Dismiss write-in marginal mark
-  expect(result.current.firstOptionIdRequiringAdjudication).toEqual('write-in-1');
+  expect(result.current.firstOptionIdRequiringAdjudication).toEqual(
+    'write-in-1'
+  );
   expect(result.current.getOptionMarginalMarkStatus('write-in-1')).toEqual(
     'pending'
   );
@@ -238,27 +242,29 @@ test('makeInitialState initializes official and write-in options correctly for c
 
   const state = makeInitialState(contestInfo, initialValues);
 
-  expect(state['alice'].hasVote).toEqual(true);
-  expect(state['alice'].marginalMarkStatus).toEqual('none');
+  expect(state.get('alice')!.hasVote).toEqual(true);
+  expect(state.get('alice')!.marginalMarkStatus).toEqual('none');
 
-  expect(state['bob'].hasVote).toEqual(false);
-  expect(state['bob'].marginalMarkStatus).toEqual('pending');
+  expect(state.get('bob')!.hasVote).toEqual(false);
+  expect(state.get('bob')!.marginalMarkStatus).toEqual('pending');
 
-  // Write-in 0 should be pending
-  expect(state['write-in-0'].hasVote).toEqual(true);
-  expect(
-    state['write-in-0'].isWriteIn &&
-      state['write-in-0'].writeInAdjudicationStatus
-  ).toEqual({
-    type: 'pending',
-  });
+  {
+    // Write-in 0 should be pending
+    const writeIn0 = state.get('write-in-0')!;
+    expect(writeIn0.hasVote).toEqual(true);
+    expect(writeIn0.isWriteIn && writeIn0.writeInAdjudicationStatus).toEqual({
+      type: 'pending',
+    });
+  }
 
-  // Write-in 1 should be empty
-  expect(state['write-in-1'].hasVote).toEqual(false);
-  expect(
-    state['write-in-1'].isWriteIn &&
-      state['write-in-1'].writeInAdjudicationStatus
-  ).toEqual(undefined);
+  {
+    // Write-in 1 should be empty
+    const writeIn1 = state.get('write-in-1')!;
+    expect(writeIn1.hasVote).toEqual(false);
+    expect(writeIn1.isWriteIn && writeIn1.writeInAdjudicationStatus).toEqual(
+      undefined
+    );
+  }
 
   // Now try with the contest already resolved
   initialValues.contestTag.isResolved = true;
@@ -285,31 +291,33 @@ test('makeInitialState initializes official and write-in options correctly for c
   ];
   const adjudicatedState = makeInitialState(contestInfo, initialValues);
 
-  expect(adjudicatedState['alice'].hasVote).toEqual(true);
-  expect(adjudicatedState['alice'].marginalMarkStatus).toEqual('none');
+  expect(adjudicatedState.get('alice')!.hasVote).toEqual(true);
+  expect(adjudicatedState.get('alice')!.marginalMarkStatus).toEqual('none');
 
-  expect(adjudicatedState['bob'].hasVote).toEqual(true);
-  expect(adjudicatedState['bob'].marginalMarkStatus).toEqual('resolved');
+  expect(adjudicatedState.get('bob')!.hasVote).toEqual(true);
+  expect(adjudicatedState.get('bob')!.marginalMarkStatus).toEqual('resolved');
 
   // Write-in 0 should be adjudicated to Lion
-  expect(adjudicatedState['write-in-0'].hasVote).toEqual(true);
-  expect(
-    adjudicatedState['write-in-0'].isWriteIn &&
-      adjudicatedState['write-in-0'].writeInAdjudicationStatus
-  ).toEqual({
-    type: 'existing-write-in',
-    id: 'lion',
-    name: 'Lion',
-    electionId,
-    contestId,
-  });
+  {
+    const writeIn0 = adjudicatedState.get('write-in-0')!;
+    expect(writeIn0.hasVote).toEqual(true);
+    expect(writeIn0.isWriteIn && writeIn0.writeInAdjudicationStatus).toEqual({
+      type: 'existing-write-in',
+      id: 'lion',
+      name: 'Lion',
+      electionId,
+      contestId,
+    });
+  }
 
-  // Write-in 1 should remain empty
-  expect(adjudicatedState['write-in-1'].hasVote).toEqual(false);
-  expect(
-    adjudicatedState['write-in-1'].isWriteIn &&
-      adjudicatedState['write-in-1'].writeInAdjudicationStatus
-  ).toEqual(undefined);
+  {
+    // Write-in 1 should remain empty
+    const writeIn1 = adjudicatedState.get('write-in-1')!;
+    expect(writeIn1.hasVote).toEqual(false);
+    expect(writeIn1.isWriteIn && writeIn1.writeInAdjudicationStatus).toEqual(
+      undefined
+    );
+  }
 });
 
 test('makeInitialState initializes options correctly for yes/no contest', () => {
@@ -338,11 +346,11 @@ test('makeInitialState initializes options correctly for yes/no contest', () => 
 
   const state = makeInitialState(contestInfo, initialValues);
 
-  expect(state['yes'].hasVote).toEqual(false);
-  expect(state['yes'].marginalMarkStatus).toEqual('pending');
+  expect(state.get('yes')!.hasVote).toEqual(false);
+  expect(state.get('yes')!.marginalMarkStatus).toEqual('pending');
 
-  expect(state['no'].hasVote).toEqual(false);
-  expect(state['no'].marginalMarkStatus).toEqual('pending');
+  expect(state.get('no')!.hasVote).toEqual(false);
+  expect(state.get('no')!.marginalMarkStatus).toEqual('pending');
 
   // Now try with the contest already resolved
   initialValues.contestTag.isResolved = true;
@@ -357,9 +365,9 @@ test('makeInitialState initializes options correctly for yes/no contest', () => 
   ];
   const adjudicatedState = makeInitialState(contestInfo, initialValues);
 
-  expect(adjudicatedState['yes'].hasVote).toEqual(true);
-  expect(adjudicatedState['yes'].marginalMarkStatus).toEqual('resolved');
+  expect(adjudicatedState.get('yes')!.hasVote).toEqual(true);
+  expect(adjudicatedState.get('yes')!.marginalMarkStatus).toEqual('resolved');
 
-  expect(adjudicatedState['no'].hasVote).toEqual(false);
-  expect(adjudicatedState['no'].marginalMarkStatus).toEqual('resolved');
+  expect(adjudicatedState.get('no')!.hasVote).toEqual(false);
+  expect(adjudicatedState.get('no')!.marginalMarkStatus).toEqual('resolved');
 });
