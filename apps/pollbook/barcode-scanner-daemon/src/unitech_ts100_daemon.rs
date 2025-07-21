@@ -547,6 +547,48 @@ DCUJR
     }
 
     #[tokio::test]
+    async fn run_read_write_loop_broadcasts_error() {
+        set_source(SOURCE);
+
+        let mut other_barcode_data = "12345".as_bytes().to_vec();
+        other_barcode_data.push(TS100_DATA_TERMINATOR);
+
+        let mock_reader = Builder::new()
+            .read(&other_barcode_data)
+            // This error triggers the loop to exit
+            .read_error(io::Error::new(io::ErrorKind::Other, "Mock error"))
+            .build();
+
+        let reader = BufReader::new(mock_reader);
+
+        let (daemon_end, client_end) =
+            UnixStream::pair().expect("failed to create UnixStream pair");
+        let clients: Arc<Mutex<Vec<UnixStream>>> = Arc::new(Mutex::new(vec![daemon_end]));
+
+        run_read_write_loop(reader, clients)
+            .await
+            .expect_err("Error reading from USB device: Mock error");
+
+        let mut client_buf = Vec::new();
+        let mut client_reader = BufReader::new(client_end);
+        let _ = client_reader
+            .read_until(b'\n', &mut client_buf)
+            .await
+            .expect("failed to read from client");
+        let s = from_utf8(&client_buf).expect("non-UTF8 JSON from broadcast");
+        let parsed: serde_json::Value =
+            serde_json::from_str(s.trim_end()).expect("unparsable data from test reader");
+
+        let expected = serde_json::json!({
+            "error": "unknown_document_type"
+        });
+        assert_eq!(
+            parsed, expected,
+            "JSON received by test did not match that expected from initial blob"
+        );
+    }
+
+    #[tokio::test]
     async fn broadcast_to_clients_sends_valid_json() {
         let doc = AamvaDocument {
             issuing_jurisdiction: AamvaIssuingJurisdiction::NH,
