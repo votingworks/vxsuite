@@ -1043,6 +1043,7 @@ test('one pollbook can be configured from another pollbook automatically as an e
         ).toEqual('not-found-network');
       });
       mockLoggedOut(pollbookContext2.auth);
+      vitest.advanceTimersByTime(100);
       await extendedWaitFor(async () => {
         vitest.advanceTimersByTime(100);
         expect(
