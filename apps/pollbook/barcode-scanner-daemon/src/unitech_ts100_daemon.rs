@@ -1,6 +1,7 @@
 use color_eyre::eyre::Context;
 use nusb::DeviceInfo;
 use parse_aamva::AamvaDocument;
+use serde::Serialize;
 use std::fs;
 use std::io::{self, Error, ErrorKind};
 use std::os::unix::fs::PermissionsExt;
@@ -121,10 +122,14 @@ async fn init_port(port_name: &str, baud_rate: u32) -> color_eyre::Result<Serial
         None => Err(Error::new(ErrorKind::NotFound, "No device found").into()),
     }
 }
+#[derive(Serialize)]
+struct ErrorMessage {
+    error: String,
+}
 
-async fn write_doc(stream: &mut tokio::net::UnixStream, doc: &AamvaDocument) -> io::Result<()> {
+async fn write_json<T: Serialize>(stream: &mut UnixStream, value: &T) -> io::Result<()> {
     let mut buf = Vec::new();
-    serde_json::to_writer(&mut buf, doc)?;
+    serde_json::to_writer(&mut buf, value)?;
     buf.push(b'\n');
 
     stream.write_all(&buf).await?;
@@ -133,9 +138,9 @@ async fn write_doc(stream: &mut tokio::net::UnixStream, doc: &AamvaDocument) -> 
 }
 
 /// Writes data to every client in the mutex. Drops any connections that error.
-async fn broadcast_to_clients(
+async fn broadcast_to_clients<T: Serialize>(
     clients: &Arc<Mutex<Vec<UnixStream>>>,
-    doc: &AamvaDocument,
+    message: &T,
 ) -> io::Result<()> {
     let mut guard = clients.lock().await;
 
@@ -144,7 +149,7 @@ async fn broadcast_to_clients(
 
     let mut alive = Vec::with_capacity(streams.len());
     for mut stream in streams {
-        match write_doc(&mut stream, doc).await {
+        match write_json(&mut stream, message).await {
             Ok(()) => alive.push(stream),
             Err(err) => log!(
                 EventId::SocketClientDisconnected,
@@ -262,6 +267,15 @@ where
                             event_type: EventType::SystemAction,
                             disposition: Disposition::Failure
                         );
+                        let error = ErrorMessage {
+                            error: "unknown_document_type".to_owned(),
+                        };
+                        if let Err(err) = broadcast_to_clients(&clients, &error).await {
+                            log!(
+                                EventId::SocketServerError,
+                                "Failed to write parse error to clients: {err}"
+                            );
+                        }
                         continue;
                     }
                 };
@@ -525,6 +539,48 @@ DCUJR
             "middleName": "MIDDLE",
             "lastName": "LAST",
             "nameSuffix": "JR"
+        });
+        assert_eq!(
+            parsed, expected,
+            "JSON received by test did not match that expected from initial blob"
+        );
+    }
+
+    #[tokio::test]
+    async fn run_read_write_loop_broadcasts_error() {
+        set_source(SOURCE);
+
+        let mut other_barcode_data = "12345".as_bytes().to_vec();
+        other_barcode_data.push(TS100_DATA_TERMINATOR);
+
+        let mock_reader = Builder::new()
+            .read(&other_barcode_data)
+            // This error triggers the loop to exit
+            .read_error(io::Error::new(io::ErrorKind::Other, "Mock error"))
+            .build();
+
+        let reader = BufReader::new(mock_reader);
+
+        let (daemon_end, client_end) =
+            UnixStream::pair().expect("failed to create UnixStream pair");
+        let clients: Arc<Mutex<Vec<UnixStream>>> = Arc::new(Mutex::new(vec![daemon_end]));
+
+        run_read_write_loop(reader, clients)
+            .await
+            .expect_err("Error reading from USB device: Mock error");
+
+        let mut client_buf = Vec::new();
+        let mut client_reader = BufReader::new(client_end);
+        let _ = client_reader
+            .read_until(b'\n', &mut client_buf)
+            .await
+            .expect("failed to read from client");
+        let s = from_utf8(&client_buf).expect("non-UTF8 JSON from broadcast");
+        let parsed: serde_json::Value =
+            serde_json::from_str(s.trim_end()).expect("unparsable data from test reader");
+
+        let expected = serde_json::json!({
+            "error": "unknown_document_type"
         });
         assert_eq!(
             parsed, expected,
