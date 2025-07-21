@@ -321,6 +321,11 @@ export function setupMachineNetworking({
               currentPollbookService.status !==
                 PollbookConnectionStatus.Connected
             ) {
+              console.log(
+                'WE ARE CONNECTING MY MACHINE: ',
+                myMachineInformation.machineId
+              );
+              console.log('TO: ', machineInformation.machineId);
               debug(
                 'Establishing connection with a new pollbook service with machineId %s',
                 machineInformation.machineId
