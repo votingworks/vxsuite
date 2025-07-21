@@ -447,7 +447,6 @@ export function VoterDetailsScreen(): JSX.Element | null {
             <Button
               icon="Edit"
               disabled={
-                voter.isInactive ||
                 !configuredPrecinctId ||
                 configuredPrecinctId !== getVoterPrecinct(voter)
               }
@@ -458,7 +457,6 @@ export function VoterDetailsScreen(): JSX.Element | null {
             <Button
               icon="Edit"
               disabled={
-                voter.isInactive ||
                 !configuredPrecinctId ||
                 configuredPrecinctId !== getVoterPrecinct(voter)
               }
@@ -471,7 +469,6 @@ export function VoterDetailsScreen(): JSX.Element | null {
             <Button
               icon="Edit"
               disabled={
-                voter.isInactive ||
                 !configuredPrecinctId ||
                 configuredPrecinctId !== getVoterPrecinct(voter)
               }
@@ -493,7 +490,7 @@ export function VoterDetailsScreen(): JSX.Element | null {
                 <Icons.Info /> Not Checked In
               </H2>
             )}
-            {voter.checkIn && !voter.isInactive && (
+            {voter.checkIn && (
               <React.Fragment>
                 <H2 style={{ marginTop: 0 }}>
                   <Icons.Done /> Checked In
@@ -537,7 +534,7 @@ export function VoterDetailsScreen(): JSX.Element | null {
               Flag Voter as Inactive
             </Button>
           )}
-          {voter.checkIn && !voter.isInactive && (
+          {voter.checkIn && (
             <Row style={{ gap: '1rem' }}>
               <Button
                 icon="Print"
