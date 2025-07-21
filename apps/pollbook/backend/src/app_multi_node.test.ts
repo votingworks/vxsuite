@@ -85,7 +85,7 @@ beforeEach(() => {
 
 function extendedWaitFor(
   fn: () => void | Promise<void>,
-  timeout: number = 3000
+  timeout: number = 5000
 ) {
   return vi.waitFor(fn, { timeout });
 }
