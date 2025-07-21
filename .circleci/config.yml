@@ -415,7 +415,7 @@ jobs:
       - run:
           name: Test
           command: |
-            pnpm --dir apps/pollbook/backend test
+            for i in $(seq 1 50); do pnpm --dir apps/pollbook/backend test || exit 1; done
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -1358,64 +1358,6 @@ jobs:
 workflows:
   test:
     jobs:
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
-      - test-apps-pollbook-backend
       - test-apps-pollbook-backend
 
 commands:
