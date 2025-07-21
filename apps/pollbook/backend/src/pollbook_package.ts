@@ -406,9 +406,12 @@ export function pollNetworkForPollbookPackage({
         }
 
         workspace.store.setConfigurationStatus('loading');
+        const myId = workspace.store.getMachineId();
+        console.log('LOADING WAS SET FROM ', myId);
         // We can now attempt to configure to the matching pollbooks
         for (const pollbook of matchingConfiguredPollbooks) {
           const { machineId } = pollbook;
+          console.log('connecting to ', machineId);
           const result = await workspace.store.configureFromPeerMachine(
             workspace.assetDirectoryPath,
             machineId
