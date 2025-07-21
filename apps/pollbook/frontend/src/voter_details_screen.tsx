@@ -457,7 +457,11 @@ export function VoterDetailsScreen(): JSX.Element | null {
             </Button>
             <Button
               icon="Edit"
-              disabled={voter.isInactive || !configuredPrecinctId}
+              disabled={
+                voter.isInactive ||
+                !configuredPrecinctId ||
+                configuredPrecinctId !== getVoterPrecinct(voter)
+              }
               onPress={() => setShowUpdateAddressFlow(true)}
             >
               Update Domicile Address
