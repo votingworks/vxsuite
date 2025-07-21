@@ -63,7 +63,7 @@ serialport = "4.2.2"
 static_assertions = "1.1.0"
 tempfile = "3.3.0"
 thiserror = "1.0.50"
-tokio = { version = "1.44.2", features = ["fs"] }
+tokio = { version = "1.44.2", features = ["fs", "signal", "io-std", "io-util"] }
 tokio-serial = { version = "5.4.1" }
 tokio-test = { version = "0.4.4" }
 tracing = "0.1.40"

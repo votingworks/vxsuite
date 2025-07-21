@@ -1,10 +1,4 @@
-use std::{
-    sync::{
-        mpsc::{self, Receiver},
-        Arc,
-    },
-    time::Duration,
-};
+use std::{sync::Arc, time::Duration};
 
 use nusb::transfer::RequestBuffer;
 
@@ -14,8 +8,8 @@ use super::protocol::packets::{self, Incoming};
 
 type ScannerChannels = (
     tokio::sync::mpsc::UnboundedSender<(usize, packets::Outgoing)>,
-    Receiver<usize>,
-    Receiver<Result<packets::Incoming>>,
+    tokio::sync::mpsc::UnboundedReceiver<usize>,
+    tokio::sync::mpsc::UnboundedReceiver<Result<packets::Incoming>>,
 );
 
 pub struct Scanner {
@@ -78,8 +72,9 @@ impl Scanner {
 
         let (host_to_scanner_tx, mut host_to_scanner_rx) =
             tokio::sync::mpsc::unbounded_channel::<(usize, packets::Outgoing)>();
-        let (host_to_scanner_ack_tx, host_to_scanner_ack_rx) = mpsc::channel::<usize>();
-        let (scanner_to_host_tx, scanner_to_host_rx) = mpsc::channel();
+        let (host_to_scanner_ack_tx, host_to_scanner_ack_rx) =
+            tokio::sync::mpsc::unbounded_channel::<usize>();
+        let (scanner_to_host_tx, scanner_to_host_rx) = tokio::sync::mpsc::unbounded_channel();
         let (stop_tx, mut stop_rx) = tokio::sync::oneshot::channel();
 
         self.stop_tx = Some(stop_tx);
@@ -120,7 +115,7 @@ impl Scanner {
                         let data = completion.data;
                         tracing::debug!("Received image data: {len} bytes", len = data.len());
                         scanner_to_host_tx
-                            .send(Ok(packets::Incoming::ImageData(data.clone())))
+                            .send(Ok(packets::Incoming::ImageData(packets::ImageData(data.clone()))))
                             .unwrap();
 
                         // resubmit the transfer to receive more data
@@ -186,7 +181,6 @@ impl Scanner {
 
                         host_to_scanner_ack_tx.send(id).unwrap();
                     }
-
                 }
             }
         });

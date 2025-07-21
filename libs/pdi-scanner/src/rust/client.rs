@@ -1,10 +1,6 @@
 use serde::{Deserialize, Serialize};
-use std::{
-    collections::VecDeque,
-    io,
-    sync::mpsc,
-    time::{Duration, Instant},
-};
+use std::{collections::VecDeque, io, time::Duration};
+use tokio::sync::mpsc::error::TryRecvError;
 
 use crate::{
     protocol::types::{
@@ -42,35 +38,12 @@ pub struct ImageCalibrationTables {
     pub back_black: Vec<u8>,
 }
 
-macro_rules! recv {
-    ($client:expr, $pattern:pat $(if $guard:expr)? => $consequent:expr, $deadline:expr $(,)?) => {{
-        #[allow(unused_variables)]
-        if let Ok($pattern) = $client.recv_matching_timeout(
-            #[allow(unused_variables)]
-            |incoming| matches!(incoming, $pattern $(if $guard)?),
-            $deadline.saturating_duration_since(Instant::now()),
-        ) {
-            Ok($consequent)
-        } else {
-            Err(Error::RecvTimeout(mpsc::RecvTimeoutError::Timeout))
-        }
-    }};
-}
-
-macro_rules! send_and_recv {
-    ($client:expr => $outgoing:expr, $pattern:pat $(if $guard:expr)? => $consequent:expr, $timeout:expr $(,)?) => {{
-        $client.clear_unhandled_packets_except_events();
-        $client.send($outgoing)?;
-        recv!($client, $pattern $(if $guard)? => $consequent, Instant::now() + $timeout)
-    }};
-}
-
 pub struct Client<T> {
     id: usize,
     unhandled_packets: VecDeque<Incoming>,
     host_to_scanner_tx: tokio::sync::mpsc::UnboundedSender<(usize, Outgoing)>,
-    host_to_scanner_ack_rx: mpsc::Receiver<usize>,
-    scanner_to_host_rx: mpsc::Receiver<Result<Incoming>>,
+    host_to_scanner_ack_rx: tokio::sync::mpsc::UnboundedReceiver<usize>,
+    scanner_to_host_rx: tokio::sync::mpsc::UnboundedReceiver<Result<Incoming>>,
 
     // we only hold on to the scanner handle so that it doesn't get dropped
     #[allow(dead_code)]
@@ -81,8 +54,8 @@ impl<T> Client<T> {
     #[must_use]
     pub fn new(
         host_to_scanner_tx: tokio::sync::mpsc::UnboundedSender<(usize, Outgoing)>,
-        host_to_scanner_ack_rx: mpsc::Receiver<usize>,
-        scanner_to_host_rx: mpsc::Receiver<Result<Incoming>>,
+        host_to_scanner_ack_rx: tokio::sync::mpsc::UnboundedReceiver<usize>,
+        scanner_to_host_rx: tokio::sync::mpsc::UnboundedReceiver<Result<Incoming>>,
         scanner_handle: Option<T>,
     ) -> Self {
         Self {
@@ -95,29 +68,9 @@ impl<T> Client<T> {
         }
     }
 
-    // There should only be one command/response occurring at a time, so before
-    // we send a command that expects a response, we should clear out any old
-    // responses. This ensures we don't get an outdated response (e.g. a previous scanner
-    // status that didn't get received when its command was sent). Thus, this
-    // method is called in the send_and_recv! macro.
-    //
-    // This accounts for the fact that there are cases where the scanner will
-    // delay sending a response to a command (e.g. when the "eject pause"
-    // feature pauses the scanner, it will queue commands received during that
-    // time).
-    fn clear_unhandled_packets_except_events(&mut self) {
-        let unhandled_non_event_packets = self
-            .unhandled_packets
-            .iter()
-            .filter(|packet| !packet.is_event())
-            .collect::<Vec<_>>();
-        if !unhandled_non_event_packets.is_empty() {
-            tracing::debug!("clearing unhandled packets: {unhandled_non_event_packets:?}");
-            self.unhandled_packets.retain(Incoming::is_event);
-        }
-    }
+    async fn send(&mut self, packet: Outgoing) -> Result<()> {
+        self.clear_unhandled_solicited_packets();
 
-    fn send(&mut self, packet: Outgoing) -> Result<()> {
         let id = self.id;
         self.id = self.id.wrapping_add(1);
         self.host_to_scanner_tx.send((id, packet)).map_err(|_| {
@@ -126,14 +79,38 @@ impl<T> Client<T> {
                 "failed to send packet to scanner (host to scanner channel closed)",
             )))
         })?;
-        let ack_id = self.host_to_scanner_ack_rx.recv().map_err(|_| {
-            Error::Usb(UsbError::Nusb(nusb::Error::new(
+        let Some(ack_id) = self.host_to_scanner_ack_rx.recv().await else {
+            return Err(Error::Usb(UsbError::Nusb(nusb::Error::new(
                 io::ErrorKind::ConnectionAborted,
                 "failed to receive ack from scanner (host to scanner ack channel closed)",
-            )))
-        })?;
+            ))));
+        };
         assert_eq!(id, ack_id);
         Ok(())
+    }
+
+    // There should only be one command/response occurring at a time, so before
+    // we send a command that expects a response, we should clear out any old
+    // responses. This ensures we don't get an outdated response (e.g. a previous scanner
+    // status that didn't get received when its command was sent).
+    //
+    // This accounts for the fact that there are cases where the scanner will
+    // delay sending a response to a command (e.g. when the "eject pause"
+    // feature pauses the scanner, it will queue commands received during that
+    // time).
+    fn clear_unhandled_solicited_packets(&mut self) {
+        let mut unhandled_packets = VecDeque::with_capacity(self.unhandled_packets.len());
+        std::mem::swap(&mut unhandled_packets, &mut self.unhandled_packets);
+
+        let (unsolicited_packets, solicited_packets): (Vec<_>, Vec<_>) = unhandled_packets
+            .into_iter()
+            .partition(|packet| packet.message_type().is_unsolicited());
+
+        if !solicited_packets.is_empty() {
+            tracing::debug!("clearing unhandled solicited packets: {solicited_packets:?}");
+        }
+
+        self.unhandled_packets.extend(unsolicited_packets);
     }
 
     /// Gets a test string from the scanner. This is useful for testing the
@@ -141,42 +118,42 @@ impl<T> Client<T> {
     ///
     /// # Errors
     ///
-    /// This function will return an error if the response is not received within
-    /// the timeout.
-    pub fn get_test_string(&mut self, timeout: Duration) -> Result<String> {
-        send_and_recv!(
-            self => Outgoing::GetTestStringRequest,
-            Incoming::GetTestStringResponse(s) => s,
-            timeout
-        )
+    /// This function will return an error if a communication error occurs.
+    pub async fn get_test_string(&mut self) -> Result<String> {
+        self.send(Outgoing::GetTestStringRequest).await?;
+        self.recv_matching(|packet| match packet {
+            Incoming::GetTestStringResponse(s) => Ok(s),
+            packet => Err(packet),
+        })
+        .await
     }
 
     /// Gets the firmware version of the scanner.
     ///
     /// # Errors
     ///
-    /// This function will return an error if the response is not received within
-    /// the timeout.
-    pub fn get_firmware_version(&mut self, timeout: Duration) -> Result<Version> {
-        send_and_recv!(
-            self => Outgoing::GetFirmwareVersionRequest,
-            Incoming::GetFirmwareVersionResponse(version) => version,
-            timeout
-        )
+    /// This function will return an error if a communication error occurs.
+    pub async fn get_firmware_version(&mut self) -> Result<Version> {
+        self.send(Outgoing::GetFirmwareVersionRequest).await?;
+        self.recv_matching(|packet| match packet {
+            Incoming::GetFirmwareVersionResponse(version) => Ok(version),
+            packet => Err(packet),
+        })
+        .await
     }
 
     /// Gets the status of the scanner.
     ///
     /// # Errors
     ///
-    /// This function will return an error if the response is not received within
-    /// the timeout.
-    pub fn get_scanner_status(&mut self, timeout: Duration) -> Result<Status> {
-        send_and_recv!(
-            self => Outgoing::GetScannerStatusRequest,
-            Incoming::GetScannerStatusResponse(status) => status,
-            timeout
-        )
+    /// This function will return an error if a communication error occurs.
+    pub async fn get_scanner_status(&mut self) -> Result<Status> {
+        self.send(Outgoing::GetScannerStatusRequest).await?;
+        self.recv_matching(|packet| match packet {
+            Incoming::GetScannerStatusResponse(status) => Ok(status),
+            packet => Err(packet),
+        })
+        .await
     }
 
     /// Gets the number of input sensors that must be covered to initiate
@@ -185,17 +162,17 @@ impl<T> Client<T> {
     ///
     /// # Errors
     ///
-    /// This function will return an error if the response is not received within
-    /// the timeout.
-    pub fn get_required_input_sensors(&mut self, timeout: Duration) -> Result<(u8, u8)> {
-        send_and_recv!(
-            self => Outgoing::GetRequiredInputSensorsRequest,
+    /// This function will return an error if a communication error occurs.
+    pub async fn get_required_input_sensors(&mut self) -> Result<(u8, u8)> {
+        self.send(Outgoing::GetRequiredInputSensorsRequest).await?;
+        self.recv_matching(|packet| match packet {
             Incoming::GetSetRequiredInputSensorsResponse {
                 current_sensors_required,
                 total_sensors_available,
-            } => (current_sensors_required, total_sensors_available),
-            timeout
-        )
+            } => Ok((current_sensors_required, total_sensors_available)),
+            packet => Err(packet),
+        })
+        .await
     }
 
     /// Enables or disables the double feed detection. When double feed detection
@@ -204,15 +181,18 @@ impl<T> Client<T> {
     ///
     /// # Errors
     ///
-    /// This function will return an error if the response is not received within
-    /// the timeout.
-    pub fn set_double_feed_detection_mode(&mut self, mode: DoubleFeedDetectionMode) -> Result<()> {
+    /// This function will return an error if a communication error occurs.
+    pub async fn set_double_feed_detection_mode(
+        &mut self,
+        mode: DoubleFeedDetectionMode,
+    ) -> Result<()> {
         self.send(match mode {
             DoubleFeedDetectionMode::RejectDoubleFeeds => {
                 Outgoing::EnableDoubleFeedDetectionRequest
             }
             DoubleFeedDetectionMode::Disabled => Outgoing::DisableDoubleFeedDetectionRequest,
         })
+        .await
     }
 
     /// Enables or disables the feeder. When the feeder is enabled, the scanner
@@ -221,41 +201,41 @@ impl<T> Client<T> {
     ///
     /// # Errors
     ///
-    /// This function will return an error if the response is not received within
-    /// the timeout.
-    pub fn set_feeder_mode(&mut self, mode: FeederMode) -> Result<()> {
+    /// This function will return an error if a communication error occurs.
+    pub async fn set_feeder_mode(&mut self, mode: FeederMode) -> Result<()> {
         self.send(match mode {
             FeederMode::Disabled => Outgoing::DisableFeederRequest,
             FeederMode::AutoScanSheets => Outgoing::EnableFeederRequest,
         })
+        .await
     }
 
     /// Gets the serial number of the scanner.
     ///
     /// # Errors
     ///
-    /// This function will return an error if the response is not received within
-    /// the timeout.
-    pub fn get_serial_number(&mut self, timeout: Duration) -> Result<[u8; 8]> {
-        send_and_recv!(
-            self => Outgoing::GetSerialNumberRequest,
-            Incoming::GetSetSerialNumberResponse(serial_number) => serial_number,
-            timeout
-        )
+    /// This function will return an error if a communication error occurs.
+    pub async fn get_serial_number(&mut self) -> Result<[u8; 8]> {
+        self.send(Outgoing::GetSerialNumberRequest).await?;
+        self.recv_matching(|packet| match packet {
+            Incoming::GetSetSerialNumberResponse(serial_number) => Ok(serial_number),
+            packet => Err(packet),
+        })
+        .await
     }
 
     /// Gets the scanner settings.
     ///
     /// # Errors
     ///
-    /// This function will return an error if the response is not received within
-    /// the timeout.
-    pub fn get_scanner_settings(&mut self, timeout: Duration) -> Result<Settings> {
-        send_and_recv!(
-            self => Outgoing::GetScannerSettingsRequest,
-            Incoming::GetScannerSettingsResponse(settings) => settings,
-            timeout
-        )
+    /// This function will return an error if a communication error occurs.
+    pub async fn get_scanner_settings(&mut self) -> Result<Settings> {
+        self.send(Outgoing::GetScannerSettingsRequest).await?;
+        self.recv_matching(|packet| match packet {
+            Incoming::GetScannerSettingsResponse(settings) => Ok(settings),
+            packet => Err(packet),
+        })
+        .await
     }
 
     /// Ejects the document from the scanner according to the specified motion.
@@ -264,15 +244,15 @@ impl<T> Client<T> {
     ///
     /// # Errors
     ///
-    /// This function will return an error if the connection to the scanner is
-    /// lost.
-    pub fn eject_document(&mut self, eject_motion: EjectMotion) -> Result<()> {
+    /// This function will return an error if a communication error occurs.
+    pub async fn eject_document(&mut self, eject_motion: EjectMotion) -> Result<()> {
         self.set_eject_pause_mode(match eject_motion {
             EjectMotion::ToRear => EjectPauseMode::PauseWhileInputPaperDetected,
             _ => EjectPauseMode::DoNotCheckForInputPaper,
-        })?;
+        })
+        .await?;
         // The feeder needs to be enabled for the eject command to work.
-        self.set_feeder_mode(FeederMode::AutoScanSheets)?;
+        self.set_feeder_mode(FeederMode::AutoScanSheets).await?;
         self.send(match eject_motion {
             EjectMotion::ToRear => Outgoing::EjectDocumentToRearOfScannerRequest,
             EjectMotion::ToFront => Outgoing::EjectDocumentToFrontOfScannerRequest,
@@ -280,10 +260,11 @@ impl<T> Client<T> {
                 Outgoing::EjectDocumentToFrontOfScannerAndHoldInInputRollersRequest
             }
             EjectMotion::ToFrontAndRescan => Outgoing::RescanDocumentHeldInEscrowPositionRequest,
-        })?;
+        })
+        .await?;
         // It's safest to always disable the feeder after ejecting a document to
         // protect against a second document sneaking in.
-        self.set_feeder_mode(FeederMode::Disabled)
+        self.set_feeder_mode(FeederMode::Disabled).await
     }
 
     /// Adjusts the bitonal threshold by 1. The threshold is a percentage of the
@@ -293,24 +274,24 @@ impl<T> Client<T> {
     ///
     /// # Errors
     ///
-    /// This function will return an error if the response is not received within
-    /// the timeout.
-    pub fn adjust_bitonal_threshold_by_1(
+    /// This function will return an error if a communication error occurs.
+    pub async fn adjust_bitonal_threshold_by_1(
         &mut self,
         side: Side,
         direction: Direction,
-        timeout: Duration,
     ) -> Result<u8> {
-        send_and_recv!(
-            self => Outgoing::AdjustBitonalThresholdBy1Request(
-                BitonalAdjustment { side, direction }
-            ),
+        self.send(Outgoing::AdjustBitonalThresholdBy1Request(
+            BitonalAdjustment { side, direction },
+        ))
+        .await?;
+        self.recv_matching(|packet| match packet {
             Incoming::AdjustBitonalThresholdResponse {
                 side: response_side,
-                percent_white_threshold
-            } if side == *response_side => percent_white_threshold,
-            timeout
-        )
+                percent_white_threshold,
+            } if side == response_side => Ok(percent_white_threshold),
+            packet => Err(packet),
+        })
+        .await
     }
 
     /// Sets the color mode of the scanner to either native or low color. The
@@ -320,13 +301,13 @@ impl<T> Client<T> {
     ///
     /// # Errors
     ///
-    /// This function will return an error if the connection to the scanner is
-    /// lost.
-    pub fn set_color_mode(&mut self, color_mode: ColorMode) -> Result<()> {
+    /// This function will return an error if a communication error occurs.
+    pub async fn set_color_mode(&mut self, color_mode: ColorMode) -> Result<()> {
         self.send(match color_mode {
             ColorMode::Native => Outgoing::TransmitInNativeBitsPerPixelRequest,
             ColorMode::LowColor => Outgoing::TransmitInLowBitsPerPixelRequest,
         })
+        .await
     }
 
     /// Sets whether to hold the paper after scanning (default), requiring an
@@ -335,9 +316,8 @@ impl<T> Client<T> {
     ///
     /// # Errors
     ///
-    /// This function will return an error if the connection to the scanner is
-    /// lost.
-    pub fn set_auto_run_out_at_end_of_scan_behavior(
+    /// This function will return an error if a communication error occurs.
+    pub async fn set_auto_run_out_at_end_of_scan_behavior(
         &mut self,
         behavior: AutoRunOutAtEndOfScanBehavior,
     ) -> Result<()> {
@@ -349,19 +329,20 @@ impl<T> Client<T> {
                 Outgoing::EnableAutoRunOutAtEndOfScanRequest
             }
         })
+        .await
     }
 
     /// Sets the motor speed to either full or half speed.
     ///
     /// # Errors
     ///
-    /// This function will return an error if the connection to the scanner is
-    /// lost.
-    pub fn set_motor_speed(&mut self, speed: Speed) -> Result<()> {
+    /// This function will return an error if a communication error occurs.
+    pub async fn set_motor_speed(&mut self, speed: Speed) -> Result<()> {
         self.send(match speed {
             Speed::Full => Outgoing::ConfigureMotorToRunAtFullSpeedRequest,
             Speed::Half => Outgoing::ConfigureMotorToRunAtHalfSpeedRequest,
         })
+        .await
     }
 
     /// Sets the bitonal threshold for the top or bottom sensor. The threshold
@@ -371,25 +352,21 @@ impl<T> Client<T> {
     ///
     /// # Errors
     ///
-    /// This function will return an error if the response is not received within
-    /// the timeout.
-    pub fn set_threshold(
-        &mut self,
-        side: Side,
-        threshold: ClampedPercentage,
-        timeout: Duration,
-    ) -> Result<u8> {
-        send_and_recv!(
-            self => Outgoing::SetThresholdToANewValueRequest {
-                side,
-                new_threshold: threshold
-            },
+    /// This function will return an error if a communication error occurs.
+    pub async fn set_threshold(&mut self, side: Side, threshold: ClampedPercentage) -> Result<u8> {
+        self.send(Outgoing::SetThresholdToANewValueRequest {
+            side,
+            new_threshold: threshold,
+        })
+        .await?;
+        self.recv_matching(|packet| match packet {
             Incoming::AdjustBitonalThresholdResponse {
                 side: response_side,
-                percent_white_threshold
-            } if side == *response_side => percent_white_threshold,
-            timeout
-        )
+                percent_white_threshold,
+            } if side == response_side => Ok(percent_white_threshold),
+            packet => Err(packet),
+        })
+        .await
     }
 
     /// Sets the number of input sensors that must be covered to initiate
@@ -398,8 +375,9 @@ impl<T> Client<T> {
     /// # Errors
     ///
     /// This function will return an error if the sensors is not a valid value.
-    pub fn set_required_input_sensors(&mut self, sensors: u8) -> Result<()> {
+    pub async fn set_required_input_sensors(&mut self, sensors: u8) -> Result<()> {
         self.send(Outgoing::SetRequiredInputSensorsRequest { sensors })
+            .await
     }
 
     /// Sets the maximum length of the document to scan. The length is specified
@@ -410,7 +388,7 @@ impl<T> Client<T> {
     /// # Errors
     ///
     /// This function will return an error if the length is not a valid value.
-    pub fn set_length_of_document_to_scan(&mut self, length_inches: f32) -> Result<()> {
+    pub async fn set_length_of_document_to_scan(&mut self, length_inches: f32) -> Result<()> {
         const MIN_LENGTH: f32 = 0.0;
         const MAX_LENGTH: f32 = 22.3;
 
@@ -425,14 +403,16 @@ impl<T> Client<T> {
             let length_byte = 32.0 + (10.0 * length_inches) / unit_inches;
 
             if length_byte <= f32::from(u8::MAX) || length_byte >= f32::from(u8::MIN) {
-                return self.send(Outgoing::SetLengthOfDocumentToScanRequest {
-                    length_byte: length_byte as u8,
-                    unit_byte: if unit_byte == b'0' {
-                        None
-                    } else {
-                        Some(unit_byte)
-                    },
-                });
+                return self
+                    .send(Outgoing::SetLengthOfDocumentToScanRequest {
+                        length_byte: length_byte as u8,
+                        unit_byte: if unit_byte == b'0' {
+                            None
+                        } else {
+                            Some(unit_byte)
+                        },
+                    })
+                    .await;
             }
         }
 
@@ -448,7 +428,7 @@ impl<T> Client<T> {
     /// # Errors
     ///
     /// This function will return an error if the duration is not a valid value.
-    pub fn set_scan_delay_interval_for_document_feed(
+    pub async fn set_scan_delay_interval_for_document_feed(
         &mut self,
         delay_interval: Duration,
     ) -> Result<()> {
@@ -462,73 +442,74 @@ impl<T> Client<T> {
         };
 
         self.send(Outgoing::SetScanDelayIntervalForDocumentFeedRequest { delay_interval })
+            .await
     }
 
-    /// Calls `predicate` on each unhandled packet and returns the first packet
-    /// for which `predicate` returns `true`.
+    /// Returns the next unhandled packet from the internal queue or awaits
+    /// a packet from the scanner if the internal queue is empty.
     ///
     /// # Errors
     ///
-    /// If no packet matches, this function will return [`Error::TryRecvError`] with
-    /// [`std::sync::mpsc::TryRecvError::Empty`].
-    #[allow(clippy::missing_panics_doc)]
-    pub fn try_recv_matching(&mut self, predicate: impl Fn(&Incoming) -> bool) -> Result<Incoming> {
-        for (i, packet) in self.unhandled_packets.iter().enumerate() {
-            if predicate(packet) {
-                return Ok(self
-                    .unhandled_packets
-                    .remove(i)
-                    .expect("packet should exist"));
-            }
+    /// If the channel to the scanner has closed, this function will return
+    /// [`Error::TryRecvError`].
+    pub async fn recv(&mut self) -> Result<Incoming> {
+        if let Some(packet) = self.unhandled_packets.pop_front() {
+            tracing::debug!("returning unhandled packet: {packet:?}");
+            return Ok(packet);
         }
 
-        match self.scanner_to_host_rx.try_recv()? {
-            Ok(packet) if predicate(&packet) => Ok(packet),
-            Ok(packet) => {
-                self.unhandled_packets.push_back(packet);
-                Err(Error::TryRecvError(mpsc::TryRecvError::Empty))
-            }
-            err => err,
+        match self.scanner_to_host_rx.recv().await {
+            Some(result) => result,
+            None => Err(Error::TryRecvError(TryRecvError::Disconnected)),
         }
     }
 
-    /// Receives the next packet from the scanner and returns it if it matches
-    /// the predicate. If the packet does not match, it is added to the list of
-    /// unhandled packets and the next packet is received.
+    /// Receives packets from the scanner until a call to the provided function
+    /// returns [`Ok`] with the data to return from this call. If the packet does
+    /// not match it should be returned from the function using [`Err`], and it
+    /// will be added to the list of unhandled packets to be tried on subsequent
+    /// calls to [`Self::recv_matching`].
     ///
     /// # Errors
     ///
-    /// This function will return an error if the response is not received within
-    /// the timeout.
+    /// This function will return an error if a communication error occurs.
     #[allow(clippy::missing_panics_doc)]
-    fn recv_matching_timeout(
+    async fn recv_matching<P>(
         &mut self,
-        predicate: impl Fn(&Incoming) -> bool,
-        timeout: Duration,
-    ) -> Result<Incoming> {
-        let deadline = Instant::now() + timeout;
+        filter_map: impl Fn(Incoming) -> Result<P, Incoming>,
+    ) -> Result<P> {
+        let mut unhandled_packets = VecDeque::with_capacity(self.unhandled_packets.len());
+        std::mem::swap(&mut unhandled_packets, &mut self.unhandled_packets);
 
-        for (i, packet) in self.unhandled_packets.iter().enumerate() {
-            if predicate(packet) {
-                return Ok(self
-                    .unhandled_packets
-                    .remove(i)
-                    .expect("packet should exist"));
+        let mut received_value = None;
+
+        for packet in unhandled_packets {
+            if received_value.is_some() {
+                self.unhandled_packets.push_back(packet);
+            } else {
+                match filter_map(packet) {
+                    Ok(value) => {
+                        received_value = Some(value);
+                    }
+                    Err(packet) => {
+                        self.unhandled_packets.push_back(packet);
+                    }
+                }
             }
+        }
+
+        if let Some(value) = received_value {
+            return Ok(value);
         }
 
         loop {
-            if deadline <= Instant::now() {
-                return Err(Error::RecvTimeout(mpsc::RecvTimeoutError::Timeout));
-            }
-
-            match self
-                .scanner_to_host_rx
-                .recv_timeout(deadline.saturating_duration_since(Instant::now()))?
-            {
-                Ok(packet) if predicate(&packet) => return Ok(packet),
-                Ok(packet) => self.unhandled_packets.push_back(packet),
-                err => return err,
+            match self.scanner_to_host_rx.recv().await {
+                Some(Ok(packet)) => match filter_map(packet) {
+                    Ok(value) => return Ok(value),
+                    Err(packet) => self.unhandled_packets.push_back(packet),
+                },
+                Some(Err(error)) => return Err(error),
+                None => return Err(Error::TryRecvError(TryRecvError::Disconnected)),
             }
         }
     }
@@ -539,8 +520,8 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the connection to the scanner is
     /// lost.
-    fn send_command(&mut self, command: &Command) -> Result<()> {
-        self.send_raw_packet(&command.to_bytes())
+    async fn send_command(&mut self, command: &Command) -> Result<()> {
+        self.send_raw_packet(&command.to_bytes()).await
     }
 
     /// Sends raw packet data to the scanner.
@@ -549,8 +530,8 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the connection to the scanner is
     /// lost.
-    pub fn send_raw_packet(&mut self, packet: &[u8]) -> Result<()> {
-        self.send(Outgoing::RawPacket(packet.to_vec()))
+    pub async fn send_raw_packet(&mut self, packet: &[u8]) -> Result<()> {
+        self.send(Outgoing::RawPacket(packet.to_vec())).await
     }
 
     /// Sets the resolution of the scanner to either half or native. The native
@@ -561,14 +542,16 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the connection to the scanner is
     /// lost.
-    pub fn set_scan_resolution(&mut self, resolution: Resolution) -> Result<()> {
+    pub async fn set_scan_resolution(&mut self, resolution: Resolution) -> Result<()> {
         match resolution {
             Resolution::Half => {
                 self.send(Outgoing::SetScannerImageDensityToHalfNativeResolutionRequest)
+                    .await
             }
             Resolution::Medium => todo!("not implemented for PageScan 5/6"),
             Resolution::Native => {
                 self.send(Outgoing::SetScannerImageDensityToNativeResolutionRequest)
+                    .await
             }
         }
     }
@@ -580,12 +563,13 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the connection to the scanner is
     /// lost.
-    pub fn set_scan_side_mode(&mut self, scan_side_mode: ScanSideMode) -> Result<()> {
+    pub async fn set_scan_side_mode(&mut self, scan_side_mode: ScanSideMode) -> Result<()> {
         self.send(match scan_side_mode {
             ScanSideMode::Duplex => Outgoing::SetScannerToDuplexModeRequest,
             ScanSideMode::SimplexTopOnly => Outgoing::SetScannerToTopOnlySimplexModeRequest,
             ScanSideMode::SimplexBottomOnly => Outgoing::SetScannerToBottomOnlySimplexModeRequest,
         })
+        .await
     }
 
     /// Enables or disables "pick-on-command" mode. When pick-on-command mode is
@@ -596,7 +580,7 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the connection to the scanner is
     /// lost.
-    pub fn set_pick_on_command_mode(&mut self, mode: PickOnCommandMode) -> Result<()> {
+    pub async fn set_pick_on_command_mode(&mut self, mode: PickOnCommandMode) -> Result<()> {
         self.send(match mode {
             PickOnCommandMode::FeederStaysEnabledBetweenScans => {
                 Outgoing::DisablePickOnCommandModeRequest
@@ -605,6 +589,7 @@ impl<T> Client<T> {
                 Outgoing::EnablePickOnCommandModeRequest
             }
         })
+        .await
     }
 
     /// Enables or disables pausing before ejecting a document if the input
@@ -614,11 +599,12 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the connection to the scanner is
     /// lost.
-    pub fn set_eject_pause_mode(&mut self, mode: EjectPauseMode) -> Result<()> {
+    pub async fn set_eject_pause_mode(&mut self, mode: EjectPauseMode) -> Result<()> {
         self.send(match mode {
             EjectPauseMode::DoNotCheckForInputPaper => Outgoing::DisableEjectPauseRequest,
             EjectPauseMode::PauseWhileInputPaperDetected => Outgoing::EnableEjectPauseRequest,
         })
+        .await
     }
 
     /// Sets the sensitivity of the double feed detection. The percentage
@@ -629,8 +615,12 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the percentage is not between 0
     /// and 100.
-    pub fn set_double_feed_sensitivity(&mut self, percentage: ClampedPercentage) -> Result<()> {
+    pub async fn set_double_feed_sensitivity(
+        &mut self,
+        percentage: ClampedPercentage,
+    ) -> Result<()> {
         self.send(Outgoing::SetDoubleFeedDetectionSensitivityRequest { percentage })
+            .await
     }
 
     /// Sets the minimum length to scan before double feed detection is
@@ -646,7 +636,7 @@ impl<T> Client<T> {
     /// # Errors
     ///
     /// This function will return an error if the length is not a valid value.
-    pub fn set_double_feed_detection_minimum_document_length(
+    pub async fn set_double_feed_detection_minimum_document_length(
         &mut self,
         length_in_hundredths_of_an_inch: u8,
     ) -> Result<()> {
@@ -655,6 +645,7 @@ impl<T> Client<T> {
                 length_in_hundredths_of_an_inch,
             },
         )
+        .await
     }
 
     /// Triggers calibration of the double feed detection. The calibration type
@@ -671,28 +662,31 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the connection to the scanner is
     /// lost.
-    pub fn calibrate_double_feed_detection(
+    pub async fn calibrate_double_feed_detection(
         &mut self,
         calibration_type: DoubleFeedDetectionCalibrationType,
     ) -> Result<()> {
-        self.set_double_feed_detection_mode(DoubleFeedDetectionMode::Disabled)?;
+        self.set_double_feed_detection_mode(DoubleFeedDetectionMode::Disabled)
+            .await?;
         self.send(Outgoing::CalibrateDoubleFeedDetectionRequest(
             calibration_type,
         ))
+        .await
     }
 
     /// Gets the intensity of the double feed detection LED.
     ///
     /// # Errors
     ///
-    /// This function will return an error if the response is not received within
-    /// the timeout.
-    pub fn get_double_feed_detection_led_intensity(&mut self, timeout: Duration) -> Result<u16> {
-        send_and_recv!(
-            self => Outgoing::GetDoubleFeedDetectionLedIntensityRequest,
-            Incoming::GetDoubleFeedDetectionLedIntensityResponse(intensity) => intensity,
-            timeout
-        )
+    /// This function will return an error if a communication error occurs.
+    pub async fn get_double_feed_detection_led_intensity(&mut self) -> Result<u16> {
+        self.send(Outgoing::GetDoubleFeedDetectionLedIntensityRequest)
+            .await?;
+        self.recv_matching(|packet| match packet {
+            Incoming::GetDoubleFeedDetectionLedIntensityResponse(intensity) => Ok(intensity),
+            packet => Err(packet),
+        })
+        .await
     }
 
     /// Gets the double sheet detection calibration value for a single sheet of paper. This value
@@ -700,16 +694,17 @@ impl<T> Client<T> {
     ///
     /// # Errors
     ///
-    /// This function will return an error if the response is not received within the timeout.
-    pub fn get_double_feed_detection_single_sheet_calibration_value(
+    /// This function will return an error if a communication error occurs.
+    pub async fn get_double_feed_detection_single_sheet_calibration_value(
         &mut self,
-        timeout: Duration,
     ) -> Result<u16> {
-        send_and_recv!(
-            self => Outgoing::GetDoubleFeedDetectionSingleSheetCalibrationValueRequest,
-            Incoming::GetDoubleFeedDetectionSingleSheetCalibrationValueResponse(value) => value,
-            timeout
-        )
+        self.send(Outgoing::GetDoubleFeedDetectionSingleSheetCalibrationValueRequest)
+            .await?;
+        self.recv_matching(|packet| match packet {
+            Incoming::GetDoubleFeedDetectionSingleSheetCalibrationValueResponse(value) => Ok(value),
+            packet => Err(packet),
+        })
+        .await
     }
 
     /// Gets the double sheet detection calibration value for two sheets of
@@ -718,17 +713,17 @@ impl<T> Client<T> {
     ///
     /// # Errors
     ///
-    /// This function will return an error if the response is not received
-    /// within the timeout.
-    pub fn get_double_feed_detection_double_sheet_calibration_value(
+    /// This function will return an error if a communication error occurs.
+    pub async fn get_double_feed_detection_double_sheet_calibration_value(
         &mut self,
-        timeout: Duration,
     ) -> Result<u16> {
-        send_and_recv!(
-            self => Outgoing::GetDoubleFeedDetectionDoubleSheetCalibrationValueRequest,
-            Incoming::GetDoubleFeedDetectionDoubleSheetCalibrationValueResponse(value) => value,
-            timeout
-        )
+        self.send(Outgoing::GetDoubleFeedDetectionDoubleSheetCalibrationValueRequest)
+            .await?;
+        self.recv_matching(|packet| match packet {
+            Incoming::GetDoubleFeedDetectionDoubleSheetCalibrationValueResponse(value) => Ok(value),
+            packet => Err(packet),
+        })
+        .await
     }
 
     /// Gets the double sheet detection threshold value. Values above this
@@ -736,30 +731,30 @@ impl<T> Client<T> {
     ///
     /// # Errors
     ///
-    /// This function will return an error if the response is not received
-    /// within the timeout.
-    pub fn get_double_feed_detection_double_sheet_threshold_value(
-        &mut self,
-        timeout: Duration,
-    ) -> Result<u16> {
-        send_and_recv!(
-            self => Outgoing::GetDoubleFeedDetectionDoubleSheetThresholdValueRequest,
-            Incoming::GetDoubleFeedDetectionDoubleSheetThresholdValueResponse(value) => value,
-            timeout
-        )
+    /// This function will return an error if a communication error occurs.
+    pub async fn get_double_feed_detection_double_sheet_threshold_value(&mut self) -> Result<u16> {
+        self.send(Outgoing::GetDoubleFeedDetectionDoubleSheetThresholdValueRequest)
+            .await?;
+        self.recv_matching(|packet| match packet {
+            Incoming::GetDoubleFeedDetectionDoubleSheetThresholdValueResponse(value) => Ok(value),
+            packet => Err(packet),
+        })
+        .await
     }
 
-    pub fn get_double_feed_detection_calibration_config(
+    pub async fn get_double_feed_detection_calibration_config(
         &mut self,
-        timeout: Duration,
     ) -> Result<DoubleFeedDetectionCalibrationConfig> {
-        let led_intensity = self.get_double_feed_detection_led_intensity(timeout)?;
-        let single_sheet_calibration_value =
-            self.get_double_feed_detection_single_sheet_calibration_value(timeout)?;
-        let double_sheet_calibration_value =
-            self.get_double_feed_detection_double_sheet_calibration_value(timeout)?;
-        let threshold_value =
-            self.get_double_feed_detection_double_sheet_threshold_value(timeout)?;
+        let led_intensity = self.get_double_feed_detection_led_intensity().await?;
+        let single_sheet_calibration_value = self
+            .get_double_feed_detection_single_sheet_calibration_value()
+            .await?;
+        let double_sheet_calibration_value = self
+            .get_double_feed_detection_double_sheet_calibration_value()
+            .await?;
+        let threshold_value = self
+            .get_double_feed_detection_double_sheet_threshold_value()
+            .await?;
 
         Ok(DoubleFeedDetectionCalibrationConfig {
             led_intensity,
@@ -775,32 +770,40 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if the connection to the scanner is
     /// lost.
-    pub fn set_array_light_source_enabled(&mut self, enabled: bool) -> Result<()> {
+    pub async fn set_array_light_source_enabled(&mut self, enabled: bool) -> Result<()> {
         self.send(if enabled {
             Outgoing::TurnArrayLightSourceOnRequest
         } else {
             Outgoing::TurnArrayLightSourceOffRequest
         })
+        .await
     }
 
-    pub fn get_image_calibration_tables(
-        &mut self,
-        timeout: Duration,
-    ) -> Result<ImageCalibrationTables> {
+    pub async fn get_image_calibration_tables(&mut self) -> Result<ImageCalibrationTables> {
         // Since we're using a duplex scanner, the request is followed by two
         // responses, one for the front sensors and one for the back sensors.
-        let (front_white, front_black) = send_and_recv!(
-            self => Outgoing::GetCalibrationInformationRequest { resolution: Some(DEFAULT_RESOLUTION) },
-            Incoming::GetCalibrationInformationResponse { white_calibration_table, black_calibration_table } =>
-                (white_calibration_table, black_calibration_table),
-            timeout
-        )?;
-        let (mut back_white, mut back_black) = recv!(
-            self,
-            Incoming::GetCalibrationInformationResponse { white_calibration_table, black_calibration_table } =>
-                (white_calibration_table, black_calibration_table),
-            Instant::now() + timeout
-        )?;
+        self.send(Outgoing::GetCalibrationInformationRequest {
+            resolution: Some(DEFAULT_RESOLUTION),
+        })
+        .await?;
+        let (front_white, front_black) = self
+            .recv_matching(|packet| match packet {
+                Incoming::GetCalibrationInformationResponse {
+                    white_calibration_table,
+                    black_calibration_table,
+                } => Ok((white_calibration_table, black_calibration_table)),
+                packet => Err(packet),
+            })
+            .await?;
+        let (mut back_white, mut back_black) = self
+            .recv_matching(|packet| match packet {
+                Incoming::GetCalibrationInformationResponse {
+                    white_calibration_table,
+                    black_calibration_table,
+                } => Ok((white_calibration_table, black_calibration_table)),
+                packet => Err(packet),
+            })
+            .await?;
         // We reverse the back calibration tables because the image pixels are
         // in the opposite order (due to the sensors being flipped upside down).
         back_white.reverse();
@@ -813,8 +816,8 @@ impl<T> Client<T> {
         })
     }
 
-    pub fn calibrate_image_sensors(&mut self) -> Result<()> {
-        self.send(Outgoing::CalibrateImageSensorsRequest)
+    pub async fn calibrate_image_sensors(&mut self) -> Result<()> {
+        self.send(Outgoing::CalibrateImageSensorsRequest).await
     }
 
     /// Sends commands to make sure the scanner starts in the correct state after connecting.
@@ -822,13 +825,10 @@ impl<T> Client<T> {
     /// # Errors
     ///
     /// This function will return an error if any of the commands fail to
-    /// validate or if the response is not received within the timeout.
-    pub fn send_initial_commands_after_connect(
-        &mut self,
-        timeout: Duration,
-    ) -> Result<ImageCalibrationTables> {
-        self.get_test_string(timeout)?;
-        self.set_feeder_mode(FeederMode::Disabled)?;
+    /// validate.
+    pub async fn send_initial_commands_after_connect(&mut self) -> Result<ImageCalibrationTables> {
+        self.get_test_string().await?;
+        self.set_feeder_mode(FeederMode::Disabled).await?;
 
         // This command enables "flow control" on the scanner
         // // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 1b 55 03 a0> } (string: "\u{2}\u{1b}U\u{3}�") (length: 5)
@@ -836,9 +836,9 @@ impl<T> Client<T> {
 
         // Turn on CRC checking on the scanner
         // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 1b 4b 03 1b> } (string: "\u{2}\u{1b}K\u{3}\u{1b}") (length: 5)
-        self.send_command(&Command::new(b"\x1bK"))?;
+        self.send_command(&Command::new(b"\x1bK")).await?;
 
-        self.get_image_calibration_tables(timeout)
+        self.get_image_calibration_tables().await
     }
 
     /// Sends the same commands to enable scanning that were captured by
@@ -847,28 +847,27 @@ impl<T> Client<T> {
     ///
     /// # Errors
     ///
-    /// This function will return an error if any of the commands fail to
-    /// validate or if the response is not received within the timeout.
-    pub fn send_enable_scan_commands(
+    /// This function will return an error if a communication error occurs.
+    pub async fn send_enable_scan_commands(
         &mut self,
         bitonal_threshold: ClampedPercentage,
         double_feed_detection_mode: DoubleFeedDetectionMode,
         paper_length_inches: f32,
     ) -> Result<()> {
-        let timeout = Duration::from_secs(5);
-
         // OUT SetScannerImageDensityToHalfNativeResolutionRequest
-        self.set_scan_resolution(DEFAULT_RESOLUTION)?;
+        self.set_scan_resolution(DEFAULT_RESOLUTION).await?;
         // OUT SetScannerToDuplexModeRequest
-        self.set_scan_side_mode(ScanSideMode::Duplex)?;
+        self.set_scan_side_mode(ScanSideMode::Duplex).await?;
         // OUT Enable AutoScanStart
-        self.send_command(&Command::new(b"g"))?;
+        self.send_command(&Command::new(b"g")).await?;
         // OUT EnablePickOnCommandModeRequest
         // Ensure the next scan will not start until we explicitly enable the feeder.
         // This ensures we can safely process the results of one scan before another starts.
-        self.set_pick_on_command_mode(PickOnCommandMode::FeederMustBeReenabledBetweenScans)?;
+        self.set_pick_on_command_mode(PickOnCommandMode::FeederMustBeReenabledBetweenScans)
+            .await?;
         // OUT SetDoubleFeedDetectionSensitivityRequest { percentage: 50 }
-        self.set_double_feed_sensitivity(ClampedPercentage::new_unchecked(50))?;
+        self.set_double_feed_sensitivity(ClampedPercentage::new_unchecked(50))
+            .await?;
         // OUT SetDoubleFeedDetectionMinimumDocumentLengthRequest { length_in_hundredths_of_an_inch: 100 }
         // From the docs:
         //      The higher the value in this tag, the longer the overlap needs to be
@@ -877,25 +876,28 @@ impl<T> Client<T> {
         //      allow you to skip those lines.
         // Since our ballots have thick black areas (timing marks, illustrations),
         // we set this to a full inch to be safe.
-        self.set_double_feed_detection_minimum_document_length(100)?;
+        self.set_double_feed_detection_minimum_document_length(100)
+            .await?;
         // OUT DisableDoubleFeedDetectionRequest
-        self.set_double_feed_detection_mode(double_feed_detection_mode)?;
+        self.set_double_feed_detection_mode(double_feed_detection_mode)
+            .await?;
         // OUT TransmitInLowBitsPerPixelRequest
-        self.set_color_mode(ColorMode::Native)?;
+        self.set_color_mode(ColorMode::Native).await?;
         // OUT DisableAutoRunOutAtEndOfScanRequest
         self.set_auto_run_out_at_end_of_scan_behavior(
             AutoRunOutAtEndOfScanBehavior::HoldPaperInEscrow,
-        )?;
+        )
+        .await?;
         // OUT ConfigureMotorToRunAtFullSpeedRequest
-        self.set_motor_speed(Speed::Full)?;
+        self.set_motor_speed(Speed::Full).await?;
         // OUT SetThresholdToANewValueRequest { side: Top, new_threshold: 75 }
         // IN AdjustTopCISSensorThresholdResponse { percent_white_threshold: 75 }
-        self.set_threshold(Side::Top, bitonal_threshold, timeout)?;
+        self.set_threshold(Side::Top, bitonal_threshold).await?;
         // OUT SetThresholdToANewValueRequest { side: Bottom, new_threshold: 75 }
         // IN AdjustBottomCISSensorThresholdResponse { percent_white_threshold: 75 }
-        self.set_threshold(Side::Bottom, bitonal_threshold, timeout)?;
+        self.set_threshold(Side::Bottom, bitonal_threshold).await?;
         // OUT SetRequiredInputSensorsRequest { sensors: 2 }
-        self.set_required_input_sensors(2)?;
+        self.set_required_input_sensors(2).await?;
 
         // Set the max length of the document to scan to 0.5" less than the
         // paper length. Experimentally, this seems to result in the scanner
@@ -905,12 +907,110 @@ impl<T> Client<T> {
         // the rear accidentally. If you set the max length to the exact paper
         // length, the scanner will not stop quickly enough.
         // OUT SetLengthOfDocumentToScanRequest
-        self.set_length_of_document_to_scan(paper_length_inches - 0.5)?;
+        self.set_length_of_document_to_scan(paper_length_inches - 0.5)
+            .await?;
         // OUT SetScanDelayIntervalForDocumentFeedRequest { delay_interval: 0ns }
-        self.set_scan_delay_interval_for_document_feed(Duration::ZERO)?;
+        self.set_scan_delay_interval_for_document_feed(Duration::ZERO)
+            .await?;
         // OUT EnableFeederRequest
-        self.set_feeder_mode(FeederMode::AutoScanSheets)?;
+        self.set_feeder_mode(FeederMode::AutoScanSheets).await?;
 
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::time::Duration;
+
+    use tokio::time::timeout;
+
+    use crate::protocol::packets::{ImageData, Incoming, Outgoing};
+
+    use super::Client;
+
+    #[tokio::test]
+    async fn test_pending_image_data_is_not_dropped_on_new_request() {
+        let (host_to_scanner_tx, mut host_to_scanner_rx) = tokio::sync::mpsc::unbounded_channel();
+        let (host_to_scanner_ack_tx, host_to_scanner_ack_rx) =
+            tokio::sync::mpsc::unbounded_channel();
+        let (scanner_to_host_tx, scanner_to_host_rx) = tokio::sync::mpsc::unbounded_channel();
+        let mut client = Client::new(
+            host_to_scanner_tx,
+            host_to_scanner_ack_rx,
+            scanner_to_host_rx,
+            // dummy value
+            Some(()),
+        );
+
+        // add some image data to the incoming queue of data
+        scanner_to_host_tx
+            .send(Ok(Incoming::ImageData(ImageData(vec![0x00]))))
+            .unwrap();
+
+        // set up response to `get_test_string`
+        scanner_to_host_tx
+            .send(Ok(Incoming::GetTestStringResponse("test".to_owned())))
+            .unwrap();
+        host_to_scanner_ack_tx.send(0).unwrap();
+
+        // make sure the response came through okay, and force the above
+        // `Incoming::ImageData` into the `unhandled_packets` queue
+        assert_eq!(
+            timeout(Duration::from_millis(10), client.get_test_string())
+                .await
+                .unwrap()
+                .unwrap(),
+            "test"
+        );
+
+        // check the data sent to the scanner
+        assert_eq!(
+            host_to_scanner_rx.recv().await.unwrap(),
+            (0, Outgoing::GetTestStringRequest)
+        );
+
+        // make sure the image data is in the queue
+        assert_eq!(
+            client.unhandled_packets.front().cloned(),
+            Some(Incoming::ImageData(ImageData(vec![0x00])))
+        );
+
+        // set up another response to `get_test_string`
+        scanner_to_host_tx
+            .send(Ok(Incoming::GetTestStringResponse("test2".to_owned())))
+            .unwrap();
+        host_to_scanner_ack_tx.send(1).unwrap();
+
+        // make sure the second response came through and didn't discard
+        // the image data as a side effect of this request
+        assert_eq!(
+            timeout(Duration::from_millis(10), client.get_test_string())
+                .await
+                .unwrap()
+                .unwrap(),
+            "test2"
+        );
+
+        // make sure the image data was not discarded
+        assert_eq!(
+            client.unhandled_packets.front().cloned(),
+            Some(Incoming::ImageData(ImageData(vec![0x00])))
+        );
+
+        // make sure we can retreive the image data
+        assert_eq!(
+            timeout(
+                Duration::from_millis(10),
+                client.recv_matching(|packet| match packet {
+                    Incoming::ImageData(image_data) => Ok(image_data),
+                    packet => Err(packet),
+                })
+            )
+            .await
+            .unwrap()
+            .unwrap(),
+            ImageData(vec![0x00])
+        );
     }
 }

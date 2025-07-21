@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use serde::{Deserialize, Deserializer, Serialize};
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Resolution {
     /// 400 DPI for Pagescan 5
     Native,
@@ -66,13 +66,13 @@ pub enum Speed {
     Half,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Direction {
     Increase,
     Decrease,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct BitonalAdjustment {
     pub side: Side,
     pub direction: Direction,
@@ -111,7 +111,7 @@ pub enum EjectMotion {
     ToFrontAndRescan,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
 pub struct Version {
     pub product_id: String,
     pub major: String,
@@ -243,7 +243,7 @@ impl Status {
     }
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
 pub struct Settings {
     pub dpi_setting: u16,
     pub bits_per_pixel: u16,
@@ -274,7 +274,7 @@ impl Settings {
     }
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
 pub enum CalibrationStatus {
     CalibrationNeeded,
     CalibrationOk,
@@ -292,7 +292,7 @@ impl TryFrom<u16> for CalibrationStatus {
     }
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 pub enum DoubleFeedDetectionCalibrationType {
     #[serde(rename = "single")]
     SingleSheet,

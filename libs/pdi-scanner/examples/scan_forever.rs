@@ -1,19 +1,16 @@
 use clap::Parser;
 use std::{
     path::PathBuf,
-    sync::{
-        atomic::{AtomicBool, Ordering},
-        Arc,
-    },
     time::{Duration, Instant},
 };
+use tokio::time::timeout;
 use tracing_subscriber::prelude::*;
 
 use pdi_scanner::{
     connect,
     protocol::{
         image::{RawImageData, Sheet, DEFAULT_IMAGE_WIDTH},
-        packets::Incoming,
+        packets::{ImageData, Incoming},
         types::{
             ClampedPercentage, DoubleFeedDetectionMode, EjectMotion, FeederMode, ScanSideMode,
         },
@@ -75,98 +72,103 @@ async fn main() -> color_eyre::Result<()> {
     // Sometimes, after closing the previous scanner connection, a new connection will
     // time out during these first commands. Until we get to the bottom of why that's
     // happening, we just retry once, which seems to resolve it.
-    if client
-        .send_initial_commands_after_connect(Duration::from_millis(500))
-        .is_err()
+    if timeout(
+        Duration::from_millis(500),
+        client.send_initial_commands_after_connect(),
+    )
+    .await
+    .is_err()
     {
-        client.send_initial_commands_after_connect(Duration::from_secs(3))?;
+        timeout(
+            Duration::from_secs(3),
+            client.send_initial_commands_after_connect(),
+        )
+        .await??;
     }
-    let image_calibration_tables = client.get_image_calibration_tables(Duration::from_secs(3))?;
+    let image_calibration_tables = timeout(
+        Duration::from_secs(3),
+        client.get_image_calibration_tables(),
+    )
+    .await??;
 
-    client.send_enable_scan_commands(
-        config.bitonal_threshold,
-        DoubleFeedDetectionMode::RejectDoubleFeeds,
-        11.0,
-    )?;
+    client
+        .send_enable_scan_commands(
+            config.bitonal_threshold,
+            DoubleFeedDetectionMode::RejectDoubleFeeds,
+            11.0,
+        )
+        .await?;
     println!("waiting for sheet…");
 
-    let running = Arc::new(AtomicBool::new(true));
-
-    ctrlc::set_handler({
-        let running = running.clone();
-        move || {
-            eprintln!("received SIGINT");
-            running.store(false, Ordering::SeqCst);
-        }
-    })?;
     let mut start: Option<Instant> = None;
 
     loop {
-        if !running.load(Ordering::SeqCst) {
-            eprintln!("exiting");
-            break;
-        }
+        tokio::select! {
+            _ = tokio::signal::ctrl_c() => {
+                eprintln!("exiting");
+                break;
+            }
 
-        if let Ok(event) = client.try_recv_matching(Incoming::is_event) {
-            println!("event: {event:?}");
-            match event {
-                Incoming::BeginScanEvent => {
-                    start = Some(Instant::now());
-                    raw_image_data = RawImageData::new();
-                }
-                Incoming::EndScanEvent => {
-                    match raw_image_data.try_decode_scan(
-                        DEFAULT_IMAGE_WIDTH,
-                        ScanSideMode::Duplex,
-                        &image_calibration_tables,
-                    ) {
-                        Ok(Sheet::Duplex(top_image, bottom_image)) => {
-                            println!(
-                                "scanned duplex sheet in {:?}",
-                                start.unwrap_or_else(Instant::now).elapsed()
-                            );
-                            let top_path = PathBuf::from(format!("scan-{scan_index:04}-top.png"));
-                            let bottom_path =
-                                PathBuf::from(format!("scan-{scan_index:04}-bottom.png"));
-                            top_image.save(&top_path)?;
-                            bottom_image.save(&bottom_path)?;
-                            println!(
-                                "Saved images from scan:\n- Top: {top_path}\n- Bottom: {bottom_path}",
-                                top_path = top_path.display(),
-                                bottom_path = bottom_path.display(),
-                            );
-                            scan_index += 1;
+            Ok(incoming) = client.recv() => {
+                println!("incoming: {incoming:?}");
+                match incoming {
+                    Incoming::BeginScanEvent => {
+                        start = Some(Instant::now());
+                        raw_image_data = RawImageData::new();
+                    }
+                    Incoming::ImageData(ImageData(image_data)) => {
+                        raw_image_data.extend_from_slice(&image_data);
+                    }
+                    Incoming::EndScanEvent => {
+                        match raw_image_data.try_decode_scan(
+                            DEFAULT_IMAGE_WIDTH,
+                            ScanSideMode::Duplex,
+                            &image_calibration_tables,
+                        ) {
+                            Ok(Sheet::Duplex(top_image, bottom_image)) => {
+                                println!(
+                                    "scanned duplex sheet in {:?}",
+                                    start.unwrap_or_else(Instant::now).elapsed()
+                                );
+                                let top_path = PathBuf::from(format!("scan-{scan_index:04}-top.png"));
+                                let bottom_path =
+                                    PathBuf::from(format!("scan-{scan_index:04}-bottom.png"));
+                                top_image.save(&top_path)?;
+                                bottom_image.save(&bottom_path)?;
+                                println!(
+                                    "Saved images from scan:\n- Top: {top_path}\n- Bottom: {bottom_path}",
+                                    top_path = top_path.display(),
+                                    bottom_path = bottom_path.display(),
+                                );
+                                scan_index += 1;
 
-                            if let Ok(status) = client.get_scanner_status(Duration::from_secs(1)) {
-                                if status.rear_sensors_covered() {
-                                    client.eject_document(EjectMotion::ToFront)?;
+                                if let Ok(status) =
+                                    timeout(Duration::from_secs(1), client.get_scanner_status()).await?
+                                {
+                                    if status.rear_sensors_covered() {
+                                        client.eject_document(EjectMotion::ToFront).await?;
+                                    }
                                 }
                             }
+                            Ok(_) => unreachable!(
+                                "try_decode_scan called with {:?} returned non-duplex sheet",
+                                ScanSideMode::Duplex
+                            ),
+                            Err(e) => {
+                                eprintln!("failed to decode the scanned image data: {e}");
+                            }
                         }
-                        Ok(_) => unreachable!(
-                            "try_decode_scan called with {:?} returned non-duplex sheet",
-                            ScanSideMode::Duplex
-                        ),
-                        Err(e) => {
-                            eprintln!("failed to decode the scanned image data: {e}");
-                        }
+
+                        client.set_feeder_mode(FeederMode::AutoScanSheets).await?;
+                        println!("waiting for sheet…");
                     }
-
-                    client.set_feeder_mode(FeederMode::AutoScanSheets)?;
-                    println!("waiting for sheet…");
+                    packet => eprintln!("unexpected packet: {packet:?}")
                 }
-                _ => {}
             }
-        }
-
-        if let Ok(Incoming::ImageData(image_data)) =
-            client.try_recv_matching(|incoming| matches!(incoming, Incoming::ImageData(_)))
-        {
-            raw_image_data.extend_from_slice(&image_data);
         }
     }
 
-    client.set_feeder_mode(FeederMode::Disabled)?;
+    client.set_feeder_mode(FeederMode::Disabled).await?;
 
     Ok(())
 }

@@ -1366,7 +1366,7 @@ mod tests {
     fn test_packet_with_crc() {
         let input = b"\x02D\x03\xb4";
         let (remainder, (tag,)) = packet_with_crc((tag(b"D"),))(input).unwrap();
-        assert_eq!(remainder, []);
+        assert_eq!(remainder, b"");
         assert_eq!(tag, b"D");
     }
 
