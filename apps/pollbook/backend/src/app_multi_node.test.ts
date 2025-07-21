@@ -1050,7 +1050,7 @@ test('one pollbook can be configured from another pollbook automatically as an e
         ).toEqual('unconfigured');
       });
       await setupUnconfiguredPollbooksOnNetwork(
-        [pollbookContext1, pollbookContext2],
+        [pollbookContext1, pollbookContext2, pollbookContext3],
         'set-up-contexts-1-2'
       );
 
@@ -1068,10 +1068,6 @@ test('one pollbook can be configured from another pollbook automatically as an e
       mockLoggedOut(pollbookContext2.auth);
       vitest.advanceTimersByTime(100);
 
-      await setupUnconfiguredPollbooksOnNetwork(
-        [pollbookContext1, pollbookContext2, pollbookContext3],
-        'set-up-contexts-1-3'
-      );
       const { port: port1 } =
         pollbookContext1.peerServer.address() as AddressInfo;
       const { port: port2 } =
@@ -1113,10 +1109,10 @@ test('one pollbook can be configured from another pollbook automatically as an e
             isOnline: true,
             pollbooks: [
               expect.objectContaining({
-                status: PollbookConnectionStatus.MismatchedConfiguration,
+                status: PollbookConnectionStatus.ShutDown,
               }),
               expect.objectContaining({
-                status: PollbookConnectionStatus.ShutDown,
+                status: PollbookConnectionStatus.MismatchedConfiguration,
               }),
             ],
           },
