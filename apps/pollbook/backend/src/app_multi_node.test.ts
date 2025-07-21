@@ -659,7 +659,7 @@ test('pollbooks with different code versions cannot connect', async () => {
   );
 });
 
-test.skip('pollbooks with different pollbook package hash values cannot connect', async () => {
+test('pollbooks with different pollbook package hash values cannot connect', async () => {
   await withManyApps(2, async ([pollbookContext1, pollbookContext2]) => {
     vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
     for (const context of [pollbookContext1, pollbookContext2]) {
@@ -864,7 +864,7 @@ test('pollbooks with different configured precinct values cannot connect', async
   });
 });
 
-test.skip('one pollbook can be configured from another pollbook', async () => {
+test('one pollbook can be configured from another pollbook', async () => {
   await withManyApps(2, async ([pollbookContext1, pollbookContext2]) => {
     await setupUnconfiguredPollbooksOnNetwork([
       pollbookContext1,
@@ -1007,7 +1007,7 @@ test('pollbooks cannot configure if code version does not match', async () => {
   );
 });
 
-test.skip('one pollbook can be configured from another pollbook automatically as an election manager', async () => {
+test('one pollbook can be configured from another pollbook automatically as an election manager', async () => {
   await withManyApps(
     3,
     async ([pollbookContext1, pollbookContext2, pollbookContext3]) => {
