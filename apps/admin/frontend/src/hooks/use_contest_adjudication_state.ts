@@ -392,7 +392,7 @@ export function useContestAdjudicationState(
     });
   }
 
-  const selectedCandidateNames: string[] = (function () {
+  const selectedCandidateNames: string[] = (() => {
     if (!contestInfo.isCandidateContest) {
       return [];
     }
