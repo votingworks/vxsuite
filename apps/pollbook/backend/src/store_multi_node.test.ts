@@ -1390,12 +1390,12 @@ test('check in event on an offline machine BEFORE the mark inactive', async () =
   // Bring B online and sync
   peerB.setOnlineStatus(true);
   syncEventsForAllPollbooks([peerA, peerB]);
-  // Both should see voter as inactive and NOT checked in
+  // Both should see voter as inactive and checked in
   for (const store of [localA, localB]) {
     const v = store.getVoter('mia');
     expect(v.isInactive).toEqual(true);
-    expect(v.checkIn).toBeUndefined();
-    expect(store.getCheckInCount()).toEqual(0);
+    expect(v.checkIn).toBeDefined();
+    expect(store.getCheckInCount()).toEqual(1);
   }
 });
 
@@ -1424,7 +1424,7 @@ test('check in event on an offline machine AFTER the mark inactive', async () =>
   localA.markVoterInactive('nia');
   // Wait a bit of time.
   await sleep(10);
-  // Check in on B while offline (should be ignored after sync)
+  // Check in on B while offline
   localB.recordVoterCheckIn({
     voterId: 'nia',
     identificationMethod: { type: 'default' },
@@ -1433,12 +1433,12 @@ test('check in event on an offline machine AFTER the mark inactive', async () =>
   // Bring B online and sync
   peerB.setOnlineStatus(true);
   syncEventsForAllPollbooks([peerA, peerB]);
-  // Both should see voter as inactive and NOT checked in
+  // Both should see voter as inactive and checked in
   for (const store of [localA, localB]) {
     const v = store.getVoter('nia');
     expect(v.isInactive).toEqual(true);
-    expect(v.checkIn).toBeUndefined();
-    expect(store.getCheckInCount()).toEqual(0);
+    expect(v.checkIn).toBeDefined();
+    expect(store.getCheckInCount()).toEqual(1);
   }
 });
 
@@ -1508,7 +1508,7 @@ test('name/address change AFTER mark inactive on another machine get processed',
   }
 });
 
-test('cannot check in after mark inactive event is synced', () => {
+test('can check in after mark inactive event is synced', () => {
   const [localA, peerA] = setupFileStores('pollbook-a');
   const [localB, peerB] = setupFileStores('pollbook-b');
   const testElectionDefinition = getTestElectionDefinition();
@@ -1528,17 +1528,17 @@ test('cannot check in after mark inactive event is synced', () => {
   // Mark inactive on A
   localA.markVoterInactive('ina');
   syncEventsForAllPollbooks([peerA, peerB]);
-  // Try to check in on B (should not be allowed)
+  // Check in on B (should be allowed)
   localB.recordVoterCheckIn({
     voterId: 'ina',
     identificationMethod: { type: 'default' },
     ballotParty: 'DEM',
   });
   syncEventsForAllPollbooks([peerA, peerB]);
-  // Both should see voter as inactive and NOT checked in
+  // Both should see voter as inactive AND checked in
   for (const store of [localA, localB]) {
     const v = store.getVoter('ina');
     expect(v.isInactive).toEqual(true);
-    expect(v.checkIn).toBeUndefined();
+    expect(v.checkIn).toBeDefined();
   }
 });
