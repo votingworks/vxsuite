@@ -65,7 +65,7 @@ vi.setConfig({
   testTimeout: 20_000,
 });
 
-test.skip('check in a voter', async () => {
+test('check in a voter', async () => {
   await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
     workspace.store.setElectionAndVoters(
       electionDefinition,

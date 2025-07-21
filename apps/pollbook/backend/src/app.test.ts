@@ -574,7 +574,7 @@ test('undo a voter check-in', async () => {
   });
 });
 
-test.skip('register a voter, change name and address, and check in', async () => {
+test('register a voter, change name and address, and check in', async () => {
   await withApp(
     async ({
       localApiClient,
