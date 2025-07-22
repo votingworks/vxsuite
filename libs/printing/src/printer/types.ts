@@ -24,6 +24,7 @@ export enum PrintSides {
 export interface PrintOptions {
   copies?: number;
   sides?: PrintSides;
+  size?: 'letter' | 'legal';
   raw?: { [key: string]: string };
 }
 
