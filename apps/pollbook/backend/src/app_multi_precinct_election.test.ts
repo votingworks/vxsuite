@@ -3,6 +3,7 @@ import { electionMultiPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { assert } from 'node:console';
 import { CITIZEN_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
 import { BatteryInfo } from '@votingworks/backend';
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { TEST_MACHINE_ID, withApp } from '../test/app';
 import {
   parseValidStreetsFromCsvString,
@@ -690,13 +691,15 @@ test('in a primary, a declared voter must check in with a party selection matchi
       party: 'REP',
     });
 
-    await expect(
-      localApiClient.checkInVoter({
-        voterId: registerOk.voterId,
-        identificationMethod: { type: 'default' },
-        ballotParty: 'DEM',
-      })
-    ).rejects.toThrow('Expected check-in party DEM to match voter party REP');
+    await suppressingConsoleOutput(() =>
+      expect(
+        localApiClient.checkInVoter({
+          voterId: registerOk.voterId,
+          identificationMethod: { type: 'default' },
+          ballotParty: 'DEM',
+        })
+      ).rejects.toThrow('Expected check-in party DEM to match voter party REP')
+    );
 
     const checkInResult = await localApiClient.checkInVoter({
       voterId: registerOk.voterId,
