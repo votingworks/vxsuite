@@ -639,7 +639,7 @@ test('an undeclared voter cannot check in as undeclared', async () => {
     const checkInResult = await localApiClient.checkInVoter({
       voterId: firstVoter.voterId,
       identificationMethod: { type: 'default' },
-      ballotParty: 'UND',
+      ballotParty: 'NOT_APPLICABLE',
     });
     expect(checkInResult.err()).toEqual(
       'undeclared_voter_missing_ballot_party'
