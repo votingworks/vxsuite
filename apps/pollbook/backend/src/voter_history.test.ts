@@ -88,6 +88,13 @@ test('includes ballot party selection for primaries', () => {
     identificationMethod: { type: 'default' },
     ballotParty: 'DEM',
   });
+  // Record a name change so the voter shows up in the voter history without a check-in
+  store.changeVoterName('charlie', {
+    firstName: 'Bella',
+    middleName: 'The',
+    lastName: 'Beauty',
+    suffix: 'II',
+  });
 
   expect(
     generateVoterHistoryCsvContent(

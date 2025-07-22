@@ -12,6 +12,7 @@ bob,UND,Smith,Bob,,,123,,,Main St,,line 2,,,12345,Y,Y,N,N,N,CA,
 exports[`includes ballot party selection for primaries 1`] = `
 "Voter ID,Party,Last Name,First Name,Middle Name,Name Suffix,Street Number,Street Number Suffix,Street Number Fraction,Street Name,Apartment/Unit Number,Address Line 2,Address Line 3,City/Town,Zip Code,Check-In,Absentee,Address Change,Name Change,New Registration,OOSDL,Party Choice
 abigail,UND,Adams,Abigail,,,123,,,Main St,,line 2,,,12345,Y,N,N,N,N,,REP
+charlie,UND,Beauty,Bella,The,II,123,,,Main St,,line 2,,,12345,N,N,N,Y,N,,
 bob,UND,Smith,Bob,,,123,,,Main St,,line 2,,,12345,Y,N,N,N,N,,DEM
 "
 `;
