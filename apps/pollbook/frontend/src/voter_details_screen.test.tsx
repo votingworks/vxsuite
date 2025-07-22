@@ -185,7 +185,8 @@ test('invalid address change', async () => {
   });
   userEvent.type(partInput, '1000000');
 
-  await screen.findByText(/Invalid address for Franklin County/);
+  await screen.findByText(/Invalid address/);
+  await screen.findByText(/Franklin County/);
 });
 
 test('invalid address change for precinct', async () => {
