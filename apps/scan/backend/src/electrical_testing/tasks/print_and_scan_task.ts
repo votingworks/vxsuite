@@ -202,6 +202,7 @@ export async function runPrintAndScanTask({
               );
             }
           });
+          await scannerClient.enableScanning();
           await scannerClient.ejectAndRescanPaperIfPresent();
 
           workspace.store.setElectricalTestingStatusMessage(
@@ -222,6 +223,7 @@ export async function runPrintAndScanTask({
         DateTime.now().diff(lastScanTime).as('milliseconds') >
           DELAY_AFTER_ACCEPT_MS
       ) {
+        await scannerClient.enableScanning();
         await scannerClient.ejectAndRescanPaperIfPresent();
 
         workspace.store.setElectricalTestingStatusMessage(
