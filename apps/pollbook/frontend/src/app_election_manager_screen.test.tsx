@@ -117,7 +117,9 @@ test('basic e2e registration flow works', async () => {
   // Set street address for a different precinct
   userEvent.clear(streetNumberInput);
   userEvent.type(streetNumberInput, '2500');
-  await screen.findByText(/This address is not in the current precinct/);
+  await screen.findByText(
+    /This address is associated with a different precinct/
+  );
 
   // Set valid street address
   userEvent.clear(streetNumberInput);

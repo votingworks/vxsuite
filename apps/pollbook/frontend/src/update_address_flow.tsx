@@ -14,8 +14,11 @@ import {
   MainContent,
   Callout,
   H4,
+  Font,
+  P,
 } from '@votingworks/ui';
 import { useState, useMemo } from 'react';
+import { Election } from '@votingworks/types';
 import { Column, Row } from './layout';
 import { NoNavScreen } from './nav_screen';
 import { TitledCard, VoterName } from './shared_components';
@@ -48,10 +51,12 @@ function UpdateAddressScreen({
   voter,
   onConfirm,
   onCancel,
+  election,
 }: {
   voter: Voter;
   onConfirm: (address: VoterAddressChangeRequest) => void;
   onCancel: () => void;
+  election: Election;
 }): JSX.Element {
   const configurationQuery = getPollbookConfigurationInformation.useQuery();
   const [address, setAddress] = useState<VoterAddressChangeRequest>(
@@ -66,6 +71,21 @@ function UpdateAddressScreen({
       configurationQuery.data.configuredPrecinctId !== undefined &&
       address.precinct !== configurationQuery.data.configuredPrecinctId,
     [isAddressValid, address.precinct, configurationQuery.data]
+  );
+
+  const configuredPrecinct = useMemo(
+    () =>
+      configurationQuery.data &&
+      election.precincts.find(
+        (p) => p.id === configurationQuery.data.configuredPrecinctId
+      ),
+    [election.precincts, configurationQuery.data]
+  );
+  const enteredPrecinct = useMemo(
+    () =>
+      address.precinct &&
+      election.precincts.find((p) => p.id === address.precinct),
+    [election.precincts, address.precinct]
   );
 
   const isSubmitDisabled = useMemo(
@@ -101,14 +121,27 @@ function UpdateAddressScreen({
             address.streetName !== '' &&
             !isAddressValid && (
               <Callout icon="Danger" color="danger">
-                Invalid address. Make sure the street number and name match a
-                valid address for this jurisdiction.
+                <P>
+                  Invalid address for{' '}
+                  <Font weight="semiBold">{election.county.name}</Font>. Make
+                  sure the street number and name match a valid address.
+                </P>
               </Callout>
             )}
           {isAddressInWrongPrecinct && (
             <Callout icon="Danger" color="danger">
-              This address is not in the current precinct. Voters can only have
-              their address changed to addresses within the configured precinct.
+              <P>
+                This address is associated with a different precinct,{' '}
+                <Font weight="semiBold">
+                  {enteredPrecinct && enteredPrecinct.name}
+                </Font>
+                . Voters can only have their address changed to an address
+                within the current precinct,{' '}
+                <Font weight="semiBold">
+                  {configuredPrecinct && configuredPrecinct.name}
+                </Font>
+                .
+              </P>
             </Callout>
           )}
         </Column>
@@ -135,12 +168,14 @@ interface UpdateAddressFlowProps {
   voter: Voter;
   returnToPreviousScreen: () => void;
   returnToPreviousScreenLabelText: string;
+  election: Election;
 }
 
 export function UpdateAddressFlow({
   voter,
   returnToPreviousScreen,
   returnToPreviousScreenLabelText,
+  election,
 }: UpdateAddressFlowProps): JSX.Element {
   const [flowState, setFlowState] = useState<UpdateAddressFlowState>({
     step: 'update',
@@ -154,6 +189,7 @@ export function UpdateAddressFlow({
       return (
         <UpdateAddressScreen
           voter={voter}
+          election={election}
           onConfirm={(addressChangeData) => {
             setFlowState({ step: 'printing' });
             changeVoterAddressMutation.mutate(

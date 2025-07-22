@@ -108,6 +108,7 @@ export function VoterConfirmScreen({
         voter={voter}
         returnToPreviousScreen={() => setShowUpdateAddressFlow(false)}
         returnToPreviousScreenLabelText="Return to Check-In"
+        election={election}
       />
     );
   }

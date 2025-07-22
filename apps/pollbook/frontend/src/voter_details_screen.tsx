@@ -295,6 +295,7 @@ export function VoterDetailsScreen(): JSX.Element | null {
           voter={voter}
           returnToPreviousScreen={() => setShowUpdateAddressFlow(false)}
           returnToPreviousScreenLabelText="Return to Voter Details"
+          election={election}
         />
       </PrinterRequired>
     );

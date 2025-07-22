@@ -185,9 +185,8 @@ test('invalid address change', async () => {
   });
   userEvent.type(partInput, '1000000');
 
-  await screen.findByText(
-    'Invalid address. Make sure the street number and name match a valid address for this jurisdiction.'
-  );
+  await screen.findByText(/Invalid address/);
+  await screen.findByText(/Franklin County/);
 });
 
 test('invalid address change for precinct', async () => {
@@ -225,7 +224,9 @@ test('invalid address change for precinct', async () => {
 
   await vi.waitFor(
     async () =>
-      await screen.findByText(/This address is not in the current precinct./)
+      await screen.findByText(
+        /This address is associated with a different precinct, /
+      )
   );
 });
 

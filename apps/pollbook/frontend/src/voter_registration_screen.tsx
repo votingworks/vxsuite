@@ -9,6 +9,7 @@ import {
   Button,
   ButtonBar,
   Callout,
+  Font,
   FullScreenIconWrapper,
   FullScreenMessage,
   H1,
@@ -16,11 +17,13 @@ import {
   MainContent,
   MainHeader,
   Modal,
+  P,
   SearchSelect,
 } from '@votingworks/ui';
 import { throwIllegalValue, assert } from '@votingworks/basics';
 import {
   getDeviceStatuses,
+  getElection,
   getPollbookConfigurationInformation,
   registerVoter,
 } from './api';
@@ -95,6 +98,7 @@ type RegistrationFlowState =
 export function VoterRegistrationScreen(): JSX.Element | null {
   const registerVoterMutation = registerVoter.useMutation();
   const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
+  const getElectionQuery = getElection.useQuery();
   const getPollbookConfigurationInformationQuery =
     getPollbookConfigurationInformation.useQuery();
   const [flowState, setFlowState] = useState<RegistrationFlowState>({
@@ -127,6 +131,28 @@ export function VoterRegistrationScreen(): JSX.Element | null {
     ]
   );
 
+  const election =
+    getElectionQuery.data && getElectionQuery.data.unsafeUnwrap();
+
+  const configuredPrecinct = useMemo(
+    () =>
+      getPollbookConfigurationInformationQuery.data &&
+      election &&
+      election.precincts.find(
+        (p) =>
+          p.id ===
+          getPollbookConfigurationInformationQuery.data.configuredPrecinctId
+      ),
+    [election, getPollbookConfigurationInformationQuery.data]
+  );
+  const enteredPrecinct = useMemo(
+    () =>
+      voter.precinct &&
+      election &&
+      election.precincts.find((p) => p.id === voter.precinct),
+    [election, voter.precinct]
+  );
+
   const isSubmitDisabled = useMemo(
     () =>
       voter.firstName.trim() === '' ||
@@ -140,10 +166,12 @@ export function VoterRegistrationScreen(): JSX.Element | null {
 
   if (
     !getDeviceStatusesQuery.isSuccess ||
-    !getPollbookConfigurationInformationQuery.isSuccess
+    !getPollbookConfigurationInformationQuery.isSuccess ||
+    !getElectionQuery.isSuccess
   ) {
     return null;
   }
+  assert(election !== undefined);
 
   const { printer } = getDeviceStatusesQuery.data;
   if (!printer.connected) {
@@ -223,14 +251,28 @@ export function VoterRegistrationScreen(): JSX.Element | null {
                 voter.streetName !== '' &&
                 !isAddressValid && (
                   <Callout icon="Danger" color="danger">
-                    Invalid address. Make sure the street number and name match
-                    a valid address for this jurisdiction.
+                    <P>
+                      Invalid address for{' '}
+                      <Font weight="semiBold">{election.county.name}</Font>.
+                      Make sure the street number and name match a valid
+                      address.
+                    </P>
                   </Callout>
                 )}
               {isAddressInWrongPrecinct && (
                 <Callout icon="Danger" color="danger">
-                  This address is not in the current precinct. Voters can only
-                  be registered to addresses within the configured precinct.
+                  <P>
+                    This address is associated with a different precinct,{' '}
+                    <Font weight="semiBold">
+                      {enteredPrecinct && enteredPrecinct.name}
+                    </Font>
+                    . Voters can only be registered to addresses within the
+                    current precinct,{' '}
+                    <Font weight="semiBold">
+                      {configuredPrecinct && configuredPrecinct.name}
+                    </Font>
+                    .
+                  </P>
                 </Callout>
               )}
             </Column>
