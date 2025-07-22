@@ -35,7 +35,7 @@ import {
   Font,
   virtualKeyboardCommon,
 } from '@votingworks/ui';
-import { assert } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 
 import { UpdateVoteFunction } from '../config/types';
 
@@ -138,7 +138,21 @@ export function CandidateContest({
   }
 
   function removeCandidateFromVote(id: string) {
-    const newVote = vote.filter((c) => c.id !== id);
+    const newVote: Candidate[] = [];
+
+    let nextWriteInIndex = 0;
+    for (const c of vote) {
+      if (c.id === id) continue;
+
+      if (!c.isWriteIn) {
+        newVote.push(c);
+        continue;
+      }
+
+      newVote.push({ ...c, writeInIndex: nextWriteInIndex });
+      nextWriteInIndex += 1;
+    }
+
     updateVote(contest.id, newVote);
     setRecentlyDeselectedCandidate(id);
   }
@@ -193,12 +207,21 @@ export function CandidateContest({
   function addWriteInCandidate() {
     const normalizedCandidateName =
       normalizeCandidateName(writeInCandidateName);
+
+    let writeInIndex = 0;
+    for (const c of vote) {
+      if (!c.isWriteIn) continue;
+
+      writeInIndex = Math.max(writeInIndex, assertDefined(c.writeInIndex) + 1);
+    }
+
     updateVote(contest.id, [
       ...vote,
       {
         id: `write-in-${camelCase(normalizedCandidateName)}`,
         isWriteIn: true,
         name: normalizedCandidateName,
+        writeInIndex,
       },
     ]);
     setWriteInCandidateName('');

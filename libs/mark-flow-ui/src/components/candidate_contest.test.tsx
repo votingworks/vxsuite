@@ -1,8 +1,10 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import {
+  CandidateContest as TypeCandidateContest,
   CandidateContest as CandidateContestInterface,
   CandidateVote,
   getCandidateParties,
+  Candidate,
 } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 
@@ -323,7 +325,12 @@ describe('supports write-in candidates', () => {
     expect(mockOnCloseWriteInKeyboard).toHaveBeenCalled();
 
     expect(updateVote).toHaveBeenCalledWith(candidateContestWithWriteIns.id, [
-      { id: 'write-in-lizardPeople', isWriteIn: true, name: 'LIZARD PEOPLE' },
+      {
+        id: 'write-in-lizardPeople',
+        isWriteIn: true,
+        name: 'LIZARD PEOPLE',
+        writeInIndex: 0,
+      },
     ]);
   });
 
@@ -370,7 +377,12 @@ describe('supports write-in candidates', () => {
     expect(mockOnCloseWriteInKeyboard).toHaveBeenCalled();
 
     expect(updateVote).toHaveBeenCalledWith(candidateContestWithWriteIns.id, [
-      { id: 'write-in-lizardPeople', isWriteIn: true, name: 'LIZARD PEOPLE' },
+      {
+        id: 'write-in-lizardPeople',
+        isWriteIn: true,
+        name: 'LIZARD PEOPLE',
+        writeInIndex: 0,
+      },
     ]);
   });
 
@@ -520,7 +532,66 @@ describe('supports write-in candidates', () => {
         id: 'write-in-jacobJohansonJingleheimmerSchmidttT',
         isWriteIn: true,
         name: 'JACOB JOHANSON JINGLEHEIMMER SCHMIDTT, T',
+        writeInIndex: 0,
       },
+    ]);
+  });
+
+  test('maintains sequential write-in indices', () => {
+    const { fireKeyPressEvents } = setUpMockVirtualKeyboard();
+
+    const contest: TypeCandidateContest = {
+      ...candidateContestWithWriteIns,
+      seats: 4,
+    };
+
+    const mockOnOpenWriteInKeyboard = vi.fn();
+    const mockOnCloseWriteInKeyboard = vi.fn();
+
+    const votes: Candidate[] = [];
+    const updateVote = vi.fn((_, candidates) => {
+      votes.length = 0;
+      votes.push(...candidates);
+    });
+
+    render(
+      <CandidateContest
+        election={electionDefinition.election}
+        contest={contest}
+        vote={votes}
+        updateVote={updateVote}
+        onOpenWriteInKeyboard={mockOnOpenWriteInKeyboard}
+        onCloseWriteInKeyboard={mockOnCloseWriteInKeyboard}
+      />
+    );
+
+    function selectCandidate(candidate: Candidate) {
+      userEvent.click(screen.getByText(candidate.name, { exact: false }));
+    }
+
+    function addWriteIn(writeInName: string) {
+      userEvent.click(screen.getByText('add write-in candidate'));
+      fireKeyPressEvents(writeInName);
+      userEvent.click(screen.getButton('Accept'));
+    }
+
+    addWriteIn('FOO');
+    selectCandidate(contest.candidates[0]);
+    addWriteIn('BAR');
+    addWriteIn('BAZ');
+    expect(votes).toEqual([
+      { id: 'write-in-foo', isWriteIn: true, name: 'FOO', writeInIndex: 0 },
+      contest.candidates[0],
+      { id: 'write-in-bar', isWriteIn: true, name: 'BAR', writeInIndex: 1 },
+      { id: 'write-in-baz', isWriteIn: true, name: 'BAZ', writeInIndex: 2 },
+    ]);
+
+    userEvent.click(screen.getByRole('option', { name: /BAR/ }));
+    userEvent.click(screen.getButton('Yes'));
+    expect(votes).toEqual([
+      { id: 'write-in-foo', isWriteIn: true, name: 'FOO', writeInIndex: 0 },
+      contest.candidates[0],
+      { id: 'write-in-baz', isWriteIn: true, name: 'BAZ', writeInIndex: 1 },
     ]);
   });
 });
