@@ -1,10 +1,16 @@
 use clap::Parser;
+use color_eyre::eyre::bail;
 use image::EncodableLayout;
 use std::{
     cell::Cell,
+    fmt::Debug,
+    future::pending,
     io::{self, Write},
-    sync::mpsc,
     time::Duration,
+};
+use tokio::{
+    io::{AsyncBufReadExt, BufReader},
+    time::timeout,
 };
 use tracing_subscriber::prelude::*;
 
@@ -14,7 +20,7 @@ use pdi_scanner::{
     connect,
     protocol::{
         image::{RawImageData, Sheet, DEFAULT_IMAGE_WIDTH},
-        packets::Incoming,
+        packets::{Incoming, IncomingType},
         types::{
             ClampedPercentage, DoubleFeedDetectionCalibrationType, DoubleFeedDetectionMode,
             EjectMotion, FeederMode, ScanSideMode, Status,
@@ -144,9 +150,7 @@ enum Event {
 
     ScanStart,
 
-    ScanComplete {
-        image_data: (String, String),
-    },
+    ScanComplete(ScanComplete),
 
     CoverOpen,
     CoverClosed,
@@ -161,6 +165,27 @@ enum Event {
     ImageSensorCalibrationFailed {
         error: Incoming,
     },
+}
+
+#[derive(serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+struct ScanComplete {
+    image_data: (String, String),
+}
+
+impl Debug for ScanComplete {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ScanComplete")
+            .field(
+                "top",
+                &format_args!("{}…", self.image_data.0.get(..20).unwrap_or("utf-8 error")),
+            )
+            .field(
+                "bottom",
+                &format_args!("{}…", self.image_data.1.get(..20).unwrap_or("utf-8 error")),
+            )
+            .finish()
+    }
 }
 
 #[derive(Debug, serde::Serialize)]
@@ -196,22 +221,8 @@ async fn main() -> color_eyre::Result<()> {
     let config = Config::parse();
     setup(&config)?;
 
-    // Listen for commands from stdin in a child thread, since reading from
-    // stdin is blocking.
-    let (stdin_tx, stdin_rx) = std::sync::mpsc::channel();
-    std::thread::spawn(move || loop {
-        let mut buffer = String::new();
-        match io::stdin().read_line(&mut buffer) {
-            Ok(_) => {
-                let command = serde_json::from_str::<Command>(&buffer).unwrap();
-                stdin_tx.send(command).unwrap();
-            }
-
-            Err(e) => {
-                tracing::error!("failed to read from stdin: {e:?}");
-            }
-        }
-    });
+    let stdin = BufReader::new(tokio::io::stdin());
+    let mut stdin_lines = stdin.lines();
 
     let mut client: Option<Client<Scanner>> = None;
     let mut image_calibration_tables: Option<ImageCalibrationTables> = None;
@@ -225,256 +236,306 @@ async fn main() -> color_eyre::Result<()> {
     let scan_in_progress = Cell::new(false);
 
     let send_response = |response: Response| -> color_eyre::Result<()> {
+        tracing::debug!("sending response: {response:?}");
         scan_in_progress.replace(false);
         send_to_stdout(Message::Response(response))
     };
 
     let send_event = |event: Event| -> color_eyre::Result<()> {
+        tracing::debug!("sending event: {event:?}");
         scan_in_progress.replace(matches!(event, Event::ScanStart));
         send_to_stdout(Message::Event(event))
     };
 
     let send_error_response = |error: &Error| -> color_eyre::Result<()> {
+        tracing::error!("sending error: {error:?}");
         let (code, message) = error_to_code_and_message(error);
         send_response(Response::Error { code, message })
     };
 
     let send_error_event = |error: &Error| -> color_eyre::Result<()> {
+        tracing::error!("sending error event: {error:?}");
         let (code, message) = error_to_code_and_message(error);
         send_event(Event::Error { code, message })
     };
 
-    // Main loop:
-    // - Process any commands received on stdin. Note that our command
-    // processing is blocking, so we are guaranteed to only process one command
-    // at a time. Additional commands will be queued up in the channel.
-    // - Process any events or image data received from the scanner. These could
+    // Main loop selects whichever of the following is ready first:
+    // - Commands received on stdin. Because this loop must complete before
+    // more commands can be processed, we are guaranteed to only process one command
+    // at a time. Additional commands will be held by `stdin_lines`.
+    // - Events or image data received from the scanner. These could
     // be sent by the scanner at any time.
     loop {
-        match stdin_rx.try_recv() {
-            Ok(command) => {
-                if matches!(command, Command::Exit) {
-                    return color_eyre::Result::Ok(());
-                }
-                if scan_in_progress.get() {
-                    send_response(Response::Error {
-                        code: ErrorCode::ScanInProgress,
-                        message: None,
-                    })?;
-                    continue;
-                }
-                match (&mut client, command) {
-                    (_, Command::Exit) => unreachable!(),
-                    (Some(_), Command::Connect) => {
-                        send_response(Response::Error {
-                            code: ErrorCode::AlreadyConnected,
-                            message: None,
-                        })?;
-                    }
-                    (None, Command::Connect) => match connect() {
-                        Ok(mut c) => {
-                            match c.send_initial_commands_after_connect(Duration::from_millis(500))
-                            {
-                                Ok(calibration_tables) => {
-                                    image_calibration_tables = Some(calibration_tables);
-                                    send_response(Response::Ok)?;
-                                }
-                                // Sometimes, after closing the previous scanner
-                                // connection, a new connection will time out during
-                                // these first commands. Until we get to the bottom
-                                // of why that's happening, we just retry once,
-                                // which seems to resolve it.
-                                Err(_) => match c
-                                    .send_initial_commands_after_connect(Duration::from_secs(3))
-                                {
-                                    Ok(calibration_tables) => {
-                                        image_calibration_tables = Some(calibration_tables);
-                                        send_response(Response::Ok)?;
-                                    }
-                                    Err(e) => send_error_response(&e)?,
-                                },
-                            }
-                            client = Some(c);
-                        }
-                        Err(e) => send_error_response(&e)?,
+        tokio::select! {
+            received = stdin_lines.next_line() => {
+                let line = match received {
+                    Ok(Some(line)) => line,
+                    Ok(None) => {
+                        tracing::debug!("reached the end of stdin");
+                        break;
                     },
-                    (Some(_), Command::Disconnect) => {
-                        client = None;
-                        send_response(Response::Ok)?;
+                    Err(e) => {
+                        bail!("failed to read line from stdin: {e}");
                     }
-                    (Some(client), Command::GetScannerStatus) => {
-                        // We use a long-ish timeout here because the scanner
-                        // may sometimes be delayed in sending a response (e.g.
-                        // if its busy ejecting a long sheet of paper).
-                        match client.get_scanner_status(Duration::from_secs(2)) {
-                            Ok(status) => send_response(Response::ScannerStatus { status })?,
-                            Err(e) => send_error_response(&e)?,
+                };
+
+                match serde_json::from_str::<Command>(&line) {
+                    Err(e) => send_error_response(&e.into())?,
+                    Ok(command) => {
+                        tracing::debug!("incoming command: {command:?}");
+                        if matches!(command, Command::Exit) {
+                            break;
                         }
-                    }
-                    (
-                        Some(client),
-                        Command::EnableScanning {
-                            bitonal_threshold,
-                            double_feed_detection_enabled,
-                            paper_length_inches,
-                        },
-                    ) => {
-                        let double_feed_detection_mode = if double_feed_detection_enabled {
-                            DoubleFeedDetectionMode::RejectDoubleFeeds
-                        } else {
-                            DoubleFeedDetectionMode::Disabled
-                        };
-                        match client.send_enable_scan_commands(
-                            bitonal_threshold,
-                            double_feed_detection_mode,
-                            paper_length_inches,
-                        ) {
-                            Ok(()) => send_response(Response::Ok)?,
-                            Err(e) => send_error_response(&e)?,
+                        if scan_in_progress.get() {
+                            send_response(Response::Error {
+                                code: ErrorCode::ScanInProgress,
+                                message: None,
+                            })?;
+                            continue;
                         }
-                    }
-                    (Some(client), Command::DisableScanning) => {
-                        match client.set_feeder_mode(FeederMode::Disabled) {
-                            Ok(()) => send_response(Response::Ok)?,
-                            Err(e) => send_error_response(&e)?,
-                        }
-                    }
-                    (Some(client), Command::EjectDocument { eject_motion }) => {
-                        match client.eject_document(eject_motion) {
-                            Ok(()) => send_response(Response::Ok)?,
-                            Err(e) => send_error_response(&e)?,
-                        }
-                    }
-                    (Some(client), Command::CalibrateDoubleFeedDetection { calibration_type }) => {
-                        match client.calibrate_double_feed_detection(calibration_type) {
-                            Ok(()) => send_response(Response::Ok)?,
-                            Err(e) => send_error_response(&e)?,
-                        }
-                    }
-                    (Some(client), Command::GetDoubleFeedDetectionCalibrationConfig) => {
-                        match client
-                            .get_double_feed_detection_calibration_config(Duration::from_secs(1))
-                        {
-                            Ok(config) => {
-                                send_response(Response::DoubleFeedDetectionCalibrationConfig {
-                                    config,
-                                })?
+                        match (&mut client, command) {
+                            (_, Command::Exit) => unreachable!(),
+                            (Some(_), Command::Connect) => {
+                                send_response(Response::Error {
+                                    code: ErrorCode::AlreadyConnected,
+                                    message: None,
+                                })?;
                             }
-                            Err(e) => send_error_response(&e)?,
+                            (None, Command::Connect) => match connect() {
+                                Ok(mut c) => {
+                                    tracing::info!("connect() succeeded");
+                                    match timeout(
+                                        Duration::from_millis(500),
+                                        c.send_initial_commands_after_connect(),
+                                    )
+                                    .await
+                                    {
+                                        Ok(Ok(calibration_tables)) => {
+                                            image_calibration_tables = Some(calibration_tables);
+                                            send_response(Response::Ok)?;
+                                        }
+                                        Ok(Err(e)) => send_error_response(&e)?,
+                                        // Sometimes, after closing the previous scanner
+                                        // connection, a new connection will time out during
+                                        // these first commands. Until we get to the bottom
+                                        // of why that's happening, we just retry once,
+                                        // which seems to resolve it.
+                                        Err(_) => match timeout(
+                                            Duration::from_secs(3),
+                                            c.send_initial_commands_after_connect(),
+                                        )
+                                        .await
+                                        {
+                                            Ok(Ok(calibration_tables)) => {
+                                                image_calibration_tables = Some(calibration_tables);
+                                                send_response(Response::Ok)?;
+                                            }
+                                            Ok(Err(e)) => send_error_response(&e)?,
+                                            Err(_) => send_error_response(&Error::RecvTimeout)?,
+                                        },
+                                    }
+                                    client = Some(c);
+                                }
+                                Err(e) => {
+                                    tracing::info!("connect() failed");
+                                    send_error_response(&e)?;
+                                }
+                            },
+                            (Some(_), Command::Disconnect) => {
+                                client = None;
+                                send_response(Response::Ok)?;
+                            }
+                            (Some(client), Command::GetScannerStatus) => {
+                                // We use a long-ish timeout here because the scanner
+                                // may sometimes be delayed in sending a response (e.g.
+                                // if its busy ejecting a long sheet of paper).
+                                match timeout(Duration::from_secs(2), client.get_scanner_status()).await {
+                                    Ok(Ok(status)) => send_response(Response::ScannerStatus { status })?,
+                                    Ok(Err(e)) => send_error_response(&e)?,
+                                    Err(_) => send_error_response(&Error::RecvTimeout)?,
+                                }
+                            }
+                            (
+                                Some(client),
+                                Command::EnableScanning {
+                                    bitonal_threshold,
+                                    double_feed_detection_enabled,
+                                    paper_length_inches,
+                                },
+                            ) => {
+                                let double_feed_detection_mode = if double_feed_detection_enabled {
+                                    DoubleFeedDetectionMode::RejectDoubleFeeds
+                                } else {
+                                    DoubleFeedDetectionMode::Disabled
+                                };
+                                match client
+                                    .send_enable_scan_commands(
+                                        bitonal_threshold,
+                                        double_feed_detection_mode,
+                                        paper_length_inches,
+                                    )
+                                    .await
+                                {
+                                    Ok(()) => send_response(Response::Ok)?,
+                                    Err(e) => send_error_response(&e)?,
+                                }
+                            }
+                            (Some(client), Command::DisableScanning) => {
+                                match client.set_feeder_mode(FeederMode::Disabled).await {
+                                    Ok(()) => send_response(Response::Ok)?,
+                                    Err(e) => send_error_response(&e)?,
+                                }
+                            }
+                            (Some(client), Command::EjectDocument { eject_motion }) => {
+                                match client.eject_document(eject_motion).await {
+                                    Ok(()) => send_response(Response::Ok)?,
+                                    Err(e) => send_error_response(&e)?,
+                                }
+                            }
+                            (Some(client), Command::CalibrateDoubleFeedDetection { calibration_type }) => {
+                                match client
+                                    .calibrate_double_feed_detection(calibration_type)
+                                    .await
+                                {
+                                    Ok(()) => send_response(Response::Ok)?,
+                                    Err(e) => send_error_response(&e)?,
+                                }
+                            }
+                            (Some(client), Command::GetDoubleFeedDetectionCalibrationConfig) => {
+                                match timeout(
+                                    Duration::from_secs(1),
+                                    client.get_double_feed_detection_calibration_config(),
+                                )
+                                .await
+                                {
+                                    Ok(Ok(config)) => {
+                                        send_response(Response::DoubleFeedDetectionCalibrationConfig {
+                                            config,
+                                        })?
+                                    }
+                                    Ok(Err(e)) => send_error_response(&e)?,
+                                    Err(_) => send_error_response(&Error::RecvTimeout)?,
+                                }
+                            }
+                            (Some(client), Command::CalibrateImageSensors) => {
+                                match client.calibrate_image_sensors().await {
+                                    Ok(()) => send_response(Response::Ok)?,
+                                    Err(e) => send_error_response(&e)?,
+                                }
+                            }
+                            (None, _) => {
+                                send_response(Response::Error {
+                                    code: ErrorCode::Disconnected,
+                                    message: None,
+                                })?;
+                            }
                         }
                     }
-                    (Some(client), Command::CalibrateImageSensors) => {
-                        match client.calibrate_image_sensors() {
-                            Ok(()) => send_response(Response::Ok)?,
-                            Err(e) => send_error_response(&e)?,
+                }
+            }
+
+            received = async {
+                match &mut client {
+                    Some(client) => client.recv().await,
+                    None => pending().await, // never resolves
+                }
+            } => {
+                let packet = match received {
+                    Ok(packet) => {
+                        tracing::debug!("PACKET: {packet:?}");
+                        packet
+                    },
+                    Err(Error::TryRecvError(tokio::sync::mpsc::error::TryRecvError::Empty)) => {
+                        tracing::debug!("scanner channel received empty packet");
+                        continue;
+                    },
+                    Err(Error::TryRecvError(tokio::sync::mpsc::error::TryRecvError::Disconnected)) => {
+                        tracing::debug!("scanner channel disconnected");
+                        client = None;
+                        continue;
+                    }
+                    Err(e) => {
+                        tracing::error!("PACKET ERROR: {e:?}");
+                        send_error_event(&e)?;
+                        continue;
+                    },
+                };
+
+                match packet {
+                    Incoming::BeginScanEvent => {
+                        raw_image_data = RawImageData::new();
+                        send_event(Event::ScanStart)?;
+                    }
+                    Incoming::ImageData(image_data) => {
+                        raw_image_data.extend_from_slice(&image_data.0);
+                    }
+                    Incoming::EndScanEvent => {
+                        match raw_image_data.try_decode_scan(
+                            DEFAULT_IMAGE_WIDTH,
+                            ScanSideMode::Duplex,
+                            &image_calibration_tables
+                                .clone()
+                                .expect("image calibration tables not set"),
+                        ) {
+                            Ok(Sheet::Duplex(top, bottom)) => {
+                                send_event(Event::ScanComplete(ScanComplete {
+                                    image_data: (
+                                        STANDARD.encode(top.as_bytes()),
+                                        STANDARD.encode(bottom.as_bytes()),
+                                    ),
+                                }))?
+                            }
+                            Ok(_) => unreachable!(
+                                "try_decode_scan called with {:?} returned non-duplex sheet",
+                                ScanSideMode::Duplex
+                            ),
+                            Err(e) => {
+                                send_event(Event::Error {
+                                    code: ErrorCode::ScanFailed,
+                                    message: Some(format!(
+                                        "failed to decode the scanned image data: {e}"
+                                    )),
+                                })?;
+                            }
                         }
                     }
-                    (None, _) => {
-                        send_response(Response::Error {
-                            code: ErrorCode::Disconnected,
+                    Incoming::CoverOpenEvent => {
+                        send_event(Event::CoverOpen)?;
+                    }
+                    Incoming::CoverClosedEvent => {
+                        send_event(Event::CoverClosed)?;
+                    }
+                    Incoming::DoubleFeedEvent => {
+                        send_event(Event::Error {
+                            code: ErrorCode::DoubleFeedDetected,
                             message: None,
                         })?;
                     }
-                }
-            }
-            Err(std::sync::mpsc::TryRecvError::Empty) => {}
-            Err(std::sync::mpsc::TryRecvError::Disconnected) => {
-                tracing::error!("stdin channel disconnected");
-                return color_eyre::Result::Err(color_eyre::Report::msg(
-                    "stdin channel disconnected",
-                ));
-            }
-        }
-
-        if let Some(c) = &mut client {
-            match c.try_recv_matching(Incoming::is_event) {
-                Ok(Incoming::BeginScanEvent) => {
-                    raw_image_data = RawImageData::new();
-                    send_event(Event::ScanStart)?;
-                }
-                Ok(Incoming::EndScanEvent) => {
-                    match raw_image_data.try_decode_scan(
-                        DEFAULT_IMAGE_WIDTH,
-                        ScanSideMode::Duplex,
-                        &image_calibration_tables
-                            .clone()
-                            .expect("image calibration tables not set"),
-                    ) {
-                        Ok(Sheet::Duplex(top, bottom)) => send_event(Event::ScanComplete {
-                            image_data: (
-                                STANDARD.encode(top.as_bytes()),
-                                STANDARD.encode(bottom.as_bytes()),
-                            ),
-                        })?,
-                        Ok(_) => unreachable!(
-                            "try_decode_scan called with {:?} returned non-duplex sheet",
-                            ScanSideMode::Duplex
-                        ),
-                        Err(e) => {
-                            send_event(Event::Error {
-                                code: ErrorCode::ScanFailed,
-                                message: Some(format!(
-                                    "failed to decode the scanned image data: {e}"
-                                )),
-                            })?;
-                        }
+                    Incoming::EjectPauseEvent => {
+                        send_event(Event::EjectPaused)?;
+                    }
+                    Incoming::EjectResumeEvent => {
+                        send_event(Event::EjectResumed)?;
+                    }
+                    Incoming::DoubleFeedCalibrationCompleteEvent => {
+                        send_event(Event::DoubleFeedCalibrationComplete)?;
+                    }
+                    Incoming::DoubleFeedCalibrationTimedOutEvent => {
+                        send_event(Event::DoubleFeedCalibrationTimedOut)?;
+                    }
+                    Incoming::CalibrationOkEvent => {
+                        send_event(Event::ImageSensorCalibrationComplete)?;
+                    }
+                    event if matches!(event.message_type(), IncomingType::CalibrationEvent) => {
+                        send_event(Event::ImageSensorCalibrationFailed { error: event })?;
+                    }
+                    event => {
+                        tracing::info!("unhandled event: {event:?}");
                     }
                 }
-                Ok(Incoming::CoverOpenEvent) => {
-                    send_event(Event::CoverOpen)?;
-                }
-                Ok(Incoming::CoverClosedEvent) => {
-                    send_event(Event::CoverClosed)?;
-                }
-                Ok(Incoming::DoubleFeedEvent) => {
-                    send_event(Event::Error {
-                        code: ErrorCode::DoubleFeedDetected,
-                        message: None,
-                    })?;
-                }
-                Ok(Incoming::EjectPauseEvent) => {
-                    send_event(Event::EjectPaused)?;
-                }
-                Ok(Incoming::EjectResumeEvent) => {
-                    send_event(Event::EjectResumed)?;
-                }
-                Ok(Incoming::DoubleFeedCalibrationCompleteEvent) => {
-                    send_event(Event::DoubleFeedCalibrationComplete)?;
-                }
-                Ok(Incoming::DoubleFeedCalibrationTimedOutEvent) => {
-                    send_event(Event::DoubleFeedCalibrationTimedOut)?;
-                }
-                Ok(Incoming::CalibrationOkEvent) => {
-                    send_event(Event::ImageSensorCalibrationComplete)?;
-                }
-                Ok(event) if event.is_image_sensor_calibration_error() => {
-                    send_event(Event::ImageSensorCalibrationFailed { error: event })?;
-                }
-                Ok(event) => {
-                    tracing::info!("unhandled event: {event:?}");
-                }
-                Err(Error::TryRecvError(mpsc::TryRecvError::Empty)) => {}
-                Err(Error::TryRecvError(mpsc::TryRecvError::Disconnected)) => {
-                    tracing::debug!("scanner channel disconnected");
-                    client = None;
-                }
-                Err(e) => send_error_event(&e)?,
-            }
-        }
-
-        if let Some(c) = &mut client {
-            match c.try_recv_matching(|incoming| matches!(incoming, Incoming::ImageData(_))) {
-                Ok(Incoming::ImageData(image_data)) => {
-                    raw_image_data.extend_from_slice(&image_data);
-                }
-                Ok(_) => unreachable!(),
-                Err(Error::TryRecvError(mpsc::TryRecvError::Empty)) => {}
-                Err(Error::TryRecvError(mpsc::TryRecvError::Disconnected)) => {
-                    tracing::debug!("scanner channel disconnected");
-                    client = None;
-                }
-                Err(e) => send_error_event(&e)?,
             }
         }
     }
+
+    Ok(())
 }

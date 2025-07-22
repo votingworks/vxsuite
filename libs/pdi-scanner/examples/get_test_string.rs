@@ -4,6 +4,7 @@
 
 use clap::Parser;
 use std::time::Duration;
+use tokio::time::timeout;
 use tracing_subscriber::prelude::*;
 
 use pdi_scanner::connect;
@@ -57,7 +58,7 @@ async fn main() -> color_eyre::Result<()> {
     for n in 1..=config.times {
         println!(
             "{n:02}: get_test_string result: {:?}",
-            client.get_test_string(Duration::from_secs(1))
+            timeout(Duration::from_secs(1), client.get_test_string()).await
         );
     }
 

@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{fmt::Debug, time::Duration};
 
 use serde::Serialize;
 
@@ -14,7 +14,7 @@ pub(crate) const PACKET_DATA_START: &[u8] = &[0x02];
 pub(crate) const PACKET_DATA_END: &[u8] = &[0x03];
 
 /// All possible commands that can be sent to the scanner.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Outgoing {
     /// This command requests a hard-coded test string from the scanner.
     ///
@@ -817,7 +817,7 @@ impl Outgoing {
 
 /// All possible incoming data from the scanner, including responses to commands
 /// and unsolicited messages.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub enum Incoming {
     /// This command requests a hard-coded test string from the scanner.
@@ -1150,7 +1150,9 @@ pub enum Incoming {
     /// timed out waiting for paper during double-feed detection calibration.
     DoubleFeedCalibrationTimedOutEvent,
 
-    ImageData(Vec<u8>),
+    /// Pixel data received from the scanner in raw form, either 1bpp or 8bpp,
+    /// and possibly top/bottom interleaved depending on scanning parameters.
+    ImageData(ImageData),
 
     /// When running image sensor calibration, the scanner sends back a few
     /// lines of undocumented output that seems to describe the calibration
@@ -1171,60 +1173,120 @@ pub enum Incoming {
 }
 
 impl Incoming {
-    #[must_use]
-    pub const fn is_event(&self) -> bool {
-        matches!(
-            self,
+    /// Determines which broad type of message this `Incoming` is.
+    pub const fn message_type(&self) -> IncomingType {
+        match self {
             Self::ScannerOkayEvent
-                | Self::DocumentJamEvent
-                | Self::CalibrationNeededEvent
-                | Self::ScannerCommandErrorEvent
-                | Self::ReadErrorEvent
-                | Self::MsdNeedsCalibrationEvent
-                | Self::MsdNotFoundOrOldFirmwareEvent
-                | Self::FifoOverflowEvent
-                | Self::CoverOpenEvent
-                | Self::CoverClosedEvent
-                | Self::CommandPacketCrcErrorEvent
-                | Self::FpgaOutOfDateEvent
-                | Self::CalibrationOkEvent
-                | Self::CalibrationSpeedValueError
-                | Self::CalibrationSpeedBoxError
-                | Self::BeginScanEvent
-                | Self::EndScanEvent
-                | Self::DoubleFeedEvent
-                | Self::EjectPauseEvent
-                | Self::EjectResumeEvent
-                | Self::DoubleFeedCalibrationCompleteEvent
-                | Self::DoubleFeedCalibrationTimedOutEvent
-        ) || self.is_image_sensor_calibration_error()
-    }
+            | Self::DocumentJamEvent
+            | Self::CalibrationNeededEvent
+            | Self::ScannerCommandErrorEvent
+            | Self::ReadErrorEvent
+            | Self::MsdNeedsCalibrationEvent
+            | Self::MsdNotFoundOrOldFirmwareEvent
+            | Self::FifoOverflowEvent
+            | Self::CoverOpenEvent
+            | Self::CoverClosedEvent
+            | Self::CommandPacketCrcErrorEvent
+            | Self::FpgaOutOfDateEvent
+            | Self::CalibrationOkEvent
+            | Self::ImageSensorCalibrationUnexpectedOutput(_)
+            | Self::BeginScanEvent
+            | Self::EndScanEvent
+            | Self::DoubleFeedEvent
+            | Self::EjectPauseEvent
+            | Self::EjectResumeEvent => IncomingType::ScanEvent,
 
-    pub const fn is_image_sensor_calibration_error(&self) -> bool {
-        matches!(
-            self,
-            Self::CalibrationShortCalibrationDocumentEvent
-                | Self::CalibrationDocumentRemovedEvent
-                | Self::CalibrationPixelErrorFrontArrayBlack
-                | Self::CalibrationPixelErrorFrontArrayWhite
-                | Self::CalibrationTimeoutError
-                | Self::CalibrationFrontNotEnoughLightRedEvent
-                | Self::CalibrationFrontTooMuchLightRedEvent
-                | Self::CalibrationFrontNotEnoughLightBlueEvent
-                | Self::CalibrationFrontTooMuchLightBlueEvent
-                | Self::CalibrationFrontNotEnoughLightGreenEvent
-                | Self::CalibrationFrontTooMuchLightGreenEvent
-                | Self::CalibrationFrontPixelsTooHighEvent
-                | Self::CalibrationFrontPixelsTooLowEvent
-                | Self::CalibrationBackNotEnoughLightRedEvent
-                | Self::CalibrationBackTooMuchLightRedEvent
-                | Self::CalibrationBackNotEnoughLightBlueEvent
-                | Self::CalibrationBackTooMuchLightBlueEvent
-                | Self::CalibrationBackNotEnoughLightGreenEvent
-                | Self::CalibrationBackTooMuchLightGreenEvent
-                | Self::CalibrationBackPixelsTooHighEvent
-                | Self::CalibrationBackPixelsTooLowEvent
-        )
+            Self::DoubleFeedCalibrationCompleteEvent
+            | Self::DoubleFeedCalibrationTimedOutEvent
+            | Self::CalibrationSpeedValueError
+            | Self::CalibrationSpeedBoxError
+            | Self::CalibrationShortCalibrationDocumentEvent
+            | Self::CalibrationDocumentRemovedEvent
+            | Self::CalibrationPixelErrorFrontArrayBlack
+            | Self::CalibrationPixelErrorFrontArrayWhite
+            | Self::CalibrationTimeoutError
+            | Self::CalibrationFrontNotEnoughLightRedEvent
+            | Self::CalibrationFrontTooMuchLightRedEvent
+            | Self::CalibrationFrontNotEnoughLightBlueEvent
+            | Self::CalibrationFrontTooMuchLightBlueEvent
+            | Self::CalibrationFrontNotEnoughLightGreenEvent
+            | Self::CalibrationFrontTooMuchLightGreenEvent
+            | Self::CalibrationFrontPixelsTooHighEvent
+            | Self::CalibrationFrontPixelsTooLowEvent
+            | Self::CalibrationBackNotEnoughLightRedEvent
+            | Self::CalibrationBackTooMuchLightRedEvent
+            | Self::CalibrationBackNotEnoughLightBlueEvent
+            | Self::CalibrationBackTooMuchLightBlueEvent
+            | Self::CalibrationBackNotEnoughLightGreenEvent
+            | Self::CalibrationBackTooMuchLightGreenEvent
+            | Self::CalibrationBackPixelsTooHighEvent
+            | Self::CalibrationBackPixelsTooLowEvent => IncomingType::CalibrationEvent,
+
+            Self::GetTestStringResponse(_)
+            | Self::GetFirmwareVersionResponse(_)
+            | Self::GetCurrentFirmwareBuildVersionStringResponse(_)
+            | Self::GetScannerStatusResponse(_)
+            | Self::GetSetSerialNumberResponse(_)
+            | Self::GetScannerSettingsResponse(_)
+            | Self::GetSetRequiredInputSensorsResponse { .. }
+            | Self::AdjustBitonalThresholdResponse { .. }
+            | Self::GetCalibrationInformationResponse { .. }
+            | Self::GetDoubleFeedDetectionLedIntensityResponse(_)
+            | Self::GetDoubleFeedDetectionSingleSheetCalibrationValueResponse(_)
+            | Self::GetDoubleFeedDetectionDoubleSheetCalibrationValueResponse(_)
+            | Self::GetDoubleFeedDetectionDoubleSheetThresholdValueResponse(_) => {
+                IncomingType::Response
+            }
+
+            Self::ImageData(_) => IncomingType::ImageData,
+            Self::Unknown(_) => IncomingType::Unknown,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+#[must_use]
+pub enum IncomingType {
+    /// A response to an outgoing message from the host, such as a request for
+    /// status.
+    Response,
+
+    /// An event related to scanning, such as the start of a scan.
+    ScanEvent,
+
+    /// An event related to calibration, which may be a completion event or
+    /// error.
+    CalibrationEvent,
+
+    /// Pixel data from the scanner.
+    ImageData,
+
+    /// An unknown incoming packet.
+    Unknown,
+}
+
+impl IncomingType {
+    /// Determines whether an incoming packet of this type comes from the
+    /// scanner in response to a request (solicited) or not (unsolicited).
+    ///
+    /// Note that a packet of unknown type is not considered unsolicited.
+    pub const fn is_unsolicited(self) -> bool {
+        match self {
+            Self::ScanEvent | Self::CalibrationEvent | Self::ImageData => true,
+            Self::Response | Self::Unknown => false,
+        }
+    }
+}
+
+/// Wrapper around image data for debug print purposes.
+#[derive(Clone, Serialize, PartialEq, Eq)]
+pub struct ImageData(pub Vec<u8>);
+
+impl Debug for ImageData {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ImageData")
+            .field("data", &format_args!("{} bytes", self.0.len()))
+            .finish()
     }
 }
 

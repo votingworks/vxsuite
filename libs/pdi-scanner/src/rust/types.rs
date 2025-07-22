@@ -1,4 +1,4 @@
-use std::sync::mpsc::{RecvTimeoutError, TryRecvError};
+use tokio::sync::mpsc::error::TryRecvError;
 
 #[derive(Debug, thiserror::Error)]
 pub enum UsbError {
@@ -20,8 +20,11 @@ pub enum Error {
     #[error("failed to validate request: {0}")]
     ValidateRequest(String),
 
-    #[error("failed to receive: {0}")]
-    RecvTimeout(#[from] RecvTimeoutError),
+    #[error("failed to serialize JSON: {0}")]
+    Serde(#[from] serde_json::Error),
+
+    #[error("timed out receiving data")]
+    RecvTimeout,
 
     #[error("tried to receive but could not: {0}")]
     TryRecvError(#[from] TryRecvError),
@@ -41,4 +44,4 @@ impl From<nusb::transfer::TransferError> for Error {
     }
 }
 
-pub type Result<T> = std::result::Result<T, Error>;
+pub type Result<T, E = Error> = std::result::Result<T, E>;

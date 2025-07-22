@@ -25,7 +25,6 @@ clap = { workspace = true }
 color-eyre = { workspace = true }
 crc16 = { workspace = true }
 csv = { workspace = true }
-ctrlc = { workspace = true }
 crossterm = { workspace = true }
 image = { workspace = true }
 libc = { workspace = true }
@@ -40,4 +39,9 @@ thiserror = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 nusb = "0.1.14"
-tokio = { workspace = true, features = ["rt-multi-thread", "macros", "time", "sync"] }
+tokio = { workspace = true, features = [
+  "rt-multi-thread",
+  "macros",
+  "time",
+  "sync",
+] }
