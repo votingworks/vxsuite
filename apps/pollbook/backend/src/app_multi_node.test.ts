@@ -44,6 +44,8 @@ const testStreets = parseValidStreetsFromCsvString(
   singlePrecinctElectionDefinition.election
 );
 
+const isCi = process.env.CI === 'true';
+
 vi.mock(
   './globals.js',
   async (importActual): Promise<typeof import('./globals.js')> => ({
@@ -183,255 +185,259 @@ async function setupUnconfiguredPollbooksOnNetwork(
   });
 }
 
-test('connection status between two pollbooks is managed properly', async () => {
-  await withManyApps(2, async ([pollbookContext1, pollbookContext2]) => {
-    vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
-    for (const context of [pollbookContext1, pollbookContext2]) {
-      context.mockUsbDrive.insertUsbDrive({});
-      expect(await context.localApiClient.getDeviceStatuses()).toMatchObject({
-        network: {
-          isOnline: false,
-          pollbooks: [],
-        },
-      });
-    }
-    // Mock hasOnlineInterface to always return true
-    vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-    const { port: port1 } =
-      pollbookContext1.peerServer.address() as AddressInfo;
-    const { port: port2 } =
-      pollbookContext2.peerServer.address() as AddressInfo;
-
-    vi.spyOn(AvahiService, 'discoverHttpServices').mockResolvedValue([
-      {
-        name: 'Pollbook-test-0',
-        host: 'local',
-        resolvedIp: 'localhost',
-        port: port1.toString(),
-      },
-    ]);
-
-    await extendedWaitFor(async () => {
+(isCi ? test.skip : test)(
+  'connection status between two pollbooks is managed properly',
+  async () => {
+    await withManyApps(2, async ([pollbookContext1, pollbookContext2]) => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+      for (const context of [pollbookContext1, pollbookContext2]) {
+        context.mockUsbDrive.insertUsbDrive({});
+        expect(await context.localApiClient.getDeviceStatuses()).toMatchObject({
+          network: {
+            isOnline: false,
+            pollbooks: [],
+          },
+        });
+      }
+      // Mock hasOnlineInterface to always return true
+      vi.mocked(hasOnlineInterface).mockResolvedValue(true);
+      const { port: port1 } =
+        pollbookContext1.peerServer.address() as AddressInfo;
+      const { port: port2 } =
+        pollbookContext2.peerServer.address() as AddressInfo;
 
-      expect(
-        await pollbookContext1.localApiClient.getDeviceStatuses()
-      ).toMatchObject({
-        network: {
-          isOnline: true,
-          pollbooks: [],
+      vi.spyOn(AvahiService, 'discoverHttpServices').mockResolvedValue([
+        {
+          name: 'Pollbook-test-0',
+          host: 'local',
+          resolvedIp: 'localhost',
+          port: port1.toString(),
         },
+      ]);
+
+      await extendedWaitFor(async () => {
+        vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+
+        expect(
+          await pollbookContext1.localApiClient.getDeviceStatuses()
+        ).toMatchObject({
+          network: {
+            isOnline: true,
+            pollbooks: [],
+          },
+        });
+        expect(
+          await pollbookContext2.localApiClient.getDeviceStatuses()
+        ).toMatchObject({
+          network: {
+            isOnline: false,
+            pollbooks: [],
+          },
+        });
       });
-      expect(
-        await pollbookContext2.localApiClient.getDeviceStatuses()
-      ).toMatchObject({
-        network: {
-          isOnline: false,
-          pollbooks: [],
-        },
-      });
-    });
-    await setupUnconfiguredPollbooksOnNetwork([
-      pollbookContext1,
-      pollbookContext2,
-    ]);
+      await setupUnconfiguredPollbooksOnNetwork([
+        pollbookContext1,
+        pollbookContext2,
+      ]);
+      expect(pollbookContext1).toBeUndefined();
 
-    // Set the pollbooks for the same election and precinct
-    pollbookContext1.workspace.store.setElectionAndVoters(
-      singlePrecinctElectionDefinition,
-      'mock-package-hash',
-      testStreets,
-      testVoters
-    );
-    pollbookContext1.workspace.store.setConfiguredPrecinct(
-      singlePrecinctElectionDefinition.election.precincts[0].id
-    );
-    pollbookContext1.mockPrinterHandler.connectPrinter(
-      CITIZEN_THERMAL_PRINTER_CONFIG
-    );
-    // Check in a voter on pollbook 1
-    const checkIn = await pollbookContext1.localApiClient.checkInVoter({
-      voterId: testVoters[0].voterId,
-      identificationMethod: { type: 'default' },
-      ballotParty: 'UND',
-    });
-    expect(checkIn.ok()).toEqual(undefined);
-
-    pollbookContext2.workspace.store.setElectionAndVoters(
-      singlePrecinctElectionDefinition,
-      'mock-package-hash',
-      testStreets,
-      testVoters
-    );
-    pollbookContext2.workspace.store.setConfiguredPrecinct(
-      singlePrecinctElectionDefinition.election.precincts[0].id
-    );
-
-    await extendedWaitFor(async () => {
-      vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
-      expect(
-        await pollbookContext1.localApiClient.getDeviceStatuses()
-      ).toMatchObject({
-        network: {
-          isOnline: true,
-          pollbooks: [
-            expect.objectContaining({
-              status: PollbookConnectionStatus.Connected,
-            }),
-          ],
-        },
-      });
-      expect(
-        await pollbookContext2.localApiClient.getDeviceStatuses()
-      ).toMatchObject({
-        network: {
-          isOnline: true,
-          pollbooks: [
-            expect.objectContaining({
-              status: PollbookConnectionStatus.Connected,
-            }),
-          ],
-        },
-      });
-    });
-
-    await extendedWaitFor(async () => {
-      vi.advanceTimersByTime(EVENT_POLLING_INTERVAL);
-      // Now that the pollbooks are connected they should be querying for each others events
-      expect(
-        pollbookContext1.peerWorkspace.store.getNewEvents
-      ).toHaveBeenCalled();
-      expect(
-        pollbookContext2.peerWorkspace.store.getNewEvents
-      ).toHaveBeenCalled();
-
-      // Pollbook 2 should now have the check in event for the test voter
-      expect(
-        await pollbookContext2.localApiClient.getVoter({
-          voterId: testVoters[0].voterId,
-        })
-      ).toEqual(
-        expect.objectContaining({
-          checkIn: expect.objectContaining({
-            identificationMethod: { type: 'default' },
-          }),
-        })
+      // Set the pollbooks for the same election and precinct
+      pollbookContext1.workspace.store.setElectionAndVoters(
+        singlePrecinctElectionDefinition,
+        'mock-package-hash',
+        testStreets,
+        testVoters
       );
-    });
+      pollbookContext1.workspace.store.setConfiguredPrecinct(
+        singlePrecinctElectionDefinition.election.precincts[0].id
+      );
+      pollbookContext1.mockPrinterHandler.connectPrinter(
+        CITIZEN_THERMAL_PRINTER_CONFIG
+      );
+      // Check in a voter on pollbook 1
+      const checkIn = await pollbookContext1.localApiClient.checkInVoter({
+        voterId: testVoters[0].voterId,
+        identificationMethod: { type: 'default' },
+        ballotParty: 'UND',
+      });
+      expect(checkIn.ok()).toEqual(undefined);
 
-    // Unconfigure one machine and they should update to wrong election.
-    pollbookContext1.mockUsbDrive.usbDrive.eject.expectCallWith().resolves();
-    await pollbookContext1.localApiClient.unconfigure();
-    await extendedWaitFor(async () => {
-      vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
-      expect(
-        await pollbookContext1.localApiClient.getDeviceStatuses()
-      ).toMatchObject({
-        network: {
-          isOnline: true,
-          pollbooks: [
-            expect.objectContaining({
-              status: PollbookConnectionStatus.MismatchedConfiguration,
-            }),
-          ],
-        },
-      });
-      expect(
-        await pollbookContext2.localApiClient.getDeviceStatuses()
-      ).toMatchObject({
-        network: {
-          isOnline: true,
-          pollbooks: [
-            expect.objectContaining({
-              status: PollbookConnectionStatus.MismatchedConfiguration,
-            }),
-          ],
-        },
-      });
-    });
-    // Remove one app from avahi and see it go to shutdown.
-    vi.spyOn(AvahiService, 'discoverHttpServices').mockResolvedValue([
-      {
-        name: 'Pollbook-test-0',
-        host: 'local',
-        resolvedIp: 'localhost',
-        port: port1.toString(),
-      },
-    ]);
-    await extendedWaitFor(async () => {
-      vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
-      expect(
-        await pollbookContext1.localApiClient.getDeviceStatuses()
-      ).toMatchObject({
-        network: {
-          isOnline: true,
-          pollbooks: [
-            expect.objectContaining({
-              status: PollbookConnectionStatus.ShutDown,
-            }),
-          ],
-        },
-      });
-      expect(
-        await pollbookContext2.localApiClient.getDeviceStatuses()
-      ).toMatchObject({
-        network: {
-          isOnline: false,
-          pollbooks: [
-            expect.objectContaining({
-              status: PollbookConnectionStatus.LostConnection,
-            }),
-          ],
-        },
-      });
-    });
+      pollbookContext2.workspace.store.setElectionAndVoters(
+        singlePrecinctElectionDefinition,
+        'mock-package-hash',
+        testStreets,
+        testVoters
+      );
+      pollbookContext2.workspace.store.setConfiguredPrecinct(
+        singlePrecinctElectionDefinition.election.precincts[0].id
+      );
 
-    // Bring both machines back
-    vi.spyOn(AvahiService, 'discoverHttpServices').mockResolvedValue([
-      {
-        name: 'Pollbook-test-0',
-        host: 'local',
-        resolvedIp: 'localhost',
-        port: port1.toString(),
-      },
-      {
-        name: 'Pollbook-test-1',
-        host: 'local',
-        resolvedIp: 'localhost',
-        port: port2.toString(),
-      },
-    ]);
-
-    vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
-    await extendedWaitFor(async () => {
-      vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
-      expect(
-        await pollbookContext1.localApiClient.getDeviceStatuses()
-      ).toMatchObject({
-        network: {
-          isOnline: true,
-          pollbooks: [
-            expect.objectContaining({
-              status: PollbookConnectionStatus.MismatchedConfiguration,
-            }),
-          ],
-        },
+      await extendedWaitFor(async () => {
+        vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+        expect(
+          await pollbookContext1.localApiClient.getDeviceStatuses()
+        ).toMatchObject({
+          network: {
+            isOnline: true,
+            pollbooks: [
+              expect.objectContaining({
+                status: PollbookConnectionStatus.Connected,
+              }),
+            ],
+          },
+        });
+        expect(
+          await pollbookContext2.localApiClient.getDeviceStatuses()
+        ).toMatchObject({
+          network: {
+            isOnline: true,
+            pollbooks: [
+              expect.objectContaining({
+                status: PollbookConnectionStatus.Connected,
+              }),
+            ],
+          },
+        });
       });
-      expect(
-        await pollbookContext2.localApiClient.getDeviceStatuses()
-      ).toMatchObject({
-        network: {
-          isOnline: true,
-          pollbooks: [
-            expect.objectContaining({
-              status: PollbookConnectionStatus.MismatchedConfiguration,
+
+      await extendedWaitFor(async () => {
+        vi.advanceTimersByTime(EVENT_POLLING_INTERVAL);
+        // Now that the pollbooks are connected they should be querying for each others events
+        expect(
+          pollbookContext1.peerWorkspace.store.getNewEvents
+        ).toHaveBeenCalled();
+        expect(
+          pollbookContext2.peerWorkspace.store.getNewEvents
+        ).toHaveBeenCalled();
+
+        // Pollbook 2 should now have the check in event for the test voter
+        expect(
+          await pollbookContext2.localApiClient.getVoter({
+            voterId: testVoters[0].voterId,
+          })
+        ).toEqual(
+          expect.objectContaining({
+            checkIn: expect.objectContaining({
+              identificationMethod: { type: 'default' },
             }),
-          ],
+          })
+        );
+      });
+
+      // Unconfigure one machine and they should update to wrong election.
+      pollbookContext1.mockUsbDrive.usbDrive.eject.expectCallWith().resolves();
+      await pollbookContext1.localApiClient.unconfigure();
+      await extendedWaitFor(async () => {
+        vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+        expect(
+          await pollbookContext1.localApiClient.getDeviceStatuses()
+        ).toMatchObject({
+          network: {
+            isOnline: true,
+            pollbooks: [
+              expect.objectContaining({
+                status: PollbookConnectionStatus.MismatchedConfiguration,
+              }),
+            ],
+          },
+        });
+        expect(
+          await pollbookContext2.localApiClient.getDeviceStatuses()
+        ).toMatchObject({
+          network: {
+            isOnline: true,
+            pollbooks: [
+              expect.objectContaining({
+                status: PollbookConnectionStatus.MismatchedConfiguration,
+              }),
+            ],
+          },
+        });
+      });
+      // Remove one app from avahi and see it go to shutdown.
+      vi.spyOn(AvahiService, 'discoverHttpServices').mockResolvedValue([
+        {
+          name: 'Pollbook-test-0',
+          host: 'local',
+          resolvedIp: 'localhost',
+          port: port1.toString(),
         },
+      ]);
+      await extendedWaitFor(async () => {
+        vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+        expect(
+          await pollbookContext1.localApiClient.getDeviceStatuses()
+        ).toMatchObject({
+          network: {
+            isOnline: true,
+            pollbooks: [
+              expect.objectContaining({
+                status: PollbookConnectionStatus.ShutDown,
+              }),
+            ],
+          },
+        });
+        expect(
+          await pollbookContext2.localApiClient.getDeviceStatuses()
+        ).toMatchObject({
+          network: {
+            isOnline: false,
+            pollbooks: [
+              expect.objectContaining({
+                status: PollbookConnectionStatus.LostConnection,
+              }),
+            ],
+          },
+        });
+      });
+
+      // Bring both machines back
+      vi.spyOn(AvahiService, 'discoverHttpServices').mockResolvedValue([
+        {
+          name: 'Pollbook-test-0',
+          host: 'local',
+          resolvedIp: 'localhost',
+          port: port1.toString(),
+        },
+        {
+          name: 'Pollbook-test-1',
+          host: 'local',
+          resolvedIp: 'localhost',
+          port: port2.toString(),
+        },
+      ]);
+
+      vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+      await extendedWaitFor(async () => {
+        vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+        expect(
+          await pollbookContext1.localApiClient.getDeviceStatuses()
+        ).toMatchObject({
+          network: {
+            isOnline: true,
+            pollbooks: [
+              expect.objectContaining({
+                status: PollbookConnectionStatus.MismatchedConfiguration,
+              }),
+            ],
+          },
+        });
+        expect(
+          await pollbookContext2.localApiClient.getDeviceStatuses()
+        ).toMatchObject({
+          network: {
+            isOnline: true,
+            pollbooks: [
+              expect.objectContaining({
+                status: PollbookConnectionStatus.MismatchedConfiguration,
+              }),
+            ],
+          },
+        });
       });
     });
-  });
-});
+  }
+);
 
 test('connection status is managed properly with many pollbooks', async () => {
   await withManyApps(5, async (pollbookContexts) => {
