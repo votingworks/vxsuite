@@ -4,7 +4,10 @@ import {
   VoterRegistrationRequest,
 } from '@votingworks/pollbook-backend';
 import userEvent from '@testing-library/user-event';
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  electionSimpleSinglePrecinctFixtures,
+} from '@votingworks/fixtures';
 import { ElectionDefinition } from '@votingworks/types';
 import { screen } from '../test/react_testing_library';
 import {
@@ -25,7 +28,7 @@ const validStreetInfo: ValidStreetInfo = {
   postalCityTown: 'Concord',
   zip5: '03301',
   zip4: '6789',
-  precinct: 'precinct-1',
+  precinct: '23',
 };
 
 const mockRegistrationData: VoterRegistrationRequest = {
@@ -44,7 +47,7 @@ const mockRegistrationData: VoterRegistrationRequest = {
   city: 'CONCORD',
   state: 'NH',
   zipCode: '03301',
-  precinct: 'precinct-1',
+  precinct: '23',
 };
 
 const famousNamesElectionDef: ElectionDefinition =
@@ -55,7 +58,7 @@ let unmount: () => void;
 beforeEach(() => {
   vi.clearAllMocks();
   apiMock = createApiMock();
-  apiMock.setElection(famousNamesElectionDef, 'precinct-1');
+  apiMock.setElection(famousNamesElectionDef, '23');
 });
 
 afterEach(() => {
@@ -135,19 +138,20 @@ test('shows duplicate name modal and allows override', async () => {
 
   // Simulate duplicate name error
   apiMock.expectRegisterVoterError(mockRegistrationData, false, [
-    createMockVoter('test-duplicate-id', 'Jane', 'Smith'),
+    createMockVoter('test-duplicate-id', 'Jane', 'Smith', '23'),
   ]);
 
   userEvent.click(screen.getByTestId('add-voter-btn'));
   await screen.findByText('Duplicate Name Detected');
-  screen.getByText(/There is already a voter with the name JANE SMITH/);
-  screen.getByText(/test-duplicate-id/);
+  screen.getByText(
+    /There is already a voter with the name JANE SMITH in North Lincoln/
+  );
 
   // Simulate override
   apiMock.expectRegisterVoter(
     mockRegistrationData,
     true,
-    createMockVoter('created', 'Jane', 'Smith')
+    createMockVoter('created', 'Jane', 'Smith', '23')
   );
 
   userEvent.click(screen.getByTestId('confirm-duplicate-btn'));
@@ -155,7 +159,64 @@ test('shows duplicate name modal and allows override', async () => {
   screen.getByText('Give the voter their receipt.');
 });
 
-test('shows duplicate name modal and allows override - many matches', async () => {
+test('shows duplicate name modal and allows override - single precinct election', async () => {
+  const electionSimpleSinglePrecinct =
+    electionSimpleSinglePrecinctFixtures.readElectionDefinition();
+  const singlePrecinctId =
+    electionSimpleSinglePrecinct.election.precincts[0].id;
+  apiMock = createApiMock();
+  apiMock.setElection(electionSimpleSinglePrecinct, singlePrecinctId);
+  apiMock.setPrinterStatus(true);
+  apiMock.expectGetDeviceStatuses();
+  apiMock.expectGetValidStreetInfo([
+    {
+      ...validStreetInfo,
+      precinct: singlePrecinctId,
+    },
+  ]);
+  await renderComponent();
+
+  // Fill in required fields
+  userEvent.type(screen.getByRole('textbox', { name: 'First Name' }), 'Jane');
+  userEvent.type(screen.getByRole('textbox', { name: 'Last Name' }), 'Smith');
+  userEvent.type(screen.getByRole('textbox', { name: 'Street Number' }), '10');
+  userEvent.click(screen.getByLabelText('Street Name'));
+  userEvent.keyboard('[Enter]');
+  userEvent.click(screen.getByLabelText('Party Affiliation'));
+  userEvent.keyboard('[ArrowDown][Enter]');
+
+  // Simulate duplicate name error
+  apiMock.expectRegisterVoterError(
+    {
+      ...mockRegistrationData,
+      precinct: singlePrecinctId,
+    },
+    false,
+    [createMockVoter('test-duplicate-id', 'Jane', 'Smith', singlePrecinctId)]
+  );
+
+  userEvent.click(screen.getByTestId('add-voter-btn'));
+  await screen.findByText('Duplicate Name Detected');
+  screen.getByText(
+    /There is already a voter with the name JANE SMITH. Please confirm this is not a duplicate registration./
+  );
+
+  // Simulate override
+  apiMock.expectRegisterVoter(
+    {
+      ...mockRegistrationData,
+      precinct: singlePrecinctId,
+    },
+    true,
+    createMockVoter('created', 'Jane', 'Smith', singlePrecinctId)
+  );
+
+  userEvent.click(screen.getByTestId('confirm-duplicate-btn'));
+  await screen.findByText('Voter Added');
+  screen.getByText('Give the voter their receipt.');
+});
+
+test('shows duplicate name modal and allows override - many matches include precinct', async () => {
   apiMock.setPrinterStatus(true);
   apiMock.expectGetDeviceStatuses();
   apiMock.expectGetValidStreetInfo([validStreetInfo]);
@@ -173,20 +234,101 @@ test('shows duplicate name modal and allows override - many matches', async () =
 
   // Simulate duplicate name error
   apiMock.expectRegisterVoterError(mockRegistrationData, false, [
-    createMockVoter('created', 'Jane', 'Smith'),
-    createMockVoter('created2', 'Jane', 'Smith'),
-    createMockVoter('created3', 'Jane', 'Smith'),
+    createMockVoter('created', 'Jane', 'Smith', '23'),
+    createMockVoter('created2', 'Jane', 'Smith', '22'),
+    createMockVoter('created3', 'Jane', 'Smith', '22'),
   ]);
 
   userEvent.click(screen.getButton('Add Voter'));
   await screen.findByText('Duplicate Name Detected');
-  screen.getByText(/There are already 3 voters with the name JANE SMITH/);
+  screen.getByText(
+    /There is already a voter with the name JANE SMITH in North Lincoln/
+  );
 
   // Simulate override
   apiMock.expectRegisterVoter(
     mockRegistrationData,
     true,
-    createMockVoter('created', 'Jane', 'Smith')
+    createMockVoter('created', 'Jane', 'Smith', '23')
+  );
+
+  userEvent.click(screen.getByTestId('confirm-duplicate-btn'));
+  await screen.findByText('Voter Added');
+  await screen.findAllByText('Give the voter their receipt.');
+});
+
+test('shows duplicate name modal and allows override - one match out of precinct', async () => {
+  apiMock.setPrinterStatus(true);
+  apiMock.expectGetDeviceStatuses();
+  apiMock.expectGetValidStreetInfo([validStreetInfo]);
+  await renderComponent();
+
+  // Fill in required fields
+  userEvent.type(screen.getByRole('textbox', { name: 'First Name' }), 'Jane');
+  userEvent.type(screen.getByRole('textbox', { name: 'Last Name' }), 'Smith');
+  userEvent.type(screen.getByRole('textbox', { name: 'Street Number' }), '10');
+  userEvent.click(screen.getByLabelText('Street Name'));
+  userEvent.keyboard('[Enter]');
+  userEvent.click(screen.getByLabelText('Party Affiliation'));
+  userEvent.click(screen.getByLabelText('Party Affiliation'));
+  userEvent.keyboard('[ArrowDown][Enter]');
+
+  // Simulate duplicate name error
+  apiMock.expectRegisterVoterError(mockRegistrationData, false, [
+    createMockVoter('created2', 'Jane', 'Smith', '22'),
+  ]);
+
+  userEvent.click(screen.getButton('Add Voter'));
+  await screen.findByText('Duplicate Name Detected');
+  screen.getByText(
+    /There is already a voter with the name JANE SMITH in South Lincoln/
+  );
+
+  // Simulate override
+  apiMock.expectRegisterVoter(
+    mockRegistrationData,
+    true,
+    createMockVoter('created', 'Jane', 'Smith', '23')
+  );
+
+  userEvent.click(screen.getByTestId('confirm-duplicate-btn'));
+  await screen.findByText('Voter Added');
+  await screen.findAllByText('Give the voter their receipt.');
+});
+
+test('shows duplicate name modal and allows override - many matches out of precinct', async () => {
+  apiMock.setPrinterStatus(true);
+  apiMock.expectGetDeviceStatuses();
+  apiMock.expectGetValidStreetInfo([validStreetInfo]);
+  await renderComponent();
+
+  // Fill in required fields
+  userEvent.type(screen.getByRole('textbox', { name: 'First Name' }), 'Jane');
+  userEvent.type(screen.getByRole('textbox', { name: 'Last Name' }), 'Smith');
+  userEvent.type(screen.getByRole('textbox', { name: 'Street Number' }), '10');
+  userEvent.click(screen.getByLabelText('Street Name'));
+  userEvent.keyboard('[Enter]');
+  userEvent.click(screen.getByLabelText('Party Affiliation'));
+  userEvent.click(screen.getByLabelText('Party Affiliation'));
+  userEvent.keyboard('[ArrowDown][Enter]');
+
+  // Simulate duplicate name error
+  apiMock.expectRegisterVoterError(mockRegistrationData, false, [
+    createMockVoter('created2', 'Jane', 'Smith', '22'),
+    createMockVoter('created2', 'Jane', 'Smith', '21'),
+  ]);
+
+  userEvent.click(screen.getButton('Add Voter'));
+  await screen.findByText('Duplicate Name Detected');
+  screen.getByText(
+    /There are already 2 voters with the name JANE SMITH in other precincts/
+  );
+
+  // Simulate override
+  apiMock.expectRegisterVoter(
+    mockRegistrationData,
+    true,
+    createMockVoter('created', 'Jane', 'Smith', '23')
   );
 
   userEvent.click(screen.getByTestId('confirm-duplicate-btn'));
@@ -212,7 +354,7 @@ test('shows success message after registration - no duplicate warning', async ()
   apiMock.expectRegisterVoter(
     mockRegistrationData,
     false,
-    createMockVoter('created', 'Jane', 'Smith')
+    createMockVoter('created', 'Jane', 'Smith', '23')
   );
 
   userEvent.click(screen.getButton('Add Voter'));
