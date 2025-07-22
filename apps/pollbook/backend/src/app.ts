@@ -54,7 +54,7 @@ import {
   AamvaDocument,
   isBarcodeScannerError,
   VoterIdentificationMethod,
-  PartyAbbreviation,
+  CheckInBallotParty,
 } from './types';
 import { rootDebug } from './debug';
 import {
@@ -267,7 +267,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
     async checkInVoter(input: {
       voterId: string;
       identificationMethod: VoterIdentificationMethod;
-      ballotParty: PartyAbbreviation;
+      ballotParty: CheckInBallotParty;
     }): Promise<Result<void, VoterCheckInError>> {
       const election = assertDefined(store.getElection());
       const { checkIn, party: voterParty } = store.getVoter(input.voterId);
@@ -285,16 +285,20 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
             break;
           case 'REP':
           case 'DEM':
-            if (input.ballotParty !== voterParty) {
-              return err('mismatched_party_selection');
-            }
+            assert(
+              input.ballotParty === voterParty,
+              `Expected check-in party ${input.ballotParty} to match voter party ${voterParty}`
+            );
             break;
+          /* istanbul ignore next - @preserve */
           default:
-            /* istanbul ignore next - @preserve */
             return err('unknown_voter_party');
         }
-      } else if (input.ballotParty !== voterParty) {
-        return err('mismatched_party_selection');
+      } else if (election.type === 'general') {
+        assert(
+          input.ballotParty === 'NOT_APPLICABLE',
+          'Check-in ballot party cannot be provided during a general election'
+        );
       }
 
       const { voter, receiptNumber } = store.recordVoterCheckIn({

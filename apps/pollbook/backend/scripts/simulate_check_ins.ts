@@ -3,7 +3,7 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { safeParseInt } from '@votingworks/types';
 import type { LocalApi } from '../src/app';
-import { PartyAbbreviation, Voter } from '../src';
+import { CheckInBallotParty, PartyAbbreviation, Voter } from '../src';
 
 const api = grout.createClient<LocalApi>({
   baseUrl: 'http://localhost:3002/api',
@@ -21,7 +21,7 @@ async function getAllVoters() {
 
 // Returns the voter's party, or if party is undeclared, deterministically
 // chooses a party based on voter last name.
-function getCheckInPartyForVoter(voter: Voter): PartyAbbreviation {
+function getCheckInPartyForVoter(voter: Voter): CheckInBallotParty {
   if (voter.party !== 'UND') {
     return voter.party;
   }
@@ -33,13 +33,15 @@ function getCheckInPartyForVoter(voter: Voter): PartyAbbreviation {
   return 'REP';
 }
 
-async function checkInVoter(voterId: string) {
+async function checkInVoter(voterId: string, isPrimary: boolean) {
   try {
     const voter = await api.getVoter({ voterId });
     await api.checkInVoter({
       voterId,
       identificationMethod: { type: 'default' },
-      ballotParty: getCheckInPartyForVoter(voter),
+      ballotParty: isPrimary
+        ? 'NOT_APPLICABLE'
+        : getCheckInPartyForVoter(voter),
     });
   } catch (error) {
     console.error(`Failed to check in voter ${voterId}:`, error);
@@ -104,6 +106,9 @@ async function checkInAllVotersOnCurrentMachine(
       voters = voters.filter((voter) => isVoterInRange(voter, range));
     }
 
+    const election = (await api.getElection()).unsafeUnwrap();
+    const isPrimary = election.type === 'primary';
+
     const sortedVoters = [...voters].sort((a, b) => {
       const lastNameComparison = a.lastName.localeCompare(b.lastName);
       return lastNameComparison !== 0
@@ -145,7 +150,7 @@ async function checkInAllVotersOnCurrentMachine(
       );
 
       const startCheckIn = performance.now();
-      await checkInVoter(voter.voterId);
+      await checkInVoter(voter.voterId, isPrimary);
       const endCheckIn = performance.now();
       durations.checkIn.push(endCheckIn - startCheckIn);
 

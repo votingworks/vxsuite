@@ -1,5 +1,5 @@
 import {
-  PartyAbbreviation,
+  CheckInBallotParty,
   VoterIdentificationMethod,
 } from '@votingworks/pollbook-backend';
 import {
@@ -21,7 +21,7 @@ interface SelectPartyScreenProps {
   onConfirmCheckIn: (
     voterId: string,
     identificationMethod: VoterIdentificationMethod,
-    ballotParty: PartyAbbreviation
+    ballotParty: CheckInBallotParty
   ) => void;
   onBack: () => void;
 }
@@ -33,7 +33,7 @@ export function SelectPartyScreen({
   onBack,
 }: SelectPartyScreenProps): JSX.Element {
   const [selectedBallotParty, setSelectedBallotParty] =
-    useState<Optional<PartyAbbreviation>>(undefined);
+    useState<Optional<CheckInBallotParty>>(undefined);
 
   return (
     <NoNavScreen>

@@ -155,8 +155,8 @@ export function PartyName({ party }: { party: 'DEM' | 'REP' | 'UND' }): string {
       return 'Republican';
     case 'UND':
       return 'Undeclared';
+    /* istanbul ignore next: Compile-time check for completeness @preserve */
     default: {
-      /* istanbul ignore next: Compile-time check for completeness @preserve */
       throwIllegalValue(party);
     }
   }

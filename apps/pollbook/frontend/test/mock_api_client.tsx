@@ -8,6 +8,7 @@ import { createMockClient } from '@votingworks/grout-test-utils';
 import type {
   AamvaDocument,
   Api,
+  CheckInBallotParty,
   ConfigurationError,
   ConfigurationStatus,
   DeviceStatuses,
@@ -387,7 +388,7 @@ export function createApiMock() {
         .resolves(voter);
     },
 
-    expectCheckInVoter(voter: Voter, ballotParty: PartyAbbreviation) {
+    expectCheckInVoter(voter: Voter, ballotParty: CheckInBallotParty) {
       mockApiClient.checkInVoter.reset();
       mockApiClient.checkInVoter
         .expectCallWith({
@@ -403,7 +404,7 @@ export function createApiMock() {
     expectCheckInVoterError(
       voter: Voter,
       error: VoterCheckInError,
-      ballotParty: PartyAbbreviation
+      ballotParty: CheckInBallotParty
     ) {
       mockApiClient.checkInVoter.reset();
       mockApiClient.checkInVoter

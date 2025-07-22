@@ -15,6 +15,7 @@ import {
 } from '@votingworks/ui';
 import React, { useState } from 'react';
 import type {
+  CheckInBallotParty,
   PartyAbbreviation,
   VoterIdentificationMethod,
 } from '@votingworks/pollbook-backend';
@@ -57,6 +58,29 @@ function isIdentificationMethodComplete(
   }
 }
 
+function partyAbbreviationToCheckInBallotParty(
+  election: Election,
+  abbreviation: PartyAbbreviation
+): CheckInBallotParty {
+  if (election.type === 'general') {
+    return 'NOT_APPLICABLE';
+  }
+
+  switch (abbreviation) {
+    case 'DEM':
+      return 'DEM';
+    case 'REP':
+      return 'REP';
+    case 'UND':
+      throw new Error(
+        'REP or DEM ballot party must be specified for undeclared voters in a primary'
+      );
+    default:
+      /* istanbul ignore next */
+      throwIllegalValue(abbreviation);
+  }
+}
+
 export function VoterConfirmScreen({
   voterId,
   isAbsenteeMode,
@@ -76,7 +100,7 @@ export function VoterConfirmScreen({
   onConfirmCheckIn: (
     voterId: string,
     identificationMethod: VoterIdentificationMethod,
-    ballotParty: PartyAbbreviation
+    ballotParty: CheckInBallotParty
   ) => void;
   election: Election;
   configuredPrecinctId: string;
@@ -324,8 +348,7 @@ export function VoterConfirmScreen({
               onConfirmCheckIn(
                 voterId,
                 identificationMethod,
-                // No party selection required for voters with declared party
-                voter.party
+                partyAbbreviationToCheckInBallotParty(election, voter.party)
               );
             }
           }}
@@ -354,8 +377,10 @@ export function VoterConfirmScreen({
                     onConfirmCheckIn(
                       voterId,
                       identificationMethod,
-                      // No party selection required for voters with declared party
-                      voter.party
+                      partyAbbreviationToCheckInBallotParty(
+                        election,
+                        voter.party
+                      )
                     );
                   }
                 }}
