@@ -29,7 +29,7 @@ import { VoterDetailsScreen } from './voter_details_screen';
 import { VoterRegistrationScreen } from './voter_registration_screen';
 import { ElectionManagerNavScreen, electionManagerRoutes } from './nav_screen';
 
-export function SettingsScreen(): JSX.Element | null {
+export function ElectionScreen(): JSX.Element | null {
   const getElectionQuery = getElection.useQuery();
   const getPollbookConfigurationInformationQuery =
     getPollbookConfigurationInformation.useQuery();
@@ -66,7 +66,7 @@ export function SettingsScreen(): JSX.Element | null {
     getHaveElectionEventsOccurredQuery.data || hadErrorSettingPrecinct;
 
   return (
-    <ElectionManagerNavScreen title="Settings">
+    <ElectionManagerNavScreen title="Election">
       <MainContent>
         <Column style={{ gap: '1rem' }}>
           <Row>
@@ -146,8 +146,8 @@ export function ElectionManagerScreen(): JSX.Element {
   return (
     <Switch>
       <Route
-        path={electionManagerRoutes.settings.path}
-        render={() => <SettingsScreen />}
+        path={electionManagerRoutes.election.path}
+        render={() => <ElectionScreen />}
       />
       <Route
         exact
@@ -163,7 +163,7 @@ export function ElectionManagerScreen(): JSX.Element {
         component={StatisticsScreen}
       />
       <Route path="/voters/:voterId" component={VoterDetailsScreen} />
-      <Redirect to={electionManagerRoutes.settings.path} />
+      <Redirect to={electionManagerRoutes.election.path} />
     </Switch>
   );
 }
