@@ -178,11 +178,11 @@ impl Debug for ScanComplete {
         f.debug_struct("ScanComplete")
             .field(
                 "top",
-                &format_args!("{}…", self.image_data.0.get(..20).unwrap_or("uft-8 error")),
+                &format_args!("{}…", self.image_data.0.get(..20).unwrap_or("utf-8 error")),
             )
             .field(
                 "bottom",
-                &format_args!("{}…", self.image_data.1.get(..20).unwrap_or("uft-8 error")),
+                &format_args!("{}…", self.image_data.1.get(..20).unwrap_or("utf-8 error")),
             )
             .finish()
     }
