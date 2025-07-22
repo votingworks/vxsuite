@@ -572,9 +572,8 @@ test('actions are disabled when precinct does not match voter', async () => {
   const updateAddressButtons = screen.getAllByRole('button', {
     name: 'Update Domicile Address',
   });
-  // The address button should be enabled because it could be changed to the current precinct.
   const addressButton = updateAddressButtons[0];
-  expect(addressButton).not.toBeDisabled();
+  expect(addressButton).toBeDisabled();
 
   const updateMailingAddressButtons = screen.getAllByRole('button', {
     name: 'Update Mailing Address',

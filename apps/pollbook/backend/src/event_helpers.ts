@@ -162,12 +162,6 @@ export function applyPollbookEventsToVoters(
           debug('Voter %s not found', event.voterId);
           continue;
         }
-        // If we receive a check in event for a voter that was marked as inactive it should not be processed.
-        // This can only occur if there are offline machines or in rare race conditions. Inactivated voters can
-        // not be checked in.
-        if (voter.isInactive) {
-          continue;
-        }
         updatedVoters[event.voterId] = {
           ...voter,
           checkIn: event.checkInData,
@@ -225,9 +219,6 @@ export function applyPollbookEventsToVoters(
         }
         updatedVoters[event.voterId] = {
           ...voter,
-          // If there was a check in it should be removed, checks in are not allowed on inactivated voters. This can only occur
-          // in rare edge conditions with race conditions // offline machines
-          checkIn: undefined,
           isInactive: true,
         };
         break;

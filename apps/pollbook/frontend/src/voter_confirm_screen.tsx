@@ -289,6 +289,7 @@ export function VoterConfirmScreen({
             <Row style={{ gap: '0.5rem' }}>
               <Button
                 icon="Edit"
+                disabled={isVoterInWrongPrecinct}
                 onPress={() => setShowUpdateAddressFlow(true)}
               >
                 Update Domicile Address

@@ -447,7 +447,6 @@ export function VoterDetailsScreen(): JSX.Element | null {
             <Button
               icon="Edit"
               disabled={
-                voter.isInactive ||
                 !configuredPrecinctId ||
                 configuredPrecinctId !== getVoterPrecinct(voter)
               }
@@ -457,7 +456,10 @@ export function VoterDetailsScreen(): JSX.Element | null {
             </Button>
             <Button
               icon="Edit"
-              disabled={voter.isInactive || !configuredPrecinctId}
+              disabled={
+                !configuredPrecinctId ||
+                configuredPrecinctId !== getVoterPrecinct(voter)
+              }
               onPress={() => setShowUpdateAddressFlow(true)}
             >
               Update Domicile Address
@@ -467,7 +469,6 @@ export function VoterDetailsScreen(): JSX.Element | null {
             <Button
               icon="Edit"
               disabled={
-                voter.isInactive ||
                 !configuredPrecinctId ||
                 configuredPrecinctId !== getVoterPrecinct(voter)
               }
@@ -479,7 +480,7 @@ export function VoterDetailsScreen(): JSX.Element | null {
         </Column>
         <Column style={{ flex: 1, flexBasis: 1, gap: '1rem' }}>
           <Card color="neutral">
-            {voter.isInactive && (
+            {voter.isInactive && !voter.checkIn && (
               <H2 style={{ marginTop: 0 }}>
                 <Icons.Flag /> Inactive
               </H2>
@@ -489,7 +490,7 @@ export function VoterDetailsScreen(): JSX.Element | null {
                 <Icons.Info /> Not Checked In
               </H2>
             )}
-            {voter.checkIn && !voter.isInactive && (
+            {voter.checkIn && (
               <React.Fragment>
                 <H2 style={{ marginTop: 0 }}>
                   <Icons.Done /> Checked In
@@ -533,7 +534,7 @@ export function VoterDetailsScreen(): JSX.Element | null {
               Flag Voter as Inactive
             </Button>
           )}
-          {voter.checkIn && !voter.isInactive && (
+          {voter.checkIn && (
             <Row style={{ gap: '1rem' }}>
               <Button
                 icon="Print"
