@@ -68,7 +68,7 @@ function getIconAndLabelForPollbookConnection(
       assert(isCurrentMachineConfigured(currentMachineConfiguration));
       return [
         <Icons.Checkmark key={pollbook.machineId} color="success" />,
-        'Connected',
+        'Synced',
       ];
     }
     case PollbookConnectionStatus.LostConnection: {

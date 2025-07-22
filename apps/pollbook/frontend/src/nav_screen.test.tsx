@@ -255,7 +255,7 @@ test('renders network status as expected - when configured', async () => {
   // Check each row
   const pollbookRows = screen.getAllByTestId('pollbook-row');
   expect(pollbookRows).toHaveLength(6);
-  expect(within(pollbookRows[0]).getByText('Connected')).toBeInTheDocument();
+  expect(within(pollbookRows[0]).getByText('Synced')).toBeInTheDocument();
   const iconElement0 = within(pollbookRows[0]).getByRole('img', {
     hidden: true,
   });
