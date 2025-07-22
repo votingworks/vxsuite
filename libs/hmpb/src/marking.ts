@@ -15,6 +15,7 @@ import {
   BUBBLE_WIDTH_PX,
   pageMarginsInches,
   TIMING_MARK_DIMENSIONS,
+  timingMarkCounts,
 } from './ballot_components';
 
 // NOTE: All values used in this module are in PDF user space `pt` units.
@@ -28,7 +29,6 @@ const pageMargins = [
   pageMarginsInches.top * IN,
 ] as const;
 
-const timingMarkCount = [34, 41] as const;
 const timingMarkSize = [
   TIMING_MARK_DIMENSIONS.width * IN,
   TIMING_MARK_DIMENSIONS.height * IN,
@@ -79,6 +79,7 @@ export function generateMarkOverlay(
   const pageSizeIn = ballotPaperDimensions(election.ballotLayout.paperSize);
   const pageSize = [pageSizeIn.width * IN, pageSizeIn.height * IN] as const;
 
+  const timingMarkCount = timingMarkCounts(pageSizeIn);
   const gridSize = [
     pageSize[0] - 2 * pageMargins[0] - timingMarkSize[0],
     pageSize[1] - 2 * pageMargins[1] - timingMarkSize[1],
@@ -111,8 +112,8 @@ export function generateMarkOverlay(
     doc.switchToPage(pageNumber - 1); // Pages are 0-indexed in `pdfkit`.
 
     const bubbleCenter = [
-      gridOrigin[0] + gridSize[0] * (pos.column / (timingMarkCount[0] - 1)),
-      gridOrigin[1] + gridSize[1] * (pos.row / (timingMarkCount[1] - 1)),
+      gridOrigin[0] + gridSize[0] * (pos.column / (timingMarkCount.x - 1)),
+      gridOrigin[1] + gridSize[1] * (pos.row / (timingMarkCount.y - 1)),
     ];
 
     doc
@@ -131,12 +132,12 @@ export function generateMarkOverlay(
 
     const { writeInArea: area, writeInName: name } = mark;
     const origin = [
-      gridOrigin[0] + gridSize[0] * (area.x / (timingMarkCount[0] - 1)),
-      gridOrigin[1] + gridSize[1] * (area.y / (timingMarkCount[1] - 1)),
+      gridOrigin[0] + gridSize[0] * (area.x / (timingMarkCount.x - 1)),
+      gridOrigin[1] + gridSize[1] * (area.y / (timingMarkCount.y - 1)),
     ];
     const areaSize = [
-      area.width * (gridSize[0] / (timingMarkCount[0] - 1)),
-      area.height * (gridSize[1] / (timingMarkCount[1] - 1)),
+      area.width * (gridSize[0] / (timingMarkCount.x - 1)),
+      area.height * (gridSize[1] / (timingMarkCount.y - 1)),
     ];
 
     let fontSize = writeInFontSizeDefault;

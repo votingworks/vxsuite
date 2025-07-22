@@ -26,11 +26,9 @@ import {
   constructElectionKey,
 } from '@votingworks/types';
 import { join } from 'node:path';
+import { PrintMode } from './types';
 
 const SchemaPath = join(__dirname, '../schema.sql');
-
-// [TODO] Fits better in ./types.ts, but this avoids a dependency cycle for now:
-export type PrintMode = 'bubble_marks' | 'summary';
 
 export interface ElectionRecord {
   electionDefinition: ElectionDefinition;

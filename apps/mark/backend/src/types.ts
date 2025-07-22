@@ -1,5 +1,9 @@
-import { PollsState, PrecinctSelection } from '@votingworks/types';
-import { PrintBallotProps as BackendPrintBallotProps } from './util/print_ballot';
+import {
+  BallotStyleId,
+  PollsState,
+  PrecinctSelection,
+  VotesDict,
+} from '@votingworks/types';
 
 export interface MachineConfig {
   machineId: string;
@@ -16,7 +20,11 @@ export interface ElectionState {
 
 export type ScreenOrientation = 'portrait' | 'landscape';
 
-export type PrintBallotProps = Omit<
-  BackendPrintBallotProps,
-  'store' | 'printer'
->;
+export interface PrintBallotProps {
+  ballotStyleId: BallotStyleId;
+  languageCode: string;
+  precinctId: string;
+  votes: VotesDict;
+}
+
+export type PrintMode = 'bubble_marks' | 'summary';

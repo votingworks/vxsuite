@@ -8,7 +8,6 @@ import { MARK_WORKSPACE, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
 
 export type { Api } from './app';
-export type { PrintMode } from './store';
 export * from './types';
 
 loadEnvVarsFromDotenvFiles();
