@@ -143,7 +143,7 @@ test('check in a voter', async () => {
     const checkInResult = await localApiClient.checkInVoter({
       voterId: firstVoter.voterId,
       identificationMethod: { type: 'default' },
-      ballotParty: 'UND',
+      ballotParty: 'NOT_APPLICABLE',
     });
     expect(checkInResult.ok()).toEqual(undefined);
     expect(await localApiClient.haveElectionEventsOccurred()).toEqual(true);
@@ -157,7 +157,7 @@ test('check in a voter', async () => {
       timestamp: expect.any(String),
       machineId: TEST_MACHINE_ID,
       receiptNumber: 1,
-      ballotParty: 'UND',
+      ballotParty: 'NOT_APPLICABLE',
     });
 
     const receiptPdfPath = mockPrinterHandler.getLastPrintPath();
@@ -168,7 +168,7 @@ test('check in a voter', async () => {
     const checkInResultOos = await localApiClient.checkInVoter({
       voterId: secondVoter.voterId,
       identificationMethod: { type: 'outOfStateLicense', state: 'CA' },
-      ballotParty: 'UND',
+      ballotParty: 'NOT_APPLICABLE',
     });
     expect(checkInResultOos.ok()).toEqual(undefined);
 
@@ -181,7 +181,7 @@ test('check in a voter', async () => {
       timestamp: expect.any(String),
       machineId: TEST_MACHINE_ID,
       receiptNumber: 2,
-      ballotParty: 'UND',
+      ballotParty: 'NOT_APPLICABLE',
     });
 
     const receiptPdfPathOos = mockPrinterHandler.getLastPrintPath();
@@ -197,6 +197,39 @@ test('check in a voter', async () => {
     const receiptReprint = mockPrinterHandler.getLastPrintPath();
     expect(receiptReprint).toBeDefined();
     await expect(receiptReprint).toMatchPdfSnapshot();
+  });
+});
+
+test('checking in a voter does not allow ballot party during a general', async () => {
+  await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
+    workspace.store.setElectionAndVoters(
+      electionDefinition,
+      'mock-package-hash',
+      townStreetNames,
+      townVoters
+    );
+    mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
+    expect(await localApiClient.haveElectionEventsOccurred()).toEqual(false);
+    const votersAbigail = await localApiClient.searchVoters({
+      searchParams: {
+        firstName: 'Abigail',
+        middleName: '',
+        lastName: 'Adams',
+        suffix: '',
+      },
+    });
+
+    assert(votersAbigail !== null);
+    assert(Array.isArray(votersAbigail));
+    expect((votersAbigail as Voter[]).length).toEqual(3);
+    const firstVoter = (votersAbigail as Voter[])[0];
+
+    const checkInResult = await localApiClient.checkInVoter({
+      voterId: firstVoter.voterId,
+      identificationMethod: { type: 'default' },
+      ballotParty: 'REP',
+    });
+    expect(checkInResult.err()).toEqual('ballot_party_not_applicable');
   });
 });
 
@@ -250,7 +283,7 @@ test('register a voter', async () => {
     const checkInResult = await localApiClient.checkInVoter({
       voterId: registerOk.voterId,
       identificationMethod: { type: 'default' },
-      ballotParty: 'REP',
+      ballotParty: 'NOT_APPLICABLE',
     });
     expect(checkInResult.ok()).toEqual(undefined);
 
@@ -263,7 +296,7 @@ test('register a voter', async () => {
       timestamp: expect.any(String),
       receiptNumber: 2,
       machineId: TEST_MACHINE_ID,
-      ballotParty: 'REP',
+      ballotParty: 'NOT_APPLICABLE',
     });
 
     const checkInReceiptPdfPath = mockPrinterHandler.getLastPrintPath();
@@ -553,7 +586,7 @@ test('undo a voter check-in', async () => {
     const checkInResult = await localApiClient.checkInVoter({
       voterId: firstVoter.voterId,
       identificationMethod: { type: 'default' },
-      ballotParty: 'UND',
+      ballotParty: 'NOT_APPLICABLE',
     });
     expect(checkInResult.isOk()).toBeTruthy();
 
@@ -711,7 +744,7 @@ test.skip('register a voter, change name and address, and check in', async () =>
       const checkInResult = await localApiClient.checkInVoter({
         voterId: registerOk.voterId,
         identificationMethod: { type: 'default' },
-        ballotParty: 'DEM',
+        ballotParty: 'NOT_APPLICABLE',
       });
       expect(checkInResult.ok()).toEqual(undefined);
 
@@ -734,7 +767,7 @@ test.skip('register a voter, change name and address, and check in', async () =>
           timestamp: expect.any(String),
           receiptNumber: 6,
           machineId: TEST_MACHINE_ID,
-          ballotParty: 'DEM',
+          ballotParty: 'NOT_APPLICABLE',
         },
       });
 
@@ -782,7 +815,7 @@ test('check in, change name, undo check-in, change address, and check in again',
     const checkInResult = await localApiClient.checkInVoter({
       voterId: firstVoter.voterId,
       identificationMethod: { type: 'default' },
-      ballotParty: 'UND',
+      ballotParty: 'NOT_APPLICABLE',
     });
     expect(checkInResult.ok()).toEqual(undefined);
 
@@ -836,7 +869,7 @@ test('check in, change name, undo check-in, change address, and check in again',
     const finalCheckInResult = await localApiClient.checkInVoter({
       voterId: firstVoter.voterId,
       identificationMethod: { type: 'default' },
-      ballotParty: 'UND',
+      ballotParty: 'NOT_APPLICABLE',
     });
     expect(finalCheckInResult.ok()).toEqual(undefined);
 
@@ -849,7 +882,7 @@ test('check in, change name, undo check-in, change address, and check in again',
       timestamp: expect.any(String),
       receiptNumber: 5,
       machineId: TEST_MACHINE_ID,
-      ballotParty: 'UND',
+      ballotParty: 'NOT_APPLICABLE',
     });
 
     const finalReceiptPdfPath = mockPrinterHandler.getLastPrintPath();
@@ -1131,7 +1164,7 @@ test('mark a voter inactive', async () => {
     const checkInResult = await localApiClient.checkInVoter({
       voterId: firstVoter.voterId,
       identificationMethod: { type: 'default' },
-      ballotParty: 'UND',
+      ballotParty: 'NOT_APPLICABLE',
     });
     expect(checkInResult.ok()).toEqual(undefined);
 
@@ -1139,7 +1172,7 @@ test('mark a voter inactive', async () => {
     const checkIn = await localApiClient.checkInVoter({
       voterId: secondVoter.voterId,
       identificationMethod: { type: 'default' },
-      ballotParty: 'UND',
+      ballotParty: 'NOT_APPLICABLE',
     });
     expect(checkIn.ok()).toEqual(undefined);
     // Trying to mark this voter as inactive should return an error.

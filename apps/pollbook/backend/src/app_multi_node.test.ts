@@ -253,7 +253,7 @@ test('connection status between two pollbooks is managed properly', async () => 
     const checkIn = await pollbookContext1.localApiClient.checkInVoter({
       voterId: testVoters[0].voterId,
       identificationMethod: { type: 'default' },
-      ballotParty: 'UND',
+      ballotParty: 'NOT_APPLICABLE',
     });
     expect(checkIn.ok()).toEqual(undefined);
 
