@@ -40,7 +40,7 @@ import {
   VoterRegistrationRequest,
   VoterSchema,
   VoterSearchParams,
-  PartyAbbreviation,
+  CheckInBallotParty,
 } from './types';
 import {
   applyPollbookEventsToVoters,
@@ -299,7 +299,7 @@ export class LocalStore extends Store {
   }: {
     voterId: string;
     identificationMethod: VoterIdentificationMethod;
-    ballotParty: PartyAbbreviation;
+    ballotParty: CheckInBallotParty;
   }): { voter: Voter; receiptNumber: number } {
     debug(`Recording check-in for voter ${voterId}`);
     const voter = this.getVoter(voterId);

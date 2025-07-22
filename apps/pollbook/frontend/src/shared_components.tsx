@@ -182,7 +182,7 @@ export function TitledCard({
 export function PartyName({ party }: { party: 'DEM' | 'REP' | 'UND' }): string {
   switch (party) {
     case 'DEM':
-      return 'Democrat';
+      return 'Democratic';
     case 'REP':
       return 'Republican';
     case 'UND':

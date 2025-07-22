@@ -127,7 +127,7 @@ describe('PollWorkerScreen', () => {
     await screen.findByText('Confirm Voter Identity');
 
     const confirmButton = screen.getByText('Confirm Check-In');
-    apiMock.expectCheckInVoter(voter, voter.party);
+    apiMock.expectCheckInVoter(voter, 'NOT_APPLICABLE');
     apiMock.expectGetVoter(voter);
     userEvent.click(confirmButton);
     await screen.findByText('Voter Checked In');
@@ -374,7 +374,7 @@ describe('PollWorkerScreen', () => {
       await screen.findByText('Confirm Voter Identity');
 
       const confirmButton = screen.getByText('Confirm Check-In');
-      apiMock.expectCheckInVoterError(voter, testCase.error, voter.party);
+      apiMock.expectCheckInVoterError(voter, testCase.error, 'NOT_APPLICABLE');
       userEvent.click(confirmButton);
       await screen.findByText(testCase.expectedMessage);
 

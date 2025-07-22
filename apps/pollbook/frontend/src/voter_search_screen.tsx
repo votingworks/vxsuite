@@ -216,7 +216,10 @@ export function VoterSearch({
                   data-testid="scanned-id-input"
                   style={{ flexGrow: 1 }}
                   disabled
-                  onChange={() => {}}
+                  onChange={
+                    /* istanbul ignore next */
+                    () => {}
+                  }
                   type="text"
                 />
               </InputGroup>

@@ -83,20 +83,73 @@ async function renderComponent({
   await screen.findByText(`${voterToCheck.firstName} ${voterToCheck.lastName}`);
 }
 
-test('renders voter information correctly', async () => {
-  await renderComponent();
+const testVoters: Array<{
+  voterWithParty: Voter;
+  expectedPartyString: string;
+}> = [
+  {
+    voterWithParty: createMockVoter(
+      mockVoterId,
+      'ABIGAIL',
+      'ADAMS',
+      precinct,
+      'REP'
+    ),
+    expectedPartyString: 'Republican',
+  },
+  {
+    voterWithParty: createMockVoter(
+      mockVoterId,
+      'ABIGAIL',
+      'ADAMS',
+      precinct,
+      'DEM'
+    ),
+    expectedPartyString: 'Democratic',
+  },
+];
 
-  // Check voter details are displayed
-  screen.getByText('ABIGAIL ADAMS');
-  screen.getByText('Republican');
-  screen.getByText(voter.voterId);
-  screen.getByText(/123 Main St/);
-  // This voter does not have a mailing address so it should not be displayed
-  expect(screen.queryByText('Mailing Address')).toBeNull();
-  // There are no address updates yet.
-  expect(screen.queryByText('Updated Mailing Address')).toBeNull();
-  expect(screen.queryByText('Updated Domicile Address')).toBeNull();
-});
+test.each(testVoters)(
+  '$expectedPartyString voter renders information correctly',
+  async ({ voterWithParty, expectedPartyString }) => {
+    apiMock.expectGetVoter(voterWithParty);
+    await renderComponent();
+
+    // Check voter details are displayed
+    screen.getByText('ABIGAIL ADAMS');
+    screen.getByText(expectedPartyString);
+    screen.getByText(voter.voterId);
+    screen.getByText(/123 Main St/);
+    // This voter does not have a mailing address so it should not be displayed
+    expect(screen.queryByText('Mailing Address')).toBeNull();
+    // There are no address updates yet.
+    expect(screen.queryByText('Updated Mailing Address')).toBeNull();
+    expect(screen.queryByText('Updated Domicile Address')).toBeNull();
+  }
+);
+
+test.each(testVoters)(
+  'happy path - active voter check-in with default identification and $expectedPartyString party',
+  async ({ voterWithParty }) => {
+    apiMock.expectGetVoter(voterWithParty);
+    await renderComponent();
+
+    const confirmButton = screen.getButton('Confirm Check-In');
+    expect(confirmButton).not.toBeDisabled();
+
+    userEvent.click(confirmButton);
+
+    const expectedIdentification: VoterIdentificationMethod = {
+      type: 'default',
+    };
+    const expectedParty = voterWithParty.party;
+    expect(onConfirmCheckIn).toHaveBeenCalledWith(
+      mockVoterId,
+      expectedIdentification,
+      expectedParty
+    );
+  }
+);
 
 test('renders voter information correctly - with mailing address', async () => {
   const voterWithMailingAddress: Voter = {
@@ -136,23 +189,6 @@ test('shows flag callout for inactive voters', async () => {
 
   screen.getByText(/This voter was flagged as inactive/);
   screen.getByText(/Notify an election manager if anyone attempts to check in/);
-});
-
-test('happy path - active voter check-in with default identification', async () => {
-  await renderComponent();
-
-  const confirmButton = screen.getButton('Confirm Check-In');
-  expect(confirmButton).not.toBeDisabled();
-
-  userEvent.click(confirmButton);
-
-  const expectedIdentification: VoterIdentificationMethod = { type: 'default' };
-  const expectedParty = voter.party;
-  expect(onConfirmCheckIn).toHaveBeenCalledWith(
-    mockVoterId,
-    expectedIdentification,
-    expectedParty
-  );
 });
 
 test('happy path - active voter check-in in absentee mode', async () => {
