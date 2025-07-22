@@ -308,14 +308,6 @@ export function VoterCheckInScreen(): JSX.Element | null {
         case 'unknown_voter_party':
           errorMessage = 'Voter Has No Declared Party';
           break;
-        // Next 2 errors should be unreachable.
-        case 'mismatched_party_selection':
-          errorMessage =
-            "Voter's Declared Party Differs From Ballot Party Selection";
-          break;
-        case 'ballot_party_not_applicable':
-          errorMessage = 'A Ballot Party Was Specified For a General Election';
-          break;
         default:
           /* istanbul ignore next - @preserve */
           throwIllegalValue(flowState.errorType);

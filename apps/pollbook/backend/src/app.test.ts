@@ -224,12 +224,15 @@ test('checking in a voter does not allow ballot party during a general', async (
     expect((votersAbigail as Voter[]).length).toEqual(3);
     const firstVoter = (votersAbigail as Voter[])[0];
 
-    const checkInResult = await localApiClient.checkInVoter({
-      voterId: firstVoter.voterId,
-      identificationMethod: { type: 'default' },
-      ballotParty: 'REP',
-    });
-    expect(checkInResult.err()).toEqual('ballot_party_not_applicable');
+    await expect(
+      localApiClient.checkInVoter({
+        voterId: firstVoter.voterId,
+        identificationMethod: { type: 'default' },
+        ballotParty: 'REP',
+      })
+    ).rejects.toThrow(
+      'Check-in ballot party cannot be provided during a general election'
+    );
   });
 });
 

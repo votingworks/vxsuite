@@ -647,7 +647,7 @@ test('an undeclared voter cannot check in as undeclared', async () => {
   });
 });
 
-test('a declared voter must check in with a party selection matching the declared party', async () => {
+test('in a primary, a declared voter must check in with a party selection matching the declared party', async () => {
   await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
     workspace.store.setElectionAndVoters(
       electionDefinition,
@@ -690,11 +690,19 @@ test('a declared voter must check in with a party selection matching the declare
       party: 'REP',
     });
 
+    await expect(
+      localApiClient.checkInVoter({
+        voterId: registerOk.voterId,
+        identificationMethod: { type: 'default' },
+        ballotParty: 'DEM',
+      })
+    ).rejects.toThrow('Expected check-in party DEM to match voter party REP');
+
     const checkInResult = await localApiClient.checkInVoter({
       voterId: registerOk.voterId,
       identificationMethod: { type: 'default' },
-      ballotParty: 'DEM',
+      ballotParty: 'REP',
     });
-    expect(checkInResult.err()).toEqual('mismatched_party_selection');
+    expect(checkInResult.isOk()).toBeTruthy();
   });
 });

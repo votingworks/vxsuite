@@ -505,8 +505,6 @@ export type ConfigurationStatus =
 export type VoterCheckInError =
   | 'already_checked_in'
   | 'undeclared_voter_missing_ballot_party'
-  | 'mismatched_party_selection'
-  | 'ballot_party_not_applicable'
   | 'unknown_voter_party';
 
 export interface DuplicateVoterError {
