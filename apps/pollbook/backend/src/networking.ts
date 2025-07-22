@@ -325,7 +325,15 @@ export function setupMachineNetworking({
                 'WE ARE CONNECTING MY MACHINE: ',
                 myMachineInformation.machineId
               );
+              console.log(
+                'myMachineInformation:',
+                JSON.stringify(myMachineInformation, null, 2)
+              );
               console.log('TO: ', machineInformation.machineId);
+              console.log(
+                'their machineInformation:',
+                JSON.stringify(machineInformation, null, 2)
+              );
               debug(
                 'Establishing connection with a new pollbook service with machineId %s',
                 machineInformation.machineId

@@ -1050,6 +1050,7 @@ test('one pollbook can be configured from another pollbook automatically as an e
           (await pollbookContext2.localApiClient.getElection()).err()
         ).toEqual('unconfigured');
       });
+      console.log('calling set up');
       await setupUnconfiguredPollbooksOnNetwork(
         [pollbookContext1, pollbookContext2, pollbookContext3],
         'set-up-contexts-1-2'
