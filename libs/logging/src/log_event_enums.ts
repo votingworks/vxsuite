@@ -218,6 +218,7 @@ export enum LogEventId {
   BarcodeScanned = 'barcode-scanned',
   PollbookNetworkStatus = 'pollbook-network-status',
   PollbookConfigurationStatus = 'pollbook-configuration-status',
+  PollbookPaperBackupStatus = 'pollbook-paper-backup-status',
 }
 
 const ElectionConfigured: LogDetails = {
@@ -1345,6 +1346,14 @@ const PollbookConfigurationMessage: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxPollbook],
 };
 
+const PollbookPaperBackupStatus: LogDetails = {
+  eventId: LogEventId.PollbookPaperBackupStatus,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'A status message indicating the state of the pollbook paper backup.',
+  restrictInDocumentationToApps: [AppName.VxPollbook],
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -1655,6 +1664,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return PollbookNetworkMessage;
     case LogEventId.PollbookConfigurationStatus:
       return PollbookConfigurationMessage;
+    case LogEventId.PollbookPaperBackupStatus:
+      return PollbookPaperBackupStatus;
     default:
       throwIllegalValue(eventId);
   }

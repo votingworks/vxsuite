@@ -84,7 +84,10 @@ function main(): Promise<number> {
     machineId,
     codeVersion,
   });
-  backupWorker.start({ workspace: localWorkspace, usbDrive });
+  backupWorker.start({
+    workspace: localWorkspace,
+    usbDrive,
+  });
 
   return Promise.resolve(0);
 }
