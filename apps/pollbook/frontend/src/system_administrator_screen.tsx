@@ -6,6 +6,8 @@ import {
 import { SmartCardsScreen } from './smart_cards_screen';
 import { SettingsScreen } from './settings_screen';
 import { ElectionScreen } from './election_screen';
+import { UnconfiguredSystemAdminScreen } from './unconfigured_screen';
+import { getElection } from './api';
 
 function SystemAdminSettingsScreen(): JSX.Element | null {
   return (
@@ -16,6 +18,20 @@ function SystemAdminSettingsScreen(): JSX.Element | null {
 }
 
 function SystemAdministratorElectionScreen(): JSX.Element | null {
+  const getElectionQuery = getElection.useQuery();
+
+  if (!getElectionQuery.isSuccess) {
+    return null;
+  }
+
+  if (getElectionQuery.data.isErr()) {
+    return (
+      <SystemAdministratorNavScreen title="Election">
+        <UnconfiguredSystemAdminScreen />
+      </SystemAdministratorNavScreen>
+    );
+  }
+
   return (
     <SystemAdministratorNavScreen title="Election">
       <ElectionScreen />
