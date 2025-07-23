@@ -1,4 +1,4 @@
-import { BaseLogger } from '@votingworks/logging';
+import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
 import { Client as DbClient } from '@votingworks/db';
 import { Result, err, ok } from '@votingworks/basics';
 import fetch from 'node-fetch';
@@ -33,8 +33,13 @@ const debug = rootDebug.extend('store:peer');
 export class PeerStore extends Store {
   private readonly connectedPollbooks: Record<string, PollbookService> = {};
 
-  constructor(client: DbClient, machineId: string, codeVersion: string) {
-    super(client, machineId, codeVersion);
+  constructor(
+    client: DbClient,
+    machineId: string,
+    codeVersion: string,
+    logger: BaseLogger
+  ) {
+    super(client, machineId, codeVersion, logger);
 
     // Reset knowledge of connected pollbook
     this.client.run(`DELETE FROM machines`);
@@ -52,7 +57,8 @@ export class PeerStore extends Store {
     return new PeerStore(
       DbClient.fileClient(dbPath, logger, SchemaPath),
       machineId,
-      codeVersion
+      codeVersion,
+      logger
     );
   }
 
@@ -61,16 +67,26 @@ export class PeerStore extends Store {
    */
   static memoryStore(
     machineId: string = 'test-machine',
-    codeVersion: string = 'test-v1'
+    codeVersion: string = 'test-v1',
+    logger: BaseLogger = new BaseLogger(LogSource.VxPollBookBackend)
   ): PeerStore {
     return new PeerStore(
       DbClient.memoryClient(SchemaPath),
       machineId,
-      codeVersion
+      codeVersion,
+      logger
     );
   }
 
   setOnlineStatus(isOnline: boolean): void {
+    const currentOnline = this.getIsOnline();
+    if (currentOnline !== isOnline) {
+      this.logger.log(LogEventId.PollbookNetworkStatus, 'system', {
+        message: `Pollbook status changed to ${
+          isOnline ? 'online' : 'offline'
+        }`,
+      });
+    }
     this.client.transaction(() => {
       if (!isOnline) {
         // If we go offline, we should clear the list of connected pollbooks.
@@ -108,6 +124,12 @@ export class PeerStore extends Store {
     pollbookEvents: PollbookEvent[],
     remoteMachineInformation: PollbookConfigurationInformation
   ): void {
+    if (pollbookEvents.length === 0) {
+      return;
+    }
+    this.logger.log(LogEventId.PollbookNetworkStatus, 'system', {
+      message: `Saving ${pollbookEvents.length} remote events from machine ${remoteMachineInformation.machineId}`,
+    });
     this.client.transaction(() => {
       const localInformation = this.getPollbookConfigurationInformation();
       if (
@@ -199,10 +221,24 @@ export class PeerStore extends Store {
   ): void {
     debug('Setting pollbook service %s', avahiServiceName);
     debug('New status service: %o', pollbookService.status);
-    this.connectedPollbooks[avahiServiceName] = pollbookService;
+    if (!this.connectedPollbooks[avahiServiceName]) {
+      this.logger.log(LogEventId.PollbookNetworkStatus, 'system', {
+        message: `New pollbook service discovered: ${avahiServiceName}`,
+        newStatus: pollbookService.status,
+      });
+    } else if (
+      this.connectedPollbooks[avahiServiceName].status !==
+      pollbookService.status
+    ) {
+      this.logger.log(LogEventId.PollbookNetworkStatus, 'system', {
+        message: `Pollbook service ${avahiServiceName} status updated`,
+        previousStatus: this.connectedPollbooks[avahiServiceName].status,
+        newStatus: pollbookService.status,
+      });
+    }
 
     // Update the machines table with the pollbook service information
-
+    this.connectedPollbooks[avahiServiceName] = pollbookService;
     this.client.run(
       `
       INSERT INTO machines (machine_id, status, last_seen, pollbook_information)
@@ -252,6 +288,10 @@ export class PeerStore extends Store {
     if (election) {
       return err('already-configured');
     }
+
+    this.logger.log(LogEventId.PollbookConfigurationStatus, 'system', {
+      message: `Configuring election from peer machine with ID: ${machineId}`,
+    });
     // Find the connected pollbook with the given machineId
     const pollbooks = this.getPollbookServicesByName();
     const peer = Object.values(pollbooks).find(

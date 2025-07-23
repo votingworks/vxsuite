@@ -2,6 +2,7 @@ import * as grout from '@votingworks/grout';
 import express, { Application } from 'express';
 import { join } from 'node:path';
 import { Result } from '@votingworks/basics';
+import { LogEventId } from '@votingworks/logging';
 import {
   PollbookEvent,
   PeerAppContext,
@@ -63,6 +64,12 @@ export function buildPeerApp(context: PeerAppContext): Application {
     if (!context.workspace.store.getElection()) {
       res.status(404).send('Pollbook package not found');
     }
+    context.workspace.logger.log(LogEventId.ApiCall, 'system', {
+      methodName: 'getPollbookPackage',
+      disposition: 'success',
+      message: 'Sending pollbook package zip file to peer',
+    });
+
     const pollbookPackagePath = join(
       context.workspace.assetDirectoryPath,
       POLLBOOK_PACKAGE_ASSET_FILE_NAME
