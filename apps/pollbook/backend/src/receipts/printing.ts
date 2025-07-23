@@ -1,8 +1,10 @@
+import { BaseLogger, LogEventId } from '@votingworks/logging';
 import { Printer, renderToPdf } from '@votingworks/printing';
 
 export async function renderAndPrintReceipt(
   printer: Printer,
-  receipt: JSX.Element
+  receipt: JSX.Element,
+  logger: BaseLogger
 ): Promise<void> {
   const receiptPdf = (
     await renderToPdf({
@@ -20,4 +22,8 @@ export async function renderAndPrintReceipt(
     })
   ).unsafeUnwrap();
   await printer.print({ data: receiptPdf });
+  logger.log(LogEventId.PrinterPrintComplete, 'system', {
+    message: 'Receipt printed successfully',
+    disposition: 'success',
+  });
 }
