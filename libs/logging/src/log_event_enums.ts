@@ -214,6 +214,7 @@ export enum LogEventId {
   SocketServerClose = 'socket-server-close',
   SocketServerAwaitingClient = 'socket-server-awaiting-client',
   SocketServerError = 'socket-server-error',
+  BarcodeScanned = 'barcode-scanned',
 }
 
 const ElectionConfigured: LogDetails = {
@@ -1319,6 +1320,12 @@ const SocketServerError: LogDetails = {
   documentationMessage: 'An error was reported by a socket server.',
 };
 
+const BarcodeScanned: LogDetails = {
+  eventId: LogEventId.BarcodeScanned,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage: 'A barcode was scanned.',
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -1623,6 +1630,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return SocketServerAwaitingClient;
     case LogEventId.SocketServerError:
       return SocketServerError;
+    case LogEventId.BarcodeScanned:
+      return BarcodeScanned;
     default:
       throwIllegalValue(eventId);
   }

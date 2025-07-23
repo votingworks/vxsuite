@@ -411,5 +411,7 @@ pub enum EventId {
     SocketServerAwaitingClient,
     #[serde(rename = "socket-server-error")]
     SocketServerError,
+    #[serde(rename = "barcode-scanned")]
+    BarcodeScanned,
 }
 derive_display!(EventId);

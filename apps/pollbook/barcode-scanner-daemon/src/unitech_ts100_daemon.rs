@@ -280,6 +280,12 @@ where
                     }
                 };
 
+                log!(
+                    event_id: EventId::BarcodeScanned,
+                    message: format!("An ID in AAMVA format was successfully scanned"),
+                    event_type: EventType::SystemAction,
+                    disposition: Disposition::Success
+                );
                 if let Err(err) = broadcast_to_clients(&clients, &doc).await {
                     log!(
                         EventId::SocketServerError,
