@@ -1,4 +1,4 @@
-import { exec, spawn } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import { execFile } from '@votingworks/backend';
 import { rootDebug } from './debug';
 import { intermediateScript } from './intermediate_scripts';
@@ -27,7 +27,10 @@ export async function hasOnlineInterface(): Promise<boolean> {
 }
 
 export class AvahiService {
-  private static runningProcess: ReturnType<typeof exec> | null = null;
+  private static readonly runningProcesses: Map<
+    string,
+    ReturnType<typeof spawn>
+  > = new Map();
 
   /**
    * Advertises an HTTP service on the given port.
@@ -42,17 +45,27 @@ export class AvahiService {
       `${port}`,
     ]);
 
-    this.runningProcess = process;
+    this.runningProcesses.set(name, process);
   }
 
   /**
    * Stops the currently running advertised service.
    */
-  static stopAdvertisedService(): void {
-    if (this.runningProcess) {
-      this.runningProcess.kill();
-      debug('Stopped advertised service.');
-      this.runningProcess = null;
+  static stopAdvertisedService(name?: string): void {
+    if (name) {
+      const process = this.runningProcesses.get(name);
+      if (process) {
+        process.kill();
+        this.runningProcesses.delete(name);
+        debug(`Stopped advertised service: ${name}`);
+      }
+    } else {
+      // Stop all services (for backward compatibility)
+      for (const [serviceName, process] of this.runningProcesses) {
+        process.kill();
+        debug(`Stopped advertised service: ${serviceName}`);
+      }
+      this.runningProcesses.clear();
     }
   }
 
