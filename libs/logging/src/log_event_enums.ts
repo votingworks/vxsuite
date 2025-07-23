@@ -25,6 +25,7 @@ export enum AppName {
   VxAdmin = 'vx-admin',
   VxCentralScan = 'vx-central-scan',
   VxDesign = 'vx-design',
+  VxPollbook = 'vx-pollbook',
 }
 export enum LogSource {
   System = 'system',
@@ -214,6 +215,8 @@ export enum LogEventId {
   SocketServerClose = 'socket-server-close',
   SocketServerAwaitingClient = 'socket-server-awaiting-client',
   SocketServerError = 'socket-server-error',
+  PollbookNetworkStatus = 'pollbook-network-status',
+  PollbookConfigurationStatus = 'pollbook-configuration-status',
 }
 
 const ElectionConfigured: LogDetails = {
@@ -1319,6 +1322,22 @@ const SocketServerError: LogDetails = {
   documentationMessage: 'An error was reported by a socket server.',
 };
 
+const PollbookNetworkMessage: LogDetails = {
+  eventId: LogEventId.PollbookNetworkStatus,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'A status message indicating an update to the pollbook network.',
+  restrictInDocumentationToApps: [AppName.VxPollbook],
+};
+
+const PollbookConfigurationMessage: LogDetails = {
+  eventId: LogEventId.PollbookConfigurationStatus,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'A status message indicating an update to the pollbook configuration.',
+  restrictInDocumentationToApps: [AppName.VxPollbook],
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -1623,6 +1642,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return SocketServerAwaitingClient;
     case LogEventId.SocketServerError:
       return SocketServerError;
+    case LogEventId.PollbookNetworkStatus:
+      return PollbookNetworkMessage;
+    case LogEventId.PollbookConfigurationStatus:
+      return PollbookConfigurationMessage;
     default:
       throwIllegalValue(eventId);
   }

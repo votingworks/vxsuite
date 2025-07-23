@@ -1,6 +1,7 @@
 import { execFile } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
 import { assert, sleep } from '@votingworks/basics';
+import { LogEventId } from '@votingworks/logging';
 import { rootDebug } from './debug';
 import {
   PeerAppContext,
@@ -213,6 +214,9 @@ export function setupMachineNetworking({
     PEER_PORT
   );
   AvahiService.advertiseHttpService(currentNodeServiceName, PEER_PORT);
+  workspace.logger.log(LogEventId.PollbookNetworkStatus, 'system', {
+    message: `Published service ${currentNodeServiceName} to avahi on port ${PEER_PORT}`,
+  });
 
   // Poll for new machines on the network
   process.nextTick(() => {
