@@ -53,18 +53,55 @@ describe('AvahiService.advertiseHttpService', () => {
 });
 
 describe('AvahiService.stopAdvertisedService', () => {
-  it('kills the running process if present', () => {
-    const fakeProcess = { kill: vi.fn() } as const;
+  it('kills the running process if present by name', () => {
+    const fakeProcess = { kill: vi.fn() } as unknown as ReturnType<
+      typeof spawn
+    >;
+    const fakeProcess2 = { kill: vi.fn() } as unknown as ReturnType<
+      typeof spawn
+    >;
+    const processMap = new Map<string, ReturnType<typeof spawn>>();
+    processMap.set('test-service', fakeProcess);
+    processMap.set('test-service-2', fakeProcess2);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (AvahiService as any).runningProcess = fakeProcess;
+    (AvahiService as any).runningProcesses = processMap;
+
+    // nothing should happen with a bad service name
+    AvahiService.stopAdvertisedService('fake-service');
+    expect(fakeProcess.kill).not.toHaveBeenCalled();
+    expect(fakeProcess2.kill).not.toHaveBeenCalled();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    expect((AvahiService as any).runningProcesses).toHaveLength(2);
+
+    AvahiService.stopAdvertisedService('test-service');
+    expect(fakeProcess.kill).toHaveBeenCalled();
+    expect(fakeProcess2.kill).not.toHaveBeenCalled();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    expect((AvahiService as any).runningProcesses).toHaveLength(1);
+  });
+
+  it('kills all running process without name', () => {
+    const fakeProcess = { kill: vi.fn() } as unknown as ReturnType<
+      typeof spawn
+    >;
+    const fakeProcess2 = { kill: vi.fn() } as unknown as ReturnType<
+      typeof spawn
+    >;
+    const processMap = new Map<string, ReturnType<typeof spawn>>();
+    processMap.set('test-service', fakeProcess);
+    processMap.set('test-service-2', fakeProcess2);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (AvahiService as any).runningProcesses = processMap;
     AvahiService.stopAdvertisedService();
     expect(fakeProcess.kill).toHaveBeenCalled();
+    expect(fakeProcess2.kill).toHaveBeenCalled();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect((AvahiService as any).runningProcess).toBeNull();
+    expect((AvahiService as any).runningProcesses).toHaveLength(0);
   });
+
   it('does nothing if no process is running', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (AvahiService as any).runningProcess = null;
+    (AvahiService as any).runningProcesses = new Map();
     expect(() => AvahiService.stopAdvertisedService()).not.toThrow();
   });
 });

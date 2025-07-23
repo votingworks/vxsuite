@@ -294,8 +294,9 @@ export async function withManyApps(
     }
   } finally {
     for (const context of contexts) {
+      const serviceName = `Pollbook-test-${contexts.indexOf(context)}`;
       await new Promise<void>((resolve, reject) => {
-        AvahiService.stopAdvertisedService();
+        AvahiService.stopAdvertisedService(serviceName);
         context.localServer.close((error) =>
           error ? reject(error) : resolve()
         );
