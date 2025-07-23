@@ -7,6 +7,7 @@ import {
   P,
   SetClockButton,
 } from '@votingworks/ui';
+import React from 'react';
 import { formatUsbDrive, getUsbDriveStatus, logOut } from './api';
 
 interface SettingsScreenProps {
@@ -39,14 +40,16 @@ export function SettingsScreen({
           Set Date and Time
         </SetClockButton>
       </P>
-      <H2>USB</H2>
       {showFormatUsbButton && (
-        <P>
-          <FormatUsbButton
-            usbDriveStatus={usbDriveStatus}
-            formatUsbDriveMutation={formatUsbDriveMutation}
-          />
-        </P>
+        <React.Fragment>
+          <H2>USB</H2>
+          <P>
+            <FormatUsbButton
+              usbDriveStatus={usbDriveStatus}
+              formatUsbDriveMutation={formatUsbDriveMutation}
+            />
+          </P>
+        </React.Fragment>
       )}
     </MainContent>
   );

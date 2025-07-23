@@ -18,7 +18,7 @@ import { SmartCardsScreen } from './smart_cards_screen';
 import { UnconfiguredSystemAdminScreen } from './unconfigured_screen';
 import { SettingsScreen } from './settings_screen';
 
-export function SystemAdminSettingsScreen(): JSX.Element | null {
+function SystemAdminSettingsScreen(): JSX.Element | null {
   return (
     <SystemAdministratorNavScreen title="Settings">
       <SettingsScreen showFormatUsbButton />
@@ -89,7 +89,7 @@ export function SystemAdministratorScreen(): JSX.Element {
       />
       <Route
         path={systemAdministratorRoutes.settings.path}
-        component={SettingsScreen}
+        component={SystemAdminSettingsScreen}
       />
       <Redirect to={systemAdministratorRoutes.election.path} />
     </Switch>
