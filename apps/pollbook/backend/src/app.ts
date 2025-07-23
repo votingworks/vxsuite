@@ -357,7 +357,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
         election,
       });
       debug('Printing check-in receipt for voter %s', voter.voterId);
-      await renderAndPrintReceipt(printer, receipt);
+      await renderAndPrintReceipt(printer, receipt, workspace.logger);
       return ok();
     },
 
@@ -378,7 +378,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
         election,
       });
       debug('Printing check-in receipt for voter %s', voter.voterId);
-      await renderAndPrintReceipt(printer, receipt);
+      await renderAndPrintReceipt(printer, receipt, workspace.logger);
     },
 
     async reprintVoterReceipt(input: {
@@ -398,7 +398,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
         reprintTimestamp: new Date(getCurrentTime()),
       });
       debug('Reprinting check-in receipt for voter %s', voter.voterId);
-      await renderAndPrintReceipt(printer, receipt);
+      await renderAndPrintReceipt(printer, receipt, workspace.logger);
       return ok();
     },
 
@@ -418,7 +418,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
         election,
       });
       debug('Printing address change receipt for voter %s', voter.voterId);
-      await renderAndPrintReceipt(printer, receipt);
+      await renderAndPrintReceipt(printer, receipt, workspace.logger);
       return voter;
     },
 
@@ -441,7 +441,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
         'Printing mailing address change receipt for voter %s',
         voter.voterId
       );
-      await renderAndPrintReceipt(printer, receipt);
+      await renderAndPrintReceipt(printer, receipt, workspace.logger);
       return voter;
     },
 
@@ -461,7 +461,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
         election,
       });
       debug('Printing name change receipt for voter %s', voter.voterId);
-      await renderAndPrintReceipt(printer, receipt);
+      await renderAndPrintReceipt(printer, receipt, workspace.logger);
       return voter;
     },
 
@@ -490,7 +490,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
         election,
       });
       debug('Printing registration receipt for voter %s', voter.voterId);
-      await renderAndPrintReceipt(printer, receipt);
+      await renderAndPrintReceipt(printer, receipt, workspace.logger);
       return ok(voter);
     },
 
@@ -515,7 +515,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
         election,
       });
       debug('Printing marked inactive receipt for voter %s', voter.voterId);
-      await renderAndPrintReceipt(printer, receipt);
+      await renderAndPrintReceipt(printer, receipt, workspace.logger);
       return ok();
     },
 
