@@ -25,6 +25,7 @@
     "@napi-rs/cli": "^2.18.4",
     "@types/tmp": "0.2.4",
     "@vitest/coverage-istanbul": "^3.1.1",
+    "@votingworks/fixtures": "workspace:*",
     "@votingworks/logging": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "@votingworks/types": "workspace:*",

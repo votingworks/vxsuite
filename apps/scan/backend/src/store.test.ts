@@ -7,6 +7,7 @@ import {
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   electionTwoPartyPrimaryFixtures,
+  makeTemporaryFile,
 } from '@votingworks/fixtures';
 import { mockBaseLogger } from '@votingworks/logging';
 import {
@@ -29,7 +30,6 @@ import {
 } from '@votingworks/utils';
 import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
-import * as tmp from 'tmp';
 import { v4 as uuid } from 'uuid';
 import { expect, test, vi } from 'vitest';
 
@@ -311,8 +311,8 @@ test('get/set polls state', () => {
 });
 
 test('batch cleanup works correctly', () => {
-  const dbFile = tmp.fileSync();
-  const store = Store.fileStore(dbFile.name, mockBaseLogger({ fn: vi.fn }));
+  const dbFile = makeTemporaryFile();
+  const store = Store.fileStore(dbFile, mockBaseLogger({ fn: vi.fn }));
 
   store.reset();
 
@@ -525,8 +525,8 @@ test('getSheet', () => {
 });
 
 test('resetElectionSession', async () => {
-  const dbFile = tmp.fileSync();
-  const store = Store.fileStore(dbFile.name, mockBaseLogger({ fn: vi.fn }));
+  const dbFile = makeTemporaryFile();
+  const store = Store.fileStore(dbFile, mockBaseLogger({ fn: vi.fn }));
   store.setElectionAndJurisdiction({
     electionData:
       electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()

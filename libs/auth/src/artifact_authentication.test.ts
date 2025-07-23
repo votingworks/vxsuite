@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import * as fs from 'node:fs';
 import path from 'node:path';
-import { dirSync } from 'tmp';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { z } from 'zod/v4';
 import { assert, err, ok } from '@votingworks/basics';
 import {
@@ -51,7 +51,7 @@ let electionPackage: {
 };
 
 beforeEach(() => {
-  tempDirectoryPath = dirSync().name;
+  tempDirectoryPath = makeTemporaryDirectory();
 
   // Prepare mock cast vote records
   const castVoteRecordExportDirectoryPath = path.join(

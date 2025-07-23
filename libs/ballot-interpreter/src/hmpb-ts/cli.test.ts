@@ -6,7 +6,10 @@ import { asSheet, DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { randomUUID } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { dirSync, fileSync } from 'tmp';
+import {
+  makeTemporaryDirectory,
+  makeTemporaryFile,
+} from '@votingworks/fixtures';
 import { expect, test } from 'vitest';
 import { pdfToPageImages } from '../../test/helpers/interpretation';
 import { main } from './cli';
@@ -16,7 +19,7 @@ test('interpret CVRs', async () => {
     await pdfToPageImages(vxFamousNamesFixtures.blankBallotPath).toArray()
   );
 
-  const rootDir = dirSync().name;
+  const rootDir = makeTemporaryDirectory();
   const ids = integers()
     .take(3)
     .map(() => randomUUID())
@@ -30,13 +33,12 @@ test('interpret CVRs', async () => {
     await writeImageData(join(cvrDir, `${id}-back.jpeg`), ballotImages[1]);
   }
 
-  const electionFilePath = fileSync().name;
-  await writeFile(
-    electionFilePath,
-    vxFamousNamesFixtures.electionDefinition.electionData
-  );
-  const systemSettingsPath = fileSync().name;
-  await writeFile(systemSettingsPath, JSON.stringify(DEFAULT_SYSTEM_SETTINGS));
+  const electionFilePath = makeTemporaryFile({
+    content: vxFamousNamesFixtures.electionDefinition.electionData,
+  });
+  const systemSettingsPath = makeTemporaryFile({
+    content: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
 
   const stdout = mockWritable();
   const stderr = mockWritable();

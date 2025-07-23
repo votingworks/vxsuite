@@ -1,30 +1,27 @@
 import { describe, expect, test } from 'vitest';
+import { join } from 'node:path';
+import * as fs from 'node:fs/promises';
 import { FileSystemEntryType } from '@votingworks/fs';
-import tmp from 'tmp';
 import { err, iter, ok } from '@votingworks/basics';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { listDirectoryOnUsbDrive } from './list_directory_on_usb_drive';
 import { createMockUsbDrive } from './mocks/memory_usb_drive';
 import { UsbDriveStatus } from './types';
 
 describe('listDirectoryOnUsbDrive', () => {
   test('happy path', async () => {
-    const mockMountPoint = tmp.dirSync();
+    const mockMountPoint = makeTemporaryDirectory();
     const { usbDrive } = createMockUsbDrive();
     usbDrive.status.expectCallWith().resolves({
       status: 'mounted',
-      mountPoint: mockMountPoint.name,
+      mountPoint: mockMountPoint,
     });
 
-    const directory = tmp.dirSync({
-      name: 'directory',
-      dir: mockMountPoint.name,
-    });
-    tmp.fileSync({ name: 'file-1', dir: directory.name });
-    tmp.fileSync({ name: 'file-2', dir: directory.name });
-    tmp.dirSync({
-      name: 'subdirectory',
-      dir: directory.name,
-    });
+    const directory = join(mockMountPoint, 'directory');
+    await fs.mkdir(directory, { recursive: true });
+    await fs.writeFile(join(directory, 'file-1'), '');
+    await fs.writeFile(join(directory, 'file-2'), '');
+    await fs.mkdir(join(directory, 'subdirectory'), { recursive: true });
 
     const listDirectoryResults = listDirectoryOnUsbDrive(
       usbDrive,

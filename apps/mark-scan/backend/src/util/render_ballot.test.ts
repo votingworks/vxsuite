@@ -1,8 +1,8 @@
 import { beforeEach, expect, test, vi } from 'vitest';
-import tmp from 'tmp';
 import * as assert from 'node:assert';
 import { mockBaseLogger } from '@votingworks/logging';
 import {
+  makeTemporaryDirectory,
   readElectionGeneralDefinition,
   systemSettings,
 } from '@votingworks/fixtures';
@@ -62,11 +62,8 @@ const precinctId = electionGeneralDefinition.election.precincts[1].id;
 let workspace: Workspace;
 
 beforeEach(() => {
-  const mockWorkspaceDir = tmp.dirSync();
-  workspace = createWorkspace(
-    mockWorkspaceDir.name,
-    mockBaseLogger({ fn: vi.fn })
-  );
+  const mockWorkspaceDir = makeTemporaryDirectory();
+  workspace = createWorkspace(mockWorkspaceDir, mockBaseLogger({ fn: vi.fn }));
   workspace.store.setElectionAndJurisdiction({
     electionData: electionGeneralDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,

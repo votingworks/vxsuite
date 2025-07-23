@@ -17,11 +17,13 @@ import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import * as tmp from 'tmp';
 import { v4 as uuid } from 'uuid';
 import { sleep } from '@votingworks/basics';
 import { AcceptedSheet, RejectedSheet } from '@votingworks/backend';
-import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
+import {
+  electionGridLayoutNewHampshireTestBallotFixtures,
+  makeTemporaryFile,
+} from '@votingworks/fixtures';
 import { sha256 } from 'js-sha256';
 import { mockBaseLogger } from '@votingworks/logging';
 import { zeroRect } from '../test/fixtures/zero_rect';
@@ -164,8 +166,8 @@ test('get/set scanner as backed up', () => {
 });
 
 test('batch cleanup works correctly', () => {
-  const dbFile = tmp.fileSync();
-  const store = Store.fileStore(dbFile.name, mockBaseLogger({ fn: vi.fn }));
+  const dbFile = makeTemporaryFile();
+  const store = Store.fileStore(dbFile, mockBaseLogger({ fn: vi.fn }));
 
   store.reset();
 
@@ -732,8 +734,8 @@ test('iterating over each accepted sheet includes correct batch sequence id', ()
 });
 
 test('resetElectionSession', () => {
-  const dbFile = tmp.fileSync();
-  const store = Store.fileStore(dbFile.name, mockBaseLogger({ fn: vi.fn }));
+  const dbFile = makeTemporaryFile();
+  const store = Store.fileStore(dbFile, mockBaseLogger({ fn: vi.fn }));
   store.setElectionAndJurisdiction({
     electionData,
     jurisdiction,

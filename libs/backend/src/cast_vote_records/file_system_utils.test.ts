@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test } from 'vitest';
 import * as fs from 'node:fs';
 import path from 'node:path';
-import { dirSync } from 'tmp';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { sleep } from '@votingworks/basics';
 
 import { updateCreationTimestampOfDirectoryAndChildrenFiles } from './file_system_utils';
@@ -9,7 +9,7 @@ import { updateCreationTimestampOfDirectoryAndChildrenFiles } from './file_syste
 let tempDirectoryPath: string;
 
 beforeEach(() => {
-  tempDirectoryPath = dirSync().name;
+  tempDirectoryPath = makeTemporaryDirectory();
 });
 
 afterEach(() => {

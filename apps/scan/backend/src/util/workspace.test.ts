@@ -1,5 +1,5 @@
 import { beforeEach, expect, test, vi } from 'vitest';
-import * as tmp from 'tmp';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { mockBaseLogger } from '@votingworks/logging';
 import { createWorkspace } from './workspace';
 import { Store } from '../store';
@@ -9,8 +9,8 @@ beforeEach(() => {
 });
 
 test('createWorkspace', () => {
-  const dir = tmp.dirSync();
-  const workspace = createWorkspace(dir.name, mockBaseLogger({ fn: vi.fn }));
-  expect(workspace.path).toEqual(dir.name);
+  const dir = makeTemporaryDirectory();
+  const workspace = createWorkspace(dir, mockBaseLogger({ fn: vi.fn }));
+  expect(workspace.path).toEqual(dir);
   expect(workspace.store).toBeInstanceOf(Store);
 });

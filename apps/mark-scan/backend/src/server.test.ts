@@ -1,6 +1,6 @@
 import { afterEach, expect, test, vi } from 'vitest';
 import { LogEventId, mockBaseLogger, mockLogger } from '@votingworks/logging';
-import tmp from 'tmp';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import {
   BooleanEnvironmentVariableName,
@@ -31,7 +31,7 @@ test('can start server', async () => {
   const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const logger = mockLogger({ fn: vi.fn });
   const workspace = createWorkspace(
-    tmp.dirSync().name,
+    makeTemporaryDirectory(),
     mockBaseLogger({ fn: vi.fn })
   );
 
@@ -55,7 +55,7 @@ test('can start without providing auth', async () => {
 
   const logger = mockLogger({ fn: vi.fn });
   const workspace = createWorkspace(
-    tmp.dirSync().name,
+    makeTemporaryDirectory(),
     mockBaseLogger({ fn: vi.fn })
   );
 
@@ -76,7 +76,7 @@ test('logs device attach/un-attach events', async () => {
   );
   const logger = mockLogger({ fn: vi.fn });
   const workspace = createWorkspace(
-    tmp.dirSync().name,
+    makeTemporaryDirectory(),
     mockBaseLogger({ fn: vi.fn })
   );
 

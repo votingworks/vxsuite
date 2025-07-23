@@ -4,7 +4,7 @@ import { Buffer } from 'node:buffer';
 import { readFile, symlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { Readable } from 'node:stream';
-import { DirResult, dirSync } from 'tmp';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { Exporter, ExportDataResult } from './exporter';
 import { execFile } from './exec';
@@ -17,14 +17,6 @@ vi.mock(
   })
 );
 
-const tmpDirs: DirResult[] = [];
-
-function createTmpDir() {
-  const tmpDir = dirSync({ unsafeCleanup: true });
-  tmpDirs.push(tmpDir);
-  return tmpDir.name;
-}
-
 const mockUsbDrive = createMockUsbDrive();
 const { usbDrive } = mockUsbDrive;
 
@@ -34,15 +26,11 @@ const exporter = new Exporter({
 });
 
 afterEach(() => {
-  for (const tmpDir of tmpDirs) {
-    tmpDir.removeCallback();
-  }
-  tmpDirs.length = 0;
   mockUsbDrive.assertComplete();
 });
 
 test('exportData with string', async () => {
-  const tmpDir = createTmpDir();
+  const tmpDir = makeTemporaryDirectory();
   const path = join(tmpDir, 'test.txt');
   const result = await exporter.exportData(path, 'bar');
   expect(result).toEqual(ok([path]));
@@ -50,7 +38,7 @@ test('exportData with string', async () => {
 });
 
 test('exportData with Buffer', async () => {
-  const tmpDir = createTmpDir();
+  const tmpDir = makeTemporaryDirectory();
   const path = join(tmpDir, 'test.txt');
   const result = await exporter.exportData(path, Buffer.of(1, 2, 3));
   expect(result).toEqual(ok([path]));
@@ -58,7 +46,7 @@ test('exportData with Buffer', async () => {
 });
 
 test('exportData with Uint8Array', async () => {
-  const tmpDir = createTmpDir();
+  const tmpDir = makeTemporaryDirectory();
   const path = join(tmpDir, 'test.txt');
   const result = await exporter.exportData(path, Uint8Array.of(1, 2, 3));
   expect(result).toEqual(ok([path]));
@@ -78,7 +66,7 @@ test('exportData disallowed path', async () => {
 });
 
 test('exportData with iterable', async () => {
-  const tmpDir = createTmpDir();
+  const tmpDir = makeTemporaryDirectory();
   const path = join(tmpDir, 'test.txt');
   const result = await exporter.exportData(path, ['foo', 'bar']);
   expect(result).toEqual(ok([path]));
@@ -86,7 +74,7 @@ test('exportData with iterable', async () => {
 });
 
 test('exportData with async iterable', async () => {
-  const tmpDir = createTmpDir();
+  const tmpDir = makeTemporaryDirectory();
   const path = join(tmpDir, 'test.txt');
   const result = await exporter.exportData(path, iter(['foo', 'bar']).async());
   expect(result).toEqual(ok([path]));
@@ -94,7 +82,7 @@ test('exportData with async iterable', async () => {
 });
 
 test('exportData with stream', async () => {
-  const tmpDir = createTmpDir();
+  const tmpDir = makeTemporaryDirectory();
   const path = join(tmpDir, 'test.txt');
   const result = await exporter.exportData(
     path,
@@ -105,7 +93,7 @@ test('exportData with stream', async () => {
 });
 
 test('exportData with stream and maximumFileSize', async () => {
-  const tmpDir = createTmpDir();
+  const tmpDir = makeTemporaryDirectory();
   const path = join(tmpDir, 'test.txt');
   const result = await exporter.exportData(
     path,
@@ -120,7 +108,7 @@ test('exportData with stream and maximumFileSize', async () => {
 });
 
 test('exportData with empty string', async () => {
-  const tmpDir = createTmpDir();
+  const tmpDir = makeTemporaryDirectory();
   const path = join(tmpDir, 'test.txt');
   const result = await exporter.exportData(path, '');
   expect(result).toEqual(ok([path]));
@@ -128,7 +116,7 @@ test('exportData with empty string', async () => {
 });
 
 test('exportData with empty stream', async () => {
-  const tmpDir = createTmpDir();
+  const tmpDir = makeTemporaryDirectory();
   const path = join(tmpDir, 'test.txt');
   const result = await exporter.exportData(path, Readable.from([]));
   expect(result).toEqual(ok([path]));
@@ -136,7 +124,7 @@ test('exportData with empty stream', async () => {
 });
 
 test('exportData with a symbolic link', async () => {
-  const tmpDir = createTmpDir();
+  const tmpDir = makeTemporaryDirectory();
   const existingPath = join(tmpDir, 'test.txt');
   const linkPath = join(tmpDir, 'test-link.txt');
   await writeFile(existingPath, 'bar');
@@ -162,7 +150,7 @@ test('exportDataToUsbDrive with no drives', async () => {
 });
 
 test('exportDataToUsbDrive happy path', async () => {
-  const tmpDir = createTmpDir();
+  const tmpDir = makeTemporaryDirectory();
   const path = join(tmpDir, 'bucket/test.txt');
   usbDrive.status
     .expectCallWith()
@@ -178,7 +166,7 @@ test('exportDataToUsbDrive happy path', async () => {
 });
 
 test('exportDataToUsbDrive with maximumFileSize', async () => {
-  const tmpDir = createTmpDir();
+  const tmpDir = makeTemporaryDirectory();
   const path = join(tmpDir, 'bucket/test.txt');
   usbDrive.status
     .expectCallWith()
@@ -198,7 +186,7 @@ test('exportDataToUsbDrive with maximumFileSize', async () => {
 });
 
 test('exportDataToUsbDrive with machineDirectoryToWriteToFirst', async () => {
-  const tmpDir = createTmpDir();
+  const tmpDir = makeTemporaryDirectory();
   usbDrive.status
     .expectCallWith()
     .resolves({ status: 'mounted', mountPoint: tmpDir });

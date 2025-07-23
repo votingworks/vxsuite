@@ -3,14 +3,16 @@ import {
   getEmptyCardCounts,
   getEmptyElectionResults,
 } from '@votingworks/utils';
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  makeTemporaryFile,
+} from '@votingworks/fixtures';
 import {
   AdminTallyReportByParty,
   AdminTallyReportByPartyProps,
   P,
   useCurrentTheme,
 } from '@votingworks/ui';
-import { tmpNameSync } from 'tmp';
 import { parsePdf } from '@votingworks/image-utils';
 import { writeFileSync } from 'node:fs';
 import { chromium } from 'playwright';
@@ -42,7 +44,7 @@ const testReportProps: AdminTallyReportByPartyProps = {
 };
 
 test('rendered tally report matches snapshot', async () => {
-  const outputPath = tmpNameSync();
+  const outputPath = makeTemporaryFile();
   (
     await renderToPdf({
       document: <AdminTallyReportByParty {...testReportProps} />,
@@ -57,7 +59,7 @@ test('rendered tally report matches snapshot', async () => {
 });
 
 test('rendered tally report has minimum of letter when size is LetterRoll', async () => {
-  const outputPath = tmpNameSync();
+  const outputPath = makeTemporaryFile();
   (
     await renderToPdf({
       document: <AdminTallyReportByParty {...testReportProps} />,
@@ -85,7 +87,7 @@ function ManyHeadings({ count }: { count: number }): JSX.Element {
 const PDF_SCALING = 200 / 72;
 
 test('by default, large content is split across multiple letter pages', async () => {
-  const outputPath = tmpNameSync();
+  const outputPath = makeTemporaryFile();
   const pdfData = (
     await renderToPdf({ document: <ManyHeadings count={25} /> })
   ).unsafeUnwrap();
@@ -105,7 +107,7 @@ test('by default, large content is split across multiple letter pages', async ()
 });
 
 test('page can be longer than letter when using LetterRoll', async () => {
-  const outputPath = tmpNameSync();
+  const outputPath = makeTemporaryFile();
   const pdfData = (
     await renderToPdf({
       document: <ManyHeadings count={25} />,
@@ -125,7 +127,7 @@ test('page can be longer than letter when using LetterRoll', async () => {
 });
 
 test('page can not be longer than 100 inches when using LetterRoll', async () => {
-  const outputPath = tmpNameSync();
+  const outputPath = makeTemporaryFile();
   const pdfData = (
     await renderToPdf({
       document: <ManyHeadings count={500} />,
@@ -142,7 +144,7 @@ test('page can not be longer than 100 inches when using LetterRoll', async () =>
 });
 
 test('bmd 150 page is 13.25"', async () => {
-  const outputPath = tmpNameSync();
+  const outputPath = makeTemporaryFile();
   const pdfData = (
     await renderToPdf({
       document: <ManyHeadings count={15} />,
@@ -166,8 +168,8 @@ test('bmd 150 page is 13.25"', async () => {
 });
 
 test('can render multiple documents at once', async () => {
-  const outputPath1 = tmpNameSync();
-  const outputPath2 = tmpNameSync();
+  const outputPath1 = makeTemporaryFile();
+  const outputPath2 = makeTemporaryFile();
   (
     await renderToPdf([
       {
@@ -207,7 +209,7 @@ test('documents of various sizes all fit on a single page when using LetterRoll'
 });
 
 test('renders with custom margins', async () => {
-  const outputPath = tmpNameSync();
+  const outputPath = makeTemporaryFile();
   (
     await renderToPdf({
       document: <AdminTallyReportByParty {...testReportProps} />,
@@ -238,7 +240,7 @@ const StyledTestHeader = styled.div`
 `;
 
 test('readers header when specified', async () => {
-  const outputPath = tmpNameSync();
+  const outputPath = makeTemporaryFile();
   (
     await renderToPdf({
       document: <div>body</div>,
@@ -268,7 +270,7 @@ test('with browser override', async () => {
     executablePath: OPTIONAL_EXECUTABLE_PATH_OVERRIDE,
   });
 
-  const outputPath = tmpNameSync();
+  const outputPath = makeTemporaryFile();
   (
     await renderToPdf(
       {

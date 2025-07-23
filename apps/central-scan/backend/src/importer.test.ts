@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import { dirSync } from 'tmp';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { mockBaseLogger, mockLogger } from '@votingworks/logging';
 import { createImageData } from 'canvas';
 import { Importer } from './importer';
@@ -8,7 +8,7 @@ import { makeMockScanner } from '../test/util/mocks';
 
 test('no election is configured', async () => {
   const workspace = createWorkspace(
-    dirSync().name,
+    makeTemporaryDirectory(),
     mockBaseLogger({ fn: vi.fn })
   );
   const scanner = makeMockScanner();

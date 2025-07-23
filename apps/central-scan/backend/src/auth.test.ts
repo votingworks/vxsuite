@@ -2,7 +2,6 @@ import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
 import getPort from 'get-port';
 import { Server } from 'node:http';
 import { DateTime } from 'luxon';
-import { dirSync } from 'tmp';
 import {
   buildMockDippedSmartCardAuth,
   DippedSmartCardAuthApi,
@@ -16,7 +15,10 @@ import {
   TEST_JURISDICTION,
 } from '@votingworks/types';
 
-import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
+import {
+  electionGridLayoutNewHampshireTestBallotFixtures,
+  makeTemporaryDirectory,
+} from '@votingworks/fixtures';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { makeMockScanner } from '../test/util/mocks';
 import { Api, buildCentralScannerApp } from './app';
@@ -34,7 +36,10 @@ let logger: Logger;
 beforeEach(async () => {
   const port = await getPort();
   auth = buildMockDippedSmartCardAuth(vi.fn);
-  workspace = createWorkspace(dirSync().name, mockBaseLogger({ fn: vi.fn }));
+  workspace = createWorkspace(
+    makeTemporaryDirectory(),
+    mockBaseLogger({ fn: vi.fn })
+  );
   logger = buildMockLogger(auth, workspace);
   const scanner = makeMockScanner();
 

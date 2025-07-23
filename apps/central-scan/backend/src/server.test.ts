@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
-import { dirSync } from 'tmp';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { testDetectDevices } from '@votingworks/backend';
 import { Server } from 'node:http';
@@ -15,7 +15,7 @@ import { start } from './server';
 test('logs device attach/un-attach events', () => {
   const auth = buildMockDippedSmartCardAuth(vi.fn);
   const workspace = createWorkspace(
-    dirSync().name,
+    makeTemporaryDirectory(),
     mockBaseLogger({ fn: vi.fn })
   );
   const logger = buildMockLogger(auth, workspace);

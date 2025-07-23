@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import { dirSync } from 'tmp';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { mockBaseLogger } from '@votingworks/logging';
 import { createWorkspace } from './workspace';
 
@@ -10,7 +10,7 @@ vi.mock(import('@votingworks/backend'), async (importActual) => ({
 
 test('workspace.reset rests the store', () => {
   const workspace = createWorkspace(
-    dirSync().name,
+    makeTemporaryDirectory(),
     mockBaseLogger({ fn: vi.fn })
   );
   const fn = vi.fn();

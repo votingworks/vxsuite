@@ -11,11 +11,9 @@ import { EventLogging, safeParseJson } from '@votingworks/types';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import zlib from 'node:zlib';
-import { fileSync, setGracefulCleanup } from 'tmp';
+import { makeTemporaryFile } from '@votingworks/fixtures';
 import { assert, expect, test, vi } from 'vitest';
 import { convertVxLogToCdf } from '..';
-
-setGracefulCleanup();
 
 type Format = 'compressed' | 'uncompressed';
 
@@ -27,10 +25,10 @@ async function convertStringToCdf(
   fmt: Format = 'uncompressed'
 ): Promise<string> {
   const compressed = fmt === 'compressed';
-  const inputPath = fileSync().name;
+  const inputPath = makeTemporaryFile();
   await writeFile(inputPath, compressed ? zlib.gzipSync(input) : input);
 
-  const outputPath = fileSync().name;
+  const outputPath = makeTemporaryFile();
   await new Promise<void>((resolve, reject) => {
     convertVxLogToCdf(
       (eventId, message, disposition) => {

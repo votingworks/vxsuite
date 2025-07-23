@@ -1,12 +1,13 @@
 import { beforeEach, expect, test, vi } from 'vitest';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import {
   LogEventId,
   mockBaseLogger,
   MockBaseLogger,
 } from '@votingworks/logging';
-import tmp from 'tmp';
 import * as fs from 'node:fs/promises';
 import { Buffer } from 'node:buffer';
+import { join } from 'node:path';
 import { PatConnectionStatusReader } from './connection_status_reader';
 import { FAI_100_STATUS_FILENAME } from './constants';
 
@@ -14,10 +15,9 @@ const ASCII_ZERO = 48;
 const ASCII_ONE = 49;
 
 let logger: MockBaseLogger;
-let mockWorkspaceDir: tmp.DirResult;
+let mockWorkspaceDir: string;
 // Replaces /sys/class/gpio
-let mockGpioDir: tmp.DirResult;
-tmp.setGracefulCleanup();
+let mockGpioDir: string;
 
 function expectedStatusToAsciiChar(expectedStatus: boolean) {
   // Value file contains '0' when device is connected and '1' when not connected
@@ -25,8 +25,8 @@ function expectedStatusToAsciiChar(expectedStatus: boolean) {
 }
 
 beforeEach(() => {
-  mockWorkspaceDir = tmp.dirSync();
-  mockGpioDir = tmp.dirSync();
+  mockWorkspaceDir = makeTemporaryDirectory();
+  mockGpioDir = makeTemporaryDirectory();
   logger = mockBaseLogger({ fn: vi.fn });
 });
 
@@ -34,8 +34,8 @@ test('logs when it cannot access the gpio pin sysfs file', async () => {
   const reader = new PatConnectionStatusReader(
     logger,
     'bmd-155',
-    mockWorkspaceDir.name,
-    mockGpioDir.name
+    mockWorkspaceDir,
+    mockGpioDir
   );
 
   const result = await reader.open();
@@ -65,26 +65,21 @@ test.each(pinAddresses)(
   'isPatDeviceConnected can read "$expectedConnectionStatus" from pin $address value file',
   async ({ address, expectedConnectionStatus }) => {
     // Makes a directory for the pin. Analagous to /sys/class/gpio/gpio<n>
-    const pinDir = tmp.dirSync({
-      tmpdir: mockGpioDir.name,
-      name: `gpio${address}`,
-    });
+    const pinDir = join(mockGpioDir, `gpio${address}`);
+    await fs.mkdir(pinDir, { recursive: true });
 
     // Makes a `value` file and writes one character to it. Analagous to
     // /sys/class/gpio/gpio<n>/value
-    const valueFile = tmp.fileSync({
-      tmpdir: pinDir.name,
-      name: 'value',
-    });
+    const valueFile = join(pinDir, 'value');
 
     const buf = Buffer.of(expectedStatusToAsciiChar(expectedConnectionStatus));
-    await fs.appendFile(valueFile.name, buf);
+    await fs.writeFile(valueFile, buf);
 
     const reader = new PatConnectionStatusReader(
       logger,
       'bmd-155',
-      mockWorkspaceDir.name,
-      mockGpioDir.name
+      mockWorkspaceDir,
+      mockGpioDir
     );
     const result = await reader.open();
     expect(result).toEqual(true);
@@ -95,19 +90,16 @@ test.each(pinAddresses)(
 );
 
 test('bmd-150 implementation happy path', async () => {
-  const statusFile = tmp.fileSync({
-    tmpdir: mockWorkspaceDir.name,
-    name: FAI_100_STATUS_FILENAME,
-  });
+  const statusFile = join(mockWorkspaceDir, FAI_100_STATUS_FILENAME);
 
   const expectedConnectionStatus = true;
   const buf = Buffer.of(expectedStatusToAsciiChar(expectedConnectionStatus));
-  await fs.appendFile(statusFile.name, buf);
+  await fs.writeFile(statusFile, buf);
 
   const reader = new PatConnectionStatusReader(
     logger,
     'bmd-150',
-    mockWorkspaceDir.name
+    mockWorkspaceDir
   );
   const result = await reader.open();
   expect(result).toEqual(true);

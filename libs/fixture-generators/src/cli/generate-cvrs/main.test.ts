@@ -1,8 +1,9 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
 import {
   electionFamousNames2021Fixtures,
   electionGridLayoutNewHampshireTestBallotFixtures,
   electionTwoPartyPrimaryFixtures,
+  makeTemporaryDirectory,
 } from '@votingworks/fixtures';
 import { mockReadable, mockWritable } from '@votingworks/test-utils';
 import {
@@ -12,9 +13,8 @@ import {
   DEV_MACHINE_ID,
 } from '@votingworks/types';
 import * as fs from 'node:fs/promises';
-import { mkdirSync, rmSync } from 'node:fs';
+import { mkdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import tmp, { dirSync } from 'tmp';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
@@ -30,12 +30,8 @@ vi.setConfig({
   testTimeout: 60_000,
 });
 
-tmp.setGracefulCleanup();
-const workingDirectory = dirSync();
-const outputPath = join(
-  workingDirectory.name,
-  'machine_0000__2024-01-01_00-00-00'
-);
+let workingDirectory: string;
+let outputPath: string;
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
@@ -45,12 +41,10 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
 }));
 
 beforeEach(() => {
+  workingDirectory = makeTemporaryDirectory();
+  outputPath = join(workingDirectory, 'machine_0000__2024-01-01_00-00-00');
   mkdirSync(outputPath);
   mockFeatureFlagger.resetFeatureFlags();
-});
-
-afterEach(() => {
-  rmSync(outputPath, { recursive: true, force: true });
 });
 
 async function run(

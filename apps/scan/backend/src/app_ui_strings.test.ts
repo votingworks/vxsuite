@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import tmp from 'tmp';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 
 import {
   runUiStringApiTests,
@@ -26,7 +26,7 @@ import { createMockPrinterHandler } from '@votingworks/printing';
 import { mockBaseLogger, mockLogger } from '@votingworks/logging';
 import { Store } from './store';
 import { buildApi } from './app';
-import { createWorkspace } from './util/workspace';
+import { createWorkspace, Workspace } from './util/workspace';
 import { wrapLegacyPrinter } from './printing/printer';
 import {
   buildMockLogger,
@@ -48,13 +48,18 @@ const mockAudioPlayer = vi.mocked(
 );
 
 const store = Store.memoryStore();
-const workspace = createWorkspace(
-  tmp.dirSync().name,
-  mockBaseLogger({ fn: vi.fn }),
-  {
-    store,
-  }
-);
+let workspace: Workspace;
+
+beforeEach(() => {
+  workspace = createWorkspace(
+    makeTemporaryDirectory(),
+    mockBaseLogger({ fn: vi.fn }),
+    {
+      store,
+    }
+  );
+});
+
 const mockUsbDrive = createMockUsbDrive();
 const { printer } = createMockPrinterHandler();
 const mockAuth = buildMockInsertedSmartCardAuth(vi.fn);
@@ -67,16 +72,18 @@ afterEach(() => {
 });
 
 runUiStringApiTests({
-  api: buildApi({
-    audioPlayer: mockAudioPlayer,
-    auth: mockAuth,
-    machine: createPrecinctScannerStateMachineMock(),
-    workspace,
-    usbDrive: mockUsbDrive.usbDrive,
-    printer: wrapLegacyPrinter(printer),
-    logger: buildMockLogger(mockAuth, workspace),
-  }).methods(),
+  api: () =>
+    buildApi({
+      audioPlayer: mockAudioPlayer,
+      auth: mockAuth,
+      machine: createPrecinctScannerStateMachineMock(),
+      workspace,
+      usbDrive: mockUsbDrive.usbDrive,
+      printer: wrapLegacyPrinter(printer),
+      logger: buildMockLogger(mockAuth, workspace),
+    }).methods(),
   store: store.getUiStringsStore(),
+  beforeEach,
   afterEach,
   expect,
   test,
@@ -101,21 +108,21 @@ describe('configureFromElectionPackageOnUsbDrive', () => {
     );
   });
 
-  const api = buildApi({
-    audioPlayer: mockAudioPlayer,
-    auth: mockAuth,
-    machine: createPrecinctScannerStateMachineMock(),
-    workspace,
-    usbDrive: mockUsbDrive.usbDrive,
-    printer: wrapLegacyPrinter(printer),
-    logger: buildMockLogger(mockAuth, workspace),
-  });
-
   runUiStringMachineConfigurationTests({
     electionDefinition,
     getMockUsbDrive: () => mockUsbDrive,
     runConfigureMachine: () =>
-      api.methods().configureFromElectionPackageOnUsbDrive(),
+      buildApi({
+        audioPlayer: mockAudioPlayer,
+        auth: mockAuth,
+        machine: createPrecinctScannerStateMachineMock(),
+        workspace,
+        usbDrive: mockUsbDrive.usbDrive,
+        printer: wrapLegacyPrinter(printer),
+        logger: buildMockLogger(mockAuth, workspace),
+      })
+        .methods()
+        .configureFromElectionPackageOnUsbDrive(),
     store: store.getUiStringsStore(),
     expect,
     test,
@@ -123,18 +130,19 @@ describe('configureFromElectionPackageOnUsbDrive', () => {
 });
 
 describe('unconfigureElection', () => {
-  const api = buildApi({
-    audioPlayer: mockAudioPlayer,
-    auth: mockAuth,
-    machine: createPrecinctScannerStateMachineMock(),
-    workspace,
-    usbDrive: mockUsbDrive.usbDrive,
-    printer: wrapLegacyPrinter(printer),
-    logger: buildMockLogger(mockAuth, workspace),
-  });
-
   runUiStringMachineDeconfigurationTests({
-    runUnconfigureMachine: () => api.methods().unconfigureElection(),
+    runUnconfigureMachine: () =>
+      buildApi({
+        audioPlayer: mockAudioPlayer,
+        auth: mockAuth,
+        machine: createPrecinctScannerStateMachineMock(),
+        workspace,
+        usbDrive: mockUsbDrive.usbDrive,
+        printer: wrapLegacyPrinter(printer),
+        logger: buildMockLogger(mockAuth, workspace),
+      })
+        .methods()
+        .unconfigureElection(),
     store: store.getUiStringsStore(),
     expect,
     test,

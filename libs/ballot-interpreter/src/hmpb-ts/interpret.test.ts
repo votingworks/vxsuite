@@ -1,5 +1,8 @@
 import { assertDefined, ok, unique } from '@votingworks/basics';
-import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
+import {
+  electionGridLayoutNewHampshireTestBallotFixtures,
+  makeTemporaryFileAsync,
+} from '@votingworks/fixtures';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { writeImageData } from '@votingworks/image-utils';
 import {
@@ -8,7 +11,6 @@ import {
   ElectionDefinition,
   mapSheet,
 } from '@votingworks/types';
-import { fileSync } from 'tmp';
 import { expect, test } from 'vitest';
 import { pdfToPageImages } from '../../test/helpers/interpretation';
 import { interpret } from './interpret';
@@ -348,7 +350,7 @@ test('interpret images from paths', async () => {
     await pdfToPageImages(vxFamousNamesFixtures.markedBallotPath).toArray()
   );
   const ballotImagePaths = await mapSheet(ballotImages, async (imageData) => {
-    const path = fileSync({ postfix: '.png' }).name;
+    const path = await makeTemporaryFileAsync({ postfix: '.png' });
     await writeImageData(path, imageData);
     return path;
   });
@@ -661,7 +663,7 @@ test('interpret with old timing mark algorithm', async () => {
     await pdfToPageImages(vxFamousNamesFixtures.markedBallotPath).toArray()
   );
   const ballotImagePaths = await mapSheet(ballotImages, async (imageData) => {
-    const path = fileSync({ postfix: '.png' }).name;
+    const path = await makeTemporaryFileAsync({ postfix: '.png' });
     await writeImageData(path, imageData);
     return path;
   });

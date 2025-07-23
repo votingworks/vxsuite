@@ -1,5 +1,5 @@
 import { expect, Mocked, test, vi } from 'vitest';
-import tmp from 'tmp';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
@@ -22,7 +22,7 @@ function getMockStateMachine() {
 function buildTestApi() {
   const store = Store.memoryStore();
   const workspace = createWorkspace(
-    tmp.dirSync().name,
+    makeTemporaryDirectory(),
     mockBaseLogger({ fn: vi.fn }),
     {
       store,

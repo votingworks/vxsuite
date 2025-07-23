@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
 import { mockBaseLogger } from '@votingworks/logging';
-import tmp from 'tmp';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import { initializeSystemAudio } from '@votingworks/backend';
 import { start } from './server';
@@ -15,7 +15,7 @@ test('can start server', async () => {
   const auth = buildMockInsertedSmartCardAuth(vi.fn);
   const baseLogger = mockBaseLogger({ fn: vi.fn });
   const workspace = createWorkspace(
-    tmp.dirSync().name,
+    makeTemporaryDirectory(),
     mockBaseLogger({ fn: vi.fn })
   );
 

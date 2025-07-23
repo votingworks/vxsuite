@@ -8,7 +8,7 @@ import {
   createWriteStream,
 } from 'node:fs';
 import { LogEventId, MockLogger, mockLogger } from '@votingworks/logging';
-import { tmpNameSync } from 'tmp';
+import { makeTemporaryFile } from '@votingworks/fixtures';
 import { PassThrough } from 'node:stream';
 import { ok } from '@votingworks/basics';
 import { convertVxLogToCdf } from '@votingworks/logging-utils';
@@ -412,8 +412,9 @@ testPlainAndCompressed('works for error format - [$0]', async (fmt) => {
     compressed ? 'vx-logs.log-20240101.gz' : 'vx-logs.log',
   ]);
 
-  const logFile = tmpNameSync();
-  await fs.writeFile(logFile, compressed ? zlib.gzipSync('') : ``);
+  const logFile = makeTemporaryFile({
+    content: compressed ? zlib.gzipSync('') : ``,
+  });
   vi.mocked(createReadStream).mockReturnValueOnce(
     realCreateReadStream(logFile)
   );

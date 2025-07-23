@@ -8,7 +8,7 @@ import {
 } from 'vitest';
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import { Application } from 'express';
-import { dirSync } from 'tmp';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import {
   setAudioVolume,
@@ -43,7 +43,10 @@ const mockSetDefaultAudio = vi.mocked(setDefaultAudio);
 let workspace!: Workspace;
 
 beforeEach(() => {
-  workspace = createWorkspace(dirSync().name, mockBaseLogger({ fn: vi.fn }));
+  workspace = createWorkspace(
+    makeTemporaryDirectory(),
+    mockBaseLogger({ fn: vi.fn })
+  );
 });
 
 afterEach(() => {

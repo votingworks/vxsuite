@@ -2,7 +2,7 @@ import { afterEach, beforeEach, expect, test } from 'vitest';
 import * as fs from 'node:fs';
 import { sha256 } from 'js-sha256';
 import path from 'node:path';
-import { dirSync } from 'tmp';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { iter } from '@votingworks/basics';
 import { Client } from '@votingworks/db';
 import { CastVoteRecordExportFileName } from '@votingworks/types';
@@ -23,7 +23,7 @@ import {
 let tempDirectoryPath: string;
 
 beforeEach(() => {
-  tempDirectoryPath = dirSync().name;
+  tempDirectoryPath = makeTemporaryDirectory();
 });
 
 afterEach(() => {
