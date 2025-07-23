@@ -98,11 +98,13 @@ async function setupUnconfiguredPollbooksOnNetwork(
   pollbookContexts: TestContext[],
   callerId?: string
 ): Promise<void> {
+  console.log('setup start');
   for (const context of pollbookContexts) {
     context.mockUsbDrive.insertUsbDrive({});
   }
   // Mock hasOnlineInterface to always return true
   vi.mocked(hasOnlineInterface).mockResolvedValue(true);
+  console.log('turned online');
 
   // Set up spies for all pollbook contexts
   // for (const context of pollbookContexts) {
@@ -111,6 +113,7 @@ async function setupUnconfiguredPollbooksOnNetwork(
   const spies = pollbookContexts.map((context) =>
     vi.spyOn(context.peerWorkspace.store, 'getNewEvents')
   );
+  console.log('setup spies');
 
   // Get ports for all pollbook contexts
   const ports = pollbookContexts.map((context) => {
@@ -127,7 +130,9 @@ async function setupUnconfiguredPollbooksOnNetwork(
       port: ports[index].toString(),
     }))
   );
+  console.log('pollbooks see each other');
   vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+  console.log('time advanced');
 
   await extendedWaitFor(async () => {
     const deviceStatuses =
@@ -144,8 +149,10 @@ async function setupUnconfiguredPollbooksOnNetwork(
       );
     }
   });
+  console.log('pollbooks see each other');
 
   vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+  console.log('time advanced again');
 
   await extendedWaitFor(async () => {
     // All pollbooks should now see each other with mismatched configuration
@@ -164,6 +171,7 @@ async function setupUnconfiguredPollbooksOnNetwork(
       }
     }
   });
+  console.log('all pollbooks see all pollbooks with mismatched configuration');
 
   await extendedWaitFor(() => {
     vi.advanceTimersByTime(EVENT_POLLING_INTERVAL);
@@ -181,6 +189,7 @@ async function setupUnconfiguredPollbooksOnNetwork(
     //   expect(context.peerWorkspace.store.getNewEvents).not.toHaveBeenCalled();
     // }
   });
+  console.log('no events queried before connecting pollbooks');
 }
 
 test('connection status between two pollbooks is managed properly', async () => {

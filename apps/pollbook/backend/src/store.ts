@@ -418,6 +418,9 @@ export abstract class Store {
       configured_precinct_id: string;
     };
     if (!row) {
+      if (this.machineId === 'test-1') {
+        console.log('election is not set yet on test-1');
+      }
       return {
         machineId: this.machineId,
         codeVersion: this.codeVersion,
@@ -426,6 +429,9 @@ export abstract class Store {
     const election: Election = safeParseElection(
       row.election_data
     ).unsafeUnwrap();
+    if (this.machineId === 'test-1') {
+      console.log('election is set ', election.id);
+    }
     return {
       electionId: election.id,
       electionTitle: election.title,

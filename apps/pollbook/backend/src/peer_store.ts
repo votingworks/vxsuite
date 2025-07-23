@@ -252,6 +252,7 @@ export class PeerStore extends Store {
     if (election) {
       return err('already-configured');
     }
+    console.log('CONFIGURING FROM PEER MACHINE I AM ', this.machineId);
     // Find the connected pollbook with the given machineId
     const pollbooks = this.getPollbookServicesByName();
     const peer = Object.values(pollbooks).find(

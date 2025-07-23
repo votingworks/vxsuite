@@ -300,6 +300,10 @@ export function pollUsbDriveForPollbookPackage({
         }
 
         const pollbookPackage = pollbookPackageResult.ok();
+        console.log(
+          'configuring from usb I am',
+          workspace.store.getMachineId()
+        );
         workspace.store.setElectionAndVoters(
           pollbookPackage.electionDefinition,
           pollbookPackage.packageHash,
