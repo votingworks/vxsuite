@@ -74,6 +74,23 @@ export function TimingMark({
   return <StyledTimingMark className={TIMING_MARK_CLASS} style={style} />;
 }
 
+export function timingMarkCounts(pageDimensions: InchDimensions): {
+  x: number;
+  y: number;
+} {
+  // Corresponds to the NH Accuvote ballot grid, which we mimic so that our
+  // interpreter can support both Accuvote-style ballots and our ballots.
+  // This formula is replicated in
+  // libs/ballot-interpreter/src/hmpb-rust/ballot_card.rs.
+  const columnsPerInch = 4;
+  const rowsPerInch = 4;
+
+  return {
+    x: pageDimensions.width * columnsPerInch,
+    y: pageDimensions.height * rowsPerInch - 3,
+  };
+}
+
 export function TimingMarkGrid({
   pageDimensions,
   children,
@@ -83,13 +100,7 @@ export function TimingMarkGrid({
   children: React.ReactNode;
   timingMarkStyle?: React.CSSProperties;
 }): JSX.Element {
-  // Corresponds to the NH Accuvote ballot grid, which we mimic so that our
-  // interpreter can support both Accuvote-style ballots and our ballots.
-  // This formula is replicated in libs/ballot-interpreter/src/ballot_card.rs.
-  const columnsPerInch = 4;
-  const rowsPerInch = 4;
-  const gridRows = pageDimensions.height * rowsPerInch - 3;
-  const gridColumns = pageDimensions.width * columnsPerInch;
+  const markCounts = timingMarkCounts(pageDimensions);
 
   function TimingMarkRow() {
     return (
@@ -99,7 +110,7 @@ export function TimingMarkGrid({
           justifyContent: 'space-between',
         }}
       >
-        {range(0, gridColumns).map((i) => (
+        {range(0, markCounts.x).map((i) => (
           <TimingMark key={i} style={timingMarkStyle} />
         ))}
       </div>
@@ -119,7 +130,7 @@ export function TimingMarkGrid({
           ...style,
         }}
       >
-        {range(0, gridRows).map((i) => (
+        {range(0, markCounts.y).map((i) => (
           <TimingMark key={i} style={timingMarkStyle} />
         ))}
       </div>

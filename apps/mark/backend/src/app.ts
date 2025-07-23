@@ -40,11 +40,11 @@ import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { Printer } from '@votingworks/printing';
 import { getMachineConfig } from './machine_config';
 import { Workspace } from './util/workspace';
-import { ElectionState, PrintBallotProps } from './types';
+import { ElectionState, PrintBallotProps, PrintMode } from './types';
 import { printBallot } from './util/print_ballot';
 import { isAccessibleControllerAttached } from './util/accessible_controller';
 import { constructAuthMachineState } from './util/auth';
-import { ElectionRecord, PrintMode } from './store';
+import { ElectionRecord } from './store';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi(

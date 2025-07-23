@@ -1,7 +1,8 @@
 import { describe, expect, test, vi } from 'vitest';
 import { safeParseSystemSettings, TEST_JURISDICTION } from '@votingworks/types';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
-import { PrintMode, Store } from './store';
+import { Store } from './store';
+import { PrintMode } from './types';
 
 // We pause in some of these tests so we need to increase the timeout
 vi.setConfig({
