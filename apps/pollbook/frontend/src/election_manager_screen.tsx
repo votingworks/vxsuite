@@ -28,6 +28,7 @@ import { ElectionManagerVotersScreen } from './voters_screen';
 import { VoterDetailsScreen } from './voter_details_screen';
 import { VoterRegistrationScreen } from './voter_registration_screen';
 import { ElectionManagerNavScreen, electionManagerRoutes } from './nav_screen';
+import { SettingsScreen } from './settings_screen';
 
 export function ElectionScreen(): JSX.Element | null {
   const getElectionQuery = getElection.useQuery();
@@ -142,6 +143,14 @@ export function ElectionScreen(): JSX.Element | null {
   );
 }
 
+function ElectionManagerSettingsScreen(): JSX.Element {
+  return (
+    <ElectionManagerNavScreen title="Settings">
+      <SettingsScreen showFormatUsbButton={false} />{' '}
+    </ElectionManagerNavScreen>
+  );
+}
+
 export function ElectionManagerScreen(): JSX.Element {
   return (
     <Switch>
@@ -161,6 +170,10 @@ export function ElectionManagerScreen(): JSX.Element {
       <Route
         path={electionManagerRoutes.statistics.path}
         component={StatisticsScreen}
+      />
+      <Route
+        path={electionManagerRoutes.settings.path}
+        component={ElectionManagerSettingsScreen}
       />
       <Route path="/voters/:voterId" component={VoterDetailsScreen} />
       <Redirect to={electionManagerRoutes.election.path} />
