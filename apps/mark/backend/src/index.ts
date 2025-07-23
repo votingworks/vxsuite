@@ -8,6 +8,7 @@ import { MARK_WORKSPACE, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
 
 export type { Api } from './app';
+export type { PrintCalibration } from '@votingworks/hmpb';
 export * from './types';
 
 loadEnvVarsFromDotenvFiles();

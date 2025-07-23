@@ -38,6 +38,7 @@ import {
   setTestMode,
 } from '../api';
 import * as api from '../api';
+import { BubbleMarkCalibration } from '../components/bubble_mark_calibration';
 
 export interface AdminScreenProps {
   appPrecinct?: PrecinctSelection;
@@ -168,6 +169,16 @@ export function AdminScreen({
                     selectedOptionId={printMode || 'summary'}
                   />
                 </Section>
+                {/* istanbul ignore next - temporary @preserve */}
+                {printMode === 'bubble_marks' && (
+                  <React.Fragment>
+                    <H6 as="h2">Bubble Mark Offset Calibration</H6>
+                    <Section style={{ marginTop: '0.5rem' }}>
+                      <BubbleMarkCalibration field="offsetMmX" label="X" />
+                      <BubbleMarkCalibration field="offsetMmY" label="Y" />
+                    </Section>
+                  </React.Fragment>
+                )}
               </React.Fragment>
             )}
           </React.Fragment>

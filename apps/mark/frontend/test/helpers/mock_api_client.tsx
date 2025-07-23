@@ -101,6 +101,10 @@ export function createApiMock() {
     .expectOptionalRepeatedCallsWith()
     .resolves('summary');
 
+  mockApiClient.getPrintCalibration
+    .expectOptionalRepeatedCallsWith()
+    .resolves({ offsetMmX: 0, offsetMmY: 0 });
+
   function setAuthStatus(authStatus: InsertedSmartCardAuth.AuthStatus): void {
     mockApiClient.getAuthStatus.mockImplementation(() =>
       Promise.resolve(authStatus)

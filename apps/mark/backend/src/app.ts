@@ -38,6 +38,7 @@ import {
 import { LogEventId, Logger } from '@votingworks/logging';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { Printer } from '@votingworks/printing';
+import { PrintCalibration } from '@votingworks/hmpb';
 import { getMachineConfig } from './machine_config';
 import { Workspace } from './util/workspace';
 import { ElectionState, PrintBallotProps, PrintMode } from './types';
@@ -306,6 +307,14 @@ export function buildApi(
 
     setPrintMode(input: { mode: PrintMode }) {
       store.setPrintMode(input.mode);
+    },
+
+    getPrintCalibration(): PrintCalibration {
+      return store.getPrintCalibration();
+    },
+
+    setPrintCalibration(input: PrintCalibration) {
+      store.setPrintCalibration(input);
     },
   });
 }

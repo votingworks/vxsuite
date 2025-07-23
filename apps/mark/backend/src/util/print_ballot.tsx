@@ -48,7 +48,7 @@ export async function printBallot(p: PrintBallotProps): Promise<void> {
   });
 }
 
-export async function printMarkOverlay(p: PrintBallotProps): Promise<void> {
+async function printMarkOverlay(p: PrintBallotProps): Promise<void> {
   const { electionDefinition } = assertDefined(p.store.getElectionRecord());
   const { election } = electionDefinition;
 
@@ -58,7 +58,12 @@ export async function printMarkOverlay(p: PrintBallotProps): Promise<void> {
     `${size} paper size not yet supported for pre-printed ballot marking`
   );
 
-  const stream = generateMarkOverlay(election, p.ballotStyleId, p.votes);
+  const stream = generateMarkOverlay(
+    election,
+    p.ballotStyleId,
+    p.votes,
+    p.store.getPrintCalibration()
+  );
 
   const chunks: Buffer[] = [];
   for await (const chunk of stream) {

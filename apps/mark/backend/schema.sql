@@ -12,6 +12,14 @@ create table election (
   created_at timestamp not null default current_timestamp
 );
 
+-- Temporary dev table:
+create table print_calibration (
+  -- enforce singleton table
+  id integer primary key check (id = 1),
+  offset_mm_x real not null,
+  offset_mm_y real not null
+);
+
 create table system_settings (
   -- enforce singleton table
   id integer primary key check (id = 1),
