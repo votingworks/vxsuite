@@ -43,6 +43,8 @@ describe('Election tab', () => {
     unmount();
   });
   test('basic render', async () => {
+    apiMock.setIsAbsenteeMode(false);
+    apiMock.expectHaveElectionEventsOccurred(false);
     apiMock.setElection(electionDefFamousNames);
     const renderResult = renderInAppContext(<SystemAdministratorScreen />, {
       apiMock,
@@ -175,7 +177,9 @@ describe('Settings tab', () => {
   }
 
   beforeEach(() => {
+    apiMock.setIsAbsenteeMode(false);
     apiMock.setElection(electionDefFamousNames);
+    apiMock.expectHaveElectionEventsOccurred(false);
     apiMock.expectGetUsbDriveStatus({
       status: 'mounted',
       mountPoint: '/dev/null',
