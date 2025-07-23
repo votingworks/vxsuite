@@ -35,6 +35,7 @@ import { LocalWorkspace, PeerWorkspace } from '../src';
 import { getUserRole } from '../src/auth';
 import { buildPeerApp, PeerApi } from '../src/peer_app';
 import { BarcodeScannerClient } from '../src/barcode_scanner/client';
+import { AvahiService } from '../src/avahi';
 
 vi.mock('../barcode_scanner/client', () => ({
   BarcodeScannerClient: vi.fn().mockImplementation(() => ({
@@ -188,6 +189,7 @@ export async function withApp(
   } finally {
     // wait for paper backup export to finish?
     await new Promise<void>((resolve, reject) => {
+      AvahiService.stopAdvertisedService();
       localServer.close((error) => (error ? reject(error) : resolve()));
       peerServer.close((error) => (error ? reject(error) : resolve()));
     });
@@ -293,6 +295,7 @@ export async function withManyApps(
   } finally {
     for (const context of contexts) {
       await new Promise<void>((resolve, reject) => {
+        AvahiService.stopAdvertisedService();
         context.localServer.close((error) =>
           error ? reject(error) : resolve()
         );
