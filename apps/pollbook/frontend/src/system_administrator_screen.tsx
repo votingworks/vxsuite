@@ -1,13 +1,9 @@
 import {
   Card,
-  CurrentDateAndTime,
-  ExportLogsButton,
-  FormatUsbButton,
   H2,
   MainContent,
   P,
   Seal,
-  SetClockButton,
   UnconfigureMachineButton,
 } from '@votingworks/ui';
 import { format } from '@votingworks/utils';
@@ -16,50 +12,16 @@ import {
   SystemAdministratorNavScreen,
   systemAdministratorRoutes,
 } from './nav_screen';
-import {
-  formatUsbDrive,
-  getElection,
-  getUsbDriveStatus,
-  logOut,
-  unconfigure,
-} from './api';
+import { getElection, unconfigure } from './api';
 import { Column, Row } from './layout';
 import { SmartCardsScreen } from './smart_cards_screen';
 import { UnconfiguredSystemAdminScreen } from './unconfigured_screen';
+import { SettingsScreen } from './settings_screen';
 
-export function SettingsScreen(): JSX.Element | null {
-  const logOutMutation = logOut.useMutation();
-  const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
-  const formatUsbDriveMutation = formatUsbDrive.useMutation();
-
-  if (!usbDriveStatusQuery.isSuccess) {
-    return null;
-  }
-
-  const usbDriveStatus = usbDriveStatusQuery.data;
-
+export function SystemAdminSettingsScreen(): JSX.Element | null {
   return (
     <SystemAdministratorNavScreen title="Settings">
-      <MainContent>
-        <H2>Logs</H2>
-        <ExportLogsButton usbDriveStatus={usbDriveStatus} />
-        <H2>Date and Time</H2>
-        <P>
-          <CurrentDateAndTime />
-        </P>
-        <P>
-          <SetClockButton logOut={() => logOutMutation.mutate()}>
-            Set Date and Time
-          </SetClockButton>
-        </P>
-        <H2>USB</H2>
-        <P>
-          <FormatUsbButton
-            usbDriveStatus={usbDriveStatus}
-            formatUsbDriveMutation={formatUsbDriveMutation}
-          />
-        </P>
-      </MainContent>
+      <SettingsScreen showFormatUsbButton />
     </SystemAdministratorNavScreen>
   );
 }
