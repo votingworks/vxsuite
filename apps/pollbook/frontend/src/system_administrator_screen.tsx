@@ -1,22 +1,11 @@
-import {
-  Card,
-  H2,
-  MainContent,
-  P,
-  Seal,
-  UnconfigureMachineButton,
-} from '@votingworks/ui';
-import { format } from '@votingworks/utils';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import {
   SystemAdministratorNavScreen,
   systemAdministratorRoutes,
 } from './nav_screen';
-import { getElection, unconfigure } from './api';
-import { Column, Row } from './layout';
 import { SmartCardsScreen } from './smart_cards_screen';
-import { UnconfiguredSystemAdminScreen } from './unconfigured_screen';
 import { SettingsScreen } from './settings_screen';
+import { ElectionScreen } from './election_screen';
 
 function SystemAdminSettingsScreen(): JSX.Element | null {
   return (
@@ -26,52 +15,10 @@ function SystemAdminSettingsScreen(): JSX.Element | null {
   );
 }
 
-export function ElectionScreen(): JSX.Element | null {
-  const getElectionQuery = getElection.useQuery();
-  const unconfigureMutation = unconfigure.useMutation();
-
-  if (!getElectionQuery.isSuccess) {
-    return null;
-  }
-
-  if (getElectionQuery.data.isErr()) {
-    return (
-      <SystemAdministratorNavScreen title="Election">
-        <UnconfiguredSystemAdminScreen />
-      </SystemAdministratorNavScreen>
-    );
-  }
-  const election = getElectionQuery.data.unsafeUnwrap();
-
+function SystemAdministratorElectionScreen(): JSX.Element | null {
   return (
     <SystemAdministratorNavScreen title="Election">
-      <MainContent>
-        <Column style={{ gap: '1rem' }}>
-          <div data-testid="election-info">
-            <Card color="neutral">
-              <Row style={{ gap: '1rem', alignItems: 'center' }}>
-                <Seal seal={election.seal} maxWidth="7rem" />
-                <div>
-                  <H2>{election.title}</H2>
-                  <P>
-                    {election.county.name}, {election.state}
-                    <br />
-                    {format.localeLongDate(
-                      election.date.toMidnightDatetimeWithSystemTimezone()
-                    )}
-                  </P>
-                </div>
-              </Row>
-            </Card>
-          </div>
-          <div>
-            <UnconfigureMachineButton
-              unconfigureMachine={() => unconfigureMutation.mutateAsync()}
-              isMachineConfigured
-            />
-          </div>
-        </Column>
-      </MainContent>
+      <ElectionScreen />
     </SystemAdministratorNavScreen>
   );
 }
@@ -81,7 +28,7 @@ export function SystemAdministratorScreen(): JSX.Element {
     <Switch>
       <Route
         path={systemAdministratorRoutes.election.path}
-        component={ElectionScreen}
+        component={SystemAdministratorElectionScreen}
       />
       <Route
         path={systemAdministratorRoutes.smartCards.path}
