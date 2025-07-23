@@ -7,7 +7,7 @@ import {
 import * as grout from '@votingworks/grout';
 import { Server } from 'node:http';
 import { LogEventId, Logger } from '@votingworks/logging';
-import tmp from 'tmp';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import {
   BallotType,
   DiagnosticRecord,
@@ -104,12 +104,12 @@ beforeEach(async () => {
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
 
-  const mockWorkspaceDir = tmp.dirSync();
+  const mockWorkspaceDir = makeTemporaryDirectory();
 
   patConnectionStatusReader = new PatConnectionStatusReader(
     logger,
     'bmd-150',
-    mockWorkspaceDir.name
+    mockWorkspaceDir
   );
   vi.mocked(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
     false

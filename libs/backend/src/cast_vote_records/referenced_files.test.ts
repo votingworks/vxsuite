@@ -4,7 +4,7 @@ import * as fs from 'node:fs';
 import * as fsPromises from 'node:fs/promises';
 import { sha256 } from 'js-sha256';
 import path from 'node:path';
-import { dirSync } from 'tmp';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { err, ok, Result } from '@votingworks/basics';
 import {
   BallotPageLayout,
@@ -51,7 +51,7 @@ let layoutFilePath: string;
 let invalidLayoutFilePath: string;
 
 beforeEach(() => {
-  tempDirectoryPath = dirSync().name;
+  tempDirectoryPath = makeTemporaryDirectory();
   imagePath = path.join(tempDirectoryPath, 'file.jpg');
   fs.writeFileSync(imagePath, imageContents);
   layoutFilePath = path.join(tempDirectoryPath, 'file.layout.json');

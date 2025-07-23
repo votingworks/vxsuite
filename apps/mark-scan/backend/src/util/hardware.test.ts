@@ -3,7 +3,7 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import tmp from 'tmp';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import * as fs from 'node:fs';
 import { Buffer } from 'node:buffer';
 import { LogEventId, MockLogger, mockLogger } from '@votingworks/logging';
@@ -22,15 +22,16 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
     featureFlagMock.isEnabled(flag),
 }));
 
-let workspaceDir: tmp.DirResult;
+let workspaceDir: string;
 const MOCK_PID = 12345;
 let processKillSpy: MockInstance;
 let logger: MockLogger;
-let tmpFile: tmp.FileResult;
+let tmpFile: string;
 
 beforeEach(() => {
-  workspaceDir = tmp.dirSync();
-  tmpFile = tmp.fileSync({ name: PID_FILENAME, dir: workspaceDir.name });
+  workspaceDir = makeTemporaryDirectory();
+  tmpFile = join(workspaceDir, PID_FILENAME);
+  fs.writeFileSync(tmpFile, '');
   logger = mockLogger({ fn: vi.fn });
 
   processKillSpy = vi.spyOn(process, 'kill').mockImplementation((pid) => {
@@ -47,7 +48,6 @@ beforeEach(() => {
 afterEach(() => {
   featureFlagMock.resetFeatureFlags();
   processKillSpy.mockClear();
-  tmpFile.removeCallback();
 });
 
 test('when bmd-150 flag is on', () => {
@@ -64,18 +64,18 @@ test('when bmd-150 flag is off', () => {
 
 test('when daemon PID is running', async () => {
   const pidStr = MOCK_PID.toString();
-  fs.writeSync(tmpFile.fd, Buffer.from(pidStr), 0, pidStr.length, 0);
+  fs.writeFileSync(tmpFile, Buffer.from(pidStr));
   expect(
-    await isAccessibleControllerDaemonRunning(workspaceDir.name, logger)
+    await isAccessibleControllerDaemonRunning(workspaceDir, logger)
   ).toEqual(true);
   expect(logger.log).not.toHaveBeenCalled();
 });
 
 test('when daemon PID is not running', async () => {
   const wrongPidStr = '98765';
-  fs.writeSync(tmpFile.fd, Buffer.from(wrongPidStr), 0, wrongPidStr.length, 0);
+  fs.writeFileSync(tmpFile, Buffer.from(wrongPidStr));
   expect(
-    await isAccessibleControllerDaemonRunning(workspaceDir.name, logger)
+    await isAccessibleControllerDaemonRunning(workspaceDir, logger)
   ).toEqual(false);
   expect(logger.log).toHaveBeenCalledWith(LogEventId.NoPid, 'system', {
     message: `Process with PID ${wrongPidStr} is not running`,
@@ -91,7 +91,7 @@ test('permission denied', async () => {
   });
 
   expect(
-    await isAccessibleControllerDaemonRunning(workspaceDir.name, logger)
+    await isAccessibleControllerDaemonRunning(workspaceDir, logger)
   ).toEqual(false);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.PermissionDenied,
@@ -111,7 +111,7 @@ test('unknown error', async () => {
   });
 
   expect(
-    await isAccessibleControllerDaemonRunning(workspaceDir.name, logger)
+    await isAccessibleControllerDaemonRunning(workspaceDir, logger)
   ).toEqual(false);
   expect(logger.log).toHaveBeenCalledWith(LogEventId.UnknownError, 'system', {
     message: 'Unknown error when checking PID',
@@ -135,10 +135,10 @@ test('when PID file does not exist', async () => {
 
 test('when reported PID is not a number', async () => {
   const wrongPidStr = 'not a number';
-  fs.writeSync(tmpFile.fd, Buffer.from(wrongPidStr), 0, wrongPidStr.length, 0);
+  fs.writeFileSync(tmpFile, Buffer.from(wrongPidStr));
 
   expect(
-    await isAccessibleControllerDaemonRunning(workspaceDir.name, logger)
+    await isAccessibleControllerDaemonRunning(workspaceDir, logger)
   ).toEqual(false);
   expect(logger.log).toHaveBeenCalledWith(LogEventId.ParseError, 'system', {
     message: `Unable to parse accessible controller daemon PID: ${wrongPidStr}`,

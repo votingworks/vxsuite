@@ -15,7 +15,6 @@ import {
   PaperHandlerDriverInterface,
 } from '@votingworks/custom-paper-handler';
 import { Buffer } from 'node:buffer';
-import { dirSync } from 'tmp';
 import {
   BaseLogger,
   LogEventId,
@@ -30,6 +29,7 @@ import {
 import { assert, Deferred, deferred, iter, sleep } from '@votingworks/basics';
 import {
   electionGridLayoutNewHampshireHudsonFixtures,
+  makeTemporaryDirectory,
   readElectionGeneralDefinition,
   systemSettings,
 } from '@votingworks/fixtures';
@@ -213,7 +213,10 @@ beforeEach(async () => {
 
   logger = mockLogger({ fn: vi.fn });
   auth = buildMockInsertedSmartCardAuth(vi.fn);
-  workspace = createWorkspace(dirSync().name, mockBaseLogger({ fn: vi.fn }));
+  workspace = createWorkspace(
+    makeTemporaryDirectory(),
+    mockBaseLogger({ fn: vi.fn })
+  );
   workspace.store.setElectionAndJurisdiction({
     electionData: electionGeneralDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
@@ -432,7 +435,7 @@ describe('paper jam', () => {
 });
 
 async function writeTmpBlankImage(): Promise<string> {
-  const path = join(dirSync().name, 'blank-image.jpg');
+  const path = join(makeTemporaryDirectory(), 'blank-image.jpg');
   await writeImageData(path, BLANK_PAGE_IMAGE_DATA);
   return path;
 }

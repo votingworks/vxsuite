@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { assert, assertDefined, err, ok } from '@votingworks/basics';
 import {
   electionTwoPartyPrimaryFixtures,
+  makeTemporaryFileAsync,
   readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
@@ -22,8 +23,6 @@ import {
   HP_LASER_PRINTER_CONFIG,
   getMockConnectedPrinterStatus,
 } from '@votingworks/printing';
-import { tmpNameSync } from 'tmp';
-import { writeFile } from 'node:fs/promises';
 import { CandidateContestResults } from '@votingworks/types/src/tabulation';
 import {
   buildTestEnvironment,
@@ -487,8 +486,9 @@ describe('ERR file import', () => {
     await configureMachine(apiClient, auth, electionGeneralDefinition);
     // TODO: Get this fixture back in sync with the election definition - it's fallen out of sync
     const errContents = testElectionReport;
-    const filepath = tmpNameSync();
-    await writeFile(filepath, JSON.stringify(errContents));
+    const filepath = await makeTemporaryFileAsync({
+      content: JSON.stringify(errContents),
+    });
     const manualResultsIdentifier: ManualResultsIdentifier = {
       precinctId: '21',
       ballotStyleGroupId: '12' as BallotStyleGroupId,
@@ -577,8 +577,9 @@ describe('ERR file import', () => {
     const { apiClient, auth } = buildTestEnvironment();
     await configureMachine(apiClient, auth, electionGeneralDefinition);
     const errContents = testElectionReport;
-    const filepath = tmpNameSync();
-    await writeFile(filepath, JSON.stringify(errContents));
+    const filepath = await makeTemporaryFileAsync({
+      content: JSON.stringify(errContents),
+    });
 
     // Import the ERR file with write-ins once for precinct tallies
     const manualResultsIdentifier: ManualResultsIdentifier = {
@@ -609,8 +610,9 @@ describe('ERR file import', () => {
     const { apiClient, auth } = buildTestEnvironment();
     await configureMachine(apiClient, auth, electionGeneralDefinition);
     const errContents = 'not json';
-    const filepath = tmpNameSync();
-    await writeFile(filepath, JSON.stringify(errContents));
+    const filepath = await makeTemporaryFileAsync({
+      content: JSON.stringify(errContents),
+    });
     const manualResultsIdentifier: ManualResultsIdentifier = {
       precinctId: '21',
       ballotStyleGroupId: '12' as BallotStyleGroupId,
@@ -628,8 +630,9 @@ describe('ERR file import', () => {
     const { apiClient, auth } = buildTestEnvironment();
     await configureMachine(apiClient, auth, electionGeneralDefinition);
     const errContents = testElectionReportUnsupportedContestType;
-    const filepath = tmpNameSync();
-    await writeFile(filepath, JSON.stringify(errContents));
+    const filepath = await makeTemporaryFileAsync({
+      content: JSON.stringify(errContents),
+    });
     const manualResultsIdentifier: ManualResultsIdentifier = {
       precinctId: assertDefined(electionGeneralDefinition.election.precincts[0])
         .id,

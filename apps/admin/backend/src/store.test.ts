@@ -3,6 +3,7 @@ import { Buffer } from 'node:buffer';
 import {
   electionPrimaryPrecinctSplitsFixtures,
   electionTwoPartyPrimaryFixtures,
+  makeTemporaryDirectory,
 } from '@votingworks/fixtures';
 import {
   CandidateContest,
@@ -12,9 +13,7 @@ import {
   BallotStyleGroupId,
 } from '@votingworks/types';
 import { find, typedAs } from '@votingworks/basics';
-import { promises as fs } from 'node:fs';
 import { join } from 'node:path';
-import { tmpNameSync } from 'tmp';
 import { zipFile } from '@votingworks/test-utils';
 import { sha256 } from 'js-sha256';
 import { mockBaseLogger } from '@votingworks/logging';
@@ -26,9 +25,8 @@ import {
   ScannerBatch,
 } from './types';
 
-test('create a file store', async () => {
-  const tmpDir = tmpNameSync();
-  await fs.mkdir(tmpDir);
+test('create a file store', () => {
+  const tmpDir = makeTemporaryDirectory();
   const tmpDbPath = join(tmpDir, 'ballots.db');
   const store = Store.fileStore(tmpDbPath, mockBaseLogger({ fn: vi.fn }));
 

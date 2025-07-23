@@ -1,5 +1,8 @@
 import { iter } from '@votingworks/basics';
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  makeTemporaryPath,
+} from '@votingworks/fixtures';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { pdfToImages, writeImageData } from '@votingworks/image-utils';
 import {
@@ -10,7 +13,6 @@ import {
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import { readFile } from 'node:fs/promises';
-import { fileSync } from 'tmp';
 import { expect, test } from 'vitest';
 import { mockElectionManagerAuth } from '../test/helpers/auth';
 import { generateBmdBallotFixture } from '../test/helpers/ballots';
@@ -146,8 +148,8 @@ test('scanBatch with streaked page', async () => {
     frontImageData.data[offset + 3] = 255;
   }
 
-  const frontPath = fileSync().name;
-  const backPath = fileSync().name;
+  const frontPath = makeTemporaryPath();
+  const backPath = makeTemporaryPath();
   await writeImageData(frontPath, frontImageData);
   await writeImageData(backPath, backImageData);
 

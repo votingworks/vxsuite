@@ -1,8 +1,7 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { createReadStream } from 'node:fs';
-import { writeFile } from 'node:fs/promises';
 import { Readable } from 'node:stream';
-import { tmpNameSync } from 'tmp';
+import { makeTemporaryFile } from '@votingworks/fixtures';
 import { getBatteryInfo, parseBatteryInfo } from './get_battery_info';
 
 vi.mock(import('node:fs'), async (importActual) => ({
@@ -75,15 +74,13 @@ POWER_SUPPLY_STATUS=Discharging
 test('can read battery info for a battery at a different path', async () => {
   const { createReadStream: realCreateReadStream } =
     await vi.importActual<typeof import('node:fs')>('node:fs');
-  const bat1File = tmpNameSync();
-  await writeFile(
-    bat1File,
-    `
+  const bat1File = makeTemporaryFile({
+    content: `
 POWER_SUPPLY_ENERGY_NOW=800
 POWER_SUPPLY_ENERGY_FULL=1000
 POWER_SUPPLY_STATUS=Discharging
-  `
-  );
+    `,
+  });
 
   // BAT0 does not exist
   vi.mocked(createReadStream).mockImplementationOnce(() => {

@@ -1,4 +1,4 @@
-import { afterEach, expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vitest';
 import { iter } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { execFileSync } from 'node:child_process';
@@ -7,22 +7,8 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { WritableStream } from 'memory-streams';
 import { join } from 'node:path';
 import { Readable } from 'node:stream';
-import { DirResult, dirSync } from 'tmp';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { split, splitToFiles } from './split';
-
-const tmpDirs: DirResult[] = [];
-
-function createTmpDir() {
-  const tmpDir = dirSync({ unsafeCleanup: true });
-  tmpDirs.push(tmpDir);
-  return tmpDir;
-}
-
-afterEach(() => {
-  for (const tmpDir of tmpDirs) {
-    tmpDir.removeCallback();
-  }
-});
 
 test('empty stream', async () => {
   const output = new WritableStream();
@@ -38,15 +24,15 @@ test('empty stream', async () => {
 });
 
 test('empty stream to files', async () => {
-  const tmpDir = createTmpDir();
+  const tmpDir = makeTemporaryDirectory();
 
   const result = await splitToFiles(Readable.from([]), {
     size: 1,
-    nextPath: (index) => join(tmpDir.name, `file-${index}.txt`),
+    nextPath: (index) => join(tmpDir, `file-${index}.txt`),
   });
 
   expect(result).toEqual([]);
-  expect(readdirSync(tmpDir.name)).toEqual([]);
+  expect(readdirSync(tmpDir)).toEqual([]);
 });
 
 test('single stream', async () => {
@@ -63,16 +49,16 @@ test('single stream', async () => {
 });
 
 test('single file', async () => {
-  const tmpDir = createTmpDir();
+  const tmpDir = makeTemporaryDirectory();
 
   const paths = await splitToFiles(Readable.from(['a']), {
     size: 1,
-    nextPath: (index) => join(tmpDir.name, `file-${index}.txt`),
+    nextPath: (index) => join(tmpDir, `file-${index}.txt`),
   });
 
-  expect(paths).toEqual([join(tmpDir.name, 'file-0.txt')]);
-  expect(readdirSync(tmpDir.name)).toEqual(['file-0.txt']);
-  expect(readFileSync(join(tmpDir.name, 'file-0.txt'), 'utf-8')).toEqual('a');
+  expect(paths).toEqual([join(tmpDir, 'file-0.txt')]);
+  expect(readdirSync(tmpDir)).toEqual(['file-0.txt']);
+  expect(readFileSync(join(tmpDir, 'file-0.txt'), 'utf-8')).toEqual('a');
 });
 
 test('error in stream', async () => {
@@ -98,17 +84,17 @@ test('error in file stream', async () => {
 });
 
 test('single file with singleFileName', async () => {
-  const tmpDir = createTmpDir();
+  const tmpDir = makeTemporaryDirectory();
 
   const paths = await splitToFiles(Readable.from(['a']), {
     size: 1,
-    nextPath: (index) => join(tmpDir.name, `file-${index}.txt`),
+    nextPath: (index) => join(tmpDir, `file-${index}.txt`),
     singleFileName: 'file.txt',
   });
 
-  expect(paths).toEqual([join(tmpDir.name, 'file.txt')]);
-  expect(readdirSync(tmpDir.name)).toEqual(['file.txt']);
-  expect(readFileSync(join(tmpDir.name, 'file.txt'), 'utf-8')).toEqual('a');
+  expect(paths).toEqual([join(tmpDir, 'file.txt')]);
+  expect(readdirSync(tmpDir)).toEqual(['file.txt']);
+  expect(readFileSync(join(tmpDir, 'file.txt'), 'utf-8')).toEqual('a');
 });
 
 test('multiple streams', async () => {
@@ -129,11 +115,11 @@ test('multiple streams', async () => {
 });
 
 test('multiple files', async () => {
-  const tmpDir = createTmpDir();
+  const tmpDir = makeTemporaryDirectory();
   const nextPath = vi
     .fn()
-    .mockReturnValueOnce(join(tmpDir.name, 'file-0.txt'))
-    .mockReturnValueOnce(join(tmpDir.name, 'file-1.txt'));
+    .mockReturnValueOnce(join(tmpDir, 'file-0.txt'))
+    .mockReturnValueOnce(join(tmpDir, 'file-1.txt'));
 
   const paths = await splitToFiles(Readable.from(['abc', 'd']), {
     size: 2,
@@ -141,12 +127,12 @@ test('multiple files', async () => {
   });
 
   expect(paths).toEqual([
-    join(tmpDir.name, 'file-0.txt'),
-    join(tmpDir.name, 'file-1.txt'),
+    join(tmpDir, 'file-0.txt'),
+    join(tmpDir, 'file-1.txt'),
   ]);
-  expect(readdirSync(tmpDir.name)).toEqual(['file-0.txt', 'file-1.txt']);
-  expect(readFileSync(join(tmpDir.name, 'file-0.txt'), 'utf-8')).toEqual('ab');
-  expect(readFileSync(join(tmpDir.name, 'file-1.txt'), 'utf-8')).toEqual('cd');
+  expect(readdirSync(tmpDir)).toEqual(['file-0.txt', 'file-1.txt']);
+  expect(readFileSync(join(tmpDir, 'file-0.txt'), 'utf-8')).toEqual('ab');
+  expect(readFileSync(join(tmpDir, 'file-1.txt'), 'utf-8')).toEqual('cd');
 });
 
 test('split streams contain all string data in order', async () => {
@@ -181,10 +167,10 @@ test('split files contain all string data in order', async () => {
         data: fc.array(fc.string(), { minLength: 1 }),
       }),
       async ({ size, data }) => {
-        const tmpDir = createTmpDir();
+        const tmpDir = makeTemporaryDirectory();
         const paths = await splitToFiles(Readable.from(data), {
           size,
-          nextPath: (index) => join(tmpDir.name, `file-${index}.txt`),
+          nextPath: (index) => join(tmpDir, `file-${index}.txt`),
         });
         const output = paths
           .map((path) => readFileSync(path, 'utf-8'))
@@ -227,10 +213,10 @@ test('split files contain all Buffer data in order', async () => {
         data: fc.array(fc.uint8Array(), { minLength: 1 }),
       }),
       async ({ size, data }) => {
-        const tmpDir = createTmpDir();
+        const tmpDir = makeTemporaryDirectory();
         const paths = await splitToFiles(Readable.from(data), {
           size,
-          nextPath: (index) => join(tmpDir.name, `file-${index}.bin`),
+          nextPath: (index) => join(tmpDir, `file-${index}.bin`),
         });
         const output = Buffer.concat(paths.map((path) => readFileSync(path)));
         expect(output).toEqual(Buffer.concat(data));
@@ -262,15 +248,15 @@ test('split works like POSIX split', async () => {
         });
 
         // run POSIX split and collect outputs
-        const tmpDir = createTmpDir();
+        const tmpDir = makeTemporaryDirectory();
         execFileSync(
           'split',
-          ['-b', size.toString(), '-', join(tmpDir.name, 'out-')],
+          ['-b', size.toString(), '-', join(tmpDir, 'out-')],
           { input: data.join('') }
         );
 
-        const fileOutputs = iter(readdirSync(tmpDir.name).sort()).map((file) =>
-          readFileSync(join(tmpDir.name, file), 'utf-8')
+        const fileOutputs = iter(readdirSync(tmpDir).sort()).map((file) =>
+          readFileSync(join(tmpDir, file), 'utf-8')
         );
 
         // compare outputs
@@ -292,25 +278,25 @@ test('splitToFiles works like POSIX split', async () => {
         }),
       }),
       async ({ size, data }) => {
-        const tmpDir = createTmpDir();
+        const tmpDir = makeTemporaryDirectory();
         const posixSplitPaths: string[] = [];
 
         // run split and collect outputs
         const splitToFilesPaths = await splitToFiles(Readable.from(data), {
           size,
-          nextPath: (index) => join(tmpDir.name, `splitToFiles-${index}`),
+          nextPath: (index) => join(tmpDir, `splitToFiles-${index}`),
         });
 
         // run POSIX split and collect outputs
         execFileSync(
           'split',
-          ['-b', size.toString(), '-', join(tmpDir.name, 'posix-split-')],
+          ['-b', size.toString(), '-', join(tmpDir, 'posix-split-')],
           { input: data.join('') }
         );
 
-        for (const file of readdirSync(tmpDir.name).sort()) {
+        for (const file of readdirSync(tmpDir).sort()) {
           if (file.startsWith('posix-split-')) {
-            posixSplitPaths.push(join(tmpDir.name, file));
+            posixSplitPaths.push(join(tmpDir, file));
           }
         }
 

@@ -1,13 +1,6 @@
-import { afterAll, beforeAll, test } from 'vitest';
+import { test } from 'vitest';
 import { Buffer } from 'node:buffer';
-import {
-  clearTemporaryRootDir,
-  setupTemporaryRootDir,
-} from '@votingworks/fixtures';
 import { createMockUsbDrive } from './memory_usb_drive';
-
-beforeAll(setupTemporaryRootDir);
-afterAll(clearTemporaryRootDir);
 
 test('insert/remove drive', () => {
   const mock = createMockUsbDrive();

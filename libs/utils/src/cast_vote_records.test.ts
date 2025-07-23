@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import * as fs from 'node:fs';
 import path from 'node:path';
-import { dirSync } from 'tmp';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { BallotType, CVR } from '@votingworks/types';
 
 import {
@@ -36,7 +36,7 @@ const mockCastVoteRecord: CVR.CVR = {
 let tempDirectoryPath: string;
 
 beforeEach(() => {
-  tempDirectoryPath = dirSync().name;
+  tempDirectoryPath = makeTemporaryDirectory();
 });
 
 afterEach(() => {

@@ -3,10 +3,12 @@ import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs';
 import path from 'node:path';
 import { createInterface } from 'node:readline/promises';
-import tmp from 'tmp';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import waitForExpect from 'wait-for-expect';
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  makeTemporaryDirectory,
+} from '@votingworks/fixtures';
 import {
   mockElectionManagerUser,
   mockPollWorkerUser,
@@ -66,8 +68,6 @@ import {
   RESET_RETRY_COUNTER,
   VERIFY,
 } from './piv';
-
-tmp.setGracefulCleanup();
 
 vi.mock('node:readline/promises');
 vi.mock('./card_reader');
@@ -1380,7 +1380,7 @@ test('createAndStoreCardVxCert with remote key', async () => {
   mockCardCertStorageRequest(CARD_VX_CERT.OBJECT_ID, cardVxCertPath);
 
   const randomId = '123456';
-  const workingDirectory = tmp.dirSync().name;
+  const workingDirectory = makeTemporaryDirectory();
   const certPublicKeyPath = `${workingDirectory}/public-key-${randomId}.pem`;
   const certPath = `${workingDirectory}/cert-${randomId}.pem`;
 

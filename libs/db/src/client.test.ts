@@ -1,18 +1,18 @@
 import { expect, test, vi } from 'vitest';
 import * as fs from 'node:fs';
 import { join } from 'node:path';
-import * as tmp from 'tmp';
+import { makeTemporaryFile } from '@votingworks/fixtures';
 import { mockBaseLogger } from '@votingworks/logging';
 import { Client, DbConnectionOptions, Statement } from './client';
 
 test('file database client', () => {
-  const dbFile = tmp.fileSync();
-  const client = Client.fileClient(dbFile.name, mockBaseLogger({ fn: vi.fn }));
+  const dbFile = makeTemporaryFile();
+  const client = Client.fileClient(dbFile, mockBaseLogger({ fn: vi.fn }));
 
   client.reset();
-  fs.accessSync(dbFile.name);
+  fs.accessSync(dbFile);
 
-  expect(client.getDatabasePath()).toEqual(dbFile.name);
+  expect(client.getDatabasePath()).toEqual(dbFile);
   expect(client.isMemoryDatabase()).toEqual(false);
 
   client.exec(
@@ -21,11 +21,11 @@ test('file database client', () => {
   client.run('insert into muppets (name) values (?)', 'Kermit');
   client.run('insert into muppets (name) values (?)', 'Fozzie');
 
-  const backupDbFile = tmp.fileSync();
-  client.backup(backupDbFile.name);
+  const backupDbFile = makeTemporaryFile();
+  client.backup(backupDbFile);
 
   const clientForBackup = Client.fileClient(
-    backupDbFile.name,
+    backupDbFile,
     mockBaseLogger({ fn: vi.fn })
   );
   expect(clientForBackup.all('select * from muppets')).toEqual([
@@ -39,22 +39,22 @@ test('file database client', () => {
   ]);
 
   client.destroy();
-  expect(() => fs.accessSync(dbFile.name)).toThrowError('ENOENT');
+  expect(() => fs.accessSync(dbFile)).toThrowError('ENOENT');
 });
 
 test('file database client with a schema', () => {
-  const dbFile = tmp.fileSync();
+  const dbFile = makeTemporaryFile();
   const schemaFile = join(__dirname, '../test/fixtures/schema.sql');
   const client = Client.fileClient(
-    dbFile.name,
+    dbFile,
     mockBaseLogger({ fn: vi.fn }),
     schemaFile
   );
 
   client.reset();
-  fs.accessSync(dbFile.name);
+  fs.accessSync(dbFile);
 
-  expect(client.getDatabasePath()).toEqual(dbFile.name);
+  expect(client.getDatabasePath()).toEqual(dbFile);
   expect(client.isMemoryDatabase()).toEqual(false);
 
   expect(client.one('select count(*) as count from users')).toEqual({
@@ -89,7 +89,7 @@ test('file database client with a schema', () => {
   ]);
 
   const anotherClient = Client.fileClient(
-    dbFile.name,
+    dbFile,
     mockBaseLogger({ fn: vi.fn }),
     schemaFile
   );
@@ -99,19 +99,19 @@ test('file database client with a schema', () => {
 });
 
 test('file database client with regex enabled in connectionOptions', () => {
-  const dbFile = tmp.fileSync();
+  const dbFile = makeTemporaryFile();
   const connectionOptions: DbConnectionOptions = { registerRegexpFn: true };
   const client = Client.fileClient(
-    dbFile.name,
+    dbFile,
     mockBaseLogger({ fn: vi.fn }),
     undefined,
     connectionOptions
   );
 
   client.reset();
-  fs.accessSync(dbFile.name);
+  fs.accessSync(dbFile);
 
-  expect(client.getDatabasePath()).toEqual(dbFile.name);
+  expect(client.getDatabasePath()).toEqual(dbFile);
   expect(client.isMemoryDatabase()).toEqual(false);
 
   client.exec(
@@ -133,7 +133,7 @@ test('file database client with regex enabled in connectionOptions', () => {
 
   // Test client throws if it doesn't have regexp function registered
   const anotherClient = Client.fileClient(
-    dbFile.name,
+    dbFile,
     mockBaseLogger({ fn: vi.fn })
   );
   expect(() => anotherClient.all(queryString, '.*ermi.*')).toThrow(
@@ -290,13 +290,13 @@ test('prepared statements', () => {
 });
 
 test('schema loading', () => {
-  const schemaFile = tmp.fileSync();
+  const schemaFile = makeTemporaryFile();
   fs.writeFileSync(
-    schemaFile.name,
+    schemaFile,
     `create table if not exists muppets (name varchar(255) unique not null);`
   );
 
-  const client = Client.memoryClient(schemaFile.name);
+  const client = Client.memoryClient(schemaFile);
   client.run('insert into muppets (name) values (?)', 'Kermit');
 });
 
@@ -346,18 +346,18 @@ test('connect errors', () => {
 });
 
 test('destroy errors', () => {
-  const file = tmp.fileSync();
-  const client = Client.fileClient(file.name, mockBaseLogger({ fn: vi.fn }));
+  const file = makeTemporaryFile();
+  const client = Client.fileClient(file, mockBaseLogger({ fn: vi.fn }));
   client.connect();
-  file.removeCallback();
+  fs.unlinkSync(file);
   expect(() => client.destroy()).toThrow();
 });
 
 test('vacuuming reduces file size', () => {
-  const dbFile = tmp.fileSync();
+  const dbFile = makeTemporaryFile();
   const schemaFile = join(__dirname, '../test/fixtures/schema.sql');
   const client = Client.fileClient(
-    dbFile.name,
+    dbFile,
     mockBaseLogger({ fn: vi.fn }),
     schemaFile
   );
@@ -366,7 +366,7 @@ test('vacuuming reduces file size', () => {
     count: 0,
   });
 
-  const preInsertSize = fs.statSync(dbFile.name).size;
+  const preInsertSize = fs.statSync(dbFile).size;
 
   for (let i = 0; i < 1000; i += 1) {
     client.run(
@@ -387,11 +387,11 @@ test('vacuuming reduces file size', () => {
     );
   }
 
-  const postInsertSize = fs.statSync(dbFile.name).size;
+  const postInsertSize = fs.statSync(dbFile).size;
   client.run('delete from users');
-  const postDeleteSize = fs.statSync(dbFile.name).size;
+  const postDeleteSize = fs.statSync(dbFile).size;
   client.vacuum();
-  const postVacuumSize = fs.statSync(dbFile.name).size;
+  const postVacuumSize = fs.statSync(dbFile).size;
 
   // we reclaim all the space from the deleted rows
   expect(postVacuumSize).toEqual(preInsertSize);

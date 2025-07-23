@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import tmp from 'tmp';
 
 import {
   runUiStringApiTests,
@@ -7,6 +6,7 @@ import {
   runUiStringMachineDeconfigurationTests,
 } from '@votingworks/backend';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import {
   constructElectionKey,
   safeParseElectionDefinition,
@@ -25,7 +25,7 @@ import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import { createMockPrinterHandler } from '@votingworks/printing';
 import { mockBaseLogger } from '@votingworks/logging';
 import { Store } from './store';
-import { createWorkspace } from './util/workspace';
+import { createWorkspace, Workspace } from './util/workspace';
 import { Api, buildApi } from './app';
 import { buildMockLogger } from '../test/app_helpers';
 
@@ -37,13 +37,18 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
 }));
 
 const store = Store.memoryStore();
-const workspace = createWorkspace(
-  tmp.dirSync().name,
-  mockBaseLogger({ fn: vi.fn }),
-  {
-    store,
-  }
-);
+let workspace: Workspace;
+
+beforeEach(() => {
+  workspace = createWorkspace(
+    makeTemporaryDirectory(),
+    mockBaseLogger({ fn: vi.fn }),
+    {
+      store,
+    }
+  );
+});
+
 const mockAuth = buildMockInsertedSmartCardAuth(vi.fn);
 const electionDefinition = safeParseElectionDefinition(
   JSON.stringify(testCdfBallotDefinition)
@@ -54,14 +59,16 @@ afterEach(() => {
 });
 
 runUiStringApiTests({
-  api: buildApi(
-    mockAuth,
-    createMockUsbDrive().usbDrive,
-    createMockPrinterHandler().printer,
-    buildMockLogger(mockAuth, workspace),
-    workspace
-  ).methods(),
+  api: () =>
+    buildApi(
+      mockAuth,
+      createMockUsbDrive().usbDrive,
+      createMockPrinterHandler().printer,
+      buildMockLogger(mockAuth, workspace),
+      workspace
+    ).methods(),
   store: store.getUiStringsStore(),
+  beforeEach,
   afterEach,
   expect,
   test,
@@ -109,16 +116,17 @@ describe('configureElectionPackageFromUsb', () => {
 });
 
 describe('unconfigureMachine', () => {
-  const api = buildApi(
-    mockAuth,
-    createMockUsbDrive().usbDrive,
-    createMockPrinterHandler().printer,
-    buildMockLogger(mockAuth, workspace),
-    workspace
-  );
-
   runUiStringMachineDeconfigurationTests({
-    runUnconfigureMachine: () => api.methods().unconfigureMachine(),
+    runUnconfigureMachine: () =>
+      buildApi(
+        mockAuth,
+        createMockUsbDrive().usbDrive,
+        createMockPrinterHandler().printer,
+        buildMockLogger(mockAuth, workspace),
+        workspace
+      )
+        .methods()
+        .unconfigureMachine(),
     store: store.getUiStringsStore(),
     expect,
     test,

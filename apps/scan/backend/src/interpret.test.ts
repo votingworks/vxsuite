@@ -21,7 +21,7 @@ import {
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { assert } from 'node:console';
 import * as fs from 'node:fs/promises';
-import { dirSync } from 'tmp';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
 import { combinePageInterpretationsForSheet, interpret } from './interpret';
 
@@ -76,7 +76,7 @@ beforeAll(async () => {
 });
 
 beforeEach(() => {
-  ballotImagesPath = dirSync().name;
+  ballotImagesPath = makeTemporaryDirectory();
 });
 
 afterEach(async () => {

@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { readFileSync, writeFileSync } from 'fs-extra';
 import { join } from 'node:path';
-import { fileSync } from 'tmp';
+import { makeTemporaryFile } from '@votingworks/fixtures';
 import { LoopScanner, parseBatches, parseBatchesFromEnv } from './loop_scanner';
 import { ScannedSheetInfo } from './fujitsu_scanner';
 
@@ -13,7 +13,7 @@ function readFiles(sheetInfo: ScannedSheetInfo): string[] {
 
 test('copies files in pairs', async () => {
   const [f1, f2, f3, f4] = Array.from({ length: 4 }, (_, i) => {
-    const path = fileSync().name;
+    const path = makeTemporaryFile();
     writeFileSync(path, (i + 1).toString(), 'utf8');
     return path;
   });
@@ -46,7 +46,7 @@ test('parses an inline manifest from an environment variable', () => {
 });
 
 test('interprets relative file paths in a manifest file as relative to the file', () => {
-  const manifestPath = fileSync().name;
+  const manifestPath = makeTemporaryFile();
   writeFileSync(manifestPath, '01.png\n02.png\n03.png\n04.png', 'utf8');
   expect(parseBatchesFromEnv(`@${manifestPath}`)).toEqual([
     [
@@ -63,7 +63,7 @@ test('interprets relative file paths in a manifest file as relative to the file'
 });
 
 test('preserves absolute paths in a manifest file', () => {
-  const manifestPath = fileSync().name;
+  const manifestPath = makeTemporaryFile();
   writeFileSync(manifestPath, '/01.png\n/02.png\n/03.png\n/04.png', 'utf8');
   expect(parseBatchesFromEnv(`@${manifestPath}`)).toEqual([
     [

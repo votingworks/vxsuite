@@ -1,6 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import { tmpNameSync } from 'tmp';
-import { writeFileSync } from 'node:fs';
+import { makeTemporaryFile } from '@votingworks/fixtures';
 import { Client } from '@votingworks/db';
 import { DiagnosticRecord } from '@votingworks/types';
 import {
@@ -10,8 +9,7 @@ import {
 } from './diagnostics';
 
 test('add and get diagnostic records', () => {
-  const schemaPath = tmpNameSync();
-  writeFileSync(schemaPath, DIAGNOSTICS_TABLE_SCHEMA);
+  const schemaPath = makeTemporaryFile({ content: DIAGNOSTICS_TABLE_SCHEMA });
   const client = Client.memoryClient(schemaPath);
 
   expect(getMostRecentDiagnosticRecord(client, 'test-print')).toBeUndefined();
@@ -43,8 +41,7 @@ test('add and get diagnostic records', () => {
 });
 
 test('defaults to current timestamp', () => {
-  const schemaPath = tmpNameSync();
-  writeFileSync(schemaPath, DIAGNOSTICS_TABLE_SCHEMA);
+  const schemaPath = makeTemporaryFile({ content: DIAGNOSTICS_TABLE_SCHEMA });
   const client = Client.memoryClient(schemaPath);
 
   vi.useFakeTimers().setSystemTime(1000);

@@ -28,6 +28,7 @@ import {
   systemSettings,
   electionGridLayoutNewHampshireTestBallotFixtures,
   readElectionGeneralDefinition,
+  makeTemporaryFile,
 } from '@votingworks/fixtures';
 import { assert, assertDefined, err, ok, typedAs } from '@votingworks/basics';
 import {
@@ -41,7 +42,6 @@ import { join } from 'node:path';
 import * as fs from 'node:fs';
 import { Buffer } from 'node:buffer';
 import { UsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
-import { tmpNameSync } from 'tmp';
 import { sha256 } from 'js-sha256';
 import {
   createElectionPackageZipArchive,
@@ -94,19 +94,13 @@ async function assertFilesCreatedInOrder(
   }
 }
 
-function saveTmpFile(contents: Buffer) {
-  const tmpFile = tmpNameSync();
-  fs.writeFileSync(tmpFile, contents);
-  return tmpFile;
-}
-
 test('readElectionPackageFromFile reads an election package without system settings from a file', async () => {
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
   const pkg = await zipFile({
     [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
   });
-  const file = saveTmpFile(pkg);
+  const file = makeTemporaryFile({ content: pkg });
   const fileContents = fs.readFileSync(file);
   expect(
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
@@ -131,7 +125,7 @@ test('readElectionPackageFromFile reads an election package with system settings
       typedAs<SystemSettings>(DEFAULT_SYSTEM_SETTINGS)
     ),
   });
-  const file = saveTmpFile(pkg);
+  const file = makeTemporaryFile({ content: pkg });
   const fileContents = fs.readFileSync(file);
   expect(
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
@@ -164,7 +158,7 @@ test('readElectionPackageFromFile loads available ui strings', async () => {
     [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
     [ElectionPackageFileName.APP_STRINGS]: JSON.stringify(appStrings),
   });
-  const file = saveTmpFile(pkg);
+  const file = makeTemporaryFile({ content: pkg });
 
   const expectedElectionStrings = electionDefinition.election.ballotStrings;
   const expectedUiStrings: UiStringsPackage = {
@@ -203,7 +197,7 @@ test('readElectionPackageFromFile loads election strings from CDF', async () => 
   const pkg = await zipFile({
     [ElectionPackageFileName.ELECTION]: testCdfElectionData,
   });
-  const file = saveTmpFile(pkg);
+  const file = makeTemporaryFile({ content: pkg });
 
   const expectedCdfStrings = safeParseElection(
     testCdfBallotDefinition
@@ -243,7 +237,7 @@ test('readElectionPackageFromFile loads UI string audio IDs', async () => {
     [ElectionPackageFileName.ELECTION]: electionData,
     [ElectionPackageFileName.AUDIO_IDS]: JSON.stringify(audioIds),
   });
-  const file = saveTmpFile(pkg);
+  const file = makeTemporaryFile({ content: pkg });
 
   const expectedAudioIds: UiStringAudioIdsPackage = {
     en: {
@@ -285,7 +279,7 @@ test('readElectionPackageFromFile loads UI string audio clips', async () => {
       .map((clip) => JSON.stringify(clip))
       .join('\n'),
   });
-  const file = saveTmpFile(pkg);
+  const file = makeTemporaryFile({ content: pkg });
 
   expect(
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
@@ -311,7 +305,7 @@ test('readElectionPackageFromFile reads metadata', async () => {
     [ElectionPackageFileName.ELECTION]: electionData,
     [ElectionPackageFileName.METADATA]: JSON.stringify(metadata),
   });
-  const file = saveTmpFile(pkg);
+  const file = makeTemporaryFile({ content: pkg });
 
   expect(
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
@@ -330,7 +324,7 @@ test('readElectionPackageFromFile reads metadata', async () => {
 
 test('readElectionPackageFromFile errors when an election.json is not present', async () => {
   const pkg = await zipFile({});
-  const file = saveTmpFile(pkg);
+  const file = makeTemporaryFile({ content: pkg });
   expect(await readElectionPackageFromFile(file)).toEqual(
     err({
       type: 'invalid-zip',
@@ -341,7 +335,7 @@ test('readElectionPackageFromFile errors when an election.json is not present', 
 });
 
 test('readElectionPackageFromFile errors throws when given an invalid zip file', async () => {
-  const file = saveTmpFile(Buffer.from('not a zip file'));
+  const file = makeTemporaryFile({ content: Buffer.from('not a zip file') });
   expect(await readElectionPackageFromFile(file)).toEqual(
     err({
       type: 'invalid-zip',
@@ -355,7 +349,7 @@ test('readElectionPackageFromFile errors when given an invalid election', async 
   const pkg = await zipFile({
     [ElectionPackageFileName.ELECTION]: 'not a valid election',
   });
-  const file = saveTmpFile(pkg);
+  const file = makeTemporaryFile({ content: pkg });
 
   expect(await readElectionPackageFromFile(file)).toEqual(
     err({
@@ -371,7 +365,7 @@ test('readElectionPackageFromFile errors when given invalid system settings', as
       electionGridLayoutNewHampshireTestBallotFixtures.electionJson.asText(),
     [ElectionPackageFileName.SYSTEM_SETTINGS]: 'not a valid system settings',
   });
-  const file = saveTmpFile(pkg);
+  const file = makeTemporaryFile({ content: pkg });
 
   expect(await readElectionPackageFromFile(file)).toEqual(
     err({
@@ -387,7 +381,7 @@ test('readElectionPackageFromFile errors when given invalid metadata', async () 
       electionGridLayoutNewHampshireTestBallotFixtures.electionJson.asText(),
     [ElectionPackageFileName.METADATA]: 'asdf',
   });
-  const file = saveTmpFile(pkg);
+  const file = makeTemporaryFile({ content: pkg });
 
   expect(await readElectionPackageFromFile(file)).toEqual(
     err({

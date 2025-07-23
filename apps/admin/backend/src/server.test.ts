@@ -3,7 +3,7 @@ import { assert } from '@votingworks/basics';
 
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import { Server } from 'node:http';
-import { dirSync } from 'tmp';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { createMockPrinterHandler } from '@votingworks/printing';
@@ -21,7 +21,7 @@ beforeEach(() => {
 test('starts with default logger and port', async () => {
   const auth = buildMockDippedSmartCardAuth(vi.fn);
   const workspace = createWorkspace(
-    dirSync().name,
+    makeTemporaryDirectory(),
     mockBaseLogger({ fn: vi.fn })
   );
   const logger = buildMockLogger(auth, workspace);
@@ -48,7 +48,7 @@ test('starts with default logger and port', async () => {
 test('start with config options', async () => {
   const auth = buildMockDippedSmartCardAuth(vi.fn);
   const workspace = createWorkspace(
-    dirSync().name,
+    makeTemporaryDirectory(),
     mockBaseLogger({ fn: vi.fn })
   );
   const logger = buildMockLogger(auth, workspace);
@@ -73,7 +73,7 @@ test('start with config options', async () => {
 test('errors on start with no workspace', async () => {
   const auth = buildMockDippedSmartCardAuth(vi.fn);
   const workspace = createWorkspace(
-    dirSync().name,
+    makeTemporaryDirectory(),
     mockBaseLogger({ fn: vi.fn })
   );
   const logger = buildMockLogger(auth, workspace);
@@ -109,7 +109,7 @@ test('errors on start with no workspace', async () => {
 test('logs device attach/un-attach events', async () => {
   const auth = buildMockDippedSmartCardAuth(vi.fn);
   const workspace = createWorkspace(
-    dirSync().name,
+    makeTemporaryDirectory(),
     mockBaseLogger({ fn: vi.fn })
   );
   const logger = buildMockLogger(auth, workspace);

@@ -3,7 +3,7 @@ import { Buffer } from 'node:buffer';
 import { ImageData, createImageData } from 'canvas';
 import fc from 'fast-check';
 import { writeFile } from 'node:fs/promises';
-import { fileSync } from 'tmp';
+import { makeTemporaryFile } from '@votingworks/fixtures';
 import { randomFillSync } from 'node:crypto';
 import { MaybePromise } from '@votingworks/basics';
 import { arbitraryImageData } from '../test/arbitraries';
@@ -103,7 +103,7 @@ test('loadImage/writeImageData', async () => {
       arbitraryImageData(),
       fc.constantFrom('png', 'jpeg', 'jpg'),
       async (imageData, format) => {
-        const filePath = fileSync({ template: `tmp-XXXXXX.${format}` }).name;
+        const filePath = makeTemporaryFile({ postfix: `.${format}` });
         await writeImageData(filePath, imageData);
         const loadedImageData = await loadImageData(filePath);
         expect({
@@ -126,7 +126,7 @@ test('loadImageData', async () => {
       arbitraryImageData(),
       fc.constantFrom('png', 'jpeg', 'jpg'),
       async (imageData, format) => {
-        const filePath = fileSync({ template: `tmp-XXXXXX.${format}` }).name;
+        const filePath = makeTemporaryFile({ postfix: `.${format}` });
         await writeImageData(filePath, imageData);
         const loadedImageData = await loadImageData(filePath);
         expect({
@@ -200,7 +200,7 @@ test('toImageBuffer', async () => {
       fc.constantFrom<'png' | 'jpeg' | undefined>('png', 'jpeg', undefined),
       async (imageData, format) => {
         const buffer = toImageBuffer(imageData, format && `image/${format}`);
-        const filePath = fileSync({ template: `tmp-XXXXXX.${format}` }).name;
+        const filePath = makeTemporaryFile({ postfix: `.${format}` });
         await writeFile(filePath, buffer);
         const { width: decodedWidth, height: decodedHeight } =
           await loadImageData(filePath);
@@ -223,9 +223,9 @@ test('encodeImageData', async () => {
           mimeType === 'image/png'
             ? await encodeImageData(imageData, mimeType)
             : await encodeImageData(imageData, mimeType);
-        const filePath = fileSync({
-          template: `tmp-XXXXXX.${mimeType === 'image/png' ? 'png' : 'jpeg'}`,
-        }).name;
+        const filePath = makeTemporaryFile({
+          postfix: `.${mimeType === 'image/png' ? 'png' : 'jpeg'}`,
+        });
         await writeFile(filePath, buffer);
         const { width: decodedWidth, height: decodedHeight } =
           await loadImageData(filePath);

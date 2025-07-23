@@ -14,7 +14,7 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { dirSync } from 'tmp';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { beforeEach, expect, test, vi } from 'vitest';
 import waitForExpect from 'wait-for-expect';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock';
@@ -74,7 +74,7 @@ test('scanner disconnected on startup', async () => {
   const clock = new SimulatedClock();
   const mockAuth = buildMockInsertedSmartCardAuth(vi.fn);
   const workspace = createWorkspace(
-    dirSync().name,
+    makeTemporaryDirectory(),
     mockBaseLogger({ fn: vi.fn })
   );
   const mockUsbDrive = createMockUsbDrive();

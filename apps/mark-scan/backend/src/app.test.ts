@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { assert, deferred, err, find, mapObject } from '@votingworks/basics';
-import tmp from 'tmp';
 import {
   electionFamousNames2021Fixtures,
   systemSettings,
@@ -8,6 +7,7 @@ import {
   electionGeneralFixtures,
   readElectionGeneral,
   readElectionGeneralDefinition,
+  makeTemporaryDirectory,
 } from '@votingworks/fixtures';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
@@ -95,11 +95,11 @@ beforeEach(async () => {
     BooleanEnvironmentVariableName.MARK_SCAN_USE_BMD_150
   );
 
-  const mockWorkspaceDir = tmp.dirSync();
+  const mockWorkspaceDir = makeTemporaryDirectory();
   patConnectionStatusReader = new PatConnectionStatusReader(
     logger,
     'bmd-150',
-    mockWorkspaceDir.name
+    mockWorkspaceDir
   );
   vi.mocked(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
     false
@@ -681,7 +681,7 @@ test('addDiagnosticRecord', async () => {
 
 test('startPaperHandlerDiagnostic fails test if no state machine', async () => {
   const workspace = createWorkspace(
-    tmp.dirSync().name,
+    makeTemporaryDirectory(),
     mockBaseLogger({ fn: vi.fn })
   );
   const app = buildApp(mockAuth, logger, workspace, mockUsbDrive.usbDrive);

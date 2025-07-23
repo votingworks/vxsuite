@@ -1,10 +1,12 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import * as fs from 'node:fs';
 import path from 'node:path';
-import { dirSync } from 'tmp';
 import { v4 as uuid } from 'uuid';
 import { assert, assertDefined, err, ok, sleep } from '@votingworks/basics';
-import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import {
+  makeTemporaryDirectory,
+  readElectionTwoPartyPrimaryDefinition,
+} from '@votingworks/fixtures';
 import {
   BatchInfo,
   CastVoteRecordExportFileName,
@@ -73,7 +75,7 @@ beforeEach(() => {
   mockUsbDrive = createMockUsbDrive();
   mockCentralScannerStore = new MockCentralScannerStore();
   mockPrecinctScannerStore = new MockPrecinctScannerStore();
-  tempDirectoryPath = dirSync().name;
+  tempDirectoryPath = makeTemporaryDirectory();
 
   mockUsbDrive.insertUsbDrive({});
   mockUsbDrive.usbDrive.sync.expectOptionalRepeatedCallsWith().resolves();

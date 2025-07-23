@@ -1,20 +1,40 @@
 /* istanbul ignore file - test util @preserve */
 
 import type * as vitest from 'vitest';
+import { MaybePromise } from '@votingworks/basics';
 import { UiStringAudioClips } from '@votingworks/types';
 import { UiStringsStore } from './ui_strings_store';
 import { UiStringsApiMethods } from './ui_strings_api';
 
+type MaybeBuilder<T> = T | (() => MaybePromise<T>);
+
 /** Shared tests for the {@link UiStringsApiMethods} and underlying store. */
 export function runUiStringApiTests(params: {
-  api: UiStringsApiMethods;
-  store: UiStringsStore;
+  api: MaybeBuilder<UiStringsApiMethods>;
+  store: MaybeBuilder<UiStringsStore>;
+  beforeEach: typeof vitest.beforeEach;
   afterEach: typeof vitest.afterEach;
   expect: typeof vitest.expect;
   test: typeof vitest.test;
   resetAllMocks: typeof vitest.vi.resetAllMocks;
 }): void {
-  const { api, store, afterEach, expect, test, resetAllMocks } = params;
+  const {
+    api: buildApi,
+    store: buildStore,
+    beforeEach,
+    afterEach,
+    expect,
+    test,
+    resetAllMocks,
+  } = params;
+
+  let api: UiStringsApiMethods;
+  let store: UiStringsStore;
+
+  beforeEach(async () => {
+    api = typeof buildApi === 'function' ? await buildApi() : buildApi;
+    store = typeof buildStore === 'function' ? await buildStore() : buildStore;
+  });
 
   afterEach(() => {
     resetAllMocks();

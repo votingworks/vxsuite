@@ -21,7 +21,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { readFile } from 'node:fs/promises';
-import { fileSync } from 'tmp';
+import { makeTemporaryFile } from '@votingworks/fixtures';
 import { expect, test, vi } from 'vitest';
 import { mockElectionManagerAuth } from '../test/helpers/auth';
 import { withApp } from '../test/helpers/setup_app';
@@ -84,8 +84,8 @@ test('going through the whole process works - HMPB', async () => {
             .map(({ page }) => page)
             .toArray()
         );
-        const frontPath = fileSync().name;
-        const backPath = fileSync().name;
+        const frontPath = makeTemporaryFile();
+        const backPath = makeTemporaryFile();
         await writeImageData(frontPath, frontImageData);
         await writeImageData(backPath, backImageData);
         nextSession.sheet({
@@ -199,8 +199,8 @@ test('ballots printed with invalid scale are rejected', async () => {
             .map(({ page }) => page)
             .toArray()
         );
-        const frontPath = fileSync().name;
-        const backPath = fileSync().name;
+        const frontPath = makeTemporaryFile();
+        const backPath = makeTemporaryFile();
         await writeImageData(frontPath, frontImageData);
         await writeImageData(backPath, backImageData);
         nextSession.sheet({
