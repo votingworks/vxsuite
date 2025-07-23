@@ -17,11 +17,13 @@ import {
   TIMING_MARK_DIMENSIONS,
   timingMarkCounts,
 } from './ballot_components';
+import { PrintCalibration } from './types';
 
 // NOTE: All values used in this module are in PDF user space `pt` units.
 
 const PT = 1;
 const IN = 72 * PT;
+const MM = IN / 25.4;
 const PX = IN / 96;
 
 const pageMargins = [
@@ -45,17 +47,6 @@ const writeInFontSizeDefault = 12;
 const writeInFontSizeReduced = 10;
 
 /**
- * Center of the top-left timing mark.
- *
- * [TODO] We may need to move this into the election definition, to support
- * marking 3rd party ballots.
- */
-const gridOrigin = [
-  pageMargins[0] + 0.5 * timingMarkSize[0],
-  pageMargins[1] + 0.5 * timingMarkSize[1],
-] as const;
-
-/**
  * Generates a PDF with bubble marks in the expected positions for the given
  * ballot style and corresponding votes.
  *
@@ -64,7 +55,8 @@ const gridOrigin = [
 export function generateMarkOverlay(
   election: Election,
   ballotStyleId: string,
-  votes: VotesDict
+  votes: VotesDict,
+  calibration: PrintCalibration
 ): NodeJS.ReadableStream {
   assert(
     election.gridLayouts,
@@ -75,6 +67,18 @@ export function generateMarkOverlay(
     (l) => l.ballotStyleId === ballotStyleId
   );
   assert(layout, `no grid layout found for ballot style ${ballotStyleId}`);
+
+  /**
+   * Center of the top-left timing mark, potentially adjusted per
+   * machine-specific calibration.
+   *
+   * [TODO] We may need to move the uncalibrated origin into the election
+   * definition, to support marking 3rd party ballots.
+   */
+  const gridOrigin = [
+    pageMargins[0] + 0.5 * timingMarkSize[0] + calibration.offsetMmX * MM,
+    pageMargins[1] + 0.5 * timingMarkSize[1] + calibration.offsetMmY * MM,
+  ] as const;
 
   const pageSizeIn = ballotPaperDimensions(election.ballotLayout.paperSize);
   const pageSize = [pageSizeIn.width * IN, pageSizeIn.height * IN] as const;

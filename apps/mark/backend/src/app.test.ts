@@ -48,7 +48,7 @@ import {
 } from '@votingworks/printing';
 import { createApp } from '../test/app_helpers';
 import { Api } from './app';
-import { ElectionState, PrintMode } from '.';
+import { ElectionState, PrintCalibration, PrintMode } from '.';
 import { isAccessibleControllerAttached } from './util/accessible_controller';
 
 const electionGeneralDefinition =
@@ -525,4 +525,17 @@ test('print mode get and set', async () => {
   await apiClient.setPrintMode({ mode: 'bubble_marks' });
 
   expect(await apiClient.getPrintMode()).toEqual<PrintMode>('bubble_marks');
+});
+
+test('print calibration', async () => {
+  expect(await apiClient.getPrintCalibration()).toEqual<PrintCalibration>({
+    offsetMmX: 0,
+    offsetMmY: 0,
+  });
+
+  await apiClient.setPrintCalibration({ offsetMmX: 1.5, offsetMmY: 0.5 });
+  expect(await apiClient.getPrintCalibration()).toEqual<PrintCalibration>({
+    offsetMmX: 1.5,
+    offsetMmY: 0.5,
+  });
 });

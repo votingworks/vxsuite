@@ -277,6 +277,28 @@ export const setPrintMode = {
   },
 } as const;
 
+export const getPrintCalibration = {
+  queryKey: (): QueryKey => ['getPrintCalibration'],
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getPrintCalibration());
+  },
+} as const;
+
+// istanbul ignore next - WIP @preserve
+export const setPrintCalibration = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+
+    return useMutation(apiClient.setPrintCalibration, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getPrintCalibration.queryKey());
+      },
+    });
+  },
+} as const;
+
 export const configureElectionPackageFromUsb = {
   useMutation() {
     const apiClient = useApiClient();

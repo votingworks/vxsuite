@@ -2,6 +2,7 @@
 // The durable datastore for configuration info.
 //
 
+import util from 'node:util';
 import { UiStringsStore, createUiStringStore } from '@votingworks/backend';
 import {
   assert,
@@ -26,6 +27,7 @@ import {
   constructElectionKey,
 } from '@votingworks/types';
 import { join } from 'node:path';
+import { PrintCalibration } from '@votingworks/hmpb';
 import { PrintMode } from './types';
 
 const SchemaPath = join(__dirname, '../schema.sql');
@@ -378,6 +380,36 @@ export class Store {
     this.client.run(
       'update election set ballots_printed_count = ?',
       ballotsPrintedCount
+    );
+  }
+
+  getPrintCalibration(): PrintCalibration {
+    const existing = this.client.one(`
+      select
+        offset_mm_x as offsetMmX,
+        offset_mm_y as offsetMmY
+      from print_calibration
+    `) as PrintCalibration | undefined;
+
+    return existing || { offsetMmX: 0, offsetMmY: 0 };
+  }
+
+  setPrintCalibration(c: PrintCalibration): void {
+    assert(
+      typeof c.offsetMmX === 'number' && typeof c.offsetMmY === 'number',
+      `invalid print calibration - ${util.inspect(c)}`
+    );
+
+    this.client.run(
+      `
+        insert or replace into print_calibration (
+          id,
+          offset_mm_x,
+          offset_mm_y
+        ) values (1, ?, ?)
+      `,
+      c.offsetMmX,
+      c.offsetMmY
     );
   }
 }

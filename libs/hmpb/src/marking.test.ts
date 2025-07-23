@@ -25,7 +25,8 @@ test('places marks consistently', async () => {
   const overlayStream = generateMarkOverlay(
     election.unsafeUnwrap(),
     fixture.ballotStyleId,
-    fixture.votes
+    fixture.votes,
+    { offsetMmX: 0, offsetMmY: 0 }
   );
 
   const overlayPdf = await new Promise<Uint8Array>((resolve, reject) => {

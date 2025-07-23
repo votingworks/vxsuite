@@ -3,7 +3,7 @@ import Stream from 'node:stream';
 import { Buffer } from 'node:buffer';
 
 import { electionGeneralFixtures } from '@votingworks/fixtures';
-import { generateMarkOverlay } from '@votingworks/hmpb';
+import { generateMarkOverlay, PrintCalibration } from '@votingworks/hmpb';
 import {
   ElectionDefinition,
   HmpbBallotPaperSize,
@@ -46,11 +46,16 @@ describe(`printMode === "bubble_marks"`, () => {
       bar: [{ id: 'one', name: 'Hon. One III' }],
     };
 
+    const mockCalibration: PrintCalibration = {
+      offsetMmX: 0.5,
+      offsetMmY: -0.5,
+    };
     vi.mocked(generateMarkOverlay).mockImplementation(
-      (election, ballotStyleId, votes) => {
+      (election, ballotStyleId, votes, calibration) => {
         expect(election).toEqual(electionDefinition.election);
         expect(ballotStyleId).toEqual(ballotStyle.id);
         expect(votes).toEqual(mockVotes);
+        expect(calibration).toEqual(mockCalibration);
 
         return Stream.Readable.from([
           Buffer.of(0xca, 0xfe),
@@ -70,6 +75,7 @@ describe(`printMode === "bubble_marks"`, () => {
           electionDefinition,
           electionPackageHash: 'unused',
         }),
+        getPrintCalibration: () => mockCalibration,
         getPrintMode: () => 'bubble_marks',
       }),
       votes: mockVotes,
