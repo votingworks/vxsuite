@@ -2,6 +2,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import { electionSimpleSinglePrecinctFixtures } from '@votingworks/fixtures';
 import { assert } from 'node:console';
 import { CITIZEN_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
   constructElectionKey,
   DEFAULT_SYSTEM_SETTINGS,
@@ -224,14 +225,16 @@ test('checking in a voter does not allow ballot party during a general', async (
     expect((votersAbigail as Voter[]).length).toEqual(3);
     const firstVoter = (votersAbigail as Voter[])[0];
 
-    await expect(
-      localApiClient.checkInVoter({
-        voterId: firstVoter.voterId,
-        identificationMethod: { type: 'default' },
-        ballotParty: 'REP',
-      })
-    ).rejects.toThrow(
-      'Check-in ballot party cannot be provided during a general election'
+    await suppressingConsoleOutput(() =>
+      expect(
+        localApiClient.checkInVoter({
+          voterId: firstVoter.voterId,
+          identificationMethod: { type: 'default' },
+          ballotParty: 'REP',
+        })
+      ).rejects.toThrow(
+        'Check-in ballot party cannot be provided during a general election'
+      )
     );
   });
 });
