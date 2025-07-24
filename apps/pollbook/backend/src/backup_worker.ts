@@ -205,7 +205,7 @@ async function exportBackupVoterChecklist(
   logger.log(LogEventId.PollbookPaperBackupStatus, 'system', {
     message: 'Exporting backup voter checklist...',
   });
-  console.time('Exported backup voter checklist');
+  const startTime = Date.now();
 
   const pdfs = await getBackupPaperChecklistPdfs(workspace.store);
 
@@ -229,9 +229,10 @@ async function exportBackupVoterChecklist(
     ).unsafeUnwrap();
     await move(inProgressPath, finalPath, { overwrite: true });
   }
-  console.timeEnd('Exported backup voter checklist');
   logger.log(LogEventId.PollbookPaperBackupStatus, 'system', {
-    message: 'Backup voter checklist exported successfully',
+    message: `Backup voter checklist exported successfully in ${
+      Date.now() - startTime
+    }ms`,
     disposition: 'success',
   });
   await usbDrive.sync();
