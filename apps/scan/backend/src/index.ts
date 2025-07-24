@@ -31,6 +31,7 @@ import { createSimpleScannerClient } from './electrical_testing/simple_scanner_c
 
 export type { Api } from './app';
 export type { ElectricalTestingApi } from './electrical_testing/app';
+export type { ScanningMode } from './electrical_testing/context';
 export type {
   PrinterStatus,
   PrintResult,
@@ -86,10 +87,10 @@ async function main(): Promise<number> {
   ) {
     await startElectricalTestingServer({
       auth,
-      cardTask: TaskController.started<string>(),
-      usbDriveTask: TaskController.started<string>(),
-      printerTask: TaskController.started<string>(),
-      scannerTask: TaskController.started<string>(),
+      cardTask: TaskController.started(undefined),
+      usbDriveTask: TaskController.started(undefined),
+      printerTask: TaskController.started(undefined),
+      scannerTask: TaskController.started({ mode: 'shoe-shine' }),
       logger,
       printer,
       scannerClient: createSimpleScannerClient(),

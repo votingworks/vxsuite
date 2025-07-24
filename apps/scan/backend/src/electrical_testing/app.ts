@@ -6,7 +6,7 @@ import express, { Application } from 'express';
 import { mkdir, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { getMachineConfig } from '../machine_config';
-import { type ServerContext } from './context';
+import { type ScanningMode, type ServerContext } from './context';
 import { SoundName, Player as AudioPlayer } from '../audio/player';
 
 type ApiContext = ServerContext & {
@@ -55,7 +55,11 @@ function buildApi({
           ? { ...printerMessage, taskStatus: printerTask.getStatus() }
           : undefined,
         scanner: scannerMessage
-          ? { ...scannerMessage, taskStatus: scannerTask.getStatus() }
+          ? {
+              ...scannerMessage,
+              taskStatus: scannerTask.getStatus(),
+              mode: scannerTask.getInput().mode,
+            }
           : undefined,
       };
     },
@@ -110,6 +114,10 @@ function buildApi({
       } else {
         scannerTask.pause();
       }
+    },
+
+    setScannerTaskMode(input: { mode: ScanningMode }): void {
+      scannerTask.setInput({ mode: input.mode });
     },
 
     async getLatestScannedSheet(): Promise<SheetOf<string> | null> {

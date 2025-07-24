@@ -26,22 +26,20 @@ const Column = styled.div<{ gap?: string }>`
 `;
 
 const Small = styled.span`
-  font-size: 0.45rem;
+  font-size: 0.9rem;
 `;
 
-const SmallButton = styled(Button)`
-  transform: scale(0.5);
-`;
+const SmallButton = Button;
 
 const ExtraSmall = styled.span`
-  font-size: 0.3rem;
+  font-size: 0.6rem;
 `;
 
 const PlayPauseButtonBase = styled.button`
   flex-shrink: 0;
   background-color: #ddd;
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 3rem;
+  height: 3rem;
   border-radius: 50%;
   border: none;
   cursor: pointer;
@@ -49,7 +47,7 @@ const PlayPauseButtonBase = styled.button`
   padding: 0;
 
   svg {
-    scale: 0.8;
+    scale: 2;
   }
 `;
 

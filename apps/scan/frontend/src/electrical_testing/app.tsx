@@ -1,6 +1,10 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import { BaseLogger, LogSource } from '@votingworks/logging';
-import { AppErrorBoundary, SystemCallContextProvider } from '@votingworks/ui';
+import {
+  AppBase,
+  AppErrorBoundary,
+  SystemCallContextProvider,
+} from '@votingworks/ui';
 
 import {
   ApiClientContext,
@@ -17,7 +21,11 @@ export function App(): JSX.Element {
   const apiClient = createApiClient();
 
   return (
-    <ScanAppBase>
+    <AppBase
+      defaultColorMode="desktop"
+      defaultSizeMode="desktop"
+      showScrollBars
+    >
       <AppErrorBoundary restartMessage="Restart the machine" logger={logger}>
         <ApiClientContext.Provider value={apiClient}>
           <QueryClientProvider client={queryClient}>
@@ -27,6 +35,6 @@ export function App(): JSX.Element {
           </QueryClientProvider>
         </ApiClientContext.Provider>
       </AppErrorBoundary>
-    </ScanAppBase>
+    </AppBase>
   );
 }

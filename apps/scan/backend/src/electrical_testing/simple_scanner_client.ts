@@ -1,6 +1,7 @@
 import { assert, Optional } from '@votingworks/basics';
 import {
   createPdiScannerClient,
+  EjectMotion,
   ScannerClient,
   ScannerEvent,
 } from '@votingworks/pdi-scanner';
@@ -10,7 +11,9 @@ export interface SimpleScannerClient {
   connect(eventListener: (event: ScannerEvent) => void): Promise<void>;
   disconnect(): Promise<void>;
   enableScanning(): Promise<void>;
+  disableScanning(): Promise<void>;
   ejectAndRescanPaperIfPresent(): Promise<void>;
+  ejectPaper(ejectMotion: EjectMotion): Promise<void>;
 }
 
 export function createSimpleScannerClient(): SimpleScannerClient {
@@ -47,6 +50,12 @@ export function createSimpleScannerClient(): SimpleScannerClient {
       ).unsafeUnwrap();
     },
 
+    async disableScanning() {
+      assert(client, 'Scanner client is not connected');
+
+      (await client.disableScanning()).unsafeUnwrap();
+    },
+
     async ejectAndRescanPaperIfPresent() {
       assert(client, 'Scanner client is not connected');
 
@@ -54,6 +63,16 @@ export function createSimpleScannerClient(): SimpleScannerClient {
 
       if (status.rearLeftSensorCovered || status.rearRightSensorCovered) {
         (await client.ejectDocument('toFrontAndRescan')).unsafeUnwrap();
+      }
+    },
+
+    async ejectPaper(ejectMotion: EjectMotion) {
+      assert(client, 'Scanner client is not connected');
+
+      const status = (await client.getScannerStatus()).unsafeUnwrap();
+
+      if (status.rearLeftSensorCovered || status.rearRightSensorCovered) {
+        (await client.ejectDocument(ejectMotion)).unsafeUnwrap();
       }
     },
   };
