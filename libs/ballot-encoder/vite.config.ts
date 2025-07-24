@@ -8,6 +8,7 @@ export default defineConfig({
       exclude: ['src/v3.ts'],
     },
   },
+  base: './',
   root: join(__dirname, 'src/web'),
 
   // Replace some code in Node modules, `#define`-style, to avoid referencing
