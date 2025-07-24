@@ -9,7 +9,8 @@ export type TaskStatus = 'init' | 'running' | 'paused' | 'stopped';
 /**
  * Keeps track of the status of a running task and provides methods to control it.
  */
-export class TaskController<Product = void> {
+export class TaskController<Input = void, Product = void> {
+  private input: Input;
   private status: TaskStatus = 'init';
   private onRunning = deferred<void>();
   private readonly onStop = deferred<Optional<Product>>();
@@ -72,11 +73,20 @@ export class TaskController<Product = void> {
   }
 
   /**
+   * Creates a new task controller with the given input.
+   */
+  constructor(input: Input) {
+    this.input = input;
+  }
+
+  /**
    * Creates a new task controller that is already started.
    */
   // eslint-disable-next-line vx/gts-no-return-type-only-generics
-  static started<Product = void>(): TaskController<Product> {
-    const controller = new TaskController<Product>();
+  static started<Input = void, Product = void>(
+    input: Input
+  ): TaskController<Input, Product> {
+    const controller = new TaskController<Input, Product>(input);
     controller.start();
     return controller;
   }
@@ -87,6 +97,20 @@ export class TaskController<Product = void> {
    */
   private setStatus(newStatus: TaskStatus): void {
     this.status = newStatus;
+  }
+
+  /**
+   * Gets the current input for this task.
+   */
+  getInput(): Input {
+    return this.input;
+  }
+
+  /**
+   * Updates the task's input to the given value.
+   */
+  setInput(input: Input): void {
+    this.input = input;
   }
 
   /**

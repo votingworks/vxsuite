@@ -6,7 +6,10 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import * as grout from '@votingworks/grout';
-import type { ElectricalTestingApi } from '@votingworks/scan-backend';
+import type {
+  ElectricalTestingApi,
+  ScanningMode,
+} from '@votingworks/scan-backend';
 import {
   createSystemCallApi,
   QUERY_CLIENT_DEFAULT_OPTIONS,
@@ -108,6 +111,26 @@ export const setScannerTaskRunning = {
     );
   },
 } as const;
+
+export const setScannerTaskMode = {
+  queryKey(): QueryKey {
+    return ['setScannerTaskMode'];
+  },
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(
+      (mode: ScanningMode) => apiClient.setScannerTaskMode({ mode }),
+      {
+        onSuccess: async () => {
+          await queryClient.invalidateQueries(
+            getElectricalTestingStatuses.queryKey()
+          );
+        },
+      }
+    );
+  },
+};
 
 export const setUsbDriveTaskRunning = {
   queryKey(): QueryKey {
