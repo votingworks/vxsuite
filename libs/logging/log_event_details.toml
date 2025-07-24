@@ -997,3 +997,8 @@ eventId = "pollbook-paper-backup-status"
 eventType = "application-status"
 documentationMessage = 'A status message indicating an update to the pollbook paper backup.'
 restrictInDocumentationToApps = ["vx-pollbook"]
+
+[Events.NavigationPageChange]
+eventId = "navigation-page-change"
+eventType = "application-status"
+documentationMessage = 'A status message indicating change to the frontend navigation page.'

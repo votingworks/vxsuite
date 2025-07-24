@@ -219,6 +219,7 @@ export enum LogEventId {
   PollbookNetworkStatus = 'pollbook-network-status',
   PollbookConfigurationStatus = 'pollbook-configuration-status',
   PollbookPaperBackupStatus = 'pollbook-paper-backup-status',
+  NavigationPageChange = 'navigation-page-change',
 }
 
 const ElectionConfigured: LogDetails = {
@@ -1354,6 +1355,13 @@ const PollbookPaperBackupStatus: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxPollBook],
 };
 
+const NavigationPageChange: LogDetails = {
+  eventId: LogEventId.NavigationPageChange,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'A status message indicating change to the frontend navigation page.',
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -1666,6 +1674,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return PollbookConfigurationStatus;
     case LogEventId.PollbookPaperBackupStatus:
       return PollbookPaperBackupStatus;
+    case LogEventId.NavigationPageChange:
+      return NavigationPageChange;
     default:
       throwIllegalValue(eventId);
   }
