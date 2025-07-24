@@ -43,6 +43,8 @@ describe('Election tab', () => {
     unmount();
   });
   test('basic render', async () => {
+    apiMock.setIsAbsenteeMode(false);
+    apiMock.expectHaveElectionEventsOccurred(false);
     apiMock.setElection(electionDefFamousNames);
     const renderResult = renderInAppContext(<SystemAdministratorScreen />, {
       apiMock,
@@ -157,6 +159,38 @@ describe('Election tab', () => {
     const configureGood = await within(rows[0]).findByText('Configure');
     userEvent.click(configureGood);
   });
+
+  test('shows precinct select and allows changing configured precinct', async () => {
+    apiMock.setIsAbsenteeMode(false);
+    apiMock.expectHaveElectionEventsOccurred(false);
+    apiMock.setElection(electionDefFamousNames);
+
+    const { precincts } = electionDefFamousNames.election;
+    const renderResult = renderInAppContext(<SystemAdministratorScreen />, {
+      apiMock,
+    });
+    unmount = renderResult.unmount;
+
+    // Wait for the SearchSelect to appear with the correct value
+    const select = await screen.findByLabelText('Select Precinct');
+    expect(select).toBeInTheDocument();
+    expect(select.ariaDisabled).toBeFalsy();
+    // Should have the correct initial value
+    expect((select as HTMLSelectElement).value).toEqual('');
+
+    // Simulate changing the precinct
+    const newPrecinctId = precincts[1].id;
+
+    apiMock.expectSetConfiguredPrecinct(newPrecinctId);
+
+    userEvent.click(screen.getByText('Select Precinct…'));
+    userEvent.click(screen.getByText(precincts[1].name));
+
+    // Wait for the value to update
+    await vi.waitFor(() => {
+      screen.getByText(precincts[1].name);
+    });
+  });
 });
 
 describe('Settings tab', () => {
@@ -175,7 +209,9 @@ describe('Settings tab', () => {
   }
 
   beforeEach(() => {
+    apiMock.setIsAbsenteeMode(false);
     apiMock.setElection(electionDefFamousNames);
+    apiMock.expectHaveElectionEventsOccurred(false);
     apiMock.expectGetUsbDriveStatus({
       status: 'mounted',
       mountPoint: '/dev/null',

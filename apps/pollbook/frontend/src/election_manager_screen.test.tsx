@@ -75,7 +75,7 @@ describe('Voters tab', () => {
   });
 });
 
-describe('SettingsScreen precinct selection', () => {
+describe('ElectionScreen precinct selection', () => {
   test('shows precinct select and allows changing configured precinct', async () => {
     // Setup election with multiple precincts
     const { precincts } = electionDefFamousNames.election;
@@ -124,7 +124,7 @@ describe('SettingsScreen precinct selection', () => {
   });
 
   test('does not show precinct select for single precinct election', async () => {
-    // Setup election with multiple precincts
+    // Setup election with single precinct
     const singlePrecinctElection =
       electionSimpleSinglePrecinctFixtures.readElectionDefinition();
     apiMock.setElection(
@@ -139,14 +139,13 @@ describe('SettingsScreen precinct selection', () => {
     unmount = renderResult.unmount;
 
     // There should be no select precinct option shown
-    await screen.findAllByText('Settings');
+    await screen.findAllByText('Election');
     const select = screen.queryByLabelText('Select Precinct');
     expect(select).toBeNull();
   });
 
   test('handles error when setting precinct by disabling', async () => {
     const { precincts } = electionDefFamousNames.election;
-    // Render
     const renderResult = renderInAppContext(<ElectionManagerScreen />, {
       apiMock,
     });
@@ -168,5 +167,54 @@ describe('SettingsScreen precinct selection', () => {
     screen.getByText(
       /The precinct setting cannot be changed because a voter was checked in or voter information was updated/
     );
+  });
+});
+
+describe('Settings tab', () => {
+  beforeEach(() => {
+    apiMock.expectGetUsbDriveStatus({
+      status: 'mounted',
+      mountPoint: '/dev/null',
+    });
+  });
+
+  async function renderSettingsTab() {
+    const renderResult = renderInAppContext(<ElectionManagerScreen />, {
+      apiMock,
+    });
+    unmount = renderResult.unmount;
+
+    const settingsTabButton = await screen.findByRole('button', {
+      name: 'Settings',
+    });
+    userEvent.click(settingsTabButton);
+
+    await screen.findByRole('heading', { name: 'Settings' });
+  }
+
+  test('save logs button', async () => {
+    await renderSettingsTab();
+
+    // Full functionality tested in libs/ui/src/export_logs_modal.test.tsx
+    const saveLogsButton = await screen.findButton('Save Logs');
+    userEvent.click(saveLogsButton);
+    await screen.findByRole('heading', { name: 'Save Logs' });
+    screen.getByText('Select a log format:');
+  });
+
+  test('set date and time button', async () => {
+    await renderSettingsTab();
+
+    // Full functionality tested in libs/ui/src/set_clock.test.tsx
+    userEvent.click(screen.getByRole('button', { name: 'Set Date and Time' }));
+    await screen.findByRole('heading', { name: 'Set Date and Time' });
+  });
+
+  test('format USB drive button is hidden', async () => {
+    await renderSettingsTab();
+
+    await expect
+      .poll(() => screen.queryByRole('heading', { name: 'Format USB Drive' }))
+      .not.toBeInTheDocument();
   });
 });

@@ -11,6 +11,10 @@ import { App } from './app';
 import { ApiMock, createApiMock } from '../test/mock_api_client';
 
 let apiMock: ApiMock;
+let unmount: () => void = () => {
+  throw new Error('unmount was not bound after render');
+};
+
 const famousNamesElection: ElectionDefinition =
   electionFamousNames2021Fixtures.readElectionDefinition();
 
@@ -23,14 +27,19 @@ beforeEach(() => {
 
 afterEach(() => {
   apiMock.mockApiClient.assertComplete();
+  unmount();
 });
+
+function renderApp() {
+  ({ unmount } = render(<App apiClient={apiMock.mockApiClient} />));
+}
 
 test('renders SetupCardReaderPage when no card reader is detected', async () => {
   apiMock.setAuthStatus({
     status: 'logged_out',
     reason: 'no_card_reader',
   });
-  render(<App apiClient={apiMock.mockApiClient} />);
+  renderApp();
   await screen.findByText('Card Reader Not Detected');
   await screen.findByText('Please connect the card reader to continue.');
 });
@@ -42,7 +51,7 @@ test('renders UnlockMachineScreen when checking PIN', async () => {
       electionKey: constructElectionKey(famousNamesElection.election),
     }),
   });
-  render(<App apiClient={apiMock.mockApiClient} />);
+  renderApp();
   await screen.findByText('Enter Card PIN');
 });
 
@@ -54,7 +63,7 @@ test('renders RemoveCardScreen when card needs to be removed', async () => {
     }),
     sessionExpiresAt: mockSessionExpiresAt(),
   });
-  render(<App apiClient={apiMock.mockApiClient} />);
+  ({ unmount } = render(<App apiClient={apiMock.mockApiClient} />));
   await screen.findByText(/Remove card to unlock/);
 });
 
@@ -64,7 +73,7 @@ test('renders MachineLockedScreen when machine is locked - unconfigure', async (
     status: 'logged_out',
     reason: 'machine_locked',
   });
-  render(<App apiClient={apiMock.mockApiClient} />);
+  renderApp();
   await screen.findByText('VxPollBook Locked');
   await screen.findByText(
     'Insert system administrator or election manager card to unlock.'
@@ -78,7 +87,7 @@ test('renders MachineLockedScreen when machine is locked - configured', async ()
     reason: 'machine_locked',
   });
   apiMock.setElection(famousNamesElection, undefined, 'FAKEHASH');
-  render(<App apiClient={apiMock.mockApiClient} />);
+  renderApp();
   await screen.findByText('VxPollBook Locked');
   await screen.findByText('Insert card to unlock.');
   await screen.findByText(
@@ -91,7 +100,7 @@ test('renders InvalidCardScreen for invalid card reasons', async () => {
     status: 'logged_out',
     reason: 'unprogrammed_or_invalid_card',
   });
-  render(<App apiClient={apiMock.mockApiClient} />);
+  ({ unmount } = render(<App apiClient={apiMock.mockApiClient} />));
   await screen.findByText('Use a valid election manager or poll worker card.');
 });
 
@@ -105,15 +114,18 @@ test('election manager - renders UnconfiguredScreen when election is unconfigure
     sessionExpiresAt: mockSessionExpiresAt(),
   });
   apiMock.setElection(undefined);
-  render(<App apiClient={apiMock.mockApiClient} />);
+  renderApp();
   await screen.findByText(/Configuring/);
 });
 
 test('system administrator can unconfigure', async () => {
+  apiMock.expectHaveElectionEventsOccurredRepeated(false);
+  apiMock.expectAbsenteeModeRepeated(false);
+
   apiMock.expectGetDeviceStatuses();
   apiMock.authenticateAsSystemAdministrator();
   apiMock.setElection(famousNamesElection);
-  render(<App apiClient={apiMock.mockApiClient} />);
+  renderApp();
   await screen.findByRole('heading', { name: 'Election' });
   screen.getByText('Settings');
 
@@ -138,19 +150,20 @@ test('system administrator can unconfigure', async () => {
 });
 
 test('renders ElectionManagerScreen when logged in as election manager', async () => {
+  apiMock.expectHaveElectionEventsOccurredRepeated(false);
+  apiMock.expectAbsenteeModeRepeated(false);
+
   apiMock.expectGetDeviceStatuses();
   apiMock.authenticateAsElectionManager(famousNamesElection.election);
   apiMock.setElection(famousNamesElection);
-  apiMock.setIsAbsenteeMode(false);
-  apiMock.expectHaveElectionEventsOccurred(false);
-  render(<App apiClient={apiMock.mockApiClient} />);
+  renderApp();
   await screen.findByText('Voters');
   await screen.findByText('Statistics');
 
-  // We should land on the Settings page
+  // We should land on the Election page
   await screen.findByRole('heading', {
     level: 1,
-    name: 'Settings',
+    name: 'Election',
   });
 
   const electionInfoSection = screen.getByTestId('election-info');
@@ -162,7 +175,7 @@ test('renders ElectionManagerScreen when logged in as election manager', async (
 test('renders VendorScreen when logged in as vendor', async () => {
   apiMock.expectGetDeviceStatuses();
   apiMock.authenticateAsVendor();
-  render(<App apiClient={apiMock.mockApiClient} />);
+  renderApp();
 
   await screen.findByText('Reboot to Vendor Menu');
 });
@@ -177,7 +190,7 @@ test('election manager - unconfigured screen - loading', async () => {
     sessionExpiresAt: mockSessionExpiresAt(),
   });
   apiMock.setElectionConfiguration('loading');
-  render(<App apiClient={apiMock.mockApiClient} />);
+  renderApp();
   await screen.findByText(/Configuring/);
 });
 
@@ -191,7 +204,7 @@ test('election manager - unconfigured screen - recently unconfigured', async () 
     sessionExpiresAt: mockSessionExpiresAt(),
   });
   apiMock.setElectionConfiguration('recently-unconfigured');
-  render(<App apiClient={apiMock.mockApiClient} />);
+  renderApp();
   await screen.findByText('Machine Unconfigured');
 });
 
@@ -221,7 +234,7 @@ test('election manager - unconfigured screen - network-conflicting-pollbook-pack
   apiMock.setElectionConfiguration(
     'network-conflicting-pollbook-packages-match-card'
   );
-  render(<App apiClient={apiMock.mockApiClient} />);
+  renderApp();
   await screen.findByText('No Valid Configuration Detected');
   await screen.findByText(/conflicting configurations/);
 });
@@ -238,7 +251,7 @@ test('election manager - unconfigured screen - not-found-configuration-matching-
   apiMock.setElectionConfiguration(
     'not-found-configuration-matching-election-card'
   );
-  render(<App apiClient={apiMock.mockApiClient} />);
+  renderApp();
   await screen.findByText('No Valid Configuration Detected');
   await screen.findByText(/none of them are configured/);
 });
@@ -253,7 +266,7 @@ test('election manager - unconfigured screen - not-found-network', async () => {
     sessionExpiresAt: mockSessionExpiresAt(),
   });
   apiMock.setElectionConfiguration('not-found-network');
-  render(<App apiClient={apiMock.mockApiClient} />);
+  renderApp();
   await screen.findByText('No Configuration Detected');
   await screen.findByText(/did not detect/);
 });

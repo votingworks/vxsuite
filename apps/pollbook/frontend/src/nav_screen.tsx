@@ -471,10 +471,11 @@ export function SystemAdministratorNavScreen({
 }
 
 export const electionManagerRoutes = {
-  settings: { title: 'Settings', path: '/settings' },
+  election: { title: 'Election', path: '/election' },
   voters: { title: 'Voters', path: '/voters' },
   addVoter: { title: 'Registration', path: '/registration' },
   statistics: { title: 'Statistics', path: '/statistics' },
+  settings: { title: 'Settings', path: '/settings' },
 } satisfies Record<string, { title: string; path: string }>;
 
 export function ElectionManagerNavScreen({

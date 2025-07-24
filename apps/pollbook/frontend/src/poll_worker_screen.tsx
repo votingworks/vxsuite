@@ -389,7 +389,10 @@ export function PollWorkerScreen(): JSX.Element | null {
               </FullScreenIconWrapper>
             }
           >
-            <P>Insert an election manager card to select a precinct.</P>
+            <P>
+              Insert a system administrator or election manager card to select a
+              precinct.
+            </P>
           </FullScreenMessage>
         </Column>
       </NavScreen>
