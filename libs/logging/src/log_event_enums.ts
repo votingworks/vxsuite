@@ -25,7 +25,7 @@ export enum AppName {
   VxAdmin = 'vx-admin',
   VxCentralScan = 'vx-central-scan',
   VxDesign = 'vx-design',
-  VxPollbook = 'vx-pollbook',
+  VxPollBook = 'vx-pollbook',
 }
 export enum LogSource {
   System = 'system',
@@ -1323,28 +1323,28 @@ const SocketServerError: LogDetails = {
   documentationMessage: 'An error was reported by a socket server.',
 };
 
-const PollbookNetworkMessage: LogDetails = {
+const PollbookNetworkStatus: LogDetails = {
   eventId: LogEventId.PollbookNetworkStatus,
   eventType: LogEventType.ApplicationStatus,
   documentationMessage:
     'A status message indicating an update to the pollbook network.',
-  restrictInDocumentationToApps: [AppName.VxPollbook],
+  restrictInDocumentationToApps: [AppName.VxPollBook],
 };
 
-const PollbookConfigurationMessage: LogDetails = {
+const PollbookConfigurationStatus: LogDetails = {
   eventId: LogEventId.PollbookConfigurationStatus,
   eventType: LogEventType.ApplicationStatus,
   documentationMessage:
     'A status message indicating an update to the pollbook configuration.',
-  restrictInDocumentationToApps: [AppName.VxPollbook],
+  restrictInDocumentationToApps: [AppName.VxPollBook],
 };
 
 const PollbookPaperBackupStatus: LogDetails = {
   eventId: LogEventId.PollbookPaperBackupStatus,
   eventType: LogEventType.ApplicationStatus,
   documentationMessage:
-    'A status message indicating the state of the pollbook paper backup.',
-  restrictInDocumentationToApps: [AppName.VxPollbook],
+    'A status message indicating an update to the pollbook paper backup.',
+  restrictInDocumentationToApps: [AppName.VxPollBook],
 };
 
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
@@ -1652,9 +1652,9 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
     case LogEventId.SocketServerError:
       return SocketServerError;
     case LogEventId.PollbookNetworkStatus:
-      return PollbookNetworkMessage;
+      return PollbookNetworkStatus;
     case LogEventId.PollbookConfigurationStatus:
-      return PollbookConfigurationMessage;
+      return PollbookConfigurationStatus;
     case LogEventId.PollbookPaperBackupStatus:
       return PollbookPaperBackupStatus;
     default:
