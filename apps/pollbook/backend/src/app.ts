@@ -121,6 +121,9 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
           'getCheckInCounts',
           'haveElectionEventsOccurred',
           'getScannedIdDocument',
+          'getIsAbsenteeMode',
+          'getThroughputStatistics',
+          'getSummaryStatistics',
         ];
         if (silenceMethods.includes(methodName)) {
           return;
