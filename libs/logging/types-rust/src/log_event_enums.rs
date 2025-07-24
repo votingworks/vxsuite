@@ -29,6 +29,8 @@ pub enum AppName {
     VxCentralScan,
     #[serde(rename = "vx-design")]
     VxDesign,
+    #[serde(rename = "vx-pollbook")]
+    VxPollBook,
 }
 derive_display!(AppName);
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
@@ -413,5 +415,11 @@ pub enum EventId {
     SocketServerError,
     #[serde(rename = "barcode-scanned")]
     BarcodeScanned,
+    #[serde(rename = "pollbook-network-status")]
+    PollbookNetworkStatus,
+    #[serde(rename = "pollbook-configuration-status")]
+    PollbookConfigurationStatus,
+    #[serde(rename = "pollbook-paper-backup-status")]
+    PollbookPaperBackupStatus,
 }
 derive_display!(EventId);

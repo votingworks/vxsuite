@@ -622,3 +622,15 @@ IDs are logged with each log to identify the log being written.
 **Type:** [application-status](#application-status)
 **Description:** A barcode was scanned.
 **Machines:** All
+### pollbook-network-status
+**Type:** [application-status](#application-status)
+**Description:** A status message indicating an update to the pollbook network.
+**Machines:** vx-pollbook
+### pollbook-configuration-status
+**Type:** [application-status](#application-status)
+**Description:** A status message indicating an update to the pollbook configuration.
+**Machines:** vx-pollbook
+### pollbook-paper-backup-status
+**Type:** [application-status](#application-status)
+**Description:** A status message indicating an update to the pollbook paper backup.
+**Machines:** vx-pollbook

@@ -16,6 +16,9 @@ name = 'vx-central-scan'
 [Apps.VxDesign]
 name = 'vx-design'
 
+[Apps.VxPollBook]
+name = 'vx-pollbook'
+
 [LogSources.System]
 source = 'system'
 
@@ -976,3 +979,21 @@ documentationMessage = "An error was reported by a socket server."
 eventId = "barcode-scanned"
 eventType = "application-status"
 documentationMessage = "A barcode was scanned."
+
+[Events.PollbookNetworkStatus]
+eventId = "pollbook-network-status"
+eventType = "application-status"
+documentationMessage = 'A status message indicating an update to the pollbook network.'
+restrictInDocumentationToApps = ["vx-pollbook"]
+
+[Events.PollbookConfigurationStatus]
+eventId = "pollbook-configuration-status"
+eventType = "application-status"
+documentationMessage = 'A status message indicating an update to the pollbook configuration.'
+restrictInDocumentationToApps = ["vx-pollbook"]
+
+[Events.PollbookPaperBackupStatus]
+eventId = "pollbook-paper-backup-status"
+eventType = "application-status"
+documentationMessage = 'A status message indicating an update to the pollbook paper backup.'
+restrictInDocumentationToApps = ["vx-pollbook"]
