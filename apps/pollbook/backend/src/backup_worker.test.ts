@@ -18,7 +18,14 @@ vitest.setConfig({
 
 test('can export paper backup checklist for multi precinct election', async () => {
   const store = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
-  setupTestElectionAndVoters(store);
+  const otherPrecinctVoter = createVoter('cage', 'Nicholas', 'Cage', {
+    precinct: 'precinct-2',
+  });
+  setupTestElectionAndVoters(store, {
+    precinct: 'precinct-1',
+    additionalVoters: [otherPrecinctVoter],
+  });
+
   // Set up a configured precinct for multi-precinct testing
   store.setConfiguredPrecinct('precinct-1');
   store.recordVoterCheckIn({
@@ -101,7 +108,9 @@ test('backup checklist works for single-precinct election', async () => {
     ballotHash: 'test-ballot-hash',
   };
 
-  const testVoters = [createVoter('voter1', 'Test', 'Voter')];
+  const testVoters = [
+    createVoter('voter1', 'Test', 'Voter', { precinct: 'precinct-0' }),
+  ];
   const testStreetInfo = [
     {
       streetName: 'Main',

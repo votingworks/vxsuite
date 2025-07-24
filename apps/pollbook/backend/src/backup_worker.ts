@@ -76,7 +76,9 @@ export async function getBackupPaperChecklistPdfs(
   exportTime: Date = new Date()
 ): Promise<Uint8Array[]> {
   const election = assertDefined(store.getElection());
-  const voterGroups = store.groupVotersAlphabeticallyByLastName();
+  const voterGroups = store.groupVotersAlphabeticallyByLastName({
+    matchConfiguredPrecinctId: true,
+  });
   const totalCheckIns = store.getCheckInCount();
   const lastEventPerMachine = store.getMostRecentEventIdPerMachine();
   const { configuredPrecinctId } = store.getPollbookConfigurationInformation();
@@ -130,7 +132,7 @@ export async function getBackupPaperChecklistPdfs(
     });
 
   const voterCountByParty = store
-    .getAllVotersSorted()
+    .getAllVotersSorted({ matchConfiguredPrecinctId: true })
     .filter((voter) => !voter.registrationEvent)
     .reduce(
       (counts, voter) => ({

@@ -471,6 +471,7 @@ export function CertificationPage({
   configuredPrecinct?: Precinct;
 }): JSX.Element {
   const totalVoterCount = iter(Object.values(voterCountByParty)).sum();
+  const jurisdictionScope = election.precincts.length === 1 ? 'Town' : 'Ward';
 
   return (
     <StyledChecklistPage>
@@ -487,7 +488,7 @@ export function CertificationPage({
           marginTop: '1rem',
         }}
       >
-        <LabelledText label="Total Voters in Town">
+        <LabelledText label={`Total Voters in ${jurisdictionScope}`}>
           {totalVoterCount.toLocaleString()}
         </LabelledText>
         <LabelledText label="Total Voters by Party">

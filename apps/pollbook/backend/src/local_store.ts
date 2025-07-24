@@ -77,6 +77,10 @@ function toPatternMatches(raw: string): string {
   return `^${parts.join(`[\\s'\\-]*`)}[\\s'\\-]*$`;
 }
 
+interface GetVotersQueryParams {
+  matchConfiguredPrecinctId?: boolean;
+}
+
 export class LocalStore extends Store {
   private nextEventId?: number;
 
@@ -124,7 +128,10 @@ export class LocalStore extends Store {
     return nextId;
   }
 
-  private getAllVoters(): Record<string, Voter> | undefined {
+  private getAllVoters({
+    matchConfiguredPrecinctId,
+  }: GetVotersQueryParams = {}): Record<string, Voter> | undefined {
+    const { configuredPrecinctId } = this.getPollbookConfigurationInformation();
     const voterRows = this.client.all(
       `
               SELECT v.voter_data
@@ -137,7 +144,15 @@ export class LocalStore extends Store {
     const votersMap: Record<string, Voter> = {};
     for (const row of voterRows) {
       const voter = safeParseJson(row.voter_data, VoterSchema).unsafeUnwrap();
-      votersMap[voter.voterId] = voter;
+      if (
+        !matchConfiguredPrecinctId ||
+        (configuredPrecinctId &&
+          (voter.addressChange
+            ? voter.addressChange.precinct
+            : voter.precinct) === configuredPrecinctId)
+      ) {
+        votersMap[voter.voterId] = voter;
+      }
     }
 
     const orderedEvents = this.getAllEventsOrderedSince();
@@ -179,9 +194,12 @@ export class LocalStore extends Store {
     );
   }
 
-  groupVotersAlphabeticallyByLastName(): Map<string, VoterGroup> {
-    const voters = this.getAllVoters();
+  groupVotersAlphabeticallyByLastName(
+    queryParams: GetVotersQueryParams = {}
+  ): Map<string, VoterGroup> {
+    const voters = this.getAllVoters(queryParams);
     assert(voters);
+
     const sortedVoters = sortedByVoterName(Object.values(voters), {
       useOriginalName: true,
     });
@@ -208,8 +226,8 @@ export class LocalStore extends Store {
     );
   }
 
-  getAllVotersSorted(): Voter[] {
-    const voters = this.getAllVoters();
+  getAllVotersSorted(queryParams: GetVotersQueryParams = {}): Voter[] {
+    const voters = this.getAllVoters(queryParams);
     if (!voters) {
       return [];
     }
