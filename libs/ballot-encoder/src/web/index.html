@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no" />
+
+    <title>Ballot Encoder Demo</title>
+
+    <style>
+      @import url('./index.css');
+    </style>
+  </head>
+
+  <body class="roboto-text">
+    <video autoplay playsinline muted id="viewfinder"></video>
+
+    <div class="qrcode-info">
+      <div class="overlay hidden">
+        <dl>
+          <dt>Raw QR Code Data</dt>
+          <dd class="raw-data">
+            <span class="value mono"></span>
+            <a class="copy-button"></a>
+          </dd>
+
+          <dt>Decoded Base64</dt>
+          <dd class="decoded-base64">
+            <span class="value mono"></span>
+            <a class="copy-button"></a>
+          </dd>
+
+          <dt>Ballot Hash</dt>
+          <dd class="ballot-hash">
+            <span class="value mono"></span>
+            <a class="copy-button"></a>
+          </dd>
+
+          <dt>Ballot ID</dt>
+          <dd class="ballot-id">
+            <span class="value mono"></span>
+            <a class="copy-button"></a>
+          </dd>
+        </dl>
+      </div>
+    </div>
+
+    <script type="module" src="./index.ts"></script>
+  </body>
+</html>

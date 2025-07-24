@@ -3365,6 +3365,12 @@ importers:
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
+      base64-js:
+        specifier: 1.5.1
+        version: 1.5.1
+      buffer:
+        specifier: ^6.0.3
+        version: 6.0.3
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -3374,12 +3380,21 @@ importers:
       is-ci-cli:
         specifier: 2.2.0
         version: 2.2.0
+      jsqr:
+        specifier: ^1.4.0
+        version: 1.4.0
       lint-staged:
         specifier: 11.0.0
         version: 11.0.0
       sort-package-json:
         specifier: ^1.50.0
         version: 1.50.0
+      util:
+        specifier: ^0.12.4
+        version: 0.12.4
+      vite:
+        specifier: 4.5.2
+        version: 4.5.2(@types/node@20.17.31)
       vitest:
         specifier: ^2.1.8
         version: 2.1.8(@types/node@20.17.31)(jsdom@20.0.1)
@@ -17994,12 +18009,6 @@ packages:
     resolution: {integrity: sha512-l3LCuF6MgDNwTDKkdYGEihYjt5pRPbEg46rtlmnSPlUbgmB8LOIrKJbYYFBSbnPaJexMKtiPO8hmeRjRz2Td+A==}
     engines: {node: '>= 0.4'}
 
-  /has-tostringtag@1.0.0:
-    resolution: {integrity: sha512-kFjcSNhnlGV1kyoGk7OXKSawH5JOb/LzUc5w9B02hOTO0dfFRjbHQKvg1d6cf3HbeUmtU9VbbV3qzZ2Teh97WQ==}
-    engines: {node: '>= 0.4'}
-    dependencies:
-      has-symbols: 1.0.3
-
   /has-tostringtag@1.0.2:
     resolution: {integrity: sha512-NqADB8VjPFLM2V0VvHUewwwsw0ZWBaIdgo+ieHtK3hasLz4qeCRjYcqfB6AQrBggRKppKF8L52/VqdVsO47Dlw==}
     engines: {node: '>= 0.4'}
@@ -18517,7 +18526,7 @@ packages:
     resolution: {integrity: sha512-jsEjy9l3yiXEQ+PsXdmBwEPcOxaXWLspKdplFUVI9vq1iZgIekeC0L167qeu86czQaxed3q/Uzuw0swL0irL8A==}
     engines: {node: '>= 0.4'}
     dependencies:
-      has-tostringtag: 1.0.0
+      has-tostringtag: 1.0.2
 
   /is-glob@3.1.0:
     resolution: {integrity: sha512-UFpDDrPgM6qpnFNI+rh/p3bUaq9hKLZN8bMUWzxmcnZVS3omf4IPK+BrewlnWjO1WmUsMYuSjKh4UJuV4+Lqmw==}
@@ -19491,6 +19500,10 @@ packages:
       universalify: 2.0.0
     optionalDependencies:
       graceful-fs: 4.2.11
+
+  /jsqr@1.4.0:
+    resolution: {integrity: sha512-dxLob7q65Xg2DvstYkRpkYtmKm2sPJ9oFhrhmudT1dZvNFFTlroai3AWSpLey/w5vMcLBXRgOJsbXpdN9HzU/A==}
+    dev: true
 
   /jsx-ast-utils@3.3.3:
     resolution: {integrity: sha512-fYQHZTZ8jSfmWZ0iyzfwiU4WDX4HpHbMCZ3gPlWYiCl3BoeOTsqKBqnTVfH2rYT7eP5c3sVbeSPHnnJOaTrWiw==}
@@ -21177,6 +21190,7 @@ packages:
       nanoid: 3.3.11
       picocolors: 1.1.1
       source-map-js: 1.2.1
+    dev: false
 
   /postcss@8.4.49:
     resolution: {integrity: sha512-OCVPnIObs4N29kxTjzLfUryOkvZEq+pf8jTF0lg8E7uETuWHA+v7j3c/xJmiqpX450191LlmZfUKkXxkTry7nA==}
@@ -24215,7 +24229,7 @@ packages:
     dependencies:
       '@types/node': 20.17.31
       esbuild: 0.18.17
-      postcss: 8.4.38
+      postcss: 8.5.3
       rollup: 3.29.5
     optionalDependencies:
       fsevents: 2.3.3

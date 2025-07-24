@@ -117,6 +117,25 @@ export interface BallotConfig {
 }
 
 /**
+ * Data needed to uniquely identify a ballot page, possibly including an ID.
+ * This needs to be resolved using an {@link Election}.
+ */
+export interface UnresolvedBallotConfig {
+  ballotStyleIndex: number;
+  ballotType: BallotType;
+  isTestMode: boolean;
+  precinctIndex: number;
+  /**
+   * For HMPB only
+   */
+  pageNumber?: number;
+  /**
+   * For HMPB only, when using the SystemSettings.precinctScanEnableBallotAuditIds feature.
+   */
+  ballotAuditId?: string;
+}
+
+/**
  * Encodes a {@link BallotConfig} into the given bit writer.
  */
 export function encodeBallotConfigInto(
@@ -166,16 +185,10 @@ export function encodeBallotConfigInto(
   return bits;
 }
 
-/**
- * Decodes a {@link BallotConfig} from a bit reader.
- */
-export function decodeBallotConfigFromReader(
-  election: Election,
+export function decodeUnresolvedBallotConfigFromReader(
   bits: BitReader,
   { readPageNumber = false }: { readPageNumber?: boolean } = {}
-): BallotConfig {
-  const { precincts, ballotStyles } = election;
-
+): UnresolvedBallotConfig {
   const precinctIndex = bits.readUint({ max: MAXIMUM_PRECINCTS });
   const ballotStyleIndex = bits.readUint({ max: MAXIMUM_BALLOT_STYLES });
 
@@ -193,6 +206,28 @@ export function decodeBallotConfigFromReader(
     ? unsafeParse(BallotIdSchema, bits.readString())
     : undefined;
 
+  return {
+    ballotStyleIndex,
+    precinctIndex,
+    pageNumber,
+    isTestMode,
+    ballotType,
+    ballotAuditId,
+  };
+}
+
+/**
+ * Decodes a {@link BallotConfig} from a bit reader.
+ */
+export function decodeBallotConfigFromReader(
+  election: Election,
+  bits: BitReader,
+  { readPageNumber = false }: { readPageNumber?: boolean } = {}
+): BallotConfig {
+  const { ballotStyleIndex, precinctIndex, ...rest } =
+    decodeUnresolvedBallotConfigFromReader(bits, { readPageNumber });
+
+  const { precincts, ballotStyles } = election;
   const ballotStyle = ballotStyles[ballotStyleIndex];
   const precinct = precincts[precinctIndex];
 
@@ -202,10 +237,7 @@ export function decodeBallotConfigFromReader(
   return {
     ballotStyleId: ballotStyle.id,
     precinctId: precinct.id,
-    pageNumber,
-    isTestMode,
-    ballotType,
-    ballotAuditId,
+    ...rest,
   };
 }
 
