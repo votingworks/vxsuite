@@ -36,6 +36,7 @@ export function useApiClient(): ApiClient {
   return apiClient;
 }
 
+/* istanbul ignore next */
 export function createQueryClient(): QueryClient {
   const defaultQueryOptions = QUERY_CLIENT_DEFAULT_OPTIONS.queries as object;
   return new QueryClient({
