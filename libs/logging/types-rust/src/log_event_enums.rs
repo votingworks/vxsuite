@@ -419,5 +419,7 @@ pub enum EventId {
     PollbookConfigurationStatus,
     #[serde(rename = "pollbook-paper-backup-status")]
     PollbookPaperBackupStatus,
+    #[serde(rename = "navigation-page-change")]
+    NavigationPageChange,
 }
 derive_display!(EventId);
