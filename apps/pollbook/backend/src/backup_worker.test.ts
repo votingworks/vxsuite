@@ -17,7 +17,8 @@ vitest.setConfig({
 
 test('can export paper backup checklist for multi precinct election', async () => {
   const store = LocalStore.memoryStore();
-  setupTestElectionAndVoters(store);
+  // TODO add an out-of-ward voter and validate they don't show up in the export
+  setupTestElectionAndVoters(store, { precinct: 'precinct-1' });
   // Set up a configured precinct for multi-precinct testing
   store.setConfiguredPrecinct('precinct-1');
   store.recordVoterCheckIn({
@@ -100,7 +101,9 @@ test('backup checklist works for single-precinct election', async () => {
     ballotHash: 'test-ballot-hash',
   };
 
-  const testVoters = [createVoter('voter1', 'Test', 'Voter')];
+  const testVoters = [
+    createVoter('voter1', 'Test', 'Voter', { precinct: 'precinct-0' }),
+  ];
   const testStreetInfo = [
     {
       streetName: 'Main',
