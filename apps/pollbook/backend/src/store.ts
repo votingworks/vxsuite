@@ -9,6 +9,7 @@ import {
   safeParseJson,
 } from '@votingworks/types';
 import { customAlphabet } from 'nanoid';
+import { BaseLogger, LogEventId } from '@votingworks/logging';
 import { rootDebug } from './debug';
 import {
   PollbookEvent,
@@ -98,7 +99,8 @@ export abstract class Store {
   protected constructor(
     protected readonly client: DbClient,
     protected readonly machineId: string,
-    protected readonly codeVersion: string
+    protected readonly codeVersion: string,
+    protected readonly logger: BaseLogger
   ) {}
 
   protected incrementClock(): HlcTimestamp {
@@ -506,6 +508,12 @@ export abstract class Store {
           );
         }
       });
+      this.logger.log(LogEventId.PollbookConfigurationStatus, 'system', {
+        message: 'Election and voters set successfully',
+        electionId: electionDefinition.election.id,
+        pollbookPackageHash: packageHash,
+        disposition: 'success',
+      });
     } catch (error) {
       debug('Failed to set election and voters: %s', error);
 
@@ -592,7 +600,29 @@ export abstract class Store {
     return row ? row.checkInCount : 0;
   }
 
+  getConfigurationStatus(): ConfigurationStatus | undefined {
+    const row = this.client.one(
+      `
+        SELECT configuration_status as configurationStatus
+        FROM config_data
+      `
+    ) as { configurationStatus: string } | undefined;
+    if (row) {
+      return row.configurationStatus as ConfigurationStatus;
+    }
+    return undefined;
+  }
+
   setConfigurationStatus(status?: ConfigurationStatus): void {
+    const previousStatus = this.getConfigurationStatus();
+    if ((status ?? null) !== previousStatus) {
+      this.logger.log(LogEventId.PollbookConfigurationStatus, 'system', {
+        message: 'Configuration Status Update',
+        previousStatus,
+        newStatus: status,
+      });
+    }
+
     this.client.run(
       `
       UPDATE config_data

@@ -1,4 +1,4 @@
-import { BaseLogger } from '@votingworks/logging';
+import { BaseLogger, LogSource } from '@votingworks/logging';
 import { Client as DbClient } from '@votingworks/db';
 import { safeParseJson } from '@votingworks/types';
 import { assert, assertDefined, groupBy, typedAs } from '@votingworks/basics';
@@ -12,7 +12,6 @@ import {
   Store,
 } from './store';
 import {
-  ConfigurationStatus,
   EventDbRow,
   EventType,
   PollbookConnectionStatus,
@@ -91,7 +90,7 @@ export class LocalStore extends Store {
     const client = DbClient.fileClient(dbPath, logger, SchemaPath, {
       registerRegexpFn: true,
     });
-    return new LocalStore(client, machineId, codeVersion);
+    return new LocalStore(client, machineId, codeVersion, logger);
   }
 
   /**
@@ -99,12 +98,14 @@ export class LocalStore extends Store {
    */
   static memoryStore(
     machineId: string = 'test-machine',
-    codeVersion: string = 'test-v1'
+    codeVersion: string = 'test-v1',
+    logger: BaseLogger = new BaseLogger(LogSource.VxPollBookBackend)
   ): LocalStore {
     return new LocalStore(
       DbClient.memoryClient(SchemaPath, { registerRegexpFn: true }),
       machineId,
-      codeVersion
+      codeVersion,
+      logger
     );
   }
 
@@ -139,19 +140,6 @@ export class LocalStore extends Store {
 
     const orderedEvents = this.getAllEventsOrderedSince();
     return applyPollbookEventsToVoters(votersMap, orderedEvents);
-  }
-
-  getConfigurationStatus(): ConfigurationStatus | undefined {
-    const row = this.client.one(
-      `
-        SELECT configuration_status as configurationStatus
-        FROM config_data
-      `
-    ) as { configurationStatus: string } | undefined;
-    if (row) {
-      return row.configurationStatus as ConfigurationStatus;
-    }
-    return undefined;
   }
 
   deleteElectionAndVoters(): void {
