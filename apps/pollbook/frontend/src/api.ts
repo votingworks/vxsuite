@@ -37,8 +37,15 @@ export function useApiClient(): ApiClient {
 }
 
 export function createQueryClient(): QueryClient {
+  const defaultQueryOptions = QUERY_CLIENT_DEFAULT_OPTIONS.queries as object;
   return new QueryClient({
-    defaultOptions: QUERY_CLIENT_DEFAULT_OPTIONS,
+    defaultOptions: {
+      ...QUERY_CLIENT_DEFAULT_OPTIONS,
+      queries: {
+        ...defaultQueryOptions,
+        staleTime: DEFAULT_QUERY_REFETCH_INTERVAL,
+      },
+    },
   });
 }
 
