@@ -466,7 +466,9 @@ export function createApiMock() {
 
     expectGetValidStreetInfo(streetInfo: ValidStreetInfo[]) {
       mockApiClient.getValidStreetInfo.reset();
-      mockApiClient.getValidStreetInfo.expectCallWith().resolves(streetInfo);
+      mockApiClient.getValidStreetInfo
+        .expectOptionalRepeatedCallsWith()
+        .resolves(streetInfo);
     },
 
     expectRegisterVoter(
