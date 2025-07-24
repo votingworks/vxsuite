@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { Button } from './button';
 
 export interface CheckboxButtonProps {
-  label: string;
+  label: React.ReactNode;
   isChecked: boolean;
   onChange: (isChecked: boolean) => void;
   disabled?: boolean;

@@ -2,19 +2,19 @@ import styled from 'styled-components';
 import React from 'react';
 import { CheckboxButton } from './checkbox_button';
 
-interface Option {
+interface Option<T extends string> {
   label: string;
-  value: string;
+  value: T;
 }
 
-export type CheckboxGroupProps = (
+export type CheckboxGroupProps<T extends string> = (
   | { label?: React.ReactNode; 'aria-label': string }
   | { label: string; 'aria-label'?: string }
 ) & {
   hideLabel?: boolean;
-  options: Option[];
-  value: string[];
-  onChange: (value: string[]) => void;
+  options: Array<Option<T>>;
+  value: T[];
+  onChange: (value: T[]) => void;
   disabled?: boolean;
   direction?: 'row' | 'column';
   noOptionsMessage?: React.ReactNode;
@@ -36,7 +36,7 @@ const OptionsContainer = styled.div<{ direction: 'row' | 'column' }>`
 /**
  * A group of labeled checkboxes that allow the user to select multiple options.
  */
-export function CheckboxGroup({
+export function CheckboxGroup<T extends string>({
   label,
   'aria-label': ariaLabel,
   hideLabel,
@@ -46,7 +46,7 @@ export function CheckboxGroup({
   disabled = false,
   direction = 'column',
   noOptionsMessage,
-}: CheckboxGroupProps): JSX.Element {
+}: CheckboxGroupProps<T>): JSX.Element {
   return (
     <fieldset
       aria-label={ariaLabel ?? (typeof label === 'string' ? label : undefined)}

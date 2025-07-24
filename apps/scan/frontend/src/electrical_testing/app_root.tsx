@@ -8,6 +8,7 @@ import {
   Main,
   Screen,
   CheckboxGroup,
+  CheckboxButton,
 } from '@votingworks/ui';
 import type { ScanningMode } from '@votingworks/scan-backend';
 import { DateTime } from 'luxon';
@@ -69,6 +70,44 @@ const PlayPauseButtonBase = styled.button`
   font-size: 1rem;
   padding: 0;
 `;
+
+function Timestamp({ value }: { value: DateTime }) {
+  return (
+    <Caption style={{ flexGrow: 0 }}>
+      <ExtraSmall>{formatTimestamp(value)}</ExtraSmall>
+    </Caption>
+  );
+}
+
+function StatusLine({ message }: { message?: string }) {
+  return (
+    <Caption
+      style={{
+        flexGrow: 1,
+        overflowWrap: 'anywhere',
+        maxHeight: '2rem',
+        overflow: 'hidden',
+      }}
+    >
+      <Small>{message ?? 'Unknown'}</Small>
+    </Caption>
+  );
+}
+
+function ComponentStatus({
+  timestamp,
+  message,
+}: {
+  timestamp: DateTime;
+  message?: string;
+}) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <Timestamp value={timestamp} />
+      <StatusLine message={message} />
+    </div>
+  );
+}
 
 function PlayPauseButton({
   isRunning,
@@ -146,7 +185,7 @@ export function AppRoot(): JSX.Element {
   const setScannerTaskRunningMutation = api.setScannerTaskRunning.useMutation();
   const getLatestScannedSheetQuery = api.getLatestScannedSheet.useQuery();
   const powerDownMutation = api.systemCallApi.powerDown.useMutation();
-  const [isShowingLatestSheet, setIsShowingLatestSheet] = useState(false);
+  const [isShowingLatestSheet, setIsShowingLatestSheet] = useState(true);
   const [isSaveLogsModalOpen, setIsSaveLogsModalOpen] = React.useState(false);
 
   const [speakerEnabled, setSpeakerEnabled] = useState(true);
@@ -234,10 +273,273 @@ export function AppRoot(): JSX.Element {
   const printerStatus = getElectricalTestingStatusMessagesQuery.data?.printer;
   const scannerStatus = getElectricalTestingStatusMessagesQuery.data?.scanner;
 
+  function ScannerControls() {
+    return (
+      <div>
+        <H6 style={{ flexGrow: 0 }}>
+          <Icons.File /> Scanner
+        </H6>
+        {scannerStatus && (
+          <ComponentStatus
+            timestamp={scannerStatus.updatedAt}
+            message={scannerStatus.statusMessage}
+          />
+        )}
+        <Caption style={{ flexGrow: 1 }}>
+          <div
+            style={{
+              marginTop: '1em',
+              right: '0',
+              bottom: '0',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1em',
+            }}
+          >
+            {scannerStatus && (
+              <RadioGroup
+                label="Scanning mode"
+                value={scannerStatus.mode}
+                onChange={(mode) => mode && setScanningMode(mode)}
+                options={
+                  [
+                    {
+                      value: 'shoe-shine',
+                      label: (
+                        <React.Fragment>
+                          <RadioOptionTitle>Shoe-shine</RadioOptionTitle>
+                          <Caption>Scan continuously and automatically</Caption>
+                        </React.Fragment>
+                      ),
+                    },
+                    {
+                      value: 'manual-rear',
+                      label: (
+                        <React.Fragment>
+                          <RadioOptionTitle>Manual (rear)</RadioOptionTitle>
+                          <Caption>Eject to the rear after scanning</Caption>
+                        </React.Fragment>
+                      ),
+                    },
+                    {
+                      value: 'manual-front',
+                      label: (
+                        <React.Fragment>
+                          <RadioOptionTitle>Manual (front)</RadioOptionTitle>
+                          <Caption>Eject to the front after scanning</Caption>
+                        </React.Fragment>
+                      ),
+                    },
+                    {
+                      value: 'disabled',
+                      label: (
+                        <React.Fragment>
+                          <RadioOptionTitle>Disabled</RadioOptionTitle>
+                          <Caption>Do not scan sheets</Caption>
+                        </React.Fragment>
+                      ),
+                    },
+                  ] as const
+                }
+              ></RadioGroup>
+            )}
+          </div>
+        </Caption>
+      </div>
+    );
+  }
+
+  function ScannerPageInfo() {
+    const [front, back] = getLatestScannedSheetQuery.data ?? [];
+    return (
+      <React.Fragment>
+        <div
+          style={{
+            flexGrow: 3,
+            backgroundColor: '#ccc',
+            backgroundImage: front && `url(${front})`,
+            backgroundSize: 'contain',
+            height: '100%',
+          }}
+        >
+          &nbsp;
+        </div>
+        <div
+          style={{
+            flexGrow: 3,
+            backgroundColor: '#ccc',
+            backgroundImage: back && `url(${back})`,
+            backgroundSize: 'contain',
+            height: '100%',
+          }}
+        >
+          &nbsp;
+        </div>
+      </React.Fragment>
+    );
+  }
+
+  function CardReaderControls() {
+    return (
+      <fieldset
+        aria-label="Card Reader"
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.5em',
+        }}
+      >
+        <legend
+          style={{ fontWeight: 'bold', marginBottom: '0.5em' }}
+          aria-hidden
+        >
+          <Icons.SimCard /> Card Reader
+        </legend>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          {cardStatus && (
+            <ComponentStatus
+              timestamp={cardStatus.updatedAt}
+              message={cardStatus.statusMessage}
+            />
+          )}
+        </div>
+        <CheckboxButton
+          label="Enabled"
+          isChecked={cardStatus?.taskStatus === 'running'}
+          onChange={(isRunning) => {
+            setCardReaderTaskRunningMutation.mutate(isRunning);
+          }}
+        />
+      </fieldset>
+    );
+  }
+
+  function PrinterControls() {
+    return (
+      <fieldset
+        aria-label="Printer"
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.5em',
+        }}
+      >
+        <legend
+          style={{ fontWeight: 'bold', marginBottom: '0.5em' }}
+          aria-hidden
+        >
+          <Icons.Print /> Printer
+        </legend>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          {printerStatus && (
+            <ComponentStatus
+              timestamp={printerStatus.updatedAt}
+              message={printerStatus.statusMessage}
+            />
+          )}
+        </div>
+        <CheckboxButton
+          label="Enabled"
+          isChecked={printerStatus?.taskStatus === 'running'}
+          onChange={(isRunning) => {
+            setPrinterTaskRunningMutation.mutate(isRunning);
+          }}
+        />
+      </fieldset>
+    );
+  }
+
+  function UsbDriveControls() {
+    return (
+      <fieldset
+        aria-label="USB Drive"
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.5em',
+        }}
+      >
+        <legend
+          style={{ fontWeight: 'bold', marginBottom: '0.5em' }}
+          aria-hidden
+        >
+          <Icons.UsbDrive /> USB Drive
+        </legend>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          {usbDriveStatus && <Timestamp value={usbDriveStatus.updatedAt} />}
+          {usbDriveStatus && (
+            <StatusLine message={usbDriveStatus.statusMessage} />
+          )}
+        </div>
+        <CheckboxButton
+          label="Enabled"
+          isChecked={usbDriveStatus?.taskStatus === 'running'}
+          onChange={(isRunning) => {
+            setUsbDriveTaskRunningMutation.mutate(isRunning);
+          }}
+        />
+      </fieldset>
+    );
+  }
+
+  function AudioControls() {
+    return (
+      <CheckboxGroup
+        label={
+          <React.Fragment>
+            <Icons.SoundOn /> Audio
+          </React.Fragment>
+        }
+        aria-label="Audio"
+        value={[
+          ...(speakerEnabled ? ['speaker' as const] : []),
+          ...(headphonesEnabled ? ['headphones' as const] : []),
+        ]}
+        onChange={(values) => {
+          setSpeakerEnabled(values.includes('speaker'));
+          setHeadphonesEnabled(values.includes('headphones'));
+        }}
+        options={
+          [
+            { value: 'speaker', label: 'Speaker' },
+            { value: 'headphones', label: 'Headphones' },
+          ] as const
+        }
+      />
+    );
+  }
+
+  function InputControls() {
+    return (
+      <Column style={{ flexGrow: 1 }}>
+        <H6 style={{ flexGrow: 0 }}>
+          <Icons.Mouse /> Inputs
+        </H6>
+        <Caption style={{ flexGrow: 1 }}>
+          <Column>
+            <CounterButton />
+
+            <ExtraSmall>
+              Last key press:{' '}
+              {lastKeyPress ? (
+                <React.Fragment>
+                  <code>{lastKeyPress.key}</code> at{' '}
+                  {formatTimestamp(lastKeyPress.pressedAt)}
+                </React.Fragment>
+              ) : (
+                'n/a'
+              )}
+            </ExtraSmall>
+          </Column>
+        </Caption>
+      </Column>
+    );
+  }
+
   return (
     <Screen>
       <Main centerChild>
-        <Column style={{ height: '100%' }}>
+        <Column style={{ height: '100%', paddingBottom: '2rem' }}>
           <Column
             style={{
               alignItems: 'center',
@@ -245,282 +547,36 @@ export function AppRoot(): JSX.Element {
               justifyContent: 'center',
             }}
           >
-            <Row gap="2rem">
-              <Row
-                style={{ height: '100%', alignItems: 'stretch', gap: '1em' }}
-              >
-                <Column style={{ flexGrow: 1 }}>
-                  <H6 style={{ flexGrow: 0 }}>
-                    <Icons.File /> Scanner
-                  </H6>
-                  {scannerStatus?.updatedAt && (
-                    <Caption style={{ flexGrow: 0 }}>
-                      <ExtraSmall>
-                        {formatTimestamp(scannerStatus.updatedAt)}
-                      </ExtraSmall>
-                    </Caption>
-                  )}
-                  <Caption style={{ flexGrow: 1 }}>
-                    <Caption
-                      style={{
-                        flexGrow: 1,
-                        overflowWrap: 'anywhere',
-                        maxHeight: '2rem',
-                        overflow: 'hidden',
-                      }}
-                    >
-                      <Small>{scannerStatus?.statusMessage ?? 'Unknown'}</Small>
-                    </Caption>
-                    <div
-                      style={{
-                        marginTop: '1em',
-                        right: '0',
-                        bottom: '0',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '1em',
-                      }}
-                    >
-                      {scannerStatus && (
-                        <RadioGroup
-                          label="Scanning mode"
-                          value={scannerStatus.mode}
-                          onChange={(mode) => mode && setScanningMode(mode)}
-                          options={
-                            [
-                              {
-                                value: 'shoe-shine',
-                                label: (
-                                  <React.Fragment>
-                                    <RadioOptionTitle>
-                                      Shoe-shine
-                                    </RadioOptionTitle>
-                                    <Caption>
-                                      Scan continuously and automatically
-                                    </Caption>
-                                  </React.Fragment>
-                                ),
-                              },
-                              {
-                                value: 'manual-rear',
-                                label: (
-                                  <React.Fragment>
-                                    <RadioOptionTitle>
-                                      Manual (rear)
-                                    </RadioOptionTitle>
-                                    <Caption>
-                                      Eject to the rear after scanning
-                                    </Caption>
-                                  </React.Fragment>
-                                ),
-                              },
-                              {
-                                value: 'manual-front',
-                                label: (
-                                  <React.Fragment>
-                                    <RadioOptionTitle>
-                                      Manual (front)
-                                    </RadioOptionTitle>
-                                    <Caption>
-                                      Eject to the front after scanning
-                                    </Caption>
-                                  </React.Fragment>
-                                ),
-                              },
-                              {
-                                value: 'disabled',
-                                label: (
-                                  <React.Fragment>
-                                    <RadioOptionTitle>
-                                      Disabled
-                                    </RadioOptionTitle>
-                                    <Caption>Do not scan sheets</Caption>
-                                  </React.Fragment>
-                                ),
-                              },
-                            ] as const
-                          }
-                        ></RadioGroup>
-                      )}
-                      {getLatestScannedSheetQuery.data && (
-                        <Button
-                          onPress={() => {
-                            setIsShowingLatestSheet(true);
-                          }}
-                        >
-                          View Latest Sheet
-                        </Button>
-                      )}
-                    </div>
-                  </Caption>
-                </Column>
-              </Row>
-
-              <Row
-                style={{ height: '100%', alignItems: 'stretch', gap: '1em' }}
-              >
-                <Column style={{ flexGrow: 0, alignContent: 'center' }}>
-                  <PlayPauseButton
-                    isRunning={cardStatus?.taskStatus === 'running'}
-                    onPress={toggleCardReaderTaskRunning}
-                  />
-                </Column>
-                <Column style={{ flexGrow: 1 }}>
-                  <H6 style={{ flexGrow: 0 }}>
-                    {' '}
-                    <Icons.SimCard /> Card Reader{' '}
-                  </H6>
-                  <Caption
-                    style={{
-                      flexGrow: 1,
-                      overflowWrap: 'anywhere',
-                      maxHeight: '2rem',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    <Small>{cardStatus?.statusMessage ?? 'Unknown'}</Small>
-                  </Caption>
-                  {cardStatus && (
-                    <Caption style={{ flexGrow: 0 }}>
-                      <ExtraSmall>
-                        {formatTimestamp(cardStatus.updatedAt)}
-                      </ExtraSmall>
-                    </Caption>
-                  )}
-                </Column>
-              </Row>
-            </Row>
-            <Row gap="2rem">
-              {[
-                {
-                  id: 'card',
-                  icon: <Icons.SimCard />,
-                  title: 'Card Reader',
-                  statusMessage: cardStatus?.statusMessage ?? 'Unknown',
-                  body: undefined,
-                  isRunning: cardStatus?.taskStatus === 'running',
-                  toggleIsRunning: toggleCardReaderTaskRunning,
-                  updatedAt: cardStatus?.updatedAt,
-                },
-                {
-                  id: 'printer',
-                  icon: <Icons.Print />,
-                  title: 'Printer',
-                  statusMessage: printerStatus?.statusMessage ?? 'Unknown',
-                  body: undefined,
-                  isRunning: printerStatus?.taskStatus === 'running',
-                  toggleIsRunning: togglePrinterTaskRunning,
-                  updatedAt: printerStatus?.updatedAt,
-                },
-                {
-                  id: 'usbDrive',
-                  icon: <Icons.Print />,
-                  title: 'USB Drive',
-                  statusMessage: usbDriveStatus?.statusMessage ?? 'Unknown',
-                  body: undefined,
-                  isRunning: usbDriveStatus?.taskStatus === 'running',
-                  toggleIsRunning: toggleUsbDriveTaskRunning,
-                  updatedAt: usbDriveStatus?.updatedAt,
-                },
-              ].map((t) => (
-                <Row
-                  style={{
-                    height: '100%',
-                    alignItems: 'stretch',
-                    gap: '1em',
-                  }}
-                  key={t.id}
-                >
-                  {typeof t.isRunning === 'boolean' && t.toggleIsRunning && (
-                    <Column style={{ flexGrow: 0, alignContent: 'center' }}>
-                      <PlayPauseButton
-                        isRunning={t.isRunning}
-                        onPress={t.toggleIsRunning}
-                      />
-                    </Column>
-                  )}
-                  <Column style={{ flexGrow: 1 }}>
-                    <H6 style={{ flexGrow: 0 }}>
-                      {t.icon} {t.title}
-                    </H6>
-                    {t.statusMessage && (
-                      <Caption
-                        style={{
-                          flexGrow: 1,
-                          overflowWrap: 'anywhere',
-                          maxHeight: '2rem',
-                          overflow: 'hidden',
-                        }}
-                      >
-                        <Small>{t.statusMessage}</Small>
-                      </Caption>
-                    )}
-                    {t.body && (
-                      <Caption style={{ flexGrow: 1 }}>{t.body}</Caption>
-                    )}
-                    {t.updatedAt && (
-                      <Caption style={{ flexGrow: 0 }}>
-                        <ExtraSmall>{formatTimestamp(t.updatedAt)}</ExtraSmall>
-                      </Caption>
-                    )}
-                  </Column>
-                </Row>
-              ))}
-            </Row>
-            <Row gap="2rem">
-              <CheckboxGroup
-                label={
-                  <React.Fragment>
-                    <Icons.SoundOn /> Audio
-                  </React.Fragment>
-                }
-                aria-label="Audio"
-                value={[
-                  ...(speakerEnabled ? ['speaker'] : []),
-                  ...(headphonesEnabled ? ['headphones'] : []),
-                ]}
-                onChange={(values) => {
-                  setSpeakerEnabled(values.includes('speaker'));
-                  setHeadphonesEnabled(values.includes('headphones'));
-                }}
-                options={[
-                  { value: 'speaker', label: 'Speaker' },
-                  { value: 'headphones', label: 'Headphones' },
-                ]}
-              />
-              <Row
+            <Row gap="2rem" style={{ width: '1600px' }}>
+              <Column
                 style={{
+                  flexGrow: 2,
                   height: '100%',
-                  alignItems: 'stretch',
-                  gap: '1em',
+                  gap: '2em',
                 }}
               >
-                <Column style={{ flexGrow: 1 }}>
-                  <H6 style={{ flexGrow: 0 }}>
-                    <Icons.Mouse /> Inputs
-                  </H6>
-                  <Caption style={{ flexGrow: 1 }}>
-                    <Column>
-                      <CounterButton />
+                <CardReaderControls />
+                <PrinterControls />
+                <UsbDriveControls />
+                <AudioControls />
+                <InputControls />
+              </Column>
 
-                      <ExtraSmall>
-                        Last key press:{' '}
-                        {lastKeyPress ? (
-                          <React.Fragment>
-                            <code>{lastKeyPress.key}</code> at{' '}
-                            {formatTimestamp(lastKeyPress.pressedAt)}
-                          </React.Fragment>
-                        ) : (
-                          'n/a'
-                        )}
-                      </ExtraSmall>
-                    </Column>
-                  </Caption>
-                </Column>
-              </Row>
+              <Column
+                style={{
+                  flexGrow: 3,
+                  height: '100%',
+                  gap: '2em',
+                }}
+              >
+                <ScannerControls />
+              </Column>
+
+              <ScannerPageInfo />
             </Row>
           </Column>
-          <Row style={{ justifyContent: 'center' }}>
+
+          <Row gap="1rem" style={{ justifyContent: 'center' }}>
             <Button
               icon={<Icons.Save />}
               onPress={() => setIsSaveLogsModalOpen(true)}
@@ -532,16 +588,11 @@ export function AppRoot(): JSX.Element {
             </Button>
           </Row>
         </Column>
+
         {isSaveLogsModalOpen && usbDriveStatus && (
           <ExportLogsModal
             onClose={() => setIsSaveLogsModalOpen(false)}
             usbDriveStatus={usbDriveStatus?.underlyingDeviceStatus}
-          />
-        )}
-        {isShowingLatestSheet && getLatestScannedSheetQuery.data && (
-          <SheetImagesModal
-            paths={getLatestScannedSheetQuery.data}
-            onClose={() => setIsShowingLatestSheet(false)}
           />
         )}
       </Main>
