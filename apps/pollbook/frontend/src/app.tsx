@@ -9,7 +9,7 @@ import {
   UnlockMachineScreen,
   VendorScreen,
 } from '@votingworks/ui';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, useHistory } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { DevDock } from '@votingworks/dev-dock-frontend';
 import { assert } from '@votingworks/basics';
@@ -19,7 +19,8 @@ import {
   isSystemAdministratorAuth,
   isVendorAuth,
 } from '@votingworks/utils';
-import { BaseLogger, LogSource } from '@votingworks/logging';
+import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
+import { useEffect, useMemo } from 'react';
 import {
   ApiClient,
   ApiClientContext,
@@ -39,12 +40,35 @@ import { ElectionManagerScreen } from './election_manager_screen';
 import { SystemAdministratorScreen } from './system_administrator_screen';
 import { UnconfiguredElectionManagerScreen } from './unconfigured_screen';
 
-function AppRoot(): JSX.Element | null {
+function AppRoot({ logger }: { logger: BaseLogger }): JSX.Element | null {
   const apiClient = useApiClient();
   const checkPinMutation = checkPin.useMutation();
   const logOutMutation = logOut.useMutation();
   const getAuthStatusQuery = getAuthStatus.useQuery();
   const getElectionQuery = getElection.useQuery({ refetchInterval: 100 });
+  const history = useHistory();
+
+  const loggableUserName = useMemo(
+    () =>
+      getAuthStatusQuery.data && getAuthStatusQuery.data.status === 'logged_in'
+        ? getAuthStatusQuery.data.user.role
+        : 'unknown',
+    [getAuthStatusQuery.data]
+  );
+
+  useEffect(() => {
+    logger.log(LogEventId.NavigationPageChange, loggableUserName, {
+      message: `Navigated to ${history.location.pathname}`,
+    });
+    const unlisten = history.listen((location) => {
+      logger.log(LogEventId.NavigationPageChange, loggableUserName, {
+        message: `Navigated to ${location.pathname}`,
+      });
+    });
+    return () => {
+      unlisten();
+    };
+  }, [logger, history, loggableUserName]);
 
   if (!getAuthStatusQuery.isSuccess || !getElectionQuery.isSuccess) {
     return null;
@@ -129,7 +153,8 @@ export function App({
 }: {
   apiClient?: ApiClient;
 }): JSX.Element {
-  const logger = new BaseLogger(LogSource.System);
+  const logger = new BaseLogger(LogSource.VxPollBookFrontend);
+
   return (
     <AppBase
       defaultColorMode="desktop"
@@ -142,7 +167,7 @@ export function App({
           <QueryClientProvider client={createQueryClient()}>
             <SystemCallContextProvider api={systemCallApi}>
               <BrowserRouter>
-                <AppRoot />
+                <AppRoot logger={logger} />
               </BrowserRouter>
             </SystemCallContextProvider>
           </QueryClientProvider>
