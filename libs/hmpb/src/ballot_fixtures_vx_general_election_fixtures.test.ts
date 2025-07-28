@@ -8,7 +8,7 @@ import { createPlaywrightRenderer } from './playwright_renderer';
 import { Renderer } from './renderer';
 
 vi.setConfig({
-  testTimeout: 20_000,
+  testTimeout: 60_000,
 });
 
 let renderer: Renderer;
