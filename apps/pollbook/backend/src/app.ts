@@ -73,6 +73,7 @@ import { generateVoterHistoryCsvContent } from './voter_history';
 import { getCurrentTime } from './get_current_time';
 import { MarkInactiveReceipt } from './receipts/mark_inactive_receipt';
 import { BarcodeScannerClient } from './barcode_scanner/client';
+import { securityHeadersMiddleware } from './security_middleware';
 
 const debug = rootDebug.extend('local_app');
 
@@ -556,6 +557,10 @@ export function buildLocalApp({
   barcodeScannerClient,
 }: BuildAppParams): Application {
   const app: Application = express();
+
+  // Apply security headers middleware first
+  app.use(securityHeadersMiddleware);
+
   const api = buildApi({ context, logger, barcodeScannerClient });
   app.use('/api', grout.buildRouter(api, express));
 
