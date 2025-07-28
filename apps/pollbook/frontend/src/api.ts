@@ -44,7 +44,7 @@ export function createQueryClient(): QueryClient {
       ...QUERY_CLIENT_DEFAULT_OPTIONS,
       queries: {
         ...defaultQueryOptions,
-        staleTime: DEFAULT_QUERY_REFETCH_INTERVAL,
+        staleTime: 0, // reset to the default behavior of a stale time of 0
       },
     },
   });
