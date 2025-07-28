@@ -159,7 +159,7 @@ export const userFeatureConfigs = {
     ONLY_LETTER_AND_LEGAL_PAPER_SIZES: false,
 
     SYSTEM_SETTINGS_SCREEN: true,
-    ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: false,
+    ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: true,
     MINIMUM_DETECTED_SCALE_OPTION: false,
 
     EXPORT_SCREEN: true,
@@ -184,9 +184,7 @@ export const userFeatureConfigs = {
 
     EXPORT_SCREEN: false,
     CHOOSE_BALLOT_TEMPLATE: false,
-    // EXPORT_TEST_DECKS is currently a no-op because export screen is off, but NH users should be able
-    // to export test decks when export screen is turned on.
-    EXPORT_TEST_DECKS: true,
+    EXPORT_TEST_DECKS: false,
   },
 } satisfies Record<string, UserFeaturesConfig>;
 
