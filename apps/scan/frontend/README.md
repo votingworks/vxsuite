@@ -1,4 +1,4 @@
-# VxScan
+TEST# VxScan
 
 A precinct scanner for casting of ballots (marked by hand or by BMD).
 
