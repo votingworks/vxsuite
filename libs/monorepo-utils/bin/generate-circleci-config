@@ -7,17 +7,22 @@ require('esbuild-runner').install({
 });
 
 const { join } = require('path');
-const { generateConfig } = require('../src/circleci');
+const { generateAllConfigs } = require('../src/circleci');
 const { getWorkspacePackageInfo } = require('../src/pnpm');
 const { writeFileSync } = require('fs');
 
 const workspaceRoot = join(__dirname, '..', '..', '..');
 
 async function main() {
-  writeFileSync(
-    join(workspaceRoot, '.circleci', 'config.yml'),
-    generateConfig(getWorkspacePackageInfo(workspaceRoot))
-  );
+  const packageInfo = await getWorkspacePackageInfo(workspaceRoot);
+  const configs = await generateAllConfigs(packageInfo);
+  for (const [filePath, fileContents] of configs.entries()) {
+    console.log(`Writing CircleCI config to ${filePath}`);
+    writeFileSync(filePath, fileContents);
+  }
 }
 
-main();
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

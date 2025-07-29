@@ -1,7 +1,7 @@
 import {
   CIRCLECI_CONFIG_PATH,
   PnpmPackageInfo,
-  generateCircleCiConfig,
+  generateAllCircleCiConfigs,
 } from '@votingworks/monorepo-utils';
 import { readFileSync } from 'node:fs';
 
@@ -31,13 +31,15 @@ export interface OutdatedConfig {
 export function* checkConfig(
   workspacePackages: ReadonlyMap<string, PnpmPackageInfo>
 ): Generator<ValidationIssue> {
-  const expectedCircleCiConfig = generateCircleCiConfig(workspacePackages);
-  const actualConfig = readFileSync(CIRCLECI_CONFIG_PATH, 'utf-8');
+  const expectedCircleCiConfigs = generateAllCircleCiConfigs(workspacePackages);
+  for (const [path, expectedConfig] of expectedCircleCiConfigs) {
+    const actualConfig = readFileSync(path, 'utf-8');
 
-  if (expectedCircleCiConfig !== actualConfig) {
-    yield {
-      kind: ValidationIssueKind.OutdatedConfig,
-      configPath: CIRCLECI_CONFIG_PATH,
-    };
+    if (expectedConfig !== actualConfig) {
+      yield {
+        kind: ValidationIssueKind.OutdatedConfig,
+        configPath: path,
+      };
+    }
   }
 }
