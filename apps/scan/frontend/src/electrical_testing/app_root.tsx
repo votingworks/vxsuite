@@ -139,79 +139,6 @@ function StatusCard({
   );
 }
 
-function ElectricalTestingScreen<Id extends React.Key>({
-  tasks,
-  perRow,
-  modals,
-  powerDown,
-  usbDriveStatus,
-}: {
-  tasks: ReadonlyArray<Task<Id>>;
-  perRow: number;
-  modals?: React.ReactNode;
-  powerDown: () => void;
-  usbDriveStatus?: UsbDriveStatus;
-}): JSX.Element {
-  const [isSaveLogsModalOpen, setIsSaveLogsModalOpen] = React.useState(false);
-
-  return (
-    <Screen>
-      <Main centerChild>
-        <Column style={{ height: '100%' }}>
-          <Column
-            style={{
-              alignItems: 'center',
-              gap: '1rem',
-              justifyContent: 'center',
-            }}
-          >
-            {iter(tasks)
-              .chunks(perRow)
-              .map((tt) => (
-                <Row gap="1rem" key={tt.map((t) => t.id).join('-')}>
-                  {tt.map((t) => (
-                    <StatusCard
-                      key={t.id}
-                      title={
-                        <React.Fragment>
-                          {t.icon} {t.title}
-                        </React.Fragment>
-                      }
-                      body={t.body}
-                      statusMessage={t.statusMessage}
-                      updatedAt={t.updatedAt}
-                      isRunning={t.isRunning}
-                      onToggleRunning={t.toggleIsRunning}
-                    />
-                  ))}
-                </Row>
-              ))
-              .toArray()}
-          </Column>
-          <Row style={{ justifyContent: 'center' }}>
-            <Button
-              icon={<Icons.Save />}
-              onPress={() => setIsSaveLogsModalOpen(true)}
-            >
-              Save Logs
-            </Button>
-            <Button icon={<Icons.PowerOff />} onPress={powerDown}>
-              Power Down
-            </Button>
-          </Row>
-        </Column>
-        {isSaveLogsModalOpen && usbDriveStatus && (
-          <ExportLogsModal
-            onClose={() => setIsSaveLogsModalOpen(false)}
-            usbDriveStatus={usbDriveStatus}
-          />
-        )}
-        {modals}
-      </Main>
-    </Screen>
-  );
-}
-
 export function AppRoot(): JSX.Element {
   const getElectricalTestingStatusMessagesQuery =
     api.getElectricalTestingStatuses.useQuery();
@@ -299,129 +226,212 @@ export function AppRoot(): JSX.Element {
     headphonesEnabled ? SOUND_INTERVAL_SECONDS * 1000 : null
   );
 
+  const [isSaveLogsModalOpen, setIsSaveLogsModalOpen] = React.useState(false);
+
   const cardStatus = getElectricalTestingStatusMessagesQuery.data?.card;
   const usbDriveStatus = getElectricalTestingStatusMessagesQuery.data?.usbDrive;
   const printerStatus = getElectricalTestingStatusMessagesQuery.data?.printer;
   const scannerStatus = getElectricalTestingStatusMessagesQuery.data?.scanner;
 
   return (
-    <ElectricalTestingScreen
-      tasks={[
-        {
-          id: 'scanner',
-          icon: <Icons.File />,
-          title: 'Scanner',
-          body: (
-            <React.Fragment>
-              <Caption
-                style={{
-                  flexGrow: 1,
-                  overflowWrap: 'anywhere',
-                  maxHeight: '2rem',
-                  overflow: 'hidden',
-                }}
-              >
-                <Small>{scannerStatus?.statusMessage ?? 'Unknown'}</Small>
-              </Caption>
-              {getLatestScannedSheetQuery.data && (
-                <Button
-                  onPress={() => {
-                    setIsShowingLatestSheet(true);
-                  }}
-                  style={{
-                    position: 'absolute',
-                    right: '0',
-                    bottom: '0',
-                    transform: 'translate(100%, 100%)',
-                  }}
-                >
-                  View Latest Sheet
-                </Button>
-              )}
-            </React.Fragment>
-          ),
-          isRunning: scannerStatus?.taskStatus === 'running',
-          toggleIsRunning: toggleScannerTaskRunning,
-          updatedAt: scannerStatus?.updatedAt,
-        },
-        {
-          id: 'card',
-          icon: <Icons.SimCard />,
-          title: 'Card Reader',
-          statusMessage: cardStatus?.statusMessage ?? 'Unknown',
-          isRunning: cardStatus?.taskStatus === 'running',
-          toggleIsRunning: toggleCardReaderTaskRunning,
-          updatedAt: cardStatus?.updatedAt,
-        },
-        {
-          id: 'printer',
-          icon: <Icons.Print />,
-          title: 'Printer',
-          statusMessage: printerStatus?.statusMessage ?? 'Unknown',
-          isRunning: printerStatus?.taskStatus === 'running',
-          toggleIsRunning: togglePrinterTaskRunning,
-          updatedAt: printerStatus?.updatedAt,
-        },
-        {
-          id: 'usbDrive',
-          icon: <Icons.Print />,
-          title: 'USB Drive',
-          statusMessage: usbDriveStatus?.statusMessage ?? 'Unknown',
-          isRunning: usbDriveStatus?.taskStatus === 'running',
-          toggleIsRunning: toggleUsbDriveTaskRunning,
-          updatedAt: usbDriveStatus?.updatedAt,
-        },
-        {
-          id: 'speaker',
-          icon: speakerEnabled ? <Icons.VolumeUp /> : <Icons.VolumeMute />,
-          title: 'Speaker',
-          body: speakerEnabled ? 'Enabled' : 'Disabled',
-          isRunning: speakerEnabled,
-          toggleIsRunning: toggleSpeakerEnabled,
-        },
-        {
-          id: 'headphones',
-          icon: headphonesEnabled ? <Icons.VolumeUp /> : <Icons.VolumeMute />,
-          title: 'Headphones',
-          body: headphonesEnabled ? 'Enabled' : 'Disabled',
-          isRunning: headphonesEnabled,
-          toggleIsRunning: toggleHeadphonesEnabled,
-        },
-        {
-          id: 'inputs',
-          icon: <Icons.Mouse />,
-          title: 'Inputs',
-          body: (
-            <Column>
-              <CounterButton />
+    <Screen>
+      <Main centerChild>
+        <Column style={{ height: '100%' }}>
+          <Column
+            style={{
+              alignItems: 'center',
+              gap: '1rem',
+              justifyContent: 'center',
+            }}
+          >
+            <Row gap="1rem">
+              {[
+                {
+                  id: 'scanner',
+                  icon: <Icons.File />,
+                  title: 'Scanner',
+                  body: (
+                    <React.Fragment>
+                      <Caption
+                        style={{
+                          flexGrow: 1,
+                          overflowWrap: 'anywhere',
+                          maxHeight: '2rem',
+                          overflow: 'hidden',
+                        }}
+                      >
+                        <Small>
+                          {scannerStatus?.statusMessage ?? 'Unknown'}
+                        </Small>
+                      </Caption>
+                      {getLatestScannedSheetQuery.data && (
+                        <Button
+                          onPress={() => {
+                            setIsShowingLatestSheet(true);
+                          }}
+                          style={{
+                            position: 'absolute',
+                            right: '0',
+                            bottom: '0',
+                            transform: 'translate(100%, 100%)',
+                          }}
+                        >
+                          View Latest Sheet
+                        </Button>
+                      )}
+                    </React.Fragment>
+                  ),
+                  isRunning: scannerStatus?.taskStatus === 'running',
+                  toggleIsRunning: toggleScannerTaskRunning,
+                  updatedAt: scannerStatus?.updatedAt,
+                },
+                {
+                  id: 'card',
+                  icon: <Icons.SimCard />,
+                  title: 'Card Reader',
+                  statusMessage: cardStatus?.statusMessage ?? 'Unknown',
+                  isRunning: cardStatus?.taskStatus === 'running',
+                  toggleIsRunning: toggleCardReaderTaskRunning,
+                  updatedAt: cardStatus?.updatedAt,
+                },
+                {
+                  id: 'printer',
+                  icon: <Icons.Print />,
+                  title: 'Printer',
+                  statusMessage: printerStatus?.statusMessage ?? 'Unknown',
+                  isRunning: printerStatus?.taskStatus === 'running',
+                  toggleIsRunning: togglePrinterTaskRunning,
+                  updatedAt: printerStatus?.updatedAt,
+                },
+              ].map((t) => (
+                <StatusCard
+                  key={t.id}
+                  title={
+                    <React.Fragment>
+                      {t.icon} {t.title}
+                    </React.Fragment>
+                  }
+                  body={t.body}
+                  statusMessage={t.statusMessage}
+                  updatedAt={t.updatedAt}
+                  isRunning={t.isRunning}
+                  onToggleRunning={t.toggleIsRunning}
+                />
+              ))}
+            </Row>
+            <Row gap="1rem">
+              {[
+                {
+                  id: 'usbDrive',
+                  icon: <Icons.Print />,
+                  title: 'USB Drive',
+                  statusMessage: usbDriveStatus?.statusMessage ?? 'Unknown',
+                  isRunning: usbDriveStatus?.taskStatus === 'running',
+                  toggleIsRunning: toggleUsbDriveTaskRunning,
+                  updatedAt: usbDriveStatus?.updatedAt,
+                },
+                {
+                  id: 'speaker',
+                  icon: speakerEnabled ? (
+                    <Icons.VolumeUp />
+                  ) : (
+                    <Icons.VolumeMute />
+                  ),
+                  title: 'Speaker',
+                  body: speakerEnabled ? 'Enabled' : 'Disabled',
+                  isRunning: speakerEnabled,
+                  toggleIsRunning: toggleSpeakerEnabled,
+                },
+                {
+                  id: 'headphones',
+                  icon: headphonesEnabled ? (
+                    <Icons.VolumeUp />
+                  ) : (
+                    <Icons.VolumeMute />
+                  ),
+                  title: 'Headphones',
+                  body: headphonesEnabled ? 'Enabled' : 'Disabled',
+                  isRunning: headphonesEnabled,
+                  toggleIsRunning: toggleHeadphonesEnabled,
+                },
+              ].map((t) => (
+                <StatusCard
+                  key={t.id}
+                  title={
+                    <React.Fragment>
+                      {t.icon} {t.title}
+                    </React.Fragment>
+                  }
+                  body={t.body}
+                  statusMessage={t.statusMessage}
+                  updatedAt={t.updatedAt}
+                  isRunning={t.isRunning}
+                  onToggleRunning={t.toggleIsRunning}
+                />
+              ))}
+            </Row>
+            <Row gap="1rem">
+              {[
+                {
+                  id: 'inputs',
+                  icon: <Icons.Mouse />,
+                  title: 'Inputs',
+                  body: (
+                    <Column>
+                      <CounterButton />
 
-              <Small>
-                Last key press:{' '}
-                {lastKeyPress ? (
-                  <React.Fragment>
-                    <code>{lastKeyPress.key}</code> at{' '}
-                    {formatTimestamp(lastKeyPress.pressedAt)}
-                  </React.Fragment>
-                ) : (
-                  'n/a'
-                )}
-              </Small>
-            </Column>
-          ),
-        },
-      ]}
-      perRow={3}
-      powerDown={powerDown}
-      modals={
-        isShowingLatestSheet &&
-        getLatestScannedSheetQuery.data && (
+                      <Small>
+                        Last key press:{' '}
+                        {lastKeyPress ? (
+                          <React.Fragment>
+                            <code>{lastKeyPress.key}</code> at{' '}
+                            {formatTimestamp(lastKeyPress.pressedAt)}
+                          </React.Fragment>
+                        ) : (
+                          'n/a'
+                        )}
+                      </Small>
+                    </Column>
+                  ),
+                },
+              ].map((t) => (
+                <StatusCard
+                  key={t.id}
+                  title={
+                    <React.Fragment>
+                      {t.icon} {t.title}
+                    </React.Fragment>
+                  }
+                  body={t.body}
+                />
+              ))}
+            </Row>
+          </Column>
+          <Row style={{ justifyContent: 'center' }}>
+            <Button
+              icon={<Icons.Save />}
+              onPress={() => setIsSaveLogsModalOpen(true)}
+            >
+              Save Logs
+            </Button>
+            <Button icon={<Icons.PowerOff />} onPress={powerDown}>
+              Power Down
+            </Button>
+          </Row>
+        </Column>
+        {isSaveLogsModalOpen && usbDriveStatus?.underlyingDeviceStatus && (
+          <ExportLogsModal
+            onClose={() => setIsSaveLogsModalOpen(false)}
+            usbDriveStatus={usbDriveStatus?.underlyingDeviceStatus}
+          />
+        )}
+        {isShowingLatestSheet && getLatestScannedSheetQuery.data && (
           <SheetImagesModal
             paths={getLatestScannedSheetQuery.data}
             onClose={() => setIsShowingLatestSheet(false)}
           />
-        )
-      }
-      usbDriveStatus={usbDriveStatus?.underlyingDeviceStatus}
-    />
+        )}
+      </Main>
+    </Screen>
   );
 }
