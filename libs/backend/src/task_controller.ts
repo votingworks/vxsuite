@@ -84,11 +84,12 @@ export class TaskController<State = void, Product = void> {
   /**
    * Creates a new task controller that is already started.
    */
-  // eslint-disable-next-line vx/gts-no-return-type-only-generics
+
   static started<Product = void>(): TaskController<void, Product>;
   static started<State = void, Product = void>(
     state: State
   ): TaskController<State, Product>;
+  // eslint-disable-next-line vx/gts-no-return-type-only-generics
   static started<State = void, Product = void>(
     state?: State
   ): TaskController<State, Product> {
