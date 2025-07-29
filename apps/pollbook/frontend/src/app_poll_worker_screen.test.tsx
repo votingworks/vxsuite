@@ -71,7 +71,7 @@ describe('PollWorkerScreen', () => {
     apiMock.expectGetScannedIdDocument();
     apiMock.expectSearchVotersNull({});
 
-    await vi.waitFor(() => screen.getByText('Total Check-ins'));
+    await vi.waitFor(() => screen.getByText('Total Check-Ins'));
     const total = screen.getByTestId('total-check-ins');
     within(total).getByText('25');
     const machine = screen.getByTestId('machine-check-ins');
@@ -239,7 +239,7 @@ describe('PollWorkerScreen', () => {
     apiMock.expectGetCheckInCounts({ allMachines: 25, thisMachine: 5 });
     const { unmount } = render(<App apiClient={apiMock.mockApiClient} />);
 
-    await vi.waitFor(() => screen.getByText('Total Check-ins'));
+    await vi.waitFor(() => screen.getByText('Total Check-Ins'));
     const total = screen.getByTestId('total-check-ins');
     within(total).getByText('25');
     const machine = screen.getByTestId('machine-check-ins');
@@ -337,7 +337,7 @@ describe('PollWorkerScreen', () => {
       apiMock.expectSearchVotersNull({});
       apiMock.expectGetScannedIdDocument();
 
-      await vi.waitFor(async () => await screen.findByText('Total Check-ins'));
+      await vi.waitFor(async () => await screen.findByText('Total Check-Ins'));
       const total = screen.getByTestId('total-check-ins');
       within(total).getByText('25');
       const machine = screen.getByTestId('machine-check-ins');
