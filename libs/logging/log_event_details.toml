@@ -971,3 +971,8 @@ documentationMessage = "A socket server is awaiting a client."
 eventId = "socket-server-error"
 eventType = "application-status"
 documentationMessage = "An error was reported by a socket server."
+
+[Events.BarcodeScanned]
+eventId = "barcode-scanned"
+eventType = "application-status"
+documentationMessage = "A barcode was scanned."

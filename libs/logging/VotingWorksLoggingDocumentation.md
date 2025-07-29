@@ -618,3 +618,7 @@ IDs are logged with each log to identify the log being written.
 **Type:** [application-status](#application-status)
 **Description:** An error was reported by a socket server.
 **Machines:** All
+### barcode-scanned
+**Type:** [application-status](#application-status)
+**Description:** A barcode was scanned.
+**Machines:** All
