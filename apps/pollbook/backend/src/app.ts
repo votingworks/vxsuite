@@ -135,7 +135,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
               disposition: 'failure',
               error: extractErrorMessage(result.err()),
             };
-        // To avoid printing any sensitive information, we only log the certain keys if it is present in the input.
+        // To avoid printing any sensitive information, we only log certain keys when present in the input.
         const loggableKeys = ['voterId', 'precinctId', 'isAbsenteeMode'];
         await logger.logAsCurrentRole(LogEventId.ApiCall, {
           methodName,
