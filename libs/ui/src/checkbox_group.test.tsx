@@ -2,6 +2,7 @@ import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { CheckboxGroup } from './checkbox_group';
 import { render, screen, within } from '../test/react_testing_library';
+import { Icons } from './icons';
 
 test('renders a message when there are no options', () => {
   render(
@@ -115,4 +116,25 @@ test('allows constraining the value type based on options', () => {
     // @ts-expect-error "bad" is not in the list of options
     value={['full', 'bad']}
   />;
+});
+
+test('allows a label with arbitrary content', () => {
+  render(
+    <CheckboxGroup
+      label={
+        <span>
+          <Icons.Image /> Sizes
+        </span>
+      }
+      aria-label="Sizes"
+      onChange={vi.fn()}
+      options={[
+        { value: 'full', label: 'Full' },
+        { value: '800x600', label: '800x600' },
+      ]}
+      value={[]}
+    />
+  );
+
+  expect(screen.queryByText('Sizes')).toBeInTheDocument();
 });
