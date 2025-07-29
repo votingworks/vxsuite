@@ -54,11 +54,12 @@ describe('PollWorkerScreen', () => {
     apiMock.expectGetDeviceStatuses();
     apiMock.authenticateAsPollWorker(famousNamesElection);
     apiMock.setElection(famousNamesElectionDefinition);
+    apiMock.setIsAbsenteeMode(false);
     const { unmount } = render(<App apiClient={apiMock.mockApiClient} />);
     await screen.findByText('Connect printer to continue.');
 
     apiMock.setPrinterStatus(true);
-    apiMock.setIsAbsenteeMode(false);
+    vi.advanceTimersByTime(100);
     await screen.findByText('No Precinct Selected');
 
     apiMock.setElection(

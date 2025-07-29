@@ -188,7 +188,7 @@ export function createApiMock() {
     expectHaveElectionEventsOccurred(hasEvents: boolean = false): void {
       mockApiClient.haveElectionEventsOccurred.reset();
       mockApiClient.haveElectionEventsOccurred
-        .expectCallWith()
+        .expectRepeatedCallsWith()
         .resolves(hasEvents);
     },
 
@@ -312,7 +312,7 @@ export function createApiMock() {
 
     expectSetConfiguredPrecinct(configuredPrecinctId: string, error?: Error) {
       mockApiClient.setConfiguredPrecinct
-        .expectCallWith({ precinctId: configuredPrecinctId })
+        .expectOptionalRepeatedCallsWith({ precinctId: configuredPrecinctId })
         .resolves(error === undefined ? ok() : err(error));
       if (error === undefined) {
         mockApiClient.getPollbookConfigurationInformation.reset();
@@ -331,7 +331,9 @@ export function createApiMock() {
     },
 
     setIsAbsenteeMode(isAbsenteeMode: boolean) {
-      mockApiClient.getIsAbsenteeMode.expectCallWith().resolves(isAbsenteeMode);
+      mockApiClient.getIsAbsenteeMode
+        .expectRepeatedCallsWith()
+        .resolves(isAbsenteeMode);
     },
 
     setMachineLockedStatus,
@@ -382,7 +384,7 @@ export function createApiMock() {
     expectGetVoter(voter: Voter) {
       mockApiClient.getVoter.reset();
       mockApiClient.getVoter
-        .expectCallWith({
+        .expectOptionalRepeatedCallsWith({
           voterId: voter.voterId,
         })
         .resolves(voter);
