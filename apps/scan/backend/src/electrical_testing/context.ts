@@ -5,6 +5,7 @@ import { UsbDrive } from '@votingworks/usb-drive';
 import { Printer } from '../printing/printer';
 import { Workspace } from '../util/workspace';
 import { SimpleScannerClient } from './simple_scanner_client';
+import { DateTime } from 'luxon';
 
 export type ScanningMode =
   | 'shoe-shine'
@@ -16,7 +17,7 @@ export interface ServerContext {
   auth: InsertedSmartCardAuthApi;
   cardTask: TaskController<void, string>;
   usbDriveTask: TaskController<void, string>;
-  printerTask: TaskController<void, string>;
+  printerTask: TaskController<{ lastPrintedAt?: DateTime }, string>;
   scannerTask: TaskController<{ mode: ScanningMode }, string>;
   logger: Logger;
   printer: Printer;

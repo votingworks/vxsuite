@@ -129,6 +129,23 @@ export const setScannerTaskMode = {
   },
 } as const;
 
+export const resetLastPrintedAt = {
+  queryKey(): QueryKey {
+    return ['resetLastPrintedAt'];
+  },
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(() => apiClient.resetLastPrintedAt(), {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries(
+          getElectricalTestingStatuses.queryKey()
+        );
+      },
+    });
+  },
+} as const;
+
 export const setUsbDriveTaskRunning = {
   queryKey(): QueryKey {
     return ['setUsbDriveTaskRunning'];

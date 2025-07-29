@@ -61,7 +61,6 @@ export async function runPrintAndScanTask({
 
   const printerTestImage = createPrinterTestImage();
   let lastScanTime: DateTime | undefined;
-  let lastPrintTime: DateTime | undefined;
   let lastMode: ScanningMode | undefined;
   let shouldResetScanning = true;
 
@@ -169,6 +168,7 @@ export async function runPrintAndScanTask({
         // NOTE: `getStatus` has the side-effect of connecting to the printer,
         // so we must call it before calling `print`.
         const printerStatus = await printer.getStatus();
+        const { lastPrintedAt } = printerTask.getState();
 
         if (
           printerStatus.scheme === 'hardware-v4' &&
@@ -179,8 +179,8 @@ export async function runPrintAndScanTask({
             `Printer is in an unexpected state: ${inspect(printerStatus)}`
           );
         } else if (
-          !lastPrintTime ||
-          DateTime.now().diff(lastPrintTime).as('seconds') >
+          !lastPrintedAt ||
+          DateTime.now().diff(lastPrintedAt).as('seconds') >
             PRINT_INTERVAL_SECONDS
         ) {
           workspace.store.setElectricalTestingStatusMessage(
@@ -192,7 +192,7 @@ export async function runPrintAndScanTask({
             (await printer.printImageData(printerTestImage)) ?? ok();
 
           if (result.isOk()) {
-            lastPrintTime = DateTime.now();
+            printerTask.setState({ lastPrintedAt: DateTime.now() });
           }
 
           workspace.store.setElectricalTestingStatusMessage(

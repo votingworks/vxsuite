@@ -196,9 +196,11 @@ function CardReaderControls({
 function PrinterControls({
   status,
   setIsEnabled,
+  requestPrintNow,
 }: {
   status?: StatusMessages['printer'];
   setIsEnabled: (isEnabled: boolean) => void;
+  requestPrintNow: () => void;
 }): JSX.Element {
   return (
     <Column gap="0.5rem">
@@ -230,6 +232,12 @@ function PrinterControls({
         onChange={setIsEnabled}
         disabled={!status}
       />
+      <Button
+        onPress={requestPrintNow}
+        disabled={status?.taskStatus !== 'running'}
+      >
+        Request Print Now
+      </Button>
     </Column>
   );
 }
@@ -409,6 +417,7 @@ export function AppRoot(): JSX.Element {
   const setPrinterTaskRunningMutation = api.setPrinterTaskRunning.useMutation();
   const setScannerTaskModeMutation = api.setScannerTaskMode.useMutation();
   const getLatestScannedSheetQuery = api.getLatestScannedSheet.useQuery();
+  const resetLastPrintedAtMutation = api.resetLastPrintedAt.useMutation();
   const powerDownMutation = api.systemCallApi.powerDown.useMutation();
 
   const [speakerEnabled, setSpeakerEnabled] = useState(true);
@@ -475,6 +484,7 @@ export function AppRoot(): JSX.Element {
                 setIsEnabled={(isEnabled) =>
                   setPrinterTaskRunningMutation.mutate(isEnabled)
                 }
+                requestPrintNow={() => resetLastPrintedAtMutation.mutate()}
               />
             </Column>
             <ScannedSheetImages

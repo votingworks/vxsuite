@@ -104,6 +104,10 @@ function buildApi({
       }
     },
 
+    resetLastPrintedAt(): void {
+      printerTask.setState({ lastPrintedAt: undefined });
+    },
+
     setScannerTaskRunning(input: { running: boolean }) {
       workspace.store.setElectricalTestingStatusMessage(
         'scanner',

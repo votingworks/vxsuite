@@ -88,7 +88,7 @@ async function main(): Promise<number> {
       auth,
       cardTask: TaskController.started(),
       usbDriveTask: TaskController.started(),
-      printerTask: TaskController.started(),
+      printerTask: TaskController.started({ lastPrintedAt: undefined }),
       scannerTask: TaskController.started({ mode: 'shoe-shine' }),
       logger,
       printer,
