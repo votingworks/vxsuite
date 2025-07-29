@@ -30,7 +30,7 @@ import { getPrinter } from './printing/printer';
 import { createSimpleScannerClient } from './electrical_testing/simple_scanner_client';
 
 export type { Api } from './app';
-export type { ElectricalTestingApi } from './electrical_testing/app';
+export type * as HWTA from './electrical_testing/exports';
 export type {
   PrinterStatus,
   PrintResult,
@@ -89,7 +89,7 @@ async function main(): Promise<number> {
       cardTask: TaskController.started(),
       usbDriveTask: TaskController.started(),
       printerTask: TaskController.started(),
-      scannerTask: TaskController.started(),
+      scannerTask: TaskController.started({ mode: 'shoe-shine' }),
       logger,
       printer,
       scannerClient: createSimpleScannerClient(),

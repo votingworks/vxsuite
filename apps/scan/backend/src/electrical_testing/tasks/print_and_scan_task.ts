@@ -1,5 +1,10 @@
 import { saveSheetImages } from '@votingworks/ballot-interpreter';
-import { extractErrorMessage, ok, sleep } from '@votingworks/basics';
+import {
+  extractErrorMessage,
+  ok,
+  sleep,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import { ScannerEvent } from '@votingworks/pdi-scanner';
 import { createCanvas, ImageData } from 'canvas';
@@ -12,7 +17,7 @@ import {
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import { writeScanPageAnalyses } from '../analysis/scan';
-import { type ServerContext } from '../context';
+import type { ScanningMode, ServerContext } from '../context';
 import { resultToString } from '../utils';
 
 export const LOOP_INTERVAL_MS = 100;
@@ -57,6 +62,7 @@ export async function runPrintAndScanTask({
   const printerTestImage = createPrinterTestImage();
   let lastScanTime: DateTime | undefined;
   let lastPrintTime: DateTime | undefined;
+  let lastMode: ScanningMode | undefined;
   let shouldResetScanning = true;
 
   async function onScannerEvent(scannerEvent: ScannerEvent) {
@@ -122,6 +128,29 @@ export async function runPrintAndScanTask({
     }
   }
 
+  async function ejectPaper() {
+    const { mode } = scannerTask.getState();
+    switch (mode) {
+      case 'shoe-shine':
+        await scannerClient.ejectAndRescanPaperIfPresent();
+        await scannerClient.enableScanning();
+        break;
+      case 'manual-front':
+        await scannerClient.ejectPaper('toFront');
+        await scannerClient.enableScanning();
+        break;
+      case 'manual-rear':
+        await scannerClient.ejectPaper('toRear');
+        await scannerClient.enableScanning();
+        break;
+      case 'disabled':
+        await scannerClient.disableScanning();
+        break;
+      default:
+        throwIllegalValue(mode);
+    }
+  }
+
   // eslint-disable-next-line no-constant-condition
   while (true) {
     // Exit the loop if both tasks are stopped.
@@ -180,6 +209,13 @@ export async function runPrintAndScanTask({
     }
 
     if (scannerTask.isRunning()) {
+      const { mode } = scannerTask.getState();
+
+      if (mode !== lastMode) {
+        lastMode = mode;
+        shouldResetScanning = true;
+      }
+
       if (shouldResetScanning) {
         workspace.store.setElectricalTestingStatusMessage(
           'scanner',
@@ -202,13 +238,19 @@ export async function runPrintAndScanTask({
               );
             }
           });
-          await scannerClient.enableScanning();
-          await scannerClient.ejectAndRescanPaperIfPresent();
+          await ejectPaper();
 
-          workspace.store.setElectricalTestingStatusMessage(
-            'scanner',
-            'Scanning enabled; waiting for paper'
-          );
+          if (mode === 'disabled') {
+            workspace.store.setElectricalTestingStatusMessage(
+              'scanner',
+              'Scanning disabled'
+            );
+          } else {
+            workspace.store.setElectricalTestingStatusMessage(
+              'scanner',
+              'Scanning enabled; waiting for paper'
+            );
+          }
           shouldResetScanning = false;
         } catch (error) {
           workspace.store.setElectricalTestingStatusMessage(
@@ -223,13 +265,35 @@ export async function runPrintAndScanTask({
         DateTime.now().diff(lastScanTime).as('milliseconds') >
           DELAY_AFTER_ACCEPT_MS
       ) {
-        await scannerClient.enableScanning();
-        await scannerClient.ejectAndRescanPaperIfPresent();
+        if (mode !== 'disabled') {
+          await ejectPaper();
 
-        workspace.store.setElectricalTestingStatusMessage(
-          'scanner',
-          'Ejected document to re-scan'
-        );
+          switch (mode) {
+            case 'shoe-shine':
+              workspace.store.setElectricalTestingStatusMessage(
+                'scanner',
+                'Ejected document to re-scan'
+              );
+              break;
+
+            case 'manual-front':
+              workspace.store.setElectricalTestingStatusMessage(
+                'scanner',
+                'Ejected document to front'
+              );
+              break;
+
+            case 'manual-rear':
+              workspace.store.setElectricalTestingStatusMessage(
+                'scanner',
+                'Ejected document to rear'
+              );
+              break;
+
+            default:
+              throwIllegalValue(mode);
+          }
+        }
 
         lastScanTime = undefined;
       }

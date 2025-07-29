@@ -6,6 +6,7 @@ import {
   H6,
   Icons,
   Main,
+  RadioGroup,
   Screen,
 } from '@votingworks/ui';
 import { DateTime } from 'luxon';
@@ -13,6 +14,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import useInterval from 'use-interval';
 import { SheetOf } from '@votingworks/types';
+import type { HWTA } from '@votingworks/scan-backend';
 import { useSound } from '../utils/use_sound';
 import * as api from './api';
 
@@ -51,6 +53,10 @@ const ExtraSmall = styled.span`
   font-size: 0.6rem;
 `;
 
+const RadioOptionTitle = styled(H6)`
+  margin-bottom: 0;
+`;
+
 function formatTimestamp(timestamp: DateTime): string {
   return timestamp
     .toLocal()
@@ -67,10 +73,10 @@ type StatusMessages = Awaited<
 
 function ScannerControls({
   status,
-  setIsEnabled,
+  setScanningMode,
 }: {
   status?: StatusMessages['scanner'];
-  setIsEnabled: (isEnabled: boolean) => void;
+  setScanningMode: (mode: HWTA.ScanningMode) => void;
 }): JSX.Element {
   return (
     <Column gap="0.5rem">
@@ -96,11 +102,51 @@ function ScannerControls({
           </Caption>
         )}
       </Column>
-      <CheckboxButton
-        label="Enabled"
-        isChecked={status?.taskStatus === 'running'}
-        onChange={setIsEnabled}
+      <RadioGroup
+        label="Scanning mode"
+        value={status?.mode}
+        onChange={(mode) => mode && setScanningMode(mode)}
         disabled={!status}
+        options={
+          [
+            {
+              value: 'shoe-shine',
+              label: (
+                <React.Fragment>
+                  <RadioOptionTitle>Shoe-shine</RadioOptionTitle>
+                  <Caption>Scan continuously and automatically</Caption>
+                </React.Fragment>
+              ),
+            },
+            {
+              value: 'manual-rear',
+              label: (
+                <React.Fragment>
+                  <RadioOptionTitle>Manual (rear)</RadioOptionTitle>
+                  <Caption>Eject to the rear after scanning</Caption>
+                </React.Fragment>
+              ),
+            },
+            {
+              value: 'manual-front',
+              label: (
+                <React.Fragment>
+                  <RadioOptionTitle>Manual (front)</RadioOptionTitle>
+                  <Caption>Eject to the front after scanning</Caption>
+                </React.Fragment>
+              ),
+            },
+            {
+              value: 'disabled',
+              label: (
+                <React.Fragment>
+                  <RadioOptionTitle>Disabled</RadioOptionTitle>
+                  <Caption>Do not scan sheets</Caption>
+                </React.Fragment>
+              ),
+            },
+          ] as const
+        }
       />
     </Column>
   );
@@ -361,7 +407,7 @@ export function AppRoot(): JSX.Element {
   const setUsbDriveTaskRunningMutation =
     api.setUsbDriveTaskRunning.useMutation();
   const setPrinterTaskRunningMutation = api.setPrinterTaskRunning.useMutation();
-  const setScannerTaskRunningMutation = api.setScannerTaskRunning.useMutation();
+  const setScannerTaskModeMutation = api.setScannerTaskMode.useMutation();
   const getLatestScannedSheetQuery = api.getLatestScannedSheet.useQuery();
   const powerDownMutation = api.systemCallApi.powerDown.useMutation();
 
@@ -397,6 +443,12 @@ export function AppRoot(): JSX.Element {
         <Column center style={{ width: '80%' }}>
           <Row gap="2rem" style={{ flexGrow: 1, maxHeight: '70%' }}>
             <Column gap="2rem" style={{ flexGrow: 1 }}>
+              <CardReaderControls
+                status={cardStatus}
+                setIsEnabled={(isEnabled) =>
+                  setCardReaderTaskRunningMutation.mutate(isEnabled)
+                }
+              />
               <UsbDriveControls
                 status={usbDriveStatus}
                 setIsEnabled={(isEnabled) =>
@@ -414,14 +466,8 @@ export function AppRoot(): JSX.Element {
             <Column gap="2rem" style={{ flexGrow: 1 }}>
               <ScannerControls
                 status={scannerStatus}
-                setIsEnabled={(isEnabled) =>
-                  setScannerTaskRunningMutation.mutate(isEnabled)
-                }
-              />
-              <CardReaderControls
-                status={cardStatus}
-                setIsEnabled={(isEnabled) =>
-                  setCardReaderTaskRunningMutation.mutate(isEnabled)
+                setScanningMode={(mode) =>
+                  setScannerTaskModeMutation.mutate(mode)
                 }
               />
               <PrinterControls
