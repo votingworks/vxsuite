@@ -30,14 +30,14 @@ export function GroupByEditor({
   setIncludeSheetCounts,
   allowedOptions: allowedGroupings,
 }: GroupByEditorProps): JSX.Element {
-  const checkboxValues = Object.keys(groupBy).filter(
-    (grouping) => groupBy[grouping as keyof Tabulation.GroupBy]
-  );
+  const checkboxValues: GroupByEditorOption[] = (
+    Object.keys(groupBy) as Array<keyof Tabulation.GroupBy>
+  ).filter((grouping) => groupBy[grouping]);
   if (includeSheetCounts) {
     checkboxValues.push('includeSheetCounts');
   }
 
-  function onChange(newCheckboxValues: string[]): void {
+  function onChange(newCheckboxValues: GroupByEditorOption[]): void {
     setGroupBy(
       Object.fromEntries(
         newCheckboxValues

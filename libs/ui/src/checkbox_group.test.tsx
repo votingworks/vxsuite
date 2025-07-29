@@ -103,3 +103,16 @@ test('label is not visible if `hideLabel == true`', () => {
   // Verify the container is still labelled appropriately.
   screen.getByRole('group', { name: 'Pick cards:' });
 });
+
+test('allows constraining the value type based on options', () => {
+  <CheckboxGroup
+    label="Sizes"
+    options={[
+      { value: 'full', label: 'Full' },
+      { value: '800x600', label: '800x600' },
+    ]}
+    onChange={vi.fn()}
+    // @ts-expect-error "bad" is not in the list of options
+    value={['full', 'bad']}
+  />;
+});

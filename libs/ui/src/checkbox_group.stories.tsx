@@ -22,7 +22,7 @@ const meta: Meta<typeof Component> = {
 
 export default meta;
 
-export function CheckboxGroup(props: CheckboxGroupProps): JSX.Element {
+export function CheckboxGroup(props: CheckboxGroupProps<string>): JSX.Element {
   const { onChange } = props;
   const [value, setValue] = useState<string[]>([]);
 
