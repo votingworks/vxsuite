@@ -58,7 +58,12 @@ export function FileInputButton({
         accept={accept}
         disabled={disabled}
         onBlur={onBlur}
-        onChange={onChange}
+        onChange={(event) => {
+          onChange(event);
+          // Reset the input value to allow re-selecting the same file
+          // eslint-disable-next-line no-param-reassign
+          event.currentTarget.value = '';
+        }}
         ref={innerRef}
         type="file"
       />
