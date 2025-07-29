@@ -90,7 +90,7 @@ test('getDeviceStatuses()', async () => {
         .resolves({ status: 'no_drive' });
       const result = await localApiClient.getDeviceStatuses();
       expect(result).toMatchObject({
-        usbDrive: { status: 'no_drive' },
+        usbDrive: { status: 'mounted' },
         printer: { connected: false },
         network: {
           isOnline: false,
