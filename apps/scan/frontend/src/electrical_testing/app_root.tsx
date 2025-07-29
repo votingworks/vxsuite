@@ -67,10 +67,10 @@ function PlayPauseButton({
   onPress,
 }: {
   isRunning: boolean;
-  onPress: () => void;
+  onPress: (isRunning: boolean) => void;
 }) {
   return (
-    <PlayPauseButtonBase onClick={onPress}>
+    <PlayPauseButtonBase onClick={() => onPress(!isRunning)}>
       {isRunning ? <Icons.Pause /> : <Icons.Play />}
     </PlayPauseButtonBase>
   );
@@ -78,6 +78,357 @@ function PlayPauseButton({
 
 function formatTimestamp(timestamp: DateTime): string {
   return timestamp.toLocal().toFormat('h:mm:ss a MM/dd/yyyy');
+}
+
+type StatusMessages = Awaited<
+  ReturnType<api.ApiClient['getElectricalTestingStatuses']>
+>;
+
+function ScannerControls({
+  status,
+  setIsEnabled,
+  hasScannedSheets,
+  showLatestScannedSheet,
+}: {
+  status?: StatusMessages['scanner'];
+  setIsEnabled: (isEnabled: boolean) => void;
+  hasScannedSheets: boolean;
+  showLatestScannedSheet: () => void;
+}): JSX.Element {
+  return (
+    <Card
+      style={{
+        width: '600px',
+        height: '235px',
+        overflow: 'hidden',
+        position: 'relative',
+      }}
+    >
+      <Row style={{ height: '100%', alignItems: 'stretch' }}>
+        <Column style={{ flexGrow: 1 }}>
+          <H6 style={{ flexGrow: 0 }}>
+            <Icons.File /> Scanner
+          </H6>
+          <Caption style={{ flexGrow: 1 }}>
+            <Caption
+              style={{
+                flexGrow: 1,
+                overflowWrap: 'anywhere',
+                maxHeight: '2rem',
+                overflow: 'hidden',
+              }}
+            >
+              <Small>{status?.statusMessage ?? 'Unknown'}</Small>
+            </Caption>
+            {hasScannedSheets && (
+              <Button
+                onPress={showLatestScannedSheet}
+                style={{
+                  position: 'absolute',
+                  right: '1rem',
+                  bottom: '1rem',
+                }}
+              >
+                View Latest Sheet
+              </Button>
+            )}
+          </Caption>
+          {status?.updatedAt && (
+            <Caption style={{ flexGrow: 0 }}>
+              <ExtraSmall>{formatTimestamp(status.updatedAt)}</ExtraSmall>
+            </Caption>
+          )}
+        </Column>
+        {typeof (status?.taskStatus === 'running') === 'boolean' && (
+          <Column style={{ flexGrow: 0, alignContent: 'center' }}>
+            <PlayPauseButton
+              isRunning={status?.taskStatus === 'running'}
+              onPress={setIsEnabled}
+            />
+          </Column>
+        )}
+      </Row>
+    </Card>
+  );
+}
+
+function CardReaderControls({
+  status,
+  setIsEnabled,
+}: {
+  status?: StatusMessages['card'];
+  setIsEnabled: (isEnabled: boolean) => void;
+}): JSX.Element {
+  return (
+    <Card
+      style={{
+        width: '600px',
+        height: '235px',
+        overflow: 'hidden',
+        position: 'relative',
+      }}
+    >
+      <Row style={{ height: '100%', alignItems: 'stretch' }}>
+        <Column style={{ flexGrow: 1 }}>
+          <H6 style={{ flexGrow: 0 }}>
+            <Icons.SimCard /> Card Reader
+          </H6>
+          {status?.statusMessage && (
+            <Caption
+              style={{
+                flexGrow: 1,
+                overflowWrap: 'anywhere',
+                maxHeight: '2rem',
+                overflow: 'hidden',
+              }}
+            >
+              <Small>{status?.statusMessage}</Small>
+            </Caption>
+          )}
+          {status?.updatedAt && (
+            <Caption style={{ flexGrow: 0 }}>
+              <ExtraSmall>{formatTimestamp(status.updatedAt)}</ExtraSmall>
+            </Caption>
+          )}
+        </Column>
+        {typeof (status?.taskStatus === 'running') === 'boolean' && (
+          <Column style={{ flexGrow: 0, alignContent: 'center' }}>
+            <PlayPauseButton
+              isRunning={status?.taskStatus === 'running'}
+              onPress={setIsEnabled}
+            />
+          </Column>
+        )}
+      </Row>
+    </Card>
+  );
+}
+
+function PrinterControls({
+  status,
+  setIsEnabled,
+}: {
+  status?: StatusMessages['printer'];
+  setIsEnabled: (isEnabled: boolean) => void;
+}): JSX.Element {
+  return (
+    <Card
+      style={{
+        width: '600px',
+        height: '235px',
+        overflow: 'hidden',
+        position: 'relative',
+      }}
+    >
+      <Row style={{ height: '100%', alignItems: 'stretch' }}>
+        <Column style={{ flexGrow: 1 }}>
+          <H6 style={{ flexGrow: 0 }}>
+            <Icons.Print /> Printer
+          </H6>
+          {status?.statusMessage && (
+            <Caption
+              style={{
+                flexGrow: 1,
+                overflowWrap: 'anywhere',
+                maxHeight: '2rem',
+                overflow: 'hidden',
+              }}
+            >
+              <Small>{status?.statusMessage}</Small>
+            </Caption>
+          )}
+          {status?.updatedAt && (
+            <Caption style={{ flexGrow: 0 }}>
+              <ExtraSmall>{formatTimestamp(status.updatedAt)}</ExtraSmall>
+            </Caption>
+          )}
+        </Column>
+        {typeof (status?.taskStatus === 'running') === 'boolean' && (
+          <Column style={{ flexGrow: 0, alignContent: 'center' }}>
+            <PlayPauseButton
+              isRunning={status?.taskStatus === 'running'}
+              onPress={setIsEnabled}
+            />
+          </Column>
+        )}
+      </Row>
+    </Card>
+  );
+}
+
+function UsbDriveControls({
+  status,
+  setIsEnabled,
+}: {
+  status?: StatusMessages['usbDrive'];
+  setIsEnabled: (isEnabled: boolean) => void;
+}): JSX.Element {
+  return (
+    <Card
+      style={{
+        width: '600px',
+        height: '235px',
+        overflow: 'hidden',
+        position: 'relative',
+      }}
+    >
+      <Row style={{ height: '100%', alignItems: 'stretch' }}>
+        <Column style={{ flexGrow: 1 }}>
+          <H6 style={{ flexGrow: 0 }}>
+            <Icons.UsbDrive /> USB Drive
+          </H6>
+          {status?.statusMessage && (
+            <Caption
+              style={{
+                flexGrow: 1,
+                overflowWrap: 'anywhere',
+                maxHeight: '2rem',
+                overflow: 'hidden',
+              }}
+            >
+              <Small>{status?.statusMessage}</Small>
+            </Caption>
+          )}
+          {status?.updatedAt && (
+            <Caption style={{ flexGrow: 0 }}>
+              <ExtraSmall>{formatTimestamp(status.updatedAt)}</ExtraSmall>
+            </Caption>
+          )}
+        </Column>
+        {typeof (status?.taskStatus === 'running') === 'boolean' && (
+          <Column style={{ flexGrow: 0, alignContent: 'center' }}>
+            <PlayPauseButton
+              isRunning={status?.taskStatus === 'running'}
+              onPress={setIsEnabled}
+            />
+          </Column>
+        )}
+      </Row>
+    </Card>
+  );
+}
+
+function SpeakerControls({
+  isEnabled,
+  setIsEnabled,
+}: {
+  isEnabled: boolean;
+  setIsEnabled: (isEnabled: boolean) => void;
+}): JSX.Element {
+  return (
+    <Card
+      style={{
+        width: '600px',
+        height: '235px',
+        overflow: 'hidden',
+        position: 'relative',
+      }}
+    >
+      <Row style={{ height: '100%', alignItems: 'stretch' }}>
+        <Column style={{ flexGrow: 1 }}>
+          <H6 style={{ flexGrow: 0 }}>
+            {isEnabled ? <Icons.VolumeUp /> : <Icons.VolumeMute />} Speaker
+          </H6>
+          <Caption style={{ flexGrow: 1 }}>
+            {isEnabled ? 'Enabled' : 'Disabled'}
+          </Caption>
+        </Column>
+        <Column style={{ flexGrow: 0, alignContent: 'center' }}>
+          <PlayPauseButton isRunning={isEnabled} onPress={setIsEnabled} />
+        </Column>
+      </Row>
+    </Card>
+  );
+}
+
+function HeadphoneControls({
+  isEnabled,
+  setIsEnabled,
+}: {
+  isEnabled: boolean;
+  setIsEnabled: (isEnabled: boolean) => void;
+}): JSX.Element {
+  return (
+    <Card
+      style={{
+        width: '600px',
+        height: '235px',
+        overflow: 'hidden',
+        position: 'relative',
+      }}
+    >
+      <Row style={{ height: '100%', alignItems: 'stretch' }}>
+        <Column style={{ flexGrow: 1 }}>
+          <H6 style={{ flexGrow: 0 }}>
+            {isEnabled ? <Icons.VolumeUp /> : <Icons.VolumeMute />} Headphones
+          </H6>
+          <Caption style={{ flexGrow: 1 }}>
+            {isEnabled ? 'Enabled' : 'Disabled'}
+          </Caption>
+        </Column>
+        <Column style={{ flexGrow: 0, alignContent: 'center' }}>
+          <PlayPauseButton isRunning={isEnabled} onPress={setIsEnabled} />
+        </Column>
+      </Row>
+    </Card>
+  );
+}
+
+function InputControls(): JSX.Element {
+  const [lastKeyPress, setLastKeyPress] = useState<{
+    key: string;
+    pressedAt: DateTime;
+  }>();
+
+  useEffect(() => {
+    function handleKeyboardEvent(e: KeyboardEvent) {
+      setLastKeyPress({
+        key: e.key === ' ' ? 'Space' : e.key,
+        pressedAt: DateTime.now(),
+      });
+    }
+
+    document.addEventListener('keydown', handleKeyboardEvent);
+    return () => {
+      document.removeEventListener('keydown', handleKeyboardEvent);
+    };
+  }, []);
+
+  return (
+    <Card
+      style={{
+        width: '600px',
+        height: '235px',
+        overflow: 'hidden',
+        position: 'relative',
+      }}
+    >
+      <Row style={{ height: '100%', alignItems: 'stretch' }}>
+        <Column style={{ flexGrow: 1 }}>
+          <H6 style={{ flexGrow: 0 }}>
+            <Icons.Mouse /> Inputs
+          </H6>
+          <Caption style={{ flexGrow: 1 }}>
+            <Column>
+              <CounterButton />
+
+              <Small>
+                Last key press:{' '}
+                {lastKeyPress ? (
+                  <React.Fragment>
+                    <code>{lastKeyPress.key}</code> at{' '}
+                    {formatTimestamp(lastKeyPress.pressedAt)}
+                  </React.Fragment>
+                ) : (
+                  'n/a'
+                )}
+              </Small>
+            </Column>
+          </Caption>
+        </Column>
+      </Row>
+    </Card>
+  );
 }
 
 export function AppRoot(): JSX.Element {
@@ -98,61 +449,6 @@ export function AppRoot(): JSX.Element {
 
   const playSoundHeadphones = useSound('success');
   const playSoundSpeaker = api.playSound.useMutation().mutate;
-
-  const [lastKeyPress, setLastKeyPress] = useState<{
-    key: string;
-    pressedAt: DateTime;
-  }>();
-
-  useEffect(() => {
-    function handleKeyboardEvent(e: KeyboardEvent) {
-      setLastKeyPress({
-        key: e.key === ' ' ? 'Space' : e.key,
-        pressedAt: DateTime.now(),
-      });
-    }
-
-    document.addEventListener('keydown', handleKeyboardEvent);
-    return () => {
-      document.removeEventListener('keydown', handleKeyboardEvent);
-    };
-  }, []);
-
-  function toggleCardReaderTaskRunning() {
-    setCardReaderTaskRunningMutation.mutate(
-      getElectricalTestingStatusMessagesQuery.data?.card?.taskStatus ===
-        'paused'
-    );
-  }
-
-  function toggleUsbDriveTaskRunning() {
-    setUsbDriveTaskRunningMutation.mutate(
-      getElectricalTestingStatusMessagesQuery.data?.usbDrive?.taskStatus ===
-        'paused'
-    );
-  }
-
-  function togglePrinterTaskRunning() {
-    setPrinterTaskRunningMutation.mutate(
-      getElectricalTestingStatusMessagesQuery.data?.printer?.taskStatus ===
-        'paused'
-    );
-  }
-
-  function toggleScannerTaskRunning() {
-    setScannerTaskRunningMutation.mutate(
-      getElectricalTestingStatusMessagesQuery.data?.scanner?.taskStatus ===
-        'paused'
-    );
-  }
-
-  function toggleHeadphonesEnabled() {
-    setHeadphonesEnabled((prev) => !prev);
-  }
-
-  function toggleSpeakerEnabled() {
-    setSpeakerEnabled((prev) => !prev);
-  }
 
   function powerDown() {
     powerDownMutation.mutate();
@@ -186,296 +482,45 @@ export function AppRoot(): JSX.Element {
             }}
           >
             <Row gap="1rem">
-              <Card
-                style={{
-                  width: '600px',
-                  height: '235px',
-                  overflow: 'hidden',
-                  position: 'relative',
-                }}
-              >
-                <Row style={{ height: '100%', alignItems: 'stretch' }}>
-                  <Column style={{ flexGrow: 1 }}>
-                    <H6 style={{ flexGrow: 0 }}>
-                      <Icons.File /> Scanner
-                    </H6>
-                    <Caption style={{ flexGrow: 1 }}>
-                      <Caption
-                        style={{
-                          flexGrow: 1,
-                          overflowWrap: 'anywhere',
-                          maxHeight: '2rem',
-                          overflow: 'hidden',
-                        }}
-                      >
-                        <Small>
-                          {scannerStatus?.statusMessage ?? 'Unknown'}
-                        </Small>
-                      </Caption>
-                      {getLatestScannedSheetQuery.data && (
-                        <Button
-                          onPress={() => {
-                            setIsShowingLatestSheet(true);
-                          }}
-                          style={{
-                            position: 'absolute',
-                            right: '0',
-                            bottom: '0',
-                            transform: 'translate(100%, 100%)',
-                          }}
-                        >
-                          View Latest Sheet
-                        </Button>
-                      )}
-                    </Caption>
-                    {scannerStatus?.updatedAt && (
-                      <Caption style={{ flexGrow: 0 }}>
-                        <ExtraSmall>
-                          {formatTimestamp(scannerStatus.updatedAt)}
-                        </ExtraSmall>
-                      </Caption>
-                    )}
-                  </Column>
-                  {typeof (scannerStatus?.taskStatus === 'running') ===
-                    'boolean' && (
-                    <Column style={{ flexGrow: 0, alignContent: 'center' }}>
-                      <PlayPauseButton
-                        isRunning={scannerStatus?.taskStatus === 'running'}
-                        onPress={toggleScannerTaskRunning}
-                      />
-                    </Column>
-                  )}
-                </Row>
-              </Card>
-              <Card
-                style={{
-                  width: '600px',
-                  height: '235px',
-                  overflow: 'hidden',
-                  position: 'relative',
-                }}
-              >
-                <Row style={{ height: '100%', alignItems: 'stretch' }}>
-                  <Column style={{ flexGrow: 1 }}>
-                    <H6 style={{ flexGrow: 0 }}>
-                      <Icons.SimCard /> Card Reader
-                    </H6>
-                    {cardStatus?.statusMessage && (
-                      <Caption
-                        style={{
-                          flexGrow: 1,
-                          overflowWrap: 'anywhere',
-                          maxHeight: '2rem',
-                          overflow: 'hidden',
-                        }}
-                      >
-                        <Small>{cardStatus?.statusMessage}</Small>
-                      </Caption>
-                    )}
-                    {cardStatus?.updatedAt && (
-                      <Caption style={{ flexGrow: 0 }}>
-                        <ExtraSmall>
-                          {formatTimestamp(cardStatus.updatedAt)}
-                        </ExtraSmall>
-                      </Caption>
-                    )}
-                  </Column>
-                  {typeof (cardStatus?.taskStatus === 'running') ===
-                    'boolean' && (
-                    <Column style={{ flexGrow: 0, alignContent: 'center' }}>
-                      <PlayPauseButton
-                        isRunning={cardStatus?.taskStatus === 'running'}
-                        onPress={toggleCardReaderTaskRunning}
-                      />
-                    </Column>
-                  )}
-                </Row>
-              </Card>
-              <Card
-                style={{
-                  width: '600px',
-                  height: '235px',
-                  overflow: 'hidden',
-                  position: 'relative',
-                }}
-              >
-                <Row style={{ height: '100%', alignItems: 'stretch' }}>
-                  <Column style={{ flexGrow: 1 }}>
-                    <H6 style={{ flexGrow: 0 }}>
-                      <Icons.Print /> Printer
-                    </H6>
-                    {printerStatus?.statusMessage && (
-                      <Caption
-                        style={{
-                          flexGrow: 1,
-                          overflowWrap: 'anywhere',
-                          maxHeight: '2rem',
-                          overflow: 'hidden',
-                        }}
-                      >
-                        <Small>{printerStatus?.statusMessage}</Small>
-                      </Caption>
-                    )}
-                    {printerStatus?.updatedAt && (
-                      <Caption style={{ flexGrow: 0 }}>
-                        <ExtraSmall>
-                          {formatTimestamp(printerStatus.updatedAt)}
-                        </ExtraSmall>
-                      </Caption>
-                    )}
-                  </Column>
-                  {typeof (printerStatus?.taskStatus === 'running') ===
-                    'boolean' && (
-                    <Column style={{ flexGrow: 0, alignContent: 'center' }}>
-                      <PlayPauseButton
-                        isRunning={printerStatus?.taskStatus === 'running'}
-                        onPress={togglePrinterTaskRunning}
-                      />
-                    </Column>
-                  )}
-                </Row>
-              </Card>
+              <ScannerControls
+                status={scannerStatus}
+                setIsEnabled={(isEnabled) =>
+                  setScannerTaskRunningMutation.mutate(isEnabled)
+                }
+                hasScannedSheets={!!getLatestScannedSheetQuery.data}
+                showLatestScannedSheet={() => setIsShowingLatestSheet(true)}
+              />
+              <CardReaderControls
+                status={cardStatus}
+                setIsEnabled={(isEnabled) =>
+                  setCardReaderTaskRunningMutation.mutate(isEnabled)
+                }
+              />
+              <PrinterControls
+                status={printerStatus}
+                setIsEnabled={(isEnabled) =>
+                  setPrinterTaskRunningMutation.mutate(isEnabled)
+                }
+              />
             </Row>
             <Row gap="1rem">
-              <Card
-                style={{
-                  width: '600px',
-                  height: '235px',
-                  overflow: 'hidden',
-                  position: 'relative',
-                }}
-              >
-                <Row style={{ height: '100%', alignItems: 'stretch' }}>
-                  <Column style={{ flexGrow: 1 }}>
-                    <H6 style={{ flexGrow: 0 }}>
-                      <Icons.UsbDrive /> USB Drive
-                    </H6>
-                    {usbDriveStatus?.statusMessage && (
-                      <Caption
-                        style={{
-                          flexGrow: 1,
-                          overflowWrap: 'anywhere',
-                          maxHeight: '2rem',
-                          overflow: 'hidden',
-                        }}
-                      >
-                        <Small>{usbDriveStatus?.statusMessage}</Small>
-                      </Caption>
-                    )}
-                    {usbDriveStatus?.updatedAt && (
-                      <Caption style={{ flexGrow: 0 }}>
-                        <ExtraSmall>
-                          {formatTimestamp(usbDriveStatus.updatedAt)}
-                        </ExtraSmall>
-                      </Caption>
-                    )}
-                  </Column>
-                  {typeof (usbDriveStatus?.taskStatus === 'running') ===
-                    'boolean' && (
-                    <Column style={{ flexGrow: 0, alignContent: 'center' }}>
-                      <PlayPauseButton
-                        isRunning={usbDriveStatus?.taskStatus === 'running'}
-                        onPress={toggleUsbDriveTaskRunning}
-                      />
-                    </Column>
-                  )}
-                </Row>
-              </Card>
-              <Card
-                style={{
-                  width: '600px',
-                  height: '235px',
-                  overflow: 'hidden',
-                  position: 'relative',
-                }}
-              >
-                <Row style={{ height: '100%', alignItems: 'stretch' }}>
-                  <Column style={{ flexGrow: 1 }}>
-                    <H6 style={{ flexGrow: 0 }}>
-                      {speakerEnabled ? (
-                        <Icons.VolumeUp />
-                      ) : (
-                        <Icons.VolumeMute />
-                      )}{' '}
-                      Speaker
-                    </H6>
-                    <Caption style={{ flexGrow: 1 }}>
-                      {speakerEnabled ? 'Enabled' : 'Disabled'}
-                    </Caption>
-                  </Column>
-                  <Column style={{ flexGrow: 0, alignContent: 'center' }}>
-                    <PlayPauseButton
-                      isRunning={speakerEnabled}
-                      onPress={toggleSpeakerEnabled}
-                    />
-                  </Column>
-                </Row>
-              </Card>
-              <Card
-                style={{
-                  width: '600px',
-                  height: '235px',
-                  overflow: 'hidden',
-                  position: 'relative',
-                }}
-              >
-                <Row style={{ height: '100%', alignItems: 'stretch' }}>
-                  <Column style={{ flexGrow: 1 }}>
-                    <H6 style={{ flexGrow: 0 }}>
-                      {headphonesEnabled ? (
-                        <Icons.VolumeUp />
-                      ) : (
-                        <Icons.VolumeMute />
-                      )}{' '}
-                      Speaker
-                    </H6>
-                    <Caption style={{ flexGrow: 1 }}>
-                      {headphonesEnabled ? 'Enabled' : 'Disabled'}
-                    </Caption>
-                  </Column>
-                  <Column style={{ flexGrow: 0, alignContent: 'center' }}>
-                    <PlayPauseButton
-                      isRunning={headphonesEnabled}
-                      onPress={toggleHeadphonesEnabled}
-                    />
-                  </Column>
-                </Row>
-              </Card>
+              <UsbDriveControls
+                status={usbDriveStatus}
+                setIsEnabled={(isEnabled) =>
+                  setUsbDriveTaskRunningMutation.mutate(isEnabled)
+                }
+              />
+              <SpeakerControls
+                isEnabled={speakerEnabled}
+                setIsEnabled={setSpeakerEnabled}
+              />
+              <HeadphoneControls
+                isEnabled={headphonesEnabled}
+                setIsEnabled={setHeadphonesEnabled}
+              />
             </Row>
             <Row gap="1rem">
-              <Card
-                style={{
-                  width: '600px',
-                  height: '235px',
-                  overflow: 'hidden',
-                  position: 'relative',
-                }}
-              >
-                <Row style={{ height: '100%', alignItems: 'stretch' }}>
-                  <Column style={{ flexGrow: 1 }}>
-                    <H6 style={{ flexGrow: 0 }}>
-                      <Icons.Mouse /> Inputs
-                    </H6>
-                    <Caption style={{ flexGrow: 1 }}>
-                        <Column>
-                          <CounterButton />
-
-                          <Small>
-                            Last key press:{' '}
-                            {lastKeyPress ? (
-                              <React.Fragment>
-                                <code>{lastKeyPress.key}</code> at{' '}
-                                {formatTimestamp(lastKeyPress.pressedAt)}
-                              </React.Fragment>
-                            ) : (
-                              'n/a'
-                            )}
-                          </Small>
-                        </Column>
-                      </Caption>
-                  </Column>
-                </Row>
-              </Card>
+              <InputControls />
             </Row>
           </Column>
           <Row style={{ justifyContent: 'center' }}>
