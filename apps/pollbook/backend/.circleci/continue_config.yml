@@ -93,7 +93,6 @@ jobs:
 
 workflows:
   test:
-    when:
-      - << pipeline.parameters.run-pollbook-backend-job >>
+    when: << pipeline.parameters.run-pollbook-backend-job >>
     jobs:
       - test-apps-pollbook-backend
