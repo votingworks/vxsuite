@@ -16,11 +16,6 @@ export function securityHeadersMiddleware(
   res: Response,
   next: NextFunction
 ): void {
-  /* if (res.headersSent) {
-    next();
-    return;
-  } */
-
   // Content Security Policy (CSP) - strict policy to prevent XSS
   const cspPolicy = [
     "default-src 'self'",
