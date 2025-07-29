@@ -14,8 +14,6 @@ import {
   MainContent,
   Callout,
   H4,
-  Font,
-  P,
 } from '@votingworks/ui';
 import { useState, useMemo } from 'react';
 import { Election } from '@votingworks/types';
@@ -121,27 +119,22 @@ function UpdateAddressScreen({
             address.streetName !== '' &&
             !isAddressValid && (
               <Callout icon="Danger" color="danger">
-                <P>
-                  Invalid address for{' '}
-                  <Font weight="semiBold">{election.county.name}</Font>. Make
-                  sure the street number and name match a valid address.
-                </P>
+                <span>
+                  Invalid address for <strong>{election.county.name}</strong>.
+                  Make sure the street number and name match a valid address.
+                </span>
               </Callout>
             )}
           {isAddressInWrongPrecinct && (
             <Callout icon="Danger" color="danger">
-              <P>
+              <span>
                 This address is associated with a different precinct,{' '}
-                <Font weight="semiBold">
-                  {enteredPrecinct && enteredPrecinct.name}
-                </Font>
-                . Voters can only have their address changed to an address
-                within the current precinct,{' '}
-                <Font weight="semiBold">
-                  {configuredPrecinct && configuredPrecinct.name}
-                </Font>
+                <strong>{enteredPrecinct && enteredPrecinct.name}</strong>.
+                Voters can only have their address changed to an address within
+                the current precinct,{' '}
+                <strong>{configuredPrecinct && configuredPrecinct.name}</strong>
                 .
-              </P>
+              </span>
             </Callout>
           )}
         </Column>
