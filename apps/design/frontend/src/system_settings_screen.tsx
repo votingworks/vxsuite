@@ -181,10 +181,7 @@ export function SystemSettingsForm({
             <CheckboxGroup
               label="VxScan"
               options={scannerAdjudicationReasonOptions}
-              value={
-                (systemSettings.precinctScanAdjudicationReasons ??
-                  []) as string[]
-              }
+              value={systemSettings.precinctScanAdjudicationReasons ?? []}
               onChange={(value) =>
                 setSystemSettings({
                   ...systemSettings,
@@ -210,10 +207,7 @@ export function SystemSettingsForm({
             <CheckboxGroup
               label="VxCentralScan"
               options={scannerAdjudicationReasonOptions}
-              value={
-                (systemSettings.centralScanAdjudicationReasons ??
-                  []) as string[]
-              }
+              value={systemSettings.centralScanAdjudicationReasons ?? []}
               onChange={(value) =>
                 setSystemSettings({
                   ...systemSettings,
@@ -230,9 +224,7 @@ export function SystemSettingsForm({
               options={adjudicationReasonOptions.filter((option) =>
                 [AdjudicationReason.MarginalMark].includes(option.value)
               )}
-              value={
-                (systemSettings.adminAdjudicationReasons ?? []) as string[]
-              }
+              value={systemSettings.adminAdjudicationReasons ?? []}
               onChange={(value) =>
                 setSystemSettings({
                   ...systemSettings,
@@ -544,13 +536,11 @@ export function SystemSettingsForm({
                 <CheckboxGroup
                   label="CVR"
                   options={cvrOptions}
-                  value={
-                    [
-                      systemSettings.castVoteRecordsIncludeRedundantMetadata
-                        ? CvrOption.RedudantMetadata
-                        : undefined,
-                    ].filter((v) => v !== undefined) as string[]
-                  }
+                  value={[
+                    systemSettings.castVoteRecordsIncludeRedundantMetadata
+                      ? CvrOption.RedudantMetadata
+                      : undefined,
+                  ].filter((v) => v !== undefined)}
                   onChange={(value) =>
                     setSystemSettings({
                       ...systemSettings,

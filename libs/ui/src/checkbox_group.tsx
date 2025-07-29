@@ -2,21 +2,21 @@ import styled from 'styled-components';
 import React from 'react';
 import { CheckboxButton } from './checkbox_button';
 
-interface Option {
+interface Option<T extends string> {
   label: string;
-  value: string;
+  value: T;
 }
 
-export interface CheckboxGroupProps {
+export interface CheckboxGroupProps<T extends string> {
   /**
    * Required for a11y - use {@link hideLabel} to visually hide the label, while
    * still allowing it to be assigned to the control for screen readers.
    */
   label: string;
   hideLabel?: boolean;
-  options: Option[];
-  value: string[];
-  onChange: (value: string[]) => void;
+  options: Array<Option<T>>;
+  value: NoInfer<readonly T[]>;
+  onChange: NoInfer<(value: T[]) => void>;
   disabled?: boolean;
   direction?: 'row' | 'column';
   noOptionsMessage?: React.ReactNode;
@@ -38,7 +38,7 @@ const OptionsContainer = styled.div<{ direction: 'row' | 'column' }>`
 /**
  * A group of labeled checkboxes that allow the user to select multiple options.
  */
-export function CheckboxGroup({
+export function CheckboxGroup<T extends string>({
   label,
   hideLabel,
   options,
@@ -47,7 +47,7 @@ export function CheckboxGroup({
   disabled = false,
   direction = 'column',
   noOptionsMessage,
-}: CheckboxGroupProps): JSX.Element {
+}: CheckboxGroupProps<T>): JSX.Element {
   return (
     <fieldset aria-label={label}>
       {!hideLabel && <LabelContainer aria-hidden>{label}</LabelContainer>}
