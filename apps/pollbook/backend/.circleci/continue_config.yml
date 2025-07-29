@@ -70,31 +70,31 @@ jobs:
     executor: nodejs
     resource_class: xlarge
     steps:
-      when:
-        condition: << pipeline.parameters.run-pollbook-backend-job >>
-        steps:
-          - checkout-and-install:
-              is_node_package: true
-          - run:
-              name: Build
-              command: |
-                pnpm --dir apps/pollbook/backend build
-          - run:
-              name: Lint
-              command: |
-                pnpm --dir apps/pollbook/backend lint
-          - run:
-              name: Test
-              command: |
-                pnpm --dir apps/pollbook/backend test
-              environment:
-                JEST_JUNIT_OUTPUT_DIR: ./reports/
-          - store_test_results:
-              path: apps/pollbook/backend/reports/
-          - store_artifacts:
-              path: apps/pollbook/backend/src/__image_snapshots__/__diff_output__/
+      - when:
+          condition: << pipeline.parameters.run-pollbook-backend-job >>
+          steps:
+            - checkout-and-install:
+                is_node_package: true
+            - run:
+                name: Build
+                command: |
+                  pnpm --dir apps/pollbook/backend build
+            - run:
+                name: Lint
+                command: |
+                  pnpm --dir apps/pollbook/backend lint
+            - run:
+                name: Test
+                command: |
+                  pnpm --dir apps/pollbook/backend test
+                environment:
+                  JEST_JUNIT_OUTPUT_DIR: ./reports/
+            - store_test_results:
+                path: apps/pollbook/backend/reports/
+            - store_artifacts:
+                path: apps/pollbook/backend/src/__image_snapshots__/__diff_output__/
 
 workflows:
   test:
     jobs:
-      - test-apps-pollbook-backend:
+      - test-apps-pollbook-backend
