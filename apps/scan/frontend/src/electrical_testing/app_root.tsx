@@ -7,10 +7,7 @@ import {
   Icons,
   Main,
   Screen,
-  Task,
 } from '@votingworks/ui';
-import { iter } from '@votingworks/basics';
-import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { DateTime } from 'luxon';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
@@ -81,62 +78,6 @@ function PlayPauseButton({
 
 function formatTimestamp(timestamp: DateTime): string {
   return timestamp.toLocal().toFormat('h:mm:ss a MM/dd/yyyy');
-}
-
-function StatusCard({
-  title,
-  statusMessage,
-  body,
-  updatedAt,
-  isRunning,
-  onToggleRunning,
-}: {
-  title: React.ReactNode;
-  statusMessage?: React.ReactNode;
-  body?: React.ReactNode;
-  updatedAt?: DateTime;
-  isRunning?: boolean;
-  onToggleRunning?: () => void;
-}) {
-  return (
-    <Card
-      style={{
-        width: '600px',
-        height: '235px',
-        overflow: 'hidden',
-        position: 'relative',
-      }}
-    >
-      <Row style={{ height: '100%', alignItems: 'stretch' }}>
-        <Column style={{ flexGrow: 1 }}>
-          <H6 style={{ flexGrow: 0 }}>{title}</H6>
-          {statusMessage && (
-            <Caption
-              style={{
-                flexGrow: 1,
-                overflowWrap: 'anywhere',
-                maxHeight: '2rem',
-                overflow: 'hidden',
-              }}
-            >
-              <Small>{statusMessage}</Small>
-            </Caption>
-          )}
-          {body && <Caption style={{ flexGrow: 1 }}>{body}</Caption>}
-          {updatedAt && (
-            <Caption style={{ flexGrow: 0 }}>
-              <ExtraSmall>{formatTimestamp(updatedAt)}</ExtraSmall>
-            </Caption>
-          )}
-        </Column>
-        {typeof isRunning === 'boolean' && onToggleRunning && (
-          <Column style={{ flexGrow: 0, alignContent: 'center' }}>
-            <PlayPauseButton isRunning={isRunning} onPress={onToggleRunning} />
-          </Column>
-        )}
-      </Row>
-    </Card>
-  );
 }
 
 export function AppRoot(): JSX.Element {
@@ -245,13 +186,20 @@ export function AppRoot(): JSX.Element {
             }}
           >
             <Row gap="1rem">
-              {[
-                {
-                  id: 'scanner',
-                  icon: <Icons.File />,
-                  title: 'Scanner',
-                  body: (
-                    <React.Fragment>
+              <Card
+                style={{
+                  width: '600px',
+                  height: '235px',
+                  overflow: 'hidden',
+                  position: 'relative',
+                }}
+              >
+                <Row style={{ height: '100%', alignItems: 'stretch' }}>
+                  <Column style={{ flexGrow: 1 }}>
+                    <H6 style={{ flexGrow: 0 }}>
+                      <Icons.File /> Scanner
+                    </H6>
+                    <Caption style={{ flexGrow: 1 }}>
                       <Caption
                         style={{
                           flexGrow: 1,
@@ -279,132 +227,255 @@ export function AppRoot(): JSX.Element {
                           View Latest Sheet
                         </Button>
                       )}
-                    </React.Fragment>
-                  ),
-                  isRunning: scannerStatus?.taskStatus === 'running',
-                  toggleIsRunning: toggleScannerTaskRunning,
-                  updatedAt: scannerStatus?.updatedAt,
-                },
-                {
-                  id: 'card',
-                  icon: <Icons.SimCard />,
-                  title: 'Card Reader',
-                  statusMessage: cardStatus?.statusMessage ?? 'Unknown',
-                  isRunning: cardStatus?.taskStatus === 'running',
-                  toggleIsRunning: toggleCardReaderTaskRunning,
-                  updatedAt: cardStatus?.updatedAt,
-                },
-                {
-                  id: 'printer',
-                  icon: <Icons.Print />,
-                  title: 'Printer',
-                  statusMessage: printerStatus?.statusMessage ?? 'Unknown',
-                  isRunning: printerStatus?.taskStatus === 'running',
-                  toggleIsRunning: togglePrinterTaskRunning,
-                  updatedAt: printerStatus?.updatedAt,
-                },
-              ].map((t) => (
-                <StatusCard
-                  key={t.id}
-                  title={
-                    <React.Fragment>
-                      {t.icon} {t.title}
-                    </React.Fragment>
-                  }
-                  body={t.body}
-                  statusMessage={t.statusMessage}
-                  updatedAt={t.updatedAt}
-                  isRunning={t.isRunning}
-                  onToggleRunning={t.toggleIsRunning}
-                />
-              ))}
-            </Row>
-            <Row gap="1rem">
-              {[
-                {
-                  id: 'usbDrive',
-                  icon: <Icons.Print />,
-                  title: 'USB Drive',
-                  statusMessage: usbDriveStatus?.statusMessage ?? 'Unknown',
-                  isRunning: usbDriveStatus?.taskStatus === 'running',
-                  toggleIsRunning: toggleUsbDriveTaskRunning,
-                  updatedAt: usbDriveStatus?.updatedAt,
-                },
-                {
-                  id: 'speaker',
-                  icon: speakerEnabled ? (
-                    <Icons.VolumeUp />
-                  ) : (
-                    <Icons.VolumeMute />
-                  ),
-                  title: 'Speaker',
-                  body: speakerEnabled ? 'Enabled' : 'Disabled',
-                  isRunning: speakerEnabled,
-                  toggleIsRunning: toggleSpeakerEnabled,
-                },
-                {
-                  id: 'headphones',
-                  icon: headphonesEnabled ? (
-                    <Icons.VolumeUp />
-                  ) : (
-                    <Icons.VolumeMute />
-                  ),
-                  title: 'Headphones',
-                  body: headphonesEnabled ? 'Enabled' : 'Disabled',
-                  isRunning: headphonesEnabled,
-                  toggleIsRunning: toggleHeadphonesEnabled,
-                },
-              ].map((t) => (
-                <StatusCard
-                  key={t.id}
-                  title={
-                    <React.Fragment>
-                      {t.icon} {t.title}
-                    </React.Fragment>
-                  }
-                  body={t.body}
-                  statusMessage={t.statusMessage}
-                  updatedAt={t.updatedAt}
-                  isRunning={t.isRunning}
-                  onToggleRunning={t.toggleIsRunning}
-                />
-              ))}
-            </Row>
-            <Row gap="1rem">
-              {[
-                {
-                  id: 'inputs',
-                  icon: <Icons.Mouse />,
-                  title: 'Inputs',
-                  body: (
-                    <Column>
-                      <CounterButton />
-
-                      <Small>
-                        Last key press:{' '}
-                        {lastKeyPress ? (
-                          <React.Fragment>
-                            <code>{lastKeyPress.key}</code> at{' '}
-                            {formatTimestamp(lastKeyPress.pressedAt)}
-                          </React.Fragment>
-                        ) : (
-                          'n/a'
-                        )}
-                      </Small>
+                    </Caption>
+                    {scannerStatus?.updatedAt && (
+                      <Caption style={{ flexGrow: 0 }}>
+                        <ExtraSmall>
+                          {formatTimestamp(scannerStatus.updatedAt)}
+                        </ExtraSmall>
+                      </Caption>
+                    )}
+                  </Column>
+                  {typeof (scannerStatus?.taskStatus === 'running') ===
+                    'boolean' && (
+                    <Column style={{ flexGrow: 0, alignContent: 'center' }}>
+                      <PlayPauseButton
+                        isRunning={scannerStatus?.taskStatus === 'running'}
+                        onPress={toggleScannerTaskRunning}
+                      />
                     </Column>
-                  ),
-                },
-              ].map((t) => (
-                <StatusCard
-                  key={t.id}
-                  title={
-                    <React.Fragment>
-                      {t.icon} {t.title}
-                    </React.Fragment>
-                  }
-                  body={t.body}
-                />
-              ))}
+                  )}
+                </Row>
+              </Card>
+              <Card
+                style={{
+                  width: '600px',
+                  height: '235px',
+                  overflow: 'hidden',
+                  position: 'relative',
+                }}
+              >
+                <Row style={{ height: '100%', alignItems: 'stretch' }}>
+                  <Column style={{ flexGrow: 1 }}>
+                    <H6 style={{ flexGrow: 0 }}>
+                      <Icons.SimCard /> Card Reader
+                    </H6>
+                    {cardStatus?.statusMessage && (
+                      <Caption
+                        style={{
+                          flexGrow: 1,
+                          overflowWrap: 'anywhere',
+                          maxHeight: '2rem',
+                          overflow: 'hidden',
+                        }}
+                      >
+                        <Small>{cardStatus?.statusMessage}</Small>
+                      </Caption>
+                    )}
+                    {cardStatus?.updatedAt && (
+                      <Caption style={{ flexGrow: 0 }}>
+                        <ExtraSmall>
+                          {formatTimestamp(cardStatus.updatedAt)}
+                        </ExtraSmall>
+                      </Caption>
+                    )}
+                  </Column>
+                  {typeof (cardStatus?.taskStatus === 'running') ===
+                    'boolean' && (
+                    <Column style={{ flexGrow: 0, alignContent: 'center' }}>
+                      <PlayPauseButton
+                        isRunning={cardStatus?.taskStatus === 'running'}
+                        onPress={toggleCardReaderTaskRunning}
+                      />
+                    </Column>
+                  )}
+                </Row>
+              </Card>
+              <Card
+                style={{
+                  width: '600px',
+                  height: '235px',
+                  overflow: 'hidden',
+                  position: 'relative',
+                }}
+              >
+                <Row style={{ height: '100%', alignItems: 'stretch' }}>
+                  <Column style={{ flexGrow: 1 }}>
+                    <H6 style={{ flexGrow: 0 }}>
+                      <Icons.Print /> Printer
+                    </H6>
+                    {printerStatus?.statusMessage && (
+                      <Caption
+                        style={{
+                          flexGrow: 1,
+                          overflowWrap: 'anywhere',
+                          maxHeight: '2rem',
+                          overflow: 'hidden',
+                        }}
+                      >
+                        <Small>{printerStatus?.statusMessage}</Small>
+                      </Caption>
+                    )}
+                    {printerStatus?.updatedAt && (
+                      <Caption style={{ flexGrow: 0 }}>
+                        <ExtraSmall>
+                          {formatTimestamp(printerStatus.updatedAt)}
+                        </ExtraSmall>
+                      </Caption>
+                    )}
+                  </Column>
+                  {typeof (printerStatus?.taskStatus === 'running') ===
+                    'boolean' && (
+                    <Column style={{ flexGrow: 0, alignContent: 'center' }}>
+                      <PlayPauseButton
+                        isRunning={printerStatus?.taskStatus === 'running'}
+                        onPress={togglePrinterTaskRunning}
+                      />
+                    </Column>
+                  )}
+                </Row>
+              </Card>
+            </Row>
+            <Row gap="1rem">
+              <Card
+                style={{
+                  width: '600px',
+                  height: '235px',
+                  overflow: 'hidden',
+                  position: 'relative',
+                }}
+              >
+                <Row style={{ height: '100%', alignItems: 'stretch' }}>
+                  <Column style={{ flexGrow: 1 }}>
+                    <H6 style={{ flexGrow: 0 }}>
+                      <Icons.UsbDrive /> USB Drive
+                    </H6>
+                    {usbDriveStatus?.statusMessage && (
+                      <Caption
+                        style={{
+                          flexGrow: 1,
+                          overflowWrap: 'anywhere',
+                          maxHeight: '2rem',
+                          overflow: 'hidden',
+                        }}
+                      >
+                        <Small>{usbDriveStatus?.statusMessage}</Small>
+                      </Caption>
+                    )}
+                    {usbDriveStatus?.updatedAt && (
+                      <Caption style={{ flexGrow: 0 }}>
+                        <ExtraSmall>
+                          {formatTimestamp(usbDriveStatus.updatedAt)}
+                        </ExtraSmall>
+                      </Caption>
+                    )}
+                  </Column>
+                  {typeof (usbDriveStatus?.taskStatus === 'running') ===
+                    'boolean' && (
+                    <Column style={{ flexGrow: 0, alignContent: 'center' }}>
+                      <PlayPauseButton
+                        isRunning={usbDriveStatus?.taskStatus === 'running'}
+                        onPress={toggleUsbDriveTaskRunning}
+                      />
+                    </Column>
+                  )}
+                </Row>
+              </Card>
+              <Card
+                style={{
+                  width: '600px',
+                  height: '235px',
+                  overflow: 'hidden',
+                  position: 'relative',
+                }}
+              >
+                <Row style={{ height: '100%', alignItems: 'stretch' }}>
+                  <Column style={{ flexGrow: 1 }}>
+                    <H6 style={{ flexGrow: 0 }}>
+                      {speakerEnabled ? (
+                        <Icons.VolumeUp />
+                      ) : (
+                        <Icons.VolumeMute />
+                      )}{' '}
+                      Speaker
+                    </H6>
+                    <Caption style={{ flexGrow: 1 }}>
+                      {speakerEnabled ? 'Enabled' : 'Disabled'}
+                    </Caption>
+                  </Column>
+                  <Column style={{ flexGrow: 0, alignContent: 'center' }}>
+                    <PlayPauseButton
+                      isRunning={speakerEnabled}
+                      onPress={toggleSpeakerEnabled}
+                    />
+                  </Column>
+                </Row>
+              </Card>
+              <Card
+                style={{
+                  width: '600px',
+                  height: '235px',
+                  overflow: 'hidden',
+                  position: 'relative',
+                }}
+              >
+                <Row style={{ height: '100%', alignItems: 'stretch' }}>
+                  <Column style={{ flexGrow: 1 }}>
+                    <H6 style={{ flexGrow: 0 }}>
+                      {headphonesEnabled ? (
+                        <Icons.VolumeUp />
+                      ) : (
+                        <Icons.VolumeMute />
+                      )}{' '}
+                      Speaker
+                    </H6>
+                    <Caption style={{ flexGrow: 1 }}>
+                      {headphonesEnabled ? 'Enabled' : 'Disabled'}
+                    </Caption>
+                  </Column>
+                  <Column style={{ flexGrow: 0, alignContent: 'center' }}>
+                    <PlayPauseButton
+                      isRunning={headphonesEnabled}
+                      onPress={toggleHeadphonesEnabled}
+                    />
+                  </Column>
+                </Row>
+              </Card>
+            </Row>
+            <Row gap="1rem">
+              <Card
+                style={{
+                  width: '600px',
+                  height: '235px',
+                  overflow: 'hidden',
+                  position: 'relative',
+                }}
+              >
+                <Row style={{ height: '100%', alignItems: 'stretch' }}>
+                  <Column style={{ flexGrow: 1 }}>
+                    <H6 style={{ flexGrow: 0 }}>
+                      <Icons.Mouse /> Inputs
+                    </H6>
+                    <Caption style={{ flexGrow: 1 }}>
+                        <Column>
+                          <CounterButton />
+
+                          <Small>
+                            Last key press:{' '}
+                            {lastKeyPress ? (
+                              <React.Fragment>
+                                <code>{lastKeyPress.key}</code> at{' '}
+                                {formatTimestamp(lastKeyPress.pressedAt)}
+                              </React.Fragment>
+                            ) : (
+                              'n/a'
+                            )}
+                          </Small>
+                        </Column>
+                      </Caption>
+                  </Column>
+                </Row>
+              </Card>
             </Row>
           </Column>
           <Row style={{ justifyContent: 'center' }}>
