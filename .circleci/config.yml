@@ -1341,7 +1341,7 @@ workflows:
           name: check-updated-files
           mapping: |
             apps/pollbook/backend/.* run-pollbook-backend-job true
-          base-revision: main
+          base-revision: caro/tmp_branch_filtering_dynamic_test
           config-path: ./apps/pollbook/backend/.circleci/continue_config.yml
       - test-apps-admin-backend
       - test-apps-admin-frontend
