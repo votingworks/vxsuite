@@ -25,10 +25,7 @@ function CounterButton() {
   const [count, setCount] = useState(0);
 
   return (
-    <Button
-      onPress={() => setCount((prev) => prev + 1)}
-      style={{ transform: 'scale(0.5)' }}
-    >
+    <Button onPress={() => setCount((prev) => prev + 1)}>
       Tap Count: {count}
     </Button>
   );
@@ -49,31 +46,23 @@ const Column = styled.div<{ gap?: string }>`
 `;
 
 const Small = styled.span`
-  font-size: 0.45rem;
+  font-size: 0.9rem;
 `;
 
 const ExtraSmall = styled.span`
-  font-size: 0.3rem;
-`;
-
-const SmallButton = styled(Button)`
-  transform: scale(0.5);
+  font-size: 0.6rem;
 `;
 
 const PlayPauseButtonBase = styled.button`
   flex-shrink: 0;
   background-color: #ddd;
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 3rem;
+  height: 3rem;
   border-radius: 50%;
   border: none;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 2rem;
   padding: 0;
-
-  svg {
-    scale: 0.8;
-  }
 `;
 
 function PlayPauseButton({
@@ -149,7 +138,8 @@ function StatusCard({
     </Card>
   );
 }
-export function ElectricalTestingScreen<Id extends React.Key>({
+
+function ElectricalTestingScreen<Id extends React.Key>({
   tasks,
   perRow,
   modals,
@@ -199,15 +189,15 @@ export function ElectricalTestingScreen<Id extends React.Key>({
               .toArray()}
           </Column>
           <Row style={{ justifyContent: 'center' }}>
-            <SmallButton
+            <Button
               icon={<Icons.Save />}
               onPress={() => setIsSaveLogsModalOpen(true)}
             >
               Save Logs
-            </SmallButton>
-            <SmallButton icon={<Icons.PowerOff />} onPress={powerDown}>
+            </Button>
+            <Button icon={<Icons.PowerOff />} onPress={powerDown}>
               Power Down
-            </SmallButton>
+            </Button>
           </Row>
         </Column>
         {isSaveLogsModalOpen && usbDriveStatus && (
@@ -342,7 +332,7 @@ export function AppRoot(): JSX.Element {
                     position: 'absolute',
                     right: '0',
                     bottom: '0',
-                    transform: 'scale(0.3) translate(100%, 100%)',
+                    transform: 'translate(100%, 100%)',
                   }}
                 >
                   View Latest Sheet
