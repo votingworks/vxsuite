@@ -86,10 +86,10 @@ async function main(): Promise<number> {
   ) {
     await startElectricalTestingServer({
       auth,
-      cardTask: TaskController.started<string>(),
-      usbDriveTask: TaskController.started<string>(),
-      printerTask: TaskController.started<string>(),
-      scannerTask: TaskController.started<string>(),
+      cardTask: TaskController.started(),
+      usbDriveTask: TaskController.started(),
+      printerTask: TaskController.started(),
+      scannerTask: TaskController.started(),
       logger,
       printer,
       scannerClient: createSimpleScannerClient(),

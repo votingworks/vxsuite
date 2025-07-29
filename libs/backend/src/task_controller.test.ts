@@ -97,4 +97,11 @@ describe('TaskController', () => {
     const task = TaskController.started();
     expect(task.getStatus()).toEqual('running');
   });
+
+  test('TaskController::getState', () => {
+    const task = new TaskController({ a: 1 });
+    expect(task.getState()).toEqual({ a: 1 });
+    task.setState({ a: 2 });
+    expect(task.getState()).toEqual({ a: 2 });
+  });
 });
