@@ -1319,7 +1319,6 @@ jobs:
           command: |
             cargo test
 
-
   validate-monorepo:
     executor: nodejs
     resource_class: xlarge
@@ -1338,10 +1337,9 @@ jobs:
 workflows:
   test:
     jobs:
-
       - path-filtering/filter:
           name: check-updated-files-for-test-filter
-          base-revision: main
+          base-revision: caro/filter_pollbook_backend_tests
           mapping: |
             apps/pollbook/backend/.* run-job true
           config-path: apps/pollbook/backend/.circleci/config.yml
@@ -1421,27 +1419,31 @@ commands:
             - restore_cache:
                 name: Restore Node.js Cache
                 key:
-                  pnpm-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "pnpm-lock.yaml" }}
+                  pnpm-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum
+                  "pnpm-lock.yaml" }}
             - run:
                 name: Install Node.js Dependencies
                 command: pnpm install --frozen-lockfile
             - save_cache:
                 name: Save Node.js Cache
                 key:
-                  pnpm-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "pnpm-lock.yaml" }}
+                  pnpm-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum
+                  "pnpm-lock.yaml" }}
                 paths:
                   - /root/.local/share/pnpm/store/v3
                   - /root/.cache/ms-playwright
       - restore_cache:
           name: Restore Cargo Cache
           key:
-            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}
+            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum
+            "Cargo.lock" }}
       - run:
           name: Install Rust Dependencies
           command: pnpm --recursive install:rust-addon
       - save_cache:
           name: Save Cargo Cache
           key:
-            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}
+            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum
+            "Cargo.lock" }}
           paths:
             - /root/.cargo
