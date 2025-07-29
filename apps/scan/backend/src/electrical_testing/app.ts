@@ -113,11 +113,7 @@ function buildApi({
     },
 
     async getLatestScannedSheet(): Promise<SheetOf<string> | null> {
-      const usbDriveStatus = await usbDrive.status();
-      const basedir =
-        usbDriveStatus.status === 'mounted'
-          ? join(usbDriveStatus.mountPoint, 'ballot-images')
-          : workspace.ballotImagesPath;
+      const basedir = workspace.ballotImagesPath;
       await mkdir(basedir, { recursive: true });
       const allFileNames = await readdir(basedir);
       const allScannedImageNames = allFileNames.filter((name) =>
