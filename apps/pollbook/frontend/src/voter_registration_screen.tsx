@@ -272,7 +272,7 @@ export function VoterRegistrationScreen(): JSX.Element | null {
                     menuPortalTarget={document.body}
                     options={[
                       { value: 'REP', label: 'Republican' },
-                      { value: 'DEM', label: 'Democrat' },
+                      { value: 'DEM', label: 'Democratic' },
                       { value: 'UND', label: 'Undeclared' },
                     ]}
                   />
