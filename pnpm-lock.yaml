@@ -1074,6 +1074,9 @@ importers:
       '@sentry/node':
         specifier: ^8.51.0
         version: 8.51.0
+      '@votingworks/auth':
+        specifier: workspace:*
+        version: link:../../../libs/auth
       '@votingworks/backend':
         specifier: workspace:*
         version: link:../../../libs/backend
