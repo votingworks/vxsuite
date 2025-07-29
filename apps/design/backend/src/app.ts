@@ -1,7 +1,8 @@
 import * as grout from '@votingworks/grout';
 import * as Sentry from '@sentry/node';
 import { auth as auth0Middleware, requiresAuth } from 'express-openid-connect';
-import { join } from 'node:path';
+import path, { join } from 'node:path';
+import { Buffer } from 'node:buffer';
 import {
   Election,
   safeParseElection,
@@ -28,10 +29,14 @@ import {
   HmpbBallotPaperSizeSchema,
   SystemSettingsSchema,
   PrecinctSchema,
+  CastVoteRecordExportFileName,
+  safeParseJson,
+  CastVoteRecordReportWithoutMetadataSchema,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
   assert,
+  assertDefined,
   DateWithoutTime,
   extractErrorMessage,
   find,
@@ -47,10 +52,14 @@ import {
   hmpbStringsCatalog,
   renderBallotPreviewToPdf,
 } from '@votingworks/hmpb';
-import { translateBallotStrings } from '@votingworks/backend';
+import { translateBallotStrings, execFile } from '@votingworks/backend';
 import { readFileSync } from 'node:fs';
 import { z } from 'zod/v4';
 import { LogEventId } from '@votingworks/logging';
+import { getExportedCastVoteRecordIds } from '@votingworks/utils';
+import { readdir, readFile, writeFile } from 'node:fs/promises';
+import { dirSync, tmpNameSync } from 'tmp';
+import { decryptAes256 } from '@votingworks/auth';
 import {
   BackgroundTaskMetadata,
   DuplicateDistrictError,
@@ -206,6 +215,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
           'getUser',
           'getUserFeatures',
           'getAllOrgs',
+          'decryptCvrBallotAuditIds', // Doesn't need authorization, nothing private accessed
         ];
         assert(methodsThatHandleAuthThemselves.includes(methodName));
       },
@@ -753,6 +763,82 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
     }): Promise<ElectionFeaturesConfig> {
       const election = await store.getElection(input.electionId);
       return getElectionFeaturesConfig(election);
+    },
+
+    async decryptCvrBallotAuditIds(input: {
+      cvrZipFileContents: Buffer;
+      secretKey: string;
+    }): Promise<Buffer> {
+      const inputCvrZipPath = tmpNameSync();
+      const inputCvrDirectory = dirSync().name;
+      const outputDirectory = dirSync().name;
+      const outputZipPath = tmpNameSync({ postfix: '.zip' });
+
+      try {
+        await writeFile(inputCvrZipPath, input.cvrZipFileContents);
+        await execFile('unzip', [
+          '-o',
+          inputCvrZipPath,
+          '-d',
+          inputCvrDirectory,
+        ]);
+
+        // Navigate to the right sub-directory if necessary
+        let cvrExportDirectory = inputCvrDirectory;
+        const zipEntries = await readdir(cvrExportDirectory);
+        if (zipEntries.length === 1 && zipEntries[0].startsWith('machine')) {
+          cvrExportDirectory = path.join(cvrExportDirectory, zipEntries[0]);
+        }
+
+        const cvrIds = await getExportedCastVoteRecordIds(cvrExportDirectory);
+        assert(cvrIds.length > 0, 'No CVR IDs found in the input directory');
+
+        const decryptedFilePaths = [];
+        for (const cvrId of cvrIds) {
+          const cvrContents = await readFile(
+            path.join(
+              cvrExportDirectory,
+              cvrId,
+              CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT
+            ),
+            'utf-8'
+          );
+          const cvrReport = safeParseJson(
+            cvrContents,
+            CastVoteRecordReportWithoutMetadataSchema
+          ).unsafeUnwrap();
+          assert(cvrReport.CVR?.length === 1);
+          const cvr = assertDefined(cvrReport.CVR[0]);
+          const decryptedBallotAuditId = await decryptAes256(
+            input.secretKey,
+            assertDefined(
+              cvr.BallotAuditId,
+              `Missing BallotAuditId in CVR: ${cvrId}`
+            )
+          );
+          const decryptedFilePath = path.join(
+            outputDirectory,
+            `${decryptedBallotAuditId}.json`
+          );
+          await writeFile(
+            decryptedFilePath,
+            JSON.stringify(cvrReport, null, 2),
+            'utf-8'
+          );
+          decryptedFilePaths.push(decryptedFilePath);
+        }
+
+        await execFile('zip', ['-j', outputZipPath, ...decryptedFilePaths]);
+        return await readFile(outputZipPath);
+      } finally {
+        await execFile('rm', [
+          '-rf',
+          inputCvrZipPath,
+          inputCvrDirectory,
+          outputDirectory,
+          outputZipPath,
+        ]);
+      }
     },
   } as const;
 
