@@ -2486,6 +2486,9 @@ importers:
       esbuild-runner:
         specifier: 2.2.2
         version: 2.2.2(esbuild@0.21.2)
+      history:
+        specifier: 4.10.1
+        version: 4.10.1
       http-proxy-middleware:
         specifier: 3.0.3
         version: 3.0.3
@@ -2595,9 +2598,6 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
-      history:
-        specifier: 4.10.1
-        version: 4.10.1
       is-ci-cli:
         specifier: 2.2.0
         version: 2.2.0
