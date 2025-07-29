@@ -206,7 +206,7 @@ function NetworkStatus({
                         <th>Machine ID</th>
                         <th>Election</th>
                         <th>Last Seen</th>
-                        <th># Check-ins</th>
+                        <th># Check-Ins</th>
                       </tr>
                     </thead>
                     <tbody>

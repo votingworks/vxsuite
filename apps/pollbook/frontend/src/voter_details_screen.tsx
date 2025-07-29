@@ -482,12 +482,12 @@ export function VoterDetailsScreen(): JSX.Element | null {
         <Column style={{ flex: 1, flexBasis: 1, gap: '1rem' }}>
           <Card color="neutral">
             {voter.isInactive && !voter.checkIn && (
-              <H2 style={{ marginTop: 0 }}>
+              <H2 style={{ marginTop: 0, marginBottom: 0 }}>
                 <Icons.Flag /> Inactive
               </H2>
             )}
             {!voter.checkIn && !voter.isInactive && (
-              <H2 style={{ marginTop: 0 }}>
+              <H2 style={{ marginTop: 0, marginBottom: 0 }}>
                 <Icons.Info /> Not Checked In
               </H2>
             )}

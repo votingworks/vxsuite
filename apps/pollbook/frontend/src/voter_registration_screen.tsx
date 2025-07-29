@@ -9,7 +9,6 @@ import {
   Button,
   ButtonBar,
   Callout,
-  Font,
   FullScreenIconWrapper,
   FullScreenMessage,
   H1,
@@ -17,7 +16,6 @@ import {
   MainContent,
   MainHeader,
   Modal,
-  P,
   SearchSelect,
 } from '@votingworks/ui';
 import { throwIllegalValue, assert } from '@votingworks/basics';
@@ -274,7 +272,7 @@ export function VoterRegistrationScreen(): JSX.Element | null {
                     menuPortalTarget={document.body}
                     options={[
                       { value: 'REP', label: 'Republican' },
-                      { value: 'DEM', label: 'Democrat' },
+                      { value: 'DEM', label: 'Democratic' },
                       { value: 'UND', label: 'Undeclared' },
                     ]}
                   />
@@ -284,28 +282,25 @@ export function VoterRegistrationScreen(): JSX.Element | null {
                 voter.streetName !== '' &&
                 !isAddressValid && (
                   <Callout icon="Danger" color="danger">
-                    <P>
+                    <span>
                       Invalid address for{' '}
-                      <Font weight="semiBold">{election.county.name}</Font>.
-                      Make sure the street number and name match a valid
-                      address.
-                    </P>
+                      <strong>{election.county.name}</strong>. Make sure the
+                      street number and name match a valid address.
+                    </span>
                   </Callout>
                 )}
               {isAddressInWrongPrecinct && (
                 <Callout icon="Danger" color="danger">
-                  <P>
+                  <span>
                     This address is associated with a different precinct,{' '}
-                    <Font weight="semiBold">
-                      {enteredPrecinct && enteredPrecinct.name}
-                    </Font>
-                    . Voters can only be registered to addresses within the
+                    <strong>{enteredPrecinct && enteredPrecinct.name}</strong>.
+                    Voters can only be registered to addresses within the
                     current precinct,{' '}
-                    <Font weight="semiBold">
+                    <strong>
                       {configuredPrecinct && configuredPrecinct.name}
-                    </Font>
+                    </strong>
                     .
-                  </P>
+                  </span>
                 </Callout>
               )}
             </Column>

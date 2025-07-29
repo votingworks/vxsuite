@@ -408,12 +408,12 @@ export function VoterSearchScreen({
             <Row style={{ gap: '1rem' }}>
               {getCheckInCountsQuery.data && (
                 <Row style={{ gap: '1rem', fontSize: '1.2rem' }}>
-                  <LabelledText label="Total Check-ins">
+                  <LabelledText label="Total Check-Ins">
                     <span data-testid="total-check-ins">
                       {getCheckInCountsQuery.data.allMachines.toLocaleString()}
                     </span>
                   </LabelledText>
-                  <LabelledText label="Machine Check-ins">
+                  <LabelledText label="Machine Check-Ins">
                     <span data-testid="machine-check-ins">
                       {getCheckInCountsQuery.data.thisMachine.toLocaleString()}
                     </span>
