@@ -5,6 +5,7 @@ import { BatteryInfo } from '@votingworks/backend';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { DippedSmartCardAuthApi } from '@votingworks/auth';
 import { Printer } from '@votingworks/printing';
+import { BaseLogger } from '@votingworks/logging';
 import type { PeerApi } from './peer_app';
 import { HlcTimestamp } from './hybrid_logical_clock';
 import type { LocalStore } from './local_store';
@@ -31,11 +32,13 @@ export interface LocalWorkspace {
   assetDirectoryPath: string;
   store: LocalStore;
   peerApiClient: grout.Client<PeerApi>;
+  logger: BaseLogger;
 }
 
 export interface PeerWorkspace {
   assetDirectoryPath: string;
   store: PeerStore;
+  logger: BaseLogger;
 }
 
 export enum EventType {

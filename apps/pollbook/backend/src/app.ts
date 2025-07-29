@@ -4,6 +4,7 @@ import {
   assert,
   assertDefined,
   err,
+  extractErrorMessage,
   ok,
   Optional,
   Result,
@@ -32,7 +33,7 @@ import {
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
-import { Logger } from '@votingworks/logging';
+import { LogEventId, Logger } from '@votingworks/logging';
 import {
   DeviceStatuses,
   Voter,
@@ -107,7 +108,52 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
     context;
   const { store } = workspace;
 
-  return grout.createApi({
+  const middlewares: grout.Middlewares<grout.AnyContext> = {
+    before: [],
+    after: [
+      async function logApiCall({ methodName, input }, result) {
+        // The following methods are polled at frequent intervals by the frontend and silenced in logging.
+        const silenceMethods = [
+          'getElection',
+          'getDeviceStatuses',
+          'getAuthStatus',
+          'getPollbookConfigurationInformation',
+          'getCheckInCounts',
+          'haveElectionEventsOccurred',
+          'getScannedIdDocument',
+          'getIsAbsenteeMode',
+          'getThroughputStatistics',
+          'getSummaryStatistics',
+        ];
+        if (silenceMethods.includes(methodName)) {
+          return;
+        }
+
+        const outcome = result.isOk()
+          ? { disposition: 'success' }
+          : {
+              disposition: 'failure',
+              error: extractErrorMessage(result.err()),
+            };
+        // To avoid printing any sensitive information, we only log certain keys when present in the input.
+        const loggableKeys = ['voterId', 'precinctId', 'isAbsenteeMode'];
+        await logger.logAsCurrentRole(LogEventId.ApiCall, {
+          methodName,
+          ...Object.fromEntries(
+            input && typeof input === 'object'
+              ? loggableKeys.map((key) => [
+                  key,
+                  (input as Record<string, unknown>)[key],
+                ])
+              : []
+          ),
+          ...outcome,
+        });
+      },
+    ],
+  };
+
+  const methods = {
     getPollbookConfigurationInformation(): PollbookConfigurationInformation {
       return store.getPollbookConfigurationInformation();
     },
@@ -314,7 +360,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
         election,
       });
       debug('Printing check-in receipt for voter %s', voter.voterId);
-      await renderAndPrintReceipt(printer, receipt);
+      await renderAndPrintReceipt(printer, receipt, workspace.logger);
       return ok();
     },
 
@@ -335,7 +381,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
         election,
       });
       debug('Printing check-in receipt for voter %s', voter.voterId);
-      await renderAndPrintReceipt(printer, receipt);
+      await renderAndPrintReceipt(printer, receipt, workspace.logger);
     },
 
     async reprintVoterReceipt(input: {
@@ -355,7 +401,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
         reprintTimestamp: new Date(getCurrentTime()),
       });
       debug('Reprinting check-in receipt for voter %s', voter.voterId);
-      await renderAndPrintReceipt(printer, receipt);
+      await renderAndPrintReceipt(printer, receipt, workspace.logger);
       return ok();
     },
 
@@ -375,7 +421,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
         election,
       });
       debug('Printing address change receipt for voter %s', voter.voterId);
-      await renderAndPrintReceipt(printer, receipt);
+      await renderAndPrintReceipt(printer, receipt, workspace.logger);
       return voter;
     },
 
@@ -398,7 +444,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
         'Printing mailing address change receipt for voter %s',
         voter.voterId
       );
-      await renderAndPrintReceipt(printer, receipt);
+      await renderAndPrintReceipt(printer, receipt, workspace.logger);
       return voter;
     },
 
@@ -418,7 +464,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
         election,
       });
       debug('Printing name change receipt for voter %s', voter.voterId);
-      await renderAndPrintReceipt(printer, receipt);
+      await renderAndPrintReceipt(printer, receipt, workspace.logger);
       return voter;
     },
 
@@ -447,7 +493,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
         election,
       });
       debug('Printing registration receipt for voter %s', voter.voterId);
-      await renderAndPrintReceipt(printer, receipt);
+      await renderAndPrintReceipt(printer, receipt, workspace.logger);
       return ok(voter);
     },
 
@@ -472,7 +518,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
         election,
       });
       debug('Printing marked inactive receipt for voter %s', voter.voterId);
-      await renderAndPrintReceipt(printer, receipt);
+      await renderAndPrintReceipt(printer, receipt, workspace.logger);
       return ok();
     },
 
@@ -545,7 +591,8 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       machineId,
       codeVersion,
     }),
-  });
+  } as const;
+  return grout.createApi(methods, middlewares);
 }
 
 export type LocalApi = ReturnType<typeof buildApi>;

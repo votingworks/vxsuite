@@ -24,7 +24,7 @@ export * from './types';
 loadEnvVarsFromDotenvFiles();
 
 function main(): Promise<number> {
-  const baseLogger = new BaseLogger(LogSource.System);
+  const baseLogger = new BaseLogger(LogSource.VxPollBookBackend);
 
   if (!WORKSPACE) {
     throw new Error(
@@ -84,7 +84,10 @@ function main(): Promise<number> {
     machineId,
     codeVersion,
   });
-  backupWorker.start({ workspace: localWorkspace, usbDrive });
+  backupWorker.start({
+    workspace: localWorkspace,
+    usbDrive,
+  });
 
   return Promise.resolve(0);
 }
