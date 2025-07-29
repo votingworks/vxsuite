@@ -192,6 +192,13 @@ export function createApiMock() {
         .resolves(hasEvents);
     },
 
+    expectHaveElectionEventsOccurredRepeated(hasEvents: boolean = false): void {
+      mockApiClient.haveElectionEventsOccurred.reset();
+      mockApiClient.haveElectionEventsOccurred
+        .expectOptionalRepeatedCallsWith()
+        .resolves(hasEvents);
+    },
+
     expectGetDeviceStatuses(): void {
       mockApiClient.getDeviceStatuses
         .expectOptionalRepeatedCallsWith()
@@ -333,6 +340,12 @@ export function createApiMock() {
     setIsAbsenteeMode(isAbsenteeMode: boolean) {
       mockApiClient.getIsAbsenteeMode
         .expectRepeatedCallsWith()
+        .resolves(isAbsenteeMode);
+    },
+
+    expectAbsenteeModeRepeated(isAbsenteeMode: boolean) {
+      mockApiClient.getIsAbsenteeMode
+        .expectOptionalRepeatedCallsWith()
         .resolves(isAbsenteeMode);
     },
 
