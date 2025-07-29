@@ -15,6 +15,7 @@ import {
 } from './networking';
 import { pollNetworkForPollbookPackage } from './pollbook_package';
 import { POLLBOOK_PACKAGE_ASSET_FILE_NAME } from './globals';
+import { securityHeadersMiddleware } from './security_middleware';
 
 function buildApi(context: PeerAppContext) {
   const { workspace } = context;
@@ -55,6 +56,10 @@ export type PeerApi = ReturnType<typeof buildApi>;
 
 export function buildPeerApp(context: PeerAppContext): Application {
   const app: Application = express();
+
+  // Apply security headers middleware first
+  app.use(securityHeadersMiddleware);
+
   const api = buildApi(context);
   app.use('/api', grout.buildRouter(api, express));
 
