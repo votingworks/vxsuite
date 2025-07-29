@@ -7,12 +7,10 @@ interface Option<T extends string> {
   value: T;
 }
 
-export interface CheckboxGroupProps<T extends string> {
-  /**
-   * Required for a11y - use {@link hideLabel} to visually hide the label, while
-   * still allowing it to be assigned to the control for screen readers.
-   */
-  label: string;
+export type CheckboxGroupProps<T extends string> = (
+  | { label?: React.ReactNode; 'aria-label': string }
+  | { label: string; 'aria-label'?: string }
+) & {
   hideLabel?: boolean;
   options: Array<Option<T>>;
   value: NoInfer<readonly T[]>;
@@ -20,7 +18,7 @@ export interface CheckboxGroupProps<T extends string> {
   disabled?: boolean;
   direction?: 'row' | 'column';
   noOptionsMessage?: React.ReactNode;
-}
+};
 
 const LabelContainer = styled.legend`
   display: block;
@@ -40,6 +38,7 @@ const OptionsContainer = styled.div<{ direction: 'row' | 'column' }>`
  */
 export function CheckboxGroup<T extends string>({
   label,
+  'aria-label': ariaLabel,
   hideLabel,
   options,
   value,
@@ -49,7 +48,9 @@ export function CheckboxGroup<T extends string>({
   noOptionsMessage,
 }: CheckboxGroupProps<T>): JSX.Element {
   return (
-    <fieldset aria-label={label}>
+    <fieldset
+      aria-label={ariaLabel ?? (typeof label === 'string' ? label : undefined)}
+    >
       {!hideLabel && <LabelContainer aria-hidden>{label}</LabelContainer>}
       <OptionsContainer direction={direction}>
         {options.length === 0
