@@ -1,0 +1,98 @@
+version: 2.1
+
+parameters:
+  run-pollbook-backend-job:
+    type: boolean
+    default: false
+
+executors:
+  nodejs:
+    docker:
+      - image: votingworks/cimg-debian12:4.2.0
+        auth:
+          username: $VX_DOCKER_USERNAME
+          password: $VX_DOCKER_PASSWORD
+
+commands:
+  checkout-and-install:
+    description: Get the code and install dependencies.
+    parameters:
+      is_node_package:
+        type: boolean
+    steps:
+      - run:
+          name: Ensure Rust tooling is in PATH
+          command: |
+            echo 'export PATH="/root/.cargo/bin:$PATH"' >> $BASH_ENV
+      - checkout
+      # Edit this comment somehow in order to invalidate the CircleCI cache.
+      # Since the contents of this file affect the cache key, editing only a
+      # comment will invalidate the cache without changing the behavior.
+      # last edited by Kofi 2024-09-19
+      - when:
+          condition: << parameters.is_node_package >>
+          steps:
+            - restore_cache:
+                name: Restore Node.js Cache
+                key:
+                  pnpm-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum
+                  "pnpm-lock.yaml" }}
+            - run:
+                name: Install Node.js Dependencies
+                command: pnpm install --frozen-lockfile
+            - save_cache:
+                name: Save Node.js Cache
+                key:
+                  pnpm-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum
+                  "pnpm-lock.yaml" }}
+                paths:
+                  - /root/.local/share/pnpm/store/v3
+                  - /root/.cache/ms-playwright
+      - restore_cache:
+          name: Restore Cargo Cache
+          key:
+            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum
+            "Cargo.lock" }}
+      - run:
+          name: Install Rust Dependencies
+          command: pnpm --recursive install:rust-addon
+      - save_cache:
+          name: Save Cargo Cache
+          key:
+            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum
+            "Cargo.lock" }}
+          paths:
+            - /root/.cargo
+
+jobs:
+  # @votingworks/pollbook-backend (conditional - only runs when backend files change)
+  test-apps-pollbook-backend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/pollbook/backend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/pollbook/backend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/pollbook/backend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/pollbook/backend/reports/
+      - store_artifacts:
+          path: apps/pollbook/backend/src/__image_snapshots__/__diff_output__/
+
+workflows:
+  test:
+    jobs:
+      - test-apps-pollbook-backend:
+          when: << pipeline.parameters.run-pollbook-backend-job >>
