@@ -5,9 +5,9 @@ import { SheetOf } from '@votingworks/types';
 import express, { Application } from 'express';
 import { mkdir, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
+import { Player as AudioPlayer, SoundName } from '../audio/player';
 import { getMachineConfig } from '../machine_config';
-import { type ServerContext } from './context';
-import { SoundName, Player as AudioPlayer } from '../audio/player';
+import type { ScanningMode, ServerContext } from './context';
 
 type ApiContext = ServerContext & {
   audioPlayer?: AudioPlayer;
@@ -55,7 +55,11 @@ function buildApi({
           ? { ...printerMessage, taskStatus: printerTask.getStatus() }
           : undefined,
         scanner: scannerMessage
-          ? { ...scannerMessage, taskStatus: scannerTask.getStatus() }
+          ? {
+              ...scannerMessage,
+              taskStatus: scannerTask.getStatus(),
+              mode: scannerTask.getState().mode,
+            }
           : undefined,
       };
     },
@@ -112,6 +116,10 @@ function buildApi({
       }
     },
 
+    setScannerTaskMode(input: { mode: ScanningMode }): void {
+      scannerTask.setState({ mode: input.mode });
+    },
+
     async getLatestScannedSheet(): Promise<SheetOf<string> | null> {
       const basedir = workspace.ballotImagesPath;
       await mkdir(basedir, { recursive: true });
@@ -157,7 +165,7 @@ function buildApi({
   });
 }
 
-export type ElectricalTestingApi = ReturnType<typeof buildApi>;
+export type Api = ReturnType<typeof buildApi>;
 
 export function buildApp(context: ApiContext): Application {
   const app: Application = express();

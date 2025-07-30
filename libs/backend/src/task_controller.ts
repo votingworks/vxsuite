@@ -9,7 +9,8 @@ export type TaskStatus = 'init' | 'running' | 'paused' | 'stopped';
 /**
  * Keeps track of the status of a running task and provides methods to control it.
  */
-export class TaskController<Product = void> {
+export class TaskController<State = void, Product = void> {
+  private state: State;
   private status: TaskStatus = 'init';
   private onRunning = deferred<void>();
   private readonly onStop = deferred<Optional<Product>>();
@@ -72,11 +73,27 @@ export class TaskController<Product = void> {
   }
 
   /**
+   * Creates a new task controller with the given state.
+   */
+  constructor();
+  constructor(state: State);
+  constructor(state?: State) {
+    this.state = state as State;
+  }
+
+  /**
    * Creates a new task controller that is already started.
    */
+
+  static started<Product = void>(): TaskController<void, Product>;
+  static started<State = void, Product = void>(
+    state: State
+  ): TaskController<State, Product>;
   // eslint-disable-next-line vx/gts-no-return-type-only-generics
-  static started<Product = void>(): TaskController<Product> {
-    const controller = new TaskController<Product>();
+  static started<State = void, Product = void>(
+    state?: State
+  ): TaskController<State, Product> {
+    const controller = new TaskController<State, Product>(state as State);
     controller.start();
     return controller;
   }
@@ -87,6 +104,20 @@ export class TaskController<Product = void> {
    */
   private setStatus(newStatus: TaskStatus): void {
     this.status = newStatus;
+  }
+
+  /**
+   * Gets the current state for this task.
+   */
+  getState(): State {
+    return this.state;
+  }
+
+  /**
+   * Updates the task's state to the given value.
+   */
+  setState(state: State): void {
+    this.state = state;
   }
 
   /**

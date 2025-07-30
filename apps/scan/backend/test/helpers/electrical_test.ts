@@ -1,7 +1,10 @@
 /* eslint-disable no-empty-pattern */
 import { TaskController } from '@votingworks/backend';
 import { Mocked, test, vi } from 'vitest';
-import { ServerContext } from '../../src/electrical_testing/context';
+import {
+  ScanningMode,
+  ServerContext,
+} from '../../src/electrical_testing/context';
 import { SimpleScannerClient } from '../../src/electrical_testing/simple_scanner_client';
 import { wrapLegacyPrinter } from '../../src/printing/printer';
 import { AppContext, withApp } from './pdi_helpers';
@@ -12,6 +15,8 @@ function createMockSimpleScannerClient(): Mocked<SimpleScannerClient> {
     connect: vi.fn(),
     disconnect: vi.fn(),
     enableScanning: vi.fn(),
+    disableScanning: vi.fn(),
+    ejectPaper: vi.fn(),
     ejectAndRescanPaperIfPresent: vi.fn(),
   };
 }
@@ -20,10 +25,10 @@ export const electricalTest = test.extend<{
   mainAppContext: AppContext;
   electricalAppContext: ServerContext;
   mockSimpleScannerClient: Mocked<SimpleScannerClient>;
-  cardTask: TaskController<string>;
-  printerTask: TaskController<string>;
-  scannerTask: TaskController<string>;
-  usbDriveTask: TaskController<string>;
+  cardTask: TaskController<void, string>;
+  printerTask: TaskController<void, string>;
+  scannerTask: TaskController<{ mode: ScanningMode }, string>;
+  usbDriveTask: TaskController<void, string>;
 }>({
   mainAppContext: async ({}, use) => {
     await withApp(async (context) => {
@@ -64,22 +69,18 @@ export const electricalTest = test.extend<{
   },
 
   cardTask: async ({}, use) => {
-    const cardTask = TaskController.started<string>();
-    await use(cardTask);
+    await use(TaskController.started());
   },
 
   printerTask: async ({}, use) => {
-    const printerTask = TaskController.started<string>();
-    await use(printerTask);
+    await use(TaskController.started());
   },
 
   scannerTask: async ({}, use) => {
-    const scannerTask = TaskController.started<string>();
-    await use(scannerTask);
+    await use(TaskController.started({ mode: 'shoe-shine' }));
   },
 
   usbDriveTask: async ({}, use) => {
-    const usbDriveTask = TaskController.started<string>();
-    await use(usbDriveTask);
+    await use(TaskController.started());
   },
 });

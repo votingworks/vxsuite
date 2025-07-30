@@ -6,17 +6,17 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import * as grout from '@votingworks/grout';
-import type { ElectricalTestingApi } from '@votingworks/scan-backend';
+import type { HWTA } from '@votingworks/scan-backend';
 import {
   createSystemCallApi,
   QUERY_CLIENT_DEFAULT_OPTIONS,
 } from '@votingworks/ui';
 import React from 'react';
 
-export type ApiClient = grout.Client<ElectricalTestingApi>;
+export type ApiClient = grout.Client<HWTA.Api>;
 
 export function createApiClient(): ApiClient {
-  return grout.createClient<ElectricalTestingApi>({ baseUrl: '/api' });
+  return grout.createClient<HWTA.Api>({ baseUrl: '/api' });
 }
 
 export const ApiClientContext = React.createContext<ApiClient | undefined>(
@@ -98,6 +98,26 @@ export const setScannerTaskRunning = {
     const queryClient = useQueryClient();
     return useMutation(
       (running: boolean) => apiClient.setScannerTaskRunning({ running }),
+      {
+        onSuccess: async () => {
+          await queryClient.invalidateQueries(
+            getElectricalTestingStatuses.queryKey()
+          );
+        },
+      }
+    );
+  },
+} as const;
+
+export const setScannerTaskMode = {
+  queryKey(): QueryKey {
+    return ['setScannerTaskMode'];
+  },
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(
+      (mode: HWTA.ScanningMode) => apiClient.setScannerTaskMode({ mode }),
       {
         onSuccess: async () => {
           await queryClient.invalidateQueries(
