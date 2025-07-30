@@ -168,17 +168,24 @@ export const setUsbDriveTaskRunning = {
 
 export const systemCallApi = createSystemCallApi(useApiClient);
 
-export const getLatestScannedSheet = {
+export const getCurrentScanningSessionData = {
   queryKey(): QueryKey {
-    return ['getLatestScannedSheet'];
+    return ['getCurrentScanningSessionData'];
   },
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(
-      getLatestScannedSheet.queryKey(),
-      () => apiClient.getLatestScannedSheet(),
-      { refetchInterval: 1000 }
+      getCurrentScanningSessionData.queryKey(),
+      () => apiClient.getCurrentScanningSessionData(),
+      { refetchInterval: 500 }
     );
+  },
+} as const;
+
+export const resetScanningSession = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(() => apiClient.resetScanningSession());
   },
 } as const;
 

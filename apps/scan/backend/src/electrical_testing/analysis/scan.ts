@@ -1,11 +1,7 @@
-import {
-  findTimingMarkGrid,
-  TimingMarks,
-} from '@votingworks/ballot-interpreter';
+import { TimingMarks } from '@votingworks/ballot-interpreter';
 import { assert, extractErrorMessage } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { mapSheet, SheetOf } from '@votingworks/types';
-import { ImageData } from 'canvas';
 import { exists } from 'fs-extra';
 import { DateTime } from 'luxon';
 import { appendFile, writeFile } from 'node:fs/promises';
@@ -26,7 +22,10 @@ const CSV_COLUMNS = [
   'Average Error',
 ];
 
-interface ScannedPageAnalysis {
+/**
+ * Statistics about a scanned page. All values are in radians.
+ */
+export interface ScannedPageAnalysis {
   topSlope: number;
   topError: number;
   bottomSlope: number;
@@ -40,7 +39,9 @@ interface ScannedPageAnalysis {
   averageError: number;
 }
 
-function analyzeScannedPage(timingMarkGrid: TimingMarks): ScannedPageAnalysis {
+export function analyzeScannedPage(
+  timingMarkGrid: TimingMarks
+): ScannedPageAnalysis {
   const topSlope = Math.atan2(
     timingMarkGrid.topLeftCorner.y - timingMarkGrid.topRightCorner.y,
     timingMarkGrid.topRightCorner.x - timingMarkGrid.topLeftCorner.x
@@ -80,22 +81,89 @@ function analyzeScannedPage(timingMarkGrid: TimingMarks): ScannedPageAnalysis {
   };
 }
 
+export class ScanningSession {
+  private readonly sheets: Array<
+    SheetOf<{ path: string; analysis: ScannedPageAnalysis }>
+  > = [];
+
+  addSheetAnalysis(
+    analyzedPaths: SheetOf<{ path: string; analysis: ScannedPageAnalysis }>
+  ): void {
+    this.sheets.push(analyzedPaths);
+  }
+
+  toJSON(): ScanningSessionData {
+    function computeStat(values: readonly number[]): Stat {
+      const mean =
+        values.reduce((sum, value) => sum + value, 0) / values.length;
+      const sorted = [...values].sort();
+      const median =
+        sorted.length % 2 === 0
+          ? (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2
+          : sorted[Math.floor(sorted.length / 2)];
+      const variance =
+        sorted.reduce((sum, value) => sum + (value - mean) ** 2, 0) /
+        sorted.length;
+      const stddev = Math.sqrt(variance);
+      return { mean, median, stddev };
+    }
+
+    if (this.sheets.length === 0) {
+      return { sheets: [], stats: undefined };
+    }
+
+    const pageStats = this.sheets.flatMap((sheet) => [
+      sheet[0].analysis,
+      sheet[1].analysis,
+    ]);
+
+    return {
+      sheets: this.sheets,
+      stats: {
+        topSlope: computeStat(pageStats.map((a) => a.topSlope)),
+        topError: computeStat(pageStats.map((a) => a.topError)),
+        bottomSlope: computeStat(pageStats.map((a) => a.bottomSlope)),
+        bottomError: computeStat(pageStats.map((a) => a.bottomError)),
+        leftSlope: computeStat(pageStats.map((a) => a.leftSlope)),
+        leftError: computeStat(pageStats.map((a) => a.leftError)),
+        rightSlope: computeStat(pageStats.map((a) => a.rightSlope)),
+        rightError: computeStat(pageStats.map((a) => a.rightError)),
+        horizontalAlignmentError: computeStat(
+          pageStats.map((a) => a.horizontalAlignmentError)
+        ),
+        verticalAlignmentError: computeStat(
+          pageStats.map((a) => a.verticalAlignmentError)
+        ),
+        averageError: computeStat(pageStats.map((a) => a.averageError)),
+      },
+    };
+  }
+}
+
+export interface Stat {
+  mean: number;
+  median: number;
+  stddev: number;
+}
+
+export interface ScanningSessionData {
+  sheets: Array<SheetOf<{ path: string; analysis: ScannedPageAnalysis }>>;
+  stats?: { [K in keyof ScannedPageAnalysis]: Stat };
+}
+
 export async function writeScanPageAnalyses(
   logger: Logger,
   timestamp: DateTime,
-  [front, back]: SheetOf<ImageData>,
+  analyses: SheetOf<ScannedPageAnalysis>,
   basedir: string,
   basename: string
 ): Promise<void> {
   try {
-    const analyses = await mapSheet([front, back], async (image, side) => {
-      const timingMarkGrid = findTimingMarkGrid(image);
-      const analysis = analyzeScannedPage(timingMarkGrid);
+    await mapSheet(analyses, async (analysis, side) => {
       await writeFile(
         join(basedir, `${basename}-analysis-${side}.json`),
         JSON.stringify(analysis, null, 2)
       );
-      return analysis;
     });
 
     const analysisCsvPath = join(basedir, 'electrical-testing-analysis.csv');

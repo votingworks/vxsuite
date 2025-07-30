@@ -28,6 +28,7 @@ import { createWorkspace, Workspace } from './util/workspace';
 import { getUserRole } from './util/auth';
 import { getPrinter } from './printing/printer';
 import { createSimpleScannerClient } from './electrical_testing/simple_scanner_client';
+import { ScanningSession } from './electrical_testing/analysis/scan';
 
 export type { Api } from './app';
 export type * as HWTA from './electrical_testing/exports';
@@ -89,7 +90,10 @@ async function main(): Promise<number> {
       cardTask: TaskController.started(),
       usbDriveTask: TaskController.started(),
       printerTask: TaskController.started({ lastPrintedAt: undefined }),
-      scannerTask: TaskController.started({ mode: 'shoe-shine' }),
+      scannerTask: TaskController.started({
+        mode: 'shoe-shine',
+        session: new ScanningSession(),
+      }),
       logger,
       printer,
       scannerClient: createSimpleScannerClient(),

@@ -9,11 +9,13 @@ import {
   RadioGroup,
   Screen,
 } from '@votingworks/ui';
+import { format } from '@votingworks/utils';
 import { DateTime } from 'luxon';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import useInterval from 'use-interval';
-import { SheetOf } from '@votingworks/types';
+import { iter } from '@votingworks/basics';
+import { mapSheet, SheetOf } from '@votingworks/types';
 import type { HWTA } from '@votingworks/scan-backend';
 import { useSound } from '../utils/use_sound';
 import * as api from './api';
@@ -57,6 +59,30 @@ const RadioOptionTitle = styled(H6)`
   margin-bottom: 0;
 `;
 
+const LabelContainer = styled.legend`
+  display: block;
+  margin-bottom: 0;
+  font-size: ${(p) => p.theme.sizeMode !== 'desktop' && '0.75rem'};
+  font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
+`;
+
+const StatTable = styled.table`
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+
+  th {
+    text-align: left;
+  }
+
+  td {
+    padding: 0.3em;
+  }
+
+  td:first-child {
+    font-weight: bold;
+  }
+`;
+
 function formatTimestamp(timestamp: DateTime): string {
   return timestamp
     .toLocal()
@@ -67,19 +93,31 @@ function formatTimestamp(timestamp: DateTime): string {
     );
 }
 
+function formatRadiansAsDegrees(radians: number): string {
+  return `${((radians / Math.PI) * 180).toFixed(2)}°`;
+}
+
 type StatusMessages = Awaited<
   ReturnType<api.ApiClient['getElectricalTestingStatuses']>
 >;
 
 function ScannerControls({
   status,
+  sessionSheetCount,
+  sessionStats,
+  latestSheet,
   setScanningMode,
+  onResetScanningSession,
 }: {
-  status?: StatusMessages['scanner'];
-  setScanningMode: (mode: HWTA.ScanningMode) => void;
+  status: StatusMessages['scanner'];
+  sessionSheetCount: number;
+  sessionStats: HWTA.ScanningSessionData['stats'];
+  latestSheet?: HWTA.ScanningSessionData['sheets'][number];
+  setScanningMode: (scanningMode: HWTA.ScanningMode) => void;
+  onResetScanningSession: () => void;
 }): JSX.Element {
   return (
-    <Column gap="0.5rem">
+    <Column gap="1rem">
       <Column style={{ flexGrow: 1 }}>
         <H6 style={{ flexGrow: 0 }}>
           <Icons.File /> Scanner
@@ -148,6 +186,152 @@ function ScannerControls({
           ] as const
         }
       />
+      <div>
+        <LabelContainer>Last scan</LabelContainer>
+        <StatTable>
+          <thead>
+            <tr>
+              <th />
+              <th>Top</th>
+              <th>Bottom</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(() => {
+              if (!latestSheet) {
+                return (
+                  <React.Fragment>
+                    <tr>
+                      <td>Top Error</td>
+                      <td>n/a</td>
+                      <td>n/a</td>
+                    </tr>
+                    <tr>
+                      <td>Horizontal Alignment Error</td>
+                      <td>n/a</td>
+                      <td>n/a</td>
+                    </tr>
+                    <tr>
+                      <td>Average Error</td>
+                      <td>n/a</td>
+                      <td>n/a</td>
+                    </tr>
+                  </React.Fragment>
+                );
+              }
+              const [top, bottom] = latestSheet;
+              return (
+                <React.Fragment>
+                  <tr>
+                    <td>Top Error</td>
+                    <td>{formatRadiansAsDegrees(top.analysis.topError)}</td>
+                    <td>{formatRadiansAsDegrees(bottom.analysis.topError)}</td>
+                  </tr>
+                  <tr>
+                    <td>Horizontal Alignment Error</td>
+                    <td>
+                      {formatRadiansAsDegrees(
+                        top.analysis.horizontalAlignmentError
+                      )}
+                    </td>
+                    <td>
+                      {formatRadiansAsDegrees(
+                        bottom.analysis.horizontalAlignmentError
+                      )}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Average Error</td>
+                    <td>{formatRadiansAsDegrees(top.analysis.averageError)}</td>
+                    <td>
+                      {formatRadiansAsDegrees(bottom.analysis.averageError)}
+                    </td>
+                  </tr>
+                </React.Fragment>
+              );
+            })()}
+          </tbody>
+        </StatTable>
+      </div>
+      <div>
+        <LabelContainer>
+          Session stats ({format.count(sessionSheetCount)} sheets)
+        </LabelContainer>
+        <StatTable>
+          <thead>
+            <tr>
+              <th />
+              <th>Mean</th>
+              <th>Median</th>
+              <th>Stddev</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Top Error</td>
+              <td>
+                {sessionStats
+                  ? formatRadiansAsDegrees(sessionStats.topError.mean)
+                  : 'n/a'}
+              </td>
+              <td>
+                {sessionStats
+                  ? formatRadiansAsDegrees(sessionStats.topError.median)
+                  : 'n/a'}
+              </td>
+              <td>
+                {sessionStats
+                  ? formatRadiansAsDegrees(sessionStats.topError.stddev)
+                  : 'n/a'}
+              </td>
+            </tr>
+            <tr>
+              <td>Horizontal Alignment Error</td>
+              <td>
+                {sessionStats
+                  ? formatRadiansAsDegrees(
+                      sessionStats.horizontalAlignmentError.mean
+                    )
+                  : 'n/a'}
+              </td>
+              <td>
+                {sessionStats
+                  ? formatRadiansAsDegrees(
+                      sessionStats.horizontalAlignmentError.median
+                    )
+                  : 'n/a'}
+              </td>
+              <td>
+                {sessionStats
+                  ? formatRadiansAsDegrees(
+                      sessionStats.horizontalAlignmentError.stddev
+                    )
+                  : 'n/a'}
+              </td>
+            </tr>
+            <tr>
+              <td>Average Error</td>
+              <td>
+                {sessionStats
+                  ? formatRadiansAsDegrees(sessionStats.averageError.mean)
+                  : 'n/a'}
+              </td>
+              <td>
+                {sessionStats
+                  ? formatRadiansAsDegrees(sessionStats.averageError.median)
+                  : 'n/a'}
+              </td>
+              <td>
+                {sessionStats
+                  ? formatRadiansAsDegrees(sessionStats.averageError.stddev)
+                  : 'n/a'}
+              </td>
+            </tr>
+          </tbody>
+        </StatTable>
+      </div>
+
+      <Button onPress={onResetScanningSession}>Reset Session</Button>
     </Column>
   );
 }
@@ -416,8 +600,10 @@ export function AppRoot(): JSX.Element {
     api.setUsbDriveTaskRunning.useMutation();
   const setPrinterTaskRunningMutation = api.setPrinterTaskRunning.useMutation();
   const setScannerTaskModeMutation = api.setScannerTaskMode.useMutation();
-  const getLatestScannedSheetQuery = api.getLatestScannedSheet.useQuery();
   const resetLastPrintedAtMutation = api.resetLastPrintedAt.useMutation();
+  const getCurrentScanningSessionDataQuery =
+    api.getCurrentScanningSessionData.useQuery();
+  const resetScanningSessionMutation = api.resetScanningSession.useMutation();
   const powerDownMutation = api.systemCallApi.powerDown.useMutation();
 
   const [speakerEnabled, setSpeakerEnabled] = useState(true);
@@ -428,6 +614,14 @@ export function AppRoot(): JSX.Element {
 
   function powerDown() {
     powerDownMutation.mutate();
+  }
+
+  function setScanningMode(mode: HWTA.ScanningMode) {
+    setScannerTaskModeMutation.mutate(mode);
+  }
+
+  function resetScanningSession() {
+    resetScanningSessionMutation.mutate();
   }
 
   useInterval(
@@ -445,6 +639,9 @@ export function AppRoot(): JSX.Element {
   const usbDriveStatus = getElectricalTestingStatusMessagesQuery.data?.usbDrive;
   const printerStatus = getElectricalTestingStatusMessagesQuery.data?.printer;
   const scannerStatus = getElectricalTestingStatusMessagesQuery.data?.scanner;
+  const latestScannedSheet = iter(
+    getCurrentScanningSessionDataQuery.data?.sheets
+  ).last();
 
   return (
     <Screen>
@@ -471,14 +668,6 @@ export function AppRoot(): JSX.Element {
                 setIsHeadphonesEnabled={setHeadphonesEnabled}
               />
               <InputControls />
-            </Column>
-            <Column gap="2rem" style={{ flexGrow: 1 }}>
-              <ScannerControls
-                status={scannerStatus}
-                setScanningMode={(mode) =>
-                  setScannerTaskModeMutation.mutate(mode)
-                }
-              />
               <PrinterControls
                 status={printerStatus}
                 setIsEnabled={(isEnabled) =>
@@ -487,8 +676,23 @@ export function AppRoot(): JSX.Element {
                 requestPrintNow={() => resetLastPrintedAtMutation.mutate()}
               />
             </Column>
+            <Column gap="2rem" style={{ flexGrow: 1 }}>
+              <ScannerControls
+                status={scannerStatus}
+                sessionSheetCount={
+                  getCurrentScanningSessionDataQuery.data?.sheets.length ?? 0
+                }
+                sessionStats={getCurrentScanningSessionDataQuery.data?.stats}
+                latestSheet={latestScannedSheet}
+                setScanningMode={setScanningMode}
+                onResetScanningSession={resetScanningSession}
+              />
+            </Column>
             <ScannedSheetImages
-              urls={getLatestScannedSheetQuery.data ?? undefined}
+              urls={
+                latestScannedSheet &&
+                mapSheet(latestScannedSheet, ({ path }) => path)
+              }
             />
           </Row>
           <Row gap="1rem" center style={{ height: '200px' }}>

@@ -5,6 +5,7 @@ import { UsbDrive } from '@votingworks/usb-drive';
 import { DateTime } from 'luxon';
 import { Printer } from '../printing/printer';
 import { Workspace } from '../util/workspace';
+import { ScanningSession } from './analysis/scan';
 import { SimpleScannerClient } from './simple_scanner_client';
 
 export type ScanningMode =
@@ -18,7 +19,10 @@ export interface ServerContext {
   cardTask: TaskController<void, string>;
   usbDriveTask: TaskController<void, string>;
   printerTask: TaskController<{ lastPrintedAt?: DateTime }, string>;
-  scannerTask: TaskController<{ mode: ScanningMode }, string>;
+  scannerTask: TaskController<
+    { mode: ScanningMode; session: ScanningSession },
+    string
+  >;
   logger: Logger;
   printer: Printer;
   scannerClient: SimpleScannerClient;
