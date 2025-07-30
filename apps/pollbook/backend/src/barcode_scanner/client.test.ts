@@ -20,12 +20,6 @@ import {
 } from './client';
 
 vi.mock('./unix_socket');
-vi.mock('socket.io', () => ({
-  Server: class {
-    on = vi.fn();
-    emit = vi.fn();
-  },
-}));
 
 let mockSocket: net.Socket;
 let logger: MockLogger;
