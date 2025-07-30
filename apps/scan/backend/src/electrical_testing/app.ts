@@ -1,13 +1,12 @@
 import { createSystemCallApi } from '@votingworks/backend';
-import { iter } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
-import { SheetOf } from '@votingworks/types';
+import { mapSheet } from '@votingworks/types';
 import express, { Application } from 'express';
-import { mkdir, readdir } from 'node:fs/promises';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 import { Player as AudioPlayer, SoundName } from '../audio/player';
 import { getMachineConfig } from '../machine_config';
 import type { ScanningMode, ServerContext } from './context';
+import { ScanningSession, ScanningSessionData } from './analysis/scan';
 
 type ApiContext = ServerContext & {
   audioPlayer?: AudioPlayer;
@@ -121,43 +120,26 @@ function buildApi({
     },
 
     setScannerTaskMode(input: { mode: ScanningMode }): void {
-      scannerTask.setState({ mode: input.mode });
+      const { session } = scannerTask.getState();
+      scannerTask.setState({ mode: input.mode, session });
     },
 
-    async getLatestScannedSheet(): Promise<SheetOf<string> | null> {
-      const basedir = workspace.ballotImagesPath;
-      await mkdir(basedir, { recursive: true });
-      const allFileNames = await readdir(basedir);
-      const allScannedImageNames = allFileNames.filter((name) =>
-        /^electrical-testing.*\.(jpe?g|png)$/.test(name)
-      );
-      const latestElectricalTestingImageName = iter(allScannedImageNames).max(
-        (a, b) => a.localeCompare(b)
-      );
+    resetScanningSession(): void {
+      const { mode } = scannerTask.getState();
+      scannerTask.setState({ mode, session: new ScanningSession() });
+    },
 
-      if (!latestElectricalTestingImageName) {
-        return null;
-      }
-
-      const id = latestElectricalTestingImageName.replace(
-        /-(front|back)\.(jpe?g|png)$/,
-        ''
-      );
-      const frontAndBackNames = allScannedImageNames.filter((name) =>
-        name.startsWith(id)
-      );
-      if (frontAndBackNames.length !== 2) {
-        return null;
-      }
-
-      const frontName = frontAndBackNames.find((name) => /-front\./.test(name));
-      const backName = frontAndBackNames.find((name) => /-back\./.test(name));
-
-      if (!frontName || !backName) {
-        return null;
-      }
-
-      return [`/api/images/${frontName}`, `/api/images/${backName}`];
+    getCurrentScanningSessionData(): ScanningSessionData {
+      const { sheets, stats } = scannerTask.getState().session.toJSON();
+      return {
+        sheets: sheets.map((sheet) =>
+          mapSheet(sheet, ({ path, analysis }) => ({
+            path: `/api/images/${basename(path)}`,
+            analysis,
+          }))
+        ),
+        stats,
+      };
     },
 
     ...createSystemCallApi({

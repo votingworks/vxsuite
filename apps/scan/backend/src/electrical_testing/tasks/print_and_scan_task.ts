@@ -1,4 +1,7 @@
-import { saveSheetImages } from '@votingworks/ballot-interpreter';
+import {
+  findTimingMarkGrid,
+  saveSheetImages,
+} from '@votingworks/ballot-interpreter';
 import {
   extractErrorMessage,
   ok,
@@ -7,6 +10,7 @@ import {
 } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import { ScannerEvent } from '@votingworks/pdi-scanner';
+import { mapSheet } from '@votingworks/types';
 import { createCanvas, ImageData } from 'canvas';
 import { DateTime } from 'luxon';
 import { mkdir } from 'node:fs/promises';
@@ -16,7 +20,7 @@ import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import { writeScanPageAnalyses } from '../analysis/scan';
+import { analyzeScannedPage, writeScanPageAnalyses } from '../analysis/scan';
 import type { ScanningMode, ServerContext } from '../context';
 import { resultToString } from '../utils';
 
@@ -71,6 +75,7 @@ export async function runPrintAndScanTask({
     );
 
     if (scannerEvent.event === 'scanComplete') {
+      const { session } = scannerTask.getState();
       lastScanTime = DateTime.now();
 
       const [front, back] = scannerEvent.images;
@@ -82,11 +87,22 @@ export async function runPrintAndScanTask({
       const sheetId = `electrical-testing-${lastScanTime
         .toISO()
         .replaceAll(':', '-')}`;
-      await saveSheetImages({
+      const savedImagePaths = await saveSheetImages({
         sheetId,
         ballotImagesPath: workspace.ballotImagesPath,
         images: scannerEvent.images,
       });
+
+      const analyses = mapSheet([front, back], (image) =>
+        analyzeScannedPage(findTimingMarkGrid(image))
+      );
+
+      session.addSheetAnalysis(
+        mapSheet(savedImagePaths, analyses, (path, analysis) => ({
+          path,
+          analysis,
+        }))
+      );
 
       if (
         isFeatureFlagEnabled(
@@ -109,7 +125,7 @@ export async function runPrintAndScanTask({
           await writeScanPageAnalyses(
             logger,
             lastScanTime,
-            [front, back],
+            analyses,
             usbDriveExportDirectory,
             sheetId
           );
