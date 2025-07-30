@@ -29,7 +29,7 @@ export function App(): JSX.Element {
 
   return (
     <AppBase
-      defaultColorMode="contrastMedium"
+      defaultColorMode="desktop"
       defaultSizeMode="desktop"
       hideCursor={isFeatureFlagEnabled(
         BooleanEnvironmentVariableName.HIDE_CURSOR
