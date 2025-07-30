@@ -2,6 +2,7 @@ import { Result, err, throwIllegalValue } from '@votingworks/basics';
 import {
   FileSystemEntry,
   ListDirectoryError,
+  ListDirectoryOptions,
   listDirectory,
 } from '@votingworks/fs';
 import { join } from 'node:path';
@@ -21,7 +22,7 @@ export type ListDirectoryOnUsbDriveError =
 export async function* listDirectoryOnUsbDrive(
   usbDrive: UsbDrive,
   relativePath: string,
-  depth = 1
+  options: ListDirectoryOptions = {}
 ): AsyncGenerator<Result<FileSystemEntry, ListDirectoryOnUsbDriveError>> {
   const usbDriveStatus = await usbDrive.status();
 
@@ -38,7 +39,7 @@ export async function* listDirectoryOnUsbDrive(
     case 'mounted':
       yield* listDirectory(
         join(usbDriveStatus.mountPoint, relativePath),
-        depth
+        options
       );
       break;
 

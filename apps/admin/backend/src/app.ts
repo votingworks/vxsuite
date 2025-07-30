@@ -375,7 +375,10 @@ function buildApi({
     > {
       const potentialElectionPackages: FileSystemEntry[] = [];
 
-      for await (const result of listDirectoryOnUsbDrive(usbDrive, '', 3)) {
+      for await (const result of listDirectoryOnUsbDrive(usbDrive, '', {
+        depth: 3,
+        excludeHidden: true,
+      })) {
         if (result.isErr()) {
           return result;
         }

@@ -64,7 +64,7 @@ describe('listDirectory', () => {
     writeFileSync(join(subSubdirectory, 'sub-sub-file-1'), '');
 
     expect(
-      await unwrapAndSortEntries(listDirectory(directory, 1))
+      await unwrapAndSortEntries(listDirectory(directory, { depth: 1 }))
     ).toMatchObject(
       ['file-1', 'file-2', 'subdirectory'].map((name) =>
         expect.objectContaining({ name })
@@ -72,7 +72,7 @@ describe('listDirectory', () => {
     );
 
     expect(
-      await unwrapAndSortEntries(listDirectory(directory, 2))
+      await unwrapAndSortEntries(listDirectory(directory, { depth: 2 }))
     ).toMatchObject(
       [
         'file-1',
@@ -84,7 +84,7 @@ describe('listDirectory', () => {
     );
 
     expect(
-      await unwrapAndSortEntries(listDirectory(directory, 3))
+      await unwrapAndSortEntries(listDirectory(directory, { depth: 3 }))
     ).toMatchObject(
       [
         'file-1',
@@ -97,7 +97,7 @@ describe('listDirectory', () => {
     );
 
     expect(
-      await unwrapAndSortEntries(listDirectory(directory, 4))
+      await unwrapAndSortEntries(listDirectory(directory, { depth: 4 }))
     ).toMatchObject(
       [
         'file-1',

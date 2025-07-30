@@ -53,14 +53,35 @@ export type ListDirectoryError =
   | { type: 'not-directory'; message: string };
 
 /**
+ * Options for listing directories.
+ * - `depth`: How deep to traverse directories. Defaults to 1 (not recursive).
+ * - `includeHidden`: Whether to include hidden files (those starting with a dot or underscore).
+ */
+export interface ListDirectoryOptions {
+  depth?: number;
+  excludeHidden?: boolean;
+}
+
+const DEFAULT_LIST_DIRECTORY_OPTIONS: Required<ListDirectoryOptions> = {
+  depth: 1,
+  excludeHidden: true,
+} as const;
+
+/**
  * Get entries for a directory, includes stat information for each entry.
  * Requires that the path be absolute. Recursive up to a specified depth.
  * Defaults to not recursive, i.e. depth = 1.
  */
 export async function* listDirectory(
   path: string,
-  depth = 1
+  options: ListDirectoryOptions = {}
 ): AsyncGenerator<Result<FileSystemEntry, ListDirectoryError>> {
+  const resolvedOptions: Required<ListDirectoryOptions> = {
+    ...DEFAULT_LIST_DIRECTORY_OPTIONS,
+    ...options,
+  };
+  const { depth, excludeHidden } = resolvedOptions;
+
   assert(isAbsolute(path));
   assert(depth >= 1, 'depth must be positive');
 
@@ -75,6 +96,13 @@ export async function* listDirectory(
         continue;
       }
 
+      if (
+        excludeHidden &&
+        (entry.name.startsWith('.') || entry.name.startsWith('_'))
+      ) {
+        continue;
+      }
+
       yield ok({
         name: entry.name,
         path: entryPath,
@@ -86,7 +114,7 @@ export async function* listDirectory(
       });
 
       if (entry.isDirectory() && depth > 1) {
-        yield* listDirectory(entryPath, depth - 1);
+        yield* listDirectory(entryPath, { depth: depth - 1, excludeHidden });
       }
     }
   } catch (e) {
@@ -124,5 +152,5 @@ export async function* listDirectory(
 export async function* listDirectoryRecursive(
   path: string
 ): AsyncGenerator<Result<FileSystemEntry, ListDirectoryError>> {
-  yield* listDirectory(path, Infinity);
+  yield* listDirectory(path, { depth: Infinity });
 }
