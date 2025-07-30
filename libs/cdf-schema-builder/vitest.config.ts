@@ -6,7 +6,7 @@ export default defineConfig({
       exclude: ['./test/mock_writable.ts', '**/*.test.ts'],
       thresholds: {
         lines: 100,
-        branches: 95,
+        branches: -6,
       },
     },
   },

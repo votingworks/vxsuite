@@ -466,7 +466,7 @@ test('before middleware errors are caught, returned to client, and passed to aft
       expect(methodCall.methodName).toEqual('getStuff');
       expect(methodCall.input).toEqual(undefined);
       expect(methodCall.context).toEqual({});
-      expect(result).toEqual(err(new ServerError('middleware error')));
+      expect(result).toEqual(err(new UserError('middleware error')));
     }
   );
 

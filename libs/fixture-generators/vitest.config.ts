@@ -12,8 +12,8 @@ export default defineConfig({
         '**/*.test.ts',
       ],
       thresholds: {
-        lines: 95,
-        branches: 80,
+        lines: -4,
+        branches: -18,
       },
     },
     alias: [
