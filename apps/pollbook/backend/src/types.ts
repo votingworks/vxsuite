@@ -10,6 +10,7 @@ import type { PeerApi } from './peer_app';
 import { HlcTimestamp } from './hybrid_logical_clock';
 import type { LocalStore } from './local_store';
 import type { PeerStore } from './peer_store';
+import { VOTER_INPUT_FIELD_LIMITS } from './globals';
 
 export interface MachineConfig {
   machineId: string;
@@ -155,13 +156,30 @@ export interface VoterAddressChange extends VoterAddressChangeRequest {
 }
 
 const VoterAddressChangeSchemaInternal = z.object({
-  streetNumber: z.string(),
-  streetName: z.string(),
-  streetSuffix: z.string(),
-  apartmentUnitNumber: z.string(),
+  streetNumber: z
+    .string()
+    .transform((value) =>
+      value.slice(0, VOTER_INPUT_FIELD_LIMITS.streetNumber)
+    ),
+  streetSuffix: z
+    .string()
+    .transform((value) =>
+      value.slice(0, VOTER_INPUT_FIELD_LIMITS.streetSuffix)
+    ),
+  apartmentUnitNumber: z
+    .string()
+    .transform((value) =>
+      value.slice(0, VOTER_INPUT_FIELD_LIMITS.apartmentUnitNumber)
+    ),
+  addressLine2: z
+    .string()
+    .transform((value) =>
+      value.slice(0, VOTER_INPUT_FIELD_LIMITS.addressLine2)
+    ),
   houseFractionNumber: z.string(),
-  addressLine2: z.string(),
   addressLine3: z.string(),
+  // controlled by valid street name definition, does not need truncation
+  streetName: z.string(),
   city: z.string(),
   state: z.string(),
   zipCode: z.string(),
@@ -191,18 +209,54 @@ export interface VoterMailingAddressChange
   timestamp: string;
 }
 
+function truncateToMaxLength(value: string, maxLength: number): string {
+  return value.length > maxLength ? value.slice(0, maxLength) : value;
+}
+
 const VoterMailingAddressChangeSchemaInternal = z.object({
-  mailingStreetNumber: z.string(),
-  mailingStreetName: z.string(),
-  mailingSuffix: z.string(),
-  mailingApartmentUnitNumber: z.string(),
+  mailingStreetNumber: z
+    .string()
+    .transform((value) =>
+      truncateToMaxLength(value, VOTER_INPUT_FIELD_LIMITS.streetNumber)
+    ),
+  mailingStreetName: z
+    .string()
+    .transform((value) =>
+      truncateToMaxLength(value, VOTER_INPUT_FIELD_LIMITS.streetName)
+    ),
+  mailingSuffix: z
+    .string()
+    .transform((value) =>
+      truncateToMaxLength(value, VOTER_INPUT_FIELD_LIMITS.nameSuffix)
+    ),
+  mailingApartmentUnitNumber: z
+    .string()
+    .transform((value) =>
+      truncateToMaxLength(value, VOTER_INPUT_FIELD_LIMITS.apartmentUnitNumber)
+    ),
   mailingHouseFractionNumber: z.string(),
-  mailingAddressLine2: z.string(),
+  mailingAddressLine2: z
+    .string()
+    .transform((value) =>
+      truncateToMaxLength(value, VOTER_INPUT_FIELD_LIMITS.addressLine2)
+    ),
   mailingAddressLine3: z.string(),
-  mailingCityTown: z.string(),
+  mailingCityTown: z
+    .string()
+    .transform((value) =>
+      truncateToMaxLength(value, VOTER_INPUT_FIELD_LIMITS.cityTown)
+    ),
   mailingState: z.string(),
-  mailingZip5: z.string(),
-  mailingZip4: z.string(),
+  mailingZip5: z
+    .string()
+    .transform((value) =>
+      truncateToMaxLength(value, VOTER_INPUT_FIELD_LIMITS.zip5)
+    ),
+  mailingZip4: z
+    .string()
+    .transform((value) =>
+      truncateToMaxLength(value, VOTER_INPUT_FIELD_LIMITS.zip4)
+    ),
   timestamp: z.string(),
 });
 
@@ -221,10 +275,26 @@ export interface VoterNameChange extends VoterNameChangeRequest {
 }
 
 const VoterNameChangeSchemaInternal = z.object({
-  lastName: z.string(),
-  suffix: z.string(),
-  firstName: z.string(),
-  middleName: z.string(),
+  lastName: z
+    .string()
+    .transform((value) =>
+      truncateToMaxLength(value, VOTER_INPUT_FIELD_LIMITS.lastName)
+    ),
+  suffix: z
+    .string()
+    .transform((value) =>
+      truncateToMaxLength(value, VOTER_INPUT_FIELD_LIMITS.nameSuffix)
+    ),
+  firstName: z
+    .string()
+    .transform((value) =>
+      truncateToMaxLength(value, VOTER_INPUT_FIELD_LIMITS.firstName)
+    ),
+  middleName: z
+    .string()
+    .transform((value) =>
+      truncateToMaxLength(value, VOTER_INPUT_FIELD_LIMITS.middleName)
+    ),
   timestamp: z.string(),
 });
 
@@ -254,32 +324,86 @@ export const VoterRegistrationSchema: z.ZodSchema<VoterRegistration> =
 
 export const VoterSchema: z.ZodSchema<Voter> = z.object({
   voterId: z.string(),
-  lastName: z.string(),
-  suffix: z.string(),
-  firstName: z.string(),
-  middleName: z.string(),
-  streetNumber: z.string(),
-  addressSuffix: z.string(),
+  lastName: z
+    .string()
+    .transform((value) => value.slice(0, VOTER_INPUT_FIELD_LIMITS.lastName)),
+  suffix: z
+    .string()
+    .transform((value) => value.slice(0, VOTER_INPUT_FIELD_LIMITS.nameSuffix)),
+  firstName: z
+    .string()
+    .transform((value) => value.slice(0, VOTER_INPUT_FIELD_LIMITS.firstName)),
+  middleName: z
+    .string()
+    .transform((value) => value.slice(0, VOTER_INPUT_FIELD_LIMITS.middleName)),
+  streetNumber: z
+    .string()
+    .transform((value) =>
+      value.slice(0, VOTER_INPUT_FIELD_LIMITS.streetNumber)
+    ),
+  addressSuffix: z
+    .string()
+    .transform((value) =>
+      value.slice(0, VOTER_INPUT_FIELD_LIMITS.streetSuffix)
+    ),
   houseFractionNumber: z.string(),
-  streetName: z.string(),
-  apartmentUnitNumber: z.string(),
-  addressLine2: z.string(),
+  streetName: z
+    .string()
+    .transform((value) => value.slice(0, VOTER_INPUT_FIELD_LIMITS.streetName)),
+  apartmentUnitNumber: z
+    .string()
+    .transform((value) =>
+      value.slice(0, VOTER_INPUT_FIELD_LIMITS.apartmentUnitNumber)
+    ),
+  addressLine2: z
+    .string()
+    .transform((value) =>
+      value.slice(0, VOTER_INPUT_FIELD_LIMITS.addressLine2)
+    ),
   addressLine3: z.string(),
   postalCityTown: z.string(),
   state: z.string(),
-  postalZip5: z.string(),
-  zip4: z.string(),
-  mailingStreetNumber: z.string(),
-  mailingSuffix: z.string(),
+  postalZip5: z
+    .string()
+    .transform((value) => value.slice(0, VOTER_INPUT_FIELD_LIMITS.zip5)),
+  zip4: z
+    .string()
+    .transform((value) => value.slice(0, VOTER_INPUT_FIELD_LIMITS.zip4)),
+  mailingStreetNumber: z
+    .string()
+    .transform((value) =>
+      value.slice(0, VOTER_INPUT_FIELD_LIMITS.streetNumber)
+    ),
+  mailingSuffix: z
+    .string()
+    .transform((value) =>
+      value.slice(0, VOTER_INPUT_FIELD_LIMITS.streetSuffix)
+    ),
   mailingHouseFractionNumber: z.string(),
-  mailingStreetName: z.string(),
-  mailingApartmentUnitNumber: z.string(),
-  mailingAddressLine2: z.string(),
+  mailingStreetName: z
+    .string()
+    .transform((value) => value.slice(0, VOTER_INPUT_FIELD_LIMITS.streetName)),
+  mailingApartmentUnitNumber: z
+    .string()
+    .transform((value) =>
+      value.slice(0, VOTER_INPUT_FIELD_LIMITS.apartmentUnitNumber)
+    ),
+  mailingAddressLine2: z
+    .string()
+    .transform((value) =>
+      value.slice(0, VOTER_INPUT_FIELD_LIMITS.addressLine2)
+    ),
   mailingAddressLine3: z.string(),
-  mailingCityTown: z.string(),
+  mailingCityTown: z
+    .string()
+    .transform((value) => value.slice(0, VOTER_INPUT_FIELD_LIMITS.cityTown)),
   mailingState: z.string(),
-  mailingZip5: z.string(),
-  mailingZip4: z.string(),
+  mailingZip5: z
+    .string()
+    .transform((value) => value.slice(0, VOTER_INPUT_FIELD_LIMITS.zip5)),
+  mailingZip4: z
+    .string()
+    .transform((value) => value.slice(0, VOTER_INPUT_FIELD_LIMITS.zip4)),
   party: PartyAbbreviationSchema,
   precinct: z.string(),
   checkIn: VoterCheckInSchema.optional(),
@@ -377,13 +501,23 @@ export interface ValidStreetInfo {
 
 export const ValidStreetInfoSchema: z.ZodSchema<ValidStreetInfo[]> = z.array(
   z.object({
-    streetName: z.string(),
+    streetName: z
+      .string()
+      .transform((value) =>
+        value.slice(0, VOTER_INPUT_FIELD_LIMITS.streetName)
+      ),
     side: z.union([z.literal('even'), z.literal('odd'), z.literal('all')]),
     lowRange: z.number(),
     highRange: z.number(),
-    postalCityTown: z.string(),
-    zip5: z.string(),
-    zip4: z.string(),
+    postalCityTown: z
+      .string()
+      .transform((value) => value.slice(0, VOTER_INPUT_FIELD_LIMITS.cityTown)),
+    zip5: z
+      .string()
+      .transform((value) => value.slice(0, VOTER_INPUT_FIELD_LIMITS.zip5)),
+    zip4: z
+      .string()
+      .transform((value) => value.slice(0, VOTER_INPUT_FIELD_LIMITS.zip4)),
     precinct: z.string(),
   })
 );

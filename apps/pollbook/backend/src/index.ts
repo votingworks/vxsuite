@@ -20,6 +20,7 @@ import { AvahiService } from './avahi';
 
 export type { LocalApi as Api } from './app';
 export * from './types';
+export * from './globals';
 
 loadEnvVarsFromDotenvFiles();
 

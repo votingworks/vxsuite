@@ -46,7 +46,7 @@ export function createVoter(
     postalZip5: '12345',
     zip4: '6789',
     mailingStreetNumber: '123',
-    mailingSuffix: 'APT A',
+    mailingSuffix: 'A',
     mailingHouseFractionNumber: '',
     mailingStreetName: 'Main St',
     mailingApartmentUnitNumber: '',
