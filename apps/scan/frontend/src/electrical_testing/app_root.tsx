@@ -236,7 +236,7 @@ function PrinterControls({
         onPress={requestPrintNow}
         disabled={status?.taskStatus !== 'running'}
       >
-        Request Print Now
+        Print Now
       </Button>
     </Column>
   );
