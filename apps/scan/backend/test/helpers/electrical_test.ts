@@ -1,5 +1,6 @@
 /* eslint-disable no-empty-pattern */
 import { TaskController } from '@votingworks/backend';
+import { DateTime } from 'luxon';
 import { Mocked, test, vi } from 'vitest';
 import {
   ScanningMode,
@@ -26,7 +27,7 @@ export const electricalTest = test.extend<{
   electricalAppContext: ServerContext;
   mockSimpleScannerClient: Mocked<SimpleScannerClient>;
   cardTask: TaskController<void, string>;
-  printerTask: TaskController<void, string>;
+  printerTask: TaskController<{ lastPrintedAt?: DateTime }, string>;
   scannerTask: TaskController<{ mode: ScanningMode }, string>;
   usbDriveTask: TaskController<void, string>;
 }>({
@@ -73,7 +74,7 @@ export const electricalTest = test.extend<{
   },
 
   printerTask: async ({}, use) => {
-    await use(TaskController.started());
+    await use(TaskController.started({ lastPrintedAt: undefined }));
   },
 
   scannerTask: async ({}, use) => {
