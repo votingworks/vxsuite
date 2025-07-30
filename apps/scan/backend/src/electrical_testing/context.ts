@@ -2,10 +2,10 @@ import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { TaskController } from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
 import { UsbDrive } from '@votingworks/usb-drive';
+import { DateTime } from 'luxon';
 import { Printer } from '../printing/printer';
 import { Workspace } from '../util/workspace';
 import { SimpleScannerClient } from './simple_scanner_client';
-import { DateTime } from 'luxon';
 
 export type ScanningMode =
   | 'shoe-shine'
