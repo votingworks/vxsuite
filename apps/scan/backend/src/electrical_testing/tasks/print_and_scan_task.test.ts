@@ -53,7 +53,6 @@ test.electrical(
   'printAndScanLoop ejects paper to re-scan after a scan completes',
   async ({ mainAppContext, electricalAppContext, mockSimpleScannerClient }) => {
     mainAppContext.mockUsbDrive.insertUsbDrive({});
-    mainAppContext.mockUsbDrive.usbDrive.status.reset();
 
     const loopPromise = runPrintAndScanTask(electricalAppContext);
     await vi.waitFor(() => {
