@@ -6,6 +6,7 @@ import {
   ScanningMode,
   ServerContext,
 } from '../../src/electrical_testing/context';
+import { ScanningSession } from '../../src/electrical_testing/analysis/scan';
 import { SimpleScannerClient } from '../../src/electrical_testing/simple_scanner_client';
 import { wrapLegacyPrinter } from '../../src/printing/printer';
 import { AppContext, withApp } from './pdi_helpers';
@@ -28,7 +29,10 @@ export const electricalTest = test.extend<{
   mockSimpleScannerClient: Mocked<SimpleScannerClient>;
   cardTask: TaskController<void, string>;
   printerTask: TaskController<{ lastPrintedAt?: DateTime }, string>;
-  scannerTask: TaskController<{ mode: ScanningMode }, string>;
+  scannerTask: TaskController<
+    { mode: ScanningMode; session: ScanningSession },
+    string
+  >;
   usbDriveTask: TaskController<void, string>;
 }>({
   mainAppContext: async ({}, use) => {
@@ -78,7 +82,12 @@ export const electricalTest = test.extend<{
   },
 
   scannerTask: async ({}, use) => {
-    await use(TaskController.started({ mode: 'shoe-shine' }));
+    await use(
+      TaskController.started({
+        mode: 'shoe-shine',
+        session: new ScanningSession(),
+      })
+    );
   },
 
   usbDriveTask: async ({}, use) => {
