@@ -15,7 +15,7 @@ import { getAudioInfo } from '../audio/info';
 export async function startElectricalTestingServer(
   context: ServerContext
 ): Promise<void> {
-  const { workspace, logger } = context;
+  const { logger } = context;
   const cardReadAndUsbDriveWriteLoopPromise =
     runCardReadAndUsbDriveWriteTask(context);
   const printAndScanLoopPromise = runPrintAndScanTask(context);
@@ -51,10 +51,7 @@ export async function startElectricalTestingServer(
         disposition: 'success',
         message: 'Print and scan loop completed',
       });
-      workspace.store.setElectricalTestingStatusMessage(
-        'scanner',
-        'Print and scan loop completed'
-      );
+      context.setStatusMessage('scanner', 'Print and scan loop completed');
     })
     .catch((error) => {
       logger.log(LogEventId.BackgroundTaskFailure, 'system', {
@@ -62,7 +59,7 @@ export async function startElectricalTestingServer(
         message: 'Print and scan loop failed',
         error,
       });
-      workspace.store.setElectricalTestingStatusMessage(
+      context.setStatusMessage(
         'scanner',
         `Print and scan loop failed: ${extractErrorMessage(error)}`
       );

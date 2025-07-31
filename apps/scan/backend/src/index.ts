@@ -29,6 +29,7 @@ import { getUserRole } from './util/auth';
 import { getPrinter } from './printing/printer';
 import { createSimpleScannerClient } from './electrical_testing/simple_scanner_client';
 import { ScanningSession } from './electrical_testing/analysis/scan';
+import EventEmitter from 'events';
 
 export type { Api } from './app';
 export type * as HWTA from './electrical_testing/exports';
@@ -85,6 +86,7 @@ async function main(): Promise<number> {
       BooleanEnvironmentVariableName.ENABLE_HARDWARE_TEST_APP
     )
   ) {
+    const eventBus = new EventEmitter();
     await startElectricalTestingServer({
       auth,
       cardTask: TaskController.started(),
@@ -99,6 +101,17 @@ async function main(): Promise<number> {
       scannerClient: createSimpleScannerClient(),
       usbDrive,
       workspace,
+      setStatusMessage(component, statusMessage) {
+        workspace.store.setElectricalTestingStatusMessage(
+          component,
+          statusMessage
+        );
+        eventBus.emit('status-messages-changed', component, statusMessage);
+      },
+      onScanningSessionChanged() {
+        eventBus.emit('sheet-scanned');
+      },
+      eventBus,
     });
     return 0;
   }
