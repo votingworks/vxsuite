@@ -1,6 +1,6 @@
 import { join } from 'node:path';
 import { existsSync } from 'node:fs';
-import { Optional } from '@votingworks/basics';
+import { iter, Optional } from '@votingworks/basics';
 import { PnpmPackageInfo } from './types';
 
 function jobIdForPackage(pkg: PnpmPackageInfo): string {
@@ -251,30 +251,27 @@ function generateCircleCiFilteredAppConfigForPackage(
 export function generateAllConfigs(
   pnpmPackages: ReadonlyMap<string, PnpmPackageInfo>
 ): Map<string, string> {
-  const jobsToRunOnChanges = [...pnpmPackages.values()].filter((pkg) =>
+  const [jobsToRunOnChanges, jobsToAlwaysRun] = iter(
+    pnpmPackages.values()
+  ).partition((pkg) =>
     PACKAGES_ONLY_TEST_ON_CHANGES.includes(pkg.relativePath)
   );
-  const jobsToAlwaysRun = [...pnpmPackages.values()].filter(
-    (pkg) => !PACKAGES_ONLY_TEST_ON_CHANGES.includes(pkg.relativePath)
-  );
-  const pnpmJobs = [...jobsToAlwaysRun.values()].reduce((memo, pkg) => {
+
+  const pnpmJobs = jobsToAlwaysRun.reduce((memo, pkg) => {
     const jobLines = generateTestJobForPackage(pkg);
     if (!jobLines) {
       return memo;
     }
     return memo.set(pkg, jobLines);
   }, new Map<PnpmPackageInfo, string[]>());
-  const pnpmJobsToFilter = [...jobsToRunOnChanges.values()].reduce(
-    (memo, pkg) => {
-      const jobLines = generateJobFilterForPackage(pkg);
-      /* istanbul ignore next - @preserve */
-      if (!jobLines) {
-        return memo;
-      }
-      return memo.set(pkg, jobLines);
-    },
-    new Map<PnpmPackageInfo, string[]>()
-  );
+  const pnpmJobsToFilter = jobsToRunOnChanges.reduce((memo, pkg) => {
+    const jobLines = generateJobFilterForPackage(pkg);
+    /* istanbul ignore next - @preserve */
+    if (!jobLines) {
+      return memo;
+    }
+    return memo.set(pkg, jobLines);
+  }, new Map<PnpmPackageInfo, string[]>());
 
   const rustJobLines = generateTestJobForRustCrates();
 
