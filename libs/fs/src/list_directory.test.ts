@@ -64,7 +64,7 @@ describe('listDirectory', () => {
     writeFileSync(join(subSubdirectory, 'sub-sub-file-1'), '');
 
     expect(
-      await unwrapAndSortEntries(listDirectory(directory, 1))
+      await unwrapAndSortEntries(listDirectory(directory, { depth: 1 }))
     ).toMatchObject(
       ['file-1', 'file-2', 'subdirectory'].map((name) =>
         expect.objectContaining({ name })
@@ -72,7 +72,7 @@ describe('listDirectory', () => {
     );
 
     expect(
-      await unwrapAndSortEntries(listDirectory(directory, 2))
+      await unwrapAndSortEntries(listDirectory(directory, { depth: 2 }))
     ).toMatchObject(
       [
         'file-1',
@@ -84,7 +84,7 @@ describe('listDirectory', () => {
     );
 
     expect(
-      await unwrapAndSortEntries(listDirectory(directory, 3))
+      await unwrapAndSortEntries(listDirectory(directory, { depth: 3 }))
     ).toMatchObject(
       [
         'file-1',
@@ -97,7 +97,7 @@ describe('listDirectory', () => {
     );
 
     expect(
-      await unwrapAndSortEntries(listDirectory(directory, 4))
+      await unwrapAndSortEntries(listDirectory(directory, { depth: 4 }))
     ).toMatchObject(
       [
         'file-1',
@@ -141,6 +141,72 @@ describe('listDirectory', () => {
     expect(await iter(listDirectory(file)).toArray()).toMatchObject([
       err({ type: 'not-directory' }),
     ]);
+  });
+
+  test('includes hidden files and directories by default', async () => {
+    const directory = makeTemporaryDirectory();
+
+    // Create normal files and directories
+    writeFileSync(join(directory, 'normal-file.txt'), '');
+    const normalDirectory = join(directory, 'normal-directory');
+    mkdirSync(normalDirectory, { recursive: true });
+
+    // Create hidden files starting with . and _
+    writeFileSync(join(directory, '.hidden-file'), '');
+    const dotDirectory = join(directory, '.hidden-directory');
+    mkdirSync(dotDirectory, { recursive: true });
+    writeFileSync(join(directory, '_system-file'), '');
+    const underscoreDirectory = join(directory, '_system-directory');
+    mkdirSync(underscoreDirectory, { recursive: true });
+
+    // Create files inside hidden directories to test depth > 0
+    writeFileSync(join(dotDirectory, 'file-in-hidden-dir.txt'), '');
+    writeFileSync(join(underscoreDirectory, 'file-in-system-dir.txt'), '');
+
+    const results = await unwrapAndSortEntries(
+      listDirectory(directory, { depth: 2 })
+    );
+
+    // Verify all files are included
+    const resultNames = results.map((entry) => entry.name);
+    expect(resultNames).toHaveLength(8);
+    expect(resultNames).toContain('.hidden-file');
+    expect(resultNames).toContain('.hidden-directory');
+    expect(resultNames).toContain('_system-file');
+    expect(resultNames).toContain('_system-directory');
+    expect(resultNames).toContain('file-in-hidden-dir.txt');
+    expect(resultNames).toContain('file-in-system-dir.txt');
+  });
+
+  test('excludes hidden files when excludeHidden is true', async () => {
+    const directory = makeTemporaryDirectory();
+
+    // Create normal files and directories
+    writeFileSync(join(directory, 'normal-file.txt'), '');
+    const normalDirectory = join(directory, 'normal-directory');
+    mkdirSync(normalDirectory, { recursive: true });
+
+    // Create hidden files starting with . and _
+    writeFileSync(join(directory, '.hidden-file'), '');
+    writeFileSync(join(directory, '_system-file'), '');
+    const dotDirectory = join(directory, '.hidden-directory');
+    mkdirSync(dotDirectory, { recursive: true });
+    const underscoreDirectory = join(directory, '_system-directory');
+    mkdirSync(underscoreDirectory, { recursive: true });
+
+    // Create files inside hidden directories to test depth > 0
+    writeFileSync(join(dotDirectory, 'file-in-hidden-dir.txt'), '');
+    writeFileSync(join(underscoreDirectory, 'file-in-system-dir.txt'), '');
+
+    const results = await unwrapAndSortEntries(
+      listDirectory(directory, { excludeHidden: true, depth: 2 })
+    );
+
+    // Verify hidden files and files inside hidden directories are not included
+    const resultNames = results.map((entry) => entry.name);
+    expect(resultNames).toHaveLength(2);
+    expect(resultNames).toContain('normal-directory');
+    expect(resultNames).toContain('normal-file.txt');
   });
 });
 

@@ -375,7 +375,10 @@ function buildApi({
     > {
       const potentialElectionPackages: FileSystemEntry[] = [];
 
-      for await (const result of listDirectoryOnUsbDrive(usbDrive, '', 3)) {
+      for await (const result of listDirectoryOnUsbDrive(usbDrive, '', {
+        depth: 3,
+        excludeHidden: true,
+      })) {
         if (result.isErr()) {
           return result;
         }
@@ -384,9 +387,7 @@ function buildApi({
 
         if (
           entry.type === FileSystemEntryType.File &&
-          entry.name.endsWith('.zip') &&
-          !entry.name.startsWith('.') &&
-          !entry.name.startsWith('_')
+          entry.name.endsWith('.zip')
         ) {
           potentialElectionPackages.push(entry);
         }
