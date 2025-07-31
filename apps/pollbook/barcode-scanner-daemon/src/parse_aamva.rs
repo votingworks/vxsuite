@@ -23,8 +23,8 @@ pub enum AamvaParseError {
     #[error("Header input too short. Value: '{0}'")]
     HeaderTooShort(String),
 
-    #[error("Unexpected header prefix. Expected '{EXPECTED_PREFIX}', got '{0}")]
-    UnexpectedHeaderPrefix(String),
+    #[error("Unexpected header prefix.")]
+    UnexpectedHeaderPrefix,
 
     #[error("Unknown issuing jurisdiction ID: {0}")]
     UnknownIssuingJurisdictionId(String),
@@ -48,12 +48,10 @@ impl FromStr for AamvaHeader {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         // 1) Validate prefix
         let Some((actual_prefix, rest)) = s.split_at_checked(EXPECTED_PREFIX.len()) else {
-            return Err(AamvaParseError::UnexpectedHeaderPrefix(s.to_owned()));
+            return Err(AamvaParseError::UnexpectedHeaderPrefix);
         };
         if actual_prefix != EXPECTED_PREFIX {
-            return Err(AamvaParseError::UnexpectedHeaderPrefix(
-                actual_prefix.to_owned(),
-            ));
+            return Err(AamvaParseError::UnexpectedHeaderPrefix);
         }
 
         // 2) Validate issuer ID
@@ -243,7 +241,7 @@ DCSLAST
         let bad_prefix = "1234 636039100001DL00310485DLDAQNHL12345678";
         let err = AamvaHeader::from_str(bad_prefix).unwrap_err();
 
-        assert!(matches!(err, AamvaParseError::UnexpectedHeaderPrefix(_)));
+        assert!(matches!(err, AamvaParseError::UnexpectedHeaderPrefix));
     }
 
     #[test]
