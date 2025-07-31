@@ -13,33 +13,33 @@ import {
 describe('Zod schema string truncation', () => {
   test('VoterSchema truncates strings to field limits', () => {
     const longStrings = {
-      lastName: 'a'.repeat(VOTER_INPUT_FIELD_LIMITS.lastName + 10),
-      suffix: 'b'.repeat(VOTER_INPUT_FIELD_LIMITS.nameSuffix + 10),
-      firstName: 'c'.repeat(VOTER_INPUT_FIELD_LIMITS.firstName + 10),
-      middleName: 'd'.repeat(VOTER_INPUT_FIELD_LIMITS.middleName + 10),
-      streetNumber: 'e'.repeat(VOTER_INPUT_FIELD_LIMITS.streetNumber + 10),
-      addressSuffix: 'f'.repeat(VOTER_INPUT_FIELD_LIMITS.streetSuffix + 10),
-      streetName: 'g'.repeat(VOTER_INPUT_FIELD_LIMITS.streetName + 10),
+      lastName: 'a'.repeat(VOTER_INPUT_FIELD_LIMITS.lastName + 1),
+      suffix: 'b'.repeat(VOTER_INPUT_FIELD_LIMITS.nameSuffix + 1),
+      firstName: 'c'.repeat(VOTER_INPUT_FIELD_LIMITS.firstName + 1),
+      middleName: 'd'.repeat(VOTER_INPUT_FIELD_LIMITS.middleName + 1),
+      streetNumber: 'e'.repeat(VOTER_INPUT_FIELD_LIMITS.streetNumber + 1),
+      addressSuffix: 'f'.repeat(VOTER_INPUT_FIELD_LIMITS.streetSuffix + 1),
+      streetName: 'g'.repeat(VOTER_INPUT_FIELD_LIMITS.streetName + 1),
       apartmentUnitNumber: 'h'.repeat(
-        VOTER_INPUT_FIELD_LIMITS.apartmentUnitNumber + 10
+        VOTER_INPUT_FIELD_LIMITS.apartmentUnitNumber + 1
       ),
-      addressLine2: 'i'.repeat(VOTER_INPUT_FIELD_LIMITS.addressLine2 + 10),
-      postalZip5: 'j'.repeat(VOTER_INPUT_FIELD_LIMITS.zip5 + 10),
-      zip4: 'k'.repeat(VOTER_INPUT_FIELD_LIMITS.zip4 + 10),
+      addressLine2: 'i'.repeat(VOTER_INPUT_FIELD_LIMITS.addressLine2 + 1),
+      postalZip5: 'j'.repeat(VOTER_INPUT_FIELD_LIMITS.zip5 + 1),
+      zip4: 'k'.repeat(VOTER_INPUT_FIELD_LIMITS.zip4 + 1),
       mailingStreetNumber: 'l'.repeat(
-        VOTER_INPUT_FIELD_LIMITS.streetNumber + 10
+        VOTER_INPUT_FIELD_LIMITS.streetNumber + 1
       ),
-      mailingSuffix: 'm'.repeat(VOTER_INPUT_FIELD_LIMITS.streetSuffix + 10),
-      mailingStreetName: 'n'.repeat(VOTER_INPUT_FIELD_LIMITS.streetName + 10),
+      mailingSuffix: 'm'.repeat(VOTER_INPUT_FIELD_LIMITS.streetSuffix + 1),
+      mailingStreetName: 'n'.repeat(VOTER_INPUT_FIELD_LIMITS.streetName + 1),
       mailingApartmentUnitNumber: 'o'.repeat(
-        VOTER_INPUT_FIELD_LIMITS.apartmentUnitNumber + 10
+        VOTER_INPUT_FIELD_LIMITS.apartmentUnitNumber + 1
       ),
       mailingAddressLine2: 'p'.repeat(
-        VOTER_INPUT_FIELD_LIMITS.addressLine2 + 10
+        VOTER_INPUT_FIELD_LIMITS.addressLine2 + 1
       ),
-      mailingCityTown: 'q'.repeat(VOTER_INPUT_FIELD_LIMITS.cityTown + 10),
-      mailingZip5: 'r'.repeat(VOTER_INPUT_FIELD_LIMITS.zip5 + 10),
-      mailingZip4: 's'.repeat(VOTER_INPUT_FIELD_LIMITS.zip4 + 10),
+      mailingCityTown: 'q'.repeat(VOTER_INPUT_FIELD_LIMITS.cityTown + 1),
+      mailingZip5: 'r'.repeat(VOTER_INPUT_FIELD_LIMITS.zip5 + 1),
+      mailingZip4: 's'.repeat(VOTER_INPUT_FIELD_LIMITS.zip4 + 1),
     } as const;
 
     const voter = VoterSchema.parse({
@@ -114,12 +114,12 @@ describe('Zod schema string truncation', () => {
 
   test('VoterAddressChangeSchema truncates strings to field limits', () => {
     const longStrings = {
-      streetNumber: 'a'.repeat(VOTER_INPUT_FIELD_LIMITS.streetNumber + 10),
-      streetSuffix: 'b'.repeat(VOTER_INPUT_FIELD_LIMITS.streetSuffix + 10),
+      streetNumber: 'a'.repeat(VOTER_INPUT_FIELD_LIMITS.streetNumber + 1),
+      streetSuffix: 'b'.repeat(VOTER_INPUT_FIELD_LIMITS.streetSuffix + 1),
       apartmentUnitNumber: 'c'.repeat(
-        VOTER_INPUT_FIELD_LIMITS.apartmentUnitNumber + 10
+        VOTER_INPUT_FIELD_LIMITS.apartmentUnitNumber + 1
       ),
-      addressLine2: 'd'.repeat(VOTER_INPUT_FIELD_LIMITS.addressLine2 + 10),
+      addressLine2: 'd'.repeat(VOTER_INPUT_FIELD_LIMITS.addressLine2 + 1),
     } as const;
 
     const addressChange = VoterAddressChangeSchema.parse({
@@ -151,19 +151,19 @@ describe('Zod schema string truncation', () => {
   test('VoterMailingAddressChangeSchema truncates strings to field limits', () => {
     const longStrings = {
       mailingStreetNumber: 'a'.repeat(
-        VOTER_INPUT_FIELD_LIMITS.streetNumber + 10
+        VOTER_INPUT_FIELD_LIMITS.streetNumber + 1
       ),
-      mailingStreetName: 'b'.repeat(VOTER_INPUT_FIELD_LIMITS.streetName + 10),
-      mailingSuffix: 'c'.repeat(VOTER_INPUT_FIELD_LIMITS.nameSuffix + 10),
+      mailingStreetName: 'b'.repeat(VOTER_INPUT_FIELD_LIMITS.streetName + 1),
+      mailingSuffix: 'c'.repeat(VOTER_INPUT_FIELD_LIMITS.nameSuffix + 1),
       mailingApartmentUnitNumber: 'd'.repeat(
-        VOTER_INPUT_FIELD_LIMITS.apartmentUnitNumber + 10
+        VOTER_INPUT_FIELD_LIMITS.apartmentUnitNumber + 1
       ),
       mailingAddressLine2: 'e'.repeat(
-        VOTER_INPUT_FIELD_LIMITS.addressLine2 + 10
+        VOTER_INPUT_FIELD_LIMITS.addressLine2 + 1
       ),
-      mailingCityTown: 'f'.repeat(VOTER_INPUT_FIELD_LIMITS.cityTown + 10),
-      mailingZip5: 'g'.repeat(VOTER_INPUT_FIELD_LIMITS.zip5 + 10),
-      mailingZip4: 'h'.repeat(VOTER_INPUT_FIELD_LIMITS.zip4 + 10),
+      mailingCityTown: 'f'.repeat(VOTER_INPUT_FIELD_LIMITS.cityTown + 1),
+      mailingZip5: 'g'.repeat(VOTER_INPUT_FIELD_LIMITS.zip5 + 1),
+      mailingZip4: 'h'.repeat(VOTER_INPUT_FIELD_LIMITS.zip4 + 1),
     } as const;
 
     const mailingAddressChange = VoterMailingAddressChangeSchema.parse({
@@ -202,10 +202,10 @@ describe('Zod schema string truncation', () => {
 
   test('VoterNameChangeSchema truncates strings to field limits', () => {
     const longStrings = {
-      lastName: 'a'.repeat(VOTER_INPUT_FIELD_LIMITS.lastName + 10),
-      suffix: 'b'.repeat(VOTER_INPUT_FIELD_LIMITS.nameSuffix + 10),
-      firstName: 'c'.repeat(VOTER_INPUT_FIELD_LIMITS.firstName + 10),
-      middleName: 'd'.repeat(VOTER_INPUT_FIELD_LIMITS.middleName + 10),
+      lastName: 'a'.repeat(VOTER_INPUT_FIELD_LIMITS.lastName + 1),
+      suffix: 'b'.repeat(VOTER_INPUT_FIELD_LIMITS.nameSuffix + 1),
+      firstName: 'c'.repeat(VOTER_INPUT_FIELD_LIMITS.firstName + 1),
+      middleName: 'd'.repeat(VOTER_INPUT_FIELD_LIMITS.middleName + 1),
     } as const;
 
     const nameChange = VoterNameChangeSchema.parse({
@@ -230,17 +230,17 @@ describe('Zod schema string truncation', () => {
   test('VoterRegistrationSchema truncates strings to field limits', () => {
     const longStrings = {
       // Name fields
-      lastName: 'a'.repeat(VOTER_INPUT_FIELD_LIMITS.lastName + 10),
-      suffix: 'b'.repeat(VOTER_INPUT_FIELD_LIMITS.nameSuffix + 10),
-      firstName: 'c'.repeat(VOTER_INPUT_FIELD_LIMITS.firstName + 10),
-      middleName: 'd'.repeat(VOTER_INPUT_FIELD_LIMITS.middleName + 10),
+      lastName: 'a'.repeat(VOTER_INPUT_FIELD_LIMITS.lastName + 1),
+      suffix: 'b'.repeat(VOTER_INPUT_FIELD_LIMITS.nameSuffix + 1),
+      firstName: 'c'.repeat(VOTER_INPUT_FIELD_LIMITS.firstName + 1),
+      middleName: 'd'.repeat(VOTER_INPUT_FIELD_LIMITS.middleName + 1),
       // Address fields
-      streetNumber: 'e'.repeat(VOTER_INPUT_FIELD_LIMITS.streetNumber + 10),
-      streetSuffix: 'f'.repeat(VOTER_INPUT_FIELD_LIMITS.streetSuffix + 10),
+      streetNumber: 'e'.repeat(VOTER_INPUT_FIELD_LIMITS.streetNumber + 1),
+      streetSuffix: 'f'.repeat(VOTER_INPUT_FIELD_LIMITS.streetSuffix + 1),
       apartmentUnitNumber: 'g'.repeat(
-        VOTER_INPUT_FIELD_LIMITS.apartmentUnitNumber + 10
+        VOTER_INPUT_FIELD_LIMITS.apartmentUnitNumber + 1
       ),
-      addressLine2: 'h'.repeat(VOTER_INPUT_FIELD_LIMITS.addressLine2 + 10),
+      addressLine2: 'h'.repeat(VOTER_INPUT_FIELD_LIMITS.addressLine2 + 1),
     } as const;
 
     const registration = VoterRegistrationSchema.parse({
@@ -285,10 +285,10 @@ describe('Zod schema string truncation', () => {
 
   test('ValidStreetInfoSchema truncates strings to field limits', () => {
     const longStrings = {
-      streetName: 'a'.repeat(VOTER_INPUT_FIELD_LIMITS.streetName + 10),
-      postalCityTown: 'b'.repeat(VOTER_INPUT_FIELD_LIMITS.cityTown + 10),
-      zip5: 'c'.repeat(VOTER_INPUT_FIELD_LIMITS.zip5 + 10),
-      zip4: 'd'.repeat(VOTER_INPUT_FIELD_LIMITS.zip4 + 10),
+      streetName: 'a'.repeat(VOTER_INPUT_FIELD_LIMITS.streetName + 1),
+      postalCityTown: 'b'.repeat(VOTER_INPUT_FIELD_LIMITS.cityTown + 1),
+      zip5: 'c'.repeat(VOTER_INPUT_FIELD_LIMITS.zip5 + 1),
+      zip4: 'd'.repeat(VOTER_INPUT_FIELD_LIMITS.zip4 + 1),
     } as const;
 
     const validStreets = ValidStreetInfoSchema.parse([
@@ -296,7 +296,7 @@ describe('Zod schema string truncation', () => {
         ...longStrings,
         side: 'all',
         lowRange: 1,
-        highRange: 100,
+        highRange: 10,
         precinct: 'test',
       },
     ]);
