@@ -261,3 +261,13 @@ export const richTextStyles = css<RichTextProps>`
 export const RichText = styled.div<RichTextProps>`
   ${richTextStyles}
 `;
+
+export const SpanBreakWord = styled.span`
+  word-break: break-word;
+  overflow-wrap: break-word;
+`;
+
+export const DivBreakWord = styled.div`
+  word-break: break-word;
+  overflow-wrap: break-word;
+`;
