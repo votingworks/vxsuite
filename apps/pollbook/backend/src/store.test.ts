@@ -1,5 +1,6 @@
-import { expect, test } from 'vitest';
+import { expect, test, vi } from 'vitest';
 import { assert, sleep } from '@votingworks/basics';
+import { mockBaseLogger } from '@votingworks/logging';
 import { HybridLogicalClock } from './hybrid_logical_clock';
 import {
   createVoter,
@@ -16,8 +17,14 @@ export const myMachineId = 'machine-1';
 const otherMachineId = 'machine-2';
 
 function setupTwoStores(): [PeerStore, PeerStore] {
-  const store1 = PeerStore.memoryStore(myMachineId);
-  const store2 = PeerStore.memoryStore(otherMachineId);
+  const store1 = PeerStore.memoryStore(
+    mockBaseLogger({ fn: vi.fn }),
+    myMachineId
+  );
+  const store2 = PeerStore.memoryStore(
+    mockBaseLogger({ fn: vi.fn }),
+    otherMachineId
+  );
   const voters = Array.from({ length: 7 }, (_, i) =>
     createVoter(`voter-${i}`, 'firstname', 'lastname')
   );
@@ -30,7 +37,10 @@ function setupTwoStores(): [PeerStore, PeerStore] {
 }
 
 test('getNewEvents returns events for unknown machines', () => {
-  const store = PeerStore.memoryStore(myMachineId);
+  const store = PeerStore.memoryStore(
+    mockBaseLogger({ fn: vi.fn }),
+    myMachineId
+  );
   const myHlcClock = new HybridLogicalClock(myMachineId);
   const theirHlcClock = new HybridLogicalClock(otherMachineId);
   const event1 = createVoterCheckInEvent(
@@ -58,7 +68,10 @@ test('getNewEvents returns events for unknown machines', () => {
 });
 
 test('getNewEvents returns events for known machines with new events', () => {
-  const store = PeerStore.memoryStore(myMachineId);
+  const store = PeerStore.memoryStore(
+    mockBaseLogger({ fn: vi.fn }),
+    myMachineId
+  );
   const myClock = new HybridLogicalClock(myMachineId);
   const theirClock = new HybridLogicalClock(otherMachineId);
   const event1 = createVoterCheckInEvent(
@@ -96,7 +109,10 @@ test('getNewEvents returns events for known machines with new events', () => {
 });
 
 test('getNewEvents returns no events for known machines and unknown machines', async () => {
-  const store = PeerStore.memoryStore(myMachineId);
+  const store = PeerStore.memoryStore(
+    mockBaseLogger({ fn: vi.fn }),
+    myMachineId
+  );
   const myClock = new HybridLogicalClock(myMachineId);
   const theirClock = new HybridLogicalClock(otherMachineId);
   const event1 = createVoterCheckInEvent(

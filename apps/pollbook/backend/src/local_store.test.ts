@@ -12,7 +12,7 @@ import {
 import { LocalStore } from './local_store';
 
 test('findVotersWithName works as expected - voters without name changes', () => {
-  const localStore = LocalStore.memoryStore();
+  const localStore = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
   const testElectionDefinition = getTestElectionDefinition();
   const voters = [
     createVoter('10', 'Dylan', `O'Brien`, 'MiD', 'I'),
@@ -135,7 +135,7 @@ test('findVotersWithName works as expected - voters without name changes', () =>
 });
 
 test('findVoterWithName works as expected - voters with name changes', () => {
-  const localStore = LocalStore.memoryStore();
+  const localStore = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
   const testElectionDefinition = getTestElectionDefinition();
   const voters = [
     createVoter('20', 'John', 'Doe', 'Allen', 'Sr'),
@@ -259,7 +259,7 @@ test('findVoterWithName works as expected - voters with name changes', () => {
 });
 
 test('registerVoter and findVoterWithName integration', () => {
-  const localStore = LocalStore.memoryStore();
+  const localStore = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
   const testElectionDefinition = getTestElectionDefinition();
   const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
   localStore.setElectionAndVoters(
@@ -307,7 +307,7 @@ test('registerVoter and findVoterWithName integration', () => {
 });
 
 test('registerVoter - fails when wrong precinct configured', () => {
-  const localStore = LocalStore.memoryStore();
+  const localStore = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
   const testElectionDefinition = getTestElectionDefinition();
   const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
   localStore.setElectionAndVoters(
@@ -343,7 +343,7 @@ test('registerVoter - fails when wrong precinct configured', () => {
 });
 
 test('registerVoter - fails when no precinct configured', () => {
-  const localStore = LocalStore.memoryStore();
+  const localStore = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
   const testElectionDefinition = getTestElectionDefinition();
   const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
   localStore.setElectionAndVoters(
@@ -378,7 +378,10 @@ test('registerVoter - fails when no precinct configured', () => {
 });
 
 test('setElectionAndVoters sets configuredPrecinctId only when there is one precinct', () => {
-  const store = LocalStore.memoryStore('machine-1');
+  const store = LocalStore.memoryStore(
+    mockBaseLogger({ fn: vi.fn }),
+    'machine-1'
+  );
 
   // Test with a normal test election (multiple precincts)
   const testElectionDefinition = getTestElectionDefinition();
@@ -418,7 +421,7 @@ test('setElectionAndVoters sets configuredPrecinctId only when there is one prec
 });
 
 test('changeVoterAddress works as expected - when precinct is the properly configured one', () => {
-  const localStore = LocalStore.memoryStore();
+  const localStore = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
   const testElectionDefinition = getTestElectionDefinition();
   const voters = [createVoter('20', 'John', 'Doe', 'Allen', 'Sr')];
   const streets = [
