@@ -4,13 +4,13 @@ exports[`Modal > can configure a wider max width 1`] = `
 <div
   aria-label="Alert Modal"
   aria-modal="true"
-  class="sc-kpDqfm cXNhoW ReactModal__Content _"
+  class="sc-jlZhew gqRxOR ReactModal__Content _"
   data-testid="modal"
   role="alertdialog"
   tabindex="-1"
 >
   <div
-    class="sc-cwHptR xojiV"
+    class="sc-cPiKLX dzQCTS"
   >
     Do you want to do the thing?
   </div>
@@ -21,13 +21,13 @@ exports[`Modal > can configure fullscreen 1`] = `
 <div
   aria-label="Alert Modal"
   aria-modal="true"
-  class="sc-kpDqfm bpMVuS ReactModal__Content _"
+  class="sc-jlZhew jakLHR ReactModal__Content _"
   data-testid="modal"
   role="alertdialog"
   tabindex="-1"
 >
   <div
-    class="sc-cwHptR PBWES"
+    class="sc-cPiKLX fLrXtF"
   >
     Do you want to do the thing?
   </div>
