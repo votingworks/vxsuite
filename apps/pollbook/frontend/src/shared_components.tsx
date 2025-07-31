@@ -3,7 +3,13 @@ import type {
   VoterAddressChange,
   VoterMailingAddressChange,
 } from '@votingworks/types';
-import { Callout, Card, H4 } from '@votingworks/ui';
+import {
+  Callout,
+  Card,
+  DivBreakWord,
+  H4,
+  SpanBreakWord,
+} from '@votingworks/ui';
 import styled from 'styled-components';
 import { throwIllegalValue } from '@votingworks/basics';
 import { Election } from '@votingworks/types';
@@ -38,13 +44,13 @@ export function VoterName({
 }): JSX.Element {
   const { lastName, firstName, middleName, suffix } = voter.nameChange ?? voter;
   return lastNameFirst ? (
-    <span>
+    <SpanBreakWord>
       {lastName}, {firstName} {middleName} {suffix}
-    </span>
+    </SpanBreakWord>
   ) : (
-    <span>
+    <SpanBreakWord>
       {firstName} {middleName} {lastName} {suffix}
-    </span>
+    </SpanBreakWord>
   );
 }
 
@@ -55,18 +61,21 @@ export function VoterAddress({
   voter: Voter;
   style?: React.CSSProperties;
 }): JSX.Element {
+  const finalStyle = style ? { ...style, width: '100%' } : { width: '100%' };
   return (
-    <div style={style}>
-      <div>
+    <div style={finalStyle}>
+      <DivBreakWord>
         {voter.streetNumber}
         {prependSpaceIfNeeded(voter.houseFractionNumber)}
         {voter.addressSuffix} {voter.streetName}
         {prependSpaceIfNeeded(voter.apartmentUnitNumber)}
-      </div>
-      {voter.addressLine2 === '' ? null : <div>{voter.addressLine2}</div>}
-      <div>
+      </DivBreakWord>
+      {voter.addressLine2 === '' ? null : (
+        <DivBreakWord>{voter.addressLine2}</DivBreakWord>
+      )}
+      <DivBreakWord>
         {voter.postalCityTown}, {voter.state} {voter.postalZip5}
-      </div>
+      </DivBreakWord>
     </div>
   );
 }
@@ -77,17 +86,19 @@ export function AddressChange({
   address: VoterAddressChange;
 }): JSX.Element {
   return (
-    <div>
-      <div>
+    <div style={{ width: '100%' }}>
+      <DivBreakWord>
         {address.streetNumber}
         {prependSpaceIfNeeded(address.houseFractionNumber)}
         {address.streetSuffix} {address.streetName}
         {prependSpaceIfNeeded(address.apartmentUnitNumber)}
-      </div>
-      {address.addressLine2 === '' ? null : <div>{address.addressLine2}</div>}
-      <div>
+      </DivBreakWord>
+      {address.addressLine2 === '' ? null : (
+        <DivBreakWord>{address.addressLine2}</DivBreakWord>
+      )}
+      <DivBreakWord>
         {address.city}, {address.state} {address.zipCode}
-      </div>
+      </DivBreakWord>
     </div>
   );
 }
@@ -98,20 +109,20 @@ export function MailingAddressChange({
   address: VoterMailingAddressChange;
 }): JSX.Element {
   return (
-    <div>
-      <div>
+    <div style={{ width: '100%' }}>
+      <DivBreakWord>
         {address.mailingStreetNumber}
         {prependSpaceIfNeeded(address.mailingHouseFractionNumber)}
         {address.mailingSuffix} {address.mailingStreetName}
         {prependSpaceIfNeeded(address.mailingApartmentUnitNumber)}
-      </div>
+      </DivBreakWord>
       {address.mailingAddressLine2 === '' ? null : (
-        <div>{address.mailingAddressLine2}</div>
+        <DivBreakWord>{address.mailingAddressLine2}</DivBreakWord>
       )}
-      <div>
+      <DivBreakWord>
         {address.mailingCityTown}, {address.mailingState} {address.mailingZip5}
         {address.mailingZip4 ? `-${address.mailingZip4}` : ''}
-      </div>
+      </DivBreakWord>
     </div>
   );
 }
