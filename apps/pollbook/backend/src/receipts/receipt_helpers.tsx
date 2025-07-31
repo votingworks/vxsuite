@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { throwIllegalValue } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
-import { IconName, Icons } from '@votingworks/ui';
+import { DivBreakWord, IconName, Icons, SpanBreakWord } from '@votingworks/ui';
 import { Election } from '@votingworks/types';
 import { Voter, VoterCheckIn } from '@votingworks/types';
 
@@ -15,9 +15,9 @@ export function ReceiptIcon({ icon }: { icon: IconName }): JSX.Element {
 export function VoterName({ voter }: { voter: Voter }): JSX.Element {
   const name = voter.nameChange ?? voter;
   return (
-    <span>
+    <SpanBreakWord>
       {name.lastName}, {name.firstName} {name.middleName} {name.suffix}
-    </span>
+    </SpanBreakWord>
   );
 }
 
@@ -44,37 +44,41 @@ export function VoterAddress({
     const address = voter.addressChange;
     return (
       <div>
-        <div>
+        <DivBreakWord>
           {address.streetNumber}
           {prependSpaceIfNeeded(address.houseFractionNumber)}
           {address.streetSuffix} {address.streetName}
           {prependSpaceIfNeeded(address.apartmentUnitNumber)}
-        </div>
-        {address.addressLine2 === '' ? null : <div>{address.addressLine2}</div>}
-        <div>
+        </DivBreakWord>
+        {address.addressLine2 === '' ? null : (
+          <DivBreakWord>{address.addressLine2}</DivBreakWord>
+        )}
+        <DivBreakWord>
           {address.city}, {address.state} {address.zipCode}
-        </div>
+        </DivBreakWord>
         {election.precincts.length > 1 && (
-          <div>{`Precinct: ${getPrecinctName(
+          <DivBreakWord>{`Precinct: ${getPrecinctName(
             election,
             address.precinct
-          )}`}</div>
+          )}`}</DivBreakWord>
         )}
       </div>
     );
   }
   return (
     <div>
-      <div>
+      <DivBreakWord>
         {voter.streetNumber}
         {prependSpaceIfNeeded(voter.houseFractionNumber)}
         {voter.addressSuffix} {voter.streetName}
         {prependSpaceIfNeeded(voter.apartmentUnitNumber)}
-      </div>
-      {voter.addressLine2 === '' ? null : <div>{voter.addressLine2}</div>}
-      <div>
+      </DivBreakWord>
+      {voter.addressLine2 === '' ? null : (
+        <DivBreakWord>{voter.addressLine2}</DivBreakWord>
+      )}
+      <DivBreakWord>
         {voter.postalCityTown}, {voter.state} {voter.postalZip5}
-      </div>
+      </DivBreakWord>
       {election.precincts.length > 1 && (
         <div>{`Precinct: ${getPrecinctName(election, voter.precinct)}`}</div>
       )}
@@ -87,19 +91,19 @@ export function VoterMailingAddress({ voter }: { voter: Voter }): JSX.Element {
     const mailingAddress = voter.mailingAddressChange;
     return (
       <div>
-        <div>
+        <DivBreakWord>
           {mailingAddress.mailingStreetNumber}
           {prependSpaceIfNeeded(mailingAddress.mailingHouseFractionNumber)}
           {mailingAddress.mailingSuffix} {mailingAddress.mailingStreetName}
           {prependSpaceIfNeeded(mailingAddress.mailingApartmentUnitNumber)}
-        </div>
+        </DivBreakWord>
         {mailingAddress.mailingAddressLine2 === '' ? null : (
-          <div>{mailingAddress.mailingAddressLine2}</div>
+          <DivBreakWord>{mailingAddress.mailingAddressLine2}</DivBreakWord>
         )}
-        <div>
+        <DivBreakWord>
           {mailingAddress.mailingCityTown}, {mailingAddress.mailingState}{' '}
           {mailingAddress.mailingZip5}
-        </div>
+        </DivBreakWord>
       </div>
     );
   }
@@ -131,18 +135,18 @@ export function VoterMailingAddress({ voter }: { voter: Voter }): JSX.Element {
   }
   return (
     <div>
-      <div>
+      <DivBreakWord>
         {voter.mailingStreetNumber}
         {prependSpaceIfNeeded(voter.mailingHouseFractionNumber)}
         {mailingSuffix} {voter.mailingStreetName}
         {prependSpaceIfNeeded(voter.mailingApartmentUnitNumber)}
-      </div>
+      </DivBreakWord>
       {voter.mailingAddressLine2 === '' ? null : (
-        <div>{voter.mailingAddressLine2}</div>
+        <DivBreakWord>{voter.mailingAddressLine2}</DivBreakWord>
       )}
-      <div>
+      <DivBreakWord>
         {voter.mailingCityTown}, {voter.mailingState} {voter.mailingZip5}
-      </div>
+      </DivBreakWord>
     </div>
   );
 }
