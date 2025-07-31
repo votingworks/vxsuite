@@ -3,6 +3,11 @@
 
 version: 2.1
 
+setup: true
+
+orbs:
+  path-filtering: circleci/path-filtering@1
+
 executors:
   nodejs:
     docker:
@@ -396,32 +401,6 @@ jobs:
           path: apps/mark/integration-testing/test-results/
       - store_artifacts:
           path: apps/mark/integration-testing/test-results/
-
-  # @votingworks/pollbook-backend
-  test-apps-pollbook-backend:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install:
-          is_node_package: true
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/pollbook/backend build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir apps/pollbook/backend lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir apps/pollbook/backend test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: apps/pollbook/backend/reports/
-      - store_artifacts:
-          path: apps/pollbook/backend/src/__image_snapshots__/__diff_output__/
 
   # @votingworks/pollbook-frontend
   test-apps-pollbook-frontend:
@@ -1359,6 +1338,13 @@ jobs:
 workflows:
   test:
     jobs:
+
+      - path-filtering/filter:
+          name: check-updated-files-for-test-filter
+          base-revision: main
+          mapping: |
+            apps/pollbook/backend/.* run-job true
+          config-path: apps/pollbook/backend/.circleci/config.yml
       - test-apps-admin-backend
       - test-apps-admin-frontend
       - test-apps-admin-integration-testing
@@ -1373,7 +1359,6 @@ workflows:
       - test-apps-mark-backend
       - test-apps-mark-frontend
       - test-apps-mark-integration-testing
-      - test-apps-pollbook-backend
       - test-apps-pollbook-frontend
       - test-apps-scan-backend
       - test-apps-scan-frontend
