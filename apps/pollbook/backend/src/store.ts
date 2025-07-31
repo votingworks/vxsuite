@@ -7,6 +7,10 @@ import {
   ElectionDefinition,
   safeParseElection,
   safeParseJson,
+  ValidStreetInfo,
+  ValidStreetInfoSchema,
+  Voter,
+  VoterSchema,
 } from '@votingworks/types';
 import { customAlphabet } from 'nanoid';
 import { BaseLogger, LogEventId } from '@votingworks/logging';
@@ -15,10 +19,6 @@ import {
   PollbookEvent,
   EventDbRow,
   EventType,
-  ValidStreetInfo,
-  ValidStreetInfoSchema,
-  Voter,
-  VoterSchema,
   PollbookConnectionStatus,
   PollbookConfigurationInformation,
   ConfigurationError,

@@ -2,10 +2,10 @@ import { expect, test, beforeEach, afterEach, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import {
   AamvaDocument,
-  Voter,
   VoterSearchParams,
 } from '@votingworks/pollbook-backend';
 import { electionSimpleSinglePrecinctFixtures } from '@votingworks/fixtures';
+import { Voter } from '@votingworks/types';
 import {
   ApiMock,
   createApiMock,

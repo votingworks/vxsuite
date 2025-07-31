@@ -1,5 +1,5 @@
 import { throwIllegalValue } from '@votingworks/basics';
-import type { Voter } from '@votingworks/pollbook-backend';
+import type { Voter } from '@votingworks/types';
 import {
   MainHeader,
   H1,

@@ -1,4 +1,4 @@
-import type { Voter } from '@votingworks/pollbook-backend';
+import type { Voter } from '@votingworks/types';
 
 export enum PollbookConnectionStatus {
   Connected = 'Connected',

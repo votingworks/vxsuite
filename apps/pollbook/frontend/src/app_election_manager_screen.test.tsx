@@ -1,10 +1,11 @@
 import { expect, test, beforeEach, afterEach, vi } from 'vitest';
 
 import {
+  Election,
+  ElectionDefinition,
   ValidStreetInfo,
   VoterRegistrationRequest,
-} from '@votingworks/pollbook-backend';
-import { Election, ElectionDefinition } from '@votingworks/types';
+} from '@votingworks/types';
 import { electionMultiPartyPrimaryFixtures } from '@votingworks/fixtures';
 
 import userEvent from '@testing-library/user-event';

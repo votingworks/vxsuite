@@ -6,9 +6,7 @@ import {
   throwIllegalValue,
 } from '@votingworks/basics';
 import type {
-  CheckInBallotParty,
   VoterCheckInError,
-  VoterIdentificationMethod,
   VoterSearchParams,
 } from '@votingworks/pollbook-backend';
 import {
@@ -22,6 +20,10 @@ import {
   P,
 } from '@votingworks/ui';
 import { Redirect, Route, Switch } from 'react-router-dom';
+import {
+  VoterIdentificationMethod,
+  CheckInBallotParty,
+} from '@votingworks/types';
 import {
   createEmptySearchParams,
   VoterSearchScreen,

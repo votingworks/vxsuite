@@ -17,9 +17,8 @@ import {
 } from '@votingworks/ui';
 import { useHistory, useParams } from 'react-router-dom';
 import React, { useCallback, useState } from 'react';
-import type { Voter } from '@votingworks/pollbook-backend';
 import { assertDefined, sleep, assert } from '@votingworks/basics';
-import { PrinterStatus } from '@votingworks/types';
+import { PrinterStatus, Voter } from '@votingworks/types';
 import { DateTime } from 'luxon';
 import { electionManagerRoutes, NoNavScreen } from './nav_screen';
 import {

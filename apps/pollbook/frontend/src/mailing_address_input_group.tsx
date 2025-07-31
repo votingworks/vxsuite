@@ -1,5 +1,6 @@
 import { SearchSelect } from '@votingworks/ui';
 import React from 'react';
+import { VOTER_INPUT_FIELD_LIMITS } from '@votingworks/types';
 import { Row, FieldName } from './layout';
 import {
   RequiredStaticInput,
@@ -46,12 +47,13 @@ export function MailingAddressInputGroup({
             }
             style={{ width: '8rem' }}
             onChange={(e) => {
+              const inputValue = e.target.value.toLocaleUpperCase();
               const {
                 streetNumber,
                 streetSuffix,
                 houseFractionNumber,
                 useHouseFractionSeparator: newUseHouseFractionSeparator,
-              } = splitStreetNumberDetails(e.target.value.toLocaleUpperCase());
+              } = splitStreetNumberDetails(inputValue);
               setUseHouseFractionSeparator(newUseHouseFractionSeparator);
               handleChange({
                 ...mailingAddress,
@@ -71,7 +73,9 @@ export function MailingAddressInputGroup({
             onChange={(e) =>
               handleChange({
                 ...mailingAddress,
-                mailingStreetName: e.target.value.toLocaleUpperCase(),
+                mailingStreetName: e.target.value
+                  .toLocaleUpperCase()
+                  .slice(0, VOTER_INPUT_FIELD_LIMITS.streetName),
               })
             }
           />
@@ -82,12 +86,15 @@ export function MailingAddressInputGroup({
             aria-label="Mailing Apartment or Unit Number"
             value={mailingAddress.mailingApartmentUnitNumber}
             style={{ width: '8rem' }}
-            onChange={(e) =>
+            onChange={(e) => {
+              const value = e.target.value
+                .toLocaleUpperCase()
+                .slice(0, VOTER_INPUT_FIELD_LIMITS.apartmentUnitNumber);
               handleChange({
                 ...mailingAddress,
-                mailingApartmentUnitNumber: e.target.value.toLocaleUpperCase(),
-              })
-            }
+                mailingApartmentUnitNumber: value,
+              });
+            }}
           />
         </StaticInput>
       </Row>
@@ -97,12 +104,15 @@ export function MailingAddressInputGroup({
           <TextField
             aria-label="Mailing Address Line 2"
             value={mailingAddress.mailingAddressLine2}
-            onChange={(e) =>
+            onChange={(e) => {
+              const value = e.target.value
+                .toLocaleUpperCase()
+                .slice(0, VOTER_INPUT_FIELD_LIMITS.addressLine2);
               handleChange({
                 ...mailingAddress,
-                mailingAddressLine2: e.target.value.toLocaleUpperCase(),
-              })
-            }
+                mailingAddressLine2: value,
+              });
+            }}
           />
         </ExpandableInput>
         <RequiredExpandableInput>
@@ -113,7 +123,9 @@ export function MailingAddressInputGroup({
             onChange={(e) =>
               handleChange({
                 ...mailingAddress,
-                mailingCityTown: e.target.value.toLocaleUpperCase(),
+                mailingCityTown: e.target.value
+                  .toLocaleUpperCase()
+                  .slice(0, VOTER_INPUT_FIELD_LIMITS.cityTown),
               })
             }
           />
@@ -148,12 +160,19 @@ export function MailingAddressInputGroup({
               const input = e.target.value
                 .replace(/[^0-9-]/g, '')
                 .toUpperCase();
-              setZipInput(input);
               const [zip5, zip4] = input.split('-');
+              const trimmedZip5 = zip5.slice(0, VOTER_INPUT_FIELD_LIMITS.zip5);
+              const trimmedZip4 =
+                zip4 !== undefined
+                  ? `-${zip4.slice(0, VOTER_INPUT_FIELD_LIMITS.zip4)}`
+                  : '';
+              setZipInput(trimmedZip5 + trimmedZip4);
               handleChange({
                 ...mailingAddress,
-                mailingZip5: zip5.slice(0, 5),
-                mailingZip4: zip4 ? zip4.slice(0, 4) : '',
+                mailingZip5: zip5.slice(0, VOTER_INPUT_FIELD_LIMITS.zip5),
+                mailingZip4: zip4
+                  ? zip4.slice(0, VOTER_INPUT_FIELD_LIMITS.zip4)
+                  : '',
               });
             }}
           />

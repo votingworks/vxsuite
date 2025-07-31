@@ -1,7 +1,7 @@
 import { assert } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
 import { H3 } from '@votingworks/ui';
-import { Voter } from '../types';
+import { Voter } from '@votingworks/types';
 import {
   VoterAddress,
   StyledReceipt,

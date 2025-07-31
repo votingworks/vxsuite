@@ -1,8 +1,5 @@
 import { throwIllegalValue } from '@votingworks/basics';
-import type {
-  CheckInBallotParty,
-  PartyAbbreviation,
-} from '@votingworks/pollbook-backend';
+import type { CheckInBallotParty, PartyAbbreviation } from '@votingworks/types';
 
 export function partyAbbreviationToString(
   party: CheckInBallotParty | PartyAbbreviation

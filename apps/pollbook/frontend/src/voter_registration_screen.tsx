@@ -1,9 +1,4 @@
-import type {
-  DuplicateVoterError,
-  PartyAbbreviation,
-  Voter,
-  VoterRegistrationRequest,
-} from '@votingworks/pollbook-backend';
+import type { DuplicateVoterError } from '@votingworks/pollbook-backend';
 import React, { useCallback, useMemo, useState } from 'react';
 import {
   Button,
@@ -19,7 +14,12 @@ import {
   SearchSelect,
 } from '@votingworks/ui';
 import { throwIllegalValue, assert } from '@votingworks/basics';
-import { Election } from '@votingworks/types';
+import {
+  Election,
+  PartyAbbreviation,
+  Voter,
+  VoterRegistrationRequest,
+} from '@votingworks/types';
 import {
   getDeviceStatuses,
   getElection,

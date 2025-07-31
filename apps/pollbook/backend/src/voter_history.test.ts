@@ -1,11 +1,11 @@
 import { expect, test } from 'vitest';
 import { readMultiPartyPrimaryElectionDefinition } from '@votingworks/fixtures';
+import { VoterAddressChangeRequest } from '@votingworks/types';
 import { LocalStore } from './local_store';
 import {
   getTestElectionDefinition,
   setupTestElectionAndVoters,
 } from '../test/test_helpers';
-import { VoterAddressChangeRequest } from './types';
 import { generateVoterHistoryCsvContent } from './voter_history';
 
 const mockAddressDetails: VoterAddressChangeRequest = {

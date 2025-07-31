@@ -1,10 +1,11 @@
-import type {
-  ValidStreetInfo,
-  VoterAddressChangeRequest,
-} from '@votingworks/pollbook-backend';
 import { SearchSelect } from '@votingworks/ui';
 import React, { useMemo } from 'react';
-import { safeParseInt } from '@votingworks/types';
+import {
+  safeParseInt,
+  VOTER_INPUT_FIELD_LIMITS,
+  ValidStreetInfo,
+  VoterAddressChangeRequest,
+} from '@votingworks/types';
 import { Row, FieldName } from './layout';
 import {
   RequiredStaticInput,
@@ -70,9 +71,17 @@ export function splitStreetNumberDetails(input: string): {
     const partialMatch = input.match(/^(\d+)([A-Za-z]*)/);
     if (partialMatch) {
       const [, streetNumber, streetSuffix] = partialMatch;
+      const trimmedStreetNumber = streetNumber.slice(
+        0,
+        VOTER_INPUT_FIELD_LIMITS.streetNumber
+      );
+      const trimmedStreetSuffix = streetSuffix.slice(
+        0,
+        VOTER_INPUT_FIELD_LIMITS.streetSuffix
+      );
       return {
-        streetNumber,
-        streetSuffix,
+        streetNumber: trimmedStreetNumber,
+        streetSuffix: trimmedStreetSuffix,
         houseFractionNumber: '',
         useHouseFractionSeparator: false,
       };
@@ -97,8 +106,8 @@ export function splitStreetNumberDetails(input: string): {
     !!houseFractionNumber || (hasTrailingSpace && !streetSuffix);
 
   return {
-    streetNumber,
-    streetSuffix,
+    streetNumber: streetNumber.slice(0, VOTER_INPUT_FIELD_LIMITS.streetNumber),
+    streetSuffix: streetSuffix.slice(0, VOTER_INPUT_FIELD_LIMITS.streetSuffix),
     houseFractionNumber,
     useHouseFractionSeparator,
   };
@@ -160,12 +169,13 @@ export function AddressInputGroup({
             }
             style={{ width: '8rem' }}
             onChange={(e) => {
+              const inputValue = e.target.value.toLocaleUpperCase();
               const {
                 streetNumber,
                 streetSuffix,
                 houseFractionNumber,
                 useHouseFractionSeparator: newUseHouseFractionSeparator,
-              } = splitStreetNumberDetails(e.target.value.toLocaleUpperCase());
+              } = splitStreetNumberDetails(inputValue);
               setUseHouseFractionSeparator(newUseHouseFractionSeparator);
               handleChange({
                 ...address,
@@ -202,12 +212,15 @@ export function AddressInputGroup({
             aria-label="Apartment or Unit Number"
             value={address.apartmentUnitNumber}
             style={{ width: '8rem' }}
-            onChange={(e) =>
+            onChange={(e) => {
+              const value = e.target.value
+                .toLocaleUpperCase()
+                .slice(0, VOTER_INPUT_FIELD_LIMITS.apartmentUnitNumber);
               handleChange({
                 ...address,
-                apartmentUnitNumber: e.target.value.toLocaleUpperCase(),
-              })
-            }
+                apartmentUnitNumber: value,
+              });
+            }}
           />
         </StaticInput>
       </Row>
@@ -217,12 +230,15 @@ export function AddressInputGroup({
           <TextField
             aria-label="Address Line 2"
             value={address.addressLine2}
-            onChange={(e) =>
+            onChange={(e) => {
+              const value = e.target.value
+                .toLocaleUpperCase()
+                .slice(0, VOTER_INPUT_FIELD_LIMITS.addressLine2);
               handleChange({
                 ...address,
-                addressLine2: e.target.value.toLocaleUpperCase(),
-              })
-            }
+                addressLine2: value,
+              });
+            }}
           />
         </ExpandableInput>
         <RequiredExpandableInput>

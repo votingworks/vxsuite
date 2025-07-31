@@ -3,13 +3,13 @@ import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { mockBaseLogger } from '@votingworks/logging';
 import { Election, ElectionDefinition } from '@votingworks/types';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
+import { VoterRegistrationRequest } from '@votingworks/types';
 import {
   createValidStreetInfo,
   createVoter,
   getTestElectionDefinition,
 } from '../test/test_helpers';
 import { LocalStore } from './local_store';
-import { VoterRegistrationRequest } from './types';
 
 test('findVotersWithName works as expected - voters without name changes', () => {
   const localStore = LocalStore.memoryStore();

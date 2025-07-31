@@ -4,18 +4,18 @@ import { assert } from 'node:console';
 import { CITIZEN_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
 import { BatteryInfo } from '@votingworks/backend';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
-import { TEST_MACHINE_ID, withApp } from '../test/app';
-import {
-  parseValidStreetsFromCsvString,
-  parseVotersFromCsvString,
-} from './pollbook_package';
 import {
   Voter,
   VoterAddressChangeRequest,
   VoterMailingAddressChangeRequest,
   VoterNameChangeRequest,
   VoterRegistrationRequest,
-} from './types';
+} from '@votingworks/types';
+import { TEST_MACHINE_ID, withApp } from '../test/app';
+import {
+  parseValidStreetsFromCsvString,
+  parseVotersFromCsvString,
+} from './pollbook_package';
 
 let mockNodeEnv: 'production' | 'test' = 'test';
 

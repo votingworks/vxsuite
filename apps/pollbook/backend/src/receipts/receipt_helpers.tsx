@@ -3,7 +3,7 @@ import { throwIllegalValue } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
 import { IconName, Icons } from '@votingworks/ui';
 import { Election } from '@votingworks/types';
-import { Voter, VoterCheckIn } from '../types';
+import { Voter, VoterCheckIn } from '@votingworks/types';
 
 export const StyledReceipt = styled.div``;
 

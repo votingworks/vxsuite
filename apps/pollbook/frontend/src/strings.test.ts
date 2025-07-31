@@ -1,8 +1,5 @@
 import { test, expect } from 'vitest';
-import {
-  CheckInBallotParty,
-  PartyAbbreviation,
-} from '@votingworks/pollbook-backend';
+import { CheckInBallotParty, PartyAbbreviation } from '@votingworks/types';
 import { partyAbbreviationToString } from './strings';
 
 const cases: Array<{

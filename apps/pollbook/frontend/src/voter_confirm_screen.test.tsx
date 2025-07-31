@@ -3,7 +3,7 @@ import {
   Voter,
   ValidStreetInfo,
   VoterIdentificationMethod,
-} from '@votingworks/pollbook-backend';
+} from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import {
   electionMultiPartyPrimaryFixtures,

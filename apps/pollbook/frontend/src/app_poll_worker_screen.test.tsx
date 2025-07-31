@@ -1,13 +1,13 @@
 import { describe, expect, test, beforeEach, afterEach, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { Election, ElectionDefinition } from '@votingworks/types';
+import { Voter, Election, ElectionDefinition } from '@votingworks/types';
 import {
   electionFamousNames2021Fixtures,
   electionSimpleSinglePrecinctFixtures,
   readMultiPartyPrimaryElection,
   readMultiPartyPrimaryElectionDefinition,
 } from '@votingworks/fixtures';
-import { Voter, VoterCheckInError } from '@votingworks/pollbook-backend';
+import { VoterCheckInError } from '@votingworks/pollbook-backend';
 import { act, render, screen, within } from '../test/react_testing_library';
 import { App } from './app';
 import {

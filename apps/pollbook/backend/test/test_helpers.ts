@@ -7,18 +7,14 @@ import {
   ElectionDefinition,
   ElectionId,
   HmpbBallotPaperSize,
+  ValidStreetInfo,
+  PartyAbbreviation,
+  Voter,
 } from '@votingworks/types';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { HlcTimestamp } from '../src/hybrid_logical_clock';
 import { Store } from '../src/store';
-import {
-  Voter,
-  VoterCheckInEvent,
-  EventType,
-  PollbookEventBase,
-  ValidStreetInfo,
-  PartyAbbreviation,
-} from '../src/types';
+import { VoterCheckInEvent, EventType, PollbookEventBase } from '../src/types';
 import { PeerStore } from '../src/peer_store';
 
 export function createVoter(
@@ -46,7 +42,7 @@ export function createVoter(
     postalZip5: '12345',
     zip4: '6789',
     mailingStreetNumber: '123',
-    mailingSuffix: 'APT A',
+    mailingSuffix: 'A',
     mailingHouseFractionNumber: '',
     mailingStreetName: 'Main St',
     mailingApartmentUnitNumber: '',

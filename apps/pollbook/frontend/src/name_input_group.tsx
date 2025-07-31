@@ -1,4 +1,7 @@
-import type { VoterNameChangeRequest } from '@votingworks/pollbook-backend';
+import {
+  VoterNameChangeRequest,
+  VOTER_INPUT_FIELD_LIMITS,
+} from '@votingworks/types';
 import { Row, FieldName } from './layout';
 import {
   RequiredExpandableInput,
@@ -21,12 +24,15 @@ export function NameInputGroup({
         <TextField
           aria-label="Last Name"
           value={name.lastName}
-          onChange={(e) =>
+          onChange={(e) => {
+            const value = e.target.value
+              .toLocaleUpperCase()
+              .slice(0, VOTER_INPUT_FIELD_LIMITS.lastName);
             onChange({
               ...name,
-              lastName: e.target.value.toLocaleUpperCase(),
-            })
-          }
+              lastName: value,
+            });
+          }}
         />
       </RequiredExpandableInput>
       <RequiredExpandableInput>
@@ -34,12 +40,15 @@ export function NameInputGroup({
         <TextField
           aria-label="First Name"
           value={name.firstName}
-          onChange={(e) =>
+          onChange={(e) => {
+            const value = e.target.value
+              .toLocaleUpperCase()
+              .slice(0, VOTER_INPUT_FIELD_LIMITS.firstName);
             onChange({
               ...name,
-              firstName: e.target.value.toLocaleUpperCase(),
-            })
-          }
+              firstName: value,
+            });
+          }}
         />
       </RequiredExpandableInput>
       <ExpandableInput>
@@ -47,12 +56,15 @@ export function NameInputGroup({
         <TextField
           aria-label="Middle Name"
           value={name.middleName}
-          onChange={(e) =>
+          onChange={(e) => {
+            const value = e.target.value
+              .toLocaleUpperCase()
+              .slice(0, VOTER_INPUT_FIELD_LIMITS.middleName);
             onChange({
               ...name,
-              middleName: e.target.value.toLocaleUpperCase(),
-            })
-          }
+              middleName: value,
+            });
+          }}
         />
       </ExpandableInput>
       <StaticInput>
@@ -61,12 +73,15 @@ export function NameInputGroup({
           aria-label="Suffix"
           value={name.suffix}
           style={{ width: '5rem' }}
-          onChange={(e) =>
+          onChange={(e) => {
+            const value = e.target.value
+              .toLocaleUpperCase()
+              .slice(0, VOTER_INPUT_FIELD_LIMITS.nameSuffix);
             onChange({
               ...name,
-              suffix: e.target.value.toLocaleUpperCase(),
-            })
-          }
+              suffix: value,
+            });
+          }}
         />
       </StaticInput>
     </Row>

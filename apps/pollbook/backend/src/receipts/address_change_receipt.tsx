@@ -1,5 +1,6 @@
 import { format } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
+import { Voter } from '@votingworks/types';
 import {
   PartyName,
   ReceiptIcon,
@@ -9,7 +10,6 @@ import {
   VoterAddress,
   VoterName,
 } from './receipt_helpers';
-import { Voter } from '../types';
 
 export function AddressChangeReceipt({
   voter,

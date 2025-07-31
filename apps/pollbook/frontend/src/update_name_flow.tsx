@@ -1,7 +1,4 @@
-import type {
-  VoterNameChangeRequest,
-  Voter,
-} from '@votingworks/pollbook-backend';
+import type { VoterNameChangeRequest, Voter } from '@votingworks/types';
 import {
   MainHeader,
   H1,

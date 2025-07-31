@@ -1,8 +1,9 @@
 import { MainContent, Font, H1, LinkButton, Icons } from '@votingworks/ui';
 import { useState } from 'react';
-import type { Voter, VoterSearchParams } from '@votingworks/pollbook-backend';
+import type { VoterSearchParams } from '@votingworks/pollbook-backend';
 import { useHistory } from 'react-router-dom';
 import { assertDefined } from '@votingworks/basics';
+import { Voter } from '@votingworks/types';
 import { getDeviceStatuses, getElection } from './api';
 import { Column, Row } from './layout';
 import { ElectionManagerNavScreen } from './nav_screen';

@@ -12,18 +12,18 @@ import {
   DippedSmartCardAuthMachineState,
 } from '@votingworks/auth';
 import { BatteryInfo } from '@votingworks/backend';
-import { TEST_MACHINE_ID, withApp } from '../test/app';
-import {
-  parseValidStreetsFromCsvString,
-  parseVotersFromCsvString,
-} from './pollbook_package';
 import {
   Voter,
   VoterAddressChangeRequest,
   VoterMailingAddressChangeRequest,
   VoterNameChangeRequest,
   VoterRegistrationRequest,
-} from './types';
+} from '@votingworks/types';
+import { TEST_MACHINE_ID, withApp } from '../test/app';
+import {
+  parseValidStreetsFromCsvString,
+  parseVotersFromCsvString,
+} from './pollbook_package';
 import { createVoter } from '../test/test_helpers';
 
 let mockNodeEnv: 'production' | 'test' = 'test';

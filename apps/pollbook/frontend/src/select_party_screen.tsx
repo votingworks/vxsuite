@@ -1,7 +1,7 @@
 import {
   CheckInBallotParty,
   VoterIdentificationMethod,
-} from '@votingworks/pollbook-backend';
+} from '@votingworks/types';
 import {
   Button,
   ButtonBar,

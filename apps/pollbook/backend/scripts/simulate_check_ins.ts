@@ -1,9 +1,13 @@
 import * as grout from '@votingworks/grout';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { safeParseInt } from '@votingworks/types';
+import {
+  CheckInBallotParty,
+  PartyAbbreviation,
+  Voter,
+  safeParseInt,
+} from '@votingworks/types';
 import type { LocalApi } from '../src/app';
-import { CheckInBallotParty, PartyAbbreviation, Voter } from '../src';
 
 const api = grout.createClient<LocalApi>({
   baseUrl: 'http://localhost:3002/api',

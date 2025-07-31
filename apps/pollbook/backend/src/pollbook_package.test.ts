@@ -1,11 +1,11 @@
 import { describe, test, expect } from 'vitest';
 import { Election } from '@votingworks/types';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
+import { StreetSide } from '@votingworks/types';
 import {
   parseVotersFromCsvString,
   parseValidStreetsFromCsvString,
 } from './pollbook_package';
-import { StreetSide } from './types';
 import { getTestElection } from '../test/test_helpers';
 
 // Get test election and add precincts with external IDs for testing

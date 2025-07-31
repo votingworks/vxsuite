@@ -4,7 +4,7 @@ import {
   VoterAddressChangeRequest,
   ValidStreetInfo,
   VoterRegistrationRequest,
-} from './types';
+} from '@votingworks/types';
 import { isVoterNameChangeValid } from './voter_helpers';
 
 export function maybeGetStreetInfoForAddress(
