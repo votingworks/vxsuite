@@ -387,9 +387,7 @@ function buildApi({
 
         if (
           entry.type === FileSystemEntryType.File &&
-          entry.name.endsWith('.zip') &&
-          !entry.name.startsWith('.') &&
-          !entry.name.startsWith('_')
+          entry.name.endsWith('.zip')
         ) {
           potentialElectionPackages.push(entry);
         }
