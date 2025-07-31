@@ -1,4 +1,5 @@
 import { expect, test, vi } from 'vitest';
+import { SqliteError } from 'better-sqlite3';
 import * as fs from 'node:fs';
 import { join } from 'node:path';
 import { makeTemporaryFile } from '@votingworks/fixtures';
@@ -137,7 +138,7 @@ test('file database client with regex enabled in connectionOptions', () => {
     mockBaseLogger({ fn: vi.fn })
   );
   expect(() => anotherClient.all(queryString, '.*ermi.*')).toThrow(
-    new Error('no such function: REGEXP')
+    new SqliteError('no such function: REGEXP', 'SQLITE_ERROR')
   );
 
   client.destroy();

@@ -48,7 +48,7 @@
     "@types/randombytes": "^2.0.0",
     "@types/tmp": "0.2.4",
     "@types/yargs": "17.0.22",
-    "@vitest/coverage-istanbul": "^2.1.8",
+    "@vitest/coverage-istanbul": "^3.1.1",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
@@ -58,7 +58,7 @@
     "lint-staged": "11.0.0",
     "node-fetch": "^2.6.0",
     "sort-package-json": "^1.50.0",
-    "vitest": "^2.1.8"
+    "vitest": "^3.1.1"
   },
   "packageManager": "pnpm@8.15.5"
 }
