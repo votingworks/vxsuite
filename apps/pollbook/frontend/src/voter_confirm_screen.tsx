@@ -212,6 +212,7 @@ export function VoterConfirmScreen({
                 </Row>
                 <Row style={{ gap: '1.5rem' }}>
                   <LabelledText
+                    style={{ width: '100%' }}
                     label={
                       voter.addressChange ? (
                         <s>Domicile Address</s>
@@ -230,13 +231,17 @@ export function VoterConfirmScreen({
                     />
                   </LabelledText>
                   {voter.addressChange && (
-                    <LabelledText label="Updated Domicile Address">
+                    <LabelledText
+                      label="Updated Domicile Address"
+                      style={{ width: '100%' }}
+                    >
                       <AddressChange address={voter.addressChange} />
                     </LabelledText>
                   )}
                 </Row>
                 {hasMailingAddress(voter) && (
                   <LabelledText
+                    style={{ width: '100%' }}
                     label={
                       voter.mailingAddressChange ? (
                         <s>Mailing Address</s>
@@ -256,7 +261,10 @@ export function VoterConfirmScreen({
                   </LabelledText>
                 )}
                 {voter.mailingAddressChange && (
-                  <LabelledText label="Updated Mailing Address">
+                  <LabelledText
+                    label="Updated Mailing Address"
+                    style={{ width: '100%' }}
+                  >
                     <MailingAddressChange
                       address={voter.mailingAddressChange}
                     />
