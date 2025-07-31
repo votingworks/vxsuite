@@ -54,11 +54,15 @@ export type ListDirectoryError =
 
 /**
  * Options for listing directories.
- * - `depth`: How deep to traverse directories. Defaults to 1 (not recursive).
- * - `includeHidden`: Whether to include hidden files (those starting with a dot or underscore).
  */
 export interface ListDirectoryOptions {
+  /**
+   * How deep to traverse directories. Defaults to 1 (not recursive).
+   */
   depth?: number;
+  /**
+   * Whether to include hidden files (those starting with a dot or underscore).
+   */
   excludeHidden?: boolean;
 }
 
