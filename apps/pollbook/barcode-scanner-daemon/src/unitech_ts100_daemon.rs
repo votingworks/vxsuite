@@ -213,7 +213,6 @@ where
 
                 if buf.is_empty() {
                     // Expected at the end of the document
-                    log!(EventId::Info, "No data preceding terminator character");
                     continue;
                 }
 
