@@ -263,7 +263,7 @@ test('renders network status as expected - when configured', async () => {
   expect(iconElement0).toMatchInlineSnapshot(`
     <svg
       aria-hidden="true"
-      class="sc-dOoqMo jnVxDg"
+      class="sc-enkILE jmEncv"
       height="100"
       role="img"
       style="color: rgb(25, 72, 25);"
