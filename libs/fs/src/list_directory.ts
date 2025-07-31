@@ -64,7 +64,7 @@ export interface ListDirectoryOptions {
 
 const DEFAULT_LIST_DIRECTORY_OPTIONS: Required<ListDirectoryOptions> = {
   depth: 1,
-  excludeHidden: true,
+  excludeHidden: false,
 } as const;
 
 /**
