@@ -17,7 +17,11 @@ import {
   getDefaultNormalizer,
   screen,
 } from '../test/react_testing_library';
-import { createEmptySearchParams, VoterSearch } from './voter_search_screen';
+import {
+  createEmptySearchParams,
+  validateUsState,
+  VoterSearch,
+} from './voter_search_screen';
 import { DEFAULT_QUERY_REFETCH_INTERVAL } from './api';
 import {
   getMockAamvaDocument,
@@ -148,7 +152,9 @@ test('after an ID scan with "hidden" fields, shows full name and "Edit Search" b
   await act(() => vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL));
 
   await vi.waitFor(() => expect(onBarcodeScanMatch).toHaveBeenCalled());
-  expect(onBarcodeScanMatch).toHaveBeenCalledWith(mockVoter);
+  expect(onBarcodeScanMatch).toHaveBeenCalledWith(mockVoter, {
+    type: 'default',
+  });
 
   // Expect to see disabled form input and Edit Search button
   await screen.findByText('Scanned ID');
@@ -296,6 +302,10 @@ test('closes the error modal if a valid ID is scanned', async () => {
       normalizer: getDefaultNormalizer({ collapseWhitespace: true }),
     })
   ).toBeInTheDocument();
+});
+
+test('validateUsState', () => {
+  expect(validateUsState('NH')).toEqual('NH');
 });
 
 // Test for barcode scanner happy path is covered in app_poll_worker_screen.test.tsx

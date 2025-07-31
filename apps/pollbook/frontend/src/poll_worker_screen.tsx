@@ -45,7 +45,12 @@ import { SelectPartyScreen } from './select_party_screen';
 
 type CheckInFlowState =
   | { step: 'search'; search: VoterSearchParams }
-  | { step: 'confirm_identity'; voterId: string; search: VoterSearchParams }
+  | {
+      step: 'confirm_identity';
+      voterId: string;
+      identificationMethod: VoterIdentificationMethod;
+      search: VoterSearchParams;
+    }
   | {
       step: 'select_party';
       voterId: string;
@@ -131,7 +136,7 @@ export function VoterCheckInScreen(): JSX.Element | null {
   }, []);
 
   const setConfirmIdentity = useCallback(
-    (voterId: string) => {
+    (voterId: string, identificationMethod: VoterIdentificationMethod) => {
       if (flowState.step !== 'search' && flowState.step !== 'select_party') {
         /* istanbul ignore next - @preserve */
         return;
@@ -141,6 +146,7 @@ export function VoterCheckInScreen(): JSX.Element | null {
         step: 'confirm_identity',
         voterId,
         search: flowState.search,
+        identificationMethod,
       });
     },
     [flowState]
@@ -237,6 +243,7 @@ export function VoterCheckInScreen(): JSX.Element | null {
           configuredPrecinctId={configuredPrecinctId}
           election={election}
           onCancel={onCancel}
+          initialIdentificationMethod={flowState.identificationMethod}
           // Called when party must be selected in next step before check-in is completed
           onConfirmVoterIdentity={(
             voterId: string,
@@ -263,7 +270,12 @@ export function VoterCheckInScreen(): JSX.Element | null {
           voterId={flowState.voterId}
           identificationMethod={flowState.identificationMethod}
           onConfirmCheckIn={onConfirmCheckIn}
-          onBack={() => setConfirmIdentity(flowState.voterId)}
+          onBack={() =>
+            setConfirmIdentity(
+              flowState.voterId,
+              flowState.identificationMethod
+            )
+          }
         />
       );
 
@@ -310,8 +322,8 @@ export function VoterCheckInScreen(): JSX.Element | null {
         case 'unknown_voter_party':
           errorMessage = 'Voter Has No Declared Party';
           break;
+        /* istanbul ignore next - @preserve */
         default:
-          /* istanbul ignore next - @preserve */
           throwIllegalValue(flowState.errorType);
       }
       return (

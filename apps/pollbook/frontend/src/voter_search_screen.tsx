@@ -23,8 +23,14 @@ import type {
 import styled from 'styled-components';
 import { format } from '@votingworks/utils';
 import { Optional } from '@votingworks/basics';
-import { Election, Voter, VoterCheckIn } from '@votingworks/types';
+import {
+  Election,
+  Voter,
+  VoterCheckIn,
+  VoterIdentificationMethod,
+} from '@votingworks/types';
 import { useQueryClient } from '@tanstack/react-query';
+import { usStates } from './us_states';
 import { Column, Form, Row, InputGroup } from './layout';
 import { NavScreen } from './nav_screen';
 import { getCheckInCounts, getScannedIdDocument, searchVoters } from './api';
@@ -69,6 +75,16 @@ function formatNameSearch(search: VoterSearchParams): string {
     .join(' ');
 }
 
+export function validateUsState(aamvaIssuingJurisdiction: string): string {
+  if (Object.keys(usStates).includes(aamvaIssuingJurisdiction)) {
+    return aamvaIssuingJurisdiction;
+  }
+
+  // TODO add a default
+  /* istanbul ignore next - @preserve */
+  throw new Error(`Unhandled ID jurisdiction: ${aamvaIssuingJurisdiction}`);
+}
+
 export function createEmptySearchParams(
   exactMatch: boolean
 ): VoterSearchParams {
@@ -91,7 +107,10 @@ export function VoterSearch({
 }: {
   search: VoterSearchParams;
   setSearch: (search: VoterSearchParams) => void;
-  onBarcodeScanMatch: (voter: Voter) => void;
+  onBarcodeScanMatch: (
+    voter: Voter,
+    identificationMethod: VoterIdentificationMethod
+  ) => void;
   renderAction: (voter: Voter) => React.ReactNode;
   election: Election;
 }): JSX.Element {
@@ -189,8 +208,16 @@ export function VoterSearch({
         refetchType: 'all',
       });
 
+      const identificationMethod: VoterIdentificationMethod =
+        scannedIdDocument.issuingJurisdiction === 'NH'
+          ? { type: 'default' }
+          : {
+              type: 'outOfStateLicense',
+              state: validateUsState(scannedIdDocument.issuingJurisdiction),
+            };
+
       if (typeof searchResult === 'object' && searchResult.length === 1) {
-        onBarcodeScanMatch({ ...searchResult[0] });
+        onBarcodeScanMatch({ ...searchResult[0] }, identificationMethod);
       }
     }
   }, [
@@ -380,15 +407,18 @@ export function VoterSearchScreen({
   search: VoterSearchParams;
   setSearch: (search: VoterSearchParams) => void;
   isAbsenteeMode: boolean;
-  onSelect: (voterId: string) => void;
+  onSelect: (
+    voterId: string,
+    identificationMethod: VoterIdentificationMethod
+  ) => void;
   election: Election;
   configuredPrecinctId?: string;
 }): JSX.Element | null {
   const getCheckInCountsQuery = getCheckInCounts.useQuery();
 
   const onBarcodeScanMatch = useCallback(
-    (voter: Voter) => {
-      onSelect(voter.voterId);
+    (voter: Voter, identificationMethod: VoterIdentificationMethod) => {
+      onSelect(voter.voterId, identificationMethod);
     },
     [onSelect]
   );
@@ -437,7 +467,7 @@ export function VoterSearchScreen({
                   rightIcon="Next"
                   color="primary"
                   data-testid={`check-in-button#${voter.voterId}`}
-                  onPress={() => onSelect(voter.voterId)}
+                  onPress={() => onSelect(voter.voterId, { type: 'default' })}
                 >
                   <Font noWrap>
                     {configuredPrecinctId &&

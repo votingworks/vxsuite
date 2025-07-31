@@ -89,6 +89,7 @@ export function VoterConfirmScreen({
   onConfirmCheckIn,
   election,
   configuredPrecinctId,
+  initialIdentificationMethod = { type: 'default' },
 }: {
   voterId: string;
   isAbsenteeMode: boolean;
@@ -104,6 +105,7 @@ export function VoterConfirmScreen({
   ) => void;
   election: Election;
   configuredPrecinctId: string;
+  initialIdentificationMethod?: VoterIdentificationMethod;
 }): JSX.Element | null {
   const getVoterQuery = getVoter.useQuery(voterId);
   const [showUpdateAddressFlow, setShowUpdateAddressFlow] = useState(false);
@@ -112,7 +114,7 @@ export function VoterConfirmScreen({
   const [showInactiveVoterModal, setShowInactiveVoterModal] = useState(false);
   const [identificationMethod, setIdentificationMethod] = useState<
     Partial<VoterIdentificationMethod>
-  >({ type: 'default' });
+  >(initialIdentificationMethod);
 
   if (!getVoterQuery.isSuccess) {
     return null;
