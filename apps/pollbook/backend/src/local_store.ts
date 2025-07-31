@@ -1,6 +1,20 @@
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { Client as DbClient } from '@votingworks/db';
-import { safeParseJson } from '@votingworks/types';
+import {
+  CheckInBallotParty,
+  safeParseJson,
+  Voter,
+  VoterAddressChange,
+  VoterAddressChangeRequest,
+  VoterIdentificationMethod,
+  VoterMailingAddressChange,
+  VoterMailingAddressChangeRequest,
+  VoterNameChange,
+  VoterNameChangeRequest,
+  VoterRegistration,
+  VoterRegistrationRequest,
+  VoterSchema,
+} from '@votingworks/types';
 import { assert, assertDefined, groupBy, typedAs } from '@votingworks/basics';
 import { SqliteBool, fromSqliteBool, asSqliteBool } from '@votingworks/utils';
 import makeDebug from 'debug';
@@ -20,26 +34,14 @@ import {
   SummaryStatistics,
   ThroughputStat,
   UndoVoterCheckInEvent,
-  Voter,
-  VoterAddressChange,
   VoterAddressChangeEvent,
-  VoterAddressChangeRequest,
-  VoterMailingAddressChange,
   VoterMailingAddressChangeEvent,
-  VoterMailingAddressChangeRequest,
   VoterCheckInEvent,
   VoterGroup,
-  VoterIdentificationMethod,
   VoterInactivatedEvent,
-  VoterNameChange,
   VoterNameChangeEvent,
-  VoterNameChangeRequest,
-  VoterRegistration,
   VoterRegistrationEvent,
-  VoterRegistrationRequest,
-  VoterSchema,
   VoterSearchParams,
-  CheckInBallotParty,
 } from './types';
 import {
   applyPollbookEventsToVoters,

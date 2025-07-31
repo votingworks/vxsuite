@@ -6,8 +6,9 @@ import {
   VoterNameChangeSchema,
   VoterRegistrationSchema,
   ValidStreetInfoSchema,
-} from './types';
-import { VOTER_INPUT_FIELD_LIMITS } from './globals';
+  VOTER_INPUT_FIELD_LIMITS,
+  truncateToMaxLength,
+} from './pollbook';
 
 describe('Zod schema string truncation', () => {
   test('VoterSchema truncates strings to field limits', () => {
@@ -354,5 +355,27 @@ describe('Zod schema string truncation', () => {
     expect(voter.lastName).toEqual(shortName);
     expect(voter.streetName).toEqual('Main St');
     expect(voter.mailingStreetName).toEqual('Oak Ave');
+  });
+});
+
+describe('truncateToMaxLength', () => {
+  test('returns the original string if its length is less than maxLength', () => {
+    expect(truncateToMaxLength('abc', 5)).toEqual('abc');
+  });
+
+  test('returns the original string if its length is equal to maxLength', () => {
+    expect(truncateToMaxLength('abcde', 5)).toEqual('abcde');
+  });
+
+  test('returns the truncated string if its length is greater than maxLength', () => {
+    expect(truncateToMaxLength('abcdef', 5)).toEqual('abcde');
+  });
+
+  test('returns empty string if input is empty', () => {
+    expect(truncateToMaxLength('', 5)).toEqual('');
+  });
+
+  test('returns empty string if maxLength is 0', () => {
+    expect(truncateToMaxLength('abc', 0)).toEqual('');
   });
 });

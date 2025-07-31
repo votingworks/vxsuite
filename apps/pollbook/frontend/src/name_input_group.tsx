@@ -1,4 +1,7 @@
-import type { VoterNameChangeRequest } from '@votingworks/pollbook-backend';
+import {
+  VoterNameChangeRequest,
+  VOTER_INPUT_FIELD_LIMITS,
+} from '@votingworks/types';
 import { Row, FieldName } from './layout';
 import {
   RequiredExpandableInput,
@@ -6,7 +9,6 @@ import {
   ExpandableInput,
   StaticInput,
 } from './shared_components';
-import { VOTER_INPUT_FIELD_LIMITS } from './globals';
 
 export function NameInputGroup({
   name,

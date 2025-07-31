@@ -5,6 +5,9 @@ import {
   Election,
   safeParseElectionDefinition,
   safeParseInt,
+  StreetSide,
+  ValidStreetInfo,
+  Voter,
 } from '@votingworks/types';
 import { parse } from 'csv-parse/sync';
 import {
@@ -23,9 +26,6 @@ import { rootDebug } from './debug';
 import {
   LocalAppContext,
   PollbookPackage,
-  Voter,
-  ValidStreetInfo,
-  StreetSide,
   PeerAppContext,
   PollbookConnectionStatus,
 } from './types';

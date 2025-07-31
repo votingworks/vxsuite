@@ -2,7 +2,7 @@ import type {
   Voter,
   VoterAddressChange,
   VoterMailingAddressChange,
-} from '@votingworks/pollbook-backend';
+} from '@votingworks/types';
 import { Callout, Card, H4 } from '@votingworks/ui';
 import styled from 'styled-components';
 import { throwIllegalValue } from '@votingworks/basics';

@@ -1,10 +1,6 @@
-import {
-  Voter,
-  VoterIdentificationMethod,
-} from '@votingworks/pollbook-backend';
+import { Election, Voter, VoterIdentificationMethod } from '@votingworks/types';
 import { expect, test, beforeEach, afterEach, vi } from 'vitest';
 import { electionMultiPartyPrimaryFixtures } from '@votingworks/fixtures';
-import { Election } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { ApiMock, createApiMock } from '../test/mock_api_client';
 import { renderInAppContext } from '../test/render_in_app_context';

@@ -10,7 +10,8 @@ import { assertDefined, iter } from '@votingworks/basics';
 import { PDFDocument } from 'pdf-lib';
 
 import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
-import { PartyAbbreviation, LocalWorkspace } from './types';
+import { PartyAbbreviation } from '@votingworks/types';
+import { LocalWorkspace } from './types';
 import {
   CertificationPage,
   CoverPage,

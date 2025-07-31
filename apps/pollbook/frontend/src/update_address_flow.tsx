@@ -1,8 +1,5 @@
 import { throwIllegalValue } from '@votingworks/basics';
-import type {
-  Voter,
-  VoterAddressChangeRequest,
-} from '@votingworks/pollbook-backend';
+import type { Voter, VoterAddressChangeRequest } from '@votingworks/types';
 import {
   MainHeader,
   H1,

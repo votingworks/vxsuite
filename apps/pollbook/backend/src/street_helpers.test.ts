@@ -1,13 +1,13 @@
 import { describe, test, expect } from 'vitest';
-import {
-  maybeGetStreetInfoForAddressChange,
-  maybeGetStreetInfoForVoterRegistration,
-} from './street_helpers';
 import type {
   ValidStreetInfo,
   VoterRegistrationRequest,
   VoterAddressChangeRequest,
-} from './types';
+} from '@votingworks/types';
+import {
+  maybeGetStreetInfoForAddressChange,
+  maybeGetStreetInfoForVoterRegistration,
+} from './street_helpers';
 
 const mockStreetInfo: ValidStreetInfo[] = [
   {

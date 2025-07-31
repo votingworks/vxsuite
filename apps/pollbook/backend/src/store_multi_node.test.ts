@@ -3,17 +3,17 @@ import { sleep } from '@votingworks/basics';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { mockBaseLogger } from '@votingworks/logging';
 import {
+  Voter,
+  VoterAddressChangeRequest,
+  VoterNameChangeRequest,
+} from '@votingworks/types';
+import {
   createValidStreetInfo,
   createVoter,
   getTestElectionDefinition,
   syncEventsForAllPollbooks,
   syncEventsFromTo,
 } from '../test/test_helpers';
-import {
-  Voter,
-  VoterAddressChangeRequest,
-  VoterNameChangeRequest,
-} from './types';
 import { LocalStore } from './local_store';
 import { PeerStore } from './peer_store';
 

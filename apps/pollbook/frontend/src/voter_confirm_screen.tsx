@@ -18,7 +18,7 @@ import type {
   CheckInBallotParty,
   PartyAbbreviation,
   VoterIdentificationMethod,
-} from '@votingworks/pollbook-backend';
+} from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { Election } from '@votingworks/types';
 import { Column, Row } from './layout';

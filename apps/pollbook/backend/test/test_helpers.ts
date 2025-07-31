@@ -7,18 +7,14 @@ import {
   ElectionDefinition,
   ElectionId,
   HmpbBallotPaperSize,
+  ValidStreetInfo,
+  PartyAbbreviation,
+  Voter,
 } from '@votingworks/types';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { HlcTimestamp } from '../src/hybrid_logical_clock';
 import { Store } from '../src/store';
-import {
-  Voter,
-  VoterCheckInEvent,
-  EventType,
-  PollbookEventBase,
-  ValidStreetInfo,
-  PartyAbbreviation,
-} from '../src/types';
+import { VoterCheckInEvent, EventType, PollbookEventBase } from '../src/types';
 import { PeerStore } from '../src/peer_store';
 
 export function createVoter(

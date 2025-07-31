@@ -6,7 +6,7 @@ import {
   VoterAddressChangeRequest,
   VoterMailingAddressChangeRequest,
   VoterNameChangeRequest,
-} from '@votingworks/pollbook-backend';
+} from '@votingworks/types';
 import { Route, Switch } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import {

@@ -1,4 +1,4 @@
-import { Voter, VoterNameChangeRequest } from './types';
+import { Voter, VoterNameChangeRequest } from '@votingworks/types';
 
 export function getUpdatedVoterFirstName(voter: Voter): string {
   if (voter.nameChange) {

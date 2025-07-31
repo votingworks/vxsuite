@@ -18,14 +18,12 @@ import debounce from 'lodash.debounce';
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import type {
   AamvaDocument,
-  Voter,
-  VoterCheckIn,
   VoterSearchParams,
 } from '@votingworks/pollbook-backend';
 import styled from 'styled-components';
 import { format } from '@votingworks/utils';
 import { Optional } from '@votingworks/basics';
-import { Election } from '@votingworks/types';
+import { Election, Voter, VoterCheckIn } from '@votingworks/types';
 import { useQueryClient } from '@tanstack/react-query';
 import { Column, Form, Row, InputGroup } from './layout';
 import { NavScreen } from './nav_screen';

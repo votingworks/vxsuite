@@ -1,6 +1,6 @@
 import { SearchSelect } from '@votingworks/ui';
 import React from 'react';
-import { VOTER_INPUT_FIELD_LIMITS } from './globals';
+import { VOTER_INPUT_FIELD_LIMITS } from '@votingworks/types';
 import { Row, FieldName } from './layout';
 import {
   RequiredStaticInput,

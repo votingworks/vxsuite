@@ -1,8 +1,5 @@
 import { expect, test, beforeEach, afterEach, vi } from 'vitest';
-import {
-  ValidStreetInfo,
-  VoterRegistrationRequest,
-} from '@votingworks/pollbook-backend';
+import { ValidStreetInfo, VoterRegistrationRequest } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import {
   electionFamousNames2021Fixtures,

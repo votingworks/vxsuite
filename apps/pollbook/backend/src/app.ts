@@ -11,10 +11,18 @@ import {
   sleep,
 } from '@votingworks/basics';
 import {
+  CheckInBallotParty,
   DEFAULT_SYSTEM_SETTINGS,
   Election,
   PrinterStatus,
   TEST_JURISDICTION,
+  ValidStreetInfo,
+  Voter,
+  VoterAddressChangeRequest,
+  VoterIdentificationMethod,
+  VoterMailingAddressChangeRequest,
+  VoterNameChangeRequest,
+  VoterRegistrationRequest,
 } from '@votingworks/types';
 import {
   DEV_JURISDICTION,
@@ -36,16 +44,10 @@ import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
   DeviceStatuses,
-  Voter,
   VoterSearchParams,
   ConfigurationStatus,
-  ValidStreetInfo,
-  VoterRegistrationRequest,
-  VoterAddressChangeRequest,
-  VoterMailingAddressChangeRequest,
   SummaryStatistics,
   ThroughputStat,
-  VoterNameChangeRequest,
   LocalAppContext,
   LocalWorkspace,
   ConfigurationError,
@@ -54,8 +56,6 @@ import {
   PollbookConfigurationInformation,
   AamvaDocument,
   isBarcodeScannerError,
-  VoterIdentificationMethod,
-  CheckInBallotParty,
 } from './types';
 import { rootDebug } from './debug';
 import {

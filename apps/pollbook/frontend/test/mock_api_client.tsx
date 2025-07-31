@@ -1,27 +1,27 @@
 import {
+  CheckInBallotParty,
   constructElectionKey,
   DippedSmartCardAuth,
   Election,
   ElectionDefinition,
+  PartyAbbreviation,
+  ValidStreetInfo,
+  Voter,
+  VoterAddressChangeRequest,
+  VoterMailingAddressChangeRequest,
+  VoterNameChangeRequest,
+  VoterRegistrationRequest,
 } from '@votingworks/types';
 import { createMockClient } from '@votingworks/grout-test-utils';
 import type {
   AamvaDocument,
   Api,
-  CheckInBallotParty,
   ConfigurationError,
   ConfigurationStatus,
   DeviceStatuses,
   MachineConfig,
-  PartyAbbreviation,
   PollbookServiceInfo,
-  ValidStreetInfo,
-  Voter,
-  VoterAddressChangeRequest,
   VoterCheckInError,
-  VoterMailingAddressChangeRequest,
-  VoterNameChangeRequest,
-  VoterRegistrationRequest,
   VoterSearchParams,
 } from '@votingworks/pollbook-backend';
 import {

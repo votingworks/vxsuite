@@ -1,10 +1,11 @@
-import type {
-  ValidStreetInfo,
-  VoterAddressChangeRequest,
-} from '@votingworks/pollbook-backend';
 import { SearchSelect } from '@votingworks/ui';
 import React, { useMemo } from 'react';
-import { safeParseInt } from '@votingworks/types';
+import {
+  safeParseInt,
+  VOTER_INPUT_FIELD_LIMITS,
+  ValidStreetInfo,
+  VoterAddressChangeRequest,
+} from '@votingworks/types';
 import { Row, FieldName } from './layout';
 import {
   RequiredStaticInput,
@@ -14,7 +15,6 @@ import {
   ExpandableInput,
 } from './shared_components';
 import { getValidStreetInfo } from './api';
-import { VOTER_INPUT_FIELD_LIMITS } from './globals';
 
 function findDetailsFromStreetAddress(
   validStreetInfo: ValidStreetInfo[],
