@@ -8,6 +8,7 @@ export interface LabelledTextProps {
   label: React.ReactNode;
   /** @default 'top' */
   labelPosition?: 'bottom' | 'top';
+  style?: React.CSSProperties;
 }
 
 const StyledContainer = styled.span`
@@ -29,12 +30,12 @@ const StyledValue = styled.span`
  * spacing between them than regular lines of paragraph text.
  */
 export function LabelledText(props: LabelledTextProps): JSX.Element {
-  const { children, label, labelPosition = 'top' } = props;
+  const { children, label, labelPosition = 'top', style } = props;
 
   const labelElement = label && <StyledLabel>{label}</StyledLabel>;
 
   return (
-    <StyledContainer>
+    <StyledContainer style={style}>
       {labelPosition === 'top' && labelElement}
       <StyledValue>{children}</StyledValue>
       {labelPosition === 'bottom' && labelElement}
