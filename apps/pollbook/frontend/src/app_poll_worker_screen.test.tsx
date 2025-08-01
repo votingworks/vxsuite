@@ -271,57 +271,88 @@ describe('PollWorkerScreen', () => {
     unmount();
   });
 
-  test('exactly 1 match for barcode scan navigates to check in screen', async () => {
-    apiMock.authenticateAsPollWorker(famousNamesElection);
-    apiMock.setElection(famousNamesElectionDefinition);
-    apiMock.setPrinterStatus(true);
-    apiMock.setIsAbsenteeMode(false);
-    apiMock.setElection(
-      famousNamesElectionDefinition,
-      famousNamesElection.precincts[0].id
-    );
-    apiMock.expectGetCheckInCounts({ allMachines: 25, thisMachine: 5 });
-    apiMock.expectGetScannedIdDocument();
-    apiMock.expectSearchVotersNull({});
+  interface IdStateTestInterface {
+    usState: string;
+    expectedOutOfStateString?: string;
+  }
+  const idStateTests: IdStateTestInterface[] = [
+    { usState: 'NH' },
+    { usState: 'MA', expectedOutOfStateString: 'MA - Massachusetts' },
+  ];
 
-    // Render empty voter search screen
-    const { unmount } = render(<App apiClient={apiMock.mockApiClient} />);
-    await vi.waitFor(() => screen.getByText('Voter Check-In'));
+  test.each(idStateTests)(
+    'scanning an ID from $usState with a single voter match redirects to check-in screen',
+    async ({ usState, expectedOutOfStateString }) => {
+      apiMock.authenticateAsPollWorker(famousNamesElection);
+      apiMock.setElection(famousNamesElectionDefinition);
+      apiMock.setPrinterStatus(true);
+      apiMock.setIsAbsenteeMode(false);
+      apiMock.setElection(
+        famousNamesElectionDefinition,
+        famousNamesElection.precincts[0].id
+      );
+      apiMock.expectGetCheckInCounts({ allMachines: 25, thisMachine: 5 });
+      apiMock.expectGetScannedIdDocument();
+      apiMock.expectSearchVotersNull({});
 
-    const mockAamvaDocument = getMockAamvaDocument();
-    const mockSearchParams = getMockExactSearchParams();
+      // Render empty voter search screen
+      const { unmount } = render(<App apiClient={apiMock.mockApiClient} />);
+      await vi.waitFor(() => screen.getByText('Voter Check-In'));
 
-    const mockVoter: Voter = {
-      ...createMockVoter(
-        '123',
-        mockAamvaDocument.firstName,
-        mockAamvaDocument.lastName,
-        precinct1
-      ),
-      middleName: mockAamvaDocument.middleName,
-      suffix: mockAamvaDocument.nameSuffix,
-    };
+      const mockAamvaDocument = getMockAamvaDocument({
+        issuingJurisdiction: usState,
+      });
+      const mockSearchParams = getMockExactSearchParams();
 
-    // API returns a new barcode scan so we expect search and the getVoter endpoint
-    // to be queried with the new voter
-    apiMock.expectGetScannedIdDocument(mockAamvaDocument);
-    apiMock.expectSearchVotersWithResults(mockSearchParams, [mockVoter]);
-    apiMock.expectGetVoter(mockVoter);
+      const mockVoter: Voter = {
+        ...createMockVoter(
+          '123',
+          mockAamvaDocument.firstName,
+          mockAamvaDocument.lastName,
+          precinct1
+        ),
+        middleName: mockAamvaDocument.middleName,
+        suffix: mockAamvaDocument.nameSuffix,
+      };
 
-    act(() => {
-      vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
-    });
+      // API returns a new barcode scan so we expect search and the getVoter endpoint
+      // to be queried with the new voter
+      apiMock.expectGetScannedIdDocument(mockAamvaDocument);
+      apiMock.expectSearchVotersWithResults(mockSearchParams, [mockVoter]);
+      apiMock.expectGetVoter(mockVoter);
 
-    // Expect voter check-in screen to be rendered
-    await screen.findByRole('heading', { name: 'Confirm Voter Identity' });
+      act(() => {
+        vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
+      });
 
-    unmount();
-  });
+      // Expect voter check-in screen to be rendered
+      await screen.findByRole('heading', { name: 'Confirm Voter Identity' });
+
+      // Out-of-state IDs should have the OOS checkbox checked and show what state the ID was issued by
+      if (expectedOutOfStateString) {
+        const checkbox = await screen.findByRole('checkbox', {
+          name: 'Out-of-State ID',
+        });
+        expect(checkbox).toBeChecked();
+        await screen.findByText(expectedOutOfStateString);
+      }
+
+      unmount();
+    }
+  );
 
   for (const testCase of [
     {
       error: 'already_checked_in' as VoterCheckInError,
       expectedMessage: 'Voter Already Checked In',
+    },
+    {
+      error: 'undeclared_voter_missing_ballot_party' as VoterCheckInError,
+      expectedMessage: 'Undeclared Primary Voters Must Choose a Party Ballot',
+    },
+    {
+      error: 'unknown_voter_party' as VoterCheckInError,
+      expectedMessage: 'Voter Has No Declared Party',
     },
   ]) {
     test(`check in flow handles ${testCase.error} error path`, async () => {
