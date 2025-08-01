@@ -17,7 +17,6 @@ import {
   H1,
   Icons,
   MainHeader,
-  P,
 } from '@votingworks/ui';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import {
@@ -358,20 +357,13 @@ export function VoterCheckInScreen(): JSX.Element | null {
 
 export function PollWorkerScreen(): JSX.Element | null {
   const getDeviceStatusesQuery = getDeviceStatuses.useQuery();
-  const getPollbookConfigurationInformationQuery =
-    getPollbookConfigurationInformation.useQuery();
 
-  if (
-    !getDeviceStatusesQuery.isSuccess ||
-    !getPollbookConfigurationInformationQuery.isSuccess
-  ) {
+  if (!getDeviceStatusesQuery.isSuccess) {
     return null;
   }
 
   const { printer } = getDeviceStatusesQuery.data;
 
-  const { configuredPrecinctId } =
-    getPollbookConfigurationInformationQuery.data;
   if (!printer.connected) {
     return (
       <NavScreen>
@@ -385,28 +377,6 @@ export function PollWorkerScreen(): JSX.Element | null {
             title="No Printer Detected"
           >
             <p>Connect printer to continue.</p>
-          </FullScreenMessage>
-        </Column>
-      </NavScreen>
-    );
-  }
-
-  if (!configuredPrecinctId) {
-    return (
-      <NavScreen>
-        <Column>
-          <FullScreenMessage
-            title="No Precinct Selected"
-            image={
-              <FullScreenIconWrapper>
-                <Icons.Disabled />
-              </FullScreenIconWrapper>
-            }
-          >
-            <P>
-              Insert a system administrator or election manager card to select a
-              precinct.
-            </P>
           </FullScreenMessage>
         </Column>
       </NavScreen>

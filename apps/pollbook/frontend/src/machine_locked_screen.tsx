@@ -1,4 +1,4 @@
-import { H1, H3, Main, Screen } from '@votingworks/ui';
+import { H1, H3, InsertCardImage, Main, Screen } from '@votingworks/ui';
 import styled from 'styled-components';
 import React from 'react';
 import { ElectionInfoBar } from './election_info_bar';
@@ -32,19 +32,31 @@ export function MachineLockedScreen(): JSX.Element | null {
     <Screen>
       <DeviceStatusBar showLogOutButton={false} />
       <Main centerChild>
-        <div>
-          <LockedImage src="/locked.svg" alt="Locked Icon" />
-          <H1 align="center">VxPollBook Locked</H1>
-          <H3 align="center" style={{ fontWeight: 'normal' }}>
-            {getElectionQuery.data.isOk() ? (
-              <React.Fragment>Insert card to unlock.</React.Fragment>
-            ) : (
-              <React.Fragment>
-                Insert system administrator or election manager card to unlock.
-              </React.Fragment>
-            )}
-          </H3>
-        </div>
+        {configuredPrecinctId ? (
+          <React.Fragment>
+            <LockedImage src="/locked.svg" alt="Locked Icon" />
+            <H1 align="center">VxPollBook Locked</H1>
+            <H3 align="center" style={{ fontWeight: 'normal' }}>
+              Insert card to unlock
+            </H3>
+          </React.Fragment>
+        ) : getElectionQuery.data.isOk() ? (
+          <React.Fragment>
+            <InsertCardImage cardInsertionDirection="right" />
+            <H1 align="center" style={{ maxWidth: '36rem' }}>
+              Insert a system administrator or election manager card to select a
+              precinct
+            </H1>
+          </React.Fragment>
+        ) : (
+          <React.Fragment>
+            <InsertCardImage cardInsertionDirection="right" />
+            <H1 align="center" style={{ maxWidth: '36rem' }}>
+              Insert a system administrator or election manager card to
+              configure VxPollBook
+            </H1>
+          </React.Fragment>
+        )}
       </Main>
       <ElectionInfoBar
         election={election}

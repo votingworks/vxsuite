@@ -29,6 +29,7 @@ import {
   createQueryClient,
   getAuthStatus,
   getElection,
+  getPollbookConfigurationInformation,
   logOut,
   systemCallApi,
   useApiClient,
@@ -46,6 +47,7 @@ function AppRoot({ logger }: { logger: BaseLogger }): JSX.Element | null {
   const logOutMutation = logOut.useMutation();
   const getAuthStatusQuery = getAuthStatus.useQuery();
   const getElectionQuery = getElection.useQuery({ refetchInterval: 100 });
+  const getMachineInfoQuery = getPollbookConfigurationInformation.useQuery();
   const history = useHistory();
 
   const loggableUserName = useMemo(
@@ -70,7 +72,11 @@ function AppRoot({ logger }: { logger: BaseLogger }): JSX.Element | null {
     };
   }, [logger, history, loggableUserName]);
 
-  if (!getAuthStatusQuery.isSuccess || !getElectionQuery.isSuccess) {
+  if (
+    !getAuthStatusQuery.isSuccess ||
+    !getElectionQuery.isSuccess ||
+    !getMachineInfoQuery.isSuccess
+  ) {
     return null;
   }
   const auth = getAuthStatusQuery.data;
@@ -116,8 +122,8 @@ function AppRoot({ logger }: { logger: BaseLogger }): JSX.Element | null {
         reasonAndContext={auth}
         recommendedAction={
           auth.reason === 'machine_not_configured'
-            ? 'Use an election manager card.'
-            : 'Use a valid election manager or poll worker card.'
+            ? 'Use a system administrator or election manager card.'
+            : 'Use a valid card.'
         }
         cardInsertionDirection="right"
       />
