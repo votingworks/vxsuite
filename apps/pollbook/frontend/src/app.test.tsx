@@ -67,20 +67,19 @@ test('renders RemoveCardScreen when card needs to be removed', async () => {
   await screen.findByText(/Remove card to unlock/);
 });
 
-test('renders MachineLockedScreen when machine is locked - unconfigure', async () => {
+test('renders MachineLockedScreen when machine is locked - completely unconfigured', async () => {
   apiMock.expectGetDeviceStatuses();
   apiMock.setAuthStatus({
     status: 'logged_out',
     reason: 'machine_locked',
   });
   renderApp();
-  await screen.findByText('VxPollBook Locked');
-  await screen.findByText(
-    'Insert system administrator or election manager card to unlock.'
-  );
+  await screen.findByRole('heading', {
+    name: 'Insert a system administrator or election manager card to configure VxPollBook',
+  });
 });
 
-test('renders MachineLockedScreen when machine is locked - configured', async () => {
+test('renders MachineLockedScreen when machine is locked - configured with election only', async () => {
   apiMock.expectGetDeviceStatuses();
   apiMock.setAuthStatus({
     status: 'logged_out',
@@ -88,8 +87,28 @@ test('renders MachineLockedScreen when machine is locked - configured', async ()
   });
   apiMock.setElection(famousNamesElection, undefined, 'FAKEHASH');
   renderApp();
+  await screen.findByRole('heading', {
+    name: 'Insert a system administrator or election manager card to select a precinct',
+  });
+  await screen.findByText(
+    `${famousNamesElection.ballotHash.slice(0, 7)}-FAKEHAS`
+  );
+});
+
+test('renders MachineLockedScreen when machine is locked - configured with election and precinct', async () => {
+  apiMock.expectGetDeviceStatuses();
+  apiMock.setAuthStatus({
+    status: 'logged_out',
+    reason: 'machine_locked',
+  });
+  apiMock.setElection(
+    famousNamesElection,
+    famousNamesElection.election.precincts[0].id,
+    'FAKEHASH'
+  );
+  renderApp();
   await screen.findByText('VxPollBook Locked');
-  await screen.findByText('Insert card to unlock.');
+  await screen.findByText('Insert card to unlock');
   await screen.findByText(
     `${famousNamesElection.ballotHash.slice(0, 7)}-FAKEHAS`
   );
