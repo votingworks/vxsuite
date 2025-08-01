@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { FormEvent, useState } from 'react';
 import {
   H1,
   P,
@@ -11,7 +11,9 @@ import {
   SearchSelect,
   H2,
   SegmentedButton,
+  FileInputButton,
 } from '@votingworks/ui';
+import { Buffer } from 'node:buffer';
 import { useParams } from 'react-router-dom';
 import { ElectionSerializationFormat } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
@@ -30,6 +32,7 @@ import {
   getTestDecks,
   getBallotOrderInfo,
   getBallotTemplate,
+  decryptCvrBallotAuditIds,
 } from './api';
 import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, routes } from './routes';
@@ -59,10 +62,14 @@ export function ExportScreen(): JSX.Element | null {
   const finalizeBallotsMutation = finalizeBallots.useMutation();
   const unfinalizeBallotsMutation = unfinalizeBallots.useMutation();
   const updateBallotOrderInfoMutation = updateBallotOrderInfo.useMutation();
+  const decryptCvrBallotAuditIdsMutation =
+    decryptCvrBallotAuditIds.useMutation();
 
   const [electionSerializationFormat, setElectionSerializationFormat] =
     useState<ElectionSerializationFormat>('vxf');
   const [numAuditIdBallots, setNumAuditIdBallots] = useState<number>();
+  const [ballotAuditIdSecretKey, setBallotAuditIdSecretKey] =
+    useState<string>();
   const [exportError, setExportError] = useState<string>();
 
   useQueryChangeListener(electionPackageQuery, {
@@ -142,6 +149,30 @@ export function ExportScreen(): JSX.Element | null {
   const ballotOrderInfo = getBallotOrderInfoQuery.data;
   const ballotTemplateId = getBallotTemplateQuery.data;
   const features = getUserFeaturesQuery.data;
+
+  async function onSelectCvrsToDecrypt(event: FormEvent<HTMLInputElement>) {
+    const input = event.currentTarget;
+    const files = Array.from(input.files ?? []);
+    const file = files[0];
+    const cvrZipFileContents = Buffer.from(await file.arrayBuffer());
+    decryptCvrBallotAuditIdsMutation.mutate(
+      {
+        cvrZipFileContents,
+        secretKey: assertDefined(ballotAuditIdSecretKey),
+      },
+      {
+        onSuccess: (outputFileContents) => {
+          downloadFile(
+            URL.createObjectURL(
+              new Blob([outputFileContents], { type: 'application/zip' })
+            ),
+            'decrypted-cvrs.zip'
+          );
+          setBallotAuditIdSecretKey(undefined);
+        },
+      }
+    );
+  }
 
   return (
     <ElectionNavScreen electionId={electionId}>
@@ -299,6 +330,28 @@ export function ExportScreen(): JSX.Element | null {
             disabled={numAuditIdBallots === undefined}
           />
         </InputGroup>
+
+        <H2>Decrypt CVR Ballot Audit IDs</H2>
+        <InputGroup label="Secret Key">
+          <input
+            type="text"
+            value={ballotAuditIdSecretKey ?? ''}
+            onChange={(e) => setBallotAuditIdSecretKey(e.target.value)}
+            disabled={decryptCvrBallotAuditIdsMutation.isLoading}
+          />
+        </InputGroup>
+        <P style={{ marginTop: '0.5rem' }}>
+          <FileInputButton
+            accept=".zip"
+            onChange={onSelectCvrsToDecrypt}
+            disabled={
+              !ballotAuditIdSecretKey ||
+              decryptCvrBallotAuditIdsMutation.isLoading
+            }
+          >
+            Select CVR Export Zip File
+          </FileInputButton>
+        </P>
       </MainContent>
     </ElectionNavScreen>
   );

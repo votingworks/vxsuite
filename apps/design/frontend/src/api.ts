@@ -706,3 +706,10 @@ export const getElectionFeatures = {
     );
   },
 } as const;
+
+export const decryptCvrBallotAuditIds = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.decryptCvrBallotAuditIds);
+  },
+} as const;
