@@ -1,6 +1,7 @@
-import { expect, test } from 'vitest';
+import { expect, test, vi } from 'vitest';
 import { readMultiPartyPrimaryElectionDefinition } from '@votingworks/fixtures';
 import { VoterAddressChangeRequest } from '@votingworks/types';
+import { mockBaseLogger } from '@votingworks/logging';
 import { LocalStore } from './local_store';
 import {
   getTestElectionDefinition,
@@ -23,7 +24,7 @@ const mockAddressDetails: VoterAddressChangeRequest = {
 };
 
 test('getNewEvents returns events for unknown machines', () => {
-  const store = LocalStore.memoryStore();
+  const store = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
   setupTestElectionAndVoters(store);
   store.setConfiguredPrecinct('precinct-1');
   // Check in with a default ID method
@@ -73,7 +74,7 @@ test('getNewEvents returns events for unknown machines', () => {
 
 // Exclusion of "Party Choice" column for general elections is tested in the above test
 test('includes ballot party selection for primaries', () => {
-  const store = LocalStore.memoryStore();
+  const store = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
   const primaryElectionDef = readMultiPartyPrimaryElectionDefinition();
   setupTestElectionAndVoters(store, primaryElectionDef);
   store.setConfiguredPrecinct('precinct-1');

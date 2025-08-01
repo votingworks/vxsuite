@@ -1,4 +1,4 @@
-import { BaseLogger, LogSource } from '@votingworks/logging';
+import { BaseLogger } from '@votingworks/logging';
 import { Client as DbClient } from '@votingworks/db';
 import {
   CheckInBallotParty,
@@ -99,9 +99,9 @@ export class LocalStore extends Store {
    * Builds and returns a new store whose data is kept in memory.
    */
   static memoryStore(
+    logger: BaseLogger,
     machineId: string = 'test-machine',
-    codeVersion: string = 'test-v1',
-    logger: BaseLogger = new BaseLogger(LogSource.VxPollBookBackend)
+    codeVersion: string = 'test-v1'
   ): LocalStore {
     return new LocalStore(
       DbClient.memoryClient(SchemaPath, { registerRegexpFn: true }),

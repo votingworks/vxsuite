@@ -1,4 +1,4 @@
-import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
+import { BaseLogger, LogEventId } from '@votingworks/logging';
 import { Client as DbClient } from '@votingworks/db';
 import { Result, err, ok } from '@votingworks/basics';
 import fetch from 'node-fetch';
@@ -66,9 +66,9 @@ export class PeerStore extends Store {
    * Builds and returns a new store whose data is kept in memory.
    */
   static memoryStore(
+    logger: BaseLogger,
     machineId: string = 'test-machine',
-    codeVersion: string = 'test-v1',
-    logger: BaseLogger = new BaseLogger(LogSource.VxPollBookBackend)
+    codeVersion: string = 'test-v1'
   ): PeerStore {
     return new PeerStore(
       DbClient.memoryClient(SchemaPath),

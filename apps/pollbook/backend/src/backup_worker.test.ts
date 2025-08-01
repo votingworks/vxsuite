@@ -1,7 +1,8 @@
-import { expect, test, vitest } from 'vitest';
+import { expect, test, vi, vitest } from 'vitest';
 import { writeFileSync } from 'node:fs';
 import { makeTemporaryPath } from '@votingworks/fixtures';
 import { ElectionDefinition, PrecinctId } from '@votingworks/types';
+import { mockBaseLogger } from '@votingworks/logging';
 import {
   createVoter,
   getTestElection,
@@ -16,7 +17,7 @@ vitest.setConfig({
 });
 
 test('can export paper backup checklist for multi precinct election', async () => {
-  const store = LocalStore.memoryStore();
+  const store = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
   setupTestElectionAndVoters(store);
   // Set up a configured precinct for multi-precinct testing
   store.setConfiguredPrecinct('precinct-1');
@@ -85,7 +86,7 @@ test('can export paper backup checklist for multi precinct election', async () =
 });
 
 test('backup checklist works for single-precinct election', async () => {
-  const store = LocalStore.memoryStore();
+  const store = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
 
   // Create a single-precinct election
   const baseElection = getTestElection();
