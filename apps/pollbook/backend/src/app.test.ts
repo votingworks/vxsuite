@@ -339,7 +339,12 @@ test('register a voter - duplicate name', async () => {
       electionDefinition,
       'mock-package-hash',
       townStreetNames,
-      [createVoter('original', 'Dylan', `O'Brien`, 'Darren', 'I')]
+      [
+        createVoter('original', 'Dylan', `O'Brien`, {
+          middleName: 'Darren',
+          suffix: 'I',
+        }),
+      ]
     );
     mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
 

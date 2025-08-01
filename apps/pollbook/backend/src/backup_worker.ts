@@ -6,7 +6,7 @@ import { Exporter } from '@votingworks/backend';
 import { setInterval } from 'node:timers/promises';
 import { MarginDimensions, renderToPdf } from '@votingworks/printing';
 import { UsbDrive } from '@votingworks/usb-drive';
-import { assertDefined, iter } from '@votingworks/basics';
+import { assertDefined, err, ok, iter, Result } from '@votingworks/basics';
 import { PDFDocument } from 'pdf-lib';
 
 import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
@@ -76,7 +76,9 @@ export async function getBackupPaperChecklistPdfs(
   exportTime: Date = new Date()
 ): Promise<Uint8Array[]> {
   const election = assertDefined(store.getElection());
-  const voterGroups = store.groupVotersAlphabeticallyByLastName();
+  const voterGroups = store.groupVotersAlphabeticallyByLastName({
+    matchConfiguredPrecinctId: true,
+  });
   const totalCheckIns = store.getCheckInCount();
   const lastEventPerMachine = store.getMostRecentEventIdPerMachine();
   const { configuredPrecinctId } = store.getPollbookConfigurationInformation();
@@ -130,7 +132,7 @@ export async function getBackupPaperChecklistPdfs(
     });
 
   const voterCountByParty = store
-    .getAllVotersSorted()
+    .getAllVotersSorted({ matchConfiguredPrecinctId: true })
     .filter((voter) => !voter.registrationEvent)
     .reduce(
       (counts, voter) => ({
@@ -183,25 +185,26 @@ export async function getBackupPaperChecklistPdfs(
   return pdfs;
 }
 
-async function exportBackupVoterChecklist(
+export async function exportBackupVoterChecklist(
   workspace: LocalWorkspace,
   usbDrive: UsbDrive,
   logger: BaseLogger = new BaseLogger(LogSource.VxPollBookBackend)
-): Promise<void> {
+): Promise<Result<void, Error>> {
   const usbDriveStatus = await usbDrive.status();
   if (usbDriveStatus.status !== 'mounted') {
-    logger.log(LogEventId.PollbookPaperBackupStatus, 'system', {
-      message: 'No USB drive mounted, skipping backup',
-      disposition: 'failure',
-    });
-    return;
+    return err(new Error('No USB drive mounted, skipping backup'));
   }
   if (!workspace.store.getElection()) {
-    logger.log(LogEventId.PollbookPaperBackupStatus, 'system', {
-      message: 'Machine not configured, skipping backup',
-      disposition: 'failure',
-    });
-    return;
+    return err(
+      new Error('Machine not configured with election, skipping backup')
+    );
+  }
+  const { configuredPrecinctId } =
+    workspace.store.getPollbookConfigurationInformation();
+  if (!configuredPrecinctId) {
+    return err(
+      new Error('Machine not configured with precinct, skipping backup')
+    );
   }
   logger.log(LogEventId.PollbookPaperBackupStatus, 'system', {
     message: 'Exporting backup voter checklist...',
@@ -237,6 +240,8 @@ async function exportBackupVoterChecklist(
     disposition: 'success',
   });
   await usbDrive.sync();
+
+  return ok();
 }
 
 export function start({
@@ -248,10 +253,30 @@ export function start({
 }): void {
   console.log('Starting VxPollBook backup worker');
   process.nextTick(async () => {
-    await exportBackupVoterChecklist(workspace, usbDrive, workspace.logger);
+    const initialResult = await exportBackupVoterChecklist(
+      workspace,
+      usbDrive,
+      workspace.logger
+    );
+    if (initialResult.isErr()) {
+      workspace.logger.log(LogEventId.PollbookPaperBackupStatus, 'system', {
+        message: initialResult.err().message,
+        disposition: 'failure',
+      });
+    }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for await (const _ of setInterval(BACKUP_INTERVAL)) {
-      await exportBackupVoterChecklist(workspace, usbDrive);
+      const result = await exportBackupVoterChecklist(
+        workspace,
+        usbDrive,
+        workspace.logger
+      );
+      if (result.isErr()) {
+        workspace.logger.log(LogEventId.PollbookPaperBackupStatus, 'system', {
+          message: result.err().message,
+          disposition: 'failure',
+        });
+      }
     }
   });
 }

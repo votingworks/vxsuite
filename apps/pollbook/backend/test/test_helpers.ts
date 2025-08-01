@@ -17,19 +17,24 @@ import { Store } from '../src/store';
 import { VoterCheckInEvent, EventType, PollbookEventBase } from '../src/types';
 import { PeerStore } from '../src/peer_store';
 
+interface OptionalMockVoterParams {
+  middleName?: string;
+  suffix?: string;
+  precinct?: string;
+}
+
 export function createVoter(
   voterId: string,
   firstName: string,
   lastName: string,
-  middleName: string = '',
-  suffix: string = ''
+  optionalMockVoterParams: OptionalMockVoterParams = {}
 ): Voter {
   return {
     voterId,
     firstName,
     lastName,
-    middleName,
-    suffix,
+    middleName: optionalMockVoterParams.middleName || '',
+    suffix: optionalMockVoterParams.suffix || '',
     streetNumber: '123',
     addressSuffix: '',
     houseFractionNumber: '',
@@ -53,7 +58,7 @@ export function createVoter(
     mailingZip5: '12345',
     mailingZip4: '6789',
     party: 'UND',
-    precinct: 'Precinct',
+    precinct: optionalMockVoterParams.precinct || 'Precinct',
     isInactive: false,
   };
 }
@@ -199,15 +204,22 @@ export function getTestElectionDefinition(): ElectionDefinition {
   return testElectionDefinition;
 }
 
+interface SetupTestElectionAndVotersOptions {
+  electionDefinition?: ElectionDefinition;
+  precinct?: string;
+  additionalVoters?: Voter[];
+}
+
 export function setupTestElectionAndVoters(
   store: Store,
-  electionDefinition?: ElectionDefinition
+  options: SetupTestElectionAndVotersOptions = {}
 ): void {
   const testVoters = [
-    createVoter('abigail', 'Abigail', 'Adams'),
-    createVoter('bob', 'Bob', 'Smith'),
-    createVoter('charlie', 'Charlie', 'Brown'),
-    createVoter('sue', 'Sue', 'Jones'),
+    createVoter('abigail', 'Abigail', 'Adams', { precinct: options.precinct }),
+    createVoter('bob', 'Bob', 'Smith', { precinct: options.precinct }),
+    createVoter('charlie', 'Charlie', 'Brown', { precinct: options.precinct }),
+    createVoter('sue', 'Sue', 'Jones', { precinct: options.precinct }),
+    ...(options.additionalVoters ?? []),
   ];
   const testStreetInfo: ValidStreetInfo[] = [
     {
@@ -222,7 +234,7 @@ export function setupTestElectionAndVoters(
     },
   ];
   store.setElectionAndVoters(
-    electionDefinition ?? getTestElectionDefinition(),
+    options.electionDefinition ?? getTestElectionDefinition(),
     'mock-package-hash',
     testStreetInfo,
     testVoters

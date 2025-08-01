@@ -12,13 +12,57 @@ import { getBackupPaperChecklistPdfs } from './backup_worker';
 import { LocalStore } from './local_store';
 import { EventType, VoterRegistrationEvent } from './types';
 
+function setSinglePrecinctElection(store: LocalStore): void {
+  const baseElection = getTestElection();
+  const singlePrecinctElection: typeof baseElection = {
+    ...baseElection,
+    precincts: [baseElection.precincts[0]], // Only one precinct
+  };
+
+  const singlePrecinctElectionDefinition: ElectionDefinition = {
+    election: singlePrecinctElection,
+    electionData: '',
+    ballotHash: 'test-ballot-hash',
+  };
+
+  const testVoters = [
+    createVoter('voter1', 'Test', 'Voter', { precinct: 'precinct-0' }),
+  ];
+  const testStreetInfo = [
+    {
+      streetName: 'Main',
+      side: 'even' as const,
+      lowRange: 2,
+      highRange: 100,
+      postalCityTown: 'Somewhere',
+      zip5: '12345',
+      zip4: '6789',
+      precinct: 'precinct-0' as PrecinctId,
+    },
+  ];
+
+  store.setElectionAndVoters(
+    singlePrecinctElectionDefinition,
+    'mock-package-hash',
+    testStreetInfo,
+    testVoters
+  );
+}
+
 vitest.setConfig({
   testTimeout: 55_000,
 });
 
 test('can export paper backup checklist for multi precinct election', async () => {
   const store = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
-  setupTestElectionAndVoters(store);
+  const otherPrecinctVoter = createVoter('cage', 'Nicholas', 'Cage', {
+    precinct: 'precinct-2',
+  });
+  setupTestElectionAndVoters(store, {
+    precinct: 'precinct-1',
+    additionalVoters: [otherPrecinctVoter],
+  });
+
   // Set up a configured precinct for multi-precinct testing
   store.setConfiguredPrecinct('precinct-1');
   store.recordVoterCheckIn({
@@ -88,39 +132,7 @@ test('can export paper backup checklist for multi precinct election', async () =
 test('backup checklist works for single-precinct election', async () => {
   const store = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
 
-  // Create a single-precinct election
-  const baseElection = getTestElection();
-  const singlePrecinctElection: typeof baseElection = {
-    ...baseElection,
-    precincts: [baseElection.precincts[0]], // Only one precinct
-  };
-
-  const singlePrecinctElectionDefinition: ElectionDefinition = {
-    election: singlePrecinctElection,
-    electionData: '',
-    ballotHash: 'test-ballot-hash',
-  };
-
-  const testVoters = [createVoter('voter1', 'Test', 'Voter')];
-  const testStreetInfo = [
-    {
-      streetName: 'Main',
-      side: 'even' as const,
-      lowRange: 2,
-      highRange: 100,
-      postalCityTown: 'Somewhere',
-      zip5: '12345',
-      zip4: '6789',
-      precinct: 'precinct-0' as PrecinctId,
-    },
-  ];
-
-  store.setElectionAndVoters(
-    singlePrecinctElectionDefinition,
-    'mock-package-hash',
-    testStreetInfo,
-    testVoters
-  );
+  setSinglePrecinctElection(store);
 
   const pdfs = await getBackupPaperChecklistPdfs(store, new Date('2024-01-01'));
 
