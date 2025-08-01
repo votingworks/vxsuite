@@ -59,6 +59,7 @@ export interface DippedSmartCardAuthConfig {
  */
 export interface DippedSmartCardAuthMachineState {
   arePollWorkerCardPinsEnabled: boolean;
+  isConfigured?: boolean;
   electionKey?: ElectionKey;
   jurisdiction?: string;
   machineType: MachineType;

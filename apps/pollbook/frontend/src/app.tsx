@@ -122,8 +122,8 @@ function AppRoot({ logger }: { logger: BaseLogger }): JSX.Element | null {
         reasonAndContext={auth}
         recommendedAction={
           auth.reason === 'machine_not_configured'
-            ? 'Use an election manager card.'
-            : 'Use a valid election manager or poll worker card.'
+            ? 'Use a system administrator or election manager card.'
+            : 'Use a valid card.'
         }
         cardInsertionDirection="right"
       />
