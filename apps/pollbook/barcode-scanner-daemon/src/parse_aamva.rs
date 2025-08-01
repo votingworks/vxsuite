@@ -111,12 +111,12 @@ impl FromStr for AamvaDocument {
                 continue;
             };
 
-            let mut validated_data: String = data.to_owned();
+            let mut normalized_data: String = data.to_owned();
             // Per spec section "D.12.5 Data elements"
             //   > Mandatory data elements for which no data exists for a given cardholder are to be encoded with the word "NONE".
             //   > In the event data is not available for a mandatory data element, "unavl" is to be encoded.
-            if validated_data == "unavl" || validated_data == "NONE" {
-                String::new().clone_into(&mut validated_data);
+            if normalized_data == "unavl" || normalized_data == "NONE" {
+                String::new().clone_into(&mut normalized_data);
             }
 
             #[allow(clippy::assigning_clones)]
@@ -125,25 +125,25 @@ impl FromStr for AamvaDocument {
                     if data.len() > MAX_NAME_LENGTH {
                         return Err(Self::Err::DataTooLong(id.to_string(), data.to_string()));
                     }
-                    document.first_name = validated_data;
+                    document.first_name = normalized_data;
                 }
                 "DAD" => {
                     if data.len() > MAX_NAME_LENGTH {
                         return Err(Self::Err::DataTooLong(id.to_string(), data.to_string()));
                     }
-                    document.middle_name = validated_data;
+                    document.middle_name = normalized_data.replace(",", " ");
                 }
                 "DCS" => {
                     if data.len() > MAX_NAME_LENGTH {
                         return Err(Self::Err::DataTooLong(id.to_string(), data.to_string()));
                     }
-                    document.last_name = validated_data;
+                    document.last_name = normalized_data;
                 }
                 "DCU" => {
                     if data.len() > MAX_NAME_SUFFIX_LENGTH {
                         return Err(Self::Err::DataTooLong(id.to_string(), data.to_string()));
                     }
-                    document.name_suffix = validated_data;
+                    document.name_suffix = normalized_data;
                 }
                 _ => {}
             }
@@ -162,7 +162,7 @@ mod tests {
     const VALID_BLOB: &str = "\
         ANSI 636039090001DL00310485DLDAQNHL12345678
 DACFIRST
-DADMIDDLE
+DADMIDDLEONE,MIDDLETWO
 DCSLAST
 DCUJR
 ";
@@ -173,7 +173,7 @@ DCUJR
 
         assert_eq!(doc.issuing_jurisdiction, AamvaIssuingJurisdiction::NH);
         assert_eq!(doc.first_name, "FIRST");
-        assert_eq!(doc.middle_name, "MIDDLE");
+        assert_eq!(doc.middle_name, "MIDDLEONE MIDDLETWO");
         assert_eq!(doc.last_name, "LAST");
         assert_eq!(doc.name_suffix, "JR");
     }
