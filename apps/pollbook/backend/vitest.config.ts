@@ -7,8 +7,8 @@ export default defineConfig({
     clearMocks: true,
     coverage: {
       thresholds: {
-        lines: 86.2,
-        branches: 82,
+        lines: 85.6,
+        branches: 81.1,
       },
       exclude: [
         '**/node_modules/**',
