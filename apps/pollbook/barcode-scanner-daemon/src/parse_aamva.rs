@@ -131,7 +131,7 @@ impl FromStr for AamvaDocument {
                     if data.len() > MAX_NAME_LENGTH {
                         return Err(Self::Err::DataTooLong(id.to_string(), data.to_string()));
                     }
-                    document.middle_name = normalized_data.replace(",", " ");
+                    document.middle_name = normalized_data.replace(',', " ");
                 }
                 "DCS" => {
                     if data.len() > MAX_NAME_LENGTH {

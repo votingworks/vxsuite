@@ -281,7 +281,7 @@ where
 
                 log!(
                     event_id: EventId::BarcodeScanned,
-                    message: format!("An ID in AAMVA format was successfully scanned"),
+                    message: "An ID in AAMVA format was successfully scanned".to_owned(),
                     event_type: EventType::SystemAction,
                     disposition: Disposition::Success
                 );
