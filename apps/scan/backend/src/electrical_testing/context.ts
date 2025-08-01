@@ -1,9 +1,11 @@
+import EventEmitter from 'node:events';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { TaskController } from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { DateTime } from 'luxon';
 import { Printer } from '../printing/printer';
+import { ElectricalTestingComponent } from '../store';
 import { Workspace } from '../util/workspace';
 import { ScanningSession } from './analysis/scan';
 import { SimpleScannerClient } from './simple_scanner_client';
@@ -28,4 +30,10 @@ export interface ServerContext {
   scannerClient: SimpleScannerClient;
   usbDrive: UsbDrive;
   workspace: Workspace;
+  setStatusMessage(
+    component: ElectricalTestingComponent,
+    statusMessage: string
+  ): void;
+  onScanningSessionChanged(): void;
+  eventBus: EventEmitter;
 }
