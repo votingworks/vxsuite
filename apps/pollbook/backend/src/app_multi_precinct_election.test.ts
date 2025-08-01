@@ -5,6 +5,7 @@ import { CITIZEN_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
 import { BatteryInfo } from '@votingworks/backend';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
+  CheckInBallotParty,
   Voter,
   VoterAddressChangeRequest,
   VoterMailingAddressChangeRequest,
@@ -169,16 +170,16 @@ test('register a voter', async () => {
       lastName: 'Eagen',
       middleName: 'A',
       suffix: '',
-      streetNumber: '17',
-      streetName: 'MAPLE AVE',
+      streetNumber: '20',
+      streetName: 'MAIN ST',
       streetSuffix: '',
       apartmentUnitNumber: '',
       houseFractionNumber: '',
       addressLine2: '',
       addressLine3: '',
-      city: 'Manchester',
+      city: 'Claremont',
       state: 'NH',
-      zipCode: '03101',
+      zipCode: '03743',
       party: 'REP',
       precinct: currentPrecinctId,
     };
@@ -273,7 +274,7 @@ test('change a voter name', async () => {
     assert(votersAbigail !== null);
     assert(Array.isArray(votersAbigail));
     const secondVoter = (votersAbigail as Voter[])[1];
-    expect(votersAbigail).toHaveLength(4);
+    expect(votersAbigail).toHaveLength(10);
 
     const nameChangeData: VoterNameChangeRequest = {
       firstName: 'Barbara',
@@ -307,7 +308,7 @@ test('change a voter name', async () => {
     });
     assert(votersAbigail2 !== null);
     assert(Array.isArray(votersAbigail2));
-    expect(votersAbigail2).toHaveLength(3); // the changed name voter is gone
+    expect(votersAbigail2).toHaveLength(9); // the changed name voter is gone
     for (const voter of votersAbigail2 as Voter[]) {
       expect(voter.voterId).not.toEqual(secondVoter.voterId);
     }
@@ -342,19 +343,19 @@ test('change a voter mailing address - already has mailing address', async () =>
     expect(await localApiClient.haveElectionEventsOccurred()).toEqual(false);
 
     // This voter has mailing address defined in the imported fixture.
-    const votersEvelyn = await localApiClient.searchVoters({
+    const voterJessica = await localApiClient.searchVoters({
       searchParams: {
-        firstName: 'Evelyn',
-        middleName: 'Laura',
-        lastName: 'Jenkins',
+        firstName: 'Jessica',
+        middleName: 'Abigail',
+        lastName: 'Lopez-Garcia',
         suffix: '',
       },
     });
 
-    assert(votersEvelyn !== null);
-    assert(Array.isArray(votersEvelyn));
-    expect(votersEvelyn).toHaveLength(1);
-    const voterEvelyn = (votersEvelyn as Voter[])[0];
+    assert(voterJessica !== null);
+    assert(Array.isArray(voterJessica));
+    expect(voterJessica).toHaveLength(1);
+    const voterEvelyn = (voterJessica as Voter[])[0];
 
     const mailingAddressChangeData: VoterMailingAddressChangeRequest = {
       mailingStreetNumber: '314',
@@ -413,7 +414,7 @@ test('undo a voter check-in', async () => {
     const checkInResult = await localApiClient.checkInVoter({
       voterId: firstVoter.voterId,
       identificationMethod: { type: 'default' },
-      ballotParty: 'REP',
+      ballotParty: firstVoter.party as CheckInBallotParty,
     });
     expect(checkInResult.isOk()).toBeTruthy();
 
@@ -456,8 +457,8 @@ test('register a voter, change name and address, and check in', async () => {
         lastName: 'Cobel',
         middleName: 'A',
         suffix: 'I',
-        streetNumber: '17',
-        streetName: 'MAPLE AVE',
+        streetNumber: '20',
+        streetName: 'MAIN ST',
         streetSuffix: 'B',
         apartmentUnitNumber: '',
         houseFractionNumber: '',
@@ -525,7 +526,7 @@ test('register a voter, change name and address, and check in', async () => {
 
       const addressChangeData: VoterAddressChangeRequest = {
         streetName: 'CEDAR ST',
-        streetNumber: '7',
+        streetNumber: '19',
         streetSuffix: '',
         apartmentUnitNumber: '',
         houseFractionNumber: '',
@@ -634,11 +635,14 @@ test('an undeclared voter cannot check in as undeclared', async () => {
 
     assert(votersAbigail !== null);
     assert(Array.isArray(votersAbigail));
-    expect((votersAbigail as Voter[]).length).toEqual(4);
-    const firstVoter = (votersAbigail as Voter[])[0];
+    expect((votersAbigail as Voter[]).length).toEqual(10);
+    const undeclaredVoter = (votersAbigail as Voter[]).find(
+      (voter) => voter.party === 'UND'
+    );
+    expect(undeclaredVoter).toBeDefined();
 
     const checkInResult = await localApiClient.checkInVoter({
-      voterId: firstVoter.voterId,
+      voterId: (undeclaredVoter as Voter).voterId,
       identificationMethod: { type: 'default' },
       ballotParty: 'NOT_APPLICABLE',
     });
@@ -666,8 +670,8 @@ test('in a primary, a declared voter must check in with a party selection matchi
       lastName: 'Eagen',
       middleName: 'A',
       suffix: '',
-      streetNumber: '17',
-      streetName: 'MAPLE AVE',
+      streetNumber: '20',
+      streetName: 'MAIN ST',
       streetSuffix: '',
       apartmentUnitNumber: '',
       houseFractionNumber: '',

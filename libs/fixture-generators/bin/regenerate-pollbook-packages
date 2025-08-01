@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+# Generates the saved election package fixtures in libs/fixtures
+# By default it will reuse the translations and audio from previous runs if new strings
+# are not detected to be translated. To force re-translation, set the environment variable
+# FORCE_RETRANSLATE to true.
+export NODE_ENV=development
+
+./bin/generate-voters 10000 town ../fixtures/data/electionSimpleSinglePrecinct/voters.csv ../fixtures/data/electionSimpleSinglePrecinct/streetNames.csv 1
+./bin/generate-voters 50000 city ../fixtures/data/electionMultiPartyPrimary/voters.csv ../fixtures/data/electionMultiPartyPrimary/streetNames.csv 5
+
+cd ../fixtures/data/electionSimpleSinglePrecinct
+rm -f pollbook-package-mock-town.zip
+zip pollbook-package-mock-town.zip voters.csv streetNames.csv election.json
+cd - > /dev/null
+
+cd ../fixtures/data/electionMultiPartyPrimary
+rm -f pollbook-package-large-city.zip
+zip pollbook-package-large-city.zip voters.csv streetNames.csv election.json
+cd - > /dev/null

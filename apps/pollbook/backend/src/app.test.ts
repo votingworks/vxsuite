@@ -137,7 +137,7 @@ test('check in a voter', async () => {
 
     assert(votersAbigail !== null);
     assert(Array.isArray(votersAbigail));
-    expect((votersAbigail as Voter[]).length).toEqual(3);
+    expect((votersAbigail as Voter[]).length).toEqual(2);
     const firstVoter = (votersAbigail as Voter[])[0];
     const secondVoter = (votersAbigail as Voter[])[1];
 
@@ -222,7 +222,7 @@ test('checking in a voter does not allow ballot party during a general', async (
 
     assert(votersAbigail !== null);
     assert(Array.isArray(votersAbigail));
-    expect((votersAbigail as Voter[]).length).toEqual(3);
+    expect((votersAbigail as Voter[]).length).toEqual(2);
     const firstVoter = (votersAbigail as Voter[])[0];
 
     await suppressingConsoleOutput(() =>
@@ -460,7 +460,7 @@ test('change a voter name', async () => {
     assert(votersAbigail !== null);
     assert(Array.isArray(votersAbigail));
     const secondVoter = (votersAbigail as Voter[])[1];
-    expect(votersAbigail).toHaveLength(3);
+    expect(votersAbigail).toHaveLength(2);
 
     const nameChangeData: VoterNameChangeRequest = {
       firstName: 'Barbara',
@@ -494,7 +494,7 @@ test('change a voter name', async () => {
     });
     assert(votersAbigail2 !== null);
     assert(Array.isArray(votersAbigail2));
-    expect(votersAbigail2).toHaveLength(2); // the changed name voter is gone
+    expect(votersAbigail2).toHaveLength(1); // the changed name voter is gone
     for (const voter of votersAbigail2 as Voter[]) {
       expect(voter.voterId).not.toEqual(secondVoter.voterId);
     }
@@ -539,7 +539,7 @@ test('change a voter mailing address', async () => {
     assert(votersAbigail !== null);
     assert(Array.isArray(votersAbigail));
     const secondVoter = (votersAbigail as Voter[])[1];
-    expect(votersAbigail).toHaveLength(3);
+    expect(votersAbigail).toHaveLength(2);
 
     const mailingAddressChangeData: VoterMailingAddressChangeRequest = {
       mailingStreetNumber: '314',
@@ -923,24 +923,24 @@ test('change a voter address with various formats', async () => {
 
     assert(votersAbigail !== null);
     assert(Array.isArray(votersAbigail));
-    const thirdVoter = (votersAbigail as Voter[])[2];
+    const secondVoter = (votersAbigail as Voter[])[1];
 
     const addressChangeDataVariants: VoterAddressChangeRequest[] = [
       {
-        streetName: 'SIERRA RD',
+        streetName: 'SUNSET BLVD',
         streetNumber: '15',
         streetSuffix: '',
         apartmentUnitNumber: '',
         houseFractionNumber: '',
         addressLine2: '',
         addressLine3: '',
-        city: 'MANCHESTER',
+        city: 'BERLIN',
         state: 'NH',
-        zipCode: '03101',
+        zipCode: '03570',
         precinct: currentPrecinctId,
       },
       {
-        streetName: 'OAK ST',
+        streetName: 'WALNUT ST',
         streetNumber: '25',
         streetSuffix: 'N',
         apartmentUnitNumber: '3A',
@@ -956,7 +956,7 @@ test('change a voter address with various formats', async () => {
 
     for (const addressChangeData of addressChangeDataVariants) {
       const changeAddressResult = await localApiClient.changeVoterAddress({
-        voterId: thirdVoter.voterId,
+        voterId: secondVoter.voterId,
         addressChangeData,
       });
       expect(changeAddressResult.addressChange).toEqual({
@@ -1149,14 +1149,14 @@ test('mark a voter inactive', async () => {
       searchParams: {
         firstName: 'Abigail',
         middleName: '',
-        lastName: 'Adams',
+        lastName: 'A',
         suffix: '',
       },
     });
 
     assert(votersAbigail !== null);
     assert(Array.isArray(votersAbigail));
-    expect(votersAbigail).toHaveLength(3);
+    expect(votersAbigail).toHaveLength(7);
     const firstVoter = (votersAbigail as Voter[])[0];
     const secondVoter = (votersAbigail as Voter[])[1];
     const thirdVoter = (votersAbigail as Voter[])[2];
@@ -1221,21 +1221,33 @@ test('mark a voter inactive', async () => {
       searchParams: {
         firstName: 'Abigail',
         middleName: '',
-        lastName: 'Adams',
+        lastName: 'A',
         suffix: '',
       },
     });
     assert(votersAbigail2 !== null);
     assert(Array.isArray(votersAbigail2));
-    expect(votersAbigail2).toHaveLength(3);
-    // The thirdVoter gets reordered due to the name change.
-    expect((votersAbigail2 as Voter[])[0].voterId).toEqual(thirdVoter.voterId);
+    expect(votersAbigail2).toHaveLength(7);
+    expect((votersAbigail2 as Voter[])[0].voterId).toEqual(firstVoter.voterId);
     expect((votersAbigail2 as Voter[])[0].isInactive).toEqual(true);
-    expect((votersAbigail2 as Voter[])[0].nameChange).toBeDefined();
-    expect((votersAbigail2 as Voter[])[1].voterId).toEqual(firstVoter.voterId);
-    expect((votersAbigail2 as Voter[])[1].isInactive).toEqual(true);
-    expect((votersAbigail2 as Voter[])[2].voterId).toEqual(secondVoter.voterId);
-    expect((votersAbigail2 as Voter[])[2].isInactive).toEqual(false);
+    expect((votersAbigail2 as Voter[])[1].voterId).toEqual(secondVoter.voterId);
+    expect((votersAbigail2 as Voter[])[1].isInactive).toEqual(false);
+
+    const votersNameChange = await localApiClient.searchVoters({
+      searchParams: {
+        firstName: 'Abigail',
+        middleName: 'CHANGED',
+        lastName: 'A',
+        suffix: '',
+      },
+    });
+    assert(votersNameChange !== null);
+    assert(Array.isArray(votersNameChange));
+    expect(votersNameChange).toHaveLength(1);
+    expect((votersNameChange as Voter[])[0].voterId).toEqual(
+      thirdVoter.voterId
+    );
+    expect((votersNameChange as Voter[])[0].isInactive).toEqual(true);
   });
 });
 
