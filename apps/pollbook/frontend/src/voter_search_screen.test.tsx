@@ -236,7 +236,7 @@ test('an ID scan with first and last name only can still render "Edit Search" bu
   const input = screen.getByTestId('scanned-id-input');
   expect(input).toBeDisabled();
   expect(input).toHaveValue(
-    `${mockDocument.firstName} ${mockDocument.lastName}`
+    `${mockDocument.lastName}, ${mockDocument.firstName}`
   );
 });
 
