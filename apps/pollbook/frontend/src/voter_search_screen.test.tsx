@@ -161,7 +161,7 @@ test('after an ID scan with "hidden" fields, shows full name and "Edit Search" b
   const input = screen.getByTestId('scanned-id-input');
   expect(input).toBeDisabled();
   expect(input).toHaveValue(
-    `${mockDocument.firstName} ${mockDocument.middleName} ${mockDocument.lastName} ${mockDocument.nameSuffix}`
+    `${mockDocument.lastName}, ${mockDocument.firstName} ${mockDocument.middleName} ${mockDocument.nameSuffix}`
   );
   const editSearchButton = screen.getButton('Edit Search');
 

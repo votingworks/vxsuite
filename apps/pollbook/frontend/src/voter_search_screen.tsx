@@ -70,7 +70,12 @@ const VoterTable = styled(Table)`
 `;
 
 function formatNameSearch(search: VoterSearchParams): string {
-  return [search.firstName, search.middleName, search.lastName, search.suffix]
+  return [
+    `${search.lastName},`,
+    search.firstName,
+    search.middleName,
+    search.suffix,
+  ]
     .filter((part) => !!part)
     .join(' ');
 }
