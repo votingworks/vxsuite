@@ -121,7 +121,7 @@ test('renders InvalidCardScreen for machine_not_configured error', async () => {
   });
   ({ unmount } = render(<App apiClient={apiMock.mockApiClient} />));
   await screen.findByText(
-    'Use a system administrator or election manager card.'
+    /Use a system administrator or election manager card./
   );
 });
 
