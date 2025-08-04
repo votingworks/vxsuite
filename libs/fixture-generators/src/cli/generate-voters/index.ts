@@ -51,6 +51,18 @@ const streetNames = [
   'Sunrise Blvd',
   'Victory Ave',
   'Sierra Rd',
+  // Additional names with special characters
+  "O'Connell St",
+  'St. John’s Place',
+  'King-George Blvd',
+  'Queen-Mary Ave',
+  "D'Angelo Way",
+  'Smith-Jones Rd',
+  "O'Malley’s Lane",
+  // 50 characters
+  `${'A'.repeat(49)}B`, // 50 characters
+  // 55 characters
+  `${'B'.repeat(49)}CCCCCC`, // 55 characters
 ];
 
 const firstNames = [
@@ -143,6 +155,31 @@ const firstNames = [
   'Jordan',
   'Connor',
   'Elise',
+  `${'A'.repeat(49)}B`, // 50 characters
+  `${'B'.repeat(49)}CC`, // 51 characters
+];
+
+const nameSuffixes = [
+  'Jr.',
+  'Sr.',
+  'II',
+  'III',
+  'IV',
+  'V',
+  'PhD',
+  'MD',
+  'DDS',
+  'DVM',
+  'Esq.',
+  'CPA',
+  'MBA',
+  'BSc',
+  'MSc',
+  'MA',
+  'BA',
+  'AAAA',
+  'AAAAA',
+  'AAAAAA',
 ];
 
 const lastNames = [
@@ -223,6 +260,67 @@ const lastNames = [
   'Ortiz',
   'Jenkins',
   'Brooks',
+  // Last names with hyphens and apostrophes
+  "O'Connor",
+  "D'Angelo",
+  "O'Brien",
+  'Smith-Jones',
+  'Johnson-Williams',
+  'St. Clair',
+  'Anne-Marie',
+  'Jean-Luc',
+  "O'Malley",
+  "Mc'Donald",
+  'King-Smith',
+  'Lopez-Garcia',
+  'Martinez-Ramirez',
+  'Nguyen-Le',
+  "Santos-D'Souza",
+  // 75 characters long
+  `${'A'.repeat(74)}B`, // 75 characters
+  `${'B'.repeat(74)}CCCCCC`, // 80 characters
+];
+
+const houseFranctionNumbers = ['1/2', '1/4', '3/4', '1/3', '2/3'];
+
+const addressSuffixes = [
+  'A',
+  'B',
+  'C',
+  'D',
+  'NE',
+  'NW',
+  'SE',
+  'SW',
+  'REAR',
+  'FRONT',
+  'UPPER',
+  'LOWER',
+];
+
+const apartmentUnitNumbers = [
+  '1A',
+  '2B',
+  '3C',
+  '4D',
+  '5E',
+  '6F',
+  '7G',
+  '8H',
+  '9J',
+  '10K',
+  '11L',
+  '12M',
+  '13N',
+  '14O',
+  '15P',
+  '16Q',
+  '17R',
+  '18S',
+  '19T',
+  '20U',
+  `${'A'.repeat(14)}B`, // 15 characters
+  `${'B'.repeat(14)}CC`, // 16 characters
 ];
 
 const citiesInNh = [
@@ -243,8 +341,17 @@ const citiesInNh = [
   { city: 'Epping', zip: '03042' },
 ];
 
+const parties = ['UND', 'DEM', 'REP'];
+
 function getRandomElement(arr: string[]): string {
   return arr[Math.floor(Math.random() * arr.length)]!;
+}
+
+/* return an empty string half of the time at random, and a random element from the array the other half */
+function sometimesGetRandomElement(arr: string[]): string {
+  return Math.random() < 0.5
+    ? ''
+    : arr[Math.floor(Math.random() * arr.length)]!;
 }
 
 // Helper function: returns a random integer between min and max (inclusive)
@@ -342,35 +449,52 @@ function generateVoter(
 ): Record<string, string> {
   const mapping = mappings[randomInt(0, mappings.length - 1)]!;
   const streetNumber = getValidStreetNumber(mapping);
+  const shouldIncludeMailingAddress = Math.random() < 0.2;
+  const mailingCity = getRandomCity();
   const baseVoter: Record<string, string> = {
     'Voter ID': id.toString(),
     'Last Name': getRandomElement(lastNames).toUpperCase(),
-    Suffix: '',
+    Suffix: sometimesGetRandomElement(nameSuffixes).toUpperCase(),
     'First Name': getRandomElement(firstNames).toUpperCase(),
-    'Middle Name': getRandomElement(firstNames).toUpperCase(),
+    'Middle Name': sometimesGetRandomElement(firstNames).toUpperCase(),
     'Street Number': streetNumber.toString(),
-    'Address Suffix': '',
-    'House Fraction Number': '',
+    'Address Suffix': sometimesGetRandomElement(addressSuffixes).toUpperCase(),
+    'House Fraction Number': sometimesGetRandomElement(
+      houseFranctionNumbers
+    ).toUpperCase(),
     'Street Name': mapping.street.toUpperCase(),
-    'Apartment / Unit Number': '',
-    'Address Line 2': '',
+    'Apartment / Unit Number':
+      sometimesGetRandomElement(apartmentUnitNumbers).toUpperCase(),
+    'Address Line 2': sometimesGetRandomElement(streetNames).toUpperCase(),
     'Address Line 3': '',
     'Postal City / Town': mapping.city.toUpperCase(),
     State: 'NH',
     'Postal Zip 5': mapping.zip,
     'Zip +4': '',
-    'Mailing Street Number': '',
-    'Mailing Suffix': '',
-    'Mailing House Fraction Number': '',
-    'Mailing Street Name': '',
-    'Mailing Apartment / Unit Number': '',
-    'Mailing Address Line 2': '',
+    'Mailing Street Number': shouldIncludeMailingAddress
+      ? randomInt(1, 100).toString()
+      : '',
+    'Mailing Suffix': shouldIncludeMailingAddress
+      ? sometimesGetRandomElement(addressSuffixes).toUpperCase()
+      : '',
+    'Mailing House Fraction Number': shouldIncludeMailingAddress
+      ? sometimesGetRandomElement(houseFranctionNumbers).toUpperCase()
+      : '',
+    'Mailing Street Name': shouldIncludeMailingAddress
+      ? getRandomElement(streetNames).toUpperCase()
+      : '',
+    'Mailing Apartment / Unit Number': shouldIncludeMailingAddress
+      ? sometimesGetRandomElement(apartmentUnitNumbers).toUpperCase()
+      : '',
+    'Mailing Address Line 2': shouldIncludeMailingAddress
+      ? sometimesGetRandomElement(streetNames).toUpperCase()
+      : '',
     'Mailing Address Line 3': '',
-    'Mailing City / Town': '',
-    'Mailing State': '',
-    'Mailing Zip 5': '',
-    'Mailing Zip +4': '',
-    Party: 'UND',
+    'Mailing City / Town': shouldIncludeMailingAddress ? mailingCity.city : '',
+    'Mailing State': shouldIncludeMailingAddress ? 'NH' : '',
+    'Mailing Zip 5': shouldIncludeMailingAddress ? mailingCity.zip : '',
+    'Mailing Zip +4': shouldIncludeMailingAddress ? '' : '',
+    Party: getRandomElement(parties),
   };
 
   // Add either District or Ward column based on mode
