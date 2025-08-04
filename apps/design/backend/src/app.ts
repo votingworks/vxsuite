@@ -786,6 +786,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
         // Navigate to the right sub-directory if necessary
         let cvrExportDirectory = inputCvrDirectory;
         const zipEntries = await readdir(cvrExportDirectory);
+        /* istanbul ignore next - @preserve */
         if (zipEntries.length === 1 && zipEntries[0].startsWith('machine')) {
           cvrExportDirectory = path.join(cvrExportDirectory, zipEntries[0]);
         }

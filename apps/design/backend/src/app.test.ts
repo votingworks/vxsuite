@@ -14,6 +14,7 @@ import { readFileSync } from 'node:fs';
 import {
   electionFamousNames2021Fixtures,
   electionPrimaryPrecinctSplitsFixtures,
+  makeTemporaryPath,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import {
@@ -45,8 +46,10 @@ import {
   YesNoContest,
   PartyId,
   DistrictId,
+  CastVoteRecordExportFileName,
 } from '@votingworks/types';
 import {
+  BooleanEnvironmentVariableName,
   getEntries,
   getFeatureFlagMock,
   getFileByName,
@@ -54,9 +57,11 @@ import {
   readJsonEntry,
 } from '@votingworks/utils';
 import {
+  execFile,
   forEachUiString,
   isMockCloudSynthesizedSpeech,
   mockCloudTranslatedText,
+  readCastVoteRecordExport,
   readElectionPackageFromBuffer,
 } from '@votingworks/backend';
 import {
@@ -98,6 +103,7 @@ import { electionFeatureConfigs, userFeatureConfigs } from './features';
 import { sliOrgId, vxDemosOrgId } from './globals';
 import { LogEventId } from '@votingworks/logging';
 import { buildApi } from './app';
+import { readdir, readFile } from 'node:fs/promises';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -168,6 +174,16 @@ vi.mock(import('@votingworks/hmpb'), async (importActual) => {
       original.renderAllBallotsAndCreateElectionDefinition
     ),
   } as unknown as typeof original;
+});
+
+// Mock decryption for ballotAuditIds
+vi.mock('@votingworks/auth', async (importActual) => {
+  return {
+    ...(await importActual()),
+    decryptAes256: vi
+      .fn()
+      .mockImplementation((_key, data) => `decrypted-${data}`),
+  };
 });
 
 const { setupApp, cleanup } = testSetupHelpers();
@@ -3158,4 +3174,57 @@ test('api call logging', async () => {
       disposition: 'success',
     })
   );
+});
+
+test('decryptCvrBallotAuditIds', async () => {
+  const secretKey = 'test-secret-key';
+  const cvrDirectoryPath =
+    electionPrimaryPrecinctSplitsFixtures.castVoteRecordExport.asDirectoryPath();
+  // Add BallotAuditId to CVR files
+  const cvrPaths = await readdir(cvrDirectoryPath);
+  for (const [i, cvrPath] of cvrPaths.entries()) {
+    if (cvrPath === 'metadata.json') continue;
+    await execFile('sed', [
+      '-i',
+      's/"@type":"CVR.CVR"/"@type":"CVR.CVR","BallotAuditId":"' +
+        (i + 1) +
+        '"/',
+      join(
+        cvrDirectoryPath,
+        cvrPath,
+        CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT
+      ),
+    ]);
+  }
+  const cvrZipPath = makeTemporaryPath({ postfix: '.zip' });
+  await execFile('zip', ['-r', cvrZipPath, '.'], { cwd: cvrDirectoryPath });
+  const cvrZipFileContents = await readFile(cvrZipPath);
+
+  const { apiClient, auth0 } = await setupApp();
+  auth0.setLoggedInUser(nonVxUser);
+
+  const decryptedCvrZipContents = await apiClient.decryptCvrBallotAuditIds({
+    cvrZipFileContents,
+    secretKey,
+  });
+  const decryptedCvrZip = await openZip(
+    new Uint8Array(decryptedCvrZipContents)
+  );
+  const decryptedCvrZipEntries = getEntries(decryptedCvrZip);
+
+  mockFeatureFlagger.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
+  );
+  const cvrContents = (
+    await readCastVoteRecordExport(cvrDirectoryPath)
+  ).unsafeUnwrap();
+  for await (const cvrResult of cvrContents.castVoteRecordIterator) {
+    const cvr = cvrResult.unsafeUnwrap();
+    // At the top of this file, we mock implementation for decryptAes256 to
+    // create this expected decrypted value
+    const cvrFileName = `decrypted-${cvr.castVoteRecord.BallotAuditId}.json`;
+    const cvrFileEntry = getFileByName(decryptedCvrZipEntries, cvrFileName);
+    const contents = JSON.parse(await cvrFileEntry.async('text'));
+    expect(contents.CVR[0]).toEqual(cvr.castVoteRecord);
+  }
 });
