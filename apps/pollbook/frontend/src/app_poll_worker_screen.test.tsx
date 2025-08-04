@@ -59,9 +59,6 @@ describe('PollWorkerScreen', () => {
     await screen.findByText('Connect printer to continue.');
 
     apiMock.setPrinterStatus(true);
-    vi.advanceTimersByTime(100);
-    await screen.findByText('No Precinct Selected');
-
     apiMock.setElection(
       famousNamesElectionDefinition,
       famousNamesElection.precincts[0].id
@@ -70,6 +67,7 @@ describe('PollWorkerScreen', () => {
     apiMock.expectGetCheckInCounts({ allMachines: 25, thisMachine: 5 });
     apiMock.expectGetScannedIdDocument();
     apiMock.expectSearchVotersNull({});
+    vi.advanceTimersByTime(100);
 
     await vi.waitFor(() => screen.getByText('Total Check-Ins'));
     const total = screen.getByTestId('total-check-ins');

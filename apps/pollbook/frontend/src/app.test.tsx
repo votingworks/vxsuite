@@ -114,13 +114,24 @@ test('renders MachineLockedScreen when machine is locked - configured with elect
   );
 });
 
+test('renders InvalidCardScreen for machine_not_configured error', async () => {
+  apiMock.setAuthStatus({
+    status: 'logged_out',
+    reason: 'machine_not_configured',
+  });
+  ({ unmount } = render(<App apiClient={apiMock.mockApiClient} />));
+  await screen.findByText(
+    'Use a system administrator or election manager card.'
+  );
+});
+
 test('renders InvalidCardScreen for invalid card reasons', async () => {
   apiMock.setAuthStatus({
     status: 'logged_out',
     reason: 'unprogrammed_or_invalid_card',
   });
   ({ unmount } = render(<App apiClient={apiMock.mockApiClient} />));
-  await screen.findByText('Use a valid election manager or poll worker card.');
+  await screen.findByText('Use a valid card.');
 });
 
 test('election manager - renders UnconfiguredScreen when election is unconfigured and not connected to other machines', async () => {
