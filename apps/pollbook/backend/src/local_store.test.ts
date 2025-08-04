@@ -535,3 +535,43 @@ test('store can load data from database on restart', () => {
   expect(reloadedStore.getElection()).toEqual(testElectionDefinition.election);
   expect(reloadedStore.getStreetInfo()).toHaveLength(1);
 });
+
+test('getSummaryStatistics returns all voters when configured precinct is not set and precinct voters when set', () => {
+  const localStore = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
+  const testElectionDefinition = getTestElectionDefinition();
+  // Create voters in precinct-1 and precinct-2
+  const voters = [
+    createVoter('10', 'Dylan', `O'Brien`, {
+      middleName: 'MiD',
+      suffix: 'I',
+      precinct: 'precinct-1',
+    }),
+    createVoter('11', 'Ella-', `Smith`, {
+      middleName: 'Stephanie',
+      suffix: '',
+      precinct: 'precinct-1',
+    }),
+    createVoter('12', 'Ariel', `Farmer`, {
+      middleName: 'Cassie',
+      suffix: 'I',
+      precinct: 'precinct-2',
+    }),
+  ];
+  const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
+  localStore.setElectionAndVoters(
+    testElectionDefinition,
+    'mock-package-hash',
+    streets,
+    voters
+  );
+
+  // No precinct configured, should return all voters
+  expect(localStore.getSummaryStatistics().totalVoters).toEqual(3);
+
+  // Set precinct and check voters
+  localStore.setConfiguredPrecinct('precinct-1');
+  expect(localStore.getSummaryStatistics().totalVoters).toEqual(2);
+
+  localStore.setConfiguredPrecinct('precinct-2');
+  expect(localStore.getSummaryStatistics().totalVoters).toEqual(1);
+});

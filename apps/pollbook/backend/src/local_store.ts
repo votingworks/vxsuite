@@ -677,7 +677,10 @@ export class LocalStore extends Store {
   }
 
   getSummaryStatistics(): SummaryStatistics {
-    const voters = this.getAllVoters();
+    const {configuredPrecinctId} = this.getPollbookConfigurationInformation();
+    const voters = this.getAllVoters({
+      matchConfiguredPrecinctId: !!configuredPrecinctId,
+    });
     assert(voters);
     const totalVoters = Object.keys(voters).length;
     const totalAbsenteeCheckIns = Object.values(voters).filter(
