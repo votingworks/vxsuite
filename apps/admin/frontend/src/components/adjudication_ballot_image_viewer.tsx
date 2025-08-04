@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
 import { Button } from '@votingworks/ui';
 import styled from 'styled-components';
-import { Rect, safeParseNumber } from '@votingworks/types';
+import { Rect } from '@votingworks/types';
+
+const VIEWPORT_WIDTH_PX = 1920;
+const VIEWPORT_HEIGHT_PX = 1200;
+const ADJUDICATION_PANEL_WIDTH_PX = 705; // 23.5rem
+const IMAGE_VIEWER_HEIGHT_PX = VIEWPORT_HEIGHT_PX;
+const IMAGE_VIEWER_WIDTH_PX = VIEWPORT_WIDTH_PX - ADJUDICATION_PANEL_WIDTH_PX;
 
 const BallotImageViewerContainer = styled.div`
   position: relative;
@@ -95,18 +101,6 @@ const BallotImageViewerControls = styled.div<{ isZoomedIn: boolean }>`
   gap: 0.5rem;
 `;
 
-function remToPx(rem: number) {
-  const fontSizeResult = safeParseNumber(
-    getComputedStyle(document.documentElement).fontSize.substring(
-      0,
-      -'px'.length
-    )
-  );
-  /* istanbul ignore next - @preserve */
-  const fontSize = fontSizeResult.ok() ?? 30;
-  return rem * fontSize;
-}
-
 export function BallotZoomImageViewer({
   imageUrl,
   ballotBounds,
@@ -118,14 +112,9 @@ export function BallotZoomImageViewer({
 }): JSX.Element {
   const [isZoomedIn, setIsZoomedIn] = useState(true);
 
-  const IMAGE_SCALE = 0.5; // The images are downscaled by 50% during CVR export, this is to adjust for that.
-
-  const zoomedInScale =
-    (zoomedInBounds.width > zoomedInBounds.height
-      ? ballotBounds.width / zoomedInBounds.width
-      : // If zoom is height-based, leave 4rems of buffer on top and bottom to prevent clipping ViewerControls
-        (ballotBounds.height - remToPx(4) * 2) / zoomedInBounds.height) *
-    IMAGE_SCALE;
+  const heightScale = IMAGE_VIEWER_HEIGHT_PX / zoomedInBounds.height;
+  const widthScale = IMAGE_VIEWER_WIDTH_PX / zoomedInBounds.width;
+  const zoomedInScale = Math.min(heightScale, widthScale);
 
   return (
     <BallotImageViewerContainer>
