@@ -566,12 +566,12 @@ test('getSummaryStatistics returns all voters when configured precinct is not se
   );
 
   // No precinct configured, should return all voters
-  expect(localStore.getSummaryStatistics().totalVoters).toEqual(3);
+  expect(localStore.getGeneralSummaryStatistics().totalVoters).toEqual(3);
 
   // Set precinct and check voters
   localStore.setConfiguredPrecinct('precinct-1');
-  expect(localStore.getSummaryStatistics().totalVoters).toEqual(2);
+  expect(localStore.getGeneralSummaryStatistics().totalVoters).toEqual(2);
 
   localStore.setConfiguredPrecinct('precinct-2');
-  expect(localStore.getSummaryStatistics().totalVoters).toEqual(1);
+  expect(localStore.getGeneralSummaryStatistics().totalVoters).toEqual(1);
 });

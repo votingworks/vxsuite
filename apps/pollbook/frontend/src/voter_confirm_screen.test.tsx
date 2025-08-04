@@ -1,5 +1,6 @@
 import { expect, test, beforeEach, afterEach, vi } from 'vitest';
 import {
+  Election,
   Voter,
   ValidStreetInfo,
   VoterIdentificationMethod,
@@ -9,7 +10,6 @@ import {
   electionMultiPartyPrimaryFixtures,
   electionSimpleSinglePrecinctFixtures,
 } from '@votingworks/fixtures';
-import { Election } from '@votingworks/types';
 import { screen, waitFor, within } from '../test/react_testing_library';
 import {
   ApiMock,

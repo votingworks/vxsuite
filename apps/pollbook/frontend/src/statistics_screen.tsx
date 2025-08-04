@@ -6,8 +6,11 @@ import {
   colorThemes,
   Font,
   MainContent,
+  H1,
 } from '@votingworks/ui';
-import { useState } from 'react';
+import { assert } from '@votingworks/basics';
+import type { PartyFilterAbbreviation } from '@votingworks/pollbook-backend';
+import React, { useState } from 'react';
 import {
   Chart as ChartJS,
   TimeScale,
@@ -21,7 +24,12 @@ import { Bar } from 'react-chartjs-2';
 import 'chartjs-adapter-date-fns';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import styled from 'styled-components';
-import { getThroughputStatistics, getSummaryStatistics } from './api';
+import {
+  getThroughputStatistics,
+  getGeneralSummaryStatistics,
+  getElection,
+  getPrimarySummaryStatistics,
+} from './api';
 import { Row, Column } from './layout';
 import { ElectionManagerNavScreen } from './nav_screen';
 import { TitledCard } from './shared_components';
@@ -29,7 +37,7 @@ import { TitledCard } from './shared_components';
 ChartJS.register(TimeScale, LinearScale, BarElement, Title, Tooltip, Legend);
 ChartJS.defaults.font.size = 16;
 
-const IntervalControl = styled(SegmentedButton)`
+const SmallSegmentedControl = styled(SegmentedButton)`
   button {
     font-size: 0.9rem;
     padding: 0.25rem 0.5rem;
@@ -48,11 +56,18 @@ const Container = styled('div')`
   }
 `;
 
-export function ThroughputChart(): JSX.Element {
+export function ThroughputChart({
+  partyFilter,
+}: {
+  partyFilter: PartyFilterAbbreviation;
+}): JSX.Element {
   const [intervalMin, setIntervalMin] = useState(60);
   const getThroughputQuery = getThroughputStatistics.useQuery({
     throughputInterval: intervalMin,
+    partyFilter,
   });
+  // The throughput chart does not make sense for undeclared voters.
+  assert(partyFilter !== 'UND');
   if (!getThroughputQuery.isSuccess) {
     return <Loading />;
   }
@@ -69,7 +84,7 @@ export function ThroughputChart(): JSX.Element {
           }}
         >
           <H4>Voter Throughput</H4>
-          <IntervalControl
+          <SmallSegmentedControl
             label="Interval"
             hideLabel
             selectedOptionId={String(intervalMin)}
@@ -158,8 +173,12 @@ function Metric({
   );
 }
 
-export function StatisticsScreen(): JSX.Element {
-  const getSummaryStatisticsQuery = getSummaryStatistics.useQuery();
+export function GeneralElectionStatistics(): JSX.Element {
+  const [partyFilter, setPartyFilter] =
+    useState<PartyFilterAbbreviation>('ALL');
+  const getSummaryStatisticsQuery = getGeneralSummaryStatistics.useQuery({
+    partyFilter,
+  });
   if (!getSummaryStatisticsQuery.isSuccess) {
     return (
       <ElectionManagerNavScreen title="Statistics">
@@ -170,7 +189,7 @@ export function StatisticsScreen(): JSX.Element {
                 <Loading />
               </Container>
             </Row>
-            <ThroughputChart />
+            <ThroughputChart partyFilter="ALL" />
           </Column>
         </MainContent>
       </ElectionManagerNavScreen>
@@ -183,14 +202,18 @@ export function StatisticsScreen(): JSX.Element {
     totalAbsenteeCheckIns,
   } = getSummaryStatisticsQuery.data;
   const precinctCheckIns = totalCheckIns - totalAbsenteeCheckIns;
-  const participationPercent = ((totalCheckIns / totalVoters) * 100).toFixed(1);
 
   return (
     <ElectionManagerNavScreen title="Statistics">
       <MainContent>
         <Column style={{ gap: '1rem', height: '100%' }}>
           <Row style={{ gap: '1rem' }}>
-            <TitledCard title="Check-Ins">
+            <TitledCard
+              title={
+                // When its a general election the Voters card has a taller header due to including a sugemented control, this style change makes the UX consistent.
+                <H4 style={{ height: '2rem' }}>Check-Ins</H4>
+              }
+            >
               <div
                 style={{
                   display: 'grid',
@@ -200,18 +223,35 @@ export function StatisticsScreen(): JSX.Element {
               >
                 <Metric
                   label="Total"
-                  value={
-                    <span>
-                      {totalCheckIns.toLocaleString()} ({participationPercent}
-                      %)
-                    </span>
-                  }
+                  value={<span>{totalCheckIns.toLocaleString()}</span>}
                 />
                 <Metric label="Precinct" value={precinctCheckIns} />
                 <Metric label="Absentee" value={totalAbsenteeCheckIns} />
               </div>
             </TitledCard>
-            <TitledCard title="Voters">
+            <TitledCard
+              title={
+                <span
+                  style={{ display: 'flex', justifyContent: 'space-between' }}
+                >
+                  <H4>Voters</H4>
+                  <SmallSegmentedControl
+                      label="Party"
+                      hideLabel
+                      selectedOptionId={String(partyFilter)}
+                      options={[
+                        { id: 'ALL', label: 'All' },
+                        { id: 'REP', label: 'Rep' },
+                        { id: 'DEM', label: 'Dem' },
+                        { id: 'UND', label: 'Und' },
+                      ]}
+                      onChange={(selectedId) =>
+                        setPartyFilter(selectedId as PartyFilterAbbreviation)
+                      }
+                    />
+                </span>
+              }
+            >
               <div
                 style={{
                   display: 'grid',
@@ -228,9 +268,169 @@ export function StatisticsScreen(): JSX.Element {
               </div>
             </TitledCard>
           </Row>
-          <ThroughputChart />
+          <ThroughputChart partyFilter="ALL" />
         </Column>
       </MainContent>
     </ElectionManagerNavScreen>
   );
+}
+
+export function PrimaryElectionStatistics(): JSX.Element {
+  const [partyFilter, setPartyFilter] =
+    useState<PartyFilterAbbreviation>('ALL');
+  const getSummaryStatisticsQuery = getPrimarySummaryStatistics.useQuery({
+    partyFilter,
+  });
+  const title = (
+    <span
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        width: '100%',
+      }}
+    >
+      <H1>Statistics</H1>
+      <SmallSegmentedControl
+          label="Party"
+          hideLabel
+          selectedOptionId={String(partyFilter)}
+          options={[
+            { id: 'ALL', label: 'All' },
+            { id: 'REP', label: 'Rep' },
+            { id: 'DEM', label: 'Dem' },
+            { id: 'UND', label: 'Und' },
+          ]}
+          onChange={(selectedId) =>
+            setPartyFilter(selectedId as PartyFilterAbbreviation)
+          }
+        />
+    </span>
+  );
+  if (!getSummaryStatisticsQuery.isSuccess) {
+    return (
+      <ElectionManagerNavScreen title={title}>
+        <MainContent>
+          <Column style={{ gap: '1rem', height: '100%' }}>
+            <Row style={{ gap: '1rem' }}>
+              <Container>
+                <Loading />
+              </Container>
+            </Row>
+            <ThroughputChart partyFilter={partyFilter} />
+          </Column>
+        </MainContent>
+      </ElectionManagerNavScreen>
+    );
+  }
+  const {
+    totalVoters,
+    totalCheckIns,
+    totalNewRegistrations,
+    totalAbsenteeCheckIns,
+    totalUndeclaredDemCheckIns,
+    totalUndeclaredRepCheckIns,
+  } = getSummaryStatisticsQuery.data;
+  const precinctCheckIns = totalCheckIns - totalAbsenteeCheckIns;
+
+  const votersCard = (
+    <TitledCard title="Voters">
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr 1fr',
+          gap: '2rem',
+        }}
+      >
+        <Metric label="Total" value={totalVoters} />
+        <Metric label="Imported" value={totalVoters - totalNewRegistrations} />
+        <Metric label="Added" value={totalNewRegistrations} />
+      </div>
+    </TitledCard>
+  );
+
+  if (partyFilter === 'UND') {
+    return (
+      <ElectionManagerNavScreen title={title}>
+        <MainContent>
+          <Column style={{ gap: '1rem', height: '100%' }}>
+            <Row style={{ gap: '1rem' }}>
+              <TitledCard title="Declared Party">
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'auto 1fr 1fr',
+                    gap: '2rem',
+                  }}
+                >
+                  <Metric
+                    label="Democratic"
+                    value={
+                      <span>{totalUndeclaredDemCheckIns.toLocaleString()}</span>
+                    }
+                  />
+                  <Metric
+                    label="Republican"
+                    value={
+                      <span>{totalUndeclaredRepCheckIns.toLocaleString()}</span>
+                    }
+                  />
+                </div>
+              </TitledCard>
+              {votersCard}
+            </Row>
+          </Column>
+        </MainContent>
+      </ElectionManagerNavScreen>
+    );
+  }
+
+  return (
+    <ElectionManagerNavScreen title={title}>
+      <MainContent>
+        <Column style={{ gap: '1rem', height: '100%' }}>
+          <Row style={{ gap: '1rem' }}>
+            <TitledCard title="Check-Ins">
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'auto 1fr 1fr',
+                  gap: '2rem',
+                }}
+              >
+                <Metric
+                  label="Total"
+                  value={<span>{totalCheckIns.toLocaleString()}</span>}
+                />
+                <Metric label="Precinct" value={precinctCheckIns} />
+                <Metric label="Absentee" value={totalAbsenteeCheckIns} />
+              </div>
+            </TitledCard>
+            {votersCard}
+          </Row>
+          <ThroughputChart partyFilter={partyFilter} />
+        </Column>
+      </MainContent>
+    </ElectionManagerNavScreen>
+  );
+}
+
+export function StatisticsScreen(): JSX.Element {
+  const getElectionQuery = getElection.useQuery();
+  if (!getElectionQuery.isSuccess) {
+    return (
+      <ElectionManagerNavScreen title="Statistics">
+        <MainContent>
+          <Loading />
+        </MainContent>
+      </ElectionManagerNavScreen>
+    );
+  }
+
+  const election = getElectionQuery.data.ok();
+  assert(election !== undefined);
+  if (election.type === 'primary') {
+    return <PrimaryElectionStatistics />;
+  } 
+    return <GeneralElectionStatistics />;
+  
 }

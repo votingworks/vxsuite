@@ -56,6 +56,8 @@ import {
   PollbookConfigurationInformation,
   AamvaDocument,
   isBarcodeScannerError,
+  PartyFilterAbbreviation,
+  PrimarySummaryStatistics,
 } from './types';
 import { rootDebug } from './debug';
 import {
@@ -562,14 +564,26 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       return store.getAllVotersSorted();
     },
 
-    getSummaryStatistics(): SummaryStatistics {
-      return store.getSummaryStatistics();
+    getGeneralSummaryStatistics(input: {
+      partyFilter: PartyFilterAbbreviation;
+    }): SummaryStatistics {
+      return store.getGeneralSummaryStatistics(input.partyFilter);
+    },
+
+    getPrimarySummaryStatistics(input: {
+      partyFilter: PartyFilterAbbreviation;
+    }): PrimarySummaryStatistics {
+      return store.getPrimarySummaryStatistics(input.partyFilter);
     },
 
     getThroughputStatistics(input: {
       throughputInterval: number;
+      partyFilter: PartyFilterAbbreviation;
     }): ThroughputStat[] {
-      return store.getThroughputStatistics(input.throughputInterval);
+      return store.getThroughputStatistics(
+        input.throughputInterval,
+        input.partyFilter
+      );
     },
 
     programCard(input: {
