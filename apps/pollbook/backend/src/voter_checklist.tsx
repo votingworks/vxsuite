@@ -5,6 +5,7 @@ import {
   LabelledText,
   Icons,
   Table,
+  DivBreakWord,
 } from '@votingworks/ui';
 import { createCanvas } from 'canvas';
 import JsBarcode from 'jsbarcode';
@@ -131,7 +132,7 @@ export function MarginDetails({ voter }: { voter: Voter }): JSX.Element {
 
 export function VoterName({ voter }: { voter: Voter }): JSX.Element {
   return (
-    <div>
+    <DivBreakWord>
       {voter.nameChange && (
         <div style={{ color: redTextColor }}>
           {voter.nameChange.lastName}, {voter.nameChange.firstName}{' '}
@@ -146,7 +147,7 @@ export function VoterName({ voter }: { voter: Voter }): JSX.Element {
         {voter.lastName}
       </span>
       , {voter.firstName} {voter.middleName} {voter.suffix}
-    </div>
+    </DivBreakWord>
   );
 }
 
@@ -168,7 +169,7 @@ export function VoterCheckInDetails({ voter }: { voter: Voter }): JSX.Element {
 
 export function VoterDomicileAddress({ voter }: { voter: Voter }): JSX.Element {
   return (
-    <div>
+    <DivBreakWord>
       {voter.addressChange && (
         <div style={{ color: redTextColor }}>
           {voter.addressChange.streetNumber}
@@ -191,13 +192,13 @@ export function VoterDomicileAddress({ voter }: { voter: Voter }): JSX.Element {
         {voter.apartmentUnitNumber}
         {voter.addressLine2 && <div>{voter.addressLine2}</div>}
       </div>
-    </div>
+    </DivBreakWord>
   );
 }
 
 export function VoterMailingAddress({ voter }: { voter: Voter }): JSX.Element {
   return (
-    <div>
+    <DivBreakWord>
       {voter.mailingAddressChange && (
         <div style={{ color: redTextColor }}>
           {voter.mailingAddressChange.mailingStreetNumber}
@@ -232,7 +233,7 @@ export function VoterMailingAddress({ voter }: { voter: Voter }): JSX.Element {
           </div>
         )}
       </div>
-    </div>
+    </DivBreakWord>
   );
 }
 
