@@ -129,6 +129,9 @@ export function ThroughputChart(): JSX.Element {
                   display: true,
                   text: 'Check-Ins',
                 },
+                ticks: {
+                  stepSize: 1,
+                },
               },
             },
           }}
