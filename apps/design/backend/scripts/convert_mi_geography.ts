@@ -2,6 +2,7 @@ import {
   District,
   Election,
   ElectionId,
+  hasSplits,
   HmpbBallotPaperSize,
   Precinct,
 } from '@votingworks/types';
@@ -10,16 +11,16 @@ import { readFileSync } from 'node:fs';
 import { DateWithoutTime } from '@votingworks/basics';
 import { generateId } from '../src/utils';
 
-export function createBlankElection(id: ElectionId): Election {
+export function createElectionSkeleton(id: ElectionId): Election {
   return {
     id,
     type: 'general',
-    title: '',
+    title: 'MI Demo Election',
     date: DateWithoutTime.today(),
-    state: '',
+    state: 'MI',
     county: {
-      id: 'county-id',
-      name: '',
+      id: generateId(),
+      name: 'Demo County',
     },
     seal: '',
     districts: [],
@@ -35,11 +36,17 @@ export function createBlankElection(id: ElectionId): Election {
   };
 }
 
+const knownAbbreviations = ['ISD', 'ESA', 'ESD'];
+
 function toTitleCase(str: string): string {
   return str
-    .toLowerCase()
     .split(' ')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .map((word) => {
+      if (knownAbbreviations.includes(word)) {
+        return word;
+      }
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
     .join(' ');
 }
 
@@ -55,55 +62,95 @@ function convertToBlankElectionWithGeography(inputFilePath: string): Election {
   });
 
   const districts = new Map<string, District>();
-  const precinctsToDistricts = new Map<string, District[]>();
+  // TODO handle precinct splits when two rows have the same precinct but different districts
+  const precincts = new Map<string, Precinct>();
 
   for (const row of rows) {
-    const precinct = `${toTitleCase(row['Jurisdiction'])} ${toTitleCase(
+    const precinctName = `${toTitleCase(row['Jurisdiction'])} ${toTitleCase(
       trimLeadingZeros(row['Precinct'])
     )}`;
     // The rest of the columns are district names
-    for (const [key, value] of Object.entries<string>(row)) {
-      if (key === 'Jurisdiction' || key === 'Precinct') continue;
-      // Some column names are duplicated and thus grouped during parsing, so we
-      // may have multiple values for the same key.
-      const values = typeof value === 'string' ? [value] : value;
-      if (values) {
-        for (const districtValue of values) {
-          const includeKey = ![
-            'School District',
-            'Intermediate School District',
-            'Community College',
-            'District Library',
-            'Authority',
-          ].includes(key);
-          const districtName = `${includeKey ? `${key} ` : ''}${toTitleCase(
-            trimLeadingZeros(districtValue)
-          )}`;
-          const district = districts.get(districtName) ?? {
+    const precinctDistricts = Object.entries<string>(row)
+      .filter(([header]) => header !== 'Jurisdiction' && header !== 'Precinct')
+      .flatMap(([header, value]) => {
+        // Some column names are duplicated and thus grouped during parsing, so we
+        // may have multiple values for the same key.
+        if (!value) return [];
+        const rawDistrictNames = typeof value === 'string' ? [value] : value;
+        return rawDistrictNames
+          .filter((rawDistrictName) => Boolean(rawDistrictName))
+          .map((rawDistrictName) => {
+            const includeDistrictType = ![
+              'Village',
+              'School District',
+              'Intermediate School District',
+              'Community College',
+              'District Library',
+              'Authority',
+            ].includes(header);
+            const districtType = includeDistrictType ? `${header} ` : '';
+            const districtName = `${districtType}${toTitleCase(
+              trimLeadingZeros(rawDistrictName)
+            )}`;
+            const district = districts.get(districtName) ?? {
+              id: generateId(),
+              name: districtName,
+            };
+            districts.set(districtName, district);
+            return district;
+          });
+      });
+    // If two rows have the same precinct but different districts,
+    // create a precinct split
+    const existingPrecinct = precincts.get(precinctName);
+    if (existingPrecinct) {
+      const existingSplits = hasSplits(existingPrecinct)
+        ? existingPrecinct.splits
+        : [
+            {
+              id: generateId(),
+              name: `${existingPrecinct.name} - Split 1`,
+              districtIds: existingPrecinct.districtIds,
+            },
+          ];
+      precincts.set(precinctName, {
+        id: existingPrecinct.id,
+        name: existingPrecinct.name,
+        splits: [
+          ...existingSplits,
+          {
             id: generateId(),
-            name: districtName,
-          };
-          districts.set(districtName, district);
-          precinctsToDistricts.set(precinct, [
-            ...(precinctsToDistricts.get(precinct) ?? []),
-            district,
-          ]);
-        }
-      }
+            name: `${existingPrecinct.name} - Split ${
+              existingSplits.length + 1
+            }`,
+            districtIds: precinctDistricts.map((district) => district.id),
+          },
+        ],
+      });
+    } else {
+      precincts.set(precinctName, {
+        id: generateId(),
+        name: precinctName,
+        districtIds: precinctDistricts.map((district) => district.id),
+      });
     }
   }
 
+  const electionPrecincts = Array.from(precincts.values());
+  const electionDistricts = Array.from(districts.values());
   return {
-    ...createBlankElection(generateId()),
-    precincts: [...precinctsToDistricts.entries()].map(
-      // eslint-disable-next-line @typescript-eslint/no-shadow
-      ([precinct, districts]): Precinct => ({
+    ...createElectionSkeleton(generateId()),
+    precincts: electionPrecincts,
+    districts: electionDistricts,
+    // At least one ballot style is required, so we create a dummy
+    ballotStyles: [
+      {
         id: generateId(),
-        name: precinct,
-        districtIds: districts.map((district) => district.id),
-      })
-    ),
-    districts: Array.from(districts.values()),
+        groupId: generateId(),
+        districts: [electionDistricts[0].id],
+        precincts: [electionPrecincts[0].id],
+      },
+    ],
   };
 }
 
