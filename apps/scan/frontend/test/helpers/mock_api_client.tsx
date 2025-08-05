@@ -242,7 +242,7 @@ export function createApiMock() {
         .resolves({
           qrCodeValue: 'qr-code-value',
           qrCodeInputs: {
-            combinedElectionHash: 'combined-election-hash',
+            combinedConfigurationHash: 'combined-election-hash',
             date: new Date('1/1/2024, 12:00:00 PM'),
             machineId: 'machine-id',
             softwareVersion: 'software-version',

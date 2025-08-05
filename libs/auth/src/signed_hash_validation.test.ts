@@ -4,20 +4,28 @@ import { DEV_MACHINE_ID, formatElectionHashes } from '@votingworks/types';
 import { getTestFilePath } from '../test/utils';
 import { SignedHashValidationConfig } from './config';
 import {
+  ElectionRecord,
   generateSignedHashValidationQrCodeValue,
   SIGNED_HASH_VALIDATION_MESSAGE_PAYLOAD_SEPARATOR,
   SIGNED_HASH_VALIDATION_QR_CODE_VALUE_SEPARATOR,
 } from './signed_hash_validation';
 
+const mockBallotHash = 'ballot-hash';
 const softwareVersion = 'software-version';
-const electionRecord = {
-  electionDefinition: { ballotHash: 'ballot-hash' },
+const mockElectionRecord: ElectionRecord = {
+  electionDefinition: { ballotHash: mockBallotHash },
   electionPackageHash: 'election-package-hash',
-} as const;
-const combinedElectionHash: string = formatElectionHashes(
-  electionRecord.electionDefinition.ballotHash,
-  electionRecord.electionPackageHash
+};
+const combinedConfigurationHash: string = formatElectionHashes(
+  mockElectionRecord.electionDefinition.ballotHash,
+  mockElectionRecord.electionPackageHash
 );
+
+const mockPollbookPackageHash = 'pollbook-package-hash';
+const pollbookElectionRecord: ElectionRecord = {
+  electionDefinition: { ballotHash: mockBallotHash },
+  electionPackageHash: mockPollbookPackageHash,
+};
 
 const vxAdminTestConfig: SignedHashValidationConfig = {
   machineCertPath: getTestFilePath({
@@ -39,48 +47,68 @@ const vxScanTestConfig: SignedHashValidationConfig = {
   },
 };
 
+const vxPollBookTestConfig: SignedHashValidationConfig = {
+  machineCertPath: getTestFilePath({
+    fileType: 'vx-poll-book-cert-authority-cert.pem',
+  }),
+  machinePrivateKey: {
+    source: 'file',
+    path: getTestFilePath({ fileType: 'vx-poll-book-private-key.pem' }),
+  },
+};
+
 test.each<{
   config: SignedHashValidationConfig;
-  isMachineConfiguredForAnElection: boolean;
+  electionRecord?: ElectionRecord;
   expectedQrCodeValueLength: number;
   expectedQrCodeInputs: {
-    combinedElectionHash: string;
+    combinedConfigurationHash: string;
     machineId: string;
   };
 }>([
   {
     config: vxAdminTestConfig,
-    isMachineConfiguredForAnElection: true,
+    electionRecord: mockElectionRecord,
     expectedQrCodeValueLength: 910,
     expectedQrCodeInputs: {
-      combinedElectionHash,
+      combinedConfigurationHash,
       machineId: DEV_MACHINE_ID,
     },
   },
   {
     config: vxAdminTestConfig,
-    isMachineConfiguredForAnElection: false,
     expectedQrCodeValueLength: 895,
     expectedQrCodeInputs: {
-      combinedElectionHash: '',
+      combinedConfigurationHash: '',
       machineId: DEV_MACHINE_ID,
     },
   },
   {
     config: vxScanTestConfig,
-    isMachineConfiguredForAnElection: true,
+    electionRecord: mockElectionRecord,
     expectedQrCodeValueLength: 748,
     expectedQrCodeInputs: {
-      combinedElectionHash,
+      combinedConfigurationHash,
       machineId: DEV_MACHINE_ID,
     },
   },
   {
     config: vxScanTestConfig,
-    isMachineConfiguredForAnElection: false,
     expectedQrCodeValueLength: 733,
     expectedQrCodeInputs: {
-      combinedElectionHash: '',
+      combinedConfigurationHash: '',
+      machineId: DEV_MACHINE_ID,
+    },
+  },
+  {
+    config: vxPollBookTestConfig,
+    electionRecord: pollbookElectionRecord,
+    expectedQrCodeValueLength: 918,
+    expectedQrCodeInputs: {
+      combinedConfigurationHash: formatElectionHashes(
+        mockBallotHash,
+        mockPollbookPackageHash
+      ),
       machineId: DEV_MACHINE_ID,
     },
   },
@@ -88,14 +116,12 @@ test.each<{
   'Generating QR code value',
   async ({
     config,
-    isMachineConfiguredForAnElection,
     expectedQrCodeValueLength,
     expectedQrCodeInputs,
+    electionRecord,
   }) => {
     const machineState = {
-      electionRecord: isMachineConfiguredForAnElection
-        ? electionRecord
-        : undefined,
+      electionRecord,
       softwareVersion,
     } as const;
 

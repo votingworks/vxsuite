@@ -70,8 +70,13 @@ function SignedHashValidationModal({
     return null;
   }
   const { qrCodeValue, qrCodeInputs } = query.data;
-  const { combinedElectionHash, date, machineId, softwareVersion, systemHash } =
-    qrCodeInputs;
+  const {
+    combinedConfigurationHash,
+    date,
+    machineId,
+    softwareVersion,
+    systemHash,
+  } = qrCodeInputs;
 
   assert(
     systemHash.length === 44,
@@ -110,7 +115,8 @@ function SignedHashValidationModal({
                 <strong>Machine ID:</strong> {machineId}
               </Caption>
               <Caption>
-                <strong>Election ID:</strong> {combinedElectionHash || 'None'}
+                <strong>Election ID:</strong>{' '}
+                {combinedConfigurationHash || 'None'}
               </Caption>
               <Caption>
                 <strong>Date:</strong>{' '}

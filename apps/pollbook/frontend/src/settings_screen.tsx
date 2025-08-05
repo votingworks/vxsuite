@@ -6,9 +6,10 @@ import {
   MainContent,
   P,
   SetClockButton,
+  SignedHashValidationButton,
 } from '@votingworks/ui';
 import React from 'react';
-import { formatUsbDrive, getUsbDriveStatus, logOut } from './api';
+import { formatUsbDrive, getUsbDriveStatus, logOut, useApiClient } from './api';
 
 interface SettingsScreenProps {
   showFormatUsbButton: boolean;
@@ -17,6 +18,7 @@ interface SettingsScreenProps {
 export function SettingsScreen({
   showFormatUsbButton,
 }: SettingsScreenProps): JSX.Element | null {
+  const apiClient = useApiClient();
   const logOutMutation = logOut.useMutation();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const formatUsbDriveMutation = formatUsbDrive.useMutation();
@@ -51,6 +53,8 @@ export function SettingsScreen({
           </P>
         </React.Fragment>
       )}
+      <H2>Security</H2>
+      <SignedHashValidationButton apiClient={apiClient} />
     </MainContent>
   );
 }
