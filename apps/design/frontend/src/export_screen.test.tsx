@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { ElectionSerializationFormat } from '@votingworks/types';
+import { Buffer, File as NodeFile } from 'node:buffer';
 import {
   provideApi,
   createMockApiClient,
@@ -346,6 +347,48 @@ test('export ballots with audit ballot IDs', async () => {
   userEvent.click(screen.getButton('Export Election Package and Ballots'));
 
   await screen.findByText('Exporting Election Package and Ballots...');
+});
+
+test('decrypt ballot audit IDs in CVRs', async () => {
+  // Change global File to ensure File.arrayBuffer exists
+  global.File = NodeFile as unknown as typeof global.File;
+  renderScreen();
+  await screen.findAllByRole('heading', { name: 'Export' });
+
+  const secretKeyInput = screen.getByLabelText('Secret Key');
+  expect(secretKeyInput).toBeEnabled();
+  expect(secretKeyInput).toHaveValue('');
+  const cvrZipInput = screen.getByLabelText('Select CVR Export Zip File');
+  expect(cvrZipInput).toBeDisabled();
+
+  const secretKey = 'test-secret-key';
+  userEvent.type(secretKeyInput, secretKey);
+  expect(cvrZipInput).toBeEnabled();
+  const cvrZipFileContents = Buffer.from('test cvr zip file contents');
+  apiMock.decryptCvrBallotAuditIds
+    .expectCallWith({ secretKey, cvrZipFileContents })
+    .resolves(Buffer.from('decrypted cvr zip file contents'));
+  userEvent.upload(
+    cvrZipInput,
+    new File([cvrZipFileContents], 'cvr-export.zip', {
+      type: 'application/zip',
+    })
+  );
+
+  vi.mocked(URL.createObjectURL).mockReturnValue(
+    'decrypted cvr export object url'
+  );
+  await waitFor(() => {
+    expect(vi.mocked(URL.createObjectURL)).toHaveBeenCalledWith(
+      new Blob(['decrypted cvr zip file contents'], { type: 'application/zip' })
+    );
+    expect(vi.mocked(downloadFile)).toHaveBeenCalledWith(
+      'decrypted cvr export object url',
+      'decrypted-cvrs.zip'
+    );
+  });
+  expect(secretKeyInput).toHaveValue('');
+  global.File = File;
 });
 
 test('feature flag to hide ballot template selector', async () => {

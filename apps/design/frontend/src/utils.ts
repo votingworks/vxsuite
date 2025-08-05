@@ -26,10 +26,10 @@ export function replaceAtIndex<T>(
 /**
  * Downloads a file given a file path
  */
-export function downloadFile(filePath: string): void {
+export function downloadFile(filePath: string, fileName?: string): void {
   const element = document.createElement('a');
   element.setAttribute('href', filePath);
-  element.setAttribute('download', '');
+  element.setAttribute('download', fileName ?? '');
   element.style.display = 'none';
   document.body.appendChild(element);
   element.click();

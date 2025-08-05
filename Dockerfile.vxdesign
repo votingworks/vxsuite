@@ -16,7 +16,8 @@ RUN apt update && apt install -y --no-install-recommends \
   sudo \
   tar \
   xz-utils \
-  zip
+  zip \
+  unzip
 
 # VxSuite transitive deps:
 RUN sudo apt update && apt install -y --no-install-recommends \
