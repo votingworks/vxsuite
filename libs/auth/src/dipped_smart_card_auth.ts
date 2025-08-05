@@ -708,7 +708,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
     }
 
     if (
-      user.role === 'election_manager' &&
+      (user.role === 'election_manager' || user.role === 'poll_worker') &&
       !deepEqual(user.electionKey, machineState.electionKey)
     ) {
       return err('wrong_election');

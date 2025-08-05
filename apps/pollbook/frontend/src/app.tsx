@@ -29,7 +29,6 @@ import {
   createQueryClient,
   getAuthStatus,
   getElection,
-  getPollbookConfigurationInformation,
   logOut,
   systemCallApi,
   useApiClient,
@@ -47,7 +46,6 @@ function AppRoot({ logger }: { logger: BaseLogger }): JSX.Element | null {
   const logOutMutation = logOut.useMutation();
   const getAuthStatusQuery = getAuthStatus.useQuery();
   const getElectionQuery = getElection.useQuery({ refetchInterval: 100 });
-  const getMachineInfoQuery = getPollbookConfigurationInformation.useQuery();
   const history = useHistory();
 
   const loggableUserName = useMemo(
@@ -72,11 +70,7 @@ function AppRoot({ logger }: { logger: BaseLogger }): JSX.Element | null {
     };
   }, [logger, history, loggableUserName]);
 
-  if (
-    !getAuthStatusQuery.isSuccess ||
-    !getElectionQuery.isSuccess ||
-    !getMachineInfoQuery.isSuccess
-  ) {
+  if (!getAuthStatusQuery.isSuccess || !getElectionQuery.isSuccess) {
     return null;
   }
   const auth = getAuthStatusQuery.data;
