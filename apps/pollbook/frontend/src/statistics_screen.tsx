@@ -212,7 +212,15 @@ export function GeneralElectionStatistics(): JSX.Element {
             <TitledCard
               title={
                 // When its a general election the Voters card has a taller header due to including a segemented control, this style change makes the UX consistent.
-                <H4 style={{ height: '2rem' }}>Check-Ins</H4>
+                <H4
+                  style={{
+                    height: '2rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  Check-Ins
+                </H4>
               }
             >
               <div
@@ -235,7 +243,9 @@ export function GeneralElectionStatistics(): JSX.Element {
                 <span
                   style={{ display: 'flex', justifyContent: 'space-between' }}
                 >
-                  <H4>Voters</H4>
+                  <H4 style={{ display: 'flex', alignItems: 'center' }}>
+                    Voters
+                  </H4>
                   <SmallSegmentedControl
                     label="Party"
                     hideLabel
