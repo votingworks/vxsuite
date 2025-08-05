@@ -239,7 +239,7 @@ function generateCircleCiFilteredAppConfigForPackage(
     ...jobLines.map((line) => `  ${line}`),
     '',
     'workflows:',
-    '  test:',
+    `  test-${pkg.name.replace('@votingworks/', '')}:`,
     '    jobs:',
     `      - ${jobIdForPackage(pkg)}`,
   ];

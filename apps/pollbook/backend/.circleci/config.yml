@@ -96,6 +96,6 @@ jobs:
                 path: apps/pollbook/backend/src/__image_snapshots__/__diff_output__/
 
 workflows:
-  test:
+  test-pollbook-backend:
     jobs:
       - test-apps-pollbook-backend
