@@ -186,7 +186,7 @@ export function GeneralElectionStatistics(): JSX.Element {
         <MainContent>
           <Column style={{ gap: '1rem', height: '100%' }}>
             <Row style={{ gap: '1rem' }}>
-              <Container>
+              <Container style={{ height: '238px' }}>
                 <Loading />
               </Container>
             </Row>
