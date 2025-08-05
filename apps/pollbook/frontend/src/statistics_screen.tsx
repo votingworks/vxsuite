@@ -218,7 +218,7 @@ export function GeneralElectionStatistics(): JSX.Element {
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: 'auto 1fr 1fr',
+                  gridTemplateColumns: '1fr 1fr 1fr',
                   gap: '2rem',
                 }}
               >
@@ -361,7 +361,7 @@ export function PrimaryElectionStatistics(): JSX.Element {
                 <div
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: 'auto 1fr 1fr',
+                    gridTemplateColumns: '1fr 1fr 1fr',
                     gap: '2rem',
                   }}
                 >
@@ -396,7 +396,7 @@ export function PrimaryElectionStatistics(): JSX.Element {
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: 'auto 1fr 1fr',
+                  gridTemplateColumns: '1fr 1fr 1fr',
                   gap: '2rem',
                 }}
               >
