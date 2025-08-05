@@ -1,6 +1,6 @@
 ## Overview
 
-<!-- add a link to a GitHub Issue here -->
+<!-- Add a link to a GitHub issue here -->
 
 ## Demo Video or Screenshot
 
@@ -8,7 +8,10 @@
 
 ## Checklist
 
-- [ ] I have added [logging](https://github.com/votingworks/vxsuite/tree/main/libs/logging) where appropriate to any new user actions, system updates such as file reads or storage writes, or errors introduced.
-<!-- for user-facing changes, non-user facing changes can remove or ignore the below items -->
-- [ ] I have added a screenshot and/or video to this PR to demo the change
-- [ ] I have added the "user_facing_change" label to this PR to automate an announcement in #machine-product-updates
+- [ ] I have prefixed my PR title with "VxDesign: ", "VxPollBook: ", or "HWTA: "
+      if my change is specific to one of those products.
+- [ ] I have added
+      [logging](https://github.com/votingworks/vxsuite/tree/main/libs/logging)
+      where appropriate for any new user actions.
+- [ ] I have added the "user_facing_change" label to this PR, if relevant, to
+      automate an announcement in #machine-product-updates.
