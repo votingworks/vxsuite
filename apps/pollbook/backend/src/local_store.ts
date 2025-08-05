@@ -693,6 +693,17 @@ export class LocalStore extends Store {
     return throughputStats;
   }
 
+  /**
+   * Calculates summary statistics for the current general election to populate the statistics screen.
+   * Throws an error if called when the current election is a primary election.
+   *
+   * @param partyFilter - The party to filter voters by. Use 'ALL' to include all parties.
+   *   When a specific party is provided, only voters registered with that party are included
+   *   in the statistics for total voters and new registrations. For check-in statistics,
+   *   ALL check ins are returned irrespective of party since check ins are not associated with a party
+   *   in the context of a general election.
+   * @returns Summary statistics for the filtered set of voters.
+   */
   getGeneralSummaryStatistics(
     partyFilter: PartyFilterAbbreviation
   ): SummaryStatistics {
@@ -732,6 +743,19 @@ export class LocalStore extends Store {
     };
   }
 
+  /**
+   * Calculates summary statistics for the current primary election to populate the statistics screen.
+   * Throws an error if called when the current election is a general election.
+   *
+   * @param partyFilter - The party to filter voters by. Use 'ALL' to include all parties.
+   *   When a specific party is provided, only voters registered with that party are included
+   *   in the statistics for total voters and new registrations. Only check-ins with a ballot party matching the
+   *   provided filter are counted for total check ins and total absentee check ins. That includes check ins from a
+   *   voter matching the party filter and undeclared voters who checked in with a ballot party matching the filter.
+   *   When the partyFilter is 'UND' the number of undeclared voters who checked in with a democratic or republican ballot
+   *   party is returned in totalUndeclaredDemCheckIns and totalUndeclaredRepCheckIns respectively.
+   * @returns Summary statistics for the filtered set of voters.
+   */
   getPrimarySummaryStatistics(
     partyFilter: PartyFilterAbbreviation
   ): PrimarySummaryStatistics {

@@ -66,7 +66,8 @@ export function ThroughputChart({
     throughputInterval: intervalMin,
     partyFilter,
   });
-  // The throughput chart does not make sense for undeclared voters.
+  // Any check in from an undelcared voter is counted as a check-in for the ballot party chosen, viewing check in / throughput
+  // information for undeclared voters is not supported.
   assert(partyFilter !== 'UND');
   if (!getThroughputQuery.isSuccess) {
     return <Loading />;
@@ -210,7 +211,7 @@ export function GeneralElectionStatistics(): JSX.Element {
           <Row style={{ gap: '1rem' }}>
             <TitledCard
               title={
-                // When its a general election the Voters card has a taller header due to including a sugemented control, this style change makes the UX consistent.
+                // When its a general election the Voters card has a taller header due to including a segemented control, this style change makes the UX consistent.
                 <H4 style={{ height: '2rem' }}>Check-Ins</H4>
               }
             >
