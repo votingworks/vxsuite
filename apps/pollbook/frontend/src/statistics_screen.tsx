@@ -236,19 +236,19 @@ export function GeneralElectionStatistics(): JSX.Element {
                 >
                   <H4>Voters</H4>
                   <SmallSegmentedControl
-                      label="Party"
-                      hideLabel
-                      selectedOptionId={String(partyFilter)}
-                      options={[
-                        { id: 'ALL', label: 'All' },
-                        { id: 'REP', label: 'Rep' },
-                        { id: 'DEM', label: 'Dem' },
-                        { id: 'UND', label: 'Und' },
-                      ]}
-                      onChange={(selectedId) =>
-                        setPartyFilter(selectedId as PartyFilterAbbreviation)
-                      }
-                    />
+                    label="Party"
+                    hideLabel
+                    selectedOptionId={String(partyFilter)}
+                    options={[
+                      { id: 'ALL', label: 'All' },
+                      { id: 'REP', label: 'Rep' },
+                      { id: 'DEM', label: 'Dem' },
+                      { id: 'UND', label: 'Und' },
+                    ]}
+                    onChange={(selectedId) =>
+                      setPartyFilter(selectedId as PartyFilterAbbreviation)
+                    }
+                  />
                 </span>
               }
             >
@@ -291,19 +291,19 @@ export function PrimaryElectionStatistics(): JSX.Element {
     >
       <H1>Statistics</H1>
       <SmallSegmentedControl
-          label="Party"
-          hideLabel
-          selectedOptionId={String(partyFilter)}
-          options={[
-            { id: 'ALL', label: 'All' },
-            { id: 'REP', label: 'Rep' },
-            { id: 'DEM', label: 'Dem' },
-            { id: 'UND', label: 'Und' },
-          ]}
-          onChange={(selectedId) =>
-            setPartyFilter(selectedId as PartyFilterAbbreviation)
-          }
-        />
+        label="Party"
+        hideLabel
+        selectedOptionId={String(partyFilter)}
+        options={[
+          { id: 'ALL', label: 'All' },
+          { id: 'REP', label: 'Rep' },
+          { id: 'DEM', label: 'Dem' },
+          { id: 'UND', label: 'Und' },
+        ]}
+        onChange={(selectedId) =>
+          setPartyFilter(selectedId as PartyFilterAbbreviation)
+        }
+      />
     </span>
   );
   if (!getSummaryStatisticsQuery.isSuccess) {
@@ -316,8 +316,10 @@ export function PrimaryElectionStatistics(): JSX.Element {
                 <Loading />
               </Container>
             </Row>
-            <ThroughputChart partyFilter={partyFilter} />
           </Column>
+          {partyFilter !== 'UND' && (
+            <ThroughputChart partyFilter={partyFilter} />
+          )}
         </MainContent>
       </ElectionManagerNavScreen>
     );
@@ -430,7 +432,6 @@ export function StatisticsScreen(): JSX.Element {
   assert(election !== undefined);
   if (election.type === 'primary') {
     return <PrimaryElectionStatistics />;
-  } 
-    return <GeneralElectionStatistics />;
-  
+  }
+  return <GeneralElectionStatistics />;
 }
