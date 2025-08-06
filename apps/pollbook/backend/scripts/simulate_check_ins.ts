@@ -37,18 +37,17 @@ function getCheckInPartyForVoter(voter: Voter): CheckInBallotParty {
   return 'REP';
 }
 
-async function checkInVoter(voterId: string, isPrimary: boolean) {
+async function checkInVoter(voter: Voter, isPrimary: boolean) {
   try {
-    const voter = await api.getVoter({ voterId });
     await api.checkInVoter({
-      voterId,
+      voterId: voter.voterId,
       identificationMethod: { type: 'default' },
       ballotParty: isPrimary
         ? getCheckInPartyForVoter(voter)
         : 'NOT_APPLICABLE',
     });
   } catch (error) {
-    console.error(`Failed to check in voter ${voterId}:`, error);
+    console.error(`Failed to check in voter ${voter.voterId}:`, error);
   }
 }
 
@@ -140,6 +139,10 @@ async function checkInAllVotersOnCurrentMachine(
 
     console.time('100processed');
     for (const voter of votersToProcess) {
+      if (voter.checkIn) {
+        // Skip check-in if already checked in
+        continue;
+      }
       const startSearchByInitials = performance.now();
       await searchVoterByInitials(voter.firstName, voter.lastName);
       const endSearchByInitials = performance.now();
@@ -160,7 +163,7 @@ async function checkInAllVotersOnCurrentMachine(
       );
 
       const startCheckIn = performance.now();
-      await checkInVoter(voter.voterId, isPrimary);
+      await checkInVoter(voter, isPrimary);
       const endCheckIn = performance.now();
       durations.checkIn.push(endCheckIn - startCheckIn);
 
