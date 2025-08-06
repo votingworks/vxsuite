@@ -66,7 +66,7 @@ export function ThroughputChart({
     throughputInterval: intervalMin,
     partyFilter,
   });
-  // Any check in from an undelcared voter is counted as a check-in for the ballot party chosen, viewing check in / throughput
+  // Any check in from an undeclared voter is counted as a check-in for the ballot party chosen, viewing check in / throughput
   // information for undeclared voters is not supported.
   assert(partyFilter !== 'UND');
   if (!getThroughputQuery.isSuccess) {

@@ -829,24 +829,24 @@ test('getPrimarySummaryStatistics returns complete statistics for in-precinct vo
   expect(precinct1AllStats.totalCheckIns).toEqual(4); // All check-ins are from precinct-1 voters
   expect(precinct1AllStats.totalNewRegistrations).toEqual(1); // Alice is in precinct-1
   expect(precinct1AllStats.totalAbsenteeCheckIns).toEqual(1); // Ella's absentee check-in
-  expect(precinct1AllStats.totalUndeclaredDemCheckIns).toEqual(0); // Only applies to UND filter
-  expect(precinct1AllStats.totalUndeclaredRepCheckIns).toEqual(0); // Only applies to UND filter
+  expect(precinct1AllStats.totalUndeclaredDemCheckIns).toEqual(1); // Ariel checked in with DEM ballot
+  expect(precinct1AllStats.totalUndeclaredRepCheckIns).toEqual(0); // No UND voters checked in with REP ballot
 
   const precinct1DemStats = localStore.getPrimarySummaryStatistics('DEM');
   expect(precinct1DemStats.totalVoters).toEqual(2); // Dylan + Alice in precinct-1
   expect(precinct1DemStats.totalCheckIns).toEqual(3); // Dylan, Ariel, Alice (DEM ballot check-ins)
   expect(precinct1DemStats.totalNewRegistrations).toEqual(1); // Alice
   expect(precinct1DemStats.totalAbsenteeCheckIns).toEqual(0); // No DEM absentee check-ins
-  expect(precinct1DemStats.totalUndeclaredDemCheckIns).toEqual(0); // Only applies to UND filter
-  expect(precinct1DemStats.totalUndeclaredRepCheckIns).toEqual(0); // Only applies to UND filter
+  expect(precinct1AllStats.totalUndeclaredDemCheckIns).toEqual(1); // Ariel checked in with DEM ballot
+  expect(precinct1AllStats.totalUndeclaredRepCheckIns).toEqual(0); // No UND voters checked in with REP ballot
 
   const precinct1RepStats = localStore.getPrimarySummaryStatistics('REP');
   expect(precinct1RepStats.totalVoters).toEqual(1); // Only Ella in precinct-1
   expect(precinct1RepStats.totalCheckIns).toEqual(1); // Only Ella's REP ballot check-in
   expect(precinct1RepStats.totalNewRegistrations).toEqual(0); // No REP new registrations
   expect(precinct1RepStats.totalAbsenteeCheckIns).toEqual(1); // Ella's absentee check-in
-  expect(precinct1RepStats.totalUndeclaredDemCheckIns).toEqual(0); // Only applies to UND filter
-  expect(precinct1RepStats.totalUndeclaredRepCheckIns).toEqual(0); // Only applies to UND filter
+  expect(precinct1AllStats.totalUndeclaredDemCheckIns).toEqual(1); // Ariel checked in with DEM ballot
+  expect(precinct1AllStats.totalUndeclaredRepCheckIns).toEqual(0); // No UND voters checked in with REP ballot
 
   const precinct1UndStats = localStore.getPrimarySummaryStatistics('UND');
   expect(precinct1UndStats.totalVoters).toEqual(1); // Only Ariel in precinct-1

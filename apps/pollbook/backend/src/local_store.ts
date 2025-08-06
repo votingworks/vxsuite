@@ -775,18 +775,18 @@ export class LocalStore extends Store {
               ([, voter]) => voter.party === partyFilter
             )
           );
-    const undeclaredDemVoters =
-      partyFilter === 'UND'
-        ? Object.values(votersMatchingParty).filter(
-            (voter) => voter.checkIn && voter.checkIn.ballotParty === 'DEM'
-          ).length
-        : 0;
-    const undeclaredRepVoters =
-      partyFilter === 'UND'
-        ? Object.values(votersMatchingParty).filter(
-            (voter) => voter.checkIn && voter.checkIn.ballotParty === 'REP'
-          ).length
-        : 0;
+    const undeclaredDemVoters = Object.values(voters).filter(
+      (voter) =>
+        voter.party === 'UND' &&
+        voter.checkIn &&
+        voter.checkIn.ballotParty === 'DEM'
+    ).length;
+    const undeclaredRepVoters = Object.values(voters).filter(
+      (voter) =>
+        voter.party === 'UND' &&
+        voter.checkIn &&
+        voter.checkIn.ballotParty === 'REP'
+    ).length;
     // We have to consider ALL voters here as undeclared party voters may check in with a party
     const votersWithCheckInMatchingParty = Object.fromEntries(
       Object.entries(voters).filter(
