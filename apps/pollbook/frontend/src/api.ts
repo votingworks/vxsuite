@@ -7,7 +7,11 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import type { Api, VoterSearchParams } from '@votingworks/pollbook-backend';
+import type {
+  Api,
+  PartyFilterAbbreviation,
+  VoterSearchParams,
+} from '@votingworks/pollbook-backend';
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
   createSystemCallApi,
@@ -208,32 +212,50 @@ export const getCheckInCounts = {
   },
 } as const;
 
-export const getSummaryStatistics = {
-  queryKey(): QueryKey {
-    return ['getSummaryStatistics'];
+export const getGeneralSummaryStatistics = {
+  queryKey(input?: { partyFilter: PartyFilterAbbreviation }): QueryKey {
+    return input
+      ? ['getGeneralSummaryStatistics', input]
+      : ['getGeneralSummaryStatistics'];
   },
-  useQuery() {
+  useQuery(input: { partyFilter: PartyFilterAbbreviation }) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getSummaryStatistics(), {
-      refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
-    });
+    return useQuery(this.queryKey(input), () =>
+      apiClient.getGeneralSummaryStatistics(input)
+    );
+  },
+} as const;
+
+export const getPrimarySummaryStatistics = {
+  queryKey(input?: { partyFilter: PartyFilterAbbreviation }): QueryKey {
+    return input
+      ? ['getPrimarySummaryStatistics', input]
+      : ['getPrimarySummaryStatistics'];
+  },
+  useQuery(input: { partyFilter: PartyFilterAbbreviation }) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(input), () =>
+      apiClient.getPrimarySummaryStatistics(input)
+    );
   },
 } as const;
 
 export const getThroughputStatistics = {
-  queryKey(input?: { throughputInterval: number }): QueryKey {
+  queryKey(input?: {
+    throughputInterval: number;
+    partyFilter: PartyFilterAbbreviation;
+  }): QueryKey {
     return input
       ? ['getThroughputStatistics', input]
       : ['getThroughputStatistics'];
   },
-  useQuery(input: { throughputInterval: number }) {
+  useQuery(input: {
+    throughputInterval: number;
+    partyFilter: PartyFilterAbbreviation;
+  }) {
     const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(input),
-      () => apiClient.getThroughputStatistics(input),
-      {
-        refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
-      }
+    return useQuery(this.queryKey(input), () =>
+      apiClient.getThroughputStatistics(input)
     );
   },
 } as const;
@@ -256,7 +278,8 @@ export const getHaveElectionEventsOccurred = {
 
 async function invalidateCheckInQueries(queryClient: QueryClient) {
   await queryClient.invalidateQueries(getCheckInCounts.queryKey());
-  await queryClient.invalidateQueries(getSummaryStatistics.queryKey());
+  await queryClient.invalidateQueries(getGeneralSummaryStatistics.queryKey());
+  await queryClient.invalidateQueries(getPrimarySummaryStatistics.queryKey());
   await queryClient.invalidateQueries(getThroughputStatistics.queryKey());
 }
 

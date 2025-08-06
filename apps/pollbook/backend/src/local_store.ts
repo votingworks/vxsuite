@@ -2,6 +2,7 @@ import { BaseLogger } from '@votingworks/logging';
 import { Client as DbClient } from '@votingworks/db';
 import {
   CheckInBallotParty,
+  PartyAbbreviation,
   safeParseJson,
   Voter,
   VoterAddressChange,
@@ -42,6 +43,8 @@ import {
   VoterNameChangeEvent,
   VoterRegistrationEvent,
   VoterSearchParams,
+  PartyFilterAbbreviation,
+  PrimarySummaryStatistics,
 } from './types';
 import {
   applyPollbookEventsToVoters,
@@ -79,6 +82,7 @@ function toPatternMatches(raw: string): string {
 
 interface GetVotersQueryParams {
   matchConfiguredPrecinctId?: boolean;
+  partyFilter?: PartyAbbreviation;
 }
 
 export class LocalStore extends Store {
@@ -619,7 +623,13 @@ export class LocalStore extends Store {
     return { voter: updatedVoter, receiptNumber };
   }
 
-  getThroughputStatistics(throughputInterval: number): ThroughputStat[] {
+  getThroughputStatistics(
+    throughputInterval: number,
+    partyFilter: PartyFilterAbbreviation
+  ): ThroughputStat[] {
+    if (partyFilter === 'UND') {
+      return [];
+    }
     const intervalMs = throughputInterval * 60 * 1000;
     const checkInEventRows = this.client.all(
       `SELECT * FROM event_log WHERE event_type = '${EventType.VoterCheckIn}' ORDER BY physical_time, logical_counter, machine_id`
@@ -633,8 +643,15 @@ export class LocalStore extends Store {
         event.type === EventType.VoterCheckIn
     );
 
-    const orderedByEventMachineTime = [...checkInEvents].sort((a, b) =>
-      a.checkInData.timestamp.localeCompare(b.checkInData.timestamp)
+    const checkInEventsMatchingParty = checkInEvents.filter(
+      (e) =>
+        !partyFilter ||
+        partyFilter === 'ALL' ||
+        e.checkInData.ballotParty === partyFilter
+    );
+
+    const orderedByEventMachineTime = [...checkInEventsMatchingParty].sort(
+      (a, b) => a.checkInData.timestamp.localeCompare(b.checkInData.timestamp)
     );
     // Group events by interval based on checkInData.timestamp
     const throughputStats: ThroughputStat[] = [];
@@ -676,23 +693,124 @@ export class LocalStore extends Store {
     return throughputStats;
   }
 
-  getSummaryStatistics(): SummaryStatistics {
-    const voters = this.getAllVoters();
+  /**
+   * Calculates summary statistics for the current general election to populate the statistics screen.
+   * Throws an error if called when the current election is a primary election.
+   *
+   * @param partyFilter - The party to filter voters by. Use 'ALL' to include all parties.
+   *   When a specific party is provided, only voters registered with that party are included
+   *   in the statistics for total voters and new registrations. For check-in statistics,
+   *   ALL check ins are returned irrespective of party since check ins are not associated with a party
+   *   in the context of a general election.
+   * @returns Summary statistics for the filtered set of voters.
+   */
+  getGeneralSummaryStatistics(
+    partyFilter: PartyFilterAbbreviation
+  ): SummaryStatistics {
+    const { configuredPrecinctId } = this.getPollbookConfigurationInformation();
+    const election = this.getElection();
+    assert(election !== undefined);
+    assert(election.type !== 'primary');
+    const voters = this.getAllVoters({
+      matchConfiguredPrecinctId: !!configuredPrecinctId,
+    });
     assert(voters);
-    const totalVoters = Object.keys(voters).length;
-    const totalAbsenteeCheckIns = Object.values(voters).filter(
+    const votersMatchingParty =
+      partyFilter === 'ALL'
+        ? voters
+        : Object.fromEntries(
+            Object.entries(voters).filter(
+              ([, voter]) => voter.party === partyFilter
+            )
+          );
+    const votersWithCheckIn = Object.fromEntries(
+      Object.entries(voters).filter(([, voter]) => voter.checkIn)
+    );
+    const totalVoters = Object.keys(votersMatchingParty).length;
+    const totalAbsenteeCheckIns = Object.values(votersWithCheckIn).filter(
       (v) => v.checkIn && v.checkIn.isAbsentee
     ).length;
-    const totalNewRegistrations = Object.values(voters).filter(
+    const totalNewRegistrations = Object.values(votersMatchingParty).filter(
       (v) => v.registrationEvent !== undefined
     ).length;
-    const totalCheckIns = Object.values(voters).filter((v) => v.checkIn).length;
+    const totalCheckIns = Object.values(votersWithCheckIn).length;
 
     return {
       totalVoters,
       totalCheckIns,
       totalAbsenteeCheckIns,
       totalNewRegistrations,
+    };
+  }
+
+  /**
+   * Calculates summary statistics for the current primary election to populate the statistics screen.
+   * Throws an error if called when the current election is a general election.
+   *
+   * @param partyFilter - The party to filter voters by. Use 'ALL' to include all parties.
+   *   When a specific party is provided, only voters registered with that party are included
+   *   in the statistics for total voters and new registrations. Only check-ins with a ballot party matching the
+   *   provided filter are counted for total check ins and total absentee check ins. That includes check ins from a
+   *   voter matching the party filter and undeclared voters who checked in with a ballot party matching the filter.
+   *   When the partyFilter is 'UND' the number of undeclared voters who checked in with a democratic or republican ballot
+   *   party is returned in totalUndeclaredDemCheckIns and totalUndeclaredRepCheckIns respectively.
+   * @returns Summary statistics for the filtered set of voters.
+   */
+  getPrimarySummaryStatistics(
+    partyFilter: PartyFilterAbbreviation
+  ): PrimarySummaryStatistics {
+    const { configuredPrecinctId } = this.getPollbookConfigurationInformation();
+    const election = this.getElection();
+    assert(election !== undefined);
+    assert(election.type === 'primary');
+    const voters = this.getAllVoters({
+      matchConfiguredPrecinctId: !!configuredPrecinctId,
+    });
+    assert(voters);
+    const votersMatchingParty =
+      partyFilter === 'ALL'
+        ? voters
+        : Object.fromEntries(
+            Object.entries(voters).filter(
+              ([, voter]) => voter.party === partyFilter
+            )
+          );
+    const undeclaredDemVoters = Object.values(voters).filter(
+      (voter) =>
+        voter.party === 'UND' &&
+        voter.checkIn &&
+        voter.checkIn.ballotParty === 'DEM'
+    ).length;
+    const undeclaredRepVoters = Object.values(voters).filter(
+      (voter) =>
+        voter.party === 'UND' &&
+        voter.checkIn &&
+        voter.checkIn.ballotParty === 'REP'
+    ).length;
+    // We have to consider ALL voters here as undeclared party voters may check in with a party
+    const votersWithCheckInMatchingParty = Object.fromEntries(
+      Object.entries(voters).filter(
+        ([, voter]) =>
+          voter.checkIn &&
+          (partyFilter === 'ALL' || voter.checkIn.ballotParty === partyFilter)
+      )
+    );
+    const totalVoters = Object.keys(votersMatchingParty).length;
+    const totalAbsenteeCheckIns = Object.values(
+      votersWithCheckInMatchingParty
+    ).filter((v) => v.checkIn && v.checkIn.isAbsentee).length;
+    const totalNewRegistrations = Object.values(votersMatchingParty).filter(
+      (v) => v.registrationEvent !== undefined
+    ).length;
+    const totalCheckIns = Object.values(votersWithCheckInMatchingParty).length;
+
+    return {
+      totalVoters,
+      totalCheckIns,
+      totalAbsenteeCheckIns,
+      totalNewRegistrations,
+      totalUndeclaredDemCheckIns: undeclaredDemVoters,
+      totalUndeclaredRepCheckIns: undeclaredRepVoters,
     };
   }
 

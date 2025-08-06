@@ -10,6 +10,7 @@ import {
   VoterMailingAddressChange as VoterMailingAddressChangeType,
   VoterNameChange as VoterNameChangeType,
   VoterRegistration as VoterRegistrationType,
+  PartyAbbreviation,
 } from '@votingworks/types';
 import { BatteryInfo } from '@votingworks/backend';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
@@ -240,6 +241,11 @@ export interface SummaryStatistics {
   totalAbsenteeCheckIns: number;
 }
 
+export interface PrimarySummaryStatistics extends SummaryStatistics {
+  totalUndeclaredDemCheckIns: number;
+  totalUndeclaredRepCheckIns: number;
+}
+
 export type ConfigurationStatus =
   | 'loading'
   | 'not-found-usb'
@@ -304,3 +310,5 @@ export function isBarcodeScannerError(
 ): payload is BarcodeScannerError {
   return BarcodeScannerErrorSchema.safeParse(payload).success;
 }
+
+export type PartyFilterAbbreviation = 'ALL' | PartyAbbreviation;

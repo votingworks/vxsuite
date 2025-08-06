@@ -21,6 +21,7 @@ interface OptionalMockVoterParams {
   middleName?: string;
   suffix?: string;
   precinct?: string;
+  party?: PartyAbbreviation;
 }
 
 export function createVoter(
@@ -57,7 +58,7 @@ export function createVoter(
     mailingState: 'NH',
     mailingZip5: '12345',
     mailingZip4: '6789',
-    party: 'UND',
+    party: optionalMockVoterParams.party || 'UND',
     precinct: optionalMockVoterParams.precinct || 'Precinct',
     isInactive: false,
   };
