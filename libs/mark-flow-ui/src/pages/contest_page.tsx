@@ -25,6 +25,7 @@ import { BreadcrumbMetadata, Breadcrumbs } from '../components/contest_header';
 import { VoterScreen } from '../components/voter_screen';
 
 export interface ContestPageProps {
+  allowCandidateOvervotes?: boolean;
   contests: ContestsWithMsEitherNeither;
   electionDefinition?: ElectionDefinition;
   accessibilityMode?: AccessibilityMode;
@@ -48,6 +49,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
   const isReviewMode = history.location.hash === '#review';
 
   const {
+    allowCandidateOvervotes,
     contests,
     electionDefinition,
     accessibilityMode,
@@ -181,6 +183,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
       }
     >
       <Contest
+        allowCandidateOvervotes={allowCandidateOvervotes}
         key={contest.id} // Force a re-mount for every contest to reset scroll state.
         election={electionDefinition.election}
         breadcrumbs={breadcrumbsMetadata}

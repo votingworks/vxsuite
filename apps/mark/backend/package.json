@@ -12,7 +12,7 @@
     "build": "is-ci build:ci build:dev",
     "build:ci": "pnpm --filter $npm_package_name... --sequential build:self",
     "build:dev": "pnpm --filter $npm_package_name... build:self",
-    "build:self": "tsc --build tsconfig.build.json",
+    "build:self": "tsc --build tsconfig.build.json && cp src/audio/*.mp3 build/audio/",
     "clean": "pnpm --filter $npm_package_name... clean:self",
     "clean:self": "rm -rf build && tsc --build --clean tsconfig.build.json",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
@@ -46,8 +46,10 @@
     "fs-extra": "11.1.1",
     "js-sha256": "^0.9.0",
     "luxon": "^3.0.0",
+    "node-hid": "^2.1.2",
     "react": "18.3.1",
     "tmp": "^0.2.1",
+    "usb": "2.15.0",
     "zod": "3.25.42"
   },
   "devDependencies": {
@@ -57,6 +59,7 @@
     "@types/jest-image-snapshot": "^6.4.0",
     "@types/luxon": "^3.0.0",
     "@types/node": "20.17.31",
+    "@types/node-hid": "^1.3.2",
     "@types/react": "18.3.3",
     "@types/tmp": "0.2.4",
     "@vitest/coverage-istanbul": "^3.1.1",

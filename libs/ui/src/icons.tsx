@@ -14,6 +14,8 @@ import {
   faCircleHalfStroke,
   faCircleLeft,
   faCircleRight,
+  faDoorClosed,
+  faDoorOpen,
   faDeleteLeft,
   faDisplay,
   faExclamationCircle,
@@ -85,6 +87,7 @@ import {
   faXmark,
   faCircleUser,
   faArrowRightFromBracket,
+  faQrcode,
 } from '@fortawesome/free-solid-svg-icons';
 import { faUsb } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -360,6 +363,14 @@ export const Icons = {
     return <FaIcon {...props} type={faCheckCircle} />;
   },
 
+  DoorClosed(props) {
+    return <FaIcon {...props} type={faDoorClosed} />;
+  },
+
+  DoorOpen(props) {
+    return <FaIcon {...props} type={faDoorOpen} />;
+  },
+
   Edit(props) {
     return <FaIcon {...props} type={faPencil} />;
   },
@@ -482,6 +493,10 @@ export const Icons = {
 
   PowerOff(props) {
     return <FaIcon {...props} type={faPowerOff} />;
+  },
+
+  QrCode(props) {
+    return <FaIcon {...props} type={faQrcode} />;
   },
 
   Question(props) {

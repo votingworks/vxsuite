@@ -17,6 +17,8 @@ import {
   UnconfigureMachineButton,
   ExportLogsButton,
   SegmentedButtonOption,
+  PowerDownButton,
+  SignedHashValidationButton,
 } from '@votingworks/ui';
 import {
   ElectionDefinition,
@@ -58,6 +60,24 @@ const Section = styled.div`
   }
 `;
 
+const ButtonGrid = styled.div`
+  display: grid;
+  grid-auto-rows: 1fr;
+  grid-gap: max(${(p) => p.theme.sizes.minTouchAreaSeparationPx}px, 0.25rem);
+  grid-template-columns: 1fr 1fr;
+
+  @media (orientation: landscape) {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  button {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+  }
+
+  margin-bottom: 0.5rem;
+`;
+
 // [TODO] Finalize copy before turning on this feature.
 const PRINT_MODE_OPTIONS: Array<SegmentedButtonOption<PrintMode>> = [
   { id: 'summary', label: 'Summary' },
@@ -76,6 +96,9 @@ export function AdminScreen({
   usbDriveStatus,
 }: AdminScreenProps): JSX.Element {
   const { election } = electionDefinition;
+
+  const apiClient = api.useApiClient();
+
   const logOutMutation = logOut.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
   const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
@@ -211,6 +234,11 @@ export function AdminScreen({
           usbDriveEject={() => ejectUsbDriveMutation.mutate()}
           usbDriveIsEjecting={ejectUsbDriveMutation.isLoading}
         />
+        <H6 as="h2">System</H6>
+        <ButtonGrid>
+          <SignedHashValidationButton apiClient={apiClient} />
+          <PowerDownButton icon="PowerOff" />
+        </ButtonGrid>
       </Main>
       <ElectionInfoBar
         mode="admin"

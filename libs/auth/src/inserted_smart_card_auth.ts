@@ -265,9 +265,15 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
   ): Promise<void> {
     assert(this.config.allowCardlessVoterSessions);
     await this.checkCardReaderAndUpdateAuthStatus(machineState);
+
+    const barcodeSessionStartEnabled = isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.MARK_ENABLE_BARCODE_DEMO
+    );
+
     if (
-      this.authStatus.status !== 'logged_in' ||
-      this.authStatus.user.role !== 'poll_worker'
+      !barcodeSessionStartEnabled &&
+      (this.authStatus.status !== 'logged_in' ||
+        this.authStatus.user.role !== 'poll_worker')
     ) {
       return;
     }
