@@ -2,7 +2,6 @@ import { BaseLogger } from '@votingworks/logging';
 import { Client as DbClient } from '@votingworks/db';
 import {
   CheckInBallotParty,
-  PartyAbbreviation,
   safeParseJson,
   Voter,
   VoterAddressChange,
@@ -161,7 +160,8 @@ export class LocalStore extends Store {
     const votersMap: Record<string, Voter> = {};
     for (const row of voterRows) {
       const voter = safeParseJson(row.voter_data, VoterSchema).unsafeUnwrap();
-      if (configuredPrecinctId && 
+      if (
+        configuredPrecinctId &&
         (voter.addressChange
           ? voter.addressChange.precinct
           : voter.precinct) === configuredPrecinctId
@@ -720,7 +720,10 @@ export class LocalStore extends Store {
     const election = this.getElection();
     assert(election !== undefined);
     assert(election.type !== 'primary');
-    const voters = configuredPrecinctId === undefined ? this.getAllVotersInPrecinct() : this.getAllVoters();
+    const voters =
+      configuredPrecinctId === undefined
+        ? this.getAllVoters()
+        : this.getAllVotersInPrecinct();
     assert(voters);
     const votersMatchingParty =
       partyFilter === 'ALL'
@@ -770,7 +773,10 @@ export class LocalStore extends Store {
     const election = this.getElection();
     assert(election !== undefined);
     assert(election.type === 'primary');
-    const voters = configuredPrecinctId === undefined ? this.getAllVotersInPrecinct() : this.getAllVoters();
+    const voters =
+      configuredPrecinctId === undefined
+        ? this.getAllVoters()
+        : this.getAllVotersInPrecinct();
     assert(voters);
     const votersMatchingParty =
       partyFilter === 'ALL'
