@@ -2264,6 +2264,9 @@ importers:
 
   apps/pollbook/backend:
     dependencies:
+      '@types/luxon':
+        specifier: ^3.0.0
+        version: 3.2.0
       '@votingworks/auth':
         specifier: workspace:*
         version: link:../../../libs/auth
@@ -2336,6 +2339,9 @@ importers:
       jsbarcode:
         specifier: ^3.11.6
         version: 3.11.6
+      luxon:
+        specifier: ^3.0.0
+        version: 3.3.0
       nanoid:
         specifier: ^3.3.7
         version: 3.3.7
@@ -13285,7 +13291,6 @@ packages:
 
   /@types/luxon@3.2.0:
     resolution: {integrity: sha512-lGmaGFoaXHuOLXFvuju2bfvZRqxAqkHPx9Y9IQdQABrinJJshJwfNCKV+u7rR3kJbiqfTF/NhOkcxxAFrObyaA==}
-    dev: true
 
   /@types/mdx@2.0.3:
     resolution: {integrity: sha512-IgHxcT3RC8LzFLhKwP3gbMPeaK7BM9eBH46OdapPA7yvuIUJ8H6zHZV53J8hGZcTSnt95jANt+rTBNUUc22ACQ==}
