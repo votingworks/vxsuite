@@ -2,7 +2,7 @@
 
 import { throwIllegalValue } from '@votingworks/basics';
 import { type PollsState, type PollsTransitionType } from '@votingworks/types';
-import { Button, Modal, P } from '@votingworks/ui';
+import { Button, IconName, Modal, P } from '@votingworks/ui';
 import {
   getPollsTransitionAction,
   getPollsTransitionDestinationState,
@@ -29,16 +29,28 @@ export function UpdatePollsButton(props: UpdatePollsButtonProps): JSX.Element {
   }
 
   const action = getPollsTransitionAction(pollsTransition);
-  const explanationText = (() => {
+  const [explanationText, icon]: [string, IconName?] = (() => {
     switch (pollsTransition) {
       case 'open_polls':
-        return `After polls are opened, voters will be able to mark and cast ballots.`;
+        return [
+          `After polls are opened, voters will be able to mark and cast ballots.`,
+          'DoorOpen',
+        ];
       case 'pause_voting':
-        return `After voting is paused, voters will not be able to mark and cast ballots until voting is resumed.`;
+        return [
+          `After voting is paused, voters will not be able to mark and cast ballots until voting is resumed.`,
+          'Pause',
+        ];
       case 'resume_voting':
-        return `After voting is resumed, voters will be able to mark and cast ballots.`;
+        return [
+          `After voting is resumed, voters will be able to mark and cast ballots.`,
+          'DoorOpen',
+        ];
       case 'close_polls':
-        return `After polls are closed, voters will no longer be able to mark and cast ballots. Polls cannot be opened again.`;
+        return [
+          `After polls are closed, voters will no longer be able to mark and cast ballots. Polls cannot be opened again.`,
+          'DoorClosed',
+        ];
       default: {
         /* istanbul ignore next - @preserve */
         throwIllegalValue(pollsTransition);
@@ -49,6 +61,7 @@ export function UpdatePollsButton(props: UpdatePollsButtonProps): JSX.Element {
   return (
     <React.Fragment>
       <Button
+        icon={icon}
         variant={isPrimaryButton ? 'primary' : 'neutral'}
         onPress={() => setIsConfirmationModalOpen(true)}
       >
@@ -60,7 +73,7 @@ export function UpdatePollsButton(props: UpdatePollsButtonProps): JSX.Element {
           content={<P>{explanationText}</P>}
           actions={
             <React.Fragment>
-              <Button variant="primary" onPress={confirmUpdate}>
+              <Button icon={icon} variant="primary" onPress={confirmUpdate}>
                 {action}
               </Button>
               <Button onPress={closeModal}>Cancel</Button>

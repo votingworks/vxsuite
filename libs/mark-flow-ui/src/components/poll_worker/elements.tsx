@@ -76,9 +76,9 @@ export const ButtonGrid = styled.div`
 `;
 
 export const VotingSession = styled.div`
-  margin: 30px 0 60px;
+  margin-top: 1.25rem;
   border: 2px solid #000;
-  border-radius: 20px;
+  border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
   padding: 30px 40px;
 
   & > *:first-child {
