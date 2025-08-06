@@ -44,7 +44,7 @@ function buildApi({
     },
 
     setCardReaderTaskRunning(input: { running: boolean }) {
-      workspace.store.setElectricalTestingStatusMessage(
+      setStatusMessage(
         'card',
         input.running ? 'Resumed' : 'Paused'
       );
@@ -56,7 +56,7 @@ function buildApi({
     },
 
     setPaperHandlerTaskRunning(input: { running: boolean }) {
-      workspace.store.setElectricalTestingStatusMessage(
+      setStatusMessage(
         'paperHandler',
         input.running ? 'Resumed' : 'Paused'
       );
@@ -68,7 +68,7 @@ function buildApi({
     },
 
     setUsbDriveTaskRunning(input: { running: boolean }) {
-      workspace.store.setElectricalTestingStatusMessage(
+      setStatusMessage(
         'usbDrive',
         input.running ? 'Resumed' : 'Paused'
       );
