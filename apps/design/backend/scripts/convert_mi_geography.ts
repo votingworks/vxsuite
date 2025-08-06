@@ -69,9 +69,9 @@ function convertToBlankElectionWithGeography(inputFilePath: string): Election {
     const precinctName = `${toTitleCase(row['Jurisdiction'])} ${toTitleCase(
       trimLeadingZeros(row['Precinct'])
     )}`;
-    // The rest of the columns are district names
+    // The rest of the columns are district names, including the Jurisdiction column itself
     const precinctDistricts = Object.entries<string>(row)
-      .filter(([header]) => header !== 'Jurisdiction' && header !== 'Precinct')
+      .filter(([header]) => header !== 'Precinct')
       .flatMap(([header, value]) => {
         // Some column names are duplicated and thus grouped during parsing, so we
         // may have multiple values for the same key.
@@ -81,6 +81,7 @@ function convertToBlankElectionWithGeography(inputFilePath: string): Election {
           .filter((rawDistrictName) => Boolean(rawDistrictName))
           .map((rawDistrictName) => {
             const includeDistrictType = ![
+              'Jurisdiction',
               'Village',
               'School District',
               'Intermediate School District',
