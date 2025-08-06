@@ -214,6 +214,14 @@ export enum PollbookConnectionStatus {
   IncompatibleSoftwareVersion = 'IncompatibleSoftwareVersion',
 }
 
+// These statuses may exists between pollbooks that are talking to each other. Lost Connection should override them when connectivity is lost.
+export const CommunicatingPollbookConnectionStatuses: PollbookConnectionStatus[] =
+  [
+    PollbookConnectionStatus.Connected,
+    PollbookConnectionStatus.MismatchedConfiguration,
+    PollbookConnectionStatus.IncompatibleSoftwareVersion,
+  ];
+
 export interface EventDbRow {
   event_id: number;
   machine_id: string;

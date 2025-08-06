@@ -16,6 +16,7 @@ import {
 import { getCurrentTime } from './get_current_time';
 import { convertDbRowsToPollbookEvents } from './event_helpers';
 import {
+  CommunicatingPollbookConnectionStatuses,
   ConfigurationError,
   EventDbRow,
   PollbookConfigurationInformation,
@@ -94,11 +95,17 @@ export class PeerStore extends Store {
         for (const [avahiServiceName, pollbookService] of Object.entries(
           this.connectedPollbooks
         )) {
-          this.setPollbookServiceForName(avahiServiceName, {
-            ...pollbookService,
-            status: PollbookConnectionStatus.LostConnection,
-            apiClient: undefined,
-          });
+          if (
+            CommunicatingPollbookConnectionStatuses.includes(
+              pollbookService.status
+            )
+          ) {
+            this.setPollbookServiceForName(avahiServiceName, {
+              ...pollbookService,
+              status: PollbookConnectionStatus.LostConnection,
+              apiClient: undefined,
+            });
+          }
         }
       }
       this.client.run(
@@ -268,7 +275,8 @@ export class PeerStore extends Store {
     )) {
       if (
         getCurrentTime() - pollbookService.lastSeen.getTime() >
-        MACHINE_DISCONNECTED_TIMEOUT
+          MACHINE_DISCONNECTED_TIMEOUT &&
+        CommunicatingPollbookConnectionStatuses.includes(pollbookService.status)
       ) {
         debug('Removing stale pollbook service %s', avahiServiceName);
         this.setPollbookServiceForName(avahiServiceName, {
