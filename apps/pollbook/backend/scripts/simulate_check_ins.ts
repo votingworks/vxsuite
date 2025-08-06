@@ -1,5 +1,5 @@
 import * as grout from '@votingworks/grout';
-import yargs from 'yargs';
+import yargs, { config } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import {
   CheckInBallotParty,
@@ -13,9 +13,9 @@ const api = grout.createClient<LocalApi>({
   baseUrl: 'http://localhost:3002/api',
 });
 
-async function getAllVoters() {
+async function getAllVotersInCurrentPrecinct() {
   try {
-    const response = await api.getAllVoters();
+    const response = await api.getAllVotersInCurrentPrecinct();
     return response;
   } catch (error) {
     console.error('Failed to fetch voters:', error);
@@ -104,14 +104,20 @@ async function checkInAllVotersOnCurrentMachine(
 ) {
   try {
     console.log('Starting check-in simulation...');
-    let voters = await getAllVoters();
+    const election = (await api.getElection()).unsafeUnwrap();
+    const { configuredPrecinctId } =
+      await api.getPollbookConfigurationInformation();
+    const isPrimary = election.type === 'primary';
+    if (!configuredPrecinctId) {
+      console.error('No configured precinct ID found.');
+      return;
+    }
+
+    let voters = await getAllVotersInCurrentPrecinct();
 
     if (range) {
       voters = voters.filter((voter) => isVoterInRange(voter, range));
     }
-
-    const election = (await api.getElection()).unsafeUnwrap();
-    const isPrimary = election.type === 'primary';
 
     const sortedVoters = [...voters].sort((a, b) => {
       const lastNameComparison = a.lastName.localeCompare(b.lastName);

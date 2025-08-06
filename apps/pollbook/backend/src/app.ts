@@ -592,7 +592,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
         new Date()
       )}.csv`;
       const csvContents = generateVoterHistoryCsvContent(
-        store.getAllVotersSorted(),
+        store.getAllVotersInPrecinctSorted(),
         election
       );
       const result = await exporter.exportDataToUsbDrive(
@@ -603,8 +603,15 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       result.unsafeUnwrap();
     },
 
-    getAllVoters(): Voter[] {
-      return store.getAllVotersSorted();
+    getAllVotersInCurrentPrecinct(): Voter[] {
+      assertDefined(store.getElection());
+      const { configuredPrecinctId } =
+        store.getPollbookConfigurationInformation();
+      assert(
+        configuredPrecinctId !== undefined,
+        'Precinct must be configured to call this function'
+      );
+      return store.getAllVotersInPrecinctSorted();
     },
 
     getGeneralSummaryStatistics(input: {

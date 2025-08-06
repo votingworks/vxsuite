@@ -66,7 +66,7 @@ test('getNewEvents returns events for unknown machines', () => {
   const electionDef = getTestElectionDefinition();
   expect(
     generateVoterHistoryCsvContent(
-      store.getAllVotersSorted(),
+      store.getAllVotersInPrecinctSorted(),
       electionDef.election
     )
   ).toMatchSnapshot();
@@ -99,7 +99,7 @@ test('includes ballot party selection for primaries', () => {
 
   expect(
     generateVoterHistoryCsvContent(
-      store.getAllVotersSorted(),
+      store.getAllVotersInPrecinctSorted(),
       primaryElectionDef.election
     )
   ).toMatchSnapshot();

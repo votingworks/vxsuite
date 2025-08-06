@@ -936,7 +936,7 @@ test('all possible events are synced', () => {
 
   // Both pollbooks should have the same number of voters
   for (const pollbook of [localA, localB]) {
-    const voters = pollbook.getAllVotersSorted();
+    const voters = pollbook.getAllVotersInPrecinctSorted();
     expect(voters).toHaveLength(3);
     expect(voters).toMatchObject([
       expect.objectContaining({
@@ -979,7 +979,7 @@ test('all possible events are synced', () => {
     ]);
   }
   // Check in all voters and sync events again.
-  const allVoters = localA.getAllVotersSorted();
+  const allVoters = localA.getAllVotersInPrecinctSorted();
   for (const voter of allVoters) {
     localA.recordVoterCheckIn({
       voterId: voter.voterId,
