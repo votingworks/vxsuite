@@ -44,8 +44,8 @@ async function checkInVoter(voterId: string, isPrimary: boolean) {
       voterId,
       identificationMethod: { type: 'default' },
       ballotParty: isPrimary
-        ? 'NOT_APPLICABLE'
-        : getCheckInPartyForVoter(voter),
+        ? getCheckInPartyForVoter(voter)
+        : 'NOT_APPLICABLE',
     });
   } catch (error) {
     console.error(`Failed to check in voter ${voterId}:`, error);
