@@ -25,7 +25,7 @@ const mockAddressDetails: VoterAddressChangeRequest = {
 
 test('getNewEvents returns events for unknown machines', () => {
   const store = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
-  setupTestElectionAndVoters(store);
+  setupTestElectionAndVoters(store, { precinct: 'precinct-1' });
   store.setConfiguredPrecinct('precinct-1');
   // Check in with a default ID method
   store.recordVoterCheckIn({
@@ -76,7 +76,10 @@ test('getNewEvents returns events for unknown machines', () => {
 test('includes ballot party selection for primaries', () => {
   const store = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
   const primaryElectionDef = readMultiPartyPrimaryElectionDefinition();
-  setupTestElectionAndVoters(store, { electionDefinition: primaryElectionDef });
+  setupTestElectionAndVoters(store, {
+    electionDefinition: primaryElectionDef,
+    precinct: 'precinct-1',
+  });
   store.setConfiguredPrecinct('precinct-1');
   // Check in with a default ID method
   store.recordVoterCheckIn({

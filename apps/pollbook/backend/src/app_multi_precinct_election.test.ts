@@ -621,6 +621,7 @@ test('an undeclared voter cannot check in as undeclared', async () => {
       cityStreetNames,
       cityVoters
     );
+    workspace.store.setConfiguredPrecinct(currentPrecinctId);
     mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
     expect(await localApiClient.haveElectionEventsOccurred()).toEqual(false);
 

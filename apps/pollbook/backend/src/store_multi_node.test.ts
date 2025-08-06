@@ -863,8 +863,8 @@ test('all possible events are synced', () => {
   // Set up test election and voters
   const testElectionDefinition = getTestElectionDefinition();
   const testVoters = [
-    createVoter('oscar', 'Oscar', 'Wilde'),
-    createVoter('penny', 'Penny', 'Lane'),
+    createVoter('oscar', 'Oscar', 'Wilde', { precinct: 'precinct-0' }),
+    createVoter('penny', 'Penny', 'Lane', { precinct: 'precinct-0' }),
   ];
   const streets = [
     createValidStreetInfo('MAIN ST', 'odd', 1, 15, '', '', 'precinct-0'),
