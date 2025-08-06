@@ -42,7 +42,7 @@ import { PollbookConnectionStatus } from './types';
 import { VerticalElectionInfoBar } from './election_info_bar';
 
 // To avoid constant jumpiness in the last seen time in the UI round the time difference down to the last 5 seconds.
-export const NETWORK_LAST_SEEN_TIME_ROUND_IN_SECONDS = 5;
+const NETWORK_LAST_SEEN_TIME_ROUND_IN_SECONDS = 5;
 
 export const Header = styled(MainHeader)`
   display: flex;
@@ -248,7 +248,8 @@ function NetworkStatus({
                                   .as('seconds');
                                 const roundedTimeDiffInSeconds =
                                   NETWORK_LAST_SEEN_TIME_ROUND_IN_SECONDS *
-                                  Math.round(
+                                  Math.ceil(
+                                    // the numbers are negative, so we use ceiling as oppose to floor to round towards 0
                                     timeDiffInSeconds /
                                       NETWORK_LAST_SEEN_TIME_ROUND_IN_SECONDS
                                   );
