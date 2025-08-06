@@ -3,8 +3,10 @@ import {
   District,
   Election,
   ElectionId,
+  ElectionType,
   hasSplits,
   HmpbBallotPaperSize,
+  Party,
   Precinct,
   safeParseInt,
 } from '@votingworks/types';
@@ -97,6 +99,7 @@ const PRECINCT_FILE_COLUMNS = [
 type PrecinctFileRow = Record<(typeof PRECINCT_FILE_COLUMNS)[number], string>;
 
 function convertToElection(
+  electionType: ElectionType,
   officeFileContents: string,
   candidateFileContents: string,
   precinctFileContents: string
@@ -128,8 +131,20 @@ function convertToElection(
 
   const candidateContests = new Map<string, CandidateContest>();
   const districts = new Map<string, District>();
+  const parties = new Map<string, Party>();
 
   for (const row of candidateFileRows) {
+    let party: Party | undefined;
+    if (row.party) {
+      party = parties.get(row.party) ?? {
+        id: generateId(),
+        name: row.party,
+        fullName: row.party,
+        abbrev: row.party.charAt(0),
+      };
+      parties.set(row.party, party);
+    }
+
     // Create a district for each contest
     // TODO can we do better and merge these later?
     const contestTitle = getContestTitle(row);
@@ -150,6 +165,7 @@ function convertToElection(
         `Votes allowed not found for contest: ${contestTitle}`
       ),
       allowWriteIns: false,
+      partyId: electionType === 'primary' ? party?.id : undefined,
     };
     candidateContests.set(contestTitle, {
       ...contest,
@@ -160,7 +176,8 @@ function convertToElection(
           lastName: row.lastName,
           firstName: row.firstName,
           name: `${row.firstName} ${row.lastName}`,
-          // TODO partyId
+          partyIds:
+            electionType === 'general' && party ? [party.id] : undefined,
         },
       ],
     });
@@ -250,6 +267,7 @@ function convertToElection(
     ...createElectionSkeleton(generateId()),
     precincts: electionPrecincts,
     districts: electionDistricts,
+    parties: Array.from(parties.values()),
     contests: electionContests,
     // At least one ballot style is required, so we create a dummy
     ballotStyles: [
@@ -263,14 +281,18 @@ function convertToElection(
   };
 }
 
-const USAGE = `Usage: convert_la_election election-data-directory`;
+const USAGE = `Usage: convert_la_election general|primary election-data-directory`;
 function main(args: readonly string[]): void {
-  if (args.length !== 1) {
+  if (args.length !== 2) {
     console.error(USAGE);
     process.exit(1);
   }
 
-  const electionDataDirectory = args[0];
+  const [electionType, electionDataDirectory] = args;
+  assert(
+    electionType === 'general' || electionType === 'primary',
+    `Invalid election type: ${electionType}. Must be 'general' or 'primary'.`
+  );
   const electionFileNames = readdirSync(electionDataDirectory).filter(
     (fileName) => fileName.endsWith('.txt')
   );
@@ -300,6 +322,7 @@ function main(args: readonly string[]): void {
   );
 
   const election = convertToElection(
+    electionType,
     officeFileContents,
     candidateFileContents,
     precinctFileContents
