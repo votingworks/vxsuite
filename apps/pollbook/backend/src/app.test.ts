@@ -22,7 +22,7 @@ import {
   parseValidStreetsFromCsvString,
   parseVotersFromCsvString,
 } from './pollbook_package';
-import { createVoter } from '../test/test_helpers';
+import { createValidStreetInfo, createVoter } from '../test/test_helpers';
 
 let mockNodeEnv: 'production' | 'test' = 'test';
 
@@ -627,9 +627,29 @@ test('register a voter, change name and address, and check in', async () => {
       workspace.store.setElectionAndVoters(
         electionDefinition,
         'mock-package-hash',
-        townStreetNames,
+        [
+          createValidStreetInfo(
+            'MAIN ST',
+            'all',
+            0,
+            100,
+            'Manchester',
+            '00000',
+            currentPrecinctId
+          ),
+          createValidStreetInfo(
+            'ELM ST',
+            'all',
+            0,
+            100,
+            'Manchester',
+            '00000',
+            currentPrecinctId
+          ),
+        ],
         []
       );
+      workspace.store.setConfiguredPrecinct(currentPrecinctId);
       mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
 
       const registrationData: VoterRegistrationRequest = {

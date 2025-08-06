@@ -89,7 +89,7 @@ test('check in a voter', async () => {
 
     assert(votersAbigail !== null);
     assert(Array.isArray(votersAbigail));
-    expect((votersAbigail as Voter[]).length).toEqual(4);
+    expect((votersAbigail as Voter[]).length).toEqual(10);
     const firstVoter = (votersAbigail as Voter[])[0];
     const secondVoter = (votersAbigail as Voter[])[1];
 
