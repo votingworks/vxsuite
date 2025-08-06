@@ -27,6 +27,7 @@ import {
 import {
   DEV_JURISDICTION,
   DippedSmartCardAuthMachineState,
+  generateSignedHashValidationQrCodeValue,
 } from '@votingworks/auth';
 import React from 'react';
 import {
@@ -596,6 +597,44 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
 
     unprogramCard() {
       return auth.unprogramCard(constructAuthMachineState(workspace));
+    },
+
+    async generateSignedHashValidationQrCodeValue() {
+      await logger.logAsCurrentRole(LogEventId.SignedHashValidationInit);
+
+      try {
+        const { electionBallotHash, pollbookPackageHash } =
+          store.getPollbookConfigurationInformation();
+
+        const electionRecord =
+          electionBallotHash && pollbookPackageHash
+            ? {
+                electionDefinition: { ballotHash: electionBallotHash },
+                // electionPackageHash is a misnomer; we actually just want to supply
+                // the hash of the configuration zip. In this case it's the pollbook
+                // package but in all other cases it's the election package hash.
+                electionPackageHash: pollbookPackageHash,
+              }
+            : undefined;
+
+        const qrCodeValue = await generateSignedHashValidationQrCodeValue({
+          softwareVersion: codeVersion,
+          electionRecord,
+        });
+
+        await logger.logAsCurrentRole(LogEventId.SignedHashValidationComplete, {
+          disposition: 'success',
+        });
+
+        return qrCodeValue;
+      } catch (error) {
+        await logger.logAsCurrentRole(LogEventId.SignedHashValidationComplete, {
+          disposition: 'failure',
+          message: (error as Error).message,
+        });
+
+        throw err;
+      }
     },
 
     async resetNetwork(): Promise<boolean> {

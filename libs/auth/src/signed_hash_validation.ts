@@ -50,7 +50,12 @@ async function computeSystemHash(): Promise<string> {
   return systemHashBase64;
 }
 
-interface ElectionRecord {
+/**
+ * A combination of hashes representing the configuration of the machine, where
+ * `electionPackageHash` is by convention the hash of a zip package used
+ * to configure the machine eg. an election package or pollbook package.
+ */
+export interface ElectionRecord {
   electionDefinition: { ballotHash: string };
   electionPackageHash: string;
 }
