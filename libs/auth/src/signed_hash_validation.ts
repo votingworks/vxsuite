@@ -79,7 +79,7 @@ export async function generateSignedHashValidationQrCodeValue(
 
   const { electionRecord, softwareVersion } = machineState;
   const systemHash = await computeSystemHash();
-  const combinedConfigurationHash = electionRecord
+  const combinedElectionHash = electionRecord
     ? formatElectionHashes(
         electionRecord.electionDefinition.ballotHash,
         electionRecord.electionPackageHash
@@ -90,7 +90,7 @@ export async function generateSignedHashValidationQrCodeValue(
   const messagePayloadParts: string[] = [
     systemHash,
     softwareVersion,
-    combinedConfigurationHash,
+    combinedElectionHash,
     date.toISOString(),
   ];
   assert(
@@ -138,7 +138,7 @@ export async function generateSignedHashValidationQrCodeValue(
   return {
     qrCodeValue,
     qrCodeInputs: {
-      combinedConfigurationHash,
+      combinedElectionHash,
       date,
       machineId,
       softwareVersion,

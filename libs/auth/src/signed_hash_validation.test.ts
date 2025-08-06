@@ -16,7 +16,7 @@ const mockElectionRecord: ElectionRecord = {
   electionDefinition: { ballotHash: mockBallotHash },
   electionPackageHash: 'election-package-hash',
 };
-const combinedConfigurationHash: string = formatElectionHashes(
+const combinedElectionHash: string = formatElectionHashes(
   mockElectionRecord.electionDefinition.ballotHash,
   mockElectionRecord.electionPackageHash
 );
@@ -62,7 +62,7 @@ test.each<{
   electionRecord?: ElectionRecord;
   expectedQrCodeValueLength: number;
   expectedQrCodeInputs: {
-    combinedConfigurationHash: string;
+    combinedElectionHash: string;
     machineId: string;
   };
 }>([
@@ -71,7 +71,7 @@ test.each<{
     electionRecord: mockElectionRecord,
     expectedQrCodeValueLength: 910,
     expectedQrCodeInputs: {
-      combinedConfigurationHash,
+      combinedElectionHash,
       machineId: DEV_MACHINE_ID,
     },
   },
@@ -79,7 +79,7 @@ test.each<{
     config: vxAdminTestConfig,
     expectedQrCodeValueLength: 895,
     expectedQrCodeInputs: {
-      combinedConfigurationHash: '',
+      combinedElectionHash: '',
       machineId: DEV_MACHINE_ID,
     },
   },
@@ -88,7 +88,7 @@ test.each<{
     electionRecord: mockElectionRecord,
     expectedQrCodeValueLength: 748,
     expectedQrCodeInputs: {
-      combinedConfigurationHash,
+      combinedElectionHash,
       machineId: DEV_MACHINE_ID,
     },
   },
@@ -96,7 +96,7 @@ test.each<{
     config: vxScanTestConfig,
     expectedQrCodeValueLength: 733,
     expectedQrCodeInputs: {
-      combinedConfigurationHash: '',
+      combinedElectionHash: '',
       machineId: DEV_MACHINE_ID,
     },
   },
@@ -105,7 +105,7 @@ test.each<{
     electionRecord: pollbookElectionRecord,
     expectedQrCodeValueLength: 918,
     expectedQrCodeInputs: {
-      combinedConfigurationHash: formatElectionHashes(
+      combinedElectionHash: formatElectionHashes(
         mockBallotHash,
         mockPollbookPackageHash
       ),

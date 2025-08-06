@@ -19,7 +19,7 @@ function mockSignedHashValidationQrCodeGeneration(
       return {
         qrCodeValue: 'qr-code-value',
         qrCodeInputs: {
-          combinedConfigurationHash: 'combined-election-hash',
+          combinedElectionHash: 'combined-election-hash',
           date: new Date('1/1/2024, 12:00:00 PM'),
           machineId: 'machine-id',
           softwareVersion: 'software-version',
@@ -72,7 +72,7 @@ test('SignedHashValidationButton', async () => {
   );
 
   mockSignedHashValidationQrCodeGeneration({
-    combinedConfigurationHash: '',
+    combinedElectionHash: '',
     date: new Date('1/1/2024, 12:01:00 PM'),
   });
 
