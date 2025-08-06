@@ -298,7 +298,7 @@ export function getBooleanEnvVarConfig(
     case BooleanEnvironmentVariableName.MARK_ENABLE_BALLOT_PRINT_MODE_TOGGLE:
       return {
         name,
-        allowInProduction: false,
+        allowInProduction: true,
         autoEnableInDevelopment: true,
       };
     /* istanbul ignore next */
