@@ -88,6 +88,8 @@ function constructAuthMachineState(
   workspace: LocalWorkspace
 ): DippedSmartCardAuthMachineState {
   const election = workspace.store.getElection();
+  const { configuredPrecinctId } =
+    workspace.store.getPollbookConfigurationInformation();
 
   const jurisdiction = isIntegrationTest()
     ? TEST_JURISDICTION
@@ -99,6 +101,7 @@ function constructAuthMachineState(
       id: election.id,
       date: election.date,
     },
+    isConfigured: !!election && !!configuredPrecinctId,
     jurisdiction,
     machineType: 'poll-book',
   };

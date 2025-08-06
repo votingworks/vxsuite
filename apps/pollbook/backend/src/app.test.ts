@@ -6,19 +6,17 @@ import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
   constructElectionKey,
   DEFAULT_SYSTEM_SETTINGS,
-} from '@votingworks/types';
-import {
-  DEV_JURISDICTION,
-  DippedSmartCardAuthMachineState,
-} from '@votingworks/auth';
-import { BatteryInfo } from '@votingworks/backend';
-import {
   Voter,
   VoterAddressChangeRequest,
   VoterMailingAddressChangeRequest,
   VoterNameChangeRequest,
   VoterRegistrationRequest,
 } from '@votingworks/types';
+import {
+  DEV_JURISDICTION,
+  DippedSmartCardAuthMachineState,
+} from '@votingworks/auth';
+import { BatteryInfo } from '@votingworks/backend';
 import { TEST_MACHINE_ID, withApp } from '../test/app';
 import {
   parseValidStreetsFromCsvString,
@@ -1098,6 +1096,7 @@ test('programCard and unprogramCard', async () => {
       electionKey,
       jurisdiction: DEV_JURISDICTION,
       machineType: 'poll-book',
+      isConfigured: true,
     };
 
     void (await localApiClient.programCard({

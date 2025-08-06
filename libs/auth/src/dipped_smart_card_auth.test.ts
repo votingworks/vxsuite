@@ -353,6 +353,7 @@ test.each<{
     expect(
       await auth.getAuthStatus({
         ...defaultMachineState,
+        isConfigured: true,
         arePollWorkerCardPinsEnabled: true,
       })
     ).toEqual({
@@ -791,7 +792,7 @@ test.each<{
     config: {
       allowedUserRoles: ['poll_worker'],
     },
-    machineState: defaultMachineState,
+    machineState: { ...defaultMachineState, isConfigured: true },
     cardDetails: {
       user: pollWorkerUser,
       hasPin: false,
@@ -803,7 +804,7 @@ test.each<{
     },
   },
   {
-    description: 'unconfigured machine',
+    description: 'no electionKey for election manager',
     config: defaultConfig,
     machineState: { ...defaultMachineState, electionKey: undefined },
     cardDetails: {
@@ -828,7 +829,7 @@ test.each<{
   },
   {
     description:
-      'unconfigured machine, allowElectionManagersToAccessUnconfiguredMachines = true',
+      'no electionKey for election manager, allowElectionManagersToAccessUnconfiguredMachines = true',
     config: {
       ...defaultConfig,
       allowElectionManagersToAccessUnconfiguredMachines: true,
@@ -843,7 +844,63 @@ test.each<{
     },
   },
   {
-    description: 'unconfigured machine, vendor can access',
+    description: 'isConfigured=false for poll worker',
+    config: {
+      ...defaultConfig,
+      allowedUserRoles: defaultConfig.allowedUserRoles.concat(['poll_worker']),
+    },
+    machineState: { ...defaultMachineState, isConfigured: false },
+    cardDetails: {
+      user: pollWorkerUser,
+      hasPin: false,
+    },
+    expectedAuthStatus: {
+      status: 'logged_out',
+      reason: 'machine_not_configured',
+      cardJurisdiction: jurisdiction,
+      cardUserRole: 'poll_worker',
+      machineJurisdiction: jurisdiction,
+    },
+    expectedLog: [
+      LogEventId.AuthLogin,
+      'poll_worker',
+      {
+        disposition: LogDispositionStandardTypes.Failure,
+        message: 'User failed login.',
+        reason: 'machine_not_configured',
+      },
+    ],
+  },
+  {
+    description: 'no electionKey for poll worker',
+    config: {
+      ...defaultConfig,
+      allowedUserRoles: defaultConfig.allowedUserRoles.concat(['poll_worker']),
+    },
+    machineState: { ...defaultMachineState, electionKey: undefined },
+    cardDetails: {
+      user: pollWorkerUser,
+      hasPin: false,
+    },
+    expectedAuthStatus: {
+      status: 'logged_out',
+      reason: 'machine_not_configured',
+      cardJurisdiction: jurisdiction,
+      cardUserRole: 'poll_worker',
+      machineJurisdiction: jurisdiction,
+    },
+    expectedLog: [
+      LogEventId.AuthLogin,
+      'poll_worker',
+      {
+        disposition: LogDispositionStandardTypes.Failure,
+        message: 'User failed login.',
+        reason: 'machine_not_configured',
+      },
+    ],
+  },
+  {
+    description: 'no electionKey, vendor can access',
     config: defaultConfig,
     machineState: { ...defaultMachineState, electionKey: undefined },
     cardDetails: {
@@ -855,7 +912,7 @@ test.each<{
     },
   },
   {
-    description: 'unconfigured machine, system administrator can access',
+    description: 'no electionKey, system administrator can access',
     config: defaultConfig,
     machineState: { ...defaultMachineState, electionKey: undefined },
     cardDetails: {

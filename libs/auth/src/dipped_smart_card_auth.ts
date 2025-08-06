@@ -695,11 +695,14 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
     }
 
     if (
-      !machineState.electionKey &&
-      ['election_manager', 'poll_worker'].includes(user.role)
+      user.role === 'poll_worker' &&
+      (!machineState.isConfigured || !machineState.electionKey)
     ) {
-      return user.role === 'election_manager' &&
-        this.config.allowElectionManagersToAccessUnconfiguredMachines
+      return err('machine_not_configured');
+    }
+
+    if (!machineState.electionKey && user.role === 'election_manager') {
+      return this.config.allowElectionManagersToAccessUnconfiguredMachines
         ? ok()
         : err('machine_not_configured');
     }
