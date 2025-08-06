@@ -435,7 +435,9 @@ export abstract class Store {
       pollbookPackageHash: row.package_hash,
       machineId: this.machineId,
       codeVersion: this.codeVersion,
-      configuredPrecinctId: row.configured_precinct_id,
+      configuredPrecinctId: row.configured_precinct_id
+        ? row.configured_precinct_id
+        : undefined,
     };
   }
 
