@@ -146,6 +146,7 @@ export type MarginalMarkStatus = 'pending' | 'resolved';
 type MarginalMarkStatusByOptionId = Record<ContestOptionId, MarginalMarkStatus>;
 
 const DEFAULT_PADDING = '0.75rem';
+// Update the corresponding constant in 'components/adjudication_ballot_image_viewer.tsx' if this changes
 const ADJUDICATION_PANEL_WIDTH = '23.5rem';
 
 const BallotPanel = styled.div`
