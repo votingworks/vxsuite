@@ -74,6 +74,7 @@
     "@types/node-fetch": "^2.6.0",
     "@types/react": "18.3.3",
     "@types/styled-components": "^5.1.26",
+    "@types/tmp": "0.2.4",
     "@types/uuid": "9.0.5",
     "@types/yargs": "17.0.22",
     "@vitest/coverage-istanbul": "^3.1.1",
@@ -88,6 +89,7 @@
     "lint-staged": "11.0.0",
     "nodemon": "^3.1.7",
     "sort-package-json": "^1.50.0",
+    "tmp": "^0.2.1",
     "yargs": "17.7.1"
   },
   "engines": {
