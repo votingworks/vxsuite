@@ -9,8 +9,9 @@ import {
   Party,
   Precinct,
   safeParseInt,
+  YesNoContest,
 } from '@votingworks/types';
-import { parse } from 'csv-parse/sync';
+import { Options as CsvParseOptions, parse } from 'csv-parse/sync';
 import { readdirSync, readFileSync } from 'node:fs';
 import {
   assert,
@@ -18,7 +19,6 @@ import {
   DateWithoutTime,
   duplicates,
   find,
-  groupBy,
   unique,
 } from '@votingworks/basics';
 import { join } from 'node:path';
@@ -31,9 +31,9 @@ export function createElectionSkeleton(
   return {
     id,
     type,
-    title: 'MI Demo Election',
+    title: 'LA Demo Election',
     date: DateWithoutTime.today(),
-    state: 'MI',
+    state: 'LA',
     county: {
       id: generateId(),
       name: 'Demo County',
@@ -53,21 +53,34 @@ export function createElectionSkeleton(
 }
 
 function trimLeadingZeros(str: string): string {
-  return str.replace(/^0+/, '');
+  const trimmed = str.replace(/^0+/, '');
+  return trimmed === '' ? '0' : trimmed;
 }
 
 function getContestTitle(row: {
   contestTitle1: string;
   contestTitle2: string;
 }): string {
+  if (row.contestTitle1 === row.contestTitle2) {
+    return row.contestTitle1;
+  }
   return `${row.contestTitle1} ${row.contestTitle2}`;
 }
 
-function districtNameFromRow(row: {
-  contestTitle1: string;
-  contestTitle2: string;
-}): string {
-  return row.contestTitle2.replace(/, Office "\w"$/, '');
+function getDistrictName(
+  row: {
+    contestTitle1: string;
+    contestTitle2: string;
+  },
+  isCandidateContest: boolean
+): string {
+  if (isCandidateContest) {
+    return row.contestTitle2.replace(/, Office "\w"$/, '');
+  }
+  if (row.contestTitle1.match(/^CA No. \d+/)) {
+    return 'Constitutional Amendment';
+  }
+  return row.contestTitle1.replace(/ Proposition No. \d+ of \d+$/, '');
 }
 
 const OFFICE_FILE_COLUMNS = [
@@ -78,9 +91,23 @@ const OFFICE_FILE_COLUMNS = [
   'blank',
   'contestTitle1',
   'contestTitle2',
-  'officeNumber',
+  'officeId',
 ] as const;
 type OfficeFileRow = Record<(typeof OFFICE_FILE_COLUMNS)[number], string>;
+
+const REFERENDUM_FILE_COLUMNS = [
+  'electionDate',
+  'officeId',
+  'contestTitle1',
+  'contestTitle2',
+  'parishes',
+  'ballotTitle',
+  'ballotText',
+] as const;
+type ReferendumFileRow = Record<
+  (typeof REFERENDUM_FILE_COLUMNS)[number],
+  string
+>;
 
 const CANDIDATE_FILE_COLUMNS = [
   'lastName',
@@ -110,16 +137,22 @@ type PrecinctFileRow = Record<(typeof PRECINCT_FILE_COLUMNS)[number], string>;
 function convertToElection(
   electionType: ElectionType,
   officeFileContents: string,
+  referendumFileContents: string,
   candidateFileContents: string,
   precinctFileContents: string
 ): Election {
-  const officeFileRows: OfficeFileRow[] = parse(officeFileContents, {
-    columns: [...OFFICE_FILE_COLUMNS],
+  const defaultParseOptions: CsvParseOptions = {
     skipEmptyLines: true,
-    delimiter: ';',
     ignore_last_delimiters: true,
     relaxQuotes: true,
+    quote: false,
     trim: true,
+  };
+
+  const officeFileRows: OfficeFileRow[] = parse(officeFileContents, {
+    ...defaultParseOptions,
+    columns: [...OFFICE_FILE_COLUMNS],
+    delimiter: ';',
   });
 
   const votesAllowedByContestTitle = new Map<string, number>();
@@ -129,16 +162,32 @@ function convertToElection(
     votesAllowedByContestTitle.set(contestTitle, votesAllowed);
   }
 
+  // Fix newline inside of unquoted field
+  // eslint-disable-next-line no-param-reassign
+  referendumFileContents = referendumFileContents.replaceAll(
+    'Proposition\n(Tax Continuation)|',
+    'Proposition (Tax Continuation)|'
+  );
+  const referendumRows: ReferendumFileRow[] = parse(referendumFileContents, {
+    ...defaultParseOptions,
+    columns: [...REFERENDUM_FILE_COLUMNS],
+    delimiter: '|',
+  });
+
+  const ballotMeasureDescriptionByContestTitle = new Map<string, string>();
+  for (const row of referendumRows) {
+    const contestTitle = getContestTitle(row);
+    ballotMeasureDescriptionByContestTitle.set(contestTitle, row.ballotText);
+  }
+
   const candidateFileRows: CandidateFileRow[] = parse(candidateFileContents, {
+    ...defaultParseOptions,
     columns: [...CANDIDATE_FILE_COLUMNS],
-    skipEmptyLines: true,
     delimiter: ';',
-    ignore_last_delimiters: true,
-    relaxQuotes: true,
-    trim: true,
   });
 
   const candidateContestsByName = new Map<string, CandidateContest>();
+  const ballotMeasureContestsByName = new Map<string, YesNoContest>();
   const districtsByName = new Map<string, District>();
   const partiesByName = new Map<string, Party>();
 
@@ -154,51 +203,83 @@ function convertToElection(
       partiesByName.set(row.party, party);
     }
 
-    // Create a district for each contest
-    // TODO can we do better and merge these later?
     const contestTitle = getContestTitle(row);
-    const districtName = districtNameFromRow(row);
+    const ballotMeasureDescription =
+      ballotMeasureDescriptionByContestTitle.get(contestTitle);
+    const isCandidateContest = !ballotMeasureDescription;
+
+    // Create a district for each contest
+    const districtName = getDistrictName(row, isCandidateContest);
     const district = districtsByName.get(districtName) ?? {
       id: generateId(),
       name: districtName,
     };
     districtsByName.set(districtName, district);
-    const contest = candidateContestsByName.get(contestTitle) ?? {
-      id: generateId(),
-      title: contestTitle,
-      type: 'candidate',
-      candidates: [],
-      districtId: district.id,
-      seats: assertDefined(
-        votesAllowedByContestTitle.get(contestTitle),
-        `Votes allowed not found for contest: ${contestTitle}`
-      ),
-      allowWriteIns: false,
-      partyId: electionType === 'primary' ? party?.id : undefined,
-    };
-    candidateContestsByName.set(contestTitle, {
-      ...contest,
-      candidates: [
-        ...contest.candidates,
-        {
+
+    if (isCandidateContest) {
+      const contest = candidateContestsByName.get(contestTitle) ?? {
+        id: generateId(),
+        title: contestTitle,
+        type: 'candidate',
+        candidates: [],
+        districtId: district.id,
+        seats: assertDefined(
+          votesAllowedByContestTitle.get(contestTitle),
+          `Votes allowed not found for contest: ${contestTitle}`
+        ),
+        allowWriteIns: false,
+        partyId: electionType === 'primary' ? party?.id : undefined,
+      };
+      candidateContestsByName.set(contestTitle, {
+        ...contest,
+        candidates: [
+          ...contest.candidates,
+          {
+            id: generateId(),
+            lastName: row.lastName,
+            firstName: row.firstName,
+            name: `${row.firstName} ${row.lastName}`,
+            partyIds:
+              electionType === 'general' && party ? [party.id] : undefined,
+          },
+        ],
+      });
+    } else {
+      let contest = ballotMeasureContestsByName.get(contestTitle);
+      if (!contest) {
+        contest = {
           id: generateId(),
-          lastName: row.lastName,
-          firstName: row.firstName,
-          name: `${row.firstName} ${row.lastName}`,
-          partyIds:
-            electionType === 'general' && party ? [party.id] : undefined,
-        },
-      ],
-    });
+          type: 'yesno',
+          title: contestTitle,
+          description: ballotMeasureDescription,
+          districtId: district.id,
+          yesOption: {
+            id: generateId(),
+            label: row.lastName,
+          },
+          // Fill in from next row
+          noOption: {
+            id: '',
+            label: '',
+          },
+        };
+      } else {
+        contest = {
+          ...contest,
+          noOption: {
+            id: generateId(),
+            label: row.lastName,
+          },
+        };
+      }
+      ballotMeasureContestsByName.set(contestTitle, contest);
+    }
   }
 
   const precinctFileRows: PrecinctFileRow[] = parse(precinctFileContents, {
+    ...defaultParseOptions,
     columns: [...PRECINCT_FILE_COLUMNS],
-    skipEmptyLines: true,
     delimiter: ';',
-    ignore_last_delimiters: true,
-    relaxQuotes: true,
-    trim: true,
   });
 
   const precinctDistrictGroups = new Map<string, Map<string, District[]>>();
@@ -210,10 +291,14 @@ function convertToElection(
       row.wardNumber
     )}, Precinct ${trimLeadingZeros(row.precinctNumber)}`;
 
-    const district = districtsByName.get(districtNameFromRow(row));
+    const contestTitle = getContestTitle(row);
+    const isCandidateContest = candidateContestsByName.has(contestTitle);
+    const district = districtsByName.get(
+      getDistrictName(row, isCandidateContest)
+    );
     assert(
       district,
-      `District not found for contest in precinct file: ${getContestTitle(row)}`
+      `District not found for contest in precinct file: ${contestTitle}`
     );
 
     const precinctGroups =
@@ -235,26 +320,22 @@ function convertToElection(
     for (const [precinctName, districtGroups] of precinctDistrictGroups) {
       if (districtGroups.size === 1) continue;
       const groupParties = Object.fromEntries(
-        Array.from(districtGroups.entries()).map(
-          ([groupLabel, groupDistricts]) => {
-            const subgroupContests = groupDistricts.flatMap((district) =>
-              Array.from(candidateContestsByName.values()).filter(
-                (contest) => contest.districtId === district.id
-              )
-            );
-            const uniqueParties = unique(
-              subgroupContests.map((contest) => contest.partyId).filter(Boolean)
-            );
-            assert(uniqueParties.length === 1);
-            return [groupLabel, assertDefined(uniqueParties[0])];
-          }
-        )
+        [...districtGroups.entries()].map(([groupLabel, groupDistricts]) => {
+          const subgroupContests = groupDistricts.flatMap((district) =>
+            [...candidateContestsByName.values()].filter(
+              (contest) => contest.districtId === district.id
+            )
+          );
+          const uniqueParties = unique(
+            subgroupContests.map((contest) => contest.partyId).filter(Boolean)
+          );
+          assert(uniqueParties.length === 1);
+          return [groupLabel, assertDefined(uniqueParties[0])];
+        })
       );
 
       if (duplicates(Object.values(groupParties)).length === 0) {
-        const mergedDistricts = unique(
-          Array.from(districtGroups.values()).flat()
-        );
+        const mergedDistricts = unique([...districtGroups.values()].flat());
         precinctDistrictGroups.set(
           precinctName,
           new Map([['Merged', mergedDistricts]])
@@ -263,59 +344,70 @@ function convertToElection(
     }
   }
 
-  const precincts: Precinct[] = Array.from(
-    precinctDistrictGroups.entries()
-  ).map(([precinctName, districtGroups]) => {
-    if (districtGroups.size === 1) {
-      const [precinctDistricts] = Array.from(districtGroups.values());
+  const precincts: Precinct[] = [...precinctDistrictGroups.entries()].map(
+    ([precinctName, districtGroups]) => {
+      if (districtGroups.size === 1) {
+        const [precinctDistricts] = [...districtGroups.values()];
+        return {
+          id: generateId(),
+          name: precinctName,
+          districtIds: precinctDistricts.map((district) => district.id),
+        };
+      }
       return {
         id: generateId(),
         name: precinctName,
-        districtIds: precinctDistricts.map((district) => district.id),
+        splits: [...districtGroups.entries()].map(
+          ([subgroupLabel, precinctDistricts]) => ({
+            id: generateId(),
+            name: `${precinctName} - Split ${subgroupLabel}`,
+            districtIds: precinctDistricts.map((district) => district.id),
+          })
+        ),
       };
     }
-    return {
-      id: generateId(),
-      name: precinctName,
-      splits: Array.from(districtGroups.entries()).map(
-        ([subgroupLabel, precinctDistricts]) => ({
-          id: generateId(),
-          name: `${precinctName} - Split ${subgroupLabel}`,
-          districtIds: precinctDistricts.map((district) => district.id),
-        })
-      ),
-    };
-  });
+  );
 
-  const districts = Array.from(districtsByName.values());
-  const contests = Array.from(candidateContestsByName.values());
+  const districts = [...districtsByName.values()].filter((district) =>
+    precincts.some((precinct) =>
+      hasSplits(precinct)
+        ? precinct.splits.some((split) =>
+            split.districtIds.includes(district.id)
+          )
+        : precinct.districtIds.includes(district.id)
+    )
+  );
+  const contests = [
+    ...candidateContestsByName.values(),
+    ...ballotMeasureContestsByName.values(),
+  ];
 
   // Attempt to merge the contest-specific districts into more meaningful legal/geographical districts
   // 1. First, group contest districts that are always assigned to the same precincts/splits. If two contests are always on the ballot together, they might be from the same district.
   // 2. Examine district names within a group to see if they can be merged into a single district.
-  const candidateDistrictsToMerge: Array<District[]> = groupBy(
-    districts,
-    (district) =>
-      precincts.flatMap((precinct) =>
-        hasSplits(precinct)
-          ? precinct.splits
-              .filter((split) => split.districtIds.includes(district.id))
-              .map((split) => split.id)
-          : precinct.districtIds.includes(district.id)
-          ? [precinct.id]
-          : []
-      )
-  );
+  // const candidateDistrictsToMerge: Array<District[]> = groupBy(
+  //   districts,
+  //   (district) =>
+  //     precincts.flatMap((precinct) =>
+  //       hasSplits(precinct)
+  //         ? precinct.splits
+  //             .filter((split) => split.districtIds.includes(district.id))
+  //             .map((split) => split.id)
+  //         : precinct.districtIds.includes(district.id)
+  //         ? [precinct.id]
+  //         : []
+  //     )
+  // );
   // console.warn(
   //   candidateDistrictsToMerge.map(([_, districts]) =>
   //     districts.map((d) => d.name)
   //   )
   // );
 
-  const precinctSplitNames = precincts.flatMap((precinct) =>
-    hasSplits(precinct) ? precinct.splits.map((split) => split.name) : []
-  );
-  console.warn(duplicates(precinctSplitNames));
+  // const precinctSplitNames = precincts.flatMap((precinct) =>
+  //   hasSplits(precinct) ? precinct.splits.map((split) => split.name) : []
+  // );
+  // console.warn(duplicates(precinctSplitNames));
 
   // const districtsToPrecinctOrSplitIds: Map<DistrictId, string[]> = new Map();
   // for (const precinct of electionPrecincts) {
@@ -342,7 +434,7 @@ function convertToElection(
     ...createElectionSkeleton(generateId(), electionType),
     precincts,
     districts,
-    parties: Array.from(partiesByName.values()),
+    parties: [...partiesByName.values()],
     contests,
     // At least one ballot style is required, so we create a dummy
     ballotStyles: [
@@ -380,6 +472,14 @@ function main(args: readonly string[]): void {
     'utf-8'
   );
 
+  const referendumFileName = find(electionFileNames, (fileName) =>
+    fileName.includes('SEQREF')
+  );
+  const referendumFileContents = readFileSync(
+    join(electionDataDirectory, referendumFileName),
+    'utf-8'
+  );
+
   const candidateFileName = find(electionFileNames, (fileName) =>
     fileName.includes('CAND')
   );
@@ -399,6 +499,7 @@ function main(args: readonly string[]): void {
   const election = convertToElection(
     electionType,
     officeFileContents,
+    referendumFileContents,
     candidateFileContents,
     precinctFileContents
   );
