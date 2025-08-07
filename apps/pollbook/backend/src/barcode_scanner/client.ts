@@ -25,16 +25,14 @@ const DEVICE_PATH = '/dev/barcode_scanner';
  * Allows failure to connect so the app can fall back gracefully.
  */
 export async function connectToBarcodeScannerSocket(
-  logger: Logger
+  logger: Logger,
+  timeoutMs: number = UDS_CONNECTION_TIMEOUT_MS
 ): Promise<Optional<net.Socket>> {
   await logger.logAsCurrentRole(LogEventId.SocketClientConnectInit, {
     message: 'Connection to barcode scanner daemon UDS initiated',
   });
   const connectStart = new Date();
-  while (
-    new Date().getTime() - connectStart.getTime() <
-    UDS_CONNECTION_TIMEOUT_MS
-  ) {
+  while (new Date().getTime() - connectStart.getTime() < timeoutMs) {
     try {
       return await tryConnect(logger);
     } catch (e) {

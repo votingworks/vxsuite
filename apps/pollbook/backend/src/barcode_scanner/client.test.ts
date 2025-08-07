@@ -1,5 +1,3 @@
-/* eslint-disable vx/gts-no-public-class-fields */
-
 import {
   describe,
   test,
@@ -11,13 +9,20 @@ import {
 } from 'vitest';
 import { PassThrough } from 'node:stream';
 import * as net from 'node:net';
-import { mockLogger, LogSource, MockLogger } from '@votingworks/logging';
+import {
+  mockLogger,
+  LogSource,
+  MockLogger,
+  LogEventId,
+  LogDispositionStandardTypes,
+} from '@votingworks/logging';
 import { tryConnect } from './unix_socket';
 import {
   connectToBarcodeScannerSocket,
   BarcodeScannerClient,
   UDS_CONNECTION_ATTEMPT_DELAY_MS,
 } from './client';
+import { AamvaDocument } from '../types';
 
 vi.mock('./unix_socket');
 
@@ -28,7 +33,7 @@ const mockedTryConnect = tryConnect as unknown as MockedFunction<
   typeof tryConnect
 >;
 
-describe('SocketServer.listen event handling', () => {
+describe('listen', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     mockSocket = new PassThrough() as unknown as net.Socket;
@@ -43,7 +48,12 @@ describe('SocketServer.listen event handling', () => {
     vi.useRealTimers();
   });
 
-  test('schedules reconnect on "end" event', async () => {
+  // Sets up a mock UDS client and returns a Promise that resolves when
+  // listen() completes
+  async function setUpMockSocket(): Promise<{
+    barcodeScannerClient: BarcodeScannerClient;
+    listenPromise: Promise<void>;
+  }> {
     const onSpy = vi.spyOn(mockSocket, 'on');
 
     mockedTryConnect.mockResolvedValue(mockSocket as unknown as net.Socket);
@@ -58,6 +68,36 @@ describe('SocketServer.listen event handling', () => {
     );
 
     expect(mockedTryConnect).toHaveBeenCalledTimes(1);
+
+    return { barcodeScannerClient, listenPromise };
+  }
+
+  test('can read from scanner socket', async () => {
+    const { barcodeScannerClient, listenPromise } = await setUpMockSocket();
+    const doc: AamvaDocument = {
+      firstName: 'Jane',
+      middleName: '',
+      lastName: 'Doe',
+      nameSuffix: '',
+      issuingJurisdiction: 'NH',
+    };
+    mockSocket.write(`${JSON.stringify(doc)}\n`);
+    mockSocket.end();
+    await listenPromise;
+    expect(barcodeScannerClient.readPayload()).toEqual(doc);
+  });
+
+  test('reports an error if socket sends one', async () => {
+    const { barcodeScannerClient, listenPromise } = await setUpMockSocket();
+    const error = 'a mock error occurred';
+    mockSocket.write(`${JSON.stringify({ error })}\n`);
+    mockSocket.end();
+    await listenPromise;
+    expect(barcodeScannerClient.readPayload()).toEqual({ error });
+  });
+
+  test('schedules reconnect on "end" event', async () => {
+    const { listenPromise } = await setUpMockSocket();
 
     // End the socket to trigger reconnection
     mockSocket.end();
@@ -105,6 +145,36 @@ describe('connectToBarcodeScannerSocket', () => {
     // Second attempt should succeed
     const socket = await socketPromise;
     expect(socket).toEqual(mockSocket);
+    vi.useRealTimers();
+  });
+
+  test('times out of the time limit is reached', async () => {
+    vi.useFakeTimers();
+    // First call fails
+    mockedTryConnect.mockRejectedValue(
+      new Error('Test error connecting to socket')
+    );
+
+    // Start querying for socket
+    const socketPromise = connectToBarcodeScannerSocket(
+      logger,
+      UDS_CONNECTION_ATTEMPT_DELAY_MS + 10
+    );
+
+    // Wait until tryConnect has been called once (failure) to advance timer
+    await vi.waitFor(() => expect(mockedTryConnect).toHaveBeenCalledTimes(1));
+    vi.advanceTimersByTime(UDS_CONNECTION_ATTEMPT_DELAY_MS);
+
+    // Timeout should expire and function should resolve without a socket
+    const socket = await socketPromise;
+    expect(socket).toEqual(undefined);
+    expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+      LogEventId.SocketClientConnected,
+      {
+        message: 'Exhausted UDS connection attempts',
+        disposition: LogDispositionStandardTypes.Failure,
+      }
+    );
     vi.useRealTimers();
   });
 });

@@ -17,7 +17,6 @@ export default defineConfig({
         '**/*.d.ts',
         '**/types.ts',
         'src/**/index.ts',
-        'src/barcode_scanner/client.ts',
       ],
     },
     // Ensure only one instance of each library is loaded by loading the TS
