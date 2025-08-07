@@ -6,8 +6,9 @@ import { Rect } from '@votingworks/types';
 const VIEWPORT_WIDTH_PX = 1920;
 const VIEWPORT_HEIGHT_PX = 1200;
 const ADJUDICATION_PANEL_WIDTH_PX = 705; // 23.5rem
-const IMAGE_VIEWER_HEIGHT_PX = VIEWPORT_HEIGHT_PX;
-const IMAGE_VIEWER_WIDTH_PX = VIEWPORT_WIDTH_PX - ADJUDICATION_PANEL_WIDTH_PX;
+export const IMAGE_VIEWER_HEIGHT_PX = VIEWPORT_HEIGHT_PX;
+export const IMAGE_VIEWER_WIDTH_PX =
+  VIEWPORT_WIDTH_PX - ADJUDICATION_PANEL_WIDTH_PX;
 
 const BallotImageViewerContainer = styled.div`
   position: relative;

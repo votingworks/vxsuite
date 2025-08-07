@@ -23,6 +23,10 @@ import {
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { ContestAdjudicationScreen } from './contest_adjudication_screen';
 import { MAX_WRITE_IN_NAME_LENGTH } from '../components/write_in_adjudication_button';
+import {
+  IMAGE_VIEWER_HEIGHT_PX,
+  IMAGE_VIEWER_WIDTH_PX,
+} from '../components/adjudication_ballot_image_viewer';
 
 const electionDefinition = readElectionTwoPartyPrimaryDefinition();
 const electionId = electionDefinition.election.id;
@@ -1154,8 +1158,7 @@ describe('ballot image viewer', () => {
     // Initially zoomed in to show the contest
     const expectedContestZoomedInWidth =
       1000 * // Starting ballot image width
-      (100 / 60) * // Scaled based on contest area size
-      0.5; // Scaled based on exported image resizing
+      (IMAGE_VIEWER_HEIGHT_PX / 600); // Scaled based on contest area size
     expect(ballotImage).toHaveStyle({
       width: `${expectedContestZoomedInWidth}px`,
     });
@@ -1239,8 +1242,7 @@ describe('ballot image viewer', () => {
     });
     const expectedWriteInZoomedInWidth =
       1000 * // Starting ballot image width
-      (100 / 40) * // Scaled based on write-in area size
-      0.5; // Scaled based on exported image resizing
+      (IMAGE_VIEWER_WIDTH_PX / 400); // Scaled based on write-in area size
     expect(ballotImage).toHaveStyle({
       width: `${expectedWriteInZoomedInWidth}px`,
     });
