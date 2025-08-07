@@ -275,11 +275,13 @@ export function VoterChecklistTable({
               )}
             </td>
             <td>
-              {voter.checkIn && voter.checkIn.ballotParty !== voter.party && (
-                <div style={{ color: redTextColor }}>
-                  {voter.checkIn.ballotParty}
-                </div>
-              )}
+              {voter.checkIn &&
+                voter.checkIn.ballotParty !== 'NOT_APPLICABLE' &&
+                voter.checkIn.ballotParty !== voter.party && (
+                  <div style={{ color: redTextColor }}>
+                    {voter.checkIn.ballotParty}
+                  </div>
+                )}
               {voter.party}
             </td>
             <td>

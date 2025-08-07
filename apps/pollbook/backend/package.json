@@ -29,6 +29,7 @@
     "type-check": "tsc --build"
   },
   "dependencies": {
+    "@types/luxon": "^3.0.0",
     "@votingworks/auth": "workspace:*",
     "@votingworks/backend": "workspace:*",
     "@votingworks/basics": "workspace:*",
@@ -53,6 +54,7 @@
     "helmet": "^8.1.0",
     "js-sha256": "^0.9.0",
     "jsbarcode": "^3.11.6",
+    "luxon": "^3.0.0",
     "nanoid": "^3.3.7",
     "node-fetch": "^2.6.0",
     "pdf-lib": "^1.17.1",

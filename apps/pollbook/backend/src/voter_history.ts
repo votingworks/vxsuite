@@ -2,6 +2,7 @@
 
 import { stringify } from 'csv-stringify/sync';
 import { Election, Voter } from '@votingworks/types';
+import { DateTime } from 'luxon';
 
 export function generateVoterHistoryCsvContent(
   voters: Voter[],
@@ -54,6 +55,11 @@ export function generateVoterHistoryCsvContent(
             : '',
         'Party Choice':
           election.type === 'primary' ? voter.checkIn?.ballotParty || '' : '',
+        'Check-In Time': voter.checkIn
+          ? `${DateTime.fromISO(voter.checkIn.timestamp).toFormat(
+              "yyyy-MM-dd'T'T"
+            )}`
+          : '',
       };
     });
 

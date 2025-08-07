@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { beforeEach, afterEach, expect, test, vi } from 'vitest';
 import { readMultiPartyPrimaryElectionDefinition } from '@votingworks/fixtures';
 import { VoterAddressChangeRequest } from '@votingworks/types';
 import { mockBaseLogger } from '@votingworks/logging';
@@ -22,6 +22,17 @@ const mockAddressDetails: VoterAddressChangeRequest = {
   city: 'Somewhere',
   precinct: 'precinct-1',
 };
+
+beforeEach(() => {
+  vi.useFakeTimers({
+    now: new Date(2025, 0, 1, 13, 5, 0),
+    toFake: ['Date'],
+  });
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 test('getNewEvents returns events for unknown machines', () => {
   const store = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
