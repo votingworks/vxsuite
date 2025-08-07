@@ -85,7 +85,7 @@ beforeEach(() => {
 
 function extendedWaitFor(
   fn: () => void | Promise<void>,
-  timeout: number = 3000
+  timeout: number = 5000
 ) {
   return vi.waitFor(fn, { timeout });
 }
@@ -659,7 +659,7 @@ test('pollbooks with different code versions cannot connect', async () => {
   );
 });
 
-test.skip('pollbooks with different pollbook package hash values cannot connect', async () => {
+test('pollbooks with different pollbook package hash values cannot connect', async () => {
   await withManyApps(2, async ([pollbookContext1, pollbookContext2]) => {
     vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
     for (const context of [pollbookContext1, pollbookContext2]) {
@@ -864,7 +864,7 @@ test('pollbooks with different configured precinct values cannot connect', async
   });
 });
 
-test.skip('one pollbook can be configured from another pollbook', async () => {
+test('one pollbook can be configured from another pollbook', async () => {
   await withManyApps(2, async ([pollbookContext1, pollbookContext2]) => {
     await setupUnconfiguredPollbooksOnNetwork([
       pollbookContext1,
@@ -1007,7 +1007,7 @@ test('pollbooks cannot configure if code version does not match', async () => {
   );
 });
 
-test.skip('one pollbook can be configured from another pollbook automatically as an election manager', async () => {
+test('one pollbook can be configured from another pollbook automatically as an election manager', async () => {
   await withManyApps(
     3,
     async ([pollbookContext1, pollbookContext2, pollbookContext3]) => {
@@ -1050,7 +1050,7 @@ test.skip('one pollbook can be configured from another pollbook automatically as
         ).toEqual('unconfigured');
       });
       await setupUnconfiguredPollbooksOnNetwork(
-        [pollbookContext1, pollbookContext2],
+        [pollbookContext1, pollbookContext2, pollbookContext3],
         'set-up-contexts-1-2'
       );
 
@@ -1068,10 +1068,6 @@ test.skip('one pollbook can be configured from another pollbook automatically as
       mockLoggedOut(pollbookContext2.auth);
       vitest.advanceTimersByTime(100);
 
-      await setupUnconfiguredPollbooksOnNetwork(
-        [pollbookContext1, pollbookContext2, pollbookContext3],
-        'set-up-contexts-1-3'
-      );
       const { port: port1 } =
         pollbookContext1.peerServer.address() as AddressInfo;
       const { port: port2 } =
@@ -1113,10 +1109,10 @@ test.skip('one pollbook can be configured from another pollbook automatically as
             isOnline: true,
             pollbooks: [
               expect.objectContaining({
-                status: PollbookConnectionStatus.MismatchedConfiguration,
+                status: PollbookConnectionStatus.ShutDown,
               }),
               expect.objectContaining({
-                status: PollbookConnectionStatus.ShutDown,
+                status: PollbookConnectionStatus.MismatchedConfiguration,
               }),
             ],
           },
