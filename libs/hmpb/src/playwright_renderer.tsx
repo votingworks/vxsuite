@@ -25,9 +25,9 @@ export async function createPlaywrightRenderer(): Promise<PlaywrightRenderer> {
     args: ['--font-render-hinting=none'],
   });
   const context = await browser.newContext();
+  const page = await context.newPage();
   return {
     async createScratchpad(styles): Promise<RenderScratchpad> {
-      const page = await context.newPage();
       await page.setContent(
         `<!DOCTYPE html>${ReactDomServer.renderToStaticMarkup(
           <html>
@@ -41,9 +41,9 @@ export async function createPlaywrightRenderer(): Promise<PlaywrightRenderer> {
     },
 
     async cloneDocument(document: RenderDocument): Promise<RenderDocument> {
-      const page = await context.newPage();
-      await page.setContent(await document.getContent());
-      return createDocument(page);
+      const newPage = await context.newPage();
+      await newPage.setContent(await document.getContent());
+      return createDocument(newPage);
     },
 
     async cleanup(): Promise<void> {
