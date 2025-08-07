@@ -29,6 +29,7 @@ import {
 } from '@votingworks/types';
 import { QrCode } from '@votingworks/ui';
 import { encodeHmpbBallotPageMetadata, v3 } from '@votingworks/ballot-encoder';
+import makeDebug from 'debug';
 import { RenderDocument, RenderScratchpad, Renderer } from './renderer';
 import {
   BUBBLE_CLASS,
@@ -50,6 +51,9 @@ import {
   Point,
 } from './types';
 import { BaseStylesProps } from './base_styles';
+import { convertPdfToGrayscale } from './pdf_conversion';
+
+const debug = makeDebug('hmpb:render');
 
 export type StylesComponent<P> = (props: P) => JSX.Element;
 
@@ -472,6 +476,24 @@ async function addQrCodesAndBallotHashes(
   }
 }
 
+export async function renderBallotPdf(
+  props: BaseBallotProps,
+  document: RenderDocument
+): Promise<Uint8Array> {
+  /**
+   * Specific to NH V4 ballots with tinted headers/footers.
+   * See `import('@votingworks/hmpb').NhBallotProps`.
+   */
+  const needsColorPrint = 'colorTint' in props && !!props.colorTint;
+
+  const colorPdf = await document.renderToPdf();
+  if (needsColorPrint) {
+    return colorPdf;
+  }
+
+  return await convertPdfToGrayscale(colorPdf);
+}
+
 /**
  * Given a {@link BallotPageTemplate} and a single set of props, renders the
  * pages of the ballot and returns the resulting {@link RenderDocument}.
@@ -540,14 +562,24 @@ export async function renderAllBallotsAndCreateElectionDefinition<
   ballotProps: P[],
   electionSerializationFormat: ElectionSerializationFormat
 ): Promise<{
-  ballotDocuments: RenderDocument[];
+  ballotPdfs: Uint8Array[];
   electionDefinition: ElectionDefinition;
 }> {
   const { election } = ballotProps[0];
   assert(ballotProps.every((props) => props.election === election));
 
-  const ballotsWithLayouts = [];
-  for (const props of ballotProps) {
+  const ballotLayouts = [];
+  for (const [i, props] of ballotProps.entries()) {
+    const { ballotStyleId, precinctId, ballotType, ballotMode } = props;
+    const ballotNumber = `${i + 1}/${ballotProps.length}`;
+    debug(
+      `Start lay out ballot ${ballotNumber} ${JSON.stringify({
+        ballotStyleId,
+        precinctId,
+        ballotType,
+        ballotMode,
+      })}`
+    );
     // We currently only need to return errors to the user in ballot preview -
     // we assume the ballot was proofed by the time this function is called.
     const document = (
@@ -558,16 +590,16 @@ export async function renderAllBallotsAndCreateElectionDefinition<
       props.ballotStyleId,
       template
     );
-    ballotsWithLayouts.push({
-      document,
-      gridLayout,
+    ballotLayouts.push({
       props,
+      gridLayout,
     });
+    debug(`Done lay out ballot ${ballotNumber}`);
   }
 
   // All ballots of a given ballot style must have the same grid layout.
   // Changing precinct/ballot type/ballot mode shouldn't matter.
-  const layoutsByBallotStyle = iter(ballotsWithLayouts)
+  const layoutsByBallotStyle = iter(ballotLayouts)
     .map((ballot) => ballot.gridLayout)
     .toMap((gridLayout) => gridLayout.ballotStyleId);
   for (const [ballotStyleId, layouts] of layoutsByBallotStyle.entries()) {
@@ -665,7 +697,21 @@ export async function renderAllBallotsAndCreateElectionDefinition<
     JSON.stringify(electionToHash, null, 2)
   ).unsafeUnwrap();
 
-  for (const { document, props } of ballotsWithLayouts) {
+  const ballotPdfs = [];
+  for (const [i, { props }] of ballotLayouts.entries()) {
+    const { ballotStyleId, precinctId, ballotType, ballotMode } = props;
+    const ballotNumber = `${i + 1}/${ballotLayouts.length}`;
+    debug(
+      `Start render ballot ${ballotNumber} ${JSON.stringify({
+        ballotStyleId,
+        precinctId,
+        ballotType,
+        ballotMode,
+      })}`
+    );
+    const document = (
+      await renderBallotTemplate(renderer, template, props)
+    ).unsafeUnwrap();
     if (props.ballotMode !== 'sample') {
       await addQrCodesAndBallotHashes(
         document,
@@ -681,10 +727,13 @@ export async function renderAllBallotsAndCreateElectionDefinition<
         template
       );
     }
+    const pdf = await renderBallotPdf(props, document);
+    ballotPdfs.push(pdf);
+    debug(`Done render ballot ${ballotNumber} (len = ${pdf.length})`);
   }
 
   return {
-    ballotDocuments: ballotsWithLayouts.map((ballot) => ballot.document),
+    ballotPdfs,
     electionDefinition,
   };
 }
