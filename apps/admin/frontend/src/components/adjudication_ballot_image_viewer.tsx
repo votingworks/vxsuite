@@ -115,7 +115,8 @@ export function BallotZoomImageViewer({
 
   const heightScale = IMAGE_VIEWER_HEIGHT_PX / zoomedInBounds.height;
   const widthScale = IMAGE_VIEWER_WIDTH_PX / zoomedInBounds.width;
-  const zoomedInScale = Math.min(heightScale, widthScale);
+  // Only zoom 75% of the available space to leave some padding around the focused area
+  const zoomedInScale = Math.min(heightScale, widthScale) * 0.75;
 
   return (
     <BallotImageViewerContainer>

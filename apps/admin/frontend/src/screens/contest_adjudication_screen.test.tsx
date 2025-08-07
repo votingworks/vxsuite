@@ -1158,7 +1158,8 @@ describe('ballot image viewer', () => {
     // Initially zoomed in to show the contest
     const expectedContestZoomedInWidth =
       1000 * // Starting ballot image width
-      (IMAGE_VIEWER_HEIGHT_PX / 600); // Scaled based on contest area size
+      (IMAGE_VIEWER_HEIGHT_PX / 600) *
+      0.75; // Scaled based on contest area size
     expect(ballotImage).toHaveStyle({
       width: `${expectedContestZoomedInWidth}px`,
     });
@@ -1242,7 +1243,8 @@ describe('ballot image viewer', () => {
     });
     const expectedWriteInZoomedInWidth =
       1000 * // Starting ballot image width
-      (IMAGE_VIEWER_WIDTH_PX / 400); // Scaled based on write-in area size
+      (IMAGE_VIEWER_WIDTH_PX / 400) *
+      0.75; // Scaled based on write-in area size
     expect(ballotImage).toHaveStyle({
       width: `${expectedWriteInZoomedInWidth}px`,
     });
