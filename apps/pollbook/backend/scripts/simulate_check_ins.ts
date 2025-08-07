@@ -1,5 +1,5 @@
 import * as grout from '@votingworks/grout';
-import yargs from 'yargs';
+import yargs, { config } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import {
   CheckInBallotParty,
@@ -13,9 +13,9 @@ const api = grout.createClient<LocalApi>({
   baseUrl: 'http://localhost:3002/api',
 });
 
-async function getAllVoters() {
+async function getAllVotersInCurrentPrecinct() {
   try {
-    const response = await api.getAllVoters();
+    const response = await api.getAllVotersInCurrentPrecinct();
     return response;
   } catch (error) {
     console.error('Failed to fetch voters:', error);
@@ -37,18 +37,17 @@ function getCheckInPartyForVoter(voter: Voter): CheckInBallotParty {
   return 'REP';
 }
 
-async function checkInVoter(voterId: string, isPrimary: boolean) {
+async function checkInVoter(voter: Voter, isPrimary: boolean) {
   try {
-    const voter = await api.getVoter({ voterId });
     await api.checkInVoter({
-      voterId,
+      voterId: voter.voterId,
       identificationMethod: { type: 'default' },
       ballotParty: isPrimary
-        ? 'NOT_APPLICABLE'
-        : getCheckInPartyForVoter(voter),
+        ? getCheckInPartyForVoter(voter)
+        : 'NOT_APPLICABLE',
     });
   } catch (error) {
-    console.error(`Failed to check in voter ${voterId}:`, error);
+    console.error(`Failed to check in voter ${voter.voterId}:`, error);
   }
 }
 
@@ -104,14 +103,20 @@ async function checkInAllVotersOnCurrentMachine(
 ) {
   try {
     console.log('Starting check-in simulation...');
-    let voters = await getAllVoters();
+    const election = (await api.getElection()).unsafeUnwrap();
+    const { configuredPrecinctId } =
+      await api.getPollbookConfigurationInformation();
+    const isPrimary = election.type === 'primary';
+    if (!configuredPrecinctId) {
+      console.error('No configured precinct ID found.');
+      return;
+    }
+
+    let voters = await getAllVotersInCurrentPrecinct();
 
     if (range) {
       voters = voters.filter((voter) => isVoterInRange(voter, range));
     }
-
-    const election = (await api.getElection()).unsafeUnwrap();
-    const isPrimary = election.type === 'primary';
 
     const sortedVoters = [...voters].sort((a, b) => {
       const lastNameComparison = a.lastName.localeCompare(b.lastName);
@@ -134,6 +139,10 @@ async function checkInAllVotersOnCurrentMachine(
 
     console.time('100processed');
     for (const voter of votersToProcess) {
+      if (voter.checkIn) {
+        // Skip check-in if already checked in
+        continue;
+      }
       const startSearchByInitials = performance.now();
       await searchVoterByInitials(voter.firstName, voter.lastName);
       const endSearchByInitials = performance.now();
@@ -154,7 +163,7 @@ async function checkInAllVotersOnCurrentMachine(
       );
 
       const startCheckIn = performance.now();
-      await checkInVoter(voter.voterId, isPrimary);
+      await checkInVoter(voter, isPrimary);
       const endCheckIn = performance.now();
       durations.checkIn.push(endCheckIn - startCheckIn);
 

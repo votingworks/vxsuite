@@ -323,6 +323,12 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       ballotParty: CheckInBallotParty;
     }): Promise<Result<void, VoterCheckInError>> {
       const election = assertDefined(store.getElection());
+      const { configuredPrecinctId } =
+        store.getPollbookConfigurationInformation();
+      assert(
+        configuredPrecinctId !== undefined,
+        'Precinct must be configured to check in voter'
+      );
       const { checkIn, party: voterParty } = store.getVoter(input.voterId);
       if (checkIn) {
         return err('already_checked_in');
@@ -376,6 +382,12 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       reason: string;
     }): Promise<void> {
       const election = assertDefined(store.getElection());
+      const { configuredPrecinctId } =
+        store.getPollbookConfigurationInformation();
+      assert(
+        configuredPrecinctId !== undefined,
+        'Precinct must be configured to undo voter check in'
+      );
       // Copy voter before undoing check-in so we can print the receipt with check-in data
       const voter: Voter = { ...store.getVoter(input.voterId) };
       const { receiptNumber } = store.recordUndoVoterCheckIn(input);
@@ -417,6 +429,12 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       addressChangeData: VoterAddressChangeRequest;
     }): Promise<Voter> {
       const election = assertDefined(store.getElection());
+      const { configuredPrecinctId } =
+        store.getPollbookConfigurationInformation();
+      assert(
+        configuredPrecinctId !== undefined,
+        'Precinct must be configured to change voter address'
+      );
       const { voter, receiptNumber } = store.changeVoterAddress(
         input.voterId,
         input.addressChangeData
@@ -437,6 +455,12 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       mailingAddressChangeData: VoterMailingAddressChangeRequest;
     }): Promise<Voter> {
       const election = assertDefined(store.getElection());
+      const { configuredPrecinctId } =
+        store.getPollbookConfigurationInformation();
+      assert(
+        configuredPrecinctId !== undefined,
+        'Precinct must be configured to change voter mailing address'
+      );
       const { voter, receiptNumber } = store.changeVoterMailingAddress(
         input.voterId,
         input.mailingAddressChangeData
@@ -460,6 +484,12 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       nameChangeData: VoterNameChangeRequest;
     }): Promise<Voter> {
       const election = assertDefined(store.getElection());
+      const { configuredPrecinctId } =
+        store.getPollbookConfigurationInformation();
+      assert(
+        configuredPrecinctId !== undefined,
+        'Precinct must be configured to change voter name'
+      );
       const { voter, receiptNumber } = store.changeVoterName(
         input.voterId,
         input.nameChangeData
@@ -480,6 +510,12 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       overrideNameMatchWarning: boolean;
     }): Promise<Result<Voter, DuplicateVoterError>> {
       const election = assertDefined(store.getElection());
+      const { configuredPrecinctId } =
+        store.getPollbookConfigurationInformation();
+      assert(
+        configuredPrecinctId !== undefined,
+        'Precinct must be configured to register voter'
+      );
       if (!input.overrideNameMatchWarning) {
         const matchingVoters = store.findVotersWithName(input.registrationData);
         if (matchingVoters.length > 0) {
@@ -508,6 +544,12 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       voterId: string;
     }): Promise<Result<void, 'voter_checked_in'>> {
       const election = assertDefined(store.getElection());
+      const { configuredPrecinctId } =
+        store.getPollbookConfigurationInformation();
+      assert(
+        configuredPrecinctId !== undefined,
+        'Precinct must be configured to mark voter inactive'
+      );
       const originalVoter: Voter = store.getVoter(input.voterId);
       if (originalVoter.checkIn) {
         return err('voter_checked_in');
@@ -550,7 +592,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
         new Date()
       )}.csv`;
       const csvContents = generateVoterHistoryCsvContent(
-        store.getAllVotersSorted(),
+        store.getAllVotersInPrecinctSorted(),
         election
       );
       const result = await exporter.exportDataToUsbDrive(
@@ -561,8 +603,15 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       result.unsafeUnwrap();
     },
 
-    getAllVoters(): Voter[] {
-      return store.getAllVotersSorted();
+    getAllVotersInCurrentPrecinct(): Voter[] {
+      assertDefined(store.getElection());
+      const { configuredPrecinctId } =
+        store.getPollbookConfigurationInformation();
+      assert(
+        configuredPrecinctId !== undefined,
+        'Precinct must be configured to call this function'
+      );
+      return store.getAllVotersInPrecinctSorted();
     },
 
     getGeneralSummaryStatistics(input: {

@@ -863,8 +863,8 @@ test('all possible events are synced', () => {
   // Set up test election and voters
   const testElectionDefinition = getTestElectionDefinition();
   const testVoters = [
-    createVoter('oscar', 'Oscar', 'Wilde'),
-    createVoter('penny', 'Penny', 'Lane'),
+    createVoter('oscar', 'Oscar', 'Wilde', { precinct: 'precinct-0' }),
+    createVoter('penny', 'Penny', 'Lane', { precinct: 'precinct-0' }),
   ];
   const streets = [
     createValidStreetInfo('MAIN ST', 'odd', 1, 15, '', '', 'precinct-0'),
@@ -936,7 +936,7 @@ test('all possible events are synced', () => {
 
   // Both pollbooks should have the same number of voters
   for (const pollbook of [localA, localB]) {
-    const voters = pollbook.getAllVotersSorted();
+    const voters = pollbook.getAllVotersInPrecinctSorted();
     expect(voters).toHaveLength(3);
     expect(voters).toMatchObject([
       expect.objectContaining({
@@ -979,7 +979,7 @@ test('all possible events are synced', () => {
     ]);
   }
   // Check in all voters and sync events again.
-  const allVoters = localA.getAllVotersSorted();
+  const allVoters = localA.getAllVotersInPrecinctSorted();
   for (const voter of allVoters) {
     localA.recordVoterCheckIn({
       voterId: voter.voterId,

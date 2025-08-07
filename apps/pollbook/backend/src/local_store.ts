@@ -2,7 +2,6 @@ import { BaseLogger } from '@votingworks/logging';
 import { Client as DbClient } from '@votingworks/db';
 import {
   CheckInBallotParty,
-  PartyAbbreviation,
   safeParseJson,
   Voter,
   VoterAddressChange,
@@ -80,11 +79,6 @@ function toPatternMatches(raw: string): string {
   return `^${parts.join(`[\\s'\\-]*`)}[\\s'\\-]*$`;
 }
 
-interface GetVotersQueryParams {
-  matchConfiguredPrecinctId?: boolean;
-  partyFilter?: PartyAbbreviation;
-}
-
 export class LocalStore extends Store {
   private nextEventId?: number;
 
@@ -132,9 +126,27 @@ export class LocalStore extends Store {
     return nextId;
   }
 
-  private getAllVoters({
-    matchConfiguredPrecinctId,
-  }: GetVotersQueryParams = {}): Record<string, Voter> | undefined {
+  private getAllVoters(): Record<string, Voter> | undefined {
+    const voterRows = this.client.all(
+      `
+              SELECT v.voter_data
+              FROM voters v
+            `
+    ) as Array<{ voter_data: string }>;
+    if (!voterRows) {
+      return undefined;
+    }
+    const votersMap: Record<string, Voter> = {};
+    for (const row of voterRows) {
+      const voter = safeParseJson(row.voter_data, VoterSchema).unsafeUnwrap();
+      votersMap[voter.voterId] = voter;
+    }
+
+    const orderedEvents = this.getAllEventsOrderedSince();
+    return applyPollbookEventsToVoters(votersMap, orderedEvents);
+  }
+
+  private getAllVotersInPrecinct(): Record<string, Voter> | undefined {
     const { configuredPrecinctId } = this.getPollbookConfigurationInformation();
     const voterRows = this.client.all(
       `
@@ -149,11 +161,10 @@ export class LocalStore extends Store {
     for (const row of voterRows) {
       const voter = safeParseJson(row.voter_data, VoterSchema).unsafeUnwrap();
       if (
-        !matchConfiguredPrecinctId ||
-        (configuredPrecinctId &&
-          (voter.addressChange
-            ? voter.addressChange.precinct
-            : voter.precinct) === configuredPrecinctId)
+        configuredPrecinctId &&
+        (voter.addressChange
+          ? voter.addressChange.precinct
+          : voter.precinct) === configuredPrecinctId
       ) {
         votersMap[voter.voterId] = voter;
       }
@@ -198,10 +209,8 @@ export class LocalStore extends Store {
     );
   }
 
-  groupVotersAlphabeticallyByLastName(
-    queryParams: GetVotersQueryParams = {}
-  ): Map<string, VoterGroup> {
-    const voters = this.getAllVoters(queryParams);
+  groupVotersAlphabeticallyByLastName(): Map<string, VoterGroup> {
+    const voters = this.getAllVotersInPrecinct();
     assert(voters);
 
     const sortedVoters = sortedByVoterName(Object.values(voters), {
@@ -230,8 +239,8 @@ export class LocalStore extends Store {
     );
   }
 
-  getAllVotersSorted(queryParams: GetVotersQueryParams = {}): Voter[] {
-    const voters = this.getAllVoters(queryParams);
+  getAllVotersInPrecinctSorted(): Voter[] {
+    const voters = this.getAllVotersInPrecinct();
     if (!voters) {
       return [];
     }
@@ -711,9 +720,10 @@ export class LocalStore extends Store {
     const election = this.getElection();
     assert(election !== undefined);
     assert(election.type !== 'primary');
-    const voters = this.getAllVoters({
-      matchConfiguredPrecinctId: !!configuredPrecinctId,
-    });
+    const voters =
+      configuredPrecinctId === undefined
+        ? this.getAllVoters()
+        : this.getAllVotersInPrecinct();
     assert(voters);
     const votersMatchingParty =
       partyFilter === 'ALL'
@@ -763,9 +773,10 @@ export class LocalStore extends Store {
     const election = this.getElection();
     assert(election !== undefined);
     assert(election.type === 'primary');
-    const voters = this.getAllVoters({
-      matchConfiguredPrecinctId: !!configuredPrecinctId,
-    });
+    const voters =
+      configuredPrecinctId === undefined
+        ? this.getAllVoters()
+        : this.getAllVotersInPrecinct();
     assert(voters);
     const votersMatchingParty =
       partyFilter === 'ALL'

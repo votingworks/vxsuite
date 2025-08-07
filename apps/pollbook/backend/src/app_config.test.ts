@@ -209,7 +209,7 @@ test('setConfiguredPrecinct sets and getPollbookConfigurationInformation returns
       []
     );
     let config = await localApiClient.getPollbookConfigurationInformation();
-    expect(config.configuredPrecinctId).toBeNull();
+    expect(config.configuredPrecinctId).toBeUndefined();
 
     const result = await localApiClient.setConfiguredPrecinct({
       precinctId: 'precinct-xyz',

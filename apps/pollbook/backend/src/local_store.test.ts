@@ -405,7 +405,7 @@ test('setElectionAndVoters sets configuredPrecinctId only when there is one prec
     []
   );
   let configInfo = store.getPollbookConfigurationInformation();
-  expect(configInfo.configuredPrecinctId).toBeNull();
+  expect(configInfo.configuredPrecinctId).toBeUndefined();
 
   // Test with an election with only one precinct
   const singlePrecinctElection: Election = {
