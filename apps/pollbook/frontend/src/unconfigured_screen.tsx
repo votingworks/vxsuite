@@ -60,7 +60,13 @@ function PollbookConnectionTable({
                   pollbooksForElection[0].pollbookPackageHash || ''
                 )}
               </td>
-              <td>{pollbooksForElection.map((p) => p.machineId).join(', ')}</td>
+              <td>
+                {pollbooksForElection
+                  // replace regular hyphens in IDs with non-breaking hyphen character
+                  // so any given ID won't break across lines
+                  .map((p) => p.machineId.replace('-', '‑'))
+                  .join(', ')}
+              </td>
               <td>
                 <Button
                   color="primary"
