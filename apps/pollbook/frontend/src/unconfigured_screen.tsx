@@ -296,7 +296,7 @@ export function UnconfiguredElectionManagerScreen(): JSX.Element {
     return (
       <Screen>
         <FullScreenMessage
-          title="No Valid Configuration Detected"
+          title="Conflicting Configurations Detected"
           image={
             <FullScreenIconWrapper>
               <Icons.Warning color="warning" />
@@ -317,7 +317,7 @@ export function UnconfiguredElectionManagerScreen(): JSX.Element {
     return (
       <Screen>
         <FullScreenMessage
-          title="No Valid Configuration Detected"
+          title="Conflicting Configurations Detected"
           image={
             <FullScreenIconWrapper>
               <Icons.Warning color="warning" />

@@ -11,6 +11,8 @@ import { ApiMock, createApiMock } from '../test/mock_api_client';
 import { SystemAdministratorScreen } from './system_administrator_screen';
 import { renderInAppContext } from '../test/render_in_app_context';
 
+const nonbreakingHyphen = '‑';
+
 let apiMock: ApiMock;
 const electionFamousNames = electionFamousNames2021Fixtures.readElection();
 const electionDefFamousNames =
@@ -123,14 +125,15 @@ describe('Election tab', () => {
     await screen.findByRole('heading', { name: 'Election' });
     const rows = screen.getAllByTestId('pollbook-config-row');
     expect(rows).toHaveLength(2);
+    screen.debug(rows[0], Infinity);
     await within(rows[0]).findByText('Test Election');
     // Only TEST-01 should show as a machineId as the 02 and 03 are offline
-    await within(rows[0]).findByText('TEST-01');
+    await within(rows[0]).findByText(`TEST${nonbreakingHyphen}01`);
     await within(rows[0]).findByText(
       `${electionDefFamousNames.ballotHash.slice(0, 7)}-test-po`
     );
     await within(rows[1]).findByText('Bad Election');
-    await within(rows[1]).findByText('TEST-04');
+    await within(rows[1]).findByText(`TEST${nonbreakingHyphen}04`);
     await within(rows[1]).findByText(
       `${electionDefFamousNames.ballotHash.slice(0, 7)}-differe`
     );
