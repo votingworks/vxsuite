@@ -2,14 +2,8 @@ import { expect, test, vi } from 'vitest';
 import { mockBaseLogger } from '@votingworks/logging';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
-import { initializeSystemAudio } from '@votingworks/backend';
 import { start } from './server';
 import { createWorkspace } from './util/workspace';
-
-vi.mock(import('@votingworks/backend'), async (importActual) => ({
-  ...(await importActual()),
-  initializeSystemAudio: vi.fn(),
-}));
 
 test('can start server', async () => {
   const auth = buildMockInsertedSmartCardAuth(vi.fn);
@@ -27,6 +21,5 @@ test('can start server', async () => {
     workspace,
   });
   expect(server.listening).toBeTruthy();
-  expect(vi.mocked(initializeSystemAudio)).toHaveBeenCalled();
   server.close();
 });
