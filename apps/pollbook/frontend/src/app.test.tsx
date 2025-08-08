@@ -265,7 +265,7 @@ test('election manager - unconfigured screen - network-conflicting-pollbook-pack
     'network-conflicting-pollbook-packages-match-card'
   );
   renderApp();
-  await screen.findByText('No Valid Configuration Detected');
+  await screen.findByText('Conflicting Configurations Detected');
   await screen.findByText(/conflicting configurations/);
 });
 
@@ -282,7 +282,7 @@ test('election manager - unconfigured screen - not-found-configuration-matching-
     'not-found-configuration-matching-election-card'
   );
   renderApp();
-  await screen.findByText('No Valid Configuration Detected');
+  await screen.findByText('Conflicting Configurations Detected');
   await screen.findByText(/none of them are configured/);
 });
 
