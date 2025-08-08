@@ -1,3 +1,5 @@
+import tmp from 'tmp';
+import { symlink } from 'node:fs/promises';
 import {
   describe,
   test,
@@ -15,14 +17,16 @@ import {
   MockLogger,
   LogEventId,
   LogDispositionStandardTypes,
+  Logger,
 } from '@votingworks/logging';
+import path from 'node:path';
 import { tryConnect } from './unix_socket';
 import {
   connectToBarcodeScannerSocket,
   BarcodeScannerClient,
   UDS_CONNECTION_ATTEMPT_DELAY_MS,
 } from './client';
-import { AamvaDocument } from '../types';
+import { AamvaDocument, BarcodeScannerError } from '../types';
 
 vi.mock('./unix_socket');
 
@@ -33,44 +37,103 @@ const mockedTryConnect = tryConnect as unknown as MockedFunction<
   typeof tryConnect
 >;
 
-describe('listen', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-    mockSocket = new PassThrough() as unknown as net.Socket;
-    logger = mockLogger({
-      source: LogSource.VxPollBookBackend,
-      getCurrentRole: vi.fn().mockResolvedValue('system'),
-      fn: vi.fn,
+// Sets up a mock UDS client and returns a Promise that resolves when
+// listen() completes
+async function setUpMockSocket(
+  overrides: Partial<{
+    logger: Logger;
+    scannedDocument?: AamvaDocument;
+    error?: BarcodeScannerError;
+    connectedToDaemon: boolean;
+    devicePath: string;
+  }> = {}
+): Promise<{
+  barcodeScannerClient: BarcodeScannerClient;
+  listenPromise: Promise<void>;
+}> {
+  const onSpy = vi.spyOn(mockSocket, 'on');
+
+  mockedTryConnect.mockResolvedValue(mockSocket as unknown as net.Socket);
+
+  const { scannedDocument, error, connectedToDaemon, devicePath } = overrides;
+
+  const barcodeScannerClient = new BarcodeScannerClient(
+    overrides.logger || logger,
+    scannedDocument,
+    error,
+    connectedToDaemon,
+    devicePath
+  );
+  expect(mockedTryConnect).toHaveBeenCalledTimes(0);
+  const listenPromise = barcodeScannerClient.listen();
+
+  // Wait for listener to be bound
+  await vi.waitFor(() =>
+    expect(onSpy).toHaveBeenCalledWith('error', expect.any(Function))
+  );
+
+  expect(mockedTryConnect).toHaveBeenCalledTimes(1);
+
+  return { barcodeScannerClient, listenPromise };
+}
+
+beforeEach(() => {
+  vi.useFakeTimers();
+  mockSocket = new PassThrough() as unknown as net.Socket;
+  logger = mockLogger({
+    source: LogSource.VxPollBookBackend,
+    getCurrentRole: vi.fn().mockResolvedValue('system'),
+    fn: vi.fn,
+  });
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.useRealTimers();
+});
+
+describe('isConnected', () => {
+  test('returns true when device symlink exists and connected to socket', async () => {
+    const tmpDir = tmp.dirSync();
+    const mockDevicePath = tmp.fileSync({ tmpdir: tmpDir.name });
+    const devicePath = path.join(tmpDir.name, 'mock-barcode-scanner');
+    await symlink(mockDevicePath.name, devicePath);
+
+    const { barcodeScannerClient, listenPromise } = await setUpMockSocket({
+      devicePath,
     });
+
+    expect(await barcodeScannerClient.isConnected()).toEqual(true);
+
+    mockSocket.end();
+    await listenPromise;
   });
-  afterEach(() => {
-    vi.restoreAllMocks();
-    vi.useRealTimers();
+
+  test('returns false when device symlink does not exist', async () => {
+    const { barcodeScannerClient, listenPromise } = await setUpMockSocket({
+      devicePath: '/tmp/does-not-exist',
+    });
+
+    expect(await barcodeScannerClient.isConnected()).toEqual(false);
+
+    mockSocket.end();
+    await listenPromise;
+  });
+});
+
+describe('listen', () => {
+  test('returns undefined if no data has been received from barcode scanner', async () => {
+    const { barcodeScannerClient, listenPromise } = await setUpMockSocket();
+    mockSocket.end();
+    await listenPromise;
+
+    expect(barcodeScannerClient.readPayload()).toEqual(undefined);
   });
 
-  // Sets up a mock UDS client and returns a Promise that resolves when
-  // listen() completes
-  async function setUpMockSocket(): Promise<{
-    barcodeScannerClient: BarcodeScannerClient;
-    listenPromise: Promise<void>;
-  }> {
-    const onSpy = vi.spyOn(mockSocket, 'on');
-
-    mockedTryConnect.mockResolvedValue(mockSocket as unknown as net.Socket);
-
+  test('returns without error if no UDS client exists', async () => {
     const barcodeScannerClient = new BarcodeScannerClient(logger);
-    expect(mockedTryConnect).toHaveBeenCalledTimes(0);
-    const listenPromise = barcodeScannerClient.listen();
-
-    // Wait for listener to be bound
-    await vi.waitFor(() =>
-      expect(onSpy).toHaveBeenCalledWith('error', expect.any(Function))
-    );
-
-    expect(mockedTryConnect).toHaveBeenCalledTimes(1);
-
-    return { barcodeScannerClient, listenPromise };
-  }
+    expect(await barcodeScannerClient.listen()).toEqual(undefined);
+  });
 
   test('can read from scanner socket', async () => {
     const { barcodeScannerClient, listenPromise } = await setUpMockSocket();
@@ -93,7 +156,22 @@ describe('listen', () => {
     mockSocket.write(`${JSON.stringify({ error })}\n`);
     mockSocket.end();
     await listenPromise;
+
     expect(barcodeScannerClient.readPayload()).toEqual({ error });
+  });
+
+  test('logs if error occurs during message parsing', async () => {
+    const { listenPromise } = await setUpMockSocket();
+    mockSocket.write('{"oops": ""\n');
+    mockSocket.end();
+    await listenPromise;
+    expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+      LogEventId.ParseError,
+      {
+        message: 'Could not parse barcode scanner message',
+        error: 'Unexpected end of JSON input',
+      }
+    );
   });
 
   test('schedules reconnect on "end" event', async () => {

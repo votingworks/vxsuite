@@ -79,6 +79,7 @@ export class BarcodeScannerClient {
       return deviceFound && this.connectedToDaemon;
     } catch (err: unknown) {
       const typedError = err as NodeJS.ErrnoException;
+      /* istanbul ignore next - @preserve */
       if (typedError.code !== 'ENOENT') {
         await this.logger.logAsCurrentRole(LogEventId.UnknownError, {
           message: 'Unknown error trying to lstat barcode scanner',
@@ -115,8 +116,8 @@ export class BarcodeScannerClient {
       this.scheduleReconnect();
     });
 
-    for await (const line of lines(udsClient)) {
-      try {
+    try {
+      for await (const line of lines(udsClient)) {
         const result = safeParseJson(line, BarcodeScannerPayloadSchema);
         if (result.isErr()) {
           await this.logger.logAsCurrentRole(LogEventId.ParseError, {
@@ -132,12 +133,13 @@ export class BarcodeScannerClient {
         } else {
           this.error = parsed;
         }
-      } catch (error) {
-        await this.logger.logAsCurrentRole(LogEventId.ParseError, {
-          message: 'Could not read line from barcode scanner daemon UDS',
-          error: (error as Error).message,
-        });
       }
+    } catch (error) {
+      /* istanbul ignore next - @preserve */
+      await this.logger.logAsCurrentRole(LogEventId.ParseError, {
+        message: 'Could not read line from barcode scanner daemon UDS',
+        error: (error as Error).message,
+      });
     }
   }
 }
