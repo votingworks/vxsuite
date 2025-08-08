@@ -108,8 +108,9 @@ test('renders network status as expected - when unconfigured', async () => {
     },
   ]);
   vi.advanceTimersByTime(100);
-  // We should show that there are 3 connected machines on the network (the current machine plus two connected)
-  await within(networkElement).findByText('3');
+  // We should show that there are 4 connected machines on the network
+  // (the current machine + 3 machines that aren't flagged as LostConnection or ShutDOwn)
+  await within(networkElement).findByText('4');
 
   // Open the network modal
   userEvent.click(icon);
@@ -240,8 +241,9 @@ test('renders network status as expected - when configured', async () => {
     },
   ]);
   vi.advanceTimersByTime(100);
-  // We should show that there are 2 connected machines on the network (the current machine plus one connected)
-  await within(networkElement).findByText('2');
+  // We should show that there are 5 connected machines on the network
+  // (the current machine + 4 machines that aren't flagged as LostConnection or ShutDOwn)
+  await within(networkElement).findByText('5');
 
   // Open the network modal
   userEvent.click(icon);
