@@ -1,7 +1,12 @@
 import { expect, test, vi, vitest } from 'vitest';
 import { writeFileSync } from 'node:fs';
 import { makeTemporaryPath } from '@votingworks/fixtures';
-import { ElectionDefinition, PrecinctId } from '@votingworks/types';
+import {
+  ElectionDefinition,
+  PrecinctId,
+  Voter,
+  VoterMailingAddressChangeRequest,
+} from '@votingworks/types';
 import { mockBaseLogger } from '@votingworks/logging';
 import {
   createVoter,
@@ -25,9 +30,36 @@ function setSinglePrecinctElection(store: LocalStore): void {
     ballotHash: 'test-ballot-hash',
   };
 
-  const testVoters = [
-    createVoter('voter1', 'Test', 'Voter', { precinct: 'precinct-0' }),
-  ];
+  const testVoters: Voter[] = [];
+  const mockVoterBatchSize = 20;
+  for (let i = 0; i < mockVoterBatchSize; i += 1) {
+    testVoters.push(
+      createVoter(`voter${i}`, 'Voter', 'A-Test', { precinct: 'precinct-0' })
+    );
+  }
+
+  const manyCharacterString = 'Z'.repeat(20);
+  const updatedAddress: VoterMailingAddressChangeRequest = {
+    mailingStreetNumber: '221',
+    mailingAddressLine2: `${manyCharacterString.repeat(5)}`,
+    mailingStreetName: 'BAKER ST',
+    mailingCityTown: 'LONDON',
+    mailingState: 'NH',
+    mailingZip5: '12345',
+    mailingSuffix: 'SUFFIX',
+    mailingApartmentUnitNumber: '505',
+    mailingHouseFractionNumber: '1/2',
+    mailingAddressLine3: 'LINE 3',
+    mailingZip4: '6789',
+  };
+  for (let i = mockVoterBatchSize; i < mockVoterBatchSize + 10; i += 1) {
+    testVoters.push(
+      createVoter(`voter${i}`, 'Voter', `B-Test-tall-row`, {
+        precinct: 'precinct-0',
+      })
+    );
+  }
+
   const testStreetInfo = [
     {
       streetName: 'Main',
@@ -47,6 +79,10 @@ function setSinglePrecinctElection(store: LocalStore): void {
     testStreetInfo,
     testVoters
   );
+
+  for (let i = mockVoterBatchSize; i < mockVoterBatchSize + 10; i += 1) {
+    store.changeVoterMailingAddress(`voter${i}`, updatedAddress);
+  }
 }
 
 vitest.setConfig({

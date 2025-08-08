@@ -113,11 +113,17 @@ const VoterTable = styled.table`
     padding: 0.75em 0.5em;
   }
 
+  tr,
+  th,
+  td {
+    break-inside: avoid;
+  }
+
   tr:nth-child(even) td {
     background-color: ${grayBackgroundColor};
   }
 
-  page-break-after: always;
+  break-after: page;
 `;
 
 export function MarginDetails({ voter }: { voter: Voter }): JSX.Element {
