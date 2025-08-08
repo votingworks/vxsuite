@@ -28,6 +28,7 @@ import { Store } from './store';
 import { createWorkspace, Workspace } from './util/workspace';
 import { Api, buildApi } from './app';
 import { buildMockLogger } from '../test/app_helpers';
+import { Player as AudioPlayer } from './audio/player';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
@@ -59,14 +60,20 @@ afterEach(() => {
 });
 
 runUiStringApiTests({
-  api: () =>
-    buildApi(
-      mockAuth,
-      createMockUsbDrive().usbDrive,
-      createMockPrinterHandler().printer,
-      buildMockLogger(mockAuth, workspace),
-      workspace
-    ).methods(),
+  api: () => {
+    const logger = buildMockLogger(mockAuth, workspace);
+
+    return buildApi({
+      audioPlayer: vi.mocked(
+        new AudioPlayer('development', logger, 'pci.stereo')
+      ),
+      auth: mockAuth,
+      usbDrive: createMockUsbDrive().usbDrive,
+      printer: createMockPrinterHandler().printer,
+      logger,
+      workspace,
+    }).methods();
+  },
   store: store.getUiStringsStore(),
   beforeEach,
   afterEach,
@@ -85,14 +92,19 @@ describe('configureElectionPackageFromUsb', () => {
       BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
     );
 
+    const logger = buildMockLogger(mockAuth, workspace);
+
     mockUsbDrive = createMockUsbDrive();
-    api = buildApi(
-      mockAuth,
-      mockUsbDrive.usbDrive,
-      createMockPrinterHandler().printer,
-      buildMockLogger(mockAuth, workspace),
-      workspace
-    );
+    api = buildApi({
+      audioPlayer: vi.mocked(
+        new AudioPlayer('development', logger, 'pci.stereo')
+      ),
+      auth: mockAuth,
+      usbDrive: mockUsbDrive.usbDrive,
+      printer: createMockPrinterHandler().printer,
+      logger,
+      workspace,
+    });
 
     mockAuth.getAuthStatus.mockImplementation(() =>
       Promise.resolve({
@@ -117,16 +129,22 @@ describe('configureElectionPackageFromUsb', () => {
 
 describe('unconfigureMachine', () => {
   runUiStringMachineDeconfigurationTests({
-    runUnconfigureMachine: () =>
-      buildApi(
-        mockAuth,
-        createMockUsbDrive().usbDrive,
-        createMockPrinterHandler().printer,
-        buildMockLogger(mockAuth, workspace),
-        workspace
-      )
-        .methods()
-        .unconfigureMachine(),
+    runUnconfigureMachine: () => {
+      const logger = buildMockLogger(mockAuth, workspace);
+
+      const api = buildApi({
+        audioPlayer: vi.mocked(
+          new AudioPlayer('development', logger, 'pci.stereo')
+        ),
+        auth: mockAuth,
+        usbDrive: createMockUsbDrive().usbDrive,
+        printer: createMockPrinterHandler().printer,
+        logger,
+        workspace,
+      }).methods();
+
+      return api.unconfigureMachine();
+    },
     store: store.getUiStringsStore(),
     expect,
     test,

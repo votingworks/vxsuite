@@ -35,6 +35,7 @@ import { ok } from '@votingworks/basics';
 import { Api, buildApp } from '../src/app';
 import { createWorkspace, Workspace } from '../src/util/workspace';
 import { getUserRole } from '../src/util/auth';
+import { Player as AudioPlayer } from '../src/audio/player';
 
 interface MockAppContents {
   apiClient: grout.Client<Api>;
@@ -67,13 +68,16 @@ export function createApp(): MockAppContents {
   const mockUsbDrive = createMockUsbDrive();
   const mockPrinterHandler = createMockPrinterHandler();
 
-  const app = buildApp(
-    mockAuth,
+  const app = buildApp({
+    audioPlayer: vi.mocked(
+      new AudioPlayer('development', logger, 'pci.stereo')
+    ),
+    auth: mockAuth,
     logger,
     workspace,
-    mockUsbDrive.usbDrive,
-    mockPrinterHandler.printer
-  );
+    usbDrive: mockUsbDrive.usbDrive,
+    printer: mockPrinterHandler.printer,
+  });
 
   const server = app.listen();
   const { port } = server.address() as AddressInfo;

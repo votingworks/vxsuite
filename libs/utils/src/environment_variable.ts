@@ -89,6 +89,10 @@ export enum BooleanEnvironmentVariableName {
    * ballots and printing bubble marks on pre-printed HMPBs
    */
   MARK_ENABLE_BALLOT_PRINT_MODE_TOGGLE = 'REACT_APP_VX_MARK_ENABLE_BALLOT_PRINT_MODE_TOGGLE',
+  /**
+   * Enables demo logic for VxMark barcode-based ballot style selection.
+   */
+  MARK_ENABLE_BARCODE_DEMO = 'REACT_APP_VX_MARK_ENABLE_BARCODE_DEMO',
 }
 
 export interface BooleanEnvironmentConfig {
@@ -164,6 +168,8 @@ export function getEnvironmentVariable(
         .REACT_APP_VX_ENABLE_HARDWARE_TEST_APP_INTERNAL_FUNCTIONS;
     case BooleanEnvironmentVariableName.MARK_ENABLE_BALLOT_PRINT_MODE_TOGGLE:
       return process.env.REACT_APP_VX_MARK_ENABLE_BALLOT_PRINT_MODE_TOGGLE;
+    case BooleanEnvironmentVariableName.MARK_ENABLE_BARCODE_DEMO:
+      return process.env.REACT_APP_VX_MARK_ENABLE_BARCODE_DEMO;
     /* istanbul ignore next */
     default:
       throwIllegalValue(name);
@@ -300,6 +306,12 @@ export function getBooleanEnvVarConfig(
         name,
         allowInProduction: true,
         autoEnableInDevelopment: true,
+      };
+    case BooleanEnvironmentVariableName.MARK_ENABLE_BARCODE_DEMO:
+      return {
+        name,
+        allowInProduction: true,
+        autoEnableInDevelopment: false,
       };
     /* istanbul ignore next */
     default:
