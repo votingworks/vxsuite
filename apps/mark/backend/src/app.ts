@@ -46,15 +46,23 @@ import { printBallot } from './util/print_ballot';
 import { isAccessibleControllerAttached } from './util/accessible_controller';
 import { constructAuthMachineState } from './util/auth';
 import { ElectionRecord } from './store';
+import * as barcodes from './barcodes';
+import { setUpBarcodeDemo } from './barcodes/demo';
+import { Player as AudioPlayer } from './audio/player';
+
+interface Context {
+  audioPlayer?: AudioPlayer;
+  auth: InsertedSmartCardAuthApi;
+  barcodeClient?: barcodes.Client;
+  logger: Logger;
+  workspace: Workspace;
+  usbDrive: UsbDrive;
+  printer: Printer;
+}
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function buildApi(
-  auth: InsertedSmartCardAuthApi,
-  usbDrive: UsbDrive,
-  printer: Printer,
-  logger: Logger,
-  workspace: Workspace
-) {
+export function buildApi(ctx: Context) {
+  const { auth, logger, printer, usbDrive, workspace } = ctx;
   const { store } = workspace;
 
   return grout.createApi({
@@ -321,15 +329,12 @@ export function buildApi(
 
 export type Api = ReturnType<typeof buildApi>;
 
-export function buildApp(
-  auth: InsertedSmartCardAuthApi,
-  logger: Logger,
-  workspace: Workspace,
-  usbDrive: UsbDrive,
-  printer: Printer
-): Application {
+export function buildApp(ctx: Context): Application {
   const app: Application = express();
-  const api = buildApi(auth, usbDrive, printer, logger, workspace);
+  const api = buildApi(ctx);
   app.use('/api', grout.buildRouter(api, express));
+
+  setUpBarcodeDemo(ctx);
+
   return app;
 }
