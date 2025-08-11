@@ -56,7 +56,7 @@ export function InvalidCardScreen({
     }
     case 'certificate_not_yet_valid': {
       recommendedAction =
-        'Check that the your machines have the correct date and time.';
+        'Check that your machines have the correct date and time.';
       break;
     }
     case 'machine_not_configured': {

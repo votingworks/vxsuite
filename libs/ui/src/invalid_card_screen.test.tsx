@@ -91,8 +91,7 @@ const testCases: Array<{
       reason: 'certificate_not_yet_valid',
     },
     expectedHeading: 'Invalid Card',
-    expectedText:
-      'Check that the your machines have the correct date and time.',
+    expectedText: 'Check that your machines have the correct date and time.',
   },
   {
     description: 'other error',
