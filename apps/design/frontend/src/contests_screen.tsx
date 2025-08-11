@@ -38,7 +38,7 @@ import {
   safeParse,
   YesNoContestSchema,
 } from '@votingworks/types';
-import { assertDefined, Result, throwIllegalValue } from '@votingworks/basics';
+import { Result, throwIllegalValue } from '@votingworks/basics';
 import styled from 'styled-components';
 import { Flipper, Flipped } from 'react-flip-toolkit';
 import { z } from 'zod/v4';
@@ -1252,32 +1252,28 @@ function PartyForm({
     updatePartyMutation.isLoading ||
     deletePartyMutation.isLoading;
 
-  const errorMessage = (() => {
-    if (
-      createPartyMutation.data?.isErr() ||
-      updatePartyMutation.data?.isErr()
-    ) {
-      const error = assertDefined(
-        createPartyMutation.data?.err() || updatePartyMutation.data?.err()
-      );
-
+  const error =
+    createPartyMutation.data?.err() || updatePartyMutation.data?.err();
+  const errorMessage =
+    error &&
+    (() => {
       switch (error) {
         case 'duplicate-name':
           return (
             <Callout icon="Danger" color="danger">
-              A party with the same short name already exists.
+              There is already a party with the same short name.
             </Callout>
           );
         case 'duplicate-full-name':
           return (
             <Callout icon="Danger" color="danger">
-              A party with the same full name already exists.
+              There is already a party with the same full name.
             </Callout>
           );
         case 'duplicate-abbrev':
           return (
             <Callout icon="Danger" color="danger">
-              A party with the same abbreviation already exists.
+              There is already a party with the same abbreviation.
             </Callout>
           );
         default: {
@@ -1285,8 +1281,7 @@ function PartyForm({
           return throwIllegalValue(error);
         }
       }
-    }
-  })();
+    })();
 
   return (
     <Form

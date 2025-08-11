@@ -1487,7 +1487,9 @@ describe('Parties tab', () => {
       })
       .resolves(err('duplicate-full-name'));
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
-    await screen.findByText('A party with the same full name already exists.');
+    await screen.findByText(
+      'There is already a party with the same full name.'
+    );
 
     apiMock.createParty
       .expectCallWith({
@@ -1496,7 +1498,9 @@ describe('Parties tab', () => {
       })
       .resolves(err('duplicate-name'));
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
-    await screen.findByText('A party with the same short name already exists.');
+    await screen.findByText(
+      'There is already a party with the same short name.'
+    );
 
     apiMock.createParty
       .expectCallWith({
@@ -1506,7 +1510,7 @@ describe('Parties tab', () => {
       .resolves(err('duplicate-abbrev'));
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
     await screen.findByText(
-      'A party with the same abbreviation already exists.'
+      'There is already a party with the same abbreviation.'
     );
 
     userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
@@ -1529,7 +1533,9 @@ describe('Parties tab', () => {
       })
       .resolves(err('duplicate-full-name'));
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
-    await screen.findByText('A party with the same full name already exists.');
+    await screen.findByText(
+      'There is already a party with the same full name.'
+    );
 
     apiMock.updateParty
       .expectCallWith({
@@ -1538,7 +1544,9 @@ describe('Parties tab', () => {
       })
       .resolves(err('duplicate-name'));
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
-    await screen.findByText('A party with the same short name already exists.');
+    await screen.findByText(
+      'There is already a party with the same short name.'
+    );
 
     apiMock.updateParty
       .expectCallWith({
@@ -1548,7 +1556,7 @@ describe('Parties tab', () => {
       .resolves(err('duplicate-abbrev'));
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
     await screen.findByText(
-      'A party with the same abbreviation already exists.'
+      'There is already a party with the same abbreviation.'
     );
   });
 });

@@ -128,7 +128,7 @@ function ElectionInfoForm({
     if (error !== 'duplicate-title-and-date') throwIllegalValue(error);
     errorMessage = (
       <Callout icon="Danger" color="danger">
-        An election with the same title and date already exists.
+        There is already an election with the same title and date.
       </Callout>
     );
   }

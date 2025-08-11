@@ -276,7 +276,7 @@ test('handles duplicate title+date error', async () => {
     .resolves(err('duplicate-title-and-date'));
   userEvent.click(screen.getByRole('button', { name: 'Save' }));
   const expectedMessage =
-    'An election with the same title and date already exists.';
+    'There is already an election with the same title and date.';
   await screen.findByText(expectedMessage);
 
   userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
