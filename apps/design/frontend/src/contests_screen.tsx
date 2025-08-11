@@ -540,7 +540,7 @@ function ContestForm({
   const listDistrictsQuery = listDistricts.useQuery(electionId);
   const listPartiesQuery = listParties.useQuery(electionId);
   const createContestMutation = createContest.useMutation();
-  const updatedContestMutation = updateContest.useMutation();
+  const updateContestMutation = updateContest.useMutation();
   const deleteContestMutation = deleteContest.useMutation();
   const history = useHistory();
   const contestRoutes = routes.election(electionId).contests;
@@ -567,14 +567,26 @@ function ContestForm({
   function onSubmit() {
     const formContest = tryContestFromDraftContest(contest).unsafeUnwrap();
     if (savedContest) {
-      updatedContestMutation.mutate(
+      updateContestMutation.mutate(
         { electionId, updatedContest: formContest },
-        { onSuccess: goBackToContestsList }
+        {
+          onSuccess: (result) => {
+            if (result.isOk()) {
+              goBackToContestsList();
+            }
+          },
+        }
       );
     } else {
       createContestMutation.mutate(
         { electionId, newContest: formContest },
-        { onSuccess: goBackToContestsList }
+        {
+          onSuccess: (result) => {
+            if (result.isOk()) {
+              goBackToContestsList();
+            }
+          },
+        }
       );
     }
   }
@@ -614,8 +626,48 @@ function ContestForm({
 
   const someMutationIsLoading =
     createContestMutation.isLoading ||
-    updatedContestMutation.isLoading ||
+    updateContestMutation.isLoading ||
     deleteContestMutation.isLoading;
+
+  const error =
+    createContestMutation.data?.err() || updateContestMutation.data?.err();
+  const errorMessage =
+    error &&
+    (() => {
+      switch (error) {
+        case 'duplicate-contest':
+          return (
+            <Callout icon="Danger" color="danger">
+              {contest.type === 'candidate' ? (
+                <React.Fragment>
+                  There is already a contest with the same district, title,
+                  seats, and term.
+                </React.Fragment>
+              ) : (
+                <React.Fragment>
+                  There is already a contest with the same district and title.
+                </React.Fragment>
+              )}
+            </Callout>
+          );
+        case 'duplicate-candidate':
+          return (
+            <Callout icon="Danger" color="danger">
+              Candidates must have different names.
+            </Callout>
+          );
+        case 'duplicate-option':
+          return (
+            <Callout icon="Danger" color="danger">
+              Options must have different labels.
+            </Callout>
+          );
+        default: {
+          /* istanbul ignore next - @preserve */
+          throwIllegalValue(error);
+        }
+      }
+    })();
 
   return (
     <Form
@@ -945,6 +997,7 @@ function ContestForm({
         </React.Fragment>
       )}
 
+      {errorMessage}
       <div>
         <FormActionsRow>
           <Button type="reset">Cancel</Button>
@@ -1227,9 +1280,10 @@ function PartyForm({
               A party with the same abbreviation already exists.
             </Callout>
           );
-        default:
+        default: {
           /* istanbul ignore next - @preserve */
           return throwIllegalValue(error);
+        }
       }
     }
   })();
