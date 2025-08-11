@@ -14,15 +14,16 @@ import { ScanEvent } from './types';
 import { NODE_ENV } from '../globals';
 
 // [TODO] Figure out configuration command protocol.
-const CONFIGURE_ON_STARTUP = false;
+const CONFIGURE_ON_STARTUP = true;
 
-const VENDOR_ID = 0x23d0;
-const PRODUCT_ID = 0x0d13;
+// Honeywell CM4680SR (AKA Metrologic Instruments CM4680SR):
+const VENDOR_ID = 0x0c2e;
+const PRODUCT_ID = 0x10d3;
 
 const logger = new BaseLogger(LogSource.VxMarkBackend);
 
 function connect() {
-  const devices = hid.devices(0x23d0, 0x0d13);
+  const devices = hid.devices(VENDOR_ID, PRODUCT_ID);
 
   if (devices.length === 0) {
     logger.log(LogEventId.Info, 'system', {
