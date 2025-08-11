@@ -63,7 +63,7 @@ export async function start({
 
   let audioPlayer: AudioPlayer | undefined;
   /* istanbul ignore next - @preserve */
-  if (!isIntegrationTest()) {
+  if (!isIntegrationTest() && NODE_ENV !== 'test') {
     const audioInfo = await getAudioInfo({
       baseRetryDelayMs: 2000,
       logger,
