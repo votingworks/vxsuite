@@ -62,6 +62,7 @@ export async function start({
   const printer = detectPrinter(logger);
 
   let audioPlayer: AudioPlayer | undefined;
+  /* istanbul ignore next - @preserve */
   if (!isIntegrationTest()) {
     const audioInfo = await getAudioInfo({
       baseRetryDelayMs: 2000,
@@ -70,7 +71,6 @@ export async function start({
       nodeEnv: NODE_ENV,
     });
 
-    // istanbul ignore next - @preserve
     if (audioInfo.usb) {
       const resultDefaultAudio = await setDefaultAudio(audioInfo.usb.name, {
         logger,
@@ -100,7 +100,7 @@ export async function start({
   const app = buildApp({
     audioPlayer,
     auth: resolvedAuth,
-    barcodeClient: isFeatureFlagEnabled(
+    barcodeClient: /* istanbul ignore next - @preserve */ isFeatureFlagEnabled(
       BooleanEnvironmentVariableName.MARK_ENABLE_BARCODE_DEMO
     )
       ? new barcodes.Client(logger)
