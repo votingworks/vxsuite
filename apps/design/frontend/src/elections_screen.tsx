@@ -9,7 +9,7 @@ import {
   Button,
   StyledButtonProps,
 } from '@votingworks/ui';
-import { FormEvent, useMemo } from 'react';
+import { FormEvent, useMemo, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { format } from '@votingworks/utils';
@@ -363,6 +363,7 @@ export function ElectionsScreen(): JSX.Element | null {
   const getUserFeaturesQuery = getUserFeatures.useQuery();
   const user = getUser.useQuery().data;
   const history = useHistory();
+  const [filterText, setFilterText] = useState('');
 
   function onCreateElectionSuccess(result: Result<Id, Error>) {
     if (result.isOk()) {
@@ -392,8 +393,15 @@ export function ElectionsScreen(): JSX.Element | null {
   if (!(listElectionsQuery.isSuccess && getUserFeaturesQuery.isSuccess)) {
     return null;
   }
-  const elections = listElectionsQuery.data;
   const features = getUserFeaturesQuery.data;
+  const elections = listElectionsQuery.data;
+  // Filter by matching organization (if user has access to all orgs) or election title
+  const filteredElections = elections.filter(
+    (e) =>
+      (features.ACCESS_ALL_ORGS &&
+        e.orgName.toLowerCase().includes(filterText.toLowerCase())) ||
+      e.title.toLowerCase().includes(filterText.toLowerCase())
+  );
 
   return (
     <NavScreen>
@@ -402,10 +410,21 @@ export function ElectionsScreen(): JSX.Element | null {
       </Header>
       <MainContent>
         <Column style={{ gap: '1rem' }}>
+          <input
+            type="text"
+            aria-label="Filter elections"
+            placeholder={
+              features.ACCESS_ALL_ORGS
+                ? 'Filter by organization or election title'
+                : 'Filter by election title'
+            }
+            value={filterText}
+            onChange={(e) => setFilterText(e.target.value)}
+          />
           {features.ACCESS_ALL_ORGS ? (
-            <AllOrgsElectionsList elections={elections} />
+            <AllOrgsElectionsList elections={filteredElections} />
           ) : (
-            <SingleOrgElectionsList elections={elections} />
+            <SingleOrgElectionsList elections={filteredElections} />
           )}
           {features.CREATE_ELECTION && (
             <Row style={{ gap: '0.5rem' }}>
