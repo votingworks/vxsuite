@@ -1,4 +1,9 @@
-import { extractErrorMessage } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  extractErrorMessage,
+} from '@votingworks/basics';
+import { ProgrammingMachineType } from '@votingworks/types';
 
 import { constructJavaCardConfig, JavaCardConfig } from '../../src/config';
 import { getRequiredEnvVar, isNodeEnvProduction } from '../../src/env_vars';
@@ -10,15 +15,20 @@ interface ScriptEnvVars {
   isProduction: boolean;
   javaCardConfig: JavaCardConfig;
   jurisdiction: string;
+  machineType: ProgrammingMachineType;
 }
 
 function readScriptEnvVars(): ScriptEnvVars {
   const isProduction = isNodeEnvProduction();
   const javaCardConfig = constructJavaCardConfig(); // Uses env vars
   const jurisdiction = isProduction
-    ? getRequiredEnvVar('VX_MACHINE_JURISDICTION')
+    ? assertDefined(getRequiredEnvVar('VX_MACHINE_JURISDICTION'))
     : DEV_JURISDICTION;
-  return { isProduction, javaCardConfig, jurisdiction };
+  const machineType = isProduction
+    ? assertDefined(getRequiredEnvVar('VX_MACHINE_TYPE'))
+    : 'admin';
+  assert(machineType === 'admin' || machineType === 'poll-book');
+  return { isProduction, javaCardConfig, jurisdiction, machineType };
 }
 
 /**
@@ -29,7 +39,8 @@ function readScriptEnvVars(): ScriptEnvVars {
  */
 export async function main(): Promise<void> {
   try {
-    const { isProduction, javaCardConfig, jurisdiction } = readScriptEnvVars();
+    const { isProduction, javaCardConfig, jurisdiction, machineType } =
+      readScriptEnvVars();
     const card = new JavaCard(javaCardConfig);
     await programJavaCard({
       card,
@@ -37,7 +48,7 @@ export async function main(): Promise<void> {
       user: {
         role: 'system_administrator',
         jurisdiction,
-        programmingMachineType: 'admin',
+        programmingMachineType: machineType,
       },
     });
     process.exit(0); // Smart card scripts require an explicit exit or else they hang
