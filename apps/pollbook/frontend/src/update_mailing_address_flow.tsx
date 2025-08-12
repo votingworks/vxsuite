@@ -195,7 +195,6 @@ export function UpdateMailingAddressFlow({
               <H1>
                 Mailing address updated for <VoterName voter={voter} />
               </H1>
-              <p>Give the voter their receipt.</p>
             </FullScreenMessage>
           </Column>
           <Row style={{ padding: '1rem', justifyContent: 'flex-end' }}>

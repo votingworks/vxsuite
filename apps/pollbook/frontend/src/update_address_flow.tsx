@@ -243,7 +243,6 @@ export function UpdateAddressFlow({
               <H1>
                 Domicile address updated for <VoterName voter={voter} />
               </H1>
-              <p>Give the voter their receipt.</p>
             </FullScreenMessage>
           </Column>
           <Row style={{ padding: '1rem', justifyContent: 'flex-end' }}>
