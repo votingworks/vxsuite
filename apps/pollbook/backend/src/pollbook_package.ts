@@ -235,6 +235,7 @@ export function pollUsbDriveForPollbookPackage({
 
       try {
         if (workspace.store.getElection()) {
+          workspace.store.setConfigurationStatus(undefined);
           clearInterval(intervalId); // Stop the polling interval
           return;
         }
@@ -321,6 +322,11 @@ export function pollUsbDriveForPollbookPackage({
         clearInterval(intervalId); // Stop the polling interval
       } catch (error) {
         debug('Error during polling loop: %O', error);
+        // If we saved the election already, rollback
+        workspace.store.deleteElectionAndVoters();
+
+        // Return early to ensure clean exit from this iteration
+        return;
       } finally {
         pollingIntervalLock = false; // Reset the flag to allow the next iteration
       }
