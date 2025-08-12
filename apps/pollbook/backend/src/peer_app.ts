@@ -11,6 +11,7 @@ import {
 } from './types';
 import {
   fetchEventsFromConnectedPollbooks,
+  resetNetworkSetup,
   setupMachineNetworking,
 } from './networking';
 import { pollNetworkForPollbookPackage } from './pollbook_package';
@@ -39,6 +40,11 @@ function buildApi(context: PeerAppContext) {
 
     unconfigure() {
       pollNetworkForPollbookPackage(context);
+    },
+
+    async resetNetwork() {
+      await resetNetworkSetup(context.machineId);
+      store.clearConnectedPollbooks();
     },
 
     async configureFromPeerMachine(input: {
