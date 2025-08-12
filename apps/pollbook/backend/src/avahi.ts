@@ -79,7 +79,7 @@ export class AvahiService {
         intermediateScript('avahi-browse'),
       ]);
       // Only return with an error if there is not stdout output, otherwise try to parse it.
-      if (stderr && stdout.length <= 0) {
+      if (stderr && !stdout) {
         debug(`avahi-browse stderr: ${stderr}`);
         return [];
       }
