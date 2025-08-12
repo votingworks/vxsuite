@@ -34,7 +34,7 @@ import {
   formatElectionForExport,
 } from '../ballots';
 import { getBallotPdfFileName } from '../utils';
-import { renderBallotPdf } from './ballot_pdfs';
+import { renderBallotPdf, renderCalibrationSheetPdf } from './ballot_pdfs';
 
 export interface V3SystemSettings {
   readonly auth: SystemSettings['auth'];
@@ -240,6 +240,11 @@ export async function generateElectionPackageAndBallots(
     );
     ballotsZip.file(fileName, ballotPdf);
   }
+  const calibrationSheetPdf = await renderCalibrationSheetPdf(
+    renderer,
+    election.ballotLayout.paperSize
+  );
+  ballotsZip.file('VxScan-calibration-sheet.pdf', calibrationSheetPdf);
 
   // eslint-disable-next-line no-console
   renderer.cleanup().catch(console.error);

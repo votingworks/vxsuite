@@ -2,7 +2,10 @@ import {
   convertPdfToGrayscale,
   BaseBallotProps,
   RenderDocument,
+  calibrationSheetTemplate,
+  Renderer,
 } from '@votingworks/hmpb';
+import { HmpbBallotPaperSize } from '@votingworks/types';
 
 export async function renderBallotPdf(
   props: BaseBallotProps,
@@ -20,4 +23,12 @@ export async function renderBallotPdf(
   }
 
   return await convertPdfToGrayscale(colorPdf);
+}
+
+export async function renderCalibrationSheetPdf(
+  renderer: Renderer,
+  paperSize: HmpbBallotPaperSize
+): Promise<Uint8Array> {
+  const document = await calibrationSheetTemplate.render(renderer, paperSize);
+  return await convertPdfToGrayscale(await document.renderToPdf());
 }

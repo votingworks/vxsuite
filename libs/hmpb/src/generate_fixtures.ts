@@ -8,6 +8,7 @@ import {
   allBubbleBallotFixtures,
 } from './all_bubble_ballot_fixtures';
 import {
+  calibrationSheetFixtures,
   nhGeneralElectionFixtures,
   timingMarkPaperFixtures,
   vxFamousNamesFixtures,
@@ -138,6 +139,20 @@ async function generateTimingMarkPaperFixtures(
   await writeFile(pdfPath, generated.pdf);
 }
 
+async function generateCalibrationSheetFixtures(
+  renderer: Renderer,
+  paperSize: HmpbBallotPaperSize
+) {
+  const specPaths = calibrationSheetFixtures.specPaths(paperSize);
+  await rm(specPaths.pdf, { force: true });
+  const generated = await calibrationSheetFixtures.generate(
+    renderer,
+    paperSize
+  );
+  await mkdir(specPaths.dir, { recursive: true });
+  await writeFile(specPaths.pdf, generated.pdf);
+}
+
 const ALL_PAPER_SIZES: readonly HmpbBallotPaperSize[] = [
   HmpbBallotPaperSize.Letter,
   HmpbBallotPaperSize.Legal,
@@ -156,7 +171,8 @@ type Fixture =
   | 'vx-famous-names'
   | 'vx-general-election'
   | 'vx-primary-election'
-  | 'nh-general-election';
+  | 'nh-general-election'
+  | 'calibration-sheet';
 
 export async function main(): Promise<number> {
   const renderer = await createPlaywrightRenderer();
@@ -199,6 +215,11 @@ export async function main(): Promise<number> {
 
       case '--nh-general-election': {
         fixtures.add('nh-general-election');
+        break;
+      }
+
+      case '--calibration-sheet': {
+        fixtures.add('calibration-sheet');
         break;
       }
 
@@ -250,6 +271,12 @@ export async function main(): Promise<number> {
     for (const paperSize of ALL_PAPER_SIZES) {
       await generateTimingMarkPaperFixtures(renderer, paperSize, 'standard');
       await generateTimingMarkPaperFixtures(renderer, paperSize, 'qa-overlay');
+    }
+  }
+
+  if (fixtures.size === 0 || fixtures.has('calibration-sheet')) {
+    for (const paperSize of ALL_PAPER_SIZES) {
+      await generateCalibrationSheetFixtures(renderer, paperSize);
     }
   }
 

@@ -2478,6 +2478,7 @@ test('Election package and ballots export', async () => {
           `sample-absentee-${suffix}`,
         ];
       }),
+    'VxScan-calibration-sheet.pdf',
   ].sort();
   expect(Object.keys(zip.files).sort()).toEqual(expectedFileNames);
 
@@ -2741,8 +2742,9 @@ test('export ballots with audit IDs', async () => {
   const { electionPackageContents, ballotsContents } =
     await unzipElectionPackageAndBallots(contents);
   const zip = await JsZip.loadAsync(new Uint8Array(ballotsContents));
-  expect(Object.keys(zip.files)).toHaveLength(numAuditIdBallots);
+  expect(Object.keys(zip.files)).toHaveLength(numAuditIdBallots + 1);
   expect(Object.keys(zip.files).sort()).toEqual([
+    'VxScan-calibration-sheet.pdf',
     'official-precinct-ballot-East_Lincoln-1_en-1.pdf',
     'official-precinct-ballot-East_Lincoln-1_en-2.pdf',
     'official-precinct-ballot-East_Lincoln-1_en-3.pdf',
