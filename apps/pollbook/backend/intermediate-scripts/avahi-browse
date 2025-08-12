@@ -1,4 +1,12 @@
 #!/usr/bin/env bash
 
 set -euo pipefail
-timeout 3 avahi-browse -r -t -p _http._tcp
+
+status=0
+
+timeout -s INT 3 avahi-browse -r -t -p _http._tcp || status=$?
+
+# Don't exit with an error if there is no error (exit 0) or the error is due to timeout (exit 124)
+if [ $status -ne 0 ] && [ $status -ne 124 ]; then
+    exit $status
+fi

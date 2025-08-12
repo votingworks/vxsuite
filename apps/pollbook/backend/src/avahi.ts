@@ -78,7 +78,8 @@ export class AvahiService {
       const { stdout, stderr } = await execFile('sudo', [
         intermediateScript('avahi-browse'),
       ]);
-      if (stderr) {
+      // Only return with an error if there is not stdout output, otherwise try to parse it.
+      if (stderr && !stdout) {
         debug(`avahi-browse stderr: ${stderr}`);
         return [];
       }
