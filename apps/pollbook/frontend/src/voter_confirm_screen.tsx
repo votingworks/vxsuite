@@ -239,38 +239,41 @@ export function VoterConfirmScreen({
                     </LabelledText>
                   )}
                 </Row>
-                {hasMailingAddress(voter) && (
-                  <LabelledText
-                    style={{ width: '100%' }}
-                    label={
-                      voter.mailingAddressChange ? (
-                        <s>Mailing Address</s>
-                      ) : (
-                        'Mailing Address'
-                      )
-                    }
-                  >
-                    <VoterMailingAddress
-                      voter={voter}
-                      style={
-                        voter.mailingAddressChange && {
-                          textDecoration: 'line-through',
+                {(hasMailingAddress(voter) || voter.mailingAddressChange) && (
+                  <Row style={{ gap: '1.5rem' }}>
+                    {hasMailingAddress(voter) && (
+                      <LabelledText
+                        style={{ width: '100%' }}
+                        label={
+                          voter.mailingAddressChange ? (
+                            <s>Mailing Address</s>
+                          ) : (
+                            'Mailing Address'
+                          )
                         }
-                      }
-                    />
-                  </LabelledText>
+                      >
+                        <VoterMailingAddress
+                          voter={voter}
+                          style={
+                            voter.mailingAddressChange && {
+                              textDecoration: 'line-through',
+                            }
+                          }
+                        />
+                      </LabelledText>
+                    )}
+                    {voter.mailingAddressChange && (
+                      <LabelledText
+                        label="Updated Mailing Address"
+                        style={{ width: '100%' }}
+                      >
+                        <MailingAddressChange
+                          address={voter.mailingAddressChange}
+                        />
+                      </LabelledText>
+                    )}
+                  </Row>
                 )}
-                {voter.mailingAddressChange && (
-                  <LabelledText
-                    label="Updated Mailing Address"
-                    style={{ width: '100%' }}
-                  >
-                    <MailingAddressChange
-                      address={voter.mailingAddressChange}
-                    />
-                  </LabelledText>
-                )}
-
                 <LabelledText label="Voter ID">{voter.voterId}</LabelledText>
               </Column>
             </Row>
