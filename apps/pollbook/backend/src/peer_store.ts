@@ -32,7 +32,7 @@ import { shouldPollbooksShareEvents } from './networking';
 const debug = rootDebug.extend('store:peer');
 
 export class PeerStore extends Store {
-  private readonly connectedPollbooks: Record<string, PollbookService> = {};
+  private connectedPollbooks: Record<string, PollbookService> = {};
 
   constructor(
     client: DbClient,
@@ -42,8 +42,7 @@ export class PeerStore extends Store {
   ) {
     super(client, machineId, codeVersion, logger);
 
-    // Reset knowledge of connected pollbook
-    this.client.run(`DELETE FROM machines`);
+    this.clearConnectedPollbooks();
   }
 
   /**
@@ -77,6 +76,11 @@ export class PeerStore extends Store {
       codeVersion,
       logger
     );
+  }
+
+  clearConnectedPollbooks(): void {
+    this.connectedPollbooks = {};
+    this.client.run(`DELETE FROM machines`);
   }
 
   setOnlineStatus(isOnline: boolean): void {

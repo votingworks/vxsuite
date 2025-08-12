@@ -69,7 +69,6 @@ import {
   NameChangeReceipt,
 } from './receipts';
 import { pollUsbDriveForPollbookPackage } from './pollbook_package';
-import { resetNetworkSetup } from './networking';
 import { UndoCheckInReceipt } from './receipts/undo_check_in_receipt';
 import { renderAndPrintReceipt } from './receipts/printing';
 import { UNCONFIGURE_LOCKOUT_TIMEOUT } from './globals';
@@ -687,7 +686,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
     },
 
     async resetNetwork(): Promise<boolean> {
-      await resetNetworkSetup(context.machineId);
+      await workspace.peerApiClient.resetNetwork();
       return true;
     },
 
