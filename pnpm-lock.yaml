@@ -2551,6 +2551,9 @@ importers:
       '@types/history':
         specifier: 4.7.11
         version: 4.7.11
+      '@types/kiosk-browser':
+        specifier: workspace:*
+        version: link:../../../libs/@types/kiosk-browser
       '@types/lodash.debounce':
         specifier: ^4.0.9
         version: 4.0.9
