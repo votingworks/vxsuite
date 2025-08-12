@@ -643,10 +643,16 @@ describe('common functionality', () => {
         newValue: '12345-6789',
       },
     ];
+
+    const updateButton = screen.getButton('Confirm Mailing Address Update');
     for (const part of addressParts) {
       const partInput = await screen.findByRole('textbox', {
         name: part.domElementText,
       });
+
+      // should be disabled until all required fields are filled
+      expect(updateButton).toBeDisabled();
+
       userEvent.type(partInput, part.newValue);
     }
 
@@ -676,7 +682,7 @@ describe('common functionality', () => {
         timestamp: new Date().toISOString(),
       },
     };
-    const updateButton = screen.getButton('Confirm Mailing Address Update');
+    expect(updateButton).not.toBeDisabled();
     userEvent.click(updateButton);
 
     apiMock.expectGetVoter(updatedVoter);
@@ -805,6 +811,29 @@ describe('common functionality', () => {
     await screen.findByText('Updated Mailing Address');
     await screen.findByText('100 1/2A STREET STREET #1');
     await screen.findByText('SOMEWHERE, AL 12345-6789');
+  });
+
+  test('absentee check-in shows "Absentee Checked In"', async () => {
+    const checkedInAbsenteeVoter: Voter = {
+      ...voter,
+      checkIn: {
+        identificationMethod: { type: 'default' },
+        timestamp: new Date().toISOString(),
+        isAbsentee: true,
+        receiptNumber: 0,
+        machineId: 'test-machine-01',
+        ballotParty: 'DEM',
+      },
+    };
+
+    apiMock.expectGetVoter(checkedInAbsenteeVoter);
+    apiMock.expectGetDeviceStatuses();
+    apiMock.setPrinterStatus(true);
+
+    await renderComponent();
+
+    // Verify that "Absentee" value appears
+    screen.getByRole('heading', { name: 'Absentee Checked In' });
   });
 });
 

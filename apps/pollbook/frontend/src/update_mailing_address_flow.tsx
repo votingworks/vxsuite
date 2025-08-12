@@ -67,7 +67,11 @@ function UpdateMailingAddressScreen({
     useState<VoterMailingAddressChangeRequest>(createBlankMailingAddress());
 
   const isMailingAddressValid =
-    mailingAddress.mailingCityTown !== '' && mailingAddress.mailingZip5 !== '';
+    mailingAddress.mailingCityTown !== '' &&
+    mailingAddress.mailingState !== '' &&
+    mailingAddress.mailingZip5.length === 5 &&
+    (mailingAddress.mailingZip4.length === 0 ||
+      mailingAddress.mailingZip4.length === 4);
 
   return (
     <NoNavScreen>
@@ -191,7 +195,6 @@ export function UpdateMailingAddressFlow({
               <H1>
                 Mailing address updated for <VoterName voter={voter} />
               </H1>
-              <p>Give the voter their receipt.</p>
             </FullScreenMessage>
           </Column>
           <Row style={{ padding: '1rem', justifyContent: 'flex-end' }}>

@@ -419,34 +419,40 @@ export function VoterDetailsScreen(): JSX.Element | null {
                   </LabelledText>
                 )}
               </Row>
-              {hasMailingAddress(voter) && (
-                <LabelledText
-                  style={{ width: '100%' }}
-                  label={
-                    voter.mailingAddressChange ? (
-                      <s>Mailing Address</s>
-                    ) : (
-                      'Mailing Address'
-                    )
-                  }
-                >
-                  <VoterMailingAddress
-                    voter={voter}
-                    style={
-                      voter.mailingAddressChange && {
-                        textDecoration: 'line-through',
+              {(hasMailingAddress(voter) || voter.mailingAddressChange) && (
+                <Row style={{ gap: '1.5rem' }}>
+                  {hasMailingAddress(voter) && (
+                    <LabelledText
+                      style={{ width: '100%' }}
+                      label={
+                        voter.mailingAddressChange ? (
+                          <s>Mailing Address</s>
+                        ) : (
+                          'Mailing Address'
+                        )
                       }
-                    }
-                  />
-                </LabelledText>
-              )}
-              {voter.mailingAddressChange && (
-                <LabelledText
-                  label="Updated Mailing Address"
-                  style={{ width: '100%' }}
-                >
-                  <MailingAddressChange address={voter.mailingAddressChange} />
-                </LabelledText>
+                    >
+                      <VoterMailingAddress
+                        voter={voter}
+                        style={
+                          voter.mailingAddressChange && {
+                            textDecoration: 'line-through',
+                          }
+                        }
+                      />
+                    </LabelledText>
+                  )}
+                  {voter.mailingAddressChange && (
+                    <LabelledText
+                      label="Updated Mailing Address"
+                      style={{ width: '100%' }}
+                    >
+                      <MailingAddressChange
+                        address={voter.mailingAddressChange}
+                      />
+                    </LabelledText>
+                  )}
+                </Row>
               )}
               <LabelledText label="Voter ID">{voter.voterId}</LabelledText>
             </Column>
@@ -501,7 +507,15 @@ export function VoterDetailsScreen(): JSX.Element | null {
             {voter.checkIn && (
               <React.Fragment>
                 <H2 style={{ marginTop: 0 }}>
-                  <Icons.Done /> Checked In
+                  {voter.checkIn.isAbsentee ? (
+                    <React.Fragment>
+                      <Icons.Envelope /> Absentee Checked In
+                    </React.Fragment>
+                  ) : (
+                    <React.Fragment>
+                      <Icons.Done /> Checked In{' '}
+                    </React.Fragment>
+                  )}
                 </H2>
                 <Column style={{ gap: '1rem' }}>
                   <LabelledText label="Time">
