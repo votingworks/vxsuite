@@ -643,10 +643,16 @@ describe('common functionality', () => {
         newValue: '12345-6789',
       },
     ];
+
+    const updateButton = screen.getButton('Confirm Mailing Address Update');
     for (const part of addressParts) {
       const partInput = await screen.findByRole('textbox', {
         name: part.domElementText,
       });
+
+      // should be disabled until all required fields are filled
+      expect(updateButton).toBeDisabled();
+
       userEvent.type(partInput, part.newValue);
     }
 
@@ -676,7 +682,7 @@ describe('common functionality', () => {
         timestamp: new Date().toISOString(),
       },
     };
-    const updateButton = screen.getButton('Confirm Mailing Address Update');
+    expect(updateButton).not.toBeDisabled();
     userEvent.click(updateButton);
 
     apiMock.expectGetVoter(updatedVoter);

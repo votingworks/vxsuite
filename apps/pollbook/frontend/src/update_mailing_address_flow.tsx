@@ -67,7 +67,11 @@ function UpdateMailingAddressScreen({
     useState<VoterMailingAddressChangeRequest>(createBlankMailingAddress());
 
   const isMailingAddressValid =
-    mailingAddress.mailingCityTown !== '' && mailingAddress.mailingZip5 !== '';
+    mailingAddress.mailingCityTown !== '' &&
+    mailingAddress.mailingState !== '' &&
+    mailingAddress.mailingZip5.length === 5 &&
+    (mailingAddress.mailingZip4.length === 0 ||
+      mailingAddress.mailingZip4.length === 4);
 
   return (
     <NoNavScreen>
