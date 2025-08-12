@@ -385,6 +385,42 @@ test('connection status between two pollbooks is managed properly', async () => 
         },
       });
     });
+    // Allow pollbook 2 to see itself to come back online and simulate a shutdown of pollbook 1, pollbook 2 should NOT transition pollbook 1 to shut down because it is in lost connection
+    vi.spyOn(AvahiService, 'discoverHttpServices').mockResolvedValue([
+      {
+        name: 'Pollbook-test-1',
+        host: 'local',
+        resolvedIp: 'localhost',
+        port: port2.toString(),
+      },
+    ]);
+    await extendedWaitFor(async () => {
+      vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+      expect(
+        await pollbookContext1.localApiClient.getDeviceStatuses()
+      ).toMatchObject({
+        network: {
+          isOnline: false,
+          pollbooks: [
+            expect.objectContaining({
+              status: PollbookConnectionStatus.ShutDown,
+            }),
+          ],
+        },
+      });
+      expect(
+        await pollbookContext2.localApiClient.getDeviceStatuses()
+      ).toMatchObject({
+        network: {
+          isOnline: true,
+          pollbooks: [
+            expect.objectContaining({
+              status: PollbookConnectionStatus.LostConnection,
+            }),
+          ],
+        },
+      });
+    });
 
     // Bring both machines back
     vi.spyOn(AvahiService, 'discoverHttpServices').mockResolvedValue([
