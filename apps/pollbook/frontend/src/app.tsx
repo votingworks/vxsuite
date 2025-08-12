@@ -153,7 +153,7 @@ export function App({
 }: {
   apiClient?: ApiClient;
 }): JSX.Element {
-  const logger = new BaseLogger(LogSource.VxPollBookFrontend);
+  const logger = new BaseLogger(LogSource.VxPollBookFrontend, window.kiosk);
 
   return (
     <AppBase

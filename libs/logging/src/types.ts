@@ -63,4 +63,5 @@ export const DEVICE_TYPES_FOR_APP: Dictionary<EventLogging.DeviceType> = {
   [LogSource.VxBallotActivationFrontend]:
     EventLogging.DeviceType.BallotActivation,
   [LogSource.VxMarkScanFrontend]: EventLogging.DeviceType.Bmd,
+  [LogSource.VxPollBookFrontend]: EventLogging.DeviceType.ElectronicPollBook,
 };

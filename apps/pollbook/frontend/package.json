@@ -80,6 +80,7 @@
     "@testing-library/user-event": "^13.5.0",
     "@types/debug": "4.1.8",
     "@types/history": "4.7.11",
+    "@types/kiosk-browser": "workspace:*",
     "@types/lodash.debounce": "^4.0.9",
     "@types/luxon": "^3.0.0",
     "@types/react": "18.3.3",

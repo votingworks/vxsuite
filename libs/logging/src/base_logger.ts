@@ -22,6 +22,7 @@ export const CLIENT_SIDE_LOG_SOURCES = [
   LogSource.VxBallotActivationFrontend,
   LogSource.VxMarkFrontend,
   LogSource.VxMarkScanFrontend,
+  LogSource.VxPollBookFrontend,
 ];
 
 const debug = makeDebug('logger');
