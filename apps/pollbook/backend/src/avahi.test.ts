@@ -132,7 +132,28 @@ describe('AvahiService.discoverHttpServices', () => {
     ]);
   });
 
-  it('returns [] if stderr is present', async () => {
+  it('returns parsed services on timeout', async () => {
+    const stdout =
+      '=;eth0;IPv4;service1;Web Site;local;host1.local;192.168.1.2;8080;\n=;eth0;IPv4;service2;Web Site;local;host2.local;192.168.1.3;8081;';
+    mockExecFileFn.mockResolvedValue({ stdout, stderr: 'SIGINT QUITING...' });
+    const services = await AvahiService.discoverHttpServices();
+    expect(services).toEqual([
+      {
+        name: 'service1',
+        host: 'host1.local',
+        resolvedIp: '192.168.1.2',
+        port: '8080',
+      },
+      {
+        name: 'service2',
+        host: 'host2.local',
+        resolvedIp: '192.168.1.3',
+        port: '8081',
+      },
+    ]);
+  });
+
+  it('returns [] if stderr is present and no stdout', async () => {
     mockExecFileFn.mockResolvedValue({ stdout: '', stderr: 'error' });
     const services = await AvahiService.discoverHttpServices();
     expect(services).toEqual([]);
