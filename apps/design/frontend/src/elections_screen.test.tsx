@@ -160,7 +160,7 @@ test('with elections', async () => {
     'Date',
     '', // Clone button column
   ]);
-  const rows = within(table).getAllByRole('row').slice(1);
+  let rows = within(table).getAllByRole('row').slice(1);
   expect(
     rows.map((row) =>
       within(row)
@@ -185,6 +185,32 @@ test('with elections', async () => {
       getCloneButtonText(electionListing(primary)),
     ],
   ]);
+
+  // Test filter
+  const filterInput = screen.getByLabelText(/filter elections/i);
+
+  // Search for general election title
+  userEvent.type(filterInput, general.election.title);
+
+  let filteredRows = within(table).getAllByRole('row').slice(1);
+  expect(filteredRows).toHaveLength(1);
+  expect(
+    within(filteredRows[0]).getByText(general.election.title)
+  ).toBeInTheDocument();
+
+  // Search for non-existent org
+  userEvent.clear(filterInput);
+  userEvent.type(filterInput, 'org0');
+  filteredRows = within(table).getAllByRole('row').slice(1);
+  expect(filteredRows).toHaveLength(0);
+
+  // Clear search to show all rows again
+  userEvent.clear(filterInput);
+
+  rows = within(table).getAllByRole('row').slice(1);
+  expect(rows).toHaveLength(2);
+  expect(within(rows[0]).getByText(general.election.title)).toBeInTheDocument();
+  expect(within(rows[1]).getByText(primary.election.title)).toBeInTheDocument();
 
   userEvent.click(within(rows[0]).getAllByRole('cell')[0]);
   await waitFor(() => {
