@@ -4,6 +4,7 @@ import { assert, sleep } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import { rootDebug } from './debug';
 import {
+  CommunicatingPollbookConnectionStatuses,
   PeerAppContext,
   PollbookConfigurationInformation,
   PollbookConnectionStatus,
@@ -244,7 +245,11 @@ export function setupMachineNetworking({
         // If there are any services that were previously connected that no longer show up in avahi
         // Mark them as shut down
         for (const [name, service] of Object.entries(previouslyConnected)) {
-          if (!services.some((s) => s.name === name)) {
+          // Only transition to shutdown for a service we are communicating with.
+          if (
+            !services.some((s) => s.name === name) &&
+            CommunicatingPollbookConnectionStatuses.includes(service.status)
+          ) {
             debug(
               'Marking %s as shut down as it is no longer published on Avahi',
               name
