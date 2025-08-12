@@ -50,6 +50,8 @@ export async function runPrintAndScanTask({
   printer,
   scannerClient,
   workspace,
+  setStatusMessage,
+  onScanningSessionChanged,
 }: ServerContext): Promise<void> {
   void printerTask.waitUntilIsStopped().then((reason = 'unknown') => {
     logger.log(LogEventId.BackgroundTaskCancelled, 'system', {
@@ -69,17 +71,14 @@ export async function runPrintAndScanTask({
   let shouldResetScanning = true;
 
   async function onScannerEvent(scannerEvent: ScannerEvent) {
-    workspace.store.setElectricalTestingStatusMessage(
-      'scanner',
-      `Received event: ${scannerEvent.event}`
-    );
+    setStatusMessage('scanner', `Received event: ${scannerEvent.event}`);
 
     if (scannerEvent.event === 'scanComplete') {
       const { session } = scannerTask.getState();
       lastScanTime = DateTime.now();
 
       const [front, back] = scannerEvent.images;
-      workspace.store.setElectricalTestingStatusMessage(
+      setStatusMessage(
         'scanner',
         `Scanned sheet: front=${front.width}×${front.height}, back=${back.width}×${back.height}`
       );
@@ -103,6 +102,7 @@ export async function runPrintAndScanTask({
           analysis,
         }))
       );
+      onScanningSessionChanged();
 
       if (
         isFeatureFlagEnabled(
@@ -136,10 +136,7 @@ export async function runPrintAndScanTask({
     if (scannerEvent.event === 'error') {
       lastScanTime = undefined;
       shouldResetScanning = true;
-      workspace.store.setElectricalTestingStatusMessage(
-        'scanner',
-        `Scanner error: ${scannerEvent.code}`
-      );
+      setStatusMessage('scanner', `Scanner error: ${scannerEvent.code}`);
     }
   }
 
@@ -190,7 +187,7 @@ export async function runPrintAndScanTask({
           printerStatus.scheme === 'hardware-v4' &&
           printerStatus.state !== 'idle'
         ) {
-          workspace.store.setElectricalTestingStatusMessage(
+          setStatusMessage(
             'printer',
             `Printer is in an unexpected state: ${inspect(printerStatus)}`
           );
@@ -199,10 +196,7 @@ export async function runPrintAndScanTask({
           DateTime.now().diff(lastPrintedAt).as('seconds') >
             PRINT_INTERVAL_SECONDS
         ) {
-          workspace.store.setElectricalTestingStatusMessage(
-            'printer',
-            'Printing…'
-          );
+          setStatusMessage('printer', 'Printing…');
 
           const result =
             (await printer.printImageData(printerTestImage)) ?? ok();
@@ -211,13 +205,10 @@ export async function runPrintAndScanTask({
             printerTask.setState({ lastPrintedAt: DateTime.now() });
           }
 
-          workspace.store.setElectricalTestingStatusMessage(
-            'printer',
-            resultToString(result)
-          );
+          setStatusMessage('printer', resultToString(result));
         }
       } catch (error) {
-        workspace.store.setElectricalTestingStatusMessage(
+        setStatusMessage(
           'printer',
           `Error while printing: ${extractErrorMessage(error)}`
         );
@@ -233,10 +224,7 @@ export async function runPrintAndScanTask({
       }
 
       if (shouldResetScanning) {
-        workspace.store.setElectricalTestingStatusMessage(
-          'scanner',
-          'Resetting scanning'
-        );
+        setStatusMessage('scanner', 'Resetting scanning');
 
         try {
           if (scannerClient.isConnected()) {
@@ -246,7 +234,7 @@ export async function runPrintAndScanTask({
             try {
               await onScannerEvent(event);
             } catch (error) {
-              workspace.store.setElectricalTestingStatusMessage(
+              setStatusMessage(
                 'scanner',
                 `Error during scanner event (${
                   event.event
@@ -257,19 +245,13 @@ export async function runPrintAndScanTask({
           await ejectPaper();
 
           if (mode === 'disabled') {
-            workspace.store.setElectricalTestingStatusMessage(
-              'scanner',
-              'Scanning disabled'
-            );
+            setStatusMessage('scanner', 'Scanning disabled');
           } else {
-            workspace.store.setElectricalTestingStatusMessage(
-              'scanner',
-              'Scanning enabled; waiting for paper'
-            );
+            setStatusMessage('scanner', 'Scanning enabled; waiting for paper');
           }
           shouldResetScanning = false;
         } catch (error) {
-          workspace.store.setElectricalTestingStatusMessage(
+          setStatusMessage(
             'scanner',
             `Error while resetting scanning: ${extractErrorMessage(error)}`
           );
@@ -286,24 +268,15 @@ export async function runPrintAndScanTask({
 
           switch (mode) {
             case 'shoe-shine':
-              workspace.store.setElectricalTestingStatusMessage(
-                'scanner',
-                'Ejected document to re-scan'
-              );
+              setStatusMessage('scanner', 'Ejected document to re-scan');
               break;
 
             case 'manual-front':
-              workspace.store.setElectricalTestingStatusMessage(
-                'scanner',
-                'Ejected document to front'
-              );
+              setStatusMessage('scanner', 'Ejected document to front');
               break;
 
             case 'manual-rear':
-              workspace.store.setElectricalTestingStatusMessage(
-                'scanner',
-                'Ejected document to rear'
-              );
+              setStatusMessage('scanner', 'Ejected document to rear');
               break;
 
             default:
@@ -325,17 +298,11 @@ export async function runPrintAndScanTask({
     ]);
   }
 
-  workspace.store.setElectricalTestingStatusMessage(
-    'scanner',
-    'Print and scan loop stopping'
-  );
+  setStatusMessage('scanner', 'Print and scan loop stopping');
 
   if (scannerClient.isConnected()) {
     await scannerClient.disconnect();
   }
 
-  workspace.store.setElectricalTestingStatusMessage(
-    'scanner',
-    'Scanner disconnected'
-  );
+  setStatusMessage('scanner', 'Scanner disconnected');
 }

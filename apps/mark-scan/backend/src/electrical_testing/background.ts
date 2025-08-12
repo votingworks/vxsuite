@@ -52,7 +52,7 @@ export async function runCardReadAndUsbDriveWriteTask({
     logger.log(LogEventId.BackgroundTaskCancelled, 'system', {
       message,
     });
-    workspace.store.setElectricalTestingStatusMessage('card', message);
+    setStatusMessage('card', message);
   });
 
   // eslint-disable-next-line no-constant-condition
@@ -71,7 +71,7 @@ export async function runCardReadAndUsbDriveWriteTask({
     if (cardTask.isRunning()) {
       const machineState = constructAuthMachineState(workspace);
       const cardReadResult = await auth.readCardData(machineState);
-      workspace.store.setElectricalTestingStatusMessage(
+      setStatusMessage(
         'card',
         resultToString(cardReadResult)
       );
@@ -89,7 +89,7 @@ export async function runCardReadAndUsbDriveWriteTask({
       } catch (error) {
         usbDriveWriteResult = err(error);
       }
-      workspace.store.setElectricalTestingStatusMessage(
+      setStatusMessage(
         'usbDrive',
         resultToString(usbDriveWriteResult)
       );
@@ -117,7 +117,7 @@ export async function runPrintAndScanTask({
   });
 
   function setPaperHandlerStatusMessage(message: string) {
-    workspace.store.setElectricalTestingStatusMessage('paperHandler', message);
+    setStatusMessage('paperHandler', message);
   }
 
   void paperHandlerTask.waitUntilIsStopped().then((reason) => {

@@ -11,12 +11,14 @@ import {
   createSystemCallApi,
   QUERY_CLIENT_DEFAULT_OPTIONS,
 } from '@votingworks/ui';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+
+const baseUrl = '/api';
 
 export type ApiClient = grout.Client<HWTA.Api>;
 
 export function createApiClient(): ApiClient {
-  return grout.createClient<HWTA.Api>({ baseUrl: '/api' });
+  return grout.createClient<HWTA.Api>({ baseUrl });
 }
 
 export const ApiClientContext = React.createContext<ApiClient | undefined>(
@@ -41,10 +43,8 @@ export const getElectricalTestingStatuses = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(),
-      () => apiClient.getElectricalTestingStatuses(),
-      { refetchInterval: 200 }
+    return useQuery(this.queryKey(), () =>
+      apiClient.getElectricalTestingStatuses()
     );
   },
 } as const;
@@ -174,10 +174,8 @@ export const getCurrentScanningSessionData = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(
-      getCurrentScanningSessionData.queryKey(),
-      () => apiClient.getCurrentScanningSessionData(),
-      { refetchInterval: 500 }
+    return useQuery(getCurrentScanningSessionData.queryKey(), () =>
+      apiClient.getCurrentScanningSessionData()
     );
   },
 } as const;
@@ -195,3 +193,64 @@ export const playSound = {
     return useMutation(apiClient.playSound);
   },
 } as const;
+
+export function useApiEvents(): void {
+  const queryClient = useQueryClient();
+  const [retry, setRetry] = useState(0);
+
+  useEffect(() => {
+    const websocket = new WebSocket(`${baseUrl}/events`);
+
+    websocket.onerror = (error) => {
+      console.error('WebSocket error:', error);
+      if (
+        websocket.readyState === WebSocket.CLOSING ||
+        websocket.readyState === WebSocket.CLOSED
+      ) {
+        setRetry((prev) => prev + 1);
+      }
+    };
+
+    websocket.onmessage = (event) => {
+      let parsed: any;
+      try {
+        parsed = grout.deserialize(event.data);
+      } catch (e) {
+        console.warn(
+          'Ignoring invalid data from websocket:',
+          event.data,
+          'Error:',
+          e
+        );
+        return;
+      }
+
+      switch (parsed.type) {
+        case 'status-messages-changed': {
+          queryClient.setQueryData(
+            getElectricalTestingStatuses.queryKey(),
+            parsed.payload
+          );
+          break;
+        }
+
+        case 'scanning-session-changed': {
+          queryClient.setQueryData(
+            getCurrentScanningSessionData.queryKey(),
+            parsed.payload
+          );
+          break;
+        }
+
+        default: {
+          console.warn('Ignoring unexpected payload type:', parsed.type);
+          break;
+        }
+      }
+    };
+
+    return () => {
+      websocket.close();
+    };
+  }, [retry]);
+}
