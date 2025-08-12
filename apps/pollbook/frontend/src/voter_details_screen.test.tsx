@@ -812,6 +812,29 @@ describe('common functionality', () => {
     await screen.findByText('100 1/2A STREET STREET #1');
     await screen.findByText('SOMEWHERE, AL 12345-6789');
   });
+
+  test('absentee check-in shows "Absentee Checked In"', async () => {
+    const checkedInAbsenteeVoter: Voter = {
+      ...voter,
+      checkIn: {
+        identificationMethod: { type: 'default' },
+        timestamp: new Date().toISOString(),
+        isAbsentee: true,
+        receiptNumber: 0,
+        machineId: 'test-machine-01',
+        ballotParty: 'DEM',
+      },
+    };
+
+    apiMock.expectGetVoter(checkedInAbsenteeVoter);
+    apiMock.expectGetDeviceStatuses();
+    apiMock.setPrinterStatus(true);
+
+    await renderComponent();
+
+    // Verify that "Absentee" value appears
+    screen.getByRole('heading', { name: 'Absentee Checked In' });
+  });
 });
 
 describe('primary election functionality', () => {

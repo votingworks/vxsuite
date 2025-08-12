@@ -507,7 +507,15 @@ export function VoterDetailsScreen(): JSX.Element | null {
             {voter.checkIn && (
               <React.Fragment>
                 <H2 style={{ marginTop: 0 }}>
-                  <Icons.Done /> Checked In
+                  {voter.checkIn.isAbsentee ? (
+                    <React.Fragment>
+                      <Icons.Envelope /> Absentee Checked In
+                    </React.Fragment>
+                  ) : (
+                    <React.Fragment>
+                      <Icons.Done /> Checked In{' '}
+                    </React.Fragment>
+                  )}
                 </H2>
                 <Column style={{ gap: '1rem' }}>
                   <LabelledText label="Time">
