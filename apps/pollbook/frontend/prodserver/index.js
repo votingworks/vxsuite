@@ -13,7 +13,7 @@ const { handleUncaughtExceptions } = require('@votingworks/backend');
 const proxy = require('./setupProxy');
 const app = express();
 const port = 3000;
-const logger = new Logger(LogSource.VxPollBookFrontendServer);
+const logger = new Logger(LogSource.VxPollBookFrontend);
 
 handleUncaughtExceptions(logger);
 
@@ -32,13 +32,13 @@ app.get('*', (req, res) => {
 app
   .listen(port, () => {
     logger.log(LogEventId.ApplicationStartup, 'system', {
-      message: `VxAdmin frontend running at http://localhost:${port}/`,
+      message: `VxPollbook frontend running at http://localhost:${port}/`,
       disposition: 'success',
     });
   })
   .on('error', (error) => {
     logger.log(LogEventId.ApplicationStartup, 'system', {
-      message: `Error in starting VxAdmin frontend: ${error.message}`,
+      message: `Error in starting VxPollbook frontend: ${error.message}`,
       disposition: 'failure',
     });
   });
