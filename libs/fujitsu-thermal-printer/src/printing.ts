@@ -7,7 +7,6 @@ import {
 } from '@votingworks/image-utils';
 import { BITS_PER_BYTE } from '@votingworks/message-coder';
 import { readFileSync } from 'node:fs';
-import { Buffer } from 'node:buffer';
 import {
   FujitsuThermalPrinterDriver,
   FujitsuThermalPrinterDriverInterface,
@@ -395,7 +394,7 @@ export async function printPdf(
   driver: FujitsuThermalPrinterDriverInterface,
   pdfData: Uint8Array
 ): Promise<Result<void, RawPrinterStatus>> {
-  const pdfImages = pdfToImages(Buffer.from(pdfData), {
+  const pdfImages = pdfToImages(pdfData, {
     scale: PDF_SCALE,
   });
   for await (const { page, pageNumber, pageCount } of pdfImages) {

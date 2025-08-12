@@ -85,7 +85,7 @@ export function wrapFujitsuThermalPrinter(
 ): Printer {
   return {
     scheme: 'hardware-v4',
-    printPdf: (data: Uint8Array) => printer.printPdf(Buffer.from(data)),
+    printPdf: (data: Uint8Array) => printer.printPdf(data),
     printImageData: (imageData: ImageData) => printer.printImageData(imageData),
     getStatus: async () => {
       const status = await printer.getStatus();
