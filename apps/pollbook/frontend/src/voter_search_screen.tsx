@@ -102,6 +102,18 @@ export function createEmptySearchParams(
   };
 }
 
+function documentMatchesParams(
+  document: AamvaDocument,
+  searchParams: VoterSearchParams
+) {
+  return (
+    document.firstName === searchParams.firstName &&
+    document.middleName === searchParams.middleName &&
+    document.lastName === searchParams.lastName &&
+    document.nameSuffix === searchParams.suffix
+  );
+}
+
 export function VoterSearch({
   search,
   setSearch,
@@ -192,11 +204,12 @@ export function VoterSearch({
       setSearch(merged);
       setVoterSearchParams(merged);
     }
-  }, [scannedIdDocument, setSearch]);
+  }, [scannedIdDocument, searchVotersQuery, setSearch]);
 
   useEffect(() => {
     if (
       scannedIdDocument &&
+      documentMatchesParams(scannedIdDocument, voterSearchParams) &&
       searchVotersQuery.isSuccess &&
       searchVotersQuery.data &&
       voterSearchParams.exactMatch
