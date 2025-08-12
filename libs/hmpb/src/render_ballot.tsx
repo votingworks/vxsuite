@@ -413,12 +413,10 @@ async function addQrCodesAndBallotHashes(
       `.${PAGE_CLASS}[data-page-number="${pageNumber}"] .${QR_CODE_SLOT_CLASS}`,
       qrCode
     );
-    if (pageNumber % 2 === 1) {
-      await document.setContent(
-        `.${PAGE_CLASS}[data-page-number="${pageNumber}"] .${BALLOT_HASH_SLOT_CLASS}`,
-        <>{formatBallotHash(metadata.ballotHash)}</>
-      );
-    }
+    await document.setContent(
+      `.${PAGE_CLASS}[data-page-number="${pageNumber}"] .${BALLOT_HASH_SLOT_CLASS}`,
+      <>{formatBallotHash(metadata.ballotHash)}</>
+    );
   }
 }
 

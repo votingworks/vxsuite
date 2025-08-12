@@ -613,39 +613,37 @@ export function Footer({
           <div>{endOfPageInstruction}</div>
         </Box>
       </div>
-      {pageNumber % 2 === 1 && (
-        <div
-          style={{
-            fontSize: '8pt',
-            display: 'flex',
-            justifyContent: 'space-between',
-            gap: '0.5rem',
-            borderWidth: '1px',
-            marginTop: '0.325rem',
-            // There's padding at the bottom of the timing mark grid that we
-            // want to eat into a little bit here, so we set a height that's
-            // slightly smaller than the actual height of this text and let it
-            // overflow a bit.
-            height: '0.5rem',
-          }}
-        >
-          <span>
-            Election:{' '}
-            <b>
-              <BallotHashSlot />
-            </b>
-          </span>
-          <span>
-            Ballot Style: <b>{ballotStyle.groupId}</b>
-          </span>
-          <span>
-            Precinct: <b>{precinct.name}</b>
-          </span>
-          <span>
-            Language: <b>{languageText}</b>
-          </span>
-        </div>
-      )}
+      <div
+        style={{
+          fontSize: '8pt',
+          display: 'flex',
+          justifyContent: 'space-between',
+          gap: '0.5rem',
+          borderWidth: '1px',
+          marginTop: '0.325rem',
+          // There's padding at the bottom of the timing mark grid that we
+          // want to eat into a little bit here, so we set a height that's
+          // slightly smaller than the actual height of this text and let it
+          // overflow a bit.
+          height: '0.5rem',
+        }}
+      >
+        <span>
+          Election:{' '}
+          <b>
+            <BallotHashSlot />
+          </b>
+        </span>
+        <span>
+          Ballot Style: <b>{ballotStyle.groupId}</b>
+        </span>
+        <span>
+          Precinct: <b>{precinct.name}</b>
+        </span>
+        <span>
+          Language: <b>{languageText}</b>
+        </span>
+      </div>
     </div>
   );
 }
