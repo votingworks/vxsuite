@@ -29,7 +29,7 @@ import type {
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import type { BatteryInfo } from '@votingworks/backend';
 import { format } from '@votingworks/utils';
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { throwIllegalValue } from '@votingworks/basics';
 import { Row } from './layout';
 import {
   getDeviceStatuses,
@@ -68,10 +68,16 @@ function getIconAndLabelForPollbookConnection(
   const typedStatus = pollbook.status;
   switch (typedStatus) {
     case PollbookConnectionStatus.Connected: {
-      assert(isCurrentMachineConfigured(currentMachineConfiguration));
+      if (isCurrentMachineConfigured(currentMachineConfiguration)) {
+        return [
+          <Icons.Checkmark key={pollbook.machineId} color="success" />,
+          'Synced',
+        ];
+      }
+      // The backend will update this pollbook to MismatchedConfiguration so just show that in the frontend premptively.
       return [
-        <Icons.Checkmark key={pollbook.machineId} color="success" />,
-        'Synced',
+        <Icons.Info key={pollbook.machineId} color="neutral" />,
+        'Connected',
       ];
     }
     case PollbookConnectionStatus.LostConnection: {
