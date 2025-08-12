@@ -24,6 +24,7 @@ import {
 } from './render_ballot';
 import { vxDefaultBallotTemplate } from './ballot_templates/vx_default_ballot_template';
 import * as timingMarkPaperTemplate from './timing_mark_paper/template';
+import * as calibrationSheetTemplate from './calibration_sheet/template';
 import { Renderer } from './renderer';
 import {
   NhBallotProps,
@@ -587,6 +588,37 @@ export const timingMarkPaperFixtures = (() => {
       debug(
         `Generating: timing-mark-paper@${spec.paperSize} (${spec.paperType})`
       );
+      return { pdf: await convertPdfToCmyk(await document.renderToPdf()) };
+    },
+  };
+})();
+
+export const calibrationSheetFixtures = (() => {
+  function specPaths(paperSize: HmpbBallotPaperSize): {
+    dir: string;
+    pdf: string;
+  } {
+    const dir = join(fixturesDir, 'calibration-sheet');
+    return {
+      dir,
+      pdf: join(dir, `calibration-sheet-${paperSize}.pdf`),
+    };
+  }
+
+  return {
+    specPaths,
+
+    fixtureSpecs: Object.values(HmpbBallotPaperSize),
+
+    async generate(
+      renderer: Renderer,
+      paperSize: HmpbBallotPaperSize
+    ): Promise<{ pdf: Uint8Array }> {
+      const document = await calibrationSheetTemplate.render(
+        renderer,
+        paperSize
+      );
+      debug(`Generating: calibration-sheet-${paperSize}.pdf`);
       return { pdf: await convertPdfToCmyk(await document.renderToPdf()) };
     },
   };
