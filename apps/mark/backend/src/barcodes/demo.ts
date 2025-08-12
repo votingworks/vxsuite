@@ -26,18 +26,16 @@ interface Context {
  * https://github.com/votingworks/vxsuite/issues/6864
  */
 export function setUpBarcodeDemo(ctx: Context): void {
-  ctx.logger.log(LogEventId.Info, 'system', {
-    message: 'listeneing for barcode scans...',
-  });
+  if (!ctx.barcodeClient) return;
 
-  ctx.barcodeClient?.on('error', (err) => {
+  ctx.barcodeClient.on('error', (err) => {
     ctx.logger.log(LogEventId.Info, 'system', {
       message: 'unexpected barcode reader error',
       error: util.inspect(err),
     });
   });
 
-  ctx.barcodeClient?.on('scan', async (data) => {
+  ctx.barcodeClient.on('scan', async (data) => {
     ctx.logger.log(LogEventId.Info, 'system', {
       message: `got scan: ${data}`,
     });
@@ -94,5 +92,9 @@ export function setUpBarcodeDemo(ctx: Context): void {
         precinctId,
       }
     );
+  });
+
+  ctx.logger.log(LogEventId.Info, 'system', {
+    message: 'listening for barcode scans...',
   });
 }
