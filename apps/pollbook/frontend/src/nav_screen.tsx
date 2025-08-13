@@ -70,7 +70,7 @@ function getIconAndLabelForPollbookConnection(
     case PollbookConnectionStatus.Connected: {
       if (isCurrentMachineConfigured(currentMachineConfiguration)) {
         return [
-          <Icons.Checkmark key={pollbook.machineId} color="success" />,
+          <Icons.Done key={pollbook.machineId} color="success" />,
           'Synced',
         ];
       }
@@ -177,10 +177,8 @@ function NetworkStatus({
         1 +
         status.pollbooks.filter(
           (pollbook) =>
-            pollbook.status ===
-            (isCurrentMachineConfigured(currentMachineConfiguration)
-              ? PollbookConnectionStatus.Connected
-              : PollbookConnectionStatus.MismatchedConfiguration)
+            pollbook.status === PollbookConnectionStatus.Connected ||
+            pollbook.status === PollbookConnectionStatus.MismatchedConfiguration
         ).length
       ) : isResetting ? (
         <Icons.Loading />

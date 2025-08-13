@@ -108,7 +108,8 @@ test('renders network status as expected - when unconfigured', async () => {
     },
   ]);
   vi.advanceTimersByTime(100);
-  // We should show that there are 3 connected machines on the network (the current machine plus two connected)
+  // We should show that there are 3 connected machines on the network
+  // (the current machine + 2 `MismatchedConfiguration` machines
   await within(networkElement).findByText('3');
 
   // Open the network modal
@@ -240,8 +241,9 @@ test('renders network status as expected - when configured', async () => {
     },
   ]);
   vi.advanceTimersByTime(100);
-  // We should show that there are 2 connected machines on the network (the current machine plus one connected)
-  await within(networkElement).findByText('2');
+  // We should show that there are 4 connected machines on the network
+  // (the current machine + 3 machines that are in `Connected` or `MismatchedConfiguration` state
+  await within(networkElement).findByText('4');
 
   // Open the network modal
   userEvent.click(icon);
@@ -263,15 +265,18 @@ test('renders network status as expected - when configured', async () => {
   expect(iconElement0).toMatchInlineSnapshot(`
     <svg
       aria-hidden="true"
-      class="sc-enkILE jmEncv"
-      height="100"
+      class="svg-inline--fa fa-circle-check "
+      data-icon="circle-check"
+      data-prefix="fas"
+      focusable="false"
       role="img"
       style="color: rgb(25, 72, 25);"
-      viewBox="0 0 100 100"
-      width="100"
+      viewBox="0 0 512 512"
+      xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        d="M89.7038 10.1045C88.2094 8.40006 85.759 8.40006 84.2646 10.1045L39.0198 61.5065L15.719 34.8471C14.2245 33.1364 11.7906 33.1364 10.2852 34.8471L2.12082 44.1186C0.626395 45.8105 0.626395 48.5951 2.12082 50.2996L36.2782 89.3708C37.7727 91.0628 40.2066 91.0628 41.7175 89.3708L97.8627 25.5632C99.3791 23.8587 99.3791 21.0679 97.8627 19.3572L89.7038 10.1045Z"
+        d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"
+        fill="currentColor"
       />
     </svg>
   `);
