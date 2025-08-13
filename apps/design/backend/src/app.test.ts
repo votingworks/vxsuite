@@ -1361,6 +1361,41 @@ test('CRUD contests', async () => {
     contest2,
   ]);
 
+  // Create another candidate contest
+
+  const contest3: CandidateContest = {
+    id: 'contest-3',
+    title: 'Contest 3',
+    type: 'candidate',
+    seats: 1,
+    allowWriteIns: true,
+    districtId: district1.id,
+    candidates: [
+      {
+        id: 'candidate-4',
+        firstName: 'Candidate',
+        middleName: 'N',
+        lastName: 'One',
+        name: 'Candidate N One',
+      },
+      {
+        id: 'candidate-5',
+        firstName: 'Candidate',
+        middleName: 'N',
+        lastName: 'Two',
+        name: 'Candidate N Two',
+      },
+    ],
+  };
+
+  await apiClient.createContest({ electionId, newContest: contest3 });
+  // Expect the candidate contest to be inserted ahead of the ballot measure
+  expect(await apiClient.listContests({ electionId })).toEqual([
+    contest1,
+    contest3,
+    contest2,
+  ]);
+
   // Update candidate contest
   const updatedContest1: CandidateContest = {
     ...contest1,
@@ -1385,6 +1420,7 @@ test('CRUD contests', async () => {
   // Expect contests to have their ballot order preserved
   expect(await apiClient.listContests({ electionId })).toEqual([
     updatedContest1,
+    contest3,
     contest2,
   ]);
 
@@ -1400,12 +1436,14 @@ test('CRUD contests', async () => {
   });
   expect(await apiClient.listContests({ electionId })).toEqual([
     updatedContest1,
+    contest3,
     updatedContest2,
   ]);
 
   // Delete a contest
   await apiClient.deleteContest({ electionId, contestId: updatedContest1.id });
   expect(await apiClient.listContests({ electionId })).toEqual([
+    contest3,
     updatedContest2,
   ]);
 
