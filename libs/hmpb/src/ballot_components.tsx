@@ -447,7 +447,7 @@ export function Instructions({
           padding: '0.5rem 0.5rem',
           display: 'grid',
           gap: '0.125rem 0.75rem',
-          gridTemplateColumns: '1fr 7rem 1.8fr 8rem',
+          gridTemplateColumns: '1fr 7rem 1.9fr 7.5rem',
         }}
       >
         <div>
