@@ -33,7 +33,12 @@ import { useQueryClient } from '@tanstack/react-query';
 import { usStates } from './us_states';
 import { Column, Form, Row, InputGroup } from './layout';
 import { NavScreen } from './nav_screen';
-import { getCheckInCounts, getScannedIdDocument, searchVoters } from './api';
+import {
+  flushScannedIdDocument,
+  getCheckInCounts,
+  getScannedIdDocument,
+  searchVoters,
+} from './api';
 import {
   AbsenteeModeCallout,
   AddressChange,
@@ -151,6 +156,8 @@ export function VoterSearch({
 
   const searchVotersQuery = searchVoters.useQuery(voterSearchParams);
   const getScannedIdDocumentQuery = getScannedIdDocument.useQuery();
+  const flushScannedIdDocumentMutation =
+    flushScannedIdDocument.useMutation().mutate;
 
   const barcodeScannerResponse = getScannedIdDocumentQuery.data;
 
@@ -185,6 +192,10 @@ export function VoterSearch({
     voterSearchParams.exactMatch;
 
   useEffect(() => {
+    flushScannedIdDocumentMutation();
+  }, [flushScannedIdDocumentMutation]);
+
+  useEffect(() => {
     if (barcodeScannerError?.message === 'unknown_document_type') {
       setDisplayUnknownScanError(true);
     }
@@ -204,11 +215,14 @@ export function VoterSearch({
       setSearch(merged);
       setVoterSearchParams(merged);
     }
-  }, [scannedIdDocument, searchVotersQuery, setSearch]);
+  }, [scannedIdDocument, setSearch]);
 
   useEffect(() => {
     if (
       scannedIdDocument &&
+      // This effect will trigger before search params are updated.
+      // Check that the current ID document matches the search params before
+      // potentially automatically navigating to voter details page, check in page, etc.
       documentMatchesParams(scannedIdDocument, voterSearchParams) &&
       searchVotersQuery.isSuccess &&
       searchVotersQuery.data &&
