@@ -102,6 +102,12 @@ export interface SystemSettings {
    * of a scale. In practice, this value should be between 0.9 and 1.0.
    */
   readonly minimumDetectedScale?: number;
+
+  /**
+   * When enabled, voters may select select additional candidates beyond the
+   * contest seat limit.
+   */
+  readonly bmdAllowOvervotes?: boolean;
 }
 
 export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
@@ -124,6 +130,7 @@ export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
   precinctScanEnableBallotAuditIds: z.boolean().optional(),
   precinctScanEnableBmdBallotScanning: z.boolean().optional(),
   minimumDetectedScale: z.number().min(0.0).max(1.0).optional(),
+  bmdAllowOvervotes: z.boolean().optional(),
 });
 
 /**

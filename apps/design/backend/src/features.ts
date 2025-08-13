@@ -76,6 +76,10 @@ enum UserFeature {
    * Allow the user to select ballot languages.
    */
   BALLOT_LANGUAGE_CONFIG = 'BALLOT_LANGUAGE_CONFIG',
+  /**
+   * Allow the user to toggle the ability to mark overvotes on VxMark.
+   */
+  BMD_OVERVOTE_ALLOW_TOGGLE = 'BMD_OVERVOTE_ALLOW_TOGGLE',
 }
 
 /**
@@ -120,6 +124,7 @@ export const userFeatureConfigs = {
 
     SYSTEM_SETTINGS_SCREEN: true,
     ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: true,
+    BMD_OVERVOTE_ALLOW_TOGGLE: true,
     MINIMUM_DETECTED_SCALE_OPTION: true,
 
     EXPORT_SCREEN: true,
@@ -140,6 +145,7 @@ export const userFeatureConfigs = {
 
     SYSTEM_SETTINGS_SCREEN: true,
     ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: false,
+    BMD_OVERVOTE_ALLOW_TOGGLE: false,
     MINIMUM_DETECTED_SCALE_OPTION: false,
 
     EXPORT_SCREEN: true,
@@ -160,6 +166,7 @@ export const userFeatureConfigs = {
 
     SYSTEM_SETTINGS_SCREEN: true,
     ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: true,
+    BMD_OVERVOTE_ALLOW_TOGGLE: false,
     MINIMUM_DETECTED_SCALE_OPTION: false,
 
     EXPORT_SCREEN: true,
@@ -180,6 +187,7 @@ export const userFeatureConfigs = {
 
     SYSTEM_SETTINGS_SCREEN: false,
     ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: false,
+    BMD_OVERVOTE_ALLOW_TOGGLE: false,
     MINIMUM_DETECTED_SCALE_OPTION: false,
 
     EXPORT_SCREEN: false,
