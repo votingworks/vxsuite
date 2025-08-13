@@ -414,12 +414,12 @@ test('set ballot template', async () => {
     .resolves();
   apiMock.getBallotTemplate.expectCallWith({ electionId }).resolves('NhBallot');
   userEvent.click(select);
-  userEvent.click(screen.getByText('New Hampshire Ballot - V4'));
+  userEvent.click(screen.getByText('New Hampshire Ballot'));
 
   await waitFor(() => {
     apiMock.assertComplete();
   });
-  screen.getByText('New Hampshire Ballot - V4');
+  screen.getByText('New Hampshire Ballot');
 });
 
 test('view ballot proofing status and unfinalize ballots', async () => {
