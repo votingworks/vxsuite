@@ -196,12 +196,7 @@ export function InstructionsDiagramWriteIn({
         strokeWidth="2"
         strokeMiterlimit="10"
       />
-      <defs>
-        <clipPath id="clip0_1_26">
-          <rect width="257" height="90" transform="translate(1.08 1)" />
-        </clipPath>
-      </defs>
-      <foreignObject x="65" y="51" width="200" height="50">
+      <foreignObject x="65" y="51" width="150" height="50">
         <div
           style={
             // Flip text again to make it readable since we are flipping the
@@ -220,6 +215,11 @@ export function InstructionsDiagramWriteIn({
           {writeInLabel}
         </div>
       </foreignObject>
+      <defs>
+        <clipPath id="clip0_1_26">
+          <rect width="257" height="90" transform="translate(1.08 1)" />
+        </clipPath>
+      </defs>
     </svg>
   );
 }
