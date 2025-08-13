@@ -23,8 +23,6 @@ import {
 import { assert, iter } from '@votingworks/basics';
 import { BitReader, BitWriter, CustomEncoding, Uint8, Uint8Size } from './bits';
 
-export * as v3 from './v3';
-
 /**
  * Maximum number of characters in a write-in.
  */
