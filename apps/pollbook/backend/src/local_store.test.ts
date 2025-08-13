@@ -40,6 +40,7 @@ test('findVotersWithName works as expected - voters without name changes', () =>
       middleName: 'Samantha',
       suffix: 'II',
     }),
+    createVoter('16', 'Mont', 'St. Michel'),
   ];
   const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
   localStore.setElectionAndVoters(
@@ -149,6 +150,33 @@ test('findVotersWithName works as expected - voters without name changes', () =>
     expect.arrayContaining([
       expect.objectContaining({ voterId: voters[4].voterId }),
       expect.objectContaining({ voterId: voters[5].voterId }),
+    ])
+  );
+
+  // Test period chars
+  expect(
+    localStore.findVotersWithName({
+      firstName: 'Dy.lan',
+      lastName: '.obrien',
+      middleName: 'mid.',
+      suffix: 'i.',
+    })
+  ).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ voterId: voters[0].voterId }),
+    ])
+  );
+
+  expect(
+    localStore.findVotersWithName({
+      firstName: 'Mont',
+      lastName: 'StMichel',
+      middleName: '',
+      suffix: '',
+    })
+  ).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ voterId: voters[6].voterId }),
     ])
   );
 });
