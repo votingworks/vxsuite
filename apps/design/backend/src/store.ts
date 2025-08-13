@@ -343,6 +343,37 @@ async function insertContest(
           );
         }
       }
+
+      // If ballotOrder is undefined, reorder this candidate contest before the first ballot measure
+      if (ballotOrder === undefined) {
+        // Get all current contests in order
+        const { rows: allContests } = await client.query(
+          `select id, type from contests 
+           where election_id = $1 
+           order by ballot_order`,
+          electionId
+        );
+        const contestIds = allContests.map((row) => row.id);
+        const firstBallotMeasureIndex = allContests.findIndex(
+          (row) => row.type === 'yesno'
+        );
+        if (firstBallotMeasureIndex !== -1) {
+          // Remove the newly inserted contest from its current position (should be last)
+          const newContestIndex = contestIds.indexOf(contest.id);
+          assert(newContestIndex === contestIds.length - 1);
+          contestIds.splice(newContestIndex, 1);
+          contestIds.splice(firstBallotMeasureIndex, 0, contest.id);
+
+          // Apply the new order using reorderContests logic
+          for (const contestId of contestIds) {
+            await client.query(
+              `update contests set ballot_order = DEFAULT where id = $1 and election_id = $2`,
+              contestId,
+              electionId
+            );
+          }
+        }
+      }
       break;
     }
 
