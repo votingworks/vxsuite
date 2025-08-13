@@ -16,11 +16,11 @@ import {
   createMockVoter,
 } from '../test/mock_api_client';
 import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals';
-import { DEFAULT_QUERY_REFETCH_INTERVAL } from './api';
 import {
   getMockAamvaDocument,
   getMockExactSearchParams,
 } from '../test/aamva_fixtures';
+import { DEFAULT_QUERY_REFETCH_INTERVAL } from './api';
 
 let apiMock: ApiMock;
 const famousNamesElection: Election =
@@ -78,9 +78,6 @@ describe('PollWorkerScreen', () => {
     apiMock.expectSearchVotersTooMany({ firstName: '', lastName: 'SM' }, 153);
     const lastNameInput = screen.getByLabelText('Last Name');
     userEvent.type(lastNameInput, 'SM');
-    act(() => {
-      vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
-    });
     await screen.findByText(
       'Voters matched: 153. Refine your search further to view results.'
     );
@@ -101,9 +98,6 @@ describe('PollWorkerScreen', () => {
     userEvent.type(lastNameInput, 'AD');
     const firstNameInput = screen.getByLabelText('First Name');
     userEvent.type(firstNameInput, 'ABI');
-    act(() => {
-      vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
-    });
     const firstRow = await screen.findByTestId('voter-row#123');
     within(firstRow).getByText(/Adams, Abigail/i);
     within(firstRow).getByText(
@@ -174,10 +168,6 @@ describe('PollWorkerScreen', () => {
     userEvent.type(lastNameInput, 'AD');
     const firstNameInput = screen.getByLabelText('First Name');
     userEvent.type(firstNameInput, 'ABI');
-
-    act(() => {
-      vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
-    });
 
     const firstRow = await screen.findByTestId('voter-row#123');
     within(firstRow).getByText(/Adams, Abigail/i);
@@ -254,9 +244,6 @@ describe('PollWorkerScreen', () => {
     userEvent.type(lastNameInput, 'AD');
     const firstNameInput = screen.getByLabelText('First Name');
     userEvent.type(firstNameInput, 'ABI');
-    act(() => {
-      vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
-    });
     const firstRow = await vi.waitFor(() =>
       screen.getByTestId('voter-row#123')
     );
@@ -316,12 +303,15 @@ describe('PollWorkerScreen', () => {
       // API returns a new barcode scan so we expect search and the getVoter endpoint
       // to be queried with the new voter
       apiMock.expectGetScannedIdDocument(mockAamvaDocument);
-      apiMock.expectSearchVotersWithResults(mockSearchParams, [mockVoter]);
-      apiMock.expectGetVoter(mockVoter);
 
-      act(() => {
-        vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
-      });
+      // Set up expectation for search with extracted parameters after the timer
+      apiMock.expectSearchVotersWithResultsToChangeFromEmpty(
+        {},
+        mockSearchParams,
+        [mockVoter]
+      );
+      apiMock.expectGetVoter(mockVoter);
+      await act(() => vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL));
 
       // Expect voter check-in screen to be rendered
       await screen.findByRole('heading', { name: 'Confirm Voter Identity' });
@@ -375,9 +365,6 @@ describe('PollWorkerScreen', () => {
       apiMock.expectSearchVotersTooMany({ firstName: '', lastName: 'SM' }, 153);
       const lastNameInput = screen.getByLabelText('Last Name');
       userEvent.type(lastNameInput, 'SM');
-      act(() => {
-        vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
-      });
       await screen.findByText(
         'Voters matched: 153. Refine your search further to view results.'
       );
@@ -392,9 +379,6 @@ describe('PollWorkerScreen', () => {
       userEvent.type(lastNameInput, 'AD');
       const firstNameInput = screen.getByLabelText('First Name');
       userEvent.type(firstNameInput, 'ABI');
-      act(() => {
-        vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
-      });
       await screen.findByText(/Adams, Abigail/i);
       const checkInButton = screen.getByTestId('check-in-button#123');
       within(checkInButton).getByText('Start Check-In');

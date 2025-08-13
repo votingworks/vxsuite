@@ -394,6 +394,25 @@ export function createApiMock() {
         .resolves(voters);
     },
 
+    expectSearchVotersWithResultsToChangeFromEmpty(
+      oldInput: Partial<VoterSearchParams>,
+      newInput: Partial<VoterSearchParams>,
+      voters: Voter[]
+    ) {
+      mockApiClient.searchVoters.reset();
+      mockApiClient.searchVoters
+        .expectOptionalRepeatedCallsWith({
+          searchParams: getDefaultExpectedVoterSearchParams(oldInput),
+        })
+        .resolves(voters);
+
+      mockApiClient.searchVoters
+        .expectRepeatedCallsWith({
+          searchParams: getDefaultExpectedVoterSearchParams(newInput),
+        })
+        .resolves(voters);
+    },
+
     expectGetVoter(voter: Voter) {
       mockApiClient.getVoter.reset();
       mockApiClient.getVoter
