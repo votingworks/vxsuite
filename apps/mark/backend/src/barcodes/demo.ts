@@ -81,9 +81,7 @@ export function setUpBarcodeDemo(ctx: Context): void {
       precinctId,
     });
 
-    // [TODO] Re-enable when we figure out how to turn the barcode scanneer's
-    // beeps off:
-    // void ctx.audioPlayer.play('success');
+    void ctx.audioPlayer?.play('success');
 
     await ctx.auth.startCardlessVoterSession(
       constructAuthMachineState(ctx.workspace),
