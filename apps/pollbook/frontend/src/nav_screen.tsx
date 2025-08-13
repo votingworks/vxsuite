@@ -177,8 +177,8 @@ function NetworkStatus({
         1 +
         status.pollbooks.filter(
           (pollbook) =>
-            pollbook.status !== PollbookConnectionStatus.LostConnection &&
-            pollbook.status !== PollbookConnectionStatus.ShutDown
+            pollbook.status === PollbookConnectionStatus.Connected ||
+            pollbook.status === PollbookConnectionStatus.MismatchedConfiguration
         ).length
       ) : isResetting ? (
         <Icons.Loading />
