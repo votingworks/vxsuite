@@ -9,7 +9,6 @@ import {
   UiStringsPackage,
 } from '@votingworks/types';
 import { TestLanguageCode } from '@votingworks/test-utils';
-import { BallotTemplateId } from '@votingworks/hmpb';
 import { expect, test } from 'vitest';
 import { assertDefined, find } from '@votingworks/basics';
 import {
@@ -41,27 +40,21 @@ test('createBallotPropsForTemplate', () => {
     expect(props.compact).toEqual(false);
   }
 
-  const nhTemplates: BallotTemplateId[] = ['NhBallot', 'NhBallotV3'];
-  for (const templateId of nhTemplates) {
-    const nhBallotProps = createBallotPropsForTemplate(
-      templateId,
-      election,
-      ballotStyles,
-      true
-    );
-    for (const props of nhBallotProps) {
-      expect(props.compact).toEqual(true);
-      const precinct = find(
-        election.precincts,
-        (p) => p.id === props.precinctId
-      );
-      if (hasSplits(precinct)) {
-        expect('electionTitleOverride' in props).toEqual(true);
-        expect('electionSealOverride' in props).toEqual(true);
-        expect('clerkSignatureImage' in props).toEqual(true);
-        expect('clerkSignatureCaption' in props).toEqual(true);
-        expect('colorTint' in props).toEqual(true);
-      }
+  const nhBallotProps = createBallotPropsForTemplate(
+    'NhBallot',
+    election,
+    ballotStyles,
+    true
+  );
+  for (const props of nhBallotProps) {
+    expect(props.compact).toEqual(true);
+    const precinct = find(election.precincts, (p) => p.id === props.precinctId);
+    if (hasSplits(precinct)) {
+      expect('electionTitleOverride' in props).toEqual(true);
+      expect('electionSealOverride' in props).toEqual(true);
+      expect('clerkSignatureImage' in props).toEqual(true);
+      expect('clerkSignatureCaption' in props).toEqual(true);
+      expect('colorTint' in props).toEqual(true);
     }
   }
 });

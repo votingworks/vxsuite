@@ -61,22 +61,6 @@ describe('rotateCandidates', () => {
       },
     ]);
     expect(
-      (rotateCandidates(contest, 'NhBallotV3') as CandidateContest).candidates
-    ).toEqual([
-      {
-        id: '1',
-        name: 'Martha Jones',
-      },
-      {
-        id: '3',
-        name: 'Larry Smith',
-      },
-      {
-        id: '2',
-        name: 'John Zorro',
-      },
-    ]);
-    expect(
       (rotateCandidates(contest, 'VxDefaultBallot') as CandidateContest)
         .candidates
     ).toEqual([
