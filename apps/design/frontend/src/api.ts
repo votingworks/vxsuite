@@ -434,9 +434,11 @@ export const createContest = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.createContest, {
-      async onSuccess(_, { electionId }) {
-        await invalidateElectionQueries(queryClient, electionId);
-        await queryClient.refetchQueries(listContests.queryKey(electionId));
+      async onSuccess(result, { electionId }) {
+        if (result.isOk()) {
+          await invalidateElectionQueries(queryClient, electionId);
+          await queryClient.refetchQueries(listContests.queryKey(electionId));
+        }
       },
     });
   },
@@ -447,8 +449,10 @@ export const updateContest = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.updateContest, {
-      async onSuccess(_, { electionId }) {
-        await invalidateElectionQueries(queryClient, electionId);
+      async onSuccess(result, { electionId }) {
+        if (result.isOk()) {
+          await invalidateElectionQueries(queryClient, electionId);
+        }
       },
     });
   },

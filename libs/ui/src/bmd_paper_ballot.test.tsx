@@ -168,11 +168,13 @@ test('BmdPaperBallot uses yes/no option labels if present', () => {
 
   screen.getByText(
     hasTextAcrossElements(
-      /Ballot Measure 1.?FOR APPROVAL OF EITHER Initiative No. 12 OR Alternative Initiative No. 12 A/
+      /Ballot Measure 1 - Part 1.?FOR APPROVAL OF EITHER Initiative No. 12 OR Alternative Initiative No. 12 A/
     )
   );
   screen.getByText(
-    hasTextAcrossElements(/Ballot Measure 1.?FOR Alternative Measure No. 12 A/)
+    hasTextAcrossElements(
+      /Ballot Measure 1 - Part 2.?FOR Alternative Measure No. 12 A/
+    )
   );
 });
 
