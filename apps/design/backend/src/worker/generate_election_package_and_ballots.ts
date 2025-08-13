@@ -169,7 +169,7 @@ export async function generateElectionPackageAndBallots(
   }
 
   const renderer = await createPlaywrightRenderer();
-  const { electionDefinition, ballotDocuments } =
+  const { electionDefinition, ballotPdfs } =
     await renderAllBallotsAndCreateElectionDefinition(
       renderer,
       ballotTemplates[ballotTemplateId],
@@ -226,8 +226,7 @@ export async function generateElectionPackageAndBallots(
   combinedZip.file(electionPackageFileName, electionPackageZipContents);
 
   // Make ballot zip
-  for (const [props, document] of iter(allBallotProps).zip(ballotDocuments)) {
-    const ballotPdf = await renderBallotPdf(props, document);
+  for (const [props, ballotPdf] of iter(allBallotProps).zip(ballotPdfs)) {
     const { precinctId, ballotStyleId, ballotType, ballotMode, ballotAuditId } =
       props;
     const precinct = assertDefined(getPrecinctById({ election, precinctId }));
