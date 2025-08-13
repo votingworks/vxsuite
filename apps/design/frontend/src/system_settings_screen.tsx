@@ -533,6 +533,19 @@ export function SystemSettingsForm({
                     disabled={!isEditing}
                   />
                 )}
+                {features.BMD_OVERVOTE_ALLOW_TOGGLE && (
+                  <CheckboxButton
+                    label="Allow Overvote Marking on VxMark"
+                    isChecked={Boolean(systemSettings.bmdAllowOvervotes)}
+                    onChange={(isChecked) =>
+                      setSystemSettings({
+                        ...systemSettings,
+                        bmdAllowOvervotes: isChecked ? true : undefined, // Completely omit when unchecked
+                      })
+                    }
+                    disabled={!isEditing}
+                  />
+                )}
                 <CheckboxGroup
                   label="CVR"
                   options={cvrOptions}

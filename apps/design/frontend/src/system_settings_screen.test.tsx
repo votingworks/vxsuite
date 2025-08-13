@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import {
   AdjudicationReason,
   DEFAULT_SYSTEM_SETTINGS,
@@ -505,7 +505,7 @@ test('all controls are disabled until clicking "Edit"', async () => {
   const allCheckboxes = document.body.querySelectorAll('[role=checkbox]');
   const allControls = [...allTextBoxes, ...allCheckboxes];
 
-  expect(allControls).toHaveLength(23);
+  expect(allControls).toHaveLength(24);
 
   for (const control of allControls) {
     expect(control).toBeDisabled();
@@ -516,4 +516,62 @@ test('all controls are disabled until clicking "Edit"', async () => {
   for (const control of allControls) {
     expect(control).not.toBeDisabled();
   }
+});
+
+describe('BMD overvote toggle', () => {
+  test('omitted when feature flag is off', async () => {
+    apiMock.getSystemSettings
+      .expectCallWith({ electionId })
+      .resolves(electionRecord.systemSettings);
+
+    mockUserFeatures(apiMock, { BMD_OVERVOTE_ALLOW_TOGGLE: false });
+
+    renderScreen();
+
+    await screen.findByRole('heading', { name: 'System Settings' });
+    expect(
+      screen.queryByText(/allow overvote marking/i)
+    ).not.toBeInTheDocument();
+  });
+
+  test('included when feature flag is on', async () => {
+    const mockSettingsInitial: SystemSettings = {
+      ...electionRecord.systemSettings,
+      bmdAllowOvervotes: true,
+    };
+
+    apiMock.getSystemSettings
+      .expectCallWith({ electionId })
+      .resolves(mockSettingsInitial);
+
+    mockUserFeatures(apiMock, { BMD_OVERVOTE_ALLOW_TOGGLE: true });
+
+    renderScreen();
+
+    await screen.findByRole('heading', { name: 'System Settings' });
+    screen.getByText(/allow overvote marking/i);
+
+    userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+
+    userEvent.click(
+      screen.getByRole('checkbox', {
+        name: /allow overvote marking/i,
+        checked: true,
+      })
+    );
+
+    const mockSettingsFinal: SystemSettings = {
+      ...mockSettingsInitial,
+      bmdAllowOvervotes: undefined,
+    };
+    apiMock.updateSystemSettings
+      .expectCallWith({ electionId, systemSettings: mockSettingsFinal })
+      .resolves();
+
+    apiMock.getSystemSettings
+      .expectCallWith({ electionId })
+      .resolves(mockSettingsFinal);
+
+    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  });
 });
