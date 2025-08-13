@@ -168,6 +168,7 @@ test('app config - polling usb from backend does trigger with system admin auth'
     expect(await localApiClient.getElection()).toEqual(err('unconfigured'));
 
     mockSystemAdministratorAuth(auth);
+    mockUsbDrive.removeUsbDrive();
     vitest.advanceTimersByTime(CONFIGURATION_POLLING_INTERVAL);
     expect(await localApiClient.getElection()).toEqual(err('unconfigured'));
 
