@@ -383,6 +383,8 @@ export class LocalStore extends Store {
     const firstNamePattern = toPatternMatches(nameData.firstName);
     const middleNamePattern = toPatternMatches(nameData.middleName);
     const suffixPattern = toPatternMatches(nameData.suffix);
+    const { configuredPrecinctId } = this.getPollbookConfigurationInformation();
+
     // Query the database for voters matching the first and last name criteria, we don't track the updated suffix/middle name
     // columns in the database so we will filter those from the results later.
     const voterRows = this.client.all(
@@ -428,7 +430,12 @@ export class LocalStore extends Store {
 
     // Convert event rows to pollbook events and apply them to the voters
     const events = convertDbRowsToPollbookEvents(eventRows);
-    return Object.values(applyPollbookEventsToVoters(voters, events));
+    const updatedVoters = applyPollbookEventsToVoters(voters, events);
+
+    return sortedByVoterNameAndMatchingPrecinct(
+      Object.values(updatedVoters),
+      configuredPrecinctId
+    );
   }
 
   registerVoter(voterRegistration: VoterRegistrationRequest): {
