@@ -1,8 +1,16 @@
 import React from 'react';
 
-export function InstructionsDiagramFillBubble(): JSX.Element {
+export function InstructionsDiagramFillBubble({
+  bubbleSide,
+}: {
+  bubbleSide: 'left' | 'right';
+}): JSX.Element {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 259.2 122.73">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 259.2 122.73"
+      style={{ transform: bubbleSide === 'right' ? 'scaleX(-1)' : undefined }}
+    >
       <title>instructions-diagram-fill-bubble</title>
       <rect x={14} y={12} width={45} height={30} rx={15} ry={15} />
       <rect
@@ -109,11 +117,17 @@ export function InstructionsDiagramFillBubble(): JSX.Element {
 
 export function InstructionsDiagramWriteIn({
   writeInLabel,
+  bubbleSide,
 }: {
   writeInLabel: React.ReactNode;
+  bubbleSide: 'left' | 'right';
 }): JSX.Element {
   return (
-    <svg viewBox="0 0 260 92" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      viewBox="0 0 260 92"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ transform: bubbleSide === 'right' ? 'scaleX(-1)' : undefined }}
+    >
       <title>instructions-diagram-write-in</title>
       <path d="M65.46 50.64H236.45Z" fill="black" />
       <path
@@ -181,7 +195,20 @@ export function InstructionsDiagramWriteIn({
         fill="none"
       />
       <foreignObject x="65" y="51" width="200" height="50">
-        {writeInLabel}
+        <div
+          style={
+            // Flip text again to make it readable since we are flipping the
+            // entire SVG
+            bubbleSide === 'right'
+              ? {
+                  transform: 'scaleX(-1)',
+                  textAlign: 'right',
+                }
+              : {}
+          }
+        >
+          {writeInLabel}
+        </div>
       </foreignObject>
     </svg>
   );

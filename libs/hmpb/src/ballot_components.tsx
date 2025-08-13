@@ -424,20 +424,18 @@ export const Box = styled.div<{
 
 export function WriteInLabel(): React.ReactElement {
   return (
-    <span>
-      <DualLanguageText delimiter="/">
-        {hmpbStrings.hmpbWriteIn}
-      </DualLanguageText>
-    </span>
+    <DualLanguageText delimiter="/">{hmpbStrings.hmpbWriteIn}</DualLanguageText>
   );
 }
 
 export function Instructions({
   languageCode,
   colorTint,
+  bubbleSide = 'left',
 }: {
   languageCode?: string;
   colorTint?: ColorTint;
+  bubbleSide?: 'left' | 'right';
 }): React.ReactElement {
   // To minimize vertical space used, we do a slightly different layout for
   // English-only vs bilingual ballots.
@@ -458,7 +456,7 @@ export function Instructions({
           <div>{hmpbStrings.hmpbInstructionsToVoteText}</div>
         </div>
         <div style={{ alignSelf: 'center' }}>
-          <InstructionsDiagramFillBubble />
+          <InstructionsDiagramFillBubble bubbleSide={bubbleSide} />
         </div>
 
         <div>
@@ -466,7 +464,10 @@ export function Instructions({
           <div>{hmpbStrings.hmpbInstructionsWriteInText}</div>
         </div>
         <div style={{ alignSelf: 'center' }}>
-          <InstructionsDiagramWriteIn writeInLabel={<WriteInLabel />} />
+          <InstructionsDiagramWriteIn
+            writeInLabel={<WriteInLabel />}
+            bubbleSide={bubbleSide}
+          />
         </div>
       </Box>
     );
@@ -490,7 +491,7 @@ export function Instructions({
 
       {/* Row 2 */}
       <div style={{ alignSelf: 'center' }}>
-        <InstructionsDiagramFillBubble />
+        <InstructionsDiagramFillBubble bubbleSide={bubbleSide} />
       </div>
       <DualLanguageText>
         <div>
@@ -501,7 +502,10 @@ export function Instructions({
 
       {/* Row 3 */}
       <div style={{ alignSelf: 'center' }}>
-        <InstructionsDiagramWriteIn writeInLabel={<WriteInLabel />} />
+        <InstructionsDiagramWriteIn
+          writeInLabel={<WriteInLabel />}
+          bubbleSide={bubbleSide}
+        />
       </div>
       <DualLanguageText>
         <div>

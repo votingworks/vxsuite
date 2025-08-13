@@ -243,6 +243,7 @@ function BallotPageFrame({
                 <Instructions
                   colorTint={colorTint}
                   languageCode={languageCode}
+                  bubbleSide="right"
                 />
               </>
             )}
