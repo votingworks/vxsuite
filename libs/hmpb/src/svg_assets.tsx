@@ -206,12 +206,15 @@ export function InstructionsDiagramWriteIn({
           style={
             // Flip text again to make it readable since we are flipping the
             // entire SVG
-            bubbleSide === 'right'
-              ? {
-                  transform: 'scaleX(-1)',
-                  textAlign: 'right',
-                }
-              : {}
+            {
+              ...(bubbleSide === 'right'
+                ? {
+                    transform: 'scaleX(-1)',
+                    textAlign: 'right',
+                  }
+                : {}),
+              fontSize: '13pt',
+            }
           }
         >
           {writeInLabel}
