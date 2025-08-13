@@ -35,6 +35,7 @@ const election = electionSimpleSinglePrecinctFixtures.readElection();
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
   apiMock = createApiMock();
+  apiMock.expectFlushScannedIdDocument();
 });
 
 afterEach(() => {
@@ -195,9 +196,11 @@ test('after an ID scan with "hidden" fields, shows full name and "Edit Search" b
 });
 
 test('an ID scan with first and last name only can still render "Edit Search" button', async () => {
-  const overrides: Partial<VoterSearchParams> = { middleName: '', suffix: '' };
-  const mockDocument = getMockAamvaDocument(overrides);
-  const mockSearchParams = getMockExactSearchParams(overrides);
+  const mockDocument = getMockAamvaDocument({ middleName: '', nameSuffix: '' });
+  const mockSearchParams = getMockExactSearchParams({
+    middleName: '',
+    suffix: '',
+  });
   // Voters who exactly match first/last name of the scanned ID.
   const mockVoters: Voter[] = ['123', '456'].map((id) => ({
     ...createMockVoter(
