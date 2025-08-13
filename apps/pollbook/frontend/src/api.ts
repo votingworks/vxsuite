@@ -64,7 +64,7 @@ export const getPollbookConfigurationInformation = {
       this.queryKey(),
       () => apiClient.getPollbookConfigurationInformation(),
       {
-        refetchInterval: 1000,
+        refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
       }
     );
   },
@@ -178,7 +178,7 @@ export const searchVoters = {
     return useQuery(
       this.queryKey(searchParams),
       () => apiClient.searchVoters({ searchParams }),
-      { refetchOnMount: 'always' }
+      { refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL }
     );
   },
 } as const;
@@ -189,8 +189,10 @@ export const getVoter = {
   },
   useQuery(voterId: string) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(voterId), () =>
-      apiClient.getVoter({ voterId })
+    return useQuery(
+      this.queryKey(voterId),
+      () => apiClient.getVoter({ voterId }),
+      { refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL }
     );
   },
 } as const;
@@ -220,8 +222,10 @@ export const getGeneralSummaryStatistics = {
   },
   useQuery(input: { partyFilter: PartyFilterAbbreviation }) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(input), () =>
-      apiClient.getGeneralSummaryStatistics(input)
+    return useQuery(
+      this.queryKey(input),
+      () => apiClient.getGeneralSummaryStatistics(input),
+      { refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL }
     );
   },
 } as const;
@@ -234,8 +238,10 @@ export const getPrimarySummaryStatistics = {
   },
   useQuery(input: { partyFilter: PartyFilterAbbreviation }) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(input), () =>
-      apiClient.getPrimarySummaryStatistics(input)
+    return useQuery(
+      this.queryKey(input),
+      () => apiClient.getPrimarySummaryStatistics(input),
+      { refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL }
     );
   },
 } as const;
@@ -254,8 +260,10 @@ export const getThroughputStatistics = {
     partyFilter: PartyFilterAbbreviation;
   }) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(input), () =>
-      apiClient.getThroughputStatistics(input)
+    return useQuery(
+      this.queryKey(input),
+      () => apiClient.getThroughputStatistics(input),
+      { refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL }
     );
   },
 } as const;
