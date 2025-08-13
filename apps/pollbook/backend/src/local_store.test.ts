@@ -1,10 +1,16 @@
 import { test, expect, vi } from 'vitest';
-import { makeTemporaryDirectory } from '@votingworks/fixtures';
+import {
+  makeTemporaryDirectory,
+  electionTwoPartyPrimaryFixtures,
+} from '@votingworks/fixtures';
 import { mockBaseLogger } from '@votingworks/logging';
-import { Election, ElectionDefinition } from '@votingworks/types';
+import {
+  Election,
+  ElectionDefinition,
+  Voter,
+  VoterRegistrationRequest,
+} from '@votingworks/types';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
-import { VoterRegistrationRequest } from '@votingworks/types';
-import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import {
   createValidStreetInfo,
   createVoter,
@@ -269,6 +275,123 @@ test('findVoterWithName works as expected - voters with name changes', () => {
       suffix: '',
     })
   ).toEqual([]);
+});
+
+test('findVotersWithName returns results sorted by configured precinct first, then by name', () => {
+  const localStore = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
+  const testElectionDefinition = getTestElectionDefinition();
+
+  // Create voters in different precincts with similar names
+  const voters = [
+    // One voter in precinct-2 (non-configured) - should come second
+    createVoter('30', 'John', 'Smith', {
+      middleName: 'A',
+      suffix: '',
+      precinct: 'precinct-2',
+    }),
+    // One voter in precinct-1 (configured) - should come first
+    createVoter('32', 'John', 'Smith', {
+      middleName: 'A',
+      suffix: '',
+      precinct: 'precinct-1',
+    }),
+  ];
+
+  const streets = [createValidStreetInfo('MAIN', 'all', 1, 100)];
+  localStore.setElectionAndVoters(
+    testElectionDefinition,
+    'mock-package-hash',
+    streets,
+    voters
+  );
+
+  // Configure precinct-1 as the active precinct
+  localStore.setConfiguredPrecinct('precinct-1');
+
+  // Find voters with exact name match
+  const results = localStore.findVotersWithName({
+    firstName: 'John',
+    lastName: 'Smith',
+    middleName: 'A',
+    suffix: '',
+  });
+
+  expect(results).toHaveLength(2);
+
+  // Verify sorting: configured precinct voters first
+  expect(results[0].voterId).toEqual('32'); // John A Smith (precinct-1) - comes first
+  expect(results[1].voterId).toEqual('30'); // John A Smith (precinct-2) - comes second
+
+  // Verify the precincts are as expected
+  expect(results[0].precinct).toEqual('precinct-1');
+  expect(results[1].precinct).toEqual('precinct-2');
+});
+
+test('searchVoters returns results sorted by configured precinct first, then by name', () => {
+  const localStore = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
+  const testElectionDefinition = getTestElectionDefinition();
+
+  // Create voters in different precincts with names that would sort differently alphabetically
+  const voters = [
+    // Voters in precinct-2 (non-configured) - these should come second
+    createVoter('20', 'Alice', 'Anderson', {
+      middleName: '',
+      suffix: '',
+      precinct: 'precinct-2',
+    }),
+    createVoter('21', 'Bob', 'Baker', {
+      middleName: '',
+      suffix: '',
+      precinct: 'precinct-2',
+    }),
+    // Voters in precinct-1 (configured) - these should come first
+    createVoter('22', 'Charlie', 'Carter', {
+      middleName: '',
+      suffix: '',
+      precinct: 'precinct-1',
+    }),
+    createVoter('23', 'David', 'Davis', {
+      middleName: '',
+      suffix: '',
+      precinct: 'precinct-1',
+    }),
+  ];
+
+  const streets = [createValidStreetInfo('MAIN', 'all', 1, 100)];
+  localStore.setElectionAndVoters(
+    testElectionDefinition,
+    'mock-package-hash',
+    streets,
+    voters
+  );
+
+  // Configure precinct-1 as the active precinct
+  localStore.setConfiguredPrecinct('precinct-1');
+
+  // Search for voters with very broad criteria to get all voters
+  const searchResults = localStore.searchVoters({
+    lastName: '',
+    firstName: '',
+    middleName: '',
+    suffix: '',
+  });
+
+  // Should return all 4 voters as an array (not a count)
+  expect(Array.isArray(searchResults)).toEqual(true);
+  const results = searchResults as Voter[];
+  expect(results).toHaveLength(4);
+
+  // Verify sorting: configured precinct voters first, then alphabetically by name
+  expect(results[0].voterId).toEqual('22'); // Charlie Carter (precinct-1)
+  expect(results[1].voterId).toEqual('23'); // David Davis (precinct-1)
+  expect(results[2].voterId).toEqual('20'); // Alice Anderson (precinct-2)
+  expect(results[3].voterId).toEqual('21'); // Bob Baker (precinct-2)
+
+  // Verify the precincts are as expected
+  expect(results[0].precinct).toEqual('precinct-1');
+  expect(results[1].precinct).toEqual('precinct-1');
+  expect(results[2].precinct).toEqual('precinct-2');
+  expect(results[3].precinct).toEqual('precinct-2');
 });
 
 test('registerVoter and findVoterWithName integration', () => {
