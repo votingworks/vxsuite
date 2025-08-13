@@ -227,7 +227,7 @@ describe('GeneralElectionStatistics', () => {
     }));
 
     await waitFor(() => {
-      screen.getByText(/Throughput/);
+      screen.getByRole('heading', { name: 'Voter Throughput' });
       screen.getByText('1,000'); // Look for total voters count
     });
 
