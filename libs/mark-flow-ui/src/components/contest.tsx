@@ -14,6 +14,8 @@ import { UpdateVoteFunction } from '../config/types';
 import { BreadcrumbMetadata } from './contest_header';
 
 export interface ContestProps {
+  allowCandidateOvervotes?: boolean;
+
   /**
    * Optional data for displaying the contest's position on the ballot.
    */
@@ -51,6 +53,7 @@ export interface ContestProps {
 }
 
 export function Contest({
+  allowCandidateOvervotes,
   breadcrumbs,
   election,
   contest,
@@ -66,6 +69,7 @@ export function Contest({
     <React.Fragment>
       {contest.type === 'candidate' && (
         <CandidateContest
+          allowOvervotes={allowCandidateOvervotes}
           aria-live="assertive"
           breadcrumbs={breadcrumbs}
           election={election}

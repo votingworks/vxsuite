@@ -2,8 +2,11 @@ import React from 'react';
 
 import { ContestPage } from '@votingworks/mark-flow-ui';
 
-import { ContestId } from '@votingworks/types';
+import { ContestId, SystemSettings } from '@votingworks/types';
+import { PrintMode } from '@votingworks/mark-backend';
+import { isIntegrationTest } from '@votingworks/utils';
 import { BallotContext } from '../contexts/ballot_context';
+import { getPrintMode, getSystemSettings } from '../api';
 
 function getContestUrl(contestIndex: number) {
   return `/contests/${contestIndex}`;
@@ -21,12 +24,28 @@ function getStartPageUrl() {
   return '/';
 }
 
-export function ContestScreen(): JSX.Element {
+export function ContestScreen(): React.ReactNode {
   const { contests, electionDefinition, precinctId, updateVote, votes } =
     React.useContext(BallotContext);
 
+  let printMode: PrintMode | undefined;
+  let settings: SystemSettings | undefined;
+
+  /* istanbul ignore next - @preserve */
+  if (!isIntegrationTest() && process.env.NODE_ENV !== 'test') {
+    printMode = getPrintMode.useQuery().data;
+    settings = getSystemSettings.useQuery().data;
+
+    if (!settings || !printMode) return null;
+  }
+
   return (
     <ContestPage
+      allowCandidateOvervotes={
+        // Only allow overvotes when marking pre-printed ballots, since summary
+        // ballot QR codes are can't encode overvotes at the moment.
+        settings?.bmdAllowOvervotes && printMode === 'bubble_marks'
+      }
       contests={contests}
       electionDefinition={electionDefinition}
       getContestUrl={getContestUrl}

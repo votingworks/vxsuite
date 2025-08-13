@@ -45,6 +45,7 @@ import { BreadcrumbMetadata, ContestHeader } from './contest_header';
 import { WriteInCandidateName } from './write_in_candidate_name';
 
 interface Props {
+  allowOvervotes?: boolean;
   breadcrumbs?: BreadcrumbMetadata;
   election: Election;
   contest: CandidateContestInterface;
@@ -86,6 +87,7 @@ function normalizeCandidateName(name: string) {
 }
 
 export function CandidateContest({
+  allowOvervotes,
   breadcrumbs,
   election,
   contest,
@@ -274,7 +276,8 @@ export function CandidateContest({
     });
   }
 
-  const hasReachedMaxSelections = contest.seats === vote.length;
+  const hasReachedMaxSelections =
+    contest.seats === vote.length && !allowOvervotes;
 
   const writeInModalTitle = (
     <React.Fragment>
@@ -309,7 +312,10 @@ export function CandidateContest({
         >
           <Caption>
             {appStrings.labelNumVotesRemaining()}{' '}
-            <NumberString value={contest.seats - vote.length} weight="bold" />
+            <NumberString
+              value={Math.max(0, contest.seats - vote.length)}
+              weight="bold"
+            />
             <AudioOnly>
               <AssistiveTechInstructions
                 controllerString={appStrings.instructionsBmdContestNavigation()}
@@ -329,7 +335,10 @@ export function CandidateContest({
               let prefixAudioText: ReactNode = null;
               let suffixAudioText: ReactNode = null;
 
-              const numVotesRemaining = contest.seats - vote.length;
+              const numVotesRemaining = Math.max(
+                0,
+                contest.seats - vote.length
+              );
               if (isChecked) {
                 prefixAudioText = appStrings.labelSelected();
 
