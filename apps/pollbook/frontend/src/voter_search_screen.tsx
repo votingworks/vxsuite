@@ -209,6 +209,9 @@ export function VoterSearch({
   useEffect(() => {
     if (
       scannedIdDocument &&
+      // We don't want to handle navigation after `scannedIdDocument` updates
+      // but before `voterSearchParams` updates. The latter will be stale
+      // and we'd navigate using the wrong data.
       documentMatchesParams(scannedIdDocument, voterSearchParams) &&
       searchVotersQuery.isSuccess &&
       searchVotersQuery.data &&
