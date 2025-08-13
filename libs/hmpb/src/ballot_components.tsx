@@ -6,13 +6,21 @@ import {
   BallotStyleId,
   Election,
   getBallotStyle,
+  getPartyForBallotStyle,
   getPrecinctById,
   Outset,
   PrecinctId,
 } from '@votingworks/types';
-import { assertDefined, range, unique } from '@votingworks/basics';
-import { InEnglish, useLanguageContext } from '@votingworks/ui';
-import { format } from '@votingworks/utils';
+import { assertDefined, find, range, unique } from '@votingworks/basics';
+import {
+  electionStrings,
+  InEnglish,
+  useLanguageContext,
+} from '@votingworks/ui';
+import {
+  format,
+  getPrecinctsAndSplitsForBallotStyle,
+} from '@votingworks/utils';
 import { InchDimensions, InchMargins } from './types';
 import { hmpbStrings } from './hmpb_strings';
 import {
@@ -523,6 +531,7 @@ export function Footer({
   precinctId,
   pageNumber,
   totalPages,
+  electionTitleOverride,
   colorTint,
 }: {
   election: Election;
@@ -530,12 +539,26 @@ export function Footer({
   precinctId: PrecinctId;
   pageNumber: number;
   totalPages?: number;
+  electionTitleOverride?: React.ReactNode;
   colorTint?: ColorTint;
 }): JSX.Element {
   const precinct = assertDefined(getPrecinctById({ election, precinctId }));
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId })
   );
+  const party = getPartyForBallotStyle({ election, ballotStyleId });
+  const ballotStylePrecinctsAndSplits = getPrecinctsAndSplitsForBallotStyle({
+    election,
+    ballotStyle,
+  });
+  const precinctOrSplit = find(
+    ballotStylePrecinctsAndSplits,
+    (p) => p.precinct.id === precinct.id
+  );
+  const precinctOrSplitName = precinctOrSplit.split
+    ? electionStrings.precinctSplitName(precinctOrSplit.split)
+    : electionStrings.precinctName(precinctOrSplit.precinct);
+
   const languageCode = primaryLanguageCode(
     assertDefined(getBallotStyle({ election, ballotStyleId }))
   );
@@ -613,37 +636,40 @@ export function Footer({
           <div>{endOfPageInstruction}</div>
         </Box>
       </div>
-      <div
-        style={{
-          fontSize: '8pt',
-          display: 'flex',
-          justifyContent: 'space-between',
-          gap: '0.5rem',
-          borderWidth: '1px',
-          marginTop: '0.325rem',
-          // There's padding at the bottom of the timing mark grid that we
-          // want to eat into a little bit here, so we set a height that's
-          // slightly smaller than the actual height of this text and let it
-          // overflow a bit.
-          height: '0.5rem',
-        }}
-      >
-        <span>
-          Election:{' '}
-          <b>
-            <BallotHashSlot />
-          </b>
-        </span>
-        <span>
-          Ballot Style: <b>{ballotStyle.groupId}</b>
-        </span>
-        <span>
-          Precinct: <b>{precinct.name}</b>
-        </span>
-        <span>
-          Language: <b>{languageText}</b>
-        </span>
-      </div>
+      <InEnglish>
+        <div
+          style={{
+            fontSize: '8pt',
+            display: 'flex',
+            justifyContent: 'space-between',
+            gap: '0.5rem',
+            borderWidth: '1px',
+            marginTop: '0.325rem',
+            // There's padding at the bottom of the timing mark grid that we
+            // want to eat into a little bit here.
+            marginBottom: '-0.075in',
+            fontWeight: 'bold',
+          }}
+        >
+          <div>
+            <BallotHashSlot /> &bull;{' '}
+            {electionTitleOverride ?? electionStrings.electionTitle(election)},{' '}
+            {electionStrings.electionDate(election)},{' '}
+            {electionStrings.countyName(election.county)},{' '}
+            {electionStrings.stateName(election)}
+          </div>
+          <div>
+            {precinctOrSplitName} &bull;
+            {party && (
+              <React.Fragment>
+                {' '}
+                {electionStrings.partyName(party)} &bull;
+              </React.Fragment>
+            )}{' '}
+            {languageText}
+          </div>
+        </div>
+      </InEnglish>
     </div>
   );
 }
