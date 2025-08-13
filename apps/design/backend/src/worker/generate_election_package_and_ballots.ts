@@ -45,35 +45,6 @@ export interface V3SystemSettings {
   readonly precinctScanDisallowCastingOvervotes: boolean;
 }
 
-function makeV3Compatible(zip: JsZip, systemSettings: SystemSettings): void {
-  zip.remove(ElectionPackageFileName.METADATA);
-  zip.remove(ElectionPackageFileName.APP_STRINGS);
-  zip.remove(ElectionPackageFileName.AUDIO_IDS);
-  zip.remove(ElectionPackageFileName.AUDIO_CLIPS);
-  zip.remove(ElectionPackageFileName.SYSTEM_SETTINGS);
-
-  const {
-    auth,
-    adminAdjudicationReasons,
-    centralScanAdjudicationReasons,
-    precinctScanAdjudicationReasons,
-    disallowCastingOvervotes,
-    markThresholds,
-  } = systemSettings;
-  const v3SystemSettings: V3SystemSettings = {
-    auth,
-    markThresholds,
-    adminAdjudicationReasons,
-    centralScanAdjudicationReasons,
-    precinctScanAdjudicationReasons,
-    precinctScanDisallowCastingOvervotes: disallowCastingOvervotes,
-  };
-  zip.file(
-    ElectionPackageFileName.SYSTEM_SETTINGS,
-    JSON.stringify(v3SystemSettings, null, 2)
-  );
-}
-
 export async function generateElectionPackageAndBallots(
   {
     fileStorageClient,
@@ -200,10 +171,6 @@ export async function generateElectionPackageAndBallots(
       ElectionPackageFileName.AUDIO_CLIPS,
       uiStringAudioClips
     );
-  }
-
-  if (ballotTemplateId === 'NhBallotV3') {
-    makeV3Compatible(electionPackageZip, systemSettings);
   }
 
   const electionPackageZipContents = await electionPackageZip.generateAsync({

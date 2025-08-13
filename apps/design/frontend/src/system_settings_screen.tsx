@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   H1,
   H2,
@@ -33,7 +33,6 @@ import {
   unsafeParse,
 } from '@votingworks/types';
 import { z } from 'zod/v4';
-import type { BallotTemplateId } from '@votingworks/design-backend';
 import { Form, Column, Row, FormActionsRow, InputGroup } from './layout';
 import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, routes } from './routes';
@@ -41,7 +40,6 @@ import {
   updateSystemSettings,
   getUserFeatures,
   getSystemSettings,
-  getBallotTemplate,
 } from './api';
 import { useTitle } from './hooks/use_title';
 
@@ -107,11 +105,9 @@ function safeParseStartingCardLockoutDurationSeconds(
 }
 
 export function SystemSettingsForm({
-  ballotTemplateId,
   electionId,
   savedSystemSettings,
 }: {
-  ballotTemplateId: BallotTemplateId;
   electionId: ElectionId;
   savedSystemSettings: SystemSettings;
 }): JSX.Element | null {
@@ -348,226 +344,216 @@ export function SystemSettingsForm({
             )}
           </Column>
         </Card>
-        {ballotTemplateId !== 'NhBallotV3' && (
-          <React.Fragment>
-            <Card>
-              <H2>Authentication</H2>
-              <Column style={{ gap: '1.5rem' }}>
-                <CheckboxButton
-                  label="Enable Poll Worker PINs"
-                  isChecked={Boolean(
-                    systemSettings.auth.arePollWorkerCardPinsEnabled
-                  )}
-                  onChange={(isChecked) =>
-                    setSystemSettings({
-                      ...systemSettings,
-                      auth: {
-                        ...systemSettings.auth,
-                        arePollWorkerCardPinsEnabled: isChecked,
-                      },
-                    })
-                  }
-                  disabled={!isEditing}
-                />
-                <InputGroup label="Inactive Session Time Limit">
-                  <SearchSelect
-                    aria-label="Inactive Session Time Limit"
-                    isMulti={false}
-                    isSearchable={false}
-                    value={systemSettings.auth.inactiveSessionTimeLimitMinutes.toString()}
-                    disabled={!isEditing}
-                    options={[
-                      { value: '10', label: '10 minutes' },
-                      { value: '15', label: '15 minutes' },
-                      { value: '20', label: '20 minutes' },
-                      { value: '30', label: '30 minutes' },
-                      { value: '360', label: '6 hours' },
-                    ]}
-                    onChange={(newValue) => {
-                      setSystemSettings({
-                        ...systemSettings,
-                        auth: {
-                          ...systemSettings.auth,
-                          inactiveSessionTimeLimitMinutes:
-                            safeParseInactiveSessionTimeLimit(newValue),
-                        },
-                      });
-                    }}
-                  />
-                </InputGroup>
-                <InputGroup label="Incorrect Pin Attempts Before Lockout">
-                  <SearchSelect
-                    aria-label="Incorrect Pin Attempts Before Lockout"
-                    isMulti={false}
-                    isSearchable={false}
-                    value={systemSettings.auth.numIncorrectPinAttemptsAllowedBeforeCardLockout.toString()}
-                    disabled={!isEditing}
-                    options={[
-                      { value: '3', label: '3' },
-                      { value: '4', label: '4' },
-                      { value: '5', label: '5' },
-                      { value: '6', label: '6' },
-                      { value: '7', label: '7' },
-                      { value: '8', label: '8' },
-                      { value: '9', label: '9' },
-                      { value: '10', label: '10' },
-                    ]}
-                    onChange={(newValue) => {
-                      setSystemSettings({
-                        ...systemSettings,
-                        auth: {
-                          ...systemSettings.auth,
-                          numIncorrectPinAttemptsAllowedBeforeCardLockout:
-                            safeParseIncorrectPinAttempts(newValue),
-                        },
-                      });
-                    }}
-                  />
-                </InputGroup>
-                <InputGroup label="Starting Card Lockout Duration">
-                  <SearchSelect
-                    aria-label="Starting Card Lockout Duration"
-                    isMulti={false}
-                    isSearchable={false}
-                    value={systemSettings.auth.startingCardLockoutDurationSeconds.toString()}
-                    disabled={!isEditing}
-                    options={[
-                      { value: '15', label: '15 seconds' },
-                      { value: '30', label: '30 seconds' },
-                      { value: '60', label: '60 seconds' },
-                    ]}
-                    onChange={(newValue) => {
-                      setSystemSettings({
-                        ...systemSettings,
-                        auth: {
-                          ...(systemSettings.auth || {}),
-                          startingCardLockoutDurationSeconds:
-                            safeParseStartingCardLockoutDurationSeconds(
-                              newValue
-                            ),
-                        },
-                      });
-                    }}
-                  />
-                </InputGroup>
-                <InputGroup label="Overall Session Time Limit (Hours)">
-                  <input
-                    value={systemSettings.auth.overallSessionTimeLimitHours}
-                    type="number"
-                    step={1}
-                    min={1}
-                    max={12}
-                    disabled={!isEditing}
-                    onChange={(e) => {
-                      setSystemSettings({
-                        ...systemSettings,
-                        auth: {
-                          ...(systemSettings.auth || {}),
-                          overallSessionTimeLimitHours:
-                            safeParseOverallSessionTimeLimit(
-                              e.target.valueAsNumber
-                            ),
-                        },
-                      });
-                    }}
-                  />
-                </InputGroup>
-              </Column>
-            </Card>
-            <Card>
-              <H2>Other</H2>
-              <Column style={{ gap: '1.5rem' }}>
-                <CheckboxButton
-                  label="Allow Official Ballots in Test Mode"
-                  isChecked={Boolean(
-                    systemSettings.allowOfficialBallotsInTestMode
-                  )}
-                  onChange={(isChecked) =>
-                    setSystemSettings({
-                      ...systemSettings,
-                      allowOfficialBallotsInTestMode: isChecked,
-                    })
-                  }
-                  disabled={!isEditing}
-                />
-                <CheckboxButton
-                  label="Disable Vertical Streak Detection"
-                  isChecked={Boolean(
-                    systemSettings.disableVerticalStreakDetection
-                  )}
-                  onChange={(isChecked) =>
-                    setSystemSettings({
-                      ...systemSettings,
-                      disableVerticalStreakDetection: isChecked,
-                    })
-                  }
-                  disabled={!isEditing}
-                />
-                <CheckboxButton
-                  label="Enable Shoeshine Mode on VxScan"
-                  isChecked={Boolean(
-                    systemSettings.precinctScanEnableShoeshineMode
-                  )}
-                  onChange={(isChecked) =>
-                    setSystemSettings({
-                      ...systemSettings,
-                      precinctScanEnableShoeshineMode: isChecked,
-                    })
-                  }
-                  disabled={!isEditing}
-                />
-                {features.ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION && (
-                  <CheckboxButton
-                    label="Enable BMD Ballot Scanning on VxScan"
-                    isChecked={Boolean(
-                      systemSettings.precinctScanEnableBmdBallotScanning
-                    )}
-                    onChange={(isChecked) =>
-                      setSystemSettings({
-                        ...systemSettings,
-                        precinctScanEnableBmdBallotScanning: isChecked
-                          ? true
-                          : undefined, // Completely omit when unchecked
-                      })
-                    }
-                    disabled={!isEditing}
-                  />
+        <Card>
+          <H2>Authentication</H2>
+          <Column style={{ gap: '1.5rem' }}>
+            <CheckboxButton
+              label="Enable Poll Worker PINs"
+              isChecked={Boolean(
+                systemSettings.auth.arePollWorkerCardPinsEnabled
+              )}
+              onChange={(isChecked) =>
+                setSystemSettings({
+                  ...systemSettings,
+                  auth: {
+                    ...systemSettings.auth,
+                    arePollWorkerCardPinsEnabled: isChecked,
+                  },
+                })
+              }
+              disabled={!isEditing}
+            />
+            <InputGroup label="Inactive Session Time Limit">
+              <SearchSelect
+                aria-label="Inactive Session Time Limit"
+                isMulti={false}
+                isSearchable={false}
+                value={systemSettings.auth.inactiveSessionTimeLimitMinutes.toString()}
+                disabled={!isEditing}
+                options={[
+                  { value: '10', label: '10 minutes' },
+                  { value: '15', label: '15 minutes' },
+                  { value: '20', label: '20 minutes' },
+                  { value: '30', label: '30 minutes' },
+                  { value: '360', label: '6 hours' },
+                ]}
+                onChange={(newValue) => {
+                  setSystemSettings({
+                    ...systemSettings,
+                    auth: {
+                      ...systemSettings.auth,
+                      inactiveSessionTimeLimitMinutes:
+                        safeParseInactiveSessionTimeLimit(newValue),
+                    },
+                  });
+                }}
+              />
+            </InputGroup>
+            <InputGroup label="Incorrect Pin Attempts Before Lockout">
+              <SearchSelect
+                aria-label="Incorrect Pin Attempts Before Lockout"
+                isMulti={false}
+                isSearchable={false}
+                value={systemSettings.auth.numIncorrectPinAttemptsAllowedBeforeCardLockout.toString()}
+                disabled={!isEditing}
+                options={[
+                  { value: '3', label: '3' },
+                  { value: '4', label: '4' },
+                  { value: '5', label: '5' },
+                  { value: '6', label: '6' },
+                  { value: '7', label: '7' },
+                  { value: '8', label: '8' },
+                  { value: '9', label: '9' },
+                  { value: '10', label: '10' },
+                ]}
+                onChange={(newValue) => {
+                  setSystemSettings({
+                    ...systemSettings,
+                    auth: {
+                      ...systemSettings.auth,
+                      numIncorrectPinAttemptsAllowedBeforeCardLockout:
+                        safeParseIncorrectPinAttempts(newValue),
+                    },
+                  });
+                }}
+              />
+            </InputGroup>
+            <InputGroup label="Starting Card Lockout Duration">
+              <SearchSelect
+                aria-label="Starting Card Lockout Duration"
+                isMulti={false}
+                isSearchable={false}
+                value={systemSettings.auth.startingCardLockoutDurationSeconds.toString()}
+                disabled={!isEditing}
+                options={[
+                  { value: '15', label: '15 seconds' },
+                  { value: '30', label: '30 seconds' },
+                  { value: '60', label: '60 seconds' },
+                ]}
+                onChange={(newValue) => {
+                  setSystemSettings({
+                    ...systemSettings,
+                    auth: {
+                      ...(systemSettings.auth || {}),
+                      startingCardLockoutDurationSeconds:
+                        safeParseStartingCardLockoutDurationSeconds(newValue),
+                    },
+                  });
+                }}
+              />
+            </InputGroup>
+            <InputGroup label="Overall Session Time Limit (Hours)">
+              <input
+                value={systemSettings.auth.overallSessionTimeLimitHours}
+                type="number"
+                step={1}
+                min={1}
+                max={12}
+                disabled={!isEditing}
+                onChange={(e) => {
+                  setSystemSettings({
+                    ...systemSettings,
+                    auth: {
+                      ...(systemSettings.auth || {}),
+                      overallSessionTimeLimitHours:
+                        safeParseOverallSessionTimeLimit(
+                          e.target.valueAsNumber
+                        ),
+                    },
+                  });
+                }}
+              />
+            </InputGroup>
+          </Column>
+        </Card>
+        <Card>
+          <H2>Other</H2>
+          <Column style={{ gap: '1.5rem' }}>
+            <CheckboxButton
+              label="Allow Official Ballots in Test Mode"
+              isChecked={Boolean(systemSettings.allowOfficialBallotsInTestMode)}
+              onChange={(isChecked) =>
+                setSystemSettings({
+                  ...systemSettings,
+                  allowOfficialBallotsInTestMode: isChecked,
+                })
+              }
+              disabled={!isEditing}
+            />
+            <CheckboxButton
+              label="Disable Vertical Streak Detection"
+              isChecked={Boolean(systemSettings.disableVerticalStreakDetection)}
+              onChange={(isChecked) =>
+                setSystemSettings({
+                  ...systemSettings,
+                  disableVerticalStreakDetection: isChecked,
+                })
+              }
+              disabled={!isEditing}
+            />
+            <CheckboxButton
+              label="Enable Shoeshine Mode on VxScan"
+              isChecked={Boolean(
+                systemSettings.precinctScanEnableShoeshineMode
+              )}
+              onChange={(isChecked) =>
+                setSystemSettings({
+                  ...systemSettings,
+                  precinctScanEnableShoeshineMode: isChecked,
+                })
+              }
+              disabled={!isEditing}
+            />
+            {features.ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION && (
+              <CheckboxButton
+                label="Enable BMD Ballot Scanning on VxScan"
+                isChecked={Boolean(
+                  systemSettings.precinctScanEnableBmdBallotScanning
                 )}
-                {features.BMD_OVERVOTE_ALLOW_TOGGLE && (
-                  <CheckboxButton
-                    label="Allow Overvote Marking on VxMark"
-                    isChecked={Boolean(systemSettings.bmdAllowOvervotes)}
-                    onChange={(isChecked) =>
-                      setSystemSettings({
-                        ...systemSettings,
-                        bmdAllowOvervotes: isChecked ? true : undefined, // Completely omit when unchecked
-                      })
-                    }
-                    disabled={!isEditing}
-                  />
-                )}
-                <CheckboxGroup
-                  label="CVR"
-                  options={cvrOptions}
-                  value={[
-                    systemSettings.castVoteRecordsIncludeRedundantMetadata
-                      ? CvrOption.RedudantMetadata
-                      : undefined,
-                  ].filter((v) => v !== undefined)}
-                  onChange={(value) =>
-                    setSystemSettings({
-                      ...systemSettings,
-                      castVoteRecordsIncludeRedundantMetadata: value.includes(
-                        CvrOption.RedudantMetadata
-                      ),
-                    })
-                  }
-                  disabled={!isEditing}
-                />
-              </Column>
-            </Card>
-          </React.Fragment>
-        )}
+                onChange={(isChecked) =>
+                  setSystemSettings({
+                    ...systemSettings,
+                    precinctScanEnableBmdBallotScanning: isChecked
+                      ? true
+                      : undefined, // Completely omit when unchecked
+                  })
+                }
+                disabled={!isEditing}
+              />
+            )}
+            {features.BMD_OVERVOTE_ALLOW_TOGGLE && (
+              <CheckboxButton
+                label="Allow Overvote Marking on VxMark"
+                isChecked={Boolean(systemSettings.bmdAllowOvervotes)}
+                onChange={(isChecked) =>
+                  setSystemSettings({
+                    ...systemSettings,
+                    bmdAllowOvervotes: isChecked ? true : undefined, // Completely omit when unchecked
+                  })
+                }
+                disabled={!isEditing}
+              />
+            )}
+            <CheckboxGroup
+              label="CVR"
+              options={cvrOptions}
+              value={[
+                systemSettings.castVoteRecordsIncludeRedundantMetadata
+                  ? CvrOption.RedudantMetadata
+                  : undefined,
+              ].filter((v) => v !== undefined)}
+              onChange={(value) =>
+                setSystemSettings({
+                  ...systemSettings,
+                  castVoteRecordsIncludeRedundantMetadata: value.includes(
+                    CvrOption.RedudantMetadata
+                  ),
+                })
+              }
+              disabled={!isEditing}
+            />
+          </Column>
+        </Card>
       </Row>
       {isEditing ? (
         <FormActionsRow>
@@ -600,15 +586,13 @@ export function SystemSettingsForm({
 export function SystemSettingsScreen(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const getSystemSettingsQuery = getSystemSettings.useQuery(electionId);
-  const getBallotTemplateQuery = getBallotTemplate.useQuery(electionId);
 
   useTitle(routes.election(electionId).systemSettings.title);
 
-  if (!(getSystemSettingsQuery.isSuccess && getBallotTemplateQuery.isSuccess)) {
+  if (!getSystemSettingsQuery.isSuccess) {
     return null;
   }
 
-  const ballotTemplateId = getBallotTemplateQuery.data;
   const systemSettings = getSystemSettingsQuery.data;
 
   return (
@@ -618,7 +602,6 @@ export function SystemSettingsScreen(): JSX.Element | null {
       </Header>
       <MainContent>
         <SystemSettingsForm
-          ballotTemplateId={ballotTemplateId}
           electionId={electionId}
           savedSystemSettings={systemSettings}
         />

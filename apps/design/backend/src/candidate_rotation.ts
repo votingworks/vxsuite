@@ -42,7 +42,7 @@ export function rotateCandidates(
   if (contest.type !== 'candidate') return contest;
   if (contest.candidates.length < 2) return contest;
 
-  if (ballotTemplateId !== 'NhBallot' && ballotTemplateId !== 'NhBallotV3') {
+  if (ballotTemplateId !== 'NhBallot') {
     return contest;
   }
 

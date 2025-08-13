@@ -28,7 +28,7 @@ import {
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { QrCode } from '@votingworks/ui';
-import { encodeHmpbBallotPageMetadata, v3 } from '@votingworks/ballot-encoder';
+import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
 import { RenderDocument, RenderScratchpad, Renderer } from './renderer';
 import {
   BUBBLE_CLASS,
@@ -272,40 +272,9 @@ export function gridHeightToPixels(
   return height * grid.rowGap;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function isV3Template(template: BallotPageTemplate<any>) {
-  return 'machineVersion' in template && template.machineVersion === 'v3';
-}
-
-function snapCoordinatesToGrid(coordinates: { column: number; row: number }): {
-  column: number;
-  row: number;
-} {
-  const deltaColumn = Math.abs(
-    coordinates.column - Math.round(coordinates.column)
-  );
-  const deltaRow = Math.abs(coordinates.row - Math.round(coordinates.row));
-  assert(
-    deltaColumn <= 0.05,
-    'Column coordinate is not close to an integer  - bubble may be misaligned ' +
-      `(delta = ${deltaColumn.toPrecision(4)})`
-  );
-  assert(
-    deltaRow <= 0.05,
-    'Row coordinate is not close to an integer - bubble may be misaligned ' +
-      `(delta = ${deltaRow.toPrecision(4)})`
-  );
-  return {
-    column: Math.round(coordinates.column),
-    row: Math.round(coordinates.row),
-  };
-}
-
 async function extractGridLayout(
   document: RenderDocument,
-  ballotStyleId: BallotStyleId,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  template: BallotPageTemplate<any>
+  ballotStyleId: BallotStyleId
 ): Promise<GridLayout> {
   const pages = await document.inspectElements(`.${PAGE_CLASS}`);
   const optionPositionsPerPage = await Promise.all(
@@ -318,13 +287,10 @@ async function extractGridLayout(
       );
       const optionPositions = bubbles.map((bubble): GridPosition => {
         // Use the grid coordinates for the center of the bubble
-        let bubbleGridCoordinates = pixelPointToGridPoint(grid, {
+        const bubbleGridCoordinates = pixelPointToGridPoint(grid, {
           x: bubble.x + bubble.width / 2,
           y: bubble.y + bubble.height / 2,
         });
-        if (isV3Template(template)) {
-          bubbleGridCoordinates = snapCoordinatesToGrid(bubbleGridCoordinates);
-        }
         const positionInfo = {
           sheetNumber: Math.ceil(pageNumber / 2),
           side: pageNumber % 2 === 1 ? 'front' : 'back',
@@ -386,7 +352,7 @@ async function extractGridLayout(
       y: firstWriteInOptionBubble.y + firstWriteInOptionBubble.height / 2,
     };
     const grid = await measureTimingMarkGrid(document, 1);
-    let bounds: Outset<number> = {
+    const bounds: Outset<number> = {
       top: pixelsToGridHeight(
         grid,
         firstWriteInOptionBubbleCenter.y - firstWriteInOption.y
@@ -408,14 +374,6 @@ async function extractGridLayout(
           firstWriteInOptionBubbleCenter.y
       ),
     };
-    if (isV3Template(template)) {
-      bounds = {
-        top: Math.ceil(bounds.top),
-        left: Math.ceil(bounds.left),
-        right: Math.ceil(bounds.right),
-        bottom: Math.ceil(bounds.bottom),
-      };
-    }
     return bounds;
   })();
 
@@ -429,23 +387,15 @@ async function extractGridLayout(
 async function addQrCodesAndBallotHashes(
   document: RenderDocument,
   election: Election,
-  metadata: Omit<HmpbBallotPageMetadata, 'pageNumber'>,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  template: BallotPageTemplate<any>
+  metadata: Omit<HmpbBallotPageMetadata, 'pageNumber'>
 ) {
   const pages = await document.inspectElements(`.${PAGE_CLASS}`);
   for (const i of pages.keys()) {
     const pageNumber = i + 1;
-    let encodedMetadata = encodeHmpbBallotPageMetadata(election, {
+    const encodedMetadata = encodeHmpbBallotPageMetadata(election, {
       ...metadata,
       pageNumber,
     });
-    if (isV3Template(template)) {
-      encodedMetadata = v3.encodeHmpbBallotPageMetadata(election, {
-        ...metadata,
-        pageNumber,
-      });
-    }
     const qrCode = (
       <div
         style={{
@@ -553,11 +503,7 @@ export async function renderAllBallotsAndCreateElectionDefinition<
     const document = (
       await renderBallotTemplate(renderer, template, props)
     ).unsafeUnwrap();
-    const gridLayout = await extractGridLayout(
-      document,
-      props.ballotStyleId,
-      template
-    );
+    const gridLayout = await extractGridLayout(document, props.ballotStyleId);
     ballotsWithLayouts.push({
       document,
       gridLayout,
@@ -587,48 +533,8 @@ export async function renderAllBallotsAndCreateElectionDefinition<
     .map((layouts) => assertDefined(iter(layouts.values()).first()))
     .toArray();
 
-  // Work around a v3 bug where the yes/no contest options with custom labels
-  // are not correctly displayed in reports. This bug is resolved in v4, so we
-  // only need to apply this workaround as long as we are using v3 templates.
-  let { contests } = election;
-  if (isV3Template(template)) {
-    contests = election.contests.map((contest) => {
-      if (
-        contest.type === 'yesno' &&
-        (contest.yesOption.label !== 'Yes' || contest.noOption.label !== 'No')
-      ) {
-        return {
-          type: 'candidate',
-          // Ensure that the contest ID is the same as the original yes/no contest
-          // so that ballot layout, tabulation, and reporting all work correctly.
-          id: contest.id,
-          title: contest.title,
-          districtId: contest.districtId,
-          // Ensure no write-ins will appear on reports.
-          allowWriteIns: false,
-          // Flag overvotes by limiting the number of seats to 1, same as the
-          // original yes/no contest.
-          seats: 1,
-          candidates: [
-            {
-              id: contest.yesOption.id,
-              name: contest.yesOption.label,
-            },
-            {
-              id: contest.noOption.id,
-              name: contest.noOption.label,
-            },
-          ],
-        };
-      }
-
-      return contest;
-    });
-  }
-
   const electionWithGridLayouts: Election = {
     ...election,
-    contests,
     gridLayouts,
   };
   const electionToHash = (() => {
@@ -639,19 +545,9 @@ export async function renderAllBallotsAndCreateElectionDefinition<
         // maintainBackwardsCompatibility can alter some fields in the election. This ensures
         // that those changes occur before saving the file so that if that file is loaded back
         // through this code path the resulting election is identical and hashes to the same value.
-        const sortedElectionWithGridLayouts = safeParseElection(
+        return safeParseElection(
           JSON.stringify(electionWithGridLayouts)
         ).unsafeUnwrap();
-        if (isV3Template(template)) {
-          const date = new Date(election.date.toISOString());
-          // Add one day to account for timezone bug in VxSuite v3
-          date.setDate(date.getDate() + 1);
-          return {
-            ...sortedElectionWithGridLayouts,
-            date: date.toISOString().split('T')[0],
-          };
-        }
-        return sortedElectionWithGridLayouts;
       }
       case 'cdf':
         return convertVxfElectionToCdfBallotDefinition(electionWithGridLayouts);
@@ -667,19 +563,14 @@ export async function renderAllBallotsAndCreateElectionDefinition<
 
   for (const { document, props } of ballotsWithLayouts) {
     if (props.ballotMode !== 'sample') {
-      await addQrCodesAndBallotHashes(
-        document,
-        electionDefinition.election,
-        {
-          ballotHash: electionDefinition.ballotHash,
-          ballotStyleId: props.ballotStyleId,
-          precinctId: props.precinctId,
-          ballotType: props.ballotType,
-          isTestMode: props.ballotMode !== 'official',
-          ballotAuditId: props.ballotAuditId,
-        },
-        template
-      );
+      await addQrCodesAndBallotHashes(document, electionDefinition.election, {
+        ballotHash: electionDefinition.ballotHash,
+        ballotStyleId: props.ballotStyleId,
+        precinctId: props.precinctId,
+        ballotType: props.ballotType,
+        isTestMode: props.ballotMode !== 'official',
+        ballotAuditId: props.ballotAuditId,
+      });
     }
   }
 

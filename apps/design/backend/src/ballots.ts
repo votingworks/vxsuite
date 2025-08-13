@@ -146,9 +146,7 @@ export function createBallotPropsForTemplate(
   }));
   switch (templateId) {
     case 'NhBallot':
-    case 'NhBallotV3': {
       return baseBallotProps.map(buildNhBallotProps);
-    }
 
     case 'VxDefaultBallot':
       return baseBallotProps;
