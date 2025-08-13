@@ -286,9 +286,11 @@ test('closes the error modal if a valid ID is scanned', async () => {
     suffix: document.nameSuffix,
   };
 
-  apiMock.expectSearchVotersWithResults(searchParams, [mockVoter]);
   apiMock.expectGetScannedIdDocument(document);
 
+  apiMock.expectSearchVotersWithResultsToChangeFromEmpty({}, searchParams, [
+    mockVoter,
+  ]);
   await act(() => vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL));
 
   // Recommended pattern to check for element absence per github.com/vitest-dev/vitest/discussions/6560
