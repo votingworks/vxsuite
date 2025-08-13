@@ -264,14 +264,21 @@ export function start({
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for await (const _ of setInterval(BACKUP_INTERVAL)) {
-      const result = await exportBackupVoterChecklist(
-        workspace,
-        usbDrive,
-        workspace.logger
-      );
-      if (result.isErr()) {
+      try {
+        const result = await exportBackupVoterChecklist(
+          workspace,
+          usbDrive,
+          workspace.logger
+        );
+        if (result.isErr()) {
+          workspace.logger.log(LogEventId.PollbookPaperBackupStatus, 'system', {
+            message: result.err().message,
+            disposition: 'failure',
+          });
+        }
+      } catch (error) {
         workspace.logger.log(LogEventId.PollbookPaperBackupStatus, 'system', {
-          message: result.err().message,
+          message: (error as Error).message,
           disposition: 'failure',
         });
       }
