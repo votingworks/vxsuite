@@ -130,6 +130,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
           'getIsAbsenteeMode',
           'getThroughputStatistics',
           'getSummaryStatistics',
+          'getUsbDriveStatus',
         ];
         if (silenceMethods.includes(methodName)) {
           return;
