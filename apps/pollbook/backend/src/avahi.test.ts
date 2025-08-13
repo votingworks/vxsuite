@@ -16,7 +16,7 @@ describe('hasOnlineInterface', () => {
   it('returns true if stdout is non-empty', async () => {
     mockExecFileFn.mockResolvedValue({ stdout: 'eth0', stderr: '' });
     await expect(hasOnlineInterface()).resolves.toBe(true);
-    expect(mockExecFileFn).toHaveBeenCalledWith('sudo', [
+    expect(mockExecFileFn).toHaveBeenCalledWith('bash', [
       expect.stringContaining('is-online'),
     ]);
   });
@@ -37,14 +37,14 @@ describe('AvahiService.advertiseHttpService', () => {
     vi.clearAllMocks();
   });
 
-  it('spawns the intermediate avahi-publish-service script with sudo', () => {
+  it('spawns the intermediate avahi-publish-service script with bash', () => {
     mockSpawn.mockReturnValue({
       stdout: { on: vi.fn() },
       stderr: { on: vi.fn() },
       on: vi.fn(),
     } as unknown as ReturnType<typeof spawn>);
     AvahiService.advertiseHttpService('test-service', 1234);
-    expect(mockSpawn).toHaveBeenCalledWith('sudo', [
+    expect(mockSpawn).toHaveBeenCalledWith('bash', [
       expect.stringContaining('avahi-publish-service'),
       'test-service',
       '1234',

@@ -15,7 +15,7 @@ export interface AvahiDiscoveredService {
 // Checks if there is any network interface 'UP'.
 export async function hasOnlineInterface(): Promise<boolean> {
   try {
-    const { stdout } = await execFile('sudo', [
+    const { stdout } = await execFile('bash', [
       intermediateScript('is-online'),
     ]);
     debug(`ip link show stdout: ${stdout}`);
@@ -39,7 +39,7 @@ export class AvahiService {
    * @returns A promise that resolves when the service starts.
    */
   static advertiseHttpService(name: string, port: number): void {
-    const process = spawn('sudo', [
+    const process = spawn('bash', [
       intermediateScript('avahi-publish-service'),
       name,
       `${port}`,
@@ -75,7 +75,7 @@ export class AvahiService {
    */
   static async discoverHttpServices(): Promise<AvahiDiscoveredService[]> {
     try {
-      const { stdout, stderr } = await execFile('sudo', [
+      const { stdout, stderr } = await execFile('bash', [
         intermediateScript('avahi-browse'),
       ]);
       // Only return with an error if there is not stdout output, otherwise try to parse it.
