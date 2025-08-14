@@ -15,6 +15,7 @@ import {
   Modal,
   H1,
   Callout,
+  H3,
 } from '@votingworks/ui';
 import {
   Redirect,
@@ -224,6 +225,11 @@ function ContestsTab(): JSX.Element | null {
   const isReordering = reorderedContests !== undefined;
 
   const contestsToShow = isReordering ? reorderedContests : filteredContests;
+  const contestsToShowByType = contestsToShow.reduce((map, contest) => {
+    const existing = map.get(contest.type) || [];
+    map.set(contest.type, [...existing, contest]);
+    return map;
+  }, new Map<string, AnyContest[]>());
 
   const districtIdToName = new Map(
     districts.map((district) => [district.id, district.name])
@@ -308,7 +314,20 @@ function ContestsTab(): JSX.Element | null {
             </Row>
           ) : (
             <Button
-              onPress={() => setReorderedContests(contests)}
+              onPress={() =>
+                // We require candidate contests to appear before yesno,
+                // but elections were created prior to this restriction.
+                // To ensure all new reorders follow this, we initiate
+                // the reordering with the requirement enforced
+                setReorderedContests(
+                  [...contests].sort((a, b) => {
+                    // Candidate contests come before ballot measures (yesno)
+                    if (a.type === 'candidate' && b.type === 'yesno') return -1;
+                    if (a.type === 'yesno' && b.type === 'candidate') return 1;
+                    return 0; // Same type, maintain relative order
+                  })
+                )
+              }
               disabled={!canReorder}
             >
               Reorder Contests
@@ -335,98 +354,132 @@ function ContestsTab(): JSX.Element | null {
             </P>
           </React.Fragment>
         ) : (
-          // Flipper/Flip are used to animate the reordering of contest rows
-          /* @ts-expect-error: TS doesn't think Flipper is a valid component */
-          <Flipper
-            flipKey={contestsToShow.map((contest) => contest.id).join(',')}
-            // Custom spring parameters to speed up the duration of the animation
-            // See https://github.com/aholachek/react-flip-toolkit/issues/100#issuecomment-551056183
-            spring={{ stiffness: 439, damping: 42 }}
-          >
-            <Table>
-              <thead>
-                <tr>
-                  <TH>Title</TH>
-                  <TH>Type</TH>
-                  <TH>District</TH>
-                  {electionInfo.type === 'primary' && <TH>Party</TH>}
-                  <TH />
-                </tr>
-              </thead>
-              <tbody>
-                {contestsToShow.map((contest, index) => (
-                  <Flipped
-                    key={contest.id}
-                    flipId={contest.id}
-                    shouldFlip={() => isReordering}
+          <React.Fragment>
+            {[...contestsToShowByType]
+              .sort(([a]) => (a === 'candidate' ? -1 : 1)) // Candidate table first
+              .map(([contestType, contestsOfType]) => (
+                <div key={contestType} style={{ marginBottom: '2rem' }}>
+                  <H3 as="h2" style={{ marginBottom: '1rem', fontWeight: 600 }}>
+                    {contestType === 'candidate'
+                      ? 'Candidate Contests'
+                      : 'Ballot Measures'}
+                  </H3>
+                  {/* Flipper/Flip are used to animate the reordering of contest rows */}
+                  {/* @ts-expect-error: TS doesn't think Flipper is a valid component */}
+                  <Flipper
+                    flipKey={contestsOfType
+                      .map((contest) => contest.id)
+                      .join(',')}
+                    // Custom spring parameters to speed up the duration of the animation
+                    // See https://github.com/aholachek/react-flip-toolkit/issues/100#issuecomment-551056183
+                    spring={{ stiffness: 439, damping: 42 }}
                   >
-                    <ReorderableTr key={contest.id} isReordering={isReordering}>
-                      <TD>{contest.title}</TD>
-                      <TD>
-                        {contest.type === 'candidate'
-                          ? 'Candidate Contest'
-                          : 'Ballot Measure'}
-                      </TD>
-                      <TD nowrap>{districtIdToName.get(contest.districtId)}</TD>
-                      {electionInfo.type === 'primary' && (
-                        <TD nowrap>
-                          {contest.type === 'candidate' &&
-                            contest.partyId !== undefined &&
-                            partyIdToName.get(contest.partyId)}
-                        </TD>
-                      )}
-                      <TD nowrap style={{ height: '3rem' }}>
-                        <Row
-                          style={{ gap: '0.5rem', justifyContent: 'flex-end' }}
-                        >
-                          {isReordering ? (
-                            <React.Fragment>
-                              <Button
-                                aria-label="Move Up"
-                                icon="ChevronUp"
-                                disabled={index === 0}
-                                onPress={() =>
-                                  setReorderedContests(
-                                    reorderElement(
-                                      reorderedContests,
-                                      index,
-                                      index - 1
-                                    )
-                                  )
-                                }
-                              />
-                              <Button
-                                aria-label="Move Down"
-                                icon="ChevronDown"
-                                disabled={index === contestsToShow.length - 1}
-                                onPress={() =>
-                                  setReorderedContests(
-                                    reorderElement(
-                                      reorderedContests,
-                                      index,
-                                      index + 1
-                                    )
-                                  )
-                                }
-                              />
-                            </React.Fragment>
-                          ) : (
-                            <LinkButton
-                              icon="Edit"
-                              to={contestRoutes.editContest(contest.id).path}
-                              disabled={!!ballotsFinalizedAt}
-                            >
-                              Edit
-                            </LinkButton>
+                    <Table>
+                      <thead>
+                        <tr>
+                          <TH style={{ width: '40%' }}>Title</TH>
+                          <TH style={{ width: '30%' }}>District</TH>
+                          {electionInfo.type === 'primary' && (
+                            <TH style={{ width: '20%' }}>Party</TH>
                           )}
-                        </Row>
-                      </TD>
-                    </ReorderableTr>
-                  </Flipped>
-                ))}
-              </tbody>
-            </Table>
-          </Flipper>
+                          <TH
+                            style={{
+                              width:
+                                electionInfo.type === 'primary' ? '10%' : '30%',
+                            }}
+                          />
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {contestsOfType.map((contest, index) => {
+                          const indexInFullList = contestsToShow.findIndex(
+                            (c) => c.id === contest.id
+                          );
+                          return (
+                            <Flipped
+                              key={contest.id}
+                              flipId={contest.id}
+                              shouldFlip={() => isReordering}
+                            >
+                              <ReorderableTr
+                                key={contest.id}
+                                isReordering={isReordering}
+                              >
+                                <TD>{contest.title}</TD>
+                                <TD nowrap>
+                                  {districtIdToName.get(contest.districtId)}
+                                </TD>
+                                {electionInfo.type === 'primary' && (
+                                  <TD nowrap>
+                                    {contest.type === 'candidate' &&
+                                      contest.partyId !== undefined &&
+                                      partyIdToName.get(contest.partyId)}
+                                  </TD>
+                                )}
+                                <TD nowrap style={{ height: '3rem' }}>
+                                  <Row
+                                    style={{
+                                      gap: '0.5rem',
+                                      justifyContent: 'flex-end',
+                                    }}
+                                  >
+                                    {isReordering ? (
+                                      <React.Fragment>
+                                        <Button
+                                          aria-label="Move Up"
+                                          icon="ChevronUp"
+                                          disabled={index === 0}
+                                          onPress={() =>
+                                            setReorderedContests(
+                                              reorderElement(
+                                                reorderedContests,
+                                                indexInFullList,
+                                                indexInFullList - 1
+                                              )
+                                            )
+                                          }
+                                        />
+                                        <Button
+                                          aria-label="Move Down"
+                                          icon="ChevronDown"
+                                          disabled={
+                                            index === contestsOfType.length - 1
+                                          }
+                                          onPress={() =>
+                                            setReorderedContests(
+                                              reorderElement(
+                                                reorderedContests,
+                                                indexInFullList,
+                                                indexInFullList + 1
+                                              )
+                                            )
+                                          }
+                                        />
+                                      </React.Fragment>
+                                    ) : (
+                                      <LinkButton
+                                        icon="Edit"
+                                        to={
+                                          contestRoutes.editContest(contest.id)
+                                            .path
+                                        }
+                                        disabled={!!ballotsFinalizedAt}
+                                      >
+                                        Edit
+                                      </LinkButton>
+                                    )}
+                                  </Row>
+                                </TD>
+                              </ReorderableTr>
+                            </Flipped>
+                          );
+                        })}
+                      </tbody>
+                    </Table>
+                  </Flipper>
+                </div>
+              ))}
+          </React.Fragment>
         ))}
     </TabPanel>
   );

@@ -51,6 +51,25 @@ let apiMock: MockApiClient;
 
 const idFactory = makeIdFactory();
 
+function getContestTableRows(contestType: 'candidate' | 'yesno') {
+  const headingText =
+    contestType === 'candidate' ? 'Candidate Contests' : 'Ballot Measures';
+  const heading = screen.getByText(headingText);
+  const table = heading.parentElement!.querySelector('table')!;
+  return within(table).getAllByRole('row');
+}
+
+function getAllContestRows() {
+  // Get all tables and sum up their rows (excluding headers)
+  const tables = screen.getAllByRole('table');
+  let allRows: HTMLElement[] = [];
+  for (const table of tables) {
+    const rows = within(table).getAllByRole('row');
+    allRows = allRows.concat(rows);
+  }
+  return allRows;
+}
+
 beforeEach(() => {
   apiMock = createMockApiClient();
   idFactory.reset();
@@ -295,18 +314,14 @@ describe('Contests tab', () => {
     screen.getByRole('tab', { name: 'Contests', selected: true });
     screen.getByRole('columnheader', { name: 'Title' });
     screen.getByRole('columnheader', { name: 'District' });
-    const rows = screen.getAllByRole('row');
-    expect(screen.getAllByRole('row')).toHaveLength(2);
+
+    const candidateRows = getContestTableRows('candidate');
+    expect(candidateRows).toHaveLength(2); // header + 1 contest row
     expect(
-      within(rows[1])
+      within(candidateRows[1])
         .getAllByRole('cell')
         .map((cell) => cell.textContent)
-    ).toEqual([
-      newContest.title,
-      'Candidate Contest',
-      election.districts[0].name,
-      'Edit',
-    ]);
+    ).toEqual([newContest.title, election.districts[0].name, 'Edit']);
   });
 
   test('editing a candidate contest (primary election)', async () => {
@@ -474,11 +489,20 @@ describe('Contests tab', () => {
     screen.getByRole('columnheader', { name: 'Title' });
     screen.getByRole('columnheader', { name: 'District' });
     screen.getByRole('columnheader', { name: 'Party' });
-    const rows = screen.getAllByRole('row');
-    expect(rows).toHaveLength(election.contests.length + 1);
+
+    // Count total rows across all tables
+    const allRows = getAllContestRows();
+    // We expect a header per table + candidate contest rows + ballot measure rows
+    const candidateContests = election.contests.filter(
+      (c) => c.type === 'candidate'
+    );
+    const ballotMeasures = election.contests.filter((c) => c.type === 'yesno');
+    const expectedRowCount =
+      (candidateContests.length > 0 ? candidateContests.length + 1 : 0) +
+      (ballotMeasures.length > 0 ? ballotMeasures.length + 1 : 0);
+    expect(allRows).toHaveLength(expectedRowCount);
 
     const savedContestRow = screen.getByText(savedContest.title).closest('tr')!;
-    within(savedContestRow).getByText('Candidate Contest');
     within(savedContestRow).getByText(savedDistrict.name);
     within(savedContestRow).getByText(savedParty.name);
     userEvent.click(
@@ -603,7 +627,6 @@ describe('Contests tab', () => {
     const updatedContestRow = screen
       .getByText(updatedContest.title)
       .closest('tr')!;
-    within(updatedContestRow).getByText('Candidate Contest');
     within(updatedContestRow).getByText(updatedDistrict.name);
     within(updatedContestRow).getByText(updatedParty.name);
   });
@@ -739,18 +762,14 @@ describe('Contests tab', () => {
       screen.getByRole('tab', { name: 'Contests', selected: true });
       screen.getByRole('columnheader', { name: 'Title' });
       screen.getByRole('columnheader', { name: 'District' });
-      const rows = screen.getAllByRole('row');
-      expect(screen.getAllByRole('row')).toHaveLength(2);
+
+      const contestRows = getContestTableRows('candidate');
+      expect(contestRows).toHaveLength(2); // header + 1 contest row
       expect(
-        within(rows[1])
+        within(contestRows[1])
           .getAllByRole('cell')
           .map((cell) => cell.textContent)
-      ).toEqual([
-        newContest.title,
-        'Candidate Contest',
-        election.districts[0].name,
-        'Edit',
-      ]);
+      ).toEqual([newContest.title, election.districts[0].name, 'Edit']);
     }
   );
 
@@ -832,19 +851,19 @@ describe('Contests tab', () => {
     userEvent.click(saveButton);
 
     await screen.findByRole('heading', { name: 'Contests' });
-    const rows = screen.getAllByRole('row');
-    expect(rows).toHaveLength(election.contests.length + 2);
-    const lastRow = rows.at(-1)!;
+
+    const ballotMeasureRows = getContestTableRows('yesno');
+    // We expect existing ballot measures + 1 new + 1 header
+    const existingBallotMeasures = election.contests.filter(
+      (c) => c.type === 'yesno'
+    ).length;
+    expect(ballotMeasureRows).toHaveLength(existingBallotMeasures + 1 + 1);
+    const lastRow = ballotMeasureRows.at(-1)!;
     expect(
       within(lastRow)
         .getAllByRole('cell')
         .map((cell) => cell.textContent)
-    ).toEqual([
-      newContest.title,
-      'Ballot Measure',
-      election.districts[0].name,
-      'Edit',
-    ]);
+    ).toEqual([newContest.title, election.districts[0].name, 'Edit']);
   });
 
   test('editing a ballot measure', async () => {
@@ -885,7 +904,6 @@ describe('Contests tab', () => {
     await screen.findByRole('heading', { name: 'Contests' });
     const savedContestRow = screen.getByText(savedContest.title).closest('tr')!;
     within(savedContestRow).getByText(savedDistrict.name);
-    within(savedContestRow).getByText('Ballot Measure');
     userEvent.click(
       within(savedContestRow).getByRole('button', { name: 'Edit' })
     );
@@ -954,7 +972,6 @@ describe('Contests tab', () => {
       .getByText(updatedContest.title)
       .closest('tr')!;
     within(updatedContestRow).getByText(updatedDistrict.name);
-    within(updatedContestRow).getByText('Ballot Measure');
   });
 
   test('reordering contests', async () => {
@@ -1072,7 +1089,17 @@ describe('Contests tab', () => {
     userEvent.click(screen.getByRole('button', { name: 'Delete Contest' }));
 
     await screen.findByRole('heading', { name: 'Contests' });
-    expect(screen.getAllByRole('row')).toHaveLength(election.contests.length);
+
+    const allRows = getAllContestRows();
+    const remainingContests = election.contests.slice(1);
+    const candidateContests = remainingContests.filter(
+      (c) => c.type === 'candidate'
+    );
+    const ballotMeasures = remainingContests.filter((c) => c.type === 'yesno');
+    const expectedRowCount =
+      (candidateContests.length > 0 ? candidateContests.length + 1 : 0) +
+      (ballotMeasures.length > 0 ? ballotMeasures.length + 1 : 0);
+    expect(allRows).toHaveLength(expectedRowCount);
     expect(screen.queryByText(savedContest.title)).not.toBeInTheDocument();
   });
 
