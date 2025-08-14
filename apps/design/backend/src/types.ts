@@ -1,4 +1,3 @@
-import z from 'zod/v4';
 import {
   BallotStyle as VxfBallotStyle,
   BallotStyleId,
@@ -36,35 +35,6 @@ export function convertToVxfBallotStyle(
   };
 }
 
-/**
- * Ballot order info, currently fairly specific to New Hampshire. Every field is a string to allow
- * for freeform data entry and custom notes, and every field is optional as we want to avoid having
- * to run a migration if these fields change.
- */
-export interface BallotOrderInfo {
-  absenteeBallotCount?: string;
-  ballotColor?: string;
-  deliveryAddress?: string;
-  deliveryRecipientName?: string;
-  deliveryRecipientPhoneNumber?: string;
-  orderSubmittedAt?: string;
-  precinctBallotCount?: string;
-  shouldAbsenteeBallotsBeScoredForFolding?: boolean;
-  shouldCollateBallotPages?: boolean;
-}
-
-export const BallotOrderInfoSchema: z.ZodType<BallotOrderInfo> = z.object({
-  absenteeBallotCount: z.string().optional(),
-  ballotColor: z.string().optional(),
-  deliveryAddress: z.string().optional(),
-  deliveryRecipientName: z.string().optional(),
-  deliveryRecipientPhoneNumber: z.string().optional(),
-  orderSubmittedAt: z.string().optional(),
-  precinctBallotCount: z.string().optional(),
-  shouldAbsenteeBallotsBeScoredForFolding: z.boolean().optional(),
-  shouldCollateBallotPages: z.boolean().optional(),
-});
-
 export enum UsState {
   NEW_HAMPSHIRE = 'New Hampshire',
   MISSISSIPPI = 'Mississippi',
@@ -101,11 +71,7 @@ export interface Org {
   id: string;
 }
 
-export type ElectionStatus =
-  | 'notStarted'
-  | 'inProgress'
-  | 'ballotsFinalized'
-  | 'orderSubmitted';
+export type ElectionStatus = 'notStarted' | 'inProgress' | 'ballotsFinalized';
 
 export interface ElectionListing {
   orgId: string;

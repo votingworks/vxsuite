@@ -68,8 +68,6 @@ import {
   DuplicatePrecinctError,
 } from './store';
 import {
-  BallotOrderInfo,
-  BallotOrderInfoSchema,
   BallotStyle,
   ElectionInfo,
   ElectionListing,
@@ -566,23 +564,6 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
         input.systemSettings
       );
       return store.updateSystemSettings(input.electionId, systemSettings);
-    },
-
-    async getBallotOrderInfo(input: {
-      electionId: ElectionId;
-    }): Promise<BallotOrderInfo> {
-      return store.getBallotOrderInfo(input.electionId);
-    },
-
-    async updateBallotOrderInfo(input: {
-      electionId: ElectionId;
-      ballotOrderInfo: BallotOrderInfo;
-    }): Promise<void> {
-      const ballotOrderInfo = unsafeParse(
-        BallotOrderInfoSchema,
-        input.ballotOrderInfo
-      );
-      return store.updateBallotOrderInfo(input.electionId, ballotOrderInfo);
     },
 
     deleteElection(input: { electionId: ElectionId }): Promise<void> {
