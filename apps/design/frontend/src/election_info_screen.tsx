@@ -271,18 +271,16 @@ function ElectionInfoForm({
                 Edit
               </Button>
             </FormActionsRow>
-            {features.DELETE_ELECTION && (
-              <FormActionsRow style={{ marginTop: '1rem' }}>
-                <Button
-                  variant="danger"
-                  icon="Delete"
-                  onPress={onDeletePress}
-                  disabled={deleteElectionMutation.isLoading}
-                >
-                  Delete Election
-                </Button>
-              </FormActionsRow>
-            )}
+            <FormActionsRow style={{ marginTop: '1rem' }}>
+              <Button
+                variant="danger"
+                icon="Delete"
+                onPress={onDeletePress}
+                disabled={deleteElectionMutation.isLoading}
+              >
+                Delete Election
+              </Button>
+            </FormActionsRow>
           </div>
           {electionInfo.electionId && isConfirmingDelete && (
             <Modal

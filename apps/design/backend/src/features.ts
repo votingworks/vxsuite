@@ -49,30 +49,6 @@ enum UserFeature {
    */
   ONLY_LETTER_AND_LEGAL_PAPER_SIZES = 'ONLY_LETTER_AND_LEGAL_PAPER_SIZES',
   /**
-   * Allow the user to create an election.
-   */
-  CREATE_ELECTION = 'CREATE_ELECTION',
-  /**
-   * Allow the user to delete an election.
-   */
-  DELETE_ELECTION = 'DELETE_ELECTION',
-  /**
-   * Allow the user to create and delete districts. The goal of this feature
-   * flag is to prevent users from accidentally messing up preset districts.
-   */
-  CREATE_DELETE_DISTRICTS = 'CREATE_DELETE_DISTRICTS',
-  /**
-   * Allow the user to create and delete precincts. The goal of this feature
-   * flag is to prevent users from accidentally messing up preset precincts.
-   */
-  CREATE_DELETE_PRECINCTS = 'CREATE_DELETE_PRECINCTS',
-  /**
-   * Allow the user to change the splits for a precinct split. The goal of
-   * this feature flag is to prevent users from accidentally messing up preset
-   * precinct splits.
-   */
-  CREATE_DELETE_PRECINCT_SPLITS = 'CREATE_DELETE_PRECINCT_SPLITS',
-  /**
    * Allow the user to select ballot languages.
    */
   BALLOT_LANGUAGE_CONFIG = 'BALLOT_LANGUAGE_CONFIG',
@@ -114,11 +90,6 @@ export const userFeatureConfigs = {
   vx: {
     ACCESS_ALL_ORGS: true,
 
-    CREATE_ELECTION: true,
-    DELETE_ELECTION: true,
-    CREATE_DELETE_DISTRICTS: true,
-    CREATE_DELETE_PRECINCTS: true,
-    CREATE_DELETE_PRECINCT_SPLITS: true,
     BALLOT_LANGUAGE_CONFIG: true,
     ONLY_LETTER_AND_LEGAL_PAPER_SIZES: false,
 
@@ -135,11 +106,6 @@ export const userFeatureConfigs = {
   sli: {
     ACCESS_ALL_ORGS: false,
 
-    CREATE_ELECTION: true,
-    DELETE_ELECTION: true,
-    CREATE_DELETE_DISTRICTS: true,
-    CREATE_DELETE_PRECINCTS: true,
-    CREATE_DELETE_PRECINCT_SPLITS: true,
     BALLOT_LANGUAGE_CONFIG: true,
     ONLY_LETTER_AND_LEGAL_PAPER_SIZES: false,
 
@@ -156,11 +122,6 @@ export const userFeatureConfigs = {
   demos: {
     ACCESS_ALL_ORGS: false,
 
-    CREATE_ELECTION: true,
-    DELETE_ELECTION: true,
-    CREATE_DELETE_DISTRICTS: true,
-    CREATE_DELETE_PRECINCTS: true,
-    CREATE_DELETE_PRECINCT_SPLITS: true,
     BALLOT_LANGUAGE_CONFIG: true,
     ONLY_LETTER_AND_LEGAL_PAPER_SIZES: false,
 
@@ -177,11 +138,6 @@ export const userFeatureConfigs = {
   nh: {
     ACCESS_ALL_ORGS: false,
 
-    CREATE_ELECTION: false,
-    DELETE_ELECTION: false,
-    CREATE_DELETE_DISTRICTS: false,
-    CREATE_DELETE_PRECINCTS: false,
-    CREATE_DELETE_PRECINCT_SPLITS: false,
     BALLOT_LANGUAGE_CONFIG: false,
     ONLY_LETTER_AND_LEGAL_PAPER_SIZES: true,
 

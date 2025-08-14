@@ -52,7 +52,6 @@ import {
   getBallotsFinalizedAt,
   listDistricts,
   getElectionFeatures,
-  getUserFeatures,
   updateDistrict,
   listPrecincts,
   updatePrecinct,
@@ -68,41 +67,31 @@ function DistrictsTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const listDistrictsQuery = listDistricts.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
-  const getUserFeaturesQuery = getUserFeatures.useQuery();
 
   /* istanbul ignore next - @preserve */
-  if (
-    !(
-      listDistrictsQuery.isSuccess &&
-      getBallotsFinalizedAtQuery.isSuccess &&
-      getUserFeaturesQuery.isSuccess
-    )
-  ) {
+  if (!(listDistrictsQuery.isSuccess && getBallotsFinalizedAtQuery.isSuccess)) {
     return null;
   }
 
   const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
   const districts = listDistrictsQuery.data;
   const districtsRoutes = routes.election(electionId).geography.districts;
-  const features = getUserFeaturesQuery.data;
 
   return (
     <TabPanel>
       {districts.length === 0 && (
         <P>You haven&apos;t added any districts to this election yet.</P>
       )}
-      {features.CREATE_DELETE_DISTRICTS && (
-        <TableActionsRow>
-          <LinkButton
-            icon="Add"
-            variant="primary"
-            to={districtsRoutes.addDistrict.path}
-            disabled={!!ballotsFinalizedAt}
-          >
-            Add District
-          </LinkButton>
-        </TableActionsRow>
-      )}
+      <TableActionsRow>
+        <LinkButton
+          icon="Add"
+          variant="primary"
+          to={districtsRoutes.addDistrict.path}
+          disabled={!!ballotsFinalizedAt}
+        >
+          Add District
+        </LinkButton>
+      </TableActionsRow>
       {districts.length > 0 && (
         <Table>
           <thead>
@@ -158,14 +147,7 @@ function DistrictForm({
   const deleteDistrictMutation = deleteDistrict.useMutation();
   const history = useHistory();
   const geographyRoutes = routes.election(electionId).geography;
-  const getUserFeaturesQuery = getUserFeatures.useQuery();
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
-
-  /* istanbul ignore next - @preserve */
-  if (!getUserFeaturesQuery.isSuccess) {
-    return null;
-  }
-  const features = getUserFeaturesQuery.data;
 
   function goBackToDistrictsList() {
     history.push(geographyRoutes.districts.root.path);
@@ -263,7 +245,7 @@ function DistrictForm({
             Save
           </Button>
         </FormActionsRow>
-        {features.CREATE_DELETE_DISTRICTS && savedDistrict && (
+        {savedDistrict && (
           <FormActionsRow style={{ marginTop: '1rem' }}>
             <Button
               variant="danger"
@@ -378,15 +360,13 @@ function PrecinctsTab(): JSX.Element | null {
   const listPrecinctsQuery = listPrecincts.useQuery(electionId);
   const listDistrictsQuery = listDistricts.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
-  const getUserFeaturesQuery = getUserFeatures.useQuery();
 
   /* istanbul ignore next - @preserve */
   if (
     !(
       listPrecinctsQuery.isSuccess &&
       listDistrictsQuery.isSuccess &&
-      getBallotsFinalizedAtQuery.isSuccess &&
-      getUserFeaturesQuery.isSuccess
+      getBallotsFinalizedAtQuery.isSuccess
     )
   ) {
     return null;
@@ -395,7 +375,6 @@ function PrecinctsTab(): JSX.Element | null {
   const precincts = listPrecinctsQuery.data;
   const districts = listDistrictsQuery.data;
   const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
-  const features = getUserFeaturesQuery.data;
 
   const districtIdToName = new Map(
     districts.map((district) => [district.id, district.name])
@@ -406,18 +385,16 @@ function PrecinctsTab(): JSX.Element | null {
       {precincts.length === 0 && (
         <P>You haven&apos;t added any precincts to this election yet.</P>
       )}
-      {features.CREATE_DELETE_PRECINCTS && (
-        <TableActionsRow>
-          <LinkButton
-            variant="primary"
-            icon="Add"
-            to={geographyRoutes.precincts.addPrecinct.path}
-            disabled={!!ballotsFinalizedAt}
-          >
-            Add Precinct
-          </LinkButton>
-        </TableActionsRow>
-      )}
+      <TableActionsRow>
+        <LinkButton
+          variant="primary"
+          icon="Add"
+          to={geographyRoutes.precincts.addPrecinct.path}
+          disabled={!!ballotsFinalizedAt}
+        >
+          Add Precinct
+        </LinkButton>
+      </TableActionsRow>
       {precincts.length > 0 && (
         <Table>
           <thead>
@@ -509,7 +486,6 @@ function PrecinctForm({
   electionId: ElectionId;
   savedPrecinct?: Precinct;
 }): JSX.Element | null {
-  const getUserFeaturesQuery = getUserFeatures.useQuery();
   const getElectionFeaturesQuery = getElectionFeatures.useQuery(electionId);
   const listDistrictsQuery = listDistricts.useQuery(electionId);
   const [precinct, setPrecinct] = useState<Precinct>(
@@ -526,17 +502,10 @@ function PrecinctForm({
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
   /* istanbul ignore next - @preserve */
-  if (
-    !(
-      getUserFeaturesQuery.isSuccess &&
-      getElectionFeaturesQuery.isSuccess &&
-      listDistrictsQuery.isSuccess
-    )
-  ) {
+  if (!(getElectionFeaturesQuery.isSuccess && listDistrictsQuery.isSuccess)) {
     return null;
   }
 
-  const userFeatures = getUserFeaturesQuery.data;
   const electionFeatures = getElectionFeaturesQuery.data;
   const districts = listDistrictsQuery.data;
 
@@ -720,7 +689,6 @@ function PrecinctForm({
                           })
                         }
                         autoComplete="off"
-                        disabled={!userFeatures.CREATE_DELETE_PRECINCT_SPLITS}
                         required
                       />
                     </InputGroup>
@@ -738,7 +706,6 @@ function PrecinctForm({
                           districtIds,
                         })
                       }
-                      disabled={!userFeatures.CREATE_DELETE_PRECINCT_SPLITS}
                     />
 
                     {electionFeatures.PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE && (
@@ -802,25 +769,20 @@ function PrecinctForm({
                         />
                       </InputGroup>
                     )}
-
-                    {userFeatures.CREATE_DELETE_PRECINCT_SPLITS && (
-                      <Button
-                        style={{ marginTop: 'auto' }}
-                        onPress={() => onRemoveSplitPress(index)}
-                      >
-                        Remove Split
-                      </Button>
-                    )}
+                    <Button
+                      style={{ marginTop: 'auto' }}
+                      onPress={() => onRemoveSplitPress(index)}
+                    >
+                      Remove Split
+                    </Button>
                   </Column>
                 </Card>
               ))}
-              {userFeatures.CREATE_DELETE_PRECINCT_SPLITS && (
-                <div>
+              <div>
                   <Button icon="Add" onPress={onAddSplitPress}>
                     Add Split
                   </Button>
                 </div>
-              )}
             </React.Fragment>
           ) : (
             <React.Fragment>
@@ -864,7 +826,7 @@ function PrecinctForm({
             Save
           </Button>
         </FormActionsRow>
-        {savedPrecinct && userFeatures.CREATE_DELETE_PRECINCTS && (
+        {savedPrecinct && (
           <FormActionsRow style={{ marginTop: '1rem' }}>
             <Button
               variant="danger"
