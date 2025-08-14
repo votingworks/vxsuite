@@ -221,7 +221,6 @@ test('with elections', async () => {
 });
 
 test('clone buttons are rendered', async () => {
-  mockUserFeatures(apiMock);
   const [general, primary] = [
     generalElectionRecord(user.orgId),
     primaryElectionRecord(user.orgId),

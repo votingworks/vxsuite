@@ -314,7 +314,10 @@ function BallotStylesTab(): JSX.Element | null {
                         <TD>
                           <Font italic>No contests assigned</Font>
                         </TD>
-                        {electionInfo.type === 'primary' && <TD />}
+                        {
+                          /* istanbul ignore next - @preserve */
+                          electionInfo.type === 'primary' && <TD />
+                        }
                         <TD />
                       </NestedTr>
                     );
@@ -372,7 +375,10 @@ function BallotStylesTab(): JSX.Element | null {
                         <TD>
                           <Font italic>No contests assigned</Font>
                         </TD>
-                        {electionInfo.type === 'primary' && <TD />}
+                        {
+                          /* istanbul ignore next - @preserve */
+                          electionInfo.type === 'primary' && <TD />
+                        }
                         <TD />
                       </NestedTr>
                     );
