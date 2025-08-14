@@ -654,7 +654,7 @@ export function Footer({
           <div>
             <BallotHashSlot /> &bull;{' '}
             {electionTitleOverride ?? electionStrings.electionTitle(election)},{' '}
-            {electionStrings.electionDate(election)},{' '}
+            {electionStrings.electionDate(election)} &bull;{' '}
             {electionStrings.countyName(election.county)},{' '}
             {electionStrings.stateName(election)}
           </div>
