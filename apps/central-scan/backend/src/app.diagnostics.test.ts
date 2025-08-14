@@ -50,6 +50,14 @@ vi.mock(import('./util/get_current_time.js'), async (importActual) => ({
   getCurrentTime: () => reportPrintedTime.getTime(),
 }));
 
+vi.mock(import('@votingworks/types'), async (importActual) => {
+  const original = await importActual();
+  return {
+    ...original,
+    formatElectionHashes: vi.fn().mockReturnValue('1111111-0000000'),
+  };
+});
+
 const jurisdiction = TEST_JURISDICTION;
 
 test('save readiness report', async () => {
