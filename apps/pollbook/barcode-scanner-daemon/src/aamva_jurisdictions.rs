@@ -155,7 +155,6 @@ impl FromStr for AamvaIssuingJurisdiction {
             "636014" => Ok(Self::CA),
             "636015" => Ok(Self::TX),
             "636018" => Ok(Self::IA),
-            "636019" => Ok(Self::GU),
             "636020" => Ok(Self::CO),
             "636021" => Ok(Self::AR),
             "636022" => Ok(Self::KS),
@@ -192,12 +191,13 @@ impl FromStr for AamvaIssuingJurisdiction {
             "636059" => Ok(Self::AK),
             "636060" => Ok(Self::WY),
             "636061" => Ok(Self::WV),
-            "636062" => Ok(Self::VI),
 
             // U.S. territories
             "604427" => Ok(Self::AS),
             "604430" => Ok(Self::MP),
             "604431" => Ok(Self::PR),
+            "636019" => Ok(Self::GU),
+            "636062" => Ok(Self::VI),
 
             _ => Err(Self::Err::UnknownIssuingJurisdictionId(s.to_owned())),
         }
