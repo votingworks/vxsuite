@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test, vi } from 'vitest';
 import {
   getEmptyCardCounts,
   getEmptyElectionResults,
@@ -20,6 +20,14 @@ import { err, iter } from '@votingworks/basics';
 import styled from 'styled-components';
 import { PAPER_DIMENSIONS, RenderSpec, renderToPdf } from './render';
 import { OPTIONAL_EXECUTABLE_PATH_OVERRIDE } from './chromium';
+
+vi.mock(import('@votingworks/types'), async (importActual) => {
+  const original = await importActual();
+  return {
+    ...original,
+    formatElectionHashes: vi.fn().mockReturnValue('1111111-0000000'),
+  };
+});
 
 const electionDefinition =
   electionFamousNames2021Fixtures.readElectionDefinition();
