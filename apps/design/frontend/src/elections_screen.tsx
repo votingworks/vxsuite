@@ -149,11 +149,6 @@ const STATUS_ELEMENTS: Readonly<Record<ElectionStatus, JSX.Element>> = {
       <Icons.CircleDot color="primary" /> Ballots finalized
     </span>
   ),
-  orderSubmitted: (
-    <span>
-      <Icons.Done color="success" /> Order submitted
-    </span>
-  ),
 };
 
 function AllOrgsElectionsList({

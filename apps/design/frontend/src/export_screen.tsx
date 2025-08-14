@@ -26,11 +26,9 @@ import {
   getElectionPackage,
   finalizeBallots,
   setBallotTemplate,
-  updateBallotOrderInfo,
   unfinalizeBallots,
   getUserFeatures,
   getTestDecks,
-  getBallotOrderInfo,
   getBallotTemplate,
   decryptCvrBallotAuditIds,
 } from './api';
@@ -56,11 +54,9 @@ export function ExportScreen(): JSX.Element | null {
   const exportTestDecksMutation = exportTestDecks.useMutation();
   const setBallotTemplateMutation = setBallotTemplate.useMutation();
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
-  const getBallotOrderInfoQuery = getBallotOrderInfo.useQuery(electionId);
   const getBallotTemplateQuery = getBallotTemplate.useQuery(electionId);
   const finalizeBallotsMutation = finalizeBallots.useMutation();
   const unfinalizeBallotsMutation = unfinalizeBallots.useMutation();
-  const updateBallotOrderInfoMutation = updateBallotOrderInfo.useMutation();
   const decryptCvrBallotAuditIdsMutation =
     decryptCvrBallotAuditIds.useMutation();
 
@@ -127,7 +123,6 @@ export function ExportScreen(): JSX.Element | null {
       electionPackageQuery.isSuccess &&
       testDecksQuery.isSuccess &&
       getBallotsFinalizedAtQuery.isSuccess &&
-      getBallotOrderInfoQuery.isSuccess &&
       getBallotTemplateQuery.isSuccess &&
       getUserFeaturesQuery.isSuccess
     )
@@ -145,7 +140,6 @@ export function ExportScreen(): JSX.Element | null {
     (testDecks.task && !testDecks.task.completedAt);
 
   const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
-  const ballotOrderInfo = getBallotOrderInfoQuery.data;
   const ballotTemplateId = getBallotTemplateQuery.data;
   const features = getUserFeaturesQuery.data;
 
@@ -225,37 +219,6 @@ export function ExportScreen(): JSX.Element | null {
             )}
           </div>
 
-          <div>
-            <FieldName>Order Status</FieldName>
-            {ballotOrderInfo.orderSubmittedAt ? (
-              <Column style={{ gap: '0.5rem', alignItems: 'flex-start' }}>
-                <div>
-                  Order submitted at:{' '}
-                  {format.localeShortDateAndTime(
-                    new Date(ballotOrderInfo.orderSubmittedAt)
-                  )}
-                </div>
-                <Button
-                  onPress={() => {
-                    updateBallotOrderInfoMutation.mutate({
-                      electionId,
-                      ballotOrderInfo: {
-                        ...ballotOrderInfo,
-                        orderSubmittedAt: undefined,
-                      },
-                    });
-                  }}
-                  disabled={updateBallotOrderInfoMutation.isLoading}
-                  variant="danger"
-                  icon="Delete"
-                >
-                  Unsubmit Order
-                </Button>
-              </Column>
-            ) : (
-              <div>Order not submitted</div>
-            )}
-          </div>
           <div>
             <SegmentedButton
               label="Export Audio"
