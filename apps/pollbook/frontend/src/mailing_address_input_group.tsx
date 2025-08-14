@@ -9,7 +9,7 @@ import {
   StaticInput,
   ExpandableInput,
 } from './shared_components';
-import { usStates } from './us_states';
+import { usJurisdictions } from './us_states';
 import type { VoterMailingAddressChangeRequest } from './update_mailing_address_flow';
 import { splitStreetNumberDetails } from './address_input_group';
 
@@ -144,7 +144,7 @@ export function MailingAddressInputGroup({
                 mailingState: value || '',
               })
             }
-            options={Object.entries(usStates).map(([value, label]) => ({
+            options={Object.entries(usJurisdictions).map(([value, label]) => ({
               value,
               label: `${value} - ${label}`,
             }))}

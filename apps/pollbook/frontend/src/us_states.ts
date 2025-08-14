@@ -1,4 +1,4 @@
-export const usStates = {
+export const usJurisdictions = {
   AL: 'Alabama',
   AK: 'Alaska',
   AS: 'American Samoa',

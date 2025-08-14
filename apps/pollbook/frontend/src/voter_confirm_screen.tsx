@@ -23,7 +23,7 @@ import { assert, throwIllegalValue } from '@votingworks/basics';
 import { Election } from '@votingworks/types';
 import { Column, Row } from './layout';
 import { NoNavScreen } from './nav_screen';
-import { usStates } from './us_states';
+import { usJurisdictions } from './us_states';
 import {
   AbsenteeModeCallout,
   AddressChange,
@@ -41,7 +41,7 @@ import { getVoter } from './api';
 import { getVoterPrecinct } from './types';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const { NH, ...usStatesWithoutNewHampshire } = usStates;
+const { NH, ...usJurisdictionsWithoutNewHampshire } = usJurisdictions;
 
 function isIdentificationMethodComplete(
   identificationMethod: Partial<VoterIdentificationMethod>
@@ -299,12 +299,12 @@ export function VoterConfirmScreen({
                 {identificationMethod.type === 'outOfStateLicense' && (
                   <SearchSelect
                     id="state"
-                    options={Object.entries(usStatesWithoutNewHampshire).map(
-                      ([value, label]) => ({
-                        value,
-                        label: `${value} - ${label}`,
-                      })
-                    )}
+                    options={Object.entries(
+                      usJurisdictionsWithoutNewHampshire
+                    ).map(([value, label]) => ({
+                      value,
+                      label: `${value} - ${label}`,
+                    }))}
                     menuPortalTarget={document.body}
                     value={
                       identificationMethod.type === 'outOfStateLicense'
