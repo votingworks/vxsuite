@@ -43,6 +43,14 @@ export default defineConfig({
           '../../../libs/ballot-interpreter/src/index.ts'
         ),
       },
+      {
+        find: '@votingworks/types',
+        replacement: join(__dirname, '../../../libs/types/src/index.ts'),
+      },
+      {
+        find: '@votingworks/ui',
+        replacement: join(__dirname, '../../../libs/ui/src/index.ts'),
+      },
     ],
   },
 });
