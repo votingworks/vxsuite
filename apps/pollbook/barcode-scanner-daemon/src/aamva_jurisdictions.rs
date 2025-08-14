@@ -5,7 +5,7 @@ use crate::parse_aamva::AamvaParseError;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize)]
 pub enum AamvaIssuingJurisdiction {
-    // US States
+    // US States & D.C.
     VA,
     NY,
     MA,
@@ -23,6 +23,7 @@ pub enum AamvaIssuingJurisdiction {
     IA,
     CO,
     AR,
+    KS,
     OH,
     VT,
     PA,
@@ -56,13 +57,13 @@ pub enum AamvaIssuingJurisdiction {
     AK,
     WY,
     WV,
-    VI,
 
+    // US Territories
     AS, // American Samoa
-    MP, // Northern Marianna Islands
+    MP, // Northern Mariana Islands
     PR, // Puerto Rico
     GU, // Guam
-    StateDept,
+    VI, // Virgin Islands
 }
 
 impl AamvaIssuingJurisdiction {
@@ -85,6 +86,7 @@ impl AamvaIssuingJurisdiction {
             Self::IA => "IA",
             Self::CO => "CO",
             Self::AR => "AR",
+            Self::KS => "KS",
             Self::OH => "OH",
             Self::VT => "VT",
             Self::PA => "PA",
@@ -118,12 +120,11 @@ impl AamvaIssuingJurisdiction {
             Self::AK => "AK",
             Self::WY => "WY",
             Self::WV => "WV",
-            Self::VI => "VI",
             Self::AS => "AS",
             Self::MP => "MP",
             Self::PR => "PR",
             Self::GU => "GU",
-            Self::StateDept => "StateDept",
+            Self::VI => "VI",
         }
     }
 }
