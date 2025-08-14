@@ -163,7 +163,7 @@ export function UnconfiguredSystemAdminScreen(): JSX.Element {
     }
     return (
       <FullScreenMessage
-        title="Insert a USB drive containing a poll book package or power up another configured machine."
+        title="Insert a USB drive containing a poll book package or turn on another configured machine."
         image={<UsbDriveImage />}
       />
     );
