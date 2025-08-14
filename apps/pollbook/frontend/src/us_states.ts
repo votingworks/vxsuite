@@ -1,6 +1,7 @@
 export const usStates = {
   AL: 'Alabama',
   AK: 'Alaska',
+  AS: 'American Samoa',
   AZ: 'Arizona',
   AR: 'Arkansas',
   CA: 'California',
@@ -10,6 +11,7 @@ export const usStates = {
   DC: 'District of Columbia',
   FL: 'Florida',
   GA: 'Georgia',
+  GU: 'Guam',
   HI: 'Hawaii',
   ID: 'Idaho',
   IL: 'Illinois',
@@ -23,6 +25,7 @@ export const usStates = {
   MA: 'Massachusetts',
   MI: 'Michigan',
   MN: 'Minnesota',
+  MP: 'Northern Mariana Islands',
   MS: 'Mississippi',
   MO: 'Missouri',
   MT: 'Montana',
