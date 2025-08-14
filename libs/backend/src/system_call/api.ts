@@ -1,6 +1,7 @@
 import { UsbDrive } from '@votingworks/usb-drive';
 
 import { LogExportFormat, Logger } from '@votingworks/logging';
+import { execFileSync } from 'node:child_process';
 import { exportLogsToUsb } from './export_logs_to_usb';
 import { rebootToVendorMenu } from './reboot_to_vendor_menu';
 import { powerDown } from './power_down';
@@ -8,6 +9,12 @@ import { setClock } from './set_clock';
 import { getBatteryInfo } from './get_battery_info';
 import { getAudioInfo } from './get_audio_info';
 import { NODE_ENV } from '../scan_globals';
+
+function getSystemTimezone(): string {
+  return execFileSync('timedatectl', ['show', '-p', 'Timezone', '--value'], {
+    encoding: 'utf8',
+  }).trim();
+}
 
 function buildApi({
   usbDrive,
@@ -20,6 +27,7 @@ function buildApi({
   machineId: string;
   codeVersion: string;
 }) {
+  process.env.TZ = getSystemTimezone();
   return {
     exportLogsToUsb: async (input: { format: LogExportFormat }) =>
       exportLogsToUsb({
