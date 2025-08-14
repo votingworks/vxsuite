@@ -7,6 +7,7 @@ import readline from 'node:readline/promises';
 import { v4 as uuid } from 'uuid';
 import {
   assert,
+  deepEqual,
   extractErrorMessage,
   throwIllegalValue,
 } from '@votingworks/basics';
@@ -390,7 +391,22 @@ export class JavaCard implements Card {
       );
     }
 
-    this.cardStatus = { status: 'ready', cardDetails };
+    // After successfully completing the card programming commands, check the overall state of the
+    // card to ensure that a valid chain of trust has been established. The most likely reason for
+    // failure here would be a card configured for the incorrect environment, i.e., a dev/QA card
+    // used on a prod machine or a prod card used on a dev/QA machine.
+    const cardDetailsAsReadFromCard = await this.safeReadCardDetails();
+    assert(
+      deepEqual(cardDetailsAsReadFromCard, {
+        ...cardDetails,
+        numIncorrectPinAttempts: undefined,
+      }),
+      'Card is likely configured for the incorrect environment'
+    );
+    this.cardStatus = {
+      status: 'ready',
+      cardDetails: cardDetailsAsReadFromCard,
+    };
   }
 
   async unprogram(): Promise<void> {
@@ -798,8 +814,10 @@ export class JavaCard implements Card {
       }
       throw error;
     }
-    /* istanbul ignore next - @preserve */
-    throw new Error('Error retrieving number of incorrect PIN attempts');
+    // We reach this point if the card is currently authenticated, which means that the number of
+    // incorrect PIN attempts is guaranteed to be 0.
+    // Reference: https://github.com/votingworks/OpenFIPS201/blob/3be5580a89942c880e396803610bbc9bc5018e43/src/com/makina/security/openfips201/PIV.java#L798
+    return 0;
   }
 
   /**

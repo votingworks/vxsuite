@@ -261,25 +261,25 @@ function mockCardPinVerificationRequest(pin: string, error?: Error): void {
 }
 
 function mockCardGetNumRemainingPinAttemptsRequest(
-  numRemainingPinAttemptsOrError: number | Error
+  response: number | Error | 'authenticated'
 ): void {
   const command = new CardCommand({
     ins: VERIFY.INS,
     p1: VERIFY.P1_VERIFY,
     p2: VERIFY.P2_PIN,
   });
-  if (numRemainingPinAttemptsOrError instanceof Error) {
-    mockCardReader.transmit
-      .expectCallWith(command)
-      .throws(numRemainingPinAttemptsOrError);
+  if (response instanceof Error) {
+    mockCardReader.transmit.expectCallWith(command).throws(response);
+    return;
+  }
+  if (response === 'authenticated') {
+    mockCardReader.transmit.expectCallWith(command).resolves(Buffer.of());
     return;
   }
   // The data is returned in what would typically be considered an error
   const responseData = new ResponseApduError([
     STATUS_WORD.VERIFY_FAIL.SW1,
-    (0xc0 +
-      (numRemainingPinAttemptsOrError ??
-        MAX_NUM_INCORRECT_PIN_ATTEMPTS)) as Byte,
+    (0xc0 + response) as Byte,
   ]);
   mockCardReader.transmit.expectCallWith(command).throws(responseData);
 }
@@ -1068,6 +1068,12 @@ test.each<{
     const javaCard = new JavaCard(configToUse);
 
     const pin = ('pin' in programInput && programInput.pin) || DEFAULT_PIN;
+    const programmingMachineType =
+      'programmingMachineType' in programInput.user
+        ? programInput.user.programmingMachineType
+        : 'admin';
+
+    // Card programming commands
     mockCardAppletSelectionRequest();
     mockCardPinResetRequest(pin);
     mockCardPinVerificationRequest(pin);
@@ -1094,6 +1100,50 @@ test.each<{
         PROGRAMMING_MACHINE_CERT_AUTHORITY_CERT.OBJECT_ID,
         expectedProgrammingMachineCertAuthorityCertPath
       );
+    }
+
+    // Card reading commands for validity check
+    mockCardAppletSelectionRequest();
+    mockCardCertRetrievalRequest(
+      CARD_VX_CERT.OBJECT_ID,
+      getTestFilePath({
+        fileType: 'card-vx-cert.der',
+        cardType: expectedCardType,
+      })
+    );
+    mockCardCertRetrievalRequest(
+      CARD_IDENTITY_CERT.OBJECT_ID,
+      getTestFilePath({
+        fileType: 'card-identity-cert.der',
+        cardType: expectedCardType,
+        programmingMachineType,
+      })
+    );
+    if (expectedProgrammingMachineCertAuthorityCertPath) {
+      mockCardCertRetrievalRequest(
+        PROGRAMMING_MACHINE_CERT_AUTHORITY_CERT.OBJECT_ID,
+        expectedProgrammingMachineCertAuthorityCertPath
+      );
+    }
+    await mockCardSignatureRequest(
+      CARD_VX_CERT.PRIVATE_KEY_ID,
+      getTestFilePath({
+        fileType: 'card-vx-private-key.pem',
+        cardType: expectedCardType,
+      })
+    );
+    if (expectedCardType === 'poll-worker') {
+      mockCardPinVerificationRequest(DEFAULT_PIN);
+      await mockCardSignatureRequest(
+        CARD_IDENTITY_CERT.PRIVATE_KEY_ID,
+        getTestFilePath({
+          fileType: 'card-identity-private-key.pem',
+          cardType: expectedCardType,
+          programmingMachineType,
+        })
+      );
+    } else {
+      mockCardGetNumRemainingPinAttemptsRequest('authenticated');
     }
 
     await javaCard.program(programInput);
