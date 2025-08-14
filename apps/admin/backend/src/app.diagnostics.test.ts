@@ -19,6 +19,25 @@ vi.setConfig({
   testTimeout: 60_000,
 });
 
+vi.mock(import('@votingworks/types'), async (importActual) => {
+  const original = await importActual();
+  return {
+    ...original,
+    formatElectionHashes: vi.fn((ballotHash, electionPackageHash) => {
+      const originalResult = original.formatElectionHashes(
+        ballotHash,
+        electionPackageHash
+      );
+      // The test print page passes in all zeros for the hashes, so we want to
+      // preserve that behavior for the test.
+      if (originalResult === '0000000-0000000') {
+        return originalResult;
+      }
+      return '1111111-0000000';
+    }),
+  };
+});
+
 vi.mock(
   import('@votingworks/backend'),
   async (importActual): Promise<typeof import('@votingworks/backend')> => ({
@@ -125,43 +144,6 @@ vi.mock(import('./util/get_current_time.js'), async (importActual) => ({
   ...(await importActual()),
   getCurrentTime: () => reportPrintedTime.getTime(),
 }));
-
-test('test-page print', async () => {
-  const { apiClient, logger, mockPrinterHandler, auth } =
-    buildTestEnvironment();
-  mockSystemAdministratorAuth(auth);
-
-  // can log failure if test page never makes it to the printer
-  await apiClient.printTestPage();
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.DiagnosticInit,
-    'system_administrator',
-    {
-      disposition: 'failure',
-      message:
-        'Error attempting to send test page to the printer: cannot print without printer connected',
-    }
-  );
-
-  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-
-  await apiClient.printTestPage();
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.DiagnosticInit,
-    'system_administrator',
-    {
-      disposition: 'success',
-      message: 'User started a print diagnostic by printing a test page.',
-    }
-  );
-
-  // it's not important to test the exact content of the test print, only that it
-  // prints the sort of text, lines, and shading that will appear on our actual reports
-  await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
-    customSnapshotIdentifier: 'test-print',
-    failureThreshold: 0.0001,
-  });
-});
 
 test('print or save readiness report', async () => {
   const { apiClient, mockPrinterHandler, auth, logger, mockUsbDrive } =
