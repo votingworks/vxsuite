@@ -2228,18 +2228,18 @@
         {
           "type": "option",
           "sheetNumber": 2,
-          "side": "back",
+          "side": "front",
           "column": 31.34369219385868,
-          "row": 8.46157159264931,
+          "row": 46.92591883614089,
           "contestId": "measure-101",
           "optionId": "measure-101-option-yes"
         },
         {
           "type": "option",
           "sheetNumber": 2,
-          "side": "back",
+          "side": "front",
           "column": 31.34369219385868,
-          "row": 9.483106814701378,
+          "row": 47.94745405819295,
           "contestId": "measure-101",
           "optionId": "measure-101-option-no"
         },
@@ -2248,7 +2248,7 @@
           "sheetNumber": 2,
           "side": "back",
           "column": 31.34369219385868,
-          "row": 12.917256891271055,
+          "row": 3.18218797856049,
           "contestId": "102",
           "optionId": "measure-102-option-yes"
         },
@@ -2257,7 +2257,7 @@
           "sheetNumber": 2,
           "side": "back",
           "column": 31.34369219385868,
-          "row": 13.938792113323123,
+          "row": 4.203723200612557,
           "contestId": "102",
           "optionId": "measure-102-option-no"
         }
