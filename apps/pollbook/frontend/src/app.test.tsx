@@ -175,7 +175,7 @@ test('system administrator can unconfigure', async () => {
   userEvent.click(confirmButton);
 
   await screen.findByText(
-    'Insert a USB drive containing a poll book package or power up another configured machine.'
+    'Insert a USB drive containing a poll book package or turn on another configured machine.'
   );
 });
 

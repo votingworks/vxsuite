@@ -64,7 +64,7 @@ describe('Election tab', () => {
     unmount = renderResult.unmount;
     await screen.findByRole('heading', { name: 'Election' });
     await screen.findByText(
-      'Insert a USB drive containing a poll book package or power up another configured machine.'
+      'Insert a USB drive containing a poll book package or turn on another configured machine.'
     );
   });
 
@@ -76,7 +76,7 @@ describe('Election tab', () => {
     unmount = renderResult.unmount;
     await screen.findByRole('heading', { name: 'Election' });
     await screen.findByText(
-      'Insert a USB drive containing a poll book package or power up another configured machine.'
+      'Insert a USB drive containing a poll book package or turn on another configured machine.'
     );
 
     apiMock.setElectionConfiguration('not-found-usb');
