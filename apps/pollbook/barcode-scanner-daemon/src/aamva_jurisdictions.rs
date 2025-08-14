@@ -158,6 +158,7 @@ impl FromStr for AamvaIssuingJurisdiction {
             "636019" => Ok(Self::GU),
             "636020" => Ok(Self::CO),
             "636021" => Ok(Self::AR),
+            "636022" => Ok(Self::KS),
             "636023" => Ok(Self::OH),
             "636024" => Ok(Self::VT),
             "636025" => Ok(Self::PA),
