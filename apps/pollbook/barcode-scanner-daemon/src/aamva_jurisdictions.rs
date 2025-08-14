@@ -198,8 +198,6 @@ impl FromStr for AamvaIssuingJurisdiction {
             "604430" => Ok(Self::MP),
             "604431" => Ok(Self::PR),
 
-            "636027" => Ok(Self::StateDept),
-
             _ => Err(Self::Err::UnknownIssuingJurisdictionId(s.to_owned())),
         }
     }
