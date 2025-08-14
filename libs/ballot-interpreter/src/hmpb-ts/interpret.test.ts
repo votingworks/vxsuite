@@ -118,7 +118,7 @@ test('interpret `ImageData` objects', async () => {
       {
         "contestId": "mayor",
         "optionId": "write-in-0",
-        "score": 0.57884616,
+        "score": 0.5778846,
       },
       {
         "contestId": "controller",
@@ -427,7 +427,7 @@ test('interpret images from paths', async () => {
       {
         "contestId": "mayor",
         "optionId": "write-in-0",
-        "score": 0.57884616,
+        "score": 0.5778846,
       },
       {
         "contestId": "controller",

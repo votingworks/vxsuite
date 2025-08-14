@@ -1446,7 +1446,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 14.460338899803537,
+          "row": 13.857441060903733,
           "contestId": "county-leader-mammal",
           "optionId": "horse"
         },
@@ -1455,7 +1455,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 15.725073673870334,
+          "row": 15.12217583497053,
           "contestId": "county-leader-mammal",
           "optionId": "otter"
         },
@@ -1464,7 +1464,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 16.989808447937133,
+          "row": 16.38691060903733,
           "contestId": "county-leader-mammal",
           "optionId": "fox"
         },
@@ -1473,7 +1473,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 15.289783889980354,
+          "row": 14.68688605108055,
           "contestId": "congressional-1-mammal",
           "optionId": "zebra-1"
         },
@@ -1482,7 +1482,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 16.55451866404715,
+          "row": 15.951620825147348,
           "contestId": "congressional-1-mammal",
           "optionId": "lion-1"
         },
@@ -1491,7 +1491,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 17.81925343811395,
+          "row": 17.216355599214147,
           "contestId": "congressional-1-mammal",
           "optionId": "kangaroo-1"
         },
@@ -1500,7 +1500,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 19.083988212180746,
+          "row": 18.481090373280942,
           "contestId": "congressional-1-mammal",
           "optionId": "elephant-1"
         },
@@ -1509,12 +1509,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 20.67841355599214,
+          "row": 20.075515717092337,
           "contestId": "congressional-1-mammal",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.180552472561352,
-            "y": 19.87841355599214,
+            "y": 19.275515717092336,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -1524,7 +1524,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 26.955427308447938,
+          "row": 26.352529469548134,
           "contestId": "water-1-fishing",
           "optionId": "water-1-fishing-ban-fishing"
         },
@@ -1533,7 +1533,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 28.220162082514737,
+          "row": 27.617264243614933,
           "contestId": "water-1-fishing",
           "optionId": "water-1-fishing-allow-fishing"
         }
@@ -1856,7 +1856,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 14.460338899803537,
+          "row": 13.857441060903733,
           "contestId": "county-leader-fish",
           "optionId": "seahorse"
         },
@@ -1865,7 +1865,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 15.725073673870334,
+          "row": 15.12217583497053,
           "contestId": "county-leader-fish",
           "optionId": "salmon"
         },
@@ -1874,7 +1874,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 15.289783889980354,
+          "row": 14.68688605108055,
           "contestId": "congressional-1-fish",
           "optionId": "manta-ray-1"
         },
@@ -1883,7 +1883,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 16.55451866404715,
+          "row": 15.951620825147348,
           "contestId": "congressional-1-fish",
           "optionId": "pufferfish-1"
         },
@@ -1892,7 +1892,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 17.81925343811395,
+          "row": 17.216355599214147,
           "contestId": "congressional-1-fish",
           "optionId": "rockfish-1"
         },
@@ -1901,7 +1901,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 19.083988212180746,
+          "row": 18.481090373280942,
           "contestId": "congressional-1-fish",
           "optionId": "triggerfish-1"
         },
@@ -1910,12 +1910,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 20.67841355599214,
+          "row": 20.075515717092337,
           "contestId": "congressional-1-fish",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.180552472561352,
-            "y": 19.87841355599214,
+            "y": 19.275515717092336,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -1925,7 +1925,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 26.955427308447938,
+          "row": 26.352529469548134,
           "contestId": "water-1-fishing",
           "optionId": "water-1-fishing-ban-fishing"
         },
@@ -1934,7 +1934,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 28.220162082514737,
+          "row": 27.617264243614933,
           "contestId": "water-1-fishing",
           "optionId": "water-1-fishing-allow-fishing"
         }
@@ -2266,7 +2266,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 14.460338899803537,
+          "row": 13.857441060903733,
           "contestId": "county-leader-mammal",
           "optionId": "horse"
         },
@@ -2275,7 +2275,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 15.725073673870334,
+          "row": 15.12217583497053,
           "contestId": "county-leader-mammal",
           "optionId": "otter"
         },
@@ -2284,7 +2284,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 16.989808447937133,
+          "row": 16.38691060903733,
           "contestId": "county-leader-mammal",
           "optionId": "fox"
         },
@@ -2293,7 +2293,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 15.289783889980354,
+          "row": 14.68688605108055,
           "contestId": "congressional-1-mammal",
           "optionId": "zebra-1"
         },
@@ -2302,7 +2302,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 16.55451866404715,
+          "row": 15.951620825147348,
           "contestId": "congressional-1-mammal",
           "optionId": "lion-1"
         },
@@ -2311,7 +2311,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 17.81925343811395,
+          "row": 17.216355599214147,
           "contestId": "congressional-1-mammal",
           "optionId": "kangaroo-1"
         },
@@ -2320,7 +2320,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 19.083988212180746,
+          "row": 18.481090373280942,
           "contestId": "congressional-1-mammal",
           "optionId": "elephant-1"
         },
@@ -2329,12 +2329,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 20.67841355599214,
+          "row": 20.075515717092337,
           "contestId": "congressional-1-mammal",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.180552472561352,
-            "y": 19.87841355599214,
+            "y": 19.275515717092336,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -2344,7 +2344,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 26.955427308447938,
+          "row": 26.352529469548134,
           "contestId": "water-2-fishing",
           "optionId": "water-2-fishing-ban-fishing"
         },
@@ -2353,7 +2353,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 28.220162082514737,
+          "row": 27.617264243614933,
           "contestId": "water-2-fishing",
           "optionId": "water-2-fishing-allow-fishing"
         }
@@ -2676,7 +2676,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 14.460338899803537,
+          "row": 13.857441060903733,
           "contestId": "county-leader-fish",
           "optionId": "seahorse"
         },
@@ -2685,7 +2685,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 15.725073673870334,
+          "row": 15.12217583497053,
           "contestId": "county-leader-fish",
           "optionId": "salmon"
         },
@@ -2694,7 +2694,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 15.289783889980354,
+          "row": 14.68688605108055,
           "contestId": "congressional-1-fish",
           "optionId": "manta-ray-1"
         },
@@ -2703,7 +2703,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 16.55451866404715,
+          "row": 15.951620825147348,
           "contestId": "congressional-1-fish",
           "optionId": "pufferfish-1"
         },
@@ -2712,7 +2712,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 17.81925343811395,
+          "row": 17.216355599214147,
           "contestId": "congressional-1-fish",
           "optionId": "rockfish-1"
         },
@@ -2721,7 +2721,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 19.083988212180746,
+          "row": 18.481090373280942,
           "contestId": "congressional-1-fish",
           "optionId": "triggerfish-1"
         },
@@ -2730,12 +2730,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 20.67841355599214,
+          "row": 20.075515717092337,
           "contestId": "congressional-1-fish",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.180552472561352,
-            "y": 19.87841355599214,
+            "y": 19.275515717092336,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -2745,7 +2745,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 26.955427308447938,
+          "row": 26.352529469548134,
           "contestId": "water-2-fishing",
           "optionId": "water-2-fishing-ban-fishing"
         },
@@ -2754,7 +2754,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 28.220162082514737,
+          "row": 27.617264243614933,
           "contestId": "water-2-fishing",
           "optionId": "water-2-fishing-allow-fishing"
         }
@@ -3086,7 +3086,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 14.460338899803537,
+          "row": 13.857441060903733,
           "contestId": "county-leader-mammal",
           "optionId": "horse"
         },
@@ -3095,7 +3095,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 15.725073673870334,
+          "row": 15.12217583497053,
           "contestId": "county-leader-mammal",
           "optionId": "otter"
         },
@@ -3104,7 +3104,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 16.989808447937133,
+          "row": 16.38691060903733,
           "contestId": "county-leader-mammal",
           "optionId": "fox"
         },
@@ -3113,7 +3113,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 15.289783889980354,
+          "row": 14.68688605108055,
           "contestId": "congressional-2-mammal",
           "optionId": "zebra-2"
         },
@@ -3122,7 +3122,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 16.55451866404715,
+          "row": 15.951620825147348,
           "contestId": "congressional-2-mammal",
           "optionId": "lion-2"
         },
@@ -3131,7 +3131,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 17.81925343811395,
+          "row": 17.216355599214147,
           "contestId": "congressional-2-mammal",
           "optionId": "kangaroo-2"
         },
@@ -3140,7 +3140,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 19.083988212180746,
+          "row": 18.481090373280942,
           "contestId": "congressional-2-mammal",
           "optionId": "elephant-2"
         },
@@ -3149,12 +3149,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 20.67841355599214,
+          "row": 20.075515717092337,
           "contestId": "congressional-2-mammal",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.180552472561352,
-            "y": 19.87841355599214,
+            "y": 19.275515717092336,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -3164,7 +3164,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 26.955427308447938,
+          "row": 26.352529469548134,
           "contestId": "water-1-fishing",
           "optionId": "water-1-fishing-ban-fishing"
         },
@@ -3173,7 +3173,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 28.220162082514737,
+          "row": 27.617264243614933,
           "contestId": "water-1-fishing",
           "optionId": "water-1-fishing-allow-fishing"
         }
@@ -3496,7 +3496,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 14.460338899803537,
+          "row": 13.857441060903733,
           "contestId": "county-leader-fish",
           "optionId": "seahorse"
         },
@@ -3505,7 +3505,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 15.725073673870334,
+          "row": 15.12217583497053,
           "contestId": "county-leader-fish",
           "optionId": "salmon"
         },
@@ -3514,7 +3514,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 15.289783889980354,
+          "row": 14.68688605108055,
           "contestId": "congressional-2-fish",
           "optionId": "manta-ray-2"
         },
@@ -3523,7 +3523,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 16.55451866404715,
+          "row": 15.951620825147348,
           "contestId": "congressional-2-fish",
           "optionId": "pufferfish-2"
         },
@@ -3532,7 +3532,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 17.81925343811395,
+          "row": 17.216355599214147,
           "contestId": "congressional-2-fish",
           "optionId": "rockfish-2"
         },
@@ -3541,7 +3541,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 19.083988212180746,
+          "row": 18.481090373280942,
           "contestId": "congressional-2-fish",
           "optionId": "triggerfish-2"
         },
@@ -3550,12 +3550,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 20.67841355599214,
+          "row": 20.075515717092337,
           "contestId": "congressional-2-fish",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.180552472561352,
-            "y": 19.87841355599214,
+            "y": 19.275515717092336,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -3565,7 +3565,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 26.955427308447938,
+          "row": 26.352529469548134,
           "contestId": "water-1-fishing",
           "optionId": "water-1-fishing-ban-fishing"
         },
@@ -3574,7 +3574,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 28.220162082514737,
+          "row": 27.617264243614933,
           "contestId": "water-1-fishing",
           "optionId": "water-1-fishing-allow-fishing"
         }
@@ -3906,7 +3906,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 14.460338899803537,
+          "row": 13.857441060903733,
           "contestId": "county-leader-mammal",
           "optionId": "horse"
         },
@@ -3915,7 +3915,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 15.725073673870334,
+          "row": 15.12217583497053,
           "contestId": "county-leader-mammal",
           "optionId": "otter"
         },
@@ -3924,7 +3924,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 16.989808447937133,
+          "row": 16.38691060903733,
           "contestId": "county-leader-mammal",
           "optionId": "fox"
         },
@@ -3933,7 +3933,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 15.289783889980354,
+          "row": 14.68688605108055,
           "contestId": "congressional-2-mammal",
           "optionId": "zebra-2"
         },
@@ -3942,7 +3942,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 16.55451866404715,
+          "row": 15.951620825147348,
           "contestId": "congressional-2-mammal",
           "optionId": "lion-2"
         },
@@ -3951,7 +3951,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 17.81925343811395,
+          "row": 17.216355599214147,
           "contestId": "congressional-2-mammal",
           "optionId": "kangaroo-2"
         },
@@ -3960,7 +3960,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 19.083988212180746,
+          "row": 18.481090373280942,
           "contestId": "congressional-2-mammal",
           "optionId": "elephant-2"
         },
@@ -3969,12 +3969,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 20.67841355599214,
+          "row": 20.075515717092337,
           "contestId": "congressional-2-mammal",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.180552472561352,
-            "y": 19.87841355599214,
+            "y": 19.275515717092336,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -3984,7 +3984,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 26.955427308447938,
+          "row": 26.352529469548134,
           "contestId": "water-2-fishing",
           "optionId": "water-2-fishing-ban-fishing"
         },
@@ -3993,7 +3993,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 28.220162082514737,
+          "row": 27.617264243614933,
           "contestId": "water-2-fishing",
           "optionId": "water-2-fishing-allow-fishing"
         }
@@ -4316,7 +4316,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 14.460338899803537,
+          "row": 13.857441060903733,
           "contestId": "county-leader-fish",
           "optionId": "seahorse"
         },
@@ -4325,7 +4325,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 15.725073673870334,
+          "row": 15.12217583497053,
           "contestId": "county-leader-fish",
           "optionId": "salmon"
         },
@@ -4334,7 +4334,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 15.289783889980354,
+          "row": 14.68688605108055,
           "contestId": "congressional-2-fish",
           "optionId": "manta-ray-2"
         },
@@ -4343,7 +4343,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 16.55451866404715,
+          "row": 15.951620825147348,
           "contestId": "congressional-2-fish",
           "optionId": "pufferfish-2"
         },
@@ -4352,7 +4352,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 17.81925343811395,
+          "row": 17.216355599214147,
           "contestId": "congressional-2-fish",
           "optionId": "rockfish-2"
         },
@@ -4361,7 +4361,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 19.083988212180746,
+          "row": 18.481090373280942,
           "contestId": "congressional-2-fish",
           "optionId": "triggerfish-2"
         },
@@ -4370,12 +4370,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 20.67841355599214,
+          "row": 20.075515717092337,
           "contestId": "congressional-2-fish",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.180552472561352,
-            "y": 19.87841355599214,
+            "y": 19.275515717092336,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -4385,7 +4385,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 26.955427308447938,
+          "row": 26.352529469548134,
           "contestId": "water-2-fishing",
           "optionId": "water-2-fishing-ban-fishing"
         },
@@ -4394,7 +4394,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 28.220162082514737,
+          "row": 27.617264243614933,
           "contestId": "water-2-fishing",
           "optionId": "water-2-fishing-allow-fishing"
         }

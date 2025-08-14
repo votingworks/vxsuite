@@ -466,7 +466,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 13.404346758349705,
+          "row": 12.801448919449902,
           "contestId": "mayor",
           "optionId": "sherlock-holmes"
         },
@@ -475,7 +475,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 15.423010805500983,
+          "row": 14.82011296660118,
           "contestId": "mayor",
           "optionId": "thomas-edison"
         },
@@ -484,12 +484,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 17.77136542239686,
+          "row": 17.168467583497055,
           "contestId": "mayor",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 2.614638056480454,
-            "y": 16.971365422396858,
+            "y": 16.368467583497054,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -499,7 +499,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 22.393786836935167,
+          "row": 21.790888998035363,
           "contestId": "controller",
           "optionId": "winston-churchill"
         },
@@ -508,7 +508,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 24.412450884086443,
+          "row": 23.80955304518664,
           "contestId": "controller",
           "optionId": "oprah-winfrey"
         },
@@ -517,7 +517,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 26.431114931237722,
+          "row": 25.82821709233792,
           "contestId": "controller",
           "optionId": "louis-armstrong"
         },
@@ -526,12 +526,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 28.779469548133598,
+          "row": 28.17657170923379,
           "contestId": "controller",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 2.614638056480454,
-            "y": 27.979469548133597,
+            "y": 27.37657170923379,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -541,7 +541,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 13.404346758349705,
+          "row": 12.801448919449902,
           "contestId": "attorney",
           "optionId": "john-snow"
         },
@@ -550,7 +550,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 15.423010805500983,
+          "row": 14.82011296660118,
           "contestId": "attorney",
           "optionId": "mark-twain"
         },
@@ -559,12 +559,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 17.77136542239686,
+          "row": 17.168467583497055,
           "contestId": "attorney",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.180552472561352,
-            "y": 16.971365422396858,
+            "y": 16.368467583497054,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -574,7 +574,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 22.393786836935167,
+          "row": 21.790888998035363,
           "contestId": "public-works-director",
           "optionId": "benjamin-franklin"
         },
@@ -583,7 +583,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 24.412450884086443,
+          "row": 23.80955304518664,
           "contestId": "public-works-director",
           "optionId": "robert-downey-jr"
         },
@@ -592,7 +592,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 26.431114931237722,
+          "row": 25.82821709233792,
           "contestId": "public-works-director",
           "optionId": "bill-nye"
         },
@@ -601,12 +601,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.280552472561352,
-          "row": 28.779469548133598,
+          "row": 28.17657170923379,
           "contestId": "public-works-director",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.180552472561352,
-            "y": 27.979469548133597,
+            "y": 27.37657170923379,
             "width": 7.799999999999999,
             "height": 1
           }
@@ -616,7 +616,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 22.84646688864225,
-          "row": 13.404346758349705,
+          "row": 12.801448919449902,
           "contestId": "chief-of-police",
           "optionId": "natalie-portman"
         },
@@ -625,7 +625,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 22.84646688864225,
-          "row": 15.423010805500983,
+          "row": 14.82011296660118,
           "contestId": "chief-of-police",
           "optionId": "frank-sinatra"
         },
@@ -634,7 +634,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 22.84646688864225,
-          "row": 17.44167485265226,
+          "row": 16.838777013752456,
           "contestId": "chief-of-police",
           "optionId": "andy-warhol"
         },
@@ -643,7 +643,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 22.84646688864225,
-          "row": 19.46033889980354,
+          "row": 18.857441060903735,
           "contestId": "chief-of-police",
           "optionId": "alfred-hitchcock"
         },
@@ -652,12 +652,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 22.84646688864225,
-          "row": 21.80869351669941,
+          "row": 21.205795677799607,
           "contestId": "chief-of-police",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 23.74646688864225,
-            "y": 21.00869351669941,
+            "y": 20.405795677799606,
             "width": 7.799999999999999,
             "height": 1
           }
