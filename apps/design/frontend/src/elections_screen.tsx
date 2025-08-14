@@ -307,13 +307,6 @@ function SingleOrgElectionsList({
 }: {
   elections: ElectionListing[];
 }): JSX.Element | null {
-  const getUserFeaturesQuery = getUserFeatures.useQuery();
-  /* istanbul ignore next - @preserve */
-  if (!getUserFeaturesQuery.isSuccess) {
-    return null;
-  }
-  const features = getUserFeaturesQuery.data;
-
   return (
     <Table>
       <thead>
@@ -322,7 +315,7 @@ function SingleOrgElectionsList({
           <th>Date</th>
           <th>Jurisdiction</th>
           <th>State</th>
-          {features.CREATE_ELECTION && <th />}
+          <th />
         </tr>
       </thead>
       <tbody>
@@ -343,11 +336,9 @@ function SingleOrgElectionsList({
 
             <LinkCell election={election}>{election.state}</LinkCell>
 
-            {features.CREATE_ELECTION && (
-              <CloneButtonCell>
-                <CloneElectionButton election={election} />
-              </CloneButtonCell>
-            )}
+            <CloneButtonCell>
+              <CloneElectionButton election={election} />
+            </CloneButtonCell>
           </ElectionRow>
         ))}
       </tbody>
@@ -410,35 +401,35 @@ export function ElectionsScreen(): JSX.Element | null {
       </Header>
       <MainContent>
         <Column style={{ gap: '1rem' }}>
-          <input
-            type="text"
-            aria-label="Filter elections"
-            placeholder={
-              features.ACCESS_ALL_ORGS
-                ? 'Filter by organization or election title'
-                : 'Filter by election title'
-            }
-            value={filterText}
-            onChange={(e) => setFilterText(e.target.value)}
-          />
+          <Row style={{ gap: '0.5rem' }}>
+            <input
+              type="text"
+              aria-label="Filter elections"
+              placeholder={
+                features.ACCESS_ALL_ORGS
+                  ? 'Filter by organization or election title'
+                  : 'Filter by election title'
+              }
+              value={filterText}
+              style={{ flexGrow: 1 }}
+              onChange={(e) => setFilterText(e.target.value)}
+            />
+            <CreateElectionButton
+              variant={elections.length === 0 ? 'primary' : undefined}
+            />
+            <FileInputButton
+              accept=".json"
+              onChange={onSelectElectionFile}
+              disabled={createElectionMutation.isLoading}
+            >
+              Load Election
+            </FileInputButton>
+          </Row>
+
           {features.ACCESS_ALL_ORGS ? (
             <AllOrgsElectionsList elections={filteredElections} />
           ) : (
             <SingleOrgElectionsList elections={filteredElections} />
-          )}
-          {features.CREATE_ELECTION && (
-            <Row style={{ gap: '0.5rem' }}>
-              <CreateElectionButton
-                variant={elections.length === 0 ? 'primary' : undefined}
-              />
-              <FileInputButton
-                accept=".json"
-                onChange={onSelectElectionFile}
-                disabled={createElectionMutation.isLoading}
-              >
-                Load Election
-              </FileInputButton>
-            </Row>
           )}
         </Column>
       </MainContent>

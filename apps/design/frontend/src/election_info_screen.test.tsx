@@ -94,24 +94,6 @@ test('newly created election starts in edit mode', async () => {
   screen.getByRole('button', { name: 'Edit' });
 });
 
-test('feature flag to hide delete election button', async () => {
-  const electionRecord = generalElectionRecord(user.orgId);
-  const electionId = electionRecord.election.id;
-
-  mockUserFeatures(apiMock, { DELETE_ELECTION: false });
-
-  apiMock.getElectionInfo
-    .expectCallWith({ electionId })
-    .resolves(electionInfoFromElection(electionRecord.election));
-  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
-  renderScreen(electionId);
-
-  await screen.findByRole('heading', { name: 'Election Info' });
-  expect(
-    screen.queryByRole('button', { name: 'Delete Election' })
-  ).not.toBeInTheDocument();
-});
-
 test('edit and save election', async () => {
   const electionRecord = generalElectionRecord(user.orgId);
   const { election } = electionRecord;

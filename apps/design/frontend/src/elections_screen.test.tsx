@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { ok } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
@@ -220,48 +220,24 @@ test('with elections', async () => {
   });
 });
 
-describe('clone buttons', () => {
-  test('rendered when CREATE_ELECTION feature enabled', async () => {
-    mockUserFeatures(apiMock, { CREATE_ELECTION: true });
-    const [general, primary] = [
-      generalElectionRecord(user.orgId),
-      primaryElectionRecord(user.orgId),
-    ];
-    apiMock.getUser.expectCallWith().resolves(user);
-    apiMock.listElections
-      .expectCallWith()
-      .resolves([electionListing(general), electionListing(primary)]);
+test('clone buttons are rendered', async () => {
+  const [general, primary] = [
+    generalElectionRecord(user.orgId),
+    primaryElectionRecord(user.orgId),
+  ];
+  apiMock.getUser.expectCallWith().resolves(user);
+  apiMock.listElections
+    .expectCallWith()
+    .resolves([electionListing(general), electionListing(primary)]);
 
-    renderScreen();
-    await screen.findByRole('heading', { name: 'Elections' });
-    expect(
-      screen
-        .getAllByTestId(TEST_ID_CLONE_ELECTION_BUTTON)
-        .map((btn) => btn.textContent)
-    ).toEqual([
-      getCloneButtonText(electionListing(general)),
-      getCloneButtonText(electionListing(primary)),
-    ]);
-  });
-
-  test('not rendered when CREATE_ELECTION feature disabled', async () => {
-    mockUserFeatures(apiMock, {
-      CREATE_ELECTION: false,
-      ACCESS_ALL_ORGS: false,
-    });
-    const [general, primary] = [
-      generalElectionRecord(user.orgId),
-      primaryElectionRecord(user.orgId),
-    ];
-    apiMock.getUser.expectCallWith().resolves(user);
-    apiMock.listElections
-      .expectCallWith()
-      .resolves([electionListing(general), electionListing(primary)]);
-
-    renderScreen();
-    await screen.findByRole('heading', { name: 'Elections' });
-    expect(
-      screen.queryByTestId(TEST_ID_CLONE_ELECTION_BUTTON)
-    ).not.toBeInTheDocument();
-  });
+  renderScreen();
+  await screen.findByRole('heading', { name: 'Elections' });
+  expect(
+    screen
+      .getAllByTestId(TEST_ID_CLONE_ELECTION_BUTTON)
+      .map((btn) => btn.textContent)
+  ).toEqual([
+    getCloneButtonText(electionListing(general)),
+    getCloneButtonText(electionListing(primary)),
+  ]);
 });
