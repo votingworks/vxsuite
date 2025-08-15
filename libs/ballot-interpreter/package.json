@@ -39,7 +39,7 @@
     "@votingworks/test-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
-    "better-sqlite3": "8.2.0",
+    "better-sqlite3": "12.2.0",
     "canvas": "2.11.2",
     "chalk": "4.1.2",
     "debug": "4.3.4",
@@ -47,7 +47,7 @@
     "tmp": "^0.2.1"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "7.6.3",
+    "@types/better-sqlite3": "7.6.13",
     "@types/chalk": "^2.2.0",
     "@types/debug": "4.1.8",
     "@types/fs-extra": "11.0.1",

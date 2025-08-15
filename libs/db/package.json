@@ -25,11 +25,11 @@
   "dependencies": {
     "@votingworks/basics": "workspace:*",
     "@votingworks/logging": "workspace:*",
-    "better-sqlite3": "8.2.0",
+    "better-sqlite3": "12.2.0",
     "debug": "4.3.4"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "7.6.3",
+    "@types/better-sqlite3": "7.6.13",
     "@types/debug": "4.1.8",
     "@types/node": "20.17.31",
     "@types/tmp": "0.2.4",
