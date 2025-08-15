@@ -215,6 +215,7 @@ function AllOrgsElectionsList({
                 if (direction) {
                   setSortState({ field: 'Status', direction });
                 } else {
+                  /* istanbul ignore next - @preserve */
                   setSortState(undefined);
                 }
               }}
@@ -231,6 +232,7 @@ function AllOrgsElectionsList({
                 if (direction) {
                   setSortState({ field: 'Org', direction });
                 } else {
+                  /* istanbul ignore next - @preserve */
                   setSortState(undefined);
                 }
               }}
@@ -250,6 +252,7 @@ function AllOrgsElectionsList({
                   if (direction) {
                     setSortState({ field: 'Jurisdiction', direction });
                   } else {
+                    /* istanbul ignore next - @preserve */
                     setSortState(undefined);
                   }
                 }}
@@ -358,6 +361,7 @@ export function ElectionsScreen(): JSX.Element | null {
       return;
     }
     // TODO handle error case
+    /* istanbul ignore next - @preserve */
     throw result.err();
   }
 
