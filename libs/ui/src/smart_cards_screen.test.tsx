@@ -826,7 +826,7 @@ test.each([
 
     await screen.findByText(expectedErrorMessage);
 
-    await vi.advanceTimersByTimeAsync(3000);
+    await vi.advanceTimersByTimeAsync(4000);
 
     await vi.waitFor(() => {
       expect(screen.queryByText(expectedErrorMessage)).not.toBeInTheDocument();

@@ -571,7 +571,7 @@ export function SmartCardsScreen({
     if (card.status === 'no_card') {
       const timeout = setTimeout(() => {
         setActionResult(undefined);
-      }, 3000);
+      }, 4000);
       return () => clearTimeout(timeout);
     }
 
