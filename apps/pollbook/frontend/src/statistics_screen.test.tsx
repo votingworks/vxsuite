@@ -227,7 +227,7 @@ describe('GeneralElectionStatistics', () => {
     }));
 
     await waitFor(() => {
-      screen.getByRole('heading', { name: 'Voter Throughput' });
+      screen.getByRole('heading', { name: 'Precinct Voter Throughput' });
       screen.getByText('1,000'); // Look for total voters count
     });
 
@@ -272,7 +272,9 @@ describe('GeneralElectionStatistics', () => {
     }));
 
     await waitFor(() => {
-      expect(screen.getAllByText('Voter Throughput')[0]).toBeInTheDocument();
+      expect(
+        screen.getAllByText('Precinct Voter Throughput')[0]
+      ).toBeInTheDocument();
       expect(screen.getAllByTestId('chart')[0]).toBeInTheDocument();
     });
   });
@@ -392,7 +394,9 @@ describe('ThroughputChart', () => {
     }));
 
     await waitFor(() => {
-      expect(screen.getAllByText('Voter Throughput')[0]).toBeInTheDocument();
+      expect(
+        screen.getAllByText('Precinct Voter Throughput')[0]
+      ).toBeInTheDocument();
       expect(screen.getAllByTestId('chart')[0]).toBeInTheDocument();
     });
 
@@ -437,7 +441,9 @@ describe('ThroughputChart', () => {
     }));
 
     await waitFor(() => {
-      expect(screen.getAllByText('Voter Throughput')[0]).toBeInTheDocument();
+      expect(
+        screen.getAllByText('Precinct Voter Throughput')[0]
+      ).toBeInTheDocument();
     });
 
     // Click 30m interval button (it has role="option" not "button") - use the last one which should be in the chart area
