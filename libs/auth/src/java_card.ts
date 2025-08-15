@@ -97,8 +97,8 @@ export const PUK = Buffer.of(0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
 export const MAX_NUM_INCORRECT_PIN_ATTEMPTS = 15;
 
 /**
- * This cert is issued by VotingWorks during initial Java Card configuration. The cert indicates
- * that the card is an authentic VotingWorks card.
+ * This cert is issued by VotingWorks during initial card configuration. The cert indicates that
+ * the card is an authentic VotingWorks card.
  */
 export const CARD_VX_CERT = {
   OBJECT_ID: pivDataObjectId(0xf0),
@@ -294,6 +294,15 @@ export class JavaCard implements Card {
     const hasPin = input.pin !== undefined;
     const pin = input.pin ?? DEFAULT_PIN;
     await this.selectApplet();
+
+    // Verify that the card has been run through the initial card configuration script for the
+    // correct environment before proceeding with programming commands
+    const cardVxCert = await this.retrieveCert(CARD_VX_CERT.OBJECT_ID);
+    await verifyFirstCertWasSignedBySecondCert(
+      cardVxCert,
+      this.vxCertAuthorityCertPath
+    );
+    await this.verifyCardPrivateKey(CARD_VX_CERT.PRIVATE_KEY_ID, cardVxCert);
 
     await this.resetPinAndInvalidateCard(pin);
 
@@ -798,8 +807,11 @@ export class JavaCard implements Card {
       }
       throw error;
     }
+    // We reach this point if the card is currently authenticated, which means that the number of
+    // incorrect PIN attempts is guaranteed to be 0.
+    // Reference: https://github.com/votingworks/OpenFIPS201/blob/3be5580a89942c880e396803610bbc9bc5018e43/src/com/makina/security/openfips201/PIV.java#L798
     /* istanbul ignore next - @preserve */
-    throw new Error('Error retrieving number of incorrect PIN attempts');
+    return 0;
   }
 
   /**
