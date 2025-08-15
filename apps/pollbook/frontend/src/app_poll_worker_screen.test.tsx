@@ -228,30 +228,30 @@ describe('PollWorkerScreen', () => {
     const { unmount } = render(<App apiClient={apiMock.mockApiClient} />);
 
     await vi.waitFor(() => screen.getByText('Total Check-Ins'));
-    // const total = screen.getByTestId('total-check-ins');
-    // within(total).getByText('25');
-    // const machine = screen.getByTestId('machine-check-ins');
-    // within(machine).getByText('5');
+    const total = screen.getByTestId('total-check-ins');
+    within(total).getByText('25');
+    const machine = screen.getByTestId('machine-check-ins');
+    within(machine).getByText('5');
 
-    // const voter = createMockVoter('123', 'Abigail', 'Adams', singlePrecinct.id);
+    const voter = createMockVoter('123', 'Abigail', 'Adams', singlePrecinct.id);
 
-    // apiMock.expectSearchVotersWithResults(
-    //   { firstName: 'ABI', lastName: 'AD' },
-    //   [voter]
-    // );
-    // const lastNameInput = screen.getByLabelText('Last Name');
-    // userEvent.clear(lastNameInput);
-    // userEvent.type(lastNameInput, 'AD');
-    // const firstNameInput = screen.getByLabelText('First Name');
-    // userEvent.type(firstNameInput, 'ABI');
-    // const firstRow = await vi.waitFor(() =>
-    //   screen.getByTestId('voter-row#123')
-    // );
-    // within(firstRow).getByText(/Adams, Abigail/i);
+    apiMock.expectSearchVotersWithResults(
+      { firstName: 'ABI', lastName: 'AD' },
+      [voter]
+    );
+    const lastNameInput = screen.getByLabelText('Last Name');
+    userEvent.clear(lastNameInput);
+    userEvent.type(lastNameInput, 'AD');
+    const firstNameInput = screen.getByLabelText('First Name');
+    userEvent.type(firstNameInput, 'ABI');
+    const firstRow = await vi.waitFor(() =>
+      screen.getByTestId('voter-row#123')
+    );
+    within(firstRow).getByText(/Adams, Abigail/i);
 
-    // expect(
-    //   within(firstRow).queryByText(new RegExp(singlePrecinct.name, 'i'))
-    // ).toBeNull();
+    expect(
+      within(firstRow).queryByText(new RegExp(singlePrecinct.name, 'i'))
+    ).toBeNull();
 
     unmount();
   });
@@ -306,7 +306,6 @@ describe('PollWorkerScreen', () => {
       mockSearchParams,
       [mockVoter]
     );
-    apiMock.expectGetVoter(mockVoter);
     await act(() => vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL));
 
     // Expect voter search list to be rendered
