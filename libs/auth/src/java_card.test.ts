@@ -1068,13 +1068,14 @@ test.each<{
     const javaCard = new JavaCard(configToUse);
 
     const pin = ('pin' in programInput && programInput.pin) || DEFAULT_PIN;
-    const programmingMachineType =
-      'programmingMachineType' in programInput.user
-        ? programInput.user.programmingMachineType
-        : 'admin';
-
-    // Card programming commands
     mockCardAppletSelectionRequest();
+    mockCardCertRetrievalRequest(
+      CARD_VX_CERT.OBJECT_ID,
+      getTestFilePath({
+        fileType: 'card-vx-cert.der',
+        cardType: expectedCardType,
+      })
+    );
     mockCardPinResetRequest(pin);
     mockCardPinVerificationRequest(pin);
     mockCardKeyPairGenerationRequest(
@@ -1100,50 +1101,6 @@ test.each<{
         PROGRAMMING_MACHINE_CERT_AUTHORITY_CERT.OBJECT_ID,
         expectedProgrammingMachineCertAuthorityCertPath
       );
-    }
-
-    // Card reading commands for validity check
-    mockCardAppletSelectionRequest();
-    mockCardCertRetrievalRequest(
-      CARD_VX_CERT.OBJECT_ID,
-      getTestFilePath({
-        fileType: 'card-vx-cert.der',
-        cardType: expectedCardType,
-      })
-    );
-    mockCardCertRetrievalRequest(
-      CARD_IDENTITY_CERT.OBJECT_ID,
-      getTestFilePath({
-        fileType: 'card-identity-cert.der',
-        cardType: expectedCardType,
-        programmingMachineType,
-      })
-    );
-    if (expectedProgrammingMachineCertAuthorityCertPath) {
-      mockCardCertRetrievalRequest(
-        PROGRAMMING_MACHINE_CERT_AUTHORITY_CERT.OBJECT_ID,
-        expectedProgrammingMachineCertAuthorityCertPath
-      );
-    }
-    await mockCardSignatureRequest(
-      CARD_VX_CERT.PRIVATE_KEY_ID,
-      getTestFilePath({
-        fileType: 'card-vx-private-key.pem',
-        cardType: expectedCardType,
-      })
-    );
-    if (expectedCardType === 'poll-worker') {
-      mockCardPinVerificationRequest(DEFAULT_PIN);
-      await mockCardSignatureRequest(
-        CARD_IDENTITY_CERT.PRIVATE_KEY_ID,
-        getTestFilePath({
-          fileType: 'card-identity-private-key.pem',
-          cardType: expectedCardType,
-          programmingMachineType,
-        })
-      );
-    } else {
-      mockCardGetNumRemainingPinAttemptsRequest('authenticated');
     }
 
     await javaCard.program(programInput);

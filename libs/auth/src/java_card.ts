@@ -7,7 +7,6 @@ import readline from 'node:readline/promises';
 import { v4 as uuid } from 'uuid';
 import {
   assert,
-  deepEqual,
   extractErrorMessage,
   throwIllegalValue,
 } from '@votingworks/basics';
@@ -98,8 +97,8 @@ export const PUK = Buffer.of(0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
 export const MAX_NUM_INCORRECT_PIN_ATTEMPTS = 15;
 
 /**
- * This cert is issued by VotingWorks during initial Java Card configuration. The cert indicates
- * that the card is an authentic VotingWorks card.
+ * This cert is issued by VotingWorks during initial card configuration. The cert indicates that
+ * the card is an authentic VotingWorks card.
  */
 export const CARD_VX_CERT = {
   OBJECT_ID: pivDataObjectId(0xf0),
@@ -296,6 +295,14 @@ export class JavaCard implements Card {
     const pin = input.pin ?? DEFAULT_PIN;
     await this.selectApplet();
 
+    // Verify that the card has been run through the initial card configuration script for the
+    // correct environment before proceeding with programming commands
+    const cardVxCert = await this.retrieveCert(CARD_VX_CERT.OBJECT_ID);
+    await verifyFirstCertWasSignedBySecondCert(
+      cardVxCert,
+      this.vxCertAuthorityCertPath
+    );
+
     await this.resetPinAndInvalidateCard(pin);
 
     const publicKey = await this.generateAsymmetricKeyPair(
@@ -391,22 +398,7 @@ export class JavaCard implements Card {
       );
     }
 
-    // After successfully completing the card programming commands, check the overall state of the
-    // card to ensure that a valid chain of trust has been established. The most likely reason for
-    // failure here would be a card configured for the incorrect environment, i.e., a dev/QA card
-    // used on a prod machine or a prod card used on a dev/QA machine.
-    const cardDetailsAsReadFromCard = await this.safeReadCardDetails();
-    assert(
-      deepEqual(cardDetailsAsReadFromCard, {
-        ...cardDetails,
-        numIncorrectPinAttempts: undefined,
-      }),
-      'Card is likely configured for the incorrect environment'
-    );
-    this.cardStatus = {
-      status: 'ready',
-      cardDetails: cardDetailsAsReadFromCard,
-    };
+    this.cardStatus = { status: 'ready', cardDetails };
   }
 
   async unprogram(): Promise<void> {
@@ -817,6 +809,7 @@ export class JavaCard implements Card {
     // We reach this point if the card is currently authenticated, which means that the number of
     // incorrect PIN attempts is guaranteed to be 0.
     // Reference: https://github.com/votingworks/OpenFIPS201/blob/3be5580a89942c880e396803610bbc9bc5018e43/src/com/makina/security/openfips201/PIV.java#L798
+    /* istanbul ignore next - @preserve */
     return 0;
   }
 
