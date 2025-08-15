@@ -12,7 +12,7 @@ import {
   Election,
   UserWithCard,
 } from '@votingworks/types';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Callout } from './callout';
 import { H1, H2, H3, P } from './typography';
@@ -59,6 +59,7 @@ const CardActions = styled.div`
   padding: 1rem;
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
 `;
 
 function ElectionInfo({ election }: { election: Election }): JSX.Element {
@@ -75,8 +76,10 @@ function ElectionInfo({ election }: { election: Election }): JSX.Element {
 
 function InsertCardPrompt({
   cardStatus,
+  promptOverride,
 }: {
   cardStatus: 'no_card' | 'card_error';
+  promptOverride?: JSX.Element;
 }): JSX.Element {
   return (
     <React.Fragment>
@@ -98,9 +101,11 @@ function InsertCardPrompt({
         )}
       </CardIllustration>
       <CardActions>
-        <Callout color="primary" icon="Info">
-          Insert a smart card to program or modify it.
-        </Callout>
+        {promptOverride ?? (
+          <Callout color="primary" icon="Info">
+            Insert a smart card to program or modify it.
+          </Callout>
+        )}
         <SmartCardsScreenButtonList
           style={{ alignItems: 'start', marginTop: '1rem' }}
         >
@@ -314,13 +319,16 @@ export function CardDetailsAndActions({
   arePollWorkerCardPinsEnabled,
   election,
   apiClient,
+  actionResult,
+  setActionResult,
 }: {
   card: DippedSmartCardAuth.ProgrammableCardReady;
   arePollWorkerCardPinsEnabled: boolean;
   election?: Election;
   apiClient: CardProgrammingApiClient;
+  actionResult?: SmartCardActionResult;
+  setActionResult: (result?: SmartCardActionResult) => void;
 }): JSX.Element {
-  const [actionResult, setActionResult] = useState<SmartCardActionResult>();
   const [confirmSystemAdminCardAction, setConfirmSystemAdminCardAction] =
     useState<ConfirmSystemAdminCardAction>();
 
@@ -437,7 +445,7 @@ export function CardDetailsAndActions({
       </CardIllustration>
       <div style={{ flexGrow: 1 }}>
         {actionResult && (
-          <div style={{ padding: '1rem' }}>
+          <div style={{ padding: '1rem', paddingBottom: 0 }}>
             <ActionResultCallout result={actionResult} />
           </div>
         )}
@@ -554,21 +562,53 @@ export function SmartCardsScreen({
   apiClient,
 }: SmartCardsScreenProps): JSX.Element | null {
   const { programmableCard: card } = auth;
+  const [actionResult, setActionResult] = useState<SmartCardActionResult>();
+
+  useEffect(() => {
+    // Preemptively removing a card that's being programmed can result in a flash of an error
+    // message. To ensure that the error message can be read, continue to display it on the insert
+    // card screen for a few seconds.
+    if (card.status === 'no_card') {
+      const timeout = setTimeout(() => {
+        setActionResult(undefined);
+      }, 3000);
+      return () => clearTimeout(timeout);
+    }
+
+    // Clear any status messages on card insert to ensure a clean slate
+    if (card.status === 'ready') {
+      setActionResult(undefined);
+    }
+  }, [card.status, setActionResult]);
+
+  const insertCardPromptOverride =
+    actionResult?.status === 'Error' ? (
+      <ActionResultCallout result={actionResult} />
+    ) : undefined;
 
   assert(card.status !== 'no_card_reader' && card.status !== 'unknown_error');
   switch (card.status) {
     case 'no_card':
-    case 'card_error':
-      return <InsertCardPrompt cardStatus={card.status} />;
-    case 'ready':
+    case 'card_error': {
+      return (
+        <InsertCardPrompt
+          cardStatus={card.status}
+          promptOverride={insertCardPromptOverride}
+        />
+      );
+    }
+    case 'ready': {
       return (
         <CardDetailsAndActions
           card={card}
           arePollWorkerCardPinsEnabled={arePollWorkerCardPinsEnabled}
           election={election}
           apiClient={apiClient}
+          actionResult={actionResult}
+          setActionResult={setActionResult}
         />
       );
+    }
 
     default: {
       /* istanbul ignore next - @preserve */
