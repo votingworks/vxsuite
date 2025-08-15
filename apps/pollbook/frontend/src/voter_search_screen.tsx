@@ -144,7 +144,7 @@ export function VoterSearch({
 
   const searchVotersQuery = searchVoters.useQuery(voterSearchParams);
   const getScannedIdDocumentQuery = getScannedIdDocument.useQuery();
-  const flushScannedIdDocumentMutation =
+  const flushScannedIdDocumentMutationFn =
     flushScannedIdDocument.useMutation().mutate;
 
   const barcodeScannerResponse = getScannedIdDocumentQuery.data;
@@ -180,8 +180,8 @@ export function VoterSearch({
     voterSearchParams.exactMatch;
 
   useEffect(() => {
-    flushScannedIdDocumentMutation();
-  }, [flushScannedIdDocumentMutation]);
+    flushScannedIdDocumentMutationFn();
+  }, [flushScannedIdDocumentMutationFn]);
 
   useEffect(() => {
     if (barcodeScannerError?.message === 'unknown_document_type') {
