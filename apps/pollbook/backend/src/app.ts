@@ -246,6 +246,11 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       return ok(payload);
     },
 
+    // Deletes the latest scanned ID document from the client
+    flushScannedIdDocument(): void {
+      barcodeScannerClient.readPayload();
+    },
+
     getPrinterStatus(): Promise<PrinterStatus> {
       return printer.status();
     },
