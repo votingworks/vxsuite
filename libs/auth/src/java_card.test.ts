@@ -1076,6 +1076,13 @@ test.each<{
         cardType: expectedCardType,
       })
     );
+    await mockCardSignatureRequest(
+      CARD_VX_CERT.PRIVATE_KEY_ID,
+      getTestFilePath({
+        fileType: 'card-vx-private-key.pem',
+        cardType: expectedCardType,
+      })
+    );
     mockCardPinResetRequest(pin);
     mockCardPinVerificationRequest(pin);
     mockCardKeyPairGenerationRequest(

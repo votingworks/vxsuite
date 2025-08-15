@@ -302,6 +302,7 @@ export class JavaCard implements Card {
       cardVxCert,
       this.vxCertAuthorityCertPath
     );
+    await this.verifyCardPrivateKey(CARD_VX_CERT.PRIVATE_KEY_ID, cardVxCert);
 
     await this.resetPinAndInvalidateCard(pin);
 
