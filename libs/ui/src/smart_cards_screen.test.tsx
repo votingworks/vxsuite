@@ -29,6 +29,8 @@ import {
   SmartCardsScreenProps,
 } from './smart_cards_screen';
 
+vi.useFakeTimers({ shouldAdvanceTime: true });
+
 const { mockApiClient, render } = newTestContext();
 const electionGeneral = readElectionGeneral();
 const prettyElectionDate = /Tuesday, November 3, 2020/;
@@ -438,12 +440,6 @@ test('Insert election manager card, reset PIN', async () => {
   expect(screen.getButton('Unprogram Card')).toBeDisabled();
 
   deferredProgram.resolve(ok({ pin: '654321' }));
-  // rerender(
-  //   <SmartCardsScreen
-  //     {...defaultProps()}
-  //     auth={authConfigs.electionManagerCard}
-  //   />
-  // );
   await screen.findByText(/Election manager card PIN reset/);
   screen.getByText('Election Manager Card');
   screen.getByText('654-321');
@@ -508,13 +504,6 @@ test('Insert poll worker card (PINs enabled), reset PIN', async () => {
   expect(screen.getButton('Unprogram Card')).toBeDisabled();
 
   deferredProgram.resolve(ok({ pin: '654321' }));
-  // rerender(
-  //   <SmartCardsScreen
-  //     {...defaultProps()}
-  //     auth={authConfigs.pollWorkerCard}
-  //     arePollWorkerCardPinsEnabled
-  //   />
-  // );
   await screen.findByText(/Poll worker card PIN reset/);
   screen.getByText('Poll Worker Card');
   screen.getByText('654-321');
@@ -560,7 +549,6 @@ test('Insert system administrator card, reset PIN', async () => {
   });
 
   deferredProgram.resolve(ok({ pin: '654321' }));
-  // apiMock.setAuthStatus(auth.systemAdministratorCard);
   await screen.findByText(/System administrator card PIN reset/);
   screen.getByText('System Administrator Card');
   screen.getByText('654-321');
@@ -790,7 +778,6 @@ test('Error resetting system administrator card PIN', async () => {
     <SmartCardsScreen
       {...defaultProps()}
       auth={authConfigs.systemAdministratorCard}
-      arePollWorkerCardPinsEnabled
     />
   );
 
@@ -807,3 +794,42 @@ test('Error resetting system administrator card PIN', async () => {
     userRole: 'system_administrator',
   });
 });
+
+test.each([
+  {
+    startingAuthState: authConfigs.blankCard,
+    buttonToPress: 'Program Election Manager Card',
+    expectedErrorMessage:
+      'Error programming election manager card. Please try again.',
+  },
+  {
+    startingAuthState: authConfigs.electionManagerCard,
+    buttonToPress: 'Reset Card PIN',
+    expectedErrorMessage:
+      'Error resetting election manager card PIN. Please try again.',
+  },
+])(
+  'Error message persists momentarily even after card is removed - $buttonToPress',
+  async ({ startingAuthState, buttonToPress, expectedErrorMessage }) => {
+    const { rerender } = render(
+      <SmartCardsScreen {...defaultProps()} auth={startingAuthState} />
+    );
+
+    mockApiClient.programCard.mockResolvedValueOnce(err(new Error('Whoa!')));
+    userEvent.click(await screen.findButton(buttonToPress));
+
+    await screen.findByText(expectedErrorMessage);
+
+    rerender(
+      <SmartCardsScreen {...defaultProps()} auth={authConfigs.noCard} />
+    );
+
+    await screen.findByText(expectedErrorMessage);
+
+    await vi.advanceTimersByTimeAsync(4000);
+
+    await vi.waitFor(() => {
+      expect(screen.queryByText(expectedErrorMessage)).not.toBeInTheDocument();
+    });
+  }
+);
