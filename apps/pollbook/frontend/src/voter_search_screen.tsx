@@ -30,7 +30,7 @@ import {
   VoterIdentificationMethod,
 } from '@votingworks/types';
 import { useQueryClient } from '@tanstack/react-query';
-import { usStates } from './us_states';
+import { usJurisdictions } from './us_states';
 import { Column, Form, Row, InputGroup } from './layout';
 import { NavScreen } from './nav_screen';
 import { getCheckInCounts, getScannedIdDocument, searchVoters } from './api';
@@ -81,7 +81,7 @@ function formatNameSearch(search: VoterSearchParams): string {
 }
 
 export function validateUsState(aamvaIssuingJurisdiction: string): string {
-  if (Object.keys(usStates).includes(aamvaIssuingJurisdiction)) {
+  if (Object.keys(usJurisdictions).includes(aamvaIssuingJurisdiction)) {
     return aamvaIssuingJurisdiction;
   }
 

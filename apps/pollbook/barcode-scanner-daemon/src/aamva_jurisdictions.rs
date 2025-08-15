@@ -5,7 +5,7 @@ use crate::parse_aamva::AamvaParseError;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize)]
 pub enum AamvaIssuingJurisdiction {
-    // US States
+    // US States & D.C.
     VA,
     NY,
     MA,
@@ -23,6 +23,7 @@ pub enum AamvaIssuingJurisdiction {
     IA,
     CO,
     AR,
+    KS,
     OH,
     VT,
     PA,
@@ -56,13 +57,13 @@ pub enum AamvaIssuingJurisdiction {
     AK,
     WY,
     WV,
-    VI,
 
+    // US Territories
     AS, // American Samoa
-    MP, // Northern Marianna Islands
+    MP, // Northern Mariana Islands
     PR, // Puerto Rico
     GU, // Guam
-    StateDept,
+    VI, // Virgin Islands
 }
 
 impl AamvaIssuingJurisdiction {
@@ -85,6 +86,7 @@ impl AamvaIssuingJurisdiction {
             Self::IA => "IA",
             Self::CO => "CO",
             Self::AR => "AR",
+            Self::KS => "KS",
             Self::OH => "OH",
             Self::VT => "VT",
             Self::PA => "PA",
@@ -118,12 +120,11 @@ impl AamvaIssuingJurisdiction {
             Self::AK => "AK",
             Self::WY => "WY",
             Self::WV => "WV",
-            Self::VI => "VI",
             Self::AS => "AS",
             Self::MP => "MP",
             Self::PR => "PR",
             Self::GU => "GU",
-            Self::StateDept => "StateDept",
+            Self::VI => "VI",
         }
     }
 }
@@ -155,9 +156,9 @@ impl FromStr for AamvaIssuingJurisdiction {
             "636014" => Ok(Self::CA),
             "636015" => Ok(Self::TX),
             "636018" => Ok(Self::IA),
-            "636019" => Ok(Self::GU),
             "636020" => Ok(Self::CO),
             "636021" => Ok(Self::AR),
+            "636022" => Ok(Self::KS),
             "636023" => Ok(Self::OH),
             "636024" => Ok(Self::VT),
             "636025" => Ok(Self::PA),
@@ -191,14 +192,13 @@ impl FromStr for AamvaIssuingJurisdiction {
             "636059" => Ok(Self::AK),
             "636060" => Ok(Self::WY),
             "636061" => Ok(Self::WV),
-            "636062" => Ok(Self::VI),
 
             // U.S. territories
             "604427" => Ok(Self::AS),
             "604430" => Ok(Self::MP),
             "604431" => Ok(Self::PR),
-
-            "636027" => Ok(Self::StateDept),
+            "636019" => Ok(Self::GU),
+            "636062" => Ok(Self::VI),
 
             _ => Err(Self::Err::UnknownIssuingJurisdictionId(s.to_owned())),
         }
