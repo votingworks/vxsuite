@@ -117,6 +117,7 @@ export async function getBackupPaperChecklistPdfs(
         configuredPrecinct,
       });
       const tableElement = React.createElement(VoterChecklist, {
+        election,
         voterGroup,
       });
       return (
