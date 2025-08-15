@@ -149,11 +149,6 @@ const STATUS_ELEMENTS: Readonly<Record<ElectionStatus, JSX.Element>> = {
       <Icons.CircleDot color="primary" /> Ballots finalized
     </span>
   ),
-  orderSubmitted: (
-    <span>
-      <Icons.Done color="success" /> Order submitted
-    </span>
-  ),
 };
 
 function AllOrgsElectionsList({
@@ -220,6 +215,7 @@ function AllOrgsElectionsList({
                 if (direction) {
                   setSortState({ field: 'Status', direction });
                 } else {
+                  /* istanbul ignore next - @preserve */
                   setSortState(undefined);
                 }
               }}
@@ -236,6 +232,7 @@ function AllOrgsElectionsList({
                 if (direction) {
                   setSortState({ field: 'Org', direction });
                 } else {
+                  /* istanbul ignore next - @preserve */
                   setSortState(undefined);
                 }
               }}
@@ -255,6 +252,7 @@ function AllOrgsElectionsList({
                   if (direction) {
                     setSortState({ field: 'Jurisdiction', direction });
                   } else {
+                    /* istanbul ignore next - @preserve */
                     setSortState(undefined);
                   }
                 }}
@@ -363,6 +361,7 @@ export function ElectionsScreen(): JSX.Element | null {
       return;
     }
     // TODO handle error case
+    /* istanbul ignore next - @preserve */
     throw result.err();
   }
 

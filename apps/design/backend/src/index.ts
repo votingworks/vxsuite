@@ -17,7 +17,6 @@ import {
 
 export type { ElectionRecord } from './store';
 export type {
-  BallotOrderInfo,
   BallotStyle,
   User,
   ElectionStatus,

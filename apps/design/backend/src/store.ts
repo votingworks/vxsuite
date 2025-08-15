@@ -19,7 +19,6 @@ import {
   ElectionSerializationFormat,
   BallotLanguageConfigs,
   LanguageCode,
-  safeParseJson,
   ElectionId,
   BallotLanguageConfig,
   Precinct,
@@ -43,8 +42,6 @@ import { BaseLogger } from '@votingworks/logging';
 import { BallotTemplateId } from '@votingworks/hmpb';
 import { DatabaseError } from 'pg';
 import {
-  BallotOrderInfo,
-  BallotOrderInfoSchema,
   BallotStyle,
   convertToVxfBallotStyle,
   ElectionInfo,
@@ -59,7 +56,6 @@ export interface ElectionRecord {
   election: Election;
   ballotStyles: BallotStyle[];
   systemSettings: SystemSettings;
-  ballotOrderInfo: BallotOrderInfo;
   createdAt: Iso8601Timestamp;
   ballotLanguageConfigs: BallotLanguageConfigs;
   ballotTemplateId: BallotTemplateId;
@@ -452,7 +448,6 @@ export class Store {
                 elections.jurisdiction,
                 elections.state,
                 elections.ballots_finalized_at as "ballotsFinalizedAt",
-                elections.ballot_order_info_data as "ballotOrderInfoData",
                 count(contests.id)::int as "contestCount"
               from elections
               left join contests on elections.id = contests.election_id
@@ -466,7 +461,6 @@ export class Store {
             Omit<ElectionListing, 'orgName' | 'status'> & {
               date: Date;
               ballotsFinalizedAt: Date | null;
-              ballotOrderInfoData: string;
               contestCount: number;
             }
           >
@@ -486,10 +480,7 @@ export class Store {
         if (!row.ballotsFinalizedAt) {
           return 'inProgress';
         }
-        if (row.ballotOrderInfoData === '{}') {
-          return 'ballotsFinalized';
-        }
-        return 'orderSubmitted';
+        return 'ballotsFinalized';
       })(),
     }));
   }
@@ -508,7 +499,6 @@ export class Store {
               state,
               seal,
               system_settings_data as "systemSettingsData",
-              ballot_order_info_data as "ballotOrderInfoData",
               ballot_paper_size as "ballotPaperSize",
               ballot_template_id as "ballotTemplateId",
               ballots_finalized_at as "ballotsFinalizedAt",
@@ -528,7 +518,6 @@ export class Store {
         state: string;
         seal: string;
         systemSettingsData: string;
-        ballotOrderInfoData: string;
         ballotPaperSize: HmpbBallotPaperSize;
         ballotTemplateId: BallotTemplateId;
         ballotsFinalizedAt: Date | null;
@@ -789,17 +778,11 @@ export class Store {
         electionRow.systemSettingsData
       ).unsafeUnwrap();
 
-      const ballotOrderInfo = safeParseJson(
-        electionRow.ballotOrderInfoData,
-        BallotOrderInfoSchema
-      ).unsafeUnwrap();
-
       return {
         election,
         precincts,
         ballotStyles,
         systemSettings,
-        ballotOrderInfo,
         ballotTemplateId: electionRow.ballotTemplateId,
         createdAt: electionRow.createdAt.toISOString(),
         ballotLanguageConfigs,
@@ -885,8 +868,7 @@ export class Store {
             ballot_paper_size,
             ballot_template_id,
             ballot_language_codes,
-            system_settings_data,
-            ballot_order_info_data
+            system_settings_data
           )
           values (
             $1,
@@ -900,8 +882,7 @@ export class Store {
             $9,
             $10,
             $11,
-            $12,
-            $13
+            $12
           )
         `,
           election.id,
@@ -915,8 +896,7 @@ export class Store {
           election.ballotLayout.paperSize,
           ballotTemplateId,
           DEFAULT_LANGUAGE_CODES,
-          JSON.stringify(systemSettings),
-          JSON.stringify({})
+          JSON.stringify(systemSettings)
         );
         for (const district of election.districts) {
           await insertDistrict(client, election.id, district);
@@ -963,42 +943,6 @@ export class Store {
           where id = $2
         `,
         JSON.stringify(systemSettings),
-        electionId
-      )
-    );
-  }
-
-  async getBallotOrderInfo(electionId: ElectionId): Promise<BallotOrderInfo> {
-    const { ballotOrderInfoData } = (
-      await this.db.withClient((client) =>
-        client.query(
-          `
-          select ballot_order_info_data as "ballotOrderInfoData"
-          from elections
-          where id = $1
-        `,
-          electionId
-        )
-      )
-    ).rows[0];
-    return safeParseJson(
-      ballotOrderInfoData,
-      BallotOrderInfoSchema
-    ).unsafeUnwrap();
-  }
-
-  async updateBallotOrderInfo(
-    electionId: ElectionId,
-    ballotOrderInfo: BallotOrderInfo
-  ): Promise<void> {
-    await this.db.withClient((client) =>
-      client.query(
-        `
-          update elections
-          set ballot_order_info_data = $1
-          where id = $2
-        `,
-        JSON.stringify(ballotOrderInfo),
         electionId
       )
     );

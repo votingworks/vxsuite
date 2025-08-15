@@ -88,7 +88,6 @@ import {
 } from '../test/helpers';
 import { FULL_TEST_DECK_TALLY_REPORT_FILE_NAME } from './test_decks';
 import {
-  BallotOrderInfo,
   ElectionInfo,
   ElectionListing,
   ElectionStatus,
@@ -442,9 +441,6 @@ test('create/list/delete elections', async () => {
     await apiClient.getSystemSettings({ electionId: electionId2 })
   ).toEqual(DEFAULT_SYSTEM_SETTINGS);
   expect(
-    await apiClient.getBallotOrderInfo({ electionId: electionId2 })
-  ).toEqual({});
-  expect(
     await apiClient.getBallotTemplate({ electionId: electionId2 })
   ).toEqual('VxDefaultBallot');
   expect(
@@ -455,17 +451,6 @@ test('create/list/delete elections', async () => {
   await apiClient.finalizeBallots({ electionId: electionId2 });
   expect((await apiClient.listElections())[0].status).toEqual<ElectionStatus>(
     'ballotsFinalized'
-  );
-
-  // Submit ballot order info and check status
-  await apiClient.updateBallotOrderInfo({
-    electionId: electionId2,
-    ballotOrderInfo: {
-      absenteeBallotCount: '1',
-    },
-  });
-  expect((await apiClient.listElections())[0].status).toEqual<ElectionStatus>(
-    'orderSubmitted'
   );
 
   // Loading election with an existing title+date should add copy prefix to the title
@@ -1772,63 +1757,6 @@ test('get/update system settings', async () => {
   });
 });
 
-test('get/update ballot order info', async () => {
-  const { apiClient, auth0 } = await setupApp();
-  auth0.setLoggedInUser(nonVxUser);
-  const electionId = unsafeParse(ElectionIdSchema, 'election-1');
-  (
-    await apiClient.createElection({
-      orgId: nonVxUser.orgId,
-      id: electionId,
-    })
-  ).unsafeUnwrap();
-
-  // Empty ballot order info initially
-  expect(await apiClient.getBallotOrderInfo({ electionId })).toEqual({});
-
-  // Update ballot order info
-  const updatedBallotOrderInfo: BallotOrderInfo = {
-    absenteeBallotCount: '100',
-    deliveryAddress: '123 Main St, Town, NH, 00000',
-    deliveryRecipientName: 'Clerky Clerkson',
-    ballotColor: 'Yellow for town, white for school',
-    precinctBallotCount: '200',
-    shouldAbsenteeBallotsBeScoredForFolding: true,
-  };
-  await apiClient.updateBallotOrderInfo({
-    electionId,
-    ballotOrderInfo: updatedBallotOrderInfo,
-  });
-  expect(await apiClient.getBallotOrderInfo({ electionId })).toEqual(
-    updatedBallotOrderInfo
-  );
-
-  await suppressingConsoleOutput(async () => {
-    // Try to update with invalid values
-    await expect(
-      apiClient.updateBallotOrderInfo({
-        electionId,
-        ballotOrderInfo: {
-          ...updatedBallotOrderInfo,
-          absenteeBallotCount: 1 as unknown as string,
-        },
-      })
-    ).rejects.toThrow();
-
-    // Check permissions
-    auth0.setLoggedInUser(anotherNonVxUser);
-    await expect(apiClient.getBallotOrderInfo({ electionId })).rejects.toThrow(
-      'auth:forbidden'
-    );
-    await expect(
-      apiClient.updateBallotOrderInfo({
-        electionId,
-        ballotOrderInfo: updatedBallotOrderInfo,
-      })
-    ).rejects.toThrow('auth:forbidden');
-  });
-});
-
 test('Finalize ballots', async () => {
   const { apiClient, auth0 } = await setupApp();
   auth0.setLoggedInUser(nonVxUser);
@@ -2038,9 +1966,6 @@ test('cloneElection', async () => {
   expect(
     await apiClient.getBallotsFinalizedAt({ electionId: newElectionId })
   ).toBeNull();
-  expect(
-    await apiClient.getBallotOrderInfo({ electionId: newElectionId })
-  ).toEqual({});
 
   // Non-Vx user can clone from and to their own org:
   auth0.setLoggedInUser(nonVxUser);
