@@ -57,6 +57,14 @@ vi.setConfig({ testTimeout: 60_000 });
 
 const TEST_POLLING_INTERVAL_MS = 5;
 
+vi.mock(import('@votingworks/types'), async (importActual) => {
+  const original = await importActual();
+  return {
+    ...original,
+    formatElectionHashes: () => '1111111-0000000',
+  };
+});
+
 const featureFlagMock = getFeatureFlagMock();
 vi.mock(import('@votingworks/utils'), async (importActual) => ({
   ...(await importActual()),
