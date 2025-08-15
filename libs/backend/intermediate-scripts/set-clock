@@ -30,4 +30,8 @@ else
     timedatectl set-timezone "${1}"
 fi
 
+# If the parent node process has a TZ environment variable set, it will
+# override the timezone set by timedatectl. So we unset it here.
+unset TZ
+
 timedatectl set-time "${2}"
