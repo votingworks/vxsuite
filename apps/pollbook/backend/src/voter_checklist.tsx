@@ -15,19 +15,12 @@ import { iter, range } from '@votingworks/basics';
 import { Election, Precinct, Voter } from '@votingworks/types';
 import { VoterGroup } from './types';
 import { getExternalPrecinctIdMappingFromElection } from './pollbook_package';
+import { padWithZeroes } from './strings';
 
 const ROWS_PER_PAGE = 16;
 
 const grayBackgroundColor = DesktopPalette.Gray5;
 const redTextColor = DesktopPalette.Red70;
-
-function padWithZeroes(n: string, targetDigits: number = 2) {
-  if (Number.isNaN(Number.parseInt(n, 10)) || n.length >= targetDigits) {
-    return n;
-  }
-
-  return `${'0'.repeat(targetDigits - n.length)}${n}`;
-}
 
 function generateBarcode(value: string) {
   const canvas = createCanvas(100, 20);
@@ -115,6 +108,7 @@ const VoterTable = styled.table`
     border-bottom: 1px solid black;
     text-align: left;
     vertical-align: top;
+    white-space: nowrap;
   }
 
   th,
