@@ -5,6 +5,7 @@ import { ContestPage } from '@votingworks/mark-flow-ui';
 import { ContestId, SystemSettings } from '@votingworks/types';
 import { PrintMode } from '@votingworks/mark-backend';
 import { isIntegrationTest } from '@votingworks/utils';
+import { AccessibilityMode } from '@votingworks/ui';
 import { BallotContext } from '../contexts/ballot_context';
 import { getPrintMode, getSystemSettings } from '../api';
 
@@ -41,6 +42,9 @@ export function ContestScreen(): React.ReactNode {
 
   return (
     <ContestPage
+      // [TODO] Conditionally use AccessibilityMode.SWITCH_SCANNING when PAT
+      // input is detected.
+      accessibilityMode={AccessibilityMode.ATI_CONTROLLER}
       allowCandidateOvervotes={
         // Only allow overvotes when marking pre-printed ballots, since summary
         // ballot QR codes are can't encode overvotes at the moment.
