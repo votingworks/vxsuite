@@ -662,7 +662,7 @@ export class LocalStore extends Store {
     const filteredCheckInEvents = checkInEvents.filter(
       (e) =>
         // Absentee check-ins are less relevant for throughput stats, which are
-        // intended to measure efficiency of the physical line
+        // intended to give a sense of foot traffic throughout the day
         !e.checkInData.isAbsentee &&
         // Events must match the party (if any) specified in filter
         (!partyFilter ||
