@@ -24,7 +24,8 @@ const DEVICE_PATH = '/dev/barcode_scanner';
 // Because only certain pages in the frontend handle ID scans,
 // we don't want stale scans to sit around in memory to be read
 // later when the user has no context on the scan.
-export const SCAN_DATA_TTL_MS = 1000;
+// The duration should be at least 2x the client polling interval
+export const SCAN_DATA_TTL_MS = 2000;
 
 /**
  * Attempts to connect to the barcode scanner Unix socket within a retry loop.
