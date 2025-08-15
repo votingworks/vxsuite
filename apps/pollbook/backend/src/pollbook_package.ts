@@ -101,7 +101,7 @@ export function parseValidStreetsFromCsvString(
       if (externalWardId && !externalIdToPrecinctId[externalWardId]) {
         throw new Error(`Unexpected ward or district: ${externalWardId}`);
       }
-      const precinct = externalIdToPrecinctId[externalWardId];
+      const precinct = externalIdToPrecinctId[externalWardId] || '';
 
       return {
         ...street,
@@ -138,7 +138,7 @@ export function parseVotersFromCsvString(
       if (externalWardId && !externalIdToPrecinctId[externalWardId]) {
         throw new Error(`Unexpected ward or district: ${externalWardId}`);
       }
-      const precinct = externalIdToPrecinctId[externalWardId];
+      const precinct = externalIdToPrecinctId[externalWardId] || '';
 
       return {
         ...voter,
@@ -229,7 +229,7 @@ export async function readPollbookPackage(
   } catch (error) {
     debug('Error reading pollbook package: %O', error);
     const typedError = error as globalThis.Error;
-    if (typedError.message.startsWith('Unexpected ward or precinct')) {
+    if (typedError.message.startsWith('Unexpected ward or district')) {
       return err({
         type: 'UnexpectedPrecinct',
         error: typedError,

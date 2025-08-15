@@ -72,7 +72,7 @@ describe('parseVotersFromCsvString', () => {
 
     suppressingConsoleOutput(() => {
       expect(() => parseVotersFromCsvString(csvString, mockElection)).toThrow(
-        'Unexpected ward or precinct: 99'
+        'Unexpected ward or district: 99'
       );
     });
   });
@@ -344,7 +344,7 @@ Main St,100,200,odd,6`;
     suppressingConsoleOutput(() => {
       expect(() =>
         parseValidStreetsFromCsvString(csvString, mockElection)
-      ).toThrow(new Error('Unexpected ward or precinct: 6'));
+      ).toThrow(new Error('Unexpected ward or district: 6'));
     });
   });
 
