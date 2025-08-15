@@ -56,6 +56,13 @@ export enum PollbookPackageFileName {
   STREET_NAMES = 'streetNames',
 }
 
+type PollbookPackageParseError =
+  | {
+      type: 'UnexpectedPrecinct';
+      error: globalThis.Error;
+    }
+  | ReadFileError;
+
 export function getExternalPrecinctIdMappingFromElection(
   election: Election
 ): Record<string, string> {
@@ -89,13 +96,20 @@ export function parseValidStreetsFromCsvString(
       }
       const street: ValidStreetInfo = record;
       const postalCityTown = record.postalCityTown ?? record.postalCity;
+
+      const externalWardId = record.ward ?? record.district;
+      if (externalWardId && !externalIdToPrecinctId[externalWardId]) {
+        throw new Error(`Unexpected ward or district: ${externalWardId}`);
+      }
+      const precinct = externalIdToPrecinctId[externalWardId];
+
       return {
         ...street,
         lowRange: safeParseInt(street.lowRange).unsafeUnwrap(),
         highRange: safeParseInt(street.highRange).unsafeUnwrap(),
         side: street.side.toLowerCase() as StreetSide,
         postalCityTown,
-        precinct: externalIdToPrecinctId[record.ward ?? record.district] || '',
+        precinct,
       };
     },
   });
@@ -119,9 +133,16 @@ export function parseVotersFromCsvString(
       const mailingCityTown = record.mailingCityTown ?? record.mailingTown;
       const postalCityTown = record.postalCityTown ?? record.postalCity;
       const voter: Voter = record;
+
+      const externalWardId = record.ward ?? record.district;
+      if (externalWardId && !externalIdToPrecinctId[externalWardId]) {
+        throw new Error(`Unexpected ward or district: ${externalWardId}`);
+      }
+      const precinct = externalIdToPrecinctId[externalWardId];
+
       return {
         ...voter,
-        precinct: externalIdToPrecinctId[record.ward ?? record.district] || '',
+        precinct,
         // Add leading zeros to zip codes if necessary
         postalZip5: postalZip5 && postalZip5.padStart(5, '0'),
         zip4: voter.zip4 && voter.zip4.padStart(4, '0'),
@@ -147,7 +168,7 @@ export function parseVotersFromCsvString(
 
 export async function readPollbookPackage(
   path: string
-): Promise<Result<PollbookPackage, ReadFileError>> {
+): Promise<Result<PollbookPackage, PollbookPackageParseError>> {
   const pollbookPackage = await readFile(path, {
     maxSize: MAX_POLLBOOK_PACKAGE_SIZE,
   });
@@ -207,6 +228,14 @@ export async function readPollbookPackage(
     return ok({ electionDefinition, voters, validStreets, packageHash });
   } catch (error) {
     debug('Error reading pollbook package: %O', error);
+    const typedError = error as globalThis.Error;
+    if (typedError.message.startsWith('Unexpected ward or precinct')) {
+      return err({
+        type: 'UnexpectedPrecinct',
+        error: typedError,
+      });
+    }
+
     return err({
       type: 'ReadFileError',
       error: new Error(`Error reading pollbook package: ${error}`),
@@ -287,6 +316,7 @@ export function pollUsbDriveForPollbookPackage({
           const result = pollbookPackageResult.err();
           debug('Read pollbook package error: %O', result);
           if (
+            result.type === 'UnexpectedPrecinct' ||
             result.type === 'ReadFileError' ||
             (result.type === 'OpenFileError' &&
               'code' in result.error &&

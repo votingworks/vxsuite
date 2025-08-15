@@ -1,7 +1,6 @@
 import { describe, test, expect } from 'vitest';
-import { Election } from '@votingworks/types';
+import { Election, StreetSide } from '@votingworks/types';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
-import { StreetSide } from '@votingworks/types';
 import {
   parseVotersFromCsvString,
   parseValidStreetsFromCsvString,
@@ -60,7 +59,21 @@ describe('parseVotersFromCsvString', () => {
           ...mockElection,
           precincts: [{ id: 'precinct-1', name: '-', districtIds: ['ds-1'] }],
         })
-      ).toThrow();
+      ).toThrow(
+        new Error('Invalid precinct external identifier for precinct "-"')
+      );
+    });
+  });
+
+  test('throws on valid voter precinct name that lacks a match in election precincts', () => {
+    const csvString = `Voter ID,First Name,Last Name,Postal Zip5,Ward
+123,John,Doe,12345,1
+456,Jane,Smith,67890,99`;
+
+    suppressingConsoleOutput(() => {
+      expect(() => parseVotersFromCsvString(csvString, mockElection)).toThrow(
+        'Unexpected ward or precinct: 99'
+      );
     });
   });
 
@@ -306,6 +319,33 @@ Main St,100,200,odd,5`;
         precinct: 'precinct-3',
       })
     );
+  });
+
+  test('throws on invalid election precinct name', () => {
+    const csvString = `Street Name,Low Range,High Range,Side,Ward
+Main St,100,200,odd,5`;
+
+    suppressingConsoleOutput(() => {
+      expect(() =>
+        parseValidStreetsFromCsvString(csvString, {
+          ...mockElection,
+          precincts: [{ id: 'precinct-1', name: '-', districtIds: ['ds-1'] }],
+        })
+      ).toThrow(
+        new Error('Invalid precinct external identifier for precinct "-"')
+      );
+    });
+  });
+
+  test('throws if ward does not match a precinct in the election', () => {
+    const csvString = `Street Name,Low Range,High Range,Side,Ward
+Main St,100,200,odd,6`;
+
+    suppressingConsoleOutput(() => {
+      expect(() =>
+        parseValidStreetsFromCsvString(csvString, mockElection)
+      ).toThrow(new Error('Unexpected ward or precinct: 6'));
+    });
   });
 
   test('filters out rows without street name', () => {
