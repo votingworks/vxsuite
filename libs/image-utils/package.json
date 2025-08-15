@@ -25,7 +25,7 @@
     "@votingworks/basics": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
-    "canvas": "2.11.2",
+    "canvas": "3.1.2",
     "debug": "4.3.4",
     "jest-image-snapshot": "^6.4.0",
     "pdfjs-dist": "3.11.174",

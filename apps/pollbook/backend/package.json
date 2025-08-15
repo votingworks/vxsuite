@@ -43,7 +43,7 @@
     "@votingworks/ui": "workspace:*",
     "@votingworks/usb-drive": "workspace:*",
     "@votingworks/utils": "workspace:*",
-    "canvas": "2.11.2",
+    "canvas": "3.1.2",
     "csv-parse": "^5.5.0",
     "csv-stringify": "^6.4.0",
     "debug": "4.3.4",
