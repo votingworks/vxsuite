@@ -64,19 +64,35 @@ function escapeRegex(str: string): string {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-// Takes a raw string input eg. search string for voter name
-// and turns it into a pattern to pass to sqlite3. The pattern
-// ignores apostrophes, dashes, and whitespace
+// Whitespace, apostrophe, period, hyphen
+const ignoredPunctuation = `[\\s'\\.\\-]`;
+
+function getRegexParts(raw: string): string[] {
+  // Remove all ignored punctuation from the raw search string
+  const clean = raw.trim().replace(new RegExp(ignoredPunctuation, 'g'), '');
+  // Split the cleaned search string into single characters and escape so
+  // regex metacharacters are treated as literals in the final search
+  return Array.from(clean).map((ch) => escapeRegex(ch));
+}
+
 function toPatternStartsWith(raw: string): string {
-  const clean = raw.trim().replace(/[\s'-]/g, '');
-  const parts = clean.split('').map((ch) => escapeRegex(ch));
-  return `^${parts.join(`[\\s'\\-]*`)}.*$`;
+  const parts = getRegexParts(raw);
+  // Allows
+  //   * 0+ punctuation chars up front
+  //   * 0+ punctuation chars between each character of the search string
+  //   * 0+ trailing characters (punctuation or not)
+  return `^${ignoredPunctuation}*${parts.join(`${ignoredPunctuation}*`)}.*$`;
 }
 
 function toPatternMatches(raw: string): string {
-  const clean = raw.trim().replace(/[\s'-]/g, '');
-  const parts = clean.split('').map((ch) => escapeRegex(ch));
-  return `^${parts.join(`[\\s'\\-]*`)}[\\s'\\-]*$`;
+  const parts = getRegexParts(raw);
+  // Allows
+  //   * 0+ punctuation chars up front
+  //   * 0+ punctuation chars between each character of the search string
+  //   * 0+ trailing punctuation-only characters
+  return `^${ignoredPunctuation}*${parts.join(
+    `${ignoredPunctuation}*`
+  )}${ignoredPunctuation}*$`;
 }
 
 export class LocalStore extends Store {

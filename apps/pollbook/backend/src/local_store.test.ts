@@ -40,6 +40,7 @@ test('findVotersWithName works as expected - voters without name changes', () =>
       middleName: 'Samantha',
       suffix: 'II',
     }),
+    createVoter('16', 'Mont', 'St. Michel'),
   ];
   const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
   localStore.setElectionAndVoters(
@@ -149,6 +150,33 @@ test('findVotersWithName works as expected - voters without name changes', () =>
     expect.arrayContaining([
       expect.objectContaining({ voterId: voters[4].voterId }),
       expect.objectContaining({ voterId: voters[5].voterId }),
+    ])
+  );
+
+  // Test period chars
+  expect(
+    localStore.findVotersWithName({
+      firstName: 'Dy.lan',
+      lastName: '.obrien',
+      middleName: 'mid.',
+      suffix: 'i.',
+    })
+  ).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ voterId: voters[0].voterId }),
+    ])
+  );
+
+  expect(
+    localStore.findVotersWithName({
+      firstName: 'Mont',
+      lastName: 'StMichel',
+      middleName: '',
+      suffix: '',
+    })
+  ).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ voterId: voters[6].voterId }),
     ])
   );
 });
@@ -392,6 +420,73 @@ test('searchVoters returns results sorted by configured precinct first, then by 
   expect(results[1].precinct).toEqual('precinct-1');
   expect(results[2].precinct).toEqual('precinct-2');
   expect(results[3].precinct).toEqual('precinct-2');
+});
+
+test('searchVoters ignores punctuation', () => {
+  const localStore = LocalStore.memoryStore(mockBaseLogger({ fn: vi.fn }));
+  const testElectionDefinition = getTestElectionDefinition();
+
+  const voters = [
+    createVoter('22', 'Charlie', 'Carter', {
+      middleName: '',
+      suffix: '',
+      precinct: 'precinct-1',
+    }),
+    createVoter('23', 'D av-id', "Da.v'is", {
+      middleName: '',
+      suffix: '',
+      precinct: 'precinct-1',
+    }),
+  ];
+
+  const streets = [createValidStreetInfo('MAIN', 'all', 1, 100)];
+  localStore.setElectionAndVoters(
+    testElectionDefinition,
+    'mock-package-hash',
+    streets,
+    voters
+  );
+
+  // Configure precinct-1 as the active precinct
+  localStore.setConfiguredPrecinct('precinct-1');
+
+  // Search for non-punctuated voter using various punctuation
+  const punctuatedNames = ['Char.lie', 'Char-li', "Char'l"];
+  for (const firstName of punctuatedNames) {
+    const searchResults = localStore.searchVoters({
+      lastName: '',
+      firstName,
+      middleName: '',
+      suffix: '',
+    });
+
+    expect(Array.isArray(searchResults)).toEqual(true);
+    const results = searchResults as Voter[];
+    expect(results).toHaveLength(1);
+    expect(results[0].voterId).toEqual('22');
+  }
+
+  // Search for punctuated voter using no punctuation
+  const nonPunctuatedSearchParams = [
+    {
+      firstName: 'David',
+    },
+    { lastName: 'Davis' },
+  ];
+  for (const params of nonPunctuatedSearchParams) {
+    const searchResults = localStore.searchVoters({
+      lastName: '',
+      firstName: '',
+      middleName: '',
+      suffix: '',
+      ...params,
+    });
+
+    expect(Array.isArray(searchResults)).toEqual(true);
+    const results = searchResults as Voter[];
+    expect(results).toHaveLength(1);
+    expect(results[0].voterId).toEqual('23');
+  }
 });
 
 test('registerVoter and findVoterWithName integration', () => {
