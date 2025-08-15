@@ -675,15 +675,19 @@ export class LocalStore extends Store {
         event.type === EventType.VoterCheckIn
     );
 
-    const checkInEventsMatchingParty = checkInEvents.filter(
+    const filteredCheckInEvents = checkInEvents.filter(
       (e) =>
-        !partyFilter ||
-        partyFilter === 'ALL' ||
-        e.checkInData.ballotParty === partyFilter
+        // Absentee check-ins are less relevant for throughput stats, which are
+        // intended to give a sense of foot traffic throughout the day
+        !e.checkInData.isAbsentee &&
+        // Events must match the party (if any) specified in filter
+        (!partyFilter ||
+          partyFilter === 'ALL' ||
+          e.checkInData.ballotParty === partyFilter)
     );
 
-    const orderedByEventMachineTime = [...checkInEventsMatchingParty].sort(
-      (a, b) => a.checkInData.timestamp.localeCompare(b.checkInData.timestamp)
+    const orderedByEventMachineTime = [...filteredCheckInEvents].sort((a, b) =>
+      a.checkInData.timestamp.localeCompare(b.checkInData.timestamp)
     );
     // Group events by interval based on checkInData.timestamp
     const throughputStats: ThroughputStat[] = [];
