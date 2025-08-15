@@ -1166,6 +1166,12 @@ test('getThroughputStatistics returns correct throughput data for single interva
       precinct: 'precinct-1',
       party: 'UND',
     }),
+    createVoter('13', 'Absentee', 'Voter', {
+      middleName: '',
+      suffix: '',
+      precinct: 'precinct-1',
+      party: 'DEM',
+    }),
   ];
   const streets = [createValidStreetInfo('PEGASUS', 'odd', 5, 15)];
   localStore.setElectionAndVoters(
@@ -1201,6 +1207,16 @@ test('getThroughputStatistics returns correct throughput data for single interva
     ballotParty: 'NOT_APPLICABLE',
   });
 
+  // Fourth check-in (absentee) at 11:46 AM
+  vi.setSystemTime(new Date('2025-08-04T11:46:00.000Z'));
+  localStore.setIsAbsenteeMode(true);
+  localStore.recordVoterCheckIn({
+    voterId: voters[3].voterId,
+    identificationMethod: { type: 'default' },
+    ballotParty: 'DEM',
+  });
+  localStore.setIsAbsenteeMode(false);
+
   // Set current time for generating statistics
   vi.setSystemTime(new Date('2025-08-04T11:50:00.000Z'));
 
@@ -1208,6 +1224,7 @@ test('getThroughputStatistics returns correct throughput data for single interva
   expect(throughputStats).toHaveLength(1);
   expect(throughputStats[0]).toMatchObject({
     interval: 60,
+    // 3 precinct check-ins and 1 absentee check-in, but absentee check-in shouldn't count
     checkIns: 3,
     startTime: '2025-08-04T11:00:00.000Z',
   });
