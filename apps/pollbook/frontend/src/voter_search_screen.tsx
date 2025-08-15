@@ -439,7 +439,9 @@ export function VoterSearchScreen({
 
   const onBarcodeScanMatch = useCallback(
     (voter: Voter, identificationMethod: VoterIdentificationMethod) => {
-      onSelect(voter.voterId, identificationMethod);
+      if (!voter.checkIn) {
+        onSelect(voter.voterId, identificationMethod);
+      }
     },
     [onSelect]
   );
