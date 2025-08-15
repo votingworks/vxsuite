@@ -6,7 +6,6 @@ import { Button } from './button';
 import { Modal } from './modal';
 import { Font, P } from './typography';
 import { Icons } from './icons';
-import { Loading } from './loading';
 
 type FlowState =
   | { stage: 'confirm' }
@@ -74,7 +73,16 @@ function FormatUsbFlow({
         />
       );
     case 'formatting':
-      return <Modal content={<Loading>Formatting USB Drive</Loading>} />;
+      return (
+        <Modal
+          title="Formatting USB Drive…"
+          content={
+            <P>
+              <Icons.Warning color="warning" /> Do not remove the USB drive.
+            </P>
+          }
+        />
+      );
     case 'done':
       return (
         <Modal
