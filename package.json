@@ -11,7 +11,7 @@
     "run-dev": "script/run-dev"
   },
   "engines": {
-    "node": "20.16.0"
+    "node": "22.18.0"
   },
   "packageManager": "pnpm@8.15.5",
   "devDependencies": {
