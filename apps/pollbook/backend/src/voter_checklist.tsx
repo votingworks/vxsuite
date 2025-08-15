@@ -14,6 +14,8 @@ import React from 'react';
 import { iter, range } from '@votingworks/basics';
 import { Election, Precinct, Voter } from '@votingworks/types';
 import { VoterGroup } from './types';
+import { getExternalPrecinctIdMappingFromElection } from './pollbook_package';
+import { padWithZeroes } from './strings';
 
 const ROWS_PER_PAGE = 16;
 
@@ -106,6 +108,7 @@ const VoterTable = styled.table`
     border-bottom: 1px solid black;
     text-align: left;
     vertical-align: top;
+    white-space: nowrap;
   }
 
   th,
@@ -244,10 +247,20 @@ export function VoterMailingAddress({ voter }: { voter: Voter }): JSX.Element {
 }
 
 export function VoterChecklistTable({
+  election,
   voters,
 }: {
+  election: Election;
   voters: Voter[];
 }): JSX.Element {
+  const precinctsExternalToInternal =
+    getExternalPrecinctIdMappingFromElection(election);
+  const precinctsInternalToExternal = Object.fromEntries(
+    Object.entries(precinctsExternalToInternal).map(([external, internal]) => [
+      internal,
+      external,
+    ])
+  );
   if (voters.length === 0) {
     return <div />;
   }
@@ -262,7 +275,7 @@ export function VoterChecklistTable({
           <th>OOS&nbsp;DL</th>
           <th>Domicile Address</th>
           <th>Mailing Address</th>
-          <th>Dist</th>
+          <th>{election.precincts.length === 1 ? 'Dist' : 'Ward'}</th>
           <th>Voter ID</th>
           <th>Barcode</th>
         </tr>
@@ -302,7 +315,9 @@ export function VoterChecklistTable({
             <td>
               <VoterMailingAddress voter={voter} />
             </td>
-            <td>{voter.precinct}</td>
+            <td>{`${padWithZeroes(
+              precinctsInternalToExternal[voter.precinct]
+            )}`}</td>
             <td>{voter.voterId}</td>
             <td>
               <img src={generateBarcode(voter.voterId)} />
@@ -380,13 +395,18 @@ export function NewRegistrationsVoterChecklistTable({
 }
 
 export function VoterChecklist({
+  election,
   voterGroup,
 }: {
+  election: Election;
   voterGroup: VoterGroup;
 }): JSX.Element {
   return (
     <React.Fragment>
-      <VoterChecklistTable voters={voterGroup.existingVoters} />
+      <VoterChecklistTable
+        election={election}
+        voters={voterGroup.existingVoters}
+      />
       <NewRegistrationsVoterChecklistTable
         voters={voterGroup.newRegistrations}
       />
