@@ -56,6 +56,10 @@ enum UserFeature {
    * Allow the user to toggle the ability to mark overvotes on VxMark.
    */
   BMD_OVERVOTE_ALLOW_TOGGLE = 'BMD_OVERVOTE_ALLOW_TOGGLE',
+  /**
+   * Change the BMD print mode.
+   */
+  BMD_PRINT_MODE = 'BMD_PRINT_MODE',
 }
 
 /**
@@ -97,6 +101,7 @@ export const userFeatureConfigs = {
     ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: true,
     BMD_OVERVOTE_ALLOW_TOGGLE: true,
     MINIMUM_DETECTED_SCALE_OPTION: true,
+    BMD_PRINT_MODE: true,
 
     EXPORT_SCREEN: true,
     CHOOSE_BALLOT_TEMPLATE: true,
@@ -113,6 +118,7 @@ export const userFeatureConfigs = {
     ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: false,
     BMD_OVERVOTE_ALLOW_TOGGLE: false,
     MINIMUM_DETECTED_SCALE_OPTION: false,
+    BMD_PRINT_MODE: false,
 
     EXPORT_SCREEN: true,
     CHOOSE_BALLOT_TEMPLATE: false,
@@ -129,6 +135,7 @@ export const userFeatureConfigs = {
     ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: true,
     BMD_OVERVOTE_ALLOW_TOGGLE: false,
     MINIMUM_DETECTED_SCALE_OPTION: false,
+    BMD_PRINT_MODE: false,
 
     EXPORT_SCREEN: true,
     CHOOSE_BALLOT_TEMPLATE: true,
@@ -145,6 +152,7 @@ export const userFeatureConfigs = {
     ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: false,
     BMD_OVERVOTE_ALLOW_TOGGLE: false,
     MINIMUM_DETECTED_SCALE_OPTION: false,
+    BMD_PRINT_MODE: false,
 
     EXPORT_SCREEN: false,
     CHOOSE_BALLOT_TEMPLATE: false,

@@ -13,6 +13,7 @@ import { useParams } from 'react-router-dom';
 import {
   AdjudicationReason,
   AdjudicationReasonSchema,
+  BmdPrintMode,
   DEFAULT_INACTIVE_SESSION_TIME_LIMIT_MINUTES,
   DEFAULT_MARK_THRESHOLDS,
   DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT,
@@ -533,6 +534,37 @@ export function SystemSettingsForm({
                 }
                 disabled={!isEditing}
               />
+            )}
+            {features.BMD_PRINT_MODE && (
+              <InputGroup label="BMD Print Mode">
+                <SearchSelect
+                  aria-label="BMD Print Mode"
+                  isMulti={false}
+                  isSearchable={false}
+                  // [TODO] Add to `DEFAULT_SYSTEM_SETTINGS` instead, once the
+                  // feature is fully launched.
+                  value={systemSettings.bmdPrintMode || 'summary'}
+                  disabled={!isEditing}
+                  options={[
+                    { label: 'QR Code Summary Ballots', value: 'summary' },
+                    {
+                      label: 'Bubble Marks on Pre-Printed Ballots',
+                      value: 'bubble_marks',
+                    },
+                  ]}
+                  onChange={(newValue?: BmdPrintMode) => {
+                    setSystemSettings({
+                      ...systemSettings,
+                      // [TODO] Pre-launch, we'll be treating an `undefined`
+                      // value as the default `summary` mode, to avoid having
+                      // this WIP feature show up in the system settings. Remove
+                      // this override logic once the feature is fully launched.
+                      bmdPrintMode:
+                        newValue === 'summary' ? undefined : newValue,
+                    });
+                  }}
+                />
+              </InputGroup>
             )}
             <CheckboxGroup
               label="CVR"

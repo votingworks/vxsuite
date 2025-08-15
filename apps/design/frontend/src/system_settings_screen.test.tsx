@@ -502,7 +502,7 @@ test('all controls are disabled until clicking "Edit"', async () => {
   const allCheckboxes = document.body.querySelectorAll('[role=checkbox]');
   const allControls = [...allTextBoxes, ...allCheckboxes];
 
-  expect(allControls).toHaveLength(24);
+  expect(allControls).toHaveLength(25);
 
   for (const control of allControls) {
     expect(control).toBeDisabled();
@@ -570,5 +570,73 @@ describe('BMD overvote toggle', () => {
       .resolves(mockSettingsFinal);
 
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  });
+});
+
+describe('BMD print mode', () => {
+  test('omitted when feature flag is off', async () => {
+    apiMock.getSystemSettings
+      .expectCallWith({ electionId })
+      .resolves(electionRecord.systemSettings);
+
+    mockUserFeatures(apiMock, { BMD_PRINT_MODE: false });
+
+    renderScreen();
+
+    await screen.findByRole('heading', { name: 'System Settings' });
+    expect(screen.queryByText(/bmd print mode/i)).not.toBeInTheDocument();
+  });
+
+  test('included when feature flag is on', async () => {
+    const mockSettingsInitial: SystemSettings = {
+      ...electionRecord.systemSettings,
+      bmdPrintMode: 'bubble_marks',
+    };
+
+    apiMock.getSystemSettings
+      .expectCallWith({ electionId })
+      .resolves(mockSettingsInitial);
+
+    mockUserFeatures(apiMock, { BMD_PRINT_MODE: true });
+
+    renderScreen();
+
+    await screen.findByRole('heading', { name: 'System Settings' });
+    screen.getByText(/bmd print mode/i);
+
+    userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+
+    await expectSearchSelectValueThenEditValue(
+      assertDefined(
+        screen.getByRole('heading', { name: 'Other' }).parentElement
+      ),
+      'BMD Print Mode',
+      'Bubble Marks on Pre-Printed Ballots',
+      'QR Code Summary Ballots'
+    );
+
+    // Verify print mode is set to `undefined` for the default `summary` value:
+
+    const mockSettingsFinal: SystemSettings = {
+      ...mockSettingsInitial,
+      bmdPrintMode: undefined,
+    };
+    apiMock.updateSystemSettings
+      .expectCallWith({ electionId, systemSettings: mockSettingsFinal })
+      .resolves();
+
+    apiMock.getSystemSettings
+      .expectCallWith({ electionId })
+      .resolves(mockSettingsFinal);
+
+    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    expectComboBoxValue(
+      assertDefined(
+        screen.getByRole('heading', { name: 'Other' }).parentElement
+      ),
+      'BMD Print Mode',
+      'QR Code Summary Ballots'
+    );
   });
 });

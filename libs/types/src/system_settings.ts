@@ -51,6 +51,19 @@ export const MarkThresholdsSchema: z.ZodSchema<MarkThresholds> = z
     'marginal mark threshold must be less than or equal to definite mark threshold'
   );
 
+export const BMD_PRINT_MODES = ['bubble_marks', 'summary'] as const;
+
+/**
+ * The type of BMD print output for a given election.
+ * - `bubble_marks`: Filled bubbles printed over a pre-printed ballot.
+ * - `summary`: A text-based vote summary along with QR code encoding the
+ *   votes and additional ballot metadata.
+ */
+export type BmdPrintMode = (typeof BMD_PRINT_MODES)[number];
+
+export const BmdPrintModeSchema: z.ZodSchema<BmdPrintMode> =
+  z.enum(BMD_PRINT_MODES);
+
 /**
  * Settings for various parts of the system that are not part of the election
  * definition. These settings can be changed without changing the ballot hash
@@ -108,6 +121,14 @@ export interface SystemSettings {
    * contest seat limit.
    */
   readonly bmdAllowOvervotes?: boolean;
+
+  /**
+   * NOTE: This is a WIP feature - this setting is currently set to `undefined`
+   * to represent the default `summary` print mode.
+   *
+   * See {@link BmdPrintMode}.
+   */
+  readonly bmdPrintMode?: BmdPrintMode;
 }
 
 export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
@@ -131,6 +152,7 @@ export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
   precinctScanEnableBmdBallotScanning: z.boolean().optional(),
   minimumDetectedScale: z.number().min(0.0).max(1.0).optional(),
   bmdAllowOvervotes: z.boolean().optional(),
+  bmdPrintMode: BmdPrintModeSchema.optional(),
 });
 
 /**

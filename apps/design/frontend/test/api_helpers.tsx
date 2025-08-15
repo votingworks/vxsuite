@@ -28,6 +28,7 @@ const allUserFeaturesOnConfig: UserFeaturesConfig = {
   MINIMUM_DETECTED_SCALE_OPTION: true,
   ONLY_LETTER_AND_LEGAL_PAPER_SIZES: true,
   BALLOT_LANGUAGE_CONFIG: true,
+  BMD_PRINT_MODE: true,
 };
 
 const allElectionFeaturesOffConfig: ElectionFeaturesConfig = {
