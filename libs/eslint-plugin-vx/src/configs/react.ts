@@ -41,5 +41,14 @@ export = {
     'react/prop-types': 'off',
     'react/require-default-props': 'off',
     'vx/no-react-hook-mutation-dependency': 'error',
+    'no-restricted-globals': [
+      ...recommended.rules['no-restricted-globals'],
+      'close',
+      'open',
+      'alert',
+      'confirm',
+      'prompt',
+      'print',
+    ],
   },
 };
