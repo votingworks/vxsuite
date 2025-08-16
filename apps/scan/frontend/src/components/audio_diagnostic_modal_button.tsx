@@ -40,7 +40,6 @@ export function AudioDiagnosticModal(
         </React.Fragment>
       }
       content={<P>Did you hear the sound played over the speakers?</P>}
-      onOverlayClick={close}
       title={
         <React.Fragment>
           Sound Test <Icons.SoundOn />
