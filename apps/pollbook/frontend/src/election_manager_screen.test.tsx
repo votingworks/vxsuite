@@ -29,7 +29,6 @@ beforeEach(() => {
   apiMock.expectGetDeviceStatuses();
   apiMock.expectHaveElectionEventsOccurred(false);
   apiMock.expectGetScannedIdDocument();
-  apiMock.expectFlushScannedIdDocument();
 });
 
 afterEach(() => {

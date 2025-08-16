@@ -44,7 +44,6 @@ describe('PollWorkerScreen', () => {
     vi.clearAllMocks();
     apiMock = createApiMock();
     apiMock.setElection(undefined);
-    apiMock.expectFlushScannedIdDocument();
   });
 
   afterEach(() => {

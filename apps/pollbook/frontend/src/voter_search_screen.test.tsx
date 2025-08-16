@@ -35,7 +35,6 @@ const election = electionSimpleSinglePrecinctFixtures.readElection();
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
   apiMock = createApiMock();
-  apiMock.expectFlushScannedIdDocument();
 });
 
 afterEach(() => {

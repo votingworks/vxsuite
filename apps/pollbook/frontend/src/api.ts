@@ -491,16 +491,4 @@ export const formatUsbDrive = {
   },
 } as const;
 
-export const flushScannedIdDocument = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.flushScannedIdDocument, {
-      async onMutate() {
-        await queryClient.invalidateQueries(getScannedIdDocument.queryKey());
-      },
-    });
-  },
-} as const;
-
 export const systemCallApi = createSystemCallApi(useApiClient);
