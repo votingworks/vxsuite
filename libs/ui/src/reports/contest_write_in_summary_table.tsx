@@ -58,6 +58,7 @@ const ContestTable = styled.table`
     padding: 0.25em;
     text-align: left;
     font-weight: 400;
+    word-break: break-word;
   }
 
   & th.indent {
