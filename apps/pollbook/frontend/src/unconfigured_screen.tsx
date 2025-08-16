@@ -64,7 +64,7 @@ function PollbookConnectionTable({
                 {pollbooksForElection
                   // replace regular hyphens in IDs with non-breaking hyphen character
                   // so any given ID won't break across lines
-                  .map((p) => p.machineId.replace('-', '‑'))
+                  .map((p) => p.machineId.replaceAll('-', '‑'))
                   .join(', ')}
               </td>
               <td>
