@@ -14,7 +14,6 @@ import {
   MockPaperHandlerStatus,
   PaperHandlerDriverInterface,
 } from '@votingworks/custom-paper-handler';
-import { Buffer } from 'node:buffer';
 import {
   BaseLogger,
   LogEventId,
@@ -1367,7 +1366,7 @@ describe('unrecoverable_error', () => {
     const printResult = deferred<void>();
     vi.mocked(printBallotChunks).mockReturnValue(printResult.promise);
 
-    void machine.printBallot(Buffer.of());
+    void machine.printBallot(Uint8Array.of());
     await waitForStatus('printing_ballot');
     expect(printBallotChunks).toHaveBeenCalledTimes(1);
 
@@ -1390,7 +1389,7 @@ describe('unrecoverable_error', () => {
       mockInterpretResult.promise
     );
 
-    void machine.printBallot(Buffer.of());
+    void machine.printBallot(Uint8Array.of());
     await waitForStatus('printing_ballot');
     expect(printBallotChunks).toHaveBeenCalledTimes(1);
 

@@ -11,7 +11,6 @@ import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import { Buffer } from 'node:buffer';
 import { rootDebug } from './debug';
 import {
   FujitsuThermalPrinterDriver,
@@ -120,7 +119,7 @@ export class FujitsuThermalPrinter implements FujitsuThermalPrinterInterface {
     return ok();
   }
 
-  async printPdf(data: Buffer): Promise<Result<void, PrinterStatus>> {
+  async printPdf(data: Uint8Array): Promise<Result<void, PrinterStatus>> {
     assert(this.driver);
     await this.logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
       message: 'Initiating print',

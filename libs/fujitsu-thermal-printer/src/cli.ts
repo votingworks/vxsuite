@@ -40,7 +40,10 @@ async function printFromFile(printer: FujitsuThermalPrinter, path: string) {
   }
 
   if (path.endsWith('.pdf')) {
-    return printer.printPdf(readFileSync(path));
+    const buffer = readFileSync(path);
+    return printer.printPdf(
+      new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength)
+    );
   }
 
   return printer.printImageData(await loadImageData(path));

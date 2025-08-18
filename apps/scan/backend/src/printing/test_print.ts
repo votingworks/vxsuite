@@ -17,5 +17,8 @@ export async function printTestPage({
 }): Promise<FujitsuPrintResult> {
   assert(printer.scheme === 'hardware-v4');
 
-  return await printer.printPdf(await readFile(TEST_PRINT_PDF_PATH));
+  const buffer = await readFile(TEST_PRINT_PDF_PATH);
+  return await printer.printPdf(
+    new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength)
+  );
 }
