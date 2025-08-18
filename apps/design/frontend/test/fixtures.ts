@@ -47,7 +47,6 @@ export function makeElectionRecord(
   return {
     election,
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
-    ballotOrderInfo: {},
     ballotStyles,
     createdAt: new Date().toISOString(),
     ballotLanguageConfigs,

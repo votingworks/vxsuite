@@ -104,10 +104,6 @@ export const routes = {
           path: `${root}/ballots/${ballotStyleId}/${precinctId}`,
         }),
       },
-      ballotOrderInfo: {
-        title: 'Order Ballots',
-        path: `${root}/ballot-order-info`,
-      },
       systemSettings: {
         title: 'System Settings',
         path: `${root}/system-settings`,
@@ -136,7 +132,6 @@ export function electionNavRoutes(
     electionRoutes.geography.root,
     electionRoutes.contests.root,
     electionRoutes.ballots.root,
-    electionRoutes.ballotOrderInfo,
     ...(features.SYSTEM_SETTINGS_SCREEN ? [electionRoutes.systemSettings] : []),
     ...(features.EXPORT_SCREEN ? [electionRoutes.export] : []),
   ];

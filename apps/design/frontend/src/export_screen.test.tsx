@@ -33,7 +33,6 @@ beforeEach(() => {
   apiMock.getElectionPackage.expectCallWith({ electionId }).resolves({});
   apiMock.getTestDecks.expectCallWith({ electionId }).resolves({});
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
-  apiMock.getBallotOrderInfo.expectCallWith({ electionId }).resolves({});
   apiMock.getBallotTemplate
     .expectCallWith({ electionId })
     .resolves('VxDefaultBallot');
@@ -443,33 +442,4 @@ test('view ballot proofing status and unfinalize ballots', async () => {
   await screen.findByText('Ballots not finalized');
 
   expect(select).not.toBeDisabled();
-});
-
-test('view ballot order status and unsubmit order', async () => {
-  const submittedAt = '1/30/2025, 12:00 PM';
-  apiMock.getBallotOrderInfo.reset();
-  apiMock.getBallotOrderInfo.expectCallWith({ electionId }).resolves({
-    absenteeBallotCount: '100',
-    orderSubmittedAt: new Date(submittedAt).toISOString(),
-  });
-
-  renderScreen();
-  await screen.findAllByRole('heading', { name: 'Export' });
-
-  await screen.findByText(`Order submitted at: ${submittedAt}`);
-
-  apiMock.updateBallotOrderInfo
-    .expectCallWith({
-      electionId,
-      ballotOrderInfo: {
-        absenteeBallotCount: '100',
-        orderSubmittedAt: undefined,
-      },
-    })
-    .resolves();
-  apiMock.getBallotOrderInfo.expectCallWith({ electionId }).resolves({
-    absenteeBallotCount: '100',
-  });
-  userEvent.click(screen.getButton('Unsubmit Order'));
-  await screen.findByText('Order not submitted');
 });

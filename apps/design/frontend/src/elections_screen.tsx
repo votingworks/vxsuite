@@ -146,12 +146,7 @@ const STATUS_ELEMENTS: Readonly<Record<ElectionStatus, JSX.Element>> = {
   ),
   ballotsFinalized: (
     <span>
-      <Icons.CircleDot color="primary" /> Ballots finalized
-    </span>
-  ),
-  orderSubmitted: (
-    <span>
-      <Icons.Done color="success" /> Order submitted
+      <Icons.Done color="primary" /> Ballots finalized
     </span>
   ),
 };
@@ -363,6 +358,7 @@ export function ElectionsScreen(): JSX.Element | null {
       return;
     }
     // TODO handle error case
+    /* istanbul ignore next - @preserve */
     throw result.err();
   }
 

@@ -220,6 +220,172 @@ test('with elections', async () => {
   });
 });
 
+test('sorting elections by status, org, and jurisdiction', async () => {
+  // Create elections with different statuses and orgs
+  const generalElection = generalElectionRecord(user.orgId);
+  const primaryElection = primaryElectionRecord(user.orgId);
+  const blankElection = blankElectionRecord(user.orgId);
+
+  const elections = [
+    // Election with inProgress status
+    {
+      ...electionListing(primaryElection),
+      status: 'inProgress' as const,
+      orgName: 'Alpha Org',
+      jurisdiction: 'County B',
+    },
+    // Election with ballotsFinalized status
+    {
+      ...electionListing(generalElection),
+      status: 'ballotsFinalized' as const,
+      orgName: 'VotingWorks',
+      jurisdiction: 'County A',
+    },
+    // Election with notStarted status
+    {
+      ...electionListing(blankElection),
+      status: 'notStarted' as const,
+      orgName: 'Zeta Org',
+      jurisdiction: 'County C',
+    },
+  ];
+
+  apiMock.getUser.expectCallWith().resolves(user);
+  apiMock.listElections.expectCallWith().resolves(elections);
+
+  renderScreen();
+  await screen.findByRole('heading', { name: 'Elections' });
+
+  const table = screen.getByRole('table');
+
+  // Test initial order (unsorted)
+  let rows = within(table).getAllByRole('row').slice(1);
+  expect(rows).toHaveLength(3);
+  expect(within(rows[0]).getAllByRole('cell')[0]).toHaveTextContent(
+    'In progress'
+  );
+  expect(within(rows[1]).getAllByRole('cell')[0]).toHaveTextContent(
+    'Ballots finalized'
+  );
+  expect(within(rows[2]).getAllByRole('cell')[0]).toHaveTextContent(
+    'Not started'
+  );
+
+  // Test sorting by Status (ascending)
+  const statusHeader = within(table).getByRole('button', { name: /status/i });
+  userEvent.click(statusHeader);
+
+  rows = within(table).getAllByRole('row').slice(1);
+  // ballotsFinalized, inProgress, notStarted (alphabetical order)
+  expect(within(rows[0]).getAllByRole('cell')[0]).toHaveTextContent(
+    'Ballots finalized'
+  );
+  expect(within(rows[1]).getAllByRole('cell')[0]).toHaveTextContent(
+    'In progress'
+  );
+  expect(within(rows[2]).getAllByRole('cell')[0]).toHaveTextContent(
+    'Not started'
+  );
+
+  // Test sorting by Status (descending)
+  userEvent.click(statusHeader);
+
+  rows = within(table).getAllByRole('row').slice(1);
+  // Reverse order
+  expect(within(rows[0]).getAllByRole('cell')[0]).toHaveTextContent(
+    'Not started'
+  );
+  expect(within(rows[1]).getAllByRole('cell')[0]).toHaveTextContent(
+    'In progress'
+  );
+  expect(within(rows[2]).getAllByRole('cell')[0]).toHaveTextContent(
+    'Ballots finalized'
+  );
+
+  // Test sorting by Status (third click - unsorted, back to original order)
+  userEvent.click(statusHeader);
+
+  rows = within(table).getAllByRole('row').slice(1);
+  // Back to original order
+  expect(within(rows[0]).getAllByRole('cell')[0]).toHaveTextContent(
+    'In progress'
+  );
+  expect(within(rows[1]).getAllByRole('cell')[0]).toHaveTextContent(
+    'Ballots finalized'
+  );
+  expect(within(rows[2]).getAllByRole('cell')[0]).toHaveTextContent(
+    'Not started'
+  );
+
+  // Test sorting by Org (ascending)
+  const orgHeader = within(table).getByRole('button', { name: /org/i });
+  userEvent.click(orgHeader);
+
+  rows = within(table).getAllByRole('row').slice(1);
+  // Alpha Org, VotingWorks, Zeta Org (alphabetical)
+  expect(within(rows[0]).getAllByRole('cell')[1]).toHaveTextContent(
+    'Alpha Org'
+  );
+  expect(within(rows[1]).getAllByRole('cell')[1]).toHaveTextContent(
+    'VotingWorks'
+  );
+  expect(within(rows[2]).getAllByRole('cell')[1]).toHaveTextContent('Zeta Org');
+
+  // Test sorting by Org (descending)
+  userEvent.click(orgHeader);
+  rows = within(table).getAllByRole('row').slice(1);
+  // Reverse alphabetical order
+  expect(within(rows[0]).getAllByRole('cell')[1]).toHaveTextContent('Zeta Org');
+  expect(within(rows[1]).getAllByRole('cell')[1]).toHaveTextContent(
+    'VotingWorks'
+  );
+  expect(within(rows[2]).getAllByRole('cell')[1]).toHaveTextContent(
+    'Alpha Org'
+  );
+
+  // Test sorting by Org (third click - unsorted, back to original order)
+  userEvent.click(orgHeader);
+  rows = within(table).getAllByRole('row').slice(1);
+  // Back to original order
+  expect(within(rows[0]).getAllByRole('cell')[1]).toHaveTextContent(
+    'Alpha Org'
+  );
+  expect(within(rows[1]).getAllByRole('cell')[1]).toHaveTextContent(
+    'VotingWorks'
+  );
+  expect(within(rows[2]).getAllByRole('cell')[1]).toHaveTextContent('Zeta Org');
+
+  // Test sorting by Jurisdiction (ascending)
+  const jurisdictionHeader = within(table).getByRole('button', {
+    name: /jurisdiction/i,
+  });
+  userEvent.click(jurisdictionHeader);
+
+  rows = within(table).getAllByRole('row').slice(1);
+  // County A, County B, County C (alphabetical)
+  expect(within(rows[0]).getAllByRole('cell')[2]).toHaveTextContent('County A');
+  expect(within(rows[1]).getAllByRole('cell')[2]).toHaveTextContent('County B');
+  expect(within(rows[2]).getAllByRole('cell')[2]).toHaveTextContent('County C');
+
+  // Test sorting by Jurisdiction (descending)
+  userEvent.click(jurisdictionHeader);
+
+  rows = within(table).getAllByRole('row').slice(1);
+  // Reverse alphabetical order
+  expect(within(rows[0]).getAllByRole('cell')[2]).toHaveTextContent('County C');
+  expect(within(rows[1]).getAllByRole('cell')[2]).toHaveTextContent('County B');
+  expect(within(rows[2]).getAllByRole('cell')[2]).toHaveTextContent('County A');
+
+  // Test sorting by Jurisdiction (third click - unsorted, back to original order)
+  userEvent.click(jurisdictionHeader);
+
+  rows = within(table).getAllByRole('row').slice(1);
+  // Back to original order
+  expect(within(rows[0]).getAllByRole('cell')[2]).toHaveTextContent('County B');
+  expect(within(rows[1]).getAllByRole('cell')[2]).toHaveTextContent('County A');
+  expect(within(rows[2]).getAllByRole('cell')[2]).toHaveTextContent('County C');
+});
+
 test('clone buttons are rendered', async () => {
   const [general, primary] = [
     generalElectionRecord(user.orgId),
@@ -240,4 +406,51 @@ test('clone buttons are rendered', async () => {
     getCloneButtonText(electionListing(general)),
     getCloneButtonText(electionListing(primary)),
   ]);
+});
+
+test('single org elections list', async () => {
+  // Mock features with ACCESS_ALL_ORGS disabled
+  mockUserFeatures(apiMock, { ACCESS_ALL_ORGS: false });
+
+  const [general, primary] = [
+    generalElectionRecord(user.orgId),
+    primaryElectionRecord(user.orgId),
+  ];
+  apiMock.getUser.expectCallWith().resolves(user);
+  apiMock.listElections
+    .expectCallWith()
+    .resolves([electionListing(general), electionListing(primary)]);
+
+  renderScreen();
+  await screen.findByRole('heading', { name: 'Elections' });
+
+  const table = screen.getByRole('table');
+
+  // Verify the single org table headers (no Status or Org columns)
+  const headers = within(table).getAllByRole('columnheader');
+  expect(headers.map((header) => header.textContent)).toEqual([
+    'Title',
+    'Date',
+    'Jurisdiction',
+    'State',
+    '', // Clone button column
+  ]);
+
+  // Verify elections are displayed correctly
+  const rows = within(table).getAllByRole('row').slice(1);
+  expect(rows).toHaveLength(2);
+
+  // Check first election row content
+  const firstRowCells = within(rows[0]).getAllByRole('cell');
+  expect(firstRowCells[0]).toHaveTextContent(general.election.title);
+  expect(firstRowCells[1]).toHaveTextContent('Nov 3, 2020');
+  expect(firstRowCells[2]).toHaveTextContent(general.election.county.name);
+  expect(firstRowCells[3]).toHaveTextContent(general.election.state);
+
+  // Check second election row content
+  const secondRowCells = within(rows[1]).getAllByRole('cell');
+  expect(secondRowCells[0]).toHaveTextContent(primary.election.title);
+  expect(secondRowCells[1]).toHaveTextContent('Sep 8, 2021');
+  expect(secondRowCells[2]).toHaveTextContent(primary.election.county.name);
+  expect(secondRowCells[3]).toHaveTextContent(primary.election.state);
 });
