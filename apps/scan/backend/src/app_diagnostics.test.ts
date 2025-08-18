@@ -15,6 +15,14 @@ vi.setConfig({ testTimeout: 60_000 });
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
+vi.mock(import('@votingworks/types'), async (importActual) => {
+  const original = await importActual();
+  return {
+    ...original,
+    formatElectionHashes: vi.fn().mockReturnValue('1111111-0000000'),
+  };
+});
+
 vi.mock(import('@votingworks/utils'), async (importActual) => ({
   ...(await importActual()),
   isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),

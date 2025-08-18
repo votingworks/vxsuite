@@ -24,8 +24,6 @@ import {
   Tabulation,
 } from '@votingworks/types';
 import { modifyCastVoteRecordExport } from '@votingworks/backend';
-import { ContestWriteInSummary } from '@votingworks/types/src/tabulation';
-import { IndicationStatus } from '@votingworks/types/src/cdf/cast-vote-records';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -175,7 +173,7 @@ test('getAdjudicationQueue returns a properly ordered queue', async () => {
               '0.0',
             ];
             assertDefined(option?.SelectionPosition[0]).HasIndication =
-              IndicationStatus.No;
+              CVR.IndicationStatus.No;
           }
         }
         return {
@@ -473,7 +471,7 @@ test('handling unmarked write-ins', async () => {
   }
 
   async function expectWriteInSummary(
-    summary: Partial<ContestWriteInSummary>
+    summary: Partial<Tabulation.ContestWriteInSummary>
   ): Promise<void> {
     expect(
       (await apiClient.getElectionWriteInSummary()).contestWriteInSummaries[
@@ -674,7 +672,7 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
   }
 
   async function expectWriteInSummary(
-    summary: ContestWriteInSummary
+    summary: Tabulation.ContestWriteInSummary
   ): Promise<void> {
     expect(
       (await apiClient.getElectionWriteInSummary()).contestWriteInSummaries[
