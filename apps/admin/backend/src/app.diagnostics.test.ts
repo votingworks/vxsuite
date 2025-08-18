@@ -19,6 +19,25 @@ vi.setConfig({
   testTimeout: 60_000,
 });
 
+vi.mock(import('@votingworks/types'), async (importActual) => {
+  const original = await importActual();
+  return {
+    ...original,
+    formatElectionHashes: vi.fn((ballotHash, electionPackageHash) => {
+      const originalResult = original.formatElectionHashes(
+        ballotHash,
+        electionPackageHash
+      );
+      // The test print page passes in all zeros for the hashes, so we want to
+      // preserve that behavior for the test.
+      if (originalResult === '0000000-0000000') {
+        return originalResult;
+      }
+      return '1111111-0000000';
+    }),
+  };
+});
+
 vi.mock(
   import('@votingworks/backend'),
   async (importActual): Promise<typeof import('@votingworks/backend')> => ({
