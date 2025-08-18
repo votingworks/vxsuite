@@ -263,6 +263,7 @@ function BallotPageFrame({
               precinctId={precinctId}
               pageNumber={pageNumber}
               totalPages={totalPages}
+              electionTitleOverride={electionTitleOverride}
               colorTint={colorTint}
             />
           </div>
