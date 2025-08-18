@@ -3,7 +3,7 @@ import { sleep } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { NODE_ENV } from '../globals';
 
-type ScanAudioInfo = audio.AudioInfo & {
+type MarkAudioInfo = audio.AudioInfo & {
   builtin: audio.BuiltinAudio;
 };
 
@@ -21,7 +21,7 @@ export async function getAudioInfo(ctx: {
   logger: Logger;
   nodeEnv: typeof NODE_ENV;
   maxAttempts: number;
-}): Promise<ScanAudioInfo> {
+}): Promise<MarkAudioInfo> {
   let lastError: unknown;
   for (let i = 0; i < ctx.maxAttempts; i += 1) {
     if (i > 0) {
@@ -41,7 +41,7 @@ export async function getAudioInfo(ctx: {
         continue;
       }
 
-      return audioInfo as ScanAudioInfo;
+      return audioInfo as MarkAudioInfo;
     } catch (error) {
       lastError = error;
     }

@@ -2,7 +2,13 @@ import { execFile } from '@votingworks/backend';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { NODE_ENV } from '../globals';
 
-export type SoundName = 'alarm' | 'chime' | 'error' | 'success' | 'warning';
+export type SoundName =
+  | 'alarm'
+  | 'chime'
+  | 'error'
+  | 'noise'
+  | 'success'
+  | 'warning';
 
 export class Player {
   constructor(
