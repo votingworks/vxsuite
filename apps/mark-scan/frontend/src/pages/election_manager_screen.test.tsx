@@ -8,7 +8,7 @@ import { act, screen, within } from '../../test/react_testing_library';
 import { render } from '../../test/test_utils';
 import { electionDefinition, election } from '../../test/helpers/election';
 
-import { AdminScreen, AdminScreenProps } from './admin_screen';
+import { AdminScreen, AdminScreenProps } from './election_manager_screen';
 import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
 import {
   ApiMock,

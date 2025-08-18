@@ -55,7 +55,7 @@ import {
 } from './api';
 
 import { handleKeyboardEvent } from './lib/assistive_technology';
-import { AdminScreen } from './pages/admin_screen';
+import { AdminScreen } from './pages/election_manager_screen';
 import { InsertCardScreen } from './pages/insert_card_screen';
 import { PollWorkerScreen } from './pages/poll_worker_screen';
 import { UnconfiguredScreen } from './pages/unconfigured_screen';
