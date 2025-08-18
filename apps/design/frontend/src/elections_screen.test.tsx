@@ -227,19 +227,19 @@ test('sorting elections by status, org, and jurisdiction', async () => {
   const blankElection = blankElectionRecord(user.orgId);
 
   const elections = [
-    // Election with ballotsFinalized status
-    {
-      ...electionListing(generalElection),
-      status: 'ballotsFinalized' as const,
-      orgName: 'VotingWorks',
-      jurisdiction: 'County A',
-    },
     // Election with inProgress status
     {
       ...electionListing(primaryElection),
       status: 'inProgress' as const,
       orgName: 'Alpha Org',
       jurisdiction: 'County B',
+    },
+    // Election with ballotsFinalized status
+    {
+      ...electionListing(generalElection),
+      status: 'ballotsFinalized' as const,
+      orgName: 'VotingWorks',
+      jurisdiction: 'County A',
     },
     // Election with notStarted status
     {
@@ -262,10 +262,10 @@ test('sorting elections by status, org, and jurisdiction', async () => {
   let rows = within(table).getAllByRole('row').slice(1);
   expect(rows).toHaveLength(3);
   expect(within(rows[0]).getAllByRole('cell')[0]).toHaveTextContent(
-    'Ballots finalized'
+    'In progress'
   );
   expect(within(rows[1]).getAllByRole('cell')[0]).toHaveTextContent(
-    'In progress'
+    'Ballots finalized'
   );
   expect(within(rows[2]).getAllByRole('cell')[0]).toHaveTextContent(
     'Not started'
@@ -276,7 +276,7 @@ test('sorting elections by status, org, and jurisdiction', async () => {
   userEvent.click(statusHeader);
 
   rows = within(table).getAllByRole('row').slice(1);
-  // notStarted, inProgress, ballotsFinalized (alphabetical order)
+  // ballotsFinalized, inProgress, notStarted (alphabetical order)
   expect(within(rows[0]).getAllByRole('cell')[0]).toHaveTextContent(
     'Ballots finalized'
   );
@@ -300,6 +300,21 @@ test('sorting elections by status, org, and jurisdiction', async () => {
   );
   expect(within(rows[2]).getAllByRole('cell')[0]).toHaveTextContent(
     'Ballots finalized'
+  );
+
+  // Test sorting by Status (third click - unsorted, back to original order)
+  userEvent.click(statusHeader);
+
+  rows = within(table).getAllByRole('row').slice(1);
+  // Back to original order
+  expect(within(rows[0]).getAllByRole('cell')[0]).toHaveTextContent(
+    'In progress'
+  );
+  expect(within(rows[1]).getAllByRole('cell')[0]).toHaveTextContent(
+    'Ballots finalized'
+  );
+  expect(within(rows[2]).getAllByRole('cell')[0]).toHaveTextContent(
+    'Not started'
   );
 
   // Test sorting by Org (ascending)
@@ -328,6 +343,18 @@ test('sorting elections by status, org, and jurisdiction', async () => {
     'Alpha Org'
   );
 
+  // Test sorting by Org (third click - unsorted, back to original order)
+  userEvent.click(orgHeader);
+  rows = within(table).getAllByRole('row').slice(1);
+  // Back to original order
+  expect(within(rows[0]).getAllByRole('cell')[1]).toHaveTextContent(
+    'Alpha Org'
+  );
+  expect(within(rows[1]).getAllByRole('cell')[1]).toHaveTextContent(
+    'VotingWorks'
+  );
+  expect(within(rows[2]).getAllByRole('cell')[1]).toHaveTextContent('Zeta Org');
+
   // Test sorting by Jurisdiction (ascending)
   const jurisdictionHeader = within(table).getByRole('button', {
     name: /jurisdiction/i,
@@ -348,6 +375,15 @@ test('sorting elections by status, org, and jurisdiction', async () => {
   expect(within(rows[0]).getAllByRole('cell')[2]).toHaveTextContent('County C');
   expect(within(rows[1]).getAllByRole('cell')[2]).toHaveTextContent('County B');
   expect(within(rows[2]).getAllByRole('cell')[2]).toHaveTextContent('County A');
+
+  // Test sorting by Jurisdiction (third click - unsorted, back to original order)
+  userEvent.click(jurisdictionHeader);
+
+  rows = within(table).getAllByRole('row').slice(1);
+  // Back to original order
+  expect(within(rows[0]).getAllByRole('cell')[2]).toHaveTextContent('County B');
+  expect(within(rows[1]).getAllByRole('cell')[2]).toHaveTextContent('County A');
+  expect(within(rows[2]).getAllByRole('cell')[2]).toHaveTextContent('County C');
 });
 
 test('clone buttons are rendered', async () => {
