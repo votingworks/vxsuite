@@ -87,18 +87,6 @@ export async function start({
         volumePct: 100,
       });
       resultVolume.assertOk('unable to set USB audio volume');
-
-      // On production machines, we need to play something through the audio
-      // outputs to activate them, since they appear to get disabled during
-      // screen rotation. We already play a startup chime through the speaker
-      // (see `app.listen()` below) but also need to play a sound through the
-      // headphones. We use a short clip of quiet pink noise here for that
-      // reason.
-      if (NODE_ENV !== 'production') {
-        void new AudioPlayer(NODE_ENV, logger, audioInfo.usb.name).play(
-          'noise'
-        );
-      }
     } else {
       void logger.logAsCurrentRole(LogEventId.AudioDeviceMissing, {
         message: 'USB audio device not detected.',
