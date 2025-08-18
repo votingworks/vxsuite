@@ -20,6 +20,13 @@ export const UDS_CONNECTION_ATTEMPT_DELAY_MS = 1000;
 export const UDS_CONNECTION_TIMEOUT_MS = 60 * 60 * 1000; // 1 hour
 const DEVICE_PATH = '/dev/barcode_scanner';
 
+// The time scan data will live before it's cleaned up.
+// Because only certain pages in the frontend handle ID scans,
+// we don't want stale scans to sit around in memory to be read
+// later when the user has no context on the scan.
+// The duration should be >= client polling interval for scan data
+export const SCAN_DATA_TTL_MS = 1000;
+
 /**
  * Attempts to connect to the barcode scanner Unix socket within a retry loop.
  * Allows failure to connect so the app can fall back gracefully.
@@ -57,18 +64,30 @@ export class BarcodeScannerClient {
     private scannedDocument: Optional<AamvaDocument> = undefined,
     private error: Optional<BarcodeScannerError> = undefined,
     private connectedToDaemon = false,
-    private readonly devicePath = DEVICE_PATH
+    private readonly devicePath = DEVICE_PATH,
+    private ttlTimeout: Optional<ReturnType<typeof setTimeout>> = undefined
   ) {}
 
   // Returns the latest payload from the barcode scanner daemon, consuming it in the process,
   // or undefined if there isn't one.
   readPayload(): Optional<BarcodeScannerPayload> {
+    if (this.ttlTimeout) {
+      clearTimeout(this.ttlTimeout);
+      this.ttlTimeout = undefined;
+    }
     const payload = this.scannedDocument ?? this.error ?? undefined;
     if (payload) {
       this.scannedDocument = undefined;
       this.error = undefined;
     }
     return payload;
+  }
+
+  scheduleCleanup(): void {
+    this.ttlTimeout = setTimeout(() => {
+      this.scannedDocument = undefined;
+      this.error = undefined;
+    }, SCAN_DATA_TTL_MS);
   }
 
   async isConnected(): Promise<boolean> {
@@ -134,6 +153,8 @@ export class BarcodeScannerClient {
         } else {
           this.error = parsed;
         }
+
+        this.scheduleCleanup();
       } catch (error) {
         await this.logger.logAsCurrentRole(LogEventId.ParseError, {
           message: 'Could not read line from barcode scanner daemon UDS',
