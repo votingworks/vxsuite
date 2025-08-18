@@ -11,7 +11,7 @@ import {
 } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import { screen, within } from '../../test/react_testing_library';
+import { screen, waitFor, within } from '../../test/react_testing_library';
 import { render } from '../../test/test_utils';
 import { election, defaultPrecinctId } from '../../test/helpers/election';
 
@@ -80,10 +80,9 @@ test('renders date and time settings modal', async () => {
   // We just do a simple happy path test here, since the libs/ui/set_clock unit
   // tests cover full behavior
   const startDate = 'Sat, Oct 31, 2020, 12:00 AM AKDT';
-  await screen.findByText(startDate);
 
   // Open Modal and change date
-  userEvent.click(screen.getButton('Set Date and Time'));
+  userEvent.click(await screen.findButton('Set Date and Time'));
 
   within(screen.getByTestId('modal')).getByText(startDate);
 
@@ -103,8 +102,9 @@ test('renders date and time settings modal', async () => {
 
   userEvent.click(within(screen.getByTestId('modal')).getByText('Save'));
 
-  // Date is reset to system time after save
-  await screen.findByText(startDate);
+  await waitFor(() => {
+    expect(screen.queryByTestId('modal')).not.toBeInTheDocument();
+  });
 });
 
 test('can switch the precinct', () => {
@@ -122,18 +122,15 @@ test('precinct change disabled if polls closed', () => {
   expect(precinctSelect).toBeDisabled();
 });
 
-test('precinct selection disabled if single precinct election', async () => {
+test('precinct selection not present if single precinct election', async () => {
   renderScreen({
     electionDefinition:
       electionTwoPartyPrimaryFixtures.makeSinglePrecinctElectionDefinition(),
     appPrecinct: singlePrecinctSelectionFor('precinct-1'),
   });
 
-  await screen.findByRole('heading', { name: 'Election Manager Settings' });
-  expect(screen.getByLabelText('Select a precinct…')).toBeDisabled();
-  screen.getByText(
-    'Precinct cannot be changed because there is only one precinct configured for this election.'
-  );
+  await screen.findByRole('heading', { name: 'Election Manager Menu' });
+  expect(screen.queryByLabelText('Select a precinct…')).not.toBeInTheDocument();
 });
 
 test('renders a save logs button with no usb', async () => {
@@ -148,21 +145,6 @@ test('renders a save logs button with usb mounted', async () => {
   const saveLogsButton = await screen.findByText('Save Logs');
   userEvent.click(saveLogsButton);
   await screen.findByText('Select a log format:');
-});
-
-test('renders a USB controller button', async () => {
-  renderScreen({ usbDriveStatus: mockUsbDriveStatus('no_drive') });
-  await screen.findByText('No USB');
-
-  renderScreen({ usbDriveStatus: mockUsbDriveStatus('mounted') });
-  await screen.findByText('Eject USB');
-});
-
-test('USB button calls eject', async () => {
-  renderScreen({ usbDriveStatus: mockUsbDriveStatus('mounted') });
-  const ejectButton = await screen.findByText('Eject USB');
-  apiMock.expectEjectUsbDrive();
-  userEvent.click(ejectButton);
 });
 
 test('print mode toggle - hidden without feature flag', () => {

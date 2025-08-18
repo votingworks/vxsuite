@@ -71,6 +71,8 @@ test('MarkAndPrint end-to-end flow', async () => {
     'Insert an election manager card to configure VxMark'
   );
 
+  apiMock.mockApiClient.assertComplete();
+
   // ---------------
 
   // Insert election manager card and enter incorrect PIN
@@ -105,7 +107,6 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Configure with USB
   await configureFromUsbThenRemove(apiMock, screen, electionDefinition);
-  await screen.findByText('Election Definition is loaded.');
 
   // Remove card and expect not configured because precinct not selected
   apiMock.setAuthStatusLoggedOut();
@@ -326,9 +327,10 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Unconfigure with election manager card
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
-  await screen.findByText('Election Definition is loaded.');
+  await screen.findByText('Election Manager Menu');
 
   // Unconfigure the machine
+  apiMock.expectEjectUsbDrive();
   apiMock.expectUnconfigureMachine();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(null);
@@ -352,9 +354,9 @@ test('MarkAndPrint end-to-end flow', async () => {
   // Configure with election manager card and USB
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
   await configureFromUsbThenRemove(apiMock, screen, electionDefinition);
-
-  await screen.findByText('Election Definition is loaded.');
   apiMock.setAuthStatusLoggedOut();
+
+  // Precinct is not selected, so still unconfigured
   await screen.findByText(
     'Insert an election manager card to configure VxMark'
   );
