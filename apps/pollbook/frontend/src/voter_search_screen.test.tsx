@@ -306,6 +306,96 @@ test('closes the error modal if a valid ID is scanned', async () => {
   ).toBeInTheDocument();
 });
 
+test('onBarcodeScanMatch is called when exactly one voter matches', async () => {
+  const mockDocument = getMockAamvaDocument();
+  const mockSearchParams = getMockExactSearchParams();
+  const mockVoter: Voter = {
+    ...createMockVoter(
+      '123',
+      mockDocument.firstName,
+      mockDocument.lastName,
+      'precinct-id-01'
+    ),
+    middleName: mockDocument.middleName,
+    suffix: mockDocument.nameSuffix,
+  };
+
+  // Mock out search that happens when an ID is scanned
+  apiMock.expectGetScannedIdDocument(mockDocument);
+  apiMock.expectSearchVotersWithResults(mockSearchParams, [mockVoter]);
+
+  const onBarcodeScanMatch = vi.fn();
+  const renderAction = vi.fn();
+  const result = renderInAppContext(
+    <VoterSearch
+      search={mockSearchParams}
+      setSearch={vi.fn()}
+      onBarcodeScanMatch={onBarcodeScanMatch}
+      renderAction={renderAction}
+      election={election}
+    />,
+    {
+      apiMock,
+    }
+  );
+  unmount = result.unmount;
+
+  await act(() => vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL));
+  await screen.findByText(
+    `${mockDocument.lastName}, ${mockDocument.firstName} ${mockDocument.middleName} ${mockDocument.nameSuffix}`
+  );
+  expect(renderAction).toHaveBeenCalledWith(mockVoter);
+  expect(onBarcodeScanMatch).toHaveBeenCalledWith(mockVoter, {
+    type: 'default',
+  });
+});
+
+test('onBarcodeScanMatch not called if more than 1 voter matches', async () => {
+  const mockDocument = getMockAamvaDocument();
+  const mockSearchParams = getMockExactSearchParams();
+  const mockVoters = ['123', '456'].map((voterId) => ({
+    ...createMockVoter(
+      voterId,
+      mockDocument.firstName,
+      mockDocument.lastName,
+      'precinct-id-01'
+    ),
+    middleName: mockDocument.middleName,
+    suffix: mockDocument.nameSuffix,
+  }));
+
+  // Mock out search that happens when an ID is scanned
+  apiMock.expectGetScannedIdDocument(mockDocument);
+  apiMock.expectSearchVotersWithResults(mockSearchParams, mockVoters);
+
+  const onBarcodeScanMatch = vi.fn();
+  const renderAction = vi.fn();
+  const result = renderInAppContext(
+    <VoterSearch
+      search={mockSearchParams}
+      setSearch={vi.fn()}
+      onBarcodeScanMatch={onBarcodeScanMatch}
+      renderAction={renderAction}
+      election={election}
+    />,
+    {
+      apiMock,
+    }
+  );
+  unmount = result.unmount;
+
+  await act(() => vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL));
+  await screen.findByText('Voters matched: 2');
+  expect(
+    screen.getAllByText(
+      `${mockDocument.lastName}, ${mockDocument.firstName} ${mockDocument.middleName} ${mockDocument.nameSuffix}`
+    )
+  ).toHaveLength(2);
+  expect(renderAction).toHaveBeenCalledWith(mockVoters[0]);
+  expect(renderAction).toHaveBeenCalledWith(mockVoters[1]);
+  expect(onBarcodeScanMatch).not.toHaveBeenCalled();
+});
+
 test('validateUsState', () => {
   expect(validateUsState('NH')).toEqual('NH');
 });

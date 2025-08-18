@@ -256,6 +256,65 @@ describe('PollWorkerScreen', () => {
     unmount();
   });
 
+  test('scanning an ID for a checked-in voter does not advance to the check-in page', async () => {
+    apiMock.expectGetDeviceStatuses();
+    apiMock.authenticateAsPollWorker(famousNamesElection);
+    apiMock.setElection(famousNamesElectionDefinition);
+    apiMock.setPrinterStatus(true);
+    apiMock.setIsAbsenteeMode(false);
+    apiMock.setElection(
+      famousNamesElectionDefinition,
+      famousNamesElection.precincts[0].id
+    );
+    apiMock.expectGetCheckInCounts({ allMachines: 25, thisMachine: 5 });
+    apiMock.expectGetScannedIdDocument();
+    apiMock.expectSearchVotersNull({});
+
+    // Render empty voter search screen
+    const { unmount } = render(<App apiClient={apiMock.mockApiClient} />);
+    await vi.waitFor(() => screen.getByText('Voter Check-In'));
+
+    const mockAamvaDocument = getMockAamvaDocument();
+    const mockSearchParams = getMockExactSearchParams();
+
+    const mockVoter: Voter = {
+      ...createMockVoter(
+        '123',
+        mockAamvaDocument.firstName,
+        mockAamvaDocument.lastName,
+        precinct1
+      ),
+      middleName: mockAamvaDocument.middleName,
+      suffix: mockAamvaDocument.nameSuffix,
+      checkIn: {
+        identificationMethod: { type: 'default' },
+        timestamp: new Date().toISOString(),
+        isAbsentee: false,
+        machineId: 'machine-01',
+        receiptNumber: 1,
+        ballotParty: 'NOT_APPLICABLE',
+      },
+    };
+
+    // API returns a new barcode scan so we expect search and the getVoter endpoint
+    // to be queried with the new voter
+    apiMock.expectGetScannedIdDocument(mockAamvaDocument);
+
+    // Set up expectation for search with extracted parameters after the timer
+    apiMock.expectSearchVotersWithResultsToChangeFromEmpty(
+      {},
+      mockSearchParams,
+      [mockVoter]
+    );
+    await act(() => vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL));
+
+    // Expect voter search list to be rendered
+    await screen.findByText('Voters matched: 1');
+    await screen.findByText('Checked In');
+
+    unmount();
+  });
+
   interface IdStateTestInterface {
     usState: string;
     expectedOutOfStateString?: string;
