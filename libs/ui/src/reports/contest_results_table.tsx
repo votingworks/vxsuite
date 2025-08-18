@@ -82,6 +82,7 @@ const ContestTable = styled.table`
     &:first-child {
       padding-left: 0.25em;
       text-align: left;
+      word-break: break-word;
     }
 
     &:not(:first-child) {
