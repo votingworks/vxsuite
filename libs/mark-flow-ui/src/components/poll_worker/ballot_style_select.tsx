@@ -75,6 +75,7 @@ export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
             }
             rightIcon="Next"
             disabled={disabled}
+            variant="primary"
           >
             Start Voting Session: {electionStrings.precinctName(precinct)}
           </Button>

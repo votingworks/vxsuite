@@ -5,6 +5,7 @@ import {
   ElectionInfoBar,
   H3,
   Main,
+  PowerDownButton,
   Screen,
   SignedHashValidationButton,
   SystemAdministratorScreenContents,
@@ -65,6 +66,7 @@ export function SystemAdministratorScreen({
                 Diagnostics
               </Button>
               <SignedHashValidationButton apiClient={apiClient} />
+              <PowerDownButton icon="PowerOff" />
             </React.Fragment>
           }
           displayRemoveCardToLeavePrompt
