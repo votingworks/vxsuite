@@ -121,6 +121,12 @@ export async function start({
         message: `VxMark backend running at http://localhost:${port}/`,
         disposition: 'success',
       });
+
+      if (NODE_ENV === 'production') {
+        // Play startup chime after a slight delay to allow kiosk-browser to
+        // spin up first:
+        setTimeout(() => void audioPlayer?.play('chime'), 2 * 1000);
+      }
     }
   );
 }
