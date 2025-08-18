@@ -40,7 +40,7 @@ import {
 import * as api from '../api';
 import { BubbleMarkCalibration } from '../components/bubble_mark_calibration';
 
-export interface AdminScreenProps {
+export interface ElectionManagerScreenProps {
   appPrecinct?: PrecinctSelection;
   ballotsPrintedCount: number;
   electionDefinition: ElectionDefinition;
@@ -64,7 +64,7 @@ const PRINT_MODE_OPTIONS: Array<SegmentedButtonOption<PrintMode>> = [
   { id: 'bubble_marks', label: 'Bubble Marks' },
 ];
 
-export function AdminScreen({
+export function ElectionManagerScreen({
   appPrecinct,
   ballotsPrintedCount,
   electionDefinition,
@@ -74,7 +74,7 @@ export function AdminScreen({
   machineConfig,
   pollsState,
   usbDriveStatus,
-}: AdminScreenProps): JSX.Element {
+}: ElectionManagerScreenProps): JSX.Element {
   const { election } = electionDefinition;
   const logOutMutation = logOut.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();

@@ -8,7 +8,10 @@ import { act, screen, within } from '../../test/react_testing_library';
 import { render } from '../../test/test_utils';
 import { electionDefinition, election } from '../../test/helpers/election';
 
-import { AdminScreen, AdminScreenProps } from './election_manager_screen';
+import {
+  ElectionManagerScreen,
+  ElectionManagerScreenProps,
+} from './election_manager_screen';
 import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
 import {
   ApiMock,
@@ -31,11 +34,11 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-function renderScreen(props: Partial<AdminScreenProps> = {}) {
+function renderScreen(props: Partial<ElectionManagerScreenProps> = {}) {
   return render(
     provideApi(
       apiMock,
-      <AdminScreen
+      <ElectionManagerScreen
         ballotsPrintedCount={0}
         electionDefinition={electionDefinition}
         electionPackageHash="test-election-package-hash"

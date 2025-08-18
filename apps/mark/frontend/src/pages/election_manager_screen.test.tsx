@@ -15,7 +15,10 @@ import { screen, within } from '../../test/react_testing_library';
 import { render } from '../../test/test_utils';
 import { election, defaultPrecinctId } from '../../test/helpers/election';
 
-import { AdminScreen, AdminScreenProps } from './election_manager_screen';
+import {
+  ElectionManagerScreen,
+  ElectionManagerScreenProps,
+} from './election_manager_screen';
 import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
 import {
   ApiMock,
@@ -46,14 +49,14 @@ afterEach(() => {
   featureFlagMock.resetFeatureFlags();
 });
 
-function renderScreen(props: Partial<AdminScreenProps> = {}) {
+function renderScreen(props: Partial<ElectionManagerScreenProps> = {}) {
   apiMock.mockApiClient.getPrintMode.reset();
   apiMock.mockApiClient.getPrintMode.expectCallWith().resolves('bubble_marks');
 
   return render(
     provideApi(
       apiMock,
-      <AdminScreen
+      <ElectionManagerScreen
         appPrecinct={singlePrecinctSelectionFor(defaultPrecinctId)}
         ballotsPrintedCount={0}
         electionDefinition={asElectionDefinition(election)}

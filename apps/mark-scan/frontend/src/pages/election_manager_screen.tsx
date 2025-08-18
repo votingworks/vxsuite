@@ -49,7 +49,7 @@ const ButtonGrid = styled.div`
   margin-bottom: 0.5rem;
 `;
 
-export interface AdminScreenProps {
+export interface ElectionManagerScreenProps {
   appPrecinct?: PrecinctSelection;
   ballotsPrintedCount: number;
   electionDefinition: ElectionDefinition;
@@ -61,7 +61,7 @@ export interface AdminScreenProps {
   usbDriveStatus: UsbDriveStatus;
 }
 
-export function AdminScreen({
+export function ElectionManagerScreen({
   appPrecinct,
   ballotsPrintedCount,
   electionDefinition,
@@ -71,7 +71,7 @@ export function AdminScreen({
   machineConfig,
   pollsState,
   usbDriveStatus,
-}: AdminScreenProps): JSX.Element | null {
+}: ElectionManagerScreenProps): JSX.Element | null {
   const { election } = electionDefinition;
   const apiClient = useApiClient();
   const logOutMutation = logOut.useMutation();
