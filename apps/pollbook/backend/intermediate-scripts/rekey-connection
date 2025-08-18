@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# Usage: ./rekey-connection <ip-address>
+
+if [ $# -ne 1 ]; then
+  echo "Usage: $0 <ip-address>"
+  exit 1
+fi
+
+IP="$1"
+
+# Find the connection name(s) associated with the IP address
+CONN_NAMES=$(sudo swanctl --list-sas | grep -A 4 | grep -o 'net: #[0-9]\+' | sed 's/.*#//' | sort | uniq)
+
+if [ -z "$CONN_NAMES" ]; then
+  echo "No connection found for IP $IP"
+  exit 1
+fi
+
+for CONN in $CONN_NAMES; do
+  echo "Rekeying connection: $CONN"
+  sudo swanctl --rekey --child-id "$CONN"
+done

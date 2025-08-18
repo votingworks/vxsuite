@@ -222,6 +222,7 @@ export function setupMachineNetworking({
   // Poll for new machines on the network
   process.nextTick(() => {
     let isPolling = false;
+    const ipAddressesWithRekeyAttempts = new Set<string>();
 
     setInterval(async () => {
       if (isPolling) {
@@ -290,6 +291,9 @@ export function setupMachineNetworking({
           try {
             const machineInformation =
               await apiClient.getPollbookConfigurationInformation();
+            if (ipAddressesWithRekeyAttempts.has(resolvedIp)) {
+              ipAddressesWithRekeyAttempts.delete(resolvedIp);
+            }
             if (name === currentNodeServiceName) {
               // current machine, if we got here the network is working
               if (workspace.store.getIsOnline() === false) {
@@ -351,6 +355,15 @@ export function setupMachineNetworking({
               workspace.store.setOnlineStatus(false);
             }
             debug(`Failed to establish connection from ${name}: ${error}`);
+            // Try rekeying the connection.
+            if (!ipAddressesWithRekeyAttempts.has(resolvedIp)) {
+              ipAddressesWithRekeyAttempts.add(resolvedIp);
+              debug('Rekeying connection for %s at %s', name, resolvedIp);
+              await execFile('sudo', [
+                intermediateScript('rekey-connection'),
+                resolvedIp,
+              ]);
+            }
           }
         }
         // Clean up stale machines

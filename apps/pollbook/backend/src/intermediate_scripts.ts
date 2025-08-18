@@ -8,6 +8,7 @@ import path from 'node:path';
 export function intermediateScript(
   script:
     | 'reset-network'
+    | 'rekey-connection'
     | 'avahi-publish-service'
     | 'avahi-browse'
     | 'is-online'
