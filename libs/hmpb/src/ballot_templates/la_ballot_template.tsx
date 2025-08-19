@@ -265,6 +265,8 @@ function CandidateContest({
     );
   }
 
+  const candidateAddresses = election.customBallotContent?.candidateAddresses;
+
   return (
     <Box
       style={{
@@ -295,6 +297,7 @@ function CandidateContest({
                 electionParties={election.parties}
               />
             );
+          const address = candidateAddresses?.[candidate.id];
           const optionInfo: OptionInfo = {
             type: 'option',
             contestId: contest.id,
@@ -322,6 +325,12 @@ function CandidateContest({
                     <DualLanguageText delimiter="/">
                       <div>{partyText}</div>
                     </DualLanguageText>
+                  )}
+                  {address && (
+                    <div style={{ fontSize: '0.7rem' }}>
+                      <div>{address.addressLine1}</div>
+                      <div>{address.addressLine2}</div>
+                    </div>
                   )}
                 </div>
               </div>
