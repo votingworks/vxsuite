@@ -49,6 +49,7 @@ import {
   WriteInLabel,
   BlankPageMessage,
   AlignedBubble,
+  ContestTitle,
 } from '../ballot_components';
 import { BallotMode, PixelDimensions } from '../types';
 import { layOutInColumns } from '../layout_in_columns';
@@ -274,7 +275,7 @@ function CandidateContest({
     >
       <ContestHeader>
         <DualLanguageText delimiter="/">
-          <h3>{electionStrings.contestTitle(contest)}</h3>
+          <ContestTitle>{electionStrings.contestTitle(contest)}</ContestTitle>
         </DualLanguageText>
         <DualLanguageText delimiter="/">
           <div>{voteForText}</div>
@@ -412,7 +413,9 @@ function PresidentialCandidateContest({
       }}
     >
       <ContestHeader>
-        <h3>For President and Vice President of the United States</h3>
+        <ContestTitle>
+          For President and Vice President of the United States
+        </ContestTitle>
         <div>Vote for only 1 presidential candidate.</div>
         <div style={{ fontSize: '0.8rem' }}>
           A vote for candidates for president and vice president is a vote for
@@ -513,7 +516,7 @@ function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
     <Box style={{ padding: 0 }}>
       <ContestHeader>
         <DualLanguageText delimiter="/">
-          <h3>{electionStrings.contestTitle(contest)}</h3>
+          <ContestTitle>{electionStrings.contestTitle(contest)}</ContestTitle>
         </DualLanguageText>
       </ContestHeader>
       <div
