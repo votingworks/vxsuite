@@ -7,11 +7,13 @@ import {
 } from '@votingworks/ui';
 import { DefaultTheme, ThemeContext } from 'styled-components';
 import React from 'react';
+import { mockUseAudioControls } from '@votingworks/test-utils';
 import { useSessionSettingsManager } from './use_session_settings_manager';
 import { renderHook, act } from '../../test/react_testing_library';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
+const mockAudioControls = mockUseAudioControls(vi.fn);
 const mockLanguageControls: Mocked<LanguageControls> = {
   reset: vi.fn(),
   setLanguage: vi.fn(),
@@ -21,6 +23,7 @@ const mockUseCurrentLanguage = vi.mocked(useCurrentLanguage);
 vi.mock('@votingworks/ui', async () => ({
   ...(await vi.importActual('@votingworks/ui')),
   useCurrentLanguage: vi.fn(),
+  useAudioControls: () => mockAudioControls,
   useLanguageControls: () => mockLanguageControls,
 }));
 
@@ -92,6 +95,7 @@ it('Reset voter settings when resetVoterSettings is called', () => {
   });
 
   // Validate settings were reset
+  expect(mockAudioControls.reset).toHaveBeenCalledTimes(1);
   expect(mockLanguageControls.reset).toHaveBeenCalledTimes(1);
   expect(mockLanguageControls.setLanguage).not.toHaveBeenCalled();
   expect(result.current.theme).toEqual(
@@ -124,6 +128,7 @@ it('First cache/clear voter settings and then restore', () => {
   });
 
   // Validate settings were reset
+  expect(mockAudioControls.reset).toHaveBeenCalledTimes(1);
   expect(mockLanguageControls.reset).toHaveBeenCalledTimes(1);
   expect(mockLanguageControls.setLanguage).not.toHaveBeenCalled();
   expect(result.current.theme).toEqual(
