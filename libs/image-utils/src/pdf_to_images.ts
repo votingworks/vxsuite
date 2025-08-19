@@ -33,7 +33,16 @@ export async function* pdfToImages(
   const context = canvas.getContext('2d');
 
   // Consumes `pdfBytes` here:
-  const pdf = await pdfjs.getDocument(pdfBytes).promise;
+  const pdf = await pdfjs.getDocument(
+    // pdfjs-dist wants a `Uint8Array`, not a `Buffer`
+    Buffer.isBuffer(pdfBytes)
+      ? new Uint8Array(
+          pdfBytes.buffer,
+          pdfBytes.byteOffset,
+          pdfBytes.byteLength
+        )
+      : pdfBytes
+  ).promise;
 
   // Yes, 1-indexing is correct.
   // https://github.com/mozilla/pdf.js/blob/6ffcedc24bba417694a9d0e15eaf16cadf4dad15/src/display/api.js#L2457-L2463
