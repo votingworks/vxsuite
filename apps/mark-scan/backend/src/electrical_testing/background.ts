@@ -135,10 +135,12 @@ export async function runPrintAndScanTask({
   const outputDir = join(workspace.path, 'electrical-testing-output');
   await fs.mkdir(outputDir, { recursive: true });
 
-  await fs.writeFile(
-    join(outputDir, 'test-document.pdf'),
-    new Uint8Array(testPdf.buffer, testPdf.byteOffset, testPdf.byteLength)
+  const testPdfBytes = new Uint8Array(
+    testPdf.buffer,
+    testPdf.byteOffset,
+    testPdf.byteLength
   );
+  await fs.writeFile(join(outputDir, 'test-document.pdf'), testPdfBytes);
 
   const driver = await getPaperHandlerDriver();
   if (driver === undefined) {
@@ -268,9 +270,9 @@ export async function runPrintAndScanTask({
 
     // printBallotChunks will enable print mode.
     await logger.logAsCurrentRole(LogEventId.BackgroundTaskStatus, {
-      message: `Printing ${testPdf.length} bytes`,
+      message: `Printing ${testPdfBytes.length} bytes`,
     });
-    await printBallotChunks(driver, testPdf, {});
+    await printBallotChunks(driver, testPdfBytes, {});
     // Disable print mode to prepare to scan.
     await driver.disablePrint();
     if ((await errorIfPaperJam()).isErr()) {

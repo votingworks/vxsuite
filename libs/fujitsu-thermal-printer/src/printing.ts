@@ -394,9 +394,7 @@ export async function printPdf(
   driver: FujitsuThermalPrinterDriverInterface,
   pdfData: Uint8Array
 ): Promise<Result<void, RawPrinterStatus>> {
-  const pdfImages = pdfToImages(pdfData, {
-    scale: PDF_SCALE,
-  });
+  const pdfImages = pdfToImages(pdfData, { scale: PDF_SCALE });
   for await (const { page, pageNumber, pageCount } of pdfImages) {
     debug(`printing page ${pageNumber} of ${pageCount}...`);
     debug(`page dimensions: ${page.width} x ${page.height}`);
@@ -415,7 +413,7 @@ export async function printFixture(
   pdfFixturePath: string,
   driver: FujitsuThermalPrinterDriver
 ): Promise<void> {
-  const pdfData: Uint8Array = readFileSync(pdfFixturePath);
+  const pdfData = readFileSync(pdfFixturePath);
   const printResult = await printPdf(driver, pdfData);
   if (printResult.isErr()) {
     debug(`print failed on status: ${JSON.stringify(printResult.err())}`);
