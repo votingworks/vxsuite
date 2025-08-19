@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import { CanvasGradient, CanvasPattern, ImageData, createCanvas } from 'canvas';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 
