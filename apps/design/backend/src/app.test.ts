@@ -567,6 +567,8 @@ test('update election info', async () => {
       type: 'primary',
       date: new DateWithoutTime('2022-01-01'),
       languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
+      signatureImage: undefined,
+      signatureCaption: undefined,
     }
   );
 
