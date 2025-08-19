@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 
 import {
   Button,
-  Loading,
+  Icons,
   Modal,
   P,
   UsbControllerButton,
@@ -113,7 +113,16 @@ export function ExportResultsModal({ onClose }: Props): JSX.Element | null {
   }
 
   if (currentState === ModalState.SAVING) {
-    return <Modal content={<Loading>Saving CVRs</Loading>} />;
+    return (
+      <Modal
+        title="Saving CVRs…"
+        content={
+          <P>
+            <Icons.Warning color="warning" /> Do not remove the USB drive.
+          </P>
+        }
+      />
+    );
   }
 
   // istanbul ignore next -- compile-time check
