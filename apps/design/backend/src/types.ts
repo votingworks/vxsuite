@@ -37,6 +37,7 @@ export function convertToVxfBallotStyle(
 
 export enum UsState {
   NEW_HAMPSHIRE = 'New Hampshire',
+  LOUISIANA = 'Louisiana',
   MISSISSIPPI = 'Mississippi',
   UNKNOWN = 'Unknown',
 }
@@ -46,6 +47,9 @@ export function normalizeState(state: string): UsState {
     case 'nh':
     case 'new hampshire':
       return UsState.NEW_HAMPSHIRE;
+    case 'la':
+    case 'louisiana':
+      return UsState.LOUISIANA;
     case 'ms':
     case 'mississippi':
       return UsState.MISSISSIPPI;
