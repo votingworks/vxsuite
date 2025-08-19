@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   VoterSettingsManagerContext,
+  useAudioControls,
   useCurrentLanguage,
   useLanguageControls,
 } from '@votingworks/ui';
@@ -17,6 +18,7 @@ export interface SessionSettingsManagerProps {
  * (i.e. needed when an election official interrupts a voter session)
  */
 export function useSessionSettingsManager(): SessionSettingsManagerProps {
+  const audioContext = useAudioControls();
   const languageContext = useLanguageControls();
   const voterSettingsContext = React.useContext(VoterSettingsManagerContext);
   const currentLanguage = useCurrentLanguage();
@@ -29,6 +31,7 @@ export function useSessionSettingsManager(): SessionSettingsManagerProps {
     React.useState<string | null>(null);
 
   function startNewSession() {
+    audioContext.reset();
     languageContext.reset();
     voterSettingsContext.resetThemes();
     setSavedVoterSessionLanguage(null);
@@ -40,6 +43,7 @@ export function useSessionSettingsManager(): SessionSettingsManagerProps {
     setSavedVoterSessionLanguage(currentLanguage);
     voterSettingsContext.resetThemes();
     languageContext.reset();
+    audioContext.reset();
   }
 
   function resumeSession() {
