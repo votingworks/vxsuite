@@ -10,6 +10,9 @@ import {
   Precinct,
   safeParseInt,
   YesNoContest,
+  LaPresidentialCandidateBallotStrings,
+  CandidateId,
+  PrecinctWithoutSplits,
 } from '@votingworks/types';
 import { Options as CsvParseOptions, parse } from 'csv-parse/sync';
 import { readdirSync, readFileSync } from 'node:fs';
@@ -134,12 +137,34 @@ const PRECINCT_FILE_COLUMNS = [
 ] as const;
 type PrecinctFileRow = Record<(typeof PRECINCT_FILE_COLUMNS)[number], string>;
 
+const PRESIDENTIAL_CANDIDATE_FILE_COLUMNS = [
+  'party',
+  'presidentialCandidateName',
+  'presidentialCandidateState',
+  'vicePresidentialCandidateName',
+  'vicePresidentialCandidateState',
+  'elector1',
+  'elector2',
+  'elector3',
+  'elector4',
+  'elector5',
+  'elector6',
+  'elector7',
+  'elector8',
+  'blank',
+] as const;
+type PresidentialCandidateFileRow = Record<
+  (typeof PRESIDENTIAL_CANDIDATE_FILE_COLUMNS)[number],
+  string
+>;
+
 function convertToElection(
   electionType: ElectionType,
   officeFileContents: string,
   referendumFileContents: string,
   candidateFileContents: string,
-  precinctFileContents: string
+  precinctFileContents: string,
+  presidentialCandidateFileContents?: string
 ): Election {
   const defaultParseOptions: CsvParseOptions = {
     skipEmptyLines: true,
@@ -237,6 +262,7 @@ function convertToElection(
           {
             id: generateId(),
             lastName: row.lastName,
+            middleName: '',
             firstName: row.firstName,
             name: `${row.firstName} ${row.lastName}`,
             partyIds:
@@ -430,6 +456,57 @@ function convertToElection(
   //   }
   // }
 
+  const presidentialCandidateBallotStrings:
+    | Record<CandidateId, LaPresidentialCandidateBallotStrings>
+    | undefined = presidentialCandidateFileContents
+    ? (() => {
+        const presidentialCandidateFileRows: PresidentialCandidateFileRow[] =
+          parse(presidentialCandidateFileContents, {
+            ...defaultParseOptions,
+            columns: [...PRESIDENTIAL_CANDIDATE_FILE_COLUMNS],
+            delimiter: ';',
+          });
+
+        const presidentialContest = find(
+          contests,
+          (contest): contest is CandidateContest =>
+            contest.type === 'candidate' &&
+            contest.title === 'Presidential Electors'
+        );
+        return Object.fromEntries(
+          presidentialCandidateFileRows
+            // Skip last row with additional contest copy
+            .filter((row) => Boolean(row.party))
+            .map((row) => {
+              const candidateId = find(
+                presidentialContest.candidates,
+                (candidate) => candidate.lastName === row.party
+              ).id;
+              return [
+                candidateId,
+                {
+                  ...row,
+                  electors: [
+                    row.elector1,
+                    row.elector2,
+                    row.elector3,
+                    row.elector4,
+                    row.elector5,
+                    row.elector6,
+                    row.elector7,
+                    row.elector8,
+                  ],
+                },
+              ];
+            })
+        );
+      })()
+    : undefined;
+
+  const precinct = find(
+    precincts,
+    (p) => !hasSplits(p)
+  ) as PrecinctWithoutSplits;
   return {
     ...createElectionSkeleton(generateId(), electionType),
     precincts,
@@ -441,10 +518,11 @@ function convertToElection(
       {
         id: generateId(),
         groupId: generateId(),
-        districts: [districts[0].id],
-        precincts: [precincts[0].id],
+        districts: precinct.districtIds,
+        precincts: [precinct.id],
       },
     ],
+    customBallotContent: { presidentialCandidateBallotStrings },
   };
 }
 
@@ -496,12 +574,23 @@ function main(args: readonly string[]): void {
     'utf-8'
   );
 
+  const presidentialCandidateFileName = electionFileNames.find((fileName) =>
+    fileName.includes('Presidential_General')
+  );
+  const presidentialCandidateFileContents =
+    presidentialCandidateFileName &&
+    readFileSync(
+      join(electionDataDirectory, presidentialCandidateFileName),
+      'utf-8'
+    );
+
   const election = convertToElection(
     electionType,
     officeFileContents,
     referendumFileContents,
     candidateFileContents,
-    precinctFileContents
+    precinctFileContents,
+    presidentialCandidateFileContents
   );
   process.stdout.write(JSON.stringify(election, null, 2));
   process.stdout.write('\n');
