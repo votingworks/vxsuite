@@ -685,4 +685,4 @@ export const ContestHeader = styled.div<ContestHeaderProps>`
   padding: ${(p) => (p.compact ? '0.25rem 0.5rem' : '0.5rem')};
 `;
 
-export const ContestTitle = styled.h3``;
+export const ContestTitle = 'h3';
