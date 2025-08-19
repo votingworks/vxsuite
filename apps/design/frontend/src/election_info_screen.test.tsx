@@ -57,6 +57,9 @@ test('newly created election starts in edit mode', async () => {
     .expectCallWith({ electionId: electionRecord.election.id })
     .resolves(electionInfoFromElection(electionRecord.election));
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+  apiMock.getBallotTemplate
+    .expectCallWith({ electionId })
+    .resolves('VxDefaultBallot');
   renderScreen(electionRecord.election.id);
   await screen.findByRole('heading', { name: 'Election Info' });
 
@@ -88,6 +91,9 @@ test('newly created election starts in edit mode', async () => {
   expect(within(sealInput).queryByRole('img')).not.toBeInTheDocument();
   expect(within(sealInput).getByLabelText('Upload Seal Image')).toBeEnabled();
 
+  // Signature upload inputs are not shown for VxDefaultBallot
+  expect(screen.queryByText('Signature')).not.toBeInTheDocument();
+
   screen.getByRole('button', { name: 'Save' });
   userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
@@ -102,6 +108,9 @@ test('edit and save election', async () => {
     .expectCallWith({ electionId })
     .resolves(electionInfoFromElection(electionRecord.election));
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+  apiMock.getBallotTemplate
+    .expectCallWith({ electionId })
+    .resolves('VxDefaultBallot');
   renderScreen(electionId);
   await screen.findByRole('heading', { name: 'Election Info' });
 
@@ -170,6 +179,9 @@ test('edit and save election', async () => {
     )
   );
 
+  // Signature upload inputs are not shown for VxDefaultBallot
+  expect(screen.queryByText('Signature')).not.toBeInTheDocument();
+
   const languageSection = screen.getByLabelText('Ballot Languages');
   const spanishBallotLanguageCheckbox = within(languageSection).getByRole(
     'checkbox',
@@ -185,7 +197,71 @@ test('edit and save election', async () => {
     state: 'New State',
     jurisdiction: 'New County',
     seal: '<svg>updated seal</svg>',
+    signatureImage: undefined,
+    signatureCaption: undefined,
     languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
+  };
+  apiMock.updateElectionInfo.expectCallWith(updatedElectionInfo).resolves(ok());
+  apiMock.getElectionInfo
+    .expectCallWith({ electionId })
+    .resolves({ ...generalElectionInfo, ...updatedElectionInfo });
+
+  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await screen.findByRole('button', { name: 'Edit' });
+});
+
+test('edit and save election - nhBallotTemplate signature upload', async () => {
+  const electionRecord = generalElectionRecord(user.orgId);
+  electionRecord.ballotTemplateId = 'NhBallot';
+  const { election } = electionRecord;
+  const electionId = election.id;
+  apiMock.getElectionInfo
+    .expectCallWith({ electionId })
+    .resolves(electionInfoFromElection(electionRecord.election));
+  apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+  apiMock.getBallotTemplate.expectCallWith({ electionId }).resolves('NhBallot');
+  renderScreen(electionId);
+  await screen.findByRole('heading', { name: 'Election Info' });
+
+  const signatureInput = screen.getByText('Signature').parentElement!;
+  expect(within(signatureInput).queryByRole('img')).not.toBeInTheDocument();
+  expect(screen.getByLabelText('Upload Signature Image')).toBeDisabled();
+
+  const signatureCaptionInput = screen.getByLabelText('Signature Caption');
+  expect(signatureCaptionInput).toHaveValue('');
+  expect(signatureCaptionInput).toBeDisabled();
+
+  userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+
+  userEvent.upload(
+    within(signatureInput).getByLabelText('Upload Signature Image'),
+    new File(['<svg>updated signature</svg>'], 'new_signature.svg', {
+      type: 'image/svg+xml',
+    })
+  );
+  await waitFor(() =>
+    expect(within(signatureInput).getByRole('img')).toHaveAttribute(
+      'src',
+      `data:image/svg+xml;base64,${Buffer.from(
+        '<svg>updated signature</svg>'
+      ).toString('base64')}`
+    )
+  );
+
+  userEvent.type(signatureCaptionInput, 'New Signature Caption');
+  expect(signatureCaptionInput).toHaveValue('New Signature Caption');
+
+  const updatedElectionInfo: ElectionInfo = {
+    electionId,
+    title: election.title,
+    date: election.date,
+    type: election.type,
+    state: election.state,
+    jurisdiction: election.county.name,
+    seal: election.seal,
+    signatureImage: '<svg>updated signature</svg>',
+    signatureCaption: 'New Signature Caption',
+    languageCodes: [LanguageCode.ENGLISH],
   };
   apiMock.updateElectionInfo.expectCallWith(updatedElectionInfo).resolves(ok());
   apiMock.getElectionInfo
@@ -203,6 +279,9 @@ test('cancel update', async () => {
     .expectCallWith({ electionId })
     .resolves(electionInfoFromElection(electionRecord.election));
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+  apiMock.getBallotTemplate
+    .expectCallWith({ electionId })
+    .resolves('VxDefaultBallot');
   renderScreen(electionId);
   await screen.findByRole('heading', { name: 'Election Info' });
 
@@ -224,6 +303,9 @@ test('delete election', async () => {
     .expectCallWith({ electionId })
     .resolves(electionInfoFromElection(electionRecord.election));
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+  apiMock.getBallotTemplate
+    .expectCallWith({ electionId })
+    .resolves('VxDefaultBallot');
   const history = renderScreen(electionId);
   await screen.findByRole('heading', { name: 'Election Info' });
 
@@ -251,6 +333,9 @@ test('edit election disabled when ballots are finalized', async () => {
   apiMock.getBallotsFinalizedAt
     .expectCallWith({ electionId })
     .resolves(new Date());
+  apiMock.getBallotTemplate
+    .expectCallWith({ electionId })
+    .resolves('VxDefaultBallot');
 
   renderScreen(electionId);
   await screen.findByRole('heading', { name: 'Election Info' });
@@ -266,6 +351,9 @@ test('handles duplicate title+date error', async () => {
     .expectCallWith({ electionId })
     .resolves(electionInfoFromElection(electionRecord.election));
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+  apiMock.getBallotTemplate
+    .expectCallWith({ electionId })
+    .resolves('VxDefaultBallot');
   renderScreen(electionId);
   await screen.findByRole('heading', { name: 'Election Info' });
 
