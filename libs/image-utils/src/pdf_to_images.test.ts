@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import { iter } from '@votingworks/basics';
 import { Size } from '@votingworks/types';
 import { readFile } from 'node:fs/promises';
@@ -31,6 +32,19 @@ function assertHasPageCountAndSize(
 test('yields the right number of images sized correctly', async () => {
   assertHasPageCountAndSize(
     await iter(pdfToImages(await readMsBallotPdf())).toArray(),
+    {
+      pageCount: 6,
+      size: {
+        width: 612,
+        height: 792,
+      },
+    }
+  );
+});
+
+test('works with Buffer', async () => {
+  assertHasPageCountAndSize(
+    await iter(pdfToImages(Buffer.from(await readMsBallotPdf()))).toArray(),
     {
       pageCount: 6,
       size: {
