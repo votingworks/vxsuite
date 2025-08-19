@@ -185,6 +185,8 @@ test('edit and save election', async () => {
     state: 'New State',
     jurisdiction: 'New County',
     seal: '<svg>updated seal</svg>',
+    signatureImage: undefined,
+    signatureCaption: undefined,
     languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
   };
   apiMock.updateElectionInfo.expectCallWith(updatedElectionInfo).resolves(ok());
