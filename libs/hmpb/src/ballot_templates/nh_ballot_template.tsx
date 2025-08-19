@@ -54,6 +54,7 @@ import {
   primaryLanguageCode,
   WriteInLabel,
   ColorTint,
+  ContestTitle,
 } from '../ballot_components';
 import { BallotMode, PixelDimensions } from '../types';
 import { hmpbStrings } from '../hmpb_strings';
@@ -324,7 +325,7 @@ function CandidateContest({
     >
       <ContestHeader colorTint={colorTint}>
         <DualLanguageText delimiter="/">
-          <h3>{electionStrings.contestTitle(contest)}</h3>
+          <ContestTitle>{electionStrings.contestTitle(contest)}</ContestTitle>
         </DualLanguageText>
         <DualLanguageText delimiter="/">
           <div>{voteForText}</div>
@@ -438,8 +439,6 @@ function BallotMeasureContest({
   colorTint?: ColorTint;
   continuesOnNextPage?: boolean;
 }) {
-  const ContestTitle = compact ? 'h3' : 'h2';
-
   return (
     <Box style={{ padding: 0 }}>
       <ContestHeader colorTint={colorTint}>

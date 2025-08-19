@@ -48,6 +48,7 @@ import {
   WriteInLabel,
   BlankPageMessage,
   AlignedBubble,
+  ContestTitle,
 } from '../ballot_components';
 import { BallotMode, PixelDimensions } from '../types';
 import { layOutInColumns } from '../layout_in_columns';
@@ -241,7 +242,7 @@ function CandidateContest({
     >
       <ContestHeader>
         <DualLanguageText delimiter="/">
-          <h3>{electionStrings.contestTitle(contest)}</h3>
+          <ContestTitle>{electionStrings.contestTitle(contest)}</ContestTitle>
         </DualLanguageText>
         <DualLanguageText delimiter="/">
           <div>{voteForText}</div>
@@ -344,7 +345,7 @@ function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
     <Box style={{ padding: 0 }}>
       <ContestHeader>
         <DualLanguageText delimiter="/">
-          <h2>{electionStrings.contestTitle(contest)}</h2>
+          <ContestTitle>{electionStrings.contestTitle(contest)}</ContestTitle>
         </DualLanguageText>
       </ContestHeader>
       <div
