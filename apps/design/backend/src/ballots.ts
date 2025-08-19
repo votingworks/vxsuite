@@ -45,6 +45,8 @@ export function defaultBallotTemplate(
   switch (normalizeState(state)) {
     case UsState.NEW_HAMPSHIRE:
       return 'NhBallot';
+    case UsState.LOUISIANA:
+      return 'LaBallot';
     case UsState.MISSISSIPPI:
     case UsState.UNKNOWN:
     default:
@@ -147,6 +149,9 @@ export function createBallotPropsForTemplate(
   switch (templateId) {
     case 'NhBallot':
       return baseBallotProps.map(buildNhBallotProps);
+
+    case 'LaBallot':
+      return baseBallotProps;
 
     case 'VxDefaultBallot':
       return baseBallotProps;

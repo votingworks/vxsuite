@@ -41,6 +41,7 @@ import { useTitle } from './hooks/use_title';
 const ballotTemplateOptions = {
   VxDefaultBallot: 'VotingWorks Default Ballot',
   NhBallot: 'New Hampshire Ballot',
+  LaBallot: 'Louisiana Ballot',
 } satisfies Record<BallotTemplateId, string>;
 
 export function ExportScreen(): JSX.Element | null {
