@@ -25,6 +25,14 @@ vi.setConfig({
   testTimeout: 90_000,
 });
 
+vi.mock(import('@votingworks/types'), async (importActual) => {
+  const original = await importActual();
+  return {
+    ...original,
+    formatBallotHash: vi.fn().mockReturnValue('0000000'),
+  };
+});
+
 let renderer: Renderer;
 beforeAll(async () => {
   renderer = await createPlaywrightRenderer();

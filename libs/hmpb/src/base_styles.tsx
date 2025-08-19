@@ -48,7 +48,7 @@ function baseStyles(params: BaseStylesProps) {
     font-size: 1.2em;
   }
   h3 {
-    font-size: ${compact ? 1 : 1.1}em;
+    font-size: 1.1em;
   }
   h4 {
     font-size: 1em;

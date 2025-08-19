@@ -684,3 +684,5 @@ export const ContestHeader = styled.div<ContestHeaderProps>`
     p.colorTint ? ColorTints[p.colorTint] : Colors.LIGHT_GRAY};
   padding: ${(p) => (p.compact ? '0.25rem 0.5rem' : '0.5rem')};
 `;
+
+export const ContestTitle = 'h3';

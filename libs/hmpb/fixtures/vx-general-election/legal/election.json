@@ -2122,7 +2122,7 @@
           "sheetNumber": 2,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 6.172760336906585,
+          "row": 5.1792209035222045,
           "contestId": "judicial-robert-demergue",
           "optionId": "judicial-robert-demergue-option-yes"
         },
@@ -2131,7 +2131,7 @@
           "sheetNumber": 2,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 7.454345329249617,
+          "row": 6.460805895865237,
           "contestId": "judicial-robert-demergue",
           "optionId": "judicial-robert-demergue-option-no"
         },
@@ -2140,7 +2140,7 @@
           "sheetNumber": 2,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 14.168357580398162,
+          "row": 12.181278713629402,
           "contestId": "judicial-elmer-hull",
           "optionId": "judicial-elmer-hull-option-yes"
         },
@@ -2149,7 +2149,7 @@
           "sheetNumber": 2,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 15.449942572741193,
+          "row": 13.462863705972435,
           "contestId": "judicial-elmer-hull",
           "optionId": "judicial-elmer-hull-option-no"
         },
@@ -2158,7 +2158,7 @@
           "sheetNumber": 2,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 26.747798621745787,
+          "row": 24.607676110260336,
           "contestId": "question-a",
           "optionId": "question-a-option-yes"
         },
@@ -2167,7 +2167,7 @@
           "sheetNumber": 2,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 28.029383614088818,
+          "row": 25.889261102603367,
           "contestId": "question-a",
           "optionId": "question-a-option-no"
         },
@@ -2176,7 +2176,7 @@
           "sheetNumber": 2,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 41.46611791730474,
+          "row": 39.24947358346095,
           "contestId": "question-b",
           "optionId": "question-b-option-yes"
         },
@@ -2185,7 +2185,7 @@
           "sheetNumber": 2,
           "side": "front",
           "column": 1.714638056480454,
-          "row": 42.74770290964778,
+          "row": 40.53105857580398,
           "contestId": "question-b",
           "optionId": "question-b-option-no"
         },
@@ -2194,7 +2194,7 @@
           "sheetNumber": 2,
           "side": "front",
           "column": 17.5635096806018,
-          "row": 9.22865620214395,
+          "row": 9.075612557427258,
           "contestId": "question-c",
           "optionId": "question-c-option-yes"
         },
@@ -2203,7 +2203,7 @@
           "sheetNumber": 2,
           "side": "front",
           "column": 17.5635096806018,
-          "row": 10.510241194486982,
+          "row": 10.35719754977029,
           "contestId": "question-c",
           "optionId": "question-c-option-no"
         },
@@ -2212,7 +2212,7 @@
           "sheetNumber": 2,
           "side": "front",
           "column": 17.5635096806018,
-          "row": 26.775172281776417,
+          "row": 26.46908499234303,
           "contestId": "proposition-1",
           "optionId": "proposition-1-option-yes"
         },
@@ -2221,7 +2221,7 @@
           "sheetNumber": 2,
           "side": "front",
           "column": 17.5635096806018,
-          "row": 28.056757274119448,
+          "row": 27.750669984686063,
           "contestId": "proposition-1",
           "optionId": "proposition-1-option-no"
         },
@@ -2230,7 +2230,7 @@
           "sheetNumber": 2,
           "side": "front",
           "column": 17.5635096806018,
-          "row": 43.748085758039814,
+          "row": 43.365476646248084,
           "contestId": "measure-101",
           "optionId": "measure-101-option-yes"
         },
@@ -2239,7 +2239,7 @@
           "sheetNumber": 2,
           "side": "front",
           "column": 17.5635096806018,
-          "row": 45.02967075038285,
+          "row": 44.64706163859112,
           "contestId": "measure-101",
           "optionId": "measure-101-option-no"
         },
@@ -2248,7 +2248,7 @@
           "sheetNumber": 2,
           "side": "back",
           "column": 1.714638056480454,
-          "row": 10.756604134762634,
+          "row": 10.603560490045941,
           "contestId": "102",
           "optionId": "measure-102-option-yes"
         },
@@ -2257,7 +2257,7 @@
           "sheetNumber": 2,
           "side": "back",
           "column": 1.714638056480454,
-          "row": 12.038189127105666,
+          "row": 11.885145482388973,
           "contestId": "102",
           "optionId": "measure-102-option-no"
         }
@@ -2517,7 +2517,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.714638056480454,
-          "row": 6.172760336906585,
+          "row": 5.1792209035222045,
           "contestId": "judicial-robert-demergue",
           "optionId": "judicial-robert-demergue-option-yes"
         },
@@ -2526,7 +2526,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.714638056480454,
-          "row": 7.454345329249617,
+          "row": 6.460805895865237,
           "contestId": "judicial-robert-demergue",
           "optionId": "judicial-robert-demergue-option-no"
         },
@@ -2535,7 +2535,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.714638056480454,
-          "row": 18.75220137825421,
+          "row": 17.60561830015314,
           "contestId": "question-a",
           "optionId": "question-a-option-yes"
         },
@@ -2544,7 +2544,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.714638056480454,
-          "row": 20.03378637059724,
+          "row": 18.88720329249617,
           "contestId": "question-a",
           "optionId": "question-a-option-no"
         },
@@ -2553,7 +2553,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.714638056480454,
-          "row": 33.47052067381317,
+          "row": 32.24741577335375,
           "contestId": "question-b",
           "optionId": "question-b-option-yes"
         },
@@ -2562,7 +2562,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.714638056480454,
-          "row": 34.7521056661562,
+          "row": 33.52900076569678,
           "contestId": "question-b",
           "optionId": "question-b-option-no"
         },
@@ -2571,7 +2571,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 17.5635096806018,
-          "row": 15.723679173047472,
+          "row": 15.57063552833078,
           "contestId": "proposition-1",
           "optionId": "proposition-1-option-yes"
         },
@@ -2580,7 +2580,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 17.5635096806018,
-          "row": 17.005264165390503,
+          "row": 16.85222052067381,
           "contestId": "proposition-1",
           "optionId": "proposition-1-option-no"
         },
@@ -2589,7 +2589,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 17.5635096806018,
-          "row": 28.303120214395097,
+          "row": 27.997032924961715,
           "contestId": "102",
           "optionId": "measure-102-option-yes"
         },
@@ -2598,7 +2598,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 17.5635096806018,
-          "row": 29.58470520673813,
+          "row": 29.278617917304746,
           "contestId": "102",
           "optionId": "measure-102-option-no"
         }
