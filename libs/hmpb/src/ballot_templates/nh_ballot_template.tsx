@@ -70,8 +70,8 @@ function Header({
 
   electionTitleOverride,
   electionSealOverride,
-  clerkSignatureImage,
-  clerkSignatureCaption,
+  clerkSignatureImage: clerkSignatureImageOverride,
+  clerkSignatureCaption: clerkSignatureCaptionOverride,
 }: {
   election: Election;
   ballotStyleId: BallotStyleId;
@@ -101,6 +101,13 @@ function Header({
     election.type === 'primary'
       ? assertDefined(getPartyForBallotStyle({ election, ballotStyleId }))
       : undefined;
+
+  const clerkSignatureImage =
+    clerkSignatureImageOverride ?? election.signatureImage;
+  // clerkSignatureCaptionOverride will be an empty string if it is
+  // entered and then deleted, so treat it as undefined
+  const clerkSignatureCaption =
+    clerkSignatureCaptionOverride || election.signatureCaption;
 
   return (
     <div
@@ -183,8 +190,8 @@ function BallotPageFrame({
   children,
   electionTitleOverride,
   electionSealOverride,
-  clerkSignatureImage,
-  clerkSignatureCaption,
+  clerkSignatureImage: clerkSignatureImageOverride,
+  clerkSignatureCaption: clerkSignatureCaptionOverride,
   watermark,
   colorTint,
 }: NhBallotProps & {
@@ -237,8 +244,8 @@ function BallotPageFrame({
                   ballotMode={ballotMode}
                   electionTitleOverride={electionTitleOverride}
                   electionSealOverride={electionSealOverride}
-                  clerkSignatureImage={clerkSignatureImage}
-                  clerkSignatureCaption={clerkSignatureCaption}
+                  clerkSignatureImage={clerkSignatureImageOverride}
+                  clerkSignatureCaption={clerkSignatureCaptionOverride}
                 />
                 <Instructions
                   colorTint={colorTint}
