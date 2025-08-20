@@ -33,8 +33,8 @@ const allUserFeaturesOnConfig: UserFeaturesConfig = {
 const allElectionFeaturesOffConfig: ElectionFeaturesConfig = {
   PRECINCT_SPLIT_ELECTION_TITLE_OVERRIDE: false,
   PRECINCT_SPLIT_ELECTION_SEAL_OVERRIDE: false,
-  PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE: false,
-  PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION: false,
+  PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE_OVERRIDE: false,
+  PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION_OVERRIDE: false,
 };
 
 export function mockUserFeatures(
