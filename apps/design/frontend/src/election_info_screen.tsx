@@ -21,6 +21,7 @@ import { DateWithoutTime, throwIllegalValue } from '@votingworks/basics';
 import {
   deleteElection,
   getBallotsFinalizedAt,
+  getBallotTemplate,
   getElectionInfo,
   getUserFeatures,
   updateElectionInfo,
@@ -30,6 +31,7 @@ import { ElectionNavScreen, Header } from './nav_screen';
 import { routes } from './routes';
 import { SealImageInput } from './seal_image_input';
 import { useTitle } from './hooks/use_title';
+import { SignatureImageInput } from './signature_image_input';
 
 function hasBlankElectionInfo(electionInfo: ElectionInfo): boolean {
   return (
@@ -58,12 +60,17 @@ function ElectionInfoForm({
   const deleteElectionMutation = deleteElection.useMutation();
   const history = useHistory();
   const getUserFeaturesQuery = getUserFeatures.useQuery();
+  const ballotTemplateIdQuery = getBallotTemplate.useQuery(
+    savedElectionInfo.electionId
+  );
 
   /* istanbul ignore next - @preserve */
-  if (!getUserFeaturesQuery.isSuccess) {
+  if (!getUserFeaturesQuery.isSuccess || !ballotTemplateIdQuery.isSuccess) {
     return null;
   }
   const features = getUserFeaturesQuery.data;
+  const ballotTemplateId = ballotTemplateIdQuery.data;
+  const showSignatureInput = ballotTemplateId === 'NhBallot';
 
   function onSubmit() {
     updateElectionInfoMutation.mutate(electionInfo, {
@@ -218,6 +225,32 @@ function ElectionInfoForm({
           />
         </div>
       </div>
+      {showSignatureInput && (
+        <React.Fragment>
+          <div>
+            <FieldName>Signature</FieldName>
+            <SignatureImageInput
+              value={electionInfo.signatureImage}
+              onChange={(signatureImage = '') =>
+                setElectionInfo({ ...electionInfo, signatureImage })
+              }
+              disabled={!isEditing}
+              required
+            />
+          </div>
+          <InputGroup label="Signature Caption">
+            <input
+              type="text"
+              value={electionInfo.signatureCaption ?? ''}
+              onChange={onInputChange('signatureCaption')}
+              onBlur={onInputBlur('signatureCaption')}
+              disabled={!isEditing}
+              autoComplete="off"
+              required
+            />
+          </InputGroup>
+        </React.Fragment>
+      )}
       {features.BALLOT_LANGUAGE_CONFIG && (
         <div style={{ width: '18rem' }}>
           <CheckboxGroup
