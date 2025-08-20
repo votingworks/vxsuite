@@ -175,12 +175,6 @@ export interface PollbookService extends PollbookConfigurationInformation {
   status: PollbookConnectionStatus;
 }
 
-export interface ConnectedPollbookService extends PollbookService {
-  status: PollbookConnectionStatus.Connected;
-  apiClient: grout.Client<PeerApi>;
-  address: string;
-}
-
 export interface PollbookServiceInfo
   extends Omit<PollbookService, 'apiClient'> {
   numCheckIns: number;
@@ -212,6 +206,55 @@ export enum PollbookConnectionStatus {
   LostConnection = 'LostConnection',
   MismatchedConfiguration = 'MismatchedConfiguration',
   IncompatibleSoftwareVersion = 'IncompatibleSoftwareVersion',
+}
+
+/**
+ * Helper functions for state transitions with PollbookService objects
+ */
+export function transitionPollbookToDisconnectedStatus(
+  service: PollbookService,
+  status:
+    | PollbookConnectionStatus.LostConnection
+    | PollbookConnectionStatus.ShutDown
+): PollbookService {
+  return {
+    ...service,
+    apiClient: undefined,
+    address: undefined,
+    status,
+  };
+}
+
+export function createConnectedPollbookServiceFromConfiguration(
+  configurationInformation: PollbookConfigurationInformation,
+  status:
+    | PollbookConnectionStatus.Connected
+    | PollbookConnectionStatus.MismatchedConfiguration
+    | PollbookConnectionStatus.IncompatibleSoftwareVersion,
+  apiClient: grout.Client<PeerApi>,
+  address: string
+): PollbookService {
+  return {
+    ...configurationInformation,
+    lastSeen: new Date(),
+    apiClient,
+    address,
+    status,
+  };
+}
+
+export function transitionPollbookToConnectedStatus(
+  service: PollbookService,
+  status:
+    | PollbookConnectionStatus.Connected
+    | PollbookConnectionStatus.MismatchedConfiguration
+    | PollbookConnectionStatus.IncompatibleSoftwareVersion
+): PollbookService {
+  return {
+    ...service,
+    lastSeen: new Date(),
+    status,
+  };
 }
 
 // These statuses may exists between pollbooks that are talking to each other. Lost Connection should override them when connectivity is lost.

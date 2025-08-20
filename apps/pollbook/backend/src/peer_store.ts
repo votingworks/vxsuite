@@ -23,6 +23,7 @@ import {
   PollbookConnectionStatus,
   PollbookEvent,
   PollbookService,
+  transitionPollbookToDisconnectedStatus,
 } from './types';
 import { rootDebug } from './debug';
 import { SchemaPath, Store } from './store';
@@ -245,11 +246,13 @@ export class PeerStore extends Store {
             otherPollbookService.status
           )
         ) {
-          this.setPollbookServiceForName(otherPollbookName, {
-            ...otherPollbookService,
-            status: PollbookConnectionStatus.LostConnection,
-            apiClient: undefined,
-          });
+          this.setPollbookServiceForName(
+            otherPollbookName,
+            transitionPollbookToDisconnectedStatus(
+              otherPollbookService,
+              PollbookConnectionStatus.LostConnection
+            )
+          );
         }
       }
     }
@@ -265,11 +268,13 @@ export class PeerStore extends Store {
         CommunicatingPollbookConnectionStatuses.includes(pollbookService.status)
       ) {
         debug('Removing stale pollbook service %s', avahiServiceName);
-        this.setPollbookServiceForName(avahiServiceName, {
-          ...pollbookService,
-          status: PollbookConnectionStatus.LostConnection,
-          apiClient: undefined,
-        });
+        this.setPollbookServiceForName(
+          avahiServiceName,
+          transitionPollbookToDisconnectedStatus(
+            pollbookService,
+            PollbookConnectionStatus.LostConnection
+          )
+        );
       }
     }
   }
