@@ -216,7 +216,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       ] = await Promise.all([
         usbDrive.status(),
         printer.status(),
-        getBatteryInfo(),
+        getBatteryInfo({ logger }),
         barcodeScannerClient.isConnected(),
       ]);
       return {

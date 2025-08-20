@@ -17,10 +17,12 @@ async function getReadinessReport({
   workspace,
   printer,
   generatedAtTime = new Date(getCurrentTime()),
+  logger,
 }: {
   workspace: Workspace;
   printer: Printer;
   generatedAtTime?: Date;
+  logger: Logger;
 }): Promise<JSX.Element> {
   const { store } = workspace;
   const currentElectionId = store.getCurrentElectionId();
@@ -30,7 +32,7 @@ async function getReadinessReport({
 
   return AdminReadinessReport({
     batteryInfo:
-      (await getBatteryInfo()) ??
+      (await getBatteryInfo({ logger })) ??
       /* istanbul ignore next - @preserve */
       undefined,
     diskSpaceSummary: await workspace.getDiskSpaceSummary(),
@@ -60,7 +62,7 @@ export async function saveReadinessReport({
   logger: Logger;
 }): Promise<ExportDataResult> {
   const generatedAtTime = new Date(getCurrentTime());
-  const report = await getReadinessReport({ workspace, printer });
+  const report = await getReadinessReport({ workspace, printer, logger });
 
   // Readiness reports shouldn't be large enough to hit the PDF size limit, so
   // we don't expect rendering the PDF to error
