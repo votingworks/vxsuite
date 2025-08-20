@@ -32,7 +32,7 @@ function buildApi({
     rebootToVendorMenu: async () => rebootToVendorMenu(logger),
     powerDown: async () => powerDown(logger),
     setClock,
-    getBatteryInfo,
+    getBatteryInfo: async () => getBatteryInfo({ logger }),
     getAudioInfo: async () => getAudioInfo({ logger, nodeEnv: NODE_ENV }),
   };
 }

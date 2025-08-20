@@ -2,6 +2,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import { createReadStream } from 'node:fs';
 import { Readable } from 'node:stream';
 import { makeTemporaryFile } from '@votingworks/fixtures';
+import { LogEventId, MockLogger, mockLogger } from '@votingworks/logging';
 import { getBatteryInfo, parseBatteryInfo } from './get_battery_info';
 
 vi.mock(import('node:fs'), async (importActual) => ({
@@ -9,10 +10,13 @@ vi.mock(import('node:fs'), async (importActual) => ({
   createReadStream: vi.fn(),
 }));
 
+let logger: MockLogger;
+
 beforeEach(async () => {
   const { createReadStream: realCreateReadStream } =
     await vi.importActual<typeof import('node:fs')>('node:fs');
   vi.mocked(createReadStream).mockImplementation(realCreateReadStream);
+  logger = mockLogger({ fn: vi.fn });
 });
 
 test('parses battery info to determine battery level and charging status', async () => {
@@ -92,7 +96,10 @@ POWER_SUPPLY_STATUS=Discharging
     realCreateReadStream(bat1File, 'utf8')
   );
 
-  expect(await getBatteryInfo()).toEqual({ level: 0.8, discharging: true });
+  expect(await getBatteryInfo({ logger })).toEqual({
+    level: 0.8,
+    discharging: true,
+  });
   expect(vi.mocked(createReadStream)).toHaveBeenNthCalledWith(
     1,
     '/sys/class/power_supply/BAT0/uevent',
@@ -113,5 +120,63 @@ test('returns null if the power_supply "files" are not present', async () => {
     .mockImplementationOnce(() => {
       throw new Error('ENOENT');
     });
-  expect(await getBatteryInfo()).toBeNull();
+  expect(await getBatteryInfo({ logger })).toBeNull();
+});
+
+test('logs and returns null when battery level is above valid range', async () => {
+  const { createReadStream: realCreateReadStream } =
+    await vi.importActual<typeof import('node:fs')>('node:fs');
+
+  const invalidHighBatteryFile = makeTemporaryFile({
+    content: `
+POWER_SUPPLY_ENERGY_NOW=1200
+POWER_SUPPLY_ENERGY_FULL=1000
+POWER_SUPPLY_STATUS=Charging
+    `,
+  });
+
+  vi.mocked(createReadStream).mockReturnValueOnce(
+    realCreateReadStream(invalidHighBatteryFile, 'utf8')
+  );
+
+  expect(await getBatteryInfo({ logger })).toBeNull();
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.UnexpectedHardwareDeviceResponse,
+    'system',
+    expect.objectContaining({
+      disposition: 'failure',
+      message: expect.stringContaining(
+        'System reported an invalid battery level: 1.2'
+      ),
+    })
+  );
+});
+
+test('logs and returns null when battery level is below valid range', async () => {
+  const { createReadStream: realCreateReadStream } =
+    await vi.importActual<typeof import('node:fs')>('node:fs');
+
+  const invalidLowBatteryFile = makeTemporaryFile({
+    content: `
+POWER_SUPPLY_ENERGY_NOW=-100
+POWER_SUPPLY_ENERGY_FULL=1000
+POWER_SUPPLY_STATUS=Discharging
+    `,
+  });
+
+  vi.mocked(createReadStream).mockReturnValueOnce(
+    realCreateReadStream(invalidLowBatteryFile, 'utf8')
+  );
+
+  expect(await getBatteryInfo({ logger })).toBeNull();
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.UnexpectedHardwareDeviceResponse,
+    'system',
+    expect.objectContaining({
+      disposition: 'failure',
+      message: expect.stringContaining(
+        'System reported an invalid battery level: -0.1'
+      ),
+    })
+  );
 });
