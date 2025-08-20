@@ -62,6 +62,7 @@ import { dirSync, tmpNameSync } from 'tmp';
 import { decryptAes256 } from '@votingworks/auth';
 import {
   BackgroundTaskMetadata,
+  DuplicateContestError,
   DuplicateDistrictError,
   DuplicateElectionError,
   DuplicatePartyError,
@@ -499,21 +500,21 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
     async createContest(input: {
       electionId: ElectionId;
       newContest: AnyContest;
-    }): Promise<void> {
+    }): Promise<Result<void, DuplicateContestError>> {
       let contest = unsafeParse(AnyContestSchema, input.newContest);
       const { ballotTemplateId } = await store.getElection(input.electionId);
       contest = rotateCandidates(contest, ballotTemplateId);
-      await store.createContest(input.electionId, contest);
+      return store.createContest(input.electionId, contest);
     },
 
     async updateContest(input: {
       electionId: ElectionId;
       updatedContest: AnyContest;
-    }): Promise<void> {
+    }): Promise<Result<void, DuplicateContestError>> {
       let contest = unsafeParse(AnyContestSchema, input.updatedContest);
       const { ballotTemplateId } = await store.getElection(input.electionId);
       contest = rotateCandidates(contest, ballotTemplateId);
-      await store.updateContest(input.electionId, contest);
+      return store.updateContest(input.electionId, contest);
     },
 
     async reorderContests(input: {

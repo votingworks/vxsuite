@@ -13,12 +13,26 @@ import {
 } from '@votingworks/fixtures';
 import {
   BallotLanguageConfigs,
+  Candidate,
   DEFAULT_SYSTEM_SETTINGS,
   Election,
   Id,
   LanguageCode,
 } from '@votingworks/types';
 import { generateId } from '../src/utils';
+
+function splitCandidateName(candidate: Candidate): Candidate {
+  if (!candidate.firstName) {
+    const [firstPart, ...middleParts] = candidate.name.split(' ');
+    return {
+      ...candidate,
+      firstName: firstPart || undefined,
+      lastName: middleParts.pop() || undefined,
+      middleName: middleParts.join(' ') || undefined,
+    };
+  }
+  return candidate;
+}
 
 export function makeElectionRecord(
   baseElection: Election,
@@ -43,6 +57,14 @@ export function makeElectionRecord(
       districts: ballotStyle.districtIds,
       partyId: ballotStyle.partyId,
     })),
+    contests: baseElection.contests.map((contest) =>
+      contest.type === 'candidate'
+        ? {
+            ...contest,
+            candidates: contest.candidates.map(splitCandidateName),
+          }
+        : contest
+    ),
   };
   return {
     election,

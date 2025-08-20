@@ -274,7 +274,7 @@ describe('Districts tab', () => {
       })
       .resolves(err('duplicate-name'));
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
-    await screen.findByText('A district with the same name already exists.');
+    await screen.findByText('There is already a district with the same name.');
 
     userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     await screen.findByRole('heading', { name: 'Geography' });
@@ -296,7 +296,7 @@ describe('Districts tab', () => {
       })
       .resolves(err('duplicate-name'));
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
-    await screen.findByText('A district with the same name already exists.');
+    await screen.findByText('There is already a district with the same name.');
   });
 });
 
@@ -825,7 +825,7 @@ describe('Precincts tab', () => {
       })
       .resolves(err('duplicate-precinct-name'));
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
-    await screen.findByText('A precinct with the same name already exists.');
+    await screen.findByText('There is already a precinct with the same name.');
 
     userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     await screen.findByRole('heading', { name: 'Geography' });
@@ -849,7 +849,7 @@ describe('Precincts tab', () => {
       })
       .resolves(err('duplicate-precinct-name'));
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
-    await screen.findByText('A precinct with the same name already exists.');
+    await screen.findByText('There is already a precinct with the same name.');
   });
 
   test('error message for duplicate precinct split name', async () => {

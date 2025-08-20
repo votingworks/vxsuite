@@ -20,6 +20,7 @@ import {
   assertDefined,
   DateWithoutTime,
   err,
+  find,
   ok,
 } from '@votingworks/basics';
 import { readElectionGeneral } from '@votingworks/fixtures';
@@ -304,7 +305,9 @@ describe('Contests tab', () => {
     }
 
     // Save contest
-    apiMock.createContest.expectCallWith({ electionId, newContest }).resolves();
+    apiMock.createContest
+      .expectCallWith({ electionId, newContest })
+      .resolves(ok());
     apiMock.listContests.expectCallWith({ electionId }).resolves([newContest]);
     expectOtherElectionApiCalls(election);
     const saveButton = screen.getByRole('button', { name: 'Save' });
@@ -614,7 +617,7 @@ describe('Contests tab', () => {
     // Save contest
     apiMock.updateContest
       .expectCallWith({ electionId, updatedContest })
-      .resolves();
+      .resolves(ok());
     apiMock.listContests
       .expectCallWith({ electionId })
       .resolves([updatedContest]);
@@ -750,7 +753,7 @@ describe('Contests tab', () => {
       // Save contest
       apiMock.createContest
         .expectCallWith({ electionId, newContest })
-        .resolves();
+        .resolves(ok());
       apiMock.listContests
         .expectCallWith({ electionId })
         .resolves([newContest]);
@@ -842,7 +845,7 @@ describe('Contests tab', () => {
     };
     apiMock.createContest
       .expectCallWith({ electionId, newContest: newContestWithDescriptionHtml })
-      .resolves();
+      .resolves(ok());
     apiMock.listContests
       .expectCallWith({ electionId })
       .resolves([...election.contests, newContestWithDescriptionHtml]);
@@ -953,7 +956,7 @@ describe('Contests tab', () => {
         electionId,
         updatedContest: updatedContestWithDescriptionHtml,
       })
-      .resolves();
+      .resolves(ok());
     apiMock.listContests
       .expectCallWith({ electionId })
       .resolves(
@@ -1165,6 +1168,96 @@ describe('Contests tab', () => {
     // Cancel edit contest
     userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     await screen.findByRole('heading', { name: 'Contests' });
+  });
+
+  test('error messages for duplicate candidate contest/candidates', async () => {
+    const electionRecord = generalElectionRecord(user.orgId);
+    const { election } = electionRecord;
+    const electionId = election.id;
+
+    apiMock.listContests
+      .expectCallWith({ electionId })
+      .resolves(election.contests);
+    expectOtherElectionApiCalls(election);
+    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+    renderScreen(electionId);
+
+    await screen.findByRole('heading', { name: 'Contests' });
+    userEvent.click(screen.getAllByRole('button', { name: 'Edit' })[1]);
+    await screen.findByRole('heading', { name: 'Edit Contest' });
+
+    // Mock the duplicate contest error, even though we didn't actually change anything
+    apiMock.updateContest
+      .expectCallWith({
+        electionId,
+        updatedContest: election.contests[1],
+      })
+      .resolves(err('duplicate-contest'));
+    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await screen.findByText(
+      'There is already a contest with the same district, title, seats, and term.'
+    );
+
+    // Mock the duplicate candidate error
+    apiMock.updateContest
+      .expectCallWith({
+        electionId,
+        updatedContest: election.contests[1],
+      })
+      .resolves(err('duplicate-candidate'));
+    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await screen.findByText('Candidates must have different names.');
+  });
+
+  test('error messages for duplicate ballot measure', async () => {
+    const electionRecord = generalElectionRecord(user.orgId);
+    const { election } = electionRecord;
+    const electionId = election.id;
+    const ballotMeasureContest = find(
+      election.contests,
+      (contest): contest is YesNoContest => contest.type === 'yesno'
+    );
+
+    apiMock.listContests
+      .expectCallWith({ electionId })
+      .resolves(election.contests);
+    expectOtherElectionApiCalls(election);
+    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+    renderScreen(electionId);
+
+    await screen.findByRole('heading', { name: 'Contests' });
+    userEvent.click(
+      within(
+        screen.getByText(ballotMeasureContest.title).closest('tr')!
+      ).getByRole('button', { name: 'Edit' })
+    );
+    await screen.findByRole('heading', { name: 'Edit Contest' });
+
+    // Mock the duplicate contest error, even though we didn't actually change anything
+    apiMock.updateContest
+      .expectCallWith({
+        electionId,
+        updatedContest: ballotMeasureContest,
+      })
+      .resolves(err('duplicate-contest'));
+    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await screen.findByText(
+      'There is already a contest with the same district and title.'
+    );
+
+    // Mock the duplicate option error
+    apiMock.updateContest
+      .expectCallWith({
+        electionId,
+        updatedContest: ballotMeasureContest,
+      })
+      .resolves(err('duplicate-option'));
+    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await screen.findByText('Options must have different labels.');
   });
 });
 
@@ -1394,7 +1487,9 @@ describe('Parties tab', () => {
       })
       .resolves(err('duplicate-full-name'));
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
-    await screen.findByText('A party with the same full name already exists.');
+    await screen.findByText(
+      'There is already a party with the same full name.'
+    );
 
     apiMock.createParty
       .expectCallWith({
@@ -1403,7 +1498,9 @@ describe('Parties tab', () => {
       })
       .resolves(err('duplicate-name'));
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
-    await screen.findByText('A party with the same short name already exists.');
+    await screen.findByText(
+      'There is already a party with the same short name.'
+    );
 
     apiMock.createParty
       .expectCallWith({
@@ -1413,7 +1510,7 @@ describe('Parties tab', () => {
       .resolves(err('duplicate-abbrev'));
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
     await screen.findByText(
-      'A party with the same abbreviation already exists.'
+      'There is already a party with the same abbreviation.'
     );
 
     userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
@@ -1436,7 +1533,9 @@ describe('Parties tab', () => {
       })
       .resolves(err('duplicate-full-name'));
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
-    await screen.findByText('A party with the same full name already exists.');
+    await screen.findByText(
+      'There is already a party with the same full name.'
+    );
 
     apiMock.updateParty
       .expectCallWith({
@@ -1445,7 +1544,9 @@ describe('Parties tab', () => {
       })
       .resolves(err('duplicate-name'));
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
-    await screen.findByText('A party with the same short name already exists.');
+    await screen.findByText(
+      'There is already a party with the same short name.'
+    );
 
     apiMock.updateParty
       .expectCallWith({
@@ -1455,7 +1556,7 @@ describe('Parties tab', () => {
       .resolves(err('duplicate-abbrev'));
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
     await screen.findByText(
-      'A party with the same abbreviation already exists.'
+      'There is already a party with the same abbreviation.'
     );
   });
 });

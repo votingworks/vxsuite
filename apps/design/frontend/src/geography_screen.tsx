@@ -203,7 +203,7 @@ function DistrictForm({
       if (error !== 'duplicate-name') throwIllegalValue(error);
       return (
         <Callout icon="Danger" color="danger">
-          A district with the same name already exists.
+          There is already a district with the same name.
         </Callout>
       );
     }
@@ -627,7 +627,7 @@ function PrecinctForm({
         case 'duplicate-precinct-name':
           return (
             <Callout icon="Danger" color="danger">
-              A precinct with the same name already exists.
+              There is already a precinct with the same name.
             </Callout>
           );
         case 'duplicate-split-name':
