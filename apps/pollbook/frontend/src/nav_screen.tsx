@@ -200,7 +200,7 @@ function NetworkStatus({
                 </div>
               )}
               {sortedPollbooks.length === 0 && status.isOnline && (
-                <span>No pollbooks found.</span>
+                <span>No poll books found.</span>
               )}
               {status.isOnline &&
                 !isResetting &&
