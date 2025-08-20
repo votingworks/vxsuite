@@ -1,13 +1,16 @@
 import { execFile } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
-import { assert, sleep } from '@votingworks/basics';
+import { assert, assertDefined, sleep } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import { rootDebug } from './debug';
 import {
   CommunicatingPollbookConnectionStatuses,
+  createConnectedPollbookServiceFromConfiguration,
   PeerAppContext,
   PollbookConfigurationInformation,
   PollbookConnectionStatus,
+  transitionPollbookToConnectedStatus,
+  transitionPollbookToDisconnectedStatus,
 } from './types';
 import { AvahiService, hasOnlineInterface } from './avahi';
 import {
@@ -76,6 +79,10 @@ export function shouldPollbooksShareEvents(
   );
 }
 
+export function getNodeServiceName(machineId: string): string {
+  return `Pollbook-${machineId}`;
+}
+
 export function fetchEventsFromConnectedPollbooks({
   workspace,
 }: PeerAppContext): void {
@@ -100,14 +107,17 @@ export function fetchEventsFromConnectedPollbooks({
           workspace.store.getPollbookConfigurationInformation();
 
         // Maintain a queue of pollbooks to visit, refill and shuffle when empty
-        const pollbookNames = Object.keys(previouslyConnected).filter(
+        const pollbookNamesToVisit = Object.keys(previouslyConnected).filter(
           (name) =>
             previouslyConnected[name].status ===
-            PollbookConnectionStatus.Connected
+              PollbookConnectionStatus.Connected &&
+            // We don't need to fetch events from ourselves
+            previouslyConnected[name].machineId !==
+              myMachineInformation.machineId
         );
         if (pollbookQueue.length === 0) {
           // Shuffle pollbookNames
-          pollbookQueue = pollbookNames
+          pollbookQueue = pollbookNamesToVisit
             .map((name) => ({ name, sort: Math.random() }))
             .sort((a, b) => a.sort - b.sort)
             .map(({ name }) => name);
@@ -129,11 +139,13 @@ export function fetchEventsFromConnectedPollbooks({
                 currentPollbookService
               )
             ) {
-              workspace.store.setPollbookServiceForName(currentName, {
-                ...currentPollbookService,
-                lastSeen: new Date(),
-                status: PollbookConnectionStatus.IncompatibleSoftwareVersion,
-              });
+              workspace.store.setPollbookServiceForName(
+                currentName,
+                transitionPollbookToConnectedStatus(
+                  currentPollbookService,
+                  PollbookConnectionStatus.IncompatibleSoftwareVersion
+                )
+              );
               return;
             }
             if (
@@ -142,11 +154,13 @@ export function fetchEventsFromConnectedPollbooks({
                 currentPollbookService
               )
             ) {
-              workspace.store.setPollbookServiceForName(currentName, {
-                ...currentPollbookService,
-                lastSeen: new Date(),
-                status: PollbookConnectionStatus.MismatchedConfiguration,
-              });
+              workspace.store.setPollbookServiceForName(
+                currentName,
+                transitionPollbookToConnectedStatus(
+                  currentPollbookService,
+                  PollbookConnectionStatus.MismatchedConfiguration
+                )
+              );
               return;
             }
             const { apiClient } = currentPollbookService;
@@ -171,21 +185,23 @@ export function fetchEventsFromConnectedPollbooks({
                 syncMoreEvents = hasMore;
               }
 
-              workspace.store.setPollbookServiceForName(currentName, {
-                ...currentPollbookService,
-                apiClient,
-                lastSeen: new Date(),
-                status: PollbookConnectionStatus.Connected,
-              });
+              workspace.store.setPollbookServiceForName(
+                currentName,
+                transitionPollbookToConnectedStatus(
+                  currentPollbookService,
+                  PollbookConnectionStatus.Connected
+                )
+              );
             } catch (error) {
               assert(error instanceof Error);
               if (error.message === 'mismatched-configuration') {
-                workspace.store.setPollbookServiceForName(currentName, {
-                  ...currentPollbookService,
-                  apiClient,
-                  lastSeen: new Date(),
-                  status: PollbookConnectionStatus.MismatchedConfiguration,
-                });
+                workspace.store.setPollbookServiceForName(
+                  currentName,
+                  transitionPollbookToConnectedStatus(
+                    currentPollbookService,
+                    PollbookConnectionStatus.MismatchedConfiguration
+                  )
+                );
               }
               debug(
                 `Failed to sync events from ${currentPollbookService.machineId}: ${error}`
@@ -203,20 +219,26 @@ export function fetchEventsFromConnectedPollbooks({
   });
 }
 
+export function isValidIpv4Address(address: string): boolean {
+  const ipv4Regex =
+    /^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$/;
+  return ipv4Regex.test(address);
+}
+
 export function setupMachineNetworking({
   machineId,
   workspace,
 }: PeerAppContext): void {
-  const currentNodeServiceName = `Pollbook-${machineId}`;
+  const selfMachineServiceName = getNodeServiceName(machineId);
   // Advertise a service for this machine
   debug(
     'Publishing avahi service %s on port %d',
-    currentNodeServiceName,
+    selfMachineServiceName,
     PEER_PORT
   );
-  AvahiService.advertiseHttpService(currentNodeServiceName, PEER_PORT);
+  AvahiService.advertiseHttpService(selfMachineServiceName, PEER_PORT);
   workspace.logger.log(LogEventId.PollbookNetworkStatus, 'system', {
-    message: `Published service ${currentNodeServiceName} to avahi on port ${PEER_PORT}`,
+    message: `Published service ${selfMachineServiceName} to avahi on port ${PEER_PORT}`,
   });
 
   // Poll for new machines on the network
@@ -229,22 +251,38 @@ export function setupMachineNetworking({
       }
       isPolling = true;
       try {
-        if (!(await hasOnlineInterface())) {
-          // There is no network to try to connect over. Bail out.
-          debug(
-            'No online interface found. Setting online status to false and bailing.'
-          );
-          workspace.store.setOnlineStatus(false);
-          return;
-        }
+        const previousPollbookServices =
+          workspace.store.getPollbookServicesByName();
 
         const myMachineInformation =
           workspace.store.getPollbookConfigurationInformation();
+
+        const selfMachinePollbookService = previousPollbookServices[
+          selfMachineServiceName
+        ] || {
+          ...myMachineInformation,
+          lastSeen: new Date(0),
+          status: PollbookConnectionStatus.LostConnection,
+        };
+        if (!(await hasOnlineInterface())) {
+          // There is no network to try to connect over. Bail out.
+          debug('No online interface found. Setting offline and bailing.');
+          workspace.store.setPollbookServiceForName(
+            selfMachineServiceName,
+            transitionPollbookToDisconnectedStatus(
+              selfMachinePollbookService,
+              PollbookConnectionStatus.LostConnection
+            )
+          );
+          return;
+        }
+
         const services = await AvahiService.discoverHttpServices();
-        const previouslyConnected = workspace.store.getPollbookServicesByName();
         // If there are any services that were previously connected that no longer show up in avahi
         // Mark them as shut down
-        for (const [name, service] of Object.entries(previouslyConnected)) {
+        for (const [name, service] of Object.entries(
+          previousPollbookServices
+        )) {
           // Only transition to shutdown for a service we are communicating with.
           if (
             !services.some((s) => s.name === name) &&
@@ -254,60 +292,103 @@ export function setupMachineNetworking({
               'Marking %s as shut down as it is no longer published on Avahi',
               name
             );
-            workspace.store.setPollbookServiceForName(name, {
-              ...service,
-              apiClient: undefined,
-              status: PollbookConnectionStatus.ShutDown,
-            });
+            workspace.store.setPollbookServiceForName(
+              name,
+              transitionPollbookToDisconnectedStatus(
+                service,
+                PollbookConnectionStatus.ShutDown
+              )
+            );
           }
         }
-        if (!services.some((s) => s.name === currentNodeServiceName)) {
+        if (!services.some((s) => s.name === selfMachineServiceName)) {
           // If the current machine is no longer published on Avahi, mark as offline
           debug(
             'The current service is no longer found on avahi. Setting online status to false'
           );
-          workspace.store.setOnlineStatus(false);
+          workspace.store.setPollbookServiceForName(
+            selfMachineServiceName,
+            transitionPollbookToDisconnectedStatus(
+              selfMachinePollbookService,
+              PollbookConnectionStatus.LostConnection
+            )
+          );
           return;
         }
         for (const { name, resolvedIp, port } of services) {
           debug('Checking service %s at %s:%d', name, resolvedIp, port);
           if (
-            name !== currentNodeServiceName &&
+            name !== selfMachineServiceName &&
             !workspace.store.getIsOnline()
           ) {
             // do not bother trying to ping other nodes if we are not online
             continue;
           }
-          const currentPollbookService = previouslyConnected[name];
-          if (currentPollbookService && currentPollbookService.apiClient) {
-            debug('Using previous API client for %s', name);
+          const currentPollbookService = previousPollbookServices[name];
+
+          const advertisedServiceUrl = `http://${resolvedIp}:${port}`;
+          // We want to re-use the old api client if it is set up, and the URL it is using matches the advertised URL.
+          // Avahi can in rare cases return an invalid ipv6 address in the ipv4 field. To mitigate the impact of that when we
+          // see an invalid address we will continue to use the last known good address and api client (if it exists).
+          const reuseApiClient =
+            // We have a valid old api client
+            currentPollbookService &&
+            currentPollbookService.apiClient !== undefined &&
+            // It is for the same address we just got, or the new one is invalid
+            (currentPollbookService.address === advertisedServiceUrl ||
+              !isValidIpv4Address(resolvedIp));
+          if (reuseApiClient) {
+            debug(
+              'Using previous API client for %s with url %s',
+              name,
+              currentPollbookService.address
+            );
+          } else {
+            debug(
+              'Creating new API client for %s with url %s',
+              name,
+              advertisedServiceUrl
+            );
           }
-          const apiClient =
-            currentPollbookService && currentPollbookService.apiClient
-              ? currentPollbookService.apiClient
-              : createPeerApiClientForAddress(`http://${resolvedIp}:${port}`);
+          const machineUrl = reuseApiClient
+            ? assertDefined(currentPollbookService.address)
+            : advertisedServiceUrl;
+
+          const apiClient = reuseApiClient
+            ? assertDefined(currentPollbookService.apiClient)
+            : createPeerApiClientForAddress(machineUrl);
 
           try {
             const machineInformation =
               await apiClient.getPollbookConfigurationInformation();
-            if (name === currentNodeServiceName) {
+            if (name === selfMachineServiceName) {
               // current machine, if we got here the network is working
               if (workspace.store.getIsOnline() === false) {
                 debug('Setting online status to true');
               }
-              workspace.store.setOnlineStatus(true);
+              workspace.store.setPollbookServiceForName(
+                selfMachineServiceName,
+                createConnectedPollbookServiceFromConfiguration(
+                  myMachineInformation,
+                  PollbookConnectionStatus.Connected,
+                  apiClient,
+                  machineUrl
+                )
+              );
               continue;
             }
             if (
               !arePollbooksCompatible(myMachineInformation, machineInformation)
             ) {
-              workspace.store.setPollbookServiceForName(name, {
-                ...machineInformation,
-                apiClient,
-                address: `http://${resolvedIp}:${port}`,
-                lastSeen: new Date(),
-                status: PollbookConnectionStatus.IncompatibleSoftwareVersion,
-              });
+              workspace.store.setPollbookServiceForName(
+                name,
+                createConnectedPollbookServiceFromConfiguration(
+                  machineInformation,
+                  PollbookConnectionStatus.IncompatibleSoftwareVersion,
+                  apiClient,
+                  machineUrl
+                )
+              );
               continue;
             }
             if (
@@ -316,13 +397,15 @@ export function setupMachineNetworking({
                 machineInformation
               )
             ) {
-              workspace.store.setPollbookServiceForName(name, {
-                ...machineInformation,
-                apiClient,
-                address: `http://${resolvedIp}:${port}`,
-                lastSeen: new Date(),
-                status: PollbookConnectionStatus.MismatchedConfiguration,
-              });
+              workspace.store.setPollbookServiceForName(
+                name,
+                createConnectedPollbookServiceFromConfiguration(
+                  machineInformation,
+                  PollbookConnectionStatus.MismatchedConfiguration,
+                  apiClient,
+                  machineUrl
+                )
+              );
               continue;
             }
             if (
@@ -336,20 +419,16 @@ export function setupMachineNetworking({
               );
             }
             // Mark as connected so events start syncing.
-            workspace.store.setPollbookServiceForName(name, {
-              ...machineInformation,
-              apiClient,
-              address: `http://${resolvedIp}:${port}`,
-              lastSeen: new Date(),
-              status: PollbookConnectionStatus.Connected,
-            });
+            workspace.store.setPollbookServiceForName(
+              name,
+              createConnectedPollbookServiceFromConfiguration(
+                machineInformation,
+                PollbookConnectionStatus.Connected,
+                apiClient,
+                machineUrl
+              )
+            );
           } catch (error) {
-            if (name === currentNodeServiceName) {
-              // Could not ping our own machine, mark as offline
-              debug('Failed to establish connection to self: %s', error);
-              debug('Setting online status to false');
-              workspace.store.setOnlineStatus(false);
-            }
             debug(`Failed to establish connection from ${name}: ${error}`);
           }
         }

@@ -23,6 +23,7 @@ import {
   PollbookConnectionStatus,
   PollbookEvent,
   PollbookService,
+  transitionPollbookToDisconnectedStatus,
 } from './types';
 import { rootDebug } from './debug';
 import { SchemaPath, Store } from './store';
@@ -83,51 +84,8 @@ export class PeerStore extends Store {
     this.client.run(`DELETE FROM machines`);
   }
 
-  setOnlineStatus(isOnline: boolean): void {
-    const currentOnline = this.getIsOnline();
-    if (currentOnline !== isOnline) {
-      this.logger.log(LogEventId.PollbookNetworkStatus, 'system', {
-        message: `Pollbook status changed to ${
-          isOnline ? 'online' : 'offline'
-        }`,
-      });
-    }
-    this.client.transaction(() => {
-      if (!isOnline) {
-        // If we go offline, we should clear the list of connected pollbooks.
-        debug('Clearing connected pollbooks due to offline status');
-        for (const [avahiServiceName, pollbookService] of Object.entries(
-          this.connectedPollbooks
-        )) {
-          if (
-            CommunicatingPollbookConnectionStatuses.includes(
-              pollbookService.status
-            )
-          ) {
-            this.setPollbookServiceForName(avahiServiceName, {
-              ...pollbookService,
-              status: PollbookConnectionStatus.LostConnection,
-              apiClient: undefined,
-            });
-          }
-        }
-      }
-      this.client.run(
-        `
-      INSERT INTO machines (machine_id, status, last_seen, pollbook_information)
-      VALUES (?, ?, ?, ?)
-      ON CONFLICT(machine_id) DO UPDATE SET
-        status = excluded.status
-        ${isOnline ? ', last_seen = excluded.last_seen' : ''}
-      `,
-        this.machineId,
-        isOnline
-          ? PollbookConnectionStatus.Connected
-          : PollbookConnectionStatus.LostConnection,
-        isOnline ? getCurrentTime() : 0,
-        '{}'
-      );
-    });
+  getCodeVersion(): string {
+    return this.codeVersion;
   }
 
   // Saves all events received from a remote machine. Returning the last event's timestamp.
@@ -271,6 +229,33 @@ export class PeerStore extends Store {
         machineId: pollbookService.machineId,
       })
     );
+
+    if (
+      pollbookService.machineId === this.machineId &&
+      pollbookService.status === PollbookConnectionStatus.LostConnection
+    ) {
+      // We are now offline, we should mark all other services as offline.
+      for (const [otherPollbookName, otherPollbookService] of Object.entries(
+        this.connectedPollbooks
+      )) {
+        if (otherPollbookName === avahiServiceName) {
+          continue;
+        }
+        if (
+          CommunicatingPollbookConnectionStatuses.includes(
+            otherPollbookService.status
+          )
+        ) {
+          this.setPollbookServiceForName(
+            otherPollbookName,
+            transitionPollbookToDisconnectedStatus(
+              otherPollbookService,
+              PollbookConnectionStatus.LostConnection
+            )
+          );
+        }
+      }
+    }
   }
 
   cleanupStalePollbookServices(): void {
@@ -283,11 +268,13 @@ export class PeerStore extends Store {
         CommunicatingPollbookConnectionStatuses.includes(pollbookService.status)
       ) {
         debug('Removing stale pollbook service %s', avahiServiceName);
-        this.setPollbookServiceForName(avahiServiceName, {
-          ...pollbookService,
-          status: PollbookConnectionStatus.LostConnection,
-          apiClient: undefined,
-        });
+        this.setPollbookServiceForName(
+          avahiServiceName,
+          transitionPollbookToDisconnectedStatus(
+            pollbookService,
+            PollbookConnectionStatus.LostConnection
+          )
+        );
       }
     }
   }

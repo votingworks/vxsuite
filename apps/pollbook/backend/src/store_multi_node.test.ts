@@ -157,8 +157,6 @@ test('offline undo with later real time check in', async () => {
   expect(localB.getCheckInCount()).toEqual(2);
 
   // PollbookB goes offline
-  peerB.setOnlineStatus(false);
-
   // Sue checks in with a CA id and then is undone on PollbookB while offline
   localB.recordVoterCheckIn({
     voterId: 'sue',
@@ -178,8 +176,6 @@ test('offline undo with later real time check in', async () => {
   });
 
   // PollbookB comes back online
-  peerB.setOnlineStatus(true);
-
   // Pollbook B syncs with Pollbook A
   const finalEventsForB = syncEventsFromTo(peerA, peerB);
   expect(finalEventsForB.length).toEqual(1);
@@ -371,8 +367,6 @@ test("getting a offline machines events when I've synced with the online machine
   expect(localC.getCheckInCount()).toEqual(3);
 
   // PollbookC goes offline
-  peerC.setOnlineStatus(false);
-
   // Wait a bit to ensure physical timestamps will be different
   await sleep(10);
 
@@ -405,11 +399,7 @@ test("getting a offline machines events when I've synced with the online machine
   expect(localC.getCheckInCount()).toEqual(4);
 
   // PollbookB is shutdown
-  peerB.setOnlineStatus(false);
-
   // PollbookC rejoins the network
-  peerC.setOnlineStatus(true);
-
   // Sync events between PollbookA and PollbookC
   syncEventsForAllPollbooks([peerA, peerC]);
 
@@ -435,11 +425,7 @@ test("getting a offline machines events when I've synced with the online machine
   ]);
 
   // PollbookC is shutdown
-  peerC.setOnlineStatus(false);
-
   // PollbookB rejoins the network
-  peerB.setOnlineStatus(true);
-
   // Sync events between PollbookA and PollbookB
   syncEventsForAllPollbooks([peerA, peerB]);
 
@@ -773,11 +759,7 @@ test('late-arriving older event with a more recent undo', () => {
   expect(localB.getCheckInCount()).toEqual(0);
 
   // Pollbook B goes offline
-  peerB.setOnlineStatus(false);
-
   // Pollbook C comes online
-  peerC.setOnlineStatus(true);
-
   // Penny checks in on PollbookC
   localC.recordVoterCheckIn({
     voterId: 'penny',
@@ -792,16 +774,12 @@ test('late-arriving older event with a more recent undo', () => {
   expect(localC.getCheckInCount()).toEqual(2);
 
   // Pollbook A goes offline
-  peerA.setOnlineStatus(false);
-
   // Pollbook B comes online and syncs with Pollbook C
-  peerB.setOnlineStatus(true);
   syncEventsForAllPollbooks([peerC, peerB]);
   expect(localB.getCheckInCount()).toEqual(1);
   expect(localC.getCheckInCount()).toEqual(1);
 
   // Pollbook A comes back online and syncs with Pollbook B
-  peerA.setOnlineStatus(true);
   syncEventsForAllPollbooks([peerB, peerA]);
 
   // Verify final state
@@ -1376,7 +1354,6 @@ test('check in event on an offline machine BEFORE the mark inactive', async () =
   // Sync initial state
   syncEventsForAllPollbooks([peerA, peerB]);
   // PollbookB goes offline
-  peerB.setOnlineStatus(false);
   // Check in on B while offline
   localB.recordVoterCheckIn({
     voterId: 'mia',
@@ -1388,7 +1365,6 @@ test('check in event on an offline machine BEFORE the mark inactive', async () =
   // Mark inactive on A
   localA.markVoterInactive('mia');
   // Bring B online and sync
-  peerB.setOnlineStatus(true);
   syncEventsForAllPollbooks([peerA, peerB]);
   // Both should see voter as inactive and checked in
   for (const store of [localA, localB]) {
@@ -1419,7 +1395,6 @@ test('check in event on an offline machine AFTER the mark inactive', async () =>
   syncEventsForAllPollbooks([peerA, peerB]);
 
   // PollbookB goes offline
-  peerB.setOnlineStatus(false);
   // Mark inactive on A
   localA.markVoterInactive('nia');
   // Wait a bit of time.
@@ -1431,7 +1406,6 @@ test('check in event on an offline machine AFTER the mark inactive', async () =>
     ballotParty: 'DEM',
   });
   // Bring B online and sync
-  peerB.setOnlineStatus(true);
   syncEventsForAllPollbooks([peerA, peerB]);
   // Both should see voter as inactive and checked in
   for (const store of [localA, localB]) {
@@ -1466,7 +1440,6 @@ test('name/address change AFTER mark inactive on another machine get processed',
   syncEventsForAllPollbooks([peerA, peerB]);
 
   // Pollbook B offline
-  peerB.setOnlineStatus(false);
 
   // Mark inactive on A
   localA.markVoterInactive('kai');
@@ -1494,7 +1467,6 @@ test('name/address change AFTER mark inactive on another machine get processed',
     precinct: 'precinct-0',
   });
 
-  peerB.setOnlineStatus(true);
   syncEventsForAllPollbooks([peerA, peerB]);
   // Both should see voter as inactive, with name/address change
   for (const store of [localA, localB]) {
