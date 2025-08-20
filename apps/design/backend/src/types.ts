@@ -93,5 +93,7 @@ export interface ElectionInfo {
   state: string;
   jurisdiction: string;
   seal: string;
+  signatureImage?: string;
+  signatureCaption?: string;
   languageCodes: LanguageCode[];
 }
