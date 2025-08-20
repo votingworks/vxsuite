@@ -75,7 +75,7 @@ test('renders network status as expected - when unconfigured', async () => {
   expect(icon.getAttribute('data-icon')).toEqual('tower-broadcast');
   userEvent.click(icon);
   await screen.findByText('Network Details');
-  await screen.findByText('No pollbooks found.');
+  await screen.findByText('No poll books found.');
   userEvent.click(screen.getByText('Close'));
   // Test with other pollbooks on the network
   apiMock.setNetworkOnline([
@@ -202,7 +202,7 @@ test('renders network status as expected - when configured', async () => {
   expect(icon.getAttribute('data-icon')).toEqual('tower-broadcast');
   userEvent.click(icon);
   await screen.findByText('Network Details');
-  await screen.findByText('No pollbooks found.');
+  await screen.findByText('No poll books found.');
   userEvent.click(screen.getByText('Close'));
   // Test with other pollbooks on the network
   apiMock.setNetworkOnline([
