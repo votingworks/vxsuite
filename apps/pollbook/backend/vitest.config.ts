@@ -7,8 +7,8 @@ export default defineConfig({
     clearMocks: true,
     coverage: {
       thresholds: {
-        lines: 91.8,
-        branches: 87.2,
+        lines: 92,
+        branches: 87.5,
       },
       exclude: [
         '**/node_modules/**',
@@ -17,7 +17,6 @@ export default defineConfig({
         '**/*.d.ts',
         '**/types.ts',
         'src/**/index.ts',
-        'src/barcode_scanner/client.ts',
       ],
     },
     // Ensure only one instance of each library is loaded by loading the TS
