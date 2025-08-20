@@ -140,9 +140,7 @@ describe('non-English ballot style', () => {
       />
     );
 
-    await waitFor(() =>
-      expect(getLanguageContext()?.currentLanguageCode).toEqual('en')
-    );
+    await screen.findAllByTestId(ElectionStringKey.ELECTION_TITLE);
 
     expectDualLanguageString({ key: 'titleOfficialBallot' });
     expectDualLanguageString({ key: ElectionStringKey.ELECTION_TITLE });
@@ -184,9 +182,7 @@ describe('non-English ballot style', () => {
       />
     );
 
-    await waitFor(() =>
-      expect(getLanguageContext()?.currentLanguageCode).toEqual('en')
-    );
+    await screen.findAllByTestId(ElectionStringKey.ELECTION_TITLE);
 
     expectDualLanguageString({
       key: ElectionStringKey.CONTEST_TITLE,
@@ -234,9 +230,7 @@ describe('non-English ballot style', () => {
       />
     );
 
-    await waitFor(() =>
-      expect(getLanguageContext()?.currentLanguageCode).toEqual('en')
-    );
+    await screen.findAllByTestId(ElectionStringKey.ELECTION_TITLE);
 
     expectDualLanguageString({ key: 'noteBallotContestNoSelection' });
   });
@@ -261,9 +255,7 @@ describe('non-English ballot style', () => {
       />
     );
 
-    await waitFor(() =>
-      expect(getLanguageContext()?.currentLanguageCode).toEqual('en')
-    );
+    await screen.findAllByTestId(ElectionStringKey.ELECTION_TITLE);
 
     expectDualLanguageString({
       key: ElectionStringKey.CONTEST_TITLE,
@@ -297,9 +289,7 @@ describe('non-English ballot style', () => {
       />
     );
 
-    await waitFor(() =>
-      expect(getLanguageContext()?.currentLanguageCode).toEqual('en')
-    );
+    await screen.findAllByTestId(ElectionStringKey.ELECTION_TITLE);
 
     expectDualLanguageString({
       key: ElectionStringKey.CONTEST_TITLE,
@@ -365,9 +355,7 @@ describe('English ballot style', () => {
       />
     );
 
-    await waitFor(() =>
-      expect(getLanguageContext()?.currentLanguageCode).toEqual('en')
-    );
+    await screen.findAllByTestId(ElectionStringKey.ELECTION_TITLE);
 
     expect(container).not.toHaveTextContent(
       new RegExp(getMockUiStringPrefix('es-US'))
