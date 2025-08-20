@@ -545,7 +545,7 @@ IDs are logged with each log to identify the log being written.
 ### unexpected-hardware-device-response
 **Type:** [system-status](#system-status)
 **Description:** A connected hardware device returned an unexpected response.
-**Machines:** vx-mark-scan
+**Machines:** vx-pollbook
 ### no-pid
 **Type:** [system-status](#system-status)
 **Description:** No PID was readable from PID file, or PID file did not exist.

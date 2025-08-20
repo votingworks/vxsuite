@@ -6,6 +6,7 @@ import { LogEventId, MockLogger, mockLogger } from '@votingworks/logging';
 import { SystemCallApiMethods, createSystemCallApi } from './api';
 import { execFile } from '../exec';
 import { AudioInfo, getAudioInfo } from './get_audio_info';
+import { BatteryInfo, getBatteryInfo } from './get_battery_info';
 import { LogsExportError } from './export_logs_to_usb';
 
 vi.mock(import('node:fs/promises'), async (importActual) => ({
@@ -22,6 +23,7 @@ vi.mock(
 );
 
 vi.mock(import('./get_audio_info.js'));
+vi.mock(import('./get_battery_info.js'));
 
 const actualTimezone = process.env.TZ;
 
@@ -134,4 +136,14 @@ test('getAudioInfo', async () => {
   };
   vi.mocked(getAudioInfo).mockResolvedValue(audioInfo);
   await expect(api.getAudioInfo()).resolves.toEqual(audioInfo);
+});
+
+test('getBatteryInfo', async () => {
+  const batteryInfo: BatteryInfo = {
+    level: 0.75,
+    discharging: false,
+  };
+  vi.mocked(getBatteryInfo).mockResolvedValue(batteryInfo);
+  await expect(api.getBatteryInfo()).resolves.toEqual(batteryInfo);
+  expect(getBatteryInfo).toHaveBeenCalledWith({ logger });
 });

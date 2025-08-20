@@ -1200,7 +1200,7 @@ const UnexpectedHardwareDeviceResponse: LogDetails = {
   eventType: LogEventType.SystemStatus,
   documentationMessage:
     'A connected hardware device returned an unexpected response.',
-  restrictInDocumentationToApps: [AppName.VxMarkScan],
+  restrictInDocumentationToApps: [AppName.VxPollBook],
 };
 
 const NoPid: LogDetails = {

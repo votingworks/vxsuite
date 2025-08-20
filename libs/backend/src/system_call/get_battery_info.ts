@@ -1,4 +1,5 @@
 import { lines } from '@votingworks/basics';
+import { LogEventId, Logger } from '@votingworks/logging';
 import { safeParseNumber } from '@votingworks/types';
 import { createReadStream } from 'node:fs';
 
@@ -49,15 +50,34 @@ export async function parseBatteryInfo(
  * Get battery info for the main system battery. If no battery info is found,
  * returns null (react-query doesn't accept `undefined`).
  */
-export async function getBatteryInfo(): Promise<BatteryInfo | null> {
+export async function getBatteryInfo({
+  logger,
+}: {
+  logger: Logger;
+}): Promise<BatteryInfo | null> {
   for (const batteryPath of ['BAT0', 'BAT1']) {
     try {
-      return await parseBatteryInfo(
+      const batteryInfo = await parseBatteryInfo(
         createReadStream(
           `/sys/class/power_supply/${batteryPath}/uevent`,
           'utf8'
         )
       );
+
+      // It's possible for the battery level to be outside of the range. For
+      // example, when the battery level goes beyond the previously expected
+      // capacity and the capacity is not yet updated.
+      if (batteryInfo.level < 0 || batteryInfo.level > 1) {
+        logger.log(LogEventId.UnexpectedHardwareDeviceResponse, 'system', {
+          disposition: 'failure',
+          message: `System reported an invalid battery level: ${batteryInfo.level}`,
+        });
+
+        // Return null to indicate that the battery level is invalid.
+        return null;
+      }
+
+      return batteryInfo;
     } catch {
       // ignore missing paths
     }

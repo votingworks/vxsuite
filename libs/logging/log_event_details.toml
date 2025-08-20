@@ -873,7 +873,7 @@ restrictInDocumentationToApps = ["vx-mark-scan"]
 eventId = "unexpected-hardware-device-response"
 eventType = "system-status"
 documentationMessage = "A connected hardware device returned an unexpected response."
-restrictInDocumentationToApps = ["vx-mark-scan"]
+restrictInDocumentationToApps = ["vx-pollbook"]
 
 [Events.NoPid]
 eventId = "no-pid"
