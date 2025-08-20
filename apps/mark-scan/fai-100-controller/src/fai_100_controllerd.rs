@@ -254,6 +254,7 @@ struct CurrentStatus {
     sip: SipAndPuffSignalStatus,
     puff: SipAndPuffSignalStatus,
     sip_puff_device_connected: SipAndPuffDeviceStatus,
+    sip_puff_device_connection_time: Option<Instant>,
 }
 
 struct KeypressSpec {
@@ -363,6 +364,11 @@ fn handle_status_response(
         current_status.puff = SipAndPuffSignalStatus::Idle;
         current_status.button_pressed = ButtonSignal::NoButton;
 
+        current_status.sip_puff_device_connection_time = match new_connection_status {
+            SipAndPuffDeviceStatus::Connected => Some(Instant::now()),
+            SipAndPuffDeviceStatus::Disconnected => None,
+        };
+
         // Write device connection status to system file so mark-scan app is aware
         write_pat_connection_status(new_connection_status, workspace_path)?;
 
@@ -381,14 +387,22 @@ fn handle_status_response(
     // Update the currently pressed button so subsequent identical status reports won't trigger a second keypress
     current_status.button_pressed = new_button;
 
+    // Track if enough time has elapsed since positive connection status.
+    // This mitigates an issue where plugging in headphones to the PAT
+    // jack will send status that a PAT device is connected and a sip
+    // and/or puff event has happened.
+    let connection_signal_delay_elapsed = current_status
+        .sip_puff_device_connection_time
+        .is_some_and(|t| t.elapsed() > Duration::from_secs(2));
+
     // Only check for sip & puff actions when the device is connected because
-    // sip/puff values are inverted when no device is connected, per comment above.
-    // Even if values were consistent, logically no sip/puff signal can be sent without a
-    // connected device.
+    // sip/puff values are inverted when no device is connected.
+    // Even if values were consistent, logically no sip/puff signal can be sent without a connected device.
     if current_status.sip_puff_device_connected == SipAndPuffDeviceStatus::Connected {
         // Send keypress for new sip event
         if new_sip_status == SipAndPuffSignalStatus::Active
             && current_status.sip == SipAndPuffSignalStatus::Idle
+            && connection_signal_delay_elapsed
         {
             send_keystroke(
                 &KeypressSpec {
@@ -403,6 +417,7 @@ fn handle_status_response(
         // Send keypress for new puff event
         if new_puff_status == SipAndPuffSignalStatus::Active
             && current_status.puff == SipAndPuffSignalStatus::Idle
+            && connection_signal_delay_elapsed
         {
             send_keystroke(
                 &KeypressSpec {
@@ -437,7 +452,8 @@ fn run_event_loop(
         button_pressed: ButtonSignal::NoButton,
         sip: SipAndPuffSignalStatus::Idle,
         puff: SipAndPuffSignalStatus::Idle,
-        sip_puff_device_connected: SipAndPuffDeviceStatus::Connected,
+        sip_puff_device_connected: SipAndPuffDeviceStatus::Disconnected,
+        sip_puff_device_connection_time: None,
     };
 
     loop {
@@ -567,6 +583,7 @@ mod tests {
             sip: SipAndPuffSignalStatus::Idle,
             puff: SipAndPuffSignalStatus::Idle,
             sip_puff_device_connected: SipAndPuffDeviceStatus::Disconnected,
+            sip_puff_device_connection_time: None,
         };
         let new_status = NotificationStatusResponse {
             button_pressed: ButtonSignal::Help,
@@ -594,6 +611,7 @@ mod tests {
             sip: SipAndPuffSignalStatus::Idle,
             puff: SipAndPuffSignalStatus::Idle,
             sip_puff_device_connected: SipAndPuffDeviceStatus::Disconnected,
+            sip_puff_device_connection_time: None,
         };
         let new_status = NotificationStatusResponse {
             button_pressed: ButtonSignal::Left,
