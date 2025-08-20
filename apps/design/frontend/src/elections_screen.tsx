@@ -341,7 +341,15 @@ function SingleOrgElectionsList({
   );
 }
 
-export function ElectionsScreen(): JSX.Element | null {
+interface Props {
+  filterText: string;
+  setFilterText: (text: string) => void;
+}
+
+export function ElectionsScreen({
+  filterText,
+  setFilterText,
+}: Props): JSX.Element | null {
   useTitle(routes.root.title);
   const listElectionsQuery = listElections.useQuery();
   const createElectionMutation = createElection.useMutation();
@@ -349,7 +357,6 @@ export function ElectionsScreen(): JSX.Element | null {
   const getUserFeaturesQuery = getUserFeatures.useQuery();
   const user = getUser.useQuery().data;
   const history = useHistory();
-  const [filterText, setFilterText] = useState('');
 
   function onCreateElectionSuccess(result: Result<Id, Error>) {
     if (result.isOk()) {

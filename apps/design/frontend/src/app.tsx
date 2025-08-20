@@ -8,6 +8,7 @@ import {
 } from '@votingworks/ui';
 import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
+import { useState } from 'react';
 import {
   ApiClient,
   ApiClientContext,
@@ -79,6 +80,7 @@ export function App({
 }: {
   apiClient?: ApiClient;
 }): JSX.Element {
+  const [electionsFilterText, setElectionsFilterText] = useState('');
   return (
     <AppBase
       defaultColorMode="desktop"
@@ -91,11 +93,12 @@ export function App({
             <WaitForUserInfo>
               <BrowserRouter>
                 <Switch>
-                  <Route
-                    path={routes.root.path}
-                    exact
-                    component={ElectionsScreen}
-                  />
+                  <Route path={routes.root.path} exact>
+                    <ElectionsScreen
+                      filterText={electionsFilterText}
+                      setFilterText={setElectionsFilterText}
+                    />
+                  </Route>
                   <Route
                     path={electionParamRoutes.root.path}
                     component={ElectionScreens}
