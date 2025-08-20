@@ -9,7 +9,7 @@ import {
   Button,
   StyledButtonProps,
 } from '@votingworks/ui';
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, useMemo, useRef } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { format } from '@votingworks/utils';
@@ -357,6 +357,7 @@ export function ElectionsScreen({
   const getUserFeaturesQuery = getUserFeatures.useQuery();
   const user = getUser.useQuery().data;
   const history = useHistory();
+  const filterRef = useRef<HTMLInputElement>(null);
 
   function onCreateElectionSuccess(result: Result<Id, Error>) {
     if (result.isOk()) {
@@ -403,20 +404,41 @@ export function ElectionsScreen({
         <H1>Elections</H1>
       </Header>
       <MainContent>
-        <Column style={{ gap: '1rem' }}>
+        <Column style={{ gap: '1rem', height: '100%', overflow: 'hidden' }}>
           <Row style={{ gap: '0.5rem' }}>
-            <input
-              type="text"
-              aria-label="Filter elections"
-              placeholder={
-                features.ACCESS_ALL_ORGS
-                  ? 'Filter by organization or election title'
-                  : 'Filter by election title'
-              }
-              value={filterText}
-              style={{ flexGrow: 1 }}
-              onChange={(e) => setFilterText(e.target.value)}
-            />
+            <div
+              style={{ position: 'relative', flexGrow: 1, padding: '0.125rem' }}
+            >
+              <input
+                // eslint-disable-next-line jsx-a11y/no-autofocus
+                autoFocus
+                ref={filterRef}
+                type="text"
+                aria-label="Filter elections"
+                placeholder={
+                  features.ACCESS_ALL_ORGS
+                    ? 'Filter by organization or election title'
+                    : 'Filter by election title'
+                }
+                value={filterText}
+                style={{ width: '100%' }}
+                onChange={(e) => setFilterText(e.target.value)}
+              />
+              <Button
+                style={{
+                  position: 'absolute',
+                  right: '0.25rem',
+                  top: '0.25rem',
+                  padding: '0.5rem',
+                }}
+                fill="transparent"
+                icon="X"
+                onPress={() => {
+                  setFilterText('');
+                  filterRef.current?.focus();
+                }}
+              />
+            </div>
             <CreateElectionButton
               variant={elections.length === 0 ? 'primary' : undefined}
             />
@@ -429,11 +451,13 @@ export function ElectionsScreen({
             </FileInputButton>
           </Row>
 
-          {features.ACCESS_ALL_ORGS ? (
-            <AllOrgsElectionsList elections={filteredElections} />
-          ) : (
-            <SingleOrgElectionsList elections={filteredElections} />
-          )}
+          <div style={{ overflow: 'auto' }}>
+            {features.ACCESS_ALL_ORGS ? (
+              <AllOrgsElectionsList elections={filteredElections} />
+            ) : (
+              <SingleOrgElectionsList elections={filteredElections} />
+            )}
+          </div>
         </Column>
       </MainContent>
     </NavScreen>
