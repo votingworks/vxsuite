@@ -205,6 +205,11 @@ test('offline undo with later real time check in', async () => {
     receiptNumber: 2,
     isAbsentee: false,
   });
+
+  expect(localA.getCheckInCount('pollbook-a')).toEqual(2);
+  expect(localB.getCheckInCount('pollbook-a')).toEqual(2);
+  expect(localA.getCheckInCount('pollbook-b')).toEqual(1);
+  expect(localB.getCheckInCount('pollbook-b')).toEqual(1);
 });
 
 // - PollbookA comes online - the system clock is configured wrong for 8:00am
@@ -366,6 +371,12 @@ test("getting a offline machines events when I've synced with the online machine
   expect(localB.getCheckInCount()).toEqual(3);
   expect(localC.getCheckInCount()).toEqual(3);
 
+  for (const machine of ['pollbook-a', 'pollbook-b', 'pollbook-c']) {
+    expect(localA.getCheckInCount(machine)).toEqual(1);
+    expect(localB.getCheckInCount(machine)).toEqual(1);
+    expect(localC.getCheckInCount(machine)).toEqual(1);
+  }
+
   // PollbookC goes offline
   // Wait a bit to ensure physical timestamps will be different
   await sleep(10);
@@ -450,6 +461,12 @@ test("getting a offline machines events when I've synced with the online machine
   ]);
   // This is unchanged
   expect(localA.getCheckInCount()).toEqual(6);
+
+  for (const machine of ['pollbook-a', 'pollbook-b', 'pollbook-c']) {
+    expect(localA.getCheckInCount(machine)).toEqual(2);
+    expect(localB.getCheckInCount(machine)).toEqual(2);
+    expect(localC.getCheckInCount(machine)).toEqual(2);
+  }
 });
 
 test('last write wins on double check ins', async () => {
@@ -482,6 +499,24 @@ test('last write wins on double check ins', async () => {
     ballotParty: 'DEM',
   });
   expect(localA.getCheckInCount()).toEqual(1);
+  expect(
+    localA.searchVoters({
+      firstName: 'Bob',
+      middleName: '',
+      lastName: '',
+      suffix: '',
+    })
+  ).toEqual([
+    expect.objectContaining({
+      voterId: 'bob',
+      checkIn: expect.objectContaining({
+        identificationMethod: {
+          type: 'default',
+        },
+        machineId: 'pollbook-a',
+      }),
+    }),
+  ]);
 
   // allow real time to pass
   await sleep(10);
@@ -492,6 +527,24 @@ test('last write wins on double check ins', async () => {
     ballotParty: 'DEM',
   });
   expect(localB.getCheckInCount()).toEqual(1);
+  expect(
+    localB.searchVoters({
+      firstName: 'Bob',
+      middleName: '',
+      lastName: '',
+      suffix: '',
+    })
+  ).toEqual([
+    expect.objectContaining({
+      voterId: 'bob',
+      checkIn: expect.objectContaining({
+        identificationMethod: {
+          type: 'default',
+        },
+        machineId: 'pollbook-b',
+      }),
+    }),
+  ]);
 
   // Sync events between all pollbooks
   syncEventsForAllPollbooks([peerA, peerB]);
@@ -535,6 +588,11 @@ test('last write wins on double check ins', async () => {
       }),
     }),
   ]);
+  // Check in counts by machine id should be updated accordingly.
+  expect(localA.getCheckInCount('pollbook-a')).toEqual(0);
+  expect(localB.getCheckInCount('pollbook-a')).toEqual(0);
+  expect(localA.getCheckInCount('pollbook-b')).toEqual(1);
+  expect(localB.getCheckInCount('pollbook-b')).toEqual(1);
 });
 
 test('last write wins even when there is bad system time after a sync', () => {
@@ -647,6 +705,11 @@ test('last write wins even when there is bad system time after a sync', () => {
     }),
   ]);
 
+  expect(localA.getCheckInCount('pollbook-a')).toEqual(1);
+  expect(localB.getCheckInCount('pollbook-a')).toEqual(1);
+  expect(localA.getCheckInCount('pollbook-b')).toEqual(0);
+  expect(localB.getCheckInCount('pollbook-b')).toEqual(0);
+
   vi.useRealTimers();
 });
 
@@ -712,6 +775,16 @@ test('simultaneous events are handled properly', () => {
   expect(localA.getCheckInCount()).toEqual(2);
   expect(localB.getCheckInCount()).toEqual(2);
   expect(localC.getCheckInCount()).toEqual(2);
+
+  expect(localA.getCheckInCount('pollbook-a')).toEqual(0);
+  expect(localB.getCheckInCount('pollbook-a')).toEqual(0);
+  expect(localC.getCheckInCount('pollbook-a')).toEqual(0);
+  expect(localA.getCheckInCount('pollbook-b')).toEqual(1);
+  expect(localB.getCheckInCount('pollbook-b')).toEqual(1);
+  expect(localC.getCheckInCount('pollbook-b')).toEqual(1);
+  expect(localA.getCheckInCount('pollbook-c')).toEqual(1);
+  expect(localB.getCheckInCount('pollbook-c')).toEqual(1);
+  expect(localC.getCheckInCount('pollbook-c')).toEqual(1);
 
   vi.useRealTimers();
 });
@@ -831,6 +904,16 @@ test('late-arriving older event with a more recent undo', () => {
   expect((pennyA as Voter[])[0].checkIn).toBeDefined();
   expect((pennyB as Voter[])[0].checkIn).toBeDefined();
   expect((pennyC as Voter[])[0].checkIn).toBeDefined();
+
+  expect(localA.getCheckInCount('pollbook-a')).toEqual(0);
+  expect(localB.getCheckInCount('pollbook-a')).toEqual(0);
+  expect(localC.getCheckInCount('pollbook-a')).toEqual(0);
+  expect(localA.getCheckInCount('pollbook-b')).toEqual(0);
+  expect(localB.getCheckInCount('pollbook-b')).toEqual(0);
+  expect(localC.getCheckInCount('pollbook-b')).toEqual(0);
+  expect(localA.getCheckInCount('pollbook-c')).toEqual(1);
+  expect(localB.getCheckInCount('pollbook-c')).toEqual(1);
+  expect(localC.getCheckInCount('pollbook-c')).toEqual(1);
 });
 
 test('all possible events are synced', () => {

@@ -334,13 +334,10 @@ export abstract class Store {
             VALUES (?, ?, ?)
             ON CONFLICT(voter_id) DO UPDATE SET 
             is_checked_in = EXCLUDED.is_checked_in,
-            machine_id = CASE
-              WHEN check_in_status.is_checked_in != EXCLUDED.is_checked_in THEN EXCLUDED.machine_id
-              ELSE check_in_status.machine_id
-            END
+            machine_id = EXCLUDED.machine_id
             `,
             pollbookEvent.voterId,
-            pollbookEvent.machineId,
+            voter.checkIn ? voter.checkIn.machineId : null,
             voter.checkIn ? '1' : '0'
           );
           break;
