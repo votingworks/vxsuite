@@ -132,6 +132,8 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
           'getGeneralSummaryStatistics',
           'getPrimarySummaryStatistics',
           'getUsbDriveStatus',
+          'getVoter',
+          'searchVoters',
         ];
         if (silenceMethods.includes(methodName)) {
           return;
