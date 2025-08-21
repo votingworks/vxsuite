@@ -433,6 +433,7 @@ export function ElectionsScreen({
                 }}
                 fill="transparent"
                 icon="X"
+                aria-label="Clear"
                 onPress={() => {
                   setFilterText('');
                   filterRef.current?.focus();

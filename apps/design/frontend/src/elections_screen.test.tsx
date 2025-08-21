@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { useState } from 'react';
 import { ok } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
@@ -60,12 +61,19 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
+function Wrapper() {
+  const [filterText, setFilterText] = useState('');
+  return (
+    <ElectionsScreen filterText={filterText} setFilterText={setFilterText} />
+  );
+}
+
 function renderScreen() {
   const history = createMemoryHistory();
   const result = render(
     provideApi(
       apiMock,
-      withRoute(<ElectionsScreen />, {
+      withRoute(<Wrapper />, {
         paramPath: routes.root.path,
         path: routes.root.path,
         history,
@@ -188,6 +196,7 @@ test('with elections', async () => {
 
   // Test filter
   const filterInput = screen.getByLabelText(/filter elections/i);
+  expect(filterInput).toHaveFocus();
 
   // Search for general election title
   userEvent.type(filterInput, general.election.title);
@@ -205,7 +214,10 @@ test('with elections', async () => {
   expect(filteredRows).toHaveLength(0);
 
   // Clear search to show all rows again
-  userEvent.clear(filterInput);
+  userEvent.click(
+    within(filterInput.parentElement!).getByRole('button', { name: /Clear/ })
+  );
+  expect(filterInput).toHaveFocus();
 
   rows = within(table).getAllByRole('row').slice(1);
   expect(rows).toHaveLength(2);
