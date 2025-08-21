@@ -85,28 +85,26 @@ function getContestTitle(row: {
   return `${row.contestTitle1} ${row.contestTitle2}`;
 }
 
-function getDistrictName(
-  row: {
-    contestTitle1: string;
-    contestTitle2: string;
-  },
-  isCandidateContest: boolean
-): string {
-  if (isCandidateContest) {
-    return row.contestTitle2.replace(/, Office "\w"$/, '');
-  }
-  if (row.contestTitle1.match(/^CA No. \d+/)) {
-    return 'Constitutional Amendment';
-  }
-  return row.contestTitle1.replace(/ Proposition No. \d+ of \d+$/, '');
+function getDistrictName(row: {
+  contestTitle1: string;
+  contestTitle2: string;
+}): string {
+  return `${row.contestTitle1} ${row.contestTitle2}`;
+  // if (isCandidateContest) {
+  //   return row.contestTitle2.replace(/, Office "\w"$/, '');
+  // }
+  // if (row.contestTitle1.match(/^CA No. \d+/)) {
+  //   return 'Constitutional Amendment';
+  // }
+  // return row.contestTitle1.replace(/ Proposition No. \d+ of \d+$/, '');
 }
 
 const OFFICE_FILE_COLUMNS = [
   'officeName',
   'votesAllowed',
   'unknown',
+  'contestType',
   'isSpecialElection',
-  'blank',
   'contestTitle1',
   'contestTitle2',
   'officeId',
@@ -265,7 +263,7 @@ function convertToElection(
     const isCandidateContest = !ballotMeasureDescription;
 
     // Create a district for each contest
-    const districtName = getDistrictName(row, isCandidateContest);
+    const districtName = getDistrictName(row);
     const district = districtsByName.get(districtName) ?? {
       id: generateId(),
       name: districtName,
@@ -347,10 +345,7 @@ function convertToElection(
     )}, Precinct ${trimLeadingZeros(row.precinctNumber)}`;
 
     const contestTitle = getContestTitle(row);
-    const isCandidateContest = candidateContestsByName.has(contestTitle);
-    const district = districtsByName.get(
-      getDistrictName(row, isCandidateContest)
-    );
+    const district = districtsByName.get(getDistrictName(row));
     assert(
       district,
       `District not found for contest in precinct file: ${contestTitle}`
