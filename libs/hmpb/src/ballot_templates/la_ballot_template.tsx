@@ -444,18 +444,10 @@ function PresidentialCandidateContest({
             optionId: candidate.id,
           };
           const ballotStrings = candidateBallotStrings[candidate.id];
-          const partyIcon =
-            images.partyIcons[ballotStrings.party.toLowerCase()];
           return (
             <PresidentialCandidateGridCell
               key={candidate.id}
-              style={{
-                padding: '0.5rem 0.5rem 0.5rem 0.5rem',
-                // // TODO better border styling to avoid double borders at the edges
-                // borderTop: `1px solid ${Colors.DARK_GRAY}`,
-                // borderBottom: `1px solid ${Colors.DARK_GRAY}`,
-                // borderRight: `1px solid ${Colors.DARK_GRAY}`,
-              }}
+              style={{ padding: '0.5rem 0.5rem 0.5rem 0.5rem' }}
             >
               <div
                 style={{
@@ -496,8 +488,11 @@ function PresidentialCandidateContest({
                         alignItems: 'center',
                       }}
                     >
-                      {partyIcon && (
-                        <img src={partyIcon} style={{ height: '1rem' }} />
+                      {ballotStrings.partyIcon && (
+                        <img
+                          src={ballotStrings.partyIcon}
+                          style={{ height: '1rem' }}
+                        />
                       )}
                       {ballotStrings.party}
                     </div>
