@@ -82,21 +82,20 @@ function getContestTitle(row: {
   if (row.contestTitle1 === row.contestTitle2) {
     return row.contestTitle1;
   }
-  return `${row.contestTitle1} ${row.contestTitle2}`;
+  return `${row.contestTitle1}, ${row.contestTitle2}`;
 }
 
 function getDistrictName(row: {
   contestTitle1: string;
   contestTitle2: string;
 }): string {
-  return `${row.contestTitle1} ${row.contestTitle2}`;
-  // if (isCandidateContest) {
-  //   return row.contestTitle2.replace(/, Office "\w"$/, '');
-  // }
-  // if (row.contestTitle1.match(/^CA No. \d+/)) {
-  //   return 'Constitutional Amendment';
-  // }
-  // return row.contestTitle1.replace(/ Proposition No. \d+ of \d+$/, '');
+  return getContestTitle(row);
+}
+
+function normalizeOptionLabel(label: string): string {
+  if (label.toLowerCase() === 'yes') return 'Yes';
+  if (label.toLowerCase() === 'no') return 'No';
+  return label;
 }
 
 const OFFICE_FILE_COLUMNS = [
@@ -216,21 +215,27 @@ function convertToElection(
   }
 
   // Fix newline inside of unquoted field
-  // eslint-disable-next-line no-param-reassign
-  referendumFileContents = referendumFileContents.replaceAll(
-    'Proposition\n(Tax Continuation)|',
-    'Proposition (Tax Continuation)|'
-  );
+
+  // referendumFileContents = referendumFileContents.replaceAll(
+  //   'Proposition\n(Tax Continuation)|',
+  //   'Proposition (Tax Continuation)|'
+  // );
   const referendumRows: ReferendumFileRow[] = parse(referendumFileContents, {
     ...defaultParseOptions,
     columns: [...REFERENDUM_FILE_COLUMNS],
     delimiter: '|',
   });
 
-  const ballotMeasureDescriptionByContestTitle = new Map<string, string>();
+  const ballotMeasureBallotTextByContestTitle = new Map<
+    string,
+    { title: string; description: string }
+  >();
   for (const row of referendumRows) {
     const contestTitle = getContestTitle(row);
-    ballotMeasureDescriptionByContestTitle.set(contestTitle, row.ballotText);
+    ballotMeasureBallotTextByContestTitle.set(contestTitle, {
+      title: row.ballotTitle,
+      description: row.ballotText,
+    });
   }
 
   const candidateFileRows: CandidateFileRow[] = parse(candidateFileContents, {
@@ -258,9 +263,9 @@ function convertToElection(
     }
 
     const contestTitle = getContestTitle(row);
-    const ballotMeasureDescription =
-      ballotMeasureDescriptionByContestTitle.get(contestTitle);
-    const isCandidateContest = !ballotMeasureDescription;
+    const ballotMeasureBallotText =
+      ballotMeasureBallotTextByContestTitle.get(contestTitle);
+    const isCandidateContest = !ballotMeasureBallotText;
 
     // Create a district for each contest
     const districtName = getDistrictName(row);
@@ -303,12 +308,12 @@ function convertToElection(
         contest = {
           id: generateId(),
           type: 'yesno',
-          title: contestTitle,
-          description: ballotMeasureDescription,
+          title: ballotMeasureBallotText.title,
+          description: ballotMeasureBallotText.description,
           districtId: district.id,
           yesOption: {
             id: generateId(),
-            label: row.lastName,
+            label: normalizeOptionLabel(row.lastName),
           },
           // Fill in from next row
           noOption: {
@@ -321,7 +326,7 @@ function convertToElection(
           ...contest,
           noOption: {
             id: generateId(),
-            label: row.lastName,
+            label: normalizeOptionLabel(row.lastName),
           },
         };
       }
@@ -456,32 +461,13 @@ function convertToElection(
   //     districts.map((d) => d.name)
   //   )
   // );
-
-  // const precinctSplitNames = precincts.flatMap((precinct) =>
-  //   hasSplits(precinct) ? precinct.splits.map((split) => split.name) : []
-  // );
-  // console.warn(duplicates(precinctSplitNames));
-
-  // const districtsToPrecinctOrSplitIds: Map<DistrictId, string[]> = new Map();
-  // for (const precinct of electionPrecincts) {
-  //   if (hasSplits(precinct)) {
-  //     for (const split of precinct.splits) {
-  //       for (const districtId of split.districtIds) {
-  //         districtsToPrecinctOrSplitIds.set(districtId, [
-  //           ...(districtsToPrecinctOrSplitIds.get(districtId) ?? []),
-  //           split.id,
-  //         ]);
-  //       }
-  //     }
-  //   } else {
-  //     for (const districtId of precinct.districtIds) {
-  //       districtsToPrecinctOrSplitIds.set(districtId, [
-  //         ...(districtsToPrecinctOrSplitIds.get(districtId) ?? []),
-  //         precinct.id,
-  //       ]);
-  //     }
-  //   }
+  // if (isCandidateContest) {
+  //   return row.contestTitle2.replace(/, Office "\w"$/, '');
   // }
+  // if (row.contestTitle1.match(/^CA No. \d+/)) {
+  //   return 'Constitutional Amendment';
+  // }
+  // return row.contestTitle1.replace(/ Proposition No. \d+ of \d+$/, '');
 
   const presidentialCandidateBallotStrings:
     | Record<CandidateId, LaPresidentialCandidateBallotStrings>
