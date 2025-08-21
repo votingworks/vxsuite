@@ -20,6 +20,14 @@ import {
 
 export const DEFAULT_QUERY_REFETCH_INTERVAL = 1000;
 
+/**
+ * Sets the polling interval for the scanned ID document query to be a little
+ * faster than the default so the ID scans feel more responsive to the user.
+ * It's critical that the polling interval here be lower than the TTL of the
+ * scanned ID document in the daemon so scans are not missed.
+ */
+export const SCANNED_ID_DOCUMENT_POLLING_INTERVAL_MS = 750;
+
 export type ApiClient = grout.Client<Api>;
 
 export function createApiClient(): ApiClient {
@@ -308,7 +316,7 @@ export const getScannedIdDocument = {
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getScannedIdDocument(), {
-      refetchInterval: DEFAULT_QUERY_REFETCH_INTERVAL,
+      refetchInterval: SCANNED_ID_DOCUMENT_POLLING_INTERVAL_MS,
     });
   },
 } as const;
