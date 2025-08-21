@@ -638,3 +638,7 @@ IDs are logged with each log to identify the log being written.
 **Type:** [application-status](#application-status)
 **Description:** A status message indicating change to the frontend navigation page.
 **Machines:** All
+### pollbook-duplicate-check-in-detected
+**Type:** [application-status](#application-status)
+**Description:** More then one check in event (ignoring undone checkins) for the same voter was detected in the system.
+**Machines:** vx-pollbook

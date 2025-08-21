@@ -1002,3 +1002,9 @@ restrictInDocumentationToApps = ["vx-pollbook"]
 eventId = "navigation-page-change"
 eventType = "application-status"
 documentationMessage = 'A status message indicating change to the frontend navigation page.'
+
+[Events.PollbookDuplicateCheckInDetected]
+eventId = "pollbook-duplicate-check-in-detected"
+eventType = "application-status"
+documentationMessage = 'More then one check in event (ignoring undone checkins) for the same voter was detected in the system.'
+restrictInDocumentationToApps = ["vx-pollbook"]

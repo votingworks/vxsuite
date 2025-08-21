@@ -220,6 +220,7 @@ export enum LogEventId {
   PollbookConfigurationStatus = 'pollbook-configuration-status',
   PollbookPaperBackupStatus = 'pollbook-paper-backup-status',
   NavigationPageChange = 'navigation-page-change',
+  PollbookDuplicateCheckInDetected = 'pollbook-duplicate-check-in-detected',
 }
 
 const ElectionConfigured: LogDetails = {
@@ -1362,6 +1363,14 @@ const NavigationPageChange: LogDetails = {
     'A status message indicating change to the frontend navigation page.',
 };
 
+const PollbookDuplicateCheckInDetected: LogDetails = {
+  eventId: LogEventId.PollbookDuplicateCheckInDetected,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'More then one check in event (ignoring undone checkins) for the same voter was detected in the system.',
+  restrictInDocumentationToApps: [AppName.VxPollBook],
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -1676,6 +1685,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return PollbookPaperBackupStatus;
     case LogEventId.NavigationPageChange:
       return NavigationPageChange;
+    case LogEventId.PollbookDuplicateCheckInDetected:
+      return PollbookDuplicateCheckInDetected;
     default:
       throwIllegalValue(eventId);
   }
