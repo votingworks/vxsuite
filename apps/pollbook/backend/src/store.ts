@@ -207,6 +207,14 @@ export abstract class Store {
   }
 
   getVoter(voterId: string): Voter {
+    const { voter } = this.getVoterWithAllEvents(voterId);
+    return voter;
+  }
+
+  getVoterWithAllEvents(voterId: string): {
+    voter: Voter;
+    orderedEvents: PollbookEvent[];
+  } {
     const voterRows = this.client.all(
       `
               SELECT v.voter_data
@@ -239,7 +247,10 @@ export abstract class Store {
       events
     );
 
-    return updatedVoters[voterId];
+    return {
+      voter: updatedVoters[voterId],
+      orderedEvents: events,
+    };
   }
 
   saveEvent(pollbookEvent: PollbookEvent): boolean {
@@ -327,7 +338,47 @@ export abstract class Store {
         case EventType.UndoVoterCheckIn:
         case EventType.VoterCheckIn: {
           // If we are saving a check in or undo update the materialized check_in_status table.
-          const voter = this.getVoter(pollbookEvent.voterId);
+          const { voter, orderedEvents } = this.getVoterWithAllEvents(
+            pollbookEvent.voterId
+          );
+
+          // If we are saving a check in event, we want to ensure that there is only one check in event for the voter.
+          // Check if we have multiple events and log a warning if so.
+          if (pollbookEvent.type === EventType.VoterCheckIn) {
+            // Find the index of the last UndoVoterCheckIn event
+            const lastUndoIndex = orderedEvents.findLastIndex(
+              (e) => e.type === EventType.UndoVoterCheckIn
+            );
+            // Only keep check-in events after the last undo
+            const checkInEventsNotUndone =
+              lastUndoIndex === -1
+                ? orderedEvents.filter((e) => e.type === EventType.VoterCheckIn)
+                : orderedEvents
+                    .slice(lastUndoIndex + 1)
+                    .filter((e) => e.type === EventType.VoterCheckIn);
+
+            // Check if there is more than one check-in event detected for the same voter, log a warning
+            if (checkInEventsNotUndone.length > 1) {
+              this.logger.log(
+                LogEventId.PollbookDuplicateCheckInDetected,
+                'system',
+                {
+                  message: `Multiple check-in events detected for voter ${
+                    pollbookEvent.voterId
+                  }. Check in times by machine: ${checkInEventsNotUndone
+                    .map(
+                      (e) =>
+                        `${e.machineId} : ${new Date(
+                          e.timestamp.physical
+                        ).toISOString()}`
+                    )
+                    .join(', ')}`,
+                  voterId: pollbookEvent.voterId,
+                  disposition: 'failure',
+                }
+              );
+            }
+          }
           this.client.run(
             `
             INSERT INTO check_in_status (voter_id, machine_id, is_checked_in)
