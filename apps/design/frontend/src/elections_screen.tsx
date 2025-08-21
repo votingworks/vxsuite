@@ -405,10 +405,15 @@ export function ElectionsScreen({
       </Header>
       <MainContent>
         <Column style={{ gap: '1rem', height: '100%', overflow: 'hidden' }}>
-          <Row style={{ gap: '0.5rem' }}>
-            <div
-              style={{ position: 'relative', flexGrow: 1, padding: '0.125rem' }}
-            >
+          <Row
+            style={{
+              gap: '0.5rem',
+              // Leave space for focus outlines on buttons/input, which
+              // otherwise overflow and are hidden
+              margin: '0.125rem',
+            }}
+          >
+            <div style={{ position: 'relative', flexGrow: 1 }}>
               <input
                 // eslint-disable-next-line jsx-a11y/no-autofocus
                 autoFocus
@@ -427,8 +432,8 @@ export function ElectionsScreen({
               <Button
                 style={{
                   position: 'absolute',
-                  right: '0.25rem',
-                  top: '0.25rem',
+                  right: '0.125rem',
+                  top: '0.125rem',
                   padding: '0.5rem',
                 }}
                 fill="transparent"
