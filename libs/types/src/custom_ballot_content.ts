@@ -19,6 +19,7 @@ export interface LaPresidentialCandidateBallotStrings {
   vicePresidentialCandidateState: string;
   electors: string[];
   party: string;
+  partyIcon?: string;
 }
 
 export const LaPresidentialCandidateBallotStringsSchema: z.ZodSchema<LaPresidentialCandidateBallotStrings> =
@@ -29,6 +30,7 @@ export const LaPresidentialCandidateBallotStringsSchema: z.ZodSchema<LaPresident
     vicePresidentialCandidateState: z.string(),
     electors: z.array(z.string()),
     party: z.string(),
+    partyIcon: z.string().optional(),
   });
 
 export interface LaCustomBallotContent {
