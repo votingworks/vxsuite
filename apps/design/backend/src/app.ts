@@ -282,7 +282,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
       const parseResult = safeParseElection(input.electionData);
       if (parseResult.isErr()) return parseResult;
       const sourceElection = parseResult.ok();
-      const { districts, precincts, parties, contests } =
+      const { districts, precincts, parties, contests, customBallotContent } =
         regenerateElectionIds(sourceElection);
       // Split candidate names into first, middle, and last names, if they are
       // not already split
@@ -321,6 +321,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
         // Fill in a blank seal if none is provided
         seal: sourceElection.seal ?? '',
         signature: sourceElection.signature,
+        customBallotContent,
       };
       await store.createElection(
         input.orgId,
@@ -364,7 +365,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
 
       requireOrgAccess(context.user, input.destOrgId);
 
-      const { districts, precincts, parties, contests } =
+      const { districts, precincts, parties, contests, customBallotContent } =
         regenerateElectionIds(sourceElection);
       await store.createElection(
         input.destOrgId,
@@ -375,6 +376,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
           precincts,
           parties,
           contests,
+          customBallotContent,
         },
         ballotTemplateId,
         systemSettings
