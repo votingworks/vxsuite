@@ -479,13 +479,24 @@ function convertToElection(
             columns: [...PRESIDENTIAL_CANDIDATE_FILE_COLUMNS],
             delimiter: ';',
           });
+        const presidentialContestBallotTextRow = assertDefined(
+          presidentialCandidateFileRows.pop()
+        );
 
-        const presidentialContest = find(
-          contests,
-          (contest): contest is CandidateContest =>
+        const presidentialContestIndex = contests.findIndex(
+          (contest) =>
             contest.type === 'candidate' &&
             contest.title === 'Presidential Electors'
         );
+        assert(contests[presidentialContestIndex].type === 'candidate');
+        contests[presidentialContestIndex] = {
+          ...contests[presidentialContestIndex],
+          title: presidentialContestBallotTextRow.presidentialCandidateName,
+          termDescription:
+            presidentialContestBallotTextRow.vicePresidentialCandidateName,
+        };
+        const presidentialContest = contests[presidentialContestIndex];
+
         return Object.fromEntries(
           presidentialCandidateFileRows
             // Skip last row with additional contest copy

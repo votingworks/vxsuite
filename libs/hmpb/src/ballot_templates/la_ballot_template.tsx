@@ -422,13 +422,10 @@ function PresidentialCandidateContest({
       }}
     >
       <ContestHeader>
-        <ContestTitle>
-          For President and Vice President of the United States
-        </ContestTitle>
+        <ContestTitle>{electionStrings.contestTitle(contest)}</ContestTitle>
         <div>Vote for only 1 presidential candidate.</div>
         <div style={{ fontSize: '0.8rem' }}>
-          A vote for candidates for president and vice president is a vote for
-          each of the electors supporting those candidates.
+          {electionStrings.contestTerm(contest)}
         </div>
       </ContestHeader>
       <ul
