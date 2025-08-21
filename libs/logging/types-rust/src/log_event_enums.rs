@@ -423,5 +423,7 @@ pub enum EventId {
     PollbookPaperBackupStatus,
     #[serde(rename = "navigation-page-change")]
     NavigationPageChange,
+    #[serde(rename = "pollbook-duplicate-check-in-detected")]
+    PollbookDuplicateCheckInDetected,
 }
 derive_display!(EventId);
