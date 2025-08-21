@@ -44,7 +44,7 @@ export function createVoter(
     apartmentUnitNumber: '',
     addressLine2: 'line 2',
     addressLine3: '',
-    postalCityTown: '',
+    postalCityTown: 'Somewhere',
     postalZip5: '12345',
     zip4: '6789',
     mailingStreetNumber: '123',
