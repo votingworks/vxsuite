@@ -17,6 +17,7 @@ import {
   P,
   H4,
   Icons,
+  H2,
 } from '@votingworks/ui';
 
 import {
@@ -202,6 +203,20 @@ export function PollWorkerScreen({
           }
           voter={pollWorkerAuth.cardlessVoterUser}
         />
+      );
+    }
+
+    /* User can become wedged in this state if a voting session is started while paper is still ejecting */
+    if (stateMachineState === 'not_accepting_paper') {
+      return (
+        <Screen>
+          <Main padded>
+            <H2>An error occurred.</H2>
+            <ResetVoterSessionButton>
+              Cancel Voting Session
+            </ResetVoterSessionButton>
+          </Main>
+        </Screen>
       );
     }
 
