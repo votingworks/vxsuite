@@ -335,6 +335,10 @@ export class Importer {
       throw new Error('scanning already in progress');
     }
 
+    this.logger.log(LogEventId.ImprinterStatus, 'system', {
+      message: `Imprinter is ${hasImprinter ? 'attached' : 'not attached'}.`,
+    });
+
     const batchId = this.workspace.store.addBatch();
     const batchScanDirectory = join(
       this.workspace.ballotImagesPath,

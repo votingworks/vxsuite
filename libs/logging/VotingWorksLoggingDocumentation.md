@@ -398,6 +398,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [application-status](#application-status)
 **Description:** Message from the driver handling the fujitsu scanner regarding scanning progress.
 **Machines:** vx-central-scan
+### imprinter-status
+**Type:** [application-status](#application-status)
+**Description:** Indicates the status of the imprinter, namely whether or not it is registering as attached.
+**Machines:** vx-central-scan
 ### election-package-load-from-usb-complete
 **Type:** [user-action](#user-action)
 **Description:** The election package has been read from the USB drive. Success or failure indicated by disposition.

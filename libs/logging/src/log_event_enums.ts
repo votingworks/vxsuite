@@ -160,6 +160,7 @@ export enum LogEventId {
   FujitsuScanImageScanned = 'fujitsu-scan-sheet-scanned',
   FujitsuScanBatchComplete = 'fujitsu-scan-batch-complete',
   FujitsuScanMessage = 'fujitsu-scan-message',
+  ImprinterStatus = 'imprinter-status',
   ElectionPackageLoadedFromUsb = 'election-package-load-from-usb-complete',
   ExportCastVoteRecordsInit = 'export-cast-vote-records-init',
   ExportCastVoteRecordsComplete = 'export-cast-vote-records-complete',
@@ -901,6 +902,14 @@ const FujitsuScanMessage: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxCentralScan],
 };
 
+const ImprinterStatus: LogDetails = {
+  eventId: LogEventId.ImprinterStatus,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'Indicates the status of the imprinter, namely whether or not it is registering as attached.',
+  restrictInDocumentationToApps: [AppName.VxCentralScan],
+};
+
 const ElectionPackageLoadedFromUsb: LogDetails = {
   eventId: LogEventId.ElectionPackageLoadedFromUsb,
   eventType: LogEventType.UserAction,
@@ -1565,6 +1574,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return FujitsuScanBatchComplete;
     case LogEventId.FujitsuScanMessage:
       return FujitsuScanMessage;
+    case LogEventId.ImprinterStatus:
+      return ImprinterStatus;
     case LogEventId.ElectionPackageLoadedFromUsb:
       return ElectionPackageLoadedFromUsb;
     case LogEventId.ExportCastVoteRecordsInit:

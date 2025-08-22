@@ -648,6 +648,12 @@ eventType = "application-status"
 documentationMessage = "Message from the driver handling the fujitsu scanner regarding scanning progress."
 restrictInDocumentationToApps = ["vx-central-scan"]
 
+[Events.ImprinterStatus]
+eventId = "imprinter-status"
+eventType = "application-status"
+documentationMessage = "Indicates the status of the imprinter, namely whether or not it is registering as attached."
+restrictInDocumentationToApps = ["vx-central-scan"]
+
 # Scanners, central and precinct
 [Events.ElectionPackageLoadedFromUsb]
 eventId = "election-package-load-from-usb-complete"
