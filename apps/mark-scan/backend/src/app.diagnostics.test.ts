@@ -247,7 +247,7 @@ test('saving the readiness report', async () => {
   });
 
   const pdfContents = await pdfToText(exportPath);
-  expect(pdfContents).toContain('VxMark Readiness Report');
+  expect(pdfContents).toContain('VxMarkScan Readiness Report');
   expect(pdfContents).toContain('Lincoln Municipal General Election');
   expect(pdfContents).toContain('All Precincts');
   expect(pdfContents).toContain('Free Disk Space: 90% (9 GB / 10 GB)');

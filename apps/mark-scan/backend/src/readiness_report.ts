@@ -18,7 +18,7 @@ import {
 import { PaperHandlerStateMachine } from './custom-paper-handler';
 
 /**
- * Saves the VxMark hardware readiness report to the USB drive.
+ * Saves the VxMarkScan hardware readiness report to the USB drive.
  */
 export async function saveReadinessReport({
   workspace,

@@ -1,9 +1,7 @@
-# Legacy VxMark
+# VxMark
 
-An early iteration of VxMark that supports ballot marking and printing but not
-casting.
-
-What we now refer to as VxMark lives in [apps/mark-scan](../../mark-scan).
+A traditional ballot-marking device (BMD). For a BMD that also supports
+limited-dexterity casting, see [VxMarkScan](../../mark-scan/frontend).
 
 ## Setup
 

@@ -770,7 +770,7 @@ restrictInDocumentationToApps = ["vx-mark-scan"]
 [Events.PatDeviceError]
 eventId = "pat-device-error"
 eventType = "system-status"
-documentationMessage = "VxMark encountered an error with the built-in PAT device port or the device itself"
+documentationMessage = "VxMarkScan encountered an error with the built-in PAT device port or the device itself"
 restrictInDocumentationToApps = ["vx-mark-scan"]
 
 [Events.PaperHandlerStateChanged]

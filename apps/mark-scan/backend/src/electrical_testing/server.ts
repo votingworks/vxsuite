@@ -21,7 +21,7 @@ export function startElectricalTestingServer(context: ServerContext): void {
     await execFile('amixer', ['sset', 'Master', `40%`, 'unmute']);
     logger.log(LogEventId.ApplicationStartup, 'system', {
       disposition: 'success',
-      message: `VxMark electrical testing backend running at http://localhost:${PORT}`,
+      message: `VxMarkScan electrical testing backend running at http://localhost:${PORT}`,
     });
   });
 }

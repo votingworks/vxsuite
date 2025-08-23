@@ -1,7 +1,7 @@
-# Legacy VxMark Integration Testing
+# VxMark Integration Testing
 
-Integration tests for legacy VxMark using the backend (`apps/mark/backend`),
-frontend (`apps/mark/frontend`), and dependent services.
+Integration tests for VxMark using the backend (`apps/mark/backend`), frontend
+(`apps/mark/frontend`), and dependent services.
 
 ## Development
 
