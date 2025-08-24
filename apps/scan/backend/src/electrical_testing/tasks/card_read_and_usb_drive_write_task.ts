@@ -16,6 +16,7 @@ export async function runCardReadAndUsbDriveWriteTask({
   usbDrive,
   usbDriveTask,
   workspace,
+  setStatusMessage,
 }: ServerContext): Promise<void> {
   void cardTask.waitUntilIsStopped().then((reason) => {
     logger.log(LogEventId.BackgroundTaskCancelled, 'system', {
@@ -45,10 +46,7 @@ export async function runCardReadAndUsbDriveWriteTask({
     if (cardTask.isRunning()) {
       const machineState = constructAuthMachineState(workspace.store);
       const cardReadResult = await auth.readCardData(machineState);
-      workspace.store.setElectricalTestingStatusMessage(
-        'card',
-        resultToString(cardReadResult)
-      );
+      setStatusMessage('card', resultToString(cardReadResult));
     }
 
     if (usbDriveTask.isRunning()) {
@@ -63,10 +61,7 @@ export async function runCardReadAndUsbDriveWriteTask({
       } catch (error) {
         usbDriveWriteResult = err(error);
       }
-      workspace.store.setElectricalTestingStatusMessage(
-        'usbDrive',
-        resultToString(usbDriveWriteResult)
-      );
+      setStatusMessage('usbDrive', resultToString(usbDriveWriteResult));
     }
 
     // Wait for the next interval or until both loops are stopped.

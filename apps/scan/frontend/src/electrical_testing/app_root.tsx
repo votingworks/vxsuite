@@ -592,6 +592,8 @@ function ScannedSheetImages({ urls }: { urls?: SheetOf<string> }): JSX.Element {
 }
 
 export function AppRoot(): JSX.Element {
+  api.useApiEvents();
+
   const getElectricalTestingStatusMessagesQuery =
     api.getElectricalTestingStatuses.useQuery();
   const setCardReaderTaskRunningMutation =
