@@ -39,6 +39,19 @@ test('focus next', () => {
   expect(mockTriggerPageNavButton).not.toHaveBeenCalled();
 });
 
+test('PAT move', () => {
+  const { event, mockPreventDefault } = createEvent({
+    key: Keybinding.PAT_MOVE,
+  });
+
+  handleKeyboardEvent(event);
+
+  expect(mockAdvanceFocus).toHaveBeenCalledOnce();
+  expect(mockAdvanceFocus).toHaveBeenCalledWith(1);
+  expect(mockPreventDefault).toHaveBeenCalledOnce();
+  expect(mockTriggerPageNavButton).not.toHaveBeenCalled();
+});
+
 test('focus previous', () => {
   const { event, mockPreventDefault } = createEvent({
     key: Keybinding.FOCUS_PREVIOUS,
@@ -93,6 +106,16 @@ test('select', () => {
   expect(mockTriggerPageNavButton).not.toHaveBeenCalled();
   expect(mockAdvanceFocus).not.toHaveBeenCalled();
   expect(mockPreventDefault).not.toHaveBeenCalled();
+});
+
+test('PAT select', () => {
+  const onClick = vi.fn();
+  document.addEventListener('click', onClick);
+
+  handleKeyboardEvent(createEvent({ key: Keybinding.PAT_SELECT }).event);
+  expect(onClick).toHaveBeenCalledOnce();
+
+  document.removeEventListener('click', onClick);
 });
 
 test('miscellaneous ignored key', () => {

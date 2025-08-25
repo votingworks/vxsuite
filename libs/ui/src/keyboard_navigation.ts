@@ -42,8 +42,15 @@ export function handleKeyboardEvent(event: KeyboardEvent): void {
       break;
 
     case Keybinding.FOCUS_NEXT:
+    case Keybinding.PAT_MOVE:
       advanceElementFocus(1);
       preventBrowserScroll(event);
+      break;
+
+    case Keybinding.PAT_SELECT:
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.click();
+      }
       break;
 
     default:
