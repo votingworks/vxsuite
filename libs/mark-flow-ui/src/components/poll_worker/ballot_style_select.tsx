@@ -34,10 +34,11 @@ export interface BallotStyleSelectProps {
   election: Election;
   configuredPrecinctsAndSplits: PrecinctOrSplit[];
   onSelect: OnBallotStyleSelect;
+  disabled?: boolean;
 }
 
 export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
-  const { election, configuredPrecinctsAndSplits, onSelect } = props;
+  const { election, configuredPrecinctsAndSplits, onSelect, disabled } = props;
 
   // Only used for primary elections
   const [selectedPrecinctOrSplitId, setSelectedPrecinctOrSplitId] = useState<
@@ -73,6 +74,7 @@ export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
               )
             }
             rightIcon="Next"
+            disabled={disabled}
           >
             Start Voting Session: {electionStrings.precinctName(precinct)}
           </Button>
@@ -80,6 +82,7 @@ export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
       }
       return (
         <SearchSelect
+          aria-label="Select ballot precinct"
           placeholder="Select ballot style…"
           options={configuredPrecinctsAndSplits.map((precinctOrSplit) =>
             precinctOrSplit.split
@@ -107,6 +110,7 @@ export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
             );
           }}
           style={{ width: '100%' }}
+          disabled={disabled}
         />
       );
     }
@@ -128,6 +132,7 @@ export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
         >
           {configuredPrecinctsAndSplits.length > 1 && (
             <SearchSelect
+              aria-label="Select voter's precinct"
               placeholder="Select voter's precinct…"
               options={configuredPrecinctsAndSplits.map((precinctOrSplit) =>
                 precinctOrSplit.split
@@ -143,6 +148,7 @@ export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
               value={selectedPrecinctOrSplitId}
               onChange={setSelectedPrecinctOrSplitId}
               style={{ width: '100%' }}
+              disabled={disabled}
             />
           )}
 
@@ -165,6 +171,7 @@ export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
                           ballotStyleId
                         )
                       }
+                      disabled={disabled}
                     >
                       {
                         assertDefined(

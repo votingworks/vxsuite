@@ -88,6 +88,7 @@ export interface SectionSessionStartProps {
   election: Election;
   onChooseBallotStyle: OnBallotStyleSelect;
   precinctSelection: PrecinctSelection;
+  disabled?: boolean;
 }
 
 function getConfiguredPrecinctsAndSplits(
@@ -103,7 +104,7 @@ function getConfiguredPrecinctsAndSplits(
 export function SectionSessionStart(
   props: SectionSessionStartProps
 ): JSX.Element {
-  const { election, onChooseBallotStyle, precinctSelection } = props;
+  const { election, onChooseBallotStyle, precinctSelection, disabled } = props;
 
   return (
     <VotingSession>
@@ -115,6 +116,7 @@ export function SectionSessionStart(
           precinctSelection
         )}
         onSelect={onChooseBallotStyle}
+        disabled={disabled}
       />
     </VotingSession>
   );
