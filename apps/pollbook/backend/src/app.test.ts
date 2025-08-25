@@ -18,10 +18,6 @@ import {
 } from '@votingworks/auth';
 import { BatteryInfo } from '@votingworks/backend';
 import { TEST_MACHINE_ID, withApp } from '../test/app';
-import {
-  parseValidStreetsFromCsvString,
-  parseVotersFromCsvString,
-} from './pollbook_package';
 import { createValidStreetInfo, createVoter } from '../test/test_helpers';
 
 let mockNodeEnv: 'production' | 'test' = 'test';
@@ -29,15 +25,46 @@ let mockNodeEnv: 'production' | 'test' = 'test';
 const electionDefinition =
   electionSimpleSinglePrecinctFixtures.readElectionDefinition();
 const electionKey = constructElectionKey(electionDefinition.election);
-const townStreetNames = parseValidStreetsFromCsvString(
-  electionSimpleSinglePrecinctFixtures.pollbookTownStreetNames.asText(),
-  electionDefinition.election
-);
-const townVoters = parseVotersFromCsvString(
-  electionSimpleSinglePrecinctFixtures.pollbookTownVoters.asText(),
-  electionDefinition.election
-);
 const currentPrecinctId = electionDefinition.election.precincts[0].id;
+const mockStreetNames = [
+  createValidStreetInfo(
+    'MAIN ST',
+    'all',
+    0,
+    100,
+    'Manchester',
+    '03101',
+    currentPrecinctId
+  ),
+  createValidStreetInfo(
+    'ELM ST',
+    'even',
+    0,
+    40,
+    'Manchester',
+    '03101',
+    currentPrecinctId
+  ),
+  createValidStreetInfo(
+    'ELM ST',
+    'odd',
+    5,
+    11,
+    'Manchester',
+    '03101',
+    currentPrecinctId
+  ),
+];
+const mockVoters = [
+  createVoter('abigail1', 'Abigail', 'Adams', { precinct: currentPrecinctId }),
+  createVoter('abigail2', 'Abigail', 'Smith', {
+    precinct: currentPrecinctId,
+    emptyMailingAddress: true,
+  }),
+  createVoter('abigail3', 'Abigail', 'Aster', { precinct: currentPrecinctId }),
+  createVoter('abigail4', 'Abigail', 'Apple', { precinct: currentPrecinctId }),
+  createVoter('john', 'John', 'Doe', { precinct: currentPrecinctId }),
+];
 
 vi.mock(
   './globals.js',
@@ -80,8 +107,8 @@ test('getDeviceStatuses()', async () => {
       workspace.store.setElectionAndVoters(
         electionDefinition,
         'mock-package-hash',
-        townStreetNames,
-        townVoters
+        mockStreetNames,
+        mockVoters
       );
       mockUsbDrive.usbDrive.status
         .expectRepeatedCallsWith()
@@ -119,8 +146,8 @@ test('check in a voter', async () => {
     workspace.store.setElectionAndVoters(
       electionDefinition,
       'mock-package-hash',
-      townStreetNames,
-      townVoters
+      mockStreetNames,
+      mockVoters
     );
     mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
     expect(await localApiClient.haveElectionEventsOccurred()).toEqual(false);
@@ -128,14 +155,14 @@ test('check in a voter', async () => {
       searchParams: {
         firstName: 'Abigail',
         middleName: '',
-        lastName: 'Adams',
+        lastName: 'A',
         suffix: '',
       },
     });
 
     assert(votersAbigail !== null);
     assert(Array.isArray(votersAbigail));
-    expect((votersAbigail as Voter[]).length).toEqual(2);
+    expect((votersAbigail as Voter[]).length).toEqual(3);
     const firstVoter = (votersAbigail as Voter[])[0];
     const secondVoter = (votersAbigail as Voter[])[1];
 
@@ -204,23 +231,23 @@ test('checking in a voter does not allow ballot party during a general', async (
     workspace.store.setElectionAndVoters(
       electionDefinition,
       'mock-package-hash',
-      townStreetNames,
-      townVoters
+      mockStreetNames,
+      mockVoters
     );
     mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
     expect(await localApiClient.haveElectionEventsOccurred()).toEqual(false);
     const votersAbigail = await localApiClient.searchVoters({
       searchParams: {
-        firstName: 'Abigail',
+        firstName: 'Abi',
         middleName: '',
-        lastName: 'Adams',
+        lastName: 'A',
         suffix: '',
       },
     });
 
     assert(votersAbigail !== null);
     assert(Array.isArray(votersAbigail));
-    expect((votersAbigail as Voter[]).length).toEqual(2);
+    expect((votersAbigail as Voter[]).length).toEqual(3);
     const firstVoter = (votersAbigail as Voter[])[0];
 
     await suppressingConsoleOutput(() =>
@@ -242,7 +269,7 @@ test('register a voter', async () => {
     workspace.store.setElectionAndVoters(
       electionDefinition,
       'mock-package-hash',
-      townStreetNames,
+      mockStreetNames,
       []
     );
     mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
@@ -336,7 +363,7 @@ test('register a voter - duplicate name', async () => {
     workspace.store.setElectionAndVoters(
       electionDefinition,
       'mock-package-hash',
-      townStreetNames,
+      mockStreetNames,
       [
         createVoter('original', 'Dylan', `O'Brien`, {
           middleName: 'Darren',
@@ -399,7 +426,7 @@ test('register a voter - invalid address', async () => {
     workspace.store.setElectionAndVoters(
       electionDefinition,
       'mock-package-hash',
-      townStreetNames,
+      mockStreetNames,
       []
     );
     mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
@@ -439,8 +466,8 @@ test('change a voter name', async () => {
     workspace.store.setElectionAndVoters(
       electionDefinition,
       'mock-package-hash',
-      townStreetNames,
-      townVoters
+      mockStreetNames,
+      mockVoters
     );
 
     mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
@@ -448,9 +475,9 @@ test('change a voter name', async () => {
 
     const votersAbigail = await localApiClient.searchVoters({
       searchParams: {
-        firstName: 'Abigail',
+        firstName: 'Abiga',
         middleName: '',
-        lastName: 'Adams',
+        lastName: '',
         suffix: '',
       },
     });
@@ -458,7 +485,7 @@ test('change a voter name', async () => {
     assert(votersAbigail !== null);
     assert(Array.isArray(votersAbigail));
     const secondVoter = (votersAbigail as Voter[])[1];
-    expect(votersAbigail).toHaveLength(2);
+    expect(votersAbigail).toHaveLength(4);
 
     const nameChangeData: VoterNameChangeRequest = {
       firstName: 'Barbara',
@@ -484,15 +511,15 @@ test('change a voter name', async () => {
     // search for the voter again
     const votersAbigail2 = await localApiClient.searchVoters({
       searchParams: {
-        firstName: 'Abigail',
+        firstName: 'Abiga',
         middleName: '',
-        lastName: 'Adams',
+        lastName: '',
         suffix: '',
       },
     });
     assert(votersAbigail2 !== null);
     assert(Array.isArray(votersAbigail2));
-    expect(votersAbigail2).toHaveLength(1); // the changed name voter is gone
+    expect(votersAbigail2).toHaveLength(3); // the changed name voter is gone
     for (const voter of votersAbigail2 as Voter[]) {
       expect(voter.voterId).not.toEqual(secondVoter.voterId);
     }
@@ -518,8 +545,8 @@ test('change a voter mailing address', async () => {
     workspace.store.setElectionAndVoters(
       electionDefinition,
       'mock-package-hash',
-      townStreetNames,
-      townVoters
+      mockStreetNames,
+      mockVoters
     );
 
     mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
@@ -529,15 +556,16 @@ test('change a voter mailing address', async () => {
       searchParams: {
         firstName: 'Abigail',
         middleName: '',
-        lastName: 'Adams',
+        lastName: 'A',
         suffix: '',
       },
     });
 
     assert(votersAbigail !== null);
     assert(Array.isArray(votersAbigail));
-    const secondVoter = (votersAbigail as Voter[])[1];
-    expect(votersAbigail).toHaveLength(2);
+    const voterWithMailingAddress = (votersAbigail as Voter[])[0];
+    const voterWithoutMailingAddress = (votersAbigail as Voter[])[1];
+    expect(votersAbigail).toHaveLength(3);
 
     const mailingAddressChangeData: VoterMailingAddressChangeRequest = {
       mailingStreetNumber: '314',
@@ -553,19 +581,33 @@ test('change a voter mailing address', async () => {
       mailingZip4: '1234',
     };
 
-    const changeNameResult = await localApiClient.changeVoterMailingAddress({
-      voterId: secondVoter.voterId,
+    const changeNameResult1 = await localApiClient.changeVoterMailingAddress({
+      voterId: voterWithoutMailingAddress.voterId,
       mailingAddressChangeData,
     });
-    expect(changeNameResult.mailingAddressChange).toEqual({
+    expect(changeNameResult1.mailingAddressChange).toEqual({
       ...mailingAddressChangeData,
       timestamp: expect.any(String),
     });
     expect(await localApiClient.haveElectionEventsOccurred()).toEqual(true);
 
-    const receiptPdfPath = mockPrinterHandler.getLastPrintPath();
-    expect(receiptPdfPath).toBeDefined();
-    await expect(receiptPdfPath).toMatchPdfSnapshot();
+    const receiptPdfPath1 = mockPrinterHandler.getLastPrintPath();
+    expect(receiptPdfPath1).toBeDefined();
+    await expect(receiptPdfPath1).toMatchPdfSnapshot();
+
+    // Also test the path if a voter has a mailing address already
+    const changeNameResult2 = await localApiClient.changeVoterMailingAddress({
+      voterId: voterWithMailingAddress.voterId,
+      mailingAddressChangeData,
+    });
+    expect(changeNameResult2.mailingAddressChange).toEqual({
+      ...mailingAddressChangeData,
+      timestamp: expect.any(String),
+    });
+
+    const receiptPdfPath2 = mockPrinterHandler.getLastPrintPath();
+    expect(receiptPdfPath2).toBeDefined();
+    await expect(receiptPdfPath2).toMatchPdfSnapshot();
   });
 });
 
@@ -574,8 +616,8 @@ test('undo a voter check-in', async () => {
     workspace.store.setElectionAndVoters(
       electionDefinition,
       'mock-package-hash',
-      townStreetNames,
-      townVoters
+      mockStreetNames,
+      mockVoters
     );
     mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
 
@@ -818,8 +860,8 @@ test('check in, change name, undo check-in, change address, and check in again',
     workspace.store.setElectionAndVoters(
       electionDefinition,
       'mock-package-hash',
-      townStreetNames,
-      townVoters
+      mockStreetNames,
+      mockVoters
     );
     mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
 
@@ -872,8 +914,8 @@ test('check in, change name, undo check-in, change address, and check in again',
     expect(undoResult).toBeUndefined();
 
     const addressChangeData: VoterAddressChangeRequest = {
-      streetName: 'OAK ST',
-      streetNumber: '25',
+      streetName: 'ELM ST',
+      streetNumber: '5',
       streetSuffix: '',
       apartmentUnitNumber: '',
       houseFractionNumber: '',
@@ -925,8 +967,8 @@ test('change a voter address with various formats', async () => {
     workspace.store.setElectionAndVoters(
       electionDefinition,
       'mock-package-hash',
-      townStreetNames,
-      townVoters
+      mockStreetNames,
+      mockVoters
     );
     mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
 
@@ -934,7 +976,7 @@ test('change a voter address with various formats', async () => {
       searchParams: {
         firstName: 'Abigail',
         middleName: '',
-        lastName: 'Adams',
+        lastName: 'A',
         suffix: '',
       },
     });
@@ -945,21 +987,21 @@ test('change a voter address with various formats', async () => {
 
     const addressChangeDataVariants: VoterAddressChangeRequest[] = [
       {
-        streetName: 'SUNSET BLVD',
-        streetNumber: '15',
+        streetName: 'ELM ST',
+        streetNumber: '38',
         streetSuffix: '',
         apartmentUnitNumber: '',
         houseFractionNumber: '',
         addressLine2: '',
         addressLine3: '',
-        city: 'BERLIN',
+        city: 'MANCHESTER',
         state: 'NH',
-        zipCode: '03570',
+        zipCode: '03101',
         precinct: currentPrecinctId,
       },
       {
-        streetName: 'WALNUT ST',
-        streetNumber: '25',
+        streetName: 'ELM ST',
+        streetNumber: '11',
         streetSuffix: 'N',
         apartmentUnitNumber: '3A',
         houseFractionNumber: '',
@@ -994,8 +1036,8 @@ test('voter search ignores punctuation', async () => {
     workspace.store.setElectionAndVoters(
       electionDefinition,
       'mock-package-hash',
-      townStreetNames,
-      townVoters
+      mockStreetNames,
+      mockVoters
     );
     mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
 
@@ -1159,8 +1201,8 @@ test('mark a voter inactive', async () => {
     workspace.store.setElectionAndVoters(
       electionDefinition,
       'mock-package-hash',
-      townStreetNames,
-      townVoters
+      mockStreetNames,
+      mockVoters
     );
     mockPrinterHandler.connectPrinter(CITIZEN_THERMAL_PRINTER_CONFIG);
 
@@ -1175,7 +1217,7 @@ test('mark a voter inactive', async () => {
 
     assert(votersAbigail !== null);
     assert(Array.isArray(votersAbigail));
-    expect(votersAbigail).toHaveLength(7);
+    expect(votersAbigail).toHaveLength(3);
     const firstVoter = (votersAbigail as Voter[])[0];
     const secondVoter = (votersAbigail as Voter[])[1];
     const thirdVoter = (votersAbigail as Voter[])[2];
@@ -1216,7 +1258,7 @@ test('mark a voter inactive', async () => {
       voterId: thirdVoter.voterId,
       nameChangeData: {
         firstName: 'Abigail',
-        lastName: 'Adams',
+        lastName: 'Aster',
         middleName: 'CHANGED',
         suffix: '',
       },
@@ -1246,7 +1288,7 @@ test('mark a voter inactive', async () => {
     });
     assert(votersAbigail2 !== null);
     assert(Array.isArray(votersAbigail2));
-    expect(votersAbigail2).toHaveLength(7);
+    expect(votersAbigail2).toHaveLength(3);
     expect((votersAbigail2 as Voter[])[0].voterId).toEqual(firstVoter.voterId);
     expect((votersAbigail2 as Voter[])[0].isInactive).toEqual(true);
     expect((votersAbigail2 as Voter[])[1].voterId).toEqual(secondVoter.voterId);
@@ -1352,7 +1394,7 @@ test('voter search results consider address changes for precinct prioritization'
     workspace.store.setElectionAndVoters(
       electionDefinition,
       'mock-package-hash',
-      townStreetNames,
+      mockStreetNames,
       testVoters
     );
     workspace.store.setConfiguredPrecinct(currentPrecinctId);
@@ -1422,7 +1464,7 @@ test('searchVoters sorts voters with matching precinct first', async () => {
     workspace.store.setElectionAndVoters(
       electionDefinition,
       'mock-package-hash',
-      townStreetNames,
+      mockStreetNames,
       testVoters
     );
 
@@ -1476,7 +1518,7 @@ test('searchVoters considers address changes for precinct matching', async () =>
     workspace.store.setElectionAndVoters(
       electionDefinition,
       'mock-package-hash',
-      townStreetNames,
+      mockStreetNames,
       testVoters
     );
 
@@ -1486,8 +1528,8 @@ test('searchVoters considers address changes for precinct matching', async () =>
     const addressChangeResult = await localApiClient.changeVoterAddress({
       voterId: testVoters[1].voterId,
       addressChangeData: {
-        streetName: 'OAK ST',
-        streetNumber: '25',
+        streetName: 'ELM ST',
+        streetNumber: '20',
         streetSuffix: '',
         apartmentUnitNumber: '',
         houseFractionNumber: '',

@@ -22,6 +22,7 @@ interface OptionalMockVoterParams {
   suffix?: string;
   precinct?: string;
   party?: PartyAbbreviation;
+  emptyMailingAddress?: boolean;
 }
 
 export function createVoter(
@@ -44,20 +45,26 @@ export function createVoter(
     apartmentUnitNumber: '',
     addressLine2: 'line 2',
     addressLine3: '',
-    postalCityTown: '',
+    postalCityTown: 'Somewhere',
     postalZip5: '12345',
     zip4: '6789',
-    mailingStreetNumber: '123',
-    mailingSuffix: 'A',
+    mailingStreetNumber: optionalMockVoterParams.emptyMailingAddress
+      ? ''
+      : '123',
+    mailingSuffix: optionalMockVoterParams.emptyMailingAddress ? '' : 'A',
     mailingHouseFractionNumber: '',
-    mailingStreetName: 'Main St',
+    mailingStreetName: optionalMockVoterParams.emptyMailingAddress
+      ? ''
+      : 'Main St',
     mailingApartmentUnitNumber: '',
     mailingAddressLine2: '',
     mailingAddressLine3: '',
-    mailingCityTown: 'Somewhere',
-    mailingState: 'NH',
-    mailingZip5: '12345',
-    mailingZip4: '6789',
+    mailingCityTown: optionalMockVoterParams.emptyMailingAddress
+      ? ''
+      : 'Somewhere',
+    mailingState: optionalMockVoterParams.emptyMailingAddress ? '' : 'NH',
+    mailingZip5: optionalMockVoterParams.emptyMailingAddress ? '' : '12345',
+    mailingZip4: optionalMockVoterParams.emptyMailingAddress ? '' : '6789',
     party: optionalMockVoterParams.party || 'UND',
     precinct: optionalMockVoterParams.precinct || 'Precinct',
     isInactive: false,
