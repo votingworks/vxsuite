@@ -52,11 +52,17 @@ const mockStreetNames = [
   ),
 ];
 const mockVoters = [
-  createVoter('abigail1', 'Abigail', 'Adams', { precinct: currentPrecinctId }),
+  createVoter('abigail1', 'Abigail', 'Adams', {
+    precinct: currentPrecinctId,
+    emptyMailingAddress: true,
+  }),
   createVoter('abigail2', 'Abigail', 'Smith', { precinct: currentPrecinctId }),
   createVoter('abigail3', 'Abigail', 'Aster', { precinct: wrongPrecinctId }),
   createVoter('abigail4', 'Abigail', 'Apple', { precinct: wrongPrecinctId }),
-  createVoter('john', 'John', 'Doe', { precinct: wrongPrecinctId }),
+  createVoter('john', 'John', 'Doe', {
+    precinct: wrongPrecinctId,
+    emptyMailingAddress: true,
+  }),
 ];
 
 vi.mock(

@@ -57,7 +57,10 @@ const mockStreetNames = [
 ];
 const mockVoters = [
   createVoter('abigail1', 'Abigail', 'Adams', { precinct: currentPrecinctId }),
-  createVoter('abigail2', 'Abigail', 'Smith', { precinct: currentPrecinctId }),
+  createVoter('abigail2', 'Abigail', 'Smith', {
+    precinct: currentPrecinctId,
+    emptyMailingAddress: true,
+  }),
   createVoter('abigail3', 'Abigail', 'Aster', { precinct: currentPrecinctId }),
   createVoter('abigail4', 'Abigail', 'Apple', { precinct: currentPrecinctId }),
   createVoter('john', 'John', 'Doe', { precinct: currentPrecinctId }),
@@ -560,7 +563,8 @@ test('change a voter mailing address', async () => {
 
     assert(votersAbigail !== null);
     assert(Array.isArray(votersAbigail));
-    const secondVoter = (votersAbigail as Voter[])[1];
+    const voterWithMailingAddress = (votersAbigail as Voter[])[0];
+    const voterWithoutMailingAddress = (votersAbigail as Voter[])[1];
     expect(votersAbigail).toHaveLength(3);
 
     const mailingAddressChangeData: VoterMailingAddressChangeRequest = {
@@ -577,19 +581,33 @@ test('change a voter mailing address', async () => {
       mailingZip4: '1234',
     };
 
-    const changeNameResult = await localApiClient.changeVoterMailingAddress({
-      voterId: secondVoter.voterId,
+    const changeNameResult1 = await localApiClient.changeVoterMailingAddress({
+      voterId: voterWithoutMailingAddress.voterId,
       mailingAddressChangeData,
     });
-    expect(changeNameResult.mailingAddressChange).toEqual({
+    expect(changeNameResult1.mailingAddressChange).toEqual({
       ...mailingAddressChangeData,
       timestamp: expect.any(String),
     });
     expect(await localApiClient.haveElectionEventsOccurred()).toEqual(true);
 
-    const receiptPdfPath = mockPrinterHandler.getLastPrintPath();
-    expect(receiptPdfPath).toBeDefined();
-    await expect(receiptPdfPath).toMatchPdfSnapshot();
+    const receiptPdfPath1 = mockPrinterHandler.getLastPrintPath();
+    expect(receiptPdfPath1).toBeDefined();
+    await expect(receiptPdfPath1).toMatchPdfSnapshot();
+
+    // Also test the path if a voter has a mailing address already
+    const changeNameResult2 = await localApiClient.changeVoterMailingAddress({
+      voterId: voterWithMailingAddress.voterId,
+      mailingAddressChangeData,
+    });
+    expect(changeNameResult2.mailingAddressChange).toEqual({
+      ...mailingAddressChangeData,
+      timestamp: expect.any(String),
+    });
+
+    const receiptPdfPath2 = mockPrinterHandler.getLastPrintPath();
+    expect(receiptPdfPath2).toBeDefined();
+    await expect(receiptPdfPath2).toMatchPdfSnapshot();
   });
 });
 
