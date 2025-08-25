@@ -355,6 +355,56 @@ export function CandidateContest({
                 );
               }
 
+              const ballotStrings =
+                election.customBallotContent
+                  ?.presidentialCandidateBallotStrings?.[candidate.id];
+              const presidentialCandidateName = ballotStrings && (
+                <React.Fragment>
+                  {ballotStrings.presidentialCandidateName}{' '}
+                  <Caption>
+                    of {ballotStrings.presidentialCandidateState}
+                  </Caption>
+                  <br />
+                  {ballotStrings.vicePresidentialCandidateName}{' '}
+                  <Caption>
+                    of {ballotStrings.vicePresidentialCandidateState}
+                  </Caption>
+                </React.Fragment>
+              );
+              const presidentialPartyAndElectors = ballotStrings && (
+                <div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      gap: '0.25rem',
+                      alignItems: 'center',
+                    }}
+                  >
+                    {ballotStrings.partyIcon && (
+                      <img
+                        src={ballotStrings.partyIcon}
+                        style={{ height: '1em' }}
+                        alt={`${ballotStrings.party} Logo`}
+                      />
+                    )}
+                    {ballotStrings.party}
+                  </div>
+                  <div style={{ fontSize: '0.6em', marginTop: '0.25em' }}>
+                    <strong>Electors:</strong>{' '}
+                    <div style={{ columnCount: 2 }}>
+                      {ballotStrings.electors.map((elector) => (
+                        <div key={elector}>{elector}</div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              );
+
+              const candidateAddress =
+                election.customBallotContent?.candidateAddresses?.[
+                  candidate.id
+                ];
+
               return (
                 <ContestChoiceButton
                   key={candidate.id}
@@ -366,15 +416,25 @@ export function CandidateContest({
                   label={
                     <React.Fragment>
                       <AudioOnly>{prefixAudioText}</AudioOnly>
-                      {electionStrings.candidateName(candidate)}
+                      {presidentialCandidateName ||
+                        electionStrings.candidateName(candidate)}
                     </React.Fragment>
                   }
                   caption={
                     <React.Fragment>
-                      <CandidatePartyList
-                        candidate={candidate}
-                        electionParties={election.parties}
-                      />
+                      {candidateAddress && (
+                        <React.Fragment>
+                          {candidateAddress.addressLine1}
+                          <br />
+                          {candidateAddress.addressLine2}
+                        </React.Fragment>
+                      )}
+                      {presidentialPartyAndElectors || (
+                        <CandidatePartyList
+                          candidate={candidate}
+                          electionParties={election.parties}
+                        />
+                      )}
                       <AudioOnly>{suffixAudioText}</AudioOnly>
                     </React.Fragment>
                   }
