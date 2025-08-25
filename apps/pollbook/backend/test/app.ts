@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { vi, VitestUtils, expect } from 'vitest';
 import {
   buildMockDippedSmartCardAuth,
   DippedSmartCardAuthApi,
@@ -31,11 +31,19 @@ import {
 } from '@votingworks/types';
 import { LocalApi, buildLocalApp } from '../src/app';
 import { createLocalWorkspace, createPeerWorkspace } from '../src/workspace';
-import { LocalWorkspace, PeerWorkspace } from '../src';
+import {
+  LocalWorkspace,
+  PeerWorkspace,
+  PollbookConnectionStatus,
+} from '../src';
 import { getUserRole } from '../src/auth';
 import { buildPeerApp, PeerApi } from '../src/peer_app';
 import { BarcodeScannerClient } from '../src/barcode_scanner/client';
-import { AvahiService } from '../src/avahi';
+import { AvahiService, hasOnlineInterface } from '../src/avahi';
+import {
+  EVENT_POLLING_INTERVAL,
+  NETWORK_POLLING_INTERVAL,
+} from '../src/globals';
 
 vi.mock('../barcode_scanner/client', () => ({
   BarcodeScannerClient: vi.fn().mockImplementation(() => ({
@@ -306,4 +314,96 @@ export async function withManyApps(
       });
     }
   }
+}
+export function extendedWaitFor(
+  fn: () => void | Promise<void>,
+  timeout: number = 5000
+): Promise<void> {
+  return vi.waitFor(fn, { timeout });
+}
+
+export async function setupUnconfiguredPollbooksOnNetwork(
+  pollbookContexts: TestContext[],
+  vitest: VitestUtils,
+  hasOnlineInterfaceMock: ReturnType<
+    typeof vi.mocked<typeof hasOnlineInterface>
+  >,
+  discoverHttpServicesMock: ReturnType<typeof vi.spyOn>
+): Promise<void> {
+  for (const context of pollbookContexts) {
+    context.mockUsbDrive.insertUsbDrive({});
+  }
+  // Mock hasOnlineInterface to always return true
+  hasOnlineInterfaceMock.mockResolvedValue(true);
+
+  // Set up spies for all pollbook contexts
+  const spies = pollbookContexts.map((context) =>
+    vi.spyOn(context.peerWorkspace.store, 'getNewEvents')
+  );
+
+  // Get ports for all pollbook contexts
+  const ports = pollbookContexts.map((context) => {
+    const { port } = context.peerServer.address() as AddressInfo;
+    return port;
+  });
+
+  // Mock discovered services for all pollbooks
+  discoverHttpServicesMock.mockResolvedValue(
+    pollbookContexts.map((_, index) => ({
+      name: `Pollbook-test-${index}`,
+      host: 'local',
+      resolvedIp: 'localhost',
+      port: ports[index].toString(),
+    }))
+  );
+  vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+
+  await extendedWaitFor(async () => {
+    const deviceStatuses =
+      await pollbookContexts[0].localApiClient.getDeviceStatuses();
+    expect(deviceStatuses.network.isOnline).toEqual(true);
+    expect(deviceStatuses.network.pollbooks).toHaveLength(
+      pollbookContexts.length - 1
+    );
+    for (const pollbook of deviceStatuses.network.pollbooks) {
+      expect(pollbook).toEqual(
+        expect.objectContaining({
+          status: PollbookConnectionStatus.MismatchedConfiguration,
+        })
+      );
+    }
+  });
+
+  vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+
+  await extendedWaitFor(async () => {
+    // All pollbooks should now see each other with mismatched configuration
+    for (const context of pollbookContexts) {
+      const deviceStatuses = await context.localApiClient.getDeviceStatuses();
+      expect(deviceStatuses.network.isOnline).toEqual(true);
+      expect(deviceStatuses.network.pollbooks).toHaveLength(
+        pollbookContexts.length - 1
+      );
+      for (const pollbook of deviceStatuses.network.pollbooks) {
+        expect(pollbook).toEqual(
+          expect.objectContaining({
+            status: PollbookConnectionStatus.MismatchedConfiguration,
+          })
+        );
+      }
+    }
+  });
+
+  await extendedWaitFor(() => {
+    vi.advanceTimersByTime(EVENT_POLLING_INTERVAL);
+    for (const [i, spy] of spies.entries()) {
+      // Before connecting the pollbooks should not have queried one another for events
+      const calls = spy.mock.calls.length;
+      if (calls > 0) {
+        throw new Error(
+          `getNewEvents was called ${calls} times in context ${i}`
+        );
+      }
+    }
+  });
 }

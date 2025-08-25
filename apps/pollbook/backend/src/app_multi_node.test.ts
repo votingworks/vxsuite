@@ -7,7 +7,11 @@ import {
 import { AddressInfo } from 'node:net';
 import { assertDefined, ok } from '@votingworks/basics';
 import { CITIZEN_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
-import { TestContext, withManyApps } from '../test/app';
+import {
+  extendedWaitFor,
+  setupUnconfiguredPollbooksOnNetwork,
+  withManyApps,
+} from '../test/app';
 import {
   parseValidStreetsFromCsvString,
   parseVotersFromCsvString,
@@ -68,109 +72,29 @@ vi.mock('./avahi.js', () => ({
   },
 }));
 
+const mockHasOnlineInterface = vi.mocked(hasOnlineInterface);
+const mockDiscoverHttpServices = vi.spyOn(AvahiService, 'discoverHttpServices');
+
 beforeEach(() => {
   vi.useFakeTimers();
   mockNodeEnv = 'test';
   vi.clearAllMocks();
+  mockDiscoverHttpServices.mockResolvedValue([]);
+  mockHasOnlineInterface.mockResolvedValue(false);
 });
-
-function extendedWaitFor(
-  fn: () => void | Promise<void>,
-  timeout: number = 5000
-) {
-  return vi.waitFor(fn, { timeout });
-}
-
 vitest.setConfig({
   testTimeout: 10_000,
 });
 
-async function setupUnconfiguredPollbooksOnNetwork(
-  pollbookContexts: TestContext[],
-  callerId?: string
-): Promise<void> {
-  for (const context of pollbookContexts) {
-    context.mockUsbDrive.insertUsbDrive({});
-  }
-  // Mock hasOnlineInterface to always return true
-  vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-
-  // Set up spies for all pollbook contexts
-  const spies = pollbookContexts.map((context) =>
-    vi.spyOn(context.peerWorkspace.store, 'getNewEvents')
-  );
-
-  // Get ports for all pollbook contexts
-  const ports = pollbookContexts.map((context) => {
-    const { port } = context.peerServer.address() as AddressInfo;
-    return port;
-  });
-
-  // Mock discovered services for all pollbooks
-  vi.spyOn(AvahiService, 'discoverHttpServices').mockResolvedValue(
-    pollbookContexts.map((_, index) => ({
-      name: `Pollbook-test-${index}`,
-      host: 'local',
-      resolvedIp: 'localhost',
-      port: ports[index].toString(),
-    }))
-  );
-  vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
-
-  await extendedWaitFor(async () => {
-    const deviceStatuses =
-      await pollbookContexts[0].localApiClient.getDeviceStatuses();
-    expect(deviceStatuses.network.isOnline).toEqual(true);
-    expect(deviceStatuses.network.pollbooks).toHaveLength(
-      pollbookContexts.length - 1
-    );
-    for (const pollbook of deviceStatuses.network.pollbooks) {
-      expect(pollbook).toEqual(
-        expect.objectContaining({
-          status: PollbookConnectionStatus.MismatchedConfiguration,
-        })
-      );
-    }
-  });
-
-  vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
-
-  await extendedWaitFor(async () => {
-    // All pollbooks should now see each other with mismatched configuration
-    for (const context of pollbookContexts) {
-      const deviceStatuses = await context.localApiClient.getDeviceStatuses();
-      expect(deviceStatuses.network.isOnline).toEqual(true);
-      expect(deviceStatuses.network.pollbooks).toHaveLength(
-        pollbookContexts.length - 1
-      );
-      for (const pollbook of deviceStatuses.network.pollbooks) {
-        expect(pollbook).toEqual(
-          expect.objectContaining({
-            status: PollbookConnectionStatus.MismatchedConfiguration,
-          })
-        );
-      }
-    }
-  });
-
-  await extendedWaitFor(() => {
-    vi.advanceTimersByTime(EVENT_POLLING_INTERVAL);
-    for (const [i, spy] of spies.entries()) {
-      // Before connecting the pollbooks should not have queried one another for events
-      const calls = spy.mock.calls.length;
-      if (calls > 0) {
-        throw new Error(
-          `getNewEvents was called ${calls} times in context ${i}. Callsite: ${callerId}`
-        );
-      }
-    }
-  });
-}
-
 test('online / offline connection status is managed properly', async () => {
   await withManyApps(1, async ([pollbookContext]) => {
     vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
-    await setupUnconfiguredPollbooksOnNetwork([pollbookContext]);
+    await setupUnconfiguredPollbooksOnNetwork(
+      [pollbookContext],
+      vitest,
+      mockHasOnlineInterface,
+      mockDiscoverHttpServices
+    );
 
     // Start with the pollbook online
     await extendedWaitFor(async () => {
@@ -186,7 +110,7 @@ test('online / offline connection status is managed properly', async () => {
     });
 
     // If we do not see an online network, we become offline on the next polling interval.
-    vi.mocked(hasOnlineInterface).mockResolvedValue(false);
+    mockHasOnlineInterface.mockResolvedValue(false);
     await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
@@ -200,7 +124,7 @@ test('online / offline connection status is managed properly', async () => {
     });
 
     // Bring back online
-    vi.mocked(hasOnlineInterface).mockResolvedValue(true);
+    mockHasOnlineInterface.mockResolvedValue(true);
     await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
@@ -214,7 +138,7 @@ test('online / offline connection status is managed properly', async () => {
     });
 
     // If we don't see ourselves published on avahi we should go offline,
-    vi.spyOn(AvahiService, 'discoverHttpServices').mockResolvedValue([]);
+    mockDiscoverHttpServices.mockResolvedValue([]);
     await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
@@ -230,7 +154,7 @@ test('online / offline connection status is managed properly', async () => {
     const { port } = pollbookContext.peerServer.address() as AddressInfo;
 
     // Bring back online
-    vi.spyOn(AvahiService, 'discoverHttpServices').mockResolvedValue([
+    mockDiscoverHttpServices.mockResolvedValue([
       {
         name: 'Pollbook-test-0',
         host: 'local',
@@ -251,7 +175,7 @@ test('online / offline connection status is managed properly', async () => {
     });
 
     // Returning an ipv6 address from avahi will be ignored and the prior ip4 address will continue to be successfully pinged and stay online
-    vi.spyOn(AvahiService, 'discoverHttpServices').mockResolvedValue([
+    mockDiscoverHttpServices.mockResolvedValue([
       {
         name: 'Pollbook-test-0',
         host: 'local',
@@ -287,7 +211,7 @@ test('online / offline connection status is managed properly', async () => {
 
     // Sending a new ip4 address to avahi will cause us to change what address we are pinging. If it is invalid we
     // will not transition to offline immediately but will after the machine disconnected timeout.
-    vi.spyOn(AvahiService, 'discoverHttpServices').mockResolvedValue([
+    mockDiscoverHttpServices.mockResolvedValue([
       {
         name: 'Pollbook-test-0',
         host: 'local',
@@ -335,13 +259,13 @@ test('connection status between two pollbooks is managed properly', async () => 
       });
     }
     // Mock hasOnlineInterface to always return true
-    vi.mocked(hasOnlineInterface).mockResolvedValue(true);
+    mockHasOnlineInterface.mockResolvedValue(true);
     const { port: port1 } =
       pollbookContext1.peerServer.address() as AddressInfo;
     const { port: port2 } =
       pollbookContext2.peerServer.address() as AddressInfo;
 
-    vi.spyOn(AvahiService, 'discoverHttpServices').mockResolvedValue([
+    mockDiscoverHttpServices.mockResolvedValue([
       {
         name: 'Pollbook-test-0',
         host: 'local',
@@ -370,10 +294,12 @@ test('connection status between two pollbooks is managed properly', async () => 
         },
       });
     });
-    await setupUnconfiguredPollbooksOnNetwork([
-      pollbookContext1,
-      pollbookContext2,
-    ]);
+    await setupUnconfiguredPollbooksOnNetwork(
+      [pollbookContext1, pollbookContext2],
+      vitest,
+      mockHasOnlineInterface,
+      mockDiscoverHttpServices
+    );
 
     // Set the pollbooks for the same election and precinct
     pollbookContext1.workspace.store.setElectionAndVoters(
@@ -489,7 +415,7 @@ test('connection status between two pollbooks is managed properly', async () => 
       });
     });
     // Remove one app from avahi and see it go to shutdown.
-    vi.spyOn(AvahiService, 'discoverHttpServices').mockResolvedValue([
+    mockDiscoverHttpServices.mockResolvedValue([
       {
         name: 'Pollbook-test-0',
         host: 'local',
@@ -525,7 +451,7 @@ test('connection status between two pollbooks is managed properly', async () => 
       });
     });
     // Allow pollbook 2 to see itself to come back online and simulate a shutdown of pollbook 1, pollbook 2 should NOT transition pollbook 1 to shut down because it is in lost connection
-    vi.spyOn(AvahiService, 'discoverHttpServices').mockResolvedValue([
+    mockDiscoverHttpServices.mockResolvedValue([
       {
         name: 'Pollbook-test-1',
         host: 'local',
@@ -562,7 +488,7 @@ test('connection status between two pollbooks is managed properly', async () => 
     });
 
     // Bring both machines back
-    vi.spyOn(AvahiService, 'discoverHttpServices').mockResolvedValue([
+    mockDiscoverHttpServices.mockResolvedValue([
       {
         name: 'Pollbook-test-0',
         host: 'local',
@@ -608,7 +534,7 @@ test('connection status between two pollbooks is managed properly', async () => 
 
     // Set a bad port value for Pollbook1. It should go offline after the diconnection timeout and mark all of its connections (Pollbook2) as LostConnection
     // Pollbook2 will fail to ping Pollbook1 after the disconnection timeout and mark it as LostConnection.
-    vi.spyOn(AvahiService, 'discoverHttpServices').mockResolvedValue([
+    mockDiscoverHttpServices.mockResolvedValue([
       {
         name: 'Pollbook-test-0',
         host: 'local',
@@ -702,7 +628,12 @@ test('connection status is managed properly with many pollbooks', async () => {
         hasMore: false,
       });
     }
-    await setupUnconfiguredPollbooksOnNetwork(pollbookContexts);
+    await setupUnconfiguredPollbooksOnNetwork(
+      pollbookContexts,
+      vitest,
+      mockHasOnlineInterface,
+      mockDiscoverHttpServices
+    );
     // Set all the pollbooks to the same election package and pollbook package
     for (const context of pollbookContexts) {
       context.workspace.store.setElectionAndVoters(
@@ -811,8 +742,8 @@ test('pollbooks with different code versions cannot connect', async () => {
         pollbookContext2.peerServer.address() as AddressInfo;
 
       pollbookContext1.mockUsbDrive.removeUsbDrive();
-      vi.mocked(hasOnlineInterface).mockResolvedValue(true);
-      vi.spyOn(AvahiService, 'discoverHttpServices').mockResolvedValue([
+      mockHasOnlineInterface.mockResolvedValue(true);
+      mockDiscoverHttpServices.mockResolvedValue([
         {
           name: 'Pollbook-test-0',
           host: 'local',
@@ -920,10 +851,12 @@ test('pollbooks with different pollbook package hash values cannot connect', asy
         },
       });
     }
-    await setupUnconfiguredPollbooksOnNetwork([
-      pollbookContext1,
-      pollbookContext2,
-    ]);
+    await setupUnconfiguredPollbooksOnNetwork(
+      [pollbookContext1, pollbookContext2],
+      vitest,
+      mockHasOnlineInterface,
+      mockDiscoverHttpServices
+    );
 
     // Set the election with different pollbook package hash values
     pollbookContext1.workspace.store.setElectionAndVoters(
@@ -988,10 +921,12 @@ test('pollbooks with different configured precinct values cannot connect', async
         },
       });
     }
-    await setupUnconfiguredPollbooksOnNetwork([
-      pollbookContext1,
-      pollbookContext2,
-    ]);
+    await setupUnconfiguredPollbooksOnNetwork(
+      [pollbookContext1, pollbookContext2],
+      vitest,
+      mockHasOnlineInterface,
+      mockDiscoverHttpServices
+    );
 
     // Setting to multi-precinct election without setting configured precinct should not connect
     pollbookContext1.workspace.store.setElectionAndVoters(
