@@ -21,6 +21,7 @@ import type { PeerApi } from './peer_app';
 import { HlcTimestamp } from './hybrid_logical_clock';
 import type { LocalStore } from './local_store';
 import type { PeerStore } from './peer_store';
+import { getCurrentTime } from './get_current_time';
 
 export interface MachineConfig {
   machineId: string;
@@ -236,7 +237,7 @@ export function createConnectedPollbookServiceFromConfiguration(
 ): PollbookService {
   return {
     ...configurationInformation,
-    lastSeen: new Date(),
+    lastSeen: new Date(getCurrentTime()),
     apiClient,
     address,
     status,
