@@ -503,6 +503,8 @@ export class Store {
               jurisdiction,
               state,
               seal,
+              signature_image as "signatureImage",
+              signature_caption as "signatureCaption",
               system_settings_data as "systemSettingsData",
               ballot_paper_size as "ballotPaperSize",
               ballot_template_id as "ballotTemplateId",
@@ -522,6 +524,8 @@ export class Store {
         jurisdiction: string;
         state: string;
         seal: string;
+        signatureImage: string | null;
+        signatureCaption: string | null;
         systemSettingsData: string;
         ballotPaperSize: HmpbBallotPaperSize;
         ballotTemplateId: BallotTemplateId;
@@ -767,6 +771,8 @@ export class Store {
         county: { id: `${electionId}-county`, name: electionRow.jurisdiction },
         state: electionRow.state,
         seal: electionRow.seal,
+        signatureImage: electionRow.signatureImage ?? undefined,
+        signatureCaption: electionRow.signatureCaption ?? undefined,
         districts,
         precincts,
         ballotStyles: ballotStyles.map(convertToVxfBallotStyle),
@@ -870,6 +876,8 @@ export class Store {
             jurisdiction,
             state,
             seal,
+            signature_image,
+            signature_caption,
             ballot_paper_size,
             ballot_template_id,
             ballot_language_codes,
@@ -887,7 +895,9 @@ export class Store {
             $9,
             $10,
             $11,
-            $12
+            $12,
+            $13,
+            $14
           )
         `,
           election.id,
@@ -898,6 +908,8 @@ export class Store {
           election.county.name,
           election.state,
           election.seal,
+          election.signatureImage,
+          election.signatureCaption,
           election.ballotLayout.paperSize,
           ballotTemplateId,
           DEFAULT_LANGUAGE_CODES,
@@ -968,8 +980,10 @@ export class Store {
             jurisdiction = $4,
             state = $5,
             seal = $6,
-            ballot_language_codes = $7
-          where id = $8
+            signature_image = $7,
+            signature_caption = $8,
+            ballot_language_codes = $9
+          where id = $10
         `,
           electionInfo.type,
           electionInfo.title,
@@ -977,6 +991,8 @@ export class Store {
           electionInfo.jurisdiction,
           electionInfo.state,
           electionInfo.seal,
+          electionInfo.signatureImage,
+          electionInfo.signatureCaption,
           electionInfo.languageCodes,
           electionInfo.electionId
         )
