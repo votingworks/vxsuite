@@ -12,9 +12,18 @@ export const electionSinglePrecinctBase = builders.election(
 export const { readElection, readElectionDefinition } =
   electionSinglePrecinctBase;
 
+/**
+ * Randomly generated voter data for this election. Specifics of this file will change upon regeneration and any
+ * tests using this data should not test for anything specific about a specific voter.
+ */
 export const pollbookTownVoters = builders.file(
   'data/electionSimpleSinglePrecinct/voters.csv'
 );
+
+/**
+ * Randomly generated street name data for this election. Specifics of this file will change upon regeneration and any
+ * tests using this data should not test for anything specific about the valid streets.
+ */
 export const pollbookTownStreetNames = builders.file(
   'data/electionSimpleSinglePrecinct/streetNames.csv'
 );
