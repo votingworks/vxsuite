@@ -36,6 +36,7 @@ import {
   YesNoContest,
   CandidateContest,
   ElectionType,
+  Signature,
 } from '@votingworks/types';
 import { v4 as uuid } from 'uuid';
 import { BaseLogger } from '@votingworks/logging';
@@ -503,8 +504,7 @@ export class Store {
               jurisdiction,
               state,
               seal,
-              signature_image as "signatureImage",
-              signature_caption as "signatureCaption",
+              signature,
               system_settings_data as "systemSettingsData",
               ballot_paper_size as "ballotPaperSize",
               ballot_template_id as "ballotTemplateId",
@@ -524,8 +524,7 @@ export class Store {
         jurisdiction: string;
         state: string;
         seal: string;
-        signatureImage: string | null;
-        signatureCaption: string | null;
+        signature: Signature | null;
         systemSettingsData: string;
         ballotPaperSize: HmpbBallotPaperSize;
         ballotTemplateId: BallotTemplateId;
@@ -771,8 +770,7 @@ export class Store {
         county: { id: `${electionId}-county`, name: electionRow.jurisdiction },
         state: electionRow.state,
         seal: electionRow.seal,
-        signatureImage: electionRow.signatureImage ?? undefined,
-        signatureCaption: electionRow.signatureCaption ?? undefined,
+        signature: electionRow.signature || undefined,
         districts,
         precincts,
         ballotStyles: ballotStyles.map(convertToVxfBallotStyle),
@@ -876,8 +874,7 @@ export class Store {
             jurisdiction,
             state,
             seal,
-            signature_image,
-            signature_caption,
+            signature,
             ballot_paper_size,
             ballot_template_id,
             ballot_language_codes,
@@ -896,8 +893,7 @@ export class Store {
             $10,
             $11,
             $12,
-            $13,
-            $14
+            $13
           )
         `,
           election.id,
@@ -908,8 +904,7 @@ export class Store {
           election.county.name,
           election.state,
           election.seal,
-          election.signatureImage,
-          election.signatureCaption,
+          election.signature ? JSON.stringify(election.signature) : null,
           election.ballotLayout.paperSize,
           ballotTemplateId,
           DEFAULT_LANGUAGE_CODES,
@@ -980,10 +975,9 @@ export class Store {
             jurisdiction = $4,
             state = $5,
             seal = $6,
-            signature_image = $7,
-            signature_caption = $8,
-            ballot_language_codes = $9
-          where id = $10
+            signature = $7,
+            ballot_language_codes = $8
+          where id = $9
         `,
           electionInfo.type,
           electionInfo.title,
@@ -991,8 +985,9 @@ export class Store {
           electionInfo.jurisdiction,
           electionInfo.state,
           electionInfo.seal,
-          electionInfo.signatureImage,
-          electionInfo.signatureCaption,
+          electionInfo.signature
+            ? JSON.stringify(electionInfo.signature)
+            : null,
           electionInfo.languageCodes,
           electionInfo.electionId
         )

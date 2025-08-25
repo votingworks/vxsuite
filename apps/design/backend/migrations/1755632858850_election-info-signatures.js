@@ -9,9 +9,8 @@ exports.shorthands = undefined;
  * @returns {Promise<void> | void}
  */
 exports.up = (pgm) => {
-  // Add optional signature fields to elections table
+  // Add optional signature field to elections table
   pgm.addColumns('elections', {
-    signature_image: { type: 'text', notNull: false },
-    signature_caption: { type: 'text', notNull: false },
+    signature: { type: 'jsonb', notNull: false },
   });
 };

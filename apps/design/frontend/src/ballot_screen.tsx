@@ -333,7 +333,22 @@ export function BallotScreen(): JSX.Element | null {
               );
             }
 
-            return <PdfViewer pdfData={ballotResult.ok().pdfData} />;
+            return (
+              <Row
+                style={{
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  height: '100%',
+                }}
+              >
+                <Callout color="danger" icon="Danger">
+                  <span>
+                    Contest &quot;&quot; was too long to fit on the page. Try a
+                    longer paper size.
+                  </span>
+                </Callout>
+              </Row>
+            );
           })()}
         </Viewer>
       </TaskContent>

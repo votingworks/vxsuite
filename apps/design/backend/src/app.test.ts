@@ -568,8 +568,7 @@ test('update election info', async () => {
       type: 'primary',
       date: new DateWithoutTime('2022-01-01'),
       languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
-      signatureImage: undefined,
-      signatureCaption: undefined,
+      signature: undefined,
     }
   );
 
@@ -3061,8 +3060,10 @@ test('getBallotPreviewPdf returns a ballot pdf for NH election with split precin
   const election: Election = {
     ...baseElectionDefinition.election,
     state: 'New Hampshire',
-    signatureCaption: 'Caption To Be Overwritten',
-    signatureImage: 'Image To Be Overwritten',
+    signature: {
+      caption: 'Caption To Be Overwritten',
+      image: 'Image To Be Overwritten',
+    },
   };
   const { apiClient, auth0 } = await setupApp();
 
@@ -3160,8 +3161,10 @@ test('getBallotPreviewPdf returns a ballot pdf for nh precinct with no split', a
   const election: Election = {
     ...baseElectionDefinition.election,
     state: 'New Hampshire',
-    signatureImage: readFileSync('./test/mockSignature.svg').toString(),
-    signatureCaption: 'Test Image Caption',
+    signature: {
+      image: readFileSync('./test/mockSignature.svg').toString(),
+      caption: 'Test Image Caption',
+    },
   };
   const { apiClient, auth0 } = await setupApp();
 
