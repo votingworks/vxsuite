@@ -6,6 +6,7 @@ import {
   iter,
   ok,
   range,
+  Result,
   throwIllegalValue,
 } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
@@ -32,6 +33,7 @@ import {
 } from '@votingworks/ui';
 import { parse as parseHtml } from 'node-html-parser';
 import {
+  BallotLayoutError,
   BallotPageTemplate,
   BaseBallotProps,
   ContentComponentResult,
@@ -103,12 +105,15 @@ function Header({
       ? assertDefined(getPartyForBallotStyle({ election, ballotStyleId }))
       : undefined;
 
+  // Signature is guaranteed to exist due to validation in BallotPageFrame
+  assert(election.signature);
   const clerkSignatureImage =
-    clerkSignatureImageOverride ?? election.signatureImage;
+    clerkSignatureImageOverride ?? election.signature.image;
   // clerkSignatureCaptionOverride will be an empty string if it is
-  // entered and then deleted, so treat it as undefined
+  // entered and then deleted, so treat it as undefined and fallback
+  // the election signature
   const clerkSignatureCaption =
-    clerkSignatureCaptionOverride || election.signatureCaption;
+    clerkSignatureCaptionOverride || election.signature.caption;
 
   return (
     <div
@@ -150,29 +155,25 @@ function Header({
         </DualLanguageText>
       </div>
       <div style={{ flexGrow: 1 }}>
-        {clerkSignatureImage && (
-          <div
-            style={{
-              height: '3rem',
-              backgroundImage: `url(data:image/svg+xml;base64,${Buffer.from(
-                clerkSignatureImage
-              ).toString('base64')})`,
-              backgroundSize: 'contain',
-              backgroundRepeat: 'no-repeat',
-              marginTop: '0.125rem',
-              visibility: ballotMode === 'sample' ? 'hidden' : 'visible',
-            }}
-          />
-        )}
-        {clerkSignatureCaption && (
-          <div
-            style={{
-              visibility: ballotMode === 'sample' ? 'hidden' : 'visible',
-            }}
-          >
-            {clerkSignatureCaption}
-          </div>
-        )}
+        <div
+          style={{
+            height: '3rem',
+            backgroundImage: `url(data:image/svg+xml;base64,${Buffer.from(
+              clerkSignatureImage
+            ).toString('base64')})`,
+            backgroundSize: 'contain',
+            backgroundRepeat: 'no-repeat',
+            marginTop: '0.125rem',
+            visibility: ballotMode === 'sample' ? 'hidden' : 'visible',
+          }}
+        />
+        <div
+          style={{
+            visibility: ballotMode === 'sample' ? 'hidden' : 'visible',
+          }}
+        >
+          {clerkSignatureCaption}
+        </div>
       </div>
     </div>
   );
@@ -199,7 +200,15 @@ function BallotPageFrame({
   pageNumber: number;
   totalPages?: number;
   children: JSX.Element;
-}): JSX.Element {
+}): Result<JSX.Element, BallotLayoutError> {
+  // Validate signature is present before rendering
+  if (!election.signature) {
+    return err({
+      error: 'missingRequiredField',
+      field: 'signature',
+    });
+  }
+
   const pageDimensions = ballotPaperDimensions(election.ballotLayout.paperSize);
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId })
@@ -214,7 +223,7 @@ function BallotPageFrame({
       languageCode === LanguageCode.ENGLISH,
     'NH ballot template only supports English'
   );
-  return (
+  return ok(
     <BackendLanguageContextProvider
       key={pageNumber}
       currentLanguageCode={primaryLanguageCode(ballotStyle)}

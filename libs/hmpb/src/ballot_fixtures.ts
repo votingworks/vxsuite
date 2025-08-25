@@ -431,6 +431,15 @@ export const nhGeneralElectionFixtures = (() => {
             }
           : contest
       ),
+      signature: {
+        caption: 'Base Election Signature Caption',
+        image: `
+        <svg xmlns="http://www.w3.org/2000/svg" width="200" height="50" viewBox="0 0 200 50">
+          <rect width="200" height="50" style="fill: none; stroke-width: 2; stroke: black;" />
+          <text y="20" fill="black">Base Election Signature Image</text>
+        </svg>
+      `.trim(),
+      },
     };
     const electionPath = join(electionDir, 'election.json');
     const blankBallotPath = join(electionDir, 'blank-ballot.pdf');
