@@ -3,6 +3,7 @@ declare namespace NodeJS {
   export interface ProcessEnv {
     readonly AUTH_ENABLED?: string;
     readonly AUTH0_CLIENT_ID?: string;
+    readonly AUTH0_CLIENT_DOMAIN?: string;
     readonly AUTH0_ISSUER_BASE_URL?: string;
     readonly AUTH0_SECRET?: string;
     readonly AWS_S3_BUCKET_NAME?: string;
