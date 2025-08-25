@@ -105,9 +105,6 @@ async function setupUnconfiguredPollbooksOnNetwork(
   vi.mocked(hasOnlineInterface).mockResolvedValue(true);
 
   // Set up spies for all pollbook contexts
-  // for (const context of pollbookContexts) {
-  //   vi.spyOn(context.peerWorkspace.store, 'getNewEvents');
-  // }
   const spies = pollbookContexts.map((context) =>
     vi.spyOn(context.peerWorkspace.store, 'getNewEvents')
   );
@@ -176,10 +173,6 @@ async function setupUnconfiguredPollbooksOnNetwork(
         );
       }
     }
-    // Before connecting the pollbooks should not have queried one another for events
-    // for (const context of pollbookContexts) {
-    //   expect(context.peerWorkspace.store.getNewEvents).not.toHaveBeenCalled();
-    // }
   });
 }
 
