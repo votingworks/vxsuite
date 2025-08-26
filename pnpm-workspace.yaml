@@ -5,6 +5,7 @@ packages:
   - 'apps/*/backend'
   - 'apps/*/integration-testing'
   - 'apps/*/playwright'
+  - 'apps/backend-integration-testing'
 
   # include all the libraries and our custom types
   - 'libs/*'

@@ -15,6 +15,11 @@ export type {
 } from './reports/warnings';
 export * from './types';
 
+export { buildApp } from './app';
+export type { Workspace } from './util/workspace';
+export { createWorkspace } from './util/workspace';
+export { getUserRole } from './util/auth';
+
 loadEnvVarsFromDotenvFiles();
 
 const logger = new BaseLogger(LogSource.VxAdminService);

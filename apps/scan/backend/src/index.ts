@@ -44,6 +44,14 @@ export type { OpenPollsResult } from './polls';
 export type { SoundName } from './audio/player';
 export * from './types';
 
+export { buildApp } from './app';
+export type { Workspace } from './util/workspace';
+export { createWorkspace } from './util/workspace';
+export { getUserRole } from './util/auth';
+export { wrapFujitsuThermalPrinter } from './printing/printer';
+export * as pdiStateMachine from './scanners/pdi/state_machine';
+export { Player as AudioPlayer } from './audio/player';
+
 loadEnvVarsFromDotenvFiles();
 
 const baseLogger = new BaseLogger(LogSource.VxScanBackend);

@@ -11,6 +11,11 @@ export type { Api } from './app';
 export type { PrintCalibration } from '@votingworks/hmpb';
 export * from './types';
 
+export { buildApp } from './app';
+export type { Workspace } from './util/workspace';
+export { createWorkspace } from './util/workspace';
+export { getUserRole } from './util/auth';
+
 loadEnvVarsFromDotenvFiles();
 
 const baseLogger = new BaseLogger(LogSource.VxMarkBackend);
