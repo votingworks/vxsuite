@@ -406,6 +406,92 @@ describe('start voter session with blank sheet: primary election', () => {
   });
 });
 
+const blockingStates: Array<{ state: SimpleServerStatus }> = [
+  { state: 'ejecting_to_front' },
+  { state: 'ejecting_to_rear' },
+];
+
+describe.each(blockingStates)(
+  'buttons related to voter session are disabled when paper is ejecting in state: $state',
+  ({ state }) => {
+    const electionDefinition =
+      electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    const { election } = electionDefinition;
+
+    test('single precinct configuration - general', async () => {
+      const precinct = electionGeneralDefinition.election.precincts[0];
+      apiMock.setPaperHandlerState(state);
+      renderScreen({
+        electionDefinition: electionGeneralDefinition,
+        activateCardlessVoterSession: vi.fn(),
+        precinctSelection: singlePrecinctSelectionFor(precinct.id),
+      });
+
+      const startButton = await screen.findButton(
+        `Start Voting Session: ${precinct.name}`
+      );
+      expect(startButton).toBeDisabled();
+    });
+
+    test('single precinct configuration - primary', async () => {
+      const precinct = election.precincts[0];
+      apiMock.setPaperHandlerState(state);
+      renderScreen({
+        electionDefinition,
+        activateCardlessVoterSession: vi.fn(),
+        precinctSelection: singlePrecinctSelectionFor(precinct.id),
+      });
+
+      await screen.findByText('Select ballot style:');
+      const styleOneButton = screen.getButton('Fish');
+      expect(styleOneButton).toBeDisabled();
+      const styleTwoButton = screen.getButton('Mammal');
+      expect(styleTwoButton).toBeDisabled();
+    });
+
+    test('single precinct with splits - primary', async () => {
+      const [, , , precinct] = election.precincts;
+      assert(hasSplits(precinct));
+      apiMock.setPaperHandlerState(state);
+      renderScreen({
+        electionDefinition,
+        activateCardlessVoterSession: vi.fn(),
+        precinctSelection: singlePrecinctSelectionFor(precinct.id),
+      });
+
+      const ballotStyleSelect = await screen.findByRole('combobox', {
+        name: "Select voter's precinct",
+      });
+      await vi.waitFor(() => expect(ballotStyleSelect).toBeDisabled());
+    });
+
+    test('all precincts - primary', async () => {
+      const [, , , precinct4] = election.precincts;
+      assert(hasSplits(precinct4));
+      apiMock.setPaperHandlerState(state);
+      renderScreen({
+        electionDefinition,
+        activateCardlessVoterSession: vi.fn(),
+        precinctSelection: ALL_PRECINCTS_SELECTION,
+      });
+
+      const ballotStyleSelect = await screen.findByRole('combobox', {
+        name: "Select voter's precinct",
+      });
+      await vi.waitFor(() => expect(ballotStyleSelect).toBeDisabled());
+    });
+
+    test('insert pre-printed ballot button is disabled', async () => {
+      apiMock.setPaperHandlerState(state);
+      renderScreen();
+
+      const button = await screen.findButton(/insert printed ballot/i);
+      expect(button).toBeDisabled();
+    });
+  }
+);
+
 describe('pre-printed ballots', () => {
   test('can insert pre-printed ballots', () => {
     renderScreen();

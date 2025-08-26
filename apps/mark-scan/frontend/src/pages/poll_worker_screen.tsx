@@ -208,6 +208,10 @@ export function PollWorkerScreen({
     return null;
   }
 
+  const voterSessionActionsDisabled =
+    stateMachineState === 'ejecting_to_front' ||
+    stateMachineState === 'ejecting_to_rear';
+
   return (
     <Screen>
       <Main padded>
@@ -222,6 +226,7 @@ export function PollWorkerScreen({
                 election={election}
                 onChooseBallotStyle={onChooseBallotStyle}
                 precinctSelection={precinctSelection}
+                disabled={voterSessionActionsDisabled}
               />
               <VotingSession>
                 <H4 as="h2">Cast a Previously Printed Ballot</H4>
@@ -233,6 +238,7 @@ export function PollWorkerScreen({
                   <Button
                     onPress={setAcceptingPaperStateMutation.mutate}
                     value={ACCEPTING_PREPRINTED_BALLOT_PARAMS}
+                    disabled={voterSessionActionsDisabled}
                   >
                     Insert Printed Ballot
                   </Button>
