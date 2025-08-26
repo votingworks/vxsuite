@@ -16,12 +16,6 @@ function preventBrowserScroll(event: KeyboardEvent) {
   event.preventDefault();
 }
 
-function handleClick() {
-  if (document.activeElement instanceof HTMLElement) {
-    document.activeElement.click();
-  }
-}
-
 /* istanbul ignore next - @preserve */
 export function handleKeyboardEvent(event: KeyboardEvent): void {
   // VVSG 2.0 7.2-M – No repetitive activation
@@ -48,8 +42,15 @@ export function handleKeyboardEvent(event: KeyboardEvent): void {
       break;
 
     case Keybinding.FOCUS_NEXT:
+    case Keybinding.PAT_MOVE:
       advanceElementFocus(1);
       preventBrowserScroll(event);
+      break;
+
+    case Keybinding.PAT_SELECT:
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.click();
+      }
       break;
 
     default:
