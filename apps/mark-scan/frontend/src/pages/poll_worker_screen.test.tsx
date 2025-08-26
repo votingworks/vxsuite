@@ -420,11 +420,10 @@ describe.each(blockingStates)(
     const { election } = electionDefinition;
 
     test('single precinct configuration - general', async () => {
-      const electionDefinitionGeneral = electionGeneralDefinition;
-      const precinct = electionDefinitionGeneral.election.precincts[0];
+      const precinct = electionGeneralDefinition.election.precincts[0];
       apiMock.setPaperHandlerState(state);
       renderScreen({
-        electionDefinition: electionDefinitionGeneral,
+        electionDefinition: electionGeneralDefinition,
         activateCardlessVoterSession: vi.fn(),
         precinctSelection: singlePrecinctSelectionFor(precinct.id),
       });
