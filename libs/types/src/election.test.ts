@@ -259,7 +259,7 @@ test('getGroupIdFromBallotStyleId', () => {
     getGroupIdFromBallotStyleId({
       ballotStyleId: '1' as BallotStyleId,
       election,
-    })!
+    })
   ).toEqual('1');
 });
 

@@ -406,7 +406,7 @@ test('audit ballot IDs', async () => {
       [ballotPropsWithAuditId],
       'vxf'
     )
-  ).ballotDocuments[0]!;
+  ).ballotDocuments[0];
   const pdf = await ballotDocument.renderToPdf();
   const ballotImages = await pdfToImageSheet(pdf);
 
