@@ -109,7 +109,7 @@ export function testSetupHelpers() {
 
     const auth0 = new MockAuth0Client();
     auth0.setOrgs(orgs);
-    await store.cacheOrganizations(orgs);
+    await store.syncOrganizationsCache(orgs);
     const fileStorageClient = new MockFileStorageClient();
     const speechSynthesizer = new GoogleCloudSpeechSynthesizerWithDbCache({
       store,

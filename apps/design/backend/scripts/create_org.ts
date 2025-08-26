@@ -45,7 +45,7 @@ async function main(): Promise<void> {
     enableGoogleAuth,
     logoUrl,
   });
-  await workspace.store.cacheOrganizations(await auth.allOrgs());
+  await workspace.store.syncOrganizationsCache(await auth.allOrgs());
 
   console.log('✅ Org created:', org);
 }

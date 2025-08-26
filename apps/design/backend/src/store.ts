@@ -432,7 +432,7 @@ export class Store {
    * Takes the organizations from Auth0 (the source of truth) and caches them in
    * the database, adding/removing/updating records as necessary.
    */
-  async cacheOrganizations(organizations: Org[]): Promise<void> {
+  async syncOrganizationsCache(organizations: Org[]): Promise<void> {
     await this.db.withClient((client) =>
       client.withTransaction(async () => {
         // Add new orgs or update existing orgs
