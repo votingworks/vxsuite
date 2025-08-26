@@ -3246,24 +3246,24 @@ test('getUser', async () => {
   expect(await apiClient.getUser()).toEqual(nonVxUser);
 });
 
-test('getAllOrgs', async () => {
+test('listOrganizations', async () => {
   const { apiClient, auth0 } = await setupApp(orgs);
   await suppressingConsoleOutput(() =>
-    expect(apiClient.getAllOrgs()).rejects.toThrow('auth:unauthorized')
+    expect(apiClient.listOrganizations()).rejects.toThrow('auth:unauthorized')
   );
   auth0.setLoggedInUser(vxUser);
-  expect(await apiClient.getAllOrgs()).toEqual(orgs);
+  expect(await apiClient.listOrganizations()).toEqual(orgs);
   auth0.setLoggedInUser(nonVxUser);
   await suppressingConsoleOutput(() =>
-    expect(apiClient.getAllOrgs()).rejects.toThrow('auth:forbidden')
+    expect(apiClient.listOrganizations()).rejects.toThrow('auth:forbidden')
   );
   auth0.setLoggedInUser(sliUser);
   await suppressingConsoleOutput(() =>
-    expect(apiClient.getAllOrgs()).rejects.toThrow('auth:forbidden')
+    expect(apiClient.listOrganizations()).rejects.toThrow('auth:forbidden')
   );
   auth0.setLoggedInUser(vxDemosUser);
   await suppressingConsoleOutput(() =>
-    expect(apiClient.getAllOrgs()).rejects.toThrow('auth:forbidden')
+    expect(apiClient.listOrganizations()).rejects.toThrow('auth:forbidden')
   );
 });
 

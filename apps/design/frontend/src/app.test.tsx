@@ -44,7 +44,7 @@ test('Shows user info and logout button', async () => {
 test('API errors show an error screen', async () => {
   await suppressingConsoleOutput(async () => {
     mockUserFeatures(apiMock, {});
-    apiMock.getAllOrgs.expectCallWith().resolves([
+    apiMock.listOrganizations.expectCallWith().resolves([
       {
         id: user.orgId,
         name: 'Non-Vx Org',
@@ -88,7 +88,7 @@ test('API unauthorized errors redirect to login', async () => {
 test('API forbidden errors show a page not found error screen', async () => {
   await suppressingConsoleOutput(async () => {
     mockUserFeatures(apiMock, {});
-    apiMock.getAllOrgs.expectCallWith().resolves([
+    apiMock.listOrganizations.expectCallWith().resolves([
       {
         id: user.orgId,
         name: 'Non-Vx Org',

@@ -84,13 +84,13 @@ export const getUser = {
 } as const;
 
 /* istanbul ignore next - @preserve */
-export const getAllOrgs = {
+export const listOrganizations = {
   queryKey(): QueryKey {
-    return ['getAllOrgs'];
+    return ['listOrganizations'];
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getAllOrgs());
+    return useQuery(this.queryKey(), () => apiClient.listOrganizations());
   },
 } as const;
 

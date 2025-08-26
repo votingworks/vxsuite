@@ -210,10 +210,10 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
           }
         }
         const methodsThatHandleAuthThemselves = [
+          'listOrganizations',
           'listElections',
           'getUser',
           'getUserFeatures',
-          'getAllOrgs',
           'decryptCvrBallotAuditIds', // Doesn't need authorization, nothing private accessed
         ];
         assert(methodsThatHandleAuthThemselves.includes(methodName));
@@ -244,6 +244,14 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
   };
 
   const methods = {
+    listOrganizations(_input: undefined, context: ApiContext): Promise<Org[]> {
+      const userFeaturesConfig = getUserFeaturesConfig(context.user);
+      if (!userFeaturesConfig.ACCESS_ALL_ORGS) {
+        throw new AuthError('auth:forbidden');
+      }
+      return store.listOrganizations();
+    },
+
     async listElections(
       _input: undefined,
       context: ApiContext
@@ -723,14 +731,6 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
 
     getUser(_input: undefined, context: ApiContext): User {
       return context.user;
-    },
-
-    getAllOrgs(_input: undefined, context: ApiContext): Promise<Org[]> {
-      const userFeaturesConfig = getUserFeaturesConfig(context.user);
-      if (!userFeaturesConfig.ACCESS_ALL_ORGS) {
-        throw new AuthError('auth:forbidden');
-      }
-      return store.listOrganizations();
     },
 
     getUserFeatures(
