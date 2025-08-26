@@ -168,7 +168,7 @@ export function syncEventsFromTo(
       });
       allEvents.push(...events);
       keepSyncing = hasMore;
-    } catch (error) {
+    } catch {
       break;
     }
   }
