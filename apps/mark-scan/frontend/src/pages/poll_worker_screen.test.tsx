@@ -470,11 +470,10 @@ describe.each(blockingStates)(
     test('all precincts - primary', async () => {
       const [, , , precinct4] = election.precincts;
       assert(hasSplits(precinct4));
-      const activateCardlessVoterSessionMock = vi.fn();
       apiMock.setPaperHandlerState(state);
       renderScreen({
         electionDefinition,
-        activateCardlessVoterSession: activateCardlessVoterSessionMock,
+        activateCardlessVoterSession: vi.fn(),
         precinctSelection: ALL_PRECINCTS_SELECTION,
       });
 
@@ -482,6 +481,14 @@ describe.each(blockingStates)(
         name: "Select voter's precinct",
       });
       await vi.waitFor(() => expect(ballotStyleSelect).toBeDisabled());
+    });
+
+    test('insert pre-printed ballot button is disabled', async () => {
+      apiMock.setPaperHandlerState(state);
+      renderScreen();
+
+      const button = await screen.findButton(/insert printed ballot/i);
+      expect(button).toBeDisabled();
     });
   }
 );
