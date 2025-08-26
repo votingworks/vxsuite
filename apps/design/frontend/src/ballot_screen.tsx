@@ -1,5 +1,5 @@
 import fileDownload from 'js-file-download';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { assert, find, range } from '@votingworks/basics';
 import {
   HmpbBallotPaperSize,
@@ -314,6 +314,30 @@ export function BallotScreen(): JSX.Element | null {
 
             if (ballotResult.isErr()) {
               const err = ballotResult.err();
+              if (err.error === 'missingRequiredField') {
+                return (
+                  <Row
+                    style={{
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      height: '100%',
+                    }}
+                  >
+                    <Callout color="danger" icon="Danger">
+                      <span>
+                        The election is missing the following required field:
+                        &quot;{err.field}&quot;. Update in{' '}
+                        <Link
+                          to={routes.election(electionId).electionInfo.path}
+                        >
+                          Election Info
+                        </Link>
+                        .
+                      </span>
+                    </Callout>
+                  </Row>
+                );
+              }
               assert(err.error === 'contestTooLong');
               return (
                 <Row
@@ -333,22 +357,7 @@ export function BallotScreen(): JSX.Element | null {
               );
             }
 
-            return (
-              <Row
-                style={{
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: '100%',
-                }}
-              >
-                <Callout color="danger" icon="Danger">
-                  <span>
-                    Contest &quot;&quot; was too long to fit on the page. Try a
-                    longer paper size.
-                  </span>
-                </Callout>
-              </Row>
-            );
+            return <PdfViewer pdfData={ballotResult.ok().pdfData} />;
           })()}
         </Viewer>
       </TaskContent>
