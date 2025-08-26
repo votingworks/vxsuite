@@ -179,8 +179,8 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
 
   const middlewares: grout.Middlewares<ApiContext> = {
     before: [
-      async function loadUser({ request, context }) {
-        const user = await auth0.userFromRequest(request);
+      function loadUser({ request, context }) {
+        const user = auth0.userFromRequest(request);
         if (!user) {
           throw new AuthError('auth:unauthorized');
         }
@@ -210,10 +210,10 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
           }
         }
         const methodsThatHandleAuthThemselves = [
+          'listOrganizations',
           'listElections',
           'getUser',
           'getUserFeatures',
-          'getAllOrgs',
           'decryptCvrBallotAuditIds', // Doesn't need authorization, nothing private accessed
         ];
         assert(methodsThatHandleAuthThemselves.includes(methodName));
@@ -244,6 +244,14 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
   };
 
   const methods = {
+    listOrganizations(_input: undefined, context: ApiContext): Promise<Org[]> {
+      const userFeaturesConfig = getUserFeaturesConfig(context.user);
+      if (!userFeaturesConfig.ACCESS_ALL_ORGS) {
+        throw new AuthError('auth:forbidden');
+      }
+      return store.listOrganizations();
+    },
+
     async listElections(
       _input: undefined,
       context: ApiContext
@@ -253,7 +261,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
       const elections = await store.listElections({
         orgId: userFeatures.ACCESS_ALL_ORGS ? undefined : user.orgId,
       });
-      const orgs = await auth0.allOrgs();
+      const orgs = await store.listOrganizations();
       return elections.map((election) => ({
         ...election,
         orgName:
@@ -725,14 +733,6 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
       return context.user;
     },
 
-    getAllOrgs(_input: undefined, context: ApiContext): Promise<Org[]> {
-      const userFeaturesConfig = getUserFeaturesConfig(context.user);
-      if (!userFeaturesConfig.ACCESS_ALL_ORGS) {
-        throw new AuthError('auth:forbidden');
-      }
-      return auth0.allOrgs();
-    },
-
     getUserFeatures(
       _input: undefined,
       context: ApiContext
@@ -860,7 +860,7 @@ export function buildApp(context: AppContext): Application {
 
   app.get('/files/:orgId/:fileName', async (req, res, next) => {
     try {
-      const user = await context.auth0.userFromRequest(req);
+      const user = context.auth0.userFromRequest(req);
       if (!user) {
         throw new AuthError('auth:unauthorized');
       }

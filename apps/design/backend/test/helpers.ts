@@ -59,7 +59,7 @@ class MockAuth0Client implements Auth0ClientInterface {
     return this.orgs.slice();
   }
 
-  async userFromRequest(_req: Request) {
+  userFromRequest(_req: Request) {
     return this.loggedInUser;
   }
 }
@@ -101,13 +101,15 @@ export function testSetupHelpers() {
   });
   const testStore = new TestStore(baseLogger);
 
-  async function setupApp() {
+  async function setupApp(orgs: Org[]) {
     const store = testStore.getStore();
     await testStore.init();
 
     const workspace = createWorkspace(tmp.dirSync().name, baseLogger, store);
 
     const auth0 = new MockAuth0Client();
+    auth0.setOrgs(orgs);
+    await store.syncOrganizationsCache(orgs);
     const fileStorageClient = new MockFileStorageClient();
     const speechSynthesizer = new GoogleCloudSpeechSynthesizerWithDbCache({
       store,

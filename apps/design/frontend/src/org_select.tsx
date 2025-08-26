@@ -10,7 +10,7 @@ export interface OrgSelectProps {
 export function OrgSelect(props: OrgSelectProps): JSX.Element {
   const { disabled, onChange, selectedOrgId } = props;
 
-  const orgs = api.getAllOrgs.useQuery().data;
+  const orgs = api.listOrganizations.useQuery().data;
 
   const options = React.useMemo(
     () =>

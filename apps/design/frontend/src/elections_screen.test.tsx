@@ -88,7 +88,7 @@ function renderScreen() {
 
 test('with no elections, creating a new election', async () => {
   apiMock.getUser.expectCallWith().resolves(user);
-  apiMock.getAllOrgs.expectCallWith().resolves([VX_ORG]);
+  apiMock.listOrganizations.expectCallWith().resolves([VX_ORG]);
   apiMock.listElections.expectCallWith().resolves([]);
   const { history } = renderScreen();
   await screen.findByRole('heading', { name: 'Elections' });

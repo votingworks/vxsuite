@@ -42,7 +42,7 @@ export interface Auth0User {
 
 export interface Auth0ClientInterface {
   allOrgs(): Promise<Org[]>;
-  userFromRequest(req: Express.Request): Promise<User | undefined>;
+  userFromRequest(req: Express.Request): User | undefined;
 
   // [TODO] `Auth0Client` methods that are currently only used in the user
   // management scripts aren't included here yet. Flesh this out, along with
@@ -90,7 +90,6 @@ export class Auth0Client implements Auth0ClientInterface {
   }): Promise<User> {
     const { userEmail, orgId } = params;
 
-    const deferredOrg = this.org(orgId);
     const userQueryResults = await this.usersByEmail.getByEmail({
       email: userEmail,
     });
@@ -109,7 +108,6 @@ export class Auth0Client implements Auth0ClientInterface {
       name: user.name,
       auth0Id: user.user_id,
       orgId,
-      orgName: (await deferredOrg).name,
     };
   }
 
@@ -221,7 +219,6 @@ export class Auth0Client implements Auth0ClientInterface {
       name: user.name,
       auth0Id: user.user_id,
       orgId,
-      orgName: org.name,
     };
   }
 
@@ -258,15 +255,13 @@ export class Auth0Client implements Auth0ClientInterface {
     };
   }
 
-  async userFromRequest(req: Express.Request): Promise<User | undefined> {
+  userFromRequest(req: Express.Request): User | undefined {
     const auth0User = req.oidc.user as unknown as Auth0User | undefined;
     if (!auth0User) return;
-    const org = await this.org(auth0User.org_id);
     return {
       name: auth0User.name,
       auth0Id: auth0User.sub,
-      orgId: org.id,
-      orgName: org.name,
+      orgId: auth0User.org_id,
     };
   }
 
@@ -310,17 +305,13 @@ export class Auth0Client implements Auth0ClientInterface {
         ]);
       },
 
-      async org(id: string): Promise<Org | undefined> {
-        const orgs = await this.allOrgs();
-        return orgs.find((o) => o.id === id);
-      },
-
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       userFromRequest(_: Express.Request) {
-        return Promise.resolve({
+        return {
+          name: 'Dev User',
+          auth0Id: 'auth0|devuser',
           orgId: votingWorksOrgId(),
-          orgName: 'VotingWorks',
-        });
+        };
       },
     } as const as Auth0Client;
   }

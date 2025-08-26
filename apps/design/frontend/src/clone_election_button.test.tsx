@@ -94,7 +94,10 @@ test('shows org picker when ACCESS_ALL_ORGS feature enabled', async () => {
     <CloneElectionButton election={electionListing(electionRecord)} />
   );
 
-  queryClient.setQueryData(api.getAllOrgs.queryKey(), [VX_ORG, NON_VX_ORG]);
+  queryClient.setQueryData(api.listOrganizations.queryKey(), [
+    VX_ORG,
+    NON_VX_ORG,
+  ]);
 
   userEvent.click(await screen.findButton(`Make a copy of ${election.title}`));
   const modal = screen.getByRole('alertdialog');

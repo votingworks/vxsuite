@@ -63,7 +63,6 @@ export interface User {
   name: string;
   auth0Id: string;
   orgId: string;
-  orgName: string;
 }
 
 export interface Org {

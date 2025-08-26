@@ -28,9 +28,9 @@ async function main(): Promise<void> {
 
   const auth = Auth0Client.init();
   try {
-    const { orgName } = await auth.createUser({ orgId, userEmail });
+    await auth.createUser({ orgId, userEmail });
 
-    console.log(`✅ User created and added to org '${orgName}'`);
+    console.log(`✅ User created and added to org ${orgId}`);
   } catch (error) {
     if (!(error instanceof ManagementApiError)) {
       throw error;
@@ -41,9 +41,9 @@ async function main(): Promise<void> {
     // idempotent.
     if ((error.statusCode as ErrorCode) === ErrorCode.ALREADY_EXISTS) {
       console.log('User already exists. Attempting to add to org...');
-      const { orgName } = await auth.addOrgMember({ orgId, userEmail });
+      await auth.addOrgMember({ orgId, userEmail });
 
-      console.log(`✅ Existing user added to org '${orgName}'`);
+      console.log(`✅ Existing user added to org ${orgId}`);
     }
   }
 }

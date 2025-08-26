@@ -46,6 +46,7 @@ import {
   convertToVxfBallotStyle,
   ElectionInfo,
   ElectionListing,
+  Org,
 } from './types';
 import { generateBallotStyles } from './ballot_styles';
 import { Db } from './db/db';
@@ -425,6 +426,59 @@ export class Store {
 
   static new(logger: BaseLogger): Store {
     return new Store(new Db(logger));
+  }
+
+  /**
+   * Takes the organizations from Auth0 (the source of truth) and caches them in
+   * the database, adding/removing/updating records as necessary.
+   */
+  async syncOrganizationsCache(organizations: Org[]): Promise<void> {
+    await this.db.withClient((client) =>
+      client.withTransaction(async () => {
+        // Add new orgs or update existing orgs
+        // Relies on invariant that Auth0 org IDs never change
+        for (const org of organizations) {
+          const { rowCount } = await client.query(
+            `
+            insert into organizations (id, name)
+            values ($1, $2)
+            on conflict (id) do update
+            set name = excluded.name
+            `,
+            org.id,
+            org.name
+          );
+          assert(rowCount === 1, `Failed to insert or update org ${org.id}`);
+        }
+
+        if (organizations.length > 0) {
+          // Delete orgs that are no longer in Auth0
+          await client.query(
+            `
+            delete from organizations
+            where not (id = any ($1))
+            `,
+            organizations.map((org) => org.id)
+          );
+        }
+
+        return true;
+      })
+    );
+  }
+
+  async listOrganizations(): Promise<Org[]> {
+    return await this.db.withClient(async (client) => {
+      const orgRows = (
+        await client.query(
+          `
+          select id, name
+          from organizations
+          `
+        )
+      ).rows as Array<{ id: string; name: string }>;
+      return orgRows;
+    });
   }
 
   async listElections(input: {
