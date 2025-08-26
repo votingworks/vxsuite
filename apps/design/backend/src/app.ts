@@ -179,8 +179,8 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
 
   const middlewares: grout.Middlewares<ApiContext> = {
     before: [
-      async function loadUser({ request, context }) {
-        const user = await auth0.userFromRequest(request);
+      function loadUser({ request, context }) {
+        const user = auth0.userFromRequest(request);
         if (!user) {
           throw new AuthError('auth:unauthorized');
         }
@@ -860,7 +860,7 @@ export function buildApp(context: AppContext): Application {
 
   app.get('/files/:orgId/:fileName', async (req, res, next) => {
     try {
-      const user = await context.auth0.userFromRequest(req);
+      const user = context.auth0.userFromRequest(req);
       if (!user) {
         throw new AuthError('auth:unauthorized');
       }
