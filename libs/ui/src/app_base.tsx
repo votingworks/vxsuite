@@ -14,6 +14,7 @@ declare module 'styled-components' {
    *
    * See https://styled-components.com/docs/api#create-a-declarations-file
    */
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   export interface DefaultTheme extends UiTheme {}
 }
 

@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-/* eslint-disable no-unused-expressions */
 /* eslint-disable @typescript-eslint/require-await */
 import { expect, test, vi } from 'vitest';
 import { AddressInfo } from 'node:net';
@@ -66,12 +65,14 @@ test('registers Express routes for an API', async () => {
     updatePerson(input: { name: string; newPerson: Person }): Promise<void>;
   }>();
 
+  /* eslint-disable @typescript-eslint/no-unused-expressions */
   // @ts-expect-error Catches typos in method names
   client.getAllPeeple;
   // @ts-expect-error Catches incorrect argument names
   () => client.getPersonByName({ nam: 'Alice' });
   // @ts-expect-error Catches incorrect argument types
   () => client.getPersonByName({ name: 1 });
+  /* eslint-enable @typescript-eslint/no-unused-expressions */
 
   const mockPerson: Person = { name: 'Alice', age: 99 };
 
@@ -204,6 +205,7 @@ test('errors if RPC method doesnt have the correct signature', async () => {
     );
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   async () => {
     // We can catch the wrong number of arguments when calling a method at compile time
     // @ts-expect-error expected 1 argument, got 2
