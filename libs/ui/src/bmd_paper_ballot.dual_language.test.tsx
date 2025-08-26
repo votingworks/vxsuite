@@ -145,14 +145,8 @@ describe('non-English ballot style', () => {
     expectDualLanguageString({ key: 'titleOfficialBallot' });
     expectDualLanguageString({ key: ElectionStringKey.ELECTION_TITLE });
     expectDualLanguageString({ key: ElectionStringKey.ELECTION_DATE });
-    expectSingleLanguageString({
-      key: ElectionStringKey.COUNTY_NAME,
-      languageCode: 'es-US',
-    });
-    expectSingleLanguageString({
-      key: ElectionStringKey.STATE_NAME,
-      languageCode: 'es-US',
-    });
+    expectDualLanguageString({ key: ElectionStringKey.COUNTY_NAME });
+    expectDualLanguageString({ key: ElectionStringKey.STATE_NAME });
   });
 
   test('candidate contest', async () => {

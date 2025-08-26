@@ -677,8 +677,13 @@ export function BmdPaperBallot({
                 {electionStrings.electionDate(election)}
               </DualLanguageText>
               <br />
-              {electionStrings.countyName(county)},{' '}
-              {electionStrings.stateName(election)}
+              <DualLanguageText
+                primaryLanguage={primaryBallotLanguage}
+                englishTextWrapper={AdjacentTextWithSeparator}
+              >
+                {electionStrings.countyName(county)},{' '}
+                {electionStrings.stateName(election)}
+              </DualLanguageText>
             </P>
           </div>
           <QrCodeContainer>
