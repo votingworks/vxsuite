@@ -508,7 +508,8 @@ export class Store {
               ballot_template_id as "ballotTemplateId",
               ballots_finalized_at as "ballotsFinalizedAt",
               created_at as "createdAt",
-              ballot_language_codes as "ballotLanguageCodes"
+              ballot_language_codes as "ballotLanguageCodes",
+              custom_ballot_content as "customBallotContent"
             from elections
             where id = $1
           `,
@@ -528,6 +529,7 @@ export class Store {
         ballotsFinalizedAt: Date | null;
         createdAt: Date;
         ballotLanguageCodes: LanguageCode[];
+        customBallotContent: Election['customBallotContent'];
       };
       assert(electionRow, 'Election not found');
 
@@ -777,6 +779,7 @@ export class Store {
           metadataEncoding: 'qr-code',
         },
         ballotStrings: {},
+        customBallotContent: electionRow.customBallotContent,
       };
 
       const systemSettings = safeParseSystemSettings(
@@ -873,7 +876,8 @@ export class Store {
             ballot_paper_size,
             ballot_template_id,
             ballot_language_codes,
-            system_settings_data
+            system_settings_data,
+            custom_ballot_content
           )
           values (
             $1,
@@ -887,7 +891,8 @@ export class Store {
             $9,
             $10,
             $11,
-            $12
+            $12,
+            $13
           )
         `,
           election.id,
@@ -901,7 +906,8 @@ export class Store {
           election.ballotLayout.paperSize,
           ballotTemplateId,
           DEFAULT_LANGUAGE_CODES,
-          JSON.stringify(systemSettings)
+          JSON.stringify(systemSettings),
+          JSON.stringify(election.customBallotContent)
         );
         for (const district of election.districts) {
           await insertDistrict(client, election.id, district);
