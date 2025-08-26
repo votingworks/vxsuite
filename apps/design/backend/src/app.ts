@@ -253,7 +253,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
       const elections = await store.listElections({
         orgId: userFeatures.ACCESS_ALL_ORGS ? undefined : user.orgId,
       });
-      const orgs = await auth0.allOrgs();
+      const orgs = await store.listOrganizations();
       return elections.map((election) => ({
         ...election,
         orgName:
@@ -730,7 +730,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
       if (!userFeaturesConfig.ACCESS_ALL_ORGS) {
         throw new AuthError('auth:forbidden');
       }
-      return auth0.allOrgs();
+      return store.listOrganizations();
     },
 
     getUserFeatures(

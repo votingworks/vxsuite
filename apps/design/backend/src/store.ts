@@ -467,6 +467,20 @@ export class Store {
     );
   }
 
+  async listOrganizations(): Promise<Org[]> {
+    return await this.db.withClient(async (client) => {
+      const orgRows = (
+        await client.query(
+          `
+          select id, name
+          from organizations
+          `
+        )
+      ).rows as Array<{ id: string; name: string }>;
+      return orgRows;
+    });
+  }
+
   async listElections(input: {
     orgId?: string;
   }): Promise<Array<Omit<ElectionListing, 'orgName'>>> {
