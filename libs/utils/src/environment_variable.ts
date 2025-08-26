@@ -75,7 +75,7 @@ export enum BooleanEnvironmentVariableName {
    */
   HIDE_CURSOR = 'REACT_APP_VX_HIDE_CURSOR',
   /**
-   * Toggles the hardware test app in VxMark and VxScan, in place of the standard app.
+   * Toggles the hardware test app in VxMarkScan and VxScan, in place of the standard app.
    */
   ENABLE_HARDWARE_TEST_APP = 'REACT_APP_VX_ENABLE_HARDWARE_TEST_APP',
   /**

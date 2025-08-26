@@ -9,16 +9,20 @@ Includes software for:
 - [VxAdmin](./apps/admin/frontend) — An offline central election manager laptop
 - [VxCentralScan](./apps/central-scan/frontend) — A central scanner for batch
   scanning of ballots, often used for absentee ballot processing
-- [VxMark](./apps/mark-scan/frontend) — A fully accessible ballot-marking device
-  (BMD)
+- [VxMark](./apps/mark/frontend) — A traditional ballot-marking device (BMD)
+- [VxMarkScan](./apps/mark-scan/frontend) — A BMD that also supports
+  limited-dexterity casting
 - [VxScan](./apps/scan/frontend) — A precinct scanner for casting of ballots
   (marked by hand or by BMD)
+- [VxPollBook](./apps/pollbook/frontend) — An electronic poll book application
+  for checking in voters
 - [VxDesign](./apps/design/frontend) — An application for designing ballots
-- [VxPollBook](./apps/pollbook/frontend) — A pollbook application for checking
-  in voters
 
-VxAdmin and VxCentralScan comprise the "central system." VxMark and VxScan
-comprise the "precinct system."
+VxAdmin and VxCentralScan comprise the "central system." VxMark/VxMarkScan and
+VxScan comprise the "precinct system."
+
+VxPollBook, while also deployed in precincts, is certified and acquired
+separately.
 
 VxDesign exists separate from the other apps and is managed by VotingWorks
 rather than deployed on hardware into locales.

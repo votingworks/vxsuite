@@ -1069,7 +1069,7 @@ const PatDeviceError: LogDetails = {
   eventId: LogEventId.PatDeviceError,
   eventType: LogEventType.SystemStatus,
   documentationMessage:
-    'VxMark encountered an error with the built-in PAT device port or the device itself',
+    'VxMarkScan encountered an error with the built-in PAT device port or the device itself',
   restrictInDocumentationToApps: [AppName.VxMarkScan],
 };
 

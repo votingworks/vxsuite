@@ -1,7 +1,7 @@
 # @votingworks/ballot-interpreter
 
-Library to interpret BMD ballots produced by VxMark or hand-marked paper ballots
-(HMPB) produced by VxDesign.
+Library to interpret BMD ballots produced by VxMark/VxMarkScan or hand-marked
+paper ballots (HMPB) produced by VxDesign.
 
 ## Install
 

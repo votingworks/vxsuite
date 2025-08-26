@@ -63,7 +63,7 @@ test('MarkScanReadinessReport', () => {
     />
   );
 
-  screen.getByText('VxMark Readiness Report');
+  screen.getByText('VxMarkScan Readiness Report');
   screen.getByText(hasTextAcrossElements('Machine ID: MOCK'));
   screen.getByText(hasTextAcrossElements('Date: Jan 1, 2022, 12:00:00 AM'));
   screen.getByText(/Example Primary Election/);
