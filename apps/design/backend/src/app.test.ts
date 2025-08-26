@@ -2750,6 +2750,64 @@ test('Election package and ballots export', async () => {
   );
 });
 
+test('Election package export with VxDefaultBallot drops signature field', async () => {
+  const baseElectionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const { apiClient, workspace, fileStorageClient, auth0 } = await setupApp();
+
+  auth0.setLoggedInUser(nonVxUser);
+  const electionId = (
+    await apiClient.loadElection({
+      newId: 'new-election-id' as ElectionId,
+      orgId: nonVxUser.orgId,
+      electionData: baseElectionDefinition.electionData,
+    })
+  ).unsafeUnwrap();
+
+  // Set a signature in the election info
+  await apiClient.updateElectionInfo({
+    electionId,
+    title: baseElectionDefinition.election.title,
+    jurisdiction: baseElectionDefinition.election.county.name,
+    state: baseElectionDefinition.election.state,
+    seal: baseElectionDefinition.election.seal,
+    type: baseElectionDefinition.election.type,
+    date: baseElectionDefinition.election.date,
+    languageCodes: [LanguageCode.ENGLISH],
+    signature: {
+      image: 'test-signature-image',
+      caption: 'Test Signature Caption',
+    },
+  });
+
+  // Ensure we're using VxDefaultBallot template
+  await apiClient.setBallotTemplate({
+    electionId,
+    ballotTemplateId: 'VxDefaultBallot',
+  });
+
+  const electionPackageFilePath = await exportElectionPackage({
+    fileStorageClient,
+    apiClient,
+    electionId,
+    workspace,
+    electionSerializationFormat: 'vxf',
+    shouldExportAudio: false,
+  });
+
+  const contents = assertDefined(
+    fileStorageClient.getRawFile(join(nonVxUser.orgId, electionPackageFilePath))
+  );
+  const { electionPackageContents } =
+    await unzipElectionPackageAndBallots(contents);
+  const { electionPackage } = (
+    await readElectionPackageFromBuffer(electionPackageContents)
+  ).unsafeUnwrap();
+
+  // Check that the signature field is undefined in the exported election
+  expect(electionPackage.electionDefinition.election.signature).toBeUndefined();
+});
+
 test('Export test decks', async () => {
   const electionDefinition = readElectionTwoPartyPrimaryDefinition();
   const { apiClient, fileStorageClient, workspace, auth0 } = await setupApp();

@@ -106,9 +106,15 @@ export async function generateElectionPackageAndBallots(
 
   const formattedElection = formatElectionForExport(election, ballotStrings);
 
+  // For non-NH ballot templates, remove the signature field as it is unused
+  const electionForTemplate =
+    ballotTemplateId === 'NhBallot'
+      ? formattedElection
+      : { ...formattedElection, signature: undefined };
+
   let allBallotProps = createBallotPropsForTemplate(
     ballotTemplateId,
-    formattedElection,
+    electionForTemplate,
     ballotStyles,
     compact
   );
