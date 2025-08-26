@@ -13,7 +13,9 @@ import {
 } from 'vitest-styled-components';
 
 declare module 'vitest' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface Assertion<T = any> extends ToHaveStyleRuleMatchers {}
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface AsymmetricMatchersContaining extends ToHaveStyleRuleMatchers {}
 }
 
