@@ -427,5 +427,7 @@ pub enum EventId {
     NavigationPageChange,
     #[serde(rename = "pollbook-duplicate-check-in-detected")]
     PollbookDuplicateCheckInDetected,
+    #[serde(rename = "data-check-on-startup")]
+    DataCheckOnStartup,
 }
 derive_display!(EventId);

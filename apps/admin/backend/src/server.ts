@@ -56,6 +56,7 @@ export async function start({
   usbDrive,
   printer,
 }: Partial<StartOptions>): Promise<Server> {
+  console.log('start');
   debug('starting server...');
   detectDevices({ logger: baseLogger });
   let resolvedWorkspace = workspace;
@@ -109,6 +110,30 @@ export async function start({
       usbDrive: resolvedUsbDrive,
       printer: resolvedPrinter,
       workspace: resolvedWorkspace,
+    });
+  }
+
+  const electionId = resolvedWorkspace.store.getCurrentElectionId();
+  const cvrFileEntries = electionId
+    ? resolvedWorkspace.store.getCvrFiles(electionId)
+    : [];
+  const manualResults = electionId
+    ? resolvedWorkspace.store.getManualResults({
+        electionId,
+      })
+    : [];
+
+  if (cvrFileEntries.length > 0 || manualResults.length > 0) {
+    baseLogger.log(LogEventId.DataCheckOnStartup, 'system', {
+      message:
+        'Election results data is present in the database at machine startup.',
+      numCvrFiles: cvrFileEntries.length,
+      numManualResults: manualResults.length,
+    });
+  } else {
+    baseLogger.log(LogEventId.DataCheckOnStartup, 'system', {
+      message:
+        'No election results data is present in the database at machine startup.',
     });
   }
 

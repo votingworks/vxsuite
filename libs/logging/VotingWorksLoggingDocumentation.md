@@ -646,3 +646,7 @@ IDs are logged with each log to identify the log being written.
 **Type:** [application-status](#application-status)
 **Description:** More then one check in event (ignoring undone checkins) for the same voter was detected in the system.
 **Machines:** vx-pollbook
+### data-check-on-startup
+**Type:** [application-status](#application-status)
+**Description:** Whether election results or scanned ballot data is present in the database at machine startup.
+**Machines:** vx-central-scan, vx-admin
