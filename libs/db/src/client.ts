@@ -4,7 +4,7 @@ import { Buffer } from 'node:buffer';
 import { createHash } from 'node:crypto';
 import makeDebug from 'debug';
 import * as fs from 'node:fs';
-import Database = require('better-sqlite3');
+import Database from 'better-sqlite3';
 import { dirname, join } from 'node:path';
 
 type Database = Database.Database;
@@ -54,7 +54,7 @@ export class Client {
     private readonly logger: BaseLogger,
     private readonly schemaPath?: string,
     private readonly connectionOptions?: DbConnectionOptions
-  ) {}
+  ) { }
 
   /**
    * Gets the path to the SQLite database file.
