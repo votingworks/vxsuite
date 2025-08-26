@@ -228,7 +228,7 @@ export async function main(
     HmpbBallotPaperSize,
     { path: string; sha256: string }
   >();
-  for await (const castVoteRecord of castVoteRecords) {
+  for (const castVoteRecord of castVoteRecords) {
     const castVoteRecordDirectory = join(outputPath, castVoteRecord.UniqueId);
     await fs.mkdir(castVoteRecordDirectory);
 
