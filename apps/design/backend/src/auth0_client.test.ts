@@ -132,7 +132,6 @@ test('createUser', async () => {
   expect(result).toEqual<User>({
     name: 'alice@example.com',
     auth0Id: 'new-user',
-    orgName: 'VotingWorks',
     orgId: 'vx',
   });
 
@@ -157,14 +156,6 @@ test('addOrgMember', async () => {
     ])
   );
 
-  mockOrganizations.get.mockResolvedValue(
-    mockApiResponse<GetOrganizations200ResponseOneOfInner>({
-      display_name: 'VotingWorks',
-      id: VX_ORG_ID,
-      name: 'votingworks',
-    })
-  );
-
   mockOrganizations.addMembers.mockResolvedValueOnce(mockApiResponseVoid());
 
   const result = await newClient().addOrgMember({
@@ -175,11 +166,8 @@ test('addOrgMember', async () => {
   expect(result).toEqual<User>({
     name: 'someone@example.com',
     auth0Id: 'existing-user',
-    orgName: 'VotingWorks',
     orgId: 'vx',
   });
-
-  expect(mockOrganizations.get).toHaveBeenCalledWith({ id: 'vx' });
 
   expect(mockOrganizations.addMembers).toHaveBeenCalledWith(
     { id: 'vx' },
