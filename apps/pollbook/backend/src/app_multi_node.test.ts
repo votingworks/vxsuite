@@ -86,7 +86,7 @@ vitest.setConfig({
   testTimeout: 10_000,
 });
 
-test('online / offline connection status is managed properly', async () => {
+test('pollbook can go online as expected and goes offline if it does not have an online interface', async () => {
   await withManyApps(1, async ([pollbookContext]) => {
     vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
     await setupUnconfiguredPollbooksOnNetwork(
@@ -122,9 +122,20 @@ test('online / offline connection status is managed properly', async () => {
         },
       });
     });
+  });
+});
 
-    // Bring back online
-    mockHasOnlineInterface.mockResolvedValue(true);
+test('pollbook goes offline if it is not finding itself on avahi', async () => {
+  await withManyApps(1, async ([pollbookContext]) => {
+    vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+    await setupUnconfiguredPollbooksOnNetwork(
+      [pollbookContext],
+      vitest,
+      mockHasOnlineInterface,
+      mockDiscoverHttpServices
+    );
+
+    // Start online
     await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
@@ -150,18 +161,22 @@ test('online / offline connection status is managed properly', async () => {
         },
       });
     });
+  });
+});
+
+test('pollbook handles bad ip6 address for self gracefully', async () => {
+  await withManyApps(1, async ([pollbookContext]) => {
+    vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+    await setupUnconfiguredPollbooksOnNetwork(
+      [pollbookContext],
+      vitest,
+      mockHasOnlineInterface,
+      mockDiscoverHttpServices
+    );
 
     const { port } = pollbookContext.peerServer.address() as AddressInfo;
 
-    // Bring back online
-    mockDiscoverHttpServices.mockResolvedValue([
-      {
-        name: 'Pollbook-test-0',
-        host: 'local',
-        resolvedIp: 'localhost',
-        port: port.toString(),
-      },
-    ]);
+    // Start online
     await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
@@ -195,6 +210,7 @@ test('online / offline connection status is managed properly', async () => {
       });
     });
 
+    // Even after waiting or MACHINE_DISCONNECTED_TIMEOUT we are still connected
     await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(MACHINE_DISCONNECTED_TIMEOUT);
       // the vitest mock timers will not impact the times we set as last seen for the pollbooks without an additional mock
@@ -208,6 +224,33 @@ test('online / offline connection status is managed properly', async () => {
         },
       });
     });
+  });
+});
+
+test('pollbook goes offline if pings fail for the MACHINE_DISCONNECTED_TIMEOUT', async () => {
+  await withManyApps(1, async ([pollbookContext]) => {
+    vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+    await setupUnconfiguredPollbooksOnNetwork(
+      [pollbookContext],
+      vitest,
+      mockHasOnlineInterface,
+      mockDiscoverHttpServices
+    );
+
+    // Start online
+    await extendedWaitFor(async () => {
+      vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+      expect(
+        await pollbookContext.localApiClient.getDeviceStatuses()
+      ).toMatchObject({
+        network: {
+          isOnline: true,
+          pollbooks: [],
+        },
+      });
+    });
+
+    const { port } = pollbookContext.peerServer.address() as AddressInfo;
 
     // Sending a new ip4 address to avahi will cause us to change what address we are pinging. If it is invalid we
     // will not transition to offline immediately but will after the machine disconnected timeout.
@@ -246,7 +289,7 @@ test('online / offline connection status is managed properly', async () => {
   });
 });
 
-test('connection status between two pollbooks is managed properly', async () => {
+test('connection status between two pollbooks is managed properly - connected and shutdown transitions', async () => {
   await withManyApps(2, async ([pollbookContext1, pollbookContext2]) => {
     vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
     for (const context of [pollbookContext1, pollbookContext2]) {
@@ -414,7 +457,7 @@ test('connection status between two pollbooks is managed properly', async () => 
         },
       });
     });
-    // Remove one app from avahi and see it go to shutdown.
+    // Remove pollbook2 from avahi, pollbook1 will transition pollbook2 to ShutDown, pollbook2 will go offline and move everything to LostConnection
     mockDiscoverHttpServices.mockResolvedValue([
       {
         name: 'Pollbook-test-0',
@@ -450,6 +493,7 @@ test('connection status between two pollbooks is managed properly', async () => 
         },
       });
     });
+
     // Allow pollbook 2 to see itself to come back online and simulate a shutdown of pollbook 1, pollbook 2 should NOT transition pollbook 1 to shut down because it is in lost connection
     mockDiscoverHttpServices.mockResolvedValue([
       {
@@ -531,8 +575,52 @@ test('connection status between two pollbooks is managed properly', async () => 
         },
       });
     });
+  });
+});
 
-    // Set a bad port value for Pollbook1. It should go offline after the diconnection timeout and mark all of its connections (Pollbook2) as LostConnection
+test('pollbooks will update connection status to lost connection if pings fail for MACHINE_DISCONNECTED_TIMEOUT - bad port', async () => {
+  await withManyApps(2, async ([pollbookContext1, pollbookContext2]) => {
+    vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+
+    const { port: port2 } =
+      pollbookContext2.peerServer.address() as AddressInfo;
+    await setupUnconfiguredPollbooksOnNetwork(
+      [pollbookContext1, pollbookContext2],
+      vitest,
+      mockHasOnlineInterface,
+      mockDiscoverHttpServices
+    );
+
+    // We should start in a MismatchedConfiguration state
+    await extendedWaitFor(async () => {
+      vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+      expect(
+        await pollbookContext1.localApiClient.getDeviceStatuses()
+      ).toMatchObject({
+        network: {
+          isOnline: true,
+          pollbooks: [
+            expect.objectContaining({
+              status: PollbookConnectionStatus.MismatchedConfiguration,
+            }),
+          ],
+        },
+      });
+      expect(
+        await pollbookContext2.localApiClient.getDeviceStatuses()
+      ).toMatchObject({
+        network: {
+          isOnline: true,
+          pollbooks: [
+            expect.objectContaining({
+              status: PollbookConnectionStatus.MismatchedConfiguration,
+            }),
+          ],
+        },
+      });
+    });
+
+    // Set a bad port value for Pollbook1. It should go offline after the disconnection timeout and mark all of its connections (Pollbook2) as LostConnection
     // Pollbook2 will fail to ping Pollbook1 after the disconnection timeout and mark it as LostConnection.
     mockDiscoverHttpServices.mockResolvedValue([
       {
@@ -549,7 +637,7 @@ test('connection status between two pollbooks is managed properly', async () => 
       },
     ]);
     await extendedWaitFor(async () => {
-      // Check before we hid MACHINE_DISCONNECTION_TIMEOUT
+      // Check before we hit MACHINE_DISCONNECTION_TIMEOUT
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
         await pollbookContext1.localApiClient.getDeviceStatuses()
@@ -600,6 +688,246 @@ test('connection status between two pollbooks is managed properly', async () => 
           pollbooks: [
             expect.objectContaining({
               status: PollbookConnectionStatus.LostConnection,
+            }),
+          ],
+        },
+      });
+    });
+  });
+});
+
+test('pollbooks will update connection status to lost connection if pings fail for MACHINE_DISCONNECTED_TIMEOUT - bad ip', async () => {
+  await withManyApps(2, async ([pollbookContext1, pollbookContext2]) => {
+    vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+
+    const { port: port1 } =
+      pollbookContext1.peerServer.address() as AddressInfo;
+    const { port: port2 } =
+      pollbookContext2.peerServer.address() as AddressInfo;
+    await setupUnconfiguredPollbooksOnNetwork(
+      [pollbookContext1, pollbookContext2],
+      vitest,
+      mockHasOnlineInterface,
+      mockDiscoverHttpServices
+    );
+
+    // We should start in a MismatchedConfiguration state
+    await extendedWaitFor(async () => {
+      vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+      expect(
+        await pollbookContext1.localApiClient.getDeviceStatuses()
+      ).toMatchObject({
+        network: {
+          isOnline: true,
+          pollbooks: [
+            expect.objectContaining({
+              status: PollbookConnectionStatus.MismatchedConfiguration,
+            }),
+          ],
+        },
+      });
+      expect(
+        await pollbookContext2.localApiClient.getDeviceStatuses()
+      ).toMatchObject({
+        network: {
+          isOnline: true,
+          pollbooks: [
+            expect.objectContaining({
+              status: PollbookConnectionStatus.MismatchedConfiguration,
+            }),
+          ],
+        },
+      });
+    });
+
+    // Set a bad port value for Pollbook1. It should go offline after the disconnection timeout and mark all of its connections (Pollbook2) as LostConnection
+    // Pollbook2 will fail to ping Pollbook1 after the disconnection timeout and mark it as LostConnection.
+    mockDiscoverHttpServices.mockResolvedValue([
+      {
+        name: 'Pollbook-test-0',
+        host: 'local',
+        resolvedIp: '192.1.2.123',
+        port: port1.toString(),
+      },
+      {
+        name: 'Pollbook-test-1',
+        host: 'local',
+        resolvedIp: 'localhost',
+        port: port2.toString(),
+      },
+    ]);
+    await extendedWaitFor(async () => {
+      // Check before we hit MACHINE_DISCONNECTION_TIMEOUT
+      vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+      expect(
+        await pollbookContext1.localApiClient.getDeviceStatuses()
+      ).toMatchObject({
+        network: {
+          isOnline: true,
+          pollbooks: [
+            expect.objectContaining({
+              status: PollbookConnectionStatus.MismatchedConfiguration,
+            }),
+          ],
+        },
+      });
+      expect(
+        await pollbookContext2.localApiClient.getDeviceStatuses()
+      ).toMatchObject({
+        network: {
+          isOnline: true,
+          pollbooks: [
+            expect.objectContaining({
+              status: PollbookConnectionStatus.MismatchedConfiguration,
+            }),
+          ],
+        },
+      });
+    });
+    await extendedWaitFor(async () => {
+      vitest.advanceTimersByTime(MACHINE_DISCONNECTED_TIMEOUT);
+      // the vitest mock timers will not impact the times we set as last seen for the pollbooks without an additional mock
+      currentTime = assertDefined(vitest.getMockedSystemTime());
+      expect(
+        await pollbookContext1.localApiClient.getDeviceStatuses()
+      ).toMatchObject({
+        network: {
+          isOnline: false,
+          pollbooks: [
+            expect.objectContaining({
+              status: PollbookConnectionStatus.LostConnection,
+            }),
+          ],
+        },
+      });
+      expect(
+        await pollbookContext2.localApiClient.getDeviceStatuses()
+      ).toMatchObject({
+        network: {
+          isOnline: true,
+          pollbooks: [
+            expect.objectContaining({
+              status: PollbookConnectionStatus.LostConnection,
+            }),
+          ],
+        },
+      });
+    });
+  });
+});
+
+test('pollbooks will continue to connect if they establish connection, even when bad ip6 address is returned by avahi', async () => {
+  await withManyApps(2, async ([pollbookContext1, pollbookContext2]) => {
+    vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+
+    const { port: port1 } =
+      pollbookContext1.peerServer.address() as AddressInfo;
+    const { port: port2 } =
+      pollbookContext2.peerServer.address() as AddressInfo;
+    await setupUnconfiguredPollbooksOnNetwork(
+      [pollbookContext1, pollbookContext2],
+      vitest,
+      mockHasOnlineInterface,
+      mockDiscoverHttpServices
+    );
+
+    // We should start in a MismatchedConfiguration state
+    await extendedWaitFor(async () => {
+      vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+      expect(
+        await pollbookContext1.localApiClient.getDeviceStatuses()
+      ).toMatchObject({
+        network: {
+          isOnline: true,
+          pollbooks: [
+            expect.objectContaining({
+              status: PollbookConnectionStatus.MismatchedConfiguration,
+            }),
+          ],
+        },
+      });
+      expect(
+        await pollbookContext2.localApiClient.getDeviceStatuses()
+      ).toMatchObject({
+        network: {
+          isOnline: true,
+          pollbooks: [
+            expect.objectContaining({
+              status: PollbookConnectionStatus.MismatchedConfiguration,
+            }),
+          ],
+        },
+      });
+    });
+
+    // Set a bad resolvedIp for pollbook1, it will be ignored.
+    mockDiscoverHttpServices.mockResolvedValue([
+      {
+        name: 'Pollbook-test-0',
+        host: 'local',
+        resolvedIp: '2001:0db8:85a3:0000:0000:8a2e:0370:7334', // fake IPv6 address
+        port: port1.toString(),
+      },
+      {
+        name: 'Pollbook-test-1',
+        host: 'local',
+        resolvedIp: 'localhost',
+        port: port2.toString(),
+      },
+    ]);
+    await extendedWaitFor(async () => {
+      // Check before we hit MACHINE_DISCONNECTION_TIMEOUT
+      vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
+      expect(
+        await pollbookContext1.localApiClient.getDeviceStatuses()
+      ).toMatchObject({
+        network: {
+          isOnline: true,
+          pollbooks: [
+            expect.objectContaining({
+              status: PollbookConnectionStatus.MismatchedConfiguration,
+            }),
+          ],
+        },
+      });
+      expect(
+        await pollbookContext2.localApiClient.getDeviceStatuses()
+      ).toMatchObject({
+        network: {
+          isOnline: true,
+          pollbooks: [
+            expect.objectContaining({
+              status: PollbookConnectionStatus.MismatchedConfiguration,
+            }),
+          ],
+        },
+      });
+    });
+    // Wait for MACHINE_DISCONNECTED_TIMEOUT and confirm both pollbooks are still online and see each other as MismatchedConfiguration since the ipv6 address will be ignored.
+    await extendedWaitFor(async () => {
+      vitest.advanceTimersByTime(MACHINE_DISCONNECTED_TIMEOUT);
+      // the vitest mock timers will not impact the times we set as last seen for the pollbooks without an additional mock
+      currentTime = assertDefined(vitest.getMockedSystemTime());
+      expect(
+        await pollbookContext1.localApiClient.getDeviceStatuses()
+      ).toMatchObject({
+        network: {
+          isOnline: true,
+          pollbooks: [
+            expect.objectContaining({
+              status: PollbookConnectionStatus.MismatchedConfiguration,
+            }),
+          ],
+        },
+      });
+      expect(
+        await pollbookContext2.localApiClient.getDeviceStatuses()
+      ).toMatchObject({
+        network: {
+          isOnline: true,
+          pollbooks: [
+            expect.objectContaining({
+              status: PollbookConnectionStatus.MismatchedConfiguration,
             }),
           ],
         },
