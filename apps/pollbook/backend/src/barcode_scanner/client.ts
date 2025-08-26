@@ -42,7 +42,7 @@ export async function connectToBarcodeScannerSocket(
   while (new Date().getTime() - connectStart.getTime() < timeoutMs) {
     try {
       return await tryConnect(logger);
-    } catch (e) {
+    } catch {
       await sleep(UDS_CONNECTION_ATTEMPT_DELAY_MS);
     }
   }

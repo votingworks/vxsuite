@@ -104,7 +104,7 @@ async function generateMachineLabelQrCodeContents({
       messageSignature,
       publicKey,
     });
-  } catch (error) {
+  } catch {
     throw new Error(
       "Unable to verify signature. Make sure that you're using the correct private key."
     );
