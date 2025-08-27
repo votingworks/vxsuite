@@ -569,8 +569,6 @@ test('update election info', async () => {
     type: 'primary',
     date: new DateWithoutTime('2022-01-01'),
     languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
-    signatureCaption: 'New caption',
-    signatureImage: '\r\n<svg>new signature</svg>\r\n',
   };
   await apiClient.updateElectionInfo(electionInfoUpdate);
   expect(await apiClient.getElectionInfo({ electionId })).toEqual<ElectionInfo>(
@@ -583,8 +581,76 @@ test('update election info', async () => {
       type: 'primary',
       date: new DateWithoutTime('2022-01-01'),
       languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
-      signatureImage: undefined,
-      signatureCaption: undefined,
+    }
+  );
+
+  // Change to NhBallot to test signature behavior
+  await apiClient.setBallotTemplate({
+    electionId,
+    ballotTemplateId: 'NhBallot',
+  });
+
+  // Election info should be unchanged at first
+  expect(await apiClient.getElectionInfo({ electionId })).toEqual<ElectionInfo>(
+    {
+      electionId,
+      title: 'Updated Election',
+      jurisdiction: 'New Hampshire',
+      state: 'NH',
+      seal: '\r\n<svg>updated seal</svg>\r\n',
+      type: 'primary',
+      date: new DateWithoutTime('2022-01-01'),
+      languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
+    }
+  );
+
+  const electionInfoUpdateWithSignature: ElectionInfo = {
+    electionId,
+    title: '   Updated Election  ',
+    jurisdiction: '   New Hampshire   ',
+    state: '   NH   ',
+    seal: '\r\n<svg>updated seal</svg>\r\n',
+    type: 'primary',
+    date: new DateWithoutTime('2022-01-01'),
+    languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
+    signatureCaption: 'New Caption',
+    signatureImage: '\r\n<svg>new signature</svg>\r\n',
+  };
+  await apiClient.updateElectionInfo(electionInfoUpdateWithSignature);
+
+  // Signature should be included in response
+  expect(await apiClient.getElectionInfo({ electionId })).toEqual<ElectionInfo>(
+    {
+      electionId,
+      title: 'Updated Election',
+      jurisdiction: 'New Hampshire',
+      state: 'NH',
+      seal: '\r\n<svg>updated seal</svg>\r\n',
+      type: 'primary',
+      date: new DateWithoutTime('2022-01-01'),
+      languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
+      signatureCaption: 'New Caption',
+      signatureImage: '\r\n<svg>new signature</svg>\r\n',
+    }
+  );
+
+  // Change to NhBallot to test signature behavior
+  await apiClient.setBallotTemplate({
+    electionId,
+    ballotTemplateId: 'VxDefaultBallot',
+  });
+
+  // Signature should no longer be included in response
+  expect(await apiClient.getElectionInfo({ electionId })).toEqual<ElectionInfo>(
+    {
+      electionId,
+      title: 'Updated Election',
+      jurisdiction: 'New Hampshire',
+      state: 'NH',
+      seal: '\r\n<svg>updated seal</svg>\r\n',
+      type: 'primary',
+      date: new DateWithoutTime('2022-01-01'),
+      languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
     }
   );
 
