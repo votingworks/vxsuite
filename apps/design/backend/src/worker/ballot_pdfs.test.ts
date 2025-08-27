@@ -1,12 +1,6 @@
 import { expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
-
-import {
-  convertPdfToGrayscale,
-  type BaseBallotProps,
-  ColorTints,
-  type NhBallotProps,
-} from '@votingworks/hmpb';
+import { convertPdfToGrayscale } from '@votingworks/hmpb';
 
 import { normalizeBallotColorModeForPrinting } from './ballot_pdfs';
 
@@ -15,52 +9,22 @@ vi.mock(import('@votingworks/hmpb'), async (importActual) => ({
   convertPdfToGrayscale: vi.fn(),
 }));
 
-test('normalizeBallotColorModeForPrinting - converts non-tinted ballots to grayscale', async () => {
-  const nhProps: NhBallotProps = {
-    colorTint: undefined,
-    precinctId: 'nh-precinct',
-  } as unknown as NhBallotProps;
-
+test('normalizeBallotColorModeForPrinting - converts NH ballots to grayscale', async () => {
   const mockColorPdf = Buffer.of(0xca, 0xfe);
   const mockGrayscalePdfNh = Buffer.of(0xca, 0xef);
   vi.mocked(convertPdfToGrayscale).mockResolvedValueOnce(mockGrayscalePdfNh);
 
   expect(
-    await normalizeBallotColorModeForPrinting(mockColorPdf, nhProps, 'NhBallot')
+    await normalizeBallotColorModeForPrinting(mockColorPdf, 'NhBallot')
   ).toStrictEqual(mockGrayscalePdfNh);
   expect(convertPdfToGrayscale).toHaveBeenCalledWith(mockColorPdf);
 });
 
-test('normalizeBallotColorModeForPrinting - renders tinted NH ballots in color', async () => {
-  const nhProps: NhBallotProps = {
-    colorTint: ColorTints.YELLOW,
-    precinctId: 'nh-precinct',
-  } as unknown as NhBallotProps;
-
-  const mockColorPdf = Buffer.of(0xca, 0xfe);
-
-  vi.mocked(convertPdfToGrayscale).mockRejectedValue(
-    new Error('unexpected grayscale conversion')
-  );
-
-  expect(
-    await normalizeBallotColorModeForPrinting(mockColorPdf, nhProps, 'NhBallot')
-  ).toStrictEqual(mockColorPdf);
-});
-
-test('normalizeBallotColorModeForPrinting - renders non-NH ballots in color', async () => {
-  const nonNhProps: BaseBallotProps = {
-    precinctId: 'non-nh-precinct',
-  } as unknown as BaseBallotProps;
-
+test('normalizeBallotColorModeForPrinting - doesnt convert non-NH ballots', async () => {
   const mockColorPdf = Buffer.of(0xac, 0xfe);
 
   expect(
-    await normalizeBallotColorModeForPrinting(
-      mockColorPdf,
-      nonNhProps,
-      'VxDefaultBallot'
-    )
+    await normalizeBallotColorModeForPrinting(mockColorPdf, 'VxDefaultBallot')
   ).toStrictEqual(mockColorPdf);
 
   expect(convertPdfToGrayscale).not.toHaveBeenCalled();

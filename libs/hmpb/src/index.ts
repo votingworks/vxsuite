@@ -11,4 +11,3 @@ export * from './renderer';
 export * from './ballot_templates';
 export * as calibrationSheetTemplate from './calibration_sheet/template';
 export * from './types';
-export { type ColorTint, ColorTints } from './ballot_components';

@@ -1,6 +1,5 @@
 import {
   convertPdfToGrayscale,
-  BaseBallotProps,
   calibrationSheetTemplate,
   Renderer,
   BallotTemplateId,
@@ -9,21 +8,9 @@ import { HmpbBallotPaperSize } from '@votingworks/types';
 
 export async function normalizeBallotColorModeForPrinting(
   ballotPdf: Uint8Array,
-  props: BaseBallotProps,
   ballotTemplateId: BallotTemplateId
 ): Promise<Uint8Array> {
   if (ballotTemplateId !== 'NhBallot') return ballotPdf;
-
-  /**
-   * Specific to NH V4 ballots with tinted headers/footers.
-   * See `import('@votingworks/hmpb').NhBallotProps`.
-   */
-  const needsColorPrint = 'colorTint' in props && !!props.colorTint;
-
-  if (needsColorPrint) {
-    return ballotPdf;
-  }
-
   return await convertPdfToGrayscale(ballotPdf);
 }
 

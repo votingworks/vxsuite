@@ -54,7 +54,6 @@ test('createBallotPropsForTemplate', () => {
       expect('electionSealOverride' in props).toEqual(true);
       expect('clerkSignatureImage' in props).toEqual(true);
       expect('clerkSignatureCaption' in props).toEqual(true);
-      expect('colorTint' in props).toEqual(true);
     }
   }
 });
