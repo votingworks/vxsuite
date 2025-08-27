@@ -78,10 +78,10 @@ export function HeadphoneInputDiagnosticScreen({
         )}
         <ButtonBar style={{ marginTop: '0.5rem' }}>
           <Button icon="Done" onPress={passTest}>
-            Sound is Audible
+            Sound Is Audible
           </Button>
           <Button icon="Delete" onPress={failTest}>
-            Sound is Not Audible
+            Sound Is Not Audible
           </Button>
         </ButtonBar>
       </Main>

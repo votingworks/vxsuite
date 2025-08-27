@@ -60,6 +60,7 @@ beforeEach(() => {
   apiMock.expectGetMostRecentDiagnostic('mark-scan-paper-handler');
   apiMock.expectGetMostRecentDiagnostic('mark-scan-pat-input');
   apiMock.expectGetMostRecentDiagnostic('mark-scan-headphone-input');
+  apiMock.expectGetMostRecentDiagnostic('uninterruptible-power-supply');
   apiMock.expectGetMarkScanBmdModel();
 });
 
@@ -96,6 +97,11 @@ test('data from API is passed to screen contents', async () => {
     outcome: 'pass',
     timestamp: new Date('2022-03-23T11:15:00.000').getTime(),
   });
+  apiMock.expectGetMostRecentDiagnostic('uninterruptible-power-supply', {
+    type: 'uninterruptible-power-supply',
+    outcome: 'pass',
+    timestamp: new Date('2022-03-23T11:20:00.000').getTime(),
+  });
 
   renderScreen();
 
@@ -119,6 +125,7 @@ test('data from API is passed to screen contents', async () => {
     DiagnosticSectionTitle.PatInput,
     'Available'
   );
+  screen.getByText('Test passed, 3/23/2022, 11:20:00 AM');
   screen.getByText('Test passed, 3/23/2022, 11:15:00 AM');
   screen.getByText('Test passed, 3/23/2022, 11:10:00 AM');
   screen.getByText('Test passed, 3/23/2022, 11:05:00 AM');
@@ -335,6 +342,38 @@ test('navigating to and from headphone diagnostic', async () => {
 
   // Failure case is tested in headphone_input_diagnostic_screen.test.tsx
   apiMock.expectGetMostRecentDiagnostic('mark-scan-headphone-input');
-  userEvent.click(screen.getByText('Sound is Audible'));
+  userEvent.click(screen.getByText('Sound Is Audible'));
+  await screen.findByText('Diagnostics');
+});
+
+test('UPS diagnostic - passing test', async () => {
+  apiMock.expectAddDiagnosticRecord({
+    type: 'uninterruptible-power-supply',
+    outcome: 'pass',
+  });
+
+  renderScreen();
+
+  userEvent.click(await screen.findButton('Test Uninterruptible Power Supply'));
+  await screen.findByText('Uninterruptible Power Supply Test');
+
+  apiMock.expectGetMostRecentDiagnostic('uninterruptible-power-supply');
+  userEvent.click(screen.getByText('UPS Is Fully Charged'));
+  await screen.findByText('Diagnostics');
+});
+
+test('UPS diagnostic - failing test', async () => {
+  apiMock.expectAddDiagnosticRecord({
+    type: 'uninterruptible-power-supply',
+    outcome: 'fail',
+  });
+
+  renderScreen();
+
+  userEvent.click(await screen.findButton('Test Uninterruptible Power Supply'));
+  await screen.findByText('Uninterruptible Power Supply Test');
+
+  apiMock.expectGetMostRecentDiagnostic('uninterruptible-power-supply');
+  userEvent.click(screen.getByText('UPS Is Not Fully Charged'));
   await screen.findByText('Diagnostics');
 });

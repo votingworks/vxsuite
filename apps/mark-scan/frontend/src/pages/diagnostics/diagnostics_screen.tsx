@@ -7,6 +7,7 @@ import {
   MarkScanReadinessReportContents,
   Loading,
   SaveReadinessReportButton,
+  UninterruptiblePowerSupplyScreen,
 } from '@votingworks/ui';
 import { useHistory, Switch, Route, Redirect } from 'react-router-dom';
 import { AccessibleControllerDiagnosticScreen } from './accessible_controller_diagnostic_screen';
@@ -54,6 +55,9 @@ export function DiagnosticsScreen({
   );
   const mostRecentHeadphoneInputDiagnosticQuery =
     getMostRecentDiagnostic.useQuery('mark-scan-headphone-input');
+  const mostRecentUpsDiagnosticQuery = getMostRecentDiagnostic.useQuery(
+    'uninterruptible-power-supply'
+  );
   const markScanBmdModelQuery = getMarkScanBmdModel.useQuery();
 
   const startPaperHandlerDiagnosticMutation =
@@ -62,6 +66,9 @@ export function DiagnosticsScreen({
     stopPaperHandlerDiagnostic.useMutation();
   const addPatDiagnosticRecordMutation = addDiagnosticRecord.useMutation(
     'mark-scan-pat-input'
+  );
+  const addUpsDiagnosticRecordMutation = addDiagnosticRecord.useMutation(
+    'uninterruptible-power-supply'
   );
   const saveReadinessReportMutation = saveReadinessReport.useMutation();
 
@@ -108,6 +115,8 @@ export function DiagnosticsScreen({
     mostRecentPatInputDiagnosticQuery.data ?? undefined;
   const mostRecentHeadphoneInputDiagnostic =
     mostRecentHeadphoneInputDiagnosticQuery.data ?? undefined;
+  const mostRecentUpsDiagnostic =
+    mostRecentUpsDiagnosticQuery.data ?? undefined;
 
   // On the BMD 150 a single daemon handles PAT and accessible controller.
   // On the BMD 155 they are separate, but the PAT daemon doesn't report its
@@ -198,6 +207,18 @@ export function DiagnosticsScreen({
                   </Button>
                 ),
               }}
+              upsProps={{
+                mostRecentDiagnosticRecord: mostRecentUpsDiagnostic,
+                children: (
+                  <Button
+                    onPress={() => {
+                      history.push('/ups');
+                    }}
+                  >
+                    Test Uninterruptible Power Supply
+                  </Button>
+                ),
+              }}
             />
           </Main>
         </Screen>
@@ -244,6 +265,24 @@ export function DiagnosticsScreen({
       <Route path="/headphone-input">
         <HeadphoneInputDiagnosticScreen
           onClose={() => {
+            history.push('/');
+          }}
+        />
+      </Route>
+      <Route path="/ups">
+        <UninterruptiblePowerSupplyScreen
+          passTest={() => {
+            addUpsDiagnosticRecordMutation.mutate({
+              type: 'uninterruptible-power-supply',
+              outcome: 'pass',
+            });
+            history.push('/');
+          }}
+          failTest={() => {
+            addUpsDiagnosticRecordMutation.mutate({
+              type: 'uninterruptible-power-supply',
+              outcome: 'fail',
+            });
             history.push('/');
           }}
         />

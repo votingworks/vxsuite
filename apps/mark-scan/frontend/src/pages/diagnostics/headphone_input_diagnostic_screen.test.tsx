@@ -81,7 +81,7 @@ test('user confirms sound is audible', async () => {
     outcome: 'pass',
   });
   renderScreen();
-  userEvent.click(await screen.findByText('Sound is Audible'));
+  userEvent.click(await screen.findByText('Sound Is Audible'));
 
   expect(onClose).toHaveBeenCalledTimes(1);
 });
@@ -93,7 +93,7 @@ test('user confirms sound is not audible', async () => {
     outcome: 'fail',
   });
   renderScreen();
-  userEvent.click(await screen.findByText('Sound is Not Audible'));
+  userEvent.click(await screen.findByText('Sound Is Not Audible'));
 
   expect(onClose).toHaveBeenCalledTimes(1);
 });
