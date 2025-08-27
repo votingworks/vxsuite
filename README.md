@@ -11,6 +11,7 @@ Includes software for:
   scanning of ballots, often used for absentee ballot processing
 - [VxMark](./apps/mark/frontend) — A traditional ballot-marking device (BMD)
 - [VxMarkScan](./apps/mark-scan/frontend) — A BMD that also supports
+  limited-dexterity casting; VxMark supports limited-dexterity marking but not
   limited-dexterity casting
 - [VxScan](./apps/scan/frontend) — A precinct scanner for casting of ballots
   (marked by hand or by BMD)
