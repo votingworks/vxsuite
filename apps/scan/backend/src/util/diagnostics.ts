@@ -38,3 +38,8 @@ export const TEST_PRINT_USER_FAIL_REASON =
 
 export const TEST_AUDIO_USER_FAIL_REASON =
   'The user indicated audio playback was not successful.';
+
+export const TEST_UPS_USER_PASS_REASON =
+  'The user confirmed the UPS was connected and fully charged.';
+export const TEST_UPS_USER_FAIL_REASON =
+  'The user indicated the UPS was not connected or not fully charged.';
