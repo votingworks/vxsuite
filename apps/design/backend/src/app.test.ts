@@ -2768,7 +2768,8 @@ test('Election package and ballots export', async () => {
 test('Election package export with VxDefaultBallot drops signature field', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
-  const { apiClient, workspace, fileStorageClient, auth0 } = await setupApp();
+  const { apiClient, workspace, fileStorageClient, auth0 } =
+    await setupApp(orgs);
 
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
@@ -3241,7 +3242,7 @@ test('getBallotPreviewPdf returns a ballot pdf for nh precinct with no split', a
       caption: 'Test Image Caption',
     },
   };
-  const { apiClient, auth0 } = await setupApp();
+  const { apiClient, auth0 } = await setupApp(orgs);
 
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
