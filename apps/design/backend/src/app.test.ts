@@ -581,8 +581,76 @@ test('update election info', async () => {
       type: 'primary',
       date: new DateWithoutTime('2022-01-01'),
       languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
-      signatureImage: undefined,
-      signatureCaption: undefined,
+    }
+  );
+
+  // Change to NhBallot to test signature behavior
+  await apiClient.setBallotTemplate({
+    electionId,
+    ballotTemplateId: 'NhBallot',
+  });
+
+  // Election info should be unchanged at first
+  expect(await apiClient.getElectionInfo({ electionId })).toEqual<ElectionInfo>(
+    {
+      electionId,
+      title: 'Updated Election',
+      jurisdiction: 'New Hampshire',
+      state: 'NH',
+      seal: '\r\n<svg>updated seal</svg>\r\n',
+      type: 'primary',
+      date: new DateWithoutTime('2022-01-01'),
+      languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
+    }
+  );
+
+  const electionInfoUpdateWithSignature: ElectionInfo = {
+    electionId,
+    title: '   Updated Election  ',
+    jurisdiction: '   New Hampshire   ',
+    state: '   NH   ',
+    seal: '\r\n<svg>updated seal</svg>\r\n',
+    type: 'primary',
+    date: new DateWithoutTime('2022-01-01'),
+    languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
+    signatureCaption: 'New Caption',
+    signatureImage: '\r\n<svg>new signature</svg>\r\n',
+  };
+  await apiClient.updateElectionInfo(electionInfoUpdateWithSignature);
+
+  // Signature should be included in response
+  expect(await apiClient.getElectionInfo({ electionId })).toEqual<ElectionInfo>(
+    {
+      electionId,
+      title: 'Updated Election',
+      jurisdiction: 'New Hampshire',
+      state: 'NH',
+      seal: '\r\n<svg>updated seal</svg>\r\n',
+      type: 'primary',
+      date: new DateWithoutTime('2022-01-01'),
+      languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
+      signatureCaption: 'New Caption',
+      signatureImage: '\r\n<svg>new signature</svg>\r\n',
+    }
+  );
+
+  // Change to NhBallot to test signature behavior
+  await apiClient.setBallotTemplate({
+    electionId,
+    ballotTemplateId: 'VxDefaultBallot',
+  });
+
+  // Signature should no longer be included in response
+  expect(await apiClient.getElectionInfo({ electionId })).toEqual<ElectionInfo>(
+    {
+      electionId,
+      title: 'Updated Election',
+      jurisdiction: 'New Hampshire',
+      state: 'NH',
+      seal: '\r\n<svg>updated seal</svg>\r\n',
+      type: 'primary',
+      date: new DateWithoutTime('2022-01-01'),
+      languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
     }
   );
 
@@ -2768,7 +2836,8 @@ test('Election package and ballots export', async () => {
 test('Election package export with VxDefaultBallot drops signature field', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
-  const { apiClient, workspace, fileStorageClient, auth0 } = await setupApp();
+  const { apiClient, workspace, fileStorageClient, auth0 } =
+    await setupApp(orgs);
 
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
@@ -3241,7 +3310,7 @@ test('getBallotPreviewPdf returns a ballot pdf for nh precinct with no split', a
       caption: 'Test Image Caption',
     },
   };
-  const { apiClient, auth0 } = await setupApp();
+  const { apiClient, auth0 } = await setupApp(orgs);
 
   auth0.setLoggedInUser(nonVxUser);
   const electionId = (
