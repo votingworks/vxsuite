@@ -194,7 +194,7 @@ export async function generateElectionPackageAndBallots(
 
   // Make ballot zip
   for (const [props, document] of iter(allBallotProps).zip(ballotDocuments)) {
-    const ballotPdf = await renderBallotPdf(props, document);
+    const ballotPdf = await renderBallotPdf(document);
     const { precinctId, ballotStyleId, ballotType, ballotMode, ballotAuditId } =
       props;
     const precinct = assertDefined(getPrecinctById({ election, precinctId }));
