@@ -51,6 +51,9 @@ export async function saveReadinessReport({
       store.getMostRecentDiagnosticRecord('test-print'),
     mostRecentAudioDiagnostic:
       store.getMostRecentDiagnosticRecord('scan-audio'),
+    mostRecentUpsDiagnostic: store.getMostRecentDiagnosticRecord(
+      'uninterruptible-power-supply'
+    ),
     machineId: VX_MACHINE_ID,
     generatedAtTime,
     markThresholds,
