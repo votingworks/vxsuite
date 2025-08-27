@@ -18,8 +18,6 @@ const rule: TSESLint.RuleModule<'badSort', readonly unknown[]> = createRule({
   meta: {
     docs: {
       description: 'Requires `sort` be called on array copies',
-      recommended: 'strict',
-      requiresTypeChecking: false,
     },
     messages: {
       badSort: '`sort` modifies its array; please make a copy first',
