@@ -32,7 +32,6 @@ import {
   CastVoteRecordExportFileName,
   safeParseJson,
   CastVoteRecordReportWithoutMetadataSchema,
-  SignatureSchema,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -138,7 +137,8 @@ const UpdateElectionInfoInputSchema = z.object({
   state: TextInput,
   jurisdiction: TextInput,
   seal: z.string(),
-  signature: SignatureSchema.optional(),
+  signatureImage: z.string().optional(),
+  signatureCaption: z.string().optional(),
   languageCodes: z.array(LanguageCodeSchema),
 });
 
