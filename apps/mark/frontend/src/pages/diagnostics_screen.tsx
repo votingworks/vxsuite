@@ -109,7 +109,7 @@ export function DiagnosticsScreen({
                   variant="primary"
                   onPress={onBackButtonPress}
                 >
-                  Back to Poll Worker Actions
+                  Back to System Administrator Actions
                 </Button>
               </P>
               <span className="screen-reader-only">
