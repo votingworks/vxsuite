@@ -419,6 +419,8 @@ async function generateDevKeysAndCerts({
  * - VxCentralScan cert
  * - VxMark private key
  * - VxMark cert
+ * - VxMarkScan private key
+ * - VxMarkScan cert
  * - VxScan private key
  * - VxScan cert
  *

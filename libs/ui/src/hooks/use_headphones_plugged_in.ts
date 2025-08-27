@@ -38,7 +38,7 @@ export function useHeadphonesPluggedIn(): boolean {
   // controller.
   if (audioInfoQuery.data.usb) return true;
 
-  // VxMark (v4): headphone audio provided through headphone port on builtin
+  // VxMarkScan: headphone audio provided through headphone port on builtin
   // audio card.
   if (audioInfoQuery.data.builtin) {
     return audioInfoQuery.data.builtin.headphonesActive;

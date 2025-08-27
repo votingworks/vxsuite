@@ -44,7 +44,7 @@ export enum AudioVolume {
  * in roughly an output level of {@link MIN_VOLUME_DB_SPL} when the OS volume is
  * set to its maximum output level.
  *
- * - Last VxMark Calibration: 2024-09-11 on VSAP 150 with Lorelei X6 Headphones.
+ * - Last VxMarkScan Calibration: 2024-09-11 on VSAP 150 with Lorelei X6 Headphones.
  * - Last VxScan Calibration: 2025-07-01 on Storm Interface 1406-330023 with
  *   Philips TAH2005 Headphones.
  *

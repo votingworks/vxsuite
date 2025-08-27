@@ -81,7 +81,7 @@ export default defineConfig((env) => {
       ],
     },
 
-    // When env var is set, disable hot reloading. We support this option because VxMark
+    // When env var is set, disable hot reloading. We support this option because VxMarkScan
     // hardware has limited resources and hot reloading can cause poor performance during development
     server: {
       hmr: process.env.DISABLE_MARK_HOT_RELOAD === 'true' ? false : undefined,
