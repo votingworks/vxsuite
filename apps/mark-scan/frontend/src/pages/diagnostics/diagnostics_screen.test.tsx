@@ -342,7 +342,7 @@ test('navigating to and from headphone diagnostic', async () => {
 
   // Failure case is tested in headphone_input_diagnostic_screen.test.tsx
   apiMock.expectGetMostRecentDiagnostic('mark-scan-headphone-input');
-  userEvent.click(screen.getByText('Sound is Audible'));
+  userEvent.click(screen.getByText('Sound Is Audible'));
   await screen.findByText('Diagnostics');
 });
 
