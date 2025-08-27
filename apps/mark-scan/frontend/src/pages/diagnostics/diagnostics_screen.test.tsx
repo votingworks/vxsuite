@@ -358,7 +358,7 @@ test('UPS diagnostic - passing test', async () => {
   await screen.findByText('Uninterruptible Power Supply Test');
 
   apiMock.expectGetMostRecentDiagnostic('uninterruptible-power-supply');
-  userEvent.click(screen.getByText('UPS is Fully Charged'));
+  userEvent.click(screen.getByText('UPS Is Fully Charged'));
   await screen.findByText('Diagnostics');
 });
 
@@ -374,6 +374,6 @@ test('UPS diagnostic - failing test', async () => {
   await screen.findByText('Uninterruptible Power Supply Test');
 
   apiMock.expectGetMostRecentDiagnostic('uninterruptible-power-supply');
-  userEvent.click(screen.getByText('UPS is not Fully Charged'));
+  userEvent.click(screen.getByText('UPS Is Not Fully Charged'));
   await screen.findByText('Diagnostics');
 });

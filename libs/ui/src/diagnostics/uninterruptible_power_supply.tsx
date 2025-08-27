@@ -23,10 +23,10 @@ export function UninterruptiblePowerSupplyScreen({
         </P>
         <ButtonBar style={{ marginTop: '0.5rem' }}>
           <Button icon="Done" onPress={passTest}>
-            UPS is Fully Charged
+            UPS Is Fully Charged
           </Button>
           <Button icon="Delete" onPress={failTest}>
-            UPS is not Fully Charged
+            UPS Is Not Fully Charged
           </Button>
         </ButtonBar>
       </Main>
