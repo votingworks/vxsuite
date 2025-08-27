@@ -53,7 +53,6 @@ import {
   Instructions,
   primaryLanguageCode,
   WriteInLabel,
-  ColorTint,
   ContestTitle,
 } from '../ballot_components';
 import { BallotMode, PixelDimensions } from '../types';
@@ -187,7 +186,6 @@ function BallotPageFrame({
   clerkSignatureImage,
   clerkSignatureCaption,
   watermark,
-  colorTint,
 }: NhBallotProps & {
   pageNumber: number;
   totalPages?: number;
@@ -241,11 +239,7 @@ function BallotPageFrame({
                   clerkSignatureImage={clerkSignatureImage}
                   clerkSignatureCaption={clerkSignatureCaption}
                 />
-                <Instructions
-                  colorTint={colorTint}
-                  languageCode={languageCode}
-                  bubbleSide="right"
-                />
+                <Instructions languageCode={languageCode} bubbleSide="right" />
               </>
             )}
             <div
@@ -265,7 +259,6 @@ function BallotPageFrame({
               pageNumber={pageNumber}
               totalPages={totalPages}
               electionTitleOverride={electionTitleOverride}
-              colorTint={colorTint}
             />
           </div>
         </TimingMarkGrid>
@@ -278,12 +271,10 @@ function CandidateContest({
   election,
   contest,
   compact,
-  colorTint,
 }: {
   election: Election;
   contest: CandidateContestStruct;
   compact?: boolean;
-  colorTint?: ColorTint;
 }) {
   const voteForText = {
     1: hmpbStrings.hmpbVoteForNotMoreThan1,
@@ -323,7 +314,7 @@ function CandidateContest({
         padding: 0,
       }}
     >
-      <ContestHeader colorTint={colorTint}>
+      <ContestHeader>
         <DualLanguageText delimiter="/">
           <ContestTitle>{electionStrings.contestTitle(contest)}</ContestTitle>
         </DualLanguageText>
@@ -431,17 +422,15 @@ function CandidateContest({
 function BallotMeasureContest({
   contest,
   compact,
-  colorTint,
   continuesOnNextPage,
 }: {
   contest: YesNoContest;
   compact?: boolean;
-  colorTint?: ColorTint;
   continuesOnNextPage?: boolean;
 }) {
   return (
     <Box style={{ padding: 0 }}>
-      <ContestHeader colorTint={colorTint}>
+      <ContestHeader>
         <DualLanguageText delimiter="/">
           <ContestTitle>{contest.title}</ContestTitle>
         </DualLanguageText>
@@ -546,12 +535,10 @@ function Contest({
   compact,
   contest,
   election,
-  colorTint,
 }: {
   compact?: boolean;
   contest: AnyContest;
   election: Election;
-  colorTint?: ColorTint;
 }) {
   switch (contest.type) {
     case 'candidate':
@@ -560,17 +547,10 @@ function Contest({
           compact={compact}
           election={election}
           contest={contest}
-          colorTint={colorTint}
         />
       );
     case 'yesno':
-      return (
-        <BallotMeasureContest
-          compact={compact}
-          contest={contest}
-          colorTint={colorTint}
-        />
-      );
+      return <BallotMeasureContest compact={compact} contest={contest} />;
     default:
       return throwIllegalValue(contest);
   }
@@ -688,7 +668,6 @@ async function BallotPageContent(
         compact={compact}
         contest={contest}
         election={election}
-        colorTint={props.colorTint}
       />
     ));
     const numColumns = section[0].type === 'candidate' ? 3 : 1;
@@ -765,7 +744,7 @@ async function BallotPageContent(
       const { firstContestElement, restContest } =
         await splitLongBallotMeasureAcrossPages(
           tooLongContest,
-          { election, compact, colorTint: props.colorTint },
+          { election, compact },
           ballotStyle,
           dimensions,
           scratchpad
@@ -813,8 +792,7 @@ async function BallotPageContent(
   });
 }
 
-export type NhBallotProps = BaseBallotProps &
-  NhPrecinctSplitOptions & { colorTint?: ColorTint };
+export type NhBallotProps = BaseBallotProps & NhPrecinctSplitOptions;
 
 export const nhBallotTemplate: BallotPageTemplate<NhBallotProps> = {
   stylesComponent: BaseStyles,
