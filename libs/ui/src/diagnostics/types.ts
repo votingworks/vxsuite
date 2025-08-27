@@ -6,4 +6,5 @@ export enum DiagnosticSectionTitle {
   AccessibleController = 'Accessible Controller',
   PatInput = 'PAT Input',
   HeadphoneInput = 'Front Headphone Input',
+  Ups = 'Uninterruptible Power Supply',
 }
