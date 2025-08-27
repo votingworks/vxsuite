@@ -569,6 +569,8 @@ test('update election info', async () => {
     type: 'primary',
     date: new DateWithoutTime('2022-01-01'),
     languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
+    signatureCaption: 'New caption',
+    signatureImage: '\r\n<svg>new signature</svg>\r\n',
   };
   await apiClient.updateElectionInfo(electionInfoUpdate);
   expect(await apiClient.getElectionInfo({ electionId })).toEqual<ElectionInfo>(
