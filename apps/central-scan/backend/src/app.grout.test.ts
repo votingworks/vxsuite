@@ -235,7 +235,7 @@ test('clearing scanning data', async () => {
     await apiClient.clearBallotData();
     expect(store.getBallotsCounted()).toEqual(0);
     expect(logger.log).toHaveBeenNthCalledWith(
-      4,
+      5,
       LogEventId.ClearingBallotData,
       'unknown',
       {
@@ -243,7 +243,7 @@ test('clearing scanning data', async () => {
       }
     );
     expect(logger.log).toHaveBeenNthCalledWith(
-      5,
+      6,
       LogEventId.ClearedBallotData,
       'unknown',
       {

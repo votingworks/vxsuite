@@ -62,6 +62,21 @@ export function start({
     resolvedWorkspace = createWorkspace(workspacePath, baseLogger);
   }
 
+  const sheetCount = resolvedWorkspace.store.getBallotsCounted();
+  if (sheetCount > 0) {
+    baseLogger.log(LogEventId.DataCheckOnStartup, 'system', {
+      message:
+        'Scanned ballot data is present in the database at machine startup.',
+      sheetCount,
+    });
+  } else {
+    baseLogger.log(LogEventId.DataCheckOnStartup, 'system', {
+      message:
+        'No scanned ballot data is present in the database at machine startup.',
+      sheetCount,
+    });
+  }
+
   // Clear any cached data
   resolvedWorkspace.clearUploads();
   resolvedWorkspace.store.cleanupIncompleteBatches();

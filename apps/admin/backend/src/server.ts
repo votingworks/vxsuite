@@ -56,6 +56,7 @@ export async function start({
   usbDrive,
   printer,
 }: Partial<StartOptions>): Promise<Server> {
+  console.log('start');
   debug('starting server...');
   detectDevices({ logger: baseLogger });
   let resolvedWorkspace = workspace;
@@ -111,6 +112,26 @@ export async function start({
       workspace: resolvedWorkspace,
     });
   }
+
+  const electionId = resolvedWorkspace.store.getCurrentElectionId();
+  const cvrFileEntries = electionId
+    ? resolvedWorkspace.store.getCvrFiles(electionId)
+    : [];
+  const manualResults = electionId
+    ? resolvedWorkspace.store.getManualResults({
+        electionId,
+      })
+    : [];
+
+  const message =
+    cvrFileEntries.length > 0 || manualResults.length > 0
+      ? 'Election results data is present in the database at machine startup.'
+      : 'No election results data is present in the database at machine startup.';
+  baseLogger.log(LogEventId.DataCheckOnStartup, 'system', {
+    message,
+    numCvrFiles: cvrFileEntries.length,
+    numManualResults: manualResults.length,
+  });
 
   useDevDockRouter(resolvedApp, express, {
     printerConfig: HP_LASER_PRINTER_CONFIG,

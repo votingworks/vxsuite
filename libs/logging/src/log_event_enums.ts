@@ -222,6 +222,7 @@ export enum LogEventId {
   PollbookPaperBackupStatus = 'pollbook-paper-backup-status',
   NavigationPageChange = 'navigation-page-change',
   PollbookDuplicateCheckInDetected = 'pollbook-duplicate-check-in-detected',
+  DataCheckOnStartup = 'data-check-on-startup',
 }
 
 const ElectionConfigured: LogDetails = {
@@ -1380,6 +1381,14 @@ const PollbookDuplicateCheckInDetected: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxPollBook],
 };
 
+const DataCheckOnStartup: LogDetails = {
+  eventId: LogEventId.DataCheckOnStartup,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'Whether election results or scanned ballot data is present in the database at machine startup.',
+  restrictInDocumentationToApps: [AppName.VxCentralScan, AppName.VxAdmin],
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -1698,6 +1707,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return NavigationPageChange;
     case LogEventId.PollbookDuplicateCheckInDetected:
       return PollbookDuplicateCheckInDetected;
+    case LogEventId.DataCheckOnStartup:
+      return DataCheckOnStartup;
     default:
       throwIllegalValue(eventId);
   }

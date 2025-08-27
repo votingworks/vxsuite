@@ -1014,3 +1014,9 @@ eventId = "pollbook-duplicate-check-in-detected"
 eventType = "application-status"
 documentationMessage = 'More then one check in event (ignoring undone checkins) for the same voter was detected in the system.'
 restrictInDocumentationToApps = ["vx-pollbook"]
+
+[Events.DataCheckOnStartup]
+eventId = "data-check-on-startup"
+eventType = "application-status"
+documentationMessage = "Whether election results or scanned ballot data is present in the database at machine startup."
+restrictInDocumentationToApps = ["vx-central-scan", "vx-admin"]
