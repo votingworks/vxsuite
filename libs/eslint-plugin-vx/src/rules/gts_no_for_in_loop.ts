@@ -8,8 +8,6 @@ const rule: TSESLint.RuleModule<'noForInLoop', readonly unknown[]> = createRule(
     meta: {
       docs: {
         description: 'Disallows use of `for-in` loops',
-        recommended: 'strict',
-        requiresTypeChecking: false,
       },
       fixable: 'code',
       messages: {
