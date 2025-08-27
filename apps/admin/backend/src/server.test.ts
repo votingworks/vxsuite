@@ -165,6 +165,8 @@ test('logs when no election results data present at startup', async () => {
     {
       message:
         'No election results data is present in the database at machine startup.',
+      numCvrFiles: 0,
+      numManualResults: 0,
     }
   );
 

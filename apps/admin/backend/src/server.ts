@@ -123,19 +123,15 @@ export async function start({
       })
     : [];
 
-  if (cvrFileEntries.length > 0 || manualResults.length > 0) {
-    baseLogger.log(LogEventId.DataCheckOnStartup, 'system', {
-      message:
-        'Election results data is present in the database at machine startup.',
-      numCvrFiles: cvrFileEntries.length,
-      numManualResults: manualResults.length,
-    });
-  } else {
-    baseLogger.log(LogEventId.DataCheckOnStartup, 'system', {
-      message:
-        'No election results data is present in the database at machine startup.',
-    });
-  }
+  const message =
+    cvrFileEntries.length > 0 || manualResults.length > 0
+      ? 'Election results data is present in the database at machine startup.'
+      : 'No election results data is present in the database at machine startup.';
+  baseLogger.log(LogEventId.DataCheckOnStartup, 'system', {
+    message,
+    numCvrFiles: cvrFileEntries.length,
+    numManualResults: manualResults.length,
+  });
 
   useDevDockRouter(resolvedApp, express, {
     printerConfig: HP_LASER_PRINTER_CONFIG,
