@@ -6,12 +6,12 @@ import {
   MainContent,
   useQueryChangeListener,
   LoadingButton,
-  Icons,
   CheckboxButton,
   SearchSelect,
   H2,
   SegmentedButton,
   FileInputButton,
+  Callout,
 } from '@votingworks/ui';
 import { Buffer } from 'node:buffer';
 import { useParams } from 'react-router-dom';
@@ -257,9 +257,9 @@ export function ExportScreen(): JSX.Element | null {
           )}
         </P>
         {exportError && (
-          <P>
-            <Icons.Danger /> An unexpected error occurred. Please try again.
-          </P>
+          <Callout color="danger" icon="Danger" style={{ margin: '0.5rem 0' }}>
+            An unexpected error occurred while exporting. Please try again.
+          </Callout>
         )}
 
         <P style={{ width: 'max-content' }}>

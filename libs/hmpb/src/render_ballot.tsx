@@ -55,7 +55,7 @@ export type StylesComponent<P> = (props: P) => JSX.Element;
 
 export type FrameComponent<P> = (
   props: P & { children: JSX.Element; pageNumber: number; totalPages?: number }
-) => JSX.Element;
+) => Result<JSX.Element, BallotLayoutError>;
 
 export interface PaginatedContent<P> {
   currentPageElement: JSX.Element;
@@ -67,7 +67,11 @@ interface ContestTooLongError {
   contest: AnyContest;
 }
 
-export type BallotLayoutError = ContestTooLongError;
+interface MissingSignatureError {
+  error: 'missingSignature';
+}
+
+export type BallotLayoutError = ContestTooLongError | MissingSignatureError;
 
 export type ContentComponentResult<P> = Result<
   PaginatedContent<P>,
@@ -117,13 +121,18 @@ async function paginateBallotContent<P extends object>(
 
   const { frameComponent, contentComponent } = pageTemplate;
   do {
-    const pageFrame = frameComponent({
+    const pageFrameResult = frameComponent({
       // eslint-disable-next-line vx/gts-spread-like-types
       ...props,
       pageNumber: pages.length + 1,
       totalPages: 0,
       children: <ContentSlot />,
     });
+    if (pageFrameResult.isErr()) {
+      return pageFrameResult;
+    }
+    const pageFrame = pageFrameResult.ok();
+
     const [contentSlotMeasurements] = await scratchpad.measureElements(
       pageFrame,
       `.${CONTENT_SLOT_CLASS}`
@@ -159,15 +168,20 @@ async function paginateBallotContent<P extends object>(
 
   // Frame pages first so the page numbering and footer voting progress
   // instructions reflect only pages with content.
-  const framedPages = pages.map((page, i) =>
-    frameComponent({
+  const framedPages: JSX.Element[] = [];
+  for (let i = 0; i < pages.length; i += 1) {
+    const frameResult = frameComponent({
       // eslint-disable-next-line vx/gts-spread-like-types
       ...props,
       pageNumber: i + 1,
       totalPages: pages.length,
-      children: page.currentPageElement,
-    })
-  );
+      children: pages[i].currentPageElement,
+    });
+    if (frameResult.isErr()) {
+      return frameResult;
+    }
+    framedPages.push(frameResult.ok());
+  }
 
   if (pages.length % 2 === 1) {
     const lastPageResult = await contentComponent(undefined, scratchpad);
@@ -175,14 +189,16 @@ async function paginateBallotContent<P extends object>(
       return lastPageResult;
     }
     const page = lastPageResult.ok();
-    framedPages.push(
-      frameComponent({
-        // eslint-disable-next-line vx/gts-spread-like-types
-        ...props,
-        pageNumber: pages.length + 1,
-        children: page.currentPageElement,
-      })
-    );
+    const lastFrameResult = frameComponent({
+      // eslint-disable-next-line vx/gts-spread-like-types
+      ...props,
+      pageNumber: pages.length + 1,
+      children: page.currentPageElement,
+    });
+    if (lastFrameResult.isErr()) {
+      return lastFrameResult;
+    }
+    framedPages.push(lastFrameResult.ok());
   }
 
   return ok(framedPages);

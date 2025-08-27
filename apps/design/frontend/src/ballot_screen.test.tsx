@@ -1,8 +1,8 @@
-import { afterEach, beforeEach, test, vi } from 'vitest';
-import { BallotType } from '@votingworks/types';
+import { afterEach, beforeEach, test, vi, describe } from 'vitest';
+import { BallotType, CandidateContest } from '@votingworks/types';
 import { DocumentProps, PageProps } from 'react-pdf';
 import { useEffect } from 'react';
-import { ok } from '@votingworks/basics';
+import { ok, err } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -270,4 +270,66 @@ test('changes tabulation mode', async () => {
   userEvent.click(testRadioOption);
   await screen.findByText('mock test ballot pdf');
   screen.getByRole('radio', { name: 'L&A Test Ballot', checked: true });
+});
+
+describe('Ballot rendering error handling', () => {
+  test('NH ballot template with missing signature shows appropriate error', async () => {
+    // Mock the ballot preview API to return missing signature error
+    apiMock.getBallotPreviewPdf
+      .expectCallWith({
+        electionId,
+        ballotStyleId: ballotStyle.id,
+        precinctId: precinct.id,
+        ballotType: BallotType.Precinct,
+        ballotMode: 'official',
+      })
+      .resolves(
+        err({
+          error: 'missingSignature',
+        })
+      );
+
+    renderScreen();
+
+    await screen.findByText(/Missing signature. Upload a signature in/);
+    screen.getByRole('link', { name: 'Election Info' });
+  });
+
+  test('Contest too long error shows appropriate message', async () => {
+    // Create a contest with many candidates to trigger contestTooLong error
+    const longContest: CandidateContest = {
+      id: 'long-contest',
+      type: 'candidate',
+      title: 'Very Long Contest with Many Candidates',
+      districtId: electionRecord.election.districts[0].id,
+      partyId: undefined,
+      seats: 1,
+      candidates: Array.from({ length: 30 }, (_, i) => ({
+        id: `candidate-${i}`,
+        name: `Candidate Number ${i + 1} with a Very Long Name`,
+        partyIds: [],
+      })),
+      allowWriteIns: false,
+    };
+
+    // Mock the ballot preview API to return contest too long error
+    apiMock.getBallotPreviewPdf
+      .expectCallWith({
+        electionId,
+        ballotStyleId: ballotStyle.id,
+        precinctId: precinct.id,
+        ballotType: BallotType.Precinct,
+        ballotMode: 'official',
+      })
+      .resolves(
+        err({
+          error: 'contestTooLong',
+          contest: longContest,
+        })
+      );
+
+    renderScreen();
+
+    await screen.findByText(/contest.*was too long/i);
+  });
 });

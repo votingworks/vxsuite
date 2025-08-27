@@ -32,6 +32,7 @@ import {
   CastVoteRecordExportFileName,
   safeParseJson,
   CastVoteRecordReportWithoutMetadataSchema,
+  SignatureSchema,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -137,6 +138,7 @@ const UpdateElectionInfoInputSchema = z.object({
   state: TextInput,
   jurisdiction: TextInput,
   seal: z.string(),
+  signature: SignatureSchema.optional(),
   languageCodes: z.array(LanguageCodeSchema),
 });
 
@@ -318,6 +320,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
         gridLayouts: undefined,
         // Fill in a blank seal if none is provided
         seal: sourceElection.seal ?? '',
+        signature: sourceElection.signature,
       };
       await store.createElection(
         input.orgId,
@@ -393,6 +396,8 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
         state: election.state,
         jurisdiction: election.county.name,
         seal: election.seal,
+        signatureImage: election.signature?.image,
+        signatureCaption: election.signature?.caption,
         // Not optimal: store.getElection converts from LanguageCode[] to BallotLanguageConfig.
         // This line converts from BallotLanguageConfig to LanguageCode[]
         languageCodes: getAllBallotLanguages(ballotLanguageConfigs),

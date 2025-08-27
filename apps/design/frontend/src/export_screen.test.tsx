@@ -257,7 +257,9 @@ test('export election package error handling', async () => {
     screen.queryByText('Exporting Election Package and Ballots...')
   ).not.toBeInTheDocument();
 
-  await screen.findByText('An unexpected error occurred. Please try again.');
+  await screen.findByText(
+    'An unexpected error occurred while exporting. Please try again.'
+  );
   expect(vi.mocked(downloadFile)).not.toHaveBeenCalled();
 });
 

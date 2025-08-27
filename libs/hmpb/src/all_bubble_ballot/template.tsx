@@ -1,10 +1,11 @@
 import React from 'react';
 import { ballotPaperDimensions, HmpbBallotPaperSize } from '@votingworks/types';
-import { assertDefined, ok, range } from '@votingworks/basics';
+import { assertDefined, ok, range, Result } from '@votingworks/basics';
 import {
   BallotPageTemplate,
   BaseBallotProps,
   ContentComponentResult,
+  BallotLayoutError,
 } from '../render_ballot';
 import {
   Bubble,
@@ -34,9 +35,9 @@ export function allBubbleBallotTemplate(
     pageNumber: number;
     totalPages?: number;
     children: JSX.Element;
-  }): JSX.Element {
+  }): Result<JSX.Element, BallotLayoutError> {
     const dimensions = ballotPaperDimensions(election.ballotLayout.paperSize);
-    return (
+    return ok(
       <Page
         key={pageNumber}
         pageNumber={pageNumber}

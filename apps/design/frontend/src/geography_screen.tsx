@@ -15,7 +15,6 @@ import {
   TabPanel,
   RouterTabBar,
   Modal,
-  images,
 } from '@votingworks/ui';
 import {
   Switch,
@@ -33,7 +32,6 @@ import {
   Precinct,
 } from '@votingworks/types';
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
-import styled from 'styled-components';
 import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import {
@@ -59,9 +57,9 @@ import {
   deletePrecinct,
 } from './api';
 import { generateId, replaceAtIndex } from './utils';
-import { ImageInput } from './image_input';
 import { SealImageInput } from './seal_image_input';
 import { useTitle } from './hooks/use_title';
+import { SignatureImageInput } from './signature_image_input';
 
 function DistrictsTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
@@ -460,25 +458,6 @@ function createBlankPrecinct(): Precinct {
   };
 }
 
-const ClerkSignatureImageInput = styled(ImageInput)`
-  img {
-    height: 3rem;
-  }
-`;
-
-const PDF_PIXELS_PER_INCH = 96;
-const LETTER_PAGE_WIDTH_INCHES = 8.5;
-
-/** Generously padded. */
-const LETTER_PAGE_CONTENT_WIDTH_INCHES = LETTER_PAGE_WIDTH_INCHES - 2;
-
-const SIGNATURE_IMAGE_NORMALIZE_PARAMS: Readonly<images.NormalizeParams> = {
-  maxHeightPx: 1 * PDF_PIXELS_PER_INCH,
-  maxWidthPx: 0.5 * LETTER_PAGE_CONTENT_WIDTH_INCHES * PDF_PIXELS_PER_INCH,
-  minHeightPx: 50,
-  minWidthPx: 100,
-};
-
 function PrecinctForm({
   electionId,
   savedPrecinct,
@@ -737,10 +716,10 @@ function PrecinctForm({
                       </InputGroup>
                     )}
 
-                    {electionFeatures.PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE && (
+                    {electionFeatures.PRECINCT_SPLIT_CLERK_SIGNATURE_IMAGE_OVERRIDE && (
                       <div>
                         <FieldName>Signature Image</FieldName>
-                        <ClerkSignatureImageInput
+                        <SignatureImageInput
                           value={split.clerkSignatureImage}
                           onChange={(value) =>
                             setSplit(index, {
@@ -748,14 +727,11 @@ function PrecinctForm({
                               clerkSignatureImage: value,
                             })
                           }
-                          buttonLabel="Upload Signature Image"
-                          removeButtonLabel="Remove Signature Image"
-                          normalizeParams={SIGNATURE_IMAGE_NORMALIZE_PARAMS}
                         />
                       </div>
                     )}
 
-                    {electionFeatures.PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION && (
+                    {electionFeatures.PRECINCT_SPLIT_CLERK_SIGNATURE_CAPTION_OVERRIDE && (
                       <InputGroup label="Signature Caption">
                         <input
                           type="text"
@@ -779,10 +755,10 @@ function PrecinctForm({
                 </Card>
               ))}
               <div>
-                  <Button icon="Add" onPress={onAddSplitPress}>
-                    Add Split
-                  </Button>
-                </div>
+                <Button icon="Add" onPress={onAddSplitPress}>
+                  Add Split
+                </Button>
+              </div>
             </React.Fragment>
           ) : (
             <React.Fragment>

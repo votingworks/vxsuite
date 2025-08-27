@@ -1,6 +1,6 @@
 import fileDownload from 'js-file-download';
-import { useParams } from 'react-router-dom';
-import { assert, find, range } from '@votingworks/basics';
+import { Link, useParams } from 'react-router-dom';
+import { find, range, throwIllegalValue } from '@votingworks/basics';
 import {
   HmpbBallotPaperSize,
   BallotType,
@@ -314,23 +314,51 @@ export function BallotScreen(): JSX.Element | null {
 
             if (ballotResult.isErr()) {
               const err = ballotResult.err();
-              assert(err.error === 'contestTooLong');
-              return (
-                <Row
-                  style={{
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    height: '100%',
-                  }}
-                >
-                  <Callout color="danger" icon="Danger">
-                    <span>
-                      Contest &quot;{err.contest.title}&quot; was too long to
-                      fit on the page. Try a longer paper size.
-                    </span>
-                  </Callout>
-                </Row>
-              );
+              switch (err.error) {
+                case 'missingSignature':
+                  return (
+                    <Row
+                      style={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        height: '100%',
+                      }}
+                    >
+                      <Callout color="danger" icon="Danger">
+                        <span>
+                          Missing signature. Upload a signature in{' '}
+                          <Link
+                            to={routes.election(electionId).electionInfo.path}
+                          >
+                            Election Info
+                          </Link>
+                          .
+                        </span>
+                      </Callout>
+                    </Row>
+                  );
+                case 'contestTooLong':
+                  return (
+                    <Row
+                      style={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        height: '100%',
+                      }}
+                    >
+                      <Callout color="danger" icon="Danger">
+                        <span>
+                          Contest &quot;{err.contest.title}&quot; was too long
+                          to fit on the page. Try a longer paper size.
+                        </span>
+                      </Callout>
+                    </Row>
+                  );
+                /* istanbul ignore next - @preserve */
+                default: {
+                  throwIllegalValue(err, 'error');
+                }
+              }
             }
 
             return <PdfViewer pdfData={ballotResult.ok().pdfData} />;

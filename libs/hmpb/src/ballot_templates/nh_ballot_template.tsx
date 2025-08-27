@@ -6,6 +6,7 @@ import {
   iter,
   ok,
   range,
+  Result,
   throwIllegalValue,
 } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
@@ -32,6 +33,7 @@ import {
 } from '@votingworks/ui';
 import { parse as parseHtml } from 'node-html-parser';
 import {
+  BallotLayoutError,
   BallotPageTemplate,
   BaseBallotProps,
   ContentComponentResult,
@@ -71,8 +73,8 @@ function Header({
 
   electionTitleOverride,
   electionSealOverride,
-  clerkSignatureImage,
-  clerkSignatureCaption,
+  clerkSignatureImage: clerkSignatureImageOverride,
+  clerkSignatureCaption: clerkSignatureCaptionOverride,
 }: {
   election: Election;
   ballotStyleId: BallotStyleId;
@@ -102,6 +104,16 @@ function Header({
     election.type === 'primary'
       ? assertDefined(getPartyForBallotStyle({ election, ballotStyleId }))
       : undefined;
+
+  // Signature is guaranteed to exist due to validation in BallotPageFrame
+  assert(election.signature);
+  const clerkSignatureImage =
+    clerkSignatureImageOverride ?? election.signature.image;
+  // clerkSignatureCaptionOverride will be an empty string if it is
+  // entered and then deleted, so treat it as undefined and fallback
+  // the election signature
+  const clerkSignatureCaption =
+    clerkSignatureCaptionOverride || election.signature.caption;
 
   return (
     <div
@@ -143,29 +155,25 @@ function Header({
         </DualLanguageText>
       </div>
       <div style={{ flexGrow: 1 }}>
-        {clerkSignatureImage && (
-          <div
-            style={{
-              height: '3rem',
-              backgroundImage: `url(data:image/svg+xml;base64,${Buffer.from(
-                clerkSignatureImage
-              ).toString('base64')})`,
-              backgroundSize: 'contain',
-              backgroundRepeat: 'no-repeat',
-              marginTop: '0.125rem',
-              visibility: ballotMode === 'sample' ? 'hidden' : 'visible',
-            }}
-          />
-        )}
-        {clerkSignatureCaption && (
-          <div
-            style={{
-              visibility: ballotMode === 'sample' ? 'hidden' : 'visible',
-            }}
-          >
-            {clerkSignatureCaption}
-          </div>
-        )}
+        <div
+          style={{
+            height: '3rem',
+            backgroundImage: `url(data:image/svg+xml;base64,${Buffer.from(
+              clerkSignatureImage
+            ).toString('base64')})`,
+            backgroundSize: 'contain',
+            backgroundRepeat: 'no-repeat',
+            marginTop: '0.125rem',
+            visibility: ballotMode === 'sample' ? 'hidden' : 'visible',
+          }}
+        />
+        <div
+          style={{
+            visibility: ballotMode === 'sample' ? 'hidden' : 'visible',
+          }}
+        >
+          {clerkSignatureCaption}
+        </div>
       </div>
     </div>
   );
@@ -184,15 +192,23 @@ function BallotPageFrame({
   children,
   electionTitleOverride,
   electionSealOverride,
-  clerkSignatureImage,
-  clerkSignatureCaption,
+  clerkSignatureImage: clerkSignatureImageOverride,
+  clerkSignatureCaption: clerkSignatureCaptionOverride,
   watermark,
   colorTint,
 }: NhBallotProps & {
   pageNumber: number;
   totalPages?: number;
   children: JSX.Element;
-}): JSX.Element {
+}): Result<JSX.Element, BallotLayoutError> {
+  // Validate signature is present before rendering as old elections or
+  // elections toggled from the VxDefault template may be missing it
+  if (!election.signature) {
+    return err({
+      error: 'missingSignature',
+    });
+  }
+
   const pageDimensions = ballotPaperDimensions(election.ballotLayout.paperSize);
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId })
@@ -207,7 +223,7 @@ function BallotPageFrame({
       languageCode === LanguageCode.ENGLISH,
     'NH ballot template only supports English'
   );
-  return (
+  return ok(
     <BackendLanguageContextProvider
       key={pageNumber}
       currentLanguageCode={primaryLanguageCode(ballotStyle)}
@@ -238,8 +254,8 @@ function BallotPageFrame({
                   ballotMode={ballotMode}
                   electionTitleOverride={electionTitleOverride}
                   electionSealOverride={electionSealOverride}
-                  clerkSignatureImage={clerkSignatureImage}
-                  clerkSignatureCaption={clerkSignatureCaption}
+                  clerkSignatureImage={clerkSignatureImageOverride}
+                  clerkSignatureCaption={clerkSignatureCaptionOverride}
                 />
                 <Instructions
                   colorTint={colorTint}

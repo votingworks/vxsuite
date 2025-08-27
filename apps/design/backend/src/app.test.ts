@@ -581,6 +581,8 @@ test('update election info', async () => {
       type: 'primary',
       date: new DateWithoutTime('2022-01-01'),
       languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
+      signatureImage: undefined,
+      signatureCaption: undefined,
     }
   );
 
@@ -2763,6 +2765,62 @@ test('Election package and ballots export', async () => {
   );
 });
 
+test('Election package export with VxDefaultBallot drops signature field', async () => {
+  const baseElectionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const { apiClient, workspace, fileStorageClient, auth0 } = await setupApp();
+
+  auth0.setLoggedInUser(nonVxUser);
+  const electionId = (
+    await apiClient.loadElection({
+      newId: 'new-election-id' as ElectionId,
+      orgId: nonVxUser.orgId,
+      electionData: baseElectionDefinition.electionData,
+    })
+  ).unsafeUnwrap();
+
+  // Set a signature in the election info
+  await apiClient.updateElectionInfo({
+    electionId,
+    title: baseElectionDefinition.election.title,
+    jurisdiction: baseElectionDefinition.election.county.name,
+    state: baseElectionDefinition.election.state,
+    seal: baseElectionDefinition.election.seal,
+    type: baseElectionDefinition.election.type,
+    date: baseElectionDefinition.election.date,
+    languageCodes: [LanguageCode.ENGLISH],
+    signatureImage: 'test-signature-image',
+    signatureCaption: 'Test Signature Caption',
+  });
+
+  // Ensure we're using VxDefaultBallot template
+  await apiClient.setBallotTemplate({
+    electionId,
+    ballotTemplateId: 'VxDefaultBallot',
+  });
+
+  const electionPackageFilePath = await exportElectionPackage({
+    fileStorageClient,
+    apiClient,
+    electionId,
+    workspace,
+    electionSerializationFormat: 'vxf',
+    shouldExportAudio: false,
+  });
+
+  const contents = assertDefined(
+    fileStorageClient.getRawFile(join(nonVxUser.orgId, electionPackageFilePath))
+  );
+  const { electionPackageContents } =
+    await unzipElectionPackageAndBallots(contents);
+  const { electionPackage } = (
+    await readElectionPackageFromBuffer(electionPackageContents)
+  ).unsafeUnwrap();
+
+  // Check that the signature field is undefined in the exported election
+  expect(electionPackage.electionDefinition.election.signature).toBeUndefined();
+});
+
 test('Export test decks', async () => {
   const electionDefinition = readElectionTwoPartyPrimaryDefinition();
   const { apiClient, fileStorageClient, workspace, auth0 } =
@@ -3077,6 +3135,10 @@ test('getBallotPreviewPdf returns a ballot pdf for NH election with split precin
   const election: Election = {
     ...baseElectionDefinition.election,
     state: 'New Hampshire',
+    signature: {
+      caption: 'Caption To Be Overwritten',
+      image: 'Image To Be Overwritten',
+    },
   };
   const { apiClient, auth0 } = await setupApp(orgs);
 
@@ -3136,6 +3198,57 @@ test('getBallotPreviewPdf returns a ballot pdf for precinct with no split', asyn
       newId: 'new-election-id' as ElectionId,
       orgId: nonVxUser.orgId,
       electionData: baseElectionDefinition.electionData,
+    })
+  ).unsafeUnwrap();
+  const ballotStyles = await apiClient.listBallotStyles({ electionId });
+  const precincts = await apiClient.listPrecincts({ electionId });
+
+  function hasDistrictIds(
+    precinct: Precinct
+  ): precinct is PrecinctWithoutSplits {
+    return 'districtIds' in precinct && precinct.districtIds.length > 0;
+  }
+
+  const precinct = assertDefined(precincts.find((p) => hasDistrictIds(p)));
+
+  const result = (
+    await apiClient.getBallotPreviewPdf({
+      electionId,
+      precinctId: precinct.id,
+      ballotStyleId: assertDefined(
+        ballotStyles.find(
+          (style) =>
+            style.districtIds.includes(precinct.districtIds[0]) &&
+            style.languages.includes(LanguageCode.ENGLISH)
+        )
+      ).id,
+      ballotType: BallotType.Precinct,
+      ballotMode: 'test',
+    })
+  ).unsafeUnwrap();
+
+  await expect(result.pdfData).toMatchPdfSnapshot({ failureThreshold: 0.01 });
+});
+
+test('getBallotPreviewPdf returns a ballot pdf for nh precinct with no split', async () => {
+  const baseElectionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const election: Election = {
+    ...baseElectionDefinition.election,
+    state: 'New Hampshire',
+    signature: {
+      image: readFileSync('./test/mockSignature.svg').toString(),
+      caption: 'Test Image Caption',
+    },
+  };
+  const { apiClient, auth0 } = await setupApp();
+
+  auth0.setLoggedInUser(nonVxUser);
+  const electionId = (
+    await apiClient.loadElection({
+      newId: 'new-election-id' as ElectionId,
+      orgId: nonVxUser.orgId,
+      electionData: JSON.stringify(election),
     })
   ).unsafeUnwrap();
   const ballotStyles = await apiClient.listBallotStyles({ electionId });

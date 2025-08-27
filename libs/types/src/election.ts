@@ -314,8 +314,8 @@ export const PrecinctIdSchema: z.ZodSchema<PrecinctId> = IdSchema;
 export interface NhPrecinctSplitOptions {
   electionTitleOverride?: string;
   electionSealOverride?: string;
-  clerkSignatureImage?: string;
-  clerkSignatureCaption?: string;
+  clerkSignatureImage?: string; // This is also an override.
+  clerkSignatureCaption?: string; // This is also an override.
 }
 
 export interface PrecinctWithoutSplits {
@@ -588,6 +588,16 @@ export const GridLayoutSchema: z.ZodSchema<GridLayout> = z.object({
   gridPositions: z.array(GridPositionSchema),
 });
 
+export interface Signature {
+  image: string;
+  caption: string;
+}
+
+export const SignatureSchema: z.ZodSchema<Signature> = z.object({
+  image: z.string(),
+  caption: z.string(),
+});
+
 export const ELECTION_TYPES = ['general', 'primary'] as const;
 export type ElectionType = (typeof ELECTION_TYPES)[number];
 const ElectionTypeSchema: z.ZodSchema<ElectionType> = z.enum(ELECTION_TYPES);
@@ -605,6 +615,7 @@ export interface Election {
   readonly parties: Parties;
   readonly precincts: readonly Precinct[];
   readonly seal: string;
+  readonly signature?: Signature;
   readonly state: string;
   readonly title: string;
   readonly type: ElectionType;
@@ -624,6 +635,7 @@ export const ElectionSchema: z.ZodSchema<Election> = z
     parties: PartiesSchema,
     precincts: PrecinctsSchema,
     seal: z.string(),
+    signature: SignatureSchema.optional(),
     state: z.string().nonempty(),
     title: z.string().nonempty(),
     type: ElectionTypeSchema,
