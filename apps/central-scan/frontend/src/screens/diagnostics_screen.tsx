@@ -8,6 +8,7 @@ import {
   getDiskSpaceSummary,
   getElectionRecord,
   getMostRecentScannerDiagnostic,
+  getMostRecentUpsDiagnostic,
   getStatus,
   getSystemSettings,
   getUsbDriveStatus,
@@ -30,6 +31,7 @@ export function DiagnosticsScreen(): JSX.Element {
   const diskSpaceQuery = getDiskSpaceSummary.useQuery();
   const scannerDiagnosticRecordQuery =
     getMostRecentScannerDiagnostic.useQuery();
+  const upsDiagnosticRecordQuery = getMostRecentUpsDiagnostic.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const saveReadinessReportMutation = saveReadinessReport.useMutation();
   const systemSettings = getSystemSettings.useQuery();
@@ -40,6 +42,7 @@ export function DiagnosticsScreen(): JSX.Element {
     !batteryInfoQuery.isSuccess ||
     !diskSpaceQuery.isSuccess ||
     !scannerDiagnosticRecordQuery.isSuccess ||
+    !upsDiagnosticRecordQuery.isSuccess ||
     !usbDriveStatusQuery.isSuccess ||
     !systemSettings.isSuccess
   ) {
@@ -53,6 +56,7 @@ export function DiagnosticsScreen(): JSX.Element {
   const diskSpaceSummary = diskSpaceQuery.data;
   const scannerDiagnosticRecord =
     scannerDiagnosticRecordQuery.data ?? undefined;
+  const upsDiagnosticRecord = upsDiagnosticRecordQuery.data ?? undefined;
   /* istanbul ignore next - @preserve */
   const { markThresholds } = systemSettings.data ?? {};
 
@@ -65,6 +69,7 @@ export function DiagnosticsScreen(): JSX.Element {
             diskSpaceSummary={diskSpaceSummary}
             isScannerAttached={isScannerAttached}
             mostRecentScannerDiagnostic={scannerDiagnosticRecord}
+            mostRecentUpsDiagnostic={upsDiagnosticRecord}
             electionDefinition={electionDefinition}
             electionPackageHash={electionPackageHash}
             markThresholds={markThresholds}

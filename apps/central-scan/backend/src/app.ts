@@ -22,6 +22,7 @@ import {
   Id,
   Side,
   BallotSheetInfo,
+  DiagnosticOutcome,
 } from '@votingworks/types';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import express, { Application } from 'express';
@@ -356,6 +357,40 @@ function buildApi({
 
     getMostRecentScannerDiagnostic(): DiagnosticRecord | null {
       return store.getMostRecentDiagnosticRecord('blank-sheet-scan') ?? null;
+    },
+
+    getMostRecentUpsDiagnostic(): DiagnosticRecord | null {
+      return (
+        store.getMostRecentDiagnosticRecord('uninterruptible-power-supply') ??
+        null
+      );
+    },
+
+    async logMostRecentUpsDiagnosticOutcome(input: {
+      outcome: DiagnosticOutcome;
+    }): Promise<void> {
+      const { outcome } = input;
+      let message =
+        'The user indicated the UPS is not connected or not fully charged.';
+      let disposition = 'failure';
+
+      if (outcome === 'pass') {
+        message = 'The user confirmed the UPS is connected and fully charged.';
+        disposition = 'success';
+      }
+
+      const record: DiagnosticRecord = {
+        type: 'uninterruptible-power-supply',
+        outcome,
+        message,
+        timestamp: new Date().valueOf(),
+      };
+      store.addDiagnosticRecord(record);
+
+      await logger.logAsCurrentRole(LogEventId.DiagnosticComplete, {
+        disposition,
+        message,
+      });
     },
 
     async getDiskSpaceSummary(): Promise<DiskSpaceSummary> {
