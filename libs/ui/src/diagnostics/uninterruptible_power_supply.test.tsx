@@ -17,16 +17,13 @@ test('renders heading and action buttons', async () => {
   );
 
   expect(
-    await screen.findByRole('heading', { name: 'Uninterruptible Power Supply' })
+    await screen.findByRole('heading', {
+      name: 'Uninterruptible Power Supply Test',
+    })
   ).toBeInTheDocument();
 
-  expect(
-    await screen.findByRole('button', { name: 'Fully Charged' })
-  ).toBeInTheDocument();
-
-  expect(
-    await screen.findByRole('button', { name: 'Not Fully Charged' })
-  ).toBeInTheDocument();
+  screen.getByRole('button', { name: 'UPS is Fully Charged' });
+  screen.getByRole('button', { name: 'UPS is not Fully Charged' });
 });
 
 test('user confirms UPS is fully charged', async () => {
@@ -34,7 +31,7 @@ test('user confirms UPS is fully charged', async () => {
     <UninterruptiblePowerSupplyScreen passTest={passTest} failTest={failTest} />
   );
 
-  userEvent.click(await screen.findByText('Fully Charged'));
+  userEvent.click(await screen.findByText('UPS is Fully Charged'));
 
   expect(passTest).toHaveBeenCalledTimes(1);
   expect(failTest).not.toHaveBeenCalled();
@@ -45,7 +42,7 @@ test('user confirms UPS is not fully charged', async () => {
     <UninterruptiblePowerSupplyScreen passTest={passTest} failTest={failTest} />
   );
 
-  userEvent.click(await screen.findByText('Not Fully Charged'));
+  userEvent.click(await screen.findByText('UPS is not Fully Charged'));
 
   expect(failTest).toHaveBeenCalledTimes(1);
   expect(passTest).not.toHaveBeenCalled();

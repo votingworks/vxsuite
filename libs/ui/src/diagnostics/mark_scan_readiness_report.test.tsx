@@ -55,6 +55,14 @@ test('MarkScanReadinessReport', () => {
         },
         children: <p>passed headphone input child</p>,
       }}
+      upsProps={{
+        mostRecentDiagnosticRecord: {
+          type: 'uninterruptible-power-supply',
+          outcome: 'pass',
+          timestamp: generatedAtTime.getTime(),
+        },
+        children: <p>passed UPS child</p>,
+      }}
       generatedAtTime={generatedAtTime}
       machineId={machineId}
       electionDefinition={electionTwoPartyPrimaryDefinition}
@@ -106,6 +114,7 @@ test('MarkScanReadinessReport', () => {
     DiagnosticSectionTitle.HeadphoneInput,
     true
   );
+  expectDiagnosticResult(expect, screen, DiagnosticSectionTitle.Ups, true);
   expectDiagnosticResult(
     expect,
     screen,
@@ -116,4 +125,5 @@ test('MarkScanReadinessReport', () => {
   screen.getByText('passed paper handler child');
   screen.getByText('passed PAT input child');
   screen.getByText('passed headphone input child');
+  screen.getByText('passed UPS child');
 });
