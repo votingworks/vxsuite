@@ -201,11 +201,11 @@ function BallotPageFrame({
   totalPages?: number;
   children: JSX.Element;
 }): Result<JSX.Element, BallotLayoutError> {
-  // Validate signature is present before rendering
+  // Validate signature is present before rendering as old elections or
+  // elections toggled from the VxDefault template may be missing it
   if (!election.signature) {
     return err({
-      error: 'missingRequiredField',
-      field: 'signature',
+      error: 'missingSignature',
     });
   }
 

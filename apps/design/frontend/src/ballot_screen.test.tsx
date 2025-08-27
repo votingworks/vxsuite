@@ -285,16 +285,13 @@ describe('Ballot rendering error handling', () => {
       })
       .resolves(
         err({
-          error: 'missingRequiredField',
-          field: 'signature',
+          error: 'missingSignature',
         })
       );
 
     renderScreen();
 
-    await screen.findByText(
-      /The election is missing the following required field: "signature"/
-    );
+    await screen.findByText(/Missing signature. Upload a signature in/);
     screen.getByRole('link', { name: 'Election Info' });
   });
 

@@ -67,12 +67,11 @@ interface ContestTooLongError {
   contest: AnyContest;
 }
 
-interface MissingRequiredFieldError {
-  error: 'missingRequiredField';
-  field: string;
+interface MissingSignatureError {
+  error: 'missingSignature';
 }
 
-export type BallotLayoutError = ContestTooLongError | MissingRequiredFieldError;
+export type BallotLayoutError = ContestTooLongError | MissingSignatureError;
 
 export type ContentComponentResult<P> = Result<
   PaginatedContent<P>,
