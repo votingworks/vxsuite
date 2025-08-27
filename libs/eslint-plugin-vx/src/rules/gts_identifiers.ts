@@ -29,8 +29,6 @@ const rule: TSESLint.RuleModule<
     docs: {
       description:
         'Disallows use of $ in identifiers, except when aligning with naming conventions for third party frameworks.',
-      recommended: 'stylistic',
-      requiresTypeChecking: false,
     },
     messages: {
       noAbbreviations: `Treat abbreviations like acronyms in names as whole words`,

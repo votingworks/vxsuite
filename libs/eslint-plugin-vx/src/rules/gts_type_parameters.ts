@@ -13,8 +13,6 @@ const rule: TSESLint.RuleModule<
   meta: {
     docs: {
       description: 'Requires type parameters be named appropriately.',
-      recommended: 'stylistic',
-      requiresTypeChecking: false,
     },
     messages: {
       typeParametersMustHaveSingleLetterOrUpperCamelCaseName:

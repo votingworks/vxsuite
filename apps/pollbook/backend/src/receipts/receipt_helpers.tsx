@@ -2,8 +2,7 @@ import styled from 'styled-components';
 import { throwIllegalValue } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
 import { DivBreakWord, IconName, Icons, SpanBreakWord } from '@votingworks/ui';
-import { Election } from '@votingworks/types';
-import { Voter, VoterCheckIn } from '@votingworks/types';
+import { Election, Voter, VoterCheckIn } from '@votingworks/types';
 
 export const StyledReceipt = styled.div``;
 

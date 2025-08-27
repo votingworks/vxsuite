@@ -27,8 +27,8 @@
   },
   "devDependencies": {
     "@types/node": "20.17.31",
-    "@typescript-eslint/eslint-plugin": "6.7.0",
-    "@typescript-eslint/parser": "6.7.0",
+    "@typescript-eslint/eslint-plugin": "8.40.0",
+    "@typescript-eslint/parser": "8.40.0",
     "@vitest/coverage-istanbul": "^3.1.1",
     "esbuild-runner": "2.2.2",
     "eslint": "8.57.0",

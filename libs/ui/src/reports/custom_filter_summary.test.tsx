@@ -118,7 +118,7 @@ test('district filter', () => {
 test('party filter', () => {
   const electionTwoPartyPrimaryDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const party = electionTwoPartyPrimaryDefinition.election.parties[0]!;
+  const party = electionTwoPartyPrimaryDefinition.election.parties[0];
   render(
     <CustomFilterSummary
       electionDefinition={electionTwoPartyPrimaryDefinition}

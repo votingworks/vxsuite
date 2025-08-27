@@ -288,12 +288,12 @@ test('generateReportPdfFilename when too long', () => {
     ...originalElection,
     precincts: [
       {
-        ...originalElection.precincts[0]!,
+        ...originalElection.precincts[0],
         id: 'precinct-1',
         name: 'A'.repeat(256),
       },
       {
-        ...originalElection.precincts[1]!,
+        ...originalElection.precincts[1],
         id: 'precinct-2',
         name: 'Precinct 2',
       },

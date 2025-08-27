@@ -4,7 +4,7 @@ import { Buffer } from 'node:buffer';
 import { createHash } from 'node:crypto';
 import makeDebug from 'debug';
 import * as fs from 'node:fs';
-import Database = require('better-sqlite3');
+import Database from 'better-sqlite3';
 
 type Database = Database.Database;
 
