@@ -8,7 +8,8 @@ export type DiagnosticType =
   | 'mark-scan-paper-handler'
   | 'mark-scan-pat-input'
   | 'mark-scan-headphone-input'
-  | 'scan-audio';
+  | 'scan-audio'
+  | 'uninterruptible-power-supply';
 
 /**
  * The outcome of a hardware diagnostics test.
