@@ -11,4 +11,4 @@ export * from './mark_scan_readiness_report';
 export * from './scan_readiness_report';
 export * from './test_utils';
 export * from './types';
-export * from './uninterruptible_power_supply';
+export * from './uninterruptible_power_supply_screen';
