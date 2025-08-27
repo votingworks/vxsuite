@@ -78,6 +78,11 @@ export async function saveReadinessReport({
         'mark-scan-headphone-input'
       ),
     },
+    upsProps: {
+      mostRecentDiagnosticRecord: store.getMostRecentDiagnosticRecord(
+        'uninterruptible-power-supply'
+      ),
+    },
     machineId: VX_MACHINE_ID,
     generatedAtTime,
     electionDefinition,

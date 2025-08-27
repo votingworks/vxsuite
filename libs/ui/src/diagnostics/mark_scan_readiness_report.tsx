@@ -24,12 +24,15 @@ type HeadphoneInputSectionProps = Omit<
   'isDeviceConnected'
 >;
 
+type UpsSectionProps = Omit<NonpresentationalSectionProps, 'isDeviceConnected'>;
+
 type ReportContentsProps = ConfigurationSectionProps &
   StorageSectionProps & {
     accessibleControllerProps: NonpresentationalSectionProps;
     paperHandlerProps: NonpresentationalSectionProps;
     patInputProps: NonpresentationalSectionProps;
     headphoneInputProps: HeadphoneInputSectionProps;
+    upsProps: UpsSectionProps;
   };
 
 export function MarkScanReadinessReportContents(
@@ -40,6 +43,7 @@ export function MarkScanReadinessReportContents(
     headphoneInputProps,
     paperHandlerProps,
     patInputProps,
+    upsProps,
   } = props;
   return (
     <ReportContents>
@@ -66,6 +70,13 @@ export function MarkScanReadinessReportContents(
         {...headphoneInputProps}
         diagnosticType="mark-scan-headphone-input"
         title={DiagnosticSectionTitle.HeadphoneInput}
+      />
+      <MarkScanDeviceDiagnosticSection
+        {...upsProps}
+        diagnosticType="uninterruptible-power-supply"
+        title={DiagnosticSectionTitle.Ups}
+        connectedText="Fully charged"
+        notConnectedText="Not fully charged"
       />
     </ReportContents>
   );
