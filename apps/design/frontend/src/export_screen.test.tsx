@@ -14,10 +14,7 @@ import { withRoute } from '../test/routing_helpers';
 import { ExportScreen } from './export_screen';
 import { routes } from './routes';
 import { downloadFile } from './utils';
-import {
-  generalElectionRecord,
-  electionInfoFromElection,
-} from '../test/fixtures';
+import { generalElectionRecord } from '../test/fixtures';
 
 const electionRecord = generalElectionRecord(user.orgId);
 const electionId = electionRecord.election.id;
@@ -39,9 +36,6 @@ beforeEach(() => {
   apiMock.getBallotTemplate
     .expectCallWith({ electionId })
     .resolves('VxDefaultBallot');
-  apiMock.getElectionInfo
-    .expectCallWith({ electionId })
-    .resolves(electionInfoFromElection(electionRecord.election));
   apiMock.getUser.expectCallWith().resolves(user);
   mockUserFeatures(apiMock);
 });
@@ -216,7 +210,7 @@ test.each([
   }
 );
 
-test('export election package unknown error handling', async () => {
+test('export election package error handling', async () => {
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });
 
@@ -263,112 +257,8 @@ test('export election package unknown error handling', async () => {
     screen.queryByText('Exporting Election Package and Ballots...')
   ).not.toBeInTheDocument();
 
-  await screen.findByText('An unexpected error occurred. Please try again.');
-  expect(vi.mocked(downloadFile)).not.toHaveBeenCalled();
-});
-
-test('export election package missing required field error handling', async () => {
-  renderScreen();
-  await screen.findAllByRole('heading', { name: 'Export' });
-
-  const taskCreatedAt = new Date();
-  apiMock.exportElectionPackage
-    .expectCallWith({
-      electionId,
-      electionSerializationFormat: 'vxf',
-      shouldExportAudio: false,
-      numAuditIdBallots: undefined,
-    })
-    .resolves();
-  apiMock.getElectionPackage.expectRepeatedCallsWith({ electionId }).resolves({
-    task: {
-      createdAt: taskCreatedAt,
-      id: '1',
-      payload: JSON.stringify({ electionId }),
-      taskName: 'generate_election_package',
-    },
-  });
-  userEvent.click(screen.getButton('Export Election Package and Ballots'));
-
-  await screen.findByText('Exporting Election Package and Ballots...');
-
-  // Mock the error response with a missing required field error
-  const missingRequiredFieldError = JSON.stringify({
-    error: 'missingRequiredField',
-    field: 'signature',
-  });
-
-  apiMock.getElectionPackage.expectCallWith({ electionId }).resolves({
-    task: {
-      completedAt: new Date(taskCreatedAt.getTime() + 2000),
-      createdAt: taskCreatedAt,
-      error: missingRequiredFieldError,
-      id: '1',
-      payload: JSON.stringify({ electionId }),
-      startedAt: new Date(taskCreatedAt.getTime() + 1000),
-      taskName: 'generate_election_package',
-    },
-  });
-
-  await screen.findByText('Export Election Package and Ballots', undefined, {
-    timeout: 2000,
-  });
-
   await screen.findByText(
-    'A signature is required for this ballot. Please add a signature in the Election Info section before exporting.'
-  );
-  expect(vi.mocked(downloadFile)).not.toHaveBeenCalled();
-});
-
-test('export election package contest too long error handling', async () => {
-  renderScreen();
-  await screen.findAllByRole('heading', { name: 'Export' });
-
-  const taskCreatedAt = new Date();
-  apiMock.exportElectionPackage
-    .expectCallWith({
-      electionId,
-      electionSerializationFormat: 'vxf',
-      shouldExportAudio: false,
-      numAuditIdBallots: undefined,
-    })
-    .resolves();
-  apiMock.getElectionPackage.expectRepeatedCallsWith({ electionId }).resolves({
-    task: {
-      createdAt: taskCreatedAt,
-      id: '1',
-      payload: JSON.stringify({ electionId }),
-      taskName: 'generate_election_package',
-    },
-  });
-  userEvent.click(screen.getButton('Export Election Package and Ballots'));
-
-  await screen.findByText('Exporting Election Package and Ballots...');
-
-  // Mock the error response with a contest too long error
-  const contestTooLongError = JSON.stringify({
-    error: 'contestTooLong',
-    contest: { title: 'Mayor of Springfield' },
-  });
-
-  apiMock.getElectionPackage.expectCallWith({ electionId }).resolves({
-    task: {
-      completedAt: new Date(taskCreatedAt.getTime() + 2000),
-      createdAt: taskCreatedAt,
-      error: contestTooLongError,
-      id: '1',
-      payload: JSON.stringify({ electionId }),
-      startedAt: new Date(taskCreatedAt.getTime() + 1000),
-      taskName: 'generate_election_package',
-    },
-  });
-
-  await screen.findByText('Export Election Package and Ballots', undefined, {
-    timeout: 2000,
-  });
-
-  await screen.findByText(
-    'Contest "Mayor of Springfield" was too long to fit on the page. Try a longer paper size.'
+    'An unexpected error occurred while exporting. Please try again.'
   );
   expect(vi.mocked(downloadFile)).not.toHaveBeenCalled();
 });
@@ -517,7 +407,6 @@ test('set ballot template', async () => {
   const select = screen.getByLabelText('Ballot Template');
   screen.getByText('VotingWorks Default Ballot');
 
-  // Switch to NH Ballot (which requires signature)
   apiMock.setBallotTemplate
     .expectCallWith({
       electionId,
@@ -528,35 +417,10 @@ test('set ballot template', async () => {
   userEvent.click(select);
   userEvent.click(screen.getByText('New Hampshire Ballot'));
 
-  await waitFor(() => screen.getByText('New Hampshire Ballot'));
-
-  // Should now show the signature error callout
-  screen.getByText(
-    /The election is missing the following required field: "signature"/
-  );
-  screen.getByRole('link', { name: 'Election Info' });
-
-  // Switch back to VotingWorks Default Ballot
-  apiMock.setBallotTemplate
-    .expectCallWith({
-      electionId,
-      ballotTemplateId: 'VxDefaultBallot',
-    })
-    .resolves();
-  apiMock.getBallotTemplate
-    .expectCallWith({ electionId })
-    .resolves('VxDefaultBallot');
-  userEvent.click(select);
-  userEvent.click(screen.getByText('VotingWorks Default Ballot'));
-
-  await waitFor(() => screen.getByText('VotingWorks Default Ballot'));
-
-  // Error message should be gone
-  expect(
-    screen.queryByText(
-      /The election is missing the following required field: "signature"/
-    )
-  ).not.toBeInTheDocument();
+  await waitFor(() => {
+    apiMock.assertComplete();
+  });
+  screen.getByText('New Hampshire Ballot');
 });
 
 test('view ballot proofing status and unfinalize ballots', async () => {

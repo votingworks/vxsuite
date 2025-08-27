@@ -1,4 +1,4 @@
-import React, { FormEvent, useState } from 'react';
+import { FormEvent, useState } from 'react';
 import {
   H1,
   P,
@@ -6,7 +6,6 @@ import {
   MainContent,
   useQueryChangeListener,
   LoadingButton,
-  Icons,
   CheckboxButton,
   SearchSelect,
   H2,
@@ -15,9 +14,9 @@ import {
   Callout,
 } from '@votingworks/ui';
 import { Buffer } from 'node:buffer';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { ElectionSerializationFormat } from '@votingworks/types';
-import { assertDefined, assert } from '@votingworks/basics';
+import { assertDefined } from '@votingworks/basics';
 import type { BallotTemplateId } from '@votingworks/design-backend';
 import { format } from '@votingworks/utils';
 import {
@@ -32,48 +31,17 @@ import {
   getTestDecks,
   getBallotTemplate,
   decryptCvrBallotAuditIds,
-  getElectionInfo,
 } from './api';
 import { ElectionNavScreen, Header } from './nav_screen';
 import { ElectionIdParams, routes } from './routes';
 import { downloadFile } from './utils';
-import { Column, FieldName, InputGroup, Row } from './layout';
+import { Column, FieldName, InputGroup } from './layout';
 import { useTitle } from './hooks/use_title';
 
 const ballotTemplateOptions = {
   VxDefaultBallot: 'VotingWorks Default Ballot',
   NhBallot: 'New Hampshire Ballot',
 } satisfies Record<BallotTemplateId, string>;
-
-function parseExportError(error: string): string {
-  // Try to parse as JSON first, in case it's a stringified BallotLayoutError
-  try {
-    const parsedError = JSON.parse(error);
-    if (
-      typeof parsedError === 'object' &&
-      parsedError !== null &&
-      'error' in parsedError
-    ) {
-      const errorObj = parsedError as {
-        error: string;
-        field?: string;
-        contest?: { title: string };
-      };
-
-      if (errorObj.error === 'missingRequiredField' && errorObj.field) {
-        assert(errorObj.field === 'signature');
-        return 'A signature is required for this ballot. Please add a signature in the Election Info section before exporting.';
-      } if (errorObj.error === 'contestTooLong') {
-        return `Contest "${
-          assertDefined(errorObj.contest).title
-        }" was too long to fit on the page. Try a longer paper size.`;
-      }
-    }
-  } catch {
-    // If JSON parsing fails, treat as a regular string error
-  }
-  return 'An unexpected error occurred. Please try again.';
-}
 
 export function ExportScreen(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
@@ -87,7 +55,6 @@ export function ExportScreen(): JSX.Element | null {
   const setBallotTemplateMutation = setBallotTemplate.useMutation();
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
   const getBallotTemplateQuery = getBallotTemplate.useQuery(electionId);
-  const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
   const finalizeBallotsMutation = finalizeBallots.useMutation();
   const unfinalizeBallotsMutation = unfinalizeBallots.useMutation();
   const decryptCvrBallotAuditIdsMutation =
@@ -110,7 +77,7 @@ export function ExportScreen(): JSX.Element | null {
       if (taskJustCompleted) {
         const { error } = assertDefined(currentElectionPackage.task);
         if (error) {
-          setExportError(parseExportError(error));
+          setExportError(error);
         } else {
           downloadFile(assertDefined(currentElectionPackage.url));
         }
@@ -128,7 +95,7 @@ export function ExportScreen(): JSX.Element | null {
       if (taskJustCompleted) {
         const { error } = assertDefined(currentTestDecks.task);
         if (error) {
-          setExportError(parseExportError(error));
+          setExportError(error);
         } else {
           downloadFile(assertDefined(currentTestDecks.url));
         }
@@ -157,8 +124,7 @@ export function ExportScreen(): JSX.Element | null {
       testDecksQuery.isSuccess &&
       getBallotsFinalizedAtQuery.isSuccess &&
       getBallotTemplateQuery.isSuccess &&
-      getUserFeaturesQuery.isSuccess &&
-      getElectionInfoQuery.isSuccess
+      getUserFeaturesQuery.isSuccess
     )
   ) {
     return null;
@@ -176,7 +142,6 @@ export function ExportScreen(): JSX.Element | null {
   const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
   const ballotTemplateId = getBallotTemplateQuery.data;
   const features = getUserFeaturesQuery.data;
-  const electionInfo = getElectionInfoQuery.data;
 
   async function onSelectCvrsToDecrypt(event: FormEvent<HTMLInputElement>) {
     const input = event.currentTarget;
@@ -211,43 +176,22 @@ export function ExportScreen(): JSX.Element | null {
         <H2>Ballots</H2>
         <Column style={{ gap: '1rem' }}>
           {features.CHOOSE_BALLOT_TEMPLATE && (
-            <React.Fragment>
-              <InputGroup label="Ballot Template">
-                <SearchSelect
-                  aria-label="Ballot Template"
-                  value={ballotTemplateId}
-                  options={Object.entries(ballotTemplateOptions).map(
-                    ([value, label]) => ({ value, label })
-                  )}
-                  onChange={(value) => {
-                    setBallotTemplateMutation.mutate({
-                      electionId,
-                      ballotTemplateId: value as BallotTemplateId,
-                    });
-                  }}
-                  disabled={Boolean(ballotsFinalizedAt)}
-                />
-              </InputGroup>
-              {ballotTemplateId === 'NhBallot' && !electionInfo.signature && (
-                <Row
-                  style={{
-                    alignItems: 'center',
-                    height: '100%',
-                  }}
-                >
-                  <Callout color="danger" icon="Danger">
-                    <span>
-                      The election is missing the following required field:
-                      &quot;signature&quot;. Update in{' '}
-                      <Link to={routes.election(electionId).electionInfo.path}>
-                        Election Info
-                      </Link>
-                      .
-                    </span>
-                  </Callout>
-                </Row>
-              )}
-            </React.Fragment>
+            <InputGroup label="Ballot Template">
+              <SearchSelect
+                aria-label="Ballot Template"
+                value={ballotTemplateId}
+                options={Object.entries(ballotTemplateOptions).map(
+                  ([value, label]) => ({ value, label })
+                )}
+                onChange={(value) => {
+                  setBallotTemplateMutation.mutate({
+                    electionId,
+                    ballotTemplateId: value as BallotTemplateId,
+                  });
+                }}
+                disabled={Boolean(ballotsFinalizedAt)}
+              />
+            </InputGroup>
           )}
           <div>
             <FieldName>Proofing Status</FieldName>
@@ -313,9 +257,9 @@ export function ExportScreen(): JSX.Element | null {
           )}
         </P>
         {exportError && (
-          <P>
-            <Icons.Danger /> {exportError}
-          </P>
+          <Callout color="danger" icon="Danger" style={{ margin: '0.5rem 0' }}>
+            An unexpected error occurred while exporting. Please try again.
+          </Callout>
         )}
 
         <P style={{ width: 'max-content' }}>
