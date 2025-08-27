@@ -10,8 +10,6 @@ const rule: TSESLint.RuleModule<
   meta: {
     docs: {
       description: 'Disallows default exports',
-      recommended: 'stylistic',
-      requiresTypeChecking: false,
     },
     fixable: 'code',
     messages: {
@@ -79,7 +77,12 @@ const rule: TSESLint.RuleModule<
             node.parent.type === AST_NODE_TYPES.ExportNamedDeclaration
         );
 
-        if (node.local.name === 'default' && node.exported.name !== 'default') {
+        if (
+          node.local.type === AST_NODE_TYPES.Identifier &&
+          node.exported.type === AST_NODE_TYPES.Identifier &&
+          node.local.name === 'default' &&
+          node.exported.name !== 'default'
+        ) {
           context.report({
             node: node.parent,
             messageId: 'noDefaultExports',

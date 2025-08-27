@@ -57,8 +57,6 @@ const rule: TSESLint.RuleModule<
     hasSuggestions: true,
     docs: {
       description: 'Requires `Result` values to be handled appropriately',
-      recommended: 'strict',
-      requiresTypeChecking: true,
     },
     messages: {
       floating: 'Results must be handled appropriately.',

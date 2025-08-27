@@ -9,7 +9,6 @@ const rule: TSESLint.RuleModule<MessageId, readonly unknown[]> = createRule({
     docs: {
       description:
         'Do not use assert on `Result` predicates like `isErr` and `isOk`',
-      recommended: 'recommended',
     },
     fixable: 'code',
     messages: {

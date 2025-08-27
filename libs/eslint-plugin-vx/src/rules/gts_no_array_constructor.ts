@@ -8,8 +8,6 @@ const rule: TSESLint.RuleModule<'noArrayConstructor', readonly unknown[]> =
     meta: {
       docs: {
         description: 'Disallows using the `Array` constructor.',
-        recommended: 'strict',
-        requiresTypeChecking: false,
       },
       fixable: 'code',
       messages: {
