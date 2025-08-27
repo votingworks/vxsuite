@@ -19,12 +19,14 @@ import {
   beginScannerDiagnostic,
   getMostRecentScannerDiagnostic,
   endScannerDiagnostic,
+  getMostRecentUpsDiagnostic,
 } from '../api';
 import { PrintTestPageButton } from '../components/printer_management/print_test_page_button';
 import { ElectionManagerLoadPaperButton } from '../components/printer_management/election_manager_load_paper_button';
 import { AudioDiagnosticModalButton } from '../components/audio_diagnostic_modal_button';
 import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from '../config/globals';
 import { ScannerDiagnosticScreen } from './scanner_diagnostic_screen';
+import { UpsDiagnosticModalButton } from '../components/ups_diagnostic_modal_button';
 
 export function DiagnosticsScreen({
   onClose,
@@ -40,6 +42,7 @@ export function DiagnosticsScreen({
     getMostRecentPrinterDiagnostic.useQuery();
   const mostRecentAudioDiagnosticQuery =
     getMostRecentAudioDiagnostic.useQuery();
+  const mostRecentUpsDiagnosticQuery = getMostRecentUpsDiagnostic.useQuery();
   const scannerStatusQuery = getScannerStatus.useQuery({
     refetchInterval: POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
   });
@@ -55,7 +58,8 @@ export function DiagnosticsScreen({
     !printerStatusQuery.isSuccess ||
     !usbDriveStatusQuery.isSuccess ||
     !mostRecentPrinterDiagnosticQuery.isSuccess ||
-    !mostRecentScannerDiagnosticQuery.isSuccess
+    !mostRecentScannerDiagnosticQuery.isSuccess ||
+    !mostRecentUpsDiagnosticQuery.isSuccess
   ) {
     return (
       <Screen
@@ -147,6 +151,8 @@ export function DiagnosticsScreen({
         mostRecentAudioDiagnostic={
           mostRecentAudioDiagnosticQuery.data ?? undefined
         }
+        mostRecentUpsDiagnostic={mostRecentUpsDiagnosticQuery.data ?? undefined}
+        upsSectionContents={<UpsDiagnosticModalButton />}
         markThresholds={systemSettings.markThresholds}
       />
     </Screen>
