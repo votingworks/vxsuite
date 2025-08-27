@@ -8,7 +8,6 @@ import {
   PrecinctOrSplitId,
   ElectionType,
   ElectionId,
-  Signature,
 } from '@votingworks/types';
 import { DateWithoutTime } from '@votingworks/basics';
 
@@ -95,5 +94,6 @@ export interface ElectionInfo {
   jurisdiction: string;
   seal: string;
   languageCodes: LanguageCode[];
-  signature?: Signature;
+  signatureImage?: string;
+  signatureCaption?: string;
 }

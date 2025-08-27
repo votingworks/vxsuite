@@ -230,14 +230,11 @@ function ElectionInfoForm({
           <div>
             <FieldName>Signature</FieldName>
             <SignatureImageInput
-              value={electionInfo.signature?.image ?? ''}
-              onChange={(image = '') =>
+              value={electionInfo.signatureImage ?? ''}
+              onChange={(signatureImage = '') =>
                 setElectionInfo({
                   ...electionInfo,
-                  signature: {
-                    caption: electionInfo.signature?.caption ?? '',
-                    image,
-                  },
+                  signatureImage,
                 })
               }
               disabled={!isEditing}
@@ -247,25 +244,9 @@ function ElectionInfoForm({
           <InputGroup label="Signature Caption">
             <input
               type="text"
-              value={electionInfo.signature?.caption ?? ''}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setElectionInfo((prev) => ({
-                  ...prev,
-                  signature: {
-                    caption: e.target.value,
-                    image: prev.signature?.image ?? '',
-                  },
-                }))
-              }
-              onBlur={() =>
-                setElectionInfo((prev) => ({
-                  ...prev,
-                  signature: {
-                    caption: prev.signature?.caption.trim() ?? '',
-                    image: prev.signature?.image ?? '',
-                  },
-                }))
-              }
+              value={electionInfo.signatureCaption ?? ''}
+              onChange={onInputChange('signatureCaption')}
+              onBlur={onInputBlur('signatureCaption')}
               disabled={!isEditing}
               autoComplete="off"
               required

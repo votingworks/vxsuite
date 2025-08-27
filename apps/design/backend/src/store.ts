@@ -985,8 +985,11 @@ export class Store {
           electionInfo.jurisdiction,
           electionInfo.state,
           electionInfo.seal,
-          electionInfo.signature
-            ? JSON.stringify(electionInfo.signature)
+          electionInfo.signatureImage
+            ? JSON.stringify({
+                image: electionInfo.signatureImage,
+                caption: electionInfo.signatureCaption,
+              })
             : null,
           electionInfo.languageCodes,
           electionInfo.electionId

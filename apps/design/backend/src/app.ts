@@ -388,7 +388,8 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
         state: election.state,
         jurisdiction: election.county.name,
         seal: election.seal,
-        signature: election.signature,
+        signatureImage: election.signature?.image,
+        signatureCaption: election.signature?.caption,
         // Not optimal: store.getElection converts from LanguageCode[] to BallotLanguageConfig.
         // This line converts from BallotLanguageConfig to LanguageCode[]
         languageCodes: getAllBallotLanguages(ballotLanguageConfigs),

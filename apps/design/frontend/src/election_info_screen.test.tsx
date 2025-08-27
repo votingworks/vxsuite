@@ -197,7 +197,8 @@ test('edit and save election', async () => {
     state: 'New State',
     jurisdiction: 'New County',
     seal: '<svg>updated seal</svg>',
-    signature: undefined,
+    signatureImage: undefined,
+    signatureCaption: undefined,
     languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
   };
   apiMock.updateElectionInfo.expectCallWith(updatedElectionInfo).resolves(ok());
@@ -258,10 +259,8 @@ test('edit and save election - nhBallotTemplate signature upload', async () => {
     state: election.state,
     jurisdiction: election.county.name,
     seal: election.seal,
-    signature: {
-      image: '<svg>updated signature</svg>',
-      caption: 'New Signature Caption',
-    },
+    signatureImage: '<svg>updated signature</svg>',
+    signatureCaption: 'New Signature Caption',
     languageCodes: [LanguageCode.ENGLISH],
   };
   apiMock.updateElectionInfo.expectCallWith(updatedElectionInfo).resolves(ok());
