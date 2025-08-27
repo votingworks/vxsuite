@@ -568,7 +568,8 @@ test('update election info', async () => {
       type: 'primary',
       date: new DateWithoutTime('2022-01-01'),
       languageCodes: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
-      signature: undefined,
+      signatureImage: undefined,
+      signatureCaption: undefined,
     }
   );
 
@@ -2774,10 +2775,8 @@ test('Election package export with VxDefaultBallot drops signature field', async
     type: baseElectionDefinition.election.type,
     date: baseElectionDefinition.election.date,
     languageCodes: [LanguageCode.ENGLISH],
-    signature: {
-      image: 'test-signature-image',
-      caption: 'Test Signature Caption',
-    },
+    signatureImage: 'test-signature-image',
+    signatureCaption: 'Test Signature Caption',
   });
 
   // Ensure we're using VxDefaultBallot template

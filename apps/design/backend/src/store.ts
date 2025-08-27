@@ -770,7 +770,11 @@ export class Store {
         county: { id: `${electionId}-county`, name: electionRow.jurisdiction },
         state: electionRow.state,
         seal: electionRow.seal,
-        signature: electionRow.signature || undefined,
+        // Only include signature for the NhBallot
+        signature:
+          electionRow.ballotTemplateId === 'NhBallot'
+            ? electionRow.signature || undefined
+            : undefined,
         districts,
         precincts,
         ballotStyles: ballotStyles.map(convertToVxfBallotStyle),
