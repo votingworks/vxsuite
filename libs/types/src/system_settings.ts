@@ -153,7 +153,7 @@ export const DEFAULT_MARK_THRESHOLDS: Readonly<MarkThresholds> = {
  * See {@link SystemSettings.minimumDetectedBallotScaleOverride} for more context. Landed on this
  * as a good default through empirical testing.
  */
-export const DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE = 0.975;
+export const DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE = 0.985;
 
 export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
   auth: {

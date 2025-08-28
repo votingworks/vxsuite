@@ -126,11 +126,11 @@ test('minimum detected scale', async () => {
 
   userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
-  userEvent.type(minimumDetectedBallotScaleOverrideInput, '{selectall}0.985');
+  userEvent.type(minimumDetectedBallotScaleOverrideInput, '{selectall}0.995');
 
   const updatedSystemSettings: SystemSettings = {
     ...DEFAULT_SYSTEM_SETTINGS,
-    minimumDetectedBallotScaleOverride: 0.985,
+    minimumDetectedBallotScaleOverride: 0.995,
   };
   apiMock.updateSystemSettings
     .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
