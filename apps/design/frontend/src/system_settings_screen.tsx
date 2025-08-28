@@ -313,35 +313,36 @@ export function SystemSettingsForm({
                 />
               </InputGroup>
             )}
-            {features.MINIMUM_DETECTED_SCALE_OPTION && (
-              <InputGroup label="Minimum Detected Scale">
-                <input
-                  type="number"
-                  value={systemSettings.minimumDetectedScale ?? ''}
-                  onChange={(e) => {
-                    const minimumDetectedScale = e.target.valueAsNumber;
+            <InputGroup label="Minimum Detected Ballot Scale Override">
+              <input
+                type="number"
+                value={systemSettings.minimumDetectedBallotScaleOverride ?? ''}
+                onChange={(e) => {
+                  const minimumDetectedBallotScaleOverride =
+                    e.target.valueAsNumber;
+                  setSystemSettings({
+                    ...systemSettings,
+                    minimumDetectedBallotScaleOverride: Number.isNaN(
+                      minimumDetectedBallotScaleOverride
+                    )
+                      ? undefined
+                      : minimumDetectedBallotScaleOverride,
+                  });
+                }}
+                onBlur={(e) => {
+                  if (e.target.value === '') {
                     setSystemSettings({
                       ...systemSettings,
-                      minimumDetectedScale: Number.isNaN(minimumDetectedScale)
-                        ? undefined
-                        : minimumDetectedScale,
+                      minimumDetectedBallotScaleOverride: undefined,
                     });
-                  }}
-                  onBlur={(e) => {
-                    if (e.target.value === '') {
-                      setSystemSettings({
-                        ...systemSettings,
-                        minimumDetectedScale: undefined,
-                      });
-                    }
-                  }}
-                  step={0.005}
-                  min={0}
-                  max={1}
-                  disabled={!isEditing}
-                />
-              </InputGroup>
-            )}
+                  }
+                }}
+                step={0.005}
+                min={0}
+                max={1}
+                disabled={!isEditing}
+              />
+            </InputGroup>
           </Column>
         </Card>
         <Card>

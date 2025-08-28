@@ -26,11 +26,6 @@ enum UserFeature {
    */
   ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION = 'ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION',
   /**
-   * Show the System Settings "Minimum Detected Scale" option.
-   * If enabled, also requires SYSTEM_SETTINGS_SCREEN.
-   */
-  MINIMUM_DETECTED_SCALE_OPTION = 'MINIMUM_DETECTED_SCALE_OPTION',
-  /**
    * Show the export screen.
    */
   EXPORT_SCREEN = 'EXPORT_SCREEN',
@@ -96,7 +91,6 @@ export const userFeatureConfigs = {
     SYSTEM_SETTINGS_SCREEN: true,
     ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: true,
     BMD_OVERVOTE_ALLOW_TOGGLE: true,
-    MINIMUM_DETECTED_SCALE_OPTION: true,
 
     EXPORT_SCREEN: true,
     CHOOSE_BALLOT_TEMPLATE: true,
@@ -112,7 +106,6 @@ export const userFeatureConfigs = {
     SYSTEM_SETTINGS_SCREEN: true,
     ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: false,
     BMD_OVERVOTE_ALLOW_TOGGLE: false,
-    MINIMUM_DETECTED_SCALE_OPTION: false,
 
     EXPORT_SCREEN: true,
     CHOOSE_BALLOT_TEMPLATE: false,
@@ -128,7 +121,6 @@ export const userFeatureConfigs = {
     SYSTEM_SETTINGS_SCREEN: true,
     ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: true,
     BMD_OVERVOTE_ALLOW_TOGGLE: false,
-    MINIMUM_DETECTED_SCALE_OPTION: false,
 
     EXPORT_SCREEN: true,
     CHOOSE_BALLOT_TEMPLATE: true,
@@ -144,7 +136,6 @@ export const userFeatureConfigs = {
     SYSTEM_SETTINGS_SCREEN: false,
     ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: false,
     BMD_OVERVOTE_ALLOW_TOGGLE: false,
-    MINIMUM_DETECTED_SCALE_OPTION: false,
 
     EXPORT_SCREEN: false,
     CHOOSE_BALLOT_TEMPLATE: false,
