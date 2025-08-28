@@ -20,6 +20,7 @@ import {
   getMostRecentScannerDiagnostic,
   endScannerDiagnostic,
   getMostRecentUpsDiagnostic,
+  logUpsDiagnosticOutcome,
 } from '../api';
 import { PrintTestPageButton } from '../components/printer_management/print_test_page_button';
 import { ElectionManagerLoadPaperButton } from '../components/printer_management/election_manager_load_paper_button';
@@ -42,7 +43,10 @@ export function DiagnosticsScreen({
     getMostRecentPrinterDiagnostic.useQuery();
   const mostRecentAudioDiagnosticQuery =
     getMostRecentAudioDiagnostic.useQuery();
+
   const mostRecentUpsDiagnosticQuery = getMostRecentUpsDiagnostic.useQuery();
+  const logUpsDiagnosticOutcomeMutation = logUpsDiagnosticOutcome.useMutation();
+
   const scannerStatusQuery = getScannerStatus.useQuery({
     refetchInterval: POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
   });
@@ -152,7 +156,12 @@ export function DiagnosticsScreen({
           mostRecentAudioDiagnosticQuery.data ?? undefined
         }
         mostRecentUpsDiagnostic={mostRecentUpsDiagnosticQuery.data ?? undefined}
-        upsSectionContents={<UpsDiagnosticModalButton />}
+        upsSectionContents={
+          <UpsDiagnosticModalButton
+            isLoading={logUpsDiagnosticOutcomeMutation.isLoading}
+            logOutcome={logUpsDiagnosticOutcomeMutation.mutate}
+          />
+        }
         markThresholds={systemSettings.markThresholds}
       />
     </Screen>
