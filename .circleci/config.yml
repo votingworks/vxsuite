@@ -197,6 +197,50 @@ jobs:
     steps:
       - checkout-and-install:
           is_node_package: true
+      # Validate this branch is not adding a migration while missing one from main
+      - run:
+          name: Validate migrations vs main (non-main branches only)
+          command: |
+            [ "$CIRCLE_BRANCH" = "main" ] && exit 0
+            git rev-parse --verify --quiet origin/main >/dev/null || git fetch --no-tags --depth=1 origin main:refs/remotes/origin/main
+            export LC_ALL=C # Ensure consistent sort order
+            git ls-tree -r --name-only origin/main -- apps/design/backend/migrations | grep -E '\.js$' | sort -u > /tmp/main_migrations || true
+            git ls-tree -r --name-only HEAD        -- apps/design/backend/migrations | grep -E '\.js$' | sort -u > /tmp/head_migrations || true
+            MISSING=$(comm -23 /tmp/main_migrations /tmp/head_migrations || true)
+            ADDED=$(comm -13 /tmp/main_migrations /tmp/head_migrations || true)
+            if [ -n "$ADDED" ] && [ -n "$MISSING" ]; then
+              echo "Branch adds migrations but is missing migration(s) from main:"
+              printf "%s\n" "$MISSING"
+              exit 1
+            fi
+            LATEST_ON_MAIN=$(tail -n1 /tmp/main_migrations)
+            FAIL=0
+            for f in $ADDED; do
+              if [ ! "$f" \> "$LATEST_ON_MAIN" ]; then
+                echo "Migration '$f' must sort after '$LATEST_ON_MAIN'"
+                FAIL=1
+              fi
+            done
+            if [ "$FAIL" -eq 1 ]; then exit 1; fi
+
+      # Validate any migration added in the last commit has a timestamp after the preexisting migrations
+      - run:
+          name: Validate migration ordering (main only)
+          command: |
+            [ "$CIRCLE_BRANCH" = "main" ] || exit 0
+            git rev-parse --verify --quiet HEAD~1 >/dev/null || git fetch --no-tags --depth=2 origin main:refs/remotes/origin/main
+            export LC_ALL=C # Ensure consistent sort order
+            ADDED=$(git diff --diff-filter=A --name-only HEAD~1..HEAD -- 'apps/design/backend/migrations/*.js' || true)
+            [ -z "$ADDED" ] && exit 0 # Exit early if no new migration was added in last commit
+            PREV_LATEST=$(git ls-tree -r --name-only HEAD~1 -- apps/design/backend/migrations | grep -E '\.js$' | sort | tail -n1 || true)
+            FAIL=0
+            for f in $ADDED; do
+              if [ ! "$f" \> "$PREV_LATEST" ]; then
+                echo "Migration '$f' must sort after '$PREV_LATEST'"
+                FAIL=1
+              fi
+            done
+            if [ "$FAIL" -eq 1 ]; then exit 1; fi
       - run:
           name: Build
           command: |
@@ -1319,7 +1363,6 @@ jobs:
           command: |
             cargo test
 
-
   validate-monorepo:
     executor: nodejs
     resource_class: xlarge
@@ -1338,7 +1381,6 @@ jobs:
 workflows:
   test:
     jobs:
-
       - path-filtering/filter:
           name: check-updated-files-for-test-filter
           base-revision: main
@@ -1421,27 +1463,31 @@ commands:
             - restore_cache:
                 name: Restore Node.js Cache
                 key:
-                  pnpm-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "pnpm-lock.yaml" }}
+                  pnpm-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum
+                  "pnpm-lock.yaml" }}
             - run:
                 name: Install Node.js Dependencies
                 command: pnpm install --frozen-lockfile
             - save_cache:
                 name: Save Node.js Cache
                 key:
-                  pnpm-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "pnpm-lock.yaml" }}
+                  pnpm-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum
+                  "pnpm-lock.yaml" }}
                 paths:
                   - /root/.local/share/pnpm/store/v3
                   - /root/.cache/ms-playwright
       - restore_cache:
           name: Restore Cargo Cache
           key:
-            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}
+            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum
+            "Cargo.lock" }}
       - run:
           name: Install Rust Dependencies
           command: pnpm --recursive install:rust-addon
       - save_cache:
           name: Save Cargo Cache
           key:
-            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}
+            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum
+            "Cargo.lock" }}
           paths:
             - /root/.cargo
