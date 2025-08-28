@@ -4,14 +4,12 @@ import { encodeImageData, pdfToImages } from '@votingworks/image-utils';
 import { BallotType } from '@votingworks/types';
 import { expect, test, vi } from 'vitest';
 import { vxDefaultBallotTemplate } from './ballot_templates/vx_default_ballot_template';
-import {
-  createPlaywrightRenderer,
-  PlaywrightRenderer,
-} from './playwright_renderer';
+import { createPlaywrightRenderer } from './playwright_renderer';
 import { renderBallotPreviewToPdf } from './render_ballot';
+import { Renderer } from './renderer';
 
 // eslint-disable-next-line vitest/valid-title
-const rendererTest = test.extend<{ renderer: PlaywrightRenderer }>({
+const rendererTest = test.extend<{ renderer: Renderer }>({
   // eslint-disable-next-line no-empty-pattern
   renderer: async ({}, use) => {
     const renderer = await createPlaywrightRenderer();

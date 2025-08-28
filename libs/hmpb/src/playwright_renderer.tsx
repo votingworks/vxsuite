@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDomServer from 'react-dom/server';
-import { Browser, chromium } from 'playwright';
+import { chromium } from 'playwright';
 import {
   RenderDocument,
   RenderScratchpad,
@@ -9,15 +9,11 @@ import {
   createScratchpad,
 } from './renderer';
 
-export interface PlaywrightRenderer extends Renderer {
-  getBrowser(): Browser;
-}
-
 /**
  * Creates a {@link Renderer} that uses Playwright to drive a headless Chromium
  * instance.
  */
-export async function createPlaywrightRenderer(): Promise<PlaywrightRenderer> {
+export async function createPlaywrightRenderer(): Promise<Renderer> {
   const browser = await chromium.launch({
     // Font hinting (https://fonts.google.com/knowledge/glossary/hinting)
     // is on by default, but causes fonts to render more awkwardly at higher
@@ -49,10 +45,6 @@ export async function createPlaywrightRenderer(): Promise<PlaywrightRenderer> {
     async cleanup(): Promise<void> {
       await context.close();
       await browser.close();
-    },
-
-    getBrowser() {
-      return browser;
     },
   };
 }
