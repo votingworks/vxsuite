@@ -407,7 +407,7 @@ test('ballot printed at an invalid scale is rejected', async () => {
             electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition(),
           systemSettings: {
             ...DEFAULT_SYSTEM_SETTINGS,
-            minimumDetectedScale: 1.0,
+            minimumDetectedBallotScaleOverride: 1.0,
           },
         },
       });
