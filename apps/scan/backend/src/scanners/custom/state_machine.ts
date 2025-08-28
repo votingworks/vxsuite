@@ -21,6 +21,7 @@ import {
 import { fromGrayScale, ImageData } from '@votingworks/image-utils';
 import { Logger, LogEventId, LogLine } from '@votingworks/logging';
 import {
+  DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE,
   mapSheet,
   PrecinctScannerError,
   PrecinctScannerMachineStatus,
@@ -307,7 +308,7 @@ async function interpretSheet(
     disableVerticalStreakDetection,
     markThresholds,
     precinctScanEnableBmdBallotScanning,
-    minimumDetectedScale,
+    minimumDetectedBallotScaleOverride,
   } = assertDefined(store.getSystemSettings());
   const interpretation = (
     await interpret(sheetId, scannedSheet, {
@@ -320,7 +321,9 @@ async function interpretSheet(
       markThresholds,
       adjudicationReasons: store.getAdjudicationReasons(),
       disableBmdBallotScanning: !precinctScanEnableBmdBallotScanning,
-      minimumDetectedScale,
+      minimumDetectedScale:
+        minimumDetectedBallotScaleOverride ??
+        DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE,
     })
   ).unsafeUnwrap();
   return {

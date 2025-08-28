@@ -8,6 +8,7 @@ import {
   ScannerStatus,
 } from '@votingworks/pdi-scanner';
 import {
+  DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE,
   HmpbBallotPaperSize,
   InsertedSmartCardAuth,
   PrecinctScannerError,
@@ -68,7 +69,7 @@ async function interpretSheet(
     disableVerticalStreakDetection,
     markThresholds,
     precinctScanEnableBmdBallotScanning,
-    minimumDetectedScale,
+    minimumDetectedBallotScaleOverride,
   } = assertDefined(store.getSystemSettings());
   const interpretation = (
     await interpret(sheetId, scanImages, {
@@ -82,7 +83,9 @@ async function interpretSheet(
       adjudicationReasons: store.getAdjudicationReasons(),
       allowOfficialBallotsInTestMode,
       disableBmdBallotScanning: !precinctScanEnableBmdBallotScanning,
-      minimumDetectedScale,
+      minimumDetectedScale:
+        minimumDetectedBallotScaleOverride ??
+        DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE,
     })
   ).unsafeUnwrap();
   interpretTimer.end();
