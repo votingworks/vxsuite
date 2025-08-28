@@ -655,9 +655,10 @@ export const setBallotTemplate = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.setBallotTemplate, {
       async onSuccess(_, { electionId }) {
-        await queryClient.invalidateQueries(
-          getBallotTemplate.queryKey(electionId)
-        );
+        await Promise.all([
+          queryClient.invalidateQueries(getBallotTemplate.queryKey(electionId)),
+          queryClient.invalidateQueries(getElectionInfo.queryKey(electionId)),
+        ]);
       },
     });
   },
