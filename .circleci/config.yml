@@ -222,7 +222,6 @@ jobs:
               fi
             done
             if [ "$FAIL" -eq 1 ]; then exit 1; fi
-
       # Validate any migration added in the last commit has a timestamp after the preexisting migrations
       - run:
           name: Validate migration ordering (main only)
