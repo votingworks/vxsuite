@@ -471,7 +471,6 @@ export async function renderBallotPreviewToPdf<P extends object>(
     return document;
   }
   const pdf = await document.ok().renderToPdf();
-  await renderer.cleanup();
   return ok(pdf);
 }
 
