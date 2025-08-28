@@ -4,6 +4,7 @@ import {
   P,
   SaveReadinessReportButton,
   ScanReadinessReportContents,
+  UpsDiagnosticModalButton,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 import { Screen } from '../components/layout';
@@ -27,7 +28,6 @@ import { ElectionManagerLoadPaperButton } from '../components/printer_management
 import { AudioDiagnosticModalButton } from '../components/audio_diagnostic_modal_button';
 import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from '../config/globals';
 import { ScannerDiagnosticScreen } from './scanner_diagnostic_screen';
-import { UpsDiagnosticModalButton } from '../components/ups_diagnostic_modal_button';
 
 export function DiagnosticsScreen({
   onClose,
