@@ -2,19 +2,26 @@ import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
 import { readElection } from '@votingworks/fs';
 import {
   Renderer,
+  allBaseBallotProps,
   ballotTemplates,
   createPlaywrightRenderer,
+  layOutBallotsAndCreateElectionDefinition,
   vxFamousNamesFixtures,
   vxGeneralElectionFixtures,
   vxPrimaryElectionFixtures,
-  renderAllBallotsAndCreateElectionDefinition,
 } from '@votingworks/hmpb';
 import { assert, find, iter } from '@votingworks/basics';
 import {
   buildContestResultsFixture,
   CachedElectionLookups,
+  getBallotStyleGroupsForPrecinctOrSplit,
 } from '@votingworks/utils';
-import { ElectionDefinition, LanguageCode } from '@votingworks/types';
+import {
+  BallotType,
+  ElectionDefinition,
+  hasSplits,
+  LanguageCode,
+} from '@votingworks/types';
 import {
   createPrecinctTestDeck,
   createTestDeckTallyReport,
@@ -53,21 +60,20 @@ describe('createPrecinctTestDeck', () => {
         precinctId
       ).length === 1
     );
-    const { ballotDocuments } =
-      await renderAllBallotsAndCreateElectionDefinition(
-        renderer,
-        ballotTemplates.VxDefaultBallot,
-        fixtures.allBallotProps,
-        'vxf'
-      );
+    const { ballotContents } = await layOutBallotsAndCreateElectionDefinition(
+      renderer,
+      ballotTemplates.VxDefaultBallot,
+      fixtures.allBallotProps,
+      'vxf'
+    );
     const ballots = iter(fixtures.allBallotProps)
-      .zip(ballotDocuments)
-      .map(([props, document]) => ({ props, document }))
+      .zip(ballotContents)
+      .map(([props, contents]) => ({ props, contents }))
       .toArray();
 
     const testDeckDocument = await createPrecinctTestDeck({
       renderer,
-      election,
+      electionDefinition,
       precinctId,
       ballots,
     });
@@ -91,29 +97,33 @@ describe('createPrecinctTestDeck', () => {
       },
     };
     const { election } = electionDefinition;
-    const precinctId = election.precincts[0].id;
-    assert(
-      CachedElectionLookups.getBallotStylesByPrecinctId(
-        electionDefinition,
-        precinctId
-      ).length > 1
+    const ballotProps = allBaseBallotProps(election).filter(
+      (props) =>
+        props.ballotMode === 'test' && props.ballotType === BallotType.Precinct
     );
-    const { ballotDocuments } =
-      await renderAllBallotsAndCreateElectionDefinition(
-        renderer,
-        ballotTemplates.VxDefaultBallot,
-        fixtures.allBallotProps,
-        'vxf'
-      );
-    const ballots = iter(fixtures.allBallotProps)
-      .zip(ballotDocuments)
-      .map(([props, document]) => ({ props, document }))
+    const [precinct] = election.precincts;
+    assert(!hasSplits(precinct));
+    assert(
+      getBallotStyleGroupsForPrecinctOrSplit({
+        election,
+        precinctOrSplit: { precinct },
+      }).length > 1
+    );
+    const layouts = await layOutBallotsAndCreateElectionDefinition(
+      renderer,
+      ballotTemplates.VxDefaultBallot,
+      ballotProps,
+      'vxf'
+    );
+    const ballots = iter(ballotProps)
+      .zip(layouts.ballotContents)
+      .map(([props, contents]) => ({ props, contents }))
       .toArray();
 
     const testDeckDocument = await createPrecinctTestDeck({
       renderer,
-      election,
-      precinctId,
+      electionDefinition: layouts.electionDefinition,
+      precinctId: precinct.id,
       ballots,
     });
     await expect(testDeckDocument).toMatchPdfSnapshot();
@@ -136,7 +146,7 @@ describe('createPrecinctTestDeck', () => {
 
     const testDeckDocument = await createPrecinctTestDeck({
       renderer,
-      election,
+      electionDefinition,
       precinctId: precinctWithNoBallotStyles.id,
       ballots: [], // doesn't matter
     });
