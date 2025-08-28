@@ -25,10 +25,10 @@ import { renderToPdf } from '@votingworks/printing';
 import { AdminTallyReportByParty } from '@votingworks/ui';
 import {
   BaseBallotProps,
-  RenderDocument,
   Renderer,
   markBallotDocument,
   concatenatePdfs,
+  renderBallotPdfWithMetadataQrCode,
 } from '@votingworks/hmpb';
 
 /**
@@ -41,39 +41,41 @@ import {
  */
 export async function createPrecinctTestDeck({
   renderer,
-  election,
+  electionDefinition,
   precinctId,
   ballots,
 }: {
   renderer: Renderer;
-  election: Election;
+  electionDefinition: ElectionDefinition;
   precinctId: PrecinctId;
-  ballots: Array<{ props: BaseBallotProps; document: RenderDocument }>;
+  ballots: Array<{ props: BaseBallotProps; contents: string }>;
 }): Promise<Uint8Array | undefined> {
   const ballotSpecs = generateTestDeckBallots({
-    election,
+    election: electionDefinition.election,
     precinctId,
     markingMethod: 'hand',
   });
   if (ballotSpecs.length === 0) {
     return undefined;
   }
-  const markedBallots = await Promise.all(
-    ballotSpecs.map(async (ballotSpec) => {
-      const { document } = find(
-        ballots,
-        (ballot) =>
-          ballot.props.ballotStyleId === ballotSpec.ballotStyleId &&
-          ballot.props.precinctId === ballotSpec.precinctId
-      );
-      const markedBallot = await markBallotDocument(
-        renderer,
-        document,
-        ballotSpec.votes
-      );
-      return await markedBallot.renderToPdf();
-    })
-  );
+  const markedBallots = [];
+  for (const ballotSpec of ballotSpecs) {
+    const { props, contents } = find(
+      ballots,
+      (ballot) =>
+        ballot.props.ballotStyleId === ballotSpec.ballotStyleId &&
+        ballot.props.precinctId === ballotSpec.precinctId
+    );
+    const document = await renderer.loadDocumentFromContent(contents);
+    const markedBallot = await markBallotDocument(document, ballotSpec.votes);
+    const ballotPdf = await renderBallotPdfWithMetadataQrCode(
+      props,
+      markedBallot,
+      electionDefinition
+    );
+    document.cleanup();
+    markedBallots.push(ballotPdf);
+  }
   return await concatenatePdfs(markedBallots);
 }
 

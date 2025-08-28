@@ -9,7 +9,7 @@ import {
 } from '@votingworks/types';
 import { assertDefined, iter, throwIllegalValue } from '@votingworks/basics';
 import React from 'react';
-import { RenderDocument, Renderer } from './renderer';
+import { RenderDocument } from './renderer';
 import {
   BUBBLE_CLASS,
   BubbleShape,
@@ -37,19 +37,17 @@ export type UnmarkedWriteInVote = { contestId: ContestId } & Pick<
 >;
 
 export async function markBallotDocument(
-  renderer: Renderer,
   ballotDocument: RenderDocument,
   votes: VotesDict,
   unmarkedWriteIns?: UnmarkedWriteInVote[]
 ): Promise<RenderDocument> {
-  const markedBallotDocument = await renderer.cloneDocument(ballotDocument);
-  const pages = await markedBallotDocument.inspectElements(`.${PAGE_CLASS}`);
+  const pages = await ballotDocument.inspectElements(`.${PAGE_CLASS}`);
   for (const [i, page] of pages.entries()) {
     const pageNumber = i + 1;
-    const bubbles = await markedBallotDocument.inspectElements(
+    const bubbles = await ballotDocument.inspectElements(
       `.${PAGE_CLASS}[data-page-number="${pageNumber}"] .${BUBBLE_CLASS}`
     );
-    const grid = await measureTimingMarkGrid(markedBallotDocument, pageNumber);
+    const grid = await measureTimingMarkGrid(ballotDocument, pageNumber);
 
     const marks = (
       <>
@@ -147,12 +145,12 @@ export async function markBallotDocument(
       </>
     );
 
-    await markedBallotDocument.setContent(
+    await ballotDocument.setContent(
       `.${PAGE_CLASS}[data-page-number="${pageNumber}"] .${MARK_OVERLAY_CLASS}`,
       marks
     );
   }
-  return markedBallotDocument;
+  return ballotDocument;
 }
 
 export function createTestVotes(contests: Contests): {
