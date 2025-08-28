@@ -148,12 +148,6 @@ export const DEFAULT_MARK_THRESHOLDS: Readonly<MarkThresholds> = {
   writeInTextArea: 0.05,
 };
 
-/**
- * The default bitonal threshold for scanning ballots.
- * See Section 2.1.43 of the PDI PageScan software specification.
- */
-export const DEFAULT_BITONAL_THRESHOLD = 75;
-
 export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
   auth: {
     arePollWorkerCardPinsEnabled: false,

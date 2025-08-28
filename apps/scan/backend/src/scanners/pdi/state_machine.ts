@@ -606,7 +606,6 @@ function buildMachine({
                   src: async () => {
                     const electionRecord = store.getElectionRecord();
                     if (!electionRecord) return;
-                    const bitonalThreshold = store.getBitonalThreshold();
                     const paperLengthInches = ballotPaperDimensions(
                       electionRecord.electionDefinition.election.ballotLayout
                         .paperSize
@@ -615,7 +614,6 @@ function buildMachine({
                       !store.getIsDoubleFeedDetectionDisabled();
                     (
                       await scannerClient.enableScanning({
-                        bitonalThreshold,
                         doubleFeedDetectionEnabled,
                         paperLengthInches,
                       })
@@ -1116,7 +1114,6 @@ function buildMachine({
               invoke: {
                 src: async () => {
                   const electionRecord = store.getElectionRecord();
-                  const bitonalThreshold = store.getBitonalThreshold();
                   const paperLengthInches = ballotPaperDimensions(
                     electionRecord?.electionDefinition.election.ballotLayout
                       .paperSize ??
@@ -1126,7 +1123,6 @@ function buildMachine({
                   ).height;
                   (
                     await scannerClient.enableScanning({
-                      bitonalThreshold,
                       doubleFeedDetectionEnabled: false,
                       paperLengthInches,
                     })

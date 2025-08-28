@@ -27,7 +27,6 @@ import {
   DiagnosticType,
   ElectionKey,
   constructElectionKey,
-  DEFAULT_BITONAL_THRESHOLD,
 } from '@votingworks/types';
 import {
   assert,
@@ -342,16 +341,6 @@ export class Store {
     }
 
     return Boolean(electionRow.isSoundMuted);
-  }
-
-  /**
-   * Gets the bitonal threshold for scanning ballots. See Section 2.1.43 of the
-   * PDI PageScan software specification.
-   */
-  getBitonalThreshold(): number {
-    return (
-      this.getSystemSettings()?.bitonalThreshold ?? DEFAULT_BITONAL_THRESHOLD
-    );
   }
 
   /**
