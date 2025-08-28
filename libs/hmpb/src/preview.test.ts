@@ -1,12 +1,27 @@
 import { HmpbBallotPaperSize } from '@votingworks/types';
 import { join } from 'node:path';
 import { stderr } from 'node:process';
-import { expect, test, vi } from 'vitest';
+import { afterAll, beforeAll, expect, test, vi } from 'vitest';
 import { asyncDisposable } from '@votingworks/test-utils';
-import { createPlaywrightRenderer } from './playwright_renderer';
+import { Browser, chromium } from 'playwright';
 import { DONE_MARKER_ID } from './preview/browser_preview';
 
 vi.setConfig({ testTimeout: 20_000 });
+
+let browser: Browser;
+
+beforeAll(async () => {
+  browser = await chromium.launch({
+    // Font hinting (https://fonts.google.com/knowledge/glossary/hinting)
+    // is on by default, but causes fonts to render more awkwardly at higher
+    // resolutions, so we disable it.
+    args: ['--font-render-hinting=none'],
+  });
+});
+
+afterAll(async () => {
+  await browser?.close();
+});
 
 test.each([
   { name: 'default' },
@@ -33,12 +48,7 @@ test.each([
   await vite.listen();
   const { port } = vite.config.server;
 
-  // Start the Playwright renderer.
-  await using renderer = asyncDisposable(
-    await createPlaywrightRenderer(),
-    (r) => r.cleanup()
-  );
-  const page = await renderer.getBrowser().newPage({
+  const page = await browser.newPage({
     viewport: {
       width: 1920,
       height: 1080,
