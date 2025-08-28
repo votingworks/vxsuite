@@ -28,5 +28,7 @@ export async function renderCalibrationSheetPdf(
   paperSize: HmpbBallotPaperSize
 ): Promise<Uint8Array> {
   const document = await calibrationSheetTemplate.render(renderer, paperSize);
-  return await convertPdfToGrayscale(await document.renderToPdf());
+  const pdf = await document.renderToPdf();
+  document.cleanup();
+  return await convertPdfToGrayscale(pdf);
 }
