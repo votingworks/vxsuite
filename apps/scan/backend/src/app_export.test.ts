@@ -16,7 +16,7 @@ import {
   ballotTemplates,
   BaseBallotProps,
   createPlaywrightRenderer,
-  renderAllBallotsAndCreateElectionDefinition,
+  renderAllBallotPdfsAndCreateElectionDefinition,
 } from '@votingworks/hmpb';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { decryptAes256 } from '@votingworks/auth';
@@ -399,16 +399,15 @@ test('audit ballot IDs', async () => {
     ballotAuditId: '123',
   };
   const renderer = await createPlaywrightRenderer();
-  const ballotDocument = (
-    await renderAllBallotsAndCreateElectionDefinition(
+  const ballotPdf = (
+    await renderAllBallotPdfsAndCreateElectionDefinition(
       renderer,
       ballotTemplates.VxDefaultBallot,
       [ballotPropsWithAuditId],
       'vxf'
     )
-  ).ballotDocuments[0]!;
-  const pdf = await ballotDocument.renderToPdf();
-  const ballotImages = await pdfToImageSheet(pdf);
+  ).ballotPdfs[0]!;
+  const ballotImages = await pdfToImageSheet(ballotPdf);
 
   await withApp(
     async ({
