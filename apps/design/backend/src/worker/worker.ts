@@ -1,4 +1,4 @@
-import { extractErrorMessage, sleep } from '@votingworks/basics';
+import { assertDefined, extractErrorMessage, sleep } from '@votingworks/basics';
 
 import { WorkerContext } from './context';
 import { processBackgroundTask } from './tasks';
@@ -29,7 +29,16 @@ export async function processNextBackgroundTaskIfAny(
     return { wasTaskProcessed: true };
   }
   await store.completeBackgroundTask(nextTask.id);
-  console.log(`✅ Finished processing background task ${nextTask.id}`);
+  const completedTask = assertDefined(
+    await store.getBackgroundTask(nextTask.id)
+  );
+  const durationSeconds =
+    (assertDefined(completedTask.completedAt).getTime() -
+      assertDefined(completedTask.startedAt).getTime()) /
+    1_000;
+  console.log(
+    `✅ Finished processing background task ${nextTask.id} (${durationSeconds}s)`
+  );
   return { wasTaskProcessed: true };
   /* eslint-enable no-console */
 }
