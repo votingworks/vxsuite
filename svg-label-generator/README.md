@@ -1,14 +1,23 @@
 # SVG Label Generator
 
 A Python tool that generates individual SVG labels with dynamic serial numbers and QR codes from CSV data.
+A secondary script lays out an array of sequential labels for use in a user defined laser cutter
 
 ## Features
 
+### Label Generator
+
 - Reads CSV files containing machine IDs and QR code URLs
 - Generates individual SVG labels for each entry
-- Dynamically replaces serial numbers, machine names, versions, and QR codes
+- Dynamically replaces serial numbers, machine names, versions, and QR codes use svg tags
 - Interactive file selection from organized directory structure
 - Customizable output directory naming
+
+### Laser Layout
+- Interactive file selection looks for generated labels
+- allows user to input laser cutter dimensions, label padding, and offsets
+- calculates the number of layouts needed for a given laser cutter profile and number of labels
+- inverts colors for etching
 
 ## Requirements
 
@@ -38,13 +47,15 @@ mkdir -p assets/ids assets/templates
 
 ```
 svg-label-generator/
-├── svg_label_generator.py    # Main script
-├── requirements.txt          # Python dependencies
+├── svg_label_generator.py   # Main script
+├── requirements.txt         # Python dependencies
 ├── README.md                # This file
 ├── assets/
 │   ├── ids/                 # Place CSV files here
 │   └── templates/           # Place SVG template files here
-└── generated_labels/        # Output directory (created automatically)
+├── outputs/
+│   ├── ids/                 # Place CSV files here
+│   └── layouts/             # Place SVG template files here
 ```
 
 ## Usage
@@ -105,25 +116,6 @@ The script generates:
 - Handles file selection errors gracefully
 - Provides warnings for replacement failures
 - Sanitizes input data to remove control characters
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature-name`
-3. Make your changes and test thoroughly
-4. Commit your changes: `git commit -am 'Add some feature'`
-5. Push to the branch: `git push origin feature-name`
-6. Submit a pull request
-
-## License
-
-[Add your organization's license information here]
-
-## Support
-
-For questions or issues, please [contact information or create an issue in the repository].
-
-## Changelog
 
 ### v1.0.0
 - Initial release
