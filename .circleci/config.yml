@@ -214,6 +214,18 @@ jobs:
               printf "%s\n" "$MISSING"
               exit 1
             fi
+            # Error if the earliest new migration is older than main's latest migration
+            LATEST_ON_MAIN=$(tail -n1 /tmp/main_migrations || true)
+            if [ -n "$ADDED" ] && [ -n "$LATEST_ON_MAIN" ]; then
+              EARLIEST_ADDED=$(printf "%s\n" "$ADDED" | sed '/^$/d' | LC_ALL=C sort | head -n1 || true)
+              [ -z "$EARLIEST_ADDED" ] && exit 0
+              [ "$EARLIEST_ADDED" \> "$LATEST_ON_MAIN" ] || {
+                echo "All new migrations must sort after '$LATEST_ON_MAIN'."
+                echo "Offending example: '$EARLIEST_ADDED'"
+                exit 1
+              }
+            fi
+
       # Validate any migration added in the last commit has a timestamp after the preexisting migrations
       - run:
           name: Validate migration ordering (main only)
