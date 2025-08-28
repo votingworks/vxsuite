@@ -41,6 +41,7 @@ test('renders provided information', async () => {
   });
   apiMock.expectGetMostRecentScannerDiagnostic();
   apiMock.expectGetMostRecentAudioDiagnostic();
+  apiMock.expectGetMostRecentUpsDiagnostic();
   apiMock.expectGetMostRecentPrinterDiagnostic();
   apiMock.expectGetConfig({
     electionDefinition: readElectionTwoPartyPrimaryDefinition(),
@@ -57,6 +58,7 @@ test('renders provided information', async () => {
 
   screen.getByText('The scanner is connected.');
   screen.getByText('No test scan on record');
+  screen.getByText('No UPS test on record');
 
   screen.getByText('The printer is loaded with paper and ready to print.');
   screen.getByText('No test print on record');
@@ -70,6 +72,7 @@ test('renders scanner status and diagnostic result', async () => {
     timestamp: new Date('2024-01-01T00:00:00').getTime(),
   });
   apiMock.expectGetMostRecentAudioDiagnostic();
+  apiMock.expectGetMostRecentUpsDiagnostic();
   apiMock.expectGetMostRecentPrinterDiagnostic();
   apiMock.expectGetConfig();
   apiMock.expectGetScannerStatus({ state: 'disconnected', ballotsCounted: 0 });
@@ -86,6 +89,7 @@ test('renders current printer status and diagnostic result', async () => {
   apiMock.expectGetDiskSpaceSummary();
   apiMock.expectGetMostRecentScannerDiagnostic();
   apiMock.expectGetMostRecentAudioDiagnostic();
+  apiMock.expectGetMostRecentUpsDiagnostic();
   apiMock.expectGetMostRecentPrinterDiagnostic({
     type: 'test-print',
     outcome: 'fail',
@@ -113,6 +117,7 @@ test('renders audio diagnostic result', async () => {
     timestamp: new Date('2024-01-01T00:00:00').getTime(),
     type: 'scan-audio',
   });
+  apiMock.expectGetMostRecentUpsDiagnostic();
   apiMock.expectGetMostRecentPrinterDiagnostic();
   apiMock.expectGetConfig();
   apiMock.setPrinterStatusV4({ state: 'no-paper' });
@@ -129,6 +134,7 @@ test('can run scanner diagnostic flow', async () => {
   apiMock.expectGetMostRecentScannerDiagnostic();
   apiMock.expectGetMostRecentAudioDiagnostic();
   apiMock.expectGetMostRecentPrinterDiagnostic();
+  apiMock.expectGetMostRecentUpsDiagnostic();
   apiMock.expectGetConfig();
   apiMock.expectGetScannerStatus({ state: 'paused', ballotsCounted: 0 });
 
@@ -173,6 +179,7 @@ test('can enter load paper flow and print test page flow', async () => {
   apiMock.expectGetMostRecentScannerDiagnostic();
   apiMock.expectGetMostRecentAudioDiagnostic();
   apiMock.expectGetMostRecentPrinterDiagnostic();
+  apiMock.expectGetMostRecentUpsDiagnostic();
   apiMock.expectGetConfig();
 
   renderScreen();
@@ -193,6 +200,7 @@ test('can save readiness report', async () => {
   apiMock.expectGetDiskSpaceSummary();
   apiMock.expectGetMostRecentScannerDiagnostic();
   apiMock.expectGetMostRecentAudioDiagnostic();
+  apiMock.expectGetMostRecentUpsDiagnostic();
   apiMock.expectGetMostRecentPrinterDiagnostic();
   apiMock.expectGetConfig();
   apiMock.expectSaveReadinessReport();

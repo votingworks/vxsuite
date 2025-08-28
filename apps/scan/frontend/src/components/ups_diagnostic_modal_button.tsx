@@ -16,6 +16,7 @@ export function UpsDiagnosticModal(
     api.logUpsDiagnosticOutcome.useMutation();
 
   function onConfirm(outcome: DiagnosticOutcome) {
+    console.log('onConfirm clicked');
     logOutcome({ outcome });
     setVisible(false);
   }

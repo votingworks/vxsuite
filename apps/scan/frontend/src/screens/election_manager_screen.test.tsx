@@ -584,6 +584,7 @@ test('shows diagnostics button for hardware v4 and renders screen after click', 
   apiMock.expectGetMostRecentScannerDiagnostic();
   apiMock.expectGetMostRecentPrinterDiagnostic();
   apiMock.expectGetMostRecentAudioDiagnostic();
+  apiMock.expectGetMostRecentUpsDiagnostic();
   renderScreen({
     scannerStatus: statusNoPaper,
     usbDrive: mockUsbDriveStatus('mounted'),

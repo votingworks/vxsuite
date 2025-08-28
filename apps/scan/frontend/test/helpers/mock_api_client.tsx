@@ -355,8 +355,20 @@ export function createApiMock() {
         .resolves(result);
     },
 
+    expectGetMostRecentUpsDiagnostic(result: DiagnosticRecord | null = null) {
+      mockApiClient.getMostRecentUpsDiagnostic
+        .expectCallWith()
+        .resolves(result);
+    },
+
     expectLogAudioDiagnosticOutcome(outcome: DiagnosticOutcome) {
       mockApiClient.logAudioDiagnosticOutcome
+        .expectCallWith({ outcome })
+        .resolves();
+    },
+
+    expectLogUpsDiagnosticOutcome(outcome: DiagnosticOutcome) {
+      mockApiClient.logUpsDiagnosticOutcome
         .expectCallWith({ outcome })
         .resolves();
     },
