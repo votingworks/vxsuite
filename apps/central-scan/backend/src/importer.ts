@@ -1,5 +1,6 @@
 import { Result, assert, assertDefined, ok, sleep } from '@votingworks/basics';
 import {
+  DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE,
   ElectionDefinition,
   Id,
   PageInterpretation,
@@ -211,7 +212,7 @@ export class Importer {
       allowOfficialBallotsInTestMode,
       disableVerticalStreakDetection,
       markThresholds,
-      minimumDetectedScale,
+      minimumDetectedBallotScaleOverride,
     } = assertDefined(store.getSystemSettings());
 
     return ok(
@@ -224,7 +225,9 @@ export class Importer {
           adjudicationReasons: store.getAdjudicationReasons(),
           markThresholds,
           allowOfficialBallotsInTestMode,
-          minimumDetectedScale,
+          minimumDetectedScale:
+            minimumDetectedBallotScaleOverride ??
+            DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE,
         },
         [frontImageData, backImageData],
         sheetId,

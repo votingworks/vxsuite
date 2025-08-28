@@ -97,11 +97,12 @@ export interface SystemSettings {
   readonly precinctScanEnableBmdBallotScanning?: boolean;
 
   /**
-   * Reject ballots with a detected scale less than this value. This can
-   * prevent issues with bubble scoring on ballots that are printed at too low
-   * of a scale. In practice, this value should be between 0.9 and 1.0.
+   * We detect the print scale of ballots and reject those with a detected scale less than
+   * {@link DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE} to prevent issues with bubble scoring on ballots
+   * that are printed at too low of a scale. This setting allows overriding that default value. The
+   * check can be essentially disabled by setting this value to 0.
    */
-  readonly minimumDetectedScale?: number;
+  readonly minimumDetectedBallotScaleOverride?: number;
 
   /**
    * When enabled, voters may select select additional candidates beyond the
@@ -129,7 +130,7 @@ export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
   quickResultsReportingUrl: z.string().optional(),
   precinctScanEnableBallotAuditIds: z.boolean().optional(),
   precinctScanEnableBmdBallotScanning: z.boolean().optional(),
-  minimumDetectedScale: z.number().min(0.0).max(1.0).optional(),
+  minimumDetectedBallotScaleOverride: z.number().min(0.0).max(1.0).optional(),
   bmdAllowOvervotes: z.boolean().optional(),
 });
 
@@ -149,10 +150,10 @@ export const DEFAULT_MARK_THRESHOLDS: Readonly<MarkThresholds> = {
 };
 
 /**
- * The default bitonal threshold for scanning ballots.
- * See Section 2.1.43 of the PDI PageScan software specification.
+ * See {@link SystemSettings.minimumDetectedBallotScaleOverride} for more context. Landed on this
+ * as a good default through empirical testing.
  */
-export const DEFAULT_BITONAL_THRESHOLD = 75;
+export const DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE = 0.985;
 
 export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
   auth: {

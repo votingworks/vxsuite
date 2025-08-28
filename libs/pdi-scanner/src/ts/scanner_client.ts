@@ -396,17 +396,15 @@ export function createPdiScannerClient() {
      * automatically scan any document inserted into the scanner.
      */
     async enableScanning({
-      bitonalThreshold,
       doubleFeedDetectionEnabled,
       paperLengthInches,
     }: {
-      bitonalThreshold: number;
       doubleFeedDetectionEnabled: boolean;
       paperLengthInches: number;
     }): Promise<SimpleResult> {
       return sendSimpleCommand({
         command: 'enableScanning',
-        bitonalThreshold,
+        bitonalThreshold: 75, // See Section 2.1.43 of the PDI PageScan software specification
         doubleFeedDetectionEnabled,
         paperLengthInches,
       });

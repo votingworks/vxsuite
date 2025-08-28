@@ -164,13 +164,13 @@ test('ballots printed with invalid scale are rejected', async () => {
       const { electionDefinition } = vxFamousNamesFixtures;
 
       mockElectionManagerAuth(auth, electionDefinition);
-      const minimumDetectedScale = 1.0;
+      const minimumDetectedBallotScaleOverride = 1.0;
       mockUsbDrive.insertUsbDrive(
         await mockElectionPackageFileTree({
           electionDefinition: vxFamousNamesFixtures.electionDefinition,
           systemSettings: {
             ...DEFAULT_SYSTEM_SETTINGS,
-            minimumDetectedScale,
+            minimumDetectedBallotScaleOverride,
           },
         })
       );
@@ -186,7 +186,7 @@ test('ballots printed with invalid scale are rejected', async () => {
         const nextSession = scanner.withNextScannerSession();
 
         // scan a mis-scaled ballot
-        const scale = minimumDetectedScale - 0.1;
+        const scale = minimumDetectedBallotScaleOverride - 0.1;
         const [frontImageData, backImageData] = asSheet(
           await iter(
             pdfToImages(

@@ -43,7 +43,6 @@ export function createSimpleScannerClient(): SimpleScannerClient {
       (await client.disableScanning()).unsafeUnwrap();
       (
         await client.enableScanning({
-          bitonalThreshold: 75,
           doubleFeedDetectionEnabled: false,
           paperLengthInches: 22,
         })

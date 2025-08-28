@@ -76,7 +76,6 @@ test('scanBatch with streaked page', async () => {
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'no_paper' });
       expect(mockScanner.client.enableScanning).toHaveBeenCalledWith({
-        bitonalThreshold: 75,
         doubleFeedDetectionEnabled: true,
         paperLengthInches: 11,
       });
@@ -122,7 +121,6 @@ test('scanBatch with streaked page', async () => {
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'no_paper' });
       expect(mockScanner.client.enableScanning).toHaveBeenCalledWith({
-        bitonalThreshold: 75,
         doubleFeedDetectionEnabled: true,
         paperLengthInches: 11,
       });

@@ -61,7 +61,6 @@ test('configure and scan hmpb', async () => {
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'no_paper' });
       expect(mockScanner.client.enableScanning).toHaveBeenCalledWith({
-        bitonalThreshold: 75,
         doubleFeedDetectionEnabled: true,
         paperLengthInches: 11,
       });
@@ -138,7 +137,6 @@ test('configure and scan bmd ballot', async () => {
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'no_paper' });
       expect(mockScanner.client.enableScanning).toHaveBeenCalledWith({
-        bitonalThreshold: 75,
         doubleFeedDetectionEnabled: true,
         paperLengthInches: 11,
       });
@@ -409,7 +407,7 @@ test('ballot printed at an invalid scale is rejected', async () => {
             electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition(),
           systemSettings: {
             ...DEFAULT_SYSTEM_SETTINGS,
-            minimumDetectedScale: 1.0,
+            minimumDetectedBallotScaleOverride: 1.0,
           },
         },
       });

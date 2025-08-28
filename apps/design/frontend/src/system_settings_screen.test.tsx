@@ -115,19 +115,22 @@ test('minimum detected scale', async () => {
 
   screen.getByRole('heading', { name: 'Scanner Thresholds' });
 
-  const minimumDetectedScaleInput = screen.getByRole('spinbutton', {
-    name: 'Minimum Detected Scale',
-  });
-  expect(minimumDetectedScaleInput).toBeDisabled();
-  expect(minimumDetectedScaleInput).toHaveValue(null);
+  const minimumDetectedBallotScaleOverrideInput = screen.getByRole(
+    'spinbutton',
+    {
+      name: 'Minimum Detected Ballot Scale Override',
+    }
+  );
+  expect(minimumDetectedBallotScaleOverrideInput).toBeDisabled();
+  expect(minimumDetectedBallotScaleOverrideInput).toHaveValue(null);
 
   userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
-  userEvent.type(minimumDetectedScaleInput, '{selectall}0.975');
+  userEvent.type(minimumDetectedBallotScaleOverrideInput, '{selectall}0.995');
 
   const updatedSystemSettings: SystemSettings = {
     ...DEFAULT_SYSTEM_SETTINGS,
-    minimumDetectedScale: 0.975,
+    minimumDetectedBallotScaleOverride: 0.995,
   };
   apiMock.updateSystemSettings
     .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
