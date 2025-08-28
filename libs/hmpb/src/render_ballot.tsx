@@ -437,6 +437,29 @@ async function addQrCodesAndBallotHashes(
 }
 
 /**
+ * Given a ballot render document, renders the ballot as a PDF. Adds a QR code
+ * with the ballot metadata (unless it's a sample ballot).
+ */
+export async function renderBallotPdfWithMetadataQrCode(
+  props: BaseBallotProps,
+  document: RenderDocument,
+  electionDefinition: ElectionDefinition
+): Promise<Uint8Array> {
+  if (props.ballotMode !== 'sample') {
+    await addQrCodesAndBallotHashes(document, electionDefinition.election, {
+      ballotHash: electionDefinition.ballotHash,
+      ballotStyleId: props.ballotStyleId,
+      precinctId: props.precinctId,
+      ballotType: props.ballotType,
+      isTestMode: props.ballotMode !== 'official',
+      ballotAuditId: props.ballotAuditId,
+    });
+  }
+
+  return await document.renderToPdf();
+}
+
+/**
  * Given a {@link BallotPageTemplate} and a single set of props, renders the
  * pages of the ballot and returns the resulting {@link RenderDocument}.
  */
@@ -490,12 +513,14 @@ export interface BaseBallotProps {
 }
 
 /**
- * Given a {@link BallotPageTemplate} and a list of ballot props, renders
- * ballot for each set of props. Then, extracts the grid layout from the
- * rendered ballots and creates an election definition. Lastly, inserts QR codes
- * into the ballots with the resulting ballot hash.
+ * Given a {@link BallotPageTemplate} and a list of ballot props, lays out
+ * each ballot for each set of props. Then, extracts the grid layout from the
+ * ballot and creates an election definition. Returns the HTML content for each
+ * ballot alongside the election definition.
+ *
+ * Note: This function does not insert metadata QR codes into the ballots.
  */
-export async function renderAllBallotsAndCreateElectionDefinition<
+export async function layOutBallotsAndCreateElectionDefinition<
   P extends BaseBallotProps,
 >(
   renderer: Renderer,
@@ -503,13 +528,13 @@ export async function renderAllBallotsAndCreateElectionDefinition<
   ballotProps: P[],
   electionSerializationFormat: ElectionSerializationFormat
 ): Promise<{
-  ballotDocuments: RenderDocument[];
+  ballotContents: string[];
   electionDefinition: ElectionDefinition;
 }> {
   const { election } = ballotProps[0];
   assert(ballotProps.every((props) => props.election === election));
 
-  const ballotsWithLayouts = [];
+  const ballotLayouts = [];
   for (const props of ballotProps) {
     // We currently only need to return errors to the user in ballot preview -
     // we assume the ballot was proofed by the time this function is called.
@@ -517,16 +542,18 @@ export async function renderAllBallotsAndCreateElectionDefinition<
       await renderBallotTemplate(renderer, template, props)
     ).unsafeUnwrap();
     const gridLayout = await extractGridLayout(document, props.ballotStyleId);
-    ballotsWithLayouts.push({
-      document,
-      gridLayout,
+    const ballotContent = await document.getContent();
+    document.cleanup();
+    ballotLayouts.push({
       props,
+      gridLayout,
+      ballotContent,
     });
   }
 
   // All ballots of a given ballot style must have the same grid layout.
   // Changing precinct/ballot type/ballot mode shouldn't matter.
-  const layoutsByBallotStyle = iter(ballotsWithLayouts)
+  const layoutsByBallotStyle = iter(ballotLayouts)
     .map((ballot) => ballot.gridLayout)
     .toMap((gridLayout) => gridLayout.ballotStyleId);
   for (const [ballotStyleId, layouts] of layoutsByBallotStyle.entries()) {
@@ -574,23 +601,44 @@ export async function renderAllBallotsAndCreateElectionDefinition<
     JSON.stringify(electionToHash, null, 2)
   ).unsafeUnwrap();
 
-  for (const { document, props } of ballotsWithLayouts) {
-    if (props.ballotMode !== 'sample') {
-      await addQrCodesAndBallotHashes(document, electionDefinition.election, {
-        ballotHash: electionDefinition.ballotHash,
-        ballotStyleId: props.ballotStyleId,
-        precinctId: props.precinctId,
-        ballotType: props.ballotType,
-        isTestMode: props.ballotMode !== 'official',
-        ballotAuditId: props.ballotAuditId,
-      });
-    }
-  }
-
   return {
-    ballotDocuments: ballotsWithLayouts.map((ballot) => ballot.document),
+    ballotContents: ballotLayouts.map(({ ballotContent }) => ballotContent),
     electionDefinition,
   };
+}
+
+export async function renderAllBallotPdfsAndCreateElectionDefinition<
+  P extends BaseBallotProps,
+>(
+  renderer: Renderer,
+  template: BallotPageTemplate<P>,
+  ballotProps: P[],
+  electionSerializationFormat: ElectionSerializationFormat
+): Promise<{
+  ballotPdfs: Uint8Array[];
+  electionDefinition: ElectionDefinition;
+}> {
+  const { ballotContents, electionDefinition } =
+    await layOutBallotsAndCreateElectionDefinition(
+      renderer,
+      template,
+      ballotProps,
+      electionSerializationFormat
+    );
+
+  const ballotPdfs = [];
+  for (let i = 0; i < ballotProps.length; i += 1) {
+    const props = ballotProps[i];
+    const document = await renderer.loadDocumentFromContent(ballotContents[i]);
+    const ballotPdf = await renderBallotPdfWithMetadataQrCode(
+      props,
+      document,
+      electionDefinition
+    );
+    document.cleanup();
+    ballotPdfs.push(ballotPdf);
+  }
+  return { ballotPdfs, electionDefinition };
 }
 
 /**
@@ -633,12 +681,11 @@ export async function renderMinimalBallotsToCreateElectionDefinition<
     allBallotProps,
     (props) => props.ballotStyleId
   ).map(([, [, props]]) => props);
-  const { electionDefinition } =
-    await renderAllBallotsAndCreateElectionDefinition(
-      renderer,
-      template,
-      minimalBallotProps,
-      electionSerializationFormat
-    );
+  const { electionDefinition } = await layOutBallotsAndCreateElectionDefinition(
+    renderer,
+    template,
+    minimalBallotProps,
+    electionSerializationFormat
+  );
   return electionDefinition;
 }
