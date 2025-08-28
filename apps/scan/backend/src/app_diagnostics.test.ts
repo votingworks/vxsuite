@@ -8,7 +8,11 @@ import { LogEventId } from '@votingworks/logging';
 import { DiagnosticRecord } from '@votingworks/types';
 import { DiskSpaceSummary, getDiskSpaceSummary } from '@votingworks/backend';
 import { withApp } from '../test/helpers/pdi_helpers';
-import { TEST_PRINT_USER_FAIL_REASON } from './util/diagnostics';
+import {
+  TEST_PRINT_USER_FAIL_REASON,
+  TEST_UPS_USER_FAIL_REASON,
+  TEST_UPS_USER_PASS_REASON,
+} from './util/diagnostics';
 import { configureApp } from '../test/helpers/shared_helpers';
 
 vi.setConfig({ testTimeout: 60_000 });
@@ -200,4 +204,55 @@ test('printing a readiness report', async () => {
       });
     }
   );
+});
+
+test('user logged "pass" for UPS diagnostic', async () => {
+  await withApp(async ({ apiClient, logger }) => {
+    expect(await apiClient.getMostRecentUpsDiagnostic()).toBeNull();
+
+    await wrapWithFakeSystemTime(() =>
+      apiClient.logUpsDiagnosticOutcome({ outcome: 'pass' })
+    );
+
+    expect(
+      await apiClient.getMostRecentUpsDiagnostic()
+    ).toEqual<DiagnosticRecord>({
+      outcome: 'pass',
+      timestamp: mockTime.getTime(),
+      type: 'uninterruptible-power-supply',
+    });
+    expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+      LogEventId.DiagnosticComplete,
+      {
+        disposition: 'success',
+        message: TEST_UPS_USER_PASS_REASON,
+      }
+    );
+  });
+});
+
+test('user logged "fail" for UPS diagnostic', async () => {
+  await withApp(async ({ apiClient, logger }) => {
+    expect(await apiClient.getMostRecentUpsDiagnostic()).toBeNull();
+
+    await wrapWithFakeSystemTime(() =>
+      apiClient.logUpsDiagnosticOutcome({ outcome: 'fail' })
+    );
+
+    expect(
+      await apiClient.getMostRecentUpsDiagnostic()
+    ).toEqual<DiagnosticRecord>({
+      outcome: 'fail',
+      timestamp: mockTime.getTime(),
+      type: 'uninterruptible-power-supply',
+      message: TEST_UPS_USER_FAIL_REASON,
+    });
+    expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+      LogEventId.DiagnosticComplete,
+      {
+        disposition: 'failure',
+        message: TEST_UPS_USER_FAIL_REASON,
+      }
+    );
+  });
 });
