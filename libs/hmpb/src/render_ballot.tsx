@@ -536,22 +536,24 @@ export async function layOutBallotsAndCreateElectionDefinition<
   const { election } = ballotProps[0];
   assert(ballotProps.every((props) => props.election === election));
 
-  const ballotLayouts = [];
-  for (const props of ballotProps) {
-    // We currently only need to return errors to the user in ballot preview -
-    // we assume the ballot was proofed by the time this function is called.
-    const document = (
-      await renderBallotTemplate(renderer, template, props)
-    ).unsafeUnwrap();
-    const gridLayout = await extractGridLayout(document, props.ballotStyleId);
-    const ballotContent = await document.getContent();
-    document.cleanup();
-    ballotLayouts.push({
-      props,
-      gridLayout,
-      ballotContent,
-    });
-  }
+  const ballotLayouts = await iter(ballotProps)
+    .async()
+    .map(async (props) => {
+      // We currently only need to return errors to the user in ballot preview -
+      // we assume the ballot was proofed by the time this function is called.
+      const document = (
+        await renderBallotTemplate(renderer, template, props)
+      ).unsafeUnwrap();
+      const gridLayout = await extractGridLayout(document, props.ballotStyleId);
+      const ballotContent = await document.getContent();
+      document.cleanup();
+      return {
+        props,
+        gridLayout,
+        ballotContent,
+      };
+    })
+    .toArray();
 
   // All ballots of a given ballot style must have the same grid layout.
   // Changing precinct/ballot type/ballot mode shouldn't matter.
@@ -628,18 +630,20 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
       electionSerializationFormat
     );
 
-  const ballotPdfs = [];
-  for (let i = 0; i < ballotProps.length; i += 1) {
-    const props = ballotProps[i];
-    const document = await renderer.loadDocumentFromContent(ballotContents[i]);
-    const ballotPdf = await renderBallotPdfWithMetadataQrCode(
-      props,
-      document,
-      electionDefinition
-    );
-    document.cleanup();
-    ballotPdfs.push(ballotPdf);
-  }
+  const ballotPdfs = await iter(ballotProps)
+    .zip(ballotContents)
+    .async()
+    .map(async ([props, ballotContent]) => {
+      const document = await renderer.loadDocumentFromContent(ballotContent);
+      const ballotPdf = await renderBallotPdfWithMetadataQrCode(
+        props,
+        document,
+        electionDefinition
+      );
+      document.cleanup();
+      return ballotPdf;
+    })
+    .toArray();
   return { ballotPdfs, electionDefinition };
 }
 
