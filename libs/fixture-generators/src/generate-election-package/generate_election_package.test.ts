@@ -21,7 +21,7 @@ import {
   ballotTemplates,
   createPlaywrightRenderer,
   hmpbStringsCatalog,
-  renderMinimalBallotsToCreateElectionDefinition,
+  layOutMinimalBallotsToCreateElectionDefinition,
 } from '@votingworks/hmpb';
 import { GoogleCloudTranslatorWithElectionCache } from './translator_with_election_cache';
 
@@ -97,7 +97,7 @@ describe('fixtures are up to date - run `pnpm generate-election-packages` if thi
 
       // Check that the generated election's ballot hash has not changed.
       const electionDefinition =
-        await renderMinimalBallotsToCreateElectionDefinition(
+        await layOutMinimalBallotsToCreateElectionDefinition(
           renderer,
           ballotTemplates.VxDefaultBallot,
           allBaseBallotProps(electionWithBallotStrings),

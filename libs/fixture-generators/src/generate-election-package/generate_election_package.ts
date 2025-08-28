@@ -7,7 +7,7 @@ import {
   ballotTemplates,
   createPlaywrightRenderer,
   hmpbStringsCatalog,
-  renderMinimalBallotsToCreateElectionDefinition,
+  layOutMinimalBallotsToCreateElectionDefinition,
 } from '@votingworks/hmpb';
 import {
   DEFAULT_SYSTEM_SETTINGS,
@@ -78,7 +78,7 @@ export async function generateElectionPackage(
     ballotStrings,
   };
   const electionDefinition =
-    await renderMinimalBallotsToCreateElectionDefinition(
+    await layOutMinimalBallotsToCreateElectionDefinition(
       renderer,
       ballotTemplates.VxDefaultBallot,
       allBaseBallotProps(electionWithBallotStrings),

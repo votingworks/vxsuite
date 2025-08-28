@@ -666,12 +666,12 @@ export function allBaseBallotProps(election: Election): BaseBallotProps[] {
 }
 
 /**
- * Renders the minimal set of ballots required to create an election definition
+ * Lays out the minimal set of ballots required to create an election definition
  * with grid layouts included. Each ballot style will have exactly one grid
  * layout regardless of precinct, ballot type, or ballot mode. So we just need
  * to render a single ballot per ballot style to create the election definition
  */
-export async function renderMinimalBallotsToCreateElectionDefinition<
+export async function layOutMinimalBallotsToCreateElectionDefinition<
   P extends BaseBallotProps,
 >(
   renderer: Renderer,
