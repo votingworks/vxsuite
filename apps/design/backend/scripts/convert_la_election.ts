@@ -193,6 +193,10 @@ function convertToElection(
   presidentialCandidateFileContents?: string,
   candidateAddressFileContents?: string
 ): Election {
+  const laToVxContestId: Record<string, string> = {};
+  const laToVxCandidateId: Record<string, string> = {};
+  const contestTitleToLaId = new Map<string, string>();
+
   const defaultParseOptions: CsvParseOptions = {
     skipEmptyLines: true,
     ignore_last_delimiters: true,
@@ -212,6 +216,9 @@ function convertToElection(
     const contestTitle = getContestTitle(row);
     const votesAllowed = safeParseInt(row.votesAllowed).unsafeUnwrap();
     votesAllowedByContestTitle.set(contestTitle, votesAllowed);
+
+    // Trim leading 0's to match audio filenames:
+    contestTitleToLaId.set(contestTitle, row.officeId.replace(/^0*/, ''));
   }
 
   // Fix newline inside of unquoted field
@@ -275,6 +282,15 @@ function convertToElection(
     };
     districtsByName.set(districtName, district);
 
+    const contestIdLa = assertDefined(contestTitleToLaId.get(contestTitle));
+
+    // Use last 3 characters to match audio file names, to simplify matching
+    // logic later on.
+    const candidateIdPrefixLa = assertDefined(
+      row.candidateIdWithLeadingZeros
+    ).slice(-3);
+    const candidateIdLa = `${candidateIdPrefixLa}.${contestIdLa}`;
+
     if (isCandidateContest) {
       const contest = candidateContestsByName.get(contestTitle) ?? {
         id: generateId(),
@@ -289,6 +305,9 @@ function convertToElection(
         allowWriteIns: false,
         partyId: electionType === 'primary' ? party?.id : undefined,
       };
+
+      laToVxContestId[contestIdLa] = contest.id;
+
       const candidate: Candidate = {
         id: generateId(),
         lastName: row.lastName,
@@ -302,6 +321,8 @@ function convertToElection(
         candidates: [...contest.candidates, candidate],
       });
       candidatesByLaId.set(row.candidateId, candidate);
+
+      laToVxCandidateId[candidateIdLa] = candidate.id;
     } else {
       let contest = ballotMeasureContestsByName.get(contestTitle);
       if (!contest) {
@@ -321,6 +342,8 @@ function convertToElection(
             label: '',
           },
         };
+
+        laToVxContestId[contestIdLa] = contest.id;
       } else {
         contest = {
           ...contest,
@@ -586,6 +609,10 @@ function convertToElection(
     customBallotContent: {
       presidentialCandidateBallotStrings,
       candidateAddresses,
+      externalToVxIdMapping: {
+        candidates: laToVxCandidateId,
+        contests: laToVxContestId,
+      },
     },
   };
 }

@@ -36,11 +36,22 @@ export const LaPresidentialCandidateBallotStringsSchema: z.ZodSchema<LaPresident
 export interface LaCustomBallotContent {
   /** Candidate ID to address */
   candidateAddresses?: Record<Id, LaCandidateAddress>;
+
+  externalToVxIdMapping?: ExternalToVxIdMapping;
+
   /** Candidate ID to ballot text */
   presidentialCandidateBallotStrings?: Record<
     Id,
     LaPresidentialCandidateBallotStrings
   >;
+}
+
+export interface ExternalToVxIdMapping {
+  /** External candidate ID to Vx candidate ID mapping. */
+  candidates: Record<string, string>;
+
+  /** External contest ID to Vx contest ID mapping. */
+  contests: Record<string, string>;
 }
 
 export const LaCustomBallotContentSchema: z.ZodSchema<LaCustomBallotContent> =
@@ -50,5 +61,11 @@ export const LaCustomBallotContentSchema: z.ZodSchema<LaCustomBallotContent> =
       .optional(),
     presidentialCandidateBallotStrings: z
       .record(z.string(), LaPresidentialCandidateBallotStringsSchema)
+      .optional(),
+    externalToVxIdMapping: z
+      .object({
+        candidates: z.record(z.string(), z.string()),
+        contests: z.record(z.string(), z.string()),
+      })
       .optional(),
   });
