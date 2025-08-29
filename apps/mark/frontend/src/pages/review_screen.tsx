@@ -4,6 +4,7 @@ import { useHistory } from 'react-router-dom';
 import { ReviewPage } from '@votingworks/mark-flow-ui';
 
 import { BallotContext } from '../contexts/ballot_context';
+import { uiStringsApi } from '../api';
 
 export function ReviewScreen(): JSX.Element {
   const history = useHistory();
@@ -21,6 +22,7 @@ export function ReviewScreen(): JSX.Element {
           `/contests/${contests.findIndex(({ id }) => id === contestId)}#review`
         );
       }}
+      uiStringsApi={uiStringsApi}
       votes={votes}
     />
   );

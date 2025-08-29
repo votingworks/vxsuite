@@ -7,7 +7,7 @@ import { PrintMode } from '@votingworks/mark-backend';
 import { isIntegrationTest } from '@votingworks/utils';
 import { AccessibilityMode } from '@votingworks/ui';
 import { BallotContext } from '../contexts/ballot_context';
-import { getPrintMode, getSystemSettings } from '../api';
+import { getPrintMode, getSystemSettings, uiStringsApi } from '../api';
 
 function getContestUrl(contestIndex: number) {
   return `/contests/${contestIndex}`;
@@ -56,6 +56,7 @@ export function ContestScreen(): React.ReactNode {
       getReviewPageUrl={getReviewPageUrl}
       getStartPageUrl={getStartPageUrl}
       precinctId={precinctId}
+      uiStringsApi={uiStringsApi}
       updateVote={updateVote}
       votes={votes}
     />

@@ -7,10 +7,13 @@ import {
   H2,
   NumberString,
   ReadOnLoad,
+  TextOnly,
+  UiStringsReactQueryApi,
   appStrings,
   electionStrings,
 } from '@votingworks/ui';
-import { Contest, District } from '@votingworks/types';
+import { Contest, District, ElectionStringKey } from '@votingworks/types';
+import getDeepValue from 'lodash.get';
 import { MsEitherNeitherContest } from '../utils/ms_either_neither_contests';
 
 export interface ContestHeaderProps {
@@ -19,6 +22,7 @@ export interface ContestHeaderProps {
   contest: Contest | MsEitherNeitherContest;
   district: District;
   className?: string;
+  uiStringsApi: UiStringsReactQueryApi;
 }
 
 export interface BreadcrumbMetadata {
@@ -53,8 +57,17 @@ export function Breadcrumbs(props: BreadcrumbMetadata): React.ReactNode {
   );
 }
 
-export function ContestHeader(props: ContestHeaderProps): JSX.Element {
-  const { breadcrumbs, children, contest, district, className } = props;
+export function ContestHeader(props: ContestHeaderProps): React.ReactNode {
+  const { breadcrumbs, children, contest, district, className, uiStringsApi } =
+    props;
+
+  const audioIdsQuery = uiStringsApi.getAudioIds.useQuery('en');
+  const hasContestAudioOverride = !!getDeepValue(
+    audioIdsQuery.data,
+    `${ElectionStringKey.LA_CONTEST_AUDIO}.${contest.id}`
+  );
+
+  if (audioIdsQuery.isLoading) return null;
 
   return (
     <Container id="contest-header" className={className}>
@@ -70,12 +83,31 @@ export function ContestHeader(props: ContestHeaderProps): JSX.Element {
           </AudioOnly>
         )}
         <div>
-          <Caption weight="semiBold">
-            {electionStrings.districtName(district)}
-          </Caption>
+          {hasContestAudioOverride ? (
+            <TextOnly>
+              <Caption weight="semiBold">
+                {electionStrings.districtName(district)}
+              </Caption>
+            </TextOnly>
+          ) : (
+            <Caption weight="semiBold">
+              {electionStrings.districtName(district)}
+            </Caption>
+          )}
         </div>
         <div>
-          <H2 as="h1">{electionStrings.contestTitle(contest)}</H2>
+          {hasContestAudioOverride ? (
+            <React.Fragment>
+              <AudioOnly>{electionStrings.laContestAudio(contest)}</AudioOnly>
+              <div>
+                <TextOnly>
+                  <H2 as="h1">{electionStrings.contestTitle(contest)}</H2>
+                </TextOnly>
+              </div>
+            </React.Fragment>
+          ) : (
+            <H2 as="h1">{electionStrings.contestTitle(contest)}</H2>
+          )}
         </div>
         {children}
       </ReadOnLoad>

@@ -50,6 +50,13 @@ import {
 import { generateBallotStyles } from './ballot_styles';
 import { Db } from './db/db';
 import { Bindable, Client } from './db/client';
+import {
+  AudioOverrideCandidate,
+  AudioOverrideContest,
+  AudioOverrideKey,
+  AudioOverrideQuery,
+  audioOverrides,
+} from './store_audio_demo';
 
 export interface ElectionRecord {
   orgId: string;
@@ -349,8 +356,8 @@ async function insertContest(
       if (ballotOrder === undefined) {
         // Get all current contests in order
         const { rows: allContests } = await client.query(
-          `select id, type from contests 
-           where election_id = $1 
+          `select id, type from contests
+           where election_id = $1
            order by ballot_order`,
           electionId
         );
@@ -1836,6 +1843,38 @@ export class Store {
         set started_at = null
         where started_at is not null and completed_at is null
       `)
+    );
+  }
+
+  /* istanbul ignore next - @preserve */
+  async audioOverrideDataUrl(
+    query: AudioOverrideQuery
+  ): Promise<string | null> {
+    return this.db.withClient(async (client) =>
+      audioOverrides.dataUrl(client, query)
+    );
+  }
+
+  /* istanbul ignore next - @preserve */
+  async audioOverrideKeys(electionId: string): Promise<AudioOverrideKey[]> {
+    return this.db.withClient(async (client) =>
+      audioOverrides.keys(client, { electionId })
+    );
+  }
+
+  /* istanbul ignore next - @preserve */
+  async audioOverridesSetCandidate(
+    params: AudioOverrideCandidate
+  ): Promise<void> {
+    await this.db.withClient(async (client) =>
+      audioOverrides.setCandidate(client, params)
+    );
+  }
+
+  /* istanbul ignore next - @preserve */
+  async audioOverridesSetContest(params: AudioOverrideContest): Promise<void> {
+    await this.db.withClient(async (client) =>
+      audioOverrides.setContest(client, params)
     );
   }
 }

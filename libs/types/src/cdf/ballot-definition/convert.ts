@@ -347,6 +347,14 @@ const extractorFns: Record<
       values: state.Name.Text,
     });
   },
+
+  // Louisiana-specific audio strings:
+  [ElectionStringKey.LA_CANDIDATE_AUDIO]() {
+    throw new Error('not yet implemented');
+  },
+  [ElectionStringKey.LA_CONTEST_AUDIO]() {
+    throw new Error('not yet implemented');
+  },
 };
 
 export function extractCdfUiStrings(
