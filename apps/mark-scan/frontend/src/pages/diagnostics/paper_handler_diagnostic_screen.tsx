@@ -20,7 +20,7 @@ export function PaperHandlerDiagnosticScreen({
 
   let contents = <Loading />;
   let closeButton = (
-    <Button icon="Delete" onPress={onClose}>
+    <Button icon="Delete" variant="danger" onPress={onClose}>
       Cancel Test
     </Button>
   );
