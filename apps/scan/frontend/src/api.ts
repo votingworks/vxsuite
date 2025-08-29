@@ -508,12 +508,24 @@ export const logTestPrintOutcome = {
 
 export const getMostRecentAudioDiagnostic = {
   queryKey(): QueryKey {
-    return ['getMostAudioDiagnostic'];
+    return ['getMostRecentAudioDiagnostic'];
   },
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () =>
       apiClient.getMostRecentAudioDiagnostic()
+    );
+  },
+} as const;
+
+export const getMostRecentUpsDiagnostic = {
+  queryKey(): QueryKey {
+    return ['getMostRecentUpsDiagnostic'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () =>
+      apiClient.getMostRecentUpsDiagnostic()
     );
   },
 } as const;
@@ -526,6 +538,20 @@ export const logAudioDiagnosticOutcome = {
       async onSuccess() {
         await queryClient.invalidateQueries(
           getMostRecentAudioDiagnostic.queryKey()
+        );
+      },
+    });
+  },
+} as const;
+
+export const logUpsDiagnosticOutcome = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.logUpsDiagnosticOutcome, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(
+          getMostRecentUpsDiagnostic.queryKey()
         );
       },
     });

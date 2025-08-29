@@ -65,6 +65,8 @@ import { printReportSection } from './printing/print_report_section';
 import {
   TEST_AUDIO_USER_FAIL_REASON,
   TEST_PRINT_USER_FAIL_REASON,
+  TEST_UPS_USER_FAIL_REASON,
+  TEST_UPS_USER_PASS_REASON,
   testPrintFailureDiagnosticMessage,
 } from './util/diagnostics';
 import { saveReadinessReport } from './printing/readiness_report';
@@ -517,6 +519,13 @@ export function buildApi({
       return store.getMostRecentDiagnosticRecord('scan-audio') ?? null;
     },
 
+    getMostRecentUpsDiagnostic(): DiagnosticRecord | null {
+      return (
+        store.getMostRecentDiagnosticRecord('uninterruptible-power-supply') ??
+        null
+      );
+    },
+
     logAudioDiagnosticOutcome(input: { outcome: DiagnosticOutcome }): void {
       store.addDiagnosticRecord({
         type: 'scan-audio',
@@ -530,6 +539,22 @@ export function buildApi({
           input.outcome === 'pass'
             ? 'Audio playback successful.'
             : `Audio playback failed. ${TEST_AUDIO_USER_FAIL_REASON}`,
+      });
+    },
+
+    logUpsDiagnosticOutcome(input: { outcome: DiagnosticOutcome }): void {
+      store.addDiagnosticRecord({
+        type: 'uninterruptible-power-supply',
+        outcome: input.outcome,
+        message:
+          input.outcome === 'pass' ? undefined : TEST_UPS_USER_FAIL_REASON,
+      });
+      void logger.logAsCurrentRole(LogEventId.DiagnosticComplete, {
+        disposition: input.outcome === 'pass' ? 'success' : 'failure',
+        message:
+          input.outcome === 'pass'
+            ? TEST_UPS_USER_PASS_REASON
+            : TEST_UPS_USER_FAIL_REASON,
       });
     },
 

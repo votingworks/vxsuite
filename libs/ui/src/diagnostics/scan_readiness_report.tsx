@@ -17,12 +17,17 @@ import {
   PrecinctScannerSection,
   PrecinctScannerSectionProps,
 } from './precinct_scanner_section';
+import {
+  UninterruptiblePowerSupplySection,
+  UpsSectionProps,
+} from './uninterruptible_power_supply_section';
 
 type ReportContentsProps = ConfigurationSectionProps &
   StorageSectionProps &
   PrecinctScannerSectionProps &
   ThermalPrinterSectionProps &
-  ScanAudioSectionProps;
+  ScanAudioSectionProps &
+  UpsSectionProps;
 
 export function ScanReadinessReportContents(
   props: ReportContentsProps
@@ -34,6 +39,7 @@ export function ScanReadinessReportContents(
       <PrecinctScannerSection {...props} />
       <ThermalPrinterSection {...props} />
       <ScanAudioSection {...props} />
+      <UninterruptiblePowerSupplySection {...props} />
     </ReportContents>
   );
 }
