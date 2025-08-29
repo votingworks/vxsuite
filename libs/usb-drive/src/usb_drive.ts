@@ -1,6 +1,6 @@
 import { promises as fs } from 'node:fs';
 import { join } from 'node:path';
-import { assert, assertDefined } from '@votingworks/basics';
+import { assert, assertDefined, sleep } from '@votingworks/basics';
 import makeDebug from 'debug';
 import { LogEventId, BaseLogger, Logger } from '@votingworks/logging';
 import {
@@ -184,6 +184,15 @@ function logMountFailure(logger: BaseLogger, error: Error): void {
   });
 }
 
+function logMountPointNotFound(logger: BaseLogger): void {
+  logger.log(LogEventId.UsbDriveMounted, 'system', {
+    disposition: 'failure',
+    message:
+      'After the USB drive was mounted, the mount point was never detected. The user may have removed the USB drive prematurely.',
+    result: 'USB drive not mounted.',
+  });
+}
+
 export async function logEjectInit(logger: Logger): Promise<void> {
   await logger.logAsCurrentRole(LogEventId.UsbDriveEjectInit);
 }
@@ -224,20 +233,37 @@ async function logFormatFailure(logger: Logger, error: Error) {
   });
 }
 
+export const MOUNT_TIMEOUT_MS = 5_000;
+export const MOUNT_RETRY_INTERVAL_MS = 100;
+
 async function mount(
   deviceInfo: BlockDeviceInfo,
   logger: BaseLogger
 ): Promise<void> {
   logMountInit(logger);
   try {
+    debug(`mounting drive ${deviceInfo.path}`);
     await mountUsbDrive(deviceInfo.path);
-    logMountSuccess(logger);
-    debug('USB drive mounted successfully');
   } catch (error) {
     logMountFailure(logger, error as Error);
-    debug(`USB drive mounting failed: ${error}`);
-    throw error;
+    debug(`drive mounting failed: ${error}`);
+    return;
   }
+
+  // poll device info for mount point to register
+  const start = Date.now();
+  while (Date.now() - start < MOUNT_TIMEOUT_MS) {
+    debug('polling for mount point after mount...');
+    const updatedDeviceInfo = await getUsbDriveDeviceInfo();
+    if (updatedDeviceInfo?.mountpoint) {
+      logMountSuccess(logger);
+      debug('mount point found, drive mounted successfully');
+      return;
+    }
+    await sleep(MOUNT_RETRY_INTERVAL_MS);
+  }
+  logMountPointNotFound(logger);
+  debug(`mount point never found after ${MOUNT_TIMEOUT_MS}ms.`);
 }
 
 type Action = 'mounting' | 'ejecting' | 'formatting';
@@ -269,13 +295,20 @@ export function detectUsbDrive(logger: Logger): UsbDrive {
   }
 
   function releaseActionLock(): void {
+    debug(`Releasing action lock for ${actionLock.current}`);
     actionLock.current = undefined;
   }
 
   return {
     async status(): Promise<UsbDriveStatus> {
       if (actionLock.current === 'formatting') {
+        debug('Formatting in progress, returning ejected');
         return { status: 'ejected' };
+      }
+
+      if (actionLock.current === 'mounting') {
+        debug('Mounting in progress, returning no_drive');
+        return { status: 'no_drive' };
       }
 
       const deviceInfo = await getUsbDriveDeviceInfo();
@@ -291,16 +324,12 @@ export function detectUsbDrive(logger: Logger): UsbDrive {
       // Automatically mount the drive if it's not already mounted
       if (!deviceInfo.mountpoint && !didEject) {
         if (getActionLock('mounting')) {
-          void mount(deviceInfo, logger).catch(releaseActionLock);
+          void mount(deviceInfo, logger).then(releaseActionLock);
         }
         return { status: 'no_drive' };
       }
 
       if (deviceInfo.mountpoint) {
-        if (actionLock.current === 'mounting') {
-          releaseActionLock();
-        }
-
         return {
           status: 'mounted',
           mountPoint: deviceInfo.mountpoint,
