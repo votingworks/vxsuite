@@ -14,6 +14,7 @@ import {
   getPrecinctById,
   formatBallotHash,
   BallotType,
+  ElectionStringKey,
 } from '@votingworks/types';
 import {
   createPlaywrightRenderer,
@@ -26,8 +27,9 @@ import { sha256 } from 'js-sha256';
 import {
   generateAudioIdsAndClips,
   getAllStringsForElectionPackage,
+  UiStringAudioOverride,
 } from '@votingworks/backend';
-import { assertDefined, find, iter, range } from '@votingworks/basics';
+import { assert, assertDefined, find, iter, range } from '@votingworks/basics';
 import { WorkerContext } from './context';
 import {
   createBallotPropsForTemplate,
@@ -142,6 +144,8 @@ export async function generateElectionPackageAndBallots(
     );
   }
 
+  allBallotProps = [allBallotProps[0]];
+
   const renderer = await createPlaywrightRenderer();
   const { electionDefinition, ballotPdfs } =
     await renderAllBallotPdfsAndCreateElectionDefinition(
@@ -160,11 +164,72 @@ export async function generateElectionPackageAndBallots(
     JSON.stringify(systemSettings, null, 2)
   );
 
+  const audioOverrideKeys = await store.audioOverrideKeys(electionId);
+  function audioOverrideExists(key: string, subkey?: string) {
+    return (
+      audioOverrideKeys.findIndex((k) => k.key === key && k.subkey === subkey) >
+      -1
+    );
+  }
+
+  /* istanbul ignore next - @preserve */
+  function getAudioOverride(
+    key: string,
+    subkey?: string
+  ): UiStringAudioOverride {
+    // Use TTS for strings with no expected overrides:
+    switch (key) {
+      case ElectionStringKey.CANDIDATE_NAME:
+      case ElectionStringKey.CONTEST_DESCRIPTION:
+      case ElectionStringKey.CONTEST_TITLE:
+      case ElectionStringKey.LA_CANDIDATE_AUDIO:
+      case ElectionStringKey.LA_CONTEST_AUDIO:
+        break;
+
+      default:
+        return 'useTts';
+    }
+
+    // Drop unused TTS audio when overrides are available:
+    switch (key) {
+      case ElectionStringKey.CANDIDATE_NAME:
+        if (audioOverrideExists(ElectionStringKey.LA_CANDIDATE_AUDIO, subkey)) {
+          return 'drop';
+        }
+
+        return 'useTts';
+
+      case ElectionStringKey.CONTEST_TITLE:
+      case ElectionStringKey.CONTEST_DESCRIPTION:
+        if (audioOverrideExists(ElectionStringKey.LA_CONTEST_AUDIO, subkey)) {
+          return 'drop';
+        }
+
+        return 'useTts';
+
+      default:
+        break;
+    }
+
+    assert(!!subkey, `missing UiString subkey for ${key}`);
+
+    if (!audioOverrideExists(key, subkey)) return 'drop';
+
+    return {
+      async getDataUrl() {
+        return assertDefined(
+          await store.audioOverrideDataUrl({ electionId, key, subkey })
+        );
+      },
+    };
+  }
+
   if (shouldExportAudio) {
     const { uiStringAudioIds, uiStringAudioClips } = generateAudioIdsAndClips({
       appStrings,
       electionStrings,
       speechSynthesizer,
+      getOverride: getAudioOverride,
     });
     electionPackageZip.file(
       ElectionPackageFileName.AUDIO_IDS,

@@ -16,6 +16,7 @@ import {
   Button,
   PageNavigationButtonId,
   AccessibilityMode,
+  UiStringsReactQueryApi,
 } from '@votingworks/ui';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 
@@ -35,6 +36,7 @@ export interface ContestPageProps {
   getReviewPageUrl: (contestId?: ContestId) => string;
   isPatDeviceConnected?: boolean;
   precinctId?: PrecinctId;
+  uiStringsApi: UiStringsReactQueryApi;
   updateVote: ContestProps['updateVote'];
   votes: VotesDict;
 }
@@ -58,6 +60,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
     getReviewPageUrl,
     isPatDeviceConnected,
     precinctId,
+    uiStringsApi,
     updateVote,
     votes,
   } = props;
@@ -191,6 +194,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
         votes={votes}
         updateVote={handleUpdateVote}
         accessibilityMode={accessibilityMode}
+        uiStringsApi={uiStringsApi}
       />
     </VoterScreen>
   );

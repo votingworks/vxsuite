@@ -10,6 +10,7 @@ import {
   electionStrings,
   AssistiveTechInstructions,
   RichText,
+  UiStringsReactQueryApi,
 } from '@votingworks/ui';
 
 import {
@@ -56,6 +57,7 @@ interface Props {
   contest: MsEitherNeitherContestInterface;
   eitherNeitherContestVote?: YesNoVote;
   pickOneContestVote?: YesNoVote;
+  uiStringsApi: UiStringsReactQueryApi;
   updateVote: UpdateVoteFunction;
 }
 
@@ -91,6 +93,7 @@ export function MsEitherNeitherContest({
   contest,
   eitherNeitherContestVote,
   pickOneContestVote,
+  uiStringsApi,
   updateVote,
 }: Props): JSX.Element {
   const [deselectedOptionId, setDeselectedOptionId] = useState<string>();
@@ -168,6 +171,7 @@ export function MsEitherNeitherContest({
         breadcrumbs={breadcrumbs}
         contest={contest}
         district={district}
+        uiStringsApi={uiStringsApi}
       >
         <Caption>
           {getVoteStatusText(contest, { eitherNeitherVote, pickOneVote })}

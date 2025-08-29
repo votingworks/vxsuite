@@ -5,7 +5,7 @@ import {
   OptionalYesNoVote,
   VotesDict,
 } from '@votingworks/types';
-import { AccessibilityMode } from '@votingworks/ui';
+import { AccessibilityMode, UiStringsReactQueryApi } from '@votingworks/ui';
 import { CandidateContest } from './candidate_contest';
 import { MsEitherNeitherContest } from './ms_either_neither_contest';
 import { YesNoContest } from './yes_no_contest';
@@ -50,6 +50,8 @@ export interface ContestProps {
    * for ATI controllers with directional buttons.
    */
   accessibilityMode?: AccessibilityMode;
+
+  uiStringsApi: UiStringsReactQueryApi;
 }
 
 export function Contest({
@@ -62,6 +64,7 @@ export function Contest({
   accessibilityMode,
   onOpenWriteInKeyboard,
   onCloseWriteInKeyboard,
+  uiStringsApi,
 }: ContestProps): JSX.Element {
   const vote = votes[contest.id];
 
@@ -79,6 +82,7 @@ export function Contest({
           accessibilityMode={accessibilityMode}
           onOpenWriteInKeyboard={onOpenWriteInKeyboard}
           onCloseWriteInKeyboard={onCloseWriteInKeyboard}
+          uiStringsApi={uiStringsApi}
         />
       )}
       {contest.type === 'yesno' && (
@@ -88,6 +92,7 @@ export function Contest({
           contest={contest}
           vote={vote as OptionalYesNoVote}
           updateVote={updateVote}
+          uiStringsApi={uiStringsApi}
         />
       )}
       {contest.type === 'ms-either-neither' && (
@@ -101,6 +106,7 @@ export function Contest({
           pickOneContestVote={
             votes[contest.pickOneContestId] as OptionalYesNoVote
           }
+          uiStringsApi={uiStringsApi}
           updateVote={updateVote}
         />
       )}

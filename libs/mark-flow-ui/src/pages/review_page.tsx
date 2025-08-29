@@ -9,6 +9,7 @@ import {
   ReadOnLoad,
   PageNavigationButtonId,
   AssistiveTechInstructions,
+  UiStringsReactQueryApi,
 } from '@votingworks/ui';
 
 import { assert } from '@votingworks/basics';
@@ -28,6 +29,7 @@ export interface ReviewPageProps {
   precinctId?: PrecinctId;
   printScreenUrl: string;
   returnToContest?: ReviewProps['returnToContest'];
+  uiStringsApi: UiStringsReactQueryApi;
   votes: VotesDict;
 }
 
@@ -38,6 +40,7 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
     precinctId,
     printScreenUrl,
     returnToContest,
+    uiStringsApi,
     votes,
   } = props;
 
@@ -89,6 +92,7 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
           precinctId={precinctId}
           votes={votes}
           returnToContest={returnToContest}
+          uiStringsApi={uiStringsApi}
         />
       </WithScrollButtons>
     </VoterScreen>

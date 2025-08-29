@@ -40,6 +40,7 @@ export function ContestScreen(): JSX.Element {
       getStartPageUrl={getStartPageUrl}
       isPatDeviceConnected={isPatDeviceConnected}
       precinctId={precinctId}
+      uiStringsApi={api.uiStringsApi}
       updateVote={updateVote}
       votes={votes}
       accessibilityMode={

@@ -62,6 +62,13 @@ export function splitInterpolatedText(text: string): Segment[] {
   return segmentsCleaned.filter(({ content }) => /[a-z0-9]/i.test(content));
 }
 
+export function audioIdForText(
+  languageCode: LanguageCode,
+  text: string
+): string {
+  return sha256([languageCode, text].join(':')).slice(0, 10);
+}
+
 /**
  * Prepares text for speech synthesis by cleaning it, splitting it if interpolated, and generating
  * audio IDs for the resulting segments
@@ -73,7 +80,7 @@ export function prepareTextForSpeechSynthesis(
   return splitInterpolatedText(cleanText(text)).map((segment) => ({
     audioId: segment.isInterpolated
       ? segment.content
-      : sha256([languageCode, segment.content].join(':')).slice(0, 10),
+      : audioIdForText(languageCode, segment.content),
     segment,
   }));
 }

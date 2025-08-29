@@ -8,6 +8,7 @@ import {
 
 import { SpeechSynthesizer } from './speech_synthesizer';
 import {
+  audioIdForText,
   forEachUiString,
   prepareTextForSpeechSynthesis,
   setUiStringAudioIds,
@@ -18,6 +19,18 @@ interface TextToSynthesizeSpeechFor {
   languageCode: LanguageCode;
   text: string;
 }
+
+interface AudioIdOverride {
+  audioId: string;
+  languageCode: LanguageCode;
+  getDataUrl: () => Promise<string>;
+}
+
+export type UiStringAudioOverride =
+  | { getDataUrl: () => Promise<string> }
+  | 'drop'
+  | 'useTts';
+
 /**
  * Generates audio IDs and clips for all app and election strings provided with the given speech synthesizer
  */
@@ -25,16 +38,19 @@ export function generateAudioIdsAndClips({
   appStrings,
   electionStrings,
   speechSynthesizer,
+  getOverride = () => 'useTts',
 }: {
   appStrings: UiStringsPackage;
   electionStrings: UiStringsPackage;
   speechSynthesizer: SpeechSynthesizer;
+  getOverride?: (key: string, substring?: string) => UiStringAudioOverride;
 }): {
   uiStringAudioIds: UiStringAudioIdsPackage;
   uiStringAudioClips: NodeJS.ReadableStream;
 } {
   const uiStringAudioIds: UiStringAudioIdsPackage = {};
   const textToSynthesizeSpeechFor: TextToSynthesizeSpeechFor[] = [];
+  const audioIdOverrides: AudioIdOverride[] = [];
 
   function populateUiStringAudioIds({
     languageCode,
@@ -45,6 +61,42 @@ export function generateAudioIdsAndClips({
     stringKey: string | [string, string];
     stringInLanguage: string;
   }): void {
+    let key: string;
+    let subkey: string | undefined;
+
+    if (typeof stringKey === 'string') {
+      key = stringKey;
+    } else {
+      [key, subkey] = stringKey;
+    }
+
+    const override = getOverride(key, subkey);
+
+    /* istanbul ignore next - @preserve */
+    switch (override) {
+      case 'drop':
+        return;
+
+      case 'useTts':
+        break;
+
+      default: {
+        let audioId = audioIdForText(languageCode, stringInLanguage);
+        audioId = `${key}-${audioId}`;
+        setUiStringAudioIds(uiStringAudioIds, languageCode, stringKey, [
+          audioId,
+        ]);
+
+        audioIdOverrides.push({
+          audioId,
+          getDataUrl: override.getDataUrl,
+          languageCode,
+        });
+
+        return;
+      }
+    }
+
     const segmentsWithAudioIds = prepareTextForSpeechSynthesis(
       languageCode,
       stringInLanguage
@@ -53,14 +105,20 @@ export function generateAudioIdsAndClips({
       uiStringAudioIds,
       languageCode,
       stringKey,
-      segmentsWithAudioIds.map(({ audioId }) => audioId)
+      // We re-purpose contest names as district IDs for LA state, which
+      // means that they end up with the same audio IDs, which clash with
+      // contest audio overrides. Need to distinguish between those two:
+      segmentsWithAudioIds.map(({ audioId }) => `${key}-${audioId}`)
     );
 
     textToSynthesizeSpeechFor.push(
       ...segmentsWithAudioIds
         .filter(({ segment }) => !segment.isInterpolated)
         .map(({ audioId, segment }) => ({
-          audioId,
+          // We re-purpose contest names as district IDs for LA state, which
+          // means that they end up with the same audio IDs, which clash with
+          // contest audio overrides. Need to distinguish between those two:
+          audioId: `${key}-${audioId}`,
           languageCode,
           text: segment.content,
         }))
@@ -73,6 +131,16 @@ export function generateAudioIdsAndClips({
 
   // Prepare UI string audio clips
   async function* uiStringAudioClipGenerator() {
+    /* istanbul ignore next - @preserve */
+    for (const o of audioIdOverrides) {
+      const uiStringAudioClip: UiStringAudioClip = {
+        dataBase64: await o.getDataUrl(),
+        id: o.audioId,
+        languageCode: o.languageCode,
+      };
+      yield `${JSON.stringify(uiStringAudioClip)}\n`;
+    }
+
     for (const { audioId, languageCode, text } of textToSynthesizeSpeechFor) {
       const uiStringAudioClip: UiStringAudioClip = {
         dataBase64: await speechSynthesizer.synthesizeSpeech(

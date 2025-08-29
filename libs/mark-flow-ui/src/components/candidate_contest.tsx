@@ -1,6 +1,7 @@
 import camelCase from 'lodash.camelcase';
 import React, { ReactNode, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import getDeepValue from 'lodash.get';
 
 import {
   Candidate,
@@ -8,6 +9,7 @@ import {
   CandidateContest as CandidateContestInterface,
   Election,
   getContestDistrict,
+  ElectionStringKey,
 } from '@votingworks/types';
 import {
   Button,
@@ -34,6 +36,9 @@ import {
   AccessibilityMode,
   Font,
   virtualKeyboardCommon,
+  TextOnly,
+  UiStringsReactQueryApi,
+  WithAltAudio,
 } from '@votingworks/ui';
 import { assert, assertDefined } from '@votingworks/basics';
 
@@ -54,6 +59,7 @@ interface Props {
   accessibilityMode?: AccessibilityMode;
   onOpenWriteInKeyboard?: () => void;
   onCloseWriteInKeyboard?: () => void;
+  uiStringsApi: UiStringsReactQueryApi;
 }
 
 const WriteInModalBody = styled.div`
@@ -96,7 +102,8 @@ export function CandidateContest({
   accessibilityMode,
   onOpenWriteInKeyboard,
   onCloseWriteInKeyboard,
-}: Props): JSX.Element {
+  uiStringsApi,
+}: Props): React.ReactNode {
   const district = getContestDistrict(election, contest);
 
   const [attemptedOvervoteCandidate, setAttemptedOvervoteCandidate] =
@@ -110,6 +117,20 @@ export function CandidateContest({
     useState('');
   const [recentlySelectedCandidate, setRecentlySelectedCandidate] =
     useState('');
+
+  const audioIdsQuery = uiStringsApi.getAudioIds.useQuery('en');
+
+  const hasContestAudioOverride = !!getDeepValue(
+    audioIdsQuery.data,
+    `${ElectionStringKey.LA_CONTEST_AUDIO}.${contest.id}`
+  );
+
+  function hasCandidateAudioOverride(candidate: Candidate) {
+    return !!getDeepValue(
+      audioIdsQuery.data,
+      `${ElectionStringKey.LA_CANDIDATE_AUDIO}.${candidate.id}`
+    );
+  }
 
   const screenInfo = useScreenInfo();
 
@@ -302,6 +323,8 @@ export function CandidateContest({
     </React.Fragment>
   );
 
+  if (audioIdsQuery.isLoading) return null;
+
   return (
     <React.Fragment>
       <Main flexColumn>
@@ -309,13 +332,26 @@ export function CandidateContest({
           breadcrumbs={breadcrumbs}
           contest={contest}
           district={district}
+          uiStringsApi={uiStringsApi}
         >
           <Caption>
-            {appStrings.labelNumVotesRemaining()}{' '}
-            <NumberString
-              value={Math.max(0, contest.seats - vote.length)}
-              weight="bold"
-            />
+            {hasContestAudioOverride ? (
+              <TextOnly>
+                {appStrings.labelNumVotesRemaining()}{' '}
+                <NumberString
+                  value={Math.max(0, contest.seats - vote.length)}
+                  weight="bold"
+                />
+              </TextOnly>
+            ) : (
+              <React.Fragment>
+                {appStrings.labelNumVotesRemaining()}{' '}
+                <NumberString
+                  value={Math.max(0, contest.seats - vote.length)}
+                  weight="bold"
+                />
+              </React.Fragment>
+            )}
             <AudioOnly>
               <AssistiveTechInstructions
                 controllerString={appStrings.instructionsBmdContestNavigation()}
@@ -414,6 +450,8 @@ export function CandidateContest({
                   candidate.id
                 ];
 
+              const hasAudioOverride = hasCandidateAudioOverride(candidate);
+
               return (
                 <ContestChoiceButton
                   key={candidate.id}
@@ -425,8 +463,19 @@ export function CandidateContest({
                   label={
                     <React.Fragment>
                       <AudioOnly>{prefixAudioText}</AudioOnly>
-                      {presidentialCandidateName ||
-                        electionStrings.candidateName(candidate)}
+                      {hasAudioOverride ? (
+                        <WithAltAudio
+                          audioText={electionStrings.laCandidateAudio(
+                            candidate
+                          )}
+                        >
+                          {presidentialCandidateName ||
+                            electionStrings.candidateName(candidate)}
+                        </WithAltAudio>
+                      ) : (
+                        presidentialCandidateName ||
+                        electionStrings.candidateName(candidate)
+                      )}
                     </React.Fragment>
                   }
                   caption={
@@ -438,11 +487,22 @@ export function CandidateContest({
                           {candidateAddress.addressLine2}
                         </React.Fragment>
                       )}
-                      {presidentialPartyAndElectors || (
-                        <CandidatePartyList
-                          candidate={candidate}
-                          electionParties={election.parties}
-                        />
+                      {hasAudioOverride ? (
+                        <TextOnly>
+                          {presidentialPartyAndElectors || (
+                            <CandidatePartyList
+                              candidate={candidate}
+                              electionParties={election.parties}
+                            />
+                          )}
+                        </TextOnly>
+                      ) : (
+                        presidentialPartyAndElectors || (
+                          <CandidatePartyList
+                            candidate={candidate}
+                            electionParties={election.parties}
+                          />
+                        )
                       )}
                       <AudioOnly>{suffixAudioText}</AudioOnly>
                     </React.Fragment>
