@@ -4,12 +4,12 @@ import { H2, P } from '../typography';
 import { InfoIcon, SuccessIcon, WarningIcon } from './icons';
 
 export interface ScanAudioSectionProps {
-  audioSectionContents?: React.ReactNode;
+  audioSectionAdditionalContents?: React.ReactNode;
   mostRecentAudioDiagnostic?: DiagnosticRecord;
 }
 
 export function ScanAudioSection(props: ScanAudioSectionProps): JSX.Element {
-  const { audioSectionContents, mostRecentAudioDiagnostic } = props;
+  const { audioSectionAdditionalContents, mostRecentAudioDiagnostic } = props;
 
   if (mostRecentAudioDiagnostic) {
     assert(mostRecentAudioDiagnostic.type === 'scan-audio');
@@ -36,7 +36,7 @@ export function ScanAudioSection(props: ScanAudioSectionProps): JSX.Element {
           {new Date(mostRecentAudioDiagnostic.timestamp).toLocaleString()}
         </P>
       )}
-      {audioSectionContents}
+      {audioSectionAdditionalContents}
     </section>
   );
 }

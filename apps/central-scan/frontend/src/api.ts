@@ -162,6 +162,18 @@ export const getMostRecentScannerDiagnostic = {
   },
 } as const;
 
+export const getMostRecentUpsDiagnostic = {
+  queryKey(): QueryKey {
+    return ['getMostRecentUpsDiagnostic'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () =>
+      apiClient.getMostRecentUpsDiagnostic()
+    );
+  },
+} as const;
+
 export const getNextReviewSheet = {
   queryKey(): QueryKey {
     return ['getNextReviewSheet'];
@@ -335,6 +347,20 @@ export const performScanDiagnostic = {
       async onSuccess() {
         await queryClient.invalidateQueries(
           getMostRecentScannerDiagnostic.queryKey()
+        );
+      },
+    });
+  },
+} as const;
+
+export const logMostRecentUpsDiagnosticOutcome = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.logUpsDiagnosticOutcome, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(
+          getMostRecentUpsDiagnostic.queryKey()
         );
       },
     });

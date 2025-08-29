@@ -13,11 +13,16 @@ import {
 import { ReportContents } from './components';
 import { BatterySection, BatterySectionProps } from './battery_section';
 import { StorageSection, StorageSectionProps } from './storage_section';
+import {
+  UninterruptiblePowerSupplySection,
+  UpsSectionProps,
+} from './uninterruptible_power_supply_section';
 
 type ReportContentsProps = ConfigurationSectionProps &
   BatterySectionProps &
   StorageSectionProps &
-  CentralScannerSectionProps;
+  CentralScannerSectionProps &
+  UpsSectionProps;
 
 export function CentralScanReadinessReportContents(
   props: ReportContentsProps
@@ -27,6 +32,7 @@ export function CentralScanReadinessReportContents(
       <ConfigurationSection {...props} />
       <BatterySection {...props} />
       <StorageSection {...props} />
+      <UninterruptiblePowerSupplySection {...props} />
       <CentralScannerSection {...props} />
     </ReportContents>
   );

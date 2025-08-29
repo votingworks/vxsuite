@@ -249,3 +249,66 @@ describe('scan diagnostic', () => {
     });
   });
 });
+
+describe('UPS diagnostic', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(0);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  test('pass', async () => {
+    await withApp(async ({ apiClient, auth, logger }) => {
+      mockSystemAdministratorAuth(auth);
+
+      await apiClient.logUpsDiagnosticOutcome({ outcome: 'pass' });
+
+      expect(
+        await apiClient.getMostRecentUpsDiagnostic()
+      ).toEqual<DiagnosticRecord>({
+        message: 'The user confirmed the UPS is connected and fully charged.',
+        type: 'uninterruptible-power-supply',
+        outcome: 'pass',
+        timestamp: 0,
+      });
+
+      expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+        LogEventId.DiagnosticComplete,
+        {
+          disposition: 'success',
+          message: 'The user confirmed the UPS is connected and fully charged.',
+        }
+      );
+    });
+  });
+
+  test('fail', async () => {
+    await withApp(async ({ apiClient, auth, logger }) => {
+      mockSystemAdministratorAuth(auth);
+
+      await apiClient.logUpsDiagnosticOutcome({ outcome: 'fail' });
+
+      expect(
+        await apiClient.getMostRecentUpsDiagnostic()
+      ).toEqual<DiagnosticRecord>({
+        message:
+          'The user indicated the UPS is not connected or not fully charged.',
+        type: 'uninterruptible-power-supply',
+        outcome: 'fail',
+        timestamp: 0,
+      });
+
+      expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+        LogEventId.DiagnosticComplete,
+        {
+          disposition: 'failure',
+          message:
+            'The user indicated the UPS is not connected or not fully charged.',
+        }
+      );
+    });
+  });
+});

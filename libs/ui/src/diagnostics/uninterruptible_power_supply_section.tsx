@@ -4,14 +4,14 @@ import { H2, P } from '../typography';
 import { InfoIcon, SuccessIcon, WarningIcon } from './icons';
 
 export interface UpsSectionProps {
-  upsSectionContents?: JSX.Element;
+  upsSectionAdditionalContents?: JSX.Element;
   mostRecentUpsDiagnostic?: DiagnosticRecord;
 }
 
 export function UninterruptiblePowerSupplySection(
   props: UpsSectionProps
 ): JSX.Element {
-  const { upsSectionContents, mostRecentUpsDiagnostic } = props;
+  const { upsSectionAdditionalContents, mostRecentUpsDiagnostic } = props;
 
   if (mostRecentUpsDiagnostic) {
     assert(mostRecentUpsDiagnostic.type === 'uninterruptible-power-supply');
@@ -38,7 +38,7 @@ export function UninterruptiblePowerSupplySection(
           {new Date(mostRecentUpsDiagnostic.timestamp).toLocaleString()}
         </P>
       )}
-      {upsSectionContents}
+      {upsSectionAdditionalContents}
     </section>
   );
 }

@@ -1,19 +1,19 @@
 import React from 'react';
 import { DiagnosticOutcome } from '@votingworks/types';
-import { Button, Modal, P } from '@votingworks/ui';
-import * as api from '../api';
+import { Modal } from '../modal';
+import { Button } from '../button';
+import { P } from '../typography';
 
 export interface UpsDiagnosticModalProps {
   setVisible: (visible: boolean) => void;
+  logOutcome: (input: { outcome: DiagnosticOutcome }) => void;
+  isLoading: boolean;
 }
 
 export function UpsDiagnosticModal(
   props: UpsDiagnosticModalProps
 ): JSX.Element {
-  const { setVisible } = props;
-
-  const { isLoading, mutate: logOutcome } =
-    api.logUpsDiagnosticOutcome.useMutation();
+  const { setVisible, logOutcome, isLoading } = props;
 
   function onConfirm(outcome: DiagnosticOutcome) {
     logOutcome({ outcome });
@@ -40,13 +40,21 @@ export function UpsDiagnosticModal(
       content={
         <P>Is the uninterruptible power supply connected and fully charged?</P>
       }
-      title={<React.Fragment>Uninterruptible Power Supply</React.Fragment>}
+      title="Uninterruptible Power Supply"
     />
   );
 }
 
-export function UpsDiagnosticModalButton(): JSX.Element {
+interface UpsDiagnosticModalButtonProps {
+  logOutcome: (input: { outcome: DiagnosticOutcome }) => void;
+  isLoading: boolean;
+}
+
+export function UpsDiagnosticModalButton(
+  props: UpsDiagnosticModalButtonProps
+): JSX.Element {
   const [modalVisible, setModalVisible] = React.useState<boolean>();
+  const { logOutcome, isLoading } = props;
 
   return (
     <div>
@@ -54,7 +62,13 @@ export function UpsDiagnosticModalButton(): JSX.Element {
         Test Uninterruptible Power Supply
       </Button>
 
-      {modalVisible && <UpsDiagnosticModal setVisible={setModalVisible} />}
+      {modalVisible && (
+        <UpsDiagnosticModal
+          setVisible={setModalVisible}
+          logOutcome={logOutcome}
+          isLoading={isLoading}
+        />
+      )}
     </div>
   );
 }

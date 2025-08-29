@@ -1,6 +1,7 @@
 import {
   CentralScanReadinessReportContents,
   SaveReadinessReportButton,
+  UpsDiagnosticModalButton,
 } from '@votingworks/ui';
 import styled from 'styled-components';
 import { NavigationScreen } from '../navigation_screen';
@@ -8,9 +9,11 @@ import {
   getDiskSpaceSummary,
   getElectionRecord,
   getMostRecentScannerDiagnostic,
+  getMostRecentUpsDiagnostic,
   getStatus,
   getSystemSettings,
   getUsbDriveStatus,
+  logMostRecentUpsDiagnosticOutcome,
   saveReadinessReport,
   systemCallApi,
 } from '../api';
@@ -30,6 +33,9 @@ export function DiagnosticsScreen(): JSX.Element {
   const diskSpaceQuery = getDiskSpaceSummary.useQuery();
   const scannerDiagnosticRecordQuery =
     getMostRecentScannerDiagnostic.useQuery();
+  const upsDiagnosticRecordQuery = getMostRecentUpsDiagnostic.useQuery();
+  const logUpsDiagnosticOutcomeMutation =
+    logMostRecentUpsDiagnosticOutcome.useMutation();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const saveReadinessReportMutation = saveReadinessReport.useMutation();
   const systemSettings = getSystemSettings.useQuery();
@@ -40,6 +46,7 @@ export function DiagnosticsScreen(): JSX.Element {
     !batteryInfoQuery.isSuccess ||
     !diskSpaceQuery.isSuccess ||
     !scannerDiagnosticRecordQuery.isSuccess ||
+    !upsDiagnosticRecordQuery.isSuccess ||
     !usbDriveStatusQuery.isSuccess ||
     !systemSettings.isSuccess
   ) {
@@ -53,6 +60,7 @@ export function DiagnosticsScreen(): JSX.Element {
   const diskSpaceSummary = diskSpaceQuery.data;
   const scannerDiagnosticRecord =
     scannerDiagnosticRecordQuery.data ?? undefined;
+  const upsDiagnosticRecord = upsDiagnosticRecordQuery.data ?? undefined;
   /* istanbul ignore next - @preserve */
   const { markThresholds } = systemSettings.data ?? {};
 
@@ -65,6 +73,13 @@ export function DiagnosticsScreen(): JSX.Element {
             diskSpaceSummary={diskSpaceSummary}
             isScannerAttached={isScannerAttached}
             mostRecentScannerDiagnostic={scannerDiagnosticRecord}
+            mostRecentUpsDiagnostic={upsDiagnosticRecord}
+            upsSectionAdditionalContents={
+              <UpsDiagnosticModalButton
+                logOutcome={logUpsDiagnosticOutcomeMutation.mutate}
+                isLoading={logUpsDiagnosticOutcomeMutation.isLoading}
+              />
+            }
             electionDefinition={electionDefinition}
             electionPackageHash={electionPackageHash}
             markThresholds={markThresholds}

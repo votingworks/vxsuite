@@ -40,6 +40,9 @@ export async function saveReadinessReport({
     isScannerAttached,
     mostRecentScannerDiagnostic:
       store.getMostRecentDiagnosticRecord('blank-sheet-scan'),
+    mostRecentUpsDiagnostic: store.getMostRecentDiagnosticRecord(
+      'uninterruptible-power-supply'
+    ),
     machineId: VX_MACHINE_ID,
     generatedAtTime,
     electionDefinition,
