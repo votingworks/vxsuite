@@ -6,6 +6,7 @@ import {
   BallotType,
   District,
   Election,
+  ExternalToVxIdMapping,
   hasSplits,
   Party,
   Precinct,
@@ -121,6 +122,26 @@ export function regenerateElectionIds(election: Election): {
     })(),
   }));
 
+  let externalToVxIdMapping: ExternalToVxIdMapping | undefined;
+  if (election.customBallotContent?.externalToVxIdMapping) {
+    const original = election.customBallotContent.externalToVxIdMapping;
+
+    externalToVxIdMapping = {
+      candidates: Object.fromEntries(
+        Object.entries(original.candidates).map(([idExternal, idVx]) => [
+          idExternal,
+          replaceId(idVx),
+        ])
+      ),
+      contests: Object.fromEntries(
+        Object.entries(original.contests).map(([idExternal, idVx]) => [
+          idExternal,
+          replaceId(idVx),
+        ])
+      ),
+    };
+  }
+
   const customBallotContent = election.customBallotContent && {
     candidateAddresses:
       election.customBallotContent.candidateAddresses &&
@@ -129,6 +150,7 @@ export function regenerateElectionIds(election: Election): {
           ([candidateId, value]) => [replaceId(candidateId), value]
         )
       ),
+    externalToVxIdMapping,
     presidentialCandidateBallotStrings:
       election.customBallotContent.presidentialCandidateBallotStrings &&
       Object.fromEntries(
