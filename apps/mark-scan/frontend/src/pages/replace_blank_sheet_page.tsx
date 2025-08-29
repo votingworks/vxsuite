@@ -4,7 +4,7 @@ import { CenteredCardPageLayout } from '@votingworks/mark-flow-ui';
 export function ReplaceBlankSheetPage(): JSX.Element {
   return (
     <CenteredCardPageLayout
-      icon={<Icons.Warning />}
+      icon={<Icons.Warning color="warning" />}
       title="Load New Ballot Sheet"
       voterFacing={false}
     >

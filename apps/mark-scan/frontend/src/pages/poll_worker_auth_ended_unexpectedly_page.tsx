@@ -4,7 +4,7 @@ import { CenteredCardPageLayout } from '@votingworks/mark-flow-ui';
 export function PollWorkerAuthEndedUnexpectedlyPage(): JSX.Element {
   return (
     <CenteredCardPageLayout
-      icon={<Icons.Warning />}
+      icon={<Icons.Warning color="warning" />}
       title={appStrings.noteBmdSessionRestart()}
       voterFacing={false}
     >

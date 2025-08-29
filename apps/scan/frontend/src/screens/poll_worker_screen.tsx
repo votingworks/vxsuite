@@ -99,7 +99,7 @@ function PrinterAlertText({
   }
   return (
     <P>
-      <Icons.Warning /> {printerSummary.alertText}
+      <Icons.Warning color="warning" /> {printerSummary.alertText}
     </P>
   );
 }
@@ -107,7 +107,7 @@ function PrinterAlertText({
 function UsbDriveAlertText(): JSX.Element {
   return (
     <P>
-      <Icons.Warning /> Insert a USB drive to continue.
+      <Icons.Warning color="warning" /> Insert a USB drive to continue.
     </P>
   );
 }

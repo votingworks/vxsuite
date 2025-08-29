@@ -5,6 +5,7 @@ import {
   H2,
   H3,
   H4,
+  Icons,
   P,
   SignedHashValidationApiClient,
   SignedHashValidationButton,
@@ -109,6 +110,9 @@ export function SectionSessionStart(
   return (
     <VotingSession>
       <H4 as="h2">Start a New Voting Session</H4>
+      <P>
+        <Icons.Info /> Replace headphone ear covers with a new set.
+      </P>
       <BallotStyleSelect
         election={election}
         configuredPrecinctsAndSplits={getConfiguredPrecinctsAndSplits(
