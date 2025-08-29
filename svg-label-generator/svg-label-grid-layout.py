@@ -41,7 +41,7 @@ DEFAULT_LASER_WIDTH = 813.0
 DEFAULT_LASER_HEIGHT = 508.0
 
 # Cutting offset - distance between label edge and cutting line (in mm)
-CUTTING_OFFSET = 1.0  # 1mm offset on all sides
+CUTTING_OFFSET = 0.0  # 1mm offset on all sides
 
 
 # ---------- File discovery / selection ----------
@@ -227,6 +227,27 @@ def _remove_elements_by_id(root, ids):
             removed += 1
     return removed
 
+def normalize_paint_inplace(el):
+    sd = _parse_style(el.get("style"))
+    # Promote paint from style → attributes (style wins if both exist)
+    if "fill" in sd:
+        el.set("fill", sd.pop("fill"))
+    if "stroke" in sd:
+        el.set("stroke", sd.pop("stroke"))
+    # Move common related props too
+    for k in ("fill-opacity","stroke-width","stroke-linecap","stroke-linejoin",
+              "stroke-miterlimit","stroke-dasharray","stroke-dashoffset","stroke-opacity"):
+        if k in sd:
+            el.set(k, sd.pop(k))
+    # Keep any non-paint leftovers; otherwise drop style
+    if sd:
+        el.set("style", _style_to_str(sd))
+    else:
+        el.attrib.pop("style", None)
+    for ch in list(el):
+        normalize_paint_inplace(ch)
+
+
 # ---------- SVG extraction (no regex) ----------
 def extract_label_group(svg_path, label_w, label_h):
     """Return a <g> containing the label's content with colors inverted and backgrounds removed."""
@@ -268,6 +289,7 @@ def extract_label_group(svg_path, label_w, label_h):
         kept = deepcopy(child)
         _remove_elements_by_id(kept, {"path1", "path1-3"})
         invert_colors_inplace(kept)
+        normalize_paint_inplace(kept) 
         out_g.append(kept)
 
     return out_g
@@ -307,12 +329,12 @@ def create_grid_svg(svg_files, grid_width, grid_height, label_width, label_heigh
     root = create_svg_root(grid_width, grid_height)
     grid_g = ET.SubElement(root, q("g"), {"id": "grid"})
 
-    # Background (white)
-    grid_g.append(ET.Element(q("rect"), {
-        "x": "0", "y": "0",
-        "width": str(grid_width), "height": str(grid_height),
-        "fill": "white"
-    }))
+    # # Background (white)
+    # grid_g.append(ET.Element(q("rect"), {
+    #     "x": "0", "y": "0",
+    #     "width": str(grid_width), "height": str(grid_height),
+    #     "fill": "white"
+    # }))
 
     label_index = start_index
     for r in range(rows):
@@ -332,12 +354,12 @@ def create_grid_svg(svg_files, grid_width, grid_height, label_width, label_heigh
             # Wrap label content in transform group
             slot_g = ET.SubElement(grid_g, q("g"), {"transform": f"translate({label_x},{label_y})"})
 
-            # White background under content
-            slot_g.append(ET.Element(q("rect"), {
-                "x": "0", "y": "0",
-                "width": str(label_width), "height": str(label_height),
-                "fill": "white"
-            }))
+            # # White background under content
+            # slot_g.append(ET.Element(q("rect"), {
+            #     "x": "0", "y": "0",
+            #     "width": str(label_width), "height": str(label_height),
+            #     "fill": "white"
+            # }))
 
             # Import parsed content
             try:

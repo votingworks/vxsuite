@@ -14,6 +14,8 @@ import sys
 from pathlib import Path
 from xml.etree import ElementTree as ET
 import qrcode
+import base64, io
+from PIL import Image
 
 # ---- Defaults ----
 IDS_DIR = Path("./assets/ids")
@@ -84,6 +86,31 @@ def upsert_qr_group(root, ns):
             g.remove(child)
     return g
 
+def generate_qr_image_element(ns, data, dpi=600):
+    qr = qrcode.QRCode(version=None, error_correction=qrcode.constants.ERROR_CORRECT_L,
+                       box_size=1, border=1)
+    qr.add_data(data)
+    qr.make(fit=True)
+    # Make a crisp monochrome QR
+    img = qr.make_image(fill_color="black", back_color="white").convert("L")
+
+    # Scale to desired physical size at 'dpi'
+    px_w = int(QR_WIDTH / 25.4 * dpi)   # mm -> inch -> px
+    px_h = int(QR_HEIGHT / 25.4 * dpi)
+    img = img.resize((px_w, px_h), resample=Image.NEAREST)
+
+    buf = io.BytesIO()
+    img.save(buf, format="PNG", optimize=True)
+    b64 = base64.b64encode(buf.getvalue()).decode("ascii")
+
+    # SVG2 prefers href; most renderers accept it without xlink:
+    attr = {
+        "x": f"{QR_X_START:.3f}", "y": f"{QR_Y_START:.3f}",
+        "width": f"{QR_WIDTH:.3f}", "height": f"{QR_HEIGHT:.3f}",
+        "href": f"data:image/png;base64,{b64}",
+        "style": "image-rendering: pixelated"
+    }
+    return ET.Element(ns + "image", attr)
 
 def generate_qr_paths(ns, data):
     """Return a list of <path> elements representing the QR code."""
@@ -133,10 +160,13 @@ def update_svg(svg_text, machine, version, serial, qr_url):
     remove_by_id(root, ID_EXAMPLE_TEXT)
     remove_many_by_ids(root, LEGACY_QR_IDS)
 
-    # Insert fresh QR into a stable group
     qr_group = upsert_qr_group(root, ns)
-    for p in generate_qr_paths(ns, qr_url):
-        qr_group.append(p)
+    qr_group.append(generate_qr_image_element(ns, qr_url, dpi=600))
+
+    # # Insert fresh QR into a stable group
+    # qr_group = upsert_qr_group(root, ns)
+    # for p in generate_qr_paths(ns, qr_url):
+    #     qr_group.append(p)
 
     return ET.tostring(root, encoding="unicode")
 
