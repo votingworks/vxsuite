@@ -74,7 +74,7 @@ export function DiagnosticsScreen(): JSX.Element {
             isScannerAttached={isScannerAttached}
             mostRecentScannerDiagnostic={scannerDiagnosticRecord}
             mostRecentUpsDiagnostic={upsDiagnosticRecord}
-            upsSectionContents={
+            upsSectionAdditionalContents={
               <UpsDiagnosticModalButton
                 logOutcome={logUpsDiagnosticOutcomeMutation.mutate}
                 isLoading={logUpsDiagnosticOutcomeMutation.isLoading}

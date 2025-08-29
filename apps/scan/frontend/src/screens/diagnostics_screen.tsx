@@ -151,12 +151,12 @@ export function DiagnosticsScreen({
         mostRecentPrinterDiagnostic={
           mostRecentPrinterDiagnosticQuery.data ?? undefined
         }
-        audioSectionContents={<AudioDiagnosticModalButton />}
+        audioSectionAdditionalContents={<AudioDiagnosticModalButton />}
         mostRecentAudioDiagnostic={
           mostRecentAudioDiagnosticQuery.data ?? undefined
         }
         mostRecentUpsDiagnostic={mostRecentUpsDiagnosticQuery.data ?? undefined}
-        upsSectionContents={
+        upsSectionAdditionalContents={
           <UpsDiagnosticModalButton
             isLoading={logUpsDiagnosticOutcomeMutation.isLoading}
             logOutcome={logUpsDiagnosticOutcomeMutation.mutate}
