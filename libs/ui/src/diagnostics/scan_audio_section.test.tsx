@@ -49,7 +49,9 @@ test('renders failed diagnostic results', () => {
 test('renders optional diagnostic controls', () => {
   render(
     <ScanAudioSection
-      audioSectionContents={<Button onPress={vi.fn()}>Test Sound</Button>}
+      audioSectionAdditionalContents={
+        <Button onPress={vi.fn()}>Test Sound</Button>
+      }
     />
   );
 

@@ -40,7 +40,7 @@ export function UpsDiagnosticModal(
       content={
         <P>Is the uninterruptible power supply connected and fully charged?</P>
       }
-      title={<React.Fragment>Uninterruptible Power Supply</React.Fragment>}
+      title="Uninterruptible Power Supply"
     />
   );
 }
