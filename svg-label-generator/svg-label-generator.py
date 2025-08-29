@@ -17,6 +17,12 @@ import qrcode
 import base64, io
 from PIL import Image
 
+# ---- CONSTANTS ----
+QR_SCALE = 1.15
+QR_DPI = 1000
+QR_X_OFFSET = -1
+QR_Y_OFFSET = 0.5
+
 # ---- Defaults ----
 IDS_DIR = Path("./assets/ids")
 TPL_DIR = Path("./assets/templates")
@@ -86,31 +92,38 @@ def upsert_qr_group(root, ns):
             g.remove(child)
     return g
 
-def generate_qr_image_element(ns, data, dpi=600):
+def generate_qr_image_element(ns, data, dpi=QR_DPI, scale=QR_SCALE):
     qr = qrcode.QRCode(version=None, error_correction=qrcode.constants.ERROR_CORRECT_L,
                        box_size=1, border=1)
     qr.add_data(data)
     qr.make(fit=True)
-    # Make a crisp monochrome QR
     img = qr.make_image(fill_color="black", back_color="white").convert("L")
 
-    # Scale to desired physical size at 'dpi'
-    px_w = int(QR_WIDTH / 25.4 * dpi)   # mm -> inch -> px
-    px_h = int(QR_HEIGHT / 25.4 * dpi)
+    # Scale about center by `scale`
+    cx = QR_X_START + QR_WIDTH / 2.0
+    cy = QR_Y_START + QR_HEIGHT / 2.0
+    sw = QR_WIDTH * scale
+    sh = QR_HEIGHT * scale
+
+    # Render PNG at scaled physical size for crisp modules
+    px_w = max(1, int(round(sw / 25.4 * dpi)))
+    px_h = max(1, int(round(sh / 25.4 * dpi)))
     img = img.resize((px_w, px_h), resample=Image.NEAREST)
 
     buf = io.BytesIO()
     img.save(buf, format="PNG", optimize=True)
     b64 = base64.b64encode(buf.getvalue()).decode("ascii")
 
-    # SVG2 prefers href; most renderers accept it without xlink:
     attr = {
-        "x": f"{QR_X_START:.3f}", "y": f"{QR_Y_START:.3f}",
-        "width": f"{QR_WIDTH:.3f}", "height": f"{QR_HEIGHT:.3f}",
+        "x": f"{(cx - sw/2 + QR_X_OFFSET):.3f}",
+        "y": f"{(cy - sh/2 + QR_Y_OFFSET):.3f}",
+        "width": f"{sw:.3f}",
+        "height": f"{sh:.3f}",
         "href": f"data:image/png;base64,{b64}",
         "style": "image-rendering: pixelated"
     }
     return ET.Element(ns + "image", attr)
+
 
 def generate_qr_paths(ns, data):
     """Return a list of <path> elements representing the QR code."""
