@@ -366,7 +366,7 @@ function buildApi({
       );
     },
 
-    async logMostRecentUpsDiagnosticOutcome(input: {
+    async logUpsDiagnosticOutcome(input: {
       outcome: DiagnosticOutcome;
     }): Promise<void> {
       const { outcome } = input;

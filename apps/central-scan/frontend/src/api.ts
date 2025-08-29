@@ -357,7 +357,7 @@ export const logMostRecentUpsDiagnosticOutcome = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.logMostRecentUpsDiagnosticOutcome, {
+    return useMutation(apiClient.logUpsDiagnosticOutcome, {
       async onSuccess() {
         await queryClient.invalidateQueries(
           getMostRecentUpsDiagnostic.queryKey()

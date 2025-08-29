@@ -30,6 +30,7 @@ test('diagnostics screen', async () => {
   apiMock.setStatus();
   apiMock.expectGetElectionRecord(null);
   apiMock.expectGetMostRecentScannerDiagnostic();
+  apiMock.expectGetMostRecentUpsDiagnostic();
   apiMock.expectGetSystemSettings();
 
   renderInAppContext(<DiagnosticsScreen />, {
@@ -51,6 +52,11 @@ test('shows most recent diagnostic', async () => {
     outcome: 'pass',
     timestamp: new Date('2021-01-01T00:00:00').getTime(),
   });
+  apiMock.expectGetMostRecentUpsDiagnostic({
+    type: 'uninterruptible-power-supply',
+    outcome: 'pass',
+    timestamp: new Date('2021-01-01T01:00:00').getTime(),
+  });
   apiMock.expectGetSystemSettings();
 
   renderInAppContext(<DiagnosticsScreen />, {
@@ -62,6 +68,7 @@ test('shows most recent diagnostic', async () => {
   screen.getByText('Free Disk Space: 50% (500 GB / 1000 GB)');
   screen.getByText('Connected');
   screen.getByText('Test scan successful, 1/1/2021, 12:00:00 AM');
+  screen.getByText('UPS test successful, 1/1/2021, 1:00:00 AM');
   screen.getByText('Mark Threshold: 0.07');
   screen.getByText('Write-in Threshold: 0.05');
 });

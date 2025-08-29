@@ -1,6 +1,7 @@
 import {
   CentralScanReadinessReportContents,
   SaveReadinessReportButton,
+  UpsDiagnosticModalButton,
 } from '@votingworks/ui';
 import styled from 'styled-components';
 import { NavigationScreen } from '../navigation_screen';
@@ -12,6 +13,7 @@ import {
   getStatus,
   getSystemSettings,
   getUsbDriveStatus,
+  logMostRecentUpsDiagnosticOutcome,
   saveReadinessReport,
   systemCallApi,
 } from '../api';
@@ -32,6 +34,8 @@ export function DiagnosticsScreen(): JSX.Element {
   const scannerDiagnosticRecordQuery =
     getMostRecentScannerDiagnostic.useQuery();
   const upsDiagnosticRecordQuery = getMostRecentUpsDiagnostic.useQuery();
+  const logUpsDiagnosticOutcomeMutation =
+    logMostRecentUpsDiagnosticOutcome.useMutation();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const saveReadinessReportMutation = saveReadinessReport.useMutation();
   const systemSettings = getSystemSettings.useQuery();
@@ -70,6 +74,12 @@ export function DiagnosticsScreen(): JSX.Element {
             isScannerAttached={isScannerAttached}
             mostRecentScannerDiagnostic={scannerDiagnosticRecord}
             mostRecentUpsDiagnostic={upsDiagnosticRecord}
+            upsSectionContents={
+              <UpsDiagnosticModalButton
+                logOutcome={logUpsDiagnosticOutcomeMutation.mutate}
+                isLoading={logUpsDiagnosticOutcomeMutation.isLoading}
+              />
+            }
             electionDefinition={electionDefinition}
             electionPackageHash={electionPackageHash}
             markThresholds={markThresholds}
