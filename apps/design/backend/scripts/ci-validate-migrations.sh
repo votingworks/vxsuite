@@ -41,7 +41,7 @@ run_branch_check() {
     FAIL=0
     for f in $ADDED; do
       if [[ ! "$f" > "$LATEST_ON_MAIN" ]]; then
-        echo "Migration '$f' must sort after '$LATEST_ON_MAIN'"
+        echo "Migration '$f' must have timestamp prefix after '$LATEST_ON_MAIN'"
         FAIL=1
       fi
     done
