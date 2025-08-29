@@ -32,7 +32,6 @@ import {
   formatElectionPackageHash,
   mergeUiStrings,
   LanguageCode,
-  ElectionPackageFileName,
   unsafeParse,
   ElectionIdSchema,
   DistrictIdSchema,
@@ -55,7 +54,6 @@ import {
   getFeatureFlagMock,
   getFileByName,
   openZip,
-  readJsonEntry,
 } from '@votingworks/utils';
 import {
   execFile,
@@ -76,8 +74,8 @@ import {
   ballotTemplates,
   BaseBallotProps,
   hmpbStringsCatalog,
-  renderAllBallotsAndCreateElectionDefinition,
-  RenderDocument,
+  layOutBallotsAndCreateElectionDefinition,
+  renderAllBallotPdfsAndCreateElectionDefinition,
 } from '@votingworks/hmpb';
 import {
   ELECTION_PACKAGE_FILE_NAME_REGEX,
@@ -106,7 +104,7 @@ import { buildApi } from './app';
 import { readdir, readFile } from 'node:fs/promises';
 
 vi.setConfig({
-  testTimeout: 60_000,
+  testTimeout: 120_000,
 });
 
 function expectNotEqualTo(str: string) {
@@ -184,8 +182,11 @@ vi.mock(import('@votingworks/hmpb'), async (importActual) => {
   const original = await importActual();
   return {
     ...original,
-    renderAllBallotsAndCreateElectionDefinition: vi.fn(
-      original.renderAllBallotsAndCreateElectionDefinition
+    renderAllBallotPdfsAndCreateElectionDefinition: vi.fn(
+      original.renderAllBallotPdfsAndCreateElectionDefinition
+    ),
+    layOutBallotsAndCreateElectionDefinition: vi.fn(
+      original.layOutBallotsAndCreateElectionDefinition
     ),
   } as unknown as typeof original;
 });
@@ -251,7 +252,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  vi.mocked(renderAllBallotsAndCreateElectionDefinition).mockRestore();
+  vi.mocked(renderAllBallotPdfsAndCreateElectionDefinition).mockRestore();
 });
 
 test('all methods require authentication', async () => {
@@ -2387,8 +2388,8 @@ test('Election package management', async () => {
   // since we are just testing the export task flows in this test. The next test
   // checks the actual exported data.
   const props = allBaseBallotProps(baseElectionDefinition.election);
-  vi.mocked(renderAllBallotsAndCreateElectionDefinition).mockResolvedValue({
-    ballotDocuments: props.map(mockBallotDocument),
+  vi.mocked(renderAllBallotPdfsAndCreateElectionDefinition).mockResolvedValue({
+    ballotPdfs: props.map(() => Uint8Array.from('mock-pdf-contents')),
     electionDefinition: baseElectionDefinition,
   });
 
@@ -2801,7 +2802,9 @@ test('Election package and ballots export', async () => {
   for (const file of Object.values(zip.files)) {
     expect(await file.async('text')).toContain('%PDF');
   }
-  expect(renderAllBallotsAndCreateElectionDefinition).toHaveBeenCalledTimes(1);
+  expect(renderAllBallotPdfsAndCreateElectionDefinition).toHaveBeenCalledTimes(
+    1
+  );
   const ballotCombos: Array<[BallotType, BallotMode]> = [
     [BallotType.Precinct, 'official'],
     [BallotType.Precinct, 'test'],
@@ -2825,7 +2828,7 @@ test('Election package and ballots export', async () => {
         )
       )
   );
-  expect(renderAllBallotsAndCreateElectionDefinition).toHaveBeenCalledWith(
+  expect(renderAllBallotPdfsAndCreateElectionDefinition).toHaveBeenCalledWith(
     expect.any(Object), // Renderer
     ballotTemplates.VxDefaultBallot,
     expectedBallotProps,
@@ -2939,7 +2942,7 @@ test('Export test decks', async () => {
   for (const file of Object.values(zip.files)) {
     expect(await file.async('text')).toContain('%PDF');
   }
-  expect(renderAllBallotsAndCreateElectionDefinition).toHaveBeenCalledTimes(1);
+  expect(layOutBallotsAndCreateElectionDefinition).toHaveBeenCalledTimes(1);
   const expectedBallotProps = ballotStyles.flatMap((ballotStyle) =>
     ballotStyle.precinctsOrSplits.map(({ precinctId }) => ({
       election: expect.objectContaining({ id: electionId }),
@@ -2950,7 +2953,7 @@ test('Export test decks', async () => {
       compact: false,
     }))
   );
-  expect(renderAllBallotsAndCreateElectionDefinition).toHaveBeenCalledWith(
+  expect(layOutBallotsAndCreateElectionDefinition).toHaveBeenCalledWith(
     expect.any(Object), // Renderer
     ballotTemplates.VxDefaultBallot,
     expectedBallotProps,
@@ -3113,8 +3116,7 @@ test('export ballots with audit IDs', async () => {
   const contents = assertDefined(
     fileStorageClient.getRawFile(join(nonVxUser.orgId, electionPackageFilePath))
   );
-  const { electionPackageContents, ballotsContents } =
-    await unzipElectionPackageAndBallots(contents);
+  const { ballotsContents } = await unzipElectionPackageAndBallots(contents);
   const zip = await JsZip.loadAsync(new Uint8Array(ballotsContents));
   expect(Object.keys(zip.files)).toHaveLength(numAuditIdBallots + 1);
   expect(Object.keys(zip.files).sort()).toEqual([
@@ -3123,7 +3125,9 @@ test('export ballots with audit IDs', async () => {
     'official-precinct-ballot-East_Lincoln-1_en-2.pdf',
     'official-precinct-ballot-East_Lincoln-1_en-3.pdf',
   ]);
-  expect(renderAllBallotsAndCreateElectionDefinition).toHaveBeenCalledTimes(1);
+  expect(renderAllBallotPdfsAndCreateElectionDefinition).toHaveBeenCalledTimes(
+    1
+  );
   const ballotStyles = await apiClient.listBallotStyles({ electionId });
   const expectedBallotProps = range(1, numAuditIdBallots + 1).map(
     (i): BaseBallotProps => ({
@@ -3136,7 +3140,7 @@ test('export ballots with audit IDs', async () => {
       compact: false,
     })
   );
-  expect(renderAllBallotsAndCreateElectionDefinition).toHaveBeenCalledWith(
+  expect(renderAllBallotPdfsAndCreateElectionDefinition).toHaveBeenCalledWith(
     expect.any(Object), // Renderer
     ballotTemplates.VxDefaultBallot,
     expectedBallotProps,
@@ -3350,15 +3354,6 @@ test('getBallotPreviewPdf returns a ballot pdf for nh precinct with no split', a
   await expect(result.pdfData).toMatchPdfSnapshot({ failureThreshold: 0.01 });
 });
 
-function mockBallotDocument(): RenderDocument {
-  return {
-    getContent: vi.fn(),
-    inspectElements: vi.fn(),
-    renderToPdf: vi.fn().mockResolvedValue(Buffer.from('')),
-    setContent: vi.fn(),
-  };
-}
-
 test('setBallotTemplate changes the ballot template used to render ballots', async () => {
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
@@ -3383,8 +3378,8 @@ test('setBallotTemplate changes the ballot template used to render ballots', asy
   expect(await apiClient.getBallotTemplate({ electionId })).toEqual('NhBallot');
 
   const props = allBaseBallotProps(electionDefinition.election);
-  vi.mocked(renderAllBallotsAndCreateElectionDefinition).mockResolvedValue({
-    ballotDocuments: props.map(mockBallotDocument),
+  vi.mocked(renderAllBallotPdfsAndCreateElectionDefinition).mockResolvedValue({
+    ballotPdfs: props.map(() => Uint8Array.from('mock-pdf-contents')),
     electionDefinition,
   });
   await exportElectionPackage({
@@ -3395,14 +3390,14 @@ test('setBallotTemplate changes the ballot template used to render ballots', asy
     electionSerializationFormat: 'vxf',
     shouldExportAudio: false,
   });
-  expect(renderAllBallotsAndCreateElectionDefinition).toHaveBeenCalledWith(
+  expect(renderAllBallotPdfsAndCreateElectionDefinition).toHaveBeenCalledWith(
     expect.any(Object), // Renderer
     ballotTemplates.NhBallot,
     expect.any(Array), // Ballot props
     'vxf'
   );
   expect(
-    vi.mocked(renderAllBallotsAndCreateElectionDefinition).mock.calls[0][2]
+    vi.mocked(renderAllBallotPdfsAndCreateElectionDefinition).mock.calls[0][2]
   ).toHaveLength(props.length);
 
   await suppressingConsoleOutput(async () => {

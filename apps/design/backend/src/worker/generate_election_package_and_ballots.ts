@@ -19,8 +19,8 @@ import {
   createPlaywrightRenderer,
   hmpbStringsCatalog,
   ballotTemplates,
-  renderAllBallotsAndCreateElectionDefinition,
   BaseBallotProps,
+  renderAllBallotPdfsAndCreateElectionDefinition,
 } from '@votingworks/hmpb';
 import { sha256 } from 'js-sha256';
 import {
@@ -34,7 +34,10 @@ import {
   formatElectionForExport,
 } from '../ballots';
 import { getBallotPdfFileName } from '../utils';
-import { renderBallotPdf, renderCalibrationSheetPdf } from './ballot_pdfs';
+import {
+  normalizeBallotColorModeForPrinting,
+  renderCalibrationSheetPdf,
+} from './ballot_pdfs';
 
 export interface V3SystemSettings {
   readonly auth: SystemSettings['auth'];
@@ -140,8 +143,8 @@ export async function generateElectionPackageAndBallots(
   }
 
   const renderer = await createPlaywrightRenderer();
-  const { electionDefinition, ballotDocuments } =
-    await renderAllBallotsAndCreateElectionDefinition(
+  const { electionDefinition, ballotPdfs } =
+    await renderAllBallotPdfsAndCreateElectionDefinition(
       renderer,
       ballotTemplates[ballotTemplateId],
       allBallotProps,
@@ -193,8 +196,7 @@ export async function generateElectionPackageAndBallots(
   combinedZip.file(electionPackageFileName, electionPackageZipContents);
 
   // Make ballot zip
-  for (const [props, document] of iter(allBallotProps).zip(ballotDocuments)) {
-    const ballotPdf = await renderBallotPdf(props, document);
+  for (const [props, ballotPdf] of iter(allBallotProps).zip(ballotPdfs)) {
     const { precinctId, ballotStyleId, ballotType, ballotMode, ballotAuditId } =
       props;
     const precinct = assertDefined(getPrecinctById({ election, precinctId }));
@@ -205,7 +207,11 @@ export async function generateElectionPackageAndBallots(
       ballotMode,
       ballotAuditId
     );
-    ballotsZip.file(fileName, ballotPdf);
+    const normalizedColorPdf = await normalizeBallotColorModeForPrinting(
+      ballotPdf,
+      props
+    );
+    ballotsZip.file(fileName, normalizedColorPdf);
   }
   const calibrationSheetPdf = await renderCalibrationSheetPdf(
     renderer,

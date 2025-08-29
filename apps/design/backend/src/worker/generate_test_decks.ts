@@ -9,7 +9,7 @@ import {
   ballotTemplates,
   createPlaywrightRenderer,
   hmpbStringsCatalog,
-  renderAllBallotsAndCreateElectionDefinition,
+  layOutBallotsAndCreateElectionDefinition,
 } from '@votingworks/hmpb';
 import { iter } from '@votingworks/basics';
 import JsZip from 'jszip';
@@ -63,18 +63,18 @@ export async function generateTestDecks(
       props.ballotMode === 'test' && props.ballotType === BallotType.Precinct
   );
   const renderer = await createPlaywrightRenderer();
-  const { electionDefinition, ballotDocuments } =
-    await renderAllBallotsAndCreateElectionDefinition(
+  const { electionDefinition, ballotContents } =
+    await layOutBallotsAndCreateElectionDefinition(
       renderer,
       ballotTemplates[ballotTemplateId],
       testBallotProps,
       electionSerializationFormat
     );
   const ballots = iter(testBallotProps)
-    .zip(ballotDocuments)
-    .map(([props, document]) => ({
+    .zip(ballotContents)
+    .map(([props, contents]) => ({
       props,
-      document,
+      contents,
     }))
     .toArray();
 
@@ -83,7 +83,7 @@ export async function generateTestDecks(
   for (const precinct of election.precincts) {
     const testDeckPdf = await createPrecinctTestDeck({
       renderer,
-      election,
+      electionDefinition,
       precinctId: precinct.id,
       ballots,
     });

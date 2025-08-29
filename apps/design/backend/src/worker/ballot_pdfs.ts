@@ -1,15 +1,14 @@
 import {
   convertPdfToGrayscale,
   BaseBallotProps,
-  RenderDocument,
   calibrationSheetTemplate,
   Renderer,
 } from '@votingworks/hmpb';
 import { HmpbBallotPaperSize } from '@votingworks/types';
 
-export async function renderBallotPdf(
-  props: BaseBallotProps,
-  document: RenderDocument
+export async function normalizeBallotColorModeForPrinting(
+  ballotPdf: Uint8Array,
+  props: BaseBallotProps
 ): Promise<Uint8Array> {
   /**
    * Specific to NH V4 ballots with tinted headers/footers.
@@ -17,12 +16,11 @@ export async function renderBallotPdf(
    */
   const needsColorPrint = 'colorTint' in props && !!props.colorTint;
 
-  const colorPdf = await document.renderToPdf();
   if (needsColorPrint) {
-    return colorPdf;
+    return ballotPdf;
   }
 
-  return await convertPdfToGrayscale(colorPdf);
+  return await convertPdfToGrayscale(ballotPdf);
 }
 
 export async function renderCalibrationSheetPdf(
@@ -30,5 +28,7 @@ export async function renderCalibrationSheetPdf(
   paperSize: HmpbBallotPaperSize
 ): Promise<Uint8Array> {
   const document = await calibrationSheetTemplate.render(renderer, paperSize);
-  return await convertPdfToGrayscale(await document.renderToPdf());
+  const pdf = await document.renderToPdf();
+  document.cleanup();
+  return await convertPdfToGrayscale(pdf);
 }

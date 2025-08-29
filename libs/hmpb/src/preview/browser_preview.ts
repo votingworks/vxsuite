@@ -109,7 +109,7 @@ export async function main(): Promise<void> {
   // Mark some votes
   const contests = getContests({ election, ballotStyle });
   const { votes, unmarkedWriteIns } = createTestVotes(contests);
-  await markBallotDocument(renderer, document, votes, unmarkedWriteIns);
+  await markBallotDocument(document, votes, unmarkedWriteIns);
 
   // Outline write-in areas
   const pages = await document.inspectElements(`.${PAGE_CLASS}`);
