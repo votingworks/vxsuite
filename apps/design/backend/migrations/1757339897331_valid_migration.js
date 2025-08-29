@@ -8,9 +8,4 @@ exports.shorthands = undefined;
  * @param run {() => void | undefined}
  * @returns {Promise<void> | void}
  */
-exports.up = (pgm) => {
-  // Add optional signature field to elections table
-  pgm.addColumns('elections', {
-    signature: { type: 'jsonb', notNull: false },
-  });
-};
+exports.up = () => {};
