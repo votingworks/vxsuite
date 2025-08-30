@@ -19,6 +19,7 @@
     "clean:self": "rm -rf build && tsc --build --clean tsconfig.build.json",
     "create-org": "node -r esbuild-runner/register ./scripts/create_org.ts",
     "create-user": "node -r esbuild-runner/register ./scripts/create_user.ts",
+    "db:migrations:ci-validate": "./scripts/ci-validate-migrations.sh",
     "db:migrations:create": "node-pg-migrate create",
     "db:migrations:run": "node-pg-migrate up",
     "db:migrations:run-dev": "DATABASE_URL='postgres://design:design@localhost:5432/design' pnpm db:migrations:run",
@@ -37,7 +38,7 @@
     "send-welcome-email": "node -r esbuild-runner/register ./scripts/send_welcome_email.ts",
     "start": "./scripts/start.sh",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "TZ=America/Anchorage ./scripts/test_ci.sh",
+    "test:ci": "pnpm db:migrations:ci-validate && TZ=America/Anchorage ./scripts/test_ci.sh",
     "test:coverage": "TZ=America/Anchorage vitest --coverage",
     "test:watch": "TZ=America/Anchorage vitest",
     "type-check": "tsc --build"
