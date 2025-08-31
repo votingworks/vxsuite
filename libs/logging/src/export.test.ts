@@ -23,7 +23,7 @@ describe('filterErrorLogs', () => {
     const results = await iter(filteredErrorLogContent).toArray();
     expect(results).toHaveLength(1);
     expect(results[0]).toEqual(
-      '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","source":"vx-admin-frontend","eventId":"usb-drive-detected","eventType":"application-status","user":"system","message":"i am an error","disposition":"failure"}'
+      '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","source":"vx-admin-frontend","eventId":"usb-drive-detected","eventType":"application-status","user":"system","message":"i am an error","disposition":"failure"}\n'
     );
   });
 });
