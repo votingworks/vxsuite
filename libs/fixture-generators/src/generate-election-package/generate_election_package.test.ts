@@ -35,7 +35,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await renderer.cleanup();
+  await renderer.close();
 });
 
 const testCases = [

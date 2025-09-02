@@ -173,7 +173,7 @@ export type RenderScratchpad = ReturnType<typeof createScratchpad>;
  * which can then be converted to a {@link RenderDocument} (for final rendering to
  * PDF).
  *
- * Renderers should be cleaned up after use with {@link Renderer.cleanup}.
+ * Renderers should be cleaned up after use with {@link Renderer.close}.
  */
 export interface Renderer {
   /**
@@ -184,7 +184,7 @@ export interface Renderer {
   /**
    * Cleans up the resources used by the renderer (e.g. the browser instance).
    */
-  cleanup(): Promise<void>;
+  close(): Promise<void>;
 
   /**
    * Takes HTML content and returns a {@link RenderDocument} with that content rendered.

@@ -65,7 +65,7 @@ export function createBrowserPreviewRenderer(): Renderer {
       document.documentElement.innerHTML = htmlContent;
       return Promise.resolve(renderDocument);
     },
-    cleanup() {
+    close() {
       return Promise.resolve();
     },
   };

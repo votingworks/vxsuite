@@ -14,7 +14,7 @@ const rendererTest = test.extend<{ renderer: Renderer }>({
   renderer: async ({}, use) => {
     const renderer = await createPlaywrightRenderer();
     await use(renderer);
-    await renderer.cleanup();
+    await renderer.close();
   },
 });
 

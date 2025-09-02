@@ -45,7 +45,7 @@ beforeAll(async () => {
   renderer = await createPlaywrightRenderer();
 });
 afterAll(async () => {
-  await renderer.cleanup();
+  await renderer.close();
 });
 
 describe('createPrecinctTestDeck', () => {

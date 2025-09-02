@@ -280,7 +280,7 @@ export async function main(): Promise<number> {
     }
   }
 
-  await renderer.cleanup();
+  await renderer.close();
 
   return 0;
 }

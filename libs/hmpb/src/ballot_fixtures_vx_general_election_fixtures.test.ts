@@ -17,7 +17,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await renderer.cleanup();
+  await renderer.close();
 });
 
 // run `pnpm generate-fixtures` if this test fails

@@ -13,5 +13,5 @@ test('only allows one document to be used at a time', async () => {
   );
   document.cleanup();
   await renderer.createScratchpad(<style></style>);
-  await renderer.cleanup();
+  await renderer.close();
 });

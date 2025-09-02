@@ -88,7 +88,7 @@ export async function generateElectionPackage(
   zip.file(ElectionPackageFileName.ELECTION, electionDefinition.electionData, {
     date: FIXTURES_FILE_DATE,
   });
-  await renderer.cleanup();
+  await renderer.close();
 
   zip.file(
     ElectionPackageFileName.SYSTEM_SETTINGS,

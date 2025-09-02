@@ -60,7 +60,7 @@ export async function createPlaywrightRenderer(): Promise<Renderer> {
       return createScratchpad(document);
     },
 
-    async cleanup(): Promise<void> {
+    async close(): Promise<void> {
       await context.close();
       await browser.close();
     },

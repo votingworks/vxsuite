@@ -220,7 +220,7 @@ export async function generateElectionPackageAndBallots(
   ballotsZip.file('VxScan-calibration-sheet.pdf', calibrationSheetPdf);
 
   // eslint-disable-next-line no-console
-  renderer.cleanup().catch(console.error);
+  renderer.close().catch(console.error);
 
   // Add ballot package to combined zip
   const ballotZipContents = await ballotsZip.generateAsync({
