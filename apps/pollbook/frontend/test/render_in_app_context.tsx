@@ -1,4 +1,8 @@
-import { SystemCallContextProvider, TestErrorBoundary } from '@votingworks/ui';
+import {
+  AppBase,
+  SystemCallContextProvider,
+  TestErrorBoundary,
+} from '@votingworks/ui';
 import { createMemoryHistory, MemoryHistory } from 'history';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Router } from 'react-router-dom';
@@ -34,15 +38,21 @@ export function renderRootElement(
   } = {}
 ): RenderResult {
   return testRender(
-    <TestErrorBoundary>
-      <ApiClientContext.Provider value={apiClient}>
-        <QueryClientProvider client={queryClient}>
-          <SystemCallContextProvider api={systemCallApi}>
-            {component}
-          </SystemCallContextProvider>
-        </QueryClientProvider>
-      </ApiClientContext.Provider>
-    </TestErrorBoundary>
+    <AppBase
+      defaultColorMode="desktop"
+      defaultSizeMode="desktop"
+      showScrollBars
+    >
+      <TestErrorBoundary>
+        <ApiClientContext.Provider value={apiClient}>
+          <QueryClientProvider client={queryClient}>
+            <SystemCallContextProvider api={systemCallApi}>
+              {component}
+            </SystemCallContextProvider>
+          </QueryClientProvider>
+        </ApiClientContext.Provider>
+      </TestErrorBoundary>
+    </AppBase>
   );
 }
 

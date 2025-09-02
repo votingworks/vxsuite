@@ -270,7 +270,7 @@ test('renders network status as expected - when configured', async () => {
       data-prefix="fas"
       focusable="false"
       role="img"
-      style="color: rgb(25, 72, 25);"
+      style="color: rgb(41, 41, 41);"
       viewBox="0 0 512 512"
       xmlns="http://www.w3.org/2000/svg"
     >
