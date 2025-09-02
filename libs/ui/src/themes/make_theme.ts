@@ -30,6 +30,7 @@ export const TouchscreenPalette = {
   Purple50: '#b591f3',
   Purple80: '#4d2692',
 
+  Orange20: '#ffc457',
   Orange50: '#ec791e',
   Orange80: '#5c3600',
 
@@ -154,6 +155,7 @@ type TouchscreenColorTheme = Pick<
   | 'danger'
   | 'successAccent'
   | 'warningAccent'
+  | 'warningContainer'
 >;
 
 /**
@@ -185,7 +187,7 @@ function expandToFullColorTheme(theme: TouchscreenColorTheme): ColorTheme {
     onDanger: theme.background,
     dangerContainer: theme.background,
 
-    warningContainer: theme.background,
+    warningContainer: theme.warningContainer,
 
     inverseBackground: theme.onBackground,
     onInverse: theme.background,
@@ -206,6 +208,7 @@ export const colorThemes: Record<ColorMode, ColorTheme> = {
     primary: TouchscreenPalette.Gray100,
     danger: TouchscreenPalette.Gray100,
     warningAccent: TouchscreenPalette.Gray100,
+    warningContainer: TouchscreenPalette.Gray100,
     successAccent: TouchscreenPalette.Gray100,
   }),
 
@@ -215,6 +218,7 @@ export const colorThemes: Record<ColorMode, ColorTheme> = {
     primary: TouchscreenPalette.Gray0,
     danger: TouchscreenPalette.Gray0,
     warningAccent: TouchscreenPalette.Gray0,
+    warningContainer: TouchscreenPalette.Gray0,
     successAccent: TouchscreenPalette.Gray0,
   }),
 
@@ -224,6 +228,7 @@ export const colorThemes: Record<ColorMode, ColorTheme> = {
     primary: TouchscreenPalette.Purple80,
     danger: TouchscreenPalette.Red80,
     warningAccent: TouchscreenPalette.Gray90,
+    warningContainer: TouchscreenPalette.Orange20,
     successAccent: TouchscreenPalette.Green80,
   }),
 
@@ -233,6 +238,7 @@ export const colorThemes: Record<ColorMode, ColorTheme> = {
     primary: TouchscreenPalette.Purple50,
     danger: TouchscreenPalette.Red50,
     warningAccent: TouchscreenPalette.Orange50,
+    warningContainer: TouchscreenPalette.Orange50,
     successAccent: TouchscreenPalette.Green50,
   }),
 
@@ -272,11 +278,12 @@ export const colorThemes: Record<ColorMode, ColorTheme> = {
 
   print: expandToFullColorTheme({
     background: TouchscreenPalette.Gray0,
-    danger: TouchscreenPalette.Gray100,
     onBackground: TouchscreenPalette.Gray100,
     primary: TouchscreenPalette.Gray100,
-    successAccent: TouchscreenPalette.Gray100,
+    danger: TouchscreenPalette.Gray100,
     warningAccent: TouchscreenPalette.Gray100,
+    warningContainer: TouchscreenPalette.Gray100,
+    successAccent: TouchscreenPalette.Gray100,
   }),
 };
 
