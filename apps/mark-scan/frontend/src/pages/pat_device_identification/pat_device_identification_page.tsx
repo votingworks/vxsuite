@@ -91,7 +91,7 @@ export function PatDeviceIdentificationPage({
         <Button onPress={onExitCalibration}>
           {isDiagnostic ? (
             <span>
-              <Icons.Delete color="danger" /> Cancel Test
+              <Icons.Delete /> Cancel Test
             </span>
           ) : (
             appStrings.buttonBmdSkipPatCalibration()

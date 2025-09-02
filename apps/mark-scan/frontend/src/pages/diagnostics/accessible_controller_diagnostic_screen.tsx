@@ -174,7 +174,7 @@ export function AccessibleControllerDiagnosticScreen({
         </P>
         {steps[step]}
         <CancelButtonContainer>
-          <Button icon="Delete" onPress={onClose} variant="danger">
+          <Button icon="Delete" onPress={onClose}>
             Cancel Test
           </Button>
         </CancelButtonContainer>
