@@ -30,6 +30,7 @@ export const TouchscreenPalette = {
   Purple50: '#b591f3',
   Purple80: '#4d2692',
 
+  Orange20: '#ffc457',
   Orange50: '#ec791e',
   Orange80: '#5c3600',
 
@@ -223,7 +224,7 @@ export const colorThemes: Record<ColorMode, ColorTheme> = {
     onBackground: TouchscreenPalette.Gray90,
     primary: TouchscreenPalette.Purple80,
     danger: TouchscreenPalette.Red80,
-    warningAccent: TouchscreenPalette.Gray90,
+    warningAccent: TouchscreenPalette.Orange20,
     successAccent: TouchscreenPalette.Green80,
   }),
 
@@ -272,11 +273,11 @@ export const colorThemes: Record<ColorMode, ColorTheme> = {
 
   print: expandToFullColorTheme({
     background: TouchscreenPalette.Gray0,
-    danger: TouchscreenPalette.Gray100,
     onBackground: TouchscreenPalette.Gray100,
     primary: TouchscreenPalette.Gray100,
-    successAccent: TouchscreenPalette.Gray100,
+    danger: TouchscreenPalette.Gray100,
     warningAccent: TouchscreenPalette.Gray100,
+    successAccent: TouchscreenPalette.Gray100,
   }),
 };
 

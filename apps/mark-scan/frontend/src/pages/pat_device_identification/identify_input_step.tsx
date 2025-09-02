@@ -123,7 +123,7 @@ export function IdentifyInputStep({
       );
       bodyContent =
         appStrings.instructionsBmdPatCalibrationActivateOtherInput();
-      icon = <Icons.Danger color="warning" />;
+      icon = <Icons.Danger />;
       break;
     default: {
       /* istanbul ignore next - compile time check for completeness @preserve */
