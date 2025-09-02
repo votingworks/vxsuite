@@ -8,7 +8,7 @@ export async function* filterErrorLogs(
     try {
       const obj = JSON.parse(line);
       if (obj['disposition'] && obj.disposition === 'failure') {
-        yield line;
+        yield `${line}\n`;
       }
     } catch {
       // Skip this line if there are any errors parsing the JSON
