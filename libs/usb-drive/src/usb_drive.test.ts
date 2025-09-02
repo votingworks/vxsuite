@@ -242,9 +242,44 @@ describe('status', () => {
     await expect(confirmLockReleased(usbDrive)).rejects.toThrow();
 
     // after timeout, lock is released
-    vi.advanceTimersByTime(MOUNT_TIMEOUT_MS);
+    await vi.advanceTimersByTimeAsync(MOUNT_TIMEOUT_MS);
     await confirmLockReleased(usbDrive);
 
+    vi.useRealTimers();
+  });
+
+  test('if mount point is found after timeout, we still "mount" it by detecting the mount point belatedly', async () => {
+    vi.useFakeTimers();
+    const logger = mockLogger({ fn: vi.fn });
+    const usbDrive = detectUsbDrive(logger);
+
+    getUsbDriveDeviceInfoMock.mockResolvedValue(
+      mockBlockDeviceInfo({ mountpoint: null })
+    );
+    execMock.mockResolvedValueOnce({ stdout: '', stderr: '' });
+
+    // first call triggers the mount that times out
+    await expect(usbDrive.status()).resolves.toEqual({ status: 'no_drive' });
+    await vi.advanceTimersByTimeAsync(MOUNT_TIMEOUT_MS);
+
+    // subsequent calls, while lsblk is still showing no point point, will
+    // just fail another mount attempt
+    execMock.mockRejectedValueOnce(new Error('already mounted'));
+    await expect(usbDrive.status()).resolves.toEqual({
+      status: 'no_drive',
+    });
+
+    // once it appears, we return the mounted drive
+    getUsbDriveDeviceInfoMock.mockResolvedValue(
+      mockBlockDeviceInfo({ mountpoint: '/media/vx/usb-drive' })
+    );
+    await expect(usbDrive.status()).resolves.toEqual({
+      status: 'mounted',
+      mountPoint: '/media/vx/usb-drive',
+    });
+
+    expect(vi.mocked(exec)).toHaveBeenCalledTimes(2);
+    await confirmLockReleased(usbDrive);
     vi.useRealTimers();
   });
 });
