@@ -1,6 +1,5 @@
-import { promises as fs } from 'node:fs';
 import { join } from 'node:path';
-import { assert, assertDefined } from '@votingworks/basics';
+import { assert, assertDefined, sleep } from '@votingworks/basics';
 import makeDebug from 'debug';
 import { LogEventId, BaseLogger, Logger } from '@votingworks/logging';
 import {
@@ -10,106 +9,17 @@ import {
 import { exec } from './exec';
 import { UsbDriveStatus, UsbDrive } from './types';
 import { MockFileUsbDrive } from './mocks/file_usb_drive';
+import { BlockDeviceInfo, getUsbDriveDeviceInfo } from './block_devices';
 
 const debug = makeDebug('usb-drive');
-
-export interface BlockDeviceInfo {
-  name: string;
-  path: string;
-  mountpoint: string | null;
-  fstype: string | null;
-  fsver: string | null;
-  label: string | null;
-  type: string;
-}
-
-type RawBlockDevice = Omit<BlockDeviceInfo, 'path'>;
-
-async function getBlockDeviceInfo(
-  devicePaths: string[]
-): Promise<BlockDeviceInfo[]> {
-  assert(devicePaths.length > 0);
-
-  try {
-    const { stdout } = await exec('lsblk', [
-      '-J',
-      '-n',
-      '-l',
-      '-o',
-      ['NAME', 'MOUNTPOINT', 'FSTYPE', 'FSVER', 'LABEL', 'TYPE'].join(','),
-      ...devicePaths,
-    ]);
-    const rawData = JSON.parse(stdout) as {
-      blockdevices: RawBlockDevice[];
-    };
-    debug(`Got block device info for ${devicePaths.length} devices: ${stdout}`);
-    return rawData.blockdevices.map((rawBlockDevice) => ({
-      ...rawBlockDevice,
-      path: join('/dev', rawBlockDevice.name),
-    }));
-  } catch (error) {
-    debug(`Error getting block device info: ${error}`);
-    return [];
-  }
-}
-
-async function findUsbDriveDevices(): Promise<string[]> {
-  const DEVICE_ID_PATH_PREFIX = '/dev/disk/by-id/';
-  const USB_DEVICE_ID_REGEXP = /^usb(.+)part(.*)$/;
-
-  // List devices, filtering to only the USB partitions
-  const devicesById = (await fs.readdir(DEVICE_ID_PATH_PREFIX)).filter((name) =>
-    USB_DEVICE_ID_REGEXP.test(name)
-  );
-
-  return Promise.all(
-    devicesById.map(async (deviceId) =>
-      join(
-        DEVICE_ID_PATH_PREFIX,
-        await fs.readlink(join(DEVICE_ID_PATH_PREFIX, deviceId))
-      )
-    )
-  );
-}
-
-const DEFAULT_MEDIA_MOUNT_DIR = '/media';
-
-function isDataUsbDrive(blockDeviceInfo: BlockDeviceInfo): boolean {
-  return (
-    blockDeviceInfo.type === 'part' && // disk partitions only, no disks or logical volumes
-    !blockDeviceInfo.fstype?.includes('LVM') && // no partitions acting as LVMs
-    (!blockDeviceInfo.mountpoint ||
-      blockDeviceInfo.mountpoint.startsWith(DEFAULT_MEDIA_MOUNT_DIR))
-  );
-}
-
-async function getUsbDriveDeviceInfo(): Promise<BlockDeviceInfo | undefined> {
-  const devicePaths = await findUsbDriveDevices();
-  if (devicePaths.length === 0) {
-    debug(`No USB drives detected`);
-    return undefined;
-  }
-
-  const blockDeviceInfos = await getBlockDeviceInfo(devicePaths);
-  const dataUsbBlockDeviceInfo = blockDeviceInfos.find(isDataUsbDrive);
-  if (!dataUsbBlockDeviceInfo) {
-    debug(`USB drive detected, but it's not mounted as a removable data drive`);
-    return undefined;
-  }
-
-  debug(`Detected USB drive at ${dataUsbBlockDeviceInfo.path}`);
-  return dataUsbBlockDeviceInfo;
-}
 
 const MOUNT_SCRIPT_PATH = join(__dirname, '../scripts');
 
 async function mountUsbDrive(devicePath: string): Promise<void> {
-  debug(`Mounting USB drive ${devicePath}`);
   await exec('sudo', ['-n', join(MOUNT_SCRIPT_PATH, 'mount.sh'), devicePath]);
 }
 
 async function unmountUsbDrive(mountPoint: string): Promise<void> {
-  debug(`Unmounting USB drive at ${mountPoint}`);
   await exec('sudo', ['-n', join(MOUNT_SCRIPT_PATH, 'unmount.sh'), mountPoint]);
 }
 
@@ -117,7 +27,6 @@ async function formatUsbDrive(
   devicePath: string,
   label: string
 ): Promise<void> {
-  debug(`Formatting disk ${devicePath} as FAT32 volume with label ${label}`);
   await exec('sudo', [
     '-n',
     join(MOUNT_SCRIPT_PATH, 'format_fat32.sh'),
@@ -184,6 +93,15 @@ function logMountFailure(logger: BaseLogger, error: Error): void {
   });
 }
 
+function logMountPointNotFound(logger: BaseLogger): void {
+  logger.log(LogEventId.UsbDriveMounted, 'system', {
+    disposition: 'failure',
+    message:
+      'After the USB drive was mounted, the mount point was never detected. The user may have removed the USB drive prematurely.',
+    result: 'USB drive not mounted.',
+  });
+}
+
 export async function logEjectInit(logger: Logger): Promise<void> {
   await logger.logAsCurrentRole(LogEventId.UsbDriveEjectInit);
 }
@@ -224,20 +142,37 @@ async function logFormatFailure(logger: Logger, error: Error) {
   });
 }
 
+export const MOUNT_TIMEOUT_MS = 5_000;
+export const MOUNT_RETRY_INTERVAL_MS = 100;
+
 async function mount(
   deviceInfo: BlockDeviceInfo,
   logger: BaseLogger
 ): Promise<void> {
   logMountInit(logger);
   try {
+    debug(`mounting drive ${deviceInfo.path}`);
     await mountUsbDrive(deviceInfo.path);
-    logMountSuccess(logger);
-    debug('USB drive mounted successfully');
   } catch (error) {
     logMountFailure(logger, error as Error);
-    debug(`USB drive mounting failed: ${error}`);
-    throw error;
+    debug(`drive mounting failed: ${error}`);
+    return;
   }
+
+  // poll device info for mount point to register
+  const start = Date.now();
+  while (Date.now() - start < MOUNT_TIMEOUT_MS) {
+    debug('polling for mount point after mount...');
+    const updatedDeviceInfo = await getUsbDriveDeviceInfo();
+    if (updatedDeviceInfo?.mountpoint) {
+      logMountSuccess(logger);
+      debug('mount point found, drive mounted successfully');
+      return;
+    }
+    await sleep(MOUNT_RETRY_INTERVAL_MS);
+  }
+  logMountPointNotFound(logger);
+  debug(`mount point never found after ${MOUNT_TIMEOUT_MS}ms.`);
 }
 
 type Action = 'mounting' | 'ejecting' | 'formatting';
@@ -260,7 +195,7 @@ export function detectUsbDrive(logger: Logger): UsbDrive {
   function getActionLock(action: Action): boolean {
     if (actionLock.current) {
       debug(
-        `Cannot start ${action} while ${actionLock.current} is in progress.`
+        `cannot start ${action} while ${actionLock.current} is in progress.`
       );
       return false;
     }
@@ -269,13 +204,20 @@ export function detectUsbDrive(logger: Logger): UsbDrive {
   }
 
   function releaseActionLock(): void {
+    debug(`releasing action lock for ${actionLock.current}`);
     actionLock.current = undefined;
   }
 
   return {
     async status(): Promise<UsbDriveStatus> {
       if (actionLock.current === 'formatting') {
+        debug('formatting in progress, returning ejected');
         return { status: 'ejected' };
+      }
+
+      if (actionLock.current === 'mounting') {
+        debug('mounting in progress, returning no_drive');
+        return { status: 'no_drive' };
       }
 
       const deviceInfo = await getUsbDriveDeviceInfo();
@@ -291,16 +233,12 @@ export function detectUsbDrive(logger: Logger): UsbDrive {
       // Automatically mount the drive if it's not already mounted
       if (!deviceInfo.mountpoint && !didEject) {
         if (getActionLock('mounting')) {
-          void mount(deviceInfo, logger).catch(releaseActionLock);
+          void mount(deviceInfo, logger).then(releaseActionLock);
         }
         return { status: 'no_drive' };
       }
 
       if (deviceInfo.mountpoint) {
-        if (actionLock.current === 'mounting') {
-          releaseActionLock();
-        }
-
         return {
           status: 'mounted',
           mountPoint: deviceInfo.mountpoint,
@@ -312,13 +250,14 @@ export function detectUsbDrive(logger: Logger): UsbDrive {
     async eject(): Promise<void> {
       const deviceInfo = await getUsbDriveDeviceInfo();
       if (!deviceInfo?.mountpoint) {
-        debug('No USB drive mounted, skipping eject');
+        debug('no USB drive mounted, skipping eject');
         return;
       }
 
       if (getActionLock('ejecting')) {
         await logEjectInit(logger);
         try {
+          debug(`unmounting USB drive at ${deviceInfo.mountpoint}`);
           await unmountUsbDrive(deviceInfo.mountpoint);
           didEject = true;
           await logEjectSuccess(logger);
@@ -336,7 +275,7 @@ export function detectUsbDrive(logger: Logger): UsbDrive {
     async format(): Promise<void> {
       const deviceInfo = await getUsbDriveDeviceInfo();
       if (!deviceInfo) {
-        debug('No USB drive detected, skipping format');
+        debug('no USB drive detected, skipping format');
         return;
       }
 
@@ -349,6 +288,9 @@ export function detectUsbDrive(logger: Logger): UsbDrive {
           }
 
           const label = generateVxUsbLabel(deviceInfo.label ?? undefined);
+          debug(
+            `formatting USB drive at ${deviceInfo.path} with label ${label}`
+          );
           await formatUsbDrive(getRootDeviceName(deviceInfo.path), label);
           await logFormatSuccess(logger, label);
           debug('USB drive formatted successfully');
