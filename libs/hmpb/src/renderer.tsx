@@ -126,6 +126,10 @@ export function createDocument(page: Page, cleanup: () => void) {
       );
     },
 
+    /**
+     * Release resources associated with this document so they can be used by
+     * another document.
+     */
     cleanup,
   };
 }
