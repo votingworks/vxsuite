@@ -37,7 +37,7 @@ export function ScreenBeginVoting(props: ScreenBeginVotingProps): JSX.Element {
       voterFacing={false}
     >
       <BallotStyleLabel election={election} voter={voter} />
-      <P>
+      <P style={{ marginTop: '1rem' }}>
         <Icons.Info /> Replace headphone ear covers with a new set.
       </P>
     </CenteredCardPageLayout>
