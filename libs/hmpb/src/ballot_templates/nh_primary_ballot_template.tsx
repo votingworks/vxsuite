@@ -4,6 +4,7 @@ import {
   iter,
   ok,
   range,
+  Result,
   throwIllegalValue,
 } from '@votingworks/basics';
 import {
@@ -22,6 +23,7 @@ import {
   RichText,
 } from '@votingworks/ui';
 import {
+  BallotLayoutError,
   BallotPageTemplate,
   BaseBallotProps,
   ContentComponentResult,
@@ -50,6 +52,7 @@ import { layOutInColumns } from '../layout_in_columns';
 import { Watermark } from './watermark';
 import { Header } from './nh_state_ballot_template';
 import { republicanHandCountInsigniaImageData } from './nh_images';
+import { BaseStyles } from '../base_styles';
 
 const blankPageWithHandCountInsignia = (
   <div
@@ -91,12 +94,12 @@ function BallotPageFrame({
   pageNumber: number;
   totalPages?: number;
   children: JSX.Element;
-}): JSX.Element {
+}): Result<JSX.Element, BallotLayoutError> {
   const pageDimensions = ballotPaperDimensions(election.ballotLayout.paperSize);
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId })
   );
-  return (
+  return ok(
     <BackendLanguageContextProvider
       key={pageNumber}
       currentLanguageCode={primaryLanguageCode(ballotStyle)}
@@ -594,4 +597,5 @@ export const nhPrimaryBallotTemplate: BallotPageTemplate<NhPrimaryBallotProps> =
   {
     frameComponent: BallotPageFrame,
     contentComponent: BallotPageContent,
+    stylesComponent: BaseStyles,
   };
