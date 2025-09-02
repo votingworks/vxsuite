@@ -35,7 +35,7 @@ export { createBlankElection } from './app';
 
 loadEnvVarsFromDotenvFiles();
 
-function main(): Promise<number> {
+async function main(): Promise<number> {
   if (!WORKSPACE) {
     throw new Error(
       'Workspace path could not be determined; pass a workspace or run with WORKSPACE'
@@ -47,6 +47,7 @@ function main(): Promise<number> {
   const { store } = workspace;
 
   const auth0 = authEnabled() ? Auth0Client.init() : Auth0Client.dev();
+  await store.syncOrganizationsCache(await auth0.allOrgs());
 
   // We reuse the VxSuite logging library, but it doesn't matter if we meet VVSG
   // requirements in VxDesign, so we can use it a bit loosely. For example, the
