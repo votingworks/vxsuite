@@ -40,7 +40,7 @@ function StatusText({ printerStatus }: { printerStatus: PrinterStatus }) {
     case 'idle':
       return (
         <P>
-          <Icons.Done /> The printer is loaded with paper.
+          <Icons.Done color="success" /> The printer is loaded with paper.
         </P>
       );
     /* istanbul ignore next - @preserve */
