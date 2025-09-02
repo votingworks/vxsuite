@@ -16,12 +16,10 @@ const debug = makeDebug('usb-drive');
 const MOUNT_SCRIPT_PATH = join(__dirname, '../scripts');
 
 async function mountUsbDrive(devicePath: string): Promise<void> {
-  debug(`Mounting USB drive ${devicePath}`);
   await exec('sudo', ['-n', join(MOUNT_SCRIPT_PATH, 'mount.sh'), devicePath]);
 }
 
 async function unmountUsbDrive(mountPoint: string): Promise<void> {
-  debug(`Unmounting USB drive at ${mountPoint}`);
   await exec('sudo', ['-n', join(MOUNT_SCRIPT_PATH, 'unmount.sh'), mountPoint]);
 }
 
@@ -29,7 +27,6 @@ async function formatUsbDrive(
   devicePath: string,
   label: string
 ): Promise<void> {
-  debug(`Formatting disk ${devicePath} as FAT32 volume with label ${label}`);
   await exec('sudo', [
     '-n',
     join(MOUNT_SCRIPT_PATH, 'format_fat32.sh'),
@@ -198,7 +195,7 @@ export function detectUsbDrive(logger: Logger): UsbDrive {
   function getActionLock(action: Action): boolean {
     if (actionLock.current) {
       debug(
-        `Cannot start ${action} while ${actionLock.current} is in progress.`
+        `cannot start ${action} while ${actionLock.current} is in progress.`
       );
       return false;
     }
@@ -207,19 +204,19 @@ export function detectUsbDrive(logger: Logger): UsbDrive {
   }
 
   function releaseActionLock(): void {
-    debug(`Releasing action lock for ${actionLock.current}`);
+    debug(`releasing action lock for ${actionLock.current}`);
     actionLock.current = undefined;
   }
 
   return {
     async status(): Promise<UsbDriveStatus> {
       if (actionLock.current === 'formatting') {
-        debug('Formatting in progress, returning ejected');
+        debug('formatting in progress, returning ejected');
         return { status: 'ejected' };
       }
 
       if (actionLock.current === 'mounting') {
-        debug('Mounting in progress, returning no_drive');
+        debug('mounting in progress, returning no_drive');
         return { status: 'no_drive' };
       }
 
@@ -253,13 +250,14 @@ export function detectUsbDrive(logger: Logger): UsbDrive {
     async eject(): Promise<void> {
       const deviceInfo = await getUsbDriveDeviceInfo();
       if (!deviceInfo?.mountpoint) {
-        debug('No USB drive mounted, skipping eject');
+        debug('no USB drive mounted, skipping eject');
         return;
       }
 
       if (getActionLock('ejecting')) {
         await logEjectInit(logger);
         try {
+          debug(`unmounting USB drive at ${deviceInfo.mountpoint}`);
           await unmountUsbDrive(deviceInfo.mountpoint);
           didEject = true;
           await logEjectSuccess(logger);
@@ -277,7 +275,7 @@ export function detectUsbDrive(logger: Logger): UsbDrive {
     async format(): Promise<void> {
       const deviceInfo = await getUsbDriveDeviceInfo();
       if (!deviceInfo) {
-        debug('No USB drive detected, skipping format');
+        debug('no USB drive detected, skipping format');
         return;
       }
 
@@ -290,6 +288,9 @@ export function detectUsbDrive(logger: Logger): UsbDrive {
           }
 
           const label = generateVxUsbLabel(deviceInfo.label ?? undefined);
+          debug(
+            `formatting USB drive at ${deviceInfo.path} with label ${label}`
+          );
           await formatUsbDrive(getRootDeviceName(deviceInfo.path), label);
           await logFormatSuccess(logger, label);
           debug('USB drive formatted successfully');
