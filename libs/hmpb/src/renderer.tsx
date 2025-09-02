@@ -15,7 +15,7 @@ export type Page = Pick<
  * Creates a {@link RenderDocument}
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function createDocument(page: Page) {
+export function createDocument(page: Page, cleanup: () => void) {
   return {
     /**
      * Given a selector to an individual element in the document, replaces the
@@ -125,6 +125,12 @@ export function createDocument(page: Page) {
         })
       );
     },
+
+    /**
+     * Release resources associated with this document so they can be used by
+     * another document.
+     */
+    cleanup,
   };
 }
 
@@ -171,7 +177,7 @@ export type RenderScratchpad = ReturnType<typeof createScratchpad>;
  * which can then be converted to a {@link RenderDocument} (for final rendering to
  * PDF).
  *
- * Renderers should be cleaned up after use with {@link Renderer.cleanup}.
+ * Renderers should be cleaned up after use with {@link Renderer.close}.
  */
 export interface Renderer {
   /**
@@ -180,12 +186,12 @@ export interface Renderer {
   createScratchpad(styles: JSX.Element): Promise<RenderScratchpad>;
 
   /**
-   * Given a {@link RenderDocument}, creates a new {@link RenderDocument} with the same content.
-   */
-
-  cloneDocument(document: RenderDocument): Promise<RenderDocument>;
-  /**
    * Cleans up the resources used by the renderer (e.g. the browser instance).
    */
-  cleanup(): Promise<void>;
+  close(): Promise<void>;
+
+  /**
+   * Takes HTML content and returns a {@link RenderDocument} with that content rendered.
+   */
+  loadDocumentFromContent(htmlContent: string): Promise<RenderDocument>;
 }

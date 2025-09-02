@@ -1,4 +1,4 @@
-import { assertDefined, range } from '@votingworks/basics';
+import { assertDefined, iter, range } from '@votingworks/basics';
 import {
   BallotType,
   CandidateContest,
@@ -17,7 +17,8 @@ import { concatenatePdfs } from './concatenate_pdfs';
 import { markBallotDocument } from './mark_ballot';
 import {
   BaseBallotProps,
-  renderAllBallotsAndCreateElectionDefinition,
+  layOutBallotsAndCreateElectionDefinition,
+  renderBallotPdfWithMetadataQrCode,
 } from './render_ballot';
 import { Renderer } from './renderer';
 import { injectFooterMetadata } from './all_bubble_ballot/footer';
@@ -74,19 +75,23 @@ export function allBubbleBallotFixtures(
 
     async generate(renderer: Renderer) {
       debug(`Generating: ${blankBallotPath}`);
-      const { electionDefinition, ballotDocuments } =
-        await renderAllBallotsAndCreateElectionDefinition(
+      const { electionDefinition, ballotContents } =
+        await layOutBallotsAndCreateElectionDefinition(
           renderer,
           allBubbleBallotTemplate(paperSize),
           [ballotProps],
           'vxf'
         );
 
-      const [blankBallot] = ballotDocuments;
-      const blankBallotPdf = await blankBallot.renderToPdf();
+      const [blankBallotContents] = ballotContents;
+      const ballotDocument =
+        await renderer.loadDocumentFromContent(blankBallotContents);
+      const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
+        ballotProps,
+        ballotDocument,
+        electionDefinition
+      );
 
-      let filledBallotPdf: Uint8Array<ArrayBufferLike> = Uint8Array.of();
-      let cyclingTestDeckPdf: Uint8Array<ArrayBufferLike> = Uint8Array.of();
       debug(`Generating: ${filledBallotPath}`);
       const filledVotes: VotesDict = Object.fromEntries(
         election.contests.map((contest) => [
@@ -94,12 +99,13 @@ export function allBubbleBallotFixtures(
           (contest as CandidateContest).candidates,
         ])
       );
-      const filledBallot = await markBallotDocument(
-        renderer,
-        blankBallot,
-        filledVotes
+      await markBallotDocument(ballotDocument, filledVotes);
+      const filledBallotPdf = await renderBallotPdfWithMetadataQrCode(
+        ballotProps,
+        ballotDocument,
+        electionDefinition
       );
-      filledBallotPdf = await filledBallot.renderToPdf();
+      ballotDocument.cleanup();
 
       debug(`Generating: ${cyclingTestDeckPath}`);
       const [gridLayout] = assertDefined(
@@ -111,8 +117,9 @@ export function allBubbleBallotFixtures(
           position,
         ])
       );
-      const cyclingTestDeckSheetPdfs = await Promise.all(
-        range(0, 6).map(async (sheetNumber) => {
+      const cyclingTestDeckSheetPdfs = await iter(range(0, 6))
+        .async()
+        .map(async (sheetNumber) => {
           const votesForSheet: VotesDict = Object.fromEntries(
             election.contests.map((contest) => [
               contest.id,
@@ -131,18 +138,25 @@ export function allBubbleBallotFixtures(
             ])
           );
           const sheetDocument = await markBallotDocument(
-            renderer,
-            blankBallot,
+            await renderer.loadDocumentFromContent(blankBallotContents),
             votesForSheet
           );
           await injectFooterMetadata(sheetDocument, {
             Election: formatBallotHash(electionDefinition.ballotHash),
             'Cycle Index': sheetNumber + 1,
           });
-          return await sheetDocument.renderToPdf();
+          const pdf = await renderBallotPdfWithMetadataQrCode(
+            ballotProps,
+            sheetDocument,
+            electionDefinition
+          );
+          sheetDocument.cleanup();
+          return pdf;
         })
+        .toArray();
+      const cyclingTestDeckPdf = await concatenatePdfs(
+        cyclingTestDeckSheetPdfs
       );
-      cyclingTestDeckPdf = await concatenatePdfs(cyclingTestDeckSheetPdfs);
 
       return {
         electionDefinition,

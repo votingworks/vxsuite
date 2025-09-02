@@ -4,7 +4,7 @@ import { BallotType } from '@votingworks/types';
 import {
   allBaseBallotProps,
   BaseBallotProps,
-  renderMinimalBallotsToCreateElectionDefinition,
+  layOutMinimalBallotsToCreateElectionDefinition,
 } from './render_ballot';
 import { BALLOT_MODES } from './types';
 import { createPlaywrightRenderer } from './playwright_renderer';
@@ -63,12 +63,12 @@ test('allBaseBallotProps creates props for all possible ballots for an election'
   }
 });
 
-test('renderMinimalBallotsToCreateElectionDefinition', async () => {
+test('layOutMinimalBallotsToCreateElectionDefinition', async () => {
   const fixtureElectionDefinition = vxFamousNamesFixtures.electionDefinition;
   const allBallotProps = allBaseBallotProps(fixtureElectionDefinition.election);
   const renderer = await createPlaywrightRenderer();
   const electionDefinition =
-    await renderMinimalBallotsToCreateElectionDefinition(
+    await layOutMinimalBallotsToCreateElectionDefinition(
       renderer,
       ballotTemplates.VxDefaultBallot,
       allBallotProps,

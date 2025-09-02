@@ -11,7 +11,7 @@ import {
   createPlaywrightRenderer,
   BaseBallotProps,
   ballotTemplates,
-  renderAllBallotsAndCreateElectionDefinition,
+  renderAllBallotPdfsAndCreateElectionDefinition,
 } from '@votingworks/hmpb';
 import {
   AdjudicationReason,
@@ -711,16 +711,15 @@ test('Ballot audit IDs', async () => {
     ballotAuditId: 'test-ballot-audit-id',
   };
   const renderer = await createPlaywrightRenderer();
-  const ballotDocument = (
-    await renderAllBallotsAndCreateElectionDefinition(
+  const ballotPdf = (
+    await renderAllBallotPdfsAndCreateElectionDefinition(
       renderer,
       ballotTemplates.VxDefaultBallot,
       [ballotPropsWithAuditId],
       'vxf'
     )
-  ).ballotDocuments[0]!;
-  const pdf = await ballotDocument.renderToPdf();
-  const images = asSheet(await pdfToPageImages(pdf).toArray());
+  ).ballotPdfs[0]!;
+  const images = asSheet(await pdfToPageImages(ballotPdf).toArray());
   expect(images).toHaveLength(2);
 
   const testMode = ballotPropsWithAuditId.ballotMode === 'test';

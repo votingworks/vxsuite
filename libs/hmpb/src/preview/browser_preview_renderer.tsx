@@ -29,7 +29,7 @@ function browserPage(): Page {
   };
 }
 
-function createBrowserPreviewDocument(styles: JSX.Element): RenderDocument {
+function createBrowserPreviewDocument(styles?: JSX.Element): RenderDocument {
   document.head.innerHTML += ReactDomServer.renderToString(
     <>
       {styles}
@@ -50,20 +50,22 @@ function createBrowserPreviewDocument(styles: JSX.Element): RenderDocument {
     </>
   );
 
-  return createDocument(browserPage());
+  return createDocument(browserPage(), () => {});
 }
 
 export function createBrowserPreviewRenderer(): Renderer {
-  let document: RenderDocument;
+  let renderDocument: RenderDocument;
   return {
     createScratchpad(styles) {
-      document = createBrowserPreviewDocument(styles);
-      return Promise.resolve(createScratchpad(document));
+      renderDocument = createBrowserPreviewDocument(styles);
+      return Promise.resolve(createScratchpad(renderDocument));
     },
-    cloneDocument() {
-      return Promise.resolve(document);
+    loadDocumentFromContent(htmlContent) {
+      renderDocument = createBrowserPreviewDocument();
+      document.documentElement.innerHTML = htmlContent;
+      return Promise.resolve(renderDocument);
     },
-    cleanup() {
+    close() {
       return Promise.resolve();
     },
   };

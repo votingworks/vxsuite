@@ -657,7 +657,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
         );
       } finally {
         // eslint-disable-next-line no-console
-        renderer.cleanup().catch(console.error);
+        renderer.close().catch(console.error);
       }
       if (ballotPdf.isErr()) return ballotPdf;
 
