@@ -151,46 +151,51 @@ function FaIcon(props: InnerProps): JSX.Element {
   const theme = useTheme();
 
   /**
-   * For the exclamation triangle with warning coloring in the default voter-facing color mode, use
-   * a custom two-tone SVG with a black border/text and a yellow interior. VVSG2 requires that we
-   * use yellow/orange for warning iconography, but to meet the required 10:1 contrast ratio on a
-   * white background, yellow/orange has to be darkened, enough that it becomes brown. The white
-   * background and two-tone SVG's black border have a 10:1 contrast ratio as do the SVG's black
-   * border and yellow interior.
+   * For icons with warning coloring in the default voter-facing color mode, we use custom two-tone
+   * SVGs with a black border/text and a yellow interior. VVSG2 requires that we use yellow/orange
+   * for warning iconography, but to meet the required 10:1 contrast ratio on a white background,
+   * yellow/orange has to be darkened, enough that it becomes brown. The white background and
+   * two-tone SVGs' black border have a 10:1 contrast ratio as do the SVGs' black border and yellow
+   * interior.
+   *
+   * TODO: Can we dynamically add black borders so that we don't have to create custom SVGs?
    */
-  if (
-    type === faExclamationTriangle &&
-    color === 'warning' &&
-    theme.colorMode === 'contrastMedium'
-  ) {
-    assert(
-      !pulse && !spin,
-      'Custom exclamation triangle SVG does not support pulse or spin'
-    );
-    return (
-      <StyledSvgIcon
-        aria-hidden="true"
-        className={FONT_AWESOME_INLINE_SVG_CLASS_NAME}
-        data-icon="triangle-exclamation"
-        role="img"
-        height="100"
-        width="100"
-        viewBox="0 0 512 512"
-        style={{ color: theme.colors.warningAccent, ...style }}
-      >
-        {/* Triangle with rounded corners */}
-        <path
-          fill={theme.colors.warningContainer}
-          d="M16 429.6c0 19 15.4 34.4 34.4 34.4l411.2 0c19 0 34.4-15.4 34.4-34.4c0-6.1-1.6-12.1-4.7-17.3L290.3 67.7C283.2 55.5 270.1 48 256 48s-27.2 7.5-34.3 19.7L20.7 412.3c-3.1 5.3-4.7 11.2-4.7 17.3z"
-        />
-        {/* Outside border */}
-        <path d="M20.7 412.3c-3.1 5.3-4.7 11.2-4.7 17.3c0 19 15.4 34.4 34.4 34.4l411.2 0c19 0 34.4-15.4 34.4-34.4c0-6.1-1.6-12.1-4.7-17.3L290.3 67.7C283.2 55.5 270.1 48 256 48s-27.2 7.5-34.3 19.7L20.7 412.3zM6.9 404.2l201-344.6C217.9 42.5 236.2 32 256 32s38.1 10.5 48.1 27.6l201 344.6c4.5 7.7 6.9 16.5 6.9 25.4c0 27.8-22.6 50.4-50.4 50.4L50.4 480C22.6 480 0 457.4 0 429.6c0-8.9 2.4-17.7 6.9-25.4z" />
-        {/* Exclamation mark line */}
-        <path d="M232 184c0-13.3 10.7-24 24-24s24 10.7 24 24v112c0 13.3-10.7 24-24 24s-24-10.7-24-24V184z" />
-        {/* Exclamation mark dot */}
-        <path d="M256 416a32 32 0 1 0 0-64 32 32 0 1 0 0 64z" />
-      </StyledSvgIcon>
-    );
+  if (theme.colorMode === 'contrastMedium' && color === 'warning') {
+    assert(!pulse && !spin, 'Custom SVGs do not support pulse or spin');
+    switch (type) {
+      case faExclamationTriangle: {
+        return (
+          <StyledSvgIcon
+            aria-hidden="true"
+            className={FONT_AWESOME_INLINE_SVG_CLASS_NAME}
+            data-icon={type.iconName}
+            role="img"
+            height="100"
+            width="100"
+            viewBox="0 0 512 512"
+            style={{ color: theme.colors.onBackground, ...style }}
+          >
+            {/* Triangle with rounded corners */}
+            <path
+              fill={iconColor(theme, color)}
+              d="M16 429.6c0 19 15.4 34.4 34.4 34.4l411.2 0c19 0 34.4-15.4 34.4-34.4c0-6.1-1.6-12.1-4.7-17.3L290.3 67.7C283.2 55.5 270.1 48 256 48s-27.2 7.5-34.3 19.7L20.7 412.3c-3.1 5.3-4.7 11.2-4.7 17.3z"
+            />
+            {/* Outside border */}
+            <path d="M20.7 412.3c-3.1 5.3-4.7 11.2-4.7 17.3c0 19 15.4 34.4 34.4 34.4l411.2 0c19 0 34.4-15.4 34.4-34.4c0-6.1-1.6-12.1-4.7-17.3L290.3 67.7C283.2 55.5 270.1 48 256 48s-27.2 7.5-34.3 19.7L20.7 412.3zM6.9 404.2l201-344.6C217.9 42.5 236.2 32 256 32s38.1 10.5 48.1 27.6l201 344.6c4.5 7.7 6.9 16.5 6.9 25.4c0 27.8-22.6 50.4-50.4 50.4L50.4 480C22.6 480 0 457.4 0 429.6c0-8.9 2.4-17.7 6.9-25.4z" />
+            {/* Exclamation mark line */}
+            <path d="M232 184c0-13.3 10.7-24 24-24s24 10.7 24 24v112c0 13.3-10.7 24-24 24s-24-10.7-24-24V184z" />
+            {/* Exclamation mark dot */}
+            <path d="M256 416a32 32 0 1 0 0-64 32 32 0 1 0 0 64z" />
+          </StyledSvgIcon>
+        );
+      }
+      default: {
+        throw new Error(
+          `Icon ${type.iconName} with warning coloring in the default voter-facing color mode ` +
+            'requires a custom SVG to ensure that contrast requirements are met'
+        );
+      }
+    }
   }
 
   return (
