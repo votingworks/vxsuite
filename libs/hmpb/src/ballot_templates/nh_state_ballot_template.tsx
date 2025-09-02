@@ -6,6 +6,7 @@ import {
   iter,
   ok,
   range,
+  Result,
   throwIllegalValue,
 } from '@votingworks/basics';
 import {
@@ -51,6 +52,7 @@ import {
   BaseBallotProps,
   BallotPageTemplate,
   ContentComponentResult,
+  BallotLayoutError,
 } from '../render_ballot';
 import { Watermark } from './watermark';
 import { BallotMode, PixelDimensions } from '../types';
@@ -58,6 +60,7 @@ import { hmpbStrings } from '../hmpb_strings';
 import { layOutInColumns } from '../layout_in_columns';
 import { RenderScratchpad } from '../renderer';
 import { handCountInsigniaImageData, sosSignatureImageData } from './nh_images';
+import { BaseStyles } from '../base_styles';
 
 const BubbleDiagram = styled(BubbleShape)`
   display: inline-block;
@@ -218,12 +221,12 @@ function BallotPageFrame({
   pageNumber: number;
   totalPages?: number;
   children: JSX.Element;
-}): JSX.Element {
+}): Result<JSX.Element, BallotLayoutError> {
   const pageDimensions = ballotPaperDimensions(election.ballotLayout.paperSize);
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId })
   );
-  return (
+  return ok(
     <BackendLanguageContextProvider
       key={pageNumber}
       currentLanguageCode={primaryLanguageCode(ballotStyle)}
@@ -833,4 +836,5 @@ export type NhStateBallotProps = BaseBallotProps;
 export const nhStateBallotTemplate: BallotPageTemplate<NhStateBallotProps> = {
   frameComponent: BallotPageFrame,
   contentComponent: BallotPageContent,
+  stylesComponent: BaseStyles,
 };
