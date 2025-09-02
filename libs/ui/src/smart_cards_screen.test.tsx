@@ -28,6 +28,7 @@ import {
   SmartCardsScreen,
   SmartCardsScreenProps,
 } from './smart_cards_screen';
+import { VxRenderOptions } from './themes/render_with_themes';
 
 vi.useFakeTimers({ shouldAdvanceTime: true });
 
@@ -112,18 +113,28 @@ function setUpMockCardProgrammingApi() {
   );
 }
 
+const renderOptions: VxRenderOptions = {
+  vxTheme: { colorMode: 'desktop' },
+};
+
 beforeEach(() => {
   setUpMockCardProgrammingApi();
 });
 
 test('renders instructions to insert card when no card is inserted', async () => {
-  render(<SmartCardsScreen {...defaultProps()} auth={authConfigs.noCard} />);
+  render(
+    <SmartCardsScreen {...defaultProps()} auth={authConfigs.noCard} />,
+    renderOptions
+  );
 
   await screen.findByRole('heading', { name: 'Insert a smart card' });
 });
 
 test('renders instructions to flip card for card_error status', async () => {
-  render(<SmartCardsScreen {...defaultProps()} auth={authConfigs.cardError} />);
+  render(
+    <SmartCardsScreen {...defaultProps()} auth={authConfigs.cardError} />,
+    renderOptions
+  );
 
   await screen.findByRole('heading', { name: 'Card Backward' });
 });
@@ -166,7 +177,8 @@ test.each(electionInfoTestSpecs)(
       <SmartCardsScreen
         {...defaultProps()}
         auth={programmedElectionManagerAuthStatus}
-      />
+      />,
+      renderOptions
     );
 
     await screen.findByText(textMatcher);
@@ -182,7 +194,8 @@ type UnprogramResult = Awaited<
 
 test('Insert blank card, program election manager card', async () => {
   const { rerender } = render(
-    <SmartCardsScreen {...defaultProps()} auth={authConfigs.blankCard} />
+    <SmartCardsScreen {...defaultProps()} auth={authConfigs.blankCard} />,
+    renderOptions
   );
 
   await screen.findByRole('heading', { name: 'Blank Card' });
@@ -221,7 +234,8 @@ test('Insert blank card, program election manager card', async () => {
 
 test('Insert blank card, program poll worker card, PINs disabled', async () => {
   const { rerender } = render(
-    <SmartCardsScreen {...defaultProps()} auth={authConfigs.blankCard} />
+    <SmartCardsScreen {...defaultProps()} auth={authConfigs.blankCard} />,
+    renderOptions
   );
 
   await screen.findByText('Blank Card');
@@ -255,7 +269,8 @@ test('Insert blank card, program poll worker card, PINs disabled', async () => {
 
 test('Insert blank card, program system administrator card', async () => {
   const { rerender } = render(
-    <SmartCardsScreen {...defaultProps()} auth={authConfigs.blankCard} />
+    <SmartCardsScreen {...defaultProps()} auth={authConfigs.blankCard} />,
+    renderOptions
   );
 
   await screen.findByText('Blank Card');
@@ -313,7 +328,8 @@ test('Insert blank card when machine is not configured', async () => {
       {...defaultProps()}
       auth={authConfigs.blankCard}
       election={undefined}
-    />
+    />,
+    renderOptions
   );
 
   await screen.findByText('Blank Card');
@@ -332,7 +348,8 @@ test('Insert blank card, program system administrator card when machine is not c
       {...defaultProps()}
       auth={authConfigs.blankCard}
       election={undefined}
-    />
+    />,
+    renderOptions
   );
 
   await screen.findByText('Blank Card');
@@ -382,7 +399,8 @@ test('Insert election manager card, unprogram', async () => {
     <SmartCardsScreen
       {...defaultProps()}
       auth={authConfigs.electionManagerCard}
-    />
+    />,
+    renderOptions
   );
 
   await screen.findByText('Election Manager Card');
@@ -421,7 +439,8 @@ test('Insert election manager card, reset PIN', async () => {
     <SmartCardsScreen
       {...defaultProps()}
       auth={authConfigs.electionManagerCard}
-    />
+    />,
+    renderOptions
   );
 
   await screen.findByText('Election Manager Card');
@@ -447,7 +466,8 @@ test('Insert election manager card, reset PIN', async () => {
 
 test('Insert poll worker card (PINs disabled), unprogram', async () => {
   const { rerender } = render(
-    <SmartCardsScreen {...defaultProps()} auth={authConfigs.pollWorkerCard} />
+    <SmartCardsScreen {...defaultProps()} auth={authConfigs.pollWorkerCard} />,
+    renderOptions
   );
 
   await screen.findByText('Poll Worker Card');
@@ -484,7 +504,8 @@ test('Insert poll worker card (PINs enabled), reset PIN', async () => {
       {...defaultProps()}
       auth={authConfigs.pollWorkerCard}
       arePollWorkerCardPinsEnabled
-    />
+    />,
+    renderOptions
   );
 
   await screen.findByText('Poll Worker Card');
@@ -514,7 +535,8 @@ test('Insert system administrator card, reset PIN', async () => {
     <SmartCardsScreen
       {...defaultProps()}
       auth={authConfigs.systemAdministratorCard}
-    />
+    />,
+    renderOptions
   );
 
   await screen.findByText('System Administrator Card');
@@ -560,7 +582,8 @@ test('Insert election manager card when machine is not configured', async () => 
       {...defaultProps()}
       auth={authConfigs.electionManagerCard}
       election={undefined}
-    />
+    />,
+    renderOptions
   );
 
   await screen.findByText('Election Manager Card');
@@ -581,7 +604,8 @@ test('Insert poll worker card when machine is not configured (PINs enabled)', as
       auth={authConfigs.pollWorkerCard}
       election={undefined}
       arePollWorkerCardPinsEnabled
-    />
+    />,
+    renderOptions
   );
 
   await screen.findByText('Poll Worker Card');
@@ -601,7 +625,8 @@ test('Insert system administrator card when machine is not configured', async ()
       {...defaultProps()}
       auth={authConfigs.systemAdministratorCard}
       election={undefined}
-    />
+    />,
+    renderOptions
   );
 
   await screen.findByText('System Administrator Card');
@@ -610,7 +635,8 @@ test('Insert system administrator card when machine is not configured', async ()
 
 test('Insert vendor card', async () => {
   render(
-    <SmartCardsScreen {...defaultProps()} auth={authConfigs.vendorCard} />
+    <SmartCardsScreen {...defaultProps()} auth={authConfigs.vendorCard} />,
+    renderOptions
   );
 
   await screen.findByText('Vendor Card');
@@ -637,7 +663,8 @@ test('Insert poll worker card programmed for another election (PINs enabled)', a
       {...defaultProps()}
       auth={authStatus}
       arePollWorkerCardPinsEnabled
-    />
+    />,
+    renderOptions
   );
 
   await screen.findByText('Unknown Election');
@@ -652,7 +679,8 @@ test('Error programming election manager card', async () => {
       {...defaultProps()}
       auth={authConfigs.blankCard}
       arePollWorkerCardPinsEnabled
-    />
+    />,
+    renderOptions
   );
 
   mockApiClient.programCard.mockResolvedValueOnce(err(new Error('test error')));
@@ -668,7 +696,10 @@ test('Error programming election manager card', async () => {
 });
 
 test('Error programming poll worker card', async () => {
-  render(<SmartCardsScreen {...defaultProps()} auth={authConfigs.blankCard} />);
+  render(
+    <SmartCardsScreen {...defaultProps()} auth={authConfigs.blankCard} />,
+    renderOptions
+  );
 
   mockApiClient.programCard.mockResolvedValueOnce(err(new Error('test error')));
 
@@ -683,7 +714,10 @@ test('Error programming poll worker card', async () => {
 });
 
 test('Error programming system administrator card', async () => {
-  render(<SmartCardsScreen {...defaultProps()} auth={authConfigs.blankCard} />);
+  render(
+    <SmartCardsScreen {...defaultProps()} auth={authConfigs.blankCard} />,
+    renderOptions
+  );
 
   mockApiClient.programCard.mockResolvedValueOnce(err(new Error('test error')));
 
@@ -704,7 +738,8 @@ test('Error unprogramming election manager card', async () => {
     <SmartCardsScreen
       {...defaultProps()}
       auth={authConfigs.electionManagerCard}
-    />
+    />,
+    renderOptions
   );
   mockApiClient.unprogramCard.mockResolvedValueOnce(
     err(new Error('test error'))
@@ -720,7 +755,8 @@ test('Error unprogramming election manager card', async () => {
 
 test('Error unprogramming poll worker card', async () => {
   render(
-    <SmartCardsScreen {...defaultProps()} auth={authConfigs.pollWorkerCard} />
+    <SmartCardsScreen {...defaultProps()} auth={authConfigs.pollWorkerCard} />,
+    renderOptions
   );
   mockApiClient.unprogramCard.mockResolvedValueOnce(
     err(new Error('test error'))
@@ -739,7 +775,8 @@ test('Error resetting election manager card PIN', async () => {
     <SmartCardsScreen
       {...defaultProps()}
       auth={authConfigs.electionManagerCard}
-    />
+    />,
+    renderOptions
   );
 
   mockApiClient.programCard.mockResolvedValueOnce(err(new Error('test error')));
@@ -759,7 +796,8 @@ test('Error resetting poll worker card PIN', async () => {
       {...defaultProps()}
       auth={authConfigs.pollWorkerCard}
       arePollWorkerCardPinsEnabled
-    />
+    />,
+    renderOptions
   );
 
   mockApiClient.programCard.mockResolvedValueOnce(err(new Error('test error')));
@@ -778,7 +816,8 @@ test('Error resetting system administrator card PIN', async () => {
     <SmartCardsScreen
       {...defaultProps()}
       auth={authConfigs.systemAdministratorCard}
-    />
+    />,
+    renderOptions
   );
 
   mockApiClient.programCard.mockResolvedValueOnce(err(new Error('test error')));
@@ -812,7 +851,8 @@ test.each([
   'Error message persists momentarily even after card is removed - $buttonToPress',
   async ({ startingAuthState, buttonToPress, expectedErrorMessage }) => {
     const { rerender } = render(
-      <SmartCardsScreen {...defaultProps()} auth={startingAuthState} />
+      <SmartCardsScreen {...defaultProps()} auth={startingAuthState} />,
+      renderOptions
     );
 
     mockApiClient.programCard.mockResolvedValueOnce(err(new Error('Whoa!')));
