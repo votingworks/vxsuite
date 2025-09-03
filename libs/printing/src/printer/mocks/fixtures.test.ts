@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { BROTHER_THERMAL_PRINTER_CONFIG, HP_LASER_PRINTER_CONFIG } from '..';
+import { CITIZEN_THERMAL_PRINTER_CONFIG, HP_LASER_PRINTER_CONFIG } from '..';
 import {
   MOCK_PRINTER_RICH_STATUS,
   getMockConnectedPrinterStatus,
@@ -12,10 +12,10 @@ test('getMockConnectedPrinterStatus', () => {
     richStatus: MOCK_PRINTER_RICH_STATUS,
   });
 
-  expect(getMockConnectedPrinterStatus(BROTHER_THERMAL_PRINTER_CONFIG)).toEqual(
+  expect(getMockConnectedPrinterStatus(CITIZEN_THERMAL_PRINTER_CONFIG)).toEqual(
     {
       connected: true,
-      config: BROTHER_THERMAL_PRINTER_CONFIG,
+      config: CITIZEN_THERMAL_PRINTER_CONFIG,
     }
   );
 });
