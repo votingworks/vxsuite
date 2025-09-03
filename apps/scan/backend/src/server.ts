@@ -8,7 +8,6 @@ import {
   setDefaultAudio,
 } from '@votingworks/backend';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
-import { BROTHER_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
 import * as customScanner from '@votingworks/custom-scanner';
 import {
   createMockPdiScanner,
@@ -123,10 +122,7 @@ export async function start({
   });
 
   useDevDockRouter(app, express, {
-    printerConfig:
-      resolvedPrinter.scheme === 'hardware-v4'
-        ? 'fujitsu'
-        : BROTHER_THERMAL_PRINTER_CONFIG,
+    printerConfig: 'fujitsu',
     mockPdiScanner,
   });
 

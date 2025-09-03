@@ -36,10 +36,6 @@ import {
 } from '@votingworks/printing';
 import { mapSheet, SheetOf } from '@votingworks/types';
 import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
-import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
 import { Application } from 'express';
 import { readFile } from 'node:fs/promises';
 import { Server } from 'node:http';
@@ -50,10 +46,7 @@ import { SimulatedClock } from 'xstate/lib/SimulatedClock';
 import { createCanvas } from 'canvas';
 import { Api, buildApp } from '../../src/app';
 import { Player as AudioPlayer } from '../../src/audio/player';
-import {
-  wrapFujitsuThermalPrinter,
-  wrapLegacyPrinter,
-} from '../../src/printing/printer';
+import { wrapFujitsuThermalPrinter } from '../../src/printing/printer';
 import {
   createPrecinctScannerStateMachine,
   delays,
@@ -162,11 +155,7 @@ export async function withApp(
   mockUsbDrive.usbDrive.sync.expectOptionalRepeatedCallsWith().resolves(); // Called by continuous export
   const mockPrinterHandler = createMockPrinterHandler();
   const mockFujitsuPrinterHandler = createMockFujitsuPrinterHandler();
-  const printer = isFeatureFlagEnabled(
-    BooleanEnvironmentVariableName.USE_BROTHER_PRINTER
-  )
-    ? wrapLegacyPrinter(mockPrinterHandler.printer)
-    : wrapFujitsuThermalPrinter(mockFujitsuPrinterHandler.printer);
+  const printer = wrapFujitsuThermalPrinter(mockFujitsuPrinterHandler.printer);
 
   const mockScanner = createMockPdiScannerClient();
   const deferredConnect = deferred<Result<void, ScannerError>>();

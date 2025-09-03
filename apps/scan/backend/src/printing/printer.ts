@@ -1,5 +1,5 @@
 import { PrinterStatus as LegacyPrinterStatus } from '@votingworks/types';
-import { detectPrinter, Printer as LegacyPrinter } from '@votingworks/printing';
+import { Printer as LegacyPrinter } from '@votingworks/printing';
 import {
   PrinterStatus as FujitsuPrinterStatus,
   PrinterState as FujitsuPrinterState,
@@ -8,10 +8,6 @@ import {
   FujitsuThermalPrinterInterface,
   getFujitsuThermalPrinter,
 } from '@votingworks/fujitsu-thermal-printer';
-import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
 import { Logger } from '@votingworks/logging';
 import { assert, Result } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
@@ -98,13 +94,6 @@ export function wrapFujitsuThermalPrinter(
 }
 
 export function getPrinter(logger: Logger): Printer {
-  if (
-    isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_BROTHER_PRINTER)
-  ) {
-    const legacyPrinter = detectPrinter(logger);
-    return wrapLegacyPrinter(legacyPrinter);
-  }
-
   const printer = getFujitsuThermalPrinter(logger);
   assert(printer);
   return wrapFujitsuThermalPrinter(printer);
