@@ -13,6 +13,7 @@ create table election (
   is_sound_muted boolean not null default false,
   is_double_feed_detection_disabled boolean not null default false,
   is_continuous_export_enabled boolean not null default true,
+  is_early_voting_mode boolean not null default false,
   created_at timestamp not null default current_timestamp,
   ballot_audit_id_secret_key text
 );

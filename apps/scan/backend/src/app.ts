@@ -220,6 +220,7 @@ export function buildApi({
         isTestMode: store.getTestMode(),
         isDoubleFeedDetectionDisabled: store.getIsDoubleFeedDetectionDisabled(),
         isContinuousExportEnabled: store.getIsContinuousExportEnabled(),
+        isEarlyVotingMode: store.getIsEarlyVotingMode(),
       };
     },
 
@@ -299,6 +300,10 @@ export function buildApi({
         }`,
         disposition: 'success',
       });
+    },
+
+    setEarlyVotingMode(input: { isEarlyVotingMode: boolean }): void {
+      store.setIsEarlyVotingMode(input.isEarlyVotingMode);
     },
 
     async setTestMode(input: { isTestMode: boolean }): Promise<void> {
