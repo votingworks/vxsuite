@@ -224,8 +224,10 @@ function AudioMatchCells(props: AudioUploadResult) {
   let contestTitle: string = '';
 
   for (const contest of contests) {
-    if (contest.id !== contestId || contest.type !== 'candidate') continue;
+    if (contest.id !== contestId) continue;
     contestTitle = contest.title;
+
+    if (contest.type !== 'candidate') continue;
 
     for (const candidate of contest.candidates) {
       if (candidate.id !== candidateId) continue;
