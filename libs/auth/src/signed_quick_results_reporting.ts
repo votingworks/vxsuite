@@ -53,7 +53,8 @@ export async function generateSignedQuickResultsReportingUrl(
     signingMachineId,
     isLiveMode ? '1' : '0',
     secondsSince1970.toString(),
-    Buffer.from(JSON.stringify(compressedTally)).toString('base64'),
+    3, // fake data to mimick having an integer for index of precinct in election def
+    // Buffer.from(JSON.stringify(compressedTally)).toString('base64'),
   ];
   const messagePayload = messagePayloadParts.join(
     SIGNED_QUICK_RESULTS_REPORTING_MESSAGE_PAYLOAD_SEPARATOR
@@ -66,19 +67,19 @@ export async function generateSignedQuickResultsReportingUrl(
 
   const machineCert = await fs.readFile(config.machineCertPath);
   const certDetails = await parseCert(machineCert);
+  const machineCertString = machineCert
+    .toString('utf-8')
+    // Remove the standard PEM header and footer to make the QR code as small as possible
+    .replace('-----BEGIN CERTIFICATE-----', '')
+    .replace('-----END CERTIFICATE-----', '');
   assert(certDetails.component !== 'card');
-
-  const sizeResultsInBytes = Buffer.byteLength(
-    Buffer.from(JSON.stringify(compressedTally)).toString('base64')
-  );
-  console.log(sizeResultsInBytes);
 
   const signedQuickResultsReportingUrl = `${quickResultsReportingUrl}/?p=${encodeURIComponent(
     message
   )}&s=${encodeURIComponent(
     messageSignature.toString('base64url')
-  )}${machineCert}${machineCert}${machineCert}sakjhdsakjdhaskjdhksajhdkashdksajhdaksjhdksajhdaskjhdskajhdaksjhdksajhdaskjhdksah`;
+  )}&c=${machineCertString}&r=`;
   const sizeInBytes = Buffer.byteLength(signedQuickResultsReportingUrl, 'utf8');
-  console.log(sizeInBytes);
+  console.log('backed overhead size in bytes', sizeInBytes);
   return signedQuickResultsReportingUrl;
 }

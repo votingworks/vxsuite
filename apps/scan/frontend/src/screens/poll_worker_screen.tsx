@@ -293,16 +293,13 @@ function PollWorkerScreenContents({
   const resumeVotingMutation = resumeVotingApi.useMutation();
   const printReportMutation = printReport.useMutation();
   const generateVxQrCode = generateQuickResultsQrCodeValue.useQuery();
-  const testQrStringAlpha = 'abcdefghij'.repeat(120); // 10 * 100 = 1000 digits
-  const testQrStringNum = '0123456789'.repeat(300); // 10 * 100 = 1000 digits
-  console.log(
-    `testQRString alpha byte length: ${
-      new TextEncoder().encode(testQrStringAlpha).length
-    }`
-  );
+  // const testQrStringAlpha = 'abcdefghij'.repeat(120); // 10 * 100 = 1000 digits
+  const encoding = 'M';
+  const testQrStringNumPrefix = `48976`; // 4 = digit encoding chars, 8976 = total num ballots.
+  const testNum4Digit = '01234'.repeat(635);
   console.log(
     `testQRString num byte length: ${
-      new TextEncoder().encode(testQrStringNum).length
+      new TextEncoder().encode(testQrStringNumPrefix + testNum4Digit).length
     }`
   );
 
@@ -512,7 +509,13 @@ function PollWorkerScreenContents({
           <Screen>
             <CenteredText>
               {generateVxQrCode.data && (
-                <QrCode value={testQrStringAlpha} level="H" />
+                <QrCode
+                  value={[
+                    generateVxQrCode.data,
+                    testQrStringNumPrefix + testNum4Digit,
+                  ]}
+                  level={encoding}
+                />
               )}
             </CenteredText>
           </Screen>
