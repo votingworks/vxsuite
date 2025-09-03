@@ -108,6 +108,16 @@ export const getTestMode = {
   },
 } as const;
 
+export const getEarlyVotingMode = {
+  queryKey(): QueryKey {
+    return ['getEarlyVotingMode'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getEarlyVotingMode());
+  },
+} as const;
+
 export const getSystemSettings = {
   queryKey(): QueryKey {
     return ['getSystemSettings'];
@@ -219,6 +229,18 @@ export const setTestMode = {
     return useMutation(apiClient.setTestMode, {
       async onSuccess() {
         await queryClient.invalidateQueries(getTestMode.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const setEarlyVotingMode = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setEarlyVotingMode, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getEarlyVotingMode.queryKey());
       },
     });
   },

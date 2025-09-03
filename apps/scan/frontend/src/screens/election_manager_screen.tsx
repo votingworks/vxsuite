@@ -34,6 +34,7 @@ import {
   setIsDoubleFeedDetectionDisabled,
   setPrecinctSelection,
   setTestMode,
+  setEarlyVotingMode,
   unconfigureElection,
   beginDoubleFeedCalibration,
   useApiClient,
@@ -81,6 +82,7 @@ export function ElectionManagerScreen({
   const logOutMutation = logOut.useMutation();
   const setIsContinuousExportEnabledMutation =
     setIsContinuousExportEnabled.useMutation();
+  const setEarlyVotingModeMutation = setEarlyVotingMode.useMutation();
 
   const [isConfirmingBallotModeSwitch, setIsConfirmingBallotModeSwitch] =
     useState(false);
@@ -106,6 +108,7 @@ export function ElectionManagerScreen({
     isSoundMuted,
     isDoubleFeedDetectionDisabled,
     isContinuousExportEnabled,
+    isEarlyVotingMode,
     systemSettings,
   } = configQuery.data;
   const { pollsState } = pollsInfoQuery.data;
@@ -248,6 +251,27 @@ export function ElectionManagerScreen({
     </Button>
   );
 
+  const earlyVotingModeToggle = (
+    <Button
+      disabled={
+        setEarlyVotingModeMutation.isLoading ||
+        isCvrSyncRequired ||
+        disableConfiguration ||
+        pollsState === 'polls_open' ||
+        pollsState === 'polls_closed_final'
+      }
+      onPress={() =>
+        setEarlyVotingModeMutation.mutate({
+          isEarlyVotingMode: !isEarlyVotingMode,
+        })
+      }
+    >
+      {isEarlyVotingMode
+        ? 'Disable Early Voting Mode'
+        : 'Enable Early Voting Mode'}
+    </Button>
+  );
+
   const unconfigureElectionButton = (
     <UnconfigureMachineButton
       // TODO rename isMachineConfigured -> disabled to be clearer
@@ -281,6 +305,7 @@ export function ElectionManagerScreen({
           {cvrSyncRequiredWarning}
           {changePrecinctButton}
           {ballotMode}
+          {earlyVotingModeToggle}
           {unconfigureElectionButton}
         </TabPanel>
       ),

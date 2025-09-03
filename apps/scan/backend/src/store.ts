@@ -391,6 +391,36 @@ export class Store {
     );
   }
 
+  /**
+   * Gets whether early voting mode is enabled.
+   */
+  getIsEarlyVotingMode(): boolean {
+    const electionRow = this.client.one(
+      'select is_early_voting_mode as isEarlyVotingMode from election'
+    ) as { isEarlyVotingMode: number } | undefined;
+
+    if (!electionRow) {
+      // early voting mode will be disabled by default once an election is defined
+      return false;
+    }
+
+    return Boolean(electionRow.isEarlyVotingMode);
+  }
+
+  /**
+   * Sets whether early voting mode is enabled.
+   */
+  setIsEarlyVotingMode(isEarlyVotingMode: boolean): void {
+    if (!this.hasElection()) {
+      throw new Error('Cannot set early voting mode without an election.');
+    }
+
+    this.client.run(
+      'update election set is_early_voting_mode = ?',
+      isEarlyVotingMode ? 1 : 0
+    );
+  }
+
   getIsContinuousExportEnabled(): boolean {
     const electionRow = this.client.one(
       'select is_continuous_export_enabled as isContinuousExportEnabled from election'

@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import { assert } from '@votingworks/basics';
 import {
+  Button,
   Caption,
   CurrentDateAndTime,
   ExportLogsButton,
@@ -16,7 +17,15 @@ import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { ToggleTestModeButton } from '../components/toggle_test_mode_button';
 import { AppContext } from '../contexts/app_context';
-import { logOut, unconfigure, ejectUsbDrive, useApiClient } from '../api';
+import {
+  logOut,
+  unconfigure,
+  ejectUsbDrive,
+  useApiClient,
+  getEarlyVotingMode,
+  setEarlyVotingMode,
+  getStatus,
+} from '../api';
 import { NavigationScreen } from '../navigation_screen';
 
 const ButtonRow = styled.div`
@@ -39,6 +48,9 @@ export function SettingsScreen({
   const logOutMutation = logOut.useMutation();
   const unconfigureMutation = unconfigure.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
+  const earlyVotingModeQuery = getEarlyVotingMode.useQuery();
+  const setEarlyVotingModeMutation = setEarlyVotingMode.useMutation();
+  const statusQuery = getStatus.useQuery();
 
   async function unconfigureMachine() {
     try {
@@ -55,6 +67,26 @@ export function SettingsScreen({
       <H2>Election</H2>
       <P>
         <ToggleTestModeButton />
+      </P>
+      <P>
+        <Button
+          disabled={
+            setEarlyVotingModeMutation.isLoading ||
+            !canUnconfigure ||
+            !statusQuery.isSuccess ||
+            !earlyVotingModeQuery.isSuccess ||
+            !!statusQuery.data?.ongoingBatchId
+          }
+          onPress={() =>
+            setEarlyVotingModeMutation.mutate({
+              isEarlyVotingMode: !earlyVotingModeQuery.data,
+            })
+          }
+        >
+          {earlyVotingModeQuery.data
+            ? 'Disable Early Voting Mode'
+            : 'Enable Early Voting Mode'}
+        </Button>
       </P>
       <ButtonRow>
         <UnconfigureMachineButton
