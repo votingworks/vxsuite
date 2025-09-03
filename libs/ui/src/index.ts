@@ -11,6 +11,7 @@ export * from './bmd';
 export * from './bmd_paper_ballot';
 export * from './breadcrumbs';
 export * from './button';
+export * from './hover_button';
 export * from './button_list';
 export * from './callout';
 export * from './card';

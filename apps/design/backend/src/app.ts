@@ -96,6 +96,7 @@ import {
   UserFeaturesConfig,
 } from './features';
 import { rootDebug } from './debug';
+import * as audioDemo from './audio_demo';
 
 const debug = rootDebug.extend('app');
 
@@ -171,7 +172,8 @@ function requireOrgAccess(user: User, orgId: string) {
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
+export function buildApi(ctx: AppContext) {
+  const { auth0, logger, workspace, translator } = ctx;
   const { store } = workspace;
 
   async function requireElectionAccess(user: User, electionId: ElectionId) {
@@ -212,6 +214,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
           }
         }
         const methodsThatHandleAuthThemselves = [
+          ...audioDemo.methodsThatHandleAuthThemselves,
           'listOrganizations',
           'listElections',
           'getUser',
@@ -246,6 +249,8 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
   };
 
   const methods = {
+    ...audioDemo.apiMethods(ctx),
+
     listOrganizations(_input: undefined, context: ApiContext): Promise<Org[]> {
       const userFeaturesConfig = getUserFeaturesConfig(context.user);
       if (!userFeaturesConfig.ACCESS_ALL_ORGS) {

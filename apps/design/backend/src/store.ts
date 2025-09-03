@@ -53,6 +53,7 @@ import { generateBallotStyles } from './ballot_styles';
 import { Db } from './db/db';
 import { Bindable, Client } from './db/client';
 import {
+  AudioOverride,
   AudioOverrideCandidate,
   AudioOverrideContest,
   AudioOverrideKey,
@@ -1923,6 +1924,21 @@ export class Store {
   ): Promise<string | null> {
     return this.db.withClient(async (client) =>
       audioOverrides.dataUrl(client, query)
+    );
+  }
+
+  /* istanbul ignore next - @preserve */
+  async audioOverrideExists(query: AudioOverrideQuery): Promise<boolean> {
+    return this.db.withClient(async (client) =>
+      audioOverrides.exists(client, query)
+    );
+  }
+  /* istanbul ignore next - @preserve */
+  async audioOverrideGet(
+    query: AudioOverrideQuery
+  ): Promise<AudioOverride | null> {
+    return this.db.withClient(async (client) =>
+      audioOverrides.get(client, query)
     );
   }
 

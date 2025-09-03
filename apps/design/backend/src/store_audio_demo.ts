@@ -6,9 +6,8 @@ import { Client } from './db/client';
 
 export interface AudioOverride {
   dataUrl: string;
-  key: string;
   originalFilename: string;
-  subkey: string;
+  uploadedAt: Date;
 }
 
 export interface AudioOverrideCandidate {
@@ -41,7 +40,6 @@ export const audioOverrides = {
     client: Client,
     params: AudioOverrideQuery
   ): Promise<string | null> {
-    const fieldName = 'data_url';
     const res = await client.query(
       `
       select
@@ -59,7 +57,24 @@ export const audioOverrides = {
 
     if (res.rows.length === 0) return null;
 
-    return assertDefined(res.rows[0][fieldName]);
+    return assertDefined(res.rows[0]['data_url']);
+  },
+
+  async exists(client: Client, params: AudioOverrideQuery): Promise<boolean> {
+    const res = await client.query(
+      `
+        select
+          key
+        from audio_overrides
+        where
+          election_id = $1
+          and key = $2
+          and subkey = $3
+      `,
+      params.electionId
+    );
+
+    return res.rows.length > 0;
   },
 
   async keys(
@@ -82,6 +97,36 @@ export const audioOverrides = {
     for (const row of res.rows) keys.push(row);
 
     return keys;
+  },
+
+  async get(
+    client: Client,
+    params: AudioOverrideQuery
+  ): Promise<AudioOverride | null> {
+    const res = await client.query(
+      `
+      select
+        data_url as "dataUrl",
+        original_filename as "originalFilename",
+        uploaded_at as "uploadedAt"
+      from audio_overrides
+      where
+        election_id = $1 and
+        key = $2 and
+        subkey = $3
+      `,
+      params.electionId,
+      params.key,
+      params.subkey
+    );
+
+    if (res.rows.length === 0) return null;
+
+    return {
+      dataUrl: res.rows[0].dataUrl,
+      originalFilename: res.rows[0].originalFilename,
+      uploadedAt: new Date(res.rows[0].uploadedAt),
+    };
   },
 
   async setCandidate(
@@ -134,7 +179,8 @@ async function set(
         on conflict (election_id, key, subkey) do update
         set
           data_url = EXCLUDED.data_url,
-          original_filename = EXCLUDED.original_filename
+          original_filename = EXCLUDED.original_filename,
+          uploaded_at = current_timestamp
       `,
     params.electionId,
     params.key,

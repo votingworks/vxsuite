@@ -12,10 +12,12 @@ import {
 import {
   faCheckCircle,
   faCircleHalfStroke,
+  faCircleDown,
   faCircleLeft,
   faCircleRight,
   faDoorClosed,
   faDoorOpen,
+  faCircleUp,
   faDeleteLeft,
   faDisplay,
   faExclamationCircle,
@@ -53,10 +55,12 @@ import {
   faImage,
   faInfoCircle,
   faItalic,
+  faKeyboard,
   faLanguage,
   faListOl,
   faListUl,
   faLock,
+  faMagnifyingGlass,
   faMagnifyingGlassMinus,
   faMagnifyingGlassPlus,
   faMinusCircle,
@@ -79,6 +83,7 @@ import {
   faStrikethrough,
   faTable,
   faTextHeight,
+  faTrash,
   faUnderline,
   faVolumeHigh,
   faVolumeMute,
@@ -371,6 +376,10 @@ export const Icons = {
     return <FaIcon {...props} type={faDoorOpen} />;
   },
 
+  DownCircle(props) {
+    return <FaIcon {...props} type={faCircleDown} />;
+  },
+
   Edit(props) {
     return <FaIcon {...props} type={faPencil} />;
   },
@@ -429,6 +438,10 @@ export const Icons = {
 
   Italic(props) {
     return <FaIcon {...props} type={faItalic} />;
+  },
+
+  Keyboard(props) {
+    return <FaIcon {...props} type={faKeyboard} />;
   },
 
   Language(props) {
@@ -515,6 +528,10 @@ export const Icons = {
     return <FaIcon {...props} type={faFloppyDisk} />;
   },
 
+  Search(props) {
+    return <FaIcon {...props} type={faMagnifyingGlass} />;
+  },
+
   Settings(props) {
     return <FaIcon {...props} type={faGear} />;
   },
@@ -555,8 +572,16 @@ export const Icons = {
     return <FaIcon {...props} type={faTextHeight} />;
   },
 
+  Trash(props) {
+    return <FaIcon {...props} type={faTrash} />;
+  },
+
   Underline(props) {
     return <FaIcon {...props} type={faUnderline} />;
+  },
+
+  UpCircle(props) {
+    return <FaIcon {...props} type={faCircleUp} />;
   },
 
   UsbDrive(props) {

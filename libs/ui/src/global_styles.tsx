@@ -67,7 +67,8 @@ ${NORMALIZE_CSS}
     font-weight: ${(p) => p.theme.sizes.fontWeight.regular};
     -moz-osx-font-smoothing: grayscale;
     -webkit-font-smoothing: antialiased;
-    user-select: none;
+    user-select: ${(p) =>
+      isTouchscreen(p.theme.screenType) ? 'none' : undefined};
   }
 
   ${(p) => (p.theme.sizeMode === 'print' ? undefined : LEGACY_PRINT_STYLES)}
