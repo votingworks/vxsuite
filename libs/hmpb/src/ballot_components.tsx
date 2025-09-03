@@ -50,11 +50,7 @@ export const Colors = {
 } as const;
 
 export const ColorTints = {
-  YELLOW: 'hsl(59, 75%, 93%)',
-  BLUE: 'hsl(209, 74%, 93%)',
-  GREEN: 'hsl(129, 60%, 93%)',
-  PINK: 'hsl(315, 58%, 93%)',
-  // RED: 'hsl(0, 77.80%, 89.40%)',
+  BLUE: '#afdcf3ff',
   RED: '#f7c2cb',
 } as const;
 

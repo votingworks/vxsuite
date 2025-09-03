@@ -70,7 +70,10 @@ function ElectionInfoForm({
   }
   const features = getUserFeaturesQuery.data;
   const ballotTemplateId = ballotTemplateIdQuery.data;
-  const showSignatureInput = ballotTemplateId === 'NhBallot';
+  const showSignatureInput =
+    ballotTemplateId === 'NhBallot' ||
+    ballotTemplateId === 'NhPrimaryBallot' ||
+    ballotTemplateId === 'NhStateBallot';
 
   function onSubmit() {
     updateElectionInfoMutation.mutate(electionInfo, {
