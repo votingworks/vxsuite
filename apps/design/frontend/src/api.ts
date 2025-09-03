@@ -3,6 +3,7 @@ import type {
   Api,
   BallotMode,
   AuthErrorCode,
+  AudioOverrideQuery,
 } from '@votingworks/design-backend';
 import * as grout from '@votingworks/grout';
 import {
@@ -689,5 +690,77 @@ export const decryptCvrBallotAuditIds = {
   useMutation() {
     const apiClient = useApiClient();
     return useMutation(apiClient.decryptCvrBallotAuditIds);
+  },
+} as const;
+
+export const appStrings = {
+  queryKey(electionId: string): QueryKey {
+    return ['appStrings', electionId];
+  },
+  useQuery(electionId: string) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(electionId), () =>
+      apiClient.appStrings({ electionId })
+    );
+  },
+} as const;
+
+export const audioOverride = {
+  queryKey(params: AudioOverrideQuery): QueryKey {
+    return ['audioOverride', params.electionId, params.key, params.subkey];
+  },
+  useQuery(params: AudioOverrideQuery) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(params), () =>
+      apiClient.audioOverride(params)
+    );
+  },
+} as const;
+
+export const audioOverrideExists = {
+  queryKey(params: AudioOverrideQuery): QueryKey {
+    return ['audioOverride', params.electionId, params.key, params.subkey];
+  },
+  useQuery(params: AudioOverrideQuery) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(params), () =>
+      apiClient.audioOverrideExists(params)
+    );
+  },
+} as const;
+
+export const synthesizeSsml = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.synthesizeSsml);
+  },
+} as const;
+
+export const synthesizeText = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.synthesizeText);
+  },
+} as const;
+
+export const synthesizedSsml = {
+  queryKey(input: { languageCode: string; ssml: string }): QueryKey {
+    return ['synthesizedSsml', input.languageCode, input.ssml];
+  },
+  useQuery(input: { languageCode: string; ssml: string }) {
+    const apiClient = useApiClient();
+
+    return useQuery(this.queryKey(input), () => {
+      if (!input.ssml) return '';
+
+      return apiClient.synthesizeSsml(input);
+    });
+  },
+} as const;
+
+export const uploadAudioFiles = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.uploadAudioFiles);
   },
 } as const;

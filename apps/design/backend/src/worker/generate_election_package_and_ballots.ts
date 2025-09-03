@@ -141,8 +141,6 @@ export async function generateElectionPackageAndBallots(
     );
   }
 
-  allBallotProps = [allBallotProps[0]];
-
   const renderer = await createPlaywrightRenderer();
   const { electionDefinition, ballotDocuments } =
     await renderAllBallotsAndCreateElectionDefinition(

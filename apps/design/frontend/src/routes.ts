@@ -99,9 +99,17 @@ export const routes = {
           title: 'Ballot Layout',
           path: `${root}/ballots/layout`,
         },
+        ballotAudio: {
+          title: 'Audio',
+          path: `${root}/ballots/audio`,
+        },
+        ballotAudioManage: (stringKey: string) => ({
+          title: 'Audio',
+          path: `${root}/ballots/audio/${stringKey}`,
+        }),
         viewBallot: (ballotStyleId: string, precinctId: string) => ({
           title: 'View Ballot',
-          path: `${root}/ballots/${ballotStyleId}/${precinctId}`,
+          path: `${root}/ballots/view/${ballotStyleId}/${precinctId}`,
         }),
       },
       systemSettings: {

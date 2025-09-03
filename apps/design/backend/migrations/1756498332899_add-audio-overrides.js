@@ -22,6 +22,11 @@ exports.up = (pgm) => {
       subkey: { notNull: true, type: 'text' },
       data_url: { notNull: true, type: 'text' },
       original_filename: { notNull: true, type: 'text' },
+      uploaded_at: {
+        type: 'timestamptz',
+        notNull: true,
+        default: pgm.func('current_timestamp'),
+      },
     },
     {
       constraints: {
