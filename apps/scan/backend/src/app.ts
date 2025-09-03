@@ -358,16 +358,6 @@ export function buildApi({
     },
 
     /**
-     * If the printer is a V3 hardware printer (standard CUPS printer) then
-     * this will print the entire report. If the printer is a V4 hardware
-     * printer (embedded Fujitsu thermal roll printer) then this will print the
-     * first section of the report only.
-     */
-    async printReport(): Promise<PrintResult> {
-      return printReportSection({ store, printer, index: 0 });
-    },
-
-    /**
      * Prints a specific section of the report, e.g. for a particular party.
      * This is only used for V4 hardware printers (roll printer).
      */

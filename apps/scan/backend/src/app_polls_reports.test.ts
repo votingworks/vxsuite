@@ -57,7 +57,7 @@ test('printReport prints first section and printReportSection can print the rest
       (await apiClient.openPolls()).unsafeUnwrap();
 
       // print first section
-      await apiClient.printReport();
+      (await apiClient.printReportSection({ index: 0 })).unsafeUnwrap();
       await expect(
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
@@ -108,7 +108,9 @@ test('printing report before polls opened should fail', async () => {
 
     // printing report before polls opened should fail
     await suppressingConsoleOutput(async () => {
-      await expect(apiClient.printReport()).rejects.toThrow();
+      await expect(
+        apiClient.printReportSection({ index: 0 })
+      ).rejects.toThrow();
     });
   });
 });
@@ -131,7 +133,9 @@ test('re-printing report after scanning a ballot should fail', async () => {
 
       await scanBallot(mockScanner, clock, apiClient, workspace.store, 0);
       await suppressingConsoleOutput(async () => {
-        await expect(apiClient.printReport()).rejects.toThrow();
+        await expect(
+          apiClient.printReportSection({ index: 0 })
+        ).rejects.toThrow();
       });
     }
   );
@@ -156,7 +160,7 @@ test('can print voting paused and voting resumed reports', async () => {
 
       // pause voting
       await apiClient.pauseVoting();
-      await apiClient.printReport();
+      (await apiClient.printReportSection({ index: 0 })).unsafeUnwrap();
       await expect(
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
@@ -166,7 +170,7 @@ test('can print voting paused and voting resumed reports', async () => {
 
       // resume voting
       await apiClient.resumeVoting();
-      await apiClient.printReport();
+      (await apiClient.printReportSection({ index: 0 })).unsafeUnwrap();
       await expect(
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
@@ -198,7 +202,7 @@ test('can tabulate results and print polls closed report', async () => {
 
       // close polls
       await apiClient.closePolls();
-      await apiClient.printReport();
+      (await apiClient.printReportSection({ index: 0 })).unsafeUnwrap();
       await expect(
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
