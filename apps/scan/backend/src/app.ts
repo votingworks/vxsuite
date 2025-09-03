@@ -359,7 +359,6 @@ export function buildApi({
 
     /**
      * Prints a specific section of the report, e.g. for a particular party.
-     * This is only used for V4 hardware printers (roll printer).
      */
     async printReportSection(input: { index: number }): Promise<PrintResult> {
       return printReportSection({
