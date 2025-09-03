@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest';
-import { FujitsuPrinterStatus } from '../printing/printer';
+import { PrinterStatus } from '@votingworks/fujitsu-thermal-printer';
 import { testPrintFailureDiagnosticMessage } from './diagnostics';
 
-test.each<{ printerStatus: FujitsuPrinterStatus; message: string }>([
+test.each<{ printerStatus: PrinterStatus; message: string }>([
   {
     printerStatus: { state: 'cover-open' },
     message:

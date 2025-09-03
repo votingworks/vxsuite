@@ -51,7 +51,6 @@ import { Mocked, vi } from 'vitest';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock';
 import { Api, buildApp } from '../../src/app';
 import { Player as AudioPlayer } from '../../src/audio/player';
-import { wrapFujitsuThermalPrinter } from '../../src/printing/printer';
 import {
   createPrecinctScannerStateMachine,
   delays,
@@ -115,7 +114,7 @@ export async function withApp(
     usbDrive: mockUsbDrive.usbDrive,
     clock,
   });
-  const printer = wrapFujitsuThermalPrinter(mockFujitsuPrinterHandler.printer);
+  const { printer } = mockFujitsuPrinterHandler;
 
   const mockAudioPlayer = vi.mocked(
     new AudioPlayer('development', logger, 'pci.stereo')

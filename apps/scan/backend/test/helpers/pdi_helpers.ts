@@ -30,10 +30,6 @@ import {
   ScannerStatus,
   mockScannerStatus,
 } from '@votingworks/pdi-scanner';
-import {
-  MemoryPrinterHandler,
-  createMockPrinterHandler,
-} from '@votingworks/printing';
 import { mapSheet, SheetOf } from '@votingworks/types';
 import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import { Application } from 'express';
@@ -46,7 +42,6 @@ import { SimulatedClock } from 'xstate/lib/SimulatedClock';
 import { createCanvas } from 'canvas';
 import { Api, buildApp } from '../../src/app';
 import { Player as AudioPlayer } from '../../src/audio/player';
-import { wrapFujitsuThermalPrinter } from '../../src/printing/printer';
 import {
   createPrecinctScannerStateMachine,
   delays,
@@ -135,7 +130,6 @@ export interface AppContext {
   mockScanner: MockPdiScannerClient;
   workspace: Workspace;
   mockUsbDrive: MockUsbDrive;
-  mockPrinterHandler: MemoryPrinterHandler;
   mockFujitsuPrinterHandler: MemoryFujitsuPrinterHandler;
   logger: Logger;
   server: Server;
@@ -153,9 +147,8 @@ export async function withApp(
   const logger = buildMockLogger(mockAuth, workspace);
   const mockUsbDrive = createMockUsbDrive();
   mockUsbDrive.usbDrive.sync.expectOptionalRepeatedCallsWith().resolves(); // Called by continuous export
-  const mockPrinterHandler = createMockPrinterHandler();
   const mockFujitsuPrinterHandler = createMockFujitsuPrinterHandler();
-  const printer = wrapFujitsuThermalPrinter(mockFujitsuPrinterHandler.printer);
+  const { printer } = mockFujitsuPrinterHandler;
 
   const mockScanner = createMockPdiScannerClient();
   const deferredConnect = deferred<Result<void, ScannerError>>();
@@ -204,7 +197,6 @@ export async function withApp(
       mockScanner,
       workspace,
       mockUsbDrive,
-      mockPrinterHandler,
       mockFujitsuPrinterHandler,
       logger,
       server,
