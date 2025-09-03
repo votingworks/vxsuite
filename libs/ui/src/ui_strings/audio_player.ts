@@ -40,7 +40,7 @@ export function newAudioPlayer(params: AudioPlayerParams): AudioPlayer {
   async function play() {
     audio.onended ??= () => deferredEnd.resolve();
 
-    pendingPlay = audio.play();
+    // pendingPlay = audio.play();
     await pendingPlay;
 
     await deferredEnd.promise;

@@ -164,6 +164,20 @@ export const getDiskSpaceSummary = {
   },
 } as const;
 
+export const generateQuickResultsQrCodeValue = {
+  queryKey(): QueryKey {
+    return ['generateQuickResultsQrCodeValue'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.generateQuickResultsQrCodeValue(),
+      {}
+    );
+  },
+} as const;
+
 export const getMostRecentPrinterDiagnostic = {
   queryKey(): QueryKey {
     return ['getMostRecentPrinterDiagnostic'];

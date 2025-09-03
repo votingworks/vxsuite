@@ -12,14 +12,14 @@ const ResponsiveSvgWrapper = styled.div`
 export type QrCodeLevel = 'L' | 'M' | 'Q' | 'H';
 
 export interface QrCodeProps {
-  value: string;
+  value: string | string[];
   level?: QrCodeLevel;
 }
 
-export function QrCode({ level = 'H', value }: QrCodeProps): JSX.Element {
+export function QrCode({ level = 'M', value }: QrCodeProps): JSX.Element {
   return (
     <ResponsiveSvgWrapper>
-      <QRCodeSVG value={value} level={level} />
+      <QRCodeSVG value={value} level={level} size={500} />
     </ResponsiveSvgWrapper>
   );
 }
