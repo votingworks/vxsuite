@@ -50,6 +50,13 @@ export const Colors = {
   INVERSE_GRAY: '#4A4A4A',
 } as const;
 
+export const ColorTints = {
+  BLUE: '#afdcf3ff',
+  RED: '#f7c2cb',
+} as const;
+
+export type ColorTint = keyof typeof ColorTints;
+
 export function primaryLanguageCode(ballotStyle: BallotStyle): string {
   return ballotStyle.languages?.[0] ?? 'en';
 }

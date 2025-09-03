@@ -1,6 +1,7 @@
 import {
   BaseBallotProps,
   Election,
+  getPartyForBallotStyle,
   hasSplits,
   UiStringsPackage,
   YesNoContest,
@@ -9,8 +10,14 @@ import {
   allBaseBallotProps,
   BallotTemplateId,
   NhBallotProps,
+  NhPrimaryBallotProps,
 } from '@votingworks/hmpb';
-import { assert, find, throwIllegalValue } from '@votingworks/basics';
+import {
+  assert,
+  find,
+  throwIllegalValue,
+  assertDefined,
+} from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
 import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
 import { Jurisdiction } from './types';
@@ -110,18 +117,33 @@ export function createBallotPropsForTemplate(
     };
   }
 
+  function addColorTintByParty(props: BaseBallotProps): NhPrimaryBallotProps {
+    const party = assertDefined(
+      getPartyForBallotStyle({
+        election,
+        ballotStyleId: props.ballotStyleId,
+      })
+    );
+    return {
+      ...props,
+      colorTint: party?.abbrev.startsWith('D') ? 'BLUE' : 'RED',
+    };
+  }
+
   assert(election.ballotStyles.length > 0, 'Election has no ballot styles');
   const baseBallotProps = allBaseBallotProps(election).map((props) => ({
     ...props,
     compact,
   }));
   switch (templateId) {
-    case 'NhStateBallot':
-    case 'NhPrimaryBallot':
     case 'NhBallot':
       return baseBallotProps.map(buildNhBallotProps);
 
+    case 'NhPrimaryBallot':
+      return baseBallotProps.map(addColorTintByParty);
+
     case 'MsBallot':
+    case 'NhStateBallot':
     case 'VxDefaultBallot':
       return baseBallotProps;
 

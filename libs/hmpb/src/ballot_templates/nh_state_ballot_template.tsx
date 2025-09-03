@@ -59,13 +59,14 @@ import { BallotMode, PixelDimensions } from '../types';
 import { hmpbStrings } from '../hmpb_strings';
 import { layOutInColumns } from '../layout_in_columns';
 import { RenderScratchpad } from '../renderer';
-import { handCountInsigniaImageData, sosSignatureImageData } from './nh_images';
+import { handCountInsigniaImageData } from './nh_images';
 import { BaseStyles } from '../base_styles';
 
 const BubbleDiagram = styled(BubbleShape)`
   display: inline-block;
   vertical-align: top;
   transform: scale(0.8);
+  margin: 0 -0.125em;
 `;
 
 export function Instructions(): JSX.Element {
@@ -156,7 +157,7 @@ export function Header({
           >
             <h4>{ballotTitle}</h4>
             <h1>{electionStrings.countyName(election.county)}</h1>
-            {party && <h1>{electionStrings.partyFullName(party)}</h1>}
+            {party && <h1>{electionStrings.partyName(party)}</h1>}
             <h4>{electionStrings.electionTitle(election)}</h4>
             <h4>{electionStrings.electionDate(election)}</h4>
           </div>
@@ -166,7 +167,6 @@ export function Header({
         style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: '0.5rem',
           alignItems: 'center',
         }}
       >
@@ -182,14 +182,13 @@ export function Header({
           }}
         />
         <div style={{ textAlign: 'center' }}>
-          <div
+          <img
+            src={`data:image/svg+xml;base64,${Buffer.from(
+              assertDefined(election.signature).image
+            ).toString('base64')}`}
             style={{
-              height: '2rem',
-              width: '7rem',
-              backgroundImage: `url(${sosSignatureImageData})`,
-              backgroundSize: 'contain',
-              backgroundRepeat: 'no-repeat',
-              marginBottom: '-0.125rem',
+              height: '2.5rem',
+              marginBottom: '-0.75rem',
               visibility: ballotMode === 'sample' ? 'hidden' : 'visible',
             }}
           />
@@ -199,7 +198,7 @@ export function Header({
               fontSize: '0.8rem',
             }}
           >
-            Secretary of State
+            {assertDefined(election.signature).caption}
           </div>
         </div>
       </div>
@@ -222,6 +221,10 @@ function BallotPageFrame({
   totalPages?: number;
   children: JSX.Element;
 }): Result<JSX.Element, BallotLayoutError> {
+  if (!election.signature) {
+    return err({ error: 'missingSignature' });
+  }
+
   const pageDimensions = ballotPaperDimensions(election.ballotLayout.paperSize);
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId })
