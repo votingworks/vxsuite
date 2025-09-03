@@ -42,7 +42,7 @@ async function openModal() {
 }
 
 test('happy path', async () => {
-  apiMock.setPrinterStatusV4();
+  apiMock.setPrinterStatus();
   renderButton({ isPrimary: true });
 
   await openModal();
@@ -50,10 +50,10 @@ test('happy path', async () => {
   await screen.findByRole('alertdialog');
   screen.getByText('Remove Paper Roll Holder');
 
-  apiMock.setPrinterStatusV4({ state: 'cover-open' });
+  apiMock.setPrinterStatus({ state: 'cover-open' });
   await screen.findByText('Load New Paper Roll');
 
-  apiMock.setPrinterStatusV4({ state: 'idle' });
+  apiMock.setPrinterStatus({ state: 'idle' });
   await screen.findByText('Paper Detected');
 
   const testPrint = apiMock.expectPrintTestPage();
@@ -73,7 +73,7 @@ test('happy path', async () => {
 });
 
 test('button disabled in case of printer error', async () => {
-  apiMock.setPrinterStatusV4();
+  apiMock.setPrinterStatus();
   renderButton();
 
   const loadPaperButton = screen.getButton('Load Paper');
@@ -81,40 +81,40 @@ test('button disabled in case of printer error', async () => {
     expect(loadPaperButton).toBeEnabled();
   });
 
-  apiMock.setPrinterStatusV4({ state: 'error', type: 'disconnected' });
+  apiMock.setPrinterStatus({ state: 'error', type: 'disconnected' });
   await waitFor(() => {
     expect(loadPaperButton).toBeDisabled();
   });
 });
 
 test('error or user error during loading flow', async () => {
-  apiMock.setPrinterStatusV4();
+  apiMock.setPrinterStatus();
   renderButton();
 
   await openModal();
 
   await screen.findByRole('alertdialog');
   screen.getByText('Remove Paper Roll Holder');
-  apiMock.setPrinterStatusV4({ state: 'cover-open' });
+  apiMock.setPrinterStatus({ state: 'cover-open' });
   await screen.findByText('Load New Paper Roll');
 
-  apiMock.setPrinterStatusV4({ state: 'no-paper' });
+  apiMock.setPrinterStatus({ state: 'no-paper' });
   await screen.findByText('No Paper Detected');
 
-  apiMock.setPrinterStatusV4({ state: 'error', type: 'disconnected' });
+  apiMock.setPrinterStatus({ state: 'error', type: 'disconnected' });
   await screen.findByText('Printer Error');
 });
 
 test('hardware error on test print', async () => {
-  apiMock.setPrinterStatusV4();
+  apiMock.setPrinterStatus();
   renderButton({ isPrimary: true });
 
   await openModal();
   await screen.findByRole('alertdialog');
   screen.getByText('Remove Paper Roll Holder');
-  apiMock.setPrinterStatusV4({ state: 'cover-open' });
+  apiMock.setPrinterStatus({ state: 'cover-open' });
   await screen.findByText('Load New Paper Roll');
-  apiMock.setPrinterStatusV4({ state: 'idle' });
+  apiMock.setPrinterStatus({ state: 'idle' });
   await screen.findByText('Paper Detected');
 
   const testPrint = apiMock.expectPrintTestPage(
@@ -131,15 +131,15 @@ test('hardware error on test print', async () => {
 });
 
 test('out of paper on test print', async () => {
-  apiMock.setPrinterStatusV4();
+  apiMock.setPrinterStatus();
   renderButton({ isPrimary: true });
 
   await openModal();
   await screen.findByRole('alertdialog');
   screen.getByText('Remove Paper Roll Holder');
-  apiMock.setPrinterStatusV4({ state: 'cover-open' });
+  apiMock.setPrinterStatus({ state: 'cover-open' });
   await screen.findByText('Load New Paper Roll');
-  apiMock.setPrinterStatusV4({ state: 'idle' });
+  apiMock.setPrinterStatus({ state: 'idle' });
   await screen.findByText('Paper Detected');
 
   const testPrint = apiMock.expectPrintTestPage(

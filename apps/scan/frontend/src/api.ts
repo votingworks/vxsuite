@@ -462,7 +462,6 @@ export const endScannerDiagnostic = {
   },
 } as const;
 
-// applicable for V4 hardware only
 export const printReportSection = {
   useMutation() {
     const apiClient = useApiClient();
@@ -470,7 +469,6 @@ export const printReportSection = {
   },
 } as const;
 
-// applicable for V4 hardware only
 export const printTestPage = {
   useMutation() {
     const apiClient = useApiClient();

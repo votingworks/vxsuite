@@ -24,7 +24,7 @@ function renderButton() {
 }
 
 test('successful print', async () => {
-  apiMock.setPrinterStatusV4();
+  apiMock.setPrinterStatus();
   renderButton();
 
   const testPrint = apiMock.expectPrintTestPage();
@@ -44,7 +44,7 @@ test('successful print', async () => {
 });
 
 test('completed print that user indicates is a failure', async () => {
-  apiMock.setPrinterStatusV4();
+  apiMock.setPrinterStatus();
   renderButton();
 
   const testPrint = apiMock.expectPrintTestPage();
@@ -66,7 +66,7 @@ test('completed print that user indicates is a failure', async () => {
 });
 
 test('out of paper / misaligned print', async () => {
-  apiMock.setPrinterStatusV4();
+  apiMock.setPrinterStatus();
   renderButton();
 
   const testPrint = apiMock.expectPrintTestPage(err({ state: 'no-paper' }));
@@ -79,7 +79,7 @@ test('out of paper / misaligned print', async () => {
 });
 
 test('printer error during print', async () => {
-  apiMock.setPrinterStatusV4();
+  apiMock.setPrinterStatus();
   renderButton();
 
   const testPrint = apiMock.expectPrintTestPage(
@@ -94,7 +94,7 @@ test('printer error during print', async () => {
 });
 
 test('button disabled if printer not idle', async () => {
-  apiMock.setPrinterStatusV4({ state: 'no-paper' });
+  apiMock.setPrinterStatus({ state: 'no-paper' });
   renderButton();
 
   expect(await screen.findButton('Print Test Page')).toBeDisabled();

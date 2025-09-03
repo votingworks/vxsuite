@@ -28,7 +28,6 @@ export function InternalConnectionProblemScreen({
   isScannerConnected,
   isPollWorkerAuth,
 }: Props): JSX.Element {
-  // Only support v4 hardware for showing connection status errors.
   const isPrinterConnectedSuccessfully = printerStatus.state !== 'error';
   return (
     <ScreenMainCenterChild

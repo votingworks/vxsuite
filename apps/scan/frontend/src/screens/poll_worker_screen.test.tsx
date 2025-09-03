@@ -27,7 +27,6 @@ import {
   provideApi,
   statusNoPaper,
 } from '../../test/helpers/mock_api_client';
-import { BROTHER_THERMAL_PRINTER_CONFIG } from '../../test/helpers/fixtures';
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();
@@ -51,10 +50,7 @@ beforeEach(() => {
   apiMock.expectGetConfig();
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.expectGetUsbDriveStatus('mounted');
-  apiMock.setPrinterStatusV3({
-    connected: true,
-    config: BROTHER_THERMAL_PRINTER_CONFIG,
-  });
+  apiMock.setPrinterStatus();
 });
 
 afterEach(() => {
@@ -87,7 +83,7 @@ describe('transitions from polls closed initial', () => {
 
   test('open polls happy path', async () => {
     apiMock.expectOpenPolls();
-    apiMock.expectPrintReportV3();
+    apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_open');
     userEvent.click(screen.getByText('Open Polls'));
     await screen.findByText('Opening Polls…');
@@ -96,7 +92,7 @@ describe('transitions from polls closed initial', () => {
 
   test('open polls from landing screen', async () => {
     apiMock.expectOpenPolls();
-    apiMock.expectPrintReportV3();
+    apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_open');
     userEvent.click(screen.getByText('Menu'));
     userEvent.click(await screen.findByText('Open Polls'));
@@ -116,7 +112,7 @@ describe('transitions from polls open', () => {
 
   test('close polls happy path', async () => {
     apiMock.expectClosePolls();
-    apiMock.expectPrintReportV3();
+    apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_closed_final');
     userEvent.click(screen.getByText('Close Polls'));
     await screen.findByText('Closing Polls…');
@@ -126,7 +122,7 @@ describe('transitions from polls open', () => {
 
   test('close polls from landing screen', async () => {
     apiMock.expectClosePolls();
-    apiMock.expectPrintReportV3();
+    apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_closed_final');
     userEvent.click(screen.getByText('Menu'));
     userEvent.click(await screen.findByText('Close Polls'));
@@ -137,7 +133,7 @@ describe('transitions from polls open', () => {
 
   test('pause voting', async () => {
     apiMock.expectPauseVoting();
-    apiMock.expectPrintReportV3();
+    apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_paused');
     userEvent.click(screen.getByText('Menu'));
     userEvent.click(await screen.findByText('Pause Voting'));
@@ -157,7 +153,7 @@ describe('transitions from polls paused', () => {
 
   test('resume voting happy path', async () => {
     apiMock.expectResumeVoting();
-    apiMock.expectPrintReportV3();
+    apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_open', { type: 'resume_voting' });
     userEvent.click(screen.getByText('Resume Voting'));
     await screen.findByText('Resuming Voting…');
@@ -166,7 +162,7 @@ describe('transitions from polls paused', () => {
 
   test('resume voting from landing screen', async () => {
     apiMock.expectResumeVoting();
-    apiMock.expectPrintReportV3();
+    apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_open', { type: 'resume_voting' });
     userEvent.click(screen.getByText('Menu'));
     userEvent.click(await screen.findByText('Resume Voting'));
@@ -176,7 +172,7 @@ describe('transitions from polls paused', () => {
 
   test('close polls from landing screen', async () => {
     apiMock.expectClosePolls();
-    apiMock.expectPrintReportV3();
+    apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_closed_final');
     userEvent.click(screen.getByText('Menu'));
     userEvent.click(await screen.findByText('Close Polls'));
@@ -225,20 +221,18 @@ describe('reprinting previous report', () => {
     ]);
   });
 
-  test('available after polls open + can print additional afterward', async () => {
+  test('available after polls open + can reprint afterward', async () => {
     apiMock.expectGetPollsInfo('polls_open');
     renderScreen({});
 
     userEvent.click(await screen.findByText('Menu'));
     const button = await screen.findByText('Print Polls Opened Report');
     expect(button).toBeEnabled();
-    apiMock.expectPrintReportV3();
+    apiMock.expectPrintReportSection(0).resolve();
     userEvent.click(button);
-    apiMock.expectPrintReportV3();
-    userEvent.click(
-      await screen.findButton('Print Additional Polls Opened Report')
-    );
-    await screen.findButton('Print Additional Polls Opened Report');
+    apiMock.expectPrintReportSection(0).resolve();
+    userEvent.click(await screen.findButton('Reprint Polls Opened Report'));
+    await screen.findButton('Reprint Polls Opened Report');
   });
 
   test('available after polls paused', async () => {
@@ -248,9 +242,9 @@ describe('reprinting previous report', () => {
     userEvent.click(await screen.findByText('Menu'));
     const button = await screen.findByText('Print Voting Paused Report');
     expect(button).toBeEnabled();
-    apiMock.expectPrintReportV3();
+    apiMock.expectPrintReportSection(0).resolve();
     userEvent.click(button);
-    await screen.findButton('Print Additional Voting Paused Report');
+    await screen.findButton('Reprint Voting Paused Report');
   });
 
   test('available after polls resumed', async () => {
@@ -260,9 +254,9 @@ describe('reprinting previous report', () => {
     userEvent.click(await screen.findByText('Menu'));
     const button = await screen.findByText('Print Voting Resumed Report');
     expect(button).toBeEnabled();
-    apiMock.expectPrintReportV3();
+    apiMock.expectPrintReportSection(0).resolve();
     userEvent.click(button);
-    await screen.findButton('Print Additional Voting Resumed Report');
+    await screen.findButton('Reprint Voting Resumed Report');
   });
 
   test('available after polls closed', async () => {
@@ -271,30 +265,30 @@ describe('reprinting previous report', () => {
 
     const button = await screen.findByText('Print Polls Closed Report');
     expect(button).toBeEnabled();
-    apiMock.expectPrintReportV3();
+    apiMock.expectPrintReportSection(0).resolve();
     userEvent.click(button);
-    await screen.findButton('Print Additional Polls Closed Report');
+    await screen.findButton('Reprint Polls Closed Report');
   });
 });
 
 describe('must have printer attached to transition polls and print reports', () => {
   test('polls open', async () => {
     apiMock.expectGetPollsInfo('polls_closed_initial');
-    apiMock.setPrinterStatusV4({ state: 'error', type: 'disconnected' });
+    apiMock.setPrinterStatus({ state: 'error', type: 'disconnected' });
     renderScreen({});
 
     const attachText = await screen.findByText('The printer is disconnected');
     expect(screen.getButton('Open Polls')).toBeDisabled();
-    apiMock.setPrinterStatusV4({ state: 'idle' });
+    apiMock.setPrinterStatus({ state: 'idle' });
     await waitForElementToBeRemoved(attachText);
     apiMock.expectOpenPolls();
-    const { resolve } = apiMock.expectPrintReportV4();
+    const { resolve } = apiMock.expectPrintReportSection(0);
     resolve();
     apiMock.expectGetPollsInfo('polls_open');
     userEvent.click(screen.getByText('Open Polls'));
     await screen.findByText('Reprint Polls Opened Report');
 
-    apiMock.setPrinterStatusV4({ state: 'error', type: 'disconnected' });
+    apiMock.setPrinterStatus({ state: 'error', type: 'disconnected' });
     await waitFor(() => {
       expect(screen.getButton('Reprint Polls Opened Report')).toBeDisabled();
     });
@@ -302,7 +296,7 @@ describe('must have printer attached to transition polls and print reports', () 
 
   test('polls open from fallback screen', async () => {
     apiMock.expectGetPollsInfo('polls_closed_initial');
-    apiMock.setPrinterStatusV4({ state: 'error', type: 'disconnected' });
+    apiMock.setPrinterStatus({ state: 'error', type: 'disconnected' });
     renderScreen({});
 
     await screen.findByText('The printer is disconnected');
@@ -312,9 +306,9 @@ describe('must have printer attached to transition polls and print reports', () 
     // Check that Open Polls is disabled
     expect(screen.getButton('Open Polls')).toBeDisabled();
 
-    apiMock.setPrinterStatusV4({ state: 'idle' });
+    apiMock.setPrinterStatus({ state: 'idle' });
     apiMock.expectOpenPolls();
-    const { resolve } = apiMock.expectPrintReportV4();
+    const { resolve } = apiMock.expectPrintReportSection(0);
     resolve();
     apiMock.expectGetPollsInfo('polls_open');
 
@@ -325,19 +319,19 @@ describe('must have printer attached to transition polls and print reports', () 
     userEvent.click(screen.getByText('Open Polls'));
     await screen.findByText('Reprint Polls Opened Report');
 
-    apiMock.setPrinterStatusV4({ state: 'error', type: 'disconnected' });
+    apiMock.setPrinterStatus({ state: 'error', type: 'disconnected' });
     await waitFor(() => {
       expect(screen.getButton('Reprint Polls Opened Report')).toBeDisabled();
     });
   });
 
   test('additional reports', async () => {
-    apiMock.setPrinterStatusV4({ state: 'idle' });
+    apiMock.setPrinterStatus();
     apiMock.expectGetPollsInfo('polls_closed_initial');
     renderScreen({});
 
     apiMock.expectOpenPolls();
-    const { resolve } = apiMock.expectPrintReportV4();
+    const { resolve } = apiMock.expectPrintReportSection(0);
     resolve();
     apiMock.expectGetPollsInfo('polls_open');
     userEvent.click(await screen.findByText('Open Polls'));
@@ -345,7 +339,7 @@ describe('must have printer attached to transition polls and print reports', () 
       await screen.findByText('Reprint Polls Opened Report')
     ).toBeEnabled();
 
-    apiMock.setPrinterStatusV4({ state: 'error', type: 'disconnected' });
+    apiMock.setPrinterStatus({ state: 'error', type: 'disconnected' });
     await waitFor(() => {
       expect(screen.getButton('Reprint Polls Opened Report')).toBeDisabled();
     });
@@ -353,16 +347,16 @@ describe('must have printer attached to transition polls and print reports', () 
 
   test('polls close', async () => {
     apiMock.expectGetPollsInfo('polls_open');
-    apiMock.setPrinterStatusV4({ state: 'error', type: 'disconnected' });
+    apiMock.setPrinterStatus({ state: 'error', type: 'disconnected' });
     renderScreen({});
 
     const attachText = await screen.findByText('The printer is disconnected');
     expect(screen.getButton('Close Polls')).toBeDisabled();
 
-    apiMock.setPrinterStatusV4({ state: 'idle' });
+    apiMock.setPrinterStatus({ state: 'idle' });
     await waitForElementToBeRemoved(attachText);
     apiMock.expectClosePolls();
-    const { resolve } = apiMock.expectPrintReportV4();
+    const { resolve } = apiMock.expectPrintReportSection(0);
     resolve();
     apiMock.expectGetPollsInfo('polls_closed_final');
     userEvent.click(screen.getByText('Close Polls'));
@@ -372,7 +366,7 @@ describe('must have printer attached to transition polls and print reports', () 
 
   test('polls close from fallback screen', async () => {
     apiMock.expectGetPollsInfo('polls_open');
-    apiMock.setPrinterStatusV4({ state: 'error', type: 'disconnected' });
+    apiMock.setPrinterStatus({ state: 'error', type: 'disconnected' });
     renderScreen({});
     await screen.findByText('The printer is disconnected');
 
@@ -380,13 +374,13 @@ describe('must have printer attached to transition polls and print reports', () 
 
     expect(screen.getButton('Close Polls')).toBeDisabled();
 
-    apiMock.setPrinterStatusV4({ state: 'idle' });
+    apiMock.setPrinterStatus({ state: 'idle' });
     await waitFor(() => {
       expect(screen.getButton('Close Polls')).toBeEnabled();
     });
 
     apiMock.expectClosePolls();
-    const { resolve } = apiMock.expectPrintReportV4();
+    const { resolve } = apiMock.expectPrintReportSection(0);
     resolve();
     apiMock.expectGetPollsInfo('polls_closed_final');
     userEvent.click(screen.getByText('Close Polls'));
@@ -398,7 +392,7 @@ describe('must have printer attached to transition polls and print reports', () 
 describe('must have usb drive attached to transition polls', () => {
   test('opening polls', async () => {
     apiMock.expectGetPollsInfo('polls_closed_initial');
-    apiMock.setPrinterStatusV3({ connected: true });
+    apiMock.setPrinterStatus();
     apiMock.expectGetUsbDriveStatus('no_drive');
     renderScreen({});
 
@@ -409,15 +403,15 @@ describe('must have usb drive attached to transition polls', () => {
     apiMock.expectGetUsbDriveStatus('mounted');
     await waitForElementToBeRemoved(attachText);
     apiMock.expectOpenPolls();
-    apiMock.expectPrintReportV3();
+    apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_open');
     userEvent.click(screen.getByText('Open Polls'));
-    await screen.findByText('Print Additional Polls Opened Report');
+    await screen.findByText('Reprint Polls Opened Report');
   });
 
   test('opening polls from fallback screen', async () => {
     apiMock.expectGetPollsInfo('polls_closed_initial');
-    apiMock.setPrinterStatusV3({ connected: true });
+    apiMock.setPrinterStatus();
     apiMock.expectGetUsbDriveStatus('no_drive');
     renderScreen({});
 
@@ -430,7 +424,7 @@ describe('must have usb drive attached to transition polls', () => {
 
     apiMock.expectGetUsbDriveStatus('mounted');
     apiMock.expectOpenPolls();
-    apiMock.expectPrintReportV3();
+    apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_open');
 
     await waitFor(() => {
@@ -438,12 +432,12 @@ describe('must have usb drive attached to transition polls', () => {
     });
 
     userEvent.click(screen.getByText('Open Polls'));
-    await screen.findByText('Print Additional Polls Opened Report');
+    await screen.findByText('Reprint Polls Opened Report');
   });
 
   test('resuming voting', async () => {
     apiMock.expectGetPollsInfo('polls_paused');
-    apiMock.setPrinterStatusV3({ connected: true });
+    apiMock.setPrinterStatus();
     apiMock.expectGetUsbDriveStatus('no_drive');
     renderScreen({});
 
@@ -455,7 +449,7 @@ describe('must have usb drive attached to transition polls', () => {
     apiMock.expectGetUsbDriveStatus('mounted');
     await waitForElementToBeRemoved(attachText);
     apiMock.expectResumeVoting();
-    apiMock.expectPrintReportV3();
+    apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_open');
     userEvent.click(screen.getByText('Resume Voting'));
     await screen.findByText('Voting Resumed');
@@ -463,7 +457,7 @@ describe('must have usb drive attached to transition polls', () => {
 
   test('resuming voting from fallback screen', async () => {
     apiMock.expectGetPollsInfo('polls_paused');
-    apiMock.setPrinterStatusV3({ connected: true });
+    apiMock.setPrinterStatus();
     apiMock.expectGetUsbDriveStatus('no_drive');
     renderScreen({});
 
@@ -480,15 +474,15 @@ describe('must have usb drive attached to transition polls', () => {
       expect(screen.getButton('Close Polls')).toBeEnabled();
     });
     apiMock.expectClosePolls();
-    apiMock.expectPrintReportV3();
+    apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_closed_final');
     userEvent.click(screen.getByText('Close Polls'));
-    await screen.findByText('Print Additional Polls Closed Report');
+    await screen.findByText('Reprint Polls Closed Report');
   });
 
   test('closing polls', async () => {
     apiMock.expectGetPollsInfo('polls_open');
-    apiMock.setPrinterStatusV3({ connected: true });
+    apiMock.setPrinterStatus();
     apiMock.expectGetUsbDriveStatus('no_drive');
     renderScreen({});
 
@@ -500,16 +494,16 @@ describe('must have usb drive attached to transition polls', () => {
     apiMock.expectGetUsbDriveStatus('mounted');
     await waitForElementToBeRemoved(attachText);
     apiMock.expectClosePolls();
-    apiMock.expectPrintReportV3();
+    apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_closed_final');
     userEvent.click(screen.getByText('Close Polls'));
-    await screen.findByText('Print Additional Polls Closed Report');
+    await screen.findByText('Reprint Polls Closed Report');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
   });
 
   test('closing polls from fallback screen', async () => {
     apiMock.expectGetPollsInfo('polls_open');
-    apiMock.setPrinterStatusV3({ connected: true });
+    apiMock.setPrinterStatus();
     apiMock.expectGetUsbDriveStatus('no_drive');
     renderScreen({});
     await screen.findByText('Insert a USB drive to continue.');
@@ -526,10 +520,10 @@ describe('must have usb drive attached to transition polls', () => {
     });
 
     apiMock.expectClosePolls();
-    apiMock.expectPrintReportV3();
+    apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_closed_final');
     userEvent.click(screen.getByText('Close Polls'));
-    await screen.findByText('Print Additional Polls Closed Report');
+    await screen.findByText('Reprint Polls Closed Report');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
   });
 });
@@ -545,7 +539,7 @@ describe('does not need usb drive attached to transition polls if continuous exp
 
   test('opening polls', async () => {
     apiMock.expectGetPollsInfo('polls_closed_initial');
-    apiMock.setPrinterStatusV4();
+    apiMock.setPrinterStatus();
     apiMock.expectGetUsbDriveStatus('no_drive');
     renderScreen({});
 
@@ -555,7 +549,7 @@ describe('does not need usb drive attached to transition polls if continuous exp
     ).not.toBeInTheDocument();
 
     apiMock.expectOpenPolls();
-    apiMock.expectPrintReportV4().resolve();
+    apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_open');
     userEvent.click(screen.getButton('Open Polls'));
     await screen.findByText('Opening Polls…');
@@ -564,7 +558,7 @@ describe('does not need usb drive attached to transition polls if continuous exp
 
   test('opening polls from fallback screen', async () => {
     apiMock.expectGetPollsInfo('polls_closed_initial');
-    apiMock.setPrinterStatusV4();
+    apiMock.setPrinterStatus();
     apiMock.expectGetUsbDriveStatus('no_drive');
     renderScreen({});
 
@@ -575,7 +569,7 @@ describe('does not need usb drive attached to transition polls if continuous exp
 
     userEvent.click(screen.getButton('Menu'));
     apiMock.expectOpenPolls();
-    apiMock.expectPrintReportV4().resolve();
+    apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_open');
     userEvent.click(screen.getButton('Open Polls'));
     await screen.findByText('Opening Polls…');
@@ -584,7 +578,7 @@ describe('does not need usb drive attached to transition polls if continuous exp
 
   test('pausing voting', async () => {
     apiMock.expectGetPollsInfo('polls_open');
-    apiMock.setPrinterStatusV4();
+    apiMock.setPrinterStatus();
     apiMock.expectGetUsbDriveStatus('no_drive');
     renderScreen({});
 
@@ -595,7 +589,7 @@ describe('does not need usb drive attached to transition polls if continuous exp
 
     userEvent.click(screen.getButton('Menu'));
     apiMock.expectPauseVoting();
-    apiMock.expectPrintReportV4().resolve();
+    apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_paused');
     userEvent.click(screen.getButton('Pause Voting'));
     await screen.findByText('Pausing Voting…');
@@ -604,7 +598,7 @@ describe('does not need usb drive attached to transition polls if continuous exp
 
   test('resuming voting', async () => {
     apiMock.expectGetPollsInfo('polls_paused');
-    apiMock.setPrinterStatusV4();
+    apiMock.setPrinterStatus();
     apiMock.expectGetUsbDriveStatus('no_drive');
     renderScreen({});
 
@@ -614,7 +608,7 @@ describe('does not need usb drive attached to transition polls if continuous exp
     ).not.toBeInTheDocument();
 
     apiMock.expectResumeVoting();
-    apiMock.expectPrintReportV4().resolve();
+    apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_open');
     userEvent.click(screen.getButton('Resume Voting'));
     await screen.findByText('Resuming Voting…');
@@ -623,7 +617,7 @@ describe('does not need usb drive attached to transition polls if continuous exp
 
   test('resuming voting from fallback screen', async () => {
     apiMock.expectGetPollsInfo('polls_paused');
-    apiMock.setPrinterStatusV4();
+    apiMock.setPrinterStatus();
     apiMock.expectGetUsbDriveStatus('no_drive');
     renderScreen({});
 
@@ -634,7 +628,7 @@ describe('does not need usb drive attached to transition polls if continuous exp
 
     userEvent.click(screen.getButton('Menu'));
     apiMock.expectResumeVoting();
-    apiMock.expectPrintReportV4().resolve();
+    apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_open');
     userEvent.click(screen.getButton('Resume Voting'));
     await screen.findByText('Resuming Voting…');
@@ -643,7 +637,7 @@ describe('does not need usb drive attached to transition polls if continuous exp
 
   test('closing polls', async () => {
     apiMock.expectGetPollsInfo('polls_open');
-    apiMock.setPrinterStatusV4();
+    apiMock.setPrinterStatus();
     apiMock.expectGetUsbDriveStatus('no_drive');
     renderScreen({});
 
@@ -653,7 +647,7 @@ describe('does not need usb drive attached to transition polls if continuous exp
     ).not.toBeInTheDocument();
 
     apiMock.expectClosePolls();
-    apiMock.expectPrintReportV4().resolve();
+    apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_closed_final');
     userEvent.click(screen.getButton('Close Polls'));
     await screen.findByText('Closing Polls…');
@@ -662,7 +656,7 @@ describe('does not need usb drive attached to transition polls if continuous exp
 
   test('closing polls from fallback screen', async () => {
     apiMock.expectGetPollsInfo('polls_open');
-    apiMock.setPrinterStatusV4();
+    apiMock.setPrinterStatus();
     apiMock.expectGetUsbDriveStatus('no_drive');
     renderScreen({});
 
@@ -673,7 +667,7 @@ describe('does not need usb drive attached to transition polls if continuous exp
 
     userEvent.click(screen.getButton('Menu'));
     apiMock.expectClosePolls();
-    apiMock.expectPrintReportV4().resolve();
+    apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_closed_final');
     userEvent.click(screen.getButton('Close Polls'));
     await screen.findByText('Closing Polls…');
@@ -682,7 +676,7 @@ describe('does not need usb drive attached to transition polls if continuous exp
 
   test('closing polls from voting paused', async () => {
     apiMock.expectGetPollsInfo('polls_paused');
-    apiMock.setPrinterStatusV4();
+    apiMock.setPrinterStatus();
     apiMock.expectGetUsbDriveStatus('no_drive');
     renderScreen({});
 
@@ -693,7 +687,7 @@ describe('does not need usb drive attached to transition polls if continuous exp
 
     userEvent.click(screen.getButton('Menu'));
     apiMock.expectClosePolls();
-    apiMock.expectPrintReportV4().resolve();
+    apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_closed_final');
     userEvent.click(screen.getButton('Close Polls'));
     await screen.findByText('Closing Polls…');
@@ -701,12 +695,12 @@ describe('does not need usb drive attached to transition polls if continuous exp
   });
 });
 
-describe('hardware V4 report printing', () => {
+describe('report printing', () => {
   test('single report printing happy path', async () => {
-    apiMock.setPrinterStatusV4();
+    apiMock.setPrinterStatus();
     apiMock.expectGetPollsInfo('polls_closed_initial');
     apiMock.expectOpenPolls();
-    const { resolve } = apiMock.expectPrintReportV4();
+    const { resolve } = apiMock.expectPrintReportSection(0);
     apiMock.expectGetPollsInfo('polls_open');
     renderScreen({
       electionDefinition:
@@ -735,10 +729,10 @@ describe('hardware V4 report printing', () => {
   });
 
   test('multiple report printing happy path', async () => {
-    apiMock.setPrinterStatusV4();
+    apiMock.setPrinterStatus();
     apiMock.expectGetPollsInfo('polls_closed_initial');
     apiMock.expectOpenPolls();
-    const { resolve: resolveMammal } = apiMock.expectPrintReportV4();
+    const { resolve: resolveMammal } = apiMock.expectPrintReportSection(0);
     apiMock.expectGetPollsInfo('polls_open');
     renderScreen({
       electionDefinition: electionTwoPartyPrimaryDefinition,
@@ -797,7 +791,7 @@ describe('hardware V4 report printing', () => {
   });
 
   test('suspension report printing happy path, for primary', async () => {
-    apiMock.setPrinterStatusV4();
+    apiMock.setPrinterStatus();
     apiMock.expectGetPollsInfo('polls_open');
     renderScreen({
       electionDefinition: electionTwoPartyPrimaryDefinition,
@@ -808,7 +802,7 @@ describe('hardware V4 report printing', () => {
     userEvent.click(screen.getByText('Menu'));
     apiMock.expectGetPollsInfo('polls_paused');
     apiMock.expectPauseVoting();
-    const { resolve: resolveReport } = apiMock.expectPrintReportV4();
+    const { resolve: resolveReport } = apiMock.expectPrintReportSection(0);
     userEvent.click(screen.getButton('Pause Voting'));
     await screen.findByText('Pausing Voting…');
     resolveReport();
@@ -828,7 +822,7 @@ describe('hardware V4 report printing', () => {
   });
 
   test('out of paper while printing, reload, reprint', async () => {
-    apiMock.setPrinterStatusV4();
+    apiMock.setPrinterStatus();
     apiMock.expectGetPollsInfo('polls_closed_initial');
     apiMock.expectOpenPolls();
 
@@ -839,8 +833,10 @@ describe('hardware V4 report printing', () => {
 
     // close polls but fail the print
     await screen.findByText('Do you want to open the polls?');
-    const { resolve } = apiMock.expectPrintReportV4({ state: 'no-paper' });
-    apiMock.setPrinterStatusV4({ state: 'no-paper' });
+    const { resolve } = apiMock.expectPrintReportSection(0, {
+      state: 'no-paper',
+    });
+    apiMock.setPrinterStatus({ state: 'no-paper' });
     userEvent.click(screen.getByText('Open Polls'));
     await screen.findByText('Opening Polls…');
     resolve();
@@ -852,10 +848,10 @@ describe('hardware V4 report printing', () => {
     await screen.findByRole('alertdialog');
     screen.getByText('Remove Paper Roll Holder');
 
-    apiMock.setPrinterStatusV4({ state: 'cover-open' });
+    apiMock.setPrinterStatus({ state: 'cover-open' });
     await screen.findByText('Load New Paper Roll');
 
-    apiMock.setPrinterStatusV4({ state: 'idle' });
+    apiMock.setPrinterStatus();
     await screen.findByText('Paper Detected');
 
     userEvent.click(screen.getButton('Close'));
@@ -877,7 +873,7 @@ describe('hardware V4 report printing', () => {
   });
 
   test('printer error while printing', async () => {
-    apiMock.setPrinterStatusV4();
+    apiMock.setPrinterStatus();
     apiMock.expectGetPollsInfo('polls_closed_initial');
     apiMock.expectOpenPolls();
     apiMock.expectGetPollsInfo('polls_open');
@@ -887,7 +883,7 @@ describe('hardware V4 report printing', () => {
 
     // close polls but fail the print
     await screen.findByText('Do you want to open the polls?');
-    const { resolve } = apiMock.expectPrintReportV4({
+    const { resolve } = apiMock.expectPrintReportSection(0, {
       state: 'error',
       type: 'disconnected',
     });
@@ -901,7 +897,7 @@ describe('hardware V4 report printing', () => {
   test.each<PollsState>(['polls_closed_initial', 'polls_paused', 'polls_open'])(
     'printer status messages show on flow screen: %s',
     async (state) => {
-      apiMock.setPrinterStatusV4({ state: 'error', type: 'disconnected' });
+      apiMock.setPrinterStatus({ state: 'error', type: 'disconnected' });
       apiMock.expectGetPollsInfo(state);
       renderScreen({
         electionDefinition: electionTwoPartyPrimaryDefinition,
@@ -916,7 +912,7 @@ describe('hardware V4 report printing', () => {
 
   test('poll worker menu supports loading printer paper flow', async () => {
     apiMock.expectGetPollsInfo('polls_open');
-    apiMock.setPrinterStatusV4({ state: 'no-paper' });
+    apiMock.setPrinterStatus({ state: 'no-paper' });
     renderScreen({});
 
     userEvent.click(await screen.findByText('Menu'));
@@ -926,11 +922,11 @@ describe('hardware V4 report printing', () => {
 
   test('if printer is loaded, poll worker menu shows reprint button as normal', async () => {
     apiMock.expectGetPollsInfo('polls_open');
-    apiMock.setPrinterStatusV4({ state: 'idle' });
+    apiMock.setPrinterStatus();
     renderScreen({});
 
     userEvent.click(await screen.findByText('Menu'));
-    const { resolve } = apiMock.expectPrintReportV4();
+    const { resolve } = apiMock.expectPrintReportSection(0);
     userEvent.click(await screen.findButton('Print Polls Opened Report'));
     resolve();
     await screen.findButton('Reprint Polls Opened Report');

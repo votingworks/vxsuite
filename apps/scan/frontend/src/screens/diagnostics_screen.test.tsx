@@ -25,7 +25,7 @@ beforeEach(() => {
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetScannerStatus(statusNoPaper);
-  apiMock.setPrinterStatusV4({ state: 'idle' });
+  apiMock.setPrinterStatus();
   apiMock.expectGetUsbDriveStatus('mounted');
 });
 
@@ -97,7 +97,7 @@ test('renders current printer status and diagnostic result', async () => {
     message: 'Ran out of paper.',
   });
   apiMock.expectGetConfig();
-  apiMock.setPrinterStatusV4({ state: 'no-paper' });
+  apiMock.setPrinterStatus({ state: 'no-paper' });
 
   renderScreen();
 
@@ -120,7 +120,7 @@ test('renders audio diagnostic result', async () => {
   apiMock.expectGetMostRecentUpsDiagnostic();
   apiMock.expectGetMostRecentPrinterDiagnostic();
   apiMock.expectGetConfig();
-  apiMock.setPrinterStatusV4({ state: 'no-paper' });
+  apiMock.setPrinterStatus({ state: 'no-paper' });
 
   renderScreen();
 

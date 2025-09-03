@@ -1,33 +1,15 @@
 import { expect, test } from 'vitest';
-import { BROTHER_THERMAL_PRINTER_CONFIG } from '../../test/helpers/fixtures';
 import { getPollsFlowPrinterSummary } from './printer';
 
 test('getPollsFlowPrinterSummary', () => {
   expect(
     getPollsFlowPrinterSummary({
-      scheme: 'hardware-v3',
-      connected: false,
-    })
-  ).toEqual({ ready: false, alertText: 'Attach printer to continue.' });
-
-  expect(
-    getPollsFlowPrinterSummary({
-      scheme: 'hardware-v3',
-      connected: true,
-      config: BROTHER_THERMAL_PRINTER_CONFIG,
-    })
-  ).toEqual({ ready: true });
-
-  expect(
-    getPollsFlowPrinterSummary({
-      scheme: 'hardware-v4',
       state: 'idle',
     })
   ).toEqual({ ready: true });
 
   expect(
     getPollsFlowPrinterSummary({
-      scheme: 'hardware-v4',
       state: 'cover-open',
     })
   ).toEqual({
@@ -37,7 +19,6 @@ test('getPollsFlowPrinterSummary', () => {
 
   expect(
     getPollsFlowPrinterSummary({
-      scheme: 'hardware-v4',
       state: 'no-paper',
     })
   ).toEqual({
@@ -47,7 +28,6 @@ test('getPollsFlowPrinterSummary', () => {
 
   expect(
     getPollsFlowPrinterSummary({
-      scheme: 'hardware-v4',
       state: 'error',
       type: 'disconnected',
     })
@@ -62,7 +42,6 @@ test('getPollsFlowPrinterSummary', () => {
   for (const type of errorTypes) {
     expect(
       getPollsFlowPrinterSummary({
-        scheme: 'hardware-v4',
         state: 'error',
         type,
       })

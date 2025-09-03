@@ -42,7 +42,7 @@ test('when backend does not respond shows error screen', async () => {
     .throws(new ServerError('not responding'));
   apiMock.expectGetPollsInfo();
   apiMock.expectGetScannerStatus(statusNoPaper);
-  apiMock.setPrinterStatusV4();
+  apiMock.setPrinterStatus();
   vi.spyOn(console, 'error').mockReturnValue();
   renderApp();
   await screen.findByText('Something went wrong');
@@ -52,7 +52,7 @@ test('when backend does not respond shows error screen', async () => {
 test('backend fails to unconfigure', async () => {
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo();
-  apiMock.setPrinterStatusV3({ connected: true });
+  apiMock.setPrinterStatus();
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.mockApiClient.ejectUsbDrive.expectCallWith().resolves();
   apiMock.mockApiClient.unconfigureElection
@@ -97,7 +97,7 @@ test.each<{
     apiMock.expectGetConfig(defaultConfigOverrides);
     apiMock.expectGetPollsInfo();
     apiMock.expectGetScannerStatus(statusNoPaper);
-    apiMock.setPrinterStatusV4();
+    apiMock.setPrinterStatus();
     renderApp();
 
     await screen.findByText(expectedHeadingWhenNoCard);
@@ -134,7 +134,7 @@ test('show card backwards screen when card connection error occurs', async () =>
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo();
   apiMock.expectGetScannerStatus(statusNoPaper);
-  apiMock.setPrinterStatusV4();
+  apiMock.setPrinterStatus();
   renderApp();
 
   await screen.findByText('Polls Closed');
@@ -153,7 +153,7 @@ test('shows message when printer cover is open', async () => {
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo();
   apiMock.expectGetScannerStatus(statusNoPaper);
-  apiMock.setPrinterStatusV4({ state: 'cover-open' });
+  apiMock.setPrinterStatus({ state: 'cover-open' });
   renderApp();
   // This error does not show up when polls are closed
   await screen.findByRole('heading', { name: 'Polls Closed' });
@@ -161,19 +161,19 @@ test('shows message when printer cover is open', async () => {
   // Open Polls
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText(/The paper roll holder is not attached/);
-  apiMock.setPrinterStatusV4({ state: 'idle' });
+  apiMock.setPrinterStatus();
   await waitFor(() => {
     expect(screen.getButton('Open Polls')).toBeEnabled();
   });
   apiMock.expectOpenPolls();
-  apiMock.expectPrintReportV4();
+  apiMock.expectPrintReportSection(0).resolve();
   apiMock.expectGetPollsInfo('polls_open');
   userEvent.click(await screen.findByText('Open Polls'));
 
   // Remove pollworker card
   apiMock.removeCard();
   await screen.findByText(/Insert Your Ballot/);
-  apiMock.setPrinterStatusV4({ state: 'cover-open' });
+  apiMock.setPrinterStatus({ state: 'cover-open' });
 
   await screen.findByRole('heading', { name: 'Printer Cover is Open' });
   screen.getByText('Please ask a poll worker for help.');
@@ -186,7 +186,7 @@ test('shows internal wiring message when there is no scanner', async () => {
     ...statusNoPaper,
     state: 'disconnected',
   });
-  apiMock.setPrinterStatusV4();
+  apiMock.setPrinterStatus();
   renderApp();
   await screen.findByRole('heading', { name: 'Internal Connection Problem' });
   await screen.findByText('Scanner is disconnected.');
@@ -212,7 +212,7 @@ test('shows internal wiring message when there is no printer', async () => {
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo();
   apiMock.expectGetScannerStatus(statusNoPaper);
-  apiMock.setPrinterStatusV4({
+  apiMock.setPrinterStatus({
     state: 'error',
     type: 'disconnected',
   });
@@ -244,7 +244,7 @@ test('shows internal wiring message when there is no printer or scanner', async 
     ...statusNoPaper,
     state: 'disconnected',
   });
-  apiMock.setPrinterStatusV4({
+  apiMock.setPrinterStatus({
     state: 'error',
     type: 'disconnected',
   });
@@ -280,7 +280,7 @@ for (const printerError of [
     apiMock.expectGetConfig();
     apiMock.expectGetPollsInfo();
     apiMock.expectGetScannerStatus(statusNoPaper);
-    apiMock.setPrinterStatusV4({
+    apiMock.setPrinterStatus({
       state: 'error',
       type: printerError as ErrorType,
     });
@@ -313,7 +313,7 @@ test('shows message when scanner cover is open', async () => {
     ...statusNoPaper,
     state: 'cover_open',
   });
-  apiMock.setPrinterStatusV3({ connected: true });
+  apiMock.setPrinterStatus();
   renderApp();
   // This error does not show up when polls are closed
   await screen.findByRole('heading', { name: 'Polls Closed' });
@@ -322,7 +322,7 @@ test('shows message when scanner cover is open', async () => {
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Open Polls');
   apiMock.expectOpenPolls();
-  apiMock.expectPrintReportV3();
+  apiMock.expectPrintReportSection(0).resolve();
   apiMock.expectGetPollsInfo('polls_open');
   userEvent.click(await screen.findByText('Open Polls'));
   await screen.findByText('Polls Opened');
@@ -342,7 +342,7 @@ test('shows instructions to restart when the scanner client crashed', async () =
     state: 'unrecoverable_error',
   });
   apiMock.expectPlaySound('error');
-  apiMock.setPrinterStatusV4();
+  apiMock.setPrinterStatus();
   renderApp();
   await screen.findByRole('heading', { name: 'Scanner Error' });
   screen.getByText(
