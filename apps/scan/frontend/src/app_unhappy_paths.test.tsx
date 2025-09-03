@@ -6,10 +6,8 @@ import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 
 import { ServerError } from '@votingworks/grout';
-import {
-  PrecinctScannerConfig,
-  FujitsuErrorType,
-} from '@votingworks/scan-backend';
+import { PrecinctScannerConfig } from '@votingworks/scan-backend';
+import type { ErrorType } from '@votingworks/fujitsu-thermal-printer';
 import { render, screen, waitFor } from '../test/react_testing_library';
 import {
   ApiMock,
@@ -284,7 +282,7 @@ for (const printerError of [
     apiMock.expectGetScannerStatus(statusNoPaper);
     apiMock.setPrinterStatusV4({
       state: 'error',
-      type: printerError as FujitsuErrorType,
+      type: printerError as ErrorType,
     });
     renderApp();
     await screen.findByRole('heading', { name: 'Internal Connection Problem' });

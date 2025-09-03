@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Button } from '@votingworks/ui';
-import { assert } from '@votingworks/basics';
 import { getPrinterStatus } from '../../api';
 import { LoadPaperModal } from './load_paper_modal';
 
@@ -35,7 +34,6 @@ export function PollWorkerLoadAndReprintButton({
   }
 
   const printerStatus = printerStatusQuery.data;
-  assert(printerStatus.scheme === 'hardware-v4');
 
   const showLoadPaperButton =
     printerStatus.state === 'no-paper' || printerStatus.state === 'cover-open';

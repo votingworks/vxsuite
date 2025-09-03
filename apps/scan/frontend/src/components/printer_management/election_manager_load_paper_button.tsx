@@ -56,9 +56,7 @@ export function ElectionManagerLoadPaperButton({
   const [isLoadPaperModalOpen, setIsLoadPaperModalOpen] = useState(false);
 
   const enabled =
-    printerStatusQuery.isSuccess &&
-    printerStatusQuery.data.scheme === 'hardware-v4' &&
-    printerStatusQuery.data.state !== 'error';
+    printerStatusQuery.isSuccess && printerStatusQuery.data.state !== 'error';
 
   return (
     <React.Fragment>

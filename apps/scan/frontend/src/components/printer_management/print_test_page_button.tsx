@@ -1,5 +1,4 @@
 import React from 'react';
-import { assert } from '@votingworks/basics';
 import { Button } from '@votingworks/ui';
 import { getPrinterStatus, printTestPage } from '../../api';
 import { PrintTestPageModal } from './print_test_page_modal';
@@ -17,7 +16,6 @@ export function PrintTestPageButton(): JSX.Element | null {
   }
 
   const printerStatus = printerStatusQuery.data;
-  assert(printerStatus.scheme === 'hardware-v4');
 
   return (
     <React.Fragment>

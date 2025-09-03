@@ -13,7 +13,6 @@ import {
   unconfigureElection,
   logOut,
   resetPollsToPaused,
-  getPrinterStatus,
   useApiClient,
   getConfig,
   getScannerStatus,
@@ -39,7 +38,6 @@ export function SystemAdministratorScreen({
   const resetPollsToPausedMutation = resetPollsToPaused.useMutation();
   const unconfigureMutation = unconfigureElection.useMutation();
   const logOutMutation = logOut.useMutation();
-  const printerStatusQuery = getPrinterStatus.useQuery();
   const scannerStatusQuery = getScannerStatus.useQuery({
     refetchInterval: POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
   });
@@ -81,11 +79,9 @@ export function SystemAdministratorScreen({
         usbDriveStatus={usbDrive}
         additionalButtons={
           <React.Fragment>
-            {printerStatusQuery.data?.scheme === 'hardware-v4' && (
-              <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
-                Diagnostics
-              </Button>
-            )}
+            <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
+              Diagnostics
+            </Button>
             <Button
               disabled={
                 !scannerStatusQuery.isSuccess ||

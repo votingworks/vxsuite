@@ -339,13 +339,6 @@ export const resumeVoting = {
   },
 } as const;
 
-export const printReport = {
-  useMutation() {
-    const apiClient = useApiClient();
-    return useMutation(apiClient.printReport);
-  },
-} as const;
-
 export const resetPollsToPaused = {
   useMutation() {
     const apiClient = useApiClient();

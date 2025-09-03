@@ -1,6 +1,6 @@
 import { Icons, P } from '@votingworks/ui';
-import type { PrinterStatus } from '@votingworks/scan-backend';
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import type { PrinterStatus } from '@votingworks/fujitsu-thermal-printer';
+import { throwIllegalValue } from '@votingworks/basics';
 import React from 'react';
 import styled from 'styled-components';
 import { getPrinterStatus } from '../../api';
@@ -11,8 +11,6 @@ export const RELOAD_REMINDER_TEXT =
   'If the paper roll was used in a previous election, replace it or confirm it has enough paper for this election.';
 
 function StatusText({ printerStatus }: { printerStatus: PrinterStatus }) {
-  assert(printerStatus.scheme === 'hardware-v4');
-
   switch (printerStatus.state) {
     case 'error':
       return (
@@ -62,10 +60,6 @@ export function ElectionManagerPrinterTabContent(): JSX.Element | null {
   }
 
   const printerStatus = printerStatusQuery.data;
-
-  if (printerStatus.scheme === 'hardware-v3') {
-    return null;
-  }
 
   return (
     <React.Fragment>

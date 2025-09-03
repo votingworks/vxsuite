@@ -93,6 +93,7 @@
     "@vitest/coverage-istanbul": "^2.1.8",
     "@votingworks/backend": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
+    "@votingworks/fujitsu-thermal-printer": "workspace:*",
     "@votingworks/grout-test-utils": "workspace:*",
     "@votingworks/monorepo-utils": "workspace:*",
     "@votingworks/printing": "workspace:*",

@@ -112,8 +112,7 @@ export function ElectionManagerScreen({
   const printerStatus = printerStatusQuery.data;
 
   const disableConfiguration =
-    scannerStatus.state === 'disconnected' ||
-    (printerStatus.scheme === 'hardware-v4' && printerStatus.state === 'error');
+    scannerStatus.state === 'disconnected' || printerStatus.state === 'error';
 
   const isCvrSyncRequired =
     Boolean(usbDriveStatusQuery.data.doesUsbDriveRequireCastVoteRecordSync) &&
@@ -257,12 +256,11 @@ export function ElectionManagerScreen({
     />
   );
 
-  const diagnosticsButton =
-    printerStatus.scheme === 'hardware-v4' ? (
-      <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
-        Diagnostics
-      </Button>
-    ) : null;
+  const diagnosticsButton = (
+    <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
+      Diagnostics
+    </Button>
+  );
 
   const powerDownButton = <PowerDownButton />;
 
@@ -289,16 +287,14 @@ export function ElectionManagerScreen({
     },
   ];
 
-  if (printerStatus.scheme === 'hardware-v4') {
-    const showWarningIcon = printerStatus.state !== 'idle';
+  const showWarningIcon = printerStatus.state !== 'idle';
 
-    tabs.push({
-      paneId: 'managerSettingsPrinter',
-      label: 'Printer',
-      icon: showWarningIcon ? 'Warning' : undefined,
-      content: <ElectionManagerPrinterTabContent />,
-    });
-  }
+  tabs.push({
+    paneId: 'managerSettingsPrinter',
+    label: 'Printer',
+    icon: showWarningIcon ? 'Warning' : undefined,
+    content: <ElectionManagerPrinterTabContent />,
+  });
 
   tabs.push({
     paneId: 'managerSettingsScanner',

@@ -8,7 +8,7 @@ import { mockKiosk } from '@votingworks/test-utils';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { err, ok } from '@votingworks/basics';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import { FujitsuPrinterStatus } from '@votingworks/scan-backend';
+import { PrinterStatus } from '@votingworks/fujitsu-thermal-printer';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import {
   act,
@@ -662,7 +662,7 @@ describe('hardware V4 printer management', () => {
   });
 
   test.each<{
-    status: FujitsuPrinterStatus;
+    status: PrinterStatus;
     message: string;
   }>([
     {
