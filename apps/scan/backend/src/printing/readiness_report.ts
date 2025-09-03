@@ -9,10 +9,9 @@ import {
 import { renderToPdf } from '@votingworks/printing';
 import { generateReadinessReportFilename } from '@votingworks/utils';
 import { ScanReadinessReport } from '@votingworks/ui';
-import { assert } from '@votingworks/basics';
+import { FujitsuThermalPrinterInterface } from '@votingworks/fujitsu-thermal-printer';
 import { Workspace } from '../util/workspace';
 import { getCurrentTime } from '../util/get_current_time';
-import { Printer } from './printer';
 import { PrecinctScannerStateMachine } from '../types';
 
 /**
@@ -28,7 +27,7 @@ export async function saveReadinessReport({
   workspace: Workspace;
   usbDrive: UsbDrive;
   logger: Logger;
-  printer: Printer;
+  printer: FujitsuThermalPrinterInterface;
   machine: PrecinctScannerStateMachine;
 }): Promise<ExportDataResult> {
   const { store } = workspace;
@@ -36,7 +35,7 @@ export async function saveReadinessReport({
   const electionRecord = store.getElectionRecord();
   const markThresholds = store.getSystemSettings()?.markThresholds;
   const printerStatus = await printer.getStatus();
-  assert(printerStatus.scheme === 'hardware-v4');
+
   const report = ScanReadinessReport({
     electionDefinition: electionRecord?.electionDefinition,
     electionPackageHash: electionRecord?.electionPackageHash,

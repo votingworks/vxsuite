@@ -186,10 +186,7 @@ export async function runPrintAndScanTask({
         const printerStatus = await printer.getStatus();
         const { lastPrintedAt } = printerTask.getState();
 
-        if (
-          printerStatus.scheme === 'hardware-v4' &&
-          printerStatus.state !== 'idle'
-        ) {
+        if (printerStatus.state !== 'idle') {
           workspace.store.setElectricalTestingStatusMessage(
             'printer',
             `Printer is in an unexpected state: ${inspect(printerStatus)}`

@@ -33,11 +33,10 @@ import {
 } from '@votingworks/auth';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import {
-  FujitsuPrintResult,
-  Printer,
+  FujitsuThermalPrinterInterface,
   PrinterStatus,
   PrintResult,
-} from './printing/printer';
+} from '@votingworks/fujitsu-thermal-printer';
 import {
   PrecinctScannerStateMachine,
   PrecinctScannerConfig,
@@ -60,7 +59,6 @@ import {
   resetPollsToPaused,
 } from './polls';
 import { printTestPage } from './printing/test_print';
-import { printFullReport } from './printing/print_full_report';
 import { printReportSection } from './printing/print_report_section';
 import {
   TEST_AUDIO_USER_FAIL_REASON,
@@ -89,7 +87,7 @@ export function buildApi({
   machine: PrecinctScannerStateMachine;
   workspace: Workspace;
   usbDrive: UsbDrive;
-  printer: Printer;
+  printer: FujitsuThermalPrinterInterface;
   logger: Logger;
 }) {
   const { store } = workspace;
@@ -366,26 +364,14 @@ export function buildApi({
      * first section of the report only.
      */
     async printReport(): Promise<PrintResult> {
-      if (printer.scheme === 'hardware-v3') {
-        return {
-          scheme: 'hardware-v3',
-          pageCount: await printFullReport({ store, printer }),
-        };
-      }
-
-      return {
-        scheme: 'hardware-v4',
-        result: await printReportSection({ store, printer, index: 0 }),
-      };
+      return printReportSection({ store, printer, index: 0 });
     },
 
     /**
      * Prints a specific section of the report, e.g. for a particular party.
      * This is only used for V4 hardware printers (roll printer).
      */
-    async printReportSection(input: {
-      index: number;
-    }): Promise<FujitsuPrintResult> {
+    async printReportSection(input: { index: number }): Promise<PrintResult> {
       return printReportSection({
         store,
         printer,
@@ -454,7 +440,7 @@ export function buildApi({
       return store.getMostRecentDiagnosticRecord('blank-sheet-scan') ?? null;
     },
 
-    async printTestPage(): Promise<FujitsuPrintResult> {
+    async printTestPage(): Promise<PrintResult> {
       void logger.logAsCurrentRole(LogEventId.DiagnosticInit, {
         message: `User initiated a test page print.`,
         disposition: 'success',
@@ -623,7 +609,7 @@ export function buildApp({
   auth: InsertedSmartCardAuthApi;
   machine: PrecinctScannerStateMachine;
   workspace: Workspace;
-  printer: Printer;
+  printer: FujitsuThermalPrinterInterface;
   usbDrive: UsbDrive;
   logger: Logger;
 }): Application {

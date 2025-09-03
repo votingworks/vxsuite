@@ -1,7 +1,9 @@
-import { assert } from '@votingworks/basics';
+import {
+  FujitsuThermalPrinterInterface,
+  PrintResult,
+} from '@votingworks/fujitsu-thermal-printer';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { FujitsuPrintResult, Printer } from './printer';
 
 const TEST_PRINT_PDF_PATH = join(__dirname, 'test-print.pdf');
 
@@ -13,9 +15,7 @@ const TEST_PRINT_PDF_PATH = join(__dirname, 'test-print.pdf');
 export async function printTestPage({
   printer,
 }: {
-  printer: Printer;
-}): Promise<FujitsuPrintResult> {
-  assert(printer.scheme === 'hardware-v4');
-
-  return await printer.printPdf(await readFile(TEST_PRINT_PDF_PATH));
+  printer: FujitsuThermalPrinterInterface;
+}): Promise<PrintResult> {
+  return printer.printPdf(await readFile(TEST_PRINT_PDF_PATH));
 }

@@ -15,14 +15,16 @@ import {
   PAPER_DIMENSIONS,
   renderToPdf,
 } from '@votingworks/printing';
-import { PrintResult } from '@votingworks/fujitsu-thermal-printer';
+import {
+  FujitsuThermalPrinterInterface,
+  PrintResult,
+} from '@votingworks/fujitsu-thermal-printer';
 import { generateSignedQuickResultsReportingUrl } from '@votingworks/auth';
 import { Store } from '../store';
 import { getMachineConfig } from '../machine_config';
 import { getScannerResults } from '../util/results';
 import { getCurrentTime } from '../util/get_current_time';
 import { rootDebug } from '../util/debug';
-import { Printer } from './printer';
 
 const debug = rootDebug.extend('print-report-section');
 
@@ -139,10 +141,9 @@ export async function printReportSection({
   index,
 }: {
   store: Store;
-  printer: Printer;
+  printer: FujitsuThermalPrinterInterface;
   index: number;
 }): Promise<PrintResult> {
-  assert(printer.scheme === 'hardware-v4');
   const section = await getReportSection(store, index);
   const data = (
     await renderToPdf({

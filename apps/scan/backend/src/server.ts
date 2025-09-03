@@ -17,10 +17,13 @@ import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
+import {
+  FujitsuThermalPrinterInterface,
+  getFujitsuThermalPrinter,
+} from '@votingworks/fujitsu-thermal-printer';
 import { buildApp } from './app';
 import { NODE_ENV, PORT } from './globals';
 import { Workspace } from './util/workspace';
-import { Printer, getPrinter } from './printing/printer';
 import * as customStateMachine from './scanners/custom/state_machine';
 import * as pdiStateMachine from './scanners/pdi/state_machine';
 import { Player as AudioPlayer } from './audio/player';
@@ -32,7 +35,7 @@ export interface StartOptions {
   logger: Logger;
   port?: number | string;
   usbDrive?: UsbDrive;
-  printer?: Printer;
+  printer?: FujitsuThermalPrinterInterface;
 }
 
 /**
@@ -47,7 +50,7 @@ export async function start({
 }: StartOptions): Promise<void> {
   detectDevices({ logger });
   const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
-  const resolvedPrinter = printer ?? getPrinter(logger);
+  const resolvedPrinter = printer ?? getFujitsuThermalPrinter(logger);
 
   const mockPdiScanner = isFeatureFlagEnabled(
     BooleanEnvironmentVariableName.USE_MOCK_PDI_SCANNER

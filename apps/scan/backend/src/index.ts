@@ -21,25 +21,17 @@ import {
   loadEnvVarsFromDotenvFiles,
   TaskController,
 } from '@votingworks/backend';
+import { getFujitsuThermalPrinter } from '@votingworks/fujitsu-thermal-printer';
 import { SCAN_WORKSPACE } from './globals';
 import * as server from './server';
 import { startElectricalTestingServer } from './electrical_testing/server';
 import { createWorkspace, Workspace } from './util/workspace';
 import { getUserRole } from './util/auth';
-import { getPrinter } from './printing/printer';
 import { createSimpleScannerClient } from './electrical_testing/simple_scanner_client';
 import { ScanningSession } from './electrical_testing/analysis/scan';
 
 export type { Api } from './app';
 export type * as HWTA from './electrical_testing/exports';
-export type {
-  PrinterStatus,
-  PrintResult,
-  FujitsuErrorType,
-  FujitsuPrinterState,
-  FujitsuPrinterStatus,
-  FujitsuPrintResult,
-} from './printing/printer';
 export type { OpenPollsResult } from './polls';
 export type { SoundName } from './audio/player';
 export * from './types';
@@ -78,7 +70,7 @@ async function main(): Promise<number> {
   const workspace = resolveWorkspace();
   const logger = Logger.from(baseLogger, () => getUserRole(auth, workspace));
   const usbDrive = detectUsbDrive(logger);
-  const printer = getPrinter(logger);
+  const printer = getFujitsuThermalPrinter(logger);
 
   if (
     isFeatureFlagEnabled(

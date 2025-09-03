@@ -1,8 +1,8 @@
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { FujitsuPrinterStatus } from '../printing/printer';
+import { PrinterStatus } from '@votingworks/fujitsu-thermal-printer';
 
 export function testPrintFailureDiagnosticMessage(
-  failureStatus: FujitsuPrinterStatus
+  failureStatus: PrinterStatus
 ): string {
   assert(failureStatus.state !== 'idle');
   switch (failureStatus.state) {
