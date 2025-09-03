@@ -136,6 +136,8 @@ export function addMockCvrFileToStore({
         writeIns,
         isHmpb,
         markScores: mockCastVoteRecord.markScores,
+        votes: mockCastVoteRecord.votes,
+        electionDefinition,
       })) {
         store.addCvrContestTag(tag);
       }
