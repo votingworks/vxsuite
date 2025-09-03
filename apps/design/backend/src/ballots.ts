@@ -1,5 +1,6 @@
 import {
   Election,
+  getPartyForBallotStyle,
   hasSplits,
   PrecinctSplit,
   PrecinctWithSplits,
@@ -10,14 +11,10 @@ import {
   BallotTemplateId,
   BaseBallotProps,
   NhBallotProps,
-  ColorTint,
-  ColorTints,
+  NhPrimaryBallotProps,
 } from '@votingworks/hmpb';
-import { find, throwIllegalValue, assert } from '@votingworks/basics';
+import { find, throwIllegalValue, assertDefined } from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
-import { readFileSync } from 'node:fs';
-import { parse } from 'csv-parse/sync';
-import { join } from 'node:path';
 import { sliOrgId } from './globals';
 import { BallotStyle, normalizeState, User, UsState } from './types';
 
@@ -87,19 +84,6 @@ export function formatElectionForExport(
     },
   };
 }
-interface ColorTintRecord {
-  Customer: string;
-  'Election ID': string;
-  'Ballot Style Split Name': string;
-  'Ballot Style ID': string;
-  Color: string;
-  Notes: string;
-}
-const colorTintsCsv = readFileSync(
-  join(__dirname, '../src/color-tints.csv'),
-  'utf8'
-);
-const colorTints: ColorTintRecord[] = parse(colorTintsCsv, { columns: true });
 
 export function createBallotPropsForTemplate(
   templateId: BallotTemplateId,
@@ -117,26 +101,25 @@ export function createBallotPropsForTemplate(
       (bs) => bs.id === props.ballotStyleId
     );
     const split = getPrecinctSplitForBallotStyle(precinct, ballotStyle);
-    let colorTint = colorTints
-      .find(
-        (tintRecord) =>
-          tintRecord['Election ID'] === election.id &&
-          tintRecord['Ballot Style ID'] === ballotStyle.id
-      )
-      ?.['Color'].toUpperCase();
-    if (colorTint === 'WHITE') {
-      colorTint = undefined;
-    }
-    if (colorTint) {
-      assert(colorTint in ColorTints, `Invalid color tint: ${colorTint}`);
-    }
     return {
       ...props,
       electionTitleOverride: split.electionTitleOverride,
       electionSealOverride: split.electionSealOverride,
       clerkSignatureImage: split.clerkSignatureImage,
       clerkSignatureCaption: split.clerkSignatureCaption,
-      colorTint: colorTint as ColorTint,
+    };
+  }
+
+  function addColorTintByParty(props: BaseBallotProps): NhPrimaryBallotProps {
+    const party = assertDefined(
+      getPartyForBallotStyle({
+        election,
+        ballotStyleId: props.ballotStyleId,
+      })
+    );
+    return {
+      ...props,
+      colorTint: party?.abbrev.startsWith('D') ? 'BLUE' : 'RED',
     };
   }
 
@@ -145,11 +128,13 @@ export function createBallotPropsForTemplate(
     compact,
   }));
   switch (templateId) {
-    case 'NhStateBallot':
-    case 'NhPrimaryBallot':
     case 'NhBallot':
       return baseBallotProps.map(buildNhBallotProps);
 
+    case 'NhPrimaryBallot':
+      return baseBallotProps.map(addColorTintByParty);
+
+    case 'NhStateBallot':
     case 'VxDefaultBallot':
       return baseBallotProps;
 
