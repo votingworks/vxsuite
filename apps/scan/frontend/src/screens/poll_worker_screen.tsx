@@ -37,7 +37,7 @@ import {
   PollsFlowPrinterSummary,
   getPollsFlowPrinterSummary,
 } from '../utils/printer';
-import { FujitsuPostPrintScreen } from './poll_worker_fujitsu_post_print_screen';
+import { PostPrintScreen } from './poll_worker_post_print_screen';
 import { Screen } from './poll_worker_shared';
 import { CenteredText, Screen as PlainScreen } from '../components/layout';
 import { PollWorkerLoadAndReprintButton } from '../components/printer_management/poll_worker_load_and_reprint_button';
@@ -488,7 +488,7 @@ function PollWorkerScreenContents({
         );
       case 'post-print':
         return (
-          <FujitsuPostPrintScreen
+          <PostPrintScreen
             isPostPollsTransition={pollWorkerFlowState.isAfterPollsTransition}
             pollsTransitionType={pollWorkerFlowState.transitionType}
             electionDefinition={electionDefinition}

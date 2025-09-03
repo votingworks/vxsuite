@@ -45,7 +45,7 @@ function getReportManifest(
   });
 }
 
-export function FujitsuPostPrintScreen({
+export function PostPrintScreen({
   electionDefinition,
   pollsTransitionType,
   isPostPollsTransition,
