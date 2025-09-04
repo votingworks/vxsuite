@@ -60,7 +60,7 @@ export async function renderTestModeBallotWithoutLanguageContext(
   const layout = getLayout(
     MACHINE_TYPE,
     ballotStyleId,
-    electionDefinition
+    electionDefinition.election
   ).unsafeUnwrap();
 
   const ballot = (
@@ -101,7 +101,7 @@ export async function renderBallot({
     const layout = getLayout(
       MACHINE_TYPE,
       ballotStyleId,
-      electionDefinition,
+      electionDefinition.election,
       i
     );
 

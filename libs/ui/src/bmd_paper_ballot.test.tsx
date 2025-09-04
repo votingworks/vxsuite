@@ -531,7 +531,7 @@ describe('getLayout', () => {
       const layoutResult = getLayout(
         machineType,
         ballotStyleId,
-        electionDef,
+        electionDef.election,
         offset
       );
 

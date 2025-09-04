@@ -189,10 +189,9 @@ export class NoLayoutOptionError extends Error {
 export function getLayout(
   machineType: MachineType,
   ballotStyleId: BallotStyleId,
-  electionDefinition: ElectionDefinition,
+  election: Election,
   densityOffset: number = 0
 ): Result<Layout, NoLayoutOptionError> {
-  const { election } = electionDefinition;
   const ballotStyle = getBallotStyle({ ballotStyleId, election });
   assert(ballotStyle);
   const contests = getContests({ ballotStyle, election });
@@ -632,7 +631,11 @@ export function BmdPaperBallot({
 
   const ballotLayout =
     layout ??
-    getLayout(machineType, ballotStyleId, electionDefinition).unsafeUnwrap();
+    getLayout(
+      machineType,
+      ballotStyleId,
+      electionDefinition.election
+    ).unsafeUnwrap();
 
   const numColumns = Math.ceil(contests.length / ballotLayout.maxRows);
 
