@@ -294,7 +294,7 @@ function PollWorkerScreenContents({
   const printReportMutation = printReport.useMutation();
   const generateVxQrCode = generateQuickResultsQrCodeValue.useQuery();
   // const testQrStringAlpha = 'abcdefghij'.repeat(120); // 10 * 100 = 1000 digits
-  const encoding = 'M';
+  const encoding = 'L';
   const testQrStringNumPrefix = `48976`; // 4 = digit encoding chars, 8976 = total num ballots.
   const testNum4Digit = '01234'.repeat(635);
   console.log(
@@ -509,13 +509,7 @@ function PollWorkerScreenContents({
           <Screen>
             <CenteredText>
               {generateVxQrCode.data && (
-                <QrCode
-                  value={[
-                    generateVxQrCode.data,
-                    testQrStringNumPrefix + testNum4Digit,
-                  ]}
-                  level={encoding}
-                />
+                <QrCode value={generateVxQrCode.data} level={encoding} />
               )}
             </CenteredText>
           </Screen>
