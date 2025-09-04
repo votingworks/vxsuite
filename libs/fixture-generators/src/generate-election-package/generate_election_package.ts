@@ -39,7 +39,7 @@ export async function generateElectionPackage(
   assetDirectoryPath: string,
   isMultiLanguage: boolean,
   priorElectionPackage?: ElectionPackage
-): Promise<[string, string]> {
+): Promise<[string, string, string]> {
   const renderer = await createPlaywrightRenderer();
 
   const zip = new JsZip();
@@ -127,5 +127,5 @@ export async function generateElectionPackage(
 
   await writeFile(packageFilePath, zipContents);
   await writeFile(electionFilePath, electionDefinition.electionData);
-  return [electionDefinition.ballotHash, electionPackageHash];
+  return [electionDefinition.ballotHash, electionPackageHash, fileName];
 }
