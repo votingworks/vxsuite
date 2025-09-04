@@ -1,13 +1,16 @@
 import { Readable } from 'node:stream';
+import * as fs from 'node:fs/promises';
 import { Buffer } from 'node:buffer';
 import { ElectionDefinition, Tabulation } from '@votingworks/types';
 import { compressTally } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import { constructPrefixedMessage } from './signatures';
 import { signMessage } from './cryptography';
 import {
   constructSignedQuickResultsReportingConfig,
   SignedQuickResultsReportingConfig,
 } from './config';
+import { parseCert } from './certs';
 
 interface SignedQuickResultsReportingInput {
   electionDefinition: ElectionDefinition;
@@ -60,8 +63,21 @@ export async function generateSignedQuickResultsReportingUrl(
     signingPrivateKey: config.machinePrivateKey,
   });
 
+  const machineCert = await fs.readFile(config.machineCertPath);
+  const certDetails = await parseCert(machineCert);
+  // TODO add in cert to URL
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const machineCertString = machineCert
+    .toString('utf-8')
+    // Remove the standard PEM header and footer to make the QR code as small as possible
+    .replace('-----BEGIN CERTIFICATE-----', '')
+    .replace('-----END CERTIFICATE-----', '');
+  assert(certDetails.component !== 'card');
+
   const signedQuickResultsReportingUrl = `${quickResultsReportingUrl}/?p=${encodeURIComponent(
     message
   )}&s=${encodeURIComponent(messageSignature.toString('base64url'))}`;
+  const sizeInBytes = Buffer.byteLength(signedQuickResultsReportingUrl, 'utf8');
+  console.log('url to encode size in bytes', sizeInBytes);
   return signedQuickResultsReportingUrl;
 }

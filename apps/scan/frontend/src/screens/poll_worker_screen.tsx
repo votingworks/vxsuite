@@ -13,6 +13,7 @@ import {
   H6,
   Font,
   H5,
+  QrCode,
 } from '@votingworks/ui';
 import { getPollsReportTitle } from '@votingworks/utils';
 import { ElectionDefinition, PollsTransitionType } from '@votingworks/types';
@@ -33,6 +34,7 @@ import {
   getPollsInfo,
   useApiClient,
   getConfig,
+  generateQuickResultsQrCodeValue,
 } from '../api';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 import {
@@ -61,6 +63,9 @@ type PollWorkerFlowState =
     }
   | {
       type: 'printing-report';
+    }
+  | {
+      type: 'view-qr-code';
     }
   | {
       type: 'post-print';
@@ -196,11 +201,13 @@ function ResumeVotingPromptScreen({
 function ClosePollsPromptScreen({
   onConfirm,
   onClose,
+  onViewQrCode,
   printerSummary,
   mustInsertUsbDriveToContinue,
 }: {
   onConfirm: () => void;
   onClose: () => void;
+  onViewQrCode: () => void;
   printerSummary: PollsFlowPrinterSummary;
   mustInsertUsbDriveToContinue: boolean;
 }): JSX.Element {
@@ -210,6 +217,7 @@ function ClosePollsPromptScreen({
         <P>Do you want to close the polls?</P>
         <P>
           <Button onPress={onClose}>Menu</Button>{' '}
+          <Button onPress={onViewQrCode}>View QR Code</Button>{' '}
           <Button
             variant="primary"
             onPress={onConfirm}
@@ -284,6 +292,7 @@ function PollWorkerScreenContents({
   const pauseVotingMutation = pauseVotingApi.useMutation();
   const resumeVotingMutation = resumeVotingApi.useMutation();
   const printReportMutation = printReport.useMutation();
+  const generateVxQrCode = generateQuickResultsQrCodeValue.useQuery();
 
   const [
     isShowingBallotsAlreadyScannedScreen,
@@ -353,6 +362,12 @@ function PollWorkerScreenContents({
       transitionType: 'open_polls',
       isAfterPollsTransition: true,
       printResult,
+    });
+  }
+
+  function viewQrCode() {
+    setPollWorkerFlowState({
+      type: 'view-qr-code',
     });
   }
 
@@ -455,6 +470,7 @@ function PollWorkerScreenContents({
           <ClosePollsPromptScreen
             onConfirm={closePolls}
             onClose={showAllPollWorkerActions}
+            onViewQrCode={viewQrCode}
             printerSummary={printerSummary}
             mustInsertUsbDriveToContinue={mustInsertUsbDriveToContinue}
           />
@@ -476,6 +492,18 @@ function PollWorkerScreenContents({
             <LoadingAnimation />
             <CenteredText>
               <H1>Printing Report…</H1>
+            </CenteredText>
+          </Screen>
+        );
+      case 'view-qr-code':
+        return (
+          <Screen>
+            <CenteredText>
+              {generateVxQrCode.data && (
+                <QrCode value={generateVxQrCode.data} level="M" />
+              )}
+              <br />
+              <Button onPress={showAllPollWorkerActions}>Back</Button>
             </CenteredText>
           </Screen>
         );
@@ -587,6 +615,7 @@ function PollWorkerScreenContents({
               >
                 Close Polls
               </Button>
+              <Button onPress={viewQrCode}>View QR Code</Button>
             </ButtonGrid>
             <H5>Other Actions</H5>
             <ButtonGrid>
