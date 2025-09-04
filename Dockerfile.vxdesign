@@ -17,7 +17,9 @@ RUN apt update && apt install -y --no-install-recommends \
   tar \
   xz-utils \
   zip \
-  unzip
+  unzip \
+  openssh-server \
+  iproute2
 
 # VxSuite transitive deps:
 RUN sudo apt update && apt install -y --no-install-recommends \
@@ -68,6 +70,10 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | b
   pnpm -v
 
 RUN curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain=1.86.0 -y
+
+# Setup Heroku exec
+RUN echo '[ -z "$SSH_CLIENT" ] && source <(curl --fail --retry 3 -sSL "$HEROKU_EXEC_URL")' > /app/.profile.d/heroku-exec.sh
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
 COPY . .
 
