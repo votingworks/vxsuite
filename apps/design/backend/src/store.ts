@@ -37,6 +37,7 @@ import {
   CandidateContest,
   ElectionType,
   Signature,
+  LaCustomBallotContent,
 } from '@votingworks/types';
 import { v4 as uuid } from 'uuid';
 import { BaseLogger } from '@votingworks/logging';
@@ -594,7 +595,7 @@ export class Store {
         ballotsFinalizedAt: Date | null;
         createdAt: Date;
         ballotLanguageCodes: LanguageCode[];
-        customBallotContent: Election['customBallotContent'];
+        customBallotContent: LaCustomBallotContent | null;
       };
       assert(electionRow, 'Election not found');
 
@@ -849,7 +850,7 @@ export class Store {
           metadataEncoding: 'qr-code',
         },
         ballotStrings: {},
-        customBallotContent: electionRow.customBallotContent,
+        customBallotContent: electionRow.customBallotContent ?? undefined,
       };
 
       const systemSettings = safeParseSystemSettings(
