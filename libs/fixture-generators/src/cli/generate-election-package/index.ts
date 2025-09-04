@@ -127,7 +127,11 @@ export async function main(
     );
     return 0;
   } catch (e) {
-    stderr.write(`Unexpected error generating election package: ${e}`);
+    stderr.write(
+      `Unexpected error generating election package: ${
+        (e as Error).message || JSON.stringify(e, null, 2)
+      }`
+    );
     return 1;
   }
 }

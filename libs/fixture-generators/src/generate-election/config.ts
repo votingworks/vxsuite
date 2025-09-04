@@ -1,7 +1,7 @@
 /* eslint-disable vx/gts-jsdoc */
 import z from 'zod/v4';
 
-const positiveInt = z.number().int().min(1);
+export const positiveInt = z.number().int().min(1);
 
 export const GenerateElectionConfigSchema = z.object({
   numDistricts: positiveInt,
