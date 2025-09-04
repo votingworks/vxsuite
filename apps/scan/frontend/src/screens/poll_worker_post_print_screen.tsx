@@ -13,7 +13,7 @@ import {
   getPollsReportTitle,
   isPollsSuspensionTransition,
 } from '@votingworks/utils';
-import type { FujitsuPrintResult } from '@votingworks/scan-backend';
+import type { PrintResult } from '@votingworks/fujitsu-thermal-printer';
 import { Screen, getPostPollsTransitionHeaderText } from './poll_worker_shared';
 import { getPrinterStatus, printReportSection } from '../api';
 import { PollWorkerLoadAndReprintButton } from '../components/printer_management/poll_worker_load_and_reprint_button';
@@ -45,7 +45,7 @@ function getReportManifest(
   });
 }
 
-export function FujitsuPostPrintScreen({
+export function PostPrintScreen({
   electionDefinition,
   pollsTransitionType,
   isPostPollsTransition,
@@ -54,12 +54,12 @@ export function FujitsuPostPrintScreen({
   electionDefinition: ElectionDefinition;
   pollsTransitionType: PollsTransitionType;
   isPostPollsTransition: boolean;
-  initialPrintResult: FujitsuPrintResult;
+  initialPrintResult: PrintResult;
 }): JSX.Element {
   // we start on index 1 because we printed the first report before transitioning to this screen
   const [printIndex, setPrintIndex] = useState(1);
   const [printResult, setPrintResult] =
-    useState<Optional<FujitsuPrintResult>>(initialPrintResult);
+    useState<Optional<PrintResult>>(initialPrintResult);
   const printReportSectionMutation = printReportSection.useMutation();
   const printReportSectionMutateAsync = printReportSectionMutation.mutateAsync;
   const printerStatusQuery = getPrinterStatus.useQuery();
@@ -86,7 +86,6 @@ export function FujitsuPostPrintScreen({
 
   assert(printerStatusQuery.isSuccess);
   const printerStatus = printerStatusQuery.data;
-  assert(printerStatus.scheme === 'hardware-v4');
   const disablePrinting = printerStatus.state !== 'idle';
 
   if (!printResult) {

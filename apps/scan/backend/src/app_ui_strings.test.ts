@@ -22,12 +22,11 @@ import {
   safeParseElectionDefinition,
   testCdfBallotDefinition,
 } from '@votingworks/types';
-import { createMockPrinterHandler } from '@votingworks/printing';
 import { mockBaseLogger, mockLogger } from '@votingworks/logging';
+import { createMockFujitsuPrinterHandler } from '@votingworks/fujitsu-thermal-printer';
 import { Store } from './store';
 import { buildApi } from './app';
 import { createWorkspace, Workspace } from './util/workspace';
-import { wrapLegacyPrinter } from './printing/printer';
 import {
   buildMockLogger,
   createPrecinctScannerStateMachineMock,
@@ -61,7 +60,7 @@ beforeEach(() => {
 });
 
 const mockUsbDrive = createMockUsbDrive();
-const { printer } = createMockPrinterHandler();
+const { printer } = createMockFujitsuPrinterHandler();
 const mockAuth = buildMockInsertedSmartCardAuth(vi.fn);
 const electionDefinition = safeParseElectionDefinition(
   JSON.stringify(testCdfBallotDefinition)
@@ -79,7 +78,7 @@ runUiStringApiTests({
       machine: createPrecinctScannerStateMachineMock(),
       workspace,
       usbDrive: mockUsbDrive.usbDrive,
-      printer: wrapLegacyPrinter(printer),
+      printer,
       logger: buildMockLogger(mockAuth, workspace),
     }).methods(),
   store: store.getUiStringsStore(),
@@ -118,7 +117,7 @@ describe('configureFromElectionPackageOnUsbDrive', () => {
         machine: createPrecinctScannerStateMachineMock(),
         workspace,
         usbDrive: mockUsbDrive.usbDrive,
-        printer: wrapLegacyPrinter(printer),
+        printer,
         logger: buildMockLogger(mockAuth, workspace),
       })
         .methods()
@@ -138,7 +137,7 @@ describe('unconfigureElection', () => {
         machine: createPrecinctScannerStateMachineMock(),
         workspace,
         usbDrive: mockUsbDrive.usbDrive,
-        printer: wrapLegacyPrinter(printer),
+        printer,
         logger: buildMockLogger(mockAuth, workspace),
       })
         .methods()

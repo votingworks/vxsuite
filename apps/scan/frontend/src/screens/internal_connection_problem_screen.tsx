@@ -1,5 +1,5 @@
 import { H1, P, PowerDownButton, appStrings } from '@votingworks/ui';
-import type { PrinterStatus } from '@votingworks/scan-backend';
+import type { PrinterStatus } from '@votingworks/fujitsu-thermal-printer';
 import { CenteredText, ScreenMainCenterChild } from '../components/layout';
 
 function PrinterErrorMessage({
@@ -7,10 +7,6 @@ function PrinterErrorMessage({
 }: {
   printerStatus: PrinterStatus;
 }): JSX.Element | null {
-  /* istanbul ignore next - unreachable safety check @preserve */
-  if (printerStatus.scheme === 'hardware-v3') {
-    return null;
-  }
   /* istanbul ignore next - unreachable safety check @preserve */
   if (printerStatus.state !== 'error') {
     return null;
@@ -32,10 +28,7 @@ export function InternalConnectionProblemScreen({
   isScannerConnected,
   isPollWorkerAuth,
 }: Props): JSX.Element {
-  // Only support v4 hardware for showing connection status errors.
-  const isPrinterConnectedSuccessfully = !(
-    printerStatus.scheme === 'hardware-v4' && printerStatus.state === 'error'
-  );
+  const isPrinterConnectedSuccessfully = printerStatus.state !== 'error';
   return (
     <ScreenMainCenterChild
       ballotCountOverride={scannedBallotCount}
@@ -71,7 +64,6 @@ export function PrinterDisconnectedPreview(): JSX.Element {
       isPollWorkerAuth={false}
       isScannerConnected
       printerStatus={{
-        scheme: 'hardware-v4',
         state: 'error',
         type: 'disconnected',
       }}
@@ -86,7 +78,6 @@ export function PrinterHardwareErrorPreview(): JSX.Element {
       isPollWorkerAuth={false}
       isScannerConnected
       printerStatus={{
-        scheme: 'hardware-v4',
         state: 'error',
         type: 'receive-data',
       }}
@@ -101,7 +92,7 @@ export function ScannerDisconnectedPreview(): JSX.Element {
     <InternalConnectionProblemScreen
       isPollWorkerAuth={false}
       isScannerConnected={false}
-      printerStatus={{ scheme: 'hardware-v4', state: 'idle' }}
+      printerStatus={{ state: 'idle' }}
       scannedBallotCount={42}
     />
   );
@@ -113,7 +104,7 @@ export function ScannerDisconnectedPollWorkerPreview(): JSX.Element {
     <InternalConnectionProblemScreen
       isPollWorkerAuth
       isScannerConnected={false}
-      printerStatus={{ scheme: 'hardware-v4', state: 'idle' }}
+      printerStatus={{ state: 'idle' }}
       scannedBallotCount={42}
     />
   );
@@ -126,7 +117,6 @@ export function PrinterScannerDisconnectedPreview(): JSX.Element {
       isPollWorkerAuth={false}
       isScannerConnected={false}
       printerStatus={{
-        scheme: 'hardware-v4',
         state: 'error',
         type: 'disconnected',
       }}

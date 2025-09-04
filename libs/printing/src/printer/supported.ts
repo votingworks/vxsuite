@@ -38,11 +38,6 @@ export function getPpdPath(printerConfig: PrinterConfig): string {
   );
 }
 
-export const BROTHER_THERMAL_PRINTER_CONFIG = find(
-  SUPPORTED_PRINTER_CONFIGS,
-  (config) => config.label === 'Brother PJ-822'
-);
-
 export const HP_LASER_PRINTER_CONFIG = find(
   SUPPORTED_PRINTER_CONFIGS,
   (config) => config.label === 'HP Color LaserJet Pro M4001dn'

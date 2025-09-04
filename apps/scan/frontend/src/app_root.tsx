@@ -233,8 +233,7 @@ export function AppRoot(): JSX.Element | null {
   }
 
   const isInternalConnectionProblem =
-    scannerStatus.state === 'disconnected' ||
-    (printerStatus.scheme === 'hardware-v4' && printerStatus.state === 'error');
+    scannerStatus.state === 'disconnected' || printerStatus.state === 'error';
   if (isInternalConnectionProblem) {
     return (
       <InternalConnectionProblemScreen
@@ -303,10 +302,7 @@ export function AppRoot(): JSX.Element | null {
     return <ScannerCoverOpenScreen />;
   }
 
-  if (
-    printerStatus.scheme === 'hardware-v4' &&
-    printerStatus.state === 'cover-open'
-  ) {
+  if (printerStatus.state === 'cover-open') {
     return <PrinterCoverOpenScreen />;
   }
 

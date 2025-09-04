@@ -17,7 +17,6 @@ export function LoadPaperModal({
   const printerStatusQuery = getPrinterStatus.useQuery();
   const printerStatus = printerStatusQuery.data;
   assert(printerStatus);
-  assert(printerStatus.scheme === 'hardware-v4');
 
   const [hasRemovedPaperRollHolder, setHasRemovedPaperRollHolder] = useState(
     printerStatus.state === 'cover-open'
@@ -26,7 +25,6 @@ export function LoadPaperModal({
   // advance the user flow when we detect the printer was opened
   useQueryChangeListener(printerStatusQuery, {
     onChange: (newPrinterStatus) => {
-      assert(newPrinterStatus.scheme === 'hardware-v4');
       if (newPrinterStatus.state === 'cover-open') {
         setHasRemovedPaperRollHolder(true);
       }

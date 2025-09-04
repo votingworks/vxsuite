@@ -6,7 +6,6 @@ import {
   ScanReadinessReportContents,
   UpsDiagnosticModalButton,
 } from '@votingworks/ui';
-import { assert } from '@votingworks/basics';
 import { Screen } from '../components/layout';
 import {
   getConfig,
@@ -78,7 +77,6 @@ export function DiagnosticsScreen({
   }
 
   const printerStatus = printerStatusQuery.data;
-  assert(printerStatus.scheme === 'hardware-v4');
   const scannerStatus = scannerStatusQuery.data;
   const usbDriveStatus = usbDriveStatusQuery.data;
   const {

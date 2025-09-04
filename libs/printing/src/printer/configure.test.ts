@@ -1,6 +1,6 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { ok } from '@votingworks/basics';
-import { BROTHER_THERMAL_PRINTER_CONFIG, getPpdPath } from '.';
+import { HP_LASER_PRINTER_CONFIG, getPpdPath } from '.';
 import { exec } from '../utils/exec';
 import { DEFAULT_MANAGED_PRINTER_NAME, configurePrinter } from './configure';
 
@@ -23,7 +23,7 @@ test('calls lpadmin with expected args', async () => {
   );
 
   const uri = 'usb://Make/Model';
-  const config = BROTHER_THERMAL_PRINTER_CONFIG;
+  const config = HP_LASER_PRINTER_CONFIG;
   await configurePrinter({
     uri,
     config,

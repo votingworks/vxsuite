@@ -8,21 +8,17 @@ import {
   InsertedSmartCardAuth,
   PollsState,
   PrecinctSelection,
-  PrinterStatus,
   DiagnosticRecord,
   DiagnosticOutcome,
 } from '@votingworks/types';
 import { createMockClient } from '@votingworks/grout-test-utils';
 import type {
   Api,
-  FujitsuPrintResult,
-  FujitsuPrinterStatus,
   MachineConfig,
   OpenPollsResult,
   PollsTransition,
   PrecinctScannerConfig,
   PrecinctScannerStatus,
-  PrintResult,
   SoundName,
 } from '@votingworks/scan-backend';
 import { deferred, err, ok } from '@votingworks/basics';
@@ -35,8 +31,11 @@ import {
 } from '@votingworks/test-utils';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { TestErrorBoundary, mockUsbDriveStatus } from '@votingworks/ui';
-import { BROTHER_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
 import type { DiskSpaceSummary, ExportDataResult } from '@votingworks/backend';
+import type {
+  PrinterStatus,
+  PrintResult,
+} from '@votingworks/fujitsu-thermal-printer';
 import { mockPollsInfo } from './mock_polls_info';
 import { ApiProvider } from '../../src/api_provider';
 
@@ -73,26 +72,13 @@ export function createApiMock() {
     mockApiClient.getAuthStatus.expectRepeatedCallsWith().resolves(authStatus);
   }
 
-  function setPrinterStatusV3(printerStatus: Partial<PrinterStatus>): void {
-    // Make sure we clear existing mocks in case printer status was set to v4
-    mockApiClient.getPrinterStatus.reset();
-    mockApiClient.getPrinterStatus.expectRepeatedCallsWith().resolves({
-      scheme: 'hardware-v3',
-      connected: true,
-      config: BROTHER_THERMAL_PRINTER_CONFIG,
-      ...printerStatus,
-    });
-  }
-
-  function setPrinterStatusV4(
-    printerStatus: FujitsuPrinterStatus = { state: 'idle' }
+  function setPrinterStatus(
+    printerStatus: PrinterStatus = { state: 'idle' }
   ): void {
-    // Make sure we clear existing mocks in case printer status was set to v3
     mockApiClient.getPrinterStatus.reset();
-    mockApiClient.getPrinterStatus.expectRepeatedCallsWith().resolves({
-      scheme: 'hardware-v4',
-      ...printerStatus,
-    });
+    mockApiClient.getPrinterStatus
+      .expectRepeatedCallsWith()
+      .resolves(printerStatus);
   }
 
   return {
@@ -100,8 +86,7 @@ export function createApiMock() {
 
     setAuthStatus,
 
-    setPrinterStatusV3,
-    setPrinterStatusV4,
+    setPrinterStatus,
 
     authenticateAsVendor() {
       setAuthStatus({
@@ -251,44 +236,13 @@ export function createApiMock() {
         });
     },
 
-    expectPrintReportV3(pageCount = 1) {
-      mockApiClient.printReport.expectCallWith().resolves({
-        scheme: 'hardware-v3',
-        pageCount,
-      });
-    },
-
-    expectPrintReportV4(errorStatus?: FujitsuPrinterStatus): {
-      resolve: () => void;
-    } {
-      const { resolve, promise } = deferred<PrintResult>();
-
-      mockApiClient.printReport.expectCallWith().returns(promise);
-
-      return {
-        resolve: () => {
-          if (errorStatus) {
-            resolve({
-              scheme: 'hardware-v4',
-              result: err(errorStatus),
-            });
-          } else {
-            resolve({
-              scheme: 'hardware-v4',
-              result: ok(),
-            });
-          }
-        },
-      };
-    },
-
     expectPrintReportSection(
       index: number,
-      errorStatus?: FujitsuPrinterStatus
+      errorStatus?: PrinterStatus
     ): {
       resolve: () => void;
     } {
-      const { resolve, promise } = deferred<FujitsuPrintResult>();
+      const { resolve, promise } = deferred<PrintResult>();
 
       mockApiClient.printReportSection
         .expectCallWith({ index })
@@ -305,10 +259,10 @@ export function createApiMock() {
       };
     },
 
-    expectPrintTestPage(result: FujitsuPrintResult = ok()): {
+    expectPrintTestPage(result: PrintResult = ok()): {
       resolve: () => void;
     } {
-      const { resolve, promise } = deferred<FujitsuPrintResult>();
+      const { resolve, promise } = deferred<PrintResult>();
 
       mockApiClient.printTestPage.expectCallWith().returns(promise);
 

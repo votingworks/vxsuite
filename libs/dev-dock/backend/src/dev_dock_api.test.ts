@@ -23,7 +23,6 @@ import { Server } from 'node:http';
 import { typedAs } from '@votingworks/basics';
 import { constructElectionKey, PrinterStatus } from '@votingworks/types';
 import {
-  BROTHER_THERMAL_PRINTER_CONFIG,
   getMockConnectedPrinterStatus,
   HP_LASER_PRINTER_CONFIG,
 } from '@votingworks/printing';
@@ -256,31 +255,6 @@ test('HP printer config', async () => {
   await expect(apiClient.getPrinterStatus()).resolves.toEqual(
     typedAs<PrinterStatus>(
       getMockConnectedPrinterStatus(HP_LASER_PRINTER_CONFIG)
-    )
-  );
-
-  await apiClient.disconnectPrinter();
-  await expect(apiClient.getPrinterStatus()).resolves.toEqual(
-    typedAs<PrinterStatus>({
-      connected: false,
-    })
-  );
-});
-
-test('Brother printer config', async () => {
-  const { apiClient } = setup({
-    printerConfig: BROTHER_THERMAL_PRINTER_CONFIG,
-  });
-  await expect(apiClient.getPrinterStatus()).resolves.toEqual(
-    typedAs<PrinterStatus>({
-      connected: false,
-    })
-  );
-
-  await apiClient.connectPrinter();
-  await expect(apiClient.getPrinterStatus()).resolves.toEqual(
-    typedAs<PrinterStatus>(
-      getMockConnectedPrinterStatus(BROTHER_THERMAL_PRINTER_CONFIG)
     )
   );
 

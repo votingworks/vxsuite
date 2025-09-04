@@ -24,22 +24,6 @@
     "supportsIpp": true
   },
   {
-    "label": "Brother PJ-822",
-    "vendorId": 1273,
-    "productId": 8418,
-    "baseDeviceUri": "usb://Brother/PJ-822",
-    "ppd": "brother_pj822_printer_en.ppd",
-    "supportsIpp": false
-  },
-  {
-    "label": "Brother PJ-823",
-    "vendorId": 1273,
-    "productId": 8419,
-    "baseDeviceUri": "usb://Brother/PJ-823",
-    "ppd": "brother_pj823_printer_en.ppd",
-    "supportsIpp": false
-  },
-  {
     "label": "Citizen CT-E351",
     "vendorId": 7568,
     "productId": 8432,

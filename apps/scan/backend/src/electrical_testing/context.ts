@@ -3,7 +3,7 @@ import { TaskController } from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { DateTime } from 'luxon';
-import { Printer } from '../printing/printer';
+import { FujitsuThermalPrinterInterface } from '@votingworks/fujitsu-thermal-printer';
 import { Workspace } from '../util/workspace';
 import { ScanningSession } from './analysis/scan';
 import { SimpleScannerClient } from './simple_scanner_client';
@@ -24,7 +24,7 @@ export interface ServerContext {
     string
   >;
   logger: Logger;
-  printer: Printer;
+  printer: FujitsuThermalPrinterInterface;
   scannerClient: SimpleScannerClient;
   usbDrive: UsbDrive;
   workspace: Workspace;

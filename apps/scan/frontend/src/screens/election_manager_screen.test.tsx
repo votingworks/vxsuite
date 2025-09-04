@@ -8,7 +8,7 @@ import { mockKiosk } from '@votingworks/test-utils';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { err, ok } from '@votingworks/basics';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import { FujitsuPrinterStatus } from '@votingworks/scan-backend';
+import { PrinterStatus } from '@votingworks/fujitsu-thermal-printer';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import {
   act,
@@ -43,7 +43,7 @@ beforeEach(() => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.expectGetUsbDriveStatus('mounted');
-  apiMock.setPrinterStatusV3({ connected: true });
+  apiMock.setPrinterStatus();
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
 });
 
@@ -577,9 +577,9 @@ test('renders buttons for saving logs', async () => {
   await screen.findByText('Logs Saved');
 });
 
-test('shows diagnostics button for hardware v4 and renders screen after click', async () => {
+test('shows diagnostics button and renders screen after click', async () => {
   apiMock.expectGetConfig();
-  apiMock.setPrinterStatusV4({ state: 'no-paper' });
+  apiMock.setPrinterStatus({ state: 'no-paper' });
   apiMock.expectGetDiskSpaceSummary();
   apiMock.expectGetMostRecentScannerDiagnostic();
   apiMock.expectGetMostRecentPrinterDiagnostic();
@@ -599,23 +599,16 @@ test('shows diagnostics button for hardware v4 and renders screen after click', 
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
 });
 
-test('no diagnostics button shown for hardware v3', async () => {
-  apiMock.expectGetConfig();
-  renderScreen({
-    scannerStatus: statusNoPaper,
-    usbDrive: mockUsbDriveStatus('mounted'),
+describe('printer management', () => {
+  beforeEach(() => {
+    // these tests start with non-idle statuses, so reset the default mocked
+    // for other tests in this suite
+    apiMock.mockApiClient.getPrinterStatus.reset();
   });
 
-  await screen.findByRole('heading', { name: 'Election Manager Menu' });
-  userEvent.click(screen.getByRole('tab', { name: 'More' }));
-  await screen.findByRole('heading', { name: 'Election Manager Menu' });
-  expect(screen.queryByText('Diagnostics')).not.toBeInTheDocument();
-});
-
-describe('hardware V4 printer management', () => {
   test('loading paper + printing test page', async () => {
     apiMock.expectGetConfig();
-    apiMock.setPrinterStatusV4({ state: 'no-paper' });
+    apiMock.setPrinterStatus({ state: 'no-paper' });
     renderScreen({
       scannerStatus: statusNoPaper,
       usbDrive: mockUsbDriveStatus('mounted'),
@@ -633,9 +626,9 @@ describe('hardware V4 printer management', () => {
     userEvent.click(screen.getButton('Load Paper'));
     await screen.findByRole('alertdialog');
     screen.getByText('Remove Paper Roll Holder');
-    apiMock.setPrinterStatusV4({ state: 'cover-open' });
+    apiMock.setPrinterStatus({ state: 'cover-open' });
     await screen.findByText('Load New Paper Roll');
-    apiMock.setPrinterStatusV4({ state: 'idle' });
+    apiMock.setPrinterStatus({ state: 'idle' });
     await screen.findByText('Paper Detected');
     userEvent.click(screen.getButton('Cancel'));
     await waitFor(() => {
@@ -662,7 +655,7 @@ describe('hardware V4 printer management', () => {
   });
 
   test.each<{
-    status: FujitsuPrinterStatus;
+    status: PrinterStatus;
     message: string;
   }>([
     {
@@ -681,7 +674,7 @@ describe('hardware V4 printer management', () => {
     'uncommon printer status message - $message',
     async ({ status, message }) => {
       apiMock.expectGetConfig();
-      apiMock.setPrinterStatusV4(status);
+      apiMock.setPrinterStatus(status);
       renderScreen({
         scannerStatus: statusNoPaper,
         usbDrive: mockUsbDriveStatus('mounted'),

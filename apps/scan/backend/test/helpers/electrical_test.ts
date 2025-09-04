@@ -8,7 +8,6 @@ import {
 } from '../../src/electrical_testing/context';
 import { ScanningSession } from '../../src/electrical_testing/analysis/scan';
 import { SimpleScannerClient } from '../../src/electrical_testing/simple_scanner_client';
-import { wrapLegacyPrinter } from '../../src/printing/printer';
 import { AppContext, withApp } from './pdi_helpers';
 
 function createMockSimpleScannerClient(): Mocked<SimpleScannerClient> {
@@ -56,7 +55,7 @@ export const electricalTest = test.extend<{
       auth: appContext.mockAuth,
       cardTask,
       logger: appContext.logger,
-      printer: wrapLegacyPrinter(appContext.mockPrinterHandler.printer),
+      printer: appContext.mockFujitsuPrinterHandler.printer,
       printerTask,
       usbDrive: appContext.mockUsbDrive.usbDrive,
       scannerClient: mockSimpleScannerClient,

@@ -18,13 +18,11 @@ import { getPollsReportTitle } from '@votingworks/utils';
 import { ElectionDefinition, PollsTransitionType } from '@votingworks/types';
 import { Optional, assert, throwIllegalValue } from '@votingworks/basics';
 import styled from 'styled-components';
-import type {
-  PrecinctScannerPollsInfo,
-  PrintResult,
-} from '@votingworks/scan-backend';
+import type { PrecinctScannerPollsInfo } from '@votingworks/scan-backend';
+import type { PrintResult } from '@votingworks/fujitsu-thermal-printer';
 import {
   getUsbDriveStatus,
-  printReport,
+  printReportSection,
   getPrinterStatus,
   openPolls as openPollsApi,
   closePolls as closePollsApi,
@@ -39,8 +37,7 @@ import {
   PollsFlowPrinterSummary,
   getPollsFlowPrinterSummary,
 } from '../utils/printer';
-import { LegacyPostPrintScreen } from './poll_worker_legacy_post_print_screen';
-import { FujitsuPostPrintScreen } from './poll_worker_fujitsu_post_print_screen';
+import { PostPrintScreen } from './poll_worker_post_print_screen';
 import { Screen } from './poll_worker_shared';
 import { CenteredText, Screen as PlainScreen } from '../components/layout';
 import { PollWorkerLoadAndReprintButton } from '../components/printer_management/poll_worker_load_and_reprint_button';
@@ -283,7 +280,7 @@ function PollWorkerScreenContents({
   const closePollsMutation = closePollsApi.useMutation();
   const pauseVotingMutation = pauseVotingApi.useMutation();
   const resumeVotingMutation = resumeVotingApi.useMutation();
-  const printReportMutation = printReport.useMutation();
+  const printReportSectionMutation = printReportSection.useMutation();
 
   const [
     isShowingBallotsAlreadyScannedScreen,
@@ -347,7 +344,9 @@ function PollWorkerScreenContents({
       return;
     }
 
-    const printResult = await printReportMutation.mutateAsync();
+    const printResult = await printReportSectionMutation.mutateAsync({
+      index: 0,
+    });
     setPollWorkerFlowState({
       type: 'post-print',
       transitionType: 'open_polls',
@@ -363,7 +362,9 @@ function PollWorkerScreenContents({
       transitionType: 'close_polls',
     });
     await closePollsMutation.mutateAsync();
-    const printResult = await printReportMutation.mutateAsync();
+    const printResult = await printReportSectionMutation.mutateAsync({
+      index: 0,
+    });
     setPollWorkerFlowState({
       type: 'post-print',
       transitionType: 'close_polls',
@@ -379,7 +380,9 @@ function PollWorkerScreenContents({
       transitionType: 'pause_voting',
     });
     await pauseVotingMutation.mutateAsync();
-    const printResult = await printReportMutation.mutateAsync();
+    const printResult = await printReportSectionMutation.mutateAsync({
+      index: 0,
+    });
     setPollWorkerFlowState({
       type: 'post-print',
       transitionType: 'pause_voting',
@@ -394,7 +397,9 @@ function PollWorkerScreenContents({
       transitionType: 'resume_voting',
     });
     await resumeVotingMutation.mutateAsync();
-    const printResult = await printReportMutation.mutateAsync();
+    const printResult = await printReportSectionMutation.mutateAsync({
+      index: 0,
+    });
     setPollWorkerFlowState({
       type: 'post-print',
       transitionType: 'resume_voting',
@@ -413,7 +418,9 @@ function PollWorkerScreenContents({
     setPollWorkerFlowState({
       type: 'printing-report',
     });
-    const printResult = await printReportMutation.mutateAsync();
+    const printResult = await printReportSectionMutation.mutateAsync({
+      index: 0,
+    });
     setPollWorkerFlowState({
       type: 'post-print',
       transitionType,
@@ -480,21 +487,12 @@ function PollWorkerScreenContents({
           </Screen>
         );
       case 'post-print':
-        if (pollWorkerFlowState.printResult.scheme === 'hardware-v3') {
-          return (
-            <LegacyPostPrintScreen
-              isPostPollsTransition={pollWorkerFlowState.isAfterPollsTransition}
-              numPages={pollWorkerFlowState.printResult.pageCount}
-              transitionType={pollWorkerFlowState.transitionType}
-            />
-          );
-        }
         return (
-          <FujitsuPostPrintScreen
+          <PostPrintScreen
             isPostPollsTransition={pollWorkerFlowState.isAfterPollsTransition}
             pollsTransitionType={pollWorkerFlowState.transitionType}
             electionDefinition={electionDefinition}
-            initialPrintResult={pollWorkerFlowState.printResult.result}
+            initialPrintResult={pollWorkerFlowState.printResult}
           />
         );
       /* istanbul ignore next - compile-time check for completeness @preserve */
@@ -505,34 +503,21 @@ function PollWorkerScreenContents({
 
   const commonActions = (
     <React.Fragment>
-      {pollsInfo.pollsState !== 'polls_closed_initial' &&
-        (printerStatus.scheme === 'hardware-v4' ? (
-          <PollWorkerLoadAndReprintButton
-            reprint={() =>
-              reprintReport({
-                isAfterPollsTransition: false,
-                transitionType: pollsInfo.lastPollsTransition.type,
-              })
-            }
-            reprintText={`Print ${getPollsReportTitle(
-              pollsInfo.lastPollsTransition.type
-            )}`}
-            disablePrinting={!allowReprintingReport}
-            loadPaperText="Load Printer Paper"
-          />
-        ) : (
-          <Button
-            onPress={() =>
-              reprintReport({
-                isAfterPollsTransition: false,
-                transitionType: pollsInfo.lastPollsTransition.type,
-              })
-            }
-            disabled={!allowReprintingReport || !printerSummary.ready}
-          >
-            Print {getPollsReportTitle(pollsInfo.lastPollsTransition.type)}
-          </Button>
-        ))}
+      {pollsInfo.pollsState !== 'polls_closed_initial' && (
+        <PollWorkerLoadAndReprintButton
+          reprint={() =>
+            reprintReport({
+              isAfterPollsTransition: false,
+              transitionType: pollsInfo.lastPollsTransition.type,
+            })
+          }
+          reprintText={`Print ${getPollsReportTitle(
+            pollsInfo.lastPollsTransition.type
+          )}`}
+          disablePrinting={!allowReprintingReport}
+          loadPaperText="Load Printer Paper"
+        />
+      )}
       <SignedHashValidationButton apiClient={apiClient} />
       <PowerDownButton />
     </React.Fragment>

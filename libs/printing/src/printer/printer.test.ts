@@ -8,7 +8,7 @@ import {
 } from '@votingworks/utils';
 import { PrinterRichStatus } from '@votingworks/types';
 import { detectPrinter } from './printer';
-import { BROTHER_THERMAL_PRINTER_CONFIG, HP_LASER_PRINTER_CONFIG } from '.';
+import { CITIZEN_THERMAL_PRINTER_CONFIG, HP_LASER_PRINTER_CONFIG } from '.';
 import { MockFilePrinter } from './mocks/file_printer';
 
 const featureFlagMock = getFeatureFlagMock();
@@ -77,9 +77,9 @@ test('status and configuration', async () => {
   mockGetConnectedDeviceUris.expectCallWith().returns([]);
   expect(await printer.status()).toEqual({ connected: false });
 
-  const config = BROTHER_THERMAL_PRINTER_CONFIG;
-  const supportedPrinterUri1 = `${BROTHER_THERMAL_PRINTER_CONFIG.baseDeviceUri}/serial=1234`;
-  const supportedPrinterUri2 = `${HP_LASER_PRINTER_CONFIG.baseDeviceUri}/serial=1234`;
+  const config = CITIZEN_THERMAL_PRINTER_CONFIG;
+  const supportedPrinterUri1 = `${CITIZEN_THERMAL_PRINTER_CONFIG.baseDeviceUri}/serial=1234`;
+  const supportedPrinterUri2 = `${CITIZEN_THERMAL_PRINTER_CONFIG.baseDeviceUri}/serial=1234`;
   const unsupportedPrinterUri = 'usb://not-supported';
 
   // unsupported printer connected
@@ -92,7 +92,7 @@ test('status and configuration', async () => {
   mockConfigurePrinter
     .expectCallWith({
       uri: supportedPrinterUri1,
-      config: BROTHER_THERMAL_PRINTER_CONFIG,
+      config: CITIZEN_THERMAL_PRINTER_CONFIG,
     })
     .returns(undefined);
   expect(await printer.status()).toEqual({
@@ -167,8 +167,8 @@ describe('rich status', () => {
     const printer = detectPrinter(mockBaseLogger({ fn: vi.fn }));
 
     // connect printer
-    const uri = `${BROTHER_THERMAL_PRINTER_CONFIG.baseDeviceUri}/serial=1234`;
-    const config = BROTHER_THERMAL_PRINTER_CONFIG;
+    const uri = `${CITIZEN_THERMAL_PRINTER_CONFIG.baseDeviceUri}/serial=1234`;
+    const config = CITIZEN_THERMAL_PRINTER_CONFIG;
     mockGetConnectedDeviceUris.expectCallWith().returns([uri]);
     mockConfigurePrinter
       .expectCallWith({

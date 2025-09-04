@@ -41,10 +41,6 @@ import {
 } from '@votingworks/printing';
 import { SheetOf, mapSheet } from '@votingworks/types';
 import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
-import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
 import { Application } from 'express';
 import { Buffer } from 'node:buffer';
 import { readFile } from 'node:fs/promises';
@@ -55,10 +51,6 @@ import { Mocked, vi } from 'vitest';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock';
 import { Api, buildApp } from '../../src/app';
 import { Player as AudioPlayer } from '../../src/audio/player';
-import {
-  wrapFujitsuThermalPrinter,
-  wrapLegacyPrinter,
-} from '../../src/printing/printer';
 import {
   createPrecinctScannerStateMachine,
   delays,
@@ -122,11 +114,7 @@ export async function withApp(
     usbDrive: mockUsbDrive.usbDrive,
     clock,
   });
-  const printer = isFeatureFlagEnabled(
-    BooleanEnvironmentVariableName.USE_BROTHER_PRINTER
-  )
-    ? wrapLegacyPrinter(mockPrinterHandler.printer)
-    : wrapFujitsuThermalPrinter(mockFujitsuPrinterHandler.printer);
+  const { printer } = mockFujitsuPrinterHandler;
 
   const mockAudioPlayer = vi.mocked(
     new AudioPlayer('development', logger, 'pci.stereo')
