@@ -72,9 +72,12 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | b
 RUN curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain=1.86.0 -y
 
 # Setup Heroku exec
-ADD ./.profile.d /app/.profile.d
-RUN echo '[ -z "$SSH_CLIENT" ] && source <(curl --fail --retry 3 -sSL "$HEROKU_EXEC_URL")' > /app/.profile.d/heroku-exec.sh
-RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+RUN rm /bin/sh \
+ && ln -s /bin/bash /bin/sh \
+ && mkdir -p /app/.profile.d/ \
+ && printf '#!/usr/bin/env bash\n\nset +o posix\n\n[ -z "$SSH_CLIENT" ] && source <(curl --fail --retry 7 -sSL "$HEROKU_EXEC_URL")\n' > /app/.profile.d/heroku-exec.sh \
+ && chmod +x /app/.profile.d/heroku-exec.sh
+
 
 COPY . .
 
