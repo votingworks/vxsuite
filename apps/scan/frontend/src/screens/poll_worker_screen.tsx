@@ -502,6 +502,8 @@ function PollWorkerScreenContents({
               {generateVxQrCode.data && (
                 <QrCode value={generateVxQrCode.data} level="M" />
               )}
+              <br />
+              <Button onPress={showAllPollWorkerActions}>Back</Button>
             </CenteredText>
           </Screen>
         );
@@ -613,6 +615,7 @@ function PollWorkerScreenContents({
               >
                 Close Polls
               </Button>
+              <Button onPress={viewQrCode}>View QR Code</Button>
             </ButtonGrid>
             <H5>Other Actions</H5>
             <ButtonGrid>
