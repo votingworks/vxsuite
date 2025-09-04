@@ -160,7 +160,10 @@ function BallotPageFrame({
         margins={pageMarginsInches}
       >
         {watermark && <Watermark>{watermark}</Watermark>}
-        <TimingMarkGrid pageDimensions={pageDimensions}>
+        <TimingMarkGrid
+          pageDimensions={pageDimensions}
+          timingMarkStyle={isHandCount ? { visibility: 'hidden' } : undefined}
+        >
           <div
             style={{
               fontFamily: 'Roboto Condensed',
