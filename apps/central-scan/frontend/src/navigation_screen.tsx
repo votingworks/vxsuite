@@ -58,6 +58,17 @@ const TestModeCallout = styled(Card).attrs({ color: 'warning' })`
   flex-shrink: 0;
 `;
 
+const EarlyVotingModeCallout = styled(Card).attrs({ color: 'neutral' })`
+  font-size: ${(p) => p.theme.sizes.headingsRem.h3}rem;
+  font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
+
+  > div {
+    padding: 0.5rem 1rem;
+  }
+
+  flex-shrink: 0;
+`;
+
 // Because the VxCentralScan is such a long app name, we have to resize the app
 // name and logo image to fit in the left nav
 const CentralScanAppLogo = styled(AppLogo)`
@@ -104,6 +115,7 @@ export function NavigationScreen({ children, title }: Props): JSX.Element {
     electionDefinition,
     electionPackageHash,
     isTestMode,
+    isEarlyVotingMode,
     machineConfig,
     usbDriveStatus,
     auth,
@@ -152,6 +164,14 @@ export function NavigationScreen({ children, title }: Props): JSX.Element {
               <Icons.Warning color="warning" /> Test Ballot Mode
             </TestModeCallout>
           )}
+          {!isTestMode &&
+            isEarlyVotingMode &&
+            isElectionManagerAuth(auth) &&
+            electionDefinition && (
+              <EarlyVotingModeCallout>
+                <Icons.Info color="neutral" /> Early Voting Mode
+              </EarlyVotingModeCallout>
+            )}
           <HeaderActions>
             {(isSystemAdministratorAuth(auth) ||
               isElectionManagerAuth(auth)) && (
