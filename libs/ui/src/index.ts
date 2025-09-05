@@ -79,6 +79,7 @@ export * from './smart_cards_screen';
 export * from './tabbed_section';
 export * from './table';
 export * from './test_mode';
+export * from './early_voting_mode';
 export * from './themes/make_theme';
 export * from './themes/render_with_themes';
 export * from './themes/vx_theme_provider';
