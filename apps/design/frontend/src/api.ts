@@ -4,6 +4,7 @@ import type {
   BallotMode,
   AuthErrorCode,
   AudioOverrideQuery,
+  AudioQuery,
 } from '@votingworks/design-backend';
 import * as grout from '@votingworks/grout';
 import {
@@ -729,6 +730,25 @@ export const audioOverrideExists = {
   },
 } as const;
 
+export const audioSourceGet = {
+  queryKey(params: AudioQuery): QueryKey {
+    return ['audioSourceGet', params.electionId, params.key, params.subkey];
+  },
+  useQuery(params: AudioQuery) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(params), () =>
+      apiClient.audioSourceGet(params)
+    );
+  },
+} as const;
+
+export const audioSourceSet = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.audioSourceSet);
+  },
+} as const;
+
 export const synthesizeSsml = {
   useMutation() {
     const apiClient = useApiClient();
@@ -755,6 +775,53 @@ export const synthesizedSsml = {
 
       return apiClient.synthesizeSsml(input);
     });
+  },
+} as const;
+
+export const ttsPhoneticOverrideGet = {
+  queryKey(params: AudioQuery): QueryKey {
+    return [
+      'ttsPhoneticOverrideGet',
+      params.electionId,
+      params.key,
+      params.subkey,
+    ];
+  },
+  useQuery(params: AudioQuery) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(params), () =>
+      apiClient.ttsPhoneticOverrideGet(params)
+    );
+  },
+} as const;
+
+export const ttsPhoneticOverrideSet = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.ttsPhoneticOverrideSet, {
+      onSuccess: (_, params) =>
+        queryClient.invalidateQueries(ttsPhoneticOverrideGet.queryKey(params)),
+    });
+  },
+} as const;
+
+export const ttsTextOverrideGet = {
+  queryKey(params: AudioQuery): QueryKey {
+    return ['ttsTextOverrideGet', params.electionId, params.key, params.subkey];
+  },
+  useQuery(params: AudioQuery) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(params), () =>
+      apiClient.ttsTextOverrideGet(params)
+    );
+  },
+} as const;
+
+export const ttsTextOverrideSet = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.ttsTextOverrideSet);
   },
 } as const;
 

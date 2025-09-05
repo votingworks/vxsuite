@@ -60,6 +60,15 @@ import {
   AudioOverrideKey,
   AudioOverrideQuery,
   audioOverrides,
+  AudioQuery,
+  AudioSource,
+  AudioSourceEntry,
+  audioSources,
+  SsmlChunk,
+  TtsPhoneticEntry,
+  ttsPhoneticOverrides,
+  TtsTextEntry,
+  ttsTextOverrides,
 } from './store_audio_demo';
 
 export interface ElectionRecord {
@@ -1934,6 +1943,7 @@ export class Store {
       audioOverrides.exists(client, query)
     );
   }
+
   /* istanbul ignore next - @preserve */
   async audioOverrideGet(
     query: AudioOverrideQuery
@@ -1963,6 +1973,48 @@ export class Store {
   async audioOverridesSetContest(params: AudioOverrideContest): Promise<void> {
     await this.db.withClient(async (client) =>
       audioOverrides.setContest(client, params)
+    );
+  }
+
+  /* istanbul ignore next - @preserve */
+  async audioSourceGet(query: AudioQuery): Promise<AudioSource> {
+    return this.db.withClient(async (client) =>
+      audioSources.get(client, query)
+    );
+  }
+
+  /* istanbul ignore next - @preserve */
+  async audioSourceSet(params: AudioSourceEntry): Promise<void> {
+    return this.db.withClient(async (client) =>
+      audioSources.set(client, params)
+    );
+  }
+
+  /* istanbul ignore next - @preserve */
+  async ttsTextOverrideGet(query: AudioQuery): Promise<string | null> {
+    return this.db.withClient(async (client) =>
+      ttsTextOverrides.get(client, query)
+    );
+  }
+
+  /* istanbul ignore next - @preserve */
+  async ttsTextOverrideSet(params: TtsTextEntry): Promise<void> {
+    return this.db.withClient(async (client) =>
+      ttsTextOverrides.set(client, params)
+    );
+  }
+
+  /* istanbul ignore next - @preserve */
+  async ttsPhoneticOverrideGet(query: AudioQuery): Promise<SsmlChunk[] | null> {
+    return this.db.withClient(async (client) =>
+      ttsPhoneticOverrides.get(client, query)
+    );
+  }
+
+  /* istanbul ignore next - @preserve */
+  async ttsPhoneticOverrideSet(params: TtsPhoneticEntry): Promise<void> {
+    return this.db.withClient(async (client) =>
+      ttsPhoneticOverrides.set(client, params)
     );
   }
 }
