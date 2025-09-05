@@ -81,7 +81,7 @@ IDs are logged with each log to identify the log being written.
 ### printer-status-changed
 **Type:** [application-status](#application-status)
 **Description:** Application saw a change in the status of the currently connected printer.
-**Machines:** All
+**Machines:** vx-scan
 ### printer-print-request
 **Type:** [user-action](#user-action)
 **Description:** A print request was triggered.
@@ -109,7 +109,7 @@ IDs are logged with each log to identify the log being written.
 ### toggled-test-mode
 **Type:** [user-action](#user-action)
 **Description:** User has finished toggling between live mode and test mode in the given application. Success or failure is indicated by the disposition.
-**Machines:** All
+**Machines:** vx-central-scan, vx-mark, vx-mark-scan, vx-scan
 ### file-saved
 **Type:** [user-action](#user-action)
 **Description:** File is saved to a USB drive. Success or failure indicated by disposition. Type of file specified with "fileType" key. For success logs the saved filename specified with "filename" key.

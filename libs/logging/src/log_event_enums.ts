@@ -346,6 +346,7 @@ const PrinterStatusChanged: LogDetails = {
   eventType: LogEventType.ApplicationStatus,
   documentationMessage:
     'Application saw a change in the status of the currently connected printer.',
+  restrictInDocumentationToApps: [AppName.VxScan],
 };
 
 const PrinterPrintRequest: LogDetails = {
@@ -392,6 +393,12 @@ const ToggledTestMode: LogDetails = {
   eventType: LogEventType.UserAction,
   documentationMessage:
     'User has finished toggling between live mode and test mode in the given application. Success or failure is indicated by the disposition.',
+  restrictInDocumentationToApps: [
+    AppName.VxCentralScan,
+    AppName.VxMark,
+    AppName.VxMarkScan,
+    AppName.VxScan,
+  ],
 };
 
 const FileSaved: LogDetails = {
