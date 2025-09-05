@@ -15,14 +15,12 @@ import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout'
 
 export interface Props {
   error?: InvalidInterpretationReason | PrecinctScannerErrorType;
-  isTestMode: boolean;
   scannedBallotCount: number;
   restartRequired?: boolean;
 }
 
 export function ScanErrorScreen({
   error,
-  isTestMode,
   scannedBallotCount,
   restartRequired = false,
 }: Props): JSX.Element {
@@ -136,7 +134,7 @@ export function ScanErrorScreen({
   return (
     <Screen
       centerContent
-      showTestModeBanner={isTestMode}
+      showModeBanner
       ballotCountOverride={scannedBallotCount}
       voterFacing
     >

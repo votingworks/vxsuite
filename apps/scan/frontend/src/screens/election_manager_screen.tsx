@@ -369,7 +369,7 @@ export function ElectionManagerScreen({
       ballotCountOverride={scannerStatus.ballotsCounted}
       title="Election Manager Menu"
       voterFacing={false}
-      showTestModeBanner={false}
+      showModeBanner={false}
     >
       <TabbedSection aria-label="Election Manager Menu" tabs={tabs} />
 

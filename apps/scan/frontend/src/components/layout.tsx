@@ -10,6 +10,7 @@ import {
   ReadOnLoad,
   AudioOnly,
   TestModeCallout,
+  EarlyVotingModeCallout,
 } from '@votingworks/ui';
 import styled, { DefaultTheme, ThemeContext } from 'styled-components';
 import { SizeMode } from '@votingworks/types';
@@ -36,7 +37,7 @@ export interface ScreenProps {
   hideInfoBar?: boolean;
   padded?: boolean;
   title?: React.ReactNode;
-  showTestModeBanner: boolean;
+  showModeBanner: boolean;
   voterFacing: boolean;
 }
 
@@ -97,7 +98,7 @@ export function Screen(props: ScreenProps): JSX.Element | null {
     centerContent,
     infoBarMode,
     hideInfoBar: hideInfoBarFromProps,
-    showTestModeBanner,
+    showModeBanner,
     padded,
     title,
     voterFacing,
@@ -125,8 +126,13 @@ export function Screen(props: ScreenProps): JSX.Element | null {
   }
 
   const { codeVersion, machineId } = machineConfigQuery.data;
-  const { electionDefinition, electionPackageHash, precinctSelection } =
-    configQuery.data;
+  const {
+    electionDefinition,
+    electionPackageHash,
+    precinctSelection,
+    isTestMode,
+    isEarlyVotingMode,
+  } = configQuery.data;
 
   const ballotCount =
     ballotCountOverride ?? scannerStatusQuery.data?.ballotsCounted;
@@ -150,13 +156,24 @@ export function Screen(props: ScreenProps): JSX.Element | null {
             />
             <VoterSettingsButton />
           </SettingsButtons>
-          {showTestModeBanner && <TestModeCallout />}
+          {showModeBanner &&
+            (isTestMode ? (
+              <TestModeCallout />
+            ) : isEarlyVotingMode ? (
+              <EarlyVotingModeCallout />
+            ) : null)}
           {ballotCountElement}
         </HeaderRow>
       )}
       <HeaderRow>
         <TitleContainer>{title && <H1>{title}</H1>}</TitleContainer>
-        {!voterFacing && showTestModeBanner && <TestModeCallout />}
+        {!voterFacing &&
+          showModeBanner &&
+          (isTestMode ? (
+            <TestModeCallout />
+          ) : isEarlyVotingMode ? (
+            <EarlyVotingModeCallout />
+          ) : null)}
         {!voterFacing && ballotCountElement}
       </HeaderRow>
       {voterFacing ? (

@@ -4,20 +4,18 @@ import { Screen } from '../components/layout';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 
 export interface PollsNotOpenScreenProps {
-  isTestMode: boolean;
   pollsState: Omit<PollsState, 'polls_open'>;
   scannedBallotCount: number;
 }
 
 export function PollsNotOpenScreen({
-  isTestMode,
   pollsState,
   scannedBallotCount,
 }: PollsNotOpenScreenProps): JSX.Element {
   return (
     <Screen
       centerContent
-      showTestModeBanner={isTestMode}
+      showModeBanner
       infoBarMode="pollworker"
       ballotCountOverride={scannedBallotCount}
       voterFacing={false}
@@ -50,7 +48,6 @@ export function PollsNotOpenScreen({
 export function DefaultPreview(): JSX.Element {
   return (
     <PollsNotOpenScreen
-      isTestMode={false}
       pollsState="polls_closed_initial"
       scannedBallotCount={42}
     />
@@ -61,7 +58,6 @@ export function DefaultPreview(): JSX.Element {
 export function DefaultTestModePreview(): JSX.Element {
   return (
     <PollsNotOpenScreen
-      isTestMode
       pollsState="polls_closed_initial"
       scannedBallotCount={42}
     />
@@ -72,7 +68,6 @@ export function DefaultTestModePreview(): JSX.Element {
 export function NoPowerConnectedPreview(): JSX.Element {
   return (
     <PollsNotOpenScreen
-      isTestMode={false}
       pollsState="polls_closed_initial"
       scannedBallotCount={42}
     />
@@ -82,11 +77,7 @@ export function NoPowerConnectedPreview(): JSX.Element {
 /* istanbul ignore next - @preserve */
 export function PollsPausedPreview(): JSX.Element {
   return (
-    <PollsNotOpenScreen
-      isTestMode={false}
-      pollsState="polls_paused"
-      scannedBallotCount={42}
-    />
+    <PollsNotOpenScreen pollsState="polls_paused" scannedBallotCount={42} />
   );
 }
 
@@ -94,7 +85,6 @@ export function PollsPausedPreview(): JSX.Element {
 export function PollsClosedFinalPreview(): JSX.Element {
   return (
     <PollsNotOpenScreen
-      isTestMode={false}
       pollsState="polls_closed_final"
       scannedBallotCount={42}
     />

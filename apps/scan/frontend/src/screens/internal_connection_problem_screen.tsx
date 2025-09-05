@@ -40,7 +40,7 @@ export function InternalConnectionProblemScreen({
     <ScreenMainCenterChild
       ballotCountOverride={scannedBallotCount}
       voterFacing
-      showTestModeBanner={false}
+      showModeBanner={false}
     >
       <CenteredText>
         <H1>{appStrings.titleInternalConnectionProblem()}</H1>

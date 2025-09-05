@@ -1,15 +1,9 @@
 import { Caption, H1, appStrings } from '@votingworks/ui';
 import { CenteredText, ScreenMainCenterChild } from '../components/layout';
 
-export interface ScanReturnedBallotScreenProps {
-  isTestMode: boolean;
-}
-
-export function ScanReturnedBallotScreen({
-  isTestMode,
-}: ScanReturnedBallotScreenProps): JSX.Element {
+export function ScanReturnedBallotScreen(): JSX.Element {
   return (
-    <ScreenMainCenterChild voterFacing showTestModeBanner={isTestMode}>
+    <ScreenMainCenterChild voterFacing showModeBanner>
       {/* TODO: make a graphic for this screen */}
       <CenteredText>
         <H1>{appStrings.titleRemoveYourBallot()}</H1>
