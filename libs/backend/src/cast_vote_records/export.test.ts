@@ -60,6 +60,7 @@ const batch1: BatchInfo = {
   count: 0,
   label: 'Batch 1',
   startedAt: new Date().toISOString(),
+  isEarlyVoting: false,
 };
 
 let mockCentralScannerStore: MockCentralScannerStore;

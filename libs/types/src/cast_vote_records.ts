@@ -52,6 +52,7 @@ export interface CastVoteRecordBatchMetadata {
 
   readonly sheetCount: number;
   readonly scannerId: string;
+  readonly isEarlyVotingBatch: boolean;
 }
 
 export const CastVoteRecordBatchMetadataSchema: z.ZodSchema<CastVoteRecordBatchMetadata> =
@@ -63,6 +64,7 @@ export const CastVoteRecordBatchMetadataSchema: z.ZodSchema<CastVoteRecordBatchM
     endTime: Iso8601TimestampSchema.optional(),
     sheetCount: z.number(),
     scannerId: z.string(),
+    isEarlyVotingBatch: z.boolean(),
   });
 
 /**

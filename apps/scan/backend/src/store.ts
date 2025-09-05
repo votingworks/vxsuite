@@ -608,7 +608,12 @@ export class Store {
    */
   addBatch(): string {
     const id = uuid();
-    this.client.run('insert into batches (id) values (?)', id);
+    const isEarlyVoting = this.getIsEarlyVotingMode();
+    this.client.run(
+      'insert into batches (id, is_early_voting) values (?, ?)',
+      id,
+      isEarlyVoting ? 1 : 0
+    );
     this.client.run(
       `update batches set label = 'Batch ' || batch_number WHERE id = ?`,
       id
@@ -802,6 +807,7 @@ export class Store {
       endedAt: string | null;
       error: string | null;
       count: number;
+      isEarlyVoting: number;
     }
     const batchInfo = this.client.all(`
       select
@@ -811,6 +817,7 @@ export class Store {
         strftime('%s', started_at) as startedAt,
         (case when ended_at is null then ended_at else strftime('%s', ended_at) end) as endedAt,
         error,
+        batches.is_early_voting as isEarlyVoting,
         sum(case when sheets.id is null then 0 else 1 end) as count
       from
         batches left join sheets
@@ -824,6 +831,7 @@ export class Store {
         batches.id,
         batches.started_at,
         batches.ended_at,
+        batches.is_early_voting,
         error
       order by
         batches.started_at desc
@@ -840,6 +848,7 @@ export class Store {
         undefined,
       error: info.error || undefined,
       count: info.count,
+      isEarlyVoting: Boolean(info.isEarlyVoting),
     }));
   }
 

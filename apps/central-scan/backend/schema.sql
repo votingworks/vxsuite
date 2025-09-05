@@ -20,7 +20,8 @@ create table batches (
   started_at datetime default current_timestamp not null,
   ended_at datetime,
   deleted_at datetime,
-  error varchar(4000)
+  error varchar(4000),
+  is_early_voting boolean not null default false
 );
 
 create table sheets (
