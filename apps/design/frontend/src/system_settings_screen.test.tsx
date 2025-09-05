@@ -170,6 +170,19 @@ test('adjudication reasons', async () => {
     expect(options[0]).toBeChecked();
   }
 
+  const admin = screen.getByRole('group', { name: 'VxAdmin' });
+  const options = within(admin).getAllByRole('checkbox');
+  expect(options).toHaveLength(3);
+  for (const option of options) {
+    expect(option).not.toBeChecked();
+  }
+  expect(options[0]).toHaveTextContent('Overvote');
+  expect(options[1]).toHaveTextContent('Undervote');
+  expect(options[2]).toHaveTextContent('Marginal Mark');
+
+  userEvent.click(options[0]);
+  expect(options[0]).toBeChecked();
+
   expect(
     screen.getByRole('checkbox', { name: 'Disallow Casting Overvotes' })
   ).not.toBeChecked();
@@ -184,6 +197,7 @@ test('adjudication reasons', async () => {
     ...DEFAULT_SYSTEM_SETTINGS,
     precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
     centralScanAdjudicationReasons: [AdjudicationReason.Overvote],
+    adminAdjudicationReasons: [AdjudicationReason.Overvote],
     disallowCastingOvervotes: true,
   };
   apiMock.updateSystemSettings
@@ -502,7 +516,7 @@ test('all controls are disabled until clicking "Edit"', async () => {
   const allCheckboxes = document.body.querySelectorAll('[role=checkbox]');
   const allControls = [...allTextBoxes, ...allCheckboxes];
 
-  expect(allControls).toHaveLength(24);
+  expect(allControls).toHaveLength(26);
 
   for (const control of allControls) {
     expect(control).toBeDisabled();
