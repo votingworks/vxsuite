@@ -14,6 +14,7 @@ export interface AppContextInterface {
   electionDefinition?: ElectionDefinition;
   electionPackageHash?: string;
   isTestMode: boolean;
+  isEarlyVotingMode: boolean;
   auth: DippedSmartCardAuth.AuthStatus;
   logger: BaseLogger;
 }
@@ -28,6 +29,7 @@ const appContext: AppContextInterface = {
   electionPackageHash: undefined,
   logger: new BaseLogger(LogSource.VxCentralScanFrontend),
   isTestMode: false,
+  isEarlyVotingMode: false,
   auth: {
     status: 'logged_out',
     reason: 'machine_locked',
