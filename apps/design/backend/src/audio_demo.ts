@@ -2,7 +2,7 @@
 
 import { convertHtmlToAudioCues } from '@votingworks/backend';
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { LanguageCode } from '@votingworks/types';
+import { ElectionStringKey, LanguageCode } from '@votingworks/types';
 import { AppContext } from './context';
 import { GoogleCloudSpeechSynthesizerWithDbCache } from './speech_synthesizer';
 import { AudioOverride, AudioOverrideQuery } from './store_audio_demo';
@@ -35,7 +35,7 @@ export function apiMethods(ctx: AppContext) {
       const strings: UiStringInfo[] = [];
       for (const contest of election.contests) {
         strings.push({
-          key: `contestTitle.${contest.id}`,
+          key: `${ElectionStringKey.CONTEST_TITLE}.${contest.id}`,
           str: contest.title,
           ttsStr: contest.title,
         });
@@ -43,7 +43,7 @@ export function apiMethods(ctx: AppContext) {
         switch (contest.type) {
           case 'yesno':
             strings.push({
-              key: `contestDescription.${contest.id}`,
+              key: `${ElectionStringKey.CONTEST_DESCRIPTION}.${contest.id}`,
               str: contest.description,
               ttsStr: convertHtmlToAudioCues(contest.description),
             });
@@ -53,7 +53,7 @@ export function apiMethods(ctx: AppContext) {
           case 'candidate':
             for (const candidate of contest.candidates) {
               strings.push({
-                key: `candidateName.${candidate.id}`,
+                key: `${ElectionStringKey.CANDIDATE_NAME}.${candidate.id}`,
                 str: candidate.name,
                 ttsStr: candidate.name.replaceAll('"', ''),
               });
@@ -64,6 +64,14 @@ export function apiMethods(ctx: AppContext) {
           default:
             throwIllegalValue(contest, 'type');
         }
+      }
+
+      for (const party of election.parties) {
+        strings.push({
+          key: `${ElectionStringKey.PARTY_FULL_NAME}.${party.id}`,
+          str: party.name,
+          ttsStr: party.name,
+        });
       }
 
       // eslint-disable-next-line vx/no-array-sort-mutation

@@ -6,6 +6,7 @@ import { Caption, Font, H2, H5, P } from '@votingworks/ui';
 
 import styled from 'styled-components';
 import { ElectionStringKey } from '@votingworks/types';
+import { format } from '@votingworks/utils';
 import * as api from '../api';
 import { ElectionIdParams } from '../routes';
 import { AudioControls, AudioPlayer } from './elements';
@@ -15,6 +16,10 @@ export interface RecordedAudioProps {
   stringKey?: string;
   subkey?: string;
 }
+
+const Metadata = styled.div`
+  color: #444;
+`;
 
 export function RecordedAudio(props: RecordedAudioProps): React.ReactNode {
   const { stringKey = '', subkey = '' } = props;
@@ -45,17 +50,16 @@ export function RecordedAudio(props: RecordedAudioProps): React.ReactNode {
   return (
     <div>
       {header}
-      <P>
-        <Caption>
-          <Font weight="bold">Filename:</Font> {info.originalFilename}
-        </Caption>
-      </P>
-      <P>
-        <Caption>
-          <Font weight="bold">Uploaded:</Font>{' '}
-          {info.uploadedAt.toLocaleDateString()}
-        </Caption>
-      </P>
+      <Metadata>
+        <P>
+          <Caption>
+            <Font weight="bold">File Name:</Font> {info.originalFilename}
+            <br />
+            <Font weight="bold">Uploaded:</Font>{' '}
+            {format.localeShortDateAndTime(info.uploadedAt)}
+          </Caption>
+        </P>
+      </Metadata>
     </div>
   );
 }
@@ -83,6 +87,11 @@ export function RecordedAudioControls(
 
 const SubHeading = styled(H5)`
   color: #666;
+  font-size: 0.8rem;
+`;
+
+const PartyName = styled(P)`
+  font-size: 1rem;
 `;
 
 function RecordedAudioCandidate(props: RecordedAudioProps): React.ReactNode {
@@ -90,11 +99,14 @@ function RecordedAudioCandidate(props: RecordedAudioProps): React.ReactNode {
   const { electionId } = useParams<ElectionIdParams>();
 
   const contests = api.listContests.useQuery(electionId).data;
+  const parties = api.listParties.useQuery(electionId).data;
 
-  if (!contests) return null;
+  if (!contests || !parties) return null;
 
   let candidateName: string = '';
   let contestTitle: string = '';
+  let partyId: string | undefined;
+  let partyName: string = '';
 
   for (const contest of contests) {
     if (contest.type !== 'candidate') continue;
@@ -103,13 +115,22 @@ function RecordedAudioCandidate(props: RecordedAudioProps): React.ReactNode {
       if (candidate.id !== subkey) continue;
       contestTitle = contest.title;
       candidateName = candidate.name;
+      partyId = candidate.partyIds?.[0];
+    }
+  }
+
+  if (partyId) {
+    for (const party of parties) {
+      if (party.id !== partyId) continue;
+      partyName = party.name;
     }
   }
 
   return (
     <React.Fragment>
+      <SubHeading>{contestTitle}</SubHeading>
       <H2>{candidateName}</H2>
-      <SubHeading as="h3">{contestTitle}</SubHeading>
+      {partyName && <PartyName>{partyName}</PartyName>}
     </React.Fragment>
   );
 }
