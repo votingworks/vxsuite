@@ -24,14 +24,12 @@ export const DELAY_ACCEPTED_SCREEN_MS = 3_000;
 export interface VoterScreenProps {
   electionDefinition: ElectionDefinition;
   systemSettings: SystemSettings;
-  isTestMode: boolean;
   isSoundMuted: boolean;
 }
 
 export function VoterScreen({
   electionDefinition,
   systemSettings,
-  isTestMode,
   isSoundMuted,
 }: VoterScreenProps): JSX.Element | null {
   const scannerStatusQuery = getScannerStatus.useQuery({
@@ -103,7 +101,6 @@ export function VoterScreen({
   );
 
   const sharedScreenProps = {
-    isTestMode,
     scannedBallotCount: scannerStatus.ballotsCounted,
   } as const;
 
@@ -128,7 +125,7 @@ export function VoterScreen({
     case 'scanning':
     case 'accepting':
     case 'returning_to_rescan':
-      return <ScanProcessingScreen {...sharedScreenProps} />;
+      return <ScanProcessingScreen />;
     case 'accepted':
       return <ScanSuccessScreen {...sharedScreenProps} />;
     case 'needs_review':
@@ -139,12 +136,11 @@ export function VoterScreen({
           electionDefinition={electionDefinition}
           systemSettings={systemSettings}
           adjudicationReasonInfo={scannerStatus.interpretation.reasons}
-          {...sharedScreenProps}
         />
       );
     case 'returning':
     case 'returned':
-      return <ScanReturnedBallotScreen {...sharedScreenProps} />;
+      return <ScanReturnedBallotScreen />;
     case 'rejecting':
     case 'rejected':
       return (
@@ -164,9 +160,9 @@ export function VoterScreen({
     case 'double_sheet_jammed':
       return <ScanDoubleSheetScreen {...sharedScreenProps} />;
     case 'both_sides_have_paper':
-      return <ScanBusyScreen {...sharedScreenProps} />;
+      return <ScanBusyScreen />;
     case 'recovering_from_error':
-      return <ScanProcessingScreen {...sharedScreenProps} />;
+      return <ScanProcessingScreen />;
     case 'unrecoverable_error':
       return (
         <ScanErrorScreen

@@ -15,5 +15,5 @@ export function ScanReturnedBallotScreen(): JSX.Element {
 
 /* istanbul ignore next - @preserve */
 export function DefaultPreview(): JSX.Element {
-  return <ScanReturnedBallotScreen isTestMode={false} />;
+  return <ScanReturnedBallotScreen />;
 }

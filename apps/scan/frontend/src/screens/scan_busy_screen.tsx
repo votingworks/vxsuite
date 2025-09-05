@@ -28,5 +28,5 @@ export function ScanBusyScreen(): JSX.Element {
 
 /* istanbul ignore next - @preserve */
 export function DefaultPreview(): JSX.Element {
-  return <ScanBusyScreen isTestMode={false} />;
+  return <ScanBusyScreen />;
 }

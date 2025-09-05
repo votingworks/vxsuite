@@ -15,5 +15,5 @@ export function ScanProcessingScreen(): JSX.Element {
 
 /* istanbul ignore next - @preserve */
 export function DefaultPreview(): JSX.Element {
-  return <ScanProcessingScreen isTestMode={false} />;
+  return <ScanProcessingScreen />;
 }

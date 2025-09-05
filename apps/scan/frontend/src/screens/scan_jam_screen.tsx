@@ -49,16 +49,10 @@ export function ScanJamScreen({
 
 /* istanbul ignore next - @preserve */
 export function InternalJamPreview(): JSX.Element {
-  return <ScanJamScreen scannedBallotCount={42} isTestMode={false} />;
+  return <ScanJamScreen scannedBallotCount={42} />;
 }
 
 /* istanbul ignore next - @preserve */
 export function OutfeedJamPreview(): JSX.Element {
-  return (
-    <ScanJamScreen
-      scannedBallotCount={42}
-      error="outfeed_blocked"
-      isTestMode={false}
-    />
-  );
+  return <ScanJamScreen scannedBallotCount={42} error="outfeed_blocked" />;
 }
