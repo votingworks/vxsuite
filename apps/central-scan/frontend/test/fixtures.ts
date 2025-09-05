@@ -23,6 +23,7 @@ export const MOCK_BATCH: BatchInfo = {
   label: 'Batch 1',
   startedAt: new Date(0).toISOString(),
   endedAt: new Date(0).toISOString(),
+  isEarlyVoting: false,
 };
 
 export function mockBatch(batch: Partial<BatchInfo> = {}): BatchInfo {

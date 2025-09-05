@@ -1075,6 +1075,7 @@ export interface BatchInfo {
   endedAt?: Iso8601Timestamp;
   error?: string;
   count: number;
+  isEarlyVoting?: boolean;
 }
 
 export const BatchInfoSchema: z.ZodSchema<BatchInfo> = z.object({
@@ -1085,6 +1086,7 @@ export const BatchInfoSchema: z.ZodSchema<BatchInfo> = z.object({
   endedAt: z.optional(Iso8601TimestampSchema),
   error: z.optional(z.string()),
   count: z.number().nonnegative(),
+  isEarlyVoting: z.optional(z.boolean()),
 });
 
 export interface CompletedBallot {
