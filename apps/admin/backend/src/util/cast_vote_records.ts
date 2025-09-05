@@ -8,7 +8,10 @@ import {
 import { CachedElectionLookups } from '@votingworks/utils';
 import { CastVoteRecordAdjudicationFlags, CvrContestTag } from '../types';
 
-function getNumberVotesAllowed(contest: AnyContest): number {
+/**
+ * Returns the number of allowed votes for the contest
+ */
+export function getNumberVotesAllowed(contest: AnyContest): number {
   if (contest.type === 'yesno') {
     return 1;
   }
