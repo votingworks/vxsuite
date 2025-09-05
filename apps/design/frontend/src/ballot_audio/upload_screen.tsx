@@ -2,7 +2,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 
-import { Button, Icons, Table, TD, TH } from '@votingworks/ui';
+import { Button, Font, Icons, Table, TD, TH } from '@votingworks/ui';
 
 import { assert } from '@votingworks/basics';
 import styled from 'styled-components';
@@ -34,11 +34,19 @@ const ButtonBar = styled.div`
 `;
 
 const Td = styled(TD)`
-  padding: 0.75rem 0.5rem !important;
+  border: none !important;
+  border-bottom: 1px dashed #aaa !important;
+  max-width: 25vw;
+  overflow-x: hidden;
+  padding: 0.75rem !important;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const Th = styled(TH)`
-  padding: 0.75rem 0.5rem !important;
+  border-bottom: 2px solid #aaa !important;
+  border-top: none !important;
+  padding: 0.75rem !important;
 `;
 
 interface Batch {
@@ -176,7 +184,9 @@ export function UploadScreen(props: UploadScreenProps): JSX.Element {
                         <Icons.Warning />
                       )}
                     </Td>
-                    <Td>{name}</Td>
+                    <Td>
+                      <Font weight="semiBold">{name}</Font>
+                    </Td>
                     {match ? (
                       <AudioMatchCells {...match} />
                     ) : (
