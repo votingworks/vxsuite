@@ -213,6 +213,8 @@ documentationMessage = "Application saw a printer configuration removed from the
 eventId = "printer-status-changed"
 eventType = "application-status"
 documentationMessage = "Application saw a change in the status of the currently connected printer."
+# Specific to the Fujitsu thermal printer for now - SLI has asked that we denote this here
+restrictInDocumentationToApps = ["vx-scan"]
 
 [Events.PrinterPrintRequest]
 eventId = "printer-print-request"
@@ -249,6 +251,12 @@ documentationMessage = "User has initiated toggling between test mode and live m
 eventId = "toggled-test-mode"
 eventType = "user-action"
 documentationMessage = "User has finished toggling between live mode and test mode in the given application. Success or failure is indicated by the disposition."
+restrictInDocumentationToApps = [
+  "vx-central-scan",
+  "vx-mark",
+  "vx-mark-scan",
+  "vx-scan",
+]
 
 [Events.FileSaved]
 eventId = "file-saved"
