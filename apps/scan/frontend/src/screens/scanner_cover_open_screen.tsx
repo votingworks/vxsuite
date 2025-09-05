@@ -3,7 +3,7 @@ import { CenteredText, ScreenMainCenterChild } from '../components/layout';
 
 export function ScannerCoverOpenScreen(): JSX.Element {
   return (
-    <ScreenMainCenterChild voterFacing showTestModeBanner={false}>
+    <ScreenMainCenterChild voterFacing showModeBanner={false}>
       <CenteredText>
         <H1>{appStrings.titleScannerCoverIsOpen()}</H1>
         <P>{appStrings.instructionsAskForHelp()}</P>

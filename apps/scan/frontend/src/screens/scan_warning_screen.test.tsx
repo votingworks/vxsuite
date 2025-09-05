@@ -61,7 +61,6 @@ function renderScreen(props: Partial<Props> = {}) {
         electionDefinition={electionGeneralDefinition}
         systemSettings={DEFAULT_SYSTEM_SETTINGS}
         adjudicationReasonInfo={[]}
-        isTestMode={false}
         {...props}
       />
     )

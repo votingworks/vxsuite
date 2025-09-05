@@ -8,7 +8,7 @@ import {
 export function Screen(
   props: Omit<
     CenteredScreenProps,
-    'infoBarMode' | 'voterFacing' | 'showTestModeBanner'
+    'infoBarMode' | 'voterFacing' | 'showModeBanner'
   >
 ): JSX.Element {
   const { children } = props;
@@ -17,7 +17,7 @@ export function Screen(
     <ScreenMainCenterChild
       infoBarMode="pollworker"
       voterFacing={false}
-      showTestModeBanner={false}
+      showModeBanner={false}
     >
       {children}
     </ScreenMainCenterChild>
