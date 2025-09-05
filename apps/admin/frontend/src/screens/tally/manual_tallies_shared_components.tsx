@@ -8,7 +8,8 @@ import {
 
 const VOTING_METHOD_LABELS: Record<ManualResultsVotingMethod, string> = {
   absentee: 'Absentee',
-  precinct: 'Precinct',
+  precinct: 'Election Day',
+  'early-voting': 'Early Voting',
 };
 
 export function VotingMethodLabel({

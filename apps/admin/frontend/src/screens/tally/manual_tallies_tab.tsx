@@ -46,6 +46,7 @@ export const TITLE = 'Manual Tallies';
 export const ALL_MANUAL_TALLY_BALLOT_TYPES: ManualResultsVotingMethod[] = [
   'precinct',
   'absentee',
+  'early-voting',
 ];
 
 function getAllPossibleManualTallyIdentifiers(
