@@ -16,19 +16,14 @@ import {
 import styled from 'styled-components';
 import { ElectionStringKey, LanguageCode } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/basics';
+import { UiStringInfo } from '@votingworks/design-backend';
 import * as api from '../api';
 import { ElectionIdParams } from '../routes';
-import { Phoneditor } from './phoneditor';
+import { Phoneditor, PhoneticAudioControls } from './phoneditor';
 import { UploadButton } from './upload_button';
 import { RecordedAudio, RecordedAudioControls } from './recorded_audio';
 import { AudioControls, AudioPlayer, AudioRefreshButton } from './elements';
 import { UploadScreen } from './upload_screen';
-
-interface UiStringInfo {
-  key: string;
-  str: string;
-  ttsStr: string;
-}
 
 const Container = styled.div`
   box-sizing: border-box;
@@ -240,9 +235,12 @@ export function BallotAudioTab(): React.ReactNode {
         <StringSnippets>
           {searchResults.map((string) => (
             <StringSnippet
-              key={string.key}
+              key={joinStringKey(string)}
               onPress={setCurrentString}
-              selected={string.key === currentString?.key}
+              selected={
+                string.key === currentString?.key &&
+                string.subkey === currentString?.subkey
+              }
               string={string}
             />
           ))}
@@ -258,9 +256,8 @@ export function BallotAudioTab(): React.ReactNode {
               />
             )}
             <AudioEditor
-              key={currentString.key}
-              stringKey={currentString.key}
-              ttsString={currentString.ttsStr}
+              key={joinStringKey(currentString)}
+              str={currentString}
             />
           </StringPanel>
         )}
@@ -440,10 +437,10 @@ const AudioEditorTab = styled(Button)`
   }
 ` as unknown as new <T>() => React.Component<ButtonProps<T>>;
 
-function AudioEditor(props: { stringKey: string; ttsString: string }) {
-  const { stringKey, ttsString } = props;
+function AudioEditor(props: { str: UiStringInfo }) {
+  const { str } = props;
   const [kind, setKind] = React.useState<'tts' | 'ipa' | 'rec'>('tts');
-  const [_ttsString, setTtsString] = React.useState<string>(ttsString);
+  const [_ttsString, setTtsString] = React.useState<string>(str.ttsStr);
   const [ttsAudioDataUrl, setTtsAudioDataUrl] = React.useState<string>();
 
   const textEditorRef = React.useRef<HTMLTextAreaElement>(null);
@@ -512,7 +509,6 @@ function AudioEditor(props: { stringKey: string; ttsString: string }) {
       textEditor = (
         <TtsTextEditor
           disabled={disabled}
-          key={`${stringKey}-tts`}
           onChange={onTtsChange}
           ref={textEditorRef}
           value={_ttsString}
@@ -536,27 +532,22 @@ function AudioEditor(props: { stringKey: string; ttsString: string }) {
       textEditor = (
         <Phoneditor
           disabled={disabled}
-          key={`${stringKey}-ipa`}
-          text={_ttsString}
+          fallbackString={_ttsString}
+          stringKey={str.key}
+          subkey={str.subkey}
         />
       );
       controls = (
-        <AudioControls>
-          <AudioPlayer
-            controls
-            aria-disabled={disabled}
-            src={disabled ? undefined : ttsAudioDataUrl}
-          />
-          <AudioRefreshButton disabled={disabled} onPress={onRefresh}>
-            <Icons.RotateRight />{' '}
-          </AudioRefreshButton>
-        </AudioControls>
+        <PhoneticAudioControls
+          disabled={disabled}
+          fallbackString={_ttsString}
+          stringKey={str.key}
+          subkey={str.subkey}
+        />
       );
       break;
     case 'rec': {
-      // eslint-disable-next-line prefer-const
-      let [key, subkey] = stringKey.split('.');
-
+      let { key } = str;
       switch (key) {
         case ElectionStringKey.CANDIDATE_NAME:
           key = ElectionStringKey.LA_CANDIDATE_AUDIO;
@@ -571,8 +562,8 @@ function AudioEditor(props: { stringKey: string; ttsString: string }) {
           break;
       }
 
-      textEditor = <RecordedAudio stringKey={key} subkey={subkey} />;
-      controls = <RecordedAudioControls stringKey={key} subkey={subkey} />;
+      textEditor = <RecordedAudio stringKey={key} subkey={str.subkey} />;
+      controls = <RecordedAudioControls stringKey={key} subkey={str.subkey} />;
       break;
     }
 
@@ -677,4 +668,10 @@ function StringSnippet(props: {
       {string.str}
     </StringSnippetContainer>
   );
+}
+
+function joinStringKey(info: UiStringInfo) {
+  if (!info.subkey) return info.key;
+
+  return `${info.key}.${info.subkey}`;
 }

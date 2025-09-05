@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import {
   Button,
   ButtonProps,
@@ -11,10 +12,14 @@ import {
 import React from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import { assertDefined } from '@votingworks/basics';
+import { SsmlChunk, TtsSyllable } from '@votingworks/design-backend';
+import { useParams } from 'react-router-dom';
 import { Keyboard, Phoneme } from './keyboard';
 import { Tooltip, tooltipContainerCss } from './tooltip';
 import { phonemes } from './phonemes';
 import * as api from '../api';
+import { ElectionIdParams } from '../routes';
+import { AudioControls, AudioPlayer } from './elements';
 
 const Container = styled.div`
   background: ${(p) => p.theme.colors.containerLow};
@@ -337,45 +342,71 @@ const Spacer = styled.span`
   flex-grow: 1;
 `;
 
-interface SyllableInput {
-  phonemes: Phoneme[];
-  stress?: 'primary' | 'secondary' | 'none';
-}
-
-const emptySyllable: Readonly<SyllableInput> = {
-  phonemes: [],
-  stress: 'none',
+const emptySyllable: Readonly<TtsSyllable> = {
+  ipaPhonemes: [],
 };
 
 const alphabets = ['ipa', 'x-sampa', 'regular'] as const;
 
 export function Phoneditor(props: {
   disabled?: boolean;
-  text: string;
+  fallbackString: string;
+  stringKey: string;
+  subkey?: string;
 }): JSX.Element {
-  const { disabled, text } = props;
+  const { disabled, fallbackString, stringKey, subkey } = props;
 
-  const [words, wordElements] = React.useMemo(() => {
-    const fragments = text.split(' ');
+  const { electionId } = useParams<ElectionIdParams>();
+  const savedSsml = api.ttsPhoneticOverrideGet.useQuery({
+    electionId,
+    key: stringKey,
+    subkey,
+  }).data;
 
+  const [chunks, wordElements] = React.useMemo(() => {
     const elems: JSX.Element[] = [];
-    for (let i = 0; i < fragments.length; i += 1) {
-      elems.push(
-        <Word data-word={fragments[i]} key={fragments[i]} onClick={undefined}>
-          {fragments[i]}
-        </Word>
-      );
+    let resolvedChunks: SsmlChunk[] = [];
+
+    if (savedSsml) {
+      resolvedChunks = savedSsml;
+
+      for (let i = 0; i < resolvedChunks.length; i += 1) {
+        elems.push(
+          <Word
+            data-word={resolvedChunks[i].text}
+            key={`${i}-${resolvedChunks[i].text}`}
+            onClick={undefined}
+          >
+            {resolvedChunks[i].text}
+          </Word>
+        );
+      }
+    } else {
+      const fragments = fallbackString.split(' ');
+
+      for (let i = 0; i < fragments.length; i += 1) {
+        resolvedChunks.push({ text: fragments[i] });
+        elems.push(
+          <Word
+            data-word={fragments[i]}
+            key={`${i}-${fragments[i]}`}
+            onClick={undefined}
+          >
+            {fragments[i]}
+          </Word>
+        );
+      }
     }
 
-    return [fragments, elems];
-  }, [text]);
+    return [resolvedChunks, elems];
+  }, [fallbackString, savedSsml]);
 
   const [splitKeyboard, setSplitKeyboard] = React.useState(true);
   const [alphabet, setAlphabet] = React.useState<'ipa' | 'x-sampa' | 'regular'>(
     'regular'
   );
-  const [currentWord, setCurrentWord] = React.useState<string>();
-  const [syllables, setSyllables] = React.useState<SyllableInput[]>([
+  const [currentChunk, setCurrentChunk] = React.useState<number>();
+  const [syllables, setSyllables] = React.useState<TtsSyllable[]>([
     { ...emptySyllable },
   ]);
   const [currentSyllableIdx, setCurrentSyllableIdx] = React.useState(
@@ -394,27 +425,36 @@ export function Phoneditor(props: {
 
   const onClickWord = React.useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
-      if (!(event.target instanceof HTMLButtonElement)) {
-        return;
-      }
+      if (!(event.target instanceof HTMLButtonElement)) return;
 
       const word = event.target.getAttribute('data-word');
       if (!word) return;
 
-      for (let i = 0; i < words.length; i += 1) {
-        if (words[i] === word) {
-          setCurrentWord(word);
+      for (let i = 0; i < chunks.length; i += 1) {
+        if (chunks[i].text !== word) continue;
+
+        setCurrentChunk(i);
+
+        const chunkSyllables = chunks[i].syllables;
+        if (chunkSyllables) {
+          setSyllables([...chunkSyllables]);
+          setCurrentSyllableIdx(chunkSyllables.length - 1);
+        } else {
+          setSyllables([{ ...emptySyllable }]);
+          setCurrentSyllableIdx(0);
         }
+
+        break;
       }
     },
-    [words]
+    [chunks]
   );
 
   const onInput = React.useCallback(
     (phoneme: Phoneme) => {
       const newSyllables = [...syllables];
       const current = newSyllables[currentSyllableIdx];
-      current.phonemes.push(phoneme);
+      current.ipaPhonemes.push(phoneme.ipa);
       setSyllables(newSyllables);
     },
     [currentSyllableIdx, syllables]
@@ -423,10 +463,10 @@ export function Phoneditor(props: {
   const toggleStress = React.useCallback(
     (idxSyllable: number) => {
       if (idxSyllable < 0 || idxSyllable >= syllables.length) return;
-      const syllable: SyllableInput = { ...syllables[idxSyllable] };
+      const syllable: TtsSyllable = { ...syllables[idxSyllable] };
 
       if (syllable.stress === 'primary') {
-        syllable.stress = 'none';
+        syllable.stress = undefined;
       } else {
         // [TODO] Switch through 'secondary' as well.
         syllable.stress = 'primary';
@@ -441,21 +481,20 @@ export function Phoneditor(props: {
 
   const onBackspace = React.useCallback(() => {
     let newCurrentSyllable = currentSyllableIdx;
-    const newSyllables: SyllableInput[] = [];
+    const newSyllables: TtsSyllable[] = [];
+
     for (let i = 0; i < syllables.length; i += 1) {
-      const syllable: SyllableInput = { ...syllables[i] };
-      syllable.phonemes = [...syllable.phonemes];
+      const syllable: TtsSyllable = { ...syllables[i] };
+      syllable.ipaPhonemes = [...syllable.ipaPhonemes];
 
       if (i === currentSyllableIdx) {
-        if (syllable.phonemes.length === 0 && syllables.length > 1) {
+        if (syllable.ipaPhonemes.length === 0 && syllables.length > 1) {
           newCurrentSyllable = Math.max(currentSyllableIdx - 1, 0);
           continue;
         }
 
-        syllable.phonemes.pop();
-        if (syllable.phonemes.length === 0) {
-          syllable.stress = 'none';
-        }
+        syllable.ipaPhonemes.pop();
+        if (syllable.ipaPhonemes.length === 0) syllable.stress = undefined;
       }
 
       newSyllables.push(syllable);
@@ -467,9 +506,9 @@ export function Phoneditor(props: {
 
   const addSyllable = React.useCallback(() => {
     const lastSyllable = assertDefined(syllables.at(-1));
-    if (lastSyllable.phonemes.length === 0) return;
+    if (lastSyllable.ipaPhonemes.length === 0) return;
 
-    setSyllables([...syllables, { phonemes: [] }]);
+    setSyllables([...syllables, { ipaPhonemes: [] }]);
     setCurrentSyllableIdx(syllables.length);
   }, [syllables]);
 
@@ -501,11 +540,11 @@ export function Phoneditor(props: {
       if (idx < 0 || idx >= syllables.length) return;
 
       if (syllables.length === 1) {
-        setSyllables([{ phonemes: [] }]);
+        setSyllables([{ ipaPhonemes: [] }]);
         return;
       }
 
-      const newSyllables: SyllableInput[] = [];
+      const newSyllables: TtsSyllable[] = [];
       for (let i = 0; i < syllables.length; i += 1) {
         if (i === idx) continue;
         newSyllables.push(syllables[i]);
@@ -527,7 +566,7 @@ export function Phoneditor(props: {
   React.useEffect(() => {
     if (!playingPreview || !audioPreview) return;
 
-    lastAudio.current = new Audio(`data:audio/mp3;base64,${audioPreview}`);
+    lastAudio.current = new Audio(audioPreview);
     lastAudio.current.addEventListener('ended', () => {
       lastAudio.current = undefined;
       setPlayingPreview(false);
@@ -550,7 +589,7 @@ export function Phoneditor(props: {
     let combinedPhonemes = '';
     for (let i = 0; i < syllables.length; i += 1) {
       const syllable = syllables[i];
-      if (syllable.phonemes.length === 0) continue;
+      if (syllable.ipaPhonemes.length === 0) continue;
 
       if (i > 0) combinedPhonemes += '.';
 
@@ -558,8 +597,8 @@ export function Phoneditor(props: {
         combinedPhonemes += phonemes.en.stresses.primary[alphabetForPreview];
       }
 
-      for (const phoneme of syllable.phonemes) {
-        combinedPhonemes += phoneme[alphabetForPreview];
+      for (const phoneme of syllable.ipaPhonemes) {
+        combinedPhonemes += phoneme;
       }
     }
     setSsmlToPreview(
@@ -570,6 +609,33 @@ export function Phoneditor(props: {
     setPlayingPreview(true);
   }, [syllables]);
 
+  const saveOverrideMutation = api.ttsPhoneticOverrideSet.useMutation();
+  const saveOverride = saveOverrideMutation.mutateAsync;
+  const savingOverride = saveOverrideMutation.isLoading;
+
+  function onCancel() {
+    setSyllables([{ ...emptySyllable }]);
+    setCurrentSyllableIdx(0);
+    setCurrentChunk(undefined);
+  }
+
+  async function onSave() {
+    if (currentChunk === undefined) return;
+
+    const ssmlChunks = [...chunks];
+    ssmlChunks[currentChunk].syllables = syllables;
+    await saveOverride({
+      electionId,
+      key: stringKey,
+      ssmlChunks,
+      subkey,
+    });
+
+    setSyllables([{ ...emptySyllable }]);
+    setCurrentSyllableIdx(0);
+    setCurrentChunk(undefined);
+  }
+
   const currentSyllable = syllables[currentSyllableIdx];
   const syllableElements: JSX.Element[] = [];
   for (let i = 0; i < syllables.length; i += 1) {
@@ -578,8 +644,8 @@ export function Phoneditor(props: {
     }
 
     const syllable = syllables[i];
-    const canDelete = syllable.phonemes.length > 0 || i > 0;
-    const canStress = syllable.phonemes.length > 0;
+    const canDelete = syllable.ipaPhonemes.length > 0 || i > 0;
+    const canStress = syllable.ipaPhonemes.length > 0;
 
     const hasStress = syllable.stress === 'primary';
 
@@ -589,6 +655,7 @@ export function Phoneditor(props: {
       stressLabel = 'Remove Primary Stress';
       StressIcon = Icons.DownCircle;
     }
+
     syllableElements.push(
       <Syllable
         current={i === currentSyllableIdx}
@@ -596,21 +663,35 @@ export function Phoneditor(props: {
         emphasize={hasStress}
       >
         <SyllableText>
-          {syllable.phonemes.length === 0 && ' '}
+          {syllable.ipaPhonemes.length === 0 && ' '}
           {hasStress && phonemes.en.stresses.primary[alphabet]}
-          {syllable.phonemes.map((p, idxPhoneme) => (
+          {syllable.ipaPhonemes.map((p, idxPhoneme) => (
             // eslint-disable-next-line react/no-array-index-key
-            <span key={`${idxPhoneme}-${p.ipa}`}>{p[alphabet]}</span>
+            <span key={`${idxPhoneme}-${p}`}>
+              {
+                phonemes.en.allByIpa[p as keyof typeof phonemes.en.allByIpa][
+                  alphabet
+                ]
+              }
+            </span>
           ))}
         </SyllableText>
         {canDelete && (
-          <SyllableDelete onPress={deleteSyllable} value={i}>
+          <SyllableDelete
+            disabled={savingOverride}
+            onPress={deleteSyllable}
+            value={i}
+          >
             <Tooltip opaque>Delete Syllable</Tooltip>
             <Icons.Delete />
           </SyllableDelete>
         )}
         {canStress && (
-          <ToggleStress onPress={toggleStress} value={i}>
+          <ToggleStress
+            disabled={savingOverride}
+            onPress={toggleStress}
+            value={i}
+          >
             <Tooltip opaque>{stressLabel}</Tooltip>
             <StressIcon />
           </ToggleStress>
@@ -632,14 +713,14 @@ export function Phoneditor(props: {
     let phonemeCount = 0;
     for (const syllable of syllables) {
       if (phonemeCount > 1) break;
-      phonemeCount += syllable.phonemes.length;
+      phonemeCount += syllable.ipaPhonemes.length;
     }
 
     canPreview = phonemeCount > 1;
   }
 
   let modal: JSX.Element | undefined;
-  if (currentWord) {
+  if (typeof currentChunk === 'number') {
     const devMenu = (
       <DevMenu>
         <span>[ DEV ]</span>
@@ -657,17 +738,10 @@ export function Phoneditor(props: {
       <Modal
         actions={
           <React.Fragment>
-            <Button
-              icon="Done"
-              variant="primary"
-              onPress={setCurrentWord}
-              value={undefined}
-            >
+            <Button icon="Done" variant="primary" onPress={onSave}>
               Save
             </Button>
-            <Button onPress={setCurrentWord} value={undefined}>
-              Cancel
-            </Button>
+            <Button onPress={onCancel}>Cancel</Button>
           </React.Fragment>
         }
         content={
@@ -675,7 +749,7 @@ export function Phoneditor(props: {
             <PreviewContainer>
               <Preview>
                 {syllableElements}
-                {currentSyllable.phonemes.length > 0 && (
+                {currentSyllable.ipaPhonemes.length > 0 && (
                   <AddSyllable onPress={addSyllable}>
                     <Tooltip opaque>Add Syllable</Tooltip>
                     <Icons.Add />
@@ -688,7 +762,7 @@ export function Phoneditor(props: {
             </PreviewContainer>
             <P>
               <PlayPreview
-                disabled={audioPreviewLoading || !canPreview}
+                disabled={audioPreviewLoading || !canPreview || savingOverride}
                 icon="SoundOn"
                 onPress={onPlayPreview}
               >
@@ -698,6 +772,7 @@ export function Phoneditor(props: {
             <KeyboardContainer>
               <Keyboard
                 alphabet={alphabet}
+                disabled={savingOverride}
                 onInput={onInput}
                 split={splitKeyboard}
               />
@@ -708,7 +783,7 @@ export function Phoneditor(props: {
         title={
           <span>
             Edit Pronunciation: &quot;
-            <Font weight="regular">{currentWord}</Font>&quot;
+            <Font weight="regular">{chunks[currentChunk].text}</Font>&quot;
           </span>
         }
         modalWidth={ModalWidth.Wide}
@@ -722,4 +797,76 @@ export function Phoneditor(props: {
       {modal}
     </Container>
   );
+}
+
+export function PhoneticAudioControls(props: {
+  disabled?: boolean;
+  fallbackString: string;
+  stringKey: string;
+  subkey?: string;
+}): JSX.Element {
+  const { disabled, fallbackString, stringKey, subkey } = props;
+
+  const { electionId } = useParams<ElectionIdParams>();
+  const savedSsmlQuery = api.ttsPhoneticOverrideGet.useQuery({
+    electionId,
+    key: stringKey,
+    subkey,
+  });
+  const savedSsml = savedSsmlQuery.data;
+  const savedSsmlLoading = savedSsmlQuery.isLoading;
+
+  const ssml = React.useMemo(() => {
+    const chunks: string[] = ['<speak>'];
+
+    if (savedSsml) {
+      for (let i = 0; i < savedSsml.length; i += 1) {
+        const { syllables, text } = savedSsml[i];
+        chunks.push(syllables ? ssmlWord(syllables) : text);
+      }
+    } else {
+      chunks.push(fallbackString);
+    }
+
+    chunks.push('</speak>');
+
+    return chunks.join(' ');
+  }, [fallbackString, savedSsml]);
+
+  const dataUrlQuery = api.synthesizedSsml.useQuery({
+    languageCode: 'en',
+    ssml,
+  });
+  const dataUrl = dataUrlQuery.data;
+  const dataUrlLoading = dataUrlQuery.isLoading;
+
+  const disableControls = disabled || savedSsmlLoading || dataUrlLoading;
+
+  return (
+    <AudioControls>
+      <AudioPlayer
+        controls
+        aria-disabled={disableControls}
+        src={disableControls ? undefined : dataUrl}
+      />
+    </AudioControls>
+  );
+}
+
+function ssmlWord(syllables: TtsSyllable[]) {
+  let combinedPhonemes = '';
+  for (let i = 0; i < syllables.length; i += 1) {
+    const syllable = syllables[i];
+    if (syllable.ipaPhonemes.length === 0) continue;
+
+    if (i > 0) combinedPhonemes += '.';
+
+    if (syllable.stress === 'primary') {
+      combinedPhonemes += phonemes.en.stresses.primary.ipa;
+    }
+
+    for (const phoneme of syllable.ipaPhonemes) combinedPhonemes += phoneme;
+  }
+
+  return `<phoneme alphabet="ipa" ph="${combinedPhonemes}" />`;
 }

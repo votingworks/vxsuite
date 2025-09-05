@@ -5,10 +5,20 @@ import { assert, throwIllegalValue } from '@votingworks/basics';
 import { ElectionStringKey, LanguageCode } from '@votingworks/types';
 import { AppContext } from './context';
 import { GoogleCloudSpeechSynthesizerWithDbCache } from './speech_synthesizer';
-import { AudioOverride, AudioOverrideQuery } from './store_audio_demo';
+import {
+  AudioOverride,
+  AudioOverrideQuery,
+  AudioQuery,
+  AudioSource,
+  AudioSourceEntry,
+  SsmlChunk,
+  TtsPhoneticEntry,
+  TtsTextEntry,
+} from './store_audio_demo';
 
 export interface UiStringInfo {
   key: string;
+  subkey?: string;
   str: string;
   ttsStr: string;
 }
@@ -35,7 +45,8 @@ export function apiMethods(ctx: AppContext) {
       const strings: UiStringInfo[] = [];
       for (const contest of election.contests) {
         strings.push({
-          key: `${ElectionStringKey.CONTEST_TITLE}.${contest.id}`,
+          key: ElectionStringKey.CONTEST_TITLE,
+          subkey: contest.id,
           str: contest.title,
           ttsStr: contest.title,
         });
@@ -43,7 +54,8 @@ export function apiMethods(ctx: AppContext) {
         switch (contest.type) {
           case 'yesno':
             strings.push({
-              key: `${ElectionStringKey.CONTEST_DESCRIPTION}.${contest.id}`,
+              key: ElectionStringKey.CONTEST_DESCRIPTION,
+              subkey: contest.id,
               str: contest.description,
               ttsStr: convertHtmlToAudioCues(contest.description),
             });
@@ -53,7 +65,8 @@ export function apiMethods(ctx: AppContext) {
           case 'candidate':
             for (const candidate of contest.candidates) {
               strings.push({
-                key: `${ElectionStringKey.CANDIDATE_NAME}.${candidate.id}`,
+                key: ElectionStringKey.CANDIDATE_NAME,
+                subkey: candidate.id,
                 str: candidate.name,
                 ttsStr: candidate.name.replaceAll('"', ''),
               });
@@ -68,7 +81,8 @@ export function apiMethods(ctx: AppContext) {
 
       for (const party of election.parties) {
         strings.push({
-          key: `${ElectionStringKey.PARTY_FULL_NAME}.${party.id}`,
+          key: ElectionStringKey.PARTY_FULL_NAME,
+          subkey: party.id,
           str: party.name,
           ttsStr: party.name,
         });
@@ -86,6 +100,14 @@ export function apiMethods(ctx: AppContext) {
 
     audioOverrideExists(input: AudioOverrideQuery): Promise<boolean> {
       return ctx.workspace.store.audioOverrideExists(input);
+    },
+
+    audioSourceGet(input: AudioQuery): Promise<AudioSource> {
+      return ctx.workspace.store.audioSourceGet(input);
+    },
+
+    audioSourceSet(input: AudioSourceEntry): Promise<void> {
+      return ctx.workspace.store.audioSourceSet(input);
     },
 
     async synthesizeSsml(input: {
@@ -110,6 +132,22 @@ export function apiMethods(ctx: AppContext) {
       );
 
       return `data:audio/mp3;base64,${base64Data}`;
+    },
+
+    ttsPhoneticOverrideGet(input: AudioQuery): Promise<SsmlChunk[] | null> {
+      return ctx.workspace.store.ttsPhoneticOverrideGet(input);
+    },
+
+    ttsPhoneticOverrideSet(input: TtsPhoneticEntry): Promise<void> {
+      return ctx.workspace.store.ttsPhoneticOverrideSet(input);
+    },
+
+    ttsTextOverrideGet(input: AudioQuery): Promise<string | null> {
+      return ctx.workspace.store.ttsTextOverrideGet(input);
+    },
+
+    ttsTextOverrideSet(input: TtsTextEntry): Promise<void> {
+      return ctx.workspace.store.ttsTextOverrideSet(input);
     },
 
     async uploadAudioFiles(input: {

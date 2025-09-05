@@ -115,7 +115,7 @@ function RecordedAudioCandidate(props: RecordedAudioProps): React.ReactNode {
       if (candidate.id !== subkey) continue;
       contestTitle = contest.title;
       candidateName = candidate.name;
-      partyId = candidate.partyIds?.[0];
+      partyId = contest.partyId || candidate.partyIds?.[0];
     }
   }
 

@@ -96,7 +96,7 @@ export interface Phoneme {
   isConsonant: boolean;
 }
 
-const consonantModfier = {
+const consonantModifier = {
   regular: 'ə',
   ipa: 'ə',
   'x-sampa': '@',
@@ -104,10 +104,11 @@ const consonantModfier = {
 
 export function Keyboard(props: {
   alphabet: 'ipa' | 'x-sampa' | 'regular';
+  disabled?: boolean;
   onInput: (phoneme: Phoneme) => void;
   split?: boolean;
 }): JSX.Element {
-  const { alphabet, onInput, split } = props;
+  const { alphabet, disabled, onInput, split } = props;
   const audioTimer = React.useRef<number>();
   const lastAudioPhoneme = React.useRef<Phoneme>();
   const lastAudio = React.useRef<HTMLAudioElement>();
@@ -143,7 +144,7 @@ export function Keyboard(props: {
       audioTimer.current = window.setTimeout(() => {
         let sound = phoneme[alphabetForAudio];
         if (phoneme.isConsonant) {
-          sound += consonantModfier[alphabetForAudio];
+          sound += consonantModifier[alphabetForAudio];
         }
 
         setCurrentSsml(
@@ -178,7 +179,7 @@ export function Keyboard(props: {
   React.useEffect(() => {
     if (!audioSample || !playingSample) return;
 
-    const thisAudio = new Audio(`data:audio/mp3;base64,${audioSample}`);
+    const thisAudio = new Audio(audioSample);
     thisAudio.addEventListener('loadeddata', () => {
       if (thisAudio !== lastAudio.current) {
         thisAudio.pause();
@@ -211,6 +212,7 @@ export function Keyboard(props: {
             </P>
           </Tooltip>
           <Key
+            disabled={disabled}
             onMouseOver={onMouseOver}
             onMouseOut={onMouseOut}
             onPress={onInput}
@@ -220,7 +222,7 @@ export function Keyboard(props: {
           </Key>
         </TooltipContainer>
       )),
-    [alphabet, onMouseOver, onMouseOut, onInput, split]
+    [alphabet, disabled, onMouseOver, onMouseOut, onInput, split]
   );
 
   const vowels = React.useMemo(
@@ -238,6 +240,7 @@ export function Keyboard(props: {
             </P>
           </Tooltip>
           <Key
+            disabled={disabled}
             onMouseOver={onMouseOver}
             onMouseOut={onMouseOut}
             onPress={onInput}
@@ -247,7 +250,7 @@ export function Keyboard(props: {
           </Key>
         </TooltipContainer>
       )),
-    [alphabet, onMouseOver, onMouseOut, onInput, split]
+    [alphabet, disabled, onMouseOver, onMouseOut, onInput, split]
   );
 
   const all = React.useMemo(
@@ -265,6 +268,7 @@ export function Keyboard(props: {
             </P>
           </Tooltip>
           <Key
+            disabled={disabled}
             onMouseOver={onMouseOver}
             onMouseOut={onMouseOut}
             onPress={onInput}
@@ -274,7 +278,7 @@ export function Keyboard(props: {
           </Key>
         </TooltipContainer>
       )),
-    [alphabet, onMouseOver, onMouseOut, onInput, split]
+    [alphabet, disabled, onMouseOver, onMouseOut, onInput, split]
   );
 
   return (
