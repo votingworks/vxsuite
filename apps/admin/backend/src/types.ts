@@ -389,6 +389,8 @@ export interface CvrContestTag {
   hasMarginalMark?: boolean;
   hasWriteIn?: boolean;
   hasUnmarkedWriteIn?: boolean;
+  hasOvervote?: boolean;
+  hasUndervote?: boolean;
 }
 
 /**

@@ -102,12 +102,23 @@ type StoreCastVoteRecordAttributes = Omit<
   readonly partyId: string | null;
 };
 
+/**
+ * Adjudication queue ordering:
+ * 1. Overvotes
+ * 2. Write-ins (unmarked and marked), no marginal marks, no overvotes, no undervotes
+ * 3. Write-ins and marginal marks, no overvotes, no undervotes
+ * 4. Marginal marks, no overvotes, no undervotes
+ * 5. Undervotes
+ */
+
 const ADJUDICATION_QUEUE_ORDER_BY = `
   order by
     case
-      when (has_write_in = 1 or has_unmarked_write_in = 1) and has_marginal_mark = 0 then 1
-      when (has_write_in = 1 or has_unmarked_write_in = 1) and has_marginal_mark = 1 then 2
-      else 3
+      when has_overvote = 1 then 1
+      when (has_write_in = 1 or has_unmarked_write_in = 1) and has_marginal_mark = 0 and has_undervote = 0 then 2
+      when (has_write_in = 1 or has_unmarked_write_in = 1) and has_marginal_mark = 1 and has_undervote = 0 then 3
+      when has_marginal_mark = 1 and has_overvote = 0 and has_undervote = 0 then 4
+      else 5
     end,
     sequence_id
 `;
@@ -2618,6 +2629,8 @@ export class Store {
   addCvrContestTag({
     cvrId,
     contestId,
+    hasOvervote = false,
+    hasUndervote = false,
     hasWriteIn = false,
     hasUnmarkedWriteIn = false,
     hasMarginalMark = false,
@@ -2628,14 +2641,18 @@ export class Store {
           cvr_id,
           contest_id,
           is_resolved,
+          has_overvote,
+          has_undervote,
           has_write_in,
           has_unmarked_write_in,
           has_marginal_mark
-        ) values (?, ?, ?, ?, ?, ?)
+        ) values (?, ?, ?, ?, ?, ?, ?, ?)
       `,
       cvrId,
       contestId,
       asSqliteBool(false),
+      asSqliteBool(hasOvervote),
+      asSqliteBool(hasUndervote),
       asSqliteBool(hasWriteIn),
       asSqliteBool(hasUnmarkedWriteIn),
       asSqliteBool(hasMarginalMark)
@@ -2655,6 +2672,8 @@ export class Store {
           cvr_id as cvrId,
           contest_id as contestId,
           is_resolved as isResolved,
+          has_overvote as hasOvervote,
+          has_undervote as hasUndervote,
           has_write_in as hasWriteIn,
           has_unmarked_write_in as hasUnmarkedWriteIn,
           has_marginal_mark as hasMarginalMark
@@ -2670,6 +2689,8 @@ export class Store {
           cvrId: Id;
           contestId: ContestId;
           isResolved: SqliteBool;
+          hasOvervote: SqliteBool;
+          hasUndervote: SqliteBool;
           hasWriteIn: SqliteBool;
           hasUnmarkedWriteIn: SqliteBool;
           hasMarginalMark: SqliteBool;
@@ -2680,6 +2701,8 @@ export class Store {
       ? {
           ...row,
           isResolved: fromSqliteBool(row.isResolved),
+          hasOvervote: fromSqliteBool(row.hasOvervote),
+          hasUndervote: fromSqliteBool(row.hasUndervote),
           hasWriteIn: fromSqliteBool(row.hasWriteIn),
           hasUnmarkedWriteIn: fromSqliteBool(row.hasUnmarkedWriteIn),
           hasMarginalMark: fromSqliteBool(row.hasMarginalMark),

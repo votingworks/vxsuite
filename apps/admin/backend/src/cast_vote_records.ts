@@ -39,6 +39,7 @@ import {
   isFeatureFlagEnabled,
   parseCastVoteRecordReportExportDirectoryName,
   SCANNER_RESULTS_FOLDER,
+  CachedElectionLookups,
 } from '@votingworks/utils';
 
 import { MarkScores } from '@votingworks/types/src/tabulation';
@@ -56,6 +57,7 @@ import {
   CvrContestTagList,
   formatMarkScoreDistributionForLog,
   getCastVoteRecordAdjudicationFlags,
+  getNumberVotesAllowed,
   MarkScoreDistribution,
   updateMarkScoreDistributionFromMarkScores,
 } from './util/cast_vote_records';
@@ -204,21 +206,35 @@ export async function listCastVoteRecordExportsOnUsbDrive(
  */
 export function determineCvrContestTags({
   store,
+  electionDefinition,
   cvrId,
-  writeIns,
   isHmpb,
+  votes,
+  writeIns,
   markScores,
 }: {
   store: Store;
+  electionDefinition: ElectionDefinition;
   cvrId: Id;
-  writeIns: CastVoteRecordWriteIn[];
   isHmpb: boolean;
+  votes: Tabulation.Votes;
+  writeIns: CastVoteRecordWriteIn[];
   markScores?: MarkScores;
 }): CvrContestTag[] {
   const electionId = assertDefined(store.getCurrentElectionId());
   const { adminAdjudicationReasons, markThresholds } =
     store.getSystemSettings(electionId);
+  const shouldTagMarginalMarks = adminAdjudicationReasons.includes(
+    AdjudicationReason.MarginalMark
+  );
+  const shouldTagOvervotes = adminAdjudicationReasons.includes(
+    AdjudicationReason.Overvote
+  );
+  const shouldTagUndervotes = adminAdjudicationReasons.includes(
+    AdjudicationReason.Undervote
+  );
 
+  // Write-ins
   const tagsByContestId = new CvrContestTagList(cvrId);
   for (const writeIn of writeIns) {
     const tag = tagsByContestId.getOrCreateTag(writeIn.contestId);
@@ -229,10 +245,8 @@ export function determineCvrContestTags({
     }
   }
 
-  if (
-    adminAdjudicationReasons.includes(AdjudicationReason.MarginalMark) &&
-    isHmpb
-  ) {
+  // Marginal marks
+  if (shouldTagMarginalMarks && isHmpb) {
     assert(
       markScores !== undefined,
       `mark scores expected for hmpb with 'MarginalMark' 
@@ -252,7 +266,32 @@ export function determineCvrContestTags({
     }
   }
 
-  return Array.from(tagsByContestId.toArray());
+  // Overvotes, undervotes
+  if (shouldTagOvervotes || shouldTagUndervotes) {
+    for (const [contestId, optionIdsWithVotes] of Object.entries(votes)) {
+      const contest = CachedElectionLookups.getContestById(
+        electionDefinition,
+        contestId
+      );
+      const votesAllowed = getNumberVotesAllowed(contest);
+      const voteCount = optionIdsWithVotes.length;
+
+      const hasOvervote = voteCount > votesAllowed;
+      const hasUndervote = voteCount < votesAllowed;
+
+      if (hasOvervote && shouldTagOvervotes) {
+        const tag = tagsByContestId.getOrCreateTag(contestId);
+        tag.hasOvervote = true;
+      }
+
+      if (hasUndervote && shouldTagUndervotes) {
+        const tag = tagsByContestId.getOrCreateTag(contestId);
+        tag.hasUndervote = true;
+      }
+    }
+  }
+
+  return tagsByContestId.toArray();
 }
 
 /**
@@ -422,9 +461,11 @@ export async function importCastVoteRecords(
       if (isCastVoteRecordNew) {
         const castVoteRecordContestTags = determineCvrContestTags({
           store,
+          electionDefinition,
           cvrId: castVoteRecordId,
-          writeIns: castVoteRecordWriteIns,
           isHmpb,
+          votes,
+          writeIns: castVoteRecordWriteIns,
           markScores,
         });
         if (castVoteRecordContestTags.length > 0) {

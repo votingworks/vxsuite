@@ -139,7 +139,18 @@ export function SystemSettingsForm({
   ];
 
   const scannerAdjudicationReasonOptions = adjudicationReasonOptions.filter(
+    // Not implemented
     (option) => option.value !== AdjudicationReason.MarginalMark
+  );
+
+  const adminAdjudicationReasonOptions = adjudicationReasonOptions.filter(
+    (option) =>
+      // Not implemented
+      option.value !== AdjudicationReason.BlankBallot &&
+      // UnmarkedWriteIn is excluded from adminAdjudicationReasons because
+      // admin will surface all unmarked write-ins that the scanner tags.
+      // It is effectively equal to the scanner's adjudication setting.
+      option.value !== AdjudicationReason.UnmarkedWriteIn
   );
 
   enum CvrOption {
@@ -217,9 +228,7 @@ export function SystemSettingsForm({
             />
             <CheckboxGroup
               label="VxAdmin"
-              options={adjudicationReasonOptions.filter((option) =>
-                [AdjudicationReason.MarginalMark].includes(option.value)
-              )}
+              options={adminAdjudicationReasonOptions}
               value={systemSettings.adminAdjudicationReasons ?? []}
               onChange={(value) =>
                 setSystemSettings({
