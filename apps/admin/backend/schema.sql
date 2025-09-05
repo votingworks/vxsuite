@@ -144,9 +144,11 @@ create table cvr_contest_tags (
   cvr_id varchar(36) not null,
   contest_id text not null,
   is_resolved boolean not null default false,
-  has_marginal_mark boolean not null default false,
+  has_overvote boolean not null default false,
+  has_undervote boolean not null default false,
   has_write_in boolean not null default false,
   has_unmarked_write_in boolean not null default false,
+  has_marginal_mark boolean not null default false,
   unique (cvr_id, contest_id),
   foreign key (cvr_id) references cvrs(id) on delete cascade
 );
