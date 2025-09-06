@@ -10,7 +10,7 @@ export LC_ALL=C
 
 MIGRATION_DIR="${MIGRATION_DIR:-apps/design/backend/migrations}"
 REPO_ROOT="$(git rev-parse --show-toplevel)"
-cd "$REPO_ROOT"
+cd "$REPO_ROOT" >/dev/null 2>&1
 MODE="${1:-auto}"
 
 validate_commits_vs_origin_main() {
@@ -32,7 +32,7 @@ validate_commits_vs_origin_main() {
   if [[ -n "$added_migrations" && -n "$missing_migrations" ]]; then
     echo "Branch adds migrations but is missing migration(s) from main:"
     printf "%s\n" "$missing_migrations"
-    echo "Re-generate the added migration(s) with a current timestamp."
+    echo "Regenerate the added migration(s) with a current timestamp."
     exit 1
   fi
 
@@ -42,7 +42,8 @@ validate_commits_vs_origin_main() {
     fail=0
     for f in $added_migrations; do
       if [[ ! "$f" > "$latest_migration_on_main" ]]; then
-        echo "Migration '$f' must have a timestamp prefix after '$latest_migration_on_main'. Re-generate the migration with a current timestamp."
+        echo "Migration '$f' must have a timestamp prefix after '$latest_migration_on_main'."
+        echo "Regenerate the migration with a current timestamp."
         fail=1
       fi
     done
@@ -67,7 +68,7 @@ validate_head_vs_prev_commit() {
   for f in $added_migrations; do
     if [[ ! "$f" > "$prev_newest_migration" ]]; then
       echo "Migration '$f' must have timestamp after '$prev_newest_migration'"
-      echo "Re-generate the migration with a current timestamp."
+      echo "Regenerate the migration with a current timestamp."
       fail=1
     fi
   done
