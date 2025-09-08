@@ -1,4 +1,5 @@
-import { Button, DesktopPalette, ButtonProps } from '@votingworks/ui';
+import { Button, DesktopPalette, ButtonProps, H5 } from '@votingworks/ui';
+import React from 'react';
 import styled from 'styled-components';
 
 export const AudioControls = styled.div`
@@ -53,3 +54,8 @@ export const AudioRefreshButton = styled(Button)`
     }
   }
 ` as unknown as new <T>() => React.Component<ButtonProps<T>>;
+
+export const SubHeading = styled(H5)`
+  color: #666;
+  font-size: 0.8rem;
+`;

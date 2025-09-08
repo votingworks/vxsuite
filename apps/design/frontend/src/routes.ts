@@ -103,9 +103,11 @@ export const routes = {
           title: 'Audio',
           path: `${root}/ballots/audio`,
         },
-        ballotAudioManage: (stringKey: string) => ({
+        ballotAudioManage: (stringKey: string, subkey?: string) => ({
           title: 'Audio',
-          path: `${root}/ballots/audio/${stringKey}`,
+          path: subkey
+            ? `${root}/ballots/audio/${stringKey}/${subkey}`
+            : `${root}/ballots/audio/${stringKey}`,
         }),
         viewBallot: (ballotStyleId: string, precinctId: string) => ({
           title: 'View Ballot',

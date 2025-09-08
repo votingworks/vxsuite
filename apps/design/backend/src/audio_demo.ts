@@ -79,15 +79,6 @@ export function apiMethods(ctx: AppContext) {
         }
       }
 
-      for (const party of election.parties) {
-        strings.push({
-          key: ElectionStringKey.PARTY_FULL_NAME,
-          subkey: party.id,
-          str: party.name,
-          ttsStr: party.name,
-        });
-      }
-
       // eslint-disable-next-line vx/no-array-sort-mutation
       return strings.sort((a, b) =>
         a.str.localeCompare(b.str, undefined, { numeric: true })

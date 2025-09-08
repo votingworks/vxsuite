@@ -1,7 +1,7 @@
 /* eslint-disable vx/gts-safe-number-parse */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 import {
   Button,
@@ -9,21 +9,36 @@ import {
   Caption,
   DesktopPalette,
   Font,
+  H2,
   Icons,
+  List,
+  ListItem,
   P,
 } from '@votingworks/ui';
 
 import styled from 'styled-components';
-import { ElectionStringKey, LanguageCode } from '@votingworks/types';
-import { throwIllegalValue } from '@votingworks/basics';
+import {
+  AnyContest,
+  CandidateContest,
+  ElectionStringKey,
+  LanguageCode,
+  YesNoContest,
+} from '@votingworks/types';
+import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { UiStringInfo } from '@votingworks/design-backend';
 import * as api from '../api';
-import { ElectionIdParams } from '../routes';
+import { ElectionIdParams, routes } from '../routes';
 import { Phoneditor, PhoneticAudioControls } from './phoneditor';
 import { UploadButton } from './upload_button';
 import { RecordedAudio, RecordedAudioControls } from './recorded_audio';
-import { AudioControls, AudioPlayer, AudioRefreshButton } from './elements';
+import {
+  AudioControls,
+  AudioPlayer,
+  AudioRefreshButton,
+  SubHeading,
+} from './elements';
 import { UploadScreen } from './upload_screen';
+import { BallotAudioPathParams } from './routes';
 
 const Container = styled.div`
   box-sizing: border-box;
@@ -33,7 +48,7 @@ const Container = styled.div`
   width: 100%;
   overflow-x: scroll;
   overflow-y: hidden;
-  padding: 1rem 0 2rem;
+  padding: 1rem 0 0;
 
   * {
     :focus {
@@ -116,6 +131,7 @@ const Body = styled.div`
   flex-direction: column;
   flex-grow: 1;
   gap: 1rem;
+  overflow: auto;
   padding: 0 1rem 1rem;
   min-width: 50ch;
   width: 100%;
@@ -155,18 +171,21 @@ const ButtonBar = styled.div`
 `;
 
 export function BallotAudioTab(): React.ReactNode {
-  const [currentString, setCurrentString] = React.useState<UiStringInfo>();
   const [searchString, setSearchString] = React.useState<string>('');
   const [filesToUpload, setFilesToUpload] = React.useState<File[]>();
-  // const [searchResults, setSearchResults] = React.useState<
-  //   Array<[string, string]>
-  // >([]);
   const searchDebounceTimer = React.useRef<number>();
 
-  const { electionId } = useParams<ElectionIdParams>();
+  const { electionId, stringKey, subkey } = useParams<BallotAudioPathParams>();
   const getElectionInfoQuery = api.getElectionInfo.useQuery(electionId);
 
   const appStrings = api.appStrings.useQuery(electionId).data;
+  const currentString = React.useMemo(() => {
+    for (const appString of appStrings || []) {
+      if (appString.key !== stringKey || appString.subkey !== subkey) continue;
+
+      return appString;
+    }
+  }, [appStrings, stringKey, subkey]);
 
   const onSearch = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -234,15 +253,7 @@ export function BallotAudioTab(): React.ReactNode {
         </SearchBox>
         <StringSnippets>
           {searchResults.map((string) => (
-            <StringSnippet
-              key={joinStringKey(string)}
-              onPress={setCurrentString}
-              selected={
-                string.key === currentString?.key &&
-                string.subkey === currentString?.subkey
-              }
-              string={string}
-            />
+            <StringSnippet key={joinStringKey(string)} string={string} />
           ))}
         </StringSnippets>
       </SideBar>
@@ -255,6 +266,11 @@ export function BallotAudioTab(): React.ReactNode {
                 text={currentString.str}
               />
             )}
+            <StringInfo
+              stringKey={currentString.key}
+              subkey={currentString.subkey}
+              text={currentString.str}
+            />
             <AudioEditor
               key={joinStringKey(currentString)}
               str={currentString}
@@ -385,6 +401,235 @@ function StringPreview(props: { stringKey: string; text: string }) {
   );
 }
 
+function StringInfo(props: {
+  stringKey: string;
+  subkey?: string;
+  text: string;
+}) {
+  const { stringKey, subkey, text } = props;
+
+  switch (stringKey) {
+    case ElectionStringKey.CANDIDATE_NAME:
+      return <StringInfoCandidateName id={assertDefined(subkey)} text={text} />;
+
+    case ElectionStringKey.CONTEST_DESCRIPTION:
+      return (
+        <StringInfoContestDescription id={assertDefined(subkey)} text={text} />
+      );
+
+    case ElectionStringKey.CONTEST_TITLE:
+      return <StringInfoContestTitle id={assertDefined(subkey)} text={text} />;
+
+    default:
+      return (
+        <StringPreviewContainer>
+          <Font weight="bold">Display/Print Text</Font>
+          {/*  eslint-disable-next-line react/no-danger */}
+          <div dangerouslySetInnerHTML={{ __html: text }} />
+        </StringPreviewContainer>
+      );
+  }
+}
+
+function StringInfoContestTitle(props: { id: string; text: string }) {
+  const { id, text } = props;
+  const { electionId } = useParams<ElectionIdParams>();
+
+  const contests = api.listContests.useQuery(electionId).data;
+  const parties = api.listParties.useQuery(electionId).data;
+
+  if (!contests || !parties) return null;
+
+  let contest: AnyContest | undefined;
+  for (const c of contests) {
+    if (c.id !== id) continue;
+    contest = c;
+    break;
+  }
+
+  assert(contest);
+
+  switch (contest?.type) {
+    case 'candidate':
+      return <StringInfoContestTitleCandidate contest={contest} text={text} />;
+    case 'yesno':
+      return <StringInfoContestTitleYesNo contest={contest} text={text} />;
+    default:
+      throwIllegalValue(contest, 'type');
+  }
+}
+
+function StringInfoContestTitleYesNo(props: {
+  contest: YesNoContest;
+  text: string;
+}) {
+  const { contest, text } = props;
+  const { electionId } = useParams<ElectionIdParams>();
+
+  return (
+    <StringPreviewContainer>
+      <H2>{text}</H2>
+      <Link
+        to={
+          routes
+            .election(electionId)
+            .ballots.ballotAudioManage(
+              ElectionStringKey.CONTEST_DESCRIPTION,
+              contest.id
+            ).path
+        }
+        style={{ color: '#666', textDecoration: 'none' }}
+      >
+        {/*  eslint-disable-next-line react/no-danger */}
+        <div dangerouslySetInnerHTML={{ __html: contest.description }} />
+      </Link>
+    </StringPreviewContainer>
+  );
+}
+
+function StringInfoContestTitleCandidate(props: {
+  contest: CandidateContest;
+  text: string;
+}) {
+  const { contest, text } = props;
+  const { electionId } = useParams<ElectionIdParams>();
+  const parties = api.listParties.useQuery(electionId).data;
+
+  const candidates = React.useMemo(
+    () => (
+      <List maxColumns={3}>
+        {contest.candidates.map((c) => (
+          <ListItem key={c.id}>
+            <Link
+              to={
+                routes
+                  .election(electionId)
+                  .ballots.ballotAudioManage(
+                    ElectionStringKey.CANDIDATE_NAME,
+                    c.id
+                  ).path
+              }
+            >
+              <Caption>{c.name}</Caption>
+            </Link>
+          </ListItem>
+        ))}
+      </List>
+    ),
+    [contest, electionId]
+  );
+
+  if (!parties) return null;
+
+  let contestPartyName = '';
+  if (contest.partyId) {
+    for (const party of parties) {
+      if (party.id !== contest.partyId) continue;
+      contestPartyName = party.fullName;
+      break;
+    }
+  }
+
+  return (
+    <StringPreviewContainer>
+      {contestPartyName && <SubHeading>{contestPartyName}</SubHeading>}
+      <H2>{text}</H2>
+      {candidates}
+    </StringPreviewContainer>
+  );
+}
+
+function StringInfoContestDescription(props: { id: string; text: string }) {
+  const { id, text } = props;
+  const { electionId } = useParams<ElectionIdParams>();
+
+  const contests = api.listContests.useQuery(electionId).data;
+
+  if (!contests) return null;
+
+  let contest: YesNoContest | undefined;
+  for (const c of contests) {
+    if (c.id !== id) continue;
+    assert(c.type === 'yesno');
+    contest = c;
+    break;
+  }
+
+  if (!contest) return null;
+
+  return (
+    <StringPreviewContainer>
+      <H2>
+        <Link
+          to={
+            routes
+              .election(electionId)
+              .ballots.ballotAudioManage(
+                ElectionStringKey.CONTEST_TITLE,
+                contest.id
+              ).path
+          }
+          style={{ color: '#666', textDecoration: 'none' }}
+        >
+          {contest.title}
+        </Link>
+      </H2>
+      {/*  eslint-disable-next-line react/no-danger */}
+      <div dangerouslySetInnerHTML={{ __html: text }} />
+    </StringPreviewContainer>
+  );
+}
+
+function StringInfoCandidateName(props: { id: string; text: string }) {
+  const { id, text } = props;
+  const { electionId } = useParams<ElectionIdParams>();
+
+  const contests = api.listContests.useQuery(electionId).data;
+  const parties = api.listParties.useQuery(electionId).data;
+
+  const [contest, candidate, party] = React.useMemo(() => {
+    for (const con of contests || []) {
+      if (con.type !== 'candidate') continue;
+
+      for (const can of con.candidates) {
+        if (can.id !== id) continue;
+
+        if (!can.partyIds?.length) return [con, can];
+
+        for (const p of parties || []) {
+          if (p.id !== can.partyIds[0]) continue;
+          return [con, can, p];
+        }
+      }
+    }
+
+    return [];
+  }, [contests, id, parties]);
+
+  if (!candidate || !contest) return null;
+
+  return (
+    <StringPreviewContainer>
+      <SubHeading>
+        <Link
+          to={
+            routes
+              .election(electionId)
+              .ballots.ballotAudioManage(
+                ElectionStringKey.CONTEST_TITLE,
+                contest.id
+              ).path
+          }
+        >
+          {contest.title}
+        </Link>
+      </SubHeading>
+      <H2>{text}</H2>
+      {party && <P>{party.name}</P>}
+    </StringPreviewContainer>
+  );
+}
+
 const TtsTextEditor = styled.textarea`
   border-color: #eee;
   border-width: 2px;
@@ -415,8 +660,9 @@ const AudioEditorTab = styled(Button)`
   outline-offset: 2px;
   overflow: hidden;
   padding: 0.125rem 0.4rem 0.25rem;
-  transition: 120ms ease-out;
+  transition-duration: 120ms;
   transition-property: background-color, border, color;
+  transition-timing-function: ease-out;
 
   :focus,
   :hover {
@@ -488,7 +734,10 @@ function AudioEditor(props: { str: UiStringInfo }) {
     setTtsString(event.target.value || '');
   }
 
-  if (!ttsAudioDataUrl && !synthesizing) onRefresh();
+  React.useEffect(() => {
+    if (!ttsAudioDataUrl && !synthesizing) onRefresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const disabled = synthesizing;
 
@@ -583,14 +832,16 @@ function AudioEditor(props: { str: UiStringInfo }) {
         >
           <Caption weight="bold">Text-To-Speech</Caption>
         </AudioEditorTab>
-        <AudioEditorTab
-          aria-selected={kind === 'ipa'}
-          onPress={setKind}
-          role="tab"
-          value="ipa"
-        >
-          <Caption weight="bold">Phonetic</Caption>
-        </AudioEditorTab>
+        {str.key !== ElectionStringKey.CONTEST_DESCRIPTION && (
+          <AudioEditorTab
+            aria-selected={kind === 'ipa'}
+            onPress={setKind}
+            role="tab"
+            value="ipa"
+          >
+            <Caption weight="bold">Phonetic</Caption>
+          </AudioEditorTab>
+        )}
         <AudioEditorTab
           aria-selected={kind === 'rec'}
           onPress={setKind}
@@ -608,61 +859,59 @@ function AudioEditor(props: { str: UiStringInfo }) {
   );
 }
 
-const StringSnippetContainer = styled.button`
+const StringSnippetContainer = styled(Link)`
   background: none;
   border: none;
+  border-bottom: 1px solid #eee;
   box-shadow: inset 0 0 0 ${DesktopPalette.Purple40};
   box-sizing: border-box;
+  color: #666 !important;
   cursor: pointer;
   display: block;
   font-size: 1rem;
+  font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
   margin: 0;
   min-height: max-content;
   overflow-x: hidden;
   overflow-y: visible;
   padding: 0.75rem;
   text-align: left;
+  text-decoration: none;
   text-overflow: ellipsis;
+  transition-duration: 120ms;
+  transition-property: background-color, border, color;
+  transition-timing-function: ease-out;
   white-space: nowrap;
-  border-bottom: 1px solid #eee;
-  font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
-  color: #666;
-  transition: 120ms ease-out;
-  transition-property: border, color;
 
   :focus,
   :hover {
-    background-color: ${DesktopPalette.Purple10};
+    background-color: ${DesktopPalette.Purple10} !important;
     box-shadow: inset 0.3rem 0 0 ${DesktopPalette.Purple40};
-    color: #000;
+    color: #000 !important;
+    filter: none !important;
     outline: none;
   }
 
   :active,
   &[aria-selected='true'] {
-    background-color: ${DesktopPalette.Purple20};
+    background-color: ${DesktopPalette.Purple20} !important;
     box-shadow: inset 0.3rem 0 0 ${DesktopPalette.Purple60};
-    color: #000;
+    color: #000 !important;
   }
 `;
 
-function StringSnippet(props: {
-  onPress: (index: UiStringInfo) => void;
-  selected?: boolean;
-  string: UiStringInfo;
-}) {
-  const { onPress, selected, string } = props;
-
-  const onClick = React.useCallback(() => {
-    onPress(string);
-  }, [onPress, string]);
+function StringSnippet(props: { string: UiStringInfo }) {
+  const { string } = props;
+  const { electionId, stringKey, subkey } = useParams<BallotAudioPathParams>();
 
   return (
     <StringSnippetContainer
-      aria-selected={selected}
-      onClick={onClick}
-      onFocus={onClick}
-      type="button"
+      aria-selected={stringKey === string.key && subkey === string.subkey}
+      to={
+        routes
+          .election(electionId)
+          .ballots.ballotAudioManage(string.key, string.subkey).path
+      }
       role="option"
     >
       {string.str}
