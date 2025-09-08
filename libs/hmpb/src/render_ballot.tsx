@@ -395,14 +395,10 @@ async function extractGridLayout(
       }
     }
 
-    if (optionElement === null || bubbleElement === null) {
-      return {
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-      };
-    }
+    assert(
+      optionElement !== null && bubbleElement !== null,
+      'No contest option elements found on the ballot but at least one is required.'
+    );
 
     const bubbleElementCenter: Point<Pixels> = {
       x: bubbleElement.x + bubbleElement.width / 2,
