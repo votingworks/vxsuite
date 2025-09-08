@@ -1,4 +1,5 @@
 import util from 'node:util';
+import { Buffer } from 'node:buffer';
 import express, { Application } from 'express';
 import {
   generateSignedHashValidationQrCodeValue,
@@ -7,6 +8,7 @@ import {
 import {
   assert,
   assertDefined,
+  iter,
   ok,
   Result,
   throwIllegalValue,
@@ -22,10 +24,14 @@ import {
   PollsState,
   PrecinctSelection,
   PrinterStatus,
+  formatBallotHash,
 } from '@votingworks/types';
 import {
+  getEntries,
   getPrecinctSelectionName,
   isElectionManagerAuth,
+  openZip,
+  readEntry,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 
@@ -39,6 +45,8 @@ import { LogEventId, Logger } from '@votingworks/logging';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { Printer } from '@votingworks/printing';
 import { PrintCalibration } from '@votingworks/hmpb';
+import * as fs from 'node:fs/promises';
+import { join } from 'node:path';
 import { getMachineConfig } from './machine_config';
 import { Workspace } from './util/workspace';
 import { ElectionState, PrintBallotProps, PrintMode } from './types';
@@ -49,6 +57,44 @@ import { ElectionRecord } from './store';
 import * as barcodes from './barcodes';
 import { setUpBarcodeDemo } from './barcodes/demo';
 import { Player as AudioPlayer } from './audio/player';
+
+async function readBallotPdfsFromUsbDrive(
+  electionDefinition: ElectionDefinition,
+  usbDrive: UsbDrive
+): Promise<Map<BallotStyleId, Buffer>> {
+  const usbDriveStatus = await usbDrive.status();
+  assert(usbDriveStatus.status === 'mounted', 'No USB drive mounted');
+
+  const ballotsZip = (
+    await fs.readdir(usbDriveStatus.mountPoint, {
+      withFileTypes: true,
+    })
+  ).find(
+    (entry) =>
+      entry.isFile() &&
+      entry.name ===
+        `ballots-${formatBallotHash(electionDefinition.ballotHash)}.zip`
+  );
+  // TODO do we need a user-facing error?
+  assert(ballotsZip, 'No ballots zip found on USB drive');
+
+  const zipFile = await openZip(
+    await fs.readFile(join(usbDriveStatus.mountPoint, ballotsZip.name))
+  );
+  const ballotPdfs = new Map(
+    await iter(getEntries(zipFile))
+      .async()
+      .filterMap(async (entry): Promise<[BallotStyleId, Buffer] | null> => {
+        const ballotStyleId = entry.name.match(
+          /^official-precinct-ballot-.*-(.*).pdf$/
+        )?.[1];
+        if (!ballotStyleId) return null;
+        return [ballotStyleId, await readEntry(entry)];
+      })
+      .toArray()
+  );
+  return ballotPdfs;
+}
 
 interface Context {
   audioPlayer?: AudioPlayer;
@@ -170,6 +216,11 @@ export function buildApi(ctx: Context) {
       const { electionDefinition, systemSettings } = electionPackage;
       assert(systemSettings);
 
+      const ballotPdfs = await readBallotPdfsFromUsbDrive(
+        electionDefinition,
+        usbDrive
+      );
+
       workspace.store.withTransaction(() => {
         workspace.store.setElectionAndJurisdiction({
           electionData: electionDefinition.electionData,
@@ -192,6 +243,8 @@ export function buildApi(ctx: Context) {
           logger,
           store: workspace.store.getUiStringsStore(),
         });
+
+        workspace.store.setBallotPdfs(ballotPdfs);
       });
 
       await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
