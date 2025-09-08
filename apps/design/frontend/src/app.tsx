@@ -17,7 +17,7 @@ import {
   getUser,
 } from './api';
 import { ElectionsScreen } from './elections_screen';
-import { electionParamRoutes, routes } from './routes';
+import { electionParamRoutes, routes, resultsRoutes } from './routes';
 import { ElectionInfoScreen } from './election_info_screen';
 import { GeographyScreen } from './geography_screen';
 import { ContestsScreen } from './contests_screen';
@@ -25,6 +25,7 @@ import { BallotsScreen } from './ballots_screen';
 import { SystemSettingsScreen } from './system_settings_screen';
 import { ExportScreen } from './export_screen';
 import { ErrorScreen } from './error_screen';
+import { ReportingResultsConfirmationScreen } from './reporting_results_confirmation_screen';
 
 function ElectionScreens(): JSX.Element {
   return (
@@ -81,6 +82,7 @@ export function App({
   apiClient?: ApiClient;
 }): JSX.Element {
   const [electionsFilterText, setElectionsFilterText] = useState('');
+  console.log('app render ');
   return (
     <AppBase
       defaultColorMode="desktop"
@@ -90,9 +92,12 @@ export function App({
       <ErrorBoundary errorMessage={ErrorScreen}>
         <ApiClientContext.Provider value={apiClient}>
           <QueryClientProvider client={createQueryClient()}>
-            <WaitForUserInfo>
-              <BrowserRouter>
-                <Switch>
+            <BrowserRouter>
+              <Switch>
+                <Route path={resultsRoutes.root.path} exact>
+                  <ReportingResultsConfirmationScreen />
+                </Route>
+                <WaitForUserInfo>
                   <Route path={routes.root.path} exact>
                     <ElectionsScreen
                       filterText={electionsFilterText}
@@ -103,9 +108,9 @@ export function App({
                     path={electionParamRoutes.root.path}
                     component={ElectionScreens}
                   />
-                </Switch>
-              </BrowserRouter>
-            </WaitForUserInfo>
+                </WaitForUserInfo>
+              </Switch>
+            </BrowserRouter>
           </QueryClientProvider>
         </ApiClientContext.Provider>
       </ErrorBoundary>

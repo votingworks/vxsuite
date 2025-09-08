@@ -2,6 +2,13 @@ import type { UserFeaturesConfig } from '@votingworks/design-backend';
 import { ElectionId } from '@votingworks/types';
 import { Route } from '@votingworks/ui';
 
+export const resultsRoutes = {
+  root: {
+    title: 'Results Reported',
+    path: '/results/',
+  },
+} as const;
+
 export const routes = {
   root: {
     title: 'Elections',

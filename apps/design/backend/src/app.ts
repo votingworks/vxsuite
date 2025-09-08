@@ -1,5 +1,6 @@
 import * as grout from '@votingworks/grout';
 import * as Sentry from '@sentry/node';
+import cookieParser from 'cookie-parser';
 import { auth as auth0Middleware, requiresAuth } from 'express-openid-connect';
 import path, { join } from 'node:path';
 import { Buffer } from 'node:buffer';
@@ -143,7 +144,8 @@ const UpdateElectionInfoInputSchema = z.object({
 });
 
 export interface ApiContext {
-  user: User;
+  user?: User;
+  resultsReportingSessionId?: string;
 }
 
 export type AuthErrorCode =
@@ -181,7 +183,13 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
 
   const middlewares: grout.Middlewares<ApiContext> = {
     before: [
-      function loadUser({ request, context }) {
+      function loadUserOrSession({ methodName, request, context }) {
+        if (methodName === 'getResultsReportConfirmationDetails') {
+          console.log('cookie is ', request.cookies);
+          const resultsReportingSessionId =
+            request.cookies && request.cookies['results_reporting_session_id'];
+          return { ...context, resultsReportingSessionId };
+        }
         const user = auth0.userFromRequest(request);
         if (!user) {
           throw new AuthError('auth:unauthorized');
@@ -217,6 +225,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
           'getUser',
           'getUserFeatures',
           'decryptCvrBallotAuditIds', // Doesn't need authorization, nothing private accessed
+          'getResultsReportConfirmationDetails',
         ];
         assert(methodsThatHandleAuthThemselves.includes(methodName));
       },
@@ -247,6 +256,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
 
   const methods = {
     listOrganizations(_input: undefined, context: ApiContext): Promise<Org[]> {
+      assert(context.user);
       const userFeaturesConfig = getUserFeaturesConfig(context.user);
       if (!userFeaturesConfig.ACCESS_ALL_ORGS) {
         throw new AuthError('auth:forbidden');
@@ -258,6 +268,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
       _input: undefined,
       context: ApiContext
     ): Promise<ElectionListing[]> {
+      assert(context.user);
       const { user } = context;
       const userFeatures = getUserFeaturesConfig(user);
       const elections = await store.listElections({
@@ -279,6 +290,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
       },
       context: ApiContext
     ): Promise<Result<ElectionId, Error>> {
+      assert(context.user);
       const parseResult = safeParseElection(input.electionData);
       if (parseResult.isErr()) return parseResult;
       const sourceElection = parseResult.ok();
@@ -337,6 +349,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
       },
       context: ApiContext
     ): Promise<Result<ElectionId, Error>> {
+      assert(context.user);
       const election = createBlankElection(input.id);
       await store.createElection(
         input.orgId,
@@ -356,6 +369,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
       },
       context: ApiContext
     ): Promise<ElectionId> {
+      assert(context.user);
       const {
         election: sourceElection,
         ballotTemplateId,
@@ -735,6 +749,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
     },
 
     getUser(_input: undefined, context: ApiContext): User {
+      assert(context.user);
       return context.user;
     },
 
@@ -742,6 +757,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
       _input: undefined,
       context: ApiContext
     ): UserFeaturesConfig {
+      assert(context.user);
       return getUserFeaturesConfig(context.user);
     },
 
@@ -828,6 +844,15 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
         ]);
       }
     },
+
+    getResultsReportConfirmationDetails(
+      _input: undefined,
+      context: ApiContext
+    ): string {
+      assert(context.resultsReportingSessionId !== undefined);
+      console.log('session id: ', context.resultsReportingSessionId);
+      return 'TBD - Not Implemented';
+    },
   } as const;
 
   return grout.createApi(methods, middlewares);
@@ -837,9 +862,11 @@ export type Api = ReturnType<typeof buildApi>;
 export function buildApp(context: AppContext): Application {
   const app: Application = express();
 
+  app.use(cookieParser());
+
   /* istanbul ignore next - @preserve */
   if (authEnabled()) {
-    app.use(
+    app.use((req, res, next) => {
       auth0Middleware({
         authRequired: false,
         // eslint-disable-next-line vx/gts-identifiers
@@ -859,8 +886,8 @@ export function buildApp(context: AppContext): Application {
         // prevents a loop where the user gets automatically logged back in
         // after logging out.
         idpLogout: true,
-      })
-    );
+      })(req, res, next);
+    });
   }
 
   app.get('/files/:orgId/:fileName', async (req, res, next) => {
@@ -890,12 +917,37 @@ export function buildApp(context: AppContext): Application {
     }
   });
 
+  app.get('/report', (req, res) => {
+    const { p, s } = req.query;
+    console.log('signature: ', s);
+    console.log('payload: ', p);
+    const sessionId = crypto.randomUUID();
+    res.cookie('results_reporting_session_id', sessionId, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      path: '/api/getResultsReportConfirmationDetails',
+      maxAge: 5 * 60 * 1000, // 5 minutes
+    });
+    res.redirect('results/');
+  });
+
   const api = buildApi(context);
   app.use('/api', grout.buildRouter(api, express));
 
   /* istanbul ignore next - @preserve */
   if (authEnabled()) {
-    app.use('*', requiresAuth());
+    app.use('*', (req, res, next) => {
+      if (
+        req.path === '/report' ||
+        req.path === '/api/getResultsReportConfirmationDetails' ||
+        req.path === '/'
+      ) {
+        return next();
+      }
+      console.log('requiring auth', req.path);
+      requiresAuth()(req, res, next);
+    });
   }
 
   app.use(
@@ -913,6 +965,7 @@ export function buildApp(context: AppContext): Application {
         )
           .replace('{{ SENTRY_DSN }}', process.env.SENTRY_DSN ?? '')
           .replace('{{ DEPLOY_ENV }}', DEPLOY_ENV);
+
   app.get('*', (_req, res) => {
     res.send(indexFileContents);
   });

@@ -85,6 +85,7 @@ export default defineConfig(async (env) => {
         '/auth': 'http://localhost:3002',
         '/api': 'http://localhost:3002',
         '/files': 'http://localhost:3002',
+        '/report': 'http://localhost:3002',
       },
       port: 3000,
     },

@@ -212,6 +212,18 @@ export const getBallotTemplate = {
   },
 } as const;
 
+export const getResultsReportConfirmationDetails = {
+  queryKey(): QueryKey {
+    return ['getResultsReportConfirmationDetails'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () =>
+      apiClient.getResultsReportConfirmationDetails()
+    );
+  },
+} as const;
+
 async function invalidateElectionQueries(
   queryClient: QueryClient,
   electionId: ElectionId
