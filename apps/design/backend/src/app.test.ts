@@ -100,7 +100,7 @@ import { join } from 'node:path';
 import { electionFeatureConfigs, userFeatureConfigs } from './features';
 import { sliOrgId, votingWorksOrgId, vxDemosOrgId } from './globals';
 import { LogEventId } from '@votingworks/logging';
-import { buildApi } from './app';
+import { buildApi, METHODS_THAT_DO_NOT_REQUIRE_OAUTH_INTEGRATION } from './app';
 import { readdir, readFile } from 'node:fs/promises';
 
 vi.setConfig({
@@ -255,11 +255,16 @@ afterEach(() => {
   vi.mocked(renderAllBallotPdfsAndCreateElectionDefinition).mockRestore();
 });
 
-test('all methods require authentication', async () => {
+test('all methods require authentication other than METHODS_THAT_DO_NOT_REQUIRE_OAUTH_INTEGRATION', async () => {
   const { apiClient, baseUrl, ...context } = await setupApp(orgs);
   await suppressingConsoleOutput(async () => {
     const apiMethodNames = Object.keys(buildApi(context).methods());
     for (const apiMethodName of apiMethodNames) {
+      if (
+        METHODS_THAT_DO_NOT_REQUIRE_OAUTH_INTEGRATION.includes(apiMethodName)
+      ) {
+        continue;
+      }
       // @ts-ignore - Don't pass any input to the API methods since we expect
       // auth middleware to reject it before getting to the handler. A bit of a
       // hack, but lets us test all the methods quickly without constructing

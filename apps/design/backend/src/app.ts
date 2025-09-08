@@ -32,12 +32,15 @@ import {
   CastVoteRecordExportFileName,
   safeParseJson,
   CastVoteRecordReportWithoutMetadataSchema,
+  safeParseNumber,
+  CompressedTally,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
   assert,
   assertDefined,
   DateWithoutTime,
+  err,
   extractErrorMessage,
   find,
   ok,
@@ -73,6 +76,8 @@ import {
   ElectionInfo,
   ElectionListing,
   Org,
+  ResultsReportInfo,
+  ResultsReportingError,
   User,
   UsState,
 } from './types';
@@ -98,6 +103,13 @@ import {
 import { rootDebug } from './debug';
 
 const debug = rootDebug.extend('app');
+
+// The grout methods below are intended for pages that should bypass ALL oauth integration. All logic
+// regarding loading a user from oauth and authenticating that user should by skipped.
+// These methods are for VxQR public-facing pages only.
+export const METHODS_THAT_DO_NOT_REQUIRE_OAUTH_INTEGRATION = [
+  'processQrCodeReport',
+];
 
 export function createBlankElection(id: ElectionId): Election {
   return {
@@ -181,7 +193,12 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
 
   const middlewares: grout.Middlewares<ApiContext> = {
     before: [
-      function loadUser({ request, context }) {
+      function loadUser({ methodName, request, context }) {
+        if (
+          METHODS_THAT_DO_NOT_REQUIRE_OAUTH_INTEGRATION.includes(methodName)
+        ) {
+          return context;
+        }
         const user = auth0.userFromRequest(request);
         if (!user) {
           throw new AuthError('auth:unauthorized');
@@ -198,8 +215,8 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
        */
       async function checkAuthorization({ methodName, input, context }) {
         if (input) {
-          assert(context.user);
           if ('electionId' in input) {
+            assert(context.user);
             await requireElectionAccess(
               context.user,
               input.electionId as string
@@ -207,6 +224,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
             return;
           }
           if ('orgId' in input) {
+            assert(context.user);
             requireOrgAccess(context.user, input.orgId as string);
             return;
           }
@@ -217,7 +235,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
           'getUser',
           'getUserFeatures',
           'decryptCvrBallotAuditIds', // Doesn't need authorization, nothing private accessed
-        ];
+        ].concat(METHODS_THAT_DO_NOT_REQUIRE_OAUTH_INTEGRATION);
         assert(methodsThatHandleAuthThemselves.includes(methodName));
       },
     ],
@@ -828,6 +846,45 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
         ]);
       }
     },
+
+    processQrCodeReport({
+      payload,
+    }: {
+      payload: string;
+      // TODO (#7150): Verify the signature and receive a machine public cert in the request as well
+      signature: string;
+    }): Result<ResultsReportInfo, ResultsReportingError> {
+      const messageParts = payload.split('//');
+      const [version, header, message] = messageParts;
+
+      if (version !== '1' || header !== 'qr1') {
+        return err('invalid-payload');
+      }
+
+      const [ballotHash, machineId, isLive, secondsSince1970, tallyB64] =
+        message.split('.');
+      const timestampNum = safeParseNumber(secondsSince1970);
+      if (timestampNum.isErr()) {
+        return err('invalid-payload');
+      }
+
+      const signedTimestamp = new Date(timestampNum.ok() * 1000);
+      let tally: CompressedTally;
+      try {
+        const tallyJson = Buffer.from(tallyB64, 'base64').toString('ascii');
+        tally = JSON.parse(tallyJson) as CompressedTally;
+        // TODO (#7151): Load the election for the given ballot hash, save the results report.
+      } catch (error) {
+        return err('invalid-payload');
+      }
+      return ok({
+        ballotHash,
+        machineId,
+        isLive: isLive === '1',
+        signedTimestamp,
+        tally,
+      });
+    },
   } as const;
 
   return grout.createApi(methods, middlewares);
@@ -893,14 +950,25 @@ export function buildApp(context: AppContext): Application {
   const api = buildApi(context);
   app.use('/api', grout.buildRouter(api, express));
 
-  /* istanbul ignore next - @preserve */
-  if (authEnabled()) {
-    app.use('*', requiresAuth());
-  }
-
   app.use(
     express.static(context.workspace.assetDirectoryPath, { index: false })
   );
+
+  /* istanbul ignore next - @preserve */
+  if (authEnabled()) {
+    app.use('*', (req, res, next) => {
+      if (
+        // Allow unauthenticated access to fetch the html for /report and any api endpoints it calls.
+        req.originalUrl.startsWith('/report') ||
+        METHODS_THAT_DO_NOT_REQUIRE_OAUTH_INTEGRATION.map(
+          (m) => `/api/${m}`
+        ).includes(req.originalUrl)
+      ) {
+        return next();
+      }
+      requiresAuth()(req, res, next);
+    });
+  }
 
   // Serve the index.html file for everything else, adding in some environment variables
   // (we don't need a full templating engine since it's just a couple of variables)
@@ -913,6 +981,7 @@ export function buildApp(context: AppContext): Application {
         )
           .replace('{{ SENTRY_DSN }}', process.env.SENTRY_DSN ?? '')
           .replace('{{ DEPLOY_ENV }}', DEPLOY_ENV);
+
   app.get('*', (_req, res) => {
     res.send(indexFileContents);
   });

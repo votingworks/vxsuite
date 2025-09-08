@@ -691,3 +691,10 @@ export const decryptCvrBallotAuditIds = {
     return useMutation(apiClient.decryptCvrBallotAuditIds);
   },
 } as const;
+
+export const processQrCodeReport = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.processQrCodeReport);
+  },
+} as const;
