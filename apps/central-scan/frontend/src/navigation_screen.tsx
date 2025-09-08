@@ -58,7 +58,7 @@ const TestModeCallout = styled(Card).attrs({ color: 'warning' })`
   flex-shrink: 0;
 `;
 
-const EarlyVotingModeCallout = styled(Card).attrs({ color: 'neutral' })`
+const EarlyVotingModeCallout = styled(Card).attrs({ color: 'primary' })`
   font-size: ${(p) => p.theme.sizes.headingsRem.h3}rem;
   font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
 

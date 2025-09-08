@@ -54,7 +54,7 @@ export const SUPPORTED_VOTING_METHODS: VotingMethod[] = [
 
 export const VOTING_METHOD_LABELS: Record<VotingMethod, string> = {
   absentee: 'Absentee',
-  precinct: 'Precinct',
+  precinct: 'Election Day',
   'early-voting': 'Early Voting',
   provisional: 'Provisional',
 };
