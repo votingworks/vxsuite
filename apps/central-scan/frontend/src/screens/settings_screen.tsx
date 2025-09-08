@@ -1,13 +1,13 @@
 import { useContext } from 'react';
 import { assert } from '@votingworks/basics';
 import {
-  Button,
   Caption,
   CurrentDateAndTime,
   ExportLogsButton,
   H2,
   Icons,
   P,
+  SegmentedButton,
   SetClockButton,
   SignedHashValidationButton,
   UnconfigureMachineButton,
@@ -69,7 +69,7 @@ export function SettingsScreen({
         <ToggleTestModeButton />
       </P>
       <P>
-        <Button
+        <SegmentedButton
           disabled={
             setEarlyVotingModeMutation.isLoading ||
             !canUnconfigure ||
@@ -77,16 +77,19 @@ export function SettingsScreen({
             !earlyVotingModeQuery.isSuccess ||
             !!statusQuery.data?.ongoingBatchId
           }
-          onPress={() =>
+          label="Voting Mode"
+          hideLabel
+          onChange={() =>
             setEarlyVotingModeMutation.mutate({
               isEarlyVotingMode: !earlyVotingModeQuery.data,
             })
           }
-        >
-          {earlyVotingModeQuery.data
-            ? 'Disable Early Voting Mode'
-            : 'Enable Early Voting Mode'}
-        </Button>
+          options={[
+            { id: 'disabled', label: 'Election Day Mode' },
+            { id: 'enabled', label: 'Early Voting Mode' },
+          ]}
+          selectedOptionId={earlyVotingModeQuery.data ? 'enabled' : 'disabled'}
+        />
       </P>
       <ButtonRow>
         <UnconfigureMachineButton

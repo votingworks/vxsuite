@@ -252,7 +252,7 @@ export function ElectionManagerScreen({
   );
 
   const earlyVotingModeToggle = (
-    <Button
+    <SegmentedButton
       disabled={
         setEarlyVotingModeMutation.isLoading ||
         isCvrSyncRequired ||
@@ -260,16 +260,19 @@ export function ElectionManagerScreen({
         pollsState === 'polls_open' ||
         pollsState === 'polls_closed_final'
       }
-      onPress={() =>
+      label="Voting Mode:"
+      hideLabel
+      onChange={() =>
         setEarlyVotingModeMutation.mutate({
           isEarlyVotingMode: !isEarlyVotingMode,
         })
       }
-    >
-      {isEarlyVotingMode
-        ? 'Disable Early Voting Mode'
-        : 'Enable Early Voting Mode'}
-    </Button>
+      options={[
+        { id: 'disabled', label: 'Election Day Mode' },
+        { id: 'enabled', label: 'Early Voting Mode' },
+      ]}
+      selectedOptionId={isEarlyVotingMode ? 'enabled' : 'disabled'}
+    />
   );
 
   const unconfigureElectionButton = (
