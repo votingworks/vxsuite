@@ -3,6 +3,7 @@ import {
   assert,
   assertDefined,
   err,
+  find,
   iter,
   ok,
   range,
@@ -17,6 +18,7 @@ import {
   BallotType,
   CandidateContest as CandidateContestStruct,
   Election,
+  Id,
   LanguageCode,
   NhPrecinctSplitOptions,
   YesNoContest,
@@ -32,6 +34,7 @@ import {
   RichText,
 } from '@votingworks/ui';
 import { parse as parseHtml } from 'node-html-parser';
+import { getPrecinctsAndSplitsForBallotStyle } from '@votingworks/utils';
 import {
   BallotLayoutError,
   BallotPageTemplate,
@@ -67,6 +70,7 @@ import { BaseStyles } from '../base_styles';
 
 function Header({
   election,
+  precinctId,
   ballotStyleId,
   ballotType,
   ballotMode,
@@ -77,6 +81,7 @@ function Header({
   clerkSignatureCaption: clerkSignatureCaptionOverride,
 }: {
   election: Election;
+  precinctId: Id;
   ballotStyleId: BallotStyleId;
   ballotType: BallotType;
   ballotMode: BallotMode;
@@ -104,6 +109,25 @@ function Header({
     election.type === 'primary'
       ? assertDefined(getPartyForBallotStyle({ election, ballotStyleId }))
       : undefined;
+
+  const showPrecinctName = election.precincts.length > 1;
+  let precinctName: JSX.Element | undefined;
+  if (showPrecinctName) {
+    const ballotStyle = assertDefined(
+      getBallotStyle({ election, ballotStyleId })
+    );
+    const ballotStylePrecinctsAndSplits = getPrecinctsAndSplitsForBallotStyle({
+      election,
+      ballotStyle,
+    });
+    const precinctOrSplit = find(
+      ballotStylePrecinctsAndSplits,
+      (p) => p.precinct.id === precinctId
+    );
+    precinctName = precinctOrSplit.split
+      ? electionStrings.precinctSplitName(precinctOrSplit.split)
+      : electionStrings.precinctName(precinctOrSplit.precinct);
+  }
 
   // Signature is guaranteed to exist due to validation in BallotPageFrame
   assert(election.signature);
@@ -144,6 +168,7 @@ function Header({
               {electionTitleOverride ?? electionStrings.electionTitle(election)}
             </h2>
             <h2>{electionStrings.electionDate(election)}</h2>
+            {precinctName && <div>{precinctName} </div>}
             <div>
               {/* TODO comma-delimiting the components of a location doesn't
             necessarily work in all languages. We need to figure out a
@@ -249,6 +274,7 @@ function BallotPageFrame({
               <>
                 <Header
                   election={election}
+                  precinctId={precinctId}
                   ballotStyleId={ballotStyleId}
                   ballotType={ballotType}
                   ballotMode={ballotMode}
