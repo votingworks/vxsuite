@@ -45,18 +45,30 @@ const Container = styled.div`
 const Words = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.75rem;
 `;
 
-const Word = styled.button`
+const WordContainer = styled.div`
+  position: relative;
+
+  &:hover {
+    button {
+      display: block;
+    }
+  }
+`;
+
+const Word = styled.button<{ hasEdits?: boolean }>`
   background: ${(p) => p.theme.colors.background};
   border-radius: 0.25rem;
-  border: 1px solid #999;
-  color: #666;
+  border: 1px solid
+    ${(p) => (p.hasEdits ? ` ${DesktopPalette.Purple50}` : '#999')};
+  color: ${(p) => (p.hasEdits ? p.theme.colors.primary : '#666')};
   cursor: pointer;
   outline-offset: 2px;
   font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
   padding: 0.5rem;
+  position: relative;
   transition: 120ms ease-out;
   transition-property: background-color, border, color, outline-offset;
 
@@ -342,11 +354,11 @@ const Spacer = styled.span`
   flex-grow: 1;
 `;
 
-const emptySyllable: Readonly<TtsSyllable> = {
-  ipaPhonemes: [],
-};
-
 const alphabets = ['ipa', 'x-sampa', 'regular'] as const;
+
+const SHOW_DEV_MENU = process.env.NODE_ENV === 'development';
+
+const EVENT_PHONEMES_EDITED = 'phonemes_edited';
 
 export function Phoneditor(props: {
   disabled?: boolean;
@@ -363,6 +375,26 @@ export function Phoneditor(props: {
     subkey,
   }).data;
 
+  const saveOverrideMutation = api.ttsPhoneticOverrideSet.useMutation();
+  const saveOverride = saveOverrideMutation.mutateAsync;
+  const savingOverride = saveOverrideMutation.isLoading;
+
+  const clearEdits = React.useCallback(
+    async (syllableIndex: number) => {
+      if (!savedSsml) return;
+
+      const ssmlChunks = [...savedSsml];
+      ssmlChunks[syllableIndex].syllables = undefined;
+      await saveOverride({
+        electionId,
+        key: stringKey,
+        ssmlChunks,
+        subkey,
+      });
+    },
+    [electionId, saveOverride, savedSsml, stringKey, subkey]
+  );
+
   const [chunks, wordElements] = React.useMemo(() => {
     const elems: JSX.Element[] = [];
     let resolvedChunks: SsmlChunk[] = [];
@@ -371,14 +403,44 @@ export function Phoneditor(props: {
       resolvedChunks = savedSsml;
 
       for (let i = 0; i < resolvedChunks.length; i += 1) {
+        const { syllables } = resolvedChunks[i];
+
+        const phoneticChunks: string[] = [];
+        for (const syllable of syllables || []) {
+          const syllableChunks: string[] = [];
+
+          if (syllable.stress === 'primary') syllableChunks.push("'");
+          for (const p of syllable.ipaPhonemes) {
+            syllableChunks.push(
+              phonemes.en.allByIpa[p as keyof typeof phonemes.en.allByIpa][
+                'regular'
+              ]
+            );
+          }
+
+          phoneticChunks.push(syllableChunks.join(''));
+        }
+
         elems.push(
-          <Word
-            data-word={resolvedChunks[i].text}
-            key={`${i}-${resolvedChunks[i].text}`}
-            onClick={undefined}
-          >
-            {resolvedChunks[i].text}
-          </Word>
+          <WordContainer key={`${i}-${resolvedChunks[i].text}`}>
+            <Word
+              data-word={resolvedChunks[i].text}
+              onClick={undefined}
+              hasEdits={!!syllables?.length}
+            >
+              {syllables ? phoneticChunks.join('•') : resolvedChunks[i].text}
+            </Word>
+            {syllables && (
+              <SyllableDelete
+                disabled={savingOverride}
+                onPress={clearEdits}
+                value={i}
+              >
+                <Tooltip opaque>Clear Edits</Tooltip>
+                <Icons.Delete />
+              </SyllableDelete>
+            )}
+          </WordContainer>
         );
       }
     } else {
@@ -399,7 +461,7 @@ export function Phoneditor(props: {
     }
 
     return [resolvedChunks, elems];
-  }, [fallbackString, savedSsml]);
+  }, [clearEdits, fallbackString, savedSsml, savingOverride]);
 
   const [splitKeyboard, setSplitKeyboard] = React.useState(true);
   const [alphabet, setAlphabet] = React.useState<'ipa' | 'x-sampa' | 'regular'>(
@@ -407,7 +469,7 @@ export function Phoneditor(props: {
   );
   const [currentChunk, setCurrentChunk] = React.useState<number>();
   const [syllables, setSyllables] = React.useState<TtsSyllable[]>([
-    { ...emptySyllable },
+    { ipaPhonemes: [] },
   ]);
   const [currentSyllableIdx, setCurrentSyllableIdx] = React.useState(
     syllables.length - 1
@@ -440,7 +502,7 @@ export function Phoneditor(props: {
           setSyllables([...chunkSyllables]);
           setCurrentSyllableIdx(chunkSyllables.length - 1);
         } else {
-          setSyllables([{ ...emptySyllable }]);
+          setSyllables([{ ipaPhonemes: [] }]);
           setCurrentSyllableIdx(0);
         }
 
@@ -609,12 +671,8 @@ export function Phoneditor(props: {
     setPlayingPreview(true);
   }, [syllables]);
 
-  const saveOverrideMutation = api.ttsPhoneticOverrideSet.useMutation();
-  const saveOverride = saveOverrideMutation.mutateAsync;
-  const savingOverride = saveOverrideMutation.isLoading;
-
   function onCancel() {
-    setSyllables([{ ...emptySyllable }]);
+    setSyllables([{ ipaPhonemes: [] }]);
     setCurrentSyllableIdx(0);
     setCurrentChunk(undefined);
   }
@@ -631,9 +689,13 @@ export function Phoneditor(props: {
       subkey,
     });
 
-    setSyllables([{ ...emptySyllable }]);
+    setSyllables([{ ipaPhonemes: [] }]);
     setCurrentSyllableIdx(0);
     setCurrentChunk(undefined);
+
+    // Not getting query updates from tanstack/query when the saved SSML
+    // changes, for some reason. Need to hack our way to salvation here.
+    window.dispatchEvent(new Event(EVENT_PHONEMES_EDITED));
   }
 
   const currentSyllable = syllables[currentSyllableIdx];
@@ -721,7 +783,7 @@ export function Phoneditor(props: {
 
   let modal: JSX.Element | undefined;
   if (typeof currentChunk === 'number') {
-    const devMenu = (
+    const devMenu = SHOW_DEV_MENU && (
       <DevMenu>
         <span>[ DEV ]</span>
         <Spacer />
@@ -738,7 +800,16 @@ export function Phoneditor(props: {
       <Modal
         actions={
           <React.Fragment>
-            <Button icon="Done" variant="primary" onPress={onSave}>
+            <Button
+              disabled={audioPreviewLoading || !canPreview || savingOverride}
+              icon="Done"
+              variant={
+                audioPreviewLoading || !canPreview || savingOverride
+                  ? 'neutral'
+                  : 'primary'
+              }
+              onPress={onSave}
+            >
               Save
             </Button>
             <Button onPress={onCancel}>Cancel</Button>
@@ -807,6 +878,10 @@ export function PhoneticAudioControls(props: {
 }): JSX.Element {
   const { disabled, fallbackString, stringKey, subkey } = props;
 
+  // Not getting query updates from tanstack/query when the saved SSML changes,
+  // for some reason. Need to hack our way to victory here.
+  const [editsDetected, setEditsDetected] = React.useState(0);
+
   const { electionId } = useParams<ElectionIdParams>();
   const savedSsmlQuery = api.ttsPhoneticOverrideGet.useQuery({
     electionId,
@@ -814,7 +889,8 @@ export function PhoneticAudioControls(props: {
     subkey,
   });
   const savedSsml = savedSsmlQuery.data;
-  const savedSsmlLoading = savedSsmlQuery.isLoading;
+  const savedSsmlLoading =
+    savedSsmlQuery.isLoading || savedSsmlQuery.isFetching;
 
   const ssml = React.useMemo(() => {
     const chunks: string[] = ['<speak>'];
@@ -831,7 +907,8 @@ export function PhoneticAudioControls(props: {
     chunks.push('</speak>');
 
     return chunks.join(' ');
-  }, [fallbackString, savedSsml]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fallbackString, savedSsml, editsDetected]);
 
   const dataUrlQuery = api.synthesizedSsml.useQuery({
     languageCode: 'en',
@@ -840,10 +917,24 @@ export function PhoneticAudioControls(props: {
   const dataUrl = dataUrlQuery.data;
   const dataUrlLoading = dataUrlQuery.isLoading;
 
+  React.useEffect(() => {
+    function onEditDetected() {
+      window.setTimeout(() => {
+        setEditsDetected(editsDetected + 1);
+      }, 200);
+    }
+
+    window.addEventListener(EVENT_PHONEMES_EDITED, onEditDetected);
+
+    return () => {
+      window.removeEventListener(EVENT_PHONEMES_EDITED, onEditDetected);
+    };
+  }, [editsDetected]);
+
   const disableControls = disabled || savedSsmlLoading || dataUrlLoading;
 
   return (
-    <AudioControls>
+    <AudioControls key={editsDetected}>
       <AudioPlayer
         controls
         aria-disabled={disableControls}
