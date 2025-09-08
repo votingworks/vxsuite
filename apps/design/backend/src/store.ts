@@ -973,7 +973,8 @@ export class Store {
             $10,
             $11,
             $12,
-            $13
+            $13,
+            $14
           )
         `,
           election.id,
@@ -1978,6 +1979,7 @@ export class Store {
 
   /* istanbul ignore next - @preserve */
   async audioSourceGet(query: AudioQuery): Promise<AudioSource> {
+    // eslint-disable-next-line @typescript-eslint/require-await
     return this.db.withClient(async (client) =>
       audioSources.get(client, query)
     );
@@ -1985,6 +1987,7 @@ export class Store {
 
   /* istanbul ignore next - @preserve */
   async audioSourceSet(params: AudioSourceEntry): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/require-await
     return this.db.withClient(async (client) =>
       audioSources.set(client, params)
     );
@@ -1992,6 +1995,7 @@ export class Store {
 
   /* istanbul ignore next - @preserve */
   async ttsTextOverrideGet(query: AudioQuery): Promise<string | null> {
+    // eslint-disable-next-line @typescript-eslint/require-await
     return this.db.withClient(async (client) =>
       ttsTextOverrides.get(client, query)
     );
@@ -1999,6 +2003,7 @@ export class Store {
 
   /* istanbul ignore next - @preserve */
   async ttsTextOverrideSet(params: TtsTextEntry): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/require-await
     return this.db.withClient(async (client) =>
       ttsTextOverrides.set(client, params)
     );
@@ -2006,6 +2011,7 @@ export class Store {
 
   /* istanbul ignore next - @preserve */
   async ttsPhoneticOverrideGet(query: AudioQuery): Promise<SsmlChunk[] | null> {
+    // eslint-disable-next-line @typescript-eslint/require-await
     return this.db.withClient(async (client) =>
       ttsPhoneticOverrides.get(client, query)
     );
@@ -2013,6 +2019,7 @@ export class Store {
 
   /* istanbul ignore next - @preserve */
   async ttsPhoneticOverrideSet(params: TtsPhoneticEntry): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/require-await
     return this.db.withClient(async (client) =>
       ttsPhoneticOverrides.set(client, params)
     );

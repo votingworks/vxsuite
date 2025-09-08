@@ -5,6 +5,7 @@ import {
   iter,
   ok,
   range,
+  Result,
   throwIllegalValue,
 } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
@@ -28,6 +29,7 @@ import {
 } from '@votingworks/ui';
 import styled from 'styled-components';
 import {
+  BallotLayoutError,
   BallotPageTemplate,
   BaseBallotProps,
   ContentComponentResult,
@@ -175,13 +177,13 @@ function BallotPageFrame({
   pageNumber: number;
   totalPages?: number;
   children: JSX.Element;
-}): JSX.Element {
+}): Result<JSX.Element, BallotLayoutError> {
   const pageDimensions = ballotPaperDimensions(election.ballotLayout.paperSize);
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId })
   );
   const languageCode = primaryLanguageCode(ballotStyle);
-  return (
+  return ok(
     <BackendLanguageContextProvider
       key={pageNumber}
       currentLanguageCode={primaryLanguageCode(ballotStyle)}
