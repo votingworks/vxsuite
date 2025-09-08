@@ -74,11 +74,8 @@ export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
               )
             }
             rightIcon="Next"
-<<<<<<< HEAD
             disabled={disabled}
-=======
             variant="primary"
->>>>>>> 52a71f2cc ([VxMark] Merge 2025-08 demo image changes)
           >
             Start Voting Session: {electionStrings.precinctName(precinct)}
           </Button>
