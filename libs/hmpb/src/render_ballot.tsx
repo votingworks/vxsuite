@@ -29,13 +29,18 @@ import {
 } from '@votingworks/types';
 import { QrCode } from '@votingworks/ui';
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
-import { RenderDocument, RenderScratchpad, Renderer } from './renderer';
+import {
+  DocumentElement,
+  RenderDocument,
+  RenderScratchpad,
+  Renderer,
+} from './renderer';
 import {
   BUBBLE_CLASS,
   CONTENT_SLOT_CLASS,
   ContentSlot,
   BALLOT_HASH_SLOT_CLASS,
-  OFFICIAL_OPTION_CLASS,
+  CANDIDATE_OPTION_CLASS,
   OptionInfo,
   PAGE_CLASS,
   QR_CODE_SIZE,
@@ -290,14 +295,6 @@ export function gridHeightToPixels(
   return height * grid.rowGap;
 }
 
-interface DocumentElement {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  data: unknown;
-}
-
 async function extractGridLayout(
   document: RenderDocument,
   ballotStyleId: BallotStyleId
@@ -354,11 +351,11 @@ async function extractGridLayout(
 
   // To compute the bounds of options, we'll look at the first write-in option
   // box we find. We use this value for every contest option on the ballot.
-  // We use a write-in option box rather than an official option box because
+  // We use a write-in option box rather than a candidate option box because
   // it is the larger of the two and gives us more margin for error. If there
-  // are no write-ins, we fallback to an official option and then a ballot measure
+  // are no write-ins, we fallback to a candidate option and then a ballot measure
   // option. We may want to eventually switch to a data model where we compute bounds
-  // for every contest option we care about individually, since write-in and official
+  // for every contest option we care about individually, since write-in and candidate
   // options are not the same size.
   const optionBoundsFromTargetMark: Outset<number> = await (async () => {
     let optionElement: DocumentElement | null = null;
@@ -375,13 +372,13 @@ async function extractGridLayout(
     }
 
     if (optionElement === null) {
-      const officialOptions = await document.inspectElements(
-        `.${OFFICIAL_OPTION_CLASS}`
+      const candidateOptions = await document.inspectElements(
+        `.${CANDIDATE_OPTION_CLASS}`
       );
-      if (officialOptions.length > 0) {
-        [optionElement] = officialOptions;
+      if (candidateOptions.length > 0) {
+        [optionElement] = candidateOptions;
         [bubbleElement] = await document.inspectElements(
-          `.${OFFICIAL_OPTION_CLASS} .${BUBBLE_CLASS}`
+          `.${CANDIDATE_OPTION_CLASS} .${BUBBLE_CLASS}`
         );
       }
     }

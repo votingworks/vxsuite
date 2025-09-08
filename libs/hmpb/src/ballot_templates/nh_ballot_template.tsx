@@ -59,7 +59,7 @@ import {
   ColorTint,
   ContestTitle,
   PrecinctOrSplitName,
-  OFFICIAL_OPTION_CLASS,
+  CANDIDATE_OPTION_CLASS,
   BALLOT_MEASURE_OPTION_CLASS,
 } from '../ballot_components';
 import { BallotMode, PixelDimensions } from '../types';
@@ -390,7 +390,7 @@ function CandidateContest({
           return (
             <li
               key={candidate.id}
-              className={OFFICIAL_OPTION_CLASS}
+              className={CANDIDATE_OPTION_CLASS}
               style={{
                 padding: '0.375rem 0.5rem',
                 borderTop:

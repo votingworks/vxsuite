@@ -278,7 +278,7 @@ export function AlignedBubble({
   );
 }
 
-export const OFFICIAL_OPTION_CLASS = 'official-option';
+export const CANDIDATE_OPTION_CLASS = 'candidate-option';
 
 export const WRITE_IN_OPTION_CLASS = 'write-in-option';
 
