@@ -73,7 +73,9 @@ export const audioOverrides = {
           and key = $2
           and subkey = $3
       `,
-      params.electionId
+      params.electionId,
+      params.key,
+      params.subkey
     );
 
     return res.rows.length > 0;
@@ -338,13 +340,7 @@ export const ttsTextOverrides = {
       params.subkey
     );
 
-    if (res.rows.length === 0) {
-      if (await audioOverrides.exists(client, params)) {
-        return 'recorded';
-      }
-
-      return 'tts';
-    }
+    if (res.rows.length === 0) return null;
 
     return assertDefined(res.rows[0]['text']);
   },

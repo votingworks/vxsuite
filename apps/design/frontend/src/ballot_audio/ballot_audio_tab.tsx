@@ -31,12 +31,7 @@ import { ElectionIdParams, routes } from '../routes';
 import { Phoneditor, PhoneticAudioControls } from './phoneditor';
 import { UploadButton } from './upload_button';
 import { RecordedAudio, RecordedAudioControls } from './recorded_audio';
-import {
-  AudioControls,
-  AudioPlayer,
-  AudioRefreshButton,
-  SubHeading,
-} from './elements';
+import { AudioControls, AudioPlayer, SubHeading } from './elements';
 import { UploadScreen } from './upload_screen';
 import { BallotAudioPathParams } from './routes';
 
@@ -686,8 +681,9 @@ const AudioEditorTab = styled(Button)`
 function AudioEditor(props: { str: UiStringInfo }) {
   const { str } = props;
   const [kind, setKind] = React.useState<'tts' | 'ipa' | 'rec'>('tts');
-  const [_ttsString, setTtsString] = React.useState<string>(str.ttsStr);
-  const [ttsAudioDataUrl, setTtsAudioDataUrl] = React.useState<string>();
+  const [_ttsString, setTtsString] = React.useState<string>('');
+
+  const { electionId, stringKey, subkey } = useParams<BallotAudioPathParams>();
 
   const textEditorRef = React.useRef<HTMLTextAreaElement>(null);
   React.useEffect(() => {
@@ -698,48 +694,49 @@ function AudioEditor(props: { str: UiStringInfo }) {
     }px`;
   }, [kind]);
 
-  const { mutate: synthesizeSsml, isLoading: synthesizingSsml } =
-    api.synthesizeSsml.useMutation();
+  const { data: ttsTextOverride, isLoading: ttsTextOverrideLoading } =
+    api.ttsTextOverrideGet.useQuery({
+      electionId,
+      key: stringKey || '',
+      subkey,
+    });
 
-  const { mutate: synthesizeText, isLoading: synthesizingText } =
-    api.synthesizeText.useMutation();
+  const originalTtsStr = ttsTextOverride || str.ttsStr;
 
-  const synthesizing = synthesizingSsml || synthesizingText;
+  React.useEffect(() => {
+    setTtsString(originalTtsStr);
+  }, [originalTtsStr]);
 
-  function onRefresh() {
-    let ssml = textEditorRef.current?.value;
+  const { mutate: ttsTextOverrideSave, isLoading: ttsTextOverrideSaving } =
+    api.ttsTextOverrideSet.useMutation();
 
-    if (!ssml) return;
-
-    if (kind === 'ipa') {
-      const parts = ssml.split(' ');
-      for (let i = 0; i < parts.length; i += 1) {
-        parts[i] = `<phoneme alphabet="ipa" ph="${parts[i]}" />`;
-      }
-
-      ssml = `<speak>${parts.join(' ')}</speak>`;
-      synthesizeSsml(
-        { languageCode: 'en', ssml },
-        { onSuccess: setTtsAudioDataUrl }
-      );
-    } else {
-      synthesizeText(
-        { languageCode: 'en', text: ssml },
-        { onSuccess: setTtsAudioDataUrl }
-      );
-    }
-  }
+  const { data: ttsAudioDataUrl, isLoading: ttsAudioDataUrlLoading } =
+    api.synthesizedText.useQuery({
+      languageCode: 'en',
+      text: originalTtsStr,
+    });
 
   function onTtsChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
     setTtsString(event.target.value || '');
   }
 
-  React.useEffect(() => {
-    if (!ttsAudioDataUrl && !synthesizing) onRefresh();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const onTtsTextSave = React.useCallback(() => {
+    const text = _ttsString.trim().replaceAll(/['"<>]/g, '');
+    ttsTextOverrideSave({
+      electionId,
+      key: assertDefined(stringKey),
+      subkey,
+      // [TODO] Sanitize for special chars, html, etc
+      text,
+    });
 
-  const disabled = synthesizing;
+    setTtsString(text);
+  }, [electionId, stringKey, subkey, ttsTextOverrideSave, _ttsString]);
+
+  const disabled =
+    ttsAudioDataUrlLoading || ttsTextOverrideLoading || ttsTextOverrideSaving;
+  const ttsTextNeedsSave = originalTtsStr !== _ttsString;
+  const canSave = ttsTextNeedsSave || ttsTextOverrideSaving;
 
   let preamble: React.ReactNode = null;
   let caption: React.ReactNode = null;
@@ -767,12 +764,24 @@ function AudioEditor(props: { str: UiStringInfo }) {
         <AudioControls>
           <AudioPlayer
             controls
-            aria-disabled={disabled}
-            src={disabled ? undefined : ttsAudioDataUrl}
+            aria-disabled={disabled || ttsTextNeedsSave}
+            src={disabled || ttsTextNeedsSave ? '' : ttsAudioDataUrl}
           />
-          <AudioRefreshButton disabled={disabled} onPress={onRefresh}>
-            <Icons.RotateRight />{' '}
-          </AudioRefreshButton>
+          <Button
+            disabled={disabled || !canSave}
+            onPress={setTtsString}
+            value={originalTtsStr}
+          >
+            Reset
+          </Button>
+          <Button
+            disabled={disabled || !canSave}
+            icon={disabled ? 'Loading' : 'Save'}
+            onPress={onTtsTextSave}
+            variant={disabled || !canSave ? 'neutral' : 'primary'}
+          >
+            {disabled ? 'Saving...' : 'Save Changes'}
+          </Button>
         </AudioControls>
       );
       break;

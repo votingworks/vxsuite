@@ -778,6 +778,21 @@ export const synthesizedSsml = {
   },
 } as const;
 
+export const synthesizedText = {
+  queryKey(input: { languageCode: string; text: string }): QueryKey {
+    return ['synthesizedText', input.languageCode, input.text];
+  },
+  useQuery(input: { languageCode: string; text: string }) {
+    const apiClient = useApiClient();
+
+    return useQuery(this.queryKey(input), () => {
+      if (!input.text) return '';
+
+      return apiClient.synthesizeText(input);
+    });
+  },
+} as const;
+
 export const ttsPhoneticOverrideGet = {
   queryKey(params: AudioQuery): QueryKey {
     return [
@@ -799,6 +814,7 @@ export const ttsPhoneticOverrideSet = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
+
     return useMutation(apiClient.ttsPhoneticOverrideSet, {
       onSuccess: (_, params) =>
         queryClient.invalidateQueries(ttsPhoneticOverrideGet.queryKey(params)),
@@ -821,7 +837,12 @@ export const ttsTextOverrideGet = {
 export const ttsTextOverrideSet = {
   useMutation() {
     const apiClient = useApiClient();
-    return useMutation(apiClient.ttsTextOverrideSet);
+    const queryClient = useQueryClient();
+
+    return useMutation(apiClient.ttsTextOverrideSet, {
+      onSuccess: (_, params) =>
+        queryClient.invalidateQueries(ttsTextOverrideGet.queryKey(params)),
+    });
   },
 } as const;
 
