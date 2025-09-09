@@ -577,6 +577,13 @@ export async function layOutBallotsAndCreateElectionDefinition<
     .map((layouts) => assertDefined(iter(layouts.values()).first()))
     .toArray();
 
+  // TOOD: Look at each candidate contest: if all grid layouts have the same
+  // ordering of candidates, change the election definition to also have that
+  // ordering of candidates. This will ensure that VxMark and reports list
+  // candidates in the same order that they appear on the HMPB. Eventually, we
+  // should use the gridLayouts for that ordering instead of the election
+  // contests.
+
   const electionWithGridLayouts: Election = {
     ...election,
     gridLayouts,
