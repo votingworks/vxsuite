@@ -82,7 +82,6 @@ import {
   UsState,
 } from './types';
 import { AppContext } from './context';
-import { rotateCandidates } from './candidate_rotation';
 import {
   auth0ClientId,
   auth0IssuerBaseUrl,
@@ -519,9 +518,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
       electionId: ElectionId;
       newContest: AnyContest;
     }): Promise<Result<void, DuplicateContestError>> {
-      let contest = unsafeParse(AnyContestSchema, input.newContest);
-      const { ballotTemplateId } = await store.getElection(input.electionId);
-      contest = rotateCandidates(contest, ballotTemplateId);
+      const contest = unsafeParse(AnyContestSchema, input.newContest);
       return store.createContest(input.electionId, contest);
     },
 
@@ -529,9 +526,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
       electionId: ElectionId;
       updatedContest: AnyContest;
     }): Promise<Result<void, DuplicateContestError>> {
-      let contest = unsafeParse(AnyContestSchema, input.updatedContest);
-      const { ballotTemplateId } = await store.getElection(input.electionId);
-      contest = rotateCandidates(contest, ballotTemplateId);
+      const contest = unsafeParse(AnyContestSchema, input.updatedContest);
       return store.updateContest(input.electionId, contest);
     },
 

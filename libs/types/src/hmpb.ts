@@ -1,6 +1,7 @@
 import { assert, assertDefined } from '@votingworks/basics';
 import { z } from 'zod/v4';
 import {
+  CandidateId,
   ContestId,
   ContestOption,
   ContestOptionSchema,
@@ -209,4 +210,12 @@ export function mapSheet<F extends (...args: unknown[]) => unknown>(
 export function asSheet<T>(array: T[]): SheetOf<T> {
   assert(array.length === 2);
   return array as unknown as SheetOf<T>;
+}
+
+/**
+ * Maps contests to the order that its candidates should be listed on the
+ * ballot.
+ */
+export interface CandidateRotation {
+  [contestId: ContestId]: CandidateId[];
 }

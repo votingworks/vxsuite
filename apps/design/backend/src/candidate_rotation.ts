@@ -1,6 +1,5 @@
 import { assertDefined } from '@votingworks/basics';
-import { BallotTemplateId } from '@votingworks/hmpb';
-import { AnyContest, Candidate } from '@votingworks/types';
+import { Candidate, CandidateContest, CandidateId } from '@votingworks/types';
 
 // Maps the number of candidates in a contest to the index at which to rotate
 // the candidates. These indexes are randomly selected by the state every 2
@@ -35,16 +34,10 @@ const NH_ROTATION_INDICES: Record<number, number> = {
  * 1. Order the candidates alphabetically by last name.
  * 2. Cut the "deck" at a randomly selected index (see NH_ROTATION_INDICES).
  */
-export function rotateCandidates(
-  contest: AnyContest,
-  ballotTemplateId: BallotTemplateId
-): AnyContest {
-  if (contest.type !== 'candidate') return contest;
-  if (contest.candidates.length < 2) return contest;
-
-  if (ballotTemplateId !== 'NhBallot') {
-    return contest;
-  }
+export function rotateCandidatesByNhStatutes(
+  contest: CandidateContest
+): CandidateId[] {
+  if (contest.candidates.length < 2) return contest.candidates.map((c) => c.id);
 
   function getSortingName(candidate: Candidate): string {
     return (
@@ -71,9 +64,16 @@ export function rotateCandidates(
     ...orderedCandidates.slice(rotationIndex),
     ...orderedCandidates.slice(0, rotationIndex),
   ];
+  return rotatedCandidates.map((c) => c.id);
+}
 
-  return {
-    ...contest,
-    candidates: rotatedCandidates,
-  };
+export function rotateCandidateByOffset(
+  contest: CandidateContest,
+  offset: number
+): CandidateId[] {
+  const rotatedCandidates = [
+    ...contest.candidates.slice(offset),
+    ...contest.candidates.slice(0, offset),
+  ];
+  return rotatedCandidates.map((c) => c.id);
 }
