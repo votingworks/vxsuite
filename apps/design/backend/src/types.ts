@@ -49,6 +49,7 @@ export function normalizeState(state: string): UsState {
       return UsState.NEW_HAMPSHIRE;
     case 'la':
     case 'louisiana':
+    case 'state of louisiana':
       return UsState.LOUISIANA;
     case 'ms':
     case 'mississippi':
