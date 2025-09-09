@@ -227,11 +227,11 @@ function convertToElection(
   }
 
   // Fix newline inside of unquoted field
-
-  // referendumFileContents = referendumFileContents.replaceAll(
-  //   'Proposition\n(Tax Continuation)|',
-  //   'Proposition (Tax Continuation)|'
-  // );
+  // eslint-disable-next-line no-param-reassign
+  referendumFileContents = referendumFileContents.replaceAll(
+    'Proposition\n(Tax Continuation)|',
+    'Proposition (Tax Continuation)|'
+  );
   const referendumRows: ReferendumFileRow[] = parse(referendumFileContents, {
     ...defaultParseOptions,
     columns: [...REFERENDUM_FILE_COLUMNS],
