@@ -4,7 +4,7 @@ export * from './concatenate_pdfs';
 export * from './pdf_conversion';
 export * from './hmpb_strings';
 export * from './mark_ballot';
-export * from './marking';
+export * from './marking_pdflib';
 export * from './playwright_renderer';
 export * from './render_ballot';
 export * from './renderer';

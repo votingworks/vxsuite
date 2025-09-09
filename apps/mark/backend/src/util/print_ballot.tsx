@@ -1,5 +1,3 @@
-import { Buffer } from 'node:buffer';
-
 import { PrintSides, Printer, renderToPdf } from '@votingworks/printing';
 import { assert, assertDefined } from '@votingworks/basics';
 import { generateMarkOverlay } from '@votingworks/hmpb';
@@ -58,23 +56,18 @@ async function printMarkOverlay(p: PrintBallotProps): Promise<void> {
     `${size} paper size not yet supported for pre-printed ballot marking`
   );
 
-  const stream = generateMarkOverlay(
+  const ballotPdf = p.store.getBallotPdf(p.ballotStyleId);
+
+  const markedBallotPdf = await generateMarkOverlay(
     election,
     p.ballotStyleId,
     p.votes,
-    p.store.getPrintCalibration()
+    p.store.getPrintCalibration(),
+    ballotPdf
   );
 
-  const chunks: Buffer[] = [];
-  for await (const chunk of stream) {
-    assert(chunk instanceof Buffer);
-    chunks.push(chunk);
-  }
-
-  const pdf = Buffer.concat(chunks);
-
   return p.printer.print({
-    data: new Uint8Array(pdf.buffer, pdf.byteOffset, pdf.length),
+    data: markedBallotPdf,
     sides: PrintSides.TwoSidedLongEdge,
     size,
   });
