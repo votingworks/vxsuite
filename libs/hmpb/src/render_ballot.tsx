@@ -105,6 +105,7 @@ export interface BallotPageTemplate<P extends object> {
   stylesComponent: StylesComponent<P>;
   frameComponent: FrameComponent<P>;
   contentComponent: ContentComponent<P>;
+  isAllBubbleBallot?: boolean;
 }
 
 /**
@@ -297,7 +298,8 @@ export function gridHeightToPixels(
 
 async function extractGridLayout(
   document: RenderDocument,
-  ballotStyleId: BallotStyleId
+  ballotStyleId: BallotStyleId,
+  isAllBubbleBallot = false
 ): Promise<GridLayout> {
   const pages = await document.inspectElements(`.${PAGE_CLASS}`);
   const optionPositionsPerPage = await Promise.all(
@@ -358,6 +360,11 @@ async function extractGridLayout(
   // for every contest option we care about individually, since write-in and candidate
   // options are not the same size.
   const optionBoundsFromTargetMark: Outset<number> = await (async () => {
+    // All bubble ballots are a special case of a valid ballot with no contest options
+    if (isAllBubbleBallot) {
+      return { top: 0, left: 0, right: 0, bottom: 0 };
+    }
+
     let optionElement: DocumentElement | null = null;
     let bubbleElement: DocumentElement | null = null;
 
@@ -571,7 +578,11 @@ export async function layOutBallotsAndCreateElectionDefinition<
       const document = (
         await renderBallotTemplate(renderer, template, props)
       ).unsafeUnwrap();
-      const gridLayout = await extractGridLayout(document, props.ballotStyleId);
+      const gridLayout = await extractGridLayout(
+        document,
+        props.ballotStyleId,
+        template.isAllBubbleBallot
+      );
       const ballotContent = await document.getContent();
       document.cleanup();
       return {

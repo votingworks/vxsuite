@@ -128,5 +128,6 @@ export function allBubbleBallotTemplate(
     stylesComponent: BaseStyles,
     frameComponent: BallotPageFrame,
     contentComponent: BallotPageContent,
+    isAllBubbleBallot: true,
   };
 }
