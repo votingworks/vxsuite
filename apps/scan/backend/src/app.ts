@@ -9,6 +9,7 @@ import {
   DiagnosticOutcome,
 } from '@votingworks/types';
 import {
+  combineElectionResults,
   getPrecinctSelectionName,
   isElectionManagerAuth,
   singlePrecinctSelectionFor,
@@ -30,6 +31,7 @@ import {
   InsertedSmartCardAuthApi,
   generateRandomAes256Key,
   generateSignedHashValidationQrCodeValue,
+  generateSignedQuickResultsReportingUrl,
 } from '@votingworks/auth';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import {
@@ -69,6 +71,7 @@ import {
 } from './util/diagnostics';
 import { saveReadinessReport } from './printing/readiness_report';
 import { Player as AudioPlayer, SoundName } from './audio/player';
+import { getScannerResults } from './util/results';
 
 export const BALLOT_AUDIT_ID_FILE_NAME = 'ballot-audit-id-secret-key.txt';
 
@@ -567,6 +570,35 @@ export function buildApi({
 
     playSound(input: { name: SoundName }): Promise<void> {
       return audioPlayer.play(input.name);
+    },
+
+    async getQuickResultsReportingUrl(): Promise<string> {
+      const { machineId } = getMachineConfig();
+      const { electionDefinition } = assertDefined(store.getElectionRecord());
+      const systemSettings = store.getSystemSettings();
+      const pollState = store.getPollsState();
+      if (
+        !systemSettings ||
+        !systemSettings.quickResultsReportingUrl ||
+        pollState !== 'polls_closed_final'
+      ) {
+        return '';
+      }
+      const scannerResultsByParty = await getScannerResults({ store });
+
+      const combinedResults = combineElectionResults({
+        election: electionDefinition.election,
+        allElectionResults: scannerResultsByParty,
+      });
+      const signedQuickResultsReportingUrl =
+        await generateSignedQuickResultsReportingUrl({
+          electionDefinition,
+          quickResultsReportingUrl: systemSettings.quickResultsReportingUrl,
+          signingMachineId: machineId,
+          isLiveMode: !store.getTestMode(),
+          results: combinedResults,
+        });
+      return signedQuickResultsReportingUrl;
     },
 
     ...createUiStringsApi({

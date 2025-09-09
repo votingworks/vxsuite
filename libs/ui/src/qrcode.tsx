@@ -14,12 +14,13 @@ export type QrCodeLevel = 'L' | 'M' | 'Q' | 'H';
 export interface QrCodeProps {
   value: string;
   level?: QrCodeLevel;
+  size?: number;
 }
 
-export function QrCode({ level = 'H', value }: QrCodeProps): JSX.Element {
+export function QrCode({ level = 'H', value, size }: QrCodeProps): JSX.Element {
   return (
     <ResponsiveSvgWrapper>
-      <QRCodeSVG value={value} level={level} />
+      <QRCodeSVG value={value} level={level} size={size} />
     </ResponsiveSvgWrapper>
   );
 }

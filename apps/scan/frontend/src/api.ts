@@ -571,3 +571,17 @@ export const playSound = {
     return useMutation(apiClient.playSound);
   },
 } as const;
+
+export const getQuickResultsReportingUrl = {
+  queryKey(): QueryKey {
+    return ['getQuickResultsReportingUrl'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getQuickResultsReportingUrl(),
+      {}
+    );
+  },
+} as const;
