@@ -43,7 +43,6 @@ import {
   pageMarginsInches,
   DualLanguageText,
   primaryLanguageCode,
-  Instructions,
   Footer,
   Box,
   ContestHeader,
@@ -61,6 +60,7 @@ import { hmpbStrings } from '../hmpb_strings';
 import { Watermark } from './watermark';
 import { BaseStyles } from '../base_styles';
 import { images } from './la_images';
+import { InstructionsDiagramFillBubble } from '../svg_assets';
 
 function Header({
   election,
@@ -160,6 +160,45 @@ function Header({
         </div>
       </div>
     </div>
+  );
+}
+
+export function Instructions({
+  languageCode,
+}: {
+  languageCode: string;
+}): React.ReactElement {
+  return (
+    <Box
+      fill={'tinted'}
+      style={{
+        padding: '0.5rem 0.5rem',
+        display: 'grid',
+        gap: '0.125rem 0.75rem',
+        gridTemplateColumns:
+          languageCode === 'en' ? 'auto 1fr' : '1fr 1fr auto',
+      }}
+    >
+      <DualLanguageText>
+        <div>
+          <h2>{hmpbStrings.hmpbInstructions}</h2>
+          <div>{hmpbStrings.hmpbLaInstructionsLine1}</div>
+          <div>{hmpbStrings.hmpbLaInstructionsLine2}</div>
+          <div>{hmpbStrings.hmpbLaInstructionsLine3}</div>
+        </div>
+      </DualLanguageText>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <div style={{ width: '8rem' }}>
+          <InstructionsDiagramFillBubble bubbleSide="left" />
+        </div>
+      </div>
+    </Box>
   );
 }
 
