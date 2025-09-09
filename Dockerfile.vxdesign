@@ -25,34 +25,16 @@ RUN sudo apt update && apt install -y --no-install-recommends \
   g++ \
   gcc \
   ghostscript \
-  libasound2  \
-  libatspi2.0-0 \
   libcairo2-dev \
-  libdrm2\
-  libgbm1 \
   libgif-dev \
   libglib2.0-bin \
-  libgtk-3-0 \
   libjpeg-dev \
-  libnotify4 \
   libpango1.0-dev \
-  libpcsclite-dev \
-  libpcsclite1 \
   libpixman-1-dev \
   libpng-dev \
-  libsane \
-  libsane-common \
-  libsane-hpaio \
-  libsane1 \
-  libudev-dev \
-  libusb-1.0-0-dev \
-  libxss1 \
-  libxtst6 \
   libzbar-dev \
-  linux-kbuild-6.1 \
   make \
   pkg-config \
-  poppler-utils \
   python3
 
 WORKDIR /vx/code/vxsuite
@@ -67,14 +49,16 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | b
   npm i -g pnpm@8.15.5 && \
   pnpm -v
 
-RUN curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain=1.86.0 -y
-
 COPY . .
 
-RUN . ~/.bashrc && . ~/.cargo/env && pnpm install --frozen-lockfile
+RUN . ~/.bashrc && \
+  node /vx/code/vxsuite/prune_repo.js && \
+  pnpm install --frozen-lockfile --ignore-scripts && \
+  pnpm rebuild -r canvas && \
+  pnpm --dir libs/printing postinstall
 
 ENV NODE_ENV="production"
-RUN . ~/.bashrc && . ~/.cargo/env && pnpm -dir=apps/design/frontend build:prod
+RUN . ~/.bashrc && pnpm -dir=apps/design/frontend build:prod
 
 EXPOSE 80
 EXPOSE 3000
