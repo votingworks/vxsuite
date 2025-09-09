@@ -236,5 +236,6 @@ export function buildBatchManifest({
     endTime: batch.endedAt,
     sheetCount: batch.count,
     scannerId: batch.scannerId,
+    isEarlyVotingBatch: batch.isEarlyVoting ?? false,
   }));
 }

@@ -34,6 +34,7 @@ import {
   setIsDoubleFeedDetectionDisabled,
   setPrecinctSelection,
   setTestMode,
+  setEarlyVotingMode,
   unconfigureElection,
   beginDoubleFeedCalibration,
   useApiClient,
@@ -81,6 +82,7 @@ export function ElectionManagerScreen({
   const logOutMutation = logOut.useMutation();
   const setIsContinuousExportEnabledMutation =
     setIsContinuousExportEnabled.useMutation();
+  const setEarlyVotingModeMutation = setEarlyVotingMode.useMutation();
 
   const [isConfirmingBallotModeSwitch, setIsConfirmingBallotModeSwitch] =
     useState(false);
@@ -106,6 +108,7 @@ export function ElectionManagerScreen({
     isSoundMuted,
     isDoubleFeedDetectionDisabled,
     isContinuousExportEnabled,
+    isEarlyVotingMode,
     systemSettings,
   } = configQuery.data;
   const { pollsState } = pollsInfoQuery.data;
@@ -248,6 +251,30 @@ export function ElectionManagerScreen({
     </Button>
   );
 
+  const earlyVotingModeToggle = (
+    <SegmentedButton
+      disabled={
+        setEarlyVotingModeMutation.isLoading ||
+        isCvrSyncRequired ||
+        disableConfiguration ||
+        pollsState === 'polls_open' ||
+        pollsState === 'polls_closed_final'
+      }
+      label="Voting Mode:"
+      hideLabel
+      onChange={() =>
+        setEarlyVotingModeMutation.mutate({
+          isEarlyVotingMode: !isEarlyVotingMode,
+        })
+      }
+      options={[
+        { id: 'disabled', label: 'Election Day Mode' },
+        { id: 'enabled', label: 'Early Voting Mode' },
+      ]}
+      selectedOptionId={isEarlyVotingMode ? 'enabled' : 'disabled'}
+    />
+  );
+
   const unconfigureElectionButton = (
     <UnconfigureMachineButton
       // TODO rename isMachineConfigured -> disabled to be clearer
@@ -281,6 +308,7 @@ export function ElectionManagerScreen({
           {cvrSyncRequiredWarning}
           {changePrecinctButton}
           {ballotMode}
+          {earlyVotingModeToggle}
           {unconfigureElectionButton}
         </TabPanel>
       ),
@@ -340,7 +368,7 @@ export function ElectionManagerScreen({
       ballotCountOverride={scannerStatus.ballotsCounted}
       title="Election Manager Menu"
       voterFacing={false}
-      showTestModeBanner={false}
+      showModeBanner={false}
     >
       <TabbedSection aria-label="Election Manager Menu" tabs={tabs} />
 

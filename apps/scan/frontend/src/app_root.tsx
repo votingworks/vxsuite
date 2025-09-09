@@ -110,7 +110,6 @@ export function AppRoot(): JSX.Element | null {
   const {
     electionDefinition,
     systemSettings,
-    isTestMode,
     precinctSelection,
     isSoundMuted,
     isContinuousExportEnabled,
@@ -291,7 +290,6 @@ export function AppRoot(): JSX.Element | null {
   if (pollsState !== 'polls_open') {
     return (
       <PollsNotOpenScreen
-        isTestMode={isTestMode}
         pollsState={pollsState}
         scannedBallotCount={scannerStatus.ballotsCounted}
       />
@@ -310,7 +308,6 @@ export function AppRoot(): JSX.Element | null {
     <VoterScreen
       electionDefinition={electionDefinition}
       systemSettings={systemSettings}
-      isTestMode={isTestMode}
       isSoundMuted={isSoundMuted}
     />
   );

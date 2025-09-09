@@ -7,6 +7,7 @@ import {
   H2,
   Icons,
   P,
+  SegmentedButton,
   SetClockButton,
   SignedHashValidationButton,
   UnconfigureMachineButton,
@@ -16,7 +17,15 @@ import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { ToggleTestModeButton } from '../components/toggle_test_mode_button';
 import { AppContext } from '../contexts/app_context';
-import { logOut, unconfigure, ejectUsbDrive, useApiClient } from '../api';
+import {
+  logOut,
+  unconfigure,
+  ejectUsbDrive,
+  useApiClient,
+  getEarlyVotingMode,
+  setEarlyVotingMode,
+  getStatus,
+} from '../api';
 import { NavigationScreen } from '../navigation_screen';
 
 const ButtonRow = styled.div`
@@ -39,6 +48,9 @@ export function SettingsScreen({
   const logOutMutation = logOut.useMutation();
   const unconfigureMutation = unconfigure.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
+  const earlyVotingModeQuery = getEarlyVotingMode.useQuery();
+  const setEarlyVotingModeMutation = setEarlyVotingMode.useMutation();
+  const statusQuery = getStatus.useQuery();
 
   async function unconfigureMachine() {
     try {
@@ -55,6 +67,29 @@ export function SettingsScreen({
       <H2>Election</H2>
       <P>
         <ToggleTestModeButton />
+      </P>
+      <P>
+        <SegmentedButton
+          disabled={
+            setEarlyVotingModeMutation.isLoading ||
+            !canUnconfigure ||
+            !statusQuery.isSuccess ||
+            !earlyVotingModeQuery.isSuccess ||
+            !!statusQuery.data?.ongoingBatchId
+          }
+          label="Voting Mode"
+          hideLabel
+          onChange={() =>
+            setEarlyVotingModeMutation.mutate({
+              isEarlyVotingMode: !earlyVotingModeQuery.data,
+            })
+          }
+          options={[
+            { id: 'disabled', label: 'Election Day Mode' },
+            { id: 'enabled', label: 'Early Voting Mode' },
+          ]}
+          selectedOptionId={earlyVotingModeQuery.data ? 'enabled' : 'disabled'}
+        />
       </P>
       <ButtonRow>
         <UnconfigureMachineButton

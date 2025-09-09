@@ -427,8 +427,16 @@ export async function importCastVoteRecords(
         votes,
         electionDefinition
       );
-      const votingMethod = getCastVoteRecordBallotType(castVoteRecord);
-      assert(votingMethod);
+      const ballotType = getCastVoteRecordBallotType(castVoteRecord);
+      assert(ballotType);
+      const isEarlyVotingBatch = batchManifest.find(
+        (batch) => batch.id === castVoteRecord.BatchId
+      )?.isEarlyVotingBatch;
+      const votingMethod: Tabulation.VotingMethod =
+        isEarlyVotingBatch && ballotType === 'precinct'
+          ? 'early-voting'
+          : ballotType;
+
       const addCastVoteRecordResult = store.addCastVoteRecordFileEntry({
         ballotId: castVoteRecord.UniqueId,
         cvr: {

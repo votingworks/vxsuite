@@ -35,7 +35,6 @@ function renderScreen(props: Partial<PollsNotOpenScreenProps> = {}) {
     provideApi(
       apiMock,
       <PollsNotOpenScreen
-        isTestMode={false}
         pollsState="polls_closed_initial"
         scannedBallotCount={TEST_BALLOT_COUNT}
         {...props}

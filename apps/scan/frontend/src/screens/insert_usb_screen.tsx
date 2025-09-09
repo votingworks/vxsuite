@@ -8,7 +8,7 @@ export function InsertUsbScreen(): JSX.Element {
   React.useEffect(() => playSound({ name: 'alarm' }), [playSound]);
 
   return (
-    <ScreenMainCenterChild voterFacing={false} showTestModeBanner={false}>
+    <ScreenMainCenterChild voterFacing={false} showModeBanner={false}>
       <CenteredText>
         <H1>No USB Drive Detected</H1>
         <P>Insert a USB drive into the USB hub.</P>

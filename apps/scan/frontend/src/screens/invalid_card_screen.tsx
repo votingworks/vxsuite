@@ -12,7 +12,7 @@ export function InvalidCardScreen({
     <ScreenMainCenterChild
       infoBarMode="pollworker"
       voterFacing={false}
-      showTestModeBanner={false}
+      showModeBanner={false}
     >
       <SharedInvalidCardScreen
         reasonAndContext={authStatus}
