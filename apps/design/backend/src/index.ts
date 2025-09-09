@@ -4,7 +4,7 @@ import './configure_sentry'; // Must be imported first to instrument code
 import { resolve } from 'node:path';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import { BaseLogger, Logger, LogSource } from '@votingworks/logging';
-import { authEnabled, WORKSPACE } from './globals';
+import { authEnabled, NODE_ENV, WORKSPACE } from './globals';
 import * as server from './server';
 import { createWorkspace } from './workspace';
 import { GoogleCloudTranslatorWithDbCache } from './translator';
@@ -47,7 +47,9 @@ async function main(): Promise<number> {
   const { store } = workspace;
 
   const auth0 = authEnabled() ? Auth0Client.init() : Auth0Client.dev();
-  await store.syncOrganizationsCache(await auth0.allOrgs());
+  if (NODE_ENV === 'production') {
+    await store.syncOrganizationsCache(await auth0.allOrgs());
+  }
 
   // We reuse the VxSuite logging library, but it doesn't matter if we meet VVSG
   // requirements in VxDesign, so we can use it a bit loosely. For example, the
