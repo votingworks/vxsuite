@@ -48,8 +48,6 @@ export function LoadElectionButton(): JSX.Element {
     switch (electionOptions.format) {
       case 'vxf':
         loadElectionMutation.mutate(
-          // [TODO] Assuming this flow will be unused for March elections. If
-          // it ends up being needed, we'll need an org selection flow here as well.
           { electionData: await file.text(), orgId },
           { onSuccess: onLoadElectionSuccess }
         );
