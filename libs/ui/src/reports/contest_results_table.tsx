@@ -66,7 +66,17 @@ const ContestTable = styled.table`
     padding: 0.25em 0.625em;
     padding-right: 0;
     text-align: right;
-    white-space: no-wrap;
+    white-space: nowrap;
+
+    &.percentage-column {
+      border-left: 1px solid #e8e8e8;
+      padding-left: 0.375em;
+    }
+
+    /* Add more right padding to the cell before percentage column */
+    &:nth-last-child(2) {
+      padding-right: 0.75em;
+    }
   }
 
   & th {
@@ -101,14 +111,33 @@ function ContestOptionRow({
   scannedTally,
   showManualTally,
   manualTally,
+  totalBallots,
+  manualBallots,
 }: {
   testId: string;
   optionLabel: string;
   scannedTally: number;
   showManualTally: boolean;
   manualTally: number;
+  totalBallots?: number;
+  manualBallots?: number;
 }): JSX.Element {
+  // Calculate percentage for display
+  function getPercentageDisplay(tally: number) {
+    // Use combined ballot count when manual results are present
+    const denominator =
+      showManualTally && manualBallots !== undefined
+        ? (totalBallots || 0) + manualBallots
+        : totalBallots;
+
+    if (!denominator || denominator === 0) {
+      return '';
+    }
+    return format.percent(tally / denominator);
+  }
+
   if (showManualTally) {
+    const totalTally = scannedTally + manualTally;
     return (
       <tr data-testid={testId}>
         <th className="option-label">{optionLabel.replace('-', '‑')}</th>
@@ -121,7 +150,10 @@ function ContestOptionRow({
           )}
         </td>
         <td>
-          <strong>{format.count(scannedTally + manualTally)}</strong>
+          <strong>{format.count(totalTally)}</strong>
+        </td>
+        <td className="percentage-column">
+          {getPercentageDisplay(totalTally)}
         </td>
       </tr>
     );
@@ -131,6 +163,9 @@ function ContestOptionRow({
     <tr data-testid={testId}>
       <th colSpan={3}>{optionLabel}</th>
       <td>{format.count(scannedTally)}</td>
+      <td className="percentage-column">
+        {getPercentageDisplay(scannedTally)}
+      </td>
     </tr>
   );
 }
@@ -162,6 +197,7 @@ function ContestMetadataRow({
       <td>
         <strong>{format.count(scannedTally + manualTally)}</strong>
       </td>
+      <td className="percentage-column" />
     </tr>
   );
 }
@@ -194,6 +230,9 @@ export function ContestResultsTable({
           <th data-testid="contest-manual-results">manual</th>
           <th>
             <strong>total</strong>
+          </th>
+          <th className="percentage-column">
+            <strong>%</strong>
           </th>
         </tr>,
         <ContestMetadataRow
@@ -242,6 +281,8 @@ export function ContestResultsTable({
             scannedTally={candidateReportTally.scannedTally}
             manualTally={candidateReportTally.manualTally}
             showManualTally={hasManualResults}
+            totalBallots={scannedContestResults.ballots}
+            manualBallots={manualContestResults?.ballots}
           />
         );
       }
@@ -259,6 +300,8 @@ export function ContestResultsTable({
           scannedTally={scannedContestResults.yesTally}
           manualTally={manualContestResults?.yesTally ?? 0}
           showManualTally={hasManualResults}
+          totalBallots={scannedContestResults.ballots}
+          manualBallots={manualContestResults?.ballots}
         />
       );
       const noKey = `${contest.id}-no`;
@@ -270,6 +313,8 @@ export function ContestResultsTable({
           scannedTally={scannedContestResults.noTally}
           manualTally={manualContestResults?.noTally ?? 0}
           showManualTally={hasManualResults}
+          totalBallots={scannedContestResults.ballots}
+          manualBallots={manualContestResults?.ballots}
         />
       );
       break;
