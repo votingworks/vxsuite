@@ -12,6 +12,10 @@ import {
   BaseBallotProps,
   ballotTemplates,
   renderAllBallotPdfsAndCreateElectionDefinition,
+  layOutBallotsAndCreateElectionDefinition,
+  renderBallotPdfWithMetadataQrCode,
+  markBallotDocument,
+  createTestVotes,
 } from '@votingworks/hmpb';
 import {
   AdjudicationReason,
@@ -29,7 +33,10 @@ import {
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { createCanvas } from 'canvas';
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  electionSimpleSinglePrecinctFixtures,
+} from '@votingworks/fixtures';
 import {
   pdfToPageImages,
   sortUnmarkedWriteIns,
@@ -338,6 +345,85 @@ function snapshotWriteInCrops(
 
     const writeInImage = canvas.toBuffer('image/png');
     expect(writeInImage).toMatchImageSnapshot();
+  }
+}
+
+function snapshotCandidateOptionCrops(
+  sheetImages: SheetOf<ImageData>,
+  sheetInterpretations: SheetOf<InterpretedHmpbPage>
+) {
+  for (const [pageImage, interpretation] of iter(sheetImages).zip(
+    sheetInterpretations
+  )) {
+    // Skip pages without candidate contests
+    if (
+      !interpretation.layout.contests.some((contest) =>
+        contest.options.some(
+          (option) =>
+            option.definition?.type === 'candidate' &&
+            !option.definition.isWriteIn
+        )
+      )
+    ) {
+      continue;
+    }
+    const canvas = createCanvas(pageImage.width, pageImage.height);
+    const context = canvas.getContext('2d');
+    context.imageSmoothingEnabled = false;
+    context.putImageData(pageImage, 0, 0);
+    context.strokeStyle = 'blue';
+    context.lineWidth = 2;
+
+    for (const contest of interpretation.layout.contests) {
+      for (const option of contest.options) {
+        if (
+          option.definition?.type === 'candidate' &&
+          !option.definition.isWriteIn
+        ) {
+          const { bounds } = option;
+          context.strokeRect(bounds.x, bounds.y, bounds.width, bounds.height);
+        }
+      }
+    }
+
+    const image = canvas.toBuffer('image/png');
+    expect(image).toMatchImageSnapshot();
+  }
+}
+
+function snapshotBallotMeasureCrops(
+  sheetImages: SheetOf<ImageData>,
+  sheetInterpretations: SheetOf<InterpretedHmpbPage>
+) {
+  for (const [pageImage, interpretation] of iter(sheetImages).zip(
+    sheetInterpretations
+  )) {
+    // Skip pages without yes-no
+    if (
+      !interpretation.layout.contests.some((contest) =>
+        contest.options.some((option) => option.definition?.type === 'yesno')
+      )
+    ) {
+      continue;
+    }
+    const canvas = createCanvas(pageImage.width, pageImage.height);
+    const context = canvas.getContext('2d');
+    context.imageSmoothingEnabled = false;
+    context.putImageData(pageImage, 0, 0);
+    context.strokeStyle = 'blue';
+    context.lineWidth = 2;
+
+    for (const contest of interpretation.layout.contests) {
+      for (const option of contest.options) {
+        if (option.definition?.type === 'yesno') {
+          const { bounds } = option;
+          context.strokeRect(bounds.x, bounds.y, bounds.width, bounds.height);
+        }
+      }
+    }
+
+    const image = canvas.toBuffer('image/png');
+    expect(image).toMatchImageSnapshot();
   }
 }
 
@@ -744,4 +830,123 @@ test('Ballot audit IDs', async () => {
   expect(backResult.interpretation.metadata.ballotAuditId).toEqual(
     'test-ballot-audit-id'
   );
+});
+
+describe('Contest option bounds', () => {
+  test('Election with ballot measures only', async () => {
+    const baseElectionDefinition =
+      electionSimpleSinglePrecinctFixtures.readElectionDefinition();
+    const { election } = baseElectionDefinition;
+    const electionWithMeasureOnly = {
+      ...election,
+      contests: election.contests.filter((c) => c.type === 'yesno'),
+    } as const;
+
+    const ballotProps = allBaseBallotProps(electionWithMeasureOnly);
+    const renderer = await createPlaywrightRenderer();
+    const { electionDefinition, ballotContents: blankBallotContents } =
+      await layOutBallotsAndCreateElectionDefinition(
+        renderer,
+        ballotTemplates.VxDefaultBallot,
+        ballotProps,
+        'vxf'
+      );
+
+    const ballotDocument = await renderer.loadDocumentFromContent(
+      blankBallotContents[0]!
+    );
+    const { votes } = createTestVotes(electionWithMeasureOnly.contests);
+    await renderBallotPdfWithMetadataQrCode(
+      ballotProps[0]!,
+      ballotDocument,
+      electionDefinition
+    );
+
+    await markBallotDocument(ballotDocument, votes);
+    const markedBallotPdf = await ballotDocument.renderToPdf();
+    ballotDocument.cleanup();
+
+    const images = asSheet(await pdfToPageImages(markedBallotPdf).toArray());
+    expect(images).toHaveLength(2);
+
+    const [frontResult, backResult] = await interpretSheet(
+      {
+        electionDefinition,
+        precinctSelection: ALL_PRECINCTS_SELECTION,
+        testMode: false,
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
+        adjudicationReasons: [],
+      },
+      images
+    );
+
+    assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
+    assert(backResult.interpretation.type === 'InterpretedHmpbPage');
+    snapshotBallotMeasureCrops(images, [
+      frontResult.interpretation,
+      backResult.interpretation,
+    ]);
+  });
+
+  test('Election with candidate contests only, no write-ins', async () => {
+    const baseElectionDefinition =
+      electionSimpleSinglePrecinctFixtures.readElectionDefinition();
+    const { election } = baseElectionDefinition;
+    const electionWithCandidateContestsOnly = {
+      ...election,
+      contests: election.contests
+        .filter((c) => c.type === 'candidate')
+        .map((c) => ({
+          ...c,
+          allowWriteIns: false,
+        })),
+    } as const;
+
+    const ballotProps = allBaseBallotProps(electionWithCandidateContestsOnly);
+    const renderer = await createPlaywrightRenderer();
+    const { electionDefinition, ballotContents: blankBallotContents } =
+      await layOutBallotsAndCreateElectionDefinition(
+        renderer,
+        ballotTemplates.VxDefaultBallot,
+        ballotProps,
+        'vxf'
+      );
+
+    const ballotDocument = await renderer.loadDocumentFromContent(
+      blankBallotContents[0]!
+    );
+    const { votes } = createTestVotes(
+      electionWithCandidateContestsOnly.contests
+    );
+    await renderBallotPdfWithMetadataQrCode(
+      ballotProps[0]!,
+      ballotDocument,
+      electionDefinition
+    );
+
+    await markBallotDocument(ballotDocument, votes);
+    const markedBallotPdf = await ballotDocument.renderToPdf();
+    ballotDocument.cleanup();
+
+    const images = asSheet(await pdfToPageImages(markedBallotPdf).toArray());
+    expect(images).toHaveLength(2);
+
+    const [frontResult, backResult] = await interpretSheet(
+      {
+        electionDefinition,
+        precinctSelection: ALL_PRECINCTS_SELECTION,
+        testMode: false,
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
+        adjudicationReasons: [],
+      },
+      images
+    );
+
+    assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
+    assert(backResult.interpretation.type === 'InterpretedHmpbPage');
+    snapshotCandidateOptionCrops(images, [
+      frontResult.interpretation,
+      backResult.interpretation,
+    ]);
+  });
 });
