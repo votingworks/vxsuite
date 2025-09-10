@@ -32,6 +32,7 @@ import {
   CastVoteRecordExportFileName,
   safeParseJson,
   CastVoteRecordReportWithoutMetadataSchema,
+  ElectionType,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -97,6 +98,7 @@ import {
 } from './features';
 import { rootDebug } from './debug';
 import * as audioDemo from './audio_demo';
+import { convertLaElectionZipToVxElection } from './election_conversion_la';
 
 const debug = rootDebug.extend('app');
 
@@ -328,6 +330,26 @@ export function buildApi(ctx: AppContext) {
         signature: sourceElection.signature,
         customBallotContent,
       };
+      await store.createElection(
+        input.orgId,
+        election,
+        defaultBallotTemplate(election.state, context.user)
+      );
+      return ok(election.id);
+    },
+
+    async loadLaElection(
+      input: {
+        electionZipFileContents: Buffer;
+        electionType: ElectionType;
+        orgId: string;
+      },
+      context: ApiContext
+    ): Promise<Result<ElectionId, Error>> {
+      const election = await convertLaElectionZipToVxElection(
+        input.electionType,
+        input.electionZipFileContents
+      );
       await store.createElection(
         input.orgId,
         election,

@@ -34,12 +34,7 @@ import { useTitle } from './hooks/use_title';
 import { SignatureImageInput } from './signature_image_input';
 
 function hasBlankElectionInfo(electionInfo: ElectionInfo): boolean {
-  return (
-    !electionInfo.title &&
-    !electionInfo.state &&
-    !electionInfo.jurisdiction &&
-    !electionInfo.seal
-  );
+  return !electionInfo.title;
 }
 
 function ElectionInfoForm({
@@ -153,6 +148,8 @@ function ElectionInfoForm({
     >
       <InputGroup label="Title">
         <input
+          // eslint-disable-next-line jsx-a11y/no-autofocus
+          autoFocus
           type="text"
           value={electionInfo.title}
           onChange={onInputChange('title')}
