@@ -609,8 +609,9 @@ export class Store {
       assert(electionRow, 'Election not found');
 
       const districts = (
-        await client.query(
-          `
+        (
+          await client.query(
+            `
             select
               id,
               name
@@ -618,9 +619,13 @@ export class Store {
             where election_id = $1
             order by name
           `,
-          electionId
-        )
-      ).rows as District[];
+            electionId
+          )
+        ).rows as District[]
+      ).sort((a, b) =>
+        // [TODO] Set sort order locale at the DB level.
+        a.name.localeCompare(b.name, 'en-US', { numeric: true })
+      );
 
       const precinctRows = (
         await client.query(
@@ -667,19 +672,24 @@ export class Store {
         nhOptions: NhPrecinctSplitOptions;
         districtIds: DistrictId[];
       }>;
-      const precincts: Precinct[] = precinctRows.map((row) => {
-        const splits = precinctSplitRows
-          .filter((split) => split.precinctId === row.id)
-          .map((split) => ({
-            id: split.id,
-            name: split.name,
-            districtIds: split.districtIds,
-            ...split.nhOptions,
-          }));
-        return splits.length > 0
-          ? { id: row.id, name: row.name, splits }
-          : { id: row.id, name: row.name, districtIds: row.districtIds };
-      });
+      const precincts: Precinct[] = precinctRows
+        .map((row) => {
+          const splits = precinctSplitRows
+            .filter((split) => split.precinctId === row.id)
+            .map((split) => ({
+              id: split.id,
+              name: split.name,
+              districtIds: split.districtIds,
+              ...split.nhOptions,
+            }));
+          return splits.length > 0
+            ? { id: row.id, name: row.name, splits }
+            : { id: row.id, name: row.name, districtIds: row.districtIds };
+        })
+        .sort((a, b) =>
+          // [TODO] Set sort order locale at the DB level.
+          a.name.localeCompare(b.name, 'en-US', { numeric: true })
+        );
 
       const parties = (
         await client.query(
@@ -1979,7 +1989,6 @@ export class Store {
 
   /* istanbul ignore next - @preserve */
   async audioSourceGet(query: AudioQuery): Promise<AudioSource> {
-    // eslint-disable-next-line @typescript-eslint/require-await
     return this.db.withClient(async (client) =>
       audioSources.get(client, query)
     );
@@ -1987,7 +1996,6 @@ export class Store {
 
   /* istanbul ignore next - @preserve */
   async audioSourceSet(params: AudioSourceEntry): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/require-await
     return this.db.withClient(async (client) =>
       audioSources.set(client, params)
     );
@@ -1995,7 +2003,6 @@ export class Store {
 
   /* istanbul ignore next - @preserve */
   async ttsTextOverrideGet(query: AudioQuery): Promise<string | null> {
-    // eslint-disable-next-line @typescript-eslint/require-await
     return this.db.withClient(async (client) =>
       ttsTextOverrides.get(client, query)
     );
@@ -2003,7 +2010,6 @@ export class Store {
 
   /* istanbul ignore next - @preserve */
   async ttsTextOverrideSet(params: TtsTextEntry): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/require-await
     return this.db.withClient(async (client) =>
       ttsTextOverrides.set(client, params)
     );
@@ -2011,7 +2017,6 @@ export class Store {
 
   /* istanbul ignore next - @preserve */
   async ttsPhoneticOverrideGet(query: AudioQuery): Promise<SsmlChunk[] | null> {
-    // eslint-disable-next-line @typescript-eslint/require-await
     return this.db.withClient(async (client) =>
       ttsPhoneticOverrides.get(client, query)
     );
@@ -2019,7 +2024,6 @@ export class Store {
 
   /* istanbul ignore next - @preserve */
   async ttsPhoneticOverrideSet(params: TtsPhoneticEntry): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/require-await
     return this.db.withClient(async (client) =>
       ttsPhoneticOverrides.set(client, params)
     );
