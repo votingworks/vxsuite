@@ -656,7 +656,7 @@ function Contest({
 }
 
 function isPresidentialContest(contest: AnyContest) {
-  return contest.title === 'Presidential Electors';
+  return contest.title.toLowerCase().includes('president');
 }
 
 async function BallotPageContent(

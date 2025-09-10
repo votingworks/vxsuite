@@ -105,6 +105,32 @@ function normalizeOptionLabel(label: string): string {
   return label;
 }
 
+function toTitleCase(str: string): string {
+  return str
+    .toLowerCase()
+    .split(' ')
+    .map((word, i) =>
+      [
+        'and',
+        'or',
+        'the',
+        'of',
+        'a',
+        'an',
+        'in',
+        'to',
+        'for',
+        'on',
+        'at',
+        'by',
+        'with',
+      ].includes(word) && i !== 0
+        ? word
+        : word.charAt(0).toUpperCase() + word.slice(1)
+    )
+    .join(' ');
+}
+
 export interface LaElectionFiles {
   office: string;
   referendum: string;
@@ -601,19 +627,6 @@ export function convertLaElectionToVxElection(
 
   const parties = [...partiesByName.values()];
 
-  // console.warn(
-  //   candidateDistrictsToMerge.map(([_, districts]) =>
-  //     districts.map((d) => d.name)
-  //   )
-  // );
-  // if (isCandidateContest) {
-  //   return row.contestTitle2.replace(/, Office "\w"$/, '');
-  // }
-  // if (row.contestTitle1.match(/^CA No. \d+/)) {
-  //   return 'Constitutional Amendment';
-  // }
-  // return row.contestTitle1.replace(/ Proposition No. \d+ of \d+$/, '');
-
   const presidentialCandidateBallotStrings:
     | Record<CandidateId, LaPresidentialCandidateBallotStrings>
     | undefined = laElectionFileContents.presidentialCandidate
@@ -636,7 +649,9 @@ export function convertLaElectionToVxElection(
         assert(contests[presidentialContestIndex].type === 'candidate');
         contests[presidentialContestIndex] = {
           ...contests[presidentialContestIndex],
-          title: presidentialContestBallotTextRow.presidentialCandidateName,
+          title: toTitleCase(
+            presidentialContestBallotTextRow.presidentialCandidateName
+          ),
           termDescription:
             presidentialContestBallotTextRow.vicePresidentialCandidateName,
         };
