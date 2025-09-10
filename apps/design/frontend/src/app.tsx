@@ -96,33 +96,33 @@ export function App({
       showScrollBars
     >
       <ErrorBoundary errorMessage={ErrorScreen}>
-        <ApiClientContext.Provider value={apiClient}>
-          <UnauthenticatedApiClientContext.Provider
-            value={unauthenticatedApiClient}
-          >
-            <QueryClientProvider client={createQueryClient()}>
-              <BrowserRouter>
-                <Switch>
-                  <Route path={resultsRoutes.root.path} exact>
-                    <ReportingResultsConfirmationScreen />
-                  </Route>
-                  <WaitForUserInfo>
-                    <Route path={routes.root.path} exact>
-                      <ElectionsScreen
-                        filterText={electionsFilterText}
-                        setFilterText={setElectionsFilterText}
-                      />
-                    </Route>
-                    <Route
-                      path={electionParamRoutes.root.path}
-                      component={ElectionScreens}
+        <QueryClientProvider client={createQueryClient()}>
+          <BrowserRouter>
+            <Switch>
+              <Route path={resultsRoutes.root.path} exact>
+                <UnauthenticatedApiClientContext.Provider
+                  value={unauthenticatedApiClient}
+                >
+                  <ReportingResultsConfirmationScreen />
+                </UnauthenticatedApiClientContext.Provider>
+              </Route>
+              <ApiClientContext.Provider value={apiClient}>
+                <WaitForUserInfo>
+                  <Route path={routes.root.path} exact>
+                    <ElectionsScreen
+                      filterText={electionsFilterText}
+                      setFilterText={setElectionsFilterText}
                     />
-                  </WaitForUserInfo>
-                </Switch>
-              </BrowserRouter>
-            </QueryClientProvider>
-          </UnauthenticatedApiClientContext.Provider>
-        </ApiClientContext.Provider>
+                  </Route>
+                  <Route
+                    path={electionParamRoutes.root.path}
+                    component={ElectionScreens}
+                  />
+                </WaitForUserInfo>
+              </ApiClientContext.Provider>
+            </Switch>
+          </BrowserRouter>
+        </QueryClientProvider>
       </ErrorBoundary>
     </AppBase>
   );
