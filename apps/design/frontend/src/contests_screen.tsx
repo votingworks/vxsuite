@@ -669,6 +669,11 @@ function ContestForm({
       }
     })();
 
+  const showCandidateRequiredWarning =
+    contest.type === 'candidate' &&
+    !contest.allowWriteIns &&
+    contest.candidates.length === 0;
+
   return (
     <Form
       onSubmit={(e) => {
@@ -998,6 +1003,12 @@ function ContestForm({
       )}
 
       {errorMessage}
+      {showCandidateRequiredWarning && (
+        <Callout icon="Warning" color="warning">
+          At least one candidate is required to save the contest when write-ins
+          are not allowed.
+        </Callout>
+      )}
       <div>
         <FormActionsRow>
           <Button type="reset">Cancel</Button>
@@ -1005,7 +1016,7 @@ function ContestForm({
             type="submit"
             variant="primary"
             icon="Done"
-            disabled={someMutationIsLoading}
+            disabled={someMutationIsLoading || showCandidateRequiredWarning}
           >
             Save
           </Button>
