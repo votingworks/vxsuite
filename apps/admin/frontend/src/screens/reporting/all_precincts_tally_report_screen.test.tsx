@@ -28,6 +28,7 @@ test('displays report', async () => {
       filter: {},
       groupBy: { groupByPrecinct: true },
       includeSignatureLines: false,
+      showPercentages: false,
     },
     pdfContent: 'All Precincts Tally Report Mock Preview',
   });

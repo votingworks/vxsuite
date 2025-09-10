@@ -29,6 +29,7 @@ test('displays report', async () => {
       filter: {},
       groupBy: {},
       includeSignatureLines: true,
+      showPercentages: false,
     },
     pdfContent: 'Full Election Tally Report Mock Preview',
   });

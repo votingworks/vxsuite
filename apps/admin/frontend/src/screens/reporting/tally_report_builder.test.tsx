@@ -64,6 +64,7 @@ test('happy path', async () => {
         groupByPrecinct: true,
       }),
       includeSignatureLines: false,
+      showPercentages: false,
     },
     pdfContent: 'Absentee Ballot Tally Report Mock Preview',
   });
@@ -87,6 +88,7 @@ test('happy path', async () => {
         groupByPrecinct: true,
       }),
       includeSignatureLines: false,
+      showPercentages: false,
     },
     pdfContent: 'Precinct Ballot Tally Report Mock Preview',
   });
