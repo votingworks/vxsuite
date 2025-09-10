@@ -272,10 +272,10 @@ export async function generateElectionPackageAndBallots(
       ballotMode,
       ballotAuditId
     );
-    const normalizedColorPdf = await normalizeBallotColorModeForPrinting(
-      ballotPdf,
-      props
-    );
+    const normalizedColorPdf =
+      ballotTemplateId === 'NhBallot'
+        ? await normalizeBallotColorModeForPrinting(ballotPdf, props)
+        : ballotPdf;
     ballotsZip.file(fileName, normalizedColorPdf);
   }
   const calibrationSheetPdf = await renderCalibrationSheetPdf(
