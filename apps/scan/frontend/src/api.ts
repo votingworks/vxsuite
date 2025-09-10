@@ -581,7 +581,7 @@ export const getQuickResultsReportingUrl = {
     return useQuery(
       this.queryKey(),
       () => apiClient.getQuickResultsReportingUrl(),
-      {}
+      { cacheTime: 0 } // Always generate a fresh QR code value
     );
   },
 } as const;

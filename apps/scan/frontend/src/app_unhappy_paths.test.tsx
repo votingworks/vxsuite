@@ -159,6 +159,7 @@ test('shows message when printer cover is open', async () => {
   await screen.findByRole('heading', { name: 'Polls Closed' });
 
   // Open Polls
+  apiMock.expectGetQuickResultsReportingUrl();
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText(/The paper roll holder is not attached/);
   apiMock.setPrinterStatus();
@@ -319,6 +320,7 @@ test('shows message when scanner cover is open', async () => {
   await screen.findByRole('heading', { name: 'Polls Closed' });
 
   // Open Polls
+  apiMock.expectGetQuickResultsReportingUrl();
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Open Polls');
   apiMock.expectOpenPolls();

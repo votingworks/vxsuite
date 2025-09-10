@@ -498,11 +498,13 @@ function PollWorkerScreenContents({
           <Screen>
             <CenteredText>
               {getQuickResultsReportingUrlQuery.data && (
-                <QrCode
-                  value={getQuickResultsReportingUrlQuery.data}
-                  level="M"
-                  size={500}
-                />
+                <div data-testid="quick-results-code">
+                  <QrCode
+                    value={getQuickResultsReportingUrlQuery.data}
+                    level="M"
+                    size={500}
+                  />
+                </div>
               )}
               <br />
               <Button onPress={showAllPollWorkerActions}>Back</Button>

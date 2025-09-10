@@ -162,6 +162,7 @@ test('election manager must set precinct', async () => {
   await screen.findByText('No Precinct Selected');
 
   // Poll worker card does nothing
+  apiMock.expectGetQuickResultsReportingUrl();
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('No Precinct Selected');
   apiMock.removeCard();
@@ -183,6 +184,7 @@ test('election manager must set precinct', async () => {
   screen.getByText('Center Springfield');
 
   // Poll worker card can be used to open polls now
+  apiMock.expectGetQuickResultsReportingUrl();
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to open the polls?');
 });
@@ -234,6 +236,7 @@ test('election manager and poll worker configuration', async () => {
   apiMock.expectOpenPolls();
   apiMock.expectPrintReportSection(0).resolve();
   apiMock.expectGetPollsInfo('polls_open');
+  apiMock.expectGetQuickResultsReportingUrl();
   apiMock.authenticateAsPollWorker(electionDefinition);
   userEvent.click(await screen.findByText('Open Polls'));
   await screen.findByText(
@@ -270,6 +273,7 @@ test('election manager and poll worker configuration', async () => {
   apiMock.expectOpenPolls();
   apiMock.expectPrintReportSection(0).resolve();
   apiMock.expectGetPollsInfo('polls_open');
+  apiMock.expectGetQuickResultsReportingUrl();
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to open the polls?');
   userEvent.click(await screen.findByText('Open Polls'));
@@ -360,6 +364,7 @@ test('voter can cast a ballot that scans successfully', async () => {
 
   // Insert a pollworker card
   apiMock.expectGetScannerStatus(statusBallotCounted);
+  apiMock.expectGetQuickResultsReportingUrl();
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to close the polls?');
 
@@ -539,6 +544,7 @@ test('scanning is not triggered when polls closed or cards present', async () =>
   apiMock.setPrinterStatus();
   renderApp();
   await screen.findByText('Polls Closed');
+  apiMock.expectGetQuickResultsReportingUrl();
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to open the polls?');
   // Open Polls
@@ -559,6 +565,7 @@ test('scanning is not triggered when polls closed or cards present', async () =>
 
 test('poll worker can open and close polls without scanning any ballots', async () => {
   apiMock.expectGetConfig();
+  apiMock.expectGetQuickResultsReportingUrl();
   apiMock.expectGetPollsInfo('polls_closed_initial');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
@@ -586,6 +593,7 @@ test('poll worker can open and close polls without scanning any ballots', async 
   await screen.findByText(/Insert Your Ballot/i);
 
   // Close Polls Flow
+  apiMock.expectGetQuickResultsReportingUrl();
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to close the polls?');
   apiMock.expectClosePolls();
@@ -617,6 +625,7 @@ test('open polls, scan ballot, close polls, save results', async () => {
   renderApp();
   await screen.findByText('Polls Closed');
   // Open Polls Flow
+  apiMock.expectGetQuickResultsReportingUrl();
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to open the polls?');
   apiMock.expectOpenPolls();
@@ -632,6 +641,7 @@ test('open polls, scan ballot, close polls, save results', async () => {
   await scanBallot();
 
   // Close Polls
+  apiMock.expectGetQuickResultsReportingUrl();
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to close the polls?');
   apiMock.expectClosePolls();
@@ -658,6 +668,7 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
   await screen.findByText('Polls Closed');
 
   // Open Polls
+  apiMock.expectGetQuickResultsReportingUrl();
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to open the polls?');
   apiMock.expectOpenPolls();
@@ -671,6 +682,7 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
   await screen.findByText(/Insert Your Ballot/i);
 
   // Pause Voting Flow
+  apiMock.expectGetQuickResultsReportingUrl();
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to close the polls?');
   userEvent.click(await screen.findByText('Menu'));
@@ -686,6 +698,7 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
   await screen.findByText('Voting Paused');
 
   // Resume Voting Flow
+  apiMock.expectGetQuickResultsReportingUrl();
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to resume voting?');
   apiMock.expectResumeVoting();
@@ -700,6 +713,7 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
   await screen.findByText(/Insert Your Ballot/i);
 
   // Close Polls Flow
+  apiMock.expectGetQuickResultsReportingUrl();
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to close the polls?');
   apiMock.expectClosePolls();
@@ -731,6 +745,7 @@ test('ballot mode banner consistently displayed in voter screens', async () => {
   screen.getByText('Test Ballot Mode');
 
   // open polls
+  apiMock.expectGetQuickResultsReportingUrl();
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to open the polls?');
   apiMock.expectOpenPolls();
@@ -771,6 +786,7 @@ test('ballot mode banner consistently displayed in voter screens', async () => {
   await screen.findByText(/Insert Your Ballot/i);
 
   // close polls
+  apiMock.expectGetQuickResultsReportingUrl();
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to close the polls?');
   apiMock.expectClosePolls();
@@ -945,6 +961,7 @@ test('requires CVR sync if necessary', async () => {
     'A poll worker must sync cast vote records (CVRs) to the USB drive.'
   );
 
+  apiMock.expectGetQuickResultsReportingUrl();
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText(
     'The inserted USB drive does not contain up-to-date records of the votes cast at this scanner. ' +

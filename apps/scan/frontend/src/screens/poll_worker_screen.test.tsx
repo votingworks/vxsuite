@@ -51,6 +51,7 @@ beforeEach(() => {
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.setPrinterStatus();
+  apiMock.expectGetQuickResultsReportingUrl();
 });
 
 afterEach(() => {
@@ -193,6 +194,29 @@ test('no transitions from polls closed final', async () => {
   expect(screen.queryAllByRole('button')).toHaveLength(3);
   screen.getButton('Power Down');
   screen.getButton('Print Polls Closed Report');
+  screen.getButton('Signed Hash Validation');
+
+  // If the election is not configured for VxQR there should not be an option to view QR code
+  expect(screen.queryByText('View Quick Results Code')).not.toBeInTheDocument();
+});
+
+test('polls closed final shows quick results code when configured', async () => {
+  apiMock.expectGetQuickResultsReportingUrl('https://example.com/qr');
+  apiMock.expectGetPollsInfo('polls_closed_final');
+  renderScreen({
+    scannedBallotCount: 0,
+  });
+  await screen.findByText(/Voting is complete/);
+
+  expect(screen.queryAllByRole('button')).toHaveLength(4);
+  screen.getButton('Power Down');
+  screen.getButton('Print Polls Closed Report');
+  screen.getButton('Signed Hash Validation');
+
+  const qrButton = screen.getButton('View Quick Results Code');
+  userEvent.click(qrButton);
+  const qrCode = screen.getByTestId('quick-results-code');
+  expect(qrCode).toBeInTheDocument();
 });
 
 // confirm that we have an alert and logging that meet VVSG 2.0 1.1.3-B
