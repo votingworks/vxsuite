@@ -16,6 +16,11 @@ import {
   createQueryClient,
   getUser,
 } from './api';
+import {
+  createUnauthenticatedApiClient,
+  UnauthenticatedApiClient,
+  UnauthenticatedApiClientContext,
+} from './public_api';
 import { ElectionsScreen } from './elections_screen';
 import { electionParamRoutes, routes, resultsRoutes } from './routes';
 import { ElectionInfoScreen } from './election_info_screen';
@@ -78,8 +83,10 @@ function WaitForUserInfo(props: { children: React.ReactNode }) {
 
 export function App({
   apiClient = createApiClient(),
+  unauthenticatedApiClient = createUnauthenticatedApiClient(),
 }: {
   apiClient?: ApiClient;
+  unauthenticatedApiClient?: UnauthenticatedApiClient;
 }): JSX.Element {
   const [electionsFilterText, setElectionsFilterText] = useState('');
   return (
@@ -90,27 +97,31 @@ export function App({
     >
       <ErrorBoundary errorMessage={ErrorScreen}>
         <ApiClientContext.Provider value={apiClient}>
-          <QueryClientProvider client={createQueryClient()}>
-            <BrowserRouter>
-              <Switch>
-                <Route path={resultsRoutes.root.path} exact>
-                  <ReportingResultsConfirmationScreen />
-                </Route>
-                <WaitForUserInfo>
-                  <Route path={routes.root.path} exact>
-                    <ElectionsScreen
-                      filterText={electionsFilterText}
-                      setFilterText={setElectionsFilterText}
-                    />
+          <UnauthenticatedApiClientContext.Provider
+            value={unauthenticatedApiClient}
+          >
+            <QueryClientProvider client={createQueryClient()}>
+              <BrowserRouter>
+                <Switch>
+                  <Route path={resultsRoutes.root.path} exact>
+                    <ReportingResultsConfirmationScreen />
                   </Route>
-                  <Route
-                    path={electionParamRoutes.root.path}
-                    component={ElectionScreens}
-                  />
-                </WaitForUserInfo>
-              </Switch>
-            </BrowserRouter>
-          </QueryClientProvider>
+                  <WaitForUserInfo>
+                    <Route path={routes.root.path} exact>
+                      <ElectionsScreen
+                        filterText={electionsFilterText}
+                        setFilterText={setElectionsFilterText}
+                      />
+                    </Route>
+                    <Route
+                      path={electionParamRoutes.root.path}
+                      component={ElectionScreens}
+                    />
+                  </WaitForUserInfo>
+                </Switch>
+              </BrowserRouter>
+            </QueryClientProvider>
+          </UnauthenticatedApiClientContext.Provider>
         </ApiClientContext.Provider>
       </ErrorBoundary>
     </AppBase>

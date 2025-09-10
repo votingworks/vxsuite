@@ -18,7 +18,7 @@ import { AddressInfo } from 'node:net';
 import { Readable } from 'stream';
 import * as tmp from 'tmp';
 import { vi } from 'vitest';
-import type { Api, ApiContext } from '../src/app';
+import type { Api, ApiContext, UnauthenticatedApi } from '../src/app';
 import { buildApp } from '../src/app';
 import { Auth0ClientInterface } from '../src/auth0_client';
 import {
@@ -137,9 +137,13 @@ export function testSetupHelpers() {
     const apiClient = grout.createClient<Api>({
       baseUrl: `${baseUrl}/api`,
     });
+    const unauthenticatedApiClient = grout.createClient<UnauthenticatedApi>({
+      baseUrl: `${baseUrl}/public/api`,
+    });
     return {
       baseUrl,
       apiClient,
+      unauthenticatedApiClient,
       workspace,
       auth0,
       fileStorageClient,

@@ -6,7 +6,7 @@ import {
   MainHeader,
   Screen,
 } from '@votingworks/ui';
-import { processQrCodeReport } from './api';
+import { processQrCodeReport } from './public_api';
 
 export function ResultsScreen({
   children,

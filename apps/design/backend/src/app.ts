@@ -1,6 +1,6 @@
 import * as grout from '@votingworks/grout';
 import * as Sentry from '@sentry/node';
-import { auth as auth0Middleware, requiresAuth } from 'express-openid-connect';
+import { auth as auth0Middleware } from 'express-openid-connect';
 import path, { join } from 'node:path';
 import { Buffer } from 'node:buffer';
 import {
@@ -104,13 +104,6 @@ import { rootDebug } from './debug';
 
 const debug = rootDebug.extend('app');
 
-// The grout methods below are intended for pages that should bypass ALL oauth integration. All logic
-// regarding loading a user from oauth and authenticating that user should by skipped.
-// These methods are for VxQR public-facing pages only.
-export const METHODS_THAT_DO_NOT_REQUIRE_OAUTH_INTEGRATION = [
-  'processQrCodeReport',
-];
-
 export function createBlankElection(id: ElectionId): Election {
   return {
     id,
@@ -193,12 +186,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
 
   const middlewares: grout.Middlewares<ApiContext> = {
     before: [
-      function loadUser({ methodName, request, context }) {
-        if (
-          METHODS_THAT_DO_NOT_REQUIRE_OAUTH_INTEGRATION.includes(methodName)
-        ) {
-          return context;
-        }
+      function loadUser({ request, context }) {
         const user = auth0.userFromRequest(request);
         if (!user) {
           throw new AuthError('auth:unauthorized');
@@ -215,8 +203,8 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
        */
       async function checkAuthorization({ methodName, input, context }) {
         if (input) {
+          assert(context.user);
           if ('electionId' in input) {
-            assert(context.user);
             await requireElectionAccess(
               context.user,
               input.electionId as string
@@ -224,7 +212,6 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
             return;
           }
           if ('orgId' in input) {
-            assert(context.user);
             requireOrgAccess(context.user, input.orgId as string);
             return;
           }
@@ -235,7 +222,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
           'getUser',
           'getUserFeatures',
           'decryptCvrBallotAuditIds', // Doesn't need authorization, nothing private accessed
-        ].concat(METHODS_THAT_DO_NOT_REQUIRE_OAUTH_INTEGRATION);
+        ];
         assert(methodsThatHandleAuthThemselves.includes(methodName));
       },
     ],
@@ -846,7 +833,39 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
         ]);
       }
     },
+  } as const;
 
+  return grout.createApi(methods, middlewares);
+}
+
+// Set up API endpoint that should NOT be behind oauth integration
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function buildUnauthenticatedApi({ logger }: AppContext) {
+  const middlewares: grout.Middlewares<grout.AnyContext> = {
+    before: [],
+    after: [
+      async function logApiCall({ methodName, input }, result) {
+        const outcome = result.isOk()
+          ? { disposition: 'success' }
+          : {
+              disposition: 'failure',
+              error: extractErrorMessage(result.err()),
+            };
+        await logger.logAsCurrentRole(
+          LogEventId.ApiCall,
+          {
+            methodName,
+            input: JSON.stringify(input),
+            ...outcome,
+          },
+          debug
+        );
+      },
+    ],
+  };
+
+  // Only add methods to this API that should be publicly accessible with no oauth integration.
+  const methods = {
     processQrCodeReport({
       payload,
     }: {
@@ -889,7 +908,9 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
 
   return grout.createApi(methods, middlewares);
 }
+
 export type Api = ReturnType<typeof buildApi>;
+export type UnauthenticatedApi = ReturnType<typeof buildUnauthenticatedApi>;
 
 export function buildApp(context: AppContext): Application {
   const app: Application = express();
@@ -950,25 +971,12 @@ export function buildApp(context: AppContext): Application {
   const api = buildApi(context);
   app.use('/api', grout.buildRouter(api, express));
 
+  const unauthenticatedApi = buildUnauthenticatedApi(context);
+  app.use('/public/api', grout.buildRouter(unauthenticatedApi, express));
+
   app.use(
     express.static(context.workspace.assetDirectoryPath, { index: false })
   );
-
-  /* istanbul ignore next - @preserve */
-  if (authEnabled()) {
-    app.use('*', (req, res, next) => {
-      if (
-        // Allow unauthenticated access to fetch the html for /report and any api endpoints it calls.
-        req.originalUrl.startsWith('/report') ||
-        METHODS_THAT_DO_NOT_REQUIRE_OAUTH_INTEGRATION.map(
-          (m) => `/api/${m}`
-        ).includes(req.originalUrl)
-      ) {
-        return next();
-      }
-      requiresAuth()(req, res, next);
-    });
-  }
 
   // Serve the index.html file for everything else, adding in some environment variables
   // (we don't need a full templating engine since it's just a couple of variables)
@@ -981,7 +989,6 @@ export function buildApp(context: AppContext): Application {
         )
           .replace('{{ SENTRY_DSN }}', process.env.SENTRY_DSN ?? '')
           .replace('{{ DEPLOY_ENV }}', DEPLOY_ENV);
-
   app.get('*', (_req, res) => {
     res.send(indexFileContents);
   });

@@ -24,7 +24,7 @@ export type {
   ElectionInfo,
 } from './types';
 export type { ElectionFeaturesConfig, UserFeaturesConfig } from './features';
-export type { Api, AuthErrorCode } from './app';
+export type { Api, AuthErrorCode, UnauthenticatedApi } from './app';
 
 export type { BallotMode } from '@votingworks/hmpb';
 export type { BallotTemplateId } from '@votingworks/hmpb';

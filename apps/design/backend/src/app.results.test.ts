@@ -14,7 +14,7 @@ beforeEach(() => {
 });
 
 test('processQRCodeReport handles invalid payloads as expected', async () => {
-  const { apiClient } = await setupApp([]);
+  const { unauthenticatedApiClient } = await setupApp([]);
   // You can call processQrCodeReport without authentication
 
   const invalidPayloads = [
@@ -26,7 +26,7 @@ test('processQRCodeReport handles invalid payloads as expected', async () => {
     '1//qr1//ballotHash.machineId.0.1757449351.notb64data', // Bad data
   ];
   for (const payload of invalidPayloads) {
-    const result = await apiClient.processQrCodeReport({
+    const result = await unauthenticatedApiClient.processQrCodeReport({
       payload,
       signature: 'test-signature',
     });
@@ -35,7 +35,7 @@ test('processQRCodeReport handles invalid payloads as expected', async () => {
 });
 
 test('processQRCodeReport handles valid payloads as expected', async () => {
-  const { apiClient } = await setupApp([]);
+  const { unauthenticatedApiClient } = await setupApp([]);
   // You can call processQrCodeReport without authentication
   const mockCompressedTally = [
     [0, 4, 5, 6, 1],
@@ -45,7 +45,7 @@ test('processQRCodeReport handles valid payloads as expected', async () => {
   const b64EncodedTally = Buffer.from(
     JSON.stringify(mockCompressedTally)
   ).toString('base64');
-  const result = await apiClient.processQrCodeReport({
+  const result = await unauthenticatedApiClient.processQrCodeReport({
     payload: `1//qr1//ballotHash.DEV-1.0.1757449351.${b64EncodedTally}`,
     signature: 'test-signature',
   });

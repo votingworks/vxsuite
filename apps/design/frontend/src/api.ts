@@ -1,9 +1,5 @@
 import React from 'react';
-import type {
-  Api,
-  BallotMode,
-  AuthErrorCode,
-} from '@votingworks/design-backend';
+import { Api, BallotMode, AuthErrorCode } from '@votingworks/design-backend';
 import * as grout from '@votingworks/grout';
 import {
   QueryClient,
@@ -689,12 +685,5 @@ export const decryptCvrBallotAuditIds = {
   useMutation() {
     const apiClient = useApiClient();
     return useMutation(apiClient.decryptCvrBallotAuditIds);
-  },
-} as const;
-
-export const processQrCodeReport = {
-  useMutation() {
-    const apiClient = useApiClient();
-    return useMutation(apiClient.processQrCodeReport);
   },
 } as const;
