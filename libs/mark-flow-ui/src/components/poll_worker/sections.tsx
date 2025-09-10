@@ -3,7 +3,6 @@
 import {
   Font,
   H2,
-  H3,
   H4,
   P,
   SignedHashValidationApiClient,
@@ -65,16 +64,16 @@ export function SectionPollsState(props: SectionPollsStateProps): JSX.Element {
 
   return (
     <React.Fragment>
-      <H3>
+      <H4 as="h2">
         Polls: <Font weight="regular">{getPollsStateName(pollsState)}</Font>
-      </H3>
+      </H4>
       <ButtonGrid>
         {getPollTransitionsFromState(pollsState).map(
           (pollsTransition, index) => (
             <UpdatePollsButton
               pollsTransition={pollsTransition}
               updatePollsState={updatePollsState}
-              isPrimaryButton={index === 0}
+              isPrimaryButton={pollsState !== 'polls_open' && index === 0}
               key={`${pollsTransition}-button`}
             />
           )
@@ -123,17 +122,19 @@ export function SectionSessionStart(
 }
 
 export interface SectionSystemProps {
+  additionalActions?: React.ReactNode;
   apiClient: SignedHashValidationApiClient;
 }
 
 export function SectionSystem(props: SectionSystemProps): JSX.Element {
-  const { apiClient } = props;
+  const { additionalActions, apiClient } = props;
 
   return (
     <React.Fragment>
-      <H3>System</H3>
+      <H4 as="h2">System</H4>
       <ButtonGrid>
         <SignedHashValidationButton apiClient={apiClient} />
+        {additionalActions}
       </ButtonGrid>
     </React.Fragment>
   );

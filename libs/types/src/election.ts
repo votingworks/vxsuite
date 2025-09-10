@@ -24,6 +24,10 @@ import {
   UiStringsPackage,
   UiStringsPackageSchema,
 } from './ui_string_translations';
+import {
+  LaCustomBallotContent,
+  LaCustomBallotContentSchema,
+} from './custom_ballot_content';
 
 // Generic
 function* findDuplicateIds<T extends { id: unknown }>(
@@ -620,6 +624,7 @@ export interface Election {
   readonly title: string;
   readonly type: ElectionType;
   readonly additionalHashInput?: Record<string, unknown>;
+  readonly customBallotContent?: LaCustomBallotContent;
 }
 export const ElectionSchema: z.ZodSchema<Election> = z
   .object({
@@ -640,6 +645,7 @@ export const ElectionSchema: z.ZodSchema<Election> = z
     title: z.string().nonempty(),
     type: ElectionTypeSchema,
     additionalHashInput: z.record(z.string(), z.any()).optional(),
+    customBallotContent: LaCustomBallotContentSchema.optional(),
   })
   .check((ctx) => {
     const election = ctx.value;
@@ -1081,6 +1087,7 @@ export interface BatchInfo {
   endedAt?: Iso8601Timestamp;
   error?: string;
   count: number;
+  isEarlyVoting?: boolean;
 }
 
 export const BatchInfoSchema: z.ZodSchema<BatchInfo> = z.object({
@@ -1091,6 +1098,7 @@ export const BatchInfoSchema: z.ZodSchema<BatchInfo> = z.object({
   endedAt: z.optional(Iso8601TimestampSchema),
   error: z.optional(z.string()),
   count: z.number().nonnegative(),
+  isEarlyVoting: z.optional(z.boolean()),
 });
 
 export interface CompletedBallot {

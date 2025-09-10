@@ -2,6 +2,7 @@
 // The durable datastore for configuration info.
 //
 
+import { Buffer } from 'node:buffer';
 import util from 'node:util';
 import { UiStringsStore, createUiStringStore } from '@votingworks/backend';
 import {
@@ -25,6 +26,7 @@ import {
   PollsStateSchema,
   ElectionKey,
   constructElectionKey,
+  BallotStyleId,
 } from '@votingworks/types';
 import { join } from 'node:path';
 import { PrintCalibration } from '@votingworks/hmpb';
@@ -117,6 +119,15 @@ export class Store {
     );
   }
 
+  getBallotPdf(ballotStyleId: BallotStyleId): Uint8Array {
+    const result = this.client.one(
+      'select data from ballot_pdfs where ballot_style_id = ?',
+      ballotStyleId
+    ) as { data: Buffer } | null;
+    assert(result, `No ballot PDF found for ballot style ID: ${ballotStyleId}`);
+    return Uint8Array.from(result.data);
+  }
+
   /**
    * Retrieves the election key (used for auth) for the current election. This
    * method is faster than than {@link getElectionRecord} and thus more appropriate
@@ -180,6 +191,19 @@ export class Store {
         input.electionData,
         input.jurisdiction,
         input.electionPackageHash
+      );
+    }
+  }
+
+  setBallotPdfs(ballotPdfs: Map<BallotStyleId, Buffer>): void {
+    this.client.run('delete from ballot_pdfs');
+    for (const [ballotStyleId, data] of ballotPdfs) {
+      this.client.run(
+        `
+        insert into ballot_pdfs (ballot_style_id, data) values (?, ?)
+        `,
+        ballotStyleId,
+        data
       );
     }
   }

@@ -120,11 +120,15 @@ function generateOptionsForFilter({
       return typedAs<Array<SelectOption<Tabulation.VotingMethod>>>([
         {
           value: 'precinct',
-          label: 'Precinct',
+          label: 'Election Day',
         },
         {
           value: 'absentee',
           label: 'Absentee',
+        },
+        {
+          value: 'early-voting',
+          label: 'Early Voting',
         },
       ]);
     case 'scanner':

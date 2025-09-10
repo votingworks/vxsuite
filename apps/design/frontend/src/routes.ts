@@ -99,9 +99,29 @@ export const routes = {
           title: 'Ballot Layout',
           path: `${root}/ballots/layout`,
         },
+        ballotAudio: {
+          title: 'Audio',
+          path: `${root}/ballots/audio`,
+        },
+        ballotAudioManage: (
+          audioType: 'tts' | 'ipa' | 'rec' | ':audioType',
+          stringKey: string,
+          subkey?: string
+        ) => {
+          const subkeyComponent = subkey ? `/${subkey}` : '';
+
+          return {
+            title: 'Audio',
+            path: `${root}/ballots/audio/${audioType}/${stringKey}${subkeyComponent}`,
+          };
+        },
+        ballotAudioUploads: {
+          title: 'Audio',
+          path: `${root}/ballots/audio/uploads`,
+        },
         viewBallot: (ballotStyleId: string, precinctId: string) => ({
           title: 'View Ballot',
-          path: `${root}/ballots/${ballotStyleId}/${precinctId}`,
+          path: `${root}/ballots/view/${ballotStyleId}/${precinctId}`,
         }),
       },
       systemSettings: {

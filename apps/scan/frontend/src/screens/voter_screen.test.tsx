@@ -38,7 +38,6 @@ function renderScreen(
       <VoterScreen
         electionDefinition={electionDefinition}
         isSoundMuted={false}
-        isTestMode={false}
         systemSettings={DEFAULT_SYSTEM_SETTINGS}
         {...props}
       />

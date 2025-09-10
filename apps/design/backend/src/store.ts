@@ -37,6 +37,7 @@ import {
   CandidateContest,
   ElectionType,
   Signature,
+  LaCustomBallotContent,
 } from '@votingworks/types';
 import { v4 as uuid } from 'uuid';
 import { BaseLogger } from '@votingworks/logging';
@@ -52,6 +53,23 @@ import {
 import { generateBallotStyles } from './ballot_styles';
 import { Db } from './db/db';
 import { Bindable, Client } from './db/client';
+import {
+  AudioOverride,
+  AudioOverrideCandidate,
+  AudioOverrideContest,
+  AudioOverrideKey,
+  AudioOverrideQuery,
+  audioOverrides,
+  AudioQuery,
+  AudioSource,
+  AudioSourceEntry,
+  audioSources,
+  SsmlChunk,
+  TtsPhoneticEntry,
+  ttsPhoneticOverrides,
+  TtsTextEntry,
+  ttsTextOverrides,
+} from './store_audio_demo';
 
 export interface ElectionRecord {
   orgId: string;
@@ -351,8 +369,8 @@ async function insertContest(
       if (ballotOrder === undefined) {
         // Get all current contests in order
         const { rows: allContests } = await client.query(
-          `select id, type from contests 
-           where election_id = $1 
+          `select id, type from contests
+           where election_id = $1
            order by ballot_order`,
           electionId
         );
@@ -564,7 +582,8 @@ export class Store {
               ballot_template_id as "ballotTemplateId",
               ballots_finalized_at as "ballotsFinalizedAt",
               created_at as "createdAt",
-              ballot_language_codes as "ballotLanguageCodes"
+              ballot_language_codes as "ballotLanguageCodes",
+              custom_ballot_content as "customBallotContent"
             from elections
             where id = $1
           `,
@@ -585,6 +604,7 @@ export class Store {
         ballotsFinalizedAt: Date | null;
         createdAt: Date;
         ballotLanguageCodes: LanguageCode[];
+        customBallotContent: LaCustomBallotContent | null;
       };
       assert(electionRow, 'Election not found');
 
@@ -839,6 +859,7 @@ export class Store {
           metadataEncoding: 'qr-code',
         },
         ballotStrings: {},
+        customBallotContent: electionRow.customBallotContent ?? undefined,
       };
 
       const systemSettings = safeParseSystemSettings(
@@ -936,7 +957,8 @@ export class Store {
             ballot_paper_size,
             ballot_template_id,
             ballot_language_codes,
-            system_settings_data
+            system_settings_data,
+            custom_ballot_content
           )
           values (
             $1,
@@ -951,7 +973,8 @@ export class Store {
             $10,
             $11,
             $12,
-            $13
+            $13,
+            $14
           )
         `,
           election.id,
@@ -966,7 +989,8 @@ export class Store {
           election.ballotLayout.paperSize,
           ballotTemplateId,
           DEFAULT_LANGUAGE_CODES,
-          JSON.stringify(systemSettings)
+          JSON.stringify(systemSettings),
+          JSON.stringify(election.customBallotContent)
         );
         for (const district of election.districts) {
           await insertDistrict(client, election.id, district);
@@ -1902,6 +1926,102 @@ export class Store {
         set started_at = null
         where started_at is not null and completed_at is null
       `)
+    );
+  }
+
+  /* istanbul ignore next - @preserve */
+  async audioOverrideDataUrl(
+    query: AudioOverrideQuery
+  ): Promise<string | null> {
+    return this.db.withClient(async (client) =>
+      audioOverrides.dataUrl(client, query)
+    );
+  }
+
+  /* istanbul ignore next - @preserve */
+  async audioOverrideExists(query: AudioOverrideQuery): Promise<boolean> {
+    return this.db.withClient(async (client) =>
+      audioOverrides.exists(client, query)
+    );
+  }
+
+  /* istanbul ignore next - @preserve */
+  async audioOverrideGet(
+    query: AudioOverrideQuery
+  ): Promise<AudioOverride | null> {
+    return this.db.withClient(async (client) =>
+      audioOverrides.get(client, query)
+    );
+  }
+
+  /* istanbul ignore next - @preserve */
+  async audioOverrideKeys(electionId: string): Promise<AudioOverrideKey[]> {
+    return this.db.withClient(async (client) =>
+      audioOverrides.keys(client, { electionId })
+    );
+  }
+
+  /* istanbul ignore next - @preserve */
+  async audioOverridesSetCandidate(
+    params: AudioOverrideCandidate
+  ): Promise<void> {
+    await this.db.withClient(async (client) =>
+      audioOverrides.setCandidate(client, params)
+    );
+  }
+
+  /* istanbul ignore next - @preserve */
+  async audioOverridesSetContest(params: AudioOverrideContest): Promise<void> {
+    await this.db.withClient(async (client) =>
+      audioOverrides.setContest(client, params)
+    );
+  }
+
+  /* istanbul ignore next - @preserve */
+  async audioSourceGet(query: AudioQuery): Promise<AudioSource> {
+    // eslint-disable-next-line @typescript-eslint/require-await
+    return this.db.withClient(async (client) =>
+      audioSources.get(client, query)
+    );
+  }
+
+  /* istanbul ignore next - @preserve */
+  async audioSourceSet(params: AudioSourceEntry): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/require-await
+    return this.db.withClient(async (client) =>
+      audioSources.set(client, params)
+    );
+  }
+
+  /* istanbul ignore next - @preserve */
+  async ttsTextOverrideGet(query: AudioQuery): Promise<string | null> {
+    // eslint-disable-next-line @typescript-eslint/require-await
+    return this.db.withClient(async (client) =>
+      ttsTextOverrides.get(client, query)
+    );
+  }
+
+  /* istanbul ignore next - @preserve */
+  async ttsTextOverrideSet(params: TtsTextEntry): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/require-await
+    return this.db.withClient(async (client) =>
+      ttsTextOverrides.set(client, params)
+    );
+  }
+
+  /* istanbul ignore next - @preserve */
+  async ttsPhoneticOverrideGet(query: AudioQuery): Promise<SsmlChunk[] | null> {
+    // eslint-disable-next-line @typescript-eslint/require-await
+    return this.db.withClient(async (client) =>
+      ttsPhoneticOverrides.get(client, query)
+    );
+  }
+
+  /* istanbul ignore next - @preserve */
+  async ttsPhoneticOverrideSet(params: TtsPhoneticEntry): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/require-await
+    return this.db.withClient(async (client) =>
+      ttsPhoneticOverrides.set(client, params)
     );
   }
 }

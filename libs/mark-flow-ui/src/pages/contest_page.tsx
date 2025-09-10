@@ -16,6 +16,7 @@ import {
   Button,
   PageNavigationButtonId,
   AccessibilityMode,
+  UiStringsReactQueryApi,
 } from '@votingworks/ui';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 
@@ -25,6 +26,7 @@ import { BreadcrumbMetadata, Breadcrumbs } from '../components/contest_header';
 import { VoterScreen } from '../components/voter_screen';
 
 export interface ContestPageProps {
+  allowCandidateOvervotes?: boolean;
   contests: ContestsWithMsEitherNeither;
   electionDefinition?: ElectionDefinition;
   accessibilityMode?: AccessibilityMode;
@@ -34,6 +36,7 @@ export interface ContestPageProps {
   getReviewPageUrl: (contestId?: ContestId) => string;
   isPatDeviceConnected?: boolean;
   precinctId?: PrecinctId;
+  uiStringsApi: UiStringsReactQueryApi;
   updateVote: ContestProps['updateVote'];
   votes: VotesDict;
 }
@@ -48,6 +51,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
   const isReviewMode = history.location.hash === '#review';
 
   const {
+    allowCandidateOvervotes,
     contests,
     electionDefinition,
     accessibilityMode,
@@ -56,6 +60,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
     getReviewPageUrl,
     isPatDeviceConnected,
     precinctId,
+    uiStringsApi,
     updateVote,
     votes,
   } = props;
@@ -181,6 +186,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
       }
     >
       <Contest
+        allowCandidateOvervotes={allowCandidateOvervotes}
         key={contest.id} // Force a re-mount for every contest to reset scroll state.
         election={electionDefinition.election}
         breadcrumbs={breadcrumbsMetadata}
@@ -188,6 +194,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
         votes={votes}
         updateVote={handleUpdateVote}
         accessibilityMode={accessibilityMode}
+        uiStringsApi={uiStringsApi}
       />
     </VoterScreen>
   );

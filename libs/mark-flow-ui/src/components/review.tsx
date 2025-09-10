@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import getDeepValue from 'lodash.get';
 import {
   CandidateVote,
   YesNoVote,
@@ -9,6 +10,8 @@ import {
   PrecinctId,
   getContestDistrict,
   ContestId,
+  Candidate,
+  ElectionStringKey,
 } from '@votingworks/types';
 import {
   Caption,
@@ -25,6 +28,8 @@ import {
   AssistiveTechInstructions,
   AudioOnly,
   Font,
+  UiStringsReactQueryApi,
+  TextOnly,
 } from '@votingworks/ui';
 
 import { getSingleYesNoVote } from '@votingworks/utils';
@@ -58,9 +63,24 @@ function CandidateContestResult({
   vote = [],
   election,
   selectionsAreEditable,
+  uiStringsApi,
 }: CandidateContestResultInterface): JSX.Element {
   const district = getContestDistrict(election, contest);
   const remainingChoices = contest.seats - vote.length;
+
+  const audioIdsQuery = uiStringsApi.getAudioIds.useQuery('en');
+
+  const hasContestAudioOverride = !!getDeepValue(
+    audioIdsQuery.data,
+    `${ElectionStringKey.LA_CONTEST_AUDIO}.${contest.id}`
+  );
+
+  function hasCandidateAudioOverride(candidate: Candidate) {
+    return !!getDeepValue(
+      audioIdsQuery.data,
+      `${ElectionStringKey.LA_CANDIDATE_AUDIO}.${candidate.id}`
+    );
+  }
 
   const noVotesString = selectionsAreEditable
     ? appStrings.warningNoVotesForContest()
@@ -68,8 +88,22 @@ function CandidateContestResult({
 
   return (
     <VoterContestSummary
-      districtName={electionStrings.districtName(district)}
-      title={electionStrings.contestTitle(contest)}
+      districtName={
+        hasContestAudioOverride ? (
+          <TextOnly>{electionStrings.districtName(district)}</TextOnly>
+        ) : (
+          electionStrings.districtName(district)
+        )
+      }
+      title={
+        hasContestAudioOverride ? (
+          <WithAltAudio audioText={electionStrings.laContestAudio(contest)}>
+            {electionStrings.contestTitle(contest)}
+          </WithAltAudio>
+        ) : (
+          electionStrings.contestTitle(contest)
+        )
+      }
       titleType="h2"
       undervoteWarning={
         remainingChoices > 0 ? (
@@ -83,10 +117,19 @@ function CandidateContestResult({
           )
         ) : undefined
       }
-      votes={vote.map(
-        (candidate): ContestVote => ({
+      votes={vote.map((candidate): ContestVote => {
+        const hasAudioOverride = hasCandidateAudioOverride(candidate);
+
+        return {
           caption: candidate.isWriteIn ? (
             appStrings.labelWriteInParenthesized()
+          ) : hasAudioOverride ? (
+            <TextOnly>
+              <CandidatePartyList
+                candidate={candidate}
+                electionParties={election.parties}
+              />
+            </TextOnly>
           ) : (
             <CandidatePartyList
               candidate={candidate}
@@ -101,11 +144,17 @@ function CandidateContestResult({
               </AudioOnly>
               {candidate.name}
             </Font>
+          ) : hasAudioOverride ? (
+            <WithAltAudio
+              audioText={electionStrings.laCandidateAudio(candidate)}
+            >
+              {electionStrings.candidateName(candidate)}
+            </WithAltAudio>
           ) : (
             electionStrings.candidateName(candidate)
           ),
-        })
-      )}
+        };
+      })}
     />
   );
 }
@@ -115,6 +164,7 @@ function YesNoContestResult({
   contest,
   election,
   selectionsAreEditable,
+  uiStringsApi,
 }: YesNoContestResultInterface): JSX.Element {
   const district = getContestDistrict(election, contest);
   const yesNo = getSingleYesNoVote(vote);
@@ -124,6 +174,12 @@ function YesNoContestResult({
       : yesNo === contest.noOption.id
       ? contest.noOption
       : null;
+
+  const audioIdsQuery = uiStringsApi.getAudioIds.useQuery('en');
+  const hasContestAudioOverride = !!getDeepValue(
+    audioIdsQuery.data,
+    `${ElectionStringKey.LA_CONTEST_AUDIO}.${contest.id}`
+  );
 
   const votes: ContestVote[] = selectedOption
     ? [
@@ -141,7 +197,15 @@ function YesNoContestResult({
   return (
     <VoterContestSummary
       districtName={electionStrings.districtName(district)}
-      title={electionStrings.contestTitle(contest)}
+      title={
+        hasContestAudioOverride ? (
+          <WithAltAudio audioText={electionStrings.laContestAudio(contest)}>
+            {electionStrings.contestTitle(contest)}
+          </WithAltAudio>
+        ) : (
+          electionStrings.contestTitle(contest)
+        )
+      }
       titleType="h2"
       undervoteWarning={!yesNo ? noVotesString : undefined}
       votes={votes}
@@ -207,6 +271,7 @@ export interface ReviewProps {
   votes: VotesDict;
   returnToContest?: (contestId: string) => void;
   selectionsAreEditable?: boolean;
+  uiStringsApi: UiStringsReactQueryApi;
 }
 
 export function Review({
@@ -216,6 +281,7 @@ export function Review({
   votes,
   returnToContest,
   selectionsAreEditable = true,
+  uiStringsApi,
 }: ReviewProps): JSX.Element {
   function onChangeClick(contestId: ContestId) {
     if (!returnToContest) {
@@ -276,6 +342,7 @@ export function Review({
                 election={election}
                 selectionsAreEditable={selectionsAreEditable}
                 precinctId={precinctId}
+                uiStringsApi={uiStringsApi}
                 vote={votes[contest.id] as CandidateVote}
               />
             )}
@@ -285,6 +352,7 @@ export function Review({
                 contest={contest}
                 election={election}
                 selectionsAreEditable={selectionsAreEditable}
+                uiStringsApi={uiStringsApi}
               />
             )}
             {contest.type === 'ms-either-neither' && (

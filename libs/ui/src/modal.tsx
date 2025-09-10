@@ -16,6 +16,7 @@ import { useAudioContext } from './ui_strings/audio_context';
 export enum ModalWidth {
   Standard = '30rem',
   Wide = '55rem',
+  Wider = '60rem',
 }
 
 const CONTENT_SPACING_VALUES_REM: Readonly<Record<SizeMode, number>> = {

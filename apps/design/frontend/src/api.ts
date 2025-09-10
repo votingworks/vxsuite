@@ -3,6 +3,8 @@ import type {
   Api,
   BallotMode,
   AuthErrorCode,
+  AudioOverrideQuery,
+  AudioQuery,
 } from '@votingworks/design-backend';
 import * as grout from '@votingworks/grout';
 import {
@@ -689,5 +691,181 @@ export const decryptCvrBallotAuditIds = {
   useMutation() {
     const apiClient = useApiClient();
     return useMutation(apiClient.decryptCvrBallotAuditIds);
+  },
+} as const;
+
+export const appStrings = {
+  queryKey(electionId: string): QueryKey {
+    return ['appStrings', electionId];
+  },
+  useQuery(electionId: string) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(electionId), () =>
+      apiClient.appStrings({ electionId })
+    );
+  },
+} as const;
+
+export const audioOverride = {
+  queryKey(params: AudioOverrideQuery): QueryKey {
+    return ['audioOverride', params.electionId, params.key, params.subkey];
+  },
+  useQuery(params: AudioOverrideQuery) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(params), () =>
+      apiClient.audioOverride(params)
+    );
+  },
+} as const;
+
+export const audioOverrideExists = {
+  queryKey(params: AudioOverrideQuery): QueryKey {
+    return [
+      'audioOverrideExists',
+      params.electionId,
+      params.key,
+      params.subkey,
+    ];
+  },
+  useQuery(params: AudioOverrideQuery) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(params), () =>
+      apiClient.audioOverrideExists(params)
+    );
+  },
+} as const;
+
+export const audioOverrideKeys = {
+  queryKey(electionId: string): QueryKey {
+    return ['audioOverrideKeys', electionId];
+  },
+  useQuery(electionId: string) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(electionId), () =>
+      apiClient.audioOverrideKeys({ electionId })
+    );
+  },
+} as const;
+
+export const audioSourceGet = {
+  queryKey(params: AudioQuery): QueryKey {
+    return ['audioSourceGet', params.electionId, params.key, params.subkey];
+  },
+  useQuery(params: AudioQuery) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(params), () =>
+      apiClient.audioSourceGet(params)
+    );
+  },
+} as const;
+
+export const audioSourceSet = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.audioSourceSet);
+  },
+} as const;
+
+export const synthesizeSsml = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.synthesizeSsml);
+  },
+} as const;
+
+export const synthesizeText = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.synthesizeText);
+  },
+} as const;
+
+export const synthesizedSsml = {
+  queryKey(input: { languageCode: string; ssml: string }): QueryKey {
+    return ['synthesizedSsml', input.languageCode, input.ssml];
+  },
+  useQuery(input: { languageCode: string; ssml: string }) {
+    const apiClient = useApiClient();
+
+    return useQuery(this.queryKey(input), () => {
+      if (!input.ssml) return '';
+
+      return apiClient.synthesizeSsml(input);
+    });
+  },
+} as const;
+
+export const synthesizedText = {
+  queryKey(input: { languageCode: string; text: string }): QueryKey {
+    return ['synthesizedText', input.languageCode, input.text];
+  },
+  useQuery(input: { languageCode: string; text: string }) {
+    const apiClient = useApiClient();
+
+    return useQuery(this.queryKey(input), () => {
+      if (!input.text) return '';
+
+      return apiClient.synthesizeText(input);
+    });
+  },
+} as const;
+
+export const ttsPhoneticOverrideGet = {
+  queryKey(params: AudioQuery): QueryKey {
+    return [
+      'ttsPhoneticOverrideGet',
+      params.electionId,
+      params.key,
+      params.subkey,
+    ];
+  },
+  useQuery(params: AudioQuery) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(params), () =>
+      apiClient.ttsPhoneticOverrideGet(params)
+    );
+  },
+} as const;
+
+export const ttsPhoneticOverrideSet = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+
+    return useMutation(apiClient.ttsPhoneticOverrideSet, {
+      onSuccess: (_, params) =>
+        queryClient.invalidateQueries(ttsPhoneticOverrideGet.queryKey(params)),
+    });
+  },
+} as const;
+
+export const ttsTextOverrideGet = {
+  queryKey(params: AudioQuery): QueryKey {
+    return ['ttsTextOverrideGet', params.electionId, params.key, params.subkey];
+  },
+  useQuery(params: AudioQuery) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(params), () =>
+      apiClient.ttsTextOverrideGet(params)
+    );
+  },
+} as const;
+
+export const ttsTextOverrideSet = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+
+    return useMutation(apiClient.ttsTextOverrideSet, {
+      onSuccess: (_, params) =>
+        queryClient.invalidateQueries(ttsTextOverrideGet.queryKey(params)),
+    });
+  },
+} as const;
+
+export const uploadAudioFiles = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.uploadAudioFiles);
   },
 } as const;

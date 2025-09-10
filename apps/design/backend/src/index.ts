@@ -15,6 +15,20 @@ import {
   S3FileStorageClient,
 } from './file_storage_client';
 
+export type { AudioUploadResult, UiStringInfo } from './audio_demo';
+export type {
+  AudioOverride,
+  AudioOverrideKey,
+  AudioOverrideQuery,
+  AudioQuery,
+  AudioSource,
+  AudioSourceEntry,
+  SsmlChunk,
+  TtsPhoneme as Phoneme,
+  TtsPhoneme,
+  TtsPhoneticEntry,
+  TtsSyllable,
+} from './store_audio_demo';
 export type { ElectionRecord } from './store';
 export type {
   BallotStyle,

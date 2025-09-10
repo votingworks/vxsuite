@@ -1,0 +1,58 @@
+
+const allByIpa = {
+  "æ": { regular: 'a', ipa: 'æ', 'x-sampa': '{', exampleWord: 'cat', exampleIpa: 'ˈkæt', exampleXsampa: '"k{t', isConsonant: false },
+  "ɑː": { regular: 'ah', ipa: 'ɑː', 'x-sampa': 'A:', exampleWord: 'cot', exampleIpa: 'ˈkɑːt', exampleXsampa: '"kA:t', isConsonant: false },
+  "ɔː": { regular: 'au', ipa: 'ɔː', 'x-sampa': 'O:', exampleWord: 'more', exampleIpa: 'ˈmɔːɹ', exampleXsampa: '"mO:r\\', isConsonant: false },
+  "eɪ": { regular: 'ay', ipa: 'eɪ', 'x-sampa': 'eI', exampleWord: 'shade', exampleIpa: 'ˈʃeɪd', exampleXsampa: '"SeId', isConsonant: false },
+  "aɪ": { regular: 'aye', ipa: 'aɪ', 'x-sampa': 'aI', exampleWord: 'price', exampleIpa: 'ˈpɹaɪs', exampleXsampa: '"pr\\aIs', isConsonant: false },
+  "b": { regular: 'b', ipa: 'b', 'x-sampa': 'b', exampleWord: 'bubble', exampleIpa: 'ˈbʌbəl', exampleXsampa: '"bVb@l', isConsonant: true },
+  "ʧ": { regular: 'ch', ipa: 'ʧ', 'x-sampa': 'tS', exampleWord: 'changed', exampleIpa: 'ˈʧeɪnʤd', exampleXsampa: '"tSeIndZd', isConsonant: true },
+  "d": { regular: 'd', ipa: 'd', 'x-sampa': 'd', exampleWord: 'dog', exampleIpa: 'ˈdɑːg', exampleXsampa: '"dA:g', isConsonant: true },
+  "iː": { regular: 'ee', ipa: 'iː', 'x-sampa': 'i:', exampleWord: 'unique', exampleIpa: 'ˌjuːˈniːk', exampleXsampa: '%ju:"ni:k', isConsonant: false },
+  "ɛ": { regular: 'eh', ipa: 'ɛ', 'x-sampa': 'E', exampleWord: 'bed', exampleIpa: 'ˈbɛd', exampleXsampa: '"bEd', isConsonant: false },
+  "f": { regular: 'f', ipa: 'f', 'x-sampa': 'f', exampleWord: 'frog', exampleIpa: 'ˈfɹɑːg', exampleXsampa: '"fr\\A:g', isConsonant: true },
+  "ɡ": { regular: 'g', ipa: 'ɡ', 'x-sampa': 'g', exampleWord: 'gravely', exampleIpa: 'ˈgɹeɪˌvliː', exampleXsampa: '"gr\\eI%vli:', isConsonant: true },
+  "h": { regular: 'h', ipa: 'h', 'x-sampa': 'h', exampleWord: 'mahogany', exampleIpa: 'məˈhɑːgəˌniː', exampleXsampa: 'm@"hA:g@%ni:', isConsonant: true },
+  "ɪ": { regular: 'i', ipa: 'ɪ', 'x-sampa': 'I', exampleWord: 'kit', exampleIpa: 'ˈkɪt', exampleXsampa: '"kIt', isConsonant: false },
+  "ɚ": { regular: 'ir', ipa: 'ɚ', 'x-sampa': '@`', exampleWord: 'bird', exampleIpa: 'ˈbɚd', exampleXsampa: '"b@`d', isConsonant: false },
+  "ʤ": { regular: 'j', ipa: 'ʤ', 'x-sampa': 'dZ', exampleWord: 'magenta', exampleIpa: 'məˈʤɛntə', exampleXsampa: 'm@"dZEnt@', isConsonant: true },
+  "k": { regular: 'k', ipa: 'k', 'x-sampa': 'k', exampleWord: 'crown', exampleIpa: 'ˈkɹaʊn', exampleXsampa: '"kr\\aUn', isConsonant: true },
+  "l": { regular: 'l', ipa: 'l', 'x-sampa': 'l', exampleWord: 'lately', exampleIpa: 'ˈleɪtˌliː', exampleXsampa: '"leIt%li:', isConsonant: true },
+  "m": { regular: 'm', ipa: 'm', 'x-sampa': 'm', exampleWord: 'mapping', exampleIpa: 'ˈmæpəŋ', exampleXsampa: '"m{p@N', isConsonant: true },
+  "n": { regular: 'n', ipa: 'n', 'x-sampa': 'n', exampleWord: 'nine', exampleIpa: 'ˈnaɪn', exampleXsampa: '"naIn', isConsonant: true },
+  "ŋ": { regular: 'ng', ipa: 'ŋ', 'x-sampa': 'N', exampleWord: 'bank', exampleIpa: 'ˈbæŋk', exampleXsampa: '"b{Nk', isConsonant: true },
+  "oʊ": { regular: 'oa', ipa: 'oʊ', 'x-sampa': 'oU', exampleWord: 'boat', exampleIpa: 'ˈboʊt', exampleXsampa: '"boUt', isConsonant: false },
+  "ɔɪ": { regular: 'oi', ipa: 'ɔɪ', 'x-sampa': 'OI', exampleWord: 'choice', exampleIpa: 'ˈʧɔɪs', exampleXsampa: '"tSOIs', isConsonant: false },
+  "uː": { regular: 'oo', ipa: 'uː', 'x-sampa': 'u:', exampleWord: 'school', exampleIpa: 'ˈskuːl', exampleXsampa: '"sku:l', isConsonant: false },
+  "aʊ": { regular: 'ow', ipa: 'aʊ', 'x-sampa': 'aU', exampleWord: 'flower', exampleIpa: 'ˈflaʊɚ', exampleXsampa: '"flaU@`', isConsonant: false },
+  "p": { regular: 'p', ipa: 'p', 'x-sampa': 'p', exampleWord: 'popular', exampleIpa: 'ˈpɑːpjəlɚ', exampleXsampa: '"pA:pj@l@`', isConsonant: true },
+  "ɹ": { regular: 'r', ipa: 'ɹ', 'x-sampa': 'r\\', exampleWord: 'roaring', exampleIpa: 'ˈɹɔːɹəŋ', exampleXsampa: '"r\\O:r\\@N', isConsonant: true },
+  "s": { regular: 's', ipa: 's', 'x-sampa': 's', exampleWord: 'massage', exampleIpa: 'məˈsɑːʒ', exampleXsampa: 'm@"sA:Z', isConsonant: true },
+  "ʃ": { regular: 'sh', ipa: 'ʃ', 'x-sampa': 'S', exampleWord: 'shopping', exampleIpa: 'ˈʃɑːpəŋ', exampleXsampa: '"SA:p@N', isConsonant: true },
+  "ʒ": { regular: 'szh', ipa: 'ʒ', 'x-sampa': 'Z', exampleWord: 'leisure', exampleIpa: 'ˈliːʒɚ', exampleXsampa: '"li:Z@', isConsonant: true },
+  "t": { regular: 't', ipa: 't', 'x-sampa': 't', exampleWord: 'tinker', exampleIpa: 'ˈtɪŋkɚ', exampleXsampa: '"tINk@`', isConsonant: true },
+  "ð": { regular: 'th', ipa: 'ð', 'x-sampa': 'D', exampleWord: 'mother', exampleIpa: 'ˈmʌðɚ', exampleXsampa: '"mVD@`', isConsonant: true },
+  "θ": { regular: 'thh', ipa: 'θ', 'x-sampa': 'T', exampleWord: 'thigh', exampleIpa: 'ˈθaɪ', exampleXsampa: '"TaI', isConsonant: true },
+  "ʊ": { regular: 'ou', ipa: 'ʊ', 'x-sampa': 'U', exampleWord: 'could', exampleIpa: 'ˈkʊd', exampleXsampa: '"kUd', isConsonant: false },
+  "ʌ": { regular: 'u', ipa: 'ʌ', 'x-sampa': 'V', exampleWord: 'pulse', exampleIpa: 'ˈpʌls', exampleXsampa: '"pVls', isConsonant: false },
+  "ə": { regular: 'uh', ipa: 'ə', 'x-sampa': '@', exampleWord: 'again', exampleIpa: 'əˈgɛn', exampleXsampa: '@"gEn', isConsonant: false },
+  "v": { regular: 'v', ipa: 'v', 'x-sampa': 'v', exampleWord: 'valve', exampleIpa: 'ˈvælv', exampleXsampa: '"v{lv', isConsonant: true },
+  "w": { regular: 'w', ipa: 'w', 'x-sampa': 'w', exampleWord: 'whirlwind', exampleIpa: 'ˈwɚlˌwɪnd', exampleXsampa: '"w@`l%wInd', isConsonant: true },
+  "j": { regular: 'y', ipa: 'j', 'x-sampa': 'j', exampleWord: 'younger', exampleIpa: 'ˈjʌŋgɚ', exampleXsampa: '"jVNg@`', isConsonant: true },
+  "z": { regular: 'z', ipa: 'z', 'x-sampa': 'z', exampleWord: 'zoom', exampleIpa: 'ˈzuːm', exampleXsampa: '"zu:m', isConsonant: true },
+} as const;
+
+const all = Object.values(allByIpa)
+
+export const phonemes = {
+  en: {
+    all,
+    allByIpa,
+    consonants: all.filter(p => p.isConsonant),
+    stresses: {
+      primary: {regular: "ˈ", ipa: "ˈ", 'x-sampa': '"'},
+      secondary: {regular: "ˌ", ipa: "ˌ", 'x-sampa': "%"},
+    },
+    vowels: all.filter(p => !p.isConsonant),
+  },
+} as const;

@@ -391,6 +391,36 @@ export class Store {
     );
   }
 
+  /**
+   * Gets whether early voting mode is enabled.
+   */
+  getIsEarlyVotingMode(): boolean {
+    const electionRow = this.client.one(
+      'select is_early_voting_mode as isEarlyVotingMode from election'
+    ) as { isEarlyVotingMode: number } | undefined;
+
+    if (!electionRow) {
+      // early voting mode will be disabled by default once an election is defined
+      return false;
+    }
+
+    return Boolean(electionRow.isEarlyVotingMode);
+  }
+
+  /**
+   * Sets whether early voting mode is enabled.
+   */
+  setIsEarlyVotingMode(isEarlyVotingMode: boolean): void {
+    if (!this.hasElection()) {
+      throw new Error('Cannot set early voting mode without an election.');
+    }
+
+    this.client.run(
+      'update election set is_early_voting_mode = ?',
+      isEarlyVotingMode ? 1 : 0
+    );
+  }
+
   getIsContinuousExportEnabled(): boolean {
     const electionRow = this.client.one(
       'select is_continuous_export_enabled as isContinuousExportEnabled from election'
@@ -578,7 +608,12 @@ export class Store {
    */
   addBatch(): string {
     const id = uuid();
-    this.client.run('insert into batches (id) values (?)', id);
+    const isEarlyVoting = this.getIsEarlyVotingMode();
+    this.client.run(
+      'insert into batches (id, is_early_voting) values (?, ?)',
+      id,
+      isEarlyVoting ? 1 : 0
+    );
     this.client.run(
       `update batches set label = 'Batch ' || batch_number WHERE id = ?`,
       id
@@ -772,6 +807,7 @@ export class Store {
       endedAt: string | null;
       error: string | null;
       count: number;
+      isEarlyVoting: number;
     }
     const batchInfo = this.client.all(`
       select
@@ -781,6 +817,7 @@ export class Store {
         strftime('%s', started_at) as startedAt,
         (case when ended_at is null then ended_at else strftime('%s', ended_at) end) as endedAt,
         error,
+        batches.is_early_voting as isEarlyVoting,
         sum(case when sheets.id is null then 0 else 1 end) as count
       from
         batches left join sheets
@@ -794,6 +831,7 @@ export class Store {
         batches.id,
         batches.started_at,
         batches.ended_at,
+        batches.is_early_voting,
         error
       order by
         batches.started_at desc
@@ -810,6 +848,7 @@ export class Store {
         undefined,
       error: info.error || undefined,
       count: info.count,
+      isEarlyVoting: Boolean(info.isEarlyVoting),
     }));
   }
 

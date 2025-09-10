@@ -6,6 +6,7 @@ import {
   BallotType,
   District,
   Election,
+  ExternalToVxIdMapping,
   hasSplits,
   Party,
   Precinct,
@@ -51,6 +52,7 @@ export function regenerateElectionIds(election: Election): {
   precincts: Precinct[];
   parties: Party[];
   contests: AnyContest[];
+  customBallotContent: Election['customBallotContent'];
 } {
   const idMap = new Map<string, string>();
   function replaceId<T extends string>(id: T): T {
@@ -119,10 +121,50 @@ export function regenerateElectionIds(election: Election): {
       }
     })(),
   }));
+
+  let externalToVxIdMapping: ExternalToVxIdMapping | undefined;
+  if (election.customBallotContent?.externalToVxIdMapping) {
+    const original = election.customBallotContent.externalToVxIdMapping;
+
+    externalToVxIdMapping = {
+      candidates: Object.fromEntries(
+        Object.entries(original.candidates).map(([idExternal, idVx]) => [
+          idExternal,
+          replaceId(idVx),
+        ])
+      ),
+      contests: Object.fromEntries(
+        Object.entries(original.contests).map(([idExternal, idVx]) => [
+          idExternal,
+          replaceId(idVx),
+        ])
+      ),
+    };
+  }
+
+  const customBallotContent = election.customBallotContent && {
+    candidateAddresses:
+      election.customBallotContent.candidateAddresses &&
+      Object.fromEntries(
+        Object.entries(election.customBallotContent.candidateAddresses).map(
+          ([candidateId, value]) => [replaceId(candidateId), value]
+        )
+      ),
+    externalToVxIdMapping,
+    presidentialCandidateBallotStrings:
+      election.customBallotContent.presidentialCandidateBallotStrings &&
+      Object.fromEntries(
+        Object.entries(
+          election.customBallotContent.presidentialCandidateBallotStrings
+        ).map(([candidateId, value]) => [replaceId(candidateId), value])
+      ),
+  };
+
   return {
     districts,
     precincts,
     parties,
     contests,
+    customBallotContent,
   };
 }

@@ -45,15 +45,17 @@ export type CandidateContestResults = ContestResultsBase & {
  */
 export type ContestResults = YesNoContestResults | CandidateContestResults;
 
-export type VotingMethod = `${BallotType}`;
+export type VotingMethod = `${BallotType}` | 'early-voting';
 export const SUPPORTED_VOTING_METHODS: VotingMethod[] = [
   'precinct',
   'absentee',
+  'early-voting',
 ];
 
 export const VOTING_METHOD_LABELS: Record<VotingMethod, string> = {
   absentee: 'Absentee',
-  precinct: 'Precinct',
+  precinct: 'Election Day',
+  'early-voting': 'Early Voting',
   provisional: 'Provisional',
 };
 

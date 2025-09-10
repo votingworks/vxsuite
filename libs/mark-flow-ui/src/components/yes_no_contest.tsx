@@ -5,6 +5,7 @@ import {
   Election,
   YesNoContestOptionId,
   getContestDistrict,
+  ElectionStringKey,
 } from '@votingworks/types';
 import {
   Button,
@@ -21,11 +22,13 @@ import {
   PageNavigationButtonId,
   useIsPatDeviceConnected,
   RichText,
+  UiStringsReactQueryApi,
 } from '@votingworks/ui';
 
 import { getSingleYesNoVote } from '@votingworks/utils';
 import { Optional } from '@votingworks/basics';
 
+import getDeepValue from 'lodash.get';
 import { ContestFooter, ChoicesGrid } from './contest_screen_layout';
 import { BreadcrumbMetadata, ContestHeader } from './contest_header';
 import { UpdateVoteFunction } from '../config/types';
@@ -36,6 +39,7 @@ interface Props {
   contest: YesNoContestInterface;
   vote?: YesNoVote;
   updateVote: UpdateVoteFunction;
+  uiStringsApi: UiStringsReactQueryApi;
 }
 
 export function YesNoContest({
@@ -44,7 +48,8 @@ export function YesNoContest({
   contest,
   vote,
   updateVote,
-}: Props): JSX.Element {
+  uiStringsApi,
+}: Props): React.ReactNode {
   const district = getContestDistrict(election, contest);
 
   const [overvoteSelection, setOvervoteSelection] =
@@ -52,6 +57,12 @@ export function YesNoContest({
   const [deselectedVote, setDeselectedVote] = useState('');
 
   const isPatDeviceConnected = useIsPatDeviceConnected();
+
+  const audioIdsQuery = uiStringsApi.getAudioIds.useQuery('en');
+  const hasContestAudioOverride = !!getDeepValue(
+    audioIdsQuery.data,
+    `${ElectionStringKey.LA_CONTEST_AUDIO}.${contest.id}`
+  );
 
   useEffect(() => {
     if (deselectedVote !== '') {
@@ -77,6 +88,8 @@ export function YesNoContest({
     setOvervoteSelection(undefined);
   }
 
+  if (audioIdsQuery.isLoading) return null;
+
   return (
     <React.Fragment>
       <Main flexColumn>
@@ -86,10 +99,12 @@ export function YesNoContest({
             contest={contest}
             district={district}
             className="no-horizontal-padding"
+            uiStringsApi={uiStringsApi}
           >
             <Caption>
               <AudioOnly>
-                {electionStrings.contestDescription(contest)}
+                {!hasContestAudioOverride &&
+                  electionStrings.contestDescription(contest)}
                 <AssistiveTechInstructions
                   controllerString={appStrings.instructionsBmdContestNavigation()}
                   patDeviceString={appStrings.instructionsBmdContestNavigationPatDevice()}

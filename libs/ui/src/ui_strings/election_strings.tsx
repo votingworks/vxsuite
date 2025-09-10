@@ -134,6 +134,25 @@ export const electionStrings = {
   [Key.STATE_NAME]: (election: Election) => (
     <UiString uiStringKey={Key.STATE_NAME}>{election.state}</UiString>
   ),
+
+  // Louisiana-specific audio strings:
+
+  [Key.LA_CANDIDATE_AUDIO]: (candidate: Candidate) => (
+    <InEnglish>
+      <UiString
+        uiStringKey={Key.LA_CANDIDATE_AUDIO}
+        uiStringSubKey={candidate.id}
+      >
+        {candidate.name}
+      </UiString>
+    </InEnglish>
+  ),
+
+  [Key.LA_CONTEST_AUDIO]: (contest: ContestLike) => (
+    <UiString uiStringKey={Key.LA_CONTEST_AUDIO} uiStringSubKey={contest.id}>
+      {contest.title}
+    </UiString>
+  ),
 } satisfies Record<
   Key,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

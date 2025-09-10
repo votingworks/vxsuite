@@ -12,6 +12,11 @@ create table election (
   created_at timestamp not null default current_timestamp
 );
 
+create table ballot_pdfs (
+  ballot_style_id text primary key,
+  data blob not null
+);
+
 -- Temporary dev table:
 create table print_calibration (
   -- enforce singleton table

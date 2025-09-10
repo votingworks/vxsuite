@@ -4,3 +4,4 @@ build
 coverage
 ios
 node_modules
+src/ballot_audio/phonemes.ts

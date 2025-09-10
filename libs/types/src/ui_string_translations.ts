@@ -23,6 +23,10 @@ export enum ElectionStringKey {
   PRECINCT_NAME = 'precinctName',
   PRECINCT_SPLIT_NAME = 'precinctSplitName',
   STATE_NAME = 'stateName',
+
+  // Louisiana-specific audio strings:
+  LA_CANDIDATE_AUDIO = 'laCandidateAudio',
+  LA_CONTEST_AUDIO = 'laContestAudio',
 }
 
 /**

@@ -13,12 +13,16 @@ import {
   isIntegrationTest,
 } from '@votingworks/utils';
 import { detectUsbDrive } from '@votingworks/usb-drive';
-import { initializeSystemAudio } from '@votingworks/backend';
+import { setAudioVolume, setDefaultAudio } from '@votingworks/backend';
 import { detectPrinter, HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { buildApp } from './app';
 import { Workspace } from './util/workspace';
 import { getUserRole } from './util/auth';
+import * as barcodes from './barcodes';
+import { getAudioInfo } from './audio/info';
+import { NODE_ENV } from './globals';
+import { Player as AudioPlayer } from './audio/player';
 
 export interface StartOptions {
   auth?: InsertedSmartCardAuthApi;
@@ -57,9 +61,55 @@ export async function start({
   const usbDrive = detectUsbDrive(logger);
   const printer = detectPrinter(logger);
 
-  await initializeSystemAudio();
+  let audioPlayer: AudioPlayer | undefined;
+  /* istanbul ignore next - @preserve */
+  if (!isIntegrationTest() && NODE_ENV !== 'test') {
+    const audioInfo = await getAudioInfo({
+      baseRetryDelayMs: 2000,
+      logger,
+      maxAttempts: 4,
+      nodeEnv: NODE_ENV,
+    });
 
-  const app = buildApp(resolvedAuth, logger, workspace, usbDrive, printer);
+    if (audioInfo.usb) {
+      const resultDefaultAudio = await setDefaultAudio(audioInfo.usb.name, {
+        logger,
+        nodeEnv: NODE_ENV,
+      });
+      resultDefaultAudio.assertOk('unable to set USB audio as default output');
+
+      // Screen reader volume levels are calibrated against a maximum system
+      // volume setting:
+      const resultVolume = await setAudioVolume({
+        logger,
+        nodeEnv: NODE_ENV,
+        sinkName: audioInfo.usb.name,
+        volumePct: 100,
+      });
+      resultVolume.assertOk('unable to set USB audio volume');
+    } else {
+      void logger.logAsCurrentRole(LogEventId.AudioDeviceMissing, {
+        message: 'USB audio device not detected.',
+        disposition: 'failure',
+      });
+    }
+
+    audioPlayer = new AudioPlayer(NODE_ENV, logger, audioInfo.builtin.name);
+  }
+
+  const app = buildApp({
+    audioPlayer,
+    auth: resolvedAuth,
+    barcodeClient: /* istanbul ignore next - @preserve */ isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.MARK_ENABLE_BARCODE_DEMO
+    )
+      ? new barcodes.Client(logger)
+      : undefined,
+    logger,
+    workspace,
+    usbDrive,
+    printer,
+  });
 
   useDevDockRouter(app, express, { printerConfig: HP_LASER_PRINTER_CONFIG });
 
@@ -71,6 +121,12 @@ export async function start({
         message: `VxMark backend running at http://localhost:${port}/`,
         disposition: 'success',
       });
+
+      if (NODE_ENV === 'production') {
+        // Play startup chime after a slight delay to allow kiosk-browser to
+        // spin up first:
+        setTimeout(() => void audioPlayer?.play('chime'), 2 * 1000);
+      }
     }
   );
 }

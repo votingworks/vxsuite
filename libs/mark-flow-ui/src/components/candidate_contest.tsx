@@ -1,6 +1,7 @@
 import camelCase from 'lodash.camelcase';
 import React, { ReactNode, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import getDeepValue from 'lodash.get';
 
 import {
   Candidate,
@@ -8,6 +9,7 @@ import {
   CandidateContest as CandidateContestInterface,
   Election,
   getContestDistrict,
+  ElectionStringKey,
 } from '@votingworks/types';
 import {
   Button,
@@ -34,6 +36,9 @@ import {
   AccessibilityMode,
   Font,
   virtualKeyboardCommon,
+  TextOnly,
+  UiStringsReactQueryApi,
+  WithAltAudio,
 } from '@votingworks/ui';
 import { assert, assertDefined } from '@votingworks/basics';
 
@@ -45,6 +50,7 @@ import { BreadcrumbMetadata, ContestHeader } from './contest_header';
 import { WriteInCandidateName } from './write_in_candidate_name';
 
 interface Props {
+  allowOvervotes?: boolean;
   breadcrumbs?: BreadcrumbMetadata;
   election: Election;
   contest: CandidateContestInterface;
@@ -53,6 +59,7 @@ interface Props {
   accessibilityMode?: AccessibilityMode;
   onOpenWriteInKeyboard?: () => void;
   onCloseWriteInKeyboard?: () => void;
+  uiStringsApi: UiStringsReactQueryApi;
 }
 
 const WriteInModalBody = styled.div`
@@ -86,6 +93,7 @@ function normalizeCandidateName(name: string) {
 }
 
 export function CandidateContest({
+  allowOvervotes,
   breadcrumbs,
   election,
   contest,
@@ -94,7 +102,8 @@ export function CandidateContest({
   accessibilityMode,
   onOpenWriteInKeyboard,
   onCloseWriteInKeyboard,
-}: Props): JSX.Element {
+  uiStringsApi,
+}: Props): React.ReactNode {
   const district = getContestDistrict(election, contest);
 
   const [attemptedOvervoteCandidate, setAttemptedOvervoteCandidate] =
@@ -108,6 +117,20 @@ export function CandidateContest({
     useState('');
   const [recentlySelectedCandidate, setRecentlySelectedCandidate] =
     useState('');
+
+  const audioIdsQuery = uiStringsApi.getAudioIds.useQuery('en');
+
+  const hasContestAudioOverride = !!getDeepValue(
+    audioIdsQuery.data,
+    `${ElectionStringKey.LA_CONTEST_AUDIO}.${contest.id}`
+  );
+
+  function hasCandidateAudioOverride(candidate: Candidate) {
+    return !!getDeepValue(
+      audioIdsQuery.data,
+      `${ElectionStringKey.LA_CANDIDATE_AUDIO}.${candidate.id}`
+    );
+  }
 
   const screenInfo = useScreenInfo();
 
@@ -274,7 +297,8 @@ export function CandidateContest({
     });
   }
 
-  const hasReachedMaxSelections = contest.seats === vote.length;
+  const hasReachedMaxSelections =
+    contest.seats === vote.length && !allowOvervotes;
 
   const writeInModalTitle = (
     <React.Fragment>
@@ -299,6 +323,8 @@ export function CandidateContest({
     </React.Fragment>
   );
 
+  if (audioIdsQuery.isLoading) return null;
+
   return (
     <React.Fragment>
       <Main flexColumn>
@@ -306,10 +332,26 @@ export function CandidateContest({
           breadcrumbs={breadcrumbs}
           contest={contest}
           district={district}
+          uiStringsApi={uiStringsApi}
         >
           <Caption>
-            {appStrings.labelNumVotesRemaining()}{' '}
-            <NumberString value={contest.seats - vote.length} weight="bold" />
+            {hasContestAudioOverride ? (
+              <TextOnly>
+                {appStrings.labelNumVotesRemaining()}{' '}
+                <NumberString
+                  value={Math.max(0, contest.seats - vote.length)}
+                  weight="bold"
+                />
+              </TextOnly>
+            ) : (
+              <React.Fragment>
+                {appStrings.labelNumVotesRemaining()}{' '}
+                <NumberString
+                  value={Math.max(0, contest.seats - vote.length)}
+                  weight="bold"
+                />
+              </React.Fragment>
+            )}
             <AudioOnly>
               <AssistiveTechInstructions
                 controllerString={appStrings.instructionsBmdContestNavigation()}
@@ -329,7 +371,10 @@ export function CandidateContest({
               let prefixAudioText: ReactNode = null;
               let suffixAudioText: ReactNode = null;
 
-              const numVotesRemaining = contest.seats - vote.length;
+              const numVotesRemaining = Math.max(
+                0,
+                contest.seats - vote.length
+              );
               if (isChecked) {
                 prefixAudioText = appStrings.labelSelected();
 
@@ -355,6 +400,58 @@ export function CandidateContest({
                 );
               }
 
+              const ballotStrings =
+                election.customBallotContent
+                  ?.presidentialCandidateBallotStrings?.[candidate.id];
+              const presidentialCandidateName = ballotStrings && (
+                <React.Fragment>
+                  {ballotStrings.presidentialCandidateName}{' '}
+                  <Caption>
+                    of {ballotStrings.presidentialCandidateState}
+                  </Caption>
+                  <br />
+                  {ballotStrings.vicePresidentialCandidateName}{' '}
+                  <Caption>
+                    of {ballotStrings.vicePresidentialCandidateState}
+                  </Caption>
+                </React.Fragment>
+              );
+              const presidentialPartyAndElectors = ballotStrings && (
+                <div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      gap: '0.25rem',
+                      alignItems: 'center',
+                    }}
+                  >
+                    {ballotStrings.partyIcon && (
+                      <img
+                        src={ballotStrings.partyIcon}
+                        style={{ height: '1em' }}
+                        alt={`${ballotStrings.party} Logo`}
+                      />
+                    )}
+                    {ballotStrings.party}
+                  </div>
+                  <div style={{ fontSize: '0.6em', marginTop: '0.25em' }}>
+                    <strong>Electors:</strong>{' '}
+                    <div style={{ columnCount: 2 }}>
+                      {ballotStrings.electors.map((elector) => (
+                        <div key={elector}>{elector}</div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              );
+
+              const candidateAddress =
+                election.customBallotContent?.candidateAddresses?.[
+                  candidate.id
+                ];
+
+              const hasAudioOverride = hasCandidateAudioOverride(candidate);
+
               return (
                 <ContestChoiceButton
                   key={candidate.id}
@@ -366,15 +463,47 @@ export function CandidateContest({
                   label={
                     <React.Fragment>
                       <AudioOnly>{prefixAudioText}</AudioOnly>
-                      {electionStrings.candidateName(candidate)}
+                      {hasAudioOverride ? (
+                        <WithAltAudio
+                          audioText={electionStrings.laCandidateAudio(
+                            candidate
+                          )}
+                        >
+                          {presidentialCandidateName ||
+                            electionStrings.candidateName(candidate)}
+                        </WithAltAudio>
+                      ) : (
+                        presidentialCandidateName ||
+                        electionStrings.candidateName(candidate)
+                      )}
                     </React.Fragment>
                   }
                   caption={
                     <React.Fragment>
-                      <CandidatePartyList
-                        candidate={candidate}
-                        electionParties={election.parties}
-                      />
+                      {candidateAddress && (
+                        <React.Fragment>
+                          {candidateAddress.addressLine1}
+                          <br />
+                          {candidateAddress.addressLine2}
+                        </React.Fragment>
+                      )}
+                      {hasAudioOverride ? (
+                        <TextOnly>
+                          {presidentialPartyAndElectors || (
+                            <CandidatePartyList
+                              candidate={candidate}
+                              electionParties={election.parties}
+                            />
+                          )}
+                        </TextOnly>
+                      ) : (
+                        presidentialPartyAndElectors || (
+                          <CandidatePartyList
+                            candidate={candidate}
+                            electionParties={election.parties}
+                          />
+                        )
+                      )}
                       <AudioOnly>{suffixAudioText}</AudioOnly>
                     </React.Fragment>
                   }

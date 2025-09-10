@@ -66,7 +66,7 @@ create table contests(
 create table voting_methods(
   election_id integer not null,
   voting_method text not null 
-    check (voting_method = 'absentee' or voting_method = 'precinct' or voting_method = 'provisional'),
+    check (voting_method = 'absentee' or voting_method = 'precinct' or voting_method = 'provisional' or voting_method = 'early-voting'),
   primary key (election_id, voting_method),
   foreign key (election_id) references elections(id)
     on delete cascade
@@ -120,7 +120,7 @@ create table cvrs (
   ballot_id varchar(36) not null,
   ballot_style_group_id text not null,
   ballot_type text not null 
-    check (ballot_type = 'absentee' or ballot_type = 'precinct' or ballot_type = 'provisional'),
+    check (ballot_type = 'absentee' or ballot_type = 'precinct' or ballot_type = 'provisional' or ballot_type = 'early-voting'),
   batch_id text not null,
   precinct_id text not null,
   sheet_number integer check (sheet_number is null or sheet_number > 0),
@@ -144,9 +144,11 @@ create table cvr_contest_tags (
   cvr_id varchar(36) not null,
   contest_id text not null,
   is_resolved boolean not null default false,
-  has_marginal_mark boolean not null default false,
+  has_overvote boolean not null default false,
+  has_undervote boolean not null default false,
   has_write_in boolean not null default false,
   has_unmarked_write_in boolean not null default false,
+  has_marginal_mark boolean not null default false,
   unique (cvr_id, contest_id),
   foreign key (cvr_id) references cvrs(id) on delete cascade
 );

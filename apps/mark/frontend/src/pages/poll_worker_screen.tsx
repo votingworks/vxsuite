@@ -6,7 +6,13 @@ import {
   PollsState,
   InsertedSmartCardAuth,
 } from '@votingworks/types';
-import { Button, Main, Screen, ElectionInfoBar } from '@votingworks/ui';
+import {
+  Button,
+  Main,
+  Screen,
+  ElectionInfoBar,
+  PowerDownButton,
+} from '@votingworks/ui';
 
 import type { MachineConfig } from '@votingworks/mark-backend';
 
@@ -122,7 +128,10 @@ export function PollWorkerScreen({
               })
             }
           />
-          <SectionSystem apiClient={apiClient} />
+          <SectionSystem
+            additionalActions={<PowerDownButton icon="PowerOff" />}
+            apiClient={apiClient}
+          />
         </div>
       </Main>
       <EnableLiveModeModal

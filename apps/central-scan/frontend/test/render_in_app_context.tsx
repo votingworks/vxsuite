@@ -51,6 +51,7 @@ export function makeAppContext({
     sessionExpiresAt: mockSessionExpiresAt(),
   },
   logger = new BaseLogger(LogSource.VxCentralScanFrontend),
+  isEarlyVotingMode = false,
 }: Partial<AppContextInterface> = {}): AppContextInterface {
   return {
     electionDefinition,
@@ -60,6 +61,7 @@ export function makeAppContext({
     usbDriveStatus,
     auth,
     logger,
+    isEarlyVotingMode,
   };
 }
 

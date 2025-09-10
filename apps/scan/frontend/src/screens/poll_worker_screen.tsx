@@ -638,7 +638,7 @@ function PollWorkerScreenContents({
       title="Poll Worker Menu"
       infoBarMode="admin"
       voterFacing={false}
-      showTestModeBanner={false}
+      showModeBanner={false}
     >
       {content}
     </PlainScreen>

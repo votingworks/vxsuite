@@ -95,6 +95,14 @@ function buildApi({
       return store.getTestMode();
     },
 
+    getEarlyVotingMode() {
+      return store.getIsEarlyVotingMode();
+    },
+
+    setEarlyVotingMode(input: { isEarlyVotingMode: boolean }): void {
+      store.setIsEarlyVotingMode(input.isEarlyVotingMode);
+    },
+
     async setTestMode(input: { testMode: boolean }) {
       const { testMode } = input;
       await logger.logAsCurrentRole(LogEventId.TogglingTestMode, {

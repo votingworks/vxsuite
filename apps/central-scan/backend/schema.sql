@@ -8,6 +8,7 @@ create table election (
   is_test_mode boolean not null default true,
   polls_state text not null default "polls_closed_initial",
   is_sound_muted boolean not null default false,
+  is_early_voting_mode boolean not null default false,
   scanner_backed_up_at datetime,
   created_at timestamp not null default current_timestamp
 );
@@ -19,7 +20,8 @@ create table batches (
   started_at datetime default current_timestamp not null,
   ended_at datetime,
   deleted_at datetime,
-  error varchar(4000)
+  error varchar(4000),
+  is_early_voting boolean not null default false
 );
 
 create table sheets (

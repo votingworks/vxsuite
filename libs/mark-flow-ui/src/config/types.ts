@@ -11,6 +11,7 @@ import {
   VotesDict,
   YesNoContest,
 } from '@votingworks/types';
+import { UiStringsReactQueryApi } from '@votingworks/ui';
 import {
   ContestsWithMsEitherNeither,
   MsEitherNeitherContest,
@@ -45,12 +46,14 @@ export interface CandidateContestResultInterface {
   precinctId: PrecinctId;
   selectionsAreEditable?: boolean;
   vote: CandidateVote;
+  uiStringsApi: UiStringsReactQueryApi;
 }
 export interface YesNoContestResultInterface {
   contest: YesNoContest;
   election: Election;
   vote: OptionalYesNoVote;
   selectionsAreEditable?: boolean;
+  uiStringsApi: UiStringsReactQueryApi;
 }
 export interface MsEitherNeitherContestResultInterface {
   contest: MsEitherNeitherContest;

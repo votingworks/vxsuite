@@ -80,7 +80,6 @@ interface MisvoteWarningScreenProps {
   systemSettings: SystemSettings;
   overvotes: readonly OvervoteAdjudicationReasonInfo[];
   undervotes: readonly UndervoteAdjudicationReasonInfo[];
-  isTestMode: boolean;
 }
 
 function MisvoteWarningScreen({
@@ -88,7 +87,6 @@ function MisvoteWarningScreen({
   systemSettings,
   overvotes,
   undervotes,
-  isTestMode,
 }: MisvoteWarningScreenProps): JSX.Element {
   const returnBallotMutation = returnBallot.useMutation();
   const acceptBallotMutation = acceptBallot.useMutation();
@@ -167,7 +165,7 @@ function MisvoteWarningScreen({
         </React.Fragment>
       }
       voterFacing
-      showTestModeBanner={isTestMode}
+      showModeBanner
     >
       <MisvoteWarnings
         blankContests={blankContests}
@@ -193,13 +191,7 @@ function MisvoteWarningScreen({
   );
 }
 
-interface BlankBallotWarningScreenProps {
-  isTestMode: boolean;
-}
-
-function BlankBallotWarningScreen({
-  isTestMode,
-}: BlankBallotWarningScreenProps): JSX.Element {
+function BlankBallotWarningScreen(): JSX.Element {
   const returnBallotMutation = returnBallot.useMutation();
   const acceptBallotMutation = acceptBallot.useMutation();
   const [confirmTabulate, setConfirmTabulate] = useState(false);
@@ -225,7 +217,7 @@ function BlankBallotWarningScreen({
       centerContent
       padded
       voterFacing
-      showTestModeBanner={isTestMode}
+      showModeBanner
     >
       <FullScreenPromptLayout
         title={appStrings.titleScannerBallotWarningsScreen()}
@@ -249,13 +241,7 @@ function BlankBallotWarningScreen({
   );
 }
 
-interface OtherReasonWarningScreenProps {
-  isTestMode: boolean;
-}
-
-function OtherReasonWarningScreen({
-  isTestMode,
-}: OtherReasonWarningScreenProps): JSX.Element {
+function OtherReasonWarningScreen(): JSX.Element {
   const returnBallotMutation = returnBallot.useMutation();
   const acceptBallotMutation = acceptBallot.useMutation();
   const [confirmTabulate, setConfirmTabulate] = useState(false);
@@ -281,7 +267,7 @@ function OtherReasonWarningScreen({
       centerContent
       padded
       voterFacing
-      showTestModeBanner={isTestMode}
+      showModeBanner
     >
       <FullScreenPromptLayout
         title={appStrings.titleScanningFailed()}
@@ -309,14 +295,12 @@ export interface Props {
   electionDefinition: ElectionDefinition;
   adjudicationReasonInfo: readonly AdjudicationReasonInfo[];
   systemSettings: SystemSettings;
-  isTestMode: boolean;
 }
 
 export function ScanWarningScreen({
   electionDefinition,
   adjudicationReasonInfo,
   systemSettings,
-  isTestMode,
 }: Props): JSX.Element {
   let isBlank = false;
   const overvoteReasons: OvervoteAdjudicationReasonInfo[] = [];
@@ -333,7 +317,7 @@ export function ScanWarningScreen({
   }
 
   if (isBlank) {
-    return <BlankBallotWarningScreen isTestMode={isTestMode} />;
+    return <BlankBallotWarningScreen />;
   }
 
   if (undervoteReasons.length > 0 || overvoteReasons.length > 0) {
@@ -343,12 +327,11 @@ export function ScanWarningScreen({
         systemSettings={systemSettings}
         undervotes={undervoteReasons}
         overvotes={overvoteReasons}
-        isTestMode={isTestMode}
       />
     );
   }
 
-  return <OtherReasonWarningScreen isTestMode={isTestMode} />;
+  return <OtherReasonWarningScreen />;
 }
 
 /* istanbul ignore next - @preserve */
@@ -384,7 +367,6 @@ export function OvervotePreview(): JSX.Element {
         },
       ]}
       systemSettings={DEFAULT_SYSTEM_SETTINGS}
-      isTestMode={false}
     />
   );
 }
@@ -415,7 +397,6 @@ export function UndervoteNoVotes1ContestPreview(): JSX.Element {
           expected: contest.seats,
         },
       ]}
-      isTestMode={false}
     />
   );
 }
@@ -444,7 +425,6 @@ export function UndervoteNoVotesManyContestsPreview(): JSX.Element {
         optionIds: [],
         expected: contest.seats,
       }))}
-      isTestMode={false}
     />
   );
 }
@@ -477,7 +457,6 @@ export function Undervote1ContestPreview(): JSX.Element {
           expected: contest.seats,
         },
       ]}
-      isTestMode={false}
     />
   );
 }
@@ -522,7 +501,6 @@ export function MixedOvervotesAndUndervotesPreview(): JSX.Element {
           expected: c.seats,
         })),
       ]}
-      isTestMode={false}
     />
   );
 }
@@ -541,7 +519,6 @@ export function BlankBallotPreview(): JSX.Element {
       electionDefinition={electionDefinition}
       systemSettings={DEFAULT_SYSTEM_SETTINGS}
       adjudicationReasonInfo={[{ type: AdjudicationReason.BlankBallot }]}
-      isTestMode={false}
     />
   );
 }

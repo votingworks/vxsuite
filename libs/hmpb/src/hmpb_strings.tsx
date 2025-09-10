@@ -22,6 +22,12 @@ export const hmpbStringsCatalog = {
   hmpbInstructionsWriteInTitle: 'To Vote for a Write-in:',
   hmpbInstructionsWriteInText:
     'To vote for a person whose name is not on the ballot, write the person’s name on the "Write-in" line and completely fill in the oval next to the line.',
+  hmpbLaInstructionsLine1:
+    '1. Use a blue or black ink pen to mark your ballot.',
+  hmpbLaInstructionsLine2:
+    '2. To vote, completely fill in the oval next to your choice.',
+  hmpbLaInstructionsLine3:
+    '3. Do not vote for more than the number to be elected for each office.',
   hmpbVoteFor1: 'Vote for 1',
   hmpbVoteFor2: 'Vote for up to 2',
   hmpbVoteFor3: 'Vote for up to 3',
@@ -32,6 +38,10 @@ export const hmpbStringsCatalog = {
   hmpbVoteFor8: 'Vote for up to 8',
   hmpbVoteFor9: 'Vote for up to 9',
   hmpbVoteFor10: 'Vote for up to 10',
+  hmpbVoteFor11: 'Vote for up to 11',
+  hmpbVoteFor12: 'Vote for up to 12',
+  hmpbVoteFor13: 'Vote for up to 13',
+  hmpbVoteFor14: 'Vote for up to 14',
   hmpbVoteForNotMoreThan1: 'Vote for not more than 1',
   hmpb2WillBeElected: '2 will be elected',
   hmpb3WillBeElected: '3 will be elected',

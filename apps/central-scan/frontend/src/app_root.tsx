@@ -31,6 +31,7 @@ import {
   getMachineConfig,
   getStatus,
   getTestMode,
+  getEarlyVotingMode,
   getUsbDriveStatus,
   logOut,
   useApiClient,
@@ -55,6 +56,9 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
   const getTestModeQuery = getTestMode.useQuery();
   const isTestMode = getTestModeQuery.data ?? false;
 
+  const getEarlyVotingModeQuery = getEarlyVotingMode.useQuery();
+  const isEarlyVotingMode = getEarlyVotingModeQuery.data ?? false;
+
   const electionRecordQuery = getElectionRecord.useQuery();
 
   if (
@@ -63,6 +67,7 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
     !usbDriveStatusQuery.isSuccess ||
     !electionRecordQuery.isSuccess ||
     !getTestModeQuery.isSuccess ||
+    !getEarlyVotingModeQuery.isSuccess ||
     !statusQuery.isSuccess
   ) {
     return (
@@ -85,6 +90,7 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
     electionDefinition,
     electionPackageHash,
     isTestMode,
+    isEarlyVotingMode,
     machineConfig,
     logger,
     auth: authStatus,

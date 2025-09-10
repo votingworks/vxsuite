@@ -389,6 +389,8 @@ export interface CvrContestTag {
   hasMarginalMark?: boolean;
   hasWriteIn?: boolean;
   hasUnmarkedWriteIn?: boolean;
+  hasOvervote?: boolean;
+  hasUndervote?: boolean;
 }
 
 /**
@@ -486,7 +488,7 @@ export type CvrFileMode =
  */
 export type ManualResultsVotingMethod = Extract<
   Tabulation.VotingMethod,
-  'absentee' | 'precinct'
+  'absentee' | 'precinct' | 'early-voting'
 >;
 
 /**

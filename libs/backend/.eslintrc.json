@@ -5,6 +5,7 @@
     "vx/gts-identifiers": [
       "error",
       { "allowedNames": ["/CVR.*/", "/buildCVR.*/"] }
-    ]
+    ],
+    "vx/gts-jsdoc": "off"
   }
 }

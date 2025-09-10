@@ -270,6 +270,18 @@ export const setIsContinuousExportEnabled = {
   },
 } as const;
 
+export const setEarlyVotingMode = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setEarlyVotingMode, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getConfig.queryKey());
+      },
+    });
+  },
+} as const;
+
 export const setTestMode = {
   useMutation() {
     const apiClient = useApiClient();

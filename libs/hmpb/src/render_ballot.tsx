@@ -35,12 +35,14 @@ import {
   CONTENT_SLOT_CLASS,
   ContentSlot,
   BALLOT_HASH_SLOT_CLASS,
+  OFFICIAL_OPTION_CLASS,
   OptionInfo,
   PAGE_CLASS,
   QR_CODE_SIZE,
   QR_CODE_SLOT_CLASS,
   TIMING_MARK_CLASS,
   WRITE_IN_OPTION_CLASS,
+  BALLOT_MEASURE_OPTION_CLASS,
 } from './ballot_components';
 import {
   BALLOT_MODES,
@@ -288,6 +290,14 @@ export function gridHeightToPixels(
   return height * grid.rowGap;
 }
 
+interface DocumentElement {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  data: unknown;
+}
+
 async function extractGridLayout(
   document: RenderDocument,
   ballotStyleId: BallotStyleId
@@ -342,18 +352,53 @@ async function extractGridLayout(
   );
   const gridPositions = optionPositionsPerPage.flat();
 
-  // To compute the bounds of write-in options, we'll just look at the first
-  // write-in option box we find. This relies on all write-in option boxes being
-  // the same size. We may want to eventually switch to a data model where we
-  // compute the bounds for every contest option we care about individually.
+  // To compute the bounds of options, we'll look at the first write-in option
+  // box we find. We use this value for every contest option on the ballot.
+  // We use a write-in option box rather than an official option box because
+  // it is the larger of the two and gives us more margin for error. If there
+  // are no write-ins, we fallback to an official option and then a ballot measure
+  // option. We may want to eventually switch to a data model where we compute bounds
+  // for every contest option we care about individually, since write-in and official
+  // options are not the same size.
   const optionBoundsFromTargetMark: Outset<number> = await (async () => {
+    let optionElement: DocumentElement | null = null;
+    let bubbleElement: DocumentElement | null = null;
+
     const writeInOptions = await document.inspectElements(
       `.${WRITE_IN_OPTION_CLASS}`
     );
-    const writeInOptionBubbles = await document.inspectElements(
-      `.${WRITE_IN_OPTION_CLASS} .${BUBBLE_CLASS}`
-    );
-    if (writeInOptions.length === 0) {
+    if (writeInOptions.length > 0) {
+      [optionElement] = writeInOptions;
+      [bubbleElement] = await document.inspectElements(
+        `.${WRITE_IN_OPTION_CLASS} .${BUBBLE_CLASS}`
+      );
+    }
+
+    if (optionElement === null) {
+      const officialOptions = await document.inspectElements(
+        `.${OFFICIAL_OPTION_CLASS}`
+      );
+      if (officialOptions.length > 0) {
+        [optionElement] = officialOptions;
+        [bubbleElement] = await document.inspectElements(
+          `.${OFFICIAL_OPTION_CLASS} .${BUBBLE_CLASS}`
+        );
+      }
+    }
+
+    if (optionElement === null) {
+      const ballotMeasureOptions = await document.inspectElements(
+        `.${BALLOT_MEASURE_OPTION_CLASS}`
+      );
+      if (ballotMeasureOptions.length > 0) {
+        [optionElement] = ballotMeasureOptions;
+        [bubbleElement] = await document.inspectElements(
+          `.${BALLOT_MEASURE_OPTION_CLASS} .${BUBBLE_CLASS}`
+        );
+      }
+    }
+
+    if (optionElement === null || bubbleElement === null) {
       return {
         top: 0,
         left: 0,
@@ -361,33 +406,22 @@ async function extractGridLayout(
         bottom: 0,
       };
     }
-    const firstWriteInOption = writeInOptions[0];
-    const firstWriteInOptionBubble = writeInOptionBubbles[0];
-    const firstWriteInOptionBubbleCenter: Point<Pixels> = {
-      x: firstWriteInOptionBubble.x + firstWriteInOptionBubble.width / 2,
-      y: firstWriteInOptionBubble.y + firstWriteInOptionBubble.height / 2,
+
+    const bubbleElementCenter: Point<Pixels> = {
+      x: bubbleElement.x + bubbleElement.width / 2,
+      y: bubbleElement.y + bubbleElement.height / 2,
     };
     const grid = await measureTimingMarkGrid(document, 1);
     const bounds: Outset<number> = {
-      top: pixelsToGridHeight(
-        grid,
-        firstWriteInOptionBubbleCenter.y - firstWriteInOption.y
-      ),
-      left: pixelsToGridWidth(
-        grid,
-        firstWriteInOptionBubbleCenter.x - firstWriteInOption.x
-      ),
+      top: pixelsToGridHeight(grid, bubbleElementCenter.y - optionElement.y),
+      left: pixelsToGridWidth(grid, bubbleElementCenter.x - optionElement.x),
       right: pixelsToGridWidth(
         grid,
-        firstWriteInOption.x +
-          firstWriteInOption.width -
-          firstWriteInOptionBubbleCenter.x
+        optionElement.x + optionElement.width - bubbleElementCenter.x
       ),
       bottom: pixelsToGridHeight(
         grid,
-        firstWriteInOption.y +
-          firstWriteInOption.height -
-          firstWriteInOptionBubbleCenter.y
+        optionElement.y + optionElement.height - bubbleElementCenter.y
       ),
     };
     return bounds;

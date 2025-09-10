@@ -12,20 +12,21 @@ import {
 } from '@votingworks/types';
 import { Screen } from '../components/layout';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
+import { getConfig } from '../api';
 
 export interface Props {
   error?: InvalidInterpretationReason | PrecinctScannerErrorType;
-  isTestMode: boolean;
   scannedBallotCount: number;
   restartRequired?: boolean;
 }
 
 export function ScanErrorScreen({
   error,
-  isTestMode,
   scannedBallotCount,
   restartRequired = false,
 }: Props): JSX.Element {
+  const configQuery = getConfig.useQuery();
+  const isTestMode = configQuery.data?.isTestMode ?? false;
   assert(
     error !== 'double_feed_calibration_timed_out' && // Only used in double feed calibration
       error !== 'image_sensor_calibration_timed_out' && // Only used in image sensor calibration
@@ -136,7 +137,7 @@ export function ScanErrorScreen({
   return (
     <Screen
       centerContent
-      showTestModeBanner={isTestMode}
+      showModeBanner
       ballotCountOverride={scannedBallotCount}
       voterFacing
     >
@@ -157,78 +158,40 @@ export function ScanErrorScreen({
 
 /* istanbul ignore next - @preserve */
 export function UnreadablePreview(): JSX.Element {
-  return (
-    <ScanErrorScreen
-      isTestMode={false}
-      error="unreadable"
-      scannedBallotCount={42}
-    />
-  );
+  return <ScanErrorScreen error="unreadable" scannedBallotCount={42} />;
 }
 
 /* istanbul ignore next - @preserve */
 export function InvalidBallotHashPreview(): JSX.Element {
   return (
-    <ScanErrorScreen
-      isTestMode={false}
-      error="invalid_ballot_hash"
-      scannedBallotCount={42}
-    />
+    <ScanErrorScreen error="invalid_ballot_hash" scannedBallotCount={42} />
   );
 }
 
 /* istanbul ignore next - @preserve */
 export function InvalidBallotTestModePreview(): JSX.Element {
-  return (
-    <ScanErrorScreen
-      isTestMode
-      error="invalid_test_mode"
-      scannedBallotCount={42}
-    />
-  );
+  return <ScanErrorScreen error="invalid_test_mode" scannedBallotCount={42} />;
 }
 
 /* istanbul ignore next - @preserve */
 export function InvalidBallotPreview(): JSX.Element {
-  return (
-    <ScanErrorScreen
-      isTestMode={false}
-      error="invalid_test_mode"
-      scannedBallotCount={42}
-    />
-  );
+  return <ScanErrorScreen error="invalid_test_mode" scannedBallotCount={42} />;
 }
 
 /* istanbul ignore next - @preserve */
 export function InvalidPrecinctPreview(): JSX.Element {
-  return (
-    <ScanErrorScreen
-      isTestMode={false}
-      error="invalid_precinct"
-      scannedBallotCount={42}
-    />
-  );
+  return <ScanErrorScreen error="invalid_precinct" scannedBallotCount={42} />;
 }
 
 /* istanbul ignore next - @preserve */
 export function UnknownInterpretationErrorPreview(): JSX.Element {
-  return (
-    <ScanErrorScreen
-      isTestMode={false}
-      error="unknown"
-      scannedBallotCount={42}
-    />
-  );
+  return <ScanErrorScreen error="unknown" scannedBallotCount={42} />;
 }
 
 /* istanbul ignore next - @preserve */
 export function BallotInsertedWhileOtherBallotAlreadyScanningPreview(): JSX.Element {
   return (
-    <ScanErrorScreen
-      isTestMode={false}
-      error="both_sides_have_paper"
-      scannedBallotCount={42}
-    />
+    <ScanErrorScreen error="both_sides_have_paper" scannedBallotCount={42} />
   );
 }
 
@@ -236,7 +199,6 @@ export function BallotInsertedWhileOtherBallotAlreadyScanningPreview(): JSX.Elem
 export function AfterReconnectBallotInFrontPreview(): JSX.Element {
   return (
     <ScanErrorScreen
-      isTestMode={false}
       error="paper_in_front_after_reconnect"
       scannedBallotCount={42}
     />
@@ -247,7 +209,6 @@ export function AfterReconnectBallotInFrontPreview(): JSX.Element {
 export function AfterReconnectBallotInBackPreview(): JSX.Element {
   return (
     <ScanErrorScreen
-      isTestMode={false}
       error="paper_in_back_after_reconnect"
       scannedBallotCount={42}
     />
@@ -258,7 +219,6 @@ export function AfterReconnectBallotInBackPreview(): JSX.Element {
 export function BallotNotDroppedAfterAcceptPreview(): JSX.Element {
   return (
     <ScanErrorScreen
-      isTestMode={false}
       error="paper_in_back_after_accept"
       scannedBallotCount={42}
     />
@@ -269,7 +229,6 @@ export function BallotNotDroppedAfterAcceptPreview(): JSX.Element {
 export function UnexpectedScannerErrorPreview(): JSX.Element {
   return (
     <ScanErrorScreen
-      isTestMode={false}
       error="client_error"
       scannedBallotCount={42}
       restartRequired
@@ -281,7 +240,6 @@ export function UnexpectedScannerErrorPreview(): JSX.Element {
 export function VerticalStreaksDetectedErrorPreview(): JSX.Element {
   return (
     <ScanErrorScreen
-      isTestMode={false}
       error="vertical_streaks_detected"
       scannedBallotCount={42}
     />
@@ -291,10 +249,6 @@ export function VerticalStreaksDetectedErrorPreview(): JSX.Element {
 /* istanbul ignore next - @preserve */
 export function DoubleSheetErrorPreview(): JSX.Element {
   return (
-    <ScanErrorScreen
-      isTestMode={false}
-      error="double_feed_detected"
-      scannedBallotCount={42}
-    />
+    <ScanErrorScreen error="double_feed_detected" scannedBallotCount={42} />
   );
 }

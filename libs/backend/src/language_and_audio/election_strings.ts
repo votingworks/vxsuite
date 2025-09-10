@@ -98,6 +98,14 @@ const electionStringConfigs: Record<ElectionStringKey, ElectionStringConfig> = {
   [ElectionStringKey.STATE_NAME]: {
     translatable: true,
   },
+
+  // Louisiana-specific audio strings:
+  [ElectionStringKey.LA_CANDIDATE_AUDIO]: {
+    translatable: false,
+  },
+  [ElectionStringKey.LA_CONTEST_AUDIO]: {
+    translatable: false,
+  },
 };
 
 const electionStringExtractorFns: Record<
@@ -251,6 +259,30 @@ const electionStringExtractorFns: Record<
         stringInEnglish: election.state,
       },
     ];
+  },
+
+  // Louisiana-specific audio strings:
+  [ElectionStringKey.LA_CANDIDATE_AUDIO](election) {
+    const strings: ElectionString[] = [];
+
+    for (const contest of election.contests) {
+      if (contest.type !== 'candidate') continue;
+
+      for (const candidate of contest.candidates) {
+        strings.push({
+          stringInEnglish: candidate.name,
+          stringKey: [ElectionStringKey.LA_CANDIDATE_AUDIO, candidate.id],
+        });
+      }
+    }
+
+    return strings;
+  },
+  [ElectionStringKey.LA_CONTEST_AUDIO](election) {
+    return election.contests.map((contest) => ({
+      stringInEnglish: contest.title,
+      stringKey: [ElectionStringKey.LA_CONTEST_AUDIO, contest.id],
+    }));
   },
 };
 
