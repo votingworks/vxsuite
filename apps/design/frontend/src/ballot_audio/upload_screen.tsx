@@ -2,38 +2,40 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 
-import { Button, Font, Icons, Table, TD, TH } from '@votingworks/ui';
+import { Button, Caption, Font, Icons, Table, TD, TH } from '@votingworks/ui';
 
 import { assert } from '@votingworks/basics';
 import styled from 'styled-components';
 import { AudioUploadResult } from '@votingworks/design-backend';
 import * as api from '../api';
 import { ElectionIdParams } from '../routes';
+import { UploadButton } from './upload_button';
 
 export interface UploadScreenProps {
   files: File[];
   onDone: () => void;
+  onUploadMore: (files: File[]) => void;
 }
 
-const Container = styled.div`
+export const Container = styled.div`
   display: flex;
   flex-direction: column;
   overflow: hidden;
 `;
 
-const Body = styled.div`
+export const Body = styled.div`
   flex-grow: 1;
   overflow-y: auto;
 `;
 
-const ButtonBar = styled.div`
+export const ButtonBar = styled.div`
   display: flex;
   gap: 1rem;
   justify-content: end;
-  padding-top: 1rem;
+  padding: 1rem 0 0.125rem;
 `;
 
-const Td = styled(TD)`
+export const Td = styled(TD)`
   border: none !important;
   border-bottom: 1px dashed #aaa !important;
   max-width: 25vw;
@@ -43,7 +45,7 @@ const Td = styled(TD)`
   white-space: nowrap;
 `;
 
-const Th = styled(TH)`
+export const Th = styled(TH)`
   border-bottom: 2px solid #aaa !important;
   border-top: none !important;
   padding: 0.75rem !important;
@@ -56,7 +58,7 @@ interface Batch {
 }
 
 export function UploadScreen(props: UploadScreenProps): JSX.Element {
-  const { files, onDone } = props;
+  const { files, onDone, onUploadMore } = props;
 
   const [inProgress, setInProgress] = React.useState(false);
 
@@ -165,6 +167,7 @@ export function UploadScreen(props: UploadScreenProps): JSX.Element {
             </tr>
           </thead>
           <tbody>
+            {/* Pending uploads and/or resolved uploads with matches: */}
             {batches.current.map((b, ixBatch) =>
               b.names.map((name, ixFile) => {
                 const pending = !b.result;
@@ -181,18 +184,72 @@ export function UploadScreen(props: UploadScreenProps): JSX.Element {
                       ) : match?.contestId ? (
                         <Icons.Done color="success" />
                       ) : (
-                        <Icons.Warning />
+                        <Icons.Warning color="warning" />
                       )}
                     </Td>
                     <Td>
                       <Font weight="semiBold">{name}</Font>
                     </Td>
-                    {match ? (
-                      <AudioMatchCells {...match} />
-                    ) : (
+                    {pending ? (
                       <React.Fragment>
                         <Td />
                         <Td />
+                      </React.Fragment>
+                    ) : match?.contestId ? (
+                      <AudioMatchCells {...match} />
+                    ) : (
+                      <React.Fragment>
+                        <Td>
+                          <Caption>No Match</Caption>
+                        </Td>
+                        <Td>
+                          <Caption>No Match</Caption>
+                        </Td>
+                      </React.Fragment>
+                    )}
+                  </tr>
+                );
+              })
+            )}
+
+            {/* Resolved uploads with no matches (move to bottom of the table): */}
+            {batches.current.map((b, ixBatch) =>
+              b.names.map((name, ixFile) => {
+                const pending = !b.result;
+                const match = b.result?.[ixFile];
+
+                if (pending || match?.contestId) return;
+
+                return (
+                  // eslint-disable-next-line react/no-array-index-key
+                  <tr key={`${ixBatch}-${name}`}>
+                    <Td textAlign="center">
+                      {pending ? (
+                        <Icons.Loading />
+                      ) : match?.contestId ? (
+                        <Icons.Done color="success" />
+                      ) : (
+                        <Icons.Warning color="warning" />
+                      )}
+                    </Td>
+                    <Td>
+                      <Font weight="semiBold">{name}</Font>
+                    </Td>
+                    {pending ? (
+                      <React.Fragment>
+                        <Td />
+                        <Td />
+                      </React.Fragment>
+                    ) : match?.contestId ? (
+                      <AudioMatchCells {...match} />
+                    ) : (
+                      <React.Fragment>
+                        <Td>
+                          <Caption>No Match</Caption>
+                        </Td>
+                        <Td>
+                          <Caption>No Match</Caption>
+                        </Td>
                       </React.Fragment>
                     )}
                   </tr>
@@ -203,6 +260,7 @@ export function UploadScreen(props: UploadScreenProps): JSX.Element {
         </Table>
       </Body>
       <ButtonBar>
+        <UploadButton disabled={inProgress} neutral onSelect={onUploadMore} />
         <Button
           disabled={inProgress}
           icon={inProgress ? 'Loading' : 'Done'}

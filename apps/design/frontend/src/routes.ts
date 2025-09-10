@@ -103,12 +103,22 @@ export const routes = {
           title: 'Audio',
           path: `${root}/ballots/audio`,
         },
-        ballotAudioManage: (stringKey: string, subkey?: string) => ({
+        ballotAudioManage: (
+          audioType: 'tts' | 'ipa' | 'rec' | ':audioType',
+          stringKey: string,
+          subkey?: string
+        ) => {
+          const subkeyComponent = subkey ? `/${subkey}` : '';
+
+          return {
+            title: 'Audio',
+            path: `${root}/ballots/audio/${audioType}/${stringKey}${subkeyComponent}`,
+          };
+        },
+        ballotAudioUploads: {
           title: 'Audio',
-          path: subkey
-            ? `${root}/ballots/audio/${stringKey}/${subkey}`
-            : `${root}/ballots/audio/${stringKey}`,
-        }),
+          path: `${root}/ballots/audio/uploads`,
+        },
         viewBallot: (ballotStyleId: string, precinctId: string) => ({
           title: 'View Ballot',
           path: `${root}/ballots/view/${ballotStyleId}/${precinctId}`,

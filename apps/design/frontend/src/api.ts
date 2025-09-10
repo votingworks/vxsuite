@@ -720,12 +720,29 @@ export const audioOverride = {
 
 export const audioOverrideExists = {
   queryKey(params: AudioOverrideQuery): QueryKey {
-    return ['audioOverride', params.electionId, params.key, params.subkey];
+    return [
+      'audioOverrideExists',
+      params.electionId,
+      params.key,
+      params.subkey,
+    ];
   },
   useQuery(params: AudioOverrideQuery) {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(params), () =>
       apiClient.audioOverrideExists(params)
+    );
+  },
+} as const;
+
+export const audioOverrideKeys = {
+  queryKey(electionId: string): QueryKey {
+    return ['audioOverrideKeys', electionId];
+  },
+  useQuery(electionId: string) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(electionId), () =>
+      apiClient.audioOverrideKeys({ electionId })
     );
   },
 } as const;

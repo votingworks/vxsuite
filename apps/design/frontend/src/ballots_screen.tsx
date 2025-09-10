@@ -497,14 +497,26 @@ export function BallotsScreen(): JSX.Element | null {
                 component={BallotLayoutTab}
               />
               <Route
+                path={ballotsParamRoutes.ballotAudioUploads.path}
+                component={BallotAudioTab}
+              />
+              <Route
                 path={
-                  ballotsParamRoutes.ballotAudioManage(':stringKey', ':subkey')
-                    .path
+                  ballotsParamRoutes.ballotAudioManage(
+                    ':audioType',
+                    ':stringKey',
+                    ':subkey'
+                  ).path
                 }
                 component={BallotAudioTab}
               />
               <Route
-                path={ballotsParamRoutes.ballotAudioManage(':stringKey').path}
+                path={
+                  ballotsParamRoutes.ballotAudioManage(
+                    ':audioType',
+                    ':stringKey'
+                  ).path
+                }
                 component={BallotAudioTab}
               />
               <Route

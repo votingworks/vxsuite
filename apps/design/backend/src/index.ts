@@ -18,6 +18,7 @@ import {
 export type { AudioUploadResult, UiStringInfo } from './audio_demo';
 export type {
   AudioOverride,
+  AudioOverrideKey,
   AudioOverrideQuery,
   AudioQuery,
   AudioSource,

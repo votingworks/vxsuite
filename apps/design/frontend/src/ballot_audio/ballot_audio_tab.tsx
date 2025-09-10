@@ -1,7 +1,7 @@
 /* eslint-disable vx/gts-safe-number-parse */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import React from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, Route, Switch, useHistory, useParams } from 'react-router-dom';
 
 import {
   Button,
@@ -11,6 +11,7 @@ import {
   Font,
   H2,
   Icons,
+  LinkButton,
   List,
   ListItem,
   P,
@@ -27,13 +28,14 @@ import {
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { UiStringInfo } from '@votingworks/design-backend';
 import * as api from '../api';
-import { ElectionIdParams, routes } from '../routes';
+import { ElectionIdParams, electionParamRoutes, routes } from '../routes';
 import { Phoneditor, PhoneticAudioControls } from './phoneditor';
 import { UploadButton } from './upload_button';
 import { RecordedAudio, RecordedAudioControls } from './recorded_audio';
 import { AudioControls, AudioPlayer, SubHeading } from './elements';
 import { UploadScreen } from './upload_screen';
 import { BallotAudioPathParams } from './routes';
+import { UploadsScreen } from './uploads_screen';
 
 const Container = styled.div`
   box-sizing: border-box;
@@ -169,7 +171,9 @@ export function BallotAudioTab(): React.ReactNode {
   const [searchString, setSearchString] = React.useState<string>('');
   const [filesToUpload, setFilesToUpload] = React.useState<File[]>();
   const searchDebounceTimer = React.useRef<number>();
+  const lastSelectedStringUrl = React.useRef('');
 
+  const history = useHistory();
   const { electionId, stringKey, subkey } = useParams<BallotAudioPathParams>();
   const getElectionInfoQuery = api.getElectionInfo.useQuery(electionId);
 
@@ -181,6 +185,8 @@ export function BallotAudioTab(): React.ReactNode {
       return appString;
     }
   }, [appStrings, stringKey, subkey]);
+
+  const audioOverrideKeys = api.audioOverrideKeys.useQuery(electionId).data;
 
   const onSearch = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -219,64 +225,89 @@ export function BallotAudioTab(): React.ReactNode {
     return results;
   }, [appStrings, searchString]);
 
+  const onExitUploadsScreen = React.useCallback(() => {
+    history.push(
+      lastSelectedStringUrl.current ||
+        routes.election(electionId).ballots.ballotAudio.path
+    );
+    setFilesToUpload(undefined);
+  }, [electionId, history]);
+
   if (!getElectionInfoQuery.data || !appStrings) return null;
 
   if (filesToUpload) {
     return (
       <UploadScreen
         files={filesToUpload}
-        onDone={() => setFilesToUpload(undefined)}
+        onDone={onExitUploadsScreen}
+        onUploadMore={setFilesToUpload}
       />
     );
   }
 
+  if (stringKey) lastSelectedStringUrl.current = history.location.pathname;
+
   const showStringPreview = false;
 
   return (
-    <Container>
-      <SideBar>
-        <SearchBox>
-          <Icons.Search />
-          <input
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus
-            onChange={onSearch}
-            placeholder="Search ballot contents"
-            type="text"
-            defaultValue={searchString}
-          />
-        </SearchBox>
-        <StringSnippets>
-          {searchResults.map((string) => (
-            <StringSnippet key={joinStringKey(string)} string={string} />
-          ))}
-        </StringSnippets>
-      </SideBar>
-      <Body>
-        {currentString && (
-          <StringPanel>
-            {showStringPreview && (
-              <StringPreview
-                stringKey={currentString.key}
-                text={currentString.str}
+    <Switch>
+      <Route path={electionParamRoutes.ballots.ballotAudioUploads.path}>
+        <UploadsScreen
+          onDone={onExitUploadsScreen}
+          onUploadMore={setFilesToUpload}
+        />
+      </Route>
+      <Route>
+        <Container>
+          <SideBar>
+            <SearchBox>
+              <Icons.Search />
+              <input
+                // eslint-disable-next-line jsx-a11y/no-autofocus
+                autoFocus
+                onChange={onSearch}
+                placeholder="Search ballot contents"
+                type="text"
+                defaultValue={searchString}
               />
+            </SearchBox>
+            <StringSnippets>
+              {searchResults.map((string) => (
+                <StringSnippet key={joinStringKey(string)} string={string} />
+              ))}
+            </StringSnippets>
+          </SideBar>
+          <Body>
+            {currentString && (
+              <StringPanel>
+                {showStringPreview && (
+                  <StringPreview
+                    stringKey={currentString.key}
+                    text={currentString.str}
+                  />
+                )}
+                <StringInfo
+                  stringKey={currentString.key}
+                  subkey={currentString.subkey}
+                  text={currentString.str}
+                />
+                <AudioEditor
+                  key={joinStringKey(currentString)}
+                  str={currentString}
+                />
+              </StringPanel>
             )}
-            <StringInfo
-              stringKey={currentString.key}
-              subkey={currentString.subkey}
-              text={currentString.str}
-            />
-            <AudioEditor
-              key={joinStringKey(currentString)}
-              str={currentString}
-            />
-          </StringPanel>
-        )}
-        <ButtonBar>
-          <UploadButton onSelect={setFilesToUpload} />
-        </ButtonBar>
-      </Body>
-    </Container>
+            <ButtonBar>
+              {audioOverrideKeys?.length ? (
+                <ManageUploadsButton />
+              ) : (
+                <UploadButton onSelect={setFilesToUpload} />
+              )}
+            </ButtonBar>
+          </Body>
+        </Container>
+      </Route>
+    </Switch>
   );
 }
 
@@ -459,7 +490,7 @@ function StringInfoContestTitleYesNo(props: {
   text: string;
 }) {
   const { contest, text } = props;
-  const { electionId } = useParams<ElectionIdParams>();
+  const { audioType = 'tts', electionId } = useParams<BallotAudioPathParams>();
 
   return (
     <StringPreviewContainer>
@@ -469,6 +500,7 @@ function StringInfoContestTitleYesNo(props: {
           routes
             .election(electionId)
             .ballots.ballotAudioManage(
+              audioType,
               ElectionStringKey.CONTEST_DESCRIPTION,
               contest.id
             ).path
@@ -487,7 +519,7 @@ function StringInfoContestTitleCandidate(props: {
   text: string;
 }) {
   const { contest, text } = props;
-  const { electionId } = useParams<ElectionIdParams>();
+  const { audioType = 'tts', electionId } = useParams<BallotAudioPathParams>();
   const parties = api.listParties.useQuery(electionId).data;
 
   const candidates = React.useMemo(
@@ -500,6 +532,7 @@ function StringInfoContestTitleCandidate(props: {
                 routes
                   .election(electionId)
                   .ballots.ballotAudioManage(
+                    audioType,
                     ElectionStringKey.CANDIDATE_NAME,
                     c.id
                   ).path
@@ -511,7 +544,7 @@ function StringInfoContestTitleCandidate(props: {
         ))}
       </List>
     ),
-    [contest, electionId]
+    [audioType, contest, electionId]
   );
 
   if (!parties) return null;
@@ -536,7 +569,7 @@ function StringInfoContestTitleCandidate(props: {
 
 function StringInfoContestDescription(props: { id: string; text: string }) {
   const { id, text } = props;
-  const { electionId } = useParams<ElectionIdParams>();
+  const { audioType = 'tts', electionId } = useParams<BallotAudioPathParams>();
 
   const contests = api.listContests.useQuery(electionId).data;
 
@@ -560,6 +593,7 @@ function StringInfoContestDescription(props: { id: string; text: string }) {
             routes
               .election(electionId)
               .ballots.ballotAudioManage(
+                audioType,
                 ElectionStringKey.CONTEST_TITLE,
                 contest.id
               ).path
@@ -577,7 +611,7 @@ function StringInfoContestDescription(props: { id: string; text: string }) {
 
 function StringInfoCandidateName(props: { id: string; text: string }) {
   const { id, text } = props;
-  const { electionId } = useParams<ElectionIdParams>();
+  const { audioType = 'tts', electionId } = useParams<BallotAudioPathParams>();
 
   const contests = api.listContests.useQuery(electionId).data;
   const parties = api.listParties.useQuery(electionId).data;
@@ -611,6 +645,7 @@ function StringInfoCandidateName(props: { id: string; text: string }) {
             routes
               .election(electionId)
               .ballots.ballotAudioManage(
+                audioType,
                 ElectionStringKey.CONTEST_TITLE,
                 contest.id
               ).path
@@ -680,10 +715,14 @@ const AudioEditorTab = styled(Button)`
 
 function AudioEditor(props: { str: UiStringInfo }) {
   const { str } = props;
-  const [kind, setKind] = React.useState<'tts' | 'ipa' | 'rec'>('tts');
   const [_ttsString, setTtsString] = React.useState<string>('');
 
-  const { electionId, stringKey, subkey } = useParams<BallotAudioPathParams>();
+  const {
+    audioType = 'tts',
+    electionId,
+    stringKey,
+    subkey,
+  } = useParams<BallotAudioPathParams>();
 
   const textEditorRef = React.useRef<HTMLTextAreaElement>(null);
   React.useEffect(() => {
@@ -692,7 +731,7 @@ function AudioEditor(props: { str: UiStringInfo }) {
     textEditorRef.current.style.height = `${
       textEditorRef.current.scrollHeight + 5
     }px`;
-  }, [kind]);
+  }, [audioType]);
 
   const { data: ttsTextOverride, isLoading: ttsTextOverrideLoading } =
     api.ttsTextOverrideGet.useQuery({
@@ -721,17 +760,31 @@ function AudioEditor(props: { str: UiStringInfo }) {
   }
 
   const onTtsTextSave = React.useCallback(() => {
-    const text = _ttsString.trim().replaceAll(/['"<>]/g, '');
+    // [TODO] Proper html/special-char sanitization.
+    const text = _ttsString.trim().replaceAll(/["<>]/g, '');
+
     ttsTextOverrideSave({
       electionId,
       key: assertDefined(stringKey),
       subkey,
-      // [TODO] Sanitize for special chars, html, etc
       text,
     });
 
     setTtsString(text);
   }, [electionId, stringKey, subkey, ttsTextOverrideSave, _ttsString]);
+
+  const history = useHistory();
+  function setAudioType(newAudioType: 'ipa' | 'rec' | 'tts') {
+    history.push(
+      routes
+        .election(electionId)
+        .ballots.ballotAudioManage(
+          newAudioType,
+          assertDefined(stringKey),
+          subkey
+        ).path
+    );
+  }
 
   const disabled =
     ttsAudioDataUrlLoading || ttsTextOverrideLoading || ttsTextOverrideSaving;
@@ -742,7 +795,7 @@ function AudioEditor(props: { str: UiStringInfo }) {
   let caption: React.ReactNode = null;
   let textEditor: React.ReactNode = null;
   let controls: React.ReactNode = null;
-  switch (kind) {
+  switch (audioType) {
     case 'tts':
       preamble = <P>Edit the text below to change the corresponding audio.</P>;
       caption = (
@@ -780,7 +833,7 @@ function AudioEditor(props: { str: UiStringInfo }) {
             onPress={onTtsTextSave}
             variant={disabled || !canSave ? 'neutral' : 'primary'}
           >
-            {disabled ? 'Saving...' : 'Save Changes'}
+            {ttsTextOverrideSaving ? 'Saving...' : 'Save Changes'}
           </Button>
         </AudioControls>
       );
@@ -826,7 +879,7 @@ function AudioEditor(props: { str: UiStringInfo }) {
     }
 
     default:
-      throwIllegalValue(kind);
+      throwIllegalValue(audioType);
   }
 
   return (
@@ -834,8 +887,8 @@ function AudioEditor(props: { str: UiStringInfo }) {
       {/* <Font weight="bold">Audio</Font> */}
       <AudioEditorTabBar role="tablist">
         <AudioEditorTab
-          aria-selected={kind === 'tts'}
-          onPress={setKind}
+          aria-selected={audioType === 'tts'}
+          onPress={setAudioType}
           role="tab"
           value="tts"
         >
@@ -843,8 +896,8 @@ function AudioEditor(props: { str: UiStringInfo }) {
         </AudioEditorTab>
         {str.key !== ElectionStringKey.CONTEST_DESCRIPTION && (
           <AudioEditorTab
-            aria-selected={kind === 'ipa'}
-            onPress={setKind}
+            aria-selected={audioType === 'ipa'}
+            onPress={setAudioType}
             role="tab"
             value="ipa"
           >
@@ -852,8 +905,8 @@ function AudioEditor(props: { str: UiStringInfo }) {
           </AudioEditorTab>
         )}
         <AudioEditorTab
-          aria-selected={kind === 'rec'}
-          onPress={setKind}
+          aria-selected={audioType === 'rec'}
+          onPress={setAudioType}
           role="tab"
           value="rec"
         >
@@ -865,6 +918,20 @@ function AudioEditor(props: { str: UiStringInfo }) {
       {caption}
       {controls}
     </Card>
+  );
+}
+
+function ManageUploadsButton() {
+  const { electionId } = useParams<BallotAudioPathParams>();
+
+  return (
+    <LinkButton
+      icon="FileAudio"
+      to={routes.election(electionId).ballots.ballotAudioUploads.path}
+      variant="primary"
+    >
+      Manage Uploaded Audio
+    </LinkButton>
   );
 }
 
@@ -911,7 +978,12 @@ const StringSnippetContainer = styled(Link)`
 
 function StringSnippet(props: { string: UiStringInfo }) {
   const { string } = props;
-  const { electionId, stringKey, subkey } = useParams<BallotAudioPathParams>();
+  const {
+    audioType = 'tts',
+    electionId,
+    stringKey,
+    subkey,
+  } = useParams<BallotAudioPathParams>();
 
   return (
     <StringSnippetContainer
@@ -919,7 +991,7 @@ function StringSnippet(props: { string: UiStringInfo }) {
       to={
         routes
           .election(electionId)
-          .ballots.ballotAudioManage(string.key, string.subkey).path
+          .ballots.ballotAudioManage(audioType, string.key, string.subkey).path
       }
       role="option"
     >

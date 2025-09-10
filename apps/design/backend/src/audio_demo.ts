@@ -7,6 +7,7 @@ import { AppContext } from './context';
 import { GoogleCloudSpeechSynthesizerWithDbCache } from './speech_synthesizer';
 import {
   AudioOverride,
+  AudioOverrideKey,
   AudioOverrideQuery,
   AudioQuery,
   AudioSource,
@@ -91,6 +92,12 @@ export function apiMethods(ctx: AppContext) {
 
     audioOverrideExists(input: AudioOverrideQuery): Promise<boolean> {
       return ctx.workspace.store.audioOverrideExists(input);
+    },
+
+    audioOverrideKeys(input: {
+      electionId: string;
+    }): Promise<AudioOverrideKey[]> {
+      return ctx.workspace.store.audioOverrideKeys(input.electionId);
     },
 
     audioSourceGet(input: AudioQuery): Promise<AudioSource> {

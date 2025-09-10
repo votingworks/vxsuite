@@ -35,6 +35,7 @@ export type AudioOverrideQuery = AudioQuery;
 export interface AudioOverrideKey {
   key: string;
   subkey: string;
+  originalFilename: string;
 }
 
 export const audioOverrides = {
@@ -89,7 +90,8 @@ export const audioOverrides = {
       `
         select
           key,
-          subkey
+          subkey,
+          original_filename as "originalFilename"
         from audio_overrides
         where
           election_id = $1
@@ -97,10 +99,7 @@ export const audioOverrides = {
       params.electionId
     );
 
-    const keys: AudioOverrideKey[] = [];
-    for (const row of res.rows) keys.push(row);
-
-    return keys;
+    return res.rows;
   },
 
   async get(

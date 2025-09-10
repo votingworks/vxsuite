@@ -35,6 +35,7 @@ import {
   faCirclePlus,
   faCircleQuestion,
   faEject,
+  faFileAudio,
   faFileArrowUp,
   faFileArrowDown,
   faChevronUp,
@@ -406,6 +407,10 @@ export const Icons = {
 
   File(props) {
     return <FaIcon {...props} type={faFile} />;
+  },
+
+  FileAudio(props) {
+    return <FaIcon {...props} type={faFileAudio} />;
   },
 
   Flag(props) {
