@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import { BooleanEnvironmentVariableName } from './environment_variable';
-import { isFeatureFlagEnabled, isVxDev } from './features';
+import { isFeatureFlagEnabled, isStagingDeploy, isVxDev } from './features';
 
 describe('features', () => {
   test('isVxDev returns true when expected', () => {
@@ -56,6 +56,21 @@ describe('features', () => {
     expect(
       isFeatureFlagEnabled(BooleanEnvironmentVariableName.ENABLE_DEV_DOCK)
     ).toEqual(false);
+  });
+
+  test('isStagingDeploy returns false when undefined', () => {
+    vi.stubEnv('DEPLOY_ENV', undefined);
+    expect(isStagingDeploy()).toEqual(false);
+  });
+
+  test('isStagingDeploy returns false when production deploy', () => {
+    vi.stubEnv('DEPLOY_ENV', 'production');
+    expect(isStagingDeploy()).toEqual(false);
+  });
+
+  test('isStagingDeploy returns true when staging deploy', () => {
+    vi.stubEnv('DEPLOY_ENV', 'staging');
+    expect(isStagingDeploy()).toEqual(true);
   });
 
   afterEach(() => {

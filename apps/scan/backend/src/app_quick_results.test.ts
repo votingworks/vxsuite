@@ -72,7 +72,7 @@ test('getQuickResultsReportingUrl returns expected results when system setting f
     });
     // Quick results URL should be returned as expected after polls are closed
     expect(await apiClient.getQuickResultsReportingUrl()).toMatch(
-      /http:\/\/example-results-url\.com\/something\/\?p=[^&]+&s=[^&]+$/
+      /http:\/\/example-results-url\.com\/something\?p=[^&]+&s=[^&]+&c=[^&]+$/
     );
   });
 });

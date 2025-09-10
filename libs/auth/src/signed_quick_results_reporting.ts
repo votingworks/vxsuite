@@ -99,7 +99,8 @@ export async function generateSignedQuickResultsReportingUrl(
 export async function authenticateSignedQuickResultsReportingUrl(
   payload: string,
   signature: string,
-  rawCertificate: string
+  rawCertificate: string,
+  caCertPath?: string
 ): Promise<Result<void, 'invalid-signature'>> {
   // Verify the signature and certificate
   // Convert base64url back to binary DER, then to PEM format
@@ -109,13 +110,12 @@ export async function authenticateSignedQuickResultsReportingUrl(
     `${CERT_PEM_HEADER}\n${certificateBase64}\n${CERT_PEM_FOOTER}`
   );
 
-  const cacPath = getVxCertAuthorityCertPath();
+  const cacPath =
+    caCertPath ??
+    /* istanbul ignore next - @preserve */ getVxCertAuthorityCertPath();
 
   try {
     const publicKey = await extractPublicKeyFromCert(Buffer.from(certificate));
-    if (!publicKey) {
-      return err('invalid-signature');
-    }
     await verifyFirstCertWasSignedBySecondCert(certificate, cacPath);
     await verifySignature({
       message: Buffer.from(payload),

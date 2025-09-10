@@ -26,7 +26,6 @@ export const PROD_VX_CERT_AUTHORITY_CERT_PATH = path.join(
 );
 
 function shouldUseProdCerts(): boolean {
-  console.log(isStagingDeploy());
   return (
     isNodeEnvProduction() &&
     !isVxDev() &&
