@@ -46,6 +46,7 @@ const partyIcons: Record<string, string> = {
 };
 
 export function createElectionSkeleton(
+  title: string,
   parishName: string,
   id: ElectionId,
   type: ElectionType
@@ -53,7 +54,7 @@ export function createElectionSkeleton(
   return {
     id,
     type,
-    title: 'Demo Election',
+    title,
     date: DateWithoutTime.today(),
     state: 'State of Louisiana',
     county: {
@@ -198,6 +199,7 @@ type CandidateAddressFileRow = Record<
 >;
 
 export function convertLaElectionToVxElection(
+  electionTitle: string,
   parishName: string,
   electionType: ElectionType,
   laElectionFileContents: LaElectionFiles
@@ -606,7 +608,12 @@ export function convertLaElectionToVxElection(
     (p) => !hasSplits(p)
   ) as PrecinctWithoutSplits;
   return {
-    ...createElectionSkeleton(parishName, generateId(), electionType),
+    ...createElectionSkeleton(
+      electionTitle,
+      parishName,
+      generateId(),
+      electionType
+    ),
     precincts,
     districts,
     parties,
@@ -669,9 +676,5 @@ export async function convertLaElectionZipToVxElection(
     candidateAddress: await readOptionalFile(fileIdentifiers.candidateAddress),
   };
 
-  return convertLaElectionToVxElection(
-    'Demo Parish',
-    electionType,
-    fileContents
-  );
+  return convertLaElectionToVxElection('', '', electionType, fileContents);
 }

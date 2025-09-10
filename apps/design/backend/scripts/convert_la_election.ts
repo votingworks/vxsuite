@@ -45,6 +45,7 @@ function main(args: readonly string[]): void {
   };
 
   const election = convertLaElectionToVxElection(
+    'Demo Election',
     parishName,
     electionType,
     fileContents
