@@ -43,7 +43,6 @@ test('select precinct and view report', async () => {
       filter: { precinctIds: ['precinct-1'] },
       groupBy: {},
       includeSignatureLines: false,
-      showPercentages: false,
     },
     pdfContent: 'Precinct 1 Tally Report Mock Preview',
   });
@@ -58,7 +57,6 @@ test('select precinct and view report', async () => {
       filter: { precinctIds: ['precinct-2'] },
       groupBy: {},
       includeSignatureLines: false,
-      showPercentages: false,
     },
     pdfContent: 'Precinct 2 Tally Report Mock Preview',
   });

@@ -31,7 +31,6 @@ export interface TallyReportViewerProps {
   groupBy: Tabulation.GroupBy;
   disabled: boolean;
   autoGenerateReport: boolean;
-  showPercentages?: boolean;
 }
 
 export function TallyReportViewer({
@@ -39,7 +38,6 @@ export function TallyReportViewer({
   groupBy,
   disabled,
   autoGenerateReport,
-  showPercentages = false,
 }: TallyReportViewerProps): JSX.Element {
   const { electionDefinition, auth } = useContext(AppContext);
   assert(electionDefinition);
@@ -59,7 +57,6 @@ export function TallyReportViewer({
       filter,
       groupBy,
       includeSignatureLines,
-      showPercentages,
     },
     { enabled: !disabled && autoGenerateReport }
   );
@@ -95,7 +92,6 @@ export function TallyReportViewer({
                 filter,
                 groupBy,
                 includeSignatureLines,
-                showPercentages,
               })
             }
             variant={autoGenerateReport ? 'primary' : undefined}
@@ -109,7 +105,6 @@ export function TallyReportViewer({
               filter,
               groupBy,
               includeSignatureLines,
-              showPercentages,
             }}
             generateFilename={(sharedFilenameProps) =>
               generateTallyReportPdfFilename({

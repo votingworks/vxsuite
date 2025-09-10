@@ -1,4 +1,4 @@
-import { P, CheckboxGroup } from '@votingworks/ui';
+import { P } from '@votingworks/ui';
 import { useContext, useState } from 'react';
 import { assert } from '@votingworks/basics';
 import {
@@ -30,7 +30,6 @@ export function TallyReportBuilder(): JSX.Element {
 
   const [filter, setFilter] = useState<Admin.FrontendReportingFilter>({});
   const [groupBy, setGroupBy] = useState<Tabulation.GroupBy>({});
-  const [showPercentages, setShowPercentages] = useState<boolean>(false);
 
   function updateFilter(newFilter: Admin.FrontendReportingFilter) {
     setFilter(canonicalizeFilter(newFilter));
@@ -61,7 +60,7 @@ export function TallyReportBuilder(): JSX.Element {
               ]} // omits party
             />
           </div>
-          <div style={{ marginBottom: '1.5rem' }}>
+          <div>
             <ControlLabel>Report By</ControlLabel>
             <P>Organize the results into multiple reports by the following:</P>
             <GroupByEditor
@@ -76,28 +75,12 @@ export function TallyReportBuilder(): JSX.Element {
               ]} // omits party
             />
           </div>
-          <div>
-            <ControlLabel>Other Options</ControlLabel>
-            <CheckboxGroup
-              label="Additional report settings"
-              hideLabel
-              direction="row"
-              options={[
-                { label: 'Show Percentages', value: 'showPercentages' },
-              ]}
-              value={showPercentages ? ['showPercentages'] : []}
-              onChange={(values) =>
-                setShowPercentages(values.includes('showPercentages'))
-              }
-            />
-          </div>
         </ReportBuilderControls>
         <TallyReportViewer
           filter={filter}
           groupBy={groupBy}
           disabled={!hasMadeSelections}
           autoGenerateReport={false}
-          showPercentages={showPercentages}
         />
       </ReportScreenContainer>
     </NavigationScreen>

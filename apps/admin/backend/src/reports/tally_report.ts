@@ -23,7 +23,6 @@ export interface TallyReportSpec {
   filter: Admin.FrontendReportingFilter;
   groupBy: Tabulation.GroupBy;
   includeSignatureLines: boolean;
-  showPercentages: boolean;
 }
 
 function buildTallyReport({
@@ -31,7 +30,6 @@ function buildTallyReport({
   allTallyReportResults,
   filter,
   includeSignatureLines,
-  showPercentages = false, // TODO: Use for percentage display feature
 }: TallyReportSpec & {
   store: Store;
   allTallyReportResults: Tabulation.GroupList<Admin.TallyReportResults>;

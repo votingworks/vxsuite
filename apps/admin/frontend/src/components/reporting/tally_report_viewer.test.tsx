@@ -37,7 +37,6 @@ const MOCK_REPORT_SPEC: TallyReportSpec = {
   filter: {},
   groupBy: { groupByVotingMethod: true },
   includeSignatureLines: false,
-  showPercentages: false,
 };
 
 test('disabled shows disabled buttons and no preview', () => {
@@ -334,7 +333,6 @@ test('when full election report - allows CDF export and includes signature lines
       filter: {},
       groupBy: {},
       includeSignatureLines: true,
-      showPercentages: false,
     },
     pdfContent: 'Unofficial Lincoln Municipal General Election Tally Report',
   });

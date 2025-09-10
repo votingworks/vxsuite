@@ -150,7 +150,6 @@ test('general election tally report PDF - Part 1', async () => {
       filter: {},
       groupBy: {},
       includeSignatureLines: false,
-      showPercentages: false,
     },
     identifier: 'tally-report-zero',
   });
@@ -161,7 +160,6 @@ test('general election tally report PDF - Part 1', async () => {
       filter: {},
       groupBy: {},
       includeSignatureLines: true,
-      showPercentages: false,
     },
     identifier: 'tally-report-signature-line',
   });
@@ -209,7 +207,6 @@ test('general election tally report PDF - Part 2', async () => {
       filter: {},
       groupBy: {},
       includeSignatureLines: false,
-      showPercentages: false,
     },
     identifier: 'tally-report',
   });
@@ -220,7 +217,6 @@ test('general election tally report PDF - Part 2', async () => {
       filter: { votingMethods: ['absentee'] },
       groupBy: {},
       includeSignatureLines: false,
-      showPercentages: false,
     },
     identifier: 'tally-report-simple-filter',
   });
@@ -235,7 +231,6 @@ test('general election tally report PDF - Part 2', async () => {
       },
       groupBy: {},
       includeSignatureLines: false,
-      showPercentages: false,
     },
     identifier: 'tally-report-complex-filter',
   });
@@ -246,7 +241,6 @@ test('general election tally report PDF - Part 2', async () => {
       filter: {},
       groupBy: { groupByVotingMethod: true },
       includeSignatureLines: false,
-      showPercentages: false,
     },
     identifier: 'tally-report-grouped',
   });
@@ -278,7 +272,6 @@ test('general election tally report PDF - Part 2', async () => {
       filter: {},
       groupBy: {},
       includeSignatureLines: false,
-      showPercentages: false,
     },
     identifier: 'tally-report-manual',
   });
@@ -319,7 +312,6 @@ test('tally report PDF - primary', async () => {
       filter: {},
       groupBy: {},
       includeSignatureLines: false,
-      showPercentages: false,
     },
     identifier: 'primary-tally-report-zero',
   });
@@ -335,7 +327,6 @@ test('tally report PDF - primary', async () => {
       filter: {},
       groupBy: {},
       includeSignatureLines: false,
-      showPercentages: false,
     },
     identifier: 'primary-tally-report',
   });
@@ -355,7 +346,6 @@ test('tally report warning', async () => {
         filter: {},
         groupBy: {},
         includeSignatureLines: false,
-        showPercentages: false,
       })
     ).warning
   ).toBeUndefined();
@@ -366,7 +356,6 @@ test('tally report warning', async () => {
       // grouping by batch is invalid because there are no batches
       groupBy: { groupByBatch: true },
       includeSignatureLines: false,
-      showPercentages: false,
     })
   ).toEqual({
     pdf: undefined,
@@ -379,7 +368,6 @@ test('tally report warning', async () => {
       filter: {},
       groupBy: {},
       includeSignatureLines: false,
-      showPercentages: false,
     })
   ).toEqual({
     pdf: undefined,
@@ -406,7 +394,6 @@ test('tally report logging', async () => {
     filter: {},
     groupBy: { groupByPrecinct: true, groupByVotingMethod: true },
     includeSignatureLines: false,
-    showPercentages: false,
   };
 
   // successful file export
