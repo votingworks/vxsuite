@@ -19,7 +19,6 @@ export interface AdminTallyReportByPartyProps {
   customFilter?: Admin.FrontendReportingFilter;
   scannerBatches?: LabeledScannerBatch[];
   includeSignatureLines?: boolean;
-  showPercentages?: boolean;
 }
 
 /**
@@ -46,7 +45,6 @@ export function AdminTallyReportByParty({
   customFilter,
   scannerBatches,
   includeSignatureLines,
-  showPercentages,
 }: AdminTallyReportByPartyProps): JSX.Element {
   const contests = tallyReportResults.contestIds.map((contestId) =>
     CachedElectionLookups.getContestById(electionDefinition, contestId)
@@ -70,7 +68,6 @@ export function AdminTallyReportByParty({
         customFilter={customFilter}
         scannerBatches={scannerBatches}
         includeSignatureLines={includeSignatureLines}
-        showPercentages={showPercentages}
       />
     );
   }
@@ -116,7 +113,6 @@ export function AdminTallyReportByParty({
         customFilter={customFilter}
         scannerBatches={scannerBatches}
         includeSignatureLines={includeSignatureLines}
-        showPercentages={showPercentages}
       />
     );
   }
@@ -142,7 +138,6 @@ export function AdminTallyReportByParty({
         customFilter={customFilter}
         scannerBatches={scannerBatches}
         includeSignatureLines={includeSignatureLines}
-        showPercentages={showPercentages}
       />
     );
   }

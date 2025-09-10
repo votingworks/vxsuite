@@ -67,6 +67,16 @@ const ContestTable = styled.table`
     padding-right: 0;
     text-align: right;
     white-space: nowrap;
+
+    &.percentage-column {
+      border-left: 1px solid #e8e8e8;
+      padding-left: 0.375em;
+    }
+
+    /* Add more right padding to the cell before percentage column */
+    &:nth-last-child(2) {
+      padding-right: 0.75em;
+    }
   }
 
   & th {
@@ -101,23 +111,29 @@ function ContestOptionRow({
   scannedTally,
   showManualTally,
   manualTally,
-  showPercentages,
   totalBallots,
+  manualBallots,
 }: {
   testId: string;
   optionLabel: string;
   scannedTally: number;
   showManualTally: boolean;
   manualTally: number;
-  showPercentages?: boolean;
   totalBallots?: number;
+  manualBallots?: number;
 }): JSX.Element {
   // Calculate percentage for display
   function getPercentageDisplay(tally: number) {
-    if (!showPercentages || !totalBallots || totalBallots === 0) {
+    // Use combined ballot count when manual results are present
+    const denominator =
+      showManualTally && manualBallots !== undefined
+        ? (totalBallots || 0) + manualBallots
+        : totalBallots;
+
+    if (!denominator || denominator === 0) {
       return '';
     }
-    return format.percent(tally / totalBallots);
+    return format.percent(tally / denominator);
   }
 
   if (showManualTally) {
@@ -136,21 +152,20 @@ function ContestOptionRow({
         <td>
           <strong>{format.count(totalTally)}</strong>
         </td>
-        {showPercentages && (
-          <td>
-            <strong>{getPercentageDisplay(totalTally)}</strong>
-          </td>
-        )}
+        <td className="percentage-column">
+          {getPercentageDisplay(totalTally)}
+        </td>
       </tr>
     );
   }
 
-  const colSpan = showPercentages ? 3 : 3;
   return (
     <tr data-testid={testId}>
-      <th colSpan={colSpan}>{optionLabel}</th>
+      <th colSpan={3}>{optionLabel}</th>
       <td>{format.count(scannedTally)}</td>
-      {showPercentages && <td>{getPercentageDisplay(scannedTally)}</td>}
+      <td className="percentage-column">
+        {getPercentageDisplay(scannedTally)}
+      </td>
     </tr>
   );
 }
@@ -160,13 +175,11 @@ function ContestMetadataRow({
   scannedTally,
   manualTally,
   isLast,
-  showPercentages,
 }: {
   label: string;
   scannedTally: number;
   manualTally: number;
   isLast?: boolean;
-  showPercentages?: boolean;
 }): JSX.Element {
   return (
     <tr className={`metadata ${isLast ? '' : 'last-metadata'}`}>
@@ -184,7 +197,7 @@ function ContestMetadataRow({
       <td>
         <strong>{format.count(scannedTally + manualTally)}</strong>
       </td>
-      {showPercentages && <td />}
+      <td className="percentage-column" />
     </tr>
   );
 }
@@ -194,7 +207,6 @@ interface Props {
   contest: AnyContest;
   scannedContestResults: Tabulation.ContestResults;
   manualContestResults?: Tabulation.ContestResults;
-  showPercentages?: boolean;
 }
 
 // eslint-disable-next-line vx/gts-no-return-type-only-generics
@@ -207,7 +219,6 @@ export function ContestResultsTable({
   contest,
   scannedContestResults,
   manualContestResults,
-  showPercentages,
 }: Props): JSX.Element {
   // When there are manual results, the metadata is included as table rows
   // rather than as an above table caption.
@@ -220,32 +231,27 @@ export function ContestResultsTable({
           <th>
             <strong>total</strong>
           </th>
-          {showPercentages && (
-            <th>
-              <strong>%</strong>
-            </th>
-          )}
+          <th className="percentage-column">
+            <strong>%</strong>
+          </th>
         </tr>,
         <ContestMetadataRow
           label="Ballots Cast"
           key={`${contest.id}-ballots-cast`}
           scannedTally={scannedContestResults.ballots}
           manualTally={manualContestResults.ballots}
-          showPercentages={showPercentages}
         />,
         <ContestMetadataRow
           label="Overvotes"
           key={`${contest.id}-overvotes`}
           scannedTally={scannedContestResults.overvotes}
           manualTally={manualContestResults.overvotes}
-          showPercentages={showPercentages}
         />,
         <ContestMetadataRow
           label="Undervotes"
           key={`${contest.id}-undervotes`}
           scannedTally={scannedContestResults.undervotes}
           manualTally={manualContestResults.undervotes}
-          showPercentages={showPercentages}
           isLast
         />,
       ]
@@ -275,8 +281,8 @@ export function ContestResultsTable({
             scannedTally={candidateReportTally.scannedTally}
             manualTally={candidateReportTally.manualTally}
             showManualTally={hasManualResults}
-            showPercentages={showPercentages}
             totalBallots={scannedContestResults.ballots}
+            manualBallots={manualContestResults?.ballots}
           />
         );
       }
@@ -294,8 +300,8 @@ export function ContestResultsTable({
           scannedTally={scannedContestResults.yesTally}
           manualTally={manualContestResults?.yesTally ?? 0}
           showManualTally={hasManualResults}
-          showPercentages={showPercentages}
           totalBallots={scannedContestResults.ballots}
+          manualBallots={manualContestResults?.ballots}
         />
       );
       const noKey = `${contest.id}-no`;
@@ -307,8 +313,8 @@ export function ContestResultsTable({
           scannedTally={scannedContestResults.noTally}
           manualTally={manualContestResults?.noTally ?? 0}
           showManualTally={hasManualResults}
-          showPercentages={showPercentages}
           totalBallots={scannedContestResults.ballots}
+          manualBallots={manualContestResults?.ballots}
         />
       );
       break;
