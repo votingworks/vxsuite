@@ -311,7 +311,12 @@ export function arbitraryContests({
 } = {}): fc.Arbitrary<Contests> {
   return fc
     .tuple(
-      fc.array(arbitraryCandidateContest({ partyIds })),
+      fc.array(
+        arbitraryCandidateContest({
+          partyIds,
+          allowWriteIns: fc.constant(true),
+        })
+      ),
       fc.array(arbitraryYesNoContest())
     )
     .map(([candidateContests, otherContests]) => [

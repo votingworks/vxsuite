@@ -346,3 +346,22 @@ test('no write-in candidates may be specified if write-ins are not allowed', () 
       .issues[0].message
   ).toEqual(`Contest 'CC' does not allow write-ins.`);
 });
+
+test('a contest must have at least one candidate option if write-ins are not allowed', () => {
+  const candidateContest: t.CandidateContest = {
+    id: 'CC',
+    type: 'candidate',
+    title: 'CC',
+    districtId: unsafeParse(t.DistrictIdSchema, 'D'),
+    allowWriteIns: false,
+    seats: 1,
+    candidates: [],
+  };
+
+  expect(
+    safeParse(t.CandidateContestSchema, candidateContest).unsafeUnwrapErr()
+      .issues[0].message
+  ).toEqual(
+    `Contest 'CC' has no candidates and disallows write-ins. At least one contest option is required.`
+  );
+});
