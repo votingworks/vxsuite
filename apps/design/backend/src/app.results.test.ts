@@ -18,7 +18,7 @@ test('processQRCodeReport handles invalid payloads as expected', async () => {
   // You can call processQrCodeReport without authentication
 
   const invalidPayloads = [
-    'bad-payload', // No seperator
+    'bad-payload', // No separator
     '0//qr1//message', // Bad version
     '1//bad-header//message', // Bad header
     '1//qr1//', // No message
