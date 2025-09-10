@@ -246,6 +246,18 @@ export const loadElection = {
   },
 } as const;
 
+export const loadLaElection = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.loadLaElection, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(listElections.queryKey());
+      },
+    });
+  },
+} as const;
+
 export const createElection = {
   useMutation() {
     const apiClient = useApiClient();
