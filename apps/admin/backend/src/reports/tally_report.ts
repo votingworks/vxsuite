@@ -85,6 +85,7 @@ function buildTallyReport({
         isTest,
         customFilter: displayedFilter,
         includeSignatureLines,
+        showPercentages,
         generatedAtTime: new Date(getCurrentTime()),
       })
     );

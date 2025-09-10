@@ -101,12 +101,14 @@ function ContestOptionRow({
   scannedTally,
   showManualTally,
   manualTally,
+  showPercentages, // TODO: Use for percentage display feature
 }: {
   testId: string;
   optionLabel: string;
   scannedTally: number;
   showManualTally: boolean;
   manualTally: number;
+  showPercentages?: boolean;
 }): JSX.Element {
   if (showManualTally) {
     return (
@@ -171,6 +173,7 @@ interface Props {
   contest: AnyContest;
   scannedContestResults: Tabulation.ContestResults;
   manualContestResults?: Tabulation.ContestResults;
+  showPercentages?: boolean;
 }
 
 // eslint-disable-next-line vx/gts-no-return-type-only-generics
@@ -183,6 +186,7 @@ export function ContestResultsTable({
   contest,
   scannedContestResults,
   manualContestResults,
+  showPercentages,
 }: Props): JSX.Element {
   // When there are manual results, the metadata is included as table rows
   // rather than as an above table caption.
@@ -242,6 +246,7 @@ export function ContestResultsTable({
             scannedTally={candidateReportTally.scannedTally}
             manualTally={candidateReportTally.manualTally}
             showManualTally={hasManualResults}
+            showPercentages={showPercentages}
           />
         );
       }
@@ -259,6 +264,7 @@ export function ContestResultsTable({
           scannedTally={scannedContestResults.yesTally}
           manualTally={manualContestResults?.yesTally ?? 0}
           showManualTally={hasManualResults}
+          showPercentages={showPercentages}
         />
       );
       const noKey = `${contest.id}-no`;
@@ -270,6 +276,7 @@ export function ContestResultsTable({
           scannedTally={scannedContestResults.noTally}
           manualTally={manualContestResults?.noTally ?? 0}
           showManualTally={hasManualResults}
+          showPercentages={showPercentages}
         />
       );
       break;
