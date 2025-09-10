@@ -398,6 +398,9 @@ export function ElectionsScreen({
       e.title.toLowerCase().includes(filterText.toLowerCase())
   );
 
+  const anyMutationIsLoading =
+    loadElectionMutation.isLoading || createElectionMutation.isLoading;
+
   return (
     <NavScreen>
       <Header>
@@ -446,12 +449,13 @@ export function ElectionsScreen({
               />
             </div>
             <CreateElectionButton
+              disabled={anyMutationIsLoading}
               variant={elections.length === 0 ? 'primary' : undefined}
             />
             <FileInputButton
               accept=".json"
               onChange={onSelectElectionFile}
-              disabled={createElectionMutation.isLoading}
+              disabled={anyMutationIsLoading}
             >
               Load Election
             </FileInputButton>
