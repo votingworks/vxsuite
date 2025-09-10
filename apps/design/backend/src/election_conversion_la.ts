@@ -6,6 +6,7 @@ import {
   duplicates,
   find,
   assert,
+  groupBy,
 } from '@votingworks/basics';
 import { Options as CsvParseOptions, parse } from 'csv-parse/sync';
 import {
@@ -25,6 +26,7 @@ import {
   LaPresidentialCandidateBallotStrings,
   LaCandidateAddress,
   PrecinctWithoutSplits,
+  DistrictId,
 } from '@votingworks/types';
 import { getEntries, openZip, readTextEntry } from '@votingworks/utils';
 import { generateId } from './utils';
@@ -439,7 +441,7 @@ export function convertLaElectionToVxElection(
     }
   }
 
-  const precincts: Precinct[] = [...precinctDistrictGroups.entries()].map(
+  let precincts: Precinct[] = [...precinctDistrictGroups.entries()].map(
     ([precinctName, districtGroups]) => {
       if (districtGroups.size === 1) {
         const [precinctDistricts] = [...districtGroups.values()];
@@ -463,7 +465,7 @@ export function convertLaElectionToVxElection(
     }
   );
 
-  const districts = [...districtsByName.values()].filter((district) =>
+  let districts = [...districtsByName.values()].filter((district) =>
     precincts.some((precinct) =>
       hasSplits(precinct)
         ? precinct.splits.some((split) =>
@@ -473,29 +475,132 @@ export function convertLaElectionToVxElection(
     )
   );
 
-  const parties = [...partiesByName.values()];
+  // Merge the contest-specific districts into more meaningful legal/geographical districts.
+  // 1. First, group contest districts that are always assigned to the same
+  // precincts/splits. If two contests are always on the ballot together, they
+  // might be from the same district.
+  const candidateDistrictsToMerge = groupBy(districts, (district) =>
+    precincts.flatMap((precinct) =>
+      hasSplits(precinct)
+        ? precinct.splits
+            .filter((split) => split.districtIds.includes(district.id))
+            .map((split) => split.id)
+        : precinct.districtIds.includes(district.id)
+        ? [precinct.id]
+        : []
+    )
+  );
 
+  // 2. Examine district names within a group to see if they can be merged into a single district.
+  const districtNamePatterns = [
+    // Districts with city/town context (highest priority)
+    /(District\s+[A-Za-z0-9]+,\s+(?:City|Town|Village)\s+of\s+[A-Za-z]+)/i,
+
+    // Specific district types
+    /(\d+(?:st|nd|rd|th)\s+(?:Representative|Senatorial|Congressional|Judicial)\s+District(?:\s+Court)?)/i,
+
+    // School Board Districts
+    /(School Board, District\s+[A-Za-z0-9]+)/i,
+
+    // City/Town/Village references
+    // (stops at "Proposition" to avoid capturing proposition title in specific
+    // "City of Scott Proposition ..." case, since there's no delimiter after
+    // the city name)
+    /((?:City|Town|Village)\s+of\s+(?:[A-Za-z]+(?:\s+[A-Za-z]+)*?)(?=\s+Proposition|$))/i,
+
+    // Districts
+    /(District\s+[A-Za-z0-9]+)/i,
+
+    // Divisions
+    /(Division\s+[A-Za-z0-9]+,\s+(?:City|Town|Village)\s+of\s+[A-Za-z\s]+)/i,
+  ];
+
+  function extractDistrictName(text: string) {
+    for (const pattern of districtNamePatterns) {
+      const match = text.match(pattern);
+      if (match) {
+        return match[1].trim();
+      }
+    }
+  }
+
+  const mergedDistrictGroups = new Map<District, District[]>();
+  let unknownDistrictCounter = 1;
+  for (const [, districtsToMerge] of candidateDistrictsToMerge) {
+    const uniqueExtractedNames = unique(
+      districtsToMerge.map((d) => extractDistrictName(d.name))
+    );
+    let mergedDistrictName = uniqueExtractedNames[0];
+    if (uniqueExtractedNames.length !== 1 || !mergedDistrictName) {
+      mergedDistrictName = `Unknown ${unknownDistrictCounter}`;
+      unknownDistrictCounter += 1;
+    }
+    const mergedDistrict: District = {
+      id: generateId(),
+      name: mergedDistrictName,
+    };
+    mergedDistrictGroups.set(mergedDistrict, districtsToMerge);
+  }
+
+  districts = [...mergedDistrictGroups.keys()];
+  assert(
+    duplicates(districts.map((d) => d.name)).length === 0,
+    'Found duplicate merged district names'
+  );
+
+  const mergedDistrictIdByOriginalDistrictId = new Map<
+    DistrictId,
+    DistrictId
+  >();
+  for (const [mergedDistrict, originalDistricts] of mergedDistrictGroups) {
+    for (const originalDistrict of originalDistricts) {
+      mergedDistrictIdByOriginalDistrictId.set(
+        originalDistrict.id,
+        mergedDistrict.id
+      );
+    }
+  }
+
+  // Update contests to use merged districts
   const contests = [
     ...candidateContestsByName.values(),
     ...ballotMeasureContestsByName.values(),
-  ];
+  ].map((contest) => ({
+    ...contest,
+    districtId: assertDefined(
+      mergedDistrictIdByOriginalDistrictId.get(contest.districtId)
+    ),
+  }));
 
-  // Attempt to merge the contest-specific districts into more meaningful legal/geographical districts
-  // 1. First, group contest districts that are always assigned to the same precincts/splits. If two contests are always on the ballot together, they might be from the same district.
-  // 2. Examine district names within a group to see if they can be merged into a single district.
-  // const candidateDistrictsToMerge: Array<District[]> = groupBy(
-  //   districts,
-  //   (district) =>
-  //     precincts.flatMap((precinct) =>
-  //       hasSplits(precinct)
-  //         ? precinct.splits
-  //             .filter((split) => split.districtIds.includes(district.id))
-  //             .map((split) => split.id)
-  //         : precinct.districtIds.includes(district.id)
-  //         ? [precinct.id]
-  //         : []
-  //     )
-  // );
+  // Update precincts to use merged districts
+  precincts = precincts.map((precinct) => {
+    if (hasSplits(precinct)) {
+      return {
+        ...precinct,
+        splits: precinct.splits.map((split) => ({
+          ...split,
+          districtIds: unique(
+            split.districtIds.map((districtId) =>
+              assertDefined(
+                mergedDistrictIdByOriginalDistrictId.get(districtId)
+              )
+            )
+          ),
+        })),
+      };
+    }
+    return {
+      ...precinct,
+      districtIds: unique(
+        precinct.districtIds.map((districtId) =>
+          assertDefined(mergedDistrictIdByOriginalDistrictId.get(districtId))
+        )
+      ),
+    };
+  });
+
+  const parties = [...partiesByName.values()];
+
   // console.warn(
   //   candidateDistrictsToMerge.map(([_, districts]) =>
   //     districts.map((d) => d.name)

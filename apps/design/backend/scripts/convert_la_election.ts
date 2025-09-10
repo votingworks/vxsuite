@@ -29,7 +29,7 @@ function main(args: readonly string[]): void {
   }
 
   function readOptionalFile(identifier: string) {
-    const file = find(electionFileNames, (f) => f.includes(identifier));
+    const file = electionFileNames.find((f) => f.includes(identifier));
     return file && readFileSync(join(electionDataDirectory, file), 'utf-8');
   }
 
