@@ -66,7 +66,7 @@ const ContestTable = styled.table`
     padding: 0.25em 0.625em;
     padding-right: 0;
     text-align: right;
-    white-space: no-wrap;
+    white-space: nowrap;
   }
 
   & th {
@@ -101,7 +101,8 @@ function ContestOptionRow({
   scannedTally,
   showManualTally,
   manualTally,
-  showPercentages, // TODO: Use for percentage display feature
+  showPercentages,
+  totalBallots,
 }: {
   testId: string;
   optionLabel: string;
@@ -109,8 +110,18 @@ function ContestOptionRow({
   showManualTally: boolean;
   manualTally: number;
   showPercentages?: boolean;
+  totalBallots?: number;
 }): JSX.Element {
+  // Calculate percentage for display
+  function getPercentageDisplay(tally: number) {
+    if (!showPercentages || !totalBallots || totalBallots === 0) {
+      return '';
+    }
+    return format.percent(tally / totalBallots);
+  }
+
   if (showManualTally) {
+    const totalTally = scannedTally + manualTally;
     return (
       <tr data-testid={testId}>
         <th className="option-label">{optionLabel.replace('-', '‑')}</th>
@@ -123,16 +134,23 @@ function ContestOptionRow({
           )}
         </td>
         <td>
-          <strong>{format.count(scannedTally + manualTally)}</strong>
+          <strong>{format.count(totalTally)}</strong>
         </td>
+        {showPercentages && (
+          <td>
+            <strong>{getPercentageDisplay(totalTally)}</strong>
+          </td>
+        )}
       </tr>
     );
   }
 
+  const colSpan = showPercentages ? 3 : 3;
   return (
     <tr data-testid={testId}>
-      <th colSpan={3}>{optionLabel}</th>
+      <th colSpan={colSpan}>{optionLabel}</th>
       <td>{format.count(scannedTally)}</td>
+      {showPercentages && <td>{getPercentageDisplay(scannedTally)}</td>}
     </tr>
   );
 }
@@ -142,11 +160,13 @@ function ContestMetadataRow({
   scannedTally,
   manualTally,
   isLast,
+  showPercentages,
 }: {
   label: string;
   scannedTally: number;
   manualTally: number;
   isLast?: boolean;
+  showPercentages?: boolean;
 }): JSX.Element {
   return (
     <tr className={`metadata ${isLast ? '' : 'last-metadata'}`}>
@@ -164,6 +184,7 @@ function ContestMetadataRow({
       <td>
         <strong>{format.count(scannedTally + manualTally)}</strong>
       </td>
+      {showPercentages && <td />}
     </tr>
   );
 }
@@ -199,24 +220,32 @@ export function ContestResultsTable({
           <th>
             <strong>total</strong>
           </th>
+          {showPercentages && (
+            <th>
+              <strong>%</strong>
+            </th>
+          )}
         </tr>,
         <ContestMetadataRow
           label="Ballots Cast"
           key={`${contest.id}-ballots-cast`}
           scannedTally={scannedContestResults.ballots}
           manualTally={manualContestResults.ballots}
+          showPercentages={showPercentages}
         />,
         <ContestMetadataRow
           label="Overvotes"
           key={`${contest.id}-overvotes`}
           scannedTally={scannedContestResults.overvotes}
           manualTally={manualContestResults.overvotes}
+          showPercentages={showPercentages}
         />,
         <ContestMetadataRow
           label="Undervotes"
           key={`${contest.id}-undervotes`}
           scannedTally={scannedContestResults.undervotes}
           manualTally={manualContestResults.undervotes}
+          showPercentages={showPercentages}
           isLast
         />,
       ]
@@ -247,6 +276,7 @@ export function ContestResultsTable({
             manualTally={candidateReportTally.manualTally}
             showManualTally={hasManualResults}
             showPercentages={showPercentages}
+            totalBallots={scannedContestResults.ballots}
           />
         );
       }
@@ -265,6 +295,7 @@ export function ContestResultsTable({
           manualTally={manualContestResults?.yesTally ?? 0}
           showManualTally={hasManualResults}
           showPercentages={showPercentages}
+          totalBallots={scannedContestResults.ballots}
         />
       );
       const noKey = `${contest.id}-no`;
@@ -277,6 +308,7 @@ export function ContestResultsTable({
           manualTally={manualContestResults?.noTally ?? 0}
           showManualTally={hasManualResults}
           showPercentages={showPercentages}
+          totalBallots={scannedContestResults.ballots}
         />
       );
       break;
