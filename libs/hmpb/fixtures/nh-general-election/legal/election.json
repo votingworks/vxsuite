@@ -1366,7 +1366,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 10.153533111357751,
-          "row": 13.8125,
+          "row": 14.57647396630934,
           "contestId": "president",
           "optionId": "barchi-hallaren"
         },
@@ -1375,7 +1375,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 10.153533111357751,
-          "row": 16.622032924961715,
+          "row": 17.386006891271055,
           "contestId": "president",
           "optionId": "cramer-vuocolo"
         },
@@ -1384,7 +1384,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 10.153533111357751,
-          "row": 19.43156584992343,
+          "row": 20.19553981623277,
           "contestId": "president",
           "optionId": "court-blumhardt"
         },
@@ -1393,7 +1393,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 10.153533111357751,
-          "row": 22.241098774885145,
+          "row": 23.005072741194486,
           "contestId": "president",
           "optionId": "boone-lian"
         },
@@ -1402,7 +1402,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 10.153533111357751,
-          "row": 25.05063169984686,
+          "row": 25.8146056661562,
           "contestId": "president",
           "optionId": "hildebrand-garritty"
         },
@@ -1411,7 +1411,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 10.153533111357751,
-          "row": 28.624138591117916,
+          "row": 29.388112557427256,
           "contestId": "president",
           "optionId": "patterson-lariviere"
         },
@@ -1420,7 +1420,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.71944752743865,
-          "row": 12.972004211332312,
+          "row": 13.735978177641654,
           "contestId": "senator",
           "optionId": "weiford"
         },
@@ -1429,7 +1429,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.71944752743865,
-          "row": 15.017563169984685,
+          "row": 15.781537136294027,
           "contestId": "senator",
           "optionId": "garriss"
         },
@@ -1438,7 +1438,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.71944752743865,
-          "row": 17.06312212863706,
+          "row": 17.827096094946402,
           "contestId": "senator",
           "optionId": "wentworthfarthington"
         },
@@ -1447,7 +1447,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.71944752743865,
-          "row": 19.872655053598773,
+          "row": 20.636629019908113,
           "contestId": "senator",
           "optionId": "hewetson"
         },
@@ -1456,7 +1456,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.71944752743865,
-          "row": 21.91821401225115,
+          "row": 22.68218797856049,
           "contestId": "senator",
           "optionId": "martinez"
         },
@@ -1465,7 +1465,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.71944752743865,
-          "row": 23.96377297090352,
+          "row": 24.727746937212864,
           "contestId": "senator",
           "optionId": "brown"
         },
@@ -1474,7 +1474,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.71944752743865,
-          "row": 26.009331929555895,
+          "row": 26.773305895865235,
           "contestId": "senator",
           "optionId": "pound"
         },
@@ -1483,7 +1483,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.71944752743865,
-          "row": 30.89366385911179,
+          "row": 31.65763782542113,
           "contestId": "representative-district-6",
           "optionId": "plunkard"
         },
@@ -1492,7 +1492,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.71944752743865,
-          "row": 32.93922281776416,
+          "row": 33.703196784073505,
           "contestId": "representative-district-6",
           "optionId": "reeder"
         },
@@ -1501,7 +1501,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.71944752743865,
-          "row": 34.98478177641654,
+          "row": 35.748755742725876,
           "contestId": "representative-district-6",
           "optionId": "schott"
         },
@@ -1510,7 +1510,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.71944752743865,
-          "row": 37.03034073506891,
+          "row": 37.794314701378255,
           "contestId": "representative-district-6",
           "optionId": "tawney"
         },
@@ -1519,7 +1519,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.71944752743865,
-          "row": 39.07589969372128,
+          "row": 39.83987366003063,
           "contestId": "representative-district-6",
           "optionId": "forrest"
         },
@@ -1528,7 +1528,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.285361943519547,
-          "row": 12.972004211332312,
+          "row": 13.735978177641654,
           "contestId": "governor",
           "optionId": "franz"
         },
@@ -1537,7 +1537,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.285361943519547,
-          "row": 15.017563169984685,
+          "row": 15.781537136294027,
           "contestId": "governor",
           "optionId": "harris"
         },
@@ -1546,7 +1546,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.285361943519547,
-          "row": 17.06312212863706,
+          "row": 17.827096094946402,
           "contestId": "governor",
           "optionId": "bargmann"
         },
@@ -1555,7 +1555,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.285361943519547,
-          "row": 19.108681087289433,
+          "row": 19.872655053598773,
           "contestId": "governor",
           "optionId": "abcock"
         },
@@ -1564,7 +1564,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.285361943519547,
-          "row": 21.154240045941805,
+          "row": 21.91821401225115,
           "contestId": "governor",
           "optionId": "steelloy"
         },
@@ -1573,7 +1573,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.285361943519547,
-          "row": 23.19979900459418,
+          "row": 23.96377297090352,
           "contestId": "governor",
           "optionId": "sharp"
         },
@@ -1582,7 +1582,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.285361943519547,
-          "row": 25.24535796324655,
+          "row": 26.009331929555895,
           "contestId": "governor",
           "optionId": "wallace"
         },
@@ -1591,7 +1591,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.285361943519547,
-          "row": 27.290916921898926,
+          "row": 28.054890888208266,
           "contestId": "governor",
           "optionId": "williams"
         },
@@ -1600,7 +1600,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.285361943519547,
-          "row": 29.3364758805513,
+          "row": 30.10044984686064,
           "contestId": "governor",
           "optionId": "sharp-althea"
         },
@@ -1609,7 +1609,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.285361943519547,
-          "row": 31.382034839203673,
+          "row": 32.14600880551301,
           "contestId": "governor",
           "optionId": "alpern"
         },
@@ -1618,7 +1618,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.285361943519547,
-          "row": 33.42759379785605,
+          "row": 34.19156776416539,
           "contestId": "governor",
           "optionId": "windbeck"
         },
@@ -1627,7 +1627,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.285361943519547,
-          "row": 35.47315275650842,
+          "row": 36.23712672281776,
           "contestId": "governor",
           "optionId": "greher"
         },
@@ -1636,7 +1636,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.285361943519547,
-          "row": 37.51871171516079,
+          "row": 38.282685681470134,
           "contestId": "governor",
           "optionId": "alexander"
         },
@@ -1645,7 +1645,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.285361943519547,
-          "row": 39.56427067381317,
+          "row": 40.328244640122506,
           "contestId": "governor",
           "optionId": "mitchell"
         },
@@ -1654,7 +1654,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.285361943519547,
-          "row": 41.60982963246554,
+          "row": 42.373803598774884,
           "contestId": "governor",
           "optionId": "lee"
         },
@@ -1663,7 +1663,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.285361943519547,
-          "row": 43.65538859111791,
+          "row": 44.419362557427256,
           "contestId": "governor",
           "optionId": "ash"
         },
@@ -2277,7 +2277,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 10.153533111357751,
-          "row": 13.8125,
+          "row": 14.57647396630934,
           "contestId": "president",
           "optionId": "barchi-hallaren"
         },
@@ -2286,7 +2286,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 10.153533111357751,
-          "row": 16.622032924961715,
+          "row": 17.386006891271055,
           "contestId": "president",
           "optionId": "cramer-vuocolo"
         },
@@ -2295,7 +2295,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 10.153533111357751,
-          "row": 19.43156584992343,
+          "row": 20.19553981623277,
           "contestId": "president",
           "optionId": "court-blumhardt"
         },
@@ -2304,7 +2304,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 10.153533111357751,
-          "row": 22.241098774885145,
+          "row": 23.005072741194486,
           "contestId": "president",
           "optionId": "boone-lian"
         },
@@ -2313,7 +2313,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 10.153533111357751,
-          "row": 25.05063169984686,
+          "row": 25.8146056661562,
           "contestId": "president",
           "optionId": "hildebrand-garritty"
         },
@@ -2322,7 +2322,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 10.153533111357751,
-          "row": 28.624138591117916,
+          "row": 29.388112557427256,
           "contestId": "president",
           "optionId": "patterson-lariviere"
         },
@@ -2331,7 +2331,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.71944752743865,
-          "row": 12.972004211332312,
+          "row": 13.735978177641654,
           "contestId": "representative-district-6",
           "optionId": "plunkard"
         },
@@ -2340,7 +2340,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.71944752743865,
-          "row": 15.017563169984685,
+          "row": 15.781537136294027,
           "contestId": "representative-district-6",
           "optionId": "reeder"
         },
@@ -2349,7 +2349,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.71944752743865,
-          "row": 17.06312212863706,
+          "row": 17.827096094946402,
           "contestId": "representative-district-6",
           "optionId": "schott"
         },
@@ -2358,7 +2358,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.71944752743865,
-          "row": 19.108681087289433,
+          "row": 19.872655053598773,
           "contestId": "representative-district-6",
           "optionId": "tawney"
         },
@@ -2367,7 +2367,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.71944752743865,
-          "row": 21.154240045941805,
+          "row": 21.91821401225115,
           "contestId": "representative-district-6",
           "optionId": "forrest"
         },
@@ -2376,7 +2376,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.71944752743865,
-          "row": 26.038571975497703,
+          "row": 26.802545941807043,
           "contestId": "lieutenant-governor",
           "optionId": "norberg"
         },
@@ -2385,7 +2385,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.71944752743865,
-          "row": 28.084130934150075,
+          "row": 28.848104900459415,
           "contestId": "lieutenant-governor",
           "optionId": "parks"
         },
@@ -2394,7 +2394,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.71944752743865,
-          "row": 30.12968989280245,
+          "row": 30.89366385911179,
           "contestId": "lieutenant-governor",
           "optionId": "garcia"
         },
@@ -2403,7 +2403,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.71944752743865,
-          "row": 32.175248851454825,
+          "row": 32.93922281776416,
           "contestId": "lieutenant-governor",
           "optionId": "qualey"
         },
@@ -2412,7 +2412,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.71944752743865,
-          "row": 34.220807810107196,
+          "row": 34.98478177641654,
           "contestId": "lieutenant-governor",
           "optionId": "hovis"
         },
@@ -2421,7 +2421,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.71944752743865,
-          "row": 36.26636676875957,
+          "row": 37.03034073506891,
           "contestId": "lieutenant-governor",
           "optionId": "zirkle"
         },
@@ -2430,7 +2430,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.71944752743865,
-          "row": 38.311925727411946,
+          "row": 39.07589969372128,
           "contestId": "lieutenant-governor",
           "optionId": "davis-brenda"
         },
@@ -2439,7 +2439,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.71944752743865,
-          "row": 40.35748468606432,
+          "row": 41.121458652373654,
           "contestId": "lieutenant-governor",
           "optionId": "freeman"
         },
@@ -2448,7 +2448,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 20.71944752743865,
-          "row": 42.40304364471669,
+          "row": 43.16701761102603,
           "contestId": "lieutenant-governor",
           "optionId": "swan"
         },
@@ -2457,7 +2457,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.285361943519547,
-          "row": 12.972004211332312,
+          "row": 13.735978177641654,
           "contestId": "state-senator-district-31",
           "optionId": "shiplett"
         },
@@ -2466,7 +2466,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.285361943519547,
-          "row": 18.696831929555895,
+          "row": 19.460805895865235,
           "contestId": "state-assembly-district-54",
           "optionId": "solis"
         },
@@ -2475,7 +2475,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.285361943519547,
-          "row": 20.74239088820827,
+          "row": 21.50636485451761,
           "contestId": "state-assembly-district-54",
           "optionId": "keller"
         },
@@ -2484,7 +2484,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.285361943519547,
-          "row": 22.78794984686064,
+          "row": 23.551923813169985,
           "contestId": "state-assembly-district-54",
           "optionId": "rangel"
         },
@@ -2493,7 +2493,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.285361943519547,
-          "row": 27.672281776416536,
+          "row": 28.43625574272588,
           "contestId": "county-registrar-of-wills",
           "optionId": "ramachandrani"
         },
@@ -2502,12 +2502,12 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 31.285361943519547,
-          "row": 30.05192381316998,
+          "row": 30.815897779479325,
           "contestId": "county-registrar-of-wills",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 22.585361943519548,
-            "y": 29.25192381316998,
+            "y": 30.015897779479324,
             "width": 7.799999999999999,
             "height": 1
           }
