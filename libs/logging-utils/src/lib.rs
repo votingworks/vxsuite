@@ -5,12 +5,8 @@ use std::{
     thread,
 };
 
-use napi::{
-    threadsafe_function::{
-        ErrorStrategy, ThreadSafeCallContext, ThreadsafeFunction, ThreadsafeFunctionCallMode,
-    },
-    Error, JsFunction, Result, Status,
-};
+use napi::{bindgen_prelude::*, threadsafe_function::ThreadsafeFunctionCallMode};
+use napi_derive::napi;
 use vx_logging::{Disposition, EventId, Source};
 
 mod cdf;
@@ -18,9 +14,6 @@ mod convert;
 mod ser;
 mod stream;
 mod vx;
-
-#[macro_use]
-extern crate napi_derive;
 
 /// Convert a VX-formatted log file to a CDF-formatted log file and calls the
 /// provided callback after completion.
@@ -40,14 +33,14 @@ extern crate napi_derive;
 ")]
 #[allow(clippy::too_many_arguments)]
 pub fn convert_vx_log_to_cdf(
-    log: JsFunction,
+    log: Function<FnArgs<(String, String, String)>, ()>,
     source: String,
     machine_id: String,
     code_version: String,
     input_path: String,
     output_path: String,
     compressed: bool,
-    callback: JsFunction,
+    callback: Function<(), ()>,
 ) -> Result<()> {
     let source: Source = serde_json::from_value(serde_json::Value::String(source.clone()))
         .map_err(|e| {
@@ -59,25 +52,13 @@ pub fn convert_vx_log_to_cdf(
     let input_path = PathBuf::from(input_path);
     let output_path = PathBuf::from(output_path);
 
-    let log: ThreadsafeFunction<LogData, ErrorStrategy::Fatal> =
-        log.create_threadsafe_function(0, |ctx| {
-            let LogData {
-                event_id,
-                message,
-                disposition,
-            } = ctx.value;
-            let event_id = ctx.env.create_string(&event_id.to_string())?;
-            let message = ctx.env.create_string(&message)?;
-            let disposition = ctx.env.create_string(&disposition.to_string())?;
-            Ok(vec![
-                event_id.into_unknown(),
-                message.into_unknown(),
-                disposition.into_unknown(),
-            ])
-        })?;
+    let log = log
+        .build_threadsafe_function::<FnArgs<(String, String, String)>>()
+        .build_callback(|ctx| Ok(ctx.value))?;
 
-    let callback: ThreadsafeFunction<(), ErrorStrategy::CalleeHandled> = callback
-        .create_threadsafe_function(0, |_: ThreadSafeCallContext<()>| Ok(Vec::<()>::new()))?;
+    let callback = callback
+        .build_threadsafe_function()
+        .build_callback(|_| Ok(serde_json::Value::Null))?;
 
     thread::spawn(move || {
         let result = convert_vx_log_to_cdf_impl(
@@ -89,11 +70,7 @@ pub fn convert_vx_log_to_cdf(
             compressed,
             |event_id, message, disposition| {
                 log.call(
-                    LogData {
-                        event_id,
-                        message,
-                        disposition,
-                    },
+                    (event_id.to_string(), message, disposition.to_string()).into(),
                     ThreadsafeFunctionCallMode::NonBlocking,
                 );
             },
@@ -213,10 +190,4 @@ fn device_type_for_source(source: Source) -> Option<cdf::EventLoggingDeviceType>
         Source::VxBallotActivationFrontend => Some(cdf::EventLoggingDeviceType::BallotActivation),
         _ => None,
     }
-}
-
-struct LogData {
-    event_id: EventId,
-    message: String,
-    disposition: Disposition,
 }

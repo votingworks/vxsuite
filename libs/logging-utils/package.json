@@ -22,7 +22,7 @@
     "version": "napi version"
   },
   "devDependencies": {
-    "@napi-rs/cli": "^2.18.4",
+    "@napi-rs/cli": "^3.1.5",
     "@types/tmp": "0.2.4",
     "@vitest/coverage-istanbul": "^3.1.1",
     "@votingworks/fixtures": "workspace:*",
@@ -37,14 +37,11 @@
     "vitest": "^3.1.1"
   },
   "napi": {
-    "name": "logging-utils",
-    "triples": {
-      "defaults": false,
-      "additional": [
-        "aarch64-unknown-linux-gnu",
-        "x86_64-unknown-linux-gnu"
-      ]
-    }
+    "binaryName": "logging-utils",
+    "targets": [
+      "aarch64-unknown-linux-gnu",
+      "x86_64-unknown-linux-gnu"
+    ]
   },
   "packageManager": "pnpm@8.15.5"
 }
