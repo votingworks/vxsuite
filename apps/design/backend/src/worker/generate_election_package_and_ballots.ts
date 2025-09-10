@@ -116,7 +116,9 @@ export async function generateElectionPackageAndBallots(
     formattedElection,
     ballotStyles,
     compact
-  );
+  )
+    // Temporary optimization for LA demo: Don't export sample/test ballots
+    .filter((props) => props.ballotMode === 'official');
 
   // If we're exporting ballots with ballot audit IDs...
   if (numAuditIdBallots) {

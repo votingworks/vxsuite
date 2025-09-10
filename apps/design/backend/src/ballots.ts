@@ -142,13 +142,10 @@ export function createBallotPropsForTemplate(
     };
   }
 
-  const baseBallotProps = allBaseBallotProps(election)
-    .map((props) => ({
-      ...props,
-      compact,
-    }))
-    // Temporary optimization for LA demo: Don't export sample/test ballots
-    .filter((props) => props.ballotMode === 'official');
+  const baseBallotProps = allBaseBallotProps(election).map((props) => ({
+    ...props,
+    compact,
+  }));
   switch (templateId) {
     case 'NhBallot':
       return baseBallotProps.map(buildNhBallotProps);
