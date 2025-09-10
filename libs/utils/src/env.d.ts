@@ -1,6 +1,7 @@
 declare namespace NodeJS {
   export interface ProcessEnv {
     NODE_ENV: 'development' | 'production' | 'test';
+    DEPLOY_ENV?: string;
     IS_INTEGRATION_TEST?: string;
     REACT_APP_VX_DEV?: string;
     REACT_APP_VX_ENABLE_WRITE_IN_ADJUDICATION?: string;

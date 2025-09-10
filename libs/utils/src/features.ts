@@ -10,6 +10,12 @@ export function isVxDev(): boolean {
   return asBoolean(process.env.REACT_APP_VX_DEV);
 }
 
+export function isStagingDeploy(): boolean {
+  const deployEnv = process.env.DEPLOY_ENV;
+  // If there is no DEPLOY_ENV set, we assume it's NOT a staging deploy.
+  return !!deployEnv && deployEnv === 'staging';
+}
+
 export function isFeatureFlagEnabled(
   flag: BooleanEnvironmentVariableName
 ): boolean {

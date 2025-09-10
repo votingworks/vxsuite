@@ -62,7 +62,10 @@ import { LogEventId } from '@votingworks/logging';
 import { getExportedCastVoteRecordIds } from '@votingworks/utils';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { dirSync, tmpNameSync } from 'tmp';
-import { decryptAes256 } from '@votingworks/auth';
+import {
+  authenticateSignedQuickResultsReportingUrl,
+  decryptAes256,
+} from '@votingworks/auth';
 import {
   BackgroundTaskMetadata,
   DuplicateContestError,
@@ -866,13 +869,25 @@ export function buildUnauthenticatedApi({ logger }: AppContext) {
 
   // Only add methods to this API that should be publicly accessible with no oauth integration.
   const methods = {
-    processQrCodeReport({
+    async processQrCodeReport({
       payload,
+      signature,
+      certificate,
     }: {
       payload: string;
-      // TODO (#7150): Verify the signature and receive a machine public cert in the request as well
       signature: string;
-    }): Result<ResultsReportInfo, ResultsReportingError> {
+      certificate: string;
+    }): Promise<Result<ResultsReportInfo, ResultsReportingError>> {
+      // Verify the signature and certificate
+      const validationResult = await authenticateSignedQuickResultsReportingUrl(
+        payload,
+        signature,
+        certificate
+      );
+      if (validationResult.isErr()) {
+        return err(validationResult.err());
+      }
+      // Decode and process the payload
       const messageParts = payload.split('//');
       const [version, header, message] = messageParts;
 
