@@ -1,6 +1,6 @@
 import * as grout from '@votingworks/grout';
 import * as Sentry from '@sentry/node';
-import { auth as auth0Middleware, requiresAuth } from 'express-openid-connect';
+import { auth as auth0Middleware } from 'express-openid-connect';
 import path, { join } from 'node:path';
 import { Buffer } from 'node:buffer';
 import {
@@ -32,12 +32,15 @@ import {
   CastVoteRecordExportFileName,
   safeParseJson,
   CastVoteRecordReportWithoutMetadataSchema,
+  safeParseNumber,
+  CompressedTally,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
   assert,
   assertDefined,
   DateWithoutTime,
+  err,
   extractErrorMessage,
   find,
   ok,
@@ -73,6 +76,8 @@ import {
   ElectionInfo,
   ElectionListing,
   Org,
+  ResultsReportInfo,
+  ResultsReportingError,
   User,
   UsState,
 } from './types';
@@ -832,7 +837,80 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
 
   return grout.createApi(methods, middlewares);
 }
+
+// Set up API endpoint that should NOT be behind oauth integration
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function buildUnauthenticatedApi({ logger }: AppContext) {
+  const middlewares: grout.Middlewares<grout.AnyContext> = {
+    before: [],
+    after: [
+      async function logApiCall({ methodName, input }, result) {
+        const outcome = result.isOk()
+          ? { disposition: 'success' }
+          : {
+              disposition: 'failure',
+              error: extractErrorMessage(result.err()),
+            };
+        await logger.logAsCurrentRole(
+          LogEventId.ApiCall,
+          {
+            methodName,
+            input: JSON.stringify(input),
+            ...outcome,
+          },
+          debug
+        );
+      },
+    ],
+  };
+
+  // Only add methods to this API that should be publicly accessible with no oauth integration.
+  const methods = {
+    processQrCodeReport({
+      payload,
+    }: {
+      payload: string;
+      // TODO (#7150): Verify the signature and receive a machine public cert in the request as well
+      signature: string;
+    }): Result<ResultsReportInfo, ResultsReportingError> {
+      const messageParts = payload.split('//');
+      const [version, header, message] = messageParts;
+
+      if (version !== '1' || header !== 'qr1') {
+        return err('invalid-payload');
+      }
+
+      const [ballotHash, machineId, isLive, secondsSince1970, tallyB64] =
+        message.split('.');
+      const timestampNum = safeParseNumber(secondsSince1970);
+      if (timestampNum.isErr()) {
+        return err('invalid-payload');
+      }
+
+      const signedTimestamp = new Date(timestampNum.ok() * 1000);
+      let tally: CompressedTally;
+      try {
+        const tallyJson = Buffer.from(tallyB64, 'base64').toString('ascii');
+        tally = JSON.parse(tallyJson) as CompressedTally;
+        // TODO (#7151): Load the election for the given ballot hash, save the results report.
+      } catch (error) {
+        return err('invalid-payload');
+      }
+      return ok({
+        ballotHash,
+        machineId,
+        isLive: isLive === '1',
+        signedTimestamp,
+        tally,
+      });
+    },
+  } as const;
+
+  return grout.createApi(methods, middlewares);
+}
+
 export type Api = ReturnType<typeof buildApi>;
+export type UnauthenticatedApi = ReturnType<typeof buildUnauthenticatedApi>;
 
 export function buildApp(context: AppContext): Application {
   const app: Application = express();
@@ -893,10 +971,8 @@ export function buildApp(context: AppContext): Application {
   const api = buildApi(context);
   app.use('/api', grout.buildRouter(api, express));
 
-  /* istanbul ignore next - @preserve */
-  if (authEnabled()) {
-    app.use('*', requiresAuth());
-  }
+  const unauthenticatedApi = buildUnauthenticatedApi(context);
+  app.use('/public/api', grout.buildRouter(unauthenticatedApi, express));
 
   app.use(
     express.static(context.workspace.assetDirectoryPath, { index: false })

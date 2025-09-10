@@ -1,9 +1,5 @@
 import React from 'react';
-import type {
-  Api,
-  BallotMode,
-  AuthErrorCode,
-} from '@votingworks/design-backend';
+import { Api, BallotMode, AuthErrorCode } from '@votingworks/design-backend';
 import * as grout from '@votingworks/grout';
 import {
   QueryClient,

@@ -8,6 +8,7 @@ import {
   PrecinctOrSplitId,
   ElectionType,
   ElectionId,
+  CompressedTally,
 } from '@votingworks/types';
 import { DateWithoutTime } from '@votingworks/basics';
 
@@ -96,3 +97,14 @@ export interface ElectionInfo {
   signatureImage?: string;
   signatureCaption?: string;
 }
+
+export interface ResultsReportInfo {
+  ballotHash: string;
+  machineId: string;
+  isLive: boolean;
+  signedTimestamp: Date;
+  tally: CompressedTally;
+  precinctId?: PrecinctOrSplitId;
+}
+
+export type ResultsReportingError = 'invalid-payload';

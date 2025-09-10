@@ -16,8 +16,13 @@ import {
   createQueryClient,
   getUser,
 } from './api';
+import {
+  createUnauthenticatedApiClient,
+  UnauthenticatedApiClient,
+  UnauthenticatedApiClientContext,
+} from './public_api';
 import { ElectionsScreen } from './elections_screen';
-import { electionParamRoutes, routes } from './routes';
+import { electionParamRoutes, routes, resultsRoutes } from './routes';
 import { ElectionInfoScreen } from './election_info_screen';
 import { GeographyScreen } from './geography_screen';
 import { ContestsScreen } from './contests_screen';
@@ -25,6 +30,7 @@ import { BallotsScreen } from './ballots_screen';
 import { SystemSettingsScreen } from './system_settings_screen';
 import { ExportScreen } from './export_screen';
 import { ErrorScreen } from './error_screen';
+import { ReportingResultsConfirmationScreen } from './reporting_results_confirmation_screen';
 
 function ElectionScreens(): JSX.Element {
   return (
@@ -77,8 +83,10 @@ function WaitForUserInfo(props: { children: React.ReactNode }) {
 
 export function App({
   apiClient = createApiClient(),
+  unauthenticatedApiClient = createUnauthenticatedApiClient(),
 }: {
   apiClient?: ApiClient;
+  unauthenticatedApiClient?: UnauthenticatedApiClient;
 }): JSX.Element {
   const [electionsFilterText, setElectionsFilterText] = useState('');
   return (
@@ -88,11 +96,18 @@ export function App({
       showScrollBars
     >
       <ErrorBoundary errorMessage={ErrorScreen}>
-        <ApiClientContext.Provider value={apiClient}>
-          <QueryClientProvider client={createQueryClient()}>
-            <WaitForUserInfo>
-              <BrowserRouter>
-                <Switch>
+        <QueryClientProvider client={createQueryClient()}>
+          <BrowserRouter>
+            <Switch>
+              <Route path={resultsRoutes.root.path} exact>
+                <UnauthenticatedApiClientContext.Provider
+                  value={unauthenticatedApiClient}
+                >
+                  <ReportingResultsConfirmationScreen />
+                </UnauthenticatedApiClientContext.Provider>
+              </Route>
+              <ApiClientContext.Provider value={apiClient}>
+                <WaitForUserInfo>
                   <Route path={routes.root.path} exact>
                     <ElectionsScreen
                       filterText={electionsFilterText}
@@ -103,11 +118,11 @@ export function App({
                     path={electionParamRoutes.root.path}
                     component={ElectionScreens}
                   />
-                </Switch>
-              </BrowserRouter>
-            </WaitForUserInfo>
-          </QueryClientProvider>
-        </ApiClientContext.Provider>
+                </WaitForUserInfo>
+              </ApiClientContext.Provider>
+            </Switch>
+          </BrowserRouter>
+        </QueryClientProvider>
       </ErrorBoundary>
     </AppBase>
   );

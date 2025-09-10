@@ -84,6 +84,7 @@ export default defineConfig(async (env) => {
       proxy: {
         '/auth': 'http://localhost:3002',
         '/api': 'http://localhost:3002',
+        '/public/api': 'http://localhost:3002',
         '/files': 'http://localhost:3002',
       },
       port: 3000,
