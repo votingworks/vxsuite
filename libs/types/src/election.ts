@@ -222,6 +222,14 @@ export const CandidateContestSchema: z.ZodSchema<CandidateContest> =
     }
 
     if (!contest.allowWriteIns) {
+      if (contest.candidates.length === 0) {
+        ctx.issues.push({
+          code: 'custom',
+          path: ['candidates'],
+          message: `Contest '${contest.id}' has no candidates and disallows write-ins. At least one contest option is required.`,
+          input: contest,
+        });
+      }
       for (const [index, candidate] of contest.candidates.entries()) {
         if (candidate.isWriteIn) {
           ctx.issues.push({
