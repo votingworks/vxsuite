@@ -731,7 +731,8 @@ function AudioEditor(props: { str: UiStringInfo }) {
     textEditorRef.current.style.height = `${
       textEditorRef.current.scrollHeight + 5
     }px`;
-  }, [audioType]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [audioType, stringKey, subkey, textEditorRef.current]);
 
   const { data: ttsTextOverride, isLoading: ttsTextOverrideLoading } =
     api.ttsTextOverrideGet.useQuery({
@@ -839,6 +840,14 @@ function AudioEditor(props: { str: UiStringInfo }) {
       );
       break;
     case 'ipa':
+      if (str.key === ElectionStringKey.CONTEST_DESCRIPTION) {
+        history.push(
+          routes
+            .election(electionId)
+            .ballots.ballotAudioManage('tts', assertDefined(stringKey), subkey)
+            .path
+        );
+      }
       preamble = <P>Select a word below to add or edit a pronunciation.</P>;
       textEditor = (
         <Phoneditor
