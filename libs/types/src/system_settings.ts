@@ -166,10 +166,23 @@ export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
     startingCardLockoutDurationSeconds:
       DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS,
   },
-  markThresholds: DEFAULT_MARK_THRESHOLDS,
-  precinctScanAdjudicationReasons: [],
+  markThresholds: {
+    marginal: 0.05,
+    definite: 0.09,
+    writeInTextArea: 0.05,
+  },
+  precinctScanAdjudicationReasons: [
+    AdjudicationReason.Overvote,
+    AdjudicationReason.BlankBallot,
+  ],
   disallowCastingOvervotes: false,
-  centralScanAdjudicationReasons: [],
-  adminAdjudicationReasons: [],
+  centralScanAdjudicationReasons: [
+    AdjudicationReason.Overvote,
+    AdjudicationReason.BlankBallot,
+  ],
+  adminAdjudicationReasons: [
+    AdjudicationReason.Overvote,
+    AdjudicationReason.MarginalMark,
+  ],
   precinctScanEnableBmdBallotScanning: true,
 };
