@@ -642,7 +642,7 @@ function Contest({
 }) {
   switch (contest.type) {
     case 'candidate':
-      if (isPresidentialContest(contest)) {
+      if (isPresidentialContest(contest, election)) {
         return (
           <PresidentialCandidateContest election={election} contest={contest} />
         );
@@ -655,8 +655,16 @@ function Contest({
   }
 }
 
-function isPresidentialContest(contest: AnyContest) {
-  return contest.title.toLowerCase().includes('president');
+function isPresidentialContest(contest: AnyContest, election: Election) {
+  return (
+    contest.type === 'candidate' &&
+    contest.candidates.some(
+      (candidate) =>
+        election.customBallotContent?.presidentialCandidateBallotStrings?.[
+          candidate.id
+        ]
+    )
+  );
 }
 
 async function BallotPageContent(
@@ -687,7 +695,8 @@ async function BallotPageContent(
     contestSections = [
       ...iter(contestSections[0]).groupBy(
         (contest1, contest2) =>
-          isPresidentialContest(contest1) === isPresidentialContest(contest2)
+          isPresidentialContest(contest1, election) ===
+          isPresidentialContest(contest2, election)
       ),
       contestSections[1],
     ];
@@ -708,7 +717,7 @@ async function BallotPageContent(
     ));
     const numColumns =
       section[0].type === 'candidate'
-        ? isPresidentialContest(section[0])
+        ? isPresidentialContest(section[0], election)
           ? 1
           : 3
         : 2;
