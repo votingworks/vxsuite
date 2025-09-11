@@ -9,6 +9,7 @@ import { OrgSelect } from './org_select';
 
 export interface CreateElectionButtonProps {
   variant?: ButtonVariant;
+  disabled: boolean;
 }
 
 const OrgModal = styled(Modal)`
@@ -19,7 +20,7 @@ const OrgModal = styled(Modal)`
 export function CreateElectionButton(
   props: CreateElectionButtonProps
 ): React.ReactNode {
-  const { variant } = props;
+  const { variant, disabled } = props;
   const createMutation = api.createElection.useMutation();
   const getUserFeaturesQuery = api.getUserFeatures.useQuery();
 
@@ -69,7 +70,7 @@ export function CreateElectionButton(
         icon="Add"
         onPress={features.ACCESS_ALL_ORGS ? setModalActive : createElection}
         value
-        disabled={modalActive}
+        disabled={modalActive || disabled}
       >
         Create Election
       </Button>
