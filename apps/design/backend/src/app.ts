@@ -32,8 +32,6 @@ import {
   CastVoteRecordExportFileName,
   safeParseJson,
   CastVoteRecordReportWithoutMetadataSchema,
-  safeParseNumber,
-  CompressedTally,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -65,6 +63,7 @@ import { dirSync, tmpNameSync } from 'tmp';
 import {
   authenticateSignedQuickResultsReportingUrl,
   decryptAes256,
+  decodeQrCodeMessage,
 } from '@votingworks/auth';
 import {
   BackgroundTaskMetadata,
@@ -887,37 +886,27 @@ export function buildUnauthenticatedApi({ logger }: AppContext) {
       if (validationResult.isErr()) {
         return err(validationResult.err());
       }
-      // Decode and process the payload
-      const messageParts = payload.split('//');
-      const [version, header, message] = messageParts;
 
-      if (version !== '1' || header !== 'qr1') {
-        return err('invalid-payload');
-      }
-
-      const [ballotHash, machineId, isLive, secondsSince1970, tallyB64] =
-        message.split('.');
-      const timestampNum = safeParseNumber(secondsSince1970);
-      if (timestampNum.isErr()) {
-        return err('invalid-payload');
-      }
-
-      const signedTimestamp = new Date(timestampNum.ok() * 1000);
-      let tally: CompressedTally;
       try {
-        const tallyJson = Buffer.from(tallyB64, 'base64').toString('ascii');
-        tally = JSON.parse(tallyJson) as CompressedTally;
-        // TODO (#7151): Load the election for the given ballot hash, save the results report.
+        const {
+          ballotHash,
+          machineId,
+          isLive,
+          signedTimestamp,
+          compressedTally,
+        } = decodeQrCodeMessage(payload);
+
+        return ok({
+          ballotHash,
+          machineId,
+          isLive,
+          signedTimestamp,
+          tally: compressedTally,
+        });
       } catch (error) {
+        console.log(error);
         return err('invalid-payload');
       }
-      return ok({
-        ballotHash,
-        machineId,
-        isLive: isLive === '1',
-        signedTimestamp,
-        tally,
-      });
     },
   } as const;
 
