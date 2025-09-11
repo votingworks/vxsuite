@@ -9,7 +9,12 @@ import {
   unsafeParse,
   HmpbBallotPaperSizeSchema,
 } from '@votingworks/types';
-import { assertDefined } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  throwIllegalValue,
+  typedAs,
+} from '@votingworks/basics';
 import {
   BallotPageTemplate,
   BaseBallotProps,
@@ -20,36 +25,74 @@ import {
 import { createBrowserPreviewRenderer } from './browser_preview_renderer';
 import { createTestVotes, markBallotDocument } from '../mark_ballot';
 import { BUBBLE_CLASS, OptionInfo, PAGE_CLASS } from '../ballot_components';
-import { BallotTemplateId, ballotTemplates } from '../ballot_templates';
+import {
+  BallotTemplateId,
+  ballotTemplates,
+  NhBallotProps,
+} from '../ballot_templates';
 
 /**
  * The ID of the element that marks the document as done for the test.
  */
 export const DONE_MARKER_ID = 'done-marker';
 
-function isBallotTemplateId(id: string): id is BallotTemplateId {
-  return id in ballotTemplates;
-}
-
-function getTemplate(templateId: string | null) {
-  if (!templateId) {
-    return ballotTemplates.VxDefaultBallot;
+function getTemplateAndProps(
+  templateParam: string | null,
+  baseBallotProps: BaseBallotProps
+) {
+  if (!templateParam) {
+    return {
+      template: ballotTemplates.VxDefaultBallot,
+      ballotProps: baseBallotProps,
+    };
   }
 
-  if (!isBallotTemplateId(templateId)) {
-    throw new Error(`Unrecognized template ID: ${templateId}`);
+  assert(
+    templateParam in ballotTemplates,
+    `Unrecognized template ID: ${templateParam}`
+  );
+  const templateId = templateParam as BallotTemplateId;
+  const template = ballotTemplates[templateId];
+
+  switch (templateId) {
+    case 'VxDefaultBallot':
+      return { template, ballotProps: baseBallotProps };
+    case 'NhBallot':
+      return {
+        template,
+        ballotProps: typedAs<NhBallotProps>({
+          ...baseBallotProps,
+          candidateRotationMethod: 'precinct',
+        }),
+      };
+    default:
+      throwIllegalValue(templateId);
   }
-  return ballotTemplates[templateId];
 }
 
 interface Config {
   election: Election;
   ballotStyle: BallotStyle;
-  baseBallotProps: BaseBallotProps;
-  template: BallotPageTemplate<BaseBallotProps>;
+  ballotProps: BaseBallotProps;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  template: BallotPageTemplate<any>;
 }
 
 async function loadConfigFromSearchParams(url: URL): Promise<Config> {
+  const searchParams = [
+    'election-url',
+    'paper-size',
+    'watermark',
+    'lang',
+    'template',
+  ];
+  const unknownParams = Array.from(url.searchParams.keys()).filter(
+    (key) => !searchParams.includes(key)
+  );
+  assert(
+    unknownParams.length === 0,
+    `Unknown params: ${unknownParams.join(', ')}`
+  );
   const electionUrl =
     url.searchParams.get('election-url') ??
     '/hmpb-fixtures/vx-general-election/legal/election.json';
@@ -68,7 +111,7 @@ async function loadConfigFromSearchParams(url: URL): Promise<Config> {
       ? languages
       : ['es-US', 'en'].filter((lang) => lang in election.ballotStrings),
   };
-  const exampleBallotProps: BaseBallotProps = {
+  const exampleBaseBallotProps: BaseBallotProps = {
     election: {
       ...election,
       ballotLayout: {
@@ -87,8 +130,7 @@ async function loadConfigFromSearchParams(url: URL): Promise<Config> {
   return {
     election,
     ballotStyle,
-    template: getTemplate(template),
-    baseBallotProps: exampleBallotProps,
+    ...getTemplateAndProps(template, exampleBaseBallotProps),
   };
 }
 
@@ -98,12 +140,12 @@ async function loadConfigFromSearchParams(url: URL): Promise<Config> {
  * tools to inspect the DOM and debug any rendering/layout issues.
  */
 export async function main(): Promise<void> {
-  const { election, ballotStyle, baseBallotProps, template } =
+  const { election, ballotStyle, ballotProps, template } =
     await loadConfigFromSearchParams(new URL(location.href));
 
   const renderer = createBrowserPreviewRenderer();
   const document = (
-    await renderBallotTemplate(renderer, template, baseBallotProps)
+    await renderBallotTemplate(renderer, template, ballotProps)
   ).unsafeUnwrap();
 
   // Mark some votes

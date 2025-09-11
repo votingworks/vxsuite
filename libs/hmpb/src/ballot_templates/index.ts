@@ -1,4 +1,5 @@
-import { nhBallotTemplate } from './nh_ballot_template';
+import { BaseBallotProps } from '../render_ballot';
+import { NhBallotProps, nhBallotTemplate } from './nh_ballot_template';
 import { vxDefaultBallotTemplate } from './vx_default_ballot_template';
 
 export type { NhBallotProps } from './nh_ballot_template';
@@ -15,3 +16,5 @@ export const ballotTemplates = {
  * The ID of a ballot template.
  */
 export type BallotTemplateId = keyof typeof ballotTemplates;
+
+export type AnyBallotProps = BaseBallotProps | NhBallotProps;

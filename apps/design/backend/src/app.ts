@@ -47,6 +47,7 @@ import {
   Result,
 } from '@votingworks/basics';
 import {
+  AnyBallotProps,
   BallotLayoutError,
   BallotMode,
   BallotTemplateId,
@@ -619,7 +620,9 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
         ballotStyles,
         ballotTemplateId,
       } = await store.getElection(input.electionId);
-      const { compact } = await store.getBallotLayoutSettings(input.electionId);
+      const ballotLayoutSettings = await store.getBallotLayoutSettings(
+        input.electionId
+      );
       const ballotStrings = await translateBallotStrings(
         translator,
         election,
@@ -630,29 +633,29 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
         ...election,
         ballotStrings,
       };
-      const allBallotProps = createBallotPropsForTemplate(
+      const { template, allBallotProps } = createBallotPropsForTemplate(
         ballotTemplateId,
         electionWithBallotStrings,
         ballotStyles,
-        compact
+        ballotLayoutSettings
       );
-      const ballotProps = find(
-        allBallotProps,
-        (props) =>
-          props.precinctId === input.precinctId &&
-          props.ballotStyleId === input.ballotStyleId &&
-          props.ballotType === input.ballotType &&
-          props.ballotMode === input.ballotMode
+      const ballotProps = assertDefined(
+        allBallotProps.find(
+          (props) =>
+            props.precinctId === input.precinctId &&
+            props.ballotStyleId === input.ballotStyleId &&
+            props.ballotType === input.ballotType &&
+            props.ballotMode === input.ballotMode
+        )
       );
       const renderer = await createPlaywrightRenderer();
       let ballotPdf: Result<Uint8Array, BallotLayoutError>;
       try {
         ballotPdf = await renderBallotPreviewToPdf(
           renderer,
-          ballotTemplates[ballotTemplateId],
+          template,
           // NOTE: Changing this text means you should also change the font size
           // of the <Watermark> component in the ballot template.
-
           { ...ballotProps, watermark: 'PROOF' }
         );
       } finally {

@@ -43,6 +43,7 @@ import { BaseLogger } from '@votingworks/logging';
 import { BallotTemplateId } from '@votingworks/hmpb';
 import { DatabaseError } from 'pg';
 import {
+  BallotLayoutSettings,
   BallotStyle,
   convertToVxfBallotStyle,
   ElectionInfo,
@@ -1440,14 +1441,15 @@ export class Store {
 
   async getBallotLayoutSettings(
     electionId: ElectionId
-  ): Promise<{ paperSize: HmpbBallotPaperSize; compact: boolean }> {
+  ): Promise<BallotLayoutSettings> {
     const row = (
       await this.db.withClient((client) =>
         client.query(
           `
             select
               ballot_paper_size as "paperSize",
-              ballot_compact as "compact"
+              ballot_compact as "compact",
+              ballot_candidate_rotation_method as "candidateRotationMethod"
             from elections
             where id = $1
           `,
@@ -1461,8 +1463,7 @@ export class Store {
 
   async updateBallotLayoutSettings(
     electionId: ElectionId,
-    paperSize: HmpbBallotPaperSize,
-    compact: boolean
+    ballotLayoutSettings: BallotLayoutSettings
   ): Promise<void> {
     const { rowCount } = await this.db.withClient((client) =>
       client.query(
@@ -1470,11 +1471,13 @@ export class Store {
           update elections
           set
             ballot_paper_size = $1,
-            ballot_compact = $2
-          where id = $3
+            ballot_compact = $2,
+            ballot_candidate_rotation_method = $3
+          where id = $4
         `,
-        paperSize,
-        compact,
+        ballotLayoutSettings.paperSize,
+        ballotLayoutSettings.compact,
+        ballotLayoutSettings.candidateRotationMethod,
         electionId
       )
     );

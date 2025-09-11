@@ -9,6 +9,8 @@ import {
   ElectionType,
   ElectionId,
   CompressedTally,
+  BallotPaperSize,
+  NhCandidateRotationMethod,
 } from '@votingworks/types';
 import { DateWithoutTime } from '@votingworks/basics';
 
@@ -96,6 +98,12 @@ export interface ElectionInfo {
   languageCodes: LanguageCode[];
   signatureImage?: string;
   signatureCaption?: string;
+}
+
+export interface BallotLayoutSettings {
+  paperSize: BallotPaperSize;
+  compact: boolean;
+  candidateRotationMethod?: NhCandidateRotationMethod;
 }
 
 export interface ResultsReportInfo {

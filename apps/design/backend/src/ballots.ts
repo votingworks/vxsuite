@@ -1,4 +1,5 @@
 import {
+  BallotLayout,
   CandidateRotation,
   Election,
   hasSplits,
@@ -13,18 +14,28 @@ import {
   NhBallotProps,
   ColorTint,
   ColorTints,
+  AnyBallotProps,
+  BallotPageTemplate,
+  ballotTemplates,
 } from '@votingworks/hmpb';
-import { find, throwIllegalValue, assert } from '@votingworks/basics';
+import {
+  find,
+  throwIllegalValue,
+  assert,
+  assertDefined,
+} from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
 import { readFileSync } from 'node:fs';
 import { parse } from 'csv-parse/sync';
 import { join } from 'node:path';
 import { sliOrgId } from './globals';
-import { BallotStyle, normalizeState, User, UsState } from './types';
 import {
-  rotateCandidateByOffset,
-  rotateCandidatesByNhStatutes,
-} from './candidate_rotation';
+  BallotLayoutSettings,
+  BallotStyle,
+  normalizeState,
+  User,
+  UsState,
+} from './types';
 
 function getPrecinctSplitForBallotStyle(
   precinct: PrecinctWithSplits,
@@ -106,31 +117,21 @@ const colorTintsCsv = readFileSync(
 );
 const colorTints: ColorTintRecord[] = parse(colorTintsCsv, { columns: true });
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function createBallotPropsForTemplate(
   templateId: BallotTemplateId,
   election: Election,
   ballotStyles: BallotStyle[],
-  compact: boolean
-): BaseBallotProps[] {
+  ballotLayoutSettings: BallotLayoutSettings
+) {
   function buildNhBallotProps(props: BaseBallotProps): NhBallotProps {
-    const rotateCandidatesByPrecinct = false; // TODO flag by election or organization
-    const precinctIndex = election.precincts.findIndex(
-      (p) => p.id === props.precinctId
-    );
-    const candidateRotation: CandidateRotation = Object.fromEntries(
-      election.contests
-        .filter((contest) => contest.type === 'candidate')
-        .map((contest) => [
-          contest.id,
-          rotateCandidatesByPrecinct
-            ? rotateCandidateByOffset(contest, precinctIndex)
-            : rotateCandidatesByNhStatutes(contest),
-        ])
+    const candidateRotationMethod = assertDefined(
+      ballotLayoutSettings.candidateRotationMethod
     );
 
     const precinct = find(election.precincts, (p) => p.id === props.precinctId);
     if (!hasSplits(precinct)) {
-      return { ...props, candidateRotation };
+      return { ...props, candidateRotationMethod };
     }
     const ballotStyle = find(
       ballotStyles,
@@ -157,20 +158,26 @@ export function createBallotPropsForTemplate(
       clerkSignatureImage: split.clerkSignatureImage,
       clerkSignatureCaption: split.clerkSignatureCaption,
       colorTint: colorTint as ColorTint,
-      candidateRotation,
+      candidateRotationMethod,
     };
   }
 
   const baseBallotProps = allBaseBallotProps(election).map((props) => ({
     ...props,
-    compact,
+    compact: ballotLayoutSettings.compact,
   }));
   switch (templateId) {
     case 'NhBallot':
-      return baseBallotProps.map(buildNhBallotProps);
+      return {
+        template: ballotTemplates[templateId],
+        allBallotProps: baseBallotProps.map(buildNhBallotProps),
+      };
 
     case 'VxDefaultBallot':
-      return baseBallotProps;
+      return {
+        template: ballotTemplates[templateId],
+        allBallotProps: baseBallotProps,
+      };
 
     default: {
       /* istanbul ignore next - @preserve */
