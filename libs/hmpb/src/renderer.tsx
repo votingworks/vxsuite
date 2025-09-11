@@ -11,6 +11,15 @@ export type Page = Pick<
   'evaluate' | 'close' | 'pdf' | 'content'
 >;
 
+export interface DocumentElement {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  data: any;
+}
+
 /**
  * Creates a {@link RenderDocument}
  */
@@ -87,7 +96,7 @@ export function createDocument(page: Page, cleanup: () => void) {
      * Given a CSS selector, returns measurements and data attributes for each
      * element in the document matching the selector.
      */
-    async inspectElements(selector: string) {
+    async inspectElements(selector: string): Promise<DocumentElement[]> {
       // Using the Playwright API to query/manipulate the DOM is much slower
       // than running JS directly in the browser. We use `evaluate` to run the
       // given function in the browser and return the result.

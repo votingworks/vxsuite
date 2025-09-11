@@ -29,18 +29,25 @@ import {
 } from '@votingworks/types';
 import { QrCode } from '@votingworks/ui';
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
-import { RenderDocument, RenderScratchpad, Renderer } from './renderer';
+import {
+  DocumentElement,
+  RenderDocument,
+  RenderScratchpad,
+  Renderer,
+} from './renderer';
 import {
   BUBBLE_CLASS,
   CONTENT_SLOT_CLASS,
   ContentSlot,
   BALLOT_HASH_SLOT_CLASS,
+  CANDIDATE_OPTION_CLASS,
   OptionInfo,
   PAGE_CLASS,
   QR_CODE_SIZE,
   QR_CODE_SLOT_CLASS,
   TIMING_MARK_CLASS,
   WRITE_IN_OPTION_CLASS,
+  BALLOT_MEASURE_OPTION_CLASS,
 } from './ballot_components';
 import {
   BALLOT_MODES,
@@ -98,6 +105,7 @@ export interface BallotPageTemplate<P extends object> {
   stylesComponent: StylesComponent<P>;
   frameComponent: FrameComponent<P>;
   contentComponent: ContentComponent<P>;
+  isAllBubbleBallot?: boolean;
 }
 
 /**
@@ -290,7 +298,8 @@ export function gridHeightToPixels(
 
 async function extractGridLayout(
   document: RenderDocument,
-  ballotStyleId: BallotStyleId
+  ballotStyleId: BallotStyleId,
+  isAllBubbleBallot = false
 ): Promise<GridLayout> {
   const pages = await document.inspectElements(`.${PAGE_CLASS}`);
   const optionPositionsPerPage = await Promise.all(
@@ -342,52 +351,77 @@ async function extractGridLayout(
   );
   const gridPositions = optionPositionsPerPage.flat();
 
-  // To compute the bounds of write-in options, we'll just look at the first
-  // write-in option box we find. This relies on all write-in option boxes being
-  // the same size. We may want to eventually switch to a data model where we
-  // compute the bounds for every contest option we care about individually.
+  // To compute the bounds of options, we'll look at the first write-in option
+  // box we find. We use this value for every contest option on the ballot.
+  // We use a write-in option box rather than a candidate option box because
+  // it is the larger of the two and gives us more margin for error. If there
+  // are no write-ins, we fallback to a candidate option and then a ballot measure
+  // option. We may want to eventually switch to a data model where we compute bounds
+  // for every contest option we care about individually, since write-in and candidate
+  // options are not the same size.
   const optionBoundsFromTargetMark: Outset<number> = await (async () => {
+    // All bubble ballots are a special case of a valid ballot with no contest options
+    if (isAllBubbleBallot) {
+      return { top: 0, left: 0, right: 0, bottom: 0 };
+    }
+
+    let optionElement: DocumentElement | null = null;
+    let bubbleElement: DocumentElement | null = null;
+
     const writeInOptions = await document.inspectElements(
       `.${WRITE_IN_OPTION_CLASS}`
     );
-    const writeInOptionBubbles = await document.inspectElements(
-      `.${WRITE_IN_OPTION_CLASS} .${BUBBLE_CLASS}`
-    );
-    if (writeInOptions.length === 0) {
-      return {
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-      };
+    if (writeInOptions.length > 0) {
+      [optionElement] = writeInOptions;
+      [bubbleElement] = await document.inspectElements(
+        `.${WRITE_IN_OPTION_CLASS} .${BUBBLE_CLASS}`
+      );
     }
-    const firstWriteInOption = writeInOptions[0];
-    const firstWriteInOptionBubble = writeInOptionBubbles[0];
-    const firstWriteInOptionBubbleCenter: Point<Pixels> = {
-      x: firstWriteInOptionBubble.x + firstWriteInOptionBubble.width / 2,
-      y: firstWriteInOptionBubble.y + firstWriteInOptionBubble.height / 2,
+
+    if (optionElement === null) {
+      const candidateOptions = await document.inspectElements(
+        `.${CANDIDATE_OPTION_CLASS}`
+      );
+      if (candidateOptions.length > 0) {
+        [optionElement] = candidateOptions;
+        [bubbleElement] = await document.inspectElements(
+          `.${CANDIDATE_OPTION_CLASS} .${BUBBLE_CLASS}`
+        );
+      }
+    }
+
+    if (optionElement === null) {
+      const ballotMeasureOptions = await document.inspectElements(
+        `.${BALLOT_MEASURE_OPTION_CLASS}`
+      );
+      if (ballotMeasureOptions.length > 0) {
+        [optionElement] = ballotMeasureOptions;
+        [bubbleElement] = await document.inspectElements(
+          `.${BALLOT_MEASURE_OPTION_CLASS} .${BUBBLE_CLASS}`
+        );
+      }
+    }
+
+    assert(
+      optionElement !== null && bubbleElement !== null,
+      'No contest option elements found on the ballot but at least one is required.'
+    );
+
+    const bubbleElementCenter: Point<Pixels> = {
+      x: bubbleElement.x + bubbleElement.width / 2,
+      y: bubbleElement.y + bubbleElement.height / 2,
     };
     const grid = await measureTimingMarkGrid(document, 1);
     const bounds: Outset<number> = {
-      top: pixelsToGridHeight(
-        grid,
-        firstWriteInOptionBubbleCenter.y - firstWriteInOption.y
-      ),
-      left: pixelsToGridWidth(
-        grid,
-        firstWriteInOptionBubbleCenter.x - firstWriteInOption.x
-      ),
+      top: pixelsToGridHeight(grid, bubbleElementCenter.y - optionElement.y),
+      left: pixelsToGridWidth(grid, bubbleElementCenter.x - optionElement.x),
       right: pixelsToGridWidth(
         grid,
-        firstWriteInOption.x +
-          firstWriteInOption.width -
-          firstWriteInOptionBubbleCenter.x
+        optionElement.x + optionElement.width - bubbleElementCenter.x
       ),
       bottom: pixelsToGridHeight(
         grid,
-        firstWriteInOption.y +
-          firstWriteInOption.height -
-          firstWriteInOptionBubbleCenter.y
+        optionElement.y + optionElement.height - bubbleElementCenter.y
       ),
     };
     return bounds;
@@ -544,7 +578,11 @@ export async function layOutBallotsAndCreateElectionDefinition<
       const document = (
         await renderBallotTemplate(renderer, template, props)
       ).unsafeUnwrap();
-      const gridLayout = await extractGridLayout(document, props.ballotStyleId);
+      const gridLayout = await extractGridLayout(
+        document,
+        props.ballotStyleId,
+        template.isAllBubbleBallot
+      );
       const ballotContent = await document.getContent();
       document.cleanup();
       return {

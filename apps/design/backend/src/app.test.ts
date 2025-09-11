@@ -1485,7 +1485,7 @@ test('CRUD contests', async () => {
     ...contest1,
     title: 'Updated Contest 1',
     seats: 2,
-    allowWriteIns: false,
+    allowWriteIns: true,
     candidates: [
       ...contest1.candidates,
       {

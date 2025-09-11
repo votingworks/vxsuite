@@ -278,7 +278,11 @@ export function AlignedBubble({
   );
 }
 
+export const CANDIDATE_OPTION_CLASS = 'candidate-option';
+
 export const WRITE_IN_OPTION_CLASS = 'write-in-option';
+
+export const BALLOT_MEASURE_OPTION_CLASS = 'ballot-measure-option';
 
 export const MARK_OVERLAY_CLASS = 'mark-overlay';
 

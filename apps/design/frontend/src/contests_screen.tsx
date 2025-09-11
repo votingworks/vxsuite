@@ -545,6 +545,9 @@ function ContestForm({
   const history = useHistory();
   const contestRoutes = routes.election(electionId).contests;
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+  const [validationErrorMessage, setValidationErrorMessage] = useState<
+    string | null
+  >(null);
 
   /* istanbul ignore next - @preserve */
   if (
@@ -565,7 +568,20 @@ function ContestForm({
   }
 
   function onSubmit() {
-    const formContest = tryContestFromDraftContest(contest).unsafeUnwrap();
+    const formContestResult = tryContestFromDraftContest(contest);
+    if (formContestResult.isErr()) {
+      setValidationErrorMessage(
+        formContestResult
+          .err()
+          .issues.map((i) => i.message)
+          .join(', ')
+      );
+      return;
+    }
+
+    setValidationErrorMessage(null);
+
+    const formContest = formContestResult.ok();
     if (savedContest) {
       updateContestMutation.mutate(
         { electionId, updatedContest: formContest },
@@ -631,8 +647,11 @@ function ContestForm({
 
   const error =
     createContestMutation.data?.err() || updateContestMutation.data?.err();
-  const errorMessage =
-    error &&
+  const errorMessage = validationErrorMessage ? (
+    <Callout icon="Danger" color="danger">
+      {validationErrorMessage}
+    </Callout>
+  ) : error ? (
     (() => {
       switch (error) {
         case 'duplicate-contest':
@@ -667,7 +686,8 @@ function ContestForm({
           throwIllegalValue(error);
         }
       }
-    })();
+    })()
+  ) : null;
 
   return (
     <Form

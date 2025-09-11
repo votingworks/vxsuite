@@ -1259,6 +1259,50 @@ describe('Contests tab', () => {
 
     await screen.findByText('Options must have different labels.');
   });
+
+  test('error messages for candidate contest with no candidates and write-ins disallowed', async () => {
+    const electionRecord = generalElectionRecord(user.orgId);
+    const { election } = electionRecord;
+    const electionId = election.id;
+    const candidateContest = find(
+      election.contests,
+      (contest): contest is CandidateContest => contest.type === 'candidate'
+    );
+
+    apiMock.listContests
+      .expectCallWith({ electionId })
+      .resolves(election.contests);
+    expectOtherElectionApiCalls(election);
+    apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
+    renderScreen(electionId);
+
+    await screen.findByRole('heading', { name: 'Contests' });
+    userEvent.click(
+      within(screen.getByText(candidateContest.title).closest('tr')!).getByRole(
+        'button',
+        { name: 'Edit' }
+      )
+    );
+    await screen.findByRole('heading', { name: 'Edit Contest' });
+
+    // Remove all candidates
+    for (const row of screen.getAllByRole('row').slice(1)) {
+      userEvent.click(within(row).getByRole('button', { name: 'Remove' }));
+    }
+    // Disallow write-ins
+    const writeInsControl = screen.getByLabelText('Write-Ins Allowed?');
+    userEvent.click(
+      within(writeInsControl).getByRole('option', { name: 'No' })
+    );
+    expect(
+      within(writeInsControl).getByRole('option', { name: 'No' })
+    ).toHaveAttribute('aria-selected', 'true');
+
+    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await screen.findByText(
+      /contest must have at least one candidate or allow write-ins./i
+    );
+  });
 });
 
 describe('Parties tab', () => {
