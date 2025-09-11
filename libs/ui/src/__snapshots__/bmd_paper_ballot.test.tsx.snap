@@ -35,10 +35,6 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
             <h5
               class="sc-imWYAI gejGWs"
               style="margin: 0px;"
-            />
-            <h5
-              class="sc-imWYAI gejGWs"
-              style="margin: 0px;"
             >
               <span>
                 Mock General Election Choctaw 2020
@@ -409,10 +405,6 @@ House Bill 1796 - Flag Referendum
               Unofficial Test Ballot
             </span>
           </h4>
-          <h5
-            class="sc-imWYAI gejGWs"
-            style="margin: 0px;"
-          />
           <h5
             class="sc-imWYAI gejGWs"
             style="margin: 0px;"
