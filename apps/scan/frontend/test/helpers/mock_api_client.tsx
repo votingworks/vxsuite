@@ -336,6 +336,11 @@ export function createApiMock() {
     expectRebootToVendorMenu() {
       mockApiClient.rebootToVendorMenu.expectCallWith().resolves();
     },
+
+    expectGetQuickResultsReportingUrl(url: string = '') {
+      mockApiClient.getQuickResultsReportingUrl.reset();
+      mockApiClient.getQuickResultsReportingUrl.expectCallWith().resolves(url);
+    },
   };
 }
 
