@@ -7,7 +7,6 @@ import {
   Election,
   getBallotStyle,
   getPartyForBallotStyle,
-  getPrecinctById,
   Outset,
   PrecinctId,
 } from '@votingworks/types';
@@ -525,6 +524,31 @@ export function Instructions({
   );
 }
 
+export function PrecinctOrSplitName({
+  election,
+  ballotStyleId,
+  precinctId,
+}: {
+  election: Election;
+  ballotStyleId: BallotStyleId;
+  precinctId: PrecinctId;
+}): JSX.Element {
+  const ballotStyle = assertDefined(
+    getBallotStyle({ election, ballotStyleId })
+  );
+  const ballotStylePrecinctsAndSplits = getPrecinctsAndSplitsForBallotStyle({
+    election,
+    ballotStyle,
+  });
+  const precinctOrSplit = find(
+    ballotStylePrecinctsAndSplits,
+    (p) => p.precinct.id === precinctId
+  );
+  return precinctOrSplit.split
+    ? electionStrings.precinctSplitName(precinctOrSplit.split)
+    : electionStrings.precinctName(precinctOrSplit.precinct);
+}
+
 export function Footer({
   election,
   ballotStyleId,
@@ -542,22 +566,7 @@ export function Footer({
   electionTitleOverride?: React.ReactNode;
   colorTint?: ColorTint;
 }): JSX.Element {
-  const precinct = assertDefined(getPrecinctById({ election, precinctId }));
-  const ballotStyle = assertDefined(
-    getBallotStyle({ election, ballotStyleId })
-  );
   const party = getPartyForBallotStyle({ election, ballotStyleId });
-  const ballotStylePrecinctsAndSplits = getPrecinctsAndSplitsForBallotStyle({
-    election,
-    ballotStyle,
-  });
-  const precinctOrSplit = find(
-    ballotStylePrecinctsAndSplits,
-    (p) => p.precinct.id === precinct.id
-  );
-  const precinctOrSplitName = precinctOrSplit.split
-    ? electionStrings.precinctSplitName(precinctOrSplit.split)
-    : electionStrings.precinctName(precinctOrSplit.precinct);
 
   const languageCode = primaryLanguageCode(
     assertDefined(getBallotStyle({ election, ballotStyleId }))
@@ -659,7 +668,12 @@ export function Footer({
             {electionStrings.stateName(election)}
           </div>
           <div>
-            {precinctOrSplitName} &bull;
+            <PrecinctOrSplitName
+              election={election}
+              precinctId={precinctId}
+              ballotStyleId={ballotStyleId}
+            />{' '}
+            &bull;
             {party && (
               <React.Fragment>
                 {' '}

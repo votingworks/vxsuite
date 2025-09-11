@@ -19,6 +19,7 @@ import {
   Election,
   LanguageCode,
   NhPrecinctSplitOptions,
+  PrecinctId,
   YesNoContest,
   ballotPaperDimensions,
   getBallotStyle,
@@ -57,6 +58,7 @@ import {
   WriteInLabel,
   ColorTint,
   ContestTitle,
+  PrecinctOrSplitName,
 } from '../ballot_components';
 import { BallotMode, PixelDimensions } from '../types';
 import { hmpbStrings } from '../hmpb_strings';
@@ -67,6 +69,7 @@ import { BaseStyles } from '../base_styles';
 
 function Header({
   election,
+  precinctId,
   ballotStyleId,
   ballotType,
   ballotMode,
@@ -77,6 +80,7 @@ function Header({
   clerkSignatureCaption: clerkSignatureCaptionOverride,
 }: {
   election: Election;
+  precinctId: PrecinctId;
   ballotStyleId: BallotStyleId;
   ballotType: BallotType;
   ballotMode: BallotMode;
@@ -104,6 +108,8 @@ function Header({
     election.type === 'primary'
       ? assertDefined(getPartyForBallotStyle({ election, ballotStyleId }))
       : undefined;
+
+  const showPrecinctName = election.precincts.length > 1;
 
   // Signature is guaranteed to exist due to validation in BallotPageFrame
   assert(election.signature);
@@ -144,6 +150,13 @@ function Header({
               {electionTitleOverride ?? electionStrings.electionTitle(election)}
             </h2>
             <h2>{electionStrings.electionDate(election)}</h2>
+            {showPrecinctName && (
+              <PrecinctOrSplitName
+                election={election}
+                precinctId={precinctId}
+                ballotStyleId={ballotStyleId}
+              />
+            )}
             <div>
               {/* TODO comma-delimiting the components of a location doesn't
             necessarily work in all languages. We need to figure out a
@@ -249,6 +262,7 @@ function BallotPageFrame({
               <>
                 <Header
                   election={election}
+                  precinctId={precinctId}
                   ballotStyleId={ballotStyleId}
                   ballotType={ballotType}
                   ballotMode={ballotMode}
