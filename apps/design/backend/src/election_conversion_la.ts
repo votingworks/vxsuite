@@ -305,7 +305,20 @@ export function convertLaElectionToVxElection(
       party = partiesByName.get(row.party) ?? {
         id: generateId(),
         name: row.party,
-        fullName: row.party,
+        fullName: (() => {
+          switch (row.party) {
+            case 'Democrat':
+              return 'Democratic Party';
+            case 'Republican':
+              return 'Republican Party';
+            case 'Libertarian':
+              return 'Libertarian Party';
+            case 'Green':
+              return 'Green Party';
+            default:
+              return row.party;
+          }
+        })(),
         abbrev: row.party.charAt(0),
       };
       partiesByName.set(row.party, party);

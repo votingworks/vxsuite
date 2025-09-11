@@ -108,7 +108,7 @@ export const electionStrings = {
   ),
 
   [Key.PARTY_FULL_NAME]: (party: Party) => (
-    <UiString uiStringKey={Key.PARTY_NAME} uiStringSubKey={party.id}>
+    <UiString uiStringKey={Key.PARTY_FULL_NAME} uiStringSubKey={party.id}>
       {party.fullName}
     </UiString>
   ),
