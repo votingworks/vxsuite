@@ -83,11 +83,12 @@ export async function generateSignedQuickResultsReportingUrl(
     .replace(CERT_PEM_HEADER, '')
     .replace(CERT_PEM_FOOTER, '');
 
-  const signedQuickResultsReportingUrl = `${quickResultsReportingUrl}?p=${encodeURIComponent(
-    message
-  )}&s=${messageSignature.toString('base64url')}&c=${encodeURIComponent(
-    machineCertContent
-  )}`;
+  const params = new URLSearchParams({
+    p: message,
+    s: messageSignature.toString('base64url'),
+    c: machineCertContent,
+  });
+  const signedQuickResultsReportingUrl = `${quickResultsReportingUrl}?${params.toString()}`;
   return signedQuickResultsReportingUrl;
 }
 /**

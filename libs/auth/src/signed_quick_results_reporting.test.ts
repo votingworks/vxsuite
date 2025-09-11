@@ -70,9 +70,9 @@ test('authenticateSignedQuickResultsReportingUrl - success case with real certif
 
   // Extract the payload, signature, and certificate from the URL
   const url = new URL(signedUrl);
-  const payload = decodeURIComponent(url.searchParams.get('p') ?? '');
+  const payload = url.searchParams.get('p') ?? '';
   const signature = url.searchParams.get('s') ?? '';
-  const certificate = decodeURIComponent(url.searchParams.get('c') ?? '');
+  const certificate = url.searchParams.get('c') ?? '';
 
   // Use the VX certificate authority cert that the vx-scan cert was signed by
   const vxCertAuthorityCertPath = getTestFilePath({
@@ -104,8 +104,8 @@ test('authenticateSignedQuickResultsReportingUrl - invalid signature', async () 
 
   // Extract the payload and certificate from the URL
   const url = new URL(signedUrl);
-  const payload = decodeURIComponent(url.searchParams.get('p') ?? '');
-  const certificate = decodeURIComponent(url.searchParams.get('c') ?? '');
+  const payload = url.searchParams.get('p') ?? '';
+  const certificate = url.searchParams.get('c') ?? '';
 
   // Use an invalid signature
   const invalidSignature = 'invalidSignature';
@@ -155,7 +155,7 @@ test('authenticateSignedQuickResultsReportingUrl - tampered payload', async () =
   // Extract the signature and certificate from the URL
   const url = new URL(signedUrl);
   const signature = url.searchParams.get('s') ?? '';
-  const certificate = decodeURIComponent(url.searchParams.get('c') ?? '');
+  const certificate = url.searchParams.get('c') ?? '';
 
   // Use a tampered payload
   const tamperedPayload = 'qr1:tamperedData';
