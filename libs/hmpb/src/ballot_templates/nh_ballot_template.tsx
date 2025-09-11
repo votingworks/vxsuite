@@ -3,7 +3,6 @@ import {
   assert,
   assertDefined,
   err,
-  find,
   iter,
   ok,
   range,
@@ -18,9 +17,9 @@ import {
   BallotType,
   CandidateContest as CandidateContestStruct,
   Election,
-  Id,
   LanguageCode,
   NhPrecinctSplitOptions,
+  PrecinctId,
   YesNoContest,
   ballotPaperDimensions,
   getBallotStyle,
@@ -34,7 +33,6 @@ import {
   RichText,
 } from '@votingworks/ui';
 import { parse as parseHtml } from 'node-html-parser';
-import { getPrecinctsAndSplitsForBallotStyle } from '@votingworks/utils';
 import {
   BallotLayoutError,
   BallotPageTemplate,
@@ -60,6 +58,7 @@ import {
   WriteInLabel,
   ColorTint,
   ContestTitle,
+  PrecinctOrSplitName,
 } from '../ballot_components';
 import { BallotMode, PixelDimensions } from '../types';
 import { hmpbStrings } from '../hmpb_strings';
@@ -81,7 +80,7 @@ function Header({
   clerkSignatureCaption: clerkSignatureCaptionOverride,
 }: {
   election: Election;
-  precinctId: Id;
+  precinctId: PrecinctId;
   ballotStyleId: BallotStyleId;
   ballotType: BallotType;
   ballotMode: BallotMode;
@@ -111,23 +110,6 @@ function Header({
       : undefined;
 
   const showPrecinctName = election.precincts.length > 1;
-  let precinctName: JSX.Element | undefined;
-  if (showPrecinctName) {
-    const ballotStyle = assertDefined(
-      getBallotStyle({ election, ballotStyleId })
-    );
-    const ballotStylePrecinctsAndSplits = getPrecinctsAndSplitsForBallotStyle({
-      election,
-      ballotStyle,
-    });
-    const precinctOrSplit = find(
-      ballotStylePrecinctsAndSplits,
-      (p) => p.precinct.id === precinctId
-    );
-    precinctName = precinctOrSplit.split
-      ? electionStrings.precinctSplitName(precinctOrSplit.split)
-      : electionStrings.precinctName(precinctOrSplit.precinct);
-  }
 
   // Signature is guaranteed to exist due to validation in BallotPageFrame
   assert(election.signature);
@@ -168,7 +150,13 @@ function Header({
               {electionTitleOverride ?? electionStrings.electionTitle(election)}
             </h2>
             <h2>{electionStrings.electionDate(election)}</h2>
-            {precinctName && <div>{precinctName} </div>}
+            {showPrecinctName && (
+              <PrecinctOrSplitName
+                election={election}
+                precinctId={precinctId}
+                ballotStyleId={ballotStyleId}
+              />
+            )}
             <div>
               {/* TODO comma-delimiting the components of a location doesn't
             necessarily work in all languages. We need to figure out a
