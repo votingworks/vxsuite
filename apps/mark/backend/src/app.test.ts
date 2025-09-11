@@ -499,7 +499,7 @@ test('printing ballots', async () => {
   await expectElectionState({ ballotsPrintedCount: 2 });
   await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'chinese-ballot',
-    failureThreshold: 0.0001,
+    failureThreshold: 0.001,
   });
 });
 

@@ -1,14 +1,11 @@
 import React from 'react';
 
 import {
-  BallotStyleId,
   Candidate,
-  Election,
   Parties,
   Precinct,
   PrecinctSelection,
   getCandidateParties,
-  getPartyForBallotStyle,
 } from '@votingworks/types';
 import { getPrecinctSelection } from '@votingworks/utils';
 
@@ -60,19 +57,4 @@ export function PrecinctSelectionName(props: {
   const precinct = getPrecinctSelection(electionPrecincts, precinctSelection);
 
   return electionStrings.precinctName(precinct);
-}
-
-export function PrimaryElectionTitlePrefix(props: {
-  ballotStyleId: BallotStyleId;
-  election: Election;
-}): React.ReactNode {
-  const { ballotStyleId, election } = props;
-  const party = getPartyForBallotStyle({ ballotStyleId, election });
-  if (!party) {
-    return null;
-  }
-
-  return (
-    <React.Fragment>{electionStrings.partyFullName(party)} </React.Fragment>
-  );
 }
