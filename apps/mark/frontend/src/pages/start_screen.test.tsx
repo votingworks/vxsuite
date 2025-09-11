@@ -20,8 +20,9 @@ test('renders StartScreen', () => {
     precinctId: 'precinct-1',
     route: '/',
   });
+  screen.getByText('Mammal Party');
   const heading = screen.getByRole('heading', {
-    name: 'Mammal Party Example Primary Election',
+    name: 'Example Primary Election',
   });
   screen.getByText('September 8, 2021');
   screen.getByText(hasTextAcrossElements('Sample County, State of Sample'));
