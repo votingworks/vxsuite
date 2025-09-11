@@ -3,6 +3,7 @@ import {
   assert,
   assertDefined,
   err,
+  find,
   iter,
   ok,
   range,
@@ -16,6 +17,7 @@ import {
   BallotStyleId,
   BallotType,
   CandidateContest as CandidateContestStruct,
+  CandidateRotation,
   Election,
   LanguageCode,
   NhPrecinctSplitOptions,
@@ -311,11 +313,13 @@ function CandidateContest({
   contest,
   compact,
   colorTint,
+  candidateRotation,
 }: {
   election: Election;
   contest: CandidateContestStruct;
   compact?: boolean;
   colorTint?: ColorTint;
+  candidateRotation: CandidateRotation;
 }) {
   const voteForText = {
     1: hmpbStrings.hmpbVoteForNotMoreThan1,
@@ -374,7 +378,11 @@ function CandidateContest({
         )}
       </ContestHeader>
       <ul>
-        {contest.candidates.map((candidate, i) => {
+        {assertDefined(candidateRotation[contest.id]).map((candidateId, i) => {
+          const candidate = find(
+            contest.candidates,
+            (c) => c.id === candidateId
+          );
           const partyText =
             election.type === 'primary' ? undefined : (
               <CandidatePartyList
@@ -581,11 +589,13 @@ function Contest({
   contest,
   election,
   colorTint,
+  candidateRotation,
 }: {
   compact?: boolean;
   contest: AnyContest;
   election: Election;
   colorTint?: ColorTint;
+  candidateRotation: CandidateRotation;
 }) {
   switch (contest.type) {
     case 'candidate':
@@ -595,6 +605,7 @@ function Contest({
           election={election}
           contest={contest}
           colorTint={colorTint}
+          candidateRotation={candidateRotation}
         />
       );
     case 'yesno':
@@ -723,6 +734,7 @@ async function BallotPageContent(
         contest={contest}
         election={election}
         colorTint={props.colorTint}
+        candidateRotation={props.candidateRotation}
       />
     ));
     const numColumns = section[0].type === 'candidate' ? 3 : 1;
@@ -799,7 +811,12 @@ async function BallotPageContent(
       const { firstContestElement, restContest } =
         await splitLongBallotMeasureAcrossPages(
           tooLongContest,
-          { election, compact, colorTint: props.colorTint },
+          {
+            election,
+            compact,
+            colorTint: props.colorTint,
+            candidateRotation: props.candidateRotation,
+          },
           ballotStyle,
           dimensions,
           scratchpad
@@ -848,7 +865,9 @@ async function BallotPageContent(
 }
 
 export type NhBallotProps = BaseBallotProps &
-  NhPrecinctSplitOptions & { colorTint?: ColorTint };
+  NhPrecinctSplitOptions & { colorTint?: ColorTint } & {
+    candidateRotation: CandidateRotation;
+  };
 
 export const nhBallotTemplate: BallotPageTemplate<NhBallotProps> = {
   stylesComponent: BaseStyles,

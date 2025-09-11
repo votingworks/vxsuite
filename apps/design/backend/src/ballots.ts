@@ -1,4 +1,5 @@
 import {
+  CandidateRotation,
   Election,
   hasSplits,
   PrecinctSplit,
@@ -20,6 +21,10 @@ import { parse } from 'csv-parse/sync';
 import { join } from 'node:path';
 import { sliOrgId } from './globals';
 import { BallotStyle, normalizeState, User, UsState } from './types';
+import {
+  rotateCandidateByOffset,
+  rotateCandidatesByNhStatutes,
+} from './candidate_rotation';
 
 function getPrecinctSplitForBallotStyle(
   precinct: PrecinctWithSplits,
@@ -108,9 +113,24 @@ export function createBallotPropsForTemplate(
   compact: boolean
 ): BaseBallotProps[] {
   function buildNhBallotProps(props: BaseBallotProps): NhBallotProps {
+    const rotateCandidatesByPrecinct = false; // TODO flag by election or organization
+    const precinctIndex = election.precincts.findIndex(
+      (p) => p.id === props.precinctId
+    );
+    const candidateRotation: CandidateRotation = Object.fromEntries(
+      election.contests
+        .filter((contest) => contest.type === 'candidate')
+        .map((contest) => [
+          contest.id,
+          rotateCandidatesByPrecinct
+            ? rotateCandidateByOffset(contest, precinctIndex)
+            : rotateCandidatesByNhStatutes(contest),
+        ])
+    );
+
     const precinct = find(election.precincts, (p) => p.id === props.precinctId);
     if (!hasSplits(precinct)) {
-      return props;
+      return { ...props, candidateRotation };
     }
     const ballotStyle = find(
       ballotStyles,
@@ -137,6 +157,7 @@ export function createBallotPropsForTemplate(
       clerkSignatureImage: split.clerkSignatureImage,
       clerkSignatureCaption: split.clerkSignatureCaption,
       colorTint: colorTint as ColorTint,
+      candidateRotation,
     };
   }
 
