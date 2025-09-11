@@ -2,10 +2,14 @@ import { expect, test, vi } from 'vitest';
 import { electionGeneralFixtures } from '@votingworks/fixtures';
 import { DEV_MACHINE_ID, Tabulation } from '@votingworks/types';
 import { compressTally } from '@votingworks/utils';
+import { err, ok } from '@votingworks/basics';
 
 import { getTestFilePath } from '../test/utils';
 import { SignedQuickResultsReportingConfig } from './config';
-import { generateSignedQuickResultsReportingUrl } from './signed_quick_results_reporting';
+import {
+  generateSignedQuickResultsReportingUrl,
+  authenticateSignedQuickResultsReportingUrl,
+} from './signed_quick_results_reporting';
 
 vi.mock(
   '@votingworks/utils',
@@ -20,6 +24,7 @@ const vxScanTestConfig: SignedQuickResultsReportingConfig = {
     source: 'file',
     path: getTestFilePath({ fileType: 'vx-scan-private-key.pem' }),
   },
+  machineCertPath: getTestFilePath({ fileType: 'vx-scan-cert.pem' }),
 };
 
 const electionDefinition = electionGeneralFixtures.readElectionDefinition();
@@ -45,7 +50,126 @@ test.each<{ isLiveMode: boolean }>([
 
     expect(compressTally).toHaveBeenCalledTimes(1);
     expect(signedQuickResultsReportingUrl).toMatch(
-      /^https:\/\/example.com\/\?p=.*&s=[A-Za-z0-9-_]+$/
+      /^https:\/\/example.com\?p=.*&s=[^&]+&c=[^&]+$/
     );
   }
 );
+
+test('authenticateSignedQuickResultsReportingUrl - success case with real certificates', async () => {
+  // First generate a valid signed URL to get real payload, signature, and certificate
+  const signedUrl = await generateSignedQuickResultsReportingUrl(
+    {
+      electionDefinition,
+      isLiveMode: true,
+      quickResultsReportingUrl: 'https://example.com',
+      results: mockedResults,
+      signingMachineId: DEV_MACHINE_ID,
+    },
+    vxScanTestConfig
+  );
+
+  // Extract the payload, signature, and certificate from the URL
+  const url = new URL(signedUrl);
+  const payload = url.searchParams.get('p') ?? '';
+  const signature = url.searchParams.get('s') ?? '';
+  const certificate = url.searchParams.get('c') ?? '';
+
+  // Use the VX certificate authority cert that the vx-scan cert was signed by
+  const vxCertAuthorityCertPath = getTestFilePath({
+    fileType: 'vx-cert-authority-cert.pem',
+  });
+
+  const result = await authenticateSignedQuickResultsReportingUrl(
+    payload,
+    signature,
+    certificate,
+    vxCertAuthorityCertPath
+  );
+
+  expect(result).toEqual(ok());
+});
+
+test('authenticateSignedQuickResultsReportingUrl - invalid signature', async () => {
+  // First generate a valid signed URL to get real payload and certificate
+  const signedUrl = await generateSignedQuickResultsReportingUrl(
+    {
+      electionDefinition,
+      isLiveMode: true,
+      quickResultsReportingUrl: 'https://example.com',
+      results: mockedResults,
+      signingMachineId: DEV_MACHINE_ID,
+    },
+    vxScanTestConfig
+  );
+
+  // Extract the payload and certificate from the URL
+  const url = new URL(signedUrl);
+  const payload = url.searchParams.get('p') ?? '';
+  const certificate = url.searchParams.get('c') ?? '';
+
+  // Use an invalid signature
+  const invalidSignature = 'invalidSignature';
+
+  const vxCertAuthorityCertPath = getTestFilePath({
+    fileType: 'vx-cert-authority-cert.pem',
+  });
+
+  const result = await authenticateSignedQuickResultsReportingUrl(
+    payload,
+    invalidSignature,
+    certificate,
+    vxCertAuthorityCertPath
+  );
+
+  expect(result).toEqual(err('invalid-signature'));
+});
+
+test('authenticateSignedQuickResultsReportingUrl - invalid certificate format', async () => {
+  const vxCertAuthorityCertPath = getTestFilePath({
+    fileType: 'vx-cert-authority-cert.pem',
+  });
+
+  const result = await authenticateSignedQuickResultsReportingUrl(
+    'somePayload',
+    'someSignature',
+    'invalidCertificate',
+    vxCertAuthorityCertPath
+  );
+
+  expect(result).toEqual(err('invalid-signature'));
+});
+
+test('authenticateSignedQuickResultsReportingUrl - tampered payload', async () => {
+  // First generate a valid signed URL
+  const signedUrl = await generateSignedQuickResultsReportingUrl(
+    {
+      electionDefinition,
+      isLiveMode: true,
+      quickResultsReportingUrl: 'https://example.com',
+      results: mockedResults,
+      signingMachineId: DEV_MACHINE_ID,
+    },
+    vxScanTestConfig
+  );
+
+  // Extract the signature and certificate from the URL
+  const url = new URL(signedUrl);
+  const signature = url.searchParams.get('s') ?? '';
+  const certificate = url.searchParams.get('c') ?? '';
+
+  // Use a tampered payload
+  const tamperedPayload = 'qr1:tamperedData';
+
+  const vxCertAuthorityCertPath = getTestFilePath({
+    fileType: 'vx-cert-authority-cert.pem',
+  });
+
+  const result = await authenticateSignedQuickResultsReportingUrl(
+    tamperedPayload,
+    signature,
+    certificate,
+    vxCertAuthorityCertPath
+  );
+
+  expect(result).toEqual(err('invalid-signature'));
+});

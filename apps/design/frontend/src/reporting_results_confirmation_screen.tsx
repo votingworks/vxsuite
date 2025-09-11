@@ -29,6 +29,7 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
   const queryParams = new URLSearchParams(window.location.search);
   const payload = queryParams.get('p');
   const signature = queryParams.get('s');
+  const certificate = queryParams.get('c');
 
   const {
     mutate: processQrCodeReportMutate,
@@ -38,17 +39,27 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
   } = processQrCodeReport.useMutation();
 
   useEffect(() => {
-    if (payload && signature) {
-      processQrCodeReportMutate({ payload, signature });
+    if (payload && signature && certificate) {
+      processQrCodeReportMutate({ payload, signature, certificate });
     }
-  }, [payload, signature, processQrCodeReportMutate]);
+  }, [payload, signature, certificate, processQrCodeReportMutate]);
 
   if (
     !payload ||
     !signature ||
+    !certificate ||
     error ||
     (reportResult && reportResult.isErr())
   ) {
+    if (reportResult && reportResult.err() === 'invalid-signature') {
+      return (
+        <ResultsScreen>
+          <MainContent>
+            <div>Signature NOT verified. Please try again.</div>
+          </MainContent>
+        </ResultsScreen>
+      );
+    }
     return (
       <ResultsScreen>
         <MainContent>

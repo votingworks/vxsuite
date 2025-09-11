@@ -11,6 +11,7 @@ import {
   JavaCardConfig,
   SignedHashValidationConfig,
   SignedQuickResultsReportingConfig,
+  getVxCertAuthorityCertPath,
 } from './config';
 
 vi.mock(
@@ -548,6 +549,9 @@ test.each<{
         source: 'file',
         path: expect.stringContaining('/certs/dev/vx-admin-private-key.pem'),
       },
+      machineCertPath: expect.stringContaining(
+        '/certs/dev/vx-admin-cert-authority-cert.pem'
+      ),
     },
   },
   {
@@ -558,6 +562,7 @@ test.each<{
         source: 'file',
         path: expect.stringContaining('/certs/dev/vx-scan-private-key.pem'),
       },
+      machineCertPath: expect.stringContaining('/certs/dev/vx-scan-cert.pem'),
     },
   },
   {
@@ -565,6 +570,7 @@ test.each<{
     machineType: 'admin',
     expectedOutput: {
       machinePrivateKey: { source: 'tpm' },
+      machineCertPath: '/vx/config/vx-admin-cert-authority-cert.pem',
     },
   },
   {
@@ -572,6 +578,7 @@ test.each<{
     machineType: 'scan',
     expectedOutput: {
       machinePrivateKey: { source: 'tpm' },
+      machineCertPath: '/vx/config/vx-scan-cert.pem',
     },
   },
   {
@@ -583,6 +590,9 @@ test.each<{
         source: 'file',
         path: expect.stringContaining('/certs/dev/vx-admin-private-key.pem'),
       },
+      machineCertPath: expect.stringContaining(
+        '/certs/dev/vx-admin-cert-authority-cert.pem'
+      ),
     },
   },
   {
@@ -594,6 +604,7 @@ test.each<{
         source: 'file',
         path: expect.stringContaining('/certs/dev/vx-scan-private-key.pem'),
       },
+      machineCertPath: expect.stringContaining('/certs/dev/vx-scan-cert.pem'),
     },
   },
   {
@@ -605,6 +616,9 @@ test.each<{
         source: 'file',
         path: expect.stringContaining('/certs/dev/vx-admin-private-key.pem'),
       },
+      machineCertPath: expect.stringContaining(
+        '/certs/dev/vx-admin-cert-authority-cert.pem'
+      ),
     },
   },
   {
@@ -616,6 +630,7 @@ test.each<{
         source: 'file',
         path: expect.stringContaining('/certs/dev/vx-scan-private-key.pem'),
       },
+      machineCertPath: expect.stringContaining('/certs/dev/vx-scan-cert.pem'),
     },
   },
 ])(
@@ -637,5 +652,86 @@ test.each<{
     expect(constructSignedQuickResultsReportingConfig()).toEqual(
       expectedOutput
     );
+  }
+);
+
+test.each<{
+  nodeEnv: NodeJS.ProcessEnv['NODE_ENV'];
+  deployEnv?: string;
+  isVxDev?: boolean;
+  isIntegrationTest?: boolean;
+  expectedOutput: string;
+}>([
+  {
+    nodeEnv: 'development',
+    isVxDev: false,
+    isIntegrationTest: false,
+    expectedOutput: expect.stringContaining(
+      '/certs/dev/vx-cert-authority-cert.pem'
+    ),
+  },
+  {
+    nodeEnv: 'production',
+    deployEnv: undefined,
+    isVxDev: false,
+    isIntegrationTest: false,
+    expectedOutput: expect.stringContaining(
+      '/certs/prod/vx-cert-authority-cert.pem'
+    ),
+  },
+  {
+    nodeEnv: 'production',
+    deployEnv: 'production',
+    isVxDev: false,
+    isIntegrationTest: false,
+    expectedOutput: expect.stringContaining(
+      '/certs/prod/vx-cert-authority-cert.pem'
+    ),
+  },
+  {
+    nodeEnv: 'production',
+    deployEnv: 'staging',
+    isVxDev: false,
+    isIntegrationTest: false,
+    expectedOutput: expect.stringContaining(
+      '/certs/dev/vx-cert-authority-cert.pem'
+    ),
+  },
+  {
+    nodeEnv: 'production',
+    deployEnv: 'production',
+    isVxDev: true,
+    isIntegrationTest: false,
+    expectedOutput: expect.stringContaining(
+      '/certs/dev/vx-cert-authority-cert.pem'
+    ),
+  },
+  {
+    nodeEnv: 'production',
+    deployEnv: 'production',
+    isVxDev: false,
+    isIntegrationTest: true,
+    expectedOutput: expect.stringContaining(
+      '/certs/dev/vx-cert-authority-cert.pem'
+    ),
+  },
+])(
+  'getVxCertAuthorityCertPath - nodeEnv = $nodeEnv, deployEnv = $deployEnv, isVxDev = $isVxDev, isIntegrationTest = $isIntegrationTest',
+  ({
+    nodeEnv,
+    deployEnv,
+    isVxDev: isVxDevResult,
+    isIntegrationTest: isIntegrationTestResult,
+    expectedOutput,
+  }) => {
+    (process.env.NODE_ENV as string) = nodeEnv;
+    if (deployEnv !== undefined) {
+      (process.env.DEPLOY_ENV as string) = deployEnv;
+    }
+    vi.mocked(isVxDev).mockImplementation(() => isVxDevResult ?? false);
+    vi.mocked(isIntegrationTest).mockImplementation(
+      () => isIntegrationTestResult ?? false
+    );
+    expect(getVxCertAuthorityCertPath()).toEqual(expectedOutput);
   }
 );

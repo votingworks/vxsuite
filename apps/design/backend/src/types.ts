@@ -107,4 +107,4 @@ export interface ResultsReportInfo {
   precinctId?: PrecinctOrSplitId;
 }
 
-export type ResultsReportingError = 'invalid-payload';
+export type ResultsReportingError = 'invalid-payload' | 'invalid-signature';

@@ -1,5 +1,9 @@
 import path from 'node:path';
-import { isIntegrationTest, isVxDev } from '@votingworks/utils';
+import {
+  isIntegrationTest,
+  isStagingDeploy,
+  isVxDev,
+} from '@votingworks/utils';
 
 import { getRequiredEnvVar, isNodeEnvProduction } from './env_vars';
 import { FileKey, RemoteKey, TpmKey } from './keys';
@@ -22,10 +26,17 @@ export const PROD_VX_CERT_AUTHORITY_CERT_PATH = path.join(
 );
 
 function shouldUseProdCerts(): boolean {
-  return isNodeEnvProduction() && !isVxDev() && !isIntegrationTest();
+  return (
+    isNodeEnvProduction() &&
+    !isVxDev() &&
+    !isIntegrationTest() &&
+    !isStagingDeploy()
+  );
 }
-
-function getVxCertAuthorityCertPath(): string {
+/**
+ * Gets the path to the VxCertAuthorityCert
+ */
+export function getVxCertAuthorityCertPath(): string {
   return shouldUseProdCerts()
     ? PROD_VX_CERT_AUTHORITY_CERT_PATH
     : DEV_VX_CERT_AUTHORITY_CERT_PATH;
@@ -175,6 +186,7 @@ export function constructSignedHashValidationConfig(): SignedHashValidationConfi
  * Config params for a signed quick results reporting instance
  */
 export interface SignedQuickResultsReportingConfig {
+  machineCertPath: string;
   machinePrivateKey: FileKey | TpmKey;
 }
 
@@ -182,8 +194,9 @@ export interface SignedQuickResultsReportingConfig {
  * Constructs a signed quick results reporting config given relevant env vars
  */
 export function constructSignedQuickResultsReportingConfig(): SignedQuickResultsReportingConfig {
-  const { privateKey } = getMachineCertPathAndPrivateKey();
+  const { certPath, privateKey } = getMachineCertPathAndPrivateKey();
   return {
+    machineCertPath: certPath,
     machinePrivateKey: privateKey,
   };
 }
