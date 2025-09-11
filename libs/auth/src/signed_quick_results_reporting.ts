@@ -4,8 +4,6 @@ import { Buffer } from 'node:buffer';
 import {
   ElectionDefinition,
   Tabulation,
-  CompressedTally,
-  CompressedTallyEntry,
   safeParseInt,
 } from '@votingworks/types';
 import { assert, err, ok, Result } from '@votingworks/basics';
@@ -48,65 +46,6 @@ const SIGNED_QUICK_RESULTS_REPORTING_MESSAGE_PAYLOAD_SEPARATOR = '\x00';
 const QR_MESSAGE_FORMAT = 'qr1';
 
 /**
- * Encodes a compressed tally for inclusion in a QR code URL.
- * Uses a more efficient encoding than JSON + base64.
- */
-function encodeCompressedTally(compressedTally: CompressedTally): string {
-  // Convert the compressed tally (array of arrays of numbers) to a more compact format
-  // by flattening and using length prefixes for each contest's data
-  const flatData: number[] = [];
-
-  for (const contestTally of compressedTally) {
-    // Add length prefix for this contest's data
-    flatData.push(contestTally.length);
-    // Add the actual tally data
-    flatData.push(...contestTally);
-  }
-
-  // Convert to Uint32Array for efficient binary encoding
-  const uint32Array = new Uint32Array(flatData);
-  // Convert to buffer and then to base64url (URL-safe, no padding)
-  const buffer = Buffer.from(uint32Array.buffer);
-  return buffer.toString('base64url');
-}
-
-/**
- * Decodes a compressed tally from QR code URL data.
- * Reverses the encoding performed by encodeCompressedTally.
- */
-function decodeCompressedTally(encodedData: string): CompressedTally {
-  // Decode from base64url back to buffer
-  const buffer = Buffer.from(encodedData, 'base64url');
-  // Convert to Uint32Array
-  const uint32Array = new Uint32Array(
-    buffer.buffer,
-    buffer.byteOffset,
-    buffer.length / 4
-  );
-
-  // Reconstruct the compressed tally structure
-  const compressedTally: CompressedTally = [];
-  let index = 0;
-
-  while (index < uint32Array.length) {
-    const contestLength = uint32Array[index];
-    index += 1;
-    if (contestLength === undefined) break;
-
-    const contestTally: number[] = [];
-    for (let i = 0; i < contestLength; i += 1) {
-      const value = uint32Array[index];
-      index += 1;
-      if (value === undefined) throw new Error('Invalid encoded tally data');
-      contestTally.push(value);
-    }
-    compressedTally.push(contestTally as CompressedTallyEntry);
-  }
-
-  return compressedTally;
-}
-
-/**
  * Safely encodes a string for use in URLs by URL-encoding any characters that
  * could conflict with our message separator or URL structure.
  */
@@ -130,14 +69,14 @@ export function encodeMessagePayload(components: {
   signingMachineId: string;
   isLiveMode: boolean;
   timestamp: number;
-  compressedTally: CompressedTally;
+  compressedTally: string;
 }): string {
   const messagePayloadParts = [
     safeEncodeForUrl(components.ballotHash),
     safeEncodeForUrl(components.signingMachineId),
     components.isLiveMode ? '1' : '0',
     components.timestamp.toString(),
-    encodeCompressedTally(components.compressedTally),
+    components.compressedTally,
   ];
 
   return messagePayloadParts.join(
@@ -154,7 +93,7 @@ export function decodeQrCodeMessage(payload: string): {
   machineId: string;
   isLive: boolean;
   signedTimestamp: Date;
-  compressedTally: CompressedTally;
+  encodedCompressedTally: string;
 } {
   const { messageType, messagePayload } = deconstructPrefixedMessage(payload);
 
@@ -173,7 +112,7 @@ export function decodeQrCodeMessage(payload: string): {
     signingMachineIdEncoded,
     isLiveModeStr,
     timestampStr,
-    compressedTallyEncoded,
+    encodedCompressedTally,
   ] = parts;
 
   if (
@@ -181,7 +120,7 @@ export function decodeQrCodeMessage(payload: string): {
     !signingMachineIdEncoded ||
     !isLiveModeStr ||
     !timestampStr ||
-    !compressedTallyEncoded
+    !encodedCompressedTally
   ) {
     throw new Error('Missing required message payload components');
   }
@@ -197,7 +136,7 @@ export function decodeQrCodeMessage(payload: string): {
     machineId: safeDecodeFromUrl(signingMachineIdEncoded),
     isLive: isLiveModeStr === '1',
     signedTimestamp: new Date(timestampNumber * 1000),
-    compressedTally: decodeCompressedTally(compressedTallyEncoded),
+    encodedCompressedTally,
   };
 }
 

@@ -10,6 +10,7 @@ import {
   YesNoContestCompressedTally,
   YesNoContestCompressedTallySchema,
 } from '@votingworks/types';
+import { Buffer } from 'node:buffer';
 import { assert, throwIllegalValue, typedAs } from '@votingworks/basics';
 
 /**
@@ -18,9 +19,9 @@ import { assert, throwIllegalValue, typedAs } from '@votingworks/basics';
 export function compressTally(
   election: Election,
   results: Tabulation.ElectionResults
-): CompressedTally {
+): string {
   // eslint-disable-next-line array-callback-return
-  return election.contests.map((contest) => {
+  const compressedTally = election.contests.map((contest) => {
     switch (contest.type) {
       case 'yesno': {
         const contestResults = results.contestResults[contest.id];
@@ -53,6 +54,9 @@ export function compressTally(
         throwIllegalValue(contest, 'type');
     }
   });
+  const flatArray = compressedTally.flat();
+  const uint16Array = new Uint16Array(flatArray);
+  return Buffer.from(uint16Array.buffer).toString('base64url');
 }
 
 function getContestTalliesForCompressedContest(
@@ -131,12 +135,43 @@ function getContestTalliesForCompressedContest(
  */
 export function readCompressedTally(
   election: Election,
-  serializedTally: CompressedTally,
+  serializedTally: string,
   cardCounts: Tabulation.CardCounts
 ): Tabulation.ElectionResults {
+  const buffer = Buffer.from(serializedTally, 'base64url');
+  const uint16Array = new Uint16Array(
+    buffer.buffer,
+    buffer.byteOffset,
+    buffer.byteLength / 2
+  );
+  const compressedTally: CompressedTally = [];
+  let offset = 0;
+  for (const contest of election.contests) {
+    if (contest.type === 'yesno') {
+      compressedTally.push(
+        uint16Array.slice(
+          offset,
+          offset + 5
+        ) as unknown as YesNoContestCompressedTally
+      );
+      offset += 5;
+    } else if (contest.type === 'candidate') {
+      const numCandidates = contest.candidates.length;
+      const tallyLength = numCandidates + 4; // 3 metadata + candidates + write-in
+      compressedTally.push(
+        uint16Array.slice(
+          offset,
+          offset + tallyLength
+        ) as unknown as CandidateContestCompressedTally
+      );
+      offset += tallyLength;
+    } else {
+      throwIllegalValue(contest, 'type');
+    }
+  }
   const allContestResults: Tabulation.ElectionResults['contestResults'] = {};
   for (const [contestIdx, contest] of election.contests.entries()) {
-    const serializedContestTally = serializedTally[contestIdx];
+    const serializedContestTally = compressedTally[contestIdx];
     assert(serializedContestTally);
     const contestResults = getContestTalliesForCompressedContest(
       contest,

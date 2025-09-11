@@ -859,6 +859,29 @@ export class Store {
     });
   }
 
+  async getElectionFromBallotHash(
+    ballotHash: string
+  ): Promise<ElectionRecord | undefined> {
+    const row = (
+      await this.db.withClient((client) =>
+        client.query(
+          `
+          select id
+          from elections
+          where last_exported_ballot_hash = $1
+        `,
+          ballotHash
+        )
+      )
+    ).rows[0];
+    if (!row) {
+      return undefined;
+    }
+    const electionId = row.id as ElectionId;
+
+    return this.getElection(electionId);
+  }
+
   async getElectionOrgId(electionId: ElectionId): Promise<string> {
     const row = (
       await this.db.withClient((client) =>
@@ -1553,21 +1576,25 @@ export class Store {
     );
   }
 
-  async setElectionPackageUrl({
+  async setElectionPackageExportInformation({
     electionId,
     electionPackageUrl,
+    ballotHash,
   }: {
     electionId: ElectionId;
     electionPackageUrl: string;
+    ballotHash: string;
   }): Promise<void> {
     await this.db.withClient((client) =>
       client.query(
         `
           update elections
-          set election_package_url = $1
-          where id = $2
+          set election_package_url = $1,
+              last_exported_ballot_hash = $2
+          where id = $3
         `,
         electionPackageUrl,
+        ballotHash,
         electionId
       )
     );

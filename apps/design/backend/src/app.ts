@@ -32,6 +32,7 @@ import {
   CastVoteRecordExportFileName,
   safeParseJson,
   CastVoteRecordReportWithoutMetadataSchema,
+  CompressedTally,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -57,7 +58,10 @@ import { translateBallotStrings, execFile } from '@votingworks/backend';
 import { readFileSync } from 'node:fs';
 import { z } from 'zod/v4';
 import { LogEventId } from '@votingworks/logging';
-import { getExportedCastVoteRecordIds } from '@votingworks/utils';
+import {
+  getExportedCastVoteRecordIds,
+  readCompressedTally,
+} from '@votingworks/utils';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { dirSync, tmpNameSync } from 'tmp';
 import {
@@ -842,7 +846,8 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
 
 // Set up API endpoint that should NOT be behind oauth integration
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function buildUnauthenticatedApi({ logger }: AppContext) {
+export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
+  const { store } = workspace;
   const middlewares: grout.Middlewares<grout.AnyContext> = {
     before: [],
     after: [
@@ -893,18 +898,32 @@ export function buildUnauthenticatedApi({ logger }: AppContext) {
           machineId,
           isLive,
           signedTimestamp,
-          compressedTally,
+          encodedCompressedTally,
         } = decodeQrCodeMessage(payload);
+
+        const election = await store.getElectionFromBallotHash(ballotHash);
+        if (!election) {
+          return err('no-election-found');
+        }
+        const tally = readCompressedTally(
+          election.election,
+          encodedCompressedTally,
+          []
+        );
+
+        // get election for ballotHash
+        // call readCompressedTally with election and encodedCompressedTally
+        // return tally results and election to frontend
 
         return ok({
           ballotHash,
           machineId,
           isLive,
           signedTimestamp,
-          tally: compressedTally,
+          tally,
+          election,
         });
-      } catch (error) {
-        console.log(error);
+      } catch (e) {
         return err('invalid-payload');
       }
     },

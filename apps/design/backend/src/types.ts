@@ -9,6 +9,8 @@ import {
   ElectionType,
   ElectionId,
   CompressedTally,
+  Tabulation,
+  Election,
 } from '@votingworks/types';
 import { DateWithoutTime } from '@votingworks/basics';
 
@@ -103,8 +105,12 @@ export interface ResultsReportInfo {
   machineId: string;
   isLive: boolean;
   signedTimestamp: Date;
-  tally: CompressedTally;
+  tally: Tabulation.ElectionResults;
+  election: Election;
   precinctId?: PrecinctOrSplitId;
 }
 
-export type ResultsReportingError = 'invalid-payload' | 'invalid-signature';
+export type ResultsReportingError =
+  | 'invalid-payload'
+  | 'invalid-signature'
+  | 'no-election-found';
