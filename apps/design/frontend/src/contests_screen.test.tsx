@@ -1300,7 +1300,7 @@ describe('Contests tab', () => {
 
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
     await screen.findByText(
-      /contest '.*' has no candidates and disallows write-ins\. at least one contest option is required\./i
+      /contest must have at least one candidate or allow write-ins./i
     );
   });
 });

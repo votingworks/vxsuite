@@ -226,7 +226,8 @@ export const CandidateContestSchema: z.ZodSchema<CandidateContest> =
         ctx.issues.push({
           code: 'custom',
           path: ['candidates'],
-          message: `Contest '${contest.id}' has no candidates and disallows write-ins. At least one contest option is required.`,
+          message:
+            'Contest must have at least one candidate or allow write-ins.',
           input: contest,
         });
       }

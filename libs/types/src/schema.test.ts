@@ -361,7 +361,5 @@ test('a contest must have at least one candidate option if write-ins are not all
   expect(
     safeParse(t.CandidateContestSchema, candidateContest).unsafeUnwrapErr()
       .issues[0].message
-  ).toEqual(
-    `Contest 'CC' has no candidates and disallows write-ins. At least one contest option is required.`
-  );
+  ).toEqual('Contest must have at least one candidate or allow write-ins.');
 });
