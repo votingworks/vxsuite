@@ -45,6 +45,7 @@ export default defineConfig(async (env) => {
 
       // TODO: Replace these with the appropriate `import.meta.env` values.
       ...processEnvDefines,
+      global: {},
     },
 
     resolve: {

@@ -329,6 +329,7 @@ const getPartyName = (election: Election, partyId: string) =>
 const refreshInterval = 5;
 const newResultsTimeout = 5;
 const App: React.FC = () => {
+  console.log('in app');
   const electionHash = process.env.REACT_APP_VX_ELECTION_HASH;
 
   const deskBell = useRef<HTMLAudioElement>(null);
@@ -448,6 +449,7 @@ const App: React.FC = () => {
     },
     {}
   );
+  console.log(summedTalliesByPrecinct);
   const contestResultsByPrecinct =
     !election || !summedTalliesByPrecinct
       ? []
@@ -473,6 +475,7 @@ const App: React.FC = () => {
             contestResults,
           };
         });
+  console.log(contestResultsByPrecinct);
   const precinctsReportingCount = contestResultsByPrecinct.filter(
     (p) => !!p.contestResults
   ).length;
@@ -662,9 +665,13 @@ const App: React.FC = () => {
     contestResults: Dictionary<Tabulation.ContestResults>;
     election: Election;
   }) => {
+    console.log('contest list', contestResults);
     return (
       <Contests>
         {election?.contests.map((contest) => {
+          if (!contestResults[contest.id]) {
+            return null;
+          }
           if (contest.type === 'candidate') {
             return (
               <CandidateContestCard
@@ -680,6 +687,7 @@ const App: React.FC = () => {
             );
           }
           if (contest.type === 'yesno') {
+            console.log(contest.id);
             return (
               <YesNoContestCard
                 key={contest.id}
