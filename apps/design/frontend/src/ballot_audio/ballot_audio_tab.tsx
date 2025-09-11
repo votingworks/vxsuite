@@ -341,8 +341,9 @@ function isMatchFuzzy(haystack: string, needle: string) {
 }
 
 const StringPreviewContainer = styled(Card)`
-  /* padding-bottom: 1rem;
-  width: 100%; */
+  > h2 {
+    margin-bottom: 0;
+  }
 
   p {
     /* line-height: 1.4; */
@@ -623,10 +624,12 @@ function StringInfoCandidateName(props: { id: string; text: string }) {
       for (const can of con.candidates) {
         if (can.id !== id) continue;
 
-        if (!can.partyIds?.length) return [con, can];
+        if (!con.partyId && !can.partyIds?.length) return [con, can];
 
+        const partyId = con.partyId || can.partyIds?.[0];
         for (const p of parties || []) {
-          if (p.id !== can.partyIds[0]) continue;
+          if (p.id !== partyId) continue;
+
           return [con, can, p];
         }
       }
@@ -664,7 +667,7 @@ const TtsTextEditor = styled.textarea`
   border-color: #eee;
   border-width: 2px;
   height: max-content + 0.5rem;
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.25rem;
   resize: vertical;
 
   :focus {
@@ -712,6 +715,11 @@ const AudioEditorTab = styled(Button)`
     color: #000;
   }
 ` as unknown as new <T>() => React.Component<ButtonProps<T>>;
+
+const Note = styled(Caption)`
+  color: #444;
+  margin: 0 0 0.5rem 0.1rem;
+`;
 
 function AudioEditor(props: { str: UiStringInfo }) {
   const { str } = props;
@@ -800,11 +808,10 @@ function AudioEditor(props: { str: UiStringInfo }) {
     case 'tts':
       preamble = <P>Edit the text below to change the corresponding audio.</P>;
       caption = (
-        <Caption>
-          <Icons.Info /> This will only affect audio output on ballot marking
-          devices. The text will continue to appear on-screen and/or on ballots
-          as shown in the section above.
-        </Caption>
+        <Note>
+          <Icons.Info /> This will only affect audio output on BMDs. The text
+          will continue to appear as shown in the section above.
+        </Note>
       );
       textEditor = (
         <TtsTextEditor
