@@ -1,7 +1,6 @@
 import { assert, assertDefined } from '@votingworks/basics';
 import { z } from 'zod/v4';
 import {
-  CandidateId,
   ContestId,
   ContestOption,
   ContestOptionSchema,
@@ -212,10 +211,4 @@ export function asSheet<T>(array: T[]): SheetOf<T> {
   return array as unknown as SheetOf<T>;
 }
 
-/**
- * Maps contests to the order that its candidates should be listed on the
- * ballot.
- */
-export interface CandidateRotation {
-  [contestId: ContestId]: CandidateId[];
-}
+export type NhCandidateRotationMethod = 'statute' | 'precinct';

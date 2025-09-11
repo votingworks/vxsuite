@@ -468,12 +468,13 @@ export const nhGeneralElectionFixtures = (() => {
     const markedBallotPath = join(electionDir, 'marked-ballot.pdf');
     const allBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
       ballotStyle.precincts.map(
-        (precinctId): BaseBallotProps => ({
+        (precinctId): NhBallotProps => ({
           election,
           ballotStyleId: ballotStyle.id,
           precinctId,
           ballotType: BallotType.Precinct,
           ballotMode: 'official',
+          candidateRotationMethod: 'statute',
           ...props,
         })
       )
