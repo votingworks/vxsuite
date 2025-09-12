@@ -487,9 +487,26 @@ export function ballotPaperDimensions(paperSize: BallotPaperSize): {
 export function getAllPrecinctsAndSplits(
   election: Election
 ): PrecinctOrSplit[] {
-  return election.precincts.flatMap((precinct) =>
-    hasSplits(precinct)
-      ? precinct.splits.map((split): PrecinctOrSplit => ({ precinct, split }))
-      : [{ precinct }]
-  );
+  const list: PrecinctOrSplit[] = [];
+
+  for (const precinct of election.precincts) {
+    if (!hasSplits(precinct)) {
+      list.push({ precinct });
+      continue;
+    }
+
+    for (const split of precinct.splits) list.push({ precinct, split });
+  }
+
+  // eslint-disable-next-line vx/no-array-sort-mutation
+  list.sort((a, b) => {
+    const nameA = a.split?.name || a.precinct.name;
+    const nameB = b.split?.name || b.precinct.name;
+    return nameA.localeCompare(nameB, 'en-US', {
+      ignorePunctuation: true,
+      numeric: true,
+    });
+  });
+
+  return list;
 }
