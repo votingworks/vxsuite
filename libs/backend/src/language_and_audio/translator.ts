@@ -7,6 +7,43 @@ import { assertDefined, iter } from '@votingworks/basics';
 import { NonEnglishLanguageCode, LanguageCode } from '@votingworks/types';
 import { GOOGLE_CLOUD_PROJECT_ID } from './google_cloud_config';
 
+const REGEX_IMAGE_ELEMENTS = /(<svg.*?>(.|\n)*?<\/svg>|<img (.|\n)*?>)/gi;
+
+/**
+ * Strips image elements from text to create a version suitable for caching.
+ * Images are replaced with placeholders that can be restored later.
+ */
+export function stripImagesForCaching(text: string): string {
+  let placeholderIndex = 0;
+  return text.replace(REGEX_IMAGE_ELEMENTS, () => {
+    const id = placeholderIndex;
+    placeholderIndex += 1;
+    return `<ph id="${id}" />`;
+  });
+}
+
+/**
+ * Restores images from the original text into a translated text that has placeholders.
+ * This is used when retrieving cached translations that were stored with placeholders.
+ */
+export function restoreImagesInTranslation(
+  originalText: string,
+  translatedTextWithPlaceholders: string
+): string {
+  const imageElements = iter(originalText.matchAll(REGEX_IMAGE_ELEMENTS))
+    .map((match) => match[0])
+    .toArray();
+
+  function srcPlaceholder(index: number) {
+    return `<ph id="${index}" />`;
+  }
+
+  return imageElements.reduce(
+    (text, src, i) => text.replace(srcPlaceholder(i), src),
+    translatedTextWithPlaceholders
+  );
+}
+
 /**
  * The subset of {@link GoogleCloudTranslationClient} that we actually use
  */
@@ -67,26 +104,7 @@ export class GoogleCloudTranslator implements Translator {
     // rich text directly to the API. However, it has a max string length limit,
     // so image elements are generally too long to include.
     // We strip them out in order and replace them after translating.
-    const regexImageElements = /(<svg.*?>(.|\n)*?<\/svg>|<img (.|\n)*?>)/gi;
-
-    const imageElementLists = textArray.map((text) =>
-      iter(text.matchAll(regexImageElements))
-        .map((match) => match[0])
-        .toArray()
-    );
-
-    function srcPlaceholder(index: number) {
-      return `<ph id="${index}" />`;
-    }
-    const textArrayWithoutImages = iter(textArray)
-      .zip(imageElementLists)
-      .map(([textString, imageElements]) =>
-        imageElements.reduce(
-          (text, src, i) => text.replace(src, srcPlaceholder(i)),
-          textString
-        )
-      )
-      .toArray();
+    const textArrayWithoutImages = textArray.map(stripImagesForCaching);
 
     const [response] = await this.translationClient.translateText({
       contents: textArrayWithoutImages,
@@ -97,12 +115,9 @@ export class GoogleCloudTranslator implements Translator {
     });
 
     const translatedTextArrayWithImages = iter(response.translations)
-      .zip(imageElementLists)
-      .map(([{ translatedText }, srcAttrs]) =>
-        srcAttrs.reduce(
-          (text, src, i) => text.replace(srcPlaceholder(i), src),
-          assertDefined(translatedText)
-        )
+      .zip(textArray)
+      .map(([{ translatedText }, originalText]) =>
+        restoreImagesInTranslation(originalText, assertDefined(translatedText))
       )
       .toArray();
 

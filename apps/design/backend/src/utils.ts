@@ -12,6 +12,7 @@ import {
 } from '@votingworks/types';
 import { customAlphabet } from 'nanoid';
 import { Buffer } from 'node:buffer';
+import { MAX_POSTGRES_INDEX_KEY_BYTES } from './globals';
 
 export function getBallotPdfFileName(
   precinctName: string,
@@ -128,10 +129,11 @@ export function regenerateElectionIds(election: Election): {
   };
 }
 
-// The translation cache uses the text as part of the index, which has a limit of 8191 bytes.
-// We tend to only meet this limit for images, so we avoid caching translations for them.
-export function shouldCacheTranslation(text: string): boolean {
+/**
+ * Our translation caches use the text as part of the primary key.
+ * Ensure that the text fits within the byte limit for a Postgres primary key.
+ */
+export function isValidPrimaryKey(text: string): boolean {
   const textSizeInBytes = Buffer.byteLength(text, 'utf8');
-  const maxByteSizeForCaching = 8000; // 8191 limit
-  return textSizeInBytes < maxByteSizeForCaching;
+  return textSizeInBytes < MAX_POSTGRES_INDEX_KEY_BYTES;
 }

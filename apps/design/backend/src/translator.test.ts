@@ -8,6 +8,7 @@ import { LanguageCode } from '@votingworks/types';
 import { mockBaseLogger } from '@votingworks/logging';
 import { GoogleCloudTranslatorWithDbCache } from './translator';
 import { TestStore } from '../test/test_store';
+import { MAX_POSTGRES_INDEX_KEY_BYTES } from './globals';
 
 const logger = mockBaseLogger({ fn: vi.fn });
 const testStore = new TestStore(logger);
@@ -115,7 +116,7 @@ test('GoogleCloudTranslatorWithDbCache', async () => {
   );
 });
 
-test('GoogleCloudTranslatorWithDbCache does not cache large strings over byte limit', async () => {
+test('GoogleCloudTranslatorWithDbCache caches large strings by stripping images', async () => {
   const store = testStore.getStore();
 
   const translationClient = makeMockGoogleCloudTranslationClient({
@@ -126,9 +127,11 @@ test('GoogleCloudTranslatorWithDbCache does not cache large strings over byte li
     translationClient,
   });
 
-  // Create a large string that exceeds the 8k byte limit (simulating an image)
-  const largeString = `Large content: ${  'x'.repeat(8000)}`;
-  const smallString = 'Small content';
+  // Create a large string with an image that exceeds the postgres index key limit
+  const largeString = `Large string: <img src="data:image/png;base64,${'x'.repeat(
+    MAX_POSTGRES_INDEX_KEY_BYTES
+  )}" />`;
+  const smallString = 'Small string';
 
   // First translation - both strings get translated
   let translatedTextArray = await translator.translateText(
@@ -140,15 +143,16 @@ test('GoogleCloudTranslatorWithDbCache does not cache large strings over byte li
     mockCloudTranslatedText(smallString, LanguageCode.SPANISH),
   ]);
   expect(translationClient.translateText).toHaveBeenCalledTimes(1);
+  // Large string should be stripped of images
   expect(translationClient.translateText).toHaveBeenCalledWith(
     expect.objectContaining({
-      contents: [largeString, smallString], // Both strings should be sent for translation
+      contents: ['Large string: <ph id="0" />', smallString],
       targetLanguageCode: LanguageCode.SPANISH,
     })
   );
   translationClient.translateText.mockClear();
 
-  // Second translation - large string gets translated again, small string should be cached
+  // Both strings should now be cached, so translateText should not be called again
   translatedTextArray = await translator.translateText(
     [largeString, smallString],
     LanguageCode.SPANISH
@@ -158,13 +162,7 @@ test('GoogleCloudTranslatorWithDbCache does not cache large strings over byte li
     mockCloudTranslatedText(smallString, LanguageCode.SPANISH),
   ]);
 
-  expect(translationClient.translateText).toHaveBeenCalledTimes(1);
-  expect(translationClient.translateText).toHaveBeenCalledWith(
-    expect.objectContaining({
-      contents: [largeString], // Only large string, small one was cached
-      targetLanguageCode: LanguageCode.SPANISH,
-    })
-  );
+  expect(translationClient.translateText).not.toHaveBeenCalled();
 });
 
 test('GoogleCloudTranslatorWithDbCache vendored translations', async () => {
