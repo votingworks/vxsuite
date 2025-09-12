@@ -115,6 +115,58 @@ test('GoogleCloudTranslatorWithDbCache', async () => {
   );
 });
 
+test('GoogleCloudTranslatorWithDbCache does not cache large strings over byte limit', async () => {
+  const store = testStore.getStore();
+
+  const translationClient = makeMockGoogleCloudTranslationClient({
+    fn: vi.fn,
+  });
+  const translator = new GoogleCloudTranslatorWithDbCache({
+    store,
+    translationClient,
+  });
+
+  // Create a large string that exceeds the 8k byte limit (simulating an image)
+  const largeString = `Large content: ${  'x'.repeat(8000)}`;
+  const smallString = 'Small content';
+
+  // First translation - both strings get translated
+  let translatedTextArray = await translator.translateText(
+    [largeString, smallString],
+    LanguageCode.SPANISH
+  );
+  expect(translatedTextArray).toEqual([
+    mockCloudTranslatedText(largeString, LanguageCode.SPANISH),
+    mockCloudTranslatedText(smallString, LanguageCode.SPANISH),
+  ]);
+  expect(translationClient.translateText).toHaveBeenCalledTimes(1);
+  expect(translationClient.translateText).toHaveBeenCalledWith(
+    expect.objectContaining({
+      contents: [largeString, smallString], // Both strings should be sent for translation
+      targetLanguageCode: LanguageCode.SPANISH,
+    })
+  );
+  translationClient.translateText.mockClear();
+
+  // Second translation - large string gets translated again, small string should be cached
+  translatedTextArray = await translator.translateText(
+    [largeString, smallString],
+    LanguageCode.SPANISH
+  );
+  expect(translatedTextArray).toEqual([
+    mockCloudTranslatedText(largeString, LanguageCode.SPANISH),
+    mockCloudTranslatedText(smallString, LanguageCode.SPANISH),
+  ]);
+
+  expect(translationClient.translateText).toHaveBeenCalledTimes(1);
+  expect(translationClient.translateText).toHaveBeenCalledWith(
+    expect.objectContaining({
+      contents: [largeString], // Only large string, small one was cached
+      targetLanguageCode: LanguageCode.SPANISH,
+    })
+  );
+});
+
 test('GoogleCloudTranslatorWithDbCache vendored translations', async () => {
   const vendoredTranslations: VendoredTranslations = {
     [LanguageCode.CHINESE_SIMPLIFIED]: {},

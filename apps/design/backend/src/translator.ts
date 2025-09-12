@@ -7,6 +7,7 @@ import {
 import { NonEnglishLanguageCode } from '@votingworks/types';
 import { Store } from './store';
 import { TranslationSourceCounts } from './translation_source_counts';
+import { shouldCacheTranslation } from './utils';
 
 /**
  * An implementation of {@link GoogleCloudTranslator} that uses the Google Cloud Translation API
@@ -80,11 +81,13 @@ export class GoogleCloudTranslatorWithDbCache extends GoogleCloudTranslator {
     for (const [i, translatedText] of cacheMissesTranslated.entries()) {
       const { index: originalIndex, text } = cacheMisses[i];
       translatedTextArray[originalIndex] = translatedText;
-      await this.store.addTranslationCacheEntry({
-        text,
-        targetLanguageCode,
-        translatedText,
-      });
+      if (shouldCacheTranslation(text)) {
+        await this.store.addTranslationCacheEntry({
+          text,
+          targetLanguageCode,
+          translatedText,
+        });
+      }
     }
 
     return translatedTextArray;

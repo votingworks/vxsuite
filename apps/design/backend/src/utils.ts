@@ -11,6 +11,7 @@ import {
   Precinct,
 } from '@votingworks/types';
 import { customAlphabet } from 'nanoid';
+import { Buffer } from 'node:buffer';
 
 export function getBallotPdfFileName(
   precinctName: string,
@@ -125,4 +126,12 @@ export function regenerateElectionIds(election: Election): {
     parties,
     contests,
   };
+}
+
+// The translation cache uses the text as part of the index, which has a limit of 8191 bytes.
+// We tend to only meet this limit for images, so we avoid caching translations for them.
+export function shouldCacheTranslation(text: string): boolean {
+  const textSizeInBytes = Buffer.byteLength(text, 'utf8');
+  const maxByteSizeForCaching = 8000; // 8191 limit
+  return textSizeInBytes < maxByteSizeForCaching;
 }
