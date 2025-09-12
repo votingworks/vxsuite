@@ -6,13 +6,14 @@ import {
   safeParseJson,
 } from '@votingworks/types';
 
+import { LogEventId } from '@votingworks/logging';
 import { BackgroundTask } from '../store';
 import { WorkerContext } from './context';
 import { generateElectionPackageAndBallots } from './generate_election_package_and_ballots';
 import { generateTestDecks } from './generate_test_decks';
 
 export async function processBackgroundTask(
-  context: WorkerContext,
+  ctx: WorkerContext,
   { taskName, payload }: BackgroundTask
 ): Promise<void> {
   switch (taskName) {
@@ -28,7 +29,14 @@ export async function processBackgroundTask(
           numAuditIdBallots: z.number().optional(),
         })
       ).unsafeUnwrap();
-      await generateElectionPackageAndBallots(context, parsedPayload);
+
+      ctx.logger.log(LogEventId.BackgroundTaskStarted, 'system', {
+        message: `Starting task ${taskName}`,
+        payload,
+      });
+
+      await generateElectionPackageAndBallots(ctx, parsedPayload);
+
       break;
     }
     case 'generate_test_decks': {
@@ -39,7 +47,14 @@ export async function processBackgroundTask(
           electionSerializationFormat: ElectionSerializationFormatSchema,
         })
       ).unsafeUnwrap();
-      await generateTestDecks(context, parsedPayload);
+
+      ctx.logger.log(LogEventId.BackgroundTaskStarted, 'system', {
+        message: `Starting task ${taskName}`,
+        payload,
+      });
+
+      await generateTestDecks(ctx, parsedPayload);
+
       break;
     }
     default: {

@@ -29,6 +29,7 @@ import {
 } from '@votingworks/types';
 import { QrCode } from '@votingworks/ui';
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
+import { BaseLogger, LogEventId } from '@votingworks/logging';
 import { RenderDocument, RenderScratchpad, Renderer } from './renderer';
 import {
   BUBBLE_CLASS,
@@ -651,7 +652,8 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
   renderer: Renderer,
   template: BallotPageTemplate<P>,
   ballotProps: P[],
-  electionSerializationFormat: ElectionSerializationFormat
+  electionSerializationFormat: ElectionSerializationFormat,
+  logger?: BaseLogger
 ): Promise<{
   ballotPdfs: Uint8Array[];
   electionDefinition: ElectionDefinition;
@@ -663,6 +665,12 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
       ballotProps,
       electionSerializationFormat
     );
+
+  logger?.log(LogEventId.BackgroundTaskStatus, 'system', {
+    electionId: ballotProps[0].election.id,
+    message: 'generated ballot layouts',
+    task: 'generate_election_package',
+  });
 
   const ballotPdfs = await iter(ballotProps)
     .zip(ballotContents)
@@ -678,6 +686,13 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
       return ballotPdf;
     })
     .toArray();
+
+  logger?.log(LogEventId.BackgroundTaskStatus, 'system', {
+    electionId: ballotProps[0].election.id,
+    message: 'generated final PDFs',
+    task: 'generate_election_package',
+  });
+
   return { ballotPdfs, electionDefinition };
 }
 

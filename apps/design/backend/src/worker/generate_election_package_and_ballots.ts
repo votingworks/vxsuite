@@ -30,6 +30,7 @@ import {
   UiStringAudioOverride,
 } from '@votingworks/backend';
 import { assert, assertDefined, find, iter, range } from '@votingworks/basics';
+import { LogEventId } from '@votingworks/logging';
 import { WorkerContext } from './context';
 import {
   createBallotPropsForTemplate,
@@ -53,6 +54,7 @@ export interface V3SystemSettings {
 export async function generateElectionPackageAndBallots(
   {
     fileStorageClient,
+    logger,
     speechSynthesizer,
     translator,
     workspace,
@@ -109,6 +111,11 @@ export async function generateElectionPackageAndBallots(
   );
   const ballotStrings = mergeUiStrings(electionStrings, hmpbStrings);
 
+  logger.log(LogEventId.BackgroundTaskStatus, 'system', {
+    message: 'UI strings generated',
+    task: 'generate_election_package',
+  });
+
   const formattedElection = formatElectionForExport(election, ballotStrings);
 
   let allBallotProps = createBallotPropsForTemplate(
@@ -146,13 +153,19 @@ export async function generateElectionPackageAndBallots(
     );
   }
 
+  logger.log(LogEventId.BackgroundTaskStatus, 'system', {
+    message: `ballot props generated for ${allBallotProps.length} document(s)`,
+    task: 'generate_election_package',
+  });
+
   const renderer = await createPlaywrightRenderer();
   const { electionDefinition, ballotPdfs } =
     await renderAllBallotPdfsAndCreateElectionDefinition(
       renderer,
       ballotTemplates[ballotTemplateId],
       allBallotProps,
-      electionSerializationFormat
+      electionSerializationFormat,
+      logger
     );
   electionPackageZip.file(
     ElectionPackageFileName.ELECTION,

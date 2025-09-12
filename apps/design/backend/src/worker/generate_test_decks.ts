@@ -14,6 +14,7 @@ import {
 import { iter } from '@votingworks/basics';
 import JsZip from 'jszip';
 import path from 'node:path';
+import { LogEventId } from '@votingworks/logging';
 import { WorkerContext } from './context';
 import {
   createBallotPropsForTemplate,
@@ -26,7 +27,7 @@ import {
 } from '../test_decks';
 
 export async function generateTestDecks(
-  { translator, workspace, fileStorageClient }: WorkerContext,
+  { logger, translator, workspace, fileStorageClient }: WorkerContext,
   {
     electionId,
     electionSerializationFormat,
@@ -62,6 +63,13 @@ export async function generateTestDecks(
     (props) =>
       props.ballotMode === 'test' && props.ballotType === BallotType.Precinct
   );
+
+  logger.log(LogEventId.BackgroundTaskStatus, 'system', {
+    electionId: election.id,
+    message: `ballot props generated for ${allBallotProps.length} document(s)`,
+    task: 'generate_test_decks',
+  });
+
   const renderer = await createPlaywrightRenderer();
   const { electionDefinition, ballotContents } =
     await layOutBallotsAndCreateElectionDefinition(
@@ -70,6 +78,13 @@ export async function generateTestDecks(
       testBallotProps,
       electionSerializationFormat
     );
+
+  logger.log(LogEventId.BackgroundTaskStatus, 'system', {
+    electionId: election.id,
+    message: `generated ballot layouts`,
+    task: 'generate_test_decks',
+  });
+
   const ballots = iter(testBallotProps)
     .zip(ballotContents)
     .map(([props, contents]) => ({
@@ -93,7 +108,19 @@ export async function generateTestDecks(
     zip.file(fileName, testDeckPdf);
   }
 
+  logger.log(LogEventId.BackgroundTaskStatus, 'system', {
+    electionId: election.id,
+    message: 'generated final test deck PDFs',
+    task: 'generate_test_decks',
+  });
+
   const tallyReport = await createTestDeckTallyReport({ electionDefinition });
+
+  logger.log(LogEventId.BackgroundTaskStatus, 'system', {
+    electionId: election.id,
+    message: 'generated tally report PDF',
+    task: 'generate_test_decks',
+  });
 
   zip.file(FULL_TEST_DECK_TALLY_REPORT_FILE_NAME, tallyReport);
   const zipContents = await zip.generateAsync({ type: 'nodebuffer' });
