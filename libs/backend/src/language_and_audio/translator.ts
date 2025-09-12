@@ -67,7 +67,7 @@ export class GoogleCloudTranslator implements Translator {
     // rich text directly to the API. However, it has a max string length limit,
     // so image elements are generally too long to include.
     // We strip them out in order and replace them after translating.
-    const regexImageElements = /(<svg.*?>(.|\n)*?<\/svg>|<img (.|\n)*?\/>)/gi;
+    const regexImageElements = /(<svg.*?>(.|\n)*?<\/svg>|<img (.|\n)*?>)/gi;
 
     const imageElementLists = textArray.map((text) =>
       iter(text.matchAll(regexImageElements))
