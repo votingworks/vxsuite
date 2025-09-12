@@ -66,7 +66,7 @@ export async function generateTestDecks(
 
   logger.log(LogEventId.BackgroundTaskStatus, 'system', {
     electionId: election.id,
-    message: `ballot props generated for ${allBallotProps.length} document(s)`,
+    message: `ballot props generated for ${testBallotProps.length} document(s)`,
     task: 'generate_test_decks',
   });
 
@@ -81,7 +81,7 @@ export async function generateTestDecks(
 
   logger.log(LogEventId.BackgroundTaskStatus, 'system', {
     electionId: election.id,
-    message: `generated ballot layouts`,
+    message: `generated ballot layouts - generating test decks for ${election.precincts.length} precinct(s)`,
     task: 'generate_test_decks',
   });
 
@@ -101,6 +101,7 @@ export async function generateTestDecks(
       electionDefinition,
       precinctId: precinct.id,
       ballots,
+      logger,
     });
 
     if (!testDeckPdf) continue;

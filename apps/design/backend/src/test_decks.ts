@@ -36,6 +36,7 @@ import {
   concatenatePdfs,
   renderBallotPdfWithMetadataQrCode,
 } from '@votingworks/hmpb';
+import { BaseLogger, LogEventId } from '@votingworks/logging';
 
 /**
  * Creates a test deck for a precinct that includes:
@@ -50,11 +51,13 @@ export async function createPrecinctTestDeck({
   electionDefinition,
   precinctId,
   ballots,
+  logger,
 }: {
   renderer: Renderer;
   electionDefinition: ElectionDefinition;
   precinctId: PrecinctId;
   ballots: Array<{ props: BaseBallotProps; contents: string }>;
+  logger?: BaseLogger;
 }): Promise<Uint8Array | undefined> {
   const ballotSpecs = generateTestDeckBallots({
     election: electionDefinition.election,
@@ -64,6 +67,7 @@ export async function createPrecinctTestDeck({
   if (ballotSpecs.length === 0) {
     return undefined;
   }
+
   const markedBallots = await iter(ballotSpecs)
     .async()
     .map(async (ballotSpec) => {
@@ -84,6 +88,14 @@ export async function createPrecinctTestDeck({
       return ballotPdf;
     })
     .toArray();
+
+  logger?.log(LogEventId.BackgroundTaskStatus, 'system', {
+    electionId: electionDefinition.election.id,
+    message: `${ballotSpecs.length} test deck PDF(s) generated for precinct`,
+    precinctId,
+    task: 'generate_test_decks',
+  });
+
   return await concatenatePdfs(markedBallots);
 }
 
