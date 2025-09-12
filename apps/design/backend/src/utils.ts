@@ -11,6 +11,8 @@ import {
   Precinct,
 } from '@votingworks/types';
 import { customAlphabet } from 'nanoid';
+import { Buffer } from 'node:buffer';
+import { MAX_POSTGRES_INDEX_KEY_BYTES } from './globals';
 
 export function getBallotPdfFileName(
   precinctName: string,
@@ -125,4 +127,13 @@ export function regenerateElectionIds(election: Election): {
     parties,
     contests,
   };
+}
+
+/**
+ * Our translation caches use the text as part of the primary key.
+ * Ensure that the text fits within the byte limit for a Postgres primary key.
+ */
+export function isValidPrimaryKey(text: string): boolean {
+  const textSizeInBytes = Buffer.byteLength(text, 'utf8');
+  return textSizeInBytes < MAX_POSTGRES_INDEX_KEY_BYTES;
 }

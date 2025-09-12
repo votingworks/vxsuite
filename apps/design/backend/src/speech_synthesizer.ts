@@ -5,6 +5,7 @@ import {
 import { LanguageCode } from '@votingworks/types';
 import { rootDebug } from './debug';
 import { Store } from './store';
+import { isValidPrimaryKey } from './utils';
 
 const debug = rootDebug.extend('speech');
 
@@ -44,11 +45,13 @@ export class GoogleCloudSpeechSynthesizerWithDbCache extends GoogleCloudSpeechSy
       text,
       languageCode
     );
-    await this.store.addSpeechSynthesisCacheEntry({
-      languageCode,
-      text,
-      audioClipBase64,
-    });
+    if (isValidPrimaryKey(text)) {
+      await this.store.addSpeechSynthesisCacheEntry({
+        languageCode,
+        text,
+        audioClipBase64,
+      });
+    }
     return audioClipBase64;
   }
 }

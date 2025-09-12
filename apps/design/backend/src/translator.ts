@@ -3,10 +3,13 @@ import {
   MinimalGoogleCloudTranslationClient,
   parseVendoredTranslations,
   VendoredTranslations,
+  stripImagesForCaching,
+  restoreImagesInTranslation,
 } from '@votingworks/backend';
 import { NonEnglishLanguageCode } from '@votingworks/types';
 import { Store } from './store';
 import { TranslationSourceCounts } from './translation_source_counts';
+import { isValidPrimaryKey } from './utils';
 
 /**
  * An implementation of {@link GoogleCloudTranslator} that uses the Google Cloud Translation API
@@ -55,10 +58,20 @@ export class GoogleCloudTranslatorWithDbCache extends GoogleCloudTranslator {
         continue;
       }
 
+      // Check cache using the stripped text as the key
+      const strippedText = stripImagesForCaching(text);
       const translatedTextFromCache =
-        await this.store.getTranslatedTextFromCache(text, targetLanguageCode);
+        await this.store.getTranslatedTextFromCache(
+          strippedText,
+          targetLanguageCode
+        );
+
       if (translatedTextFromCache) {
-        translatedTextArray[index] = translatedTextFromCache;
+        const restoredTranslation = restoreImagesInTranslation(
+          text,
+          translatedTextFromCache
+        );
+        translatedTextArray[index] = restoredTranslation;
         counts.increment('Cached cloud translations');
         continue;
       }
@@ -80,11 +93,16 @@ export class GoogleCloudTranslatorWithDbCache extends GoogleCloudTranslator {
     for (const [i, translatedText] of cacheMissesTranslated.entries()) {
       const { index: originalIndex, text } = cacheMisses[i];
       translatedTextArray[originalIndex] = translatedText;
-      await this.store.addTranslationCacheEntry({
-        text,
-        targetLanguageCode,
-        translatedText,
-      });
+      // Store in cache using the stripped text as the key
+      const strippedText = stripImagesForCaching(text);
+      if (isValidPrimaryKey(strippedText)) {
+        const strippedTranslatedText = stripImagesForCaching(translatedText);
+        await this.store.addTranslationCacheEntry({
+          text: strippedText,
+          targetLanguageCode,
+          translatedText: strippedTranslatedText,
+        });
+      }
     }
 
     return translatedTextArray;
