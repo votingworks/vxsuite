@@ -116,7 +116,7 @@ test('GoogleCloudTranslatorWithDbCache', async () => {
   );
 });
 
-test('GoogleCloudTranslatorWithDbCache caches large strings by stripping images', async () => {
+test('GoogleCloudTranslatorWithDbCache strips images before caching', async () => {
   const store = testStore.getStore();
 
   const translationClient = makeMockGoogleCloudTranslationClient({
@@ -163,6 +163,60 @@ test('GoogleCloudTranslatorWithDbCache caches large strings by stripping images'
   ]);
 
   expect(translationClient.translateText).not.toHaveBeenCalled();
+});
+
+test('GoogleCloudTranslatorWithDbCache does not cache extremely large strings', async () => {
+  const store = testStore.getStore();
+
+  const translationClient = makeMockGoogleCloudTranslationClient({
+    fn: vi.fn,
+  });
+  const translator = new GoogleCloudTranslatorWithDbCache({
+    store,
+    translationClient,
+  });
+
+  const largeString = `Large content without images: ${'x'.repeat(
+    MAX_POSTGRES_INDEX_KEY_BYTES
+  )}`;
+  const smallString = 'Small content';
+
+  // First translation, both strings get translated
+  let translatedTextArray = await translator.translateText(
+    [largeString, smallString],
+    LanguageCode.SPANISH
+  );
+  expect(translatedTextArray).toEqual([
+    mockCloudTranslatedText(largeString, LanguageCode.SPANISH),
+    mockCloudTranslatedText(smallString, LanguageCode.SPANISH),
+  ]);
+  expect(translationClient.translateText).toHaveBeenCalledTimes(1);
+  expect(translationClient.translateText).toHaveBeenCalledWith(
+    expect.objectContaining({
+      contents: [largeString, smallString],
+      targetLanguageCode: LanguageCode.SPANISH,
+    })
+  );
+  translationClient.translateText.mockClear();
+
+  // Second translation
+  translatedTextArray = await translator.translateText(
+    [largeString, smallString],
+    LanguageCode.SPANISH
+  );
+  expect(translatedTextArray).toEqual([
+    mockCloudTranslatedText(largeString, LanguageCode.SPANISH),
+    mockCloudTranslatedText(smallString, LanguageCode.SPANISH),
+  ]);
+
+  expect(translationClient.translateText).toHaveBeenCalledTimes(1);
+  // Only the large string gets translated again because it wasn't cached
+  expect(translationClient.translateText).toHaveBeenCalledWith(
+    expect.objectContaining({
+      contents: [largeString],
+      targetLanguageCode: LanguageCode.SPANISH,
+    })
+  );
 });
 
 test('GoogleCloudTranslatorWithDbCache vendored translations', async () => {
