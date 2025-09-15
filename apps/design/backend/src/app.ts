@@ -34,6 +34,7 @@ import {
   CastVoteRecordReportWithoutMetadataSchema,
   safeParseNumber,
   CompressedTally,
+  BallotLayoutSchema,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -73,8 +74,11 @@ import {
   DuplicatePrecinctError,
 } from './store';
 import {
+  BallotLayoutSettings,
+  BallotLayoutSettingsSchema,
   BallotStyle,
   ElectionInfo,
+  ElectionInfoSchema,
   ElectionListing,
   Org,
   ResultsReportInfo,
@@ -128,24 +132,6 @@ export function createBlankElection(id: ElectionId): Election {
     ballotStrings: {},
   };
 }
-
-const TextInput = z
-  .string()
-  .transform((s) => s.trim())
-  .refine((s) => s.length > 0);
-
-const UpdateElectionInfoInputSchema = z.object({
-  electionId: ElectionIdSchema,
-  type: z.union([z.literal('general'), z.literal('primary')]),
-  date: DateWithoutTimeSchema,
-  title: TextInput,
-  state: TextInput,
-  jurisdiction: TextInput,
-  seal: z.string(),
-  signatureImage: z.string().optional(),
-  signatureCaption: z.string().optional(),
-  languageCodes: z.array(LanguageCodeSchema),
-});
 
 export interface ApiContext {
   user: User;
@@ -412,7 +398,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
     async updateElectionInfo(
       input: ElectionInfo
     ): Promise<Result<void, DuplicateElectionError>> {
-      const electionInfo = unsafeParse(UpdateElectionInfoInputSchema, input);
+      const electionInfo = unsafeParse(ElectionInfoSchema, input);
       return store.updateElectionInfo(electionInfo);
     },
 
@@ -547,20 +533,21 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
 
     async getBallotLayoutSettings(input: {
       electionId: ElectionId;
-    }): Promise<{ paperSize: HmpbBallotPaperSize; compact: boolean }> {
+    }): Promise<BallotLayoutSettings> {
       return store.getBallotLayoutSettings(input.electionId);
     },
 
     async updateBallotLayoutSettings(input: {
       electionId: ElectionId;
-      paperSize: HmpbBallotPaperSize;
-      compact: boolean;
+      ballotLayoutSettings: BallotLayoutSettings;
     }): Promise<void> {
-      const paperSize = unsafeParse(HmpbBallotPaperSizeSchema, input.paperSize);
+      const ballotLayoutSettings = unsafeParse(
+        BallotLayoutSettingsSchema,
+        input.ballotLayoutSettings
+      );
       await store.updateBallotLayoutSettings(
         input.electionId,
-        paperSize,
-        input.compact
+        ballotLayoutSettings
       );
     },
 
@@ -633,7 +620,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
         ...election,
         ballotStrings,
       };
-      const { template, allBallotProps } = createBallotPropsForTemplate(
+      const { ballotTemplate, allBallotProps } = createBallotPropsForTemplate(
         ballotTemplateId,
         electionWithBallotStrings,
         ballotStyles,
@@ -653,7 +640,7 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
       try {
         ballotPdf = await renderBallotPreviewToPdf(
           renderer,
-          template,
+          ballotTemplate,
           // NOTE: Changing this text means you should also change the font size
           // of the <Watermark> component in the ballot template.
           { ...ballotProps, watermark: 'PROOF' }

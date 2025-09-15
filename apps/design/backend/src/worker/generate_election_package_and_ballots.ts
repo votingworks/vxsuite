@@ -18,8 +18,6 @@ import {
 import {
   createPlaywrightRenderer,
   hmpbStringsCatalog,
-  ballotTemplates,
-  BaseBallotProps,
   renderAllBallotPdfsAndCreateElectionDefinition,
 } from '@votingworks/hmpb';
 import { sha256 } from 'js-sha256';
@@ -78,7 +76,7 @@ export async function generateElectionPackageAndBallots(
     orgId,
   } = electionRecord;
   let { systemSettings } = electionRecord;
-  const { compact } = await store.getBallotLayoutSettings(electionId);
+  const ballotLayoutSettings = await store.getBallotLayoutSettings(electionId);
 
   // This function makes separate zips for ballot package and election package
   // then wraps both in an outer zip for export.
@@ -109,11 +107,12 @@ export async function generateElectionPackageAndBallots(
 
   const formattedElection = formatElectionForExport(election, ballotStrings);
 
-  let allBallotProps = createBallotPropsForTemplate(
+  // eslint-disable-next-line prefer-const
+  let { allBallotProps, ballotTemplate } = createBallotPropsForTemplate(
     ballotTemplateId,
     formattedElection,
     ballotStyles,
-    compact
+    ballotLayoutSettings
   );
 
   // If we're exporting ballots with ballot audit IDs...
@@ -134,19 +133,17 @@ export async function generateElectionPackageAndBallots(
         props.ballotMode === 'official' &&
         props.ballotType === BallotType.Precinct
     );
-    allBallotProps = range(1, numAuditIdBallots + 1).map(
-      (ballotIndex): BaseBallotProps => ({
-        ...officialPrecinctBallotProps,
-        ballotAuditId: String(ballotIndex),
-      })
-    );
+    allBallotProps = range(1, numAuditIdBallots + 1).map((ballotIndex) => ({
+      ...officialPrecinctBallotProps,
+      ballotAuditId: String(ballotIndex),
+    }));
   }
 
   const renderer = await createPlaywrightRenderer();
   const { electionDefinition, ballotPdfs } =
     await renderAllBallotPdfsAndCreateElectionDefinition(
       renderer,
-      ballotTemplates[ballotTemplateId],
+      ballotTemplate,
       allBallotProps,
       electionSerializationFormat
     );

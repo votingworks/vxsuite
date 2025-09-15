@@ -43,7 +43,7 @@ export async function generateTestDecks(
     ballotTemplateId,
     orgId,
   } = await store.getElection(electionId);
-  const { compact } = await store.getBallotLayoutSettings(electionId);
+  const ballotLayoutSettings = await store.getBallotLayoutSettings(electionId);
 
   const ballotStrings = await translateBallotStrings(
     translator,
@@ -52,11 +52,11 @@ export async function generateTestDecks(
     ballotLanguageConfigs
   );
   const formattedElection = formatElectionForExport(election, ballotStrings);
-  const allBallotProps = createBallotPropsForTemplate(
+  const { allBallotProps, ballotTemplate } = createBallotPropsForTemplate(
     ballotTemplateId,
     formattedElection,
     ballotStyles,
-    compact
+    ballotLayoutSettings
   );
   const testBallotProps = allBallotProps.filter(
     (props) =>
@@ -66,7 +66,7 @@ export async function generateTestDecks(
   const { electionDefinition, ballotContents } =
     await layOutBallotsAndCreateElectionDefinition(
       renderer,
-      ballotTemplates[ballotTemplateId],
+      ballotTemplate,
       testBallotProps,
       electionSerializationFormat
     );

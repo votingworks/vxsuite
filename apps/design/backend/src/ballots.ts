@@ -1,6 +1,4 @@
 import {
-  BallotLayout,
-  CandidateRotation,
   Election,
   hasSplits,
   PrecinctSplit,
@@ -117,13 +115,17 @@ const colorTintsCsv = readFileSync(
 );
 const colorTints: ColorTintRecord[] = parse(colorTintsCsv, { columns: true });
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+interface BallotTemplateAndProps<T extends AnyBallotProps> {
+  ballotTemplate: BallotPageTemplate<T>;
+  allBallotProps: T[];
+}
+
 export function createBallotPropsForTemplate(
   templateId: BallotTemplateId,
   election: Election,
   ballotStyles: BallotStyle[],
   ballotLayoutSettings: BallotLayoutSettings
-) {
+): BallotTemplateAndProps<AnyBallotProps> {
   function buildNhBallotProps(props: BaseBallotProps): NhBallotProps {
     const candidateRotationMethod = assertDefined(
       ballotLayoutSettings.candidateRotationMethod
@@ -167,17 +169,21 @@ export function createBallotPropsForTemplate(
     compact: ballotLayoutSettings.compact,
   }));
   switch (templateId) {
-    case 'NhBallot':
-      return {
-        template: ballotTemplates[templateId],
+    case 'NhBallot': {
+      const templateAndProps: BallotTemplateAndProps<NhBallotProps> = {
+        ballotTemplate: ballotTemplates[templateId],
         allBallotProps: baseBallotProps.map(buildNhBallotProps),
       };
+      return templateAndProps as BallotTemplateAndProps<AnyBallotProps>;
+    }
 
-    case 'VxDefaultBallot':
-      return {
-        template: ballotTemplates[templateId],
+    case 'VxDefaultBallot': {
+      const templateAndProps: BallotTemplateAndProps<BaseBallotProps> = {
+        ballotTemplate: ballotTemplates[templateId],
         allBallotProps: baseBallotProps,
       };
+      return templateAndProps;
+    }
 
     default: {
       /* istanbul ignore next - @preserve */

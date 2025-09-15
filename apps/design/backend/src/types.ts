@@ -11,8 +11,14 @@ import {
   CompressedTally,
   BallotPaperSize,
   NhCandidateRotationMethod,
+  ElectionIdSchema,
+  DateWithoutTimeSchema,
+  LanguageCodeSchema,
+  NhCandidateRotationMethodSchema,
+  HmpbBallotPaperSizeSchema,
 } from '@votingworks/types';
 import { DateWithoutTime } from '@votingworks/basics';
+import z from 'zod/v4';
 
 // We also create a new type for a ballot style, that can reference precincts and
 // splits. We generate ballot styles on demand, so it won't be stored in the db.
@@ -100,11 +106,36 @@ export interface ElectionInfo {
   signatureCaption?: string;
 }
 
+export const TextInput = z
+  .string()
+  .transform((s) => s.trim())
+  .refine((s) => s.length > 0);
+
+export const ElectionInfoSchema: z.ZodSchema<ElectionInfo> = z.object({
+  electionId: ElectionIdSchema,
+  type: z.union([z.literal('general'), z.literal('primary')]),
+  date: DateWithoutTimeSchema,
+  title: TextInput,
+  state: TextInput,
+  jurisdiction: TextInput,
+  seal: z.string(),
+  signatureImage: z.string().optional(),
+  signatureCaption: z.string().optional(),
+  languageCodes: z.array(LanguageCodeSchema),
+});
+
 export interface BallotLayoutSettings {
   paperSize: BallotPaperSize;
   compact: boolean;
   candidateRotationMethod?: NhCandidateRotationMethod;
 }
+
+export const BallotLayoutSettingsSchema: z.ZodSchema<BallotLayoutSettings> =
+  z.object({
+    paperSize: HmpbBallotPaperSizeSchema,
+    compact: z.boolean(),
+    candidateRotationMethod: NhCandidateRotationMethodSchema.optional(),
+  });
 
 export interface ResultsReportInfo {
   ballotHash: string;

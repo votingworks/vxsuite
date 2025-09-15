@@ -17,4 +17,8 @@ export const ballotTemplates = {
  */
 export type BallotTemplateId = keyof typeof ballotTemplates;
 
+/**
+ * Union of ballot prop types across all ballot templates. This is useful for
+ * code that needs to support all ballot templates generically.
+ */
 export type AnyBallotProps = BaseBallotProps | NhBallotProps;

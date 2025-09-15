@@ -212,3 +212,6 @@ export function asSheet<T>(array: T[]): SheetOf<T> {
 }
 
 export type NhCandidateRotationMethod = 'statute' | 'precinct';
+
+export const NhCandidateRotationMethodSchema: z.ZodSchema<NhCandidateRotationMethod> =
+  z.enum(['statute', 'precinct']);
