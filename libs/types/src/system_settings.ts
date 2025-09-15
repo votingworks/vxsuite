@@ -176,10 +176,7 @@ export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
     AdjudicationReason.BlankBallot,
   ],
   disallowCastingOvervotes: false,
-  centralScanAdjudicationReasons: [
-    AdjudicationReason.Overvote,
-    AdjudicationReason.BlankBallot,
-  ],
+  centralScanAdjudicationReasons: [AdjudicationReason.BlankBallot],
   adminAdjudicationReasons: [
     AdjudicationReason.Overvote,
     AdjudicationReason.MarginalMark,
