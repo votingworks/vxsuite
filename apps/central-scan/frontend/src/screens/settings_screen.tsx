@@ -72,9 +72,8 @@ export function SettingsScreen({
         <SegmentedButton
           disabled={
             setEarlyVotingModeMutation.isLoading ||
-            !canUnconfigure ||
-            !statusQuery.isSuccess ||
             !earlyVotingModeQuery.isSuccess ||
+            !statusQuery.isSuccess ||
             !!statusQuery.data?.ongoingBatchId
           }
           label="Voting Mode"
