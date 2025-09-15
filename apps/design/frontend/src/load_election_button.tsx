@@ -3,6 +3,7 @@ import { ElectionId, ElectionType } from '@votingworks/types';
 import {
   Button,
   FileInputButton,
+  LoadingButton,
   Modal,
   SearchSelect,
   SegmentedButton,
@@ -68,6 +69,9 @@ export function LoadElectionButton(): JSX.Element {
     }
   }
 
+  const isLoading =
+    loadElectionMutation.isLoading || loadLaElectionMutation.isLoading;
+
   if (electionOptions) {
     return (
       <Modal
@@ -122,21 +126,26 @@ export function LoadElectionButton(): JSX.Element {
         }
         actions={
           <React.Fragment>
-            <FileInputButton
-              accept={electionOptions.format === 'vxf' ? '.json' : '.zip'}
-              onChange={onSelectElectionFile}
-              disabled={
-                loadElectionMutation.isLoading ||
-                loadLaElectionMutation.isLoading
-              }
-              buttonProps={{ variant: 'primary' }}
-            >
-              Select File…
-            </FileInputButton>
+            {isLoading ? (
+              <LoadingButton variant="primary">Loading Election…</LoadingButton>
+            ) : (
+              <FileInputButton
+                accept={electionOptions.format === 'vxf' ? '.json' : '.zip'}
+                onChange={onSelectElectionFile}
+                disabled={
+                  loadElectionMutation.isLoading ||
+                  loadLaElectionMutation.isLoading
+                }
+                buttonProps={{ variant: 'primary' }}
+              >
+                Select File…
+              </FileInputButton>
+            )}
             <Button
               onPress={() => {
                 setElectionOptions(null);
               }}
+              disabled={isLoading}
             >
               Cancel
             </Button>
