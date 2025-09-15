@@ -25,7 +25,7 @@ import {
   getSingleYesNoVote,
 } from '@votingworks/utils';
 
-import { assert, err, find, ok, Result } from '@votingworks/basics';
+import { assert, find, ok, Result } from '@votingworks/basics';
 import { QrCode, QrCodeLevel } from './qrcode';
 import { Font, H4, H5, P } from './typography';
 import { VxThemeProvider } from './themes/vx_theme_provider';
@@ -195,26 +195,33 @@ export function getLayout(
   const ballotStyle = getBallotStyle({ ballotStyleId, election });
   assert(ballotStyle);
   const contests = getContests({ ballotStyle, election });
+  // eslint-disable-next-line no-console
+  console.log(
+    `ignoring denisty offset ${densityOffset} and contest length ${contests.length}`
+  );
 
   const possibleLayoutsDescending = [
     ...ORDERED_BMD_BALLOT_LAYOUTS[machineType],
   ].reverse();
 
-  // Ballot layout for the typical use case. This layout should accommodate most elections.
-  const i = possibleLayoutsDescending.findIndex(
-    (l) => contests.length >= l.minContests
-  );
+  return ok(possibleLayoutsDescending[0]);
 
-  // Passed `densityOffset` param indicates we should try to choose a more dense layout, possibly
-  // because a previous render attempt exceeded 1 page.
-  if (i - densityOffset < 0) {
-    return err(
-      new NoLayoutOptionError(contests.length, densityOffset, machineType)
-    );
-  }
+  // // Ballot layout for the typical use case. This layout should accommodate most elections.
+  // const i = possibleLayoutsDescending.findIndex(
+  //   (l) => contests.length >= l.minContests
+  // );
 
-  const finalLayoutIndex = Math.max(i - densityOffset, 0);
-  return ok(possibleLayoutsDescending[finalLayoutIndex]);
+  // // Passed `densityOffset` param indicates we should try to choose a more dense layout, possibly
+  // // because a previous render attempt exceeded 1 page.
+  // if (i - densityOffset < 0) {
+  //   return err(
+  //     new NoLayoutOptionError(contests.length, densityOffset, machineType)
+  //   );
+  // }
+
+  // const finalLayoutIndex = Math.max(i - densityOffset, 0);
+  // console.log('chose layout:\n', possibleLayoutsDescending[finalLayoutIndex]);
+  // return ok(possibleLayoutsDescending[finalLayoutIndex]);
 }
 
 export type BmdBallotSheetSize = 'letter' | 'custom8x13pt25' | 'custom8x11';

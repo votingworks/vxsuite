@@ -6,6 +6,7 @@ const ResponsiveSvgWrapper = styled.div`
     display: block; /* svg is "inline" by default */
     width: 100%; /* reset width */
     height: auto; /* reset height */
+    filter: blur(0.6px);
   }
 `;
 

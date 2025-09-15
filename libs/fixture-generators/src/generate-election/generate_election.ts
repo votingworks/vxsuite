@@ -1,5 +1,4 @@
 import {
-  assert,
   assertDefined,
   DateWithoutTime,
   mergeObjects,
@@ -37,8 +36,19 @@ function chooseRandomSubset<T>(array: T[]): T[] {
   return Array.from(result);
 }
 
-function randomString(maxLength: number, sourceWords: string[]): string {
-  let result = `${maxLength}:`;
+/**
+ * Generates a random string
+ * @param maxLength
+ * @param sourceWords
+ * @param prefix
+ * @returns
+ */
+export function randomString(
+  maxLength: number,
+  sourceWords: string[],
+  prefix?: string
+): string {
+  let result = `${prefix ? `${prefix}-` : ''}${maxLength}:`;
   while (result.length < maxLength) {
     result += ` ${chooseRandom(sourceWords)}`;
   }
@@ -145,9 +155,6 @@ export function generateElection(
   const precincts = generatePrecinctsWithExhaustiveDistricts(districts, config);
 
   function generateBallotStyle(index: number): BallotStyle {
-    // const ballotStylePrecincts = chooseRandomSubset(
-    //   precincts
-    // ) as PrecinctWithoutSplits[];
     const ballotStylePrecincts = [
       chooseRandom(precincts),
     ] as PrecinctWithoutSplits[];
@@ -195,13 +202,18 @@ export function generateElection(
         type: 'candidate',
         termDescription: randomString(
           maxStringLengths.contestTermDescription,
-          words.durations
+          words.durations,
+          index.toString()
         ),
         seats: config.maxContestVoteFor,
         candidates: range(0, config.numCandidatesPerContest).map(
           (canididateIndex) => ({
             id: `${baseContest.id}-candidate-${canididateIndex}`,
-            name: randomString(maxStringLengths.candidateName, words.people),
+            name: randomString(
+              maxStringLengths.candidateName,
+              words.people,
+              index.toString()
+            ),
             partyId: chooseRandom(parties).id,
           })
         ),
@@ -230,10 +242,6 @@ export function generateElection(
       },
     };
   }
-  assert(
-    config.numContests >= config.numDistricts,
-    'numContests must be >= numDistricts or there will be districts without contests'
-  );
 
   const allDistrictIds = districts.map((d) => d.id);
   const unusedDistrictIds = allDistrictIds.slice();

@@ -3,11 +3,11 @@ import {
   getAllStringsForElectionPackage,
 } from '@votingworks/backend';
 import {
-  allBaseBallotProps,
-  ballotTemplates,
   createPlaywrightRenderer,
   hmpbStringsCatalog,
   renderMinimalBallotsToCreateElectionDefinition,
+  ballotTemplates,
+  allBaseBallotProps,
 } from '@votingworks/hmpb';
 import {
   DEFAULT_SYSTEM_SETTINGS,
@@ -127,5 +127,5 @@ export async function generateElectionPackage(
 
   await writeFile(packageFilePath, zipContents);
   await writeFile(electionFilePath, electionDefinition.electionData);
-  return [electionDefinition.ballotHash, electionPackageHash, fileName];
+  return [electionDefinition.ballotHash, electionPackageHash, packageFilePath];
 }

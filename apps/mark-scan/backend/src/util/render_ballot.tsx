@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   PAPER_DIMENSIONS,
   PaperDimensions,
@@ -83,6 +84,89 @@ export async function renderTestModeBallotWithoutLanguageContext(
       paperDimensions: getPaperDimensions(electionDefinition.election),
     })
   ).unsafeUnwrap();
+}
+
+export async function renderBallotForLimitTesting(
+  electionDefinition: ElectionDefinition,
+  precinctId: string,
+  ballotStyleId: BallotStyleId,
+  votes: VotesDict,
+  sheetSize: BmdBallotSheetSize
+): Promise<Uint8Array> {
+  const isLiveMode = false;
+  const layout = getLayout(
+    MACHINE_TYPE,
+    ballotStyleId,
+    electionDefinition.election
+  );
+  // Allow rendering ballots of >1 page to unblock testing QR code density
+  const ballot = (
+    <BmdPaperBallot
+      binarize
+      electionDefinition={electionDefinition}
+      ballotStyleId={ballotStyleId}
+      precinctId={precinctId}
+      votes={votes}
+      isLiveMode={isLiveMode}
+      sheetSize={sheetSize}
+      layout={layout.ok()}
+      machineType={MACHINE_TYPE}
+    />
+  );
+
+  const pdfData = (
+    await renderToPdf({
+      document: ballot,
+      paperDimensions: getPaperDimensions(electionDefinition.election),
+    })
+  ).unsafeUnwrap();
+  return pdfData;
+
+  // Uncomment to test layout
+  // const maxRenderRetry = ORDERED_BMD_BALLOT_LAYOUTS.markScan.length;
+  // for (let i = 0; i < maxRenderRetry; i += 1) {
+  //   const layout = getLayout(
+  //     MACHINE_TYPE,
+  //     ballotStyleId,
+  //     electionDefinition.election,
+  //     i
+  //   );
+
+  //   // Error at this stage indicates that we attempted to render with the densest layout
+  //   // but still couldn't fit the ballot onto a single page. There are no more layouts
+  //   // to try, so we should short circuit and throw an error.
+  //   if (layout.isErr()) {
+  //     break;
+  //   }
+
+  //   const ballot = (
+  //     <BmdPaperBallot
+  //       binarize
+  //       electionDefinition={electionDefinition}
+  //       ballotStyleId={ballotStyleId}
+  //       precinctId={precinctId}
+  //       votes={votes}
+  //       isLiveMode={isLiveMode}
+  //       sheetSize={sheetSize}
+  //       layout={layout.ok()}
+  //       machineType={MACHINE_TYPE}
+  //     />
+  //   );
+
+  //   const pdfData = (
+  //     await renderToPdf({
+  //       document: ballot,
+  //       paperDimensions: getPaperDimensions(electionDefinition.election),
+  //     })
+  //   ).unsafeUnwrap();
+
+  //   const numPages = await getPdfPageCount(Uint8Array.from(pdfData));
+  //   if (numPages === 1) {
+  //     return pdfData;
+  //   }
+  // }
+
+  // throw new Error('Unable to render ballot contents in a single page');
 }
 
 export async function renderBallot({
