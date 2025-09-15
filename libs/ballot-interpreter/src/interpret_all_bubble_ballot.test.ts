@@ -41,13 +41,13 @@ describe('Interpret - HMPB - All bubble ballot', () => {
       images
     );
 
-    assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
-    expect(frontResult.interpretation.votes).toEqual({
+    assert(frontResult.type === 'InterpretedHmpbPage');
+    expect(frontResult.votes).toEqual({
       'test-contest-page-1': [],
     });
 
-    assert(backResult.interpretation.type === 'InterpretedHmpbPage');
-    expect(backResult.interpretation.votes).toEqual({
+    assert(backResult.type === 'InterpretedHmpbPage');
+    expect(backResult.votes).toEqual({
       'test-contest-page-2': [],
     });
   });
@@ -69,13 +69,13 @@ describe('Interpret - HMPB - All bubble ballot', () => {
       images
     );
 
-    assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
-    expect(frontResult.interpretation.votes).toEqual({
+    assert(frontResult.type === 'InterpretedHmpbPage');
+    expect(frontResult.votes).toEqual({
       [frontContest.id]: frontContest.candidates,
     });
 
-    assert(backResult.interpretation.type === 'InterpretedHmpbPage');
-    expect(backResult.interpretation.votes).toEqual({
+    assert(backResult.type === 'InterpretedHmpbPage');
+    expect(backResult.votes).toEqual({
       [backContest.id]: backContest.candidates,
     });
   });
@@ -103,12 +103,12 @@ describe('Interpret - HMPB - All bubble ballot', () => {
         sheetImages
       );
 
-      assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
-      assert(backResult.interpretation.type === 'InterpretedHmpbPage');
+      assert(frontResult.type === 'InterpretedHmpbPage');
+      assert(backResult.type === 'InterpretedHmpbPage');
 
       for (const [contestId, candidates] of Object.entries({
-        ...frontResult.interpretation.votes,
-        ...backResult.interpretation.votes,
+        ...frontResult.votes,
+        ...backResult.votes,
       })) {
         votes[contestId]!.push(
           ...((candidates as Optional<CandidateVote>) ?? [])

@@ -84,22 +84,22 @@ describe('HMPB - VX Famous Names', () => {
         images
       );
 
-      assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
-      expect(frontResult.interpretation.votes).toEqual({
+      assert(frontResult.type === 'InterpretedHmpbPage');
+      expect(frontResult.votes).toEqual({
         attorney: [],
         'chief-of-police': [],
         controller: [],
         mayor: [],
         'public-works-director': [],
       });
-      assert(backResult.interpretation.type === 'InterpretedHmpbPage');
-      expect(backResult.interpretation.votes).toEqual({
+      assert(backResult.type === 'InterpretedHmpbPage');
+      expect(backResult.votes).toEqual({
         'board-of-alderman': [],
         'city-council': [],
         'parks-and-recreation-director': [],
       });
 
-      expect(frontResult.interpretation.metadata).toEqual({
+      expect(frontResult.metadata).toEqual({
         source: 'qr-code',
         ballotHash: sliceBallotHashForEncoding(electionDefinition.ballotHash),
         precinctId,
@@ -108,7 +108,7 @@ describe('HMPB - VX Famous Names', () => {
         isTestMode: true,
         ballotType: BallotType.Precinct,
       });
-      expect(backResult.interpretation.metadata).toEqual({
+      expect(backResult.metadata).toEqual({
         source: 'qr-code',
         ballotHash: sliceBallotHashForEncoding(electionDefinition.ballotHash),
         precinctId,
@@ -140,12 +140,12 @@ describe('HMPB - VX Famous Names', () => {
         images
       );
 
-      assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
-      assert(backResult.interpretation.type === 'InterpretedHmpbPage');
+      assert(frontResult.type === 'InterpretedHmpbPage');
+      assert(backResult.type === 'InterpretedHmpbPage');
       expect(
         sortVotesDict({
-          ...frontResult.interpretation.votes,
-          ...backResult.interpretation.votes,
+          ...frontResult.votes,
+          ...backResult.votes,
         })
       ).toEqual(sortVotesDict(votes));
     }
@@ -173,8 +173,8 @@ describe('HMPB - VX Famous Names', () => {
         images
       );
 
-      expect(frontResult.interpretation.type).toEqual('InvalidBallotHashPage');
-      expect(backResult.interpretation.type).toEqual('InvalidBallotHashPage');
+      expect(frontResult.type).toEqual('InvalidBallotHashPage');
+      expect(backResult.type).toEqual('InvalidBallotHashPage');
     }
   );
 
@@ -199,8 +199,8 @@ describe('HMPB - VX Famous Names', () => {
         images
       );
 
-      expect(frontResult.interpretation.type).toEqual('InvalidPrecinctPage');
-      expect(backResult.interpretation.type).toEqual('InvalidPrecinctPage');
+      expect(frontResult.type).toEqual('InvalidPrecinctPage');
+      expect(backResult.type).toEqual('InvalidPrecinctPage');
     }
   );
 
@@ -223,8 +223,8 @@ describe('HMPB - VX Famous Names', () => {
         images
       );
 
-      expect(frontResult.interpretation.type).toEqual('InvalidTestModePage');
-      expect(backResult.interpretation.type).toEqual('InvalidTestModePage');
+      expect(frontResult.type).toEqual('InvalidTestModePage');
+      expect(backResult.type).toEqual('InvalidTestModePage');
     }
   );
 
@@ -254,12 +254,8 @@ describe('HMPB - VX Famous Names', () => {
       );
 
       const interpretationResult = await interpretSheet(options, images);
-      expect(interpretationResult[0].interpretation).toEqual(
-        blankPageInterpretation
-      );
-      expect(interpretationResult[1].interpretation).toEqual(
-        blankPageInterpretation
-      );
+      expect(interpretationResult[0]).toEqual(blankPageInterpretation);
+      expect(interpretationResult[1]).toEqual(blankPageInterpretation);
     }
   );
 
@@ -299,8 +295,8 @@ describe('HMPB - VX Famous Names', () => {
         type: 'UnreadablePage',
         reason: 'verticalStreaksDetected',
       };
-      expect(frontResult.interpretation).toEqual(streaksInterpretation);
-      expect(backResult.interpretation).toEqual(streaksInterpretation);
+      expect(frontResult).toEqual(streaksInterpretation);
+      expect(backResult).toEqual(streaksInterpretation);
     }
   );
 });
@@ -472,23 +468,23 @@ for (const spec of vxGeneralElectionFixtures.fixtureSpecs) {
           gridLayout
         );
 
-        assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
-        assert(backResult.interpretation.type === 'InterpretedHmpbPage');
+        assert(frontResult.type === 'InterpretedHmpbPage');
+        assert(backResult.type === 'InterpretedHmpbPage');
         expect(
           sortVotesDict({
-            ...frontResult.interpretation.votes,
-            ...backResult.interpretation.votes,
+            ...frontResult.votes,
+            ...backResult.votes,
           })
         ).toEqual(sortVotesDict(expectedVotes));
 
         expect(
           sortUnmarkedWriteIns([
-            ...(frontResult.interpretation.unmarkedWriteIns ?? []),
-            ...(backResult.interpretation.unmarkedWriteIns ?? []),
+            ...(frontResult.unmarkedWriteIns ?? []),
+            ...(backResult.unmarkedWriteIns ?? []),
           ])
         ).toEqual(sortUnmarkedWriteIns(expectedUnmarkedWriteIns));
 
-        expect(frontResult.interpretation.metadata).toEqual({
+        expect(frontResult.metadata).toEqual({
           source: 'qr-code',
           ballotHash: sliceBallotHashForEncoding(electionDefinition.ballotHash),
           precinctId,
@@ -497,7 +493,7 @@ for (const spec of vxGeneralElectionFixtures.fixtureSpecs) {
           isTestMode: false,
           ballotType: BallotType.Absentee,
         });
-        expect(backResult.interpretation.metadata).toEqual({
+        expect(backResult.metadata).toEqual({
           source: 'qr-code',
           ballotHash: sliceBallotHashForEncoding(electionDefinition.ballotHash),
           precinctId,
@@ -510,10 +506,7 @@ for (const spec of vxGeneralElectionFixtures.fixtureSpecs) {
         // Snapshot the ballot images with write-in crops drawn on them
         // To save time we don't test across paper sizes.
         if (spec.paperSize === HmpbBallotPaperSize.Letter) {
-          snapshotWriteInCrops(sheetImages, [
-            frontResult.interpretation,
-            backResult.interpretation,
-          ]);
+          snapshotWriteInCrops(sheetImages, [frontResult, backResult]);
         }
       }
     });
@@ -554,14 +547,12 @@ describe('HMPB - VX primary election', () => {
         (layout) => layout.ballotStyleId === ballotStyleId
       )!;
 
-      assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
-      expect(frontResult.interpretation.votes).toEqual(
-        votesForSheet({}, 1, gridLayout)
-      );
-      assert(backResult.interpretation.type === 'InterpretedHmpbPage');
-      expect(backResult.interpretation.votes).toEqual({});
+      assert(frontResult.type === 'InterpretedHmpbPage');
+      expect(frontResult.votes).toEqual(votesForSheet({}, 1, gridLayout));
+      assert(backResult.type === 'InterpretedHmpbPage');
+      expect(backResult.votes).toEqual({});
 
-      expect(frontResult.interpretation.metadata).toEqual({
+      expect(frontResult.metadata).toEqual({
         source: 'qr-code',
         ballotHash: sliceBallotHashForEncoding(electionDefinition.ballotHash),
         precinctId,
@@ -570,7 +561,7 @@ describe('HMPB - VX primary election', () => {
         isTestMode: true,
         ballotType: BallotType.Precinct,
       });
-      expect(backResult.interpretation.metadata).toEqual({
+      expect(backResult.metadata).toEqual({
         source: 'qr-code',
         ballotHash: sliceBallotHashForEncoding(electionDefinition.ballotHash),
         precinctId,
@@ -595,12 +586,12 @@ describe('HMPB - VX primary election', () => {
         images
       );
 
-      assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
-      assert(backResult.interpretation.type === 'InterpretedHmpbPage');
+      assert(frontResult.type === 'InterpretedHmpbPage');
+      assert(backResult.type === 'InterpretedHmpbPage');
       expect(
         sortVotesDict({
-          ...frontResult.interpretation.votes,
-          ...backResult.interpretation.votes,
+          ...frontResult.votes,
+          ...backResult.votes,
         })
       ).toEqual(sortVotesDict(votes));
     });
@@ -627,11 +618,11 @@ describe('HMPB - VX primary election', () => {
       [frontImage, backImage]
     );
 
-    expect(frontResult.interpretation).toEqual<PageInterpretation>({
+    expect(frontResult).toEqual<PageInterpretation>({
       type: 'UnreadablePage',
       reason: 'mismatchedPrecincts',
     });
-    expect(backResult.interpretation).toEqual<PageInterpretation>({
+    expect(backResult).toEqual<PageInterpretation>({
       type: 'UnreadablePage',
       reason: 'mismatchedPrecincts',
     });
@@ -658,11 +649,11 @@ describe('HMPB - VX primary election', () => {
       [frontImage, backImage]
     );
 
-    expect(frontResult.interpretation).toEqual<PageInterpretation>({
+    expect(frontResult).toEqual<PageInterpretation>({
       type: 'UnreadablePage',
       reason: 'mismatchedBallotStyles',
     });
-    expect(backResult.interpretation).toEqual<PageInterpretation>({
+    expect(backResult).toEqual<PageInterpretation>({
       type: 'UnreadablePage',
       reason: 'mismatchedBallotStyles',
     });
@@ -710,23 +701,23 @@ for (const spec of nhGeneralElectionFixtures.fixtureSpecs) {
           gridLayout
         );
 
-        assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
-        assert(backResult.interpretation.type === 'InterpretedHmpbPage');
+        assert(frontResult.type === 'InterpretedHmpbPage');
+        assert(backResult.type === 'InterpretedHmpbPage');
         expect(
           sortVotesDict({
-            ...frontResult.interpretation.votes,
-            ...backResult.interpretation.votes,
+            ...frontResult.votes,
+            ...backResult.votes,
           })
         ).toEqual(sortVotesDict(expectedVotes));
 
         expect(
           sortUnmarkedWriteIns([
-            ...(frontResult.interpretation.unmarkedWriteIns ?? []),
-            ...(backResult.interpretation.unmarkedWriteIns ?? []),
+            ...(frontResult.unmarkedWriteIns ?? []),
+            ...(backResult.unmarkedWriteIns ?? []),
           ])
         ).toEqual(sortUnmarkedWriteIns(expectedUnmarkedWriteIns));
 
-        expect(frontResult.interpretation.metadata).toEqual({
+        expect(frontResult.metadata).toEqual({
           source: 'qr-code',
           ballotHash: sliceBallotHashForEncoding(electionDefinition.ballotHash),
           precinctId,
@@ -735,7 +726,7 @@ for (const spec of nhGeneralElectionFixtures.fixtureSpecs) {
           isTestMode: false,
           ballotType: BallotType.Precinct,
         });
-        expect(backResult.interpretation.metadata).toEqual({
+        expect(backResult.metadata).toEqual({
           source: 'qr-code',
           ballotHash: sliceBallotHashForEncoding(electionDefinition.ballotHash),
           precinctId,
@@ -748,10 +739,7 @@ for (const spec of nhGeneralElectionFixtures.fixtureSpecs) {
         // Snapshot the ballot images with write-in crops drawn on them
         // To save time we don't test across paper sizes.
         if (spec.paperSize === HmpbBallotPaperSize.Letter) {
-          snapshotWriteInCrops(sheetImages, [
-            frontResult.interpretation,
-            backResult.interpretation,
-          ]);
+          snapshotWriteInCrops(sheetImages, [frontResult, backResult]);
         }
       }
     });
@@ -777,11 +765,11 @@ test('Non-consecutive page numbers', async () => {
     [frontImage!, backImage!]
   );
 
-  expect(frontResult.interpretation).toEqual<PageInterpretation>({
+  expect(frontResult).toEqual<PageInterpretation>({
     type: 'UnreadablePage',
     reason: 'nonConsecutivePageNumbers',
   });
-  expect(backResult.interpretation).toEqual<PageInterpretation>({
+  expect(backResult).toEqual<PageInterpretation>({
     type: 'UnreadablePage',
     reason: 'nonConsecutivePageNumbers',
   });
@@ -822,14 +810,10 @@ test('Ballot audit IDs', async () => {
     images
   );
 
-  assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
-  assert(backResult.interpretation.type === 'InterpretedHmpbPage');
-  expect(frontResult.interpretation.metadata.ballotAuditId).toEqual(
-    'test-ballot-audit-id'
-  );
-  expect(backResult.interpretation.metadata.ballotAuditId).toEqual(
-    'test-ballot-audit-id'
-  );
+  assert(frontResult.type === 'InterpretedHmpbPage');
+  assert(backResult.type === 'InterpretedHmpbPage');
+  expect(frontResult.metadata.ballotAuditId).toEqual('test-ballot-audit-id');
+  expect(backResult.metadata.ballotAuditId).toEqual('test-ballot-audit-id');
 });
 
 describe('Contest option bounds', () => {
@@ -880,12 +864,9 @@ describe('Contest option bounds', () => {
       images
     );
 
-    assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
-    assert(backResult.interpretation.type === 'InterpretedHmpbPage');
-    snapshotBallotMeasureCrops(images, [
-      frontResult.interpretation,
-      backResult.interpretation,
-    ]);
+    assert(frontResult.type === 'InterpretedHmpbPage');
+    assert(backResult.type === 'InterpretedHmpbPage');
+    snapshotBallotMeasureCrops(images, [frontResult, backResult]);
   });
 
   test('Election with candidate contests only, no write-ins', async () => {
@@ -942,11 +923,8 @@ describe('Contest option bounds', () => {
       images
     );
 
-    assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
-    assert(backResult.interpretation.type === 'InterpretedHmpbPage');
-    snapshotCandidateOptionCrops(images, [
-      frontResult.interpretation,
-      backResult.interpretation,
-    ]);
+    assert(frontResult.type === 'InterpretedHmpbPage');
+    assert(backResult.type === 'InterpretedHmpbPage');
+    snapshotCandidateOptionCrops(images, [frontResult, backResult]);
   });
 });

@@ -1,4 +1,3 @@
-import { ImageData } from 'canvas';
 import {
   HmpbBallotPaperSize,
   GridPosition,
@@ -96,7 +95,6 @@ export interface InterpretedBallotPage {
   metadata: BallotPageMetadata;
   marks: ScoredBubbleMarks;
   writeIns: ScoredPositionArea[];
-  normalizedImage: ImageData;
   contestLayouts: InterpretedContestLayout[];
 }
 

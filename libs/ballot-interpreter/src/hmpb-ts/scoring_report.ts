@@ -6,9 +6,14 @@ import {
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { mkdir, readFile, readdir } from 'node:fs/promises';
-import { ImageData, writeImageData } from '@votingworks/image-utils';
+import {
+  ImageData,
+  loadImageData,
+  writeImageData,
+} from '@votingworks/image-utils';
 import { basename, join } from 'node:path';
 import { CanvasRenderingContext2D, createCanvas } from 'canvas';
+import { fileSync } from 'tmp';
 import { interpret } from './interpret';
 import { InterpretedBallotPage, getQuadrilateralBounds } from './types';
 
@@ -171,11 +176,15 @@ async function generateScoringReport(
   const ballotImageSheets = pairBallotImagePaths(ballotImagePaths);
 
   for (const { sheetName, pageImagePaths: imagePaths } of ballotImageSheets) {
+    const frontNormalizedImageOutputFile = fileSync();
+    const backNormalizedImageOutputFile = fileSync();
     process.stdout.write(`Scoring sheet ${sheetName}\n`);
     const interpretationResult = interpret({
       electionDefinition,
       ballotImages: imagePaths,
       scoreWriteIns: true,
+      frontNormalizedImageOutputPath: frontNormalizedImageOutputFile.name,
+      backNormalizedImageOutputPath: backNormalizedImageOutputFile.name,
     });
     if (!interpretationResult.isOk()) {
       process.stderr.write(
@@ -191,14 +200,16 @@ async function generateScoringReport(
 
     const frontScoredImage = annotateBallotImageScores(
       scoreType,
-      interpretation.front.normalizedImage,
+      await loadImageData(frontNormalizedImageOutputFile.name),
       interpretation.front
     );
+    frontNormalizedImageOutputFile.removeCallback();
     const backScoredImage = annotateBallotImageScores(
       scoreType,
-      interpretation.back.normalizedImage,
+      await loadImageData(backNormalizedImageOutputFile.name),
       interpretation.back
     );
+    backNormalizedImageOutputFile.removeCallback();
     const frontOutputPath = join(outputDir, `${sheetName}-front.jpg`);
     const backOutputPath = join(outputDir, `${sheetName}-back.jpg`);
     await writeImageData(frontOutputPath, frontScoredImage);

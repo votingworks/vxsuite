@@ -3,12 +3,6 @@ import {
   PageInterpretation,
   SheetOf,
 } from '@votingworks/types';
-import { ImageData } from 'canvas';
-
-export interface InterpretFileResult {
-  interpretation: PageInterpretation;
-  normalizedImage?: ImageData;
-}
 
 /**
  * Determine if a sheet needs adjudication.

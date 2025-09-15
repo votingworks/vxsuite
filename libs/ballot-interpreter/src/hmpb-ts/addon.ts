@@ -20,17 +20,10 @@ const addon = (() => {
 /**
  * The result of calling `interpret`.
  */
-export type BridgeInterpretResult =
-  | {
-      success: false;
-      value: string;
-    }
-  | {
-      success: true;
-      value: string;
-      frontNormalizedImage: ImageData;
-      backNormalizedImage: ImageData;
-    };
+export interface BridgeInterpretResult {
+  success: boolean;
+  value: string;
+}
 
 /**
  * Type of the Rust `interpret` implementation. Under normal circumstances,
@@ -49,6 +42,8 @@ export function interpret(
     timingMarkAlgorithm?: 'contours' | 'corners';
     inferTimingMarks?: boolean;
     minimumDetectedScale?: number;
+    frontNormalizedImageOutputPath?: string;
+    backNormalizedImageOutputPath?: string;
   }
 ): BridgeInterpretResult {
   return addon.interpret(

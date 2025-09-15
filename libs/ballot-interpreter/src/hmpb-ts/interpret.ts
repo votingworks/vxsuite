@@ -43,6 +43,8 @@ function normalizeOptionsForBridge(options: {
   inferTimingMarks?: boolean;
   minimumDetectedScale?: number;
   debug?: boolean;
+  frontNormalizedImageOutputPath?: string;
+  backNormalizedImageOutputPath?: string;
 }): Parameters<typeof interpretImpl> {
   assert(typeof options.electionDefinition.electionData === 'string');
   assert(options.ballotImages.length === 2);
@@ -72,6 +74,8 @@ function normalizeOptionsForBridge(options: {
       disableVerticalStreakDetection: options.disableVerticalStreakDetection,
       inferTimingMarks: options.inferTimingMarks,
       minimumDetectedScale: options.minimumDetectedScale,
+      frontNormalizedImageOutputPath: options.frontNormalizedImageOutputPath,
+      backNormalizedImageOutputPath: options.backNormalizedImageOutputPath,
     },
   ];
 }
@@ -88,6 +92,8 @@ export function interpret(options: {
   inferTimingMarks?: boolean;
   minimumDetectedScale?: number;
   debug?: boolean;
+  frontNormalizedImageOutputPath?: string;
+  backNormalizedImageOutputPath?: string;
 }): HmpbInterpretResult {
   const args = normalizeOptionsForBridge(options);
   const result = interpretImpl(...args);
@@ -97,23 +103,5 @@ export function interpret(options: {
     return err(value as InterpretError);
   }
 
-  const interpretedBallotCard = value as InterpretedBallotCard;
-
-  // The normalized images are not included in the JSON string for performance
-  // reasons. Instead, they are transferred as `ImageData`-compatible objects
-  // which transfers the pixel data as a fast memory copy. As a result, we need
-  // to add them back in here.
-  const { frontNormalizedImage, backNormalizedImage } = result;
-  interpretedBallotCard.front.normalizedImage = new ImageData(
-    new Uint8ClampedArray(frontNormalizedImage.data),
-    frontNormalizedImage.width,
-    frontNormalizedImage.height
-  );
-  interpretedBallotCard.back.normalizedImage = new ImageData(
-    new Uint8ClampedArray(backNormalizedImage.data),
-    backNormalizedImage.width,
-    backNormalizedImage.height
-  );
-
-  return ok(interpretedBallotCard);
+  return ok(value as InterpretedBallotCard);
 }

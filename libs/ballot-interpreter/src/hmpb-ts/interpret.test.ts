@@ -18,10 +18,6 @@ import { interpret } from './interpret';
 const electionGridLayoutNewHampshireTestBallotDefinition =
   electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
-test('interpret exists', () => {
-  expect(interpret).toBeDefined();
-});
-
 test('interpret with bad election data', () => {
   const electionDefinition: ElectionDefinition = {
     ...electionGridLayoutNewHampshireTestBallotDefinition,
@@ -50,19 +46,6 @@ test('interpret `ImageData` objects', async () => {
   expect(result).toEqual(ok(expect.anything()));
 
   const { front, back } = result.unsafeUnwrap();
-
-  expect(front.normalizedImage).toBeDefined();
-  expect(back.normalizedImage).toBeDefined();
-  const [frontImageData, backImageData] = ballotImages;
-  // While we would usually expect a normalized image to differ from the
-  // original more significantly, in this case their dimensions are identical
-  // due to minimal cropping and no scaling, which makes for a basic test.
-  expect(front.normalizedImage.width).toEqual(frontImageData.width);
-  expect(front.normalizedImage.height).toEqual(frontImageData.height);
-  expect(back.normalizedImage.width).toEqual(backImageData.width);
-  expect(back.normalizedImage.height).toEqual(backImageData.height);
-  expect(front.normalizedImage.data.length).toBeGreaterThan(0);
-  expect(back.normalizedImage.data.length).toBeGreaterThan(0);
 
   const gridPositions = assertDefined(
     electionDefinition.election.gridLayouts?.[0]?.gridPositions
@@ -362,19 +345,6 @@ test('interpret images from paths', async () => {
   expect(result).toEqual(ok(expect.anything()));
 
   const { front, back } = result.unsafeUnwrap();
-
-  expect(front.normalizedImage).toBeDefined();
-  expect(back.normalizedImage).toBeDefined();
-  const [frontImageData, backImageData] = ballotImages;
-  // While we would usually expect a normalized image to differ from the
-  // original more significantly, in this case their dimensions are identical
-  // due to minimal cropping and no scaling, which makes for a basic test.
-  expect(front.normalizedImage.width).toEqual(frontImageData.width);
-  expect(front.normalizedImage.height).toEqual(frontImageData.height);
-  expect(back.normalizedImage.width).toEqual(backImageData.width);
-  expect(back.normalizedImage.height).toEqual(backImageData.height);
-  expect(front.normalizedImage.data.length).toBeGreaterThan(0);
-  expect(back.normalizedImage.data.length).toBeGreaterThan(0);
 
   const gridPositions = assertDefined(
     electionDefinition.election.gridLayouts?.[0]?.gridPositions

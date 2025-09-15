@@ -28,7 +28,6 @@ import {
   asSheet,
   getBallotStyle,
   getContests,
-  mapSheet,
   vote,
 } from '@votingworks/types';
 import {
@@ -89,8 +88,8 @@ describe('adjudication reporting', () => {
       ],
     });
 
-    assert(result[0].interpretation.type === 'InterpretedBmdPage');
-    const frontInterpretation = result[0].interpretation as InterpretedBmdPage;
+    assert(result[0].type === 'InterpretedBmdPage');
+    const frontInterpretation = result[0] as InterpretedBmdPage;
 
     expect(frontInterpretation.adjudicationInfo).toEqual({
       requiresAdjudication: false,
@@ -119,8 +118,8 @@ describe('adjudication reporting', () => {
       ],
     });
 
-    assert(result[0].interpretation.type === 'InterpretedBmdPage');
-    const frontInterpretation = result[0].interpretation as InterpretedBmdPage;
+    assert(result[0].type === 'InterpretedBmdPage');
+    const frontInterpretation = result[0] as InterpretedBmdPage;
 
     // The result of a blank ballot + all undervoted contests is very verbose so
     // we use a snapshot test but check for 'BlankBallot' for extra confidence.
@@ -148,8 +147,8 @@ describe('adjudication reporting', () => {
       adjudicationReasons: [AdjudicationReason.Undervote],
     });
 
-    assert(result[0].interpretation.type === 'InterpretedBmdPage');
-    const frontInterpretation = result[0].interpretation as InterpretedBmdPage;
+    assert(result[0].type === 'InterpretedBmdPage');
+    const frontInterpretation = result[0] as InterpretedBmdPage;
 
     // The result of a blank ballot + all undervoted contests is very verbose so
     // we use a snapshot test but check for absence of 'BlankBallot' for extra confidence.
@@ -186,8 +185,8 @@ describe('adjudication reporting', () => {
       ],
     });
 
-    assert(result[0].interpretation.type === 'InterpretedBmdPage');
-    const frontInterpretation = result[0].interpretation as InterpretedBmdPage;
+    assert(result[0].type === 'InterpretedBmdPage');
+    const frontInterpretation = result[0] as InterpretedBmdPage;
 
     expect(frontInterpretation.adjudicationInfo).toEqual({
       requiresAdjudication: true,
@@ -228,8 +227,8 @@ describe('adjudication reporting', () => {
       ],
     });
 
-    assert(result[0].interpretation.type === 'InterpretedBmdPage');
-    const frontInterpretation = result[0].interpretation as InterpretedBmdPage;
+    assert(result[0].type === 'InterpretedBmdPage');
+    const frontInterpretation = result[0] as InterpretedBmdPage;
 
     expect(frontInterpretation.adjudicationInfo).toEqual({
       requiresAdjudication: true,
@@ -262,8 +261,8 @@ describe('adjudication reporting', () => {
       adjudicationReasons: [AdjudicationReason.BlankBallot],
     });
 
-    assert(result[0].interpretation.type === 'InterpretedBmdPage');
-    const frontInterpretation = result[0].interpretation as InterpretedBmdPage;
+    assert(result[0].type === 'InterpretedBmdPage');
+    const frontInterpretation = result[0] as InterpretedBmdPage;
 
     // Use snapshot testing because ignoredReasonInfos for undervotes
     // on all contests is very verbose
@@ -318,8 +317,8 @@ describe('adjudication reporting', () => {
       ],
     });
 
-    assert(result[0].interpretation.type === 'InterpretedBmdPage');
-    const frontInterpretation = result[0].interpretation as InterpretedBmdPage;
+    assert(result[0].type === 'InterpretedBmdPage');
+    const frontInterpretation = result[0] as InterpretedBmdPage;
 
     expect(frontInterpretation.adjudicationInfo).toEqual({
       requiresAdjudication: true,
@@ -363,7 +362,7 @@ describe('VX BMD interpretation', () => {
   });
 
   test('extracts votes encoded in a QR code', async () => {
-    const result = await interpretSheet(
+    const interpretation = await interpretSheet(
       {
         electionDefinition,
         precinctSelection: ALL_PRECINCTS_SELECTION,
@@ -373,9 +372,7 @@ describe('VX BMD interpretation', () => {
       },
       validBmdSheet
     );
-    expect(
-      mapSheet(result, ({ interpretation }) => interpretation)
-    ).toMatchSnapshot();
+    expect(interpretation).toMatchSnapshot();
   });
 
   test('properly detects test ballot in live mode', async () => {
@@ -390,9 +387,7 @@ describe('VX BMD interpretation', () => {
       validBmdSheet
     );
 
-    expect(interpretationResult[0].interpretation.type).toEqual(
-      'InvalidTestModePage'
-    );
+    expect(interpretationResult[0].type).toEqual('InvalidTestModePage');
   });
 
   test('properly detects bmd ballot with wrong precinct', async () => {
@@ -407,9 +402,7 @@ describe('VX BMD interpretation', () => {
       validBmdSheet
     );
 
-    expect(interpretationResult[0].interpretation.type).toEqual(
-      'InvalidPrecinctPage'
-    );
+    expect(interpretationResult[0].type).toEqual('InvalidPrecinctPage');
   });
 
   test('properly detects bmd ballot with correct precinct', async () => {
@@ -424,9 +417,7 @@ describe('VX BMD interpretation', () => {
       validBmdSheet
     );
 
-    expect(interpretationResult[0].interpretation.type).toEqual(
-      'InterpretedBmdPage'
-    );
+    expect(interpretationResult[0].type).toEqual('InterpretedBmdPage');
   });
 
   test('properly detects a ballot with incorrect ballot hash', async () => {
@@ -444,9 +435,7 @@ describe('VX BMD interpretation', () => {
       validBmdSheet
     );
 
-    expect(
-      interpretationResult[0].interpretation
-    ).toEqual<InvalidBallotHashPage>({
+    expect(interpretationResult[0]).toEqual<InvalidBallotHashPage>({
       type: 'InvalidBallotHashPage',
       actualBallotHash: sliceBallotHashForEncoding(
         electionDefinition.ballotHash
@@ -497,11 +486,11 @@ describe('VX BMD interpretation', () => {
         validBmdSheet
       );
 
-      expect(interpretationResult[0].interpretation).toEqual<UnreadablePage>({
+      expect(interpretationResult[0]).toEqual<UnreadablePage>({
         type: 'UnreadablePage',
         reason: 'bmdBallotScanningDisabled',
       });
-      expect(interpretationResult[1].interpretation).toEqual<UnreadablePage>({
+      expect(interpretationResult[1]).toEqual<UnreadablePage>({
         type: 'UnreadablePage',
         reason: 'bmdBallotScanningDisabled',
       });
@@ -520,8 +509,8 @@ describe('VX BMD interpretation', () => {
       [bmdBlankPage, bmdBlankPage]
     );
 
-    expect(interpretationResult[0].interpretation.type).toEqual('BlankPage');
-    expect(interpretationResult[1].interpretation.type).toEqual('BlankPage');
+    expect(interpretationResult[0].type).toEqual('BlankPage');
+    expect(interpretationResult[1].type).toEqual('BlankPage');
   });
 
   test('treats sheets with multiple QR codes as unreadable', async () => {
@@ -536,25 +525,22 @@ describe('VX BMD interpretation', () => {
       [bmdSummaryBallotPage, bmdSummaryBallotPage]
     );
 
-    expect(interpretationResult[0].interpretation.type).toEqual(
-      'UnreadablePage'
-    );
-    expect(interpretationResult[1].interpretation.type).toEqual(
-      'UnreadablePage'
-    );
+    expect(interpretationResult[0].type).toEqual('UnreadablePage');
+    expect(interpretationResult[1].type).toEqual('UnreadablePage');
   });
 
   test('interpretSimplexBmdBallot', async () => {
-    const result = await interpretSimplexBmdBallot(bmdSummaryBallotPage, {
-      electionDefinition,
-      precinctSelection: ALL_PRECINCTS_SELECTION,
-      testMode: true,
-      markThresholds: DEFAULT_MARK_THRESHOLDS,
-      adjudicationReasons: [],
-    });
-    expect(
-      mapSheet(result, ({ interpretation }) => interpretation)
-    ).toMatchSnapshot();
+    const interpretation = await interpretSimplexBmdBallot(
+      bmdSummaryBallotPage,
+      {
+        electionDefinition,
+        precinctSelection: ALL_PRECINCTS_SELECTION,
+        testMode: true,
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
+        adjudicationReasons: [],
+      }
+    );
+    expect(interpretation).toMatchSnapshot();
   });
 
   test('normalizes ballot modes', async () => {
@@ -577,8 +563,6 @@ describe('VX BMD interpretation', () => {
     );
 
     const interpretationResult = await interpretSheet(options, validBmdSheet);
-    expect(interpretationResult[0].interpretation).toEqual(
-      blankPageInterpretation
-    );
+    expect(interpretationResult[0]).toEqual(blankPageInterpretation);
   });
 });
