@@ -91,6 +91,7 @@ export function PrecinctScannerTallyReport({
                 election={election}
                 contest={contest}
                 scannedContestResults={scannedContestResults}
+                hidePercentages
               />
             );
           })}
