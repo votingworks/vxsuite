@@ -13,8 +13,10 @@ create table election (
 );
 
 create table ballot_pdfs (
-  ballot_style_id text primary key,
-  data blob not null
+  precinct_id text not null,
+  ballot_style_id text not null,
+  data blob not null,
+  primary key (precinct_id, ballot_style_id)
 );
 
 -- Temporary dev table:

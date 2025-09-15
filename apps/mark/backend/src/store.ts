@@ -27,6 +27,7 @@ import {
   ElectionKey,
   constructElectionKey,
   BallotStyleId,
+  PrecinctId,
 } from '@votingworks/types';
 import { join } from 'node:path';
 import { PrintCalibration } from '@votingworks/hmpb';
@@ -119,12 +120,19 @@ export class Store {
     );
   }
 
-  getBallotPdf(ballotStyleId: BallotStyleId): Uint8Array {
+  getBallotPdf(
+    precinctId: PrecinctId,
+    ballotStyleId: BallotStyleId
+  ): Uint8Array {
     const result = this.client.one(
-      'select data from ballot_pdfs where ballot_style_id = ?',
+      'select data from ballot_pdfs where precinct_id = ? and ballot_style_id = ?',
+      precinctId,
       ballotStyleId
     ) as { data: Buffer } | null;
-    assert(result, `No ballot PDF found for ballot style ID: ${ballotStyleId}`);
+    assert(
+      result,
+      `No ballot PDF found for precinct ID: ${precinctId} and ballot style ID: ${ballotStyleId}`
+    );
     return Uint8Array.from(result.data);
   }
 
@@ -195,13 +203,14 @@ export class Store {
     }
   }
 
-  setBallotPdfs(ballotPdfs: Map<BallotStyleId, Buffer>): void {
+  setBallotPdfs(ballotPdfs: Map<[PrecinctId, BallotStyleId], Buffer>): void {
     this.client.run('delete from ballot_pdfs');
-    for (const [ballotStyleId, data] of ballotPdfs) {
+    for (const [[precinctId, ballotStyleId], data] of ballotPdfs) {
       this.client.run(
         `
-        insert into ballot_pdfs (ballot_style_id, data) values (?, ?)
+        insert into ballot_pdfs (precinct_id, ballot_style_id, data) values (?, ?, ?)
         `,
+        precinctId,
         ballotStyleId,
         data
       );

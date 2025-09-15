@@ -56,7 +56,7 @@ async function printMarkOverlay(p: PrintBallotProps): Promise<void> {
     `${size} paper size not yet supported for pre-printed ballot marking`
   );
 
-  const ballotPdf = p.store.getBallotPdf(p.ballotStyleId);
+  const ballotPdf = p.store.getBallotPdf(p.precinctId, p.ballotStyleId);
 
   const markedBallotPdf = await generateMarkOverlay(
     election,

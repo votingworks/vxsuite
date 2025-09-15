@@ -8,6 +8,7 @@ import {
 import {
   assert,
   assertDefined,
+  find,
   iter,
   ok,
   Result,
@@ -61,7 +62,7 @@ import { Player as AudioPlayer } from './audio/player';
 async function readBallotPdfsFromUsbDrive(
   electionDefinition: ElectionDefinition,
   usbDrive: UsbDrive
-): Promise<Map<BallotStyleId, Buffer>> {
+): Promise<Map<[PrecinctId, BallotStyleId], Buffer>> {
   const usbDriveStatus = await usbDrive.status();
   assert(usbDriveStatus.status === 'mounted', 'No USB drive mounted');
 
@@ -84,13 +85,20 @@ async function readBallotPdfsFromUsbDrive(
   const ballotPdfs = new Map(
     await iter(getEntries(zipFile))
       .async()
-      .filterMap(async (entry): Promise<[BallotStyleId, Buffer] | null> => {
-        const ballotStyleId = entry.name.match(
-          /^official-precinct-ballot-.*-(.*).pdf$/
-        )?.[1];
-        if (!ballotStyleId) return null;
-        return [ballotStyleId, await readEntry(entry)];
-      })
+      .filterMap(
+        async (
+          entry
+        ): Promise<[[PrecinctId, BallotStyleId], Buffer] | null> => {
+          const [, precinctName, ballotStyleId] =
+            entry.name.match(/^official-precinct-ballot-(.*)-(.*)\.pdf$/) ?? [];
+          if (!(precinctName && ballotStyleId)) return null;
+          const precinctId = find(
+            electionDefinition.election.precincts,
+            (p) => p.name === precinctName.replaceAll('_', ' ')
+          ).id;
+          return [[precinctId, ballotStyleId], await readEntry(entry)];
+        }
+      )
       .toArray()
   );
   return ballotPdfs;
