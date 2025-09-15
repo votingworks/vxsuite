@@ -13,6 +13,7 @@ import {
   H6,
   Font,
   H5,
+  QrCode,
 } from '@votingworks/ui';
 import { getPollsReportTitle } from '@votingworks/utils';
 import { ElectionDefinition, PollsTransitionType } from '@votingworks/types';
@@ -31,6 +32,7 @@ import {
   getPollsInfo,
   useApiClient,
   getConfig,
+  getQuickResultsReportingUrl,
 } from '../api';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 import {
@@ -58,6 +60,9 @@ type PollWorkerFlowState =
     }
   | {
       type: 'printing-report';
+    }
+  | {
+      type: 'view-reporting-qr-code';
     }
   | {
       type: 'post-print';
@@ -281,6 +286,8 @@ function PollWorkerScreenContents({
   const pauseVotingMutation = pauseVotingApi.useMutation();
   const resumeVotingMutation = resumeVotingApi.useMutation();
   const printReportSectionMutation = printReportSection.useMutation();
+  const getQuickResultsReportingUrlQuery =
+    getQuickResultsReportingUrl.useQuery();
 
   const [
     isShowingBallotsAlreadyScannedScreen,
@@ -486,6 +493,28 @@ function PollWorkerScreenContents({
             </CenteredText>
           </Screen>
         );
+      case 'view-reporting-qr-code':
+        return (
+          <Screen>
+            <CenteredText>
+              <H5>Scan QR code for Quick Results Reporting</H5>
+              <br />
+            </CenteredText>
+            <CenteredText>
+              {getQuickResultsReportingUrlQuery.data && (
+                <div data-testid="quick-results-code">
+                  <QrCode
+                    value={getQuickResultsReportingUrlQuery.data}
+                    level="M"
+                    size={500}
+                  />
+                </div>
+              )}
+              <br />
+              <Button onPress={showAllPollWorkerActions}>Back</Button>
+            </CenteredText>
+          </Screen>
+        );
       case 'post-print':
         return (
           <PostPrintScreen
@@ -624,6 +653,18 @@ function PollWorkerScreenContents({
               Polls are <Font weight="bold">closed</Font>. Voting is complete
               and the polls cannot be reopened.
             </P>
+            <ButtonGrid>
+              {getQuickResultsReportingUrlQuery.data && (
+                <Button
+                  onPress={() =>
+                    setPollWorkerFlowState({ type: 'view-reporting-qr-code' })
+                  }
+                >
+                  View Quick Results Code
+                </Button>
+              )}
+            </ButtonGrid>
+            <H5>Other Actions</H5>
             <ButtonGrid>{commonActions}</ButtonGrid>
           </Container>
         );

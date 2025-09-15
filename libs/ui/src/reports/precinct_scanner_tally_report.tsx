@@ -16,7 +16,6 @@ import {
 } from './layout';
 import { TallyReportCardCounts } from './tally_report_card_counts';
 import { ContestResultsTable } from './contest_results_table';
-import { PrecinctScannerTallyQrCode } from './precinct_scanner_tally_qr_code';
 
 interface Props {
   electionDefinition: ElectionDefinition;
@@ -49,7 +48,8 @@ export function PrecinctScannerTallyReport({
   pollsTransitionedTime,
   reportPrintedTime,
   precinctScannerMachineId,
-  signedQuickResultsReportingUrl,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  signedQuickResultsReportingUrl, // Functionality to include QR codes in tally reports is temporarily disabled, so this is unused
 }: Props): JSX.Element {
   const { election } = electionDefinition;
   const precinctId =
@@ -58,9 +58,6 @@ export function PrecinctScannerTallyReport({
       : undefined;
 
   const { cardCounts } = scannedElectionResults;
-
-  const showQuickResults =
-    signedQuickResultsReportingUrl && signedQuickResultsReportingUrl.length > 0;
 
   return (
     <ThemeProvider theme={printedReportThemeFn}>
@@ -96,11 +93,6 @@ export function PrecinctScannerTallyReport({
             );
           })}
         </TallyReportColumns>
-        {showQuickResults && (
-          <PrecinctScannerTallyQrCode
-            signedQuickResultsReportingUrl={signedQuickResultsReportingUrl}
-          />
-        )}
       </PrintedReport>
     </ThemeProvider>
   );
