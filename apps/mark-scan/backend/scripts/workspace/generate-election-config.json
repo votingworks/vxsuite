@@ -1,0 +1,24 @@
+{
+  "numDistricts": 1,
+  "numPrecincts": 1,
+  "numBallotStyles": 1,
+  "numParties": 5,
+  "numContests": 25,
+  "numCandidatesPerContest": 10,
+  "maxContestVoteFor": 10,
+  "maxStringLengths": {
+    "title": 40,
+    "countyName": 40,
+    "stateName": 10,
+    "districtName": 10,
+    "precinctName": 10,
+    "partyShortName": 5,
+    "partyFullName": 10,
+    "partyAbbreviation": 5,
+    "contestTitle": 40,
+    "contestTermDescription": 40,
+    "candidateName": 40,
+    "contestBallotMeasureText": 5,
+    "contestBallotMeasureOptionLabel": 6
+  }
+}
