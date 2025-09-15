@@ -578,15 +578,15 @@ async function interpretBmdBallot(
     disableBmdBallotScanning
   );
 
-  if (frontNormalizedImageOutputPath) {
-    await writeImageData(frontNormalizedImageOutputPath, ballotImages[0]);
-  }
-
-  if (backNormalizedImageOutputPath) {
-    await writeImageData(backNormalizedImageOutputPath, ballotImages[1]);
-  }
-
   if (interpretResult.isErr()) {
+    // In case of an error, just write the original images.
+    if (frontNormalizedImageOutputPath) {
+      await writeImageData(frontNormalizedImageOutputPath, ballotImages[0]);
+    }
+    if (backNormalizedImageOutputPath) {
+      await writeImageData(backNormalizedImageOutputPath, ballotImages[1]);
+    }
+
     const error = interpretResult.err();
     switch (error.type) {
       case 'mismatched-election': {
@@ -662,15 +662,11 @@ async function interpretBmdBallot(
     type: 'BlankPage',
   };
 
-  if (options.frontNormalizedImageOutputPath) {
-    await writeImageData(
-      options.frontNormalizedImageOutputPath,
-      summaryBallotImage
-    );
+  if (frontNormalizedImageOutputPath) {
+    await writeImageData(frontNormalizedImageOutputPath, summaryBallotImage);
   }
-
-  if (options.backNormalizedImageOutputPath) {
-    await writeImageData(options.backNormalizedImageOutputPath, blankPageImage);
+  if (backNormalizedImageOutputPath) {
+    await writeImageData(backNormalizedImageOutputPath, blankPageImage);
   }
 
   return validateInterpretResults([front, back], options);

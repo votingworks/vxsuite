@@ -23,12 +23,8 @@ import { MockUsbDrive } from '@votingworks/usb-drive';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { assertDefined, deferred, ok } from '@votingworks/basics';
-import {
-  InterpretFileResult,
-  interpretSimplexBmdBallot,
-} from '@votingworks/ballot-interpreter';
+import { interpretSimplexBmdBallot } from '@votingworks/ballot-interpreter';
 import { readElection } from '@votingworks/fs';
-import { BLANK_PAGE_IMAGE_DATA } from '@votingworks/image-utils';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock';
 import { Api } from './app';
 import { PatConnectionStatusReader } from './pat-input/connection_status_reader';
@@ -293,30 +289,27 @@ describe('paper handler diagnostic', () => {
     const scannedPath = await getDiagnosticMockBallotImagePath();
     vi.mocked(scanAndSave).mockReturnValue(mockScanResult.promise);
 
-    const interpretationMock: SheetOf<InterpretFileResult> = [
+    const interpretationMock: SheetOf<PageInterpretation> = [
       {
-        interpretation: {
-          type: 'InterpretedBmdPage',
-          metadata: {
-            ballotHash: 'hash',
-            ballotType: BallotType.Precinct,
-            ballotStyleId: electionDefinition.election.ballotStyles[0].id,
-            precinctId: electionDefinition.election.precincts[0].id,
-            isTestMode: true,
-          },
-          adjudicationInfo: {
-            requiresAdjudication: false,
-            ignoredReasonInfos: [],
-            enabledReasonInfos: [],
-            enabledReasons: [],
-          },
-          votes: {},
+        type: 'InterpretedBmdPage',
+        metadata: {
+          ballotHash: 'hash',
+          ballotType: BallotType.Precinct,
+          ballotStyleId: electionDefinition.election.ballotStyles[0].id,
+          precinctId: electionDefinition.election.precincts[0].id,
+          isTestMode: true,
         },
-        normalizedImage: BLANK_PAGE_IMAGE_DATA,
+        adjudicationInfo: {
+          requiresAdjudication: false,
+          ignoredReasonInfos: [],
+          enabledReasonInfos: [],
+          enabledReasons: [],
+        },
+        votes: {},
       },
       BLANK_PAGE_MOCK,
     ];
-    const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
+    const mockInterpretResult = deferred<SheetOf<PageInterpretation>>();
     vi.mocked(interpretSimplexBmdBallot).mockReturnValue(
       mockInterpretResult.promise
     );
@@ -413,14 +406,11 @@ describe('paper handler diagnostic', () => {
       const scannedPath = await getDiagnosticMockBallotImagePath();
       vi.mocked(scanAndSave).mockReturnValue(mockScanResult.promise);
 
-      const interpretationMock: SheetOf<InterpretFileResult> = [
-        {
-          interpretation,
-          normalizedImage: BLANK_PAGE_IMAGE_DATA,
-        },
+      const interpretationMock: SheetOf<PageInterpretation> = [
+        interpretation,
         BLANK_PAGE_MOCK,
       ];
-      const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
+      const mockInterpretResult = deferred<SheetOf<PageInterpretation>>();
       vi.mocked(interpretSimplexBmdBallot).mockReturnValue(
         mockInterpretResult.promise
       );

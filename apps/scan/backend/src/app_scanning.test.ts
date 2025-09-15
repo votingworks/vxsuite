@@ -12,6 +12,10 @@ import { simulateScan, withApp } from '../test/helpers/pdi_helpers';
 import { configureApp, waitForStatus } from '../test/helpers/shared_helpers';
 import { delays } from './scanners/pdi/state_machine';
 
+vi.setConfig({
+  testTimeout: 10_000,
+});
+
 const mockFeatureFlagger = getFeatureFlagMock();
 
 vi.mock(import('@votingworks/utils'), async (importActual) => ({

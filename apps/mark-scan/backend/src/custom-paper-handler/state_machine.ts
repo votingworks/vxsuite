@@ -37,13 +37,11 @@ import {
 import {
   ElectionDefinition,
   MarkThresholds,
+  PageInterpretation,
   PageInterpretationType,
   SheetOf,
 } from '@votingworks/types';
-import {
-  InterpretFileResult,
-  interpretSimplexBmdBallot,
-} from '@votingworks/ballot-interpreter';
+import { interpretSimplexBmdBallot } from '@votingworks/ballot-interpreter';
 import { LogEventId, LogLine, Logger } from '@votingworks/logging';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
@@ -92,7 +90,7 @@ interface Context {
   patConnectionStatusReader: PatConnectionStatusReaderInterface;
   scannedBallotImagePath?: string;
   isPatDeviceConnected: boolean;
-  interpretation?: SheetOf<InterpretFileResult>;
+  interpretation?: SheetOf<PageInterpretation>;
   logger: Logger;
   paperHandlerDiagnosticElection?: ElectionDefinition;
   diagnosticError?: DiagnosticError;
@@ -198,7 +196,7 @@ export interface PaperHandlerStateMachine {
   getSimpleStatus(): SimpleServerStatus;
   setAcceptingPaper(paperTypes: AcceptedPaperType[]): void;
   printBallot(pdfData: Uint8Array): void;
-  getInterpretation(): Optional<SheetOf<InterpretFileResult>>;
+  getInterpretation(): Optional<SheetOf<PageInterpretation>>;
   validateBallot(): void;
   invalidateBallot(): void;
   confirmInvalidateBallot(): void;
@@ -356,7 +354,7 @@ function findUsbPatDevice(): HID.HID | undefined {
 async function loadMetadataAndInterpretBallot(context: {
   scannedBallotImagePath?: string;
   workspace: Workspace;
-}): Promise<SheetOf<InterpretFileResult>> {
+}): Promise<SheetOf<PageInterpretation>> {
   const { scannedBallotImagePath, workspace } = context;
   assert(
     typeof scannedBallotImagePath === 'string',
@@ -390,7 +388,7 @@ async function loadMetadataAndInterpretBallot(context: {
 
 async function scanAndInterpretInsertedSheet(
   context: Context
-): Promise<SheetOf<InterpretFileResult>> {
+): Promise<SheetOf<PageInterpretation>> {
   const scannedBallotImagePath = await scanAndSave(context.driver, 'forward');
 
   const result = await loadMetadataAndInterpretBallot({
@@ -402,7 +400,7 @@ async function scanAndInterpretInsertedSheet(
 }
 
 function getInterpretationType(context: Context) {
-  return context.interpretation?.[0].interpretation.type;
+  return context.interpretation?.[0].type;
 }
 
 export function buildMachine(
@@ -1243,15 +1241,14 @@ export function buildMachine(
                   cond: (context) =>
                     !!(
                       context.interpretation &&
-                      context.interpretation[0].interpretation.type ===
-                        'InterpretedBmdPage'
+                      context.interpretation[0].type === 'InterpretedBmdPage'
                     ),
                 },
                 {
                   target: 'failure',
                   actions: assign({
                     diagnosticError: (context: Context) => {
-                      const { interpretation } = assertDefined(
+                      const interpretation = assertDefined(
                         context.interpretation
                       )[0];
                       if (interpretation.type === 'BlankPage') {
@@ -1673,14 +1670,14 @@ export async function getPaperHandlerStateMachine({
       });
     },
 
-    getInterpretation(): Optional<SheetOf<InterpretFileResult>> {
+    getInterpretation(): Optional<SheetOf<PageInterpretation>> {
       const { state } = machineService;
       const { context } = state;
 
       debug(
         'Returning interpretation of type:',
         context.interpretation
-          ? JSON.stringify(context.interpretation[0].interpretation.type)
+          ? JSON.stringify(context.interpretation[0].type)
           : 'no_interpretation_found'
       );
       return context.interpretation;

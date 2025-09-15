@@ -259,14 +259,7 @@ export function buildApi(
       // If we can get away with storing the interpretation in memory only in the
       // state machine we should. This simplifies the logic and reduces the risk
       // of accidentally persisting ballot selections to disk.
-      const sheetInterpretation = stateMachine.getInterpretation();
-
-      if (!sheetInterpretation) {
-        return null;
-      }
-
-      // Omit image data before sending to client. It's long, gets logged, and we don't need it.
-      return sheetInterpretation[0].interpretation;
+      return stateMachine.getInterpretation()?.[0] ?? null;
     },
 
     validateBallot(): void {
