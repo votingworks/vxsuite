@@ -497,6 +497,10 @@ function PollWorkerScreenContents({
         return (
           <Screen>
             <CenteredText>
+              <H5>Scan QR code for Quick Results Reporting</H5>
+              <br />
+            </CenteredText>
+            <CenteredText>
               {getQuickResultsReportingUrlQuery.data && (
                 <div data-testid="quick-results-code">
                   <QrCode
