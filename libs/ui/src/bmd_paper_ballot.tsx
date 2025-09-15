@@ -33,7 +33,6 @@ import { VX_DEFAULT_FONT_FAMILY_DECLARATION } from './fonts/font_family';
 import { Seal } from './seal';
 import {
   electionStrings,
-  PrimaryElectionTitlePrefix,
   appStrings,
   LanguageOverride,
   CandidatePartyList,
@@ -647,7 +646,7 @@ export function BmdPaperBallot({
             style={{ margin: '0.25em 0' }}
           />
           <div className="ballot-header-content">
-            <H4>
+            <H4 style={{ margin: 0 }}>
               <DualLanguageText
                 primaryLanguage={primaryBallotLanguage}
                 englishTextWrapper={AdjacentTextWithSeparator}
@@ -657,15 +656,21 @@ export function BmdPaperBallot({
                   : appStrings.titleUnofficialTestBallot()}
               </DualLanguageText>
             </H4>
-            <H5>
+            {party && (
+              <H5 style={{ margin: 0 }}>
+                <DualLanguageText
+                  primaryLanguage={primaryBallotLanguage}
+                  englishTextWrapper={AdjacentTextWithSeparator}
+                >
+                  {electionStrings.partyFullName(party)}
+                </DualLanguageText>
+              </H5>
+            )}
+            <H5 style={{ margin: 0 }}>
               <DualLanguageText
                 primaryLanguage={primaryBallotLanguage}
                 englishTextWrapper={AdjacentTextWithSeparator}
               >
-                <PrimaryElectionTitlePrefix
-                  ballotStyleId={ballotStyleId}
-                  election={election}
-                />
                 {electionStrings.electionTitle(election)}
               </DualLanguageText>
             </H5>

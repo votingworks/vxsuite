@@ -26,6 +26,7 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
           >
             <h4
               class="sc-kAyceB hQCuhQ"
+              style="margin: 0px;"
             >
               <span>
                 Unofficial Test Ballot
@@ -33,6 +34,7 @@ exports[`BmdPaperBallot accepts a layout override 1`] = `
             </h4>
             <h5
               class="sc-imWYAI gejGWs"
+              style="margin: 0px;"
             >
               <span>
                 Mock General Election Choctaw 2020
@@ -397,6 +399,7 @@ House Bill 1796 - Flag Referendum
         >
           <h4
             class="sc-kAyceB hQCuhQ"
+            style="margin: 0px;"
           >
             <span>
               Unofficial Test Ballot
@@ -404,6 +407,7 @@ House Bill 1796 - Flag Referendum
           </h4>
           <h5
             class="sc-imWYAI gejGWs"
+            style="margin: 0px;"
           >
             <span>
               Mock General Election Choctaw 2020

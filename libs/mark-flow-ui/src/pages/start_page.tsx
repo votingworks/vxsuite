@@ -11,7 +11,6 @@ import {
   H1,
   NumberString,
   P,
-  PrimaryElectionTitlePrefix,
   Seal,
   useScreenInfo,
 } from '@votingworks/ui';
@@ -22,6 +21,7 @@ import {
   BallotStyleId,
   ElectionDefinition,
   getBallotStyle,
+  getPartyForBallotStyle,
   PrecinctId,
 } from '@votingworks/types';
 import { getPrecinctsAndSplitsForBallotStyle } from '@votingworks/utils';
@@ -99,6 +99,8 @@ export function StartPage(props: StartPageProps): JSX.Element {
     ? electionStrings.precinctSplitName(precinctOrSplit.split)
     : electionStrings.precinctName(precinctOrSplit.precinct);
 
+  const party = getPartyForBallotStyle({ ballotStyleId, election });
+
   const electionInfo = (
     <ElectionInfo>
       <Seal
@@ -110,13 +112,8 @@ export function StartPage(props: StartPageProps): JSX.Element {
         }}
       />
       <div>
-        <H1>
-          <PrimaryElectionTitlePrefix
-            ballotStyleId={ballotStyleId}
-            election={election}
-          />
-          {electionStrings.electionTitle(election)}
-        </H1>
+        {party && <H1>{electionStrings.partyFullName(party)}</H1>}
+        <H1>{electionStrings.electionTitle(election)}</H1>
         <P>{electionStrings.electionDate(election)}</P>
         <P>
           <Caption maxLines={4}>

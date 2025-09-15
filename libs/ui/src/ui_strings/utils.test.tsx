@@ -1,26 +1,16 @@
 import { test } from 'vitest';
 import {
-  BallotStyleGroupId,
-  BallotStyleId,
   Candidate,
   DistrictId,
-  Election,
   Parties,
-  Party,
   PartyId,
   Precinct,
 } from '@votingworks/types';
-import { readElectionGeneral } from '@votingworks/fixtures';
-import { assertDefined } from '@votingworks/basics';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import {
-  CandidatePartyList,
-  PrecinctSelectionName,
-  PrimaryElectionTitlePrefix,
-} from './utils';
+import { CandidatePartyList, PrecinctSelectionName } from './utils';
 import { newTestContext } from '../../test/test_context';
 import { H1 } from '..';
 import { screen } from '../../test/react_testing_library';
@@ -44,8 +34,6 @@ const CANDIDATE: Readonly<Candidate> = {
   id: 'candidateX',
   name: 'Professor Xavier',
 };
-
-const electionGeneral = readElectionGeneral();
 
 test('CandidatePartyList - single-party association', async () => {
   const { mockApiClient, render } = newTestContext();
@@ -182,69 +170,4 @@ test('PrecinctSelectionName - no selection', async () => {
   );
 
   await screen.findByRole('heading', { name: 'Precincts:' });
-});
-
-test('PrimaryElectionTitlePrefix - party-specific ballot', async () => {
-  const myParty: Party = {
-    id: 'itsMyParty' as PartyId,
-    fullName: "And I'll Cry If I Want To",
-    name: 'Cry If I Want To',
-    abbrev: 'IMP',
-  };
-
-  const election: Election = {
-    ...electionGeneral,
-    ballotStyles: [
-      ...electionGeneral.ballotStyles,
-      {
-        id: 'imp-ballot' as BallotStyleId,
-        groupId: 'imp-ballot' as BallotStyleGroupId,
-        districts: [],
-        precincts: [],
-        partyId: myParty.id,
-      },
-    ],
-    parties: [...electionGeneral.parties, myParty],
-  };
-
-  const { mockApiClient, render } = newTestContext();
-  mockApiClient.getAvailableLanguages.mockResolvedValue(['es-US']);
-  mockApiClient.getUiStrings.mockResolvedValue({
-    partyName: {
-      itsMyParty: 'Lloro Si Quiero',
-    },
-  });
-
-  render(
-    <H1>
-      Prefix:{' '}
-      <PrimaryElectionTitlePrefix
-        ballotStyleId={'imp-ballot' as BallotStyleId}
-        election={election}
-      />
-    </H1>
-  );
-
-  await screen.findByRole('heading', { name: /Prefix: Lloro Si Quiero/ });
-});
-
-test('PrecinctSelectionName - non-party-specific ballot', async () => {
-  const election = electionGeneral;
-  const ballotStyle = assertDefined(election.ballotStyles[0]);
-
-  const { mockApiClient, render } = newTestContext();
-  mockApiClient.getAvailableLanguages.mockResolvedValue([]);
-  mockApiClient.getUiStrings.mockResolvedValue({});
-
-  render(
-    <H1>
-      Prefix:{' '}
-      <PrimaryElectionTitlePrefix
-        ballotStyleId={ballotStyle.id}
-        election={election}
-      />
-    </H1>
-  );
-
-  await screen.findByRole('heading', { name: 'Prefix:' });
 });
