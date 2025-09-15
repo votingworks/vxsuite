@@ -41,9 +41,9 @@ export function interpret(
   election: Election,
   ballotImageSourceSideA: string | ImageData,
   ballotImageSourceSideB: string | ImageData,
-  debugBasePathSideA?: string,
-  debugBasePathSideB?: string,
   options?: {
+    debugBasePathSideA?: string;
+    debugBasePathSideB?: string;
     scoreWriteIns?: boolean;
     disableVerticalStreakDetection?: boolean;
     timingMarkAlgorithm?: 'contours' | 'corners';
@@ -55,8 +55,6 @@ export function interpret(
     election,
     ballotImageSourceSideA,
     ballotImageSourceSideB,
-    debugBasePathSideA,
-    debugBasePathSideB,
     options
   );
 }

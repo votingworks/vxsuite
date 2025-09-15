@@ -217,18 +217,16 @@ async function interpretFiles(
     useDefaultMarkThresholds?: boolean;
   }
 ): Promise<number> {
-  const result = interpret(
+  const result = interpret({
     electionDefinition,
-    [ballotPathSideA, ballotPathSideB],
-    {
-      scoreWriteIns,
-      disableVerticalStreakDetection:
-        disableVerticalStreakDetection ??
-        systemSettings?.disableVerticalStreakDetection,
-      minimumDetectedScale,
-      debug,
-    }
-  );
+    ballotImages: [ballotPathSideA, ballotPathSideB],
+    scoreWriteIns,
+    disableVerticalStreakDetection:
+      disableVerticalStreakDetection ??
+      systemSettings?.disableVerticalStreakDetection,
+    minimumDetectedScale,
+    debug,
+  });
 
   if (result.isErr()) {
     stderr.write(chalk.red(`Error interpreting ballot:\n`));

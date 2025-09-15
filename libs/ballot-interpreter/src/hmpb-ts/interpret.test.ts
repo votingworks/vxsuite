@@ -28,17 +28,17 @@ test('interpret with bad election data', () => {
     election: { bad: 'election' } as unknown as Election,
   };
 
-  expect(() => interpret(electionDefinition, ['a', 'b'])).toThrowError(
-    'missing field `title`'
-  );
+  expect(() =>
+    interpret({ electionDefinition, ballotImages: ['a', 'b'] })
+  ).toThrowError('missing field `title`');
 });
 
 test('interpret with bad ballot image paths', () => {
   const electionDefinition = electionGridLayoutNewHampshireTestBallotDefinition;
 
-  expect(() => interpret(electionDefinition, ['a', 'b'])).toThrowError(
-    'failed to load ballot card images: a, b'
-  );
+  expect(() =>
+    interpret({ electionDefinition, ballotImages: ['a', 'b'] })
+  ).toThrowError('failed to load ballot card images: a, b');
 });
 
 test('interpret `ImageData` objects', async () => {
@@ -46,7 +46,7 @@ test('interpret `ImageData` objects', async () => {
   const ballotImages = asSheet(
     await pdfToPageImages(vxFamousNamesFixtures.markedBallotPath).toArray()
   );
-  const result = interpret(electionDefinition, ballotImages);
+  const result = interpret({ electionDefinition, ballotImages });
   expect(result).toEqual(ok(expect.anything()));
 
   const { front, back } = result.unsafeUnwrap();
@@ -355,7 +355,10 @@ test('interpret images from paths', async () => {
     return path;
   });
 
-  const result = interpret(electionDefinition, ballotImagePaths);
+  const result = interpret({
+    electionDefinition,
+    ballotImages: ballotImagePaths,
+  });
   expect(result).toEqual(ok(expect.anything()));
 
   const { front, back } = result.unsafeUnwrap();
@@ -668,20 +671,16 @@ test('interpret with old timing mark algorithm', async () => {
     return path;
   });
 
-  const contoursInterpretedCard = interpret(
+  const contoursInterpretedCard = interpret({
     electionDefinition,
-    ballotImagePaths,
-    {
-      timingMarkAlgorithm: 'contours',
-    }
-  ).unsafeUnwrap();
-  const cornersInterpretedCard = interpret(
+    ballotImages: ballotImagePaths,
+    timingMarkAlgorithm: 'contours',
+  }).unsafeUnwrap();
+  const cornersInterpretedCard = interpret({
     electionDefinition,
-    ballotImagePaths,
-    {
-      timingMarkAlgorithm: 'corners',
-    }
-  ).unsafeUnwrap();
+    ballotImages: ballotImagePaths,
+    timingMarkAlgorithm: 'corners',
+  }).unsafeUnwrap();
 
   expect(contoursInterpretedCard.front.marks).not.toEqual(
     cornersInterpretedCard.front.marks
@@ -697,7 +696,9 @@ test('score write in areas', async () => {
     await pdfToPageImages(vxFamousNamesFixtures.markedBallotPath).toArray()
   );
 
-  const result = interpret(electionDefinition, ballotImages, {
+  const result = interpret({
+    electionDefinition,
+    ballotImages,
     scoreWriteIns: true,
   });
   expect(result).toEqual(ok(expect.anything()));

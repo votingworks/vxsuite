@@ -172,7 +172,9 @@ async function generateScoringReport(
 
   for (const { sheetName, pageImagePaths: imagePaths } of ballotImageSheets) {
     process.stdout.write(`Scoring sheet ${sheetName}\n`);
-    const interpretationResult = interpret(electionDefinition, imagePaths, {
+    const interpretationResult = interpret({
+      electionDefinition,
+      ballotImages: imagePaths,
       scoreWriteIns: true,
     });
     if (!interpretationResult.isOk()) {

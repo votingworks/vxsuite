@@ -1,5 +1,7 @@
 #![allow(clippy::similar_names)]
 
+use std::path::PathBuf;
+
 use image::{DynamicImage, GrayImage};
 use neon::prelude::*;
 use neon::types::JsObject;
@@ -57,15 +59,35 @@ pub fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
     let election = get_election_definition_from_arg(&mut cx, 0)?;
     let side_a_image_or_path = get_image_data_or_path_from_arg(&mut cx, 1)?;
     let side_b_image_or_path = get_image_data_or_path_from_arg(&mut cx, 2)?;
-    let debug_side_a_base = get_path_from_arg_opt(&mut cx, 3);
-    let debug_side_b_base = get_path_from_arg_opt(&mut cx, 4);
 
     // Equivalent to:
     //   let options = typeof arguments[5] === 'object' ? arguments[5] : {};
-    let options = match cx.argument_opt(5) {
+    let options = match cx.argument_opt(3) {
         Some(arg) => arg.downcast::<JsObject, _>(&mut cx).or_throw(&mut cx)?,
         None => cx.empty_object(),
     };
+
+    // Equivalent to:
+    //   bet debug_side_a_base =
+    //     typeof options.debugBasePathSideA === 'string'
+    //     ? options.debugBasePathSideA
+    //     : undefined;
+    let debug_side_a_base = options
+        .get_value(&mut cx, "debugBasePathSideA")?
+        .downcast::<JsString, _>(&mut cx)
+        .ok()
+        .map(|path| PathBuf::from(path.value(&mut cx)));
+
+    // Equivalent to:
+    //   let debug_side_b_base =
+    //     typeof options.debugBasePathSideB === 'string'
+    //     ? options.debugBasePathSideB
+    //     : undefined;
+    let debug_side_b_base = options
+        .get_value(&mut cx, "debugBasePathSideB")?
+        .downcast::<JsString, _>(&mut cx)
+        .ok()
+        .map(|path| PathBuf::from(path.value(&mut cx)));
 
     // Equivalent to:
     //   let score_write_ins =

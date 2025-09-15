@@ -571,7 +571,9 @@ function interpretHmpb(
   options: InterpreterOptions
 ): SheetOf<InterpretFileResult> {
   const { electionDefinition } = options;
-  const result = interpretHmpbBallotSheetRust(electionDefinition, sheet, {
+  const result = interpretHmpbBallotSheetRust({
+    electionDefinition,
+    ballotImages: sheet,
     scoreWriteIns: shouldScoreWriteIns(options),
     disableVerticalStreakDetection: options.disableVerticalStreakDetection,
     inferTimingMarks: options.inferTimingMarks,
