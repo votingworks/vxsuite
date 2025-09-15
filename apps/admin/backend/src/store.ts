@@ -104,20 +104,21 @@ type StoreCastVoteRecordAttributes = Omit<
 
 /**
  * Adjudication queue ordering:
- * 1. Overvotes
- * 2. Write-ins (unmarked and marked), no marginal marks, no overvotes, no undervotes
- * 3. Write-ins and marginal marks, no overvotes, no undervotes
- * 4. Marginal marks, no overvotes, no undervotes
- * 5. Undervotes
+ * Note: The intention is to show the most important issues first
+ * 1. All overvotes (regardless of write-ins, marginal marks)
+ * 2. Write-ins (unmarked and marked), no marginal marks, includes undervotes
+ * 3. Write-ins and marginal marks, includes undervotes
+ * 4. Marginal marks, includes undervotes
+ * 5. Undervotes without marginal marks or write-ins
  */
 
 const ADJUDICATION_QUEUE_ORDER_BY = `
   order by
     case
       when has_overvote = 1 then 1
-      when (has_write_in = 1 or has_unmarked_write_in = 1) and has_marginal_mark = 0 and has_undervote = 0 then 2
-      when (has_write_in = 1 or has_unmarked_write_in = 1) and has_marginal_mark = 1 and has_undervote = 0 then 3
-      when has_marginal_mark = 1 and has_overvote = 0 and has_undervote = 0 then 4
+      when (has_write_in = 1 or has_unmarked_write_in = 1) and has_marginal_mark = 0 then 2
+      when (has_write_in = 1 or has_unmarked_write_in = 1) and has_marginal_mark = 1 then 3
+      when has_marginal_mark = 1 then 4
       else 5
     end,
     sequence_id
