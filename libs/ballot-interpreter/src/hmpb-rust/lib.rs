@@ -20,9 +20,11 @@ pub mod timing_marks;
 /// Entry point for the Neon module. Exports values to JavaScript.
 #[neon::main]
 fn main(mut cx: ModuleContext) -> NeonResult<()> {
+    // export everything tagged with `#[neon::export]`
+    neon::registered().export(&mut cx)?;
+
     cx.export_function("interpret", js::interpret)?;
     cx.export_function("findTimingMarkGrid", js::find_timing_mark_grid)?;
-    cx.export_function("runBlankPaperDiagnostic", js::run_blank_paper_diagnostic)?;
 
     Ok(())
 }

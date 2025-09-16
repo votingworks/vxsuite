@@ -54,11 +54,11 @@ export function interpret(
   );
 }
 
-export function runBlankPaperDiagnostic(
+export function runBlankPaperDiagnosticFromPath(
   image: string | ImageData,
   debugBasePath?: string
 ): boolean {
-  return addon.runBlankPaperDiagnostic(image, debugBasePath);
+  return addon.runBlankPaperDiagnosticFromPath(image, debugBasePath);
 }
 
 export function findTimingMarkGrid(

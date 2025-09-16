@@ -4,6 +4,7 @@ use std::path::PathBuf;
 
 use image::{DynamicImage, GrayImage};
 use neon::prelude::*;
+use neon::types::extract::Error;
 use neon::types::JsObject;
 
 use crate::ballot_card::{load_ballot_scan_bubble_image, PaperInfo};
@@ -352,13 +353,14 @@ fn load_ballot_image_from_image_or_path(image_or_path: ImageSource) -> Option<Gr
     image.map(DynamicImage::into_luma8)
 }
 
-pub fn run_blank_paper_diagnostic(mut cx: FunctionContext) -> JsResult<JsBoolean> {
-    let img_source = get_image_data_or_path_from_arg(&mut cx, 0)?;
-    let debug_path = get_path_from_arg_opt(&mut cx, 1);
-
-    let Some(img) = load_ballot_image_from_image_or_path(img_source) else {
-        return cx.throw_error("failed to load image");
-    };
-
-    Ok(cx.boolean(crate::diagnostic::blank_paper(img, debug_path)))
+#[neon::export]
+pub fn run_blank_paper_diagnostic_from_path(
+    image_path: String,
+    debug_path: Option<String>,
+) -> Result<bool, Error> {
+    let image = image::open(image_path).map(DynamicImage::into_luma8)?;
+    Ok(crate::diagnostic::blank_paper(
+        image,
+        debug_path.map(PathBuf::from),
+    ))
 }
