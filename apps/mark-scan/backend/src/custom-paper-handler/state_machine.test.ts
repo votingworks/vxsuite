@@ -848,9 +848,7 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
 
     const interpretationType: PageInterpretationType = 'InvalidBallotHashPage';
     vi.mocked(interpretSimplexBmdBallot).mockResolvedValue([
-      {
-        interpretation: { type: interpretationType },
-      } as unknown as PageInterpretation,
+      { type: interpretationType } as unknown as PageInterpretation,
       BLANK_PAGE_MOCK,
     ]);
 
@@ -1033,9 +1031,7 @@ describe('insert pre-printed ballot', () => {
     await waitForStatus('validating_new_sheet');
 
     mockInterpretResult.resolve([
-      {
-        interpretation: { type: interpretationType },
-      } as unknown as PageInterpretation,
+      { type: interpretationType } as unknown as PageInterpretation,
       BLANK_PAGE_MOCK,
     ]);
     await waitForStatus('inserted_invalid_new_sheet');
@@ -1200,9 +1196,7 @@ describe('re-insert removed ballot', () => {
     await waitForStatus('validating_reinserted_ballot');
 
     mockInterpretResult.resolve([
-      {
-        interpretation: { type: interpretationType },
-      } as unknown as PageInterpretation,
+      { type: interpretationType } as unknown as PageInterpretation,
       BLANK_PAGE_MOCK,
     ]);
     await waitForStatus('reinserted_invalid_ballot');
