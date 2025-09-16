@@ -21,7 +21,7 @@ function rankMarkStatus(markStatus: MarkStatus): number {
       return 1;
     case MarkStatus.Unmarked:
       return 0;
-    /* istanbul ignore next */
+    /* istanbul ignore next - @preserve */
     default:
       throwIllegalValue(markStatus);
   }
@@ -84,7 +84,7 @@ export function getAllPossibleAdjudicationReasonsForBmdVotes(
           // At this point in the code we know there is an undervote,
           // so there must be 0 votes.
           break;
-        /* istanbul ignore next */
+        /* istanbul ignore next - @preserve */
         default:
           throwIllegalValue(contestType);
       }

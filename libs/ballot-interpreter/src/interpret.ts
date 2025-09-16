@@ -174,7 +174,7 @@ function aggregateContestOptionScores({
       : undefined;
     const writeInTextAreaThreshold =
       options.markThresholds.writeInTextArea ??
-      /* istanbul ignore next */
+      /* istanbul ignore next - @preserve */
       TEMPORARY_DEFAULT_WRITE_IN_AREA_THRESHOLD;
     const writeInAreaStatus = scoredWriteInArea
       ? scoredWriteInArea.score >= writeInTextAreaThreshold
@@ -222,7 +222,7 @@ function convertScoredContestOptionToLegacyMark({
     return { type: option.type, optionId: option.id, ...ballotTargetMarkBase };
   }
 
-  /* istanbul ignore next */
+  /* istanbul ignore next - @preserve */
   throwIllegalValue(option);
 }
 
@@ -443,7 +443,7 @@ export function convertRustInterpretResult(
   result: HmpbInterpretResult,
   sheet: SheetOf<ImageData>
 ): InterpretResult {
-  /* istanbul ignore next */
+  /* istanbul ignore next - @preserve */
   if (result.isErr()) {
     return ok(
       mapSheet(
