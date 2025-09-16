@@ -58,7 +58,7 @@ export function runBlankPaperDiagnosticFromPath(
   image: string | ImageData,
   debugBasePath?: string
 ): boolean {
-  return addon.runBlankPaperDiagnosticFromPath(image, debugBasePath);
+  return addon.runBlankPaperDiagnosticFromPath(image, debugBasePath ?? null);
 }
 
 export function findTimingMarkGrid(
@@ -68,5 +68,17 @@ export function findTimingMarkGrid(
     timingMarkAlgorithm?: 'contours' | 'corners';
   }
 ): TimingMarks {
-  return addon.findTimingMarkGrid(image, debugBasePath, options);
+  return typeof image === 'string'
+    ? addon.findTimingMarkGridFromPath(
+        image,
+        debugBasePath ?? null,
+        options ?? null
+      )
+    : addon.findTimingMarkGridFromImage(
+        image.width,
+        image.height,
+        image.data,
+        debugBasePath ?? null,
+        options ?? null
+      );
 }

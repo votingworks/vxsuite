@@ -14,6 +14,7 @@ use imageproc::contrast::otsu_level;
 use rayon::iter::IntoParallelRefIterator;
 use rayon::iter::ParallelIterator;
 use serde::Serialize;
+use serde_with::DeserializeFromStr;
 use types_rs::election::{BallotStyleId, Election, MetadataEncoding, PrecinctId};
 use types_rs::geometry::PixelPosition;
 use types_rs::geometry::{PixelUnit, Size};
@@ -60,7 +61,7 @@ pub struct Options {
     pub minimum_detected_scale: Option<UnitIntervalScore>,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, DeserializeFromStr)]
 pub enum TimingMarkAlgorithm {
     Contours,
     Corners,

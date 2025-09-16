@@ -1,11 +1,14 @@
 #![allow(clippy::similar_names)]
 
+use std::borrow::Cow;
+use std::ffi::OsStr;
 use std::path::PathBuf;
 
-use image::{DynamicImage, GrayImage};
+use image::{DynamicImage, GrayImage, RgbaImage};
 use neon::prelude::*;
-use neon::types::extract::Error;
+use neon::types::extract::{Error, Json};
 use neon::types::JsObject;
+use serde::Deserialize;
 
 use crate::ballot_card::{load_ballot_scan_bubble_image, PaperInfo};
 use crate::debug::ImageDebugWriter;
@@ -15,12 +18,9 @@ use crate::interpret::{
 };
 use crate::scoring::UnitIntervalScore;
 use crate::timing_marks::contours::FindTimingMarkGridOptions;
-use crate::timing_marks::{self, DefaultForGeometry};
+use crate::timing_marks::{self, DefaultForGeometry, TimingMarks};
 
-use self::args::{
-    get_election_definition_from_arg, get_image_data_or_path_from_arg, get_path_from_arg_opt,
-    ImageSource,
-};
+use self::args::{get_election_definition_from_arg, get_image_data_or_path_from_arg, ImageSource};
 
 mod args;
 mod image_data;
@@ -262,49 +262,27 @@ pub fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
     make_interpret_result(&mut cx, value)
 }
 
-pub fn find_timing_mark_grid(mut cx: FunctionContext) -> JsResult<JsObject> {
-    let image_or_path = get_image_data_or_path_from_arg(&mut cx, 0)?;
-    let debug_base = get_path_from_arg_opt(&mut cx, 1);
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct JsFindTimingMarkGridOptions {
+    timing_mark_algorithm: Option<TimingMarkAlgorithm>,
+}
 
-    // Equivalent to:
-    //   let options = typeof arguments[2] === 'object' ? arguments[2] : {};
-    let options = match cx.argument_opt(2) {
-        None => cx.empty_object(),
-        Some(arg) if arg.is_a::<JsUndefined, _>(&mut cx) => cx.empty_object(),
-        Some(arg) => arg.downcast_or_throw::<JsObject, _>(&mut cx)?,
-    };
-
-    let timing_mark_algorithm = options.get_value(&mut cx, "timingMarkAlgorithm")?;
-    let timing_mark_algorithm: TimingMarkAlgorithm = if let Ok(timing_mark_algorithm) =
-        timing_mark_algorithm.downcast::<JsString, _>(&mut cx)
-    {
-        match timing_mark_algorithm.value(&mut cx).parse() {
-            Ok(timing_mark_algorithm) => timing_mark_algorithm,
-            Err(e) => return cx.throw_type_error(format!("Invalid timing mark algorithm: {e}")),
-        }
-    } else if timing_mark_algorithm.is_a::<JsUndefined, _>(&mut cx) {
-        TimingMarkAlgorithm::default()
-    } else {
-        return cx.throw_type_error("Invalid or missing timing mark algorithm");
-    };
-
-    let label = image_or_path.as_label_or("image");
-    let Some(image) = load_ballot_image_from_image_or_path(image_or_path) else {
-        return cx.throw_error(format!("failed to load ballot card image: {label}"));
-    };
-
-    let mut debug = match debug_base {
-        Some(base) => ImageDebugWriter::new(base, image.clone()),
+fn find_timing_mark_grid(
+    image: GrayImage,
+    label: &str,
+    debug_path: Option<PathBuf>,
+    timing_mark_algorithm: Option<TimingMarkAlgorithm>,
+) -> Result<TimingMarks, Error> {
+    let mut debug = match debug_path {
+        Some(path) => ImageDebugWriter::new(path, image.clone()),
         None => ImageDebugWriter::disabled(),
     };
 
-    let ballot_page = match prepare_ballot_page_image("image", image, &PaperInfo::scanned()) {
-        Ok(ballot_page) => ballot_page,
-        Err(err) => {
-            return cx.throw_error(format!("failed to find timing mark grid: {err:?}"));
-        }
-    };
+    let ballot_page = prepare_ballot_page_image(label, image, &PaperInfo::scanned())
+        .map_err(|err| Error::new(format!("Unable to prepare ballot page image: {err}")))?;
 
+    let timing_mark_algorithm = timing_mark_algorithm.unwrap_or_default();
     let find_timing_marks_result = match timing_mark_algorithm {
         TimingMarkAlgorithm::Corners => timing_marks::corners::find_timing_mark_grid(
             &ballot_page.ballot_image,
@@ -324,25 +302,47 @@ pub fn find_timing_mark_grid(mut cx: FunctionContext) -> JsResult<JsObject> {
         ),
     };
 
-    let timing_marks = match find_timing_marks_result {
-        Ok(timing_marks) => timing_marks,
-        Err(err) => {
-            return cx.throw_error(format!("failed to detect timing mark grid: {err:?}"));
-        }
-    };
+    let timing_marks = find_timing_marks_result
+        .map_err(|err| Error::new(format!("failed to detect timing mark grid: {err:?}")))?;
 
-    let timing_marks_json = match serde_json::to_string(&timing_marks) {
-        Ok(json) => json,
-        Err(err) => return cx.throw_error(format!("failed to serialize JSON: {err:?}")),
-    };
+    Ok(timing_marks)
+}
 
-    let json = cx.global::<JsObject>("JSON")?;
-    let parse = json.get::<JsFunction, _, _>(&mut cx, "parse")?;
-    let timing_marks_json = cx.string(timing_marks_json);
-    let args = [timing_marks_json.as_value(&mut cx)];
-    parse
-        .call(&mut cx, json, args)?
-        .downcast_or_throw::<JsObject, _>(&mut cx)
+#[neon::export]
+fn find_timing_mark_grid_from_path(
+    image_path: String,
+    debug_path: Option<String>,
+    Json(options): Json<Option<JsFindTimingMarkGridOptions>>,
+) -> Result<Json<TimingMarks>, Error> {
+    let image_path = PathBuf::from(image_path);
+    let label = image_path
+        .file_name()
+        .map(OsStr::to_string_lossy)
+        .map_or_else(|| "image".to_owned(), Cow::into_owned);
+    let image = image::open(image_path).map(DynamicImage::into_luma8)?;
+    Ok(Json(find_timing_mark_grid(
+        image,
+        &label,
+        debug_path.map(Into::into),
+        options.and_then(|o| o.timing_mark_algorithm),
+    )?))
+}
+
+#[neon::export]
+fn find_timing_mark_grid_from_image(
+    image_width: f64,
+    image_height: f64,
+    image_data: Vec<u8>,
+    debug_path: Option<String>,
+    Json(options): Json<Option<JsFindTimingMarkGridOptions>>,
+) -> Result<Json<TimingMarks>, Error> {
+    let image = gray_image(image_width, image_height, image_data)?;
+    Ok(Json(find_timing_mark_grid(
+        image,
+        "image",
+        debug_path.map(Into::into),
+        options.and_then(|o| o.timing_mark_algorithm),
+    )?))
 }
 
 fn load_ballot_image_from_image_or_path(image_or_path: ImageSource) -> Option<GrayImage> {
@@ -351,6 +351,36 @@ fn load_ballot_image_from_image_or_path(image_or_path: ImageSource) -> Option<Gr
         ImageSource::Path(path) => image::open(path).ok(),
     };
     image.map(DynamicImage::into_luma8)
+}
+
+fn gray_image(width: f64, height: f64, data: Vec<u8>) -> Result<GrayImage, Error> {
+    let width = as_u32(width)?;
+    let height = as_u32(height)?;
+    let len = data.len();
+
+    match  len / (width as usize * height as usize) {
+        1 => Ok(GrayImage::from_vec(width, height, data).ok_or_else(|| {
+            Error::new(format!(
+                "Could not construct GrayImage with dimensions: width={width} height={height} buffer length={len}",
+            ))
+        })?),
+        4 => Ok(DynamicImage::ImageRgba8(RgbaImage::from_vec(width, height, data).ok_or_else(|| {
+            Error::new(format!(
+                "Could not construct RgbaImage with dimensions: width={width} height={height} buffer length={len}",
+            ))
+        })?).into_luma8()),
+        _ => Err(Error::new(format!("Could not construct image dimensions: width={width} height={height} buffer length={len}")))
+    }
+}
+
+fn as_u32(n: f64) -> Result<u32, Error> {
+    if n < 0.0 {
+        Err(Error::new("Number is less than zero"))
+    } else if n > f64::from(u32::MAX) {
+        Err(Error::new("Number is too big (> u32::MAX)"))
+    } else {
+        Ok(n as u32)
+    }
 }
 
 #[neon::export]

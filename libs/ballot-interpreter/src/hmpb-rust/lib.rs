@@ -24,7 +24,6 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
     neon::registered().export(&mut cx)?;
 
     cx.export_function("interpret", js::interpret)?;
-    cx.export_function("findTimingMarkGrid", js::find_timing_mark_grid)?;
 
     Ok(())
 }
