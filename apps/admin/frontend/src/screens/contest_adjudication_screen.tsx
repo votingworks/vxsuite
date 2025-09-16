@@ -682,12 +682,14 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const writeIns = writeInsQuery.data;
   const ballotImage = ballotImageViewQuery.data;
   const writeInCandidates = writeInCandidatesQuery.data;
+  const cvrContestTag = cvrContestTagQuery.data;
   const cvrQueueIndex = maybeCvrQueueIndex;
   const currentCvrId = maybeCurrentCvrId;
 
   const voteCount = Object.values(hasVoteByOptionId).filter(Boolean).length;
   const seatCount = isCandidateContest ? contest.seats : 1;
   const isOvervote = voteCount > seatCount;
+  const isUndervote = voteCount < seatCount;
   const numPendingWriteIns = iter(writeInOptionIds)
     .filter((optionId) => isPendingWriteIn(writeInStatusByOptionId[optionId]))
     .count();
@@ -695,6 +697,11 @@ export function ContestAdjudicationScreen(): JSX.Element {
   const allMarginalMarksAdjudicated = !Object.values(
     marginalMarkStatusByOptionId
   ).some((status) => status !== 'resolved');
+  const allowSaveWithoutChanges =
+    (cvrContestTag.hasOvervote || cvrContestTag.hasUndervote) &&
+    !cvrContestTag.isResolved &&
+    allWriteInsAdjudicated &&
+    allMarginalMarksAdjudicated;
 
   const isHmpb = ballotImage.type === 'hmpb';
   const isBmd = ballotImage.type === 'bmd';
@@ -915,6 +922,11 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 <Icons.Disabled color="danger" /> Overvote
               </Label>
             )}
+            {isUndervote && (
+              <Label>
+                <Icons.Closed /> Undervote
+              </Label>
+            )}
           </BallotVoteCount>
           {!isVoteStateReady ? (
             <ContestOptionButtonList style={{ justifyContent: 'center' }}>
@@ -1064,7 +1076,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
                 disabled={
                   !allWriteInsAdjudicated ||
                   !allMarginalMarksAdjudicated ||
-                  !isModified
+                  (!isModified && !allowSaveWithoutChanges)
                 }
                 icon="Done"
                 onPress={saveAndNext}

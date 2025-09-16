@@ -642,10 +642,12 @@ describe('vote adjudication', () => {
     userEvent.click(elephantCheckbox);
     expect(screen.queryByText(/overvote/i)).toBeInTheDocument();
 
-    // remove the overvote
+    // remove the overvote, cause an undervote
+    expect(screen.queryByText(/undervote/i)).toBeNull();
     userEvent.click(zebraCheckbox);
     userEvent.click(elephantCheckbox);
     expect(screen.queryByText(/overvote/i)).toBeNull();
+    expect(screen.queryByText(/undervote/i)).toBeInTheDocument();
 
     // check caption for new vote adjudication from true to false
     expect(kangarooCheckbox).toBeChecked();

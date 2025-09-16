@@ -1,4 +1,12 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import {
+  afterEach,
+  beforeEach,
+  expect,
+  test,
+  vi,
+  describe,
+  beforeAll,
+} from 'vitest';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   electionTwoPartyPrimaryFixtures,
@@ -71,7 +79,11 @@ test('getAdjudicationQueue returns a properly ordered queue', async () => {
     electionGridLayoutNewHampshireTestBallotFixtures;
   const systemSettings: SystemSettings = {
     ...DEFAULT_SYSTEM_SETTINGS,
-    adminAdjudicationReasons: [AdjudicationReason.MarginalMark],
+    adminAdjudicationReasons: [
+      AdjudicationReason.MarginalMark,
+      AdjudicationReason.Overvote,
+      AdjudicationReason.Undervote,
+    ],
     markThresholds: {
       marginal: 0.05,
       definite: 0.1,
@@ -201,6 +213,482 @@ test('getAdjudicationQueue returns a properly ordered queue', async () => {
 
   // the first pending cvr ID should not have changed this time
   expect(thirdNextForAdjudication).toEqual(secondNextForAdjudication);
+
+  // add a fourth file with an overvote
+  const fourthReportPath = await modifyCastVoteRecordExport(
+    manualCastVoteRecordExport.asDirectoryPath(),
+    {
+      castVoteRecordModifier: (cvr) => {
+        const snapshot = find(
+          cvr.CVRSnapshot,
+          (s) => s.Type === CVR.CVRType.Modified
+        );
+        const contest = snapshot.CVRContest.find(
+          (c) => c.ContestId === contestId
+        );
+        if (contest) {
+          // Add selections for more candidates than seats to create overvote
+          const contestDefinition = electionDefinition.election.contests.find(
+            (c) => c.id === contestId
+          );
+          assert(contestDefinition && contestDefinition.type === 'candidate');
+
+          contest.CVRContestSelection = [];
+          const candidatesToSelect = contestDefinition.candidates.slice(
+            0,
+            contestDefinition.seats + 1
+          );
+
+          for (const candidate of candidatesToSelect) {
+            contest.CVRContestSelection.push({
+              '@type': 'CVR.CVRContestSelection',
+              ContestSelectionId: candidate.id,
+              SelectionPosition: [
+                {
+                  '@type': 'CVR.SelectionPosition',
+                  CVRWriteIn: undefined,
+                  HasIndication: CVR.IndicationStatus.Yes,
+                  MarkMetricValue: ['0.9'],
+                  NumberVotes: 1,
+                  Position: 1,
+                },
+              ],
+            });
+          }
+        }
+        return {
+          ...cvr,
+          UniqueId: `x-o-${cvr.UniqueId}`,
+        };
+      },
+    }
+  );
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: fourthReportPath,
+    })
+  ).unsafeUnwrap();
+
+  const fourthQueue = await apiClient.getAdjudicationQueue({
+    contestId,
+  });
+  expect(fourthQueue).toHaveLength(4);
+  // The overvote should appear at the beginning of the queue
+  expect(fourthQueue.slice(1, 4)).toEqual(thirdQueue);
+  const fourthNextForAdjudication = await apiClient.getNextCvrIdForAdjudication(
+    {
+      contestId,
+    }
+  );
+
+  // the first pending cvr ID should have changed to this new CVR
+  expect(fourthNextForAdjudication).not.toEqual(thirdNextForAdjudication);
+
+  // add a fifth file with an undervote
+  const fifthReportPath = await modifyCastVoteRecordExport(
+    manualCastVoteRecordExport.asDirectoryPath(),
+    {
+      castVoteRecordModifier: (cvr) => {
+        const snapshot = find(
+          cvr.CVRSnapshot,
+          (s) => s.Type === CVR.CVRType.Modified
+        );
+        const contest = snapshot.CVRContest.find(
+          (c) => c.ContestId === contestId
+        );
+        if (contest) {
+          contest.CVRContestSelection = [];
+        }
+        return {
+          ...cvr,
+          UniqueId: `x-u-${cvr.UniqueId}`,
+        };
+      },
+    }
+  );
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: fifthReportPath,
+    })
+  ).unsafeUnwrap();
+
+  const finalQueue = await apiClient.getAdjudicationQueue({
+    contestId,
+  });
+  const finalNextForAdjudication = await apiClient.getNextCvrIdForAdjudication({
+    contestId,
+  });
+
+  expect(finalQueue).toHaveLength(5);
+  expect(finalQueue.slice(1, 4)).toEqual(thirdQueue);
+  // nextForAdjudication should not have changed; the new CVR is at the queue's end
+  expect(finalNextForAdjudication).toEqual(fourthNextForAdjudication);
+});
+
+describe('getAdjudicationQueue sorts cvrs with different adjudication reasons properly', () => {
+  const systemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    adminAdjudicationReasons: [
+      AdjudicationReason.MarginalMark,
+      AdjudicationReason.Overvote,
+      AdjudicationReason.Undervote,
+    ],
+    markThresholds: {
+      marginal: 0.05,
+      definite: 0.1,
+    },
+  };
+
+  const { manualCastVoteRecordExport } =
+    electionGridLayoutNewHampshireTestBallotFixtures;
+
+  const contestId = 'State-Representatives-Hillsborough-District-34-b1012d38';
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+
+  let cvrWithMarginalMarkOnly: string;
+  let cvrWithOvervote: string;
+  let cvrWithOvervoteAndWriteIn: string;
+  let cvrWithUndervote: string;
+  let cvrWithWriteInOnly: string;
+  let cvrWithWriteInAndMarginalMark: string;
+  let cvrWithUndervoteAndWriteIn: string;
+  beforeAll(async () => {
+    cvrWithWriteInOnly = await modifyCastVoteRecordExport(
+      manualCastVoteRecordExport.asDirectoryPath(),
+      {
+        castVoteRecordModifier: (cvr) => ({
+          ...cvr,
+          UniqueId: `x-${cvr.UniqueId}`,
+        }),
+      }
+    );
+
+    // create a cvr with a write-in and marginal mark (write-in is already set in fixture)
+    cvrWithWriteInAndMarginalMark = await modifyCastVoteRecordExport(
+      manualCastVoteRecordExport.asDirectoryPath(),
+      {
+        castVoteRecordModifier: (cvr) => {
+          const snapshot = find(
+            cvr.CVRSnapshot,
+            (s) => s.Type === CVR.CVRType.Original
+          );
+          const contest = snapshot.CVRContest.find(
+            (c) => c.ContestId === contestId
+          );
+          if (contest) {
+            const option0 = assertDefined(
+              contest.CVRContestSelection[0]?.SelectionPosition[0]
+            );
+            option0.MarkMetricValue = ['0.08'];
+          }
+          return {
+            ...cvr,
+            UniqueId: `x-1-${cvr.UniqueId}`,
+          };
+        },
+      }
+    );
+
+    cvrWithMarginalMarkOnly = await modifyCastVoteRecordExport(
+      manualCastVoteRecordExport.asDirectoryPath(),
+      {
+        castVoteRecordModifier: (cvr) => {
+          const snapshot = find(
+            cvr.CVRSnapshot,
+            (s) => s.Type === CVR.CVRType.Original
+          );
+          const contest = snapshot.CVRContest.find(
+            (c) => c.ContestId === contestId
+          );
+          if (contest) {
+            const option0 = assertDefined(
+              contest.CVRContestSelection[0]?.SelectionPosition[0]
+            );
+            option0.MarkMetricValue = ['0.08'];
+            // mark all remaining options as unmarked, removing the pre-existing write-in
+            for (const option of contest.CVRContestSelection.slice(1)) {
+              assertDefined(option?.SelectionPosition[0]).MarkMetricValue = [
+                '0.0',
+              ];
+              assertDefined(option?.SelectionPosition[0]).HasIndication =
+                CVR.IndicationStatus.No;
+            }
+          }
+          return {
+            ...cvr,
+            UniqueId: `x-2-${cvr.UniqueId}`,
+          };
+        },
+      }
+    );
+
+    cvrWithOvervote = await modifyCastVoteRecordExport(
+      manualCastVoteRecordExport.asDirectoryPath(),
+      {
+        castVoteRecordModifier: (cvr) => {
+          const snapshot = find(
+            cvr.CVRSnapshot,
+            (s) => s.Type === CVR.CVRType.Modified
+          );
+          const contest = snapshot.CVRContest.find(
+            (c) => c.ContestId === contestId
+          );
+          if (contest) {
+            // Add selections for more candidates than seats to create overvote
+            const contestDefinition = electionDefinition.election.contests.find(
+              (c) => c.id === contestId
+            );
+            assert(contestDefinition && contestDefinition.type === 'candidate');
+            contest.CVRContestSelection = [];
+            const candidatesToSelect = contestDefinition.candidates.slice(
+              0,
+              contestDefinition.seats + 1
+            );
+            for (const candidate of candidatesToSelect) {
+              contest.CVRContestSelection.push({
+                '@type': 'CVR.CVRContestSelection',
+                ContestSelectionId: candidate.id,
+                SelectionPosition: [
+                  {
+                    '@type': 'CVR.SelectionPosition',
+                    CVRWriteIn: undefined,
+                    HasIndication: CVR.IndicationStatus.Yes,
+                    MarkMetricValue: ['0.9'],
+                    NumberVotes: 1,
+                    Position: 1,
+                  },
+                ],
+              });
+            }
+          }
+          return {
+            ...cvr,
+            UniqueId: `x-o-${cvr.UniqueId}`,
+          };
+        },
+      }
+    );
+
+    cvrWithOvervoteAndWriteIn = await modifyCastVoteRecordExport(
+      manualCastVoteRecordExport.asDirectoryPath(),
+      {
+        castVoteRecordModifier: (cvr) => {
+          const snapshot = find(
+            cvr.CVRSnapshot,
+            (s) => s.Type === CVR.CVRType.Modified
+          );
+          const contest = snapshot.CVRContest.find(
+            (c) => c.ContestId === contestId
+          );
+          if (contest) {
+            // Add selections for more candidates than seats to create overvote
+            const contestDefinition = electionDefinition.election.contests.find(
+              (c) => c.id === contestId
+            );
+            assert(contestDefinition && contestDefinition.type === 'candidate');
+            const candidatesToSelect = contestDefinition.candidates.slice(
+              0,
+              contestDefinition.seats + 1
+            );
+            for (const candidate of candidatesToSelect) {
+              contest.CVRContestSelection.push({
+                '@type': 'CVR.CVRContestSelection',
+                ContestSelectionId: candidate.id,
+                SelectionPosition: [
+                  {
+                    '@type': 'CVR.SelectionPosition',
+                    CVRWriteIn: undefined,
+                    HasIndication: CVR.IndicationStatus.Yes,
+                    MarkMetricValue: ['0.9'],
+                    NumberVotes: 1,
+                    Position: 1,
+                  },
+                ],
+              });
+            }
+          }
+          return {
+            ...cvr,
+            UniqueId: `x-ow-${cvr.UniqueId}`,
+          };
+        },
+      }
+    );
+
+    cvrWithUndervote = await modifyCastVoteRecordExport(
+      manualCastVoteRecordExport.asDirectoryPath(),
+      {
+        castVoteRecordModifier: (cvr) => {
+          const snapshot = find(
+            cvr.CVRSnapshot,
+            (s) => s.Type === CVR.CVRType.Modified
+          );
+          const contest = snapshot.CVRContest.find(
+            (c) => c.ContestId === contestId
+          );
+          if (contest) {
+            contest.CVRContestSelection = [];
+          }
+          return {
+            ...cvr,
+            UniqueId: `x-u-${cvr.UniqueId}`,
+          };
+        },
+      }
+    );
+
+    cvrWithUndervoteAndWriteIn = await modifyCastVoteRecordExport(
+      manualCastVoteRecordExport.asDirectoryPath(),
+      {
+        castVoteRecordModifier: (cvr) => {
+          const snapshot = find(
+            cvr.CVRSnapshot,
+            (s) => s.Type === CVR.CVRType.Modified
+          );
+          const contest = snapshot.CVRContest.find(
+            (c) => c.ContestId === contestId
+          );
+          if (contest) {
+            contest.CVRContestSelection = contest.CVRContestSelection.slice(1);
+          }
+          return {
+            ...cvr,
+            UniqueId: `x-uw-${cvr.UniqueId}`,
+          };
+        },
+      }
+    );
+  });
+
+  test('overvote only vs overvote with write in sorts on insertion order', async () => {
+    const { auth, apiClient } = buildTestEnvironment();
+    await configureMachine(apiClient, auth, electionDefinition, systemSettings);
+    (
+      await apiClient.addCastVoteRecordFile({
+        path: cvrWithOvervote,
+      })
+    ).unsafeUnwrap();
+
+    const [cvrWithOvervoteId] = await apiClient.getAdjudicationQueue({
+      contestId,
+    });
+    assert(cvrWithOvervoteId !== undefined);
+    (
+      await apiClient.addCastVoteRecordFile({
+        path: cvrWithOvervoteAndWriteIn,
+      })
+    ).unsafeUnwrap();
+
+    const queue = await apiClient.getAdjudicationQueue({
+      contestId,
+    });
+    expect(queue[0]).toEqual(cvrWithOvervoteId);
+    expect(queue[1]).toBeDefined();
+  });
+
+  test('overvote only vs undervote only sorts overvote first', async () => {
+    const { auth, apiClient } = buildTestEnvironment();
+    await configureMachine(apiClient, auth, electionDefinition, systemSettings);
+    (
+      await apiClient.addCastVoteRecordFile({
+        path: cvrWithUndervote,
+      })
+    ).unsafeUnwrap();
+
+    const [cvrWithUndervoteId] = await apiClient.getAdjudicationQueue({
+      contestId,
+    });
+    assert(cvrWithUndervoteId !== undefined);
+    (
+      await apiClient.addCastVoteRecordFile({
+        path: cvrWithOvervote,
+      })
+    ).unsafeUnwrap();
+
+    const queue = await apiClient.getAdjudicationQueue({
+      contestId,
+    });
+    expect(queue[0]).toBeDefined();
+    expect(queue[1]).toEqual(cvrWithUndervoteId);
+  });
+
+  test('undervote only vs undervote with write-in sorts pure undervote last', async () => {
+    const { auth, apiClient } = buildTestEnvironment();
+    await configureMachine(apiClient, auth, electionDefinition, systemSettings);
+    (
+      await apiClient.addCastVoteRecordFile({
+        path: cvrWithUndervote,
+      })
+    ).unsafeUnwrap();
+
+    const [cvrWithUndervoteId] = await apiClient.getAdjudicationQueue({
+      contestId,
+    });
+    assert(cvrWithUndervoteId !== undefined);
+    (
+      await apiClient.addCastVoteRecordFile({
+        path: cvrWithUndervoteAndWriteIn,
+      })
+    ).unsafeUnwrap();
+
+    const queue = await apiClient.getAdjudicationQueue({
+      contestId,
+    });
+    expect(queue[0]).toBeDefined();
+    expect(queue[1]).toEqual(cvrWithUndervoteId);
+  });
+
+  test('write-in only vs write-in with marginal mark sorts pure write-in first', async () => {
+    const { auth, apiClient } = buildTestEnvironment();
+    await configureMachine(apiClient, auth, electionDefinition, systemSettings);
+    (
+      await apiClient.addCastVoteRecordFile({
+        path: cvrWithWriteInOnly,
+      })
+    ).unsafeUnwrap();
+
+    const [cvrWithWriteInOnlyId] = await apiClient.getAdjudicationQueue({
+      contestId,
+    });
+    assert(cvrWithWriteInOnlyId !== undefined);
+    (
+      await apiClient.addCastVoteRecordFile({
+        path: cvrWithWriteInAndMarginalMark,
+      })
+    ).unsafeUnwrap();
+
+    const queue = await apiClient.getAdjudicationQueue({
+      contestId,
+    });
+    expect(queue[0]).toEqual(cvrWithWriteInOnlyId);
+    expect(queue[1]).toBeDefined();
+  });
+
+  test('undervote only vs marginal mark sorts undervote last', async () => {
+    const { auth, apiClient } = buildTestEnvironment();
+    await configureMachine(apiClient, auth, electionDefinition, systemSettings);
+    (
+      await apiClient.addCastVoteRecordFile({
+        path: cvrWithUndervote,
+      })
+    ).unsafeUnwrap();
+    const [cvrWithUndervoteId] = await apiClient.getAdjudicationQueue({
+      contestId,
+    });
+    assert(cvrWithUndervoteId !== undefined);
+    (
+      await apiClient.addCastVoteRecordFile({
+        path: cvrWithMarginalMarkOnly,
+      })
+    ).unsafeUnwrap();
+
+    const queue = await apiClient.getAdjudicationQueue({
+      contestId,
+    });
+    expect(queue[0]).toBeDefined();
+    expect(queue[1]).toEqual(cvrWithUndervoteId);
+  });
 });
 
 test('getAdjudicationQueueMetadata', async () => {
