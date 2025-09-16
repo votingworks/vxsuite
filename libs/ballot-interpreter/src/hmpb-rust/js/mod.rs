@@ -1,5 +1,7 @@
 #![allow(clippy::similar_names)]
 
+use std::path::PathBuf;
+
 use image::{DynamicImage, GrayImage};
 use neon::prelude::*;
 use neon::types::JsObject;
@@ -18,7 +20,6 @@ use self::args::{
     get_election_definition_from_arg, get_image_data_or_path_from_arg, get_path_from_arg_opt,
     ImageSource,
 };
-use self::image_data::ImageData;
 
 mod args;
 mod image_data;
@@ -57,15 +58,57 @@ pub fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
     let election = get_election_definition_from_arg(&mut cx, 0)?;
     let side_a_image_or_path = get_image_data_or_path_from_arg(&mut cx, 1)?;
     let side_b_image_or_path = get_image_data_or_path_from_arg(&mut cx, 2)?;
-    let debug_side_a_base = get_path_from_arg_opt(&mut cx, 3);
-    let debug_side_b_base = get_path_from_arg_opt(&mut cx, 4);
 
     // Equivalent to:
     //   let options = typeof arguments[5] === 'object' ? arguments[5] : {};
-    let options = match cx.argument_opt(5) {
+    let options = match cx.argument_opt(3) {
         Some(arg) => arg.downcast::<JsObject, _>(&mut cx).or_throw(&mut cx)?,
         None => cx.empty_object(),
     };
+
+    // Equivalent to:
+    //   let front_normalized_image_output_path =
+    //     typeof options.frontNormalizedImageOutputPath === 'string'
+    //     ? options.frontNormalizedImageOutputPath
+    //     : undefined;
+    let front_normalized_image_output_path = options
+        .get_value(&mut cx, "frontNormalizedImageOutputPath")?
+        .downcast::<JsString, _>(&mut cx)
+        .ok()
+        .map(|path| PathBuf::from(path.value(&mut cx)));
+
+    // Equivalent to:
+    //   let back_normalized_image_output_path =
+    //     typeof options.backNormalizedImageOutputPath === 'string'
+    //     ? options.backNormalizedImageOutputPath
+    //     : undefined;
+    let back_normalized_image_output_path = options
+        .get_value(&mut cx, "backNormalizedImageOutputPath")?
+        .downcast::<JsString, _>(&mut cx)
+        .ok()
+        .map(|path| PathBuf::from(path.value(&mut cx)));
+
+    // Equivalent to:
+    //   let debug_side_a_base =
+    //     typeof options.debugBasePathSideA === 'string'
+    //     ? options.debugBasePathSideA
+    //     : undefined;
+    let debug_side_a_base = options
+        .get_value(&mut cx, "debugBasePathSideA")?
+        .downcast::<JsString, _>(&mut cx)
+        .ok()
+        .map(|path| PathBuf::from(path.value(&mut cx)));
+
+    // Equivalent to:
+    //   let debug_side_b_base =
+    //     typeof options.debugBasePathSideB === 'string'
+    //     ? options.debugBasePathSideB
+    //     : undefined;
+    let debug_side_b_base = options
+        .get_value(&mut cx, "debugBasePathSideB")?
+        .downcast::<JsString, _>(&mut cx)
+        .ok()
+        .map(|path| PathBuf::from(path.value(&mut cx)));
 
     // Equivalent to:
     //   let score_write_ins =
@@ -182,21 +225,40 @@ pub fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
         ))
     })?;
 
+    let maybe_save_normalized_image =
+        |path: Option<&PathBuf>, image: &GrayImage| -> Result<(), String> {
+            match path {
+                None => Ok(()),
+                Some(path) => image.save(path).map_err(|err| {
+                    format!(
+                        "unable to save image to {path}: {err}",
+                        path = path.display()
+                    )
+                }),
+            }
+        };
+
+    let (front_save_result, back_save_result) = rayon::join(
+        || {
+            maybe_save_normalized_image(
+                front_normalized_image_output_path.as_ref(),
+                &card.front.normalized_image,
+            )
+        },
+        || {
+            maybe_save_normalized_image(
+                back_normalized_image_output_path.as_ref(),
+                &card.back.normalized_image,
+            )
+        },
+    );
+
+    front_save_result
+        .and(back_save_result)
+        .or_else(|err| cx.throw_error(err))?;
+
     let value = Ok(cx.string(json));
-    let result_object = make_interpret_result(&mut cx, value)?;
-
-    let front_js_normalized_image_obj =
-        ImageData::convert_gray_image_to_js_object(&mut cx, card.front.normalized_image)?;
-    let back_js_normalized_image_obj =
-        ImageData::convert_gray_image_to_js_object(&mut cx, card.back.normalized_image)?;
-    result_object.set(
-        &mut cx,
-        "frontNormalizedImage",
-        front_js_normalized_image_obj,
-    )?;
-    result_object.set(&mut cx, "backNormalizedImage", back_js_normalized_image_obj)?;
-
-    Ok(result_object)
+    make_interpret_result(&mut cx, value)
 }
 
 pub fn find_timing_mark_grid(mut cx: FunctionContext) -> JsResult<JsObject> {

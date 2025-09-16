@@ -5,17 +5,15 @@ import {
   find,
   iter,
   ok,
-  Ok,
   Result,
   throwIllegalValue,
   typedAs,
 } from '@votingworks/basics';
-import { fromGrayScale } from '@votingworks/image-utils';
+import { fromGrayScale, writeImageData } from '@votingworks/image-utils';
 import {
   AdjudicationInfo,
   AdjudicationReason,
   AnyContest,
-  asSheet,
   BallotMetadata,
   BallotPageContestLayout,
   BallotPageContestOptionLayout,
@@ -53,6 +51,7 @@ import {
 } from '@votingworks/utils';
 import { ImageData } from 'canvas';
 import makeDebug from 'debug';
+import { join } from 'node:path';
 import {
   getAllPossibleAdjudicationReasons,
   getAllPossibleAdjudicationReasonsForBmdVotes,
@@ -70,7 +69,6 @@ import {
   ScoredBubbleMarks,
   ScoredPositionArea,
 } from './hmpb-ts';
-import { saveSheetImages } from './save_images';
 import { InterpreterOptions } from './types';
 import { normalizeBallotMode } from './validation';
 
@@ -79,15 +77,7 @@ const debug = makeDebug('ballot-interpreter:scan:interpreter');
 /**
  * Result of interpreting a sheet of ballot images.
  */
-export type InterpretResult = Result<SheetOf<InterpretFileResult>, Error>;
-
-/**
- * Result of interpreting a single ballot image.
- */
-export interface InterpretFileResult {
-  interpretation: PageInterpretation;
-  normalizedImage: ImageData;
-}
+export type InterpretResult = Result<SheetOf<PageInterpretation>, Error>;
 
 /**
  * Conversion intermediary for marks containing the grid position, associated
@@ -101,8 +91,6 @@ interface ScoredContestOption {
   scoredWriteInArea?: ScoredPositionArea;
   writeInAreaStatus: WriteInAreaStatus;
 }
-
-type OkType<T> = T extends Ok<infer U> ? U : never;
 
 function getContestOptionForGridPosition(
   contests: Contests,
@@ -186,7 +174,7 @@ function aggregateContestOptionScores({
       : undefined;
     const writeInTextAreaThreshold =
       options.markThresholds.writeInTextArea ??
-      /* istanbul ignore next */
+      /* istanbul ignore next - @preserve */
       TEMPORARY_DEFAULT_WRITE_IN_AREA_THRESHOLD;
     const writeInAreaStatus = scoredWriteInArea
       ? scoredWriteInArea.score >= writeInTextAreaThreshold
@@ -234,7 +222,7 @@ function convertScoredContestOptionToLegacyMark({
     return { type: option.type, optionId: option.id, ...ballotTargetMarkBase };
   }
 
-  /* istanbul ignore next */
+  /* istanbul ignore next - @preserve */
   throwIllegalValue(option);
 }
 
@@ -403,7 +391,7 @@ function convertInterpretedBallotPage(
   options: InterpreterOptions,
   interpretedBallotCard: InterpretedBallotCard,
   side: 'front' | 'back'
-): InterpretFileResult {
+): PageInterpretation {
   const { metadata } = interpretedBallotCard[side];
 
   const interpretation = interpretedBallotCard[side];
@@ -419,33 +407,30 @@ function convertInterpretedBallotPage(
     contestOptionScores
   );
   return {
-    interpretation: {
-      type: 'InterpretedHmpbPage',
+    type: 'InterpretedHmpbPage',
+    metadata,
+    markInfo,
+    adjudicationInfo: determineAdjudicationInfoFromScoredContestOptions(
+      electionDefinition,
+      options,
+      contestOptionScores
+    ),
+    votes: convertMarksToVotesDict(
+      electionDefinition.election.contests,
+      options.markThresholds,
+      markInfo.marks
+    ),
+    unmarkedWriteIns: shouldScoreWriteIns(options)
+      ? getUnmarkedWriteInsFromScoredContestOptions(contestOptionScores)
+      : undefined,
+    layout: {
+      pageSize: interpretation.timingMarks.geometry.canvasSize,
       metadata,
-      markInfo,
-      adjudicationInfo: determineAdjudicationInfoFromScoredContestOptions(
-        electionDefinition,
-        options,
-        contestOptionScores
-      ),
-      votes: convertMarksToVotesDict(
+      contests: convertContestLayouts(
         electionDefinition.election.contests,
-        options.markThresholds,
-        markInfo.marks
+        interpretation.contestLayouts
       ),
-      unmarkedWriteIns: shouldScoreWriteIns(options)
-        ? getUnmarkedWriteInsFromScoredContestOptions(contestOptionScores)
-        : undefined,
-      layout: {
-        pageSize: interpretation.timingMarks.geometry.canvasSize,
-        metadata,
-        contests: convertContestLayouts(
-          electionDefinition.election.contests,
-          interpretation.contestLayouts
-        ),
-      },
     },
-    normalizedImage: interpretation.normalizedImage,
   };
 }
 
@@ -458,25 +443,22 @@ export function convertRustInterpretResult(
   result: HmpbInterpretResult,
   sheet: SheetOf<ImageData>
 ): InterpretResult {
-  /* istanbul ignore next */
+  /* istanbul ignore next - @preserve */
   if (result.isErr()) {
     return ok(
       mapSheet(
         sheet,
-        (imageData) =>
+        () =>
           ({
-            interpretation: {
-              type: 'UnreadablePage',
-              reason: result.err().type,
-            },
-            normalizedImage: imageData,
+            type: 'UnreadablePage',
+            reason: result.err().type,
           }) as const
       )
     );
   }
 
   const ballotCard = result.ok();
-  const currentResult: OkType<InterpretResult> = [
+  return ok([
     convertInterpretedBallotPage(
       options.electionDefinition,
       options,
@@ -489,8 +471,7 @@ export function convertRustInterpretResult(
       ballotCard,
       'back'
     ),
-  ];
-  return ok(currentResult);
+  ]);
 }
 
 /**
@@ -500,9 +481,9 @@ export function convertRustInterpretResult(
  *          error result.
  */
 function validateInterpretResults(
-  results: SheetOf<InterpretFileResult>,
+  results: SheetOf<PageInterpretation>,
   options: InterpreterOptions
-): SheetOf<InterpretFileResult> {
+): SheetOf<PageInterpretation> {
   const {
     electionDefinition: { ballotHash },
     precinctSelection,
@@ -510,36 +491,29 @@ function validateInterpretResults(
   } = options;
 
   return mapSheet(results, (result) => {
-    const { normalizedImage } = result;
-    const interpretation = normalizeBallotMode(result.interpretation, options);
+    const interpretation = normalizeBallotMode(result, options);
 
     if (!('metadata' in interpretation)) {
-      return { interpretation, normalizedImage };
+      return interpretation;
     }
 
     const metadata = interpretation.metadata as BallotMetadata;
 
     if (metadata.isTestMode !== testMode) {
-      return {
-        interpretation: typedAs<InvalidTestModePage>({
-          type: 'InvalidTestModePage',
-          metadata,
-        }),
-        normalizedImage,
-      };
+      return typedAs<InvalidTestModePage>({
+        type: 'InvalidTestModePage',
+        metadata,
+      });
     }
 
     if (
       precinctSelection.kind !== ALL_PRECINCTS_SELECTION.kind &&
       metadata.precinctId !== precinctSelection.precinctId
     ) {
-      return {
-        interpretation: typedAs<InvalidPrecinctPage>({
-          type: 'InvalidPrecinctPage',
-          metadata,
-        }),
-        normalizedImage,
-      };
+      return typedAs<InvalidPrecinctPage>({
+        type: 'InvalidPrecinctPage',
+        metadata,
+      });
     }
 
     // metadata.ballotHash may be a sliced hash or a full hash, so we need to
@@ -548,17 +522,14 @@ function validateInterpretResults(
       sliceBallotHashForEncoding(metadata.ballotHash) !==
       sliceBallotHashForEncoding(ballotHash)
     ) {
-      return {
-        interpretation: typedAs<InvalidBallotHashPage>({
-          type: 'InvalidBallotHashPage',
-          expectedBallotHash: sliceBallotHashForEncoding(ballotHash),
-          actualBallotHash: sliceBallotHashForEncoding(metadata.ballotHash),
-        }),
-        normalizedImage,
-      };
+      return typedAs<InvalidBallotHashPage>({
+        type: 'InvalidBallotHashPage',
+        expectedBallotHash: sliceBallotHashForEncoding(ballotHash),
+        actualBallotHash: sliceBallotHashForEncoding(metadata.ballotHash),
+      });
     }
 
-    return { interpretation, normalizedImage };
+    return interpretation;
   });
 }
 
@@ -569,13 +540,16 @@ function validateInterpretResults(
 function interpretHmpb(
   sheet: SheetOf<ImageData>,
   options: InterpreterOptions
-): SheetOf<InterpretFileResult> {
-  const { electionDefinition } = options;
-  const result = interpretHmpbBallotSheetRust(electionDefinition, sheet, {
+): SheetOf<PageInterpretation> {
+  const result = interpretHmpbBallotSheetRust({
+    electionDefinition: options.electionDefinition,
+    ballotImages: sheet,
     scoreWriteIns: shouldScoreWriteIns(options),
     disableVerticalStreakDetection: options.disableVerticalStreakDetection,
     inferTimingMarks: options.inferTimingMarks,
     minimumDetectedScale: options.minimumDetectedScale,
+    frontNormalizedImageOutputPath: options.frontNormalizedImageOutputPath,
+    backNormalizedImageOutputPath: options.backNormalizedImageOutputPath,
   });
 
   return validateInterpretResults(
@@ -591,8 +565,13 @@ function interpretHmpb(
 async function interpretBmdBallot(
   ballotImages: SheetOf<ImageData>,
   options: InterpreterOptions
-): Promise<SheetOf<InterpretFileResult>> {
-  const { electionDefinition, disableBmdBallotScanning } = options;
+): Promise<SheetOf<PageInterpretation>> {
+  const {
+    electionDefinition,
+    disableBmdBallotScanning,
+    frontNormalizedImageOutputPath,
+    backNormalizedImageOutputPath,
+  } = options;
   const interpretResult = await interpretVxBmdBallotSheet(
     electionDefinition,
     ballotImages,
@@ -600,78 +579,55 @@ async function interpretBmdBallot(
   );
 
   if (interpretResult.isErr()) {
+    // In case of an error, just write the original images.
+    if (frontNormalizedImageOutputPath) {
+      await writeImageData(frontNormalizedImageOutputPath, ballotImages[0]);
+    }
+    if (backNormalizedImageOutputPath) {
+      await writeImageData(backNormalizedImageOutputPath, ballotImages[1]);
+    }
+
     const error = interpretResult.err();
     switch (error.type) {
       case 'mismatched-election': {
         return [
           {
-            interpretation: {
-              type: 'InvalidBallotHashPage',
-              expectedBallotHash: error.expectedBallotHash,
-              actualBallotHash: error.actualBallotHash,
-            },
-            normalizedImage: ballotImages[0],
+            type: 'InvalidBallotHashPage',
+            expectedBallotHash: error.expectedBallotHash,
+            actualBallotHash: error.actualBallotHash,
           },
           {
-            interpretation: {
-              type: 'InvalidBallotHashPage',
-              expectedBallotHash: error.expectedBallotHash,
-              actualBallotHash: error.actualBallotHash,
-            },
-            normalizedImage: ballotImages[1],
+            type: 'InvalidBallotHashPage',
+            expectedBallotHash: error.expectedBallotHash,
+            actualBallotHash: error.actualBallotHash,
           },
         ];
       }
       case 'votes-not-found': {
-        return [
-          {
-            interpretation: {
-              type: 'BlankPage',
-            },
-            normalizedImage: ballotImages[0],
-          },
-          {
-            interpretation: {
-              type: 'BlankPage',
-            },
-            normalizedImage: ballotImages[1],
-          },
-        ];
+        return [{ type: 'BlankPage' }, { type: 'BlankPage' }];
       }
       case 'multiple-qr-codes': {
         const [frontReason, backReason] = error.source;
         return [
           {
-            interpretation: {
-              type: 'UnreadablePage',
-              reason: JSON.stringify(frontReason),
-            },
-            normalizedImage: ballotImages[0],
+            type: 'UnreadablePage',
+            reason: JSON.stringify(frontReason),
           },
           {
-            interpretation: {
-              type: 'UnreadablePage',
-              reason: JSON.stringify(backReason),
-            },
-            normalizedImage: ballotImages[1],
+            type: 'UnreadablePage',
+            reason: JSON.stringify(backReason),
           },
         ];
       }
       case 'bmd-ballot-scanning-disabled': {
         return [
           {
-            interpretation: {
-              type: 'UnreadablePage',
-              reason: 'bmdBallotScanningDisabled',
-            },
-            normalizedImage: ballotImages[0],
+            type: 'UnreadablePage',
+            reason: 'bmdBallotScanningDisabled',
           },
           {
-            interpretation: {
-              type: 'UnreadablePage',
-              reason: 'bmdBallotScanningDisabled',
-            },
-            normalizedImage: ballotImages[1],
+            type: 'UnreadablePage',
+            reason: 'bmdBallotScanningDisabled',
           },
         ];
       }
@@ -690,27 +646,28 @@ async function interpretBmdBallot(
     ballot.ballotStyleId
   );
 
-  const front: InterpretFileResult = {
-    interpretation: {
-      type: 'InterpretedBmdPage',
-      metadata: {
-        ballotHash: ballot.ballotHash,
-        ballotType: BallotType.Precinct,
-        ballotStyleId: ballot.ballotStyleId,
-        precinctId: ballot.precinctId,
-        isTestMode: ballot.isTestMode,
-      },
-      votes: ballot.votes,
-      adjudicationInfo,
+  const front: PageInterpretation = {
+    type: 'InterpretedBmdPage',
+    metadata: {
+      ballotHash: ballot.ballotHash,
+      ballotType: BallotType.Precinct,
+      ballotStyleId: ballot.ballotStyleId,
+      precinctId: ballot.precinctId,
+      isTestMode: ballot.isTestMode,
     },
-    normalizedImage: summaryBallotImage,
+    votes: ballot.votes,
+    adjudicationInfo,
   };
-  const back: InterpretFileResult = {
-    interpretation: {
-      type: 'BlankPage',
-    },
-    normalizedImage: blankPageImage,
+  const back: PageInterpretation = {
+    type: 'BlankPage',
   };
+
+  if (frontNormalizedImageOutputPath) {
+    await writeImageData(frontNormalizedImageOutputPath, summaryBallotImage);
+  }
+  if (backNormalizedImageOutputPath) {
+    await writeImageData(backNormalizedImageOutputPath, blankPageImage);
+  }
 
   return validateInterpretResults([front, back], options);
 }
@@ -722,7 +679,7 @@ async function interpretBmdBallot(
 export async function interpretSimplexBmdBallot(
   frontImage: ImageData,
   options: InterpreterOptions
-): Promise<SheetOf<InterpretFileResult>> {
+): Promise<SheetOf<PageInterpretation>> {
   const ballotImages: SheetOf<ImageData> = [
     frontImage,
     // We need at least a 2x2 placeholder image for top-bottom search area logic to work as
@@ -738,12 +695,10 @@ export async function interpretSimplexBmdBallot(
  * general, a more relevant interpretation is one which contains more specific
  * information.
  */
-function scoreInterpretFileResult(
-  result: SheetOf<InterpretFileResult>
-): number {
-  const [frontType, backType] = mapSheet(result, (r) => r.interpretation.type);
+function scoreInterpretFileResult(result: SheetOf<PageInterpretation>): number {
+  const [frontType, backType] = mapSheet(result, (r) => r.type);
   const [frontReason, backReason] = mapSheet(result, (r) =>
-    'reason' in r.interpretation ? r.interpretation.reason : undefined
+    'reason' in r ? r.reason : undefined
   );
 
   if (
@@ -803,9 +758,9 @@ function scoreInterpretFileResult(
  * Chooses which interpretation to use based on which one is more relevant.
  */
 function chooseInterpretationToUse(
-  bmdInterpretation: SheetOf<InterpretFileResult>,
-  hmpbInterpretation?: SheetOf<InterpretFileResult>
-): SheetOf<InterpretFileResult> {
+  bmdInterpretation: SheetOf<PageInterpretation>,
+  hmpbInterpretation?: SheetOf<PageInterpretation>
+): SheetOf<PageInterpretation> {
   if (!hmpbInterpretation) {
     return bmdInterpretation;
   }
@@ -822,7 +777,7 @@ function chooseInterpretationToUse(
 export async function interpretSheet(
   options: InterpreterOptions,
   sheet: SheetOf<ImageData>
-): Promise<SheetOf<InterpretFileResult>> {
+): Promise<SheetOf<PageInterpretation>> {
   const timer = time(debug, 'interpretSheet');
 
   try {
@@ -831,8 +786,8 @@ export async function interpretSheet(
       : undefined;
 
     if (
-      hmpbInterpretation?.[0].interpretation.type === 'InterpretedHmpbPage' &&
-      hmpbInterpretation[1].interpretation.type === 'InterpretedHmpbPage'
+      hmpbInterpretation?.[0].type === 'InterpretedHmpbPage' &&
+      hmpbInterpretation[1].type === 'InterpretedHmpbPage'
     ) {
       return hmpbInterpretation;
     }
@@ -854,27 +809,27 @@ export async function interpretSheetAndSaveImages(
   sheetId: Id,
   ballotImagesPath: string
 ): Promise<SheetOf<PageInterpretationWithFiles>> {
-  const timer = time(debug, `interpretSheetAndSaveImages`);
-  try {
-    const interpreted = await interpretSheet(interpreterOptions, sheet);
-    timer.checkpoint('interpretSheet');
-    const imagePaths = await saveSheetImages({
-      sheetId,
-      ballotImagesPath,
-      images: mapSheet(interpreted, ({ normalizedImage }) => normalizedImage),
-    });
+  const frontNormalizedImageOutputPath =
+    interpreterOptions.frontNormalizedImageOutputPath ??
+    join(ballotImagesPath, `${sheetId}-front.png`);
+  const backNormalizedImageOutputPath =
+    interpreterOptions.backNormalizedImageOutputPath ??
+    join(ballotImagesPath, `${sheetId}-back.png`);
+  const interpreted = await interpretSheet(
+    {
+      ...interpreterOptions,
+      frontNormalizedImageOutputPath,
+      backNormalizedImageOutputPath,
+    },
+    sheet
+  );
 
-    return asSheet(
-      iter(interpreted)
-        .zip(imagePaths)
-        .map(([{ interpretation }, imagePath]) => ({
-          interpretation,
-          imagePath,
-        }))
-        .toArray()
-    );
-  } finally {
-    timer.checkpoint('save images');
-    timer.end();
-  }
+  return mapSheet(
+    interpreted,
+    [frontNormalizedImageOutputPath, backNormalizedImageOutputPath],
+    (interpretation, imagePath) => ({
+      interpretation,
+      imagePath,
+    })
+  );
 }

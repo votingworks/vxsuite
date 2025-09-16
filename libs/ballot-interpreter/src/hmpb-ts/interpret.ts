@@ -28,64 +28,54 @@ function checkImageSource(imageSource: string | ImageData): void {
       assertImageData(imageSource);
       break;
 
-    /* istanbul ignore next */
+    /* istanbul ignore next - @preserve */
     default:
       assert(false, `unknown imageSource type: ${typeof imageSource}`);
   }
 }
 
-function normalizeArgumentsForBridge(
-  electionDefinition: ElectionDefinition,
-  ballotImageSources: SheetOf<string> | SheetOf<ImageData>,
-  options:
-    | {
-        scoreWriteIns?: boolean;
-        disableVerticalStreakDetection?: boolean;
-        timingMarkAlgorithm?: 'contours' | 'corners';
-        inferTimingMarks?: boolean;
-        minimumDetectedScale?: number;
-        debug?: boolean;
-      }
-    | {
-        scoreWriteIns?: boolean;
-        disableVerticalStreakDetection?: boolean;
-        timingMarkAlgorithm?: 'contours' | 'corners';
-        inferTimingMarks?: boolean;
-        minimumDetectedScale?: number;
-        debugBasePaths?: SheetOf<string>;
-      } = {}
-): Parameters<typeof interpretImpl> {
-  assert(typeof electionDefinition.electionData === 'string');
-  assert(ballotImageSources.length === 2);
-  checkImageSource(ballotImageSources[0]);
-  checkImageSource(ballotImageSources[1]);
+function normalizeOptionsForBridge(options: {
+  electionDefinition: ElectionDefinition;
+  ballotImages: SheetOf<string> | SheetOf<ImageData>;
+  scoreWriteIns?: boolean;
+  disableVerticalStreakDetection?: boolean;
+  timingMarkAlgorithm?: 'contours' | 'corners';
+  inferTimingMarks?: boolean;
+  minimumDetectedScale?: number;
+  debug?: boolean;
+  frontNormalizedImageOutputPath?: string;
+  backNormalizedImageOutputPath?: string;
+}): Parameters<typeof interpretImpl> {
+  assert(typeof options.electionDefinition.electionData === 'string');
+  assert(options.ballotImages.length === 2);
+  checkImageSource(options.ballotImages[0]);
+  checkImageSource(options.ballotImages[1]);
 
   let debugBasePathSideA: string | undefined;
   let debugBasePathSideB: string | undefined;
 
-  if ('debugBasePaths' in options) {
-    [debugBasePathSideA, debugBasePathSideB] = options.debugBasePaths ?? [];
-  } else if (
-    'debug' in options &&
+  if (
     options.debug &&
-    typeof ballotImageSources[0] === 'string' &&
-    typeof ballotImageSources[1] === 'string'
+    typeof options.ballotImages[0] === 'string' &&
+    typeof options.ballotImages[1] === 'string'
   ) {
     [debugBasePathSideA, debugBasePathSideB] =
-      ballotImageSources as SheetOf<string>;
+      options.ballotImages as SheetOf<string>;
   }
 
   return [
-    electionDefinition.election,
-    ...ballotImageSources,
-    debugBasePathSideA,
-    debugBasePathSideB,
+    options.electionDefinition.election,
+    ...options.ballotImages,
     {
+      debugBasePathSideA,
+      debugBasePathSideB,
       scoreWriteIns: options.scoreWriteIns,
       timingMarkAlgorithm: options.timingMarkAlgorithm,
       disableVerticalStreakDetection: options.disableVerticalStreakDetection,
       inferTimingMarks: options.inferTimingMarks,
       minimumDetectedScale: options.minimumDetectedScale,
+      frontNormalizedImageOutputPath: options.frontNormalizedImageOutputPath,
+      backNormalizedImageOutputPath: options.backNormalizedImageOutputPath,
     },
   ];
 }
@@ -93,62 +83,19 @@ function normalizeArgumentsForBridge(
 /**
  * Interprets a scanned ballot.
  */
-export function interpret(
-  electionDefinition: ElectionDefinition,
-  ballotImagePaths: SheetOf<string>,
-  options?: {
-    scoreWriteIns?: boolean;
-    disableVerticalStreakDetection?: boolean;
-    timingMarkAlgorithm?: 'contours' | 'corners';
-    inferTimingMarks?: boolean;
-    minimumDetectedScale?: number;
-    debug?: boolean;
-  }
-): HmpbInterpretResult;
-/**
- * Interprets a scanned ballot.
- */
-export function interpret(
-  electionDefinition: ElectionDefinition,
-  ballotImages: SheetOf<ImageData>,
-  options?: {
-    scoreWriteIns?: boolean;
-    disableVerticalStreakDetection?: boolean;
-    timingMarkAlgorithm?: 'contours' | 'corners';
-    inferTimingMarks?: boolean;
-    minimumDetectedScale?: number;
-    debugBasePaths?: SheetOf<string>;
-  }
-): HmpbInterpretResult;
-/**
- * Interprets a scanned ballot.
- */
-export function interpret(
-  electionDefinition: ElectionDefinition,
-  ballotImageSources: SheetOf<string> | SheetOf<ImageData>,
-  options?:
-    | {
-        scoreWriteIns?: boolean;
-        disableVerticalStreakDetection?: boolean;
-        timingMarkAlgorithm?: 'contours' | 'corners';
-        inferTimingMarks?: boolean;
-        minimumDetectedScale?: number;
-        debug?: boolean;
-      }
-    | {
-        scoreWriteIns?: boolean;
-        disableVerticalStreakDetection?: boolean;
-        timingMarkAlgorithm?: 'contours' | 'corners';
-        inferTimingMarks?: boolean;
-        minimumDetectedScale?: number;
-        debugBasePaths?: SheetOf<string>;
-      }
-): HmpbInterpretResult {
-  const args = normalizeArgumentsForBridge(
-    electionDefinition,
-    ballotImageSources,
-    options
-  );
+export function interpret(options: {
+  electionDefinition: ElectionDefinition;
+  ballotImages: SheetOf<string> | SheetOf<ImageData>;
+  scoreWriteIns?: boolean;
+  disableVerticalStreakDetection?: boolean;
+  timingMarkAlgorithm?: 'contours' | 'corners';
+  inferTimingMarks?: boolean;
+  minimumDetectedScale?: number;
+  debug?: boolean;
+  frontNormalizedImageOutputPath?: string;
+  backNormalizedImageOutputPath?: string;
+}): HmpbInterpretResult {
+  const args = normalizeOptionsForBridge(options);
   const result = interpretImpl(...args);
   const value = safeParseJson(result.value).unsafeUnwrap();
 
@@ -156,23 +103,5 @@ export function interpret(
     return err(value as InterpretError);
   }
 
-  const interpretedBallotCard = value as InterpretedBallotCard;
-
-  // The normalized images are not included in the JSON string for performance
-  // reasons. Instead, they are transferred as `ImageData`-compatible objects
-  // which transfers the pixel data as a fast memory copy. As a result, we need
-  // to add them back in here.
-  const { frontNormalizedImage, backNormalizedImage } = result;
-  interpretedBallotCard.front.normalizedImage = new ImageData(
-    new Uint8ClampedArray(frontNormalizedImage.data),
-    frontNormalizedImage.width,
-    frontNormalizedImage.height
-  );
-  interpretedBallotCard.back.normalizedImage = new ImageData(
-    new Uint8ClampedArray(backNormalizedImage.data),
-    backNormalizedImage.width,
-    backNormalizedImage.height
-  );
-
-  return ok(interpretedBallotCard);
+  return ok(value as InterpretedBallotCard);
 }

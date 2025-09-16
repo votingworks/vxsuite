@@ -55,13 +55,11 @@ test('interpret BMD ballot for an election supporting hand-marked paper ballots'
     bmdBallot
   );
 
-  expect(bmdPage1Result.interpretation).toMatchObject<
-    Partial<PageInterpretation>
-  >({
+  expect(bmdPage1Result).toMatchObject<Partial<PageInterpretation>>({
     type: 'InterpretedBmdPage',
     votes: validBmdVotes,
   });
-  expect(bmdPage2Result.interpretation).toEqual<PageInterpretation>({
+  expect(bmdPage2Result).toEqual<PageInterpretation>({
     type: 'BlankPage',
   });
 
@@ -80,20 +78,16 @@ test('interpret BMD ballot for an election supporting hand-marked paper ballots'
     hmpbBallot
   );
 
-  expect(hmpbPage1Result.interpretation).toMatchObject<
-    Partial<PageInterpretation>
-  >({
+  expect(hmpbPage1Result).toMatchObject<Partial<PageInterpretation>>({
     type: 'InterpretedHmpbPage',
   });
-  expect(hmpbPage2Result.interpretation).toMatchObject<
-    Partial<PageInterpretation>
-  >({
+  expect(hmpbPage2Result).toMatchObject<Partial<PageInterpretation>>({
     type: 'InterpretedHmpbPage',
   });
 
   expect({
-    ...(hmpbPage1Result.interpretation as InterpretedHmpbPage).votes,
-    ...(hmpbPage2Result.interpretation as InterpretedHmpbPage).votes,
+    ...(hmpbPage1Result as InterpretedHmpbPage).votes,
+    ...(hmpbPage2Result as InterpretedHmpbPage).votes,
   }).toEqual(vxFamousNamesFixtures.votes);
 });
 
@@ -125,10 +119,10 @@ test('interpret BMD ballot with test/official ballot mode mismatch error', async
     bmdBallot
   );
 
-  expect(bmdPage1Result.interpretation).toMatchObject<
-    Partial<PageInterpretation>
-  >({ type: 'InvalidTestModePage' });
-  expect(bmdPage2Result.interpretation).toEqual<PageInterpretation>({
+  expect(bmdPage1Result).toMatchObject<Partial<PageInterpretation>>({
+    type: 'InvalidTestModePage',
+  });
+  expect(bmdPage2Result).toEqual<PageInterpretation>({
     type: 'BlankPage',
   });
 });

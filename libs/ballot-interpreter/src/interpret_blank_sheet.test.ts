@@ -2,7 +2,7 @@ import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   sampleBallotImages,
 } from '@votingworks/fixtures';
-import { DEFAULT_MARK_THRESHOLDS, mapSheet, SheetOf } from '@votingworks/types';
+import { DEFAULT_MARK_THRESHOLDS, SheetOf } from '@votingworks/types';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { ImageData } from 'canvas';
 import { beforeEach, expect, test, vi } from 'vitest';
@@ -21,7 +21,7 @@ test('blank sheet of paper', async () => {
     await sampleBallotImages.blankPage.asImageData(),
   ];
 
-  const interpretationWithImages = await interpretSheet(
+  const interpretation = await interpretSheet(
     {
       electionDefinition:
         electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition(),
@@ -33,9 +33,5 @@ test('blank sheet of paper', async () => {
     sheet
   );
 
-  const interpretation = mapSheet(
-    interpretationWithImages,
-    (page) => page.interpretation
-  );
   expect(interpretation).toMatchSnapshot();
 });

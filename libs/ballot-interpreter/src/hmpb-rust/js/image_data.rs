@@ -1,6 +1,6 @@
-use std::borrow::{Borrow, BorrowMut};
+use std::borrow::Borrow;
 
-use image::{DynamicImage, GrayImage};
+use image::DynamicImage;
 use neon::prelude::*;
 use neon::types::{buffer::TypedArray, JsNumber, JsObject};
 
@@ -23,17 +23,6 @@ impl ImageData {
         }
     }
 
-    /// Converts a JavaScript object compatible with the `ImageData` interface.
-    pub fn convert_gray_image_to_js_object<'a>(
-        cx: &mut FunctionContext<'a>,
-        image: GrayImage,
-    ) -> JsResult<'a, JsObject> {
-        let (width, height) = image.dimensions();
-        let data = DynamicImage::ImageLuma8(image).into_rgba8().into_raw();
-        let image_data = Self::new(width, height, data);
-        image_data.to_js_object(cx)
-    }
-
     /// Converts a JavaScript `ImageData` object to a Rust `ImageData`.
     pub fn from_js_object(
         cx: &mut FunctionContext,
@@ -47,20 +36,6 @@ impl ImageData {
             .as_slice(cx)
             .to_vec();
         Ok(Self::new(width, height, data))
-    }
-
-    pub fn to_js_object<'a>(&self, cx: &mut FunctionContext<'a>) -> JsResult<'a, JsObject> {
-        let js_object = cx.empty_object();
-        let width = cx.number(f64::from(self.width));
-        let height = cx.number(f64::from(self.height));
-        js_object.set(cx, "width", width)?;
-        js_object.set(cx, "height", height)?;
-        let mut data = cx.buffer(self.data.len())?;
-        data.borrow_mut()
-            .as_mut_slice(cx)
-            .copy_from_slice(self.data.as_slice());
-        js_object.set(cx, "data", data)?;
-        Ok(js_object)
     }
 }
 

@@ -35,6 +35,7 @@ import {
 import {
   BallotStyleId,
   BallotType,
+  PageInterpretation,
   PageInterpretationType,
   SheetOf,
   TEST_JURISDICTION,
@@ -49,10 +50,7 @@ import {
   renderBmdBallotFixture,
   writeFirstBallotPageToImageFile,
 } from '@votingworks/bmd-ballot-fixtures';
-import {
-  InterpretFileResult,
-  interpretSimplexBmdBallot,
-} from '@votingworks/ballot-interpreter';
+import { interpretSimplexBmdBallot } from '@votingworks/ballot-interpreter';
 import {
   BLANK_PAGE_IMAGE_DATA,
   loadImageData,
@@ -156,26 +154,23 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
 vi.mock(import('../audio/outputs.js'));
 vi.setConfig({ testTimeout: 2000 });
 
-const SUCCESSFUL_INTERPRETATION_MOCK: SheetOf<InterpretFileResult> = [
+const SUCCESSFUL_INTERPRETATION_MOCK: SheetOf<PageInterpretation> = [
   {
-    interpretation: {
-      type: 'InterpretedBmdPage',
-      metadata: {
-        ballotHash: 'hash',
-        ballotType: BallotType.Precinct,
-        ballotStyleId: '5' as BallotStyleId,
-        precinctId: '21',
-        isTestMode: true,
-      },
-      adjudicationInfo: {
-        requiresAdjudication: false,
-        ignoredReasonInfos: [],
-        enabledReasonInfos: [],
-        enabledReasons: [],
-      },
-      votes: {},
+    type: 'InterpretedBmdPage',
+    metadata: {
+      ballotHash: 'hash',
+      ballotType: BallotType.Precinct,
+      ballotStyleId: '5' as BallotStyleId,
+      precinctId: '21',
+      isTestMode: true,
     },
-    normalizedImage: BLANK_PAGE_IMAGE_DATA,
+    adjudicationInfo: {
+      requiresAdjudication: false,
+      ignoredReasonInfos: [],
+      enabledReasonInfos: [],
+      enabledReasons: [],
+    },
+    votes: {},
   },
   BLANK_PAGE_MOCK,
 ];
@@ -482,7 +477,7 @@ async function executeLoadPaper(
 async function executePrintBallotAndAssert(
   printData: Uint8Array,
   scanFixtureFilepath: string,
-  interpretationResult: SheetOf<InterpretFileResult> = SUCCESSFUL_INTERPRETATION_MOCK
+  interpretationResult: SheetOf<PageInterpretation> = SUCCESSFUL_INTERPRETATION_MOCK
 ): Promise<void> {
   await executeLoadPaper();
 
@@ -494,7 +489,7 @@ async function executePrintBallotAndAssert(
   const mockScanResult = deferred<string>();
   vi.mocked(scanAndSave).mockReturnValue(mockScanResult.promise);
 
-  const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
+  const mockInterpretResult = deferred<SheetOf<PageInterpretation>>();
   vi.mocked(interpretSimplexBmdBallot).mockReturnValue(
     mockInterpretResult.promise
   );
@@ -853,9 +848,7 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
 
     const interpretationType: PageInterpretationType = 'InvalidBallotHashPage';
     vi.mocked(interpretSimplexBmdBallot).mockResolvedValue([
-      {
-        interpretation: { type: interpretationType },
-      } as unknown as InterpretFileResult,
+      { type: interpretationType } as unknown as PageInterpretation,
       BLANK_PAGE_MOCK,
     ]);
 
@@ -936,7 +929,7 @@ test('insert and validate new blank sheet', async () => {
   machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
   expect(machine.getSimpleStatus()).toEqual('accepting_paper');
 
-  const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
+  const mockInterpretResult = deferred<SheetOf<PageInterpretation>>();
   vi.mocked(interpretSimplexBmdBallot).mockReturnValue(
     mockInterpretResult.promise
   );
@@ -1027,7 +1020,7 @@ describe('insert pre-printed ballot', () => {
 
     vi.mocked(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
 
-    const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
+    const mockInterpretResult = deferred<SheetOf<PageInterpretation>>();
     vi.mocked(interpretSimplexBmdBallot).mockReturnValue(
       mockInterpretResult.promise
     );
@@ -1038,9 +1031,7 @@ describe('insert pre-printed ballot', () => {
     await waitForStatus('validating_new_sheet');
 
     mockInterpretResult.resolve([
-      {
-        interpretation: { type: interpretationType },
-      } as unknown as InterpretFileResult,
+      { type: interpretationType } as unknown as PageInterpretation,
       BLANK_PAGE_MOCK,
     ]);
     await waitForStatus('inserted_invalid_new_sheet');
@@ -1080,7 +1071,7 @@ describe('re-insert removed ballot', () => {
    * the caller to simulate the result of interpretation.
    */
   async function prepareBallotReinsertion(): Promise<
-    Deferred<SheetOf<InterpretFileResult>>
+    Deferred<SheetOf<PageInterpretation>>
   > {
     //
     // 1. [Setup] Seed voting session with pre-printed ballot:
@@ -1112,7 +1103,7 @@ describe('re-insert removed ballot', () => {
     // 3. Re-insert valid ballot:
     //
 
-    const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
+    const mockInterpretResult = deferred<SheetOf<PageInterpretation>>();
     vi.mocked(interpretSimplexBmdBallot).mockReturnValue(
       mockInterpretResult.promise
     );
@@ -1194,7 +1185,7 @@ describe('re-insert removed ballot', () => {
     // 3. Re-insert invalid ballot:
     //
 
-    const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
+    const mockInterpretResult = deferred<SheetOf<PageInterpretation>>();
     vi.mocked(interpretSimplexBmdBallot).mockReturnValue(
       mockInterpretResult.promise
     );
@@ -1205,9 +1196,7 @@ describe('re-insert removed ballot', () => {
     await waitForStatus('validating_reinserted_ballot');
 
     mockInterpretResult.resolve([
-      {
-        interpretation: { type: interpretationType },
-      } as unknown as InterpretFileResult,
+      { type: interpretationType } as unknown as PageInterpretation,
       BLANK_PAGE_MOCK,
     ]);
     await waitForStatus('reinserted_invalid_ballot');
@@ -1345,7 +1334,7 @@ describe('unrecoverable_error', () => {
     machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
     expect(machine.getSimpleStatus()).toEqual('accepting_paper');
 
-    const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
+    const mockInterpretResult = deferred<SheetOf<PageInterpretation>>();
     vi.mocked(interpretSimplexBmdBallot).mockReturnValue(
       mockInterpretResult.promise
     );
@@ -1384,7 +1373,7 @@ describe('unrecoverable_error', () => {
     const mockScanResult = deferred<string>();
     vi.mocked(scanAndSave).mockReturnValue(mockScanResult.promise);
 
-    const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
+    const mockInterpretResult = deferred<SheetOf<PageInterpretation>>();
     vi.mocked(interpretSimplexBmdBallot).mockReturnValue(
       mockInterpretResult.promise
     );
@@ -1410,7 +1399,7 @@ describe('unrecoverable_error', () => {
     const mockScanResult = deferred<string>();
     vi.mocked(scanAndSave).mockReturnValue(mockScanResult.promise);
 
-    const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
+    const mockInterpretResult = deferred<SheetOf<PageInterpretation>>();
     vi.mocked(interpretSimplexBmdBallot).mockReturnValue(
       mockInterpretResult.promise
     );

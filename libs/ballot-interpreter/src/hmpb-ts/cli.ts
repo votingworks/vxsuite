@@ -7,8 +7,6 @@ import {
   Optional,
   Result,
 } from '@votingworks/basics';
-import tmp from 'tmp';
-import { writeImageData } from '@votingworks/image-utils';
 import {
   DEFAULT_MARK_THRESHOLDS,
   ElectionDefinition,
@@ -173,26 +171,6 @@ function prettyPrintInterpretation({
   }
 }
 
-async function writeNormalizedImages({
-  front,
-  back,
-}: InterpretedBallotCard): Promise<{
-  front: string;
-  back: string;
-}> {
-  const frontPath = tmp.tmpNameSync({
-    prefix: 'normalized-front',
-    postfix: '.png',
-  });
-  const backPath = tmp.tmpNameSync({
-    prefix: 'normalized-back',
-    postfix: '.png',
-  });
-  await writeImageData(frontPath, front.normalizedImage);
-  await writeImageData(backPath, back.normalizedImage);
-  return { front: frontPath, back: backPath };
-}
-
 async function interpretFiles(
   electionDefinition: ElectionDefinition,
   systemSettings: SystemSettings | undefined,
@@ -217,18 +195,16 @@ async function interpretFiles(
     useDefaultMarkThresholds?: boolean;
   }
 ): Promise<number> {
-  const result = interpret(
+  const result = interpret({
     electionDefinition,
-    [ballotPathSideA, ballotPathSideB],
-    {
-      scoreWriteIns,
-      disableVerticalStreakDetection:
-        disableVerticalStreakDetection ??
-        systemSettings?.disableVerticalStreakDetection,
-      minimumDetectedScale,
-      debug,
-    }
-  );
+    ballotImages: [ballotPathSideA, ballotPathSideB],
+    scoreWriteIns,
+    disableVerticalStreakDetection:
+      disableVerticalStreakDetection ??
+      systemSettings?.disableVerticalStreakDetection,
+    minimumDetectedScale,
+    debug,
+  });
 
   if (result.isErr()) {
     stderr.write(chalk.red(`Error interpreting ballot:\n`));
@@ -243,22 +219,8 @@ async function interpretFiles(
   const interpreted = result.ok();
 
   if (json) {
-    const normalizedImagePaths = await writeNormalizedImages(interpreted);
     await writeIterToStream(
-      jsonStream(
-        {
-          ...interpreted,
-          front: {
-            ...interpreted.front,
-            normalizedImage: normalizedImagePaths.front,
-          },
-          back: {
-            ...interpreted.back,
-            normalizedImage: normalizedImagePaths.back,
-          },
-        },
-        { compact: false }
-      ),
+      jsonStream(interpreted, { compact: false }),
       stdout
     );
   } else {

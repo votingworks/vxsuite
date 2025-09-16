@@ -6,7 +6,7 @@ import {
   renderBmdBallotFixture,
 } from '@votingworks/bmd-ballot-fixtures';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { loadImageData } from '@votingworks/image-utils';
+import { BLANK_PAGE_IMAGE_DATA, loadImageData } from '@votingworks/image-utils';
 import { DEFAULT_MARK_THRESHOLDS, asSheet } from '@votingworks/types';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { pdfToPageImages } from '../test/helpers/interpretation';
@@ -44,6 +44,33 @@ test('interprets ballot images and saves images for storage', async () => {
   expect(result.map(({ interpretation }) => interpretation.type)).toEqual([
     'InterpretedBmdPage',
     'BlankPage',
+  ]);
+  for (const { imagePath } of result) {
+    await expect(loadImageData(imagePath)).resolves.toBeDefined();
+  }
+});
+
+test('saves images even when interpretation fails', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+
+  const ballotImagesPath = tmpDir();
+  const result = await interpretSheetAndSaveImages(
+    {
+      electionDefinition,
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      testMode: true,
+      markThresholds: DEFAULT_MARK_THRESHOLDS,
+      adjudicationReasons: [],
+    },
+    [BLANK_PAGE_IMAGE_DATA, BLANK_PAGE_IMAGE_DATA],
+    'sheet-id',
+    ballotImagesPath
+  );
+
+  expect(result.map(({ interpretation }) => interpretation.type)).toEqual([
+    'UnreadablePage',
+    'UnreadablePage',
   ]);
   for (const { imagePath } of result) {
     await expect(loadImageData(imagePath)).resolves.toBeDefined();

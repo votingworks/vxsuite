@@ -6,9 +6,14 @@ import {
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { mkdir, readFile, readdir } from 'node:fs/promises';
-import { ImageData, writeImageData } from '@votingworks/image-utils';
+import {
+  ImageData,
+  loadImageData,
+  writeImageData,
+} from '@votingworks/image-utils';
 import { basename, join } from 'node:path';
 import { CanvasRenderingContext2D, createCanvas } from 'canvas';
+import { fileSync } from 'tmp';
 import { interpret } from './interpret';
 import { InterpretedBallotPage, getQuadrilateralBounds } from './types';
 
@@ -171,36 +176,49 @@ async function generateScoringReport(
   const ballotImageSheets = pairBallotImagePaths(ballotImagePaths);
 
   for (const { sheetName, pageImagePaths: imagePaths } of ballotImageSheets) {
-    process.stdout.write(`Scoring sheet ${sheetName}\n`);
-    const interpretationResult = interpret(electionDefinition, imagePaths, {
-      scoreWriteIns: true,
-    });
-    if (!interpretationResult.isOk()) {
-      process.stderr.write(
-        `Failed to interpret sheet ${sheetName}:\n${JSON.stringify(
-          interpretationResult.err(),
-          null,
-          2
-        )}\n`
-      );
-      continue;
-    }
-    const interpretation = interpretationResult.ok();
+    let frontNormalizedImageOutputFile!: ReturnType<typeof fileSync>;
+    let backNormalizedImageOutputFile!: ReturnType<typeof fileSync>;
+    try {
+      frontNormalizedImageOutputFile = fileSync();
+      backNormalizedImageOutputFile = fileSync();
+      process.stdout.write(`Scoring sheet ${sheetName}\n`);
+      const interpretationResult = interpret({
+        electionDefinition,
+        ballotImages: imagePaths,
+        scoreWriteIns: true,
+        frontNormalizedImageOutputPath: frontNormalizedImageOutputFile.name,
+        backNormalizedImageOutputPath: backNormalizedImageOutputFile.name,
+      });
+      if (!interpretationResult.isOk()) {
+        process.stderr.write(
+          `Failed to interpret sheet ${sheetName}:\n${JSON.stringify(
+            interpretationResult.err(),
+            null,
+            2
+          )}\n`
+        );
+        continue;
+      }
+      const interpretation = interpretationResult.ok();
 
-    const frontScoredImage = annotateBallotImageScores(
-      scoreType,
-      interpretation.front.normalizedImage,
-      interpretation.front
-    );
-    const backScoredImage = annotateBallotImageScores(
-      scoreType,
-      interpretation.back.normalizedImage,
-      interpretation.back
-    );
-    const frontOutputPath = join(outputDir, `${sheetName}-front.jpg`);
-    const backOutputPath = join(outputDir, `${sheetName}-back.jpg`);
-    await writeImageData(frontOutputPath, frontScoredImage);
-    await writeImageData(backOutputPath, backScoredImage);
+      const frontScoredImage = annotateBallotImageScores(
+        scoreType,
+        await loadImageData(frontNormalizedImageOutputFile.name),
+        interpretation.front
+      );
+      const backScoredImage = annotateBallotImageScores(
+        scoreType,
+        await loadImageData(backNormalizedImageOutputFile.name),
+        interpretation.back
+      );
+      const frontOutputPath = join(outputDir, `${sheetName}-front.jpg`);
+      const backOutputPath = join(outputDir, `${sheetName}-back.jpg`);
+      await writeImageData(frontOutputPath, frontScoredImage);
+      await writeImageData(backOutputPath, backScoredImage);
+    } finally {
+      frontNormalizedImageOutputFile.removeCallback();
+      backNormalizedImageOutputFile.removeCallback();
+    }
   }
 }
 
