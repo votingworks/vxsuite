@@ -924,7 +924,7 @@ export function ContestAdjudicationScreen(): JSX.Element {
             )}
             {isUndervote && (
               <Label>
-                <Icons.Info /> Undervote
+                <Icons.Closed /> Undervote
               </Label>
             )}
           </BallotVoteCount>
