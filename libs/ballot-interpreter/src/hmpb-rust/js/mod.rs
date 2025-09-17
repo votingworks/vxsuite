@@ -42,7 +42,7 @@ enum JsInterpretResult {
     Err(Box<interpret::Error>),
 }
 
-fn interpret2(
+fn interpret(
     election: Election,
     side_a_image: GrayImage,
     side_b_image: GrayImage,
@@ -137,7 +137,7 @@ fn interpret_paths(
         (Ok(side_a_image), Ok(side_b_image)) => (side_a_image, side_b_image),
     };
 
-    Ok(Json(interpret2(
+    Ok(Json(interpret(
         election,
         side_a_image,
         side_b_image,
@@ -165,7 +165,7 @@ fn interpret_images(
         (Ok(side_a_image), Ok(side_b_image)) => (side_a_image, side_b_image),
     };
 
-    Ok(Json(interpret2(
+    Ok(Json(interpret(
         election,
         side_a_image,
         side_b_image,
