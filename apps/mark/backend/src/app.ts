@@ -89,8 +89,10 @@ async function readBallotPdfsFromUsbDrive(
         async (
           entry
         ): Promise<[[PrecinctId, BallotStyleId], Buffer] | null> => {
+          // must be updated to be resilient to precinct names with hyphens
           const [, precinctName, ballotStyleId] =
-            entry.name.match(/^official-precinct-ballot-(.*)-(.*)\.pdf$/) ?? [];
+            entry.name.match(/^official-precinct-ballot-([^-]*)-(.*)\.pdf$/) ??
+            [];
           if (!(precinctName && ballotStyleId)) return null;
           const precinctId = find(
             electionDefinition.election.precincts,
