@@ -601,7 +601,7 @@ export async function layOutBallotsAndCreateElectionDefinition<
 
   const ballotLayouts = await iter(ballotProps)
     .async()
-    .map(async (props) => {
+    .map(async (props, i) => {
       // We currently only need to return errors to the user in ballot preview -
       // we assume the ballot was proofed by the time this function is called.
       const document = (
@@ -614,6 +614,7 @@ export async function layOutBallotsAndCreateElectionDefinition<
       );
       const ballotContent = await document.getContent();
       document.cleanup();
+      console.log(`Layed out ballot ${i}/${ballotProps.length}`);
       return {
         props,
         gridLayout,
@@ -738,7 +739,7 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
   const ballotPdfs = await iter(ballotProps)
     .zip(ballotContents)
     .async()
-    .map(async ([props, ballotContent]) => {
+    .map(async ([props, ballotContent], i) => {
       const document = await renderer.loadDocumentFromContent(ballotContent);
       const ballotPdf = await renderBallotPdfWithMetadataQrCode(
         props,
@@ -746,6 +747,7 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
         electionDefinition
       );
       document.cleanup();
+      console.log(`Rendered ballot PDF ${i}/${ballotProps.length}`);
       return ballotPdf;
     })
     .toArray();

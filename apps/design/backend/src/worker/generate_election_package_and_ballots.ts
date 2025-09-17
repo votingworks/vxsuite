@@ -114,7 +114,7 @@ export async function generateElectionPackageAndBallots(
     formattedElection,
     ballotStyles,
     compact
-  );
+  ).slice(0, 100);
 
   // If we're exporting ballots with ballot audit IDs...
   if (numAuditIdBallots) {
@@ -207,11 +207,14 @@ export async function generateElectionPackageAndBallots(
       ballotMode,
       ballotAuditId
     );
-    const normalizedColorPdf = await normalizeBallotColorModeForPrinting(
-      ballotPdf,
-      props
-    );
-    ballotsZip.file(fileName, normalizedColorPdf);
+    // const normalizedColorPdf = await normalizeBallotColorModeForPrinting(
+    //   ballotPdf,
+    //   props
+    // );
+    // console.log(
+    //   `Normalized color mode for ballot ${i}/${allBallotProps.length}`
+    // );
+    ballotsZip.file(fileName, ballotPdf);
   }
   const calibrationSheetPdf = await renderCalibrationSheetPdf(
     renderer,
