@@ -519,7 +519,7 @@ test('all controls are disabled until clicking "Edit"', async () => {
   const allCheckboxes = document.body.querySelectorAll('[role=checkbox]');
   const allControls = [...allTextBoxes, ...allCheckboxes];
 
-  expect(allControls).toHaveLength(26);
+  expect(allControls).toHaveLength(27);
 
   for (const control of allControls) {
     expect(control).toBeDisabled();
@@ -587,5 +587,108 @@ describe('BMD overvote toggle', () => {
       .resolves(mockSettingsFinal);
 
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  });
+});
+
+describe('BMD print mode', () => {
+  test('omitted when feature flag is off', async () => {
+    mockUserFeatures(apiMock, { BMD_EXTRA_PRINT_MODES: false });
+
+    apiMock.getSystemSettings
+      .expectCallWith({ electionId })
+      .resolves(electionRecord.systemSettings);
+
+    renderScreen();
+
+    await screen.findByRole('heading', { name: 'System Settings' });
+    expect(screen.queryByText('VxMark Print Mode')).not.toBeInTheDocument();
+  });
+
+  test('included when feature flag is on', async () => {
+    mockUserFeatures(apiMock, { BMD_EXTRA_PRINT_MODES: true });
+
+    const mockSettingsInitial: SystemSettings = {
+      ...electionRecord.systemSettings,
+      bmdPrintMode: 'marks_on_preprinted_ballot',
+    };
+
+    apiMock.getSystemSettings
+      .expectCallWith({ electionId })
+      .resolves(mockSettingsInitial);
+
+    renderScreen();
+    await screen.findByText('VxMark Print Mode');
+
+    userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+
+    const section = assertDefined(
+      screen.getByRole('heading', { name: 'Other' }).parentElement
+    );
+    await expectSearchSelectValueThenEditValue(
+      section,
+      'VxMark Print Mode',
+      `Marks on Preprinted Ballots`,
+      `Full Ballot Prints`
+    );
+
+    const mockSettingsFinal: SystemSettings = {
+      ...mockSettingsInitial,
+      bmdPrintMode: 'bubble_ballot',
+    };
+    apiMock.updateSystemSettings
+      .expectCallWith({ electionId, systemSettings: mockSettingsFinal })
+      .resolves();
+    apiMock.getSystemSettings
+      .expectCallWith({ electionId })
+      .resolves(mockSettingsFinal);
+
+    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  });
+
+  test('omits default value from saved settings', async () => {
+    mockUserFeatures(apiMock, { BMD_EXTRA_PRINT_MODES: true });
+
+    const mockSettingsInitial: SystemSettings = {
+      ...electionRecord.systemSettings,
+      bmdPrintMode: 'bubble_ballot',
+    };
+
+    apiMock.getSystemSettings
+      .expectCallWith({ electionId })
+      .resolves(mockSettingsInitial);
+
+    renderScreen();
+    await screen.findByText('VxMark Print Mode');
+
+    userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+
+    const section = assertDefined(
+      screen.getByRole('heading', { name: 'Other' }).parentElement
+    );
+    await expectSearchSelectValueThenEditValue(
+      section,
+      'VxMark Print Mode',
+      `Full Ballot Prints`,
+      `QR Code Summary Ballots`
+    );
+
+    const mockSettingsFinal: SystemSettings = {
+      ...mockSettingsInitial,
+      bmdPrintMode: undefined,
+    };
+    apiMock.updateSystemSettings
+      .expectCallWith({ electionId, systemSettings: mockSettingsFinal })
+      .resolves();
+    apiMock.getSystemSettings
+      .expectCallWith({ electionId })
+      .resolves(mockSettingsFinal);
+
+    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    expectComboBoxValue(
+      section,
+      'VxMark Print Mode',
+      `QR Code Summary Ballots`
+    );
   });
 });

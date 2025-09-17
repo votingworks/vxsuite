@@ -13,6 +13,7 @@ import { useParams } from 'react-router-dom';
 import {
   AdjudicationReason,
   AdjudicationReasonSchema,
+  BmdPrintMode,
   DEFAULT_INACTIVE_SESSION_TIME_LIMIT_MINUTES,
   DEFAULT_MARK_THRESHOLDS,
   DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT,
@@ -543,6 +544,35 @@ export function SystemSettingsForm({
                 }
                 disabled={!isEditing}
               />
+            )}
+            {features.BMD_EXTRA_PRINT_MODES && (
+              <InputGroup label="VxMark Print Mode">
+                <SearchSelect<BmdPrintMode>
+                  aria-label="VxMark Print Mode"
+                  disabled={!isEditing}
+                  isMulti={false}
+                  isSearchable={false}
+                  onChange={(newValue) => {
+                    setSystemSettings({
+                      ...systemSettings,
+                      // Feature still in development - omit when set to the
+                      // default:
+                      bmdPrintMode:
+                        newValue === 'summary' ? undefined : newValue,
+                    });
+                  }}
+                  options={[
+                    { label: 'Full Ballot Prints', value: 'bubble_ballot' },
+                    {
+                      label: 'Marks on Preprinted Ballots',
+                      value: 'marks_on_preprinted_ballot',
+                    },
+                    { label: 'QR Code Summary Ballots', value: 'summary' },
+                  ]}
+                  style={{ width: '100%' }}
+                  value={systemSettings.bmdPrintMode || 'summary'}
+                />
+              </InputGroup>
             )}
             <CheckboxGroup
               label="CVR"
