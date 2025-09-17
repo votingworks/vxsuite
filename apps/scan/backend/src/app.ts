@@ -71,7 +71,7 @@ import {
 } from './util/diagnostics';
 import { saveReadinessReport } from './printing/readiness_report';
 import { Player as AudioPlayer, SoundName } from './audio/player';
-import { getScannerResults } from './util/results';
+import { getScannerResultsMemoized } from './util/results';
 
 export const BALLOT_AUDIT_ID_FILE_NAME = 'ballot-audit-id-secret-key.txt';
 
@@ -584,7 +584,7 @@ export function buildApi({
       ) {
         return '';
       }
-      const scannerResultsByParty = await getScannerResults({ store });
+      const scannerResultsByParty = await getScannerResultsMemoized({ store });
 
       const combinedResults = combineElectionResults({
         election: electionDefinition.election,

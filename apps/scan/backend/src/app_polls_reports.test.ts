@@ -40,7 +40,7 @@ vi.mock(import('./util/get_current_time.js'), async (importActual) => ({
   getCurrentTime: () => reportPrintedTime.getTime(),
 }));
 
-test('printReport prints first section and printReportSection can print the rest', async () => {
+test('printReportSection can print each part of a primary report separately', async () => {
   await withApp(
     async ({
       apiClient,
