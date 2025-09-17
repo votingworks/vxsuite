@@ -1,28 +1,24 @@
 import { describe, expect, test } from 'vitest';
 import { readElectionGeneral } from '@votingworks/fixtures';
 import { CandidateContest } from '@votingworks/types';
-import { rotateCandidates } from './candidate_rotation';
+import { rotateCandidates } from './nh_ballot_template';
 
 const electionGeneral = readElectionGeneral();
 
 describe('rotateCandidates', () => {
-  const candidateContest = electionGeneral.contests.find(
+  const election = electionGeneral;
+  const candidateContest = election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate'
   )!;
-
-  test('skips non-candidate contests', () => {
-    const contest = electionGeneral.contests.find(
-      (c) => c.type !== 'candidate'
-    )!;
-    expect(rotateCandidates(contest, 'NhBallot')).toEqual(contest);
-  });
 
   test('skips contests with fewer than 2 candidates', () => {
     const contest: CandidateContest = {
       ...candidateContest,
       candidates: candidateContest.candidates.slice(0, 1),
     };
-    expect(rotateCandidates(contest, 'NhBallot')).toEqual(contest);
+    expect(rotateCandidates(contest)).toEqual(
+      contest.candidates.map((c) => c.id)
+    );
   });
 
   // Examples drawn from NH-provided documentation
@@ -44,38 +40,10 @@ describe('rotateCandidates', () => {
         },
       ],
     };
-    expect(
-      (rotateCandidates(contest, 'NhBallot') as CandidateContest).candidates
-    ).toEqual([
-      {
-        id: '1',
-        name: 'Martha Jones',
-      },
-      {
-        id: '3',
-        name: 'Larry Smith',
-      },
-      {
-        id: '2',
-        name: 'John Zorro',
-      },
-    ]);
-    expect(
-      (rotateCandidates(contest, 'VxDefaultBallot') as CandidateContest)
-        .candidates
-    ).toEqual([
-      {
-        id: '1',
-        name: 'Martha Jones',
-      },
-      {
-        id: '2',
-        name: 'John Zorro',
-      },
-      {
-        id: '3',
-        name: 'Larry Smith',
-      },
+    expect(rotateCandidates(contest)).toEqual([
+      '1', // Martha Jones
+      '3', // Larry Smith
+      '2', // John Zorro
     ]);
   });
 
@@ -125,50 +93,17 @@ describe('rotateCandidates', () => {
         },
       ],
     };
-
-    expect(
-      (rotateCandidates(contest, 'NhBallot') as CandidateContest).candidates
-    ).toEqual([
-      {
-        id: '3',
-        name: 'John Curtis',
-      },
-      {
-        id: '4',
-        name: 'Adam Dean',
-      },
-      {
-        id: '5',
-        name: 'Frank French',
-      },
-      {
-        id: '6',
-        name: 'Candy Lozenge',
-      },
-      {
-        id: '7',
-        name: 'Susan North',
-      },
-      {
-        id: '8',
-        name: 'Joseph Smith',
-      },
-      {
-        id: '9',
-        name: 'Jean Thompson',
-      },
-      {
-        id: '10',
-        name: 'John Zorro',
-      },
-      {
-        id: '1',
-        name: 'Jane Adams',
-      },
-      {
-        id: '2',
-        name: 'Bruce Brown',
-      },
+    expect(rotateCandidates(contest)).toEqual([
+      '3', // John Curtis
+      '4', // Adam Dean
+      '5', // Frank French
+      '6', // Candy Lozenge
+      '7', // Susan North
+      '8', // Joseph Smith
+      '9', // Jean Thompson
+      '10', // John Zorro
+      '1', // Jane Adams
+      '2', // Bruce Brown
     ]);
   });
 
@@ -196,28 +131,11 @@ describe('rotateCandidates', () => {
         },
       ],
     };
-    expect(
-      (rotateCandidates(contest, 'NhBallot') as CandidateContest).candidates
-    ).toEqual([
-      {
-        id: '3',
-        name: 'John Adams',
-        firstName: 'John',
-        lastName: 'Adams',
-      },
+    expect(rotateCandidates(contest)).toEqual([
+      '3', // John Adams
       // 'del Rey' comes after 'Adams' but before 'Harding'
-      {
-        id: '1',
-        name: 'Lana del Rey',
-        firstName: 'Lana',
-        lastName: 'del Rey',
-      },
-      {
-        id: '2',
-        name: 'Warren Harding',
-        firstName: 'Warren',
-        lastName: 'Harding',
-      },
+      '1', // Lana del Rey
+      '2', // Warren Harding
     ]);
   });
 
@@ -244,27 +162,11 @@ describe('rotateCandidates', () => {
         },
       ],
     };
-    expect(
-      (rotateCandidates(contest, 'NhBallot') as CandidateContest).candidates
-    ).toEqual([
-      {
-        id: '3',
-        name: 'John Adams',
-        firstName: 'John',
-        lastName: 'Adams',
-      },
+    expect(rotateCandidates(contest)).toEqual([
+      '3', // John Adams
       // 'George' comes after 'Adams' but before 'Harding'
-      {
-        id: '1',
-        name: 'George',
-        firstName: 'George',
-      },
-      {
-        id: '2',
-        name: 'Warren Harding',
-        firstName: 'Warren',
-        lastName: 'Harding',
-      },
+      '1', // George
+      '2', // Warren Harding
     ]);
   });
 
@@ -277,33 +179,19 @@ describe('rotateCandidates', () => {
           name: 'Martha Jones',
         },
         {
-          id: '2',
-          name: 'John Zorro',
-        },
-        {
           id: '3',
           name: 'Larry Smith',
         },
+        {
+          id: '2',
+          name: 'John Zorro',
+        },
       ],
     };
-    expect(
-      (rotateCandidates(contest, 'NhBallot') as CandidateContest).candidates
-    ).toEqual([
-      {
-        id: '1',
-        name: 'Martha Jones',
-      },
-      {
-        id: '3',
-        name: 'Larry Smith',
-      },
-      {
-        id: '2',
-        name: 'John Zorro',
-      },
+    expect(rotateCandidates(contest)).toEqual([
+      '1', // Martha Jones
+      '3', // Larry Smith
+      '2', // John Zorro
     ]);
-    expect(
-      rotateCandidates(rotateCandidates(contest, 'NhBallot'), 'NhBallot')
-    ).toEqual(rotateCandidates(contest, 'NhBallot'));
   });
 });

@@ -3,6 +3,7 @@ import {
   assert,
   assertDefined,
   err,
+  find,
   iter,
   ok,
   range,
@@ -15,7 +16,9 @@ import {
   BallotStyle,
   BallotStyleId,
   BallotType,
+  Candidate,
   CandidateContest as CandidateContestStruct,
+  CandidateId,
   Election,
   LanguageCode,
   NhPrecinctSplitOptions,
@@ -68,6 +71,71 @@ import { layOutInColumns } from '../layout_in_columns';
 import { Watermark } from './watermark';
 import { ArrowRightCircle } from '../svg_assets';
 import { BaseStyles } from '../base_styles';
+
+// Maps the number of candidates in a contest to the index at which to rotate
+// the candidates. These indexes are randomly selected by the state every 2
+// years. Note that these use 1-based indexing.
+const NH_ROTATION_INDICES: Record<number, number> = {
+  2: 1,
+  3: 1,
+  4: 4,
+  5: 4,
+  6: 2,
+  7: 6,
+  8: 4,
+  9: 2,
+  10: 3,
+  11: 1,
+  12: 1,
+  13: 10,
+  14: 9,
+  15: 1,
+  16: 15,
+  17: 5,
+  18: 10,
+  19: 10,
+  20: 10,
+};
+
+/**
+ * Rotate a contest's candidates according to the governing statute.
+ *
+ * The NH rotation algorithm is as follows:
+ * 1. Order the candidates alphabetically by last name.
+ * 2. Cut the "deck" at a randomly selected index (see NH_ROTATION_INDICES).
+ */
+export function rotateCandidates(
+  contest: CandidateContestStruct
+): CandidateId[] {
+  if (contest.candidates.length < 2) return contest.candidates.map((c) => c.id);
+
+  function getSortingName(candidate: Candidate): string {
+    return (
+      // || instead of ?? because when lastName and firstName are empty string we want to sort by
+      // the last word of `name`. This supports backwards compatibility with elections that were
+      // created before structured name input.
+      candidate.lastName ||
+      candidate.firstName ||
+      assertDefined(candidate.name.split(' ').at(-1))
+    );
+  }
+
+  const orderedCandidates = [...contest.candidates].sort((a, b) =>
+    getSortingName(a).localeCompare(getSortingName(b))
+  );
+
+  const rotationIndex =
+    assertDefined(
+      NH_ROTATION_INDICES[contest.candidates.length],
+      `No rotation index defined for contest with ${contest.candidates.length} candidates`
+    ) - 1;
+
+  const rotatedCandidates = [
+    ...orderedCandidates.slice(rotationIndex),
+    ...orderedCandidates.slice(0, rotationIndex),
+  ];
+  return rotatedCandidates.map((c) => c.id);
+}
 
 function Header({
   election,
@@ -347,6 +415,8 @@ function CandidateContest({
     10: hmpbStrings.hmpb10WillBeElected,
   }[contest.seats];
 
+  const rotatedCandidateIds = rotateCandidates(contest);
+
   return (
     <Box
       style={{
@@ -374,7 +444,11 @@ function CandidateContest({
         )}
       </ContestHeader>
       <ul>
-        {contest.candidates.map((candidate, i) => {
+        {rotatedCandidateIds.map((candidateId, i) => {
+          const candidate = find(
+            contest.candidates,
+            (c) => c.id === candidateId
+          );
           const partyText =
             election.type === 'primary' ? undefined : (
               <CandidatePartyList

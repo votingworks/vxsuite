@@ -1,6 +1,7 @@
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { test, expect } from 'vitest';
-import { BallotType } from '@votingworks/types';
+import { BallotType, Election } from '@votingworks/types';
+import { assert, iter } from '@votingworks/basics';
 import {
   allBaseBallotProps,
   BaseBallotProps,
@@ -10,6 +11,7 @@ import { BALLOT_MODES } from './types';
 import { createPlaywrightRenderer } from './playwright_renderer';
 import { ballotTemplates } from './ballot_templates';
 import { vxFamousNamesFixtures } from './ballot_fixtures';
+import { rotateCandidates } from './ballot_templates/nh_ballot_template';
 
 function combinations<T extends Record<string, unknown>>(
   arrays: Array<Array<Partial<T>>>
@@ -75,4 +77,46 @@ test('layOutMinimalBallotsToCreateElectionDefinition', async () => {
       'vxf'
     );
   expect(electionDefinition).toEqual(fixtureElectionDefinition);
+});
+
+test('reorder candidates based on rotation from template', async () => {
+  const fixtureElection: Election = {
+    ...vxFamousNamesFixtures.electionDefinition.election,
+    signature: {
+      caption: 'test caption',
+      image: '<svg></svg>',
+    },
+  };
+  const allBallotProps = allBaseBallotProps(fixtureElection);
+  const renderer = await createPlaywrightRenderer();
+  const { election } = await layOutMinimalBallotsToCreateElectionDefinition(
+    renderer,
+    ballotTemplates.NhBallot,
+    allBallotProps,
+    'vxf'
+  );
+
+  const {
+    contests: fixtureContests,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    gridLayouts: _fixtureGridLayouts,
+    ...restFixtureElection
+  } = fixtureElection;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { contests, gridLayouts: _gridLayouts, ...restElection } = election;
+
+  expect(restElection).toEqual(restFixtureElection);
+  for (const [contest, fixtureContest] of iter(contests).zip(fixtureContests)) {
+    assert(contest.id === fixtureContest.id);
+    assert(contest.type === 'candidate');
+    assert(fixtureContest.type === 'candidate');
+    const { candidates, ...restContest } = contest;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { candidates: _fixtureCandidates, ...restFixtureContest } =
+      fixtureContest;
+    expect(restContest).toEqual(restFixtureContest);
+    expect(candidates.map((c) => c.id)).toEqual(
+      rotateCandidates(fixtureContest)
+    );
+  }
 });
