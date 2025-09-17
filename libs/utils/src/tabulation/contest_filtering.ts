@@ -6,6 +6,7 @@ import {
   PrecinctId,
   AnyContest,
   Contests,
+  PrecinctSelection,
 } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import {
@@ -93,13 +94,16 @@ export function mapContestIdsToContests(
 
 export function getContestsForPrecinct(
   electionDefinition: ElectionDefinition,
-  precinctId?: PrecinctId
+  precinctSelection: PrecinctSelection
 ): Contests {
   const { election } = electionDefinition;
-  if (!precinctId) {
+  if (precinctSelection.kind === 'AllPrecincts') {
     return election.contests;
   }
 
-  const contestIds = getContestIdsForPrecinct(electionDefinition, precinctId);
+  const contestIds = getContestIdsForPrecinct(
+    electionDefinition,
+    precinctSelection.precinctId
+  );
   return mapContestIdsToContests(electionDefinition, contestIds);
 }
