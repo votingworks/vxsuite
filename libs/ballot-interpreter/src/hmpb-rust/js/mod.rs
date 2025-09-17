@@ -72,7 +72,7 @@ fn interpret2(
             disable_vertical_streak_detection: options
                 .disable_vertical_streak_detection
                 .unwrap_or(false),
-            infer_timing_marks: options.infer_timing_marks.unwrap_or(false),
+            infer_timing_marks: options.infer_timing_marks.unwrap_or(true),
             timing_mark_algorithm: options.timing_mark_algorithm.unwrap_or_default(),
             minimum_detected_scale,
         },
