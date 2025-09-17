@@ -261,7 +261,7 @@ fn gray_image(width: f64, height: f64, data: Vec<u8>) -> Result<GrayImage, Error
     let height = as_u32(height)?;
     let len = data.len();
 
-    match  len / (width as usize * height as usize) {
+    match len / (width as usize * height as usize) {
         1 => Ok(GrayImage::from_vec(width, height, data).ok_or_else(|| {
             Error::new(format!(
                 "Could not construct GrayImage with dimensions: width={width} height={height} buffer length={len}",
