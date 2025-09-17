@@ -51,6 +51,10 @@ enum UserFeature {
    * Allow the user to toggle the ability to mark overvotes on VxMark.
    */
   BMD_OVERVOTE_ALLOW_TOGGLE = 'BMD_OVERVOTE_ALLOW_TOGGLE',
+  /**
+   * Allow selection of additional BMD print modes beyond summary ballots.
+   */
+  BMD_EXTRA_PRINT_MODES = 'BMD_EXTRA_PRINT_MODES',
 }
 
 /**
@@ -91,6 +95,7 @@ export const userFeatureConfigs = {
     SYSTEM_SETTINGS_SCREEN: true,
     ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: true,
     BMD_OVERVOTE_ALLOW_TOGGLE: true,
+    BMD_EXTRA_PRINT_MODES: true,
 
     EXPORT_SCREEN: true,
     CHOOSE_BALLOT_TEMPLATE: true,
@@ -106,6 +111,7 @@ export const userFeatureConfigs = {
     SYSTEM_SETTINGS_SCREEN: true,
     ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: false,
     BMD_OVERVOTE_ALLOW_TOGGLE: false,
+    BMD_EXTRA_PRINT_MODES: false,
 
     EXPORT_SCREEN: true,
     CHOOSE_BALLOT_TEMPLATE: false,
@@ -121,6 +127,7 @@ export const userFeatureConfigs = {
     SYSTEM_SETTINGS_SCREEN: true,
     ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: true,
     BMD_OVERVOTE_ALLOW_TOGGLE: false,
+    BMD_EXTRA_PRINT_MODES: false,
 
     EXPORT_SCREEN: true,
     CHOOSE_BALLOT_TEMPLATE: true,
@@ -136,6 +143,7 @@ export const userFeatureConfigs = {
     SYSTEM_SETTINGS_SCREEN: false,
     ENABLE_BMD_BALLOT_SCANNING_ON_VXSCAN_OPTION: false,
     BMD_OVERVOTE_ALLOW_TOGGLE: false,
+    BMD_EXTRA_PRINT_MODES: false,
 
     EXPORT_SCREEN: false,
     CHOOSE_BALLOT_TEMPLATE: false,
