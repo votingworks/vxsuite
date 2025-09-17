@@ -1,12 +1,10 @@
-import {
-  Button,
-  H1,
-  LoadingAnimation,
-  P,
-  getPartyIdsForPrecinctScannerTallyReports,
-} from '@votingworks/ui';
+import { Button, H1, LoadingAnimation, P } from '@votingworks/ui';
 import React, { useCallback, useState } from 'react';
-import { ElectionDefinition, PollsTransitionType } from '@votingworks/types';
+import {
+  ElectionDefinition,
+  getPartyIdsWithContests,
+  PollsTransitionType,
+} from '@votingworks/types';
 import { Optional, assert } from '@votingworks/basics';
 import {
   CachedElectionLookups,
@@ -28,8 +26,8 @@ function getReportManifest(
     return undefined;
   }
 
-  const partyIds =
-    getPartyIdsForPrecinctScannerTallyReports(electionDefinition);
+  const { election } = electionDefinition;
+  const partyIds = getPartyIdsWithContests(election);
 
   if (partyIds.length <= 1) {
     return undefined;

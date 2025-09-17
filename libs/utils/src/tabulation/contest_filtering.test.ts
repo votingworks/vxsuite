@@ -12,6 +12,7 @@ import {
   getContestIdsForPrecinct,
   getContestsForPrecinct,
 } from './contest_filtering';
+import { singlePrecinctSelectionFor } from '../precinct_selection';
 
 describe('doesContestAppearOnPartyBallot', () => {
   test('in a primary election', () => {
@@ -89,9 +90,10 @@ test('getContestsForPrecinct', () => {
   const electionDefinition =
     electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
   expect(
-    getContestsForPrecinct(electionDefinition, 'precinct-c1-w2').map(
-      (c) => c.id
-    )
+    getContestsForPrecinct(
+      electionDefinition,
+      singlePrecinctSelectionFor('precinct-c1-w2')
+    ).map((c) => c.id)
   ).toEqual([
     'county-leader-mammal',
     'congressional-1-mammal',

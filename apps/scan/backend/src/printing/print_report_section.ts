@@ -1,13 +1,13 @@
-import memoizeOne from 'memoize-one';
-import { PollsTransitionType } from '@votingworks/types';
 import { assert, assertDefined } from '@votingworks/basics';
 import {
   combineElectionResults,
+  getContestsForPrecinct,
+  getEmptyElectionResults,
   isPollsSuspensionTransition,
 } from '@votingworks/utils';
 import {
   PrecinctScannerBallotCountReport,
-  PrecinctScannerTallyReports,
+  PrecinctScannerTallyReport,
 } from '@votingworks/ui';
 import {
   DEFAULT_MARGIN_DIMENSIONS,
@@ -20,97 +20,120 @@ import {
   PrintResult,
 } from '@votingworks/fujitsu-thermal-printer';
 import { generateSignedQuickResultsReportingUrl } from '@votingworks/auth';
+import {
+  Contests,
+  Election,
+  getPartyIdsWithContests,
+  PartyId,
+} from '@votingworks/types';
 import { Store } from '../store';
 import { getMachineConfig } from '../machine_config';
-import { getScannerResults } from '../util/results';
+import { getScannerResultsMemoized } from '../util/results';
 import { getCurrentTime } from '../util/get_current_time';
 import { rootDebug } from '../util/debug';
 
 const debug = rootDebug.extend('print-report-section');
 
-async function getReportSections(
+interface TallyReportSectionSpec {
+  partyId?: PartyId;
+  contests: Contests;
+}
+
+function getTallyReportSectionSpecs(
+  election: Election,
+  contests: Contests
+): TallyReportSectionSpec[] {
+  const partyIds = getPartyIdsWithContests(election);
+  return partyIds.map((partyId) => {
+    const sectionContests = partyId
+      ? contests.filter((c) => c.type === 'candidate' && c.partyId === partyId)
+      : contests.filter((c) => c.type === 'yesno' || !c.partyId);
+    return { partyId, contests: sectionContests };
+  });
+}
+
+async function getReportSection(
   store: Store,
-  pollsTransitionType: PollsTransitionType,
-  pollsTransitionBallotCount: number,
-  pollsTransitionTime: number
-): Promise<JSX.Element[]> {
-  debug('generating all report sections...');
+  reportSectionIndex: number
+): Promise<JSX.Element> {
   const { electionDefinition, electionPackageHash } = assertDefined(
     store.getElectionRecord()
   );
+  const { election } = electionDefinition;
   const systemSettings = assertDefined(store.getSystemSettings());
   const precinctSelection = store.getPrecinctSelection();
+  assert(precinctSelection);
   const isLiveMode = !store.getTestMode();
   const { machineId } = getMachineConfig();
-  assert(precinctSelection);
+  const pollsTransition = store.getLastPollsTransition();
+  assert(pollsTransition);
+  assert(pollsTransition.ballotCount === store.getBallotsCounted());
 
-  const scannerResultsByParty = await getScannerResults({ store });
-
-  if (isPollsSuspensionTransition(pollsTransitionType)) {
-    return [
-      PrecinctScannerBallotCountReport({
-        electionDefinition,
-        electionPackageHash,
-        precinctSelection,
-        totalBallotsScanned: pollsTransitionBallotCount,
-        pollsTransition: pollsTransitionType,
-        pollsTransitionedTime: pollsTransitionTime,
-        reportPrintedTime: getCurrentTime(),
-        isLiveMode,
-        precinctScannerMachineId: machineId,
-      }),
-    ];
+  if (isPollsSuspensionTransition(pollsTransition.type)) {
+    debug(
+      `polls transition is ${pollsTransition.type}, generating ballot count report`
+    );
+    return PrecinctScannerBallotCountReport({
+      electionDefinition,
+      electionPackageHash,
+      precinctSelection,
+      totalBallotsScanned: pollsTransition.ballotCount,
+      pollsTransition: pollsTransition.type,
+      pollsTransitionedTime: pollsTransition.time,
+      reportPrintedTime: getCurrentTime(),
+      isLiveMode,
+      precinctScannerMachineId: machineId,
+    });
   }
+  debug(`polls transition is ${pollsTransition.type}, generating tally report`);
 
-  const combinedResults = combineElectionResults({
+  const scannerResultsByParty = await getScannerResultsMemoized({ store });
+  const scannerResultsCombined = combineElectionResults({
     election: electionDefinition.election,
     allElectionResults: scannerResultsByParty,
   });
+
   const signedQuickResultsReportingUrl =
-    (pollsTransitionType === 'close_polls' &&
+    (pollsTransition.type === 'close_polls' &&
       systemSettings.quickResultsReportingUrl &&
       (await generateSignedQuickResultsReportingUrl({
         electionDefinition,
         quickResultsReportingUrl: systemSettings.quickResultsReportingUrl,
         signingMachineId: machineId,
         isLiveMode,
-        results: combinedResults,
+        results: scannerResultsCombined,
       }))) ||
     undefined;
 
-  return PrecinctScannerTallyReports({
+  const fullReportContests = getContestsForPrecinct(
+    electionDefinition,
+    precinctSelection
+  );
+
+  const { partyId, contests: reportSectionContests } =
+    getTallyReportSectionSpecs(election, fullReportContests)[
+      reportSectionIndex
+    ];
+
+  const scannedElectionResults = partyId
+    ? scannerResultsByParty.find((results) => results.partyId === partyId) ||
+      getEmptyElectionResults(electionDefinition.election, true)
+    : scannerResultsCombined;
+
+  return PrecinctScannerTallyReport({
     electionDefinition,
     electionPackageHash,
     precinctSelection,
+    partyId,
+    pollsTransition: pollsTransition.type,
+    pollsTransitionedTime: pollsTransition.time,
+    contests: reportSectionContests,
     isLiveMode,
-    pollsTransition: pollsTransitionType,
-    pollsTransitionedTime: pollsTransitionTime,
     reportPrintedTime: getCurrentTime(),
     precinctScannerMachineId: machineId,
-    electionResultsByParty: scannerResultsByParty,
+    scannedElectionResults,
     signedQuickResultsReportingUrl,
   });
-}
-
-const getReportSectionsMemoized = memoizeOne(getReportSections);
-
-async function getReportSection(
-  store: Store,
-  index: number
-): Promise<JSX.Element> {
-  debug(`getting report section ${index}...`);
-  const pollsTransition = store.getLastPollsTransition();
-  assert(pollsTransition);
-  assert(pollsTransition.ballotCount === store.getBallotsCounted());
-
-  const allSections = await getReportSectionsMemoized(
-    store,
-    pollsTransition.type,
-    pollsTransition.ballotCount,
-    pollsTransition.time
-  );
-
-  return allSections[index];
 }
 
 /**

@@ -14,6 +14,7 @@ import {
 } from '@votingworks/utils';
 import { assert, assertDefined, iter, typedAs } from '@votingworks/basics';
 import { VX_MACHINE_ID } from '@votingworks/backend';
+import memoizeOne from 'memoize-one';
 import { Store } from '../store';
 
 function isBmdPage(
@@ -37,11 +38,13 @@ const BALLOT_TYPE_TO_VOTING_METHOD: Record<
   [BallotType.Provisional]: 'provisional',
 };
 
+type ScannerResultsByParty = Tabulation.GroupList<Tabulation.ElectionResults>;
+
 export async function getScannerResults({
   store,
 }: {
   store: Store;
-}): Promise<Tabulation.GroupList<Tabulation.ElectionResults>> {
+}): Promise<ScannerResultsByParty> {
   const { electionDefinition } = assertDefined(store.getElectionRecord());
   const { election } = electionDefinition;
   const ballotStyleIdPartyIdLookup = getBallotStyleIdPartyIdLookup(election);
@@ -114,5 +117,21 @@ export async function getScannerResults({
       groupBy: election.type === 'primary' ? { groupByParty: true } : undefined,
       cvrs,
     })
+  );
+}
+
+const getScannerResultsMemoizedByBallotCount = memoizeOne(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  (store: Store, _ballotCount: number) => getScannerResults({ store })
+);
+
+export function getScannerResultsMemoized({
+  store,
+}: {
+  store: Store;
+}): Promise<ScannerResultsByParty> {
+  return getScannerResultsMemoizedByBallotCount(
+    store,
+    store.getBallotsCounted()
   );
 }
