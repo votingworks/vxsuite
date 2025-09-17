@@ -2,7 +2,7 @@ import { Election } from '@votingworks/types';
 import { ImageData } from 'canvas';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
-import { TimingMarks } from './types';
+import { InterpretedBallotCard, InterpretError, TimingMarks } from './types';
 
 const addon = (() => {
   // NOTE: this only works because the build output can get to the root of the
@@ -20,10 +20,15 @@ const addon = (() => {
 /**
  * The result of calling `interpret`.
  */
-export interface BridgeInterpretResult {
-  success: boolean;
-  value: string;
-}
+export type BridgeInterpretResult =
+  | {
+      type: 'ok';
+      value: InterpretedBallotCard;
+    }
+  | {
+      type: 'err';
+      value: InterpretError;
+    };
 
 /**
  * Type of the Rust `interpret` implementation. Under normal circumstances,
@@ -46,19 +51,37 @@ export function interpret(
     backNormalizedImageOutputPath?: string;
   }
 ): BridgeInterpretResult {
-  return addon.interpret(
+  if (
+    typeof ballotImageSourceSideA === 'string' &&
+    typeof ballotImageSourceSideB === 'string'
+  ) {
+    return addon.interpretPaths(
+      election,
+      ballotImageSourceSideA,
+      ballotImageSourceSideB,
+      options
+    );
+  }
+
+  const imageSideA = ballotImageSourceSideA as ImageData;
+  const imageSideB = ballotImageSourceSideB as ImageData;
+  return addon.interpretImages(
     election,
-    ballotImageSourceSideA,
-    ballotImageSourceSideB,
+    imageSideA.width,
+    imageSideA.height,
+    imageSideA.data,
+    imageSideB.width,
+    imageSideB.height,
+    imageSideB.data,
     options
   );
 }
 
-export function runBlankPaperDiagnostic(
+export function runBlankPaperDiagnosticFromPath(
   image: string | ImageData,
   debugBasePath?: string
 ): boolean {
-  return addon.runBlankPaperDiagnostic(image, debugBasePath);
+  return addon.runBlankPaperDiagnosticFromPath(image, debugBasePath ?? null);
 }
 
 export function findTimingMarkGrid(
@@ -68,5 +91,17 @@ export function findTimingMarkGrid(
     timingMarkAlgorithm?: 'contours' | 'corners';
   }
 ): TimingMarks {
-  return addon.findTimingMarkGrid(image, debugBasePath, options);
+  return typeof image === 'string'
+    ? addon.findTimingMarkGridFromPath(
+        image,
+        debugBasePath ?? null,
+        options ?? null
+      )
+    : addon.findTimingMarkGridFromImage(
+        image.width,
+        image.height,
+        image.data,
+        debugBasePath ?? null,
+        options ?? null
+      );
 }

@@ -3,8 +3,6 @@
 #![allow(clippy::cast_sign_loss)]
 #![allow(clippy::cast_possible_wrap)]
 
-use neon::prelude::*;
-
 pub mod ballot_card;
 pub mod debug;
 mod diagnostic;
@@ -17,12 +15,4 @@ mod qr_code;
 mod scoring;
 pub mod timing_marks;
 
-/// Entry point for the Neon module. Exports values to JavaScript.
-#[neon::main]
-fn main(mut cx: ModuleContext) -> NeonResult<()> {
-    cx.export_function("interpret", js::interpret)?;
-    cx.export_function("findTimingMarkGrid", js::find_timing_mark_grid)?;
-    cx.export_function("runBlankPaperDiagnostic", js::run_blank_paper_diagnostic)?;
-
-    Ok(())
-}
+// Anything marked with `#[neon::export]` is exported to JavaScript.

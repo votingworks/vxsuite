@@ -1,12 +1,8 @@
 import { assert, err, ok } from '@votingworks/basics';
 import { ImageData } from 'canvas';
-import { ElectionDefinition, safeParseJson, SheetOf } from '@votingworks/types';
+import { ElectionDefinition, SheetOf } from '@votingworks/types';
 import { interpret as interpretImpl } from './addon';
-import {
-  InterpretedBallotCard,
-  InterpretError,
-  HmpbInterpretResult,
-} from './types';
+import { HmpbInterpretResult } from './types';
 
 function assertImageData(imageData: unknown): asserts imageData is ImageData {
   assert(
@@ -97,11 +93,10 @@ export function interpret(options: {
 }): HmpbInterpretResult {
   const args = normalizeOptionsForBridge(options);
   const result = interpretImpl(...args);
-  const value = safeParseJson(result.value).unsafeUnwrap();
 
-  if (!result.success) {
-    return err(value as InterpretError);
+  if (result.type === 'err') {
+    return err(result.value);
   }
 
-  return ok(value as InterpretedBallotCard);
+  return ok(result.value);
 }

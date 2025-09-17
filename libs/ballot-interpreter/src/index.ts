@@ -1,4 +1,4 @@
-/* istanbul ignore file */
+/* istanbul ignore file - @preserve */
 export * from './interpret';
 export * from './hmpb-ts';
 export * from './save_images';

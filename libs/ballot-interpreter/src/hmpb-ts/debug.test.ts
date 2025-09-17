@@ -11,8 +11,8 @@ const interpretImplMock = vi.mocked(addon.interpret);
 
 test('no debug', () => {
   interpretImplMock.mockReturnValue({
-    success: false,
-    value: '{}',
+    type: 'err',
+    value: { type: 'invalidScale', label: 'side A', scale: 0.9 },
   });
 
   void interpret({
@@ -31,8 +31,8 @@ test('no debug', () => {
 
 test('debug with image paths', () => {
   interpretImplMock.mockReturnValue({
-    success: false,
-    value: '{}',
+    type: 'err',
+    value: { type: 'invalidScale', label: 'side A', scale: 0.9 },
   });
 
   void interpret({

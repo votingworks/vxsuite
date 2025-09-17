@@ -34,7 +34,7 @@ test('interpret with bad ballot image paths', () => {
 
   expect(() =>
     interpret({ electionDefinition, ballotImages: ['a', 'b'] })
-  ).toThrowError('failed to load ballot card images: a, b');
+  ).toThrowError(/No such file or directory/);
 });
 
 test('interpret `ImageData` objects', async () => {
