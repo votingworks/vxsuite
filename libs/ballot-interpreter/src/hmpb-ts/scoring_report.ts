@@ -1,4 +1,4 @@
-/* istanbul ignore file */
+/* istanbul ignore file - @preserve */
 import { assert, unique } from '@votingworks/basics';
 import {
   ElectionDefinition,
