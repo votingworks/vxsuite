@@ -1,11 +1,17 @@
 import { describe, expect, test } from 'vitest';
-import { readElectionGeneral } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  readElectionGeneral,
+} from '@votingworks/fixtures';
 import { CandidateContest } from '@votingworks/types';
-import { rotateCandidates } from './nh_ballot_template';
+import {
+  rotateCandidatesByStatute,
+  rotateCandidatesByPrecinct,
+} from './nh_ballot_template';
 
 const electionGeneral = readElectionGeneral();
 
-describe('rotateCandidates', () => {
+describe('rotateCandidatesByStatute', () => {
   const election = electionGeneral;
   const candidateContest = election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate'
@@ -16,7 +22,7 @@ describe('rotateCandidates', () => {
       ...candidateContest,
       candidates: candidateContest.candidates.slice(0, 1),
     };
-    expect(rotateCandidates(contest)).toEqual(
+    expect(rotateCandidatesByStatute(contest)).toEqual(
       contest.candidates.map((c) => c.id)
     );
   });
@@ -40,7 +46,7 @@ describe('rotateCandidates', () => {
         },
       ],
     };
-    expect(rotateCandidates(contest)).toEqual([
+    expect(rotateCandidatesByStatute(contest)).toEqual([
       '1', // Martha Jones
       '3', // Larry Smith
       '2', // John Zorro
@@ -93,7 +99,7 @@ describe('rotateCandidates', () => {
         },
       ],
     };
-    expect(rotateCandidates(contest)).toEqual([
+    expect(rotateCandidatesByStatute(contest)).toEqual([
       '3', // John Curtis
       '4', // Adam Dean
       '5', // Frank French
@@ -131,7 +137,7 @@ describe('rotateCandidates', () => {
         },
       ],
     };
-    expect(rotateCandidates(contest)).toEqual([
+    expect(rotateCandidatesByStatute(contest)).toEqual([
       '3', // John Adams
       // 'del Rey' comes after 'Adams' but before 'Harding'
       '1', // Lana del Rey
@@ -162,7 +168,7 @@ describe('rotateCandidates', () => {
         },
       ],
     };
-    expect(rotateCandidates(contest)).toEqual([
+    expect(rotateCandidatesByStatute(contest)).toEqual([
       '3', // John Adams
       // 'George' comes after 'Adams' but before 'Harding'
       '1', // George
@@ -188,10 +194,57 @@ describe('rotateCandidates', () => {
         },
       ],
     };
-    expect(rotateCandidates(contest)).toEqual([
+    expect(rotateCandidatesByStatute(contest)).toEqual([
       '1', // Martha Jones
       '3', // Larry Smith
       '2', // John Zorro
     ]);
   });
+});
+
+test('rotateCandidatesByPrecinct rotates based on index of precinct within ballot style', () => {
+  const election = electionFamousNames2021Fixtures.readElection();
+  const candidateContest = election.contests.find(
+    (c): c is CandidateContest => c.type === 'candidate'
+  )!;
+  const contest: CandidateContest = {
+    ...candidateContest,
+    candidates: [
+      {
+        id: '1',
+        name: 'Jane Adams',
+      },
+      {
+        id: '2',
+        name: 'John Curtis',
+      },
+      {
+        id: '3',
+        name: 'Bruce Brown',
+      },
+    ],
+  };
+  const [precinct1, precinct2, precinct3, precinct4] = election.precincts;
+
+  expect(rotateCandidatesByPrecinct(contest, election, precinct1.id)).toEqual([
+    '1', // Jane Adams
+    '2', // John Curtis
+    '3', // Bruce Brown
+  ]);
+  expect(rotateCandidatesByPrecinct(contest, election, precinct2.id)).toEqual([
+    '2', // John Curtis
+    '3', // Bruce Brown
+    '1', // Jane Adams
+  ]);
+
+  expect(rotateCandidatesByPrecinct(contest, election, precinct3.id)).toEqual([
+    '3', // Bruce Brown
+    '1', // Jane Adams
+    '2', // John Curtis
+  ]);
+  expect(rotateCandidatesByPrecinct(contest, election, precinct4.id)).toEqual([
+    '1', // Jane Adams
+    '2', // John Curtis
+    '3', // Bruce Brown
+  ]);
 });

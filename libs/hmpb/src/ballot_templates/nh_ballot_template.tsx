@@ -19,7 +19,9 @@ import {
   Candidate,
   CandidateContest as CandidateContestStruct,
   CandidateId,
+  ContestId,
   Election,
+  ElectionId,
   LanguageCode,
   NhPrecinctSplitOptions,
   PrecinctId,
@@ -28,6 +30,7 @@ import {
   getBallotStyle,
   getContests,
   getPartyForBallotStyle,
+  hasSplits,
 } from '@votingworks/types';
 import {
   BackendLanguageContextProvider,
@@ -104,7 +107,7 @@ const NH_ROTATION_INDICES: Record<number, number> = {
  * 1. Order the candidates alphabetically by last name.
  * 2. Cut the "deck" at a randomly selected index (see NH_ROTATION_INDICES).
  */
-export function rotateCandidates(
+export function rotateCandidatesByStatute(
   contest: CandidateContestStruct
 ): CandidateId[] {
   if (contest.candidates.length < 2) return contest.candidates.map((c) => c.id);
@@ -135,6 +138,54 @@ export function rotateCandidates(
     ...orderedCandidates.slice(0, rotationIndex),
   ];
   return rotatedCandidates.map((c) => c.id);
+}
+
+export function rotateCandidatesByPrecinct(
+  contest: CandidateContestStruct,
+  election: Election,
+  precinctId: PrecinctId
+): CandidateId[] {
+  if (contest.candidates.length < 2) return contest.candidates.map((c) => c.id);
+  const allPrecinctsWithContest = election.precincts.filter((precinct) =>
+    hasSplits(precinct)
+      ? precinct.splits.some((split) =>
+          split.districtIds.includes(contest.districtId)
+        )
+      : precinct.districtIds.includes(contest.districtId)
+  );
+  const offset =
+    allPrecinctsWithContest.findIndex(
+      (precinct) => precinct.id === precinctId
+    ) % contest.candidates.length;
+  const rotatedCandidates = [
+    ...contest.candidates.slice(offset),
+    ...contest.candidates.slice(0, offset),
+  ];
+  return rotatedCandidates.map((c) => c.id);
+}
+
+// Special case for some specific contests in the November 2025 election that
+// use rotation by precinct (they have a legal exception). Since this is a
+// very specific exception, we hardcode it for now. In the future, we can
+// revisit whether we want to support this in a more general way.
+const contestsUsingPrecinctRotation: Record<ElectionId, ContestId[]> = {
+  '5p1op86c38fe': [
+    'brxyaolp9hvi',
+    '14nvftrtp8cl',
+    'exgu2lnf1g1i',
+    'fpkjxj4ow10w',
+  ],
+};
+
+function rotateCandidates(
+  contest: CandidateContestStruct,
+  election: Election,
+  precinctId: PrecinctId
+): CandidateId[] {
+  if ((contestsUsingPrecinctRotation[election.id] ?? []).includes(contest.id)) {
+    return rotateCandidatesByPrecinct(contest, election, precinctId);
+  }
+  return rotateCandidatesByStatute(contest);
 }
 
 function Header({
@@ -379,11 +430,13 @@ function CandidateContest({
   contest,
   compact,
   colorTint,
+  precinctId,
 }: {
   election: Election;
   contest: CandidateContestStruct;
   compact?: boolean;
   colorTint?: ColorTint;
+  precinctId: PrecinctId;
 }) {
   const voteForText = {
     1: hmpbStrings.hmpbVoteForNotMoreThan1,
@@ -415,7 +468,7 @@ function CandidateContest({
     10: hmpbStrings.hmpb10WillBeElected,
   }[contest.seats];
 
-  const rotatedCandidateIds = rotateCandidates(contest);
+  const rotatedCandidateIds = rotateCandidates(contest, election, precinctId);
 
   return (
     <Box
@@ -655,11 +708,13 @@ function Contest({
   contest,
   election,
   colorTint,
+  precinctId,
 }: {
   compact?: boolean;
   contest: AnyContest;
   election: Election;
   colorTint?: ColorTint;
+  precinctId: PrecinctId;
 }) {
   switch (contest.type) {
     case 'candidate':
@@ -669,6 +724,7 @@ function Contest({
           election={election}
           contest={contest}
           colorTint={colorTint}
+          precinctId={precinctId}
         />
       );
     case 'yesno':
@@ -797,6 +853,7 @@ async function BallotPageContent(
         contest={contest}
         election={election}
         colorTint={props.colorTint}
+        precinctId={props.precinctId}
       />
     ));
     const numColumns = section[0].type === 'candidate' ? 3 : 1;
@@ -873,7 +930,12 @@ async function BallotPageContent(
       const { firstContestElement, restContest } =
         await splitLongBallotMeasureAcrossPages(
           tooLongContest,
-          { election, compact, colorTint: props.colorTint },
+          {
+            election,
+            compact,
+            colorTint: props.colorTint,
+            precinctId: props.precinctId,
+          },
           ballotStyle,
           dimensions,
           scratchpad
