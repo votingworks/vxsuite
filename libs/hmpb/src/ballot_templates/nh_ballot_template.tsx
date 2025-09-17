@@ -157,11 +157,15 @@ export function rotateCandidatesByPrecinct(
     allPrecinctsWithContest.findIndex(
       (precinct) => precinct.id === precinctId
     ) % contest.candidates.length;
+  // First, rotate by statute
+  const candidatesRotatedByStatute = rotateCandidatesByStatute(contest);
+  // Then, put the nth candidate first, leaving the rest in the statue-rotated order
   const rotatedCandidates = [
-    ...contest.candidates.slice(offset),
-    ...contest.candidates.slice(0, offset),
+    candidatesRotatedByStatute[offset],
+    ...candidatesRotatedByStatute.slice(0, offset),
+    ...candidatesRotatedByStatute.slice(offset + 1),
   ];
-  return rotatedCandidates.map((c) => c.id);
+  return rotatedCandidates;
 }
 
 // Special case for some specific contests in the November 2025 election that
@@ -171,6 +175,7 @@ export function rotateCandidatesByPrecinct(
 const contestsUsingPrecinctRotation: Record<ElectionId, ContestId[]> = {
   '5p1op86c38fe': [
     'brxyaolp9hvi',
+    '3vqx3zkl5dhi',
     '14nvftrtp8cl',
     'exgu2lnf1g1i',
     'fpkjxj4ow10w',

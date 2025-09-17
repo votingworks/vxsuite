@@ -212,39 +212,38 @@ test('rotateCandidatesByPrecinct rotates based on index of precinct within ballo
     candidates: [
       {
         id: '1',
-        name: 'Jane Adams',
+        name: 'Martha Jones',
       },
       {
         id: '2',
-        name: 'John Curtis',
+        name: 'John Zorro',
       },
       {
         id: '3',
-        name: 'Bruce Brown',
+        name: 'Larry Smith',
       },
     ],
   };
   const [precinct1, precinct2, precinct3, precinct4] = election.precincts;
 
   expect(rotateCandidatesByPrecinct(contest, election, precinct1.id)).toEqual([
-    '1', // Jane Adams
-    '2', // John Curtis
-    '3', // Bruce Brown
+    '1', // Martha Jones
+    '3', // Larry Smith
+    '2', // John Zorro
   ]);
   expect(rotateCandidatesByPrecinct(contest, election, precinct2.id)).toEqual([
-    '2', // John Curtis
-    '3', // Bruce Brown
-    '1', // Jane Adams
+    '3', // Larry Smith
+    '1', // Martha Jones
+    '2', // John Zorro
   ]);
-
   expect(rotateCandidatesByPrecinct(contest, election, precinct3.id)).toEqual([
-    '3', // Bruce Brown
-    '1', // Jane Adams
-    '2', // John Curtis
+    '2', // John Zorro
+    '1', // Martha Jones
+    '3', // Larry Smith
   ]);
   expect(rotateCandidatesByPrecinct(contest, election, precinct4.id)).toEqual([
-    '1', // Jane Adams
-    '2', // John Curtis
-    '3', // Bruce Brown
+    '1', // Martha Jones
+    '3', // Larry Smith
+    '2', // John Zorro
   ]);
 });
