@@ -34,6 +34,8 @@ import {
 } from '@votingworks/types';
 import { QrCode } from '@votingworks/ui';
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
+import { tmpNameSync } from 'tmp';
+import { readFile, rm, writeFile } from 'node:fs/promises';
 import {
   DocumentElement,
   RenderDocument,
@@ -614,11 +616,13 @@ export async function layOutBallotsAndCreateElectionDefinition<
       );
       const ballotContent = await document.getContent();
       document.cleanup();
+      const tmpFileName = tmpNameSync();
+      await writeFile(tmpFileName, ballotContent);
       console.log(`Layed out ballot ${i}/${ballotProps.length}`);
       return {
         props,
         gridLayout,
-        ballotContent,
+        ballotContent: tmpFileName,
       };
     })
     .toArray();
@@ -740,7 +744,10 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
     .zip(ballotContents)
     .async()
     .map(async ([props, ballotContent], i) => {
-      const document = await renderer.loadDocumentFromContent(ballotContent);
+      const document = await renderer.loadDocumentFromContent(
+        await readFile(ballotContent, 'utf-8')
+      );
+      void rm(ballotContent);
       const ballotPdf = await renderBallotPdfWithMetadataQrCode(
         props,
         document,
