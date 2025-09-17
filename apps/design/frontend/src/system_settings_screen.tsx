@@ -562,10 +562,10 @@ export function SystemSettingsForm({
                     });
                   }}
                   options={[
-                    { label: 'Full Ballot Prints', value: 'full_ballot' },
+                    { label: 'Full Ballot Prints', value: 'bubble_ballot' },
                     {
                       label: 'Marks on Preprinted Ballots',
-                      value: 'bubble_marks',
+                      value: 'marks_on_preprinted_ballot',
                     },
                     { label: 'QR Code Summary Ballots', value: 'summary' },
                   ]}

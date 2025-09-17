@@ -117,11 +117,15 @@ export interface SystemSettings {
   readonly bmdPrintMode?: BmdPrintMode;
 }
 
-const PRINT_MODES = ['bubble_marks', 'full_ballot', 'summary'] as const;
+const PRINT_MODES = [
+  'bubble_ballot',
+  'marks_on_preprinted_ballot',
+  'summary',
+] as const;
 
 /**
- * - `bubble_marks`: Bubble marks only, printed on preprinted HMPB sheets.
- * - `full_ballot`: Full HMPBs, printed on blank sheets, with votes marked.
+ * - `bubble_ballot`: Full HMPBs, printed on blank sheets, with votes marked.
+ * - `marks_on_preprinted_ballot`: Bubble marks only, on preprinted HMPB sheets.
  * - `summary`: Summary ballot, printed on blank sheets, with QR-encoded votes.
  */
 export type BmdPrintMode = (typeof PRINT_MODES)[number];

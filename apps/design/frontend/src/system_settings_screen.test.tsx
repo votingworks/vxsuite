@@ -609,7 +609,7 @@ describe('BMD print mode', () => {
 
     const mockSettingsInitial: SystemSettings = {
       ...electionRecord.systemSettings,
-      bmdPrintMode: 'bubble_marks',
+      bmdPrintMode: 'marks_on_preprinted_ballot',
     };
 
     apiMock.getSystemSettings
@@ -633,7 +633,7 @@ describe('BMD print mode', () => {
 
     const mockSettingsFinal: SystemSettings = {
       ...mockSettingsInitial,
-      bmdPrintMode: 'full_ballot',
+      bmdPrintMode: 'bubble_ballot',
     };
     apiMock.updateSystemSettings
       .expectCallWith({ electionId, systemSettings: mockSettingsFinal })
@@ -650,7 +650,7 @@ describe('BMD print mode', () => {
 
     const mockSettingsInitial: SystemSettings = {
       ...electionRecord.systemSettings,
-      bmdPrintMode: 'full_ballot',
+      bmdPrintMode: 'bubble_ballot',
     };
 
     apiMock.getSystemSettings
