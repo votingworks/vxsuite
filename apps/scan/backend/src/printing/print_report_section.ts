@@ -34,15 +34,15 @@ import { rootDebug } from '../util/debug';
 
 const debug = rootDebug.extend('print-report-section');
 
-interface TallyReportPartySection {
+interface TallyReportSectionSpec {
   partyId?: PartyId;
   contests: Contests;
 }
 
-function getPartySectionsForTallyReport(
+function getTallyReportSectionSpecs(
   election: Election,
   contests: Contests
-): TallyReportPartySection[] {
+): TallyReportSectionSpec[] {
   const partyIds = getPartyIdsWithContests(election);
   return partyIds.map((partyId) => {
     const sectionContests = partyId
@@ -54,7 +54,7 @@ function getPartySectionsForTallyReport(
 
 async function getReportSection(
   store: Store,
-  index: number
+  reportSectionIndex: number
 ): Promise<JSX.Element> {
   const { electionDefinition, electionPackageHash } = assertDefined(
     store.getElectionRecord()
@@ -111,7 +111,9 @@ async function getReportSection(
   );
 
   const { partyId, contests: reportSectionContests } =
-    getPartySectionsForTallyReport(election, fullReportContests)[index];
+    getTallyReportSectionSpecs(election, fullReportContests)[
+      reportSectionIndex
+    ];
 
   const scannedElectionResults = partyId
     ? scannerResultsByParty.find((results) => results.partyId === partyId) ||
