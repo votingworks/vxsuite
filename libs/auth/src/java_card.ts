@@ -1,7 +1,9 @@
 import { sha256 } from 'js-sha256';
 import { Buffer } from 'node:buffer';
+import crypto from 'node:crypto';
 import { existsSync } from 'node:fs';
 import * as fs from 'node:fs/promises';
+import os from 'node:os';
 import * as path from 'node:path';
 import readline from 'node:readline/promises';
 import { v4 as uuid } from 'uuid';
@@ -156,6 +158,66 @@ export const GENERIC_STORAGE_SPACE = {
   ],
 } as const;
 
+interface RemoteCardCertOptions {
+  randomId?: string;
+  workingDirectory?: string;
+}
+
+async function remotelyCreateCardCert(
+  publicKey: Buffer,
+  /** A comment to add to the public key PEM file */
+  publicKeyComment?: string,
+  optionsOverride?: RemoteCardCertOptions
+): Promise<Buffer> {
+  const randomId =
+    optionsOverride?.randomId ??
+    /* istanbul ignore next - @preserve */ crypto
+      .randomBytes(3)
+      .toString('hex');
+  const workingDirectory =
+    optionsOverride?.workingDirectory ??
+    /* istanbul ignore next - @preserve */ os.homedir();
+
+  const publicKeyPath = path.join(
+    workingDirectory,
+    `public-key-${randomId}.pem`
+  );
+  const certPath = path.join(workingDirectory, `cert-${randomId}.pem`);
+
+  if (publicKeyComment) {
+    assert(
+      publicKeyComment.startsWith('# ') &&
+        !publicKeyComment.includes('\n') &&
+        !publicKeyComment.includes('\r'),
+      'Public key comment must start with # and contain only one line'
+    );
+    await fs.writeFile(publicKeyPath, `${publicKeyComment}\n`);
+    await fs.appendFile(publicKeyPath, publicKey);
+  } else {
+    await fs.writeFile(publicKeyPath, publicKey);
+  }
+
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+  await rl.question(`A card-specific public key has been written to ${publicKeyPath}.
+Share this file with someone who has the appropriate signing key.
+They will return to you a ${path.basename(certPath)} file.
+Place that file in ${workingDirectory} and press enter. `);
+  while (!existsSync(certPath)) {
+    await rl.question(
+      `No ${certPath} file found. Make sure that it exists and press enter to try again. `
+    );
+  }
+  rl.close();
+
+  const cert = await fs.readFile(certPath);
+  await fs.rm(publicKeyPath);
+  await fs.rm(certPath);
+  return cert;
+}
+
 /**
  * An implementation of the card API that uses a Java Card running our fork of the OpenFIPS201
  * applet (https://github.com/votingworks/openfips201) and X.509 certs. The implementation takes
@@ -284,7 +346,8 @@ export class JavaCard implements Card {
       | { user: VendorUser; pin: string }
       | { user: SystemAdministratorUser; pin: string }
       | { user: ElectionManagerUser; pin: string }
-      | { user: PollWorkerUser; pin?: string }
+      | { user: PollWorkerUser; pin?: string },
+    remoteCardCertOptions?: RemoteCardCertOptions
   ): Promise<void> {
     assert(
       this.cardProgrammingConfig !== undefined,
@@ -344,18 +407,29 @@ export class JavaCard implements Card {
       certSubject: constructCardCertSubject(cardDetails),
     };
 
+    let cardIdentityCert: Buffer;
     if (user.role === 'vendor') {
       assert(this.cardProgrammingConfig.configType === 'vx');
       const { vxPrivateKey } = this.cardProgrammingConfig;
-      assert(vxPrivateKey.source === 'file');
+      assert(
+        vxPrivateKey.source === 'file' || vxPrivateKey.source === 'remote'
+      );
 
       // Store card identity cert
-      const cardIdentityCert = await createCert({
-        ...createCertInputBase,
-        expiryInDays: CERT_EXPIRY_IN_DAYS.VENDOR_CARD_IDENTITY_CERT,
-        signingCertAuthorityCertPath: this.vxCertAuthorityCertPath,
-        signingPrivateKey: vxPrivateKey,
-      });
+      if (vxPrivateKey.source === 'remote') {
+        cardIdentityCert = await remotelyCreateCardCert(
+          publicKey,
+          `# Jurisdiction: ${user.jurisdiction}`,
+          remoteCardCertOptions
+        );
+      } else {
+        cardIdentityCert = await createCert({
+          ...createCertInputBase,
+          expiryInDays: CERT_EXPIRY_IN_DAYS.VENDOR_CARD_IDENTITY_CERT,
+          signingCertAuthorityCertPath: this.vxCertAuthorityCertPath,
+          signingPrivateKey: vxPrivateKey,
+        });
+      }
       await this.storeCert(CARD_IDENTITY_CERT.OBJECT_ID, cardIdentityCert);
     } else {
       assert(this.cardProgrammingConfig.configType === 'machine');
@@ -363,7 +437,7 @@ export class JavaCard implements Card {
         this.cardProgrammingConfig;
 
       // Store card identity cert
-      const cardIdentityCert = await createCert({
+      cardIdentityCert = await createCert({
         ...createCertInputBase,
         expiryInDays:
           user.role === 'system_administrator'
@@ -896,53 +970,29 @@ export class JavaCard implements Card {
    * Creates and stores the card's VotingWorks-issued cert. Used by the initial card configuration
    * script.
    */
-  async createAndStoreCardVxCert(remoteCertParams?: {
-    randomId: string;
-    workingDirectory: string;
-  }): Promise<void> {
+  async createAndStoreCardVxCert(
+    remoteCardCertOptions?: RemoteCardCertOptions
+  ): Promise<void> {
     assert(this.cardProgrammingConfig !== undefined);
     assert(this.cardProgrammingConfig.configType === 'vx');
     await this.selectApplet();
 
-    const certPublicKey = (
-      await this.generateAsymmetricKeyPair(CARD_VX_CERT.PRIVATE_KEY_ID)
-    ).toString('utf-8');
+    const certPublicKey = await this.generateAsymmetricKeyPair(
+      CARD_VX_CERT.PRIVATE_KEY_ID
+    );
 
     let cert: Buffer;
     if (this.cardProgrammingConfig.vxPrivateKey.source === 'remote') {
-      assert(remoteCertParams !== undefined);
-      const { randomId, workingDirectory } = remoteCertParams;
-      const certPublicKeyPath = path.join(
-        workingDirectory,
-        `public-key-${randomId}.pem`
+      cert = await remotelyCreateCardCert(
+        certPublicKey,
+        undefined,
+        remoteCardCertOptions
       );
-      const certPath = path.join(workingDirectory, `cert-${randomId}.pem`);
-
-      await fs.writeFile(certPublicKeyPath, certPublicKey);
-
-      const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout,
-      });
-      await rl.question(`A card-specific public key has been written to ${certPublicKeyPath}.
-Share this file with someone who has the appropriate signing key.
-They will return to you a ${path.basename(certPath)} file.
-Place that file in ${workingDirectory} and press enter. `);
-      while (!existsSync(certPath)) {
-        await rl.question(
-          `No ${certPath} file found. Make sure that it exists and press enter to try again. `
-        );
-      }
-      rl.close();
-
-      cert = await fs.readFile(certPath);
-      await fs.rm(certPublicKeyPath);
-      await fs.rm(certPath);
     } else {
       cert = await createCert({
         certKeyInput: {
           type: 'public',
-          key: { source: 'inline', content: certPublicKey },
+          key: { source: 'inline', content: certPublicKey.toString('utf-8') },
         },
         certSubject: constructCardCertSubjectWithoutJurisdictionAndCardType(),
         expiryInDays: CERT_EXPIRY_IN_DAYS.CARD_VX_CERT,
