@@ -38,6 +38,18 @@ test('add and get diagnostic records', () => {
     outcome: 'fail',
     timestamp: 3,
   });
+
+  // Check that we're retrieving the latest record using the monotonically increasing ID rather
+  // than the timestamp to ensure that we're pulling by real world time rather than system time,
+  // which can be toggled into the future and then back into the past
+  addDiagnosticRecord(client, { type: 'test-print', outcome: 'pass' }, 0);
+  expect(
+    getMostRecentDiagnosticRecord(client, 'test-print')
+  ).toEqual<DiagnosticRecord>({
+    type: 'test-print',
+    outcome: 'pass',
+    timestamp: 0,
+  });
 });
 
 test('defaults to current timestamp', () => {
