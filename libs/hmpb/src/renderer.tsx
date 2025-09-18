@@ -8,7 +8,7 @@ import { PAGE_CLASS } from './ballot_components';
 
 export type Page = Pick<
   PlaywrightPage,
-  'evaluate' | 'close' | 'pdf' | 'content'
+  'evaluate' | 'close' | 'pdf' | 'content' | 'setContent' | 'isClosed'
 >;
 
 export interface DocumentElement {
@@ -24,7 +24,7 @@ export interface DocumentElement {
  * Creates a {@link RenderDocument}
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function createDocument(page: Page, cleanup: () => void) {
+export function createDocument(page: Page) {
   return {
     /**
      * Given a selector to an individual element in the document, replaces the
@@ -136,10 +136,11 @@ export function createDocument(page: Page, cleanup: () => void) {
     },
 
     /**
-     * Release resources associated with this document so they can be used by
-     * another document.
+     * Cleans up the resources used by the document (e.g. the browser page).
      */
-    cleanup,
+    async close(): Promise<void> {
+      await page.close();
+    },
   };
 }
 
@@ -185,8 +186,6 @@ export type RenderScratchpad = ReturnType<typeof createScratchpad>;
  * create a {@link RenderScratchpad} (for temporary layout and measurement),
  * which can then be converted to a {@link RenderDocument} (for final rendering to
  * PDF).
- *
- * Renderers should be cleaned up after use with {@link Renderer.close}.
  */
 export interface Renderer {
   /**
@@ -195,12 +194,25 @@ export interface Renderer {
   createScratchpad(styles: JSX.Element): Promise<RenderScratchpad>;
 
   /**
-   * Cleans up the resources used by the renderer (e.g. the browser instance).
-   */
-  close(): Promise<void>;
-
-  /**
    * Takes HTML content and returns a {@link RenderDocument} with that content rendered.
    */
   loadDocumentFromContent(htmlContent: string): Promise<RenderDocument>;
+}
+
+/**
+ * Renderers should be cleaned up after use with {@link Renderer.close}.
+ */
+export interface SingletonRenderer extends Renderer {
+  /**
+   * Cleans up the resources used by the renderer (e.g. the browser instance).
+   */
+  close(): Promise<void>;
+}
+
+export type Task<T> = (renderer: Renderer) => Promise<T>;
+
+export interface RendererPool {
+  runTasks<T>(tasks: Array<Task<T>>): AsyncGenerator<T>;
+  runTask<T>(task: Task<T>): Promise<T>;
+  close(): Promise<void>;
 }

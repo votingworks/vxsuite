@@ -4494,6 +4494,9 @@ importers:
       styled-components:
         specifier: ^5.3.11
         version: 5.3.11(react-dom@18.3.1)(react-is@18.2.0)(react@18.3.1)
+      tiny-async-pool:
+        specifier: ^2.1.0
+        version: 2.1.0
       tmp:
         specifier: ^0.2.1
         version: 0.2.1
@@ -4519,6 +4522,9 @@ importers:
       '@types/styled-components':
         specifier: ^5.1.26
         version: 5.1.26
+      '@types/tiny-async-pool':
+        specifier: ^2.0.3
+        version: 2.0.3
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
@@ -14515,6 +14521,10 @@ packages:
     resolution: {integrity: sha512-jfo/A88XIiAweUa8np+1mPbm3h2w0s425YrI8t3wk5QxhH6UI7w517MboNVnGDeMSuoFwA8Rwmklno+FicvV4g==}
     dev: true
 
+  /@types/tiny-async-pool@2.0.3:
+    resolution: {integrity: sha512-n3l1s538tKo9RBoHs4I3DG/VmD3VYhF5mHcgu1sU4Lq7JCNBtxnpBy3OkWSbZsp5r5QOuplh2UkXXXwufoAuNQ==}
+    dev: true
+
   /@types/tmp@0.2.4:
     resolution: {integrity: sha512-Vq3rwM+2KgiLacq68EjTJD9cuJ/ne5pXntWn8B8Rxj25SLkGAhCgooCZ1lhcIcV5OFveJ+s5Cqpi+XKfFM/xZA==}
 
@@ -14949,7 +14959,7 @@ packages:
       magicast: 0.3.5
       test-exclude: 7.0.1
       tinyrainbow: 2.0.0
-      vitest: 3.1.1(@types/debug@4.1.8)
+      vitest: 3.1.1(@types/debug@4.1.8)(@types/node@20.17.31)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -20205,7 +20215,7 @@ packages:
       jest-util: 29.7.0
       natural-compare: 1.4.0
       pretty-format: 29.7.0
-      semver: 7.6.3
+      semver: 7.7.2
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -24493,6 +24503,10 @@ packages:
 
   /through@2.3.8:
     resolution: {integrity: sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg==}
+
+  /tiny-async-pool@2.1.0:
+    resolution: {integrity: sha512-ltAHPh/9k0STRQqaoUX52NH4ZQYAJz24ZAEwf1Zm+HYg3l9OXTWeqWKyYsHu40wF/F0rxd2N2bk5sLvX2qlSvg==}
+    dev: false
 
   /tiny-inflate@1.0.3:
     resolution: {integrity: sha512-pkY1fj1cKHb2seWDy0B16HeWyczlJA9/WW3u3c4z/NiWDsO3DOU5D7nhTLE9CF0yXv/QZFY7sEJmj24dK+Rrqw==}
