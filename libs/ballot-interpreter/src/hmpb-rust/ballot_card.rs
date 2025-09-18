@@ -3,60 +3,20 @@ use std::{cmp::Ordering, io, ops::Range};
 use image::GrayImage;
 use imageproc::contrast::{otsu_level, threshold};
 use serde::Serialize;
-use types_rs::geometry::PixelUnit;
-
-pub use types_rs::ballot_card::*;
 
 use crate::image_utils::{bleed, Inset, BLACK};
 
-use types_rs::geometry::{GridUnit, Inch, PixelPosition, Rect, Size, SubPixelUnit};
-
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
-pub enum BallotPaperSize {
-    #[serde(rename = "letter")]
-    Letter,
-    #[serde(rename = "legal")]
-    Legal,
-    #[serde(rename = "custom-8.5x17")]
-    Custom17,
-    #[serde(rename = "custom-8.5x19")]
-    Custom19,
-    #[serde(rename = "custom-8.5x22")]
-    Custom22,
-}
-
-impl BallotPaperSize {
-    pub const fn dimensions(self) -> Size<Inch> {
-        match self {
-            BallotPaperSize::Letter => Size {
-                width: Inch::new(8.5),
-                height: Inch::new(11.0),
-            },
-            BallotPaperSize::Legal => Size {
-                width: Inch::new(8.5),
-                height: Inch::new(14.0),
-            },
-            BallotPaperSize::Custom17 => Size {
-                width: Inch::new(8.5),
-                height: Inch::new(17.0),
-            },
-            BallotPaperSize::Custom19 => Size {
-                width: Inch::new(8.5),
-                height: Inch::new(19.0),
-            },
-            BallotPaperSize::Custom22 => Size {
-                width: Inch::new(8.5),
-                height: Inch::new(22.0),
-            },
-        }
-    }
-}
+use types_rs::{
+    ballot_card::PaperSize,
+    geometry::{GridUnit, Inch, PixelPosition, PixelUnit, Rect, Size, SubPixelUnit},
+};
 
 pub struct BallotImage {
     pub image: GrayImage,
     pub threshold: u8,
     pub border_inset: Inset,
 }
+
 pub struct BallotPage {
     pub ballot_image: BallotImage,
     pub geometry: Geometry,
@@ -84,7 +44,7 @@ pub enum Orientation {
 #[serde(rename_all = "camelCase")]
 #[must_use]
 pub struct Geometry {
-    pub ballot_paper_size: BallotPaperSize,
+    pub ballot_paper_size: PaperSize,
     pub pixels_per_inch: PixelUnit,
     pub canvas_size: Size<Inch>,
     pub content_area: Rect,
@@ -175,7 +135,7 @@ const TIMING_MARK_SIZE: Size<Inch> = Size {
 #[derive(Debug, Copy, Clone, PartialEq)]
 #[must_use]
 pub struct PaperInfo {
-    pub size: BallotPaperSize,
+    pub size: PaperSize,
     pub margins: Inset<Inch>,
     pub pixels_per_inch: PixelUnit,
 }
@@ -184,7 +144,7 @@ impl PaperInfo {
     /// Returns info for a letter-sized scanned ballot card.
     pub const fn scanned_letter() -> Self {
         Self {
-            size: BallotPaperSize::Letter,
+            size: PaperSize::Letter,
             margins: BALLOT_CARD_SCAN_MARGINS,
             pixels_per_inch: SCAN_PIXELS_PER_INCH,
         }
@@ -193,7 +153,7 @@ impl PaperInfo {
     /// Returns info for a legal-sized scanned ballot card.
     pub const fn scanned_legal() -> Self {
         Self {
-            size: BallotPaperSize::Legal,
+            size: PaperSize::Legal,
             margins: BALLOT_CARD_SCAN_MARGINS,
             pixels_per_inch: SCAN_PIXELS_PER_INCH,
         }
@@ -201,7 +161,7 @@ impl PaperInfo {
 
     pub const fn scanned_custom17() -> Self {
         Self {
-            size: BallotPaperSize::Custom17,
+            size: PaperSize::Custom17,
             margins: BALLOT_CARD_SCAN_MARGINS,
             pixels_per_inch: SCAN_PIXELS_PER_INCH,
         }
@@ -209,7 +169,7 @@ impl PaperInfo {
 
     pub const fn scanned_custom19() -> Self {
         Self {
-            size: BallotPaperSize::Custom19,
+            size: PaperSize::Custom19,
             margins: BALLOT_CARD_SCAN_MARGINS,
             pixels_per_inch: SCAN_PIXELS_PER_INCH,
         }
@@ -217,7 +177,7 @@ impl PaperInfo {
 
     pub const fn scanned_custom22() -> Self {
         Self {
-            size: BallotPaperSize::Custom22,
+            size: PaperSize::Custom22,
             margins: BALLOT_CARD_SCAN_MARGINS,
             pixels_per_inch: SCAN_PIXELS_PER_INCH,
         }

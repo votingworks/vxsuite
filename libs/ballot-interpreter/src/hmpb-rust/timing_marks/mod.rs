@@ -3,8 +3,11 @@ use std::str::FromStr;
 use image::{imageops::rotate180, GrayImage};
 use itertools::Itertools;
 use serde::Serialize;
-use types_rs::geometry::{
-    GridUnit, PixelPosition, PixelUnit, Point, Rect, Segment, Size, SubGridUnit, SubPixelUnit,
+use types_rs::{
+    geometry::{
+        GridUnit, PixelPosition, PixelUnit, Point, Rect, Segment, Size, SubGridUnit, SubPixelUnit,
+    },
+    hmpb,
 };
 
 use crate::scoring::UnitIntervalScore;
@@ -12,7 +15,6 @@ use crate::timing_marks::scoring::CandidateTimingMark;
 use crate::{
     ballot_card::{Geometry, Orientation},
     debug::{draw_timing_mark_debug_image_mut, ImageDebugWriter},
-    metadata::hmpb,
 };
 
 pub mod contours;

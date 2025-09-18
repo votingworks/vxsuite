@@ -4,6 +4,7 @@ use std::ops::Add;
 use image::{GenericImageView, GrayImage};
 use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 use serde::Serialize;
+use types_rs::ballot_card::BallotSide;
 use types_rs::election::{GridLayout, GridLocation, GridPosition, UnitIntervalValue};
 use types_rs::geometry::{
     PixelPosition, PixelUnit, Point, Quadrilateral, Rect, SubGridUnit, SubPixelUnit,
@@ -12,7 +13,6 @@ use types_rs::geometry::{
 use crate::image_utils::{count_pixels, count_pixels_in_shape};
 use crate::timing_marks::TimingMarks;
 use crate::{
-    ballot_card::BallotSide,
     debug,
     image_utils::{diff, BLACK, WHITE},
 };

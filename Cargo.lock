@@ -255,7 +255,6 @@ dependencies = [
  "clap",
  "color-eyre",
  "divan",
- "hex",
  "image",
  "imageproc",
  "itertools",
@@ -268,7 +267,6 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_with",
- "static_assertions",
  "tempfile",
  "thiserror",
  "types-rs",
@@ -3188,9 +3186,13 @@ checksum = "42ff0bf0c66b8238c6f3b578df37d0b7848e55df8577b3f74f92a69acceeb825"
 name = "types-rs"
 version = "0.1.0"
 dependencies = [
+ "bitstream-io 4.0.0",
+ "hex",
  "proptest",
  "serde",
  "serde_json",
+ "static_assertions",
+ "thiserror",
 ]
 
 [[package]]

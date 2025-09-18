@@ -1,9 +1,9 @@
 use itertools::Itertools;
 use serde::Serialize;
+use types_rs::ballot_card::BallotSide;
 use types_rs::election::{ContestId, GridLayout, GridLocation, GridPosition, OptionId};
 use types_rs::geometry::{Point, Rect, SubGridUnit};
 
-use crate::ballot_card::BallotSide;
 use crate::debug;
 use crate::timing_marks::TimingMarks;
 

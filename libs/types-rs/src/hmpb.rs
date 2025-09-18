@@ -1,42 +1,14 @@
 use bitstream_io::read::{FromBitStream, FromBitStreamWith};
 use serde::Serialize;
-use types_rs::election::{BallotStyleId, Election, PrecinctId};
 
-use super::{
+use crate::{
+    ballot_card::{
+        BallotAuditIdLength, BallotStyleIndex, BallotType, PageNumber, ParseBallotTypeError,
+        PrecinctIndex,
+    },
     coding,
-    types::{BallotAuditIdLength, BallotStyleIndex, PageNumber, PrecinctIndex},
+    election::{BallotStyleId, Election, PrecinctId},
 };
-
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
-pub enum BallotType {
-    #[serde(rename = "precinct")]
-    Precinct,
-    #[serde(rename = "absentee")]
-    Absentee,
-    #[serde(rename = "provisional")]
-    Provisional,
-}
-
-impl BallotType {
-    const MAX: u32 = 2_u32.pow(4) - 1;
-    const BITS: u32 = coding::bit_size(Self::MAX as u64);
-}
-
-impl FromBitStream for BallotType {
-    type Error = Error;
-
-    fn from_reader<R: bitstream_io::BitRead + ?Sized>(r: &mut R) -> Result<Self, Self::Error>
-    where
-        Self: Sized,
-    {
-        match r.read_var::<u8>(BallotType::BITS)? {
-            0 => Ok(BallotType::Precinct),
-            1 => Ok(BallotType::Absentee),
-            2 => Ok(BallotType::Provisional),
-            t => Err(Error::InvalidBallotType(t)),
-        }
-    }
-}
 
 #[derive(Debug, Serialize, PartialEq, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -58,7 +30,7 @@ pub enum Error {
     InvalidPrelude([u8; 3]),
 
     #[error("Invalid ballot type: {0}")]
-    InvalidBallotType(u8),
+    InvalidBallotType(#[from] ParseBallotTypeError),
 
     #[error("Invalid precinct index: {index} (count: {count})")]
     InvalidPrecinctIndex { index: usize, count: usize },
@@ -178,13 +150,16 @@ mod test {
         strategy::{Just, Strategy},
     };
 
-    use super::super::types::tests::arbitrary_page_number;
     use super::*;
+
+    fn arbitrary_page_number() -> impl Strategy<Value = PageNumber> {
+        (PageNumber::MIN_VALUE..=PageNumber::MAX_VALUE).prop_map(PageNumber::new_unchecked)
+    }
 
     #[test]
     fn test_decode_metadata_bits() {
-        let fixture_path =
-            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures/alameda-test");
+        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../ballot-interpreter/test/fixtures/alameda-test");
         let election_path = fixture_path.join("election.json");
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
@@ -243,8 +218,8 @@ mod test {
 
     #[test]
     fn test_error_empty_data() {
-        let fixture_path =
-            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures/alameda-test");
+        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../ballot-interpreter/test/fixtures/alameda-test");
         let election_path = fixture_path.join("election.json");
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
@@ -259,8 +234,8 @@ mod test {
 
     #[test]
     fn test_error_invalid_prelude() {
-        let fixture_path =
-            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures/alameda-test");
+        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../ballot-interpreter/test/fixtures/alameda-test");
         let election_path = fixture_path.join("election.json");
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
@@ -275,8 +250,8 @@ mod test {
 
     #[test]
     fn test_error_invalid_precinct_index() {
-        let fixture_path =
-            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures/alameda-test");
+        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../ballot-interpreter/test/fixtures/alameda-test");
         let election_path = fixture_path.join("election.json");
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
@@ -326,8 +301,8 @@ mod test {
 
     #[test]
     fn test_error_invalid_ballot_style_index() {
-        let fixture_path =
-            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures/alameda-test");
+        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../ballot-interpreter/test/fixtures/alameda-test");
         let election_path = fixture_path.join("election.json");
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
@@ -379,8 +354,8 @@ mod test {
 
     #[test]
     fn test_error_invalid_ballot_type() {
-        let fixture_path =
-            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures/alameda-test");
+        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../ballot-interpreter/test/fixtures/alameda-test");
         let election_path = fixture_path.join("election.json");
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
@@ -419,15 +394,20 @@ mod test {
 
         // TODO: use `assert_matches!` once that API is stable.
         assert!(
-            matches!(result, Err(Error::InvalidBallotType(0b1111))),
+            matches!(
+                result,
+                Err(Error::InvalidBallotType(
+                    ParseBallotTypeError::InvalidNumericValue(0b1111)
+                ))
+            ),
             "Result is wrong: {result:?}"
         );
     }
 
     #[test]
     fn test_error_invalid_page_number() {
-        let fixture_path =
-            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures/alameda-test");
+        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../ballot-interpreter/test/fixtures/alameda-test");
         let election_path = fixture_path.join("election.json");
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
@@ -470,8 +450,8 @@ mod test {
 
     #[test]
     fn test_error_invalid_ballot_audit_id() {
-        let fixture_path =
-            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures/alameda-test");
+        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../ballot-interpreter/test/fixtures/alameda-test");
         let election_path = fixture_path.join("election.json");
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
