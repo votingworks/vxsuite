@@ -233,8 +233,8 @@ test('rotateCandidatesByPrecinct rotates based on index of precinct within ballo
   ]);
   expect(rotateCandidatesByPrecinct(contest, election, precinct2.id)).toEqual([
     '3', // Larry Smith
-    '1', // Martha Jones
     '2', // John Zorro
+    '1', // Martha Jones
   ]);
   expect(rotateCandidatesByPrecinct(contest, election, precinct3.id)).toEqual([
     '2', // John Zorro

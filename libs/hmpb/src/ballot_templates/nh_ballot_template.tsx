@@ -159,11 +159,10 @@ export function rotateCandidatesByPrecinct(
     ) % contest.candidates.length;
   // First, rotate by statute
   const candidatesRotatedByStatute = rotateCandidatesByStatute(contest);
-  // Then, put the nth candidate first, leaving the rest in the statue-rotated order
+  // Then rotate by precinct offset
   const rotatedCandidates = [
-    candidatesRotatedByStatute[offset],
+    ...candidatesRotatedByStatute.slice(offset),
     ...candidatesRotatedByStatute.slice(0, offset),
-    ...candidatesRotatedByStatute.slice(offset + 1),
   ];
   return rotatedCandidates;
 }
