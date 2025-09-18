@@ -898,7 +898,7 @@ test.each<{
       '/1.3.6.1.4.1.59817.1=card' +
       `/1.3.6.1.4.1.59817.2=${TEST_JURISDICTION}` +
       '/1.3.6.1.4.1.59817.3=vendor/',
-    expectedExpiryInDays: 7,
+    expectedExpiryInDays: 60,
     expectedSigningCertAuthorityCertPath: getTestFilePath({
       fileType: 'vx-cert-authority-cert.pem',
     }),
@@ -1417,6 +1417,85 @@ test('createAndStoreCardVxCert with remote key', async () => {
   });
 
   await javaCard.createAndStoreCardVxCert({ randomId, workingDirectory });
+
+  expect(mockQuestion).toHaveBeenCalledTimes(2);
+  expect(mockQuestion).toHaveBeenNthCalledWith(
+    1,
+    `A card-specific public key has been written to ${certPublicKeyPath}.
+Share this file with someone who has the appropriate signing key.
+They will return to you a ${path.basename(certPath)} file.
+Place that file in ${workingDirectory} and press enter. `
+  );
+  expect(mockQuestion).toHaveBeenNthCalledWith(
+    2,
+    `No ${certPath} file found. Make sure that it exists and press enter to try again. `
+  );
+});
+
+test('Programming vendor card with remote key', async () => {
+  const javaCard = new JavaCard(configWithVxCardProgrammingConfigAndRemoteKey);
+
+  const pin = '123456';
+  mockCardAppletSelectionRequest();
+  mockCardCertRetrievalRequest(
+    CARD_VX_CERT.OBJECT_ID,
+    getTestFilePath({
+      fileType: 'card-vx-cert.der',
+      cardType: 'vendor',
+    })
+  );
+  await mockCardSignatureRequest(
+    CARD_VX_CERT.PRIVATE_KEY_ID,
+    getTestFilePath({
+      fileType: 'card-vx-private-key.pem',
+      cardType: 'vendor',
+    })
+  );
+  mockCardPinResetRequest(pin);
+  mockCardPinVerificationRequest(pin);
+  mockCardKeyPairGenerationRequest(
+    CARD_IDENTITY_CERT.PRIVATE_KEY_ID,
+    getTestFilePath({
+      fileType: 'card-identity-public-key.der',
+      cardType: 'vendor',
+    })
+  );
+  const cardIdentityCertPath = getTestFilePath({
+    fileType: 'card-identity-cert.der',
+    cardType: 'vendor',
+  });
+  vi.mocked(createCert).mockImplementationOnce(() =>
+    certDerToPem(fs.readFileSync(cardIdentityCertPath))
+  );
+  mockCardCertStorageRequest(
+    CARD_IDENTITY_CERT.OBJECT_ID,
+    cardIdentityCertPath
+  );
+
+  const randomId = '123456';
+  const workingDirectory = makeTemporaryDirectory();
+  const certPublicKeyPath = `${workingDirectory}/public-key-${randomId}.pem`;
+  const certPath = `${workingDirectory}/cert-${randomId}.pem`;
+
+  const mockQuestion = vi.fn();
+  vi.mocked(createInterface).mockImplementation(() => {
+    mockQuestion.mockImplementationOnce(() => Promise.resolve(''));
+    mockQuestion.mockImplementationOnce(async () => {
+      // Only write the cert after the second prompt to simulate the no-file-found case
+      fs.writeFileSync(certPath, await certDerToPem(cardIdentityCertPath));
+      return Promise.resolve('');
+    });
+    const mockReadline: Partial<ReturnType<typeof createInterface>> = {
+      close: vi.fn(),
+      question: mockQuestion,
+    };
+    return mockReadline as ReturnType<typeof createInterface>;
+  });
+
+  await javaCard.program(
+    { user: vendorUser, pin },
+    { randomId, workingDirectory }
+  );
 
   expect(mockQuestion).toHaveBeenCalledTimes(2);
   expect(mockQuestion).toHaveBeenNthCalledWith(
