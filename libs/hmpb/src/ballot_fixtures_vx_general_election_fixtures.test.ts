@@ -4,20 +4,20 @@ import { HmpbBallotPaperSize } from '@votingworks/types';
 import { afterAll, beforeAll, expect, test, vi } from 'vitest';
 import { expectToMatchSavedPdf } from '../test/helpers';
 import { vxGeneralElectionFixtures } from './ballot_fixtures';
-import { createPlaywrightRenderer } from './playwright_renderer';
-import { Renderer } from './renderer';
+import { createPlaywrightRendererPool } from './playwright_renderer';
+import { RendererPool } from './renderer';
 
 vi.setConfig({
   testTimeout: 60_000,
 });
 
-let renderer: Renderer;
+let rendererPool: RendererPool;
 beforeAll(async () => {
-  renderer = await createPlaywrightRenderer();
+  rendererPool = await createPlaywrightRendererPool();
 });
 
 afterAll(async () => {
-  await renderer.close();
+  await rendererPool.close();
 });
 
 // run `pnpm generate-fixtures` if this test fails
@@ -29,7 +29,7 @@ test.each(Object.values(HmpbBallotPaperSize))(
       (spec) => spec.paperSize === paperSize
     );
     const allGenerated = await vxGeneralElectionFixtures.generate(
-      renderer,
+      rendererPool,
       specs
     );
     for (const [spec, generated] of iter(specs).zip(allGenerated)) {

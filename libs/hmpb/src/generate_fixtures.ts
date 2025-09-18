@@ -15,15 +15,15 @@ import {
   vxGeneralElectionFixtures,
   vxPrimaryElectionFixtures,
 } from './ballot_fixtures';
-import { createPlaywrightRenderer } from './playwright_renderer';
-import { Renderer } from './renderer';
+import { createPlaywrightRendererPool } from './playwright_renderer';
+import { Renderer, RendererPool } from './renderer';
 import { TimingMarkPaperType } from './timing_mark_paper/template';
 
 async function generateAllBubbleBallotFixtures(
   fixtures: AllBubbleBallotFixtures,
-  renderer: Renderer
+  rendererPool: RendererPool
 ) {
-  const generated = await fixtures.generate(renderer);
+  const generated = await fixtures.generate(rendererPool);
   await mkdir(fixtures.dir, { recursive: true });
   await writeFile(
     fixtures.electionPath,
@@ -34,9 +34,9 @@ async function generateAllBubbleBallotFixtures(
   await writeFile(fixtures.cyclingTestDeckPath, generated.cyclingTestDeckPdf);
 }
 
-async function generateVxFamousNamesFixtures(renderer: Renderer) {
+async function generateVxFamousNamesFixtures(rendererPool: RendererPool) {
   const fixtures = vxFamousNamesFixtures;
-  const generated = await fixtures.generate(renderer, {
+  const generated = await fixtures.generate(rendererPool, {
     generatePageImages: true,
   });
   await mkdir(fixtures.dir, { recursive: true });
@@ -60,9 +60,12 @@ async function generateVxFamousNamesFixtures(renderer: Renderer) {
   }
 }
 
-async function generateVxGeneralElectionFixtures(renderer: Renderer) {
+async function generateVxGeneralElectionFixtures(rendererPool: RendererPool) {
   const fixtures = vxGeneralElectionFixtures;
-  const allGenerated = await fixtures.generate(renderer, fixtures.fixtureSpecs);
+  const allGenerated = await fixtures.generate(
+    rendererPool,
+    fixtures.fixtureSpecs
+  );
   for (const [spec, generated] of iter(fixtures.fixtureSpecs).zip(
     allGenerated
   )) {
@@ -84,9 +87,9 @@ async function generateVxGeneralElectionFixtures(renderer: Renderer) {
   }
 }
 
-async function generateVxPrimaryElectionFixtures(renderer: Renderer) {
+async function generateVxPrimaryElectionFixtures(rendererPool: RendererPool) {
   const fixtures = vxPrimaryElectionFixtures;
-  const generated = await fixtures.generate(renderer);
+  const generated = await fixtures.generate(rendererPool);
   await mkdir(fixtures.dir, { recursive: true });
 
   for (const party of ['mammalParty', 'fishParty'] as const) {
@@ -107,9 +110,12 @@ async function generateVxPrimaryElectionFixtures(renderer: Renderer) {
   }
 }
 
-async function generateNhGeneralElectionFixtures(renderer: Renderer) {
+async function generateNhGeneralElectionFixtures(rendererPool: RendererPool) {
   const fixtures = nhGeneralElectionFixtures;
-  const allGenerated = await fixtures.generate(renderer, fixtures.fixtureSpecs);
+  const allGenerated = await fixtures.generate(
+    rendererPool,
+    fixtures.fixtureSpecs
+  );
   for (const [spec, generated] of iter(fixtures.fixtureSpecs).zip(
     allGenerated
   )) {
@@ -175,7 +181,7 @@ type Fixture =
   | 'calibration-sheet';
 
 export async function main(): Promise<number> {
-  const renderer = await createPlaywrightRenderer();
+  const rendererPool = await createPlaywrightRendererPool();
 
   const fixtures = new Set<Fixture>();
 
@@ -234,13 +240,13 @@ export async function main(): Promise<number> {
     for (const paperSize of ALL_PAPER_SIZES) {
       const abbFixtures = allBubbleBallotFixtures(paperSize);
       await rm(abbFixtures.dir, { recursive: true, force: true });
-      await generateAllBubbleBallotFixtures(abbFixtures, renderer);
+      await generateAllBubbleBallotFixtures(abbFixtures, rendererPool);
     }
   }
 
   if (fixtures.size === 0 || fixtures.has('vx-famous-names')) {
     await rm(vxFamousNamesFixtures.dir, { recursive: true, force: true });
-    await generateVxFamousNamesFixtures(renderer);
+    await generateVxFamousNamesFixtures(rendererPool);
   }
 
   if (fixtures.size === 0 || fixtures.has('vx-general-election')) {
@@ -248,7 +254,7 @@ export async function main(): Promise<number> {
       recursive: true,
       force: true,
     });
-    await generateVxGeneralElectionFixtures(renderer);
+    await generateVxGeneralElectionFixtures(rendererPool);
   }
 
   if (fixtures.size === 0 || fixtures.has('vx-primary-election')) {
@@ -256,7 +262,7 @@ export async function main(): Promise<number> {
       recursive: true,
       force: true,
     });
-    await generateVxPrimaryElectionFixtures(renderer);
+    await generateVxPrimaryElectionFixtures(rendererPool);
   }
 
   if (fixtures.size === 0 || fixtures.has('nh-general-election')) {
@@ -264,23 +270,43 @@ export async function main(): Promise<number> {
       recursive: true,
       force: true,
     });
-    await generateNhGeneralElectionFixtures(renderer);
+    await generateNhGeneralElectionFixtures(rendererPool);
   }
 
   if (fixtures.size === 0 || fixtures.has('timing-mark-paper')) {
-    for (const paperSize of ALL_PAPER_SIZES) {
-      await generateTimingMarkPaperFixtures(renderer, paperSize, 'standard');
-      await generateTimingMarkPaperFixtures(renderer, paperSize, 'qa-overlay');
-    }
+    await iter(
+      rendererPool.runTasks(
+        ALL_PAPER_SIZES.map((paperSize) => async (renderer) => {
+          await generateTimingMarkPaperFixtures(
+            renderer,
+            paperSize,
+            'standard'
+          );
+          await generateTimingMarkPaperFixtures(
+            renderer,
+            paperSize,
+            'qa-overlay'
+          );
+        })
+      )
+    )
+      .async()
+      .count(); // Drain iterator
   }
 
   if (fixtures.size === 0 || fixtures.has('calibration-sheet')) {
-    for (const paperSize of ALL_PAPER_SIZES) {
-      await generateCalibrationSheetFixtures(renderer, paperSize);
-    }
+    await iter(
+      rendererPool.runTasks(
+        ALL_PAPER_SIZES.map((paperSize) => async (renderer) => {
+          await generateCalibrationSheetFixtures(renderer, paperSize);
+        })
+      )
+    )
+      .async()
+      .count(); // Drain iterator
   }
 
-  await renderer.close();
+  await rendererPool.close();
 
   return 0;
 }

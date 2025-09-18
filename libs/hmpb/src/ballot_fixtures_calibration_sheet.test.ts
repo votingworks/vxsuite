@@ -2,13 +2,13 @@ import { afterAll, beforeAll, describe, test, vi } from 'vitest';
 import { expectToMatchSavedPdf } from '../test/helpers';
 import { calibrationSheetFixtures } from './ballot_fixtures';
 import { createPlaywrightRenderer } from './playwright_renderer';
-import { Renderer } from './renderer';
+import { SingletonRenderer } from './renderer';
 
 vi.setConfig({
   testTimeout: 120_000,
 });
 
-let renderer: Renderer;
+let renderer: SingletonRenderer;
 beforeAll(async () => {
   renderer = await createPlaywrightRenderer();
 });

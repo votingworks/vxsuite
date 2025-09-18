@@ -1,26 +1,26 @@
 import { afterAll, beforeAll, expect, test, vi } from 'vitest';
 import { expectToMatchSavedPdf } from '../test/helpers';
 import { vxFamousNamesFixtures } from './ballot_fixtures';
-import { createPlaywrightRenderer } from './playwright_renderer';
-import { Renderer } from './renderer';
+import { createPlaywrightRendererPool } from './playwright_renderer';
+import { RendererPool } from './renderer';
 
 vi.setConfig({
   testTimeout: 20_000,
 });
 
-let renderer: Renderer;
+let rendererPool: RendererPool;
 beforeAll(async () => {
-  renderer = await createPlaywrightRenderer();
+  rendererPool = await createPlaywrightRendererPool();
 });
 
 afterAll(async () => {
-  await renderer.close();
+  await rendererPool.close();
 });
 
 // run `pnpm generate-fixtures` if this test fails
 test('famous names fixtures', async () => {
   const fixtures = vxFamousNamesFixtures;
-  const generated = await vxFamousNamesFixtures.generate(renderer);
+  const generated = await vxFamousNamesFixtures.generate(rendererPool);
 
   expect(generated.electionDefinition.election).toEqual(
     fixtures.electionDefinition.election
