@@ -29,6 +29,5 @@ export async function renderCalibrationSheetPdf(
 ): Promise<Uint8Array> {
   const document = await calibrationSheetTemplate.render(renderer, paperSize);
   const pdf = await document.renderToPdf();
-  document.cleanup();
   return await convertPdfToGrayscale(pdf);
 }

@@ -16,11 +16,11 @@ import {
   BallotType,
 } from '@votingworks/types';
 import {
-  createPlaywrightRenderer,
   hmpbStringsCatalog,
   ballotTemplates,
   BaseBallotProps,
   renderAllBallotPdfsAndCreateElectionDefinition,
+  createPlaywrightRendererPool,
 } from '@votingworks/hmpb';
 import { sha256 } from 'js-sha256';
 import {
@@ -142,10 +142,10 @@ export async function generateElectionPackageAndBallots(
     );
   }
 
-  const renderer = await createPlaywrightRenderer();
+  const rendererPool = await createPlaywrightRendererPool();
   const { electionDefinition, ballotPdfs } =
     await renderAllBallotPdfsAndCreateElectionDefinition(
-      renderer,
+      rendererPool,
       ballotTemplates[ballotTemplateId],
       allBallotProps,
       electionSerializationFormat
@@ -213,14 +213,13 @@ export async function generateElectionPackageAndBallots(
     );
     ballotsZip.file(fileName, normalizedColorPdf);
   }
-  const calibrationSheetPdf = await renderCalibrationSheetPdf(
-    renderer,
-    election.ballotLayout.paperSize
+  const calibrationSheetPdf = await rendererPool.runTask((renderer) =>
+    renderCalibrationSheetPdf(renderer, election.ballotLayout.paperSize)
   );
   ballotsZip.file('VxScan-calibration-sheet.pdf', calibrationSheetPdf);
 
   // eslint-disable-next-line no-console
-  renderer.close().catch(console.error);
+  rendererPool.close().catch(console.error);
 
   // Add ballot package to combined zip
   const ballotZipContents = await ballotsZip.generateAsync({

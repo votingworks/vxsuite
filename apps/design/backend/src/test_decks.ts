@@ -31,10 +31,10 @@ import { renderToPdf } from '@votingworks/printing';
 import { AdminTallyReportByParty } from '@votingworks/ui';
 import {
   BaseBallotProps,
-  Renderer,
   markBallotDocument,
   concatenatePdfs,
   renderBallotPdfWithMetadataQrCode,
+  RendererPool,
 } from '@votingworks/hmpb';
 
 /**
@@ -46,12 +46,12 @@ import {
  * The test deck is one long document (intended to be rendered as a single PDF).
  */
 export async function createPrecinctTestDeck({
-  renderer,
+  rendererPool,
   electionDefinition,
   precinctId,
   ballots,
 }: {
-  renderer: Renderer;
+  rendererPool: RendererPool;
   electionDefinition: ElectionDefinition;
   precinctId: PrecinctId;
   ballots: Array<{ props: BaseBallotProps; contents: string }>;
@@ -64,25 +64,30 @@ export async function createPrecinctTestDeck({
   if (ballotSpecs.length === 0) {
     return undefined;
   }
-  const markedBallots = await iter(ballotSpecs)
+  const markedBallots = await iter(
+    rendererPool.runTasks(
+      ballotSpecs.map((ballotSpec) => async (renderer) => {
+        const { props, contents } = find(
+          ballots,
+          (ballot) =>
+            ballot.props.ballotStyleId === ballotSpec.ballotStyleId &&
+            ballot.props.precinctId === ballotSpec.precinctId
+        );
+        const document = await renderer.loadDocumentFromContent(contents);
+        const markedBallot = await markBallotDocument(
+          document,
+          ballotSpec.votes
+        );
+        const ballotPdf = await renderBallotPdfWithMetadataQrCode(
+          props,
+          markedBallot,
+          electionDefinition
+        );
+        return ballotPdf;
+      })
+    )
+  )
     .async()
-    .map(async (ballotSpec) => {
-      const { props, contents } = find(
-        ballots,
-        (ballot) =>
-          ballot.props.ballotStyleId === ballotSpec.ballotStyleId &&
-          ballot.props.precinctId === ballotSpec.precinctId
-      );
-      const document = await renderer.loadDocumentFromContent(contents);
-      const markedBallot = await markBallotDocument(document, ballotSpec.votes);
-      const ballotPdf = await renderBallotPdfWithMetadataQrCode(
-        props,
-        markedBallot,
-        electionDefinition
-      );
-      document.cleanup();
-      return ballotPdf;
-    })
     .toArray();
   return await concatenatePdfs(markedBallots);
 }
