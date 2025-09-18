@@ -11,7 +11,7 @@ import {
   vote,
   VotesDict,
 } from '@votingworks/types';
-import { BitReader, BitWriter } from './bits';
+import { BitReader, JsBitWriter } from './bits';
 import {
   decodeBallot,
   decodeBallotHash,
@@ -19,10 +19,8 @@ import {
   BALLOT_HASH_ENCODING_LENGTH,
   encodeBallot,
   encodeBallotInto,
-  HexEncoding,
   MAXIMUM_WRITE_IN_LENGTH,
   BmdPrelude,
-  WriteInEncoding,
   sliceBallotHashForEncoding,
   encodeBallotConfigInto,
   encodeHmpbBallotPageMetadata,
@@ -92,15 +90,13 @@ test('encodes & decodes empty votes correctly', () => {
     isTestMode: false,
     ballotType: BallotType.Precinct,
   };
-  const encodedBallot = new BitWriter()
+  const encodedBallot = new JsBitWriter()
     // prelude + version number
-    .writeString('VX', { includeLength: false, length: 2 })
+    .writeUtf8String('VX', { includeLength: false })
     .writeUint8(2)
     // ballot hash
-    .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
-      encoding: HexEncoding,
+    .writeHexString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
       includeLength: false,
-      length: BALLOT_HASH_ENCODING_LENGTH,
     })
     // precinct index
     .writeUint(0, { max: MAXIMUM_PRECINCTS })
@@ -139,15 +135,13 @@ test('encodes & decodes whether it is a test ballot', () => {
     isTestMode: true,
     ballotType: BallotType.Precinct,
   };
-  const encodedBallot = new BitWriter()
+  const encodedBallot = new JsBitWriter()
     // prelude + version number
-    .writeString('VX', { includeLength: false, length: 2 })
+    .writeUtf8String('VX', { includeLength: false })
     .writeUint8(2)
     // ballot hash
-    .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
-      encoding: HexEncoding,
+    .writeHexString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
       includeLength: false,
-      length: BALLOT_HASH_ENCODING_LENGTH,
     })
     // precinct index
     .writeUint(0, { max: MAXIMUM_PRECINCTS })
@@ -189,15 +183,13 @@ test('encodes & decodes the ballot type', () => {
     isTestMode: true,
     ballotType: BallotType.Absentee,
   };
-  const encodedBallot = new BitWriter()
+  const encodedBallot = new JsBitWriter()
     // prelude + version number
-    .writeString('VX', { includeLength: false, length: 2 })
+    .writeUtf8String('VX', { includeLength: false })
     .writeUint8(2)
     // ballot hash
-    .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
-      encoding: HexEncoding,
+    .writeHexString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
       includeLength: false,
-      length: BALLOT_HASH_ENCODING_LENGTH,
     })
     // precinct index
     .writeUint(0, { max: MAXIMUM_PRECINCTS })
@@ -245,15 +237,13 @@ test('encodes & decodes yesno votes correctly', () => {
     isTestMode: false,
     ballotType: BallotType.Precinct,
   };
-  const encodedBallot = new BitWriter()
+  const encodedBallot = new JsBitWriter()
     // prelude + version number
-    .writeString('VX', { includeLength: false, length: 2 })
+    .writeUtf8String('VX', { includeLength: false })
     .writeUint8(2)
     // ballot hash
-    .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
-      encoding: HexEncoding,
+    .writeHexString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
       includeLength: false,
-      length: BALLOT_HASH_ENCODING_LENGTH,
     })
     // precinct index
     .writeUint(0, { max: MAXIMUM_PRECINCTS })
@@ -321,7 +311,7 @@ test('throws on invalid ballot style', () => {
         ballotType: BallotType.Precinct,
         isTestMode: false,
       },
-      new BitWriter()
+      new JsBitWriter()
     )
   ).toThrowError('ballot style ID not found: not-a-ballot-style');
 });
@@ -409,15 +399,13 @@ test('encodes & decodes candidate choice votes correctly', () => {
     isTestMode: false,
     ballotType: BallotType.Precinct,
   };
-  const encodedBallot = new BitWriter()
+  const encodedBallot = new JsBitWriter()
     // prelude + version number
-    .writeString('VX', { includeLength: false, length: 2 })
+    .writeUtf8String('VX', { includeLength: false })
     .writeUint8(2)
     // ballot hash
-    .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
-      encoding: HexEncoding,
+    .writeHexString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
       includeLength: false,
-      length: BALLOT_HASH_ENCODING_LENGTH,
     })
     // precinct index
     .writeUint(0, { max: MAXIMUM_PRECINCTS })
@@ -491,15 +479,13 @@ test('encodes & decodes write-in votes correctly', () => {
     isTestMode: false,
     ballotType: BallotType.Precinct,
   };
-  const encodedBallot = new BitWriter()
+  const encodedBallot = new JsBitWriter()
     // prelude + version number
-    .writeString('VX', { includeLength: false, length: 2 })
+    .writeUtf8String('VX', { includeLength: false })
     .writeUint8(2)
     // ballot hash
-    .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
-      encoding: HexEncoding,
+    .writeHexString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
       includeLength: false,
-      length: BALLOT_HASH_ENCODING_LENGTH,
     })
     // precinct index
     .writeUint(0, { max: MAXIMUM_PRECINCTS })
@@ -520,8 +506,8 @@ test('encodes & decodes write-in votes correctly', () => {
     .writeBoolean(false)
     // --- write-ins
     .writeUint(1, { max: 1 }) // 1 seat - 0 selections = 1 max write-in
-    .writeString('MICKEY MOUSE', {
-      encoding: WriteInEncoding,
+    .writeWriteInString('MICKEY MOUSE', {
+      includeLength: true,
       maxLength: MAXIMUM_WRITE_IN_LENGTH,
     })
     .toUint8Array();
@@ -535,9 +521,9 @@ test('encodes & decodes write-in votes correctly', () => {
 
 test('cannot decode a ballot without the prelude', () => {
   const { election } = readElectionDefinition();
-  const encodedBallot = new BitWriter()
+  const encodedBallot = new JsBitWriter()
     // prelude + version number
-    .writeString('XV', { includeLength: false, length: 2 })
+    .writeUtf8String('XV', { includeLength: false })
     .writeUint8(2)
     .toUint8Array();
 
@@ -563,7 +549,7 @@ test('cannot decode a ballot that includes extra data at the end', () => {
     ballotType: BallotType.Precinct,
   };
 
-  const writer = new BitWriter();
+  const writer = new JsBitWriter();
 
   encodeBallotInto(election, ballot, writer);
 
@@ -591,7 +577,7 @@ test('cannot decode a ballot that includes too much padding at the end', () => {
     ballotType: BallotType.Precinct,
   };
 
-  const writer = new BitWriter();
+  const writer = new JsBitWriter();
 
   encodeBallotInto(election, ballot, writer);
 

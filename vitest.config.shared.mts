@@ -4,7 +4,7 @@ const isCI = process.env['CI'] === 'true';
 
 export const base: vitest.ViteUserConfig = {
   test: {
-    include: ['src/**/*.test.{ts,tsx}', 'test/**/*.test.{ts,tsx}'],
+    include: ['**/*.test.{ts,tsx}'],
     coverage: {
       thresholds: {
         lines: 100,
@@ -12,7 +12,7 @@ export const base: vitest.ViteUserConfig = {
       },
       reportOnFailure: true,
       provider: 'istanbul',
-      include: ['src/**/*.ts', 'src/**/*.tsx'],
+      include: ['src/**/*.{ts,tsx}', 'npm/**/*.{ts,tsx}'],
       exclude: ['**/*.test.ts', '**/*.test.tsx'],
     },
     clearMocks: true,

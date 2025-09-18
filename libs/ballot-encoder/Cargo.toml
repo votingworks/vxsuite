@@ -1,0 +1,19 @@
+[package]
+name = "ballot-encoder"
+version = "0.1.0"
+edition = "2024"
+license.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+bitstream-io.workspace = true
+hex.workspace = true
+neon.workspace = true
+proptest.workspace = true
+thiserror.workspace = true
+types-rs.workspace = true
+
+[lints]
+workspace = true

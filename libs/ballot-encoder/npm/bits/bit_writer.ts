@@ -1,14 +1,12 @@
-import { iter } from '@votingworks/basics';
 import { BitCursor } from './bit_cursor';
-import { Encoding, Utf8Encoding } from './encoding';
-import { Uint1, Uint8, Uint8Size } from './types';
+import { Encoding, HexEncoding, WriteInEncoding, Utf8Encoding } from './encoding';
+import { Uint1, Uint8, Uint8Size, BitWriter, WriteStringOptions } from './types';
 import { makeMasks, sizeof, toUint8 } from './utils';
 
 /**
- * Writes structured data into a `Uint8Array`. Data is written in little-endian
- * order.
+ * Writes structured data in big-endian order into a `Uint8Array`.
  */
-export class BitWriter {
+export class JsBitWriter implements BitWriter {
   private data = new Uint8Array();
   private readonly cursor = new BitCursor();
   private nextByte: Uint8 = 0b00000000;
@@ -138,59 +136,47 @@ export class BitWriter {
    *                                                                          ↑ ↑↑
    *                                                                   length=2 'h''i'
    */
-  writeString(string: string): this;
-  writeString(string: string, options: { encoding?: Encoding }): this;
-  writeString(
-    string: string,
-    options: { encoding?: Encoding; includeLength: false; length: number }
-  ): this;
-
-  writeString(
-    string: string,
-    options: {
-      encoding?: Encoding;
-      includeLength?: true;
-      maxLength?: number;
-    }
-  ): this;
-
-  writeString(
-    string: string,
-    {
-      encoding = Utf8Encoding,
-      maxLength = 2 ** Uint8Size - 1,
-      includeLength = true,
-      length,
-    }: {
-      encoding?: Encoding;
-      maxLength?: number;
-      includeLength?: boolean;
-      length?: number;
-    } = {}
-  ): this {
-    const codes = encoding.encode(string);
+  private writeString(string: string, options: WriteStringOptions & { encoding: Encoding }): this {
+    const codes = options.encoding.encode(string);
 
     // write length
-    if (includeLength) {
-      if (codes.length > maxLength) {
+    if (options.includeLength) {
+      if (codes.length > options.maxLength) {
         throw new Error(
-          `overflow: cannot write a string longer than max length: ${string.length} > ${maxLength}`
+          `overflow: cannot write a string longer than max length: ${string.length} > ${options.maxLength}`
         );
       }
 
-      this.writeUint(codes.length, { max: maxLength });
-    } else if (string.length !== length) {
-      throw new Error(
-        `string length (${string.length}) does not match known length (${length}); an explicit length must be provided when includeLength=false as a safe-guard`
-      );
+      this.writeUint(codes.length, { max: options.maxLength });
     }
 
     // write content
     for (const code of codes) {
-      this.writeUint(code, { size: encoding.getBitsPerElement() });
+      this.writeUint(code, { size: options.encoding.getBitsPerElement() });
     }
 
     return this;
+  }
+
+  writeUtf8String(string: string, options: WriteStringOptions): this {
+    return this.writeString(string, {
+      encoding: Utf8Encoding,
+      ...options,
+    });
+  }
+
+  writeWriteInString(string: string, options: WriteStringOptions): this {
+    return this.writeString(string, {
+      encoding: WriteInEncoding,
+      ...options,
+    });
+  }
+
+  writeHexString(string: string, options: WriteStringOptions): this {
+    return this.writeString(string, {
+      encoding: HexEncoding,
+      ...options,
+    });
   }
 
   /**
@@ -232,32 +218,5 @@ export class BitWriter {
       return undefined;
     }
     return this.nextByte;
-  }
-
-  debug(label?: string): this {
-    if (label) {
-      // eslint-disable-next-line no-console
-      console.log(label);
-    }
-    // eslint-disable-next-line no-console
-    console.log(
-      iter(
-        Array.from(this.toUint8Array())
-          .map((n) => n.toString(2).padStart(Uint8Size, '0'))
-          .join('')
-          .slice(0, this.cursor.combinedBitOffset)
-          .split('')
-      )
-        // group bits into bytes
-        .chunks(Uint8Size)
-        .map((bits) => bits.join(''))
-        // group bytes into rows
-        .chunks(8)
-        .map((row) => row.join(' '))
-        .toArray()
-        // join rows into a string
-        .join('\n')
-    );
-    return this;
   }
 }

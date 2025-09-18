@@ -3389,6 +3389,9 @@ importers:
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
+      cargo-cp-artifact:
+        specifier: ^0.1.9
+        version: 0.1.9
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -14949,7 +14952,7 @@ packages:
       magicast: 0.3.5
       test-exclude: 7.0.1
       tinyrainbow: 2.0.0
-      vitest: 3.1.1(@types/debug@4.1.8)
+      vitest: 3.1.1(@types/debug@4.1.8)(@types/node@20.17.31)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -20205,7 +20208,7 @@ packages:
       jest-util: 29.7.0
       natural-compare: 1.4.0
       pretty-format: 29.7.0
-      semver: 7.6.3
+      semver: 7.7.2
     transitivePeerDependencies:
       - supports-color
     dev: true

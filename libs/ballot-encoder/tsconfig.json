@@ -3,7 +3,11 @@
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "skipLibCheck": true,
     "module": "node16",
     "moduleResolution": "node16",
@@ -12,12 +16,24 @@
     "composite": true,
     "noEmit": true
   },
-  "include": ["src", "src/data/*.json", "test"],
+  "include": [
+    "npm",
+    "npm/data/*.json",
+    "test"
+  ],
   "exclude": [],
   "references": [
-    { "path": "../basics/tsconfig.build.json" },
-    { "path": "../eslint-plugin-vx/tsconfig.build.json" },
-    { "path": "../fixtures/tsconfig.build.json" },
-    { "path": "../types/tsconfig.build.json" }
+    {
+      "path": "../basics/tsconfig.build.json"
+    },
+    {
+      "path": "../eslint-plugin-vx/tsconfig.build.json"
+    },
+    {
+      "path": "../fixtures/tsconfig.build.json"
+    },
+    {
+      "path": "../types/tsconfig.build.json"
+    }
   ]
 }

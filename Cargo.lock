@@ -246,6 +246,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "ballot-encoder"
+version = "0.1.0"
+dependencies = [
+ "bitstream-io 4.0.0",
+ "hex",
+ "neon",
+ "proptest",
+ "thiserror",
+ "types-rs",
+]
+
+[[package]]
 name = "ballot-interpreter"
 version = "0.1.0"
 dependencies = [
