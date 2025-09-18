@@ -152,6 +152,7 @@ mod tests {
         }
 
         #[test]
+        #[allow(clippy::range_minus_one)]
         fn test_ranges_do_not_overlap_with_adjacent_ranges(n: u32) {
             assert!(!ranges_overlap(n..=n, n - 1..=n - 1));
             assert!(!ranges_overlap(n..=n, n + 1..=n + 1));
