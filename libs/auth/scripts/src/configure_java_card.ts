@@ -1,7 +1,5 @@
 import { Buffer } from 'node:buffer';
-import crypto from 'node:crypto';
 import { existsSync } from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { extractErrorMessage, lines } from '@votingworks/basics';
 import { Byte } from '@votingworks/types';
@@ -278,16 +276,13 @@ async function runAppletConfigurationCommands(): Promise<void> {
 
 async function createAndStoreCardVxCert({
   javaCardConfig,
-  workingDirectory = os.homedir(),
+  workingDirectory,
 }: ScriptEnvVars): Promise<void> {
   sectionLog('🔏', 'Creating and storing card VotingWorks cert...');
 
   const card = new JavaCard(javaCardConfig);
   await waitForReadyCardStatus(card);
-  await card.createAndStoreCardVxCert({
-    randomId: crypto.randomBytes(3).toString('hex'),
-    workingDirectory,
-  });
+  await card.createAndStoreCardVxCert({ workingDirectory });
 }
 
 /**

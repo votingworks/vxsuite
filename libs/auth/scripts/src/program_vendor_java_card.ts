@@ -13,6 +13,7 @@ interface ScriptEnvVars {
   isProduction: boolean;
   javaCardConfig: JavaCardConfig;
   jurisdiction: string;
+  workingDirectory?: string;
 }
 
 function readScriptEnvVars(): ScriptEnvVars {
@@ -21,7 +22,8 @@ function readScriptEnvVars(): ScriptEnvVars {
   const jurisdiction = isProduction
     ? getRequiredEnvVar('VX_MACHINE_JURISDICTION')
     : DEV_JURISDICTION;
-  return { isProduction, javaCardConfig, jurisdiction };
+  const workingDirectory = process.env['WORKING_DIRECTORY'];
+  return { isProduction, javaCardConfig, jurisdiction, workingDirectory };
 }
 
 /**
@@ -30,12 +32,14 @@ function readScriptEnvVars(): ScriptEnvVars {
  */
 export async function main(): Promise<void> {
   try {
-    const { isProduction, javaCardConfig, jurisdiction } = readScriptEnvVars();
+    const { isProduction, javaCardConfig, jurisdiction, workingDirectory } =
+      readScriptEnvVars();
     const card = new JavaCard(javaCardConfig);
     await programJavaCard({
       card,
       isProduction,
       user: { role: 'vendor', jurisdiction },
+      workingDirectory,
     });
     process.exit(0); // Smart card scripts require an explicit exit or else they hang
   } catch (error) {
