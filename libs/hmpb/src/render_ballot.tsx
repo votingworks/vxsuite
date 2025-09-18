@@ -1,4 +1,5 @@
 import React from 'react';
+import asyncPool from 'tiny-async-pool';
 import { Buffer } from 'node:buffer';
 import {
   assert,
@@ -62,6 +63,7 @@ import {
   Point,
 } from './types';
 import { BaseStylesProps } from './base_styles';
+import { RENDERER_CAPACITY } from './playwright_renderer';
 
 export type StylesComponent<P> = (props: P) => JSX.Element;
 
@@ -599,27 +601,33 @@ export async function layOutBallotsAndCreateElectionDefinition<
   const { election } = ballotProps[0];
   assert(ballotProps.every((props) => props.election === election));
 
-  const ballotLayouts = await iter(ballotProps)
+  const ballotLayouts = await iter(
+    asyncPool(
+      RENDERER_CAPACITY,
+      [...ballotProps.entries()],
+      async ([i, props]) => {
+        // We currently only need to return errors to the user in ballot preview -
+        // we assume the ballot was proofed by the time this function is called.
+        const document = (
+          await renderBallotTemplate(renderer, template, props)
+        ).unsafeUnwrap();
+        const gridLayout = await extractGridLayout(
+          document,
+          props.ballotStyleId,
+          template.isAllBubbleBallot
+        );
+        const ballotContent = await document.getContent();
+        document.cleanup();
+        console.log(`Layed out ballot ${i + 1}/${ballotProps.length}`);
+        return {
+          props,
+          gridLayout,
+          ballotContent,
+        };
+      }
+    )
+  )
     .async()
-    .map(async (props) => {
-      // We currently only need to return errors to the user in ballot preview -
-      // we assume the ballot was proofed by the time this function is called.
-      const document = (
-        await renderBallotTemplate(renderer, template, props)
-      ).unsafeUnwrap();
-      const gridLayout = await extractGridLayout(
-        document,
-        props.ballotStyleId,
-        template.isAllBubbleBallot
-      );
-      const ballotContent = await document.getContent();
-      document.cleanup();
-      return {
-        props,
-        gridLayout,
-        ballotContent,
-      };
-    })
     .toArray();
 
   // All ballots of a given ballot style must have the same grid layout.
@@ -735,19 +743,24 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
       electionSerializationFormat
     );
 
-  const ballotPdfs = await iter(ballotProps)
-    .zip(ballotContents)
+  const ballotPdfs = await iter(
+    asyncPool(
+      RENDERER_CAPACITY,
+      iter(ballotProps).zip(ballotContents).enumerate().toArray(),
+      async ([i, [props, ballotContent]]) => {
+        const document = await renderer.loadDocumentFromContent(ballotContent);
+        const ballotPdf = await renderBallotPdfWithMetadataQrCode(
+          props,
+          document,
+          electionDefinition
+        );
+        document.cleanup();
+        console.log(`Rendered ballot PDF ${i + 1}/${ballotProps.length}`);
+        return ballotPdf;
+      }
+    )
+  )
     .async()
-    .map(async ([props, ballotContent]) => {
-      const document = await renderer.loadDocumentFromContent(ballotContent);
-      const ballotPdf = await renderBallotPdfWithMetadataQrCode(
-        props,
-        document,
-        electionDefinition
-      );
-      document.cleanup();
-      return ballotPdf;
-    })
     .toArray();
   return { ballotPdfs, electionDefinition };
 }

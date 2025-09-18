@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDomServer from 'react-dom/server';
 import { chromium } from 'playwright';
-import { assert } from '@votingworks/basics';
+import { assert, range } from '@votingworks/basics';
 import {
   RenderDocument,
   RenderScratchpad,
@@ -9,6 +9,8 @@ import {
   createDocument,
   createScratchpad,
 } from './renderer';
+
+export const RENDERER_CAPACITY = 5;
 
 /**
  * Creates a {@link Renderer} that uses Playwright to drive a headless Chromium
@@ -30,24 +32,30 @@ export async function createPlaywrightRenderer(): Promise<Renderer> {
   // to add some parallelism, which I anticipate requiring a larger API change.
   // TODO(jonah): Create a pool of pages so we can do parallelize rendering up
   // to a set capacity.
-  const page = await context.newPage();
-  let pageInUse = false;
+  const pages = await Promise.all(
+    range(0, RENDERER_CAPACITY).map(async () => ({
+      inUse: false,
+      page: await context.newPage(),
+    }))
+  );
 
   function acquirePage() {
-    assert(
-      !pageInUse,
-      'PlaywrightRenderer only supports rendering one document at a time'
-    );
-    pageInUse = true;
+    const page = pages.find((p) => !p.inUse);
+    assert(page, `All ${RENDERER_CAPACITY} rendering pages are in use`);
+    page.inUse = true;
+    return page.page;
   }
 
-  function releasePage() {
-    pageInUse = false;
+  function releasePage(page: (typeof pages)[number]['page']) {
+    const pageInfo = pages.find((p) => p.page === page);
+    assert(pageInfo, 'Released page not from pool');
+    assert(pageInfo.inUse, 'Released page that was not in use');
+    pageInfo.inUse = false;
   }
 
   return {
     async createScratchpad(styles): Promise<RenderScratchpad> {
-      acquirePage();
+      const page = acquirePage();
       await page.setContent(
         `<!DOCTYPE html>${ReactDomServer.renderToStaticMarkup(
           <html>
@@ -56,7 +64,7 @@ export async function createPlaywrightRenderer(): Promise<Renderer> {
           </html>
         )}`
       );
-      const document = createDocument(page, releasePage);
+      const document = createDocument(page, () => releasePage(page));
       return createScratchpad(document);
     },
 
@@ -68,9 +76,9 @@ export async function createPlaywrightRenderer(): Promise<Renderer> {
     async loadDocumentFromContent(
       htmlContent: string
     ): Promise<RenderDocument> {
-      acquirePage();
+      const page = acquirePage();
       await page.setContent(htmlContent);
-      return createDocument(page, releasePage);
+      return createDocument(page, () => releasePage(page));
     },
   };
 }
