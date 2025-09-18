@@ -80,7 +80,6 @@ export async function createPrecinctTestDeck({
         markedBallot,
         electionDefinition
       );
-      document.cleanup();
       return ballotPdf;
     })
     .toArray();

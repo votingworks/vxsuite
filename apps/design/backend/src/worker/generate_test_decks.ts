@@ -7,7 +7,7 @@ import {
 import { translateBallotStrings } from '@votingworks/backend';
 import {
   ballotTemplates,
-  createPlaywrightRenderer,
+  createPlaywrightRendererPool,
   hmpbStringsCatalog,
   layOutBallotsAndCreateElectionDefinition,
 } from '@votingworks/hmpb';
@@ -62,10 +62,10 @@ export async function generateTestDecks(
     (props) =>
       props.ballotMode === 'test' && props.ballotType === BallotType.Precinct
   );
-  const renderer = await createPlaywrightRenderer();
+  const rendererPool = await createPlaywrightRendererPool(5);
   const { electionDefinition, ballotContents } =
     await layOutBallotsAndCreateElectionDefinition(
-      renderer,
+      rendererPool,
       ballotTemplates[ballotTemplateId],
       testBallotProps,
       electionSerializationFormat
@@ -80,18 +80,27 @@ export async function generateTestDecks(
 
   const zip = new JsZip();
 
-  for (const precinct of election.precincts) {
-    const testDeckPdf = await createPrecinctTestDeck({
-      renderer,
-      electionDefinition,
-      precinctId: precinct.id,
-      ballots,
-    });
+  await iter(
+    rendererPool.runTasks(
+      election.precincts.map((precinct) => async (renderer) => {
+        const testDeckPdf = await createPrecinctTestDeck({
+          renderer,
+          electionDefinition,
+          precinctId: precinct.id,
+          ballots,
+        });
 
-    if (!testDeckPdf) continue;
-    const fileName = `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`;
-    zip.file(fileName, testDeckPdf);
-  }
+        if (!testDeckPdf) return;
+        const fileName = `${precinct.name.replaceAll(
+          ' ',
+          '_'
+        )}-test-ballots.pdf`;
+        zip.file(fileName, testDeckPdf);
+      })
+    )
+  )
+    .async()
+    .count(); // Drain iterator
 
   const tallyReport = await createTestDeckTallyReport({ electionDefinition });
 
