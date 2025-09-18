@@ -26,7 +26,7 @@ import {
 import { vxDefaultBallotTemplate } from './ballot_templates/vx_default_ballot_template';
 import * as timingMarkPaperTemplate from './timing_mark_paper/template';
 import * as calibrationSheetTemplate from './calibration_sheet/template';
-import { Renderer } from './renderer';
+import { Renderer, RendererPool } from './renderer';
 import {
   NhBallotProps,
   nhBallotTemplate,
@@ -73,10 +73,13 @@ export const vxFamousNamesFixtures = (() => {
     ...blankBallotProps,
     votes,
 
-    async generate(renderer: Renderer, { generatePageImages = false } = {}) {
+    async generate(
+      rendererPool: RendererPool,
+      { generatePageImages = false } = {}
+    ) {
       debug(`Generating: ${blankBallotPath}`);
       const layouts = await layOutBallotsAndCreateElectionDefinition(
-        renderer,
+        rendererPool,
         vxDefaultBallotTemplate,
         allBallotProps,
         'vxf'
@@ -88,18 +91,25 @@ export const vxFamousNamesFixtures = (() => {
       );
 
       const blankBallotContents = layouts.ballotContents[0];
-      const ballotDocument =
-        await renderer.loadDocumentFromContent(blankBallotContents);
-      const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
-        allBallotProps[0],
-        ballotDocument,
-        electionDefinition
-      );
+      const { blankBallotPdf, markedBallotPdf } = await rendererPool.runTask(
+        async (renderer) => {
+          const ballotDocument =
+            await renderer.loadDocumentFromContent(blankBallotContents);
+          // eslint-disable-next-line @typescript-eslint/no-shadow
+          const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
+            allBallotProps[0],
+            ballotDocument,
+            electionDefinition
+          );
 
-      debug(`Generating: ${markedBallotPath}`);
-      await markBallotDocument(ballotDocument, votes);
-      const markedBallotPdf = await ballotDocument.renderToPdf();
-      ballotDocument.cleanup();
+          debug(`Generating: ${markedBallotPath}`);
+          await markBallotDocument(ballotDocument, votes);
+          // eslint-disable-next-line @typescript-eslint/no-shadow
+          const markedBallotPdf = await ballotDocument.renderToPdf();
+
+          return { blankBallotPdf, markedBallotPdf };
+        }
+      );
 
       let blankBallotPageImages: Optional<ImageData[]>;
       let markedBallotPageImages: Optional<ImageData[]>;
@@ -214,7 +224,7 @@ export const vxGeneralElectionFixtures = (() => {
     fixtureSpecs,
 
     async generate(
-      renderer: Renderer,
+      rendererPool: RendererPool,
       specs: Array<ReturnType<typeof makeElectionFixtureSpec>>
     ) {
       async function generateElectionFixtures(
@@ -223,7 +233,7 @@ export const vxGeneralElectionFixtures = (() => {
         debug(`Generating: ${spec.blankBallotPath}`);
         const { electionDefinition, ballotContents } =
           await layOutBallotsAndCreateElectionDefinition(
-            renderer,
+            rendererPool,
             vxDefaultBallotTemplate,
             spec.allBallotProps,
             'vxf'
@@ -237,22 +247,30 @@ export const vxGeneralElectionFixtures = (() => {
                 props.precinctId === spec.precinctId
             )
         );
-        const ballotDocument =
-          await renderer.loadDocumentFromContent(blankBallotContents);
-        const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
-          ballotProps,
-          ballotDocument,
-          electionDefinition
-        );
 
-        debug(`Generating: ${spec.markedBallotPath}`);
-        await markBallotDocument(
-          ballotDocument,
-          spec.votes,
-          spec.unmarkedWriteIns
+        const { blankBallotPdf, markedBallotPdf } = await rendererPool.runTask(
+          async (renderer) => {
+            const ballotDocument =
+              await renderer.loadDocumentFromContent(blankBallotContents);
+            // eslint-disable-next-line @typescript-eslint/no-shadow
+            const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
+              ballotProps,
+              ballotDocument,
+              electionDefinition
+            );
+
+            debug(`Generating: ${spec.markedBallotPath}`);
+            await markBallotDocument(
+              ballotDocument,
+              spec.votes,
+              spec.unmarkedWriteIns
+            );
+            // eslint-disable-next-line @typescript-eslint/no-shadow
+            const markedBallotPdf = await ballotDocument.renderToPdf();
+
+            return { blankBallotPdf, markedBallotPdf };
+          }
         );
-        const markedBallotPdf = await ballotDocument.renderToPdf();
-        ballotDocument.cleanup();
 
         let blankBallotPageImages;
         if (spec.generatePageImages) {
@@ -342,9 +360,9 @@ export const vxPrimaryElectionFixtures = (() => {
     mammalParty,
     fishParty,
 
-    async generate(renderer: Renderer, { markedOnly = false } = {}) {
+    async generate(rendererPool: RendererPool, { markedOnly = false } = {}) {
       const layouts = await layOutBallotsAndCreateElectionDefinition(
-        renderer,
+        rendererPool,
         vxDefaultBallotTemplate,
         allBallotProps,
         'vxf'
@@ -367,24 +385,32 @@ export const vxPrimaryElectionFixtures = (() => {
                 props.precinctId === spec.precinctId
             )
         );
-        const ballotDocument =
-          await renderer.loadDocumentFromContent(blankBallotContents);
-        const blankBallotPdf = markedOnly
-          ? Buffer.from('')
-          : await renderBallotPdfWithMetadataQrCode(
+
+        const { blankBallotPdf, markedBallotPdf } = await rendererPool.runTask(
+          async (renderer) => {
+            const ballotDocument =
+              await renderer.loadDocumentFromContent(blankBallotContents);
+            // eslint-disable-next-line @typescript-eslint/no-shadow
+            const blankBallotPdf = markedOnly
+              ? Buffer.from('')
+              : await renderBallotPdfWithMetadataQrCode(
+                  ballotProps,
+                  ballotDocument,
+                  layouts.electionDefinition
+                );
+
+            debug(`Generating: ${spec.markedBallotPath}`);
+            await markBallotDocument(ballotDocument, spec.votes);
+            // eslint-disable-next-line @typescript-eslint/no-shadow
+            const markedBallotPdf = await renderBallotPdfWithMetadataQrCode(
               ballotProps,
               ballotDocument,
-              layouts.electionDefinition
+              electionDefinition
             );
 
-        debug(`Generating: ${spec.markedBallotPath}`);
-        await markBallotDocument(ballotDocument, spec.votes);
-        const markedBallotPdf = await renderBallotPdfWithMetadataQrCode(
-          ballotProps,
-          ballotDocument,
-          electionDefinition
+            return { blankBallotPdf, markedBallotPdf };
+          }
         );
-        ballotDocument.cleanup();
 
         debug(`Generating: ${spec.otherPrecinctBlankBallotPath}`);
         const [otherPrecinctBlankBallot, otherPrecinctBallotProps] =
@@ -397,16 +423,19 @@ export const vxPrimaryElectionFixtures = (() => {
                   props.precinctId === spec.otherPrecinctId
               )
           );
-        const otherPrecinctBallotDocument =
-          await renderer.loadDocumentFromContent(otherPrecinctBlankBallot);
         const otherPrecinctBlankBallotPdf = markedOnly
           ? Buffer.from('')
-          : await renderBallotPdfWithMetadataQrCode(
-              otherPrecinctBallotProps,
-              otherPrecinctBallotDocument,
-              electionDefinition
-            );
-        otherPrecinctBallotDocument.cleanup();
+          : await rendererPool.runTask(async (renderer) => {
+              const otherPrecinctBallotDocument =
+                await renderer.loadDocumentFromContent(
+                  otherPrecinctBlankBallot
+                );
+              return await renderBallotPdfWithMetadataQrCode(
+                otherPrecinctBallotProps,
+                otherPrecinctBallotDocument,
+                electionDefinition
+              );
+            });
 
         return {
           blankBallotPdf,
@@ -526,7 +555,7 @@ export const nhGeneralElectionFixtures = (() => {
     fixtureSpecs,
 
     async generate(
-      renderer: Renderer,
+      rendererPool: RendererPool,
       specs: Array<ReturnType<typeof makeFixtureSpec>>
     ) {
       async function generateFixtures(
@@ -535,7 +564,7 @@ export const nhGeneralElectionFixtures = (() => {
         debug(`Generating: ${spec.blankBallotPath}`);
         const { electionDefinition, ballotContents } =
           await layOutBallotsAndCreateElectionDefinition(
-            renderer,
+            rendererPool,
             nhBallotTemplate,
             spec.allBallotProps,
             'vxf'
@@ -549,22 +578,30 @@ export const nhGeneralElectionFixtures = (() => {
                 props.precinctId === spec.precinctId
             )
         );
-        const ballotDocument =
-          await renderer.loadDocumentFromContent(blankBallotContents);
-        const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
-          ballotProps,
-          ballotDocument,
-          electionDefinition
-        );
 
-        debug(`Generating: ${spec.markedBallotPath}`);
-        await markBallotDocument(
-          ballotDocument,
-          spec.votes,
-          spec.unmarkedWriteIns
+        const { blankBallotPdf, markedBallotPdf } = await rendererPool.runTask(
+          async (renderer) => {
+            const ballotDocument =
+              await renderer.loadDocumentFromContent(blankBallotContents);
+            // eslint-disable-next-line @typescript-eslint/no-shadow
+            const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
+              ballotProps,
+              ballotDocument,
+              electionDefinition
+            );
+
+            debug(`Generating: ${spec.markedBallotPath}`);
+            await markBallotDocument(
+              ballotDocument,
+              spec.votes,
+              spec.unmarkedWriteIns
+            );
+            // eslint-disable-next-line @typescript-eslint/no-shadow
+            const markedBallotPdf = await ballotDocument.renderToPdf();
+
+            return { blankBallotPdf, markedBallotPdf };
+          }
         );
-        const markedBallotPdf = await ballotDocument.renderToPdf();
-        ballotDocument.cleanup();
 
         return {
           electionDefinition,
@@ -626,7 +663,6 @@ export const timingMarkPaperFixtures = (() => {
         `Generating: timing-mark-paper@${spec.paperSize} (${spec.paperType})`
       );
       const pdf = await document.renderToPdf();
-      document.cleanup();
       return { pdf: await convertPdfToCmyk(pdf) };
     },
   };
@@ -659,7 +695,6 @@ export const calibrationSheetFixtures = (() => {
       );
       debug(`Generating: calibration-sheet-${paperSize}.pdf`);
       const pdf = await document.renderToPdf();
-      document.cleanup();
       return { pdf: await convertPdfToCmyk(pdf) };
     },
   };

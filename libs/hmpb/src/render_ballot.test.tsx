@@ -8,7 +8,7 @@ import {
   layOutMinimalBallotsToCreateElectionDefinition,
 } from './render_ballot';
 import { BALLOT_MODES } from './types';
-import { createPlaywrightRenderer } from './playwright_renderer';
+import { createPlaywrightRendererPool } from './playwright_renderer';
 import { ballotTemplates } from './ballot_templates';
 import { vxFamousNamesFixtures } from './ballot_fixtures';
 import { rotateCandidatesByStatute } from './ballot_templates/nh_ballot_template';
@@ -68,10 +68,10 @@ test('allBaseBallotProps creates props for all possible ballots for an election'
 test('layOutMinimalBallotsToCreateElectionDefinition', async () => {
   const fixtureElectionDefinition = vxFamousNamesFixtures.electionDefinition;
   const allBallotProps = allBaseBallotProps(fixtureElectionDefinition.election);
-  const renderer = await createPlaywrightRenderer();
+  const rendererPool = await createPlaywrightRendererPool();
   const electionDefinition =
     await layOutMinimalBallotsToCreateElectionDefinition(
-      renderer,
+      rendererPool,
       ballotTemplates.VxDefaultBallot,
       allBallotProps,
       'vxf'
@@ -88,9 +88,9 @@ test('reorder candidates based on rotation from template', async () => {
     },
   };
   const allBallotProps = allBaseBallotProps(fixtureElection);
-  const renderer = await createPlaywrightRenderer();
+  const rendererPool = await createPlaywrightRendererPool();
   const { election } = await layOutMinimalBallotsToCreateElectionDefinition(
-    renderer,
+    rendererPool,
     ballotTemplates.NhBallot,
     allBallotProps,
     'vxf'

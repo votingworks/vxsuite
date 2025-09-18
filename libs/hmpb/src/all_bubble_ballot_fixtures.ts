@@ -20,7 +20,7 @@ import {
   layOutBallotsAndCreateElectionDefinition,
   renderBallotPdfWithMetadataQrCode,
 } from './render_ballot';
-import { Renderer } from './renderer';
+import { RendererPool } from './renderer';
 import { injectFooterMetadata } from './all_bubble_ballot/footer';
 import { allBubbleBallotConfig } from './all_bubble_ballot/config';
 
@@ -35,7 +35,7 @@ export interface AllBubbleBallotFixtures {
   blankBallotPath: string;
   filledBallotPath: string;
   cyclingTestDeckPath: string;
-  generate(renderer: Renderer): Promise<{
+  generate(rendererPool: RendererPool): Promise<{
     electionDefinition: ElectionDefinition;
     blankBallotPdf: Uint8Array;
     filledBallotPdf: Uint8Array;
@@ -73,97 +73,104 @@ export function allBubbleBallotFixtures(
     filledBallotPath,
     cyclingTestDeckPath,
 
-    async generate(renderer: Renderer) {
+    async generate(rendererPool: RendererPool) {
       debug(`Generating: ${blankBallotPath}`);
       const { electionDefinition, ballotContents } =
         await layOutBallotsAndCreateElectionDefinition(
-          renderer,
+          rendererPool,
           allBubbleBallotTemplate(paperSize),
           [ballotProps],
           'vxf'
         );
 
-      const [blankBallotContents] = ballotContents;
-      const ballotDocument =
-        await renderer.loadDocumentFromContent(blankBallotContents);
-      const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
-        ballotProps,
-        ballotDocument,
-        electionDefinition
-      );
+      return await rendererPool.runTask(async (renderer) => {
+        const [blankBallotContents] = ballotContents;
+        const ballotDocument =
+          await renderer.loadDocumentFromContent(blankBallotContents);
 
-      debug(`Generating: ${filledBallotPath}`);
-      const filledVotes: VotesDict = Object.fromEntries(
-        election.contests.map((contest) => [
-          contest.id,
-          (contest as CandidateContest).candidates,
-        ])
-      );
-      await markBallotDocument(ballotDocument, filledVotes);
-      const filledBallotPdf = await renderBallotPdfWithMetadataQrCode(
-        ballotProps,
-        ballotDocument,
-        electionDefinition
-      );
-      ballotDocument.cleanup();
+        const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
+          ballotProps,
+          ballotDocument,
+          electionDefinition
+        );
 
-      debug(`Generating: ${cyclingTestDeckPath}`);
-      const [gridLayout] = assertDefined(
-        electionDefinition.election.gridLayouts
-      );
-      const gridPositionByCandidateId = Object.fromEntries(
-        gridLayout.gridPositions.map((position) => [
-          (position as GridPositionOption).optionId,
-          position,
-        ])
-      );
-      const cyclingTestDeckSheetPdfs = await iter(range(0, 6))
-        .async()
-        .map(async (sheetNumber) => {
-          const votesForSheet: VotesDict = Object.fromEntries(
-            election.contests.map((contest) => [
-              contest.id,
-              (contest as CandidateContest).candidates.flatMap((candidate) => {
-                const { row, column } = gridPositionByCandidateId[candidate.id];
-                // Bubbles aren't perfectly aligned with the grid, but they are
-                // extremely close, so rounding is fine
-                if (
-                  (Math.round(row) - Math.round(column) - sheetNumber) % 6 ===
-                  0
-                ) {
-                  return [candidate];
-                }
-                return [];
-              }),
-            ])
-          );
-          const sheetDocument = await markBallotDocument(
-            await renderer.loadDocumentFromContent(blankBallotContents),
-            votesForSheet
-          );
-          await injectFooterMetadata(sheetDocument, {
-            Election: formatBallotHash(electionDefinition.ballotHash),
-            'Cycle Index': sheetNumber + 1,
-          });
-          const pdf = await renderBallotPdfWithMetadataQrCode(
-            ballotProps,
-            sheetDocument,
-            electionDefinition
-          );
-          sheetDocument.cleanup();
-          return pdf;
-        })
-        .toArray();
-      const cyclingTestDeckPdf = await concatenatePdfs(
-        cyclingTestDeckSheetPdfs
-      );
+        debug(`Generating: ${filledBallotPath}`);
+        const filledVotes: VotesDict = Object.fromEntries(
+          election.contests.map((contest) => [
+            contest.id,
+            (contest as CandidateContest).candidates,
+          ])
+        );
+        await markBallotDocument(ballotDocument, filledVotes);
 
-      return {
-        electionDefinition,
-        blankBallotPdf,
-        filledBallotPdf,
-        cyclingTestDeckPdf,
-      };
+        const filledBallotPdf = await renderBallotPdfWithMetadataQrCode(
+          ballotProps,
+          ballotDocument,
+          electionDefinition
+        );
+
+        debug(`Generating: ${cyclingTestDeckPath}`);
+        const [gridLayout] = assertDefined(
+          electionDefinition.election.gridLayouts
+        );
+        const gridPositionByCandidateId = Object.fromEntries(
+          gridLayout.gridPositions.map((position) => [
+            (position as GridPositionOption).optionId,
+            position,
+          ])
+        );
+        const cyclingTestDeckSheetPdfs = await iter(range(0, 6))
+          .async()
+          .map(async (sheetNumber) => {
+            const votesForSheet: VotesDict = Object.fromEntries(
+              election.contests.map((contest) => [
+                contest.id,
+                (contest as CandidateContest).candidates.flatMap(
+                  (candidate) => {
+                    const { row, column } =
+                      gridPositionByCandidateId[candidate.id];
+                    // Bubbles aren't perfectly aligned with the grid, but they are
+                    // extremely close, so rounding is fine
+                    if (
+                      (Math.round(row) - Math.round(column) - sheetNumber) %
+                        6 ===
+                      0
+                    ) {
+                      return [candidate];
+                    }
+                    return [];
+                  }
+                ),
+              ])
+            );
+            const sheetDocument = await markBallotDocument(
+              await renderer.loadDocumentFromContent(blankBallotContents),
+              votesForSheet
+            );
+            await injectFooterMetadata(sheetDocument, {
+              Election: formatBallotHash(electionDefinition.ballotHash),
+              'Cycle Index': sheetNumber + 1,
+            });
+            const pdf = await renderBallotPdfWithMetadataQrCode(
+              ballotProps,
+              sheetDocument,
+              electionDefinition
+            );
+            return pdf;
+          })
+          .toArray();
+
+        const cyclingTestDeckPdf = await concatenatePdfs(
+          cyclingTestDeckSheetPdfs
+        );
+
+        return {
+          electionDefinition,
+          blankBallotPdf,
+          filledBallotPdf,
+          cyclingTestDeckPdf,
+        };
+      });
     },
   };
 }
