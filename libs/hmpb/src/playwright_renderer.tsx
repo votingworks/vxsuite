@@ -92,7 +92,7 @@ export async function createPlaywrightRenderer(): Promise<SingletonRenderer> {
 }
 
 export async function createPlaywrightRendererPool(
-  size: number
+  size = 5
 ): Promise<RendererPool> {
   const browser = await chromium.launch({
     // Font hinting (https://fonts.google.com/knowledge/glossary/hinting)
