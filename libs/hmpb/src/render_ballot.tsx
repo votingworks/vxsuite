@@ -568,8 +568,8 @@ function candidateOrderFromGridLayout(
       position.contestId === contest.id && position.type === 'option'
   );
   assert(
-    unique(contestPositions.map((p) => p.sheetNumber)).length === 1,
-    'Contest appears on multiple sheets'
+    unique(contestPositions.map((p) => p.sheetNumber)).length <= 1,
+    `Contest appears on multiple sheets: ${contest.id}`
   );
   return [...contestPositions]
     .sort((a, b) => a.row - b.row)
