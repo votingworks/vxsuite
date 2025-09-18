@@ -1,13 +1,12 @@
 import { expect } from 'vitest';
 import fc from 'fast-check';
-import { WriteInEncoding } from '../src';
-import { BitReader, BitWriter, toUint8, Uint1, Uint8 } from '../src/bits';
+import { BitReader, JsBitWriter, toUint8, Uint1, Uint8, WriteInEncoding } from '../npm/bits';
 
 /**
  * Generates arbitrary write-in characters.
  */
 export const writeInChar = fc
-  .integer(0, WriteInEncoding.getChars().length)
+  .integer({ min: 0, max: WriteInEncoding.getChars().length })
   .map((index) => WriteInEncoding.getChars()[index] ?? '');
 
 /**
@@ -49,7 +48,7 @@ export interface UintWritable {
 export interface StringWritable {
   readonly type: 'string';
   readonly value: string;
-  readonly maxLength?: number;
+  readonly maxLength: number;
 }
 
 /**
@@ -96,11 +95,11 @@ export const writableUint = fc
  * Generates a string value for testing arbitrarily-ordered writes and reads.
  */
 export const writableString = fc
-  .tuple(fc.string(), fc.option(fc.nat()))
+  .tuple(fc.string(), fc.nat())
   .map<StringWritable>(([value, max]) => ({
     type: 'string',
     value,
-    maxLength: max === null ? undefined : Math.max(max, value.length),
+    maxLength: Math.max(max, value.length),
   }));
 
 /**
@@ -120,7 +119,7 @@ export const anyWritable = fc.oneof<Array<fc.Arbitrary<AnyWritable>>>(
  * {@link doReads} to verify that the values round-trip correctly.
  */
 export function doWrites(
-  writer: BitWriter,
+  writer: JsBitWriter,
   writables: readonly AnyWritable[]
 ): void {
   for (const writable of writables) {
@@ -142,7 +141,8 @@ export function doWrites(
         break;
 
       case 'string':
-        writer.writeString(writable.value, {
+        writer.writeUtf8String(writable.value, {
+          includeLength: true,
           maxLength: writable.maxLength,
         });
         break;

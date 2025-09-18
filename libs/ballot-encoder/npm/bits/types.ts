@@ -273,3 +273,71 @@ export type Uint8 =
  * Number of bits in a `Uint8` value.
  */
 export const Uint8Size = 8;
+
+/**
+ * Options when calling methods for writing strings to a `BitWriter`.
+ */
+export type WriteStringOptions =
+  | { includeLength: false }
+  | { includeLength: true; maxLength: number }
+
+/**
+ * Any object that collects writes into a `Uint8Array`.
+ */
+export interface BitWriter {
+  writeUint1(...uint1s: Uint1[]): this;
+  writeBoolean(...booleans: boolean[]): this;
+  writeUint8(...uint8s: Uint8[]): this;
+
+  /**
+   * Writes an unsigned integer as a series of bits. `max` determines the number
+   * of bits to use to write `number`, i.e. as many as `max` would require.
+   *
+   * @example
+   *
+   * bits.writeUint(23, { max: 30 })  // writes `10111`
+   */
+  writeUint(number: number, { max }: { max: number; }): this;
+
+  /**
+   * Writes an unsigned integer as a series of bits. `size` determines the
+   * number of bits to use to write `number`, so `number` must be able to fit.
+   *
+   * @example
+   *
+   * bits.writeUint(99, { size: 8 })  // writes `01100011`
+   */
+  writeUint(number: number, { size }: { size: number; }): this;
+
+  /**
+   * Writes a string encoded as UTF-8, optionally including the string's
+   * length. Only omit the string length if the decoder will know how many
+   * bytes to read.
+   */
+  writeUtf8String(string: string, options: WriteStringOptions): this;
+
+  /**
+   * Writes a string encoded using the characters available in write-ins,
+   * optionally including the string's length. Only omit the string length if
+   * the decoder will know how many bytes to read.
+   */
+  writeWriteInString(string: string, options: WriteStringOptions): this;
+
+  /**
+   * Writes a string encoded using hex encoding, optionally including the
+   * string's length. Only omit the string length if the decoder will know how
+   * many bytes to read.
+   */
+  writeHexString(string: string, options: WriteStringOptions): this;
+
+  /**
+   * Helper function, mostly for testing and easier chaining.
+   */
+  with(callback: (writer: this) => void): this;
+
+  /**
+   * Returns the written data as a `Uint8Array`, padding the bits until they
+   * are byte-aligned.
+   */
+  toUint8Array(): Uint8Array;
+}

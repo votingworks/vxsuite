@@ -5,7 +5,7 @@ members = [
   "apps/mark-scan/daemon-utils",
   "apps/mark-scan/fai-100-controller",
   "apps/mark-scan/pat-device-input",
-  "apps/pollbook/barcode-scanner-daemon",
+  "apps/pollbook/barcode-scanner-daemon", "libs/ballot-encoder",
   "libs/ballot-interpreter",
   "libs/logging",
   "libs/logging-utils",

@@ -68,8 +68,7 @@ export class CustomEncoding implements Encoding {
   private static validateChars(chars: string): void {
     if (chars.length > CustomEncoding.MAX_CODE + 1) {
       throw new Error(
-        `character set too large, has ${chars.length} but only ${
-          CustomEncoding.MAX_CODE + 1
+        `character set too large, has ${chars.length} but only ${CustomEncoding.MAX_CODE + 1
         } are allowed`
       );
     }
@@ -137,3 +136,16 @@ export class CustomEncoding implements Encoding {
       .join('');
   }
 }
+
+/**
+ * Encoding for write-ins, defines the characters allowed in a write-in. Should
+ * match the values present on BMD's `{@link VirtualKeyboard}`.
+ */
+export const WriteInEncoding = new CustomEncoding(
+  'ABCDEFGHIJKLMNOPQRSTUVWXYZ \'"-.,'
+);
+
+/**
+ * Encoding for hexadecimal string values, e.g. the ballot hash.
+ */
+export const HexEncoding = new CustomEncoding('0123456789abcdef');
