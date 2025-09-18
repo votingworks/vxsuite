@@ -96,6 +96,7 @@ command:
 
 ```
 CERT_PUBLIC_KEY_PATH=/path/to/public-key-abcd1234.pem \
+    CERT_TYPE=vx \
     VX_PRIVATE_KEY_PATH=/path/to/vx-private-key.pem \
     ./scripts/remote-card-vx-certifier
 ```
@@ -186,6 +187,37 @@ relevant env vars for development and then calls the base script:
 
 The initial Java Card configuration script needs to be run before this script
 can be run. This script will remind you if you haven't done so.
+
+#### Remote Flow
+
+If you don't have access to the relevant VotingWorks private key, you can
+specify `VX_PRIVATE_KEY_PATH=remote` to complete card configuration via a file
+exchange with someone who does have that key:
+
+```
+NODE_ENV=production \
+    VX_MACHINE_JURISDICTION=<jurisdiction> \
+    VX_PRIVATE_KEY_PATH=remote \
+    WORKING_DIRECTORY=/path/to/working-directory \
+    ./scripts/program-vendor-java-card
+```
+
+The working directory indicates where to store the files for the file exchange.
+If unspecified, the script will default to your home directory.
+
+If you are the person with the relevant VotingWorks private key, receiving a
+card public key from someone using the remote flow, you can use the following
+command:
+
+```
+CERT_PUBLIC_KEY_PATH=/path/to/public-key-abcd1234.pem \
+    CERT_TYPE=vendor \
+    VX_PRIVATE_KEY_PATH=/path/to/vx-private-key.pem \
+    ./scripts/remote-card-vx-certifier
+```
+
+The console outputs of the above commands make it clear what files need to be
+shared.
 
 ### Java Card Detail Reading Script
 
