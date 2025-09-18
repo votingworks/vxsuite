@@ -11,6 +11,11 @@ export type Page = Pick<
   'evaluate' | 'close' | 'pdf' | 'content' | 'setContent' | 'isClosed'
 >;
 
+export interface PageHandle {
+  page(): Page;
+  void(): void;
+}
+
 export interface DocumentElement {
   x: number;
   y: number;
@@ -24,7 +29,7 @@ export interface DocumentElement {
  * Creates a {@link RenderDocument}
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function createDocument(page: Page) {
+export function createDocument(pageHandle: PageHandle) {
   return {
     /**
      * Given a selector to an individual element in the document, replaces the
@@ -43,7 +48,7 @@ export function createDocument(page: Page) {
       // than running JS directly in the browser. We use `evaluate` to run the
       // given function in the browser and return the result.
       /* istanbul ignore next - code is evaluated in browser and doesn't work with coverage - @preserve */
-      await page.evaluate(
+      await pageHandle.page().evaluate(
         // eslint-disable-next-line @typescript-eslint/no-shadow
         ([selector, content]) => {
           const node = document.querySelector(selector);
@@ -89,7 +94,7 @@ export function createDocument(page: Page) {
      * Returns the current HTML content of the document.
      */
     async getContent(): Promise<string> {
-      return await page.content();
+      return await pageHandle.page().content();
     },
 
     /**
@@ -101,7 +106,7 @@ export function createDocument(page: Page) {
       // than running JS directly in the browser. We use `evaluate` to run the
       // given function in the browser and return the result.
       /* istanbul ignore next - code is evaluated in browser and doesn't work with coverage - @preserve */
-      return await page.evaluate(
+      return await pageHandle.page().evaluate(
         // eslint-disable-next-line @typescript-eslint/no-shadow
         (selector) => {
           const nodes = Array.from(document.querySelectorAll(selector));
@@ -127,7 +132,7 @@ export function createDocument(page: Page) {
     async renderToPdf(): Promise<Uint8Array> {
       const [pageDimensions] = await this.inspectElements(`.${PAGE_CLASS}`);
       return Uint8Array.from(
-        await page.pdf({
+        await pageHandle.page().pdf({
           width: `${pageDimensions.width}px`,
           height: `${pageDimensions.height}px`,
           printBackground: true,
@@ -139,7 +144,7 @@ export function createDocument(page: Page) {
      * Cleans up the resources used by the document (e.g. the browser page).
      */
     async close(): Promise<void> {
-      await page.close();
+      await pageHandle.page().close();
     },
   };
 }

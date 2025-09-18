@@ -5,6 +5,7 @@ import asyncPool from 'tiny-async-pool';
 import { assert } from 'node:console';
 import {
   Page,
+  PageHandle,
   RenderDocument,
   RenderScratchpad,
   Renderer,
@@ -15,10 +16,12 @@ import {
   createScratchpad,
 } from './renderer';
 
-function createRendererFromPage(page: Page): Omit<Renderer, 'close'> {
+function createRendererFromPage(
+  pageHandle: PageHandle
+): Omit<Renderer, 'close'> {
   return {
     async createScratchpad(styles): Promise<RenderScratchpad> {
-      await page.setContent(
+      await pageHandle.page().setContent(
         `<!DOCTYPE html>${ReactDomServer.renderToStaticMarkup(
           <html>
             <head>{styles}</head>
@@ -26,15 +29,28 @@ function createRendererFromPage(page: Page): Omit<Renderer, 'close'> {
           </html>
         )}`
       );
-      const document = createDocument(page);
+      const document = createDocument(pageHandle);
       return createScratchpad(document);
     },
 
     async loadDocumentFromContent(
       htmlContent: string
     ): Promise<RenderDocument> {
-      await page.setContent(htmlContent);
-      return createDocument(page);
+      await pageHandle.page().setContent(htmlContent);
+      return createDocument(pageHandle);
+    },
+  };
+}
+
+function makePageHandle(page: Page): PageHandle {
+  let voided = false;
+  return {
+    page(): Page {
+      assert(!voided, 'Page is no longer available');
+      return page;
+    },
+    void(): void {
+      voided = true;
     },
   };
 }
@@ -55,15 +71,17 @@ export async function createPlaywrightRenderer(): Promise<SingletonRenderer> {
 
   return {
     async createScratchpad(styles): Promise<RenderScratchpad> {
-      const page = await context.newPage();
-      return createRendererFromPage(page).createScratchpad(styles);
+      const pageHandle = makePageHandle(await context.newPage());
+      return createRendererFromPage(pageHandle).createScratchpad(styles);
     },
 
     async loadDocumentFromContent(
       htmlContent: string
     ): Promise<RenderDocument> {
-      const page = await context.newPage();
-      return createRendererFromPage(page).loadDocumentFromContent(htmlContent);
+      const pageHandle = makePageHandle(await context.newPage());
+      return createRendererFromPage(pageHandle).loadDocumentFromContent(
+        htmlContent
+      );
     },
 
     async close(): Promise<void> {
@@ -89,9 +107,11 @@ export async function createPlaywrightRendererPool(
   async function* runTasks<T>(tasks: Array<Task<T>>): AsyncGenerator<T> {
     yield* asyncPool(size, tasks, async (task) => {
       const page = pages.pop() ?? (await context.newPage());
-      const renderer = createRendererFromPage(page);
+      const pageHandle = makePageHandle(page);
+      const renderer = createRendererFromPage(pageHandle);
       const result = await task(renderer);
       assert(!page.isClosed(), 'Page should not be closed during task');
+      pageHandle.void();
       pages.push(page);
       return result;
     });
