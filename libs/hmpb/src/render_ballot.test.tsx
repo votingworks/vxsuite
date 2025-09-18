@@ -11,7 +11,7 @@ import { BALLOT_MODES } from './types';
 import { createPlaywrightRenderer } from './playwright_renderer';
 import { ballotTemplates } from './ballot_templates';
 import { vxFamousNamesFixtures } from './ballot_fixtures';
-import { rotateCandidates } from './ballot_templates/nh_ballot_template';
+import { rotateCandidatesByStatute } from './ballot_templates/nh_ballot_template';
 
 function combinations<T extends Record<string, unknown>>(
   arrays: Array<Array<Partial<T>>>
@@ -116,7 +116,7 @@ test('reorder candidates based on rotation from template', async () => {
       fixtureContest;
     expect(restContest).toEqual(restFixtureContest);
     expect(candidates.map((c) => c.id)).toEqual(
-      rotateCandidates(fixtureContest)
+      rotateCandidatesByStatute(fixtureContest)
     );
   }
 });
