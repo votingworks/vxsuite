@@ -83,10 +83,12 @@ export async function programJavaCard({
   card,
   isProduction,
   user,
+  workingDirectory,
 }: {
   card: JavaCard;
   isProduction: boolean;
   user: VendorUser | SystemAdministratorUser;
+  workingDirectory?: string;
 }): Promise<void> {
   const initialJavaCardConfigurationScriptReminder = `
 ${
@@ -104,7 +106,7 @@ Run that and then retry.
   try {
     switch (user.role) {
       case 'vendor': {
-        await card.program({ user, pin });
+        await card.program({ user, pin }, { workingDirectory });
         break;
       }
       case 'system_administrator': {
