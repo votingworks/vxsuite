@@ -47,6 +47,9 @@ export function getMostRecentDiagnosticRecord(
   client: Client,
   type: DiagnosticType
 ): DiagnosticRecord | undefined {
+  // Retrieve the latest record using the monotonically increasing ID rather than the timestamp to
+  // ensure that we're pulling by real world time rather than system time, which can be toggled
+  // into the future and then back into the past
   const record = client.one(
     `
       select
@@ -56,7 +59,7 @@ export function getMostRecentDiagnosticRecord(
         timestamp
       from diagnostics
       where type = ?
-      order by timestamp desc
+      order by id desc
       limit 1
     `,
     type
