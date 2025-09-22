@@ -140,7 +140,7 @@ export class JsBitWriter implements BitWriter {
     const codes = options.encoding.encode(string);
 
     // write length
-    if (options.includeLength) {
+    if (options.writeLength) {
       if (codes.length > options.maxLength) {
         throw new Error(
           `overflow: cannot write a string longer than max length: ${string.length} > ${options.maxLength}`

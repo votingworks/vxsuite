@@ -248,11 +248,44 @@ pub fn bit_writer_write_string_with_hex_encoding(mut cx: FunctionContext) -> JsR
 
 const WRITE_IN_ENCODING: &str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ '\"-.,";
 
+#[allow(clippy::cast_possible_truncation)]
+const WRITE_IN_ENCODING_CHAR_BITS: u32 =
+    u8::BITS - u8::leading_zeros(WRITE_IN_ENCODING.len() as u8 - 1);
+
+#[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
 pub fn bit_writer_write_string_with_write_in_encoding(
     mut cx: FunctionContext,
 ) -> JsResult<JsUndefined> {
     let writer = cx.this::<JsBitWriter>()?;
     let (value, write_length, max_length): (String, bool, f64) = cx.args()?;
 
-    todo!()
+    if write_length {
+        let max_length = max_length.round() as u64;
+
+        if (max_length as usize) < value.len() {
+            return cx.throw_error(format!(
+                "overflow: cannot write a string longer than max length: {} > {max_length}",
+                value.len()
+            ));
+        }
+
+        let length_bits = u64::BITS - u64::leading_zeros(max_length);
+        if let Err(err) = writer.write_unsigned_var(length_bits, value.len() as u64) {
+            return cx.throw_error(err.to_string());
+        }
+    }
+
+    for chr in value.chars() {
+        let Some(index) = WRITE_IN_ENCODING.find(chr) else {
+            return cx.throw_error(format!(
+                "Invalid write-in value contains disallowed character {chr:?}"
+            ));
+        };
+
+        if let Err(err) = writer.write_unsigned_var(WRITE_IN_ENCODING_CHAR_BITS, index as u64) {
+            return cx.throw_error(err.to_string());
+        }
+    }
+
+    Ok(cx.undefined())
 }

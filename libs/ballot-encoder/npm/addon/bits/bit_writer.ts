@@ -47,17 +47,17 @@ export class BitWriterNative implements BitWriter {
   }
 
   writeUtf8String(string: string, options: WriteStringOptions): this {
-    addon.BitWriter_writeStringWithUtf8Encoding.call(this.inner, string, options.includeLength, options.includeLength ? options.maxLength : 0);
+    addon.BitWriter_writeStringWithUtf8Encoding.call(this.inner, string, options.writeLength, options.writeLength ? options.maxLength : 0);
     return this;
   }
 
   writeWriteInString(string: string, options: WriteStringOptions): this {
-    addon.BitWriter_writeStringWithWriteInEncoding.call(this.inner, string, options.includeLength, options.includeLength ? options.maxLength : 0);
+    addon.BitWriter_writeStringWithWriteInEncoding.call(this.inner, string, options.writeLength, options.writeLength ? options.maxLength : 0);
     return this;
   }
 
   writeHexString(string: string, options: WriteStringOptions): this {
-    addon.BitWriter_writeStringWithHexEncoding.call(this.inner, string, options.includeLength, options.includeLength ? options.maxLength : 0);
+    addon.BitWriter_writeStringWithHexEncoding.call(this.inner, string, options.writeLength, options.writeLength ? options.maxLength : 0);
     return this;
   }
 

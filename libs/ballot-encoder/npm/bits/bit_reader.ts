@@ -1,19 +1,19 @@
 import { BitCursor } from './bit_cursor';
-import { Uint1, Uint8, Uint8Size } from './types';
+import { BitReader, ReadStringOptions, Uint1, Uint8, Uint8Size } from './types';
 import { sizeof, makeMasks, toUint8 } from './utils';
-import { Utf8Encoding, Encoding } from './encoding';
+import { HexEncoding, WriteInEncoding } from './encoding';
 
 /**
  * Reads structured data from a `Uint8Array`. Data is read in little-endian
  * order.
  */
-export class BitReader {
+export class JsBitReader implements BitReader {
   private cursor = new BitCursor();
 
   /**
    * @param data a buffer to read data from
    */
-  constructor(private readonly data: Uint8Array) {}
+  constructor(private readonly data: Uint8Array) { }
 
   /**
    * Reads a Uint1 and moves the internal cursor forward one bit.
@@ -100,41 +100,39 @@ export class BitReader {
    *                                  // length  'h'  'i'
    *                                  //      ↓   ↓    ↓
    * const bits = new BitReader(Uint8Array.of(2, 104, 105))
-   * bits.readString() // "hi"
-   *
-   *                                  // length  'h''i'
-   *                                  //           ↓↓
-   * const bits = new BitReader(Uint8Array.of(2, 0b01000000))
-   * const encoding = new CustomEncoding('hi')    // ↑↑↑↑↑↑
-   * bits.readString() // "hi"                       padding
-   *
-   *                                  //     'h'  'i'
-   *                                  //      ↓    ↓
-   * const bits = new BitReader(Uint8Array.of(104, 105))
-   * bits.readString({ length: 2 }) // "hi"
+   * bits.readUtf8String() // "hi"
    */
-  readString(): string;
-  readString(options: { encoding?: Encoding }): string;
-  readString(options: { encoding?: Encoding; maxLength?: number }): string;
-
-  readString(options: { encoding?: Encoding; length?: number }): string;
-  readString({
-    encoding = Utf8Encoding,
-    maxLength = (1 << Uint8Size) - 1,
-    length,
-  }: {
-    encoding?: Encoding;
-    maxLength?: number;
-    length?: number;
-  } = {}): string {
-    const lengthToRead = length ?? this.readUint({ max: maxLength });
+  readUtf8String(options: ReadStringOptions): string {
+    const lengthToRead = options.readLength ? this.readUint({ max: options.maxLength }) : options.fixedLength;
     const codes = new Uint8Array(lengthToRead);
 
     for (let i = 0; i < lengthToRead; i += 1) {
-      codes.set([this.readUint({ size: encoding.getBitsPerElement() })], i);
+      codes.set([this.readUint({ size: Uint8Size })], i);
     }
 
-    return encoding.decode(codes);
+    return new TextDecoder().decode(codes);
+  }
+
+  readWriteInString(options: ReadStringOptions): string {
+    const lengthToRead = options.readLength ? this.readUint({ max: options.maxLength }) : options.fixedLength;
+    const codes = new Uint8Array(lengthToRead);
+
+    for (let i = 0; i < lengthToRead; i += 1) {
+      codes.set([this.readUint({ size: WriteInEncoding.getBitsPerElement() })], i);
+    }
+
+    return WriteInEncoding.decode(codes);
+  }
+
+  readHexString(options: ReadStringOptions): string {
+    const lengthToRead = options.readLength ? this.readUint({ max: options.maxLength }) : options.fixedLength;
+    const codes = new Uint8Array(lengthToRead);
+
+    for (let i = 0; i < lengthToRead; i += 1) {
+      codes.set([this.readUint({ size: HexEncoding.getBitsPerElement() })], i);
+    }
+
+    return HexEncoding.decode(codes);
   }
 
   /**
@@ -160,8 +158,8 @@ export class BitReader {
       if (
         !this.canRead(sizeofUint) ||
         uint !==
-          // this is kinda ridiculous, but makes TS happy
-          ('max' in options ? this.readUint(options) : this.readUint(options))
+        // this is kinda ridiculous, but makes TS happy
+        ('max' in options ? this.readUint(options) : this.readUint(options))
       ) {
         this.cursor = originalCursor;
         return false;

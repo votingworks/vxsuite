@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { JsBitWriter } from './bit_writer';
 import * as addon from '../addon/bits/bit_writer';
 
-describe.each([['JsBitWriter', JsBitWriter], ['BitWriter (Addon)', addon.BitWriterNative]])("%s", (_, W) => {
+describe.each([['JsBitWriter', JsBitWriter], ['BitWriter (Native)', addon.BitWriterNative]])("%s", (_, W) => {
   test('can write a bit', () => {
     expect(new W().writeUint1(1).toUint8Array()).toEqual(
       Uint8Array.of(0b10000000)
@@ -44,7 +44,7 @@ describe.each([['JsBitWriter', JsBitWriter], ['BitWriter (Addon)', addon.BitWrit
   });
 
   test('can write a utf-8 string', () => {
-    expect(new W().writeUtf8String('abcdé', { includeLength: true, maxLength: 255 }).toUint8Array()).toEqual(
+    expect(new W().writeUtf8String('abcdé', { writeLength: true, maxLength: 255 }).toUint8Array()).toEqual(
       Uint8Array.of(
         6,
         0b01100001,
@@ -60,7 +60,7 @@ describe.each([['JsBitWriter', JsBitWriter], ['BitWriter (Addon)', addon.BitWrit
   test('can write a utf-8 string without a preceding length', () => {
     expect(
       new W()
-        .writeUtf8String('abcdé', { includeLength: false })
+        .writeUtf8String('abcdé', { writeLength: false, fixedLength: 6 })
         .toUint8Array()
     ).toEqual(
       Uint8Array.of(
@@ -75,16 +75,19 @@ describe.each([['JsBitWriter', JsBitWriter], ['BitWriter (Addon)', addon.BitWrit
   });
 
   test('can write a hex-encoded string', () => {
-    expect(new W().writeHexString(Buffer.of(1, 2).toString('hex'), { includeLength: false }).toUint8Array()).toEqual(Uint8Array.of(1, 2))
+    expect(new W().writeHexString(Buffer.of(1, 2).toString('hex'), { writeLength: false, fixedLength: 2 }).toUint8Array()).toEqual(Uint8Array.of(1, 2))
   })
 
   test('can write a write-in-encoded string', () => {
-    expect(new W().writeWriteInString("BOB", { includeLength: true, maxLength: 40 }).toUint8Array()).toEqual(Uint8Array.of())
+    expect(new W().writeWriteInString("BOB", { writeLength: true, maxLength: 40 }).toUint8Array()).toEqual(Uint8Array.of(
+      0b000011_00, 0b001_01110, 0b00001_000
+      //length BB    BBB OOOOO    BBBBB padding
+    ))
   })
 
   test('can write a non-aligned utf-8 string after writing a bit', () => {
     expect(
-      new W().writeUint1(1).writeUtf8String('abc', { includeLength: true, maxLength: 255 }).toUint8Array()
+      new W().writeUint1(1).writeUtf8String('abc', { writeLength: true, maxLength: 255 }).toUint8Array()
     ).toEqual(
       Uint8Array.of(0b10000001, 0b10110000, 0b10110001, 0b00110001, 0b10000000)
     );
@@ -119,7 +122,7 @@ describe.each([['JsBitWriter', JsBitWriter], ['BitWriter (Addon)', addon.BitWrit
   });
 
   test('fails to write a string that is longer than the maximum length', () => {
-    expect(() => new W().writeUtf8String('a', { includeLength: true, maxLength: 0 })).toThrowError(
+    expect(() => new W().writeUtf8String('a', { writeLength: true, maxLength: 0 })).toThrowError(
       'overflow: cannot write a string longer than max length: 1 > 0'
     );
   });

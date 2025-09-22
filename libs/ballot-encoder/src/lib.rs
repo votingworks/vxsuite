@@ -33,5 +33,9 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
         "BitWriter_writeStringWithHexEncoding",
         bit_writer::bit_writer_write_string_with_hex_encoding,
     )?;
+
+    cx.export_function("BitReader_new", bit_reader::bit_reader_new)?;
+    cx.export_function("BitReader_readBoolean", bit_reader::bit_reader_read_boolean)?;
+
     Ok(())
 }

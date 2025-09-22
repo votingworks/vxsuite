@@ -278,8 +278,15 @@ export const Uint8Size = 8;
  * Options when calling methods for writing strings to a `BitWriter`.
  */
 export type WriteStringOptions =
-  | { includeLength: false }
-  | { includeLength: true; maxLength: number }
+  | { writeLength: false; fixedLength: number }
+  | { writeLength: true; maxLength: number }
+
+/**
+ * Options when calling methods for reading strings to a `BitReader`.
+ */
+export type ReadStringOptions =
+  | { readLength: false; fixedLength: number }
+  | { readLength: true; maxLength: number }
 
 /**
  * Any object that collects writes into a `Uint8Array`.
@@ -340,4 +347,96 @@ export interface BitWriter {
    * are byte-aligned.
    */
   toUint8Array(): Uint8Array;
+}
+
+/**
+ * Any objects that reads structured data from a sequence of bits.
+ */
+export interface BitReader {
+  /**
+   * Reads a Uint1.
+   */
+  readUint1(): Uint1
+
+  /**
+   * Reads a number by reading 8 bits.
+   */
+  readUint8(): Uint8;
+
+  /**
+   * Reads a boolean by reading a bit and returning whether the bit was set.
+   */
+  readBoolean(): boolean
+
+  /**
+   * Reads a unsigned integer as a series of bits. There are two ways to control
+   * the number of bytes `number` takes: provide a `max` value or provide a
+   * `size`. If `max` is provided, then however many bytes would be required to
+   * write `max` will be used to write `number`. If `size` is provided, then
+   * that is how many bytes will be used.
+   *
+   * @example
+   *
+   * // contains 16 bits
+   * const bits = new BitReader(Uint8Array.of(0xff, 0x0f))
+   *
+   * bits.readUint({ max: 0x0f })  // reads first 4 bits: 0x0f
+   * bits.readUint({ size: 8 })    // reads next 8 bits:  0xf0
+   * bits.readUint({ size: 4 })    // reads last 4 bits:  0x0f
+   */
+  readUint({ max }: { max: number }): number;
+  readUint({ size }: { size: number }): number;
+
+  /**
+   * Reads a string, either with a known length or by reading a length up to a
+   * given maximum. By default, the encoding used will be UTF-8. If your string
+   * has a restricted character set, you can use your own `CustomEncoding` to
+   * read and write the string more compactly than you otherwise would be able
+   * to.
+   *
+   * It is important to remember that the options must be the same for
+   * `readUtf8String` and `writeUtf8String` calls, otherwise reading the string
+   * will very likely fail or be corrupt.
+   *
+   * @example
+   *
+   *                                  // length  'h'  'i'
+   *                                  //      ↓   ↓    ↓
+   * const bits = new BitReader(Uint8Array.of(2, 104, 105))
+   * bits.readUtf8String({ includeLength: false }) // "hi"
+   */
+  readUtf8String(options: ReadStringOptions): string;
+
+  readWriteInString(options: ReadStringOptions): string;
+  readHexString(options: ReadStringOptions): string;
+
+  /**
+   * Skips uint values if they match the next values to be read.
+   *
+   * @returns true if the uints matched and were skipped, false otherwise
+   */
+  skipUint(expected: number, { max }: { max: number }): boolean;
+  skipUint(expected: number, { size }: { size: number }): boolean;
+  skipUint(expected: number[], { max }: { max: number }): boolean;
+  skipUint(expected: number[], { size }: { size: number }): boolean;
+
+  /**
+   * Skips N bits if they match the next N bits that would be read.
+   *
+   * @returns true if the bits matched and were skipped, false otherwise
+   */
+  skipUint1(...uint1s: number[]): boolean
+
+  /**
+   * Skips N bytes if they match the next N bytes that would be read.
+   *
+   * @returns true if the bytes matched and were skipped, false otherwise
+   */
+  skipUint8(...uint8s: number[]): boolean
+
+  /**
+   * Determines whether there is any more data to read. If the result is
+   * `false`, then any call to read data will throw an exception.
+   */
+  canRead(size?: number): boolean
 }

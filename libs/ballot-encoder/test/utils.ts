@@ -1,6 +1,6 @@
 import { expect } from 'vitest';
 import fc from 'fast-check';
-import { BitReader, JsBitWriter, toUint8, Uint1, Uint8, WriteInEncoding } from '../npm/bits';
+import { BitReader, BitWriter, toUint8, Uint1, Uint8, WriteInEncoding } from '../npm/bits';
 
 /**
  * Generates arbitrary write-in characters.
@@ -45,8 +45,17 @@ export interface UintWritable {
 /**
  * Represents a string value for testing arbitrarily-ordered writes and reads.
  */
-export interface StringWritable {
+export interface Utf8StringWritable {
   readonly type: 'string';
+  readonly value: string;
+  readonly maxLength: number;
+}
+
+/**
+ * Represents a write-in value for testing arbitrarily-ordered writes and reads.
+ */
+export interface WriteInStringWritable {
+  readonly type: 'write-in-string';
   readonly value: string;
   readonly maxLength: number;
 }
@@ -60,7 +69,8 @@ export type AnyWritable =
   | Uint1Writable
   | Uint8Writable
   | UintWritable
-  | StringWritable;
+  | Utf8StringWritable
+  | WriteInStringWritable;
 
 /**
  * Generates a boolean value for testing arbitrarily-ordered writes and reads.
@@ -94,10 +104,21 @@ export const writableUint = fc
 /**
  * Generates a string value for testing arbitrarily-ordered writes and reads.
  */
-export const writableString = fc
+export const writableUtf8String = fc
   .tuple(fc.string(), fc.nat())
-  .map<StringWritable>(([value, max]) => ({
+  .map<Utf8StringWritable>(([value, max]) => ({
     type: 'string',
+    value,
+    maxLength: Math.max(max, value.length),
+  }));
+
+/**
+ * Generates a write-in value for testing arbitrarily-ordered writes and reads.
+ */
+export const writableWriteInString = fc
+  .tuple(fc.array(fc.constantFrom(...WriteInEncoding.getChars()), { minLength: 1, maxLength: 40 }).map((chars) => chars.join('')), fc.nat())
+  .map<WriteInStringWritable>(([value, max]) => ({
+    type: 'write-in-string',
     value,
     maxLength: Math.max(max, value.length),
   }));
@@ -111,7 +132,8 @@ export const anyWritable = fc.oneof<Array<fc.Arbitrary<AnyWritable>>>(
   writableUint1,
   writableUint8,
   writableUint,
-  writableString
+  writableUtf8String,
+  writableWriteInString,
 );
 
 /**
@@ -119,7 +141,7 @@ export const anyWritable = fc.oneof<Array<fc.Arbitrary<AnyWritable>>>(
  * {@link doReads} to verify that the values round-trip correctly.
  */
 export function doWrites(
-  writer: JsBitWriter,
+  writer: BitWriter,
   writables: readonly AnyWritable[]
 ): void {
   for (const writable of writables) {
@@ -142,10 +164,17 @@ export function doWrites(
 
       case 'string':
         writer.writeUtf8String(writable.value, {
-          includeLength: true,
+          writeLength: true,
           maxLength: writable.maxLength,
         });
         break;
+
+      case 'write-in-string':
+        writer.writeWriteInString(writable.value, {
+          writeLength: true,
+          maxLength: writable.maxLength,
+        })
+        break
 
       /* istanbul ignore next */
       default:
@@ -182,9 +211,15 @@ export function doReads(
         break;
 
       case 'string':
-        expect(reader.readString({ maxLength: writable.maxLength })).toEqual(
+        expect(reader.readUtf8String({ readLength: true, maxLength: writable.maxLength })).toEqual(
           writable.value
         );
+        break;
+
+      case 'write-in-string':
+        expect(reader.readWriteInString({ readLength: true, maxLength: writable.maxLength })).toEqual(
+          writable.value
+        )
         break;
 
       /* istanbul ignore next */

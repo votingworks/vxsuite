@@ -92,11 +92,12 @@ test('encodes & decodes empty votes correctly', () => {
   };
   const encodedBallot = new JsBitWriter()
     // prelude + version number
-    .writeUtf8String('VX', { includeLength: false })
+    .writeUtf8String('VX', { writeLength: false, fixedLength: 2 })
     .writeUint8(2)
     // ballot hash
     .writeHexString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
-      includeLength: false,
+      writeLength: false,
+      fixedLength: BALLOT_HASH_ENCODING_LENGTH,
     })
     // precinct index
     .writeUint(0, { max: MAXIMUM_PRECINCTS })
@@ -137,11 +138,12 @@ test('encodes & decodes whether it is a test ballot', () => {
   };
   const encodedBallot = new JsBitWriter()
     // prelude + version number
-    .writeUtf8String('VX', { includeLength: false })
+    .writeUtf8String('VX', { writeLength: false, fixedLength: 2 })
     .writeUint8(2)
     // ballot hash
     .writeHexString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
-      includeLength: false,
+      writeLength: false,
+      fixedLength: BALLOT_HASH_ENCODING_LENGTH,
     })
     // precinct index
     .writeUint(0, { max: MAXIMUM_PRECINCTS })
@@ -185,11 +187,12 @@ test('encodes & decodes the ballot type', () => {
   };
   const encodedBallot = new JsBitWriter()
     // prelude + version number
-    .writeUtf8String('VX', { includeLength: false })
+    .writeUtf8String('VX', { writeLength: false, fixedLength: 2 })
     .writeUint8(2)
     // ballot hash
     .writeHexString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
-      includeLength: false,
+      writeLength: false,
+      fixedLength: BALLOT_HASH_ENCODING_LENGTH,
     })
     // precinct index
     .writeUint(0, { max: MAXIMUM_PRECINCTS })
@@ -239,11 +242,12 @@ test('encodes & decodes yesno votes correctly', () => {
   };
   const encodedBallot = new JsBitWriter()
     // prelude + version number
-    .writeUtf8String('VX', { includeLength: false })
+    .writeUtf8String('VX', { writeLength: false, fixedLength: 2 })
     .writeUint8(2)
     // ballot hash
     .writeHexString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
-      includeLength: false,
+      writeLength: false,
+      fixedLength: BALLOT_HASH_ENCODING_LENGTH,
     })
     // precinct index
     .writeUint(0, { max: MAXIMUM_PRECINCTS })
@@ -401,11 +405,12 @@ test('encodes & decodes candidate choice votes correctly', () => {
   };
   const encodedBallot = new JsBitWriter()
     // prelude + version number
-    .writeUtf8String('VX', { includeLength: false })
+    .writeUtf8String('VX', { writeLength: false, fixedLength: 2 })
     .writeUint8(2)
     // ballot hash
     .writeHexString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
-      includeLength: false,
+      writeLength: false,
+      fixedLength: BALLOT_HASH_ENCODING_LENGTH,
     })
     // precinct index
     .writeUint(0, { max: MAXIMUM_PRECINCTS })
@@ -481,11 +486,12 @@ test('encodes & decodes write-in votes correctly', () => {
   };
   const encodedBallot = new JsBitWriter()
     // prelude + version number
-    .writeUtf8String('VX', { includeLength: false })
+    .writeUtf8String('VX', { writeLength: false, fixedLength: 2 })
     .writeUint8(2)
     // ballot hash
     .writeHexString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
-      includeLength: false,
+      writeLength: false,
+      fixedLength: BALLOT_HASH_ENCODING_LENGTH,
     })
     // precinct index
     .writeUint(0, { max: MAXIMUM_PRECINCTS })
@@ -507,7 +513,7 @@ test('encodes & decodes write-in votes correctly', () => {
     // --- write-ins
     .writeUint(1, { max: 1 }) // 1 seat - 0 selections = 1 max write-in
     .writeWriteInString('MICKEY MOUSE', {
-      includeLength: true,
+      writeLength: true,
       maxLength: MAXIMUM_WRITE_IN_LENGTH,
     })
     .toUint8Array();
@@ -523,7 +529,7 @@ test('cannot decode a ballot without the prelude', () => {
   const { election } = readElectionDefinition();
   const encodedBallot = new JsBitWriter()
     // prelude + version number
-    .writeUtf8String('XV', { includeLength: false })
+    .writeUtf8String('XV', { writeLength: false, fixedLength: 2 })
     .writeUint8(2)
     .toUint8Array();
 
