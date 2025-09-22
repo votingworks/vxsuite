@@ -245,8 +245,9 @@ export async function generateElectionPackageAndBallots(
   writeResult.unsafeUnwrap();
   const electionPackageUrl = `/files/${orgId}/${combinedFileName}`;
 
-  await store.setElectionPackageUrl({
+  await store.setElectionPackageExportInformation({
     electionId,
+    ballotHash: electionDefinition.ballotHash,
     electionPackageUrl,
   });
 }

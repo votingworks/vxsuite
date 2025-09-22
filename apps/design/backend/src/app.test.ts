@@ -2499,6 +2499,17 @@ test('Election package and ballots export', async () => {
   expect(ballotHashFromFileName).toEqual(
     formatBallotHash(electionDefinition.ballotHash)
   );
+  // The election should be retrievable from the ballot hash.
+  const electionRecord = await workspace.store.getElectionFromBallotHash(
+    electionDefinition.ballotHash
+  );
+  expect(electionRecord).toBeDefined();
+  expect(electionRecord?.election.id).toEqual(electionInfo.electionId);
+
+  // The election is not retrievable from the election package hash, since we don't store that
+  const undefinedElectionRecord =
+    await workspace.store.getElectionFromBallotHash(electionPackageHash);
+  expect(undefinedElectionRecord).toBeUndefined();
 
   //
   // Check metadata
