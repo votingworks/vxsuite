@@ -136,6 +136,7 @@ export class Client {
         schemaDigest,
         newSchemaDigest
       );
+
       try {
         const backupPath = `${dbPath}.backup-${new Date()
           .toISOString()
@@ -146,9 +147,7 @@ export class Client {
       } catch {
         // ignore for now
       }
-    }
 
-    if (shouldResetDatabase) {
       debug('resetting database to updated schema');
       client.reset();
       fs.writeFileSync(schemaDigestPath, newSchemaDigest, 'utf-8');
