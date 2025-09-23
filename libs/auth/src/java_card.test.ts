@@ -58,6 +58,7 @@ import {
   PROGRAMMING_MACHINE_CERT_AUTHORITY_CERT,
   PUK,
 } from './java_card';
+import { DEV_JURISDICTION } from './jurisdictions';
 import {
   construct8BytePinBuffer,
   CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER,
@@ -908,6 +909,31 @@ test.each<{
     expectedProgrammingMachineCertAuthorityCertPath: null,
     expectedCardDetailsAfterProgramming: {
       user: vendorUser,
+    },
+  },
+  {
+    description: 'vendor card for dev jurisdiction',
+    config: configWithVxCardProgrammingConfig,
+    programInput: {
+      user: { ...vendorUser, jurisdiction: DEV_JURISDICTION },
+      pin: '123456',
+    },
+    expectedCardType: 'vendor',
+    expectedCertSubject:
+      '/C=US/ST=CA/O=VotingWorks' +
+      '/1.3.6.1.4.1.59817.1=card' +
+      `/1.3.6.1.4.1.59817.2=${DEV_JURISDICTION}` +
+      '/1.3.6.1.4.1.59817.3=vendor/',
+    expectedExpiryInDays: 365 * 100,
+    expectedSigningCertAuthorityCertPath: getTestFilePath({
+      fileType: 'vx-cert-authority-cert.pem',
+    }),
+    expectedSigningPrivateKeyPath: getTestFilePath({
+      fileType: 'vx-private-key.pem',
+    }),
+    expectedProgrammingMachineCertAuthorityCertPath: null,
+    expectedCardDetailsAfterProgramming: {
+      user: { ...vendorUser, jurisdiction: DEV_JURISDICTION },
     },
   },
   {

@@ -191,7 +191,7 @@ can be run. This script will remind you if you haven't done so.
 #### Remote Flow
 
 If you don't have access to the relevant VotingWorks private key, you can
-specify `VX_PRIVATE_KEY_PATH=remote` to complete card configuration via a file
+specify `VX_PRIVATE_KEY_PATH=remote` to complete vendor card creation via a file
 exchange with someone who does have that key:
 
 ```
