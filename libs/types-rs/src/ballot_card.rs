@@ -1,7 +1,7 @@
 use std::num::NonZeroU8;
 use std::{fmt::Debug, io};
 
-use bitstream_io::FromBitStream;
+use bitstream_io::{FromBitStream, ToBitStream};
 use serde::{Deserialize, Serialize};
 use static_assertions::const_assert;
 
@@ -97,7 +97,7 @@ impl PageNumber {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum BallotType {
     #[serde(rename = "precinct")]
     Precinct,
@@ -113,23 +113,41 @@ impl BallotType {
 }
 
 impl FromBitStream for BallotType {
-    type Error = ParseBallotTypeError;
+    type Error = BallotTypeCodingError;
 
     fn from_reader<R: bitstream_io::BitRead + ?Sized>(r: &mut R) -> Result<Self, Self::Error>
     where
         Self: Sized,
     {
-        match r.read_var::<u8>(BallotType::BITS)? {
-            0 => Ok(BallotType::Precinct),
-            1 => Ok(BallotType::Absentee),
-            2 => Ok(BallotType::Provisional),
+        match r.read_var::<u8>(Self::BITS)? {
+            0 => Ok(Self::Precinct),
+            1 => Ok(Self::Absentee),
+            2 => Ok(Self::Provisional),
             t => Err(Self::Error::InvalidNumericValue(t)),
         }
     }
 }
 
+impl ToBitStream for BallotType {
+    type Error = BallotTypeCodingError;
+
+    fn to_writer<W: bitstream_io::BitWrite + ?Sized>(&self, w: &mut W) -> Result<(), Self::Error>
+    where
+        Self: Sized,
+    {
+        Ok(w.write_var::<u8>(
+            BallotType::BITS,
+            match self {
+                Self::Precinct => 0,
+                Self::Absentee => 1,
+                Self::Provisional => 2,
+            },
+        )?)
+    }
+}
+
 #[derive(Debug, thiserror::Error)]
-pub enum ParseBallotTypeError {
+pub enum BallotTypeCodingError {
     #[error("I/O error: {0}")]
     Io(#[from] io::Error),
 

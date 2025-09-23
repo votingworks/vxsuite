@@ -1,3 +1,7 @@
+use std::io;
+
+use bitstream_io::{BigEndian, BitWrite, BitWriter, ToBitStream, ToBitStreamWith};
+
 #[macro_export]
 macro_rules! codable {
     ($name:ident, $inner:path, $range:expr) => {
@@ -54,6 +58,17 @@ macro_rules! codable {
             }
         }
 
+        impl ::bitstream_io::ToBitStream for $name {
+            type Error = $crate::coding::Error;
+
+            fn to_writer<W: ::bitstream_io::BitWrite + ?Sized>(
+                &self,
+                w: &mut W,
+            ) -> Result<(), Self::Error> {
+                Ok(w.write_var::<$inner>(Self::BITS, self.0)?)
+            }
+        }
+
         impl PartialEq for $name {
             fn eq(&self, other: &Self) -> bool {
                 self.0 == other.0
@@ -81,4 +96,53 @@ pub const fn bit_size(n: u64) -> u32 {
     } else {
         n.ilog2() + 1
     }
+}
+
+/// Encode a codable value to an array of bytes using big-endian byte order.
+/// Ensures that the result is byte-aligned, so there may be some padding bits
+/// at the end.
+///
+/// # Errors
+///
+/// Fails when the contents cannot be encoded or there is an I/O error.
+pub fn encode<T>(value: &T) -> Result<Vec<u8>, T::Error>
+where
+    T: ToBitStream,
+    T::Error: From<io::Error>,
+{
+    collect_writes(|writer| value.to_writer(writer))
+}
+
+/// Encode a codable value, with a context, to an array of bytes using
+/// big-endian byte order. Ensures that the result is byte-aligned, so there may
+/// be some padding bits at the end.
+///
+/// # Errors
+///
+/// Fails when the contents cannot be encoded or there is an I/O error.
+pub fn encode_with<'a, T>(value: &T, context: &'a T::Context) -> Result<Vec<u8>, T::Error>
+where
+    T: ToBitStreamWith<'a>,
+    T::Error: From<io::Error>,
+{
+    collect_writes(|writer| value.to_writer(writer, context))
+}
+
+/// Call a callback with a [`BitWriter`], then collect all the data written
+/// into a byte array in big-endian byte order. Ensures that the result is
+/// byte-aligned, so there may be some padding bits at the end.
+///
+/// # Errors
+///
+/// Propagates errors from the given callback.
+pub fn collect_writes<E>(
+    f: impl FnOnce(&mut BitWriter<Vec<u8>, BigEndian>) -> Result<(), E>,
+) -> Result<Vec<u8>, E>
+where
+    E: From<io::Error>,
+{
+    let mut writer = BitWriter::new(Vec::new());
+    f(&mut writer)?;
+    writer.byte_align()?;
+    Ok(writer.into_writer())
 }

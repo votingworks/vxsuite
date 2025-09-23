@@ -3,7 +3,7 @@ use std::fmt::Display;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    ballot_card::BallotSide,
+    ballot_card::{BallotSide, BallotStyleIndex, PrecinctIndex},
     geometry::{SubGridRect, SubGridUnit},
     idtype::idtype,
 };
@@ -29,6 +29,34 @@ pub struct Election {
     pub grid_layouts: Option<Vec<GridLayout>>,
     pub mark_thresholds: Option<MarkThresholds>,
     pub ballot_layout: BallotLayout,
+}
+
+impl Election {
+    /// Finds the index of the precinct with the given ID, returning `None` if
+    /// no such precinct is found or if the index cannot be represented in the
+    /// number of bits allowed for a [`PrecinctIndex`].
+    #[must_use]
+    pub fn precinct_index(&self, precinct_id: &PrecinctId) -> Option<PrecinctIndex> {
+        self.precincts
+            .iter()
+            .enumerate()
+            .find(|(_, precinct)| &precinct.id == precinct_id)
+            .and_then(|(index, _)| u32::try_from(index).ok())
+            .and_then(PrecinctIndex::new)
+    }
+
+    /// Finds the index of the ballot style with the given ID, returning `None`
+    /// if no such ballot style is found or if the index cannot be represented
+    /// in the number of bits allowed for a [`BallotStyleIndex`].
+    #[must_use]
+    pub fn ballot_style_index(&self, ballot_style_id: &BallotStyleId) -> Option<BallotStyleIndex> {
+        self.ballot_styles
+            .iter()
+            .enumerate()
+            .find(|(_, ballot_style)| &ballot_style.id == ballot_style_id)
+            .and_then(|(index, _)| u32::try_from(index).ok())
+            .and_then(BallotStyleIndex::new)
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
