@@ -198,21 +198,13 @@ function BlankBallotWarningScreen(): JSX.Element {
   return (
     <Screen
       actionButtons={
-        <React.Fragment>
-          <Button
-            id={PageNavigationButtonId.PREVIOUS_AFTER_CONFIRM}
-            variant="primary"
-            onPress={() => returnBallotMutation.mutate()}
-          >
-            {appStrings.buttonReturnBallot()}
-          </Button>
-          <Button
-            id={PageNavigationButtonId.NEXT_AFTER_CONFIRM}
-            onPress={() => setConfirmTabulate(true)}
-          >
-            {appStrings.buttonCastBallot()}
-          </Button>
-        </React.Fragment>
+        <Button
+          id={PageNavigationButtonId.PREVIOUS_AFTER_CONFIRM}
+          variant="primary"
+          onPress={() => returnBallotMutation.mutate()}
+        >
+          {appStrings.buttonReturnBallot()}
+        </Button>
       }
       centerContent
       padded
