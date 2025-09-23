@@ -61,6 +61,7 @@ import {
   verifyFirstCertWasSignedBySecondCert,
   verifySignature,
 } from './cryptography';
+import { DEV_JURISDICTION } from './jurisdictions';
 import {
   construct8BytePinBuffer,
   CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER,
@@ -425,7 +426,10 @@ export class JavaCard implements Card {
       } else {
         cardIdentityCert = await createCert({
           ...createCertInputBase,
-          expiryInDays: CERT_EXPIRY_IN_DAYS.VENDOR_CARD_IDENTITY_CERT,
+          expiryInDays:
+            user.jurisdiction === DEV_JURISDICTION
+              ? CERT_EXPIRY_IN_DAYS.DEV_JURISDICTION_VENDOR_CARD_IDENTITY_CERT
+              : CERT_EXPIRY_IN_DAYS.VENDOR_CARD_IDENTITY_CERT,
           signingCertAuthorityCertPath: this.vxCertAuthorityCertPath,
           signingPrivateKey: vxPrivateKey,
         });

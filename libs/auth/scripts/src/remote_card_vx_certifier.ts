@@ -4,6 +4,7 @@ import {
   assert,
   assertDefined,
   extractErrorMessage,
+  throwIllegalValue,
 } from '@votingworks/basics';
 
 import {
@@ -14,6 +15,7 @@ import {
 import { PROD_VX_CERT_AUTHORITY_CERT_PATH } from '../../src/config';
 import { createCert } from '../../src/cryptography';
 import { getRequiredEnvVar } from '../../src/env_vars';
+import { DEV_JURISDICTION } from '../../src/jurisdictions';
 
 interface ScriptEnvVars {
   certPublicKeyPath: string;
@@ -86,21 +88,35 @@ async function remoteCardVxCertifier({
     );
   }
 
+  let certSubject: string;
+  let expiryInDays: number;
+  switch (certType) {
+    case 'vendor': {
+      certSubject = constructCardCertSubject({
+        user: { role: 'vendor', jurisdiction: vendorCardJurisdiction },
+      });
+      expiryInDays =
+        vendorCardJurisdiction === DEV_JURISDICTION
+          ? CERT_EXPIRY_IN_DAYS.DEV_JURISDICTION_VENDOR_CARD_IDENTITY_CERT
+          : CERT_EXPIRY_IN_DAYS.VENDOR_CARD_IDENTITY_CERT;
+      break;
+    }
+    case 'vx': {
+      certSubject = constructCardCertSubjectWithoutJurisdictionAndCardType();
+      expiryInDays = CERT_EXPIRY_IN_DAYS.CARD_VX_CERT;
+      break;
+    }
+    default: {
+      throwIllegalValue(certType);
+    }
+  }
   const cert = await createCert({
     certKeyInput: {
       type: 'public',
       key: { source: 'inline', content: certPublicKey },
     },
-    certSubject:
-      certType === 'vendor'
-        ? constructCardCertSubject({
-            user: { role: 'vendor', jurisdiction: vendorCardJurisdiction },
-          })
-        : constructCardCertSubjectWithoutJurisdictionAndCardType(),
-    expiryInDays:
-      certType === 'vendor'
-        ? CERT_EXPIRY_IN_DAYS.VENDOR_CARD_IDENTITY_CERT
-        : CERT_EXPIRY_IN_DAYS.CARD_VX_CERT,
+    certSubject,
+    expiryInDays,
     signingCertAuthorityCertPath: PROD_VX_CERT_AUTHORITY_CERT_PATH,
     signingPrivateKey: { source: 'file', path: vxPrivateKeyPath },
   });
