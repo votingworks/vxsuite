@@ -112,8 +112,8 @@ export enum LogEventId {
   DatabaseConnectComplete = 'database-connect-complete',
   DatabaseCreateInit = 'database-create-init',
   DatabaseCreateComplete = 'database-create-complete',
-  DatabaseDestroyInit = 'database-destroy-init',
-  DatabaseDestroyComplete = 'database-destroy-complete',
+  DatabaseResetInit = 'database-reset-init',
+  DatabaseResetComplete = 'database-destroy-complete',
   FileReadError = 'file-read-error',
   DmVerityBoot = 'dmverity-boot',
   MachineBootInit = 'machine-boot-init',
@@ -553,17 +553,17 @@ const DatabaseCreateComplete: LogDetails = {
     'Database created and setup. Success or failure indicated by disposition.',
 };
 
-const DatabaseDestroyInit: LogDetails = {
-  eventId: LogEventId.DatabaseDestroyInit,
+const DatabaseResetInit: LogDetails = {
+  eventId: LogEventId.DatabaseResetInit,
   eventType: LogEventType.SystemAction,
-  documentationMessage: 'Initiating destruction of the database.',
+  documentationMessage: 'Initiating reset of the database.',
 };
 
-const DatabaseDestroyComplete: LogDetails = {
-  eventId: LogEventId.DatabaseDestroyComplete,
+const DatabaseResetComplete: LogDetails = {
+  eventId: LogEventId.DatabaseResetComplete,
   eventType: LogEventType.SystemAction,
   documentationMessage:
-    'Database destroyed. Success or failure indicated by disposition.',
+    'Database reset. Success or failure indicated by disposition.',
 };
 
 const FileReadError: LogDetails = {
@@ -1494,10 +1494,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return DatabaseCreateInit;
     case LogEventId.DatabaseCreateComplete:
       return DatabaseCreateComplete;
-    case LogEventId.DatabaseDestroyInit:
-      return DatabaseDestroyInit;
-    case LogEventId.DatabaseDestroyComplete:
-      return DatabaseDestroyComplete;
+    case LogEventId.DatabaseResetInit:
+      return DatabaseResetInit;
+    case LogEventId.DatabaseResetComplete:
+      return DatabaseResetComplete;
     case LogEventId.FileReadError:
       return FileReadError;
     case LogEventId.DmVerityBoot:

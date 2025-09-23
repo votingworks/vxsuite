@@ -378,15 +378,15 @@ eventId = "database-create-complete"
 eventType = "system-action"
 documentationMessage = "Database created and setup. Success or failure indicated by disposition."
 
-[Events.DatabaseDestroyInit]
-eventId = "database-destroy-init"
+[Events.DatabaseResetInit]
+eventId = "database-reset-init"
 eventType = "system-action"
-documentationMessage = "Initiating destruction of the database."
+documentationMessage = "Initiating reset of the database."
 
-[Events.DatabaseDestroyComplete]
+[Events.DatabaseResetComplete]
 eventId = "database-destroy-complete"
 eventType = "system-action"
-documentationMessage = "Database destroyed. Success or failure indicated by disposition."
+documentationMessage = "Database reset. Success or failure indicated by disposition."
 
 [Events.FileReadError]
 eventId = "file-read-error"

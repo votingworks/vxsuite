@@ -10,7 +10,6 @@ test('file database client', () => {
   const dbFile = makeTemporaryFile();
   const client = Client.fileClient(dbFile, mockBaseLogger({ fn: vi.fn }));
 
-  client.reset();
   fs.accessSync(dbFile);
 
   expect(client.getDatabasePath()).toEqual(dbFile);
@@ -38,9 +37,6 @@ test('file database client', () => {
     { name: 'Kermit' },
     { name: 'Fozzie' },
   ]);
-
-  client.destroy();
-  expect(() => fs.accessSync(dbFile)).toThrowError('ENOENT');
 });
 
 test('file database client with a schema', () => {
@@ -52,9 +48,7 @@ test('file database client with a schema', () => {
     schemaFile
   );
 
-  client.reset();
   fs.accessSync(dbFile);
-
   expect(client.getDatabasePath()).toEqual(dbFile);
   expect(client.isMemoryDatabase()).toEqual(false);
 
@@ -109,7 +103,7 @@ test('file database client with regex enabled in connectionOptions', () => {
     connectionOptions
   );
 
-  client.reset();
+  client.create();
   fs.accessSync(dbFile);
 
   expect(client.getDatabasePath()).toEqual(dbFile);
@@ -140,19 +134,66 @@ test('file database client with regex enabled in connectionOptions', () => {
   expect(() => anotherClient.all(queryString, '.*ermi.*')).toThrow(
     new SqliteError('no such function: REGEXP', 'SQLITE_ERROR')
   );
-
-  client.destroy();
 });
 
-test('memory database client', () => {
-  const client = Client.memoryClient();
+test('reset file database client', () => {
+  const dbFile = makeTemporaryFile();
+  const schemaFile = join(__dirname, '../test/fixtures/schema.sql');
+  const client = Client.fileClient(
+    dbFile,
+    mockBaseLogger({ fn: vi.fn }),
+    schemaFile
+  );
 
+  // add data
+  client.run(`
+    INSERT INTO users (id, name, email, password_hash) VALUES 
+      ('user1', 'Alice', 'alice@example.com', 'hash1'),
+      ('user2', 'Bob', 'bob@example.com', 'hash2'),
+      ('user3', 'Charlie', 'charlie@example.com', 'hash3')
+  `);
+  expect(
+    (client.one('SELECT COUNT(*) as count FROM users') as { count: number })
+      .count
+  ).toEqual(3);
+
+  // reset
   client.reset();
+
+  // check data removed
+  expect(
+    (client.one('SELECT COUNT(*) as count FROM users') as { count: number })
+      .count
+  ).toEqual(0);
+});
+
+test('memory database client, reset', () => {
+  const schemaFile = join(__dirname, '../test/fixtures/schema.sql');
+  const client = Client.memoryClient(schemaFile);
 
   expect(client.getDatabasePath()).toEqual(':memory:');
   expect(client.isMemoryDatabase()).toEqual(true);
 
-  client.destroy();
+  // add data
+  client.run(`
+    INSERT INTO users (id, name, email, password_hash) VALUES 
+      ('user1', 'Alice', 'alice@example.com', 'hash1'),
+      ('user2', 'Bob', 'bob@example.com', 'hash2'),
+      ('user3', 'Charlie', 'charlie@example.com', 'hash3')
+  `);
+  expect(
+    (client.one('SELECT COUNT(*) as count FROM users') as { count: number })
+      .count
+  ).toEqual(3);
+
+  // reset
+  client.reset();
+
+  // check data removed
+  expect(
+    (client.one('SELECT COUNT(*) as count FROM users') as { count: number })
+      .count
+  ).toEqual(0);
 });
 
 test('read/write', () => {
@@ -344,14 +385,6 @@ test('connect errors', () => {
     mockBaseLogger({ fn: vi.fn })
   );
   expect(() => client.connect()).toThrow();
-});
-
-test('destroy errors', () => {
-  const file = makeTemporaryFile();
-  const client = Client.fileClient(file, mockBaseLogger({ fn: vi.fn }));
-  client.connect();
-  fs.unlinkSync(file);
-  expect(() => client.destroy()).toThrow();
 });
 
 test('vacuuming reduces file size', () => {

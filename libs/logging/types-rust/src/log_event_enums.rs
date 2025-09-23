@@ -207,10 +207,10 @@ pub enum EventId {
     DatabaseCreateInit,
     #[serde(rename = "database-create-complete")]
     DatabaseCreateComplete,
-    #[serde(rename = "database-destroy-init")]
-    DatabaseDestroyInit,
+    #[serde(rename = "database-reset-init")]
+    DatabaseResetInit,
     #[serde(rename = "database-destroy-complete")]
-    DatabaseDestroyComplete,
+    DatabaseResetComplete,
     #[serde(rename = "file-read-error")]
     FileReadError,
     #[serde(rename = "dmverity-boot")]

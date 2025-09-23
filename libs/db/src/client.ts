@@ -5,6 +5,7 @@ import { createHash } from 'node:crypto';
 import makeDebug from 'debug';
 import * as fs from 'node:fs';
 import Database = require('better-sqlite3');
+import { dirname, join } from 'node:path';
 
 type Database = Database.Database;
 
@@ -66,7 +67,7 @@ export class Client {
    * Determines whether this client is connected to an in-memory database.
    */
   isMemoryDatabase(): boolean {
-    return this.getDatabase().memory;
+    return this.dbPath === MEMORY_DB_PATH;
   }
 
   /**
@@ -135,6 +136,7 @@ export class Client {
         schemaDigest,
         newSchemaDigest
       );
+
       try {
         const backupPath = `${dbPath}.backup-${new Date()
           .toISOString()
@@ -145,9 +147,7 @@ export class Client {
       } catch {
         // ignore for now
       }
-    }
 
-    if (shouldResetDatabase) {
       debug('resetting database to updated schema');
       client.reset();
       fs.writeFileSync(schemaDigestPath, newSchemaDigest, 'utf-8');
@@ -385,54 +385,6 @@ export class Client {
   }
 
   /**
-   * Deletes the entire database, including its on-disk representation.
-   */
-  destroy(): void {
-    this.logger.log(
-      LogEventId.DatabaseDestroyInit,
-      'system',
-      {
-        message: `Clearing the database at ${this.getDatabasePath()}`,
-      },
-      debug
-    );
-    const db = this.getDatabase();
-    db.close();
-
-    if (this.isMemoryDatabase()) {
-      return;
-    }
-
-    const dbPath = this.getDatabasePath();
-    try {
-      debug('deleting the database file at %s', dbPath);
-      fs.unlinkSync(dbPath);
-      this.logger.log(
-        LogEventId.DatabaseDestroyComplete,
-        'system',
-        {
-          message: `Successfully deleted data at ${dbPath}`,
-          disposition: 'success',
-        },
-        debug
-      );
-    } catch (error) {
-      this.logger.log(
-        LogEventId.DatabaseDestroyComplete,
-        'system',
-        {
-          message: `Failed to delete the database file ${dbPath} : ${
-            (error as Error).message
-          }`,
-          disposition: 'failure',
-        },
-        debug
-      );
-      throw error;
-    }
-  }
-
-  /**
    * Connects to the database, creating it if it doesn't exist.
    */
   connect(): Database {
@@ -484,7 +436,7 @@ export class Client {
       LogEventId.DatabaseCreateInit,
       'system',
       {
-        message: `Creating the database file at ${this.getDatabasePath()}`,
+        message: `Creating database file at ${this.getDatabasePath()}`,
       },
       debug
     );
@@ -497,12 +449,19 @@ export class Client {
       LogEventId.DatabaseCreateComplete,
       'system',
       {
-        message: `Created the database file at ${this.getDatabasePath()}`,
+        message: `Created database file at ${this.getDatabasePath()}`,
         disposition: 'success',
       },
       debug
     );
     return db;
+  }
+
+  private close(): void {
+    if (this.db) {
+      this.db.close();
+      this.db = undefined;
+    }
   }
 
   /**
@@ -517,11 +476,60 @@ export class Client {
    * Resets the database.
    */
   reset(): void {
-    if (this.db) {
-      this.destroy();
+    if (this.isMemoryDatabase()) {
+      this.close();
+      this.create();
+    } else {
+      this.atomicDatabaseFileReset();
     }
+  }
 
-    this.create();
+  /**
+   * Resets the database by creating a new empty database in a temporary
+   * location and then swapping it in. This is meant to be atomic - either
+   * the new database is swapped in or the old database is left intact.
+   */
+  private atomicDatabaseFileReset(): void {
+    const dbPath = this.getDatabasePath();
+    const tempDbPath = join(dirname(dbPath), `data-temp-${Date.now()}.db`);
+
+    this.logger.log(
+      LogEventId.DatabaseResetInit,
+      'system',
+      {
+        message: `Creating new empty database to swap in for the existing database`,
+      },
+      debug
+    );
+
+    // create new empty database in temporary location
+    const tempClient = new Client(
+      tempDbPath,
+      this.logger,
+      this.schemaPath,
+      this.connectionOptions
+    );
+    tempClient.create();
+    tempClient.close(); // Close the temporary database
+
+    // close the current database connection
+    this.close();
+
+    // swap in newly created database
+    fs.renameSync(tempDbPath, dbPath);
+
+    this.logger.log(
+      LogEventId.DatabaseResetComplete,
+      'system',
+      {
+        message: `Successfully swapped in new empty database at ${dbPath}`,
+        disposition: 'success',
+      },
+      debug
+    );
+
+    // reconnect to the new database
+    this.connect();
   }
 
   /**
