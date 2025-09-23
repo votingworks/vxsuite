@@ -32,8 +32,6 @@ import {
   CastVoteRecordExportFileName,
   safeParseJson,
   CastVoteRecordReportWithoutMetadataSchema,
-  safeParseNumber,
-  CompressedTally,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -59,12 +57,16 @@ import { translateBallotStrings, execFile } from '@votingworks/backend';
 import { readFileSync } from 'node:fs';
 import { z } from 'zod/v4';
 import { LogEventId } from '@votingworks/logging';
-import { getExportedCastVoteRecordIds } from '@votingworks/utils';
+import {
+  getExportedCastVoteRecordIds,
+  readCompressedTally,
+} from '@votingworks/utils';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { dirSync, tmpNameSync } from 'tmp';
 import {
   authenticateSignedQuickResultsReportingUrl,
   decryptAes256,
+  decodeQuickResultsMessage,
 } from '@votingworks/auth';
 import {
   BackgroundTaskMetadata,
@@ -841,7 +843,8 @@ export function buildApi({ auth0, logger, workspace, translator }: AppContext) {
 
 // Set up API endpoint that should NOT be behind oauth integration
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function buildUnauthenticatedApi({ logger }: AppContext) {
+export function buildUnauthenticatedApi({ logger, workspace }: AppContext) {
+  const { store } = workspace;
   const middlewares: grout.Middlewares<grout.AnyContext> = {
     before: [],
     after: [
@@ -885,37 +888,46 @@ export function buildUnauthenticatedApi({ logger }: AppContext) {
       if (validationResult.isErr()) {
         return err(validationResult.err());
       }
-      // Decode and process the payload
-      const messageParts = payload.split('//');
-      const [version, header, message] = messageParts;
 
-      if (version !== '1' || header !== 'qr1') {
-        return err('invalid-payload');
-      }
-
-      const [ballotHash, machineId, isLive, secondsSince1970, tallyB64] =
-        message.split('.');
-      const timestampNum = safeParseNumber(secondsSince1970);
-      if (timestampNum.isErr()) {
-        return err('invalid-payload');
-      }
-
-      const signedTimestamp = new Date(timestampNum.ok() * 1000);
-      let tally: CompressedTally;
       try {
-        const tallyJson = Buffer.from(tallyB64, 'base64').toString('ascii');
-        tally = JSON.parse(tallyJson) as CompressedTally;
-        // TODO (#7151): Load the election for the given ballot hash, save the results report.
-      } catch (error) {
+        const {
+          ballotHash,
+          machineId,
+          isLive,
+          signedTimestamp,
+          encodedCompressedTally,
+        } = decodeQuickResultsMessage(payload);
+
+        const electionRecord =
+          await store.getElectionFromBallotHash(ballotHash);
+        if (!electionRecord) {
+          return err('no-election-found');
+        }
+
+        const contestResults = readCompressedTally(
+          electionRecord.election,
+          encodedCompressedTally
+        );
+        await store.saveQuickResultsReportingTally({
+          electionId: electionRecord.election.id,
+          ballotHash,
+          encodedCompressedTally,
+          machineId,
+          isLive,
+          signedTimestamp,
+        });
+
+        return ok({
+          ballotHash,
+          machineId,
+          isLive,
+          signedTimestamp,
+          contestResults,
+          election: electionRecord.election,
+        });
+      } catch (e) {
         return err('invalid-payload');
       }
-      return ok({
-        ballotHash,
-        machineId,
-        isLive: isLive === '1',
-        signedTimestamp,
-        tally,
-      });
     },
   } as const;
 

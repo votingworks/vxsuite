@@ -8,9 +8,11 @@ import {
   PrecinctOrSplitId,
   ElectionType,
   ElectionId,
-  CompressedTally,
+  Election,
+  ContestId,
 } from '@votingworks/types';
 import { DateWithoutTime } from '@votingworks/basics';
+import { ContestResults } from '@votingworks/types/src/tabulation';
 
 // We also create a new type for a ballot style, that can reference precincts and
 // splits. We generate ballot styles on demand, so it won't be stored in the db.
@@ -103,8 +105,30 @@ export interface ResultsReportInfo {
   machineId: string;
   isLive: boolean;
   signedTimestamp: Date;
-  tally: CompressedTally;
+  contestResults: Record<ContestId, ContestResults>;
+  election: Election;
   precinctId?: PrecinctOrSplitId;
 }
 
-export type ResultsReportingError = 'invalid-payload' | 'invalid-signature';
+export interface QuickResultsReportingTally {
+  electionId: ElectionId;
+  encodedCompressedTally: string;
+  machineId: string;
+  isLive: boolean;
+  signedTimestamp: Date;
+  precinctId?: PrecinctOrSplitId;
+}
+
+export interface QuickResultsReportingTallyRow {
+  electionId: string;
+  encodedCompressedTally: string;
+  machineId: string;
+  isLive: boolean;
+  signedAt: string; // ISO string
+  precinctId: string | null;
+}
+
+export type ResultsReportingError =
+  | 'invalid-payload'
+  | 'invalid-signature'
+  | 'no-election-found';
