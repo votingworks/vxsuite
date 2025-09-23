@@ -5,7 +5,11 @@ import {
   MainContent,
   MainHeader,
   Screen,
+  TallyReportColumns,
+  ContestResultsTable,
 } from '@votingworks/ui';
+import { assert } from '@votingworks/basics';
+import { formatBallotHash } from '@votingworks/types';
 import { processQrCodeReport } from './public_api';
 
 export function ResultsScreen({
@@ -60,6 +64,20 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
         </ResultsScreen>
       );
     }
+
+    if (reportResult && reportResult.err() === 'no-election-found') {
+      return (
+        <ResultsScreen>
+          <MainContent>
+            <div>
+              No Election Found for the provided Ballot Hash. Are you sure your
+              machine is configured with the latest election package exported
+              from VxDesign?
+            </div>
+          </MainContent>
+        </ResultsScreen>
+      );
+    }
     return (
       <ResultsScreen>
         <MainContent>
@@ -80,6 +98,7 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
   }
 
   const reportData = reportResult.ok();
+  const { election, contestResults } = reportData;
 
   return (
     <ResultsScreen>
@@ -87,9 +106,10 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
         <div>
           <p>Thank you for reporting your election results!</p>
           <div style={{ marginTop: '20px' }}>
-            <h2>Report Details:</h2>
+            <h2>Report Details</h2>
             <p>
-              <strong>Ballot Hash:</strong> {reportData.ballotHash}
+              <strong>Ballot Hash:</strong>{' '}
+              {formatBallotHash(reportData.ballotHash)}
             </p>
             <p>
               <strong>Machine ID:</strong> {reportData.machineId}
@@ -108,20 +128,24 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
                 ? String(reportData.precinctId)
                 : 'Not specified'}
             </p>
-            <details style={{ marginTop: '20px' }}>
-              <summary>
-                <strong>Tally Data</strong>
-              </summary>
-              <pre
-                style={{
-                  backgroundColor: '#f5f5f5',
-                  padding: '10px',
-                  overflow: 'auto',
-                }}
-              >
-                {JSON.stringify(reportData.tally, null, 2)}
-              </pre>
-            </details>
+            <h2>Results Reported</h2>
+            <TallyReportColumns>
+              {election.contests.map((contest) => {
+                const currentContestResults = contestResults[contest.id];
+                assert(
+                  currentContestResults,
+                  `missing scanned results for contest ${contest.id}`
+                );
+                return (
+                  <ContestResultsTable
+                    key={contest.id}
+                    election={election}
+                    contest={contest}
+                    scannedContestResults={currentContestResults}
+                  />
+                );
+              })}
+            </TallyReportColumns>
           </div>
         </div>
       </MainContent>
