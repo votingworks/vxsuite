@@ -37,6 +37,7 @@ import {
   CandidateContest,
   ElectionType,
   Signature,
+  PrecinctOrSplitId,
 } from '@votingworks/types';
 import { v4 as uuid } from 'uuid';
 import { BaseLogger } from '@votingworks/logging';
@@ -48,6 +49,8 @@ import {
   ElectionInfo,
   ElectionListing,
   Org,
+  QuickResultsReportingTally,
+  QuickResultsReportingTallyRow,
 } from './types';
 import { generateBallotStyles } from './ballot_styles';
 import { Db } from './db/db';
@@ -62,6 +65,7 @@ export interface ElectionRecord {
   ballotLanguageConfigs: BallotLanguageConfigs;
   ballotTemplateId: BallotTemplateId;
   ballotsFinalizedAt: Date | null;
+  lastExportedBallotHash?: string;
 }
 
 export type TaskName = 'generate_election_package' | 'generate_test_decks';
@@ -564,7 +568,8 @@ export class Store {
               ballot_template_id as "ballotTemplateId",
               ballots_finalized_at as "ballotsFinalizedAt",
               created_at as "createdAt",
-              ballot_language_codes as "ballotLanguageCodes"
+              ballot_language_codes as "ballotLanguageCodes",
+              last_exported_ballot_hash as "lastExportedBallotHash"
             from elections
             where id = $1
           `,
@@ -585,6 +590,7 @@ export class Store {
         ballotsFinalizedAt: Date | null;
         createdAt: Date;
         ballotLanguageCodes: LanguageCode[];
+        lastExportedBallotHash: string | null;
       };
       assert(electionRow, 'Election not found');
 
@@ -855,6 +861,7 @@ export class Store {
         ballotLanguageConfigs,
         ballotsFinalizedAt: electionRow.ballotsFinalizedAt,
         orgId: electionRow.orgId,
+        lastExportedBallotHash: electionRow.lastExportedBallotHash || undefined,
       };
     });
   }
@@ -1929,6 +1936,101 @@ export class Store {
         set started_at = null
         where started_at is not null and completed_at is null
       `)
+    );
+  }
+
+  async getQuickResultsReportingTalliesForElection(
+    election: ElectionRecord,
+    isLive: boolean
+  ): Promise<QuickResultsReportingTally[]> {
+    assert(
+      election.lastExportedBallotHash !== undefined,
+      'Election has not yet been exported.'
+    );
+    const row = (
+      await this.db.withClient((client) =>
+        client.query(
+          `
+            select
+              election_id as "electionId",
+              encoded_compressed_tally as "encodedCompressedTally",
+              is_live_mode as "isLive",
+              signed_at as "signedAt",
+              precinct_id as "precinctId",
+              machine_id as "machineId"
+            from results_reports
+            where
+              ballot_hash = $1 and
+              election_id = $2 and
+              is_live_mode = $3
+            order by signed_at desc
+          `,
+          election.lastExportedBallotHash,
+          election.election.id,
+          isLive
+        )
+      )
+    ).rows as QuickResultsReportingTallyRow[];
+    return row.map(
+      (r): QuickResultsReportingTally => ({
+        electionId: r.electionId,
+        encodedCompressedTally: r.encodedCompressedTally,
+        machineId: r.machineId,
+        isLive: r.isLive,
+        signedTimestamp: new Date(r.signedAt),
+        precinctId: (r.precinctId as unknown as PrecinctOrSplitId) || undefined,
+      })
+    );
+  }
+
+  // Save the provided quick results report, overwriting one for the given election ballot hash, machine and isLive toggle if one already exists.
+  async saveQuickResultsReportingTally({
+    electionId,
+    ballotHash,
+    encodedCompressedTally,
+    machineId,
+    isLive,
+    signedTimestamp,
+    precinctId,
+  }: {
+    electionId: string;
+    ballotHash: string;
+    encodedCompressedTally: string;
+    machineId: string;
+    isLive: boolean;
+    signedTimestamp: Date;
+    precinctId?: string;
+  }): Promise<void> {
+    await this.db.withClient((client) =>
+      client.withTransaction(async () => {
+        const { rowCount } = await client.query(
+          `
+            insert into results_reports (
+              ballot_hash,
+              election_id,
+              machine_id,
+              is_live_mode,
+              signed_at,
+              encoded_compressed_tally,
+              precinct_id
+            ) values ($1, $2, $3, $4, $5, $6, $7)
+            on conflict (ballot_hash, machine_id, is_live_mode)
+            do update set
+              signed_at = excluded.signed_at,
+              encoded_compressed_tally = excluded.encoded_compressed_tally,
+              precinct_id = excluded.precinct_id
+          `,
+          ballotHash,
+          electionId,
+          machineId,
+          isLive,
+          signedTimestamp.toISOString(),
+          encodedCompressedTally,
+          precinctId || null
+        );
+        assert(rowCount === 1, 'Failed to insert results report');
+        return true;
+      })
     );
   }
 }
