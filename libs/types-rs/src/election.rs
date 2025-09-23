@@ -26,7 +26,7 @@ pub struct Election {
     pub title: String,
     pub ballot_styles: Vec<BallotStyle>,
     pub precincts: Vec<Precinct>,
-    pub grid_layouts: Vec<GridLayout>,
+    pub grid_layouts: Option<Vec<GridLayout>>,
     pub mark_thresholds: Option<MarkThresholds>,
     pub ballot_layout: BallotLayout,
 }
