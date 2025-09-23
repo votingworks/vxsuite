@@ -10,7 +10,6 @@ mod image_utils;
 pub mod interpret;
 mod js;
 mod layout;
-pub mod metadata;
 mod qr_code;
 mod scoring;
 pub mod timing_marks;
