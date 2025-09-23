@@ -66,7 +66,7 @@ export class Client {
    * Determines whether this client is connected to an in-memory database.
    */
   isMemoryDatabase(): boolean {
-    return this.getDatabase().memory;
+    return this.dbPath === MEMORY_DB_PATH;
   }
 
   /**
