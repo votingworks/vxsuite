@@ -4,13 +4,24 @@ import {
   CandidateContestCompressedTallySchema,
   CompressedTally,
   CompressedTallyEntry,
+  ContestId,
   Election,
   Tabulation,
   unsafeParse,
   YesNoContestCompressedTally,
   YesNoContestCompressedTallySchema,
 } from '@votingworks/types';
+import { Buffer } from 'node:buffer';
 import { assert, throwIllegalValue, typedAs } from '@votingworks/basics';
+import { ContestResults } from '@votingworks/types/src/tabulation';
+
+export function encodeCompressedTally(
+  compressedTally: CompressedTally
+): string {
+  const flatArray = compressedTally.flat();
+  const uint16Array = new Uint16Array(flatArray);
+  return Buffer.from(uint16Array.buffer).toString('base64url');
+}
 
 /**
  * Compresses election results
@@ -18,41 +29,49 @@ import { assert, throwIllegalValue, typedAs } from '@votingworks/basics';
 export function compressTally(
   election: Election,
   results: Tabulation.ElectionResults
-): CompressedTally {
+): string {
   // eslint-disable-next-line array-callback-return
-  return election.contests.map((contest) => {
+  const compressedTally = election.contests.map((contest) => {
     switch (contest.type) {
       case 'yesno': {
         const contestResults = results.contestResults[contest.id];
-        assert(contestResults?.contestType === 'yesno');
+        assert(contestResults !== undefined);
+        assert(contestResults.contestType === 'yesno');
         return typedAs<YesNoContestCompressedTally>([
-          contestResults?.undervotes ?? 0, // undervotes
-          contestResults?.overvotes ?? 0, // overvotes
-          contestResults?.ballots ?? 0, // ballots cast
-          contestResults?.yesTally ?? 0, // yes
-          contestResults?.noTally ?? 0, // no
+          contestResults.undervotes, // undervotes
+          contestResults.overvotes, // overvotes
+          contestResults.ballots, // ballots cast
+          contestResults.yesTally, // yes
+          contestResults.noTally, // no
         ]);
       }
 
       case 'candidate': {
         const contestResults = results.contestResults[contest.id];
-        assert(contestResults?.contestType === 'candidate');
+        assert(contestResults !== undefined);
+        assert(contestResults.contestType === 'candidate');
         return typedAs<CandidateContestCompressedTally>([
-          contestResults?.undervotes ?? 0, // undervotes
-          contestResults?.overvotes ?? 0, // overvotes
-          contestResults?.ballots ?? 0, // ballotsCast
+          contestResults.undervotes, // undervotes
+          contestResults.overvotes, // overvotes
+          contestResults.ballots, // ballotsCast
           ...contest.candidates.map(
-            (candidate) => contestResults?.tallies[candidate.id]?.tally ?? 0
+            (candidate) => contestResults.tallies[candidate.id]?.tally ?? 0
           ),
-          contestResults?.tallies[Tabulation.GENERIC_WRITE_IN_ID]?.tally ?? 0, // writeIns
+          ...(contest.allowWriteIns
+            ? [
+                contestResults.tallies[Tabulation.GENERIC_WRITE_IN_ID]?.tally ??
+                  0,
+              ]
+            : []),
         ]);
       }
 
-      /* istanbul ignore next */
+      /* istanbul ignore next - @preserve */
       default:
         throwIllegalValue(contest, 'type');
     }
   });
+  return encodeCompressedTally(compressedTally);
 }
 
 function getContestTalliesForCompressedContest(
@@ -95,7 +114,8 @@ function getContestTalliesForCompressedContest(
           )} (full tally: ${JSON.stringify(compressedContest)})`
         );
         candidateTallies[candidate.id] = {
-          ...candidate,
+          id: candidate.id,
+          name: candidate.name,
           tally,
         };
       }
@@ -124,6 +144,43 @@ function getContestTalliesForCompressedContest(
   }
 }
 
+export function decodeCompressedTally(
+  encodedCompressedTally: string,
+  election: Election
+): CompressedTally {
+  const buffer = Buffer.from(encodedCompressedTally, 'base64url');
+  const uint16Array = new Uint16Array(
+    buffer.buffer,
+    buffer.byteOffset,
+    buffer.byteLength / 2
+  );
+  const compressedTally: CompressedTally = [];
+  let offset = 0;
+  for (const contest of election.contests) {
+    if (contest.type === 'yesno') {
+      compressedTally.push(
+        Array.from(
+          uint16Array.slice(offset, offset + 5)
+        ) as YesNoContestCompressedTally
+      );
+      offset += 5;
+    } else if (contest.type === 'candidate') {
+      const numCandidates = contest.candidates.length;
+      const tallyLength = 3 + numCandidates + (contest.allowWriteIns ? 1 : 0); // 3 metadata + candidates + write-in
+      compressedTally.push(
+        Array.from(
+          uint16Array.slice(offset, offset + tallyLength)
+        ) as CandidateContestCompressedTally
+      );
+      offset += tallyLength;
+    } else {
+      /* istanbul ignore next - @preserve */
+      throwIllegalValue(contest, 'type');
+    }
+  }
+  return compressedTally;
+}
+
 /**
  * Creates a tally from a serialized tally read from a smart card. If a
  * `partyId` is provided, only includes contests associated with that party.
@@ -131,12 +188,12 @@ function getContestTalliesForCompressedContest(
  */
 export function readCompressedTally(
   election: Election,
-  serializedTally: CompressedTally,
-  cardCounts: Tabulation.CardCounts
-): Tabulation.ElectionResults {
+  serializedTally: string
+): Record<ContestId, ContestResults> {
+  const compressedTally = decodeCompressedTally(serializedTally, election);
   const allContestResults: Tabulation.ElectionResults['contestResults'] = {};
   for (const [contestIdx, contest] of election.contests.entries()) {
-    const serializedContestTally = serializedTally[contestIdx];
+    const serializedContestTally = compressedTally[contestIdx];
     assert(serializedContestTally);
     const contestResults = getContestTalliesForCompressedContest(
       contest,
@@ -145,8 +202,5 @@ export function readCompressedTally(
     allContestResults[contest.id] = contestResults;
   }
 
-  return {
-    cardCounts,
-    contestResults: allContestResults,
-  };
+  return allContestResults;
 }

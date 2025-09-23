@@ -3,7 +3,6 @@ export * from './arbitraries';
 export * from './auth';
 export * from './backend_wait_for';
 export * from './child_process';
-export * from './compressed_tallies';
 export * from './console';
 export * from './disposable';
 export * from './mock_kiosk';

@@ -34,3 +34,22 @@ export function constructPrefixedMessage( // eslint-disable-line vx/gts-jsdoc
   message.append(messagePayload);
   return message;
 }
+
+/**
+ * Deconstructs a prefixed message into its components
+ */
+export function deconstructPrefixedMessage(prefixedMessage: string): {
+  messageType: string;
+  messagePayload: string;
+} {
+  const parts = prefixedMessage.split(MESSAGE_SEPARATOR);
+
+  if (parts.length < 3 || parts[0] !== MESSAGE_FORMAT_VERSION.toString()) {
+    throw new Error('Invalid prefixed message format');
+  }
+
+  return {
+    messageType: parts[1] as string,
+    messagePayload: parts[2] as string,
+  };
+}
