@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDomServer from 'react-dom/server';
 import { chromium } from 'playwright';
 import { assert, assertDefined, iter } from '@votingworks/basics';
+import { cpus } from 'node:os';
 import {
   Page,
   PageHandle,
@@ -133,7 +134,7 @@ async function* runTasksConcurrently<T>({
  * {@param size}).
  */
 export async function createPlaywrightRendererPool(
-  size = 10
+  size = cpus().length || 2
 ): Promise<RendererPool> {
   const browser = await launchChromium();
   const context = await browser.newContext();
