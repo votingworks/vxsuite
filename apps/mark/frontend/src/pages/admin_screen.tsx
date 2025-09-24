@@ -16,7 +16,6 @@ import {
   H6,
   UnconfigureMachineButton,
   ExportLogsButton,
-  SegmentedButtonOption,
   PowerDownButton,
   SignedHashValidationButton,
 } from '@votingworks/ui';
@@ -31,7 +30,6 @@ import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import { PrintMode } from '@votingworks/mark-backend';
 import styled from 'styled-components';
 import {
   ejectUsbDrive,
@@ -78,12 +76,6 @@ const ButtonGrid = styled.div`
   margin-bottom: 0.5rem;
 `;
 
-// [TODO] Finalize copy before turning on this feature.
-const PRINT_MODE_OPTIONS: Array<SegmentedButtonOption<PrintMode>> = [
-  { id: 'summary', label: 'Summary' },
-  { id: 'bubble_marks', label: 'Bubble Marks' },
-];
-
 export function AdminScreen({
   appPrecinct,
   ballotsPrintedCount,
@@ -103,9 +95,7 @@ export function AdminScreen({
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
   const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
   const setTestModeMutation = setTestMode.useMutation();
-
-  const printMode = api.getPrintMode.useQuery().data;
-  const setPrintMode = api.setPrintMode.useMutation().mutate;
+  const settings = api.getSystemSettings.useQuery().data;
 
   return (
     <Screen>
@@ -180,20 +170,8 @@ export function AdminScreen({
               BooleanEnvironmentVariableName.MARK_ENABLE_BALLOT_PRINT_MODE_TOGGLE
             ) && (
               <React.Fragment>
-                <H6 as="h2">Printing Mode</H6>
-                <Section>
-                  <SegmentedButton
-                    label="Ballot Mode"
-                    hideLabel
-                    disabled={!printMode}
-                    onChange={setPrintMode}
-                    options={PRINT_MODE_OPTIONS}
-                    // istanbul ignore next
-                    selectedOptionId={printMode || 'summary'}
-                  />
-                </Section>
                 {/* istanbul ignore next - temporary @preserve */}
-                {printMode === 'bubble_marks' && (
+                {settings?.bmdPrintMode === 'marks_on_preprinted_ballot' && (
                   <React.Fragment>
                     <H6 as="h2">Bubble Mark Offset Calibration</H6>
                     <Section style={{ marginTop: '0.5rem' }}>
