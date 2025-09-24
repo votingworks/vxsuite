@@ -203,7 +203,11 @@ export async function generateElectionPackageAndBallots(
       .zip(ballotPdfs)
       .map(async ([props, ballotPdf]) => ({
         props,
-        ballotPdf: await normalizeBallotColorModeForPrinting(ballotPdf, props),
+        ballotPdf: await normalizeBallotColorModeForPrinting(
+          ballotPdf,
+          props,
+          ballotTemplateId
+        ),
       }))
       .toArray()
   );

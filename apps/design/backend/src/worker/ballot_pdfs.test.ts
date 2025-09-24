@@ -26,20 +26,9 @@ test('normalizeBallotColorModeForPrinting - converts non-tinted ballots to grays
   vi.mocked(convertPdfToGrayscale).mockResolvedValueOnce(mockGrayscalePdfNh);
 
   expect(
-    await normalizeBallotColorModeForPrinting(mockColorPdf, nhProps)
+    await normalizeBallotColorModeForPrinting(mockColorPdf, nhProps, 'NhBallot')
   ).toStrictEqual(mockGrayscalePdfNh);
   expect(convertPdfToGrayscale).toHaveBeenCalledWith(mockColorPdf);
-
-  const nonNhProps: BaseBallotProps = {
-    precinctId: 'non-nh-precinct',
-  } as unknown as BaseBallotProps;
-
-  const mockGrayscalePdfNonNh = Buffer.of(0xac, 0xfe);
-  vi.mocked(convertPdfToGrayscale).mockResolvedValueOnce(mockGrayscalePdfNonNh);
-
-  expect(
-    await normalizeBallotColorModeForPrinting(mockColorPdf, nonNhProps)
-  ).toStrictEqual(mockGrayscalePdfNonNh);
 });
 
 test('normalizeBallotColorModeForPrinting - renders tinted NH ballots in color', async () => {
@@ -55,6 +44,24 @@ test('normalizeBallotColorModeForPrinting - renders tinted NH ballots in color',
   );
 
   expect(
-    await normalizeBallotColorModeForPrinting(mockColorPdf, nhProps)
+    await normalizeBallotColorModeForPrinting(mockColorPdf, nhProps, 'NhBallot')
   ).toStrictEqual(mockColorPdf);
+});
+
+test('normalizeBallotColorModeForPrinting - renders non-NH ballots in color', async () => {
+  const nonNhProps: BaseBallotProps = {
+    precinctId: 'non-nh-precinct',
+  } as unknown as BaseBallotProps;
+
+  const mockColorPdf = Buffer.of(0xac, 0xfe);
+
+  expect(
+    await normalizeBallotColorModeForPrinting(
+      mockColorPdf,
+      nonNhProps,
+      'VxDefaultBallot'
+    )
+  ).toStrictEqual(mockColorPdf);
+
+  expect(convertPdfToGrayscale).not.toHaveBeenCalled();
 });

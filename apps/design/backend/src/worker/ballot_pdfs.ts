@@ -3,13 +3,17 @@ import {
   BaseBallotProps,
   calibrationSheetTemplate,
   Renderer,
+  BallotTemplateId,
 } from '@votingworks/hmpb';
 import { HmpbBallotPaperSize } from '@votingworks/types';
 
 export async function normalizeBallotColorModeForPrinting(
   ballotPdf: Uint8Array,
-  props: BaseBallotProps
+  props: BaseBallotProps,
+  ballotTemplateId: BallotTemplateId
 ): Promise<Uint8Array> {
+  if (ballotTemplateId !== 'NhBallot') return ballotPdf;
+
   /**
    * Specific to NH V4 ballots with tinted headers/footers.
    * See `import('@votingworks/hmpb').NhBallotProps`.
