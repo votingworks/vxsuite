@@ -195,6 +195,9 @@ pub enum Error {
         label: String,
         x_coordinates: Vec<PixelPosition>,
     },
+
+    #[error("invalid election: {message}")]
+    InvalidElection { message: String },
 }
 
 pub type Result<T, E = Error> = std::result::Result<T, E>;
@@ -416,6 +419,11 @@ pub fn ballot_card(
     side_b_image: GrayImage,
     options: &Options,
 ) -> Result<InterpretedBallotCard> {
+    let Some(ref grid_layouts) = options.election.grid_layouts else {
+        return Err(Error::InvalidElection {
+            message: "required field `gridLayouts` is missing".to_owned(),
+        });
+    };
     let BallotCard {
         side_a,
         side_b,
@@ -636,9 +644,7 @@ pub fn ballot_card(
         }
     };
 
-    let Some(grid_layout) = options
-        .election
-        .grid_layouts
+    let Some(grid_layout) = grid_layouts
         .iter()
         .find(|layout| layout.ballot_style_id == ballot_style_id)
     else {

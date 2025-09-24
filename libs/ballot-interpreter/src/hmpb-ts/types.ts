@@ -336,6 +336,10 @@ export type InterpretError =
       type: 'verticalStreaksDetected';
       label: string;
       xCoordinates: PixelPosition[];
+    }
+  | {
+      type: 'invalidElection';
+      message: string;
     };
 
 /**
