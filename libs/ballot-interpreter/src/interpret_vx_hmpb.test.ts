@@ -8,7 +8,6 @@ import {
   nhGeneralElectionFixtures,
   vxPrimaryElectionFixtures,
   allBaseBallotProps,
-  createPlaywrightRenderer,
   BaseBallotProps,
   ballotTemplates,
   renderAllBallotPdfsAndCreateElectionDefinition,
@@ -16,6 +15,7 @@ import {
   renderBallotPdfWithMetadataQrCode,
   markBallotDocument,
   createTestVotes,
+  createPlaywrightRendererPool,
 } from '@votingworks/hmpb';
 import {
   AdjudicationReason,
@@ -784,15 +784,16 @@ test('Ballot audit IDs', async () => {
     ...find(allBallotProps, (p) => p.ballotMode === 'official'),
     ballotAuditId: 'test-ballot-audit-id',
   };
-  const renderer = await createPlaywrightRenderer();
+  const rendererPool = await createPlaywrightRendererPool();
   const ballotPdf = (
     await renderAllBallotPdfsAndCreateElectionDefinition(
-      renderer,
+      rendererPool,
       ballotTemplates.VxDefaultBallot,
       [ballotPropsWithAuditId],
       'vxf'
     )
   ).ballotPdfs[0]!;
+  await rendererPool.close();
   const images = asSheet(await pdfToPageImages(ballotPdf).toArray());
   expect(images).toHaveLength(2);
 
@@ -827,28 +828,30 @@ describe('Contest option bounds', () => {
     } as const;
 
     const ballotProps = allBaseBallotProps(electionWithMeasureOnly);
-    const renderer = await createPlaywrightRenderer();
+    const rendererPool = await createPlaywrightRendererPool();
     const { electionDefinition, ballotContents: blankBallotContents } =
       await layOutBallotsAndCreateElectionDefinition(
-        renderer,
+        rendererPool,
         ballotTemplates.VxDefaultBallot,
         ballotProps,
         'vxf'
       );
 
-    const ballotDocument = await renderer.loadDocumentFromContent(
-      blankBallotContents[0]!
-    );
-    const { votes } = createTestVotes(electionWithMeasureOnly.contests);
-    await renderBallotPdfWithMetadataQrCode(
-      ballotProps[0]!,
-      ballotDocument,
-      electionDefinition
-    );
+    const markedBallotPdf = await rendererPool.runTask(async (renderer) => {
+      const ballotDocument = await renderer.loadDocumentFromContent(
+        blankBallotContents[0]!
+      );
+      const { votes } = createTestVotes(electionWithMeasureOnly.contests);
+      await renderBallotPdfWithMetadataQrCode(
+        ballotProps[0]!,
+        ballotDocument,
+        electionDefinition
+      );
 
-    await markBallotDocument(ballotDocument, votes);
-    const markedBallotPdf = await ballotDocument.renderToPdf();
-    ballotDocument.cleanup();
+      await markBallotDocument(ballotDocument, votes);
+      return ballotDocument.renderToPdf();
+    });
+    await rendererPool.close();
 
     const images = asSheet(await pdfToPageImages(markedBallotPdf).toArray());
     expect(images).toHaveLength(2);
@@ -884,30 +887,32 @@ describe('Contest option bounds', () => {
     } as const;
 
     const ballotProps = allBaseBallotProps(electionWithCandidateContestsOnly);
-    const renderer = await createPlaywrightRenderer();
+    const rendererPool = await createPlaywrightRendererPool();
     const { electionDefinition, ballotContents: blankBallotContents } =
       await layOutBallotsAndCreateElectionDefinition(
-        renderer,
+        rendererPool,
         ballotTemplates.VxDefaultBallot,
         ballotProps,
         'vxf'
       );
 
-    const ballotDocument = await renderer.loadDocumentFromContent(
-      blankBallotContents[0]!
-    );
-    const { votes } = createTestVotes(
-      electionWithCandidateContestsOnly.contests
-    );
-    await renderBallotPdfWithMetadataQrCode(
-      ballotProps[0]!,
-      ballotDocument,
-      electionDefinition
-    );
+    const markedBallotPdf = await rendererPool.runTask(async (renderer) => {
+      const ballotDocument = await renderer.loadDocumentFromContent(
+        blankBallotContents[0]!
+      );
+      const { votes } = createTestVotes(
+        electionWithCandidateContestsOnly.contests
+      );
+      await renderBallotPdfWithMetadataQrCode(
+        ballotProps[0]!,
+        ballotDocument,
+        electionDefinition
+      );
 
-    await markBallotDocument(ballotDocument, votes);
-    const markedBallotPdf = await ballotDocument.renderToPdf();
-    ballotDocument.cleanup();
+      await markBallotDocument(ballotDocument, votes);
+      return ballotDocument.renderToPdf();
+    });
+    await rendererPool.close();
 
     const images = asSheet(await pdfToPageImages(markedBallotPdf).toArray());
     expect(images).toHaveLength(2);

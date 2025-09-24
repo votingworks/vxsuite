@@ -5,7 +5,7 @@ import {
 import {
   allBaseBallotProps,
   ballotTemplates,
-  createPlaywrightRenderer,
+  createPlaywrightRendererPool,
   hmpbStringsCatalog,
   layOutMinimalBallotsToCreateElectionDefinition,
 } from '@votingworks/hmpb';
@@ -40,8 +40,6 @@ export async function generateElectionPackage(
   isMultiLanguage: boolean,
   priorElectionPackage?: ElectionPackage
 ): Promise<[string, string]> {
-  const renderer = await createPlaywrightRenderer();
-
   const zip = new JsZip();
 
   const metadata: ElectionPackageMetadata = LATEST_METADATA;
@@ -77,18 +75,19 @@ export async function generateElectionPackage(
     ...election,
     ballotStrings,
   };
+  const rendererPool = await createPlaywrightRendererPool();
   const electionDefinition =
     await layOutMinimalBallotsToCreateElectionDefinition(
-      renderer,
+      rendererPool,
       ballotTemplates.VxDefaultBallot,
       allBaseBallotProps(electionWithBallotStrings),
       'vxf'
     );
+  await rendererPool.close();
 
   zip.file(ElectionPackageFileName.ELECTION, electionDefinition.electionData, {
     date: FIXTURES_FILE_DATE,
   });
-  await renderer.close();
 
   zip.file(
     ElectionPackageFileName.SYSTEM_SETTINGS,

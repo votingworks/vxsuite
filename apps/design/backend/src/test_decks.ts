@@ -1,10 +1,4 @@
-import {
-  assert,
-  assertDefined,
-  find,
-  iter,
-  uniqueBy,
-} from '@votingworks/basics';
+import { assert, assertDefined, find, uniqueBy } from '@votingworks/basics';
 import {
   Admin,
   BallotStyleId,
@@ -31,10 +25,10 @@ import { renderToPdf } from '@votingworks/printing';
 import { AdminTallyReportByParty } from '@votingworks/ui';
 import {
   BaseBallotProps,
-  Renderer,
   markBallotDocument,
   concatenatePdfs,
   renderBallotPdfWithMetadataQrCode,
+  RendererPool,
 } from '@votingworks/hmpb';
 
 /**
@@ -46,12 +40,12 @@ import {
  * The test deck is one long document (intended to be rendered as a single PDF).
  */
 export async function createPrecinctTestDeck({
-  renderer,
+  rendererPool,
   electionDefinition,
   precinctId,
   ballots,
 }: {
-  renderer: Renderer;
+  rendererPool: RendererPool;
   electionDefinition: ElectionDefinition;
   precinctId: PrecinctId;
   ballots: Array<{ props: BaseBallotProps; contents: string }>;
@@ -64,9 +58,8 @@ export async function createPrecinctTestDeck({
   if (ballotSpecs.length === 0) {
     return undefined;
   }
-  const markedBallots = await iter(ballotSpecs)
-    .async()
-    .map(async (ballotSpec) => {
+  const markedBallots = await rendererPool.runTasks(
+    ballotSpecs.map((ballotSpec) => async (renderer) => {
       const { props, contents } = find(
         ballots,
         (ballot) =>
@@ -80,10 +73,9 @@ export async function createPrecinctTestDeck({
         markedBallot,
         electionDefinition
       );
-      document.cleanup();
       return ballotPdf;
     })
-    .toArray();
+  );
   return await concatenatePdfs(markedBallots);
 }
 

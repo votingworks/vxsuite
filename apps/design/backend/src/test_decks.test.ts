@@ -1,10 +1,10 @@
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
 import { readElection } from '@votingworks/fs';
 import {
-  Renderer,
+  RendererPool,
   allBaseBallotProps,
   ballotTemplates,
-  createPlaywrightRenderer,
+  createPlaywrightRendererPool,
   layOutBallotsAndCreateElectionDefinition,
   vxFamousNamesFixtures,
   vxGeneralElectionFixtures,
@@ -40,12 +40,12 @@ vi.mock(import('@votingworks/types'), async (importActual) => {
   };
 });
 
-let renderer: Renderer;
+let rendererPool: RendererPool;
 beforeAll(async () => {
-  renderer = await createPlaywrightRenderer();
+  rendererPool = await createPlaywrightRendererPool();
 });
 afterAll(async () => {
-  await renderer.close();
+  await rendererPool.close();
 });
 
 describe('createPrecinctTestDeck', () => {
@@ -61,7 +61,7 @@ describe('createPrecinctTestDeck', () => {
       ).length === 1
     );
     const { ballotContents } = await layOutBallotsAndCreateElectionDefinition(
-      renderer,
+      rendererPool,
       ballotTemplates.VxDefaultBallot,
       fixtures.allBallotProps,
       'vxf'
@@ -72,7 +72,7 @@ describe('createPrecinctTestDeck', () => {
       .toArray();
 
     const testDeckDocument = await createPrecinctTestDeck({
-      renderer,
+      rendererPool,
       electionDefinition,
       precinctId,
       ballots,
@@ -110,7 +110,7 @@ describe('createPrecinctTestDeck', () => {
       }).length > 1
     );
     const layouts = await layOutBallotsAndCreateElectionDefinition(
-      renderer,
+      rendererPool,
       ballotTemplates.VxDefaultBallot,
       ballotProps,
       'vxf'
@@ -121,7 +121,7 @@ describe('createPrecinctTestDeck', () => {
       .toArray();
 
     const testDeckDocument = await createPrecinctTestDeck({
-      renderer,
+      rendererPool,
       electionDefinition: layouts.electionDefinition,
       precinctId: precinct.id,
       ballots,
@@ -145,7 +145,7 @@ describe('createPrecinctTestDeck', () => {
     );
 
     const testDeckDocument = await createPrecinctTestDeck({
-      renderer,
+      rendererPool,
       electionDefinition,
       precinctId: precinctWithNoBallotStyles.id,
       ballots: [], // doesn't matter

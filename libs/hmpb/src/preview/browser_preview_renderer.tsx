@@ -26,6 +26,14 @@ function browserPage(): Page {
     content() {
       return Promise.resolve('');
     },
+
+    isClosed() {
+      return false;
+    },
+
+    setContent() {
+      throw new Error('Not implemented');
+    },
   };
 }
 
@@ -50,7 +58,7 @@ function createBrowserPreviewDocument(styles?: JSX.Element): RenderDocument {
     </>
   );
 
-  return createDocument(browserPage(), () => {});
+  return createDocument({ page: browserPage, void: () => {} });
 }
 
 export function createBrowserPreviewRenderer(): Renderer {
@@ -64,9 +72,6 @@ export function createBrowserPreviewRenderer(): Renderer {
       renderDocument = createBrowserPreviewDocument();
       document.documentElement.innerHTML = htmlContent;
       return Promise.resolve(renderDocument);
-    },
-    close() {
-      return Promise.resolve();
     },
   };
 }

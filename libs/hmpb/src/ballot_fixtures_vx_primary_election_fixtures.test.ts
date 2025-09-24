@@ -1,26 +1,26 @@
 import { afterAll, beforeAll, test, vi } from 'vitest';
 import { expectToMatchSavedPdf } from '../test/helpers';
 import { vxPrimaryElectionFixtures } from './ballot_fixtures';
-import { createPlaywrightRenderer } from './playwright_renderer';
-import { Renderer } from './renderer';
+import { createPlaywrightRendererPool } from './playwright_renderer';
+import { RendererPool } from './renderer';
 
 vi.setConfig({
   testTimeout: 120_000,
 });
 
-let renderer: Renderer;
+let rendererPool: RendererPool;
 beforeAll(async () => {
-  renderer = await createPlaywrightRenderer();
+  rendererPool = await createPlaywrightRendererPool();
 });
 
 afterAll(async () => {
-  await renderer.close();
+  await rendererPool.close();
 });
 
 // run `pnpm generate-fixtures` if this test fails
 test('VX primary election fixtures', async () => {
   const fixtures = vxPrimaryElectionFixtures;
-  const generated = await vxPrimaryElectionFixtures.generate(renderer);
+  const generated = await vxPrimaryElectionFixtures.generate(rendererPool);
 
   for (const party of ['mammalParty', 'fishParty'] as const) {
     const partyFixtures = fixtures[party];

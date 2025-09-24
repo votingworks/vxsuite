@@ -16,10 +16,10 @@ import {
   LanguageCode,
 } from '@votingworks/types';
 import {
-  Renderer,
+  RendererPool,
   allBaseBallotProps,
   ballotTemplates,
-  createPlaywrightRenderer,
+  createPlaywrightRendererPool,
   hmpbStringsCatalog,
   layOutMinimalBallotsToCreateElectionDefinition,
 } from '@votingworks/hmpb';
@@ -29,13 +29,13 @@ vi.setConfig({
   testTimeout: 120_000,
 });
 
-let renderer: Renderer;
+let rendererPool: RendererPool;
 beforeAll(async () => {
-  renderer = await createPlaywrightRenderer();
+  rendererPool = await createPlaywrightRendererPool();
 });
 
 afterAll(async () => {
-  await renderer.close();
+  await rendererPool.close();
 });
 
 const testCases = [
@@ -98,7 +98,7 @@ describe('fixtures are up to date - run `pnpm generate-election-packages` if thi
       // Check that the generated election's ballot hash has not changed.
       const electionDefinition =
         await layOutMinimalBallotsToCreateElectionDefinition(
-          renderer,
+          rendererPool,
           ballotTemplates.VxDefaultBallot,
           allBaseBallotProps(electionWithBallotStrings),
           'vxf'

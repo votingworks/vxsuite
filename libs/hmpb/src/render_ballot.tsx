@@ -39,6 +39,7 @@ import {
   RenderDocument,
   RenderScratchpad,
   Renderer,
+  RendererPool,
 } from './renderer';
 import {
   BUBBLE_CLASS,
@@ -534,7 +535,6 @@ export async function renderBallotPreviewToPdf<P extends object>(
   }
   const document = result.ok();
   const pdf = await document.renderToPdf();
-  document.cleanup();
   return ok(pdf);
 }
 
@@ -588,7 +588,7 @@ function candidateOrderFromGridLayout(
 export async function layOutBallotsAndCreateElectionDefinition<
   P extends BaseBallotProps,
 >(
-  renderer: Renderer,
+  rendererPool: RendererPool,
   template: BallotPageTemplate<P>,
   ballotProps: P[],
   electionSerializationFormat: ElectionSerializationFormat
@@ -599,9 +599,8 @@ export async function layOutBallotsAndCreateElectionDefinition<
   const { election } = ballotProps[0];
   assert(ballotProps.every((props) => props.election === election));
 
-  const ballotLayouts = await iter(ballotProps)
-    .async()
-    .map(async (props) => {
+  const ballotLayouts = await rendererPool.runTasks(
+    ballotProps.map((props) => async (renderer) => {
       // We currently only need to return errors to the user in ballot preview -
       // we assume the ballot was proofed by the time this function is called.
       const document = (
@@ -613,14 +612,13 @@ export async function layOutBallotsAndCreateElectionDefinition<
         template.isAllBubbleBallot
       );
       const ballotContent = await document.getContent();
-      document.cleanup();
       return {
         props,
         gridLayout,
         ballotContent,
       };
     })
-    .toArray();
+  );
 
   // All ballots of a given ballot style must have the same grid layout.
   // Changing precinct/ballot type/ballot mode shouldn't matter.
@@ -719,7 +717,7 @@ export async function layOutBallotsAndCreateElectionDefinition<
 export async function renderAllBallotPdfsAndCreateElectionDefinition<
   P extends BaseBallotProps,
 >(
-  renderer: Renderer,
+  rendererPool: RendererPool,
   template: BallotPageTemplate<P>,
   ballotProps: P[],
   electionSerializationFormat: ElectionSerializationFormat
@@ -729,26 +727,26 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
 }> {
   const { ballotContents, electionDefinition } =
     await layOutBallotsAndCreateElectionDefinition(
-      renderer,
+      rendererPool,
       template,
       ballotProps,
       electionSerializationFormat
     );
 
-  const ballotPdfs = await iter(ballotProps)
-    .zip(ballotContents)
-    .async()
-    .map(async ([props, ballotContent]) => {
-      const document = await renderer.loadDocumentFromContent(ballotContent);
-      const ballotPdf = await renderBallotPdfWithMetadataQrCode(
-        props,
-        document,
-        electionDefinition
-      );
-      document.cleanup();
-      return ballotPdf;
-    })
-    .toArray();
+  const ballotPdfs = await rendererPool.runTasks(
+    iter(ballotProps)
+      .zip(ballotContents)
+      .map(([props, ballotContent]) => async (renderer: Renderer) => {
+        const document = await renderer.loadDocumentFromContent(ballotContent);
+        const ballotPdf = await renderBallotPdfWithMetadataQrCode(
+          props,
+          document,
+          electionDefinition
+        );
+        return ballotPdf;
+      })
+      .toArray()
+  );
   return { ballotPdfs, electionDefinition };
 }
 
@@ -783,7 +781,7 @@ export function allBaseBallotProps(election: Election): BaseBallotProps[] {
 export async function layOutMinimalBallotsToCreateElectionDefinition<
   P extends BaseBallotProps,
 >(
-  renderer: Renderer,
+  rendererPool: RendererPool,
   template: BallotPageTemplate<P>,
   allBallotProps: P[],
   electionSerializationFormat: ElectionSerializationFormat
@@ -793,7 +791,7 @@ export async function layOutMinimalBallotsToCreateElectionDefinition<
     (props) => props.ballotStyleId
   ).map(([, [, props]]) => props);
   const { electionDefinition } = await layOutBallotsAndCreateElectionDefinition(
-    renderer,
+    rendererPool,
     template,
     minimalBallotProps,
     electionSerializationFormat

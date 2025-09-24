@@ -8,8 +8,13 @@ import { PAGE_CLASS } from './ballot_components';
 
 export type Page = Pick<
   PlaywrightPage,
-  'evaluate' | 'close' | 'pdf' | 'content'
+  'evaluate' | 'close' | 'pdf' | 'content' | 'setContent' | 'isClosed'
 >;
+
+export interface PageHandle {
+  page(): Page;
+  void(): void;
+}
 
 export interface DocumentElement {
   x: number;
@@ -24,7 +29,7 @@ export interface DocumentElement {
  * Creates a {@link RenderDocument}
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function createDocument(page: Page, cleanup: () => void) {
+export function createDocument(pageHandle: PageHandle) {
   return {
     /**
      * Given a selector to an individual element in the document, replaces the
@@ -43,7 +48,7 @@ export function createDocument(page: Page, cleanup: () => void) {
       // than running JS directly in the browser. We use `evaluate` to run the
       // given function in the browser and return the result.
       /* istanbul ignore next - code is evaluated in browser and doesn't work with coverage - @preserve */
-      await page.evaluate(
+      await pageHandle.page().evaluate(
         // eslint-disable-next-line @typescript-eslint/no-shadow
         ([selector, content]) => {
           const node = document.querySelector(selector);
@@ -89,7 +94,7 @@ export function createDocument(page: Page, cleanup: () => void) {
      * Returns the current HTML content of the document.
      */
     async getContent(): Promise<string> {
-      return await page.content();
+      return await pageHandle.page().content();
     },
 
     /**
@@ -101,7 +106,7 @@ export function createDocument(page: Page, cleanup: () => void) {
       // than running JS directly in the browser. We use `evaluate` to run the
       // given function in the browser and return the result.
       /* istanbul ignore next - code is evaluated in browser and doesn't work with coverage - @preserve */
-      return await page.evaluate(
+      return await pageHandle.page().evaluate(
         // eslint-disable-next-line @typescript-eslint/no-shadow
         (selector) => {
           const nodes = Array.from(document.querySelectorAll(selector));
@@ -127,7 +132,7 @@ export function createDocument(page: Page, cleanup: () => void) {
     async renderToPdf(): Promise<Uint8Array> {
       const [pageDimensions] = await this.inspectElements(`.${PAGE_CLASS}`);
       return Uint8Array.from(
-        await page.pdf({
+        await pageHandle.page().pdf({
           width: `${pageDimensions.width}px`,
           height: `${pageDimensions.height}px`,
           printBackground: true,
@@ -136,10 +141,11 @@ export function createDocument(page: Page, cleanup: () => void) {
     },
 
     /**
-     * Release resources associated with this document so they can be used by
-     * another document.
+     * Cleans up the resources used by the document (e.g. the browser page).
      */
-    cleanup,
+    async close(): Promise<void> {
+      await pageHandle.page().close();
+    },
   };
 }
 
@@ -185,8 +191,6 @@ export type RenderScratchpad = ReturnType<typeof createScratchpad>;
  * create a {@link RenderScratchpad} (for temporary layout and measurement),
  * which can then be converted to a {@link RenderDocument} (for final rendering to
  * PDF).
- *
- * Renderers should be cleaned up after use with {@link Renderer.close}.
  */
 export interface Renderer {
   /**
@@ -195,12 +199,25 @@ export interface Renderer {
   createScratchpad(styles: JSX.Element): Promise<RenderScratchpad>;
 
   /**
-   * Cleans up the resources used by the renderer (e.g. the browser instance).
-   */
-  close(): Promise<void>;
-
-  /**
    * Takes HTML content and returns a {@link RenderDocument} with that content rendered.
    */
   loadDocumentFromContent(htmlContent: string): Promise<RenderDocument>;
+}
+
+/**
+ * Renderers should be cleaned up after use with {@link Renderer.close}.
+ */
+export interface SingletonRenderer extends Renderer {
+  /**
+   * Cleans up the resources used by the renderer (e.g. the browser instance).
+   */
+  close(): Promise<void>;
+}
+
+export type Task<T> = (renderer: Renderer) => Promise<T>;
+
+export interface RendererPool {
+  runTasks<T>(tasks: Array<Task<T>>): Promise<T[]>;
+  runTask<T>(task: Task<T>): Promise<T>;
+  close(): Promise<void>;
 }

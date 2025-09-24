@@ -19,5 +19,5 @@ echo "${GOOGLE_APPLICATION_CREDENTIALS_CONTENTS}" > "${GOOGLE_APPLICATION_CREDEN
 if [[ "${APP}" == "web" ]]; then
   node /vx/code/vxsuite/apps/design/backend/build/index.js
 elif [[ "${APP}" == "worker" ]]; then
-  node /vx/code/vxsuite/apps/design/backend/build/worker/index.js
+  node --max-old-space-size=8192 /vx/code/vxsuite/apps/design/backend/build/worker/index.js
 fi
